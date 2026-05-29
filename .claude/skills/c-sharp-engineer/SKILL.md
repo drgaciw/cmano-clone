@@ -13,7 +13,9 @@ agent: c-sharp-engineer
 Read:
 - The story/spec in the argument, plus any linked architecture sketch or ADR.
 - `CLAUDE.md` and `.claude/docs/coding-standards.md`.
-- The existing source the change touches (`Glob`/`Grep` for the relevant types and asmdef).
+- **Pure C# (`src/ProjectAegis.Sim`, `ProjectAegis.Delegation`):** `docs/engine-reference/dotnet/README.md` and/or `/microsoft-learn-dotnet` — use Microsoft Learn + Context7 `/websites/learn_microsoft_en-us_dotnet`, not Unity docs.
+- **Unity bridge / `unity/`:** `docs/engine-reference/unity/VERSION.md`.
+- The existing source the change touches (`Glob`/`Grep`); run `npx gitnexus impact "<Symbol>" --repo cmano-clone` before editing public APIs.
 
 If no architecture contract exists for a non-trivial system, recommend running
 `/c-sharp-architect` first rather than inventing structure.

@@ -15,6 +15,7 @@ Read, in order:
 - `CLAUDE.md` and `.claude/docs/coding-standards.md` for project standards.
 - `.claude/docs/technical-preferences.md` → `## Engine Specialists` (note the engine; skip Unity-specific advice if `[TO BE CONFIGURED]`).
 - Existing C# layout: `Glob` for `**/*.asmdef`, `**/*.csproj`, `**/*.sln` to understand current assembly boundaries.
+- **Sim / Delegation:** `docs/engine-reference/dotnet/README.md` and `docs/architecture/adr-001-sim-assembly-boundary.md`; cite Microsoft Learn in ADR **References** for platform choices (DI, time, testing).
 
 State what is specified vs. ambiguous.
 

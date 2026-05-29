@@ -1,5 +1,6 @@
 {
   "mcpServers": {
-    "ai-game-developer": { "url": "http://localhost:8080" }
+    "ai-game-developer": { "url": "http://localhost:8080" },
+    "microsoft-learn": { "url": "https://learn.microsoft.com/api/mcp" }
   }
 }

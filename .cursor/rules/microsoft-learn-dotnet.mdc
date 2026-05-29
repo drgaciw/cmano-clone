@@ -1,0 +1,26 @@
+---
+description: Use Microsoft Learn MCP for pure .NET sim and delegation code under src/ProjectAegis.*
+globs:
+  - src/ProjectAegis.Sim/**/*
+  - src/ProjectAegis.Delegation/**/*
+  - src/ProjectAegis.Delegation.UnityAdapter/**/*
+  - src/**/*.Tests/**/*
+alwaysApply: false
+---
+
+# Microsoft Learn for Project Aegis (.NET)
+
+When editing `src/ProjectAegis.*` (no game design, no Unity Entities APIs):
+
+1. Prefer **microsoft-learn** MCP tools before guessing APIs:
+   - `microsoft_docs_search` — concepts, testing, DI, TimeProvider
+   - `microsoft_code_sample_search` — C# examples (`language: "csharp"`)
+   - `microsoft_docs_fetch` — full page when overloads matter
+
+2. **Context7** (`/websites/learn_microsoft_en-us_dotnet`) is a fallback if MCP is unavailable.
+
+3. **GitNexus** before changing public symbols: `npx gitnexus impact "<Symbol>" --repo cmano-clone`.
+
+4. Do **not** use Unity Entities docs for `ProjectAegis.Sim` policy/RNG/tick logic.
+
+Pinned links: `docs/engine-reference/dotnet/README.md`.

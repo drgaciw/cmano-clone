@@ -129,7 +129,35 @@ This repo already has requirements docs under `Game-Requirements/`. A practical 
 
 ---
 
-## C. GitNexus (preserved)
+## C. Microsoft Learn (.NET / C#)
+
+Pure simulation and delegation code (`src/ProjectAegis.Sim`, `src/ProjectAegis.Delegation`) uses **Microsoft Learn** as the canonical platform reference—not Unity docs.
+
+| Resource | Purpose |
+|----------|---------|
+| [docs/engine-reference/dotnet/README.md](../docs/engine-reference/dotnet/README.md) | SDK pin, topic → Learn URL table, ADR reference block |
+| `/microsoft-learn-dotnet` | Skill: routes agents to Learn + Context7 |
+| Context7 | Library ID `/websites/learn_microsoft_en-us_dotnet` in Cursor |
+
+### Microsoft Learn MCP (configured)
+
+Committed in `.cursor/mcp.json` and `.mcp.json`:
+
+```json
+"microsoft-learn": { "url": "https://learn.microsoft.com/api/mcp" }
+```
+
+- **Restart Cursor / Claude Code MCP** after pulling this change so `microsoft-learn` tools load.
+- **Use Learn MCP** for official .NET/C# docs, code samples, and API verification on `src/ProjectAegis.*`.
+- **Use Context7** as fallback (`/websites/learn_microsoft_en-us_dotnet`).
+- **Use GitNexus** before editing C# symbols (`npx gitnexus impact "SymbolName" --repo cmano-clone`).
+- **Cursor rule:** `.cursor/rules/microsoft-learn-dotnet.mdc` (applies to `src/ProjectAegis.*` and test projects).
+
+Agents/skills updated: `c-sharp-engineer`, `c-sharp-test-engineer`, `determinism-audit`, `architecture-decision`.
+
+---
+
+## D. GitNexus (preserved)
 
 GitNexus code intelligence is preserved alongside Game-Studios:
 
@@ -141,10 +169,10 @@ Before committing code changes, run `gitnexus_detect_changes()` via the GitNexus
 
 ---
 
-## D. Verification checklist
+## E. Verification checklist
 
 - [x] `unity-mcp-cli` installed and on PATH
-- [x] `.cursor/mcp.json` and `.mcp.json` valid JSON with `ai-game-developer` server
+- [x] `.cursor/mcp.json` and `.mcp.json` valid JSON with `ai-game-developer` and `microsoft-learn` servers
 - [x] `.claude/` Game-Studios template vendored
 - [x] GitNexus skills preserved (6 SKILL.md files)
 - [x] Godot/Unreal agents removed

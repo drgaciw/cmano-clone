@@ -75,10 +75,10 @@ Use the user's response as the title, then proceed to Step 1.
 
 Before doing anything else, establish the engine environment:
 
-1. Read `docs/engine-reference/[engine]/VERSION.md` to get:
-   - Engine name and version
-   - LLM knowledge cutoff date
-   - Post-cutoff version risk levels (LOW / MEDIUM / HIGH)
+1. Read engine reference docs:
+   - **Unity / presentation / DOTS:** `docs/engine-reference/unity/VERSION.md`
+   - **Pure C# sim, delegation, tests, CI:** `docs/engine-reference/dotnet/README.md` (Microsoft Learn links)
+   Capture: name/version, LLM knowledge cutoff, post-cutoff risk (LOW / MEDIUM / HIGH).
 
 2. Identify the **domain** of this architecture decision from the title or
    user description. Common domains: Physics, Rendering, UI, Audio, Navigation,

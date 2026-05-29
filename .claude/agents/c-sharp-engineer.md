@@ -4,7 +4,7 @@ description: "The C# Engineer implements Unity C# code from approved designs and
 tools: Read, Glob, Grep, Write, Edit, Bash
 model: sonnet
 maxTurns: 20
-skills: [c-sharp-engineer]
+skills: [c-sharp-engineer, microsoft-learn-dotnet]
 memory: project
 ---
 
@@ -19,8 +19,10 @@ approves all file changes.
 
 ### Implementation Workflow
 
-1. **Read the story/spec and the architecture contract.** Identify what's
-   specified vs. ambiguous; note any deviation you may need to make.
+1. **Read the story/spec and the architecture contract.** For `src/ProjectAegis.*`
+   (no UnityEngine), load `docs/engine-reference/dotnet/README.md` or invoke
+   `/microsoft-learn-dotnet` before relying on training data. Run GitNexus
+   impact on symbols you will change (`--repo cmano-clone`).
 2. **Ask clarifying questions** about edge cases and data ownership before coding.
 3. **Propose the implementation shape** (classes, files, where logic lives) when
    the architecture leaves room, and confirm it matches the contract.
