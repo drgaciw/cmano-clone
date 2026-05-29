@@ -3,23 +3,35 @@
 ## Organizational Hierarchy
 
 ```
-                           [Human Developer]
-                                 |
-                 +---------------+---------------+
-                 |               |               |
-         creative-director  technical-director  producer
-                 |               |               |
-        +--------+--------+     |        (coordinates all)
-        |        |        |     |
-  game-designer art-dir  narr-dir  lead-programmer  qa-lead  audio-dir
-        |        |        |         |                |        |
-     +--+--+     |     +--+--+  +--+--+--+--+--+   |        |
-     |  |  |     |     |     |  |  |  |  |  |  |   |        |
-    sys lvl eco  ta   wrt  wrld gp ep  ai net tl ui qa-t    snd
-                                 |
-                             +---+---+
-                             |       |
-                          perf-a   devops   analytics
+                            [Human Developer]
+                                  |
+                  +---------------+---------------+
+                  |               |               |
+          creative-director  technical-director  producer
+                  |               |               |
+         +--------+--------+     |        (coordinates all)
+         |        |        |     |
+   game-designer art-dir  narr-dir  lead-programmer  qa-lead  audio-dir
+         |        |        |         |                |        |
+      +--+--+     |     +--+--+  +--+--+--+--+--+   |        |
+      |  |  |     |     |     |  |  |  |  |  |  |   |        |
+     sys lvl eco  ta   wrt  wrld gp ep  ai net tl ui qa-t    snd
+                                  |
+                              +---+---+
+                              |       |
+                           perf-a   devops   analytics
+
+   Additional Leads (Tier 2 - report to technical-director or game-designer):
+     military-simulation-architect  -- Military simulation architecture, tactical systems, combat mechanics
+     requirements-analyst          -- Requirements feasibility, technical constraints, implementation complexity
+
+   Military Simulation Specialists (Tier 3 - report to military-simulation-architect or requirements-analyst):
+     simulation-parameter-analyst    -- Weapon systems, platform capabilities, sensors, engagement calculations
+     gameplay-mechanics-analyst     -- Combat balance, progression, tactical depth, genre conventions
+     technical-constraints-analyst   -- Performance budgets, computational complexity, scalability
+     military-research-specialist    -- Military tech, historical ops, tactical doctrines, platform specs
+     simulation-genre-analyst       -- Genre conventions, market trends, competitor analysis, innovation
+     user-experience-military-analyst -- Information density, command complexity, cognitive load, UX patterns
 
   Additional Leads (report to producer/directors):
     release-manager         -- Release pipeline, versioning, deployment
@@ -76,9 +88,9 @@ art-dir = art-director
 | From | Can Delegate To |
 |------|----------------|
 | creative-director | game-designer, art-director, audio-director, narrative-director |
-| technical-director | lead-programmer, devops-engineer, performance-analyst, technical-artist (technical decisions) |
+| technical-director | lead-programmer, devops-engineer, performance-analyst, technical-artist (technical decisions), military-simulation-architect, requirements-analyst |
 | producer | Any agent (task assignment within their domain only) |
-| game-designer | systems-designer, level-designer, economy-designer |
+| game-designer | systems-designer, level-designer, economy-designer, military-simulation-architect (military simulation features) |
 | lead-programmer | gameplay-programmer, engine-programmer, ai-programmer, network-programmer, tools-programmer, ui-programmer |
 | art-director | technical-artist, ux-designer |
 | audio-director | sound-designer |
@@ -98,6 +110,8 @@ art-dir = art-director
 | c-sharp-reviewer | (read-only; routes required changes to c-sharp-engineer, escalates violations to c-sharp-architect) |
 | live-ops-designer | economy-designer (live economy), community-manager (event comms), analytics-engineer (engagement metrics) |
 | community-manager | (works with producer for approval, release-manager for patch note timing) |
+| military-simulation-architect | simulation-parameter-analyst, gameplay-mechanics-analyst, technical-constraints-analyst, military-research-specialist, simulation-genre-analyst, user-experience-military-analyst |
+| requirements-analyst | simulation-parameter-analyst, gameplay-mechanics-analyst, technical-constraints-analyst |
 
 ### Escalation Paths
 

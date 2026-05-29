@@ -1,6 +1,6 @@
 # Available Skills (Slash Commands)
 
-78 slash commands organized by phase. Type `/` in Claude Code to access any of them.
+88 slash commands organized by phase. Type `/` in Claude Code to access any of them.
 
 ## Onboarding & Navigation
 
@@ -87,6 +87,26 @@ paired specialist agent.
 | `/gate-check` | Validate readiness to advance between development phases (PASS/CONCERNS/FAIL) |
 | `/consistency-check` | Scan all GDDs against the entity registry to detect cross-document inconsistencies (stats, names, rules that contradict each other) |
 | `/security-audit` | Audit the game for security vulnerabilities: save tampering, cheat vectors, network exploits, data exposure, and input validation gaps |
+| `/simulation-accuracy-validation` | Validate simulation parameters against real-world data for authenticity and discrepancy identification |
+| `/gameplay-balance-analysis` | Analyze gameplay balance for military simulation mechanics, considering authenticity vs. playability |
+| `/technical-feasibility-assessment` | Assess technical feasibility of proposed simulation features, including performance and implementation complexity |
+
+## Military Simulation Research
+
+| Command | Purpose |
+|---------|---------|
+| `/military-database-research` | Research authoritative military databases and specifications for accurate simulation parameters |
+| `/historical-analysis-research` | Research historical military operations to extract lessons, validate simulation models, and design authentic scenarios |
+| `/genre-convention-analysis` | Analyze military simulation genre conventions and standards to understand player expectations and genre-defining features |
+| `/competitive-intelligence` | Research competing military simulation products and features to identify strengths, weaknesses, and market positioning opportunities |
+| `/ux-military-pattern-research` | Research UX patterns in military simulation games, focusing on information density and cognitive load management |
+
+## Integration & Strategy
+
+| Command | Purpose |
+|---------|---------|
+| `/military-requirements-impact` | Analyze impact of proposed military simulation requirements on existing systems, architecture, and performance |
+| `/genre-innovation-opportunity` | Research genre conventions and market gaps to identify opportunities for innovation and differentiation |
 
 ## QA & Testing
 
