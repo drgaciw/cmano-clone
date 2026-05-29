@@ -24,14 +24,22 @@ Engine-agnostic C# library implementing the **Agent Delegation Framework** for P
 | Trust | `AgentExperienceBlob` — emit-only hook for future campaign XP |
 | Orchestration | `DelegationOrchestrator.Tick(...)` — main entry point |
 
-## Build and test
+## Build, test, and demo
 
-Requires [.NET 8 SDK](https://dotnet.microsoft.com/download).
+Requires [.NET 8 SDK](https://dotnet.microsoft.com/download). From the repo root:
 
 ```bash
 dotnet test ProjectAegis.sln -v minimal
+dotnet run --project src/ProjectAegis.Delegation.Demo
 ```
 
-## Unity integration (future)
+`SimulationModeConfigurator` applies Human / Mixed / Agent-vs-Agent controller assignments per `SimulationModeProfile` (doc 03).
 
-Reference this assembly from a Unity project (`Assets/Scripts` or UPM package). Keep simulation logic in DOTS/ECS; call `DelegationOrchestrator` from a thin adapter system that maps entity state to `ObservedState` and applies returned `Order` values.
+## Unity integration
+
+Use **`ProjectAegis.Delegation.UnityAdapter`** — implements `ISimWorldSnapshot` (sim → delegation) and `IOrderSink` (orders → sim). See `src/ProjectAegis.Delegation.UnityAdapter/README.md` and `unity/ProjectAegis/README.md`.
+
+```bash
+dotnet test ProjectAegis.sln -v minimal
+./tools/copy-delegation-assemblies.ps1   # copies Release DLLs for Unity Plugins
+```

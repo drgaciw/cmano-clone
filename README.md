@@ -8,7 +8,23 @@ Create a next-generation wargame that combines traditional military simulation d
 
 ## Current Status
 
-This repository currently contains the requirements foundation for the project. The active requirements set is organized under `Game-Requirements/`.
+The repository contains requirements documentation and an initial **agent delegation framework** implementation:
+
+- **Design spec:** `docs/superpowers/specs/2026-05-28-agent-delegation-framework-design.md`
+- **Implementation plan:** `docs/superpowers/plans/2026-05-28-agent-delegation-framework.md`
+- **Library:** `src/ProjectAegis.Delegation/` (engine-agnostic .NET 8, NUnit tests)
+- **Unity bridge:** `src/ProjectAegis.Delegation.UnityAdapter/` (`ISimWorldSnapshot` in, `IOrderSink` out)
+- **Unity wiring:** `unity/ProjectAegis/` (DLL copy + optional `DelegationBridgeHost`)
+- **Console demo:** `src/ProjectAegis.Delegation.Demo/`
+
+Build and test (requires [.NET 8 SDK](https://dotnet.microsoft.com/download)):
+
+```bash
+dotnet test ProjectAegis.sln -v minimal
+dotnet run --project src/ProjectAegis.Delegation.Demo
+```
+
+Unity project scaffolding and simulation core are not started yet. Requirements live under `Game-Requirements/`.
 
 ## Tech Stack
 

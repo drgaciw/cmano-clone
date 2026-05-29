@@ -6,10 +6,12 @@ public sealed class ControllerSlot
 
     public AgentController? SuspendedAgent { get; private set; }
 
-    public void SetActive(IController controller)
+    public void SetActive(IController? controller)
     {
         Active = controller;
     }
+
+    public void ClearActive() => Active = null;
 
     public void SuspendAgent(AgentController agent)
     {

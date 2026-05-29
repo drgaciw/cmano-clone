@@ -17,6 +17,12 @@ public sealed class OverrideService
 
     public void ReleaseDirectControl(ICommandableTarget target)
     {
-        target.Slot.ResumeSuspendedAgent();
+        if (target.Slot.SuspendedAgent is not null)
+        {
+            target.Slot.ResumeSuspendedAgent();
+            return;
+        }
+
+        target.Slot.ClearActive();
     }
 }

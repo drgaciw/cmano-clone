@@ -13,7 +13,7 @@ public sealed class OrderTests
         var order = new Order(
             new OrderId(1),
             target,
-            simTime: 42.5,
+            SimTime: 42.5,
             OrderKind.Hold,
             RiskLevel.Low);
 
