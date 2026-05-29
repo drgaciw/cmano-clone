@@ -162,6 +162,18 @@ team:
       model: sonnet
       when_to_use: "Input validation, save/state tampering, and secure-code review."
 
+    - agent: determinism-engineer
+      role: "Guards the deterministic sim invariant (pure functions of state, traits, seed)"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "src/ProjectAegis.Delegation/{Core,Sim,Controllers,Policy,Decision,Traits,Attention,Roe,Targets,Trust,Orchestration,Groups}/** (reproducibility)"
+        - "tests/replay/**"
+      when_to_use: >
+        Seeded-RNG architecture, golden-replay regression, and hunting
+        non-deterministic patterns (wall-clock, unordered iteration, float order,
+        Job races) that break replay reproducibility (req 03/04).
+
     - agent: devops-engineer
       role: "Build pipeline and CI for the .NET solution"
       tier: specialist
@@ -186,6 +198,9 @@ team:
       - test-evidence-review    # assess test coverage and evidence adequacy
       - smoke-check             # run the suite as the QA-handoff gate
       - regression-suite        # map tests to critical paths, fill coverage gaps
+    determinism:
+      - determinism-audit       # static scan for non-deterministic C# patterns
+      - replay-verify           # prove byte-identical replay reproduction (gate)
     hardening:
       - perf-profile            # structured .NET performance profiling
       - tech-debt               # track and prioritize C# technical debt
