@@ -39,7 +39,10 @@ public sealed class DelegationOrchestrator
         double attentionBudget = 20,
         IPolicy? policy = null)
     {
-        var salt = id.Value.GetHashCode(StringComparison.Ordinal);
+        // Must be a deterministic, cross-process-stable hash: string.GetHashCode is
+        // randomized per process, which would make each agent's RNG stream differ
+        // run-to-run and break replay reproducibility (DET-001).
+        var salt = DeterministicHash.OrdinalHash(id.Value);
         var rng = new SeededRng(GlobalSeed, salt);
         return new AgentController(
             id,
