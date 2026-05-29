@@ -42,6 +42,12 @@
       unity-shader-specialist       -- Shaders: Shader Graph, VFX Graph, SRP customization
       unity-addressables-specialist -- Assets: async loading, bundles, memory, CDN
       unity-ui-specialist           -- UI: UI Toolkit, UGUI, UXML/USS, data binding
+      Unity C# SDLC specialists (role-oriented, span the C# code lifecycle):
+        c-sharp-architect      -- Design: asmdef/namespace layout, DI, C# contracts, patterns
+        c-sharp-engineer       -- Build: MonoBehaviour/ScriptableObject/plain C# implementation
+        c-sharp-test-engineer  -- Test: EditMode/PlayMode (NUnit), fixtures, mocks, dotnet test
+        c-sharp-devops-engineer -- CI/CD: dotnet/MSBuild, Unity batchmode, game-ci, packaging
+        c-sharp-reviewer       -- Review: GC/async/nullable/lifecycle/SOLID, contract adherence
 
     godot-specialist   -- Godot 4 lead: GDScript, node/scene, signals, resources
       godot-gdscript-specialist    -- GDScript: static typing, patterns, signals, performance
@@ -85,6 +91,11 @@ art-dir = art-director
 | accessibility-specialist | ux-designer (accessible patterns), ui-programmer (implementation), qa-tester (a11y testing) |
 | [engine]-specialist | engine sub-specialists (delegates subsystem-specific work) |
 | [engine] sub-specialists | (advises all programmers on engine subsystem patterns and optimization) |
+| c-sharp-architect | c-sharp-engineer (implementation), c-sharp-test-engineer (test strategy for exposed seams) |
+| c-sharp-engineer | (implements to contract; escalates structure questions to c-sharp-architect) |
+| c-sharp-test-engineer | (authors tests; requests seams from c-sharp-engineer/c-sharp-architect) |
+| c-sharp-devops-engineer | (implements build/CI; routes code fixes to c-sharp-engineer/c-sharp-architect) |
+| c-sharp-reviewer | (read-only; routes required changes to c-sharp-engineer, escalates violations to c-sharp-architect) |
 | live-ops-designer | economy-designer (live economy), community-manager (event comms), analytics-engineer (engagement metrics) |
 | community-manager | (works with producer for approval, release-manager for patch note timing) |
 
