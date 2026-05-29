@@ -1,0 +1,137 @@
+# Unity Engine / MCP Team
+#
+# Team manifest for Unity engine integration, Unity-MCP editor operations,
+# Presentation/Adapter implementation, UI Toolkit, DOTS, Addressables, and VFX.
+
+team:
+  id: unity
+  name: "Unity Engine / MCP Team"
+  description: >
+    Owns Unity-specific implementation and editor automation: Unity-MCP actions,
+    scenes, prefabs, UI Toolkit assets, DOTS/ECS integration, Addressables,
+    shaders/VFX, build profiles, package settings, and play-mode validation.
+  language: "C# / UXML / USS / Shader Graph / HLSL"
+  framework: "Unity 6.3 LTS / Unity-MCP / DOTS / Addressables / UI Toolkit"
+  source_areas:
+    - "unity/ProjectAegis/**"
+    - "src/ProjectAegis.Delegation.UnityAdapter/**"
+    - "docs/engine-reference/unity/**"
+    - ".mcp.json"
+    - ".cursor/mcp.json"
+
+  members:
+    - agent: unity-specialist
+      role: "Unity architecture lead and engine API authority"
+      tier: lead
+      model: sonnet
+      owns:
+        - "Unity project architecture"
+        - "Unity-MCP editor operation gating"
+      when_to_use: "Unity subsystem decisions, editor changes, package settings, or engine-specific validation."
+
+    - agent: unity-ui-specialist
+      role: "Owns Unity UI Toolkit and UGUI implementation patterns"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "*.uxml"
+        - "*.uss"
+        - "UI Toolkit PanelSettings and bindings"
+      when_to_use: "Runtime UI Toolkit, UXML/USS, UGUI exceptions, input/focus, and UI performance."
+
+    - agent: unity-dots-specialist
+      role: "Owns DOTS/ECS, Jobs, Burst, and NativeContainer patterns"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "ECS runtime data"
+        - "DOTS hot paths"
+      when_to_use: "Entities, Burst, Jobs, world-state presentation, or large-scale entity performance."
+
+    - agent: unity-addressables-specialist
+      role: "Owns Addressables, asset groups, catalogs, and runtime loading strategy"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "Addressables groups and labels"
+        - "runtime asset loading lifecycle"
+      when_to_use: "Asset loading, memory lifecycle, catalogs, remote content, or bundle optimization."
+
+    - agent: unity-shader-specialist
+      role: "Owns Unity shaders, VFX Graph, and render-pipeline customization"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "materials, shaders, VFX, render features"
+      when_to_use: "Shader Graph, HLSL, VFX Graph, render pipeline, or GPU performance issues."
+
+    - agent: technical-artist
+      role: "Bridges art assets, import settings, VFX, and visual performance"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Import settings, asset budgets, technical art pipeline, and visual optimization."
+
+    - agent: c-sharp-devops-engineer
+      role: "Maintains Unity batchmode, package/build automation, and CI test execution"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Unity build profiles, test runner, package automation, and CI workflows."
+
+    - agent: qa-lead
+      role: "Defines play-mode, smoke, and manual Unity QA gates"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Scene/prefab validation, play-mode checks, and QA handoff criteria."
+
+  skills:
+    orchestration:
+      - team-unity
+      - team-csharp
+      - team-ui
+      - team-simulation
+    implementation:
+      - c-sharp-engineer
+      - c-sharp-reviewer
+      - c-sharp-test-engineer
+    assets:
+      - asset-audit
+      - ecs-data-optimization
+    quality:
+      - perf-profile
+      - smoke-check
+      - test-evidence-review
+
+  routing:
+    - match: "Unity-MCP operation, scene, prefab, ProjectSettings, or package decision"
+      agent: unity-specialist
+    - match: "UXML, USS, UI Toolkit, PanelSettings, focus/navigation"
+      agent: unity-ui-specialist
+    - match: "DOTS, ECS, Burst, Jobs, NativeContainer"
+      agent: unity-dots-specialist
+    - match: "Addressables, asset loading, catalogs, bundles, memory lifecycle"
+      agent: unity-addressables-specialist
+    - match: "Shader Graph, HLSL, VFX Graph, render pipeline"
+      agent: unity-shader-specialist
+    - match: "import settings, art pipeline, visual performance budget"
+      agent: technical-artist
+    - match: "Unity batchmode, package automation, build profile, CI test runner"
+      agent: c-sharp-devops-engineer
+
+  coordination:
+    lead: unity-specialist
+    code_authority: lead-programmer
+    technical_authority: technical-director
+    ui_authority: ui-experience-lead
+    simulation_authority: military-simulation-architect
+    escalation:
+      - "Unity-MCP mutation or editor automation risk → unity-specialist"
+      - "Pure Sim/Data dependency leak → technical-director"
+      - "UI Toolkit disagreement → unity-ui-specialist and ui-experience-lead"
+      - "DOTS determinism/performance risk → unity-dots-specialist and determinism-engineer"
+      - "Asset memory/loading conflict → unity-addressables-specialist and technical-artist"
+    workflow:
+      - "1. /team-unity classifies subsystem and confirms editor/MCP mutation risk"
+      - "2. unity-specialist routes to Unity sub-specialists"
+      - "3. C# changes pass through /team-csharp review/test gates"
+      - "4. UI, simulation, data, and asset changes coordinate with their team leads"
+      - "5. Validate via play-mode, smoke, asset audit, or build/test command as appropriate"

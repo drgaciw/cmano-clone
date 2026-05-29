@@ -1,0 +1,113 @@
+# Audio Team
+#
+# Team manifest for audio direction, sound design, Unity audio integration,
+# accessibility alternatives, asset budget, and implementation handoff.
+
+team:
+  id: audio
+  name: "Audio Team"
+  description: >
+    Owns audio direction, sound event specifications, adaptive music, mix strategy,
+    Unity audio implementation handoff, accessibility alternatives, asset budgets,
+    and audio feedback integration with gameplay, UI, and simulation events.
+  language: "Audio assets / C# integration notes"
+  framework: "Unity Audio / optional middleware by ADR / Addressables"
+  source_areas:
+    - "design/audio/**"
+    - "assets/audio/**"
+    - "unity/ProjectAegis/**/Audio/**"
+    - "src/**/*.cs (audio event integration)"
+
+  members:
+    - agent: audio-director
+      role: "Audio vision, sonic identity, event architecture, and mix authority"
+      tier: lead
+      model: sonnet
+      owns:
+        - "sound bible"
+        - "audio event architecture"
+      when_to_use: "Audio direction, adaptive music, mix hierarchy, or middleware strategy."
+
+    - agent: sound-designer
+      role: "Detailed SFX specs, event lists, variation planning, and mixing docs"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "design/audio/**"
+      when_to_use: "Per-event SFX design, audio-event lists, bus assignment, and variations."
+
+    - agent: technical-artist
+      role: "Audio asset import, budgets, and engine pipeline constraints"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Audio format, compression, import settings, memory, and streaming budgets."
+
+    - agent: unity-specialist
+      role: "Unity audio integration and engine-pattern validation"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Unity Audio Mixer, AudioSource, middleware integration, or engine API questions."
+
+    - agent: unity-addressables-specialist
+      role: "Audio asset loading, streaming, grouping, and memory lifecycle"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Addressables groups, streaming audio, preloads, and catalog concerns."
+
+    - agent: gameplay-programmer
+      role: "Gameplay/UI audio event triggers and adaptive audio hooks"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Wiring approved audio events to gameplay, UI, and simulation events."
+
+    - agent: accessibility-specialist
+      role: "Ensures gameplay-critical audio has non-audio alternatives"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Captions, visual alternatives, loudness sensitivity, and accessibility review."
+
+  skills:
+    orchestration:
+      - team-audio
+      - team-unity
+      - team-csharp
+    design:
+      - asset-spec
+      - ux-review
+    assets:
+      - asset-audit
+    quality:
+      - code-review
+      - test-evidence-review
+      - smoke-check
+
+  routing:
+    - match: "audio direction, palette, mix, adaptive music, middleware decision"
+      agent: audio-director
+    - match: "sound effect spec, audio event list, variation, bus assignment"
+      agent: sound-designer
+    - match: "audio import settings, compression, memory budget, streaming"
+      agent: technical-artist
+    - match: "Unity audio implementation pattern"
+      agent: unity-specialist
+    - match: "audio Addressables group, loading lifecycle, catalog"
+      agent: unity-addressables-specialist
+    - match: "gameplay/UI trigger or C# audio event hook"
+      agent: gameplay-programmer
+
+  coordination:
+    lead: audio-director
+    engine_authority: unity-specialist
+    code_authority: lead-programmer
+    accessibility_authority: accessibility-specialist
+    escalation:
+      - "Audio vision conflict → audio-director and creative-director"
+      - "Middleware or package decision → technical-director"
+      - "Gameplay-critical audio without visual fallback → accessibility-specialist"
+      - "Asset budget conflict → technical-artist and unity-addressables-specialist"
+    workflow:
+      - "1. /team-audio loads feature context and sound bible"
+      - "2. audio-director defines sonic direction and event architecture"
+      - "3. sound-designer specifies event list, variants, buses, and mix notes"
+      - "4. Unity and Addressables specialists validate implementation and asset budgets"
+      - "5. gameplay-programmer wires approved events; accessibility verifies fallbacks"

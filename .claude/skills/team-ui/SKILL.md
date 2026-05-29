@@ -5,6 +5,7 @@ argument-hint: "[UI feature description] [--review full|lean|solo]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion, TodoWrite
 model: sonnet
+agent: ui-experience-lead
 ---
 When this skill is invoked, orchestrate the UI team through a structured pipeline.
 
@@ -29,7 +30,9 @@ Store the resolved mode for use in all subsequent phases.
 **Director gate skip rule**: Before spawning creative-director, art-director, or any other Tier 1/2 director for review (outside of PHASE-GATE triggers), apply the resolved mode: skip if solo mode; skip if lean mode and this is not a PHASE-GATE.
 
 ## Team Composition
+- **ui-experience-lead** — Orchestration, C2 command-boundary gates, Unity UI Toolkit handoffs
 - **ux-designer** — User flows, wireframes, accessibility, input handling
+- **user-experience-military-analyst** — Military-sim information density, command complexity, cognitive load
 - **ui-programmer** — UI framework, screens, widgets, data binding, implementation
 - **art-director** — Visual style, layout polish, consistency with art bible
 - **engine UI specialist** — Validates UI implementation patterns against engine-specific best practices (read from `.claude/docs/technical-preferences.md` Engine Specialists → UI Specialist)

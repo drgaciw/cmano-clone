@@ -1,0 +1,140 @@
+# Database Intelligence Team
+#
+# Team manifest for ProjectAegis.Data and Requirement 06 database workflows.
+# Complements /team-data and registers ownership, routing, and gates for schema,
+# provenance, deterministic reads, DOTS exports, and TL-gated database releases.
+
+team:
+  id: database-intelligence
+  name: "Database Intelligence Team"
+  description: >
+    Owns the planned ProjectAegis.Data layer: SQLite development schema,
+    provenance/audit modeling, deterministic repository access, scenario-bound
+    snapshots, DOTS/ECS runtime exports, and TL-gated data release trains.
+  language: "C# / SQL"
+  framework: ".NET 8 / SQLite / Unity DOTS export boundary"
+  source_areas:
+    - "src/ProjectAegis.Data/**"
+    - "src/ProjectAegis.Data.Tests/**"
+    - "data/**"
+    - "docs/architecture/**database**"
+    - "Game-Requirements/requirements/06-Database-Intelligence.md"
+
+  members:
+    - agent: database-intelligence-lead
+      role: "Coordinates database architecture, implementation, audit, determinism, and release gates"
+      tier: lead
+      model: opus
+      owns:
+        - "ProjectAegis.Data orchestration"
+        - "Requirement 06 coverage"
+      when_to_use: >
+        Multi-agent database work, schema/release decisions, human-approval gates,
+        or any data change that affects simulation snapshots or scenario binding.
+
+    - agent: database-architect
+      role: "Designs Data-layer boundaries, schema strategy, repository APIs, and write routing"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "src/ProjectAegis.Data/**/*.cs (architecture)"
+        - "data/**/*.sql"
+      when_to_use: "Schema boundaries, migrations, repository contracts, and TL branch strategy."
+
+    - agent: database-modeler
+      role: "Maps database entities to C# models, provenance records, and runtime DTOs"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "entity-to-table maps"
+        - "provenance/audit model shapes"
+      when_to_use: "Canonical entity modeling, field provenance, DTO design, and stable key definitions."
+
+    - agent: database-engineer
+      role: "Implements .NET 8 SQLite migrations, repositories, constraints, and tests"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "src/ProjectAegis.Data/**"
+        - "src/ProjectAegis.Data.Tests/**"
+      when_to_use: "Approved implementation work for migrations, repositories, importers, and tests."
+
+    - agent: sim-data-specialist
+      role: "Bridges Data outputs to deterministic simulation and DOTS-friendly snapshots"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "snapshot manifests"
+        - "DOTS export DTOs"
+      when_to_use: "Simulation cache layout, snapshot hashing, and no-DB-per-tick validation."
+
+    - agent: determinism-engineer
+      role: "Reviews deterministic ordering, seeded RNG, and replay/hash impact"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Any data read path that can affect deterministic simulation behavior."
+
+    - agent: military-research-specialist
+      role: "Validates source evidence for military data imports"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Platform, weapon, sensor, doctrine, or reference-data import evidence."
+
+    - agent: qa-lead
+      role: "Defines required test evidence and release-readiness gates"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Migration, repository, provenance, rollback, and deterministic ordering test strategy."
+
+  skills:
+    orchestration:
+      - team-data
+    architecture:
+      - database-layer-architecture
+      - architecture-decision
+      - architecture-review
+    schema:
+      - sqlite-schema-management
+      - provenance-audit-modeling
+    determinism:
+      - deterministic-data-access
+      - determinism-audit
+      - replay-verify
+    runtime_export:
+      - ecs-data-optimization
+    release:
+      - database-branching-release-train
+    quality:
+      - c-sharp-test-engineer
+      - c-sharp-reviewer
+      - test-evidence-review
+
+  routing:
+    - match: "ProjectAegis.Data architecture, schema boundary, or repository contract"
+      agent: database-architect
+    - match: "entity model, provenance model, or runtime DTO mapping"
+      agent: database-modeler
+    - match: "SQLite migration, repository implementation, or Data tests"
+      agent: database-engineer
+    - match: "snapshot, deterministic cache, DOTS export, or no-DB-per-tick review"
+      agent: sim-data-specialist
+    - match: "military source evidence or import confidence"
+      agent: military-research-specialist
+    - match: "deterministic ordering, hash, seed, replay impact"
+      agent: determinism-engineer
+
+  coordination:
+    lead: database-intelligence-lead
+    technical_authority: technical-director
+    simulation_authority: military-simulation-architect
+    escalation:
+      - "Schema or repository disagreement → database-intelligence-lead"
+      - "Simulation snapshot disagreement → sim-data-specialist, then military-simulation-architect"
+      - "Dependency or storage choice → technical-director"
+      - "Canonical data merge → human approval required"
+    workflow:
+      - "1. /team-data resolves mode and loads Requirement 06 plus architecture context"
+      - "2. database-architect and database-modeler define the contract before code"
+      - "3. database-engineer implements only approved migrations/repositories"
+      - "4. sim-data-specialist and determinism-engineer validate read ordering and snapshots"
+      - "5. qa-lead requires migration, rollback, provenance, and deterministic ordering evidence"
