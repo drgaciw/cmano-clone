@@ -1,6 +1,6 @@
 # Game Requirements - Master Index
 
-**Last Updated:** May 2026
+**Last Updated:** May 29, 2026
 
 ## Core Documents
 - [01-Project-Overview.md](requirements/01-Project-Overview.md)
@@ -11,6 +11,9 @@
 - [04-Agent-Delegation.md](requirements/04-Agent-Delegation.md)
 - [05-Dynamic-Systems-Agent.md](requirements/05-Dynamic-Systems-Agent.md)
 - [06-Database-Intelligence.md](requirements/06-Database-Intelligence.md)
+
+## Reference & Glossary
+- [11-Terms-Glossary.md](requirements/11-Terms-Glossary.md)
 
 ## Technical Architecture
 - [07-Agentic-Infrastructure.md](requirements/07-Agentic-Infrastructure.md)
