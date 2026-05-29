@@ -22,3 +22,16 @@ unity/ProjectAegis/Plugins/*.dll
 # Ephemeral session state and audit logs (see .claude/docs/directory-structure.md)
 production/session-state/
 production/session-logs/
+
+#Adobe Acrobat DC
+*.pdf
+
+# CMO manual — rendered page images (large, regenerable via docs/manual/generate.py)
+docs/manual/assets/images/
+
+# CMO DB crawler raw data
+tools/cmano-db-crawler/_raw/
+
+# Local editor / tool configs
+.kilo/
+.claude/settings.local.json

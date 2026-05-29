@@ -23,6 +23,8 @@ domain lead) should delegate to specialists.
 | `qa-lead` | Quality assurance | Test strategy, bug triage, release readiness, regression planning |
 | `release-manager` | Release pipeline | Build management, versioning, changelogs, deployment, rollbacks |
 | `localization-lead` | Internationalization | String externalization, translation pipeline, locale testing |
+| `military-simulation-architect` | Military simulation architecture | Tactical systems, command hierarchies, combat mechanics, simulation fidelity, specialist coordination |
+| `requirements-analyst` | Requirements analysis | Feasibility analysis, technical constraints, performance impact, implementation complexity, risk assessment |
 
 ## Tier 3 -- Specialist Agents (Sonnet or Haiku)
 | Agent | Domain | Model | When to Use |
@@ -51,6 +53,12 @@ domain lead) should delegate to specialists.
 | `accessibility-specialist` | Accessibility | Haiku | WCAG compliance, colorblind modes, remapping, text scaling |
 | `live-ops-designer` | Live operations | Sonnet | Seasons, events, battle passes, retention, live economy |
 | `community-manager` | Community | Haiku | Patch notes, player feedback, crisis comms, community health |
+| `simulation-parameter-analyst` | Military simulation parameters | Sonnet | Weapon systems, platform capabilities, sensors, detection probabilities, engagement envelopes, tactical behaviors |
+| `gameplay-mechanics-analyst` | Gameplay mechanics and balance | Sonnet | Combat mechanic balance, progression systems, tactical depth, learning curves, genre conventions |
+| `technical-constraints-analyst` | Technical feasibility and constraints | Sonnet | Performance budgets, computational complexity, memory footprint, real-time simulation constraints, scalability |
+| `military-research-specialist` | Military technology and doctrine research | Sonnet | Military technologies, historical operations, tactical doctrines, platform/weapon specs, military protocols |
+| `simulation-genre-analyst` | Military simulation genre research | Sonnet | Genre conventions, market trends, competitor analysis, player expectations, innovation opportunities |
+| `user-experience-military-analyst` | Military simulation UX | Sonnet | Information density, command complexity, cognitive load, genre-specific UX patterns, learning curves |
 
 ## Engine-Specific Agents (use the set matching your engine)
 
