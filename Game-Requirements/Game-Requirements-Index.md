@@ -22,3 +22,6 @@
 ## Content & Systems
 - [09-Near-Future-Technologies.md](requirements/09-Near-Future-Technologies.md)
 - [10-Speculative-Systems.md](requirements/10-Speculative-Systems.md)
+
+## Authoring & Design Tools
+- [11-Agentic-Mission-Editor.md](requirements/11-Agentic-Mission-Editor.md) — Agentic mission/scenario editor (CMO parity + NL/MCP authoring, validation agents, operations timeline)
