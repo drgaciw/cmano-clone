@@ -16,15 +16,20 @@
 
 ## Claude-Specific Integrations
 
-**[Unity-MCP](https://github.com/IvanMurzak/Unity-MCP)**
-- Connects Claude and Cursor directly to Unity Editor
-- Provides 100+ MCP tools for real-time scene editing, asset management, and runtime control
-- Enables a full AI develop-and-test loop inside Unity
+> **Status: Configured** — repo wiring complete; Unity Editor activation pending.
+> See [Claude Agent Setup](Game-Requirements/Claude-Agent-Setup.md) for remaining steps and workflow guide.
 
-**[Claude-Code-Game-Studios](https://github.com/Donchitos/Claude-Code-Game-Studios)**
-- Provides 49 specialized AI agents with studio hierarchy
-- Includes 73 workflow skills
-- Includes a dedicated Unity specialist agent for DOTS/ECS, shaders, Addressables, and UI Toolkit
+**[Unity-MCP](https://github.com/IvanMurzak/Unity-MCP)** — *configured (client-side)*
+- Global CLI installed (`unity-mcp-cli`); MCP config committed in `.cursor/mcp.json` and `.mcp.json`
+- Connects Claude and Cursor directly to Unity Editor via `http://localhost:8080`
+- Provides 100+ MCP tools for real-time scene editing, asset management, and runtime control
+- **Pending**: Unity plugin install, login, and Editor session (requires Unity project)
+
+**[Claude-Code-Game-Studios](https://github.com/Donchitos/Claude-Code-Game-Studios)** — *configured*
+- 39 studio agents vendored in `.claude/agents/` (Unity engine set only)
+- 73 workflow skills in `.claude/skills/` plus preserved GitNexus skills
+- Unity specialists: DOTS/ECS, Shaders/VFX, Addressables, UI Toolkit
+- Master config in `CLAUDE.md`; hooks, rules, and templates in `.claude/`
 
 ## Additional Agentic Tools
 

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ProjectAegis.Delegation.UnityAdapter</RootNamespace>
+    <Description>Thin bridge between Unity/sim ECS and ProjectAegis.Delegation (no UnityEngine dependency).</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ProjectAegis.Delegation\ProjectAegis.Delegation.csproj" />
+  </ItemGroup>
+</Project>

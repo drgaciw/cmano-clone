@@ -1,0 +1,20 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# Unity (when project is added)
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+*.csproj.user
+*.unityproj.user
+
+# Copied plugin DLLs (rebuild via tools/copy-delegation-assemblies.ps1)
+unity/ProjectAegis/Plugins/*.dll

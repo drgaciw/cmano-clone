@@ -8,13 +8,32 @@ Create a next-generation wargame that combines traditional military simulation d
 
 ## Current Status
 
-This repository currently contains the requirements foundation for the project. The active requirements set is organized under `Game-Requirements/`.
+The repository contains requirements documentation and an initial **agent delegation framework** implementation:
+
+- **Design spec:** `docs/superpowers/specs/2026-05-28-agent-delegation-framework-design.md`
+- **Implementation plan:** `docs/superpowers/plans/2026-05-28-agent-delegation-framework.md`
+- **Library:** `src/ProjectAegis.Delegation/` (engine-agnostic .NET 8, NUnit tests)
+- **Unity bridge:** `src/ProjectAegis.Delegation.UnityAdapter/` (`ISimWorldSnapshot` in, `IOrderSink` out)
+- **Unity wiring:** `unity/ProjectAegis/` (DLL copy + optional `DelegationBridgeHost`)
+- **Console demo:** `src/ProjectAegis.Delegation.Demo/`
+
+Build and test (requires [.NET 8 SDK](https://dotnet.microsoft.com/download)):
+
+```bash
+dotnet test ProjectAegis.sln -v minimal
+dotnet run --project src/ProjectAegis.Delegation.Demo
+```
+
+Unity project scaffolding and simulation core are not started yet. Requirements live under `Game-Requirements/`.
 
 ## Tech Stack
 
 The planned development stack is Unity LTS with C#, supported by agentic development tools including Cursor, GitHub Copilot, Claude Code / Claude Desktop, Unity-MCP, and Claude-Code-Game-Studios.
 
+Claude-specific integrations are **configured** at the repo level (MCP config, Game-Studios agents/skills). Unity Editor activation is pending until a Unity project is scaffolded.
+
 - [Tech Stack - Agentic Game Development](Tech-Stack.md)
+- [Claude Agent Setup](Game-Requirements/Claude-Agent-Setup.md)
 
 ## Requirements
 
