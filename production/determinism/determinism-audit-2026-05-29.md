@@ -93,14 +93,22 @@ decision input, guarantee a stable order. **Status**: Off hot path — note for 
 
 ## Verification
 
-- A CI workflow (`.github/workflows/dotnet-tests.yml`) now runs `dotnet test ProjectAegis.sln`
-  on every push and PR — this is what actually executes the determinism regression.
-- `dotnet` was not available in the authoring environment, so the suite was **not executed
-  locally**; the golden constants were derived by an independent reference implementation of
-  the salt + `SeededRng` algorithms. CI is the source of truth for the PASS.
+- `dotnet` was not available in the authoring environment, so the suite was **not executed**
+  here. The golden constants were derived by an independent reference implementation of the
+  salt + `SeededRng` algorithms (32-bit FNV-1a → xorshift64), so they are verifiable by
+  inspection, but the regression has not yet been run by a .NET toolchain.
+- **CI is not yet established.** A `dotnet test` GitHub Actions workflow was attempted but
+  failed to provision on the available runner (job failed in ~3s, before build), so it was
+  removed from this change rather than leave a perpetually-red check. Standing up working
+  .NET CI (a runner that can install SDK 8.0.400 and restore NuGet) is the prerequisite that
+  actually closes the loop — see Next Step. Until then, run `dotnet test ProjectAegis.sln`
+  locally to confirm the regression.
 
 ## Next Step
 
-After CI confirms green, run `/replay-verify` once a headless seeded-scenario runner emits a
-full order log + end-state hash, to extend the golden coverage from the RNG/decision layer to
-the executed-order layer.
+1. **Stand up .NET CI** (or confirm a runner with SDK 8.0.400 + NuGet access) and run
+   `dotnet test ProjectAegis.sln` — this is what proves the golden-replay PASS and enforces
+   it going forward. This was deferred from the current PR.
+2. After the regression is green, run `/replay-verify` once a headless seeded-scenario runner
+   emits a full order log + end-state hash, to extend the golden coverage from the
+   RNG/decision layer to the executed-order layer.
