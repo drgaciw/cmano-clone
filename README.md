@@ -14,7 +14,10 @@ This repository currently contains the requirements foundation for the project. 
 
 The planned development stack is Unity LTS with C#, supported by agentic development tools including Cursor, GitHub Copilot, Claude Code / Claude Desktop, Unity-MCP, and Claude-Code-Game-Studios.
 
+Claude-specific integrations are **configured** at the repo level (MCP config, Game-Studios agents/skills). Unity Editor activation is pending until a Unity project is scaffolded.
+
 - [Tech Stack - Agentic Game Development](Tech-Stack.md)
+- [Claude Agent Setup](Game-Requirements/Claude-Agent-Setup.md)
 
 ## Requirements
 
