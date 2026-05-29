@@ -18,3 +18,7 @@ obj/
 
 # Copied plugin DLLs (rebuild via tools/copy-delegation-assemblies.ps1)
 unity/ProjectAegis/Plugins/*.dll
+
+# Ephemeral session state and audit logs (see .claude/docs/directory-structure.md)
+production/session-state/
+production/session-logs/
