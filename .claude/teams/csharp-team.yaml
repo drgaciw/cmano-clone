@@ -1,0 +1,232 @@
+# C# / .NET Engineering Team
+#
+# A team manifest grouping the agents and skills that produce, review, and
+# maintain the project's C# code. This project's runtime is the
+# ProjectAegis.Delegation .NET solution (src/*.csproj, ProjectAegis.sln) with a
+# Unity integration layer (ProjectAegis.Delegation.UnityAdapter), so the team is
+# built around the .NET/Unity engine specialists and the programming agents.
+#
+# Schema:
+#   members[].agent          → agent definition file in .claude/agents/
+#   members[].role           → one-line role within the C# team
+#   members[].tier           → leadership | lead | specialist (see coordination-rules.md)
+#   members[].model          → model tier the agent runs on (matches its frontmatter)
+#   members[].owns           → source areas / file types the agent is responsible for
+#   members[].when_to_use    → when to route C# work to this agent
+#   skills                   → skills the team invokes, grouped by purpose
+#   routing                  → file-extension → agent routing for C# work
+#   coordination             → lead, escalation path, and the standard workflow
+
+team:
+  id: csharp
+  name: "C# / .NET Engineering Team"
+  description: >
+    Owns all C# source in the ProjectAegis.Delegation solution and the Unity
+    adapter. Designs architecture, implements gameplay and engine systems,
+    reviews code, and gates quality for the .NET codebase.
+  language: "C#"
+  framework: ".NET / Unity (via ProjectAegis.Delegation.UnityAdapter)"
+  build:
+    solution: "ProjectAegis.sln"
+    test_command: "dotnet test ProjectAegis.sln"
+    build_command: "dotnet build ProjectAegis.sln"
+  source_areas:
+    - "src/ProjectAegis.Delegation/**            # core delegation library"
+    - "src/ProjectAegis.Delegation.UnityAdapter/** # Unity integration bridge"
+    - "src/ProjectAegis.Delegation.Demo/**        # console demo"
+    - "src/ProjectAegis.Delegation.Tests/**       # core unit tests"
+    - "src/ProjectAegis.Delegation.UnityAdapter.Tests/** # adapter tests"
+
+  members:
+    # --- Leadership ---
+    - agent: technical-director
+      role: "Architecture authority for the C# codebase"
+      tier: leadership
+      model: opus
+      owns:
+        - "docs/architecture/**"
+        - ".claude/docs/technical-preferences.md"
+      when_to_use: >
+        Solution/project layout decisions, dependency boundaries between
+        ProjectAegis.Delegation and the Unity adapter, .NET version and
+        performance strategy, cross-system technical conflicts.
+
+    # --- Department Lead ---
+    - agent: lead-programmer
+      role: "Code-level architecture, API design, and code review for C#"
+      tier: lead
+      model: sonnet
+      owns:
+        - "src/**/*.cs (architecture & standards)"
+      when_to_use: >
+        API/interface design, refactoring strategy, code review, and deciding
+        how a design document maps onto C# class/namespace structure. Assigns
+        work to the specialist programmers below.
+
+    # --- Programming Specialists ---
+    - agent: gameplay-programmer
+      role: "Implements gameplay mechanics and player-facing systems in C#"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "src/ProjectAegis.Delegation/Controllers/**"
+        - "src/ProjectAegis.Delegation/Decision/**"
+        - "src/ProjectAegis.Delegation/Orchestration/**"
+      when_to_use: "Translating designed mechanics into working C# gameplay code."
+
+    - agent: ai-programmer
+      role: "Implements AI/decision systems (behavior, RoE, target selection)"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "src/ProjectAegis.Delegation/Roe/**"
+        - "src/ProjectAegis.Delegation/Targets/**"
+        - "src/ProjectAegis.Delegation/Attention/**"
+        - "src/ProjectAegis.Delegation/Trust/**"
+      when_to_use: >
+        Decision-making, rules-of-engagement logic, perception/attention models,
+        and autonomous-agent behavior in C#.
+
+    - agent: engine-programmer
+      role: "Core framework, simulation loop, and performance-critical C#"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "src/ProjectAegis.Delegation/Core/**"
+        - "src/ProjectAegis.Delegation/Sim/**"
+      when_to_use: "Core systems, simulation tick, resource management, hot-path code."
+
+    - agent: tools-programmer
+      role: "Internal tooling, demo harness, and pipeline automation"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "src/ProjectAegis.Delegation.Demo/**"
+      when_to_use: "Console demo, debug utilities, and developer-facing tooling."
+
+    # --- Unity / C# Engine Specialists ---
+    - agent: unity-specialist
+      role: "Authority on Unity-side C# patterns and the adapter boundary"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "src/ProjectAegis.Delegation.UnityAdapter/**"
+      when_to_use: >
+        MonoBehaviour vs DOTS decisions, Unity subsystem usage, and validating
+        that the UnityAdapter bridge is idiomatic Unity C#. Primary engine
+        specialist — route ambiguous Unity questions here first.
+
+    - agent: unity-dots-specialist
+      role: "DOTS/ECS, Jobs, and Burst-optimized C#"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Entity Component System architecture, Jobs system, Burst compilation."
+
+    - agent: unity-ui-specialist
+      role: "Unity UI implementation in C# (UI Toolkit / UGUI)"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Runtime UI code, data binding, UXML/USS-backed C# controllers."
+
+    - agent: unity-addressables-specialist
+      role: "Asset loading/memory management in C#"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Addressable groups, async asset loading, memory budgets."
+
+    - agent: unity-shader-specialist
+      role: "Rendering customization and VFX (shader-adjacent C# glue)"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Shader Graph / VFX Graph integration and render-pipeline C# hooks."
+
+    # --- Quality & Delivery ---
+    - agent: qa-tester
+      role: "Writes C# test cases and bug reports"
+      tier: specialist
+      model: haiku
+      owns:
+        - "src/ProjectAegis.Delegation.Tests/**"
+        - "src/ProjectAegis.Delegation.UnityAdapter.Tests/**"
+      when_to_use: "Unit/integration test authoring and bug report writing for C#."
+
+    - agent: performance-analyst
+      role: "Profiles the .NET runtime and recommends optimizations"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Allocation/GC analysis, frame-time investigation, hot-path profiling."
+
+    - agent: security-engineer
+      role: "Reviews C# for vulnerabilities and exploit vectors"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Input validation, save/state tampering, and secure-code review."
+
+    - agent: devops-engineer
+      role: "Build pipeline and CI for the .NET solution"
+      tier: specialist
+      model: haiku
+      when_to_use: "dotnet build/test CI configuration, branching, and automated test setup."
+
+  # Skills the team invokes, grouped by purpose. Run with /<skill-name>.
+  skills:
+    architecture:
+      - architecture-decision   # record a C# technical decision (ADR)
+      - create-architecture     # author the master architecture blueprint
+      - architecture-review     # validate architecture completeness
+      - create-control-manifest # flat do/don't rules sheet for programmers
+    implementation:
+      - dev-story               # implement a story → routes to the right C# programmer
+      - story-readiness         # confirm a story is implementation-ready
+      - story-done              # end-of-story acceptance verification
+    quality:
+      - code-review             # architectural + standards review of C# files
+      - test-setup              # scaffold the .NET test framework + CI
+      - test-helpers            # generate C# test helper/factory utilities
+      - test-evidence-review    # assess test coverage and evidence adequacy
+      - smoke-check             # run the suite as the QA-handoff gate
+      - regression-suite        # map tests to critical paths, fill coverage gaps
+    hardening:
+      - perf-profile            # structured .NET performance profiling
+      - tech-debt               # track and prioritize C# technical debt
+      - security-audit          # vulnerability sweep before release
+    orchestration:
+      - team-combat             # end-to-end combat feature (design→C# impl→QA)
+      - team-ui                 # end-to-end UI feature pipeline
+      - team-polish             # optimize/harden a feature for release
+
+  # File-type → agent routing for C# work.
+  routing:
+    - match: "src/ProjectAegis.Delegation.UnityAdapter/**/*.cs"
+      agent: unity-specialist
+      note: "Unity-facing code → primary engine specialist (delegates to sub-specialists)."
+    - match: "src/ProjectAegis.Delegation/Core/**/*.cs, src/ProjectAegis.Delegation/Sim/**/*.cs"
+      agent: engine-programmer
+    - match: "src/ProjectAegis.Delegation/{Roe,Targets,Attention,Trust}/**/*.cs"
+      agent: ai-programmer
+    - match: "src/ProjectAegis.Delegation/{Controllers,Decision,Orchestration,Groups,Policy,Traits}/**/*.cs"
+      agent: gameplay-programmer
+    - match: "src/**/*Tests/**/*.cs"
+      agent: qa-tester
+    - match: "src/ProjectAegis.Delegation.Demo/**/*.cs"
+      agent: tools-programmer
+    - match: "*.csproj, *.sln, CI / build config"
+      agent: devops-engineer
+    - match: "general C# architecture review"
+      agent: lead-programmer
+
+  coordination:
+    lead: lead-programmer
+    engine_authority: unity-specialist
+    technical_authority: technical-director
+    # Per .claude/docs/coordination-rules.md
+    escalation:
+      - "Code-level disagreement → lead-programmer"
+      - "Cross-system or architecture conflict → technical-director"
+      - "Multi-domain change propagation → producer"
+    workflow:
+      - "1. lead-programmer maps the design/story onto C# structure (API + namespaces)"
+      - "2. Route implementation to the owning specialist per `routing`"
+      - "3. unity-specialist validates any Unity-adapter changes are idiomatic"
+      - "4. qa-tester writes/extends tests in the matching *.Tests project"
+      - "5. /code-review then /smoke-check (dotnet test) before story-done"
