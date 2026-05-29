@@ -79,6 +79,20 @@ domain lead) should delegate to specialists.
 | `unity-addressables-specialist` | Asset Management | Sonnet | Addressable groups, async loading, memory, content delivery |
 | `unity-ui-specialist` | UI Toolkit/UGUI | Sonnet | UI Toolkit, UXML/USS, UGUI Canvas, data binding, cross-platform input |
 
+### Unity C# SDLC Specialists
+
+Role-oriented C# specialists (organized by SDLC phase rather than Unity subsystem).
+Use when work is driven by the C# language/code lifecycle — design, build, test,
+pipeline, review — rather than a specific Unity subsystem.
+
+| Agent | SDLC Role | Model | When to Use |
+| ---- | ---- | ---- | ---- |
+| `c-sharp-architect` | Design / architecture | Sonnet | Assembly/namespace layout, asmdef boundaries, DI strategy, C# class & interface contracts, pattern selection |
+| `c-sharp-engineer` | Implementation | Sonnet | Implementing MonoBehaviours/ScriptableObjects/plain C# systems from an approved contract |
+| `c-sharp-test-engineer` | Testing | Sonnet | EditMode/PlayMode (NUnit) tests, fixtures, mocks, test seams, `dotnet test` for plain .NET |
+| `c-sharp-devops-engineer` | Build / CI-CD | Sonnet | dotnet/MSBuild config, Unity batchmode builds, game-ci workflows, package/assembly management |
+| `c-sharp-reviewer` | Code review | Sonnet | Unity-aware C# review: GC/allocations, async/disposal, nullable, lifecycle misuse, SOLID, contract adherence |
+
 ### Godot Sub-Specialists
 
 | Agent | Subsystem | Model | When to Use |

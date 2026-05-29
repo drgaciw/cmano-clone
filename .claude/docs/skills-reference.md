@@ -1,6 +1,6 @@
 # Available Skills (Slash Commands)
 
-73 slash commands organized by phase. Type `/` in Claude Code to access any of them.
+78 slash commands organized by phase. Type `/` in Claude Code to access any of them.
 
 ## Onboarding & Navigation
 
@@ -59,6 +59,19 @@
 | `/story-readiness` | Validate a story is implementation-ready before pickup (READY/NEEDS WORK/BLOCKED) |
 | `/story-done` | 8-phase completion review after implementation; updates story file, surfaces next story |
 | `/estimate` | Structured effort estimate with complexity, dependencies, and risk breakdown |
+
+## C# Development (Unity)
+
+Role-oriented Unity C# workflows spanning the code SDLC. Each routes to its
+paired specialist agent.
+
+| Command | Purpose |
+|---------|---------|
+| `/c-sharp-architect` | Design a Unity C# system's architecture — asmdef/namespace layout, DI strategy, class & interface contracts, pattern selection |
+| `/c-sharp-engineer` | Implement a Unity C# feature from an approved story + architecture contract, following the project's C# standards |
+| `/c-sharp-test-engineer` | Author Unity Test Framework (NUnit) EditMode/PlayMode tests (or `dotnet test` for plain .NET), map coverage to acceptance criteria, run the suite |
+| `/c-sharp-devops-engineer` | Set up/maintain the .NET + Unity build & CI/CD pipeline (dotnet/MSBuild, batchmode builds, game-ci, packaging) with a blocking test gate |
+| `/c-sharp-reviewer` | Unity-aware C# code review — GC/allocations, async/disposal, nullable, lifecycle, SOLID, contract adherence |
 
 ## Reviews & Analysis
 
