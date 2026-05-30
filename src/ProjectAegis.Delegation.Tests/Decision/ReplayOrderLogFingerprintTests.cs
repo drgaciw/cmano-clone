@@ -45,6 +45,8 @@ public sealed class ReplayOrderLogFingerprintTests
             orchestrator.Register(unit);
         }
 
+        orchestrator.BeginExecution();
+
         for (var tick = 0; tick < 6; tick++)
         {
             orchestrator.Tick(new ObservedState(tick, 2 + tick % 2, tick % 2, new Dictionary<TargetId, bool>()));

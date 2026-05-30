@@ -23,6 +23,10 @@ public sealed class DelegationBridge
 
     public TargetRegistry Registry { get; }
 
+    public SimulationPhase Phase => Orchestrator.Phase;
+
+    public void BeginExecution() => Orchestrator.BeginExecution();
+
     public void ConfigureSimulationMode(
         SimulationModeProfile mode,
         IReadOnlyList<ICommandableTarget> friendly,

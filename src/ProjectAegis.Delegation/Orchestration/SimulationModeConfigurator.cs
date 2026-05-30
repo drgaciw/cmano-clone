@@ -45,6 +45,11 @@ public static class SimulationModeConfigurator
             default:
                 throw new ArgumentOutOfRangeException(nameof(mode), mode.Kind, "Unknown simulation mode.");
         }
+
+        if (mode.Kind == SimulationModeKind.AgentVsAgent)
+        {
+            orchestrator.BeginExecution();
+        }
     }
 
     private static void AssignHuman(IEnumerable<ICommandableTarget> targets)

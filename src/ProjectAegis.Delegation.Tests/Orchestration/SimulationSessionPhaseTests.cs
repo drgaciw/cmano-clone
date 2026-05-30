@@ -67,11 +67,11 @@ public sealed class SimulationSessionPhaseTests
             new AgentId("a1"),
             PersonalityCatalog.All[0].Traits,
             AutonomyLevel.FullAutonomous);
+        orchestrator.BeginExecution();
 
         var verdict = orchestrator.TryRebindAgentTraits(
             agent,
-            PersonalityCatalog.All[1].Traits,
-            SimulationPhase.Executing);
+            PersonalityCatalog.All[1].Traits);
 
         Assert.That(verdict.Allowed, Is.False);
         Assert.That(agent.Traits, Is.EqualTo(PersonalityCatalog.All[0].Traits));

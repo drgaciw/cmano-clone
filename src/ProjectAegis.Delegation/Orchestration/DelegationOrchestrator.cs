@@ -33,6 +33,8 @@ public sealed class DelegationOrchestrator
 
     public ScenarioPolicyProfile? ScenarioPolicy { get; set; }
 
+    public SimulationPhase Phase { get; private set; } = SimulationPhase.Planning;
+
     public int GlobalSeed { get; }
 
     public DecisionLog DecisionLog { get; }
@@ -109,8 +111,16 @@ public sealed class DelegationOrchestrator
         return EffectivePolicy.DefaultFree;
     }
 
+    public void BeginExecution() => Phase = SimulationPhase.Executing;
+
     public void Tick(ObservedState state)
     {
+        if (Phase == SimulationPhase.Planning)
+        {
+            ExecutedOrders = Array.Empty<Order>();
+            return;
+        }
+
         var executed = new List<Order>();
 
         foreach (var target in _targets)
@@ -145,10 +155,9 @@ public sealed class DelegationOrchestrator
 
     public LoopPolicyVerdict TryRebindAgentTraits(
         AgentController agent,
-        TraitVector traits,
-        SimulationPhase phase)
+        TraitVector traits)
     {
-        var verdict = LoopPolicyGate.CanEditPersonality(ScenarioPolicy, phase, agent.Autonomy);
+        var verdict = LoopPolicyGate.CanEditPersonality(ScenarioPolicy, Phase, agent.Autonomy);
         if (!verdict.Allowed)
         {
             return verdict;

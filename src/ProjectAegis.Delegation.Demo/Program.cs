@@ -10,16 +10,17 @@ var orchestrator = new DelegationOrchestrator(seed);
 
 var friendlyUnit = new UnitTarget(new TargetId("friendly-1"));
 var opposingUnit = new UnitTarget(new TargetId("opposing-1"));
-orchestrator.Register(friendlyUnit);
-orchestrator.Register(opposingUnit);
+        orchestrator.Register(friendlyUnit);
+        orchestrator.Register(opposingUnit);
 
-var traits = PersonalityCatalog.All.First(p => p.Name == "Cautious").Traits;
-SimulationModeConfigurator.Apply(
-    orchestrator,
-    new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
-    friendly: [friendlyUnit],
-    opposing: [opposingUnit],
-    traits);
+        var traits = PersonalityCatalog.All.First(p => p.Name == "Cautious").Traits;
+        SimulationModeConfigurator.Apply(
+            orchestrator,
+            new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
+            friendly: [friendlyUnit],
+            opposing: [opposingUnit],
+            traits);
+        orchestrator.BeginExecution();
 
 if (friendlyUnit.Slot.Active is HumanController human)
 {

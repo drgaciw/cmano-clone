@@ -20,20 +20,19 @@ public sealed class SimulationSession
         var seed = SimSeed.FromScenario((ulong)globalSeed);
         Orchestrator = new DelegationOrchestrator(globalSeed, policyEvaluator);
         Sim = new SimTickPipeline(seed, engagement ?? new StubEngagementResolver());
-        Phase = SimulationPhase.Planning;
     }
 
-    public SimulationPhase Phase { get; private set; }
+    public SimulationPhase Phase => Orchestrator.Phase;
 
     public DelegationOrchestrator Orchestrator { get; }
 
     public SimTickPipeline Sim { get; }
 
-    public void BeginExecution() => Phase = SimulationPhase.Executing;
+    public void BeginExecution() => Orchestrator.BeginExecution();
 
     public bool Tick(ObservedState state)
     {
-        if (Phase == SimulationPhase.Planning)
+        if (Orchestrator.Phase == SimulationPhase.Planning)
         {
             return false;
         }

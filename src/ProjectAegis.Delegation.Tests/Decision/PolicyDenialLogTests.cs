@@ -30,6 +30,7 @@ public sealed class PolicyDenialLogTests
             new EffectivePolicy(RoeLevel.HoldFire),
             capturedAtSimTick: 0);
         orchestrator.Register(unit);
+        orchestrator.BeginExecution();
 
         for (var tick = 0; tick < 12; tick++)
         {

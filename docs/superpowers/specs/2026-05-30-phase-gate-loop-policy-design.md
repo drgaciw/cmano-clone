@@ -36,7 +36,7 @@ Implement runtime support for req 02 Phase 2→3 transition and scenario loop po
 | `AgentController.RebindTraits` | Delegation.Controllers | Mutable personality vector |
 | `DelegationOrchestrator.TryRebindAgentTraits` | Delegation.Orchestration | Gate + rebind + log hook point |
 
-Phase lives on `SimulationSession` (not sim core) — planning is a C2/session concern per ADR assembly boundary. Sim clock does not advance when `Tick` is skipped.
+Phase lives on `DelegationOrchestrator` (May 30 follow-up) so `SimulationSession` and `DelegationBridge` share one gate. Agent-vs-agent mode auto-calls `BeginExecution()` in `SimulationModeConfigurator`. Unity smoke host uses `autoBeginOnStart` (default true); production RTwP sets it false and wires a UI button to `DelegationBridgeHost.BeginExecution()`.
 
 ---
 

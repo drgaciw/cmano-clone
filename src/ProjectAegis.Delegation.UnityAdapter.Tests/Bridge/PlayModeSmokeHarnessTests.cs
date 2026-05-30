@@ -23,6 +23,8 @@ public sealed class PlayModeSmokeHarnessTests
             opposing: [opposing.Target],
             defaultTraits: ProjectAegis.Delegation.Traits.PersonalityCatalog.All[0].Traits);
 
+        bridge.BeginExecution();
+
         var harness = new PlayModeHarness(contactCount: 2);
         for (var frame = 0; frame < 30; frame++)
         {
