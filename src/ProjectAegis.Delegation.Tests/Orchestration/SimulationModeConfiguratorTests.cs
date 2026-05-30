@@ -5,6 +5,7 @@ using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
+using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
 
 [TestFixture]
@@ -62,5 +63,46 @@ public sealed class SimulationModeConfiguratorTests
             PersonalityCatalog.All[0].Traits);
 
         Assert.That(orchestrator.Phase, Is.EqualTo(SimulationPhase.Planning));
+    }
+
+    [Test]
+    public void Mixed_mode_with_dual_side_policy_assigns_human_to_both_sides()
+    {
+        var orchestrator = new DelegationOrchestrator(1)
+        {
+            ScenarioPolicy = new ScenarioPolicyProfile(
+                EffectivePolicy.DefaultFree,
+                allowDualSideControl: true),
+        };
+        var friendly = new UnitTarget(new TargetId("f1"));
+        var opposing = new UnitTarget(new TargetId("o1"));
+
+        SimulationModeConfigurator.Apply(
+            orchestrator,
+            new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
+            [friendly],
+            [opposing],
+            PersonalityCatalog.All[0].Traits);
+
+        Assert.That(friendly.Slot.Active, Is.InstanceOf<HumanController>());
+        Assert.That(opposing.Slot.Active, Is.InstanceOf<HumanController>());
+    }
+
+    [Test]
+    public void Mixed_mode_without_dual_side_policy_keeps_one_side_human()
+    {
+        var orchestrator = new DelegationOrchestrator(1);
+        var friendly = new UnitTarget(new TargetId("f1"));
+        var opposing = new UnitTarget(new TargetId("o1"));
+
+        SimulationModeConfigurator.Apply(
+            orchestrator,
+            new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
+            [friendly],
+            [opposing],
+            PersonalityCatalog.All[0].Traits);
+
+        Assert.That(friendly.Slot.Active, Is.InstanceOf<HumanController>());
+        Assert.That(opposing.Slot.Active, Is.InstanceOf<AgentController>());
     }
 }
