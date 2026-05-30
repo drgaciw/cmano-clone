@@ -11,6 +11,10 @@
 | 3 | `stack/delegation/phase-gate` | feat(delegation): planning/execution phase gate [DELEG-3] | Phase gate, loop policy, session phase tests | c-sharp-reviewer |
 | 4 | `stack/delegation/player-info` | feat(delegation): player info filter [DELEG-4] | `PlayerInfoFilter`, req 03 alignment | gameplay-programmer |
 | 5 | `stack/delegation/bridge-engage` | feat(delegation): bridge MVP engage wiring [DELEG-5] | `UnityAdapter*`, `unity/ProjectAegis`, engage tools | unity-specialist |
+| 6 | `stack/delegation/sim-modes-docs` | docs(delegation): simulation modes decisions [DELEG-6] | req 03, superpowers spec/plan | producer |
+| 7 | `stack/delegation/dual-side-policy` | feat(sim): allowDualSideControl scenario policy [DELEG-7] | `ScenarioPolicyProfile`, JSON loader | c-sharp-engineer |
+| 8 | `stack/delegation/dual-side-config` | feat(delegation): dual-side Mixed configure [DELEG-8] | `SimulationModeConfigurator` | c-sharp-reviewer |
+| 9 | `stack/delegation/observer-attach` | feat(delegation): AttachReplayViewer session [DELEG-9] | orchestrator + bridge guard | gameplay-programmer |
 
 ```mermaid
 flowchart BT
@@ -19,12 +23,16 @@ flowchart BT
   pr2 --> pr3[DELEG-3 phase-gate]
   pr3 --> pr4[DELEG-4 player-info]
   pr4 --> pr5[DELEG-5 bridge-engage]
+  pr5 --> pr6[DELEG-6 sim-modes-docs]
+  pr6 --> pr7[DELEG-7 dual-side-policy]
+  pr7 --> pr8[DELEG-8 dual-side-config]
+  pr8 --> pr9[DELEG-9 observer-attach]
 ```
 
 **Submit (after `gt auth`):**
 
 ```powershell
-gt checkout stack/delegation/sim-core
+gt checkout stack/delegation/sim-modes-docs
 gt submit --stack --no-interactive
 ```
 
