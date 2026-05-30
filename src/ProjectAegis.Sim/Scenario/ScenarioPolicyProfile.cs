@@ -8,11 +8,15 @@ public sealed class ScenarioPolicyProfile
     public ScenarioPolicyProfile(
         EffectivePolicy friendlyDefault,
         EffectivePolicy? opposingDefault = null,
-        IReadOnlyDictionary<string, EffectivePolicy>? unitOverrides = null)
+        IReadOnlyDictionary<string, EffectivePolicy>? unitOverrides = null,
+        PlayerInfoModel playerInfoModel = PlayerInfoModel.FullTransparency,
+        PersonalityEditPolicy personalityEditPolicy = PersonalityEditPolicy.Anytime)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
         UnitOverrides = unitOverrides ?? new Dictionary<string, EffectivePolicy>();
+        PlayerInfoModel = playerInfoModel;
+        PersonalityEditPolicy = personalityEditPolicy;
     }
 
     public string Id { get; init; } = "";
@@ -22,6 +26,10 @@ public sealed class ScenarioPolicyProfile
     public EffectivePolicy OpposingDefault { get; }
 
     public IReadOnlyDictionary<string, EffectivePolicy> UnitOverrides { get; }
+
+    public PlayerInfoModel PlayerInfoModel { get; }
+
+    public PersonalityEditPolicy PersonalityEditPolicy { get; }
 
     public EffectivePolicy ResolveForUnit(string unitKey, bool isFriendly)
     {

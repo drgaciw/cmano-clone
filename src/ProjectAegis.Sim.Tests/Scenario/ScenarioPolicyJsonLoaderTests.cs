@@ -16,6 +16,38 @@ public sealed class ScenarioPolicyJsonLoaderTests
         Assert.Equal("restricted-engagement", profile.Id);
         Assert.Equal(RoeLevel.WeaponsTight, profile.ResolveForUnit("o1", isFriendly: false).Roe);
         Assert.Equal(RoeLevel.WeaponsFree, profile.ResolveForUnit("f1", isFriendly: true).Roe);
+        Assert.Equal(PlayerInfoModel.FullTransparency, profile.PlayerInfoModel);
+        Assert.Equal(PersonalityEditPolicy.Anytime, profile.PersonalityEditPolicy);
+    }
+
+    [Fact]
+    public void ToProfile_applies_loop_policy_defaults_when_omitted()
+    {
+        var profile = ScenarioPolicyJsonLoader.ToProfile(new ScenarioPolicyJsonDto
+        {
+            Id = "test",
+            FriendlyRoe = "WeaponsFree",
+            OpposingRoe = "WeaponsFree",
+        });
+
+        Assert.Equal(PlayerInfoModel.FullTransparency, profile.PlayerInfoModel);
+        Assert.Equal(PersonalityEditPolicy.Anytime, profile.PersonalityEditPolicy);
+    }
+
+    [Fact]
+    public void ToProfile_parses_loop_policy_overrides()
+    {
+        var profile = ScenarioPolicyJsonLoader.ToProfile(new ScenarioPolicyJsonDto
+        {
+            Id = "training-fog",
+            FriendlyRoe = "WeaponsFree",
+            OpposingRoe = "WeaponsFree",
+            PlayerInfoModel = "delegationFog",
+            PersonalityEditPolicy = "planningOnly",
+        });
+
+        Assert.Equal(PlayerInfoModel.DelegationFog, profile.PlayerInfoModel);
+        Assert.Equal(PersonalityEditPolicy.PlanningOnly, profile.PersonalityEditPolicy);
     }
 
     private static string? FindRepoRoot()

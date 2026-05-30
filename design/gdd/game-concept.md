@@ -30,10 +30,12 @@ You are a **theater commander**, not a pilot or captain. You plan missions, set 
 ## Core Loop (Summary)
 
 1. Select scenario and force composition  
-2. Plan missions, doctrine, and agent assignments  
+2. Plan missions, doctrine, and agent assignments (**RTwP** — clock frozen until **Begin Execution**)  
 3. Execute with variable time compression and oversight  
 4. After-action review from order log and AAR agents  
 5. Iterate forces, agents, and scenarios (including batch agent-vs-agent)
+
+Scenario policy JSON may override player info visibility and personality-edit rules per mission (defaults: full transparency, edit anytime). See req 02.
 
 ---
 

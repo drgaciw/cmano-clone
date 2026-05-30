@@ -49,7 +49,9 @@ public static class ScenarioPolicyJsonLoader
         return new ScenarioPolicyProfile(
             new EffectivePolicy(ParseRoe(dto.FriendlyRoe)),
             new EffectivePolicy(ParseRoe(dto.OpposingRoe)),
-            overrides)
+            overrides,
+            ParsePlayerInfoModel(dto.PlayerInfoModel),
+            ParsePersonalityEditPolicy(dto.PersonalityEditPolicy))
         {
             Id = dto.Id,
         };
@@ -59,4 +61,18 @@ public static class ScenarioPolicyJsonLoader
         Enum.TryParse<RoeLevel>(value, ignoreCase: true, out var roe)
             ? roe
             : throw new InvalidDataException($"Unknown ROE value: {value}");
+
+    private static PlayerInfoModel ParsePlayerInfoModel(string? value) =>
+        string.IsNullOrWhiteSpace(value)
+            ? PlayerInfoModel.FullTransparency
+            : Enum.TryParse<PlayerInfoModel>(value, ignoreCase: true, out var model)
+                ? model
+                : throw new InvalidDataException($"Unknown playerInfoModel value: {value}");
+
+    private static PersonalityEditPolicy ParsePersonalityEditPolicy(string? value) =>
+        string.IsNullOrWhiteSpace(value)
+            ? PersonalityEditPolicy.Anytime
+            : Enum.TryParse<PersonalityEditPolicy>(value, ignoreCase: true, out var policy)
+                ? policy
+                : throw new InvalidDataException($"Unknown personalityEditPolicy value: {value}");
 }

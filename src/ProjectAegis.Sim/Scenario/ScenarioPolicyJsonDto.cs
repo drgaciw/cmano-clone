@@ -8,5 +8,9 @@ public sealed class ScenarioPolicyJsonDto
 
     public string OpposingRoe { get; set; } = "WeaponsFree";
 
+    public string? PlayerInfoModel { get; set; }
+
+    public string? PersonalityEditPolicy { get; set; }
+
     public Dictionary<string, string>? UnitOverrides { get; set; }
 }
