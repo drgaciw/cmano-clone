@@ -13,8 +13,7 @@ agent: c-sharp-test-engineer
 Read:
 - The code under test (the argument) and its acceptance criteria / `## QA Test Cases` (if a story).
 - `.claude/docs/coding-standards.md` → **Testing Standards** and **Automated Test Rules**.
-- `docs/engine-reference/dotnet/README.md` — [unit testing best practices](https://learn.microsoft.com/en-us/dotnet/core/testing/unit-testing-best-practices), [TimeProvider testing](https://learn.microsoft.com/en-us/dotnet/core/extensions/timeprovider-testing) for clock seams.
-- Existing tests under `src/*Tests/` and `tests/` to match conventions (NUnit vs xUnit per project) and reuse helpers (`tests/helpers/` if present).
+- Existing tests under `tests/` to match conventions and reuse helpers (`tests/helpers/` if present).
 
 ---
 

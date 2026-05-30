@@ -257,6 +257,10 @@ Scenario
 | 07 Agentic Infrastructure | Scenario Generation, Event agents |
 | 08 Agentic Architecture | Deterministic sim, MCP, headless execution |
 | 06 Database Intelligence | Unit data, validation, DB version binding |
+| 13 Doctrine/ROE/EMCON/WRA | Runtime policy inheritance and agent snapshots |
+| 14 Engagement & Fire Control | Mission auto-engage and fire pipeline |
+| 17 Replay & Order Log | Deterministic replay and editor quick-run evidence |
+| 15–16, 18–20 | Runtime sensors, logistics, combat, cyber, C2 UI |
 
 ---
 

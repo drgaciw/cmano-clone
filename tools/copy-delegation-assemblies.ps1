@@ -5,10 +5,11 @@ $root = Split-Path -Parent $PSScriptRoot
 Push-Location $root
 try {
     dotnet build ProjectAegis.sln -c Release -v minimal
-    $plugins = Join-Path $root "unity/ProjectAegis/Plugins"
+    $plugins = Join-Path $root "unity/ProjectAegis/Assets/Plugins/ProjectAegis"
     New-Item -ItemType Directory -Force -Path $plugins | Out-Null
 
     $dlls = @(
+        "src/ProjectAegis.Sim/bin/Release/net8.0/ProjectAegis.Sim.dll",
         "src/ProjectAegis.Delegation/bin/Release/net8.0/ProjectAegis.Delegation.dll",
         "src/ProjectAegis.Delegation.UnityAdapter/bin/Release/net8.0/ProjectAegis.Delegation.UnityAdapter.dll"
     )

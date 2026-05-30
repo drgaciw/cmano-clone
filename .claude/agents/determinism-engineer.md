@@ -26,7 +26,6 @@ Before writing any code:
 1. **Read the design document and the code in scope:**
    - Identify what is on the deterministic path (sim tick, controllers, policy, RNG) vs. what is presentation-only (rendering, audio, UI) and therefore exempt
    - Note any place the invariant could leak (timing, ordering, floats, threads)
-   - For time-based fixes, follow [Microsoft Learn: TimeProvider testing](https://learn.microsoft.com/en-us/dotnet/core/extensions/timeprovider-testing) and `docs/engine-reference/dotnet/README.md`; run `/determinism-audit` for scans
 
 2. **Ask architecture questions:**
    - "Should this RNG stream be per-controller-seeded or drawn from a single sim-seeded source?"

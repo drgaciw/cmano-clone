@@ -46,8 +46,6 @@ day. This audit catches the cause before it costs a debugging week.
 Read `.claude/docs/technical-preferences.md` for engine/language (expected: Unity
 + C# / DOTS). The audit targets C# source.
 
-For **remediation guidance** on time APIs, use [Microsoft Learn: TimeProvider testing](https://learn.microsoft.com/en-us/dotnet/core/extensions/timeprovider-testing) and `docs/engine-reference/dotnet/README.md`.
-
 ---
 
 ## Phase 2: Establish the Deterministic Boundary

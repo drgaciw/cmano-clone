@@ -1,0 +1,8 @@
+{
+  "id": "restricted-engagement",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsTight",
+  "unitOverrides": {
+    "f1": "WeaponsFree"
+  }
+}

@@ -12,14 +12,17 @@ dotnet build ProjectAegis.sln -c Release
 
 Outputs:
 
+- `src/ProjectAegis.Sim/bin/Release/net8.0/ProjectAegis.Sim.dll`
 - `src/ProjectAegis.Delegation/bin/Release/net8.0/ProjectAegis.Delegation.dll`
 - `src/ProjectAegis.Delegation.UnityAdapter/bin/Release/net8.0/ProjectAegis.Delegation.UnityAdapter.dll`
 
-Or run:
+Or scaffold everything (folders, manifest, DLLs, runtime scripts):
 
 ```powershell
-./tools/copy-delegation-assemblies.ps1
+./tools/init-unity-project.ps1
 ```
+
+Play Mode checklist: [PLAYMODE-SMOKE.md](PLAYMODE-SMOKE.md).
 
 ## 2. Copy into Unity
 
@@ -27,6 +30,7 @@ In your Unity project:
 
 ```text
 Assets/Plugins/ProjectAegis/
+  ProjectAegis.Sim.dll
   ProjectAegis.Delegation.dll
   ProjectAegis.Delegation.UnityAdapter.dll
 ```
@@ -43,7 +47,15 @@ Use **Unity 6** or a version that supports referencing modern .NET assemblies in
 
 ## 4. Optional host component
 
-`Runtime/DelegationBridgeHost.cs` is a minimal `MonoBehaviour` that holds a `DelegationBridge` instance for play-mode smoke tests. Wire `ISimWorldSnapshot` / `IOrderSink` from your ECS systems in `Update` or a `SystemBase` tick.
+`Runtime/DelegationBridgeHost.cs` holds a `DelegationBridge` for play-mode tests.
+
+`Runtime/SimplePlayModeSimHost.cs` is a **zero-ECS smoke harness**: add to the same GameObject as `DelegationBridgeHost`; it implements `ISimWorldSnapshot` + `IOrderSink` and calls `RunTick` every frame.
+
+For production, wire `ISimWorldSnapshot` / `IOrderSink` from ECS in `SystemBase` instead.
+
+**Policy (ADR-002):** Use `orchestrator.AssignAgentToTarget(agent, target, effectivePolicy)` to freeze snapshots. `DecisionLog.PolicyDenials` records blocked engages.
+
+**Unity packages (6.3 LTS):** Copy [`Packages/manifest.template.json`](Packages/manifest.template.json) into your Unity project's `Packages/manifest.json` and resolve via Package Manager.
 
 ## 5. DOTS notes (future)
 

@@ -7,6 +7,7 @@ using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Delegation.Sim;
+using ProjectAegis.Sim.Policy;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.Trust;
 
@@ -46,7 +47,17 @@ public sealed class AgentController : IController
 
     public AgentExperienceBlob Experience { get; }
 
+    public ulong PolicySnapshotId { get; private set; }
+
+    public EffectivePolicy EffectivePolicy { get; private set; } = EffectivePolicy.DefaultFree;
+
     public bool IsHuman => false;
+
+    public void BindPolicySnapshot(ulong policySnapshotId, EffectivePolicy effective)
+    {
+        PolicySnapshotId = policySnapshotId;
+        EffectivePolicy = effective;
+    }
 
     public IReadOnlyList<Order> DrainIssuedOrders()
     {
@@ -103,6 +114,19 @@ public sealed class AgentController : IController
             choice.RngDraw));
 
         var gateResult = gate.Evaluate(Autonomy, order, playerApproved: false);
+        if (gateResult.Rejected && gateResult.PolicyDenialReason != FireAbortReason.None)
+        {
+            log.AppendPolicyDenial(new PolicyDenialRecord(
+                SequenceId: 0,
+                state.SimTime,
+                SimTick: (ulong)Math.Max(0, (long)state.SimTime),
+                Id,
+                targetId,
+                PolicySnapshotId,
+                gateResult.PolicyDenialReason,
+                order.Kind));
+        }
+
         if (gateResult.ExecuteNow)
         {
             _issued.Add(order);

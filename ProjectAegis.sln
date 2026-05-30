@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectAegis.Delegation.Uni
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectAegis.Delegation.UnityAdapter.Tests", "src\ProjectAegis.Delegation.UnityAdapter.Tests\ProjectAegis.Delegation.UnityAdapter.Tests.csproj", "{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectAegis.Sim", "src\ProjectAegis.Sim\ProjectAegis.Sim.csproj", "{D4E5F6A7-B8C9-0123-DEF0-234567890123}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectAegis.Sim.Tests", "src\ProjectAegis.Sim.Tests\ProjectAegis.Sim.Tests.csproj", "{E5F6A7B8-C9D0-1234-EF01-345678901234}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,9 +45,19 @@ Global
 		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A068AFDE-B693-447E-AF10-966058582907} = {781C214C-CA04-46D6-99A4-82828530E562}
 		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21} = {781C214C-CA04-46D6-99A4-82828530E562}
+		{D4E5F6A7-B8C9-0123-DEF0-234567890123} = {781C214C-CA04-46D6-99A4-82828530E562}
+		{E5F6A7B8-C9D0-1234-EF01-345678901234} = {781C214C-CA04-46D6-99A4-82828530E562}
 	EndGlobalSection
 EndGlobal

@@ -11,5 +11,5 @@ public enum RoeVerdict
 
 public interface IRoeFilter
 {
-    RoeVerdict Evaluate(Order order);
+    RoeEvaluation Evaluate(Order order);
 }

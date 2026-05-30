@@ -4,5 +4,9 @@ using ProjectAegis.Delegation.Core;
 
 public sealed class PassthroughRoeFilter : IRoeFilter
 {
-    public RoeVerdict Evaluate(Order order) => RoeVerdict.Allow;
+    public RoeEvaluation Evaluate(Order order)
+    {
+        _ = order;
+        return RoeEvaluation.Allow();
+    }
 }
