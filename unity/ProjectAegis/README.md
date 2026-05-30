@@ -47,9 +47,9 @@ Use **Unity 6** or a version that supports referencing modern .NET assemblies in
 
 ## 4. Optional host component
 
-`Runtime/DelegationBridgeHost.cs` holds a `DelegationBridge` for play-mode tests.
+`Assets/Scripts/Runtime/DelegationBridgeHost.cs` holds a `DelegationBridge` for play-mode tests.
 
-`Runtime/SimplePlayModeSimHost.cs` is a **zero-ECS smoke harness**: add to the same GameObject as `DelegationBridgeHost`; it implements `ISimWorldSnapshot` + `IOrderSink` and calls `RunTick` every frame.
+`Assets/Scripts/Runtime/SimplePlayModeSimHost.cs` is a **zero-ECS smoke harness**: add to the same GameObject as `DelegationBridgeHost`; it implements `ISimWorldSnapshot` + `IOrderSink` and calls `RunTick` every frame.
 
 For production, wire `ISimWorldSnapshot` / `IOrderSink` from ECS in `SystemBase` instead.
 

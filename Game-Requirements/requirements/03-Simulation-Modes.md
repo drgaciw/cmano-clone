@@ -104,6 +104,7 @@ A single, unified simulation engine that can operate across the full spectrum of
 - Multiplayer hotseat and asynchronous modes (future release)
 - Live co-simulation with external agents (e.g., reinforcement learning models)
 - Cloud-based simulation cluster support for massive agent-vs-agent campaigns
+- **Spectator Mode** (see open questions) — Agent vs Agent with visualization, no control
 
 ## Resolved Design Decisions (May 30, 2026)
 

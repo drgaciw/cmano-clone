@@ -16,6 +16,7 @@ using ProjectAegis.Sim.Policy;
 public sealed class DelegationBridge
 {
     private SimulationSession? _simSession;
+    private readonly List<Order> _nonEngageOrdersCache = new();
 
     public DelegationBridge(int globalSeed, IPolicyEvaluator? policyEvaluator = null)
     {
@@ -76,12 +77,21 @@ public sealed class DelegationBridge
         {
             if (!_simSession.Tick(observed))
             {
+                Orchestrator.Tick(observed);
                 return new DelegationTickResult(Array.Empty<Order>(), 0);
             }
 
             var orders = Orchestrator.ExecutedOrders;
-            var nonEngage = orders.Where(o => o.Kind != OrderKind.Engage).ToArray();
-            var dispatched = OrderDispatcher.Dispatch(nonEngage, Registry, sink);
+            _nonEngageOrdersCache.Clear();
+            foreach (var order in orders)
+            {
+                if (order.Kind != OrderKind.Engage)
+                {
+                    _nonEngageOrdersCache.Add(order);
+                }
+            }
+
+            var dispatched = OrderDispatcher.Dispatch(_nonEngageOrdersCache, Registry, sink);
             return new DelegationTickResult(
                 orders,
                 dispatched,

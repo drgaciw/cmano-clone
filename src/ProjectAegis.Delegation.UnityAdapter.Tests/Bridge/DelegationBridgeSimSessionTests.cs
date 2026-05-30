@@ -27,7 +27,6 @@ public sealed class DelegationBridgeSimSessionTests
             AutonomyLevel.FullAutonomous,
             policy: new EngageOnlyPolicy());
         bridge.Orchestrator.AssignAgentToTarget(agent, unit.Target, EffectivePolicy.DefaultFree);
-        bridge.Orchestrator.Register(unit.Target);
         bridge.BeginExecution();
 
         var snapshot = new StubSnapshot(1, 2, 0, new Dictionary<TargetId, bool> { [unit.TargetId] = true });
@@ -51,11 +50,12 @@ public sealed class DelegationBridgeSimSessionTests
             AutonomyLevel.FullAutonomous,
             policy: new EngageOnlyPolicy());
         bridge.Orchestrator.AssignAgentToTarget(agent, unit.Target, EffectivePolicy.DefaultFree);
-        bridge.Orchestrator.Register(unit.Target);
         bridge.BeginExecution();
 
         var sink = new RecordingSink();
-        bridge.Tick(new StubSnapshot(0, 1, 0, new Dictionary<TargetId, bool>()), sink);
+        bridge.Tick(
+            new StubSnapshot(0, 1, 0, new Dictionary<TargetId, bool> { [unit.TargetId] = true }),
+            sink);
 
         Assert.That(sink.Applied, Is.Not.Empty);
         Assert.That(sink.Applied[0].Order.Kind, Is.EqualTo(OrderKind.Engage));
