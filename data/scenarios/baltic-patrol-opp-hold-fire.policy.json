@@ -1,0 +1,6 @@
+{
+  "id": "baltic-patrol-opp-hold-fire",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "HoldFire",
+  "unitOverrides": {}
+}

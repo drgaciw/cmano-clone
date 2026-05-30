@@ -5,4 +5,7 @@
     <Nullable>enable</Nullable>
     <RootNamespace>ProjectAegis.Delegation</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ProjectAegis.Sim\ProjectAegis.Sim.csproj" />
+  </ItemGroup>
 </Project>

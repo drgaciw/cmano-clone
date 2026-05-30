@@ -63,6 +63,63 @@ team:
         how a design document maps onto C# class/namespace structure. Assigns
         work to the specialist programmers below.
 
+    # --- C# Language Specialists ---
+    - agent: c-sharp-architect
+      role: "Designs C# assembly, namespace, API, and dependency contracts"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "src/**/*.csproj (architecture impact)"
+        - "src/**/*.asmdef (assembly boundaries)"
+        - "src/**/*.cs (public contracts and dependency direction)"
+      when_to_use: >
+        Before implementing a new C# system, changing public APIs, moving code
+        across assemblies, or introducing dependency-injection seams.
+
+    - agent: c-sharp-engineer
+      role: "Implements approved C# contracts and feature logic"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "src/**/*.cs (implementation after architecture approval)"
+      when_to_use: >
+        Turning an approved story and architecture contract into production C# code.
+
+    - agent: c-sharp-reviewer
+      role: "Performs language- and Unity-specific read-only C# review"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "src/**/*.cs (review)"
+      when_to_use: >
+        Reviewing C# for correctness, allocation/GC issues, async/disposal safety,
+        nullable handling, MonoBehaviour lifecycle misuse, SOLID, and contract drift.
+
+    - agent: c-sharp-test-engineer
+      role: "Authors and maintains C# automated tests"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "tests/**/*.cs"
+        - "src/**/*Tests/**/*.cs"
+      when_to_use: >
+        Designing or writing NUnit, Unity EditMode, Unity PlayMode, fixture, fake,
+        and regression tests for C# systems.
+
+    - agent: c-sharp-devops-engineer
+      role: "Maintains C#/.NET/Unity build and test automation"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "*.sln"
+        - "src/**/*.csproj"
+        - "**/*.asmdef"
+        - ".github/workflows/**"
+        - "tools/**"
+      when_to_use: >
+        dotnet/MSBuild configuration, Unity batchmode builds, game-ci workflows,
+        package/assembly management, and C# test automation in CI.
+
     # --- Programming Specialists ---
     - agent: gameplay-programmer
       role: "Implements gameplay mechanics and player-facing systems in C#"
@@ -183,21 +240,27 @@ team:
   # Skills the team invokes, grouped by purpose. Run with /<skill-name>.
   skills:
     architecture:
+      - c-sharp-architect     # design C# assembly/API/namespace contracts
       - architecture-decision   # record a C# technical decision (ADR)
       - create-architecture     # author the master architecture blueprint
       - architecture-review     # validate architecture completeness
       - create-control-manifest # flat do/don't rules sheet for programmers
     implementation:
+      - c-sharp-engineer      # implement approved C# contracts
       - dev-story               # implement a story → routes to the right C# programmer
       - story-readiness         # confirm a story is implementation-ready
       - story-done              # end-of-story acceptance verification
     quality:
+      - c-sharp-reviewer      # language- and Unity-specific C# code review
+      - c-sharp-test-engineer # C# unit/integration/EditMode/PlayMode tests
       - code-review             # architectural + standards review of C# files
       - test-setup              # scaffold the .NET test framework + CI
       - test-helpers            # generate C# test helper/factory utilities
       - test-evidence-review    # assess test coverage and evidence adequacy
       - smoke-check             # run the suite as the QA-handoff gate
       - regression-suite        # map tests to critical paths, fill coverage gaps
+    devops:
+      - c-sharp-devops-engineer # C#/.NET/Unity build and CI automation
     determinism:
       - determinism-audit       # static scan for non-deterministic C# patterns
       - replay-verify           # prove byte-identical replay reproduction (gate)
@@ -206,12 +269,25 @@ team:
       - tech-debt               # track and prioritize C# technical debt
       - security-audit          # vulnerability sweep before release
     orchestration:
+      - team-csharp            # end-to-end C# engineering pipeline
       - team-combat             # end-to-end combat feature (design→C# impl→QA)
       - team-ui                 # end-to-end UI feature pipeline
       - team-polish             # optimize/harden a feature for release
 
   # File-type → agent routing for C# work.
   routing:
+    - match: "new C# system, public API, assembly boundary, or dependency contract"
+      agent: c-sharp-architect
+      note: "Architecture first; implementation follows only after the contract is approved."
+    - match: "approved C# implementation with no narrower domain owner"
+      agent: c-sharp-engineer
+      note: "Generic C# implementation owner; domain specialists still own their mapped systems."
+    - match: "C# code review"
+      agent: c-sharp-reviewer
+    - match: "C# tests, test fixtures, or testability seams"
+      agent: c-sharp-test-engineer
+    - match: "*.csproj, *.sln, *.asmdef, CI / build config"
+      agent: c-sharp-devops-engineer
     - match: "src/ProjectAegis.Delegation.UnityAdapter/**/*.cs"
       agent: unity-specialist
       note: "Unity-facing code → primary engine specialist (delegates to sub-specialists)."
@@ -225,7 +301,7 @@ team:
       agent: qa-tester
     - match: "src/ProjectAegis.Delegation.Demo/**/*.cs"
       agent: tools-programmer
-    - match: "*.csproj, *.sln, CI / build config"
+    - match: "studio-wide CI / release infrastructure"
       agent: devops-engineer
     - match: "general C# architecture review"
       agent: lead-programmer
@@ -237,11 +313,13 @@ team:
     # Per .claude/docs/coordination-rules.md
     escalation:
       - "Code-level disagreement → lead-programmer"
+      - "C# contract disagreement → c-sharp-architect, then lead-programmer"
       - "Cross-system or architecture conflict → technical-director"
       - "Multi-domain change propagation → producer"
     workflow:
-      - "1. lead-programmer maps the design/story onto C# structure (API + namespaces)"
-      - "2. Route implementation to the owning specialist per `routing`"
-      - "3. unity-specialist validates any Unity-adapter changes are idiomatic"
-      - "4. qa-tester writes/extends tests in the matching *.Tests project"
-      - "5. /code-review then /smoke-check (dotnet test) before story-done"
+      - "1. /team-csharp or lead-programmer maps the story to owning agents and risks"
+      - "2. c-sharp-architect defines contracts for new systems or API changes"
+      - "3. Route implementation to c-sharp-engineer or the owning domain specialist per `routing`"
+      - "4. unity-specialist validates Unity-adapter or engine-specific changes"
+      - "5. c-sharp-test-engineer or qa-tester writes/extends tests in the matching test project"
+      - "6. c-sharp-reviewer then /smoke-check (dotnet test) before story-done"

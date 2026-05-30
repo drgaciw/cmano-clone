@@ -2,8 +2,13 @@ namespace ProjectAegis.Delegation.Orchestration;
 
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Roe;
+using ProjectAegis.Sim.Policy;
 
-public sealed record GateResult(bool ExecuteNow, bool QueueForApproval, bool Rejected);
+public sealed record GateResult(
+    bool ExecuteNow,
+    bool QueueForApproval,
+    bool Rejected,
+    FireAbortReason PolicyDenialReason = FireAbortReason.None);
 
 public sealed class AutonomyGate
 {
@@ -13,9 +18,10 @@ public sealed class AutonomyGate
 
     public GateResult Evaluate(AutonomyLevel autonomy, Order order, bool playerApproved)
     {
-        if (_roe.Evaluate(order) == RoeVerdict.Reject)
+        var roe = _roe.Evaluate(order);
+        if (roe.Verdict == RoeVerdict.Reject)
         {
-            return new GateResult(false, false, true);
+            return new GateResult(false, false, true, roe.Reason);
         }
 
         return autonomy switch

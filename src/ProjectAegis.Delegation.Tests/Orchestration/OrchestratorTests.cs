@@ -29,6 +29,7 @@ public sealed class OrchestratorTests
             AutonomyLevel.FullAutonomous);
         unit.Slot.SetActive(agent);
         orchestrator.Register(unit);
+        orchestrator.BeginExecution();
 
         var state = new ObservedState(0, ContactCount: 2, ActiveEngagementCount: 0, new Dictionary<TargetId, bool>());
         orchestrator.Tick(state);

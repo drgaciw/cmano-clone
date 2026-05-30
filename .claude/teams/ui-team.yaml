@@ -1,0 +1,133 @@
+# UI / UX / C2 Presentation Team
+#
+# Team manifest for Project Aegis UX, Unity UI Toolkit implementation,
+# accessibility, localization, and command-boundary-safe C2 presentation.
+
+team:
+  id: ui
+  name: "UI / UX / C2 Presentation Team"
+  description: >
+    Owns the Presentation layer for C2 UI, HUDs, mission-editor surfaces, user
+    flows, accessibility, localization, Unity UI Toolkit implementation, and
+    command-boundary-safe interaction with simulation and delegation systems.
+  language: "C# / UXML / USS"
+  framework: "Unity UI Toolkit / UGUI exceptions / C# view models"
+  source_areas:
+    - "design/ux/**"
+    - "unity/ProjectAegis/**/UI/**"
+    - "unity/ProjectAegis/**/*.uxml"
+    - "unity/ProjectAegis/**/*.uss"
+    - "src/ProjectAegis.Delegation.UnityAdapter/**"
+    - "Game-Requirements/requirements/20-Command-And-Control-UI.md"
+
+  members:
+    - agent: ui-experience-lead
+      role: "Coordinates UX, military information density, Unity UI Toolkit, accessibility, and UI architecture gates"
+      tier: lead
+      model: opus
+      owns:
+        - "C2 UI orchestration"
+        - "Presentation-layer command boundary"
+      when_to_use: "Multi-agent UI work, C2 workflows, UI architecture, or presentation-layer gate decisions."
+
+    - agent: ux-designer
+      role: "Designs user flows, interaction patterns, accessibility, and information architecture"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "design/ux/**"
+      when_to_use: "UX specs, interaction patterns, onboarding, accessibility design, and flow mapping."
+
+    - agent: user-experience-military-analyst
+      role: "Reviews military-simulation information density, command complexity, and cognitive load"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Dense C2 screens, tactical map overlays, sensor displays, and command workflows."
+
+    - agent: ui-programmer
+      role: "Implements UI controllers, data binding, screen flow, and localization support"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "UI C# controllers and view models"
+      when_to_use: "Approved UI implementation and UI framework code."
+
+    - agent: unity-ui-specialist
+      role: "Validates Unity UI Toolkit, UXML/USS, input, and runtime performance patterns"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "*.uxml"
+        - "*.uss"
+        - "Unity UI Toolkit architecture"
+      when_to_use: "UI Toolkit vs UGUI decisions, PanelSettings, bindings, focus/navigation, and UI performance."
+
+    - agent: accessibility-specialist
+      role: "Audits accessibility compliance"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Keyboard/gamepad navigation, contrast, scalable UI, motion, captions, and non-color cues."
+
+    - agent: art-director
+      role: "Ensures visual consistency with the art bible"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Visual treatment, layout polish, typography, icons, and screen composition."
+
+    - agent: c-sharp-reviewer
+      role: "Reviews UI C# for lifecycle, allocations, event cleanup, and architecture boundaries"
+      tier: specialist
+      model: sonnet
+      when_to_use: "UI controller/view-model review before story completion."
+
+  skills:
+    orchestration:
+      - team-ui
+      - team-csharp
+    design:
+      - ux-design
+      - ux-review
+      - ux-military-pattern-research
+      - quick-design
+    implementation:
+      - c-sharp-engineer
+      - c-sharp-reviewer
+      - c-sharp-test-engineer
+    accessibility_localization:
+      - localize
+      - ux-review
+    quality:
+      - code-review
+      - test-evidence-review
+      - smoke-check
+
+  routing:
+    - match: "C2 UI workflow, dense tactical display, or multi-agent UI feature"
+      agent: ui-experience-lead
+    - match: "UX spec, flow, wireframe, interaction pattern, or accessibility design"
+      agent: ux-designer
+    - match: "military information density, command complexity, tactical UX"
+      agent: user-experience-military-analyst
+    - match: "UXML, USS, UI Toolkit, PanelSettings, focus/navigation, runtime UI performance"
+      agent: unity-ui-specialist
+    - match: "UI C# controller, view model, binding, localization hook"
+      agent: ui-programmer
+    - match: "UI C# review"
+      agent: c-sharp-reviewer
+
+  coordination:
+    lead: ui-experience-lead
+    engine_authority: unity-ui-specialist
+    code_authority: lead-programmer
+    simulation_authority: military-simulation-architect
+    escalation:
+      - "UX ambiguity → ui-experience-lead and ux-designer"
+      - "Command-boundary violation → lead-programmer and military-simulation-architect"
+      - "UI Toolkit feasibility issue → unity-ui-specialist"
+      - "Accessibility blocker → accessibility-specialist and ui-experience-lead"
+    workflow:
+      - "1. /team-ui loads UX, accessibility, architecture, and C2 requirements"
+      - "2. ux-designer and user-experience-military-analyst define the flow and information hierarchy"
+      - "3. unity-ui-specialist validates UI Toolkit/UGUI implementation approach"
+      - "4. ui-programmer implements approved UI through command/view-model boundaries"
+      - "5. accessibility, art, UX, and C# review gates complete before done"

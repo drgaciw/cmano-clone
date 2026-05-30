@@ -4,6 +4,8 @@ using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
+using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
 
 public static class SimulationModeConfigurator
 {
@@ -13,8 +15,11 @@ public static class SimulationModeConfigurator
         IReadOnlyList<ICommandableTarget> friendly,
         IReadOnlyList<ICommandableTarget> opposing,
         TraitVector defaultTraits,
-        AutonomyLevel agentAutonomy = AutonomyLevel.FullAutonomous)
+        AutonomyLevel agentAutonomy = AutonomyLevel.FullAutonomous,
+        string? scenarioPolicyId = null)
     {
+        orchestrator.ScenarioPolicy = ResolveScenarioPolicy(scenarioPolicyId);
+
         switch (mode.Kind)
         {
             case SimulationModeKind.Human:
@@ -40,6 +45,11 @@ public static class SimulationModeConfigurator
             default:
                 throw new ArgumentOutOfRangeException(nameof(mode), mode.Kind, "Unknown simulation mode.");
         }
+
+        if (mode.Kind == SimulationModeKind.AgentVsAgent)
+        {
+            orchestrator.BeginExecution();
+        }
     }
 
     private static void AssignHuman(IEnumerable<ICommandableTarget> targets)
@@ -63,7 +73,18 @@ public static class SimulationModeConfigurator
                 new AgentId($"{idPrefix}-{i}"),
                 traits,
                 autonomy);
-            targets[i].Slot.SetActive(agent);
+            var isFriendly = idPrefix.StartsWith("friendly", StringComparison.Ordinal);
+            orchestrator.AssignAgentToTarget(
+                agent,
+                targets[i],
+                effectivePolicy: null,
+                isFriendly: isFriendly,
+                capturedAtSimTick: 0);
         }
     }
+
+    private static ScenarioPolicyProfile? ResolveScenarioPolicy(string? scenarioPolicyId) =>
+        string.IsNullOrWhiteSpace(scenarioPolicyId)
+            ? null
+            : ScenarioPolicyRepository.TryGet(scenarioPolicyId);
 }

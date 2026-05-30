@@ -1,0 +1,156 @@
+# Simulation / AI Team
+#
+# Team manifest for deterministic Project Aegis simulation, military AI,
+# DOTS/ECS hot paths, source-backed parameters, and replay gates.
+
+team:
+  id: simulation
+  name: "Simulation / AI Team"
+  description: >
+    Owns ProjectAegis.Sim and deterministic AI/delegation behavior: tick order,
+    sensors, engagement, policy evaluation, logistics, DOTS/ECS runtime layout,
+    replay hashes, and military accuracy vs. playability gates.
+  language: "C#"
+  framework: ".NET 8 / Unity DOTS-ECS / deterministic replay"
+  source_areas:
+    - "src/ProjectAegis.Sim/**"
+    - "src/ProjectAegis.Sim.Tests/**"
+    - "src/ProjectAegis.Delegation/{Controllers,Policy,Decision,Traits,Attention,Roe,Targets,Trust,Orchestration,Groups}/**"
+    - "src/ProjectAegis.Delegation.UnityAdapter/**"
+    - "tests/replay/**"
+    - "docs/architecture/adr-00*.md"
+
+  members:
+    - agent: military-simulation-architect
+      role: "Simulation architecture lead and military-fidelity gate"
+      tier: lead
+      model: sonnet
+      owns:
+        - "simulation architecture"
+        - "authenticity vs. playability decisions"
+      when_to_use: "New sim system, fidelity trade-off, tick pipeline, or multi-agent simulation work."
+
+    - agent: engine-programmer
+      role: "Implements core simulation loop and performance-critical pure C# systems"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "src/ProjectAegis.Sim/**"
+        - "src/**/Core/**"
+      when_to_use: "Fixed tick, world state, policy, engagement, logistics, or hot-path sim code."
+
+    - agent: ai-programmer
+      role: "Implements deterministic AI/controller behavior and decision systems"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "src/**/{Controllers,Attention,Targets,Trust,Traits}/**"
+      when_to_use: "Autonomy, observed-state decision logic, perception, target choice, or group behavior."
+
+    - agent: determinism-engineer
+      role: "Gates seeded RNG, ordering, replay hashes, and deterministic boundaries"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "deterministic-path review"
+        - "replay verification"
+      when_to_use: "Any sim/controller/policy change that can affect reproducibility."
+
+    - agent: unity-dots-specialist
+      role: "Validates DOTS/ECS, Jobs, Burst, and NativeContainer design"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "DOTS/ECS runtime layout"
+      when_to_use: "World-state ECS storage, Burst hot paths, or Unity Entities integration."
+
+    - agent: sim-data-specialist
+      role: "Coordinates deterministic data snapshots and cache layout from ProjectAegis.Data"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "data-to-sim snapshot contracts"
+      when_to_use: "Database-backed parameters, snapshot manifests, cache keys, or no-DB-per-tick checks."
+
+    - agent: simulation-parameter-analyst
+      role: "Validates military parameters and physical consistency"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Weapon, platform, sensor, EW, logistics, or engagement parameter analysis."
+
+    - agent: military-research-specialist
+      role: "Supplies source evidence and citations for military systems"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Real-world source validation or confidence/provenance disputes."
+
+    - agent: performance-analyst
+      role: "Profiles simulation and DOTS hot paths against frame/tick budgets"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Allocation, CPU, Burst, or scale-risk review."
+
+    - agent: qa-lead
+      role: "Defines sim regression and replay evidence expectations"
+      tier: specialist
+      model: sonnet
+      when_to_use: "Regression, golden replay, acceptance, and release gate planning."
+
+  skills:
+    orchestration:
+      - team-simulation
+      - team-csharp
+      - team-data
+    architecture:
+      - c-sharp-architect
+      - architecture-decision
+      - architecture-review
+    determinism:
+      - determinism-audit
+      - deterministic-data-access
+      - replay-verify
+    dots:
+      - ecs-data-optimization
+    accuracy:
+      - simulation-accuracy-validation
+      - gameplay-balance-analysis
+      - military-database-research
+    quality:
+      - c-sharp-test-engineer
+      - c-sharp-reviewer
+      - regression-suite
+      - smoke-check
+
+  routing:
+    - match: "simulation architecture, fidelity, tick pipeline, or military trade-off"
+      agent: military-simulation-architect
+    - match: "ProjectAegis.Sim implementation or hot-path pure C#"
+      agent: engine-programmer
+    - match: "controller behavior, autonomous decision, perception, or target selection"
+      agent: ai-programmer
+    - match: "seed, replay, deterministic ordering, wall-clock, unordered collection risk"
+      agent: determinism-engineer
+    - match: "DOTS, ECS, Burst, Jobs, NativeContainer, BlobAsset"
+      agent: unity-dots-specialist
+    - match: "data snapshot, database-backed parameter export, runtime cache"
+      agent: sim-data-specialist
+    - match: "weapon, platform, sensor, EW, logistics, physical parameter"
+      agent: simulation-parameter-analyst
+
+  coordination:
+    lead: military-simulation-architect
+    code_authority: lead-programmer
+    technical_authority: technical-director
+    data_authority: database-intelligence-lead
+    escalation:
+      - "Determinism violation → determinism-engineer, then technical-director"
+      - "Fidelity vs. playability conflict → military-simulation-architect and game-designer"
+      - "Data snapshot conflict → sim-data-specialist and database-intelligence-lead"
+      - "DOTS/Burst risk → unity-dots-specialist and performance-analyst"
+    workflow:
+      - "1. /team-simulation resolves mode, affected layer, and deterministic boundary"
+      - "2. military-simulation-architect defines sim contract and fidelity expectations"
+      - "3. c-sharp/team-csharp or engine-programmer implements approved pure C# contract"
+      - "4. determinism-engineer gates ordering, seeds, and replay hash impact"
+      - "5. unity-dots-specialist validates ECS/Burst hot paths where applicable"
+      - "6. qa-lead requires regression and replay evidence before done"

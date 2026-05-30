@@ -87,8 +87,9 @@ public sealed class ReplayGoldenTests
             orchestrator.Register(unit);
         }
 
-        // Advance with a varying contact picture so attention load and decision
-        // cadence exercise the stochastic pipeline across ticks.
+        orchestrator.BeginExecution();
+
+        // Advance with a varying contact picture
         for (var tick = 0; tick < 8; tick++)
         {
             var state = new ObservedState(

@@ -1,6 +1,6 @@
 # 02 - Core Gameplay Loop
 
-**Last Updated:** May 28, 2026
+**Last Updated:** May 30, 2026
 
 ## Purpose
 Define the primary gameplay loop that players and AI agents will experience, ensuring it supports seamless operation across human-only, mixed human+agent, and fully autonomous agent-versus-agent modes.
@@ -16,14 +16,19 @@ A clean, intuitive, and deeply strategic gameplay loop that feels like commandin
 - Player can assign initial agent personalities and autonomy levels to units or task forces
 
 ### Phase 2: Pre-Mission Planning & Agent Assignment
-- Detailed planning phase with route planning, sensor coverage, electronic warfare posture, and rules of engagement
+- **Real-time with pause (CMO-style):** simulation clock is frozen on entry; the player plans at their own pace
+- Detailed planning with route planning, sensor coverage, electronic warfare posture, and rules of engagement
 - Player can delegate entire task forces, individual ships/aircraft, or specific weapon systems to specialized AI agents
 - Agent personalities (Aggressive, Defensive, Cautious, Opportunistic, Swarm Coordinator, etc.) can be assigned per unit or group
+- Player may optionally unpause the clock for time-sensitive planning (e.g., coordinating with a scenario timeline event)
+- **Begin Execution** is an explicit player action — there is no implicit transition to Phase 3
 
 ### Phase 3: Execution & Real-Time Command
 - Core gameplay phase with variable time compression (1x to 900x+)
 - Player maintains high-level oversight while agents handle tactical execution
 - Real-time intervention possible at any moment (override agent decisions, issue new orders, change autonomy levels)
+- Agent personality edits follow the scenario's **personality edit policy** (see Resolved Design Decisions); default allows hot-swap anytime
+- Player information visibility follows the scenario's **player info model** (see Resolved Design Decisions); default is full transparency
 - Dynamic events (missile launches, detections, electronic warfare engagements) drive the simulation forward
 
 ### Phase 4: After-Action Review & Analysis
@@ -55,6 +60,53 @@ A clean, intuitive, and deeply strategic gameplay loop that feels like commandin
 - 30x – 300x: Accelerated play with meaningful human oversight
 - 900x+: Headless high-speed mode for agent-vs-agent batch runs and balance testing
 
+## Resolved Design Decisions
+
+Decisions locked May 30, 2026. Full rationale: `docs/superpowers/specs/2026-05-30-core-gameplay-loop-decisions-design.md`.
+
+### 1. Planning phase structure
+
+**Decision:** Real-time with pause (CMO-style).
+
+- Phase 2 sim clock is paused by default.
+- Player plans routes, ROE, and agent assignments without time pressure.
+- Execution begins only when the player selects **Begin Execution**.
+
+### 2. Player information model (scenario-configurable)
+
+**Default:** `fullTransparency` — the player always sees the full friendly sensor picture and all agent decisions in the order log. Autonomy changes *who acts*, not *what the player knows*.
+
+**Scenario overrides** (for training, narrative, or realism scenarios):
+
+| Value | Behavior |
+|-------|----------|
+| `fullTransparency` | Full friendly sensor picture + complete agent decision log (default) |
+| `delegationFog` | At Full Autonomous, player receives summary reports and contact updates on a delay; must request status or take direct control for the full picture |
+| `tieredByAutonomy` | Manual/Assisted = full picture; Semi-Autonomous = near-real-time with optional detail; Full Autonomous = summary + alerts unless player overrides |
+
+### 3. Agent personality editing (scenario-configurable)
+
+**Default:** `anytime` — personality and autonomy may be hot-swapped at any point during execution (aligns with req 03 mode switching and req 04 assignment UI).
+
+**Scenario overrides:**
+
+| Value | Behavior |
+|-------|----------|
+| `anytime` | Full hot-swap of personality and autonomy during execution (default) |
+| `planningOnly` | Personalities locked at **Begin Execution**; autonomy level may still change mid-fight |
+| `tieredRebrief` | Editable anytime at Manual/Assisted; at Semi-Autonomous+ requires pause or explicit **Rebrief Agent** action with sim-time cost |
+
+### Scenario policy contract
+
+Per-scenario overrides are carried in scenario policy JSON alongside ROE (see `data/scenarios/*.policy.json`, `ScenarioPolicyProfile`, req 13). Required fields when authoring scenarios:
+
+```
+playerInfoModel:       fullTransparency | delegationFog | tieredByAutonomy
+personalityEditPolicy: anytime | planningOnly | tieredRebrief
+```
+
+Mission editor (req 11) is the preferred authoring surface; exported scenarios must emit these fields (defaulting when omitted).
+
 ## Non-Functional Requirements
 
 - Loop must feel responsive even at 5,000+ entities
@@ -70,12 +122,6 @@ A clean, intuitive, and deeply strategic gameplay loop that feels like commandin
   - Analyze AARs and suggest improvements to agent behavior
   - Run thousands of agent-vs-agent simulations and identify balance issues
 
-## Open Questions / Decisions Needed
-
-1. Should the planning phase be turn-based or continuous real-time?
-2. How much information should be hidden from the player when using high-autonomy agents (fog of war for the player themselves)?
-3. Should agent personalities be editable in real time during execution, or only during planning?
-
 ---
 
-**Status:** Gameplay loop structure approved
+**Status:** Gameplay loop structure approved; open questions resolved May 30, 2026

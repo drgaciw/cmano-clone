@@ -6,21 +6,26 @@ using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
+using ProjectAegis.Sim.Policy;
 
 /// <summary>
 /// Facade for Unity/DOTS: register entities, tick delegation, push orders to the sim.
 /// </summary>
 public sealed class DelegationBridge
 {
-    public DelegationBridge(int globalSeed)
+    public DelegationBridge(int globalSeed, IPolicyEvaluator? policyEvaluator = null)
     {
-        Orchestrator = new DelegationOrchestrator(globalSeed);
+        Orchestrator = new DelegationOrchestrator(globalSeed, policyEvaluator);
         Registry = new TargetRegistry(Orchestrator);
     }
 
     public DelegationOrchestrator Orchestrator { get; }
 
     public TargetRegistry Registry { get; }
+
+    public SimulationPhase Phase => Orchestrator.Phase;
+
+    public void BeginExecution() => Orchestrator.BeginExecution();
 
     public void ConfigureSimulationMode(
         SimulationModeProfile mode,

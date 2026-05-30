@@ -6,21 +6,34 @@ using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Delegation.Sim;
+using ProjectAegis.Sim.Policy;
+using SimPolicy = ProjectAegis.Sim.Policy;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.Trust;
+using ProjectAegis.Sim.Scenario;
 
 public sealed class DelegationOrchestrator
 {
     private readonly List<ICommandableTarget> _targets = new();
-    private readonly AutonomyGate _autonomyGate = new(new PassthroughRoeFilter());
+    private readonly AutonomyGate _autonomyGate;
+    private readonly PolicySnapshotRegistry _policySnapshots = new();
     private long _orderIdSequence = 1;
 
-    public DelegationOrchestrator(int globalSeed)
+    public DelegationOrchestrator(int globalSeed, SimPolicy.IPolicyEvaluator? policyEvaluator = null)
     {
         GlobalSeed = globalSeed;
         DecisionLog = new DecisionLog();
+        var evaluator = policyEvaluator ?? new PolicyEvaluator(ResolvePolicyForUnit);
+        _autonomyGate = new AutonomyGate(
+            new RoePolicyAdapter(evaluator, _policySnapshots.CreateContext));
     }
+
+    public PolicySnapshotRegistry PolicySnapshots => _policySnapshots;
+
+    public ScenarioPolicyProfile? ScenarioPolicy { get; set; }
+
+    public SimulationPhase Phase { get; private set; } = SimulationPhase.Planning;
 
     public int GlobalSeed { get; }
 
@@ -53,8 +66,61 @@ public sealed class DelegationOrchestrator
             attentionBudget);
     }
 
+    /// <summary>Assign agent to target and freeze policy snapshot (TR-policy-003).</summary>
+    public void AssignAgentToTarget(
+        AgentController agent,
+        ICommandableTarget target,
+        EffectivePolicy effectivePolicy,
+        ulong capturedAtSimTick = 0) =>
+        AssignAgentToTarget(agent, target, effectivePolicy, isFriendly: true, capturedAtSimTick);
+
+    public void AssignAgentToTarget(
+        AgentController agent,
+        ICommandableTarget target,
+        EffectivePolicy? effectivePolicy,
+        bool isFriendly,
+        ulong capturedAtSimTick = 0)
+    {
+        var policy = effectivePolicy
+            ?? ResolveScenarioPolicyForTarget(target.Id, isFriendly);
+        var snapshotId = _policySnapshots.Capture(target.Id, policy, capturedAtSimTick);
+        agent.BindPolicySnapshot(snapshotId, policy);
+        target.Slot.SetActive(agent);
+    }
+
+    public EffectivePolicy ResolveScenarioPolicyForTarget(TargetId targetId, bool isFriendly)
+    {
+        if (ScenarioPolicy != null)
+        {
+            return ScenarioPolicy.ResolveForUnit(targetId.Value, isFriendly);
+        }
+
+        return EffectivePolicy.DefaultFree;
+    }
+
+    private EffectivePolicy ResolvePolicyForUnit(ulong unitId)
+    {
+        foreach (var pair in _policySnapshots.Snapshots)
+        {
+            if (OrderActionMapper.TargetIdToUlong(pair.Key) == unitId)
+            {
+                return pair.Value.Effective;
+            }
+        }
+
+        return EffectivePolicy.DefaultFree;
+    }
+
+    public void BeginExecution() => Phase = SimulationPhase.Executing;
+
     public void Tick(ObservedState state)
     {
+        if (Phase == SimulationPhase.Planning)
+        {
+            ExecutedOrders = Array.Empty<Order>();
+            return;
+        }
+
         var executed = new List<Order>();
 
         foreach (var target in _targets)
@@ -85,5 +151,19 @@ public sealed class DelegationOrchestrator
         }
 
         ExecutedOrders = executed;
+    }
+
+    public LoopPolicyVerdict TryRebindAgentTraits(
+        AgentController agent,
+        TraitVector traits)
+    {
+        var verdict = LoopPolicyGate.CanEditPersonality(ScenarioPolicy, Phase, agent.Autonomy);
+        if (!verdict.Allowed)
+        {
+            return verdict;
+        }
+
+        agent.RebindTraits(traits);
+        return LoopPolicyVerdict.Allow();
     }
 }

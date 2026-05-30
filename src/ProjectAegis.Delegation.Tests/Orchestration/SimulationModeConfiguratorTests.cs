@@ -44,5 +44,23 @@ public sealed class SimulationModeConfiguratorTests
 
         Assert.That(friendly.Slot.Active, Is.InstanceOf<AgentController>());
         Assert.That(opposing.Slot.Active, Is.InstanceOf<AgentController>());
+        Assert.That(orchestrator.Phase, Is.EqualTo(SimulationPhase.Executing));
+    }
+
+    [Test]
+    public void Human_mode_stays_in_planning_until_begin_execution()
+    {
+        var orchestrator = new DelegationOrchestrator(1);
+        var friendly = new UnitTarget(new TargetId("f1"));
+        var opposing = new UnitTarget(new TargetId("o1"));
+
+        SimulationModeConfigurator.Apply(
+            orchestrator,
+            new SimulationModeProfile(SimulationModeKind.Human, PlayerControlsFriendlySide: true),
+            [friendly],
+            [opposing],
+            PersonalityCatalog.All[0].Traits);
+
+        Assert.That(orchestrator.Phase, Is.EqualTo(SimulationPhase.Planning));
     }
 }

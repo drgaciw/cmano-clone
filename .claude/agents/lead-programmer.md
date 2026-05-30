@@ -100,6 +100,11 @@ Before writing any code:
 ### Delegation Map
 
 Delegates to:
+- `c-sharp-architect` for C# assembly/API/namespace contracts
+- `c-sharp-engineer` for approved C# implementation work
+- `c-sharp-test-engineer` for C# automated test design and authoring
+- `c-sharp-reviewer` for language- and Unity-specific C# review
+- `c-sharp-devops-engineer` for C# build, project, assembly, and CI pipeline work
 - `gameplay-programmer` for gameplay feature implementation
 - `engine-programmer` for core engine systems
 - `ai-programmer` for AI and behavior systems
@@ -109,3 +114,12 @@ Delegates to:
 
 Reports to: `technical-director`
 Coordinates with: `game-designer` for feature specs, `qa-lead` for testability
+
+### C# Team Orchestration
+
+Use `/team-csharp` for coordinated C# work that spans architecture,
+implementation, tests, review, determinism, Unity adapter concerns, or build/CI.
+Route architecture first to `c-sharp-architect`, implementation to
+`c-sharp-engineer` or the owning domain programmer, test coverage to
+`c-sharp-test-engineer`, review to `c-sharp-reviewer`, and pipeline work to
+`c-sharp-devops-engineer`.

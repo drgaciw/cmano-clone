@@ -2,12 +2,36 @@ namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using NUnit.Framework;
 
 [TestFixture]
 public sealed class DelegationBridgeTests
 {
+    [Test]
+    public void Tick_is_no_op_while_planning()
+    {
+        var bridge = new DelegationBridge(42);
+        var friendly = bridge.Registry.RegisterUnit(new EntityKey(1), "friendly-1");
+        var opposing = bridge.Registry.RegisterUnit(new EntityKey(2), "opposing-1");
+
+        bridge.ConfigureSimulationMode(
+            new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
+            friendly: [friendly.Target],
+            opposing: [opposing.Target],
+            defaultTraits: ProjectAegis.Delegation.Traits.PersonalityCatalog.All[0].Traits);
+
+        var sink = new RecordingSink();
+        var result = bridge.Tick(
+            new StubSnapshot(1, 2, 0, new Dictionary<TargetId, bool>()),
+            sink);
+
+        Assert.That(bridge.Phase, Is.EqualTo(SimulationPhase.Planning));
+        Assert.That(result.ExecutedOrders, Is.Empty);
+        Assert.That(sink.Applied, Is.Empty);
+    }
+
     [Test]
     public void Tick_builds_observed_state_and_dispatches_orders_to_sink()
     {
@@ -20,6 +44,8 @@ public sealed class DelegationBridgeTests
             friendly: [friendly.Target],
             opposing: [opposing.Target],
             defaultTraits: ProjectAegis.Delegation.Traits.PersonalityCatalog.All[0].Traits);
+
+        bridge.BeginExecution();
 
         var snapshot = new StubSnapshot(
             SimTime: 1,
@@ -52,6 +78,7 @@ public sealed class DelegationBridgeTests
             Is.True);
 
         var sink = new RecordingSink();
+        bridge.BeginExecution();
         bridge.Tick(new StubSnapshot(0, 0, 0, new Dictionary<TargetId, bool>()), sink);
 
         Assert.That(sink.Applied, Has.Count.EqualTo(1));

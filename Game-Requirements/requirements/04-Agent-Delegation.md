@@ -1,6 +1,6 @@
 # 04 - Agent Delegation System
 
-**Last Updated:** May 28, 2026
+**Last Updated:** May 30, 2026
 
 ## Purpose
 Define how players can assign specialized AI agents to individual units, groups, weapon systems, or entire task forces, enabling realistic autonomous behavior while maintaining human oversight.
@@ -25,17 +25,25 @@ A flexible, intuitive delegation system that turns the game into a true “theat
 - **Electronic Warfare Specialist** — Prioritizes jamming, deception, and sensor denial
 
 ### Autonomy Levels
-1. **Manual** — Agent suggests actions only; player must approve
+1. **Manual** — Agent suggests actions only; player must approve (`HUMAN_IN_LOOP`)
 2. **Assisted** — Agent executes low-risk actions automatically; asks for high-risk decisions
-3. **Semi-Autonomous** — Agent acts independently but player can override instantly
-4. **Full Autonomous** — Agent operates with minimal oversight (can be recalled)
+3. **Semi-Autonomous** — Agent acts independently; player can override within reaction window (`HUMAN_ON_LOOP`)
+4. **Full Autonomous** — Agent operates with minimal oversight; highest escalation risk (`FULL_AUTONOMOUS` — see req 13, doc 10)
+
+Autonomy levels must integrate with side/unit ROE and policy evaluator (req 13, ADR-002). Full autonomous lethal engagement requires explicit player opt-in per mission phase.
 
 ## Functional Requirements
 
 ### Assignment UI
 - Simple drag-and-drop or right-click assignment interface
 - Clear visual indicators showing which units are under agent control
-- Ability to view and edit agent personality and autonomy settings in real time
+- Ability to view and edit agent personality and autonomy settings during play
+- **Default (req 02):** personality and autonomy are editable **anytime** during Phase 3 execution
+- Scenarios may override via `personalityEditPolicy` in scenario policy JSON:
+  - `anytime` — full hot-swap during execution (default)
+  - `planningOnly` — personalities locked at **Begin Execution**; autonomy may still change mid-fight
+  - `tieredRebrief` — edit anytime at Manual/Assisted; Semi-Autonomous+ requires pause or **Rebrief Agent** with sim-time cost
+- Player information visibility during execution follows scenario `playerInfoModel` (req 02); default is full transparency regardless of autonomy level
 
 ### Override & Intervention
 - Player can take direct control of any unit at any time
@@ -71,7 +79,7 @@ A flexible, intuitive delegation system that turns the game into a true “theat
 - Built on the Decision Engine Agent (see 08-Agentic-Architecture.md)
 - Each agent runs as a pluggable module (behavior tree, utility AI, or neural network)
 - Agents must integrate cleanly with the ECS simulation core
-- Support for hot-swapping agent personalities during execution
+- Support for hot-swapping agent personalities during execution (subject to scenario `personalityEditPolicy`; default `anytime`)
 
 ## Future Extensibility
 

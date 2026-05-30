@@ -1,4 +1,4 @@
-# 11 - Terms Glossary
+# 12 - Terms Glossary
 
 **Purpose:**
 This glossary defines the core simulation terms used by the project, starting from the CMO manual's opening terminology and adapting them into a clearer, more agent-friendly vocabulary for this game.
@@ -42,6 +42,11 @@ This glossary defines the core simulation terms used by the project, starting fr
 | Advisory Warning | A non-blocking warning that the mission is legal but risky, inefficient, or fragile. |
 | Provenance | The origin of a mission field or recommendation, such as user input, doctrine inheritance, scenario template, database fact, or agent inference. |
 | Contingency Branch | A predefined fallback path that can be taken if the original mission plan breaks, fails, or becomes unsafe. |
+| Policy Snapshot | A frozen, versioned copy of doctrine, ROE, EMCON, and WRA settings applied to a unit or agent for deterministic evaluation (see doc 13). |
+| Fire Abort Reason | A machine-readable code explaining why an engagement was not authorized (see doc 14). |
+| Order Log Entry | One immutable record in the deterministic timeline of commands, agent intents, doctrine blocks, and event firings (see doc 17). |
+| Logistics Abort Reason | A machine-readable code explaining why an operation cannot proceed due to fuel, magazine, readiness, or basing constraints (see doc 16). |
+| Comms State | The health of a communications or datalink channel—up, degraded, or down—including delay and track staleness effects (see doc 19). |
 
 ## Glossary Notes
 
