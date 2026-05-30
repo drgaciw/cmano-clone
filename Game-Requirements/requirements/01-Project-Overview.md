@@ -1,6 +1,7 @@
 # 01 - Project Overview
 
-**Last Updated:** May 28, 2026
+**Last Updated:** May 29, 2026  
+**Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)
 
 ## Purpose
 Define the high-level vision, scope, and strategic goals for a next-generation near-future military simulation game that evolves the Command: Modern Air Naval Operations formula into the agentic AI era.
@@ -28,6 +29,12 @@ Create the definitive hardcore military simulation for the 2030s — a game that
    - Deterministic, high-speed simulation engine capable of 1000x+ time compression
    - Headless execution for massive agent-vs-agent batch runs
    - Seamless transition between interactive and fully autonomous modes
+
+5. **Clean-Room Product Discipline** *(from CMO research)*
+   - No reuse of proprietary CMO databases, scenarios, code, or manuals
+   - Reuse observable patterns: database-driven sim, scenario-centric workflow, community evidence intake, simulation-plus-analysis integration
+   - Database and scenario systems auditable as first-class products
+   - Agent outputs: reviewable, reversible, evidence-linked
 
 ## Target Audience
 

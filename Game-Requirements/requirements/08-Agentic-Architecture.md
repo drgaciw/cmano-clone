@@ -1,12 +1,36 @@
 # 08 - Agentic Architecture Layer
 
-**Last Updated:** May 28, 2026
+**Last Updated:** May 29, 2026  
+**Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)  
+**Implementation:** [Master Architecture](../../docs/architecture/architecture.md), ADR-001–005
 
 ## Purpose
+
 Define the core software architecture that enables true agentic development, high-performance military simulation, and seamless operation across human, mixed, and fully autonomous agent-versus-agent modes.
 
 ## Vision
-A modern, modular, and highly agent-aware architecture built on Unity’s Data-Oriented Technology Stack (DOTS/ECS) combined with a pluggable AI Decision Engine. The architecture must support massive entity counts (10,000+ units and drones), deterministic high-speed simulation, real-time human oversight, and direct live editing by AI agents via Unity-MCP.
+
+A modern, modular, agent-aware architecture built on Unity DOTS/ECS (`ProjectAegis.Sim`) plus a pluggable AI Decision Engine (`ProjectAegis.Delegation`). The simulation core, scenario model, databases, UX, and automation layer evolve **semi-independently** — matching the CMO pattern of preserving the sim kernel while improving interface and tooling.
+
+## Five-Layer Clean-Room Architecture *(research-aligned)*
+
+| Layer | Responsibilities | Project Aegis direction |
+|-------|------------------|-------------------------|
+| **Simulation kernel** | Time step, detection, kinematics, weapons, fuel, comms, doctrine | `ProjectAegis.Sim` — deterministic tick (ADR-004), policy evaluator (ADR-002) |
+| **Entity database** | Platforms, sensors, weapons, signatures, mounts, provenance | Database Intelligence Layer (doc 06); Git-backed content repo |
+| **Scenario system** | Sides, geography, ORBAT, triggers, events, objectives | Versioned JSON/YAML + compiled cache (req 11); Lua compatibility shim |
+| **UX layer** | Map, timelines, planners, inspectors, agent supervision | Unity presentation; req 20 C2 UI |
+| **Automation layer** | Scripting, batch analysis, orchestration, human-in-the-loop review | Agentic Infrastructure (doc 07); MCP tools |
+
+### Interchange & integration requirements *(new)*
+
+- **Structured simulation API** — local-first, scriptable; headless and in-editor parity
+- **Scenario import/export** — stable JSON/protobuf interchange; optional XML for external interoperability (CMO Pro pattern)
+- **External telemetry export** — order log, 3D replay hooks, AAR artifacts (req 17)
+- **Separate release trains** — engine vs database versioning (doc 06)
+- **Deterministic stepping** — mandatory for replay, Monte Carlo, and agent-vs-agent (ADR-003, ADR-004)
+
+Highest-risk failure mode: uncontrolled complexity in equipment database and doctrine logic — architecture must prioritize auditable data and testable policy over UI polish.
 
 ## Functional Requirements
 
@@ -105,13 +129,15 @@ A modern, modular, and highly agent-aware architecture built on Unity’s Data-O
 - Integration with external military data feeds for real-world scenario import
 - Hybrid CPU/GPU simulation for extreme entity counts
 
-## Open Questions / Decisions Needed
+## Resolved Decisions (May 29, 2026)
 
-1. Should we use Unity’s built-in Netcode for Entities from day one, or start with a custom deterministic lockstep system?
-2. What is the maximum acceptable entity count for the first release (target: 10k or 25k)?
-3. Do we want to support live co-simulation with external agents (e.g., Python-based reinforcement learning agents)?
-4. How much of the sensor and physics logic should be Burst-compiled vs. managed C#?
+| Question | Decision |
+|----------|----------|
+| Netcode from day one? | **Custom deterministic lockstep first**; Netcode for Entities when multiplayer is in scope |
+| Max entity count v1.0? | **10,000 entities** target; 500/swarm with LOD degradation path to 25k headless |
+| External agent co-simulation? | **Yes** — structured sim API + seed control for Python/RL agents (P2) |
+| Burst vs managed C#? | **Burst for hot paths** (sensors, movement, weapons); managed for policy, agents, I/O |
 
 ---
 
-**Status:** Ready for implementation planning
+**Status:** Research-integrated — aligned with ADR-001–005 and implemented Sim/Delegation assemblies

@@ -1,12 +1,15 @@
 # 07 - Agentic Infrastructure Framework
 
-**Last Updated:** May 28, 2026
+**Last Updated:** May 29, 2026  
+**Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)
 
 ## Purpose
-Provide a comprehensive set of high-level infrastructure agents that automate and enhance the entire game development and simulation lifecycle, enabling rapid iteration, balance, and content creation for a near-future military simulation.
+
+Provide a comprehensive set of high-level infrastructure agents that automate and enhance the entire game development and simulation lifecycle — scenario authoring, batch analysis, balance, events, performance, and human-supervised operator assistance — aligned with professional wargaming workflows (Monte Carlo, experiment runners, external telemetry).
 
 ## Vision
-A self-improving game infrastructure where specialized AI agents continuously support the development team and players by generating scenarios, analyzing results, tuning balance, managing events, and optimizing performance — all while integrating seamlessly with Unity-MCP for live editor control.
+
+A self-improving game infrastructure where specialized AI agents support developers, analysts, and players. Agents generate scenarios, orchestrate reproducible experiments, tune balance, manage events, optimize performance, and act as **supervised copilots** — every recommendation evidence-linked and reversible. Inspired by CMO Professional Edition analysis tooling, implemented as a clean-room, API-first platform.
 
 ## Functional Requirements
 
@@ -45,6 +48,42 @@ A self-improving game infrastructure where specialized AI agents continuously su
 - Suggests architectural improvements for specific scenarios
 - Provides headless performance benchmarks for agent-vs-agent runs
 
+### 6. Experiment & Monte Carlo Agent *(new — CMO Pro parity)*
+
+Formalizes reproducible batch analysis beyond single-playthrough simulation:
+
+- **Scenario seed control** — deterministic runs (ADR-003, req 17)
+- **Parameter sweep definitions** — doctrine, ROE, force ratios, TL gates
+- **Batch-run workers** — headless parallel execution (1000×+ compression)
+- **Statistical output** — kill chains, sortie effectiveness, loss distributions, mission completion rates
+- **Artifact storage** — structured results for AAR and regression baselines
+
+An **experiment orchestration agent** can generate parameter matrices, launch batches, detect anomalies, summarize results, and propose follow-up tests for human analysts.
+
+**P1 for v1.0** (infrastructure stub acceptable); **P0 for pro/analyst workflow** (Phase 5 roadmap).
+
+### 7. Operator Copilot *(new — supervised player assistance)*
+
+Sits above the simulation; does **not** execute hidden black-box actions. Capabilities:
+
+- Course-of-action generation with transparent state evidence
+- Doctrine and ROE explanation (req 13)
+- Sensor/weapon employment suggestions
+- Alert triage and prioritization (req 20)
+- Natural-language querying over scenario state
+
+Every recommendation must link to observable sim state and be **reversible** by the player. Integrates with Agent Delegation (doc 04) but does not replace unit-level agents.
+
+### 8. Database Research Assistants *(new — extends doc 06)*
+
+Infrastructure wrappers for the five-stage DB agent pipeline:
+
+- Scheduled OSINT ingestion runs
+- Weekly consistency and provenance audit reports
+- Batch normalization proposals after speculative system additions (docs 09/10)
+
+All writes route through Database Intelligence Layer; no direct merge.
+
 ## Non-Functional Requirements
 
 - All agents must be **headless-capable** (run without Unity Editor open)
@@ -77,13 +116,25 @@ A self-improving game infrastructure where specialized AI agents continuously su
 - Reinforcement learning integration for the Balance Tuning Agent
 - Multiplayer scenario co-generation with human designers
 
-## Open Questions / Decisions Needed
+## Resolved Decisions (May 29, 2026)
 
-1. Should the Scenario Generation Agent prioritize realism, balance, or variety by default?
-2. What level of detail should AAR reports include for the first release?
-3. How much autonomy should the Balance Tuning Agent have (suggest only vs. auto-apply with human approval)?
-4. Should performance optimization be fully automatic or require designer confirmation?
+| Question | Decision |
+|----------|----------|
+| Scenario generation priority? | **Realism first**, balance second, variety third — with explicit difficulty/variety overrides |
+| AAR detail v1.0? | Kill chains, key decision points, agent metrics; NL summary **P1** |
+| Balance agent autonomy? | **Suggest only** with confidence scores; auto-apply never without human approval |
+| Performance optimization? | **Suggest with one-click apply** in editor; headless auto-LOD for swarm scenarios only |
+
+## Build Phase Alignment *(from agentic research roadmap)*
+
+| Phase | Infrastructure focus |
+|-------|---------------------|
+| 1 — Sim kernel | Headless runner, deterministic saves |
+| 2 — Database platform | DB agents, validation, public intake workflow |
+| 3 — Scenario/automation | Scenario gen, import/export, replay, initial batch tools |
+| 4 — Agentic layer | Copilot, experiment orchestration, DB research assistants |
+| 5 — Pro workflow | Full Monte Carlo management, external connectors, institutional approval flows |
 
 ---
 
-**Status:** Ready for implementation
+**Status:** Research-integrated — ready for implementation

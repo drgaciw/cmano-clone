@@ -1,104 +1,262 @@
 # 09 - Near-Future Technologies
 
-**Last Updated:** May 28, 2026
+**Last Updated:** May 29, 2026  
+**Research basis:** [Near-Future Tech Research Supplement](../../docs/research/near-future-tech-research.md)
 
 ## Purpose
-Define the core set of near-future (2028–2035) military technologies that will form the backbone of gameplay systems, sensors, weapons, and platforms in the simulation.
+
+Define the core set of near-future (2028–2035) military technologies that form the backbone of gameplay systems, sensors, weapons, and platforms in the simulation. All entries must have verifiable real-world counterparts at TRL 5–9.
 
 ## Vision
-A rich, believable technology base that feels grounded in current trends while pushing 5–10 years into the future, enabling exciting new gameplay mechanics around drone swarms, autonomous systems, directed energy, hypersonics, and advanced electronic warfare.
+
+A rich, believable technology base grounded in current open-source intelligence and program status, enabling credible mechanics around drone swarms, collaborative combat aircraft, hypersonics, directed energy, cognitive EW, and AI sensor fusion — with explicit performance envelopes and trade-offs.
+
+## Technology Level Framework
+
+Scenarios bind entities to a **Technology Level (TL)** that gates availability:
+
+| TL | Era | Scope |
+|----|-----|-------|
+| **TL-0** | 2025 baseline | Current fielded systems only |
+| **TL-1** | 2026–2028 | Early fielding (Dark Eagle, HELIOS, Replicator attritables) |
+| **TL-2** | 2028–2030 | Primary near-future release target (CCA fleet, Orca XLUUV, HACM) |
+| **TL-3** | 2030–2032 | Advanced near-future (HELCAP, quantum sensing doctrine, railgun) |
+
+Speculative systems beyond TL-3 belong in [10-Speculative-Systems.md](10-Speculative-Systems.md).
 
 ## Core Technology Categories & Gameplay Implications
 
 ### 1. Unmanned & Autonomous Systems
-- **Loyal Wingman UAVs** (e.g., MQ-28 Ghost Bat successors, XQ-58 Valkyrie derivatives)
-  - Semi-autonomous wingmen that can be tasked to protect manned aircraft or perform independent strikes
-  - Gameplay: Player can assign agents to control multiple loyal wingmen simultaneously
 
-- **Collaborative Combat Aircraft (CCA) / Drone Swarms**
-  - Large numbers (50–500+) of small, attritable drones with collective intelligence
-  - Gameplay: Swarm tactics, saturation attacks, distributed sensing, and sacrificial screening
+#### Loyal Wingman UAVs / Collaborative Combat Aircraft (CCA)
 
-- **Autonomous Underwater Vehicles (AUVs) & Drone Submarines**
-  - Persistent underwater surveillance, mine-laying, and torpedo delivery
-  - Gameplay: Hidden threats, long-duration patrols, and asymmetric undersea warfare
+**Real-world anchor:** YFQ-42A (GA), YFQ-44A Fury (Anduril), MQ-28 Ghost Bat, XQ-58A Valkyrie; USAF production decision FY2026; F-47 pairing early 2030s.
 
-### 2. Advanced Weapons
-- **Hypersonic Weapons** (boost-glide and cruise variants)
-  - Extremely high speed, maneuverable, difficult to intercept
-  - Gameplay: Time-critical defense, limited reaction windows, high-value target strikes
+- Two archetypes: **attritable strike** (lower cost, shorter range, expendable) and **persistent ISR** (higher cost, longer dwell).
+- Autonomy modes: `WINGMAN` (human-supervised), `AUTONOMOUS_STRIKE` (ROE-bound), `ESCORT_ONLY` (defensive screen). Assign per mission phase.
+- Failure modes: RF link degradation, GPS spoofing, adversarial AI targeting confusion.
+- F-47 + CCA pairing unlocks `Quarterback` bonus: dynamic mid-engagement swarm tasking at reduced cognitive cost.
 
-- **Directed Energy Weapons (DEW)**
-  - Ship- and aircraft-mounted high-energy lasers and high-power microwaves
-  - Gameplay: Continuous fire (no ammunition limit), line-of-sight constraints, thermal management, counter-drone role
+**Baseline parameters (YFQ-44A Fury):**
 
-- **Electromagnetic Railguns**
-  - Hypervelocity projectiles with extreme range and speed
-  - Gameplay: Long-range precision strikes, naval gunfire support, anti-surface and anti-air roles
+| Parameter | Value |
+|-----------|-------|
+| Speed | Mach 0.95 |
+| Combat radius | ~1,000 km |
+| Payload | ~1,000 lb internal |
+| Unit cost | $3–8M (attritable tier) |
+| Autonomy | SAL-2 (human-on-the-loop) |
 
-### 3. Sensors & Detection
-- **Multi-Spectral & Quantum Sensors**
-  - Quantum radar, quantum gravimeters, advanced IR/UV, and distributed sensor networks
-  - Gameplay: Reduced stealth effectiveness, improved detection of low-observable platforms, new countermeasure challenges
+#### Drone Swarms / CCA Swarms
 
-- **AI-Enhanced Sensor Fusion**
-  - Real-time fusion of data from multiple platforms and sensor types
-  - Gameplay: Faster and more accurate threat identification, but vulnerable to electronic warfare
+**Real-world anchor:** Replicator initiative (hundreds delivered); Replicator 2.0 high-volume production; Saab 100-UAS swarm control (Arctic Strike 2025).
 
-### 4. Electronic Warfare & Cyber
-- **Cognitive Electronic Warfare Systems**
-  - AI-driven jamming, deception, and adaptive countermeasures that learn in real time
-  - Gameplay: Dynamic EW battles where systems evolve during the engagement
+- Swarm size tiers: `MICRO` (5–50), `MEDIUM` (50–500), `MASS` (500–5,000). **v1.0 supports MEDIUM (max 500 entities per swarm)**; MASS tier is TL-3 / expansion content.
+- Behaviors: `SATURATION_ATTACK`, `DISTRIBUTED_ISR`, `SACRIFICIAL_SCREEN`, `LOITERING_STRIKE`, `JAMMING_CLOUD`.
+- Attrition modeling: swarms accept 40–60% attrition before mission failure.
+- Counter-swarm: high-power microwave (THOR/Leonidas), laser CIWS, directed EW, CCA-vs-swarm intercept.
 
-- **Directed Energy Countermeasures**
-  - Laser dazzling and high-power microwave attacks against sensors and seekers
-  - Gameplay: Non-kinetic disablement of enemy platforms
+#### Replicator-Class Attritable Drone *(new — gap from research)*
 
-- **Autonomous Cyber Weapons**
-  - Self-propagating cyber attacks targeting C4I networks and weapon systems
-  - Gameplay: Risk of cascading failures, need for cyber defense layers
+- Sub-$50K expendable UAS representing USAF "affordable mass" doctrine.
+- Distinct from full CCA platforms: shorter range, minimal autonomy, high volume.
+- **P1** for v1.0 content; required for credible saturation scenarios.
 
-### 5. Stealth & Survivability
-- **Adaptive Camouflage & Metamaterials**
-  - Active visual and multi-spectral camouflage that changes in real time
-  - Gameplay: Reduced visual and sensor signatures at the cost of high power/heat
+#### Autonomous Underwater Vehicles (AUVs)
 
-- **Next-Generation Low-Observable Coatings**
-  - Improved broadband stealth with reduced maintenance requirements
+**Real-world anchor:** Boeing Orca XLUUV; HSU-001 (China).
 
-## Non-Functional Requirements
-
-- All systems must have realistic performance envelopes (range, speed, endurance, signature, cost)
-- Clear trade-offs between capability, cost, and vulnerability
-- Support for both current (2025) and near-future (2030+) technology levels within the same scenario
-
-## Agentic Capabilities
-
-- The **Dynamic Speculative Systems Agent** can propose new variants or entirely new systems based on open-source intelligence
-- Unity-MCP tools allow Claude/Cursor to:
-  - Create new entity archetypes for these technologies
-  - Tune performance parameters in real time
-  - Test balance of new systems against existing ones
-
-## Technical Considerations
-
-- Systems should be implemented as modular **Entity Component System (ECS)** components for maximum flexibility
-- Sensor and weapon models must support both deterministic simulation (for agent-vs-agent) and real-time interactive play
-- All systems require clear data schemas for the Database Intelligence Layer
-
-## Future Extensibility
-
-- Easy addition of new platforms (space-based weapons, exoskeletons, biological enhancements)
-- Support for technology levels that can be toggled per scenario (current vs. near-future vs. speculative)
-- Integration with the Speculative & Black Project Systems document for even more advanced concepts
-
-## Open Questions / Decisions Needed
-
-1. What is the maximum swarm size we should support in the first release (500? 2000?)?
-2. Should directed energy weapons have realistic thermal and power constraints modeled in detail?
-3. How much of the quantum sensor and cognitive EW behavior should be abstracted vs. fully simulated?
-4. Should we include limited space domain awareness (satellite tracking, anti-satellite threats) from day one?
+- Mission profiles: `PERSISTENT_ISR` (30–90 day endurance), `MINE_LAYING`, `TORPEDO_DELIVERY`, `COMMS_RELAY`.
+- **Undersea Fog of War:** low Pd until fixed arrays (SOSUS successor) or quantum magnetometer detect magnetic signature.
+- Quantum gravimeter/magnetometer upgrades create cat-and-mouse detection loop with AUV stealth.
 
 ---
 
-**Status:** Ready for content population and balancing
+### 2. Advanced Weapons
+
+#### Hypersonic Weapons
+
+**Real-world anchor:** LRHW Dark Eagle (Mach 17, ~2,800 km), HACM (air-launched), DF-ZF, Avangard.
+
+- Two types: **Boost-Glide** (ballistic ascent + unpowered glide, TBM-like signature) and **Hypersonic Cruise Missile** (air-breathing, lower altitude).
+- Intercept windows: <120 s reaction for boost-glide; near-zero for Avangard-class. Only THAAD+ / SM-3 Block IIA have meaningful intercept probability.
+- Game state: `HYPERSONIC_ALERT` — tension clock with limited decision branches on enemy launch detection.
+
+#### Hypersonic Defense Layer *(new — gap from research)*
+
+- THAAD+, SM-3 Block IIA as intercept assets for 2028–2032 defense balance.
+- **P0** — without this layer, hypersonic offense dominates gameplay.
+
+#### Directed Energy Weapons (DEW)
+
+**Real-world anchor:** ODIN (8 DDGs), HELIOS 60 kW (USS Preble), Iron Beam 100 kW, DragonFire 50 kW; HELCAP 300 kW pipeline.
+
+- **Model thermal and power constraints in detail** — this is a core balancing mechanic.
+- Continuous power draw with thermal accumulation; sustained fire → `THERMAL_LIMIT` degraded output.
+- Atmospheric penalties: rain/fog reduce range 30–70%.
+- Power tiers: `DAZZLE` (0–10 kW), `DISABLE` (10–100 kW), `DESTROY` (100–500 kW).
+- Ship integration: DEW competes with radar, propulsion — tactical power management.
+- Anti-drone role credible at TL-1; anti-missile role TL-3+.
+
+#### Counter-Drone Systems (C-UAS) *(new — gap from research)*
+
+- THOR (HPM), Leonidas, L-MADIS (USMC), DroneHunter F700 (Replicator 2).
+- **P1** — required counterpart to swarm offense.
+
+#### Electromagnetic Railguns
+
+**Real-world anchor:** 32 MJ system, White Sands live-fire Feb 2025; ~185 km range, Mach 7.5.
+
+- Capacitor charge time 30–60 s between full-power shots.
+- Full-power shot → `REDUCED_SHIP_SPEED` + `RADAR_DEGRADED` for 5–10 s.
+- HVP dual-purpose: surface strike, shore bombardment, anti-air vs drones/cruise missiles.
+- **TL-3 only** — not in 2025 baseline scenarios.
+
+---
+
+### 3. Sensors & Detection
+
+#### Quantum Sensors
+
+**Real-world anchor:** DIA 2025 Threat Assessment; quantum magnetometers (submarine detection); hybrid quantum-classical radar.
+
+- **Abstract as doctrine unlock in v1.0:** `QUANTUM_SENSING_DOCTRINE` reduces LO platform stealth 20–40% force-wide.
+- Individual quantum sensor unit modeling at **TL-3+**.
+- Counter-measures: real-time degaussing, decoy signatures, noise injection.
+- Scenario toggle: `QUANTUM_SENSING_ENABLED`.
+
+#### AI-Enhanced Sensor Fusion / JADC2
+
+**Real-world anchor:** Capstone 2025; Project Maven; JADC2 sensor-shooter network.
+
+- **JADC2 / C2 Network Node** *(new entity archetype)* — contested resource; destruction or jamming degrades force-wide effectiveness.
+- Composite Air Picture (CAP): quality degrades under EW, attrition, or network disruption.
+- Latency: fused picture 2–10 s update; EW disruption → 30–120 s or ghost tracks.
+- `AUTOMATIC_CUEING` upgrade: system assigns intercept assets without micromanagement.
+- Primary target for autonomous cyber weapons (see §4).
+
+#### Undersea Fixed Sensor Arrays *(new — gap from research)*
+
+- SOSUS-successor distributed acoustic/quantum detection grids.
+- **P1** — counter-AUV gameplay loop.
+
+#### Space Domain Awareness *(limited — decision resolved)*
+
+- **Include limited SDA from v1.0:** satellite ISR degradation and ASAT threat as escalation-tier events, not base-layer orbital mechanics.
+- Full cislunar operations → [10-Speculative-Systems.md](10-Speculative-Systems.md) TL-4+.
+
+---
+
+### 4. Electronic Warfare & Cyber
+
+#### Cognitive Electronic Warfare (CEW)
+
+**Real-world anchor:** DARPA ARC, BLADE (BAE Systems).
+
+- Learning curve: first encounter with unknown waveform 3–5 s characterization; subsequent near-instant.
+- `EW_DUEL` mechanic: dynamic waveform competition when both sides have CEW.
+- Quantum-enhanced radar (TL-3+) can render current CEW moot unless CEW also uses quantum processing.
+
+#### Autonomous Cyber Weapons
+
+**Real-world anchor:** AI-driven adaptive malware; Pentagon AI integration creates new attack surfaces.
+
+- `PROPAGATION` mechanic: T+0 injection → T+30s primary degraded → T+90s secondary infected → T+180s network collapse.
+- Defense layers: air-gapped backup C2, intrusion-detection AI, network segmentation (each adds resistance, reduces integration benefit).
+- `ACCOUNTABILITY_GAP` narrative event: unintended civilian infrastructure damage → escalation meter increase.
+
+#### Directed Energy Countermeasures
+
+- Laser dazzling and HPM vs seekers/sensors — non-kinetic disablement.
+
+---
+
+### 5. Stealth & Survivability
+
+#### Signature Management Subsystem *(new — from research)*
+
+Each platform tracks independently:
+
+- `RADAR_SIGNATURE`, `IR_SIGNATURE`, `ACOUSTIC_SIGNATURE`, `VISUAL_SIGNATURE`
+
+Adaptive systems reduce one or two signatures at cost of power draw and heat (paradoxically raising IR).
+
+#### Adaptive Camouflage & Metamaterials
+
+- HT4 thermal cloaking: credible **TL-1** infantry item.
+- Multi-spectral platform camouflage: **TL-3+**.
+- Metamaterial coatings degrade with combat damage — maintenance modeling.
+
+#### Next-Generation Low-Observable Coatings
+
+- Broadband RAM in active R&D; underwater tiles for submarines (DRDO/US programs, Feb 2025).
+- AI-driven mid-mission signature reconfiguration: **TL-3**.
+
+---
+
+## Performance Envelope Reference
+
+| System | Speed | Range | TRL (2026) | Game TL |
+|--------|-------|-------|------------|---------|
+| YFQ-44A Fury CCA | Mach 0.95 | ~1,000 km combat radius | 7–8 | TL-2 |
+| XQ-58A Valkyrie | Mach 0.95 | 5,600 km | 8 | TL-1 |
+| LRHW Dark Eagle | Mach 17 peak | ~2,800 km | 7–8 | TL-1 |
+| HACM | Mach 5+ | ~1,000 km | 6–7 | TL-2 |
+| HELIOS 60 kW | c | ~2–5 km effective | 8 | TL-1 |
+| HELCAP 300 kW | c | ~10–20 km (clear sky) | 5–6 | TL-3 |
+| Orca XLUUV | ~8 kn | 6,500 km | 6–7 | TL-2 |
+| 32 MJ Railgun | Mach 7.5 | 185 km | 5–6 | TL-3 |
+
+---
+
+## Non-Functional Requirements
+
+- All systems must have realistic performance envelopes (range, speed, endurance, signature, cost).
+- Clear trade-offs between capability, cost, and vulnerability.
+- Support TL-0 through TL-3 within the same scenario engine via entity gating.
+- Each system entry in the database must cite TRL and research source (see doc 06 provenance).
+- Swarm simulation must remain deterministic at max v1.0 size (500 per swarm) under ADR-004 tick ordering.
+
+---
+
+## Agentic Capabilities
+
+- **Dynamic Speculative Systems Agent** proposes new variants from open-source intelligence — routed through Database Intelligence Layer (propose, not auto-merge).
+- Unity-MCP tools: create entity archetypes, tune parameters, run balance batches against existing systems.
+
+---
+
+## Technical Considerations
+
+- Modular ECS components (ADR-005); deterministic sim for agent-vs-agent and replay (req 17).
+- Sensor and weapon models support both deterministic batch and real-time interactive play.
+- Clear data schemas for Database Intelligence Layer with temporal validity windows per variant.
+
+---
+
+## Resolved Decisions (May 29, 2026)
+
+| Question | Decision | Rationale |
+|----------|----------|-----------|
+| Max swarm size v1.0? | **500 per swarm (MEDIUM tier)** | Matches Replicator doctrine; 2,000+ at TL-3 / expansion |
+| DEW thermal/power detail? | **Yes — full modeling** | Real systems (HELIOS, Iron Beam) require it for balance |
+| Quantum sensor abstraction? | **Doctrine unlock v1.0; unit-level at TL-3+** | DIA confirms near-term relevance; full sim premature |
+| Space domain from day one? | **Limited SDA + ASAT escalation events** | Cislunar is 2035+ scope (doc 10) |
+
+---
+
+## Traceability
+
+| Research section | Requirement section |
+|------------------|---------------------|
+| §1 Unmanned & Autonomous | §1 above |
+| §2 Advanced Weapons | §2 above |
+| §3 Sensors & Detection | §3 above |
+| §4 EW & Cyber | §4 above |
+| §5 Stealth | §5 above |
+| Gap analysis (5 items) | New entities marked *(new)* |
+| Open questions table | Resolved Decisions |
+
+---
+
+**Status:** Research-integrated — ready for GDD authoring and database schema design
