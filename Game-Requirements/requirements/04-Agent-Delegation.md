@@ -49,6 +49,8 @@ Autonomy levels must integrate with side/unit ROE and policy evaluator (req 13, 
 - Player can take direct control of any unit at any time
 - Agent must immediately yield control when overridden
 - Option to “pause agent” or “resume agent” without losing current tasking
+- **Group override:** when overriding a unit inside an agent-commanded group, the unit **detaches** from the group; the group-agent replans on the next cycle; player orders are authoritative until release/rejoin (see Resolved Design Decisions)
+- **Dual-side testing:** commanding units on both sides in Mixed Mode requires scenario policy `allowDualSideControl: true` (req 03); per-target override semantics unchanged
 
 ### Realistic Variability
 - Agents must exhibit human-like behavior: occasional mistakes, hesitation under pressure, different decision styles
@@ -88,12 +90,35 @@ Autonomy levels must integrate with side/unit ROE and policy evaluator (req 13, 
 - Multi-agent coordination (e.g., one agent commanding a swarm of subordinate agents)
 - Integration with external AI models for advanced research use cases
 
-## Open Questions / Decisions Needed
+## Resolved Design Decisions
 
-1. Should agents have limited “attention” or bandwidth (i.e., can only effectively control a certain number of units at once)?
-2. How should we handle conflicting orders when a player overrides an agent that is part of a larger group?
-3. Should there be a “trust” or “experience” system where agents improve or degrade based on performance over a campaign?
+Decisions locked May 30, 2026. Full rationale: `docs/superpowers/specs/2026-05-30-agent-delegation-decisions-design.md`.
+
+### 1. Agent attention / bandwidth
+
+**Decision:** Yes — **core mechanic**, not optional.
+
+- Every agent has an attention **budget** (default **20**); **load** scales with contacts, engagements, and group member count.
+- Overload degrades gracefully: slower reactions → narrowed focus → simpler decisions.
+- Personality presets may modulate budget (e.g., Swarm Coordinator +25%).
+- Strategic intent: delegation is a trade-off — one super-agent cannot perfectly command an entire theater.
+
+### 2. Conflicting orders on group override
+
+**Decision:** **Detach-and-rejoin** (default).
+
+- Override of a group member detaches the unit, suspends/resumes its agent via controller swap, and marks the group for **next-cycle** replan.
+- Exactly one active controller per target — order conflicts are structurally impossible.
+- Order log emits `GroupMemberDetach`, `GroupMemberRejoin`, and `ControllerChange` events.
+- Future per-scenario option: `groupOverrideMode: stayAndSuggest` (not v1).
+
+### 3. Trust / experience (campaign)
+
+**Decision:** **Emit-only in tactical MVP; campaign aggregation Phase 3** (aligned with req 13).
+
+- Tactical layer emits `TrustSignal` records (ROE violations, objectives met, friendly fire, override rate); **no effect on agent decisions during a scenario run**.
+- Campaign layer (Phase 3) aggregates into `AgentExperienceBlob` and may adjust trait snapshots at scenario **load** only — never mid-tick, preserving replay determinism.
 
 ---
 
-**Status:** Delegation system design approved
+**Status:** Delegation system design approved; open questions resolved May 30, 2026
