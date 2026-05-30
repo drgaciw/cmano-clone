@@ -55,6 +55,8 @@ For production, wire `ISimWorldSnapshot` / `IOrderSink` from ECS in `SystemBase`
 
 **Policy (ADR-002):** Use `orchestrator.AssignAgentToTarget(agent, target, effectivePolicy)` to freeze snapshots. `DecisionLog.PolicyDenials` records blocked engages.
 
+**Engage (ADR-002/003):** `DelegationBridgeHost` enables MVP engage by default (`EnableMvpEngagement`). Engage orders resolve in `SimulationSession`; other orders still go to `IOrderSink`.
+
 **Unity packages (6.3 LTS):** Copy [`Packages/manifest.template.json`](Packages/manifest.template.json) into your Unity project's `Packages/manifest.json` and resolve via Package Manager.
 
 ## 5. DOTS notes (future)
