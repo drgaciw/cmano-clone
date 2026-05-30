@@ -41,3 +41,29 @@ This project is indexed by GitNexus as **cmano-clone** (1824 symbols, 3872 relat
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+## Cursor Cloud specific instructions
+
+Headless **.NET 8** development is the supported Cloud Agent path. Unity Editor 6.3 LTS (`unity/ProjectAegis`) is optional and usually not installed in the VM; use the headless Play Mode harness instead of opening the Editor.
+
+### Prerequisites
+
+- **.NET SDK 8.0.400** (see `global.json`). If `dotnet` is missing, install to `~/.dotnet` via [dotnet-install.sh](https://dot.net/v1/dotnet-install.sh) and ensure `dotnet` is on `PATH` (e.g. symlink to `/usr/local/bin/dotnet`).
+- **Node.js** is only needed for `tools/cmano-db-crawler/` (reference data), not for build/test.
+
+### Common commands (repo root)
+
+| Task | Command |
+|------|---------|
+| Restore | `dotnet restore ProjectAegis.sln` |
+| Build | `dotnet build ProjectAegis.sln` |
+| Test (full suite, 68 tests) | `dotnet test ProjectAegis.sln -v minimal` |
+| Play Mode smoke (headless) | `dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests` |
+| Run delegation demo | `dotnet run --project src/ProjectAegis.Delegation.Demo` |
+| Format check | `dotnet format --verify-no-changes` (may report pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`) |
+
+See `README.md` and `unity/ProjectAegis/PLAYMODE-SMOKE.md` for Unity Editor setup (`./tools/init-unity-project.ps1` requires PowerShell).
+
+### Services
+
+No Docker compose or long-running servers. The “application” is in-process: `dotnet test` or the console demo. Unity-MCP (`http://localhost:8080`) and GitNexus MCP are agent tooling only, not required for CI-style verification.
