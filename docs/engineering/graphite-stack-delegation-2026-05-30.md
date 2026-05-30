@@ -45,3 +45,15 @@ gt submit --stack --no-interactive
 - `PersonalityCatalog.ResolveAttentionBudget` — Swarm +25%, EW −10%
 
 **Headless gate per slice:** `dotnet test ProjectAegis.sln`
+
+## Open PRs (2026-05-30)
+
+| # | PR |
+|---|-----|
+| DELEG-6 | https://github.com/drgaciw/cmano-clone/pull/5 |
+| DELEG-7 | https://github.com/drgaciw/cmano-clone/pull/6 |
+| DELEG-8 | https://github.com/drgaciw/cmano-clone/pull/7 |
+| DELEG-9 | https://github.com/drgaciw/cmano-clone/pull/8 |
+| DELEG-10 | https://github.com/drgaciw/cmano-clone/pull/9 |
+
+**Graphite note:** `gt sync` / `gt submit --stack` require a fresh auth token at https://app.graphite.com/activate (token expired 2026-05-30). DELEG-1–5 branches exist locally; use `gt submit` after re-auth to open remaining stack PRs if not yet on GitHub.
