@@ -8,17 +8,18 @@ using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.Tests.Orchestration;
 
 [TestFixture]
-public sealed class SimulationSessionMvpTests
+public sealed class SimulationSessionPhaseTests
 {
     [Test]
-    public void Mvp_resolver_launches_when_defaults_prime_world()
+    public void Tick_is_no_op_while_planning()
     {
-        var session = SimulationSession.CreateWithMvpEngagement(7);
+        var session = new SimulationSession(1, new StubEngagementResolver());
         var unit = new UnitTarget(new TargetId("u1"));
         var agent = session.Orchestrator.CreateAgent(
             new AgentId("a1"),
@@ -27,25 +28,18 @@ public sealed class SimulationSessionMvpTests
             policy: new EngageOnlyPolicy());
         session.Orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
         session.Orchestrator.Register(unit);
-        session.BeginExecution();
 
-        for (var t = 0; t < 5; t++)
-        {
-            session.Tick(new ObservedState(t, 2, 0, new Dictionary<TargetId, bool>()));
-        }
+        Assert.That(session.Phase, Is.EqualTo(SimulationPhase.Planning));
+        session.Tick(new ObservedState(0, 1, 0, new Dictionary<TargetId, bool>()));
 
-        Assert.That(session.Orchestrator.DecisionLog.Engagements.Any(e => e.Launched), Is.True);
+        Assert.That(session.Orchestrator.DecisionLog.Records, Is.Empty);
+        Assert.That(session.Sim.LastWorldHash, Is.EqualTo(0UL));
     }
 
     [Test]
-    public void Mvp_resolver_logs_abort_when_out_of_envelope()
+    public void BeginExecution_allows_ticks_and_advances_sim()
     {
-        var session = SimulationSession.CreateWithMvpEngagement(
-            42,
-            new EngageContext(200_000, new WeaponEnvelope(1_000, 100_000), 2, true));
-        Assert.That(session.EngageWorld, Is.Not.Null);
-        Assert.That(session.Magazines, Is.Not.Null);
-
+        var session = new SimulationSession(1, new StubEngagementResolver());
         var unit = new UnitTarget(new TargetId("u1"));
         var agent = session.Orchestrator.CreateAgent(
             new AgentId("a1"),
@@ -54,17 +48,33 @@ public sealed class SimulationSessionMvpTests
             policy: new EngageOnlyPolicy());
         session.Orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
         session.Orchestrator.Register(unit);
+
         session.BeginExecution();
+        session.Tick(new ObservedState(0, 1, 0, new Dictionary<TargetId, bool>()));
 
-        for (var t = 0; t < 3; t++)
-        {
-            session.Tick(new ObservedState(t, 2, 0, new Dictionary<TargetId, bool>()));
-        }
+        Assert.That(session.Phase, Is.EqualTo(SimulationPhase.Executing));
+        Assert.That(session.Orchestrator.DecisionLog.Records, Is.Not.Empty);
+    }
 
-        var aborted = session.Orchestrator.DecisionLog.Engagements
-            .Where(e => !e.Launched && e.AbortReason != null)
-            .ToList();
-        Assert.That(aborted, Is.Not.Empty);
+    [Test]
+    public void TryRebindAgentTraits_denied_when_planningOnly_and_executing()
+    {
+        var orchestrator = new DelegationOrchestrator(42);
+        orchestrator.ScenarioPolicy = new ScenarioPolicyProfile(
+            EffectivePolicy.DefaultFree,
+            personalityEditPolicy: PersonalityEditPolicy.PlanningOnly);
+        var agent = orchestrator.CreateAgent(
+            new AgentId("a1"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous);
+
+        var verdict = orchestrator.TryRebindAgentTraits(
+            agent,
+            PersonalityCatalog.All[1].Traits,
+            SimulationPhase.Executing);
+
+        Assert.That(verdict.Allowed, Is.False);
+        Assert.That(agent.Traits, Is.EqualTo(PersonalityCatalog.All[0].Traits));
     }
 
     private sealed class EngageOnlyPolicy : IPolicy

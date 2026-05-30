@@ -142,4 +142,19 @@ public sealed class DelegationOrchestrator
 
         ExecutedOrders = executed;
     }
+
+    public LoopPolicyVerdict TryRebindAgentTraits(
+        AgentController agent,
+        TraitVector traits,
+        SimulationPhase phase)
+    {
+        var verdict = LoopPolicyGate.CanEditPersonality(ScenarioPolicy, phase, agent.Autonomy);
+        if (!verdict.Allowed)
+        {
+            return verdict;
+        }
+
+        agent.RebindTraits(traits);
+        return LoopPolicyVerdict.Allow();
+    }
 }

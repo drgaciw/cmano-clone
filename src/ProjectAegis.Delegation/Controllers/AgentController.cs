@@ -15,6 +15,7 @@ public sealed class AgentController : IController
 {
     private readonly List<Order> _issued = new();
     private double _nextDecisionSimTime;
+    private TraitVector _traits;
 
     public AgentController(
         AgentId id,
@@ -25,7 +26,7 @@ public sealed class AgentController : IController
         double attentionBudget)
     {
         Id = id;
-        Traits = traits;
+        _traits = traits;
         Autonomy = autonomy;
         Rng = rng;
         Policy = policy;
@@ -35,7 +36,7 @@ public sealed class AgentController : IController
 
     public AgentId Id { get; }
 
-    public TraitVector Traits { get; }
+    public TraitVector Traits => _traits;
 
     public AutonomyLevel Autonomy { get; set; }
 
@@ -58,6 +59,8 @@ public sealed class AgentController : IController
         PolicySnapshotId = policySnapshotId;
         EffectivePolicy = effective;
     }
+
+    public void RebindTraits(TraitVector traits) => _traits = traits;
 
     public IReadOnlyList<Order> DrainIssuedOrders()
     {

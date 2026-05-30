@@ -31,6 +31,7 @@ public sealed class SimulationSessionTests
             unit,
             EffectivePolicy.DefaultFree);
         session.Orchestrator.Register(unit);
+        session.BeginExecution();
 
         for (var t = 0; t < 5; t++)
         {
