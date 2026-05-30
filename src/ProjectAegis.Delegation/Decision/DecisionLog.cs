@@ -9,12 +9,21 @@ public sealed class DecisionLog
     private readonly List<ulong> _decisionSequences = new();
     private readonly List<PolicyDenialRecord> _policyDenials = new();
     private readonly List<EngagementRecord> _engagements = new();
+    private readonly List<ControllerChangeRecord> _controllerChanges = new();
+    private readonly List<GroupMemberDetachRecord> _groupMemberDetaches = new();
+    private readonly List<GroupMemberRejoinRecord> _groupMemberRejoins = new();
 
     public IReadOnlyList<DecisionRecord> Records => _records;
 
     public IReadOnlyList<PolicyDenialRecord> PolicyDenials => _policyDenials;
 
     public IReadOnlyList<EngagementRecord> Engagements => _engagements;
+
+    public IReadOnlyList<ControllerChangeRecord> ControllerChanges => _controllerChanges;
+
+    public IReadOnlyList<GroupMemberDetachRecord> GroupMemberDetaches => _groupMemberDetaches;
+
+    public IReadOnlyList<GroupMemberRejoinRecord> GroupMemberRejoins => _groupMemberRejoins;
 
     public void Append(DecisionRecord record)
     {
@@ -27,6 +36,15 @@ public sealed class DecisionLog
 
     public void AppendEngagement(EngagementRecord engagement) =>
         _engagements.Add(engagement with { SequenceId = NextSequence() });
+
+    public void AppendControllerChange(ControllerChangeRecord change) =>
+        _controllerChanges.Add(change with { SequenceId = NextSequence() });
+
+    public void AppendGroupMemberDetach(GroupMemberDetachRecord detach) =>
+        _groupMemberDetaches.Add(detach with { SequenceId = NextSequence() });
+
+    public void AppendGroupMemberRejoin(GroupMemberRejoinRecord rejoin) =>
+        _groupMemberRejoins.Add(rejoin with { SequenceId = NextSequence() });
 
     /// <summary>Unified timeline sorted by sequence (ADR-003 MVP).</summary>
     public IReadOnlyList<OrderLogEntry> ChronologicalEntries()
@@ -49,6 +67,21 @@ public sealed class DecisionLog
         foreach (var e in _engagements)
         {
             entries.Add(new OrderLogEntry(e.SequenceId, OrderLogEntryKind.Engagement, e.SimTime, e));
+        }
+
+        foreach (var c in _controllerChanges)
+        {
+            entries.Add(new OrderLogEntry(c.SequenceId, OrderLogEntryKind.ControllerChange, c.SimTime, c));
+        }
+
+        foreach (var d in _groupMemberDetaches)
+        {
+            entries.Add(new OrderLogEntry(d.SequenceId, OrderLogEntryKind.GroupMemberDetach, d.SimTime, d));
+        }
+
+        foreach (var r in _groupMemberRejoins)
+        {
+            entries.Add(new OrderLogEntry(r.SequenceId, OrderLogEntryKind.GroupMemberRejoin, r.SimTime, r));
         }
 
         return entries.OrderBy(e => e.SequenceId).ToArray();
@@ -82,6 +115,12 @@ public sealed class DecisionLog
                 $"{d.TargetId.Value}|{d.Reason}|{d.AttemptedKind}",
             OrderLogEntryKind.Engagement when entry.Payload is EngagementRecord e =>
                 $"{e.ShooterTargetId.Value}|{e.EngagementId}|{e.Launched}|{e.AbortReason}",
+            OrderLogEntryKind.ControllerChange when entry.Payload is ControllerChangeRecord c =>
+                $"{c.TargetId.Value}|{c.PreviousKind}|{c.NewKind}|{c.AgentId?.Value}",
+            OrderLogEntryKind.GroupMemberDetach when entry.Payload is GroupMemberDetachRecord d =>
+                $"{d.GroupId.Value}|{d.UnitId.Value}",
+            OrderLogEntryKind.GroupMemberRejoin when entry.Payload is GroupMemberRejoinRecord r =>
+                $"{r.GroupId.Value}|{r.UnitId.Value}",
             _ => "?",
         };
 

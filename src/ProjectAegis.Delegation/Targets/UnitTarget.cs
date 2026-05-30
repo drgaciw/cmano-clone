@@ -17,5 +17,11 @@ public sealed class UnitTarget : ICommandableTarget
 
     public bool IsDetachedFromGroup { get; private set; }
 
-    public void SetDetached(bool detached) => IsDetachedFromGroup = detached;
+    public TargetId? DetachedFromGroupId { get; private set; }
+
+    public void SetDetached(bool detached, TargetId? fromGroup = null)
+    {
+        IsDetachedFromGroup = detached;
+        DetachedFromGroupId = detached ? fromGroup : null;
+    }
 }
