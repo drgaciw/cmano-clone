@@ -7,6 +7,7 @@ using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
+using ProjectAegis.Delegation.Trust;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 
@@ -49,6 +50,12 @@ public sealed class DelegationBridge
     public SimulationPhase Phase => Orchestrator.Phase;
 
     public void BeginExecution() => Orchestrator.BeginExecution();
+
+    public bool AttachReplayViewer
+    {
+        get => Orchestrator.AttachReplayViewer;
+        set => Orchestrator.AttachReplayViewer = value;
+    }
 
     public IReadOnlyList<OrderLogEntry> GetLiveOrderLogView() =>
         Orchestrator.GetLiveOrderLogView();
@@ -109,6 +116,11 @@ public sealed class DelegationBridge
         double simTime,
         RiskLevel? risk = null)
     {
+        if (Orchestrator.AttachReplayViewer)
+        {
+            return false;
+        }
+
         if (!Registry.TryGetBinding(entity, out var binding) ||
             binding.Target.Slot.Active is not HumanController human)
         {
@@ -124,4 +136,31 @@ public sealed class DelegationBridge
             resolvedRisk));
         return true;
     }
+
+    public bool TryTakeDirectControl(EntityKey entity, double simTime)
+    {
+        if (!Registry.TryGetBinding(entity, out var binding) ||
+            binding.Target is not UnitTarget unit)
+        {
+            return false;
+        }
+
+        return Orchestrator.TryTakeDirectControl(unit, simTime);
+    }
+
+    public bool TryReleaseDirectControl(EntityKey entity, double simTime)
+    {
+        if (!Registry.TryGetBinding(entity, out var binding) ||
+            binding.Target is not UnitTarget unit)
+        {
+            return false;
+        }
+
+        return Orchestrator.TryReleaseDirectControl(unit, simTime);
+    }
+
+    public IReadOnlyList<TrustSignal> FinalizeScenario(
+        bool missionSucceeded = false,
+        double objectivesMetRatio = 1.0) =>
+        Orchestrator.FinalizeScenario(missionSucceeded, objectivesMetRatio);
 }

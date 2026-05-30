@@ -3,6 +3,7 @@ namespace ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
+using ProjectAegis.Delegation.Groups;
 using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Delegation.Sim;
@@ -18,12 +19,16 @@ public sealed class DelegationOrchestrator
     private readonly List<ICommandableTarget> _targets = new();
     private readonly AutonomyGate _autonomyGate;
     private readonly PolicySnapshotRegistry _policySnapshots = new();
+    private readonly OverrideService _overrideService = new();
+    private readonly DetachRejoinService _detachRejoinService;
+    private readonly List<TrustSignal> _trustSignals = new();
     private long _orderIdSequence = 1;
 
     public DelegationOrchestrator(int globalSeed, SimPolicy.IPolicyEvaluator? policyEvaluator = null)
     {
         GlobalSeed = globalSeed;
         DecisionLog = new DecisionLog();
+        _detachRejoinService = new DetachRejoinService(_overrideService);
         var evaluator = policyEvaluator ?? new PolicyEvaluator(ResolvePolicyForUnit);
         _autonomyGate = new AutonomyGate(
             new RoePolicyAdapter(evaluator, _policySnapshots.CreateContext));
@@ -33,6 +38,9 @@ public sealed class DelegationOrchestrator
 
     public ScenarioPolicyProfile? ScenarioPolicy { get; set; }
 
+    /// <summary>When true, human order ingress is blocked (req 03 AvA observer attach).</summary>
+    public bool AttachReplayViewer { get; set; }
+
     public SimulationPhase Phase { get; private set; } = SimulationPhase.Planning;
 
     public int GlobalSeed { get; }
@@ -41,7 +49,7 @@ public sealed class DelegationOrchestrator
 
     public IReadOnlyList<Order> ExecutedOrders { get; private set; } = Array.Empty<Order>();
 
-    public IReadOnlyList<TrustSignal> TrustSignals { get; } = new List<TrustSignal>();
+    public IReadOnlyList<TrustSignal> TrustSignals => _trustSignals;
 
     public void Register(ICommandableTarget target) => _targets.Add(target);
 
@@ -52,9 +60,6 @@ public sealed class DelegationOrchestrator
         double attentionBudget = 20,
         IPolicy? policy = null)
     {
-        // Must be a deterministic, cross-process-stable hash: string.GetHashCode is
-        // randomized per process, which would make each agent's RNG stream differ
-        // run-to-run and break replay reproducibility (DET-001).
         var salt = DeterministicHash.OrdinalHash(id.Value);
         var rng = new SeededRng(GlobalSeed, salt);
         return new AgentController(
@@ -66,7 +71,18 @@ public sealed class DelegationOrchestrator
             attentionBudget);
     }
 
-    /// <summary>Assign agent to target and freeze policy snapshot (TR-policy-003).</summary>
+    public AgentController CreateAgentFromPreset(
+        AgentId id,
+        PersonalityPreset preset,
+        AutonomyLevel autonomy,
+        IPolicy? policy = null) =>
+        CreateAgent(
+            id,
+            preset.Traits,
+            autonomy,
+            PersonalityCatalog.ResolveAttentionBudget(preset),
+            policy);
+
     public void AssignAgentToTarget(
         AgentController agent,
         ICommandableTarget target,
@@ -112,6 +128,91 @@ public sealed class DelegationOrchestrator
     }
 
     public void BeginExecution() => Phase = SimulationPhase.Executing;
+
+    public bool TryTakeDirectControl(UnitTarget unit, double simTime)
+    {
+        var previous = DescribeActiveController(unit.Slot);
+        var parentGroup = FindParentGroup(unit.Id);
+
+        if (parentGroup is not null)
+        {
+            _detachRejoinService.Detach(parentGroup, unit);
+            DecisionLog.AppendGroupMemberDetach(new GroupMemberDetachRecord(0, simTime, parentGroup.Id, unit.Id));
+        }
+        else if (unit.Slot.Active is AgentController)
+        {
+            _overrideService.TakeDirectControl(unit, new HumanController());
+        }
+        else
+        {
+            unit.Slot.SetActive(new HumanController());
+        }
+
+        var agentId = unit.Slot.SuspendedAgent?.Id
+            ?? (unit.Slot.Active is AgentController active ? active.Id : null);
+        DecisionLog.AppendControllerChange(new ControllerChangeRecord(
+            0, simTime, unit.Id, previous, "Human", agentId));
+        return true;
+    }
+
+    public bool TryReleaseDirectControl(UnitTarget unit, double simTime)
+    {
+        if (unit.Slot.Active is not HumanController)
+        {
+            return false;
+        }
+
+        if (unit.IsDetachedFromGroup && unit.DetachedFromGroupId is { } groupId &&
+            FindTarget(groupId) is GroupTarget parentGroup)
+        {
+            _detachRejoinService.Rejoin(parentGroup, unit);
+            DecisionLog.AppendGroupMemberRejoin(new GroupMemberRejoinRecord(0, simTime, parentGroup.Id, unit.Id));
+        }
+        else
+        {
+            _overrideService.ReleaseDirectControl(unit);
+        }
+
+        var resumed = unit.Slot.Active is AgentController agent ? agent.Id : (AgentId?)null;
+        DecisionLog.AppendControllerChange(new ControllerChangeRecord(
+            0, simTime, unit.Id, "Human", DescribeActiveController(unit.Slot), resumed));
+        return true;
+    }
+
+    public GroupTarget? FindParentGroup(TargetId unitId)
+    {
+        foreach (var target in _targets)
+        {
+            if (target is GroupTarget group && group.Members.Contains(unitId))
+            {
+                return group;
+            }
+        }
+
+        return null;
+    }
+
+    private ICommandableTarget? FindTarget(TargetId id)
+    {
+        foreach (var target in _targets)
+        {
+            if (target.Id == id)
+            {
+                return target;
+            }
+        }
+
+        return null;
+    }
+
+    private static string DescribeActiveController(ControllerSlot slot) =>
+        slot.Active switch
+        {
+            HumanController => "Human",
+            AgentController => "Agent",
+            null when slot.SuspendedAgent is not null => "AgentSuspended",
+            _ => "None",
+        };
 
     public void Tick(ObservedState state)
     {
@@ -167,9 +268,18 @@ public sealed class DelegationOrchestrator
         return LoopPolicyVerdict.Allow();
     }
 
-    /// <summary>Live HUD order log; full log remains in <see cref="DecisionLog"/> for replay/AAR.</summary>
     public IReadOnlyList<OrderLogEntry> GetLiveOrderLogView() =>
         PlayerInfoFilter.FilterLiveEntries(
             DecisionLog.ChronologicalEntries(),
             LoopPolicyGate.ResolvePlayerInfoModel(ScenarioPolicy));
+
+    public IReadOnlyList<TrustSignal> FinalizeScenario(
+        bool missionSucceeded = false,
+        double objectivesMetRatio = 1.0)
+    {
+        _trustSignals.Clear();
+        _trustSignals.AddRange(
+            TrustSignalEmitter.EmitFromSession(DecisionLog, missionSucceeded, objectivesMetRatio));
+        return _trustSignals;
+    }
 }
