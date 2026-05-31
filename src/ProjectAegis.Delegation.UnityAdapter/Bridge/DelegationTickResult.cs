@@ -4,4 +4,5 @@ using ProjectAegis.Delegation.Core;
 
 public sealed record DelegationTickResult(
     IReadOnlyList<Order> ExecutedOrders,
-    int DispatchedToSim);
+    int DispatchedToSim,
+    int EngagementsResolved = 0);

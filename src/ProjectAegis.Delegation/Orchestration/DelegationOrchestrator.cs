@@ -166,4 +166,10 @@ public sealed class DelegationOrchestrator
         agent.RebindTraits(traits);
         return LoopPolicyVerdict.Allow();
     }
+
+    /// <summary>Live HUD order log; full log remains in <see cref="DecisionLog"/> for replay/AAR.</summary>
+    public IReadOnlyList<OrderLogEntry> GetLiveOrderLogView() =>
+        PlayerInfoFilter.FilterLiveEntries(
+            DecisionLog.ChronologicalEntries(),
+            LoopPolicyGate.ResolvePlayerInfoModel(ScenarioPolicy));
 }

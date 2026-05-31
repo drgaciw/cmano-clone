@@ -22,6 +22,31 @@ public sealed class SimulationSession
         Sim = new SimTickPipeline(seed, engagement ?? new StubEngagementResolver());
     }
 
+    private SimulationSession(DelegationOrchestrator orchestrator, SimTickPipeline sim)
+    {
+        Orchestrator = orchestrator;
+        Sim = sim;
+    }
+
+    /// <summary>Attach MVP engage pipeline to an existing orchestrator (Unity bridge, shared session).</summary>
+    public static SimulationSession BindMvpEngagement(
+        DelegationOrchestrator orchestrator,
+        EngageContext defaultEngageContext,
+        int defaultMagazineRounds = 2)
+    {
+        var seed = SimSeed.FromScenario((ulong)orchestrator.GlobalSeed);
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        var sim = new SimTickPipeline(seed, new MvpEngagementResolver(world, magazines));
+        return new SimulationSession(orchestrator, sim)
+        {
+            EngageWorld = world,
+            Magazines = magazines,
+            DefaultEngageContext = defaultEngageContext,
+            DefaultMagazineRounds = defaultMagazineRounds,
+        };
+    }
+
     public SimulationPhase Phase => Orchestrator.Phase;
 
     public DelegationOrchestrator Orchestrator { get; }
@@ -95,17 +120,11 @@ public sealed class SimulationSession
     public static SimulationSession CreateWithMvpEngagement(
         int globalSeed,
         EngageContext defaultEngageContext,
-        int defaultMagazineRounds = 2)
+        int defaultMagazineRounds = 2,
+        IPolicyEvaluator? policyEvaluator = null)
     {
-        var world = new DictionaryEngageWorldQuery();
-        var magazines = new MagazineLedger();
-        return new SimulationSession(globalSeed, new MvpEngagementResolver(world, magazines))
-        {
-            EngageWorld = world,
-            Magazines = magazines,
-            DefaultEngageContext = defaultEngageContext,
-            DefaultMagazineRounds = defaultMagazineRounds,
-        };
+        var orchestrator = new DelegationOrchestrator(globalSeed, policyEvaluator);
+        return BindMvpEngagement(orchestrator, defaultEngageContext, defaultMagazineRounds);
     }
 
     public DictionaryEngageWorldQuery? EngageWorld { get; init; }

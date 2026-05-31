@@ -12,14 +12,20 @@ namespace ProjectAegis.Unity.Runtime
     public sealed class DelegationBridgeHost : MonoBehaviour
     {
         [SerializeField] private int globalSeed = 42;
+        [SerializeField] private bool enableMvpEngagement = true;
 
         public DelegationBridge Bridge { get; private set; } = null!;
 
-        public SimulationPhase Phase => Bridge.Phase;
+        public SimulationPhase Phase =>
+            Bridge != null ? Bridge.Phase : SimulationPhase.Planning;
 
         private void Awake()
         {
             Bridge = new DelegationBridge(globalSeed);
+            if (enableMvpEngagement)
+            {
+                Bridge.EnableMvpEngagement();
+            }
         }
 
         public void BeginExecution() => Bridge.BeginExecution();
