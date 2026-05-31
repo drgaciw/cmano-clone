@@ -24,6 +24,8 @@ dotnet test ProjectAegis.sln -v minimal
 dotnet run --project src/ProjectAegis.Delegation.Demo
 ```
 
+**Cursor Cloud agents:** see the [Cursor Cloud specific instructions](AGENTS.md#cursor-cloud-specific-instructions) section in `AGENTS.md` (headless build/test, Play Mode smoke harness, `.cursor/environment.json` install hook).
+
 Unity project scaffolding and simulation core are not started yet. Requirements live under `Game-Requirements/`.
 
 ## Tech Stack

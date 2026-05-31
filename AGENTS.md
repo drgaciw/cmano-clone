@@ -46,9 +46,18 @@ This project is indexed by GitNexus as **cmano-clone** (1824 symbols, 3872 relat
 
 Headless **.NET 8** development is the supported Cloud Agent path. Unity Editor 6.3 LTS (`unity/ProjectAegis`) is optional and usually not installed in the VM; use the headless Play Mode harness instead of opening the Editor.
 
+Cloud VMs run `dotnet restore ProjectAegis.sln` on startup via `.cursor/environment.json` (see [Cloud agent setup](https://cursor.com/docs/cloud-agent/setup)).
+
 ### Prerequisites
 
-- **.NET SDK 8.0.400** (see `global.json`). If `dotnet` is missing, install to `~/.dotnet` via [dotnet-install.sh](https://dot.net/v1/dotnet-install.sh) and ensure `dotnet` is on `PATH` (e.g. symlink to `/usr/local/bin/dotnet`).
+- **.NET SDK 8.0.400** (see `global.json`). If `dotnet` is missing, install to `~/.dotnet` and add it to `PATH` in your shell profile (no root symlink required):
+
+  ```bash
+  curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 8.0.400
+  export PATH="$HOME/.dotnet:$PATH"
+  # Persist: append the export line to ~/.bashrc (or ~/.zshrc)
+  ```
+
 - **Node.js** is only needed for `tools/cmano-db-crawler/` (reference data), not for build/test.
 
 ### Common commands (repo root)
@@ -63,6 +72,25 @@ Headless **.NET 8** development is the supported Cloud Agent path. Unity Editor 
 | Format check | `dotnet format --verify-no-changes` (may report pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`) |
 
 See `README.md` and `unity/ProjectAegis/PLAYMODE-SMOKE.md` for Unity Editor setup (`./tools/init-unity-project.ps1` requires PowerShell).
+
+### Recommended verification (after code changes)
+
+Run from repo root before marking work complete:
+
+```bash
+dotnet build ProjectAegis.sln
+dotnet test ProjectAegis.sln -v minimal
+dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests
+```
+
+### Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| `dotnet: command not found` | Run the install block under Prerequisites; confirm `dotnet --version` prints `8.0.400`. |
+| Missing `Microsoft.NETCore.App` runtime | Install SDK 8.0.400 (not runtime-only); `dotnet --list-sdks` should include `8.0.400`. |
+| Play Mode smoke not found | Use the full project path in the table above; filter name is `PlayModeSmokeHarnessTests`. |
+| `dotnet format` fails on `Program.cs` | Known pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`; unrelated to most PRs. |
 
 ### Services
 
