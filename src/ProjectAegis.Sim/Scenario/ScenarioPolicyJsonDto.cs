@@ -12,5 +12,7 @@ public sealed class ScenarioPolicyJsonDto
 
     public string? PersonalityEditPolicy { get; set; }
 
+    public bool? AllowDualSideControl { get; set; }
+
     public Dictionary<string, string>? UnitOverrides { get; set; }
 }

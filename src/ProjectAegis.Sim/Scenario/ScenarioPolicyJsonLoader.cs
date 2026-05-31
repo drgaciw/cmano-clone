@@ -51,7 +51,8 @@ public static class ScenarioPolicyJsonLoader
             new EffectivePolicy(ParseRoe(dto.OpposingRoe)),
             overrides,
             ParsePlayerInfoModel(dto.PlayerInfoModel),
-            ParsePersonalityEditPolicy(dto.PersonalityEditPolicy))
+            ParsePersonalityEditPolicy(dto.PersonalityEditPolicy),
+            dto.AllowDualSideControl ?? false)
         {
             Id = dto.Id,
         };

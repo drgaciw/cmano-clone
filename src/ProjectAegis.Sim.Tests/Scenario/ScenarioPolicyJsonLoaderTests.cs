@@ -50,6 +50,33 @@ public sealed class ScenarioPolicyJsonLoaderTests
         Assert.Equal(PersonalityEditPolicy.PlanningOnly, profile.PersonalityEditPolicy);
     }
 
+    [Fact]
+    public void ToProfile_defaults_allowDualSideControl_to_false()
+    {
+        var profile = ScenarioPolicyJsonLoader.ToProfile(new ScenarioPolicyJsonDto
+        {
+            Id = "test",
+            FriendlyRoe = "WeaponsFree",
+            OpposingRoe = "WeaponsFree",
+        });
+
+        Assert.False(profile.AllowDualSideControl);
+    }
+
+    [Fact]
+    public void ToProfile_parses_allowDualSideControl()
+    {
+        var profile = ScenarioPolicyJsonLoader.ToProfile(new ScenarioPolicyJsonDto
+        {
+            Id = "sandbox",
+            FriendlyRoe = "WeaponsFree",
+            OpposingRoe = "WeaponsFree",
+            AllowDualSideControl = true,
+        });
+
+        Assert.True(profile.AllowDualSideControl);
+    }
+
     private static string? FindRepoRoot()
     {
         var dir = AppContext.BaseDirectory;
