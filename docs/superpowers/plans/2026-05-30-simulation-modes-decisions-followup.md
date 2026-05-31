@@ -9,7 +9,7 @@
 ## Tasks
 
 - [x] DELEG-6 — docs + req 03 resolved section
-- [ ] DELEG-7 — `AllowDualSideControl` on `ScenarioPolicyProfile` + JSON loader + tests
+- [x] DELEG-7 — `AllowDualSideControl` on `ScenarioPolicyProfile` + JSON loader + tests
 - [ ] DELEG-8 — dual-side branch in `SimulationModeConfigurator.Apply` + tests
 - [ ] DELEG-9 — `AttachReplayViewer` on orchestrator + bridge guard + tests
 - [ ] `dotnet test ProjectAegis.sln`
