@@ -1,0 +1,19 @@
+name: Graphite CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  graphite-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Graphite CI Optimizer
+        uses: withgraphite/graphite-ci-action@main
+        with:
+          graphite_token: ${{ secrets.GRAPHITE_CI_OPTIMIZER_TOKEN }}
