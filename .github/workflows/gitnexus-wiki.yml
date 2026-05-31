@@ -1,0 +1,53 @@
+name: GitNexus Wiki Generation
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wiki:
+    name: Generate Code Wiki
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install GitNexus
+        run: npm install -g gitnexus
+        env:
+          GITNEXUS_SKIP_OPTIONAL_GRAMMARS: '1'
+
+      - name: Index Repository
+        run: gitnexus analyze --skip-embeddings
+        env:
+          GITNEXUS_WORKER_POOL_SIZE: '4'
+
+      - name: Generate Wiki
+        run: |
+          gitnexus wiki \
+            --model gpt-4o-mini \
+            --timeout 120 \
+            --retries 3
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Commit Wiki to Repo
+        run: |
+          git config user.name "gitnexus-bot"
+          git config user.email "gitnexus@users.noreply.github.com"
+          git add wiki/ AGENTS.md CLAUDE.md 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "docs: auto-update code wiki [skip ci]"
+          git push
