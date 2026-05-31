@@ -46,7 +46,7 @@ This project is indexed by GitNexus as **cmano-clone** (1824 symbols, 3872 relat
 
 Headless **.NET 8** development is the supported Cloud Agent path. Unity Editor 6.3 LTS (`unity/ProjectAegis`) is optional and usually not installed in the VM; use the headless Play Mode harness instead of opening the Editor.
 
-Cloud VMs run `dotnet restore ProjectAegis.sln` on startup via `.cursor/environment.json` (see [Cloud agent setup](https://cursor.com/docs/cloud-agent/setup)).
+Cloud VMs run `.cursor/cloud-install.sh` on startup via `.cursor/environment.json` (installs .NET SDK 8.0.400 when missing, then `dotnet restore`). See [Cloud agent setup](https://cursor.com/docs/cloud-agent/setup).
 
 ### Prerequisites
 
@@ -91,6 +91,7 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 | Missing `Microsoft.NETCore.App` runtime | Install SDK 8.0.400 (not runtime-only); `dotnet --list-sdks` should include `8.0.400`. |
 | Play Mode smoke not found | Use the full project path in the table above; filter name is `PlayModeSmokeHarnessTests`. |
 | `dotnet format` fails on `Program.cs` | Known pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`; unrelated to most PRs. |
+| Environment install fails immediately | Confirm `.cursor/cloud-install.sh` is executable; run `bash .cursor/cloud-install.sh` manually from repo root. |
 
 ### Services
 
