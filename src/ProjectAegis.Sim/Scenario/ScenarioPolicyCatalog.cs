@@ -19,6 +19,12 @@ public static class ScenarioPolicyCatalog
         new EffectivePolicy(RoeLevel.WeaponsTight),
         new EffectivePolicy(RoeLevel.WeaponsTight));
 
+    /// <summary>Test sandbox — Mixed mode may assign human controllers on both sides.</summary>
+    public static ScenarioPolicyProfile TestSandboxDualSide { get; } = new(
+        EffectivePolicy.DefaultFree,
+        EffectivePolicy.DefaultFree,
+        allowDualSideControl: true);
+
     public static ScenarioPolicyProfile? TryGet(string scenarioId) =>
         ScenarioPolicyRepository.TryGet(scenarioId);
 
@@ -28,6 +34,7 @@ public static class ScenarioPolicyCatalog
             "baltic-patrol" => BalticPatrol,
             "baltic-patrol-opp-hold-fire" => BalticPatrolOpposingHoldFire,
             "restricted-engagement" => RestrictedEngagement,
+            "test-sandbox-dual-side" => TestSandboxDualSide,
             _ => null,
         };
 }
