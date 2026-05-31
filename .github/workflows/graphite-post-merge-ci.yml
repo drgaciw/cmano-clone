@@ -1,0 +1,32 @@
+name: Post-Merge CI (Graphite)
+
+# Graphite recommends breaking CI into multiple workflows with different triggers:
+#   1. CI that runs on all PRs                    -> graphite-ci.yml
+#   2. CI that runs after PRs merge to main       -> this file
+#
+# Running expensive checks (e.g. integration tests, deployments) only after merge
+# to main reduces CI cost significantly when using stacked PRs, since each stack
+# level would otherwise trigger a full CI run.
+#
+# Source: https://graphite.com/docs/stacking-and-ci
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  post_merge_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Add integration tests, deployment steps, or other
+      # expensive checks that only need to run after merge here.
+      - name: Run post-merge checks
+        run: echo "Add integration tests or deployment steps here"
