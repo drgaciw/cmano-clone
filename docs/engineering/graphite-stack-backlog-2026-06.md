@@ -10,7 +10,7 @@
 | DELEG-2 | `stack/delegation/orchestrator` | feat(delegation): ROE adapter, session, order log union | In stack |
 | DELEG-3 | `stack/delegation/phase-gate` | feat(delegation): planning/execution phase gate | In stack |
 | DELEG-4 | `stack/delegation/player-info` | feat(delegation): player info filter | In stack |
-| DELEG-5 | `stack/delegation/bridge-engage` | feat(delegation): bridge MVP engage wiring | **Open** |
+| DELEG-5 | `stack/delegation/bridge-engage` | feat(delegation): bridge MVP engage wiring | **PR #13** (draft) |
 
 ```powershell
 gt checkout stack/delegation/sim-core
@@ -25,8 +25,8 @@ gt submit --stack --no-interactive
 
 | ID | Branch | PR title | Status |
 |----|--------|----------|--------|
-| SIM-1 | `stack/sim/engage-scenario` | feat(sim): scenario-driven engage priming | **In progress** (branch pushed) |
-| SIM-2 | `stack/sim/engage-log` | feat(sim): engagement order-log contract | Not started |
+| SIM-1 | `stack/sim/engage-scenario` | feat(sim): scenario-driven engage priming | **PR #14** (draft) |
+| SIM-2 | `stack/sim/engage-log` | feat(sim): engagement order-log contract | **PR #15** (draft) |
 
 ```powershell
 git checkout main && git pull
@@ -46,7 +46,7 @@ gt submit --stack --no-interactive
 
 | ID | Branch | PR title | Status |
 |----|--------|----------|--------|
-| UNT-2 | `stack/unity/playmode-smoke` | feat(unity): play-mode smoke with engage | Not started |
+| UNT-2 | `stack/unity/playmode-smoke` | feat(unity): play-mode smoke with engage | **In progress** |
 
 Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 
@@ -57,7 +57,7 @@ Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 | ID | Branch | PR title | Status |
 |----|--------|----------|--------|
 | DES-1 | `design/logistics-gdd` | docs(gdd): logistics and magazines | **Draft** on stack/sim/engage-scenario |
-| DES-2 | `design/mission-editor-rereview` | docs(gdd): mission editor re-review | **NEEDS REVISION** logged 2026-06-01 |
+| DES-2 | `design/mission-editor-rereview` | docs(gdd): mission editor re-review | **APPROVED** (2026-06-01 follow-up on SIM-2 stack) |
 
 ---
 
