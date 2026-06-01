@@ -57,3 +57,17 @@ gt submit --stack --no-interactive
 | DELEG-10 | https://github.com/drgaciw/cmano-clone/pull/9 |
 
 **Graphite note:** `gt sync` / `gt submit --stack` require a fresh auth token at https://app.graphite.com/activate (token expired 2026-05-30). DELEG-1–5 branches exist locally; use `gt submit` after re-auth to open remaining stack PRs if not yet on GitHub.
+
+## GitNexus stack review (2026-06-01)
+
+| PR | State | GitNexus blast radius (key symbols) | Notes |
+|----|-------|-------------------------------------|-------|
+| DELEG-6 (#5) | merged | docs-only | sim-modes spec |
+| DELEG-7 (#6) | merged | `ScenarioPolicyProfile` — LOW | dual-side policy |
+| DELEG-8 (#7) | merged | `SimulationModeConfigurator` — LOW | Mixed configure |
+| DELEG-9 (#8) | merged | `AttachReplayViewer` session — LOW | observer attach |
+| DELEG-10 (#9) | merged | `EmitFromSession` → `FinalizeScenario` flow; `ResolveAttentionBudget` → `CreateAgentFromPreset` (2 callers) — LOW/MEDIUM | **main broke build**: `AgentId?` + `.Value` name collision in `TrustSignalEmitter`; hotfix `cursor/fix-trust-signal-emitter-build-01fa` |
+
+**CI (Graphite workflows):** `build` + `optimize_ci` pass; Gitleaks/Dependency Review/CodeQL fail on `403 Resource not accessible by integration` (token permissions), not compile failures.
+
+**Headless gate:** `dotnet test ProjectAegis.sln` — 89 passed after hotfix.
