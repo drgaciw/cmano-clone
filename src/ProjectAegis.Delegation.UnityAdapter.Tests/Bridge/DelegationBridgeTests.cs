@@ -2,8 +2,14 @@ namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Orchestration;
+using ProjectAegis.Delegation.Policy;
+using ProjectAegis.Delegation.Sim;
+using ProjectAegis.Delegation.Targets;
+using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
 
 [TestFixture]
@@ -12,7 +18,7 @@ public sealed class DelegationBridgeTests
     [Test]
     public void Tick_is_no_op_while_planning()
     {
-        var bridge = new DelegationBridge(42);
+        var bridge = new DelegationBridge(42, mvpEngagement: false);
         var friendly = bridge.Registry.RegisterUnit(new EntityKey(1), "friendly-1");
         var opposing = bridge.Registry.RegisterUnit(new EntityKey(2), "opposing-1");
 
@@ -35,7 +41,7 @@ public sealed class DelegationBridgeTests
     [Test]
     public void Tick_builds_observed_state_and_dispatches_orders_to_sink()
     {
-        var bridge = new DelegationBridge(globalSeed: 42);
+        var bridge = new DelegationBridge(globalSeed: 42, mvpEngagement: false);
         var friendly = bridge.Registry.RegisterUnit(new EntityKey(1), "friendly-1");
         var opposing = bridge.Registry.RegisterUnit(new EntityKey(2), "opposing-1");
 
@@ -69,7 +75,7 @@ public sealed class DelegationBridgeTests
     [Test]
     public void TryEnqueueHumanOrder_only_when_human_controls_entity()
     {
-        var bridge = new DelegationBridge(1);
+        var bridge = new DelegationBridge(1, mvpEngagement: false);
         var unit = bridge.Registry.RegisterUnit(new EntityKey(10), "u10");
         unit.Target.Slot.SetActive(new HumanController());
 
@@ -86,9 +92,58 @@ public sealed class DelegationBridgeTests
     }
 
     [Test]
+    public void Tick_with_mvp_session_logs_engagement_when_agent_fires_engage()
+    {
+        var bridge = new DelegationBridge(99, mvpEngagement: true);
+        Assert.That(bridge.Session, Is.Not.Null);
+
+        var unit = new UnitTarget(new TargetId("u1"));
+        var agent = bridge.Orchestrator.CreateAgent(
+            new AgentId("a1"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous,
+            policy: new EngageOnlyPolicy());
+        bridge.Orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
+        bridge.Orchestrator.Register(unit);
+        bridge.BeginExecution();
+
+        var sink = new RecordingSink();
+        for (var t = 0; t < 5; t++)
+        {
+            bridge.Tick(
+                new StubSnapshot(t, 2, 0, new Dictionary<TargetId, bool>()),
+                sink);
+        }
+
+        Assert.That(bridge.Orchestrator.DecisionLog.Engagements, Is.Not.Empty);
+    }
+
+    [Test]
+    public void Tick_without_mvp_session_skips_engagement_log()
+    {
+        var bridge = new DelegationBridge(99, mvpEngagement: false);
+        Assert.That(bridge.Session, Is.Null);
+
+        var unit = new UnitTarget(new TargetId("u1"));
+        var agent = bridge.Orchestrator.CreateAgent(
+            new AgentId("a1"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous,
+            policy: new EngageOnlyPolicy());
+        bridge.Orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
+        bridge.Orchestrator.Register(unit);
+        bridge.BeginExecution();
+
+        var sink = new RecordingSink();
+        bridge.Tick(new StubSnapshot(0, 2, 0, new Dictionary<TargetId, bool>()), sink);
+
+        Assert.That(bridge.Orchestrator.DecisionLog.Engagements, Is.Empty);
+    }
+
+    [Test]
     public void TryEnqueueHumanOrder_returns_false_when_AttachReplayViewer_enabled()
     {
-        var bridge = new DelegationBridge(1);
+        var bridge = new DelegationBridge(1, mvpEngagement: false);
         var unit = bridge.Registry.RegisterUnit(new EntityKey(10), "u10");
         unit.Target.Slot.SetActive(new HumanController());
         bridge.AttachReplayViewer = true;
@@ -101,7 +156,7 @@ public sealed class DelegationBridgeTests
     [Test]
     public void ObservedStateBuilder_includes_registered_member_alive_flags()
     {
-        var bridge = new DelegationBridge(1);
+        var bridge = new DelegationBridge(1, mvpEngagement: false);
         var group = bridge.Registry.RegisterGroup(new EntityKey(100), "g1");
         var member = bridge.Registry.RegisterUnit(new EntityKey(101), "u1");
         bridge.Registry.LinkGroupMember(group.TargetId, member.TargetId);
@@ -140,5 +195,15 @@ public sealed class DelegationBridgeTests
 
         public void ApplyOrder(EntityKey entity, in Order order) =>
             Applied.Add((entity, order));
+    }
+
+    private sealed class EngageOnlyPolicy : IPolicy
+    {
+        public IReadOnlyList<ScoredIntent> GenerateCandidates(PerceivedState perceived, TraitVector traits)
+        {
+            _ = perceived;
+            _ = traits;
+            return [new ScoredIntent(OrderKind.Engage, 1.0, RiskLevel.High)];
+        }
     }
 }

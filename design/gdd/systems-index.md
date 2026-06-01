@@ -19,16 +19,16 @@ Project Aegis is a **theater-level military simulation** with a **deterministic 
 | # | System Name | Category | Priority | Status | Req Doc | GDD | Depends On |
 |---|-------------|----------|----------|--------|---------|-----|------------|
 | 1 | Simulation Core & Time | Sim Core | MVP | In Review | 03, 08 | [simulation-core-time.md](simulation-core-time.md) | — |
-| 2 | Order Log & Replay | Sim Core | MVP | In Design | 17 | [order-log-replay.md](order-log-replay.md) | 1 |
+| 2 | Order Log & Replay | Sim Core | MVP | In Progress (engage fingerprint) | 17 | [order-log-replay.md](order-log-replay.md) | 1 |
 | 3 | Policy, ROE, EMCON, WRA | Sim Core | MVP | In Design | 13 | [policy-roe-emcon-wra.md](policy-roe-emcon-wra.md) | 1, 2 |
 | 4 | Platform Database | Content | MVP | Partial | 06 | — | — |
 | 5 | Sensor & Contact Model | Simulation | MVP | In Review | 15 | [sensor-detection-ew.md](sensor-detection-ew.md) | 1, 4 |
-| 6 | Engagement & Fire Control | Simulation | MVP | In Progress (DLZ/mag MVP in `ProjectAegis.Sim`) | 14 | [engagement-fire-control.md](engagement-fire-control.md) | 3, 5, 16 |
-| 7 | Logistics & Magazines | Simulation | MVP | Not Started | 16 | — | 4, 1 |
+| 6 | Engagement & Fire Control | Simulation | MVP | In Progress (scenario + order-log MVP) | 14 | [engagement-fire-control.md](engagement-fire-control.md) | 3, 5, 16 |
+| 7 | Logistics & Magazines | Simulation | MVP | Approved | 16 | [logistics-magazines.md](logistics-magazines.md) | 4, 1, 6 |
 | 8 | Combat Domains & Damage | Simulation | MVP | Not Started | 18 | — | 6, 5, 7 |
 | 9 | Mission Runtime | Gameplay | MVP | Partial (editor 11) | 11, 07 | — | 1, 3, 5 |
 | 10 | Agent Delegation | Agentic | MVP | In Progress | 04, 08 | — | 1, 3, 9 |
-| 11 | Scenario & Mission Editor | Content | MVP | In Design (GDD draft) | 11 | [agentic-mission-editor.md](agentic-mission-editor.md) | 4, 9 |
+| 11 | Scenario & Mission Editor | Content | MVP | Approved (v1 design gate) | 11 | [agentic-mission-editor.md](agentic-mission-editor.md) | 4, 9 |
 | 12 | Command & Control UI | UI | MVP | Not Started | 20 | — | 1–10 |
 | 13 | Message Log & Briefing UI | UI | MVP | Not Started | 17, 20 | — | 2, 12 |
 | 14 | Simulation Modes & Headless | Sim Core | MVP | Partial (`SimulationSession`, JSON scenario ROE) | 03 | — | 1, 10 |
