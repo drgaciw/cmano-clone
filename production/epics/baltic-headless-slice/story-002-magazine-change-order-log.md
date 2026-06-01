@@ -18,11 +18,11 @@
 
 ## Acceptance Criteria
 
-- [ ] `OrderLogEntryKind.MagazineChange` exists with payload `{shooterId, mountId, delta, reason}`.
-- [ ] `MvpEngagementResolver` / `MagazineLedger.TryConsume` appends row on successful fire.
-- [ ] Row appears in `DecisionLog.ChronologicalEntries()` with deterministic ordering (simTick, sequenceId).
-- [ ] `ComputeFingerprint()` includes MagazineChange rows.
-- [ ] Regression test: two fires → two MagazineChange entries with delta -1.
+- [x] `OrderLogEntryKind.MagazineChange` exists with payload `{shooterId, mountId, delta, reason}`.
+- [x] `SimulationSession` appends row on successful launch (`MagazineLedger.TryConsume`).
+- [x] Row appears in `DecisionLog.ChronologicalEntries()` with deterministic ordering (simTick, sequenceId).
+- [x] `ComputeFingerprint()` includes MagazineChange rows.
+- [x] Regression test: two fires → two MagazineChange entries with delta -1.
 
 ## Test Evidence
 
