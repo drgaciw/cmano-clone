@@ -17,4 +17,10 @@ public interface ISimWorldSnapshot
     /// Returns whether a registered member target is alive. If unknown, return false.
     /// </summary>
     bool IsMemberAlive(TargetId memberId);
+
+    /// <summary>Primary hostile contact for engage/sensor MVP (null when <see cref="ContactCount"/> is 0).</summary>
+    TargetId? PrimaryHostileContactId { get; }
+
+    /// <summary>Fire-control quality track on <see cref="PrimaryHostileContactId"/>.</summary>
+    bool HasFireControlTrackOnPrimaryContact { get; }
 }

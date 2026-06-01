@@ -36,6 +36,21 @@ public sealed class EngagementOrderLogContractTests
     }
 
     [Test]
+    public void Observed_state_without_track_aborts_NoFireControlTrack()
+    {
+        var session = SimulationSession.BindMvpEngagement(
+            new DelegationOrchestrator(5),
+            new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), RoundsRemaining: 2, HasFireControlTrack: true),
+            defaultMagazineRounds: 2);
+        WireEngageAgent(session);
+        session.BeginExecution();
+        session.Tick(new ObservedState(0, 1, 0, new Dictionary<TargetId, bool>(), HasFireControlTrack: false));
+
+        Assert.That(session.Orchestrator.DecisionLog.Engagements[0].AbortReasonCode,
+            Is.EqualTo(nameof(EngagementAbortReason.NoFireControlTrack)));
+    }
+
+    [Test]
     public void Launched_engagement_uses_Launched_code()
     {
         var session = SimulationSession.BindMvpEngagementForScenario(

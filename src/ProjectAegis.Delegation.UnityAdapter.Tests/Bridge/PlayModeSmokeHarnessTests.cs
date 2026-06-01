@@ -34,7 +34,7 @@ public sealed class PlayModeSmokeHarnessTests
 
         bridge.BeginExecution();
 
-        var harness = new PlayModeHarness(contactCount: 2);
+        var harness = new PlayModeHarness(contactCount: 2, hasFireControlTrack: true);
         for (var frame = 0; frame < 30; frame++)
         {
             harness.AdvanceTime(1.0 / 60.0);
@@ -61,7 +61,7 @@ public sealed class PlayModeSmokeHarnessTests
         bridge.Orchestrator.Register(unit);
         bridge.BeginExecution();
 
-        var harness = new PlayModeHarness(contactCount: 2);
+        var harness = new PlayModeHarness(contactCount: 2, hasFireControlTrack: true);
         for (var frame = 0; frame < 5; frame++)
         {
             harness.AdvanceTime(1.0);
@@ -86,19 +86,53 @@ public sealed class PlayModeSmokeHarnessTests
         }
     }
 
+    [Test]
+    public void Engage_without_fire_control_track_aborts_via_bridge_snapshot()
+    {
+        var bridge = new DelegationBridge(3, mvpEngagement: true);
+        var unit = new UnitTarget(new TargetId("u1"));
+        var agent = bridge.Orchestrator.CreateAgent(
+            new AgentId("a1"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous,
+            policy: new EngageOnlyPolicy());
+        bridge.Orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
+        bridge.Orchestrator.Register(unit);
+        bridge.BeginExecution();
+
+        var harness = new PlayModeHarness(contactCount: 1, hasFireControlTrack: false);
+        bridge.Tick(harness, harness);
+
+        Assert.That(bridge.Orchestrator.DecisionLog.Engagements, Has.Count.EqualTo(1));
+        Assert.That(
+            bridge.Orchestrator.DecisionLog.Engagements[0].AbortReasonCode,
+            Is.EqualTo(nameof(EngagementAbortReason.NoFireControlTrack)));
+    }
+
     private sealed class PlayModeHarness : ISimWorldSnapshot, IOrderSink
     {
         private readonly int _contactCount;
+        private readonly bool _hasFireControlTrack;
         private double _simTime;
         private readonly List<(EntityKey Entity, Order Order)> _applied = new();
 
-        public PlayModeHarness(int contactCount) => _contactCount = contactCount;
+        public PlayModeHarness(int contactCount, bool hasFireControlTrack)
+        {
+            _contactCount = contactCount;
+            _hasFireControlTrack = hasFireControlTrack;
+        }
 
         public double SimTime => _simTime;
 
         public int ContactCount => _contactCount;
 
         public int ActiveEngagementCount => 0;
+
+        public TargetId? PrimaryHostileContactId =>
+            _contactCount > 0 ? new TargetId("hostile-1") : null;
+
+        public bool HasFireControlTrackOnPrimaryContact =>
+            _contactCount > 0 && _hasFireControlTrack;
 
         public IReadOnlyList<(EntityKey Entity, Order Order)> AppliedOrders => _applied;
 

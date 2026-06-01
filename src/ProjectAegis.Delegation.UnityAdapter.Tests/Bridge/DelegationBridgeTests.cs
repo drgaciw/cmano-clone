@@ -173,17 +173,35 @@ public sealed class DelegationBridgeTests
         Assert.That(observed.MemberAlive[member.TargetId], Is.False);
     }
 
+    [Test]
+    public void ObservedStateBuilder_maps_contact_and_track_from_snapshot()
+    {
+        var snapshot = new StubSnapshot(1, 2, 0, new Dictionary<TargetId, bool>(), hasFireControlTrack: false);
+        var observed = ObservedStateBuilder.Build(snapshot, []);
+
+        Assert.That(observed.ContactCount, Is.EqualTo(2));
+        Assert.That(observed.PrimaryHostileContactId?.Value, Is.EqualTo("hostile-1"));
+        Assert.That(observed.HasFireControlTrack, Is.False);
+    }
+
     private sealed class StubSnapshot(
         double SimTime,
         int ContactCount,
         int ActiveEngagementCount,
-        IReadOnlyDictionary<TargetId, bool> Alive) : ISimWorldSnapshot
+        IReadOnlyDictionary<TargetId, bool> Alive,
+        bool hasFireControlTrack = true) : ISimWorldSnapshot
     {
         public double SimTime { get; } = SimTime;
 
         public int ContactCount { get; } = ContactCount;
 
         public int ActiveEngagementCount { get; } = ActiveEngagementCount;
+
+        public TargetId? PrimaryHostileContactId =>
+            ContactCount > 0 ? new TargetId("hostile-1") : null;
+
+        public bool HasFireControlTrackOnPrimaryContact =>
+            ContactCount > 0 && hasFireControlTrack;
 
         public bool IsMemberAlive(TargetId memberId) =>
             Alive.TryGetValue(memberId, out var alive) && alive;

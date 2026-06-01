@@ -12,6 +12,8 @@ namespace ProjectAegis.Unity.Runtime
     {
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private int contactCount = 2;
+        [SerializeField] private bool hasFireControlTrack = true;
+        [SerializeField] private string primaryHostileContactId = "hostile-1";
         [SerializeField] private float simTimeStep = 1f / 60f;
         [Tooltip("Smoke harness: auto-start execution. Disable for RTwP planning UX.")]
         [SerializeField] private bool autoBeginOnStart = true;
@@ -22,6 +24,12 @@ namespace ProjectAegis.Unity.Runtime
         public double SimTime => _simTime;
         public int ContactCount => contactCount;
         public int ActiveEngagementCount => 0;
+
+        public TargetId? PrimaryHostileContactId =>
+            contactCount > 0 ? new TargetId(primaryHostileContactId) : null;
+
+        public bool HasFireControlTrackOnPrimaryContact =>
+            contactCount > 0 && hasFireControlTrack;
 
         public IReadOnlyList<(EntityKey Entity, Order Order)> AppliedOrders => _applied;
 
