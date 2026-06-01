@@ -154,7 +154,8 @@ Project Aegis is a **theater-level military simulation** with a **deterministic 
 
 | Date | Change |
 |------|--------|
-| 2026-05-30 | Mission editor GDD (system 11) authored: 8 sections, 4 mission types, typed event DSL, Validation Agent, fuel + event-order formulas, 8 ACs |
+| 2026-05-30 | Mission editor GDD (system 11) reviewed (5 specialists, MAJOR REVISION) → revised same day: Validation Engine, fantasy rescope, round-trip fuel formula, determinism contract, AC-1..12. Awaiting re-review. Log: reviews/agentic-mission-editor-review-log.md |
+| 2026-05-30 | Mission editor GDD (system 11) authored: 8 sections, 4 mission types, typed event DSL, fuel + event-order formulas, 8 ACs |
 | 2026-05-30 | Mission editor concept (system 11): intent-compiler spine, DSL-only logic, engine-agnostic core; open Qs 1/2/5 resolved |
 | 2026-05-29 | Unity 6.3 pin, sim/sensor GDDs, ADRs accepted, `ProjectAegis.Sim` scaffold |
 | 2026-05-29 | Policy GDD + master architecture + ADR stubs; sim-core GDD skeleton |

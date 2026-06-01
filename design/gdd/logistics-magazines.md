@@ -1,6 +1,6 @@
 # Logistics & Magazines
 
-> **Status:** Approved  
+> **Status:** Approved
 > **Last Updated:** 2026-06-01  
 > **Requirements:** [16-Logistics-And-Magazines.md](../../Game-Requirements/requirements/16-Logistics-And-Magazines.md)  
 > **Depends on:** [simulation-core-time.md](simulation-core-time.md), [engagement-fire-control.md](engagement-fire-control.md)  
