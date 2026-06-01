@@ -25,7 +25,7 @@ gt submit --stack --no-interactive
 
 | ID | Branch | PR title | Status |
 |----|--------|----------|--------|
-| SIM-1 | `stack/sim/engage-scenario` | feat(sim): scenario-driven engage priming | Not started |
+| SIM-1 | `stack/sim/engage-scenario` | feat(sim): scenario-driven engage priming | **In progress** (branch pushed) |
 | SIM-2 | `stack/sim/engage-log` | feat(sim): engagement order-log contract | Not started |
 
 ```powershell
@@ -56,8 +56,8 @@ Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 
 | ID | Branch | PR title | Status |
 |----|--------|----------|--------|
-| DES-1 | `design/logistics-gdd` | docs(gdd): logistics and magazines | Not started |
-| DES-2 | `design/mission-editor-rereview` | docs(gdd): mission editor re-review | Not started |
+| DES-1 | `design/logistics-gdd` | docs(gdd): logistics and magazines | **Draft** on stack/sim/engage-scenario |
+| DES-2 | `design/mission-editor-rereview` | docs(gdd): mission editor re-review | **NEEDS REVISION** logged 2026-06-01 |
 
 ---
 

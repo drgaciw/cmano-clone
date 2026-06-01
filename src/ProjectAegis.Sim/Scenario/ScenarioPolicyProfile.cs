@@ -1,5 +1,6 @@
 namespace ProjectAegis.Sim.Scenario;
 
+using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 
 /// <summary>Mission/scenario-level ROE defaults (doc 11 / policy GDD inheritance root).</summary>
@@ -11,6 +12,7 @@ public sealed class ScenarioPolicyProfile
         IReadOnlyDictionary<string, EffectivePolicy>? unitOverrides = null,
         PlayerInfoModel playerInfoModel = PlayerInfoModel.FullTransparency,
         PersonalityEditPolicy personalityEditPolicy = PersonalityEditPolicy.Anytime,
+        ScenarioEngageDefaults? engageDefaults = null,
         bool allowDualSideControl = false)
     {
         FriendlyDefault = friendlyDefault;
@@ -18,6 +20,7 @@ public sealed class ScenarioPolicyProfile
         UnitOverrides = unitOverrides ?? new Dictionary<string, EffectivePolicy>();
         PlayerInfoModel = playerInfoModel;
         PersonalityEditPolicy = personalityEditPolicy;
+        EngageDefaults = engageDefaults;
         AllowDualSideControl = allowDualSideControl;
     }
 
@@ -33,8 +36,16 @@ public sealed class ScenarioPolicyProfile
 
     public PersonalityEditPolicy PersonalityEditPolicy { get; }
 
+    public ScenarioEngageDefaults? EngageDefaults { get; }
+
     /// <summary>When true, Mixed mode may assign human controllers on both sides (req 03 test sandbox).</summary>
     public bool AllowDualSideControl { get; }
+
+    public EngageContext ResolveEngageContext()
+    {
+        var defaults = EngageDefaults ?? ScenarioEngageDefaults.MvpFallback;
+        return defaults.ToEngageContext(defaults.DefaultMagazineRounds);
+    }
 
     public EffectivePolicy ResolveForUnit(string unitKey, bool isFriendly)
     {

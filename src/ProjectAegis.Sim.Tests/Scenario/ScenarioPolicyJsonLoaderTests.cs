@@ -35,6 +35,21 @@ public sealed class ScenarioPolicyJsonLoaderTests
     }
 
     [Fact]
+    public void Loads_baltic_patrol_engage_defaults_from_json()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.NotNull(profile.EngageDefaults);
+        Assert.Equal(45_000, profile.EngageDefaults!.RangeMeters);
+        Assert.Equal(4, profile.EngageDefaults.DefaultMagazineRounds);
+        var ctx = profile.ResolveEngageContext();
+        Assert.Equal(45_000, ctx.RangeMeters);
+        Assert.True(ctx.Envelope.Contains(45_000));
+    }
+
+    [Fact]
     public void ToProfile_parses_loop_policy_overrides()
     {
         var profile = ScenarioPolicyJsonLoader.ToProfile(new ScenarioPolicyJsonDto

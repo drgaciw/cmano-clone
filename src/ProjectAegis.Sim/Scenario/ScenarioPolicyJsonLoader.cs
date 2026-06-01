@@ -52,11 +52,22 @@ public static class ScenarioPolicyJsonLoader
             overrides,
             ParsePlayerInfoModel(dto.PlayerInfoModel),
             ParsePersonalityEditPolicy(dto.PersonalityEditPolicy),
+            ParseEngageDefaults(dto.Engage),
             dto.AllowDualSideControl ?? false)
         {
             Id = dto.Id,
         };
     }
+
+    private static ScenarioEngageDefaults? ParseEngageDefaults(ScenarioEngageJsonDto? engage) =>
+        engage == null
+            ? null
+            : new ScenarioEngageDefaults(
+                engage.RangeMeters,
+                engage.EnvelopeMinMeters,
+                engage.EnvelopeMaxMeters,
+                engage.DefaultMagazineRounds,
+                engage.HasFireControlTrack);
 
     private static RoeLevel ParseRoe(string value) =>
         Enum.TryParse<RoeLevel>(value, ignoreCase: true, out var roe)

@@ -22,15 +22,13 @@ public sealed class DelegationBridge
     public DelegationBridge(
         int globalSeed,
         IPolicyEvaluator? policyEvaluator = null,
-        bool mvpEngagement = false)
+        bool mvpEngagement = false,
+        string? scenarioPolicyId = null)
     {
         Orchestrator = new DelegationOrchestrator(globalSeed, policyEvaluator);
         Registry = new TargetRegistry(Orchestrator);
         Session = mvpEngagement
-            ? SimulationSession.BindMvpEngagement(
-                Orchestrator,
-                DefaultEngageContext,
-                defaultMagazineRounds: 2)
+            ? SimulationSession.BindMvpEngagementForScenario(Orchestrator, scenarioPolicyId)
             : null;
     }
 

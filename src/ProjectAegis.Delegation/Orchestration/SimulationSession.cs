@@ -7,6 +7,7 @@ using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Time;
 
 /// <summary>Headless/interactive session: delegation tick then sim engagement phase.</summary>
@@ -45,6 +46,22 @@ public sealed class SimulationSession
             DefaultEngageContext = defaultEngageContext,
             DefaultMagazineRounds = defaultMagazineRounds,
         };
+    }
+
+    /// <summary>Bind MVP engage using scenario policy JSON engage defaults when present.</summary>
+    public static SimulationSession BindMvpEngagementForScenario(
+        DelegationOrchestrator orchestrator,
+        string? scenarioPolicyId)
+    {
+        var profile = string.IsNullOrWhiteSpace(scenarioPolicyId)
+            ? null
+            : ScenarioPolicyRepository.TryGet(scenarioPolicyId);
+        var engage = profile?.ResolveEngageContext()
+            ?? ScenarioEngageDefaults.MvpFallback.ToEngageContext(
+                ScenarioEngageDefaults.MvpFallback.DefaultMagazineRounds);
+        var rounds = profile?.EngageDefaults?.DefaultMagazineRounds
+            ?? ScenarioEngageDefaults.MvpFallback.DefaultMagazineRounds;
+        return BindMvpEngagement(orchestrator, engage, rounds);
     }
 
     public SimulationPhase Phase => Orchestrator.Phase;

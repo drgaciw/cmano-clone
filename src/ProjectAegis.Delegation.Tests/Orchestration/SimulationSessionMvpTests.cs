@@ -38,6 +38,32 @@ public sealed class SimulationSessionMvpTests
     }
 
     [Test]
+    public void BindMvpEngagementForScenario_uses_restricted_engagement_out_of_envelope()
+    {
+        var orchestrator = new DelegationOrchestrator(42);
+        var session = SimulationSession.BindMvpEngagementForScenario(
+            orchestrator,
+            "restricted-engagement");
+        var unit = new UnitTarget(new TargetId("u1"));
+        var agent = session.Orchestrator.CreateAgent(
+            new AgentId("a1"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous,
+            policy: new EngageOnlyPolicy());
+        session.Orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
+        session.Orchestrator.Register(unit);
+        session.BeginExecution();
+
+        session.Tick(new ObservedState(0, 2, 0, new Dictionary<TargetId, bool>()));
+
+        var aborted = session.Orchestrator.DecisionLog.Engagements
+            .Where(e => !e.Launched)
+            .ToList();
+        Assert.That(aborted, Is.Not.Empty);
+        Assert.That(aborted[0].AbortReason, Does.Contain("OutOfEnvelope").Or.Contain("DlzOut"));
+    }
+
+    [Test]
     public void Mvp_resolver_logs_abort_when_out_of_envelope()
     {
         var session = SimulationSession.CreateWithMvpEngagement(

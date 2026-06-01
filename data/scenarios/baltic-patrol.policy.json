@@ -1,5 +1,12 @@
 {
   "id": "baltic-patrol",
   "friendlyRoe": "WeaponsFree",
-  "opposingRoe": "WeaponsTight"
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true
+  }
 }
