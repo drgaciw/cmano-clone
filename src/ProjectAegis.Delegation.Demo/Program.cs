@@ -1,52 +1,51 @@
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
+using ProjectAegis.Delegation.UnityAdapter.Baltic;
 
-const int seed = 42;
-var orchestrator = new DelegationOrchestrator(seed);
-
-var friendlyUnit = new UnitTarget(new TargetId("friendly-1"));
-var opposingUnit = new UnitTarget(new TargetId("opposing-1"));
-        orchestrator.Register(friendlyUnit);
-        orchestrator.Register(opposingUnit);
-
-        var traits = PersonalityCatalog.All.First(p => p.Name == "Cautious").Traits;
-        SimulationModeConfigurator.Apply(
-            orchestrator,
-            new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
-            friendly: [friendlyUnit],
-            opposing: [opposingUnit],
-            traits);
-        orchestrator.BeginExecution();
-
-if (friendlyUnit.Slot.Active is HumanController human)
+static void PrintUsage()
 {
-    human.Enqueue(new Order(
-        new OrderId(0),
-        friendlyUnit.Id,
-        SimTime: 0,
-        OrderKind.Hold,
-        RiskLevel.Low));
+    Console.WriteLine("Project Aegis — Baltic replay harness");
+    Console.WriteLine("Usage: dotnet run --project src/ProjectAegis.Delegation.Demo -- [--seed N] [--scenario ID] [--ticks N] [--no-engage]");
 }
 
-var state0 = new ObservedState(0, ContactCount: 1, ActiveEngagementCount: 0, new Dictionary<TargetId, bool>());
-var state1 = new ObservedState(1, ContactCount: 3, ActiveEngagementCount: 1, new Dictionary<TargetId, bool>());
+var seed = 42;
+var scenario = "baltic-patrol";
+var ticks = 4;
+var engage = true;
 
-orchestrator.Tick(state0);
-orchestrator.Tick(state1);
-
-Console.WriteLine($"Project Aegis Delegation Demo (seed={seed})");
-Console.WriteLine($"Executed orders: {orchestrator.ExecutedOrders.Count}");
-foreach (var order in orchestrator.ExecutedOrders)
+for (var i = 0; i < args.Length; i++)
 {
-    Console.WriteLine($"  t={order.SimTime:F0} {order.Target.Value} -> {order.Kind}");
+    switch (args[i])
+    {
+        case "--help" or "-h":
+            PrintUsage();
+            return 0;
+        case "--seed" when i + 1 < args.Length:
+            seed = int.Parse(args[++i], System.Globalization.CultureInfo.InvariantCulture);
+            break;
+        case "--scenario" when i + 1 < args.Length:
+            scenario = args[++i];
+            break;
+        case "--ticks" when i + 1 < args.Length:
+            ticks = int.Parse(args[++i], System.Globalization.CultureInfo.InvariantCulture);
+            break;
+        case "--no-engage":
+            engage = false;
+            break;
+        default:
+            Console.Error.WriteLine($"Unknown argument: {args[i]}");
+            PrintUsage();
+            return 2;
+    }
 }
 
-Console.WriteLine($"Decision log entries: {orchestrator.DecisionLog.Records.Count}");
-foreach (var record in orchestrator.DecisionLog.Records)
+try
 {
-    Console.WriteLine($"  agent={record.AgentId.Value} chose {record.ChosenKind} (load {record.AttentionLoad:F1}/{record.AttentionBudget:F1})");
+    var result = BalticReplayHarness.Run(seed, scenario, ticks, mvpEngagement: engage);
+    Console.WriteLine($"SEED={result.Seed} SCENARIO={result.ScenarioPolicyId} TICKS={result.Ticks} ENGAGEMENTS={result.EngagementCount}");
+    Console.WriteLine($"FINGERPRINT={result.Fingerprint}");
+    return 0;
+}
+catch (Exception ex)
+{
+    Console.Error.WriteLine($"ERROR: {ex.Message}");
+    return 1;
 }

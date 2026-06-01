@@ -7,6 +7,6 @@
     <RootNamespace>ProjectAegis.Delegation.Demo</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ProjectAegis.Delegation\ProjectAegis.Delegation.csproj" />
+    <ProjectReference Include="..\ProjectAegis.Delegation.UnityAdapter\ProjectAegis.Delegation.UnityAdapter.csproj" />
   </ItemGroup>
 </Project>

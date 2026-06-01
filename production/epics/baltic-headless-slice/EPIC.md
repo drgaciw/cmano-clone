@@ -47,13 +47,13 @@ Deliver a **plan → fight → replay** loop without C2 UI: run a seeded Baltic-
 3. At least one scenario produces `Launched` and one produces stable abort code in engagement log.
 4. Documented CLI or test entry point for “run N ticks, print fingerprint” (story).
 
-## Stories (create via `/create-stories baltic-headless-slice`)
+## Stories
 
-| Slug | Summary |
-|------|---------|
-| `replay-harness-cli` | N-tick headless runner prints SEED + fingerprint |
-| `magazine-change-order-log` | `MagazineChange` rows per logistics GDD AC-2 |
-| `minimal-contact-observed-state` | One contact → `ObservedState` for engage |
+| Story | Slug | Status |
+|-------|------|--------|
+| 001 | `story-001-replay-harness-cli.md` | Implemented on `chore/baltic-replay-harness` |
+| 002 | `story-002-magazine-change-order-log.md` | Ready |
+| 003 | `story-003-minimal-contact-observed-state.md` | Ready |
 
 ## Engine risk
 
