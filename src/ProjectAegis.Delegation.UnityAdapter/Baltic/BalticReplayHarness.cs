@@ -24,8 +24,7 @@ public static class BalticReplayHarness
             throw new ArgumentOutOfRangeException(nameof(ticks), "ticks must be >= 1");
         }
 
-        _ = scenarioPolicyId;
-        var bridge = new DelegationBridge(seed, mvpEngagement: mvpEngagement);
+        var bridge = new DelegationBridge(seed, mvpEngagement: mvpEngagement, scenarioPolicyId: scenarioPolicyId);
         if (mvpEngagement && bridge.Session == null)
         {
             throw new InvalidOperationException("MVP engage session was not created.");
