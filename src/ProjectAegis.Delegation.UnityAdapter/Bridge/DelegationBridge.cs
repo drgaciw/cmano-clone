@@ -13,36 +13,45 @@ using ProjectAegis.Sim.Policy;
 
 /// <summary>
 /// Facade for Unity/DOTS: register entities, tick delegation, push orders to the sim.
+/// When <see cref="Session"/> is set, ticks run the MVP engage pipeline after delegation.
 /// </summary>
 public sealed class DelegationBridge
 {
-    private SimulationSession? _simSession;
     private readonly List<Order> _nonEngageOrdersCache = new();
 
-    public DelegationBridge(int globalSeed, IPolicyEvaluator? policyEvaluator = null)
+    public DelegationBridge(
+        int globalSeed,
+        IPolicyEvaluator? policyEvaluator = null,
+        bool mvpEngagement = false)
     {
         Orchestrator = new DelegationOrchestrator(globalSeed, policyEvaluator);
         Registry = new TargetRegistry(Orchestrator);
+        Session = mvpEngagement
+            ? SimulationSession.BindMvpEngagement(
+                Orchestrator,
+                DefaultEngageContext,
+                defaultMagazineRounds: 2)
+            : null;
     }
+
+    /// <summary>Headless engage session sharing <see cref="Orchestrator"/> (null when MVP engage disabled).</summary>
+    public SimulationSession? Session { get; private set; }
 
     public DelegationOrchestrator Orchestrator { get; }
 
     public TargetRegistry Registry { get; }
 
-    public SimulationSession? SimSession => _simSession;
+    /// <summary>Alias for <see cref="Session"/> (main-line compat).</summary>
+    public SimulationSession? SimSession => Session;
 
-    /// <summary>Route <see cref="OrderKind.Engage"/> through <see cref="SimulationSession"/> (DLZ/magazines MVP).</summary>
+    /// <summary>Enable MVP engage after construction (Unity host opt-in).</summary>
     public DelegationBridge EnableMvpEngagement(
         EngageContext? defaultEngageContext = null,
         int defaultMagazineRounds = 2)
     {
-        _simSession = SimulationSession.BindMvpEngagement(
+        Session = SimulationSession.BindMvpEngagement(
             Orchestrator,
-            defaultEngageContext ?? new EngageContext(
-                50_000,
-                new WeaponEnvelope(1_000, 100_000),
-                RoundsRemaining: 2,
-                HasFireControlTrack: true),
+            defaultEngageContext ?? DefaultEngageContext,
             defaultMagazineRounds);
         return this;
     }
@@ -80,9 +89,9 @@ public sealed class DelegationBridge
     {
         var observed = ObservedStateBuilder.Build(snapshot, Registry.CollectMemberIds());
 
-        if (_simSession != null)
+        if (Session != null)
         {
-            if (!_simSession.Tick(observed))
+            if (!Session.Tick(observed))
             {
                 Orchestrator.Tick(observed);
                 return new DelegationTickResult(Array.Empty<Order>(), 0);
@@ -102,7 +111,7 @@ public sealed class DelegationBridge
             return new DelegationTickResult(
                 orders,
                 dispatched,
-                _simSession.Sim.LastEngagementResults.Count);
+                Session.Sim.LastEngagementResults.Count);
         }
 
         Orchestrator.Tick(observed);
@@ -173,4 +182,10 @@ public sealed class DelegationBridge
         bool missionSucceeded = false,
         double objectivesMetRatio = 1.0) =>
         Orchestrator.FinalizeScenario(missionSucceeded, objectivesMetRatio);
+
+    private static EngageContext DefaultEngageContext { get; } = new(
+        50_000,
+        new WeaponEnvelope(1_000, 100_000),
+        RoundsRemaining: 2,
+        HasFireControlTrack: true);
 }
