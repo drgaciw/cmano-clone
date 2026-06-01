@@ -139,6 +139,11 @@ public sealed class DelegationBridge
 
     public bool TryTakeDirectControl(EntityKey entity, double simTime)
     {
+        if (Orchestrator.AttachReplayViewer)
+        {
+            return false;
+        }
+
         if (!Registry.TryGetBinding(entity, out var binding) ||
             binding.Target is not UnitTarget unit)
         {
@@ -150,6 +155,11 @@ public sealed class DelegationBridge
 
     public bool TryReleaseDirectControl(EntityKey entity, double simTime)
     {
+        if (Orchestrator.AttachReplayViewer)
+        {
+            return false;
+        }
+
         if (!Registry.TryGetBinding(entity, out var binding) ||
             binding.Target is not UnitTarget unit)
         {

@@ -38,7 +38,11 @@ public sealed class DelegationOrchestrator
 
     public ScenarioPolicyProfile? ScenarioPolicy { get; set; }
 
-    /// <summary>When true, human order ingress is blocked (req 03 AvA observer attach).</summary>
+    /// <summary>
+    /// When true, all human ingress paths are blocked (req 03 AvA observer attach).
+    /// Enforced at both the orchestrator boundary (TryTakeDirectControl/TryReleaseDirectControl)
+    /// and the Unity bridge (DelegationBridge.TryEnqueueHumanOrder).
+    /// </summary>
     public bool AttachReplayViewer { get; set; }
 
     public SimulationPhase Phase { get; private set; } = SimulationPhase.Planning;
@@ -131,6 +135,11 @@ public sealed class DelegationOrchestrator
 
     public bool TryTakeDirectControl(UnitTarget unit, double simTime)
     {
+        if (AttachReplayViewer)
+        {
+            return false;
+        }
+
         var previous = DescribeActiveController(unit.Slot);
         var parentGroup = FindParentGroup(unit.Id);
 
@@ -157,6 +166,11 @@ public sealed class DelegationOrchestrator
 
     public bool TryReleaseDirectControl(UnitTarget unit, double simTime)
     {
+        if (AttachReplayViewer)
+        {
+            return false;
+        }
+
         if (unit.Slot.Active is not HumanController)
         {
             return false;
