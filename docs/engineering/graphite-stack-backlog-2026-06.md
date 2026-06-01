@@ -46,7 +46,7 @@ gt submit --stack --no-interactive
 
 | ID | Branch | PR title | Status |
 |----|--------|----------|--------|
-| UNT-2 | `stack/unity/playmode-smoke` | feat(unity): play-mode smoke with engage | **In progress** |
+| UNT-2 | `stack/unity/playmode-smoke` | feat(unity): play-mode smoke with engage | **PR #16** (draft) |
 
 Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 
