@@ -41,3 +41,58 @@ This project is indexed by GitNexus as **cmano-clone** (2861 symbols, 5368 relat
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+## Cursor Cloud specific instructions
+
+Headless **.NET 8** development is the supported Cloud Agent path. Unity Editor 6.3 LTS (`unity/ProjectAegis`) is optional and usually not installed in the VM; use the headless Play Mode harness instead of opening the Editor.
+
+Cloud VMs run `.cursor/cloud-install.sh` on startup via `.cursor/environment.json` (installs .NET SDK 8.0.400 when missing, then `dotnet restore`). See [Cloud agent setup](https://cursor.com/docs/cloud-agent/setup).
+
+### Prerequisites
+
+- **.NET SDK 8.0.400** (see `global.json`). If `dotnet` is missing, install to `~/.dotnet` and add it to `PATH` in your shell profile (no root symlink required):
+
+  ```bash
+  curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 8.0.400
+  export PATH="$HOME/.dotnet:$PATH"
+  # Persist: append the export line to ~/.bashrc (or ~/.zshrc)
+  ```
+
+- **Node.js** is only needed for `tools/cmano-db-crawler/` (reference data), not for build/test.
+
+### Common commands (repo root)
+
+| Task | Command |
+|------|---------|
+| Restore | `dotnet restore ProjectAegis.sln` |
+| Build | `dotnet build ProjectAegis.sln` |
+| Test (full suite, 68 tests) | `dotnet test ProjectAegis.sln -v minimal` |
+| Play Mode smoke (headless) | `dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests` |
+| Run delegation demo | `dotnet run --project src/ProjectAegis.Delegation.Demo` |
+| Format check | `dotnet format --verify-no-changes` (may report pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`) |
+
+See `README.md` and `unity/ProjectAegis/PLAYMODE-SMOKE.md` for Unity Editor setup (`./tools/init-unity-project.ps1` requires PowerShell).
+
+### Recommended verification (after code changes)
+
+Run from repo root before marking work complete:
+
+```bash
+dotnet build ProjectAegis.sln
+dotnet test ProjectAegis.sln -v minimal
+dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests
+```
+
+### Troubleshooting
+
+| Symptom | Fix |
+|---------|-----|
+| `dotnet: command not found` | Run the install block under Prerequisites; confirm `dotnet --version` prints `8.0.400`. |
+| Missing `Microsoft.NETCore.App` runtime | Install SDK 8.0.400 (not runtime-only); `dotnet --list-sdks` should include `8.0.400`. |
+| Play Mode smoke not found | Use the full project path in the table above; filter name is `PlayModeSmokeHarnessTests`. |
+| `dotnet format` fails on `Program.cs` | Known pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`; unrelated to most PRs. |
+| Environment install fails immediately | Confirm `.cursor/cloud-install.sh` is executable; run `bash .cursor/cloud-install.sh` manually from repo root. |
+
+### Services
+
+No Docker compose or long-running servers. The “application” is in-process: `dotnet test` or the console demo. Unity-MCP (`http://localhost:8080`) and GitNexus MCP are agent tooling only, not required for CI-style verification.

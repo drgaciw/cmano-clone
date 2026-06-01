@@ -134,7 +134,7 @@ This repo already has requirements docs under `Game-Requirements/`. A practical 
 GitNexus code intelligence is preserved alongside Game-Studios:
 
 - `.claude/skills/gitnexus/` — 6 skills (exploring, impact-analysis, debugging, refactoring, guide, cli)
-- `AGENTS.md` — unchanged GitNexus block
+- `AGENTS.md` — GitNexus block plus Cursor Cloud dev instructions
 - `CLAUDE.md` — GitNexus block appended verbatim at end
 
 Before committing code changes, run `gitnexus_detect_changes()` via the GitNexus MCP server.
