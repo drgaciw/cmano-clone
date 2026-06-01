@@ -15,6 +15,9 @@ namespace ProjectAegis.Unity.Runtime
 
         public DelegationBridge Bridge { get; private set; } = null!;
 
+        /// <summary>MVP engage session (same orchestrator as <see cref="Bridge"/>).</summary>
+        public SimulationSession? Session => Bridge.Session;
+
         public SimulationPhase Phase => Bridge.Phase;
 
         private void Awake()
