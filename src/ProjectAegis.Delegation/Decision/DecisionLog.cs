@@ -114,7 +114,7 @@ public sealed class DecisionLog
             OrderLogEntryKind.PolicyDenial when entry.Payload is PolicyDenialRecord d =>
                 $"{d.TargetId.Value}|{d.Reason}|{d.AttemptedKind}",
             OrderLogEntryKind.Engagement when entry.Payload is EngagementRecord e =>
-                $"{e.ShooterTargetId.Value}|{e.EngagementId}|{e.Launched}|{e.AbortReason}",
+                $"{e.SimTick}|{e.ShooterTargetId.Value}|{e.EngagementId}|{e.Launched}|{e.AbortReasonCode}",
             OrderLogEntryKind.ControllerChange when entry.Payload is ControllerChangeRecord c =>
                 $"{c.TargetId.Value}|{c.PreviousKind}|{c.NewKind}|{c.AgentId?.Value}",
             OrderLogEntryKind.GroupMemberDetach when entry.Payload is GroupMemberDetachRecord d =>

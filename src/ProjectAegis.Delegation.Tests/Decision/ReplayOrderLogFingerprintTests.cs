@@ -2,6 +2,7 @@ using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Orchestration;
+using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
@@ -21,6 +22,15 @@ public sealed class ReplayOrderLogFingerprintTests
         var b = RunScenarioFingerprint(globalSeed: 4242);
         Assert.That(a, Is.EqualTo(b));
         Assert.That(a, Is.Not.Empty);
+    }
+
+    [Test]
+    public void Mvp_engage_fingerprint_is_stable_with_scenario_defaults()
+    {
+        var a = RunMvpEngageFingerprint(42, "baltic-patrol");
+        var b = RunMvpEngageFingerprint(42, "baltic-patrol");
+        Assert.That(a, Is.EqualTo(b));
+        Assert.That(a, Does.Contain("Engagement|"));
     }
 
     [Test]
@@ -53,5 +63,37 @@ public sealed class ReplayOrderLogFingerprintTests
         }
 
         return orchestrator.DecisionLog.ComputeFingerprint();
+    }
+
+    private static string RunMvpEngageFingerprint(int globalSeed, string scenarioPolicyId)
+    {
+        var orchestrator = new DelegationOrchestrator(globalSeed);
+        var session = SimulationSession.BindMvpEngagementForScenario(orchestrator, scenarioPolicyId);
+        var unit = new UnitTarget(new TargetId("u1"));
+        var agent = orchestrator.CreateAgent(
+            new AgentId("a1"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous,
+            policy: new EngageOnlyPolicy());
+        orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
+        orchestrator.Register(unit);
+        session.BeginExecution();
+
+        for (var tick = 0; tick < 4; tick++)
+        {
+            session.Tick(new ObservedState(tick, 2, 0, new Dictionary<TargetId, bool>()));
+        }
+
+        return orchestrator.DecisionLog.ComputeFingerprint();
+    }
+
+    private sealed class EngageOnlyPolicy : IPolicy
+    {
+        public IReadOnlyList<ScoredIntent> GenerateCandidates(PerceivedState perceived, TraitVector traits)
+        {
+            _ = perceived;
+            _ = traits;
+            return [new ScoredIntent(OrderKind.Engage, 1.0, RiskLevel.High)];
+        }
     }
 }

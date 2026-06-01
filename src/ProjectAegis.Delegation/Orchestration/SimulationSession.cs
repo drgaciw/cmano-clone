@@ -115,18 +115,35 @@ public sealed class SimulationSession
     private void LogEngagementResults(ObservedState state, IReadOnlyList<Order> engageOrders)
     {
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
-        var count = Math.Min(engageOrders.Count, Sim.LastEngagementResults.Count);
-        for (var i = 0; i < count; i++)
+        var results = Sim.LastEngagementResults;
+        for (var i = 0; i < engageOrders.Count; i++)
         {
-            var result = Sim.LastEngagementResults[i];
-            Orchestrator.DecisionLog.AppendEngagement(new EngagementRecord(
-                SequenceId: 0,
-                state.SimTime,
-                simTick,
-                engageOrders[i].Target,
-                result.EngagementId,
-                result.Launched,
-                result.Launched ? null : result.AbortReason.ToString()));
+            if (i < results.Count)
+            {
+                var result = results[i];
+                var code = result.Launched
+                    ? EngagementAbortReasonCodes.Launched
+                    : EngagementAbortReasonCodes.ToLogCode(result.AbortReason);
+                Orchestrator.DecisionLog.AppendEngagement(new EngagementRecord(
+                    SequenceId: 0,
+                    state.SimTime,
+                    simTick,
+                    engageOrders[i].Target,
+                    result.EngagementId,
+                    result.Launched,
+                    code));
+            }
+            else
+            {
+                Orchestrator.DecisionLog.AppendEngagement(new EngagementRecord(
+                    SequenceId: 0,
+                    state.SimTime,
+                    simTick,
+                    engageOrders[i].Target,
+                    EngagementId: 0,
+                    Launched: false,
+                    EngagementAbortReasonCodes.NoResult));
+            }
         }
     }
 
