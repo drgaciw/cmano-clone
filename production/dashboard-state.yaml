@@ -1,0 +1,50 @@
+# GitNexus + filesystem snapshot for dashboard delta comparison.
+# Updated by /project-dashboard skill and Cursor Automation (09:00 / 21:00).
+
+last_run:
+  timestamp: "2026-05-31T17:50:00Z"
+  label: am  # baseline snapshot; subsequent runs use 'am' (09:00) or 'pm' (21:00)
+
+gitnexus:
+  indexed_commit: "8debee4"
+  nodes: 2815
+  edges: 5198
+  clusters: 45
+  flows: 100
+  index_status: fresh
+  changed_symbols_count: 2
+  affected_processes_count: 0
+  watchlist_risks:
+    IRoeFilter: LOW
+    DecisionLog: HIGH
+    DelegationOrchestrator: HIGH
+    SimTickPipeline: LOW
+
+filesystem:
+  sprint_plans: 0
+  milestones: 0
+  epics: 0
+  stories: 0
+  gdd_files: 10
+  gdd_systems_with_docs: 6
+  gdd_systems_total: 20
+  adrs: 5
+  architecture_files: 7
+  production_files: 2
+  determinism_audits: 1
+  test_files: 36
+  source_files: 96
+  requirements_files: 26
+  asset_manifest_exists: false
+
+plans:
+  simulation_modes_decisions:
+    complete: 2
+    open: 5
+  phase_gate_loop_policy:
+    complete: 5
+    open: 2
+  agent_delegation_framework:
+    complete: 0
+    open: 58
+    note: stale — implementation largely complete
