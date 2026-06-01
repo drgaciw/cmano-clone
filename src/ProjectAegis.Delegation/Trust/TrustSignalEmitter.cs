@@ -15,11 +15,10 @@ public static class TrustSignalEmitter
         // that were overridden before producing any DecisionRecord still get trust signals.
         var agentIds = log.Records
             .Select(r => r.AgentId.Value)
-            .Union(
+            .Concat(
                 log.ControllerChanges
                     .Where(c => c.AgentId is not null)
-                    .Select(c => c.AgentId!.Value),
-                StringComparer.Ordinal)
+                    .Select(c => c.AgentId!.Value.Value))
             .Distinct(StringComparer.Ordinal)
             .ToArray();
 
