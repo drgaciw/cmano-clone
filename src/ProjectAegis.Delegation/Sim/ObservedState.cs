@@ -6,7 +6,9 @@ public sealed record ObservedState(
     double SimTime,
     int ContactCount,
     int ActiveEngagementCount,
-    IReadOnlyDictionary<TargetId, bool> MemberAlive);
+    IReadOnlyDictionary<TargetId, bool> MemberAlive,
+    bool HasFireControlTrack = true,
+    TargetId? PrimaryHostileContactId = null);
 
 public sealed record PerceivedState(
     double SimTime,

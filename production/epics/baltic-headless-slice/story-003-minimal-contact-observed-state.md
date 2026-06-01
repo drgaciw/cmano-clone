@@ -1,7 +1,7 @@
 # Story 003: Minimal contact feed for ObservedState
 
 > **Epic**: Baltic Headless Vertical Slice
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Feature
 > **Type**: Integration
 > **Estimate**: 6h
@@ -18,10 +18,10 @@
 
 ## Acceptance Criteria
 
-- [ ] `ISimWorldSnapshot` exposes at least one hostile contact id for engage tests (or documented stub adapter).
-- [ ] `ObservedStateBuilder` maps contact count / alive flags from snapshot without hardcoded empty dictionaries in harness.
-- [ ] Engage abort `NoFireControlTrack` only when snapshot reports no track (not always-on stub).
-- [ ] Play-mode + headless harness use same snapshot contract.
+- [x] `ISimWorldSnapshot` exposes `PrimaryHostileContactId` + `HasFireControlTrackOnPrimaryContact`.
+- [x] `ObservedStateBuilder` maps contact + track into `ObservedState`.
+- [x] Engage abort `NoFireControlTrack` when snapshot/state reports no track (`PrimeEngageWorld` uses `state.HasFireControlTrack`).
+- [x] Play-mode + headless + Unity `SimplePlayModeSimHost` share the contract.
 
 ## Test Evidence
 

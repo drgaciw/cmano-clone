@@ -104,7 +104,7 @@ public sealed class SimulationSession
                 TargetId: 0,
                 MountId: 0,
                 SimTick: simTick);
-            PrimeEngageWorld(request);
+            PrimeEngageWorld(request, state);
             Sim.EnqueueEngagement(request);
         }
 
@@ -187,19 +187,21 @@ public sealed class SimulationSession
 
     public int? DefaultMagazineRounds { get; init; }
 
-    private void PrimeEngageWorld(in EngageRequest request)
+    private void PrimeEngageWorld(in EngageRequest request, ObservedState state)
     {
         if (EngageWorld == null)
         {
             return;
         }
 
-        if (!EngageWorld.TryGetContext(request, out _))
+        if (DefaultEngageContext is { } template)
         {
-            if (DefaultEngageContext is { } ctx)
-            {
-                EngageWorld.Set(request, ctx);
-            }
+            var primed = template with { HasFireControlTrack = state.HasFireControlTrack };
+            EngageWorld.Set(request, primed);
+        }
+        else if (!EngageWorld.TryGetContext(request, out _))
+        {
+            return;
         }
 
         if (Magazines != null && DefaultMagazineRounds is int defaultRounds && defaultRounds > 0)

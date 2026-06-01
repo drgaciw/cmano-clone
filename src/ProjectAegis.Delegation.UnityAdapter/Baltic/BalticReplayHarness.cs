@@ -40,7 +40,7 @@ public static class BalticReplayHarness
         bridge.Orchestrator.Register(unit);
         bridge.BeginExecution();
 
-        var harness = new HeadlessSnapshot(contactCount: 2);
+        var harness = new HeadlessSnapshot(contactCount: 2, hasFireControlTrack: true);
         for (var t = 0; t < ticks; t++)
         {
             harness.Advance(1.0);
@@ -59,13 +59,22 @@ public static class BalticReplayHarness
     {
         private double _simTime;
 
-        public HeadlessSnapshot(int contactCount) => ContactCount = contactCount;
+        public HeadlessSnapshot(int contactCount, bool hasFireControlTrack)
+        {
+            ContactCount = contactCount;
+            PrimaryHostileContactId = contactCount > 0 ? new TargetId("hostile-1") : null;
+            HasFireControlTrackOnPrimaryContact = contactCount > 0 && hasFireControlTrack;
+        }
 
         public double SimTime => _simTime;
 
         public int ContactCount { get; }
 
         public int ActiveEngagementCount => 0;
+
+        public TargetId? PrimaryHostileContactId { get; }
+
+        public bool HasFireControlTrackOnPrimaryContact { get; }
 
         public void Advance(double delta) => _simTime += delta;
 

@@ -88,3 +88,4 @@ Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 |------|------|
 | 2026-06-01 | Backlog created; DELEG-5 bridge uses `SimulationSession.BindMvpEngagement` |
 | 2026-06-01 | Integration pass: #13 merged main; #14–#16 restacked; logistics GDD Approved; Baltic epic scaffold |
+| 2026-06-01 | Baltic slice on main: #17 harness, #18 MagazineChange; story-003 contact/track (PR pending) |

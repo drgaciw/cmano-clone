@@ -53,7 +53,7 @@ Deliver a **plan → fight → replay** loop without C2 UI: run a seeded Baltic-
 |-------|------|--------|
 | 001 | `story-001-replay-harness-cli.md` | Implemented on `chore/baltic-replay-harness` |
 | 002 | `story-002-magazine-change-order-log.md` | In Progress (PR pending) |
-| 003 | `story-003-minimal-contact-observed-state.md` | Ready |
+| 003 | `story-003-minimal-contact-observed-state.md` | Complete |
 
 ## Engine risk
 
