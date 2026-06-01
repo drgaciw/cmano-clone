@@ -7,9 +7,3 @@ public sealed record GroupMemberDetachRecord(
     double SimTime,
     TargetId GroupId,
     TargetId UnitId);
-
-public sealed record GroupMemberRejoinRecord(
-    ulong SequenceId,
-    double SimTime,
-    TargetId GroupId,
-    TargetId UnitId);
