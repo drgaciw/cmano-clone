@@ -13,7 +13,7 @@ public sealed class DetachRejoinService
 
     public void Detach(GroupTarget group, UnitTarget unit)
     {
-        unit.SetDetached(true);
+        unit.SetDetached(true, group.Id);
         group.RemoveMember(unit.Id);
         group.MarkReplanPending();
         _overrideService.TakeDirectControl(unit, new HumanController());

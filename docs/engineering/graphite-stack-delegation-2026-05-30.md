@@ -15,6 +15,7 @@
 | 7 | `stack/delegation/dual-side-policy` | feat(sim): allowDualSideControl scenario policy [DELEG-7] | `ScenarioPolicyProfile`, JSON loader | c-sharp-engineer |
 | 8 | `stack/delegation/dual-side-config` | feat(delegation): dual-side Mixed configure [DELEG-8] | `SimulationModeConfigurator` | c-sharp-reviewer |
 | 9 | `stack/delegation/observer-attach` | feat(delegation): AttachReplayViewer session [DELEG-9] | orchestrator + bridge guard | gameplay-programmer |
+| 10 | `05-30-feat_delegation_req04_*` / rename → `stack/delegation/decisions-impl` | feat(delegation): req04 detach log, trust emit, attention [DELEG-10] | order log events, `TrustSignalEmitter`, personality budgets, override tests | c-sharp-engineer, determinism-engineer |
 
 ```mermaid
 flowchart BT
@@ -27,13 +28,32 @@ flowchart BT
   pr6 --> pr7[DELEG-7 dual-side-policy]
   pr7 --> pr8[DELEG-8 dual-side-config]
   pr8 --> pr9[DELEG-9 observer-attach]
+  pr9 --> pr10[DELEG-10 decisions-impl]
 ```
 
 **Submit (after `gt auth`):**
 
 ```powershell
-gt checkout stack/delegation/sim-modes-docs
+gt checkout stack/delegation/sim-core
 gt submit --stack --no-interactive
 ```
 
+**DELEG-10 review focus (Cursor agents):**
+- `TryTakeDirectControl` / `TryReleaseDirectControl` on orchestrator + bridge (parent: DELEG-9)
+- Order log: `ControllerChange`, `GroupMemberDetach`, `GroupMemberRejoin`
+- `TrustSignalEmitter.EmitFromSession` — emit-only, no hot-path mutation
+- `PersonalityCatalog.ResolveAttentionBudget` — Swarm +25%, EW −10%
+
 **Headless gate per slice:** `dotnet test ProjectAegis.sln`
+
+## Open PRs (2026-05-30)
+
+| # | PR |
+|---|-----|
+| DELEG-6 | https://github.com/drgaciw/cmano-clone/pull/5 |
+| DELEG-7 | https://github.com/drgaciw/cmano-clone/pull/6 |
+| DELEG-8 | https://github.com/drgaciw/cmano-clone/pull/7 |
+| DELEG-9 | https://github.com/drgaciw/cmano-clone/pull/8 |
+| DELEG-10 | https://github.com/drgaciw/cmano-clone/pull/9 |
+
+**Graphite note:** `gt sync` / `gt submit --stack` require a fresh auth token at https://app.graphite.com/activate (token expired 2026-05-30). DELEG-1–5 branches exist locally; use `gt submit` after re-auth to open remaining stack PRs if not yet on GitHub.
