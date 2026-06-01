@@ -18,28 +18,36 @@ public static class SimulationModeConfigurator
         AutonomyLevel agentAutonomy = AutonomyLevel.FullAutonomous,
         string? scenarioPolicyId = null)
     {
-        orchestrator.ScenarioPolicy = ResolveScenarioPolicy(scenarioPolicyId);
+        if (!string.IsNullOrWhiteSpace(scenarioPolicyId))
+        {
+            orchestrator.ScenarioPolicy = ResolveScenarioPolicy(scenarioPolicyId);
+        }
 
         switch (mode.Kind)
         {
             case SimulationModeKind.Human:
                 AssignHuman(friendly);
-                AssignAgents(orchestrator, opposing, defaultTraits, agentAutonomy, "opp");
+                AssignAgents(orchestrator, opposing, defaultTraits, agentAutonomy, "opp", isFriendly: false);
+                break;
+
+            case SimulationModeKind.Mixed when orchestrator.ScenarioPolicy?.AllowDualSideControl == true:
+                AssignHuman(friendly);
+                AssignHuman(opposing);
                 break;
 
             case SimulationModeKind.Mixed when mode.PlayerControlsFriendlySide:
                 AssignHuman(friendly);
-                AssignAgents(orchestrator, opposing, defaultTraits, agentAutonomy, "opp");
+                AssignAgents(orchestrator, opposing, defaultTraits, agentAutonomy, "opp", isFriendly: false);
                 break;
 
             case SimulationModeKind.Mixed:
-                AssignAgents(orchestrator, friendly, defaultTraits, agentAutonomy, "friendly");
+                AssignAgents(orchestrator, friendly, defaultTraits, agentAutonomy, "friendly", isFriendly: true);
                 AssignHuman(opposing);
                 break;
 
             case SimulationModeKind.AgentVsAgent:
-                AssignAgents(orchestrator, friendly, defaultTraits, agentAutonomy, "friendly");
-                AssignAgents(orchestrator, opposing, defaultTraits, agentAutonomy, "opp");
+                AssignAgents(orchestrator, friendly, defaultTraits, agentAutonomy, "friendly", isFriendly: true);
+                AssignAgents(orchestrator, opposing, defaultTraits, agentAutonomy, "opp", isFriendly: false);
                 break;
 
             default:
@@ -65,7 +73,8 @@ public static class SimulationModeConfigurator
         IReadOnlyList<ICommandableTarget> targets,
         TraitVector traits,
         AutonomyLevel autonomy,
-        string idPrefix)
+        string idPrefix,
+        bool isFriendly)
     {
         for (var i = 0; i < targets.Count; i++)
         {
@@ -73,7 +82,6 @@ public static class SimulationModeConfigurator
                 new AgentId($"{idPrefix}-{i}"),
                 traits,
                 autonomy);
-            var isFriendly = idPrefix.StartsWith("friendly", StringComparison.Ordinal);
             orchestrator.AssignAgentToTarget(
                 agent,
                 targets[i],
