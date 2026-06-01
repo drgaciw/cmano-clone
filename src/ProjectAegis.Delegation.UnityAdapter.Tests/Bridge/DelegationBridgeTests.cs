@@ -18,7 +18,7 @@ public sealed class DelegationBridgeTests
     [Test]
     public void Tick_is_no_op_while_planning()
     {
-        var bridge = new DelegationBridge(42);
+        var bridge = new DelegationBridge(42, mvpEngagement: false);
         var friendly = bridge.Registry.RegisterUnit(new EntityKey(1), "friendly-1");
         var opposing = bridge.Registry.RegisterUnit(new EntityKey(2), "opposing-1");
 
@@ -41,7 +41,7 @@ public sealed class DelegationBridgeTests
     [Test]
     public void Tick_builds_observed_state_and_dispatches_orders_to_sink()
     {
-        var bridge = new DelegationBridge(globalSeed: 42);
+        var bridge = new DelegationBridge(globalSeed: 42, mvpEngagement: false);
         var friendly = bridge.Registry.RegisterUnit(new EntityKey(1), "friendly-1");
         var opposing = bridge.Registry.RegisterUnit(new EntityKey(2), "opposing-1");
 
@@ -75,7 +75,7 @@ public sealed class DelegationBridgeTests
     [Test]
     public void TryEnqueueHumanOrder_only_when_human_controls_entity()
     {
-        var bridge = new DelegationBridge(1);
+        var bridge = new DelegationBridge(1, mvpEngagement: false);
         var unit = bridge.Registry.RegisterUnit(new EntityKey(10), "u10");
         unit.Target.Slot.SetActive(new HumanController());
 
@@ -141,9 +141,22 @@ public sealed class DelegationBridgeTests
     }
 
     [Test]
+    public void TryEnqueueHumanOrder_returns_false_when_AttachReplayViewer_enabled()
+    {
+        var bridge = new DelegationBridge(1, mvpEngagement: false);
+        var unit = bridge.Registry.RegisterUnit(new EntityKey(10), "u10");
+        unit.Target.Slot.SetActive(new HumanController());
+        bridge.AttachReplayViewer = true;
+
+        Assert.That(
+            bridge.TryEnqueueHumanOrder(new EntityKey(10), OrderKind.Hold, simTime: 0),
+            Is.False);
+    }
+
+    [Test]
     public void ObservedStateBuilder_includes_registered_member_alive_flags()
     {
-        var bridge = new DelegationBridge(1);
+        var bridge = new DelegationBridge(1, mvpEngagement: false);
         var group = bridge.Registry.RegisterGroup(new EntityKey(100), "g1");
         var member = bridge.Registry.RegisterUnit(new EntityKey(101), "u1");
         bridge.Registry.LinkGroupMember(group.TargetId, member.TargetId);

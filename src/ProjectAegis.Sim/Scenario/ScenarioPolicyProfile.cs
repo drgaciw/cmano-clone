@@ -10,13 +10,15 @@ public sealed class ScenarioPolicyProfile
         EffectivePolicy? opposingDefault = null,
         IReadOnlyDictionary<string, EffectivePolicy>? unitOverrides = null,
         PlayerInfoModel playerInfoModel = PlayerInfoModel.FullTransparency,
-        PersonalityEditPolicy personalityEditPolicy = PersonalityEditPolicy.Anytime)
+        PersonalityEditPolicy personalityEditPolicy = PersonalityEditPolicy.Anytime,
+        bool allowDualSideControl = false)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
         UnitOverrides = unitOverrides ?? new Dictionary<string, EffectivePolicy>();
         PlayerInfoModel = playerInfoModel;
         PersonalityEditPolicy = personalityEditPolicy;
+        AllowDualSideControl = allowDualSideControl;
     }
 
     public string Id { get; init; } = "";
@@ -30,6 +32,9 @@ public sealed class ScenarioPolicyProfile
     public PlayerInfoModel PlayerInfoModel { get; }
 
     public PersonalityEditPolicy PersonalityEditPolicy { get; }
+
+    /// <summary>When true, Mixed mode may assign human controllers on both sides (req 03 test sandbox).</summary>
+    public bool AllowDualSideControl { get; }
 
     public EffectivePolicy ResolveForUnit(string unitKey, bool isFriendly)
     {
