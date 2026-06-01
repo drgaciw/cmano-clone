@@ -8,6 +8,16 @@ public sealed class MagazineLedger
     public void SetRounds(ulong shooterUnitId, ulong mountId, int rounds) =>
         _rounds[(shooterUnitId, mountId)] = rounds;
 
+    /// <summary>Sets initial capacity once per shooter+mount (no refill after consumption).</summary>
+    public void EnsureInitialRounds(ulong shooterUnitId, ulong mountId, int rounds)
+    {
+        var key = (shooterUnitId, mountId);
+        if (!_rounds.ContainsKey(key))
+        {
+            _rounds[key] = rounds;
+        }
+    }
+
     public int GetRounds(ulong shooterUnitId, ulong mountId) =>
         _rounds.TryGetValue((shooterUnitId, mountId), out var n) ? n : 0;
 

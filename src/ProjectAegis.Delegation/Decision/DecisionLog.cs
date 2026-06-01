@@ -12,6 +12,7 @@ public sealed class DecisionLog
     private readonly List<ControllerChangeRecord> _controllerChanges = new();
     private readonly List<GroupMemberDetachRecord> _groupMemberDetaches = new();
     private readonly List<GroupMemberRejoinRecord> _groupMemberRejoins = new();
+    private readonly List<MagazineChangeRecord> _magazineChanges = new();
 
     public IReadOnlyList<DecisionRecord> Records => _records;
 
@@ -24,6 +25,8 @@ public sealed class DecisionLog
     public IReadOnlyList<GroupMemberDetachRecord> GroupMemberDetaches => _groupMemberDetaches;
 
     public IReadOnlyList<GroupMemberRejoinRecord> GroupMemberRejoins => _groupMemberRejoins;
+
+    public IReadOnlyList<MagazineChangeRecord> MagazineChanges => _magazineChanges;
 
     public void Append(DecisionRecord record)
     {
@@ -45,6 +48,9 @@ public sealed class DecisionLog
 
     public void AppendGroupMemberRejoin(GroupMemberRejoinRecord rejoin) =>
         _groupMemberRejoins.Add(rejoin with { SequenceId = NextSequence() });
+
+    public void AppendMagazineChange(MagazineChangeRecord change) =>
+        _magazineChanges.Add(change with { SequenceId = NextSequence() });
 
     /// <summary>Unified timeline sorted by sequence (ADR-003 MVP).</summary>
     public IReadOnlyList<OrderLogEntry> ChronologicalEntries()
@@ -84,6 +90,11 @@ public sealed class DecisionLog
             entries.Add(new OrderLogEntry(r.SequenceId, OrderLogEntryKind.GroupMemberRejoin, r.SimTime, r));
         }
 
+        foreach (var m in _magazineChanges)
+        {
+            entries.Add(new OrderLogEntry(m.SequenceId, OrderLogEntryKind.MagazineChange, m.SimTime, m));
+        }
+
         return entries.OrderBy(e => e.SequenceId).ToArray();
     }
 
@@ -121,6 +132,8 @@ public sealed class DecisionLog
                 $"{d.GroupId.Value}|{d.UnitId.Value}",
             OrderLogEntryKind.GroupMemberRejoin when entry.Payload is GroupMemberRejoinRecord r =>
                 $"{r.GroupId.Value}|{r.UnitId.Value}",
+            OrderLogEntryKind.MagazineChange when entry.Payload is MagazineChangeRecord m =>
+                $"{m.SimTick}|{m.ShooterTargetId.Value}|{m.MountId}|{m.Delta}|{m.ReasonCode}",
             _ => "?",
         };
 
