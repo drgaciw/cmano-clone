@@ -8,4 +8,5 @@ public enum OrderLogEntryKind
     ControllerChange = 3,
     GroupMemberDetach = 4,
     GroupMemberRejoin = 5,
+    MagazineChange = 6,
 }

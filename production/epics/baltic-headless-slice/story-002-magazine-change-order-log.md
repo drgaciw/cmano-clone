@@ -1,7 +1,7 @@
 # Story 002: MagazineChange order-log rows
 
 > **Epic**: Baltic Headless Vertical Slice
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Logic
 > **Estimate**: 4h

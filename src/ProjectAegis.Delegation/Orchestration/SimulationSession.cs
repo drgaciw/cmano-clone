@@ -132,6 +132,18 @@ public sealed class SimulationSession
                     result.EngagementId,
                     result.Launched,
                     code));
+
+                if (result.Launched)
+                {
+                    Orchestrator.DecisionLog.AppendMagazineChange(new MagazineChangeRecord(
+                        SequenceId: 0,
+                        state.SimTime,
+                        simTick,
+                        engageOrders[i].Target,
+                        MountId: 0,
+                        Delta: -1,
+                        MagazineChangeReasonCodes.Fire));
+                }
             }
             else
             {
@@ -190,12 +202,9 @@ public sealed class SimulationSession
             }
         }
 
-        if (Magazines != null &&
-            DefaultMagazineRounds is int defaultRounds &&
-            defaultRounds > 0 &&
-            Magazines.GetRounds(request.ShooterUnitId, request.MountId) <= 0)
+        if (Magazines != null && DefaultMagazineRounds is int defaultRounds && defaultRounds > 0)
         {
-            Magazines.SetRounds(request.ShooterUnitId, request.MountId, defaultRounds);
+            Magazines.EnsureInitialRounds(request.ShooterUnitId, request.MountId, defaultRounds);
         }
     }
 }
