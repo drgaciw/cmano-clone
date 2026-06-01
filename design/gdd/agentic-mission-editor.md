@@ -41,7 +41,7 @@ All three operate on the identical canonical file. Headless and UI are the same 
 
 - ZIP package: `manifest.json`, `scenario.json` (canonical), optional `cache.bin` (derived, never authoritative).
 - `scenario.json` schema (refines doc §Data Model):
-  - `metadata` (title, description, author, `schemaVersion`, `dbRef`)
+  - `metadata` — required keys: `title`, `description`, `author`, `schemaVersion`, `dbRef`, `seed` (ulong, scenario RNG root for sim/replay), `editVersion` (int, monotonic optimistic-lock counter; bumped on every committed write, distinct from `schemaVersion`)
   - `features` (magazines, realism toggles, time-compression limits)
   - `sides[]` (briefing, doctrine defaults, score, `postures[]`)
   - `orbat` (units, groups, bases, cargo)
@@ -79,7 +79,7 @@ All types support **doctrine / ROE / EMCON inheritance** from parent unit with e
 - **Trigger types (P0):** Time, UnitDestroyed, UnitEntersZone, ContactDetected, Variable, MissionComplete, SidePostureChange, ScoreThreshold.
 - **Unit-state trigger types (P0, required for CMO parity):** UnitBingoFuel, UnitWinchester (out of a named weapon), UnitDamaged (crosses a damage threshold), DoctrineChanged. Without these, parity scenarios are forced into opaque `Variable` workarounds.
 - **Action types (P0):** ActivateMission, DeactivateMission, SpawnUnit, RemoveUnit, SetVariable, Message/Briefing, ChangeDoctrine, SetWeather, TeleportUnit (edit-test only), EndScenario.
-- Events compile to a deterministic runtime evaluation order (§4.2). The event debugger logs firing order, skipped conditions, and action results; exportable to JSON.
+- Events compile to a deterministic runtime evaluation order (§4.2). The event debugger projects the same firing sequence as order-log `EventFired` entries (`order-log-replay.md`): each fired event appends `{eventId, simTick, sequenceId, unmetConditions[], actionResults[]}` — the debugger JSON is a filtered view, not a second store (AC-7).
 
 ### 3.6 Validation Engine (v1) + agents (Phase 2/3)
 

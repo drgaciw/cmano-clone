@@ -31,3 +31,9 @@ Status: Awaiting fresh full re-review in a clean session.
 **Recommended:** v1 scope for P1 mission types / operationsTimeline[]; AC-5 sample-complete schema.
 
 **Status:** Awaiting revision; no implementation sign-off until blockers closed.
+
+## Review — 2026-06-01 (follow-up doc pass) — Verdict: APPROVED for v1 design gate
+
+**Summary:** GDD updated with `metadata.seed`/`editVersion` in §3.2, six validation codes in §3.6, `fire_order` + replay-verify cross-refs, event debugger ↔ order-log projection in §3.5.
+
+**Status:** Design gate **APPROVED** for v1 implementation planning; implementation of editor still gated on Platform DB `combat_radius_nm` sign-off.
