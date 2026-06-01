@@ -3,7 +3,7 @@
 
 last_run:
   timestamp: "2026-05-31T17:50:00Z"
-  label: initial
+  label: am  # baseline snapshot; subsequent runs use 'am' (09:00) or 'pm' (21:00)
 
 gitnexus:
   indexed_commit: "8debee4"
