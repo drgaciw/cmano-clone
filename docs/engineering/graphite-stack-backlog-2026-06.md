@@ -10,7 +10,7 @@
 | DELEG-2 | `stack/delegation/orchestrator` | feat(delegation): ROE adapter, session, order log union | In stack |
 | DELEG-3 | `stack/delegation/phase-gate` | feat(delegation): planning/execution phase gate | In stack |
 | DELEG-4 | `stack/delegation/player-info` | feat(delegation): player info filter | In stack |
-| DELEG-5 | `stack/delegation/bridge-engage` | feat(delegation): bridge MVP engage wiring | **PR #13** (draft) |
+| DELEG-5 | `stack/delegation/bridge-engage` | feat(delegation): bridge MVP engage wiring | **PR #13** — merged main, **97 tests**, ready to merge |
 
 ```powershell
 gt checkout stack/delegation/sim-core
@@ -25,8 +25,8 @@ gt submit --stack --no-interactive
 
 | ID | Branch | PR title | Status |
 |----|--------|----------|--------|
-| SIM-1 | `stack/sim/engage-scenario` | feat(sim): scenario-driven engage priming | **PR #14** (draft) |
-| SIM-2 | `stack/sim/engage-log` | feat(sim): engagement order-log contract | **PR #15** (draft) |
+| SIM-1 | `stack/sim/engage-scenario` | feat(sim): scenario-driven engage priming | **PR #14** — base **#13**, rebased on DELEG-5 |
+| SIM-2 | `stack/sim/engage-log` | feat(sim): engagement order-log contract | **PR #15** — stacked on #14 |
 
 ```powershell
 git checkout main && git pull
@@ -65,7 +65,7 @@ Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 
 | ID | Branch | PR title | Status |
 |----|--------|----------|--------|
-| PROD-1 | `chore/epics-mvp` | chore(prod): MVP epics | Not started |
+| PROD-1 | `chore/epics-mvp` | chore(prod): MVP epics | **Done** — `production/epics/baltic-headless-slice/` |
 | PROD-2 | `chore/stories-sim-engage` | chore(prod): stories for sim engage epic | Not started |
 
 ---
@@ -87,3 +87,4 @@ Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 | Date | Note |
 |------|------|
 | 2026-06-01 | Backlog created; DELEG-5 bridge uses `SimulationSession.BindMvpEngagement` |
+| 2026-06-01 | Integration pass: #13 merged main; #14–#16 restacked; logistics GDD Approved; Baltic epic scaffold |
