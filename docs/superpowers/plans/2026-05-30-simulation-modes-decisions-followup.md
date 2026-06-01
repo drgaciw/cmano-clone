@@ -10,8 +10,8 @@
 
 - [x] DELEG-6 — docs + req 03 resolved section
 - [x] DELEG-7 — `AllowDualSideControl` on `ScenarioPolicyProfile` + JSON loader + tests
-- [ ] DELEG-8 — dual-side branch in `SimulationModeConfigurator.Apply` + tests
-- [ ] DELEG-9 — `AttachReplayViewer` on orchestrator + bridge guard + tests
-- [ ] `dotnet test ProjectAegis.sln`
-- [ ] `npx gitnexus detect_changes --repo cmano-clone`
+- [x] DELEG-8 — dual-side branch in `SimulationModeConfigurator.Apply` + tests
+- [x] DELEG-9 — `AttachReplayViewer` on orchestrator + bridge guard + tests
+- [x] `dotnet test ProjectAegis.sln`
+- [x] `npx gitnexus detect_changes --repo cmano-clone`
 - [ ] `gt submit --stack --no-interactive`

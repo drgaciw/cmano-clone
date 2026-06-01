@@ -49,6 +49,12 @@ public sealed class SimulationSession
 
     public SimulationPhase Phase => Orchestrator.Phase;
 
+    public bool AttachReplayViewer
+    {
+        get => Orchestrator.AttachReplayViewer;
+        set => Orchestrator.AttachReplayViewer = value;
+    }
+
     public DelegationOrchestrator Orchestrator { get; }
 
     public SimTickPipeline Sim { get; }

@@ -86,6 +86,19 @@ public sealed class DelegationBridgeTests
     }
 
     [Test]
+    public void TryEnqueueHumanOrder_returns_false_when_AttachReplayViewer_enabled()
+    {
+        var bridge = new DelegationBridge(1);
+        var unit = bridge.Registry.RegisterUnit(new EntityKey(10), "u10");
+        unit.Target.Slot.SetActive(new HumanController());
+        bridge.AttachReplayViewer = true;
+
+        Assert.That(
+            bridge.TryEnqueueHumanOrder(new EntityKey(10), OrderKind.Hold, simTime: 0),
+            Is.False);
+    }
+
+    [Test]
     public void ObservedStateBuilder_includes_registered_member_alive_flags()
     {
         var bridge = new DelegationBridge(1);
