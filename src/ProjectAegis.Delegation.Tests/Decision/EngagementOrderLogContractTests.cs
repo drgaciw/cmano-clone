@@ -8,6 +8,7 @@ using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.Tests.Decision;
@@ -33,6 +34,21 @@ public sealed class EngagementOrderLogContractTests
         var fingerprint = session.Orchestrator.DecisionLog.ComputeFingerprint();
         Assert.That(fingerprint, Does.Contain("Engagement|"));
         Assert.That(fingerprint, Does.Contain(entry.AbortReasonCode));
+    }
+
+    [Test]
+    public void Radar_emcon_off_aborts_EmconOff_before_track_check()
+    {
+        var session = SimulationSession.BindMvpEngagement(
+            new DelegationOrchestrator(9),
+            new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), RoundsRemaining: 2, HasFireControlTrack: true, RadarEmconActive: false),
+            defaultMagazineRounds: 2);
+        WireEngageAgent(session);
+        session.BeginExecution();
+        session.Tick(new ObservedState(0, 2, 0, new Dictionary<TargetId, bool>(), HasFireControlTrack: true, RadarEmconActive: false));
+
+        Assert.That(session.Orchestrator.DecisionLog.Engagements[0].AbortReasonCode,
+            Is.EqualTo(nameof(FireAbortReason.EmconOff)));
     }
 
     [Test]

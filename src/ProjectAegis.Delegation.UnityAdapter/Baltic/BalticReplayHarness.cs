@@ -29,7 +29,7 @@ public static class BalticReplayHarness
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         var profile = ScenarioPolicyRepository.TryGet(scenarioPolicyId);
         var contactSim = profile?.ContactSeeds.Count > 0
-            ? new ScenarioContactSimulator(profile.ContactSeeds)
+            ? new ScenarioContactSimulator(profile.ContactSeeds, profile.UnitRadarEmcon)
             : null;
 
         var bridge = new DelegationBridge(seed, mvpEngagement: mvpEngagement, scenarioPolicyId: scenarioPolicyId);
@@ -48,7 +48,7 @@ public static class BalticReplayHarness
         bridge.Orchestrator.Register(unit);
         bridge.BeginExecution();
 
-        var harness = new HeadlessSnapshot(contactSim, fallbackContactCount: 2, fallbackHasTrack: true);
+        var harness = new HeadlessSnapshot(contactSim, profile?.UnitRadarEmcon, fallbackContactCount: 2, fallbackHasTrack: true);
         for (var t = 0; t < ticks; t++)
         {
             harness.Advance(1.0);
@@ -75,16 +75,19 @@ public static class BalticReplayHarness
     private sealed class HeadlessSnapshot : ISimWorldSnapshot, IOrderSink
     {
         private readonly ScenarioContactSimulator? _contacts;
+        private readonly IReadOnlyDictionary<string, EmconState>? _unitRadarEmcon;
         private readonly int _fallbackContactCount;
         private readonly bool _fallbackHasTrack;
         private double _simTime;
 
         public HeadlessSnapshot(
             ScenarioContactSimulator? contacts,
+            IReadOnlyDictionary<string, EmconState>? unitRadarEmcon,
             int fallbackContactCount,
             bool fallbackHasTrack)
         {
             _contacts = contacts;
+            _unitRadarEmcon = unitRadarEmcon;
             _fallbackContactCount = fallbackContactCount;
             _fallbackHasTrack = fallbackHasTrack;
         }
@@ -121,6 +124,9 @@ public static class BalticReplayHarness
                 return ContactCount > 0 && _fallbackHasTrack;
             }
         }
+
+        public bool ObserverRadarEmconActive =>
+            ScenarioEmconResolver.ResolveRadar("u1", _unitRadarEmcon) == EmconState.Active;
 
         public void Advance(double delta) => _simTime += delta;
 

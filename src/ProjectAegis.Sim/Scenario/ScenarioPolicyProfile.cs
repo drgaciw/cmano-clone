@@ -14,7 +14,8 @@ public sealed class ScenarioPolicyProfile
         PersonalityEditPolicy personalityEditPolicy = PersonalityEditPolicy.Anytime,
         ScenarioEngageDefaults? engageDefaults = null,
         bool allowDualSideControl = false,
-        IReadOnlyList<ScenarioContactSeed>? contactSeeds = null)
+        IReadOnlyList<ScenarioContactSeed>? contactSeeds = null,
+        IReadOnlyDictionary<string, EmconState>? unitRadarEmcon = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -24,6 +25,7 @@ public sealed class ScenarioPolicyProfile
         EngageDefaults = engageDefaults;
         AllowDualSideControl = allowDualSideControl;
         ContactSeeds = contactSeeds ?? Array.Empty<ScenarioContactSeed>();
+        UnitRadarEmcon = unitRadarEmcon ?? new Dictionary<string, EmconState>();
     }
 
     public string Id { get; init; } = "";
@@ -44,6 +46,8 @@ public sealed class ScenarioPolicyProfile
     public bool AllowDualSideControl { get; }
 
     public IReadOnlyList<ScenarioContactSeed> ContactSeeds { get; }
+
+    public IReadOnlyDictionary<string, EmconState> UnitRadarEmcon { get; }
 
     public EngageContext ResolveEngageContext()
     {

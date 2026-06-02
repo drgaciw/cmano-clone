@@ -4,5 +4,6 @@
 |------|--------|-------|-----------|
 | [baltic-headless-slice](baltic-headless-slice/EPIC.md) | **Complete** | Core | Engage + order log + replay |
 | [sensor-headless-slice](sensor-headless-slice/EPIC.md) | **Complete** | Core | Contacts + ContactChange log |
+| [emcon-headless-slice](emcon-headless-slice/EPIC.md) | **Complete** | Foundation | Radar EMCON gates contacts + engage |
 
-**Next:** `/design-review sensor-detection-ew` (approve GDD) → **EMCON/EW** or **world-state hash** epic
+**Next:** Merge EMCON PR → **Pd detection loop** or **world-state hash** epic
