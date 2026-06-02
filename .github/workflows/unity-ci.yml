@@ -26,6 +26,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
       - name: Require Unity license
         id: license
         run: |
@@ -36,6 +41,13 @@ jobs:
           else
             echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Copy Unity plugin assemblies
+        if: steps.license.outputs.configured == 'true'
+        shell: pwsh
+        run: |
+          ./tools/copy-delegation-assemblies.ps1
+          ./tools/Test-UnityPluginAssemblies.ps1
 
       - name: Skip (no license)
         if: steps.license.outputs.configured != 'true'

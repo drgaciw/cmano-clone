@@ -7,6 +7,8 @@ $ErrorActionPreference = "Stop"
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "../..")).Path
 Set-Location $repoRoot
 
+& (Join-Path $repoRoot "tools/Test-UnityPluginAssemblies.ps1")
+
 if (-not $SkipBuild) {
     dotnet build ProjectAegis.sln -v minimal
 }

@@ -15,7 +15,7 @@
 }
 
 .c2-topbar-item--comms {
-    unity-font-style: bold;
+    -unity-font-style: bold;
 }
 
 .c2-topbar-item--comms-nominal {
@@ -32,6 +32,6 @@
 
 .c2-topbar-item--score {
     margin-left: auto;
-    unity-font-style: bold;
+    -unity-font-style: bold;
     color: rgb(240, 192, 64);
 }

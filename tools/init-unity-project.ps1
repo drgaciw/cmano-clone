@@ -37,6 +37,7 @@ if (Test-Path $runtimeSrc) {
 }
 
 & (Join-Path $root "tools/copy-delegation-assemblies.ps1")
+& (Join-Path $root "tools/Test-UnityPluginAssemblies.ps1")
 
 Write-Host "Unity scaffold ready under unity/ProjectAegis - open folder in Unity Hub 6.3 LTS"
 Write-Host "See unity/ProjectAegis/PLAYMODE-SMOKE.md for scene setup."

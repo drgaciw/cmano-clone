@@ -8,7 +8,7 @@
 .map-theater-label {
     color: rgb(140, 155, 170);
     margin: 4px;
-    unity-font-style: bold;
+    -unity-font-style: bold;
 }
 
 .map-canvas {
