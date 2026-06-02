@@ -12,6 +12,7 @@ public sealed class PdDetectionContactSimulator
     private readonly IReadOnlyDictionary<string, EmconState>? _unitRadarEmcon;
     private readonly IReadOnlyList<ScenarioJammer> _jammers;
     private readonly HashSet<string> _detectedContacts = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _destroyedTargets = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ContactTrack> _tracks = new(StringComparer.Ordinal);
     private readonly int _staleThresholdTicks;
     private string? _primaryTargetId;
@@ -54,6 +55,11 @@ public sealed class PdDetectionContactSimulator
         var seenThisTick = new HashSet<string>(StringComparer.Ordinal);
         foreach (var roll in rolls)
         {
+            if (_destroyedTargets.Contains(roll.Trial.TargetId))
+            {
+                continue;
+            }
+
             if (!roll.Detected)
             {
                 continue;
@@ -202,9 +208,12 @@ public sealed class PdDetectionContactSimulator
 
         if (lostContacts.Length > 0)
         {
+            _destroyedTargets.Add(targetId);
             RecomputePrimary();
         }
 
         return transitions;
     }
+
+    public bool IsTargetDestroyed(string targetId) => _destroyedTargets.Contains(targetId);
 }

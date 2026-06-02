@@ -2,7 +2,7 @@ namespace ProjectAegis.Delegation.Decision;
 
 using System.Text;
 
-public sealed class DecisionLog
+public sealed class DecisionLog : IOrderLog
 {
     private ulong _sequenceId;
     private readonly List<DecisionRecord> _records = new();
