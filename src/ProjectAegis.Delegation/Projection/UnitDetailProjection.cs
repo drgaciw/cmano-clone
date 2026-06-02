@@ -27,7 +27,10 @@ public static class UnitDetailProjection
             magazineLabel,
             emconLabel,
             doctrineLabel,
-            FuelStateProjection.FormatUnitFuelLine(unitId.Value, simTimeSeconds));
+            FuelStateProjection.FormatUnitFuelLine(
+                unitId.Value,
+                simTimeSeconds,
+                policy?.Logistics ?? ScenarioLogisticsSettings.Default));
     }
 
     public static UnitDetailEntry? ProjectPrimary(

@@ -37,6 +37,26 @@ public sealed class ScenarioPolicyJsonDto
     public ScenarioDelegationJsonDto? Delegation { get; set; }
 
     public List<ScenarioCommsJsonDto>? Comms { get; set; }
+
+    public ScenarioLogisticsJsonDto? Logistics { get; set; }
+
+    public ScenarioCommsDisplayJsonDto? CommsDisplay { get; set; }
+}
+
+public sealed class ScenarioLogisticsJsonDto
+{
+    public double JokerSimSeconds { get; set; } = 300;
+
+    public double BingoSimSeconds { get; set; } = 600;
+}
+
+public sealed class ScenarioCommsDisplayJsonDto
+{
+    public int DegradedLagTicks { get; set; } = 2;
+
+    public float GhostOffsetX { get; set; } = 0.06f;
+
+    public float GhostOffsetY { get; set; } = 0.04f;
 }
 
 public sealed class ScenarioCommsJsonDto

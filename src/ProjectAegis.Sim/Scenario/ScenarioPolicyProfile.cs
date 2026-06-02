@@ -23,7 +23,9 @@ public sealed class ScenarioPolicyProfile
         ScenarioReplaySettings? replaySettings = null,
         ScenarioMissionTimeline? missionTimeline = null,
         ScenarioDelegationSettings? delegationSettings = null,
-        IReadOnlyList<ScenarioCommsTransition>? commsTransitions = null)
+        IReadOnlyList<ScenarioCommsTransition>? commsTransitions = null,
+        ScenarioLogisticsSettings? logistics = null,
+        ScenarioCommsDisplaySettings? commsDisplay = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -42,6 +44,8 @@ public sealed class ScenarioPolicyProfile
         MissionTimeline = missionTimeline;
         DelegationSettings = delegationSettings ?? ScenarioDelegationSettings.Default;
         CommsTransitions = commsTransitions ?? Array.Empty<ScenarioCommsTransition>();
+        Logistics = logistics ?? ScenarioLogisticsSettings.Default;
+        CommsDisplay = commsDisplay ?? ScenarioCommsDisplaySettings.Default;
     }
 
     public string Id { get; init; } = "";
@@ -81,6 +85,10 @@ public sealed class ScenarioPolicyProfile
     public ScenarioDelegationSettings DelegationSettings { get; }
 
     public IReadOnlyList<ScenarioCommsTransition> CommsTransitions { get; }
+
+    public ScenarioLogisticsSettings Logistics { get; }
+
+    public ScenarioCommsDisplaySettings CommsDisplay { get; }
 
     public EngageContext ResolveEngageContext()
     {

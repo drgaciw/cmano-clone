@@ -50,3 +50,9 @@
 .map-symbol--frozen {
     opacity: 0.35;
 }
+
+.map-symbol--ghost {
+    opacity: 0.35;
+    color: rgb(180, 120, 120);
+    -unity-font-style: italic;
+}

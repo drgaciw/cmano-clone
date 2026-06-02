@@ -34,6 +34,21 @@ public sealed class UnitDetailProjectionTests
     }
 
     [Test]
+    public void ProjectSelected_fuel_line_uses_scenario_logistics_thresholds()
+    {
+        var policy = new ScenarioPolicyProfile(
+            EffectivePolicy.DefaultFree,
+            logistics: new ScenarioLogisticsSettings(10, 20));
+        var detail = UnitDetailProjection.ProjectSelected(
+            new TargetId("u1"),
+            _ => true,
+            new DecisionLog(),
+            policy,
+            simTimeSeconds: 15);
+        Assert.That(detail!.FuelLabel, Does.Contain("JOKER"));
+    }
+
+    [Test]
     public void ProjectPrimary_picks_lowest_unit_id()
     {
         var members = new[] { new TargetId("u2"), new TargetId("u1") };

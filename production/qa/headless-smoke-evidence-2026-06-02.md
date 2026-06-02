@@ -15,7 +15,7 @@ dotnet test ProjectAegis.sln --filter "FullyQualifiedName~PlayModeSmokeHarnessTe
 
 | Gate | Result | Count |
 |------|--------|-------|
-| Full solution test | PASS | 238 tests, 0 failed |
+| Full solution test | PASS | 243 tests, 0 failed (post P1 ghost/fuel) |
 | PlayMode harness + Replay golden + Batch + Comms filter | PASS | 26 tests, 0 failed |
 
 ## Regression coverage added

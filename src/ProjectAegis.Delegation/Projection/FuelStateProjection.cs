@@ -1,22 +1,30 @@
 namespace ProjectAegis.Delegation.Projection;
 
-/// <summary>MVP fuel readout for unit detail (logistics GDD P0 placeholder).</summary>
+using ProjectAegis.Sim.Scenario;
+
+/// <summary>Fuel readout for unit detail (logistics GDD — scenario thresholds).</summary>
 public static class FuelStateProjection
 {
-    public static string FormatUnitFuelLine(string unitId, double simTimeSeconds)
+    public static string FormatUnitFuelLine(string unitId, double simTimeSeconds) =>
+        FormatUnitFuelLine(unitId, simTimeSeconds, ScenarioLogisticsSettings.Default);
+
+    public static string FormatUnitFuelLine(
+        string unitId,
+        double simTimeSeconds,
+        ScenarioLogisticsSettings logistics)
     {
-        var state = ResolveState(simTimeSeconds);
+        var state = ResolveState(simTimeSeconds, logistics);
         return $"FUEL: {state} ({unitId})";
     }
 
-    private static string ResolveState(double simTimeSeconds)
+    internal static string ResolveState(double simTimeSeconds, ScenarioLogisticsSettings logistics)
     {
-        if (simTimeSeconds >= 600)
+        if (simTimeSeconds >= logistics.BingoSimSeconds)
         {
             return "BINGO";
         }
 
-        if (simTimeSeconds >= 300)
+        if (simTimeSeconds >= logistics.JokerSimSeconds)
         {
             return "JOKER";
         }

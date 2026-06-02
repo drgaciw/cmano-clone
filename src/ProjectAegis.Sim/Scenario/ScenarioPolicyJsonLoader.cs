@@ -63,11 +63,23 @@ public static class ScenarioPolicyJsonLoader
             ParseReplaySettings(dto.Replay),
             ParseMissionTimeline(dto.Mission),
             ParseDelegationSettings(dto.Delegation),
-            ParseCommsTransitions(dto.Comms))
+            ParseCommsTransitions(dto.Comms),
+            ParseLogistics(dto.Logistics),
+            ParseCommsDisplay(dto.CommsDisplay))
         {
             Id = dto.Id,
         };
     }
+
+    private static ScenarioLogisticsSettings ParseLogistics(ScenarioLogisticsJsonDto? logistics) =>
+        logistics == null
+            ? ScenarioLogisticsSettings.Default
+            : new ScenarioLogisticsSettings(logistics.JokerSimSeconds, logistics.BingoSimSeconds);
+
+    private static ScenarioCommsDisplaySettings ParseCommsDisplay(ScenarioCommsDisplayJsonDto? display) =>
+        display == null
+            ? ScenarioCommsDisplaySettings.Default
+            : new ScenarioCommsDisplaySettings(display.DegradedLagTicks, display.GhostOffsetX, display.GhostOffsetY);
 
     private static IReadOnlyList<ScenarioCommsTransition> ParseCommsTransitions(List<ScenarioCommsJsonDto>? comms)
     {

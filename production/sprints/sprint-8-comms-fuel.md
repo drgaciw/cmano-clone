@@ -17,8 +17,9 @@
 ## Remaining (QA gate / P1)
 
 - [ ] Unity QA with `scenarioPolicyId` = `baltic-patrol-comms` (shared manual sign-off)
-- [ ] Map ghost symbology when Degraded (P1)
-- [ ] Scenario-driven fuel from logistics GDD (replace time thresholds)
+- [x] Map ghost symbology when Degraded (P1) — `map-symbol--ghost` + scenario `commsDisplay`
+- [x] Scenario-driven fuel thresholds — `logistics` block on policy JSON
+- [ ] Full fuel burn sim per logistics GDD AC-3 (P2)
 
 ## Verification
 

@@ -8,8 +8,10 @@ using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
+using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
+using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -103,6 +105,20 @@ public sealed class PlayModeSmokeHarnessTests
         var b = BalticReplayHarness.Run(7, "baltic-patrol", ticks: 6, mvpEngagement: true);
         Assert.That(a.ScoringCsvRow, Is.EqualTo(b.ScoringCsvRow));
         Assert.That(a.ScoringCsvRow, Does.StartWith("baltic-patrol,7,BLUE,"));
+    }
+
+    [Test]
+    public void Baltic_patrol_comms_harness_matches_manual_qa_preconditions()
+    {
+        var result = BalticReplayHarness.Run(42, "baltic-patrol-comms", ticks: 6, mvpEngagement: true);
+        Assert.That(result.Messages.Any(m => m.Text.Contains("Degraded", StringComparison.Ordinal)), Is.True);
+        Assert.That(result.Messages.Any(m => m.Text.Contains("Denied", StringComparison.Ordinal)), Is.True);
+
+        ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
+        var profile = ScenarioPolicyRepository.TryGet("baltic-patrol-comms");
+        Assert.That(profile, Is.Not.Null);
+        var fuelAtJoker = FuelStateProjection.FormatUnitFuelLine("u1", 95, profile!.Logistics);
+        Assert.That(fuelAtJoker, Does.Contain("JOKER"));
     }
 
     [Test]

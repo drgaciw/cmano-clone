@@ -11,4 +11,5 @@ public sealed record MapSymbolDisplayRow(
     float NormalizedX,
     float NormalizedY,
     string StyleClass,
-    bool IsSelected);
+    bool IsSelected,
+    bool IsGhost = false);

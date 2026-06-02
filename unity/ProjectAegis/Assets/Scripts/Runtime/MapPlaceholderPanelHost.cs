@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Sim.Scenario;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -85,12 +86,15 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             var comms = CommsStateProjection.Project(bridgeHost.Bridge.Orchestrator.DecisionLog);
+            var commsDisplay = bridgeHost.Bridge.Orchestrator.ScenarioPolicy?.CommsDisplay
+                ?? ScenarioCommsDisplaySettings.Default;
             _panelState = MapPanelBinder.Bind(
                 bridgeHost.LastMapSymbols,
                 bridgeHost.ScenarioPolicyId,
                 bridgeHost.SelectedUnitId,
                 bridgeHost.SelectedContactId,
-                comms.State);
+                comms.State,
+                commsDisplay);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
             RebuildSymbols();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
@@ -113,7 +117,15 @@ namespace ProjectAegis.Unity.Runtime
                 label.AddToClassList("map-symbol");
                 label.AddToClassList(row.StyleClass);
                 label.userData = row.SymbolId;
-                label.RegisterCallback<ClickEvent>(_ => OnSymbolClicked(row.SymbolId));
+                if (!row.IsGhost)
+                {
+                    label.RegisterCallback<ClickEvent>(_ => OnSymbolClicked(row.SymbolId));
+                }
+                else
+                {
+                    label.pickingMode = PickingMode.Ignore;
+                }
+
                 _canvas.Add(label);
             }
         }

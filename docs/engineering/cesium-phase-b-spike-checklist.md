@@ -6,9 +6,11 @@
 
 ## Prerequisites
 
-- [ ] Unity 6.3 LTS project opens (`unity/ProjectAegis`)
-- [ ] ADR-007 read: `docs/architecture/adr-007-c2-map-presentation.md`
-- [ ] UX placeholder spec: `design/ux/c2-map-placeholder.md`
+- [ ] Unity 6.3 LTS project opens (`unity/ProjectAegis`) — **Editor required**
+- [x] ADR-007 read: `docs/architecture/adr-007-c2-map-presentation.md`
+- [x] UX placeholder spec: `design/ux/c2-map-placeholder.md`
+- [x] Package pin doc: `docs/engineering/cesium-unity-package-pin.md`
+- [x] Headless C2 selection + comms map symbology green (`MapPanelBinder`, `baltic-patrol-comms`)
 
 ## Package & project setup
 

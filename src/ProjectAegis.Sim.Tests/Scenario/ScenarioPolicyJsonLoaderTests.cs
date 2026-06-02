@@ -96,6 +96,19 @@ public sealed class ScenarioPolicyJsonLoaderTests
         Assert.True(profile.AllowDualSideControl);
     }
 
+    [Fact]
+    public void Loads_baltic_patrol_comms_logistics_and_display_settings()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-comms.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.Equal(90, profile.Logistics.JokerSimSeconds);
+        Assert.Equal(180, profile.Logistics.BingoSimSeconds);
+        Assert.Equal(2, profile.CommsDisplay.DegradedLagTicks);
+        Assert.Equal(0.06f, profile.CommsDisplay.GhostOffsetX, 3);
+    }
+
     private static string? FindRepoRoot()
     {
         var dir = AppContext.BaseDirectory;

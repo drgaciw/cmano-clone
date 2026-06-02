@@ -18,6 +18,15 @@
       "basePd": 1.0
     }
   ],
+  "logistics": {
+    "jokerSimSeconds": 90,
+    "bingoSimSeconds": 180
+  },
+  "commsDisplay": {
+    "degradedLagTicks": 2,
+    "ghostOffsetX": 0.06,
+    "ghostOffsetY": 0.04
+  },
   "comms": [
     {
       "atTick": 2,

@@ -17,7 +17,7 @@ generated: "2026-06-02"
 updated: "2026-06-02"
 branch: main
 indexed_commit: 2a08518f1eb727c6edbe1768e9f8a4ad9fcc39d3
-tests_passed: 238
+tests_passed: 243
 commits_sprints_7_9:
   - sha: 25fefa6
     message: "feat(c2): comms degrade, batch scoring CSV, and QA golden (Sprints 7-9)"
@@ -359,7 +359,7 @@ tests_passed_sprint9: 237
 qa_gate:
   date: "2026-06-02"
   headless: pass
-  tests_total: 238
+  tests_total: 243
   evidence: production/qa/headless-smoke-evidence-2026-06-02.md
   unity_manual: pending
   indexed_commit: 2a08518
@@ -367,5 +367,8 @@ qa_gate:
     - Unity manual C2 sign-off (12 checks)
     - Cesium Phase B spike (Editor)
   p1_backlog:
-    - Map ghost symbology when comms Degraded
-    - Scenario-driven fuel from logistics GDD
+    - Full fuel burn model (F' = F - burn * deltaSeconds) — logistics GDD AC-3
+  p1_done_2026_06_02:
+    - Map ghost symbology when comms Degraded (MapPanelBinder + USS)
+    - Scenario-driven fuel thresholds (logistics JSON on policy)
+  automated_qa_proxy: production/qa/c2-automated-proxy-2026-06-02.md
