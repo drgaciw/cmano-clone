@@ -56,10 +56,23 @@ public static class ScenarioPolicyJsonLoader
             dto.AllowDualSideControl ?? false,
             ParseContactSeeds(dto.Contacts),
             ParseUnitRadarEmcon(dto.Emcon),
-            ParseDetectionTrials(dto.Detection))
+            ParseDetectionTrials(dto.Detection),
+            ParseJammers(dto.Jammers))
         {
             Id = dto.Id,
         };
+    }
+
+    private static IReadOnlyList<ScenarioJammer> ParseJammers(List<ScenarioJammerJsonDto>? jammers)
+    {
+        if (jammers == null || jammers.Count == 0)
+        {
+            return Array.Empty<ScenarioJammer>();
+        }
+
+        return jammers
+            .Select(j => new ScenarioJammer(j.TargetId, j.JamStrength, j.ActiveFromTick, j.ObserverId))
+            .ToArray();
     }
 
     private static IReadOnlyList<ScenarioDetectionTrial> ParseDetectionTrials(

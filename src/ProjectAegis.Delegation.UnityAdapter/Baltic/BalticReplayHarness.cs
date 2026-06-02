@@ -18,7 +18,13 @@ using ProjectAegis.Sim.Sensors;
 /// <summary>Headless Baltic slice runner for CLI and replay-verify gate.</summary>
 public static class BalticReplayHarness
 {
-    public sealed record Result(int Seed, string ScenarioPolicyId, int Ticks, string Fingerprint, int EngagementCount);
+    public sealed record Result(
+        int Seed,
+        string ScenarioPolicyId,
+        int Ticks,
+        string Fingerprint,
+        int EngagementCount,
+        ulong DetectionWorldHash);
 
     public static Result Run(int seed, string scenarioPolicyId, int ticks, bool mvpEngagement = true)
     {
@@ -36,7 +42,8 @@ public static class BalticReplayHarness
             pdSim = new PdDetectionContactSimulator(
                 SimSeed.FromScenario((ulong)seed),
                 profile.DetectionTrials,
-                profile.UnitRadarEmcon);
+                profile.UnitRadarEmcon,
+                profile.Jammers);
         }
         else if (profile?.ContactSeeds.Count > 0)
         {
@@ -80,7 +87,8 @@ public static class BalticReplayHarness
             scenarioPolicyId,
             ticks,
             bridge.Orchestrator.DecisionLog.ComputeFingerprint(),
-            bridge.Orchestrator.DecisionLog.Engagements.Count);
+            bridge.Orchestrator.DecisionLog.Engagements.Count,
+            pdSim?.LastDetectionHash ?? 0);
     }
 
     private sealed class HeadlessSnapshot : ISimWorldSnapshot, IOrderSink

@@ -16,7 +16,8 @@ public sealed class ScenarioPolicyProfile
         bool allowDualSideControl = false,
         IReadOnlyList<ScenarioContactSeed>? contactSeeds = null,
         IReadOnlyDictionary<string, EmconState>? unitRadarEmcon = null,
-        IReadOnlyList<ScenarioDetectionTrial>? detectionTrials = null)
+        IReadOnlyList<ScenarioDetectionTrial>? detectionTrials = null,
+        IReadOnlyList<ScenarioJammer>? jammers = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -28,6 +29,7 @@ public sealed class ScenarioPolicyProfile
         ContactSeeds = contactSeeds ?? Array.Empty<ScenarioContactSeed>();
         UnitRadarEmcon = unitRadarEmcon ?? new Dictionary<string, EmconState>();
         DetectionTrials = detectionTrials ?? Array.Empty<ScenarioDetectionTrial>();
+        Jammers = jammers ?? Array.Empty<ScenarioJammer>();
     }
 
     public string Id { get; init; } = "";
@@ -52,6 +54,8 @@ public sealed class ScenarioPolicyProfile
     public IReadOnlyDictionary<string, EmconState> UnitRadarEmcon { get; }
 
     public IReadOnlyList<ScenarioDetectionTrial> DetectionTrials { get; }
+
+    public IReadOnlyList<ScenarioJammer> Jammers { get; }
 
     public EngageContext ResolveEngageContext()
     {

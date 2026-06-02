@@ -42,6 +42,7 @@ try
     var result = BalticReplayHarness.Run(seed, scenario, ticks, mvpEngagement: engage);
     Console.WriteLine($"SEED={result.Seed} SCENARIO={result.ScenarioPolicyId} TICKS={result.Ticks} ENGAGEMENTS={result.EngagementCount}");
     Console.WriteLine($"FINGERPRINT={result.Fingerprint}");
+    Console.WriteLine($"DETECTION_WORLD_HASH={result.DetectionWorldHash}");
     return 0;
 }
 catch (Exception ex)
