@@ -70,7 +70,20 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return true;
         }
 
+        if (file.Contains("003", StringComparison.Ordinal) && TableExists("sensor_quarantine"))
+        {
+            return true;
+        }
+
         return false;
+    }
+
+    private bool TableExists(string table)
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=$name";
+        cmd.Parameters.AddWithValue("$name", table);
+        return Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0;
     }
 
     private bool TableHasColumn(string table, string column)

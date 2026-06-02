@@ -80,8 +80,46 @@ public static class CatalogJsonImporter
         SqliteConnection.ClearAllPools();
     }
 
-    public static void ImportToSqlite(string jsonPath, string databasePath, bool overwrite = true) =>
-        WriteSqlite(databasePath, CatalogImportGate.ApplyAllGates(ReadSensorBindings(jsonPath)), overwrite);
+    public static void ImportToSqlite(string jsonPath, string databasePath, bool overwrite = true)
+    {
+        var (approved, quarantined) = CatalogImportGate.PartitionForImport(ReadSensorBindings(jsonPath));
+        WriteSqlite(databasePath, approved, overwrite);
+        if (quarantined.Length > 0)
+        {
+            WriteQuarantineRows(databasePath, quarantined);
+        }
+    }
+
+    public static void WriteQuarantineRows(string databasePath, IReadOnlyList<QuarantinedCatalogBinding> quarantined)
+    {
+        SqliteConnection.ClearAllPools();
+        using var connection = new SqliteConnection($"Data Source={databasePath};Pooling=false");
+        connection.Open();
+        foreach (var row in quarantined)
+        {
+            var sensor = row.Binding;
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText =
+                """
+                INSERT OR REPLACE INTO sensor_quarantine (platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                    import_batch_id, source_file, review_state, trl_level, rejection_reason)
+                VALUES ($platform, $sensor, $basePd, $source, $confidence, $batch, $file, $review, $trl, $reason)
+                """;
+            cmd.Parameters.AddWithValue("$platform", sensor.PlatformId);
+            cmd.Parameters.AddWithValue("$sensor", sensor.SensorId);
+            cmd.Parameters.AddWithValue("$basePd", sensor.BasePd);
+            cmd.Parameters.AddWithValue("$source", sensor.SourceFactId);
+            cmd.Parameters.AddWithValue("$confidence", sensor.Confidence);
+            cmd.Parameters.AddWithValue("$batch", sensor.ImportBatchId);
+            cmd.Parameters.AddWithValue("$file", sensor.SourceFile);
+            cmd.Parameters.AddWithValue("$review", sensor.ReviewState);
+            cmd.Parameters.AddWithValue("$trl", sensor.TrlLevel);
+            cmd.Parameters.AddWithValue("$reason", row.RejectionReason);
+            cmd.ExecuteNonQuery();
+        }
+
+        SqliteConnection.ClearAllPools();
+    }
 
     private static string NormalizeReviewState(string? state) =>
         string.IsNullOrWhiteSpace(state)

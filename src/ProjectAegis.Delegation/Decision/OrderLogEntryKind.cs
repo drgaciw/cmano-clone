@@ -13,4 +13,7 @@ public enum OrderLogEntryKind
     MissionTransition = 8,
     EventFired = 9,
     EngagementOutcome = 10,
+    PlayerOrder = 11,
+    PolicyUpdate = 12,
+    ModeChange = 13,
 }

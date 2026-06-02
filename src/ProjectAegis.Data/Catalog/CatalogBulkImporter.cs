@@ -29,9 +29,12 @@ public static class CatalogBulkImporter
             }
         }
 
-        var sorted = CatalogImportGate.ApplyAllGates(merged.Values);
-
-        CatalogJsonImporter.WriteSqlite(databasePath, sorted, overwrite);
+        var (approved, quarantined) = CatalogImportGate.PartitionForImport(merged.Values);
+        CatalogJsonImporter.WriteSqlite(databasePath, approved, overwrite);
+        if (quarantined.Length > 0)
+        {
+            CatalogJsonImporter.WriteQuarantineRows(databasePath, quarantined);
+        }
         return files.Length;
     }
 

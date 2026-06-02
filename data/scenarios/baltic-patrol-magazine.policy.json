@@ -1,16 +1,17 @@
 {
-  "id": "baltic-patrol",
+  "id": "baltic-patrol-magazine",
   "friendlyRoe": "WeaponsFree",
   "opposingRoe": "WeaponsTight",
   "engage": {
     "rangeMeters": 45000,
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
-    "defaultMagazineRounds": 4,
-    "hasFireControlTrack": true
-  },
-  "replay": {
-    "checkpointIntervalTicks": 2
+    "defaultMagazineRounds": 1,
+    "hasFireControlTrack": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.0,
+    "salvoSize": 1
   },
   "detection": [
     {

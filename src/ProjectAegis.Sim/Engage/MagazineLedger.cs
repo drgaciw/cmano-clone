@@ -21,15 +21,19 @@ public sealed class MagazineLedger
     public int GetRounds(ulong shooterUnitId, ulong mountId) =>
         _rounds.TryGetValue((shooterUnitId, mountId), out var n) ? n : 0;
 
-    public bool TryConsume(ulong shooterUnitId, ulong mountId)
+    public bool TryConsume(ulong shooterUnitId, ulong mountId) =>
+        TryConsumeSalvo(shooterUnitId, mountId, 1);
+
+    public bool TryConsumeSalvo(ulong shooterUnitId, ulong mountId, int salvoSize)
     {
+        var rounds = Math.Max(1, salvoSize);
         var key = (shooterUnitId, mountId);
-        if (!_rounds.TryGetValue(key, out var remaining) || remaining <= 0)
+        if (!_rounds.TryGetValue(key, out var remaining) || remaining < rounds)
         {
             return false;
         }
 
-        _rounds[key] = remaining - 1;
+        _rounds[key] = remaining - rounds;
         return true;
     }
 }

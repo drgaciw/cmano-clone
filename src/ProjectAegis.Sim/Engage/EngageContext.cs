@@ -8,4 +8,5 @@ public readonly record struct EngageContext(
     bool RadarEmconActive = true,
     double PkBase = 0.85,
     double PkIntercept = 0.0,
-    double PkKill = 1.0);
+    double PkKill = 1.0,
+    int SalvoSize = 1);

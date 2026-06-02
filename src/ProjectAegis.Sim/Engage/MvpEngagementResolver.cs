@@ -83,7 +83,7 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(EngagementAbortReason.DlzOut);
         }
 
-        if (!_magazines.TryConsume(request.ShooterUnitId, request.MountId))
+        if (!_magazines.TryConsumeSalvo(request.ShooterUnitId, request.MountId, Math.Max(1, ctx.SalvoSize)))
         {
             return EngageResult.Aborted(EngagementAbortReason.MagazineEmpty);
         }
