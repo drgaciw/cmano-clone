@@ -20,7 +20,7 @@ public sealed class ReplayGoldenBalticMissionTests
             .ToArray();
 
         var result = BalticReplayHarness.Run(42, "baltic-patrol-mission", ticks: 4);
-        foreach (var expected in golden.Where(l => l.Contains("|", StringComparison.Ordinal)))
+        foreach (var expected in golden.Where(l => l.Contains('|')))
         {
             Assert.That(result.Fingerprint, Does.Contain(expected.Trim()));
         }
