@@ -14,13 +14,13 @@
       "u1": { "radar": "Off" }
     }
   },
-  "contacts": [
+  "detection": [
     {
       "observerId": "u1",
+      "sensorId": "radar-1",
       "targetId": "hostile-1",
       "contactId": "c1",
-      "appearAtTick": 1,
-      "hasFireControlTrack": true
+      "basePd": 1.0
     }
   ]
 }

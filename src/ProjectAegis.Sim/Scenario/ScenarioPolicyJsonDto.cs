@@ -21,6 +21,25 @@ public sealed class ScenarioPolicyJsonDto
     public List<ScenarioContactJsonDto>? Contacts { get; set; }
 
     public ScenarioEmconJsonDto? Emcon { get; set; }
+
+    public List<ScenarioDetectionJsonDto>? Detection { get; set; }
+}
+
+public sealed class ScenarioDetectionJsonDto
+{
+    public string ObserverId { get; set; } = "u1";
+
+    public string SensorId { get; set; } = "radar-1";
+
+    public string TargetId { get; set; } = "hostile-1";
+
+    public string ContactId { get; set; } = "c1";
+
+    public double BasePd { get; set; } = 1.0;
+
+    public double EnvMask { get; set; } = 1.0;
+
+    public double JamStrength { get; set; }
 }
 
 public sealed class ScenarioEmconJsonDto

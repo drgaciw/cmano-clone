@@ -9,6 +9,7 @@ using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
@@ -28,9 +29,19 @@ public static class BalticReplayHarness
 
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         var profile = ScenarioPolicyRepository.TryGet(scenarioPolicyId);
-        var contactSim = profile?.ContactSeeds.Count > 0
-            ? new ScenarioContactSimulator(profile.ContactSeeds, profile.UnitRadarEmcon)
-            : null;
+        PdDetectionContactSimulator? pdSim = null;
+        ScenarioContactSimulator? scheduleSim = null;
+        if (profile?.DetectionTrials.Count > 0)
+        {
+            pdSim = new PdDetectionContactSimulator(
+                SimSeed.FromScenario((ulong)seed),
+                profile.DetectionTrials,
+                profile.UnitRadarEmcon);
+        }
+        else if (profile?.ContactSeeds.Count > 0)
+        {
+            scheduleSim = new ScenarioContactSimulator(profile.ContactSeeds, profile.UnitRadarEmcon);
+        }
 
         var bridge = new DelegationBridge(seed, mvpEngagement: mvpEngagement, scenarioPolicyId: scenarioPolicyId);
         if (mvpEngagement && bridge.Session == null)
@@ -48,17 +59,17 @@ public static class BalticReplayHarness
         bridge.Orchestrator.Register(unit);
         bridge.BeginExecution();
 
-        var harness = new HeadlessSnapshot(contactSim, profile?.UnitRadarEmcon, fallbackContactCount: 2, fallbackHasTrack: true);
+        var harness = new HeadlessSnapshot(pdSim, scheduleSim, profile?.UnitRadarEmcon, fallbackContactCount: 2, fallbackHasTrack: true);
         for (var t = 0; t < ticks; t++)
         {
             harness.Advance(1.0);
             var simTick = (ulong)Math.Max(0, (long)harness.SimTime);
-            if (contactSim != null)
+            var transitions = pdSim != null
+                ? pdSim.Tick(simTick, harness.SimTime)
+                : scheduleSim?.Tick(simTick, harness.SimTime) ?? Array.Empty<ContactTransition>();
+            foreach (var transition in transitions)
             {
-                foreach (var transition in contactSim.Tick(simTick, harness.SimTime))
-                {
-                    bridge.Orchestrator.DecisionLog.AppendContactTransition(transition);
-                }
+                bridge.Orchestrator.DecisionLog.AppendContactTransition(transition);
             }
 
             bridge.Tick(harness, harness);
@@ -74,19 +85,22 @@ public static class BalticReplayHarness
 
     private sealed class HeadlessSnapshot : ISimWorldSnapshot, IOrderSink
     {
-        private readonly ScenarioContactSimulator? _contacts;
+        private readonly PdDetectionContactSimulator? _pd;
+        private readonly ScenarioContactSimulator? _schedule;
         private readonly IReadOnlyDictionary<string, EmconState>? _unitRadarEmcon;
         private readonly int _fallbackContactCount;
         private readonly bool _fallbackHasTrack;
         private double _simTime;
 
         public HeadlessSnapshot(
-            ScenarioContactSimulator? contacts,
+            PdDetectionContactSimulator? pd,
+            ScenarioContactSimulator? schedule,
             IReadOnlyDictionary<string, EmconState>? unitRadarEmcon,
             int fallbackContactCount,
             bool fallbackHasTrack)
         {
-            _contacts = contacts;
+            _pd = pd;
+            _schedule = schedule;
             _unitRadarEmcon = unitRadarEmcon;
             _fallbackContactCount = fallbackContactCount;
             _fallbackHasTrack = fallbackHasTrack;
@@ -95,7 +109,7 @@ public static class BalticReplayHarness
         public double SimTime => _simTime;
 
         public int ContactCount =>
-            _contacts != null ? _contacts.ActiveCount : _fallbackContactCount;
+            _pd?.ActiveCount ?? _schedule?.ActiveCount ?? _fallbackContactCount;
 
         public int ActiveEngagementCount => 0;
 
@@ -103,9 +117,14 @@ public static class BalticReplayHarness
         {
             get
             {
-                if (_contacts?.PrimaryTargetId is { } id)
+                if (_pd?.PrimaryTargetId is { } pdId)
                 {
-                    return new TargetId(id);
+                    return new TargetId(pdId);
+                }
+
+                if (_schedule?.PrimaryTargetId is { } schedId)
+                {
+                    return new TargetId(schedId);
                 }
 
                 return ContactCount > 0 ? new TargetId("hostile-1") : null;
@@ -116,9 +135,14 @@ public static class BalticReplayHarness
         {
             get
             {
-                if (_contacts != null && _contacts.ActiveCount > 0)
+                if (_pd != null && _pd.ActiveCount > 0)
                 {
-                    return _contacts.PrimaryHasFireControlTrack;
+                    return _pd.PrimaryHasFireControlTrack;
+                }
+
+                if (_schedule != null && _schedule.ActiveCount > 0)
+                {
+                    return _schedule.PrimaryHasFireControlTrack;
                 }
 
                 return ContactCount > 0 && _fallbackHasTrack;
