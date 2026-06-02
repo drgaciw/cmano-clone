@@ -1,10 +1,12 @@
-// Minimal sensor C2 HUD — OnGUI list until UI Toolkit assets land (Sprint 2 slice).
+// Legacy OnGUI host — use SensorC2PanelHost (UI Toolkit) for new scenes.
 #if UNITY_5_3_OR_NEWER
+using System;
 using System.Text;
 using UnityEngine;
 
 namespace ProjectAegis.Unity.Runtime
 {
+    [Obsolete("Use SensorC2PanelHost with SensorC2Panel.uxml instead.")]
     [DisallowMultipleComponent]
     public sealed class SensorC2HudHost : MonoBehaviour
     {
@@ -30,7 +32,7 @@ namespace ProjectAegis.Unity.Runtime
             var builder = new StringBuilder(256);
             builder.AppendLine("SENSOR C2");
             builder.Append("EMCON: ").Append(c2.ObserverRadarEmconActive ? "ACTIVE" : "OFF").AppendLine();
-            builder.Append("Track: ").Append(c2.HasFireControlTrackOnPrimaryContact ? "FC" : "—").AppendLine();
+            builder.Append("Track: ").Append(c2.HasFireControlTrackOnPrimary ? "FC" : "—").AppendLine();
             builder.Append("Contacts: ").Append(c2.ActiveContactCount).AppendLine();
             foreach (var contact in c2.Contacts)
             {

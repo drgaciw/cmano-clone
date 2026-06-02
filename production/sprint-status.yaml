@@ -17,7 +17,7 @@ generated: "2026-06-02"
 updated: "2026-06-02"
 branch: main
 indexed_commit: 1f7423edab23afd272809ad5f2ff34698095570b
-tests_passed: 189
+tests_passed: 192
 sprint1_status: complete
 merged_pr: "#36"
 

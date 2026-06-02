@@ -1,6 +1,6 @@
 # Epic: Sensor C2 UI Slice (Sprint 2)
 
-> **Status:** Complete (headless view model + Unity OnGUI host)  
+> **Status:** Complete (headless projection + UI Toolkit panel + legacy OnGUI)
 > **Layer:** Presentation (Unity) + Projection (Delegation)
 
 ## Goal

@@ -19,6 +19,6 @@
 
 **Sprint 1:** **Complete** on `main` @ `1f7423e` (20/20 stories, PR #36).
 
-**Sprint 2:** **Complete** — [sprint-2-sensor-c2](../sprints/sprint-2-sensor-c2.md). **Next:** UI Toolkit polish, `/replay-verify`, requirements C1–C5.
+**Sprint 2:** **Complete** — [sprint-2-sensor-c2](../sprints/sprint-2-sensor-c2.md). **Next:** `/replay-verify`, requirements C1–C5, full C2 layout (doc 20).
 
 **Milestone:** [vertical-slice-mvp](../milestones/vertical-slice-mvp.md)
