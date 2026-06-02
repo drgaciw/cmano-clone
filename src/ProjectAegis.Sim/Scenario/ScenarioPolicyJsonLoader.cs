@@ -61,11 +61,17 @@ public static class ScenarioPolicyJsonLoader
             ParseJammers(dto.Jammers),
             ParseContactLifecycle(dto.ContactLifecycle),
             ParseReplaySettings(dto.Replay),
-            ParseMissionTimeline(dto.Mission))
+            ParseMissionTimeline(dto.Mission),
+            ParseDelegationSettings(dto.Delegation))
         {
             Id = dto.Id,
         };
     }
+
+    private static ScenarioDelegationSettings ParseDelegationSettings(ScenarioDelegationJsonDto? delegation) =>
+        delegation == null
+            ? ScenarioDelegationSettings.Default
+            : new ScenarioDelegationSettings(delegation.UsePatrolCandidates);
 
     private static ScenarioReplaySettings ParseReplaySettings(ScenarioReplayJsonDto? replay) =>
         replay == null

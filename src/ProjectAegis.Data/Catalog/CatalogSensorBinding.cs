@@ -8,4 +8,6 @@ public sealed record CatalogSensorBinding(
     string SourceFactId = "fixture",
     double Confidence = 1.0,
     string ImportBatchId = "",
-    string SourceFile = "");
+    string SourceFile = "",
+    string ReviewState = CatalogReviewStates.Approved,
+    int TrlLevel = 9);

@@ -4,6 +4,7 @@ using Xunit;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
+[Collection("CatalogSqlite")]
 public sealed class SqliteCatalogReaderTests
 {
     [Fact]
@@ -14,14 +15,15 @@ public sealed class SqliteCatalogReaderTests
         {
             using (var bootstrap = new SqliteCatalogReader(dbPath))
             {
-                using var insert = new SqliteConnection($"Data Source={dbPath}");
+                using var insert = new SqliteConnection($"Data Source={dbPath};Pooling=false");
                 insert.Open();
                 using var cmd = insert.CreateCommand();
                 cmd.CommandText =
                     """
-                    INSERT INTO sensor (platform_id, sensor_id, base_pd, source_fact_id, confidence)
-                    VALUES ('u2', 'radar-b', 0.5, 'test', 1.0),
-                           ('u1', 'radar-a', 0.7, 'test', 1.0)
+                    INSERT INTO sensor (platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                        import_batch_id, source_file, review_state, trl_level)
+                    VALUES ('u2', 'radar-b', 0.5, 'test', 1.0, '', '', 'approved', 9),
+                           ('u1', 'radar-a', 0.7, 'test', 1.0, '', '', 'approved', 9)
                     """;
                 cmd.ExecuteNonQuery();
             }

@@ -17,4 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

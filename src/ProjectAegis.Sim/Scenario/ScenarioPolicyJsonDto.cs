@@ -33,6 +33,13 @@ public sealed class ScenarioPolicyJsonDto
     public ScenarioReplayJsonDto? Replay { get; set; }
 
     public ScenarioMissionJsonDto? Mission { get; set; }
+
+    public ScenarioDelegationJsonDto? Delegation { get; set; }
+}
+
+public sealed class ScenarioDelegationJsonDto
+{
+    public bool UsePatrolCandidates { get; set; }
 }
 
 public sealed class ScenarioReplayJsonDto

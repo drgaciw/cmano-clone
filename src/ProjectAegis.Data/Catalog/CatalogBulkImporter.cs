@@ -29,7 +29,7 @@ public static class CatalogBulkImporter
             }
         }
 
-        var sorted = CatalogImportGate.ApplyMinimumConfidence(merged.Values);
+        var sorted = CatalogImportGate.ApplyAllGates(merged.Values);
 
         CatalogJsonImporter.WriteSqlite(databasePath, sorted, overwrite);
         return files.Length;

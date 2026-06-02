@@ -11,7 +11,7 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     public SqliteCatalogReader(string databasePath, string layerVersion = "p0-sqlite")
     {
         LayerVersion = layerVersion;
-        _connection = new SqliteConnection($"Data Source={databasePath}");
+        _connection = new SqliteConnection($"Data Source={databasePath};Pooling=false");
         _connection.Open();
         ApplyMigrations();
     }
@@ -40,17 +40,45 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         return false;
     }
 
-    public void Dispose() => _connection.Dispose();
+    public void Dispose()
+    {
+        _connection.Close();
+        _connection.Dispose();
+    }
 
     private void ApplyMigrations()
     {
         foreach (var migrationPath in ResolveMigrationPaths())
         {
+            if (ShouldSkipMigration(migrationPath))
+            {
+                continue;
+            }
+
             var sql = File.ReadAllText(migrationPath);
             using var cmd = _connection.CreateCommand();
             cmd.CommandText = sql;
             cmd.ExecuteNonQuery();
         }
+    }
+
+    private bool ShouldSkipMigration(string migrationPath)
+    {
+        var file = Path.GetFileName(migrationPath);
+        if (file.Contains("002", StringComparison.Ordinal) && TableHasColumn("sensor", "review_state"))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool TableHasColumn(string table, string column)
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = $"SELECT COUNT(*) FROM pragma_table_info('{table}') WHERE name = $col";
+        cmd.Parameters.AddWithValue("$col", column);
+        return Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0;
     }
 
     private CatalogSensorBinding[] LoadSorted()
@@ -59,7 +87,7 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         cmd.CommandText =
             """
             SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
-                   import_batch_id, source_file
+                   import_batch_id, source_file, review_state, trl_level
             FROM sensor
             ORDER BY platform_id ASC, sensor_id ASC
             """;
@@ -74,7 +102,9 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                 reader.GetString(3),
                 reader.GetDouble(4),
                 reader.GetString(5),
-                reader.GetString(6)));
+                reader.GetString(6),
+                reader.GetString(7),
+                reader.GetInt32(8)));
         }
 
         return list.ToArray();
