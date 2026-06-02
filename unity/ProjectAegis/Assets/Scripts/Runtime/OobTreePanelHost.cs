@@ -101,7 +101,7 @@ namespace ProjectAegis.Unity.Runtime
             _panelState = OobTreePanelBinder.Bind(bridgeHost.LastOobTree, bridgeHost.SelectedUnitId);
             if (_oobList != null)
             {
-                _oobList.itemsSource = _panelState.UnitRows;
+                _oobList.itemsSource = _panelState.UnitRows.ToList();
                 _oobList.Rebuild();
             }
 

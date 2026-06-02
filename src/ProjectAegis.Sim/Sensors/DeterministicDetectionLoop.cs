@@ -12,7 +12,7 @@ public static class DeterministicDetectionLoop
         ulong simTick,
         IReadOnlyList<ScenarioDetectionTrial> trials,
         IReadOnlyDictionary<string, EmconState>? unitRadarEmcon,
-        IReadOnlySet<string>? alreadyDetectedContactIds = null,
+        IReadOnlyCollection<string>? alreadyDetectedContactIds = null,
         IReadOnlyList<ScenarioJammer>? jammers = null)
     {
         if (trials.Count == 0)

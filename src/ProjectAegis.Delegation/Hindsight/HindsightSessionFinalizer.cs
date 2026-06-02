@@ -70,15 +70,15 @@ public sealed class HindsightSessionFinalizer
         double objectivesMetRatio)
     {
         var builder = new StringBuilder();
-        builder.Append(CultureInfo.InvariantCulture, $"mission_succeeded={missionSucceeded} objectives_met_ratio={objectivesMetRatio}. ");
-        builder.Append(CultureInfo.InvariantCulture, $"decisions={log.Records.Count} policy_denials={log.PolicyDenials.Count} engagements={log.Engagements.Count}. ");
-        builder.Append(CultureInfo.InvariantCulture, $"order_log_fingerprint={log.ComputeFingerprint()}. ");
+        builder.Append($"mission_succeeded={missionSucceeded} objectives_met_ratio={objectivesMetRatio.ToString(CultureInfo.InvariantCulture)}. ");
+        builder.Append($"decisions={log.Records.Count} policy_denials={log.PolicyDenials.Count} engagements={log.Engagements.Count}. ");
+        builder.Append($"order_log_fingerprint={log.ComputeFingerprint()}. ");
 
         foreach (var group in log.Records.GroupBy(r => r.AgentId.Value).OrderBy(g => g.Key, StringComparer.Ordinal))
         {
             var overrides = log.ControllerChanges.Count(c =>
                 c.NewKind == "Human" && c.AgentId?.Value == group.Key);
-            builder.Append(CultureInfo.InvariantCulture, $" Agent {group.Key}: {group.Count()} decisions, {overrides} player overrides.");
+            builder.Append($" Agent {group.Key}: {group.Count()} decisions, {overrides} player overrides.");
         }
 
         return builder.ToString();

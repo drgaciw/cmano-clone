@@ -128,7 +128,7 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _panelState = MessageLogPanelBinder.Bind(lines);
-            _messageList.itemsSource = _panelState.Rows;
+            _messageList.itemsSource = _panelState.Rows.ToList();
             _messageList.Rebuild();
         }
 

@@ -99,7 +99,7 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _panelState = MissionListPanelBinder.Bind(bridgeHost.LastMissionList);
-            _missionList.itemsSource = _panelState.MissionRows;
+            _missionList.itemsSource = _panelState.MissionRows.ToList();
             _missionList.Rebuild();
 
             var root = _document.rootVisualElement?.Q(RootName);

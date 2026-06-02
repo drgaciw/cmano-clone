@@ -25,9 +25,9 @@ namespace ProjectAegis.Unity.Runtime
         [SerializeField] private bool showPanel = true;
 
         private UIDocument _document = null!;
-        private ToolbarToggle? _tabOob;
-        private ToolbarToggle? _tabMissions;
-        private ToolbarToggle? _tabContacts;
+        private Toggle? _tabOob;
+        private Toggle? _tabMissions;
+        private Toggle? _tabContacts;
         private ListView? _oobList;
         private ListView? _missionList;
         private ListView? _contactList;
@@ -91,9 +91,9 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             var panel = root.Q<VisualElement>(RootName) ?? root;
-            _tabOob = panel.Q<ToolbarToggle>(TabOobName);
-            _tabMissions = panel.Q<ToolbarToggle>(TabMissionsName);
-            _tabContacts = panel.Q<ToolbarToggle>(TabContactsName);
+            _tabOob = panel.Q<Toggle>(TabOobName);
+            _tabMissions = panel.Q<Toggle>(TabMissionsName);
+            _tabContacts = panel.Q<Toggle>(TabContactsName);
             _oobList = panel.Q<ListView>(OobListName);
             _missionList = panel.Q<ListView>(MissionListName);
             _contactList = panel.Q<ListView>(ContactListName);
@@ -249,9 +249,9 @@ namespace ProjectAegis.Unity.Runtime
             _missionState = MissionListPanelBinder.Bind(bridgeHost.LastMissionList);
             _contactState = SensorC2PanelBinder.Bind(bridgeHost.LastSensorC2);
 
-            _oobList!.itemsSource = _oobState.UnitRows;
-            _missionList!.itemsSource = _missionState.MissionRows;
-            _contactList!.itemsSource = _contactState.ContactRows;
+            _oobList!.itemsSource = _oobState.UnitRows.ToList();
+            _missionList!.itemsSource = _missionState.MissionRows.ToList();
+            _contactList!.itemsSource = _contactState.ContactRows.ToList();
             _oobList.Rebuild();
             _missionList.Rebuild();
             _contactList.Rebuild();

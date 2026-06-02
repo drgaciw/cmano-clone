@@ -1,4 +1,5 @@
 #if UNITY_5_3_OR_NEWER
+using System.Collections.Generic;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;

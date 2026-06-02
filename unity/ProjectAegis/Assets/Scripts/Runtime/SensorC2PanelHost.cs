@@ -132,7 +132,7 @@ namespace ProjectAegis.Unity.Runtime
             _emconLabel!.text = _panelState.EmconLabel;
             _trackLabel!.text = _panelState.TrackLabel;
             _contactCountLabel!.text = _panelState.ContactCountLabel;
-            _contactList.itemsSource = _panelState.ContactRows;
+            _contactList.itemsSource = _panelState.ContactRows.ToList();
             _contactList.Rebuild();
         }
 
