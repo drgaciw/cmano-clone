@@ -1,7 +1,7 @@
 # Order Log & Replay
 
-> **Status:** Draft  
-> **Last Updated:** 2026-05-29  
+> **Status:** In Progress (C1 typed payload landed 2026-06-02)  
+> **Last Updated:** 2026-06-02
 > **Implements Pillar:** Determinism, Research reproducibility  
 > **Requirements:** [17-Replay-AAR-And-Order-Log.md](../../Game-Requirements/requirements/17-Replay-AAR-And-Order-Log.md)  
 > **Architecture:** [ADR-003](../../docs/architecture/adr-003-order-log-schema.md), [architecture.md](../../docs/architecture/architecture.md)

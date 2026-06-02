@@ -7,13 +7,13 @@ public sealed record OrderLogEntry(
     double SimTime,
     object Payload)
 {
-    /// <summary>C1: maps legacy <see cref="DecisionRecord"/> into the unified log.</summary>
+    /// <summary>C1: maps legacy <see cref="DecisionRecord"/> into typed <see cref="AgentDecisionPayload"/>.</summary>
     public static OrderLogEntry FromDecisionRecord(
         DecisionRecord record,
         ulong simTick,
         ulong sequenceId = 0)
     {
-        _ = simTick;
-        return new OrderLogEntry(sequenceId, OrderLogEntryKind.AgentDecision, record.SimTime, record);
+        var payload = AgentDecisionPayload.FromDecisionRecord(record, simTick);
+        return new OrderLogEntry(sequenceId, OrderLogEntryKind.AgentDecision, record.SimTime, payload);
     }
 }

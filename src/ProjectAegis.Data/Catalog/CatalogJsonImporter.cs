@@ -129,7 +129,7 @@ public static class CatalogJsonImporter
     public static string ResolveBalticSensorsJsonPath() => ResolveRepoRelative(
         Path.Combine("assets", "data", "catalog", "sensors_baltic.json"));
 
-    internal static string ResolveRepoRelative(string relativePath)
+    public static string ResolveRepoRelative(string relativePath)
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null)

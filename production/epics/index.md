@@ -17,4 +17,6 @@
 
 **Sprint:** [sprint-1-headless-mvp](../sprints/sprint-1-headless-mvp.md)
 
-**Next (engineering):** CMO bulk catalog pipeline → intercept outcome row → full `AgentDecision` payload migration (C1 remainder)
+**Next (engineering — Sprint 2):** approve `sensor-detection-ew` GDD → merge `stack/milsim-c1-combat-data-replay` → production sensor UI slice
+
+**Sprint 1 tracking:** `production/sprint-status.yaml` (20/20 stories **done** on `stack/milsim-c1-combat-data-replay`)

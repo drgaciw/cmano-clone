@@ -37,11 +37,15 @@ public sealed class IOrderLogContractTests
             20,
             0.5);
 
-        log.Append(OrderLogEntry.FromDecisionRecord(record, simTick: 1));
+        log.Append(OrderLogEntry.FromDecisionRecord(record, simTick: 1ul));
 
         var entries = log.ChronologicalEntries();
         Assert.That(entries, Has.Count.EqualTo(1));
         Assert.That(entries[0].Kind, Is.EqualTo(OrderLogEntryKind.AgentDecision));
-        Assert.That(entries[0].Payload, Is.SameAs(record));
+        Assert.That(entries[0].Payload, Is.TypeOf<AgentDecisionPayload>());
+        var payload = (AgentDecisionPayload)entries[0].Payload!;
+        Assert.That(payload.SimTick, Is.EqualTo(1ul));
+        Assert.That(payload.ChosenOrderKind, Is.EqualTo(record.ChosenKind));
+        Assert.That(payload.ToDecisionRecord() with { SimTick = 1 }, Is.EqualTo(record with { SimTick = 1 }));
     }
 }

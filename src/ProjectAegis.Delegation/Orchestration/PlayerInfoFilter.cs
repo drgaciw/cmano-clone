@@ -31,6 +31,8 @@ public static class PlayerInfoFilter
     private static bool IsVisibleInLiveView(OrderLogEntry entry, PlayerInfoModel model) =>
         entry.Kind switch
         {
+            OrderLogEntryKind.AgentDecision when entry.Payload is AgentDecisionPayload payload =>
+                IsDecisionVisibleInLiveView(payload.AutonomyLevel, model),
             OrderLogEntryKind.AgentDecision when entry.Payload is DecisionRecord record =>
                 IsDecisionVisibleInLiveView(record.AutonomyLevel, model),
             OrderLogEntryKind.PolicyDenial or OrderLogEntryKind.Engagement => true,

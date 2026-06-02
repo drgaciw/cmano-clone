@@ -5,7 +5,7 @@ using System.Text;
 public sealed class DecisionLog : IOrderLog
 {
     private ulong _sequenceId;
-    private readonly List<DecisionRecord> _records = new();
+    private readonly List<AgentDecisionPayload> _agentDecisions = new();
     private readonly List<ulong> _decisionSequences = new();
     private readonly List<PolicyDenialRecord> _policyDenials = new();
     private readonly List<EngagementRecord> _engagements = new();
@@ -21,7 +21,8 @@ public sealed class DecisionLog : IOrderLog
     private readonly List<PolicyUpdateRecord> _policyUpdates = new();
     private readonly List<ModeChangeRecord> _modeChanges = new();
 
-    public IReadOnlyList<DecisionRecord> Records => _records;
+    public IReadOnlyList<DecisionRecord> Records =>
+        _agentDecisions.Select(p => p.ToDecisionRecord()).ToArray();
 
     public IReadOnlyList<PolicyDenialRecord> PolicyDenials => _policyDenials;
 
@@ -54,8 +55,12 @@ public sealed class DecisionLog : IOrderLog
         var sequenceId = entry.SequenceId == 0 ? NextSequence() : entry.SequenceId;
         switch (entry.Kind)
         {
-            case OrderLogEntryKind.AgentDecision when entry.Payload is DecisionRecord record:
-                _records.Add(record);
+            case OrderLogEntryKind.AgentDecision when entry.Payload is AgentDecisionPayload payload:
+                _agentDecisions.Add(payload);
+                _decisionSequences.Add(sequenceId);
+                break;
+            case OrderLogEntryKind.AgentDecision when entry.Payload is DecisionRecord legacy:
+                _agentDecisions.Add(AgentDecisionPayload.FromDecisionRecord(legacy, legacy.SimTick));
                 _decisionSequences.Add(sequenceId);
                 break;
             case OrderLogEntryKind.PolicyDenial when entry.Payload is PolicyDenialRecord denial:
@@ -148,13 +153,14 @@ public sealed class DecisionLog : IOrderLog
     public IReadOnlyList<OrderLogEntry> ChronologicalEntries()
     {
         var entries = new List<OrderLogEntry>();
-        for (var i = 0; i < _records.Count; i++)
+        for (var i = 0; i < _agentDecisions.Count; i++)
         {
+            var payload = _agentDecisions[i];
             entries.Add(new OrderLogEntry(
                 _decisionSequences[i],
                 OrderLogEntryKind.AgentDecision,
-                _records[i].SimTime,
-                _records[i]));
+                payload.SimTime,
+                payload));
         }
 
         foreach (var d in _policyDenials)
@@ -247,6 +253,8 @@ public sealed class DecisionLog : IOrderLog
     private static string FormatPayload(OrderLogEntry entry) =>
         entry.Kind switch
         {
+            OrderLogEntryKind.AgentDecision when entry.Payload is AgentDecisionPayload p =>
+                $"{p.SimTick}|{p.AgentId.Value}|{p.ChosenOrderKind}|{ScoredIntentFingerprint.Format(p.ScoredIntents)}|{p.RngDraw:R}",
             OrderLogEntryKind.AgentDecision when entry.Payload is DecisionRecord r =>
                 $"{r.SimTick}|{r.AgentId.Value}|{r.ChosenKind}|{ScoredIntentFingerprint.Format(r.Alternatives)}|{r.RngDraw:R}",
             OrderLogEntryKind.PolicyDenial when entry.Payload is PolicyDenialRecord d =>
