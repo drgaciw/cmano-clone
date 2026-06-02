@@ -6,4 +6,7 @@
     <RootNamespace>ProjectAegis.Data</RootNamespace>
     <Description>Platform catalog, snapshots, scenario packages, and write gate (no UnityEngine).</Description>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.10" />
+  </ItemGroup>
 </Project>

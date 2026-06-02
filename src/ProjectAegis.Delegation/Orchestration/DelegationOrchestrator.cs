@@ -18,6 +18,7 @@ public sealed class DelegationOrchestrator
 {
     private readonly List<ICommandableTarget> _targets = new();
     private readonly AutonomyGate _autonomyGate;
+    private readonly SimPolicy.IPolicyEvaluator _policyEvaluator;
     private readonly PolicySnapshotRegistry _policySnapshots = new();
     private readonly OverrideService _overrideService = new();
     private readonly DetachRejoinService _detachRejoinService;
@@ -29,10 +30,14 @@ public sealed class DelegationOrchestrator
         GlobalSeed = globalSeed;
         DecisionLog = new DecisionLog();
         _detachRejoinService = new DetachRejoinService(_overrideService);
-        var evaluator = policyEvaluator ?? new PolicyEvaluator(ResolvePolicyForUnit);
+        _policyEvaluator = policyEvaluator ?? new PolicyEvaluator(ResolvePolicyForUnit);
         _autonomyGate = new AutonomyGate(
-            new RoePolicyAdapter(evaluator, _policySnapshots.CreateContext));
+            new RoePolicyAdapter(_policyEvaluator, _policySnapshots.CreateContext));
     }
+
+    public SimPolicy.IPolicyEvaluator PolicyEvaluator => _policyEvaluator;
+
+    public EffectivePolicy ResolveEffectivePolicyForUnit(ulong unitId) => ResolvePolicyForUnit(unitId);
 
     public PolicySnapshotRegistry PolicySnapshots => _policySnapshots;
 

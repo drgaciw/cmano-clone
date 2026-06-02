@@ -18,6 +18,8 @@ public static class EngagementAbortReasonCodes
             EngagementAbortReason.MagazineEmpty => nameof(EngagementAbortReason.MagazineEmpty),
             EngagementAbortReason.NoFireControlTrack => nameof(EngagementAbortReason.NoFireControlTrack),
             EngagementAbortReason.EmconOff => nameof(FireAbortReason.EmconOff),
+            EngagementAbortReason.RoeHoldFire => nameof(FireAbortReason.RoeHoldFire),
+            EngagementAbortReason.WeaponsTight => nameof(FireAbortReason.WeaponsTight),
             _ => reason.ToString(),
         };
 }

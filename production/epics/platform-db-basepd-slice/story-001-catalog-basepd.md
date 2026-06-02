@@ -1,7 +1,7 @@
 # Story 001 — Catalog basePd for detection loop
 
 > **Epic:** platform-db-basepd-slice  
-> **Status:** Not started  
+> **Status:** In progress (DATA-2 on `stack/data/basepd`)  
 > **TR-ID:** TR-sensor-002 (MVP)  
 > **ADR:** ADR-006
 

@@ -57,6 +57,7 @@ public static class ScenarioPolicyJsonLoader
             ParseContactSeeds(dto.Contacts),
             ParseUnitRadarEmcon(dto.Emcon),
             ParseDetectionTrials(dto.Detection),
+            ParseCatalogDetectionTargets(dto.CatalogDetection),
             ParseJammers(dto.Jammers),
             ParseContactLifecycle(dto.ContactLifecycle))
         {
@@ -78,6 +79,25 @@ public static class ScenarioPolicyJsonLoader
 
         return jammers
             .Select(j => new ScenarioJammer(j.TargetId, j.JamStrength, j.ActiveFromTick, j.ObserverId))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ScenarioCatalogDetectionTarget> ParseCatalogDetectionTargets(
+        List<ScenarioCatalogDetectionJsonDto>? catalogDetection)
+    {
+        if (catalogDetection == null || catalogDetection.Count == 0)
+        {
+            return Array.Empty<ScenarioCatalogDetectionTarget>();
+        }
+
+        return catalogDetection
+            .Select(d => new ScenarioCatalogDetectionTarget(
+                d.ObserverId,
+                d.SensorId,
+                d.TargetId,
+                d.ContactId,
+                d.EnvMask,
+                d.JamStrength))
             .ToArray();
     }
 

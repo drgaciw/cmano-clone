@@ -8,4 +8,6 @@ public enum EngagementAbortReason
     MagazineEmpty = 3,
     NoFireControlTrack = 4,
     EmconOff = 5,
+    RoeHoldFire = 6,
+    WeaponsTight = 7,
 }

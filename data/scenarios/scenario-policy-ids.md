@@ -12,4 +12,6 @@ Optional JSON fields (default when omitted): `playerInfoModel` (`fullTransparenc
 
 JSON files: `data/scenarios/*.policy.json` loaded by `ScenarioPolicyRepository` (overrides built-in catalog when ids match).
 
+| `baltic-patrol-catalog` | Weapons free | Weapons tight | `catalogDetection` (no inline `basePd`; uses platform catalog) | Catalog-backed Pd harness |
+
 Override per unit via `unitOverrides` in JSON.

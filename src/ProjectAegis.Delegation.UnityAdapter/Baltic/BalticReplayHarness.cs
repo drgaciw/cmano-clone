@@ -9,6 +9,7 @@ using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -27,7 +28,12 @@ public static class BalticReplayHarness
         ulong DetectionWorldHash,
         ulong WorldHash);
 
-    public static Result Run(int seed, string scenarioPolicyId, int ticks, bool mvpEngagement = true)
+    public static Result Run(
+        int seed,
+        string scenarioPolicyId,
+        int ticks,
+        bool mvpEngagement = true,
+        ICatalogReader? catalog = null)
     {
         if (ticks < 1)
         {
@@ -36,13 +42,17 @@ public static class BalticReplayHarness
 
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         var profile = ScenarioPolicyRepository.TryGet(scenarioPolicyId);
+        var catalogReader = catalog ?? InMemoryCatalogReader.BalticPatrolFixture();
+        var detectionTrials = profile == null
+            ? Array.Empty<ScenarioDetectionTrial>()
+            : DetectionTrialResolver.Resolve(profile, catalogReader);
         PdDetectionContactSimulator? pdSim = null;
         ScenarioContactSimulator? scheduleSim = null;
-        if (profile?.DetectionTrials.Count > 0)
+        if (detectionTrials.Count > 0 && profile != null)
         {
             pdSim = new PdDetectionContactSimulator(
                 SimSeed.FromScenario((ulong)seed),
-                profile.DetectionTrials,
+                detectionTrials,
                 profile.UnitRadarEmcon,
                 profile.Jammers,
                 profile.ContactLifecycle.StaleThresholdTicks);

@@ -17,6 +17,7 @@ public sealed class ScenarioPolicyProfile
         IReadOnlyList<ScenarioContactSeed>? contactSeeds = null,
         IReadOnlyDictionary<string, EmconState>? unitRadarEmcon = null,
         IReadOnlyList<ScenarioDetectionTrial>? detectionTrials = null,
+        IReadOnlyList<ScenarioCatalogDetectionTarget>? catalogDetectionTargets = null,
         IReadOnlyList<ScenarioJammer>? jammers = null,
         ScenarioContactLifecycle? contactLifecycle = null)
     {
@@ -30,6 +31,7 @@ public sealed class ScenarioPolicyProfile
         ContactSeeds = contactSeeds ?? Array.Empty<ScenarioContactSeed>();
         UnitRadarEmcon = unitRadarEmcon ?? new Dictionary<string, EmconState>();
         DetectionTrials = detectionTrials ?? Array.Empty<ScenarioDetectionTrial>();
+        CatalogDetectionTargets = catalogDetectionTargets ?? Array.Empty<ScenarioCatalogDetectionTarget>();
         Jammers = jammers ?? Array.Empty<ScenarioJammer>();
         ContactLifecycle = contactLifecycle ?? ScenarioContactLifecycle.Default;
     }
@@ -56,6 +58,9 @@ public sealed class ScenarioPolicyProfile
     public IReadOnlyDictionary<string, EmconState> UnitRadarEmcon { get; }
 
     public IReadOnlyList<ScenarioDetectionTrial> DetectionTrials { get; }
+
+    /// <summary>Trials resolved via <see cref="DetectionTrialResolver"/> when <see cref="DetectionTrials"/> is empty.</summary>
+    public IReadOnlyList<ScenarioCatalogDetectionTarget> CatalogDetectionTargets { get; }
 
     public IReadOnlyList<ScenarioJammer> Jammers { get; }
 
