@@ -1,4 +1,4 @@
-nname: GitNexus PR Analysis
+name: GitNexus PR Analysis
 
 on:
   pull_request:
