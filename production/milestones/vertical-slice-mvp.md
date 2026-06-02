@@ -20,7 +20,8 @@ Demonstrate the core military simulation loop **plan → fight → replay** head
 - [x] Unity sensor C2 presentation slice (UI Toolkit panel + OnGUI fallback)
 - [x] Requirements design review blockers C1–C5 closed or explicitly deferred with ADR ([architecture-review-2026-06-02](../../docs/architecture/architecture-review-2026-06-02.md): C1–C4 closed, C5 deferred per ADR-001)
 - [x] `/replay-verify` golden baseline stored for Baltic harness seed ([replay-2026-06-02](../determinism/replay-2026-06-02.md) **PASS**)
-- [ ] 0 open S1 bugs; S2 bugs triaged
+- [x] 0 open S1 bugs; S2 bugs triaged ([bug-triage-2026-06-02](../qa/bug-triage-2026-06-02.md))
+- [x] Vertical slice gate **PROCEED** ([gate-2026-06-02](../vertical-slice/gate-2026-06-02.md))
 
 ## Feature List
 
@@ -39,7 +40,7 @@ Demonstrate the core military simulation loop **plan → fight → replay** head
 | Feature | Design Doc | Owner | Sprint Target | Cut Impact | Status |
 |---------|-----------|-------|--------------|-----------|--------|
 | CMO catalog import pipeline | `platform-db-basepd` | Content | Sprint 2 | Manual catalog only | Complete (export bridge) |
-| Message log UI bridge | requirements C2 | UI | Sprint 3 | AAR text-only | **Partial** (`MessageLogPanelHost` combat strip) |
+| Message log UI bridge | requirements C2 | UI | Sprint 3 | AAR text-only | **Complete** (full categories + tabbed drawer) |
 
 ### Stretch Goals (Only if Ahead of Schedule)
 

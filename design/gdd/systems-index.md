@@ -2,7 +2,7 @@
 
 > **Status:** Draft  
 > **Created:** 2026-05-29  
-> **Last Updated:** 2026-06-02  
+> **Last Updated:** 2026-06-02 (Sprint 4: +2 GDDs, C2 UX spec)  
 > **Source Concept:** `design/gdd/game-concept.md`  
 > **Requirements traceability:** `Game-Requirements/cmo-manual-traceability.md`
 
@@ -25,16 +25,16 @@ Project Aegis is a **theater-level military simulation** with a **deterministic 
 | 5 | Sensor & Contact Model | Simulation | MVP | Partial (Pd loop, contacts, stale→Lost on main) | 15 | [sensor-detection-ew.md](sensor-detection-ew.md) | 1, 4 |
 | 6 | Engagement & Fire Control | Simulation | MVP | Partial (Baltic engage + magazine log) | 14 | [engagement-fire-control.md](engagement-fire-control.md) | 3, 5, 16 |
 | 7 | Logistics & Magazines | Simulation | MVP | Partial (MagazineChange log; fuel P0 open) | 16 | [logistics-magazines.md](logistics-magazines.md) | 4, 1, 6 |
-| 8 | Combat Domains & Damage | Simulation | MVP | Not Started | 18 | — | 6, 5, 7 |
+| 8 | Combat Domains & Damage | Simulation | MVP | Draft | 18 | [combat-domains-damage.md](combat-domains-damage.md) | 6, 5, 7 |
 | 9 | Mission Runtime | Gameplay | MVP | Partial (editor 11) | 11, 07 | — | 1, 3, 5 |
 | 10 | Agent Delegation | Agentic | MVP | In Progress | 04, 08 | — | 1, 3, 9 |
 | 11 | Scenario & Mission Editor | Content | MVP | Approved (v1 design gate) | 11 | [agentic-mission-editor.md](agentic-mission-editor.md) | 4, 9 |
-| 12 | Command & Control UI | UI | MVP | Not Started | 20 | — | 1–10 |
-| 13 | Message Log & Briefing UI | UI | MVP | Not Started | 17, 20 | — | 2, 12 |
+| 12 | Command & Control UI | UI | MVP | Draft | 20 | [command-and-control-ui.md](command-and-control-ui.md) | 1–10 |
+| 13 | Message Log & Briefing UI | UI | MVP | Partial (full log shipped) | 17, 20 | — | 2, 12 |
 | 14 | Simulation Modes & Headless | Sim Core | MVP | Partial (`SimulationSession`, JSON scenario ROE) | 03 | — | 1, 10 |
 | 15 | Near-Future Systems | Content | Vertical Slice | Not Started | 09 | — | 6, 8 |
 | 16 | Cyber & Comms Degradation | Simulation | Vertical Slice | Not Started | 19 | — | 5, 10, 2 |
-| 17 | Scoring & Losses | Gameplay | MVP | Not Started | 17 | — | 2, 7, 8 |
+| 17 | Scoring & Losses | Gameplay | MVP | Draft | 17 | [scoring-losses.md](scoring-losses.md) | 2, 7, 8 |
 | 18 | Agentic Infrastructure (AAR, batch) | Agentic | Vertical Slice | Draft | 07 | — | 2, 14 |
 | 19 | Speculative Systems Module | Content | Full Vision | Draft | 10 | — | 15 |
 | 20 | Database Intelligence Pipeline | Content | MVP | Draft | 06 | — | 4, 11 |

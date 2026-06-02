@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="unit-detail-root" class="unit-detail-panel">
+        <ui:Label text="UNIT DETAIL" class="unit-detail-title" />
+        <ui:Label name="unit-id-line" text="UNIT: —" class="unit-detail-line" />
+        <ui:Label name="status-line" text="STATUS: —" class="unit-detail-line" />
+        <ui:Label name="magazine-line" text="MAGAZINE: —" class="unit-detail-line" />
+        <ui:Label name="emcon-line" text="EMCON: —" class="unit-detail-line" />
+        <ui:Label name="doctrine-line" text="DOCTRINE: —" class="unit-detail-line" />
+    </ui:VisualElement>
+</ui:UXML>

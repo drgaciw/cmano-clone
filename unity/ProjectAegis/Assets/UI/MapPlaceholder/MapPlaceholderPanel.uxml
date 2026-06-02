@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="map-placeholder-root" class="map-placeholder-panel">
+        <ui:Label name="theater-label" text="THEATER" class="map-theater-label" />
+        <ui:VisualElement name="map-canvas" class="map-canvas" />
+    </ui:VisualElement>
+</ui:UXML>

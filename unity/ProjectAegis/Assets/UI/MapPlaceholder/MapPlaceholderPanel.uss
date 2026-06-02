@@ -1,0 +1,37 @@
+.map-placeholder-panel {
+    flex-grow: 1;
+    background-color: rgb(8, 14, 22);
+    border-color: rgb(40, 55, 70);
+    border-width: 1px;
+}
+
+.map-theater-label {
+    color: rgb(140, 155, 170);
+    margin: 4px;
+    unity-font-style: bold;
+}
+
+.map-canvas {
+    flex-grow: 1;
+    margin: 8px;
+    background-color: rgb(16, 24, 36);
+}
+
+.map-symbol {
+    position: absolute;
+    font-size: 14px;
+    color: rgb(200, 210, 220);
+}
+
+.map-symbol--friendly {
+    color: rgb(74, 158, 255);
+}
+
+.map-symbol--hostile {
+    color: rgb(232, 93, 93);
+}
+
+.map-symbol--friendly-dead {
+    color: rgb(90, 110, 130);
+    opacity: 0.5;
+}

@@ -13,4 +13,11 @@ public sealed class MessageLogBridgeTests
         Assert.That(result.Messages.Any(m => m.Category == "KILL_CONFIRMED"), Is.True);
         Assert.That(result.Messages.Any(m => m.Category == "MAGAZINE"), Is.True);
     }
+
+    [Test]
+    public void Classify_scenario_messages_include_contact_category()
+    {
+        var result = BalticReplayHarness.Run(42, "baltic-patrol-classify", ticks: 6);
+        Assert.That(result.Messages.Any(m => m.Category == "CONTACT"), Is.True);
+    }
 }

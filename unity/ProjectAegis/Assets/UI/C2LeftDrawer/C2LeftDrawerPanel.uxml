@@ -1,0 +1,12 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="c2-drawer-root" class="c2-drawer-panel">
+        <ui:Toolbar name="c2-drawer-tabs" class="c2-drawer-tabs">
+            <ui:ToolbarToggle name="tab-oob" text="OOB" />
+            <ui:ToolbarToggle name="tab-missions" text="MISSIONS" />
+            <ui:ToolbarToggle name="tab-contacts" text="CONTACTS" />
+        </ui:Toolbar>
+        <ui:ListView name="oob-list" class="c2-drawer-list" selection-type="None" />
+        <ui:ListView name="mission-list" class="c2-drawer-list c2-drawer-list--hidden" selection-type="None" />
+        <ui:ListView name="contact-list" class="c2-drawer-list c2-drawer-list--hidden" selection-type="None" />
+    </ui:VisualElement>
+</ui:UXML>
