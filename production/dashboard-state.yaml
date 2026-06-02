@@ -2,11 +2,11 @@
 # Updated by /project-dashboard skill and Cursor Automation (09:00 / 21:00).
 
 last_run:
-  timestamp: "2026-05-31T17:50:00Z"
-  label: am  # baseline snapshot; subsequent runs use 'am' (09:00) or 'pm' (21:00)
+  timestamp: "2026-06-02T12:00:00Z"
+  label: stack-audit-refresh
 
 gitnexus:
-  indexed_commit: "8debee4"
+  indexed_commit: "5a8b7d1"
   nodes: 2815
   edges: 5198
   clusters: 45
@@ -21,10 +21,10 @@ gitnexus:
     SimTickPipeline: LOW
 
 filesystem:
-  sprint_plans: 0
+  sprint_plans: 1
   milestones: 0
-  epics: 0
-  stories: 0
+  epics: 7
+  stories: 10
   gdd_files: 10
   gdd_systems_with_docs: 6
   gdd_systems_total: 20
@@ -32,15 +32,19 @@ filesystem:
   architecture_files: 7
   production_files: 2
   determinism_audits: 1
-  test_files: 36
-  source_files: 96
+  test_files: 70
+  source_files: 152
   requirements_files: 26
   asset_manifest_exists: false
 
 plans:
   simulation_modes_decisions:
-    complete: 2
-    open: 5
+    complete: 7
+    open: 0
+  delegation_graphite_stack:
+    complete: 10
+    open: 0
+    note: DELEG-1–10 on main; stale local branches pending delete
   phase_gate_loop_policy:
     complete: 5
     open: 2

@@ -71,3 +71,21 @@ gt submit --stack --no-interactive
 **CI (Graphite workflows):** `build` + `optimize_ci` pass; Gitleaks/Dependency Review/CodeQL fail on `403 Resource not accessible by integration` (token permissions), not compile failures.
 
 **Headless gate:** `dotnet test ProjectAegis.sln` — 89 passed after hotfix.
+
+## Stack status (2026-06-02)
+
+**Verdict: COMPLETE** — DELEG-1 through DELEG-10 are on `main` (through #13 DELEG-5 bridge, #5–#9 sim-modes slice, #12 hotfix, plus SIM/UNT/Baltic/sensor stacks #14–#25).
+
+| Branch | Merged to main | Local branch |
+|--------|----------------|--------------|
+| `stack/delegation/sim-core` … `player-info` | Yes (ancestor) | Safe to delete |
+| `stack/delegation/sim-modes-docs` | Yes (#5) | Safe to delete |
+| `stack/delegation/dual-side-policy` | Yes (#6 / DELEG-7) | **Stale tip** — delete; do not restack |
+| `stack/delegation/dual-side-config` | Yes (#7 / DELEG-8) | **Stale tip** — delete |
+| `stack/delegation/observer-attach` | Yes (#8 / DELEG-9) | **Stale tip** — delete |
+| `05-30-feat_delegation_req04_*` | Yes (#9 / DELEG-10) | **Stale tip** — delete |
+| `stack/delegation/bridge-engage` | Yes (#13) | Branch removed post-merge |
+
+**Headless gate (2026-06-02):** `dotnet test ProjectAegis.sln` — **129 passed** on `main` @ `5a8b7d1`.
+
+**Next work:** `stack/data/p0-spec` → `stack/data/assembly` (DATA-1 scaffold only; not rebased on current `main`).

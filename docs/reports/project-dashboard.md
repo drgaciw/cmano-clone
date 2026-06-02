@@ -1,9 +1,9 @@
 # Project Aegis — Project Dashboard
 
 **Generated**: 2026-05-31  
-**Last Updated**: 2026-05-31T17:50:00Z  
-**Run Label**: initial (baseline)  
-**Stage**: Pre-Production → Production transition  
+**Last Updated**: 2026-06-02T12:00:00Z  
+**Run Label**: stack-audit-refresh  
+**Stage**: Production (headless slices active)  
 **Analysis Scope**: Full project
 
 ---
@@ -12,20 +12,20 @@
 
 Project Aegis has strong foundations in requirements (26 docs), accepted architecture decisions (5 ADRs), and substantial C# implementation (~96 source files, 36 test files) across Delegation, Sim, Data, and UnityAdapter assemblies. GitNexus indexes **2,815 nodes**, **5,198 edges**, and **100 execution flows** at commit `8debee4`.
 
-Formal production tracking is **not initialized**: no sprint plans, milestones, epics, or stories exist under `production/`. Work is tracked ad hoc in `docs/superpowers/plans/`. Design coverage is **6 of 20 systems** (30%) with GDDs; the asset pipeline has not started.
+Production tracking uses **epics** under `production/epics/` (Baltic, sensor, PD detection, EMCON, EW jam, contact stale, world hash). Sprint plans are still absent. Design coverage is **6 of 20 systems** (30%) with GDDs; the asset pipeline has not started.
 
-**Current focus:** Engagement implementation (DLZ, magazines, real launches), Unity Editor init, Order Log GDD alignment (design-review blocker C1).
+**Current focus:** [Sprint 1](../production/sprints/sprint-1-headless-mvp.md) — Platform DB `basePd` (DATA-2), policy–engage unification; P0 DATA docs on `main` (`5d43d76`).
 
 **Blocking issues:**
 
 | Source | Finding |
 |--------|---------|
-| Determinism audit (2026-05-29) | **DET-001 CRITICAL** — per-agent RNG salt via `string.GetHashCode` — **FIXED** with `DeterministicHash.OrdinalHash`; verdict **DETERMINISTIC — SAFE TO MERGE** pending CI `dotnet test` confirmation |
+| Determinism audit (2026-05-29) | **DET-001** fixed; `dotnet test ProjectAegis.sln` — **129 passed** on `main` @ `5a8b7d1` (2026-06-02) |
 | Same audit | 2 LOW findings (DET-002, DET-003) — off hot path |
 | Requirements design review | Verdict **CONCERNS** — blockers **C1–C5** (OrderLog vs DecisionLog, ROE/EMCON/WRA vs IRoeFilter, engage pipeline, mission runtime, detection tick owner) |
-| Impact analysis | Overall impact **HIGH**; `DecisionLog` and `DelegationOrchestrator` **HIGH** GitNexus blast radius |
-| Production gap | No sprint/milestone/epic/story artifacts |
-| Open engineering tasks | DELEG-8, DELEG-9, full test suite, gitnexus detect, stack submit (`docs/superpowers/plans/2026-05-30-simulation-modes-decisions-followup.md`) |
+| Impact analysis | `DecisionLog` and `DelegationOrchestrator` **HIGH** GitNexus blast radius |
+| Production gap | Sprint 1 plan exists; `sprint-status.yaml` not yet generated |
+| Delegation Graphite stack | **COMPLETE** on `main` (DELEG-1–10); delete stale local `stack/delegation/*` branches |
 
 ---
 
@@ -73,11 +73,11 @@ Formal production tracking is **not initialized**: no sprint plans, milestones, 
 
 ## Sprint Status
 
-**Status:** Not initialized — no sprint plan on disk.
+**Status:** Sprint 1 plan on disk — tracking not automated.
 
 | Metric | Value |
 |--------|-------|
-| Sprint plans found | 0 |
+| Sprint plans found | 1 (`production/sprints/sprint-1-headless-mvp.md`) |
 | `sprint-status.yaml` | Missing |
 | Stories in sprint | N/A |
 | Complete vs In Progress/Not Started | N/A (no sprint) |
@@ -88,7 +88,7 @@ Ad hoc task lists in `docs/superpowers/plans/`:
 
 | Plan | Complete | Open | Notes |
 |------|----------|------|-------|
-| `2026-05-30-simulation-modes-decisions-followup.md` | 2 | 5 | DELEG-8, DELEG-9, tests, gitnexus, stack submit |
+| `2026-05-30-simulation-modes-decisions-followup.md` | 7 | 0 | **Complete** — DELEG-6–9 on `main` |
 | `2026-05-30-phase-gate-loop-policy.md` | 5 | 2 | Full test suite + commit |
 | `2026-05-28-agent-delegation-framework.md` | 0 | 58 | **Stale** — delegation largely implemented |
 
@@ -247,7 +247,7 @@ flowchart LR
 
 1. **`/sprint-plan new`** — establish sprint-1 and `sprint-status.yaml`; unblocks burndown tracking
 2. **Resolve C1 (Order Log)** — `/design-system order-log-replay` + `/consistency-check`; HIGH blast radius on `DecisionLog`
-3. **Close DELEG-8/9** — complete simulation modes follow-up plan; run `dotnet test`
+3. **Start DATA-2** — `stack/data/basepd` from `main`; wire catalog `basePd` into detection loop
 
 ### Short-Term
 
@@ -281,7 +281,7 @@ Based on gaps identified:
 | Determinism re-verification | `/determinism-audit` + `/replay-verify` |
 | Stage baseline | `/project-stage-detect` |
 | Vertical slice readiness | `/vertical-slice` |
-| Open DELEG stack | `/dev-story` or engineering plan completion |
+| DATA stack (DATA-1) | Rebase `stack/data/p0-spec` on `main`; see `graphite-stack-backlog-2026-06.md` |
 | Stale GitNexus index | `npx gitnexus analyze` |
 | Pre-merge code changes | `npx gitnexus detect-changes` |
 | Automation not running | [cursor.com/automations](https://cursor.com/automations) + `.cursor/automations/README.md` |
@@ -304,7 +304,7 @@ docs/
 production/
   sprints/           0 files
   milestones/        0 files
-  epics/             0 files
+  epics/             7 epics + stories (Baltic, sensor, PD, EMCON, EW, stale, world hash)
   determinism/       1 audit
   dashboard-state.yaml  1 file
 
