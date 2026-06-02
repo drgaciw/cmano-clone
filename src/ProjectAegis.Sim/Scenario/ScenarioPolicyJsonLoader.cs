@@ -99,7 +99,10 @@ public static class ScenarioPolicyJsonLoader
     private static ScenarioContactLifecycle ParseContactLifecycle(ScenarioContactLifecycleJsonDto? lifecycle) =>
         lifecycle == null
             ? ScenarioContactLifecycle.Default
-            : new ScenarioContactLifecycle(Math.Max(1, lifecycle.StaleThresholdTicks));
+            : new ScenarioContactLifecycle(
+                Math.Max(1, lifecycle.StaleThresholdTicks),
+                Math.Max(0, lifecycle.ClassifyAfterTicks),
+                Math.Max(0, lifecycle.IdentifyAfterTicks));
 
     private static IReadOnlyList<ScenarioJammer> ParseJammers(List<ScenarioJammerJsonDto>? jammers)
     {

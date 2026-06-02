@@ -13,7 +13,7 @@ public sealed class PdContactStaleTests
         var sim = new PdDetectionContactSimulator(
             SimSeed.FromScenario(5),
             [new ScenarioDetectionTrial("u1", "radar-1", "hostile-1", "c1", 1.0)],
-            staleThresholdTicks: 1);
+            contactLifecycle: new ScenarioContactLifecycle(StaleThresholdTicks: 1));
         var t1 = sim.Tick(1, 1.0);
         Assert.Contains(t1, t => t.NewState == ContactLifecycleState.Detected);
         Assert.Equal(1, sim.ActiveCount);

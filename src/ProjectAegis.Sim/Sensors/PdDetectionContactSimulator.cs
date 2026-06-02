@@ -15,6 +15,8 @@ public sealed class PdDetectionContactSimulator
     private readonly HashSet<string> _destroyedTargets = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ContactTrack> _tracks = new(StringComparer.Ordinal);
     private readonly int _staleThresholdTicks;
+    private readonly int _classifyAfterTicks;
+    private readonly int _identifyAfterTicks;
     private string? _primaryTargetId;
     private bool _primaryHasTrack;
 
@@ -23,13 +25,16 @@ public sealed class PdDetectionContactSimulator
         IReadOnlyList<ScenarioDetectionTrial> trials,
         IReadOnlyDictionary<string, EmconState>? unitRadarEmcon = null,
         IReadOnlyList<ScenarioJammer>? jammers = null,
-        int staleThresholdTicks = 30)
+        ScenarioContactLifecycle? contactLifecycle = null)
     {
         _seed = seed;
         _unitRadarEmcon = unitRadarEmcon;
         _jammers = jammers ?? Array.Empty<ScenarioJammer>();
         _trials = trials.ToArray();
-        _staleThresholdTicks = Math.Max(1, staleThresholdTicks);
+        var lifecycle = contactLifecycle ?? ScenarioContactLifecycle.Default;
+        _staleThresholdTicks = Math.Max(1, lifecycle.StaleThresholdTicks);
+        _classifyAfterTicks = Math.Max(0, lifecycle.ClassifyAfterTicks);
+        _identifyAfterTicks = Math.Max(0, lifecycle.IdentifyAfterTicks);
     }
 
     public ulong LastDetectionHash { get; private set; }
@@ -90,8 +95,66 @@ public sealed class PdDetectionContactSimulator
                 ContactLifecycleState.Detected));
         }
 
+        foreach (var contactId in _detectedContacts.OrderBy(id => id, StringComparer.Ordinal))
+        {
+            if (!_tracks.TryGetValue(contactId, out var track) ||
+                track.State == ContactLifecycleState.Lost)
+            {
+                continue;
+            }
+
+            var trial = _trials.First(t => t.ContactId == contactId);
+            EmitLifecyclePromotions(simTick, simTime, trial, track, transitions);
+        }
+
         EmitStaleLosses(simTick, simTime, seenThisTick, transitions);
         return transitions;
+    }
+
+    private void EmitLifecyclePromotions(
+        ulong simTick,
+        double simTime,
+        ScenarioDetectionTrial trial,
+        ContactTrack track,
+        List<ContactTransition> transitions)
+    {
+        if (track.State == ContactLifecycleState.Lost)
+        {
+            return;
+        }
+
+        var age = simTick - track.FirstSeenTick;
+        if (_classifyAfterTicks > 0 &&
+            track.State == ContactLifecycleState.Detected &&
+            age >= (ulong)_classifyAfterTicks)
+        {
+            var previous = track.State;
+            track.State = ContactLifecycleState.Classified;
+            transitions.Add(new ContactTransition(
+                simTick,
+                simTime,
+                trial.ObserverId,
+                trial.ContactId,
+                trial.TargetId,
+                previous,
+                track.State));
+        }
+
+        if (_identifyAfterTicks > 0 &&
+            track.State == ContactLifecycleState.Classified &&
+            age >= (ulong)_identifyAfterTicks)
+        {
+            var previous = track.State;
+            track.State = ContactLifecycleState.Identified;
+            transitions.Add(new ContactTransition(
+                simTick,
+                simTime,
+                trial.ObserverId,
+                trial.ContactId,
+                trial.TargetId,
+                previous,
+                track.State));
+        }
     }
 
     private void EmitStaleLosses(
@@ -119,16 +182,17 @@ public sealed class PdDetectionContactSimulator
                 continue;
             }
 
+            var trial = _trials.First(t => t.ContactId == pair.Key);
+            var previous = pair.Value.State;
             pair.Value.State = ContactLifecycleState.Lost;
             lost.Add(pair.Key);
-            var trial = _trials.First(t => t.ContactId == pair.Key);
             transitions.Add(new ContactTransition(
                 simTick,
                 simTime,
                 trial.ObserverId,
                 trial.ContactId,
                 trial.TargetId,
-                ContactLifecycleState.Detected,
+                previous,
                 ContactLifecycleState.Lost));
         }
 
@@ -155,9 +219,11 @@ public sealed class PdDetectionContactSimulator
         }
     }
 
-    private sealed class ContactTrack(ulong lastSeenTick)
+    private sealed class ContactTrack(ulong firstSeenTick)
     {
-        public ulong LastSeenTick { get; set; } = lastSeenTick;
+        public ulong FirstSeenTick { get; } = firstSeenTick;
+
+        public ulong LastSeenTick { get; set; } = firstSeenTick;
 
         public int MissedTicks { get; set; }
 
@@ -193,15 +259,16 @@ public sealed class PdDetectionContactSimulator
                 continue;
             }
 
-            track.State = ContactLifecycleState.Lost;
             var trial = _trials.First(t => t.ContactId == contactId);
+            var previous = track.State;
+            track.State = ContactLifecycleState.Lost;
             transitions.Add(new ContactTransition(
                 simTick,
                 simTime,
                 trial.ObserverId,
                 trial.ContactId,
                 trial.TargetId,
-                ContactLifecycleState.Detected,
+                previous,
                 ContactLifecycleState.Lost));
             _detectedContacts.Remove(contactId);
         }

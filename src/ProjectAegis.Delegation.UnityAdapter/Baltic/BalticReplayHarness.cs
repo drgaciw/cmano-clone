@@ -60,7 +60,7 @@ public static class BalticReplayHarness
                 detectionTrials,
                 profile.UnitRadarEmcon,
                 profile.Jammers,
-                profile.ContactLifecycle.StaleThresholdTicks);
+                profile.ContactLifecycle);
         }
         else if (profile?.ContactSeeds.Count > 0)
         {

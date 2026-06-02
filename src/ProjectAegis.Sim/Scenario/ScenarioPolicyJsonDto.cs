@@ -68,6 +68,12 @@ public sealed class ScenarioMissionEventJsonDto
 public sealed class ScenarioContactLifecycleJsonDto
 {
     public int StaleThresholdTicks { get; set; } = 30;
+
+    /// <summary>Ticks since first detection before Classified (0 = disabled).</summary>
+    public int ClassifyAfterTicks { get; set; }
+
+    /// <summary>Ticks since first detection before Identified (0 = disabled).</summary>
+    public int IdentifyAfterTicks { get; set; }
 }
 
 public sealed class ScenarioJammerJsonDto
