@@ -8,10 +8,12 @@ try {
     $plugins = Join-Path $root "unity/ProjectAegis/Assets/Plugins/ProjectAegis"
     New-Item -ItemType Directory -Force -Path $plugins | Out-Null
 
+    $tfm = "netstandard2.1"
     $dlls = @(
-        "src/ProjectAegis.Sim/bin/Release/net8.0/ProjectAegis.Sim.dll",
-        "src/ProjectAegis.Delegation/bin/Release/net8.0/ProjectAegis.Delegation.dll",
-        "src/ProjectAegis.Delegation.UnityAdapter/bin/Release/net8.0/ProjectAegis.Delegation.UnityAdapter.dll"
+        "src/ProjectAegis.Data/bin/Release/$tfm/ProjectAegis.Data.dll",
+        "src/ProjectAegis.Sim/bin/Release/$tfm/ProjectAegis.Sim.dll",
+        "src/ProjectAegis.Delegation/bin/Release/$tfm/ProjectAegis.Delegation.dll",
+        "src/ProjectAegis.Delegation.UnityAdapter/bin/Release/$tfm/ProjectAegis.Delegation.UnityAdapter.dll"
     )
 
     foreach ($dll in $dlls) {

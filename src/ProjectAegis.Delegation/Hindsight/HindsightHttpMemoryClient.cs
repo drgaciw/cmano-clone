@@ -75,7 +75,11 @@ public sealed class HindsightHttpMemoryClient : IHindsightMemoryClient, IDisposa
         using var response = await _http.SendAsync(request, cancellationToken).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
+#if NET8_0_OR_GREATER
         await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+#else
+        using var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+#endif
         var parsed = await JsonSerializer.DeserializeAsync<ReflectResponseDto>(stream, JsonOptions, cancellationToken)
             .ConfigureAwait(false);
         return parsed?.Text;
