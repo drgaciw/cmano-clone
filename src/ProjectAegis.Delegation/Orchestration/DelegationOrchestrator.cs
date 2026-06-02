@@ -112,7 +112,7 @@ public sealed class DelegationOrchestrator
         var policy = effectivePolicy
             ?? ResolveScenarioPolicyForTarget(target.Id, isFriendly);
         var snapshotId = _policySnapshots.Capture(target.Id, policy, capturedAtSimTick);
-        agent.BindPolicySnapshot(snapshotId, policy);
+        agent.BindPolicySnapshot(snapshotId, policy, DecisionLog);
         target.Slot.SetActive(agent);
     }
 
@@ -139,7 +139,20 @@ public sealed class DelegationOrchestrator
         return EffectivePolicy.DefaultFree;
     }
 
-    public void BeginExecution() => Phase = SimulationPhase.Executing;
+    public void BeginExecution(double simTime = 0, ulong simTick = 0)
+    {
+        if (Phase == SimulationPhase.Planning)
+        {
+            DecisionLog.AppendModeChange(new ModeChangeRecord(
+                0,
+                simTime,
+                simTick,
+                nameof(SimulationPhase.Planning),
+                nameof(SimulationPhase.Executing)));
+        }
+
+        Phase = SimulationPhase.Executing;
+    }
 
     public bool TryTakeDirectControl(UnitTarget unit, double simTime)
     {

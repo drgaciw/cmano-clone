@@ -1,6 +1,10 @@
 // Optional Unity host — requires Plugins DLLs (see unity/ProjectAegis/README.md).
 #if UNITY_5_3_OR_NEWER
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using ProjectAegis.Delegation.Orchestration;
+using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using UnityEngine;
 
@@ -22,6 +26,9 @@ namespace ProjectAegis.Unity.Runtime
         public SimulationPhase Phase =>
             Bridge != null ? Bridge.Phase : SimulationPhase.Planning;
 
+        /// <summary>Combat/AAR message lines projected from the order log (HUD message log).</summary>
+        public IReadOnlyList<MessageLogLine> LastMessageLog { get; private set; } = Array.Empty<MessageLogLine>();
+
         private void Awake()
         {
             Bridge = new DelegationBridge(globalSeed, mvpEngagement: enableMvpEngagement);
@@ -32,8 +39,12 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>
         /// Call once per sim step after building snapshot and sink for this frame.
         /// </summary>
-        public DelegationTickResult RunTick(ISimWorldSnapshot snapshot, IOrderSink sink) =>
-            Bridge.Tick(snapshot, sink);
+        public DelegationTickResult RunTick(ISimWorldSnapshot snapshot, IOrderSink sink)
+        {
+            var result = Bridge.Tick(snapshot, sink);
+            LastMessageLog = MessageLogBridge.ProjectCombatMessages(Bridge.Orchestrator.DecisionLog);
+            return result;
+        }
     }
 }
 #endif

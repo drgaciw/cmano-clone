@@ -151,13 +151,20 @@ public sealed class SimulationSession
 
                 if (result.Launched)
                 {
+                    var salvoSize = 1;
+                    if (EngageWorld != null && i < processed.Count &&
+                        EngageWorld.TryGetContext(processed[i], out var ctx))
+                    {
+                        salvoSize = Math.Max(1, ctx.SalvoSize);
+                    }
+
                     Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromMagazineChange(new MagazineChangeRecord(
                         SequenceId: 0,
                         state.SimTime,
                         simTick,
                         order.Target,
                         MountId: 0,
-                        Delta: -1,
+                        Delta: -salvoSize,
                         MagazineChangeReasonCodes.Fire)));
 
                     if (result.OutcomeCode != null)

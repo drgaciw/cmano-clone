@@ -1,3 +1,3 @@
-# baltic-patrol-replay seed=42 ticks=4 checkpointInterval=2
+# baltic-patrol seed=42 ticks=4 checkpointInterval=2 (kill persists)
 REPLAY_CHECKPOINT=2:5155818736020725847:10
 REPLAY_CHECKPOINT=4:17144800277401907079:14

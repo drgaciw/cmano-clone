@@ -57,6 +57,27 @@ public static class MessageLogProjection
                     "CONTACT",
                     $"Contact {c.ContactId} {c.PreviousState} → {c.NewState} ({c.TargetId})",
                     c.ObserverId),
+            OrderLogEntryKind.MagazineChange when entry.Payload is MagazineChangeRecord m =>
+                new MessageLogLine(
+                    entry.SequenceId,
+                    entry.SimTime,
+                    "MAGAZINE",
+                    $"Magazine {m.ShooterTargetId.Value} mount {m.MountId}: {m.Delta} ({m.ReasonCode})",
+                    m.ShooterTargetId.Value),
+            OrderLogEntryKind.ModeChange when entry.Payload is ModeChangeRecord mc =>
+                new MessageLogLine(
+                    entry.SequenceId,
+                    entry.SimTime,
+                    "MODE",
+                    $"Mode {mc.PreviousMode} → {mc.NewMode}",
+                    mc.UnitId?.Value),
+            OrderLogEntryKind.PlayerOrder when entry.Payload is PlayerOrderRecord po =>
+                new MessageLogLine(
+                    entry.SequenceId,
+                    entry.SimTime,
+                    "PLAYER_ORDER",
+                    $"Player ordered {po.Kind} for {po.UnitId.Value}",
+                    po.UnitId.Value),
             _ => null,
         };
 

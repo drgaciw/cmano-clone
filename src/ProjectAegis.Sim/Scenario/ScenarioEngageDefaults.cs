@@ -13,7 +13,8 @@ public sealed class ScenarioEngageDefaults
         bool hasFireControlTrack,
         double pkBase = 0.85,
         double pkIntercept = 0.0,
-        double pkKill = 1.0)
+        double pkKill = 1.0,
+        int salvoSize = 1)
     {
         RangeMeters = rangeMeters;
         EnvelopeMinMeters = envelopeMinMeters;
@@ -23,6 +24,7 @@ public sealed class ScenarioEngageDefaults
         PkBase = pkBase;
         PkIntercept = pkIntercept;
         PkKill = pkKill;
+        SalvoSize = Math.Max(1, salvoSize);
     }
 
     public double RangeMeters { get; }
@@ -41,6 +43,8 @@ public sealed class ScenarioEngageDefaults
 
     public double PkKill { get; }
 
+    public int SalvoSize { get; }
+
     public EngageContext ToEngageContext(int roundsRemaining) =>
         new(
             RangeMeters,
@@ -49,7 +53,8 @@ public sealed class ScenarioEngageDefaults
             HasFireControlTrack,
             PkBase: PkBase,
             PkIntercept: PkIntercept,
-            PkKill: PkKill);
+            PkKill: PkKill,
+            SalvoSize: SalvoSize);
 
     public static ScenarioEngageDefaults MvpFallback { get; } = new(
         50_000,

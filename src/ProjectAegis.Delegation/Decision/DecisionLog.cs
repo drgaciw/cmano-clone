@@ -17,6 +17,9 @@ public sealed class DecisionLog : IOrderLog
     private readonly List<MissionTransitionRecord> _missionTransitions = new();
     private readonly List<EventFiredRecord> _eventFired = new();
     private readonly List<EngagementOutcomeRecord> _engagementOutcomes = new();
+    private readonly List<PlayerOrderRecord> _playerOrders = new();
+    private readonly List<PolicyUpdateRecord> _policyUpdates = new();
+    private readonly List<ModeChangeRecord> _modeChanges = new();
 
     public IReadOnlyList<DecisionRecord> Records => _records;
 
@@ -39,6 +42,12 @@ public sealed class DecisionLog : IOrderLog
     public IReadOnlyList<EventFiredRecord> EventFired => _eventFired;
 
     public IReadOnlyList<EngagementOutcomeRecord> EngagementOutcomes => _engagementOutcomes;
+
+    public IReadOnlyList<PlayerOrderRecord> PlayerOrders => _playerOrders;
+
+    public IReadOnlyList<PolicyUpdateRecord> PolicyUpdates => _policyUpdates;
+
+    public IReadOnlyList<ModeChangeRecord> ModeChanges => _modeChanges;
 
     public void Append(OrderLogEntry entry)
     {
@@ -79,6 +88,15 @@ public sealed class DecisionLog : IOrderLog
             case OrderLogEntryKind.GroupMemberRejoin when entry.Payload is GroupMemberRejoinRecord rejoin:
                 _groupMemberRejoins.Add(rejoin with { SequenceId = sequenceId });
                 break;
+            case OrderLogEntryKind.PlayerOrder when entry.Payload is PlayerOrderRecord playerOrder:
+                _playerOrders.Add(playerOrder with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.PolicyUpdate when entry.Payload is PolicyUpdateRecord policyUpdate:
+                _policyUpdates.Add(policyUpdate with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.ModeChange when entry.Payload is ModeChangeRecord modeChange:
+                _modeChanges.Add(modeChange with { SequenceId = sequenceId });
+                break;
             default:
                 throw new ArgumentException($"Unsupported order log entry kind: {entry.Kind}", nameof(entry));
         }
@@ -116,6 +134,15 @@ public sealed class DecisionLog : IOrderLog
 
     public void AppendEngagementOutcome(EngagementOutcomeRecord outcome) =>
         Append(OrderLogEntryFactories.FromEngagementOutcome(outcome));
+
+    public void AppendPlayerOrder(PlayerOrderRecord order) =>
+        Append(OrderLogEntryFactories.FromPlayerOrder(order));
+
+    public void AppendPolicyUpdate(PolicyUpdateRecord update) =>
+        Append(OrderLogEntryFactories.FromPolicyUpdate(update));
+
+    public void AppendModeChange(ModeChangeRecord change) =>
+        Append(OrderLogEntryFactories.FromModeChange(change));
 
     /// <summary>Unified timeline sorted by sequence (ADR-003 MVP).</summary>
     public IReadOnlyList<OrderLogEntry> ChronologicalEntries()
@@ -180,6 +207,21 @@ public sealed class DecisionLog : IOrderLog
             entries.Add(new OrderLogEntry(o.SequenceId, OrderLogEntryKind.EngagementOutcome, o.SimTime, o));
         }
 
+        foreach (var p in _playerOrders)
+        {
+            entries.Add(new OrderLogEntry(p.SequenceId, OrderLogEntryKind.PlayerOrder, p.SimTime, p));
+        }
+
+        foreach (var u in _policyUpdates)
+        {
+            entries.Add(new OrderLogEntry(u.SequenceId, OrderLogEntryKind.PolicyUpdate, u.SimTime, u));
+        }
+
+        foreach (var m in _modeChanges)
+        {
+            entries.Add(new OrderLogEntry(m.SequenceId, OrderLogEntryKind.ModeChange, m.SimTime, m));
+        }
+
         return entries.OrderBy(e => e.SequenceId).ToArray();
     }
 
@@ -227,6 +269,12 @@ public sealed class DecisionLog : IOrderLog
                 $"{f.SimTick}|{f.EventId}|{f.EventCode}",
             OrderLogEntryKind.EngagementOutcome when entry.Payload is EngagementOutcomeRecord o =>
                 $"{o.SimTick}|{o.EngagementId}|{o.VictimTargetId.Value}|{o.OutcomeCode}|{o.PkDraw:R}",
+            OrderLogEntryKind.PlayerOrder when entry.Payload is PlayerOrderRecord p =>
+                $"{p.SimTick}|{p.UnitId.Value}|{p.Kind}|{p.Source}",
+            OrderLogEntryKind.PolicyUpdate when entry.Payload is PolicyUpdateRecord u =>
+                $"{u.SimTick}|{u.PolicySnapshotId}|{u.Field}|{u.PreviousValue}|{u.NewValue}",
+            OrderLogEntryKind.ModeChange when entry.Payload is ModeChangeRecord m =>
+                $"{m.SimTick}|{m.UnitId?.Value}|{m.PreviousMode}|{m.NewMode}",
             _ => "?",
         };
 

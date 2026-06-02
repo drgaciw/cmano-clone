@@ -153,4 +153,6 @@ public sealed class ScenarioEngageJsonDto
     public double PkIntercept { get; set; } = 0.0;
 
     public double PkKill { get; set; } = 1.0;
+
+    public int SalvoSize { get; set; } = 1;
 }

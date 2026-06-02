@@ -54,8 +54,20 @@ public sealed class AgentController : IController
 
     public bool IsHuman => false;
 
-    public void BindPolicySnapshot(ulong policySnapshotId, EffectivePolicy effective)
+    public void BindPolicySnapshot(ulong policySnapshotId, EffectivePolicy effective, DecisionLog? log = null, double simTime = 0, ulong simTick = 0)
     {
+        if (log != null && policySnapshotId != PolicySnapshotId)
+        {
+            log.AppendPolicyUpdate(new PolicyUpdateRecord(
+                0,
+                simTime,
+                simTick,
+                policySnapshotId,
+                "roe",
+                EffectivePolicy.Roe.ToString(),
+                effective.Roe.ToString()));
+        }
+
         PolicySnapshotId = policySnapshotId;
         EffectivePolicy = effective;
     }
