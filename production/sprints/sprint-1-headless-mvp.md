@@ -27,9 +27,13 @@ Single engineer + agents; parallel stacks only when file ownership table allows.
 - C2 / message log UI
 - Contact Classify FSM
 
+## Status
+
+**Complete** — merged to `main` @ `1f7423e` (PR #35–#36, 2026-06-02).
+
 ## Definition of done
 
-- `dotnet test ProjectAegis.sln` — 177 pass (2026-06-02)
+- `dotnet test ProjectAegis.sln` — 181 pass (2026-06-02, `main`)
 - PlayMode smoke pass
 - No HIGH GitNexus impact without review
 - Epic status updated in [index.md](../epics/index.md)

@@ -15,9 +15,11 @@ start: "2026-06-02"
 end: "2026-06-16"
 generated: "2026-06-02"
 updated: "2026-06-02"
-branch: stack/milsim-c1-combat-data-replay
-indexed_commit: b13462f029cf60dc81b8e3a445ce0eca2993b99c
+branch: main
+indexed_commit: 1f7423edab23afd272809ad5f2ff34698095570b
 tests_passed: 181
+sprint1_status: complete
+merged_pr: "#36"
 
 stories:
   - id: baltic-001
@@ -160,7 +162,9 @@ sprint2_backlog:
   - id: merge-milsim-c1
     name: Commit + PR stack/milsim-c1-combat-data-replay → main
     priority: must-have
-    status: ready
+    status: done
+    completed: "2026-06-02"
+    note: "Merged on main via PR #36 (1f7423e)"
   - id: sensor-classify-fsm
     name: Contact Classify/Identify FSM (TR-sensor-001 remainder)
     priority: should-have

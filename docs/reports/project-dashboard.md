@@ -1,9 +1,9 @@
 # Project Aegis — Project Dashboard
 
 **Generated**: 2026-05-31  
-**Last Updated**: 2026-06-02T12:00:00Z  
-**Run Label**: stack-audit-refresh  
-**Stage**: Production (headless slices active)  
+**Last Updated**: 2026-06-02T09:58:00Z  
+**Run Label**: sprint1-close-sprint2-prep  
+**Stage**: Production (Sprint 1 complete; Sprint 2 sensor/C2)
 **Analysis Scope**: Full project
 
 ---
@@ -12,9 +12,9 @@
 
 Project Aegis has strong foundations in requirements (26 docs), accepted architecture decisions (5 ADRs), and substantial C# implementation (~96 source files, 36 test files) across Delegation, Sim, Data, and UnityAdapter assemblies. GitNexus indexes **2,815 nodes**, **5,198 edges**, and **100 execution flows** at commit `8debee4`.
 
-Production tracking uses **epics** under `production/epics/` (Baltic, sensor, PD detection, EMCON, EW jam, contact stale, world hash). Sprint plans are still absent. Design coverage is **6 of 20 systems** (30%) with GDDs; the asset pipeline has not started.
+Production tracking uses **epics** under `production/epics/` plus [Sprint 1](../production/sprints/sprint-1-headless-mvp.md) (**complete** on `main` @ `1f7423e`) and [Sprint 2](../production/sprints/sprint-2-sensor-c2.md) (classify FSM + C2 UI). [MVP milestone](../production/milestones/vertical-slice-mvp.md) defined. Design coverage is **6 of 20 systems** (30%); asset pipeline not started.
 
-**Current focus:** [Sprint 1](../production/sprints/sprint-1-headless-mvp.md) — Platform DB `basePd` (DATA-2), policy–engage unification; P0 DATA docs on `main` (`5d43d76`).
+**Current focus:** Sprint 2 — Contact Classify/Identify FSM + Unity sensor C2 presentation (`sensor-detection-ew` GDD approved).
 
 **Blocking issues:**
 
@@ -24,8 +24,8 @@ Production tracking uses **epics** under `production/epics/` (Baltic, sensor, PD
 | Same audit | 2 LOW findings (DET-002, DET-003) — off hot path |
 | Requirements design review | Verdict **CONCERNS** — blockers **C1–C5** (OrderLog vs DecisionLog, ROE/EMCON/WRA vs IRoeFilter, engage pipeline, mission runtime, detection tick owner) |
 | Impact analysis | `DecisionLog` and `DelegationOrchestrator` **HIGH** GitNexus blast radius |
-| Production gap | Sprint 1 plan exists; `sprint-status.yaml` not yet generated |
-| Delegation Graphite stack | **COMPLETE** on `main` (DELEG-1–10); delete stale local `stack/delegation/*` branches |
+| Sprint 2 | Stories not yet filed — run `/create-stories` for classify + C2 epics |
+| GitNexus index | Re-indexed 2026-06-02 @ `1f7423e` — **3,462** nodes, **197** flows |
 
 ---
 

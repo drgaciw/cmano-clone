@@ -2,18 +2,18 @@
 # Updated by /project-dashboard skill and Cursor Automation (09:00 / 21:00).
 
 last_run:
-  timestamp: "2026-06-02T18:00:00Z"
-  label: milsim-c1-stack-verify
+  timestamp: "2026-06-02T09:58:00Z"
+  label: sprint1-close-sprint2-prep
 
 gitnexus:
-  indexed_commit: "b13462f"
-  nodes: 2815
-  edges: 5198
-  clusters: 45
-  flows: 100
+  indexed_commit: "1f7423e"
+  nodes: 3462
+  edges: 8239
+  clusters: 67
+  flows: 197
   index_status: fresh
-  changed_symbols_count: 2
-  affected_processes_count: 0
+  changed_symbols_count: null
+  affected_processes_count: null
   watchlist_risks:
     IRoeFilter: LOW
     DecisionLog: HIGH
@@ -21,13 +21,13 @@ gitnexus:
     SimTickPipeline: LOW
 
 filesystem:
-  sprint_plans: 1
+  sprint_plans: 2
   sprint_status_yaml: true
   stage_txt: true
-  milestones: 0
+  milestones: 1
   epics: 12
-  stories: 20
-  tests_total: 177
+  stories: 21
+  tests_total: 181
   gdd_files: 10
   gdd_systems_with_docs: 6
   gdd_systems_total: 20
@@ -49,9 +49,15 @@ plans:
     open: 0
     note: DELEG-1–10 on main; stale local branches pending delete
   phase_gate_loop_policy:
-    complete: 5
-    open: 2
+    complete: 6
+    open: 1
   agent_delegation_framework:
     complete: 0
     open: 58
     note: stale — implementation largely complete
+
+sprint:
+  current: 2
+  sprint1_stories_done: 20
+  sprint2_plan: production/sprints/sprint-2-sensor-c2.md
+  merge_milsim_c1: done

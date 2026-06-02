@@ -17,6 +17,8 @@
 
 **Sprint:** [sprint-1-headless-mvp](../sprints/sprint-1-headless-mvp.md)
 
-**Next (engineering — Sprint 2):** approve `sensor-detection-ew` GDD → merge `stack/milsim-c1-combat-data-replay` → production sensor UI slice
+**Next (engineering — Sprint 2):** Contact Classify/Identify FSM + Unity sensor C2 slice — see [sprint-2-sensor-c2](../sprints/sprint-2-sensor-c2.md)
 
-**Sprint 1 tracking:** `production/sprint-status.yaml` (20/20 stories **done** on `stack/milsim-c1-combat-data-replay`)
+**Sprint 1:** **Complete** on `main` @ `1f7423e` (20/20 stories, PR #36). Tracking: `production/sprint-status.yaml`
+
+**Milestone:** [vertical-slice-mvp](../milestones/vertical-slice-mvp.md)
