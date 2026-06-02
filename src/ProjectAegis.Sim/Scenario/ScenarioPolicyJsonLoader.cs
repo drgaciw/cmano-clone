@@ -57,11 +57,17 @@ public static class ScenarioPolicyJsonLoader
             ParseContactSeeds(dto.Contacts),
             ParseUnitRadarEmcon(dto.Emcon),
             ParseDetectionTrials(dto.Detection),
-            ParseJammers(dto.Jammers))
+            ParseJammers(dto.Jammers),
+            ParseContactLifecycle(dto.ContactLifecycle))
         {
             Id = dto.Id,
         };
     }
+
+    private static ScenarioContactLifecycle ParseContactLifecycle(ScenarioContactLifecycleJsonDto? lifecycle) =>
+        lifecycle == null
+            ? ScenarioContactLifecycle.Default
+            : new ScenarioContactLifecycle(Math.Max(1, lifecycle.StaleThresholdTicks));
 
     private static IReadOnlyList<ScenarioJammer> ParseJammers(List<ScenarioJammerJsonDto>? jammers)
     {

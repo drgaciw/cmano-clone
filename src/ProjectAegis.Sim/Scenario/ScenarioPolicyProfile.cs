@@ -17,7 +17,8 @@ public sealed class ScenarioPolicyProfile
         IReadOnlyList<ScenarioContactSeed>? contactSeeds = null,
         IReadOnlyDictionary<string, EmconState>? unitRadarEmcon = null,
         IReadOnlyList<ScenarioDetectionTrial>? detectionTrials = null,
-        IReadOnlyList<ScenarioJammer>? jammers = null)
+        IReadOnlyList<ScenarioJammer>? jammers = null,
+        ScenarioContactLifecycle? contactLifecycle = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -30,6 +31,7 @@ public sealed class ScenarioPolicyProfile
         UnitRadarEmcon = unitRadarEmcon ?? new Dictionary<string, EmconState>();
         DetectionTrials = detectionTrials ?? Array.Empty<ScenarioDetectionTrial>();
         Jammers = jammers ?? Array.Empty<ScenarioJammer>();
+        ContactLifecycle = contactLifecycle ?? ScenarioContactLifecycle.Default;
     }
 
     public string Id { get; init; } = "";
@@ -56,6 +58,8 @@ public sealed class ScenarioPolicyProfile
     public IReadOnlyList<ScenarioDetectionTrial> DetectionTrials { get; }
 
     public IReadOnlyList<ScenarioJammer> Jammers { get; }
+
+    public ScenarioContactLifecycle ContactLifecycle { get; }
 
     public EngageContext ResolveEngageContext()
     {

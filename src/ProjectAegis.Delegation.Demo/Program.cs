@@ -43,6 +43,7 @@ try
     Console.WriteLine($"SEED={result.Seed} SCENARIO={result.ScenarioPolicyId} TICKS={result.Ticks} ENGAGEMENTS={result.EngagementCount}");
     Console.WriteLine($"FINGERPRINT={result.Fingerprint}");
     Console.WriteLine($"DETECTION_WORLD_HASH={result.DetectionWorldHash}");
+    Console.WriteLine($"WORLD_HASH={result.WorldHash}");
     return 0;
 }
 catch (Exception ex)

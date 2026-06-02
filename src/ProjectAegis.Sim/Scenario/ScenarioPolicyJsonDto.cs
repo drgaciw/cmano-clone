@@ -25,6 +25,13 @@ public sealed class ScenarioPolicyJsonDto
     public List<ScenarioDetectionJsonDto>? Detection { get; set; }
 
     public List<ScenarioJammerJsonDto>? Jammers { get; set; }
+
+    public ScenarioContactLifecycleJsonDto? ContactLifecycle { get; set; }
+}
+
+public sealed class ScenarioContactLifecycleJsonDto
+{
+    public int StaleThresholdTicks { get; set; } = 30;
 }
 
 public sealed class ScenarioJammerJsonDto

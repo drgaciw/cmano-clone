@@ -1,6 +1,7 @@
 namespace ProjectAegis.Sim.Core;
 
 using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Sensors;
 using ProjectAegis.Sim.Time;
 
 /// <summary>ADR-004 tick runner with engagement phase (step 8) wired.</summary>
@@ -47,7 +48,17 @@ public sealed class SimTickPipeline : ISimTickRunner
         _pending.Clear();
 
         var engageMix = MixEngagements(_lastResults);
-        LastWorldHash = MixWorldHash(_core.LastWorldHash, engageMix);
+        LastWorldHash = SimWorldHash.Combine(_core.LastWorldHash, DetectionSubhash, engageMix);
+    }
+
+    /// <summary>Detection phase sub-hash (tick step 4); call before engagement resolves.</summary>
+    public ulong DetectionSubhash { get; private set; }
+
+    public void MixDetectionTick(IReadOnlyList<DetectionRollResult> rolls)
+    {
+        DetectionSubhash = DetectionWorldHash.MixTick(DetectionSubhash, rolls);
+        var engageMix = MixEngagements(_lastResults);
+        LastWorldHash = SimWorldHash.Combine(_core.LastWorldHash, DetectionSubhash, engageMix);
     }
 
     private static ulong MixEngagements(IReadOnlyList<EngageResult> results)
@@ -61,6 +72,4 @@ public sealed class SimTickPipeline : ISimTickRunner
         return x;
     }
 
-    private static ulong MixWorldHash(ulong coreHash, ulong engageMix) =>
-        coreHash ^ (engageMix << 17);
 }
