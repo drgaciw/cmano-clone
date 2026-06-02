@@ -31,7 +31,8 @@ public static class BalticReplayHarness
         ulong DetectionWorldHash,
         ulong WorldHash,
         IReadOnlyList<ReplayCheckpoint> Checkpoints,
-        IReadOnlyList<MessageLogLine> Messages);
+        IReadOnlyList<MessageLogLine> Messages,
+        SensorC2Snapshot SensorC2);
 
     public static Result Run(
         int seed,
@@ -171,6 +172,7 @@ public static class BalticReplayHarness
         var worldHash = SimWorldHash.Combine(simHash, detectionHash, 0);
 
         var messages = MessageLogProjection.Project(bridge.Orchestrator.DecisionLog);
+        var sensorC2 = SensorC2Bridge.Build(harness, bridge.Orchestrator.DecisionLog);
         return new Result(
             seed,
             scenarioPolicyId,
@@ -180,7 +182,8 @@ public static class BalticReplayHarness
             detectionHash,
             worldHash,
             checkpointStore.Checkpoints,
-            messages);
+            messages,
+            sensorC2);
     }
 
     private sealed class HeadlessSnapshot : ISimWorldSnapshot, IOrderSink

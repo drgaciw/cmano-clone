@@ -17,7 +17,7 @@ generated: "2026-06-02"
 updated: "2026-06-02"
 branch: main
 indexed_commit: 1f7423edab23afd272809ad5f2ff34698095570b
-tests_passed: 183
+tests_passed: 189
 sprint1_status: complete
 merged_pr: "#36"
 
@@ -173,4 +173,5 @@ sprint2_backlog:
   - id: sensor-c2-ui
     name: Unity sensor C2 presentation slice
     priority: should-have
-    status: backlog
+    status: done
+    completed: "2026-06-02"

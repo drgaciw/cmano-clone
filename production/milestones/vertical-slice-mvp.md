@@ -16,8 +16,8 @@ Demonstrate the core military simulation loop **plan → fight → replay** head
 - [x] `dotnet test ProjectAegis.sln` — 0 failures (verified 2026-06-02: **181** passed on `main` @ `1f7423e`)
 - [x] PlayMode smoke harness — 3 tests pass (headless adapter)
 - [x] Sprint 1 epics complete (Baltic, sensor, PD, DATA basePd, mission, replay, combat) — merged via PR #35–#36
-- [ ] Contact Classify/Identify FSM (TR-sensor-001 remainder) — headless + order log
-- [ ] Unity sensor C2 presentation slice (minimal HUD: contacts, EMCON, engage status)
+- [x] Contact Classify/Identify FSM (TR-sensor-001 remainder) — headless + order log
+- [x] Unity sensor C2 presentation slice (minimal HUD: contacts, EMCON, track via OnGUI host)
 - [ ] Requirements design review blockers C1–C5 closed or explicitly deferred with ADR
 - [ ] `/replay-verify` golden baseline stored for Baltic harness seed
 - [ ] 0 open S1 bugs; S2 bugs triaged
@@ -31,8 +31,8 @@ Demonstrate the core military simulation loop **plan → fight → replay** head
 | Headless plan→fight→replay | `baltic-headless-slice` | Engineering | Sprint 1 | **Complete** |
 | Pd detection + catalog basePd | `pd-detection-loop`, `platform-db-basepd` | Engineering | Sprint 1 | **Complete** |
 | Order log + checkpoints + C1 combat | `order-log-replay`, `combat-outcomes` | Engineering | Sprint 1 | **Complete** |
-| Contact Classify FSM | `sensor-detection-ew.md` | Engineering | Sprint 2 | Not started |
-| Minimal sensor C2 UI | `sensor-detection-ew.md` (approved) | UI + Unity | Sprint 2–3 | Not started |
+| Contact Classify FSM | `sensor-detection-ew.md` | Engineering | Sprint 2 | **Complete** |
+| Minimal sensor C2 UI | `sensor-detection-ew.md` (approved) | UI + Unity | Sprint 2 | **Complete** (OnGUI; UI Toolkit next) |
 
 ### Should Ship (Planned but Cuttable)
 

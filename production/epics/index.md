@@ -15,11 +15,10 @@
 | [order-log-replay-checkpoints-slice](order-log-replay-checkpoints-slice/EPIC.md) | **MVP Complete** | Core | Checkpoints + scrub-to-tick |
 | [combat-outcomes-mvp-slice](combat-outcomes-mvp-slice/EPIC.md) | **Complete** (PR `stack/combat-followup`) | Simulation | Hit/miss/kill + destroy persistence |
 | [sensor-classify-slice](sensor-classify-slice/EPIC.md) | **Complete** | Core | Detected→Classified→Identified FSM |
+| [sensor-c2-ui-slice](sensor-c2-ui-slice/EPIC.md) | **Complete** | Presentation | Contact picture + sensor C2 HUD |
 
-**Sprint:** [sprint-1-headless-mvp](../sprints/sprint-1-headless-mvp.md)
+**Sprint 1:** **Complete** on `main` @ `1f7423e` (20/20 stories, PR #36).
 
-**Next (engineering — Sprint 2):** Contact Classify/Identify FSM + Unity sensor C2 slice — see [sprint-2-sensor-c2](../sprints/sprint-2-sensor-c2.md)
-
-**Sprint 1:** **Complete** on `main` @ `1f7423e` (20/20 stories, PR #36). Tracking: `production/sprint-status.yaml`
+**Sprint 2:** **Complete** — [sprint-2-sensor-c2](../sprints/sprint-2-sensor-c2.md). **Next:** UI Toolkit polish, `/replay-verify`, requirements C1–C5.
 
 **Milestone:** [vertical-slice-mvp](../milestones/vertical-slice-mvp.md)

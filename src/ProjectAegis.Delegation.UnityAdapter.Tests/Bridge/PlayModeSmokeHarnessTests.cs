@@ -8,6 +8,7 @@ using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
+using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -84,6 +85,14 @@ public sealed class PlayModeSmokeHarnessTests
             _ = traits;
             return [new ScoredIntent(OrderKind.Engage, 1.0, RiskLevel.High)];
         }
+    }
+
+    [Test]
+    public void Baltic_patrol_sensor_c2_snapshot_matches_harness_run()
+    {
+        var result = BalticReplayHarness.Run(7, "baltic-patrol", ticks: 2, mvpEngagement: false);
+        Assert.That(result.SensorC2.Contacts, Is.Not.Empty);
+        Assert.That(result.SensorC2.PrimaryTargetId, Is.Not.Null);
     }
 
     [Test]

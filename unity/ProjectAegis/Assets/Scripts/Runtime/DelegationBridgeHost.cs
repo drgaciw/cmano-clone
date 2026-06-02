@@ -29,6 +29,10 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Combat/AAR message lines projected from the order log (HUD message log).</summary>
         public IReadOnlyList<MessageLogLine> LastMessageLog { get; private set; } = Array.Empty<MessageLogLine>();
 
+        /// <summary>Sensor C2 contact list + EMCON / track indicators for HUD binding.</summary>
+        public SensorC2Snapshot LastSensorC2 { get; private set; } =
+            new(Array.Empty<ContactPictureEntry>(), 0, true, false, null, 0);
+
         private void Awake()
         {
             Bridge = new DelegationBridge(globalSeed, mvpEngagement: enableMvpEngagement);
@@ -43,6 +47,7 @@ namespace ProjectAegis.Unity.Runtime
         {
             var result = Bridge.Tick(snapshot, sink);
             LastMessageLog = MessageLogBridge.ProjectCombatMessages(Bridge.Orchestrator.DecisionLog);
+            LastSensorC2 = SensorC2Bridge.Build(snapshot, Bridge.Orchestrator.DecisionLog);
             return result;
         }
     }

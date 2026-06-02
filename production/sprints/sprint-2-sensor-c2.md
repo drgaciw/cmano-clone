@@ -13,8 +13,8 @@
 
 | Epic / work item | Stories | Gate |
 |------------------|---------|------|
-| Contact Classify/Identify FSM | TBD — `/create-stories sensor-classify` | Order-log rows + deterministic promotion |
-| Unity sensor C2 slice | TBD — `/create-stories sensor-c2-ui` | PlayMode smoke + manual HUD checklist |
+| Contact Classify/Identify FSM | [sensor-classify-slice](../epics/sensor-classify-slice/EPIC.md) | **Complete** |
+| Unity sensor C2 slice | [sensor-c2-ui-slice](../epics/sensor-c2-ui-slice/EPIC.md) | **Complete** (headless projection + OnGUI host) |
 
 ## Definition of done
 
