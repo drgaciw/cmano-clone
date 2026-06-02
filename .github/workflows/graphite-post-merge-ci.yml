@@ -26,7 +26,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Add integration tests, deployment steps, or other
-      # expensive checks that only need to run after merge here.
-      - name: Run post-merge checks
-        run: echo "Add integration tests or deployment steps here"
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore ProjectAegis.sln
+
+      - name: Build
+        run: dotnet build ProjectAegis.sln -c Release --no-restore
+
+      - name: Test (full solution)
+        run: dotnet test ProjectAegis.sln -c Release --no-build -v minimal
+
+      - name: Test (PlayMode smoke harness)
+        run: >
+          dotnet test
+          src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj
+          -c Release --no-build -v minimal
+          --filter FullyQualifiedName~PlayModeSmokeHarnessTests

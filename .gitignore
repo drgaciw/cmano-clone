@@ -36,3 +36,9 @@ tools/cmano-db-crawler/_raw/
 # Local editor / tool configs
 .kilo/
 .claude/settings.local.json
+
+# Agent session artifacts (Cursor / Grok harness — not part of the product)
+.grok/
+agent-tools/
+mcps/
+terminals/
