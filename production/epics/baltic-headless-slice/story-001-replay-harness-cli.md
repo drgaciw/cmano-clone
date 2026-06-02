@@ -1,7 +1,7 @@
 # Story 001: Headless replay harness CLI
 
 > **Epic**: Baltic Headless Vertical Slice
-> **Status**: Ready
+> **Status**: Complete
 > **Layer**: Core
 > **Type**: Integration
 > **Estimate**: 3h
