@@ -69,4 +69,15 @@ public sealed class DeterministicDetectionLoopTests
         Assert.Equal(0.5, DetectionProbability.ComputePd(1.0, envMask: 0.5));
         Assert.Equal(0.25, DetectionProbability.ComputePd(1.0, jamStrength: 0.75));
     }
+
+    [Fact]
+    public void Scenario_jammer_prevents_detection_when_pd_zeroed()
+    {
+        var trials = new[] { new ScenarioDetectionTrial("u1", "radar-1", "hostile-1", "c1", 1.0) };
+        var jammers = new[] { new ScenarioJammer("hostile-1", 1.0, 1) };
+        var rolls = DeterministicDetectionLoop.RollTick(SimSeed.FromScenario(42), 1, trials, null, jammers: jammers);
+        Assert.Single(rolls);
+        Assert.False(rolls[0].Detected);
+        Assert.Equal(0, rolls[0].Pd);
+    }
 }

@@ -1,6 +1,6 @@
 # Epic: Pd Detection Loop
 
-> **Status:** Complete (PR #23)  
+> **Status:** Complete (#23)  
 > **Created:** 2026-06-02  
 > **Priority:** MVP  
 > **Layer:** Core (sim tick step 4)  

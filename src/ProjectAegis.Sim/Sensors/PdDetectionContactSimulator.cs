@@ -10,6 +10,7 @@ public sealed class PdDetectionContactSimulator
     private readonly SimSeed _seed;
     private readonly ScenarioDetectionTrial[] _trials;
     private readonly IReadOnlyDictionary<string, EmconState>? _unitRadarEmcon;
+    private readonly IReadOnlyList<ScenarioJammer> _jammers;
     private readonly HashSet<string> _detectedContacts = new(StringComparer.Ordinal);
     private string? _primaryTargetId;
     private bool _primaryHasTrack;
@@ -17,12 +18,16 @@ public sealed class PdDetectionContactSimulator
     public PdDetectionContactSimulator(
         SimSeed seed,
         IReadOnlyList<ScenarioDetectionTrial> trials,
-        IReadOnlyDictionary<string, EmconState>? unitRadarEmcon = null)
+        IReadOnlyDictionary<string, EmconState>? unitRadarEmcon = null,
+        IReadOnlyList<ScenarioJammer>? jammers = null)
     {
         _seed = seed;
         _unitRadarEmcon = unitRadarEmcon;
+        _jammers = jammers ?? Array.Empty<ScenarioJammer>();
         _trials = trials.ToArray();
     }
+
+    public ulong LastDetectionHash { get; private set; }
 
     public int ActiveCount => _detectedContacts.Count;
 
@@ -37,7 +42,9 @@ public sealed class PdDetectionContactSimulator
             simTick,
             _trials,
             _unitRadarEmcon,
-            _detectedContacts);
+            _detectedContacts,
+            _jammers);
+        LastDetectionHash = DetectionWorldHash.MixTick(LastDetectionHash, rolls);
 
         var transitions = new List<ContactTransition>();
         foreach (var roll in rolls)

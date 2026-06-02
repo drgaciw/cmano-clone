@@ -12,7 +12,8 @@ public static class DeterministicDetectionLoop
         ulong simTick,
         IReadOnlyList<ScenarioDetectionTrial> trials,
         IReadOnlyDictionary<string, EmconState>? unitRadarEmcon,
-        IReadOnlySet<string>? alreadyDetectedContactIds = null)
+        IReadOnlySet<string>? alreadyDetectedContactIds = null,
+        IReadOnlyList<ScenarioJammer>? jammers = null)
     {
         if (trials.Count == 0)
         {
@@ -41,7 +42,15 @@ public static class DeterministicDetectionLoop
                 continue;
             }
 
-            var pd = DetectionProbability.ComputePd(trial.BasePd, trial.EnvMask, jamStrength: trial.JamStrength);
+            var jamStrength = trial.JamStrength;
+            if (jammers is { Count: > 0 })
+            {
+                jamStrength = Math.Max(
+                    jamStrength,
+                    ScenarioJamResolver.ResolveJam(trial.ObserverId, trial.TargetId, simTick, jammers));
+            }
+
+            var pd = DetectionProbability.ComputePd(trial.BasePd, trial.EnvMask, jamStrength: jamStrength);
             var entityId = DetectionEntityId.FromTrial(trial.ObserverId, trial.SensorId, trial.TargetId);
             var draw = SeededRng.UnitFloat(seed, RngDomain.Detection, entityId, simTick, drawIndex++);
             var detected = draw < pd;

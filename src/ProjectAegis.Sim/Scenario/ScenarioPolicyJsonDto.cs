@@ -23,6 +23,19 @@ public sealed class ScenarioPolicyJsonDto
     public ScenarioEmconJsonDto? Emcon { get; set; }
 
     public List<ScenarioDetectionJsonDto>? Detection { get; set; }
+
+    public List<ScenarioJammerJsonDto>? Jammers { get; set; }
+}
+
+public sealed class ScenarioJammerJsonDto
+{
+    public string TargetId { get; set; } = "hostile-1";
+
+    public double JamStrength { get; set; }
+
+    public ulong ActiveFromTick { get; set; }
+
+    public string? ObserverId { get; set; }
 }
 
 public sealed class ScenarioDetectionJsonDto
