@@ -44,4 +44,17 @@ public sealed class CombatOutcomeResolverTests
         var kill = CombatOutcomeResolver.ApplyKillOnHit(seed, request, hit, 1.0);
         Assert.Equal(EngagementOutcomeCodes.Kill, kill.OutcomeCode);
     }
+
+    [Fact]
+    public void Pk_intercept_one_blocks_kill_promotion()
+    {
+        var seed = SimSeed.FromScenario(11);
+        var request = new EngageRequest(1, 2, 0, 4);
+        var hit = new EngageResult(true, 3, EngagementAbortReason.None, EngagementOutcomeCodes.Hit, 0.1);
+
+        var intercepted = CombatOutcomeResolver.ApplyInterceptOnHit(seed, request, hit, 1.0);
+        var afterKill = CombatOutcomeResolver.ApplyKillOnHit(seed, request, intercepted, 1.0);
+
+        Assert.Equal(EngagementOutcomeCodes.Intercept, afterKill.OutcomeCode);
+    }
 }

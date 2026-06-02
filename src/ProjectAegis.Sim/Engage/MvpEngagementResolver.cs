@@ -90,7 +90,8 @@ public sealed class MvpEngagementResolver : IEngagementResolver
 
         var launch = EngageResult.Launch(_nextEngagementId++);
         var afterHit = CombatOutcomeResolver.Apply(_seed, request, launch, ctx.PkBase);
-        return CombatOutcomeResolver.ApplyKillOnHit(_seed, request, afterHit, ctx.PkKill);
+        var afterIntercept = CombatOutcomeResolver.ApplyInterceptOnHit(_seed, request, afterHit, ctx.PkIntercept);
+        return CombatOutcomeResolver.ApplyKillOnHit(_seed, request, afterIntercept, ctx.PkKill);
     }
 
     private static EngagementAbortReason MapPolicyDenial(FireAbortReason reason) =>

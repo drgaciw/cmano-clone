@@ -44,16 +44,13 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
 
     private void ApplyMigrations()
     {
-        var migrationPath = ResolveMigrationPath();
-        if (!File.Exists(migrationPath))
+        foreach (var migrationPath in ResolveMigrationPaths())
         {
-            throw new FileNotFoundException($"Catalog migration not found: {migrationPath}");
+            var sql = File.ReadAllText(migrationPath);
+            using var cmd = _connection.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.ExecuteNonQuery();
         }
-
-        var sql = File.ReadAllText(migrationPath);
-        using var cmd = _connection.CreateCommand();
-        cmd.CommandText = sql;
-        cmd.ExecuteNonQuery();
     }
 
     private CatalogSensorBinding[] LoadSorted()
@@ -61,7 +58,8 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         using var cmd = _connection.CreateCommand();
         cmd.CommandText =
             """
-            SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence
+            SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                   import_batch_id, source_file
             FROM sensor
             ORDER BY platform_id ASC, sensor_id ASC
             """;
@@ -74,26 +72,31 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                 reader.GetString(1),
                 reader.GetDouble(2),
                 reader.GetString(3),
-                reader.GetDouble(4)));
+                reader.GetDouble(4),
+                reader.GetString(5),
+                reader.GetString(6)));
         }
 
         return list.ToArray();
     }
 
-    private static string ResolveMigrationPath()
+    private static IReadOnlyList<string> ResolveMigrationPaths()
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null)
         {
-            var candidate = Path.Combine(dir.FullName, "assets", "data", "catalog", "migrations", "001_sensor_base_pd.sql");
-            if (File.Exists(candidate))
+            var migrationsDir = Path.Combine(dir.FullName, "assets", "data", "catalog", "migrations");
+            if (Directory.Exists(migrationsDir))
             {
-                return candidate;
+                return Directory
+                    .EnumerateFiles(migrationsDir, "*.sql", SearchOption.TopDirectoryOnly)
+                    .OrderBy(path => path, StringComparer.Ordinal)
+                    .ToArray();
             }
 
             dir = dir.Parent;
         }
 
-        return Path.Combine("assets", "data", "catalog", "migrations", "001_sensor_base_pd.sql");
+        return [Path.Combine("assets", "data", "catalog", "migrations", "001_sensor_base_pd.sql")];
     }
 }

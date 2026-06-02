@@ -22,7 +22,34 @@ public static class CombatOutcomeResolver
         return launch with { OutcomeCode = outcome, PkDraw = draw };
     }
 
-    /// <summary>Second combat draw (salt 1): promote Hit to Kill when pkKill passes.</summary>
+    /// <summary>Combat draw salt 1: on Hit, intercept success downgrades to non-lethal intercept.</summary>
+    public static EngageResult ApplyInterceptOnHit(
+        SimSeed seed,
+        in EngageRequest request,
+        EngageResult afterHit,
+        double pkIntercept)
+    {
+        if (afterHit.OutcomeCode != EngagementOutcomeCodes.Hit)
+        {
+            return afterHit;
+        }
+
+        var pk = Math.Clamp(pkIntercept, 0, 1);
+        if (pk <= 0)
+        {
+            return afterHit;
+        }
+
+        var draw = SeededRng.UnitFloat(seed, RngDomain.Combat, afterHit.EngagementId, request.SimTick, 1);
+        if (draw < pk)
+        {
+            return afterHit with { OutcomeCode = EngagementOutcomeCodes.Intercept };
+        }
+
+        return afterHit;
+    }
+
+    /// <summary>Combat draw salt 2: promote remaining Hit to Kill when pkKill passes.</summary>
     public static EngageResult ApplyKillOnHit(
         SimSeed seed,
         in EngageRequest request,
@@ -35,7 +62,7 @@ public static class CombatOutcomeResolver
         }
 
         var pk = Math.Clamp(pkKill, 0, 1);
-        var draw = SeededRng.UnitFloat(seed, RngDomain.Combat, afterHit.EngagementId, request.SimTick, 1);
+        var draw = SeededRng.UnitFloat(seed, RngDomain.Combat, afterHit.EngagementId, request.SimTick, 2);
         if (draw < pk)
         {
             return afterHit with { OutcomeCode = EngagementOutcomeCodes.Kill };

@@ -194,6 +194,7 @@ public static class ScenarioPolicyJsonLoader
                 engage.DefaultMagazineRounds,
                 engage.HasFireControlTrack,
                 engage.PkBase,
+                engage.PkIntercept,
                 engage.PkKill);
 
     private static RoeLevel ParseRoe(string value) =>

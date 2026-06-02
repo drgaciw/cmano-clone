@@ -143,5 +143,7 @@ public sealed class ScenarioEngageJsonDto
 
     public double PkBase { get; set; } = 0.85;
 
+    public double PkIntercept { get; set; } = 0.0;
+
     public double PkKill { get; set; } = 1.0;
 }

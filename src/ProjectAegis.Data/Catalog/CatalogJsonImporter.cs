@@ -24,6 +24,8 @@ public static class CatalogJsonImporter
             File.ReadAllText(jsonPath),
             JsonOptions) ?? throw new InvalidDataException("Catalog JSON deserialized to null.");
 
+        var batchId = dto.ImportBatchId ?? Path.GetFileNameWithoutExtension(jsonPath);
+        var sourceFile = Path.GetFileName(jsonPath);
         return dto.Sensors
             .OrderBy(s => s.PlatformId, StringComparer.Ordinal)
             .ThenBy(s => s.SensorId, StringComparer.Ordinal)
@@ -32,7 +34,9 @@ public static class CatalogJsonImporter
                 s.SensorId,
                 s.BasePd,
                 s.SourceFactId,
-                s.Confidence))
+                s.Confidence,
+                batchId,
+                sourceFile))
             .ToArray();
     }
 
@@ -54,14 +58,17 @@ public static class CatalogJsonImporter
             using var cmd = connection.CreateCommand();
             cmd.CommandText =
                 """
-                INSERT OR REPLACE INTO sensor (platform_id, sensor_id, base_pd, source_fact_id, confidence)
-                VALUES ($platform, $sensor, $basePd, $source, $confidence)
+                INSERT OR REPLACE INTO sensor (platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                    import_batch_id, source_file)
+                VALUES ($platform, $sensor, $basePd, $source, $confidence, $batch, $file)
                 """;
             cmd.Parameters.AddWithValue("$platform", sensor.PlatformId);
             cmd.Parameters.AddWithValue("$sensor", sensor.SensorId);
             cmd.Parameters.AddWithValue("$basePd", sensor.BasePd);
             cmd.Parameters.AddWithValue("$source", sensor.SourceFactId);
             cmd.Parameters.AddWithValue("$confidence", sensor.Confidence);
+            cmd.Parameters.AddWithValue("$batch", sensor.ImportBatchId);
+            cmd.Parameters.AddWithValue("$file", sensor.SourceFile);
             cmd.ExecuteNonQuery();
         }
     }
@@ -91,6 +98,9 @@ public static class CatalogJsonImporter
 
     internal sealed class CatalogSensorsFileDto
     {
+        [JsonPropertyName("importBatchId")]
+        public string? ImportBatchId { get; init; }
+
         [JsonPropertyName("sensors")]
         public List<CatalogSensorRowDto> Sensors { get; init; } = [];
     }
