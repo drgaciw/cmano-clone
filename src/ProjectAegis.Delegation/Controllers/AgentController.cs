@@ -116,7 +116,8 @@ public sealed class AgentController : IController
                 choice.Rationale,
                 attention.Load,
                 attention.Budget,
-                choice.RngDraw),
+                choice.RngDraw,
+                simTick),
             simTick));
 
         var gateResult = gate.Evaluate(Autonomy, order, playerApproved: false);

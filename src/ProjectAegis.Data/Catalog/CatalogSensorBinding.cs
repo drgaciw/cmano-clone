@@ -6,4 +6,6 @@ public sealed record CatalogSensorBinding(
     string SensorId,
     double BasePd,
     string SourceFactId = "fixture",
-    double Confidence = 1.0);
+    double Confidence = 1.0,
+    string ImportBatchId = "",
+    string SourceFile = "");

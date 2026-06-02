@@ -12,4 +12,5 @@ public sealed record DecisionRecord(
     string Rationale,
     double AttentionLoad,
     double AttentionBudget,
-    double RngDraw);
+    double RngDraw,
+    ulong SimTick = 0);

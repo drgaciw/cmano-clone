@@ -12,6 +12,7 @@ public sealed class ScenarioEngageDefaults
         int defaultMagazineRounds,
         bool hasFireControlTrack,
         double pkBase = 0.85,
+        double pkIntercept = 0.0,
         double pkKill = 1.0)
     {
         RangeMeters = rangeMeters;
@@ -20,6 +21,7 @@ public sealed class ScenarioEngageDefaults
         DefaultMagazineRounds = defaultMagazineRounds;
         HasFireControlTrack = hasFireControlTrack;
         PkBase = pkBase;
+        PkIntercept = pkIntercept;
         PkKill = pkKill;
     }
 
@@ -35,6 +37,8 @@ public sealed class ScenarioEngageDefaults
 
     public double PkBase { get; }
 
+    public double PkIntercept { get; }
+
     public double PkKill { get; }
 
     public EngageContext ToEngageContext(int roundsRemaining) =>
@@ -44,6 +48,7 @@ public sealed class ScenarioEngageDefaults
             roundsRemaining,
             HasFireControlTrack,
             PkBase: PkBase,
+            PkIntercept: PkIntercept,
             PkKill: PkKill);
 
     public static ScenarioEngageDefaults MvpFallback { get; } = new(
