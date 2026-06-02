@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="message-log-root" class="message-log-panel">
+        <ui:Label text="MESSAGE LOG" class="message-log-title" />
+        <ui:ListView name="message-list" class="message-log-list" selection-type="None" />
+    </ui:VisualElement>
+</ui:UXML>

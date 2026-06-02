@@ -1,5 +1,6 @@
-// Sensor C2 left-drawer slice — UI Toolkit panel bound to DelegationBridgeHost.
+// Combat message log strip — UI Toolkit panel bound to DelegationBridgeHost.
 #if UNITY_5_3_OR_NEWER
+using System.Linq;
 using ProjectAegis.Delegation.Projection;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -8,25 +9,20 @@ namespace ProjectAegis.Unity.Runtime
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(UIDocument))]
-    public sealed class SensorC2PanelHost : MonoBehaviour
+    public sealed class MessageLogPanelHost : MonoBehaviour
     {
-        private const string RootName = "sensor-c2-root";
-        private const string EmconName = "emcon-label";
-        private const string TrackName = "track-label";
-        private const string ContactCountName = "contact-count-label";
-        private const string ContactListName = "contact-list";
+        private const string RootName = "message-log-root";
+        private const string ListName = "message-list";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;
         [SerializeField] private bool showPanel = true;
+        [SerializeField] private int maxRows = 12;
 
         private UIDocument _document = null!;
-        private Label? _emconLabel;
-        private Label? _trackLabel;
-        private Label? _contactCountLabel;
-        private ListView? _contactList;
-        private SensorC2PanelState _panelState = new("EMCON: —", "TRACK: —", "CONTACTS: 0", Array.Empty<SensorC2ContactRow>());
+        private ListView? _messageList;
+        private MessageLogPanelState _panelState = new(Array.Empty<MessageLogDisplayRow>());
         private bool _wired;
 
         private void Reset()
@@ -83,34 +79,31 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             var panel = root.Q<VisualElement>(RootName) ?? root;
-            _emconLabel = panel.Q<Label>(EmconName);
-            _trackLabel = panel.Q<Label>(TrackName);
-            _contactCountLabel = panel.Q<Label>(ContactCountName);
-            _contactList = panel.Q<ListView>(ContactListName);
-            _wired = _emconLabel != null && _trackLabel != null && _contactCountLabel != null && _contactList != null;
+            _messageList = panel.Q<ListView>(ListName);
+            _wired = _messageList != null;
 
-            if (_contactList != null)
+            if (_messageList != null)
             {
-                _contactList.makeItem = () =>
+                _messageList.makeItem = () =>
                 {
                     var label = new Label();
-                    label.AddToClassList("sensor-c2-contact-row");
+                    label.AddToClassList("message-log-row");
                     return label;
                 };
-                _contactList.bindItem = (element, index) =>
+                _messageList.bindItem = (element, index) =>
                 {
-                    if (element is not Label label || index < 0 || index >= _panelState.ContactRows.Count)
+                    if (element is not Label label || index < 0 || index >= _panelState.Rows.Count)
                     {
                         return;
                     }
 
-                    var row = _panelState.ContactRows[index];
+                    var row = _panelState.Rows[index];
                     label.text = row.DisplayLine;
                     label.ClearClassList();
-                    label.AddToClassList("sensor-c2-contact-row");
-                    AddLifecycleClass(label, row.LifecycleState);
+                    label.AddToClassList("message-log-row");
+                    AddCategoryClass(label, row.Category);
                 };
-                _contactList.selectionType = SelectionType.None;
+                _messageList.selectionType = SelectionType.None;
             }
 
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
@@ -123,31 +116,32 @@ namespace ProjectAegis.Unity.Runtime
 
         private void Refresh()
         {
-            if (!_wired || bridgeHost == null || _contactList == null)
+            if (!_wired || bridgeHost == null || _messageList == null)
             {
                 return;
             }
 
-            _panelState = SensorC2PanelBinder.Bind(bridgeHost.LastSensorC2);
-            _emconLabel!.text = _panelState.EmconLabel;
-            _trackLabel!.text = _panelState.TrackLabel;
-            _contactCountLabel!.text = _panelState.ContactCountLabel;
-            _contactList.itemsSource = _panelState.ContactRows;
-            _contactList.Rebuild();
+            var lines = bridgeHost.LastMessageLog;
+            if (maxRows > 0 && lines.Count > maxRows)
+            {
+                lines = lines.Skip(lines.Count - maxRows).ToArray();
+            }
+
+            _panelState = MessageLogPanelBinder.Bind(lines);
+            _messageList.itemsSource = _panelState.Rows;
+            _messageList.Rebuild();
         }
 
-        private static void AddLifecycleClass(VisualElement element, string lifecycleState)
+        private static void AddCategoryClass(VisualElement element, string category)
         {
-            switch (lifecycleState)
+            switch (category)
             {
-                case "Classified":
-                    element.AddToClassList("sensor-c2-contact-row--classified");
+                case "KILL_CONFIRMED":
+                case "HIT":
+                    element.AddToClassList("message-log-row--kill");
                     break;
-                case "Identified":
-                    element.AddToClassList("sensor-c2-contact-row--identified");
-                    break;
-                case "Lost":
-                    element.AddToClassList("sensor-c2-contact-row--lost");
+                case "MAGAZINE":
+                    element.AddToClassList("message-log-row--magazine");
                     break;
             }
         }

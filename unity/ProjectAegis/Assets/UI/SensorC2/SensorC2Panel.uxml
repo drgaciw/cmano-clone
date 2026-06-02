@@ -6,6 +6,6 @@
             <ui:Label name="track-label" text="TRACK: —" class="sensor-c2-kpi" />
             <ui:Label name="contact-count-label" text="CONTACTS: 0" class="sensor-c2-kpi" />
         </ui:VisualElement>
-        <ui:ScrollView name="contact-list" class="sensor-c2-contact-list" />
+        <ui:ListView name="contact-list" class="sensor-c2-contact-list" selection-type="None" />
     </ui:VisualElement>
 </ui:UXML>

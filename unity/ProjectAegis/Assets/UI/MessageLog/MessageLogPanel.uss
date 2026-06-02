@@ -1,0 +1,40 @@
+.message-log-panel {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 420px;
+    max-height: 220px;
+    padding: 8px;
+    background-color: rgba(12, 18, 28, 0.92);
+    border-width: 1px;
+    border-color: rgb(56, 72, 96);
+    border-radius: 4px;
+}
+
+.message-log-title {
+    font-size: 12px;
+    -unity-font-style: bold;
+    color: rgb(200, 220, 240);
+    margin-bottom: 4px;
+}
+
+.message-log-list {
+    flex-grow: 1;
+    max-height: 180px;
+}
+
+.message-log-row {
+    font-size: 10px;
+    color: rgb(210, 220, 230);
+    padding-top: 1px;
+    padding-bottom: 1px;
+    white-space: normal;
+}
+
+.message-log-row--kill {
+    color: rgb(255, 180, 160);
+}
+
+.message-log-row--magazine {
+    color: rgb(180, 200, 255);
+}

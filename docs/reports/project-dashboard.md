@@ -12,7 +12,7 @@
 
 Project Aegis has strong foundations in requirements (26 docs), accepted architecture decisions (5 ADRs), and substantial C# implementation (~96 source files, 36 test files) across Delegation, Sim, Data, and UnityAdapter assemblies. GitNexus indexes **2,815 nodes**, **5,198 edges**, and **100 execution flows** at commit `8debee4`.
 
-Production tracking uses **epics** under `production/epics/` plus [Sprint 1](../production/sprints/sprint-1-headless-mvp.md) (**complete** on `main` @ `1f7423e`) and [Sprint 2](../production/sprints/sprint-2-sensor-c2.md) (classify FSM + C2 UI). [MVP milestone](../production/milestones/vertical-slice-mvp.md) defined. Design coverage is **6 of 20 systems** (30%); asset pipeline not started.
+Production tracking uses **epics** under `production/epics/` plus [Sprint 1](../production/sprints/sprint-1-headless-mvp.md) (**complete**) and [Sprint 2](../production/sprints/sprint-2-sensor-c2.md) (**complete**: classify FSM, Sensor C2 + message log UI Toolkit, `baltic-patrol-classify` demo scenario). [MVP milestone](../production/milestones/vertical-slice-mvp.md): C1–C4 closed per [architecture review](../architecture/architecture-review-2026-06-02.md). Design coverage **6 of 20 systems** (30%); asset pipeline not started.
 
 **Current focus:** Sprint 2 — Contact Classify/Identify FSM + Unity sensor C2 presentation (`sensor-detection-ew` GDD approved).
 
@@ -24,7 +24,7 @@ Production tracking uses **epics** under `production/epics/` plus [Sprint 1](../
 | Same audit | 2 LOW findings (DET-002, DET-003) — off hot path |
 | Requirements design review | Verdict **CONCERNS** — blockers **C1–C5** (OrderLog vs DecisionLog, ROE/EMCON/WRA vs IRoeFilter, engage pipeline, mission runtime, detection tick owner) |
 | Impact analysis | `DecisionLog` and `DelegationOrchestrator` **HIGH** GitNexus blast radius |
-| Sprint 2 | Stories not yet filed — run `/create-stories` for classify + C2 epics |
+| Sprint 2 | **Complete** — classify FSM, C2 UI, message log strip, architecture C1–C4 gate |
 | GitNexus index | Re-indexed 2026-06-02 @ `1f7423e` — **3,462** nodes, **197** flows |
 
 ---

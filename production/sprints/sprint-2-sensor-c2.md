@@ -14,7 +14,8 @@
 | Epic / work item | Stories | Gate |
 |------------------|---------|------|
 | Contact Classify/Identify FSM | [sensor-classify-slice](../epics/sensor-classify-slice/EPIC.md) | **Complete** |
-| Unity sensor C2 slice | [sensor-c2-ui-slice](../epics/sensor-c2-ui-slice/EPIC.md) | **Complete** (headless projection + OnGUI host) |
+| Unity sensor C2 slice | [sensor-c2-ui-slice](../epics/sensor-c2-ui-slice/EPIC.md) | **Complete** (UI Toolkit + ListView; message log strip) |
+| Classify demo scenario | `baltic-patrol-classify` JSON | **Complete** (`ReplayGoldenBalticClassifyTests`) |
 
 ## Definition of done
 
