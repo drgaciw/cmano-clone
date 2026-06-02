@@ -24,9 +24,38 @@ public sealed class ScenarioPolicyJsonDto
 
     public List<ScenarioDetectionJsonDto>? Detection { get; set; }
 
+    public List<ScenarioCatalogDetectionJsonDto>? CatalogDetection { get; set; }
+
     public List<ScenarioJammerJsonDto>? Jammers { get; set; }
 
     public ScenarioContactLifecycleJsonDto? ContactLifecycle { get; set; }
+
+    public ScenarioReplayJsonDto? Replay { get; set; }
+
+    public ScenarioMissionJsonDto? Mission { get; set; }
+}
+
+public sealed class ScenarioReplayJsonDto
+{
+    public int CheckpointIntervalTicks { get; set; } = 300;
+}
+
+public sealed class ScenarioMissionJsonDto
+{
+    public List<string> FireOrder { get; set; } = [];
+
+    public List<ScenarioMissionEventJsonDto> Events { get; set; } = [];
+}
+
+public sealed class ScenarioMissionEventJsonDto
+{
+    public string Id { get; set; } = "";
+
+    public ulong FireAtTick { get; set; }
+
+    public string Kind { get; set; } = "MissionTransition";
+
+    public string Code { get; set; } = "";
 }
 
 public sealed class ScenarioContactLifecycleJsonDto
@@ -43,6 +72,21 @@ public sealed class ScenarioJammerJsonDto
     public ulong ActiveFromTick { get; set; }
 
     public string? ObserverId { get; set; }
+}
+
+public sealed class ScenarioCatalogDetectionJsonDto
+{
+    public string ObserverId { get; set; } = "u1";
+
+    public string SensorId { get; set; } = "radar-1";
+
+    public string TargetId { get; set; } = "hostile-1";
+
+    public string ContactId { get; set; } = "c1";
+
+    public double EnvMask { get; set; } = 1.0;
+
+    public double JamStrength { get; set; }
 }
 
 public sealed class ScenarioDetectionJsonDto

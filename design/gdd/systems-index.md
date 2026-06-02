@@ -2,7 +2,7 @@
 
 > **Status:** Draft  
 > **Created:** 2026-05-29  
-> **Last Updated:** 2026-05-29  
+> **Last Updated:** 2026-06-02  
 > **Source Concept:** `design/gdd/game-concept.md`  
 > **Requirements traceability:** `Game-Requirements/cmo-manual-traceability.md`
 
@@ -19,12 +19,12 @@ Project Aegis is a **theater-level military simulation** with a **deterministic 
 | # | System Name | Category | Priority | Status | Req Doc | GDD | Depends On |
 |---|-------------|----------|----------|--------|---------|-----|------------|
 | 1 | Simulation Core & Time | Sim Core | MVP | In Review | 03, 08 | [simulation-core-time.md](simulation-core-time.md) | — |
-| 2 | Order Log & Replay | Sim Core | MVP | In Progress (engage fingerprint) | 17 | [order-log-replay.md](order-log-replay.md) | 1 |
-| 3 | Policy, ROE, EMCON, WRA | Sim Core | MVP | In Design | 13 | [policy-roe-emcon-wra.md](policy-roe-emcon-wra.md) | 1, 2 |
-| 4 | Platform Database | Content | MVP | Partial | 06 | — | — |
-| 5 | Sensor & Contact Model | Simulation | MVP | In Review | 15 | [sensor-detection-ew.md](sensor-detection-ew.md) | 1, 4 |
-| 6 | Engagement & Fire Control | Simulation | MVP | In Progress (scenario + order-log MVP) | 14 | [engagement-fire-control.md](engagement-fire-control.md) | 3, 5, 16 |
-| 7 | Logistics & Magazines | Simulation | MVP | Approved | 16 | [logistics-magazines.md](logistics-magazines.md) | 4, 1, 6 |
+| 2 | Order Log & Replay | Sim Core | MVP | In Progress (WORLD_HASH; checkpoints pending) | 17 | [order-log-replay.md](order-log-replay.md) | 1 |
+| 3 | Policy, ROE, EMCON, WRA | Sim Core | MVP | Partial (EMCON scenario; engage unification pending) | 13 | [policy-roe-emcon-wra.md](policy-roe-emcon-wra.md) | 1, 2 |
+| 4 | Platform Database | Content | MVP | Partial (DATA-1 scaffold; basePd epic ready) | 06 | — | — |
+| 5 | Sensor & Contact Model | Simulation | MVP | Partial (Pd loop, contacts, stale→Lost on main) | 15 | [sensor-detection-ew.md](sensor-detection-ew.md) | 1, 4 |
+| 6 | Engagement & Fire Control | Simulation | MVP | Partial (Baltic engage + magazine log) | 14 | [engagement-fire-control.md](engagement-fire-control.md) | 3, 5, 16 |
+| 7 | Logistics & Magazines | Simulation | MVP | Partial (MagazineChange log; fuel P0 open) | 16 | [logistics-magazines.md](logistics-magazines.md) | 4, 1, 6 |
 | 8 | Combat Domains & Damage | Simulation | MVP | Not Started | 18 | — | 6, 5, 7 |
 | 9 | Mission Runtime | Gameplay | MVP | Partial (editor 11) | 11, 07 | — | 1, 3, 5 |
 | 10 | Agent Delegation | Agentic | MVP | In Progress | 04, 08 | — | 1, 3, 9 |

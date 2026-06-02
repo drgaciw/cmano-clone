@@ -1,14 +1,17 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Baltic;
 
 using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
+using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.Mission;
+using ProjectAegis.Delegation.Replay;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -25,9 +28,15 @@ public static class BalticReplayHarness
         string Fingerprint,
         int EngagementCount,
         ulong DetectionWorldHash,
-        ulong WorldHash);
+        ulong WorldHash,
+        IReadOnlyList<ReplayCheckpoint> Checkpoints);
 
-    public static Result Run(int seed, string scenarioPolicyId, int ticks, bool mvpEngagement = true)
+    public static Result Run(
+        int seed,
+        string scenarioPolicyId,
+        int ticks,
+        bool mvpEngagement = true,
+        ICatalogReader? catalog = null)
     {
         if (ticks < 1)
         {
@@ -36,13 +45,17 @@ public static class BalticReplayHarness
 
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         var profile = ScenarioPolicyRepository.TryGet(scenarioPolicyId);
+        var catalogReader = catalog ?? InMemoryCatalogReader.BalticPatrolFixture();
+        var detectionTrials = profile == null
+            ? Array.Empty<ScenarioDetectionTrial>()
+            : DetectionTrialResolver.Resolve(profile, catalogReader);
         PdDetectionContactSimulator? pdSim = null;
         ScenarioContactSimulator? scheduleSim = null;
-        if (profile?.DetectionTrials.Count > 0)
+        if (detectionTrials.Count > 0 && profile != null)
         {
             pdSim = new PdDetectionContactSimulator(
                 SimSeed.FromScenario((ulong)seed),
-                profile.DetectionTrials,
+                detectionTrials,
                 profile.UnitRadarEmcon,
                 profile.Jammers,
                 profile.ContactLifecycle.StaleThresholdTicks);
@@ -51,6 +64,10 @@ public static class BalticReplayHarness
         {
             scheduleSim = new ScenarioContactSimulator(profile.ContactSeeds, profile.UnitRadarEmcon);
         }
+
+        var missionRuntime = profile != null ? MissionRuntimeFactory.TryCreate(profile.MissionTimeline) : null;
+        var checkpointStore = new ReplayCheckpointStore();
+        var checkpointInterval = profile?.ReplaySettings.CheckpointIntervalTicks ?? 0;
 
         var bridge = new DelegationBridge(seed, mvpEngagement: mvpEngagement, scenarioPolicyId: scenarioPolicyId);
         if (mvpEngagement && bridge.Session == null)
@@ -73,6 +90,35 @@ public static class BalticReplayHarness
         {
             harness.Advance(1.0);
             var simTick = (ulong)Math.Max(0, (long)harness.SimTime);
+
+            if (missionRuntime != null)
+            {
+                foreach (var emission in missionRuntime.Tick(simTick, harness.SimTime, 0))
+                {
+                    switch (emission.Event.Kind)
+                    {
+                        case MissionEventKind.MissionTransition:
+                            bridge.Orchestrator.DecisionLog.AppendMissionTransition(
+                                new MissionTransitionRecord(
+                                    emission.SequenceId,
+                                    emission.SimTime,
+                                    emission.SimTick,
+                                    emission.Event.EventId,
+                                    emission.Event.Code));
+                            break;
+                        case MissionEventKind.EventFired:
+                            bridge.Orchestrator.DecisionLog.AppendEventFired(
+                                new EventFiredRecord(
+                                    emission.SequenceId,
+                                    emission.SimTime,
+                                    emission.SimTick,
+                                    emission.Event.EventId,
+                                    emission.Event.Code));
+                            break;
+                    }
+                }
+            }
+
             var transitions = pdSim != null
                 ? pdSim.Tick(simTick, harness.SimTime)
                 : scheduleSim?.Tick(simTick, harness.SimTime) ?? Array.Empty<ContactTransition>();
@@ -82,6 +128,18 @@ public static class BalticReplayHarness
             }
 
             bridge.Tick(harness, harness);
+
+            if (checkpointInterval > 0 && simTick % (ulong)checkpointInterval == 0)
+            {
+                var simHashTick = bridge.Session?.Sim.LastWorldHash ?? 0;
+                var detectionHashTick = pdSim?.LastDetectionHash ?? 0;
+                var worldHashTick = SimWorldHash.Combine(simHashTick, detectionHashTick, 0);
+                checkpointStore.Record(
+                    simTick,
+                    worldHashTick,
+                    bridge.Orchestrator.DecisionLog.ComputeFingerprint(),
+                    bridge.Orchestrator.DecisionLog.ChronologicalEntries().LastOrDefault()?.SequenceId ?? 0);
+            }
         }
 
         var simHash = bridge.Session?.Sim.LastWorldHash ?? 0;
@@ -95,7 +153,8 @@ public static class BalticReplayHarness
             bridge.Orchestrator.DecisionLog.ComputeFingerprint(),
             bridge.Orchestrator.DecisionLog.Engagements.Count,
             detectionHash,
-            worldHash);
+            worldHash,
+            checkpointStore.Checkpoints);
     }
 
     private sealed class HeadlessSnapshot : ISimWorldSnapshot, IOrderSink

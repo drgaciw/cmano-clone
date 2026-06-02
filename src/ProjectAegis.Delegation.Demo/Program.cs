@@ -44,6 +44,12 @@ try
     Console.WriteLine($"FINGERPRINT={result.Fingerprint}");
     Console.WriteLine($"DETECTION_WORLD_HASH={result.DetectionWorldHash}");
     Console.WriteLine($"WORLD_HASH={result.WorldHash}");
+    foreach (var checkpoint in result.Checkpoints)
+    {
+        Console.WriteLine(
+            $"REPLAY_CHECKPOINT={checkpoint.SimTick}:{checkpoint.WorldHash}:{checkpoint.LastSequenceId}");
+    }
+
     return 0;
 }
 catch (Exception ex)

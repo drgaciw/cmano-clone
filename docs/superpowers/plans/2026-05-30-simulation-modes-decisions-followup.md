@@ -14,4 +14,4 @@
 - [x] DELEG-9 — `AttachReplayViewer` on orchestrator + bridge guard + tests
 - [x] `dotnet test ProjectAegis.sln`
 - [x] `npx gitnexus detect_changes --repo cmano-clone`
-- [ ] `gt submit --stack --no-interactive`
+- [x] Stack landed on `main` via GitHub PRs #5–#9 (2026-05-30); `gt submit` N/A — local stack branches obsolete

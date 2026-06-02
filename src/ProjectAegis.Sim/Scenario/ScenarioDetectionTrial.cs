@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Scenario;
 
-/// <summary>Scenario-authored detection trial (until Platform DB basePd).</summary>
+/// <summary>Scenario-authored detection trial; basePd may come from catalog via <see cref="DetectionTrialResolver"/>.</summary>
 public sealed record ScenarioDetectionTrial(
     string ObserverId,
     string SensorId,

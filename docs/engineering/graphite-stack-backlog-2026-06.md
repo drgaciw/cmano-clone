@@ -2,22 +2,20 @@
 
 **Trunk:** `main` · **Graphite:** `gt submit --stack` from bottom branch of each stack.
 
-## Stack A — Delegation (submit first)
+## Stack A — Delegation (**COMPLETE** on `main`, 2026-06-02)
 
 | ID | Branch | PR title | Status |
 |----|--------|----------|--------|
-| DELEG-1 | `stack/delegation/sim-core` | feat(sim): policy, engage MVP, scenario JSON | Merged / in stack |
-| DELEG-2 | `stack/delegation/orchestrator` | feat(delegation): ROE adapter, session, order log union | In stack |
-| DELEG-3 | `stack/delegation/phase-gate` | feat(delegation): planning/execution phase gate | In stack |
-| DELEG-4 | `stack/delegation/player-info` | feat(delegation): player info filter | In stack |
+| DELEG-1 | `stack/delegation/sim-core` | feat(sim): policy, engage MVP, scenario JSON | **Merged** |
+| DELEG-2 | `stack/delegation/orchestrator` | feat(delegation): ROE adapter, session, order log union | **Merged** |
+| DELEG-3 | `stack/delegation/phase-gate` | feat(delegation): planning/execution phase gate | **Merged** |
+| DELEG-4 | `stack/delegation/player-info` | feat(delegation): player info filter | **Merged** |
 | DELEG-5 | `stack/delegation/bridge-engage` | feat(delegation): bridge MVP engage wiring | **Merged #13** |
+| DELEG-6–10 | sim-modes / dual-side / observer / req04 | See `graphite-stack-delegation-2026-05-30.md` | **Merged #5–#9, #12** |
 
-```powershell
-gt checkout stack/delegation/sim-core
-gt submit --stack --no-interactive
-```
+**Do not** `gt submit` this stack — local `stack/delegation/*` tips are stale (51+ commits behind `main`). Delete local/remote stack branches after confirming `main` has the feature.
 
-**Gate per slice:** `dotnet test ProjectAegis.sln`
+**Gate:** `dotnet test ProjectAegis.sln` — 129 passed @ `5a8b7d1`
 
 ---
 
@@ -91,3 +89,23 @@ Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 | 2026-06-01 | Baltic slice **complete** on main (#17–#19); 105 tests; gate PASS — see `docs/reports/baltic-headless-slice-gate-2026-06-01.md` |
 | 2026-06-01 | Next epic: `sensor-headless-slice` (ContactChange + scenario contacts); sensor GDD still In Review |
 | 2026-06-02 | `sensor-headless-slice` implemented on branch `stack/sensor-contact-change` — 110 tests |
+| 2026-06-02 | Delegation stack A **closed** on `main`; stale `stack/delegation/*` branches deleted |
+| 2026-06-02 | P0 DATA docs on `main` (`5d43d76`); DATA-1 scaffold already merged; stale `stack/data/*` deleted |
+| 2026-06-02 | Sprint 1 + next epics scaffolded (platform-db-basepd, policy-engage, mission-runtime, checkpoints, combat-outcomes) |
+
+---
+
+## Stack F — Platform DB (next, from `main`)
+
+| ID | Branch | PR title | Status |
+|----|--------|----------|--------|
+| DATA-1 | — | `ProjectAegis.Data` scaffold | **On main** |
+| DATA-2 | `stack/data/basepd` | feat(data): catalog basePd + detection wiring | **Not started** |
+
+```powershell
+git checkout main && git pull
+gt checkout main
+gt create -m "feat(data): catalog basePd for detection loop [DATA-2]" stack/data/basepd
+```
+
+**Gate:** `dotnet test ProjectAegis.sln` + sorted-read determinism tests

@@ -1,22 +1,44 @@
 namespace ProjectAegis.Sim.Engage;
 
-/// <summary>MVP resolver: fire-control track, envelope/DLZ, magazine consumption.</summary>
+using ProjectAegis.Sim.Policy;
+
+/// <summary>MVP resolver: policy, fire-control track, envelope/DLZ, magazine consumption.</summary>
 public sealed class MvpEngagementResolver : IEngagementResolver
 {
     private readonly IEngageWorldQuery _world;
     private readonly MagazineLedger _magazines;
+    private readonly IPolicyEvaluator? _policyEvaluator;
+    private readonly Func<ulong, EffectivePolicy>? _resolvePolicy;
     private ulong _nextEngagementId = 1;
 
-    public MvpEngagementResolver(IEngageWorldQuery world, MagazineLedger magazines)
+    public MvpEngagementResolver(
+        IEngageWorldQuery world,
+        MagazineLedger magazines,
+        IPolicyEvaluator? policyEvaluator = null,
+        Func<ulong, EffectivePolicy>? resolvePolicy = null)
     {
         _world = world;
         _magazines = magazines;
+        _policyEvaluator = policyEvaluator;
+        _resolvePolicy = resolvePolicy;
     }
 
     public MagazineLedger Magazines => _magazines;
 
     public EngageResult Resolve(in EngageRequest request)
     {
+        if (_policyEvaluator != null)
+        {
+            var effective = _resolvePolicy?.Invoke(request.ShooterUnitId) ?? EffectivePolicy.DefaultFree;
+            var policyCtx = new PolicyContext(request.ShooterUnitId, 0, request.SimTick, effective);
+            var action = new ActionRequest(ActionKind.FireGuided, request.TargetId, request.MountId);
+            var verdict = _policyEvaluator.Evaluate(in policyCtx, in action);
+            if (!verdict.Allowed)
+            {
+                return EngageResult.Aborted(MapPolicyDenial(verdict.Reason));
+            }
+        }
+
         if (!_world.TryGetContext(request, out var ctx))
         {
             return EngageResult.Aborted(EngagementAbortReason.NoFireControlTrack);
@@ -54,4 +76,14 @@ public sealed class MvpEngagementResolver : IEngagementResolver
 
         return EngageResult.Launch(_nextEngagementId++);
     }
+
+    private static EngagementAbortReason MapPolicyDenial(FireAbortReason reason) =>
+        reason switch
+        {
+            FireAbortReason.RoeHoldFire => EngagementAbortReason.RoeHoldFire,
+            FireAbortReason.WeaponsTight => EngagementAbortReason.WeaponsTight,
+            FireAbortReason.EmconOff => EngagementAbortReason.EmconOff,
+            FireAbortReason.NoFireControlTrack => EngagementAbortReason.NoFireControlTrack,
+            _ => EngagementAbortReason.RoeHoldFire,
+        };
 }

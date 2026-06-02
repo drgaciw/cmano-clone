@@ -17,8 +17,11 @@ public sealed class ScenarioPolicyProfile
         IReadOnlyList<ScenarioContactSeed>? contactSeeds = null,
         IReadOnlyDictionary<string, EmconState>? unitRadarEmcon = null,
         IReadOnlyList<ScenarioDetectionTrial>? detectionTrials = null,
+        IReadOnlyList<ScenarioCatalogDetectionTarget>? catalogDetectionTargets = null,
         IReadOnlyList<ScenarioJammer>? jammers = null,
-        ScenarioContactLifecycle? contactLifecycle = null)
+        ScenarioContactLifecycle? contactLifecycle = null,
+        ScenarioReplaySettings? replaySettings = null,
+        ScenarioMissionTimeline? missionTimeline = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -30,8 +33,11 @@ public sealed class ScenarioPolicyProfile
         ContactSeeds = contactSeeds ?? Array.Empty<ScenarioContactSeed>();
         UnitRadarEmcon = unitRadarEmcon ?? new Dictionary<string, EmconState>();
         DetectionTrials = detectionTrials ?? Array.Empty<ScenarioDetectionTrial>();
+        CatalogDetectionTargets = catalogDetectionTargets ?? Array.Empty<ScenarioCatalogDetectionTarget>();
         Jammers = jammers ?? Array.Empty<ScenarioJammer>();
         ContactLifecycle = contactLifecycle ?? ScenarioContactLifecycle.Default;
+        ReplaySettings = replaySettings ?? ScenarioReplaySettings.Default;
+        MissionTimeline = missionTimeline;
     }
 
     public string Id { get; init; } = "";
@@ -57,9 +63,16 @@ public sealed class ScenarioPolicyProfile
 
     public IReadOnlyList<ScenarioDetectionTrial> DetectionTrials { get; }
 
+    /// <summary>Trials resolved via <see cref="DetectionTrialResolver"/> when <see cref="DetectionTrials"/> is empty.</summary>
+    public IReadOnlyList<ScenarioCatalogDetectionTarget> CatalogDetectionTargets { get; }
+
     public IReadOnlyList<ScenarioJammer> Jammers { get; }
 
     public ScenarioContactLifecycle ContactLifecycle { get; }
+
+    public ScenarioReplaySettings ReplaySettings { get; }
+
+    public ScenarioMissionTimeline? MissionTimeline { get; }
 
     public EngageContext ResolveEngageContext()
     {

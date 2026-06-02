@@ -1,4 +1,5 @@
 using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Policy;
 using Xunit;
 
 namespace ProjectAegis.Sim.Tests.Engage;
@@ -43,6 +44,23 @@ public sealed class MvpEngagementResolverTests
 
         var result = resolver.Resolve(request);
         Assert.Equal(EngagementAbortReason.EmconOff, result.AbortReason);
+    }
+
+    [Fact]
+    public void Hold_fire_policy_denies_before_envelope_check()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var evaluator = new PolicyEvaluator(_ => new EffectivePolicy(RoeLevel.HoldFire));
+        var resolver = new MvpEngagementResolver(
+            world,
+            new MagazineLedger(),
+            evaluator,
+            _ => new EffectivePolicy(RoeLevel.HoldFire));
+        var request = new EngageRequest(1, 2, 0, 0);
+        world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true));
+
+        var result = resolver.Resolve(request);
+        Assert.Equal(EngagementAbortReason.RoeHoldFire, result.AbortReason);
     }
 
     [Fact]

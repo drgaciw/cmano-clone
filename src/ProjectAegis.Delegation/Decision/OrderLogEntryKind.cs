@@ -10,4 +10,6 @@ public enum OrderLogEntryKind
     GroupMemberRejoin = 5,
     MagazineChange = 6,
     ContactChange = 7,
+    MissionTransition = 8,
+    EventFired = 9,
 }

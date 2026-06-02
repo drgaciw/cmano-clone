@@ -57,11 +57,37 @@ public static class ScenarioPolicyJsonLoader
             ParseContactSeeds(dto.Contacts),
             ParseUnitRadarEmcon(dto.Emcon),
             ParseDetectionTrials(dto.Detection),
+            ParseCatalogDetectionTargets(dto.CatalogDetection),
             ParseJammers(dto.Jammers),
-            ParseContactLifecycle(dto.ContactLifecycle))
+            ParseContactLifecycle(dto.ContactLifecycle),
+            ParseReplaySettings(dto.Replay),
+            ParseMissionTimeline(dto.Mission))
         {
             Id = dto.Id,
         };
+    }
+
+    private static ScenarioReplaySettings ParseReplaySettings(ScenarioReplayJsonDto? replay) =>
+        replay == null
+            ? ScenarioReplaySettings.Default
+            : new ScenarioReplaySettings(Math.Max(1, replay.CheckpointIntervalTicks));
+
+    private static ScenarioMissionTimeline? ParseMissionTimeline(ScenarioMissionJsonDto? mission)
+    {
+        if (mission?.Events == null || mission.Events.Count == 0)
+        {
+            return null;
+        }
+
+        var fireOrder = mission.FireOrder ?? [];
+        var events = mission.Events
+            .Select(e => new ScenarioMissionEvent(
+                e.Id,
+                e.FireAtTick,
+                e.Kind,
+                e.Code))
+            .ToArray();
+        return new ScenarioMissionTimeline(fireOrder, events);
     }
 
     private static ScenarioContactLifecycle ParseContactLifecycle(ScenarioContactLifecycleJsonDto? lifecycle) =>
@@ -78,6 +104,25 @@ public static class ScenarioPolicyJsonLoader
 
         return jammers
             .Select(j => new ScenarioJammer(j.TargetId, j.JamStrength, j.ActiveFromTick, j.ObserverId))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ScenarioCatalogDetectionTarget> ParseCatalogDetectionTargets(
+        List<ScenarioCatalogDetectionJsonDto>? catalogDetection)
+    {
+        if (catalogDetection == null || catalogDetection.Count == 0)
+        {
+            return Array.Empty<ScenarioCatalogDetectionTarget>();
+        }
+
+        return catalogDetection
+            .Select(d => new ScenarioCatalogDetectionTarget(
+                d.ObserverId,
+                d.SensorId,
+                d.TargetId,
+                d.ContactId,
+                d.EnvMask,
+                d.JamStrength))
             .ToArray();
     }
 

@@ -6,4 +6,7 @@
     <RootNamespace>ProjectAegis.Sim</RootNamespace>
     <Description>Pure C# simulation core contracts and tick runner (no UnityEngine).</Description>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
+  </ItemGroup>
 </Project>

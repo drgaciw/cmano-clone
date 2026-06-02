@@ -38,7 +38,13 @@ public sealed class SimulationSession
         var seed = SimSeed.FromScenario((ulong)orchestrator.GlobalSeed);
         var world = new DictionaryEngageWorldQuery();
         var magazines = new MagazineLedger();
-        var sim = new SimTickPipeline(seed, new MvpEngagementResolver(world, magazines));
+        var sim = new SimTickPipeline(
+            seed,
+            new MvpEngagementResolver(
+                world,
+                magazines,
+                orchestrator.PolicyEvaluator,
+                orchestrator.ResolveEffectivePolicyForUnit));
         return new SimulationSession(orchestrator, sim)
         {
             EngageWorld = world,
