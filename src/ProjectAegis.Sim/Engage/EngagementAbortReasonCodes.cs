@@ -1,5 +1,7 @@
 namespace ProjectAegis.Sim.Engage;
 
+using ProjectAegis.Sim.Policy;
+
 /// <summary>Stable order-log codes for engagement aborts (doc 14 / order-log-replay).</summary>
 public static class EngagementAbortReasonCodes
 {
@@ -15,6 +17,7 @@ public static class EngagementAbortReasonCodes
             EngagementAbortReason.DlzOut => nameof(EngagementAbortReason.DlzOut),
             EngagementAbortReason.MagazineEmpty => nameof(EngagementAbortReason.MagazineEmpty),
             EngagementAbortReason.NoFireControlTrack => nameof(EngagementAbortReason.NoFireControlTrack),
+            EngagementAbortReason.EmconOff => nameof(FireAbortReason.EmconOff),
             _ => reason.ToString(),
         };
 }

@@ -54,11 +54,33 @@ public static class ScenarioPolicyJsonLoader
             ParsePersonalityEditPolicy(dto.PersonalityEditPolicy),
             ParseEngageDefaults(dto.Engage),
             dto.AllowDualSideControl ?? false,
-            ParseContactSeeds(dto.Contacts))
+            ParseContactSeeds(dto.Contacts),
+            ParseUnitRadarEmcon(dto.Emcon))
         {
             Id = dto.Id,
         };
     }
+
+    private static IReadOnlyDictionary<string, EmconState> ParseUnitRadarEmcon(ScenarioEmconJsonDto? emcon)
+    {
+        if (emcon?.Units == null || emcon.Units.Count == 0)
+        {
+            return new Dictionary<string, EmconState>();
+        }
+
+        var map = new Dictionary<string, EmconState>(StringComparer.OrdinalIgnoreCase);
+        foreach (var pair in emcon.Units)
+        {
+            map[pair.Key] = ParseEmconState(pair.Value.Radar);
+        }
+
+        return map;
+    }
+
+    private static EmconState ParseEmconState(string value) =>
+        Enum.TryParse<EmconState>(value, ignoreCase: true, out var state)
+            ? state
+            : throw new InvalidDataException($"Unknown EMCON radar value: {value}");
 
     private static IReadOnlyList<ScenarioContactSeed> ParseContactSeeds(List<ScenarioContactJsonDto>? contacts)
     {

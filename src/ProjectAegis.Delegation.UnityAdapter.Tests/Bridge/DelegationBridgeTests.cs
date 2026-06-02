@@ -203,6 +203,8 @@ public sealed class DelegationBridgeTests
         public bool HasFireControlTrackOnPrimaryContact =>
             ContactCount > 0 && hasFireControlTrack;
 
+        public bool ObserverRadarEmconActive => true;
+
         public bool IsMemberAlive(TargetId memberId) =>
             Alive.TryGetValue(memberId, out var alive) && alive;
     }

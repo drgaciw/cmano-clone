@@ -196,7 +196,11 @@ public sealed class SimulationSession
 
         if (DefaultEngageContext is { } template)
         {
-            var primed = template with { HasFireControlTrack = state.HasFireControlTrack };
+            var primed = template with
+            {
+                HasFireControlTrack = state.HasFireControlTrack,
+                RadarEmconActive = state.RadarEmconActive,
+            };
             EngageWorld.Set(request, primed);
         }
         else if (!EngageWorld.TryGetContext(request, out _))

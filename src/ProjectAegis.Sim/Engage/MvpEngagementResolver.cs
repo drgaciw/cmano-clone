@@ -22,6 +22,11 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(EngagementAbortReason.NoFireControlTrack);
         }
 
+        if (!ctx.RadarEmconActive)
+        {
+            return EngageResult.Aborted(EngagementAbortReason.EmconOff);
+        }
+
         if (!ctx.HasFireControlTrack)
         {
             return EngageResult.Aborted(EngagementAbortReason.NoFireControlTrack);

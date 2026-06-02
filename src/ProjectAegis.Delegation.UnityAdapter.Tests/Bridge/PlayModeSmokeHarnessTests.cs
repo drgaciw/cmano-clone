@@ -134,6 +134,8 @@ public sealed class PlayModeSmokeHarnessTests
         public bool HasFireControlTrackOnPrimaryContact =>
             _contactCount > 0 && _hasFireControlTrack;
 
+        public bool ObserverRadarEmconActive => true;
+
         public IReadOnlyList<(EntityKey Entity, Order Order)> AppliedOrders => _applied;
 
         public void AdvanceTime(double delta) => _simTime += delta;

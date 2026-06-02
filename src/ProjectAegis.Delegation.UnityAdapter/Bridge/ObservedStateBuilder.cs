@@ -19,6 +19,7 @@ public static class ObservedStateBuilder
             snapshot.ActiveEngagementCount,
             alive,
             snapshot.HasFireControlTrackOnPrimaryContact,
-            snapshot.PrimaryHostileContactId);
+            snapshot.PrimaryHostileContactId,
+            snapshot.ObserverRadarEmconActive);
     }
 }

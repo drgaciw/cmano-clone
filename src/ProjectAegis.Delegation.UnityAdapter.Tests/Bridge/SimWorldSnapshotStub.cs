@@ -35,6 +35,8 @@ internal sealed class SimWorldSnapshotStub : ISimWorldSnapshot
 
     public bool HasFireControlTrackOnPrimaryContact { get; }
 
+    public bool ObserverRadarEmconActive { get; } = true;
+
     private bool MemberAlive { get; }
 
     public bool IsMemberAlive(TargetId memberId) => MemberAlive;

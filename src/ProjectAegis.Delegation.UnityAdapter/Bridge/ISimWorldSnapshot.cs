@@ -23,4 +23,7 @@ public interface ISimWorldSnapshot
 
     /// <summary>Fire-control quality track on <see cref="PrimaryHostileContactId"/>.</summary>
     bool HasFireControlTrackOnPrimaryContact { get; }
+
+    /// <summary>Primary observer radar EMCON allows active illumination (Active = true).</summary>
+    bool ObserverRadarEmconActive { get; }
 }

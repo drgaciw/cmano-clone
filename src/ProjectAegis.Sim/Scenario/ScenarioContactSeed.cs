@@ -6,4 +6,5 @@ public sealed record ScenarioContactSeed(
     string TargetId,
     string ContactId,
     ulong AppearAtTick,
-    bool HasFireControlTrack = true);
+    bool HasFireControlTrack = true,
+    bool RequiresActiveRadar = true);

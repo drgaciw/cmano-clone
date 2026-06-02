@@ -19,6 +19,18 @@ public sealed class ScenarioPolicyJsonDto
     public ScenarioEngageJsonDto? Engage { get; set; }
 
     public List<ScenarioContactJsonDto>? Contacts { get; set; }
+
+    public ScenarioEmconJsonDto? Emcon { get; set; }
+}
+
+public sealed class ScenarioEmconJsonDto
+{
+    public Dictionary<string, ScenarioUnitEmconJsonDto>? Units { get; set; }
+}
+
+public sealed class ScenarioUnitEmconJsonDto
+{
+    public string Radar { get; set; } = "Active";
 }
 
 public sealed class ScenarioContactJsonDto

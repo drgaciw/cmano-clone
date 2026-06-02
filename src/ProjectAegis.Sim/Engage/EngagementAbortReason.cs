@@ -7,4 +7,5 @@ public enum EngagementAbortReason
     DlzOut = 2,
     MagazineEmpty = 3,
     NoFireControlTrack = 4,
+    EmconOff = 5,
 }

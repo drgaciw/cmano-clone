@@ -8,7 +8,8 @@ public sealed record ObservedState(
     int ActiveEngagementCount,
     IReadOnlyDictionary<TargetId, bool> MemberAlive,
     bool HasFireControlTrack = true,
-    TargetId? PrimaryHostileContactId = null);
+    TargetId? PrimaryHostileContactId = null,
+    bool RadarEmconActive = true);
 
 public sealed record PerceivedState(
     double SimTime,

@@ -1,17 +1,22 @@
 namespace ProjectAegis.Sim.Sensors;
 
+using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>Deterministic scenario contact appearances (MVP: Unknown → Detected).</summary>
 public sealed class ScenarioContactSimulator
 {
     private readonly ScenarioContactSeed[] _seeds;
+    private readonly IReadOnlyDictionary<string, EmconState>? _unitRadarEmcon;
     private readonly HashSet<string> _active = new(StringComparer.Ordinal);
     private string? _primaryTargetId;
     private bool _primaryHasTrack;
 
-    public ScenarioContactSimulator(IReadOnlyList<ScenarioContactSeed> seeds)
+    public ScenarioContactSimulator(
+        IReadOnlyList<ScenarioContactSeed> seeds,
+        IReadOnlyDictionary<string, EmconState>? unitRadarEmcon = null)
     {
+        _unitRadarEmcon = unitRadarEmcon;
         _seeds = seeds
             .OrderBy(s => s.ObserverId, StringComparer.Ordinal)
             .ThenBy(s => s.TargetId, StringComparer.Ordinal)
@@ -36,6 +41,12 @@ public sealed class ScenarioContactSimulator
         foreach (var seed in _seeds)
         {
             if (seed.AppearAtTick != simTick || _active.Contains(seed.ContactId))
+            {
+                continue;
+            }
+
+            if (seed.RequiresActiveRadar &&
+                ScenarioEmconResolver.ResolveRadar(seed.ObserverId, _unitRadarEmcon) != EmconState.Active)
             {
                 continue;
             }

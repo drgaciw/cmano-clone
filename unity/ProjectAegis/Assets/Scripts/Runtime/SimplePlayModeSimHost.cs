@@ -31,6 +31,8 @@ namespace ProjectAegis.Unity.Runtime
         public bool HasFireControlTrackOnPrimaryContact =>
             contactCount > 0 && hasFireControlTrack;
 
+        public bool ObserverRadarEmconActive => true;
+
         public IReadOnlyList<(EntityKey Entity, Order Order)> AppliedOrders => _applied;
 
         private void Reset()
