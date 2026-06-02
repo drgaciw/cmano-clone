@@ -29,6 +29,33 @@ public sealed class ScenarioPolicyJsonDto
     public List<ScenarioJammerJsonDto>? Jammers { get; set; }
 
     public ScenarioContactLifecycleJsonDto? ContactLifecycle { get; set; }
+
+    public ScenarioReplayJsonDto? Replay { get; set; }
+
+    public ScenarioMissionJsonDto? Mission { get; set; }
+}
+
+public sealed class ScenarioReplayJsonDto
+{
+    public int CheckpointIntervalTicks { get; set; } = 300;
+}
+
+public sealed class ScenarioMissionJsonDto
+{
+    public List<string> FireOrder { get; set; } = [];
+
+    public List<ScenarioMissionEventJsonDto> Events { get; set; } = [];
+}
+
+public sealed class ScenarioMissionEventJsonDto
+{
+    public string Id { get; set; } = "";
+
+    public ulong FireAtTick { get; set; }
+
+    public string Kind { get; set; } = "MissionTransition";
+
+    public string Code { get; set; } = "";
 }
 
 public sealed class ScenarioContactLifecycleJsonDto

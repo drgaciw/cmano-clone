@@ -1,6 +1,6 @@
 # Epic: Mission Runtime Headless Slice
 
-> **Status:** Blocked on GDD gate  
+> **Status:** MVP Complete (headless timeline + order log)  
 > **Priority:** P0 — completes "plan" leg of plan→fight→replay  
 > **Created:** 2026-06-02  
 > **Depends on:** [order-log-replay.md](../../design/gdd/order-log-replay.md), [agentic-mission-editor.md](../../design/gdd/agentic-mission-editor.md)  

@@ -14,6 +14,8 @@ public sealed class DecisionLog
     private readonly List<GroupMemberRejoinRecord> _groupMemberRejoins = new();
     private readonly List<MagazineChangeRecord> _magazineChanges = new();
     private readonly List<ContactChangeRecord> _contactChanges = new();
+    private readonly List<MissionTransitionRecord> _missionTransitions = new();
+    private readonly List<EventFiredRecord> _eventFired = new();
 
     public IReadOnlyList<DecisionRecord> Records => _records;
 
@@ -30,6 +32,10 @@ public sealed class DecisionLog
     public IReadOnlyList<MagazineChangeRecord> MagazineChanges => _magazineChanges;
 
     public IReadOnlyList<ContactChangeRecord> ContactChanges => _contactChanges;
+
+    public IReadOnlyList<MissionTransitionRecord> MissionTransitions => _missionTransitions;
+
+    public IReadOnlyList<EventFiredRecord> EventFired => _eventFired;
 
     public void Append(DecisionRecord record)
     {
@@ -57,6 +63,12 @@ public sealed class DecisionLog
 
     public void AppendContactChange(ContactChangeRecord change) =>
         _contactChanges.Add(change with { SequenceId = NextSequence() });
+
+    public void AppendMissionTransition(MissionTransitionRecord transition) =>
+        _missionTransitions.Add(transition with { SequenceId = NextSequence() });
+
+    public void AppendEventFired(EventFiredRecord fired) =>
+        _eventFired.Add(fired with { SequenceId = NextSequence() });
 
     /// <summary>Unified timeline sorted by sequence (ADR-003 MVP).</summary>
     public IReadOnlyList<OrderLogEntry> ChronologicalEntries()
@@ -106,6 +118,16 @@ public sealed class DecisionLog
             entries.Add(new OrderLogEntry(c.SequenceId, OrderLogEntryKind.ContactChange, c.SimTime, c));
         }
 
+        foreach (var m in _missionTransitions)
+        {
+            entries.Add(new OrderLogEntry(m.SequenceId, OrderLogEntryKind.MissionTransition, m.SimTime, m));
+        }
+
+        foreach (var e in _eventFired)
+        {
+            entries.Add(new OrderLogEntry(e.SequenceId, OrderLogEntryKind.EventFired, e.SimTime, e));
+        }
+
         return entries.OrderBy(e => e.SequenceId).ToArray();
     }
 
@@ -147,6 +169,10 @@ public sealed class DecisionLog
                 $"{m.SimTick}|{m.ShooterTargetId.Value}|{m.MountId}|{m.Delta}|{m.ReasonCode}",
             OrderLogEntryKind.ContactChange when entry.Payload is ContactChangeRecord c =>
                 $"{c.SimTick}|{c.ObserverId}|{c.ContactId}|{c.TargetId}|{c.PreviousState}|{c.NewState}",
+            OrderLogEntryKind.MissionTransition when entry.Payload is MissionTransitionRecord m =>
+                $"{m.SimTick}|{m.EventId}|{m.PhaseCode}",
+            OrderLogEntryKind.EventFired when entry.Payload is EventFiredRecord f =>
+                $"{f.SimTick}|{f.EventId}|{f.EventCode}",
             _ => "?",
         };
 

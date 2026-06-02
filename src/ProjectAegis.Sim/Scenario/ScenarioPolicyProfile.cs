@@ -19,7 +19,9 @@ public sealed class ScenarioPolicyProfile
         IReadOnlyList<ScenarioDetectionTrial>? detectionTrials = null,
         IReadOnlyList<ScenarioCatalogDetectionTarget>? catalogDetectionTargets = null,
         IReadOnlyList<ScenarioJammer>? jammers = null,
-        ScenarioContactLifecycle? contactLifecycle = null)
+        ScenarioContactLifecycle? contactLifecycle = null,
+        ScenarioReplaySettings? replaySettings = null,
+        ScenarioMissionTimeline? missionTimeline = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -34,6 +36,8 @@ public sealed class ScenarioPolicyProfile
         CatalogDetectionTargets = catalogDetectionTargets ?? Array.Empty<ScenarioCatalogDetectionTarget>();
         Jammers = jammers ?? Array.Empty<ScenarioJammer>();
         ContactLifecycle = contactLifecycle ?? ScenarioContactLifecycle.Default;
+        ReplaySettings = replaySettings ?? ScenarioReplaySettings.Default;
+        MissionTimeline = missionTimeline;
     }
 
     public string Id { get; init; } = "";
@@ -65,6 +69,10 @@ public sealed class ScenarioPolicyProfile
     public IReadOnlyList<ScenarioJammer> Jammers { get; }
 
     public ScenarioContactLifecycle ContactLifecycle { get; }
+
+    public ScenarioReplaySettings ReplaySettings { get; }
+
+    public ScenarioMissionTimeline? MissionTimeline { get; }
 
     public EngageContext ResolveEngageContext()
     {

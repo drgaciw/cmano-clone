@@ -1,6 +1,6 @@
 # Epic: Order Log Replay Checkpoints Slice
 
-> **Status:** Ready  
+> **Status:** MVP Complete (harness checkpoints + CLI)  
 > **Priority:** P1 — deepens replay leg  
 > **Created:** 2026-06-02  
 > **Depends on:** `WORLD_HASH` slice (complete), Baltic harness CLI  

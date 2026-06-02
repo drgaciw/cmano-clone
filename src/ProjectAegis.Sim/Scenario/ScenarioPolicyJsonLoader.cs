@@ -59,10 +59,35 @@ public static class ScenarioPolicyJsonLoader
             ParseDetectionTrials(dto.Detection),
             ParseCatalogDetectionTargets(dto.CatalogDetection),
             ParseJammers(dto.Jammers),
-            ParseContactLifecycle(dto.ContactLifecycle))
+            ParseContactLifecycle(dto.ContactLifecycle),
+            ParseReplaySettings(dto.Replay),
+            ParseMissionTimeline(dto.Mission))
         {
             Id = dto.Id,
         };
+    }
+
+    private static ScenarioReplaySettings ParseReplaySettings(ScenarioReplayJsonDto? replay) =>
+        replay == null
+            ? ScenarioReplaySettings.Default
+            : new ScenarioReplaySettings(Math.Max(1, replay.CheckpointIntervalTicks));
+
+    private static ScenarioMissionTimeline? ParseMissionTimeline(ScenarioMissionJsonDto? mission)
+    {
+        if (mission?.Events == null || mission.Events.Count == 0)
+        {
+            return null;
+        }
+
+        var fireOrder = mission.FireOrder ?? [];
+        var events = mission.Events
+            .Select(e => new ScenarioMissionEvent(
+                e.Id,
+                e.FireAtTick,
+                e.Kind,
+                e.Code))
+            .ToArray();
+        return new ScenarioMissionTimeline(fireOrder, events);
     }
 
     private static ScenarioContactLifecycle ParseContactLifecycle(ScenarioContactLifecycleJsonDto? lifecycle) =>
