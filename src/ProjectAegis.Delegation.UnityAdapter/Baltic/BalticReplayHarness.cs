@@ -104,22 +104,24 @@ public static class BalticReplayHarness
                     switch (emission.Event.Kind)
                     {
                         case MissionEventKind.MissionTransition:
-                            bridge.Orchestrator.DecisionLog.AppendMissionTransition(
-                                new MissionTransitionRecord(
-                                    emission.SequenceId,
-                                    emission.SimTime,
-                                    emission.SimTick,
-                                    emission.Event.EventId,
-                                    emission.Event.Code));
+                            bridge.Orchestrator.OrderLog.Append(
+                                OrderLogEntryFactories.FromMissionTransition(
+                                    new MissionTransitionRecord(
+                                        emission.SequenceId,
+                                        emission.SimTime,
+                                        emission.SimTick,
+                                        emission.Event.EventId,
+                                        emission.Event.Code)));
                             break;
                         case MissionEventKind.EventFired:
-                            bridge.Orchestrator.DecisionLog.AppendEventFired(
-                                new EventFiredRecord(
-                                    emission.SequenceId,
-                                    emission.SimTime,
-                                    emission.SimTick,
-                                    emission.Event.EventId,
-                                    emission.Event.Code));
+                            bridge.Orchestrator.OrderLog.Append(
+                                OrderLogEntryFactories.FromEventFired(
+                                    new EventFiredRecord(
+                                        emission.SequenceId,
+                                        emission.SimTime,
+                                        emission.SimTick,
+                                        emission.Event.EventId,
+                                        emission.Event.Code)));
                             break;
                     }
                 }
@@ -130,7 +132,7 @@ public static class BalticReplayHarness
                 : scheduleSim?.Tick(simTick, harness.SimTime) ?? Array.Empty<ContactTransition>();
             foreach (var transition in transitions)
             {
-                bridge.Orchestrator.DecisionLog.AppendContactTransition(transition);
+                bridge.Orchestrator.OrderLog.AppendContactTransition(transition);
             }
 
             bridge.Tick(harness, harness);
@@ -141,7 +143,7 @@ public static class BalticReplayHarness
                 {
                     foreach (var killTransition in pdSim.ApplyTargetKill(simTick, harness.SimTime, label))
                     {
-                        bridge.Orchestrator.DecisionLog.AppendContactTransition(killTransition);
+                        bridge.Orchestrator.OrderLog.AppendContactTransition(killTransition);
                     }
                 }
             }

@@ -122,7 +122,7 @@ public sealed class AgentController : IController
         var gateResult = gate.Evaluate(Autonomy, order, playerApproved: false);
         if (gateResult.Rejected && gateResult.PolicyDenialReason != FireAbortReason.None)
         {
-            log.AppendPolicyDenial(new PolicyDenialRecord(
+            log.Append(OrderLogEntryFactories.FromPolicyDenial(new PolicyDenialRecord(
                 SequenceId: 0,
                 state.SimTime,
                 SimTick: (ulong)Math.Max(0, (long)state.SimTime),
@@ -130,7 +130,7 @@ public sealed class AgentController : IController
                 targetId,
                 PolicySnapshotId,
                 gateResult.PolicyDenialReason,
-                order.Kind));
+                order.Kind)));
         }
 
         if (gateResult.ExecuteNow)

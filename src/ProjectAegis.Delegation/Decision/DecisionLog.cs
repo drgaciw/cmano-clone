@@ -58,8 +58,26 @@ public sealed class DecisionLog : IOrderLog
             case OrderLogEntryKind.EngagementOutcome when entry.Payload is EngagementOutcomeRecord outcome:
                 _engagementOutcomes.Add(outcome with { SequenceId = sequenceId });
                 break;
+            case OrderLogEntryKind.MagazineChange when entry.Payload is MagazineChangeRecord magazine:
+                _magazineChanges.Add(magazine with { SequenceId = sequenceId });
+                break;
             case OrderLogEntryKind.ContactChange when entry.Payload is ContactChangeRecord contact:
                 _contactChanges.Add(contact with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.MissionTransition when entry.Payload is MissionTransitionRecord mission:
+                _missionTransitions.Add(mission with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.EventFired when entry.Payload is EventFiredRecord fired:
+                _eventFired.Add(fired with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.ControllerChange when entry.Payload is ControllerChangeRecord controller:
+                _controllerChanges.Add(controller with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.GroupMemberDetach when entry.Payload is GroupMemberDetachRecord detach:
+                _groupMemberDetaches.Add(detach with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.GroupMemberRejoin when entry.Payload is GroupMemberRejoinRecord rejoin:
+                _groupMemberRejoins.Add(rejoin with { SequenceId = sequenceId });
                 break;
             default:
                 throw new ArgumentException($"Unsupported order log entry kind: {entry.Kind}", nameof(entry));
@@ -70,34 +88,34 @@ public sealed class DecisionLog : IOrderLog
         Append(OrderLogEntry.FromDecisionRecord(record, (ulong)Math.Max(0, (long)record.SimTime)));
 
     public void AppendPolicyDenial(PolicyDenialRecord denial) =>
-        _policyDenials.Add(denial with { SequenceId = NextSequence() });
+        Append(OrderLogEntryFactories.FromPolicyDenial(denial));
 
     public void AppendEngagement(EngagementRecord engagement) =>
-        _engagements.Add(engagement with { SequenceId = NextSequence() });
+        Append(OrderLogEntryFactories.FromEngagement(engagement));
 
     public void AppendControllerChange(ControllerChangeRecord change) =>
-        _controllerChanges.Add(change with { SequenceId = NextSequence() });
+        Append(OrderLogEntryFactories.FromControllerChange(change));
 
     public void AppendGroupMemberDetach(GroupMemberDetachRecord detach) =>
-        _groupMemberDetaches.Add(detach with { SequenceId = NextSequence() });
+        Append(OrderLogEntryFactories.FromGroupMemberDetach(detach));
 
     public void AppendGroupMemberRejoin(GroupMemberRejoinRecord rejoin) =>
-        _groupMemberRejoins.Add(rejoin with { SequenceId = NextSequence() });
+        Append(OrderLogEntryFactories.FromGroupMemberRejoin(rejoin));
 
     public void AppendMagazineChange(MagazineChangeRecord change) =>
-        _magazineChanges.Add(change with { SequenceId = NextSequence() });
+        Append(OrderLogEntryFactories.FromMagazineChange(change));
 
     public void AppendContactChange(ContactChangeRecord change) =>
-        _contactChanges.Add(change with { SequenceId = NextSequence() });
+        Append(OrderLogEntryFactories.FromContactChange(change));
 
     public void AppendMissionTransition(MissionTransitionRecord transition) =>
-        _missionTransitions.Add(transition with { SequenceId = NextSequence() });
+        Append(OrderLogEntryFactories.FromMissionTransition(transition));
 
     public void AppendEventFired(EventFiredRecord fired) =>
-        _eventFired.Add(fired with { SequenceId = NextSequence() });
+        Append(OrderLogEntryFactories.FromEventFired(fired));
 
     public void AppendEngagementOutcome(EngagementOutcomeRecord outcome) =>
-        _engagementOutcomes.Add(outcome with { SequenceId = NextSequence() });
+        Append(OrderLogEntryFactories.FromEngagementOutcome(outcome));
 
     /// <summary>Unified timeline sorted by sequence (ADR-003 MVP).</summary>
     public IReadOnlyList<OrderLogEntry> ChronologicalEntries()

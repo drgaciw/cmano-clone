@@ -1,3 +1,6 @@
 # baltic-patrol-mission seed=42 ticks=4
 WORLD_HASH=17144800277401907079
 DETECTION_WORLD_HASH=15600
+
+MissionTransition|1|1|1|start-exec|Execution
+EventFired|2|1|1|contact-window|contact_window_open

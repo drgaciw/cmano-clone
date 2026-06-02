@@ -140,29 +140,29 @@ public sealed class SimulationSession
                 var code = result.Launched
                     ? EngagementAbortReasonCodes.Launched
                     : EngagementAbortReasonCodes.ToLogCode(result.AbortReason);
-                Orchestrator.DecisionLog.AppendEngagement(new EngagementRecord(
+                Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromEngagement(new EngagementRecord(
                     SequenceId: 0,
                     state.SimTime,
                     simTick,
                     order.Target,
                     result.EngagementId,
                     result.Launched,
-                    code));
+                    code)));
 
                 if (result.Launched)
                 {
-                    Orchestrator.DecisionLog.AppendMagazineChange(new MagazineChangeRecord(
+                    Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromMagazineChange(new MagazineChangeRecord(
                         SequenceId: 0,
                         state.SimTime,
                         simTick,
                         order.Target,
                         MountId: 0,
                         Delta: -1,
-                        MagazineChangeReasonCodes.Fire));
+                        MagazineChangeReasonCodes.Fire)));
 
                     if (result.OutcomeCode != null)
                     {
-                        Orchestrator.DecisionLog.AppendEngagementOutcome(new EngagementOutcomeRecord(
+                        Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromEngagementOutcome(new EngagementOutcomeRecord(
                             SequenceId: 0,
                             state.SimTime,
                             simTick,
@@ -170,7 +170,7 @@ public sealed class SimulationSession
                             victim,
                             result.EngagementId,
                             result.OutcomeCode,
-                            result.PkDraw));
+                            result.PkDraw)));
                     }
 
                     if (result.OutcomeCode == EngagementOutcomeCodes.Kill &&
@@ -183,14 +183,14 @@ public sealed class SimulationSession
             }
             else
             {
-                Orchestrator.DecisionLog.AppendEngagement(new EngagementRecord(
+                Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromEngagement(new EngagementRecord(
                     SequenceId: 0,
                     state.SimTime,
                     simTick,
                     order.Target,
                     EngagementId: 0,
                     Launched: false,
-                    EngagementAbortReasonCodes.NoResult));
+                    EngagementAbortReasonCodes.NoResult)));
             }
         }
     }

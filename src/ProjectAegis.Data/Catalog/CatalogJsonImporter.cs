@@ -7,30 +7,49 @@ using Microsoft.Data.Sqlite;
 /// <summary>Imports catalog sensor rows from JSON into SQLite (DATA-2 file drop).</summary>
 public static class CatalogJsonImporter
 {
-    public static void ImportToSqlite(string jsonPath, string databasePath, bool overwrite = true)
+    internal static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
+    public static IReadOnlyList<CatalogSensorBinding> ReadSensorBindings(string jsonPath)
     {
         if (!File.Exists(jsonPath))
         {
             throw new FileNotFoundException($"Catalog JSON not found: {jsonPath}");
         }
 
+        var dto = JsonSerializer.Deserialize<CatalogSensorsFileDto>(
+            File.ReadAllText(jsonPath),
+            JsonOptions) ?? throw new InvalidDataException("Catalog JSON deserialized to null.");
+
+        return dto.Sensors
+            .OrderBy(s => s.PlatformId, StringComparer.Ordinal)
+            .ThenBy(s => s.SensorId, StringComparer.Ordinal)
+            .Select(s => new CatalogSensorBinding(
+                s.PlatformId,
+                s.SensorId,
+                s.BasePd,
+                s.SourceFactId,
+                s.Confidence))
+            .ToArray();
+    }
+
+    public static void WriteSqlite(string databasePath, IReadOnlyList<CatalogSensorBinding> bindings, bool overwrite = true)
+    {
         if (overwrite && File.Exists(databasePath))
         {
             File.Delete(databasePath);
         }
 
-        using (var _ = new SqliteCatalogReader(databasePath, "p0-json-import"))
+        using (var _ = new SqliteCatalogReader(databasePath, "p0-json-write"))
         {
         }
 
-        var dto = JsonSerializer.Deserialize<CatalogSensorsFileDto>(
-            File.ReadAllText(jsonPath),
-            JsonOptions) ?? throw new InvalidDataException("Catalog JSON deserialized to null.");
-
         using var connection = new SqliteConnection($"Data Source={databasePath}");
         connection.Open();
-        foreach (var sensor in dto.Sensors.OrderBy(s => s.PlatformId, StringComparer.Ordinal)
-                     .ThenBy(s => s.SensorId, StringComparer.Ordinal))
+        foreach (var sensor in bindings)
         {
             using var cmd = connection.CreateCommand();
             cmd.CommandText =
@@ -47,16 +66,19 @@ public static class CatalogJsonImporter
         }
     }
 
+    public static void ImportToSqlite(string jsonPath, string databasePath, bool overwrite = true) =>
+        WriteSqlite(databasePath, ReadSensorBindings(jsonPath), overwrite);
+
     public static string ResolveBalticSensorsJsonPath() => ResolveRepoRelative(
         Path.Combine("assets", "data", "catalog", "sensors_baltic.json"));
 
-    private static string ResolveRepoRelative(string relativePath)
+    internal static string ResolveRepoRelative(string relativePath)
     {
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir != null)
         {
             var candidate = Path.Combine(dir.FullName, relativePath);
-            if (File.Exists(candidate))
+            if (File.Exists(candidate) || Directory.Exists(candidate))
             {
                 return candidate;
             }
@@ -67,19 +89,13 @@ public static class CatalogJsonImporter
         return relativePath;
     }
 
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true,
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-    };
-
-    private sealed class CatalogSensorsFileDto
+    internal sealed class CatalogSensorsFileDto
     {
         [JsonPropertyName("sensors")]
         public List<CatalogSensorRowDto> Sensors { get; init; } = [];
     }
 
-    private sealed class CatalogSensorRowDto
+    internal sealed class CatalogSensorRowDto
     {
         public string PlatformId { get; init; } = "";
 
