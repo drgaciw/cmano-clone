@@ -17,6 +17,7 @@ if (-not (Test-Path $unityExe)) {
 Set-Location $repoRoot
 dotnet build ProjectAegis.sln -c Release -v minimal
 & (Join-Path $repoRoot "tools/copy-delegation-assemblies.ps1")
+& (Join-Path $repoRoot "tools/Test-UnityPluginAssemblies.ps1")
 
 Write-Host "Pass 1: import packages and compile scripts..."
 $importArgs = @(

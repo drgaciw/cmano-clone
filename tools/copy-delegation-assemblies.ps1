@@ -1,30 +1,28 @@
-# Copies Release builds of delegation assemblies into unity/ProjectAegis/Plugins for Unity import.
+# Copies netstandard2.1 publish output into unity/ProjectAegis/Assets/Plugins/ProjectAegis for Unity import.
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 
 Push-Location $root
 try {
-    dotnet build ProjectAegis.sln -c Release -v minimal
     $plugins = Join-Path $root "unity/ProjectAegis/Assets/Plugins/ProjectAegis"
     New-Item -ItemType Directory -Force -Path $plugins | Out-Null
 
     $tfm = "netstandard2.1"
-    $dlls = @(
-        "src/ProjectAegis.Data/bin/Release/$tfm/ProjectAegis.Data.dll",
-        "src/ProjectAegis.Sim/bin/Release/$tfm/ProjectAegis.Sim.dll",
-        "src/ProjectAegis.Delegation/bin/Release/$tfm/ProjectAegis.Delegation.dll",
-        "src/ProjectAegis.Delegation.UnityAdapter/bin/Release/$tfm/ProjectAegis.Delegation.UnityAdapter.dll"
-    )
-
-    foreach ($dll in $dlls) {
-        $src = Join-Path $root $dll
-        if (-not (Test-Path $src)) {
-            throw "Missing build output: $src"
-        }
-        Copy-Item -Force $src (Join-Path $plugins (Split-Path -Leaf $src))
+    $publishDir = Join-Path $root ".tmp-unity-plugin-publish"
+    if (Test-Path $publishDir) {
+        Remove-Item -Recurse -Force $publishDir
     }
 
-    Write-Host "Copied delegation assemblies to $plugins"
+    dotnet publish (Join-Path $root "src/ProjectAegis.Delegation.UnityAdapter/ProjectAegis.Delegation.UnityAdapter.csproj") `
+        -c Release -f $tfm -o $publishDir -v minimal
+
+    Get-ChildItem $publishDir -Filter *.dll | ForEach-Object {
+        Copy-Item -Force $_.FullName (Join-Path $plugins $_.Name)
+    }
+
+    Remove-Item -Recurse -Force $publishDir
+
+    Write-Host "Copied delegation assemblies and dependencies to $plugins"
 }
 finally {
     Pop-Location

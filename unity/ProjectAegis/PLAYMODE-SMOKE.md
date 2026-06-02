@@ -5,8 +5,9 @@
 From repo root:
 
 ```powershell
-dotnet build ProjectAegis.sln -c Release
-./tools/init-unity-project.ps1
+./tools/Test-UnityPluginAssemblies.ps1   # fails fast if plugins missing
+./tools/copy-delegation-assemblies.ps1   # if guardrail fails
+./tools/unity/Invoke-DelegationSmokeSceneSetup.ps1   # optional: batchmode compile + DelegationSmoke.unity
 ```
 
 Open `unity/ProjectAegis` in **Unity Hub 6.3 LTS** (6000.3.x).
