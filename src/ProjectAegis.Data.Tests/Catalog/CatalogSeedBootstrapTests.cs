@@ -13,8 +13,11 @@ public sealed class CatalogSeedBootstrapTests
         {
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath);
             using var reader = new SqliteCatalogReader(dbPath, "p0-seed-test");
-            Assert.True(reader.TryGetBasePd("u1", "radar-1", out var basePd));
-            Assert.Equal(1.0, basePd);
+            Assert.True(reader.TryGetBasePd("u1", "radar-1", out var radar1));
+            Assert.Equal(1.0, radar1);
+            Assert.True(reader.TryGetBasePd("u1", "radar-2", out var radar2));
+            Assert.Equal(0.75, radar2);
+            Assert.Equal(2, reader.GetSortedSensorBindings().Count);
         }
         finally
         {

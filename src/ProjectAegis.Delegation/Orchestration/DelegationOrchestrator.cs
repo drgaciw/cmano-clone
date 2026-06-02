@@ -56,6 +56,9 @@ public sealed class DelegationOrchestrator
 
     public DecisionLog DecisionLog { get; }
 
+    /// <summary>ADR-003 C1: unified order-log read surface.</summary>
+    public IOrderLog OrderLog => DecisionLog;
+
     public IReadOnlyList<Order> ExecutedOrders { get; private set; } = Array.Empty<Order>();
 
     public IReadOnlyList<TrustSignal> TrustSignals => _trustSignals;
