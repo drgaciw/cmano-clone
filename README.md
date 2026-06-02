@@ -19,18 +19,24 @@ The repository contains requirements documentation and an initial **agent delega
 
 [![.NET CI](https://github.com/drgaciw/cmano-clone/actions/workflows/dotnet-ci.yml/badge.svg?branch=main)](https://github.com/drgaciw/cmano-clone/actions/workflows/dotnet-ci.yml)
 
-Build and test (requires [.NET 8 SDK](https://dotnet.microsoft.com/download)):
+Build and test (requires [.NET 8 SDK](https://dotnet.microsoft.com/download) **8.0.400**, see `global.json`):
 
 ```bash
 dotnet test ProjectAegis.sln -v minimal
 dotnet run --project src/ProjectAegis.Delegation.Demo
 ```
 
-**CI / branch protection:** [docs/engineering/ci-and-branch-protection.md](docs/engineering/ci-and-branch-protection.md) — GitHub Actions gates, required checks for `main`, Graphite notes, optional Unity license workflow.
+**Local CI parity** (same steps as [.NET CI](.github/workflows/dotnet-ci.yml) / [dotnet-reusable.yml](.github/workflows/dotnet-reusable.yml)):
+
+```powershell
+.\tools\verify-ci-local.ps1
+```
+
+**CI / branch protection:** [docs/engineering/ci-and-branch-protection.md](docs/engineering/ci-and-branch-protection.md) — GitHub Actions gates (`build_test` on PR and `main`), Graphite PR-only CI, post-merge replay golden tests, Dependabot, optional Unity license workflow. Manual branch protection checklist: [issue #37](https://github.com/drgaciw/cmano-clone/issues/37).
 
 **Cursor Cloud agents:** see the [Cursor Cloud specific instructions](AGENTS.md#cursor-cloud-specific-instructions) section in `AGENTS.md` (headless build/test, Play Mode smoke harness, `.cursor/cloud-install.sh` bootstrap via `.cursor/environment.json`).
 
-Unity project scaffolding and simulation core are not started yet. Requirements live under `Game-Requirements/`.
+Headless simulation and delegation spine are implemented (`ProjectAegis.Sim`, Baltic replay harness, sensor classify FSM, UI Toolkit C2/message log). Unity project lives under `unity/ProjectAegis/` (Editor optional; headless smoke in CI). Requirements live under `Game-Requirements/`.
 
 ## Tech Stack
 
