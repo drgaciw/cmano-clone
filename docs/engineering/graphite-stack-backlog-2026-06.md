@@ -10,7 +10,7 @@
 | DELEG-2 | `stack/delegation/orchestrator` | feat(delegation): ROE adapter, session, order log union | In stack |
 | DELEG-3 | `stack/delegation/phase-gate` | feat(delegation): planning/execution phase gate | In stack |
 | DELEG-4 | `stack/delegation/player-info` | feat(delegation): player info filter | In stack |
-| DELEG-5 | `stack/delegation/bridge-engage` | feat(delegation): bridge MVP engage wiring | **PR #13** — merged main, **97 tests**, ready to merge |
+| DELEG-5 | `stack/delegation/bridge-engage` | feat(delegation): bridge MVP engage wiring | **Merged #13** |
 
 ```powershell
 gt checkout stack/delegation/sim-core
@@ -25,8 +25,8 @@ gt submit --stack --no-interactive
 
 | ID | Branch | PR title | Status |
 |----|--------|----------|--------|
-| SIM-1 | `stack/sim/engage-scenario` | feat(sim): scenario-driven engage priming | **PR #14** — base **#13**, rebased on DELEG-5 |
-| SIM-2 | `stack/sim/engage-log` | feat(sim): engagement order-log contract | **PR #15** — stacked on #14 |
+| SIM-1 | `stack/sim/engage-scenario` | feat(sim): scenario-driven engage priming | **Merged #14** |
+| SIM-2 | `stack/sim/engage-log` | feat(sim): engagement order-log contract | **Merged #15** |
 
 ```powershell
 git checkout main && git pull
@@ -46,7 +46,7 @@ gt submit --stack --no-interactive
 
 | ID | Branch | PR title | Status |
 |----|--------|----------|--------|
-| UNT-2 | `stack/unity/playmode-smoke` | feat(unity): play-mode smoke with engage | **PR #16** (draft) |
+| UNT-2 | `stack/unity/playmode-smoke` | feat(unity): play-mode smoke with engage | **Merged #16** |
 
 Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 
@@ -88,4 +88,5 @@ Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 |------|------|
 | 2026-06-01 | Backlog created; DELEG-5 bridge uses `SimulationSession.BindMvpEngagement` |
 | 2026-06-01 | Integration pass: #13 merged main; #14–#16 restacked; logistics GDD Approved; Baltic epic scaffold |
-| 2026-06-01 | Baltic slice on main: #17 harness, #18 MagazineChange; story-003 contact/track (PR pending) |
+| 2026-06-01 | Baltic slice **complete** on main (#17–#19); 105 tests; gate PASS — see `docs/reports/baltic-headless-slice-gate-2026-06-01.md` |
+| 2026-06-01 | Next epic: `sensor-headless-slice` (ContactChange + scenario contacts); sensor GDD still In Review |

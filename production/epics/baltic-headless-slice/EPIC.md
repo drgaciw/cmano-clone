@@ -1,7 +1,8 @@
 # Epic: Baltic Headless Vertical Slice
 
-> **Status:** Ready for stories  
+> **Status:** Complete  
 > **Created:** 2026-06-01  
+> **Completed:** 2026-06-01  
 > **Priority:** MVP  
 > **Layer:** Core + Feature (sim/delegation only)
 
@@ -15,7 +16,7 @@ Deliver a **plan → fight → replay** loop without C2 UI: run a seeded Baltic-
 - `DelegationBridge` + `SimulationSession` engage pipeline (merged DELEG-5 / SIM stacks)
 - Stable engagement order-log codes (`EngagementAbortReasonCodes`)
 - Headless harness: multi-tick + fingerprint tests (`PlayModeSmokeHarnessTests`, `ReplayOrderLogFingerprintTests`)
-- Logistics GDD P0: `MagazineChange` order-log rows (next story batch)
+- Logistics GDD P0: `MagazineChange` order-log rows
 
 ## Scope (out)
 
@@ -42,23 +43,23 @@ Deliver a **plan → fight → replay** loop without C2 UI: run a seeded Baltic-
 
 ## Acceptance (epic-level)
 
-1. `dotnet test ProjectAegis.sln` green on `main` after stack merge.
-2. Fixed seed + scenario id → identical `DecisionLog.ComputeFingerprint()` across two runs.
-3. At least one scenario produces `Launched` and one produces stable abort code in engagement log.
-4. Documented CLI or test entry point for “run N ticks, print fingerprint” (story).
+1. [x] `dotnet test ProjectAegis.sln` green on `main` (105 tests, 2026-06-01).
+2. [x] Fixed seed + scenario id → identical `DecisionLog.ComputeFingerprint()` across two runs.
+3. [x] `Launched` and stable abort codes (`NoFireControlTrack`) in engagement log.
+4. [x] CLI: `dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-patrol --ticks 4`.
 
 ## Stories
 
 | Story | Slug | Status |
 |-------|------|--------|
-| 001 | `story-001-replay-harness-cli.md` | Implemented on `chore/baltic-replay-harness` |
-| 002 | `story-002-magazine-change-order-log.md` | In Progress (PR pending) |
-| 003 | `story-003-minimal-contact-observed-state.md` | Complete |
+| 001 | `story-001-replay-harness-cli.md` | Complete (#17) |
+| 002 | `story-002-magazine-change-order-log.md` | Complete (#18) |
+| 003 | `story-003-minimal-contact-observed-state.md` | Complete (#19) |
 
 ## Engine risk
 
 Low — plain .NET 8; Unity adapter is thin facade.
 
-## Dependencies
+## Gate
 
-Merge order: **#13 → #14 → #15 → #16** (see `docs/engineering/graphite-stack-backlog-2026-06.md`).
+See `docs/reports/baltic-headless-slice-gate-2026-06-01.md` — **PASS** (headless vertical slice).
