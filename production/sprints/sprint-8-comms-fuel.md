@@ -1,7 +1,8 @@
 # Sprint 8 — Comms degradation + fuel readout
 
 **Dates:** 2026-06-02 → 2026-06-16  
-**Goal:** P0 cyber-comms order log, C2 indicators, engage guard, logistics fuel MVP line.
+**Goal:** P0 cyber-comms order log, C2 indicators, engage guard, logistics fuel MVP line.  
+**Status:** complete (headless) on `main` @ `25fefa6` (2026-06-02)
 
 ## Done (headless + Unity bindings)
 
@@ -13,9 +14,9 @@
 - [x] `FuelStateProjection` → unit detail `FUEL:` line (MVP thresholds)
 - [x] Tests: comms timeline, projection, Baltic replay, fuel projection
 
-## Remaining
+## Remaining (QA gate / P1)
 
-- [ ] Unity QA with `scenarioPolicyId` = `baltic-patrol-comms`
+- [ ] Unity QA with `scenarioPolicyId` = `baltic-patrol-comms` (shared manual sign-off)
 - [ ] Map ghost symbology when Degraded (P1)
 - [ ] Scenario-driven fuel from logistics GDD (replace time thresholds)
 

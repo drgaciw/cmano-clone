@@ -1,9 +1,9 @@
 # C2 manual QA sign-off — 2026-06-02
 
-**Build:** `main` @ Sprints 7–9 (local)  
+**Build:** `main` @ `2a08518` (Sprints 7–9 + Unity gitignore)  
 **Scenarios:** `baltic-patrol-classify` (selection), `baltic-patrol-comms` (COMMS + map stale)  
 **Reference:** `unity/ProjectAegis/PLAYMODE-SMOKE.md`  
-**Headless pre-check:** `production/qa/headless-smoke-evidence-2026-06-02.md` (PASS 237 tests)
+**Headless pre-check:** `production/qa/headless-smoke-evidence-2026-06-02.md` (PASS 238 tests)
 
 | # | Check | Pass | Tester | Notes |
 |---|--------|------|--------|-------|

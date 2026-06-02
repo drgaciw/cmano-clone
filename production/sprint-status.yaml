@@ -16,8 +16,13 @@ end: "2026-06-16"
 generated: "2026-06-02"
 updated: "2026-06-02"
 branch: main
-indexed_commit: 1f7423edab23afd272809ad5f2ff34698095570b
-tests_passed: 192
+indexed_commit: 2a08518f1eb727c6edbe1768e9f8a4ad9fcc39d3
+tests_passed: 238
+commits_sprints_7_9:
+  - sha: 25fefa6
+    message: "feat(c2): comms degrade, batch scoring CSV, and QA golden (Sprints 7-9)"
+  - sha: 2a08518
+    message: "chore(unity): harden gitignore for ProjectAegis Library cache"
 sprint1_status: complete
 merged_pr: "#36"
 
@@ -268,8 +273,10 @@ tests_passed_sprint6: 222
 
 sprint: 7
 goal: "Doc-17 scoring CSV export, cyber/comms GDD, Cesium spike prep."
+status: code-complete
 start: "2026-06-02"
 end: "2026-06-16"
+completed_code: "2026-06-02"
 
 sprint7_stories:
   - id: s7-csv-export
@@ -290,16 +297,21 @@ sprint7_stories:
     completed: "2026-06-02"
   - id: s7-qa-signoff
     name: C2 manual QA sign-off template
-    status: in-progress
+    status: done
+    completed: "2026-06-02"
+    note: "Checklist at production/qa/c2-manual-signoff-2026-06-02.md; execution tracked under qa_gate.unity_manual"
   - id: s7-cesium-spike
     name: Cesium spike scene (Editor)
     status: backlog
+    note: "docs/engineering/cesium-phase-b-spike-checklist.md"
 tests_passed_sprint7: 228
 
 sprint: 8
 goal: "Comms degradation order-log, C2 COMMS indicator, fuel readout, engage guard."
-status: in-progress
+status: complete
+completed: "2026-06-02"
 start: "2026-06-02"
+end: "2026-06-16"
 
 sprint8_stories:
   - id: s8-comms-log
@@ -350,3 +362,10 @@ qa_gate:
   tests_total: 238
   evidence: production/qa/headless-smoke-evidence-2026-06-02.md
   unity_manual: pending
+  indexed_commit: 2a08518
+  open:
+    - Unity manual C2 sign-off (12 checks)
+    - Cesium Phase B spike (Editor)
+  p1_backlog:
+    - Map ghost symbology when comms Degraded
+    - Scenario-driven fuel from logistics GDD

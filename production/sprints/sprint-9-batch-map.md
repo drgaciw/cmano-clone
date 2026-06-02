@@ -1,6 +1,7 @@
 # Sprint 9 — Batch CSV + degraded map symbology
 
-**Goal:** Agentic batch runner + comms-degraded map presentation (cyber GDD P1).
+**Goal:** Agentic batch runner + comms-degraded map presentation (cyber GDD P1).  
+**Status:** complete on `main` @ `25fefa6` (2026-06-02)
 
 ## Done
 
@@ -8,10 +9,10 @@
 - [x] `tools/batch-replay/README.md`
 - [x] Map `map-symbol--stale` / `--frozen` when comms Degraded / Denied
 - [x] `ScenarioPolicyRepository.AllIds()` for discovery
-- [x] Replay golden stability for `baltic-patrol-comms` (no hash file yet)
+- [x] Replay golden for `baltic-patrol-comms` (`tests/regression/replay-golden-baltic-comms-2026-06-02.txt`)
+- [x] Commit + push Sprints 7–9 (`25fefa6`, `2a08518` gitignore)
 
-## Next
+## Next (QA gate)
 
-- [ ] Commit Sprints 7–9
-- [ ] Unity QA comms + degraded map opacity
-- [ ] Cesium spike
+- [ ] Unity QA comms + degraded map opacity (manual sign-off items 9–10)
+- [ ] Cesium spike (Editor)

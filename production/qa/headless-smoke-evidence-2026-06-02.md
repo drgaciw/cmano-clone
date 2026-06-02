@@ -1,6 +1,6 @@
 # Headless smoke evidence — 2026-06-02
 
-**Branch:** `main` (uncommitted Sprints 7–9)  
+**Branch:** `main` @ `2a08518` (Sprints 7–9 + QA golden committed)  
 **Verifier:** automated `dotnet test` gate
 
 ## Commands run
@@ -15,7 +15,7 @@ dotnet test ProjectAegis.sln --filter "FullyQualifiedName~PlayModeSmokeHarnessTe
 
 | Gate | Result | Count |
 |------|--------|-------|
-| Full solution test | PASS | 237 tests, 0 failed |
+| Full solution test | PASS | 238 tests, 0 failed |
 | PlayMode harness + Replay golden + Batch + Comms filter | PASS | 26 tests, 0 failed |
 
 ## Regression coverage added
