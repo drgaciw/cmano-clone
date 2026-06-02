@@ -84,7 +84,11 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            _panelState = MapPanelBinder.Bind(bridgeHost.LastMapSymbols, bridgeHost.ScenarioPolicyId);
+            _panelState = MapPanelBinder.Bind(
+                bridgeHost.LastMapSymbols,
+                bridgeHost.ScenarioPolicyId,
+                bridgeHost.SelectedUnitId,
+                bridgeHost.SelectedContactId);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
             RebuildSymbols();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
@@ -106,7 +110,29 @@ namespace ProjectAegis.Unity.Runtime
                 };
                 label.AddToClassList("map-symbol");
                 label.AddToClassList(row.StyleClass);
+                label.userData = row.SymbolId;
+                label.RegisterCallback<ClickEvent>(_ => OnSymbolClicked(row.SymbolId));
                 _canvas.Add(label);
+            }
+        }
+
+        private void OnSymbolClicked(string symbolId)
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            var symbols = bridgeHost.LastMapSymbols;
+            if (C2SelectionResolver.TryResolveFriendlyUnitFromSymbol(symbolId, symbols, out var unitId))
+            {
+                bridgeHost.SelectUnit(unitId);
+                return;
+            }
+
+            if (C2SelectionResolver.TryResolveHostileContactFromSymbol(symbolId, symbols, out var contactId))
+            {
+                bridgeHost.SelectContact(contactId);
             }
         }
     }

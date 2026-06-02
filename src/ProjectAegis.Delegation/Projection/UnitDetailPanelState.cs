@@ -5,4 +5,5 @@ public sealed record UnitDetailPanelState(
     string StatusLine,
     string MagazineLine,
     string EmconLine,
-    string DoctrineLine);
+    string DoctrineLine,
+    string ContactLine);

@@ -6,5 +6,6 @@
         <ui:Label name="magazine-line" text="MAGAZINE: —" class="unit-detail-line" />
         <ui:Label name="emcon-line" text="EMCON: —" class="unit-detail-line" />
         <ui:Label name="doctrine-line" text="DOCTRINE: —" class="unit-detail-line" />
+        <ui:Label name="contact-line" text="CONTACT: —" class="unit-detail-line unit-detail-line--contact" />
     </ui:VisualElement>
 </ui:UXML>

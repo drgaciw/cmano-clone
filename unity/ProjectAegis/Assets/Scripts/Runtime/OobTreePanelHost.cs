@@ -98,7 +98,7 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            _panelState = OobTreePanelBinder.Bind(bridgeHost.LastOobTree);
+            _panelState = OobTreePanelBinder.Bind(bridgeHost.LastOobTree, bridgeHost.SelectedUnitId);
             if (_oobList != null)
             {
                 _oobList.itemsSource = _panelState.UnitRows;

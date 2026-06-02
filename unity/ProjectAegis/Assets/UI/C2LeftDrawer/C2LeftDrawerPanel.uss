@@ -16,3 +16,13 @@
 .c2-drawer-list--hidden {
     display: none;
 }
+
+.oob-row {
+    padding: 2px 4px;
+}
+
+.oob-row--selected {
+    background-color: rgba(74, 158, 255, 0.25);
+    border-left-width: 3px;
+    border-left-color: rgb(74, 158, 255);
+}

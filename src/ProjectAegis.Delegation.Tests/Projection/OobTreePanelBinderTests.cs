@@ -17,4 +17,16 @@ public sealed class OobTreePanelBinderTests
         Assert.That(state.UnitRows[1].DisplayLine, Does.Contain("DESTROYED"));
         Assert.That(state.UnitRows[1].IsAlive, Is.False);
     }
+
+    [Test]
+    public void Bind_selected_unit_marks_row_selected()
+    {
+        var state = OobTreePanelBinder.Bind(
+            [new OobTreeEntry("u1", true), new OobTreeEntry("u2", true)],
+            selectedUnitId: "u2");
+
+        Assert.That(state.UnitRows[0].IsSelected, Is.False);
+        Assert.That(state.UnitRows[1].IsSelected, Is.True);
+        Assert.That(state.UnitRows[1].StyleClass, Is.EqualTo("oob-row--selected"));
+    }
 }

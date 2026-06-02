@@ -35,3 +35,10 @@
     color: rgb(90, 110, 130);
     opacity: 0.5;
 }
+
+.map-symbol--selected {
+    border-color: rgb(255, 200, 80);
+    border-width: 1px;
+    background-color: rgba(255, 200, 80, 0.15);
+    padding: 2px;
+}

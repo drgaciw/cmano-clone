@@ -2,7 +2,7 @@ namespace ProjectAegis.Delegation.Projection;
 
 public static class UnitDetailPanelBinder
 {
-    public static UnitDetailPanelState Bind(UnitDetailEntry? entry)
+    public static UnitDetailPanelState Bind(UnitDetailEntry? entry, string? contactLine = null)
     {
         if (entry == null)
         {
@@ -11,7 +11,8 @@ public static class UnitDetailPanelBinder
                 "STATUS: —",
                 "MAGAZINE: —",
                 "EMCON: —",
-                "DOCTRINE: —");
+                "DOCTRINE: —",
+                contactLine ?? "CONTACT: —");
         }
 
         return new UnitDetailPanelState(
@@ -19,6 +20,7 @@ public static class UnitDetailPanelBinder
             $"STATUS: {entry.StatusLabel}",
             entry.MagazineLabel,
             entry.EmconLabel,
-            entry.DoctrineLabel);
+            entry.DoctrineLabel,
+            contactLine ?? "CONTACT: —");
     }
 }

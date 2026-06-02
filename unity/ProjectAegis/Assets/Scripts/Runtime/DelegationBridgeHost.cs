@@ -23,6 +23,12 @@ namespace ProjectAegis.Unity.Runtime
 
         public string ScenarioPolicyId => scenarioPolicyId;
 
+        public C2PresentationController Presentation { get; } = new();
+
+        public string? SelectedUnitId => Presentation.SelectedUnitId;
+
+        public string? SelectedContactId => Presentation.SelectedContactId;
+
         public DelegationBridge Bridge { get; private set; } = null!;
 
         /// <summary>MVP engage session (same orchestrator as <see cref="Bridge"/>).</summary>
@@ -54,6 +60,8 @@ namespace ProjectAegis.Unity.Runtime
         public SensorC2Snapshot LastSensorC2 { get; private set; } =
             new(Array.Empty<ContactPictureEntry>(), 0, true, false, null, 0);
 
+        private ISimWorldSnapshot? _lastSnapshot;
+
         private void Awake()
         {
             Bridge = new DelegationBridge(
@@ -65,20 +73,31 @@ namespace ProjectAegis.Unity.Runtime
 
         public void BeginExecution() => Bridge.BeginExecution();
 
+        public void SelectUnit(string unitId)
+        {
+            Presentation.SelectFriendlyUnit(unitId);
+            RefreshSelectionPresentation();
+        }
+
+        public void SelectContact(string contactId)
+        {
+            var contacts = ContactPictureProjection.Project(Bridge.Orchestrator.DecisionLog);
+            Presentation.SelectHostileContact(contactId, contacts);
+            RefreshSelectionPresentation();
+        }
+
         /// <summary>
         /// Call once per sim step after building snapshot and sink for this frame.
         /// </summary>
         public DelegationTickResult RunTick(ISimWorldSnapshot snapshot, IOrderSink sink)
         {
+            _lastSnapshot = snapshot;
             var result = Bridge.Tick(snapshot, sink);
             LastMessageLog = MessageLogBridge.ProjectFrom(Bridge.Orchestrator.DecisionLog);
             LastOobTree = OobTreeBridge.Build(snapshot, Bridge.Registry);
-            LastUnitDetail = UnitDetailBridge.BuildPrimary(
-                snapshot,
-                Bridge.Registry,
-                Bridge.Orchestrator.DecisionLog,
-                Bridge.Orchestrator.ScenarioPolicy);
+            Presentation.ApplyDefaultSelection(LastOobTree);
             LastSensorC2 = SensorC2Bridge.Build(snapshot, Bridge.Orchestrator.DecisionLog);
+            LastUnitDetail = Presentation.ResolveUnitDetail(snapshot, Bridge.Registry, Bridge);
             LastMapSymbols = MapPictureBridge.Build(
                 snapshot,
                 Bridge.Registry,
@@ -91,6 +110,16 @@ namespace ProjectAegis.Unity.Runtime
                 simulationModeLabel,
                 Bridge.Orchestrator.DecisionLog);
             return result;
+        }
+
+        private void RefreshSelectionPresentation()
+        {
+            if (_lastSnapshot == null)
+            {
+                return;
+            }
+
+            LastUnitDetail = Presentation.ResolveUnitDetail(_lastSnapshot, Bridge.Registry, Bridge);
         }
     }
 }

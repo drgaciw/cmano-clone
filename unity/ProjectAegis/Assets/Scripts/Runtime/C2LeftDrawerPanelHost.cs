@@ -142,13 +142,32 @@ namespace ProjectAegis.Unity.Runtime
 
                 if (listView == _oobList && index >= 0 && index < _oobState.UnitRows.Count)
                 {
-                    label.text = _oobState.UnitRows[index].DisplayLine;
+                    var row = _oobState.UnitRows[index];
+                    label.text = row.DisplayLine;
+                    label.ClearClassList();
+                    label.AddToClassList(row.StyleClass);
+                    if (!row.IsAlive)
+                    {
+                        label.AddToClassList("oob-row--dead");
+                    }
+
+                    label.userData = row.UnitId;
+                    label.UnregisterCallback<ClickEvent>(OnOobRowClicked);
+                    label.RegisterCallback<ClickEvent>(OnOobRowClicked);
                 }
                 else if (listView == _missionList && index >= 0 && index < _missionState.MissionRows.Count)
                 {
                     label.text = _missionState.MissionRows[index].DisplayLine;
                 }
             };
+        }
+
+        private void OnOobRowClicked(ClickEvent evt)
+        {
+            if (evt.currentTarget is Label { userData: string unitId } && bridgeHost != null)
+            {
+                bridgeHost.SelectUnit(unitId);
+            }
         }
 
         private void WireContactList(ListView? listView)
@@ -163,9 +182,21 @@ namespace ProjectAegis.Unity.Runtime
             {
                 if (element is Label label && index >= 0 && index < _contactState.ContactRows.Count)
                 {
-                    label.text = _contactState.ContactRows[index].DisplayLine;
+                    var row = _contactState.ContactRows[index];
+                    label.text = row.DisplayLine;
+                    label.userData = row.ContactId;
+                    label.UnregisterCallback<ClickEvent>(OnContactRowClicked);
+                    label.RegisterCallback<ClickEvent>(OnContactRowClicked);
                 }
             };
+        }
+
+        private void OnContactRowClicked(ClickEvent evt)
+        {
+            if (evt.currentTarget is Label { userData: string contactId } && bridgeHost != null)
+            {
+                bridgeHost.SelectContact(contactId);
+            }
         }
 
         private void SelectTab(DrawerTab tab)
@@ -214,7 +245,7 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            _oobState = OobTreePanelBinder.Bind(bridgeHost.LastOobTree);
+            _oobState = OobTreePanelBinder.Bind(bridgeHost.LastOobTree, bridgeHost.SelectedUnitId);
             _missionState = MissionListPanelBinder.Bind(bridgeHost.LastMissionList);
             _contactState = SensorC2PanelBinder.Bind(bridgeHost.LastSensorC2);
 

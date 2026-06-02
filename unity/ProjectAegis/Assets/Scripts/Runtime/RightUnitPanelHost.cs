@@ -16,6 +16,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string MagazineName = "magazine-line";
         private const string EmconName = "emcon-line";
         private const string DoctrineName = "doctrine-line";
+        private const string ContactName = "contact-line";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -28,6 +29,7 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _magazineLine;
         private Label? _emconLine;
         private Label? _doctrineLine;
+        private Label? _contactLine;
         private bool _wired;
 
         private void Reset()
@@ -89,6 +91,7 @@ namespace ProjectAegis.Unity.Runtime
             _magazineLine = panel.Q<Label>(MagazineName);
             _emconLine = panel.Q<Label>(EmconName);
             _doctrineLine = panel.Q<Label>(DoctrineName);
+            _contactLine = panel.Q<Label>(ContactName);
             _wired = _unitIdLine != null && _statusLine != null && _magazineLine != null &&
                      _emconLine != null && _doctrineLine != null;
 
@@ -105,12 +108,18 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            var state = UnitDetailPanelBinder.Bind(bridgeHost.LastUnitDetail);
+            var state = UnitDetailPanelBinder.Bind(
+                bridgeHost.LastUnitDetail,
+                bridgeHost.Presentation.ResolveContactLine());
             _unitIdLine!.text = state.UnitIdLine;
             _statusLine!.text = state.StatusLine;
             _magazineLine!.text = state.MagazineLine;
             _emconLine!.text = state.EmconLine;
             _doctrineLine!.text = state.DoctrineLine;
+            if (_contactLine != null)
+            {
+                _contactLine.text = state.ContactLine;
+            }
 
             var root = _document.rootVisualElement?.Q(RootName);
             if (root != null)

@@ -10,4 +10,5 @@ public sealed record MapSymbolDisplayRow(
     string Label,
     float NormalizedX,
     float NormalizedY,
-    string StyleClass);
+    string StyleClass,
+    bool IsSelected);
