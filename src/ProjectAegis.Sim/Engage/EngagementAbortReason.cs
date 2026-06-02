@@ -10,4 +10,5 @@ public enum EngagementAbortReason
     EmconOff = 5,
     RoeHoldFire = 6,
     WeaponsTight = 7,
+    TargetDestroyed = 8,
 }

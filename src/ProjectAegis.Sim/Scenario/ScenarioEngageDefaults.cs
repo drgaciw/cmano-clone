@@ -11,7 +11,8 @@ public sealed class ScenarioEngageDefaults
         double envelopeMaxMeters,
         int defaultMagazineRounds,
         bool hasFireControlTrack,
-        double pkBase = 0.85)
+        double pkBase = 0.85,
+        double pkKill = 1.0)
     {
         RangeMeters = rangeMeters;
         EnvelopeMinMeters = envelopeMinMeters;
@@ -19,6 +20,7 @@ public sealed class ScenarioEngageDefaults
         DefaultMagazineRounds = defaultMagazineRounds;
         HasFireControlTrack = hasFireControlTrack;
         PkBase = pkBase;
+        PkKill = pkKill;
     }
 
     public double RangeMeters { get; }
@@ -33,13 +35,16 @@ public sealed class ScenarioEngageDefaults
 
     public double PkBase { get; }
 
+    public double PkKill { get; }
+
     public EngageContext ToEngageContext(int roundsRemaining) =>
         new(
             RangeMeters,
             new WeaponEnvelope(EnvelopeMinMeters, EnvelopeMaxMeters),
             roundsRemaining,
             HasFireControlTrack,
-            PkBase: PkBase);
+            PkBase: PkBase,
+            PkKill: PkKill);
 
     public static ScenarioEngageDefaults MvpFallback { get; } = new(
         50_000,

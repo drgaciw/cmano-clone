@@ -167,4 +167,44 @@ public sealed class PdDetectionContactSimulator
             _primaryHasTrack = true;
         }
     }
+
+    /// <summary>Force-remove a destroyed target from the contact picture (combat kill).</summary>
+    public IReadOnlyList<ContactTransition> ApplyTargetKill(
+        ulong simTick,
+        double simTime,
+        string targetId)
+    {
+        var transitions = new List<ContactTransition>();
+        var lostContacts = _tracks.Keys
+            .Where(contactId => _trials.First(t => t.ContactId == contactId).TargetId == targetId)
+            .ToArray();
+
+        foreach (var contactId in lostContacts)
+        {
+            if (!_tracks.TryGetValue(contactId, out var track) ||
+                track.State == ContactLifecycleState.Lost)
+            {
+                continue;
+            }
+
+            track.State = ContactLifecycleState.Lost;
+            var trial = _trials.First(t => t.ContactId == contactId);
+            transitions.Add(new ContactTransition(
+                simTick,
+                simTime,
+                trial.ObserverId,
+                trial.ContactId,
+                trial.TargetId,
+                ContactLifecycleState.Detected,
+                ContactLifecycleState.Lost));
+            _detectedContacts.Remove(contactId);
+        }
+
+        if (lostContacts.Length > 0)
+        {
+            RecomputePrimary();
+        }
+
+        return transitions;
+    }
 }

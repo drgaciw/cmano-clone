@@ -38,18 +38,21 @@ public sealed class SimulationSession
         var seed = SimSeed.FromScenario((ulong)orchestrator.GlobalSeed);
         var world = new DictionaryEngageWorldQuery();
         var magazines = new MagazineLedger();
-        var sim = new SimTickPipeline(
+        var killedTargets = new KilledTargetRegistry();
+        var resolver = new MvpEngagementResolver(
+            world,
+            magazines,
+            orchestrator.PolicyEvaluator,
+            orchestrator.ResolveEffectivePolicyForUnit,
             seed,
-            new MvpEngagementResolver(
-                world,
-                magazines,
-                orchestrator.PolicyEvaluator,
-                orchestrator.ResolveEffectivePolicyForUnit,
-                seed));
+            killedTargets);
+        var sim = new SimTickPipeline(seed, resolver);
         return new SimulationSession(orchestrator, sim)
         {
             EngageWorld = world,
             Magazines = magazines,
+            KilledTargets = killedTargets,
+            MvpResolver = resolver,
             DefaultEngageContext = defaultEngageContext,
             DefaultMagazineRounds = defaultMagazineRounds,
         };
@@ -104,27 +107,33 @@ public sealed class SimulationSession
             .ToArray();
 
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
+        var queued = new List<(Order Order, TargetId Victim)>();
         foreach (var order in engageOrders)
         {
+            var victim = state.PrimaryHostileContactId ?? new TargetId("hostile-1");
+
             var request = new EngageRequest(
                 OrderActionMapper.TargetIdToUlong(order.Target),
-                TargetId: 0,
+                OrderActionMapper.TargetIdToUlong(victim),
                 MountId: 0,
                 SimTick: simTick);
             PrimeEngageWorld(request, state);
             Sim.EnqueueEngagement(request);
+            queued.Add((order, victim));
         }
 
         Sim.TickOnce(TimeCompressionMode.RealTime);
-        LogEngagementResults(state, engageOrders);
+        LogEngagementResults(state, queued);
     }
 
-    private void LogEngagementResults(ObservedState state, IReadOnlyList<Order> engageOrders)
+    private void LogEngagementResults(ObservedState state, IReadOnlyList<(Order Order, TargetId Victim)> queued)
     {
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
         var results = Sim.LastEngagementResults;
-        for (var i = 0; i < engageOrders.Count; i++)
+        var processed = Sim.LastProcessedEngagements;
+        for (var i = 0; i < queued.Count; i++)
         {
+            var (order, victim) = queued[i];
             if (i < results.Count)
             {
                 var result = results[i];
@@ -135,7 +144,7 @@ public sealed class SimulationSession
                     SequenceId: 0,
                     state.SimTime,
                     simTick,
-                    engageOrders[i].Target,
+                    order.Target,
                     result.EngagementId,
                     result.Launched,
                     code));
@@ -146,7 +155,7 @@ public sealed class SimulationSession
                         SequenceId: 0,
                         state.SimTime,
                         simTick,
-                        engageOrders[i].Target,
+                        order.Target,
                         MountId: 0,
                         Delta: -1,
                         MagazineChangeReasonCodes.Fire));
@@ -157,10 +166,18 @@ public sealed class SimulationSession
                             SequenceId: 0,
                             state.SimTime,
                             simTick,
-                            engageOrders[i].Target,
+                            order.Target,
+                            victim,
                             result.EngagementId,
                             result.OutcomeCode,
                             result.PkDraw));
+                    }
+
+                    if (result.OutcomeCode == EngagementOutcomeCodes.Kill &&
+                        i < processed.Count &&
+                        KilledTargets != null)
+                    {
+                        KilledTargets.MarkKilled(processed[i].TargetId, victim.Value);
                     }
                 }
             }
@@ -170,7 +187,7 @@ public sealed class SimulationSession
                     SequenceId: 0,
                     state.SimTime,
                     simTick,
-                    engageOrders[i].Target,
+                    order.Target,
                     EngagementId: 0,
                     Launched: false,
                     EngagementAbortReasonCodes.NoResult));
@@ -201,6 +218,10 @@ public sealed class SimulationSession
     public DictionaryEngageWorldQuery? EngageWorld { get; init; }
 
     public MagazineLedger? Magazines { get; init; }
+
+    public KilledTargetRegistry? KilledTargets { get; init; }
+
+    public MvpEngagementResolver? MvpResolver { get; init; }
 
     public EngageContext? DefaultEngageContext { get; init; }
 

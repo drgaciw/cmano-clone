@@ -14,6 +14,9 @@ public static class SimWorldHash
     public static ulong Combine(ulong coreHash, ulong detectionHash, ulong engageMix) =>
         MixLayer(MixLayer(coreHash, detectionHash, LayerDetection), engageMix, LayerEngage);
 
+    public static ulong Combine(ulong coreHash, ulong detectionHash, ulong engageMix, ulong killMix) =>
+        MixLayer(Combine(coreHash, detectionHash, engageMix), killMix, LayerCombatOutcome);
+
     public static ulong Fold(ulong x)
     {
         x ^= x >> 33;

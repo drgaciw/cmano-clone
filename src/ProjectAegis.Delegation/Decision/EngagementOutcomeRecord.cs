@@ -8,6 +8,7 @@ public sealed record EngagementOutcomeRecord(
     double SimTime,
     ulong SimTick,
     TargetId ShooterTargetId,
+    TargetId VictimTargetId,
     ulong EngagementId,
     string OutcomeCode,
     double PkDraw);
