@@ -17,4 +17,4 @@
 
 **Sprint:** [sprint-1-headless-mvp](../sprints/sprint-1-headless-mvp.md)
 
-**Next (engineering):** Platform DB `basePd` → policy–engage unification → replay checkpoints (parallel design gates for C1/C4)
+**Next (engineering):** CMO bulk catalog pipeline → intercept outcome row → full `AgentDecision` payload migration (C1 remainder)
