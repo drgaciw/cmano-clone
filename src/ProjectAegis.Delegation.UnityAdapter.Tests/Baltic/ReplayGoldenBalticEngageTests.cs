@@ -31,6 +31,7 @@ public sealed class ReplayGoldenBalticEngageTests
         Assert.That(result.DetectionWorldHash, Is.EqualTo(expectedDetectionHash));
         Assert.That(actualOutcomes.Length, Is.GreaterThanOrEqualTo(1));
         Assert.That(actualOutcomes[0], Does.Contain("|Kill|"));
+        Assert.That(result.Fingerprint, Does.Contain("Engage:1:High"));
         Assert.That(result.Fingerprint, Does.Contain("ContactChange|"));
         Assert.That(result.Fingerprint, Does.Contain("|Detected|Lost"));
     }

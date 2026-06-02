@@ -29,10 +29,7 @@ public static class CatalogBulkImporter
             }
         }
 
-        var sorted = merged.Values
-            .OrderBy(b => b.PlatformId, StringComparer.Ordinal)
-            .ThenBy(b => b.SensorId, StringComparer.Ordinal)
-            .ToArray();
+        var sorted = CatalogImportGate.ApplyMinimumConfidence(merged.Values);
 
         CatalogJsonImporter.WriteSqlite(databasePath, sorted, overwrite);
         return files.Length;
