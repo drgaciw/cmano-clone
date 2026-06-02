@@ -104,17 +104,20 @@ public sealed class AgentController : IController
             choice.Chosen.Kind,
             DefaultRiskClassifier.Classify(choice.Chosen.Kind));
 
-        log.Append(new DecisionRecord(
-            state.SimTime,
-            Id,
-            targetId,
-            Autonomy,
-            choice.Chosen.Kind,
-            candidates,
-            choice.Rationale,
-            attention.Load,
-            attention.Budget,
-            choice.RngDraw));
+        var simTick = (ulong)Math.Max(0, (long)state.SimTime);
+        log.Append(OrderLogEntry.FromDecisionRecord(
+            new DecisionRecord(
+                state.SimTime,
+                Id,
+                targetId,
+                Autonomy,
+                choice.Chosen.Kind,
+                candidates,
+                choice.Rationale,
+                attention.Load,
+                attention.Budget,
+                choice.RngDraw),
+            simTick));
 
         var gateResult = gate.Evaluate(Autonomy, order, playerApproved: false);
         if (gateResult.Rejected && gateResult.PolicyDenialReason != FireAbortReason.None)

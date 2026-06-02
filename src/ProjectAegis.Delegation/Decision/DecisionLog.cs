@@ -40,11 +40,34 @@ public sealed class DecisionLog : IOrderLog
 
     public IReadOnlyList<EngagementOutcomeRecord> EngagementOutcomes => _engagementOutcomes;
 
-    public void Append(DecisionRecord record)
+    public void Append(OrderLogEntry entry)
     {
-        _records.Add(record);
-        _decisionSequences.Add(NextSequence());
+        var sequenceId = entry.SequenceId == 0 ? NextSequence() : entry.SequenceId;
+        switch (entry.Kind)
+        {
+            case OrderLogEntryKind.AgentDecision when entry.Payload is DecisionRecord record:
+                _records.Add(record);
+                _decisionSequences.Add(sequenceId);
+                break;
+            case OrderLogEntryKind.PolicyDenial when entry.Payload is PolicyDenialRecord denial:
+                _policyDenials.Add(denial with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.Engagement when entry.Payload is EngagementRecord engagement:
+                _engagements.Add(engagement with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.EngagementOutcome when entry.Payload is EngagementOutcomeRecord outcome:
+                _engagementOutcomes.Add(outcome with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.ContactChange when entry.Payload is ContactChangeRecord contact:
+                _contactChanges.Add(contact with { SequenceId = sequenceId });
+                break;
+            default:
+                throw new ArgumentException($"Unsupported order log entry kind: {entry.Kind}", nameof(entry));
+        }
     }
+
+    public void Append(DecisionRecord record) =>
+        Append(OrderLogEntry.FromDecisionRecord(record, (ulong)Math.Max(0, (long)record.SimTime)));
 
     public void AppendPolicyDenial(PolicyDenialRecord denial) =>
         _policyDenials.Add(denial with { SequenceId = NextSequence() });

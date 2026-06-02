@@ -13,7 +13,7 @@
 | [policy-engage-unification-slice](policy-engage-unification-slice/EPIC.md) | **Complete** (same PR) | Core | ROE/EMCON denials in engage fingerprint |
 | [mission-runtime-headless-slice](mission-runtime-headless-slice/EPIC.md) | **MVP Complete** | Gameplay | `fire_order`, mission order-log rows |
 | [order-log-replay-checkpoints-slice](order-log-replay-checkpoints-slice/EPIC.md) | **MVP Complete** | Core | Checkpoints + scrub-to-tick |
-| [combat-outcomes-mvp-slice](combat-outcomes-mvp-slice/EPIC.md) | Not started | Simulation | Hit/miss after `Launched` |
+| [combat-outcomes-mvp-slice](combat-outcomes-mvp-slice/EPIC.md) | **Complete** (PR `stack/combat-followup`) | Simulation | Hit/miss/kill + destroy persistence |
 
 **Sprint:** [sprint-1-headless-mvp](../sprints/sprint-1-headless-mvp.md)
 
