@@ -1,0 +1,46 @@
+using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Decision;
+using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
+using NUnit.Framework;
+
+namespace ProjectAegis.Delegation.Tests.Projection;
+
+public sealed class UnitDetailProjectionTests
+{
+    [Test]
+    public void ProjectSelected_reflects_magazine_change_and_alive_state()
+    {
+        var log = new DecisionLog();
+        var unit = new TargetId("u1");
+        log.AppendMagazineChange(new MagazineChangeRecord(
+            1, 1.0, 1, unit, 0, -1, "fire"));
+        var policy = new ScenarioPolicyProfile(
+            EffectivePolicy.DefaultFree,
+            unitRadarEmcon: new Dictionary<string, EmconState> { ["u1"] = EmconState.Active });
+
+        var detail = UnitDetailProjection.ProjectSelected(
+            unit,
+            _ => true,
+            log,
+            policy);
+
+        Assert.That(detail!.MagazineLabel, Does.Contain("Δ-1"));
+        Assert.That(detail.EmconLabel, Does.Contain("ACTIVE"));
+        Assert.That(detail.DoctrineLabel, Does.Contain("WeaponsFree"));
+    }
+
+    [Test]
+    public void ProjectPrimary_picks_lowest_unit_id()
+    {
+        var members = new[] { new TargetId("u2"), new TargetId("u1") };
+        var detail = UnitDetailProjection.ProjectPrimary(
+            members,
+            _ => true,
+            new DecisionLog(),
+            null);
+        Assert.That(detail!.UnitId, Is.EqualTo("u1"));
+    }
+}

@@ -1,10 +1,14 @@
 namespace ProjectAegis.Delegation.Decision;
 
 using System.Text;
+using ProjectAegis.Delegation.Hindsight;
 
 public sealed class DecisionLog : IOrderLog
 {
     private ulong _sequenceId;
+
+    /// <summary>Optional sidecar hook; does not affect append semantics or fingerprints.</summary>
+    public IHindsightOrderLogHook? HindsightHook { get; set; }
     private readonly List<AgentDecisionPayload> _agentDecisions = new();
     private readonly List<ulong> _decisionSequences = new();
     private readonly List<PolicyDenialRecord> _policyDenials = new();
@@ -105,6 +109,21 @@ public sealed class DecisionLog : IOrderLog
             default:
                 throw new ArgumentException($"Unsupported order log entry kind: {entry.Kind}", nameof(entry));
         }
+
+        NotifyHindsight(entry, sequenceId);
+    }
+
+    private void NotifyHindsight(OrderLogEntry entry, ulong sequenceId)
+    {
+        if (HindsightHook is null)
+        {
+            return;
+        }
+
+        var notified = entry.SequenceId == 0
+            ? entry with { SequenceId = sequenceId }
+            : entry;
+        HindsightHook.OnAppended(notified);
     }
 
     public void Append(DecisionRecord record) =>

@@ -175,3 +175,87 @@ sprint2_backlog:
     priority: should-have
     status: done
     completed: "2026-06-02"
+
+sprint: 3
+goal: "Doc-20 C2 shell partial — full message log, OOB tree, mission list projections."
+start: "2026-06-03"
+end: "2026-06-17"
+updated: "2026-06-02"
+
+sprint3_stories:
+  - id: c2-001
+    name: Full message log (all order-log categories)
+    file: production/epics/c2-left-drawer-slice/story-001-full-message-log.md
+    priority: must-have
+    status: done
+    completed: "2026-06-02"
+  - id: c2-002
+    name: OOB tree projection + UI host
+    file: production/epics/c2-left-drawer-slice/story-002-oob-tree-projection.md
+    priority: must-have
+    status: done
+    completed: "2026-06-02"
+  - id: c2-003
+    name: Mission list projection
+    file: production/epics/c2-left-drawer-slice/story-003-mission-list-projection.md
+    priority: should-have
+    status: done
+    completed: "2026-06-02"
+tests_passed: 201
+
+sprint4_prep:
+  - id: c2-drawer-tabs
+    name: Tabbed C2 left drawer host (OOB/Missions/Contacts)
+    status: done
+    completed: "2026-06-02"
+  - id: mission-list-ui
+    name: MissionListPanelHost + scenario policy wiring
+    status: done
+    completed: "2026-06-02"
+  - id: vertical-slice-gate
+    name: MVP vertical slice PROCEED verdict
+    status: done
+    completed: "2026-06-02"
+tests_passed_sprint4: 203
+
+sprint4_stories:
+  - id: s4-ux-c2
+    name: C2 command post UX spec (doc 20)
+    status: done
+    completed: "2026-06-02"
+  - id: s4-gdd-combat
+    name: GDD combat-domains-damage
+    status: done
+    completed: "2026-06-02"
+  - id: s4-gdd-c2
+    name: GDD command-and-control-ui
+    status: done
+    completed: "2026-06-02"
+  - id: s4-unit-panel
+    name: Right unit detail projection + UI host
+    status: done
+    completed: "2026-06-02"
+tests_passed_sprint4_final: 206
+
+sprint5_stories:
+  - id: s5-adr-map
+    name: ADR-007 C2 map presentation
+    status: done
+    completed: "2026-06-02"
+  - id: s5-ux-map
+    name: UX c2-map-placeholder symbology
+    status: done
+    completed: "2026-06-02"
+  - id: s5-gdd-score
+    name: GDD scoring-losses
+    status: done
+    completed: "2026-06-02"
+  - id: s5-map-ui
+    name: MapPlaceholderPanelHost + projection
+    status: done
+    completed: "2026-06-02"
+  - id: s5-topbar
+    name: C2TopBarPanelHost + LossesScoringProjection
+    status: done
+    completed: "2026-06-02"
+tests_passed_sprint5: 209

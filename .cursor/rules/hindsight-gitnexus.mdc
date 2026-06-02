@@ -1,0 +1,18 @@
+---
+description: Pair GitNexus code intelligence with local Hindsight session memory for agentic development in cmano-clone.
+alwaysApply: false
+---
+
+# Hindsight + GitNexus
+
+When implementing or refactoring **C#** in this repo:
+
+1. **GitNexus** — `gitnexus_impact` before symbol edits; `gitnexus_detect_changes` before commit. See `AGENTS.md` gitnexus block.
+2. **Hindsight** — `recall` on `dev-cmano-clone` at session start; `retain` with `[OUTCOME:]` after each chunk. See `.claude/skills/hindsight/hindsight-gitnexus/SKILL.md`.
+
+Health: `.\tools\hindsight\Test-HindsightServer.ps1`  
+CLI: `.\tools\hindsight\Invoke-Hindsight.ps1`
+
+Spawn **`hindsight-dev-memory-lead`** for multi-step work or **`/team-hindsight-dev`**.
+
+Never use Hindsight recall/reflect inside simulation `Tick()` paths.

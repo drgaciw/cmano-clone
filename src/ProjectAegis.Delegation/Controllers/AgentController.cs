@@ -48,7 +48,12 @@ public sealed class AgentController : IController
 
     public AgentExperienceBlob Experience { get; }
 
+    /// <summary>Personality preset name when created via <see cref="DelegationOrchestrator.CreateAgentFromPreset"/>.</summary>
+    public string? PersonalitySlug { get; private set; }
+
     public ulong PolicySnapshotId { get; private set; }
+
+    internal void SetPersonalitySlug(string slug) => PersonalitySlug = slug;
 
     public EffectivePolicy EffectivePolicy { get; private set; } = EffectivePolicy.DefaultFree;
 

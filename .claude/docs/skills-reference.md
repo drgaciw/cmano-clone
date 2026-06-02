@@ -154,6 +154,17 @@ paired specialist agent.
 | `/onboard` | Generate contextual onboarding document for a new contributor or agent |
 | `/localize` | Localization workflow: string extraction, validation, translation readiness |
 
+## Hindsight + GitNexus (agentic dev)
+
+Local memory sidecar (`http://localhost:8888`). Use **with** GitNexus, not instead of it.
+
+| Command | Purpose |
+|---------|---------|
+| `/team-hindsight-dev` | Orchestrate `hindsight-dev-memory-lead` + GitNexus gates for multi-step C# work |
+| Skills under `.claude/skills/hindsight/` | `hindsight-gitnexus`, `hindsight-retain`, `hindsight-recall`, `hindsight-reflect`, `hindsight-dev-memory`, `hindsight-aar`, `hindsight-local-setup`, `hindsight-guide` |
+
+CLI: `.\tools\hindsight\Invoke-Hindsight.ps1`, `.\tools\hindsight\Test-HindsightServer.ps1`
+
 ## Team Orchestration
 
 Coordinate multiple agents on a single feature area:
@@ -169,3 +180,4 @@ Coordinate multiple agents on a single feature area:
 | `/team-level` | level-designer + narrative-director + world-builder + art-director + systems-designer + qa-tester |
 | `/team-live-ops` | live-ops-designer + economy-designer + community-manager + analytics-engineer |
 | `/team-qa` | qa-lead + qa-tester + gameplay-programmer + producer |
+| `/team-hindsight-dev` | hindsight-dev-memory-lead + GitNexus impact/recall/retain loop (optional c-sharp-engineer, aar-analyst) |

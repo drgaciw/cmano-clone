@@ -10,6 +10,7 @@ using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.Trust;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
 
 /// <summary>
 /// Facade for Unity/DOTS: register entities, tick delegation, push orders to the sim.
@@ -27,6 +28,12 @@ public sealed class DelegationBridge
     {
         Orchestrator = new DelegationOrchestrator(globalSeed, policyEvaluator);
         Registry = new TargetRegistry(Orchestrator);
+        if (!string.IsNullOrWhiteSpace(scenarioPolicyId))
+        {
+            ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
+            Orchestrator.ScenarioPolicy = ScenarioPolicyRepository.TryGet(scenarioPolicyId);
+        }
+
         Session = mvpEngagement
             ? SimulationSession.BindMvpEngagementForScenario(Orchestrator, scenarioPolicyId)
             : null;

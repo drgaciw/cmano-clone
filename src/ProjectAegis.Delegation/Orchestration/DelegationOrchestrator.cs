@@ -11,6 +11,7 @@ using ProjectAegis.Sim.Policy;
 using SimPolicy = ProjectAegis.Sim.Policy;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
+using ProjectAegis.Delegation.Hindsight;
 using ProjectAegis.Delegation.Trust;
 using ProjectAegis.Sim.Scenario;
 
@@ -26,14 +27,31 @@ public sealed class DelegationOrchestrator
     private long _orderIdSequence = 1;
 
     public DelegationOrchestrator(int globalSeed, SimPolicy.IPolicyEvaluator? policyEvaluator = null)
+        : this(globalSeed, policyEvaluator, hindsight: null)
+    {
+    }
+
+    public DelegationOrchestrator(
+        int globalSeed,
+        SimPolicy.IPolicyEvaluator? policyEvaluator,
+        HindsightOptions? hindsight)
     {
         GlobalSeed = globalSeed;
         DecisionLog = new DecisionLog();
+        Hindsight = HindsightIntegration.TryCreate(hindsight);
+        if (Hindsight is not null)
+        {
+            DecisionLog.HindsightHook = Hindsight.OrderLogHook;
+        }
+
         _detachRejoinService = new DetachRejoinService(_overrideService);
         _policyEvaluator = policyEvaluator ?? new PolicyEvaluator(ResolvePolicyForUnit);
         _autonomyGate = new AutonomyGate(
             new RoePolicyAdapter(_policyEvaluator, _policySnapshots.CreateContext));
     }
+
+    /// <summary>Optional Hindsight sidecar; null in CI/replay unless explicitly enabled.</summary>
+    public HindsightIntegration? Hindsight { get; }
 
     public SimPolicy.IPolicyEvaluator PolicyEvaluator => _policyEvaluator;
 
@@ -87,13 +105,17 @@ public sealed class DelegationOrchestrator
         AgentId id,
         PersonalityPreset preset,
         AutonomyLevel autonomy,
-        IPolicy? policy = null) =>
-        CreateAgent(
+        IPolicy? policy = null)
+    {
+        var agent = CreateAgent(
             id,
             preset.Traits,
             autonomy,
             PersonalityCatalog.ResolveAttentionBudget(preset),
             policy);
+        agent.SetPersonalitySlug(preset.Name);
+        return agent;
+    }
 
     public void AssignAgentToTarget(
         AgentController agent,
@@ -113,6 +135,7 @@ public sealed class DelegationOrchestrator
             ?? ResolveScenarioPolicyForTarget(target.Id, isFriendly);
         var snapshotId = _policySnapshots.Capture(target.Id, policy, capturedAtSimTick);
         agent.BindPolicySnapshot(snapshotId, policy, DecisionLog);
+        Hindsight?.OrderLogHook.RegisterAgent(agent.Id, agent.PersonalitySlug);
         target.Slot.SetActive(agent);
     }
 
@@ -315,6 +338,7 @@ public sealed class DelegationOrchestrator
         _trustSignals.Clear();
         _trustSignals.AddRange(
             TrustSignalEmitter.EmitFromSession(DecisionLog, missionSucceeded, objectivesMetRatio));
+        Hindsight?.OnScenarioFinalized(DecisionLog, _trustSignals, missionSucceeded, objectivesMetRatio);
         return _trustSignals;
     }
 }

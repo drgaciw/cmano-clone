@@ -16,9 +16,16 @@
 | [combat-outcomes-mvp-slice](combat-outcomes-mvp-slice/EPIC.md) | **Complete** (PR `stack/combat-followup`) | Simulation | Hit/miss/kill + destroy persistence |
 | [sensor-classify-slice](sensor-classify-slice/EPIC.md) | **Complete** | Core | Detected→Classified→Identified FSM |
 | [sensor-c2-ui-slice](sensor-c2-ui-slice/EPIC.md) | **Complete** | Presentation | Contact picture + sensor C2 HUD |
+| [c2-left-drawer-slice](c2-left-drawer-slice/EPIC.md) | **Complete** | Presentation | OOB + missions + full message log |
 
 **Sprint 1:** **Complete** on `main` @ `1f7423e` (20/20 stories, PR #36).
 
-**Sprint 2:** **Complete** — [sprint-2-sensor-c2](../sprints/sprint-2-sensor-c2.md). **Replay gate:** [PASS](../determinism/replay-2026-06-02.md). **Next:** requirements C1–C5, full C2 layout (doc 20).
+**Sprint 2:** **Complete** — [sprint-2-sensor-c2](../sprints/sprint-2-sensor-c2.md). **Replay gate:** [PASS](../determinism/replay-2026-06-02.md).
+
+**Sprint 3:** **Complete** — [sprint-3-c2-shell](../sprints/sprint-3-c2-shell.md).
+
+**Sprint 4:** **Complete** — [sprint-4-c2-map-prep](../sprints/sprint-4-c2-map-prep.md).
+
+**Sprint 5:** **Complete** — [sprint-5-c2-map-globe](../sprints/sprint-5-c2-map-globe.md). **ADR:** [007 map presentation](../../docs/architecture/adr-007-c2-map-presentation.md).
 
 **Milestone:** [vertical-slice-mvp](../milestones/vertical-slice-mvp.md)

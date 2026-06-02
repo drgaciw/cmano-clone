@@ -78,7 +78,8 @@ public static class BalticReplayHarness
             throw new InvalidOperationException("MVP engage session was not created.");
         }
 
-        var unit = new UnitTarget(new TargetId("u1"));
+        var unitBinding = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
+        var unit = unitBinding.Target;
         var agentPolicy = profile?.DelegationSettings.UsePatrolCandidates == true
             ? (IPolicy)new PatrolCandidateEngagePolicy()
             : new EngageOnlyPolicy();
@@ -88,7 +89,6 @@ public static class BalticReplayHarness
             AutonomyLevel.FullAutonomous,
             policy: agentPolicy);
         bridge.Orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
-        bridge.Orchestrator.Register(unit);
         bridge.BeginExecution();
 
         var harness = new HeadlessSnapshot(

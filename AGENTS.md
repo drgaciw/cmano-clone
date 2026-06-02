@@ -42,11 +42,67 @@ This project is indexed by GitNexus as **cmano-clone** (3462 symbols, 8239 relat
 
 <!-- gitnexus:end -->
 
+<!-- hindsight:start -->
+# Hindsight — Session Memory (local)
+
+Episodic memory on **localhost:8888** complements GitNexus: GitNexus answers *what the code is*; Hindsight answers *what we already tried and decided* across agent sessions.
+
+> Health check: `.\tools\hindsight\Test-HindsightServer.ps1` — if down, use GitNexus only.
+
+## Recommended loop (with GitNexus)
+
+1. `gitnexus://repo/cmano-clone/context` + `gitnexus_impact` before editing symbols.
+2. `.\tools\hindsight\Invoke-Hindsight.ps1 -Operation recall -BankId dev-cmano-clone -Query "…"`.
+3. Implement (user-approved paths).
+4. `retain` summary with `[OUTCOME:]` and symbol names; `FAILED:` for dead ends.
+5. `gitnexus_detect_changes()` before commit.
+
+Read **`.claude/skills/hindsight/hindsight-gitnexus/SKILL.md`** for the full checklist.
+
+## Dev memory banks
+
+| Bank | Use |
+|------|-----|
+| `dev-cmano-clone` | Default repo-wide agent memory |
+| `dev-story-{slug}` | Active production story |
+| `dev-pr-{number}` | PR / review cycle |
+| `balance-tuning` | Trait and attention experiments |
+
+Simulation runtime banks (`agent-*`, `aar-*`, `agent-xp-*`) are populated by `HindsightIntegration` when enabled — see `src/ProjectAegis.Delegation/Hindsight/README.md`.
+
+## Local agents
+
+| Agent | Role |
+|-------|------|
+| `hindsight-dev-memory-lead` | GitNexus + Hindsight implementation loop |
+| `hindsight-aar-analyst` | Post-run AAR over simulation banks |
+| `balance-tuning-memory-agent` | Cross-session trait tuning memory |
+
+## Skills
+
+| Task | Skill file |
+|------|------------|
+| GitNexus + Hindsight together | `.claude/skills/hindsight/hindsight-gitnexus/SKILL.md` |
+| Retain / recall / reflect | `.claude/skills/hindsight/hindsight-{retain,recall,reflect}/SKILL.md` |
+| Dev bank conventions | `.claude/skills/hindsight/hindsight-dev-memory/SKILL.md` |
+| Simulation AAR | `.claude/skills/hindsight/hindsight-aar/SKILL.md` |
+| Local server setup | `.claude/skills/hindsight/hindsight-local-setup/SKILL.md` |
+| Hub / bank reference | `.claude/skills/hindsight/hindsight-guide/SKILL.md` |
+| Team orchestration | `.claude/skills/team-hindsight-dev/SKILL.md` |
+
+## Never
+
+- Do not use Hindsight **recall/reflect** inside simulation `Tick()` or policy code (determinism).
+- Do not skip GitNexus impact because Hindsight recalled a prior attempt.
+- Do not retain secrets or credentials.
+
+<!-- hindsight:end -->
+
 ## Superpowers (global methodology)
 
 [obra/superpowers](https://github.com/obra/superpowers) v5.1.0 is installed for **all agents** on this machine (Cursor, Grok, Claude Code). Install/refresh: `.\tools\install-superpowers.ps1` — see `docs/engineering/superpowers-setup.md`.
 
-**Skill priority:** user instructions → GitNexus rules (above) → Project Aegis `.claude/skills/` → Superpowers global skills → defaults.
+**Skill priority:** user instructions → GitNexus rules → Hindsight rules (above) → Project Aegis `.claude/skills/` → Superpowers global skills → defaults.
 
 **Invoke before coding:** `brainstorming` (new work), `systematic-debugging` (bugs), `test-driven-development` (implementation), `writing-plans` + `subagent-driven-development` (multi-step plans). Project specs/plans live in `docs/superpowers/` (local docs, not the plugin).
 

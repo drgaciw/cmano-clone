@@ -1,0 +1,28 @@
+.c2-drawer-panel {
+    flex-grow: 1;
+    min-width: 240px;
+    padding: 4px;
+    background-color: rgba(12, 18, 28, 0.92);
+}
+
+.c2-drawer-tabs {
+    margin-bottom: 4px;
+}
+
+.c2-drawer-list {
+    flex-grow: 1;
+}
+
+.c2-drawer-list--hidden {
+    display: none;
+}
+
+.oob-row {
+    padding: 2px 4px;
+}
+
+.oob-row--selected {
+    background-color: rgba(74, 158, 255, 0.25);
+    border-left-width: 3px;
+    border-left-color: rgb(74, 158, 255);
+}

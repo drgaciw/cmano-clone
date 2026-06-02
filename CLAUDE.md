@@ -98,3 +98,19 @@ This project is indexed by GitNexus as **cmano-clone** (3462 symbols, 8239 relat
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+<!-- hindsight:start -->
+## Hindsight — Session Memory (with GitNexus)
+
+Local episodic memory (`http://localhost:8888`) for agentic dev + simulation AAR. **Pair with GitNexus** — see `AGENTS.md` and `.claude/skills/hindsight/hindsight-gitnexus/SKILL.md`.
+
+| Task | Skill |
+|------|--------|
+| Combined dev loop | `.claude/skills/hindsight/hindsight-gitnexus/SKILL.md` |
+| Hub / banks / agents | `.claude/skills/hindsight/hindsight-guide/SKILL.md` |
+| Retain / recall / reflect | `.claude/skills/hindsight/hindsight-retain|recall|reflect/SKILL.md` |
+| Local Docker / CLI | `.claude/skills/hindsight/hindsight-local-setup/SKILL.md` + `tools/hindsight/` |
+
+**Agents:** `hindsight-dev-memory-lead`, `hindsight-aar-analyst`, `balance-tuning-memory-agent` — **Team:** `/team-hindsight-dev`
+
+<!-- hindsight:end -->

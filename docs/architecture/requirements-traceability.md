@@ -19,7 +19,7 @@
 |----|-----------------|-----|----------------|---------------|--------|
 | C1 | 17 Order log / replay | ADR-003 | `DecisionLog`, `ReplayCheckpointStore` | `ReplayGolden*`, `replay-2026-06-02.md` | COVERED |
 | C2 | 18 Combat outcomes | ADR-005 | `EngagementOutcomeRecord`, `MessageLogProjection` | `MessageLogProjectionTests`, `MessageLogBridgeTests` | COVERED |
-| C2-UI | 18 Message HUD | — | `MessageLogPanelBinder`, `MessageLogPanelHost` | `MessageLogPanelBinderTests` | PARTIAL |
+| C2-UI | 18 Message HUD | — | `MessageLogPanelBinder`, `MessageLogPanelHost`, `OobTreePanelHost` | `MessageLogPanelBinderTests`, `OobTreeProjectionTests` | COVERED |
 | C3 | 19 ROE / policy | ADR-002 | `PassthroughRoeFilter`, scenario ROE JSON | `PolicyDenialOrderLogTests` | COVERED |
 | C4 | 20 EMCON | ADR-002 | `EmconPolicyEvaluator`, `ScenarioEmconResolver` | `EmconPolicyEvaluatorTests`, emcon scenario JSON | COVERED |
 | C5 | 13 Human-in-the-loop | ADR-001 | `SimulationModeProfile`, `PlayerOrderRecord` | `PlayModeSmokeHarnessTests` | DEFERRED |
@@ -44,7 +44,7 @@
 
 | Area | Gap | Suggested action |
 |------|-----|------------------|
-| Doc 20 full C2 | OOB tree, mission editor, doctrine UI | Sprint 3 `/ux-design` + `/team-ui` |
+| Doc 20 full C2 | Globe map, mission editor, doctrine UI | Sprint 4+ `/ux-design` + `/team-ui` (OOB/missions projections done Sprint 3) |
 | Requirements 01–12 | No GDD | `/map-systems` backlog |
 | C5 player override | Pause / direct order UX | Story under simulation-control epic |
 
