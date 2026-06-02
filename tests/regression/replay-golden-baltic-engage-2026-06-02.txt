@@ -1,0 +1,10 @@
+# Golden fingerprint — baltic-patrol seed=42 ticks=4 (combat outcomes MVP)
+# Regenerate: dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-patrol --ticks 4
+
+WORLD_HASH=2952325463277652655
+DETECTION_WORLD_HASH=2025028254506981538
+
+EngagementOutcome|5|1|1|1|Hit|0.006501966157579321
+EngagementOutcome|9|2|2|2|Hit|0.2836785489422452
+EngagementOutcome|13|3|3|3|Hit|0.7277704534884007
+EngagementOutcome|17|4|4|4|Hit|0.4022268015896498

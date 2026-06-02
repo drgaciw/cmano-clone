@@ -12,4 +12,5 @@ public enum OrderLogEntryKind
     ContactChange = 7,
     MissionTransition = 8,
     EventFired = 9,
+    EngagementOutcome = 10,
 }

@@ -44,7 +44,8 @@ public sealed class SimulationSession
                 world,
                 magazines,
                 orchestrator.PolicyEvaluator,
-                orchestrator.ResolveEffectivePolicyForUnit));
+                orchestrator.ResolveEffectivePolicyForUnit,
+                seed));
         return new SimulationSession(orchestrator, sim)
         {
             EngageWorld = world,
@@ -149,6 +150,18 @@ public sealed class SimulationSession
                         MountId: 0,
                         Delta: -1,
                         MagazineChangeReasonCodes.Fire));
+
+                    if (result.OutcomeCode != null)
+                    {
+                        Orchestrator.DecisionLog.AppendEngagementOutcome(new EngagementOutcomeRecord(
+                            SequenceId: 0,
+                            state.SimTime,
+                            simTick,
+                            engageOrders[i].Target,
+                            result.EngagementId,
+                            result.OutcomeCode,
+                            result.PkDraw));
+                    }
                 }
             }
             else

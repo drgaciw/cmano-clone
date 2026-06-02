@@ -16,6 +16,7 @@ public sealed class DecisionLog
     private readonly List<ContactChangeRecord> _contactChanges = new();
     private readonly List<MissionTransitionRecord> _missionTransitions = new();
     private readonly List<EventFiredRecord> _eventFired = new();
+    private readonly List<EngagementOutcomeRecord> _engagementOutcomes = new();
 
     public IReadOnlyList<DecisionRecord> Records => _records;
 
@@ -36,6 +37,8 @@ public sealed class DecisionLog
     public IReadOnlyList<MissionTransitionRecord> MissionTransitions => _missionTransitions;
 
     public IReadOnlyList<EventFiredRecord> EventFired => _eventFired;
+
+    public IReadOnlyList<EngagementOutcomeRecord> EngagementOutcomes => _engagementOutcomes;
 
     public void Append(DecisionRecord record)
     {
@@ -69,6 +72,9 @@ public sealed class DecisionLog
 
     public void AppendEventFired(EventFiredRecord fired) =>
         _eventFired.Add(fired with { SequenceId = NextSequence() });
+
+    public void AppendEngagementOutcome(EngagementOutcomeRecord outcome) =>
+        _engagementOutcomes.Add(outcome with { SequenceId = NextSequence() });
 
     /// <summary>Unified timeline sorted by sequence (ADR-003 MVP).</summary>
     public IReadOnlyList<OrderLogEntry> ChronologicalEntries()
@@ -128,6 +134,11 @@ public sealed class DecisionLog
             entries.Add(new OrderLogEntry(e.SequenceId, OrderLogEntryKind.EventFired, e.SimTime, e));
         }
 
+        foreach (var o in _engagementOutcomes)
+        {
+            entries.Add(new OrderLogEntry(o.SequenceId, OrderLogEntryKind.EngagementOutcome, o.SimTime, o));
+        }
+
         return entries.OrderBy(e => e.SequenceId).ToArray();
     }
 
@@ -173,6 +184,8 @@ public sealed class DecisionLog
                 $"{m.SimTick}|{m.EventId}|{m.PhaseCode}",
             OrderLogEntryKind.EventFired when entry.Payload is EventFiredRecord f =>
                 $"{f.SimTick}|{f.EventId}|{f.EventCode}",
+            OrderLogEntryKind.EngagementOutcome when entry.Payload is EngagementOutcomeRecord o =>
+                $"{o.SimTick}|{o.EngagementId}|{o.OutcomeCode}|{o.PkDraw:R}",
             _ => "?",
         };
 
