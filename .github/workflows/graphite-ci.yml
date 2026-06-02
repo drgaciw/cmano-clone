@@ -1,26 +1,19 @@
 name: Graphite CI
 
-# Recommended triggers: avoid 'edited' to prevent redundant runs
-# when PR metadata changes or when a PR's base branch is updated.
-# Also ignore graphite-base/* branches to prevent unnecessary builds.
+# PR-only: main pushes use .NET CI + Post-Merge CI (avoids triple test runs).
+# Source: https://graphite.com/docs/stacking-and-ci
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches-ignore:
       - "**/graphite-base/**"
-  push:
-    branches:
-      - main
 
-# Prevent duplicate CI runs on the same PR by canceling in-progress runs.
 concurrency:
   group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}-${{ github.ref == 'refs/heads/main' && github.sha || ''}}
   cancel-in-progress: true
 
 jobs:
-  # Step 1: Run the Graphite CI Optimizer first.
-  # It outputs a 'skip' signal that downstream jobs can use
-  # to avoid redundant runs on intermediate stacked PRs.
   optimize_ci:
     runs-on: ubuntu-latest
     outputs:
@@ -32,26 +25,7 @@ jobs:
         with:
           graphite_token: ${{ secrets.GRAPHITE_CI_OPTIMIZER_TOKEN }}
 
-  # Step 2: Your actual CI jobs — only run if the optimizer
-  # does not signal to skip (i.e. this is not a redundant stacked PR run).
   build:
     needs: optimize_ci
     if: needs.optimize_ci.outputs.skip == 'false'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v4
-        with:
-          global-json-file: global.json
-
-      - name: Restore
-        run: dotnet restore ProjectAegis.sln
-
-      - name: Build
-        run: dotnet build ProjectAegis.sln -c Release --no-restore
-
-      - name: Test
-        run: dotnet test ProjectAegis.sln -c Release --no-build -v minimal
+    uses: ./.github/workflows/dotnet-reusable.yml

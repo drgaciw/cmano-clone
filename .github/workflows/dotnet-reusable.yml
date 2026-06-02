@@ -1,20 +1,10 @@
-name: Post-Merge CI (Graphite)
+name: .NET Build and Test (reusable)
 
 on:
-  push:
-    branches:
-      - main
-
-concurrency:
-  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.sha }}
-  cancel-in-progress: false
+  workflow_call:
 
 jobs:
-  post_merge_tests:
-    uses: ./.github/workflows/dotnet-reusable.yml
-
-  replay_golden:
-    needs: post_merge_tests
+  build_test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -31,9 +21,12 @@ jobs:
       - name: Build
         run: dotnet build ProjectAegis.sln -c Release --no-restore
 
-      - name: Test (Baltic replay golden suite)
+      - name: Test (full solution)
+        run: dotnet test ProjectAegis.sln -c Release --no-build -v minimal
+
+      - name: Test (PlayMode smoke harness)
         run: >
           dotnet test
           src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj
           -c Release --no-build -v minimal
-          --filter FullyQualifiedName~ReplayGolden
+          --filter FullyQualifiedName~PlayModeSmokeHarnessTests

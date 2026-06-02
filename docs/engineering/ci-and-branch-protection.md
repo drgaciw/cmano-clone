@@ -14,15 +14,25 @@
 
 **Local parity:**
 
+```powershell
+.\tools\verify-ci-local.ps1
+```
+
+Or manually:
+
 ```bash
 dotnet build ProjectAegis.sln -c Release
 dotnet test ProjectAegis.sln -c Release -v minimal
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj -c Release --filter PlayModeSmokeHarnessTests
 ```
 
+**Post-merge only:** replay golden tests (`FullyQualifiedName~ReplayGolden`) run on `main` in Post-Merge CI.
+
 ## Required status checks (branch protection)
 
 **Private repos on the free plan** cannot set branch protection via the API (HTTP 403). Enable checks manually when the repo is **public** or the org has **GitHub Pro/Team**.
+
+Tracking issue: [Enable branch protection required checks on main](https://github.com/drgaciw/cmano-clone/issues/37).
 
 ### Settings → Branches → Add rule for `main`
 
@@ -59,5 +69,11 @@ See [unity/ProjectAegis/PLAYMODE-SMOKE.md](../../unity/ProjectAegis/PLAYMODE-SMO
 
 ## Graphite + CI
 
+- **Graphite CI** runs on **pull requests only** (not on `main` push) to avoid triple test runs.
 - Stacked PRs: Graphite optimizer may skip redundant `Graphite CI` runs; **`.NET CI` still runs** on every PR.
-- Expensive checks stay on **Post-Merge CI** after merge to `main`.
+- **Post-Merge CI** on `main`: reusable dotnet gate + **replay golden** filter (`ReplayGolden*` tests).
+- Shared steps live in [dotnet-reusable.yml](../../.github/workflows/dotnet-reusable.yml).
+
+## Dependabot
+
+[dependabot.yml](../../.github/dependabot.yml) — weekly NuGet and GitHub Actions update PRs.
