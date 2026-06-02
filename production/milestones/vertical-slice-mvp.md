@@ -19,7 +19,7 @@ Demonstrate the core military simulation loop **plan → fight → replay** head
 - [x] Contact Classify/Identify FSM (TR-sensor-001 remainder) — headless + order log
 - [x] Unity sensor C2 presentation slice (UI Toolkit panel + OnGUI fallback)
 - [ ] Requirements design review blockers C1–C5 closed or explicitly deferred with ADR
-- [ ] `/replay-verify` golden baseline stored for Baltic harness seed
+- [x] `/replay-verify` golden baseline stored for Baltic harness seed ([replay-2026-06-02](../determinism/replay-2026-06-02.md) **PASS**)
 - [ ] 0 open S1 bugs; S2 bugs triaged
 
 ## Feature List
