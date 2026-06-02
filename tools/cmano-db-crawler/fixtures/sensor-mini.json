@@ -1,0 +1,29 @@
+{
+  "dbVersion": "test-fixture",
+  "records": {
+    "1001": {
+      "ok": true,
+      "id": 1001,
+      "label": "Test Radar AN/SPY-1",
+      "group": "United States",
+      "sections": [
+        {
+          "title": "General",
+          "cells": ["Type: Radar", "Range: 150 nm"]
+        }
+      ]
+    },
+    "1002": {
+      "ok": true,
+      "id": 1002,
+      "label": "Test ESM Suite",
+      "group": "United States",
+      "sections": [
+        {
+          "title": "General",
+          "cells": ["Type: ESM", "Range: 80 nm"]
+        }
+      ]
+    }
+  }
+}

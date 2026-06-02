@@ -2,11 +2,11 @@
 # Updated by /project-dashboard skill and Cursor Automation (09:00 / 21:00).
 
 last_run:
-  timestamp: "2026-06-02T12:00:00Z"
-  label: stack-audit-refresh
+  timestamp: "2026-06-02T18:00:00Z"
+  label: milsim-c1-stack-verify
 
 gitnexus:
-  indexed_commit: "5a8b7d1"
+  indexed_commit: "b13462f"
   nodes: 2815
   edges: 5198
   clusters: 45
@@ -22,9 +22,12 @@ gitnexus:
 
 filesystem:
   sprint_plans: 1
+  sprint_status_yaml: true
+  stage_txt: true
   milestones: 0
-  epics: 7
-  stories: 10
+  epics: 12
+  stories: 20
+  tests_total: 177
   gdd_files: 10
   gdd_systems_with_docs: 6
   gdd_systems_total: 20

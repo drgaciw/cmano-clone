@@ -32,7 +32,7 @@ Unity project scaffolding and simulation core are not started yet. Requirements 
 
 The planned development stack is Unity LTS with C#, supported by agentic development tools including Cursor, GitHub Copilot, Claude Code / Claude Desktop, Unity-MCP, and Claude-Code-Game-Studios.
 
-Claude-specific integrations are **configured** at the repo level (MCP config, Game-Studios agents/skills). Unity Editor activation is pending until a Unity project is scaffolded.
+Claude-specific integrations are **configured** at the repo level (MCP config, Game-Studios agents/skills). Global **[obra/superpowers](https://github.com/obra/superpowers)** methodology (TDD, plans, debugging) is installed via `.\tools\install-superpowers.ps1` — see `docs/engineering/superpowers-setup.md`. Unity Editor activation is pending until a Unity project is scaffolded.
 
 - [Tech Stack - Agentic Game Development](Tech-Stack.md)
 - [Claude Agent Setup](Game-Requirements/Claude-Agent-Setup.md)

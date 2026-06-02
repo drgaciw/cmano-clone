@@ -92,6 +92,7 @@ Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 | 2026-06-02 | Delegation stack A **closed** on `main`; stale `stack/delegation/*` branches deleted |
 | 2026-06-02 | P0 DATA docs on `main` (`5d43d76`); DATA-1 scaffold already merged; stale `stack/data/*` deleted |
 | 2026-06-02 | Sprint 1 + next epics scaffolded (platform-db-basepd, policy-engage, mission-runtime, checkpoints, combat-outcomes) |
+| 2026-06-02 | `stack/milsim-c1-combat-data-replay`: 180 tests, replay gate PASS; `sprint-status.yaml` + `stage.txt` |
 
 ---
 
@@ -100,7 +101,7 @@ Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 | ID | Branch | PR title | Status |
 |----|--------|----------|--------|
 | DATA-1 | — | `ProjectAegis.Data` scaffold | **On main** |
-| DATA-2 | `stack/data/basepd` | feat(data): catalog basePd + detection wiring | **Not started** |
+| DATA-2 | `stack/data/basepd` / `stack/milsim-c1-combat-data-replay` | feat(data): catalog basePd + detection wiring | **Complete** on stack branch |
 
 ```powershell
 git checkout main && git pull

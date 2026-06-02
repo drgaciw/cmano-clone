@@ -9,7 +9,6 @@ using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
-using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.Tests.Decision;

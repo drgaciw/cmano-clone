@@ -42,6 +42,14 @@ This project is indexed by GitNexus as **cmano-clone** (2861 symbols, 5368 relat
 
 <!-- gitnexus:end -->
 
+## Superpowers (global methodology)
+
+[obra/superpowers](https://github.com/obra/superpowers) v5.1.0 is installed for **all agents** on this machine (Cursor, Grok, Claude Code). Install/refresh: `.\tools\install-superpowers.ps1` — see `docs/engineering/superpowers-setup.md`.
+
+**Skill priority:** user instructions → GitNexus rules (above) → Project Aegis `.claude/skills/` → Superpowers global skills → defaults.
+
+**Invoke before coding:** `brainstorming` (new work), `systematic-debugging` (bugs), `test-driven-development` (implementation), `writing-plans` + `subagent-driven-development` (multi-step plans). Project specs/plans live in `docs/superpowers/` (local docs, not the plugin).
+
 ## Cursor Cloud specific instructions
 
 Headless **.NET 8** development is the supported Cloud Agent path. Unity Editor 6.3 LTS (`unity/ProjectAegis`) is optional and usually not installed in the VM; use the headless Play Mode harness instead of opening the Editor.

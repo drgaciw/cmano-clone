@@ -27,7 +27,7 @@ public sealed class PlayerInfoFilterTests
         Assert.That(filtered, Has.Count.EqualTo(2));
         var decisions = filtered.Where(e => e.Kind == OrderLogEntryKind.AgentDecision).ToList();
         Assert.That(decisions, Has.Count.EqualTo(1));
-        Assert.That(((DecisionRecord)decisions[0].Payload).AutonomyLevel, Is.EqualTo(AutonomyLevel.Assisted));
+        Assert.That(GetAutonomy(decisions[0]), Is.EqualTo(AutonomyLevel.Assisted));
         Assert.That(filtered.Any(e => e.Kind == OrderLogEntryKind.PolicyDenial), Is.True);
     }
 
@@ -62,6 +62,14 @@ public sealed class PlayerInfoFilterTests
             3, 1, 1, new AgentId("a1"), new TargetId("t1"), 1,
             FireAbortReason.RoeHoldFire, OrderKind.Engage)),
     ];
+
+    private static AutonomyLevel GetAutonomy(OrderLogEntry entry) =>
+        entry.Payload switch
+        {
+            AgentDecisionPayload p => p.AutonomyLevel,
+            DecisionRecord r => r.AutonomyLevel,
+            _ => throw new InvalidOperationException("Unexpected agent decision payload"),
+        };
 
     private static DecisionRecord MakeDecision(AutonomyLevel autonomy) =>
         new(
