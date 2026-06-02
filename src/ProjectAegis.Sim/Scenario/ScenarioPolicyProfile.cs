@@ -13,7 +13,8 @@ public sealed class ScenarioPolicyProfile
         PlayerInfoModel playerInfoModel = PlayerInfoModel.FullTransparency,
         PersonalityEditPolicy personalityEditPolicy = PersonalityEditPolicy.Anytime,
         ScenarioEngageDefaults? engageDefaults = null,
-        bool allowDualSideControl = false)
+        bool allowDualSideControl = false,
+        IReadOnlyList<ScenarioContactSeed>? contactSeeds = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -22,6 +23,7 @@ public sealed class ScenarioPolicyProfile
         PersonalityEditPolicy = personalityEditPolicy;
         EngageDefaults = engageDefaults;
         AllowDualSideControl = allowDualSideControl;
+        ContactSeeds = contactSeeds ?? Array.Empty<ScenarioContactSeed>();
     }
 
     public string Id { get; init; } = "";
@@ -40,6 +42,8 @@ public sealed class ScenarioPolicyProfile
 
     /// <summary>When true, Mixed mode may assign human controllers on both sides (req 03 test sandbox).</summary>
     public bool AllowDualSideControl { get; }
+
+    public IReadOnlyList<ScenarioContactSeed> ContactSeeds { get; }
 
     public EngageContext ResolveEngageContext()
     {

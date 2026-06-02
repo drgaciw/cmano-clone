@@ -11,6 +11,8 @@ using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
+using ProjectAegis.Sim.Sensors;
 
 /// <summary>Headless Baltic slice runner for CLI and replay-verify gate.</summary>
 public static class BalticReplayHarness
@@ -23,6 +25,12 @@ public static class BalticReplayHarness
         {
             throw new ArgumentOutOfRangeException(nameof(ticks), "ticks must be >= 1");
         }
+
+        ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
+        var profile = ScenarioPolicyRepository.TryGet(scenarioPolicyId);
+        var contactSim = profile?.ContactSeeds.Count > 0
+            ? new ScenarioContactSimulator(profile.ContactSeeds)
+            : null;
 
         var bridge = new DelegationBridge(seed, mvpEngagement: mvpEngagement, scenarioPolicyId: scenarioPolicyId);
         if (mvpEngagement && bridge.Session == null)
@@ -40,10 +48,19 @@ public static class BalticReplayHarness
         bridge.Orchestrator.Register(unit);
         bridge.BeginExecution();
 
-        var harness = new HeadlessSnapshot(contactCount: 2, hasFireControlTrack: true);
+        var harness = new HeadlessSnapshot(contactSim, fallbackContactCount: 2, fallbackHasTrack: true);
         for (var t = 0; t < ticks; t++)
         {
             harness.Advance(1.0);
+            var simTick = (ulong)Math.Max(0, (long)harness.SimTime);
+            if (contactSim != null)
+            {
+                foreach (var transition in contactSim.Tick(simTick, harness.SimTime))
+                {
+                    bridge.Orchestrator.DecisionLog.AppendContactTransition(transition);
+                }
+            }
+
             bridge.Tick(harness, harness);
         }
 
@@ -57,24 +74,53 @@ public static class BalticReplayHarness
 
     private sealed class HeadlessSnapshot : ISimWorldSnapshot, IOrderSink
     {
+        private readonly ScenarioContactSimulator? _contacts;
+        private readonly int _fallbackContactCount;
+        private readonly bool _fallbackHasTrack;
         private double _simTime;
 
-        public HeadlessSnapshot(int contactCount, bool hasFireControlTrack)
+        public HeadlessSnapshot(
+            ScenarioContactSimulator? contacts,
+            int fallbackContactCount,
+            bool fallbackHasTrack)
         {
-            ContactCount = contactCount;
-            PrimaryHostileContactId = contactCount > 0 ? new TargetId("hostile-1") : null;
-            HasFireControlTrackOnPrimaryContact = contactCount > 0 && hasFireControlTrack;
+            _contacts = contacts;
+            _fallbackContactCount = fallbackContactCount;
+            _fallbackHasTrack = fallbackHasTrack;
         }
 
         public double SimTime => _simTime;
 
-        public int ContactCount { get; }
+        public int ContactCount =>
+            _contacts != null ? _contacts.ActiveCount : _fallbackContactCount;
 
         public int ActiveEngagementCount => 0;
 
-        public TargetId? PrimaryHostileContactId { get; }
+        public TargetId? PrimaryHostileContactId
+        {
+            get
+            {
+                if (_contacts?.PrimaryTargetId is { } id)
+                {
+                    return new TargetId(id);
+                }
 
-        public bool HasFireControlTrackOnPrimaryContact { get; }
+                return ContactCount > 0 ? new TargetId("hostile-1") : null;
+            }
+        }
+
+        public bool HasFireControlTrackOnPrimaryContact
+        {
+            get
+            {
+                if (_contacts != null && _contacts.ActiveCount > 0)
+                {
+                    return _contacts.PrimaryHasFireControlTrack;
+                }
+
+                return ContactCount > 0 && _fallbackHasTrack;
+            }
+        }
 
         public void Advance(double delta) => _simTime += delta;
 

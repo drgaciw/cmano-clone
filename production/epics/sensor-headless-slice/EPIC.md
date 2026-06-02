@@ -1,6 +1,6 @@
 # Epic: Sensor Headless Slice
 
-> **Status:** Ready for stories  
+> **Status:** Complete  
 > **Created:** 2026-06-01  
 > **Priority:** MVP  
 > **Layer:** Core (sim tick step 4)  

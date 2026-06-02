@@ -53,10 +53,28 @@ public static class ScenarioPolicyJsonLoader
             ParsePlayerInfoModel(dto.PlayerInfoModel),
             ParsePersonalityEditPolicy(dto.PersonalityEditPolicy),
             ParseEngageDefaults(dto.Engage),
-            dto.AllowDualSideControl ?? false)
+            dto.AllowDualSideControl ?? false,
+            ParseContactSeeds(dto.Contacts))
         {
             Id = dto.Id,
         };
+    }
+
+    private static IReadOnlyList<ScenarioContactSeed> ParseContactSeeds(List<ScenarioContactJsonDto>? contacts)
+    {
+        if (contacts == null || contacts.Count == 0)
+        {
+            return Array.Empty<ScenarioContactSeed>();
+        }
+
+        return contacts
+            .Select(c => new ScenarioContactSeed(
+                c.ObserverId,
+                c.TargetId,
+                c.ContactId,
+                c.AppearAtTick,
+                c.HasFireControlTrack))
+            .ToArray();
     }
 
     private static ScenarioEngageDefaults? ParseEngageDefaults(ScenarioEngageJsonDto? engage) =>

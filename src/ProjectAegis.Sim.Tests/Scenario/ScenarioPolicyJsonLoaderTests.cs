@@ -47,6 +47,9 @@ public sealed class ScenarioPolicyJsonLoaderTests
         var ctx = profile.ResolveEngageContext();
         Assert.Equal(45_000, ctx.RangeMeters);
         Assert.True(ctx.Envelope.Contains(45_000));
+        Assert.Single(profile.ContactSeeds);
+        Assert.Equal("hostile-1", profile.ContactSeeds[0].TargetId);
+        Assert.Equal((ulong)1, profile.ContactSeeds[0].AppearAtTick);
     }
 
     [Fact]
