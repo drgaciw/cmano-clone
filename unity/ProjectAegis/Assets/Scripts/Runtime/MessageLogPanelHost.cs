@@ -143,6 +143,17 @@ namespace ProjectAegis.Unity.Runtime
                 case "MAGAZINE":
                     element.AddToClassList("message-log-row--magazine");
                     break;
+                case "COMMS":
+                    element.AddToClassList("message-log-row--comms");
+                    break;
+                case "CONTACT":
+                case "CONTACT_CHANGE":
+                    element.AddToClassList("message-log-row--contact");
+                    break;
+                case "MISSION":
+                case "MISSION_TRANSITION":
+                    element.AddToClassList("message-log-row--mission");
+                    break;
             }
         }
     }

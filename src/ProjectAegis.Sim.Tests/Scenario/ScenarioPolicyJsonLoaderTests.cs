@@ -105,6 +105,9 @@ public sealed class ScenarioPolicyJsonLoaderTests
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
         Assert.Equal(90, profile.Logistics.JokerSimSeconds);
         Assert.Equal(180, profile.Logistics.BingoSimSeconds);
+        Assert.True(profile.Logistics.UsesFuelBurnModel);
+        Assert.Equal(10_000, profile.Logistics.FuelCapacityKg);
+        Assert.Equal(80, profile.Logistics.BurnRateKgPerSecond);
         Assert.Equal(2, profile.CommsDisplay.DegradedLagTicks);
         Assert.Equal(0.06f, profile.CommsDisplay.GhostOffsetX, 3);
     }

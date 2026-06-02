@@ -17,7 +17,7 @@ generated: "2026-06-02"
 updated: "2026-06-02"
 branch: main
 indexed_commit: 2a08518f1eb727c6edbe1768e9f8a4ad9fcc39d3
-tests_passed: 243
+tests_passed: 244
 commits_sprints_7_9:
   - sha: 25fefa6
     message: "feat(c2): comms degrade, batch scoring CSV, and QA golden (Sprints 7-9)"
@@ -359,16 +359,19 @@ tests_passed_sprint9: 237
 qa_gate:
   date: "2026-06-02"
   headless: pass
-  tests_total: 243
+  tests_total: 244
   evidence: production/qa/headless-smoke-evidence-2026-06-02.md
   unity_manual: pending
-  indexed_commit: 2a08518
+  indexed_commit: e8ea545
   open:
-    - Unity manual C2 sign-off (12 checks)
-    - Cesium Phase B spike (Editor)
+    - Unity manual C2 sign-off (12 checks) — run PLAYMODE-SMOKE + sign-off doc
+    - Cesium Phase B spike scene (Editor) — Assets/Scenes/CESIUM-SPIKE-SETUP.md
   p1_backlog:
-    - Full fuel burn model (F' = F - burn * deltaSeconds) — logistics GDD AC-3
+    - FuelStateChange order-log + per-tick sim ledger (logistics GDD AC-3 remainder)
   p1_done_2026_06_02:
     - Map ghost symbology when comms Degraded (MapPanelBinder + USS)
     - Scenario-driven fuel thresholds (logistics JSON on policy)
+    - Fuel burn readout F'=F-burn*t (ScenarioLogisticsSettings + unit detail kg)
+    - COMMS/contact/mission message log colors + top bar COMMS state colors
+    - useGlobeMap flag + Cesium spike scene doc
   automated_qa_proxy: production/qa/c2-automated-proxy-2026-06-02.md

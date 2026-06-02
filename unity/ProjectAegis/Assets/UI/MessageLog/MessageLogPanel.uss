@@ -38,3 +38,16 @@
 .message-log-row--magazine {
     color: rgb(180, 200, 255);
 }
+
+.message-log-row--comms {
+    color: rgb(200, 160, 255);
+    -unity-font-style: bold;
+}
+
+.message-log-row--contact {
+    color: rgb(140, 200, 255);
+}
+
+.message-log-row--mission {
+    color: rgb(160, 220, 180);
+}

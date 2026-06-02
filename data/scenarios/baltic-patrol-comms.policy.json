@@ -20,7 +20,11 @@
   ],
   "logistics": {
     "jokerSimSeconds": 90,
-    "bingoSimSeconds": 180
+    "bingoSimSeconds": 180,
+    "fuelCapacityKg": 10000,
+    "burnRateKgPerSecond": 80,
+    "jokerFuelFraction": 0.25,
+    "bingoFuelFraction": 0.10
   },
   "commsDisplay": {
     "degradedLagTicks": 2,

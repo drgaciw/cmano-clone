@@ -74,7 +74,13 @@ public static class ScenarioPolicyJsonLoader
     private static ScenarioLogisticsSettings ParseLogistics(ScenarioLogisticsJsonDto? logistics) =>
         logistics == null
             ? ScenarioLogisticsSettings.Default
-            : new ScenarioLogisticsSettings(logistics.JokerSimSeconds, logistics.BingoSimSeconds);
+            : new ScenarioLogisticsSettings(
+                logistics.JokerSimSeconds,
+                logistics.BingoSimSeconds,
+                logistics.FuelCapacityKg,
+                logistics.BurnRateKgPerSecond,
+                logistics.JokerFuelFraction,
+                logistics.BingoFuelFraction);
 
     private static ScenarioCommsDisplaySettings ParseCommsDisplay(ScenarioCommsDisplayJsonDto? display) =>
         display == null

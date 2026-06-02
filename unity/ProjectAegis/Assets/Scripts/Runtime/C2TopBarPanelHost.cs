@@ -100,6 +100,21 @@ namespace ProjectAegis.Unity.Runtime
             if (_comms != null)
             {
                 _comms.text = state.CommsLabel;
+                _comms.ClearClassList();
+                _comms.AddToClassList("c2-topbar-item");
+                _comms.AddToClassList("c2-topbar-item--comms");
+                if (state.CommsLabel.Contains("DEGRADED", System.StringComparison.Ordinal))
+                {
+                    _comms.AddToClassList("c2-topbar-item--comms-degraded");
+                }
+                else if (state.CommsLabel.Contains("DENIED", System.StringComparison.Ordinal))
+                {
+                    _comms.AddToClassList("c2-topbar-item--comms-denied");
+                }
+                else
+                {
+                    _comms.AddToClassList("c2-topbar-item--comms-nominal");
+                }
             }
 
             _score!.text = state.ScoreLabel;

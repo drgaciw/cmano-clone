@@ -25,6 +25,22 @@ Open `unity/ProjectAegis` in **Unity Hub 6.3 LTS** (6000.3.x).
 10. Optional scenarios on bridge: `baltic-patrol-mission`, `baltic-patrol-classify`, `baltic-patrol-comms` (COMMS top bar + denials).
 11. Enter **Play Mode** — top bar shows sim time + score; map shows ■/◆ symbols; drawer tabs work; no bridge errors.
 
+## Sprint 7–9 — COMMS + fuel QA (manual)
+
+Use `scenarioPolicyId` = `baltic-patrol-comms`.
+
+| Step | Expected |
+|------|----------|
+| ~2 s Play | Top bar `COMMS: DEGRADED` (amber); hostile ◆ faded + italic ghost offset |
+| ~4 s Play | `COMMS: DENIED` (red); all map symbols dimmer |
+| Message log | Purple-bold `COMMS` lines for state transitions |
+| After DENIED | Policy/CommsDenied lines; no new launches |
+| ~100 s sim (burn model) | Unit detail `FUEL: JOKER` with kg readout |
+| Speed fuel check | Set `SimplePlayModeSimHost.simTimeStep` = `1.0` |
+
+Full checklist: `production/qa/c2-manual-signoff-2026-06-02.md`  
+Headless gate first: `tools/unity/Invoke-ManualQaHeadlessGate.ps1`
+
 ## Sprint 6 — selection QA (manual)
 
 Use `scenarioPolicyId` = `baltic-patrol-classify` for hostile contacts on map.

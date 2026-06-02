@@ -18,10 +18,14 @@ namespace ProjectAegis.Unity.Runtime
         [SerializeField] private int globalSeed = 42;
         [SerializeField] private bool enableMvpEngagement = true;
         [SerializeField] private string scenarioPolicyId = "baltic-patrol";
+        [Tooltip("When true, prefer globe map host (Cesium Phase B). Placeholder map remains default.")]
+        [SerializeField] private bool useGlobeMap;
         [SerializeField] private string timeCompressionLabel = "1x";
         [SerializeField] private string simulationModeLabel = "Mixed";
 
         public string ScenarioPolicyId => scenarioPolicyId;
+
+        public bool UseGlobeMap => useGlobeMap;
 
         public C2PresentationController Presentation { get; } = new();
 

@@ -117,7 +117,9 @@ public sealed class PlayModeSmokeHarnessTests
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         var profile = ScenarioPolicyRepository.TryGet("baltic-patrol-comms");
         Assert.That(profile, Is.Not.Null);
-        var fuelAtJoker = FuelStateProjection.FormatUnitFuelLine("u1", 95, profile!.Logistics);
+        var fuelNominal = FuelStateProjection.FormatUnitFuelLine("u1", 10, profile!.Logistics);
+        Assert.That(fuelNominal, Does.Contain("NOMINAL").And.Contains("kg"));
+        var fuelAtJoker = FuelStateProjection.FormatUnitFuelLine("u1", 100, profile.Logistics);
         Assert.That(fuelAtJoker, Does.Contain("JOKER"));
     }
 

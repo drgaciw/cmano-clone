@@ -38,7 +38,7 @@ New entry kinds: `CommsStateChange`, `CyberActionResult` with `{nodeId, fromStat
 
 - Top bar `COMMS:` indicator (green/amber/red).
 - Message log `COMMS` category lines.
-- Map placeholder: optional ghost symbology when `Degraded` (P1).
+- Map placeholder: ghost symbology when `Degraded` (P1 — shipped: `map-symbol--ghost`, scenario `commsDisplay`).
 
 ## Formulas
 

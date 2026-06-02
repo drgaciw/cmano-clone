@@ -48,6 +48,14 @@ public sealed class ScenarioLogisticsJsonDto
     public double JokerSimSeconds { get; set; } = 300;
 
     public double BingoSimSeconds { get; set; } = 600;
+
+    public double FuelCapacityKg { get; set; }
+
+    public double BurnRateKgPerSecond { get; set; }
+
+    public double JokerFuelFraction { get; set; } = 0.25;
+
+    public double BingoFuelFraction { get; set; } = 0.10;
 }
 
 public sealed class ScenarioCommsDisplayJsonDto

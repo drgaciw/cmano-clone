@@ -21,11 +21,10 @@
 ## Run gate
 
 ```powershell
-dotnet test ProjectAegis.sln -v minimal
-dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter "FullyQualifiedName~PlayModeSmoke|FullyQualifiedName~BalticReplayHarnessComms|FullyQualifiedName~MapPanelBinder|FullyQualifiedName~FuelState"
+./tools/unity/Invoke-ManualQaHeadlessGate.ps1
 ```
 
 ## Verdict
 
-- **Headless proxy:** PASS when all filtered tests green (238+ solution total).
+- **Headless proxy:** PASS when all filtered tests green (244 solution total).
 - **Unity manual:** PENDING until Editor checklist signed.

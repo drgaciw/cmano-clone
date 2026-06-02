@@ -18,6 +18,18 @@
     unity-font-style: bold;
 }
 
+.c2-topbar-item--comms-nominal {
+    color: rgb(100, 200, 140);
+}
+
+.c2-topbar-item--comms-degraded {
+    color: rgb(240, 180, 80);
+}
+
+.c2-topbar-item--comms-denied {
+    color: rgb(230, 90, 90);
+}
+
 .c2-topbar-item--score {
     margin-left: auto;
     unity-font-style: bold;
