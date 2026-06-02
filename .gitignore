@@ -54,3 +54,8 @@ tools/cmano-db-crawler/_raw/
 agent-tools/
 mcps/
 terminals/
+
+# Unity Hub / smoke setup logs (local only, never commit)
+unity-*.log
+unity-*.log.import
+unity-hub-install*.log
