@@ -24,7 +24,8 @@ public static class BalticReplayHarness
         int Ticks,
         string Fingerprint,
         int EngagementCount,
-        ulong DetectionWorldHash);
+        ulong DetectionWorldHash,
+        ulong WorldHash);
 
     public static Result Run(int seed, string scenarioPolicyId, int ticks, bool mvpEngagement = true)
     {
@@ -43,7 +44,8 @@ public static class BalticReplayHarness
                 SimSeed.FromScenario((ulong)seed),
                 profile.DetectionTrials,
                 profile.UnitRadarEmcon,
-                profile.Jammers);
+                profile.Jammers,
+                profile.ContactLifecycle.StaleThresholdTicks);
         }
         else if (profile?.ContactSeeds.Count > 0)
         {
@@ -82,13 +84,18 @@ public static class BalticReplayHarness
             bridge.Tick(harness, harness);
         }
 
+        var simHash = bridge.Session?.Sim.LastWorldHash ?? 0;
+        var detectionHash = pdSim?.LastDetectionHash ?? 0;
+        var worldHash = SimWorldHash.Combine(simHash, detectionHash, 0);
+
         return new Result(
             seed,
             scenarioPolicyId,
             ticks,
             bridge.Orchestrator.DecisionLog.ComputeFingerprint(),
             bridge.Orchestrator.DecisionLog.Engagements.Count,
-            pdSim?.LastDetectionHash ?? 0);
+            detectionHash,
+            worldHash);
     }
 
     private sealed class HeadlessSnapshot : ISimWorldSnapshot, IOrderSink
