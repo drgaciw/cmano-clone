@@ -7,6 +7,13 @@ public static class CatalogSeedBootstrap
 {
     public static void SeedBalticPatrol(string databasePath, bool overwrite = true)
     {
+        var jsonPath = CatalogJsonImporter.ResolveBalticSensorsJsonPath();
+        if (File.Exists(jsonPath))
+        {
+            CatalogJsonImporter.ImportToSqlite(jsonPath, databasePath, overwrite);
+            return;
+        }
+
         if (overwrite && File.Exists(databasePath))
         {
             File.Delete(databasePath);

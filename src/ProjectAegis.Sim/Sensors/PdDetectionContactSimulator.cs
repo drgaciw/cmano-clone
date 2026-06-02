@@ -12,6 +12,7 @@ public sealed class PdDetectionContactSimulator
     private readonly IReadOnlyDictionary<string, EmconState>? _unitRadarEmcon;
     private readonly IReadOnlyList<ScenarioJammer> _jammers;
     private readonly HashSet<string> _detectedContacts = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _destroyedTargets = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ContactTrack> _tracks = new(StringComparer.Ordinal);
     private readonly int _staleThresholdTicks;
     private string? _primaryTargetId;
@@ -54,6 +55,11 @@ public sealed class PdDetectionContactSimulator
         var seenThisTick = new HashSet<string>(StringComparer.Ordinal);
         foreach (var roll in rolls)
         {
+            if (_destroyedTargets.Contains(roll.Trial.TargetId))
+            {
+                continue;
+            }
+
             if (!roll.Detected)
             {
                 continue;
@@ -167,4 +173,47 @@ public sealed class PdDetectionContactSimulator
             _primaryHasTrack = true;
         }
     }
+
+    /// <summary>Force-remove a destroyed target from the contact picture (combat kill).</summary>
+    public IReadOnlyList<ContactTransition> ApplyTargetKill(
+        ulong simTick,
+        double simTime,
+        string targetId)
+    {
+        var transitions = new List<ContactTransition>();
+        var lostContacts = _tracks.Keys
+            .Where(contactId => _trials.First(t => t.ContactId == contactId).TargetId == targetId)
+            .ToArray();
+
+        foreach (var contactId in lostContacts)
+        {
+            if (!_tracks.TryGetValue(contactId, out var track) ||
+                track.State == ContactLifecycleState.Lost)
+            {
+                continue;
+            }
+
+            track.State = ContactLifecycleState.Lost;
+            var trial = _trials.First(t => t.ContactId == contactId);
+            transitions.Add(new ContactTransition(
+                simTick,
+                simTime,
+                trial.ObserverId,
+                trial.ContactId,
+                trial.TargetId,
+                ContactLifecycleState.Detected,
+                ContactLifecycleState.Lost));
+            _detectedContacts.Remove(contactId);
+        }
+
+        if (lostContacts.Length > 0)
+        {
+            _destroyedTargets.Add(targetId);
+            RecomputePrimary();
+        }
+
+        return transitions;
+    }
+
+    public bool IsTargetDestroyed(string targetId) => _destroyedTargets.Contains(targetId);
 }

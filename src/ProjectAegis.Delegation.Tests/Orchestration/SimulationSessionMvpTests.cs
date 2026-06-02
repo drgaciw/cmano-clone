@@ -4,6 +4,7 @@ using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Sim;
+using ProjectAegis.Delegation.Tests.Helpers;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Sim.Engage;
@@ -31,7 +32,7 @@ public sealed class SimulationSessionMvpTests
 
         for (var t = 0; t < 5; t++)
         {
-            session.Tick(new ObservedState(t, 2, 0, new Dictionary<TargetId, bool>()));
+            session.Tick(MvpObservedStates.EngageTick(t));
         }
 
         Assert.That(session.Orchestrator.DecisionLog.Engagements.Any(e => e.Launched), Is.True);
@@ -54,7 +55,7 @@ public sealed class SimulationSessionMvpTests
         session.Orchestrator.Register(unit);
         session.BeginExecution();
 
-        session.Tick(new ObservedState(0, 2, 0, new Dictionary<TargetId, bool>()));
+        session.Tick(MvpObservedStates.EngageTick(0));
 
         var aborted = session.Orchestrator.DecisionLog.Engagements
             .Where(e => !e.Launched)
@@ -84,7 +85,7 @@ public sealed class SimulationSessionMvpTests
 
         for (var t = 0; t < 3; t++)
         {
-            session.Tick(new ObservedState(t, 2, 0, new Dictionary<TargetId, bool>()));
+            session.Tick(MvpObservedStates.EngageTick(t));
         }
 
         var aborted = session.Orchestrator.DecisionLog.Engagements

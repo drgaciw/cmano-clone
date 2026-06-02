@@ -23,7 +23,8 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     public static InMemoryCatalogReader BalticPatrolFixture() =>
         new(
         [
-            new CatalogSensorBinding("u1", "radar-1", 1.0, "baltic-fixture"),
+            new CatalogSensorBinding("u1", "radar-1", 1.0, "baltic-fixture-radar1"),
+            new CatalogSensorBinding("u1", "radar-2", 0.75, "baltic-fixture-radar2"),
         ],
         "p0-baltic-fixture");
 

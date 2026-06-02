@@ -4,6 +4,7 @@ using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Sim;
+using ProjectAegis.Delegation.Tests.Helpers;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Sim.Policy;
@@ -81,7 +82,7 @@ public sealed class ReplayOrderLogFingerprintTests
 
         for (var tick = 0; tick < 4; tick++)
         {
-            session.Tick(new ObservedState(tick, 2, 0, new Dictionary<TargetId, bool>()));
+            session.Tick(MvpObservedStates.EngageTick(tick));
         }
 
         return orchestrator.DecisionLog.ComputeFingerprint();

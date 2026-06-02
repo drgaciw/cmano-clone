@@ -140,4 +140,8 @@ public sealed class ScenarioEngageJsonDto
     public int DefaultMagazineRounds { get; set; } = 2;
 
     public bool HasFireControlTrack { get; set; } = true;
+
+    public double PkBase { get; set; } = 0.85;
+
+    public double PkKill { get; set; } = 1.0;
 }

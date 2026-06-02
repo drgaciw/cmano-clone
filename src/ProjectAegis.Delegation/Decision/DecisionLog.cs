@@ -2,7 +2,7 @@ namespace ProjectAegis.Delegation.Decision;
 
 using System.Text;
 
-public sealed class DecisionLog
+public sealed class DecisionLog : IOrderLog
 {
     private ulong _sequenceId;
     private readonly List<DecisionRecord> _records = new();
@@ -16,6 +16,7 @@ public sealed class DecisionLog
     private readonly List<ContactChangeRecord> _contactChanges = new();
     private readonly List<MissionTransitionRecord> _missionTransitions = new();
     private readonly List<EventFiredRecord> _eventFired = new();
+    private readonly List<EngagementOutcomeRecord> _engagementOutcomes = new();
 
     public IReadOnlyList<DecisionRecord> Records => _records;
 
@@ -37,11 +38,36 @@ public sealed class DecisionLog
 
     public IReadOnlyList<EventFiredRecord> EventFired => _eventFired;
 
-    public void Append(DecisionRecord record)
+    public IReadOnlyList<EngagementOutcomeRecord> EngagementOutcomes => _engagementOutcomes;
+
+    public void Append(OrderLogEntry entry)
     {
-        _records.Add(record);
-        _decisionSequences.Add(NextSequence());
+        var sequenceId = entry.SequenceId == 0 ? NextSequence() : entry.SequenceId;
+        switch (entry.Kind)
+        {
+            case OrderLogEntryKind.AgentDecision when entry.Payload is DecisionRecord record:
+                _records.Add(record);
+                _decisionSequences.Add(sequenceId);
+                break;
+            case OrderLogEntryKind.PolicyDenial when entry.Payload is PolicyDenialRecord denial:
+                _policyDenials.Add(denial with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.Engagement when entry.Payload is EngagementRecord engagement:
+                _engagements.Add(engagement with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.EngagementOutcome when entry.Payload is EngagementOutcomeRecord outcome:
+                _engagementOutcomes.Add(outcome with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.ContactChange when entry.Payload is ContactChangeRecord contact:
+                _contactChanges.Add(contact with { SequenceId = sequenceId });
+                break;
+            default:
+                throw new ArgumentException($"Unsupported order log entry kind: {entry.Kind}", nameof(entry));
+        }
     }
+
+    public void Append(DecisionRecord record) =>
+        Append(OrderLogEntry.FromDecisionRecord(record, (ulong)Math.Max(0, (long)record.SimTime)));
 
     public void AppendPolicyDenial(PolicyDenialRecord denial) =>
         _policyDenials.Add(denial with { SequenceId = NextSequence() });
@@ -69,6 +95,9 @@ public sealed class DecisionLog
 
     public void AppendEventFired(EventFiredRecord fired) =>
         _eventFired.Add(fired with { SequenceId = NextSequence() });
+
+    public void AppendEngagementOutcome(EngagementOutcomeRecord outcome) =>
+        _engagementOutcomes.Add(outcome with { SequenceId = NextSequence() });
 
     /// <summary>Unified timeline sorted by sequence (ADR-003 MVP).</summary>
     public IReadOnlyList<OrderLogEntry> ChronologicalEntries()
@@ -128,6 +157,11 @@ public sealed class DecisionLog
             entries.Add(new OrderLogEntry(e.SequenceId, OrderLogEntryKind.EventFired, e.SimTime, e));
         }
 
+        foreach (var o in _engagementOutcomes)
+        {
+            entries.Add(new OrderLogEntry(o.SequenceId, OrderLogEntryKind.EngagementOutcome, o.SimTime, o));
+        }
+
         return entries.OrderBy(e => e.SequenceId).ToArray();
     }
 
@@ -173,6 +207,8 @@ public sealed class DecisionLog
                 $"{m.SimTick}|{m.EventId}|{m.PhaseCode}",
             OrderLogEntryKind.EventFired when entry.Payload is EventFiredRecord f =>
                 $"{f.SimTick}|{f.EventId}|{f.EventCode}",
+            OrderLogEntryKind.EngagementOutcome when entry.Payload is EngagementOutcomeRecord o =>
+                $"{o.SimTick}|{o.EngagementId}|{o.VictimTargetId.Value}|{o.OutcomeCode}|{o.PkDraw:R}",
             _ => "?",
         };
 

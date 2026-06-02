@@ -1,32 +1,46 @@
 namespace ProjectAegis.Sim.Engage;
 
+using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Policy;
 
-/// <summary>MVP resolver: policy, fire-control track, envelope/DLZ, magazine consumption.</summary>
+/// <summary>MVP resolver: policy, fire-control track, envelope/DLZ, magazine consumption, combat outcome.</summary>
 public sealed class MvpEngagementResolver : IEngagementResolver
 {
+    private readonly SimSeed _seed;
     private readonly IEngageWorldQuery _world;
     private readonly MagazineLedger _magazines;
     private readonly IPolicyEvaluator? _policyEvaluator;
     private readonly Func<ulong, EffectivePolicy>? _resolvePolicy;
+    private readonly KilledTargetRegistry _killedTargets;
     private ulong _nextEngagementId = 1;
 
     public MvpEngagementResolver(
         IEngageWorldQuery world,
         MagazineLedger magazines,
         IPolicyEvaluator? policyEvaluator = null,
-        Func<ulong, EffectivePolicy>? resolvePolicy = null)
+        Func<ulong, EffectivePolicy>? resolvePolicy = null,
+        SimSeed? seed = null,
+        KilledTargetRegistry? killedTargets = null)
     {
+        _seed = seed ?? SimSeed.FromScenario(0);
         _world = world;
         _magazines = magazines;
         _policyEvaluator = policyEvaluator;
         _resolvePolicy = resolvePolicy;
+        _killedTargets = killedTargets ?? new KilledTargetRegistry();
     }
 
     public MagazineLedger Magazines => _magazines;
 
+    public KilledTargetRegistry KilledTargets => _killedTargets;
+
     public EngageResult Resolve(in EngageRequest request)
     {
+        if (request.TargetId != 0 && _killedTargets.IsKilled(request.TargetId))
+        {
+            return EngageResult.Aborted(EngagementAbortReason.TargetDestroyed);
+        }
+
         if (_policyEvaluator != null)
         {
             var effective = _resolvePolicy?.Invoke(request.ShooterUnitId) ?? EffectivePolicy.DefaultFree;
@@ -74,7 +88,9 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(EngagementAbortReason.MagazineEmpty);
         }
 
-        return EngageResult.Launch(_nextEngagementId++);
+        var launch = EngageResult.Launch(_nextEngagementId++);
+        var afterHit = CombatOutcomeResolver.Apply(_seed, request, launch, ctx.PkBase);
+        return CombatOutcomeResolver.ApplyKillOnHit(_seed, request, afterHit, ctx.PkKill);
     }
 
     private static EngagementAbortReason MapPolicyDenial(FireAbortReason reason) =>

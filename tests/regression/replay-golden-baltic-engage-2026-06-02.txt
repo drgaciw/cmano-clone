@@ -1,0 +1,7 @@
+# Golden fingerprint — baltic-patrol seed=42 ticks=4 (kill persists, no re-detect)
+# Regenerate: dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-patrol --ticks 4
+
+WORLD_HASH=17144800277401907079
+DETECTION_WORLD_HASH=15600
+
+EngagementOutcome|5|1|1|1|hostile-1|Kill|0.006501966157579321

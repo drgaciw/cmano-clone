@@ -1,6 +1,6 @@
 # Epic: Combat Outcomes MVP Slice
 
-> **Status:** Not started  
+> **Status:** MVP Complete — hit/miss + kill (`stack/combat-outcomes`)  
 > **Priority:** P2 — player-visible fight resolution  
 > **Created:** 2026-06-02  
 > **Depends on:** Engage launch on log, platform-db-basepd (recommended)  

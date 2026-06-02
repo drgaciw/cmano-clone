@@ -74,4 +74,18 @@ public sealed class MvpEngagementResolverTests
         var result = resolver.Resolve(request);
         Assert.Equal(EngagementAbortReason.DlzOut, result.AbortReason);
     }
+
+    [Fact]
+    public void Killed_target_aborts_before_launch()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var killed = new KilledTargetRegistry();
+        killed.MarkKilled(2, "hostile-1");
+        var resolver = new MvpEngagementResolver(world, new MagazineLedger(), killedTargets: killed);
+        var request = new EngageRequest(1, 2, 0, 0);
+        world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true));
+
+        var result = resolver.Resolve(request);
+        Assert.Equal(EngagementAbortReason.TargetDestroyed, result.AbortReason);
+    }
 }

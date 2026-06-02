@@ -20,6 +20,7 @@ public static class EngagementAbortReasonCodes
             EngagementAbortReason.EmconOff => nameof(FireAbortReason.EmconOff),
             EngagementAbortReason.RoeHoldFire => nameof(FireAbortReason.RoeHoldFire),
             EngagementAbortReason.WeaponsTight => nameof(FireAbortReason.WeaponsTight),
+            EngagementAbortReason.TargetDestroyed => nameof(EngagementAbortReason.TargetDestroyed),
             _ => reason.ToString(),
         };
 }
