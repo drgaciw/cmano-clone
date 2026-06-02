@@ -98,6 +98,7 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 | `dotnet: command not found` | Run the install block under Prerequisites; confirm `dotnet --version` prints `8.0.400`. |
 | Missing `Microsoft.NETCore.App` runtime | Install SDK 8.0.400 (not runtime-only); `dotnet --list-sdks` should include `8.0.400`. |
 | Play Mode smoke not found | Use the full project path in the table above; filter name is `PlayModeSmokeHarnessTests`. |
+| Branch protection API 403 | Private repo on free plan — enable required checks manually; see `docs/engineering/ci-and-branch-protection.md` |
 | `dotnet format` fails on `Program.cs` | Known pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`; unrelated to most PRs. |
 | Environment install fails immediately | Confirm `.cursor/cloud-install.sh` is executable; run `bash .cursor/cloud-install.sh` manually from repo root. |
 
