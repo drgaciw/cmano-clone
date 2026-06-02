@@ -17,12 +17,16 @@ The repository contains requirements documentation and an initial **agent delega
 - **Unity wiring:** `unity/ProjectAegis/` (DLL copy + optional `DelegationBridgeHost`)
 - **Console demo:** `src/ProjectAegis.Delegation.Demo/`
 
+[![.NET CI](https://github.com/drgaciw/cmano-clone/actions/workflows/dotnet-ci.yml/badge.svg?branch=main)](https://github.com/drgaciw/cmano-clone/actions/workflows/dotnet-ci.yml)
+
 Build and test (requires [.NET 8 SDK](https://dotnet.microsoft.com/download)):
 
 ```bash
 dotnet test ProjectAegis.sln -v minimal
 dotnet run --project src/ProjectAegis.Delegation.Demo
 ```
+
+**CI / branch protection:** [docs/engineering/ci-and-branch-protection.md](docs/engineering/ci-and-branch-protection.md) — GitHub Actions gates, required checks for `main`, Graphite notes, optional Unity license workflow.
 
 **Cursor Cloud agents:** see the [Cursor Cloud specific instructions](AGENTS.md#cursor-cloud-specific-instructions) section in `AGENTS.md` (headless build/test, Play Mode smoke harness, `.cursor/cloud-install.sh` bootstrap via `.cursor/environment.json`).
 

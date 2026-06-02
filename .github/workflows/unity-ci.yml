@@ -1,0 +1,53 @@
+name: Unity CI (manual)
+
+# Full Unity Editor test runner — requires a Unity license secret.
+# Headless Play Mode smoke already runs in dotnet-ci.yml without a license.
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_platform:
+        description: Test platform
+        required: true
+        default: editmode
+        type: choice
+        options:
+          - editmode
+          - playmode
+
+concurrency:
+  group: unity-ci-${{ github.repository }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  unity_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Require Unity license
+        id: license
+        run: |
+          if [ -z "${{ secrets.UNITY_LICENSE }}" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::UNITY_LICENSE secret is not set. Add it under Settings → Secrets → Actions, then re-run."
+            echo "See docs/engineering/ci-and-branch-protection.md"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip (no license)
+        if: steps.license.outputs.configured != 'true'
+        run: exit 0
+
+      - name: Unity test runner
+        if: steps.license.outputs.configured == 'true'
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          projectPath: unity/ProjectAegis
+          unityVersion: 6000.3.14f1
+          testMode: ${{ inputs.test_platform }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
