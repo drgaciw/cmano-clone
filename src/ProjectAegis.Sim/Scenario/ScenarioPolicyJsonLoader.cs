@@ -55,10 +55,31 @@ public static class ScenarioPolicyJsonLoader
             ParseEngageDefaults(dto.Engage),
             dto.AllowDualSideControl ?? false,
             ParseContactSeeds(dto.Contacts),
-            ParseUnitRadarEmcon(dto.Emcon))
+            ParseUnitRadarEmcon(dto.Emcon),
+            ParseDetectionTrials(dto.Detection))
         {
             Id = dto.Id,
         };
+    }
+
+    private static IReadOnlyList<ScenarioDetectionTrial> ParseDetectionTrials(
+        List<ScenarioDetectionJsonDto>? detection)
+    {
+        if (detection == null || detection.Count == 0)
+        {
+            return Array.Empty<ScenarioDetectionTrial>();
+        }
+
+        return detection
+            .Select(d => new ScenarioDetectionTrial(
+                d.ObserverId,
+                d.SensorId,
+                d.TargetId,
+                d.ContactId,
+                d.BasePd,
+                d.EnvMask,
+                d.JamStrength))
+            .ToArray();
     }
 
     private static IReadOnlyDictionary<string, EmconState> ParseUnitRadarEmcon(ScenarioEmconJsonDto? emcon)
