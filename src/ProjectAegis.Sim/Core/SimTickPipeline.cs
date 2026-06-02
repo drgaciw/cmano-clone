@@ -63,13 +63,26 @@ public sealed class SimTickPipeline : ISimTickRunner
 
     private static ulong MixEngagements(IReadOnlyList<EngageResult> results)
     {
-        ulong x = 0;
+        ulong engageIds = 0;
+        ulong outcomeMix = 0;
         foreach (var r in results)
         {
-            x ^= r.Launched ? r.EngagementId : 0UL;
+            if (!r.Launched)
+            {
+                continue;
+            }
+
+            engageIds ^= r.EngagementId;
+            if (r.OutcomeCode != null)
+            {
+                outcomeMix = SimWorldHash.MixLayer(
+                    outcomeMix,
+                    SimWorldHash.Fold(r.EngagementId ^ (ulong)r.OutcomeCode[0]),
+                    SimWorldHash.LayerCombatOutcome);
+            }
         }
 
-        return x;
+        return SimWorldHash.MixLayer(engageIds, outcomeMix, SimWorldHash.LayerEngage);
     }
 
 }

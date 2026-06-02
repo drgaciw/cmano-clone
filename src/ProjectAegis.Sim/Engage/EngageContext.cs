@@ -5,4 +5,5 @@ public readonly record struct EngageContext(
     WeaponEnvelope Envelope,
     int RoundsRemaining,
     bool HasFireControlTrack,
-    bool RadarEmconActive = true);
+    bool RadarEmconActive = true,
+    double PkBase = 1.0);

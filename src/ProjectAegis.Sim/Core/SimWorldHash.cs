@@ -6,6 +6,7 @@ public static class SimWorldHash
     public const byte LayerCore = 1;
     public const byte LayerDetection = 2;
     public const byte LayerEngage = 3;
+    public const byte LayerCombatOutcome = 4;
 
     public static ulong MixLayer(ulong composite, ulong layer, byte tag) =>
         Fold(composite ^ Fold(layer ^ ((ulong)tag << 56)));

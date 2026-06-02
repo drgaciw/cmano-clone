@@ -1,10 +1,12 @@
 namespace ProjectAegis.Sim.Engage;
 
+using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Policy;
 
-/// <summary>MVP resolver: policy, fire-control track, envelope/DLZ, magazine consumption.</summary>
+/// <summary>MVP resolver: policy, fire-control track, envelope/DLZ, magazine consumption, combat outcome.</summary>
 public sealed class MvpEngagementResolver : IEngagementResolver
 {
+    private readonly SimSeed _seed;
     private readonly IEngageWorldQuery _world;
     private readonly MagazineLedger _magazines;
     private readonly IPolicyEvaluator? _policyEvaluator;
@@ -15,8 +17,10 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         IEngageWorldQuery world,
         MagazineLedger magazines,
         IPolicyEvaluator? policyEvaluator = null,
-        Func<ulong, EffectivePolicy>? resolvePolicy = null)
+        Func<ulong, EffectivePolicy>? resolvePolicy = null,
+        SimSeed? seed = null)
     {
+        _seed = seed ?? SimSeed.FromScenario(0);
         _world = world;
         _magazines = magazines;
         _policyEvaluator = policyEvaluator;
@@ -74,7 +78,8 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(EngagementAbortReason.MagazineEmpty);
         }
 
-        return EngageResult.Launch(_nextEngagementId++);
+        var launch = EngageResult.Launch(_nextEngagementId++);
+        return CombatOutcomeResolver.Apply(_seed, request, launch, ctx.PkBase);
     }
 
     private static EngagementAbortReason MapPolicyDenial(FireAbortReason reason) =>
