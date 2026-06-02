@@ -206,7 +206,7 @@ public sealed class DecisionLog : IOrderLog
         entry.Kind switch
         {
             OrderLogEntryKind.AgentDecision when entry.Payload is DecisionRecord r =>
-                $"{r.SimTick}|{r.AgentId.Value}|{r.ChosenKind}|{r.Alternatives.Count}|{r.RngDraw:R}",
+                $"{r.SimTick}|{r.AgentId.Value}|{r.ChosenKind}|{ScoredIntentFingerprint.Format(r.Alternatives)}|{r.RngDraw:R}",
             OrderLogEntryKind.PolicyDenial when entry.Payload is PolicyDenialRecord d =>
                 $"{d.TargetId.Value}|{d.Reason}|{d.AttemptedKind}",
             OrderLogEntryKind.Engagement when entry.Payload is EngagementRecord e =>

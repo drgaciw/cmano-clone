@@ -74,7 +74,7 @@ public static class CatalogJsonImporter
     }
 
     public static void ImportToSqlite(string jsonPath, string databasePath, bool overwrite = true) =>
-        WriteSqlite(databasePath, ReadSensorBindings(jsonPath), overwrite);
+        WriteSqlite(databasePath, CatalogImportGate.ApplyMinimumConfidence(ReadSensorBindings(jsonPath)), overwrite);
 
     public static string ResolveBalticSensorsJsonPath() => ResolveRepoRelative(
         Path.Combine("assets", "data", "catalog", "sensors_baltic.json"));
