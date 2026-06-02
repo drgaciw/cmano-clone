@@ -5,7 +5,7 @@ obj/
 *.suo
 .vs/
 
-# Unity (when project is added)
+# Unity (global — any Unity tree in repo)
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
@@ -13,8 +13,20 @@ obj/
 [Bb]uilds/
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
+[Mm]emory[Cc]aptures/
+[Rr]ecordings/
 *.csproj.user
 *.unityproj.user
+
+# Unity ProjectAegis — explicit paths (Editor cache; never commit)
+unity/ProjectAegis/Library/
+unity/ProjectAegis/Temp/
+unity/ProjectAegis/Logs/
+unity/ProjectAegis/UserSettings/
+unity/ProjectAegis/MemoryCaptures/
+unity/ProjectAegis/Recordings/
+unity/ProjectAegis/*.pid
+unity/ProjectAegis/**/ilpp.pid
 
 # Copied plugin DLLs (rebuild via tools/copy-delegation-assemblies.ps1)
 unity/ProjectAegis/Plugins/*.dll
