@@ -85,7 +85,13 @@ public static class BalticReplayHarness
         bridge.Orchestrator.Register(unit);
         bridge.BeginExecution();
 
-        var harness = new HeadlessSnapshot(pdSim, scheduleSim, profile?.UnitRadarEmcon, fallbackContactCount: 2, fallbackHasTrack: true);
+        var harness = new HeadlessSnapshot(
+            pdSim,
+            scheduleSim,
+            profile?.UnitRadarEmcon,
+            bridge.Session?.KilledTargets,
+            fallbackContactCount: 2,
+            fallbackHasTrack: true);
         for (var t = 0; t < ticks; t++)
         {
             harness.Advance(1.0);
@@ -129,6 +135,17 @@ public static class BalticReplayHarness
 
             bridge.Tick(harness, harness);
 
+            if (bridge.Session?.KilledTargets is { } killed && pdSim != null)
+            {
+                foreach (var (_, label) in killed.DrainNewKills())
+                {
+                    foreach (var killTransition in pdSim.ApplyTargetKill(simTick, harness.SimTime, label))
+                    {
+                        bridge.Orchestrator.DecisionLog.AppendContactTransition(killTransition);
+                    }
+                }
+            }
+
             if (checkpointInterval > 0 && simTick % (ulong)checkpointInterval == 0)
             {
                 var simHashTick = bridge.Session?.Sim.LastWorldHash ?? 0;
@@ -162,6 +179,7 @@ public static class BalticReplayHarness
         private readonly PdDetectionContactSimulator? _pd;
         private readonly ScenarioContactSimulator? _schedule;
         private readonly IReadOnlyDictionary<string, EmconState>? _unitRadarEmcon;
+        private readonly KilledTargetRegistry? _killedTargets;
         private readonly int _fallbackContactCount;
         private readonly bool _fallbackHasTrack;
         private double _simTime;
@@ -170,12 +188,14 @@ public static class BalticReplayHarness
             PdDetectionContactSimulator? pd,
             ScenarioContactSimulator? schedule,
             IReadOnlyDictionary<string, EmconState>? unitRadarEmcon,
+            KilledTargetRegistry? killedTargets,
             int fallbackContactCount,
             bool fallbackHasTrack)
         {
             _pd = pd;
             _schedule = schedule;
             _unitRadarEmcon = unitRadarEmcon;
+            _killedTargets = killedTargets;
             _fallbackContactCount = fallbackContactCount;
             _fallbackHasTrack = fallbackHasTrack;
         }
@@ -228,7 +248,16 @@ public static class BalticReplayHarness
 
         public void Advance(double delta) => _simTime += delta;
 
-        public bool IsMemberAlive(TargetId memberId) => true;
+        public bool IsMemberAlive(TargetId memberId)
+        {
+            if (_killedTargets == null)
+            {
+                return true;
+            }
+
+            var id = Roe.OrderActionMapper.TargetIdToUlong(memberId);
+            return !_killedTargets.IsKilled(id);
+        }
 
         public void ApplyOrder(EntityKey entity, in Order order) { }
     }

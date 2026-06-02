@@ -185,7 +185,7 @@ public sealed class DecisionLog
             OrderLogEntryKind.EventFired when entry.Payload is EventFiredRecord f =>
                 $"{f.SimTick}|{f.EventId}|{f.EventCode}",
             OrderLogEntryKind.EngagementOutcome when entry.Payload is EngagementOutcomeRecord o =>
-                $"{o.SimTick}|{o.EngagementId}|{o.OutcomeCode}|{o.PkDraw:R}",
+                $"{o.SimTick}|{o.EngagementId}|{o.VictimTargetId.Value}|{o.OutcomeCode}|{o.PkDraw:R}",
             _ => "?",
         };
 

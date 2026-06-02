@@ -193,7 +193,8 @@ public static class ScenarioPolicyJsonLoader
                 engage.EnvelopeMaxMeters,
                 engage.DefaultMagazineRounds,
                 engage.HasFireControlTrack,
-                engage.PkBase);
+                engage.PkBase,
+                engage.PkKill);
 
     private static RoeLevel ParseRoe(string value) =>
         Enum.TryParse<RoeLevel>(value, ignoreCase: true, out var roe)

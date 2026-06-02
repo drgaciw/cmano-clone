@@ -6,4 +6,5 @@ public readonly record struct EngageContext(
     int RoundsRemaining,
     bool HasFireControlTrack,
     bool RadarEmconActive = true,
-    double PkBase = 1.0);
+    double PkBase = 0.85,
+    double PkKill = 1.0);

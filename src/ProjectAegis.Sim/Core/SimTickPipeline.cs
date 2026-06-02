@@ -46,9 +46,7 @@ public sealed class SimTickPipeline : ISimTickRunner
         }
 
         _pending.Clear();
-
-        var engageMix = MixEngagements(_lastResults);
-        LastWorldHash = SimWorldHash.Combine(_core.LastWorldHash, DetectionSubhash, engageMix);
+        RecomputeWorldHash();
     }
 
     /// <summary>Detection phase sub-hash (tick step 4); call before engagement resolves.</summary>
@@ -57,8 +55,14 @@ public sealed class SimTickPipeline : ISimTickRunner
     public void MixDetectionTick(IReadOnlyList<DetectionRollResult> rolls)
     {
         DetectionSubhash = DetectionWorldHash.MixTick(DetectionSubhash, rolls);
+        RecomputeWorldHash();
+    }
+
+    private void RecomputeWorldHash()
+    {
         var engageMix = MixEngagements(_lastResults);
-        LastWorldHash = SimWorldHash.Combine(_core.LastWorldHash, DetectionSubhash, engageMix);
+        var killMix = _engagement is MvpEngagementResolver mvp ? mvp.KilledTargets.MixHash() : 0UL;
+        LastWorldHash = SimWorldHash.Combine(_core.LastWorldHash, DetectionSubhash, engageMix, killMix);
     }
 
     private static ulong MixEngagements(IReadOnlyList<EngageResult> results)
