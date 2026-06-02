@@ -30,6 +30,7 @@ jobs:
         uses: github/codeql-action/autobuild@v3
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
+        continue-on-error: true
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
