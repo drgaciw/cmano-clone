@@ -17,6 +17,21 @@ public sealed class ScenarioPolicyJsonDto
     public Dictionary<string, string>? UnitOverrides { get; set; }
 
     public ScenarioEngageJsonDto? Engage { get; set; }
+
+    public List<ScenarioContactJsonDto>? Contacts { get; set; }
+}
+
+public sealed class ScenarioContactJsonDto
+{
+    public string ObserverId { get; set; } = "u1";
+
+    public string TargetId { get; set; } = "hostile-1";
+
+    public string ContactId { get; set; } = "c1";
+
+    public ulong AppearAtTick { get; set; }
+
+    public bool HasFireControlTrack { get; set; } = true;
 }
 
 public sealed class ScenarioEngageJsonDto

@@ -13,6 +13,7 @@ public sealed class DecisionLog
     private readonly List<GroupMemberDetachRecord> _groupMemberDetaches = new();
     private readonly List<GroupMemberRejoinRecord> _groupMemberRejoins = new();
     private readonly List<MagazineChangeRecord> _magazineChanges = new();
+    private readonly List<ContactChangeRecord> _contactChanges = new();
 
     public IReadOnlyList<DecisionRecord> Records => _records;
 
@@ -27,6 +28,8 @@ public sealed class DecisionLog
     public IReadOnlyList<GroupMemberRejoinRecord> GroupMemberRejoins => _groupMemberRejoins;
 
     public IReadOnlyList<MagazineChangeRecord> MagazineChanges => _magazineChanges;
+
+    public IReadOnlyList<ContactChangeRecord> ContactChanges => _contactChanges;
 
     public void Append(DecisionRecord record)
     {
@@ -51,6 +54,9 @@ public sealed class DecisionLog
 
     public void AppendMagazineChange(MagazineChangeRecord change) =>
         _magazineChanges.Add(change with { SequenceId = NextSequence() });
+
+    public void AppendContactChange(ContactChangeRecord change) =>
+        _contactChanges.Add(change with { SequenceId = NextSequence() });
 
     /// <summary>Unified timeline sorted by sequence (ADR-003 MVP).</summary>
     public IReadOnlyList<OrderLogEntry> ChronologicalEntries()
@@ -95,6 +101,11 @@ public sealed class DecisionLog
             entries.Add(new OrderLogEntry(m.SequenceId, OrderLogEntryKind.MagazineChange, m.SimTime, m));
         }
 
+        foreach (var c in _contactChanges)
+        {
+            entries.Add(new OrderLogEntry(c.SequenceId, OrderLogEntryKind.ContactChange, c.SimTime, c));
+        }
+
         return entries.OrderBy(e => e.SequenceId).ToArray();
     }
 
@@ -134,6 +145,8 @@ public sealed class DecisionLog
                 $"{r.GroupId.Value}|{r.UnitId.Value}",
             OrderLogEntryKind.MagazineChange when entry.Payload is MagazineChangeRecord m =>
                 $"{m.SimTick}|{m.ShooterTargetId.Value}|{m.MountId}|{m.Delta}|{m.ReasonCode}",
+            OrderLogEntryKind.ContactChange when entry.Payload is ContactChangeRecord c =>
+                $"{c.SimTick}|{c.ObserverId}|{c.ContactId}|{c.TargetId}|{c.PreviousState}|{c.NewState}",
             _ => "?",
         };
 

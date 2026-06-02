@@ -90,3 +90,4 @@ Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 | 2026-06-01 | Integration pass: #13 merged main; #14–#16 restacked; logistics GDD Approved; Baltic epic scaffold |
 | 2026-06-01 | Baltic slice **complete** on main (#17–#19); 105 tests; gate PASS — see `docs/reports/baltic-headless-slice-gate-2026-06-01.md` |
 | 2026-06-01 | Next epic: `sensor-headless-slice` (ContactChange + scenario contacts); sensor GDD still In Review |
+| 2026-06-02 | `sensor-headless-slice` implemented on branch `stack/sensor-contact-change` — 110 tests |
