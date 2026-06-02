@@ -16,4 +16,31 @@ public static class CatalogImportGate
             .ThenBy(b => b.SensorId, StringComparer.Ordinal)
             .ToArray();
     }
+
+    public const int DefaultMinimumTrl = 4;
+
+    public static CatalogSensorBinding[] ApplyTlReviewGate(
+        IEnumerable<CatalogSensorBinding> bindings,
+        int minimumTrl = DefaultMinimumTrl,
+        bool requireApproved = true)
+    {
+        var minTrl = Math.Clamp(minimumTrl, 1, 9);
+        return bindings
+            .Where(b => b.TrlLevel >= minTrl)
+            .Where(b => !requireApproved ||
+                        string.Equals(b.ReviewState, CatalogReviewStates.Approved, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(b => b.PlatformId, StringComparer.Ordinal)
+            .ThenBy(b => b.SensorId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    public static CatalogSensorBinding[] ApplyAllGates(
+        IEnumerable<CatalogSensorBinding> bindings,
+        double minimumConfidence = DefaultMinimumConfidence,
+        int minimumTrl = DefaultMinimumTrl,
+        bool requireApproved = true) =>
+        ApplyTlReviewGate(
+            ApplyMinimumConfidence(bindings, minimumConfidence),
+            minimumTrl,
+            requireApproved);
 }

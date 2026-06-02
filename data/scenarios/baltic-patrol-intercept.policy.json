@@ -12,6 +12,9 @@
     "pkIntercept": 1.0,
     "pkKill": 1.0
   },
+  "replay": {
+    "checkpointIntervalTicks": 2
+  },
   "detection": [
     {
       "observerId": "u1",

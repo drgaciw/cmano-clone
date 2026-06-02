@@ -1,3 +1,4 @@
+using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 
 static void PrintUsage()
@@ -48,6 +49,12 @@ try
     {
         Console.WriteLine(
             $"REPLAY_CHECKPOINT={checkpoint.SimTick}:{checkpoint.WorldHash}:{checkpoint.LastSequenceId}");
+    }
+
+    foreach (var message in result.Messages.Where(m =>
+                 m.Category is "KILL_CONFIRMED" or "INTERCEPT_SUCCESS" or "HIT" or "MISS"))
+    {
+        Console.WriteLine($"MESSAGE={message.Category}|{message.Text}");
     }
 
     return 0;

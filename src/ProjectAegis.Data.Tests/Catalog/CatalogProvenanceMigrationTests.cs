@@ -3,6 +3,7 @@ using Xunit;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
+[Collection("CatalogSqlite")]
 public sealed class CatalogProvenanceMigrationTests
 {
     [Fact]
@@ -17,6 +18,8 @@ public sealed class CatalogProvenanceMigrationTests
             var binding = reader.GetSortedSensorBindings()[0];
             Assert.Equal("baltic-patrol-2026-06", binding.ImportBatchId);
             Assert.Equal("sensors_baltic.json", binding.SourceFile);
+            Assert.Equal(CatalogReviewStates.Approved, binding.ReviewState);
+            Assert.Equal(9, binding.TrlLevel);
         }
         finally
         {

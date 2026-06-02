@@ -3,6 +3,7 @@ using Xunit;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
+[Collection("CatalogSqlite")]
 public sealed class CatalogSeedBootstrapTests
 {
     [Fact]

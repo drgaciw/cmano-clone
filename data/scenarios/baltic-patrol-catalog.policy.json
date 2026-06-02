@@ -9,6 +9,9 @@
     "defaultMagazineRounds": 4,
     "hasFireControlTrack": true
   },
+  "delegation": {
+    "usePatrolCandidates": true
+  },
   "catalogDetection": [
     {
       "observerId": "u1",

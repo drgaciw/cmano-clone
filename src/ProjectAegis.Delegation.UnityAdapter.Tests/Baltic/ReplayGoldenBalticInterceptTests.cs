@@ -2,6 +2,7 @@ namespace ProjectAegis.Delegation.UnityAdapter.Tests.Baltic;
 
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using NUnit.Framework;
+using ProjectAegis.Delegation.Projection;
 
 [TestFixture]
 public sealed class ReplayGoldenBalticInterceptTests
@@ -37,5 +38,7 @@ public sealed class ReplayGoldenBalticInterceptTests
         Assert.That(actualOutcomes, Has.All.Contains("|Intercept|"));
         Assert.That(result.Fingerprint, Does.Not.Contain("|Kill|"));
         Assert.That(result.Fingerprint, Does.Contain("Engage:1:High"));
+        Assert.That(result.Messages.Any(m => m.Category == "INTERCEPT_SUCCESS"), Is.True);
+        Assert.That(result.Messages.Any(m => m.Category == "KILL_CONFIRMED"), Is.False);
     }
 }

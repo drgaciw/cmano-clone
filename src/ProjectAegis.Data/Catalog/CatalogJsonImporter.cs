@@ -36,7 +36,9 @@ public static class CatalogJsonImporter
                 s.SourceFactId,
                 s.Confidence,
                 batchId,
-                sourceFile))
+                sourceFile,
+                NormalizeReviewState(s.ReviewState),
+                Math.Clamp(s.TrlLevel <= 0 ? 9 : s.TrlLevel, 1, 9)))
             .ToArray();
     }
 
@@ -51,7 +53,8 @@ public static class CatalogJsonImporter
         {
         }
 
-        using var connection = new SqliteConnection($"Data Source={databasePath}");
+        SqliteConnection.ClearAllPools();
+        using var connection = new SqliteConnection($"Data Source={databasePath};Pooling=false");
         connection.Open();
         foreach (var sensor in bindings)
         {
@@ -59,8 +62,8 @@ public static class CatalogJsonImporter
             cmd.CommandText =
                 """
                 INSERT OR REPLACE INTO sensor (platform_id, sensor_id, base_pd, source_fact_id, confidence,
-                    import_batch_id, source_file)
-                VALUES ($platform, $sensor, $basePd, $source, $confidence, $batch, $file)
+                    import_batch_id, source_file, review_state, trl_level)
+                VALUES ($platform, $sensor, $basePd, $source, $confidence, $batch, $file, $review, $trl)
                 """;
             cmd.Parameters.AddWithValue("$platform", sensor.PlatformId);
             cmd.Parameters.AddWithValue("$sensor", sensor.SensorId);
@@ -69,12 +72,21 @@ public static class CatalogJsonImporter
             cmd.Parameters.AddWithValue("$confidence", sensor.Confidence);
             cmd.Parameters.AddWithValue("$batch", sensor.ImportBatchId);
             cmd.Parameters.AddWithValue("$file", sensor.SourceFile);
+            cmd.Parameters.AddWithValue("$review", sensor.ReviewState);
+            cmd.Parameters.AddWithValue("$trl", sensor.TrlLevel);
             cmd.ExecuteNonQuery();
         }
+
+        SqliteConnection.ClearAllPools();
     }
 
     public static void ImportToSqlite(string jsonPath, string databasePath, bool overwrite = true) =>
-        WriteSqlite(databasePath, CatalogImportGate.ApplyMinimumConfidence(ReadSensorBindings(jsonPath)), overwrite);
+        WriteSqlite(databasePath, CatalogImportGate.ApplyAllGates(ReadSensorBindings(jsonPath)), overwrite);
+
+    private static string NormalizeReviewState(string? state) =>
+        string.IsNullOrWhiteSpace(state)
+            ? CatalogReviewStates.Approved
+            : state.Trim().ToLowerInvariant();
 
     public static string ResolveBalticSensorsJsonPath() => ResolveRepoRelative(
         Path.Combine("assets", "data", "catalog", "sensors_baltic.json"));
@@ -116,5 +128,9 @@ public static class CatalogJsonImporter
         public string SourceFactId { get; init; } = "catalog-import";
 
         public double Confidence { get; init; } = 1.0;
+
+        public string? ReviewState { get; init; }
+
+        public int TrlLevel { get; init; } = 9;
     }
 }

@@ -11,6 +11,7 @@ using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Delegation.Mission;
+using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Replay;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
@@ -29,7 +30,8 @@ public static class BalticReplayHarness
         int EngagementCount,
         ulong DetectionWorldHash,
         ulong WorldHash,
-        IReadOnlyList<ReplayCheckpoint> Checkpoints);
+        IReadOnlyList<ReplayCheckpoint> Checkpoints,
+        IReadOnlyList<MessageLogLine> Messages);
 
     public static Result Run(
         int seed,
@@ -76,11 +78,14 @@ public static class BalticReplayHarness
         }
 
         var unit = new UnitTarget(new TargetId("u1"));
+        var agentPolicy = profile?.DelegationSettings.UsePatrolCandidates == true
+            ? (IPolicy)new PatrolCandidateEngagePolicy()
+            : new EngageOnlyPolicy();
         var agent = bridge.Orchestrator.CreateAgent(
             new AgentId("a1"),
             PersonalityCatalog.All[0].Traits,
             AutonomyLevel.FullAutonomous,
-            policy: new EngageOnlyPolicy());
+            policy: agentPolicy);
         bridge.Orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
         bridge.Orchestrator.Register(unit);
         bridge.BeginExecution();
@@ -165,6 +170,7 @@ public static class BalticReplayHarness
         var detectionHash = pdSim?.LastDetectionHash ?? 0;
         var worldHash = SimWorldHash.Combine(simHash, detectionHash, 0);
 
+        var messages = MessageLogProjection.Project(bridge.Orchestrator.DecisionLog);
         return new Result(
             seed,
             scenarioPolicyId,
@@ -173,7 +179,8 @@ public static class BalticReplayHarness
             bridge.Orchestrator.DecisionLog.Engagements.Count,
             detectionHash,
             worldHash,
-            checkpointStore.Checkpoints);
+            checkpointStore.Checkpoints,
+            messages);
     }
 
     private sealed class HeadlessSnapshot : ISimWorldSnapshot, IOrderSink

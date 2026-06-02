@@ -3,6 +3,7 @@ using Xunit;
 
 namespace ProjectAegis.Data.Tests.Catalog;
 
+[Collection("CatalogSqlite")]
 public sealed class CatalogJsonImporterTests
 {
     [Fact]
@@ -13,10 +14,12 @@ public sealed class CatalogJsonImporterTests
         try
         {
             CatalogJsonImporter.ImportToSqlite(jsonPath, dbPath);
-            using var reader = new SqliteCatalogReader(dbPath, "p0-json-test");
-            Assert.Equal(2, reader.GetSortedSensorBindings().Count);
-            Assert.True(reader.TryGetBasePd("u1", "radar-2", out var pd));
-            Assert.Equal(0.75, pd);
+            using (var reader = new SqliteCatalogReader(dbPath, "p0-json-test"))
+            {
+                Assert.Equal(2, reader.GetSortedSensorBindings().Count);
+                Assert.True(reader.TryGetBasePd("u1", "radar-2", out var pd));
+                Assert.Equal(0.75, pd);
+            }
         }
         finally
         {
