@@ -1,3 +1,4 @@
+using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Projection;
 using NUnit.Framework;
 
@@ -16,5 +17,21 @@ public sealed class MapPanelBinderTests
 
         Assert.That(state.Symbols[0].IsSelected, Is.True);
         Assert.That(state.Symbols[0].StyleClass, Does.Contain("map-symbol--selected"));
+    }
+
+    [Test]
+    public void Bind_degraded_comms_marks_hostile_stale()
+    {
+        var state = MapPanelBinder.Bind(
+            [
+                new MapSymbolEntry("u1", "Friendly", "■", "u1", 0.2f, 0.3f, false),
+                new MapSymbolEntry("c1", "Hostile", "◆", "c1", 0.5f, 0.5f, false),
+            ],
+            "test",
+            selectedUnitId: null,
+            selectedContactId: null,
+            commsState: CommsState.Degraded);
+
+        Assert.That(state.Symbols[1].StyleClass, Does.Contain("map-symbol--stale"));
     }
 }

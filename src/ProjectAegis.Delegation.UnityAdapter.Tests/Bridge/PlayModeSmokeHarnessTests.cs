@@ -8,6 +8,7 @@ using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
+using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Engage;
@@ -93,6 +94,27 @@ public sealed class PlayModeSmokeHarnessTests
         var result = BalticReplayHarness.Run(7, "baltic-patrol", ticks: 2, mvpEngagement: false);
         Assert.That(result.SensorC2.Contacts, Is.Not.Empty);
         Assert.That(result.SensorC2.PrimaryTargetId, Is.Not.Null);
+    }
+
+    [Test]
+    public void Baltic_patrol_scoring_csv_row_is_deterministic()
+    {
+        var a = BalticReplayHarness.Run(7, "baltic-patrol", ticks: 6, mvpEngagement: true);
+        var b = BalticReplayHarness.Run(7, "baltic-patrol", ticks: 6, mvpEngagement: true);
+        Assert.That(a.ScoringCsvRow, Is.EqualTo(b.ScoringCsvRow));
+        Assert.That(a.ScoringCsvRow, Does.StartWith("baltic-patrol,7,BLUE,"));
+    }
+
+    [Test]
+    public void Baltic_classify_map_symbols_include_hostile_for_selection_path()
+    {
+        var result = BalticReplayHarness.Run(7, "baltic-patrol-classify", ticks: 10, mvpEngagement: false);
+        Assert.That(result.SensorC2.Contacts, Is.Not.Empty);
+
+        var oob = new[] { new OobTreeEntry("u1", true) };
+        var symbols = MapPictureProjection.Project(oob, result.SensorC2.Contacts, layoutSeed: 7);
+        Assert.That(symbols.Any(s => s.Affiliation == "Hostile"), Is.True);
+        Assert.That(C2SelectionResolver.ResolveDefaultFriendlyUnit(oob), Is.EqualTo("u1"));
     }
 
     [Test]

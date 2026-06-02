@@ -9,4 +9,5 @@ public enum FireAbortReason
     WraSalvo = 4,
     EmconOff = 5,
     NoFireControlTrack = 6,
+    CommsDenied = 7,
 }

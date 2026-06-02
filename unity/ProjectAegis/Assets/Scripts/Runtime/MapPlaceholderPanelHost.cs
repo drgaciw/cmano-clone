@@ -84,11 +84,13 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
+            var comms = CommsStateProjection.Project(bridgeHost.Bridge.Orchestrator.DecisionLog);
             _panelState = MapPanelBinder.Bind(
                 bridgeHost.LastMapSymbols,
                 bridgeHost.ScenarioPolicyId,
                 bridgeHost.SelectedUnitId,
-                bridgeHost.SelectedContactId);
+                bridgeHost.SelectedContactId,
+                comms.State);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
             RebuildSymbols();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;

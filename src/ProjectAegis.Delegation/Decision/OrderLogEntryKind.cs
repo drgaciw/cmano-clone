@@ -16,4 +16,5 @@ public enum OrderLogEntryKind
     PlayerOrder = 11,
     PolicyUpdate = 12,
     ModeChange = 13,
+    CommsStateChange = 14,
 }

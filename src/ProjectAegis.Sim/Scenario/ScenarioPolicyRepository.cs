@@ -11,6 +11,27 @@ public static class ScenarioPolicyRepository
         _loadedFrom = directoryPath;
     }
 
+    public static IReadOnlyList<string> AllIds()
+    {
+        EnsureDefaultJsonLoaded();
+        var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "baltic-patrol",
+            "baltic-patrol-opp-hold-fire",
+            "restricted-engagement",
+            "test-sandbox-dual-side",
+        };
+        if (_jsonProfiles != null)
+        {
+            foreach (var key in _jsonProfiles.Keys)
+            {
+                ids.Add(key);
+            }
+        }
+
+        return ids.OrderBy(id => id, StringComparer.Ordinal).ToArray();
+    }
+
     public static ScenarioPolicyProfile? TryGet(string scenarioId)
     {
         EnsureDefaultJsonLoaded();

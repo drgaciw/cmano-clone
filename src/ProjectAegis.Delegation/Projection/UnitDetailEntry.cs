@@ -7,4 +7,5 @@ public sealed record UnitDetailEntry(
     string StatusLabel,
     string MagazineLabel,
     string EmconLabel,
-    string DoctrineLabel);
+    string DoctrineLabel,
+    string FuelLabel);

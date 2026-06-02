@@ -15,6 +15,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string PhaseName = "phase-label";
         private const string CompressionName = "compression-label";
         private const string ModeName = "mode-label";
+        private const string CommsName = "comms-label";
         private const string ScoreName = "score-label";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
@@ -27,6 +28,7 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _phase;
         private Label? _compression;
         private Label? _mode;
+        private Label? _comms;
         private Label? _score;
         private bool _wired;
 
@@ -73,6 +75,7 @@ namespace ProjectAegis.Unity.Runtime
             _phase = panel.Q<Label>(PhaseName);
             _compression = panel.Q<Label>(CompressionName);
             _mode = panel.Q<Label>(ModeName);
+            _comms = panel.Q<Label>(CommsName);
             _score = panel.Q<Label>(ScoreName);
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
             {
@@ -94,6 +97,11 @@ namespace ProjectAegis.Unity.Runtime
             _phase!.text = state.PhaseLabel;
             _compression!.text = state.CompressionLabel;
             _mode!.text = state.ModeLabel;
+            if (_comms != null)
+            {
+                _comms.text = state.CommsLabel;
+            }
+
             _score!.text = state.ScoreLabel;
 
             var root = _document.rootVisualElement?.Q(RootName);

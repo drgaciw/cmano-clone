@@ -54,7 +54,7 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Top bar labels (time, phase, score).</summary>
         public C2TopBarState LastTopBar { get; private set; } =
-            new("SIM 00:00:00", "PHASE: Planning", "TIME: 1x", "MODE: —", "SCORE: 0");
+            new("SIM 00:00:00", "PHASE: Planning", "TIME: 1x", "MODE: —", "COMMS: NOMINAL", "SCORE: 0");
 
         /// <summary>Sensor C2 contact list + EMCON / track indicators for HUD binding.</summary>
         public SensorC2Snapshot LastSensorC2 { get; private set; } =

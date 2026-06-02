@@ -22,7 +22,7 @@ Open `unity/ProjectAegis` in **Unity Hub 6.3 LTS** (6000.3.x).
 7. **Right:** `RightUnitPanelHost` — `Assets/UI/UnitDetail/UnitDetailPanel.uxml` / `.uss`
 8. **Bottom:** `MessageLogPanelHost` — `Assets/UI/MessageLog/MessageLogPanel.uxml` / `.uss`
 9. Wire each host's `bridgeHost` to the same **DelegationBridgeHost**.
-10. Optional: `baltic-patrol-mission` or `baltic-patrol-classify` on bridge for missions/contacts demo.
+10. Optional scenarios on bridge: `baltic-patrol-mission`, `baltic-patrol-classify`, `baltic-patrol-comms` (COMMS top bar + denials).
 11. Enter **Play Mode** — top bar shows sim time + score; map shows ■/◆ symbols; drawer tabs work; no bridge errors.
 
 ## Sprint 6 — selection QA (manual)

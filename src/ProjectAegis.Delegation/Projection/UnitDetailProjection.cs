@@ -13,6 +13,7 @@ public static class UnitDetailProjection
         Func<TargetId, bool> isAlive,
         DecisionLog log,
         ScenarioPolicyProfile? policy,
+        double simTimeSeconds,
         string? observerUnitId = null)
     {
         var magazineLabel = ResolveMagazineLabel(unitId, log);
@@ -25,7 +26,8 @@ public static class UnitDetailProjection
             alive ? "OPERATIONAL" : "DESTROYED",
             magazineLabel,
             emconLabel,
-            doctrineLabel);
+            doctrineLabel,
+            FuelStateProjection.FormatUnitFuelLine(unitId.Value, simTimeSeconds));
     }
 
     public static UnitDetailEntry? ProjectPrimary(
@@ -33,6 +35,7 @@ public static class UnitDetailProjection
         Func<TargetId, bool> isAlive,
         DecisionLog log,
         ScenarioPolicyProfile? policy,
+        double simTimeSeconds,
         string? observerUnitId = null)
     {
         if (memberIds.Count == 0)
@@ -41,7 +44,7 @@ public static class UnitDetailProjection
         }
 
         var primary = memberIds.OrderBy(id => id.Value, StringComparer.Ordinal).First();
-        return ProjectSelected(primary, isAlive, log, policy, observerUnitId);
+        return ProjectSelected(primary, isAlive, log, policy, simTimeSeconds, observerUnitId);
     }
 
     private static string ResolveMagazineLabel(TargetId unitId, DecisionLog log)

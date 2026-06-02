@@ -42,3 +42,11 @@
     background-color: rgba(255, 200, 80, 0.15);
     padding: 2px;
 }
+
+.map-symbol--stale {
+    opacity: 0.55;
+}
+
+.map-symbol--frozen {
+    opacity: 0.35;
+}

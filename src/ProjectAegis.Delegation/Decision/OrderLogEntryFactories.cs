@@ -56,4 +56,7 @@ public static class OrderLogEntryFactories
 
     public static OrderLogEntry FromModeChange(ModeChangeRecord change, ulong sequenceId = 0) =>
         new(sequenceId, OrderLogEntryKind.ModeChange, change.SimTime, change);
+
+    public static OrderLogEntry FromCommsStateChange(CommsStateChangeRecord change, ulong sequenceId = 0) =>
+        new(sequenceId, OrderLogEntryKind.CommsStateChange, change.SimTime, change);
 }

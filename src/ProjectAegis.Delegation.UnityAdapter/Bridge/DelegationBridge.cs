@@ -1,5 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
+using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
@@ -19,6 +20,7 @@ using ProjectAegis.Sim.Scenario;
 public sealed class DelegationBridge
 {
     private readonly List<Order> _nonEngageOrdersCache = new();
+    private readonly CommsTimelineSimulator? _commsTimeline;
 
     public DelegationBridge(
         int globalSeed,
@@ -37,6 +39,7 @@ public sealed class DelegationBridge
         Session = mvpEngagement
             ? SimulationSession.BindMvpEngagementForScenario(Orchestrator, scenarioPolicyId)
             : null;
+        _commsTimeline = CommsTimelineSimulator.TryCreate(Orchestrator.ScenarioPolicy);
     }
 
     /// <summary>Headless engage session sharing <see cref="Orchestrator"/> (null when MVP engage disabled).</summary>
@@ -92,6 +95,7 @@ public sealed class DelegationBridge
 
     public DelegationTickResult Tick(ISimWorldSnapshot snapshot, IOrderSink sink)
     {
+        EmitCommsTransitions(snapshot);
         var observed = ObservedStateBuilder.Build(snapshot, Registry.CollectMemberIds());
 
         if (Session != null)
@@ -187,6 +191,20 @@ public sealed class DelegationBridge
         bool missionSucceeded = false,
         double objectivesMetRatio = 1.0) =>
         Orchestrator.FinalizeScenario(missionSucceeded, objectivesMetRatio);
+
+    private void EmitCommsTransitions(ISimWorldSnapshot snapshot)
+    {
+        if (_commsTimeline == null)
+        {
+            return;
+        }
+
+        var simTick = (ulong)Math.Max(0, (long)snapshot.SimTime);
+        foreach (var change in _commsTimeline.Drain(simTick, snapshot.SimTime))
+        {
+            Orchestrator.DecisionLog.AppendCommsStateChange(change);
+        }
+    }
 
     private static EngageContext DefaultEngageContext { get; } = new(
         50_000,

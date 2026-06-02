@@ -25,7 +25,8 @@ public sealed class UnitDetailProjectionTests
             unit,
             _ => true,
             log,
-            policy);
+            policy,
+            simTimeSeconds: 100);
 
         Assert.That(detail!.MagazineLabel, Does.Contain("Δ-1"));
         Assert.That(detail.EmconLabel, Does.Contain("ACTIVE"));
@@ -40,7 +41,8 @@ public sealed class UnitDetailProjectionTests
             members,
             _ => true,
             new DecisionLog(),
-            null);
+            null,
+            simTimeSeconds: 0);
         Assert.That(detail!.UnitId, Is.EqualTo("u1"));
     }
 }

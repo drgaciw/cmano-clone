@@ -43,6 +43,8 @@ Scenario JSON (doc 11) may define `pointsPerKill`, `baseScore` (future field; MV
 
 Columns: `scenarioId`, `seed`, `side`, `score`, `kills`, `missilesFired`, `denials`, `fingerprint`.
 
+Implementation: `LossesScoringCsvExporter` (projection); `BalticReplayHarness.Result.ScoringCsvRow` for batch runs.
+
 ## Formulas
 
 | Variable | Default | Range |

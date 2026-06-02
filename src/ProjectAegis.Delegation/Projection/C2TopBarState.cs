@@ -5,4 +5,5 @@ public sealed record C2TopBarState(
     string PhaseLabel,
     string CompressionLabel,
     string ModeLabel,
+    string CommsLabel,
     string ScoreLabel);

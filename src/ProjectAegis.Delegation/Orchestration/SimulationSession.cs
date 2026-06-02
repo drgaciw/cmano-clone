@@ -1,7 +1,9 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
+using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
+using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Sim.Core;
@@ -107,9 +109,25 @@ public sealed class SimulationSession
             .ToArray();
 
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
+        var commsBlocksEngage = CommsStateProjection.BlocksNewEngagement(
+            CommsStateProjection.Project(Orchestrator.DecisionLog).State);
         var queued = new List<(Order Order, TargetId Victim)>();
         foreach (var order in engageOrders)
         {
+            if (commsBlocksEngage)
+            {
+                Orchestrator.DecisionLog.AppendPolicyDenial(new PolicyDenialRecord(
+                    0,
+                    state.SimTime,
+                    simTick,
+                    new AgentId("comms-guard"),
+                    order.Target,
+                    0,
+                    FireAbortReason.CommsDenied,
+                    OrderKind.Engage));
+                continue;
+            }
+
             var victim = state.PrimaryHostileContactId ?? new TargetId("hostile-1");
 
             var request = new EngageRequest(

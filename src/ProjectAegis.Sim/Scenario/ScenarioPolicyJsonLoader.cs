@@ -62,10 +62,24 @@ public static class ScenarioPolicyJsonLoader
             ParseContactLifecycle(dto.ContactLifecycle),
             ParseReplaySettings(dto.Replay),
             ParseMissionTimeline(dto.Mission),
-            ParseDelegationSettings(dto.Delegation))
+            ParseDelegationSettings(dto.Delegation),
+            ParseCommsTransitions(dto.Comms))
         {
             Id = dto.Id,
         };
+    }
+
+    private static IReadOnlyList<ScenarioCommsTransition> ParseCommsTransitions(List<ScenarioCommsJsonDto>? comms)
+    {
+        if (comms == null || comms.Count == 0)
+        {
+            return Array.Empty<ScenarioCommsTransition>();
+        }
+
+        return comms
+            .OrderBy(c => c.AtTick)
+            .Select(c => new ScenarioCommsTransition(c.AtTick, c.NewState, c.NodeId, c.Reason))
+            .ToArray();
     }
 
     private static ScenarioDelegationSettings ParseDelegationSettings(ScenarioDelegationJsonDto? delegation) =>

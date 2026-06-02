@@ -35,6 +35,19 @@ public sealed class ScenarioPolicyJsonDto
     public ScenarioMissionJsonDto? Mission { get; set; }
 
     public ScenarioDelegationJsonDto? Delegation { get; set; }
+
+    public List<ScenarioCommsJsonDto>? Comms { get; set; }
+}
+
+public sealed class ScenarioCommsJsonDto
+{
+    public ulong AtTick { get; set; }
+
+    public string NewState { get; set; } = "Nominal";
+
+    public string NodeId { get; set; } = "c2-net";
+
+    public string Reason { get; set; } = "";
 }
 
 public sealed class ScenarioDelegationJsonDto

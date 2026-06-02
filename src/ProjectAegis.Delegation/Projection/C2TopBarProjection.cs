@@ -14,11 +14,13 @@ public static class C2TopBarProjection
         int baseScore = 0)
     {
         var tally = LossesScoringProjection.Project(log, baseScore);
+        var comms = CommsStateProjection.Project(log);
         return new C2TopBarState(
             FormatSimTime(simTimeSeconds),
             $"PHASE: {phase}",
             $"TIME: {compressionLabel}",
             $"MODE: {simulationModeLabel}",
+            comms.TopBarLabel,
             $"SCORE: {tally.Score}  KILLS: {tally.HostileKills}  MSLS: {tally.MissilesFired}");
     }
 

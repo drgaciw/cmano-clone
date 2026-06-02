@@ -1,0 +1,5 @@
+# Golden fingerprint — baltic-patrol-comms seed=42 ticks=6 (comms degrade + CommsDenied engage block)
+# Regenerate: dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-patrol-comms --ticks 6
+
+WORLD_HASH=9489786905462778189
+DETECTION_WORLD_HASH=1258

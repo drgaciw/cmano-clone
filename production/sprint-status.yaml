@@ -259,3 +259,94 @@ sprint5_stories:
     status: done
     completed: "2026-06-02"
 tests_passed_sprint5: 209
+
+sprint: 6
+goal: "C2 selection sync — map, OOB, contacts, unit detail (presentation-only)."
+status: complete
+completed: "2026-06-02"
+tests_passed_sprint6: 222
+
+sprint: 7
+goal: "Doc-17 scoring CSV export, cyber/comms GDD, Cesium spike prep."
+start: "2026-06-02"
+end: "2026-06-16"
+
+sprint7_stories:
+  - id: s7-csv-export
+    name: LossesScoringCsvExporter + harness row
+    status: done
+    completed: "2026-06-02"
+  - id: s7-c2-smoke
+    name: C2 selection flow + classify map smoke tests
+    status: done
+    completed: "2026-06-02"
+  - id: s7-gdd-cyber
+    name: GDD cyber-comms-degradation
+    status: done
+    completed: "2026-06-02"
+  - id: s7-cesium-pin
+    name: Cesium Unity package pin doc
+    status: done
+    completed: "2026-06-02"
+  - id: s7-qa-signoff
+    name: C2 manual QA sign-off template
+    status: in-progress
+  - id: s7-cesium-spike
+    name: Cesium spike scene (Editor)
+    status: backlog
+tests_passed_sprint7: 228
+
+sprint: 8
+goal: "Comms degradation order-log, C2 COMMS indicator, fuel readout, engage guard."
+status: in-progress
+start: "2026-06-02"
+
+sprint8_stories:
+  - id: s8-comms-log
+    name: CommsStateChange order-log + scenario JSON
+    status: done
+    completed: "2026-06-02"
+  - id: s8-comms-c2
+    name: Top bar COMMS + message log category
+    status: done
+    completed: "2026-06-02"
+  - id: s8-comms-engage
+    name: CommsDenied engage guard
+    status: done
+    completed: "2026-06-02"
+  - id: s8-fuel-line
+    name: Unit detail FUEL MVP projection
+    status: done
+    completed: "2026-06-02"
+  - id: s8-gdd-agentic
+    name: GDD agentic-infrastructure skeleton
+    status: done
+    completed: "2026-06-02"
+tests_passed_sprint8: 233
+
+sprint: 9
+goal: "Agentic batch CSV CLI + comms-degraded map symbology."
+status: complete
+completed: "2026-06-02"
+
+sprint9_stories:
+  - id: s9-batch-cli
+    name: BalticBatchRunner + Demo --batch
+    status: done
+    completed: "2026-06-02"
+  - id: s9-map-stale
+    name: Map stale/frozen USS when comms degrade
+    status: done
+    completed: "2026-06-02"
+  - id: s9-batch-docs
+    name: tools/batch-replay README
+    status: done
+    completed: "2026-06-02"
+tests_passed_sprint9: 237
+
+qa_gate:
+  date: "2026-06-02"
+  headless: pass
+  tests_total: 238
+  evidence: production/qa/headless-smoke-evidence-2026-06-02.md
+  unity_manual: pending

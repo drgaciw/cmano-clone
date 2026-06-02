@@ -78,6 +78,13 @@ public static class MessageLogProjection
                     "PLAYER_ORDER",
                     $"Player ordered {po.Kind} for {po.UnitId.Value}",
                     po.UnitId.Value),
+            OrderLogEntryKind.CommsStateChange when entry.Payload is CommsStateChangeRecord c =>
+                new MessageLogLine(
+                    entry.SequenceId,
+                    entry.SimTime,
+                    "COMMS",
+                    $"Comms {c.NodeId}: {c.PreviousState} → {c.NewState} ({c.Reason})",
+                    c.NodeId),
             _ => null,
         };
 

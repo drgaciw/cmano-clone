@@ -12,6 +12,7 @@ public static class UnitDetailPanelBinder
                 "MAGAZINE: —",
                 "EMCON: —",
                 "DOCTRINE: —",
+                "FUEL: —",
                 contactLine ?? "CONTACT: —");
         }
 
@@ -21,6 +22,7 @@ public static class UnitDetailPanelBinder
             entry.MagazineLabel,
             entry.EmconLabel,
             entry.DoctrineLabel,
+            entry.FuelLabel,
             contactLine ?? "CONTACT: —");
     }
 }

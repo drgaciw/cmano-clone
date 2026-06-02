@@ -22,7 +22,8 @@ public sealed class ScenarioPolicyProfile
         ScenarioContactLifecycle? contactLifecycle = null,
         ScenarioReplaySettings? replaySettings = null,
         ScenarioMissionTimeline? missionTimeline = null,
-        ScenarioDelegationSettings? delegationSettings = null)
+        ScenarioDelegationSettings? delegationSettings = null,
+        IReadOnlyList<ScenarioCommsTransition>? commsTransitions = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -40,6 +41,7 @@ public sealed class ScenarioPolicyProfile
         ReplaySettings = replaySettings ?? ScenarioReplaySettings.Default;
         MissionTimeline = missionTimeline;
         DelegationSettings = delegationSettings ?? ScenarioDelegationSettings.Default;
+        CommsTransitions = commsTransitions ?? Array.Empty<ScenarioCommsTransition>();
     }
 
     public string Id { get; init; } = "";
@@ -77,6 +79,8 @@ public sealed class ScenarioPolicyProfile
     public ScenarioMissionTimeline? MissionTimeline { get; }
 
     public ScenarioDelegationSettings DelegationSettings { get; }
+
+    public IReadOnlyList<ScenarioCommsTransition> CommsTransitions { get; }
 
     public EngageContext ResolveEngageContext()
     {

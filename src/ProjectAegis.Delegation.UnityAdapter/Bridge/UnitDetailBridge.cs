@@ -18,6 +18,7 @@ public static class UnitDetailBridge
             snapshot.IsMemberAlive,
             log,
             policy,
+            snapshot.SimTime,
             observerUnitId);
 
     public static UnitDetailEntry? BuildSelected(
@@ -31,5 +32,6 @@ public static class UnitDetailBridge
             snapshot.IsMemberAlive,
             log,
             policy,
+            snapshot.SimTime,
             observerUnitId);
 }

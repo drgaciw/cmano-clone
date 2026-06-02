@@ -1,5 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Baltic;
 
+using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Core;
@@ -32,7 +33,8 @@ public static class BalticReplayHarness
         ulong WorldHash,
         IReadOnlyList<ReplayCheckpoint> Checkpoints,
         IReadOnlyList<MessageLogLine> Messages,
-        SensorC2Snapshot SensorC2);
+        SensorC2Snapshot SensorC2,
+        string ScoringCsvRow);
 
     public static Result Run(
         int seed,
@@ -173,6 +175,11 @@ public static class BalticReplayHarness
 
         var messages = MessageLogProjection.Project(bridge.Orchestrator.DecisionLog);
         var sensorC2 = SensorC2Bridge.Build(harness, bridge.Orchestrator.DecisionLog);
+        var scoringCsv = LossesScoringCsvExporter.FormatRow(
+            scenarioPolicyId,
+            seed,
+            "BLUE",
+            bridge.Orchestrator.DecisionLog);
         return new Result(
             seed,
             scenarioPolicyId,
@@ -183,7 +190,8 @@ public static class BalticReplayHarness
             worldHash,
             checkpointStore.Checkpoints,
             messages,
-            sensorC2);
+            sensorC2,
+            scoringCsv);
     }
 
     private sealed class HeadlessSnapshot : ISimWorldSnapshot, IOrderSink

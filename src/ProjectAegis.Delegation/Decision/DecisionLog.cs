@@ -24,6 +24,7 @@ public sealed class DecisionLog : IOrderLog
     private readonly List<PlayerOrderRecord> _playerOrders = new();
     private readonly List<PolicyUpdateRecord> _policyUpdates = new();
     private readonly List<ModeChangeRecord> _modeChanges = new();
+    private readonly List<CommsStateChangeRecord> _commsStateChanges = new();
 
     public IReadOnlyList<DecisionRecord> Records =>
         _agentDecisions.Select(p => p.ToDecisionRecord()).ToArray();
@@ -53,6 +54,8 @@ public sealed class DecisionLog : IOrderLog
     public IReadOnlyList<PolicyUpdateRecord> PolicyUpdates => _policyUpdates;
 
     public IReadOnlyList<ModeChangeRecord> ModeChanges => _modeChanges;
+
+    public IReadOnlyList<CommsStateChangeRecord> CommsStateChanges => _commsStateChanges;
 
     public void Append(OrderLogEntry entry)
     {
@@ -105,6 +108,9 @@ public sealed class DecisionLog : IOrderLog
                 break;
             case OrderLogEntryKind.ModeChange when entry.Payload is ModeChangeRecord modeChange:
                 _modeChanges.Add(modeChange with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.CommsStateChange when entry.Payload is CommsStateChangeRecord commsChange:
+                _commsStateChanges.Add(commsChange with { SequenceId = sequenceId });
                 break;
             default:
                 throw new ArgumentException($"Unsupported order log entry kind: {entry.Kind}", nameof(entry));
@@ -167,6 +173,9 @@ public sealed class DecisionLog : IOrderLog
 
     public void AppendModeChange(ModeChangeRecord change) =>
         Append(OrderLogEntryFactories.FromModeChange(change));
+
+    public void AppendCommsStateChange(CommsStateChangeRecord change) =>
+        Append(OrderLogEntryFactories.FromCommsStateChange(change));
 
     /// <summary>Unified timeline sorted by sequence (ADR-003 MVP).</summary>
     public IReadOnlyList<OrderLogEntry> ChronologicalEntries()
@@ -247,6 +256,11 @@ public sealed class DecisionLog : IOrderLog
             entries.Add(new OrderLogEntry(m.SequenceId, OrderLogEntryKind.ModeChange, m.SimTime, m));
         }
 
+        foreach (var c in _commsStateChanges)
+        {
+            entries.Add(new OrderLogEntry(c.SequenceId, OrderLogEntryKind.CommsStateChange, c.SimTime, c));
+        }
+
         return entries.OrderBy(e => e.SequenceId).ToArray();
     }
 
@@ -302,6 +316,8 @@ public sealed class DecisionLog : IOrderLog
                 $"{u.SimTick}|{u.PolicySnapshotId}|{u.Field}|{u.PreviousValue}|{u.NewValue}",
             OrderLogEntryKind.ModeChange when entry.Payload is ModeChangeRecord m =>
                 $"{m.SimTick}|{m.UnitId?.Value}|{m.PreviousMode}|{m.NewMode}",
+            OrderLogEntryKind.CommsStateChange when entry.Payload is CommsStateChangeRecord c =>
+                $"{c.SimTick}|{c.NodeId}|{c.PreviousState}|{c.NewState}|{c.Reason}",
             _ => "?",
         };
 

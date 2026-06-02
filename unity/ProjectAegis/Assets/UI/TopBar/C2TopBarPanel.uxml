@@ -4,6 +4,7 @@
         <ui:Label name="phase-label" text="PHASE: Planning" class="c2-topbar-item" />
         <ui:Label name="compression-label" text="TIME: 1x" class="c2-topbar-item" />
         <ui:Label name="mode-label" text="MODE: —" class="c2-topbar-item" />
+        <ui:Label name="comms-label" text="COMMS: NOMINAL" class="c2-topbar-item c2-topbar-item--comms" />
         <ui:Label name="score-label" text="SCORE: 0" class="c2-topbar-item c2-topbar-item--score" />
     </ui:VisualElement>
 </ui:UXML>
