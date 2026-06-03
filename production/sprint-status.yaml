@@ -366,9 +366,10 @@ qa_gate:
   open:
     - Unity manual C2 sign-off (12 checks) — run PLAYMODE-SMOKE + sign-off doc
     - Cesium Phase B spike scene (Editor) — Assets/Scenes/CESIUM-SPIKE-SETUP.md
-  p1_backlog:
-    - Per-tick fuel ledger delta rows (logistics GDD AC-3 remainder)
+  p1_backlog: []
   p1_done_2026_06_03:
+    - FuelLedger tick burn + optional FuelBurn order-log (logTickBurn)
+    - Harness FINGERPRINT_SHA256 + mission-editor sample field
     - FuelStateChange order-log on burn-model band transitions (FuelTimelineTracker)
     - CatalogQuarantinePromoter (approved quarantine → sensor)
     - OrderLogReplayFingerprint SHA-256 hex over canonical text fingerprint

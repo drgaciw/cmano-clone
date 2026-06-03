@@ -41,6 +41,7 @@ public static class ScenarioSimulateSampleCommand
             ScenarioPolicyId = result.ScenarioPolicyId,
             Ticks = result.Ticks,
             Fingerprint = result.Fingerprint,
+            FingerprintSha256 = result.FingerprintSha256,
             WorldHash = result.WorldHash.ToString(),
             DetectionWorldHash = result.DetectionWorldHash.ToString(),
             EngagementCount = result.EngagementCount,
@@ -88,6 +89,8 @@ public static class ScenarioSimulateSampleCommand
         public int Ticks { get; init; }
 
         public string Fingerprint { get; init; } = "";
+
+        public string FingerprintSha256 { get; init; } = "";
 
         public string WorldHash { get; init; } = "";
 

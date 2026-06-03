@@ -11,6 +11,8 @@ public sealed class BalticReplayHarnessFuelTests
         var a = BalticReplayHarness.Run(7, "baltic-patrol-comms", ticks: 100, mvpEngagement: true);
         var b = BalticReplayHarness.Run(7, "baltic-patrol-comms", ticks: 100, mvpEngagement: true);
         Assert.That(a.Fingerprint, Is.EqualTo(b.Fingerprint));
+        Assert.That(a.FingerprintSha256, Is.EqualTo(b.FingerprintSha256));
+        Assert.That(a.FingerprintSha256, Has.Length.EqualTo(64));
         Assert.That(a.Fingerprint, Does.Contain("FuelStateChange"));
         Assert.That(a.Messages.Count(m => m.Category == "FUEL"), Is.GreaterThanOrEqualTo(1));
     }

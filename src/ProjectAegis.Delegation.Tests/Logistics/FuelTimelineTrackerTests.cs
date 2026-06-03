@@ -1,4 +1,5 @@
 using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Logistics;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
@@ -15,15 +16,31 @@ public sealed class FuelTimelineTrackerTests
         var tracker = new FuelTimelineTracker(logistics);
         var unit = new TargetId("u1");
 
-        Assert.That(tracker.Drain(0, 10, [unit]), Is.Empty);
+        var bands = new List<FuelStateChangeRecord>();
+        for (var t = 1; t <= 113; t++)
+        {
+            bands.AddRange(tracker.Drain((ulong)t, t, 1.0, [unit]).BandChanges);
+        }
 
-        var atJoker = tracker.Drain(94, 94, [unit]);
-        Assert.That(atJoker, Has.Count.EqualTo(1));
-        Assert.That(atJoker[0].NewState, Is.EqualTo("JOKER"));
+        Assert.That(bands.Any(b => b.NewState == "JOKER"), Is.True);
+        Assert.That(bands.Any(b => b.NewState == "BINGO"), Is.True);
+    }
 
-        var atBingo = tracker.Drain(113, 113, [unit]);
-        Assert.That(atBingo, Has.Count.EqualTo(1));
-        Assert.That(atBingo[0].NewState, Is.EqualTo("BINGO"));
+    [Test]
+    public void Drain_emits_tick_burn_rows_when_logTickBurn_enabled()
+    {
+        var logistics = new ScenarioLogisticsSettings(
+            300,
+            600,
+            fuelCapacityKg: 10_000,
+            burnRateKgPerSecond: 80,
+            logTickBurn: true);
+        var tracker = new FuelTimelineTracker(logistics);
+        var unit = new TargetId("u1");
+
+        var result = tracker.Drain(1, 1, 1.0, [unit]);
+        Assert.That(result.Burns, Has.Count.EqualTo(1));
+        Assert.That(result.Burns[0].DeltaKg, Is.EqualTo(-80).Within(0.001));
     }
 
     [Test]

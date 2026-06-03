@@ -20,7 +20,7 @@
 - [x] Map ghost symbology when Degraded (P1) — `map-symbol--ghost` + scenario `commsDisplay`
 - [x] Scenario-driven fuel thresholds — `logistics` block on policy JSON
 - [x] Fuel burn band transitions → `FuelStateChange` order log when `logistics` burn model active (headless)
-- [ ] Per-tick fuel ledger delta rows (P2 remainder)
+- [x] `FuelLedger` per-tick burn + optional `FuelBurn` order log (`logTickBurn` on logistics JSON)
 
 ## Verification
 

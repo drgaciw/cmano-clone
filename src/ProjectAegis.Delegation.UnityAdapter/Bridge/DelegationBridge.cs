@@ -231,7 +231,13 @@ public sealed class DelegationBridge
             return;
         }
 
-        foreach (var change in _fuelTimeline.Drain(simTick, snapshot.SimTime, unitIds))
+        var drain = _fuelTimeline.Drain(simTick, snapshot.SimTime, 1.0, unitIds);
+        foreach (var burn in drain.Burns)
+        {
+            Orchestrator.DecisionLog.AppendFuelBurn(burn);
+        }
+
+        foreach (var change in drain.BandChanges)
         {
             Orchestrator.DecisionLog.AppendFuelStateChange(change);
         }

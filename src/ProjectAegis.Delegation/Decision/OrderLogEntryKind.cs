@@ -18,4 +18,5 @@ public enum OrderLogEntryKind
     ModeChange = 13,
     CommsStateChange = 14,
     FuelStateChange = 15,
+    FuelBurn = 16,
 }
