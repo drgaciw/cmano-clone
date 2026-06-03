@@ -1,5 +1,7 @@
 namespace ProjectAegis.Sim.Scenario;
 
+using ProjectAegis.Data.Scenario;
+
 public static class ScenarioPolicyRepository
 {
     private static IReadOnlyDictionary<string, ScenarioPolicyProfile>? _jsonProfiles;
@@ -52,36 +54,13 @@ public static class ScenarioPolicyRepository
             return;
         }
 
-        var repoRoot = FindRepoRoot();
-        if (repoRoot == null)
+        var dir = ScenarioDataPaths.TryResolveScenariosDirectory();
+        if (dir == null)
         {
             _jsonProfiles = new Dictionary<string, ScenarioPolicyProfile>();
             return;
         }
 
-        var dir = Path.Combine(repoRoot, "data", "scenarios");
         LoadFromDirectory(dir);
-    }
-
-    private static string? FindRepoRoot()
-    {
-        var dir = AppContext.BaseDirectory;
-        for (var i = 0; i < 8; i++)
-        {
-            if (Directory.Exists(Path.Combine(dir, "data", "scenarios")))
-            {
-                return dir;
-            }
-
-            var parent = Directory.GetParent(dir);
-            if (parent == null)
-            {
-                break;
-            }
-
-            dir = parent.FullName;
-        }
-
-        return null;
     }
 }

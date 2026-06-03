@@ -50,7 +50,9 @@ public static class BalticReplayHarness
 
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         var profile = ScenarioPolicyRepository.TryGet(scenarioPolicyId);
-        var catalogReader = catalog ?? InMemoryCatalogReader.BalticPatrolFixture();
+        var catalogReader = catalog
+            ?? CatalogReaderFactory.TryCreateBalticPatrolReader()
+            ?? InMemoryCatalogReader.BalticPatrolFixture();
         var detectionTrials = profile == null
             ? Array.Empty<ScenarioDetectionTrial>()
             : DetectionTrialResolver.Resolve(profile, catalogReader);

@@ -2,7 +2,7 @@
 
 **Epic:** c2-left-drawer-slice  
 **Priority:** Must Have  
-**Status:** In Progress  
+**Status:** Complete
 **TR-ID:** C2-UI (requirements doc 18 / 20 bottom strip)
 
 ## Acceptance

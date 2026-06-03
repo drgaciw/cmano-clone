@@ -6,10 +6,12 @@ This guide covers the Claude-specific integrations configured for Project Aegis:
 
 | Integration | Repo config | Runtime ready |
 |-------------|-------------|---------------|
-| Unity-MCP CLI | Installed globally (`unity-mcp-cli@0.76.1`) | Yes |
-| MCP server config | `.cursor/mcp.json`, `.mcp.json` | Yes (needs Unity server running) |
+| Unity project | `unity/ProjectAegis/` (6000.3.14f1) | Yes |
+| Unity-MCP CLI | `npx unity-mcp-cli` **0.77.0** (global npm install optional) | Partial — not on PATH unless installed |
+| MCP server config | `.cursor/mcp.json`, `.mcp.json` | Yes (needs Editor + plugin active on :8080) |
 | Game-Studios agents/skills | `.claude/` vendored | Yes (Claude Code) |
-| Unity Editor plugin | Not installed | **Blocked — no Unity project yet** |
+| Unity Editor plugin | `com.ivanmurzak.unity.mcp` **0.77.0** in manifest | **Pending** — open Editor once to resolve package |
+| MCP HTTP server | `http://localhost:8080` | **No** until Editor running with plugin logged in |
 
 ---
 
@@ -19,7 +21,8 @@ Unity-MCP connects Claude and Cursor to a running Unity Editor via MCP on `http:
 
 ### Already configured (repo)
 
-- **Global CLI**: `unity-mcp-cli` installed via npm
+- **Unity project path**: `unity/ProjectAegis` (no spaces — required by CLI)
+- **CLI**: `npx --yes unity-mcp-cli` (v0.77.0 as of 2026-06-02); optional global: `npm install -g unity-mcp-cli`
 - **MCP config** (both editors point at the same server):
   - `.cursor/mcp.json` — Cursor project-scoped
   - `.mcp.json` — Claude Code project-scoped
@@ -32,42 +35,44 @@ Unity-MCP connects Claude and Cursor to a running Unity Editor via MCP on `http:
 }
 ```
 
-### Remaining steps (requires Unity project)
+### Activation steps (from repo root)
 
-These steps cannot be run until a Unity project exists (e.g. after scaffolding `Assets/` and `ProjectSettings/`). Do **not** run them against this docs-only repo.
+Plugin package is already listed in `unity/ProjectAegis/Packages/manifest.json` (`com.ivanmurzak.unity.mcp`). Complete activation on your machine:
 
-1. **Install the Unity plugin** (from repo root or Unity project root):
+1. **Install or refresh the plugin** (idempotent):
    ```powershell
-   unity-mcp-cli install-plugin ./<UnityProjectPath>
-   ```
-   The project path must contain **no spaces**.
-
-2. **Authenticate** (interactive, requires browser):
-   ```powershell
-   unity-mcp-cli login
+   npx --yes unity-mcp-cli install-plugin ./unity/ProjectAegis
    ```
 
-3. **Open the Unity project** in Unity Editor:
+2. **Open Unity 6.3 LTS** (`6000.3.14f1`) and let Package Manager resolve the MCP package (first open after install).
+
+3. **Authenticate** (interactive, requires browser):
    ```powershell
-   unity-mcp-cli open ./<UnityProjectPath>
+   npx --yes unity-mcp-cli login ./unity/ProjectAegis
    ```
 
-4. **Install editor skills** (optional, for Cursor or Claude Code):
+4. **Open the project** (or use Unity Hub):
    ```powershell
-   unity-mcp-cli setup-skills cursor
-   # or
-   unity-mcp-cli setup-skills claude-code
+   npx --yes unity-mcp-cli open ./unity/ProjectAegis
    ```
 
-5. **Verify the MCP server** is reachable once Unity Editor is running with the plugin active:
-   - Server URL: `http://localhost:8080`
-   - Cursor and Claude Code will connect automatically via the committed MCP config
+5. **Install editor skills** (optional):
+   ```powershell
+   npx --yes unity-mcp-cli setup-skills cursor
+   ```
+
+6. **Verify MCP** — with Editor running and plugin active:
+   ```powershell
+   Invoke-WebRequest -Uri http://localhost:8080 -UseBasicParsing -TimeoutSec 5
+   ```
+   Cursor connects via `.cursor/mcp.json` → `ai-game-developer`.
 
 ### Unity-MCP limitations
 
-- Requires Unity Editor running with the plugin installed
+- Requires Unity Editor **6000.3.14f1** running with the plugin compiled
 - `login` is interactive (cloud auth)
-- No Unity project = no functional MCP tools yet
+- `unity-mcp-cli` must be on PATH or invoked via `npx`
+- Headless CI does not need `:8080`; use `dotnet test` per [AGENTS.md](../AGENTS.md)
 
 ---
 
@@ -119,13 +124,13 @@ This repo already has requirements docs under `Game-Requirements/`. A practical 
 
 1. `/setup-engine unity` — configure Unity LTS and engine reference docs
 2. `/onboard` or `/reverse-document` — map existing requirements into Game-Studios design structure
-3. `/create-stories` — break requirements into implementable stories (once Unity project exists)
+3. `/create-stories` — break requirements into implementable stories
 
 ### Game-Studios limitations
 
 - **Hooks require bash**: `.claude/settings.json` invokes bash scripts (`session-start.sh`, validation hooks, etc.). On Windows, Git Bash must be on PATH. If bash is unavailable, hooks fail gracefully — agents and skills still work.
 - **Claude Code features**: Slash commands, agents, hooks, and `settings.json` are Claude Code features. Cursor uses `.cursor/mcp.json` for MCP only; Game-Studios slash commands run in Claude Code CLI.
-- **Scaffold dirs not created**: `src/`, `assets/`, `design/`, and `production/` were intentionally skipped until a Unity project is scaffolded.
+- **Unity path**: `unity/ProjectAegis/`; headless sim code remains under `src/`.
 
 ---
 
@@ -143,15 +148,31 @@ Before committing code changes, run `gitnexus_detect_changes()` via the GitNexus
 
 ## D. Verification checklist
 
-- [x] `unity-mcp-cli` installed and on PATH
 - [x] `.cursor/mcp.json` and `.mcp.json` valid JSON with `ai-game-developer` server
 - [x] `.claude/` Game-Studios template vendored
 - [x] GitNexus skills preserved (6 SKILL.md files)
 - [x] Godot/Unreal agents removed
 - [x] No nested `.git` directories
-- [ ] Unity plugin installed (blocked — no Unity project)
-- [ ] Unity Editor running with MCP server (blocked — no Unity project)
+- [x] Unity project at `unity/ProjectAegis/` (Editor pin `6000.3.14f1`)
+- [x] `com.ivanmurzak.unity.mcp` in `Packages/manifest.json` (0.77.0)
+- [x] Delegation plugin DLLs (`tools/copy-delegation-assemblies.ps1` + guardrail)
+- [ ] `unity-mcp-cli` on PATH (optional — `npx` works)
+- [ ] Unity Editor opened once after plugin install (Package Manager resolve)
+- [ ] `unity-mcp-cli login` completed
+- [ ] Unity Editor running; `http://localhost:8080` reachable
 - [ ] Git Bash on PATH for hooks (optional on Windows)
+
+### Environment audit (2026-06-02)
+
+| Check | Result |
+|-------|--------|
+| Unity `6000.3.14f1` on disk | Pass |
+| `dotnet` build + filtered tests | Pass (SDK 10.0.300 roll-forward) |
+| Plugin DLL guardrail | Pass (17 DLLs) |
+| MCP `:8080` | Fail — connection refused (Editor not running) |
+| Global `unity-mcp-cli` | Fail — use `npx`; install with `npm i -g unity-mcp-cli` if desired |
+
+**.NET / C#:** See [docs/engine-reference/dotnet/README.md](../docs/engine-reference/dotnet/README.md).
 
 ---
 

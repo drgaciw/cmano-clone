@@ -18,7 +18,7 @@
 | ID | Requirement doc | ADR | Implementation | Test evidence | Status |
 |----|-----------------|-----|----------------|---------------|--------|
 | C1 | 17 Order log / replay | ADR-003 | `DecisionLog`, `ReplayCheckpointStore` | `ReplayGolden*`, `replay-2026-06-02.md` | COVERED |
-| C2 | 18 Combat outcomes | ADR-005 | `EngagementOutcomeRecord`, `MessageLogProjection` | `MessageLogProjectionTests`, `MessageLogBridgeTests` | COVERED |
+| C2 | 18 Combat outcomes | ADR-001, ADR-004 | `EngagementOutcomeRecord`, `MessageLogProjection` | `MessageLogProjectionTests`, `MessageLogBridgeTests` | COVERED |
 | C2-UI | 18 Message HUD | — | `MessageLogPanelBinder`, `MessageLogPanelHost`, `OobTreePanelHost` | `MessageLogPanelBinderTests`, `OobTreeProjectionTests` | COVERED |
 | C3 | 19 ROE / policy | ADR-002 | `PassthroughRoeFilter`, scenario ROE JSON | `PolicyDenialOrderLogTests` | COVERED |
 | C4 | 20 EMCON | ADR-002 | `EmconPolicyEvaluator`, `ScenarioEmconResolver` | `EmconPolicyEvaluatorTests`, emcon scenario JSON | COVERED |
@@ -34,11 +34,21 @@
 
 ## Combat / engage spine
 
+> **Note:** ADR-005 is **DOTS/ECS world state**, not engagement. Engage/outcomes trace to ADR-001 (sim boundary) + ADR-004 (tick pipeline) + ADR-003 (order log).
+
 | TR-ID | GDD | ADR | Test | Status |
 |-------|-----|-----|------|--------|
-| TR-combat-001 | combat-outcomes | ADR-005 | `EngagementOrderLogContractTests` | COVERED |
-| TR-combat-002 | combat-outcomes | ADR-005 | `ReplayGoldenBalticEngageTests` | COVERED |
-| TR-mag-001 | combat-outcomes | — | `ReplayGoldenBalticMagazineTests` | COVERED |
+| TR-combat-001 | combat-outcomes | ADR-001, ADR-004 | `EngagementOrderLogContractTests` | COVERED |
+| TR-combat-002 | combat-outcomes | ADR-001, ADR-003 | `ReplayGoldenBalticEngageTests` | COVERED |
+| TR-mag-001 | combat-outcomes | ADR-003 | `ReplayGoldenBalticMagazineTests` | COVERED |
+
+## Data layer (TR-registry)
+
+| TR-ID | GDD | ADR | Test | Status |
+|-------|-----|-----|------|--------|
+| TR-logistics-004 | logistics-magazines | ADR-006 | Editor validation (planned) | PARTIAL |
+| TR-editor-001 | agentic-mission-editor | ADR-006 | MCP/editor (planned) | PARTIAL |
+| TR-sensor-002 (catalog) | sensor-detection-ew | ADR-006 | `platform-db-basepd-slice` / catalog reader tests | PARTIAL |
 
 ## Uncovered (post-MVP)
 

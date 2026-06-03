@@ -1,6 +1,6 @@
 # Epic: Policy–Engage Unification Slice
 
-> **Status:** In progress (`MvpEngagementResolver` policy gate on `stack/data/basepd`)  
+> **Status:** Complete (MVP policy gate + `BalticReplayHarnessPolicyEngageTests` 2026-06-02)
 > **Priority:** P1 — replay parity for denials  
 > **Created:** 2026-06-02  
 > **Depends on:** Baltic engage MVP, EMCON slice (complete)  

@@ -1,6 +1,6 @@
 # Epic: Platform DB basePd Slice (DATA-2)
 
-> **Status:** Ready  
+> **Status:** Complete (ADR-006 Accepted 2026-06-02; harness defaults to SQLite catalog)
 > **Priority:** P0 — blocks authentic sensor trials  
 > **Created:** 2026-06-02  
 > **Depends on:** `ProjectAegis.Data` scaffold on `main` (DATA-1 complete)  
@@ -19,4 +19,4 @@ Replace scenario-only `detection[]` trials with **catalog-backed `basePd`** look
 
 ## Stories
 
-Run `/create-stories platform-db-basepd-slice` after ADR-006 review.
+ADR-006 **Accepted** 2026-06-02 — stories 001–004 are authoritative; no duplicate `/create-stories` unless EPIC scope changes.

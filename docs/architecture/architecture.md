@@ -149,7 +149,10 @@ Full matrix: expand as each GDD is approved (`/create-architecture` continuation
 | [ADR-003](adr-003-order-log-schema.md) | Unified order log schema | **Accepted** |
 | [ADR-004](adr-004-tick-pipeline-order.md) | Deterministic tick pipeline ordering | **Accepted** |
 | [ADR-005](adr-005-dots-sim-core.md) | DOTS/ECS for world state | **Accepted** |
-| [ADR-006](adr-006-data-layer-boundary.md) | ProjectAegis.Data boundary, snapshots, write gate | **Proposed** |
+| [ADR-006](adr-006-data-layer-boundary.md) | ProjectAegis.Data boundary, snapshots, write gate | **Accepted** |
+| [ADR-007](adr-007-c2-map-presentation.md) | C2 map presentation (phased globe) | **Accepted** |
+| [ADR-008](adr-008-mission-editor-validation-engine.md) | Mission editor deterministic validation | **Accepted** |
+| [ADR-009](adr-009-combat-domain-validators.md) | Combat domain validators & damage order | **Proposed** |
 
 ## Engine Note
 

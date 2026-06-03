@@ -2,7 +2,7 @@
 
 **Epic:** c2-left-drawer-slice  
 **Priority:** Should Have  
-**Status:** In Progress  
+**Status:** Complete
 **TR-ID:** Doc 20 left drawer — missions tab
 
 ## Acceptance

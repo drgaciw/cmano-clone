@@ -1,0 +1,347 @@
+# Technical Requirements Registry — Project Aegis
+# Stable IDs for GDD → ADR → Story → Test traceability.
+# Do not renumber entries; mark deprecated when GDD removes a requirement.
+
+version: 1
+last_updated: 2026-06-02
+review: architecture-review-2026-06-02
+
+entries:
+  - id: TR-simcore-001
+    system: sim-core
+    gdd: design/gdd/simulation-core-time.md
+    requirement: Fixed timestep advancement shared by all subsystems
+    adr: [ADR-001, ADR-004]
+    status: covered
+
+  - id: TR-simcore-002
+    system: sim-core
+    gdd: design/gdd/simulation-core-time.md
+    requirement: Global seed and domain-scoped deterministic RNG
+    adr: [ADR-001]
+    status: covered
+
+  - id: TR-simcore-003
+    system: sim-core
+    gdd: design/gdd/simulation-core-time.md
+    requirement: Headless runner API for batch and replay
+    adr: [ADR-001]
+    status: partial
+
+  - id: TR-simcore-004
+    system: sim-core
+    gdd: design/gdd/simulation-core-time.md
+    requirement: Time compression hooks without breaking determinism
+    adr: [ADR-004]
+    status: partial
+
+  - id: TR-simcore-005
+    system: sim-core
+    gdd: design/gdd/simulation-core-time.md
+    requirement: World-state hash per tick or checkpoint
+    adr: [ADR-003, ADR-004]
+    status: partial
+
+  - id: TR-log-001
+    system: order-log
+    gdd: design/gdd/order-log-replay.md
+    requirement: Append-only ordered log with simTick and sequenceId
+    adr: [ADR-003]
+    status: covered
+
+  - id: TR-log-002
+    system: order-log
+    gdd: design/gdd/order-log-replay.md
+    requirement: Discriminated entry type union (orders, policy, engage, contacts)
+    adr: [ADR-003]
+    status: covered
+
+  - id: TR-log-003
+    system: order-log
+    gdd: design/gdd/order-log-replay.md
+    requirement: Replay fingerprint and golden CI verification
+    adr: [ADR-003]
+    status: covered
+
+  - id: TR-policy-001
+    system: policy
+    gdd: design/gdd/policy-roe-emcon-wra.md
+    requirement: Policy inheritance resolution order fixed and cached
+    adr: [ADR-002]
+    status: covered
+
+  - id: TR-policy-002
+    system: policy
+    gdd: design/gdd/policy-roe-emcon-wra.md
+    requirement: Policy snapshot bound on agent assignment
+    adr: [ADR-002]
+    status: covered
+
+  - id: TR-policy-003
+    system: policy
+    gdd: design/gdd/policy-roe-emcon-wra.md
+    requirement: FireAbortReason on all policy denials
+    adr: [ADR-002, ADR-003]
+    status: covered
+
+  - id: TR-policy-004
+    system: policy
+    gdd: design/gdd/policy-roe-emcon-wra.md
+    requirement: PolicyUpdate rows in order log
+    adr: [ADR-003]
+    status: covered
+
+  - id: TR-policy-005
+    system: policy
+    gdd: design/gdd/policy-roe-emcon-wra.md
+    requirement: WRA evaluated before engagement geometry
+    adr: [ADR-002, ADR-004]
+    status: partial
+
+  - id: TR-policy-006
+    system: policy
+    gdd: design/gdd/policy-roe-emcon-wra.md
+    requirement: EMCON feeds sensor emission model
+    adr: [ADR-002]
+    status: partial
+
+  - id: TR-sensor-001
+    system: sensor
+    gdd: design/gdd/sensor-detection-ew.md
+    requirement: Contact FSM with deterministic transitions
+    adr: [ADR-004, ADR-005]
+    status: partial
+
+  - id: TR-sensor-002
+    system: sensor
+    gdd: design/gdd/sensor-detection-ew.md
+    requirement: Deterministic detection loop with sorted pairs
+    adr: [ADR-004, ADR-005]
+    status: partial
+
+  - id: TR-sensor-003
+    system: sensor
+    gdd: design/gdd/sensor-detection-ew.md
+    requirement: EW noise jam MVP affecting Pd
+    adr: []
+    status: partial
+
+  - id: TR-sensor-004
+    system: sensor
+    gdd: design/gdd/sensor-detection-ew.md
+    requirement: Side picture and datalink sharing
+    adr: []
+    status: gap
+
+  - id: TR-engage-001
+    system: engage
+    gdd: design/gdd/engagement-fire-control.md
+    requirement: Unified engagement resolver for player, agent, and mission-auto fire
+    adr: [ADR-001, ADR-004]
+    status: covered
+
+  - id: TR-engage-002
+    system: engage
+    gdd: design/gdd/engagement-fire-control.md
+    requirement: DLZ state machine and order-log logging
+    adr: []
+    status: partial
+
+  - id: TR-engage-003
+    system: engage
+    gdd: design/gdd/engagement-fire-control.md
+    requirement: Swarm salvo slot order by shooterId (P1)
+    adr: []
+    status: gap
+    priority: P1
+
+  - id: TR-logistics-001
+    system: logistics
+    gdd: design/gdd/logistics-magazines.md
+    requirement: Magazine ledger with MagazineEmpty abort in engage pipeline
+    adr: [ADR-004]
+    status: partial
+
+  - id: TR-logistics-002
+    system: logistics
+    gdd: design/gdd/logistics-magazines.md
+    requirement: MagazineChange rows in chronological order log
+    adr: [ADR-003]
+    status: covered
+
+  - id: TR-logistics-003
+    system: logistics
+    gdd: design/gdd/logistics-magazines.md
+    requirement: Deterministic fuel burn per tick with seeded RNG
+    adr: []
+    status: gap
+
+  - id: TR-logistics-004
+    system: logistics
+    gdd: design/gdd/logistics-magazines.md
+    requirement: Mission editor strike fuel validation aligned with sim formulas
+    adr: [ADR-006]
+    status: partial
+    notes: ADR-006 Accepted
+
+  - id: TR-combat-dom-001
+    system: combat-domains
+    gdd: design/gdd/combat-domains-damage.md
+    requirement: Pluggable domain validators (air, surface, subsurface, land, mine, facility)
+    adr: [ADR-009]
+    status: partial
+    notes: ADR-009 Proposed; validators not implemented
+
+  - id: TR-combat-dom-002
+    system: combat-domains
+    gdd: design/gdd/combat-domains-damage.md
+    requirement: Deterministic damage application ordering
+    adr: [ADR-009]
+    status: partial
+
+  - id: TR-combat-dom-003
+    system: combat-domains
+    gdd: design/gdd/combat-domains-damage.md
+    requirement: BDA updates feed contact picture
+    adr: [ADR-009]
+    status: partial
+
+  - id: TR-c2-001
+    system: c2-ui
+    gdd: design/gdd/command-and-control-ui.md
+    requirement: Left drawer tabs (OOB, missions, contacts)
+    adr: [ADR-007]
+    status: partial
+
+  - id: TR-c2-002
+    system: c2-ui
+    gdd: design/gdd/command-and-control-ui.md
+    requirement: Full message log projection from order log
+    adr: [ADR-003]
+    status: partial
+
+  - id: TR-c2-003
+    system: c2-ui
+    gdd: design/gdd/command-and-control-ui.md
+    requirement: Right unit detail panel from projections
+    adr: []
+    status: partial
+
+  - id: TR-c2-004
+    system: c2-ui
+    gdd: design/gdd/command-and-control-ui.md
+    requirement: Globe map P0 (Phase A placeholder, Phase B WGS84)
+    adr: [ADR-007]
+    status: partial
+
+  - id: TR-score-001
+    system: scoring
+    gdd: design/gdd/scoring-losses.md
+    requirement: Kill-based score projection from order log
+    adr: []
+    status: partial
+
+  - id: TR-score-002
+    system: scoring
+    gdd: design/gdd/scoring-losses.md
+    requirement: Magazine expenditure tally from log
+    adr: []
+    status: partial
+
+  - id: TR-score-003
+    system: scoring
+    gdd: design/gdd/scoring-losses.md
+    requirement: Headless CSV export for batch runs (P1)
+    adr: []
+    status: partial
+    priority: P1
+
+  - id: TR-cyber-001
+    system: cyber-comms
+    gdd: design/gdd/cyber-comms-degradation.md
+    requirement: Comms state machine Nominal / Degraded / Denied
+    adr: []
+    status: partial
+
+  - id: TR-cyber-002
+    system: cyber-comms
+    gdd: design/gdd/cyber-comms-degradation.md
+    requirement: CommsStateChange and CyberActionResult order-log entry kinds
+    adr: [ADR-003]
+    status: partial
+
+  - id: TR-cyber-003
+    system: cyber-comms
+    gdd: design/gdd/cyber-comms-degradation.md
+    requirement: FireAbortReason.CommsDenied blocks new engages while Denied
+    adr: [ADR-002]
+    status: partial
+
+  - id: TR-cyber-004
+    system: cyber-comms
+    gdd: design/gdd/cyber-comms-degradation.md
+    requirement: C2 comms indicator and message categories from order log only
+    adr: [ADR-007]
+    status: partial
+
+  - id: TR-agentic-001
+    system: agentic-infra
+    gdd: design/gdd/agentic-infrastructure.md
+    requirement: Batch scenario runner with CSV and fingerprint per run
+    adr: []
+    status: partial
+
+  - id: TR-agentic-002
+    system: agentic-infra
+    gdd: design/gdd/agentic-infrastructure.md
+    requirement: Optional Hindsight memory hook on order log append (P1)
+    adr: []
+    status: gap
+    priority: P1
+
+  - id: TR-agentic-003
+    system: agentic-infra
+    gdd: design/gdd/agentic-infrastructure.md
+    requirement: AAR agents read-only on log projections (P1)
+    adr: []
+    status: gap
+    priority: P1
+
+  - id: TR-editor-001
+    system: mission-editor
+    gdd: design/gdd/agentic-mission-editor.md
+    requirement: Canonical declarative scenario file as intent-compiler source of truth
+    adr: [ADR-006]
+    status: partial
+    notes: ADR-006 Accepted
+
+  - id: TR-editor-002
+    system: mission-editor
+    gdd: design/gdd/agentic-mission-editor.md
+    requirement: Deterministic Validation Engine with six v1 rules blocking export
+    adr: [ADR-008]
+    status: covered
+    notes: ADR-008 Accepted; MissionEditor.Cli scenario_validate + pinned golden hashes
+
+  - id: TR-editor-003
+    system: mission-editor
+    gdd: design/gdd/agentic-mission-editor.md
+    requirement: Deterministic fire_order and world-state hash on scenario_simulate_sample
+    adr: [ADR-001, ADR-004]
+    status: partial
+
+  - id: TR-editor-004
+    system: mission-editor
+    gdd: design/gdd/agentic-mission-editor.md
+    requirement: editVersion optimistic concurrency with conflict-reject on stale writes
+    adr: [ADR-008]
+    status: partial
+    notes: ADR-008 specifies contract; persistence not implemented
+
+  - id: TR-editor-005
+    system: mission-editor
+    gdd: design/gdd/agentic-mission-editor.md
+    requirement: MCP export gate and headless scenario_simulate_sample without Unity
+    adr: [ADR-008]
+    status: covered
+    notes: scenario_validate + scenario_simulate_sample CLI; golden worldHash; mcp-tools.json

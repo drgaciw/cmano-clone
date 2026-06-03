@@ -1,81 +1,149 @@
 # Architecture Review Report
 
 **Date:** 2026-06-02  
-**Engine:** Unity 6.3 LTS + .NET 8 headless (`ProjectAegis.sln`)  
-**GDDs reviewed (MVP scope):** 6 production GDDs under `design/gdd/`  
-**ADRs reviewed:** 10 accepted ADRs under `docs/architecture/`
+**Mode:** `/architecture-review full`  
+**Engine:** Unity 6.3 LTS (6000.3.14f1) + .NET 8 headless  
+**GDDs reviewed:** 11 system GDDs under `design/gdd/`  
+**ADRs reviewed:** 7 (`adr-001` … `adr-007`)
 
 ---
 
-## Requirements design review blockers (C1–C5)
+## Load summary
+
+| Artifact | Count |
+|----------|-------|
+| System GDDs | 11 |
+| ADRs | 7 |
+| Engine reference | `docs/engine-reference/unity/VERSION.md`, `dots-ecs-notes.md` |
+| TR registry (prior) | None — created this review |
+| `docs/consistency-failures.md` | Not present |
+
+---
+
+## Requirements design-review blockers (C1–C5)
 
 Source: [requirements-13-20-design-review-2026-05-29.md](../../Game-Requirements/reviews/requirements-13-20-design-review-2026-05-29.md)
 
-| Blocker | Requirement | Code / ADR evidence | Status |
-|---------|-------------|---------------------|--------|
-| **C1** | Order log schema + replay (doc 17) | `DecisionLog` implements `IOrderLog`; ADR-003; `ReplayGolden*` + `/replay-verify` PASS | **Closed** |
-| **C2** | Combat outcomes + message log (doc 18) | `EngagementOutcomeRecord`, `MessageLogProjection`, `MessageLogPanelBinder`, Unity `MessageLogPanelHost` | **Closed** (HUD strip; full doc-20 drawer deferred) |
-| **C3** | ROE / policy evaluator (doc 19) | `IPolicyEvaluator`, `PassthroughRoeFilter`, `EmconPolicyEvaluator`, scenario JSON ROE | **Closed** (headless MVP) |
-| **C4** | EMCON (doc 20) | `EmconPolicyEvaluator`, `ScenarioEmconResolver`, unit radar in scenario JSON | **Closed** (radar slice; full EMCON doctrine UI deferred) |
-| **C5** | Human-in-the-loop (doc 13) | `SimulationModeProfile`, `PlayerOrderRecord` in order log; no full pause/override UX | **Deferred** — ADR-001; MVP uses autonomous + Mixed scaffold |
-
-**MVP gate:** C1–C4 satisfied for Baltic vertical slice; C5 explicitly deferred with ADR-001 until Pre-Production UI sprint.
+| Blocker | Requirement | Evidence | Status |
+|---------|-------------|----------|--------|
+| **C1** | Order log + replay (doc 17) | `IOrderLog`, ADR-003, `ReplayGoldenTests` | **Closed** |
+| **C2** | Combat outcomes + message log (doc 18) | `EngagementOutcomeRecord`, `MessageLogProjection` | **Closed** (MVP) |
+| **C3** | ROE / policy (doc 13) | `IPolicyEvaluator`, scenario ROE JSON | **Closed** (headless MVP) |
+| **C4** | EMCON (doc 20) | `EmconPolicyEvaluator`, scenario JSON | **Closed** (radar slice) |
+| **C5** | Human-in-the-loop (doc 13) | `SimulationModeProfile`, `PlayerOrderRecord` | **Deferred** |
 
 ---
 
-## Traceability summary (MVP technical requirements)
+## Traceability summary
 
-| Layer | Requirements (sample) | ADR coverage | Status |
-|-------|----------------------|--------------|--------|
-| Foundation | Seeded sim, deterministic tick | ADR-001, ADR-004 | Covered |
-| Core | Order log, policy, engage | ADR-002, ADR-003, ADR-005 | Covered |
-| Sensor | Pd detection, classify FSM, C2 projection | GDD `sensor-detection-ew` + headless tests | Covered |
-| Data | Catalog basePd | `platform-db-basepd` GDD + DATA assembly | Partial (import pipeline stretch) |
-| UI | Sensor C2 + message log | Unity Toolkit hosts | Partial (OOB/missions/doc-20 shell open) |
+| Status | Count | % |
+|--------|-------|---|
+| Covered | 14 | 30% |
+| Partial | 21 | 45% |
+| Gap | 12 | 25% |
+| **Total TRs** | **47** | 100% |
 
-**Totals (MVP slice):** ~18 traced requirements — **14 covered**, **3 partial**, **1 gap** (full doc-20 left drawer).
+Full matrix: [architecture-traceability-index.md](architecture-traceability-index.md)  
+Stable IDs: [tr-registry.yaml](tr-registry.yaml)
+
+---
+
+## Coverage gaps (no ADR or Proposed-only)
+
+### Foundation / Core
+
+| TR-ID | GDD | Requirement | Suggested ADR |
+|-------|-----|-------------|---------------|
+| TR-logistics-003 | logistics-magazines | Deterministic fuel burn | `/architecture-decision logistics-fuel-model` |
+| TR-sensor-004 | sensor-detection-ew | Side picture / datalink | `/architecture-decision sensor-side-picture` |
+| TR-editor-002 | agentic-mission-editor | Deterministic Validation Engine | `/architecture-decision mission-editor-validation-engine` |
+| — | systems-index #4, #20 | Platform DB / DATA pipeline | **Accept ADR-006** |
+| — | systems-index #9 | Mission Runtime | `/architecture-decision mission-runtime-contract` |
+
+### Feature / extension
+
+| TR-ID | GDD | Requirement | Suggested ADR |
+|-------|-----|-------------|---------------|
+| TR-combat-dom-001..003 | combat-domains-damage | Domain validators, damage order, BDA | `/architecture-decision combat-domain-validators` |
+| TR-engage-003 | engagement-fire-control | Swarm slot order (P1) | Defer or engage ADR amendment |
+| TR-agentic-002..003 | agentic-infrastructure | Hindsight / AAR agents (P1) | `/architecture-decision agentic-aar-infrastructure` |
+| TR-editor-004..005 | agentic-mission-editor | editVersion, MCP export gate | Fold into mission-editor ADR |
 
 ---
 
 ## Cross-ADR conflicts
 
-None blocking. `DecisionLog` remains single writer (ADR-003); policy evaluation is pre-engage only (ADR-002); engagement outcomes append-only (ADR-005).
+### Conflict: `requirements-traceability.md` vs ADR-005 file
 
-### Recommended ADR implementation order (unchanged)
+**Type:** Integration / documentation  
+**ADR-005 file:** DOTS/ECS world state — not engagement.  
+**RTM error:** Maps combat TRs to ADR-005 as “engagement pipeline.”  
+**Resolution:** Update RTM: engage → ADR-001 + ADR-004; ECS → ADR-005.
 
-1. ADR-001 Deterministic simulation  
-2. ADR-003 Order log  
-3. ADR-002 Policy evaluator  
-4. ADR-005 Engagement pipeline  
-5. ADR-004 Replay checkpoints  
+### Tension: Order log ownership (non-blocking)
+
+ADR-003 keeps `DecisionLog` in Delegation; `architecture.md` notes future `Sim.Log`. Single writer until migration ADR.
+
+### Unresolved: ADR-006 Proposed
+
+Blocks accepted architecture for catalog writes and `dbSnapshotId` contracts. **Accept ADR-006** before platform-db epic expansion.
+
+**No dependency cycles** among ADR-001..007.
+
+---
+
+## Recommended ADR implementation order
+
+1. ADR-001 — Sim boundary *(Accepted)*  
+2. ADR-004 — Tick pipeline *(Accepted)*  
+3. ADR-003 — Order log *(Accepted)*  
+4. ADR-002 — Policy evaluator *(Accepted)*  
+5. **ADR-006 — Data layer** *(Proposed — accept next)*  
+6. ADR-005 — DOTS/ECS *(Accepted)*  
+7. ADR-007 — C2 map *(Accepted)*  
+8. New: combat domains, editor validation engine, logistics fuel
+
+---
+
+## GDD revision flags
+
+None — C2 GDD Phase A map placeholder aligns with ADR-007.
 
 ---
 
 ## Engine compatibility
 
-- Unity **6000.3.x** per `docs/engine-reference/unity/VERSION.md`  
-- UI Toolkit panels use ListView binding (Unity 6 compatible)  
-- No deprecated API flags in reviewed ADRs  
+| Check | Result |
+|-------|--------|
+| Version | Unity 6000.3.14f1 consistent |
+| ADRs with Engine Compatibility | 1 / 7 (ADR-007) |
+| Deprecated APIs in ADRs | None found |
+| `breaking-changes.md` / `deprecated-apis.md` | Missing |
+| Engine specialist | Skipped — `technical-preferences.md` not configured |
 
 ---
 
 ## Architecture document coverage
 
-`docs/architecture/architecture.md` — not present. MVP traceability lives in this report and [requirements-traceability.md](requirements-traceability.md). Run `/create-architecture` when expanding beyond 6/20 GDD systems.
+`docs/architecture/architecture.md` exists but is **stale**: missing ADR-007 in index; omits cyber, scoring, combat domains, editor, agentic infra systems.
 
 ---
 
 ## Verdict: **CONCERNS**
 
-**Rationale:** MVP spine is architecturally sound and C1–C4 are closed in code. Remaining concerns: 70% GDD backlog, doc-20 full C2 shell, C5 human-in-the-loop UX, and no master `architecture.md`.
+MVP deterministic spine is sound (C1–C4 closed). Full traceability shows 25% gaps, ADR-006 Proposed, RTM/ADR label drift, and incomplete engine sections on ADRs.
 
-### Blocking issues (none for MVP merge)
+### Blocking issues for Pre-Production PASS
 
-### Required follow-ups (priority)
+1. Accept or explicitly defer **ADR-006**  
+2. Fix **requirements-traceability.md** ADR-005 mislabel  
+3. Add ADRs for **combat-domains** and **mission-editor Validation Engine** (or defer GDDs from gate)
 
-1. `/design-system` for remaining 14 requirement docs when entering Production breadth  
-2. Doc-20 left drawer (OOB, missions, full message log) — Sprint 3 UI  
-3. ADR or story for C5 player override UX when Mixed mode is player-facing  
+### Required ADRs (priority)
+
+1. Accept **ADR-006**  
+2. **Combat domain validators**  
+3. **Mission editor Validation Engine**
 
 ---
 
@@ -83,4 +151,5 @@ None blocking. `DecisionLog` remains single writer (ADR-003); policy evaluation 
 
 | Date | Verdict | Notes |
 |------|---------|-------|
-| 2026-06-02 | CONCERNS | Post Sprint 2; C1–C4 closed; C5 deferred |
+| 2026-06-02 AM | CONCERNS | MVP slice review (6 GDDs) |
+| 2026-06-02 PM | CONCERNS | Full review — 47 TRs, 7 ADRs, traceability index + registry |

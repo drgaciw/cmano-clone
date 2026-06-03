@@ -7,6 +7,9 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
 {
     private readonly SqliteConnection _connection;
     private CatalogSensorBinding[]? _cache;
+    private Dictionary<string, CatalogPlatformEntry>? _platforms;
+    private HashSet<string>? _snapshots;
+    private bool? _hasPlatformTable;
 
     public SqliteCatalogReader(string databasePath, string layerVersion = "p0-sqlite")
     {
@@ -37,6 +40,44 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         }
 
         basePd = 0;
+        return false;
+    }
+
+    public bool TryResolveDbRef(string dbRef, out string resolvedSnapshotId)
+    {
+        EnsureSnapshotsLoaded();
+        if (_snapshots!.Contains(dbRef))
+        {
+            resolvedSnapshotId = dbRef;
+            return true;
+        }
+
+        return CatalogValidationDefaults.TryResolveBalticDbRef(dbRef, out resolvedSnapshotId);
+    }
+
+    public bool TryGetCombatRadiusNm(string platformId, out double combatRadiusNm)
+    {
+        if (TryGetPlatform(platformId, out var entry))
+        {
+            combatRadiusNm = entry.CombatRadiusNm;
+            return true;
+        }
+
+        combatRadiusNm = 0;
+        return false;
+    }
+
+    public bool TryGetPlatformPosition(string platformId, out double latDeg, out double lonDeg)
+    {
+        if (TryGetPlatform(platformId, out var entry))
+        {
+            latDeg = entry.LatDeg;
+            lonDeg = entry.LonDeg;
+            return true;
+        }
+
+        latDeg = 0;
+        lonDeg = 0;
         return false;
     }
 
@@ -71,6 +112,11 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         }
 
         if (file.Contains("003", StringComparison.Ordinal) && TableExists("sensor_quarantine"))
+        {
+            return true;
+        }
+
+        if (file.Contains("004", StringComparison.Ordinal) && TableExists("platform"))
         {
             return true;
         }
@@ -141,5 +187,86 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         }
 
         return [Path.Combine("assets", "data", "catalog", "migrations", "001_sensor_base_pd.sql")];
+    }
+
+    private void EnsureSnapshotsLoaded()
+    {
+        if (_snapshots != null)
+        {
+            return;
+        }
+
+        _snapshots = new HashSet<string>(StringComparer.Ordinal);
+        if (!TableExists("catalog_snapshot"))
+        {
+            _snapshots.Add(CatalogValidationDefaults.BalticSnapshotId);
+            return;
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT snapshot_id FROM catalog_snapshot ORDER BY snapshot_id ASC";
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            _snapshots.Add(reader.GetString(0));
+        }
+
+        if (_snapshots.Count == 0)
+        {
+            _snapshots.Add(CatalogValidationDefaults.BalticSnapshotId);
+        }
+    }
+
+    private bool TryGetPlatform(string platformId, out CatalogPlatformEntry entry)
+    {
+        EnsurePlatformsLoaded();
+        return _platforms!.TryGetValue(platformId, out entry!);
+    }
+
+    private void EnsurePlatformsLoaded()
+    {
+        if (_platforms != null)
+        {
+            return;
+        }
+
+        _platforms = new Dictionary<string, CatalogPlatformEntry>(StringComparer.Ordinal);
+        if (PlatformTableExists())
+        {
+            using var cmd = _connection.CreateCommand();
+            cmd.CommandText =
+                """
+                SELECT platform_id, lat_deg, lon_deg, combat_radius_nm
+                FROM platform
+                ORDER BY platform_id ASC, snapshot_id ASC
+                """;
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var id = reader.GetString(0);
+                if (!_platforms.ContainsKey(id))
+                {
+                    _platforms[id] = new CatalogPlatformEntry(
+                        id,
+                        reader.GetDouble(1),
+                        reader.GetDouble(2),
+                        reader.GetDouble(3));
+                }
+            }
+        }
+
+        if (_platforms.Count == 0)
+        {
+            foreach (var platform in CatalogValidationDefaults.BalticPlatforms())
+            {
+                _platforms[platform.PlatformId] = platform;
+            }
+        }
+    }
+
+    private bool PlatformTableExists()
+    {
+        _hasPlatformTable ??= TableExists("platform");
+        return _hasPlatformTable.Value;
     }
 }
