@@ -19,7 +19,8 @@
 - [ ] Unity QA with `scenarioPolicyId` = `baltic-patrol-comms` (shared manual sign-off)
 - [x] Map ghost symbology when Degraded (P1) — `map-symbol--ghost` + scenario `commsDisplay`
 - [x] Scenario-driven fuel thresholds — `logistics` block on policy JSON
-- [ ] Full fuel burn sim per logistics GDD AC-3 (P2)
+- [x] Fuel burn band transitions → `FuelStateChange` order log when `logistics` burn model active (headless)
+- [ ] Per-tick fuel ledger delta rows (P2 remainder)
 
 ## Verification
 

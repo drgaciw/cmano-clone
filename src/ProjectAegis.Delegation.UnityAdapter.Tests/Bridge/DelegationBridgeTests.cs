@@ -82,6 +82,8 @@ public sealed class DelegationBridgeTests
         Assert.That(
             bridge.TryEnqueueHumanOrder(new EntityKey(10), OrderKind.Hold, simTime: 0),
             Is.True);
+        Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Has.Count.EqualTo(1));
+        Assert.That(bridge.Orchestrator.DecisionLog.ComputeFingerprint(), Does.Contain("PlayerOrder|"));
 
         var sink = new RecordingSink();
         bridge.BeginExecution();
