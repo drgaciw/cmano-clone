@@ -359,7 +359,7 @@ tests_passed_sprint9: 237
 qa_gate:
   date: "2026-06-02"
   headless: pass
-  tests_total: 272
+  tests_total: 276
   evidence: production/qa/headless-smoke-evidence-2026-06-02.md
   unity_manual: pending
   indexed_commit: e8ea545
