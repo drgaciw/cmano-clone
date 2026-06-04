@@ -6,5 +6,5 @@ public interface IController
 {
     bool IsHuman { get; }
 
-    IReadOnlyList<Order> DrainIssuedOrders();
+    IReadOnlyList<Order> DrainIssuedOrders(ulong currentSimTick);
 }

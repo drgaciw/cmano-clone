@@ -1,24 +1,18 @@
 namespace ProjectAegis.Delegation.Controllers;
 
 using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Decision;
 
 public sealed class HumanController : IController
 {
-    private readonly List<Order> _pending = new();
+    private readonly PlayerOrderExecutionQueue _queue = new();
 
     public bool IsHuman => true;
 
-    public void Enqueue(Order order) => _pending.Add(order);
+    public void Enqueue(Order order, ulong executeSimTick) => _queue.Enqueue(order, executeSimTick);
 
-    public IReadOnlyList<Order> DrainIssuedOrders()
-    {
-        if (_pending.Count == 0)
-        {
-            return Array.Empty<Order>();
-        }
+    public int PendingOrderCount => _queue.PendingCount;
 
-        var copy = _pending.ToArray();
-        _pending.Clear();
-        return copy;
-    }
+    public IReadOnlyList<Order> DrainIssuedOrders(ulong currentSimTick) =>
+        _queue.DrainReady(currentSimTick);
 }

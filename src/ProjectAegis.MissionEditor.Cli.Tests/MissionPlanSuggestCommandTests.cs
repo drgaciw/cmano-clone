@@ -6,12 +6,16 @@ namespace ProjectAegis.MissionEditor.Cli.Tests;
 public sealed class MissionPlanSuggestCommandTests
 {
     [Fact]
-    public void Patrol_and_strike_intent_returns_both_suggestions()
+    public void Run_includes_baltic_and_comms_suggestions()
     {
         using var writer = new StringWriter();
-        Assert.Equal(0, MissionPlanSuggestCommand.Run("patrol baltic then strike hostile-1", writer));
+        var exit = MissionPlanSuggestCommand.Run("baltic patrol with comms degraded", writer);
         var json = writer.ToString();
-        Assert.Contains("mission_add_patrol", json, StringComparison.Ordinal);
-        Assert.Contains("mission_add_strike", json, StringComparison.Ordinal);
+
+        Assert.Equal(0, exit);
+        Assert.Contains("scenario_create", json);
+        Assert.Contains("mission_add_patrol", json);
+        Assert.Contains("scenario_comms_status", json);
+        Assert.Contains("baltic-patrol-comms", json);
     }
 }

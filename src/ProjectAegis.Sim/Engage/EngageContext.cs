@@ -15,4 +15,5 @@ public readonly record struct EngageContext(
     DlzPersonality DlzPersonality = DlzPersonality.Normal,
     CombatDomain CombatDomain = CombatDomain.Air,
     bool MountOnline = true,
-    bool ContactIdentified = true);
+    bool ContactIdentified = true,
+    bool AirOperationsReady = true);

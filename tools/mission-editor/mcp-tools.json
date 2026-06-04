@@ -192,6 +192,27 @@
       "returns": "JSON suggestions for mission_add_* tools"
     },
     {
+      "name": "scenario_comms_status",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_comms_status",
+        "-ExtraArgs",
+        "--policy",
+        "${policyId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["policyId"],
+        "properties": {
+          "policyId": { "type": "string", "description": "Scenario policy id (e.g. baltic-patrol-comms)" }
+        }
+      },
+      "returns": "JSON comms display settings and timeline transitions"
+    },
+    {
       "name": "scenario_validate",
       "command": "pwsh",
       "args": ["-File", "tools/mission-editor/Invoke-ScenarioValidate.ps1", "-ScenarioPath", "${scenarioPath}"],

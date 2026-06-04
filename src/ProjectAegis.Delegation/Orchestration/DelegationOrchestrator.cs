@@ -280,6 +280,7 @@ public sealed class DelegationOrchestrator
             return;
         }
 
+        var simTick = (ulong)Math.Max(0, (long)state.SimTime);
         var executed = new List<Order>();
 
         foreach (var target in _targets)
@@ -301,10 +302,10 @@ public sealed class DelegationOrchestrator
                         ref _orderIdSequence,
                         _autonomyGate,
                         DecisionLog);
-                    executed.AddRange(agent.DrainIssuedOrders());
+                    executed.AddRange(agent.DrainIssuedOrders(simTick));
                     break;
                 case HumanController human:
-                    executed.AddRange(human.DrainIssuedOrders());
+                    executed.AddRange(human.DrainIssuedOrders(simTick));
                     break;
             }
         }

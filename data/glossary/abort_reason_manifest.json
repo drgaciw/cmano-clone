@@ -30,7 +30,8 @@
         { "logCode": "BLACK_PROJECT_REQUIRED", "member": "BlackProjectRequired" },
         { "logCode": "TECHNOLOGY_LEVEL_EXCEEDED", "member": "TechnologyLevelExceeded" },
         { "logCode": "MOUNT_OFFLINE", "member": "MountOffline" },
-        { "logCode": "DOMAIN_NO_SOLUTION", "member": "DomainNoSolution" }
+        { "logCode": "DOMAIN_NO_SOLUTION", "member": "DomainNoSolution" },
+        { "logCode": "AIR_NOT_READY", "member": "AirNotReady" }
       ]
     },
     {

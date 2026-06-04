@@ -79,8 +79,9 @@ public sealed class AgentController : IController
 
     public void RebindTraits(TraitVector traits) => _traits = traits;
 
-    public IReadOnlyList<Order> DrainIssuedOrders()
+    public IReadOnlyList<Order> DrainIssuedOrders(ulong currentSimTick)
     {
+        _ = currentSimTick;
         if (_issued.Count == 0)
         {
             return Array.Empty<Order>();
