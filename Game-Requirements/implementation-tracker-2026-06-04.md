@@ -1,7 +1,7 @@
 # Game Requirements — Implementation Tracker
 
-**Base:** `main` @ `9e9ac81`
-**Last Updated:** 2026-06-04
+**Base:** `feat/wave5-attack-readiness-spoof` @ `d3a8b83` (`d3a8b8303664f9c859db5ce7100e75027481ff6d`)
+**Last Updated:** 2026-06-04 (Sprint 11 baseline)
 **Index:** [Game-Requirements-Index.md](Game-Requirements-Index.md) | [00-Master-Index.md](../00-Master-Index.md)
 
 ## Verdict
@@ -16,9 +16,11 @@ Completing the full requirements corpus as *shipped game features* is multi-year
 
 ## Verification baseline
 
+**Test baseline (Sprint 11, 2026-06-04):** `dotnet test ProjectAegis.sln` → **359/359 PASS**; PlayMode smoke **7/7**; headless QA proxy **PASS**. Evidence: [sprint-11-wave5-evidence-2026-06-04.md](../production/qa/sprint-11-wave5-evidence-2026-06-04.md).
+
 ```bash
 dotnet build ProjectAegis.sln
-dotnet test ProjectAegis.sln -v minimal   # 345 tests
+dotnet test ProjectAegis.sln -v minimal   # 359 tests
 pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 ```
 
