@@ -117,6 +117,91 @@ public sealed class ScenarioDocumentEditor
         });
     }
 
+    public bool TryRemoveMission(string missionId)
+    {
+        var index = Missions.FindIndex(m =>
+            string.Equals(m.Id, missionId, StringComparison.OrdinalIgnoreCase));
+        if (index < 0)
+        {
+            return false;
+        }
+
+        Missions.RemoveAt(index);
+        return true;
+    }
+
+    public void UpdatePatrolMission(
+        string missionId,
+        IReadOnlyList<string>? assignedUnitIds = null,
+        IReadOnlyList<ScenarioWaypointDto>? patrolZone = null)
+    {
+        var mission = RequireMission(missionId, "Patrol");
+        var index = Missions.IndexOf(mission);
+        Missions[index] = new ScenarioMissionDto
+        {
+            Id = mission.Id,
+            Type = mission.Type,
+            AssignedUnitIds = assignedUnitIds ?? mission.AssignedUnitIds,
+            TargetIds = mission.TargetIds,
+            FerryDestinationBaseId = mission.FerryDestinationBaseId,
+            PatrolZone = patrolZone ?? mission.PatrolZone,
+        };
+    }
+
+    public void UpdateStrikeMission(
+        string missionId,
+        IReadOnlyList<string>? assignedUnitIds = null,
+        IReadOnlyList<string>? targetIds = null)
+    {
+        var mission = RequireMission(missionId, "Strike");
+        var index = Missions.IndexOf(mission);
+        Missions[index] = new ScenarioMissionDto
+        {
+            Id = mission.Id,
+            Type = mission.Type,
+            AssignedUnitIds = assignedUnitIds ?? mission.AssignedUnitIds,
+            TargetIds = targetIds ?? mission.TargetIds,
+            FerryDestinationBaseId = mission.FerryDestinationBaseId,
+            PatrolZone = mission.PatrolZone,
+        };
+    }
+
+    public void UpdateFerryMission(
+        string missionId,
+        IReadOnlyList<string>? assignedUnitIds = null,
+        string? ferryDestinationBaseId = null)
+    {
+        var mission = RequireMission(missionId, "Ferry");
+        var index = Missions.IndexOf(mission);
+        Missions[index] = new ScenarioMissionDto
+        {
+            Id = mission.Id,
+            Type = mission.Type,
+            AssignedUnitIds = assignedUnitIds ?? mission.AssignedUnitIds,
+            TargetIds = mission.TargetIds,
+            FerryDestinationBaseId = ferryDestinationBaseId ?? mission.FerryDestinationBaseId,
+            PatrolZone = mission.PatrolZone,
+        };
+    }
+
     public void Save(string path) =>
         ScenarioDocumentJsonWriter.WriteToFile(ToDto(), path);
+
+    private ScenarioMissionDto RequireMission(string missionId, string expectedType)
+    {
+        var mission = Missions.FirstOrDefault(m =>
+            string.Equals(m.Id, missionId, StringComparison.OrdinalIgnoreCase));
+        if (mission == null)
+        {
+            throw new InvalidOperationException($"Mission id '{missionId}' was not found.");
+        }
+
+        if (!string.Equals(mission.Type, expectedType, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                $"Mission '{missionId}' is type '{mission.Type}', expected '{expectedType}'.");
+        }
+
+        return mission;
+    }
 }

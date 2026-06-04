@@ -21,6 +21,12 @@ switch (command)
         return RunMissionAddPatrol(args.Skip(1).ToArray());
     case "mission_add_strike":
         return RunMissionAddStrike(args.Skip(1).ToArray());
+    case "mission_update_patrol":
+        return RunMissionUpdatePatrol(args.Skip(1).ToArray());
+    case "mission_update_strike":
+        return RunMissionUpdateStrike(args.Skip(1).ToArray());
+    case "mission_delete":
+        return RunMissionDelete(args.Skip(1).ToArray());
     default:
         Console.Error.WriteLine($"Unknown command: {command}");
         PrintUsage();
@@ -172,6 +178,68 @@ static int RunMissionAddStrike(string[] args)
         Console.Out);
 }
 
+static int RunMissionUpdatePatrol(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_update_patrol requires --path --edit-version --id [--unit U]+ [--wp lat,lon]+");
+        return 1;
+    }
+
+    try
+    {
+        var zone = CliArgParser.ParseWaypoints(CliArgParser.GetRepeated(args, "--wp"));
+        return MissionUpdatePatrolCommand.Run(
+            path,
+            editVersion,
+            missionId,
+            CliArgParser.GetRepeated(args, "--unit"),
+            zone.Count > 0 ? zone : null,
+            Console.Out);
+    }
+    catch (FormatException ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "INVALID_ZONE", ex.Message);
+    }
+}
+
+static int RunMissionUpdateStrike(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_update_strike requires --path --edit-version --id [--unit U]+ [--target T]+");
+        return 1;
+    }
+
+    return MissionUpdateStrikeCommand.Run(
+        path,
+        editVersion,
+        missionId,
+        CliArgParser.GetRepeated(args, "--unit"),
+        CliArgParser.GetRepeated(args, "--target"),
+        Console.Out);
+}
+
+static int RunMissionDelete(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_delete requires --path --edit-version --id");
+        return 1;
+    }
+
+    return MissionDeleteCommand.Run(path, editVersion, missionId, Console.Out);
+}
+
 static void PrintUsage()
 {
     Console.WriteLine("Project Aegis — Mission Editor headless MCP tools");
@@ -179,6 +247,9 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_create --out <scenario.json> [--db-ref R] [--policy-id P] [--seed N]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_patrol --path <scenario.json> --edit-version N --id <id> --unit U [--wp lat,lon]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_strike --path <scenario.json> --edit-version N --id <id> --unit U --target T");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_patrol --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--wp lat,lon]+");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_strike --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--target T]+");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_delete --path <scenario.json> --edit-version N --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_validate --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export_brief --path <scenario.json> [--out brief.md]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_simulate_sample --path <scenario.json> [--ticks N]");
