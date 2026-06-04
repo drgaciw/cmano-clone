@@ -1,20 +1,28 @@
-# Sprint 16 — Parallel kickoff (recommended next steps)
+# Sprint 16 — Parallel kickoff (session 2)
 
 **Date:** 2026-06-04  
-**Skills:** `finishing-a-development-branch`, `replay-verify`, `using-git-worktrees`, `database-layer-architecture`
+**Skills:** `finishing-a-development-branch`, `pr-babysit`, `database-layer-architecture`, `using-git-worktrees`
 
 ## Tracks
 
-| Track | Worktree / branch | Agent | Status |
-|-------|-------------------|-------|--------|
-| **PR gate** | `sprint16-pr-gate` / `stack/sprint16-pr-gate` | coordinator + verify | **PASS** — see `production/qa/sprint-16-pr-gate-2026-06-04.md` |
-| **PR body** | main | subagent | `production/agentic/pr-feat-wave5-requirements-program-2026-06-04.md` |
-| **DATA P0 plan** | `sprint16-data-p0` / `stack/sprint16-data-p0-plan` | subagent | `production/agentic/sprint-16-data-p0-kickoff-2026-06-04.md` |
-| **Hindsight** | — | — | Deferred (localhost:8888 down) |
-| **GDD /map-systems** | — | — | Queued post-PR (Sprint 16 backlog #4) |
+| Track | Agent / tool | Result |
+|-------|----------------|--------|
+| **PR #69** | subagent + `gh pr view` | **OPEN** — CI red = **billing**, not code; `MERGEABLE`; triage `production/qa/pr-69-ci-triage-2026-06-04.md` |
+| **DATA P0 gap** | subagent | DATA-1/2 **DONE on main**; DATA-3..5 partial/missing — `production/agentic/sprint-16-data-p0-gap-analysis-2026-06-04.md` |
+| **DATA-3 branch** | worktree `sprint16-data-p0-impl` | `stack/sprint16-data-3-scenario-bind` from `main` — kickoff only (no move yet) |
+| **Local verify** | coordinator | **365/365** on feature branch; **351** on main (no Wave 5 tests) |
+| **Hindsight** | — | Still down |
 
-## Next execution
+## Decisions
 
-1. Push `feat/wave5-attack-readiness-spoof` and open PR (body file ready).  
-2. After merge: `stack/sprint16-data-p0-impl` — DATA-0..2 per data P0 kickoff.  
-3. Human: Unity C2 + attack-menu manual sign-off.
+1. **Merge #69** when org fixes Actions billing (or admin merge with local gate evidence).  
+2. **Do not** re-implement DATA-1/2 — already on `main`.  
+3. **Next code stack:** DATA-3 → DATA-4 → DATA-5 off `main` after #69.
+
+## Worktrees
+
+| Path | Branch |
+|------|--------|
+| `.worktrees/sprint16-data-p0-impl` | `stack/sprint16-data-3-scenario-bind` |
+| `.worktrees/sprint16-pr-gate` | `stack/sprint16-pr-gate` |
+| main / `feat/wave5-*` | PR #69 |

@@ -478,8 +478,15 @@ sprint16_tasks:
     completed: "2026-06-04"
     note: "https://github.com/drgaciw/cmano-clone/pull/69"
   - id: s16-data-p0
+    status: done
+    completed: "2026-06-04"
+    note: "DATA-1/2 DONE on main; gap analysis written"
+  - id: s16-pr-ci
+    status: blocked
+    note: "GitHub Actions billing — production/qa/pr-69-ci-triage-2026-06-04.md"
+  - id: s16-data-3
     status: ready
-    note: "DATA-0..2 kickoff written"
+    note: "stack/sprint16-data-3-scenario-bind kickoff; after PR #69 merge"
 
 sprint: 15
 goal: "Docs 07-08-12 + RTM gate + program exit"
