@@ -1,6 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
 using ProjectAegis.Delegation.Comms;
+using ProjectAegis.Delegation.Logistics;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
@@ -21,6 +22,7 @@ public sealed class DelegationBridge
 {
     private readonly List<Order> _nonEngageOrdersCache = new();
     private readonly CommsTimelineSimulator? _commsTimeline;
+    private readonly FuelTimelineTracker? _fuelTimeline;
 
     public DelegationBridge(
         int globalSeed,
@@ -40,6 +42,7 @@ public sealed class DelegationBridge
             ? SimulationSession.BindMvpEngagementForScenario(Orchestrator, scenarioPolicyId)
             : null;
         _commsTimeline = CommsTimelineSimulator.TryCreate(Orchestrator.ScenarioPolicy);
+        _fuelTimeline = FuelTimelineTracker.TryCreate(Orchestrator.ScenarioPolicy);
     }
 
     /// <summary>Headless engage session sharing <see cref="Orchestrator"/> (null when MVP engage disabled).</summary>
@@ -96,6 +99,7 @@ public sealed class DelegationBridge
     public DelegationTickResult Tick(ISimWorldSnapshot snapshot, IOrderSink sink)
     {
         EmitCommsTransitions(snapshot);
+        EmitFuelTransitions(snapshot);
         var observed = ObservedStateBuilder.Build(snapshot, Registry.CollectMemberIds());
 
         if (Session != null)
@@ -152,6 +156,13 @@ public sealed class DelegationBridge
             simTime,
             kind,
             resolvedRisk));
+        var simTick = (ulong)Math.Max(0, (long)simTime);
+        Orchestrator.DecisionLog.AppendPlayerOrder(new PlayerOrderRecord(
+            0,
+            simTime,
+            simTick,
+            binding.TargetId,
+            kind));
         return true;
     }
 
@@ -203,6 +214,32 @@ public sealed class DelegationBridge
         foreach (var change in _commsTimeline.Drain(simTick, snapshot.SimTime))
         {
             Orchestrator.DecisionLog.AppendCommsStateChange(change);
+        }
+    }
+
+    private void EmitFuelTransitions(ISimWorldSnapshot snapshot)
+    {
+        if (_fuelTimeline == null)
+        {
+            return;
+        }
+
+        var simTick = (ulong)Math.Max(0, (long)snapshot.SimTime);
+        var unitIds = Registry.CollectMemberIds();
+        if (unitIds.Count == 0)
+        {
+            return;
+        }
+
+        var drain = _fuelTimeline.Drain(simTick, snapshot.SimTime, 1.0, unitIds);
+        foreach (var burn in drain.Burns)
+        {
+            Orchestrator.DecisionLog.AppendFuelBurn(burn);
+        }
+
+        foreach (var change in drain.BandChanges)
+        {
+            Orchestrator.DecisionLog.AppendFuelStateChange(change);
         }
     }
 

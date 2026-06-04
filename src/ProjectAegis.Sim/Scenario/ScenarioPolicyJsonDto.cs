@@ -56,6 +56,8 @@ public sealed class ScenarioLogisticsJsonDto
     public double JokerFuelFraction { get; set; } = 0.25;
 
     public double BingoFuelFraction { get; set; } = 0.10;
+
+    public bool LogTickBurn { get; set; }
 }
 
 public sealed class ScenarioCommsDisplayJsonDto

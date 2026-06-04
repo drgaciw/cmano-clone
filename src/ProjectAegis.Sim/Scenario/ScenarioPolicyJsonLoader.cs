@@ -80,7 +80,8 @@ public static class ScenarioPolicyJsonLoader
                 logistics.FuelCapacityKg,
                 logistics.BurnRateKgPerSecond,
                 logistics.JokerFuelFraction,
-                logistics.BingoFuelFraction);
+                logistics.BingoFuelFraction,
+                logistics.LogTickBurn);
 
     private static ScenarioCommsDisplaySettings ParseCommsDisplay(ScenarioCommsDisplayJsonDto? display) =>
         display == null

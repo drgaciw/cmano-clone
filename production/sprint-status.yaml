@@ -359,15 +359,21 @@ tests_passed_sprint9: 237
 qa_gate:
   date: "2026-06-02"
   headless: pass
-  tests_total: 244
+  tests_total: 276
   evidence: production/qa/headless-smoke-evidence-2026-06-02.md
   unity_manual: pending
   indexed_commit: e8ea545
   open:
     - Unity manual C2 sign-off (12 checks) — run PLAYMODE-SMOKE + sign-off doc
     - Cesium Phase B spike scene (Editor) — Assets/Scenes/CESIUM-SPIKE-SETUP.md
-  p1_backlog:
-    - FuelStateChange order-log + per-tick sim ledger (logistics GDD AC-3 remainder)
+  p1_backlog: []
+  p1_done_2026_06_03:
+    - FuelLedger tick burn + optional FuelBurn order-log (logTickBurn)
+    - Harness FINGERPRINT_SHA256 + mission-editor sample field
+    - FuelStateChange order-log on burn-model band transitions (FuelTimelineTracker)
+    - CatalogQuarantinePromoter (approved quarantine → sensor)
+    - OrderLogReplayFingerprint SHA-256 hex over canonical text fingerprint
+    - PlayerOrder appended on TryEnqueueHumanOrder
   p1_done_2026_06_02:
     - Map ghost symbology when comms Degraded (MapPanelBinder + USS)
     - Scenario-driven fuel thresholds (logistics JSON on policy)

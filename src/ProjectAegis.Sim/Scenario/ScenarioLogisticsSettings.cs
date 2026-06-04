@@ -11,7 +11,8 @@ public sealed class ScenarioLogisticsSettings
         double fuelCapacityKg = 0,
         double burnRateKgPerSecond = 0,
         double jokerFuelFraction = 0.25,
-        double bingoFuelFraction = 0.10)
+        double bingoFuelFraction = 0.10,
+        bool logTickBurn = false)
     {
         if (jokerSimSeconds < 0 || bingoSimSeconds < 0)
         {
@@ -39,6 +40,7 @@ public sealed class ScenarioLogisticsSettings
         BurnRateKgPerSecond = burnRateKgPerSecond;
         JokerFuelFraction = jokerFuelFraction;
         BingoFuelFraction = bingoFuelFraction;
+        LogTickBurn = logTickBurn;
     }
 
     public double JokerSimSeconds { get; }
@@ -60,4 +62,7 @@ public sealed class ScenarioLogisticsSettings
 
     public double RemainingFuelFraction(double simTimeSeconds) =>
         FuelCapacityKg <= 0 ? 1 : RemainingFuelKg(simTimeSeconds) / FuelCapacityKg;
+
+    /// <summary>When true with burn model, append per-tick <c>FuelBurn</c> order-log rows.</summary>
+    public bool LogTickBurn { get; }
 }

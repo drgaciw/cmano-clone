@@ -5,6 +5,11 @@ using Microsoft.Data.Sqlite;
 /// <summary>SQLite-backed catalog reader; applies migrations on open.</summary>
 public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
 {
+    private static readonly HashSet<string> PragmaTableWhitelist = new(StringComparer.Ordinal)
+    {
+        "sensor",
+        "sensor_quarantine",
+    };
     private readonly SqliteConnection _connection;
     private CatalogSensorBinding[]? _cache;
     private Dictionary<string, CatalogPlatformEntry>? _platforms;
@@ -134,11 +139,19 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
 
     private bool TableHasColumn(string table, string column)
     {
+        if (!PragmaTableWhitelist.Contains(table) || !IsSafeSqlIdentifier(column))
+        {
+            return false;
+        }
+
         using var cmd = _connection.CreateCommand();
         cmd.CommandText = $"SELECT COUNT(*) FROM pragma_table_info('{table}') WHERE name = $col";
         cmd.Parameters.AddWithValue("$col", column);
         return Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0;
     }
+
+    private static bool IsSafeSqlIdentifier(string value) =>
+        !string.IsNullOrEmpty(value) && value.All(static c => char.IsLetterOrDigit(c) || c == '_');
 
     private CatalogSensorBinding[] LoadSorted()
     {

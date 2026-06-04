@@ -59,4 +59,10 @@ public static class OrderLogEntryFactories
 
     public static OrderLogEntry FromCommsStateChange(CommsStateChangeRecord change, ulong sequenceId = 0) =>
         new(sequenceId, OrderLogEntryKind.CommsStateChange, change.SimTime, change);
+
+    public static OrderLogEntry FromFuelStateChange(FuelStateChangeRecord change, ulong sequenceId = 0) =>
+        new(sequenceId, OrderLogEntryKind.FuelStateChange, change.SimTime, change);
+
+    public static OrderLogEntry FromFuelBurn(FuelBurnRecord burn, ulong sequenceId = 0) =>
+        new(sequenceId, OrderLogEntryKind.FuelBurn, burn.SimTime, burn);
 }

@@ -28,6 +28,7 @@ public static class BalticReplayHarness
         string ScenarioPolicyId,
         int Ticks,
         string Fingerprint,
+        string FingerprintSha256,
         int EngagementCount,
         ulong DetectionWorldHash,
         ulong WorldHash,
@@ -182,11 +183,13 @@ public static class BalticReplayHarness
             seed,
             "BLUE",
             bridge.Orchestrator.DecisionLog);
+        var fingerprint = bridge.Orchestrator.DecisionLog.ComputeFingerprint();
         return new Result(
             seed,
             scenarioPolicyId,
             ticks,
-            bridge.Orchestrator.DecisionLog.ComputeFingerprint(),
+            fingerprint,
+            OrderLogReplayFingerprint.ComputeSha256Hex(bridge.Orchestrator.DecisionLog),
             bridge.Orchestrator.DecisionLog.Engagements.Count,
             detectionHash,
             worldHash,

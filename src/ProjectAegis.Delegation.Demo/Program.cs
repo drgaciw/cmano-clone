@@ -15,6 +15,7 @@ static int RunSingle(int seed, string scenario, int ticks, bool engage, bool pri
     var result = BalticReplayHarness.Run(seed, scenario, ticks, mvpEngagement: engage);
     Console.WriteLine($"SEED={result.Seed} SCENARIO={result.ScenarioPolicyId} TICKS={result.Ticks} ENGAGEMENTS={result.EngagementCount}");
     Console.WriteLine($"FINGERPRINT={result.Fingerprint}");
+    Console.WriteLine($"FINGERPRINT_SHA256={result.FingerprintSha256}");
     Console.WriteLine($"DETECTION_WORLD_HASH={result.DetectionWorldHash}");
     Console.WriteLine($"WORLD_HASH={result.WorldHash}");
     if (printCsv)

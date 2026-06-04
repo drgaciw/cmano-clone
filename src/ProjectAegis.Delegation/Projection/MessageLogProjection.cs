@@ -85,6 +85,20 @@ public static class MessageLogProjection
                     "COMMS",
                     $"Comms {c.NodeId}: {c.PreviousState} → {c.NewState} ({c.Reason})",
                     c.NodeId),
+            OrderLogEntryKind.FuelStateChange when entry.Payload is FuelStateChangeRecord f =>
+                new MessageLogLine(
+                    entry.SequenceId,
+                    entry.SimTime,
+                    "FUEL",
+                    $"Fuel {f.UnitId.Value}: {f.PreviousState} → {f.NewState} ({f.RemainingFuelKg:F0} kg)",
+                    f.UnitId.Value),
+            OrderLogEntryKind.FuelBurn when entry.Payload is FuelBurnRecord b =>
+                new MessageLogLine(
+                    entry.SequenceId,
+                    entry.SimTime,
+                    "FUEL",
+                    $"Fuel burn {b.UnitId.Value}: {b.DeltaKg:F0} kg (rem {b.RemainingFuelKg:F0} kg)",
+                    b.UnitId.Value),
             _ => null,
         };
 
