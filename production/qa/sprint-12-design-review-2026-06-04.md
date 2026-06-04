@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-04  
 **Reviewer:** Grok (lean review mode per `production/review-mode.txt`)  
-**Verdict:** **APPROVED WITH NOTES**
+**Verdict:** **APPROVED WITH NOTES** → **LOCKED** (protocol decision 2026-06-04)
 
 ## 01 — Project Overview
 
@@ -13,7 +13,7 @@
 | Locked vision preserved | PASS |
 | Open charter items tracked | PASS (commercial name, Future Combat Mode deferred) |
 
-**Note:** User approval required before status → **Locked**.
+**Lock:** Protocol decision 2026-06-04 — see `production/agentic/sprint-12-protocol-decision-2026-06-04.md` (user delegated gate).
 
 ## 02 — Core Gameplay Loop
 

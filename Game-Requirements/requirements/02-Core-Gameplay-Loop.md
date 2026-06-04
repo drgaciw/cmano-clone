@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-06-04  
 **Related:** 01, 03, 04, 11, 13, 14, 15, 16, 17, 19, 20  
-**Status:** Ready for design review  
+**Status:** Locked  
 **Locked spec:** [2026-05-30-core-gameplay-loop-decisions-design.md](../../docs/superpowers/specs/2026-05-30-core-gameplay-loop-decisions-design.md)
 
 ## Purpose

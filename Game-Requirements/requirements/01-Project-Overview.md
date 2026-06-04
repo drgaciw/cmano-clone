@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-06-04  
 **Related:** 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20  
-**Status:** Ready for design review  
+**Status:** Locked  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)
 
 ## Purpose

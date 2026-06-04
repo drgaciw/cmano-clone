@@ -453,32 +453,37 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 12
+current_sprint: 13
 
 sprint: 12
 goal: "Requirements foundation docs 01-03 (Template A)"
 start: "2026-06-04"
 end: "2026-06-18"
-status: in_progress
+status: complete
+completed: "2026-06-04"
 branch: feat/wave5-attack-readiness-spoof
 evidence:
   - production/agentic/sprint-12-kickoff-2026-06-04.md
+  - production/agentic/sprint-12-protocol-decision-2026-06-04.md
   - production/qa/sprint-12-design-review-2026-06-04.md
 
 sprint12_stories:
   - id: req-maturity-001
-    status: review
-    note: "01-Project-Overview Template A — pending user Lock"
+    status: done
+    completed: "2026-06-04"
+    note: "01-Project-Overview Locked"
   - id: req-maturity-002
-    status: review
-    note: "02-Core-Gameplay-Loop Template A — pending user Lock"
+    status: done
+    completed: "2026-06-04"
+    note: "02-Core-Gameplay-Loop Locked"
   - id: req-maturity-003
-    status: review
-    note: "03-Simulation-Modes inbound refs — pending user Lock"
+    status: done
+    completed: "2026-06-04"
+    note: "03-Simulation-Modes Locked"
 
 sprint12_preview:
   goal: "Requirements foundation docs 01-03"
-  status: in_progress
+  status: complete
   stories:
     - req-maturity-001
     - req-maturity-002

@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-06-04  
 **Related:** 01, 02, 04, 13, 17, 19, 20  
-**Status:** Ready for design review  
+**Status:** Locked  
 **Locked spec:** [2026-05-30-simulation-modes-decisions-design.md](../../docs/superpowers/specs/2026-05-30-simulation-modes-decisions-design.md)
 
 ## Purpose
