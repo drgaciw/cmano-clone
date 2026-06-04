@@ -1,4 +1,5 @@
 using ProjectAegis.Sim.Policy;
+using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Sim.Scenario;
 using Xunit;
 
