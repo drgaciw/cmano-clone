@@ -4,45 +4,21 @@ Generated from Phase 1 discovery. Copy into GitHub Issues as needed.
 
 ---
 
-## PI-001 — JSON round-trip tests for scenario policy logistics
+## PI-001 — JSON round-trip tests for scenario policy logistics — **Done**
 
-**Affected area:** Sim / scenario JSON  
-**Symbols:** `ScenarioPolicyJsonDto`, `ScenarioPolicyJsonLoader`  
-**Risk:** Low  
-**Parallel:** Yes (Agent C)
-
-**Acceptance criteria**
-
-- [ ] Round-trip preserves `logTickBurn`, fuel fractions, comms block
-- [ ] Unknown JSON properties do not break deserialize
-- [ ] `dotnet test` Sim.Tests green
-
-**Validation:** `dotnet test src/ProjectAegis.Sim.Tests/ProjectAegis.Sim.Tests.csproj -v minimal`
+**Artifacts:** `ScenarioPolicyJsonRoundTripTests` (Sim.Tests)
 
 ---
 
-## PI-002 — Catalog sensors JSON round-trip
+## PI-002 — Catalog sensors JSON round-trip — **Done**
 
-**Affected area:** Data / catalog  
-**Symbols:** `CatalogJsonImporter.ReadSensorBindings`  
-**Risk:** Low  
-
-**Acceptance criteria**
-
-- [ ] Import sample JSON → bindings → re-serialize → same ordering/values
+**Artifacts:** `CatalogJsonRoundTripTests` (Data.Tests)
 
 ---
 
-## PI-003 — SqliteCatalogReader pragma whitelist
+## PI-003 — SqliteCatalogReader pragma whitelist — **Done**
 
-**Affected area:** Data / catalog security  
-**Symbols:** `SqliteCatalogReader.TableHasColumn`  
-**Risk:** Low  
-
-**Acceptance criteria**
-
-- [ ] Only whitelisted table names used in pragma query
-- [ ] Existing catalog tests pass
+**Artifacts:** `SqliteCatalogReader` table name whitelist (SEC-01)
 
 ---
 
@@ -69,4 +45,7 @@ Generated from Phase 1 discovery. Copy into GitHub Issues as needed.
 **Affected area:** QA  
 **Risk:** N/A (manual)  
 
-**Validation:** `production/qa/c2-manual-signoff-2026-06-02.md`
+| Scope | Status |
+|-------|--------|
+| Headless proxy (agentic) | **Done** — `production/qa/pi-006-headless-proxy-2026-06-04.md` |
+| Unity Editor manual | **Pending** — `production/qa/c2-manual-signoff-2026-06-02.md` |
