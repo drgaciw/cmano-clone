@@ -453,10 +453,32 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: null
+current_sprint: 16
 requirements_program: complete
 requirements_program_completed: "2026-06-04"
 next_backlog: production/sprints/sprint-16-backlog.md
+
+sprint: 16
+goal: "PR merge + DATA P0 plan + backlog execution"
+start: "2026-06-04"
+status: in_progress
+branch: feat/wave5-attack-readiness-spoof
+evidence:
+  - production/agentic/sprint-16-parallel-kickoff-2026-06-04.md
+  - production/qa/sprint-16-pr-gate-2026-06-04.md
+  - production/agentic/pr-feat-wave5-requirements-program-2026-06-04.md
+  - production/agentic/sprint-16-data-p0-kickoff-2026-06-04.md
+sprint16_tasks:
+  - id: s16-pr-gate
+    status: done
+    completed: "2026-06-04"
+    note: "365 tests, 15 replay, 7 playmode"
+  - id: s16-pr-open
+    status: in-progress
+    note: "push + gh pr create"
+  - id: s16-data-p0
+    status: ready
+    note: "DATA-0..2 kickoff written"
 
 sprint: 15
 goal: "Docs 07-08-12 + RTM gate + program exit"
