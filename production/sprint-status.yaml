@@ -398,9 +398,10 @@ end: "2026-06-18"
 status: complete
 completed: "2026-06-04"
 branch: feat/wave5-attack-readiness-spoof
-indexed_commit: bc39480
+indexed_commit: 85e956b
 gitnexus_nodes: 6531
 gitnexus_reverified: "2026-06-04"
+gitnexus_detect_changes: "skipped-multi-repo-cli; DelegationBridge manual blast-radius note in sprint-12-kickoff"
 tests_passed: 365
 playmode_smoke: 7
 headless_qa_proxy: 18
