@@ -1,8 +1,8 @@
 # Story 006 — Database intelligence (req 06)
 
 **Epic:** requirements-maturity-slice  
-**Sprint:** 15  
-**Status:** Ready
+**Sprint:** 14  
+**Status:** Complete
 
 ## Acceptance
 

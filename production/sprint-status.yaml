@@ -453,7 +453,27 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 14
+current_sprint: 15
+
+sprint: 14
+goal: "Requirements doc 06 (database intelligence)"
+start: "2026-06-04"
+end: "2026-07-02"
+status: complete
+completed: "2026-06-04"
+branch: feat/wave5-attack-readiness-spoof
+evidence:
+  - production/agentic/sprint-14-kickoff-2026-06-04.md
+  - production/agentic/sprint-14-parallel-kickoff-2026-06-04.md
+  - production/qa/sprint-14-design-review-2026-06-04.md
+  - production/qa/sprint-14-gitnexus-data-layer-2026-06-04.md
+sprint14_stories:
+  - id: req-maturity-006
+    status: done
+    completed: "2026-06-04"
+    note: "06-Database-Intelligence Locked"
+worktrees:
+  - .worktrees/sprint14-doc06 → stack/sprint14-req-06
 
 sprint: 13
 goal: "Requirements docs 04-05 (delegation + dynamic systems agent)"
