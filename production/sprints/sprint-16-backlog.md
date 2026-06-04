@@ -1,8 +1,8 @@
 # Sprint 16 — Backlog stub
 
-**Status:** In progress  
+**Status:** Complete (Sprint 16); DATA-4 landed on `main`  
 **Created:** 2026-06-04  
-**Current focus:** PR merge gate (track 3)
+**Current focus:** DATA-5 import smoke (next)
 
 ## Candidate themes
 
