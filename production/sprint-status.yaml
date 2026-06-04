@@ -474,8 +474,9 @@ sprint16_tasks:
     completed: "2026-06-04"
     note: "365 tests, 15 replay, 7 playmode"
   - id: s16-pr-open
-    status: in-progress
-    note: "push + gh pr create"
+    status: done
+    completed: "2026-06-04"
+    note: "https://github.com/drgaciw/cmano-clone/pull/69"
   - id: s16-data-p0
     status: ready
     note: "DATA-0..2 kickoff written"
