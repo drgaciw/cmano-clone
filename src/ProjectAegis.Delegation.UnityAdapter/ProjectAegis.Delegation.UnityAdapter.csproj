@@ -8,6 +8,7 @@
     <Description>Thin bridge between Unity/sim ECS and ProjectAegis.Delegation (no UnityEngine dependency).</Description>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
     <ProjectReference Include="..\ProjectAegis.Delegation\ProjectAegis.Delegation.csproj" />
   </ItemGroup>
 </Project>

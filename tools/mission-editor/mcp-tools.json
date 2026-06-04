@@ -192,6 +192,48 @@
       "returns": "JSON suggestions for mission_add_* tools"
     },
     {
+      "name": "scenario_cyber_status",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_cyber_status",
+        "-ExtraArgs",
+        "--policy",
+        "${policyId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["policyId"],
+        "properties": {
+          "policyId": { "type": "string" }
+        }
+      },
+      "returns": "JSON cyber abort codes and comms coupling hints"
+    },
+    {
+      "name": "scenario_near_future_spawn",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_near_future_spawn",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath"],
+        "properties": {
+          "scenarioPath": { "type": "string" }
+        }
+      },
+      "returns": "JSON gated near-future spawn plan (CCA / hypersonic)"
+    },
+    {
       "name": "scenario_comms_status",
       "command": "pwsh",
       "args": [

@@ -18,6 +18,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string DoctrineName = "doctrine-line";
         private const string FuelName = "fuel-line";
         private const string EngageName = "engage-line";
+        private const string AttackOptionsName = "attack-options-line";
         private const string ContactName = "contact-line";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
@@ -33,6 +34,7 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _doctrineLine;
         private Label? _fuelLine;
         private Label? _engageLine;
+        private Label? _attackOptionsLine;
         private Label? _contactLine;
         private bool _wired;
 
@@ -97,6 +99,7 @@ namespace ProjectAegis.Unity.Runtime
             _doctrineLine = panel.Q<Label>(DoctrineName);
             _fuelLine = panel.Q<Label>(FuelName);
             _engageLine = panel.Q<Label>(EngageName);
+            _attackOptionsLine = panel.Q<Label>(AttackOptionsName);
             _contactLine = panel.Q<Label>(ContactName);
             _wired = _unitIdLine != null && _statusLine != null && _magazineLine != null &&
                      _emconLine != null && _doctrineLine != null;
@@ -130,6 +133,11 @@ namespace ProjectAegis.Unity.Runtime
             if (_engageLine != null)
             {
                 _engageLine.text = state.EngagePreviewLine;
+            }
+
+            if (_attackOptionsLine != null)
+            {
+                _attackOptionsLine.text = state.AttackOptionsLine;
             }
 
             if (_contactLine != null)

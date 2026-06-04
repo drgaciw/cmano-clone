@@ -8,4 +8,5 @@ public sealed record UnitDetailPanelState(
     string DoctrineLine,
     string FuelLine,
     string EngagePreviewLine,
+    string AttackOptionsLine,
     string ContactLine);

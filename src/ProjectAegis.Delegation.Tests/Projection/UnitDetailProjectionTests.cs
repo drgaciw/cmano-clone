@@ -31,6 +31,8 @@ public sealed class UnitDetailProjectionTests
         Assert.That(detail!.MagazineLabel, Does.Contain("Δ-1"));
         Assert.That(detail.EmconLabel, Does.Contain("ACTIVE"));
         Assert.That(detail.DoctrineLabel, Does.Contain("WeaponsFree"));
+        Assert.That(detail.AttackOptionsLabel, Does.StartWith("ATTACK:"));
+        Assert.That(detail.AttackOptionsLabel, Does.Contain("Fire 1 round"));
     }
 
     [Test]

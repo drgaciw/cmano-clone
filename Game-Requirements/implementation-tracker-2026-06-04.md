@@ -1,6 +1,6 @@
 # Game Requirements — Implementation Tracker
 
-**Base:** `main` @ `d55248f`
+**Base:** `main` @ `714b731`
 **Last Updated:** 2026-06-04
 **Index:** [Game-Requirements-Index.md](Game-Requirements-Index.md) | [00-Master-Index.md](../00-Master-Index.md)
 
@@ -18,7 +18,7 @@ Completing the full requirements corpus as *shipped game features* is multi-year
 
 ```bash
 dotnet build ProjectAegis.sln
-dotnet test ProjectAegis.sln -v minimal   # 339 tests
+dotnet test ProjectAegis.sln -v minimal   # 345 tests
 pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 ```
 
@@ -34,18 +34,18 @@ pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 | 06 | Database Intelligence | **Partial** | `ProjectAegis.Data/Catalog`, `ScenarioValidationEngine` | DB agent stubs; full provenance on catalog fields |
 | 07 | Agentic Infrastructure | **Partial** | `BalticReplayHarness`, `MissionEditor.Cli`, Hindsight | Scenario gen + experiment workers |
 | 08 | Agentic Architecture | **Partial** | `ProjectAegis.Sim`, `Delegation`, `architecture.md` | DOTS sensor hot path; sim API export |
-| 09 | Near-Future Technologies | **Partial** | `near_future_archetypes.json`, `CatalogArchetypeGate`, `SwarmTierLimits` | Hypersonic defense layer; CCA runtime spawn |
+| 09 | Near-Future Technologies | **Partial** | `NearFutureArchetypeRuntime`, `hypersonic-boost-glide`, `HypersonicEngageGate`, harness `NF_SPAWN` | Full DOTS spawn; MASS tier runtime |
 | 10 | Speculative Systems | **Partial** | `ScenarioSpeculativeSettings`, `SpeculativeEngageGate`, `speculative_platforms.json`, `baltic-patrol-black-project` fixture | Orbital DEW runtime; escalation ladder events |
-| 11 | Agentic Mission Editor | **Partial** | `mcp-tools.json` v2 + `scenario_comms_status`, richer `mission_plan_suggest` (baltic/roe/comms) | Unity edit mode UX; full NL planner |
+| 11 | Agentic Mission Editor | **Partial** | `scenario_cyber_status`, `scenario_near_future_spawn`, plan suggest cca/cyber keywords | Unity edit mode UX; full NL planner |
 | 12 | Terms Glossary | **Partial** | `abort_reason_manifest.json`, Sensor/Cyber families in `AbortReasonCatalog`, alignment tests | UI tooltips; mount-offline abort enum |
 | 13 | Doctrine ROE EMCON WRA | **Partial** | `PolicyEvaluator` WRA salvo, `ResolvedUnitPolicy` mission ROE, `baltic-patrol-mission-roe` / `wra-cap` fixtures | Unity doctrine inheritance panel (ADR-010) |
-| 14 | Engagement & Fire Control | **Partial** | `SwarmSalvoDeconfliction`, `EngageAttackOptions`, DLZ/preview stack | Unity attack-options menu; swarm coordinator sectors |
+| 14 | Engagement & Fire Control | **Partial** | `EngageAttackOptions` + Unity `attack-options-line`, swarm deconflict, DLZ stack | Interactive attack menu; swarm coordinator sectors |
 | 15 | Sensor Detection & EW | **Partial** | `ReplayGoldenSuite` + `baltic-patrol-stale` golden, contact FSM harness | ECCM Phase 2; datalink delay |
-| 16 | Logistics & Magazines | **Partial** | `AIR_NOT_READY` validation + `EngagementAbortReason.AirNotReady` runtime | UNREP; scenario readiness → engage world binding |
+| 16 | Logistics & Magazines | **Partial** | `UnitReadinessMap` → `SimulationSession` engage priming, `AIR_NOT_READY` runtime | UNREP; readiness from live scenario state |
 | 17 | Replay AAR & Order Log | **Partial** | `ReplayGoldenSuiteTests`, CI step in `dotnet-reusable.yml`, `tests/regression/README.md` | Scrub UI; AAR agent |
 | 18 | Combat Domains | **Partial** | `CombatDomainValidator`, `MountOffline`/`DomainNoSolution` abort codes | Mine/land runtime; facility damage |
-| 19 | Cyber & Comms | **Partial** | `PlayerOrderExecutionQueue`, `scenario_comms_status` MCP, comms delay runtime tests | Cyber MCP tools; spoof track runtime |
-| 20 | Command & Control UI | **Partial** | Unity C2 hosts, `c2-manual-signoff` | Globe map; close Editor PI-006 checklist |
+| 19 | Cyber & Comms | **Partial** | `scenario_cyber_status` MCP, comms delay queue runtime | Spoof track runtime; JADC2 node damage |
+| 20 | Command & Control UI | **Partial** | `UnitDetailPanel` engage + attack-options lines, `RightUnitPanelHost` | Globe map; interactive attack menu |
 
 ## Research open gaps (P1)
 

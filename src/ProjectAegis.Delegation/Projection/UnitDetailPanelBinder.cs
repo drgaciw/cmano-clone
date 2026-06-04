@@ -14,6 +14,7 @@ public static class UnitDetailPanelBinder
                 "DOCTRINE: —",
                 "FUEL: —",
                 "ENGAGE: —",
+                "ATTACK: —",
                 contactLine ?? "CONTACT: —");
         }
 
@@ -25,6 +26,7 @@ public static class UnitDetailPanelBinder
             entry.DoctrineLabel,
             entry.FuelLabel,
             entry.EngagePreviewLabel,
+            entry.AttackOptionsLabel,
             contactLine ?? "CONTACT: —");
     }
 }

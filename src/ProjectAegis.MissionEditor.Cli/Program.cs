@@ -31,6 +31,10 @@ switch (command)
         return RunMissionPlanSuggest(args.Skip(1).ToArray());
     case "scenario_comms_status":
         return RunScenarioCommsStatus(args.Skip(1).ToArray());
+    case "scenario_cyber_status":
+        return RunScenarioCyberStatus(args.Skip(1).ToArray());
+    case "scenario_near_future_spawn":
+        return RunScenarioNearFutureSpawn(args.Skip(1).ToArray());
     default:
         Console.Error.WriteLine($"Unknown command: {command}");
         PrintUsage();
@@ -248,6 +252,24 @@ static int RunScenarioCommsStatus(string[] args)
     return ScenarioCommsStatusCommand.Run(policyId, Console.Out);
 }
 
+static int RunScenarioCyberStatus(string[] args)
+{
+    var policyId = CliArgParser.GetFlag(args, "--policy");
+    return ScenarioCyberStatusCommand.Run(policyId, Console.Out);
+}
+
+static int RunScenarioNearFutureSpawn(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    if (string.IsNullOrWhiteSpace(path))
+    {
+        Console.Error.WriteLine("scenario_near_future_spawn requires --path <scenario.json>");
+        return 1;
+    }
+
+    return ScenarioNearFutureSpawnCommand.Run(path, Console.Out);
+}
+
 static int RunMissionDelete(string[] args)
 {
     var path = CliArgParser.GetFlag(args, "--path");
@@ -277,4 +299,6 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_simulate_sample --path <scenario.json> [--ticks N]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_plan_suggest --intent \"patrol and strike baltic\"");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_comms_status --policy baltic-patrol-comms");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_cyber_status --policy baltic-patrol-comms");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_near_future_spawn --path <scenario.json>");
 }
