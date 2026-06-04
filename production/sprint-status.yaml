@@ -381,3 +381,145 @@ qa_gate:
     - COMMS/contact/mission message log colors + top bar COMMS state colors
     - useGlobeMap flag + Cesium spike scene doc
   automated_qa_proxy: production/qa/c2-automated-proxy-2026-06-02.md
+
+# --- Post-MVP Requirements Program (Sprints 11-15) ---
+# Generated: 2026-06-04 | Milestone: production/milestones/post-mvp-requirements-program.md
+# GitNexus: indexed via npx gitnexus analyze (worktree)
+
+program: post-mvp-requirements
+milestone: production/milestones/post-mvp-requirements-program.md
+gitnexus_indexed: "2026-06-04"
+review_mode: lean
+
+sprint: 11
+goal: "Program kickoff — GitNexus refresh, Wave-5 + requirements-maturity epics, QA baseline."
+start: "2026-06-04"
+end: "2026-06-18"
+status: complete
+completed: "2026-06-04"
+branch: feat/wave5-attack-readiness-spoof
+indexed_commit: bc39480
+gitnexus_nodes: 6531
+gitnexus_reverified: "2026-06-04"
+tests_passed: 365
+playmode_smoke: 7
+headless_qa_proxy: 18
+evidence:
+  - production/qa/sprint-11-baseline-verify-2026-06-04.md
+  - production/qa/sprint-11-wave5-evidence-2026-06-04.md
+  - production/agentic/sprint-11-kickoff-2026-06-04.md
+  - production/agentic/sprint-11-hindsight-recall-2026-06-04.md
+sprint11_parallel_kickoff: complete
+worktrees:
+  - .worktrees/sprint11-verify → stack/sprint11-baseline-verify
+  - .worktrees/sprint11-docs → stack/sprint11-tracker-docs
+
+sprint11_tasks:
+  - id: s11-gitnexus
+    name: GitNexus analyze + record commit
+    status: done
+    completed: "2026-06-04"
+  - id: s11-epics
+    name: wave5 + requirements-maturity epics and stories
+    status: done
+    completed: "2026-06-04"
+  - id: s11-plan
+    name: Superpowers implementation plan wave5
+    status: done
+    completed: "2026-06-04"
+  - id: s11-qa
+    name: Headless QA proxy (Unity manual still pending)
+    status: done
+    completed: "2026-06-04"
+    note: "production/qa/sprint-11-wave5-evidence-2026-06-04.md"
+  - id: s11-tests
+    name: dotnet restore + test baseline
+    status: done
+    completed: "2026-06-04"
+  - id: s11-09
+    name: Implementation tracker baseline SHA
+    status: done
+    completed: "2026-06-04"
+    branch: stack/sprint11-tracker-docs
+  - id: s11-10
+    name: Archive stale delegation framework plan
+    status: done
+    completed: "2026-06-04"
+    branch: stack/sprint11-tracker-docs
+  - id: s11-06
+    name: Hindsight recall (server down — documented)
+    status: done
+    completed: "2026-06-04"
+    note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
+
+current_sprint: 12
+
+sprint: 12
+goal: "Requirements foundation docs 01-03 (Template A)"
+start: "2026-06-04"
+end: "2026-06-18"
+status: in_progress
+branch: feat/wave5-attack-readiness-spoof
+evidence:
+  - production/agentic/sprint-12-kickoff-2026-06-04.md
+  - production/qa/sprint-12-design-review-2026-06-04.md
+
+sprint12_stories:
+  - id: req-maturity-001
+    status: review
+    note: "01-Project-Overview Template A — pending user Lock"
+  - id: req-maturity-002
+    status: review
+    note: "02-Core-Gameplay-Loop Template A — pending user Lock"
+  - id: req-maturity-003
+    status: review
+    note: "03-Simulation-Modes inbound refs — pending user Lock"
+
+sprint12_preview:
+  goal: "Requirements foundation docs 01-03"
+  status: in_progress
+  stories:
+    - req-maturity-001
+    - req-maturity-002
+    - req-maturity-003
+
+sprint13_preview:
+  goal: "Wave 5 spoof + live readiness (req 19, 16)"
+  status: code-complete
+  completed: "2026-06-04"
+  branch: feat/wave5-attack-readiness-spoof
+  stories:
+    - id: wave5-001
+      status: done
+    - id: wave5-002
+      status: done
+    - id: wave5-003
+      status: done
+    - id: wave5-004
+      status: done
+  gitnexus_critical: DelegationBridge
+
+sprint14_preview:
+  goal: "Interactive attack menu (req 14, 20)"
+  status: code-complete
+  completed: "2026-06-04"
+  branch: feat/wave5-attack-readiness-spoof
+  stories:
+    - id: wave5-005
+      status: done
+    - id: wave5-006
+      status: done
+      note: "RightUnitPanelHost buttons + live enable/disable from AttackMenu"
+    - id: wave5-007
+      status: done
+      note: "DelegationBridgeAttackOptionTests + binder tests; PlayMode 7/7 green"
+tests_passed_wave5_attack_menu: 365
+
+sprint15_preview:
+  goal: "Requirements 04-06, 12, consistency, RTM gate"
+  status: planned
+  stories:
+    - req-maturity-004
+    - req-maturity-005
+    - req-maturity-006
+    - req-maturity-007

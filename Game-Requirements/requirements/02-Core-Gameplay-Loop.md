@@ -1,6 +1,9 @@
 # 02 - Core Gameplay Loop
 
-**Last Updated:** May 30, 2026
+**Last Updated:** 2026-06-04  
+**Related:** 01, 03, 04, 11, 13, 14, 15, 16, 17, 19, 20  
+**Status:** Ready for design review  
+**Locked spec:** [2026-05-30-core-gameplay-loop-decisions-design.md](../../docs/superpowers/specs/2026-05-30-core-gameplay-loop-decisions-design.md)
 
 ## Purpose
 Define the primary gameplay loop that players and AI agents will experience, ensuring it supports seamless operation across human-only, mixed human+agent, and fully autonomous agent-versus-agent modes.
@@ -40,6 +43,22 @@ A clean, intuitive, and deeply strategic gameplay loop that feels like commandin
 - Player can adjust agent personalities, force composition, or technology levels
 - Results feed into the Balance Tuning Agent and Database Intelligence Layer
 - High-speed agent-vs-agent batch mode for rapid testing of new ideas
+
+## Functional Requirements
+
+| ID | Requirement | Phase / touchpoint |
+|----|-------------|-------------------|
+| LOOP-01 | Scenario and force-package selection | Phase 1 |
+| LOOP-02 | RTwP planning with explicit **Begin Execution** | Phase 2 |
+| LOOP-03 | Variable time compression during execution | Phase 3 |
+| LOOP-04 | Player override of agent orders and autonomy | Phase 3 |
+| LOOP-05 | Scenario `playerInfoModel` and `personalityEditPolicy` | Phase 2–3 ([13](13-Doctrine-ROE-EMCON-WRA.md) policy JSON) |
+| LOOP-06 | Deterministic replay and AAR with order log | Phase 4 ([17](17-Replay-AAR-And-Order-Log.md)) |
+| LOOP-07 | Balance-tuning feedback from outcomes | Phase 5 ([05](05-Dynamic-Systems-Agent.md)) |
+| LOOP-08 | Doctrine and ROE inform agent constraints | Phase 2–3 ([13](13-Doctrine-ROE-EMCON-WRA.md)) |
+| LOOP-09 | Sensor picture and EW shape player awareness | Phase 3 ([15](15-Sensor-Detection-And-EW.md)) |
+| LOOP-10 | Engagement and magazine state in unit detail | Phase 3 ([14](14-Engagement-And-Fire-Control.md), [16](16-Logistics-And-Magazines.md)) |
+| LOOP-11 | Comms degradation affects C2 overlays | Phase 3 ([19](19-Cyber-And-Comms.md), [20](20-Command-And-Control-UI.md)) |
 
 ## Key Design Principles
 
@@ -114,6 +133,19 @@ Mission editor (req 11) is the preferred authoring surface; exported scenarios m
 - Full deterministic replay support with seed-based reproducibility
 - Smooth transition between interactive and headless execution
 
+## Technical Considerations
+
+- **Phase gate:** `DelegationOrchestrator.Phase` blocks ticks and orders until `BeginExecution()` ([03](03-Simulation-Modes.md))
+- **Loop policy:** `LoopPolicyGate` enforces personality-edit rules per scenario JSON
+- **Order log:** single append-only stream for replay and live HUD filtering ([17](17-Replay-AAR-And-Order-Log.md))
+- **C2 UI:** map, unit detail, and message log bind to projection layer only — no sim mutation from UI ([20](20-Command-And-Control-UI.md))
+
+## Future Extensibility
+
+- Campaign-level persistence across scenarios (deferred)
+- Async multiplayer with shared order log export
+- Player-defined custom loop policies for training scenarios
+
 ## Agentic Capabilities
 
 - Claude/Cursor (via Unity-MCP) can:
@@ -124,4 +156,4 @@ Mission editor (req 11) is the preferred authoring surface; exported scenarios m
 
 ---
 
-**Status:** Gameplay loop structure approved; open questions resolved May 30, 2026
+**Status:** Gameplay loop structure approved; Template A complete (Sprint 12). Open questions resolved May 30, 2026.

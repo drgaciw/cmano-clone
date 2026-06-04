@@ -14,7 +14,8 @@
 #>
 param(
     [switch]$SkipClaudePlugin,
-    [switch]$SkillsOnly
+    [switch]$SkillsOnly,
+    [switch]$SkipProjectSkills
 )
 
 $ErrorActionPreference = 'Stop'
@@ -30,24 +31,21 @@ function Get-SuperpowersRoot {
 }
 
 function Install-SkillJunctions {
-    param([string]$Root)
+    param(
+        [string]$Root,
+        [string[]]$TargetBases
+    )
     $skillRoot = Join-Path $Root 'skills'
     if (-not (Test-Path $skillRoot)) { throw "Missing skills folder: $skillRoot" }
 
-    $targets = @(
-        (Join-Path $env:USERPROFILE '.cursor\skills'),
-        (Join-Path $env:USERPROFILE '.agents\skills'),
-        (Join-Path $env:USERPROFILE '.grok\skills')
-    )
-
-    foreach ($base in $targets) {
+    foreach ($base in $TargetBases) {
         if (-not (Test-Path $base)) {
             New-Item -ItemType Directory -Path $base -Force | Out-Null
         }
     }
 
     foreach ($skillDir in Get-ChildItem $skillRoot -Directory) {
-        foreach ($base in $targets) {
+        foreach ($base in $TargetBases) {
             $link = Join-Path $base $skillDir.Name
             if (Test-Path $link) {
                 $item = Get-Item $link -Force
@@ -72,9 +70,24 @@ if (-not $SkillsOnly -and -not $SkipClaudePlugin) {
 }
 
 $root = Get-SuperpowersRoot
-Install-SkillJunctions -Root $root
+$globalBases = @(
+    (Join-Path $env:USERPROFILE '.cursor\skills'),
+    (Join-Path $env:USERPROFILE '.agents\skills'),
+    (Join-Path $env:USERPROFILE '.grok\skills')
+)
+Install-SkillJunctions -Root $root -TargetBases $globalBases
+
+$repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+$projectSkillRoot = Join-Path $repoRoot '.claude\skills\superpowers'
+if (-not $SkipProjectSkills) {
+    Install-SkillJunctions -Root $root -TargetBases @($projectSkillRoot)
+}
+
 Write-Host "Superpowers $Version linked from $root"
 Write-Host "  Cursor:  $env:USERPROFILE\.cursor\skills\<skill>"
 Write-Host "  Agents:  $env:USERPROFILE\.agents\skills\<skill>"
 Write-Host "  Grok:    $env:USERPROFILE\.grok\skills\<skill>"
+if (-not $SkipProjectSkills) {
+    Write-Host "  Project: $projectSkillRoot\<skill> (junctions; gitignored)"
+}
 Write-Host "Cursor marketplace (optional): /add-plugin superpowers"

@@ -10,4 +10,5 @@ public sealed record UnitDetailEntry(
     string DoctrineLabel,
     string FuelLabel,
     string EngagePreviewLabel,
-    string AttackOptionsLabel);
+    string AttackOptionsLabel,
+    IReadOnlyList<EngageAttackOptions.AttackOption> AttackMenu);

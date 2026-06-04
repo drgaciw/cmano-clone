@@ -21,6 +21,20 @@ public static class UnitDetailBridge
             snapshot.SimTime,
             observerUnitId);
 
+    public static UnitDetailEntry? BuildPrimary(
+        ISimWorldSnapshot snapshot,
+        DelegationBridge bridge,
+        string? observerUnitId = "u1") =>
+        EnrichAttackMenu(
+            BuildPrimary(
+                snapshot,
+                bridge.Registry,
+                bridge.Orchestrator.DecisionLog,
+                bridge.Orchestrator.ScenarioPolicy,
+                observerUnitId),
+            snapshot,
+            bridge);
+
     public static UnitDetailEntry? BuildSelected(
         TargetId unitId,
         ISimWorldSnapshot snapshot,
@@ -34,4 +48,36 @@ public static class UnitDetailBridge
             policy,
             snapshot.SimTime,
             observerUnitId);
+
+    public static UnitDetailEntry? BuildSelected(
+        TargetId unitId,
+        ISimWorldSnapshot snapshot,
+        DelegationBridge bridge,
+        string? observerUnitId = "u1") =>
+        EnrichAttackMenu(
+            BuildSelected(
+                unitId,
+                snapshot,
+                bridge.Orchestrator.DecisionLog,
+                bridge.Orchestrator.ScenarioPolicy,
+                observerUnitId),
+            snapshot,
+            bridge,
+            unitId.Value);
+
+    private static UnitDetailEntry? EnrichAttackMenu(
+        UnitDetailEntry? entry,
+        ISimWorldSnapshot snapshot,
+        DelegationBridge bridge,
+        string? unitIdOverride = null)
+    {
+        if (entry == null)
+        {
+            return null;
+        }
+
+        var unitId = unitIdOverride ?? entry.UnitId;
+        var liveMenu = bridge.GetAttackMenuOptions(unitId, snapshot);
+        return entry with { AttackMenu = liveMenu };
+    }
 }

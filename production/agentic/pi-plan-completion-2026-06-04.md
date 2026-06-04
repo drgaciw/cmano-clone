@@ -5,7 +5,7 @@
 
 ## Verdict: **COMPLETE** (agentic scope)
 
-All parallel agent workstreams in `pi-todos-impl-plan.md` are satisfied for headless CI. Unity Editor C2 checklist remains a **human** gate (PI-006).
+All parallel agent workstreams in `.claude/docs/agentic/pi-todos-impl-plan.md` are satisfied for headless CI. Unity Editor C2 checklist remains a **human** gate (PI-006).
 
 ## Phase summary
 
@@ -30,7 +30,7 @@ All parallel agent workstreams in `pi-todos-impl-plan.md` are satisfied for head
 
 ## Skills
 
-- `pi-skills-recommendations.md` aligned with milsim stack
+- `.claude/docs/agentic/pi-skills-recommendations.md` aligned with milsim stack
 - Review: `docs/engineering/pi-skills-recommendations-review.md`
 
 ## Out of scope (explicit)

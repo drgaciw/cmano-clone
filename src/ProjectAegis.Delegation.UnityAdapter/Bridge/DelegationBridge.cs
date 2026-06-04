@@ -180,6 +180,23 @@ public sealed class DelegationBridge
         return true;
     }
 
+    /// <summary>Attack menu entries for UI binding (live engage context).</summary>
+    public IReadOnlyList<EngageAttackOptions.AttackOption> GetAttackMenuOptions(
+        string unitId,
+        ISimWorldSnapshot snapshot)
+    {
+        if (!TryResolveEntityKey(unitId, out var entity))
+        {
+            return Array.Empty<EngageAttackOptions.AttackOption>();
+        }
+
+        var engageDefaults = Orchestrator.ScenarioPolicy?.EngageDefaults
+            ?? ScenarioEngageDefaults.MvpFallback;
+        var ctx = BuildLiveEngageContext(snapshot, unitId, engageDefaults);
+        var preview = EngagePreviewProjection.Project(in ctx, engageDefaults.DlzPersonality);
+        return EngageAttackOptions.Build(in ctx, preview);
+    }
+
     /// <summary>Interactive attack menu → player order (req 14 / doc 20).</summary>
     public bool TryEnqueueAttackOption(
         EntityKey entity,
@@ -245,6 +262,27 @@ public sealed class DelegationBridge
 
         return Orchestrator.TryReleaseDirectControl(unit, simTime);
     }
+
+    private static bool TryResolveEntityKey(
+        TargetRegistry registry,
+        string unitId,
+        out EntityKey entityKey)
+    {
+        entityKey = default;
+        foreach (var binding in registry.Bindings)
+        {
+            if (string.Equals(binding.TargetId.Value, unitId, StringComparison.Ordinal))
+            {
+                entityKey = binding.Entity;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool TryResolveEntityKey(string unitId, out EntityKey entityKey) =>
+        TryResolveEntityKey(Registry, unitId, out entityKey);
 
     public IReadOnlyList<TrustSignal> FinalizeScenario(
         bool missionSucceeded = false,

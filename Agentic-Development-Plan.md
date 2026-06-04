@@ -3,7 +3,7 @@
 **Project:** Project Aegis (cmano-clone) — near-future military simulation  
 **Phase:** Requirements Maturity  
 **Date:** June 4, 2026  
-**Approval Status:** Pending user approval — see [docs/COLLABORATIVE-DESIGN-PRINCIPLE.md](docs/COLLABORATIVE-DESIGN-PRINCIPLE.md)
+**Approval Status:** Approved for execution — sprint program [production/milestones/post-mvp-requirements-program.md](production/milestones/post-mvp-requirements-program.md) (Sprints 11–15, 2026-06-04)
 
 ## Objective
 
@@ -41,7 +41,7 @@ Audit of `Game-Requirements/requirements/*.md`:
 
 ## Global Rules for All Agents
 
-Adapted from [pi-todos-impl-plan.md](pi-todos-impl-plan.md) for documentation work.
+Adapted from [pi-todos-impl-plan.md](.claude/docs/agentic/pi-todos-impl-plan.md) for documentation work.
 
 | Rule | Application |
 |------|-------------|

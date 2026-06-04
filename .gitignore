@@ -49,6 +49,13 @@ tools/cmano-db-crawler/_raw/
 .kilo/
 .claude/settings.local.json
 
+# obra/superpowers — junctions from tools/install-superpowers.ps1 (see .claude/skills/superpowers/README.md)
+.claude/skills/superpowers/*/
+!.claude/skills/superpowers/README.md
+
+# Superpowers parallel sprint worktrees (local only)
+.worktrees/
+
 # Agent session artifacts (Cursor / Grok harness — not part of the product)
 .grok/
 agent-tools/
@@ -59,3 +66,4 @@ terminals/
 unity-*.log
 unity-*.log.import
 unity-hub-install*.log
+.forgeflow/run/

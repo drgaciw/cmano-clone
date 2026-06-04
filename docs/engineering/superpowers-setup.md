@@ -34,6 +34,7 @@ claude plugin update superpowers@superpowers-marketplace
 | Claude Code | Plugin `superpowers@superpowers-marketplace` (user scope) |
 | Cursor | Junctions in `%USERPROFILE%\.cursor\skills\` |
 | Grok | Junctions in `%USERPROFILE%\.grok\skills\` |
+| This repo (Claude / studio) | Junctions in `.claude/skills/superpowers/<skill>/` (created by install script; gitignored) |
 | Codex / other | See [superpowers README](https://github.com/obra/superpowers#installation) |
 
 Optional in Cursor chat: `/add-plugin superpowers` (marketplace plugin + session hooks).

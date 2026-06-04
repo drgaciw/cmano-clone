@@ -48,18 +48,13 @@ namespace ProjectAegis.Unity.Runtime
         {
             if (string.IsNullOrEmpty(SelectedUnitId))
             {
-                return UnitDetailBridge.BuildPrimary(
-                    snapshot,
-                    registry,
-                    bridge.Orchestrator.DecisionLog,
-                    bridge.Orchestrator.ScenarioPolicy);
+                return UnitDetailBridge.BuildPrimary(snapshot, bridge);
             }
 
             return UnitDetailBridge.BuildSelected(
                 new TargetId(SelectedUnitId),
                 snapshot,
-                bridge.Orchestrator.DecisionLog,
-                bridge.Orchestrator.ScenarioPolicy);
+                bridge);
         }
 
         public string? ResolveContactLine() =>

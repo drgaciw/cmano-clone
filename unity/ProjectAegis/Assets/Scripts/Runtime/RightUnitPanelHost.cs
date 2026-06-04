@@ -1,5 +1,6 @@
 // Doc-20 right unit detail panel — UI Toolkit bound to DelegationBridgeHost.
 #if UNITY_5_3_OR_NEWER
+using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -35,11 +36,10 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _fuelLine;
         private Label? _engageLine;
         private Label? _attackOptionsLine;
-        private Button? _attackFireSingle;
-        private Button? _attackFireSalvo;
-        private Button? _attackHoldFire;
+        private readonly Dictionary<string, Button> _attackButtons = new();
         private Label? _contactLine;
         private bool _wired;
+        private bool _attackHandlersRegistered;
 
         private void Reset()
         {
@@ -103,19 +103,30 @@ namespace ProjectAegis.Unity.Runtime
             _fuelLine = panel.Q<Label>(FuelName);
             _engageLine = panel.Q<Label>(EngageName);
             _attackOptionsLine = panel.Q<Label>(AttackOptionsName);
-            _attackFireSingle = panel.Q<Button>("attack-fire-single");
-            _attackFireSalvo = panel.Q<Button>("attack-fire-salvo");
-            _attackHoldFire = panel.Q<Button>("attack-hold-fire");
             _contactLine = panel.Q<Label>(ContactName);
+            _attackButtons.Clear();
+            RegisterAttackButton(panel.Q<Button>("attack-fire-single"), "fire-single");
+            RegisterAttackButton(panel.Q<Button>("attack-fire-salvo"), "fire-salvo");
+            RegisterAttackButton(panel.Q<Button>("attack-hold-fire"), "hold-fire");
             _wired = _unitIdLine != null && _statusLine != null && _magazineLine != null &&
                      _emconLine != null && _doctrineLine != null;
 
-            WireAttackMenu();
+            WireAttackMenuHandlers();
 
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
             {
                 panel.styleSheets.Add(panelStyles);
             }
+        }
+
+        private void RegisterAttackButton(Button? button, string optionId)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            _attackButtons[optionId] = button;
         }
 
         private void Refresh()
@@ -153,6 +164,8 @@ namespace ProjectAegis.Unity.Runtime
                 _contactLine.text = state.ContactLine;
             }
 
+            RefreshAttackMenuButtons(state.AttackMenu);
+
             var root = _document.rootVisualElement?.Q(RootName);
             if (root != null)
             {
@@ -160,32 +173,53 @@ namespace ProjectAegis.Unity.Runtime
             }
         }
 
-        private void WireAttackMenu()
+        private void RefreshAttackMenuButtons(IReadOnlyList<EngageAttackOptions.AttackOption> menu)
+        {
+            foreach (var (optionId, button) in _attackButtons)
+            {
+                var option = AttackMenuPanelBinder.FindOption(menu, optionId);
+                if (option == null)
+                {
+                    button.style.display = DisplayStyle.None;
+                    continue;
+                }
+
+                button.style.display = DisplayStyle.Flex;
+                button.text = option.Label;
+                button.SetEnabled(option.Enabled);
+                button.tooltip = option.Enabled
+                    ? option.Label
+                    : option.DisabledReason ?? "Blocked";
+            }
+        }
+
+        private void WireAttackMenuHandlers()
+        {
+            if (_attackHandlersRegistered)
+            {
+                return;
+            }
+
+            foreach (var (optionId, button) in _attackButtons)
+            {
+                var capturedId = optionId;
+                button.clicked += () => OnAttackOptionClicked(capturedId);
+            }
+
+            _attackHandlersRegistered = true;
+        }
+
+        private void OnAttackOptionClicked(string optionId)
         {
             if (bridgeHost == null)
             {
                 return;
             }
 
-            RegisterAttackButton(_attackFireSingle, "fire-single");
-            RegisterAttackButton(_attackFireSalvo, "fire-salvo");
-            RegisterAttackButton(_attackHoldFire, "hold-fire");
-        }
-
-        private void RegisterAttackButton(Button? button, string optionId)
-        {
-            if (button == null)
+            if (bridgeHost.TrySelectAttackOption(optionId, out _))
             {
-                return;
+                Refresh();
             }
-
-            button.clicked += () =>
-            {
-                if (bridgeHost.TrySelectAttackOption(optionId, out _))
-                {
-                    Refresh();
-                }
-            };
         }
     }
 }

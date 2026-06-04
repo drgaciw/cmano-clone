@@ -12,7 +12,7 @@
 
 ## Skills review
 
-**Done:** `docs/engineering/pi-skills-recommendations-review.md`, `pi-skills-recommendations.md` (milsim section)
+**Done:** `docs/engineering/pi-skills-recommendations-review.md`, `.claude/docs/agentic/pi-skills-recommendations.md` (milsim section)
 
 ## Agent checklist
 
