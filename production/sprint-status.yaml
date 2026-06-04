@@ -461,8 +461,10 @@ next_backlog: production/sprints/sprint-16-backlog.md
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
 start: "2026-06-04"
-status: in_progress
-branch: feat/wave5-attack-readiness-spoof
+status: complete
+completed: "2026-06-04"
+branch: main
+tests_passed: 368
 evidence:
   - production/agentic/sprint-16-parallel-kickoff-2026-06-04.md
   - production/qa/sprint-16-pr-gate-2026-06-04.md
@@ -476,7 +478,7 @@ sprint16_tasks:
   - id: s16-pr-open
     status: done
     completed: "2026-06-04"
-    note: "https://github.com/drgaciw/cmano-clone/pull/69"
+    note: "MERGED https://github.com/drgaciw/cmano-clone/pull/69 → main @ 810b8d7"
   - id: s16-data-p0
     status: done
     completed: "2026-06-04"
@@ -487,7 +489,7 @@ sprint16_tasks:
   - id: s16-data-3
     status: done
     completed: "2026-06-04"
-    note: "stack/sprint16-data-3-scenario-bind @ 3474373; 354 tests PASS; production/qa/sprint-16-data-3-gitnexus-2026-06-04.md"
+    note: "MERGED to main; 368 tests PASS; production/qa/sprint-16-data-3-gitnexus-2026-06-04.md"
 
 sprint: 15
 goal: "Docs 07-08-12 + RTM gate + program exit"

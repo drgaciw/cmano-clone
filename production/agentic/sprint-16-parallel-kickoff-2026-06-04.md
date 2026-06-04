@@ -7,7 +7,7 @@
 
 | Track | Agent / tool | Result |
 |-------|----------------|--------|
-| **PR #69** | subagent + `gh pr view` | **OPEN** — CI red = **billing**, not code; `MERGEABLE`; triage `production/qa/pr-69-ci-triage-2026-06-04.md` |
+| **PR #69** | `gh pr merge --admin` | **MERGED** → `main` @ `810b8d7` (2026-06-04); CI was billing-blocked |
 | **DATA P0 gap** | subagent | DATA-1/2 **DONE on main**; DATA-3..5 partial/missing — `production/agentic/sprint-16-data-p0-gap-analysis-2026-06-04.md` |
 | **DATA-3 branch** | worktree `sprint16-data-p0-impl` | `stack/sprint16-data-3-scenario-bind` @ `3474373` — ScenarioPackage + policy JSON in Data; **354/354** PASS |
 | **Local verify** | coordinator | **365/365** on feature branch; **351** on main (no Wave 5 tests) |
@@ -15,9 +15,9 @@
 
 ## Decisions
 
-1. **Merge #69** when org fixes Actions billing (or admin merge with local gate evidence).  
-2. **Do not** re-implement DATA-1/2 — already on `main`.  
-3. **Next code stack:** DATA-3 → DATA-4 → DATA-5 off `main` after #69.
+1. **#69 + DATA-3** merged to `main`; **368/368** tests on trunk.  
+2. **Branches closed:** `feat/wave5-attack-readiness-spoof`, `stack/sprint16-data-3-scenario-bind`.  
+3. **Next:** DATA-4 → DATA-5 off `main`.
 
 ## Worktrees
 
