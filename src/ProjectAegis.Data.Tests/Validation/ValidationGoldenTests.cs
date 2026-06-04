@@ -39,7 +39,9 @@ public sealed class ValidationGoldenTests
         var scenario = ScenarioDocumentJsonLoader.LoadFromFile(path);
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
         var report = Engine.Validate(scenario, catalog, Config);
-        Assert.Contains(report.Findings, f => f.Code == "STRIKE_UNREACHABLE");
+        Assert.Contains(
+            report.Findings,
+            f => f.Code is "STRIKE_UNREACHABLE" or "STRIKE_UNREACHABLE_FUEL");
         Assert.False(report.CanExport(Config));
         Assert.Equal(ValidationGoldenHashes.StrikeUnreachable, report.ReportHash);
         Assert.Equal(report.ReportHash, Engine.Validate(scenario, catalog, Config).ReportHash);

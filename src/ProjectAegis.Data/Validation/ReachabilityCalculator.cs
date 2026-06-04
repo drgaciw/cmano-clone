@@ -23,21 +23,49 @@ public static class ReachabilityCalculator
         double combatRadiusNm,
         double ingressEgressPadNm,
         double fuelFraction,
-        out double excessNm)
+        out double excessNm) =>
+        !TryClassifyStrikeUnreachable(
+            distanceNm,
+            combatRadiusNm,
+            ingressEgressPadNm,
+            fuelFraction,
+            out excessNm,
+            out _);
+
+    /// <summary>
+    /// When unreachable, returns GDD code <c>STRIKE_UNREACHABLE</c> (beyond combat radius) or
+    /// <c>STRIKE_UNREACHABLE_FUEL</c> (within radius but fuel budget exceeded).
+    /// </summary>
+    public static bool TryClassifyStrikeUnreachable(
+        double distanceNm,
+        double combatRadiusNm,
+        double ingressEgressPadNm,
+        double fuelFraction,
+        out double excessNm,
+        out string code)
     {
         excessNm = 0;
+        code = "";
         if (combatRadiusNm <= 0)
         {
             return false;
         }
 
-        var budget = combatRadiusNm * fuelFraction - ingressEgressPadNm;
-        if (distanceNm <= budget)
+        var fuelBudgetNm = combatRadiusNm * fuelFraction - ingressEgressPadNm;
+        if (distanceNm <= fuelBudgetNm)
         {
+            return false;
+        }
+
+        if (distanceNm > combatRadiusNm)
+        {
+            excessNm = distanceNm - combatRadiusNm;
+            code = "STRIKE_UNREACHABLE";
             return true;
         }
 
-        excessNm = distanceNm - budget;
-        return false;
+        excessNm = distanceNm - fuelBudgetNm;
+        code = "STRIKE_UNREACHABLE_FUEL";
+        return true;
     }
 }
