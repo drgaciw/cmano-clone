@@ -69,6 +69,8 @@ public sealed class DelegationBridge
 
     public SimulationPhase Phase => Orchestrator.Phase;
 
+    public CommsState CurrentCommsState => _commsTimeline?.CurrentState ?? CommsState.Nominal;
+
     public void BeginExecution() => Orchestrator.BeginExecution();
 
     public bool AttachReplayViewer
@@ -157,12 +159,15 @@ public sealed class DelegationBridge
             kind,
             resolvedRisk));
         var simTick = (ulong)Math.Max(0, (long)simTime);
+        var commsDisplay = Orchestrator.ScenarioPolicy?.CommsDisplay ?? ScenarioCommsDisplaySettings.Default;
+        var executeTick = CommsOrderDelay.ComputeExecuteSimTick(simTick, CurrentCommsState, commsDisplay);
         Orchestrator.DecisionLog.AppendPlayerOrder(new PlayerOrderRecord(
             0,
             simTime,
             simTick,
             binding.TargetId,
-            kind));
+            kind,
+            ExecuteSimTick: executeTick));
         return true;
     }
 

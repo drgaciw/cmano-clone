@@ -9,4 +9,8 @@ public sealed record PlayerOrderRecord(
     ulong SimTick,
     TargetId UnitId,
     OrderKind Kind,
-    string Source = "player");
+    string Source = "player",
+    ulong ExecuteSimTick = 0)
+{
+    public ulong ResolvedExecuteSimTick => ExecuteSimTick == 0 ? SimTick : ExecuteSimTick;
+}

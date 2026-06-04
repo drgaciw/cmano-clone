@@ -78,6 +78,10 @@ public sealed class ScenarioCommsDisplayJsonDto
     public float GhostOffsetX { get; set; } = 0.06f;
 
     public float GhostOffsetY { get; set; } = 0.04f;
+
+    public int DegradedOrderDelayTicks { get; set; }
+
+    public int DegradedStaleThresholdDivisor { get; set; } = 1;
 }
 
 public sealed class ScenarioCommsJsonDto

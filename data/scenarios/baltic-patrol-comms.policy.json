@@ -29,7 +29,9 @@
   "commsDisplay": {
     "degradedLagTicks": 2,
     "ghostOffsetX": 0.06,
-    "ghostOffsetY": 0.04
+    "ghostOffsetY": 0.04,
+    "degradedOrderDelayTicks": 2,
+    "degradedStaleThresholdDivisor": 2
   },
   "comms": [
     {

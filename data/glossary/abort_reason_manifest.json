@@ -40,6 +40,24 @@
         "FERRY_UNREACHABLE",
         "FERRY_UNREACHABLE_FUEL"
       ]
+    },
+    {
+      "name": "Sensor",
+      "stringCodes": [
+        "SENSOR_OFFLINE",
+        "SENSOR_EMCON_BLOCKED",
+        "DATALINK_STALE",
+        "TRACK_STALE"
+      ]
+    },
+    {
+      "name": "Cyber",
+      "stringCodes": [
+        "CYBER_LINK_DEGRADED",
+        "CYBER_LINK_DOWN",
+        "CYBER_ORDER_DELAY",
+        "CYBER_SPOOF_TRACK"
+      ]
     }
   ]
 }

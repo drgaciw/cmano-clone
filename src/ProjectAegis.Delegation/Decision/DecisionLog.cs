@@ -339,7 +339,7 @@ public sealed class DecisionLog : IOrderLog
             OrderLogEntryKind.EngagementOutcome when entry.Payload is EngagementOutcomeRecord o =>
                 $"{o.SimTick}|{o.EngagementId}|{o.VictimTargetId.Value}|{o.OutcomeCode}|{o.PkDraw:R}",
             OrderLogEntryKind.PlayerOrder when entry.Payload is PlayerOrderRecord p =>
-                $"{p.SimTick}|{p.UnitId.Value}|{p.Kind}|{p.Source}",
+                $"{p.SimTick}|{p.ResolvedExecuteSimTick}|{p.UnitId.Value}|{p.Kind}|{p.Source}",
             OrderLogEntryKind.PolicyUpdate when entry.Payload is PolicyUpdateRecord u =>
                 $"{u.SimTick}|{u.PolicySnapshotId}|{u.Field}|{u.PreviousValue}|{u.NewValue}",
             OrderLogEntryKind.ModeChange when entry.Payload is ModeChangeRecord m =>

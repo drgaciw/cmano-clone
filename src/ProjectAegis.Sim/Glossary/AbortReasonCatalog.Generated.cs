@@ -39,5 +39,21 @@ public static partial class AbortReasonCatalog
         public const string FERRY_UNREACHABLE_FUEL = "FERRY_UNREACHABLE_FUEL";
     }
 
+    public static class Sensor
+    {
+        public const string SENSOR_OFFLINE = "SENSOR_OFFLINE";
+        public const string SENSOR_EMCON_BLOCKED = "SENSOR_EMCON_BLOCKED";
+        public const string DATALINK_STALE = "DATALINK_STALE";
+        public const string TRACK_STALE = "TRACK_STALE";
+    }
+
+    public static class Cyber
+    {
+        public const string CYBER_LINK_DEGRADED = "CYBER_LINK_DEGRADED";
+        public const string CYBER_LINK_DOWN = "CYBER_LINK_DOWN";
+        public const string CYBER_ORDER_DELAY = "CYBER_ORDER_DELAY";
+        public const string CYBER_SPOOF_TRACK = "CYBER_SPOOF_TRACK";
+    }
+
 }
 
