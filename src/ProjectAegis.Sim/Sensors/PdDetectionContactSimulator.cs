@@ -15,6 +15,7 @@ public sealed class PdDetectionContactSimulator
     private readonly HashSet<string> _destroyedTargets = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ContactTrack> _tracks = new(StringComparer.Ordinal);
     private readonly int _staleThresholdTicks;
+    private int _commsStaleThresholdDivisor = 1;
     private readonly int _classifyAfterTicks;
     private readonly int _identifyAfterTicks;
     private string? _primaryTargetId;
@@ -38,6 +39,12 @@ public sealed class PdDetectionContactSimulator
     }
 
     public ulong LastDetectionHash { get; private set; }
+
+    public void SetCommsStaleThresholdDivisor(int divisor) =>
+        _commsStaleThresholdDivisor = Math.Max(1, divisor);
+
+    private int EffectiveStaleThresholdTicks =>
+        Math.Max(1, _staleThresholdTicks / _commsStaleThresholdDivisor);
 
     public int ActiveCount => _detectedContacts.Count;
 
@@ -177,7 +184,7 @@ public sealed class PdDetectionContactSimulator
             }
 
             pair.Value.MissedTicks++;
-            if (pair.Value.MissedTicks < _staleThresholdTicks)
+            if (pair.Value.MissedTicks < EffectiveStaleThresholdTicks)
             {
                 continue;
             }

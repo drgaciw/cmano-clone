@@ -66,6 +66,16 @@ public sealed class AbortReasonManifestTests
         Assert.Equal("BLACK_PROJECT_REQUIRED", AbortReasonCatalog.Engage.BLACK_PROJECT_REQUIRED);
     }
 
+    [Fact]
+    public void Sensor_and_cyber_string_families_align_with_manifest()
+    {
+        var manifest = AbortReasonManifest.LoadFromEmbeddedOrFile(ManifestPath);
+        Assert.Contains(AbortReasonCatalog.Sensor.DATALINK_STALE, manifest.GetStringCodes("Sensor"));
+        Assert.Contains(AbortReasonCatalog.Cyber.CYBER_ORDER_DELAY, manifest.GetStringCodes("Cyber"));
+        Assert.Equal(AbortReasonCatalog.Sensor.TRACK_STALE, "TRACK_STALE");
+        Assert.Equal(AbortReasonCatalog.Cyber.CYBER_LINK_DOWN, "CYBER_LINK_DOWN");
+    }
+
     private static string ResolveManifestPath()
     {
         var dir = AppContext.BaseDirectory;

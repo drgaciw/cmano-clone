@@ -116,7 +116,12 @@ public static class ScenarioPolicyJsonLoader
     private static ScenarioCommsDisplaySettings ParseCommsDisplay(ScenarioCommsDisplayJsonDto? display) =>
         display == null
             ? ScenarioCommsDisplaySettings.Default
-            : new ScenarioCommsDisplaySettings(display.DegradedLagTicks, display.GhostOffsetX, display.GhostOffsetY);
+            : new ScenarioCommsDisplaySettings(
+                display.DegradedLagTicks,
+                display.GhostOffsetX,
+                display.GhostOffsetY,
+                display.DegradedOrderDelayTicks,
+                display.DegradedStaleThresholdDivisor <= 0 ? 1 : display.DegradedStaleThresholdDivisor);
 
     private static IReadOnlyList<ScenarioCommsTransition> ParseCommsTransitions(List<ScenarioCommsJsonDto>? comms)
     {

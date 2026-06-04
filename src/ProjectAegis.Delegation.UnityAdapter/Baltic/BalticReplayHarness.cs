@@ -138,6 +138,12 @@ public static class BalticReplayHarness
                 }
             }
 
+            if (pdSim != null && profile != null)
+            {
+                pdSim.SetCommsStaleThresholdDivisor(
+                    CommsTrackStaleness.StaleThresholdDivisor(bridge.CurrentCommsState, profile.CommsDisplay));
+            }
+
             var transitions = pdSim != null
                 ? pdSim.Tick(simTick, harness.SimTime)
                 : scheduleSim?.Tick(simTick, harness.SimTime) ?? Array.Empty<ContactTransition>();

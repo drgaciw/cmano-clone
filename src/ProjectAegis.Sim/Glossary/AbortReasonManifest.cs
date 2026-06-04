@@ -15,6 +15,8 @@ public sealed class AbortReasonManifest
 
     private readonly HashSet<string> _logisticsCodes = new(StringComparer.Ordinal);
 
+    private readonly Dictionary<string, HashSet<string>> _stringCodeFamilies = new(StringComparer.Ordinal);
+
     public int Version { get; private init; }
 
     public static AbortReasonManifest LoadFromEmbeddedOrFile(string? manifestPath = null)
@@ -45,9 +47,14 @@ public sealed class AbortReasonManifest
 
             if (family.StringCodes != null)
             {
-                foreach (var code in family.StringCodes)
+                var codes = new HashSet<string>(family.StringCodes, StringComparer.Ordinal);
+                manifest._stringCodeFamilies[family.Name] = codes;
+                if (string.Equals(family.Name, "Logistics", StringComparison.Ordinal))
                 {
-                    manifest._logisticsCodes.Add(code);
+                    foreach (var code in codes)
+                    {
+                        manifest._logisticsCodes.Add(code);
+                    }
                 }
             }
         }
@@ -77,6 +84,11 @@ public sealed class AbortReasonManifest
     }
 
     public IReadOnlyCollection<string> LogisticsCodes => _logisticsCodes;
+
+    public IReadOnlyCollection<string> GetStringCodes(string family) =>
+        _stringCodeFamilies.TryGetValue(family, out var codes)
+            ? codes
+            : Array.Empty<string>();
 
     public IReadOnlyDictionary<string, string> GetFamilyMembers(string family) =>
         _familyMembers.TryGetValue(family, out var map)
