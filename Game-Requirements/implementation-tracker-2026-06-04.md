@@ -38,7 +38,7 @@ pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 | 10 | Speculative Systems | **Doc only** | req 10 | `BLACK_PROJECT_MODE` in scenario policy |
 | 11 | Agentic Mission Editor | **Partial** | `MissionEditor.Cli`, `ScenarioValidationEngine` | Unity edit mode; MCP create/patrol/strike tools |
 | 12 | Terms Glossary | **Partial** | req 12 + TL rows (2026-06-04) | UI tooltips; codegen for abort reason enums |
-| 13 | Doctrine ROE EMCON WRA | **Partial** | `PolicyEvaluator.cs`, `FireAbortReason.cs`, policy GDD | WRA salvo cap; ROE inheritance UI |
+| 13 | Doctrine ROE EMCON WRA | **Partial** | `PolicyEvaluator` WRA salvo, `ResolvedUnitPolicy` mission ROE, `baltic-patrol-mission-roe` / `wra-cap` fixtures | Unity doctrine inheritance panel (ADR-010) |
 | 14 | Engagement & Fire Control | **Partial** | `MvpEngagementResolver.cs`, engage goldens | DLZ personality timing; unit panel preview |
 | 15 | Sensor Detection & EW | **Partial** | `PdDetectionContactSimulator.cs`, sensor GDD | Contact FSM golden; ECCM Phase 2 |
 | 16 | Logistics & Magazines | **Partial** | `FuelLedger`, `MagazineLedger`, `STRIKE_UNREACHABLE_FUEL` | Air ready/launch; ferry runtime |

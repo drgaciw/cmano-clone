@@ -34,6 +34,8 @@ public sealed class ScenarioPolicyJsonDto
 
     public ScenarioMissionJsonDto? Mission { get; set; }
 
+    public ScenarioMissionPolicyJsonDto? MissionPolicy { get; set; }
+
     public ScenarioDelegationJsonDto? Delegation { get; set; }
 
     public List<ScenarioCommsJsonDto>? Comms { get; set; }
@@ -95,6 +97,16 @@ public sealed class ScenarioMissionJsonDto
     public List<string> FireOrder { get; set; } = [];
 
     public List<ScenarioMissionEventJsonDto> Events { get; set; } = [];
+}
+
+/// <summary>Mission-level doctrine override (req 13 inheritance between side and unit).</summary>
+public sealed class ScenarioMissionPolicyJsonDto
+{
+    public string Roe { get; set; } = "WeaponsFree";
+
+    public List<string>? UnitIds { get; set; }
+
+    public int? MaxSalvo { get; set; }
 }
 
 public sealed class ScenarioMissionEventJsonDto
@@ -204,4 +216,7 @@ public sealed class ScenarioEngageJsonDto
     public double PkKill { get; set; } = 1.0;
 
     public int SalvoSize { get; set; } = 1;
+
+    /// <summary>WRA cap: max rounds per engagement (policy GDD).</summary>
+    public int? MaxSalvo { get; set; }
 }

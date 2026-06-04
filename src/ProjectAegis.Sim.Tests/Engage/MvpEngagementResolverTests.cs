@@ -47,6 +47,23 @@ public sealed class MvpEngagementResolverTests
     }
 
     [Fact]
+    public void Wra_salvo_cap_denies_when_salvo_exceeds_max()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var evaluator = new PolicyEvaluator(_ => new EffectivePolicy(RoeLevel.WeaponsFree, 1));
+        var resolver = new MvpEngagementResolver(
+            world,
+            new MagazineLedger(),
+            evaluator,
+            _ => new EffectivePolicy(RoeLevel.WeaponsFree, 1));
+        var request = new EngageRequest(1, 2, 0, 0);
+        world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true, SalvoSize: 2));
+
+        var result = resolver.Resolve(request);
+        Assert.Equal(EngagementAbortReason.WraSalvo, result.AbortReason);
+    }
+
+    [Fact]
     public void Hold_fire_policy_denies_before_envelope_check()
     {
         var world = new DictionaryEngageWorldQuery();

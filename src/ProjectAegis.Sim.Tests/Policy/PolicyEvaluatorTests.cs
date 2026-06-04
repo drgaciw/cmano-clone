@@ -28,4 +28,23 @@ public sealed class PolicyEvaluatorTests
         Assert.False(verdict.Allowed);
         Assert.Equal(FireAbortReason.RoeHoldFire, verdict.Reason);
     }
+
+    [Fact]
+    public void Salvo_exceeding_max_salvo_denies_with_WraSalvo()
+    {
+        var evaluator = new PolicyEvaluator(_ => new EffectivePolicy(RoeLevel.WeaponsFree, 1));
+        var ctx = new PolicyContext(1, 0, 0, new EffectivePolicy(RoeLevel.WeaponsFree, 1), SalvoSize: 2);
+        var verdict = evaluator.Evaluate(ctx, new ActionRequest(ActionKind.FireGuided, 2, 0));
+        Assert.False(verdict.Allowed);
+        Assert.Equal(FireAbortReason.WraSalvo, verdict.Reason);
+    }
+
+    [Fact]
+    public void Salvo_within_max_salvo_allows_weapons_free()
+    {
+        var evaluator = new PolicyEvaluator(_ => new EffectivePolicy(RoeLevel.WeaponsFree, 2));
+        var ctx = new PolicyContext(1, 0, 0, new EffectivePolicy(RoeLevel.WeaponsFree, 2), SalvoSize: 2);
+        var verdict = evaluator.Evaluate(ctx, new ActionRequest(ActionKind.FireGuided, 2, 0));
+        Assert.True(verdict.Allowed);
+    }
 }

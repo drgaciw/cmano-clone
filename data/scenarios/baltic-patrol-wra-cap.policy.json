@@ -1,0 +1,28 @@
+{
+  "id": "baltic-patrol-wra-cap",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 2,
+    "hasFireControlTrack": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 1.0,
+    "salvoSize": 2,
+    "maxSalvo": 1
+  },
+  "detection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ]
+}

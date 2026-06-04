@@ -83,7 +83,8 @@ public static class UnitDetailProjection
             return "DOCTRINE: —";
         }
 
-        var effective = policy.ResolveForUnit(unitId, isFriendly: true);
-        return $"DOCTRINE: {effective.Roe}";
+        var resolved = policy.ResolveUnitPolicy(unitId, isFriendly: true);
+        var suffix = resolved.HasInheritedDoctrineFromMission ? " (mission)" : "";
+        return $"DOCTRINE: {resolved.Effective.Roe}{suffix}";
     }
 }
