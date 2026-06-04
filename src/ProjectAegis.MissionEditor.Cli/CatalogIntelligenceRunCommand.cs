@@ -49,6 +49,7 @@ public static class CatalogIntelligenceRunCommand
                     "catalog_entity_map",
                     "catalog_write_propose",
                     "catalog_write_approve",
+                    "catalog_import_markdown",
                 },
             };
             output.WriteLine(JsonSerializer.Serialize(payload, JsonOptions));

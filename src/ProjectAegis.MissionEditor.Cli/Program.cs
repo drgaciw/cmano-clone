@@ -1,3 +1,4 @@
+using ProjectAegis.Data.Import;
 using ProjectAegis.MissionEditor.Cli;
 
 if (args.Length == 0)
@@ -43,6 +44,8 @@ switch (command)
         return RunCatalogWritePropose(args.Skip(1).ToArray());
     case "catalog_write_approve":
         return RunCatalogWriteApprove(args.Skip(1).ToArray());
+    case "catalog_import_markdown":
+        return RunCatalogImportMarkdown(args.Skip(1).ToArray());
     default:
         Console.Error.WriteLine($"Unknown command: {command}");
         PrintUsage();
@@ -313,6 +316,23 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_entity_map");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_propose --db <catalog.db> --platform P --sensor S --base-pd 0.7");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_approve --db <catalog.db> --batch <batchId>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <sensor.md> [--max-records N] [--chunk-size 500]");
+}
+
+static int RunCatalogImportMarkdown(string[] args)
+{
+    var db = CliArgParser.GetFlag(args, "--db");
+    var markdown = CliArgParser.GetFlag(args, "--markdown");
+    if (string.IsNullOrWhiteSpace(db) || string.IsNullOrWhiteSpace(markdown))
+    {
+        Console.Error.WriteLine("catalog_import_markdown requires --db --markdown");
+        return 1;
+    }
+
+    var maxRecordsRaw = CliArgParser.GetFlag(args, "--max-records");
+    int? maxRecords = int.TryParse(maxRecordsRaw, out var max) ? max : null;
+    var chunkSize = CliArgParser.GetIntFlag(args, "--chunk-size", CmoMarkdownImportProposer.DefaultChunkSize);
+    return CatalogImportMarkdownCommand.Run(db, markdown, maxRecords, chunkSize, Console.Out);
 }
 
 static int RunCatalogIntelligence(string[] args)

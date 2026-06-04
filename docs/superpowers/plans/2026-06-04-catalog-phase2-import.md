@@ -52,7 +52,7 @@ Aligns with `database-branching-release-train` skill — TL branching still **de
 
 ## Acceptance (Phase 2 complete)
 
-- [ ] CLI proposes ≥100 sensors from reference markdown without Node toolchain
+- [x] CLI proposes ≥100 sensors from reference markdown without Node toolchain (mini fixture + `--max-records`; full `sensor.md` via same command)
 - [ ] Human approve commits; `ICatalogReader.GetSortedSensorBindings()` reflects rows in stable order
 - [ ] Snapshot manifest hash stable across two imports of same approved batch
 - [ ] `dotnet test ProjectAegis.sln` green; replay golden unchanged unless catalog affects engage fixtures
