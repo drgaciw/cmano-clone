@@ -1,6 +1,9 @@
 # 03 - Simulation Modes
 
-**Last Updated:** May 30, 2026
+**Last Updated:** 2026-06-04  
+**Related:** 01, 02, 04, 13, 17, 19, 20  
+**Status:** Locked  
+**Locked spec:** [2026-05-30-simulation-modes-decisions-design.md](../../docs/superpowers/specs/2026-05-30-simulation-modes-decisions-design.md)
 
 ## Purpose
 Define the three core simulation modes that the game must support, enabling seamless transitions between full human control, mixed human+agent play, and fully autonomous agent-versus-agent execution at extreme speeds.
@@ -99,6 +102,18 @@ A single, unified simulation engine that can operate across the full spectrum of
 - State serialization optimized for both interactive and batch use cases
 - Phase gate and loop policy: `docs/superpowers/specs/2026-05-30-phase-gate-loop-policy-design.md`
 
+## Inbound References (docs 13, 19, 20)
+
+| Source doc | How modes consume it |
+|------------|---------------------|
+| [13](13-Doctrine-ROE-EMCON-WRA.md) | Scenario policy JSON (`playerInfoModel`, `personalityEditPolicy`, `allowDualSideControl`) loaded at mode configure |
+| [19](19-Cyber-And-Comms.md) | Comms degradation affects live HUD message log; does not change mode enum — applies in all modes during execution |
+| [20](20-Command-And-Control-UI.md) | Time compression UI, TEST SANDBOX banner for dual-side control, `AttachReplayViewer` read-only chrome in AvA |
+
+## Open Questions / Decisions Needed
+
+All charter questions for simulation modes are **locked**. See [Resolved Design Decisions](#resolved-design-decisions-may-30-2026) and the [locked spec](../../docs/superpowers/specs/2026-05-30-simulation-modes-decisions-design.md). No reopen without user approval.
+
 ## Future Extensibility
 
 - Multiplayer hotseat and asynchronous modes (future release)
@@ -119,4 +134,4 @@ Full rationale: `docs/superpowers/specs/2026-05-30-simulation-modes-decisions-de
 
 ---
 
-**Status:** Core mode architecture approved; open questions resolved May 30, 2026
+**Status:** Core mode architecture approved; Template A complete (Sprint 12). Open questions resolved May 30, 2026.

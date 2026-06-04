@@ -3,7 +3,7 @@
 **Project:** Project Aegis (cmano-clone) — near-future military simulation  
 **Phase:** Requirements Maturity  
 **Date:** June 4, 2026  
-**Approval Status:** Pending user approval — see [docs/COLLABORATIVE-DESIGN-PRINCIPLE.md](docs/COLLABORATIVE-DESIGN-PRINCIPLE.md)
+**Approval Status:** **Complete** — requirements maturity Sprints 11–15 (2026-06-04). Sprint program: [production/milestones/post-mvp-requirements-program.md](production/milestones/post-mvp-requirements-program.md).
 
 ## Objective
 
@@ -25,11 +25,11 @@ Audit of `Game-Requirements/requirements/*.md`:
 
 | Tier | Count | Files |
 |------|-------|-------|
-| Fully expanded | 13 | 07–11, 13–20 |
-| Partial (missing sections / weak cross-links) | 5 | 02–06 |
-| Stub / minimal | 2 | 01, 12 |
+| Locked / FULL (Template A) | 12 | 01–08, 12 (Sprints 11–15) |
+| Fully expanded (pre-existing) | 5 | 09–11, 13–20 |
+| Partial | 0 | — |
 
-**In scope for this phase:** 01, 02–06, 12 (7 files).
+**Phase complete (2026-06-04):** 01, 02–08, 12. RTM + consistency: `docs/architecture/requirements-traceability.md`, `docs/reports/requirements-consistency-2026-06-04.md`.
 
 **Non-goals:**
 
@@ -41,7 +41,7 @@ Audit of `Game-Requirements/requirements/*.md`:
 
 ## Global Rules for All Agents
 
-Adapted from [pi-todos-impl-plan.md](pi-todos-impl-plan.md) for documentation work.
+Adapted from [pi-todos-impl-plan.md](.claude/docs/agentic/pi-todos-impl-plan.md) for documentation work.
 
 | Rule | Application |
 |------|-------------|

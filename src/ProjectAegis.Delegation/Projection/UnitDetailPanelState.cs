@@ -9,4 +9,5 @@ public sealed record UnitDetailPanelState(
     string FuelLine,
     string EngagePreviewLine,
     string AttackOptionsLine,
-    string ContactLine);
+    string ContactLine,
+    IReadOnlyList<EngageAttackOptions.AttackOption> AttackMenu);

@@ -1,5 +1,7 @@
 # Skill Recommendations for `cmano-clone`
 
+> **Path:** `.claude/docs/agentic/pi-skills-recommendations.md` — see [README](README.md) for related PI docs.
+
 ## Purpose
 
 This document summarizes recommended agent skills for `cmano-clone`, organized by workflow stage and optimized for parallel agentic development.

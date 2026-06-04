@@ -15,7 +15,8 @@ public static class UnitDetailPanelBinder
                 "FUEL: —",
                 "ENGAGE: —",
                 "ATTACK: —",
-                contactLine ?? "CONTACT: —");
+                contactLine ?? "CONTACT: —",
+                Array.Empty<EngageAttackOptions.AttackOption>());
         }
 
         return new UnitDetailPanelState(
@@ -27,6 +28,7 @@ public static class UnitDetailPanelBinder
             entry.FuelLabel,
             entry.EngagePreviewLabel,
             entry.AttackOptionsLabel,
-            contactLine ?? "CONTACT: —");
+            contactLine ?? "CONTACT: —",
+            entry.AttackMenu);
     }
 }

@@ -72,10 +72,42 @@ public static class ScenarioPolicyJsonLoader
             ParseCommsDisplay(dto.CommsDisplay),
             missionRoe,
             missionUnitIds,
-            ParseSpeculative(dto.Speculative))
+            ParseSpeculative(dto.Speculative),
+            ParseUnitReadiness(dto.UnitReadiness),
+            ParseSpoofTransitions(dto.SpoofTracks))
         {
             Id = dto.Id,
         };
+    }
+
+    private static IReadOnlyDictionary<string, bool> ParseUnitReadiness(
+        Dictionary<string, ScenarioUnitReadinessJsonDto>? readiness)
+    {
+        if (readiness == null || readiness.Count == 0)
+        {
+            return new Dictionary<string, bool>();
+        }
+
+        var map = new Dictionary<string, bool>(StringComparer.Ordinal);
+        foreach (var (unitId, dto) in readiness)
+        {
+            map[unitId] = dto.ReadyForLaunch;
+        }
+
+        return map;
+    }
+
+    private static IReadOnlyList<ScenarioSpoofTransition> ParseSpoofTransitions(List<ScenarioSpoofJsonDto>? spoof)
+    {
+        if (spoof == null || spoof.Count == 0)
+        {
+            return Array.Empty<ScenarioSpoofTransition>();
+        }
+
+        return spoof
+            .OrderBy(s => s.AtTick)
+            .Select(s => new ScenarioSpoofTransition(s.AtTick, s.ContactId, s.Reason))
+            .ToArray();
     }
 
     private static ScenarioSpeculativeSettings ParseSpeculative(ScenarioSpeculativeJsonDto? speculative) =>

@@ -45,6 +45,24 @@ public sealed class ScenarioPolicyJsonDto
     public ScenarioCommsDisplayJsonDto? CommsDisplay { get; set; }
 
     public ScenarioSpeculativeJsonDto? Speculative { get; set; }
+
+    public Dictionary<string, ScenarioUnitReadinessJsonDto>? UnitReadiness { get; set; }
+
+    public List<ScenarioSpoofJsonDto>? SpoofTracks { get; set; }
+}
+
+public sealed class ScenarioUnitReadinessJsonDto
+{
+    public bool ReadyForLaunch { get; set; } = true;
+}
+
+public sealed class ScenarioSpoofJsonDto
+{
+    public ulong AtTick { get; set; }
+
+    public string ContactId { get; set; } = "";
+
+    public string Reason { get; set; } = "spoof";
 }
 
 public sealed class ScenarioSpeculativeJsonDto

@@ -77,6 +77,26 @@ namespace ProjectAegis.Unity.Runtime
 
         public void BeginExecution() => Bridge.BeginExecution();
 
+        /// <summary>Interactive attack menu selection (req 14).</summary>
+        public bool TrySelectAttackOption(string optionId, out string? failureReason)
+        {
+            failureReason = null;
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedUnitId))
+            {
+                failureReason = "NO_SELECTION";
+                return false;
+            }
+
+            if (!TryResolveEntityKey(SelectedUnitId, out var entityKey))
+            {
+                failureReason = "UNKNOWN_UNIT";
+                return false;
+            }
+
+            EnsureHumanControl(entityKey);
+            return Bridge.TryEnqueueAttackOption(entityKey, optionId, _lastSnapshot, out failureReason);
+        }
+
         public void SelectUnit(string unitId)
         {
             Presentation.SelectFriendlyUnit(unitId);
@@ -124,6 +144,36 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             LastUnitDetail = Presentation.ResolveUnitDetail(_lastSnapshot, Bridge.Registry, Bridge);
+        }
+
+        private bool TryResolveEntityKey(string unitId, out ProjectAegis.Delegation.Core.EntityKey entityKey)
+        {
+            entityKey = default;
+            foreach (var binding in Bridge.Registry.Bindings)
+            {
+                if (string.Equals(binding.TargetId.Value, unitId, StringComparison.Ordinal))
+                {
+                    entityKey = binding.Entity;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void EnsureHumanControl(ProjectAegis.Delegation.Core.EntityKey entityKey)
+        {
+            if (!Bridge.Registry.TryGetBinding(entityKey, out var binding))
+            {
+                return;
+            }
+
+            if (binding.Target.Slot.Active is ProjectAegis.Delegation.Controllers.HumanController)
+            {
+                return;
+            }
+
+            binding.Target.Slot.SetActive(new ProjectAegis.Delegation.Controllers.HumanController());
         }
     }
 }

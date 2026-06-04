@@ -1,4 +1,4 @@
-# Review: `pi-skills-recommendations.md` (Milsim / Project Aegis)
+# Review: `.claude/docs/agentic/pi-skills-recommendations.md` (Milsim / Project Aegis)
 
 **Reviewer lens:** CMANO-style military simulation — deterministic sim, catalog fidelity, replay gates, headless CI.  
 **Date:** 2026-06-03
@@ -37,7 +37,7 @@ The document is **sound for generic .NET/data agent work** and aligns with repo 
 - **Do not assume xUnit everywhere.** `ProjectAegis.Delegation.Tests` and `UnityAdapter.Tests` use **NUnit**; `ProjectAegis.Sim.Tests` and `ProjectAegis.Data.Tests` use **xUnit**.
 - Prefer **`c-sharp-reviewer`** + **`replay-verify`** on PRs touching `SimulationSession`, `MvpEngagementResolver`, or replay goldens.
 
-## Recommended change to `pi-skills-recommendations.md`
+## Recommended change to `.claude/docs/agentic/pi-skills-recommendations.md`
 
 Add a **"Project Aegis (milsim)"** section after "Recommended Installed Skills" listing the table above, and extend the decision tree:
 

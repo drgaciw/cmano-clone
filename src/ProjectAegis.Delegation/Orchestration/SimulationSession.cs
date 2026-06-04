@@ -276,6 +276,12 @@ public sealed class SimulationSession
 
     public UnitReadinessMap? UnitReadiness { get; set; }
 
+    /// <summary>Salvo size for the next primed engage (interactive attack menu).</summary>
+    public int? NextEngageSalvoOverride { get; set; }
+
+    /// <summary>Returns whether the contact id is under active spoof at the given tick.</summary>
+    public Func<string, ulong, bool>? IsContactSpoofed { get; set; }
+
     private void PrimeEngageWorld(in EngageRequest request, ObservedState state, string shooterUnitId)
     {
         if (EngageWorld == null)
@@ -286,11 +292,18 @@ public sealed class SimulationSession
         if (DefaultEngageContext is { } template)
         {
             var airReady = UnitReadiness?.IsReadyForLaunch(shooterUnitId) ?? true;
+            var victimId = state.PrimaryHostileContactId?.Value;
+            var simTick = (ulong)Math.Max(0, (long)state.SimTime);
+            var spoofed = IsContactSpoofed?.Invoke(victimId ?? "", simTick) ?? false;
+            var salvo = NextEngageSalvoOverride ?? template.SalvoSize;
+            NextEngageSalvoOverride = null;
             var primed = template with
             {
                 HasFireControlTrack = state.HasFireControlTrack,
                 RadarEmconActive = state.RadarEmconActive,
                 AirOperationsReady = airReady,
+                TrackSpoofed = spoofed,
+                SalvoSize = Math.Max(1, salvo),
             };
             EngageWorld.Set(request, primed);
         }

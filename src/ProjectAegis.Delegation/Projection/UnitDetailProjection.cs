@@ -24,7 +24,8 @@ public static class UnitDetailProjection
         var engageCtx = engageDefaults.ToEngageContext(engageDefaults.DefaultMagazineRounds);
         var engagePreview = EngagePreviewProjection.Project(engageCtx, engageDefaults.DlzPersonality);
         var engageLabel = FormatEngagePreview(engagePreview);
-        var attackLabel = FormatAttackOptions(EngageAttackOptions.Build(engageCtx, engagePreview));
+        var attackMenu = EngageAttackOptions.Build(engageCtx, engagePreview);
+        var attackLabel = FormatAttackOptions(attackMenu);
         var alive = isAlive(unitId);
         return new UnitDetailEntry(
             unitId.Value,
@@ -38,7 +39,8 @@ public static class UnitDetailProjection
                 simTimeSeconds,
                 policy?.Logistics ?? ScenarioLogisticsSettings.Default),
             engageLabel,
-            attackLabel);
+            attackLabel,
+            attackMenu);
     }
 
     public static UnitDetailEntry? ProjectPrimary(

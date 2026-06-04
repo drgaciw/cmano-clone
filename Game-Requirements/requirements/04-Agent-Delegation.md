@@ -1,6 +1,9 @@
 # 04 - Agent Delegation System
 
-**Last Updated:** May 30, 2026
+**Last Updated:** 2026-06-04  
+**Related:** 01, 02, 03, 08, 13, 14, 17, 19, 20  
+**Status:** Locked  
+**Locked spec:** [2026-05-30-agent-delegation-decisions-design.md](../../docs/superpowers/specs/2026-05-30-agent-delegation-decisions-design.md)
 
 ## Purpose
 Define how players can assign specialized AI agents to individual units, groups, weapon systems, or entire task forces, enabling realistic autonomous behavior while maintaining human oversight.
@@ -90,6 +93,31 @@ Autonomy levels must integrate with side/unit ROE and policy evaluator (req 13, 
 - Multi-agent coordination (e.g., one agent commanding a swarm of subordinate agents)
 - Integration with external AI models for advanced research use cases
 
+## Cross-Domain Traceability
+
+| Doc | How delegation interacts |
+|-----|--------------------------|
+| [13](13-Doctrine-ROE-EMCON-WRA.md) | Each delegated controller carries a **Policy Snapshot** at assign time; `IPolicyEvaluator` / `IRoeFilter` gate agent-issued orders before engage. Autonomy tiers (`HUMAN_IN_LOOP` … `FULL_AUTONOMOUS`) align with ROE and `AutonomyGate`; lethal full-auto requires explicit opt-in per mission phase. ROE violations feed **emit-only** `TrustSignal` records (no mid-run trait mutation). |
+| [14](14-Engagement-And-Fire-Control.md) | Agent **intents** enter the same engagement resolver as player and mission-auto paths via `SimulationSession` (MVP engage bound on `DelegationBridge`). Personality affects timing/risk (e.g., Aggressive vs Cautious in DLZ); denials surface as `FireAbortReason` + order-log entries shared with replay. |
+| [17](17-Replay-AAR-And-Order-Log.md) | `DecisionLog` is the canonical append-only stream: `AgentIntent`, `ControllerChange`, `GroupMemberDetach` / `GroupMemberRejoin`, policy denials, and `TrustSignal` at scenario finalize. `GetLiveOrderLogView()` applies `playerInfoModel` filtering for HUD/message log without altering stored log (deterministic replay hash). |
+| [19](19-Cyber-And-Comms.md) | `DelegationBridge` hosts `CommsTimelineSimulator` (order delay, link degrade); agents receive stale/datalink flags in observations. Degraded comms may reduce effective **attention budget** (Phase 2); **Electronic Warfare Specialist** preset prioritizes comms/EMCON tradeoffs. |
+| [20](20-Command-And-Control-UI.md) | Unity hosts bind **read-only** projections via `DelegationBridgeHost` / `UnitDetailBridge` — no sim mutation from UI. Delegation badges, autonomy sliders, pause/resume, and assisted intent preview map to bridge enqueue + `TryRebindAgentTraits`; all commits log through doc 17. |
+
+## Open Questions / Decisions Needed
+
+All charter questions for agent delegation are **locked**. See [Resolved Design Decisions](#resolved-design-decisions) and the [locked spec](../../docs/superpowers/specs/2026-05-30-agent-delegation-decisions-design.md). No reopen without user approval.
+
+## Implementation Mapping (headless)
+
+| Requirement area | Headless / bridge type | Notes |
+|------------------|------------------------|-------|
+| Session facade, tick + engage bind, comms/spoof/fuel timelines | `DelegationBridge` (`ProjectAegis.Delegation.UnityAdapter`) | Owns `Orchestrator`, optional `SimulationSession`, `TargetRegistry`; `BeginExecution()`, `Tick()`, human order enqueue. **GitNexus: CRITICAL** — run `gitnexus impact DelegationBridge` before any bridge API or tick-path change. |
+| Controller registry, attention/degradation, detach-rejoin, trust emit | `DelegationOrchestrator` (`ProjectAegis.Delegation`) | Phase gate (`SimulationPhase`), stochastic agent choice, group override detach-rejoin, `DecisionLog`, `FinalizeScenario()` → `TrustSignal`. Wired from bridge and `BalticReplayHarness` without Unity. |
+| Scenario loop policy (`personalityEditPolicy`, `playerInfoModel`) | `LoopPolicyGate` | Static gate used by orchestrator and live log filter; reads `ScenarioPolicyProfile` from scenario JSON (req 02, 13). |
+| Hot-swap personality / traits during execution | `DelegationOrchestrator.TryRebindAgentTraits` | Delegates to `LoopPolicyGate.CanEditPersonality`; denial returns `LoopPolicyVerdict` without mutating agent state. |
+
+**Blast radius:** Prefer orchestrator-only diffs for Sprint 13 doc maturity; bridge edits require impact report in PR (see [Sprint 13 kickoff](../../production/agentic/sprint-13-kickoff-2026-06-04.md)).
+
 ## Resolved Design Decisions
 
 Decisions locked May 30, 2026. Full rationale: `docs/superpowers/specs/2026-05-30-agent-delegation-decisions-design.md`.
@@ -121,4 +149,4 @@ Decisions locked May 30, 2026. Full rationale: `docs/superpowers/specs/2026-05-3
 
 ---
 
-**Status:** Delegation system design approved; open questions resolved May 30, 2026
+**Status:** Locked (Sprint 13). Resolved decisions locked May 30, 2026 — see [locked spec](../../docs/superpowers/specs/2026-05-30-agent-delegation-decisions-design.md).

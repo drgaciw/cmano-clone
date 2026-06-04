@@ -1,3 +1,5 @@
+> **ARCHIVED (2026-06-04):** `ProjectAegis.Delegation` is shipped; req 04 tracker row is **Partial** (runtime + tests). Do not execute remaining checklist tasks here. Active planning: [2026-06-04-requirements-wave5-implementation.md](2026-06-04-requirements-wave5-implementation.md). Tracker: [implementation-tracker-2026-06-04.md](../../../Game-Requirements/implementation-tracker-2026-06-04.md).
+
 # Agent Delegation Framework Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

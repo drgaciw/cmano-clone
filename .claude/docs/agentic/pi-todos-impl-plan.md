@@ -1,16 +1,18 @@
 # Parallel Agentic Development TODO Plan
 
+> **Path:** `.claude/docs/agentic/pi-todos-impl-plan.md` — see [README](README.md) for related PI docs.
+
 > **Status (2026-06-04):** **COMPLETE** for agentic/headless scope. Phases 1–5 done on `main` (@ `5546c5d`). See `production/agentic/pi-plan-completion-2026-06-04.md` and `production/agentic/pi-plan-status.md`. Unity Editor C2 manual (PI-006) remains human-only.
 >
 > **Checkbox legend:** `[x]` done · `[~]` partial · `[ ]` not done / deferred
 
-## GitNexus review — `pi-skills-recommendations.md` implementation
+## GitNexus review — [pi-skills-recommendations.md](pi-skills-recommendations.md) implementation
 
 **Reviewed:** 2026-06-04 · **Repo:** `cmano-clone` (GitNexus CLI `--repo cmano-clone`)
 
 | Recommendation area | Implementation evidence | GitNexus |
 |---|---|---|
-| GitNexus before edit / `detect_changes` at handoff | Documented in `pi-skills-recommendations.md`; enforced in agent artifacts | `detect_changes()` deferred on docs-only closure branch (see Definition of Done) |
+| GitNexus before edit / `detect_changes` at handoff | Documented in `.claude/docs/agentic/pi-skills-recommendations.md`; enforced in agent artifacts | `detect_changes()` deferred on docs-only closure branch (see Definition of Done) |
 | xUnit + `dotnet test ProjectAegis.sln` | **283/283** pass (`pi-verification-2026-06-04.md`) | N/A |
 | SQLite + catalog (`SqliteCatalogReader`) | SEC-01 whitelist + `IsSafeSqlIdentifier` in `TableHasColumn` | **CRITICAL** upstream blast radius (66 symbols, 7 flows) — change was scoped to identifier guard only |
 | JSON round-trip contracts | `ScenarioPolicyJsonRoundTripTests`, `CatalogJsonRoundTripTests` | Query hits both test classes + existing scenario round-trips |

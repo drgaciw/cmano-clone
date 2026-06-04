@@ -31,6 +31,7 @@ public static partial class AbortReasonCatalog
         public const string MOUNT_OFFLINE = "MOUNT_OFFLINE";
         public const string DOMAIN_NO_SOLUTION = "DOMAIN_NO_SOLUTION";
         public const string AIR_NOT_READY = "AIR_NOT_READY";
+        public const string CYBER_SPOOF_TRACK = "CYBER_SPOOF_TRACK";
     }
 
     public static class Logistics
