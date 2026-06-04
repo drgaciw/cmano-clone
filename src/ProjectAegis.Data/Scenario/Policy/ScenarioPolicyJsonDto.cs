@@ -1,4 +1,4 @@
-namespace ProjectAegis.Sim.Scenario;
+namespace ProjectAegis.Data.Scenario.Policy;
 
 public sealed class ScenarioPolicyJsonDto
 {

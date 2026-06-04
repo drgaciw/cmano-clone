@@ -1,6 +1,7 @@
 namespace ProjectAegis.Sim.Scenario;
 
 using System.Text.Json;
+using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 

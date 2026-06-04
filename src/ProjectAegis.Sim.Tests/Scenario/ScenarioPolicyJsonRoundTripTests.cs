@@ -1,4 +1,5 @@
 using System.Text.Json;
+using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Sim.Scenario;
 using Xunit;
 

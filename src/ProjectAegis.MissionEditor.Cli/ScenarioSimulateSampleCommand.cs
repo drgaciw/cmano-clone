@@ -32,8 +32,9 @@ public static class ScenarioSimulateSampleCommand
             return 1;
         }
 
-        var policyId = ResolvePolicyId(scenario);
-        var seed = (int)Math.Min(scenario.Metadata.Seed, int.MaxValue);
+        var package = ScenarioPackage.FromDocument(Path.GetFileNameWithoutExtension(scenarioPath), scenario);
+        var policyId = package.PolicyId;
+        var seed = (int)Math.Min(package.Seed, int.MaxValue);
         var readiness = UnitReadinessMapFactory.FromMetadata(scenario.Metadata);
         var nearFuture = scenario.Metadata.NearFutureUnits?
             .Select(u => new ScenarioNearFutureUnitRequest(u.ArchetypeId, u.UnitId))
@@ -67,23 +68,6 @@ public static class ScenarioSimulateSampleCommand
         }
 
         return 0;
-    }
-
-    private static string ResolvePolicyId(ScenarioDocumentDto scenario)
-    {
-        if (!string.IsNullOrWhiteSpace(scenario.Metadata.PolicyId))
-        {
-            return scenario.Metadata.PolicyId!;
-        }
-
-        var dbRef = scenario.Metadata.DbRef ?? scenario.Metadata.DbSnapshotId;
-        if (string.Equals(dbRef, CatalogValidationDefaults.BalticSnapshotId, StringComparison.OrdinalIgnoreCase) ||
-            (dbRef?.Contains("baltic", StringComparison.OrdinalIgnoreCase) ?? false))
-        {
-            return "baltic-patrol-catalog";
-        }
-
-        return "baltic-patrol";
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()

@@ -4,6 +4,7 @@ using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
+using ProjectAegis.Data.Scenario;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 
@@ -91,8 +92,18 @@ public static class SimulationModeConfigurator
         }
     }
 
+    public static void ApplyFromPackage(
+        DelegationOrchestrator orchestrator,
+        SimulationModeProfile mode,
+        IReadOnlyList<ICommandableTarget> friendly,
+        IReadOnlyList<ICommandableTarget> opposing,
+        TraitVector defaultTraits,
+        ScenarioPackage package,
+        AutonomyLevel agentAutonomy = AutonomyLevel.FullAutonomous) =>
+        Apply(orchestrator, mode, friendly, opposing, defaultTraits, agentAutonomy, package.PolicyId);
+
     private static ScenarioPolicyProfile? ResolveScenarioPolicy(string? scenarioPolicyId) =>
         string.IsNullOrWhiteSpace(scenarioPolicyId)
             ? null
-            : ScenarioPolicyRepository.TryGet(scenarioPolicyId);
+            : global::ProjectAegis.Sim.Scenario.ScenarioPolicyRepository.TryGet(scenarioPolicyId);
 }
