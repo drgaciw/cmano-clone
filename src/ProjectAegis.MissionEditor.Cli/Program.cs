@@ -15,6 +15,12 @@ switch (command)
         return RunExportBrief(args.Skip(1).ToArray());
     case "scenario_simulate_sample":
         return RunSimulateSample(args.Skip(1).ToArray());
+    case "scenario_create":
+        return RunScenarioCreate(args.Skip(1).ToArray());
+    case "mission_add_patrol":
+        return RunMissionAddPatrol(args.Skip(1).ToArray());
+    case "mission_add_strike":
+        return RunMissionAddStrike(args.Skip(1).ToArray());
     default:
         Console.Error.WriteLine($"Unknown command: {command}");
         PrintUsage();
@@ -101,10 +107,78 @@ static int RunSimulateSample(string[] args)
     return ScenarioSimulateSampleCommand.Run(path, ticks, quiet: false, Console.Out);
 }
 
+static int RunScenarioCreate(string[] args)
+{
+    var outPath = CliArgParser.GetFlag(args, "--out");
+    if (string.IsNullOrWhiteSpace(outPath))
+    {
+        Console.Error.WriteLine("scenario_create requires --out <scenario.json>");
+        return 1;
+    }
+
+    return ScenarioCreateCommand.Run(
+        outPath,
+        CliArgParser.GetFlag(args, "--db-ref"),
+        CliArgParser.GetFlag(args, "--policy-id"),
+        CliArgParser.GetULongFlag(args, "--seed"),
+        Console.Out);
+}
+
+static int RunMissionAddPatrol(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_add_patrol requires --path --edit-version --id [--unit U]+ [--wp lat,lon]+");
+        return 1;
+    }
+
+    try
+    {
+        var zone = CliArgParser.ParseWaypoints(CliArgParser.GetRepeated(args, "--wp"));
+        return MissionAddPatrolCommand.Run(
+            path,
+            editVersion,
+            missionId,
+            CliArgParser.GetRepeated(args, "--unit"),
+            zone,
+            Console.Out);
+    }
+    catch (FormatException ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "INVALID_ZONE", ex.Message);
+    }
+}
+
+static int RunMissionAddStrike(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_add_strike requires --path --edit-version --id --unit U [--target T]+");
+        return 1;
+    }
+
+    return MissionAddStrikeCommand.Run(
+        path,
+        editVersion,
+        missionId,
+        CliArgParser.GetRepeated(args, "--unit"),
+        CliArgParser.GetRepeated(args, "--target"),
+        Console.Out);
+}
+
 static void PrintUsage()
 {
     Console.WriteLine("Project Aegis — Mission Editor headless MCP tools");
     Console.WriteLine("Usage:");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_create --out <scenario.json> [--db-ref R] [--policy-id P] [--seed N]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_patrol --path <scenario.json> --edit-version N --id <id> --unit U [--wp lat,lon]+");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_strike --path <scenario.json> --edit-version N --id <id> --unit U --target T");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_validate --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export_brief --path <scenario.json> [--out brief.md]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_simulate_sample --path <scenario.json> [--ticks N]");

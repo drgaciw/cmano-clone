@@ -36,7 +36,7 @@ pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 | 08 | Agentic Architecture | **Partial** | `ProjectAegis.Sim`, `Delegation`, `architecture.md` | DOTS sensor hot path; sim API export |
 | 09 | Near-Future Technologies | **Doc only** | req 09, `CatalogImportGate` (TRL) | TL-gated archetypes + swarm tier cap |
 | 10 | Speculative Systems | **Doc only** | req 10 | `BLACK_PROJECT_MODE` in scenario policy |
-| 11 | Agentic Mission Editor | **Partial** | `MissionEditor.Cli`, `ScenarioValidationEngine` | Unity edit mode; MCP create/patrol/strike tools |
+| 11 | Agentic Mission Editor | **Partial** | `scenario_create`, `mission_add_patrol/strike`, `ScenarioDocumentEditor` | Unity edit mode; MCP mission_update/delete + NL planner |
 | 12 | Terms Glossary | **Partial** | req 12 + TL rows (2026-06-04) | UI tooltips; codegen for abort reason enums |
 | 13 | Doctrine ROE EMCON WRA | **Partial** | `PolicyEvaluator` WRA salvo, `ResolvedUnitPolicy` mission ROE, `baltic-patrol-mission-roe` / `wra-cap` fixtures | Unity doctrine inheritance panel (ADR-010) |
 | 14 | Engagement & Fire Control | **Partial** | `MvpEngagementResolver.cs`, engage goldens | DLZ personality timing; unit panel preview |
