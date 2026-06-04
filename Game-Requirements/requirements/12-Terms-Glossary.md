@@ -32,6 +32,20 @@ This glossary defines the core simulation terms used by the project, starting fr
 | Readiness | The current ability of a unit to carry out its assigned task without delay. Readiness reflects fuel, weapons, damage, crew state, maintenance state, and platform availability. |
 | Task Force | A mission-oriented collection of ships, aircraft, submarines, or land units operating under a shared purpose. In this project, task forces can be manually assembled or proposed by the mission agent. |
 
+## Technology Level (TL)
+
+From [09-Near-Future-Technologies](09-Near-Future-Technologies.md) and [10-Speculative-Systems](10-Speculative-Systems.md). Scenarios bind catalog entities to a TL gate.
+
+| TL | Era | Scope |
+|----|-----|-------|
+| **TL-0** | 2025 baseline | Current fielded systems only |
+| **TL-1** | 2026–2028 | Early fielding |
+| **TL-2** | 2028–2030 | Primary near-future release target |
+| **TL-3** | 2030–2032 | Advanced near-future |
+| **TL-4+** | 2035+ | Speculative / black-project (doc 10, `BLACK_PROJECT_MODE`) |
+
+**TRL** (Technology Readiness Level) gates import via `CatalogImportGate` — distinct from scenario **TL** binding.
+
 ## Project Terms
 
 | Term | Definition |
