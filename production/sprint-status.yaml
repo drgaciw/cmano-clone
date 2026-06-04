@@ -545,12 +545,17 @@ sprint18_tasks:
   - id: s18-catalog-phase2
     status: done
     completed: "2026-06-04"
-    note: "Plan docs/superpowers/plans/2026-06-04-catalog-phase2-import.md — impl P2-1 next"
-tests_passed: 382
+    note: "Plan + P2-1 catalog_import_markdown CLI on stack/data/phase2-cli"
+  - id: s18-p2-1-cli
+    status: done
+    completed: "2026-06-04"
+    note: "CmoMarkdownImportProposer, catalog_import_markdown; production/qa/sprint-18-p2-1-gitnexus-2026-06-04.md"
+tests_passed: 385
 worktrees:
   - .worktrees/sprint18-qa-signoff → stack/sprint18/qa-signoff-docs
   - .worktrees/sprint18-osint-spike → stack/sprint18/osint-spike
   - .worktrees/sprint18-catalog-phase2 → stack/sprint18/catalog-phase2-plan
+  - .worktrees/sprint18-phase2-cli → stack/data/phase2-cli
 
 sprint: 15
 goal: "Docs 07-08-12 + RTM gate + program exit"
