@@ -39,8 +39,10 @@ node verify.mjs               # spot-check vs live site
 
 | Agent | Tooling |
 |-------|---------|
-| Retrieval / normalization | `military-database-research`, catalog importer |
-| Cross-system validation | `ScenarioValidationEngine`, `ValidationRules` |
+| Retrieval / normalization | `military-database-research`, catalog importer (P1) |
+| Cross-system validation | `ScenarioValidationEngine`, `CatalogRulesValidationAgent` |
+| Entity resolution / diff / consistency | `DatabaseIntelligenceOrchestrator`, MCP `catalog_intelligence_run` |
+| Staged writes | `CatalogWriteGate` — `catalog_write_propose` / `catalog_write_approve` |
 | Public intake | GitHub issue templates (future); quarantine → promote (`CatalogQuarantinePromoter`) |
 | Balance drift | Agent-vs-agent batch runs (Phase 5) |
 
@@ -55,7 +57,9 @@ node verify.mjs               # spot-check vs live site
 |------|--------|
 | Reference export v511 | Done — `docs/reference/cmano-db/cmano-db-data.md` |
 | Crawler tooling | Done — `tools/cmano-db-crawler/README.md` |
-| Baltic fixture / SQLite seed | Partial — `CatalogSeedBootstrap`, `InMemoryCatalogReader` |
+| Baltic fixture / SQLite seed | Done — `CatalogSeedBootstrap`, `SqliteCatalogReader`, migration `005` |
+| Entity-to-table map + audit | Done — `CatalogEntityMap`, `catalog_change_log`, `db_release` |
+| DB agent stubs (headless) | Done — `DatabaseIntelligenceOrchestrator` + 4 agents |
 | Full platform import | Not started — epic under req 06 Phase 2 |
 
 ## Related
