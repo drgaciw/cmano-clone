@@ -9,4 +9,5 @@ public sealed record UnitDetailEntry(
     string EmconLabel,
     string DoctrineLabel,
     string FuelLabel,
-    string EngagePreviewLabel);
+    string EngagePreviewLabel,
+    string AttackOptionsLabel);

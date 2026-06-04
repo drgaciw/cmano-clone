@@ -12,8 +12,9 @@ public sealed class CatalogArchetypeGateTests
     {
         var rows = NearFutureArchetypeCatalog.LoadFromFile(CatalogPath);
         var gated = CatalogArchetypeGate.ApplyTechnologyLevelGate(rows, scenarioMaxTechnologyLevel: 2);
-        Assert.Equal(2, gated.Length);
+        Assert.Equal(3, gated.Length);
         Assert.Contains(gated, a => a.ArchetypeId == "cca-wingman");
+        Assert.Contains(gated, a => a.ArchetypeId == "hypersonic-boost-glide");
         Assert.DoesNotContain(gated, a => a.ArchetypeId == "swarm-saturation");
     }
 
@@ -22,7 +23,7 @@ public sealed class CatalogArchetypeGateTests
     {
         var rows = NearFutureArchetypeCatalog.LoadFromFile(CatalogPath);
         var gated = CatalogArchetypeGate.ApplySwarmTierCap(rows, SwarmTier.Medium);
-        Assert.Equal(2, gated.Length);
+        Assert.Equal(3, gated.Length);
         Assert.DoesNotContain(gated, a => a.SwarmTier == SwarmTier.Mass);
     }
 
@@ -31,9 +32,10 @@ public sealed class CatalogArchetypeGateTests
     {
         var rows = NearFutureArchetypeCatalog.LoadFromFile(CatalogPath);
         var gated = CatalogArchetypeGate.ApplyAllGates(rows, scenarioMaxTechnologyLevel: 2, maxSwarmTier: SwarmTier.Medium);
-        Assert.Equal(2, gated.Length);
+        Assert.Equal(3, gated.Length);
         Assert.Contains(gated, a => a.ArchetypeId == "cca-wingman");
         Assert.Contains(gated, a => a.ArchetypeId == "replicator-attritable");
+        Assert.Contains(gated, a => a.ArchetypeId == "hypersonic-boost-glide");
     }
 
     private static string ResolveCatalogPath()

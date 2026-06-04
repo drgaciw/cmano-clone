@@ -157,7 +157,7 @@ public sealed class SimulationSession
                 OrderActionMapper.TargetIdToUlong(victim),
                 MountId: 0,
                 SimTick: simTick);
-            PrimeEngageWorld(request, state);
+            PrimeEngageWorld(request, state, order.Target.Value);
             Sim.EnqueueEngagement(request);
             queued.Add((order, victim));
         }
@@ -274,7 +274,9 @@ public sealed class SimulationSession
 
     public int? DefaultMagazineRounds { get; init; }
 
-    private void PrimeEngageWorld(in EngageRequest request, ObservedState state)
+    public UnitReadinessMap? UnitReadiness { get; set; }
+
+    private void PrimeEngageWorld(in EngageRequest request, ObservedState state, string shooterUnitId)
     {
         if (EngageWorld == null)
         {
@@ -283,10 +285,12 @@ public sealed class SimulationSession
 
         if (DefaultEngageContext is { } template)
         {
+            var airReady = UnitReadiness?.IsReadyForLaunch(shooterUnitId) ?? true;
             var primed = template with
             {
                 HasFireControlTrack = state.HasFireControlTrack,
                 RadarEmconActive = state.RadarEmconActive,
+                AirOperationsReady = airReady,
             };
             EngageWorld.Set(request, primed);
         }

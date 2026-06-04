@@ -72,6 +72,28 @@ public static class MissionPlanSuggestCommand
             });
         }
 
+        if (normalized.Contains("cyber", StringComparison.Ordinal))
+        {
+            suggestions.Add(new
+            {
+                tool = "scenario_cyber_status",
+                policyId = "baltic-patrol-comms",
+                note = "Cyber abort catalog + comms delay coupling",
+            });
+        }
+
+        if (normalized.Contains("cca", StringComparison.Ordinal) ||
+            normalized.Contains("hypersonic", StringComparison.Ordinal) ||
+            normalized.Contains("near-future", StringComparison.Ordinal) ||
+            normalized.Contains("near future", StringComparison.Ordinal))
+        {
+            suggestions.Add(new
+            {
+                tool = "scenario_near_future_spawn",
+                note = "Validate gated CCA/hypersonic spawns from scenario metadata",
+            });
+        }
+
         if (suggestions.Count == 0)
         {
             suggestions.Add(new

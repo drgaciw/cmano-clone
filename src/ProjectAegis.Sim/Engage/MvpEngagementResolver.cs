@@ -100,6 +100,12 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(domainAbort.Value);
         }
 
+        var hypersonicAbort = HypersonicEngageGate.Evaluate(in ctx);
+        if (hypersonicAbort != null)
+        {
+            return EngageResult.Aborted(hypersonicAbort.Value);
+        }
+
         if (!ctx.Envelope.Contains(ctx.RangeMeters))
         {
             return EngageResult.Aborted(EngagementAbortReason.OutOfEnvelope);

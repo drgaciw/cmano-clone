@@ -75,4 +75,4 @@ See [Game-Requirements-Index.md](Game-Requirements/Game-Requirements-Index.md) f
 1. Read MVP row in [implementation-tracker-2026-06-04.md](Game-Requirements/implementation-tracker-2026-06-04.md)  
 2. `gitnexus_impact` before symbol edits  
 3. Skills: `team-simulation`, `team-data`, `replay-verify`, `c-sharp-engineer`  
-4. Verify: `dotnet test ProjectAegis.sln` (339 tests on `main`)
+4. Verify: `dotnet test ProjectAegis.sln` (345 tests on `main`)

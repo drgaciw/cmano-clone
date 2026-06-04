@@ -16,4 +16,6 @@ public readonly record struct EngageContext(
     CombatDomain CombatDomain = CombatDomain.Air,
     bool MountOnline = true,
     bool ContactIdentified = true,
-    bool AirOperationsReady = true);
+    bool AirOperationsReady = true,
+    bool IsHypersonicTarget = false,
+    bool HasHypersonicDefenseLayer = false);

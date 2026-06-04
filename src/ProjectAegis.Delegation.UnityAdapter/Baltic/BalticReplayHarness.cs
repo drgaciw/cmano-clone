@@ -11,6 +11,8 @@ using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Scenario;
+
 using ProjectAegis.Delegation.Mission;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Replay;
@@ -42,7 +44,10 @@ public static class BalticReplayHarness
         string scenarioPolicyId,
         int ticks,
         bool mvpEngagement = true,
-        ICatalogReader? catalog = null)
+        ICatalogReader? catalog = null,
+        IReadOnlyDictionary<string, bool>? unitReadiness = null,
+        IReadOnlyList<ScenarioNearFutureUnitRequest>? nearFutureUnits = null,
+        int maxTechnologyLevel = 2)
     {
         if (ticks < 1)
         {
@@ -83,7 +88,13 @@ public static class BalticReplayHarness
             throw new InvalidOperationException("MVP engage session was not created.");
         }
 
+        if (bridge.Session != null && unitReadiness != null)
+        {
+            bridge.Session.UnitReadiness = new UnitReadinessMap(unitReadiness);
+        }
+
         var unitBinding = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
+        RegisterNearFutureUnits(bridge, nearFutureUnits, maxTechnologyLevel);
         var unit = unitBinding.Target;
         var agentPolicy = profile?.DelegationSettings.UsePatrolCandidates == true
             ? (IPolicy)new PatrolCandidateEngagePolicy()
@@ -291,6 +302,52 @@ public static class BalticReplayHarness
         }
 
         public void ApplyOrder(EntityKey entity, in Order order) { }
+    }
+
+    private static void RegisterNearFutureUnits(
+        DelegationBridge bridge,
+        IReadOnlyList<ScenarioNearFutureUnitRequest>? nearFutureUnits,
+        int maxTechnologyLevel)
+    {
+        if (nearFutureUnits == null || nearFutureUnits.Count == 0)
+        {
+            return;
+        }
+
+        var catalogPath = ResolveNearFutureCatalogPath();
+        var plans = NearFutureArchetypeRuntime.PlanSpawns(
+            nearFutureUnits,
+            maxTechnologyLevel,
+            SwarmTier.Medium,
+            catalogPath);
+        var entityKey = 2;
+        foreach (var plan in plans)
+        {
+            bridge.Registry.RegisterUnit(new EntityKey(entityKey++), plan.UnitId);
+            bridge.Orchestrator.DecisionLog.AppendEventFired(new EventFiredRecord(
+                0,
+                0,
+                0,
+                plan.UnitId,
+                $"NF_SPAWN:{plan.ArchetypeId}"));
+        }
+    }
+
+    private static string ResolveNearFutureCatalogPath()
+    {
+        var dir = AppContext.BaseDirectory;
+        for (var i = 0; i < 8; i++)
+        {
+            var candidate = Path.Combine(dir, "data", "catalog", "near_future_archetypes.json");
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+
+            dir = Path.GetDirectoryName(dir) ?? dir;
+        }
+
+        throw new FileNotFoundException("near_future_archetypes.json");
     }
 
     private sealed class EngageOnlyPolicy : IPolicy

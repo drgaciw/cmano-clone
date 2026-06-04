@@ -3,6 +3,7 @@ namespace ProjectAegis.MissionEditor.Cli;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Scenario;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
@@ -33,7 +34,19 @@ public static class ScenarioSimulateSampleCommand
 
         var policyId = ResolvePolicyId(scenario);
         var seed = (int)Math.Min(scenario.Metadata.Seed, int.MaxValue);
-        var result = BalticReplayHarness.Run(seed, policyId, ticks, mvpEngagement: true, catalog);
+        var readiness = UnitReadinessMapFactory.FromMetadata(scenario.Metadata);
+        var nearFuture = scenario.Metadata.NearFutureUnits?
+            .Select(u => new ScenarioNearFutureUnitRequest(u.ArchetypeId, u.UnitId))
+            .ToArray();
+        var result = BalticReplayHarness.Run(
+            seed,
+            policyId,
+            ticks,
+            mvpEngagement: true,
+            catalog,
+            unitReadiness: readiness,
+            nearFutureUnits: nearFuture,
+            maxTechnologyLevel: scenario.Metadata.MaxTechnologyLevel);
 
         var dto = new SimulateSampleJsonDto
         {

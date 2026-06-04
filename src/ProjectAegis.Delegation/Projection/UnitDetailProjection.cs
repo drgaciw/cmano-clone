@@ -2,6 +2,7 @@ namespace ProjectAegis.Delegation.Projection;
 
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
+using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 
@@ -19,8 +20,11 @@ public static class UnitDetailProjection
         var magazineLabel = ResolveMagazineLabel(unitId, log);
         var emconLabel = ResolveEmconLabel(unitId.Value, policy, observerUnitId);
         var doctrineLabel = ResolveDoctrineLabel(unitId.Value, policy);
-        var engagePreview = EngagePreviewProjection.Project(policy?.EngageDefaults);
+        var engageDefaults = policy?.EngageDefaults ?? ScenarioEngageDefaults.MvpFallback;
+        var engageCtx = engageDefaults.ToEngageContext(engageDefaults.DefaultMagazineRounds);
+        var engagePreview = EngagePreviewProjection.Project(engageCtx, engageDefaults.DlzPersonality);
         var engageLabel = FormatEngagePreview(engagePreview);
+        var attackLabel = FormatAttackOptions(EngageAttackOptions.Build(engageCtx, engagePreview));
         var alive = isAlive(unitId);
         return new UnitDetailEntry(
             unitId.Value,
@@ -33,7 +37,8 @@ public static class UnitDetailProjection
                 unitId.Value,
                 simTimeSeconds,
                 policy?.Logistics ?? ScenarioLogisticsSettings.Default),
-            engageLabel);
+            engageLabel,
+            attackLabel);
     }
 
     public static UnitDetailEntry? ProjectPrimary(
@@ -96,5 +101,17 @@ public static class UnitDetailProjection
         var abort = preview.AbortPreviewCode == null ? "—" : preview.AbortPreviewCode;
         var fire = preview.CanFire ? "READY" : "BLOCKED";
         return $"ENGAGE: {preview.DlzLabel} | {fire} | {abort}";
+    }
+
+    private static string FormatAttackOptions(IReadOnlyList<EngageAttackOptions.AttackOption> options)
+    {
+        if (options.Count == 0)
+        {
+            return "ATTACK: —";
+        }
+
+        var parts = options.Select(o =>
+            o.Enabled ? o.Label : $"{o.Label} ({o.DisabledReason ?? "blocked"})");
+        return "ATTACK: " + string.Join(" | ", parts);
     }
 }

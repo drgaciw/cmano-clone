@@ -21,6 +21,13 @@
       "swarmTier": "Mass",
       "maxSwarmEntities": 5000,
       "trlLevel": 6
+    },
+    {
+      "archetypeId": "hypersonic-boost-glide",
+      "technologyLevel": 2,
+      "swarmTier": "Micro",
+      "maxSwarmEntities": 1,
+      "trlLevel": 7
     }
   ]
 }
