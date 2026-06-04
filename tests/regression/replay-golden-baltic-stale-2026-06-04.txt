@@ -1,0 +1,6 @@
+# baltic-patrol-stale seed=11 ticks=3 mvpEngagement=false
+# Regenerate: dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 11 --scenario baltic-patrol-stale --ticks 3 --no-engage
+
+WORLD_HASH=6475122010658991189
+DETECTION_WORLD_HASH=349
+FINGERPRINT_SHA256=c215e276ae8c492d000dd0b163d01867c283716e413ace3416f45f00fec52ef7

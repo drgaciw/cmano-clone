@@ -18,6 +18,8 @@ public sealed class ScenarioValidationEngine : IScenarioValidationEngine
         ValidationRules.PatrolZoneRule(scenario, findings);
         ValidationRules.StrikeNoTargetsRule(scenario, findings);
         ValidationRules.FerryDestinationRule(scenario, findings);
+        ValidationRules.AirReadyLaunchRule(scenario, findings);
+        ValidationRules.FerryReachabilityRule(scenario, catalog, config, findings);
         ValidationRules.StrikeReachabilityRule(scenario, catalog, config, findings);
         return ValidationReport.FromFindings(findings);
     }

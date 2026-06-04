@@ -35,7 +35,10 @@
       "name": "Logistics",
       "stringCodes": [
         "STRIKE_UNREACHABLE",
-        "STRIKE_UNREACHABLE_FUEL"
+        "STRIKE_UNREACHABLE_FUEL",
+        "AIR_NOT_READY",
+        "FERRY_UNREACHABLE",
+        "FERRY_UNREACHABLE_FUEL"
       ]
     }
   ]

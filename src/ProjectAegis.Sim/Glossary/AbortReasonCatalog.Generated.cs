@@ -34,6 +34,9 @@ public static partial class AbortReasonCatalog
     {
         public const string STRIKE_UNREACHABLE = "STRIKE_UNREACHABLE";
         public const string STRIKE_UNREACHABLE_FUEL = "STRIKE_UNREACHABLE_FUEL";
+        public const string AIR_NOT_READY = "AIR_NOT_READY";
+        public const string FERRY_UNREACHABLE = "FERRY_UNREACHABLE";
+        public const string FERRY_UNREACHABLE_FUEL = "FERRY_UNREACHABLE_FUEL";
     }
 
 }

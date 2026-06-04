@@ -98,6 +98,99 @@ internal static class ValidationRules
         }
     }
 
+    public static void AirReadyLaunchRule(ScenarioDocumentDto scenario, List<ValidationFinding> sink)
+    {
+        var readiness = scenario.Metadata.UnitReadiness;
+        if (readiness == null || readiness.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var mission in scenario.Missions)
+        {
+            if (!string.Equals(mission.Type, "Strike", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            foreach (var unitId in mission.AssignedUnitIds.OrderBy(u => u, StringComparer.Ordinal))
+            {
+                if (readiness.TryGetValue(unitId, out var state) && !state.ReadyForLaunch)
+                {
+                    sink.Add(new ValidationFinding(
+                        "AIR_NOT_READY",
+                        ValidationSeverity.Error,
+                        $"Unit '{unitId}' is not ready for launch (mission '{mission.Id}').",
+                        MissionId: mission.Id,
+                        UnitId: unitId));
+                }
+            }
+        }
+    }
+
+    public static void FerryReachabilityRule(
+        ScenarioDocumentDto scenario,
+        ICatalogReader catalog,
+        ValidationConfig config,
+        List<ValidationFinding> sink)
+    {
+        foreach (var mission in scenario.Missions)
+        {
+            if (!string.Equals(mission.Type, "Ferry", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(mission.FerryDestinationBaseId))
+            {
+                continue;
+            }
+
+            if (mission.AssignedUnitIds.Count == 0)
+            {
+                continue;
+            }
+
+            var unitId = mission.AssignedUnitIds[0];
+            if (!catalog.TryGetPlatformPosition(unitId, out var unitLat, out var unitLon) ||
+                !catalog.TryGetPlatformPosition(mission.FerryDestinationBaseId, out var baseLat, out var baseLon))
+            {
+                continue;
+            }
+
+            if (!catalog.TryGetCombatRadiusNm(unitId, out var combatRadiusNm))
+            {
+                continue;
+            }
+
+            var distanceNm = ReachabilityCalculator.HaversineNm(unitLat, unitLon, baseLat, baseLon);
+            if (ReachabilityCalculator.TryClassifyStrikeUnreachable(
+                    distanceNm,
+                    combatRadiusNm,
+                    config.IngressEgressPadNm,
+                    config.FuelFraction,
+                    out var excessNm,
+                    out var code))
+            {
+                var rounded = Math.Round(excessNm, 1);
+                var ferryCode = string.Equals(code, "STRIKE_UNREACHABLE_FUEL", StringComparison.Ordinal)
+                    ? "FERRY_UNREACHABLE_FUEL"
+                    : "FERRY_UNREACHABLE";
+                var message = string.Equals(ferryCode, "FERRY_UNREACHABLE_FUEL", StringComparison.Ordinal)
+                    ? $"Ferry mission '{mission.Id}' destination exceeds fuel range by {rounded} nm."
+                    : $"Ferry mission '{mission.Id}' destination is out of combat radius by {rounded} nm.";
+                sink.Add(new ValidationFinding(
+                    ferryCode,
+                    ValidationSeverity.Error,
+                    message,
+                    MissionId: mission.Id,
+                    UnitId: unitId,
+                    TargetId: mission.FerryDestinationBaseId,
+                    Data: new Dictionary<string, string> { ["excess_nm"] = rounded.ToString("F1") }));
+            }
+        }
+    }
+
     public static void StrikeReachabilityRule(
         ScenarioDocumentDto scenario,
         ICatalogReader catalog,

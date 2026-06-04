@@ -1,6 +1,6 @@
 # Game Requirements — Implementation Tracker
 
-**Base:** `main` @ `679eff4`  
+**Base:** `main` @ `a5dcef5`  
 **Last Updated:** 2026-06-04
 **Index:** [Game-Requirements-Index.md](Game-Requirements-Index.md) | [00-Master-Index.md](../00-Master-Index.md)
 
@@ -18,7 +18,7 @@ Completing the full requirements corpus as *shipped game features* is multi-year
 
 ```bash
 dotnet build ProjectAegis.sln
-dotnet test ProjectAegis.sln -v minimal   # 306 tests
+dotnet test ProjectAegis.sln -v minimal   # 314 tests
 pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 ```
 
@@ -36,13 +36,13 @@ pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 | 08 | Agentic Architecture | **Partial** | `ProjectAegis.Sim`, `Delegation`, `architecture.md` | DOTS sensor hot path; sim API export |
 | 09 | Near-Future Technologies | **Doc only** | req 09, `CatalogImportGate` (TRL) | TL-gated archetypes + swarm tier cap |
 | 10 | Speculative Systems | **Partial** | `ScenarioSpeculativeSettings`, `SpeculativeEngageGate`, `speculative_platforms.json`, `baltic-patrol-black-project` fixture | Orbital DEW runtime; escalation ladder events |
-| 11 | Agentic Mission Editor | **Partial** | `scenario_create`, `mission_add_patrol/strike`, `ScenarioDocumentEditor` | Unity edit mode; MCP mission_update/delete + NL planner |
+| 11 | Agentic Mission Editor | **Partial** | `mission_update_patrol/strike`, `mission_delete`, MCP pipeline tests | Unity edit mode; NL planner; mcp-tools.json bindings |
 | 12 | Terms Glossary | **Partial** | `abort_reason_manifest.json`, `Invoke-AbortReasonCodegen.ps1`, `AbortReasonCatalog`, alignment tests | UI tooltips; Sensor/Cyber abort families |
 | 13 | Doctrine ROE EMCON WRA | **Partial** | `PolicyEvaluator` WRA salvo, `ResolvedUnitPolicy` mission ROE, `baltic-patrol-mission-roe` / `wra-cap` fixtures | Unity doctrine inheritance panel (ADR-010) |
 | 14 | Engagement & Fire Control | **Partial** | `MvpEngagementResolver.cs`, engage goldens | DLZ personality timing; unit panel preview |
-| 15 | Sensor Detection & EW | **Partial** | `PdDetectionContactSimulator.cs`, sensor GDD | Contact FSM golden; ECCM Phase 2 |
-| 16 | Logistics & Magazines | **Partial** | `FuelLedger`, `MagazineLedger`, `STRIKE_UNREACHABLE_FUEL` | Air ready/launch; ferry runtime |
-| 17 | Replay AAR & Order Log | **Partial** | `DecisionLog`, `ReplayGolden*`, SHA-256 goldens | Scrub UI; CI golden gate on `main` |
+| 15 | Sensor Detection & EW | **Partial** | `ReplayGoldenSuite` + `baltic-patrol-stale` golden, contact FSM harness | ECCM Phase 2; datalink delay |
+| 16 | Logistics & Magazines | **Partial** | `AIR_NOT_READY`, `FERRY_UNREACHABLE*`, `UnitReadiness` metadata | Runtime launch gate in sim; UNREP |
+| 17 | Replay AAR & Order Log | **Partial** | `ReplayGoldenSuiteTests`, CI step in `dotnet-reusable.yml`, `tests/regression/README.md` | Scrub UI; AAR agent |
 | 18 | Combat Domains | **Partial** | `CombatOutcomeResolver.cs`, kill checkpoints | Domain validators; mount offline abort |
 | 19 | Cyber & Comms | **Partial** | `CommsTimelineSimulator`, comms goldens | Order-delay timestamps; track staleness |
 | 20 | Command & Control UI | **Partial** | Unity C2 hosts, `c2-manual-signoff` | Globe map; close Editor PI-006 checklist |

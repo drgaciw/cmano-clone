@@ -50,6 +50,39 @@ public sealed class McpMissionToolCliTests
     }
 
     [Fact]
+    public void mission_update_and_delete_round_trip()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"aegis-mcp-{Guid.NewGuid():N}.json");
+        try
+        {
+            ScenarioDocumentEditor.CreateNew().Save(path);
+            var zone = CliArgParser.ParseWaypoints(["57,20", "57.1,20.1", "57.2,20.2"]);
+            MissionAddPatrolCommand.Run(path, 1, "patrol-1", ["u1"], zone, new StringWriter());
+
+            using (var writer = new StringWriter())
+            {
+                Assert.Equal(0, MissionUpdatePatrolCommand.Run(path, 2, "patrol-1", ["u1", "u2"], null, writer));
+            }
+
+            using (var writer = new StringWriter())
+            {
+                Assert.Equal(0, MissionDeleteCommand.Run(path, 3, "patrol-1", writer));
+            }
+
+            var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
+            Assert.Empty(dto.Missions);
+            Assert.Equal(4, dto.Metadata.EditVersion);
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
+
+    [Fact]
     public void mission_add_patrol_stale_edit_version_returns_conflict_exit_code()
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-mcp-{Guid.NewGuid():N}.json");

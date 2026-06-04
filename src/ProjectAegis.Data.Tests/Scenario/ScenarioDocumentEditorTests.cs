@@ -49,4 +49,48 @@ public sealed class ScenarioDocumentEditorTests
         var ex = Assert.Throws<ScenarioEditConflictException>(() => editor.RequireEditVersion(99));
         Assert.Equal(ScenarioEditVersionGuard.ConflictCode, ex.Code);
     }
+
+    [Fact]
+    public void Update_and_delete_mission_round_trip()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"aegis-scenario-{Guid.NewGuid():N}.json");
+        try
+        {
+            var editor = ScenarioDocumentEditor.CreateNew();
+            editor.AddPatrolMission(
+                "patrol-1",
+                ["u1"],
+                [
+                    new ScenarioWaypointDto { Lat = 57.0, Lon = 20.0 },
+                    new ScenarioWaypointDto { Lat = 57.1, Lon = 20.1 },
+                    new ScenarioWaypointDto { Lat = 57.2, Lon = 20.2 },
+                ]);
+            editor.CommitMutation();
+            editor.Save(path);
+
+            var loaded = ScenarioDocumentEditor.Load(path);
+            loaded.RequireEditVersion(2);
+            loaded.UpdatePatrolMission("patrol-1", ["u1", "u2"], null);
+            loaded.CommitMutation();
+            loaded.Save(path);
+
+            var afterUpdate = ScenarioDocumentEditor.Load(path);
+            afterUpdate.RequireEditVersion(3);
+            Assert.Equal(2, afterUpdate.Missions[0].AssignedUnitIds.Count);
+            Assert.True(afterUpdate.TryRemoveMission("patrol-1"));
+            afterUpdate.CommitMutation();
+            afterUpdate.Save(path);
+
+            var finalDto = ScenarioDocumentJsonLoader.LoadFromFile(path);
+            Assert.Empty(finalDto.Missions);
+            Assert.Equal(4, finalDto.Metadata.EditVersion);
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
 }

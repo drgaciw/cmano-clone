@@ -13,4 +13,12 @@ public sealed class ScenarioMetadataDto
 
     /// <summary>Maps to <c>data/scenarios/*.policy.json</c> id for harness sample runs.</summary>
     public string? PolicyId { get; init; }
+
+    /// <summary>Per-unit launch readiness for validation (req 16).</summary>
+    public Dictionary<string, ScenarioUnitReadinessDto>? UnitReadiness { get; init; }
+}
+
+public sealed class ScenarioUnitReadinessDto
+{
+    public bool ReadyForLaunch { get; init; } = true;
 }

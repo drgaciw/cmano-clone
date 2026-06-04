@@ -10,6 +10,10 @@ try {
     dotnet test `
         src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj `
         -c Release --no-build -v minimal `
+        --filter FullyQualifiedName~ReplayGoldenSuiteTests
+    dotnet test `
+        src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj `
+        -c Release --no-build -v minimal `
         --filter FullyQualifiedName~PlayModeSmokeHarnessTests
     Write-Host '=== PASS ==='
 }
