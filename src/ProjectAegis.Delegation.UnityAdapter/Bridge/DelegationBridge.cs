@@ -9,6 +9,8 @@ using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
+using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Trust;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -22,6 +24,7 @@ public sealed class DelegationBridge
 {
     private readonly List<Order> _nonEngageOrdersCache = new();
     private readonly CommsTimelineSimulator? _commsTimeline;
+    private readonly SpoofTrackTimelineSimulator? _spoofTimeline;
     private readonly FuelTimelineTracker? _fuelTimeline;
 
     public DelegationBridge(
@@ -42,7 +45,9 @@ public sealed class DelegationBridge
             ? SimulationSession.BindMvpEngagementForScenario(Orchestrator, scenarioPolicyId)
             : null;
         _commsTimeline = CommsTimelineSimulator.TryCreate(Orchestrator.ScenarioPolicy);
+        _spoofTimeline = SpoofTrackTimelineSimulator.TryCreate(Orchestrator.ScenarioPolicy);
         _fuelTimeline = FuelTimelineTracker.TryCreate(Orchestrator.ScenarioPolicy);
+        ApplyScenarioRuntimeBindings();
     }
 
     /// <summary>Headless engage session sharing <see cref="Orchestrator"/> (null when MVP engage disabled).</summary>
@@ -64,6 +69,7 @@ public sealed class DelegationBridge
             Orchestrator,
             defaultEngageContext ?? DefaultEngageContext,
             defaultMagazineRounds);
+        ApplyScenarioRuntimeBindings();
         return this;
     }
 
@@ -101,6 +107,7 @@ public sealed class DelegationBridge
     public DelegationTickResult Tick(ISimWorldSnapshot snapshot, IOrderSink sink)
     {
         EmitCommsTransitions(snapshot);
+        AdvanceSpoofTimeline(snapshot);
         EmitFuelTransitions(snapshot);
         var observed = ObservedStateBuilder.Build(snapshot, Registry.CollectMemberIds());
 
@@ -173,6 +180,40 @@ public sealed class DelegationBridge
         return true;
     }
 
+    /// <summary>Interactive attack menu → player order (req 14 / doc 20).</summary>
+    public bool TryEnqueueAttackOption(
+        EntityKey entity,
+        string optionId,
+        ISimWorldSnapshot snapshot,
+        out string? failureReason)
+    {
+        failureReason = null;
+        var shooterId = Registry.TryGetBinding(entity, out var binding)
+            ? binding.TargetId.Value
+            : null;
+        if (shooterId == null)
+        {
+            failureReason = "UNKNOWN_UNIT";
+            return false;
+        }
+
+        var engageDefaults = Orchestrator.ScenarioPolicy?.EngageDefaults
+            ?? ScenarioEngageDefaults.MvpFallback;
+        var ctx = BuildLiveEngageContext(snapshot, shooterId, engageDefaults);
+        var preview = EngagePreviewProjection.Project(in ctx, engageDefaults.DlzPersonality);
+        if (!EngageAttackOrderResolver.TryResolve(optionId, in ctx, preview, out var resolved, out failureReason))
+        {
+            return false;
+        }
+
+        if (Session != null && resolved.SalvoSize is int salvo)
+        {
+            Session.NextEngageSalvoOverride = salvo;
+        }
+
+        return TryEnqueueHumanOrder(entity, resolved.Kind, snapshot.SimTime);
+    }
+
     public bool TryTakeDirectControl(EntityKey entity, double simTime)
     {
         if (Orchestrator.AttachReplayViewer)
@@ -209,6 +250,54 @@ public sealed class DelegationBridge
         bool missionSucceeded = false,
         double objectivesMetRatio = 1.0) =>
         Orchestrator.FinalizeScenario(missionSucceeded, objectivesMetRatio);
+
+    private void ApplyScenarioRuntimeBindings()
+    {
+        if (Session == null)
+        {
+            return;
+        }
+
+        var profile = Orchestrator.ScenarioPolicy;
+        if (profile is { UnitReadiness.Count: > 0 })
+        {
+            Session.UnitReadiness = new UnitReadinessMap(profile.UnitReadiness);
+        }
+
+        if (_spoofTimeline != null)
+        {
+            Session.IsContactSpoofed = (contactId, _) => _spoofTimeline.IsSpoofed(contactId);
+        }
+    }
+
+    private EngageContext BuildLiveEngageContext(
+        ISimWorldSnapshot snapshot,
+        string shooterUnitId,
+        ScenarioEngageDefaults engageDefaults)
+    {
+        var ctx = engageDefaults.ToEngageContext(engageDefaults.DefaultMagazineRounds);
+        var airReady = Session?.UnitReadiness?.IsReadyForLaunch(shooterUnitId) ?? true;
+        var victim = snapshot.PrimaryHostileContactId?.Value;
+        var spoofed = _spoofTimeline?.IsSpoofed(victim) ?? false;
+        return ctx with
+        {
+            HasFireControlTrack = snapshot.HasFireControlTrackOnPrimaryContact,
+            RadarEmconActive = snapshot.ObserverRadarEmconActive,
+            AirOperationsReady = airReady,
+            TrackSpoofed = spoofed,
+        };
+    }
+
+    private void AdvanceSpoofTimeline(ISimWorldSnapshot snapshot)
+    {
+        if (_spoofTimeline == null)
+        {
+            return;
+        }
+
+        var simTick = (ulong)Math.Max(0, (long)snapshot.SimTime);
+        _spoofTimeline.Advance(simTick);
+    }
 
     private void EmitCommsTransitions(ISimWorldSnapshot snapshot)
     {

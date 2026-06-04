@@ -30,7 +30,9 @@ public sealed class ScenarioPolicyProfile
         ScenarioCommsDisplaySettings? commsDisplay = null,
         EffectivePolicy? missionRoe = null,
         IReadOnlyList<string>? missionUnitIds = null,
-        ScenarioSpeculativeSettings? speculative = null)
+        ScenarioSpeculativeSettings? speculative = null,
+        IReadOnlyDictionary<string, bool>? unitReadiness = null,
+        IReadOnlyList<ScenarioSpoofTransition>? spoofTransitions = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -57,6 +59,8 @@ public sealed class ScenarioPolicyProfile
         Logistics = logistics ?? ScenarioLogisticsSettings.Default;
         CommsDisplay = commsDisplay ?? ScenarioCommsDisplaySettings.Default;
         Speculative = speculative ?? ScenarioSpeculativeSettings.CampaignDefault;
+        UnitReadiness = unitReadiness ?? new Dictionary<string, bool>();
+        SpoofTransitions = spoofTransitions ?? Array.Empty<ScenarioSpoofTransition>();
     }
 
     public string Id { get; init; } = "";
@@ -107,6 +111,12 @@ public sealed class ScenarioPolicyProfile
     public IReadOnlyList<string> MissionUnitIds { get; }
 
     public ScenarioSpeculativeSettings Speculative { get; }
+
+    /// <summary>Per-unit launch readiness from scenario policy JSON (req 16).</summary>
+    public IReadOnlyDictionary<string, bool> UnitReadiness { get; }
+
+    /// <summary>Timed spoofed contact activations (req 19).</summary>
+    public IReadOnlyList<ScenarioSpoofTransition> SpoofTransitions { get; }
 
     public EngageContext ResolveEngageContext()
     {

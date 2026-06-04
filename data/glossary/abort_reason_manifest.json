@@ -31,7 +31,8 @@
         { "logCode": "TECHNOLOGY_LEVEL_EXCEEDED", "member": "TechnologyLevelExceeded" },
         { "logCode": "MOUNT_OFFLINE", "member": "MountOffline" },
         { "logCode": "DOMAIN_NO_SOLUTION", "member": "DomainNoSolution" },
-        { "logCode": "AIR_NOT_READY", "member": "AirNotReady" }
+        { "logCode": "AIR_NOT_READY", "member": "AirNotReady" },
+        { "logCode": "CYBER_SPOOF_TRACK", "member": "TrackSpoofed" }
       ]
     },
     {

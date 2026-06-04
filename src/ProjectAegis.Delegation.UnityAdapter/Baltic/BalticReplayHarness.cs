@@ -88,9 +88,13 @@ public static class BalticReplayHarness
             throw new InvalidOperationException("MVP engage session was not created.");
         }
 
-        if (bridge.Session != null && unitReadiness != null)
+        if (bridge.Session != null)
         {
-            bridge.Session.UnitReadiness = new UnitReadinessMap(unitReadiness);
+            var readiness = unitReadiness ?? profile?.UnitReadiness;
+            if (readiness is { Count: > 0 })
+            {
+                bridge.Session.UnitReadiness = new UnitReadinessMap(readiness);
+            }
         }
 
         var unitBinding = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");

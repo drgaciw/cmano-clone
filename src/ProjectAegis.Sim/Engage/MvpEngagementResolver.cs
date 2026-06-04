@@ -79,6 +79,11 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(EngagementAbortReason.AirNotReady);
         }
 
+        if (ctx.TrackSpoofed)
+        {
+            return EngageResult.Aborted(EngagementAbortReason.TrackSpoofed);
+        }
+
         if (!ctx.RadarEmconActive)
         {
             return EngageResult.Aborted(EngagementAbortReason.EmconOff);

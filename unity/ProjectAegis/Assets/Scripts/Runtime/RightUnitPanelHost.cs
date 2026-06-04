@@ -35,6 +35,9 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _fuelLine;
         private Label? _engageLine;
         private Label? _attackOptionsLine;
+        private Button? _attackFireSingle;
+        private Button? _attackFireSalvo;
+        private Button? _attackHoldFire;
         private Label? _contactLine;
         private bool _wired;
 
@@ -100,9 +103,14 @@ namespace ProjectAegis.Unity.Runtime
             _fuelLine = panel.Q<Label>(FuelName);
             _engageLine = panel.Q<Label>(EngageName);
             _attackOptionsLine = panel.Q<Label>(AttackOptionsName);
+            _attackFireSingle = panel.Q<Button>("attack-fire-single");
+            _attackFireSalvo = panel.Q<Button>("attack-fire-salvo");
+            _attackHoldFire = panel.Q<Button>("attack-hold-fire");
             _contactLine = panel.Q<Label>(ContactName);
             _wired = _unitIdLine != null && _statusLine != null && _magazineLine != null &&
                      _emconLine != null && _doctrineLine != null;
+
+            WireAttackMenu();
 
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
             {
@@ -150,6 +158,34 @@ namespace ProjectAegis.Unity.Runtime
             {
                 root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
             }
+        }
+
+        private void WireAttackMenu()
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            RegisterAttackButton(_attackFireSingle, "fire-single");
+            RegisterAttackButton(_attackFireSalvo, "fire-salvo");
+            RegisterAttackButton(_attackHoldFire, "hold-fire");
+        }
+
+        private void RegisterAttackButton(Button? button, string optionId)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            button.clicked += () =>
+            {
+                if (bridgeHost.TrySelectAttackOption(optionId, out _))
+                {
+                    Refresh();
+                }
+            };
         }
     }
 }

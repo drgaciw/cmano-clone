@@ -20,7 +20,8 @@ public static class EngagePreviewProjection
         var canFire = DlzEngageGate.AllowsLaunch(ctx.RangeMeters, ctx.Envelope, personality)
                         && ctx.HasFireControlTrack
                         && ctx.MountOnline
-                        && ctx.RadarEmconActive;
+                        && ctx.RadarEmconActive
+                        && !ctx.TrackSpoofed;
 
         string? abortCode = null;
         if (!ctx.MountOnline)
@@ -38,6 +39,10 @@ public static class EngagePreviewProjection
         else if (!DlzEngageGate.AllowsLaunch(ctx.RangeMeters, ctx.Envelope, personality))
         {
             abortCode = AbortReasonCatalog.Engage.DLZ_OUT;
+        }
+        else if (ctx.TrackSpoofed)
+        {
+            abortCode = AbortReasonCatalog.Cyber.CYBER_SPOOF_TRACK;
         }
 
         var dlzLabel = $"DLZ: {state} ({personality})";
