@@ -485,8 +485,9 @@ sprint16_tasks:
     status: blocked
     note: "GitHub Actions billing — production/qa/pr-69-ci-triage-2026-06-04.md"
   - id: s16-data-3
-    status: ready
-    note: "stack/sprint16-data-3-scenario-bind kickoff; after PR #69 merge"
+    status: done
+    completed: "2026-06-04"
+    note: "stack/sprint16-data-3-scenario-bind @ 3474373; 354 tests PASS; production/qa/sprint-16-data-3-gitnexus-2026-06-04.md"
 
 sprint: 15
 goal: "Docs 07-08-12 + RTM gate + program exit"

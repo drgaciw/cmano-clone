@@ -9,7 +9,7 @@
 |-------|----------------|--------|
 | **PR #69** | subagent + `gh pr view` | **OPEN** — CI red = **billing**, not code; `MERGEABLE`; triage `production/qa/pr-69-ci-triage-2026-06-04.md` |
 | **DATA P0 gap** | subagent | DATA-1/2 **DONE on main**; DATA-3..5 partial/missing — `production/agentic/sprint-16-data-p0-gap-analysis-2026-06-04.md` |
-| **DATA-3 branch** | worktree `sprint16-data-p0-impl` | `stack/sprint16-data-3-scenario-bind` from `main` — kickoff only (no move yet) |
+| **DATA-3 branch** | worktree `sprint16-data-p0-impl` | `stack/sprint16-data-3-scenario-bind` @ `3474373` — ScenarioPackage + policy JSON in Data; **354/354** PASS |
 | **Local verify** | coordinator | **365/365** on feature branch; **351** on main (no Wave 5 tests) |
 | **Hindsight** | — | Still down |
 
