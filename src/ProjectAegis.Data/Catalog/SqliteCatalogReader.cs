@@ -86,6 +86,9 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         return false;
     }
 
+    public bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope) =>
+        CatalogWeaponDefaults.TryResolve(weaponId, out envelope);
+
     public void Dispose()
     {
         _connection.Close();

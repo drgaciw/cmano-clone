@@ -7,6 +7,7 @@
     <RootNamespace>ProjectAegis.Delegation</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
     <ProjectReference Include="..\ProjectAegis.Sim\ProjectAegis.Sim.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">

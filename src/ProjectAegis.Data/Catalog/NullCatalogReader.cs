@@ -19,4 +19,10 @@ public sealed class NullCatalogReader : ICatalogReader
         basePd = 0;
         return false;
     }
+
+    public bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope)
+    {
+        envelope = default;
+        return false;
+    }
 }

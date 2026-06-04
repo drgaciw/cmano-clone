@@ -6,6 +6,7 @@ using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Delegation.Sim;
+using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -66,7 +67,9 @@ public sealed class SimulationSession
     /// <summary>Bind MVP engage using scenario policy JSON engage defaults when present.</summary>
     public static SimulationSession BindMvpEngagementForScenario(
         DelegationOrchestrator orchestrator,
-        string? scenarioPolicyId)
+        string? scenarioPolicyId,
+        ICatalogReader? catalog = null,
+        string weaponId = CatalogWeaponIds.MvpDefault)
     {
         var profile = string.IsNullOrWhiteSpace(scenarioPolicyId)
             ? null
@@ -74,6 +77,7 @@ public sealed class SimulationSession
         var engage = profile?.ResolveEngageContext()
             ?? ScenarioEngageDefaults.MvpFallback.ToEngageContext(
                 ScenarioEngageDefaults.MvpFallback.DefaultMagazineRounds);
+        engage = CatalogEngageEnvelope.Apply(engage, catalog, weaponId);
         var rounds = profile?.EngageDefaults?.DefaultMagazineRounds
             ?? ScenarioEngageDefaults.MvpFallback.DefaultMagazineRounds;
         return BindMvpEngagement(orchestrator, engage, rounds);
@@ -245,11 +249,13 @@ public sealed class SimulationSession
     public static SimulationSession CreateWithMvpEngagement(int globalSeed) =>
         CreateWithMvpEngagement(
             globalSeed,
-            new EngageContext(
-                50_000,
-                new WeaponEnvelope(1_000, 100_000),
-                RoundsRemaining: 2,
-                HasFireControlTrack: true),
+            CatalogEngageEnvelope.Apply(
+                new EngageContext(
+                    50_000,
+                    new WeaponEnvelope(1_000, 100_000),
+                    RoundsRemaining: 2,
+                    HasFireControlTrack: true),
+                InMemoryCatalogReader.BalticPatrolFixture()),
             defaultMagazineRounds: 2);
 
     public static SimulationSession CreateWithMvpEngagement(

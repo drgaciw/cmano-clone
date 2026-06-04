@@ -68,4 +68,7 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         lonDeg = 0;
         return false;
     }
+
+    public bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope) =>
+        CatalogWeaponDefaults.TryResolve(weaponId, out envelope);
 }

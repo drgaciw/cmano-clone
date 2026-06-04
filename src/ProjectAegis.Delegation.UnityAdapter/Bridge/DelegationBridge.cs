@@ -12,6 +12,7 @@ using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Trust;
+using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
@@ -31,7 +32,8 @@ public sealed class DelegationBridge
         int globalSeed,
         IPolicyEvaluator? policyEvaluator = null,
         bool mvpEngagement = false,
-        string? scenarioPolicyId = null)
+        string? scenarioPolicyId = null,
+        ICatalogReader? catalog = null)
     {
         Orchestrator = new DelegationOrchestrator(globalSeed, policyEvaluator);
         Registry = new TargetRegistry(Orchestrator);
@@ -41,8 +43,11 @@ public sealed class DelegationBridge
             Orchestrator.ScenarioPolicy = ScenarioPolicyRepository.TryGet(scenarioPolicyId);
         }
 
+        var catalogReader = catalog
+            ?? CatalogReaderFactory.TryCreateBalticPatrolReader()
+            ?? InMemoryCatalogReader.BalticPatrolFixture();
         Session = mvpEngagement
-            ? SimulationSession.BindMvpEngagementForScenario(Orchestrator, scenarioPolicyId)
+            ? SimulationSession.BindMvpEngagementForScenario(Orchestrator, scenarioPolicyId, catalogReader)
             : null;
         _commsTimeline = CommsTimelineSimulator.TryCreate(Orchestrator.ScenarioPolicy);
         _spoofTimeline = SpoofTrackTimelineSimulator.TryCreate(Orchestrator.ScenarioPolicy);
@@ -63,11 +68,16 @@ public sealed class DelegationBridge
     /// <summary>Enable MVP engage after construction (Unity host opt-in).</summary>
     public DelegationBridge EnableMvpEngagement(
         EngageContext? defaultEngageContext = null,
-        int defaultMagazineRounds = 2)
+        int defaultMagazineRounds = 2,
+        ICatalogReader? catalog = null)
     {
+        var engage = CatalogEngageEnvelope.Apply(
+            defaultEngageContext ?? DefaultEngageContext,
+            catalog ?? CatalogReaderFactory.TryCreateBalticPatrolReader()
+                ?? InMemoryCatalogReader.BalticPatrolFixture());
         Session = SimulationSession.BindMvpEngagement(
             Orchestrator,
-            defaultEngageContext ?? DefaultEngageContext,
+            engage,
             defaultMagazineRounds);
         ApplyScenarioRuntimeBindings();
         return this;

@@ -82,7 +82,11 @@ public static class BalticReplayHarness
         var checkpointStore = new ReplayCheckpointStore();
         var checkpointInterval = profile?.ReplaySettings.CheckpointIntervalTicks ?? 0;
 
-        var bridge = new DelegationBridge(seed, mvpEngagement: mvpEngagement, scenarioPolicyId: scenarioPolicyId);
+        var bridge = new DelegationBridge(
+            seed,
+            mvpEngagement: mvpEngagement,
+            scenarioPolicyId: scenarioPolicyId,
+            catalog: catalogReader);
         if (mvpEngagement && bridge.Session == null)
         {
             throw new InvalidOperationException("MVP engage session was not created.");

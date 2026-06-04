@@ -21,6 +21,16 @@ public interface ICatalogReader
     bool TryGetPlatformPosition(string platformId, out double latDeg, out double lonDeg) =>
         TryGetPlatformPositionCore(platformId, out latDeg, out lonDeg);
 
+    /// <summary>DATA-4: weapon min/max range (meters) for engage envelope wiring.</summary>
+    bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope) =>
+        TryGetWeaponEnvelopeCore(weaponId, out envelope);
+
+    bool TryGetWeaponEnvelopeCore(string weaponId, out WeaponEnvelopeDto envelope)
+    {
+        envelope = default;
+        return false;
+    }
+
     bool TryResolveDbRefCore(string dbRef, out string resolvedSnapshotId)
     {
         resolvedSnapshotId = "";
