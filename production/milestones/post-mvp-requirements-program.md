@@ -50,7 +50,7 @@
 - [ ] Tracker rows 14, 16, 19 updated to **Partial+** with automated AC tests cited  
 - [ ] `docs/architecture/requirements-traceability.md` rows for 01–12 (FULL / PARTIAL / STUB)  
 - [ ] `docs/reports/requirements-consistency-*.md` — 0 BLOCKER  
-- [ ] Unity manual C2 sign-off executed or explicitly deferred with date
+- [ ] Unity manual C2 sign-off executed or explicitly deferred with date — **deferred to Sprint 18** (2026-06-04); automated proxy + attack-menu headless tests green on `cde26fe`
 
 ## Out of scope (this program)
 

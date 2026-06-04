@@ -1,8 +1,8 @@
 # Sprint 16 — Backlog stub
 
-**Status:** Complete (Sprint 16); DATA-4 landed on `main`  
+**Status:** Superseded by Sprint 18 kickoff  
 **Created:** 2026-06-04  
-**Current focus:** P0 stack complete (DATA-1..DATA-5 on main); next — full CMO crawl / balance telemetry (deferred)
+**Current focus:** See `production/sprints/sprint-18-kickoff.md` — QA sign-off, OSINT spike, catalog Phase 2
 
 ## Candidate themes
 

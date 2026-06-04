@@ -1,6 +1,7 @@
 # C2 manual QA sign-off — 2026-06-02
 
-**Build:** `main` @ `2a08518` (Sprints 7–9 + Unity gitignore)  
+**Build:** `main` @ `cde26fe` (Sprint 17 DATA P0 complete; update SHA when testing)  
+**Prior baseline:** `2a08518` (Sprints 7–9)  
 **Scenarios:** `baltic-patrol-classify` (selection), `baltic-patrol-comms` (COMMS + map stale)  
 **Reference:** `unity/ProjectAegis/PLAYMODE-SMOKE.md`  
 **Headless pre-check:** `production/qa/headless-smoke-evidence-2026-06-02.md` (PASS 243 tests)  
@@ -20,6 +21,7 @@
 | 10 | Hostile ◆ dimmed (degraded), all symbols dimmer (denied) | ☐ | | |
 | 11 | Engage denied in log after DENIED (no new launches) | ☐ | | |
 | 12 | Unit detail FUEL line updates over long sim time | ☐ | | |
+| 13 | Attack menu: select **Fire Single** → engage order in log (req 14/20) | ☐ | | Sprint 14 / Wave 5; headless covered by `DelegationBridgeAttackOptionTests` |
 
 **Verdict:** ☐ PASS ☐ FAIL  
 **Blockers:**

@@ -33,7 +33,7 @@ pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 | 03 | Simulation Modes | **Partial** | `SimulationSessionPhaseTests.cs`, headless smoke | AvA batch benchmark; mode UI on C2 top bar |
 | 04 | Agent Delegation | **Partial** | `DelegationOrchestrator.cs`, `TrustSignalEmitterTests.cs` | C2 delegation badges; trust emit-only in order log |
 | 05 | Dynamic Speculative Systems Agent | **Not started** | — | OSINT proposal service + staging DB |
-| 06 | Database Intelligence | **Partial** (P0 slice) | `CatalogEntityMap`, `CatalogWriteGate`/`IWriteGate`, migration `005`, `DatabaseIntelligenceOrchestrator`, MCP `catalog_*` CLI | Full platform import; balance drift; TL branching |
+| 06 | Database Intelligence | **Partial** (P0 complete) | P0 on `main`: `CatalogWriteGate`, `ValidationPipeline`, `ScenarioPackage`, `CmoMarkdownImporter`, migrations `001`–`005` | Full platform import; balance drift; TL branching |
 | 07 | Agentic Infrastructure | **Partial** | `BalticReplayHarness`, `MissionEditor.Cli`, Hindsight | Scenario gen + experiment workers |
 | 08 | Agentic Architecture | **Partial** | `ProjectAegis.Sim`, `Delegation`, `architecture.md` | DOTS sensor hot path; sim API export |
 | 09 | Near-Future Technologies | **Partial** | `NearFutureArchetypeRuntime`, `hypersonic-boost-glide`, `HypersonicEngageGate`, harness `NF_SPAWN` | Full DOTS spawn; MASS tier runtime |

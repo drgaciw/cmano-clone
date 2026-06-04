@@ -453,10 +453,10 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 17
+current_sprint: 18
 requirements_program: complete
 requirements_program_completed: "2026-06-04"
-next_backlog: production/sprints/sprint-16-backlog.md
+next_backlog: production/sprints/sprint-18-kickoff.md
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
@@ -492,15 +492,20 @@ sprint16_tasks:
     note: "MERGED to main; 368 tests PASS; production/qa/sprint-16-data-3-gitnexus-2026-06-04.md"
 
 sprint: 17
-goal: "DATA-4 validation + DATA-5 CMO markdown import smoke"
+goal: "DATA-4 validation + DATA-5 CMO markdown import smoke + close-out gate"
 start: "2026-06-04"
 status: complete
 completed: "2026-06-04"
 branch: main
+indexed_commit: cde26fe
 tests_passed: 380
+playmode_smoke: 7
+replay_golden: 7
 evidence:
   - production/qa/sprint-17-data-4-gitnexus-2026-06-04.md
   - production/qa/sprint-17-data-5-gitnexus-2026-06-04.md
+  - production/qa/sprint-17-smoke-closeout-2026-06-04.md
+  - production/agentic/sprint-17-closeout-2026-06-04.md
 sprint17_tasks:
   - id: s17-data-4
     status: done
@@ -510,6 +515,27 @@ sprint17_tasks:
     status: done
     completed: "2026-06-04"
     note: "CmoMarkdownImporter, sensor-mini.md fixture, write-gate smoke tests"
+  - id: s17-smoke-closeout
+    status: done
+    completed: "2026-06-04"
+    note: "380 tests, 7 PlayMode, 7 replay PASS"
+
+sprint: 18
+goal: "QA sign-off loop + post-P0 data/OSINT planning"
+start: "2026-06-04"
+status: in-progress
+branch: main
+kickoff: production/sprints/sprint-18-kickoff.md
+sprint18_tasks:
+  - id: s18-c2-signoff
+    status: ready-for-dev
+    note: "13-check manual QA incl. attack menu — production/qa/c2-manual-signoff-2026-06-02.md"
+  - id: s18-osint-spike
+    status: backlog
+    note: "doc 05 OSINT agent — production/sprints/sprint-16-backlog.md theme 1"
+  - id: s18-catalog-phase2
+    status: backlog
+    note: "bulk CMO markdown import CLI after P0"
 
 sprint: 15
 goal: "Docs 07-08-12 + RTM gate + program exit"

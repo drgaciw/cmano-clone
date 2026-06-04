@@ -15,9 +15,9 @@
 |-------|--------|-------|
 | **DATA-1** | **DONE** | Assembly + tests + solution; 44 Data tests pass |
 | **DATA-2** | **DONE** | Schema exceeds “v1” (migrations `001`–`005`); in-memory SQLite covered |
-| **DATA-3** | **PARTIAL** | `DbSnapshotStore` + path seam; policy repo not moved; no `ScenarioPackage` |
-| **DATA-4** | **PARTIAL** | `CatalogWriteGate` + audit log; no `ValidationPipeline` type; no weapon envelope wiring |
-| **DATA-5** | **MISSING** | No `CmoMarkdownImporter`; no markdown→write-gate smoke test |
+| **DATA-3** | **DONE** | `ScenarioPackage`, `ScenarioPackageLoader`, `ScenarioPolicyJsonCatalog` on `main` @ `62f3ec5` |
+| **DATA-4** | **DONE** | `ValidationPipeline`, `TryGetWeaponEnvelope`, `CatalogEngageEnvelope` @ `9d46c64` |
+| **DATA-5** | **DONE** | `CmoMarkdownImporter` + write-gate smoke @ `cde26fe` |
 
 **Branch vs `main` (Data layer):** `git diff main..HEAD -- src/ProjectAegis.Data` is **empty**. `ProjectAegis.Data` is already on `main` (`2e0f90f`); the feature branch only adds Wave 5 / sprint docs on top. P0 gap status applies equally to **`main` and `feat/wave5-attack-readiness-spoof`** for catalog code.
 
@@ -148,9 +148,9 @@ Design spec §5 expects `Import/CmoMarkdownImporter` (DATA-5); implementation no
 ```
 DATA-1  [████████████████████] DONE
 DATA-2  [████████████████████] DONE  (migrations 001-005)
-DATA-3  [████████░░░░░░░░░░░░] PARTIAL
-DATA-4  [██████████░░░░░░░░░░] PARTIAL
-DATA-5  [░░░░░░░░░░░░░░░░░░░░] MISSING
+DATA-3  [████████████████████] DONE
+DATA-4  [████████████████████] DONE
+DATA-5  [████████████████████] DONE
 ```
 
 ---
