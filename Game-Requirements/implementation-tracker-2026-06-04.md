@@ -1,7 +1,7 @@
 # Game Requirements — Implementation Tracker
 
-**Base:** `main` @ `43c24d2`  
-**Last Updated:** 2026-06-04  
+**Base:** `main` @ `679eff4`  
+**Last Updated:** 2026-06-04
 **Index:** [Game-Requirements-Index.md](Game-Requirements-Index.md) | [00-Master-Index.md](../00-Master-Index.md)
 
 ## Verdict
@@ -18,7 +18,7 @@ Completing the full requirements corpus as *shipped game features* is multi-year
 
 ```bash
 dotnet build ProjectAegis.sln
-dotnet test ProjectAegis.sln -v minimal   # 283 tests
+dotnet test ProjectAegis.sln -v minimal   # 306 tests
 pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 ```
 
@@ -35,9 +35,9 @@ pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 | 07 | Agentic Infrastructure | **Partial** | `BalticReplayHarness`, `MissionEditor.Cli`, Hindsight | Scenario gen + experiment workers |
 | 08 | Agentic Architecture | **Partial** | `ProjectAegis.Sim`, `Delegation`, `architecture.md` | DOTS sensor hot path; sim API export |
 | 09 | Near-Future Technologies | **Doc only** | req 09, `CatalogImportGate` (TRL) | TL-gated archetypes + swarm tier cap |
-| 10 | Speculative Systems | **Doc only** | req 10 | `BLACK_PROJECT_MODE` in scenario policy |
+| 10 | Speculative Systems | **Partial** | `ScenarioSpeculativeSettings`, `SpeculativeEngageGate`, `speculative_platforms.json`, `baltic-patrol-black-project` fixture | Orbital DEW runtime; escalation ladder events |
 | 11 | Agentic Mission Editor | **Partial** | `scenario_create`, `mission_add_patrol/strike`, `ScenarioDocumentEditor` | Unity edit mode; MCP mission_update/delete + NL planner |
-| 12 | Terms Glossary | **Partial** | req 12 + TL rows (2026-06-04) | UI tooltips; codegen for abort reason enums |
+| 12 | Terms Glossary | **Partial** | `abort_reason_manifest.json`, `Invoke-AbortReasonCodegen.ps1`, `AbortReasonCatalog`, alignment tests | UI tooltips; Sensor/Cyber abort families |
 | 13 | Doctrine ROE EMCON WRA | **Partial** | `PolicyEvaluator` WRA salvo, `ResolvedUnitPolicy` mission ROE, `baltic-patrol-mission-roe` / `wra-cap` fixtures | Unity doctrine inheritance panel (ADR-010) |
 | 14 | Engagement & Fire Control | **Partial** | `MvpEngagementResolver.cs`, engage goldens | DLZ personality timing; unit panel preview |
 | 15 | Sensor Detection & EW | **Partial** | `PdDetectionContactSimulator.cs`, sensor GDD | Contact FSM golden; ECCM Phase 2 |

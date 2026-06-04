@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "families": [
+    {
+      "name": "Doctrine",
+      "enum": "ProjectAegis.Sim.Policy.FireAbortReason",
+      "entries": [
+        { "logCode": "ROE_HOLD_FIRE", "member": "RoeHoldFire" },
+        { "logCode": "ROE_WEAPONS_TIGHT", "member": "WeaponsTight" },
+        { "logCode": "WRA_RANGE", "member": "WraRange" },
+        { "logCode": "WRA_SALVO", "member": "WraSalvo" },
+        { "logCode": "EMCON_OFF", "member": "EmconOff" },
+        { "logCode": "NO_FIRE_CONTROL_TRACK", "member": "NoFireControlTrack" },
+        { "logCode": "COMMS_DENIED", "member": "CommsDenied" }
+      ]
+    },
+    {
+      "name": "Engage",
+      "enum": "ProjectAegis.Sim.Engage.EngagementAbortReason",
+      "entries": [
+        { "logCode": "OUT_OF_ENVELOPE", "member": "OutOfEnvelope" },
+        { "logCode": "DLZ_OUT", "member": "DlzOut" },
+        { "logCode": "NO_AMMO", "member": "MagazineEmpty" },
+        { "logCode": "NO_FIRE_CONTROL_TRACK", "member": "NoFireControlTrack" },
+        { "logCode": "EMCON_OFF", "member": "EmconOff" },
+        { "logCode": "ROE_HOLD_FIRE", "member": "RoeHoldFire" },
+        { "logCode": "ROE_WEAPONS_TIGHT", "member": "WeaponsTight" },
+        { "logCode": "TARGET_DESTROYED", "member": "TargetDestroyed" },
+        { "logCode": "WRA_SALVO", "member": "WraSalvo" },
+        { "logCode": "BLACK_PROJECT_REQUIRED", "member": "BlackProjectRequired" },
+        { "logCode": "TECHNOLOGY_LEVEL_EXCEEDED", "member": "TechnologyLevelExceeded" }
+      ]
+    },
+    {
+      "name": "Logistics",
+      "stringCodes": [
+        "STRIKE_UNREACHABLE",
+        "STRIKE_UNREACHABLE_FUEL"
+      ]
+    }
+  ]
+}

@@ -9,4 +9,6 @@ public readonly record struct EngageContext(
     double PkBase = 0.85,
     double PkIntercept = 0.0,
     double PkKill = 1.0,
-    int SalvoSize = 1);
+    int SalvoSize = 1,
+    int WeaponTechnologyLevel = 0,
+    bool WeaponRequiresBlackProject = false);

@@ -1,0 +1,18 @@
+{
+  "id": "baltic-patrol-black-project",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "speculative": {
+    "blackProjectMode": true,
+    "maxTechnologyLevel": 5
+  },
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "weaponTechnologyLevel": 5,
+    "weaponRequiresBlackProject": true
+  }
+}

@@ -12,4 +12,6 @@ public enum EngagementAbortReason
     WeaponsTight = 7,
     TargetDestroyed = 8,
     WraSalvo = 9,
+    BlackProjectRequired = 10,
+    TechnologyLevelExceeded = 11,
 }

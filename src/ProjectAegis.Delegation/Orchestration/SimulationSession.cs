@@ -41,13 +41,16 @@ public sealed class SimulationSession
         var world = new DictionaryEngageWorldQuery();
         var magazines = new MagazineLedger();
         var killedTargets = new KilledTargetRegistry();
+        var speculative = orchestrator.ScenarioPolicy?.Speculative
+            ?? ScenarioSpeculativeSettings.CampaignDefault;
         var resolver = new MvpEngagementResolver(
             world,
             magazines,
             orchestrator.PolicyEvaluator,
             orchestrator.ResolveEffectivePolicyForUnit,
             seed,
-            killedTargets);
+            killedTargets,
+            speculative);
         var sim = new SimTickPipeline(seed, resolver);
         return new SimulationSession(orchestrator, sim)
         {

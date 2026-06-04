@@ -35,6 +35,18 @@ public sealed class ScenarioPolicyJsonLoaderTests
     }
 
     [Fact]
+    public void Loads_speculative_black_project_policy()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-black-project.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.True(profile.Speculative.BlackProjectMode);
+        Assert.Equal(5, profile.EngageDefaults!.WeaponTechnologyLevel);
+        Assert.True(profile.EngageDefaults.WeaponRequiresBlackProject);
+    }
+
+    [Fact]
     public void Loads_baltic_patrol_engage_defaults_from_json()
     {
         var repoRoot = FindRepoRoot();

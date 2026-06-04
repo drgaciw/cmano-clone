@@ -1,0 +1,18 @@
+{
+  "id": "baltic-patrol-speculative-gated",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "speculative": {
+    "blackProjectMode": false,
+    "maxTechnologyLevel": 2
+  },
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "weaponTechnologyLevel": 5,
+    "weaponRequiresBlackProject": true
+  }
+}

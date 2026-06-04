@@ -14,6 +14,7 @@ using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
 
@@ -155,7 +156,7 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(bridge.Orchestrator.DecisionLog.Engagements, Has.Count.EqualTo(1));
         Assert.That(
             bridge.Orchestrator.DecisionLog.Engagements[0].AbortReasonCode,
-            Is.EqualTo(nameof(EngagementAbortReason.NoFireControlTrack)));
+            Is.EqualTo(AbortReasonCatalog.Engage.NO_FIRE_CONTROL_TRACK));
     }
 
     private sealed class PlayModeHarness : ISimWorldSnapshot, IOrderSink

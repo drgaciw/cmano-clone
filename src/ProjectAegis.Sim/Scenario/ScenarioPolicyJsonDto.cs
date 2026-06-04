@@ -43,6 +43,15 @@ public sealed class ScenarioPolicyJsonDto
     public ScenarioLogisticsJsonDto? Logistics { get; set; }
 
     public ScenarioCommsDisplayJsonDto? CommsDisplay { get; set; }
+
+    public ScenarioSpeculativeJsonDto? Speculative { get; set; }
+}
+
+public sealed class ScenarioSpeculativeJsonDto
+{
+    public bool? BlackProjectMode { get; set; }
+
+    public int? MaxTechnologyLevel { get; set; }
 }
 
 public sealed class ScenarioLogisticsJsonDto
@@ -219,4 +228,8 @@ public sealed class ScenarioEngageJsonDto
 
     /// <summary>WRA cap: max rounds per engagement (policy GDD).</summary>
     public int? MaxSalvo { get; set; }
+
+    public int? WeaponTechnologyLevel { get; set; }
+
+    public bool? WeaponRequiresBlackProject { get; set; }
 }
