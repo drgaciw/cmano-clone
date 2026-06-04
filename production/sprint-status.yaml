@@ -453,7 +453,32 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 13
+current_sprint: 14
+
+sprint: 13
+goal: "Requirements docs 04-05 (delegation + dynamic systems agent)"
+start: "2026-06-04"
+end: "2026-06-18"
+status: complete
+completed: "2026-06-04"
+branch: feat/wave5-attack-readiness-spoof
+evidence:
+  - production/agentic/sprint-13-kickoff-2026-06-04.md
+  - production/agentic/sprint-13-parallel-kickoff-2026-06-04.md
+  - production/qa/sprint-13-design-review-2026-06-04.md
+  - production/qa/sprint-13-gitnexus-delegation-bridge-2026-06-04.md
+sprint13_stories:
+  - id: req-maturity-004
+    status: done
+    completed: "2026-06-04"
+    note: "04-Agent-Delegation Locked"
+  - id: req-maturity-005
+    status: done
+    completed: "2026-06-04"
+    note: "05-Dynamic-Systems-Agent Locked"
+worktrees:
+  - .worktrees/sprint13-doc04 → stack/sprint13-req-04
+  - .worktrees/sprint13-doc05 → stack/sprint13-req-05
 
 sprint: 12
 goal: "Requirements foundation docs 01-03 (Template A)"

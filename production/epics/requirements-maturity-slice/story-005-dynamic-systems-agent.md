@@ -1,8 +1,8 @@
 # Story 005 — Dynamic systems agent (req 05)
 
 **Epic:** requirements-maturity-slice  
-**Sprint:** 15  
-**Status:** Ready
+**Sprint:** 13  
+**Status:** Complete
 
 ## Acceptance
 

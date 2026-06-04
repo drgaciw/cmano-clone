@@ -1,8 +1,8 @@
 # Story 004 — Agent delegation (req 04)
 
 **Epic:** requirements-maturity-slice  
-**Sprint:** 15  
-**Status:** Ready
+**Sprint:** 13  
+**Status:** Complete
 
 ## Acceptance
 
