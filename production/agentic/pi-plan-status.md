@@ -25,7 +25,10 @@
 
 ## Deferred (explicit)
 
-- PI-004 `STRIKE_UNREACHABLE_FUEL` alias (GDD vs `STRIKE_UNREACHABLE`)  
-- PI-005 Golden SHA-256 lines  
-- PI-006 Unity manual QA  
+- PI-006 Unity manual QA (`production/qa/c2-manual-signoff-2026-06-02.md`)  
 - Broad architecture refactors (Agent E)
+
+## Completed after merge (2026-06-04)
+
+- **PI-004:** `STRIKE_UNREACHABLE_FUEL` when target is inside combat radius but over fuel budget; `STRIKE_UNREACHABLE` when beyond combat radius.  
+- **PI-005:** `FINGERPRINT_SHA256=` pinned in `replay-golden-baltic-comms` and `replay-golden-baltic-engage`; `ReplayGoldenAssertions` helper.

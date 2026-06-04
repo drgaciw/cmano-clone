@@ -46,30 +46,21 @@ Generated from Phase 1 discovery. Copy into GitHub Issues as needed.
 
 ---
 
-## PI-004 — STRIKE_UNREACHABLE_FUEL (GDD AC-4)
+## PI-004 — STRIKE_UNREACHABLE_FUEL (GDD AC-4) — **Done**
 
 **Affected area:** Validation engine  
-**Symbols:** `ValidationRules.StrikeReachabilityRule`  
-**Risk:** Medium (behavior)  
+**Symbols:** `ReachabilityCalculator.TryClassifyStrikeUnreachable`, `ValidationRules.StrikeReachabilityRule`  
 
-**Problem:** GDD asks for fuel-specific code; engine has `STRIKE_UNREACHABLE` with combat radius + fuel fraction pad.
-
-**Proposed:** Document alias or add `STRIKE_UNREACHABLE_FUEL` when excess is fuel-dominated (separate story).
-
-**Dependencies:** Logistics GDD + platform fuel in catalog
+**Behavior:** Beyond combat radius → `STRIKE_UNREACHABLE`; inside radius but over fuel budget → `STRIKE_UNREACHABLE_FUEL`.
 
 ---
 
-## PI-005 — Replay golden SHA-256 lines
+## PI-005 — Replay golden SHA-256 lines — **Done**
 
 **Affected area:** Regression / replay  
-**Risk:** Low  
 
-**Acceptance criteria**
-
-- [ ] Optional `FINGERPRINT_SHA256=` in golden files for comms/engage scenarios
-
-**Dependencies:** PR #55 merged
+- `FINGERPRINT_SHA256=` in `replay-golden-baltic-comms-2026-06-02.txt` and `replay-golden-baltic-engage-2026-06-02.txt`
+- `ReplayGoldenAssertions.AssertPinnedHashes` (optional SHA line)
 
 ---
 

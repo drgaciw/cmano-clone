@@ -141,18 +141,22 @@ internal static class ValidationRules
                 }
 
                 var distanceNm = ReachabilityCalculator.HaversineNm(unitLat, unitLon, tgtLat, tgtLon);
-                if (!ReachabilityCalculator.IsReachable(
+                if (ReachabilityCalculator.TryClassifyStrikeUnreachable(
                         distanceNm,
                         combatRadiusNm,
                         config.IngressEgressPadNm,
                         config.FuelFraction,
-                        out var excessNm))
+                        out var excessNm,
+                        out var code))
                 {
                     var rounded = Math.Round(excessNm, 1);
+                    var message = string.Equals(code, "STRIKE_UNREACHABLE_FUEL", StringComparison.Ordinal)
+                        ? $"Strike mission '{mission.Id}' target '{targetId}' exceeds fuel range by {rounded} nm."
+                        : $"Strike mission '{mission.Id}' target '{targetId}' is out of combat radius by {rounded} nm.";
                     sink.Add(new ValidationFinding(
-                        "STRIKE_UNREACHABLE",
+                        code,
                         ValidationSeverity.Error,
-                        $"Strike mission '{mission.Id}' target '{targetId}' is out of combat radius by {rounded} nm.",
+                        message,
                         MissionId: mission.Id,
                         UnitId: unitId,
                         TargetId: targetId,

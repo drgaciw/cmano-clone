@@ -56,6 +56,16 @@ public sealed class ScenarioValidationEngineTests
     }
 
     [Fact]
+    public void Strike_within_combat_radius_but_over_fuel_budget_emits_STRIKE_UNREACHABLE_FUEL()
+    {
+        var scenario = StrikeScenario();
+        var report = _engine.Validate(scenario, ValidationCatalogFixture.FuelDominated(), _config);
+        var finding = Assert.Single(report.Findings, f => f.Code == "STRIKE_UNREACHABLE_FUEL");
+        Assert.NotNull(finding.Data);
+        Assert.False(string.IsNullOrEmpty(finding.Data!["excess_nm"]));
+    }
+
+    [Fact]
     public void Mission_no_units_emits_MISSION_NO_UNITS()
     {
         var scenario = new ScenarioDocumentDto
@@ -96,6 +106,9 @@ public sealed class ScenarioValidationEngineTests
         public static ICatalogReader Default() => new ValidationCatalogFixture(500, 200);
 
         public static ICatalogReader Unreachable() => new ValidationCatalogFixture(400, 800);
+
+        /// <summary>~350 nm separation: inside 400 nm combat radius but over 290 nm fuel budget.</summary>
+        public static ICatalogReader FuelDominated() => new ValidationCatalogFixture(400, 350);
 
         public string LayerVersion => "validation-test";
 
