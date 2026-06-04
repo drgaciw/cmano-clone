@@ -10,4 +10,8 @@ public sealed record CatalogSensorBinding(
     string ImportBatchId = "",
     string SourceFile = "",
     string ReviewState = CatalogReviewStates.Approved,
-    int TrlLevel = 9);
+    int TrlLevel = 9,
+    string ValueTier = CatalogProvenanceTier.GameplayAbstraction,
+    string ReviewerId = "",
+    long RevisedUtcTicks = 0,
+    string CitationRef = "");

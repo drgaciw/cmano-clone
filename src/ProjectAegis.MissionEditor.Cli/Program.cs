@@ -35,6 +35,14 @@ switch (command)
         return RunScenarioCyberStatus(args.Skip(1).ToArray());
     case "scenario_near_future_spawn":
         return RunScenarioNearFutureSpawn(args.Skip(1).ToArray());
+    case "catalog_intelligence_run":
+        return RunCatalogIntelligence(args.Skip(1).ToArray());
+    case "catalog_entity_map":
+        return CatalogEntityMapCommand.Run(Console.Out);
+    case "catalog_write_propose":
+        return RunCatalogWritePropose(args.Skip(1).ToArray());
+    case "catalog_write_approve":
+        return RunCatalogWriteApprove(args.Skip(1).ToArray());
     default:
         Console.Error.WriteLine($"Unknown command: {command}");
         PrintUsage();
@@ -301,4 +309,43 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_comms_status --policy baltic-patrol-comms");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_cyber_status --policy baltic-patrol-comms");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_near_future_spawn --path <scenario.json>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_intelligence_run [--db <catalog.db>]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_entity_map");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_propose --db <catalog.db> --platform P --sensor S --base-pd 0.7");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_approve --db <catalog.db> --batch <batchId>");
+}
+
+static int RunCatalogIntelligence(string[] args)
+{
+    var db = CliArgParser.GetFlag(args, "--db");
+    return CatalogIntelligenceRunCommand.Run(db, Console.Out);
+}
+
+static int RunCatalogWritePropose(string[] args)
+{
+    var db = CliArgParser.GetFlag(args, "--db");
+    var platform = CliArgParser.GetFlag(args, "--platform");
+    var sensor = CliArgParser.GetFlag(args, "--sensor");
+    var basePd = CliArgParser.GetDoubleFlag(args, "--base-pd", -1);
+    if (string.IsNullOrWhiteSpace(db) || string.IsNullOrWhiteSpace(platform) ||
+        string.IsNullOrWhiteSpace(sensor) || basePd < 0)
+    {
+        Console.Error.WriteLine("catalog_write_propose requires --db --platform --sensor --base-pd");
+        return 1;
+    }
+
+    return CatalogWriteProposeCommand.Run(db, platform, sensor, basePd, Console.Out);
+}
+
+static int RunCatalogWriteApprove(string[] args)
+{
+    var db = CliArgParser.GetFlag(args, "--db");
+    var batch = CliArgParser.GetFlag(args, "--batch");
+    if (string.IsNullOrWhiteSpace(db) || string.IsNullOrWhiteSpace(batch))
+    {
+        Console.Error.WriteLine("catalog_write_approve requires --db --batch");
+        return 1;
+    }
+
+    return CatalogWriteApproveCommand.Run(db, batch, Console.Out);
 }

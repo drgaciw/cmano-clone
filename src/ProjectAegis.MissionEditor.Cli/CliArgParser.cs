@@ -23,6 +23,15 @@ public static class CliArgParser
         return int.TryParse(raw, out var value) ? value : defaultValue;
     }
 
+    public static double GetDoubleFlag(string[] args, string name, double defaultValue)
+    {
+        var raw = GetFlag(args, name);
+        return double.TryParse(raw, System.Globalization.NumberStyles.Float,
+            System.Globalization.CultureInfo.InvariantCulture, out var value)
+            ? value
+            : defaultValue;
+    }
+
     public static ulong? GetULongFlag(string[] args, string name)
     {
         var raw = GetFlag(args, name);

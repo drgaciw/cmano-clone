@@ -126,6 +126,11 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return true;
         }
 
+        if (file.Contains("005", StringComparison.Ordinal) && TableExists("catalog_change_log"))
+        {
+            return true;
+        }
+
         return false;
     }
 
@@ -156,27 +161,55 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     private CatalogSensorBinding[] LoadSorted()
     {
         using var cmd = _connection.CreateCommand();
-        cmd.CommandText =
-            """
-            SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
-                   import_batch_id, source_file, review_state, trl_level
-            FROM sensor
-            ORDER BY platform_id ASC, sensor_id ASC
-            """;
+        var hasProvenance = TableHasColumn("sensor", "value_tier");
+        cmd.CommandText = hasProvenance
+            ? """
+              SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                     import_batch_id, source_file, review_state, trl_level,
+                     value_tier, reviewer_id, revised_utc_ticks, citation_ref
+              FROM sensor
+              ORDER BY platform_id ASC, sensor_id ASC
+              """
+            : """
+              SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                     import_batch_id, source_file, review_state, trl_level
+              FROM sensor
+              ORDER BY platform_id ASC, sensor_id ASC
+              """;
         using var reader = cmd.ExecuteReader();
         var list = new List<CatalogSensorBinding>();
         while (reader.Read())
         {
-            list.Add(new CatalogSensorBinding(
-                reader.GetString(0),
-                reader.GetString(1),
-                reader.GetDouble(2),
-                reader.GetString(3),
-                reader.GetDouble(4),
-                reader.GetString(5),
-                reader.GetString(6),
-                reader.GetString(7),
-                reader.GetInt32(8)));
+            if (hasProvenance)
+            {
+                list.Add(new CatalogSensorBinding(
+                    reader.GetString(0),
+                    reader.GetString(1),
+                    reader.GetDouble(2),
+                    reader.GetString(3),
+                    reader.GetDouble(4),
+                    reader.GetString(5),
+                    reader.GetString(6),
+                    reader.GetString(7),
+                    reader.GetInt32(8),
+                    CatalogProvenanceTier.Normalize(reader.GetString(9)),
+                    reader.GetString(10),
+                    reader.GetInt64(11),
+                    reader.GetString(12)));
+            }
+            else
+            {
+                list.Add(new CatalogSensorBinding(
+                    reader.GetString(0),
+                    reader.GetString(1),
+                    reader.GetDouble(2),
+                    reader.GetString(3),
+                    reader.GetDouble(4),
+                    reader.GetString(5),
+                    reader.GetString(6),
+                    reader.GetString(7),
+                    reader.GetInt32(8)));
+            }
         }
 
         return list.ToArray();
