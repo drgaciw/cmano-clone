@@ -2,7 +2,8 @@
 
 **Purpose:** Headless substitutes for Unity manual checks where presentation logic lives in `ProjectAegis.Delegation` (milsim QA gate).
 
-**Build:** `main` after Sprints 7–9 P1 closure  
+**Build:** `main` @ `5546c5d` (PI plan completion)  
+**Headless evidence:** `production/qa/pi-006-headless-proxy-2026-06-04.md`  
 **Manual sign-off still required:** `production/qa/c2-manual-signoff-2026-06-02.md` (Editor Play Mode)
 
 ## Automated coverage map
@@ -16,7 +17,7 @@
 | 9 | COMMS DEGRADED → DENIED | `Baltic_patrol_comms_harness_matches_manual_qa_preconditions` |
 | 10 | Hostile dim + ghost | `MapPanelBinderTests.Bind_degraded_comms_*`, `BalticReplayHarnessCommsTests.Comms_scenario_policy_exposes_*` |
 | 11 | Engage denied | `BalticReplayHarnessCommsTests.Comms_denied_appends_policy_denial_*` |
-| 12 | FUEL line | `FuelStateProjectionTests`, scenario `logistics` in `baltic-patrol-comms.policy.json` |
+| 12 | FUEL line | `FuelStateProjectionTests`, `FuelTimelineTrackerTests`, `FuelLedgerTests`, `baltic-patrol-comms.policy.json` |
 
 ## Run gate
 
@@ -26,5 +27,6 @@
 
 ## Verdict
 
-- **Headless proxy:** PASS when all filtered tests green (244 solution total).
+- **Headless proxy:** PASS when all filtered tests green (**283** solution total as of 2026-06-04).
 - **Unity manual:** PENDING until Editor checklist signed.
+- **PI-006 (agentic):** CLOSED via headless proxy; Editor checklist open.

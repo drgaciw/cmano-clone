@@ -257,6 +257,22 @@ Use:
 - `replay-verify`
 - `determinism-audit`
 
+### If the task touches mission validation / strike reachability
+
+Use:
+
+- `ProjectAegis.Data.Validation` + `ScenarioValidationEngineTests`
+- Codes: `STRIKE_UNREACHABLE`, `STRIKE_UNREACHABLE_FUEL` (logistics GDD AC-4)
+- `team-data` if catalog platform rows change
+
+### If the task touches C2 / map (Unity)
+
+Use:
+
+- `team-ui` / `team-unity`
+- Headless proxy first: `tools/unity/Invoke-ManualQaHeadlessGate.ps1`
+- Manual gate: `production/qa/c2-manual-signoff-2026-06-02.md`
+
 ---
 
 ## Verification Commands
@@ -282,7 +298,13 @@ gitnexus_detect_changes()
 Default skill stack for most repo work:
 
 1. `c-sharp-engineer`
-2. `test-helpers`
+2. `test-helpers` + `c-sharp-test-engineer` (NUnit Delegation, xUnit Sim/Data)
 3. GitNexus impact/context
 4. `sqlite-data` for catalog/database work
 5. `smithery.ai@security` for trust-boundary work
+
+**Gameplay/sim PRs:** add `team-simulation` + `replay-verify` before merge.
+
+**Current CI baseline (2026-06-04):** `dotnet test ProjectAegis.sln` → **283** tests; PlayMode smoke **7** tests.
+
+**PI plan:** complete — see `production/agentic/pi-plan-completion-2026-06-04.md`.

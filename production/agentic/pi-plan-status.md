@@ -1,34 +1,37 @@
 # PI TODO Plan — Completion Status
 
+**Verdict:** **COMPLETE** (agentic / headless CI scope) — see `pi-plan-completion-2026-06-04.md`
+
 | Phase | Status | Artifact |
 |-------|--------|----------|
 | 1 Discovery | **Done** | `pi-phase1-discovery.md`, `pi-security-findings.md` |
 | 2 Planning | **Done** | `pi-issue-backlog.md` |
-| 3 Implementation | **Done** | Round-trip tests, SQL whitelist |
-| 4 Verification | **Done** | `pi-verification-2026-06-03.md` |
+| 3 Implementation | **Done** | Round-trip tests, SQL whitelist, PI-004, PI-005 |
+| 4 Verification | **Done** | `pi-verification-2026-06-03.md`, `pi-verification-2026-06-04.md` |
+| 5 PI-006 proxy | **Done** | `production/qa/pi-006-headless-proxy-2026-06-04.md` |
 
 ## Skills review
 
-**Done:** `docs/engineering/pi-skills-recommendations-review.md`
+**Done:** `docs/engineering/pi-skills-recommendations-review.md`, `pi-skills-recommendations.md` (milsim section)
 
 ## Agent checklist
 
 | Agent | Discovery | Implementation |
 |-------|-------------|----------------|
-| A | Test inventory | Regression tests via C round-trips |
+| A | Test inventory | Regression + fuel/replay/validation tests |
 | B | Catalog map | `SqliteCatalogReader` whitelist |
 | C | JSON inventory | `ScenarioPolicyJsonRoundTripTests`, `CatalogJsonRoundTripTests` |
 | D | Security map | `pi-security-findings.md` + SEC-01 fix |
-| E | Architecture map | In `pi-phase1-discovery.md` |
-| F | Issues | `pi-issue-backlog.md` |
-| G | Verify | See verification doc |
+| E | Architecture map | In `pi-phase1-discovery.md` (refactors deferred) |
+| F | Issues | `pi-issue-backlog.md` (all PI items closed or proxied) |
+| G | Verify | `pi-verification-2026-06-04.md` — **283/283** tests |
 
-## Deferred (explicit)
+## Human-only remainder
 
-- PI-006 Unity manual QA (`production/qa/c2-manual-signoff-2026-06-02.md`)  
-- Broad architecture refactors (Agent E)
+- Unity Editor C2 manual checklist: `production/qa/c2-manual-signoff-2026-06-02.md`
+- Cesium spike (Editor)
 
-## Completed after merge (2026-06-04)
+## Merged deliverables (main)
 
-- **PI-004:** `STRIKE_UNREACHABLE_FUEL` when target is inside combat radius but over fuel budget; `STRIKE_UNREACHABLE` when beyond combat radius.  
-- **PI-005:** `FINGERPRINT_SHA256=` pinned in `replay-golden-baltic-comms` and `replay-golden-baltic-engage`; `ReplayGoldenAssertions` helper.
+- PR #56 — PI phases 1–4
+- PR #57 — PI-004 `STRIKE_UNREACHABLE_FUEL`, PI-005 replay SHA-256 goldens

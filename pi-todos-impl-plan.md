@@ -1,6 +1,6 @@
 # Parallel Agentic Development TODO Plan
 
-> **Status (2026-06-03):** Phase 1–4 complete on `stack/pi-agentic-impl`. See `production/agentic/pi-plan-status.md`.
+> **Status (2026-06-04):** **COMPLETE** for agentic/headless scope. Phases 1–5 done on `main` (@ `5546c5d`). See `production/agentic/pi-plan-completion-2026-06-04.md` and `pi-plan-status.md`. Unity Editor C2 manual (PI-006) remains human-only.
 
 ## Purpose
 
@@ -465,10 +465,10 @@ Each agent must return:
 
 A task is done only when:
 
-- [ ] GitNexus impact was checked before editing.
-- [ ] Risk was reported.
-- [ ] Code changes were scoped to the task.
-- [ ] Tests were added or intentionally deferred with reason.
-- [ ] Relevant validation passed.
-- [ ] `gitnexus_detect_changes()` was run before final handoff.
-- [ ] Findings were documented.
+- [x] GitNexus impact was checked before editing (production symbol edits).
+- [x] Risk was reported (PI security + validation docs).
+- [x] Code changes were scoped to the task (PI-001…005 on main).
+- [x] Tests were added or intentionally deferred with reason (PI-006 Editor deferred).
+- [x] Relevant validation passed (**283/283** — `pi-verification-2026-06-04.md`).
+- [ ] `gitnexus_detect_changes()` — run at next code merge (docs-only closure branch).
+- [x] Findings were documented (`production/agentic/*`, `production/qa/pi-006-headless-proxy-2026-06-04.md`).
