@@ -28,6 +28,8 @@ public static partial class AbortReasonCatalog
         public const string WRA_SALVO = "WRA_SALVO";
         public const string BLACK_PROJECT_REQUIRED = "BLACK_PROJECT_REQUIRED";
         public const string TECHNOLOGY_LEVEL_EXCEEDED = "TECHNOLOGY_LEVEL_EXCEEDED";
+        public const string MOUNT_OFFLINE = "MOUNT_OFFLINE";
+        public const string DOMAIN_NO_SOLUTION = "DOMAIN_NO_SOLUTION";
     }
 
     public static class Logistics

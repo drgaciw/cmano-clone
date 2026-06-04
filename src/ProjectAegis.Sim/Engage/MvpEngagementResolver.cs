@@ -89,12 +89,18 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(EngagementAbortReason.MagazineEmpty);
         }
 
+        var domainAbort = CombatDomainValidator.Validate(ctx.CombatDomain, in ctx);
+        if (domainAbort != null)
+        {
+            return EngageResult.Aborted(domainAbort.Value);
+        }
+
         if (!ctx.Envelope.Contains(ctx.RangeMeters))
         {
             return EngageResult.Aborted(EngagementAbortReason.OutOfEnvelope);
         }
 
-        if (DlzEvaluator.Evaluate(ctx.RangeMeters, ctx.Envelope) != DlzState.InZone)
+        if (!DlzEngageGate.AllowsLaunch(ctx.RangeMeters, ctx.Envelope, ctx.DlzPersonality))
         {
             return EngageResult.Aborted(EngagementAbortReason.DlzOut);
         }

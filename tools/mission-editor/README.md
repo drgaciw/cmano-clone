@@ -34,6 +34,12 @@ Validates first, then runs an isolated Baltic harness sample (no shared sim stat
 
 Scenario `metadata` should include `seed` and `policyId` (defaults: `42`, `baltic-patrol-catalog` when `dbRef` is Baltic).
 
+## Mission CRUD + plan suggest (CLI)
+
+```bash
+dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_plan_suggest --intent "patrol and strike baltic"
+```
+
 ## Unity-MCP wiring
 
-Register tools from [`mcp-tools.json`](mcp-tools.json) in the Unity-MCP host, or call the `Invoke-*.ps1` scripts directly — same contract as `design/gdd/agentic-mission-editor.md` §3.7.
+Register tools from [`mcp-tools.json`](mcp-tools.json) (schema v2 — create, mission CRUD, validate, simulate, plan suggest) in the Unity-MCP host, or call `Invoke-MissionEditorMcp.ps1` / `Invoke-*.ps1` directly — same contract as `design/gdd/agentic-mission-editor.md` §3.7.

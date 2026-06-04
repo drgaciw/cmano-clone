@@ -16,7 +16,11 @@ public sealed class ScenarioEngageDefaults
         double pkKill = 1.0,
         int salvoSize = 1,
         int weaponTechnologyLevel = 0,
-        bool weaponRequiresBlackProject = false)
+        bool weaponRequiresBlackProject = false,
+        DlzPersonality dlzPersonality = DlzPersonality.Normal,
+        CombatDomain combatDomain = CombatDomain.Air,
+        bool mountOnline = true,
+        bool contactIdentified = true)
     {
         RangeMeters = rangeMeters;
         EnvelopeMinMeters = envelopeMinMeters;
@@ -29,6 +33,10 @@ public sealed class ScenarioEngageDefaults
         SalvoSize = Math.Max(1, salvoSize);
         WeaponTechnologyLevel = Math.Clamp(weaponTechnologyLevel, 0, 5);
         WeaponRequiresBlackProject = weaponRequiresBlackProject;
+        DlzPersonality = dlzPersonality;
+        CombatDomain = combatDomain;
+        MountOnline = mountOnline;
+        ContactIdentified = contactIdentified;
     }
 
     public double RangeMeters { get; }
@@ -53,6 +61,14 @@ public sealed class ScenarioEngageDefaults
 
     public bool WeaponRequiresBlackProject { get; }
 
+    public DlzPersonality DlzPersonality { get; }
+
+    public CombatDomain CombatDomain { get; }
+
+    public bool MountOnline { get; }
+
+    public bool ContactIdentified { get; }
+
     public EngageContext ToEngageContext(int roundsRemaining) =>
         new(
             RangeMeters,
@@ -64,7 +80,11 @@ public sealed class ScenarioEngageDefaults
             PkKill: PkKill,
             SalvoSize: SalvoSize,
             WeaponTechnologyLevel: WeaponTechnologyLevel,
-            WeaponRequiresBlackProject: WeaponRequiresBlackProject);
+            WeaponRequiresBlackProject: WeaponRequiresBlackProject,
+            DlzPersonality: DlzPersonality,
+            CombatDomain: CombatDomain,
+            MountOnline: MountOnline,
+            ContactIdentified: ContactIdentified);
 
     public static ScenarioEngageDefaults MvpFallback { get; } = new(
         50_000,

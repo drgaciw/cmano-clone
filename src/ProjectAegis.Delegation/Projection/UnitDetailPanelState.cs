@@ -7,4 +7,5 @@ public sealed record UnitDetailPanelState(
     string EmconLine,
     string DoctrineLine,
     string FuelLine,
+    string EngagePreviewLine,
     string ContactLine);

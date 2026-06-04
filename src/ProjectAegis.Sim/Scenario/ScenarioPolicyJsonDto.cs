@@ -236,4 +236,12 @@ public sealed class ScenarioEngageJsonDto
     public int? WeaponTechnologyLevel { get; set; }
 
     public bool? WeaponRequiresBlackProject { get; set; }
+
+    public string? DlzPersonality { get; set; }
+
+    public string? CombatDomain { get; set; }
+
+    public bool? MountOnline { get; set; }
+
+    public bool? ContactIdentified { get; set; }
 }

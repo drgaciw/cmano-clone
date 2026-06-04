@@ -28,7 +28,9 @@
         { "logCode": "TARGET_DESTROYED", "member": "TargetDestroyed" },
         { "logCode": "WRA_SALVO", "member": "WraSalvo" },
         { "logCode": "BLACK_PROJECT_REQUIRED", "member": "BlackProjectRequired" },
-        { "logCode": "TECHNOLOGY_LEVEL_EXCEEDED", "member": "TechnologyLevelExceeded" }
+        { "logCode": "TECHNOLOGY_LEVEL_EXCEEDED", "member": "TechnologyLevelExceeded" },
+        { "logCode": "MOUNT_OFFLINE", "member": "MountOffline" },
+        { "logCode": "DOMAIN_NO_SOLUTION", "member": "DomainNoSolution" }
       ]
     },
     {

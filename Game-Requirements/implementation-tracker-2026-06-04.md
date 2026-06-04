@@ -18,7 +18,7 @@ Completing the full requirements corpus as *shipped game features* is multi-year
 
 ```bash
 dotnet build ProjectAegis.sln
-dotnet test ProjectAegis.sln -v minimal   # 322 tests
+dotnet test ProjectAegis.sln -v minimal   # 331 tests
 pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 ```
 
@@ -36,14 +36,14 @@ pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 | 08 | Agentic Architecture | **Partial** | `ProjectAegis.Sim`, `Delegation`, `architecture.md` | DOTS sensor hot path; sim API export |
 | 09 | Near-Future Technologies | **Partial** | `near_future_archetypes.json`, `CatalogArchetypeGate`, `SwarmTierLimits` | Hypersonic defense layer; CCA runtime spawn |
 | 10 | Speculative Systems | **Partial** | `ScenarioSpeculativeSettings`, `SpeculativeEngageGate`, `speculative_platforms.json`, `baltic-patrol-black-project` fixture | Orbital DEW runtime; escalation ladder events |
-| 11 | Agentic Mission Editor | **Partial** | `mission_update_patrol/strike`, `mission_delete`, MCP pipeline tests | Unity edit mode; NL planner; mcp-tools.json bindings |
+| 11 | Agentic Mission Editor | **Partial** | `mcp-tools.json` v2 (CRUD + plan suggest), `mission_plan_suggest`, `Invoke-MissionEditorMcp.ps1` | Unity edit mode UX; full NL planner |
 | 12 | Terms Glossary | **Partial** | `abort_reason_manifest.json`, Sensor/Cyber families in `AbortReasonCatalog`, alignment tests | UI tooltips; mount-offline abort enum |
 | 13 | Doctrine ROE EMCON WRA | **Partial** | `PolicyEvaluator` WRA salvo, `ResolvedUnitPolicy` mission ROE, `baltic-patrol-mission-roe` / `wra-cap` fixtures | Unity doctrine inheritance panel (ADR-010) |
-| 14 | Engagement & Fire Control | **Partial** | `MvpEngagementResolver.cs`, engage goldens | DLZ personality timing; unit panel preview |
+| 14 | Engagement & Fire Control | **Partial** | `DlzEngageGate`, `DlzPersonality`, `EngagePreviewProjection`, unit panel engage line | Swarm deconfliction; attack options menu |
 | 15 | Sensor Detection & EW | **Partial** | `ReplayGoldenSuite` + `baltic-patrol-stale` golden, contact FSM harness | ECCM Phase 2; datalink delay |
 | 16 | Logistics & Magazines | **Partial** | `AIR_NOT_READY`, `FERRY_UNREACHABLE*`, `UnitReadiness` metadata | Runtime launch gate in sim; UNREP |
 | 17 | Replay AAR & Order Log | **Partial** | `ReplayGoldenSuiteTests`, CI step in `dotnet-reusable.yml`, `tests/regression/README.md` | Scrub UI; AAR agent |
-| 18 | Combat Domains | **Partial** | `CombatOutcomeResolver.cs`, kill checkpoints | Domain validators; mount offline abort |
+| 18 | Combat Domains | **Partial** | `CombatDomainValidator`, `MountOffline`/`DomainNoSolution` abort codes | Mine/land runtime; facility damage |
 | 19 | Cyber & Comms | **Partial** | `CommsOrderDelay`, `CommsTrackStaleness`, `PlayerOrderRecord.ExecuteSimTick`, comms policy fields | MCP comms tools; order-delay queue runtime |
 | 20 | Command & Control UI | **Partial** | Unity C2 hosts, `c2-manual-signoff` | Globe map; close Editor PI-006 checklist |
 
