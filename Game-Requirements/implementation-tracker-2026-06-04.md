@@ -1,6 +1,6 @@
 # Game Requirements — Implementation Tracker
 
-**Base:** `main` @ `714b731`
+**Base:** `main` @ `9e9ac81`
 **Last Updated:** 2026-06-04
 **Index:** [Game-Requirements-Index.md](Game-Requirements-Index.md) | [00-Master-Index.md](../00-Master-Index.md)
 
