@@ -31,6 +31,24 @@ public sealed class ScenarioPolicyTests
     }
 
     [Test]
+    public void Mission_roe_inherits_over_side_default_on_assign()
+    {
+        var profile = new ScenarioPolicyProfile(
+            EffectivePolicy.DefaultFree,
+            missionRoe: new EffectivePolicy(RoeLevel.WeaponsTight),
+            missionUnitIds: ["f1"]);
+        var orchestrator = new DelegationOrchestrator(1) { ScenarioPolicy = profile };
+        var unit = new UnitTarget(new TargetId("f1"));
+        var agent = orchestrator.CreateAgent(
+            new AgentId("a1"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous);
+        orchestrator.AssignAgentToTarget(agent, unit, effectivePolicy: null, isFriendly: true);
+
+        Assert.That(agent.EffectivePolicy.Roe, Is.EqualTo(RoeLevel.WeaponsTight));
+    }
+
+    [Test]
     public void Configurator_applies_scenario_policy_from_catalog()
     {
         var orchestrator = new DelegationOrchestrator(1);

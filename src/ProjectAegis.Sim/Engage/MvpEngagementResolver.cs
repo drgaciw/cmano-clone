@@ -41,21 +41,27 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(EngagementAbortReason.TargetDestroyed);
         }
 
+        if (!_world.TryGetContext(request, out var ctx))
+        {
+            return EngageResult.Aborted(EngagementAbortReason.NoFireControlTrack);
+        }
+
         if (_policyEvaluator != null)
         {
             var effective = _resolvePolicy?.Invoke(request.ShooterUnitId) ?? EffectivePolicy.DefaultFree;
-            var policyCtx = new PolicyContext(request.ShooterUnitId, 0, request.SimTick, effective);
+            var salvoSize = Math.Max(1, ctx.SalvoSize);
+            var policyCtx = new PolicyContext(
+                request.ShooterUnitId,
+                0,
+                request.SimTick,
+                effective,
+                salvoSize);
             var action = new ActionRequest(ActionKind.FireGuided, request.TargetId, request.MountId);
             var verdict = _policyEvaluator.Evaluate(in policyCtx, in action);
             if (!verdict.Allowed)
             {
                 return EngageResult.Aborted(MapPolicyDenial(verdict.Reason));
             }
-        }
-
-        if (!_world.TryGetContext(request, out var ctx))
-        {
-            return EngageResult.Aborted(EngagementAbortReason.NoFireControlTrack);
         }
 
         if (!ctx.RadarEmconActive)
@@ -99,6 +105,7 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         {
             FireAbortReason.RoeHoldFire => EngagementAbortReason.RoeHoldFire,
             FireAbortReason.WeaponsTight => EngagementAbortReason.WeaponsTight,
+            FireAbortReason.WraSalvo => EngagementAbortReason.WraSalvo,
             FireAbortReason.EmconOff => EngagementAbortReason.EmconOff,
             FireAbortReason.NoFireControlTrack => EngagementAbortReason.NoFireControlTrack,
             _ => EngagementAbortReason.RoeHoldFire,

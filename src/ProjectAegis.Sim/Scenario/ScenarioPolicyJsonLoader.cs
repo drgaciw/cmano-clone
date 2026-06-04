@@ -37,18 +37,21 @@ public static class ScenarioPolicyJsonLoader
 
     public static ScenarioPolicyProfile ToProfile(ScenarioPolicyJsonDto dto)
     {
+        var sideMaxSalvo = ResolveMaxSalvo(dto.Engage?.MaxSalvo);
         var overrides = new Dictionary<string, EffectivePolicy>(StringComparer.OrdinalIgnoreCase);
         if (dto.UnitOverrides != null)
         {
             foreach (var pair in dto.UnitOverrides)
             {
-                overrides[pair.Key] = new EffectivePolicy(ParseRoe(pair.Value));
+                overrides[pair.Key] = new EffectivePolicy(ParseRoe(pair.Value), sideMaxSalvo);
             }
         }
 
+        var (missionRoe, missionUnitIds) = ParseMissionPolicy(dto.MissionPolicy, sideMaxSalvo);
+
         return new ScenarioPolicyProfile(
-            new EffectivePolicy(ParseRoe(dto.FriendlyRoe)),
-            new EffectivePolicy(ParseRoe(dto.OpposingRoe)),
+            new EffectivePolicy(ParseRoe(dto.FriendlyRoe), sideMaxSalvo),
+            new EffectivePolicy(ParseRoe(dto.OpposingRoe), sideMaxSalvo),
             overrides,
             ParsePlayerInfoModel(dto.PlayerInfoModel),
             ParsePersonalityEditPolicy(dto.PersonalityEditPolicy),
@@ -65,10 +68,29 @@ public static class ScenarioPolicyJsonLoader
             ParseDelegationSettings(dto.Delegation),
             ParseCommsTransitions(dto.Comms),
             ParseLogistics(dto.Logistics),
-            ParseCommsDisplay(dto.CommsDisplay))
+            ParseCommsDisplay(dto.CommsDisplay),
+            missionRoe,
+            missionUnitIds)
         {
             Id = dto.Id,
         };
+    }
+
+    private static int ResolveMaxSalvo(int? value) =>
+        value is > 0 and var n ? n : EffectivePolicy.DefaultMaxSalvo;
+
+    private static (EffectivePolicy? MissionRoe, IReadOnlyList<string>? MissionUnitIds) ParseMissionPolicy(
+        ScenarioMissionPolicyJsonDto? missionPolicy,
+        int sideMaxSalvo)
+    {
+        if (missionPolicy == null)
+        {
+            return (null, null);
+        }
+
+        var maxSalvo = ResolveMaxSalvo(missionPolicy.MaxSalvo ?? sideMaxSalvo);
+        var roe = new EffectivePolicy(ParseRoe(missionPolicy.Roe), maxSalvo);
+        return (roe, missionPolicy.UnitIds);
     }
 
     private static ScenarioLogisticsSettings ParseLogistics(ScenarioLogisticsJsonDto? logistics) =>

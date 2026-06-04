@@ -6,6 +6,8 @@ using ProjectAegis.Sim.Policy;
 /// <summary>Mission/scenario-level ROE defaults (doc 11 / policy GDD inheritance root).</summary>
 public sealed class ScenarioPolicyProfile
 {
+    private readonly HashSet<string>? _missionUnitIdSet;
+
     public ScenarioPolicyProfile(
         EffectivePolicy friendlyDefault,
         EffectivePolicy? opposingDefault = null,
@@ -25,11 +27,18 @@ public sealed class ScenarioPolicyProfile
         ScenarioDelegationSettings? delegationSettings = null,
         IReadOnlyList<ScenarioCommsTransition>? commsTransitions = null,
         ScenarioLogisticsSettings? logistics = null,
-        ScenarioCommsDisplaySettings? commsDisplay = null)
+        ScenarioCommsDisplaySettings? commsDisplay = null,
+        EffectivePolicy? missionRoe = null,
+        IReadOnlyList<string>? missionUnitIds = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
         UnitOverrides = unitOverrides ?? new Dictionary<string, EffectivePolicy>();
+        MissionRoe = missionRoe;
+        MissionUnitIds = missionUnitIds ?? Array.Empty<string>();
+        _missionUnitIdSet = MissionUnitIds.Count == 0
+            ? null
+            : new HashSet<string>(MissionUnitIds, StringComparer.OrdinalIgnoreCase);
         PlayerInfoModel = playerInfoModel;
         PersonalityEditPolicy = personalityEditPolicy;
         EngageDefaults = engageDefaults;
@@ -90,19 +99,34 @@ public sealed class ScenarioPolicyProfile
 
     public ScenarioCommsDisplaySettings CommsDisplay { get; }
 
+    /// <summary>Mission-level ROE override for assigned units (inherits over side default).</summary>
+    public EffectivePolicy? MissionRoe { get; }
+
+    public IReadOnlyList<string> MissionUnitIds { get; }
+
     public EngageContext ResolveEngageContext()
     {
         var defaults = EngageDefaults ?? ScenarioEngageDefaults.MvpFallback;
         return defaults.ToEngageContext(defaults.DefaultMagazineRounds);
     }
 
-    public EffectivePolicy ResolveForUnit(string unitKey, bool isFriendly)
+    public ResolvedUnitPolicy ResolveUnitPolicy(string unitKey, bool isFriendly)
     {
         if (UnitOverrides.TryGetValue(unitKey, out var over))
         {
-            return over;
+            return new ResolvedUnitPolicy(over, RoeInheritedFromMission: false);
         }
 
-        return isFriendly ? FriendlyDefault : OpposingDefault;
+        if (MissionRoe != null && _missionUnitIdSet != null && _missionUnitIdSet.Contains(unitKey))
+        {
+            return new ResolvedUnitPolicy(MissionRoe.Value, RoeInheritedFromMission: true);
+        }
+
+        return new ResolvedUnitPolicy(
+            isFriendly ? FriendlyDefault : OpposingDefault,
+            RoeInheritedFromMission: false);
     }
+
+    public EffectivePolicy ResolveForUnit(string unitKey, bool isFriendly) =>
+        ResolveUnitPolicy(unitKey, isFriendly).Effective;
 }

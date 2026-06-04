@@ -97,6 +97,23 @@ public sealed class ScenarioPolicyJsonLoaderTests
     }
 
     [Fact]
+    public void Loads_mission_roe_and_wra_cap_fixtures()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var missionPath = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-mission-roe.policy.json");
+        var missionProfile = ScenarioPolicyJsonLoader.LoadFromFile(missionPath);
+        var missionUnit = missionProfile.ResolveUnitPolicy("u1", isFriendly: true);
+        Assert.Equal(RoeLevel.WeaponsTight, missionUnit.Effective.Roe);
+        Assert.True(missionUnit.HasInheritedDoctrineFromMission);
+
+        var wraPath = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-wra-cap.policy.json");
+        var wraProfile = ScenarioPolicyJsonLoader.LoadFromFile(wraPath);
+        Assert.Equal(1, wraProfile.FriendlyDefault.MaxSalvo);
+        Assert.Equal(2, wraProfile.EngageDefaults!.SalvoSize);
+    }
+
+    [Fact]
     public void Loads_baltic_patrol_comms_logistics_and_display_settings()
     {
         var repoRoot = FindRepoRoot();

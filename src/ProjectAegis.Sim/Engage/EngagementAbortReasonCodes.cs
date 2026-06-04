@@ -21,6 +21,7 @@ public static class EngagementAbortReasonCodes
             EngagementAbortReason.RoeHoldFire => nameof(FireAbortReason.RoeHoldFire),
             EngagementAbortReason.WeaponsTight => nameof(FireAbortReason.WeaponsTight),
             EngagementAbortReason.TargetDestroyed => nameof(EngagementAbortReason.TargetDestroyed),
+            EngagementAbortReason.WraSalvo => nameof(FireAbortReason.WraSalvo),
             _ => reason.ToString(),
         };
 }
