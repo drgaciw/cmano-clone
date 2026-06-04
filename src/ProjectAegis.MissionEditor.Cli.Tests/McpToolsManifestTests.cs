@@ -14,6 +14,7 @@ public sealed class McpToolsManifestTests
         "mission_update_strike",
         "mission_delete",
         "mission_plan_suggest",
+        "scenario_comms_status",
         "scenario_validate",
         "scenario_export_brief",
         "scenario_simulate_sample",

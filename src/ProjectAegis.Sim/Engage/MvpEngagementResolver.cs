@@ -74,6 +74,11 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             }
         }
 
+        if (!ctx.AirOperationsReady)
+        {
+            return EngageResult.Aborted(EngagementAbortReason.AirNotReady);
+        }
+
         if (!ctx.RadarEmconActive)
         {
             return EngageResult.Aborted(EngagementAbortReason.EmconOff);

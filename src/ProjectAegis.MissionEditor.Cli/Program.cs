@@ -29,6 +29,8 @@ switch (command)
         return RunMissionDelete(args.Skip(1).ToArray());
     case "mission_plan_suggest":
         return RunMissionPlanSuggest(args.Skip(1).ToArray());
+    case "scenario_comms_status":
+        return RunScenarioCommsStatus(args.Skip(1).ToArray());
     default:
         Console.Error.WriteLine($"Unknown command: {command}");
         PrintUsage();
@@ -240,6 +242,12 @@ static int RunMissionPlanSuggest(string[] args)
     return MissionPlanSuggestCommand.Run(intent, Console.Out);
 }
 
+static int RunScenarioCommsStatus(string[] args)
+{
+    var policyId = CliArgParser.GetFlag(args, "--policy");
+    return ScenarioCommsStatusCommand.Run(policyId, Console.Out);
+}
+
 static int RunMissionDelete(string[] args)
 {
     var path = CliArgParser.GetFlag(args, "--path");
@@ -268,4 +276,5 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export_brief --path <scenario.json> [--out brief.md]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_simulate_sample --path <scenario.json> [--ticks N]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_plan_suggest --intent \"patrol and strike baltic\"");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_comms_status --policy baltic-patrol-comms");
 }

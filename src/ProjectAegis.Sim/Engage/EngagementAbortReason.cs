@@ -16,4 +16,5 @@ public enum EngagementAbortReason
     TechnologyLevelExceeded = 11,
     MountOffline = 12,
     DomainNoSolution = 13,
+    AirNotReady = 14,
 }

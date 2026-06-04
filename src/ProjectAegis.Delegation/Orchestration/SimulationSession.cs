@@ -115,6 +115,19 @@ public sealed class SimulationSession
         var commsBlocksEngage = CommsStateProjection.BlocksNewEngagement(
             CommsStateProjection.Project(Orchestrator.DecisionLog).State);
         var queued = new List<(Order Order, TargetId Victim)>();
+        var deconflictSlots = new List<SwarmSalvoDeconfliction.Slot>(engageOrders.Length);
+        foreach (var order in engageOrders)
+        {
+            var victimId = state.PrimaryHostileContactId ?? new TargetId("hostile-1");
+            deconflictSlots.Add(new SwarmSalvoDeconfliction.Slot(
+                OrderActionMapper.TargetIdToUlong(order.Target),
+                OrderActionMapper.TargetIdToUlong(victimId)));
+        }
+
+        var acceptedSlots = SwarmSalvoDeconfliction.Allocate(deconflictSlots);
+        var acceptedPairs = new HashSet<(ulong Shooter, ulong Target)>(
+            acceptedSlots.Select(s => (s.ShooterUnitId, s.TargetId)));
+
         foreach (var order in engageOrders)
         {
             if (commsBlocksEngage)
@@ -132,6 +145,12 @@ public sealed class SimulationSession
             }
 
             var victim = state.PrimaryHostileContactId ?? new TargetId("hostile-1");
+            var shooterId = OrderActionMapper.TargetIdToUlong(order.Target);
+            var targetId = OrderActionMapper.TargetIdToUlong(victim);
+            if (!acceptedPairs.Contains((shooterId, targetId)))
+            {
+                continue;
+            }
 
             var request = new EngageRequest(
                 OrderActionMapper.TargetIdToUlong(order.Target),

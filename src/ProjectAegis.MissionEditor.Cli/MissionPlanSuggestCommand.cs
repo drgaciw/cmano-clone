@@ -39,6 +39,39 @@ public static class MissionPlanSuggestCommand
             });
         }
 
+        if (normalized.Contains("baltic", StringComparison.Ordinal))
+        {
+            suggestions.Add(new
+            {
+                tool = "scenario_create",
+                policyId = "baltic-patrol",
+                seed = 42,
+                note = "Baltic vertical-slice policy preset",
+            });
+        }
+
+        if (normalized.Contains("roe", StringComparison.Ordinal) || normalized.Contains("doctrine", StringComparison.Ordinal))
+        {
+            suggestions.Add(new
+            {
+                tool = "scenario_validate",
+                policyId = "baltic-patrol-mission-roe",
+                note = "Validate mission ROE inheritance fixture after edits",
+            });
+        }
+
+        if (normalized.Contains("comms", StringComparison.Ordinal) || normalized.Contains("ew", StringComparison.Ordinal))
+        {
+            suggestions.Add(new
+            {
+                tool = "scenario_comms_status",
+                policyId = normalized.Contains("comms", StringComparison.Ordinal)
+                    ? "baltic-patrol-comms"
+                    : "baltic-patrol",
+                note = "Inspect comms display + timeline before simulate",
+            });
+        }
+
         if (suggestions.Count == 0)
         {
             suggestions.Add(new

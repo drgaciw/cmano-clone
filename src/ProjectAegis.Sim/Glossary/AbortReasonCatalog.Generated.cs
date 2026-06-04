@@ -30,6 +30,7 @@ public static partial class AbortReasonCatalog
         public const string TECHNOLOGY_LEVEL_EXCEEDED = "TECHNOLOGY_LEVEL_EXCEEDED";
         public const string MOUNT_OFFLINE = "MOUNT_OFFLINE";
         public const string DOMAIN_NO_SOLUTION = "DOMAIN_NO_SOLUTION";
+        public const string AIR_NOT_READY = "AIR_NOT_READY";
     }
 
     public static class Logistics

@@ -152,15 +152,17 @@ public sealed class DelegationBridge
         }
 
         var resolvedRisk = risk ?? DefaultRiskClassifier.Classify(kind);
-        human.Enqueue(new Order(
-            new OrderId(0),
-            binding.TargetId,
-            simTime,
-            kind,
-            resolvedRisk));
         var simTick = (ulong)Math.Max(0, (long)simTime);
         var commsDisplay = Orchestrator.ScenarioPolicy?.CommsDisplay ?? ScenarioCommsDisplaySettings.Default;
         var executeTick = CommsOrderDelay.ComputeExecuteSimTick(simTick, CurrentCommsState, commsDisplay);
+        human.Enqueue(
+            new Order(
+                new OrderId(0),
+                binding.TargetId,
+                simTime,
+                kind,
+                resolvedRisk),
+            executeTick);
         Orchestrator.DecisionLog.AppendPlayerOrder(new PlayerOrderRecord(
             0,
             simTime,
