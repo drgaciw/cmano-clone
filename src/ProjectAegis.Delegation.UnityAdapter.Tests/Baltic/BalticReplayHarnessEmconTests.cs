@@ -1,4 +1,5 @@
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
+using ProjectAegis.Sim.Glossary;
 using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Baltic;
@@ -11,6 +12,6 @@ public sealed class BalticReplayHarnessEmconTests
     {
         var result = BalticReplayHarness.Run(7, "baltic-patrol-emcon-off", ticks: 2);
         Assert.That(result.Fingerprint, Does.Not.Contain("ContactChange|"));
-        Assert.That(result.Fingerprint, Does.Contain("EmconOff"));
+        Assert.That(result.Fingerprint, Does.Contain(AbortReasonCatalog.Doctrine.EMCON_OFF));
     }
 }

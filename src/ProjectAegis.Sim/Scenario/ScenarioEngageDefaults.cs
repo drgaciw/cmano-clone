@@ -14,7 +14,9 @@ public sealed class ScenarioEngageDefaults
         double pkBase = 0.85,
         double pkIntercept = 0.0,
         double pkKill = 1.0,
-        int salvoSize = 1)
+        int salvoSize = 1,
+        int weaponTechnologyLevel = 0,
+        bool weaponRequiresBlackProject = false)
     {
         RangeMeters = rangeMeters;
         EnvelopeMinMeters = envelopeMinMeters;
@@ -25,6 +27,8 @@ public sealed class ScenarioEngageDefaults
         PkIntercept = pkIntercept;
         PkKill = pkKill;
         SalvoSize = Math.Max(1, salvoSize);
+        WeaponTechnologyLevel = Math.Clamp(weaponTechnologyLevel, 0, 5);
+        WeaponRequiresBlackProject = weaponRequiresBlackProject;
     }
 
     public double RangeMeters { get; }
@@ -45,6 +49,10 @@ public sealed class ScenarioEngageDefaults
 
     public int SalvoSize { get; }
 
+    public int WeaponTechnologyLevel { get; }
+
+    public bool WeaponRequiresBlackProject { get; }
+
     public EngageContext ToEngageContext(int roundsRemaining) =>
         new(
             RangeMeters,
@@ -54,7 +62,9 @@ public sealed class ScenarioEngageDefaults
             PkBase: PkBase,
             PkIntercept: PkIntercept,
             PkKill: PkKill,
-            SalvoSize: SalvoSize);
+            SalvoSize: SalvoSize,
+            WeaponTechnologyLevel: WeaponTechnologyLevel,
+            WeaponRequiresBlackProject: WeaponRequiresBlackProject);
 
     public static ScenarioEngageDefaults MvpFallback { get; } = new(
         50_000,

@@ -8,6 +8,7 @@ using ProjectAegis.Delegation.Tests.Helpers;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
 
@@ -27,8 +28,8 @@ public sealed class EngagementOrderLogContractTests
         session.Tick(MvpObservedStates.EngageTick(0));
 
         var entry = session.Orchestrator.DecisionLog.Engagements[0];
-        Assert.That(entry.AbortReasonCode, Is.EqualTo(nameof(EngagementAbortReason.OutOfEnvelope))
-            .Or.EqualTo(nameof(EngagementAbortReason.DlzOut)));
+        Assert.That(entry.AbortReasonCode, Is.EqualTo(AbortReasonCatalog.Engage.OUT_OF_ENVELOPE)
+            .Or.EqualTo(AbortReasonCatalog.Engage.DLZ_OUT));
         Assert.That(entry.AbortReason, Is.EqualTo(entry.AbortReasonCode));
 
         var fingerprint = session.Orchestrator.DecisionLog.ComputeFingerprint();
@@ -48,7 +49,7 @@ public sealed class EngagementOrderLogContractTests
         session.Tick(MvpObservedStates.EngageTick(0, radarEmconActive: false));
 
         Assert.That(session.Orchestrator.DecisionLog.Engagements[0].AbortReasonCode,
-            Is.EqualTo(nameof(FireAbortReason.EmconOff)));
+            Is.EqualTo(AbortReasonCatalog.Doctrine.EMCON_OFF));
     }
 
     [Test]
@@ -63,7 +64,7 @@ public sealed class EngagementOrderLogContractTests
         session.Tick(MvpObservedStates.EngageTick(0, contactCount: 1, hasFireControlTrack: false));
 
         Assert.That(session.Orchestrator.DecisionLog.Engagements[0].AbortReasonCode,
-            Is.EqualTo(nameof(EngagementAbortReason.NoFireControlTrack)));
+            Is.EqualTo(AbortReasonCatalog.Engage.NO_FIRE_CONTROL_TRACK));
     }
 
     [Test]

@@ -2,6 +2,7 @@ namespace ProjectAegis.Sim.Engage;
 
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
 
 /// <summary>MVP resolver: policy, fire-control track, envelope/DLZ, magazine consumption, combat outcome.</summary>
 public sealed class MvpEngagementResolver : IEngagementResolver
@@ -12,6 +13,7 @@ public sealed class MvpEngagementResolver : IEngagementResolver
     private readonly IPolicyEvaluator? _policyEvaluator;
     private readonly Func<ulong, EffectivePolicy>? _resolvePolicy;
     private readonly KilledTargetRegistry _killedTargets;
+    private readonly ScenarioSpeculativeSettings _speculative;
     private ulong _nextEngagementId = 1;
 
     public MvpEngagementResolver(
@@ -20,7 +22,8 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         IPolicyEvaluator? policyEvaluator = null,
         Func<ulong, EffectivePolicy>? resolvePolicy = null,
         SimSeed? seed = null,
-        KilledTargetRegistry? killedTargets = null)
+        KilledTargetRegistry? killedTargets = null,
+        ScenarioSpeculativeSettings? speculative = null)
     {
         _seed = seed ?? SimSeed.FromScenario(0);
         _world = world;
@@ -28,6 +31,7 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         _policyEvaluator = policyEvaluator;
         _resolvePolicy = resolvePolicy;
         _killedTargets = killedTargets ?? new KilledTargetRegistry();
+        _speculative = speculative ?? ScenarioSpeculativeSettings.CampaignDefault;
     }
 
     public MagazineLedger Magazines => _magazines;
@@ -44,6 +48,12 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         if (!_world.TryGetContext(request, out var ctx))
         {
             return EngageResult.Aborted(EngagementAbortReason.NoFireControlTrack);
+        }
+
+        var speculativeAbort = SpeculativeEngageGate.Evaluate(_speculative, in ctx);
+        if (speculativeAbort != null)
+        {
+            return EngageResult.Aborted(speculativeAbort.Value);
         }
 
         if (_policyEvaluator != null)

@@ -8,6 +8,7 @@ using ProjectAegis.Delegation.Tests.Helpers;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
 
@@ -61,7 +62,7 @@ public sealed class MagazineChangeOrderLogTests
         Assert.That(session.Orchestrator.DecisionLog.MagazineChanges, Has.Count.EqualTo(2));
         Assert.That(
             session.Orchestrator.DecisionLog.Engagements.Any(e =>
-                !e.Launched && e.AbortReasonCode == nameof(EngagementAbortReason.MagazineEmpty)),
+                !e.Launched && e.AbortReasonCode == AbortReasonCatalog.Engage.NO_AMMO),
             Is.True);
     }
 

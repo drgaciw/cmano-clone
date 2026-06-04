@@ -70,11 +70,19 @@ public static class ScenarioPolicyJsonLoader
             ParseLogistics(dto.Logistics),
             ParseCommsDisplay(dto.CommsDisplay),
             missionRoe,
-            missionUnitIds)
+            missionUnitIds,
+            ParseSpeculative(dto.Speculative))
         {
             Id = dto.Id,
         };
     }
+
+    private static ScenarioSpeculativeSettings ParseSpeculative(ScenarioSpeculativeJsonDto? speculative) =>
+        speculative == null
+            ? ScenarioSpeculativeSettings.CampaignDefault
+            : new ScenarioSpeculativeSettings(
+                speculative.BlackProjectMode ?? false,
+                speculative.MaxTechnologyLevel ?? ScenarioSpeculativeSettings.CampaignDefault.MaxTechnologyLevel);
 
     private static int ResolveMaxSalvo(int? value) =>
         value is > 0 and var n ? n : EffectivePolicy.DefaultMaxSalvo;
@@ -260,7 +268,9 @@ public static class ScenarioPolicyJsonLoader
                 engage.PkBase,
                 engage.PkIntercept,
                 engage.PkKill,
-                engage.SalvoSize);
+                engage.SalvoSize,
+                engage.WeaponTechnologyLevel ?? 0,
+                engage.WeaponRequiresBlackProject ?? false);
 
     private static RoeLevel ParseRoe(string value) =>
         Enum.TryParse<RoeLevel>(value, ignoreCase: true, out var roe)

@@ -8,6 +8,7 @@ using ProjectAegis.Delegation.Tests.Helpers;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
 
@@ -61,7 +62,8 @@ public sealed class SimulationSessionMvpTests
             .Where(e => !e.Launched)
             .ToList();
         Assert.That(aborted, Is.Not.Empty);
-        Assert.That(aborted[0].AbortReason, Does.Contain("OutOfEnvelope").Or.Contain("DlzOut"));
+        Assert.That(aborted[0].AbortReason, Is.EqualTo(AbortReasonCatalog.Engage.OUT_OF_ENVELOPE)
+            .Or.EqualTo(AbortReasonCatalog.Engage.DLZ_OUT));
     }
 
     [Test]

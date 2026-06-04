@@ -29,7 +29,8 @@ public sealed class ScenarioPolicyProfile
         ScenarioLogisticsSettings? logistics = null,
         ScenarioCommsDisplaySettings? commsDisplay = null,
         EffectivePolicy? missionRoe = null,
-        IReadOnlyList<string>? missionUnitIds = null)
+        IReadOnlyList<string>? missionUnitIds = null,
+        ScenarioSpeculativeSettings? speculative = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -55,6 +56,7 @@ public sealed class ScenarioPolicyProfile
         CommsTransitions = commsTransitions ?? Array.Empty<ScenarioCommsTransition>();
         Logistics = logistics ?? ScenarioLogisticsSettings.Default;
         CommsDisplay = commsDisplay ?? ScenarioCommsDisplaySettings.Default;
+        Speculative = speculative ?? ScenarioSpeculativeSettings.CampaignDefault;
     }
 
     public string Id { get; init; } = "";
@@ -103,6 +105,8 @@ public sealed class ScenarioPolicyProfile
     public EffectivePolicy? MissionRoe { get; }
 
     public IReadOnlyList<string> MissionUnitIds { get; }
+
+    public ScenarioSpeculativeSettings Speculative { get; }
 
     public EngageContext ResolveEngageContext()
     {
