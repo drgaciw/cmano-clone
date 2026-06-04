@@ -1,6 +1,7 @@
 # Milestone: Post-MVP Requirements Program (Sprints 11–15)
 
-**Target:** 2026-07-01 → 2026-08-15  
+**Status:** **COMPLETE** (2026-06-04) — branch `feat/wave5-attack-readiness-spoof`  
+**Target:** 2026-07-01 → 2026-08-15 (accelerated execution)  
 **Type:** Requirements maturity (docs 01–12) + Wave-5 gameplay implementation (req 14, 16, 19, 20)  
 **Indexed:** GitNexus `cmano-clone` (refresh with `npx gitnexus analyze` per sprint)  
 **Tracker:** [Game-Requirements/implementation-tracker-2026-06-04.md](../../Game-Requirements/implementation-tracker-2026-06-04.md)  

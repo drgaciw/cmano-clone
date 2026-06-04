@@ -453,7 +453,47 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 15
+current_sprint: null
+requirements_program: complete
+requirements_program_completed: "2026-06-04"
+next_backlog: production/sprints/sprint-16-backlog.md
+
+sprint: 15
+goal: "Docs 07-08-12 + RTM gate + program exit"
+start: "2026-06-04"
+end: "2026-08-13"
+status: complete
+completed: "2026-06-04"
+branch: feat/wave5-attack-readiness-spoof
+evidence:
+  - production/agentic/sprint-15-parallel-kickoff-2026-06-04.md
+  - production/qa/sprint-15-design-review-2026-06-04.md
+  - docs/reports/requirements-consistency-2026-06-04.md
+  - docs/architecture/requirements-traceability.md
+sprint15_stories:
+  - id: req-maturity-004
+    status: done
+    note: "completed Sprint 13 retro"
+  - id: req-maturity-005
+    status: done
+    note: "completed Sprint 13 retro"
+  - id: req-maturity-006
+    status: done
+    note: "completed Sprint 14 retro"
+  - id: req-maturity-007
+    status: done
+    completed: "2026-06-04"
+    note: "12-Terms-Glossary Locked"
+  - id: s15-consistency
+    status: done
+    note: "0 BLOCKER"
+  - id: s15-rtm
+    status: done
+    note: "RTM rows 01-12"
+worktrees:
+  - .worktrees/sprint15-req-07 → stack/sprint15-req-07
+  - .worktrees/sprint15-req-08 → stack/sprint15-req-08
+  - .worktrees/sprint15-req-12 → stack/sprint15-req-12
 
 sprint: 14
 goal: "Requirements doc 06 (database intelligence)"
