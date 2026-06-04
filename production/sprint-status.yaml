@@ -527,15 +527,30 @@ status: in-progress
 branch: main
 kickoff: production/sprints/sprint-18-kickoff.md
 sprint18_tasks:
+  - id: s18-smoke-refresh
+    status: done
+    completed: "2026-06-04"
+    note: "production/qa/smoke-2026-06-04.md @ 0ef5c89 baseline"
+  - id: s18-ci-local-gate
+    status: done
+    completed: "2026-06-04"
+    note: "production/qa/sprint-18-ci-local-gate-2026-06-04.md"
   - id: s18-c2-signoff
     status: ready-for-dev
-    note: "13-check manual QA incl. attack menu — production/qa/c2-manual-signoff-2026-06-02.md"
+    note: "Runbook production/qa/sprint-18-c2-signoff-runbook-2026-06-04.md — human Editor"
   - id: s18-osint-spike
-    status: backlog
-    note: "doc 05 OSINT agent — production/sprints/sprint-16-backlog.md theme 1"
+    status: done
+    completed: "2026-06-04"
+    note: "PROCEED — OsintProposalGate + production/agentic/sprint-18-osint-spike-2026-06-04.md"
   - id: s18-catalog-phase2
-    status: backlog
-    note: "bulk CMO markdown import CLI after P0"
+    status: done
+    completed: "2026-06-04"
+    note: "Plan docs/superpowers/plans/2026-06-04-catalog-phase2-import.md — impl P2-1 next"
+tests_passed: 382
+worktrees:
+  - .worktrees/sprint18-qa-signoff → stack/sprint18/qa-signoff-docs
+  - .worktrees/sprint18-osint-spike → stack/sprint18/osint-spike
+  - .worktrees/sprint18-catalog-phase2 → stack/sprint18/catalog-phase2-plan
 
 sprint: 15
 goal: "Docs 07-08-12 + RTM gate + program exit"
