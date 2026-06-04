@@ -13,6 +13,7 @@ public static class UnitDetailPanelBinder
                 "EMCON: —",
                 "DOCTRINE: —",
                 "FUEL: —",
+                "ENGAGE: —",
                 contactLine ?? "CONTACT: —");
         }
 
@@ -23,6 +24,7 @@ public static class UnitDetailPanelBinder
             entry.EmconLabel,
             entry.DoctrineLabel,
             entry.FuelLabel,
+            entry.EngagePreviewLabel,
             contactLine ?? "CONTACT: —");
     }
 }

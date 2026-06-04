@@ -8,4 +8,5 @@ public sealed record UnitDetailEntry(
     string MagazineLabel,
     string EmconLabel,
     string DoctrineLabel,
-    string FuelLabel);
+    string FuelLabel,
+    string EngagePreviewLabel);

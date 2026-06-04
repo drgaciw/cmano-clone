@@ -19,6 +19,8 @@ public static class UnitDetailProjection
         var magazineLabel = ResolveMagazineLabel(unitId, log);
         var emconLabel = ResolveEmconLabel(unitId.Value, policy, observerUnitId);
         var doctrineLabel = ResolveDoctrineLabel(unitId.Value, policy);
+        var engagePreview = EngagePreviewProjection.Project(policy?.EngageDefaults);
+        var engageLabel = FormatEngagePreview(engagePreview);
         var alive = isAlive(unitId);
         return new UnitDetailEntry(
             unitId.Value,
@@ -30,7 +32,8 @@ public static class UnitDetailProjection
             FuelStateProjection.FormatUnitFuelLine(
                 unitId.Value,
                 simTimeSeconds,
-                policy?.Logistics ?? ScenarioLogisticsSettings.Default));
+                policy?.Logistics ?? ScenarioLogisticsSettings.Default),
+            engageLabel);
     }
 
     public static UnitDetailEntry? ProjectPrimary(
@@ -86,5 +89,12 @@ public static class UnitDetailProjection
         var resolved = policy.ResolveUnitPolicy(unitId, isFriendly: true);
         var suffix = resolved.HasInheritedDoctrineFromMission ? " (mission)" : "";
         return $"DOCTRINE: {resolved.Effective.Roe}{suffix}";
+    }
+
+    private static string FormatEngagePreview(EngagePreview preview)
+    {
+        var abort = preview.AbortPreviewCode == null ? "—" : preview.AbortPreviewCode;
+        var fire = preview.CanFire ? "READY" : "BLOCKED";
+        return $"ENGAGE: {preview.DlzLabel} | {fire} | {abort}";
     }
 }

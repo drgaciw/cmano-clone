@@ -14,4 +14,6 @@ public enum EngagementAbortReason
     WraSalvo = 9,
     BlackProjectRequired = 10,
     TechnologyLevelExceeded = 11,
+    MountOffline = 12,
+    DomainNoSolution = 13,
 }

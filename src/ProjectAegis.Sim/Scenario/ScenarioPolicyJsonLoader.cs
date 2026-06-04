@@ -1,6 +1,7 @@
 namespace ProjectAegis.Sim.Scenario;
 
 using System.Text.Json;
+using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 
 public static class ScenarioPolicyJsonLoader
@@ -275,7 +276,11 @@ public static class ScenarioPolicyJsonLoader
                 engage.PkKill,
                 engage.SalvoSize,
                 engage.WeaponTechnologyLevel ?? 0,
-                engage.WeaponRequiresBlackProject ?? false);
+                engage.WeaponRequiresBlackProject ?? false,
+                DlzPersonalityParser.Parse(engage.DlzPersonality),
+                CombatDomainParser.Parse(engage.CombatDomain),
+                engage.MountOnline ?? true,
+                engage.ContactIdentified ?? true);
 
     private static RoeLevel ParseRoe(string value) =>
         Enum.TryParse<RoeLevel>(value, ignoreCase: true, out var roe)

@@ -11,4 +11,8 @@ public readonly record struct EngageContext(
     double PkKill = 1.0,
     int SalvoSize = 1,
     int WeaponTechnologyLevel = 0,
-    bool WeaponRequiresBlackProject = false);
+    bool WeaponRequiresBlackProject = false,
+    DlzPersonality DlzPersonality = DlzPersonality.Normal,
+    CombatDomain CombatDomain = CombatDomain.Air,
+    bool MountOnline = true,
+    bool ContactIdentified = true);

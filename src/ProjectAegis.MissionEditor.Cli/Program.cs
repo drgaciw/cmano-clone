@@ -27,6 +27,8 @@ switch (command)
         return RunMissionUpdateStrike(args.Skip(1).ToArray());
     case "mission_delete":
         return RunMissionDelete(args.Skip(1).ToArray());
+    case "mission_plan_suggest":
+        return RunMissionPlanSuggest(args.Skip(1).ToArray());
     default:
         Console.Error.WriteLine($"Unknown command: {command}");
         PrintUsage();
@@ -226,6 +228,18 @@ static int RunMissionUpdateStrike(string[] args)
         Console.Out);
 }
 
+static int RunMissionPlanSuggest(string[] args)
+{
+    var intent = CliArgParser.GetFlag(args, "--intent");
+    if (string.IsNullOrWhiteSpace(intent))
+    {
+        Console.Error.WriteLine("mission_plan_suggest requires --intent <text>");
+        return 1;
+    }
+
+    return MissionPlanSuggestCommand.Run(intent, Console.Out);
+}
+
 static int RunMissionDelete(string[] args)
 {
     var path = CliArgParser.GetFlag(args, "--path");
@@ -253,4 +267,5 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_validate --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export_brief --path <scenario.json> [--out brief.md]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_simulate_sample --path <scenario.json> [--ticks N]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_plan_suggest --intent \"patrol and strike baltic\"");
 }
