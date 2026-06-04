@@ -1,16 +1,17 @@
 # GitNexus + filesystem snapshot for dashboard delta comparison.
-# Updated by /project-dashboard skill and Cursor Automation (09:00 / 21:00).
+# Updated by /project-dashboard 2026-06-04 pm.
 
 last_run:
-  timestamp: "2026-06-02T09:58:00Z"
-  label: sprint1-close-sprint2-prep
+  timestamp: "2026-06-04T19:52:00Z"
+  label: pm
+  compared_to_baseline: docs/reports/dashboard-snapshots/2026-05-31-initial.md
 
 gitnexus:
-  indexed_commit: "1f7423e"
-  nodes: 3462
-  edges: 8239
-  clusters: 67
-  flows: 197
+  indexed_commit: "ff49ef2"
+  nodes: 6220
+  edges: 15105
+  clusters: 157
+  flows: 300
   index_status: fresh
   changed_symbols_count: null
   affected_processes_count: null
@@ -19,26 +20,29 @@ gitnexus:
     DecisionLog: HIGH
     DelegationOrchestrator: HIGH
     SimTickPipeline: LOW
+    SqliteCatalogReader: CRITICAL
 
 filesystem:
-  sprint_plans: 2
+  sprint_plans: 10
   sprint_status_yaml: true
   stage_txt: true
   milestones: 1
-  epics: 12
-  stories: 21
-  tests_total: 181
-  gdd_files: 10
-  gdd_systems_with_docs: 6
+  epics: 15
+  stories: 27
+  tests_total: 351
+  gdd_files: 15
+  gdd_systems_with_docs: 12
   gdd_systems_total: 20
-  adrs: 5
-  architecture_files: 7
-  production_files: 2
-  determinism_audits: 1
-  test_files: 70
-  source_files: 152
+  adrs: 10
+  architecture_files: 12
+  production_qa_files: 6
+  determinism_audits: 2
+  test_files: 207
+  source_files: 368
   requirements_files: 26
   asset_manifest_exists: false
+  vertical_slice_gate: PROCEED
+  implementation_tracker: Game-Requirements/implementation-tracker-2026-06-04.md
 
 plans:
   simulation_modes_decisions:
@@ -47,7 +51,6 @@ plans:
   delegation_graphite_stack:
     complete: 10
     open: 0
-    note: DELEG-1–10 on main; stale local branches pending delete
   phase_gate_loop_policy:
     complete: 6
     open: 1
@@ -57,7 +60,14 @@ plans:
     note: stale — implementation largely complete
 
 sprint:
-  current: 2
-  sprint1_stories_done: 20
-  sprint2_plan: production/sprints/sprint-2-sensor-c2.md
-  merge_milsim_c1: done
+  current: requirements-wave
+  sprints_headless_complete: 10
+  sprint_status_done_entries: 54
+  latest_requirement_prs: [63, 64, 65, 66, 67, 68]
+  qa_unity_manual: pending
+
+requirements:
+  docs_complete: 20
+  mvp_partial: 19
+  mvp_not_started: 1
+  req_06_p0: merged

@@ -1,111 +1,129 @@
 # Project Aegis — Project Dashboard
 
-**Generated**: 2026-05-31  
-**Last Updated**: 2026-06-02T09:58:00Z  
-**Run Label**: sprint1-close-sprint2-prep  
-**Stage**: Production (Sprint 1 complete; Sprint 2 sensor/C2)
-**Analysis Scope**: Full project
+**Generated**: 2026-06-04  
+**Last Updated**: 2026-06-04T19:52:00Z  
+**Run Label**: pm (post-req-06 / requirements waves)  
+**Stage**: Production — Baltic vertical slice **PROCEED**; Game Requirements implementation in flight  
+**Analysis Scope**: Full project  
+**Compared to**: [dashboard-snapshots/2026-05-31-initial.md](dashboard-snapshots/2026-05-31-initial.md) (baseline)
 
 ---
 
 ## Executive Summary
 
-Project Aegis has strong foundations in requirements (26 docs), accepted architecture decisions (5 ADRs), and substantial C# implementation (~96 source files, 36 test files) across Delegation, Sim, Data, and UnityAdapter assemblies. GitNexus indexes **2,815 nodes**, **5,198 edges**, and **100 execution flows** at commit `8debee4`.
+In four days the project moved from **pre-production scaffolding** to a **shipped headless MVP loop** plus active **requirements 01–20** implementation. GitNexus at `ff49ef2` indexes **6,220 nodes**, **15,105 edges**, and **300 execution flows** (roughly **2.2×** symbol growth vs. the May 31 baseline). **`dotnet test ProjectAegis.sln`** reports **351 passing** tests with **0 failures**.
 
-Production tracking uses **epics** under `production/epics/` plus [Sprint 1](../production/sprints/sprint-1-headless-mvp.md) (**complete**) and [Sprint 2](../production/sprints/sprint-2-sensor-c2.md) (**complete**: classify FSM, Sensor C2 + message log UI Toolkit, `baltic-patrol-classify` demo scenario). [MVP milestone](../production/milestones/vertical-slice-mvp.md): C1–C4 closed per [architecture review](../architecture/architecture-review-2026-06-02.md). Design coverage **6 of 20 systems** (30%); asset pipeline not started.
+Production tracking is **initialized and heavily used**: **10** sprint plan files (Sprints **1–10** headless code-complete), **15** epics, **27** story files, and `production/sprint-status.yaml` with **54** completed story/backlog entries. The [vertical slice gate](../production/vertical-slice/gate-2026-06-02.md) is **PROCEED**; architecture review blockers **C1–C4** are **closed** (C5 human-in-the-loop deferred).
 
-**Current focus:** Sprint 2 — Contact Classify/Identify FSM + Unity sensor C2 presentation (`sensor-detection-ew` GDD approved).
+Game Requirements **documentation** for 01–20 is **complete**; **MVP gameplay** for each requirement remains **Partial** (tracker: [implementation-tracker-2026-06-04.md](../../Game-Requirements/implementation-tracker-2026-06-04.md)). Recent merges include parallel requirement waves **#63–#67** and **req-06** database intelligence P0 (**#68**).
 
-**Blocking issues:**
+**Current focus:** Requirements stack tasks (C2 UI, live readiness, cyber spoof, platform import scale) and closing the **Unity manual C2 QA** gate.
+
+**Blocking / open gates:**
 
 | Source | Finding |
 |--------|---------|
-| Determinism audit (2026-05-29) | **DET-001** fixed; `dotnet test ProjectAegis.sln` — **129 passed** on `main` @ `5a8b7d1` (2026-06-02) |
-| Same audit | 2 LOW findings (DET-002, DET-003) — off hot path |
-| Requirements design review | Verdict **CONCERNS** — blockers **C1–C5** (OrderLog vs DecisionLog, ROE/EMCON/WRA vs IRoeFilter, engage pipeline, mission runtime, detection tick owner) |
-| Impact analysis | `DecisionLog` and `DelegationOrchestrator` **HIGH** GitNexus blast radius |
-| Sprint 2 | **Complete** — classify FSM, C2 UI, message log strip, architecture C1–C4 gate |
-| GitNexus index | Re-indexed 2026-06-02 @ `1f7423e` — **3,462** nodes, **197** flows |
+| Unity QA | [c2-manual-signoff-2026-06-02.md](../production/qa/c2-manual-signoff-2026-06-02.md) — **12 checks unchecked** (Editor-only) |
+| Cesium spike | Editor checklist — backlog in `sprint-status.yaml` |
+| Architecture | **CONCERNS** overall — **12** TR gaps, **21** partial ([architecture-review-2026-06-02.md](../architecture/architecture-review-2026-06-02.md)) |
+| GitNexus watchlist | `DecisionLog`, `DelegationOrchestrator` **HIGH**; `SqliteCatalogReader` **CRITICAL** after req-06 |
+| Assets | No `design/assets/asset-manifest.md` — pipeline **0%** |
+| Determinism hygiene | DET-002/DET-003 **LOW** — off hot path ([determinism audit](../production/determinism/)) |
 
 ---
 
-## Since Last Update (GitNexus + Git)
+## Since Last Update (vs 2026-05-31 baseline)
 
-**Baseline run** — no previous `production/dashboard-state.yaml` snapshot to compare.
+Comparison anchor: [2026-05-31-initial.md](dashboard-snapshots/2026-05-31-initial.md). Intermediate state was captured in `production/dashboard-state.yaml` @ 2026-06-02 (`1f7423e`).
 
-| Signal | Previous | Current (2026-05-31 initial) | Delta |
-|--------|----------|------------------------------|-------|
-| Indexed commit | — | `8debee4` | baseline |
-| GitNexus nodes | — | 2,815 | baseline |
-| GitNexus edges | — | 5,198 | baseline |
-| Execution flows | — | 100 | baseline |
-| Changed symbols (detect-changes) | — | 2 (AGENTS.md, CLAUDE.md context) | GitNexus re-index |
-| Sprint stories complete | — | N/A (no sprint) | — |
-| GDD systems with docs | — | 6/20 | baseline |
+| Signal | 2026-05-31 (baseline) | 2026-06-04 (this run) | Delta |
+|--------|------------------------|------------------------|-------|
+| Indexed commit | `8debee4` | `ff49ef2` | +4 days dev |
+| GitNexus nodes | 2,815 | **6,220** | **+3,405 (+121%)** |
+| GitNexus edges | 5,198 | **15,105** | **+9,907 (+191%)** |
+| Execution flows | 100 | **300** | **+200 (+200%)** |
+| Clusters | 45 | **157** | +112 |
+| Sprint plans | **0** | **10** | Production tracking live |
+| Epics / stories | **0 / 0** | **15 / 27** | Full Baltic MVP stack |
+| `sprint-status.yaml` | Missing | Present — **54** `done` entries | Automated tracking |
+| C# source files (excl. tests) | 96 | **368** | **+272** |
+| C# test files | 36 | **207** | **+171** |
+| `dotnet test` (solution) | Not baselined | **351 passed**, 0 failed | CI-grade gate green |
+| GDD files in `design/gdd/` | 10 | **15** | +5 (C2, combat, cyber, scoring, infra) |
+| Systems with linked GDD | 6 / 20 (30%) | **12 / 20 (60%)** | +6 systems |
+| ADRs (Accepted) | 5 | **10** (001–010) | +5 |
+| Requirements docs | 26 | 26 + **implementation tracker** | Execution backlog formalized |
+| Vertical slice gate | Not filed | **PROCEED** | Milestone gate passed |
+| Design blockers C1–C5 | **Open** | **C1–C4 closed**, C5 deferred | Unblocks production |
+| Req 06 DB intelligence | Not started | **P0 on main** (#68) | Write gate + agents + MCP |
 
 ---
 
 ## GitNexus Code Intelligence
 
-**Index status:** Fresh (indexed 2026-05-31, commit `8debee4`)
+**Index status:** Up-to-date (re-indexed 2026-06-04, commit `ff49ef2`)
 
 | Metric | Value |
 |--------|-------|
-| Indexed commit | `8debee4` |
-| Nodes (symbols) | 2,815 |
-| Edges (relationships) | 5,198 |
-| Clusters | 45 |
-| Execution flows | 100 |
-| detect-changes (current diff) | 2 files, 2 symbols, 0 affected processes, **LOW** risk |
+| Indexed commit | `ff49ef2` |
+| Nodes (symbols) | 6,220 |
+| Edges (relationships) | 15,105 |
+| Clusters | 157 |
+| Execution flows | 300 |
+| detect-changes | N/A on clean tree (multi-repo CLI — use repo-scoped MCP when available) |
 
 ### Watchlist Symbol Risk (upstream impact)
 
-| Symbol | Risk | Direct dependents | Processes affected |
-|--------|------|-------------------|-------------------|
-| `IRoeFilter` | LOW | 2 | 0 |
-| `DecisionLog` | **HIGH** | 15 | 3 (Tick, RunExecutingTick, …) |
-| `DelegationOrchestrator` | **HIGH** | 22 | 1 (CreateWithMvpEngagement) |
-| `SimTickPipeline` | LOW | — | — |
+| Symbol | Risk | Notes |
+|--------|------|-------|
+| `IRoeFilter` | LOW | Stable policy seam |
+| `DecisionLog` | **HIGH** | Order-log evolution — run `gitnexus impact` before edits |
+| `DelegationOrchestrator` | **HIGH** | Engage / tick integration |
+| `SimTickPipeline` | LOW | Tick ordering stable per ADR-004 |
+| `SqliteCatalogReader` | **CRITICAL** | Req-06 P0; migration 005 + provenance — test harness parity required |
 
-**Implication:** Order log evolution (C1) and orchestrator changes touch high-blast-radius paths. Run `gitnexus impact` before editing `DecisionLog` or `DelegationOrchestrator`.
+**Implication:** Prefer `ICatalogReader` / `IWriteGate` seams for new catalog work; avoid direct SQLite from Sim/Delegation.
 
 ---
 
 ## Sprint Status
 
-**Status:** Sprint 1 plan on disk — tracking not automated.
+**Status:** Sprints **1–10** documented; headless delivery **complete** per `production/sprint-status.yaml`. No Sprint 11 plan; **Game Requirements waves** (#63–#68) run parallel to numbered sprints.
 
 | Metric | Value |
 |--------|-------|
-| Sprint plans found | 1 (`production/sprints/sprint-1-headless-mvp.md`) |
-| `sprint-status.yaml` | Missing |
-| Stories in sprint | N/A |
-| Complete vs In Progress/Not Started | N/A (no sprint) |
+| Sprint plan files | 10 (`sprint-1` … `sprint-10`) |
+| `sprint-status.yaml` | Present — Sprints 1–9 **complete**, Sprint 7–10 code-complete |
+| Completed entries (`status: done`) | **54** |
+| Latest headless test count (qa_gate) | 276+ documented; current solution **351** |
+| Unity manual sign-off | **Pending** — blocks “signed-off C2” |
 
-### Implementation Tracking (Proxy — non-sprint)
+### Sprint summary (headless)
 
-Ad hoc task lists in `docs/superpowers/plans/`:
+| Sprint | Theme | Status |
+|--------|-------|--------|
+| 1 | Headless MVP — plan → fight → replay | **Complete** (PR #36) |
+| 2 | Sensor classify + C2 presentation | **Complete** |
+| 3 | C2 shell — OOB, missions, message log | **Complete** |
+| 4 | C2 map prep + milestone close | **Complete** |
+| 5 | Map placeholder + scoring GDD | **Complete** |
+| 6 | C2 selection sync | **Complete** |
+| 7 | Scoring CSV, cyber GDD, Cesium prep | **Code-complete** |
+| 8 | Comms degradation + fuel readout | **Complete** |
+| 9 | Batch CSV + map ghost symbology | **Complete** |
+| 10 | Fuel ledger, replay SHA-256, QA prep | **Complete** (PR #55) |
 
-| Plan | Complete | Open | Notes |
-|------|----------|------|-------|
-| `2026-05-30-simulation-modes-decisions-followup.md` | 7 | 0 | **Complete** — DELEG-6–9 on `main` |
-| `2026-05-30-phase-gate-loop-policy.md` | 5 | 2 | Full test suite + commit |
-| `2026-05-28-agent-delegation-framework.md` | 0 | 58 | **Stale** — delegation largely implemented |
+### Requirements implementation (proxy burndown)
 
-**Ratio (proxy):** 7 complete / 65 total checklist items ≈ **11%** (not a sprint burndown).
+From [implementation-tracker-2026-06-04.md](../../Game-Requirements/implementation-tracker-2026-06-04.md):
 
-### Systems Index (Design Proxy)
+| Req bucket | Count |
+|------------|-------|
+| MVP **Partial** | 19 |
+| MVP **Not started** | 1 (req **05** — Dynamic Speculative Systems Agent) |
+| Requirements **docs** complete | 01–20 |
 
-From `design/gdd/systems-index.md` (20 systems):
-
-| Status bucket | Count | Approx. share |
-|---------------|-------|---------------|
-| In Progress / Partial | 5 | 25% |
-| In Review / In Design | 4 | 20% |
-| Not Started | 9 | 45% |
-| Draft / other | 2 | 10% |
-
-**Recommendation:** Run `/sprint-plan new` to create `production/sprints/sprint-1.md` + `production/sprint-status.yaml`.
+**Recent PR train:** #63 (wave 1) → #64 (wave 2) → #65 (14/18/11) → #66 (wave 3) → #67 (wave 4) → **#68 (req-06 P0)**.
 
 ---
 
@@ -113,19 +131,11 @@ From `design/gdd/systems-index.md` (20 systems):
 
 | Field | Value |
 |-------|-------|
-| Current milestone (formal) | **Undefined** — no milestone definition file |
-| Inferred target | **Baltic-style Vertical Slice (MVP)** — plan → fight → replay |
-| Deadline | **Not documented** |
-| Sprint plans | 0 |
-| Sprints remaining | **Unknown** — requires milestone scope + sprint cadence |
-
-**Nearest milestone-adjacent artifacts:**
-
-- `.claude/docs/templates/milestone-definition.md` — template only
-- `.claude/docs/templates/vertical-slice-report.md` — gate template, no report filed
-- `docs/engineering/graphite-stack-delegation-2026-05-30.md` — DELEG-1…9 PR stack (not milestone-scoped)
-
-**Recommendation:** Define `production/milestones/vertical-slice-mvp.md`; then `/milestone-review`.
+| Formal milestone | [vertical-slice-mvp.md](../production/milestones/vertical-slice-mvp.md) |
+| Target date (proposed) | 2026-07-15 |
+| Gate verdict | **PROCEED** ([gate-2026-06-02](../production/vertical-slice/gate-2026-06-02.md)) |
+| Must-ship criteria | Headless plan→fight→replay, classify FSM, sensor C2 — **met** |
+| Outstanding for “production polish” | Globe/Cesium, full GDD coverage, asset pipeline, Editor QA |
 
 ---
 
@@ -133,73 +143,66 @@ From `design/gdd/systems-index.md` (20 systems):
 
 ### Design Documentation
 
-- **Status:** ~30% (systems with GDDs)
-- **Files in `design/gdd/`:** 10
-- **Systems with GDD:** 6 / 20
-- **Narrative docs:** 0 (`design/narrative/` absent)
-- **Level designs:** 0 (`design/levels/` absent)
-- **Art Bible / UX specs:** 0
+- **Status:** ~**60%** systems with linked GDDs (12 / 20 in [systems-index.md](../../design/gdd/systems-index.md))
+- **GDD files:** 15 under `design/gdd/`
+- **Narrative / levels / art bible:** Still absent
+- **Game Requirements:** 26 files + master index + **implementation tracker**
 
-**Key GDD gaps:** Logistics (7), Combat Domains (8), C2 UI (12), Message Log UI (13), Platform DB (4), Mission Runtime (9).
+**Vs May 31:** 6/20 (30%) → 12/20 (60%); key additions include C2 UI, combat domains, cyber-comms, scoring, agentic infrastructure.
 
 ### Architecture Documentation
 
-- **Status:** ~53% TR matrix; ~36% qualitative ADR coverage
-- **ADRs:** 5 (001–005), all **Accepted** (2026-05-29)
-- **Master architecture:** `docs/architecture/architecture.md` — **Draft**
-- **TR coverage:** 18 / ~34 MVP TRs mapped
-- **Missing:** `/architecture-review` report, control manifest, ADRs for logistics/C2/cyber/DB pipeline
-
-| ADR | Title | Status |
-|-----|-------|--------|
-| ADR-001 | Sim assembly boundary | Accepted |
-| ADR-002 | Policy evaluator | Accepted |
-| ADR-003 | Order log schema | Accepted |
-| ADR-004 | Tick pipeline order | Accepted |
-| ADR-005 | DOTS sim core | Accepted |
+- **ADRs:** **10** (001–010), including Data (006), mission validation (008), combat validators (009), headless-first UI (010)
+- **Architecture review (2026-06-02):** **CONCERNS** — 14 covered / 21 partial / 12 gap TRs
+- **Blockers C1–C4:** **Closed** (order log, combat outcomes, ROE, EMCON)
+- **Master architecture:** `docs/architecture/architecture.md` — still **Draft**
 
 ### Production Management
 
-- **Status:** ~5%
-- **Sprint plans:** 0
-- **Milestones:** 0
-- **Epics / stories:** 0
-- **QA plans / bugs:** 0
-- **Determinism audits:** 1
-- **Roadmap:** 0
+- **Status:** ~**75%** for MVP engineering track (epics/stories/sprints/QA artifacts present)
+- **Sprint plans:** 10
+- **Milestones:** 1
+- **Epics:** 15 (all MVP slices documented)
+- **Stories:** 27
+- **Determinism / replay:** Audits + golden replay PASS
+- **QA:** Headless smoke PASS; **manual C2 open**
+
+**Vs May 31:** Production tracking went from **~5%** to fully operational for the Baltic MVP program.
 
 ### Source Code & Tests
 
-- **C# source files (excl. tests):** 96
-- **Test files:** 36 across 4 projects (`Delegation`, `Sim`, `Data`, `UnityAdapter`)
-- **Top-level `tests/`:** Absent (co-located pattern)
-- **Prototypes:** 0
+| Metric | May 31 | 2026-06-04 |
+|--------|--------|------------|
+| C# source files (excl. tests) | 96 | **368** |
+| C# test files | 36 | **207** |
+| Test projects | 4 | **5** (+ MissionEditor.Cli.Tests) |
+| Solution tests passing | Not baselined | **351** |
+
+**Assemblies:** `ProjectAegis.Data`, `Sim`, `Delegation`, `Delegation.UnityAdapter`, `MissionEditor.Cli`, `Delegation.Demo`.
 
 ### MVP Systems Progress (Inferred)
 
 ```mermaid
 flowchart LR
-  subgraph done [In Review or GDD Done]
+  subgraph done [Headless MVP Complete]
     S1[Sim Core]
-    S2[Order Log]
-    S3[Policy ROE]
-    S5[Sensors]
-    S6[Engagement]
-    S11[Mission Editor]
+    S2[Order Log Replay]
+    S5[Sensors Pd Classify]
+    S6[Engage Policy]
+    S11[Mission Editor MCP]
+    S20partial[C2 UI Toolkit Slice]
+    S4partial[Platform DB P0]
   end
-  subgraph wip [In Progress Partial]
-    S4[Platform DB]
-    S9[Mission Runtime]
-    S10[Delegation]
-    S14[Sim Modes]
+  subgraph wip [Requirements Partial 01-20]
+    R14[Engagement DLZ Swarm]
+    R16[Logistics Readiness]
+    R19[Cyber Comms]
+    R09[Near Future]
   end
-  subgraph todo [Not Started MVP]
-    S7[Logistics]
-    S8[Combat]
-    S12[C2 UI]
-    S13[Msg Log UI]
-    S17[Scoring]
-    S20[DB Pipeline]
+  subgraph todo [Not Started / Editor]
+    R05[Dynamic Systems Agent]
+    Assets[Asset Pipeline]
+    UnityQA[Unity Manual QA]
   end
 ```
 
@@ -211,33 +214,42 @@ flowchart LR
 
 | Category | Needed | Done | Notes |
 |----------|--------|------|-------|
-| Master asset manifest | 1 | 0 | File not created |
-| Per-asset specs (ASSET-*) | 0 tracked | 0 | Blocked on Art Bible + approved GDDs |
+| Master asset manifest | 1 | 0 | Unchanged since May 31 |
 | Art Bible | 1 | 0 | Template only |
-| Game art/audio assets | TBD | ~0 | No `assets/` pipeline |
+| Game art/audio | TBD | ~0 | No `assets/` art pipeline |
 
-**Overall asset progress:** **0%** — pipeline not started.
+**Overall asset progress:** **0%**
 
 ---
 
 ## Gaps Identified
 
-### Critical (block progress)
+### Critical (block polish / sign-off)
 
-1. **No production tracking** — sprints, milestones, epics, stories missing; velocity unmeasurable
-2. **Design-review blockers C1–C5** — OrderLog/DecisionLog, ROE/EMCON/WRA, engage pipeline, mission runtime, detection tick owner
-3. **Determinism CI loop open** — DET-001 fixed but `dotnet test` confirmation pending in audit
+1. **Unity manual C2 QA** — 12 checks open; headless proxy does not substitute ([c2-manual-signoff-2026-06-02.md](../production/qa/c2-manual-signoff-2026-06-02.md))
+2. **No asset pipeline** — blocks visual production and Addressables work
+3. **Req 05 not started** — Dynamic Speculative Systems Agent (OSINT staging) — dependency for full req-06 vision
 
-### Important (affect quality/velocity)
+### Important (velocity / quality)
 
-4. **14 systems without GDDs** — blocks vertical-slice content and UI work
-5. **Incomplete TR traceability** — 18/34 MVP TRs in architecture doc
-6. **ADR implementation gaps** — policy migration (002), order log union (003), DOTS (005) incomplete
+4. **12 TR architecture gaps** — see [architecture-traceability-index.md](../architecture/architecture-traceability-index.md)
+5. **19/20 requirements MVP partial** — multi-year scope; needs continued stacked PR discipline
+6. **GitNexus HIGH/CRITICAL symbols** — impact analysis mandatory before orchestrator/catalog edits
+7. **`sprint-status.yaml` header stale** — still says `sprint: 1`; internal sections through Sprint 10 are authoritative
 
-### Nice-to-Have
+### Resolved since May 31
 
-7. Risk register, tech-debt register, QA backlog scaffolding
-8. DET-002/DET-003 low-severity determinism hygiene
+8. ~~No production tracking~~ → **10 sprints, 15 epics, 27 stories**
+9. ~~C1–C4 design blockers open~~ → **Closed** (C5 deferred)
+10. ~~No sprint/milestone~~ → **Vertical slice PROCEED**
+11. ~~DET-001 CRITICAL~~ → Fixed; **351** tests green
+12. ~~Req-06 P0 missing~~ → **#68 merged** (write gate, agents, MCP)
+
+### Nice-to-have
+
+13. Refresh `production/dashboard-state.yaml` automation on every `/project-dashboard` run (this run updates it)
+14. Cesium Phase B spike (Editor)
+15. Formal Sprint 11 plan tying requirement tracker rows to epics
 
 ---
 
@@ -245,46 +257,37 @@ flowchart LR
 
 ### Immediate Priority
 
-1. **`/sprint-plan new`** — establish sprint-1 and `sprint-status.yaml`; unblocks burndown tracking
-2. **Resolve C1 (Order Log)** — `/design-system order-log-replay` + `/consistency-check`; HIGH blast radius on `DecisionLog`
-3. **Start DATA-2** — `stack/data/basepd` from `main`; wire catalog `basePd` into detection loop
+1. **Unity C2 manual sign-off** — run `PLAYMODE-SMOKE.md` + `baltic-patrol-classify` / `baltic-patrol-comms`
+2. **Requirements wave 5** — top tracker rows: interactive attack menu (14/20), live readiness (16), cyber spoof (19)
+3. **`npx gitnexus impact SqliteCatalogReader`** before next catalog/schema edit
 
 ### Short-Term
 
-4. **Define MVP milestone** — `production/milestones/vertical-slice-mvp.md`
-5. **`/create-epics`** → **`/create-stories`** — map GDD systems to implementable stories
-6. **`/architecture-review`** — expand TR matrix; gate `/create-control-manifest`
+4. **Update `sprint-status.yaml`** — set `current: 11` or “requirements-wave” mode; refresh `qa_gate.tests_total` to 351
+5. **`/architecture-review`** — refresh TR matrix after req-06 + waves 1–4
+6. **Req 05 spike** — OSINT proposal + staging DB (unblocks full database intelligence)
 
 ### Medium-Term
 
-7. **Author missing MVP GDDs** — logistics, combat domains, C2 UI
-8. **`/art-bible`** → **`/asset-spec`** — start asset pipeline
-9. **`/vertical-slice`** — when sim loop + minimal UI are ready
+7. **`/art-bible`** → **`/asset-spec`** — unblock asset pipeline (still 0% since May 31)
+8. **CMO catalog import Phase 2** — full platform tables via `tools/cmano-db-crawler/`
+9. **Milestone review** @ 2026-07-15 target — extend beyond Baltic to next theater
 
 ---
 
 ## Follow-Up Skills to Run
 
-Based on gaps identified:
-
 | Gap / Trigger | Skill or Command |
 |---------------|------------------|
-| Manual dashboard refresh | `/project-dashboard` |
-| No sprint tracking | `/sprint-plan new` |
-| No milestone definition | Create `production/milestones/vertical-slice-mvp.md`; `/milestone-review` |
-| Pre-Production → Production gate | `/gate-check` |
-| Missing epics/stories | `/create-epics` → `/create-stories [epic-slug]` |
-| Incomplete architecture traceability | `/architecture-review` → `/create-control-manifest` |
-| Missing GDDs | `/design-system [system-slug]` |
-| Order log blocker C1 | `/design-system order-log-replay` + `/consistency-check` |
-| No asset pipeline | `/art-bible` → `/asset-spec` |
-| Determinism re-verification | `/determinism-audit` + `/replay-verify` |
-| Stage baseline | `/project-stage-detect` |
-| Vertical slice readiness | `/vertical-slice` |
-| DATA stack (DATA-1) | Rebase `stack/data/p0-spec` on `main`; see `graphite-stack-backlog-2026-06.md` |
-| Stale GitNexus index | `npx gitnexus analyze` |
-| Pre-merge code changes | `npx gitnexus detect-changes` |
-| Automation not running | [cursor.com/automations](https://cursor.com/automations) + `.cursor/automations/README.md` |
+| Dashboard refresh | `/project-dashboard` |
+| Unity QA gate | `team-qa` + manual sign-off doc |
+| Requirements stack | `team-data` / `team-simulation` / `team-unity` per row |
+| Catalog / DB work | `sqlite-schema-management`, `provenance-audit-modeling` |
+| Pre-merge safety | `npx gitnexus analyze` + `gitnexus impact` (repo: cmano-clone) |
+| Determinism | `/replay-verify`, `/determinism-audit` |
+| Stage / gate | `/gate-check`, `/milestone-review` |
+| Stale plans | Archive `agent-delegation-framework` checklist (58 open, stale) |
+| Asset zero | `/art-bible` |
 
 ---
 
@@ -292,32 +295,33 @@ Based on gaps identified:
 
 ```
 design/
-  gdd/              10 files
+  gdd/              15 files
   narrative/         0 files
   levels/            0 files
-  assets/            0 files
+  assets/            0 files (no manifest)
 
 docs/
-  architecture/      7 files (5 ADRs + architecture + wiring)
-  reports/           1 dashboard + snapshots/
+  architecture/     10+ ADRs + architecture + traceability
+  reports/           dashboard + snapshots/
 
 production/
-  sprints/           0 files
-  milestones/        0 files
-  epics/             7 epics + stories (Baltic, sensor, PD, EMCON, EW, stale, world hash)
-  determinism/       1 audit
-  dashboard-state.yaml  1 file
+  sprints/          10 files
+  milestones/        1 file
+  epics/            15 EPIC.md + 27 stories
+  determinism/       replay + audits
+  qa/                smoke + sign-off templates
+  agentic/           PI closure docs
 
-Game-Requirements/   26 files
+Game-Requirements/   26+ requirements + tracker
 
 src/
-  source (.cs)       96 files (excl. tests)
-  test (.cs)          36 files
+  source (.cs)       368 files (excl. Tests)
+  test (.cs)         207 files
 
-tests/               0 (co-located under src/*Tests/)
+tests/               regression README (golden catalog)
 prototypes/          0
 ```
 
 ---
 
-*Generated by producer agent — aggregated from production, design, architecture, GitNexus, and audit artifacts*
+*Generated by producer agent — aggregated from production, design, architecture, GitNexus, Game Requirements tracker, and audit artifacts*
