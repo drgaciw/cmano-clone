@@ -2,9 +2,9 @@
 
 **Purpose:** Headless substitutes for Unity manual checks where presentation logic lives in `ProjectAegis.Delegation` (milsim QA gate).
 
-**Build:** `main` @ `5546c5d` (PI plan completion)  
-**Headless evidence:** `production/qa/pi-006-headless-proxy-2026-06-04.md`  
-**Manual sign-off still required:** `production/qa/c2-manual-signoff-2026-06-02.md` (Editor Play Mode)
+**Build:** `main` @ `0ef5c89` (Sprint 18 refresh)  
+**Headless evidence:** `production/qa/smoke-2026-06-04.md`, `production/qa/sprint-17-smoke-closeout-2026-06-04.md`  
+**Manual sign-off still required:** `production/qa/c2-manual-signoff-2026-06-02.md` (Editor Play Mode; runbook `sprint-18-c2-signoff-runbook-2026-06-04.md`)
 
 ## Automated coverage map
 
@@ -18,6 +18,7 @@
 | 10 | Hostile dim + ghost | `MapPanelBinderTests.Bind_degraded_comms_*`, `BalticReplayHarnessCommsTests.Comms_scenario_policy_exposes_*` |
 | 11 | Engage denied | `BalticReplayHarnessCommsTests.Comms_denied_appends_policy_denial_*` |
 | 12 | FUEL line | `FuelStateProjectionTests`, `FuelTimelineTrackerTests`, `FuelLedgerTests`, `baltic-patrol-comms.policy.json` |
+| 13 | Attack menu Fire Single | `DelegationBridgeAttackOptionTests`, `EngageAttackOrderResolverTests`, `UnitDetailBridgeTests`, `AttackMenuPanelBinderTests` |
 
 ## Run gate
 
@@ -27,6 +28,6 @@
 
 ## Verdict
 
-- **Headless proxy:** PASS when all filtered tests green (**283** solution total as of 2026-06-04).
+- **Headless proxy:** PASS when all filtered tests green (**380** solution total as of 2026-06-04).
 - **Unity manual:** PENDING until Editor checklist signed.
 - **PI-006 (agentic):** CLOSED via headless proxy; Editor checklist open.
