@@ -492,19 +492,24 @@ sprint16_tasks:
     note: "MERGED to main; 368 tests PASS; production/qa/sprint-16-data-3-gitnexus-2026-06-04.md"
 
 sprint: 17
-goal: "DATA-4 validation + weapon envelope catalog wiring"
+goal: "DATA-4 validation + DATA-5 CMO markdown import smoke"
 start: "2026-06-04"
 status: complete
 completed: "2026-06-04"
 branch: main
-tests_passed: 372
+tests_passed: 380
 evidence:
   - production/qa/sprint-17-data-4-gitnexus-2026-06-04.md
+  - production/qa/sprint-17-data-5-gitnexus-2026-06-04.md
 sprint17_tasks:
   - id: s17-data-4
     status: done
     completed: "2026-06-04"
     note: "ValidationPipeline, TryGetWeaponEnvelope, CatalogEngageEnvelope"
+  - id: s17-data-5
+    status: done
+    completed: "2026-06-04"
+    note: "CmoMarkdownImporter, sensor-mini.md fixture, write-gate smoke tests"
 
 sprint: 15
 goal: "Docs 07-08-12 + RTM gate + program exit"

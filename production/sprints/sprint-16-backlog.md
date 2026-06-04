@@ -2,7 +2,7 @@
 
 **Status:** Complete (Sprint 16); DATA-4 landed on `main`  
 **Created:** 2026-06-04  
-**Current focus:** DATA-5 import smoke (next)
+**Current focus:** P0 stack complete (DATA-1..DATA-5 on main); next — full CMO crawl / balance telemetry (deferred)
 
 ## Candidate themes
 

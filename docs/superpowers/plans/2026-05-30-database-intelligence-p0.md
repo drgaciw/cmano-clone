@@ -40,7 +40,7 @@
 
 ## DATA-5 — Import smoke (`stack/data/import-smoke`)
 
-- [ ] `CmoMarkdownImporter` subset; approve via write gate in test
+- [x] `CmoMarkdownImporter` subset; approve via write gate in test
 
 ---
 
