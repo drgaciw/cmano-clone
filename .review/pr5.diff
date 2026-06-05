@@ -1,0 +1,889 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index f0a2e8a..b42a24c 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1,7 +1,7 @@
+ <!-- gitnexus:start -->
+ # GitNexus ΓÇö Code Intelligence
+ 
+-This project is indexed by GitNexus as **cmano-clone** (1824 symbols, 3872 relationships, 102 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
++This project is indexed by GitNexus as **cmano-clone** (2861 symbols, 5368 relationships, 126 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+ 
+ > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
+ 
+diff --git a/CLAUDE.md b/CLAUDE.md
+index cc5217f..1d8bc99 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -58,7 +58,7 @@ See `docs/COLLABORATIVE-DESIGN-PRINCIPLE.md` for full protocol and examples.
+ <!-- gitnexus:start -->
+ # GitNexus ΓÇö Code Intelligence
+ 
+-This project is indexed by GitNexus as **cmano-clone** (1824 symbols, 3872 relationships, 102 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
++This project is indexed by GitNexus as **cmano-clone** (2861 symbols, 5368 relationships, 126 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+ 
+ > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
+ 
+diff --git a/Game-Requirements/requirements/03-Simulation-Modes.md b/Game-Requirements/requirements/03-Simulation-Modes.md
+index bc25b71..3f17501 100644
+--- a/Game-Requirements/requirements/03-Simulation-Modes.md
++++ b/Game-Requirements/requirements/03-Simulation-Modes.md
+@@ -23,19 +23,22 @@ A single, unified simulation engine that can operate across the full spectrum of
+ - Player can dynamically change autonomy levels during play
+ - Ideal for learning, testing new strategies, or playing against stronger opposition
+ - **Session phase:** starts in **Planning**; **Begin Execution** required before ticks advance
++- **Dual-side control (testing):** off by default; scenario policy `allowDualSideControl: true` permits human control on both sides (TEST SANDBOX banner). See [Resolved Design Decisions](#resolved-design-decisions-may-30-2026).
+ 
+ ### 3. Agent vs Agent Mode (Fully Autonomous)
+ - No human input required after scenario start
+ - All forces on both sides controlled by specialized AI agents
+-- Supports extreme time compression (up to 1000x+) and headless execution
++- Supports extreme time compression; **targets** 1000├ù+ headless; **requires** ΓëÑ256├ù effective for batch-analysis readiness
+ - Designed for massive batch runs, balance testing, and research
+ - **Session phase:** **auto-starts execution** when mode is configured (`SimulationModeConfigurator` calls `BeginExecution()`)
++- **Observer attach:** optional read-only replay viewer (`AttachReplayViewer`) ΓÇö not a separate mode enum
+ 
+ ## Functional Requirements
+ 
+ ### Mode Switching
+ - Seamless transition between all three modes at any point in a scenario
+ - Player can pause, take control of specific units, or hand control back to agents instantly
++- When **`AttachReplayViewer`** is enabled on an AvA session, human orders are disabled (replay/scrub UI only)
+ - State remains fully consistent when switching modes
+ 
+ ### Session Phase Integration (req 02)
+@@ -60,7 +63,9 @@ A single, unified simulation engine that can operate across the full spectrum of
+ ### Performance Targets
+ - Human Mode: 60+ FPS with up to 5,000 entities
+ - Mixed Mode: 30+ FPS with up to 8,000 entities
+-- Agent vs Agent Mode: 1000x+ simulation speed in headless mode (no rendering)
++- Agent vs Agent Mode (headless, no rendering):
++  - **Minimum (batch analysis ready):** ΓëÑ256├ù effective simulation speed
++  - **Target (farm / profile gate):** 1000├ù+ effective simulation speed
+ 
+ ### Determinism & Reproducibility
+ - All modes must be 100% deterministic when using the same seed
+@@ -101,12 +106,17 @@ A single, unified simulation engine that can operate across the full spectrum of
+ - Cloud-based simulation cluster support for massive agent-vs-agent campaigns
+ - **Spectator Mode** (see open questions) ΓÇö Agent vs Agent with visualization, no control
+ 
+-## Open Questions / Decisions Needed
++## Resolved Design Decisions (May 30, 2026)
+ 
+-1. Should Mixed Mode allow the player to command both sides simultaneously for testing purposes?
+-2. What is the minimum simulation speed required for comfortable Agent vs Agent batch analysis?
+-3. Should there be a ΓÇ£Spectator ModeΓÇ¥ that runs Agent vs Agent with full visualization but no control?
++Full rationale: `docs/superpowers/specs/2026-05-30-simulation-modes-decisions-design.md`
++
++| Topic | Decision |
++|-------|----------|
++| Dual-side Mixed control | Scenario-gated via `allowDualSideControl: true` (default **false**) |
++| AvA batch speed floor | **256├ù** headless effective minimum |
++| AvA speed target | **1000├ù+** headless performance target |
++| Spectator | **Not** a fourth mode enum ΓÇö AvA + `AttachReplayViewer` read-only replay UI |
+ 
+ ---
+ 
+-**Status:** Core mode architecture approved; phase integration documented May 30, 2026
++**Status:** Core mode architecture approved; open questions resolved May 30, 2026
+diff --git a/ProjectAegis.sln b/ProjectAegis.sln
+index 5f4c555..4a7700c 100644
+--- a/ProjectAegis.sln
++++ b/ProjectAegis.sln
+@@ -19,45 +19,138 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectAegis.Sim", "src\Pro
+ EndProject
+ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectAegis.Sim.Tests", "src\ProjectAegis.Sim.Tests\ProjectAegis.Sim.Tests.csproj", "{E5F6A7B8-C9D0-1234-EF01-345678901234}"
+ EndProject
++Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectAegis.Data", "src\ProjectAegis.Data\ProjectAegis.Data.csproj", "{79039B29-DF98-4859-AEB9-002BDA759D0A}"
++EndProject
++Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectAegis.Data.Tests", "src\ProjectAegis.Data.Tests\ProjectAegis.Data.Tests.csproj", "{F721B3B1-8BC5-4F63-922B-A478E909124C}"
++EndProject
+ Global
+ 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+ 		Debug|Any CPU = Debug|Any CPU
++		Debug|x64 = Debug|x64
++		Debug|x86 = Debug|x86
+ 		Release|Any CPU = Release|Any CPU
++		Release|x64 = Release|x64
++		Release|x86 = Release|x86
+ 	EndGlobalSection
+ 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+ 		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+ 		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.Build.0 = Debug|Any CPU
++		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|x64.ActiveCfg = Debug|Any CPU
++		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|x64.Build.0 = Debug|Any CPU
++		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|x86.ActiveCfg = Debug|Any CPU
++		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|x86.Build.0 = Debug|Any CPU
+ 		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+ 		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.Build.0 = Release|Any CPU
++		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|x64.ActiveCfg = Release|Any CPU
++		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|x64.Build.0 = Release|Any CPU
++		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|x86.ActiveCfg = Release|Any CPU
++		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|x86.Build.0 = Release|Any CPU
+ 		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+ 		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Debug|Any CPU.Build.0 = Debug|Any CPU
++		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Debug|x64.ActiveCfg = Debug|Any CPU
++		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Debug|x64.Build.0 = Debug|Any CPU
++		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Debug|x86.ActiveCfg = Debug|Any CPU
++		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Debug|x86.Build.0 = Debug|Any CPU
+ 		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Release|Any CPU.ActiveCfg = Release|Any CPU
+ 		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Release|Any CPU.Build.0 = Release|Any CPU
++		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Release|x64.ActiveCfg = Release|Any CPU
++		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Release|x64.Build.0 = Release|Any CPU
++		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Release|x86.ActiveCfg = Release|Any CPU
++		{B2C3D4E5-F6A7-8901-BCDE-F12345678901}.Release|x86.Build.0 = Release|Any CPU
+ 		{C3D4E5F6-A7B8-9012-CDEF-123456789012}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+ 		{C3D4E5F6-A7B8-9012-CDEF-123456789012}.Debug|Any CPU.Build.0 = Debug|Any CPU
++		{C3D4E5F6-A7B8-9012-CDEF-123456789012}.Debug|x64.ActiveCfg = Debug|Any CPU
++		{C3D4E5F6-A7B8-9012-CDEF-123456789012}.Debug|x64.Build.0 = Debug|Any CPU
++		{C3D4E5F6-A7B8-9012-CDEF-123456789012}.Debug|x86.ActiveCfg = Debug|Any CPU
++		{C3D4E5F6-A7B8-9012-CDEF-123456789012}.Debug|x86.Build.0 = Debug|Any CPU
+ 		{C3D4E5F6-A7B8-9012-CDEF-123456789012}.Release|Any CPU.ActiveCfg = Release|Any CPU
+ 		{C3D4E5F6-A7B8-9012-CDEF-123456789012}.Release|Any CPU.Build.0 = Release|Any CPU
++		{C3D4E5F6-A7B8-9012-CDEF-123456789012}.Release|x64.ActiveCfg = Release|Any CPU
++		{C3D4E5F6-A7B8-9012-CDEF-123456789012}.Release|x64.Build.0 = Release|Any CPU
++		{C3D4E5F6-A7B8-9012-CDEF-123456789012}.Release|x86.ActiveCfg = Release|Any CPU
++		{C3D4E5F6-A7B8-9012-CDEF-123456789012}.Release|x86.Build.0 = Release|Any CPU
+ 		{A068AFDE-B693-447E-AF10-966058582907}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+ 		{A068AFDE-B693-447E-AF10-966058582907}.Debug|Any CPU.Build.0 = Debug|Any CPU
++		{A068AFDE-B693-447E-AF10-966058582907}.Debug|x64.ActiveCfg = Debug|Any CPU
++		{A068AFDE-B693-447E-AF10-966058582907}.Debug|x64.Build.0 = Debug|Any CPU
++		{A068AFDE-B693-447E-AF10-966058582907}.Debug|x86.ActiveCfg = Debug|Any CPU
++		{A068AFDE-B693-447E-AF10-966058582907}.Debug|x86.Build.0 = Debug|Any CPU
+ 		{A068AFDE-B693-447E-AF10-966058582907}.Release|Any CPU.ActiveCfg = Release|Any CPU
+ 		{A068AFDE-B693-447E-AF10-966058582907}.Release|Any CPU.Build.0 = Release|Any CPU
++		{A068AFDE-B693-447E-AF10-966058582907}.Release|x64.ActiveCfg = Release|Any CPU
++		{A068AFDE-B693-447E-AF10-966058582907}.Release|x64.Build.0 = Release|Any CPU
++		{A068AFDE-B693-447E-AF10-966058582907}.Release|x86.ActiveCfg = Release|Any CPU
++		{A068AFDE-B693-447E-AF10-966058582907}.Release|x86.Build.0 = Release|Any CPU
+ 		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+ 		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Debug|Any CPU.Build.0 = Debug|Any CPU
++		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Debug|x64.ActiveCfg = Debug|Any CPU
++		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Debug|x64.Build.0 = Debug|Any CPU
++		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Debug|x86.ActiveCfg = Debug|Any CPU
++		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Debug|x86.Build.0 = Debug|Any CPU
+ 		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Release|Any CPU.ActiveCfg = Release|Any CPU
+ 		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Release|Any CPU.Build.0 = Release|Any CPU
++		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Release|x64.ActiveCfg = Release|Any CPU
++		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Release|x64.Build.0 = Release|Any CPU
++		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Release|x86.ActiveCfg = Release|Any CPU
++		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21}.Release|x86.Build.0 = Release|Any CPU
+ 		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+ 		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Debug|Any CPU.Build.0 = Debug|Any CPU
++		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Debug|x64.ActiveCfg = Debug|Any CPU
++		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Debug|x64.Build.0 = Debug|Any CPU
++		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Debug|x86.ActiveCfg = Debug|Any CPU
++		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Debug|x86.Build.0 = Debug|Any CPU
+ 		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Release|Any CPU.ActiveCfg = Release|Any CPU
+ 		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Release|Any CPU.Build.0 = Release|Any CPU
++		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Release|x64.ActiveCfg = Release|Any CPU
++		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Release|x64.Build.0 = Release|Any CPU
++		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Release|x86.ActiveCfg = Release|Any CPU
++		{D4E5F6A7-B8C9-0123-DEF0-234567890123}.Release|x86.Build.0 = Release|Any CPU
+ 		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+ 		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Debug|Any CPU.Build.0 = Debug|Any CPU
++		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Debug|x64.ActiveCfg = Debug|Any CPU
++		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Debug|x64.Build.0 = Debug|Any CPU
++		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Debug|x86.ActiveCfg = Debug|Any CPU
++		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Debug|x86.Build.0 = Debug|Any CPU
+ 		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Release|Any CPU.ActiveCfg = Release|Any CPU
+ 		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Release|Any CPU.Build.0 = Release|Any CPU
++		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Release|x64.ActiveCfg = Release|Any CPU
++		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Release|x64.Build.0 = Release|Any CPU
++		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Release|x86.ActiveCfg = Release|Any CPU
++		{E5F6A7B8-C9D0-1234-EF01-345678901234}.Release|x86.Build.0 = Release|Any CPU
++		{79039B29-DF98-4859-AEB9-002BDA759D0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
++		{79039B29-DF98-4859-AEB9-002BDA759D0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
++		{79039B29-DF98-4859-AEB9-002BDA759D0A}.Debug|x64.ActiveCfg = Debug|Any CPU
++		{79039B29-DF98-4859-AEB9-002BDA759D0A}.Debug|x64.Build.0 = Debug|Any CPU
++		{79039B29-DF98-4859-AEB9-002BDA759D0A}.Debug|x86.ActiveCfg = Debug|Any CPU
++		{79039B29-DF98-4859-AEB9-002BDA759D0A}.Debug|x86.Build.0 = Debug|Any CPU
++		{79039B29-DF98-4859-AEB9-002BDA759D0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
++		{79039B29-DF98-4859-AEB9-002BDA759D0A}.Release|Any CPU.Build.0 = Release|Any CPU
++		{79039B29-DF98-4859-AEB9-002BDA759D0A}.Release|x64.ActiveCfg = Release|Any CPU
++		{79039B29-DF98-4859-AEB9-002BDA759D0A}.Release|x64.Build.0 = Release|Any CPU
++		{79039B29-DF98-4859-AEB9-002BDA759D0A}.Release|x86.ActiveCfg = Release|Any CPU
++		{79039B29-DF98-4859-AEB9-002BDA759D0A}.Release|x86.Build.0 = Release|Any CPU
++		{F721B3B1-8BC5-4F63-922B-A478E909124C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
++		{F721B3B1-8BC5-4F63-922B-A478E909124C}.Debug|Any CPU.Build.0 = Debug|Any CPU
++		{F721B3B1-8BC5-4F63-922B-A478E909124C}.Debug|x64.ActiveCfg = Debug|Any CPU
++		{F721B3B1-8BC5-4F63-922B-A478E909124C}.Debug|x64.Build.0 = Debug|Any CPU
++		{F721B3B1-8BC5-4F63-922B-A478E909124C}.Debug|x86.ActiveCfg = Debug|Any CPU
++		{F721B3B1-8BC5-4F63-922B-A478E909124C}.Debug|x86.Build.0 = Debug|Any CPU
++		{F721B3B1-8BC5-4F63-922B-A478E909124C}.Release|Any CPU.ActiveCfg = Release|Any CPU
++		{F721B3B1-8BC5-4F63-922B-A478E909124C}.Release|Any CPU.Build.0 = Release|Any CPU
++		{F721B3B1-8BC5-4F63-922B-A478E909124C}.Release|x64.ActiveCfg = Release|Any CPU
++		{F721B3B1-8BC5-4F63-922B-A478E909124C}.Release|x64.Build.0 = Release|Any CPU
++		{F721B3B1-8BC5-4F63-922B-A478E909124C}.Release|x86.ActiveCfg = Release|Any CPU
++		{F721B3B1-8BC5-4F63-922B-A478E909124C}.Release|x86.Build.0 = Release|Any CPU
++	EndGlobalSection
++	GlobalSection(SolutionProperties) = preSolution
++		HideSolutionNode = FALSE
+ 	EndGlobalSection
+ 	GlobalSection(NestedProjects) = preSolution
+ 		{A068AFDE-B693-447E-AF10-966058582907} = {781C214C-CA04-46D6-99A4-82828530E562}
+ 		{B6C0C978-0D2C-46A7-90CD-D43C5D12EB21} = {781C214C-CA04-46D6-99A4-82828530E562}
+ 		{D4E5F6A7-B8C9-0123-DEF0-234567890123} = {781C214C-CA04-46D6-99A4-82828530E562}
+ 		{E5F6A7B8-C9D0-1234-EF01-345678901234} = {781C214C-CA04-46D6-99A4-82828530E562}
++		{79039B29-DF98-4859-AEB9-002BDA759D0A} = {781C214C-CA04-46D6-99A4-82828530E562}
++		{F721B3B1-8BC5-4F63-922B-A478E909124C} = {781C214C-CA04-46D6-99A4-82828530E562}
+ 	EndGlobalSection
+ EndGlobal
+diff --git a/docs/engineering/graphite-stack-delegation-2026-05-30.md b/docs/engineering/graphite-stack-delegation-2026-05-30.md
+index 32557fd..80b2a94 100644
+--- a/docs/engineering/graphite-stack-delegation-2026-05-30.md
++++ b/docs/engineering/graphite-stack-delegation-2026-05-30.md
+@@ -11,6 +11,10 @@
+ | 3 | `stack/delegation/phase-gate` | feat(delegation): planning/execution phase gate [DELEG-3] | Phase gate, loop policy, session phase tests | c-sharp-reviewer |
+ | 4 | `stack/delegation/player-info` | feat(delegation): player info filter [DELEG-4] | `PlayerInfoFilter`, req 03 alignment | gameplay-programmer |
+ | 5 | `stack/delegation/bridge-engage` | feat(delegation): bridge MVP engage wiring [DELEG-5] | `UnityAdapter*`, `unity/ProjectAegis`, engage tools | unity-specialist |
++| 6 | `stack/delegation/sim-modes-docs` | docs(delegation): simulation modes decisions [DELEG-6] | req 03, superpowers spec/plan | producer |
++| 7 | `stack/delegation/dual-side-policy` | feat(sim): allowDualSideControl scenario policy [DELEG-7] | `ScenarioPolicyProfile`, JSON loader | c-sharp-engineer |
++| 8 | `stack/delegation/dual-side-config` | feat(delegation): dual-side Mixed configure [DELEG-8] | `SimulationModeConfigurator` | c-sharp-reviewer |
++| 9 | `stack/delegation/observer-attach` | feat(delegation): AttachReplayViewer session [DELEG-9] | orchestrator + bridge guard | gameplay-programmer |
+ 
+ ```mermaid
+ flowchart BT
+@@ -19,12 +23,16 @@ flowchart BT
+   pr2 --> pr3[DELEG-3 phase-gate]
+   pr3 --> pr4[DELEG-4 player-info]
+   pr4 --> pr5[DELEG-5 bridge-engage]
++  pr5 --> pr6[DELEG-6 sim-modes-docs]
++  pr6 --> pr7[DELEG-7 dual-side-policy]
++  pr7 --> pr8[DELEG-8 dual-side-config]
++  pr8 --> pr9[DELEG-9 observer-attach]
+ ```
+ 
+ **Submit (after `gt auth`):**
+ 
+ ```powershell
+-gt checkout stack/delegation/sim-core
++gt checkout stack/delegation/sim-modes-docs
+ gt submit --stack --no-interactive
+ ```
+ 
+diff --git a/docs/superpowers/plans/2026-05-30-simulation-modes-decisions-followup.md b/docs/superpowers/plans/2026-05-30-simulation-modes-decisions-followup.md
+new file mode 100644
+index 0000000..adbdcc9
+--- /dev/null
++++ b/docs/superpowers/plans/2026-05-30-simulation-modes-decisions-followup.md
+@@ -0,0 +1,17 @@
++# Simulation Modes Decisions ΓÇö Implementation Plan
++
++**Goal:** Wire locked req 03 decisions in stacked PRs DELEG-6ΓÇô9 on the delegation Graphite stack.
++
++**Design:** `docs/superpowers/specs/2026-05-30-simulation-modes-decisions-design.md`
++
++---
++
++## Tasks
++
++- [x] DELEG-6 ΓÇö docs + req 03 resolved section
++- [ ] DELEG-7 ΓÇö `AllowDualSideControl` on `ScenarioPolicyProfile` + JSON loader + tests
++- [ ] DELEG-8 ΓÇö dual-side branch in `SimulationModeConfigurator.Apply` + tests
++- [ ] DELEG-9 ΓÇö `AttachReplayViewer` on orchestrator + bridge guard + tests
++- [ ] `dotnet test ProjectAegis.sln`
++- [ ] `npx gitnexus detect_changes --repo cmano-clone`
++- [ ] `gt submit --stack --no-interactive`
+diff --git a/docs/superpowers/specs/2026-05-30-simulation-modes-decisions-design.md b/docs/superpowers/specs/2026-05-30-simulation-modes-decisions-design.md
+new file mode 100644
+index 0000000..133feb9
+--- /dev/null
++++ b/docs/superpowers/specs/2026-05-30-simulation-modes-decisions-design.md
+@@ -0,0 +1,65 @@
++# Simulation Modes ΓÇö Resolved Decisions
++
++**Date:** 2026-05-30  
++**Project:** Project Aegis (cmano-clone)  
++**Status:** Approved design ΓÇö documentation pass (Approach 1); code hooks in DELEG-7ΓÇô9  
++**Source requirement:** `Game-Requirements/requirements/03-Simulation-Modes.md`  
++**Related:** `04-Agent-Delegation.md`, `17-Replay-AAR-And-Order-Log.md`, `2026-05-28-agent-delegation-framework-design.md`
++
++---
++
++## 1. Purpose
++
++Resolves the three open questions in req 03. Modes remain controller configuration per the delegation framework design ΓÇö no fourth `SimulationModeKind`.
++
++---
++
++## 2. Locked decisions
++
++| # | Question | Decision |
++|---|----------|----------|
++| 1 | Dual-side control in Mixed Mode? | **Scenario-gated only.** `allowDualSideControl: true` in scenario policy; default **false**. |
++| 2 | Minimum AvA batch speed? | **256├ù effective** headless = batch-analysis floor. **1000├ù+** = performance **target**, not minimum. |
++| 3 | Spectator Mode? | **Not a fourth enum.** AvA + optional **`AttachReplayViewer`** session flag ΓÇö read-only replay UI on order log + checkpoints. |
++
++---
++
++## 3. Dual-side control
++
++- Default Mixed: one human side via `SimulationModeProfile.PlayerControlsFriendlySide`.
++- When `allowDualSideControl: true`: `AssignHuman` on **both** sides; `PlayerControlsFriendlySide` ignored.
++- JSON: `allowDualSideControl` (boolean, default false). C#: `ScenarioPolicyProfile.AllowDualSideControl`.
++- UI: **TEST SANDBOX** banner when active.
++
++---
++
++## 4. AvA speed tiers
++
++| Tier | Speed | Role |
++|------|-------|------|
++| Debug | &lt; 256├ù headless | Smoke only |
++| **Batch minimum** | **ΓëÑ 256├ù** | Designer sweeps ΓÇö **requirement floor** |
++| **Farm target** | **ΓëÑ 1000├ù** | Cloud batch ΓÇö **performance target** |
++
++Interactive Phase 3 may reach **900├ù+** with rendering; headless tiers apply when render is skipped.
++
++---
++
++## 5. Observer attach (`AttachReplayViewer`)
++
++- Session flag on `DelegationOrchestrator` (shared by `SimulationSession` / `DelegationBridge`).
++- Blocks human order ingress; agents continue ticking.
++- Pause/scrub via replay UI; full `DecisionLog` preserved for AAR (req 17).
++
++---
++
++## 6. Stack traceability (Graphite)
++
++| PR | Branch | Scope |
++|----|--------|-------|
++| DELEG-6 | `stack/delegation/sim-modes-docs` | This spec + req 03 |
++| DELEG-7 | `stack/delegation/dual-side-policy` | `ScenarioPolicyProfile` + JSON |
++| DELEG-8 | `stack/delegation/dual-side-config` | `SimulationModeConfigurator` |
++| DELEG-9 | `stack/delegation/observer-attach` | `AttachReplayViewer` |
++
++GitNexus upstream of `Apply`: `DelegationBridge.ConfigureSimulationMode`, `SimulationModeConfiguratorTests` ΓÇö **MEDIUM** risk.
+diff --git a/src/ProjectAegis.Data.Tests/Catalog/NullCatalogReaderTests.cs b/src/ProjectAegis.Data.Tests/Catalog/NullCatalogReaderTests.cs
+new file mode 100644
+index 0000000..2d7227c
+--- /dev/null
++++ b/src/ProjectAegis.Data.Tests/Catalog/NullCatalogReaderTests.cs
+@@ -0,0 +1,13 @@
++using ProjectAegis.Data.Catalog;
++using Xunit;
++
++namespace ProjectAegis.Data.Tests.Catalog;
++
++public sealed class NullCatalogReaderTests
++{
++    [Fact]
++    public void Instance_exposes_scaffold_layer_version()
++    {
++        Assert.Equal("p0-scaffold", NullCatalogReader.Instance.LayerVersion);
++    }
++}
+diff --git a/src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj b/src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj
+new file mode 100644
+index 0000000..d4bfdbe
+--- /dev/null
++++ b/src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj
+@@ -0,0 +1,20 @@
++<Project Sdk="Microsoft.NET.Sdk">
++  <PropertyGroup>
++    <TargetFramework>net8.0</TargetFramework>
++    <ImplicitUsings>enable</ImplicitUsings>
++    <Nullable>enable</Nullable>
++    <IsPackable>false</IsPackable>
++    <RootNamespace>ProjectAegis.Data.Tests</RootNamespace>
++  </PropertyGroup>
++  <ItemGroup>
++    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
++    <PackageReference Include="xunit" Version="2.9.2" />
++    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
++      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
++      <PrivateAssets>all</PrivateAssets>
++    </PackageReference>
++  </ItemGroup>
++  <ItemGroup>
++    <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
++  </ItemGroup>
++</Project>
+diff --git a/src/ProjectAegis.Data/Catalog/ICatalogReader.cs b/src/ProjectAegis.Data/Catalog/ICatalogReader.cs
+new file mode 100644
+index 0000000..0ea2c40
+--- /dev/null
++++ b/src/ProjectAegis.Data/Catalog/ICatalogReader.cs
+@@ -0,0 +1,6 @@
++namespace ProjectAegis.Data.Catalog;
++
++public interface ICatalogReader
++{
++    string LayerVersion { get; }
++}
+diff --git a/src/ProjectAegis.Data/Catalog/NullCatalogReader.cs b/src/ProjectAegis.Data/Catalog/NullCatalogReader.cs
+new file mode 100644
+index 0000000..4223db2
+--- /dev/null
++++ b/src/ProjectAegis.Data/Catalog/NullCatalogReader.cs
+@@ -0,0 +1,12 @@
++namespace ProjectAegis.Data.Catalog;
++
++public sealed class NullCatalogReader : ICatalogReader
++{
++    public static readonly NullCatalogReader Instance = new();
++
++    private NullCatalogReader()
++    {
++    }
++
++    public string LayerVersion => "p0-scaffold";
++}
+diff --git a/src/ProjectAegis.Data/ProjectAegis.Data.csproj b/src/ProjectAegis.Data/ProjectAegis.Data.csproj
+new file mode 100644
+index 0000000..b9bce52
+--- /dev/null
++++ b/src/ProjectAegis.Data/ProjectAegis.Data.csproj
+@@ -0,0 +1,9 @@
++<Project Sdk="Microsoft.NET.Sdk">
++  <PropertyGroup>
++    <TargetFramework>net8.0</TargetFramework>
++    <ImplicitUsings>enable</ImplicitUsings>
++    <Nullable>enable</Nullable>
++    <RootNamespace>ProjectAegis.Data</RootNamespace>
++    <Description>Platform catalog, snapshots, scenario packages, and write gate (no UnityEngine).</Description>
++  </PropertyGroup>
++</Project>
+diff --git a/src/ProjectAegis.Delegation.UnityAdapter.Tests/Bridge/DelegationBridgeSimSessionTests.cs b/src/ProjectAegis.Delegation.UnityAdapter.Tests/Bridge/DelegationBridgeSimSessionTests.cs
+new file mode 100644
+index 0000000..e2b07a2
+--- /dev/null
++++ b/src/ProjectAegis.Delegation.UnityAdapter.Tests/Bridge/DelegationBridgeSimSessionTests.cs
+@@ -0,0 +1,97 @@
++namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
++
++using ProjectAegis.Delegation.Controllers;
++using ProjectAegis.Delegation.Core;
++using ProjectAegis.Delegation.Decision;
++using ProjectAegis.Delegation.Orchestration;
++using ProjectAegis.Delegation.Policy;
++using ProjectAegis.Delegation.Sim;
++using ProjectAegis.Delegation.Traits;
++using ProjectAegis.Delegation.UnityAdapter.Bridge;
++using ProjectAegis.Sim.Policy;
++using NUnit.Framework;
++
++[TestFixture]
++public sealed class DelegationBridgeSimSessionTests
++{
++    [Test]
++    public void EnableMvpEngagement_resolves_engages_via_sim_session()
++    {
++        var bridge = new DelegationBridge(99);
++        bridge.EnableMvpEngagement();
++
++        var unit = bridge.Registry.RegisterUnit(new EntityKey(1), "opp-1");
++        var agent = bridge.Orchestrator.CreateAgent(
++            new AgentId("a1"),
++            ProjectAegis.Delegation.Traits.PersonalityCatalog.All[0].Traits,
++            AutonomyLevel.FullAutonomous,
++            policy: new EngageOnlyPolicy());
++        bridge.Orchestrator.AssignAgentToTarget(agent, unit.Target, EffectivePolicy.DefaultFree);
++        bridge.BeginExecution();
++
++        var snapshot = new StubSnapshot(1, 2, 0, new Dictionary<TargetId, bool> { [unit.TargetId] = true });
++        var sink = new RecordingSink();
++        var result = bridge.Tick(snapshot, sink);
++
++        Assert.That(bridge.SimSession, Is.Not.Null);
++        Assert.That(result.EngagementsResolved, Is.GreaterThan(0));
++        Assert.That(bridge.Orchestrator.DecisionLog.Engagements, Is.Not.Empty);
++        Assert.That(sink.Applied, Is.Empty, "Engage orders stay in sim session, not IOrderSink");
++    }
++
++    [Test]
++    public void Without_sim_session_dispatches_all_orders_including_engage()
++    {
++        var bridge = new DelegationBridge(1);
++        var unit = bridge.Registry.RegisterUnit(new EntityKey(2), "u2");
++        var agent = bridge.Orchestrator.CreateAgent(
++            new AgentId("a2"),
++            ProjectAegis.Delegation.Traits.PersonalityCatalog.All[0].Traits,
++            AutonomyLevel.FullAutonomous,
++            policy: new EngageOnlyPolicy());
++        bridge.Orchestrator.AssignAgentToTarget(agent, unit.Target, EffectivePolicy.DefaultFree);
++        bridge.BeginExecution();
++
++        var sink = new RecordingSink();
++        bridge.Tick(
++            new StubSnapshot(0, 1, 0, new Dictionary<TargetId, bool> { [unit.TargetId] = true }),
++            sink);
++
++        Assert.That(sink.Applied, Is.Not.Empty);
++        Assert.That(sink.Applied[0].Order.Kind, Is.EqualTo(OrderKind.Engage));
++    }
++
++    private sealed class EngageOnlyPolicy : IPolicy
++    {
++        public IReadOnlyList<ScoredIntent> GenerateCandidates(PerceivedState perceived, TraitVector traits)
++        {
++            _ = perceived;
++            _ = traits;
++            return [new ScoredIntent(OrderKind.Engage, 1.0, RiskLevel.High)];
++        }
++    }
++
++    private sealed class StubSnapshot(
++        double SimTime,
++        int ContactCount,
++        int ActiveEngagementCount,
++        IReadOnlyDictionary<TargetId, bool> Alive) : ISimWorldSnapshot
++    {
++        public double SimTime { get; } = SimTime;
++
++        public int ContactCount { get; } = ContactCount;
++
++        public int ActiveEngagementCount { get; } = ActiveEngagementCount;
++
++        public bool IsMemberAlive(TargetId memberId) =>
++            Alive.TryGetValue(memberId, out var alive) && alive;
++    }
++
++    private sealed class RecordingSink : IOrderSink
++    {
++        public List<(EntityKey Entity, Order Order)> Applied { get; } = new();
++
++        public void ApplyOrder(EntityKey entity, in Order order) =>
++            Applied.Add((entity, order));
++    }
++}
+diff --git a/src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs b/src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs
+index cc58198..f5c2e2f 100644
+--- a/src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs
++++ b/src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs
+@@ -2,10 +2,12 @@ namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
+ 
+ using ProjectAegis.Delegation.Controllers;
+ using ProjectAegis.Delegation.Core;
++using ProjectAegis.Delegation.Decision;
+ using ProjectAegis.Delegation.Orchestration;
+ using ProjectAegis.Delegation.Roe;
+ using ProjectAegis.Delegation.Targets;
+ using ProjectAegis.Delegation.Traits;
++using ProjectAegis.Sim.Engage;
+ using ProjectAegis.Sim.Policy;
+ 
+ /// <summary>
+@@ -13,6 +15,9 @@ namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
+ /// </summary>
+ public sealed class DelegationBridge
+ {
++    private SimulationSession? _simSession;
++    private readonly List<Order> _nonEngageOrdersCache = new();
++
+     public DelegationBridge(int globalSeed, IPolicyEvaluator? policyEvaluator = null)
+     {
+         Orchestrator = new DelegationOrchestrator(globalSeed, policyEvaluator);
+@@ -23,10 +28,31 @@ public DelegationBridge(int globalSeed, IPolicyEvaluator? policyEvaluator = null
+ 
+     public TargetRegistry Registry { get; }
+ 
++    public SimulationSession? SimSession => _simSession;
++
++    /// <summary>Route <see cref="OrderKind.Engage"/> through <see cref="SimulationSession"/> (DLZ/magazines MVP).</summary>
++    public DelegationBridge EnableMvpEngagement(
++        EngageContext? defaultEngageContext = null,
++        int defaultMagazineRounds = 2)
++    {
++        _simSession = SimulationSession.BindMvpEngagement(
++            Orchestrator,
++            defaultEngageContext ?? new EngageContext(
++                50_000,
++                new WeaponEnvelope(1_000, 100_000),
++                RoundsRemaining: 2,
++                HasFireControlTrack: true),
++            defaultMagazineRounds);
++        return this;
++    }
++
+     public SimulationPhase Phase => Orchestrator.Phase;
+ 
+     public void BeginExecution() => Orchestrator.BeginExecution();
+ 
++    public IReadOnlyList<OrderLogEntry> GetLiveOrderLogView() =>
++        Orchestrator.GetLiveOrderLogView();
++
+     public void ConfigureSimulationMode(
+         SimulationModeProfile mode,
+         IReadOnlyList<ICommandableTarget> friendly,
+@@ -46,9 +72,35 @@ public void ConfigureSimulationMode(
+     public DelegationTickResult Tick(ISimWorldSnapshot snapshot, IOrderSink sink)
+     {
+         var observed = ObservedStateBuilder.Build(snapshot, Registry.CollectMemberIds());
++
++        if (_simSession != null)
++        {
++            if (!_simSession.Tick(observed))
++            {
++                Orchestrator.Tick(observed);
++                return new DelegationTickResult(Array.Empty<Order>(), 0);
++            }
++
++            var orders = Orchestrator.ExecutedOrders;
++            _nonEngageOrdersCache.Clear();
++            foreach (var order in orders)
++            {
++                if (order.Kind != OrderKind.Engage)
++                {
++                    _nonEngageOrdersCache.Add(order);
++                }
++            }
++
++            var dispatched = OrderDispatcher.Dispatch(_nonEngageOrdersCache, Registry, sink);
++            return new DelegationTickResult(
++                orders,
++                dispatched,
++                _simSession.Sim.LastEngagementResults.Count);
++        }
++
+         Orchestrator.Tick(observed);
+-        var dispatched = OrderDispatcher.Dispatch(Orchestrator.ExecutedOrders, Registry, sink);
+-        return new DelegationTickResult(Orchestrator.ExecutedOrders, dispatched);
++        var allDispatched = OrderDispatcher.Dispatch(Orchestrator.ExecutedOrders, Registry, sink);
++        return new DelegationTickResult(Orchestrator.ExecutedOrders, allDispatched);
+     }
+ 
+     public bool TryEnqueueHumanOrder(
+diff --git a/src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationTickResult.cs b/src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationTickResult.cs
+index 5086376..dd081cf 100644
+--- a/src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationTickResult.cs
++++ b/src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationTickResult.cs
+@@ -4,4 +4,5 @@ namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
+ 
+ public sealed record DelegationTickResult(
+     IReadOnlyList<Order> ExecutedOrders,
+-    int DispatchedToSim);
++    int DispatchedToSim,
++    int EngagementsResolved = 0);
+diff --git a/src/ProjectAegis.Delegation/Orchestration/DelegationOrchestrator.cs b/src/ProjectAegis.Delegation/Orchestration/DelegationOrchestrator.cs
+index a1e64c5..dc4d54a 100644
+--- a/src/ProjectAegis.Delegation/Orchestration/DelegationOrchestrator.cs
++++ b/src/ProjectAegis.Delegation/Orchestration/DelegationOrchestrator.cs
+@@ -166,4 +166,10 @@ public LoopPolicyVerdict TryRebindAgentTraits(
+         agent.RebindTraits(traits);
+         return LoopPolicyVerdict.Allow();
+     }
++
++    /// <summary>Live HUD order log; full log remains in <see cref="DecisionLog"/> for replay/AAR.</summary>
++    public IReadOnlyList<OrderLogEntry> GetLiveOrderLogView() =>
++        PlayerInfoFilter.FilterLiveEntries(
++            DecisionLog.ChronologicalEntries(),
++            LoopPolicyGate.ResolvePlayerInfoModel(ScenarioPolicy));
+ }
+diff --git a/src/ProjectAegis.Delegation/Orchestration/SimulationSession.cs b/src/ProjectAegis.Delegation/Orchestration/SimulationSession.cs
+index 3d01414..5e61b21 100644
+--- a/src/ProjectAegis.Delegation/Orchestration/SimulationSession.cs
++++ b/src/ProjectAegis.Delegation/Orchestration/SimulationSession.cs
+@@ -22,6 +22,31 @@ public SimulationSession(
+         Sim = new SimTickPipeline(seed, engagement ?? new StubEngagementResolver());
+     }
+ 
++    private SimulationSession(DelegationOrchestrator orchestrator, SimTickPipeline sim)
++    {
++        Orchestrator = orchestrator;
++        Sim = sim;
++    }
++
++    /// <summary>Attach MVP engage pipeline to an existing orchestrator (Unity bridge, shared session).</summary>
++    public static SimulationSession BindMvpEngagement(
++        DelegationOrchestrator orchestrator,
++        EngageContext defaultEngageContext,
++        int defaultMagazineRounds = 2)
++    {
++        var seed = SimSeed.FromScenario((ulong)orchestrator.GlobalSeed);
++        var world = new DictionaryEngageWorldQuery();
++        var magazines = new MagazineLedger();
++        var sim = new SimTickPipeline(seed, new MvpEngagementResolver(world, magazines));
++        return new SimulationSession(orchestrator, sim)
++        {
++            EngageWorld = world,
++            Magazines = magazines,
++            DefaultEngageContext = defaultEngageContext,
++            DefaultMagazineRounds = defaultMagazineRounds,
++        };
++    }
++
+     public SimulationPhase Phase => Orchestrator.Phase;
+ 
+     public DelegationOrchestrator Orchestrator { get; }
+@@ -95,17 +120,11 @@ public static SimulationSession CreateWithMvpEngagement(int globalSeed) =>
+     public static SimulationSession CreateWithMvpEngagement(
+         int globalSeed,
+         EngageContext defaultEngageContext,
+-        int defaultMagazineRounds = 2)
++        int defaultMagazineRounds = 2,
++        IPolicyEvaluator? policyEvaluator = null)
+     {
+-        var world = new DictionaryEngageWorldQuery();
+-        var magazines = new MagazineLedger();
+-        return new SimulationSession(globalSeed, new MvpEngagementResolver(world, magazines))
+-        {
+-            EngageWorld = world,
+-            Magazines = magazines,
+-            DefaultEngageContext = defaultEngageContext,
+-            DefaultMagazineRounds = defaultMagazineRounds,
+-        };
++        var orchestrator = new DelegationOrchestrator(globalSeed, policyEvaluator);
++        return BindMvpEngagement(orchestrator, defaultEngageContext, defaultMagazineRounds);
+     }
+ 
+     public DictionaryEngageWorldQuery? EngageWorld { get; init; }
+diff --git a/unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs b/unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs
+index 03cd224..f3a4e87 100644
+--- a/unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs
++++ b/unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs
+@@ -12,14 +12,20 @@ namespace ProjectAegis.Unity.Runtime
+     public sealed class DelegationBridgeHost : MonoBehaviour
+     {
+         [SerializeField] private int globalSeed = 42;
++        [SerializeField] private bool enableMvpEngagement = true;
+ 
+         public DelegationBridge Bridge { get; private set; } = null!;
+ 
+-        public SimulationPhase Phase => Bridge.Phase;
++        public SimulationPhase Phase =>
++            Bridge != null ? Bridge.Phase : SimulationPhase.Planning;
+ 
+         private void Awake()
+         {
+             Bridge = new DelegationBridge(globalSeed);
++            if (enableMvpEngagement)
++            {
++                Bridge.EnableMvpEngagement();
++            }
+         }
+ 
+         public void BeginExecution() => Bridge.BeginExecution();
+diff --git a/unity/ProjectAegis/README.md b/unity/ProjectAegis/README.md
+index 011f3ab..0af2974 100644
+--- a/unity/ProjectAegis/README.md
++++ b/unity/ProjectAegis/README.md
+@@ -47,14 +47,16 @@ Use **Unity 6** or a version that supports referencing modern .NET assemblies in
+ 
+ ## 4. Optional host component
+ 
+-`Runtime/DelegationBridgeHost.cs` holds a `DelegationBridge` for play-mode tests.
++`Assets/Scripts/Runtime/DelegationBridgeHost.cs` holds a `DelegationBridge` for play-mode tests.
+ 
+-`Runtime/SimplePlayModeSimHost.cs` is a **zero-ECS smoke harness**: add to the same GameObject as `DelegationBridgeHost`; it implements `ISimWorldSnapshot` + `IOrderSink` and calls `RunTick` every frame.
++`Assets/Scripts/Runtime/SimplePlayModeSimHost.cs` is a **zero-ECS smoke harness**: add to the same GameObject as `DelegationBridgeHost`; it implements `ISimWorldSnapshot` + `IOrderSink` and calls `RunTick` every frame.
+ 
+ For production, wire `ISimWorldSnapshot` / `IOrderSink` from ECS in `SystemBase` instead.
+ 
+ **Policy (ADR-002):** Use `orchestrator.AssignAgentToTarget(agent, target, effectivePolicy)` to freeze snapshots. `DecisionLog.PolicyDenials` records blocked engages.
+ 
++**Engage (ADR-002/003):** `DelegationBridgeHost` enables MVP engage by default (`EnableMvpEngagement`). Engage orders resolve in `SimulationSession`; other orders still go to `IOrderSink`.
++
+ **Unity packages (6.3 LTS):** Copy [`Packages/manifest.template.json`](Packages/manifest.template.json) into your Unity project's `Packages/manifest.json` and resolve via Package Manager.
+ 
+ ## 5. DOTS notes (future)
+diff --git a/unity/ProjectAegis/Runtime/DelegationBridgeHost.cs b/unity/ProjectAegis/Runtime/DelegationBridgeHost.cs
+deleted file mode 100644
+index 03cd224..0000000
+--- a/unity/ProjectAegis/Runtime/DelegationBridgeHost.cs
++++ /dev/null
+@@ -1,34 +0,0 @@
+-// Optional Unity host ΓÇö requires Plugins DLLs (see unity/ProjectAegis/README.md).
+-#if UNITY_5_3_OR_NEWER
+-using ProjectAegis.Delegation.Orchestration;
+-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+-using UnityEngine;
+-
+-namespace ProjectAegis.Unity.Runtime
+-{
+-    /// <summary>
+-    /// Holds a delegation session for play-mode wiring. Assign snapshot/sink from your sim systems.
+-    /// </summary>
+-    public sealed class DelegationBridgeHost : MonoBehaviour
+-    {
+-        [SerializeField] private int globalSeed = 42;
+-
+-        public DelegationBridge Bridge { get; private set; } = null!;
+-
+-        public SimulationPhase Phase => Bridge.Phase;
+-
+-        private void Awake()
+-        {
+-            Bridge = new DelegationBridge(globalSeed);
+-        }
+-
+-        public void BeginExecution() => Bridge.BeginExecution();
+-
+-        /// <summary>
+-        /// Call once per sim step after building snapshot and sink for this frame.
+-        /// </summary>
+-        public DelegationTickResult RunTick(ISimWorldSnapshot snapshot, IOrderSink sink) =>
+-            Bridge.Tick(snapshot, sink);
+-    }
+-}
+-#endif
+diff --git a/unity/ProjectAegis/Runtime/SimplePlayModeSimHost.cs b/unity/ProjectAegis/Runtime/SimplePlayModeSimHost.cs
+deleted file mode 100644
+index 19cad20..0000000
+--- a/unity/ProjectAegis/Runtime/SimplePlayModeSimHost.cs
++++ /dev/null
+@@ -1,62 +0,0 @@
+-// Play-mode smoke harness: stub snapshot + sink for DelegationBridge (no ECS required).
+-#if UNITY_5_3_OR_NEWER
+-using System.Collections.Generic;
+-using ProjectAegis.Delegation.Core;
+-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+-using UnityEngine;
+-
+-namespace ProjectAegis.Unity.Runtime
+-{
+-    [DisallowMultipleComponent]
+-    public sealed class SimplePlayModeSimHost : MonoBehaviour, ISimWorldSnapshot, IOrderSink
+-    {
+-        [SerializeField] private DelegationBridgeHost bridgeHost = null!;
+-        [SerializeField] private int contactCount = 2;
+-        [SerializeField] private float simTimeStep = 1f / 60f;
+-        [Tooltip("Smoke harness: auto-start execution. Disable for RTwP planning UX.")]
+-        [SerializeField] private bool autoBeginOnStart = true;
+-
+-        private double _simTime;
+-        private readonly List<(EntityKey Entity, Order Order)> _applied = new();
+-
+-        public double SimTime => _simTime;
+-        public int ContactCount => contactCount;
+-        public int ActiveEngagementCount => 0;
+-
+-        public IReadOnlyList<(EntityKey Entity, Order Order)> AppliedOrders => _applied;
+-
+-        private void Reset()
+-        {
+-            if (bridgeHost == null)
+-            {
+-                bridgeHost = GetComponent<DelegationBridgeHost>();
+-            }
+-        }
+-
+-        private void Start()
+-        {
+-            if (autoBeginOnStart && bridgeHost?.Bridge != null)
+-            {
+-                bridgeHost.BeginExecution();
+-            }
+-        }
+-
+-        private void Update()
+-        {
+-            if (bridgeHost?.Bridge == null)
+-            {
+-                return;
+-            }
+-
+-            _applied.Clear();
+-            _simTime += simTimeStep;
+-            bridgeHost.RunTick(this, this);
+-        }
+-
+-        public bool IsMemberAlive(TargetId memberId) => true;
+-
+-        public void ApplyOrder(EntityKey entity, in Order order) =>
+-            _applied.Add((entity, order));
+-    }
+-}
+-#endif
