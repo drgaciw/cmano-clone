@@ -2,7 +2,7 @@
 
 **Purpose:** Headless substitutes for Unity manual checks where presentation logic lives in `ProjectAegis.Delegation` (milsim QA gate).
 
-**Build:** `main` @ `0ef5c89` (Sprint 18 refresh)  
+**Build:** `main` @ `f7e6fa6` (PR #69 Wave 5 + Sprint 18)  
 **Headless evidence:** `production/qa/smoke-2026-06-04.md`, `production/qa/sprint-17-smoke-closeout-2026-06-04.md`  
 **Manual sign-off still required:** `production/qa/c2-manual-signoff-2026-06-02.md` (Editor Play Mode; runbook `sprint-18-c2-signoff-runbook-2026-06-04.md`)
 
@@ -28,6 +28,6 @@
 
 ## Verdict
 
-- **Headless proxy:** PASS when all filtered tests green (**380** solution total as of 2026-06-04).
+- **Headless proxy:** PASS when all filtered tests green (**385** solution total as of 2026-06-04 post-merge).
 - **Unity manual:** PENDING until Editor checklist signed.
 - **PI-006 (agentic):** CLOSED via headless proxy; Editor checklist open.

@@ -13,7 +13,7 @@ if (-not $SkipBuild) {
     dotnet build ProjectAegis.sln -v minimal
 }
 
-dotnet test ProjectAegis.sln -v minimal --filter "FullyQualifiedName~PlayModeSmoke|FullyQualifiedName~BalticReplayHarnessComms|FullyQualifiedName~MapPanelBinder|FullyQualifiedName~FuelState|FullyQualifiedName~ReplayGoldenBalticComms"
+dotnet test ProjectAegis.sln -v minimal --filter "FullyQualifiedName~PlayModeSmoke|FullyQualifiedName~BalticReplayHarnessComms|FullyQualifiedName~MapPanelBinder|FullyQualifiedName~FuelState|FullyQualifiedName~ReplayGoldenBalticComms|FullyQualifiedName~DelegationBridgeAttack|FullyQualifiedName~EngageAttack|FullyQualifiedName~AttackMenu|FullyQualifiedName~Spoof"
 
 Write-Host ""
 Write-Host "Headless proxy PASS expected. Next: Unity Editor manual checklist:"

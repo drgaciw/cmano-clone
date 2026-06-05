@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-04  
 **Checklist:** `production/qa/c2-manual-signoff-2026-06-02.md` (13 checks)  
-**Build under test:** `main` @ `0ef5c89` (update SHA in checklist header when starting)
+**Build under test:** `main` @ `f7e6fa6` (PR #69; update SHA in checklist header when starting)
 
 ## Prerequisites
 

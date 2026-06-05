@@ -1,6 +1,6 @@
 # C2 manual QA sign-off — 2026-06-02
 
-**Build:** `main` @ `cde26fe` (Sprint 17 DATA P0 complete; update SHA when testing)  
+**Build:** `main` @ `f7e6fa6` (PR #69 Wave 5 merged; Sprint 18 — update SHA when testing)  
 **Prior baseline:** `2a08518` (Sprints 7–9)  
 **Scenarios:** `baltic-patrol-classify` (selection), `baltic-patrol-comms` (COMMS + map stale)  
 **Reference:** `unity/ProjectAegis/PLAYMODE-SMOKE.md`  
