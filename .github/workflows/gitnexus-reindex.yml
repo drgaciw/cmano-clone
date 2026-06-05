@@ -8,6 +8,7 @@ on:
       - 'docs/**'
       - '.gitignore'
       - 'production/dashboard-state.yaml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,6 +17,7 @@ jobs:
   reindex:
     name: Reindex Knowledge Graph
     runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -27,23 +29,37 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: npm
 
       - name: Install GitNexus
-        run: npm install -g gitnexus
+        run: |
+          set -euo pipefail
+          npm install -g gitnexus
+          gitnexus --version | tee gitnexus-version.txt
         env:
           GITNEXUS_SKIP_OPTIONAL_GRAMMARS: '1'
 
       - name: Analyze & Reindex
-        run: gitnexus analyze
+        run: |
+          set -o pipefail
+          mkdir -p .gitnexus/logs
+          gitnexus analyze 2>&1 | tee .gitnexus/logs/analyze.log
         env:
           GITNEXUS_WORKER_POOL_SIZE: '4'
 
       - name: Verify Index Status
-        run: gitnexus status
+        run: |
+          set -o pipefail
+          mkdir -p .gitnexus/logs
+          gitnexus status 2>&1 | tee .gitnexus/logs/status.log
 
-      - name: Cache Index Artifact
+      - name: Upload GitNexus Diagnostics
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: gitnexus-index-${{ github.sha }}
-          path: .gitnexus/
-          retention-days: 7
+          name: gitnexus-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            .gitnexus/
+            gitnexus-version.txt
+          if-no-files-found: warn
+          retention-days: 14
