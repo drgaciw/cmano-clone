@@ -1,0 +1,28 @@
+{
+  "id": "baltic-patrol-spoof",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true
+  },
+  "detection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "basePd": 1.0
+    }
+  ],
+  "spoofTracks": [
+    {
+      "atTick": 1,
+      "contactId": "hostile-1",
+      "reason": "cyber-spoof"
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+name: Dismiss Stale Approvals (Graphite-compatible)
+
+# This workflow is the recommended replacement for GitHub's built-in
+# "Dismiss stale pull request approvals when new commits are pushed"
+# branch protection rule, which must be DISABLED when using Graphite.
+#
+# Graphite rebases PRs as part of the merge process, which triggers
+# GitHub's built-in dismissal and causes merge failures. This action
+# only dismisses approvals for meaningful code changes — not Graphite
+# rebases — giving you the same safety guarantee without the friction.
+#
+# Source: https://graphite.com/docs/github-configuration-guidelines
+# Action: https://github.com/marketplace/actions/dismiss-stale-approvals
+
+on:
+  pull_request:
+    types: [synchronize]
+    branches-ignore:
+      - "**/graphite-base/**"
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dismiss_stale_approvals:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Dismiss stale approvals on meaningful changes
+        uses: phulsechinmay/rewritable-pr-dismissal@v0.3.0
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PULL_REQUEST_ID: ${{ github.event.pull_request.node_id }}

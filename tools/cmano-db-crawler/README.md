@@ -10,6 +10,7 @@ Air/Naval Operations game database). Node 18+ only — no dependencies (uses bui
 ```sh
 node harvest.mjs all        # crawl all six categories -> _raw/<category>.json  (~50 min)
 node render.mjs all         # render _raw/*.json -> docs/reference/cmano-db/*.md
+node export-catalog-sensors.mjs [_raw/sensor.json] [out.json]  # -> assets/data/catalog/import/
 node verify.mjs             # re-fetch sampled records live and diff vs the harvest
 ```
 

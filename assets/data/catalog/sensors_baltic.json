@@ -1,0 +1,23 @@
+{
+  "importBatchId": "baltic-patrol-2026-06",
+  "sensors": [
+    {
+      "platformId": "u1",
+      "sensorId": "radar-1",
+      "basePd": 1.0,
+      "sourceFactId": "catalog-import-baltic",
+      "confidence": 1.0,
+      "reviewState": "approved",
+      "trlLevel": 9
+    },
+    {
+      "platformId": "u1",
+      "sensorId": "radar-2",
+      "basePd": 0.75,
+      "sourceFactId": "catalog-import-baltic",
+      "confidence": 0.9,
+      "reviewState": "approved",
+      "trlLevel": 9
+    }
+  ]
+}

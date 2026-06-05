@@ -1,6 +1,7 @@
 namespace ProjectAegis.Sim.Core;
 
 using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Sensors;
 using ProjectAegis.Sim.Time;
 
 /// <summary>ADR-004 tick runner with engagement phase (step 8) wired.</summary>
@@ -45,22 +46,47 @@ public sealed class SimTickPipeline : ISimTickRunner
         }
 
         _pending.Clear();
+        RecomputeWorldHash();
+    }
 
+    /// <summary>Detection phase sub-hash (tick step 4); call before engagement resolves.</summary>
+    public ulong DetectionSubhash { get; private set; }
+
+    public void MixDetectionTick(IReadOnlyList<DetectionRollResult> rolls)
+    {
+        DetectionSubhash = DetectionWorldHash.MixTick(DetectionSubhash, rolls);
+        RecomputeWorldHash();
+    }
+
+    private void RecomputeWorldHash()
+    {
         var engageMix = MixEngagements(_lastResults);
-        LastWorldHash = MixWorldHash(_core.LastWorldHash, engageMix);
+        var killMix = _engagement is MvpEngagementResolver mvp ? mvp.KilledTargets.MixHash() : 0UL;
+        LastWorldHash = SimWorldHash.Combine(_core.LastWorldHash, DetectionSubhash, engageMix, killMix);
     }
 
     private static ulong MixEngagements(IReadOnlyList<EngageResult> results)
     {
-        ulong x = 0;
+        ulong engageIds = 0;
+        ulong outcomeMix = 0;
         foreach (var r in results)
         {
-            x ^= r.Launched ? r.EngagementId : 0UL;
+            if (!r.Launched)
+            {
+                continue;
+            }
+
+            engageIds ^= r.EngagementId;
+            if (r.OutcomeCode != null)
+            {
+                outcomeMix = SimWorldHash.MixLayer(
+                    outcomeMix,
+                    SimWorldHash.Fold(r.EngagementId ^ (ulong)r.OutcomeCode[0]),
+                    SimWorldHash.LayerCombatOutcome);
+            }
         }
 
-        return x;
+        return SimWorldHash.MixLayer(engageIds, outcomeMix, SimWorldHash.LayerEngage);
     }
 
-    private static ulong MixWorldHash(ulong coreHash, ulong engageMix) =>
-        coreHash ^ (engageMix << 17);
 }

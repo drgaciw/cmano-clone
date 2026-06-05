@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:VisualElement name="sensor-c2-root" class="sensor-c2-panel">
+        <ui:Label name="title-label" text="SENSOR C2" class="sensor-c2-title" />
+        <ui:VisualElement class="sensor-c2-status-row">
+            <ui:Label name="emcon-label" text="EMCON: —" class="sensor-c2-kpi" />
+            <ui:Label name="track-label" text="TRACK: —" class="sensor-c2-kpi" />
+            <ui:Label name="contact-count-label" text="CONTACTS: 0" class="sensor-c2-kpi" />
+        </ui:VisualElement>
+        <ui:ListView name="contact-list" class="sensor-c2-contact-list" selection-type="None" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -33,5 +33,5 @@
 - [x] Add `LoopPolicyGate` + `TryRebindAgentTraits`
 - [x] Update existing session tests to call `BeginExecution`
 - [x] Add phase and policy unit tests
-- [ ] Run full Delegation + Sim test projects
-- [ ] Commit
+- [x] Run full Delegation + Sim test projects (2026-06-02: Delegation 84, Sim 45, Adapter 40 — 0 failures on `main`)
+- [ ] Commit (deferred — no user commit request this session)

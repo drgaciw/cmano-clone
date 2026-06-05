@@ -1,0 +1,33 @@
+.unit-detail-panel {
+    flex-grow: 1;
+    min-width: 280px;
+    padding: 8px;
+    background-color: rgba(12, 18, 28, 0.92);
+}
+
+.unit-detail-title {
+    -unity-font-style: bold;
+    color: rgb(200, 210, 220);
+    margin-bottom: 6px;
+}
+
+.unit-detail-line {
+    color: rgb(180, 190, 200);
+    margin-bottom: 2px;
+}
+
+.unit-detail-attack-menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.unit-detail-attack-btn {
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+
+.unit-detail-attack-btn:disabled {
+    opacity: 0.45;
+}

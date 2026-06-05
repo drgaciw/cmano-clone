@@ -1,0 +1,16 @@
+.mission-list-panel {
+    flex-grow: 1;
+    min-width: 220px;
+    padding: 6px;
+    background-color: rgba(12, 18, 28, 0.92);
+}
+
+.mission-list-title {
+    -unity-font-style: bold;
+    color: rgb(200, 210, 220);
+    margin-bottom: 4px;
+}
+
+.mission-list-view {
+    flex-grow: 1;
+}

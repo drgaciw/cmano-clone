@@ -1,0 +1,74 @@
+name: GitNexus PR Analysis
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  blast-radius:
+    name: Blast Radius & Impact Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (full history for git-diff)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+
+      - name: Install GitNexus CLI
+        run: npm install -g gitnexus
+        env:
+          GITNEXUS_SKIP_OPTIONAL_GRAMMARS: '1'
+
+      - name: Index Repository
+        run: gitnexus analyze
+        env:
+          GITNEXUS_WORKER_POOL_SIZE: '4'
+          GITNEXUS_VERBOSE: '1'
+
+      - name: Detect Changed Symbol Impact
+        id: impact
+        run: |
+          gitnexus detect_changes --scope all --format json > /tmp/impact.json 2>&1 || true
+          cat /tmp/impact.json
+
+      - name: Write Summary
+        run: |
+          echo "## GitNexus Impact Analysis" >> $GITHUB_STEP_SUMMARY
+          echo '```json' >> $GITHUB_STEP_SUMMARY
+          cat /tmp/impact.json >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const raw = fs.readFileSync('/tmp/impact.json', 'utf8');
+            let body;
+            try {
+              const data = JSON.parse(raw);
+              const risk = data.summary?.risk_level ?? 'unknown';
+              const changed = data.summary?.changed_count ?? 0;
+              const affected = data.summary?.affected_count ?? 0;
+              body = `## GitNexus Blast Radius Report`;
+            } catch {
+              body = `## GitNexus Analysis`;
+            }
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });

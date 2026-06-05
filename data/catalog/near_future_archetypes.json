@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "archetypes": [
+    {
+      "archetypeId": "replicator-attritable",
+      "technologyLevel": 1,
+      "swarmTier": "Micro",
+      "maxSwarmEntities": 50,
+      "trlLevel": 7
+    },
+    {
+      "archetypeId": "cca-wingman",
+      "technologyLevel": 2,
+      "swarmTier": "Medium",
+      "maxSwarmEntities": 500,
+      "trlLevel": 8
+    },
+    {
+      "archetypeId": "swarm-saturation",
+      "technologyLevel": 3,
+      "swarmTier": "Mass",
+      "maxSwarmEntities": 5000,
+      "trlLevel": 6
+    },
+    {
+      "archetypeId": "hypersonic-boost-glide",
+      "technologyLevel": 2,
+      "swarmTier": "Micro",
+      "maxSwarmEntities": 1,
+      "trlLevel": 7
+    }
+  ]
+}

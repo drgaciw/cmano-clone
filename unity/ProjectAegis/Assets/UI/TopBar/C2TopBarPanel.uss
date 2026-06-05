@@ -1,0 +1,37 @@
+.c2-topbar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 4px 8px;
+    background-color: rgba(10, 16, 26, 0.95);
+    border-bottom-width: 1px;
+    border-bottom-color: rgb(50, 65, 80);
+}
+
+.c2-topbar-item {
+    margin-right: 16px;
+    color: rgb(190, 200, 210);
+    font-size: 12px;
+}
+
+.c2-topbar-item--comms {
+    -unity-font-style: bold;
+}
+
+.c2-topbar-item--comms-nominal {
+    color: rgb(100, 200, 140);
+}
+
+.c2-topbar-item--comms-degraded {
+    color: rgb(240, 180, 80);
+}
+
+.c2-topbar-item--comms-denied {
+    color: rgb(230, 90, 90);
+}
+
+.c2-topbar-item--score {
+    margin-left: auto;
+    -unity-font-style: bold;
+    color: rgb(240, 192, 64);
+}

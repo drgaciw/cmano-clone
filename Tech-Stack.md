@@ -1,6 +1,6 @@
 # Tech Stack - Agentic Game Development
 
-**Core Game Engine:** Unity (Latest LTS Version)
+**Core Game Engine:** Unity **6.3 LTS** (editor `6000.3.14f1`) — project at `unity/ProjectAegis/`
 
 **Programming Language:** C# (Microsoft C#)
 
@@ -16,14 +16,16 @@
 
 ## Claude-Specific Integrations
 
-> **Status: Configured** — repo wiring complete; Unity Editor activation pending.
-> See [Claude Agent Setup](Game-Requirements/Claude-Agent-Setup.md) for remaining steps and workflow guide.
+> **Status: Configured** — client MCP + Unity project scaffold; **Editor session and `:8080` pending**.
+> See [Claude Agent Setup](Game-Requirements/Claude-Agent-Setup.md) for activation steps.
 
-**[Unity-MCP](https://github.com/IvanMurzak/Unity-MCP)** — *configured (client-side)*
-- Global CLI installed (`unity-mcp-cli`); MCP config committed in `.cursor/mcp.json` and `.mcp.json`
-- Connects Claude and Cursor directly to Unity Editor via `http://localhost:8080`
-- Provides 100+ MCP tools for real-time scene editing, asset management, and runtime control
-- **Pending**: Unity plugin install, login, and Editor session (requires Unity project)
+**[Unity-MCP](https://github.com/IvanMurzak/Unity-MCP)** — *client + manifest configured*
+- CLI: `npx unity-mcp-cli` (v0.77.0); optional global `npm install -g unity-mcp-cli`
+- MCP config: `.cursor/mcp.json`, `.mcp.json` → `http://localhost:8080`
+- Plugin: `com.ivanmurzak.unity.mcp` **0.77.0** in `unity/ProjectAegis/Packages/manifest.json`
+- **Pending**: Open Editor (`6000.3.14f1`), `login`, then verify `:8080` responds
+
+**.NET:** SDK pin **8.0.400** (`global.json`); headless `net8.0` + Unity plugins `netstandard2.1` — [dotnet reference](docs/engine-reference/dotnet/README.md)
 
 **[Claude-Code-Game-Studios](https://github.com/Donchitos/Claude-Code-Game-Studios)** — *configured*
 - 39 studio agents vendored in `.claude/agents/` (Unity engine set only)

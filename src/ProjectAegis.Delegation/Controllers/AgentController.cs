@@ -48,22 +48,40 @@ public sealed class AgentController : IController
 
     public AgentExperienceBlob Experience { get; }
 
+    /// <summary>Personality preset name when created via <see cref="DelegationOrchestrator.CreateAgentFromPreset"/>.</summary>
+    public string? PersonalitySlug { get; private set; }
+
     public ulong PolicySnapshotId { get; private set; }
+
+    internal void SetPersonalitySlug(string slug) => PersonalitySlug = slug;
 
     public EffectivePolicy EffectivePolicy { get; private set; } = EffectivePolicy.DefaultFree;
 
     public bool IsHuman => false;
 
-    public void BindPolicySnapshot(ulong policySnapshotId, EffectivePolicy effective)
+    public void BindPolicySnapshot(ulong policySnapshotId, EffectivePolicy effective, DecisionLog? log = null, double simTime = 0, ulong simTick = 0)
     {
+        if (log != null && policySnapshotId != PolicySnapshotId)
+        {
+            log.AppendPolicyUpdate(new PolicyUpdateRecord(
+                0,
+                simTime,
+                simTick,
+                policySnapshotId,
+                "roe",
+                EffectivePolicy.Roe.ToString(),
+                effective.Roe.ToString()));
+        }
+
         PolicySnapshotId = policySnapshotId;
         EffectivePolicy = effective;
     }
 
     public void RebindTraits(TraitVector traits) => _traits = traits;
 
-    public IReadOnlyList<Order> DrainIssuedOrders()
+    public IReadOnlyList<Order> DrainIssuedOrders(ulong currentSimTick)
     {
+        _ = currentSimTick;
         if (_issued.Count == 0)
         {
             return Array.Empty<Order>();
@@ -104,22 +122,26 @@ public sealed class AgentController : IController
             choice.Chosen.Kind,
             DefaultRiskClassifier.Classify(choice.Chosen.Kind));
 
-        log.Append(new DecisionRecord(
-            state.SimTime,
-            Id,
-            targetId,
-            Autonomy,
-            choice.Chosen.Kind,
-            candidates,
-            choice.Rationale,
-            attention.Load,
-            attention.Budget,
-            choice.RngDraw));
+        var simTick = (ulong)Math.Max(0, (long)state.SimTime);
+        log.Append(OrderLogEntry.FromDecisionRecord(
+            new DecisionRecord(
+                state.SimTime,
+                Id,
+                targetId,
+                Autonomy,
+                choice.Chosen.Kind,
+                candidates,
+                choice.Rationale,
+                attention.Load,
+                attention.Budget,
+                choice.RngDraw,
+                simTick),
+            simTick));
 
         var gateResult = gate.Evaluate(Autonomy, order, playerApproved: false);
         if (gateResult.Rejected && gateResult.PolicyDenialReason != FireAbortReason.None)
         {
-            log.AppendPolicyDenial(new PolicyDenialRecord(
+            log.Append(OrderLogEntryFactories.FromPolicyDenial(new PolicyDenialRecord(
                 SequenceId: 0,
                 state.SimTime,
                 SimTick: (ulong)Math.Max(0, (long)state.SimTime),
@@ -127,7 +149,7 @@ public sealed class AgentController : IController
                 targetId,
                 PolicySnapshotId,
                 gateResult.PolicyDenialReason,
-                order.Kind));
+                order.Kind)));
         }
 
         if (gateResult.ExecuteNow)

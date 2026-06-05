@@ -1,6 +1,8 @@
 namespace ProjectAegis.Sim.Scenario;
 
 using System.Text.Json;
+using ProjectAegis.Data.Scenario.Policy;
+using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 
 public static class ScenarioPolicyJsonLoader
@@ -37,25 +39,281 @@ public static class ScenarioPolicyJsonLoader
 
     public static ScenarioPolicyProfile ToProfile(ScenarioPolicyJsonDto dto)
     {
+        var sideMaxSalvo = ResolveMaxSalvo(dto.Engage?.MaxSalvo);
         var overrides = new Dictionary<string, EffectivePolicy>(StringComparer.OrdinalIgnoreCase);
         if (dto.UnitOverrides != null)
         {
             foreach (var pair in dto.UnitOverrides)
             {
-                overrides[pair.Key] = new EffectivePolicy(ParseRoe(pair.Value));
+                overrides[pair.Key] = new EffectivePolicy(ParseRoe(pair.Value), sideMaxSalvo);
             }
         }
 
+        var (missionRoe, missionUnitIds) = ParseMissionPolicy(dto.MissionPolicy, sideMaxSalvo);
+
         return new ScenarioPolicyProfile(
-            new EffectivePolicy(ParseRoe(dto.FriendlyRoe)),
-            new EffectivePolicy(ParseRoe(dto.OpposingRoe)),
+            new EffectivePolicy(ParseRoe(dto.FriendlyRoe), sideMaxSalvo),
+            new EffectivePolicy(ParseRoe(dto.OpposingRoe), sideMaxSalvo),
             overrides,
             ParsePlayerInfoModel(dto.PlayerInfoModel),
-            ParsePersonalityEditPolicy(dto.PersonalityEditPolicy))
+            ParsePersonalityEditPolicy(dto.PersonalityEditPolicy),
+            ParseEngageDefaults(dto.Engage),
+            dto.AllowDualSideControl ?? false,
+            ParseContactSeeds(dto.Contacts),
+            ParseUnitRadarEmcon(dto.Emcon),
+            ParseDetectionTrials(dto.Detection),
+            ParseCatalogDetectionTargets(dto.CatalogDetection),
+            ParseJammers(dto.Jammers),
+            ParseContactLifecycle(dto.ContactLifecycle),
+            ParseReplaySettings(dto.Replay),
+            ParseMissionTimeline(dto.Mission),
+            ParseDelegationSettings(dto.Delegation),
+            ParseCommsTransitions(dto.Comms),
+            ParseLogistics(dto.Logistics),
+            ParseCommsDisplay(dto.CommsDisplay),
+            missionRoe,
+            missionUnitIds,
+            ParseSpeculative(dto.Speculative),
+            ParseUnitReadiness(dto.UnitReadiness),
+            ParseSpoofTransitions(dto.SpoofTracks))
         {
             Id = dto.Id,
         };
     }
+
+    private static IReadOnlyDictionary<string, bool> ParseUnitReadiness(
+        Dictionary<string, ScenarioUnitReadinessJsonDto>? readiness)
+    {
+        if (readiness == null || readiness.Count == 0)
+        {
+            return new Dictionary<string, bool>();
+        }
+
+        var map = new Dictionary<string, bool>(StringComparer.Ordinal);
+        foreach (var (unitId, dto) in readiness)
+        {
+            map[unitId] = dto.ReadyForLaunch;
+        }
+
+        return map;
+    }
+
+    private static IReadOnlyList<ScenarioSpoofTransition> ParseSpoofTransitions(List<ScenarioSpoofJsonDto>? spoof)
+    {
+        if (spoof == null || spoof.Count == 0)
+        {
+            return Array.Empty<ScenarioSpoofTransition>();
+        }
+
+        return spoof
+            .OrderBy(s => s.AtTick)
+            .Select(s => new ScenarioSpoofTransition(s.AtTick, s.ContactId, s.Reason))
+            .ToArray();
+    }
+
+    private static ScenarioSpeculativeSettings ParseSpeculative(ScenarioSpeculativeJsonDto? speculative) =>
+        speculative == null
+            ? ScenarioSpeculativeSettings.CampaignDefault
+            : new ScenarioSpeculativeSettings(
+                speculative.BlackProjectMode ?? false,
+                speculative.MaxTechnologyLevel ?? ScenarioSpeculativeSettings.CampaignDefault.MaxTechnologyLevel);
+
+    private static int ResolveMaxSalvo(int? value) =>
+        value is > 0 and var n ? n : EffectivePolicy.DefaultMaxSalvo;
+
+    private static (EffectivePolicy? MissionRoe, IReadOnlyList<string>? MissionUnitIds) ParseMissionPolicy(
+        ScenarioMissionPolicyJsonDto? missionPolicy,
+        int sideMaxSalvo)
+    {
+        if (missionPolicy == null)
+        {
+            return (null, null);
+        }
+
+        var maxSalvo = ResolveMaxSalvo(missionPolicy.MaxSalvo ?? sideMaxSalvo);
+        var roe = new EffectivePolicy(ParseRoe(missionPolicy.Roe), maxSalvo);
+        return (roe, missionPolicy.UnitIds);
+    }
+
+    private static ScenarioLogisticsSettings ParseLogistics(ScenarioLogisticsJsonDto? logistics) =>
+        logistics == null
+            ? ScenarioLogisticsSettings.Default
+            : new ScenarioLogisticsSettings(
+                logistics.JokerSimSeconds,
+                logistics.BingoSimSeconds,
+                logistics.FuelCapacityKg,
+                logistics.BurnRateKgPerSecond,
+                logistics.JokerFuelFraction,
+                logistics.BingoFuelFraction,
+                logistics.LogTickBurn);
+
+    private static ScenarioCommsDisplaySettings ParseCommsDisplay(ScenarioCommsDisplayJsonDto? display) =>
+        display == null
+            ? ScenarioCommsDisplaySettings.Default
+            : new ScenarioCommsDisplaySettings(
+                display.DegradedLagTicks,
+                display.GhostOffsetX,
+                display.GhostOffsetY,
+                display.DegradedOrderDelayTicks,
+                display.DegradedStaleThresholdDivisor <= 0 ? 1 : display.DegradedStaleThresholdDivisor);
+
+    private static IReadOnlyList<ScenarioCommsTransition> ParseCommsTransitions(List<ScenarioCommsJsonDto>? comms)
+    {
+        if (comms == null || comms.Count == 0)
+        {
+            return Array.Empty<ScenarioCommsTransition>();
+        }
+
+        return comms
+            .OrderBy(c => c.AtTick)
+            .Select(c => new ScenarioCommsTransition(c.AtTick, c.NewState, c.NodeId, c.Reason))
+            .ToArray();
+    }
+
+    private static ScenarioDelegationSettings ParseDelegationSettings(ScenarioDelegationJsonDto? delegation) =>
+        delegation == null
+            ? ScenarioDelegationSettings.Default
+            : new ScenarioDelegationSettings(delegation.UsePatrolCandidates);
+
+    private static ScenarioReplaySettings ParseReplaySettings(ScenarioReplayJsonDto? replay) =>
+        replay == null
+            ? ScenarioReplaySettings.Default
+            : new ScenarioReplaySettings(Math.Max(1, replay.CheckpointIntervalTicks));
+
+    private static ScenarioMissionTimeline? ParseMissionTimeline(ScenarioMissionJsonDto? mission)
+    {
+        if (mission?.Events == null || mission.Events.Count == 0)
+        {
+            return null;
+        }
+
+        var fireOrder = mission.FireOrder ?? [];
+        var events = mission.Events
+            .Select(e => new ScenarioMissionEvent(
+                e.Id,
+                e.FireAtTick,
+                e.Kind,
+                e.Code))
+            .ToArray();
+        return new ScenarioMissionTimeline(fireOrder, events);
+    }
+
+    private static ScenarioContactLifecycle ParseContactLifecycle(ScenarioContactLifecycleJsonDto? lifecycle) =>
+        lifecycle == null
+            ? ScenarioContactLifecycle.Default
+            : new ScenarioContactLifecycle(
+                Math.Max(1, lifecycle.StaleThresholdTicks),
+                Math.Max(0, lifecycle.ClassifyAfterTicks),
+                Math.Max(0, lifecycle.IdentifyAfterTicks));
+
+    private static IReadOnlyList<ScenarioJammer> ParseJammers(List<ScenarioJammerJsonDto>? jammers)
+    {
+        if (jammers == null || jammers.Count == 0)
+        {
+            return Array.Empty<ScenarioJammer>();
+        }
+
+        return jammers
+            .Select(j => new ScenarioJammer(j.TargetId, j.JamStrength, j.ActiveFromTick, j.ObserverId))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ScenarioCatalogDetectionTarget> ParseCatalogDetectionTargets(
+        List<ScenarioCatalogDetectionJsonDto>? catalogDetection)
+    {
+        if (catalogDetection == null || catalogDetection.Count == 0)
+        {
+            return Array.Empty<ScenarioCatalogDetectionTarget>();
+        }
+
+        return catalogDetection
+            .Select(d => new ScenarioCatalogDetectionTarget(
+                d.ObserverId,
+                d.SensorId,
+                d.TargetId,
+                d.ContactId,
+                d.EnvMask,
+                d.JamStrength))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ScenarioDetectionTrial> ParseDetectionTrials(
+        List<ScenarioDetectionJsonDto>? detection)
+    {
+        if (detection == null || detection.Count == 0)
+        {
+            return Array.Empty<ScenarioDetectionTrial>();
+        }
+
+        return detection
+            .Select(d => new ScenarioDetectionTrial(
+                d.ObserverId,
+                d.SensorId,
+                d.TargetId,
+                d.ContactId,
+                d.BasePd,
+                d.EnvMask,
+                d.JamStrength))
+            .ToArray();
+    }
+
+    private static IReadOnlyDictionary<string, EmconState> ParseUnitRadarEmcon(ScenarioEmconJsonDto? emcon)
+    {
+        if (emcon?.Units == null || emcon.Units.Count == 0)
+        {
+            return new Dictionary<string, EmconState>();
+        }
+
+        var map = new Dictionary<string, EmconState>(StringComparer.OrdinalIgnoreCase);
+        foreach (var pair in emcon.Units)
+        {
+            map[pair.Key] = ParseEmconState(pair.Value.Radar);
+        }
+
+        return map;
+    }
+
+    private static EmconState ParseEmconState(string value) =>
+        Enum.TryParse<EmconState>(value, ignoreCase: true, out var state)
+            ? state
+            : throw new InvalidDataException($"Unknown EMCON radar value: {value}");
+
+    private static IReadOnlyList<ScenarioContactSeed> ParseContactSeeds(List<ScenarioContactJsonDto>? contacts)
+    {
+        if (contacts == null || contacts.Count == 0)
+        {
+            return Array.Empty<ScenarioContactSeed>();
+        }
+
+        return contacts
+            .Select(c => new ScenarioContactSeed(
+                c.ObserverId,
+                c.TargetId,
+                c.ContactId,
+                c.AppearAtTick,
+                c.HasFireControlTrack))
+            .ToArray();
+    }
+
+    private static ScenarioEngageDefaults? ParseEngageDefaults(ScenarioEngageJsonDto? engage) =>
+        engage == null
+            ? null
+            : new ScenarioEngageDefaults(
+                engage.RangeMeters,
+                engage.EnvelopeMinMeters,
+                engage.EnvelopeMaxMeters,
+                engage.DefaultMagazineRounds,
+                engage.HasFireControlTrack,
+                engage.PkBase,
+                engage.PkIntercept,
+                engage.PkKill,
+                engage.SalvoSize,
+                engage.WeaponTechnologyLevel ?? 0,
+                engage.WeaponRequiresBlackProject ?? false,
+                DlzPersonalityParser.Parse(engage.DlzPersonality),
+                CombatDomainParser.Parse(engage.CombatDomain),
+                engage.MountOnline ?? true,
+                engage.ContactIdentified ?? true);
 
     private static RoeLevel ParseRoe(string value) =>
         Enum.TryParse<RoeLevel>(value, ignoreCase: true, out var roe)

@@ -1,8 +1,8 @@
 # Sensor, Detection, and Electronic Warfare
 
-> **Status:** In Review  
+> **Status:** Approved (headless MVP scope — see [review log](reviews/sensor-detection-ew-review-log.md))  
 > **Author:** design-system  
-> **Last Updated:** 2026-05-29  
+> **Last Updated:** 2026-06-02
 > **Implements Pillar:** Simulation fidelity  
 > **Requirements:** [15-Sensor-Detection-And-EW.md](../../Game-Requirements/requirements/15-Sensor-Detection-And-EW.md)  
 > **Architecture:** [architecture.md](../../docs/architecture/architecture.md) (tick step 4)  

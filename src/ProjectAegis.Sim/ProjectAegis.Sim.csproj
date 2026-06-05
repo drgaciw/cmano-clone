@@ -1,9 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;netstandard2.1</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>ProjectAegis.Sim</RootNamespace>
     <Description>Pure C# simulation core contracts and tick runner (no UnityEngine).</Description>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
+  </ItemGroup>
 </Project>

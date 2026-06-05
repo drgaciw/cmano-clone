@@ -1,52 +1,137 @@
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
+using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Baltic;
 
-const int seed = 42;
-var orchestrator = new DelegationOrchestrator(seed);
-
-var friendlyUnit = new UnitTarget(new TargetId("friendly-1"));
-var opposingUnit = new UnitTarget(new TargetId("opposing-1"));
-        orchestrator.Register(friendlyUnit);
-        orchestrator.Register(opposingUnit);
-
-        var traits = PersonalityCatalog.All.First(p => p.Name == "Cautious").Traits;
-        SimulationModeConfigurator.Apply(
-            orchestrator,
-            new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
-            friendly: [friendlyUnit],
-            opposing: [opposingUnit],
-            traits);
-        orchestrator.BeginExecution();
-
-if (friendlyUnit.Slot.Active is HumanController human)
+static void PrintUsage()
 {
-    human.Enqueue(new Order(
-        new OrderId(0),
-        friendlyUnit.Id,
-        SimTime: 0,
-        OrderKind.Hold,
-        RiskLevel.Low));
+    Console.WriteLine("Project Aegis — Baltic replay harness");
+    Console.WriteLine("Usage:");
+    Console.WriteLine("  Single: dotnet run --project src/ProjectAegis.Delegation.Demo -- [--seed N] [--scenario ID] [--ticks N] [--no-engage] [--csv]");
+    Console.WriteLine("  Batch:  dotnet run --project src/ProjectAegis.Delegation.Demo -- --batch [--scenarios a,b] [--seeds 42,7] [--ticks N] [--csv-out path.csv]");
+    Console.WriteLine("          --batch --all-scenarios  (every policy under data/scenarios)");
 }
 
-var state0 = new ObservedState(0, ContactCount: 1, ActiveEngagementCount: 0, new Dictionary<TargetId, bool>());
-var state1 = new ObservedState(1, ContactCount: 3, ActiveEngagementCount: 1, new Dictionary<TargetId, bool>());
-
-orchestrator.Tick(state0);
-orchestrator.Tick(state1);
-
-Console.WriteLine($"Project Aegis Delegation Demo (seed={seed})");
-Console.WriteLine($"Executed orders: {orchestrator.ExecutedOrders.Count}");
-foreach (var order in orchestrator.ExecutedOrders)
+static int RunSingle(int seed, string scenario, int ticks, bool engage, bool printCsv)
 {
-    Console.WriteLine($"  t={order.SimTime:F0} {order.Target.Value} -> {order.Kind}");
+    var result = BalticReplayHarness.Run(seed, scenario, ticks, mvpEngagement: engage);
+    Console.WriteLine($"SEED={result.Seed} SCENARIO={result.ScenarioPolicyId} TICKS={result.Ticks} ENGAGEMENTS={result.EngagementCount}");
+    Console.WriteLine($"FINGERPRINT={result.Fingerprint}");
+    Console.WriteLine($"FINGERPRINT_SHA256={result.FingerprintSha256}");
+    Console.WriteLine($"DETECTION_WORLD_HASH={result.DetectionWorldHash}");
+    Console.WriteLine($"WORLD_HASH={result.WorldHash}");
+    if (printCsv)
+    {
+        Console.WriteLine(result.ScoringCsvRow);
+    }
+
+    foreach (var checkpoint in result.Checkpoints)
+    {
+        Console.WriteLine(
+            $"REPLAY_CHECKPOINT={checkpoint.SimTick}:{checkpoint.WorldHash}:{checkpoint.LastSequenceId}");
+    }
+
+    foreach (var message in result.Messages.Where(m =>
+                 m.Category is "KILL_CONFIRMED" or "INTERCEPT_SUCCESS" or "HIT" or "MISS" or "COMMS"))
+    {
+        Console.WriteLine($"MESSAGE={message.Category}|{message.Text}");
+    }
+
+    return 0;
 }
 
-Console.WriteLine($"Decision log entries: {orchestrator.DecisionLog.Records.Count}");
-foreach (var record in orchestrator.DecisionLog.Records)
+static int RunBatch(
+    IReadOnlyList<string> scenarios,
+    IReadOnlyList<int> seeds,
+    int ticks,
+    bool engage,
+    string? csvOut)
 {
-    Console.WriteLine($"  agent={record.AgentId.Value} chose {record.ChosenKind} (load {record.AttentionLoad:F1}/{record.AttentionBudget:F1})");
+    var rows = BalticBatchRunner.Run(new BalticBatchRunner.BatchRequest(scenarios, seeds, ticks, engage));
+    var csv = BalticBatchRunner.ExportCsv(rows);
+    if (csvOut != null)
+    {
+        File.WriteAllText(csvOut, csv);
+        Console.WriteLine($"Wrote {rows.Count} rows to {csvOut}");
+    }
+    else
+    {
+        Console.Write(csv);
+    }
+
+    return 0;
+}
+
+var seed = 42;
+var scenario = "baltic-patrol";
+var ticks = 4;
+var engage = true;
+var printCsv = false;
+var batch = false;
+var allScenarios = false;
+var scenarios = new List<string> { "baltic-patrol", "baltic-patrol-comms", "baltic-patrol-classify" };
+var seeds = new List<int> { 42 };
+string? csvOut = null;
+
+for (var i = 0; i < args.Length; i++)
+{
+    switch (args[i])
+    {
+        case "--help" or "-h":
+            PrintUsage();
+            return 0;
+        case "--seed" when i + 1 < args.Length:
+            seed = int.Parse(args[++i], System.Globalization.CultureInfo.InvariantCulture);
+            break;
+        case "--scenario" when i + 1 < args.Length:
+            scenario = args[++i];
+            break;
+        case "--ticks" when i + 1 < args.Length:
+            ticks = int.Parse(args[++i], System.Globalization.CultureInfo.InvariantCulture);
+            break;
+        case "--no-engage":
+            engage = false;
+            break;
+        case "--csv":
+            printCsv = true;
+            break;
+        case "--batch":
+            batch = true;
+            break;
+        case "--all-scenarios":
+            allScenarios = true;
+            break;
+        case "--scenarios" when i + 1 < args.Length:
+            scenarios = args[++i].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+            break;
+        case "--seeds" when i + 1 < args.Length:
+            seeds = args[++i]
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Select(s => int.Parse(s, System.Globalization.CultureInfo.InvariantCulture))
+                .ToList();
+            break;
+        case "--csv-out" when i + 1 < args.Length:
+            csvOut = args[++i];
+            break;
+        default:
+            Console.Error.WriteLine($"Unknown argument: {args[i]}");
+            PrintUsage();
+            return 2;
+    }
+}
+
+try
+{
+    if (batch)
+    {
+        var runScenarios = allScenarios
+            ? BalticBatchRunner.DiscoverScenarioIds()
+            : scenarios;
+        return RunBatch(runScenarios, seeds, ticks, engage, csvOut);
+    }
+
+    return RunSingle(seed, scenario, ticks, engage, printCsv);
+}
+catch (Exception ex)
+{
+    Console.Error.WriteLine($"ERROR: {ex.Message}");
+    return 1;
 }

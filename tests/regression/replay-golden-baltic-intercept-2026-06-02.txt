@@ -1,0 +1,8 @@
+# baltic-patrol-intercept seed=42 ticks=4 pkIntercept=1 (non-lethal; target survives)
+WORLD_HASH=1359886999543527975
+DETECTION_WORLD_HASH=2025028254506981538
+
+EngagementOutcome|7|1|1|1|hostile-1|Intercept|0.006501966157579321
+EngagementOutcome|11|2|2|2|hostile-1|Intercept|0.2836785489422452
+EngagementOutcome|15|3|3|3|hostile-1|Intercept|0.7277704534884007
+EngagementOutcome|19|4|4|4|hostile-1|Intercept|0.4022268015896498

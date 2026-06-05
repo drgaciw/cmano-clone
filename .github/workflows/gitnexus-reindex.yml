@@ -1,0 +1,49 @@
+name: GitNexus Auto-Reindex
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.gitignore'
+      - 'production/dashboard-state.yaml'
+
+permissions:
+  contents: read
+
+jobs:
+  reindex:
+    name: Reindex Knowledge Graph
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install GitNexus
+        run: npm install -g gitnexus
+        env:
+          GITNEXUS_SKIP_OPTIONAL_GRAMMARS: '1'
+
+      - name: Analyze & Reindex
+        run: gitnexus analyze
+        env:
+          GITNEXUS_WORKER_POOL_SIZE: '4'
+
+      - name: Verify Index Status
+        run: gitnexus status
+
+      - name: Cache Index Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitnexus-index-${{ github.sha }}
+          path: .gitnexus/
+          retention-days: 7

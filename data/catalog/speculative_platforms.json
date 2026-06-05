@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "platforms": [
+    {
+      "platformId": "npx-laser-orbital",
+      "displayName": "NPX Laser (Orbital)",
+      "gameTechnologyLevel": 5,
+      "requiresBlackProject": true,
+      "technologyMaturity": "Prototype"
+    },
+    {
+      "platformId": "orbital-dew-demo",
+      "displayName": "Orbital DEW Demo",
+      "gameTechnologyLevel": 4,
+      "requiresBlackProject": false,
+      "technologyMaturity": "Simulated"
+    }
+  ]
+}

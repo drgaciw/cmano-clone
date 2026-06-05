@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="mission-list-root" class="mission-list-panel">
+        <ui:Label text="MISSIONS" class="mission-list-title" />
+        <ui:ListView name="mission-list" class="mission-list-view" selection-type="None" />
+    </ui:VisualElement>
+</ui:UXML>

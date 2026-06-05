@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFrameworks>net8.0;netstandard2.1</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RootNamespace>ProjectAegis.Delegation.UnityAdapter</RootNamespace>
     <Description>Thin bridge between Unity/sim ECS and ProjectAegis.Delegation (no UnityEngine dependency).</Description>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
     <ProjectReference Include="..\ProjectAegis.Delegation\ProjectAegis.Delegation.csproj" />
   </ItemGroup>
 </Project>

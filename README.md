@@ -17,20 +17,32 @@ The repository contains requirements documentation and an initial **agent delega
 - **Unity wiring:** `unity/ProjectAegis/` (DLL copy + optional `DelegationBridgeHost`)
 - **Console demo:** `src/ProjectAegis.Delegation.Demo/`
 
-Build and test (requires [.NET 8 SDK](https://dotnet.microsoft.com/download)):
+[![.NET CI](https://github.com/drgaciw/cmano-clone/actions/workflows/dotnet-ci.yml/badge.svg?branch=main)](https://github.com/drgaciw/cmano-clone/actions/workflows/dotnet-ci.yml)
+
+Build and test (requires [.NET 8 SDK](https://dotnet.microsoft.com/download) **8.0.400**, see `global.json`):
 
 ```bash
 dotnet test ProjectAegis.sln -v minimal
 dotnet run --project src/ProjectAegis.Delegation.Demo
 ```
 
-Unity project scaffolding and simulation core are not started yet. Requirements live under `Game-Requirements/`.
+**Local CI parity** (same steps as [.NET CI](.github/workflows/dotnet-ci.yml) / [dotnet-reusable.yml](.github/workflows/dotnet-reusable.yml)):
+
+```powershell
+.\tools\verify-ci-local.ps1
+```
+
+**CI / branch protection:** [docs/engineering/ci-and-branch-protection.md](docs/engineering/ci-and-branch-protection.md) — GitHub Actions gates (`build_test` on PR and `main`), Graphite PR-only CI, post-merge replay golden tests, Dependabot, optional Unity license workflow. Manual branch protection checklist: [issue #37](https://github.com/drgaciw/cmano-clone/issues/37).
+
+**Cursor Cloud agents:** see the [Cursor Cloud specific instructions](AGENTS.md#cursor-cloud-specific-instructions) section in `AGENTS.md` (headless build/test, Play Mode smoke harness, `.cursor/cloud-install.sh` bootstrap via `.cursor/environment.json`).
+
+Headless simulation and delegation spine are implemented (`ProjectAegis.Sim`, Baltic replay harness, sensor classify FSM, UI Toolkit C2/message log). Unity project lives under `unity/ProjectAegis/` (Editor optional; headless smoke in CI). Requirements live under `Game-Requirements/`.
 
 ## Tech Stack
 
 The planned development stack is Unity LTS with C#, supported by agentic development tools including Cursor, GitHub Copilot, Claude Code / Claude Desktop, Unity-MCP, and Claude-Code-Game-Studios.
 
-Claude-specific integrations are **configured** at the repo level (MCP config, Game-Studios agents/skills). Unity Editor activation is pending until a Unity project is scaffolded.
+Claude-specific integrations are **configured** at the repo level (MCP config, Game-Studios agents/skills). Global **[obra/superpowers](https://github.com/obra/superpowers)** methodology (TDD, plans, debugging) is installed via `.\tools\install-superpowers.ps1` — see `docs/engineering/superpowers-setup.md`. Unity Editor activation is pending until a Unity project is scaffolded.
 
 - [Tech Stack - Agentic Game Development](Tech-Stack.md)
 - [Claude Agent Setup](Game-Requirements/Claude-Agent-Setup.md)

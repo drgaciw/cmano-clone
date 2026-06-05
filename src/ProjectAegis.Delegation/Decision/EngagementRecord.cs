@@ -9,4 +9,8 @@ public sealed record EngagementRecord(
     TargetId ShooterTargetId,
     ulong EngagementId,
     bool Launched,
-    string? AbortReason = null);
+    string? AbortReasonCode = null)
+{
+    /// <summary>Alias for <see cref="AbortReasonCode"/> (legacy tests).</summary>
+    public string? AbortReason => AbortReasonCode;
+}

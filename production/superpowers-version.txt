@@ -1,0 +1,3 @@
+obra/superpowers@5.1.0
+marketplace=obra/superpowers-marketplace
+installed=2026-06-02

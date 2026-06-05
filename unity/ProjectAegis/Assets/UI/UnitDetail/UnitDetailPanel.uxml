@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="unit-detail-root" class="unit-detail-panel">
+        <ui:Label text="UNIT DETAIL" class="unit-detail-title" />
+        <ui:Label name="unit-id-line" text="UNIT: —" class="unit-detail-line" />
+        <ui:Label name="status-line" text="STATUS: —" class="unit-detail-line" />
+        <ui:Label name="magazine-line" text="MAGAZINE: —" class="unit-detail-line" />
+        <ui:Label name="emcon-line" text="EMCON: —" class="unit-detail-line" />
+        <ui:Label name="doctrine-line" text="DOCTRINE: —" class="unit-detail-line" />
+        <ui:Label name="fuel-line" text="FUEL: —" class="unit-detail-line" />
+        <ui:Label name="engage-line" text="ENGAGE: —" class="unit-detail-line" />
+        <ui:Label name="attack-options-line" text="ATTACK: —" class="unit-detail-line unit-detail-line--attack" />
+        <ui:VisualElement name="attack-menu" class="unit-detail-attack-menu">
+            <ui:Button name="attack-fire-single" text="Fire 1" class="unit-detail-attack-btn" />
+            <ui:Button name="attack-fire-salvo" text="Salvo" class="unit-detail-attack-btn" />
+            <ui:Button name="attack-hold-fire" text="Hold" class="unit-detail-attack-btn" />
+        </ui:VisualElement>
+        <ui:Label name="contact-line" text="CONTACT: —" class="unit-detail-line unit-detail-line--contact" />
+    </ui:VisualElement>
+</ui:UXML>

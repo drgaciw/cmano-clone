@@ -4,6 +4,7 @@ using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Sim;
+using ProjectAegis.Delegation.Tests.Helpers;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Sim.Engage;
@@ -35,7 +36,7 @@ public sealed class SimulationSessionTests
 
         for (var t = 0; t < 5; t++)
         {
-            session.Tick(new ObservedState(t, 2, 0, new Dictionary<TargetId, bool>()));
+            session.Tick(MvpObservedStates.EngageTick(t));
         }
 
         Assert.That(session.Orchestrator.DecisionLog.Engagements, Is.Not.Empty);

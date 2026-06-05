@@ -4,5 +4,12 @@
   "opposingRoe": "WeaponsTight",
   "unitOverrides": {
     "f1": "WeaponsFree"
+  },
+  "engage": {
+    "rangeMeters": 200000,
+    "envelopeMinMeters": 1000,
+    "envelopeMaxMeters": 100000,
+    "defaultMagazineRounds": 2,
+    "hasFireControlTrack": true
   }
 }

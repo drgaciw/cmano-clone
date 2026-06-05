@@ -4,4 +4,5 @@ public readonly record struct PolicyContext(
     ulong UnitId,
     ulong PolicySnapshotId,
     ulong SimTick,
-    EffectivePolicy Effective);
+    EffectivePolicy Effective,
+    int SalvoSize = 1);

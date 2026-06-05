@@ -1,0 +1,25 @@
+---
+description: obra/superpowers methodology — invoke skills before coding; TDD and plan-driven execution
+alwaysApply: true
+---
+
+# Superpowers (global)
+
+This workspace uses [obra/superpowers](https://github.com/obra/superpowers) v5.1.0 globally (`~/.cursor/skills/`).
+
+## Before implementation
+
+- New feature or ambiguous request → invoke **brainstorming** (or project `/design-system` for GDD systems).
+- Approved design → **writing-plans**; execution → **subagent-driven-development** or **executing-plans**.
+- Bug or failure → **systematic-debugging** before patching.
+- All code changes → **test-driven-development** (RED → GREEN); sim work must stay deterministic (`/replay-verify`).
+
+## With Project Aegis studio skills
+
+- Milsim design/production: `.claude/skills/` (`/dev-story`, `/sprint-plan`, GitNexus impact).
+- Project plans/specs: `docs/superpowers/` (local docs, not the plugin).
+- GitNexus **impact analysis** still required before editing symbols (`Agents.md`).
+
+## Install / update
+
+`.\tools\install-superpowers.ps1` — see `docs/engineering/superpowers-setup.md`.

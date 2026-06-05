@@ -1,6 +1,8 @@
 # 01 - Project Overview
 
-**Last Updated:** May 29, 2026  
+**Last Updated:** 2026-06-04  
+**Related:** 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20  
+**Status:** Locked  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)
 
 ## Purpose
@@ -67,6 +69,89 @@ Create the definitive hardcore military simulation for the 2030s — a game that
 ## Project Name (Working Title)
 **Project Aegis**
 
+## Functional Requirements
+
+High-level capabilities delivered across the requirements corpus (details in linked docs):
+
+| ID | Capability | Primary doc |
+|----|------------|-------------|
+| FR-01 | Five-phase theater command loop with RTwP planning | [02](02-Core-Gameplay-Loop.md) |
+| FR-02 | Human / Mixed / Agent-vs-Agent modes with phase gates | [03](03-Simulation-Modes.md) |
+| FR-03 | Unit and task-force agent delegation | [04](04-Agent-Delegation.md) |
+| FR-04 | Dynamic systems tuning agent | [05](05-Dynamic-Systems-Agent.md) |
+| FR-05 | SQLite intelligence layer + provenance | [06](06-Database-Intelligence.md) |
+| FR-06 | Agentic dev infrastructure (MCP, skills) | [07](07-Agentic-Infrastructure.md) |
+| FR-07 | In-simulation agent architecture | [08](08-Agentic-Architecture.md) |
+| FR-08 | Near-future and speculative platforms | [09](09-Near-Future-Technologies.md), [10](10-Speculative-Systems.md) |
+| FR-09 | Natural-language mission editor | [11](11-Agentic-Mission-Editor.md) |
+| FR-10 | Shared vocabulary | [12](12-Terms-Glossary.md) |
+| FR-11 | Doctrine, ROE, EMCON, WRA | [13](13-Doctrine-ROE-EMCON-WRA.md) |
+| FR-12 | Engagement and fire control | [14](14-Engagement-And-Fire-Control.md) |
+| FR-13 | Sensors, detection, EW | [15](15-Sensor-Detection-And-EW.md) |
+| FR-14 | Logistics and magazines | [16](16-Logistics-And-Magazines.md) |
+| FR-15 | Replay, order log, AAR | [17](17-Replay-AAR-And-Order-Log.md) |
+| FR-16 | Multi-domain combat | [18](18-Combat-Domains.md) |
+| FR-17 | Cyber and comms degradation | [19](19-Cyber-And-Comms.md) |
+| FR-18 | Command-and-control UI | [20](20-Command-And-Control-UI.md) |
+
+## Non-Functional Requirements
+
+- **Determinism:** seeded sim + order log; replay goldens in CI ([17](17-Replay-AAR-And-Order-Log.md))
+- **Headless execution:** .NET 8 test harness and batch AvA without Unity Editor ([03](03-Simulation-Modes.md), [ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md))
+- **Clean-room:** no CMO proprietary DB/code; pattern reuse only (see Core Project Goals §5)
+- **Performance:** 5,000+ entities interactive; ≥256× headless AvA floor, 1000×+ target ([03](03-Simulation-Modes.md))
+- **Agent safety:** delegation changes reviewable in order log; no hidden sim mutations from UI
+
+## Technical Considerations
+
+- **Engine:** Unity 6.3 LTS presentation; simulation and delegation in headless .NET assemblies
+- **Data:** `ProjectAegis.Data` SQLite catalog with provenance gates ([06](06-Database-Intelligence.md))
+- **Bridge:** `DelegationBridge` / `UnitDetailBridge` — CRITICAL upstream; GitNexus impact required before edits
+- **Verification:** `dotnet test`, PlayMode smoke harness, replay golden suite
+
+## Agentic Capabilities
+
+- **Development:** Claude/Cursor + Superpowers skills + GitNexus/Hindsight per [07](07-Agentic-Infrastructure.md), [08](08-Agentic-Architecture.md)
+- **In-game:** personality-bound agents, autonomy tiers, mission editor NL authoring ([04](04-Agent-Delegation.md), [11](11-Agentic-Mission-Editor.md))
+
+## Future Extensibility
+
+- Global/strategic campaigns and live multiplayer (out of first release)
+- External RL/co-simulation agents attached to headless farm
+- Additional theaters and classification tiers in data layer without engine fork
+
+## Open Questions / Decisions Needed
+
+| Topic | Status | Notes |
+|-------|--------|-------|
+| Commercial product name | **Open** | Working title *Project Aegis* |
+| Future Combat Mode default | **Deferred** | Optional scenario flag per [10](10-Speculative-Systems.md) |
+| Charter items in docs 02–03 | **Locked** | See Resolved Design Decisions in [02](02-Core-Gameplay-Loop.md), [03](03-Simulation-Modes.md) |
+
+## Related Requirements Index
+
+| Doc | Title | Sprint wave |
+|-----|-------|-------------|
+| [02](02-Core-Gameplay-Loop.md) | Core Gameplay Loop | 12 |
+| [03](03-Simulation-Modes.md) | Simulation Modes | 12 |
+| [04](04-Agent-Delegation.md) | Agent Delegation | 13 |
+| [05](05-Dynamic-Systems-Agent.md) | Dynamic Systems Agent | 13 |
+| [06](06-Database-Intelligence.md) | Database Intelligence | 14 |
+| [07](07-Agentic-Infrastructure.md) | Agentic Infrastructure | 14 |
+| [08](08-Agentic-Architecture.md) | Agentic Architecture | 14 |
+| [09](09-Near-Future-Technologies.md) | Near-Future Technologies | 15 |
+| [10](10-Speculative-Systems.md) | Speculative Systems | 15 |
+| [11](11-Agentic-Mission-Editor.md) | Agentic Mission Editor | 15 |
+| [12](12-Terms-Glossary.md) | Terms Glossary | 15 |
+| [13](13-Doctrine-ROE-EMCON-WRA.md) | Doctrine / ROE / EMCON / WRA | 15 |
+| [14](14-Engagement-And-Fire-Control.md) | Engagement & Fire Control | 15 |
+| [15](15-Sensor-Detection-And-EW.md) | Sensor, Detection & EW | 15 |
+| [16](16-Logistics-And-Magazines.md) | Logistics & Magazines | 15 |
+| [17](17-Replay-AAR-And-Order-Log.md) | Replay, AAR & Order Log | 15 |
+| [18](18-Combat-Domains.md) | Combat Domains | 15 |
+| [19](19-Cyber-And-Comms.md) | Cyber & Comms | 15 |
+| [20](20-Command-And-Control-UI.md) | Command & Control UI | 15 |
+
 ---
 
-**Status:** Core vision locked
+**Status:** Core vision locked; Template A complete (Sprint 12)

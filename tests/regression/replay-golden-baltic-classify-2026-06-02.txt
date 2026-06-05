@@ -1,0 +1,3 @@
+# baltic-patrol-classify seed=42 ticks=4 mvpEngagement=false
+WORLD_HASH=11247656866488291461
+DETECTION_WORLD_HASH=2025028254506981538

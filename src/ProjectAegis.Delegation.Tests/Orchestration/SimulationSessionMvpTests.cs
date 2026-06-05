@@ -4,9 +4,11 @@ using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Sim;
+using ProjectAegis.Delegation.Tests.Helpers;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
 
@@ -31,10 +33,37 @@ public sealed class SimulationSessionMvpTests
 
         for (var t = 0; t < 5; t++)
         {
-            session.Tick(new ObservedState(t, 2, 0, new Dictionary<TargetId, bool>()));
+            session.Tick(MvpObservedStates.EngageTick(t));
         }
 
         Assert.That(session.Orchestrator.DecisionLog.Engagements.Any(e => e.Launched), Is.True);
+    }
+
+    [Test]
+    public void BindMvpEngagementForScenario_uses_restricted_engagement_out_of_envelope()
+    {
+        var orchestrator = new DelegationOrchestrator(42);
+        var session = SimulationSession.BindMvpEngagementForScenario(
+            orchestrator,
+            "restricted-engagement");
+        var unit = new UnitTarget(new TargetId("u1"));
+        var agent = session.Orchestrator.CreateAgent(
+            new AgentId("a1"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous,
+            policy: new EngageOnlyPolicy());
+        session.Orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
+        session.Orchestrator.Register(unit);
+        session.BeginExecution();
+
+        session.Tick(MvpObservedStates.EngageTick(0));
+
+        var aborted = session.Orchestrator.DecisionLog.Engagements
+            .Where(e => !e.Launched)
+            .ToList();
+        Assert.That(aborted, Is.Not.Empty);
+        Assert.That(aborted[0].AbortReason, Is.EqualTo(AbortReasonCatalog.Engage.OUT_OF_ENVELOPE)
+            .Or.EqualTo(AbortReasonCatalog.Engage.DLZ_OUT));
     }
 
     [Test]
@@ -58,7 +87,7 @@ public sealed class SimulationSessionMvpTests
 
         for (var t = 0; t < 3; t++)
         {
-            session.Tick(new ObservedState(t, 2, 0, new Dictionary<TargetId, bool>()));
+            session.Tick(MvpObservedStates.EngageTick(t));
         }
 
         var aborted = session.Orchestrator.DecisionLog.Engagements

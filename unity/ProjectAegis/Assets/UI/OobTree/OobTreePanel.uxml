@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="oob-tree-root" class="oob-tree-panel">
+        <ui:Label text="ORDER OF BATTLE" class="oob-tree-title" />
+        <ui:ListView name="oob-list" class="oob-tree-list" selection-type="None" />
+    </ui:VisualElement>
+</ui:UXML>

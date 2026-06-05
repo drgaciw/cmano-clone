@@ -154,6 +154,43 @@ paired specialist agent.
 | `/onboard` | Generate contextual onboarding document for a new contributor or agent |
 | `/localize` | Localization workflow: string extraction, validation, translation readiness |
 
+## obra/superpowers (global methodology)
+
+Cross-project skills from [obra/superpowers](https://github.com/obra/superpowers) v5.1.0. Install: `.\tools\install-superpowers.ps1` — see `docs/engineering/superpowers-setup.md`.
+
+| Skill | Purpose |
+|-------|---------|
+| `using-superpowers` | Session start — mandatory skill discovery |
+| `brainstorming` | Design before code |
+| `using-git-worktrees` | Isolated branch workspace |
+| `writing-plans` | Implementation plan from approved design |
+| `subagent-driven-development` | Plan execution with two-stage review |
+| `executing-plans` | Batched plan execution with checkpoints |
+| `test-driven-development` | RED → GREEN → REFACTOR |
+| `systematic-debugging` | Root-cause debugging before fixes |
+| `verification-before-completion` | Evidence before “done” |
+| `requesting-code-review` / `receiving-code-review` | Review loop |
+| `dispatching-parallel-agents` | Parallel independent subagents |
+| `finishing-a-development-branch` | Merge / PR / discard |
+| `writing-skills` | Author new skills |
+
+**Locations:** global `~/.cursor/skills/`, `~/.grok/skills/`; project junctions `.claude/skills/superpowers/<skill>/` (after install). Cursor chat (optional): `/add-plugin superpowers`.
+
+**Pair with studio:** `/dev-story` + `test-driven-development`; sim changes still need `/replay-verify` and GitNexus impact.
+
+## Hindsight + GitNexus (agentic dev)
+
+Local memory sidecar (`http://localhost:8888`). Use **with** GitNexus, not instead of it.
+
+Playbooks: [.claude/docs/agentic/](agentic/README.md) (`pi-todos-impl-plan.md`, `pi-skills-recommendations.md`). PI artifacts: `production/agentic/`.
+
+| Command | Purpose |
+|---------|---------|
+| `/team-hindsight-dev` | Orchestrate `hindsight-dev-memory-lead` + GitNexus gates for multi-step C# work |
+| Skills under `.claude/skills/hindsight/` | `hindsight-gitnexus`, `hindsight-retain`, `hindsight-recall`, `hindsight-reflect`, `hindsight-dev-memory`, `hindsight-aar`, `hindsight-local-setup`, `hindsight-guide` |
+
+CLI: `.\tools\hindsight\Invoke-Hindsight.ps1`, `.\tools\hindsight\Test-HindsightServer.ps1`
+
 ## Team Orchestration
 
 Coordinate multiple agents on a single feature area:
@@ -169,3 +206,4 @@ Coordinate multiple agents on a single feature area:
 | `/team-level` | level-designer + narrative-director + world-builder + art-director + systems-designer + qa-tester |
 | `/team-live-ops` | live-ops-designer + economy-designer + community-manager + analytics-engineer |
 | `/team-qa` | qa-lead + qa-tester + gameplay-programmer + producer |
+| `/team-hindsight-dev` | hindsight-dev-memory-lead + GitNexus impact/recall/retain loop (optional c-sharp-engineer, aar-analyst) |
