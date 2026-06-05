@@ -44,5 +44,19 @@ public static class ReplayGoldenRegressionCatalog
             3,
             MvpEngagement: false,
             "|Detected|Lost"),
+        new(
+            "replay-golden-baltic-spoof-2026-06-04.txt",
+            7,
+            "baltic-patrol-spoof",
+            5,
+            MvpEngagement: true,
+            "CYBER_SPOOF_TRACK"),
+        new(
+            "replay-golden-baltic-readiness-2026-06-04.txt",
+            7,
+            "baltic-patrol-readiness",
+            5,
+            MvpEngagement: true,
+            "AIR_NOT_READY"),
     ];
 }
