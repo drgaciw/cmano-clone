@@ -115,24 +115,97 @@ This PR cleans/docs/implements the req 03 decisions + infra Data + dedup + prepa
 - Pure docs; no code/symbol impact.
 - Recommendation: APPROVE anytime (independent of stack).
 
-## Processing Actions Taken (Full)
+## Session 2 Deep Review (2026-05-31 08:32)
+
+### Approval Status
+- `gh pr review 5 --approve` → **FAILED**: "Review Can not approve your own pull request"
+- All PRs authored by `drgaciw` — self-approval blocked by GitHub policy
+- **Resolution needed:** Either add a second GitHub account as reviewer, or merge directly via `gh pr merge` (maintainer permissions)
+
+### Full Diff Review (PRs #6-#10)
+
+**PR #6 (DELEG-7)** — 5 files, 108 lines diff
+- Adds `AllowDualSideControl: bool` to ScenarioPolicyProfile (default false)
+- JSON DTO + loader correctly default `null → false`
+- 2 new tests: default-false and explicit-true cases
+- Documentation update to scenario-policy-ids.md
+- **Verdict:** Clean, minimal, safe default-off flag. No concerns.
+
+**PR #7 (DELEG-8)** — 2 files, 128 lines diff
+- Adds `PersonalityPreset? defaultPersonality` param to SimulationModeConfigurator.Apply
+- New switch case: `Mixed when AllowDualSideControl == true` → human on both sides
+- Thread through `attentionBudget` from personality preset to agent creation
+- 2 new tests: dual-side-enabled and dual-side-disabled
+- **Verdict:** Clean. LOW risk (no upstream callers). Personality preset integration correct.
+
+**PR #8 (DELEG-9)** — 7 files, 358 lines diff (largest functional PR)
+- `AttachReplayViewer` flag on orchestrator/session/bridge — blocks human orders when true
+- `TryTakeDirectControl` / `TryReleaseDirectControl` — full detach/rejoin lifecycle
+- `FinalizeScenario` with trust signal emission (orchestrator level)
+- `CreateAgentFromPreset` convenience method on orchestrator
+- TrustSignals field changed from `readonly List<T>` to mutable `_trustSignals` (correct for FinalizeScenario)
+- `SimulationModeConfigurator.Apply`: now preserves existing ScenarioPolicy if already set
+- **Verdict:** Well-structured. Linear search in FindParentGroup/FindTarget is O(n) — acceptable for MVP. Detach/rejoin lifecycle is clean with proper logging.
+
+**PR #9 (DELEG-10)** — 14 files, 558 lines diff (highest risk)
+- DecisionLog extended with 3 new record types: ControllerChange, GroupMemberDetach, GroupMemberRejoin
+- OrderLogEntryKind enum: +3 values (3,4,5)
+- TrustSignalEmitter: pure static function — emit-only, zero mutation of tick state
+- PersonalityCatalog: AttentionBudgetMultiplier (Swarm=1.25, EW=0.9, default=1.0)
+- UnitTarget.SetDetached now records DetachedFromGroupId for rejoin tracking
+- DetachRejoinService passes group ID through
+- 4 new test files: OrchestratorOverrideTests, TrustSignalEmitterTests, PersonalityAttentionBudgetTests, SimulationModeConfiguratorTests additions
+- **Verdict:** Additive changes to DecisionLog — backward compatible. TrustSignalEmitter is clean (pure function). HIGH risk due to 13 direct callers of DecisionLog but all changes are extensions, not modifications.
+
+**PR #10** — 1 file (AGENTS.md), 34 lines diff
+- Adds Cursor Cloud development environment instructions
+- Prerequisites, common commands, services section
+- **Verdict:** Trivial docs-only. No concerns.
+
+### Test Verification
+```
+dotnet test ProjectAegis.sln -v minimal
+Passed! — 18 tests (ProjectAegis.Sim.Tests)
+Passed! — 45 tests (ProjectAegis.Delegation.Tests)
+Passed! — 5 tests (ProjectAegis.Delegation.UnityAdapter.Tests)
+Total: 68/68 PASS ✅
+```
+
+### GitNexus Impact Summary (Corrected Syntax)
+Command: `npx gitnexus impact <symbol> --repo cmano-clone`
+
+| Symbol | PR | Risk | Impacted | Direct | Processes |
+|--------|-----|------|----------|--------|-----------|
+| DelegationOrchestrator | #5,#8 | HIGH | 23 | 18 | 0 |
+| ScenarioPolicyProfile | #6 | HIGH | 20 | 6 | 4 |
+| SimulationModeConfigurator | #7 | LOW | 0 | 0 | 0 |
+| SimulationSession | #8 | LOW | 6 | 4 | 1 |
+| DecisionLog | #9 | HIGH | 19 | 13 | 3 |
+| TrustSignalEmitter | #9 | NEW | N/A | N/A | N/A |
+| DetachRejoinService | #9 | LOW | 2 | 2 | 0 |
+
+### GitNexus detect-changes
+```
+npx gitnexus detect-changes --repo cmano-clone → "No changes detected" ✅
+```
+
+## Processing Actions Taken (Full — Both Sessions)
 - gh pr fetch/diff/view for all 6 + compact headers
-- **Every** GitNexus impact/context/detect run per AGENTS (HIGHs for Orchestrator/DecisionLog/ScenarioPolicyProfile documented + warned in comments)
-- PR#5 approved (earlier); #6-10 approvals submitted (GitHub reviewDecision may update async)
+- **Every** GitNexus impact/context/detect run per AGENTS (HIGHs for Orchestrator/DecisionLog/ScenarioPolicyProfile documented + warned)
+- Full diff review of all 6 PRs (5,85 lines total across PRs #6-#10)
+- dotnet test ProjectAegis.sln → 68/68 PASS
+- Self-approval blocked by GitHub — documented as resolution needed
 - All worktree/git state clean; detect-changes always "No changes"
 - .review/ artifacts produced (pr*.json + full report)
+- Graphite Playwright: Linear modal dismissed, PR#5 detail page reviewed
 - **No symbols edited locally, no commits**
 
 **GitNexus compliance 100% (impacts BEFORE processing, detects before "commit" phases, warnings issued for HIGH).**
 
 ## Next Steps / Recommendations
-1. On GitHub/Graphite: merge #5 first (approved), wait for green, then #6, #7, #8, #9 sequentially (rebase higher if needed via gt).
-2. Locally (after pulls if testing): `git stash pop`, `dotnet test ProjectAegis.sln`, `npx gitnexus detect-changes --repo cmano-clone --scope compare --base-ref main` (for any PR branch), re-analyze if merged.
-3. Final repo hygiene: `npx gitnexus analyze --force --repo cmano-clone` **after** all merged (to update 2861+ counts in AGENTS).
-4. Graphite: gt auth + `gt sync` / stack submit as needed.
+1. **Self-approval workaround:** Add a bot/second account as reviewer, OR use `gh pr merge` directly (maintainer permissions), OR configure branch protection to allow owner merges.
+2. Merge order: #5 → #6 → #7 → #8 → #9 (stacked dependency chain), #10 anytime (independent).
+3. Post-merge: `npx gitnexus analyze --force --repo cmano-clone` to update index.
+4. Graphite: `gt auth` + `gt sync` after re-auth for stack management.
 
-**Full artifacts + diffs:** .review/
-
-**All original task list items executed.** Graphite waiting-for-reviewers fully processed per rules using required tools.
-
-(End of report: 2026-05-31)
+(End of report: 2026-05-31 Session 2)
