@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
 using Xunit;
 
@@ -81,6 +82,58 @@ public sealed class CatalogWriteGateTests
             {
                 File.Delete(dbPath);
             }
+        }
+    }
+
+    [Fact]
+    public void ApproveBatch_AfterPropose_RecordsStableSnapshotHash()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-snapshot-{Guid.NewGuid():N}.db");
+        try
+        {
+            using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(1000)))
+            {
+                var proposal = new CatalogSensorBinding(
+                    "u-snap",
+                    "radar-snap",
+                    0.77,
+                    ReviewState: CatalogReviewStates.Approved,
+                    TrlLevel: 8,
+                    ValueTier: CatalogProvenanceTier.InterpretedValue,
+                    ReviewerId: "s18-plan",
+                    CitationRef: "phase2-test");
+                var batchId = gate.ProposeSensorBatch([proposal], "agent", "s18-catalog-p2");
+                var decision = gate.ApproveBatch(batchId, "human", "s18-reviewer");
+                Assert.True(decision.Committed);
+
+                var store = new DbSnapshotStore(dbPath);
+                // TDD red: RecordApprovedImport does not exist yet on DbSnapshotStore (and may need DbSnapshotRecord type)
+                var proposedIds = new[] { "radar-snap" }; // from the proposal we just approved
+                var snap = store.RecordApprovedImport(proposedIds, sourceFile: "sensor.md:phase2", importBatchId: batchId);
+                Assert.NotNull(snap);
+                Assert.False(string.IsNullOrEmpty(snap.ContentHash));
+
+                var snap2 = store.RecordApprovedImport(proposedIds, sourceFile: "sensor.md:phase2", importBatchId: batchId);
+                Assert.Equal(snap.ContentHash, snap2.ContentHash); // stable across calls
+
+                // P2-3: snapshot visible in store list (proves write)
+                var snaps = store.GetSortedSnapshotIds();
+                Assert.Contains(snap.Id, snaps);
+
+                // Also verify reader sees committed rows (P2-2)
+                using var reader = new SqliteCatalogReader(dbPath, "s18-snap-test");
+                Assert.True(reader.TryGetBasePd("u-snap", "radar-snap", out var pd));
+                Assert.Equal(0.77, pd);
+            }
+        }
+        finally
+        {
+            SqliteConnection.ClearAllPools();
+            try
+            {
+                if (File.Exists(dbPath)) File.Delete(dbPath);
+            }
+            catch (IOException) { /* lock from prior test or sqlite; ok for test env */ }
         }
     }
 }

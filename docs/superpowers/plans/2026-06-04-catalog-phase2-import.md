@@ -53,9 +53,9 @@ Aligns with `database-branching-release-train` skill — TL branching still **de
 ## Acceptance (Phase 2 complete)
 
 - [x] CLI proposes ≥100 sensors from reference markdown without Node toolchain (mini fixture + `--max-records`; full `sensor.md` via same command)
-- [ ] Human approve commits; `ICatalogReader.GetSortedSensorBindings()` reflects rows in stable order
-- [ ] Snapshot manifest hash stable across two imports of same approved batch
-- [ ] `dotnet test ProjectAegis.sln` green; replay golden unchanged unless catalog affects engage fixtures
+- [x] Human approve commits; `ICatalogReader.GetSortedSensorBindings()` reflects rows in stable order (P2-2 via gate + reader tests)
+- [x] Snapshot manifest hash stable across two imports of same approved batch (P2-3 RecordApprovedImport + test @ 2026-06-05 plan)
+- [x] `dotnet test ProjectAegis.sln` green; replay golden unchanged unless catalog affects engage fixtures (Data/CLI tests 63+15 pass; replays 7/7; full solution clean)
 
 ## Deferred
 
@@ -70,3 +70,5 @@ dotnet test ProjectAegis.sln -v minimal
 dotnet test src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj --filter CmoMarkdown
 npx gitnexus detect_changes --repo cmano-clone
 ```
+
+**Completed in Sprint 18 closeout (superpowers plan 2026-06-05):** P2-2/P2-3 implemented + tests + gate auto-record snapshot on approve. See docs/superpowers/plans/2026-06-05-sprint-18-closeout.md Task 3.

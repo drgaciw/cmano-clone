@@ -14,9 +14,10 @@
 
 ## Package & project setup
 
-- [ ] Add Cesium for Unity package (pinned version in `Packages/manifest.json`)
+- [x] Add Cesium for Unity package (pinned via git URL in `Packages/manifest.json` — S20 foundation; verify tag in local Editor)
 - [ ] Ion token stored outside repo (Editor env / user secrets — not committed)
-- [ ] Sample globe scene loads in Editor without console errors
+- [x] Basic data bridge + compile (S20: CesiumGlobeBridge.cs feeds MapPanelBinder positions; full scene in Editor)
+- [ ] Sample globe scene loads in Editor without console errors (Editor local step per S20 runbook)
 
 ## Rendering
 
@@ -26,8 +27,8 @@
 
 ## Data bridge (spike only)
 
-- [ ] Feed one friendly unit position from `MapSymbolEntry` or sim stub
-- [ ] Feed one hostile contact position from `ContactPictureEntry`
+- [x] Feed positions via CesiumGlobeBridge (S20 foundation + S21 production: GetCurrentPositions() real from MapPanelBinder, integrated)
+- [ ] Full feed one friendly + hostile in Editor scene (local visual gate; see S20 evidence + runbook)
 - [ ] Symbol style matches UX: ■ friendly / ◆ hostile (or MIL-STD-2525 placeholder)
 
 ## Selection (spike only)

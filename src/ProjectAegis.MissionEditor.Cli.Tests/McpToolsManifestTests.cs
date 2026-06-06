@@ -20,6 +20,11 @@ public sealed class McpToolsManifestTests
         "scenario_validate",
         "scenario_export_brief",
         "scenario_simulate_sample",
+        "osint_search",
+        "osint_digest",
+        "osint_list_staging_proposals",
+        "osint_get_proposal_detail",
+        "osint_submit_review_decision",
     ];
 
     [Fact]

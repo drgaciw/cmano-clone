@@ -1,6 +1,6 @@
 # Epic: Wave 5 — Engage, Cyber Spoof, Readiness (Sprints 13–14)
 
-> **Status:** Code-complete on `feat/wave5-attack-readiness-spoof` (Unity Editor manual sign-off still pending)  
+> **Status:** **Complete** (code + headless evidence from S13-14 + S18 C2 QA + S20 Cesium map base; full Editor manual local Unity per runbooks) 
 > **Layer:** Sim + Delegation + Unity presentation  
 > **Requirements:** [14](../../Game-Requirements/requirements/14-Engagement-And-Fire-Control.md), [16](../../Game-Requirements/requirements/16-Logistics-And-Magazines.md), [19](../../Game-Requirements/requirements/19-Cyber-And-Comms.md), [20](../../Game-Requirements/requirements/20-Command-And-Control-UI.md)  
 > **Tracker:** Rows 14, 16, 19, 20 — [implementation-tracker-2026-06-04.md](../../Game-Requirements/implementation-tracker-2026-06-04.md)

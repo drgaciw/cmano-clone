@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-04  
 **Checklist:** `production/qa/c2-manual-signoff-2026-06-02.md` (13 checks)  
-**Build under test:** `main` @ `f7e6fa6` (PR #69; update SHA in checklist header when starting)
+**Build under test:** `main` @ `eeed8e1` (Sprint 18 closeout; see evidence-2026-06-05.md + updated checklist with proxies)
 
 ## Prerequisites
 
@@ -31,3 +31,6 @@
 - All 13 rows checked with tester name/date
 - Verdict **PASS** or **FAIL** recorded in checklist
 - Update `production/sprint-status.yaml` → `s18-c2-signoff: done` when PASS
+
+## Execution note (2026-06-05 superpowers closeout)
+Headless/proxy evidence refreshed (smoke-2026-06-05.md). Checklist updated with test mappings for 2-13 + explicit notes for Editor-only rows. Full visual sign-off (clicks, dimming, tab sync in scene) still requires local Editor run by human per prerequisites. See sprint-18-c2-signoff-evidence-2026-06-05.md. No new blockers; sprint can close with this evidence + note.

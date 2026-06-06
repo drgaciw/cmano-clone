@@ -76,4 +76,28 @@ public sealed class DbSnapshotStore : IDisposable
         cmd.Parameters.AddWithValue("$name", table);
         return Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0;
     }
+
+    // P2-3: Record snapshot after approve (Sprint 18 closeout). Deterministic hash, writes to catalog_snapshot for GetSorted + replay binding.
+    public DbSnapshotRecord RecordApprovedImport(IReadOnlyList<string> approvedIds, string sourceFile, string importBatchId)
+    {
+        var canonical = string.Join("|", approvedIds.OrderBy(id => id, StringComparer.Ordinal));
+        var input = $"{canonical}|{sourceFile}|{importBatchId}";
+        using var sha = System.Security.Cryptography.SHA256.Create();
+        var bytes = System.Text.Encoding.UTF8.GetBytes(input);
+        var hashBytes = sha.ComputeHash(bytes);
+        // Compatible hex (netstandard2.1 / Unity): BitConverter + lowercase, no Substring on int
+        var hash = BitConverter.ToString(hashBytes).Replace("-", string.Empty).ToLowerInvariant();
+        var shortHash = hash.Length >= 8 ? hash.Substring(0, 8) : hash;
+        var id = $"snap-{importBatchId}-{shortHash}";
+
+        // Persist (idempotent for stable re-runs)
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "INSERT OR IGNORE INTO catalog_snapshot (snapshot_id) VALUES ($id)";
+        cmd.Parameters.AddWithValue("$id", id);
+        cmd.ExecuteNonQuery();
+
+        return new DbSnapshotRecord(id, hash, sourceFile, importBatchId);
+    }
 }
+
+public sealed record DbSnapshotRecord(string Id, string ContentHash, string SourceFile, string ImportBatchId);

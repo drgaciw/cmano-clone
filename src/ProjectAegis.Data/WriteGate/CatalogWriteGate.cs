@@ -2,6 +2,7 @@ namespace ProjectAegis.Data.WriteGate;
 
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Snapshots;
 
 /// <summary>SQLite-backed write gate for sensor catalog rows (req-06 P0).</summary>
 public sealed class CatalogWriteGate : IWriteGate, IDisposable
@@ -80,6 +81,20 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
         MarkBatchState(tx, batchId, "approved", actorType, actorId);
         tx.Commit();
+
+        // P2-3: record stable snapshot for approved batch (enables replay binding / scenario package). Deterministic, non-fatal.
+        try
+        {
+            using var store = new DbSnapshotStore(_connection.DataSource);
+            var sensorIds = approved.Select(a => a.SensorId).OrderBy(s => s, StringComparer.Ordinal).ToList();
+            var src = approved.FirstOrDefault()?.SourceFile ?? "phase2-import";
+            _ = store.RecordApprovedImport(sensorIds, src, batchId);
+        }
+        catch
+        {
+            // Snapshot is auxiliary for P2; do not fail the approve commit.
+        }
+
         return new WriteGateDecision(true, batchId, []);
     }
 

@@ -292,6 +292,49 @@
         }
       },
       "returns": "JSON sample summary (worldHash, fingerprint, engagementCount); exit 1 if validation blocks"
+    },
+    {
+      "name": "osint_search",
+      "command": "pwsh",
+      "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "osint_search", "-ExtraArgs", "--db", "${db}"],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "db": { "type": "string" }
+        }
+      },
+      "returns": "JSON with proposals (from FileOsintConnector + runner) and logOnlyCount (S21 MCP search_osint per req05)"
+    },
+    {
+      "name": "osint_list_staging_proposals",
+      "command": "pwsh",
+      "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "osint_staging_review", "-ExtraArgs", "--db", "${db}"],
+      "inputSchema": {
+        "type": "object",
+        "required": ["db"],
+        "properties": {
+          "db": { "type": "string" }
+        }
+      },
+      "returns": "JSON pending proposals (reuses S20 osint_staging_review for list_staging_proposals)"
+    },
+    {
+      "name": "osint_digest",
+      "command": "pwsh",
+      "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "osint_search", "-ExtraArgs", "--db", "${db}"],
+      "inputSchema": { "type": "object", "properties": { "db": { "type": "string" } } }
+    },
+    {
+      "name": "osint_get_proposal_detail",
+      "command": "pwsh",
+      "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "osint_staging_review", "-ExtraArgs", "--db", "${db}"],
+      "inputSchema": { "type": "object", "properties": { "db": { "type": "string" } } }
+    },
+    {
+      "name": "osint_submit_review_decision",
+      "command": "pwsh",
+      "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "osint_staging_review", "-ExtraArgs", "--db", "${db}", "--approve", "${batchId}"],
+      "inputSchema": { "type": "object", "properties": { "db": { "type": "string" }, "batchId": { "type": "string" } } }
     }
   ]
 }

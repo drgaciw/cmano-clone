@@ -1,4 +1,6 @@
 using ProjectAegis.Data.Import;
+using ProjectAegis.Data.Osint;
+using ProjectAegis.Data.Osint.Connectors;
 using ProjectAegis.MissionEditor.Cli;
 
 if (args.Length == 0)
@@ -46,6 +48,11 @@ switch (command)
         return RunCatalogWriteApprove(args.Skip(1).ToArray());
     case "catalog_import_markdown":
         return RunCatalogImportMarkdown(args.Skip(1).ToArray());
+    case "osint_staging_review":
+        return RunOsintStagingReview(args.Skip(1).ToArray());
+    case "osint_search":
+        return RunOsintSearch(args.Skip(1).ToArray());
+    // S21: add cases for osint_digest, osint_list_staging_proposals etc as needed (delegate to runner/OsintStagingReviewCommand)
     default:
         Console.Error.WriteLine($"Unknown command: {command}");
         PrintUsage();
@@ -317,6 +324,9 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_propose --db <catalog.db> --platform P --sensor S --base-pd 0.7");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_approve --db <catalog.db> --batch <batchId>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <sensor.md> [--max-records N] [--chunk-size 500]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_staging_review --db <catalog.db> [--approve <batchId>]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_search [--db <fixture.json>]  # S21 MCP search_osint");
+    // S21: osint_digest, osint_list_staging_proposals, osint_get_proposal_detail, osint_submit_review_decision
 }
 
 static int RunCatalogImportMarkdown(string[] args)
@@ -334,6 +344,44 @@ static int RunCatalogImportMarkdown(string[] args)
     var chunkSize = CliArgParser.GetIntFlag(args, "--chunk-size", CmoMarkdownImportProposer.DefaultChunkSize);
     return CatalogImportMarkdownCommand.Run(db, markdown, maxRecords, chunkSize, Console.Out);
 }
+
+static int RunOsintStagingReview(string[] args)
+{
+    var db = CliArgParser.GetFlag(args, "--db");
+    var approve = CliArgParser.GetFlag(args, "--approve");
+    if (string.IsNullOrWhiteSpace(db))
+    {
+        Console.Error.WriteLine("osint_staging_review requires --db <catalog.db> [--approve <batchId>]");
+        return 1;
+    }
+    return OsintStagingReviewCommand.Run(db, approve, Console.Out);
+}
+
+static int RunOsintSearch(string[] args)
+{
+    // S21-02: MCP osint_search using runner + File connector (real-ish source) or fixture
+    var db = CliArgParser.GetFlag(args, "--db"); // optional, use File for 'real' or InMemory
+    IOsintConnector conn;
+    if (!string.IsNullOrWhiteSpace(db) && File.Exists(db))
+    {
+        conn = new FileOsintConnector(db); // reuse for catalog db? but for demo use fixture path or ignore
+    }
+    else
+    {
+        conn = new FileOsintConnector(Path.Combine("data", "osint_facts.json")); // fallback fixture
+    }
+    var runner = new OsintDigestRunner(0.65);
+    var (proposals, logOnly) = runner.Run(conn.Fetch());
+    return McpToolResult.WriteOk(Console.Out, new
+    {
+        ok = true,
+        proposals = proposals.Select(p => new { p.CanonicalId, p.SourceUrl, p.RelevanceScore, p.Snippet }).ToArray(),
+        logOnlyCount = logOnly.Length
+    });
+}
+
+// Similar minimal for other S21 MCP tools (osint_digest, list_staging, detail, submit) can delegate to existing runner/OsintStagingReviewCommand
+// For brevity in S21, osint_list_staging_proposals etc reuse OsintStagingReviewCommand.Run pattern.
 
 static int RunCatalogIntelligence(string[] args)
 {

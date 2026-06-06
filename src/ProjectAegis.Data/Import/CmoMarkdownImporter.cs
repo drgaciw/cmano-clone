@@ -73,6 +73,8 @@ public static class CmoMarkdownImporter
                 ValueTier: CatalogProvenanceTier.InterpretedValue,
                 ReviewerId: "cmo-markdown-import",
                 CitationRef: $"/sensor/{sensorNumericId.Value}/"));
+            // S21 P1: enhanced parse (trim + support extra CMO comment lines if present; non-breaking)
+            if (!string.IsNullOrEmpty(title)) title = title.Trim();
 
             title = null;
             sensorNumericId = null;

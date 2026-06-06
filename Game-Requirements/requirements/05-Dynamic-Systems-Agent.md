@@ -127,6 +127,36 @@ Every proposal must declare intended **Technology Level (TL)** and **TRL** so th
 - Community-submitted speculative systems with automated vetting (pairs with doc 06 public intake track — separate from player-facing feed below).
 - Automatic generation of 3D models or icons for new systems (out of scope for agent MVP).
 
+## Sprint 19 Implementation (OSINT production slice)
+- `OsintDigestRunner` (headless, delegates to `OsintProposalGate`).
+- `InMemoryOsintConnector` (and pattern for file/RSS).
+- `OsintCatalogMapper` + E2E propose/approve via `CatalogWriteGate` (visible to reader).
+- `OsintStagingReviewCommand` (CLI proxy for "Unity staging UI" list/approve).
+- Evidence: `OsintDigestRunnerTests` (incl. E2E wiring), `sprint-19-osint-production.md`.
+- Tracker updated to Partial+ for req 05.
+- GitNexus: impacts on Orchestrator (HIGH - extended via separate path, no default agents change), no DelegationBridge.
+- Determinism and write-gate only enforced.
+- Unity full panel: deferred to local Editor (headless/CLI covered in harness/tests).
+
+## Sprint 20 Implementation (connectors + UI + Cesium base)
+- `FileOsintConnector` + `RssOsintConnector` (stub) — real source connectors, deterministic Fetch + stable sort, feed runner, 3 new tests in OsintConnectorTests (red->green TDD).
+- `OsintStagingPanelHost` completed (ListView real bind to records, approve button invokes CLI proxy, refresh, status, PlayMode safe; modeled on SensorC2PanelHost; Editor visual per runbook).
+- Cesium foundation: `manifest.json` pin (git URL), `CesiumGlobeBridge.cs` (data bridge from MapPanelBinder/seed), spike checklist updates (package + bridge items).
+- Evidence: extended Osint tests (9 total), new connector tests, updated checklist, `sprint-20-osint-cesium-foundation.md` + impl plan.
+- Tracker: row 05/20 advanced; no new CRITICAL (Catalog extend-only rule followed; all new symbols LOW).
+- Determinism: connectors pure (fixtures + OrderBy), no net/wall in paths.
+- Unity visuals: CLI proxy + Editor local (headless covered).
+
+## Sprint 21 Implementation (MCP + polish + production)
+- `IOsintConnector` interface + retrofit of InMemory/File/Rss + Rss enhanced with parser; OsintConnectorTests +10/10 Osint green.
+- MCP OSINT: osint_search etc verbs in Program.cs + Run; mcp-tools.json + 5 tools; McpToolsManifestTests updated + green (reuses runner + OsintStagingReviewCommand).
+- Cesium prod: CesiumGlobeBridge.GetCurrentPositions() real feed; checklist + ux doc updated.
+- Data P1: CmoMarkdownImporter enhanced (trim + P1 comment for fields/provenance).
+- S20 closed in yaml + wave5 epics to Complete; S21 kickoff + impl plan + closeout.
+- Evidence: new interface/CLI verbs/bridge method, updated json/tests/docs, gates PASS.
+- GitNexus: impacts (HIGH Osint, CRITICAL Catalog extend, LOW others); detect for S21 scope.
+- Note: S20 QA gap carried (no qa-plan; recommend next).
+
 ## Resolved Design Decisions
 
 Decisions locked **2026-06-04** for Sprint 13 design review.

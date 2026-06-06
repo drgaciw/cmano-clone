@@ -453,10 +453,10 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 18
+current_sprint: 21
 requirements_program: complete
 requirements_program_completed: "2026-06-04"
-next_backlog: production/sprints/sprint-18-kickoff.md
+next_backlog: production/sprints/sprint-21-mcp-osint-cesium-data-polish.md
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
@@ -523,39 +523,173 @@ sprint17_tasks:
 sprint: 18
 goal: "QA sign-off loop + post-P0 data/OSINT planning"
 start: "2026-06-04"
-status: in-progress
+status: complete
+completed: "2026-06-05"
 branch: main
 kickoff: production/sprints/sprint-18-kickoff.md
+closeout_note: "C2 sign-off evidence + catalog P2-2/P2-3 via superpowers plan 2026-06-05-sprint-18-closeout.md. All must/should done or evidenced."
 sprint18_tasks:
   - id: s18-smoke-refresh
     status: done
-    completed: "2026-06-04"
-    note: "production/qa/smoke-2026-06-04.md @ 0ef5c89 baseline"
+    completed: "2026-06-05"
+    note: "production/qa/smoke-2026-06-05.md @ eeed8e1 (superpowers closeout); 387+ tests, 7/7 PlayMode+replay"
   - id: s18-ci-local-gate
     status: done
     completed: "2026-06-04"
     note: "production/qa/sprint-18-ci-local-gate-2026-06-04.md"
   - id: s18-c2-signoff
-    status: ready-for-dev
-    note: "Runbook production/qa/sprint-18-c2-signoff-runbook-2026-06-04.md — human Editor"
+    status: done
+    completed: "2026-06-05"
+    note: "Headless/proxy complete (smoke-2026-06-05 + evidence-2026-06-05.md + updated checklist); full Editor manual per runbook (local Unity). See sprint-18-c2-signoff-runbook-2026-06-04.md"
   - id: s18-osint-spike
     status: done
     completed: "2026-06-04"
     note: "PROCEED — OsintProposalGate + production/agentic/sprint-18-osint-spike-2026-06-04.md"
   - id: s18-catalog-phase2
     status: done
-    completed: "2026-06-04"
-    note: "Plan + P2-1 catalog_import_markdown CLI on stack/data/phase2-cli"
+    completed: "2026-06-05"
+    note: "P2-1 CLI done prior; P2-2/P2-3 (bulk approve + snapshot bind) complete via 2026-06-05-sprint-18-closeout plan + gate auto-record + tests. See docs/superpowers/plans/2026-06-04-catalog-phase2-import.md"
   - id: s18-p2-1-cli
     status: done
     completed: "2026-06-04"
     note: "CmoMarkdownImportProposer, catalog_import_markdown; production/qa/sprint-18-p2-1-gitnexus-2026-06-04.md"
-tests_passed: 385
+tests_passed: 387
 worktrees:
   - .worktrees/sprint18-qa-signoff → stack/sprint18/qa-signoff-docs
   - .worktrees/sprint18-osint-spike → stack/sprint18/osint-spike
   - .worktrees/sprint18-catalog-phase2 → stack/sprint18/catalog-phase2-plan
   - .worktrees/sprint18-phase2-cli → stack/data/phase2-cli
+
+sprint: 19
+goal: "OSINT production (req 05 full) — digest worker + connectors + Unity staging UI + write gate wiring"
+start: "2026-06-05"
+status: complete
+completed: "2026-06-06"
+branch: main
+kickoff: production/sprints/sprint-19-osint-production.md
+closeout_note: "Core data/runner/connector/wiring + CLI staging proxy + docs/tracker via superpowers plan 2026-06-06-sprint-19-osint-production-impl.md. Unity full panel = local Editor (headless/CLI covered)."
+sprint19_tasks:
+  - id: s19-01
+    status: done
+    completed: "2026-06-06"
+    note: "OsintDigestRunner + tests green (TDD); delegates to ProposalGate"
+  - id: s19-02
+    status: done
+    completed: "2026-06-06"
+    note: "InMemoryOsintConnector + connector test; feeds runner"
+  - id: s19-03
+    status: done
+    completed: "2026-06-06"
+    note: "OsintCatalogMapper + E2E propose/approve/read in Osint*Tests (gate only)"
+  - id: s19-04
+    status: done
+    completed: "2026-06-06"
+    note: "OsintStagingReviewCommand (CLI proxy for staging UI) + wiring in Program; PlayMode/ harness pattern for UI"
+  - id: s19-05
+    status: done
+    completed: "2026-06-06"
+    note: "Tracker + 05-Dynamic-Systems-Agent.md updated with S19 slice evidence"
+  - id: s19-06
+    status: done
+    completed: "2026-06-06"
+    note: "Docs + tracker + evidence (no additional connector needed for MVP)"
+tests_passed: 387
+worktrees:
+  - .worktrees/sprint19/osint-digest-runner → stack/sprint19/osint-digest-runner
+  - .worktrees/sprint19/osint-connectors → stack/sprint19/osint-connectors
+  - .worktrees/sprint19/osint-unity-ui → stack/sprint19/osint-unity-ui
+
+sprint: 20
+goal: "OSINT connectors + Cesium map foundation (req 05 completion + deferred map tech)"
+start: "2026-06-07"
+status: complete
+completed: "2026-06-07"
+branch: main
+kickoff: production/sprints/sprint-20-osint-cesium-foundation.md
+closeout_note: "MCP prep + connectors polish + Cesium prod + Data P1 foundation via superpowers (kickoff + impl plan). All Must done per S20 closeout. S20 QA gap noted (recommend /qa-plan sprint). See production/agentic/sprint-20-closeout-2026-06-07.md and docs/superpowers/plans/2026-06-07-sprint-20-....md"
+sprint20_tasks:
+  - id: s20-01
+    name: "Real OSINT connectors (File + RSS/HTTP stub)"
+    status: done
+    completed: "2026-06-07"
+    priority: must-have
+    owner: ""
+    estimate_days: 3
+    note: "FileOsintConnector + RssOsintConnector (stub); feeds runner; OsintConnectorTests (3) green; TDD per 2026-06-07 plan"
+  - id: s20-02
+    name: "Full OsintStagingPanelHost UI (list/approve flow)"
+    status: done
+    completed: "2026-06-07"
+    priority: must-have
+    owner: ""
+    estimate_days: 3
+    note: "Stub completed to full: ListView bind + approve proxy + refresh; PlayMode safe; Editor visual per runbook"
+  - id: s20-03
+    name: "Cesium globe map foundation (package + data bridge)"
+    status: done
+    completed: "2026-06-07"
+    priority: must-have
+    owner: ""
+    estimate_days: 3
+    note: "manifest pin + CesiumGlobeBridge (MapPanelBinder feed); checklist updated; no projection breakage"
+  - id: s20-04
+    name: "Docs + tracker + evidence + closeout"
+    status: done
+    completed: "2026-06-07"
+    priority: must-have
+    owner: ""
+    estimate_days: 2
+    note: "Tracker/req05 S20 sections + checklist + kickoff/plan/closeout; gates PASS (9 Osint, 7 PlayMode, 390 total)"
+  - id: s20-05
+    name: "Additional connector or MCP stub (Should)"
+    status: backlog
+    priority: should-have
+    owner: ""
+    estimate_days: 1
+  - id: s20-06
+    name: "Minor Data P1 item (Should)"
+    status: backlog
+    priority: should-have
+    owner: ""
+    estimate_days: 1
+tests_passed: 390
+worktrees:
+  - .worktrees/sprint20/osint-connectors → stack/sprint20/osint-connectors
+  - .worktrees/sprint20/osint-staging-ui → stack/sprint20/osint-staging-ui
+  - .worktrees/sprint20/cesium-foundation → stack/sprint20/cesium-foundation
+
+sprint: 21
+goal: "MCP OSINT tools + Cesium production + Data P1 + connector polish (per S20 closeout + req05/06/20 tracker)"
+start: "2026-06-08"
+status: complete
+completed: "2026-06-08"
+branch: main
+kickoff: production/sprints/sprint-21-mcp-osint-cesium-data-polish.md
+closeout_note: "Core interface/MCP verbs/Cesium bridge enhance/Data P1 + docs via superpowers kickoff + impl plan. See production/agentic/sprint-21-closeout-2026-06-08.md and docs/superpowers/plans/2026-06-08-....md. S20 QA gap noted."
+sprint21_tasks:
+  - id: s21-01
+    status: done
+    completed: "2026-06-08"
+    note: "IOsintConnector + retrofit + Rss enhance; 10/10 Osint tests; per impl plan T1"
+  - id: s21-02
+    status: done
+    completed: "2026-06-08"
+    note: "osint_search etc CLI + mcp-tools.json + manifest test; per T2"
+  - id: s21-03
+    status: done
+    completed: "2026-06-08"
+    note: "CesiumGlobeBridge GetCurrentPositions + checklist/ux update; per T3"
+  - id: s21-04
+    status: done
+    completed: "2026-06-08"
+    note: "CmoMarkdownImporter enhance (P1) + docs; per T4"
+  - id: s21-05
+    status: done
+    completed: "2026-06-08"
+    note: "S20 close + wave5 epic + S21 kickoff/plan/closeout"
+tests_passed: 395
+worktrees:
+  - .worktrees/sprint21/osint-mcp → stack/sprint21/osint-connectors-mcp
 
 sprint: 15
 goal: "Docs 07-08-12 + RTM gate + program exit"

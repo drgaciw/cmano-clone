@@ -32,7 +32,7 @@ pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 | 02 | Core Gameplay Loop | **Partial** | `SimulationSession.cs`, `data/scenarios/*.policy.json` | Phase 1–2 UX; explicit **Begin Execution** in Unity |
 | 03 | Simulation Modes | **Partial** | `SimulationSessionPhaseTests.cs`, headless smoke | AvA batch benchmark; mode UI on C2 top bar |
 | 04 | Agent Delegation | **Partial** | `DelegationOrchestrator.cs`, `TrustSignalEmitterTests.cs` | C2 delegation badges; trust emit-only in order log |
-| 05 | Dynamic Speculative Systems Agent | **Partial** (spike) | `OsintDiscoveryRecord`, `OsintProposalGate`, `production/agentic/sprint-18-osint-spike-2026-06-04.md` | Digest worker, MCP search, staging UI |
+| 05 | Dynamic Speculative Systems Agent | **Partial+** (S19 slice + S20 connectors/UI/Cesium base) | `OsintDigestRunner`, `InMemoryOsintConnector`, `FileOsintConnector`, `RssOsintConnector`, `OsintConnectorTests` (3), `OsintStagingPanelHost` (full), `CesiumGlobeBridge`, manifest pin, E2E/CLI prior + S20, `production/sprints/sprint-20-osint-cesium-foundation.md`, `docs/superpowers/plans/2026-06-07-sprint-20-...md` | MCP search, full real-time connectors, Cesium production wiring |
 | 06 | Database Intelligence | **Partial** (P0 complete) | P0 on `main`: `CatalogWriteGate`, `ValidationPipeline`, `ScenarioPackage`, `CmoMarkdownImporter`, migrations `001`–`005` | Full platform import; balance drift; TL branching |
 | 07 | Agentic Infrastructure | **Partial** | `BalticReplayHarness`, `MissionEditor.Cli`, Hindsight | Scenario gen + experiment workers |
 | 08 | Agentic Architecture | **Partial** | `ProjectAegis.Sim`, `Delegation`, `architecture.md` | DOTS sensor hot path; sim API export |

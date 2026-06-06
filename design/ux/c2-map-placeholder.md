@@ -34,6 +34,7 @@ Maintain spatial situational awareness—who is where relative to the fight—wh
 | Destroyed friendly | Dim + strikethrough | 40% opacity | — |
 
 ### Comms degradation (P1 — implemented)
+### Globe map P0 (S20 foundation + S21 production wiring via CesiumGlobeBridge real feed + useGlobeMap)
 
 | COMMS state | Hostile track | Friendly track | USS classes |
 |-------------|---------------|----------------|-------------|
