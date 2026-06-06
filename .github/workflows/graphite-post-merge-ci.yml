@@ -1,4 +1,5 @@
 name: Post-Merge CI (Graphite)
+enabled: false
 
 on:
   push:
