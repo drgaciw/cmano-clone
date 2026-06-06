@@ -67,3 +67,4 @@ unity-*.log
 unity-*.log.import
 unity-hub-install*.log
 .forgeflow/run/
+.worktrees/
