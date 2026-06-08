@@ -93,6 +93,20 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     {
         _connection.Close();
         _connection.Dispose();
+        SqliteConnection.ClearAllPools();
+    }
+
+    private bool MigrationColumnExists(string table, string column)
+    {
+        if (!IsSafeSqlIdentifier(table) || !IsSafeSqlIdentifier(column) || !TableExists(table))
+        {
+            return false;
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = $"SELECT COUNT(*) FROM pragma_table_info('{table}') WHERE name = $col";
+        cmd.Parameters.AddWithValue("$col", column);
+        return Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0;
     }
 
     private void ApplyMigrations()
@@ -130,6 +144,11 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         }
 
         if (file.Contains("005", StringComparison.Ordinal) && TableExists("catalog_change_log"))
+        {
+            return true;
+        }
+
+        if (file.Contains("006", StringComparison.Ordinal) && MigrationColumnExists("catalog_snapshot", "content_hash_sha256"))
         {
             return true;
         }

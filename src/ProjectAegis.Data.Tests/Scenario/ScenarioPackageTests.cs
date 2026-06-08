@@ -8,6 +8,22 @@ using Xunit;
 public sealed class ScenarioPackageTests
 {
     [Fact]
+    public void FromDocument_uses_explicit_db_snapshot_id_when_present()
+    {
+        var doc = new ScenarioDocumentDto
+        {
+            Metadata = new ScenarioMetadataDto
+            {
+                DbSnapshotId = "catalog-p2-test-snapshot",
+                PolicyId = "baltic-patrol",
+            },
+        };
+
+        var package = ScenarioPackage.FromDocument("scenario_a", doc);
+        Assert.Equal("catalog-p2-test-snapshot", package.DbSnapshotId);
+    }
+
+    [Fact]
     public void FromDocument_resolves_db_snapshot_from_db_ref()
     {
         var doc = new ScenarioDocumentDto

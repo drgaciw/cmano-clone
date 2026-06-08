@@ -1,13 +1,15 @@
-# Sprint 18 — C2 manual sign-off runbook (S18-01)
+# Sprint 19 — C2 manual sign-off runbook (S19-01 carryover)
 
-**Date:** 2026-06-04  
+**Date:** 2026-06-08 (handoff); runbook authored 2026-06-04  
+**Context:** Sprint 18 S18-01 carried forward as **S19-01**  
+**Handoff:** `production/qa/sprint-19-c2-signoff-handoff-2026-06-08.md`  
 **Checklist:** `production/qa/c2-manual-signoff-2026-06-02.md` (13 checks)  
-**Build under test:** `main` @ `eeed8e1` (Sprint 18 closeout; see evidence-2026-06-05.md + updated checklist with proxies)
+**Build under test:** `main` post-rebase (Sprint 19 handoff; update SHA in checklist header when starting Editor run)
 
 ## Prerequisites
 
 1. Unity **6000.3.14f1** — see `unity/ProjectAegis/PLAYMODE-SMOKE.md`
-2. Headless pre-check **PASS** — `production/qa/smoke-2026-06-04.md`
+2. Headless pre-check **PASS** — `production/qa/smoke-2026-06-08.md`
 3. Scenarios: `baltic-patrol-classify`, `baltic-patrol-comms`
 
 ## Headless proxy (already green)
@@ -16,6 +18,8 @@
 |-------|--------|
 | 2–12 (except 1, 13 partial) | `production/qa/c2-automated-proxy-2026-06-02.md` |
 | 13 Attack menu | `DelegationBridgeAttackOptionTests`, `UnitDetailBridgeTests`, PlayMode if wired |
+
+**PI-006 closure:** `production/qa/pi-006-headless-proxy-2026-06-04.md`
 
 ## Editor steps (human)
 
@@ -30,7 +34,8 @@
 
 - All 13 rows checked with tester name/date
 - Verdict **PASS** or **FAIL** recorded in checklist
-- Update `production/sprint-status.yaml` → `s18-c2-signoff: done` when PASS
+- Update `production/sprint-status.yaml` → `s19-01: done` when PASS
+- Playtest notes to `production/session-logs/playtest-sprint19-c2-signoff.md` (per QA plan)
 
-## Execution note (2026-06-05 superpowers closeout)
-Headless/proxy evidence refreshed (smoke-2026-06-05.md). Checklist updated with test mappings for 2-13 + explicit notes for Editor-only rows. Full visual sign-off (clicks, dimming, tab sync in scene) still requires local Editor run by human per prerequisites. See sprint-18-c2-signoff-evidence-2026-06-05.md. No new blockers; sprint can close with this evidence + note.
+## Execution note (2026-06-08 handoff)
+Headless/proxy evidence refreshed (`smoke-2026-06-08.md`, 403/403 tests). Checklist updated with test mappings for 2–13 + explicit notes for Editor-only rows. Full visual sign-off (clicks, dimming, tab sync in scene) still requires local Editor run by human per prerequisites.

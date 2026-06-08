@@ -323,7 +323,7 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_entity_map");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_propose --db <catalog.db> --platform P --sensor S --base-pd 0.7");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_approve --db <catalog.db> --batch <batchId>");
-    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <sensor.md> [--max-records N] [--chunk-size 500]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <sensor.md> [--max-records N] [--chunk-size 500] [--report-out report.json]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_staging_review --db <catalog.db> [--approve <batchId>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_search [--db <fixture.json>]  # S21 MCP search_osint");
     // S21: osint_digest, osint_list_staging_proposals, osint_get_proposal_detail, osint_submit_review_decision
@@ -342,7 +342,8 @@ static int RunCatalogImportMarkdown(string[] args)
     var maxRecordsRaw = CliArgParser.GetFlag(args, "--max-records");
     int? maxRecords = int.TryParse(maxRecordsRaw, out var max) ? max : null;
     var chunkSize = CliArgParser.GetIntFlag(args, "--chunk-size", CmoMarkdownImportProposer.DefaultChunkSize);
-    return CatalogImportMarkdownCommand.Run(db, markdown, maxRecords, chunkSize, Console.Out);
+    var reportOut = CliArgParser.GetFlag(args, "--report-out");
+    return CatalogImportMarkdownCommand.Run(db, markdown, maxRecords, chunkSize, Console.Out, reportOut);
 }
 
 static int RunOsintStagingReview(string[] args)
@@ -415,5 +416,7 @@ static int RunCatalogWriteApprove(string[] args)
         return 1;
     }
 
-    return CatalogWriteApproveCommand.Run(db, batch, Console.Out);
+    var snapshotId = CliArgParser.GetFlag(args, "--snapshot-id");
+    var releaseVersion = CliArgParser.GetFlag(args, "--release-version");
+    return CatalogWriteApproveCommand.Run(db, batch, Console.Out, snapshotId, releaseVersion);
 }

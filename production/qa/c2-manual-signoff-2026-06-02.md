@@ -1,12 +1,14 @@
 # C2 manual QA sign-off — 2026-06-02
 
-**Build:** `main` @ `eeed8e1` (Sprint 18 closeout via superpowers plan 2026-06-05; PR #69 Wave 5 baseline)  
-**Headless/proxy evidence:** production/qa/smoke-2026-06-05.md + c2-automated-proxy-2026-06-02.md (385+ tests, 7/7 PlayMode, 7/7 replay)
+**Sprint / task:** Sprint 19 / **S19-01** (carryover from S18-01)  
+**Build:** `main` @ post-rebase (catalog P2-2/P2-3 + QA gates; prior baseline `eeed8e1` Sprint 18 closeout)  
+**Headless/proxy evidence:** production/qa/smoke-2026-06-08.md + c2-automated-proxy-2026-06-02.md (403 tests, 7/7 PlayMode, 17/17 replay)  
 **Prior baseline:** `2a08518` (Sprints 7–9)  
+**Note:** Headless proxy **12/13 green** (checks 2–13); **check 1** (Play Mode console) and full Editor walk require human tester.
 **Scenarios:** `baltic-patrol-classify` (selection), `baltic-patrol-comms` (COMMS + map stale)  
 **Reference:** `unity/ProjectAegis/PLAYMODE-SMOKE.md`  
-**Headless pre-check:** `production/qa/headless-smoke-evidence-2026-06-02.md` (PASS 243 tests)  
-**Automated proxy:** `production/qa/c2-automated-proxy-2026-06-02.md` (checks 2–12 partially covered headless)
+**Headless pre-check:** `production/qa/smoke-2026-06-08.md`  
+**Automated proxy:** `production/qa/c2-automated-proxy-2026-06-02.md` (checks 2–13; PI-006: `production/qa/pi-006-headless-proxy-2026-06-04.md`)
 
 | # | Check | Pass | Tester | Notes |
 |---|--------|------|--------|-------|

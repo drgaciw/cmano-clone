@@ -1,0 +1,44 @@
+{
+  "discoveries": [
+    {
+      "canonicalId": "u-hypersonic/radar-glide",
+      "sourceUrl": "https://example.org/a",
+      "snippet": "hypersonic glide vehicle radar concept",
+      "relevanceScore": 0.72,
+      "targetDoc": "09",
+      "proposedTrl": 6
+    },
+    {
+      "canonicalId": "speculative-rail-c",
+      "sourceUrl": "https://example.org/c",
+      "snippet": "speculative railgun prototype",
+      "relevanceScore": 0.9,
+      "targetDoc": "10",
+      "proposedTrl": 4
+    },
+    {
+      "canonicalId": "hypersonic-glide-a",
+      "sourceUrl": "https://example.org/low",
+      "snippet": "below confidence threshold",
+      "relevanceScore": 0.64,
+      "targetDoc": "09",
+      "proposedTrl": 5
+    },
+    {
+      "canonicalId": "dedupe-target",
+      "sourceUrl": "https://example.org/dup-low",
+      "snippet": "lower relevance duplicate",
+      "relevanceScore": 0.7,
+      "targetDoc": "09",
+      "proposedTrl": 5
+    },
+    {
+      "canonicalId": "dedupe-target",
+      "sourceUrl": "https://example.org/dup-high",
+      "snippet": "higher relevance duplicate",
+      "relevanceScore": 0.8,
+      "targetDoc": "09",
+      "proposedTrl": 6
+    }
+  ]
+}

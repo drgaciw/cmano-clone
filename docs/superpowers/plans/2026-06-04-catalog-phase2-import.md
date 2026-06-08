@@ -37,6 +37,7 @@ main
 | Chunk size | Default **500** sensors per propose batch (human approval per batch) |
 | Determinism | Stable sort before chunking; `maxRecords` for smoke/CI |
 | Quarantine | Rows failing TRL/confidence → `sensor_quarantine` via existing path |
+| Quarantine report | CLI JSON `quarantineReport[]` (`platformId`, `sensorId`, `reason`, `sourceFile`); optional `--report-out <path.json>` for CI artifacts (S19-02 / story-005) |
 | Provenance | `source_file`, `import_batch_id`, `citation_ref` from markdown sub-path |
 | No direct INSERT | Importer never calls `CatalogJsonImporter.WriteSqlite` in production path |
 
@@ -53,9 +54,10 @@ Aligns with `database-branching-release-train` skill — TL branching still **de
 ## Acceptance (Phase 2 complete)
 
 - [x] CLI proposes ≥100 sensors from reference markdown without Node toolchain (mini fixture + `--max-records`; full `sensor.md` via same command)
+- [x] P2-2 bulk chunk boundary (501 → 2 batches) + `quarantineReport` JSON + `--report-out` (story-005, 2026-06-08)
 - [x] Human approve commits; `ICatalogReader.GetSortedSensorBindings()` reflects rows in stable order (P2-2 via gate + reader tests)
-- [x] Snapshot manifest hash stable across two imports of same approved batch (P2-3 RecordApprovedImport + test @ 2026-06-05 plan)
-- [x] `dotnet test ProjectAegis.sln` green; replay golden unchanged unless catalog affects engage fixtures (Data/CLI tests 63+15 pass; replays 7/7; full solution clean)
+- [x] Snapshot manifest hash stable across two imports of same approved batch (P2-3 `RecordApprovedImport` + `CatalogSnapshotHasher` tests, 2026-06-08)
+- [x] `dotnet test ProjectAegis.sln` green; replay golden unchanged unless catalog affects engage fixtures (403/403 pass; replays 17/17; PlayMode 7/7 @ smoke-2026-06-08)
 
 ## Deferred
 

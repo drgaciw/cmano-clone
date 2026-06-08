@@ -8,6 +8,7 @@
 - [ ] PlayMode smoke (if delegation/Unity adapter touched):  
       `dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests`
 - [ ] Sim/controller changes: replay golden or `/replay-verify` considered
+- [ ] If GitHub Actions billing blocked, attach local gate evidence per [production/qa/sprint-19-ci-local-gate-2026-06-08.md](../production/qa/sprint-19-ci-local-gate-2026-06-08.md)
 
 ## CI
 

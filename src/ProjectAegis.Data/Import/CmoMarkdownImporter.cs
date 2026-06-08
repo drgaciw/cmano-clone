@@ -15,6 +15,9 @@ public static class CmoMarkdownImporter
     private static readonly Regex RangeMaxRow = new(
         @"\|\s*Range\s+Max\s*\|\s*([\d.]+)\s*(km|m|nm)\s*\|",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex ConfidenceRow = new(
+        @"\|\s*Confidence\s*\|\s*([\d.]+)\s*\|",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     public static string ResolveMiniFixturePath() =>
         CatalogJsonImporter.ResolveRepoRelative(
@@ -49,6 +52,7 @@ public static class CmoMarkdownImporter
         int? sensorNumericId = null;
         double? rangeMax = null;
         string? rangeUnit = null;
+        double confidence = 0.85;
 
         void FlushSection()
         {
@@ -65,7 +69,7 @@ public static class CmoMarkdownImporter
                 sensorId,
                 basePd,
                 $"cmano-db:sensor/{sensorNumericId.Value}",
-                Confidence: 0.85,
+                Confidence: confidence,
                 ImportBatchId: importBatchId,
                 SourceFile: sourceFile,
                 ReviewState: CatalogReviewStates.Approved,
@@ -80,6 +84,7 @@ public static class CmoMarkdownImporter
             sensorNumericId = null;
             rangeMax = null;
             rangeUnit = null;
+            confidence = 0.85;
         }
 
         foreach (var rawLine in markdown.Split('\n'))
@@ -95,6 +100,7 @@ public static class CmoMarkdownImporter
                 }
 
                 title = heading.Groups[1].Value.Trim();
+                confidence = 0.85;
                 continue;
             }
 
@@ -120,6 +126,12 @@ public static class CmoMarkdownImporter
                     rangeMax = double.Parse(rangeMatch.Groups[1].Value, CultureInfo.InvariantCulture);
                     rangeUnit = rangeMatch.Groups[2].Value.ToLowerInvariant();
                 }
+            }
+
+            var confidenceMatch = ConfidenceRow.Match(line);
+            if (confidenceMatch.Success)
+            {
+                confidence = double.Parse(confidenceMatch.Groups[1].Value, CultureInfo.InvariantCulture);
             }
         }
 

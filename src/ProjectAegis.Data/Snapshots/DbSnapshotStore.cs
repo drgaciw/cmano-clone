@@ -34,6 +34,86 @@ public sealed class DbSnapshotStore : IDisposable
         return ids.Count > 0 ? ids : [CatalogValidationDefaults.BalticSnapshotId];
     }
 
+    public bool TryGetContentHash(string snapshotId, out string contentHashSha256)
+    {
+        contentHashSha256 = string.Empty;
+        if (!TableExists("catalog_snapshot") || !TableHasColumn("catalog_snapshot", "content_hash_sha256"))
+        {
+            return false;
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT content_hash_sha256 FROM catalog_snapshot WHERE snapshot_id = $id";
+        cmd.Parameters.AddWithValue("$id", snapshotId);
+        var scalar = cmd.ExecuteScalar();
+        if (scalar == null || scalar is DBNull)
+        {
+            return false;
+        }
+
+        contentHashSha256 = (string)scalar;
+        return !string.IsNullOrEmpty(contentHashSha256);
+    }
+
+    public void RecordRelease(
+        string releaseVersion,
+        string snapshotId,
+        string contentHashSha256,
+        long createdUtcTicks,
+        string schemaVersion = "006",
+        string notes = "")
+    {
+        if (string.IsNullOrWhiteSpace(releaseVersion))
+        {
+            throw new ArgumentException("Release version required.", nameof(releaseVersion));
+        }
+
+        if (string.IsNullOrWhiteSpace(snapshotId))
+        {
+            throw new ArgumentException("Snapshot id required.", nameof(snapshotId));
+        }
+
+        if (string.IsNullOrWhiteSpace(contentHashSha256))
+        {
+            throw new ArgumentException("Content hash required.", nameof(contentHashSha256));
+        }
+
+        using var tx = _connection.BeginTransaction();
+
+        using (var snap = tx.Connection!.CreateCommand())
+        {
+            snap.Transaction = tx;
+            snap.CommandText =
+                """
+                INSERT INTO catalog_snapshot (snapshot_id, content_hash_sha256)
+                VALUES ($id, $hash)
+                ON CONFLICT(snapshot_id) DO UPDATE SET content_hash_sha256 = excluded.content_hash_sha256
+                """;
+            snap.Parameters.AddWithValue("$id", snapshotId);
+            snap.Parameters.AddWithValue("$hash", contentHashSha256);
+            snap.ExecuteNonQuery();
+        }
+
+        using (var release = tx.Connection!.CreateCommand())
+        {
+            release.Transaction = tx;
+            release.CommandText =
+                """
+                INSERT OR REPLACE INTO db_release
+                    (release_version, snapshot_id, schema_version, created_utc_ticks, notes)
+                VALUES ($version, $snapshot, $schema, $ticks, $notes)
+                """;
+            release.Parameters.AddWithValue("$version", releaseVersion);
+            release.Parameters.AddWithValue("$snapshot", snapshotId);
+            release.Parameters.AddWithValue("$schema", schemaVersion);
+            release.Parameters.AddWithValue("$ticks", createdUtcTicks);
+            release.Parameters.AddWithValue("$notes", notes);
+            release.ExecuteNonQuery();
+        }
+
+        tx.Commit();
+    }
+
     public IReadOnlyList<DbReleaseRecord> GetSortedReleases()
     {
         if (!TableExists("db_release"))
@@ -63,10 +143,31 @@ public sealed class DbSnapshotStore : IDisposable
         return list;
     }
 
+    /// <summary>Record snapshot after approve (gate auto-record). Deterministic hash for replay binding.</summary>
+    public DbSnapshotRecord RecordApprovedImport(IReadOnlyList<string> approvedIds, string sourceFile, string importBatchId)
+    {
+        var canonical = string.Join("|", approvedIds.OrderBy(id => id, StringComparer.Ordinal));
+        var input = $"{canonical}|{sourceFile}|{importBatchId}";
+        using var sha = System.Security.Cryptography.SHA256.Create();
+        var bytes = System.Text.Encoding.UTF8.GetBytes(input);
+        var hashBytes = sha.ComputeHash(bytes);
+        var hash = BitConverter.ToString(hashBytes).Replace("-", string.Empty).ToLowerInvariant();
+        var shortHash = hash.Length >= 8 ? hash.Substring(0, 8) : hash;
+        var id = $"snap-{importBatchId}-{shortHash}";
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "INSERT OR IGNORE INTO catalog_snapshot (snapshot_id) VALUES ($id)";
+        cmd.Parameters.AddWithValue("$id", id);
+        cmd.ExecuteNonQuery();
+
+        return new DbSnapshotRecord(id, hash, sourceFile, importBatchId);
+    }
+
     public void Dispose()
     {
         _connection.Close();
         _connection.Dispose();
+        SqliteConnection.ClearAllPools();
     }
 
     private bool TableExists(string table)
@@ -77,26 +178,12 @@ public sealed class DbSnapshotStore : IDisposable
         return Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0;
     }
 
-    // P2-3: Record snapshot after approve (Sprint 18 closeout). Deterministic hash, writes to catalog_snapshot for GetSorted + replay binding.
-    public DbSnapshotRecord RecordApprovedImport(IReadOnlyList<string> approvedIds, string sourceFile, string importBatchId)
+    private bool TableHasColumn(string table, string column)
     {
-        var canonical = string.Join("|", approvedIds.OrderBy(id => id, StringComparer.Ordinal));
-        var input = $"{canonical}|{sourceFile}|{importBatchId}";
-        using var sha = System.Security.Cryptography.SHA256.Create();
-        var bytes = System.Text.Encoding.UTF8.GetBytes(input);
-        var hashBytes = sha.ComputeHash(bytes);
-        // Compatible hex (netstandard2.1 / Unity): BitConverter + lowercase, no Substring on int
-        var hash = BitConverter.ToString(hashBytes).Replace("-", string.Empty).ToLowerInvariant();
-        var shortHash = hash.Length >= 8 ? hash.Substring(0, 8) : hash;
-        var id = $"snap-{importBatchId}-{shortHash}";
-
-        // Persist (idempotent for stable re-runs)
         using var cmd = _connection.CreateCommand();
-        cmd.CommandText = "INSERT OR IGNORE INTO catalog_snapshot (snapshot_id) VALUES ($id)";
-        cmd.Parameters.AddWithValue("$id", id);
-        cmd.ExecuteNonQuery();
-
-        return new DbSnapshotRecord(id, hash, sourceFile, importBatchId);
+        cmd.CommandText = $"SELECT COUNT(*) FROM pragma_table_info('{table}') WHERE name = $col";
+        cmd.Parameters.AddWithValue("$col", column);
+        return Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0;
     }
 }
 

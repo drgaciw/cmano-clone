@@ -55,4 +55,4 @@ OsintDigestRunner (future)
 
 - [x] Spike doc with PROCEED/DEFER — **PROCEED**
 - [x] Contract types + tests in `ProjectAegis.Data`
-- [ ] End-to-end digest job — deferred
+- [x] End-to-end digest job — `OsintDigestRunner` + `OsintDigestRunnerTests` (S19-05, 2026-06-08)

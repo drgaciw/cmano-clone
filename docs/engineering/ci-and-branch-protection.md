@@ -1,6 +1,6 @@
 # CI and branch protection
 
-> **Last updated:** 2026-06-02
+> **Last updated:** 2026-06-08
 
 ## Active workflows
 
@@ -28,9 +28,27 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 
 **Post-merge only:** replay golden tests (`FullyQualifiedName~ReplayGolden`) run on `main` in Post-Merge CI.
 
+## Sprint 19 local gate fallback (Option B — billing blocked)
+
+**Status (2026-06-08):** GitHub Actions on private repo `drgaciw/cmano-clone` is still blocked by account billing. Workflows abort in ~3s before checkout; this is **not** a code failure. **Option B is active:** the ratified local gate SOP is the authoritative product merge gate until billing is restored.
+
+**SOP:** [production/qa/sprint-19-ci-local-gate-2026-06-08.md](../../production/qa/sprint-19-ci-local-gate-2026-06-08.md)
+
+**Triage / history:** [production/qa/pr-69-ci-triage-2026-06-04.md](../../production/qa/pr-69-ci-triage-2026-06-04.md) (Sprint 19 status update)
+
+When Actions is blocked, run before merge:
+
+```powershell
+.\tools\verify-ci-local.ps1
+```
+
+**Pass criteria (baseline @ `afd2e1a`):** **403/403** full-solution tests, **7/7** PlayMode smoke, replay golden suite **PASS**. Attach terminal evidence to the PR per the SOP.
+
+**Producer sign-off:** **FALLBACK ACTIVE** (billing unresolved). Retire this section when `.NET CI` runs real steps and `build_test` is green on `main`.
+
 ## Required status checks (branch protection)
 
-**Private repos on the free plan** cannot set branch protection via the API (HTTP 403). Enable checks manually when the repo is **public** or the org has **GitHub Pro/Team**.
+**Private repos on the free plan** cannot set or read branch protection via the API (HTTP 403 — *Upgrade to GitHub Pro or make this repository public*). Required status check names **cannot be API-verified** on the current plan. Enable and audit checks manually in the GitHub UI when the repo is **public** or the org has **GitHub Pro/Team**. Until then, use the Sprint 19 local gate SOP when merging with red Actions checks.
 
 Tracking issue: [Enable branch protection required checks on main](https://github.com/drgaciw/cmano-clone/issues/37).
 

@@ -53,12 +53,27 @@ public static class CmoMarkdownImportProposer
             CatalogJsonImporter.WriteQuarantineRows(databasePath, quarantined);
         }
 
+        var quarantineReport = BuildQuarantineReport(quarantined);
+
         return new CmoMarkdownImportResult(
             parsed.Count,
             approved.Length,
             quarantined.Length,
-            batches);
+            batches,
+            quarantineReport);
     }
+
+    public static IReadOnlyList<CmoMarkdownQuarantineReportEntry> BuildQuarantineReport(
+        IReadOnlyList<QuarantinedCatalogBinding> quarantined) =>
+        quarantined
+            .OrderBy(q => q.Binding.PlatformId, StringComparer.Ordinal)
+            .ThenBy(q => q.Binding.SensorId, StringComparer.Ordinal)
+            .Select(q => new CmoMarkdownQuarantineReportEntry(
+                q.Binding.PlatformId,
+                q.Binding.SensorId,
+                q.RejectionReason,
+                q.Binding.SourceFile))
+            .ToArray();
 
     public static CatalogSensorBinding[][] ChunkBindings(
         IReadOnlyList<CatalogSensorBinding> approved,
@@ -91,4 +106,5 @@ public sealed record CmoMarkdownImportResult(
     int ParsedCount,
     int ApprovedCount,
     int QuarantinedCount,
-    IReadOnlyList<CmoMarkdownImportBatch> Batches);
+    IReadOnlyList<CmoMarkdownImportBatch> Batches,
+    IReadOnlyList<CmoMarkdownQuarantineReportEntry> QuarantineReport);

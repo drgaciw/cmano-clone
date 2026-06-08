@@ -1,6 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
+using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
 
 public static class CatalogWriteApproveCommand
@@ -11,7 +12,12 @@ public static class CatalogWriteApproveCommand
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
-    public static int Run(string databasePath, string batchId, TextWriter output)
+    public static int Run(
+        string databasePath,
+        string batchId,
+        TextWriter output,
+        string? snapshotId = null,
+        string? releaseVersion = null)
     {
         if (!File.Exists(databasePath))
         {
@@ -19,14 +25,38 @@ public static class CatalogWriteApproveCommand
             return 1;
         }
 
-        using var gate = new CatalogWriteGate(databasePath, new FixedCatalogClock(2000));
-        var decision = gate.ApproveBatch(batchId, "human", "reviewer-mcp");
+        var clock = new FixedCatalogClock(2000);
+        using (var gate = new CatalogWriteGate(databasePath, clock))
+        {
+            var decision = gate.ApproveBatch(batchId, "human", "reviewer-mcp");
+            if (!decision.Committed)
+            {
+                output.WriteLine(JsonSerializer.Serialize(new
+                {
+                    ok = false,
+                    batchId = decision.BatchId,
+                    errors = decision.Errors,
+                }, JsonOptions));
+                return 1;
+            }
+        }
+
+        var bind = CatalogSnapshotBinder.BindAfterApprove(
+            databasePath,
+            batchId,
+            clock,
+            snapshotId,
+            releaseVersion);
+
         output.WriteLine(JsonSerializer.Serialize(new
         {
-            ok = decision.Committed,
-            batchId = decision.BatchId,
-            errors = decision.Errors,
+            ok = true,
+            batchId,
+            releaseVersion = bind.ReleaseVersion,
+            snapshotId = bind.SnapshotId,
+            contentHashSha256 = bind.ContentHashSha256,
+            sensorRowCount = bind.SensorRowCount,
         }, JsonOptions));
-        return decision.Committed ? 0 : 1;
+        return 0;
     }
 }

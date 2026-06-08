@@ -17,7 +17,8 @@ public static class CatalogImportMarkdownCommand
         string markdownPath,
         int? maxRecords,
         int chunkSize,
-        TextWriter output)
+        TextWriter output,
+        string? reportOutPath = null)
     {
         var result = CmoMarkdownImportProposer.ProposeFromMarkdown(
             databasePath,
@@ -25,18 +26,44 @@ public static class CatalogImportMarkdownCommand
             maxRecords,
             chunkSize);
 
-        var payload = new
+        var payload = BuildPayload(result);
+        var json = JsonSerializer.Serialize(payload, JsonOptions);
+        output.WriteLine(json);
+
+        if (!string.IsNullOrWhiteSpace(reportOutPath))
         {
-            ok = true,
-            parsedCount = result.ParsedCount,
-            approvedCount = result.ApprovedCount,
-            quarantinedCount = result.QuarantinedCount,
-            batchCount = result.Batches.Count,
-            batches = result.Batches.Select(b => new { b.BatchId, b.RecordCount }),
-            nextStep = "catalog_write_approve --db <path> --batch <batchId>",
+            File.WriteAllText(reportOutPath, json);
+        }
+
+        return 0;
+    }
+
+    internal static object BuildPayload(CmoMarkdownImportResult result)
+    {
+        var payload = new Dictionary<string, object?>
+        {
+            ["ok"] = true,
+            ["parsedCount"] = result.ParsedCount,
+            ["approvedCount"] = result.ApprovedCount,
+            ["quarantinedCount"] = result.QuarantinedCount,
+            ["batchCount"] = result.Batches.Count,
+            ["batches"] = result.Batches.Select(b => new { b.BatchId, b.RecordCount }).ToArray(),
+            ["nextStep"] = "catalog_write_approve --db <path> --batch <batchId>",
         };
 
-        output.WriteLine(JsonSerializer.Serialize(payload, JsonOptions));
-        return 0;
+        if (result.QuarantinedCount > 0)
+        {
+            payload["quarantineReport"] = result.QuarantineReport
+                .Select(q => new
+                {
+                    platformId = q.PlatformId,
+                    sensorId = q.SensorId,
+                    reason = q.Reason,
+                    sourceFile = q.SourceFile,
+                })
+                .ToArray();
+        }
+
+        return payload;
     }
 }

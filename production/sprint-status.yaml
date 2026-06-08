@@ -687,7 +687,12 @@ sprint21_tasks:
     status: done
     completed: "2026-06-08"
     note: "S20 close + wave5 epic + S21 kickoff/plan/closeout"
-tests_passed: 395
+tests_passed: 403
+evidence:
+  - production/qa/smoke-2026-06-08.md
+  - production/qa/sprint-19-ci-local-gate-2026-06-08.md
+  - production/qa/sprint-19-design-review-2026-06-08.md
+  - production/qa/sprint-19-c2-signoff-handoff-2026-06-08.md
 worktrees:
   - .worktrees/sprint21/osint-mcp → stack/sprint21/osint-connectors-mcp
 

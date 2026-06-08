@@ -142,6 +142,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
     {
         _connection.Close();
         _connection.Dispose();
+        SqliteConnection.ClearAllPools();
     }
 
     private void EnsureSchema()

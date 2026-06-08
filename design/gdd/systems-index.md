@@ -2,7 +2,7 @@
 
 > **Status:** Draft  
 > **Created:** 2026-05-29  
-> **Last Updated:** 2026-06-02 (Sprint 7: cyber-comms GDD, scoring CSV export)  
+> **Last Updated:** 2026-06-08 (Sprint 19: sim-core, logistics, engage GDD refresh — S19-06)  
 > **Source Concept:** `design/gdd/game-concept.md`  
 > **Requirements traceability:** `Game-Requirements/cmo-manual-traceability.md`
 
@@ -18,13 +18,13 @@ Project Aegis is a **theater-level military simulation** with a **deterministic 
 
 | # | System Name | Category | Priority | Status | Req Doc | GDD | Depends On |
 |---|-------------|----------|----------|--------|---------|-----|------------|
-| 1 | Simulation Core & Time | Sim Core | MVP | In Review | 03, 08 | [simulation-core-time.md](simulation-core-time.md) | — |
+| 1 | Simulation Core & Time | Sim Core | MVP | In Review (S19-06 refresh) | 03, 08 | [simulation-core-time.md](simulation-core-time.md) | — |
 | 2 | Order Log & Replay | Sim Core | MVP | In Progress (WORLD_HASH; checkpoints pending) | 17 | [order-log-replay.md](order-log-replay.md) | 1 |
 | 3 | Policy, ROE, EMCON, WRA | Sim Core | MVP | Partial (EMCON scenario; engage unification pending) | 13 | [policy-roe-emcon-wra.md](policy-roe-emcon-wra.md) | 1, 2 |
 | 4 | Platform Database | Content | MVP | Partial (DATA-1 scaffold; basePd epic ready) | 06 | — | — |
 | 5 | Sensor & Contact Model | Simulation | MVP | Partial (Pd loop, contacts, stale→Lost on main) | 15 | [sensor-detection-ew.md](sensor-detection-ew.md) | 1, 4 |
-| 6 | Engagement & Fire Control | Simulation | MVP | Partial (Baltic engage + magazine log) | 14 | [engagement-fire-control.md](engagement-fire-control.md) | 3, 5, 16 |
-| 7 | Logistics & Magazines | Simulation | MVP | Partial (MagazineChange log; fuel P0 open) | 16 | [logistics-magazines.md](logistics-magazines.md) | 4, 1, 6 |
+| 6 | Engagement & Fire Control | Simulation | MVP | In Review (S19-06 — Wave 5 attack menu) | 14 | [engagement-fire-control.md](engagement-fire-control.md) | 3, 5, 16 |
+| 7 | Logistics & Magazines | Simulation | MVP | In Review (S19-06 — fuel + readiness) | 16 | [logistics-magazines.md](logistics-magazines.md) | 4, 1, 6 |
 | 8 | Combat Domains & Damage | Simulation | MVP | Draft | 18 | [combat-domains-damage.md](combat-domains-damage.md) | 6, 5, 7 |
 | 9 | Mission Runtime | Gameplay | MVP | Partial (editor 11) | 11, 07 | — | 1, 3, 5 |
 | 10 | Agent Delegation | Agentic | MVP | In Progress | 04, 08 | — | 1, 3, 9 |
