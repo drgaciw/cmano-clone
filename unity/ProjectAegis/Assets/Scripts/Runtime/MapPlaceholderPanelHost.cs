@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Scenario;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -28,6 +29,8 @@ namespace ProjectAegis.Unity.Runtime
         private VisualElement? _canvas;
         private MapPanelState _panelState = new("—", Array.Empty<MapSymbolDisplayRow>());
         private bool _wired;
+
+        private IC2PresentationFeed? PresentationFeed => bridgeHost;
 
         private void Awake()
         {
@@ -80,7 +83,7 @@ namespace ProjectAegis.Unity.Runtime
 
         private void Refresh()
         {
-            if (!_wired || bridgeHost == null || bridgeHost.Bridge == null || _canvas == null)
+            if (!_wired || PresentationFeed == null || bridgeHost.Bridge == null || _canvas == null)
             {
                 return;
             }
@@ -89,10 +92,10 @@ namespace ProjectAegis.Unity.Runtime
             var commsDisplay = bridgeHost.Bridge.Orchestrator.ScenarioPolicy?.CommsDisplay
                 ?? ScenarioCommsDisplaySettings.Default;
             _panelState = MapPanelBinder.Bind(
-                bridgeHost.LastMapSymbols,
+                PresentationFeed.LastMapSymbols,
                 bridgeHost.ScenarioPolicyId,
-                bridgeHost.SelectedUnitId,
-                bridgeHost.SelectedContactId,
+                PresentationFeed.SelectedUnitId,
+                PresentationFeed.SelectedContactId,
                 comms.State,
                 commsDisplay);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
@@ -132,21 +135,21 @@ namespace ProjectAegis.Unity.Runtime
 
         private void OnSymbolClicked(string symbolId)
         {
-            if (bridgeHost == null)
+            if (PresentationFeed == null)
             {
                 return;
             }
 
-            var symbols = bridgeHost.LastMapSymbols;
+            var symbols = PresentationFeed.LastMapSymbols;
             if (C2SelectionResolver.TryResolveFriendlyUnitFromSymbol(symbolId, symbols, out var unitId))
             {
-                bridgeHost.SelectUnit(unitId);
+                PresentationFeed.SelectUnit(unitId);
                 return;
             }
 
             if (C2SelectionResolver.TryResolveHostileContactFromSymbol(symbolId, symbols, out var contactId))
             {
-                bridgeHost.SelectContact(contactId);
+                PresentationFeed.SelectContact(contactId);
             }
         }
     }

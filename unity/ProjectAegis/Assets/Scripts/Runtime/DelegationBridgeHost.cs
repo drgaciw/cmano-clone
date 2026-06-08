@@ -6,6 +6,7 @@ using System.Linq;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 
 namespace ProjectAegis.Unity.Runtime
@@ -13,7 +14,7 @@ namespace ProjectAegis.Unity.Runtime
     /// <summary>
     /// Holds a delegation session for play-mode wiring. Assign snapshot/sink from your sim systems.
     /// </summary>
-    public sealed class DelegationBridgeHost : MonoBehaviour
+    public sealed class DelegationBridgeHost : MonoBehaviour, IC2PresentationFeed
     {
         [SerializeField] private int globalSeed = 42;
         [SerializeField] private bool enableMvpEngagement = true;
@@ -146,7 +147,7 @@ namespace ProjectAegis.Unity.Runtime
             LastUnitDetail = Presentation.ResolveUnitDetail(_lastSnapshot, Bridge.Registry, Bridge);
         }
 
-        private bool TryResolveEntityKey(string unitId, out ProjectAegis.Delegation.Core.EntityKey entityKey)
+        private bool TryResolveEntityKey(string unitId, out EntityKey entityKey)
         {
             entityKey = default;
             foreach (var binding in Bridge.Registry.Bindings)
@@ -161,7 +162,7 @@ namespace ProjectAegis.Unity.Runtime
             return false;
         }
 
-        private void EnsureHumanControl(ProjectAegis.Delegation.Core.EntityKey entityKey)
+        private void EnsureHumanControl(EntityKey entityKey)
         {
             if (!Bridge.Registry.TryGetBinding(entityKey, out var binding))
             {

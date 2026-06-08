@@ -137,6 +137,34 @@ public sealed class PlayModeSmokeHarnessTests
     }
 
     [Test]
+    public void Baltic_classify_selection_flow_syncs_map_oob_and_contact_summary()
+    {
+        var result = BalticReplayHarness.Run(7, "baltic-patrol-classify", ticks: 10, mvpEngagement: false);
+        var oob = new[] { new OobTreeEntry("u1", true) };
+        var defaultUnit = C2SelectionResolver.ResolveDefaultFriendlyUnit(oob);
+        var symbols = MapPictureProjection.Project(oob, result.SensorC2.Contacts, layoutSeed: 7);
+
+        var mapDefault = MapPanelBinder.Bind(symbols, "baltic-patrol-classify", defaultUnit, null);
+        var oobDefault = OobTreePanelBinder.Bind(oob, defaultUnit);
+        Assert.That(mapDefault.Symbols.Single(s => s.SymbolId == defaultUnit).IsSelected, Is.True);
+        Assert.That(oobDefault.UnitRows.Single(r => r.UnitId == defaultUnit).IsSelected, Is.True);
+
+        var hostile = symbols.First(s => s.Affiliation == "Hostile");
+        Assert.That(
+            C2SelectionResolver.TryResolveHostileContactFromSymbol(hostile.SymbolId, symbols, out var contactId),
+            Is.True);
+        var summary = ContactSummaryProjection.Project(contactId, result.SensorC2.Contacts);
+        Assert.That(summary, Is.Not.Null);
+        Assert.That(summary!.DisplayLine, Does.Contain("CONTACT"));
+
+        var mapContact = MapPanelBinder.Bind(symbols, "baltic-patrol-classify", null, contactId);
+        Assert.That(mapContact.Symbols.Single(s => s.SymbolId == contactId).IsSelected, Is.True);
+
+        var drawerContacts = SensorC2PanelBinder.Bind(result.SensorC2);
+        Assert.That(drawerContacts.ContactRows.Any(r => r.ContactId == contactId), Is.True);
+    }
+
+    [Test]
     public void Engage_without_fire_control_track_aborts_via_bridge_snapshot()
     {
         var bridge = new DelegationBridge(3, mvpEngagement: true);

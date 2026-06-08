@@ -181,11 +181,51 @@ sprint2_backlog:
     status: done
     completed: "2026-06-02"
 
+sprint: 2
+goal: "Sensor classify FSM + minimal Unity sensor C2 HUD (TR-sensor-001 MVP slice)."
+start: "2026-06-03"
+end: "2026-06-17"
+status: complete
+completed: "2026-06-08"
+kickoff: production/sprints/sprint-2-sensor-c2.md
+closeout_note: "Classify golden + SensorC2Bridge classify integration tests + traceability docs aligned via superpowers plan 2026-06-08-sprint-2-sensor-c2-closeout.md. TR-sensor-001 covered; TR-sensor-004 deferred."
+tests_passed: 430
+playmode_smoke: 7
+replay_golden_classify: pass
+evidence:
+  - production/qa/smoke-sprint2-closeout-2026-06-08.md
+  - production/agentic/sprint-2-closeout-2026-06-08.md
+  - docs/superpowers/plans/2026-06-08-sprint-2-sensor-c2-closeout.md
+sprint2_stories:
+  - id: classify-001
+    name: Classify/Identify FSM
+    file: production/epics/sensor-classify-slice/story-001-classify-identify-fsm.md
+    status: done
+    completed: "2026-06-08"
+  - id: c2-001
+    name: Contact picture + sensor C2 HUD
+    file: production/epics/sensor-c2-ui-slice/story-001-contact-picture-hud.md
+    status: done
+    completed: "2026-06-08"
+  - id: c2-002
+    name: UI Toolkit sensor C2 panel
+    file: production/epics/sensor-c2-ui-slice/story-002-ui-toolkit-panel.md
+    status: done
+    completed: "2026-06-08"
+
 sprint: 3
 goal: "Doc-20 C2 shell partial — full message log, OOB tree, mission list projections."
 start: "2026-06-03"
 end: "2026-06-17"
-updated: "2026-06-02"
+status: complete
+completed: "2026-06-08"
+updated: "2026-06-08"
+closeout_note: "C2TopBarProjectionTests + IC2PresentationFeed seam + drawer/sensor overlap via superpowers plan 2026-06-08-sprints-3-6-c2-closeout.md"
+tests_passed: 441
+evidence:
+  - production/qa/smoke-sprints-3-6-closeout-2026-06-08.md
+  - production/agentic/sprints-3-6-closeout-2026-06-08.md
+  - docs/superpowers/plans/2026-06-08-sprints-3-6-c2-closeout.md
 
 sprint3_stories:
   - id: c2-001
@@ -222,6 +262,9 @@ sprint4_prep:
     status: done
     completed: "2026-06-02"
 tests_passed_sprint4: 203
+status: complete
+completed: "2026-06-08"
+closeout_note: "Right unit detail + C2 command post UX; selection seam closed in S3-6 closeout 2026-06-08"
 
 sprint4_stories:
   - id: s4-ux-c2
@@ -263,13 +306,19 @@ sprint5_stories:
     name: C2TopBarPanelHost + LossesScoringProjection
     status: done
     completed: "2026-06-02"
-tests_passed_sprint5: 209
+tests_passed_sprint5: 441
+status: complete
+completed: "2026-06-08"
+closeout_note: "ADR-007 Phase A + C2TopBarProjectionTests + map selection flow harness (2026-06-08)"
 
 sprint: 6
 goal: "C2 selection sync — map, OOB, contacts, unit detail (presentation-only)."
 status: complete
-completed: "2026-06-02"
-tests_passed_sprint6: 222
+completed: "2026-06-08"
+tests_passed_sprint6: 441
+closeout_note: "C2PresentationController headless tests + selection flow harness row + MapPlaceholder IC2PresentationFeed seam (2026-06-08)"
+evidence:
+  - production/qa/smoke-sprints-3-6-closeout-2026-06-08.md
 
 sprint: 7
 goal: "Doc-17 scoring CSV export, cyber/comms GDD, Cesium spike prep."

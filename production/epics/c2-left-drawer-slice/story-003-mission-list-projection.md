@@ -10,3 +10,11 @@
 1. `MissionListProjection` projects `ScenarioMissionTimeline` events in tick + id order.  
 2. Empty timeline returns empty list (no throw).  
 3. `MissionListPanelBinder` formats rows for ListView binding.
+
+## Test traceability
+
+| Acceptance criterion | Test file / method | Status |
+|----------------------|-------------------|--------|
+| MissionListProjection ordering | `MissionListProjectionTests` | COVERED |
+| Empty timeline | `MissionListProjectionTests` | COVERED |
+| MissionListPanelBinder | `MissionListPanelBinder` via `MissionListBridgeTests` | COVERED |

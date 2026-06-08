@@ -22,3 +22,12 @@ Headless projections for **OOB tree**, **mission list**, and **full message log*
 2. `OobTreeProjection` lists registry members with alive/dead from snapshot.  
 3. `MissionListProjection` lists scenario timeline events in deterministic order.  
 4. Tests: projection unit tests + Baltic classify CONTACT message test.
+
+## SensorC2 overlap (Sprint 3–6 closeout)
+
+| Surface | Role | Selection |
+|---------|------|-----------|
+| `C2LeftDrawerPanelHost` Contacts tab | Primary contact list + row click → `IC2PresentationFeed.SelectContact` | **Owner** |
+| `SensorC2PanelHost` HUD strip | Read-only EMCON/track/contact density (same `LastSensorC2` binder) | Display only |
+
+Both bind `SensorC2PanelBinder.Bind(feed.LastSensorC2)`; selection state lives in `C2PresentationController` on `DelegationBridgeHost`.

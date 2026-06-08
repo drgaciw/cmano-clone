@@ -1,6 +1,8 @@
-// Sensor C2 left-drawer slice — UI Toolkit panel bound to DelegationBridgeHost.
+// Sensor C2 HUD strip (read-only EMCON/track/contact list). Contact *selection* is owned by
+// C2LeftDrawerPanelHost Contacts tab — both consume IC2PresentationFeed.LastSensorC2.
 #if UNITY_5_3_OR_NEWER
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -121,14 +123,16 @@ namespace ProjectAegis.Unity.Runtime
             panel.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
+        private IC2PresentationFeed? PresentationFeed => bridgeHost;
+
         private void Refresh()
         {
-            if (!_wired || bridgeHost == null || _contactList == null)
+            if (!_wired || PresentationFeed == null || _contactList == null)
             {
                 return;
             }
 
-            _panelState = SensorC2PanelBinder.Bind(bridgeHost.LastSensorC2);
+            _panelState = SensorC2PanelBinder.Bind(PresentationFeed.LastSensorC2);
             _emconLabel!.text = _panelState.EmconLabel;
             _trackLabel!.text = _panelState.TrackLabel;
             _contactCountLabel!.text = _panelState.ContactCountLabel;
