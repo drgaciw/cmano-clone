@@ -23,7 +23,7 @@ namespace ProjectAegis.Unity.Editor
         /// <summary>Unity batchmode entry: -executeMethod ProjectAegis.Unity.Editor.DelegationSmokeSceneBuilder.BuildBatch</summary>
         public static void BuildBatch() => Build("baltic-patrol-comms");
 
-        public static void Build(string scenarioPolicyId)
+        public static void Build(string scenarioPolicyId, bool exitBatchModeWhenDone = true)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
 
@@ -77,7 +77,7 @@ namespace ProjectAegis.Unity.Editor
 
             AssetDatabase.SaveAssets();
             Debug.Log($"DelegationSmoke scene saved: {ScenePath} scenario={scenarioPolicyId}");
-            if (Application.isBatchMode)
+            if (Application.isBatchMode && exitBatchModeWhenDone)
             {
                 EditorApplication.Exit(0);
             }

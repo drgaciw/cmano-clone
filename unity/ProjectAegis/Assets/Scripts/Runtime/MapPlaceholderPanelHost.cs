@@ -80,7 +80,7 @@ namespace ProjectAegis.Unity.Runtime
 
         private void Refresh()
         {
-            if (!_wired || bridgeHost == null || _canvas == null)
+            if (!_wired || bridgeHost == null || bridgeHost.Bridge == null || _canvas == null)
             {
                 return;
             }

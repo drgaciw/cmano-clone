@@ -62,3 +62,14 @@ dotnet test ProjectAegis.sln --filter "PlayModeSmokeHarnessTests|ReplayGolden"
 ```
 
 Mirrors the host loop in `PlayModeSmokeHarnessTests.cs`.
+
+## S19-01 check 1 — batch Play Mode console gate (Unity Editor)
+
+When Unity **6000.3.14f1** is installed locally:
+
+```powershell
+pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario comms
+pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario classify -SkipBuild
+```
+
+Opens `DelegationSmoke.unity`, enters Play Mode in batchmode, and fails on game console errors. Evidence: `unity-c2-playmode-signoff.log`. Full checklist: `production/qa/c2-manual-signoff-2026-06-02.md`.

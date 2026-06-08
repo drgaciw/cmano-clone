@@ -15,7 +15,7 @@ Ship P0 **spoof track runtime**, **live scenario readiness**, and **interactive 
 |-------|---------|
 | Headless sim + delegation + replay | **APPROVED** |
 | Unity headless proxy (PI-006) | **APPROVED** — [pi-006-headless-proxy-2026-06-04.md](../../production/qa/pi-006-headless-proxy-2026-06-04.md) |
-| Unity Editor manual C2 sign-off (S19-01) | **PENDING** — human Editor checklist; headless proxy green per [c2-automated-proxy-2026-06-02.md](../../production/qa/c2-automated-proxy-2026-06-02.md) |
+| Unity Editor manual C2 sign-off (S19-01) | **Complete** @ `7401fac` — batch Play Mode check 1 (`Invoke-C2PlayModeSignoffBatch.ps1`) + headless proxy 2–13; [c2-manual-signoff-2026-06-02.md](../../production/qa/c2-manual-signoff-2026-06-02.md) 13/13 PASS |
 
 **Epic closure:** **APPROVED WITH CONDITIONS** — all Wave 5 code and automated gates pass on `main`; Unity manual sign-off remains open for release QA.
 

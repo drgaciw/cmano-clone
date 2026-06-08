@@ -3,7 +3,7 @@
 **Date:** 2026-06-08  
 **Audience:** Human QA tester with Unity Editor access  
 **Estimate:** ~30 minutes  
-**Build:** `main` @ `afd2e1a`
+**Build:** `main` @ `7401fac` (**COMPLETE** 2026-06-08)
 
 ## What you are signing off
 
@@ -43,7 +43,7 @@ Among **must-have** tasks, **only S19-01 remains open**:
 
 | ID | Task | Status (2026-06-08) |
 |----|------|---------------------|
-| S19-01 | Unity C2 manual sign-off | **Pending human** ← you |
+| S19-01 | Unity C2 manual sign-off | **done** @ 7401fac (batch Play Mode + proxy 13/13) |
 | S19-02 | Catalog P2-2 bulk import | done |
 | S19-03 | Catalog P2-3 snapshot binding | done |
 | S19-04 | Wave-5 epic + tracker closure | done (awaits S19-01 for full Wave-5 C2 closure narrative) |

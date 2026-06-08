@@ -2,7 +2,7 @@
 
 > **[Producer] Review (PR-SPRINT)**: CONCERNS (accepted) — 2026-06-08. User proceeded as planned; capacity ~8.5d vs 8 available.
 
-**Trunk:** `main` @ `afd2e1a`  
+**Trunk:** `main` @ `7401fac` (S19-01 C2 sign-off PASS 2026-06-08)  
 **Predecessor:** Sprint 18 — carryover S18-01 → S19-01 (C2 sign-off)  
 **Review mode:** `full` (per-run override)
 

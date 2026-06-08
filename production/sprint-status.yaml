@@ -539,8 +539,8 @@ sprint18_tasks:
     note: "production/qa/sprint-18-ci-local-gate-2026-06-04.md"
   - id: s18-c2-signoff
     status: done
-    completed: "2026-06-05"
-    note: "Headless/proxy complete (smoke-2026-06-05 + evidence-2026-06-05.md + updated checklist); full Editor manual per runbook (local Unity). See sprint-18-c2-signoff-runbook-2026-06-04.md"
+    completed: "2026-06-08"
+    note: "S19-01 closed @ 7401fac: Invoke-C2PlayModeSignoffBatch.ps1 comms+classify PASS + headless proxy 13/13; playtest-sprint19-c2-signoff.md; c2-manual-signoff verdict PASS"
   - id: s18-osint-spike
     status: done
     completed: "2026-06-04"
