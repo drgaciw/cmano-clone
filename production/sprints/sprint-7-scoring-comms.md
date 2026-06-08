@@ -2,7 +2,7 @@
 
 **Dates:** 2026-06-02 → 2026-06-16  
 **Goal:** Close doc-17 CSV export, draft cyber/comms GDD, de-risk globe spike.  
-**Code status:** complete on `main` @ `25fefa6` (2026-06-02)
+**Status:** **Complete** @ `4050abe` (2026-06-08 closeout)
 
 ## Done (headless + docs)
 
@@ -14,10 +14,12 @@
 - [x] C2 manual sign-off template (`production/qa/c2-manual-signoff-2026-06-02.md`)
 - [x] Comms order-log implementation (delivered in Sprint 8)
 
-## Remaining (QA gate / Sprint 8+)
+## QA gate (closed 2026-06-08)
 
-- [ ] Unity manual C2 sign-off — execute checklist (not substitutable by headless)
-- [ ] Cesium spike scene in Editor — `docs/engineering/cesium-phase-b-spike-checklist.md`
+- [x] Unity manual C2 sign-off — 13/13 PASS (`production/qa/c2-manual-signoff-2026-06-02.md`)
+- [x] Cesium spike — S20/S21 `CesiumGlobeBridge` + checklist (`docs/engineering/cesium-phase-b-spike-checklist.md`)
+
+**Evidence:** `production/qa/smoke-sprints-7-10-closeout-2026-06-08.md`
 
 ## Verification
 

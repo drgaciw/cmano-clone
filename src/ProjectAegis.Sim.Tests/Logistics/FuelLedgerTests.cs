@@ -41,4 +41,23 @@ public sealed class FuelLedgerTests
 
         Assert.Equal("BINGO", ledger.ResolveBand("u1", 0.25, 0.10));
     }
+
+    [Fact]
+    public void GetRemainingKg_returns_capacity_for_unknown_unit()
+    {
+        var ledger = new FuelLedger(10_000, burnRateKgPerSecond: 80);
+
+        Assert.Equal(10_000, ledger.GetRemainingKg("unknown"), 3);
+    }
+
+    [Fact]
+    public void EnsureUnit_is_idempotent()
+    {
+        var ledger = new FuelLedger(10_000, burnRateKgPerSecond: 80);
+        ledger.EnsureUnit("u1");
+        ledger.AdvanceTick("u1", 1.0);
+        ledger.EnsureUnit("u1");
+
+        Assert.Equal(9920, ledger.GetRemainingKg("u1"), 3);
+    }
 }

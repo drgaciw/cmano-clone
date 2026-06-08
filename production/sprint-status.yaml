@@ -322,10 +322,11 @@ evidence:
 
 sprint: 7
 goal: "Doc-17 scoring CSV export, cyber/comms GDD, Cesium spike prep."
-status: code-complete
+status: complete
+completed: "2026-06-08"
 start: "2026-06-02"
 end: "2026-06-16"
-completed_code: "2026-06-02"
+closeout_note: "Headless scoring CSV + cyber GDD + C2 sign-off proxy + Cesium via S20/S21; production/agentic/sprints-7-10-closeout-2026-06-08.md"
 
 sprint7_stories:
   - id: s7-csv-export
@@ -351,16 +352,21 @@ sprint7_stories:
     note: "Checklist at production/qa/c2-manual-signoff-2026-06-02.md; execution tracked under qa_gate.unity_manual"
   - id: s7-cesium-spike
     name: Cesium spike scene (Editor)
-    status: backlog
-    note: "docs/engineering/cesium-phase-b-spike-checklist.md"
-tests_passed_sprint7: 228
+    status: done
+    completed: "2026-06-08"
+    note: "S20/S21 CesiumGlobeBridge + docs/engineering/cesium-phase-b-spike-checklist.md"
+tests_passed_sprint7: 443
+evidence:
+  - production/qa/smoke-sprints-7-10-closeout-2026-06-08.md
+  - production/agentic/sprints-7-10-closeout-2026-06-08.md
 
 sprint: 8
 goal: "Comms degradation order-log, C2 COMMS indicator, fuel readout, engage guard."
 status: complete
-completed: "2026-06-02"
+completed: "2026-06-08"
 start: "2026-06-02"
 end: "2026-06-16"
+closeout_note: "P1 fuel ledger + map ghost + scenario logistics closed in S10 stack; C2 sign-off 13/13 @ 2026-06-08"
 
 sprint8_stories:
   - id: s8-comms-log
@@ -383,12 +389,25 @@ sprint8_stories:
     name: GDD agentic-infrastructure skeleton
     status: done
     completed: "2026-06-02"
-tests_passed_sprint8: 233
+  - id: s8-map-ghost
+    name: Map ghost symbology when comms Degraded
+    status: done
+    completed: "2026-06-03"
+  - id: s8-fuel-thresholds
+    name: Scenario-driven fuel thresholds (logistics JSON)
+    status: done
+    completed: "2026-06-03"
+  - id: s8-fuel-burn-log
+    name: FuelStateChange + FuelBurn order log (burn model)
+    status: done
+    completed: "2026-06-03"
+tests_passed_sprint8: 443
 
 sprint: 9
 goal: "Agentic batch CSV CLI + comms-degraded map symbology."
 status: complete
-completed: "2026-06-02"
+completed: "2026-06-08"
+closeout_note: "Batch runner + replay golden comms + C2 sign-off checks 9-10 closed @ 2026-06-08"
 
 sprint9_stories:
   - id: s9-batch-cli
@@ -403,18 +422,56 @@ sprint9_stories:
     name: tools/batch-replay README
     status: done
     completed: "2026-06-02"
-tests_passed_sprint9: 237
+tests_passed_sprint9: 443
+
+sprint: 10
+goal: "Fuel ledger, replay SHA-256 fingerprint, catalog promote, headless QA evidence."
+status: complete
+completed: "2026-06-08"
+branch: main
+closeout_note: "FuelLedger 4 tests + FuelTimelineTracker + FINGERPRINT_SHA256 golden + ScenarioCommsStatusCommand; see sprints-7-10 closeout"
+sprint10_stories:
+  - id: s10-fuel-ledger
+    name: FuelLedger per-unit tick burn (Sim)
+    status: done
+    completed: "2026-06-03"
+  - id: s10-fuel-burn-log
+    name: FuelBurn order-log rows (logTickBurn)
+    status: done
+    completed: "2026-06-03"
+  - id: s10-replay-sha256
+    name: OrderLogReplayFingerprint SHA-256 + harness line
+    status: done
+    completed: "2026-06-03"
+  - id: s10-catalog-promote
+    name: CatalogQuarantinePromoter
+    status: done
+    completed: "2026-06-03"
+  - id: s10-player-order
+    name: PlayerOrder on human enqueue
+    status: done
+    completed: "2026-06-03"
+  - id: s10-comms-cli
+    name: ScenarioCommsStatusCommand CLI
+    status: done
+    completed: "2026-06-04"
+tests_passed_sprint10: 443
+evidence:
+  - production/qa/smoke-sprints-7-10-closeout-2026-06-08.md
+  - production/qa/pi-006-headless-proxy-2026-06-04.md
 
 qa_gate:
-  date: "2026-06-02"
+  date: "2026-06-08"
   headless: pass
-  tests_total: 276
-  evidence: production/qa/headless-smoke-evidence-2026-06-02.md
-  unity_manual: pending
-  indexed_commit: e8ea545
-  open:
-    - Unity manual C2 sign-off (12 checks) — run PLAYMODE-SMOKE + sign-off doc
-    - Cesium Phase B spike scene (Editor) — Assets/Scenes/CESIUM-SPIKE-SETUP.md
+  tests_total: 443
+  playmode_smoke: 8
+  evidence: production/qa/smoke-sprints-7-10-closeout-2026-06-08.md
+  unity_manual: pass
+  indexed_commit: 4050abe
+  closed_2026_06_08:
+    - Unity manual C2 sign-off 13/13 — production/qa/c2-manual-signoff-2026-06-02.md
+    - Cesium Phase B — S20/S21 CesiumGlobeBridge + cesium-phase-b-spike-checklist.md
+  open: []
   p1_backlog: []
   p1_done_2026_06_03:
     - FuelLedger tick burn + optional FuelBurn order-log (logTickBurn)

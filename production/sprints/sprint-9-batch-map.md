@@ -1,7 +1,7 @@
 # Sprint 9 — Batch CSV + degraded map symbology
 
 **Goal:** Agentic batch runner + comms-degraded map presentation (cyber GDD P1).  
-**Status:** complete on `main` @ `25fefa6` (2026-06-02)
+**Status:** **Complete** @ `4050abe` (2026-06-08 closeout)
 
 ## Done
 
@@ -12,7 +12,7 @@
 - [x] Replay golden for `baltic-patrol-comms` (`tests/regression/replay-golden-baltic-comms-2026-06-02.txt`)
 - [x] Commit + push Sprints 7–9 (`25fefa6`, `2a08518` gitignore)
 
-## Next (QA gate)
+## QA gate (closed 2026-06-08)
 
-- [ ] Unity QA comms + degraded map opacity (manual sign-off items 9–10)
-- [ ] Cesium spike (Editor)
+- [x] Unity QA comms + degraded map opacity — sign-off checks 9–10 (`c2-manual-signoff-2026-06-02.md`)
+- [x] Cesium spike — S20/S21 foundation

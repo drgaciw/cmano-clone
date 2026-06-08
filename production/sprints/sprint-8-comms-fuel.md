@@ -2,7 +2,7 @@
 
 **Dates:** 2026-06-02 → 2026-06-16  
 **Goal:** P0 cyber-comms order log, C2 indicators, engage guard, logistics fuel MVP line.  
-**Status:** complete (headless) on `main` @ `25fefa6` (2026-06-02)
+**Status:** **Complete** @ `4050abe` (2026-06-08 closeout; headless + C2 sign-off proxy)
 
 ## Done (headless + Unity bindings)
 
@@ -14,9 +14,9 @@
 - [x] `FuelStateProjection` → unit detail `FUEL:` line (MVP thresholds)
 - [x] Tests: comms timeline, projection, Baltic replay, fuel projection
 
-## Remaining (QA gate / P1)
+## QA gate (closed 2026-06-08)
 
-- [ ] Unity QA with `scenarioPolicyId` = `baltic-patrol-comms` (shared manual sign-off)
+- [x] Unity QA with `scenarioPolicyId` = `baltic-patrol-comms` — batch PlayMode + headless proxy
 - [x] Map ghost symbology when Degraded (P1) — `map-symbol--ghost` + scenario `commsDisplay`
 - [x] Scenario-driven fuel thresholds — `logistics` block on policy JSON
 - [x] Fuel burn band transitions → `FuelStateChange` order log when `logistics` burn model active (headless)

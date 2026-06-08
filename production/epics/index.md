@@ -18,7 +18,7 @@
 | [sensor-c2-ui-slice](sensor-c2-ui-slice/EPIC.md) | **Complete** | Presentation | Contact picture + sensor C2 HUD |
 | [c2-left-drawer-slice](c2-left-drawer-slice/EPIC.md) | **Complete** | Presentation | OOB + missions + full message log |
 | [wave5-engage-cyber-logistics-slice](wave5-engage-cyber-logistics-slice/EPIC.md) | **Complete** (S13-14 + S18 C2 + S20 map base) | Sim + Delegation + UI | Spoof, readiness, attack menu (req 14/16/19/20) |
-| [requirements-maturity-slice](requirements-maturity-slice/EPIC.md) | **Planned** | Documentation | Req docs 01–06, 12 + RTM |
+| [requirements-maturity-slice](requirements-maturity-slice/EPIC.md) | **Complete** (S12–15) | Documentation | Req docs 01–06, 12 + RTM |
 
 **Sprint 1:** **Complete** on `main` @ `1f7423e` (20/20 stories, PR #36).
 
@@ -29,6 +29,16 @@
 **Sprint 4:** **Complete** — [sprint-4-c2-map-prep](../sprints/sprint-4-c2-map-prep.md).
 
 **Sprint 5:** **Complete** — [sprint-5-c2-map-globe](../sprints/sprint-5-c2-map-globe.md). **ADR:** [007 map presentation](../../docs/architecture/adr-007-c2-map-presentation.md).
+
+**Sprint 6:** **Complete** — C2 selection sync (map, OOB, contacts, unit detail).
+
+**Sprint 7:** **Complete** — [sprint-7-scoring-comms](../sprints/sprint-7-scoring-comms.md). Scoring CSV export + cyber/comms GDD + Cesium prep.
+
+**Sprint 8:** **Complete** — [sprint-8-comms-fuel](../sprints/sprint-8-comms-fuel.md). Comms degradation order-log + C2 COMMS indicator + fuel readout.
+
+**Sprint 9:** **Complete** — [sprint-9-batch-map](../sprints/sprint-9-batch-map.md). BalticBatchRunner + comms-degraded map symbology.
+
+**Sprint 10:** **Complete** — [sprint-10-fuel-replay-qa-prep](../sprints/sprint-10-fuel-replay-qa-prep.md). FuelLedger + replay SHA-256 fingerprint + headless QA evidence.
 
 **Milestone:** [vertical-slice-mvp](../milestones/vertical-slice-mvp.md)
 
