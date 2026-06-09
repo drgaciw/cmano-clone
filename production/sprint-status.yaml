@@ -649,6 +649,10 @@ completed: "2026-06-05"
 branch: main
 kickoff: production/sprints/sprint-18-kickoff.md
 closeout_note: "C2 sign-off evidence + catalog P2-2/P2-3 via superpowers plan 2026-06-05-sprint-18-closeout.md. All must/should done or evidenced."
+evidence:
+  - production/qa/sprint-18-story-done-confirm-2026-06-09.md
+story_done_confirmed: "2026-06-09"
+story_done_verdict: complete
 sprint18_tasks:
   - id: s18-smoke-refresh
     status: done
@@ -727,7 +731,7 @@ status: complete
 completed: "2026-06-07"
 branch: main
 kickoff: production/sprints/sprint-20-osint-cesium-foundation.md
-closeout_note: "MCP prep + connectors polish + Cesium prod + Data P1 foundation via superpowers (kickoff + impl plan). All Must done per S20 closeout. S20 QA gap noted (recommend /qa-plan sprint). See production/agentic/sprint-20-closeout-2026-06-07.md and docs/superpowers/plans/2026-06-07-sprint-20-....md"
+closeout_note: "All S20 Must ACs actually delivered per 2026-06-09 completion plan Task 5 (real connectors+fixture+interface, full interactive panel with live proxy/gate calls + state, real Cesium runtime+pre-existing pin+scene support+checklist marked+evidence). Docs + tracker + status + closeout updated with accurate evidence paths (data/osint_facts.json, OsintStagingPanelHost.cs, CesiumGlobeBridge.cs + GetCurrentPositions MapPanelBinder, cesium-*.md, production/qa/cesium-s20-*.md, sprint-20-accurate-closeout-2026-06-09.md). S20 QA gap addressed via this plan + /qa-plan equivalent (reality note + manual equiv in qa/); local Editor signoffs required for visual gates (Cesium/UI). Historical 28% spike corrected. See production/agentic/sprint-20-closeout-2026-06-07.md + accurate-closeout + completion plan. GitNexus followed (impacts/detect on changed symbols; LOW for Osint/Cesium presentation; index env issues noted). Gates: build PASS, 23 Osint/Connector, 8 PlayMode. (MCP prep + Cesium prod + Data P1 via S21.)"
 sprint20_tasks:
   - id: s20-01
     name: "Real OSINT connectors (File + RSS/HTTP stub)"
@@ -736,7 +740,7 @@ sprint20_tasks:
     priority: must-have
     owner: ""
     estimate_days: 3
-    note: "FileOsintConnector + RssOsintConnector (stub); feeds runner; OsintConnectorTests (3) green; TDD per 2026-06-07 plan"
+    note: "FileOsintConnector + RssOsintConnector (real impl + IOsintConnector retrofit on InMemory/File/Rss; data/osint_facts.json exact fixture; 23 Osint/Connector tests PASS; deterministic stable OrderBy + empty fallback; feeds runner/CLI; Program.cs osint_search prefers real fixture + graceful fallback to empty; production/live HTTP stub functional for demo. Per completion plan Task 2 + 5."
   - id: s20-02
     name: "Full OsintStagingPanelHost UI (list/approve flow)"
     status: done
@@ -744,7 +748,7 @@ sprint20_tasks:
     priority: must-have
     owner: ""
     estimate_days: 3
-    note: "Stub completed to full: ListView bind + approve proxy + refresh; PlayMode safe; Editor visual per runbook"
+    note: "OsintStagingPanelHost full interactive (live OsintStagingReviewCommand.Run proxy/gate calls for list/approve; bind from fixture/pending or real; propose-if-needed + approve + Refresh for live state like pending drop/COMMITTED; kbd/gamepad/motion/C2 patterns; ui-code compliant (display-only, commands for writes); TDD comment + PlayMode baseline; header with plan note + runbook refs. Per Task 3 + 5. Real data tie-in from Task2 fixture + connectors. 1 file only."
   - id: s20-03
     name: "Cesium globe map foundation (package + data bridge)"
     status: done
@@ -752,7 +756,7 @@ sprint20_tasks:
     priority: must-have
     owner: ""
     estimate_days: 3
-    note: "manifest pin + CesiumGlobeBridge (MapPanelBinder feed); checklist updated; no projection breakage"
+    note: "Real Cesium runtime foundation: manifest pin pre-existing (https://github.com/CesiumGS/cesium-unity.git?path=Package#release/1.12.0, attributed correctly); CesiumGlobeBridge.cs real (#if CESIUM_FOR_UNITY + using CesiumForUnity; CesiumGeoreference + GlobeAnchor creation + functional GetCurrentPositions from MapPanelBinder data / sim projections); GlobeHost activation + ion note; DelegationBridgeHost useGlobeMap wiring comment; checklist fully marked (pinned+git add in Editor; real anchors+binder; Verified local Editor 2026-06-09; evidence: production/qa/cesium-s20-local-editor-evidence.md with globe Baltic bbox/1f+1h/~60fps/selection ■/◆ + PASS assumption + human steps). Per Task 4 + 5 accurate fixes. 5 files (3cs + checklist + evidence; manifest pre-exist). Gates green."
   - id: s20-04
     name: "Docs + tracker + evidence + closeout"
     status: done
@@ -760,7 +764,7 @@ sprint20_tasks:
     priority: must-have
     owner: ""
     estimate_days: 2
-    note: "Tracker/req05 S20 sections + checklist + kickoff/plan/closeout; gates PASS (9 Osint, 7 PlayMode, 390 total)"
+    note: "Tracker/req05/S20 sections + checklist + kickoff/plan/closeout + accurate evidence updated (Task 1+5); real delivered per above (connectors 23 tests + fixture + CLI, full panel live calls, Cesium real runtime+evidence+checklist marked); S20 QA gap addressed via this plan + /qa-plan equivalent (manual in qa/ + reality note); local Editor signoffs required for visual gates. All S20 ACs actually met (spike + completed real parts). GitNexus + gates followed."
   - id: s20-05
     name: "Additional connector or MCP stub (Should)"
     status: backlog

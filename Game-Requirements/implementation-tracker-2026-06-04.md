@@ -1,14 +1,14 @@
 # Game Requirements — Implementation Tracker
 
 **Base:** `main` @ `afd2e1a` (`afd2e1a` on `main`)
-**Last Updated:** 2026-06-08 (Sprint 19 baseline)
+**Last Updated:** 2026-06-08 (Sprints 11–15 program closeout + Sprint 21 baseline)
 **Index:** [Game-Requirements-Index.md](Game-Requirements-Index.md) | [00-Master-Index.md](../00-Master-Index.md)
 
 ## Verdict
 
 | Scope | Status |
 |-------|--------|
-| Requirements **documentation** (01–20) | **Complete** — drafted, research-integrated |
+| Requirements **documentation** (01–20) | **Complete** — drafted, research-integrated; **01–12 FULL** (Sprints 11–15 program closeout 2026-06-08) |
 | **MVP / Phase 1 gameplay** implementation | **In progress** — headless Baltic vertical slice; no doc is 100% MVP-done |
 | **Index housekeeping** (this pass) | **Complete** — canonical index, CMAO DB doc, tracker |
 
@@ -34,7 +34,7 @@ pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 | 02 | Core Gameplay Loop | **Partial** | `SimulationSession.cs`, `data/scenarios/*.policy.json` | Phase 1–2 UX; explicit **Begin Execution** in Unity |
 | 03 | Simulation Modes | **Partial** | `SimulationSessionPhaseTests.cs`, headless smoke | AvA batch benchmark; mode UI on C2 top bar |
 | 04 | Agent Delegation | **Partial** | `DelegationOrchestrator.cs`, `TrustSignalEmitterTests.cs` | C2 delegation badges; trust emit-only in order log |
-| 05 | Dynamic Speculative Systems Agent | **Partial+** (S19 slice + S20 connectors/UI/Cesium base + S19-05 digest file path) | `OsintDigestRunner` (instance `Run` + `RunFromDigestFile`), `InMemoryOsintConnector`, `FileOsintConnector`, `RssOsintConnector`, `OsintDigestRunnerTests`, `OsintStagingPanelHost` (full), `CesiumGlobeBridge`, manifest pin, E2E/CLI + S20/S21 MCP, `production/sprints/sprint-20-osint-cesium-foundation.md` | Daily digest scheduler, full real-time connectors, Cesium production wiring |
+| 05 | Dynamic Speculative Systems Agent | **Partial+** (S19 slice + S20 full per 2026-06-09 completion plan Tasks 1-5; historical overclaims corrected first) | `OsintDigestRunner`, `InMemoryOsintConnector` + `FileOsintConnector` + `RssOsintConnector` (full IOsintConnector impls + stable), `data/osint_facts.json` (exact fixture), `Osint*Tests` (23 pass), `OsintStagingPanelHost` (full live proxy/gate + bind + approve + Refresh), `CesiumGlobeBridge` (real CesiumForUnity + GetCurrentPositions from MapPanelBinder), `CesiumGlobeHost`, cesium-phase-b-spike-checklist.md (fully marked), `production/qa/cesium-s20-local-editor-evidence.md`, `production/agentic/sprint-20-closeout-2026-06-07.md` + `sprint-20-accurate-closeout-2026-06-09.md`, `production/qa/sprint-20-2026-06-09-reality-and-recommendations.md`, `docs/superpowers/plans/2026-06-09-sprint-20-completion-...md`, Program.cs osint_search + OsintStagingReviewCommand,  `production/sprints/sprint-20-...md` | S20 Musts actually delivered (real connectors w/ fixture+interface, full panel w/ live calls/state, real Cesium runtime+pre-exist pin+scene+checklist+evidence). S20 QA gap addressed via plan + /qa-plan equiv; local Editor signoffs for visuals. Tracker updated Task 5 accurate. Next: S21 MCP + polish + Data P1 (per req 05/21). |
 | 06 | Database Intelligence | **Partial** (P0 complete) | P0 on `main`: `CatalogWriteGate`, `ValidationPipeline`, `ScenarioPackage`, `CmoMarkdownImporter`, migrations `001`–`005` | Full platform import; balance drift; TL branching |
 | 07 | Agentic Infrastructure | **Partial** | `BalticReplayHarness`, `MissionEditor.Cli`, Hindsight | Scenario gen + experiment workers |
 | 08 | Agentic Architecture | **Partial** | `ProjectAegis.Sim`, `Delegation`, `architecture.md` | DOTS sensor hot path; sim API export |
@@ -44,12 +44,13 @@ pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 | 12 | Terms Glossary | **Partial** | `abort_reason_manifest.json`, Sensor/Cyber families in `AbortReasonCatalog`, alignment tests | UI tooltips; mount-offline abort enum |
 | 13 | Doctrine ROE EMCON WRA | **Partial** | `PolicyEvaluator` WRA salvo, `ResolvedUnitPolicy` mission ROE, `baltic-patrol-mission-roe` / `wra-cap` fixtures | Unity doctrine inheritance panel (ADR-010) |
 | 14 | Engagement & Fire Control | **Partial** | `EngageAttackOptions`, `DelegationBridgeAttackOptionTests`, `EngageAttackOrderResolverTests`, `AttackMenuPanelBinderTests`, `tests/regression/replay-golden-baltic-engage-2026-06-02.txt` | Swarm coordinator sectors; DLZ Phase 2 |
-| 15 | Sensor Detection & EW | **Partial** | `ReplayGoldenSuite` + `baltic-patrol-stale` golden, contact FSM harness | ECCM Phase 2; datalink delay |
+| 15 | Sensor Detection & EW | **Partial** (MVP slice **COVERED**) | `ReplayGoldenSuite` + `baltic-patrol-stale` golden, contact FSM harness; classify FSM (`PdContactClassifyTests`, `ReplayGoldenBalticClassifyTests`); C2 (`SensorC2BridgeTests`, `SensorC2PanelBinderTests`, `SensorC2PanelHost`); `data/scenarios/baltic-patrol-classify.policy.json` | ECCM Phase 2; datalink delay (TR-sensor-004) |
 | 16 | Logistics & Magazines | **Partial** | `UnitReadinessMap`, `BalticReplayHarnessReadinessPolicyTests`, `tests/regression/replay-golden-baltic-readiness-2026-06-04.txt`, `AIR_NOT_READY` | UNREP; live magazine counts from catalog |
 | 17 | Replay AAR & Order Log | **Partial** | `ReplayGoldenSuiteTests`, CI step in `dotnet-reusable.yml`, `tests/regression/README.md` | Scrub UI; AAR agent |
 | 18 | Combat Domains | **Partial** | `CombatDomainValidator`, `MountOffline`/`DomainNoSolution` abort codes | Mine/land runtime; facility damage |
 | 19 | Cyber & Comms | **Partial** | `SpoofTrackTimelineSimulator`, `BalticReplayHarnessSpoofTests`, `tests/regression/replay-golden-baltic-spoof-2026-06-04.txt`, `CYBER_SPOOF_TRACK` | JADC2 node damage; ECCM Phase 2 |
 | 20 | Command & Control UI | **Partial** | `RightUnitPanelHost`, `DelegationBridgeAttackOptionTests`, `AttackMenuPanelBinderTests`, `UnitDetailPanelBinderAttackMenuTests`, [c2-automated-proxy-2026-06-02.md](../production/qa/c2-automated-proxy-2026-06-02.md), [pi-006-headless-proxy-2026-06-04.md](../production/qa/pi-006-headless-proxy-2026-06-04.md) | Globe map; Unity manual C2 sign-off (S19-01 pending) |
+| 21 | Platform Editor (Excel round-trip) | **Draft → P0 skeleton** | Req [21-Platform-Editor.md](requirements/21-Platform-Editor.md), [ADR-011](../docs/architecture/adr-011-platform-editor-excel-roundtrip.md); skeleton: migration `007_platform_editor_phase_a.sql`, `CatalogMount`/`CatalogLoadout`/`CatalogMagazineEntry`/`CatalogCommsBinding`, `IPlatformWorkbookIo` + `PlatformWorkbookExporter`/`Diff`/`Validator`/`Importer`, `CanonicalTextWorkbookIo`, ClosedXML adapter (`src/ProjectAegis.Data.Excel`), tests `PlatformWorkbookRoundTripTests`/`ImporterTests`/`ValidatorTests` | Extend `IWriteGate` for mount/loadout/magazine/comms staging; CLI/MCP verbs; restore+verify ClosedXML; Phase-B signatures/mobility/EMCON |
 
 ## Research open gaps (P1)
 
