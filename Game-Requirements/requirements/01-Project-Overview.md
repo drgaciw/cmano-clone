@@ -1,8 +1,8 @@
 # 01 - Project Overview
 
-**Last Updated:** 2026-06-04  
-**Related:** 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20  
-**Status:** Locked  
+**Last Updated:** 2026-06-09  
+**Related:** All requirement docs — see [Related Requirements Index](#related-requirements-index)  
+**Status:** Locked — vision & scope (Template A complete, Sprint 12); commercial name still open  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)
 
 ## Purpose
@@ -45,26 +45,29 @@ Create the definitive hardcore military simulation for the 2030s — a game that
 - AI/ML developers and agentic system researchers
 - Players who want deep strategy with meaningful automation options
 
+**Priority:** hardcore wargamers are the primary audience. The analyst/research and AI-developer audiences are served through the same headless and agentic capabilities ([03](03-Simulation-Modes.md), [07](07-Agentic-Infrastructure.md)) — not separate feature tracks.
+
 ## Scope Boundaries (First Release)
 
 **In Scope:**
 - Regional theaters (Baltic, Black Sea, South China Sea, etc.)
-- Air, naval, and limited ground forces
+- Air, naval, and aggregate-level ground forces (brigade and above, modeled for air/naval interaction — strike targets, air defenses, coastal missile batteries — not maneuver warfare)
 - Drone swarms and autonomous systems
 - Full agent delegation system
 - High-speed agent-vs-agent simulation mode
 
 **Out of Scope (Future Releases):**
 - Global/strategic-level campaigns (initially)
-- Full multiplayer (hotseat and async supported later)
+- All multiplayer — hotseat and async planned for a later release; live networked play unscheduled
 - Land warfare at battalion scale or below
 
 ## Success Criteria
 
-- Players can run realistic 2030-era Baltic scenario with 5,000+ entities at playable speeds
-- AI agents produce believable, human-like decision-making with clear personality differences
-- The game becomes a platform for both entertainment and serious wargaming/research
-- Strong agentic development workflow that allows rapid iteration using Claude + Unity-MCP
+- A realistic 2030-era Baltic scenario with 5,000+ entities runs at 60+ FPS in Human Mode on recommended hardware (see Non-Functional Requirements) and ≥256× effective speed in headless agent-vs-agent batch mode ([03](03-Simulation-Modes.md))
+- Agent personality presets are distinguishable in blind AAR review of agent-vs-agent batch runs, and reviewers rate agent decisions as plausible human command behavior ([04](04-Agent-Delegation.md), [17](17-Replay-AAR-And-Order-Log.md))
+- The headless API is sufficient for an external researcher to design, run, and analyze a batch study without modifying engine code ([03](03-Simulation-Modes.md), [07](07-Agentic-Infrastructure.md))
+
+*(Agentic development workflow quality is a process goal tracked in [07](07-Agentic-Infrastructure.md), not a product success criterion.)*
 
 ## Project Name (Working Title)
 **Project Aegis**
@@ -99,7 +102,15 @@ High-level capabilities delivered across the requirements corpus (details in lin
 - **Determinism:** seeded sim + order log; replay goldens in CI ([17](17-Replay-AAR-And-Order-Log.md))
 - **Headless execution:** .NET 8 test harness and batch AvA without Unity Editor ([03](03-Simulation-Modes.md), [ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md))
 - **Clean-room:** no CMO proprietary DB/code; pattern reuse only (see Core Project Goals §5)
-- **Performance:** 5,000+ entities interactive; ≥256× headless AvA floor, 1000×+ target ([03](03-Simulation-Modes.md))
+- **Performance:** 5,000+ entities at 60+ FPS on recommended spec; ≥256× headless AvA floor, 1000×+ target ([03](03-Simulation-Modes.md))
+- **Reference hardware (v1 targets):** the sim is CPU-bound (DOTS/ECS); GPU demands are modest for a map-centric presentation
+  - *Minimum (PC):* 6-core CPU (Ryzen 5 5600 / Core i5-12400 class), 16 GB RAM, GTX 1660 / RX 5600-class GPU, SSD — reference Baltic scenario at 30+ FPS
+  - *Recommended (PC):* 8-core CPU (Ryzen 7 7700 / Core i7-13700 class), 32 GB RAM, RTX 3060-class GPU — 5,000+ entities at 60+ FPS
+  - *Headless AvA node:* 8 vCPU / 16 GB Linux container — ≥256× effective speed on the reference Baltic scenario
+- **Platforms:** Windows 10/11 x64 (primary, Steam); Linux x64 for the headless server/batch farm only. No macOS, console, or Steam Deck support in v1.
+- **Moddability:** database and scenario modding supported at v1 — published SQLite schema and scenario format, consistent with the clean-room community-evidence intake ([06](06-Database-Intelligence.md)). Code/plugin modding out of scope for v1.
+- **Localization:** English-only at v1. All UI strings externalized from day one (no hardcoded text) so later localization is a data task, not a refactor ([20](20-Command-And-Control-UI.md)).
+- **Accessibility (v1 commitments):** colorblind-safe map symbology — shape-coded per MIL-STD-2525 conventions, never color-alone; scalable UI text; full keyboard operability of all command functions (follows from the command-driven UI, [ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md)); no gameplay-critical information conveyed by audio alone. Screen-reader support out of scope for v1.
 - **Agent safety:** delegation changes reviewable in order log; no hidden sim mutations from UI
 
 ## Technical Considerations
@@ -127,31 +138,31 @@ High-level capabilities delivered across the requirements corpus (details in lin
 | Commercial product name | **Open** | Working title *Project Aegis* |
 | Future Combat Mode default | **Deferred** | Optional scenario flag per [10](10-Speculative-Systems.md) |
 | Charter items in docs 02–03 | **Locked** | See Resolved Design Decisions in [02](02-Core-Gameplay-Loop.md), [03](03-Simulation-Modes.md) |
+| Reference hardware & platforms | **Decided 2026-06-09** | Windows primary + Linux headless; specs in Non-Functional Requirements |
+| Modding / localization / accessibility scope | **Decided 2026-06-09** | Data modding yes, code modding no; English-only with externalized strings; targeted accessibility commitments — see Non-Functional Requirements |
 
 ## Related Requirements Index
 
-| Doc | Title | Sprint wave |
-|-----|-------|-------------|
-| [02](02-Core-Gameplay-Loop.md) | Core Gameplay Loop | 12 |
-| [03](03-Simulation-Modes.md) | Simulation Modes | 12 |
-| [04](04-Agent-Delegation.md) | Agent Delegation | 13 |
-| [05](05-Dynamic-Systems-Agent.md) | Dynamic Systems Agent | 13 |
-| [06](06-Database-Intelligence.md) | Database Intelligence | 14 |
-| [07](07-Agentic-Infrastructure.md) | Agentic Infrastructure | 14 |
-| [08](08-Agentic-Architecture.md) | Agentic Architecture | 14 |
-| [09](09-Near-Future-Technologies.md) | Near-Future Technologies | 15 |
-| [10](10-Speculative-Systems.md) | Speculative Systems | 15 |
-| [11](11-Agentic-Mission-Editor.md) | Agentic Mission Editor | 15 |
-| [12](12-Terms-Glossary.md) | Terms Glossary | 15 |
-| [13](13-Doctrine-ROE-EMCON-WRA.md) | Doctrine / ROE / EMCON / WRA | 15 |
-| [14](14-Engagement-And-Fire-Control.md) | Engagement & Fire Control | 15 |
-| [15](15-Sensor-Detection-And-EW.md) | Sensor, Detection & EW | 15 |
-| [16](16-Logistics-And-Magazines.md) | Logistics & Magazines | 15 |
-| [17](17-Replay-AAR-And-Order-Log.md) | Replay, AAR & Order Log | 15 |
-| [18](18-Combat-Domains.md) | Combat Domains | 15 |
-| [19](19-Cyber-And-Comms.md) | Cyber & Comms | 15 |
-| [20](20-Command-And-Control-UI.md) | Command & Control UI | 15 |
+| Doc | Title | Sprint wave | Status |
+|-----|-------|-------------|--------|
+| [02](02-Core-Gameplay-Loop.md) | Core Gameplay Loop | 12 | Locked |
+| [03](03-Simulation-Modes.md) | Simulation Modes | 12 | Locked |
+| [04](04-Agent-Delegation.md) | Agent Delegation | 13 | Locked |
+| [05](05-Dynamic-Systems-Agent.md) | Dynamic Systems Agent | 13 | Locked |
+| [06](06-Database-Intelligence.md) | Database Intelligence | 14 | Locked |
+| [07](07-Agentic-Infrastructure.md) | Agentic Infrastructure | 14 | Locked |
+| [08](08-Agentic-Architecture.md) | Agentic Architecture | 14 | Locked |
+| [09](09-Near-Future-Technologies.md) | Near-Future Technologies | 15 | Research-integrated |
+| [10](10-Speculative-Systems.md) | Speculative Systems | 15 | Research-integrated |
+| [11](11-Agentic-Mission-Editor.md) | Agentic Mission Editor | 15 | Draft |
+| [12](12-Terms-Glossary.md) | Terms Glossary | 15 | Locked |
+| [13](13-Doctrine-ROE-EMCON-WRA.md) | Doctrine / ROE / EMCON / WRA | 15 | Draft |
+| [14](14-Engagement-And-Fire-Control.md) | Engagement & Fire Control | 15 | Draft |
+| [15](15-Sensor-Detection-And-EW.md) | Sensor, Detection & EW | 15 | Draft |
+| [16](16-Logistics-And-Magazines.md) | Logistics & Magazines | 15 | Draft |
+| [17](17-Replay-AAR-And-Order-Log.md) | Replay, AAR & Order Log | 15 | Draft |
+| [18](18-Combat-Domains.md) | Combat Domains | 15 | Draft |
+| [19](19-Cyber-And-Comms.md) | Cyber & Comms | 15 | Draft |
+| [20](20-Command-And-Control-UI.md) | Command & Control UI | 15 | Draft |
 
----
-
-**Status:** Core vision locked; Template A complete (Sprint 12)
+Status snapshot as of 2026-06-09 — the per-doc header is authoritative.
