@@ -1,6 +1,8 @@
 # Game Requirements - Master Index
 
-**Last Updated:** 2026-06-04
+**Last Updated:** 2026-06-08
+
+**Program note:** Post-MVP Requirements Program (Sprints 11–15) is **complete** — docs 01–12 locked, Wave 5 spoof/readiness/attack-menu shipped, RTM + consistency gate closed. Closeout: `production/agentic/sprint-11-15-closeout-2026-06-08.md`.
 
 ## Implementation
 
@@ -58,6 +60,7 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 ## Authoring & Design Tools
 
 - [11-Agentic-Mission-Editor.md](requirements/11-Agentic-Mission-Editor.md) — Agentic mission/scenario editor (CMO parity + NL/MCP authoring, validation agents, operations timeline)
+- [21-Platform-Editor.md](requirements/21-Platform-Editor.md) — Platform/catalog editor (ships, subs, aircraft, loadouts, comms, sensor suites) with Microsoft Excel round-trip on the write gate; see [ADR-011](../docs/architecture/adr-011-platform-editor-excel-roundtrip.md)
 
 ## Reference
 

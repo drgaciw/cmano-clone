@@ -153,6 +153,11 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return true;
         }
 
+        if (file.Contains("007", StringComparison.Ordinal) && TableExists("platform_mount"))
+        {
+            return true;
+        }
+
         return false;
     }
 

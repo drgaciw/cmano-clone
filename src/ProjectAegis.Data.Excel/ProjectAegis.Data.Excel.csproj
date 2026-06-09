@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Req-21 / ADR-011: the .xlsx adapter for the platform editor. Kept in a SEPARATE project so the
+    ClosedXML dependency never enters the deterministic, engine-free ProjectAegis.Data core (ADR-006).
+    Targets net8.0 only — this is an edge/CLI adapter, not consumed by the netstandard2.1 sim path.
+
+    After creating: `dotnet sln ProjectAegis.sln add src/ProjectAegis.Data.Excel/ProjectAegis.Data.Excel.csproj`
+    then `dotnet restore`.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>ProjectAegis.Data.Excel</RootNamespace>
+    <Description>ClosedXML .xlsx adapter implementing IPlatformWorkbookIo for the platform editor (req 21).</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
+  </ItemGroup>
+</Project>

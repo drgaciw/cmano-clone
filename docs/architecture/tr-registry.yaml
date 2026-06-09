@@ -3,7 +3,7 @@
 # Do not renumber entries; mark deprecated when GDD removes a requirement.
 
 version: 1
-last_updated: 2026-06-02
+last_updated: 2026-06-08
 review: architecture-review-2026-06-02
 
 entries:
@@ -110,7 +110,8 @@ entries:
     gdd: design/gdd/sensor-detection-ew.md
     requirement: Contact FSM with deterministic transitions
     adr: [ADR-004, ADR-005]
-    status: partial
+    status: covered
+    notes: MVP slice complete (Detected→Classify→Identify→Lost + C2 projection, Sprint 2); TR-sensor-004 side picture remains gap
 
   - id: TR-sensor-002
     system: sensor
@@ -139,6 +140,7 @@ entries:
     requirement: Unified engagement resolver for player, agent, and mission-auto fire
     adr: [ADR-001, ADR-004]
     status: covered
+    notes: Wave 5 attack menu — EngageAttackOptions, EngageAttackOrderResolver, DelegationBridge.TryEnqueueAttackOption; DelegationBridgeAttackOptionTests, EngageAttackOrderResolverTests, AttackMenuPanelBinderTests
 
   - id: TR-engage-002
     system: engage
@@ -161,6 +163,7 @@ entries:
     requirement: Magazine ledger with MagazineEmpty abort in engage pipeline
     adr: [ADR-004]
     status: partial
+    notes: Wave 5 live readiness — UnitReadinessMap on SimulationSession/DelegationBridge; AIR_NOT_READY abort; MvpEngagementAirNotReadyTests, BalticReplayHarnessReadinessPolicyTests, baltic-patrol-readiness.policy.json
 
   - id: TR-logistics-002
     system: logistics
@@ -269,6 +272,7 @@ entries:
     requirement: CommsStateChange and CyberActionResult order-log entry kinds
     adr: [ADR-003]
     status: partial
+    notes: Wave 5 spoof track — SpoofTrackTimelineSimulator, CYBER_SPOOF_TRACK abort; MvpEngagementSpoofTrackTests, BalticReplayHarnessSpoofTests, baltic-patrol-spoof.policy.json
 
   - id: TR-cyber-003
     system: cyber-comms

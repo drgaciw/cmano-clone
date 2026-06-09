@@ -560,12 +560,70 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 21
+current_sprint: 22
 requirements_program: complete
 requirements_program_completed: "2026-06-04"
 sprints_11_15_closeout: complete
 sprints_11_15_closeout_date: "2026-06-08"
-next_backlog: production/sprints/sprint-21-mcp-osint-cesium-data-polish.md
+next_backlog: production/sprints/sprint-22-platform-editor-db-doctrine.md
+
+sprint: 22
+goal: "Complete Platform Editor Phase A write-gate coverage and CLI verbs (Req 21), advance Database Intelligence P1 with platform+weapon import support (Req 06), and deliver the Unity Doctrine Inheritance Panel (Req 13)."
+start: "2026-06-23"
+end: "2026-07-07"
+generated: "2026-06-09"
+updated: "2026-06-09"
+kickoff: production/sprints/sprint-22-platform-editor-db-doctrine.md
+sprint22_stories:
+  - id: "22-1"
+    name: "Extend PlatformWorkbookImporter write-gate to Mounts/Loadouts/Magazines/Comms"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 3
+    blocker: ""
+  - id: "22-2"
+    name: "Add CLI verbs platform_export_xlsx / platform_import_xlsx / platform_diff_xlsx"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 2
+    blocker: "22-1"
+  - id: "22-3"
+    name: "Author ADR-011 platform-editor-excel-roundtrip"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 0.5
+    blocker: ""
+  - id: "22-4"
+    name: "Extend CmoMarkdownImporter to platform + weapon/mount entries"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 3
+    blocker: "22-1"
+  - id: "22-5"
+    name: "Unity Doctrine Inheritance Panel (Req 13)"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 3
+    blocker: ""
+  - id: "22-6"
+    name: "IBalanceTelemetrySink real accumulator + win-rate flag"
+    priority: nice-to-have
+    status: backlog
+    owner: ""
+    estimate_days: 2
+    blocker: "22-4"
+  - id: "22-7"
+    name: "OSINT OsintCatalogMapper TL routing"
+    priority: nice-to-have
+    status: backlog
+    owner: ""
+    estimate_days: 2
+    blocker: "S21 complete"
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
@@ -693,6 +751,10 @@ completed: "2026-06-06"
 branch: main
 kickoff: production/sprints/sprint-19-osint-production.md
 closeout_note: "Core data/runner/connector/wiring + CLI staging proxy + docs/tracker via superpowers plan 2026-06-06-sprint-19-osint-production-impl.md. Unity full panel = local Editor (headless/CLI covered)."
+evidence:
+  - production/qa/sprint-19-story-done-confirm-2026-06-09.md
+story_done_confirmed: "2026-06-09"
+story_done_verdict: complete
 sprint19_tasks:
   - id: s19-01
     status: done

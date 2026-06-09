@@ -1,6 +1,6 @@
 # Architecture Traceability Index
 
-**Last Updated:** 2026-06-02  
+**Last Updated:** 2026-06-08
 **Engine:** Unity 6.3 LTS (6000.3.14f1) + .NET 8  
 **Review:** [architecture-review-2026-06-02.md](architecture-review-2026-06-02.md)  
 **TR IDs:** [tr-registry.yaml](tr-registry.yaml)
@@ -8,9 +8,10 @@
 ## Coverage Summary
 
 - **Total requirements:** 47
-- **Covered:** 14 (30%)
-- **Partial:** 21 (45%)
+- **Covered:** 15 (32%)
+- **Partial:** 20 (43%)
 - **Gaps:** 12 (25%)
+- **Sprint 11–15 program:** **CLOSED** @ 2026-06-08 — requirements maturity (docs 01–12) + Wave 5 on `main`; tracker rows **14/16/19/20** at **Partial+** with automated AC (`403/403` tests, PlayMode **7/7**). See [requirements-traceability.md](requirements-traceability.md) Wave 5 overlap spine.
 
 ## Full Matrix
 
@@ -30,7 +31,7 @@
 | TR-policy-004 | policy-roe-emcon-wra.md | Policy | PolicyUpdate in order log | ADR-003 | Covered |
 | TR-policy-005 | policy-roe-emcon-wra.md | Policy | WRA before engagement geometry | ADR-002, ADR-004 | Partial |
 | TR-policy-006 | policy-roe-emcon-wra.md | Policy | EMCON feeds sensor emission | ADR-002 | Partial |
-| TR-sensor-001 | sensor-detection-ew.md | Sensors | Contact FSM | ADR-004, ADR-005 | Partial |
+| TR-sensor-001 | sensor-detection-ew.md | Sensors | Contact FSM | ADR-004, ADR-005 | Covered |
 | TR-sensor-002 | sensor-detection-ew.md | Sensors | Deterministic detection loop | ADR-004, ADR-005 | Partial |
 | TR-sensor-003 | sensor-detection-ew.md | Sensors | EW noise jam MVP | — | Partial |
 | TR-sensor-004 | sensor-detection-ew.md | Sensors | Side picture / datalink | — | Gap |

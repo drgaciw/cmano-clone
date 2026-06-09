@@ -1,0 +1,37 @@
+{
+  "name": "cmano-clone",
+  "version": "1.0.0",
+  "description": "Project Aegis is a working-title near-future hardcore military simulation inspired by Command: Modern Air Naval Operations. The project focuses on theater-level command, autonomous systems, drone swarms, advanced AI agents, and emerging military technologies set roughly 5-10 years in the future.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drgaciw/cmano-clone.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/drgaciw/cmano-clone/issues"
+  },
+  "homepage": "https://github.com/drgaciw/cmano-clone#readme",
+  "dependencies": {
+    "gitnexus": "^1.6.6",
+    "tree-sitter-kotlin": "^0.3.8"
+  },
+  "allowScripts": {
+    "gitnexus@1.6.6": true,
+    "tree-sitter-c-sharp@0.23.1": true,
+    "tree-sitter@0.21.1": true,
+    "tree-sitter-javascript@0.23.1": true,
+    "tree-sitter-typescript@0.23.2": true,
+    "@ladybugdb/core@0.17.1": true
+  }
+}

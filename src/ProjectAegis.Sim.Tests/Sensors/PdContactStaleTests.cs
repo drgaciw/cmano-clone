@@ -21,4 +21,21 @@ public sealed class PdContactStaleTests
         Assert.Contains(t2, t => t.NewState == ContactLifecycleState.Lost);
         Assert.Equal(0, sim.ActiveCount);
     }
+
+    [Fact]
+    public void Lost_transition_uses_actual_previous_state_not_hardcoded_detected()
+    {
+        var lifecycle = new ScenarioContactLifecycle(
+            StaleThresholdTicks: 1,
+            ClassifyAfterTicks: 1,
+            IdentifyAfterTicks: 99);
+        var sim = new PdDetectionContactSimulator(
+            SimSeed.FromScenario(9),
+            [new ScenarioDetectionTrial("u1", "radar-1", "hostile-1", "c1", 1.0)],
+            contactLifecycle: lifecycle);
+
+        sim.Tick(1, 1.0);
+        var t2 = sim.Tick(2, 2.0);
+        Assert.Contains(t2, t => t is { PreviousState: ContactLifecycleState.Classified, NewState: ContactLifecycleState.Lost });
+    }
 }

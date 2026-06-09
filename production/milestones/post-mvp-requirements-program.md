@@ -1,6 +1,6 @@
 # Milestone: Post-MVP Requirements Program (Sprints 11–15)
 
-**Status:** **COMPLETE** (2026-06-04) — branch `feat/wave5-attack-readiness-spoof`  
+**Status:** **100% complete** @ 2026-06-08 closeout (S11–15 program + Wave-5 on `main`)
 **Target:** 2026-07-01 → 2026-08-15 (accelerated execution)  
 **Type:** Requirements maturity (docs 01–12) + Wave-5 gameplay implementation (req 14, 16, 19, 20)  
 **Indexed:** GitNexus `cmano-clone` (refresh with `npx gitnexus analyze` per sprint)  
@@ -46,11 +46,11 @@
 
 ## Success criteria
 
-- [ ] Requirements 01–06, 12 at **Ready for design review** or **Locked** with superpowers cross-links  
-- [ ] Tracker rows 14, 16, 19 updated to **Partial+** with automated AC tests cited  
-- [ ] `docs/architecture/requirements-traceability.md` rows for 01–12 (FULL / PARTIAL / STUB)  
-- [ ] `docs/reports/requirements-consistency-*.md` — 0 BLOCKER  
-- [ ] Unity manual C2 sign-off executed or explicitly deferred with date — **deferred to Sprint 18** (2026-06-04); automated proxy + attack-menu headless tests green on `cde26fe`
+- [x] Requirements 01–06, 12 at **Ready for design review** or **Locked** with superpowers cross-links — [sprint-15-design-review-2026-06-04.md](../qa/sprint-15-design-review-2026-06-04.md) APPROVED  
+- [x] Tracker rows 14, 16, 19 updated to **Partial+** with automated AC tests cited — [implementation-tracker-2026-06-04.md](../../Game-Requirements/implementation-tracker-2026-06-04.md) rows 14/16/19/20  
+- [x] `docs/architecture/requirements-traceability.md` rows for 01–12 (FULL / PARTIAL / STUB) — all rows **FULL** @ S15 gate  
+- [x] `docs/reports/requirements-consistency-*.md` — 0 BLOCKER — [requirements-consistency-2026-06-04.md](../../docs/reports/requirements-consistency-2026-06-04.md)  
+- [x] Unity manual C2 sign-off executed — **Complete** S19-01 @ `7401fac` (2026-06-08): `Invoke-C2PlayModeSignoffBatch.ps1` + headless proxy 13/13; [c2-manual-signoff-2026-06-02.md](../qa/c2-manual-signoff-2026-06-02.md)
 
 ## Out of scope (this program)
 

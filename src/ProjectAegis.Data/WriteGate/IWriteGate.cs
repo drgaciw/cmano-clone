@@ -11,6 +11,30 @@ public interface IWriteGate
         string actorId,
         string rationale = "");
 
+    string ProposeMountBatch(
+        IReadOnlyList<CatalogMount> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
+    string ProposeLoadoutBatch(
+        IReadOnlyList<CatalogLoadout> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
+    string ProposeMagazineBatch(
+        IReadOnlyList<CatalogMagazineEntry> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
+    string ProposeCommsBatch(
+        IReadOnlyList<CatalogCommsBinding> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
     WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId);
 
     WriteGateDecision RejectBatch(string batchId, string actorType, string actorId, string rationale = "");

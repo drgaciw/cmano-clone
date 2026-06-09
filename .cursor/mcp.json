@@ -11,6 +11,10 @@
         "-y",
         "@wonderwhy-er/desktop-commander@latest"
       ]
+    },
+    "gitnexus": {
+      "command": "npx",
+      "args": ["-y", "gitnexus@latest", "mcp"]
     }
   }
 }

@@ -1,6 +1,7 @@
 # Sprint 14 — Wave 5: interactive attack menu (req 14, 20)
 
-**Dates:** 2026-07-16 → 2026-07-30  
+**Status:** Complete (2026-06-04 / 2026-06-08)  
+**Dates:** 2026-07-16 → 2026-07-30
 **Branch:** `stack/wave5-attack-menu`  
 **Goal:** CMO §4.1.1 attack-options menu — headless option list already exists; add player-selectable Unity flow wired to single engage resolver.
 

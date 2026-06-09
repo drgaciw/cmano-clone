@@ -1,0 +1,90 @@
+using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Platform;
+using ProjectAegis.Data.Validation;
+using ProjectAegis.Data.WriteGate;
+using Xunit;
+
+namespace ProjectAegis.Data.Tests.Platform;
+
+/// <summary>Req-21 / ADR-011 PLE-4.2: cross-sheet fitting validation over an exported workbook.</summary>
+public sealed class PlatformWorkbookValidatorTests
+{
+    private static PlatformWorkbook Export(
+        IReadOnlyList<CatalogMount> mounts,
+        IReadOnlyList<CatalogLoadout> loadouts,
+        IReadOnlyList<CatalogMagazineEntry> magazines)
+    {
+        var data = PlatformCatalogExportData.Empty with
+        {
+            Platforms = new[] { new CatalogPlatformEntry("u1", 57.0, 20.0, 400.0) },
+            Mounts = mounts,
+            Loadouts = loadouts,
+            Magazines = magazines,
+        };
+        return new PlatformWorkbookExporter().Export(data, "baltic_patrol", new FixedCatalogClock(0));
+    }
+
+    private static readonly CatalogMount[] OneVls = { new("u1", "vls-fwd", "vls", 360.0, 32) };
+    private static readonly CatalogLoadout[] OneLoadout = { new("u1", "asuw-default", "ASuW", "asuw", IsDefault: true) };
+
+    [Fact]
+    public void Clean_fitting_has_no_findings()
+    {
+        var wb = Export(OneVls, OneLoadout, new[]
+        {
+            new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "mvp-weapon", 16, 0, 32),
+        });
+
+        Assert.Empty(PlatformWorkbookValidator.Validate(wb));
+    }
+
+    [Fact]
+    public void Dangling_mount_reference_is_flagged()
+    {
+        var wb = Export(OneVls, OneLoadout, new[]
+        {
+            new CatalogMagazineEntry("u1", "asuw-default", "ghost-mount", "mvp-weapon", 4, 0, 4),
+        });
+
+        Assert.Contains(PlatformWorkbookValidator.Validate(wb), f => f.Code == PlatformWorkbookValidator.MagazineUnknownMount);
+    }
+
+    [Fact]
+    public void Dangling_loadout_reference_is_flagged()
+    {
+        var wb = Export(OneVls, OneLoadout, new[]
+        {
+            new CatalogMagazineEntry("u1", "ghost-loadout", "vls-fwd", "mvp-weapon", 4, 0, 4),
+        });
+
+        Assert.Contains(PlatformWorkbookValidator.Validate(wb), f => f.Code == PlatformWorkbookValidator.MagazineUnknownLoadout);
+    }
+
+    [Fact]
+    public void Over_capacity_is_flagged_as_error()
+    {
+        var wb = Export(OneVls, OneLoadout, new[]
+        {
+            new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "mvp-weapon", 99, 0, 99),
+        });
+
+        var finding = Assert.Single(PlatformWorkbookValidator.Validate(wb));
+        Assert.Equal(PlatformWorkbookValidator.MagazineOverCapacity, finding.Code);
+        Assert.Equal(ValidationSeverity.Error, finding.Severity);
+    }
+
+    [Fact]
+    public void Findings_are_sorted_deterministically()
+    {
+        var a = PlatformWorkbookValidator.Validate(Export(OneVls, OneLoadout, new[]
+        {
+            new CatalogMagazineEntry("u1", "ghost-loadout", "ghost-mount", "w", 4, 0, 4),
+        }));
+        var b = PlatformWorkbookValidator.Validate(Export(OneVls, OneLoadout, new[]
+        {
+            new CatalogMagazineEntry("u1", "ghost-loadout", "ghost-mount", "w", 4, 0, 4),
+        }));
+
+        Assert.Equal(a.Select(f => f.Code), b.Select(f => f.Code));
+    }
+}

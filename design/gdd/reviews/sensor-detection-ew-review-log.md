@@ -30,7 +30,7 @@
 | AC-5 NO_FIRE_CONTROL_TRACK | Policy/engage denial codes — partial via ROE | **Partial** |
 | TR-sensor-002 Pd loop | `pd-detection-loop` epic complete | **Met** |
 | TR-sensor-003 EW jam | `ew-jam-headless-slice` epic complete | **Met** |
-| TR-sensor-001 Contact FSM | Detected→Lost MVP; Classify/Identify deferred | **Partial** |
+| TR-sensor-001 Contact FSM | Detected→Lost MVP only (2026-06-02); Classify/Identify + C2 projection deferred to Sprint 2 | **Partial** |
 | TR-sensor-004 Side picture | Organic contacts only; datalink P1 | **Deferred** |
 
 ### Conditions (non-blocking for headless merge)
@@ -42,3 +42,27 @@
 ### Blocking issues
 
 None for headless engineering.
+
+## 2026-06-08 — Sprint 2 closeout re-review
+
+**Reviewer:** agent (Sprint 2 closeout)  
+**Verdict:** **APPROVED** (headless classify FSM + Unity C2 projection)  
+**Scope:** TR-sensor-001 MVP slice — Classify/Identify FSM and sensor C2 HUD
+
+### Implementation traceability (Sprint 2)
+
+| AC / TR | Evidence | Status |
+|---------|----------|--------|
+| TR-sensor-001 Contact FSM | Classify/Identify FSM + C2 projection; [sensor-classify-slice](../../../production/epics/sensor-classify-slice/EPIC.md), [sensor-c2-ui-slice](../../../production/epics/sensor-c2-ui-slice/EPIC.md) | **Met** |
+| TR-sensor-001 Classify golden | `PdContactClassifyTests`, `ReplayGoldenBalticClassifyTests` | **Met** |
+| TR-sensor-001 C2 bridge | `SensorC2BridgeTests`, `SensorC2PanelBinderTests`, `SensorC2PanelHost` | **Met** |
+| TR-sensor-004 Side picture | Organic contacts only; datalink P1 | **Deferred** |
+
+### Notes
+
+- Parent **TR-sensor-001** promoted to **Covered** in [tr-registry.yaml](../../../docs/architecture/tr-registry.yaml) (MVP slice complete).
+- **TR-sensor-004** (side picture / datalink sharing) remains explicitly deferred.
+
+### Blocking issues
+
+None for Sprint 2 sensor/C2 merge gate.

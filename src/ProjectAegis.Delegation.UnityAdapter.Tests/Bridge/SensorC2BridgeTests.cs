@@ -16,4 +16,15 @@ public sealed class SensorC2BridgeTests
         Assert.That(result.SensorC2.ObserverRadarEmconActive, Is.True);
         Assert.That(result.SensorC2.HasFireControlTrackOnPrimary, Is.True);
     }
+
+    [Test]
+    public void Baltic_patrol_classify_sensor_c2_shows_classified_then_identified()
+    {
+        var result = BalticReplayHarness.Run(42, "baltic-patrol-classify", ticks: 4, mvpEngagement: false);
+
+        Assert.That(result.SensorC2.Contacts, Is.Not.Empty);
+        Assert.That(result.SensorC2.Contacts.Select(c => c.LifecycleState), Does.Contain("Classified").Or.Contain("Identified"));
+        Assert.That(result.SensorC2.ObserverRadarEmconActive, Is.True);
+        Assert.That(result.SensorC2.HasFireControlTrackOnPrimary, Is.True);
+    }
 }

@@ -1,6 +1,7 @@
 # Sprint 15 — Requirements agents/data + glossary + RTM gate
 
-**Dates:** 2026-07-30 → 2026-08-13  
+**Status:** Complete (2026-06-04 / 2026-06-08)  
+**Dates:** 2026-07-30 → 2026-08-13
 **Goal:** Complete Agentic-Development-Plan Waves 2–5 (docs 04–06, 12, consistency, RTM) and program exit review.
 
 ## Must have

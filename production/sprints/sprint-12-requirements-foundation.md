@@ -1,6 +1,7 @@
 # Sprint 12 — Requirements foundation (docs 01–03)
 
-**Dates:** 2026-06-18 → 2026-07-02  
+**Status:** Complete (2026-06-04 / 2026-06-08)  
+**Dates:** 2026-06-18 → 2026-07-02
 **Goal:** Expand stubs/partials for Project Overview, Core Gameplay Loop, Simulation Modes per [Agentic-Development-Plan.md](../../Agentic-Development-Plan.md) Wave 1.
 
 ## Must have

@@ -1,6 +1,6 @@
 # Requirements Traceability Matrix (RTM)
 
-> **Last updated:** 2026-06-04  
+> **Last updated:** 2026-06-08
 > **Scope:** Requirements docs **01–12** (maturity program) + MVP slice **13–20** (GDD → ADR → code → test)  
 > **Coverage:** Headless chain GDD → ADR → code → test (see [architecture-review-2026-06-02.md](architecture-review-2026-06-02.md))
 
@@ -32,6 +32,8 @@
 | TR-sensor-001b | sensor-detection-ew | Classify FSM | sensor-classify-slice | `PdContactClassifyTests`, `ReplayGoldenBalticClassifyTests` | COVERED |
 | TR-sensor-001c | sensor-detection-ew | C2 projection | sensor-c2-ui-slice | `SensorC2PanelBinderTests`, `SensorC2BridgeTests` | COVERED |
 
+> **Sprint 2 closeout (2026-06-08):** TR-sensor-001a/b/c verified via classify FSM (`PdContactClassifyTests`, `ReplayGoldenBalticClassifyTests`), C2 bridge/panel (`SensorC2BridgeTests`, `SensorC2PanelBinderTests`, `SensorC2PanelHost`), and `baltic-patrol-classify` scenario. Parent **TR-sensor-001** marked **COVERED** in [tr-registry.yaml](tr-registry.yaml). **TR-sensor-004** (side picture / datalink) remains deferred.
+
 ## Combat / engage spine
 
 > **Note:** ADR-005 is **DOTS/ECS world state**, not engagement. Engage/outcomes trace to ADR-001 (sim boundary) + ADR-004 (tick pipeline) + ADR-003 (order log).
@@ -41,6 +43,18 @@
 | TR-combat-001 | combat-outcomes | ADR-001, ADR-004 | `EngagementOrderLogContractTests` | COVERED |
 | TR-combat-002 | combat-outcomes | ADR-001, ADR-003 | `ReplayGoldenBalticEngageTests` | COVERED |
 | TR-mag-001 | combat-outcomes | ADR-003 | `ReplayGoldenBalticMagazineTests` | COVERED |
+
+## Wave 5 overlap spine (Sprints 11–15)
+
+Shared symbols across **policy-engage-unification-slice**, **wave5-engage-cyber-logistics-slice**, and **platform-db-basepd-slice** epics.
+
+| Area | Symbols | Epics | Test evidence | Status |
+|------|---------|-------|---------------|--------|
+| Engage | `IEngageWorldQuery`, `IEngagementResolver`, `MvpEngagementResolver` | policy-engage-unification-slice, wave5-engage-cyber-logistics-slice | `MvpEngagementResolverTests`, `MvpEngagementSpoofTrackTests`, `MvpEngagementAirNotReadyTests`, `ReplayGoldenBalticEngageTests`, `BalticReplayHarnessPolicyEngageTests` | COVERED |
+| Combat | `CombatDomainValidator`, `CombatDomain` enum | policy-engage-unification-slice | `CombatDomainValidatorTests` (in `MvpEngagementResolver` gate chain) | COVERED |
+| Catalog | `ICatalogReader`, `CatalogEntityMap`, `CatalogWriteGate`, `RunCatalog*` CLI verbs in `MissionEditor.Cli/Program.cs` | platform-db-basepd-slice | `CatalogEntityMapTests`, `CatalogWriteGateTests`, `CmoMarkdownImportSmokeTests` | PARTIAL |
+| Delegation bridge | `DelegationBridge`, `EngageAttackOptions`, `EngageAttackOrderResolver` | wave5-engage-cyber-logistics-slice | `DelegationBridgeAttackOptionTests`, `EngageAttackOrderResolverTests`, `AttackMenuPanelBinderTests` | COVERED |
+| Wave5 specifics | `SpoofTrackTimelineSimulator`, `UnitReadinessMap` | wave5-engage-cyber-logistics-slice | `BalticReplayHarnessSpoofTests`, `BalticReplayHarnessReadinessPolicyTests` | COVERED |
 
 ## Data layer (TR-registry)
 
@@ -69,6 +83,8 @@
 
 **Maturity** = requirement document completeness (Template A/B). **GDD** = separate game design doc under `design/gdd/` per Agentic-Development-Plan follow-on.
 
+> **Sprint 11–15 program closeout (2026-06-08):** Requirements maturity track + Wave 5 implementation **COMPLETE**. Baseline: `dotnet test ProjectAegis.sln` → **403/403 PASS**; PlayMode smoke **7/7**. Tracker rows 14/16/19/20 at **Partial+** with automated AC. Evidence: [post-mvp-requirements-program.md](../../production/milestones/post-mvp-requirements-program.md), [smoke-2026-06-08.md](../../production/qa/smoke-2026-06-08.md).
+
 ## Uncovered (post-MVP)
 
 | Area | Gap | Suggested action |
@@ -81,7 +97,9 @@
 
 | Status | Count |
 |--------|-------|
-| COVERED | 11 |
-| PARTIAL | 2 |
+| COVERED | 15 |
+| PARTIAL | 3 |
 | DEFERRED | 1 |
 | GAP (post-MVP) | 3+ |
+
+*Counts include C1–C5 block, sensor/combat spine, and Wave 5 overlap spine (Sprints 11–15).*

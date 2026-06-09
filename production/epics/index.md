@@ -18,7 +18,7 @@
 | [sensor-c2-ui-slice](sensor-c2-ui-slice/EPIC.md) | **Complete** | Presentation | Contact picture + sensor C2 HUD |
 | [c2-left-drawer-slice](c2-left-drawer-slice/EPIC.md) | **Complete** | Presentation | OOB + missions + full message log |
 | [wave5-engage-cyber-logistics-slice](wave5-engage-cyber-logistics-slice/EPIC.md) | **Complete** (S13-14 + S18 C2 + S20 map base) | Sim + Delegation + UI | Spoof, readiness, attack menu (req 14/16/19/20) |
-| [requirements-maturity-slice](requirements-maturity-slice/EPIC.md) | **Complete** (S12–15) | Documentation | Req docs 01–06, 12 + RTM |
+| [requirements-maturity-slice](requirements-maturity-slice/EPIC.md) | **Complete** (S12–15, closeout 2026-06-08) | Documentation | Req docs 01–12 FULL + RTM gate |
 
 **Sprint 1:** **Complete** on `main` @ `1f7423e` (20/20 stories, PR #36).
 

@@ -1,6 +1,7 @@
 # Sprint 13 — Wave 5: spoof track + live readiness (req 19, 16)
 
-**Dates:** 2026-07-02 → 2026-07-16  
+**Status:** Complete (2026-06-04 / 2026-06-08)  
+**Dates:** 2026-07-02 → 2026-07-16
 **Branch:** `stack/wave5-spoof-readiness` (from `feat/wave5-attack-readiness-spoof` work)  
 **Goal:** Close tracker P0 gaps for cyber spoof runtime and scenario-driven unit readiness in the engage pipeline.
 

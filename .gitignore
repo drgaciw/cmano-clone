@@ -68,3 +68,6 @@ unity-*.log.import
 unity-hub-install*.log
 .forgeflow/run/
 .worktrees/
+
+# Node.js dependencies
+node_modules/

@@ -46,6 +46,120 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return batchId;
     }
 
+    public string ProposeMountBatch(
+        IReadOnlyList<CatalogMount> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "")
+    {
+        if (proposed.Count == 0)
+        {
+            throw new ArgumentException("At least one mount row required.", nameof(proposed));
+        }
+
+        var batchId = $"batch-mount-{proposed.Count}-{_clock.UtcTicks}";
+        var sorted = proposed
+            .OrderBy(m => m.PlatformId, StringComparer.Ordinal)
+            .ThenBy(m => m.MountId, StringComparer.Ordinal)
+            .ToArray();
+
+        using var tx = _connection.BeginTransaction();
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        foreach (var row in sorted)
+        {
+            InsertStagingMount(tx, batchId, row);
+        }
+
+        tx.Commit();
+        return batchId;
+    }
+
+    public string ProposeLoadoutBatch(
+        IReadOnlyList<CatalogLoadout> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "")
+    {
+        if (proposed.Count == 0)
+        {
+            throw new ArgumentException("At least one loadout row required.", nameof(proposed));
+        }
+
+        var batchId = $"batch-loadout-{proposed.Count}-{_clock.UtcTicks}";
+        var sorted = proposed
+            .OrderBy(l => l.PlatformId, StringComparer.Ordinal)
+            .ThenBy(l => l.LoadoutId, StringComparer.Ordinal)
+            .ToArray();
+
+        using var tx = _connection.BeginTransaction();
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        foreach (var row in sorted)
+        {
+            InsertStagingLoadout(tx, batchId, row);
+        }
+
+        tx.Commit();
+        return batchId;
+    }
+
+    public string ProposeMagazineBatch(
+        IReadOnlyList<CatalogMagazineEntry> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "")
+    {
+        if (proposed.Count == 0)
+        {
+            throw new ArgumentException("At least one magazine row required.", nameof(proposed));
+        }
+
+        var batchId = $"batch-magazine-{proposed.Count}-{_clock.UtcTicks}";
+        var sorted = proposed
+            .OrderBy(m => m.PlatformId, StringComparer.Ordinal)
+            .ThenBy(m => m.LoadoutId, StringComparer.Ordinal)
+            .ThenBy(m => m.MountId, StringComparer.Ordinal)
+            .ThenBy(m => m.WeaponId, StringComparer.Ordinal)
+            .ToArray();
+
+        using var tx = _connection.BeginTransaction();
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        foreach (var row in sorted)
+        {
+            InsertStagingMagazine(tx, batchId, row);
+        }
+
+        tx.Commit();
+        return batchId;
+    }
+
+    public string ProposeCommsBatch(
+        IReadOnlyList<CatalogCommsBinding> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "")
+    {
+        if (proposed.Count == 0)
+        {
+            throw new ArgumentException("At least one comms row required.", nameof(proposed));
+        }
+
+        var batchId = $"batch-comms-{proposed.Count}-{_clock.UtcTicks}";
+        var sorted = proposed
+            .OrderBy(c => c.PlatformId, StringComparer.Ordinal)
+            .ThenBy(c => c.LinkId, StringComparer.Ordinal)
+            .ToArray();
+
+        using var tx = _connection.BeginTransaction();
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        foreach (var row in sorted)
+        {
+            InsertStagingComms(tx, batchId, row);
+        }
+
+        tx.Commit();
+        return batchId;
+    }
+
     public WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId)
     {
         var staged = LoadStagingRows(batchId);
@@ -190,6 +304,88 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
                     $review, $trl, $tier, $reviewer, $citation)
             """;
         BindSensorParameters(cmd, batchId, row);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertStagingMount(SqliteTransaction tx, string batchId, CatalogMount row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO catalog_staging_mount
+                (batch_id, platform_id, mount_id, mount_type, arc_deg, capacity, review_state)
+            VALUES ($batch, $platform, $mount, $type, $arc, $capacity, $review)
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$mount", row.MountId);
+        cmd.Parameters.AddWithValue("$type", row.MountType);
+        cmd.Parameters.AddWithValue("$arc", row.ArcDeg);
+        cmd.Parameters.AddWithValue("$capacity", row.Capacity);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertStagingLoadout(SqliteTransaction tx, string batchId, CatalogLoadout row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO catalog_staging_loadout
+                (batch_id, platform_id, loadout_id, loadout_name, role, is_default)
+            VALUES ($batch, $platform, $loadout, $name, $role, $default)
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$loadout", row.LoadoutId);
+        cmd.Parameters.AddWithValue("$name", row.LoadoutName);
+        cmd.Parameters.AddWithValue("$role", row.Role);
+        cmd.Parameters.AddWithValue("$default", row.IsDefault ? 1 : 0);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertStagingMagazine(SqliteTransaction tx, string batchId, CatalogMagazineEntry row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO catalog_staging_magazine
+                (batch_id, platform_id, loadout_id, mount_id, weapon_id, quantity, reload_time_sec, depth)
+            VALUES ($batch, $platform, $loadout, $mount, $weapon, $qty, $reload, $depth)
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$loadout", row.LoadoutId);
+        cmd.Parameters.AddWithValue("$mount", row.MountId);
+        cmd.Parameters.AddWithValue("$weapon", row.WeaponId);
+        cmd.Parameters.AddWithValue("$qty", row.Quantity);
+        cmd.Parameters.AddWithValue("$reload", row.ReloadTimeSec);
+        cmd.Parameters.AddWithValue("$depth", row.Depth);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertStagingComms(SqliteTransaction tx, string batchId, CatalogCommsBinding row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO catalog_staging_comms
+                (batch_id, platform_id, link_id, role, satcom_capable, review_state, trl_level, value_tier, citation_ref)
+            VALUES ($batch, $platform, $link, $role, $satcom, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$link", row.LinkId);
+        cmd.Parameters.AddWithValue("$role", row.Role);
+        cmd.Parameters.AddWithValue("$satcom", row.SatcomCapable ? 1 : 0);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
+        cmd.Parameters.AddWithValue("$trl", row.TrlLevel);
+        cmd.Parameters.AddWithValue("$tier", row.ValueTier);
+        cmd.Parameters.AddWithValue("$citation", row.CitationRef);
         cmd.ExecuteNonQuery();
     }
 
