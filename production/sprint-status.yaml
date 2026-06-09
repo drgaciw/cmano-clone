@@ -516,6 +516,7 @@ evidence:
   - production/qa/sprint-11-wave5-evidence-2026-06-04.md
   - production/agentic/sprint-11-kickoff-2026-06-04.md
   - production/agentic/sprint-11-hindsight-recall-2026-06-04.md
+  - production/agentic/sprint-11-15-closeout-2026-06-08.md
 sprint11_parallel_kickoff: complete
 worktrees:
   - .worktrees/sprint11-verify → stack/sprint11-baseline-verify
@@ -562,20 +563,30 @@ sprint11_tasks:
 current_sprint: 21
 requirements_program: complete
 requirements_program_completed: "2026-06-04"
+sprints_11_15_closeout: complete
+sprints_11_15_closeout_date: "2026-06-08"
 next_backlog: production/sprints/sprint-21-mcp-osint-cesium-data-polish.md
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
 start: "2026-06-04"
 status: complete
-completed: "2026-06-04"
+completed: "2026-06-08"
 branch: main
-tests_passed: 368
+tests_passed: 447
+closeout: production/agentic/sprint-16-closeout-2026-06-08.md
 evidence:
+  - production/agentic/sprint-16-closeout-2026-06-08.md
+  - production/qa/sprint-16-pr-gate-2026-06-08.md
+  - production/sprints/sprint-16-pr-data-p0.md
   - production/agentic/sprint-16-parallel-kickoff-2026-06-04.md
   - production/qa/sprint-16-pr-gate-2026-06-04.md
   - production/agentic/pr-feat-wave5-requirements-program-2026-06-04.md
   - production/agentic/sprint-16-data-p0-kickoff-2026-06-04.md
+  - production/qa/sprint-16-story-done-confirm-2026-06-09.md
+story_done_confirmed: "2026-06-08"
+story_done_verdict: complete-full
+sprint16_cli_catalog_tests: 7
 sprint16_tasks:
   - id: s16-pr-gate
     status: done
@@ -590,8 +601,9 @@ sprint16_tasks:
     completed: "2026-06-04"
     note: "DATA-1/2 DONE on main; gap analysis written"
   - id: s16-pr-ci
-    status: blocked
-    note: "GitHub Actions billing — production/qa/pr-69-ci-triage-2026-06-04.md"
+    status: done
+    completed: "2026-06-09"
+    note: "GitHub Actions billing superseded by ratified local-gate fallback; see production/qa/pr-69-ci-triage-2026-06-04.md and production/qa/sprint-16-story-done-confirm-2026-06-09.md"
   - id: s16-data-3
     status: done
     completed: "2026-06-04"
@@ -612,6 +624,9 @@ evidence:
   - production/qa/sprint-17-data-5-gitnexus-2026-06-04.md
   - production/qa/sprint-17-smoke-closeout-2026-06-04.md
   - production/agentic/sprint-17-closeout-2026-06-04.md
+  - production/qa/sprint-17-story-done-confirm-2026-06-09.md
+story_done_confirmed: "2026-06-09"
+story_done_verdict: complete
 sprint17_tasks:
   - id: s17-data-4
     status: done
@@ -952,9 +967,24 @@ tests_passed_wave5_attack_menu: 365
 
 sprint15_preview:
   goal: "Requirements 04-06, 12, consistency, RTM gate"
-  status: planned
+  status: complete
+  completed: "2026-06-04"
   stories:
-    - req-maturity-004
-    - req-maturity-005
-    - req-maturity-006
-    - req-maturity-007
+    - id: req-maturity-004
+      status: done
+      note: "04-Agent-Delegation Locked (Sprint 13 retro)"
+    - id: req-maturity-005
+      status: done
+      note: "05-Dynamic-Systems-Agent Locked (Sprint 13 retro)"
+    - id: req-maturity-006
+      status: done
+      note: "06-Database-Intelligence Locked (Sprint 14 retro)"
+    - id: req-maturity-007
+      status: done
+      note: "12-Terms-Glossary Locked; Wave-5 terms indexed"
+    - id: s15-consistency
+      status: done
+      note: "0 BLOCKER — requirements-consistency-2026-06-04.md"
+    - id: s15-rtm
+      status: done
+      note: "RTM rows 01-12 — requirements-traceability.md"

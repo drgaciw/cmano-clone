@@ -13,7 +13,9 @@ public static class CatalogEntityMapCommand
 
     public static int Run(TextWriter output)
     {
-        var rows = CatalogEntityMap.All.Select(b => new
+        var rows = CatalogEntityMap.All
+            .OrderBy(b => b.EntityName, StringComparer.Ordinal)
+            .Select(b => new
         {
             entity = b.EntityName,
             table = b.TableName,
