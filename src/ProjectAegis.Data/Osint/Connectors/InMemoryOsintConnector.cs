@@ -7,7 +7,7 @@ namespace ProjectAegis.Data.Osint.Connectors;
 /// <summary>
 /// Basic in-memory connector for Sprint 19 OSINT (demo / test fixture).
 /// In real would parse file/RSS/HTTP to OsintDiscoveryRecord.
-/// S21: implements IOsintConnector.
+/// Implements IOsintConnector (retrofit for S20-01; stable Fetch always).
 /// </summary>
 public sealed class InMemoryOsintConnector : IOsintConnector
 {

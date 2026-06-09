@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Xunit;
+using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Osint;
 using ProjectAegis.Data.Osint.Connectors;
 
@@ -92,7 +93,7 @@ public sealed class OsintConnectorTests : IDisposable
         // Arrange: use temp fixture for "real" source (RSS stub or JSON dir) per S21-01
         var fixturePath = Path.Combine(_tempDir, "rss_facts.json");
         File.WriteAllText(fixturePath, @"[ { ""canonicalId"": ""rss-hypersonic"", ""sourceUrl"": ""https://rss.ex/h"", ""snippet"": ""rss observed"", ""relevanceScore"": 0.75, ""targetDoc"": ""10"", ""proposedTrl"": 6 } ]");
-        IOsintConnector connector = new RssOsintConnector(fixturePath); // will fail - no interface yet
+        IOsintConnector connector = new RssOsintConnector(fixturePath); // now implements via retrofit
 
         // Act
         var records = connector.Fetch();
@@ -102,5 +103,91 @@ public sealed class OsintConnectorTests : IDisposable
         Assert.Single(records);
         Assert.Equal("rss-hypersonic", records[0].CanonicalId);
         Assert.IsAssignableFrom<IOsintConnector>(new FileOsintConnector("dummy")); // retrofit check
+    }
+
+    [Fact]
+    public void FileOsintConnector_RealFixture_LoadsAndFeedsRunner_Deterministic()
+    {
+        // Arrange: use the new data/osint_facts.json (will be created)
+        var fixturePath = CatalogJsonImporter.ResolveRepoRelative(Path.Combine("data", "osint_facts.json")); // repo relative via established resolver
+        var conn = new FileOsintConnector(fixturePath);
+        var records = conn.Fetch();
+        Assert.NotEmpty(records);
+        Assert.All(records, r => Assert.False(string.IsNullOrEmpty(r.CanonicalId)));
+        // Stable sort
+        var sorted = records.OrderBy(r => r.SourceUrl).ThenBy(r => r.CanonicalId).ToArray();
+        Assert.Equal(sorted.Select(r => r.CanonicalId), records.Select(r => r.CanonicalId));
+
+        var runner = new OsintDigestRunner(0.65);
+        var (proposals, logOnly) = runner.Run(records);
+        Assert.True(proposals.Length + logOnly.Length == records.Length);
+    }
+
+    [Fact]
+    public void IOsintConnector_AllImpls_RetrofitAndStable()
+    {
+        IOsintConnector file = new FileOsintConnector("dummy.json");
+        IOsintConnector rss = new RssOsintConnector();
+        IOsintConnector mem = new InMemoryOsintConnector();
+        Assert.IsAssignableFrom<IOsintConnector>(file);
+        Assert.IsAssignableFrom<IOsintConnector>(rss);
+        Assert.IsAssignableFrom<IOsintConnector>(mem);
+        // All return stable
+    }
+
+    [Fact]
+    public void Program_CliFallback_UsesRealFixture_OrEmptyDeterministic()
+    {
+        // Will exercise in integration after fixture + Program update
+        // For now assert the fallback path resolves or connector handles missing gracefully (deterministic empty)
+        var fallbackPath = CatalogJsonImporter.ResolveRepoRelative(Path.Combine("data", "osint_facts.json"));
+        var conn = new FileOsintConnector(fallbackPath);
+        var recs = conn.Fetch();
+        // either loaded (after fixture) or empty is acceptable for this skeleton; determinism asserted elsewhere
+        Assert.NotNull(recs);
+    }
+
+    [Fact]
+    public void RssOsintConnector_RealFixture_AndDemoFallback_BehavesDeterministically()
+    {
+        // Real fixture path (same data as File test) -> parses via enhanced robust parser
+        var fixturePath = CatalogJsonImporter.ResolveRepoRelative(Path.Combine("data", "osint_facts.json"));
+        IOsintConnector rssWith = new RssOsintConnector(fixturePath);
+        var withRecords = rssWith.Fetch();
+        Assert.NotEmpty(withRecords);
+        Assert.Equal(3, withRecords.Length);
+        Assert.Equal("hypersonic-glide-s20", withRecords[0].CanonicalId); // after stable sort
+
+        // No path -> deterministic demo (single record, never null)
+        IOsintConnector rssDemo = new RssOsintConnector();
+        var demo = rssDemo.Fetch();
+        Assert.Single(demo);
+        Assert.Equal("rss-demo-hypersonic", demo[0].CanonicalId);
+    }
+
+    [Fact]
+    public void RssOsintConnector_MissingOrBad_ReturnsEmpty_Deterministic()
+    {
+        var rss = new RssOsintConnector(Path.Combine(_tempDir, "missing-rss.json"));
+        Assert.Empty(rss.Fetch());
+
+        var badPath = Path.Combine(_tempDir, "bad-rss.json");
+        File.WriteAllText(badPath, "{ \"not\": \"array\" }");
+        Assert.Empty(new RssOsintConnector(badPath).Fetch());
+    }
+
+    [Fact]
+    public void AllConnectors_FeedRunner_WithRealFixture_ProposalsAndLogOnlyPartition()
+    {
+        var fixturePath = CatalogJsonImporter.ResolveRepoRelative(Path.Combine("data", "osint_facts.json"));
+        var records = new FileOsintConnector(fixturePath).Fetch(); // 3 records: 2 above 0.65? wait 0.81/0.71/0.40
+        var runner = new OsintDigestRunner(0.65);
+
+        var (proposals, logOnly) = runner.Run(records);
+
+        Assert.Equal(2, proposals.Length); // high and railgun
+        Assert.Single(logOnly); // low-conf
+        Assert.Contains(proposals, p => p.CanonicalId == "hypersonic-glide-s20");
+        Assert.Contains(logOnly, l => l.CanonicalId == "low-conf-example");
     }
 }

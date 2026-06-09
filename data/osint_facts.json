@@ -1,0 +1,5 @@
+[
+  { "canonicalId": "hypersonic-glide-s20", "sourceUrl": "https://ex.com/hg-s20", "snippet": "observed boost-glide", "relevanceScore": 0.81, "targetDoc": "10", "proposedTrl": 7 },
+  { "canonicalId": "railgun-demo", "sourceUrl": "https://ex.com/rg-s20", "snippet": "speculative railgun", "relevanceScore": 0.71, "targetDoc": "10", "proposedTrl": 6 },
+  { "canonicalId": "low-conf-example", "sourceUrl": "https://ex.com/low", "snippet": "below threshold", "relevanceScore": 0.40, "targetDoc": "09", "proposedTrl": 4 }
+]

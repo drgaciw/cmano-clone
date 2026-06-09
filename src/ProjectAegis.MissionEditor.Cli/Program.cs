@@ -360,16 +360,19 @@ static int RunOsintStagingReview(string[] args)
 
 static int RunOsintSearch(string[] args)
 {
-    // S21-02: MCP osint_search using runner + File connector (real-ish source) or fixture
-    var db = CliArgParser.GetFlag(args, "--db"); // optional, use File for 'real' or InMemory
+    // S20-01 / S21: osint_search using real fixture (data/osint_facts.json) + FileOsintConnector + runner.
+    // Prefer the committed real fixture for CLI/MCP fallback; --db <path> overrides only if exists.
+    // Graceful: missing fixture -> File returns empty (deterministic). All connectors implement IOsintConnector.
+    var overrideDb = CliArgParser.GetFlag(args, "--db");
+    string fixturePath = Path.Combine("data", "osint_facts.json");
     IOsintConnector conn;
-    if (!string.IsNullOrWhiteSpace(db) && File.Exists(db))
+    if (!string.IsNullOrWhiteSpace(overrideDb) && File.Exists(overrideDb))
     {
-        conn = new FileOsintConnector(db); // reuse for catalog db? but for demo use fixture path or ignore
+        conn = new FileOsintConnector(overrideDb);
     }
     else
     {
-        conn = new FileOsintConnector(Path.Combine("data", "osint_facts.json")); // fallback fixture
+        conn = new FileOsintConnector(fixturePath); // real fixture (or empty if absent)
     }
     var runner = new OsintDigestRunner(0.65);
     var (proposals, logOnly) = runner.Run(conn.Fetch());
