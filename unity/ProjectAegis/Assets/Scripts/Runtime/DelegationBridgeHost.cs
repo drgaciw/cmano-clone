@@ -21,6 +21,11 @@ namespace ProjectAegis.Unity.Runtime
         [SerializeField] private string scenarioPolicyId = "baltic-patrol";
         [Tooltip("When true, prefer globe map host (Cesium Phase B). Placeholder map remains default.")]
         [SerializeField] private bool useGlobeMap;
+        // useGlobeMap wiring comment (S20 Cesium foundation):
+        // - Per CESIUM-SPIKE-SETUP.md: in a dedicated CesiumSpike.unity (do not modify DelegationSmoke), add/duplicate DelegationBridgeHost and toggle useGlobeMap=true via Inspector.
+        // - Consumers (future scene builders / conditional map hosts) read UseGlobeMap to activate CesiumGlobe* vs MapPlaceholderPanelHost.
+        // - Default=false keeps Phase A Toolkit map as vertical slice default. Flag is presentation-only; zero impact on RunTick, selection (C2PresentationController), or sim determinism.
+        // - GitNexus impact: LOW (0 upstream). See DelegationBridgeHost.UseGlobeMap + Cesium* (presentation layer only).
         [SerializeField] private string timeCompressionLabel = "1x";
         [SerializeField] private string simulationModeLabel = "Mixed";
 

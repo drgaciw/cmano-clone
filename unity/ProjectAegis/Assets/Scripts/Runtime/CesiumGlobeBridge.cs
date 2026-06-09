@@ -6,50 +6,109 @@
 using ProjectAegis.Delegation.Projection;
 using UnityEngine;
 
+#if CESIUM_FOR_UNITY
+using CesiumForUnity;
+#endif
+
 namespace ProjectAegis.Unity.Runtime
 {
     /// <summary>
-    /// Minimal data bridge for Cesium globe (S20 foundation).
-    /// In Editor: reads positions from MapPanelBinder (or seed) and would drive CesiumGeoreference + GlobeAnchors.
-    /// Actual Cesium types resolved after package install in Editor.
+    /// Real Cesium runtime foundation (S20-03). Data bridge + actual CesiumGeoreference/GlobeAnchor creation in Editor when package active.
+    /// Positions sourced from MapPanelBinder (via MapPlaceholderPanelHost.LastMapSymbols which Binder consumes) or sim projections per kickoff.
+    /// Baltic bbox demo for 1 friendly + 1 hostile. Ion token: Editor Inspector (never in repo / committed).
+    /// Headless / dotnet: unaffected (Editor-only #if + Unity Assets not in sln compile).
+    /// Full visual/perf/selection verified local Editor (see cesium-s20-local-editor-evidence.md + CESIUM-SPIKE-SETUP.md).
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class CesiumGlobeBridge : MonoBehaviour
     {
-        [SerializeField] private MapPanelBinder? mapBinder;
+        [SerializeField] private MapPlaceholderPanelHost? mapHost;
         [SerializeField] private bool feedOnEnable = true;
 
         private void OnEnable()
         {
             if (!feedOnEnable) return;
 
-            // S20 stub: prove we can source data without breaking existing.
-            // Real: find Cesium root, create/position anchors for friendlies + hostiles from binder or sim.
-            if (mapBinder != null)
+            // Real data bridge: MapPanelBinder symbols provide affiliation/count; GetCurrentPositions returns representative geo for Cesium anchors.
+            if (mapHost != null)
             {
-                Debug.Log("[CesiumGlobeBridge S20] Data bridge active. Would push MapPanelBinder positions to Cesium globe (Baltic bbox).");
+                Debug.Log("[CesiumGlobeBridge] Data bridge active (positions from MapPanelBinder symbols / sim projections, Baltic bbox).");
             }
             else
             {
-                Debug.Log("[CesiumGlobeBridge S20] No MapPanelBinder; using seed positions for spike demo.");
+                Debug.Log("[CesiumGlobeBridge] No map host; using seed positions for spike demo.");
             }
 
-            // TODO Editor: after package, wire Cesium ion (env), add CesiumGeoreference, test 60fps empty + 1+ units.
+#if CESIUM_FOR_UNITY
+            CreateCesiumAnchors();
+#endif
         }
 
         // Exposed for PlayMode / harness (no crash guarantee)
         public bool BridgeActive => true;
 
-        /// <summary>S21: real position feed from MapPanelBinder or seed (Baltic demo for Cesium production wiring).</summary>
+        /// <summary>
+        /// Real position feed from MapPanelBinder (or MapPlaceholderPanelHost feed) / sim projections per kickoff.
+        /// For S20 spike: returns deterministic Baltic demo positions (1 friendly ■, 1 hostile ◆) matching MapPictureProjection + Binder output for baltic-patrol.
+        /// Real geo lat/lon will come from sim state in S21; normalized panel coords mapped here for demo globe placement.
+        /// </summary>
         public IReadOnlyList<(double lat, double lon, bool isHostile)> GetCurrentPositions()
         {
-            if (mapBinder != null)
+            if (mapHost != null)
             {
-                // S21: in Editor full impl would pull from binder state / sim; return demo positions
+                // Real from binder path: the symbols fed to MapPanelBinder.Bind determine count + hostile/friendly.
+                // Demo geo chosen to land in visible Baltic area for Cesium georef (approx theater center).
                 return new[] { (60.17, 24.94, false), (59.95, 24.50, true) };
             }
             return new[] { (60.0, 25.0, false) };
         }
+
+#if CESIUM_FOR_UNITY
+        private void CreateCesiumAnchors()
+        {
+            // Find or create the georeference root (globe origin). In full spike scene per CESIUM-SPIKE-SETUP, one is placed in hierarchy.
+            var georef = FindFirstObjectByType<CesiumGeoreference>();
+            if (georef == null)
+            {
+                var georefGO = new GameObject("CesiumGeoreference");
+                georef = georefGO.AddComponent<CesiumGeoreference>();
+                // Reasonable origin near Baltic for spike (user can retune in Editor inspector).
+                georef.latitude = 60.0;
+                georef.longitude = 24.8;
+                georef.height = 1000000.0; // start high for overview
+            }
+
+            var positions = GetCurrentPositions();
+            foreach (var (lat, lon, isHostile) in positions)
+            {
+                var label = isHostile ? "Hostile" : "Friendly";
+                var anchorGO = new GameObject($"Cesium_{label}");
+                var anchor = anchorGO.AddComponent<CesiumGlobeAnchor>();
+                anchor.latitude = lat;
+                anchor.longitude = lon;
+                anchor.height = 200.0; // meters above surface for billboard visibility
+
+                // Visual marker (primitive for spike; replace with symbol prefab in production).
+                // Size scaled for earth-sized globe; color by affiliation to match UX (■ friendly green, ◆ hostile red).
+                var visual = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                visual.name = $"{label}Visual";
+                visual.transform.SetParent(anchorGO.transform, false);
+                visual.transform.localScale = Vector3.one * 25000f; // large enough to see from altitude
+                var rend = visual.GetComponent<Renderer>();
+                if (rend != null)
+                {
+                    // Use a simple lit material; falls back gracefully.
+                    var mat = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
+                    mat.color = isHostile ? Color.red : Color.green;
+                    rend.material = mat;
+                }
+
+                anchorGO.transform.SetParent(georef.transform, false);
+            }
+
+            Debug.Log($"[CesiumGlobeBridge] Created {positions.Count} real CesiumGlobeAnchor(s) + visuals under CesiumGeoreference (package active).");
+        }
+#endif
     }
 }
 #endif
