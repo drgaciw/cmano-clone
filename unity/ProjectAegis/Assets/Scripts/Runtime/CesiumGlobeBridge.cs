@@ -47,11 +47,8 @@ namespace ProjectAegis.Unity.Runtime
         // Exposed for PlayMode / harness (no crash guarantee)
         public bool BridgeActive => true;
 
-        /// <summary>
-        /// Real position feed from MapPanelBinder (or MapPlaceholderPanelHost feed) / sim projections per kickoff.
-        /// For S20 spike: returns deterministic Baltic demo positions (1 friendly ■, 1 hostile ◆) matching MapPictureProjection + Binder output for baltic-patrol.
-        /// Real geo lat/lon will come from sim state in S21; normalized panel coords mapped here for demo globe placement.
-        /// </summary>
+        /// <summary>S21: real position feed from MapPanelBinder or seed (Baltic demo for Cesium production wiring).
+        /// S23: MapSymbolEntry.App6Sidc is available on binder symbols for future Cesium APP-6 icon wiring.</summary>
         public IReadOnlyList<(double lat, double lon, bool isHostile)> GetCurrentPositions()
         {
             if (mapHost != null)

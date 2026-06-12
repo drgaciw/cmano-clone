@@ -2,8 +2,7 @@
   "required_status_checks": {
     "strict": true,
     "checks": [
-      { "context": "build_test" },
-      { "context": "build" }
+      { "context": "buildkite/cmano-clone" }
     ]
   },
   "enforce_admins": true,

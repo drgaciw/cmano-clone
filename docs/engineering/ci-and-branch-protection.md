@@ -1,17 +1,15 @@
 # CI and branch protection
 
 > **Last updated:** 2026-06-12  
-> **Graphite-first workflow:** [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md) — use `gt submit`, not `gh pr create`, for stack work.
+> **Graphite-first workflow:** [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md) — use `gt submit`, not `gh pr create`, for stack work.  
+> **Buildkite setup:** [buildkite-ci.md](./buildkite-ci.md)
 
-## Active workflows
+## Primary CI (Buildkite — blocking)
 
-| Workflow | Trigger | Purpose |
+| Pipeline | Trigger | Purpose |
 |----------|---------|---------|
-| [.NET CI](../../.github/workflows/dotnet-ci.yml) | PR + `main` push | **Blocking** — `restore`, Release `build`, full `dotnet test`, PlayMode smoke |
-| [Graphite CI](../../.github/workflows/graphite-ci.yml) | PR + `main` | Same dotnet gate when Graphite optimizer does not skip |
-| [Post-Merge CI (Graphite)](../../.github/workflows/graphite-post-merge-ci.yml) | `main` push | Post-merge dotnet + smoke (stack cost control) |
-| [GitNexus Security Checks](../../.github/workflows/gitnexus-security.yml) | PR + `main` + weekly | CodeQL (C# + JS/TS), dependency review, Gitleaks |
-| [Unity CI (manual)](../../.github/workflows/unity-ci.yml) | `workflow_dispatch` | Editor tests when `UNITY_LICENSE` is configured |
+| [`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml) | PR + `main` push | **Blocking** — Graphite optimizer, Gitleaks, `restore`, Release `build`, full `dotnet test`, replay golden suite, PlayMode smoke |
+| Baltic replay golden step | `main` only | Post-merge `FullyQualifiedName~ReplayGolden` tests |
 
 **Local parity:**
 
@@ -27,7 +25,18 @@ dotnet test ProjectAegis.sln -c Release -v minimal
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj -c Release --filter PlayModeSmokeHarnessTests
 ```
 
-**Post-merge only:** replay golden tests (`FullyQualifiedName~ReplayGolden`) run on `main` in Post-Merge CI.
+Baltic replay (main parity): `bash tools/buildkite/baltic-replay.sh`
+
+## GitHub Actions (secondary / platform-specific)
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| [Dismiss Stale Approvals (Graphite)](../../.github/workflows/graphite-dismiss-stale-approvals.yml) | PR `synchronize` | Graphite-compatible approval dismissal |
+| [GitNexus Security Checks](../../.github/workflows/gitnexus-security.yml) | PR + `main` + weekly | CodeQL (C# + JS/TS), dependency review |
+| [GitNexus Auto-Reindex](../../.github/workflows/gitnexus-reindex.yml) | `main` push (path filter) | Knowledge graph reindex |
+| [GitNexus Wiki](../../.github/workflows/gitnexus-wiki.yml) | release / manual | Auto wiki commit |
+| [GitNexus PR Analysis](../../.github/workflows/gitnexus-pr-analysis.yml) | PR / manual | Blast-radius PR comment |
+| [Unity CI (manual)](../../.github/workflows/unity-ci.yml) | `workflow_dispatch` | Editor tests when `UNITY_LICENSE` is configured |
 
 ## Sprint 19 local gate fallback (Option B — billing blocked)
 
@@ -57,12 +66,11 @@ Tracking issue: [Enable branch protection required checks on main](https://githu
 
 1. **Require status checks to pass**
 2. **Require branches to be up to date before merging** (recommended)
-3. Select these contexts (exact names from Actions):
+3. Select this context (exact name from first green Buildkite build):
 
    | Context | Source |
    |---------|--------|
-   | `build_test` | `.NET CI` |
-   | `build` | `Graphite CI` (PRs through Graphite stacks) |
+   | `buildkite/cmano-clone` | Buildkite primary pipeline (adjust slug if yours differs) |
 
 4. **Do not** enable “Dismiss stale pull request approvals when new commits are pushed” — Graphite rebases break that rule. Use [Dismiss Stale Approvals (Graphite-compatible)](../../.github/workflows/graphite-dismiss-stale-approvals.yml) instead.
 
@@ -77,7 +85,7 @@ Uses [.github/branch-protection.main.json](../../.github/branch-protection.main.
 
 ## Unity Editor CI (optional)
 
-Headless **Play Mode smoke** already runs in `.NET CI` without a Unity license.
+Headless **Play Mode smoke** already runs in the Buildkite .NET step without a Unity license.
 
 Full Editor batchmode (EditMode / PlayMode in the Unity project) needs:
 
@@ -88,10 +96,10 @@ See [unity/ProjectAegis/PLAYMODE-SMOKE.md](../../unity/ProjectAegis/PLAYMODE-SMO
 
 ## Graphite + CI
 
-- **Graphite CI** runs on **pull requests only** (not on `main` push) to avoid triple test runs.
-- Stacked PRs: Graphite optimizer may skip redundant `Graphite CI` runs; **`.NET CI` still runs** on every PR.
-- **Post-Merge CI** on `main`: reusable dotnet gate + **replay golden** filter (`ReplayGolden*` tests).
-- Shared steps live in [dotnet-reusable.yml](../../.github/workflows/dotnet-reusable.yml).
+- **Single Buildkite pipeline** replaces former `.NET CI`, `Graphite CI`, and `Post-Merge CI` GitHub workflows.
+- **Graphite optimizer** runs as the first Buildkite step; may skip redundant stack runs (see [buildkite-ci.md](./buildkite-ci.md)).
+- **`main` push** runs full dotnet gate plus Baltic replay golden tests in one pipeline.
+- Shared dotnet commands live in [`tools/buildkite/dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh).
 
 ## Dependabot
 

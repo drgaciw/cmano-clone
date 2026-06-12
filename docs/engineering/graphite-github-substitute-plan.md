@@ -8,11 +8,11 @@
 
 This repo uses **Graphite as the primary interface** for branch creation, stacked PRs, sync, restack, and review. **GitHub is minimized** to infrastructure only:
 
-| Keep on GitHub | Use Graphite instead |
-|----------------|----------------------|
+| Keep on GitHub | Use Graphite / Buildkite instead |
+|----------------|----------------------------------|
 | Git remote (`origin`) | — |
-| GitHub Actions CI | Graphite CI optimizer (skips redundant stack runs) |
-| Secrets (`GRAPHITE_CI_OPTIMIZER_TOKEN`, Unity license, etc.) | — |
+| GitHub Actions (secondary) | **Buildkite** primary CI + Graphite optimizer plugin |
+| Secrets (`GRAPHITE_CI_OPTIMIZER_TOKEN` in Buildkite, Unity license in GH, etc.) | — |
 | Issues, Dependabot | — |
 | Branch protection settings (UI) | Graphite-compatible rules (see [CI and branch protection](#ci-and-branch-protection)) |
 | **Create/update PRs** | `gt submit` / `gt submit --stack` |
@@ -35,14 +35,18 @@ flowchart LR
   end
   subgraph githubMin [GitHub_minimum]
     remote[Git remote branches]
-    actions[Actions CI]
+    ghActions[Actions secondary]
     issues[Issues only]
+  end
+  subgraph buildkiteCI [Buildkite_primary]
+    bkPipeline[dotnet plus optimizer]
   end
   gtCreate --> stackMeta
   gtSubmit --> remote
   gtSubmit --> dash
-  remote --> actions
-  dash --> actions
+  remote --> bkPipeline
+  remote --> ghActions
+  dash --> bkPipeline
 ```
 
 ---
@@ -69,9 +73,9 @@ flowchart LR
 
 - [ ] **GitHub repo settings** (manual, one-time):
   - **Disable** “Dismiss stale pull request approvals when new commits are pushed” on `main`
-  - **Enable** required checks when tier allows: `build_test` (.NET CI) + `build` (Graphite CI)
+  - **Enable** required check when tier allows: `buildkite/cmano-clone` (see [buildkite-ci.md](./buildkite-ci.md))
   - See [ci-and-branch-protection.md](./ci-and-branch-protection.md)
-- [ ] Confirm GitHub Actions secret `GRAPHITE_CI_OPTIMIZER_TOKEN` (Graphite CI skip optimizer)
+- [ ] Configure Buildkite pipeline + `GRAPHITE_CI_OPTIMIZER_TOKEN` in Buildkite environment (see [buildkite-ci.md](./buildkite-ci.md))
 - [ ] Delete stale stack branches per [Appendix: active stack backlog](#appendix-active-stack-backlog) before starting new stacks
 - [ ] Read Cursor skills: `graphite-fundamentals`, `graphite-repo-bootstrap`, `graphite-submit-sync`, `graphite-restack-recovery` (`~/.cursor/skills/`)
 
@@ -154,7 +158,7 @@ sequenceDiagram
   participant Dev as Developer
   participant GT as Graphite_CLI
   participant GH as GitHub_remote
-  participant CI as GitHub_Actions
+  participant BK as Buildkite
 
   Dev->>GT: gt sync
   Dev->>GT: gt checkout main
@@ -162,8 +166,8 @@ sequenceDiagram
   Dev->>Dev: implement + dotnet test
   Dev->>GT: gt submit --stack --no-interactive
   GT->>GH: push branches + open/update PRs
-  GH->>CI: PR workflows
-  Note over Dev,CI: Review on Graphite dashboard
+  GH->>BK: PR pipeline
+  Note over Dev,BK: Review on Graphite dashboard
   Dev->>GT: gt sync after bottom PR merges
   Dev->>GT: gt restack if needed
 ```
@@ -203,9 +207,9 @@ Full detail: [ci-and-branch-protection.md](./ci-and-branch-protection.md)
 
 Summary:
 
-- **`.NET CI`** runs on every PR (blocking)
-- **`Graphite CI`** may skip redundant runs via optimizer; still configure as required check when branch protection is available
-- **`Post-Merge CI (Graphite)`** on `main` push — dotnet + replay golden tests
+- **Buildkite** (`.buildkite/pipeline.yml`) is the **blocking** PR + `main` CI gate — see [buildkite-ci.md](./buildkite-ci.md)
+- **Graphite optimizer** is the first Buildkite step; may skip redundant stack runs
+- **`main` push** runs dotnet gate + Baltic replay golden in the same pipeline
 - **Do not** enable GitHub “Dismiss stale approvals on push” — use [graphite-dismiss-stale-approvals.yml](../../.github/workflows/graphite-dismiss-stale-approvals.yml)
 
 Private-repo branch protection API may return 403 — track [issue #37](https://github.com/drgaciw/cmano-clone/issues/37).
@@ -269,7 +273,7 @@ If stack metadata is corrupt, capture `gt log short` / `gt log long` and escalat
 |---------|-----|
 | Invalid / expired Graphite token | https://app.graphite.com/activate → `gt auth` |
 | `gt submit` validation fails | `gt log short`; fix stack shape; see Recovery |
-| Graphite CI `optimize_ci` fails | Check `GRAPHITE_CI_OPTIMIZER_TOKEN`; .NET CI still runs |
+| Buildkite Graphite optimizer fails | Check `GRAPHITE_CI_OPTIMIZER_TOKEN` in Buildkite env; optimizer fails open (full CI still runs) |
 | Graphite org billing / 403 on dismiss workflow | See [pr-69-ci-triage](../production/qa/pr-69-ci-triage-2026-06-04.md) |
 | Branch protection API 403 | Manual UI setup; [issue #37](https://github.com/drgaciw/cmano-clone/issues/37) |
 | Stale local stack re-submitted | See backlog “Do not gt submit”; delete stale branches |
@@ -329,10 +333,10 @@ git push origin --delete stack/delegation/sim-core
 - [x] Test slice created via `gt create` on `stack/docs/graphite-substitute-plan`
 - [ ] `gt auth` / `gt sync` — **blocked:** token expired; refresh at https://app.graphite.com/activate then `gt auth -t <token>`
 - [ ] `gt submit --no-interactive` on test slice — run after re-auth
-- [ ] Graphite CI + .NET CI pass on submitted PR — run after re-auth
+- [ ] Buildkite `buildkite/cmano-clone` passes on submitted PR — run after re-auth + [buildkite-ci.md](./buildkite-ci.md) setup
 - [x] Agent docs reference this file ([AGENTS.md](../../AGENTS.md), [CLAUDE.md](../../CLAUDE.md))
 - [x] Stale `stack/delegation/*` branches absent locally and on `origin` (verified 2026-06-12)
-- [x] Linked from [ci-and-branch-protection.md](./ci-and-branch-protection.md)
+- [x] Linked from [ci-and-branch-protection.md](./ci-and-branch-protection.md) and [buildkite-ci.md](./buildkite-ci.md)
 
 ### Adoption log
 

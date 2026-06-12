@@ -1,0 +1,44 @@
+# Primary CI — replaces dotnet-ci, graphite-ci, graphite-post-merge-ci, and Gitleaks in gitnexus-security.
+# Setup: docs/engineering/buildkite-ci.md
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+  DOTNET_NOLOGO: "true"
+
+steps:
+  - label: ":graphite: Graphite CI optimizer"
+    key: graphite
+    soft_fail: true
+    plugins:
+      - withgraphite/graphite-ci#main:
+          graphite_token: "${GRAPHITE_CI_OPTIMIZER_TOKEN}"
+
+  - wait
+
+  - label: ":gitleaks: Secret scan"
+    key: gitleaks
+    plugins:
+      - docker#v5.11.0:
+          image: "zricethezav/gitleaks:latest"
+          mount-checkout: true
+          workdir: /workdir
+          command: ["detect", "--source=/workdir", "--verbose"]
+
+  - label: ":dotnet: Build and test"
+    key: dotnet
+    plugins:
+      - docker#v5.11.0:
+          image: "mcr.microsoft.com/dotnet/sdk:8.0.400"
+          mount-checkout: true
+          workdir: /workdir
+          command: ["bash", "-euxo", "pipefail", "tools/buildkite/dotnet-ci.sh"]
+
+  - label: ":repeat: Baltic replay golden (main)"
+    key: baltic-replay
+    branches: "main"
+    plugins:
+      - docker#v5.11.0:
+          image: "mcr.microsoft.com/dotnet/sdk:8.0.400"
+          mount-checkout: true
+          workdir: /workdir
+          command: ["bash", "-euxo", "pipefail", "tools/buildkite/baltic-replay.sh"]
