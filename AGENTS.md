@@ -1,7 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (8960 symbols, 18765 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (9548 symbols, 19953 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
@@ -105,6 +105,18 @@ Simulation runtime banks (`agent-*`, `aar-*`, `agent-xp-*`) are populated by `Hi
 **Skill priority:** user instructions → GitNexus rules → Hindsight rules (above) → Project Aegis `.claude/skills/` → Superpowers global skills → defaults.
 
 **Invoke before coding:** `brainstorming` (new work), `systematic-debugging` (bugs), `test-driven-development` (implementation), `writing-plans` + `subagent-driven-development` (multi-step plans). Project specs/plans live in `docs/superpowers/` (local docs, not the plugin).
+
+## Graphite-first PR workflow
+
+This repo is Graphite-initialized (trunk `main`, [`.graphite_repo_config`](.graphite_repo_config)). **Minimize direct GitHub PR operations.**
+
+| Do | Do not (without explicit user fallback approval) |
+|----|---------------------------------------------------|
+| `gt create`, `gt submit`, `gt submit --stack --no-interactive` | `gh pr create`, `gh pr merge` |
+| `gt sync`, `gt restack` for trunk integration | Raw `git push origin <stack-branch>` on tracked stacks |
+| Review queue at [app.graphite.com](https://app.graphite.com) | Manual stacked PRs via GitHub UI |
+
+Full guide: [`docs/engineering/graphite-github-substitute-plan.md`](docs/engineering/graphite-github-substitute-plan.md). Read-only `gh pr checks` / `gh pr diff` is fine for CI triage.
 
 ## Cursor Cloud specific instructions
 

@@ -1,6 +1,7 @@
 # CI and branch protection
 
-> **Last updated:** 2026-06-08
+> **Last updated:** 2026-06-12  
+> **Graphite-first workflow:** [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md) — use `gt submit`, not `gh pr create`, for stack work.
 
 ## Active workflows
 

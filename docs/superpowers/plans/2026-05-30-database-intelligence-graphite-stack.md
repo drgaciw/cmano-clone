@@ -1,5 +1,7 @@
 # Database Intelligence P0 — Graphite Stack Runbook
 
+> **Slice-specific topology only.** Canonical `gt` commands and agent rules: [graphite-github-substitute-plan.md](../../engineering/graphite-github-substitute-plan.md)
+
 **Design:** `docs/superpowers/specs/2026-05-30-database-intelligence-p0-design.md`  
 **Implementation plan:** `docs/superpowers/plans/2026-05-30-database-intelligence-p0.md`  
 **Trunk:** `main` (parallel to `stack/delegation/*`, not stacked on it)  

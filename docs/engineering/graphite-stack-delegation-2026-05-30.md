@@ -1,5 +1,7 @@
 # Stack Plan: Delegation → Sim wiring (Cursor agents)
 
+> **Historical — stack COMPLETE on `main` (2026-06-02).** Do not re-submit. Canonical workflow: [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md)
+
 **Source branch:** `cursor/microsoft-learn-mcp-integration`  
 **TR-ID / ADR:** Req 04, ADR-002/003/004  
 **Excluded from this stack:** Graphite workflow (`114de0b`), MCP docs (`88acb75`), research dump (`831474f`), team scaffolding (`1861672`)
