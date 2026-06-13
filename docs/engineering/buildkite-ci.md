@@ -45,9 +45,9 @@ Buildkite → Pipeline → **Environment**:
 
 | Variable | Source |
 |----------|--------|
-| `GRAPHITE_CI_OPTIMIZER_TOKEN` | Same token as former GitHub Actions secret; create at [Graphite CI settings](https://app.graphite.com/settings/ci) |
+| `GRAPHITE_CI_OPTIMIZER_TOKEN` | Copy from local [`.env.example`](../../.env.example) → `.env`, or create at [Graphite CI settings](https://app.graphite.com/settings/ci). Paste into Buildkite pipeline **Environment** (not into committed files). |
 
-Do not commit secret values to the repo.
+Commit [`.env.example`](../../.env.example) with an **empty** value only. Keep the real token in `.env` (gitignored) and Buildkite env.
 
 ### 3. Graphite CI Optimizations
 

@@ -71,3 +71,7 @@ unity-hub-install*.log
 
 # Node.js dependencies
 node_modules/
+
+# Local secrets (template: .env.example)
+.env
+.env.local

@@ -48,9 +48,15 @@ if (-not $bk) {
 }
 Write-Host ''
 
-Write-Host '[4/6] GitHub secrets (names only)...' -ForegroundColor Yellow
-gh secret list -R "$owner/$repo" 2>&1 | Select-String 'GRAPHITE_CI_OPTIMIZER_TOKEN'
-Write-Host '  Copy GRAPHITE_CI_OPTIMIZER_TOKEN into Buildkite pipeline Environment (gh cannot read secret values).'
+Write-Host '[4/6] Graphite CI optimizer token...' -ForegroundColor Yellow
+$envExample = Join-Path $repoRoot '.env.example'
+if (Test-Path $envExample) {
+    Write-Host "  Template: .env.example (copy to .env locally; gitignored)"
+} else {
+    Write-Host '  Missing .env.example — add GRAPHITE_CI_OPTIMIZER_TOKEN= placeholder'
+}
+gh secret list -R "$owner/$repo" 2>&1 | Select-String 'GRAPHITE_CI_OPTIMIZER_TOKEN' | Out-Null
+Write-Host '  Paste the token into Buildkite pipeline Environment (Buildkite UI, not the repo).'
 Write-Host ''
 
 Write-Host '[5/6] Branch protection...' -ForegroundColor Yellow
@@ -85,7 +91,7 @@ Write-Host '=== Cutover checklist (Buildkite UI) ===' -ForegroundColor Cyan
 Write-Host '  1. New pipeline slug: cmano-clone - connect drgaciw/cmano-clone'
 Write-Host '  2. Read pipeline from repo: .buildkite/pipeline.yml'
 Write-Host '  3. Build PRs + main; Skip builds with existing commits: ON'
-Write-Host '  4. Environment: GRAPHITE_CI_OPTIMIZER_TOKEN (from GitHub Actions secret)'
+Write-Host '  4. Environment: GRAPHITE_CI_OPTIMIZER_TOKEN (from .env / Graphite CI settings)'
 Write-Host '  5. Graphite CI Optimizations -> Add new for this repo'
 Write-Host "  6. Branch protection: require $requiredCheck"
 Write-Host ''
