@@ -1,8 +1,5 @@
 # Primary CI — replaces dotnet-ci, graphite-ci, graphite-post-merge-ci, and Gitleaks in gitnexus-security.
 # Setup: docs/engineering/buildkite-ci.md
-#
-# Hosted agents run jobs in ephemeral VMs without docker-in-docker; steps install
-# tooling on the agent directly (see tools/buildkite/agent-*.sh).
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
@@ -20,13 +17,13 @@ steps:
 
   - wait
 
-  - label: ":gitleaks: Secret scan"
-    key: gitleaks
-    command: bash tools/buildkite/agent-gitleaks.sh
-
   - label: ":dotnet: Build and test"
     key: dotnet
     command: bash tools/buildkite/agent-dotnet-ci.sh
+
+  - label: ":gitleaks: Secret scan"
+    key: gitleaks
+    command: bash tools/buildkite/agent-gitleaks.sh
 
   - label: ":repeat: Baltic replay golden (main)"
     key: baltic-replay
