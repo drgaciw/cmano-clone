@@ -14,14 +14,20 @@ Primary blocking CI runs on **Buildkite hosted Linux agents** using repo-committ
 | .NET build and test | All builds (unless optimizer skips) | `restore` → Release `build` → full `test` → replay golden suite → PlayMode smoke |
 | Gitleaks | All builds | Secret scan (moved from `gitnexus-security.yml`; `soft_fail: true`) |
 | Baltic replay golden | `main` only | Post-merge `ReplayGolden*` filter |
+| GitNexus PR analysis | Pull requests | `analyze` + `detect_changes`; Buildkite annotation (+ optional `gh pr comment`) |
+| GitNexus reindex | `main` only | Knowledge graph refresh; skips doc-only pushes (parity with GH workflow) |
 
 Shell entrypoints (parity with local dev):
 
 - [`tools/buildkite/agent-dotnet-ci.sh`](../../tools/buildkite/agent-dotnet-ci.sh) — bootstrap .NET SDK + [`dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh)
 - [`tools/buildkite/agent-gitleaks.sh`](../../tools/buildkite/agent-gitleaks.sh) — bootstrap gitleaks binary
 - [`tools/buildkite/agent-baltic-replay.sh`](../../tools/buildkite/agent-baltic-replay.sh) — bootstrap .NET + [`baltic-replay.sh`](../../tools/buildkite/baltic-replay.sh)
+- [`tools/buildkite/agent-gitnexus-pr-analysis.sh`](../../tools/buildkite/agent-gitnexus-pr-analysis.sh) — bootstrap Node + GitNexus + [`gitnexus-pr-analysis.sh`](../../tools/buildkite/gitnexus-pr-analysis.sh)
+- [`tools/buildkite/agent-gitnexus-reindex.sh`](../../tools/buildkite/agent-gitnexus-reindex.sh) — bootstrap Node + GitNexus + [`gitnexus-reindex.sh`](../../tools/buildkite/gitnexus-reindex.sh)
+- [`tools/buildkite/agent-gitnexus-wiki.sh`](../../tools/buildkite/agent-gitnexus-wiki.sh) — manual wiki job (requires `OPENAI_API_KEY`; not in default pipeline)
 - [`tools/buildkite/dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh) — core dotnet commands (also used by agents)
 - [`tools/buildkite/baltic-replay.sh`](../../tools/buildkite/baltic-replay.sh)
+- [`tools/buildkite/agent-bootstrap-gitnexus.sh`](../../tools/buildkite/agent-bootstrap-gitnexus.sh) — Node 20 + global `gitnexus` CLI
 - [`tools/verify-ci-local.ps1`](../../tools/verify-ci-local.ps1) (Windows local gate)
 
 ## One-time Buildkite setup (human)
@@ -46,6 +52,9 @@ Buildkite → Pipeline → **Environment**:
 | Variable | Source |
 |----------|--------|
 | `GRAPHITE_CI_OPTIMIZER_TOKEN` | Copy from local [`.env.example`](../../.env.example) → `.env`, or create at [Graphite CI settings](https://app.graphite.com/settings/ci). Paste into Buildkite pipeline **Environment** (not into committed files). |
+| `OPENAI_API_KEY` | Optional — only for manual **GitNexus wiki** builds (`agent-gitnexus-wiki.sh`). |
+| `GITNEXUS_FORCE_REINDEX` | Optional — set to `1` to reindex on doc-only `main` pushes. |
+| `GITNEXUS_WIKI_PUSH` | Optional — set to `1` to `git push` wiki output from Buildkite (default: generate only). |
 
 Commit [`.env.example`](../../.env.example) with an **empty** value only. Keep the real token in `.env` (gitignored) and Buildkite env.
 
@@ -82,11 +91,34 @@ After cutover, `GRAPHITE_CI_OPTIMIZER_TOKEN` in GitHub Actions is unused unless 
 | Workflow | Why |
 |----------|-----|
 | [graphite-dismiss-stale-approvals.yml](../../.github/workflows/graphite-dismiss-stale-approvals.yml) | PR approval governance (Graphite-compatible) |
-| [gitnexus-security.yml](../../.github/workflows/gitnexus-security.yml) | CodeQL + Dependency Review (GitHub Security tab) |
-| [gitnexus-reindex.yml](../../.github/workflows/gitnexus-reindex.yml) | Knowledge graph reindex on `main` |
-| [gitnexus-wiki.yml](../../.github/workflows/gitnexus-wiki.yml) | Release-triggered wiki + `git push` |
-| [gitnexus-pr-analysis.yml](../../.github/workflows/gitnexus-pr-analysis.yml) | PR blast-radius comments |
+| [gitnexus-security.yml](../../.github/workflows/gitnexus-security.yml) | CodeQL + Dependency Review (GitHub Security tab) — **still active** |
+| [gitnexus-reindex.yml](../../.github/workflows/gitnexus-reindex.yml) | **Disabled** (`if: false`) — use Buildkite `gitnexus-reindex` step |
+| [gitnexus-wiki.yml](../../.github/workflows/gitnexus-wiki.yml) | **Disabled** — use manual Buildkite `agent-gitnexus-wiki.sh` |
+| [gitnexus-pr-analysis.yml](../../.github/workflows/gitnexus-pr-analysis.yml) | **Disabled** — use Buildkite `gitnexus-pr` step |
 | [unity-ci.yml](../../.github/workflows/unity-ci.yml) | Manual Unity Editor tests (`UNITY_LICENSE`) |
+
+### GitNexus on Buildkite (mirrors GitHub workflows)
+
+| Buildkite script | GitHub workflow |
+|------------------|-----------------|
+| [`gitnexus-pr-analysis.sh`](../../tools/buildkite/gitnexus-pr-analysis.sh) | [gitnexus-pr-analysis.yml](../../.github/workflows/gitnexus-pr-analysis.yml) |
+| [`gitnexus-reindex.sh`](../../tools/buildkite/gitnexus-reindex.sh) | [gitnexus-reindex.yml](../../.github/workflows/gitnexus-reindex.yml) |
+| [`gitnexus-wiki.sh`](../../tools/buildkite/gitnexus-wiki.sh) | [gitnexus-wiki.yml](../../.github/workflows/gitnexus-wiki.yml) |
+
+**Manual wiki build (Buildkite UI → New build):**
+
+```bash
+bash tools/buildkite/agent-gitnexus-wiki.sh
+```
+
+Set `OPENAI_API_KEY` in pipeline Environment. Add `GITNEXUS_WIKI_PUSH=1` only if the build should commit and push wiki output.
+
+**Local parity (requires Node 20 + `npm install -g gitnexus`):**
+
+```bash
+bash tools/buildkite/gitnexus-reindex.sh
+bash tools/buildkite/gitnexus-pr-analysis.sh
+```
 
 ## Cutover automation (Desktop Commander / local)
 
@@ -118,7 +150,10 @@ Checklist:
 - [ ] Stacked PR: upper stack PR may skip via optimizer (see Graphite / Buildkite UI)
 - [ ] `main` push: Baltic replay step runs
 - [ ] `gh pr checks` shows `buildkite/cmano-clone` (or your slug)
-- [ ] GitHub still runs dismiss-stale-approvals, CodeQL, GitNexus workflows
+- [ ] GitHub still runs dismiss-stale-approvals and CodeQL (`gitnexus-security.yml`)
+- [ ] GitNexus CLI workflows disabled on GitHub Actions (reindex / PR analysis / wiki)
+- [ ] PR build: GitNexus impact annotation appears (soft-fail step)
+- [ ] `main` push with code changes: GitNexus reindex runs (doc-only push skips)
 
 ## Troubleshooting
 
@@ -133,5 +168,4 @@ Checklist:
 ## Phase 2 (not implemented)
 
 - Separate Graphite optimizer pipeline (Option 1)
-- GitNexus reindex on Buildkite
 - Unity pipeline on mac/self-hosted agent

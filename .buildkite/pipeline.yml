@@ -29,3 +29,15 @@ steps:
     key: baltic-replay
     branches: main
     command: bash tools/buildkite/agent-baltic-replay.sh
+
+  - label: ":gitnexus: PR impact analysis"
+    key: gitnexus-pr
+    if: build.pull_request.id != null
+    soft_fail: true
+    command: bash tools/buildkite/agent-gitnexus-pr-analysis.sh
+
+  - label: ":gitnexus: Reindex knowledge graph (main)"
+    key: gitnexus-reindex
+    branches: main
+    soft_fail: true
+    command: bash tools/buildkite/agent-gitnexus-reindex.sh

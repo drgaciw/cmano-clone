@@ -1,13 +1,8 @@
+# DISABLED (2026-06-13): migrated to Buildkite — tools/buildkite/gitnexus-reindex.sh
+# See docs/engineering/buildkite-ci.md. Re-enable by restoring `on:` triggers and removing job `if`.
 name: GitNexus Auto-Reindex
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - '.gitignore'
-      - 'production/dashboard-state.yaml'
   workflow_dispatch:
 
 permissions:
@@ -15,6 +10,7 @@ permissions:
 
 jobs:
   reindex:
+    if: false
     name: Reindex Knowledge Graph
     runs-on: ubuntu-latest
     timeout-minutes: 30

@@ -1,8 +1,8 @@
+# DISABLED (2026-06-13): migrated to Buildkite — tools/buildkite/gitnexus-wiki.sh (manual build)
+# See docs/engineering/buildkite-ci.md. Re-enable by restoring `on:` triggers and removing job `if`.
 name: GitNexus Wiki Generation
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   wiki:
+    if: false
     name: Generate Code Wiki
     runs-on: ubuntu-latest
 

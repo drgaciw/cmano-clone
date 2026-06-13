@@ -33,9 +33,9 @@ Baltic replay (main parity): `bash tools/buildkite/baltic-replay.sh`
 |----------|---------|---------|
 | [Dismiss Stale Approvals (Graphite)](../../.github/workflows/graphite-dismiss-stale-approvals.yml) | PR `synchronize` | Graphite-compatible approval dismissal |
 | [GitNexus Security Checks](../../.github/workflows/gitnexus-security.yml) | PR + `main` + weekly | CodeQL (C# + JS/TS), dependency review |
-| [GitNexus Auto-Reindex](../../.github/workflows/gitnexus-reindex.yml) | `main` push (path filter) | Knowledge graph reindex |
-| [GitNexus Wiki](../../.github/workflows/gitnexus-wiki.yml) | release / manual | Auto wiki commit |
-| [GitNexus PR Analysis](../../.github/workflows/gitnexus-pr-analysis.yml) | PR / manual | Blast-radius PR comment |
+| ~~GitNexus Auto-Reindex~~ | **Disabled** — [Buildkite](../../.buildkite/pipeline.yml) `gitnexus-reindex` step | Was: knowledge graph reindex on `main` |
+| ~~GitNexus Wiki~~ | **Disabled** — manual [Buildkite wiki job](./buildkite-ci.md) | Was: release-triggered wiki commit |
+| ~~GitNexus PR Analysis~~ | **Disabled** — [Buildkite](../../.buildkite/pipeline.yml) `gitnexus-pr` step | Was: PR blast-radius comment |
 | [Unity CI (manual)](../../.github/workflows/unity-ci.yml) | `workflow_dispatch` | Editor tests when `UNITY_LICENSE` is configured |
 
 ## Sprint 19 local gate fallback (Option B — billing blocked)
