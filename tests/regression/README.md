@@ -4,7 +4,7 @@ Pinned world/detection hashes and optional `FINGERPRINT_SHA256` for Baltic harne
 
 ## CI gate
 
-`ReplayGoldenSuiteTests` runs on every PR via `.github/workflows/dotnet-reusable.yml`.
+`ReplayGoldenSuiteTests` runs on every PR via Buildkite ([`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml) / [`tools/buildkite/dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh)).
 
 ## Regenerate a golden
 

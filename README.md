@@ -17,7 +17,7 @@ The repository contains requirements documentation and an initial **agent delega
 - **Unity wiring:** `unity/ProjectAegis/` (DLL copy + optional `DelegationBridgeHost`)
 - **Console demo:** `src/ProjectAegis.Delegation.Demo/`
 
-[![.NET CI](https://github.com/drgaciw/cmano-clone/actions/workflows/dotnet-ci.yml/badge.svg?branch=main)](https://github.com/drgaciw/cmano-clone/actions/workflows/dotnet-ci.yml)
+**CI:** Buildkite primary pipeline — [buildkite-ci.md](docs/engineering/buildkite-ci.md)
 
 Build and test (requires [.NET 8 SDK](https://dotnet.microsoft.com/download) **8.0.400**, see `global.json`):
 
@@ -26,13 +26,13 @@ dotnet test ProjectAegis.sln -v minimal
 dotnet run --project src/ProjectAegis.Delegation.Demo
 ```
 
-**Local CI parity** (same steps as [.NET CI](.github/workflows/dotnet-ci.yml) / [dotnet-reusable.yml](.github/workflows/dotnet-reusable.yml)):
+**Local CI parity** (same steps as [`.buildkite/pipeline.yml`](.buildkite/pipeline.yml) / [`tools/buildkite/dotnet-ci.sh`](tools/buildkite/dotnet-ci.sh)):
 
 ```powershell
 .\tools\verify-ci-local.ps1
 ```
 
-**CI / branch protection:** [docs/engineering/ci-and-branch-protection.md](docs/engineering/ci-and-branch-protection.md) — GitHub Actions gates (`build_test` on PR and `main`), Graphite PR-only CI, post-merge replay golden tests, Dependabot, optional Unity license workflow. Manual branch protection checklist: [issue #37](https://github.com/drgaciw/cmano-clone/issues/37).
+**CI / branch protection:** [docs/engineering/ci-and-branch-protection.md](docs/engineering/ci-and-branch-protection.md) — Buildkite blocking gate (`buildkite/cmano-clone`), Graphite optimizer, post-merge replay golden on `main`, GitHub Actions for CodeQL/GitNexus/Unity. Setup: [buildkite-ci.md](docs/engineering/buildkite-ci.md). Manual branch protection: [issue #37](https://github.com/drgaciw/cmano-clone/issues/37).
 
 **Cursor Cloud agents:** see the [Cursor Cloud specific instructions](AGENTS.md#cursor-cloud-specific-instructions) section in `AGENTS.md` (headless build/test, Play Mode smoke harness, `.cursor/cloud-install.sh` bootstrap via `.cursor/environment.json`).
 

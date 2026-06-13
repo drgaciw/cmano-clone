@@ -1,4 +1,4 @@
-# Mirrors .github/workflows/dotnet-reusable.yml (local CI parity gate)
+# Mirrors tools/buildkite/dotnet-ci.sh / .buildkite/pipeline.yml (local CI parity gate)
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot

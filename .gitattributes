@@ -1,0 +1,2 @@
+*.sh text eol=lf
+.buildkite/* text eol=lf

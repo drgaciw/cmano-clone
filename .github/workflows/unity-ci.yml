@@ -1,7 +1,7 @@
 name: Unity CI (manual)
 
 # Full Unity Editor test runner — requires a Unity license secret.
-# Headless Play Mode smoke already runs in dotnet-ci.yml without a license.
+# Headless Play Mode smoke already runs in Buildkite (.buildkite/pipeline.yml) without a license.
 
 on:
   workflow_dispatch:

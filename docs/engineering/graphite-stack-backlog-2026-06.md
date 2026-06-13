@@ -1,5 +1,7 @@
 # Graphite PR Backlog — Project Aegis (2026-06)
 
+> **Backlog appendix only.** Canonical commands and agent rules: [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md)
+
 **Trunk:** `main` · **Graphite:** `gt submit --stack` from bottom branch of each stack.
 
 ## Stack A — Delegation (**COMPLETE** on `main`, 2026-06-02)
@@ -93,6 +95,7 @@ Parent: `stack/sim/engage-scenario` or `stack/delegation/bridge-engage` tip.
 | 2026-06-02 | P0 DATA docs on `main` (`5d43d76`); DATA-1 scaffold already merged; stale `stack/data/*` deleted |
 | 2026-06-02 | Sprint 1 + next epics scaffolded (platform-db-basepd, policy-engage, mission-runtime, checkpoints, combat-outcomes) |
 | 2026-06-02 | `stack/milsim-c1-combat-data-replay`: 180 tests, replay gate PASS; `sprint-status.yaml` + `stage.txt` |
+| 2026-06-12 | Canonical Graphite workflow: [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md); smoke branch `stack/docs/graphite-substitute-plan` (submit pending `gt auth`) |
 
 ---
 

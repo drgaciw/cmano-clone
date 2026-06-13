@@ -12,6 +12,6 @@
 
 ## CI
 
-PRs must pass **`.NET CI`** (`build_test`). Graphite stacks also run **Graphite CI** when the optimizer does not skip.
+PRs must pass **Buildkite** (`buildkite/cmano-clone`). Graphite optimizer may skip redundant stack runs.
 
-See [docs/engineering/ci-and-branch-protection.md](../docs/engineering/ci-and-branch-protection.md).
+See [docs/engineering/buildkite-ci.md](../docs/engineering/buildkite-ci.md) and [ci-and-branch-protection.md](../docs/engineering/ci-and-branch-protection.md).
