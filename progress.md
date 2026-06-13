@@ -1,19 +1,20 @@
 # Progress
 
 ## Status
-In Progress — GitNexus CI migration to Buildkite (uncommitted on `main`)
+Complete (shipped) — GitNexus CI migration to Buildkite on `main` (`de9a982`)
 
 ## Tasks
 - [x] Add Buildkite pipeline steps for GitNexus PR analysis and main reindex
 - [x] Author `tools/buildkite/` scripts (bootstrap, pr-analysis, reindex, wiki + agent wrappers)
 - [x] Disable duplicate GitHub Actions workflows (`if: false` on reindex / wiki / pr-analysis)
 - [x] Update `docs/engineering/buildkite-ci.md` and `ci-and-branch-protection.md`
-- [ ] Commit and push; verify PR + main Buildkite steps in UI
-- [ ] Rotate any tokens that were briefly written into `.env.example` (see Notes)
+- [x] Commit and push (`de9a982` → `origin/main`)
+- [ ] Verify PR + main Buildkite steps in UI (post-push)
+- [ ] Rotate tokens if they were ever pushed outside this repo (see Notes)
 
 ## Files Changed
 - `.buildkite/pipeline.yml` — `gitnexus-pr` (PRs) and `gitnexus-reindex` (`main`) steps
-- `.env.example` — `OPENAI_API_KEY` placeholder added (values must stay empty in repo)
+- `.env.example` — `OPENAI_API_KEY` placeholder (empty values only)
 - `.github/workflows/gitnexus-pr-analysis.yml` — disabled (`if: false`)
 - `.github/workflows/gitnexus-reindex.yml` — disabled (`if: false`)
 - `.github/workflows/gitnexus-wiki.yml` — disabled (`if: false`)
@@ -31,7 +32,8 @@ In Progress — GitNexus CI migration to Buildkite (uncommitted on `main`)
 - ✓ Pipeline YAML adds PR + main GitNexus steps with `soft_fail: true`
 - ✓ Scripts mirror GitHub workflow behavior (analyze, detect_changes, doc-only skip, annotations)
 - ✓ `gitnexus-security.yml` (CodeQL) remains on GitHub Actions
-- ✓ Recent `main` commits already shipped Buildkite primary CI (`f15d8d2` … `d1edf6a`)
+- ✓ Shipped on `main` as `de9a982` (15 files, +343/−40)
+- ✓ Committed `.env.example` has empty placeholders only (no secrets in repo)
 - ⚠ Local `bash -n` on Windows reports CRLF false-positive on bootstrap script; agents run Linux
 - ☐ Buildkite PR annotation not yet verified in UI
 - ☐ `main` reindex skip-on-doc-only not yet verified on live push
@@ -41,12 +43,12 @@ In Progress — GitNexus CI migration to Buildkite (uncommitted on `main`)
 - [x] GitNexus reindex runs on Buildkite for `main` code pushes
 - [x] GitHub duplicate CLI workflows disabled; security workflow kept
 - [x] Docs describe manual wiki job and local parity commands
-- [ ] No secrets in committed `.env.example`
+- [x] No secrets in committed `.env.example`
 - [ ] End-to-end check on Buildkite after merge
 
 ## Notes
-**Security:** Working copy had real `GRAPHITE_CI_OPTIMIZER_TOKEN` and `OPENAI_API_KEY` values in `.env.example`. Restored to empty placeholders before any commit. If those values were ever pushed, rotate them in Graphite CI settings and OpenAI.
+**Security:** Real tokens were briefly in a local `.env.example` edit before commit; committed file uses empty placeholders. Rotate in Graphite CI / OpenAI only if those values were ever pushed elsewhere.
 
-**Prior session (complete):** Sprint 22 Story 22-3 — ADR-011 `platform-editor-excel-roundtrip` verified 2026-06-08; no further work needed.
+**Prior session (complete):** Sprint 22 Story 22-3 — ADR-011 `platform-editor-excel-roundtrip` verified 2026-06-08.
 
-**Next:** Stage CI files (not `.cursor/settings.json`), commit, `gt submit` or push, confirm Buildkite steps on a test PR and a `main` code change.
+**Next:** Open Buildkite for the `main` build triggered by `de9a982` — confirm `gitnexus-reindex` runs; open a test PR to confirm `gitnexus-pr` annotation.
