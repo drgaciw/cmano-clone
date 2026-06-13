@@ -4,11 +4,14 @@
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
   DOTNET_NOLOGO: "true"
+  # Gitleaks scans git history; ensure enough depth on PR builds (repo has ~220 commits).
+  BUILDKITE_GIT_CLONE_FLAGS: "--depth=250"
 
 steps:
   - label: ":graphite: Graphite CI optimizer"
     key: graphite
     soft_fail: true
+    if: build.env("GRAPHITE_CI_OPTIMIZER_TOKEN") != ""
     plugins:
       - withgraphite/graphite-ci#main:
           graphite_token: "${GRAPHITE_CI_OPTIMIZER_TOKEN}"
@@ -31,7 +34,7 @@ steps:
           image: "mcr.microsoft.com/dotnet/sdk:8.0.400"
           mount-checkout: true
           workdir: /workdir
-          command: ["bash", "-euxo", "pipefail", "tools/buildkite/dotnet-ci.sh"]
+          command: ["bash", "tools/buildkite/dotnet-ci.sh"]
 
   - label: ":repeat: Baltic replay golden (main)"
     key: baltic-replay
@@ -41,4 +44,4 @@ steps:
           image: "mcr.microsoft.com/dotnet/sdk:8.0.400"
           mount-checkout: true
           workdir: /workdir
-          command: ["bash", "-euxo", "pipefail", "tools/buildkite/baltic-replay.sh"]
+          command: ["bash", "tools/buildkite/baltic-replay.sh"]
