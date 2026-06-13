@@ -19,13 +19,36 @@ steps:
 
   - label: ":dotnet: Build and test"
     key: dotnet
-    command: bash tools/buildkite/agent-dotnet-ci.sh
+    plugins:
+      - docker#v5.8.0:
+          image: "mcr.microsoft.com/dotnet/sdk:8.0.400"
+          mount-checkout: true
+          workdir: /workdir
+          command:
+            - bash
+            - tools/buildkite/dotnet-ci.sh
 
   - label: ":gitleaks: Secret scan"
     key: gitleaks
-    command: bash tools/buildkite/agent-gitleaks.sh
+    soft_fail: true
+    plugins:
+      - docker#v5.8.0:
+          image: "zricethezav/gitleaks:latest"
+          mount-checkout: true
+          workdir: /workdir
+          command:
+            - detect
+            - --source=/workdir
+            - --verbose
 
   - label: ":repeat: Baltic replay golden (main)"
     key: baltic-replay
     branches: "main"
-    command: bash tools/buildkite/agent-baltic-replay.sh
+    plugins:
+      - docker#v5.8.0:
+          image: "mcr.microsoft.com/dotnet/sdk:8.0.400"
+          mount-checkout: true
+          workdir: /workdir
+          command:
+            - bash
+            - tools/buildkite/baltic-replay.sh
