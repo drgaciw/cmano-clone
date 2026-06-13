@@ -1,9 +1,10 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
 using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.Decision;
+using ProjectAegis.Delegation.Orchestration;
+using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Sim.Policy;
-using ProjectAegis.Sim.Scenario;
 
 /// <summary>Headless doctrine override command handler (req 13 P0, ADR-010).</summary>
 public static class DoctrineOverrideCommand
@@ -19,15 +20,25 @@ public static class DoctrineOverrideCommand
             return false;
         }
 
-        var currentPolicy = orchestrator.ResolveEffectivePolicyForUnit(OrderActionMapper.TargetIdToUlong(unitId));
-        var newPolicy = new EffectivePolicy(roeLevel, currentPolicy.MaxSalvo);
+        var unitKey = OrderActionMapper.TargetIdToUlong(unitId);
+        var currentPolicy = orchestrator.ResolveEffectivePolicyForUnit(unitKey);
+        if (currentPolicy.Roe == roeLevel)
+        {
+            return false;
+        }
 
-        orchestrator.DecisionLog.AppendPolicyOverride(new PolicyOverrideRecord(
+        var newPolicy = new EffectivePolicy(roeLevel, currentPolicy.MaxSalvo);
+        var simTick = (ulong)Math.Max(0, (long)simTime);
+        var snapshotId = orchestrator.PolicySnapshots.Capture(unitId, newPolicy, simTick);
+
+        orchestrator.DecisionLog.AppendPolicyUpdate(new PolicyUpdateRecord(
             0,
             simTime,
-            unitId.Value,
-            roeLevel.ToString(),
-            "UI Override"));
+            simTick,
+            snapshotId,
+            "roe",
+            currentPolicy.Roe.ToString(),
+            roeLevel.ToString()));
 
         return true;
     }

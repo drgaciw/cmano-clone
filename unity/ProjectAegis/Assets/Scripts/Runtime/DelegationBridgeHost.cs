@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
@@ -180,6 +181,41 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             binding.Target.Slot.SetActive(new ProjectAegis.Delegation.Controllers.HumanController());
+        }
+
+        public DoctrineInheritanceEntry? LastDoctrineInheritance { get; private set; }
+
+        public bool TrySetDoctrineOverride(string roeLevelLabel)
+        {
+            if (Bridge == null || string.IsNullOrEmpty(SelectedUnitId))
+            {
+                return false;
+            }
+
+            var unitId = new TargetId(SelectedUnitId);
+            var simTime = Bridge.Phase == SimulationPhase.Executing ? _lastSnapshot?.SimTime ?? 0 : 0;
+
+            var result = DoctrineOverrideCommand.TryApply(Bridge.Orchestrator, unitId, roeLevelLabel, simTime);
+
+            if (result)
+            {
+                RefreshDoctrineInheritance();
+            }
+
+            return result;
+        }
+
+        public void RefreshDoctrineInheritance()
+        {
+            if (Bridge == null || string.IsNullOrEmpty(SelectedUnitId))
+            {
+                LastDoctrineInheritance = null;
+                return;
+            }
+
+            var unitId = new TargetId(SelectedUnitId);
+            var policy = Bridge.Orchestrator.ScenarioPolicy;
+            LastDoctrineInheritance = DoctrineInheritanceProjection.ProjectUnit(unitId, policy, isFriendly: true);
         }
     }
 }

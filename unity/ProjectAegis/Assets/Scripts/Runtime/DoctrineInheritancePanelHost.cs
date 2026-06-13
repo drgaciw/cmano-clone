@@ -121,6 +121,7 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
+            bridgeHost.RefreshDoctrineInheritance();
             var entry = bridgeHost.LastDoctrineInheritance;
             _panelState = DoctrineInheritancePanelBinder.Bind(entry);
 
