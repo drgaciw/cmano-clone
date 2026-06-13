@@ -1,6 +1,6 @@
 # CI and branch protection
 
-> **Last updated:** 2026-06-12  
+> **Last updated:** 2026-06-13  
 > **Graphite-first workflow:** [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md) — use `gt submit`, not `gh pr create`, for stack work.  
 > **Buildkite setup:** [buildkite-ci.md](./buildkite-ci.md)
 
@@ -8,7 +8,7 @@
 
 | Pipeline | Trigger | Purpose |
 |----------|---------|---------|
-| [`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml) | PR + `main` push | **Blocking** — Graphite optimizer, Gitleaks, `restore`, Release `build`, full `dotnet test`, replay golden suite, PlayMode smoke |
+| [`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml) | PR + `main` push | **Blocking** — Graphite optimizer (when token set), build/test via `agent-dotnet-ci.sh`, Gitleaks (`soft_fail`), replay golden + PlayMode smoke |
 | Baltic replay golden step | `main` only | Post-merge `FullyQualifiedName~ReplayGolden` tests |
 
 **Local parity:**
@@ -54,7 +54,7 @@ When Actions is blocked, run before merge:
 
 **Pass criteria (baseline @ `afd2e1a`):** **403/403** full-solution tests, **7/7** PlayMode smoke, replay golden suite **PASS**. Attach terminal evidence to the PR per the SOP.
 
-**Producer sign-off:** **FALLBACK ACTIVE** (billing unresolved). Retire this section when `.NET CI` runs real steps and `build_test` is green on `main`.
+**Producer sign-off:** **FALLBACK ACTIVE** (billing unresolved). Retire this section when `buildkite/cmano-clone` is green on `main` and branch protection requires it.
 
 ## Required status checks (branch protection)
 
@@ -99,7 +99,7 @@ See [unity/ProjectAegis/PLAYMODE-SMOKE.md](../../unity/ProjectAegis/PLAYMODE-SMO
 - **Single Buildkite pipeline** replaces former `.NET CI`, `Graphite CI`, and `Post-Merge CI` GitHub workflows.
 - **Graphite optimizer** runs as the first Buildkite step; may skip redundant stack runs (see [buildkite-ci.md](./buildkite-ci.md)).
 - **`main` push** runs full dotnet gate plus Baltic replay golden tests in one pipeline.
-- Shared dotnet commands live in [`tools/buildkite/dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh).
+- Buildkite invokes [`tools/buildkite/agent-dotnet-ci.sh`](../../tools/buildkite/agent-dotnet-ci.sh); core dotnet commands live in [`tools/buildkite/dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh).
 
 ## Dependabot
 

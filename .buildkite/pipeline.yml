@@ -6,6 +6,16 @@ env:
   BUILDKITE_GIT_CLONE_FLAGS: "--depth=250"
 
 steps:
+  - label: ":graphite: Graphite CI optimizer"
+    key: graphite
+    soft_fail: true
+    if: build.env("GRAPHITE_CI_OPTIMIZER_TOKEN") != null && build.env("GRAPHITE_CI_OPTIMIZER_TOKEN") != ""
+    plugins:
+      - withgraphite/graphite-ci#main:
+          graphite_token: "${GRAPHITE_CI_OPTIMIZER_TOKEN}"
+
+  - wait
+
   - label: ":hammer: Build and test"
     key: build
     command: bash tools/buildkite/agent-dotnet-ci.sh

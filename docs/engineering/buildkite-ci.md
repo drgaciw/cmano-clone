@@ -1,23 +1,26 @@
 # Buildkite CI
 
-> **Last updated:** 2026-06-12  
+> **Last updated:** 2026-06-13  
 > **Replaces:** `.NET CI`, `Graphite CI`, `Post-Merge CI`, and Gitleaks in GitHub Actions  
 > **Graphite workflow:** [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md)
 
 ## Overview
 
-Primary blocking CI runs on **Buildkite hosted Linux agents** using Docker. Pipeline definition is committed at [`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml).
+Primary blocking CI runs on **Buildkite hosted Linux agents** using repo-committed steps in [`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml). Build and scan steps invoke bash wrappers under `tools/buildkite/` (SDK and gitleaks are installed on the agent when missing).
 
 | Step | When | Purpose |
 |------|------|---------|
-| Graphite CI optimizer | PR builds | Skips redundant stack runs via [graphite-ci-buildkite-plugin](https://github.com/withgraphite/graphite-ci-buildkite-plugin) |
-| Gitleaks | All builds | Secret scan (moved from `gitnexus-security.yml`) |
+| Graphite CI optimizer | PR builds (when token set) | Skips redundant stack runs via [graphite-ci-buildkite-plugin](https://github.com/withgraphite/graphite-ci-buildkite-plugin) |
 | .NET build and test | All builds (unless optimizer skips) | `restore` → Release `build` → full `test` → replay golden suite → PlayMode smoke |
+| Gitleaks | All builds | Secret scan (moved from `gitnexus-security.yml`; `soft_fail: true`) |
 | Baltic replay golden | `main` only | Post-merge `ReplayGolden*` filter |
 
 Shell entrypoints (parity with local dev):
 
-- [`tools/buildkite/dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh)
+- [`tools/buildkite/agent-dotnet-ci.sh`](../../tools/buildkite/agent-dotnet-ci.sh) — bootstrap .NET SDK + [`dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh)
+- [`tools/buildkite/agent-gitleaks.sh`](../../tools/buildkite/agent-gitleaks.sh) — bootstrap gitleaks binary
+- [`tools/buildkite/agent-baltic-replay.sh`](../../tools/buildkite/agent-baltic-replay.sh) — bootstrap .NET + [`baltic-replay.sh`](../../tools/buildkite/baltic-replay.sh)
+- [`tools/buildkite/dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh) — core dotnet commands (also used by agents)
 - [`tools/buildkite/baltic-replay.sh`](../../tools/buildkite/baltic-replay.sh)
 - [`tools/verify-ci-local.ps1`](../../tools/verify-ci-local.ps1) (Windows local gate)
 
@@ -111,7 +114,7 @@ gh pr checks
 
 Checklist:
 
-- [ ] PR build: optimizer → gitleaks → dotnet → all green
+- [ ] PR build: optimizer → build → gitleaks → all green
 - [ ] Stacked PR: upper stack PR may skip via optimizer (see Graphite / Buildkite UI)
 - [ ] `main` push: Baltic replay step runs
 - [ ] `gh pr checks` shows `buildkite/cmano-clone` (or your slug)
@@ -122,8 +125,8 @@ Checklist:
 | Symptom | Fix |
 |---------|-----|
 | Pipeline not found | Confirm `.buildkite/pipeline.yml` on default branch; re-save pipeline “read from repo” setting |
-| Graphite optimizer always runs full CI | Token missing/wrong in Buildkite env; optimizer fails open (CI still runs) |
-| Docker pull slow on first build | Expected on hosted agents; SDK image `mcr.microsoft.com/dotnet/sdk:8.0.400` |
+| Graphite optimizer always runs full CI | Token missing/wrong in Buildkite env; step is skipped when unset; optimizer fails open when present |
+| First build slow on hosted agents | Expected: `agent-dotnet-ci.sh` downloads .NET SDK 8.0.400 on cold agents |
 | Required check name mismatch | Copy exact context from GitHub PR checks tab after first build |
 | Gitleaks false positive | Add allowlist in `.gitleaks.toml` if needed (not present today) |
 
