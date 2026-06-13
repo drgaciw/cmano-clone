@@ -10,7 +10,7 @@ name: Dismiss Stale Approvals (Graphite-compatible)
 # rebases — giving you the same safety guarantee without the friction.
 #
 # Source: https://graphite.com/docs/github-configuration-guidelines
-# Action: https://github.com/marketplace/actions/dismiss-stale-approvals
+# Action: https://github.com/withgraphite/dismiss-stale-approvals
 
 on:
   pull_request:
@@ -26,10 +26,10 @@ jobs:
   dismiss_stale_approvals:
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pull-requests: write
     steps:
       - name: Dismiss stale approvals on meaningful changes
-        uses: phulsechinmay/rewritable-pr-dismissal@v0.3.0
+        uses: withgraphite/dismiss-stale-approvals@v0.1.2
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PULL_REQUEST_ID: ${{ github.event.pull_request.node_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
