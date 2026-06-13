@@ -11,7 +11,7 @@ steps:
   - label: ":graphite: Graphite CI optimizer"
     key: graphite
     soft_fail: true
-    if: build.env("GRAPHITE_CI_OPTIMIZER_TOKEN") != ""
+    if: build.env("GRAPHITE_CI_OPTIMIZER_TOKEN") != null && build.env("GRAPHITE_CI_OPTIMIZER_TOKEN") != ""
     plugins:
       - withgraphite/graphite-ci#main:
           graphite_token: "${GRAPHITE_CI_OPTIMIZER_TOKEN}"
@@ -20,28 +20,28 @@ steps:
 
   - label: ":gitleaks: Secret scan"
     key: gitleaks
-    plugins:
-      - docker#v5.11.0:
-          image: "zricethezav/gitleaks:latest"
-          mount-checkout: true
-          workdir: /workdir
-          command: ["detect", "--source=/workdir", "--verbose"]
+    command: >
+      docker run --rm
+      -v "$$BUILDKITE_BUILD_CHECKOUT_PATH:/workdir"
+      -w /workdir
+      zricethezav/gitleaks:latest
+      detect --source=/workdir --verbose
 
   - label: ":dotnet: Build and test"
     key: dotnet
-    plugins:
-      - docker#v5.11.0:
-          image: "mcr.microsoft.com/dotnet/sdk:8.0.400"
-          mount-checkout: true
-          workdir: /workdir
-          command: ["bash", "tools/buildkite/dotnet-ci.sh"]
+    command: >
+      docker run --rm
+      -v "$$BUILDKITE_BUILD_CHECKOUT_PATH:/workdir"
+      -w /workdir
+      mcr.microsoft.com/dotnet/sdk:8.0.400
+      bash tools/buildkite/dotnet-ci.sh
 
   - label: ":repeat: Baltic replay golden (main)"
     key: baltic-replay
     branches: "main"
-    plugins:
-      - docker#v5.11.0:
-          image: "mcr.microsoft.com/dotnet/sdk:8.0.400"
-          mount-checkout: true
-          workdir: /workdir
-          command: ["bash", "tools/buildkite/baltic-replay.sh"]
+    command: >
+      docker run --rm
+      -v "$$BUILDKITE_BUILD_CHECKOUT_PATH:/workdir"
+      -w /workdir
+      mcr.microsoft.com/dotnet/sdk:8.0.400
+      bash tools/buildkite/baltic-replay.sh
