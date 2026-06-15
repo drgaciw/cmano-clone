@@ -30,7 +30,7 @@ public static class ScenarioSimulateSampleCommand
 
         var scenario = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
         var catalog = ScenarioValidateCommand.ResolveCatalogPublic(scenario);
-        var config = new ValidationConfig();
+        var config = ValidationConfigLoader.LoadFromRepo();
         var exportPackage = ScenarioExportCommand.Prepare(scenario, catalog, config);
         if (!exportPackage.Allowed)
         {
@@ -45,10 +45,13 @@ public static class ScenarioSimulateSampleCommand
         var package = ScenarioPackage.FromDocument(
             Path.GetFileNameWithoutExtension(scenarioPath),
             exportPackage.ExportDocument);
+        var authoredFireOrder = EventFireOrderCalculator
+            .ComputeFireOrder(exportPackage.ExportDocument.Events ?? Array.Empty<ScenarioEventDto>())
+            .ToArray();
         var policyId = package.PolicyId;
         var seed = (int)Math.Min(package.Seed, int.MaxValue);
-        var readiness = UnitReadinessMapFactory.FromMetadata(scenario.Metadata);
-        var nearFuture = scenario.Metadata.NearFutureUnits?
+        var readiness = UnitReadinessMapFactory.FromMetadata(exportPackage.ExportDocument.Metadata);
+        var nearFuture = exportPackage.ExportDocument.Metadata.NearFutureUnits?
             .Select(u => new ScenarioNearFutureUnitRequest(u.ArchetypeId, u.UnitId))
             .ToArray();
         var result = BalticReplayHarness.Run(
@@ -59,10 +62,12 @@ public static class ScenarioSimulateSampleCommand
             catalog,
             unitReadiness: readiness,
             nearFutureUnits: nearFuture,
-            maxTechnologyLevel: scenario.Metadata.MaxTechnologyLevel);
+            maxTechnologyLevel: exportPackage.ExportDocument.Metadata.MaxTechnologyLevel);
 
         var worldStateSha256 = ResolveWorldStateSha256(result);
-        var fireOrder = CanonicalizeFireOrder(result.FireOrder);
+        var fireOrder = result.FireOrder.Count == 0
+            ? authoredFireOrder
+            : CanonicalizeFireOrder(result.FireOrder);
         var dto = new SimulateSampleJsonDto
         {
             Seed = result.Seed,
