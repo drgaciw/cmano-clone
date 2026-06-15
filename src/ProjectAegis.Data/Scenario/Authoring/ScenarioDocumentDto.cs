@@ -7,10 +7,22 @@ public sealed class ScenarioDocumentDto
 {
     public ScenarioMetadataDto Metadata { get; init; } = new();
 
+    public ScenarioFeaturesDto? Features { get; init; }
+
+    public IReadOnlyList<ScenarioSideDto> Sides { get; init; } = Array.Empty<ScenarioSideDto>();
+
+    public ScenarioOrbatDto? Orbat { get; init; }
+
+    public IReadOnlyList<ScenarioReferencePointDto> ReferencePoints { get; init; } = Array.Empty<ScenarioReferencePointDto>();
+
     public IReadOnlyList<ScenarioMissionDto> Missions { get; init; } = Array.Empty<ScenarioMissionDto>();
+
+    public IReadOnlyList<ScenarioOperationTimelineEntryDto> OperationsTimeline { get; init; } = Array.Empty<ScenarioOperationTimelineEntryDto>();
 
     /// <summary>Optional typed event DSL entries (AME-5.x). Null when unset.</summary>
     public IReadOnlyList<ScenarioEventDto>? Events { get; init; }
+
+    public Dictionary<string, string>? Variables { get; init; }
 
     /// <summary>Derived-only editor UI state; never read by <see cref="Validation.ScenarioValidationEngine"/>.</summary>
     public Dictionary<string, JsonElement>? EditorState { get; init; }
@@ -64,11 +76,15 @@ public sealed class ScenarioMissionDto
 
     public IReadOnlyList<ScenarioWaypointDto> PatrolZone { get; init; } = Array.Empty<ScenarioWaypointDto>();
 
+    public IReadOnlyList<ScenarioWaypointDto>? StationGeometry { get; init; }
+
     /// <summary>Mission-level ROE override (AME-3.2). Null inherits sideRoe or WeaponsFree.</summary>
     public string? RoeOverride { get; init; }
 
     /// <summary>Support mission role (Tanker/AEW/EW). Null for non-Support missions.</summary>
     public string? SupportRole { get; init; }
+
+    public string? EmconOverride { get; init; }
 }
 
 public sealed class ScenarioWaypointDto

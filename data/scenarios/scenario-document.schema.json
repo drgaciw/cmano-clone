@@ -8,15 +8,45 @@
   "required": ["metadata", "missions"],
   "properties": {
     "metadata": { "$ref": "#/$defs/metadata" },
+    "features": {
+      "type": ["object", "null"],
+      "description": "Optional scenario feature toggles.",
+      "additionalProperties": true
+    },
+    "sides": {
+      "type": "array",
+      "description": "Canonical side definitions.",
+      "items": { "$ref": "#/$defs/side" }
+    },
+    "orbat": {
+      "type": ["object", "null"],
+      "description": "Canonical order of battle section.",
+      "additionalProperties": true
+    },
+    "referencePoints": {
+      "type": "array",
+      "description": "Canonical named reference points and zones.",
+      "items": { "$ref": "#/$defs/referencePoint" }
+    },
     "missions": {
       "type": "array",
       "description": "Mission list. Serialized from ScenarioDocumentDto.Missions (always present, may be empty []).",
       "items": { "$ref": "#/$defs/mission" }
     },
+    "operationsTimeline": {
+      "type": "array",
+      "description": "Optional operation timeline activation entries.",
+      "items": { "$ref": "#/$defs/operationTimelineEntry" }
+    },
     "events": {
       "type": ["array", "null"],
       "description": "Optional typed event DSL entries (AME-5.x). Null when unset.",
       "items": { "$ref": "#/$defs/event" }
+    },
+    "variables": {
+      "type": ["object", "null"],
+      "description": "Optional scenario variable store.",
+      "additionalProperties": { "type": "string" }
     },
     "editorState": {
       "type": ["object", "null"],
@@ -135,6 +165,47 @@
         }
       }
     },
+    "side": {
+      "type": "object",
+      "description": "Maps to ScenarioSideDto.",
+      "additionalProperties": false,
+      "required": ["id", "name", "defaultRoe", "defaultEmcon", "postures"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "defaultRoe": { "type": ["string", "null"] },
+        "defaultEmcon": { "type": ["string", "null"] },
+        "postures": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "referencePoint": {
+      "type": "object",
+      "description": "Maps to ScenarioReferencePointDto.",
+      "additionalProperties": false,
+      "required": ["id", "type", "geometry", "radiusNm"],
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string" },
+        "geometry": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/waypoint" }
+        },
+        "radiusNm": { "type": ["number", "null"] }
+      }
+    },
+    "operationTimelineEntry": {
+      "type": "object",
+      "description": "Maps to ScenarioOperationTimelineEntryDto.",
+      "additionalProperties": false,
+      "required": ["missionId", "activateAtTick"],
+      "properties": {
+        "missionId": { "type": "string" },
+        "activateAtTick": { "type": "integer", "minimum": 0 }
+      }
+    },
     "waypoint": {
       "type": "object",
       "description": "Maps to ScenarioWaypointDto. A geographic vertex of a patrol zone.",
@@ -199,6 +270,11 @@
           "description": "Patrol zone vertices. Meaningful for Patrol; empty [] for Strike/Ferry.",
           "items": { "$ref": "#/$defs/waypoint" }
         },
+        "stationGeometry": {
+          "type": ["array", "null"],
+          "description": "Support station geometry. Nullable for non-Support missions.",
+          "items": { "$ref": "#/$defs/waypoint" }
+        },
         "roeOverride": {
           "type": ["string", "null"],
           "description": "Mission-level ROE override (AME-3.2). Null inherits sideRoe or WeaponsFree."
@@ -207,6 +283,10 @@
           "type": ["string", "null"],
           "enum": ["Tanker", "AEW", "EW", null],
           "description": "Support mission role. Meaningful for Support; null for other mission types."
+        },
+        "emconOverride": {
+          "type": ["string", "null"],
+          "description": "Mission-level EMCON override. Nullable when inherited."
         }
       },
       "allOf": [
