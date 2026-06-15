@@ -572,44 +572,57 @@ goal: "Complete Platform Editor Phase A write-gate coverage and CLI verbs (Req 2
 start: "2026-06-23"
 end: "2026-07-07"
 generated: "2026-06-09"
-updated: "2026-06-09"
+updated: "2026-06-14"
 kickoff: production/sprints/sprint-22-platform-editor-db-doctrine.md
+status: complete
+completed: "2026-06-14"
+closeout_note: "All Must (22-1/2/3: PlatformWorkbookImporter write-gate extend for Mounts/Loadouts/Magazines/Comms + CLI platform_*_xlsx verbs + ADR-011) + Should (22-4/5: CmoMarkdownImporter platform + Unity Doctrine Inheritance Panel with ZERO DelegationBridge) delivered. Nice 22-6/22-7 carried on stacks. Parallel worktrees + Graphite stacks (sprint22/platform-editor-writegate, db-platform-import, doctrine-panel, adr-011, balance-telemetry, osint-tl-routing). Subagent delegation (c-sharp-engineer etc) + GitNexus (CRITICAL CatalogWriteGate extend-only only, 18-40 impacted/7-11 procs reported pre-edit each time; detect clean post; ZERO bridge enforced). Polish commits: d206018 (S22-01/02), 9059bb9 (S22-04), doctrine s22-05 polish. Gates: 52/60/8 targeted+smoke PASS (build clean, detect none, CLI/PlayMode). gt submit --stack executed (feat PRs + dashboard for tracking roots/long refs). ADR-011 Accepted. Evidence: worktree .agent-todo* + s22-04-todo.md [OUTCOME]s + gt ls stacks. Per AGENTS.md/Graphite/ kickoff risks mitigated."
 sprint22_stories:
   - id: "22-1"
     name: "Extend PlatformWorkbookImporter write-gate to Mounts/Loadouts/Magazines/Comms"
     priority: must-have
-    status: ready-for-dev
-    owner: ""
+    status: done
+    completed: "2026-06-14"
+    owner: "c-sharp-engineer (subagent + main verify)"
     estimate_days: 3
     blocker: ""
+    note: "S22-01: IWriteGate 4x new Propose*Batch (additive), CatalogWriteGate impl extend-only, PlatformWorkbookImporter uses gate (removes Unsupported for 4), determinism OrderBy PlatformId+composite+Ordinal. Polish d206018. 52+ targeted tests. [OUTCOME] .worktrees/sprint22-platform-editor-writegate/.agent-todo-s22-writegate.md (impacts CRITICAL 18+/11 procs, gates 31-52 PASS, CLI ok, detect clean). ACs met."
   - id: "22-2"
     name: "Add CLI verbs platform_export_xlsx / platform_import_xlsx / platform_diff_xlsx"
     priority: must-have
-    status: ready-for-dev
-    owner: ""
+    status: done
+    completed: "2026-06-14"
+    owner: "c-sharp-engineer"
     estimate_days: 2
     blocker: "22-1"
+    note: "S22-02: 3 verbs in MissionEditor.Cli (mirror CatalogImport pattern), mcp-tools.json updated, manifest test. Functional smoke ok:true. Same commit stack as 22-1. No auto-commit (IWriteGate path)."
   - id: "22-3"
     name: "Author ADR-011 platform-editor-excel-roundtrip"
     priority: must-have
-    status: ready-for-dev
+    status: done
+    completed: "2026-06-14"
     owner: ""
     estimate_days: 0.5
     blocker: ""
+    note: "docs/architecture/adr-011-*.md created (Phase A: ClosedXML roundtrip, write-gate staging, extend-only, CLI, migration 007, Phase B scope). Status Accepted on closeout. Referenced in Req 21."
   - id: "22-4"
     name: "Extend CmoMarkdownImporter to platform + weapon/mount entries"
     priority: should-have
-    status: backlog
-    owner: ""
+    status: done
+    completed: "2026-06-14"
+    owner: "team-data (subagent + main)"
     estimate_days: 3
     blocker: "22-1"
+    note: "S22-04: CmoMarkdownImporter + ReadPlatform* + mixed Baltic, ProposePlatformBatch via gate (extend), 007 additive staging tables + DeleteStagingRows for all (DBI-1.4 orphan guard explicit), tests 60 PASS no sensor regress, determinism, impacts CRITICAL re-ran extend-only. Polish 9059bb9. [OUTCOME] .worktrees/sprint22-db-platform-import/s22-04-todo.md. ACs met."
   - id: "22-5"
     name: "Unity Doctrine Inheritance Panel (Req 13)"
     priority: should-have
-    status: backlog
-    owner: ""
+    status: done
+    completed: "2026-06-14"
+    owner: "unity-specialist / c-sharp-engineer (subagent)"
     estimate_days: 3
     blocker: ""
+    note: "S22-05: DoctrineInheritancePanelHost binds ResolvedUnitPolicy (WRA/ROE/EMCON), SetDoctrineOverride command dispatch (headless roundtrip), projection update, ZERO touch DelegationBridge (CRITICAL 87+/8 procs enforced, removals/comments). PlayMode 8 PASS. Polish on stack/sprint22/doctrine-panel. ACs + ADR-010 + kickoff ZERO rule met. Evidence in stack feats + gates."
   - id: "22-6"
     name: "IBalanceTelemetrySink real accumulator + win-rate flag"
     priority: nice-to-have
@@ -617,6 +630,7 @@ sprint22_stories:
     owner: ""
     estimate_days: 2
     blocker: "22-4"
+    note: "Deferred to S23. Stack exists (gt ls: stack/sprint22/balance-telemetry). No work started."
   - id: "22-7"
     name: "OSINT OsintCatalogMapper TL routing"
     priority: nice-to-have
@@ -624,6 +638,7 @@ sprint22_stories:
     owner: ""
     estimate_days: 2
     blocker: "S21 complete"
+    note: "Deferred to S23. Stack exists (gt ls: stack/sprint22/osint-tl-routing). No work started."
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"

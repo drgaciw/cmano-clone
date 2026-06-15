@@ -2,7 +2,9 @@
 
 ## Status
 
-**Proposed**
+**Accepted**
+
+**Date Accepted:** 2026-06-14 (closeout of Sprint 22)
 
 ## Date
 
