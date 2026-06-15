@@ -30,6 +30,20 @@ switch (command)
         return RunMissionUpdateStrike(args.Skip(1).ToArray());
     case "mission_delete":
         return RunMissionDelete(args.Skip(1).ToArray());
+    case "mission_add_support":
+        return RunMissionAddSupport(args.Skip(1).ToArray());
+    case "mission_add_ferry":
+        return RunMissionAddFerry(args.Skip(1).ToArray());
+    case "reference_point_set":
+        return RunReferencePointSet(args.Skip(1).ToArray());
+    case "scenario_load":
+        return RunScenarioLoad(args.Skip(1).ToArray());
+    case "scenario_save":
+        return RunScenarioSave(args.Skip(1).ToArray());
+    case "event_add":
+        return RunEventAdd(args.Skip(1).ToArray());
+    case "event_validate":
+        return RunEventValidate(args.Skip(1).ToArray());
     case "mission_plan_suggest":
         return RunMissionPlanSuggest(args.Skip(1).ToArray());
     case "scenario_comms_status":
@@ -300,6 +314,115 @@ static int RunMissionDelete(string[] args)
     }
 
     return MissionDeleteCommand.Run(path, editVersion, missionId, Console.Out);
+}
+
+static int RunMissionAddSupport(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", 0);
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var role = CliArgParser.GetFlag(args, "--role") ?? "Tanker";
+    var units = CliArgParser.GetRepeated(args, "--unit");
+    var waypoints = CliArgParser.ParseWaypoints(CliArgParser.GetRepeated(args, "--wp"));
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || units.Count == 0)
+    {
+        Console.Error.WriteLine("mission_add_support requires --path --edit-version --id --unit U [--wp lat,lon]+ [--role Tanker|AEW|EW]");
+        return 1;
+    }
+
+    return MissionAddSupportCommand.Run(path, editVersion, missionId, units, role, waypoints, Console.Out);
+}
+
+static int RunMissionAddFerry(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", 0);
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var destination = CliArgParser.GetFlag(args, "--destination");
+    var units = CliArgParser.GetRepeated(args, "--unit");
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) ||
+        string.IsNullOrWhiteSpace(destination) || units.Count == 0)
+    {
+        Console.Error.WriteLine("mission_add_ferry requires --path --edit-version --id --unit U --destination <baseId>");
+        return 1;
+    }
+
+    return MissionAddFerryCommand.Run(path, editVersion, missionId, units, destination, Console.Out);
+}
+
+static int RunReferencePointSet(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", 0);
+    var pointId = CliArgParser.GetFlag(args, "--id");
+    var geometryType = CliArgParser.GetFlag(args, "--type") ?? "point";
+    var radiusRaw = CliArgParser.GetFlag(args, "--radius-nm");
+    double? radius = double.TryParse(radiusRaw, out var r) ? r : null;
+    var waypoints = CliArgParser.ParseWaypoints(CliArgParser.GetRepeated(args, "--wp"));
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(pointId) || waypoints.Count == 0)
+    {
+        Console.Error.WriteLine("reference_point_set requires --path --edit-version --id --wp lat,lon");
+        return 1;
+    }
+
+    return ReferencePointSetCommand.Run(path, editVersion, pointId, geometryType, waypoints, radius, Console.Out);
+}
+
+static int RunScenarioLoad(string[] args)
+{
+    var source = CliArgParser.GetFlag(args, "--path");
+    var dest = CliArgParser.GetFlag(args, "--out");
+    if (string.IsNullOrWhiteSpace(source))
+    {
+        Console.Error.WriteLine("scenario_load requires --path <file.json|.aegis-scenario> [--out dest.json]");
+        return 1;
+    }
+
+    return ScenarioLoadCommand.Run(source, dest, Console.Out);
+}
+
+static int RunScenarioSave(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", 0);
+    if (string.IsNullOrWhiteSpace(path))
+    {
+        Console.Error.WriteLine("scenario_save requires --path --edit-version N");
+        return 1;
+    }
+
+    return ScenarioSaveCommand.Run(path, editVersion, Console.Out);
+}
+
+static int RunEventAdd(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", 0);
+    var eventId = CliArgParser.GetFlag(args, "--id");
+    var priority = CliArgParser.GetIntFlag(args, "--priority", 100);
+    var triggerType = CliArgParser.GetFlag(args, "--trigger") ?? "Time";
+    var atTick = CliArgParser.GetIntFlag(args, "--at-tick", -1);
+    int? tick = atTick >= 0 ? atTick : null;
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(eventId))
+    {
+        Console.Error.WriteLine("event_add requires --path --edit-version --id --trigger Time [--at-tick N]");
+        return 1;
+    }
+
+    return EventAddCommand.Run(path, editVersion, eventId, priority, triggerType, tick, Console.Out);
+}
+
+static int RunEventValidate(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var eventId = CliArgParser.GetFlag(args, "--id");
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(eventId))
+    {
+        Console.Error.WriteLine("event_validate requires --path --id");
+        return 1;
+    }
+
+    return EventValidateCommand.Run(path, eventId, Console.Out);
 }
 
 static void PrintUsage()
