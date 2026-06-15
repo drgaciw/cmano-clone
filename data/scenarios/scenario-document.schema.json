@@ -43,6 +43,23 @@
         "sideRoe"
       ],
       "properties": {
+        "title": {
+          "type": ["string", "null"],
+          "description": "Human-readable scenario title. Nullable when unset."
+        },
+        "description": {
+          "type": ["string", "null"],
+          "description": "Human-readable scenario description. Nullable when unset."
+        },
+        "author": {
+          "type": ["string", "null"],
+          "description": "Scenario author or source label. Nullable when unset."
+        },
+        "schemaVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Scenario authoring schema version. DTO default is 1."
+        },
         "dbRef": {
           "type": ["string", "null"],
           "description": "Catalog / database reference bound at scenario load (e.g. 'baltic_patrol'). Nullable."
