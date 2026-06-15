@@ -7,9 +7,10 @@ using ProjectAegis.Data.WriteGate;
 /// <summary>
 /// Req-21 / ADR-011 PLE-2.* / PLE-3.*: turns an edited workbook into staged write-gate batches.
 /// Re-exports the bound snapshot (via an injected provider) to diff against, validates fitting rules,
-/// and stages the entities the P0 write gate supports (sensors). Mount/loadout/magazine/comms changes
-/// are reported as <see cref="PlatformImportPlan.UnsupportedChanges"/> pending a gate extension — the
-/// importer never invents a commit path that bypasses <see cref="IWriteGate"/> (DBI-8.3 guardrail).
+/// and stages the entities the P0 write gate supports (sensors + mounts + loadouts + magazines + comms).
+/// Platform core changes remain in <see cref="PlatformImportPlan.UnsupportedChanges"/> (P1 gate extension).
+/// The importer never invents a commit path that bypasses <see cref="IWriteGate"/> (DBI-8.3 guardrail).
+/// Determinism: all Propose*Batch use explicit OrderBy PlatformId + composite key with StringComparer.Ordinal.
 /// </summary>
 public sealed class PlatformWorkbookImporter
 {
