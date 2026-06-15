@@ -20,8 +20,9 @@ public static class ScenarioSimulateSampleCommand
 
         var scenario = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
         var catalog = ScenarioValidateCommand.ResolveCatalogPublic(scenario);
-        var config = new ValidationConfig();
-        var (allowed, report) = ScenarioValidationExportGate.EvaluateExport(scenario, catalog, config);
+        var config = ValidationConfigLoader.LoadFromRepo();
+        var (exportDoc, _) = ScenarioExportTransformer.TransformForExport(scenario);
+        var (allowed, report) = ScenarioSaveExportGate.CanExportOrPlay(exportDoc, catalog, config);
         if (!allowed)
         {
             if (!quiet)
@@ -32,11 +33,12 @@ public static class ScenarioSimulateSampleCommand
             return 1;
         }
 
-        var package = ScenarioPackage.FromDocument(Path.GetFileNameWithoutExtension(scenarioPath), scenario);
+        var fireOrder = EventFireOrderCalculator.ComputeFireOrder(exportDoc.Events);
+        var package = ScenarioPackage.FromDocument(Path.GetFileNameWithoutExtension(scenarioPath), exportDoc);
         var policyId = package.PolicyId;
         var seed = (int)Math.Min(package.Seed, int.MaxValue);
-        var readiness = UnitReadinessMapFactory.FromMetadata(scenario.Metadata);
-        var nearFuture = scenario.Metadata.NearFutureUnits?
+        var readiness = UnitReadinessMapFactory.FromMetadata(exportDoc.Metadata);
+        var nearFuture = exportDoc.Metadata.NearFutureUnits?
             .Select(u => new ScenarioNearFutureUnitRequest(u.ArchetypeId, u.UnitId))
             .ToArray();
         var result = BalticReplayHarness.Run(
@@ -47,7 +49,7 @@ public static class ScenarioSimulateSampleCommand
             catalog,
             unitReadiness: readiness,
             nearFutureUnits: nearFuture,
-            maxTechnologyLevel: scenario.Metadata.MaxTechnologyLevel);
+            maxTechnologyLevel: exportDoc.Metadata.MaxTechnologyLevel);
 
         var dto = new SimulateSampleJsonDto
         {
@@ -60,11 +62,14 @@ public static class ScenarioSimulateSampleCommand
             DetectionWorldHash = result.DetectionWorldHash.ToString(),
             EngagementCount = result.EngagementCount,
             ReportHash = report.ReportHash,
+            FireOrder = fireOrder.ToArray(),
+            SampleComplete = true,
         };
 
         if (!quiet)
         {
             output.WriteLine(JsonSerializer.Serialize(dto, JsonOptions));
+            output.WriteLine($"SEED={result.Seed} HASH={result.WorldHash}");
         }
 
         return 0;
@@ -96,5 +101,9 @@ public static class ScenarioSimulateSampleCommand
         public int EngagementCount { get; init; }
 
         public string ReportHash { get; init; } = "";
+
+        public string[] FireOrder { get; init; } = Array.Empty<string>();
+
+        public bool SampleComplete { get; init; }
     }
 }
