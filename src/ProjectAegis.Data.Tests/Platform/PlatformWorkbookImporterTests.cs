@@ -89,6 +89,7 @@ public sealed class PlatformWorkbookImporterTests
         Assert.Empty(gate.LoadoutProposals);
         Assert.Empty(gate.MagazineProposals);
         Assert.Empty(gate.CommsProposals);
+        Assert.Empty(gate.PlatformProposals); // S22-04: new ProposePlatformBatch path covered by fake (empty on block)
         Assert.Contains(result.Plan.Findings, f =>
             f.Code == PlatformWorkbookValidator.MagazineOverCapacity && f.Severity == ValidationSeverity.Error);
     }
@@ -236,6 +237,7 @@ public sealed class PlatformWorkbookImporterTests
         public List<IReadOnlyList<CatalogLoadout>> LoadoutProposals { get; } = new();
         public List<IReadOnlyList<CatalogMagazineEntry>> MagazineProposals { get; } = new();
         public List<IReadOnlyList<CatalogCommsBinding>> CommsProposals { get; } = new();
+        public List<IReadOnlyList<CatalogPlatformEntry>> PlatformProposals { get; } = new();
 
         public string ProposeSensorBatch(IReadOnlyList<CatalogSensorBinding> proposed, string actorType, string actorId, string rationale = "")
         {
@@ -265,6 +267,12 @@ public sealed class PlatformWorkbookImporterTests
         {
             CommsProposals.Add(proposed);
             return $"fake-batch-comms-{CommsProposals.Count}";
+        }
+
+        public string ProposePlatformBatch(IReadOnlyList<CatalogPlatformEntry> proposed, string actorType, string actorId, string rationale = "")
+        {
+            PlatformProposals.Add(proposed);
+            return $"fake-batch-platform-{PlatformProposals.Count}";
         }
 
         public WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId) => new(true, batchId, []);

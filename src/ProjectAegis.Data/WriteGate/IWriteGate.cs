@@ -35,6 +35,16 @@ public interface IWriteGate
         string actorId,
         string rationale = "");
 
+    /// <summary>
+    /// S22-04: Propose platform entries (parsed from CMO markdown platform sections or workbook platforms).
+    /// Extend-only addition (no changes to prior 5 Propose* or Approve/Reject/List signatures or behavior).
+    /// </summary>
+    string ProposePlatformBatch(
+        IReadOnlyList<CatalogPlatformEntry> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
     WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId);
 
     WriteGateDecision RejectBatch(string batchId, string actorType, string actorId, string rationale = "");

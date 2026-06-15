@@ -160,6 +160,33 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return batchId;
     }
 
+    public string ProposePlatformBatch(
+        IReadOnlyList<CatalogPlatformEntry> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "")
+    {
+        if (proposed.Count == 0)
+        {
+            throw new ArgumentException("At least one platform row required.", nameof(proposed));
+        }
+
+        var batchId = $"batch-platform-{proposed.Count}-{_clock.UtcTicks}";
+        var sorted = proposed
+            .OrderBy(p => p.PlatformId, StringComparer.Ordinal)
+            .ToArray();
+
+        using var tx = _connection.BeginTransaction();
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        foreach (var row in sorted)
+        {
+            InsertStagingPlatform(tx, batchId, row);
+        }
+
+        tx.Commit();
+        return batchId;
+    }
+
     public WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId)
     {
         var staged = LoadStagingRows(batchId);
@@ -389,6 +416,31 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         cmd.ExecuteNonQuery();
     }
 
+    private static void InsertStagingPlatform(SqliteTransaction tx, string batchId, CatalogPlatformEntry row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO catalog_staging_platform
+                (batch_id, platform_id, display_name, domain, platform_class, nationality,
+                 game_technology_level, review_state, trl_level, value_tier, citation_ref)
+            VALUES ($batch, $platform, $name, $domain, $class, $nat, $tl, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$name", row.PlatformId); // display falls back to id for propose-only (P1 enrichment later)
+        cmd.Parameters.AddWithValue("$domain", "surface");
+        cmd.Parameters.AddWithValue("$class", "");
+        cmd.Parameters.AddWithValue("$nat", "");
+        cmd.Parameters.AddWithValue("$tl", 0);
+        cmd.Parameters.AddWithValue("$review", "provisional");
+        cmd.Parameters.AddWithValue("$trl", 9);
+        cmd.Parameters.AddWithValue("$tier", "gameplay_abstraction");
+        cmd.Parameters.AddWithValue("$citation", "");
+        cmd.ExecuteNonQuery();
+    }
+
     private static void UpsertSensor(SqliteTransaction tx, CatalogSensorBinding row, string actorId)
     {
         using var cmd = tx.Connection!.CreateCommand();
@@ -502,11 +554,28 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
     private static void DeleteStagingRows(SqliteTransaction tx, string batchId)
     {
+        // S22-04 / DBI-1.4: extended to all staging tables (sensor + platform editor entities + new platform/weapon)
+        // so RejectBatch (and any future error paths) never leaves orphan rows in staging.
+        // Mirrors the additive staging tables in 007_platform_editor_phase_a.sql.
+        // Deterministic (no ORDER needed for DELETE).
         using var cmd = tx.Connection!.CreateCommand();
         cmd.Transaction = tx;
-        cmd.CommandText = "DELETE FROM catalog_staging_sensor WHERE batch_id = $id";
-        cmd.Parameters.AddWithValue("$id", batchId);
-        cmd.ExecuteNonQuery();
+        foreach (var table in new[]
+        {
+            "catalog_staging_sensor",
+            "catalog_staging_platform",
+            "catalog_staging_weapon",
+            "catalog_staging_mount",
+            "catalog_staging_loadout",
+            "catalog_staging_magazine",
+            "catalog_staging_comms"
+        })
+        {
+            cmd.CommandText = $"DELETE FROM {table} WHERE batch_id = $id";
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("$id", batchId);
+            cmd.ExecuteNonQuery();
+        }
     }
 
     private static bool BatchExists(SqliteTransaction tx, string batchId)
