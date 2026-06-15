@@ -62,7 +62,7 @@ Repo is Graphite-initialized. For branch/PR/stack work use **`gt`** (`gt create`
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (9548 symbols, 19953 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone-ws-postfix** (10270 symbols, 21255 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > If any GitNexus tool warns the index is stale, run `npx gitnexus analyze` in terminal first.
 
@@ -85,10 +85,10 @@ This project is indexed by GitNexus as **cmano-clone** (9548 symbols, 19953 rela
 
 | Resource | Use for |
 |----------|---------|
-| `gitnexus://repo/cmano-clone/context` | Codebase overview, check index freshness |
-| `gitnexus://repo/cmano-clone/clusters` | All functional areas |
-| `gitnexus://repo/cmano-clone/processes` | All execution flows |
-| `gitnexus://repo/cmano-clone/process/{name}` | Step-by-step execution trace |
+| `gitnexus://repo/cmano-clone-ws-postfix/context` | Codebase overview, check index freshness |
+| `gitnexus://repo/cmano-clone-ws-postfix/clusters` | All functional areas |
+| `gitnexus://repo/cmano-clone-ws-postfix/processes` | All execution flows |
+| `gitnexus://repo/cmano-clone-ws-postfix/process/{name}` | Step-by-step execution trace |
 
 ## CLI
 
