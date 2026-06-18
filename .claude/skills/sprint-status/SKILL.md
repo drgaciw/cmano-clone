@@ -60,6 +60,25 @@ If it exists, read it directly — it is the authoritative source of truth.
 Extract status for each story from the `status` field. No markdown scanning needed.
 Use its `sprint`, `goal`, `start`, `end` fields instead of re-parsing the sprint plan.
 
+### Graphite Stack Metadata (optional)
+
+Sprints implemented as a stacked-PR train also carry Graphite metadata. These
+fields are optional — treat them as absent on legacy sprints — and when present
+they let you map stories to branches without guessing:
+
+- `graphite_stack` — path to the slice-specific stack runbook for the sprint
+  (e.g. `docs/superpowers/plans/sprint-23-graphite-stack.md`). The canonical
+  workflow lives in `docs/engineering/graphite-github-substitute-plan.md`.
+- `graphite_stack_branches` — stack branches in **bottom → top** order. The
+  bottom branch merges first; each later branch is stacked on the one above it.
+- `epic` — path to the epic that groups the sprint's stories.
+- Per story: `file` — the authoritative story-file path (use it directly for the
+  existence and staleness checks below, instead of inferring a path); `branch` —
+  the stack branch that implements the story.
+
+When these fields are present, prefer each story's `file` path for the checks in
+this section and surface its `branch` in the output (see Phase 5).
+
 **If `sprint-status.yaml` does not exist** (legacy sprint or first-time setup),
 fall back to markdown scanning:
 
@@ -129,6 +148,7 @@ Keep the output concise. The story status table is mandatory — do not truncate
 ## Sprint [N] Status — [Today's Date]
 **Sprint Goal**: [from sprint plan]
 **Days Remaining**: [N] of [total] ([% time consumed])
+**Graphite Stack**: [graphite_stack path — omit this line if the field is absent]
 
 ### Progress: [complete/total] tasks ([%])
 
@@ -138,6 +158,10 @@ Keep the output concise. The story status table is mandatory — do not truncate
 | [title]              | Must Have  | IN PROGRESS | [owner] |                |
 | [title]              | Must Have  | BLOCKED     | [owner] | [brief reason] |
 | [title]              | Should Have| NOT STARTED | [owner] |                |
+
+*(When `graphite_stack_branches` is present, append a `Branch` column to this
+table showing each story's `branch`. List rows in stack order — bottom branch
+first — so the table doubles as the merge order.)*
 
 ### Attention Needed
 | Story / Task         | Status      | Last Updated   | Days Stale | Note           |
