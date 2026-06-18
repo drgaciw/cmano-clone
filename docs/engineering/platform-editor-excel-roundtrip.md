@@ -187,6 +187,7 @@ caveats matter operationally:
 - [ADR-011 — Platform editor Excel round-trip](../architecture/adr-011-platform-editor-excel-roundtrip.md)
 - [ADR-006 — Data layer boundary](../architecture/adr-006-data-layer-boundary.md)
 - [Catalog write gate — developer reference](catalog-write-gate.md)
+- [CMO markdown catalog import — developer reference](cmo-markdown-catalog-import.md)
 - Requirement [21 — Platform editor](../../Game-Requirements/requirements/21-Platform-Editor.md),
   [06 — Database intelligence](../../Game-Requirements/requirements/06-Database-Intelligence.md)
 - Code: `src/ProjectAegis.Data/Platform/`, `src/ProjectAegis.Data.Excel/`,

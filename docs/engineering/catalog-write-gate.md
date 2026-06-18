@@ -14,7 +14,7 @@ of this gate.
 | What does it guarantee? | No direct table mutation. All writes go `propose → approve → commit`; nothing commits without a separate `ApproveBatch`. |
 | Where does the code live? | `src/ProjectAegis.Data/WriteGate/{IWriteGate,CatalogWriteGate,ICatalogClock}.cs`. |
 | What backs it? | SQLite staging + audit tables (migrations `005` and `007`). |
-| How do I drive it from the CLI? | `catalog_write_propose` / `catalog_write_approve` (sensor today); `platform_import_xlsx` stages via the gate. |
+| How do I drive it from the CLI? | `catalog_write_propose` / `catalog_write_approve` (sensor today); `platform_import_xlsx` and `catalog_import_markdown` stage via the gate. |
 | What is committable **today**? | **Only sensor batches.** Other domains stage and can be reviewed/rejected, but `ApproveBatch` does not yet materialize them — see [Commit asymmetry](#commit-asymmetry-read-this). |
 
 ## Lifecycle
@@ -165,6 +165,7 @@ emits a `nextStep` pointing at `catalog_write_approve`.
 
 - [ADR-006 — Data layer boundary](../architecture/adr-006-data-layer-boundary.md)
 - [Platform editor — Excel round-trip runbook](platform-editor-excel-roundtrip.md)
+- [CMO markdown catalog import — developer reference](cmo-markdown-catalog-import.md)
 - Requirement [06 — Database Intelligence](../../Game-Requirements/requirements/06-Database-Intelligence.md)
 - Code: `src/ProjectAegis.Data/WriteGate/`,
   `assets/data/catalog/migrations/{005_req06_provenance_audit_staging,007_platform_editor_phase_a}.sql`,
