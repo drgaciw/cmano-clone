@@ -671,14 +671,14 @@ start: "2026-07-08"
 end: "2026-07-22"
 generated: "2026-06-17"
 updated: "2026-06-17"
-indexed_commit: 7253381
+indexed_commit: fb3fc75
 kickoff: production/sprints/sprint-23-platform-phase-b-doctrine-polish.md
-status: ready
+status: in-progress
 branch: main
 gitnexus_indexed: "pending-sprint-23-kickoff"
-tests_passed_sprint23_baseline: 498
+tests_passed_sprint23_baseline: 513
 sprint23_baseline_date: "2026-06-17"
-closeout_note: "Planning complete 2026-06-17 via parallel dispatch. Must-have: ClosedXML (S23-01) over ApproveBatch (S23-04 should-have). Baseline pre-work GREEN 498/498 @ 7253381."
+closeout_note: "S23-02 closeout GREEN 498/498 @ fb3fc75 (stack bottom); stack-tip 513/513 @ aa36dc9. Pre-work 498/498 @ 7253381. Gate formalized; parallel branches unblocked."
 evidence:
   - production/sprints/sprint-23-platform-phase-b-doctrine-polish.md
   - docs/superpowers/plans/sprint-23-implementation.md
@@ -687,6 +687,7 @@ evidence:
   - production/agentic/sprint-23-plan-unity-2026-06-17.md
   - production/agentic/sprint-23-baseline-2026-06-17.md
   - production/qa/qa-plan-sprint-23-2026-07-08.md
+  - production/qa/smoke-sprint-23-2026-06-17.md
   - production/retrospectives/retro-sprint-22-2026-06-17.md
 sprint23_stories:
   - id: "23-1"
@@ -700,11 +701,12 @@ sprint23_stories:
   - id: "23-2"
     name: "Full-solution test gate baseline"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 1
     blocker: ""
-    note: "Pre-work GREEN 498/498 @ 7253381 (production/agentic/sprint-23-baseline-2026-06-17.md); formalize smoke evidence + Release config at kickoff"
+    completed: "2026-06-17"
+    note: "Closeout GREEN 498/498 @ fb3fc75; stack-tip 513/513 @ aa36dc9; smoke production/qa/smoke-sprint-23-2026-06-17.md"
   - id: "23-3"
     name: "Unity Doctrine Inheritance Panel Editor visual sign-off"
     priority: must-have
@@ -716,11 +718,12 @@ sprint23_stories:
   - id: "23-4"
     name: "ApproveBatch multi-entity commit path"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 2.5
     blocker: "23-2"
-    note: "Extend LoadStagingRows + ApproveBatch beyond sensor-only; S22-04 deferred path"
+    completed: "2026-06-17"
+    note: "WriteGate|Platform|CmoMarkdown 63/63 + WriteGate 9/9 PASS @ aa36dc9; platform/weapon/mount/loadout/magazine/comms ApproveBatch + DBI-1.4 reject purge; sensor regression unchanged; GitNexus CatalogWriteGate CRITICAL documented; closes S22 C3"
   - id: "23-5"
     name: "Phase B schema foundation spike (export-only)"
     priority: should-have
