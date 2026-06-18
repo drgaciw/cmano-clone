@@ -77,7 +77,7 @@
 | Interface | Responsibility |
 |-----------|----------------|
 | `ICatalogReader` | Read-only, deterministic-order catalog queries (`basePd`, bindings, platforms) |
-| `IWriteGate` | Staging → validate → commit → optional new snapshot (P0 stack — not all paths implemented) |
+| `IWriteGate` | Staging → validate → commit → optional new snapshot (P0 stack — not all paths implemented; see [catalog write gate runbook](../engineering/catalog-write-gate.md)) |
 | `CatalogImportGate` / importers | Approved import path for seed and bulk JSON (implemented) |
 | DTO export | Plain records consumed by `ProjectAegis.Sim` and `ProjectAegis.Delegation` — no ECS types in Data |
 
