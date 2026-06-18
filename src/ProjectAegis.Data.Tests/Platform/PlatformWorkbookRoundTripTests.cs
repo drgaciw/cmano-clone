@@ -1,4 +1,5 @@
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Excel;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
 using Xunit;
@@ -73,6 +74,27 @@ public sealed class PlatformWorkbookRoundTripTests
         var roundTripped = CanonicalTextWorkbookIo.Deserialize(CanonicalTextWorkbookIo.Serialize(original));
 
         Assert.True(PlatformWorkbookDiff.IsEmpty(original, roundTripped));
+    }
+
+    [Fact]
+    public void ClosedXml_unedited_round_trip_matches_canonical_empty_diff_contract()
+    {
+        var original = Export(SampleData());
+        var path = Path.Combine(Path.GetTempPath(), $"platform-rt-{Guid.NewGuid():N}.xlsx");
+        try
+        {
+            var io = new ClosedXmlPlatformWorkbookIo();
+            io.Write(original, path);
+            var roundTripped = io.Read(path);
+            Assert.True(PlatformWorkbookDiff.IsEmpty(original, roundTripped));
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
     }
 
     [Fact]

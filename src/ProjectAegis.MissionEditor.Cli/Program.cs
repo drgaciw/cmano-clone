@@ -330,9 +330,9 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_propose --db <catalog.db> --platform P --sensor S --base-pd 0.7");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_approve --db <catalog.db> --batch <batchId>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <sensor.md> [--max-records N] [--chunk-size 500] [--report-out report.json]");
-    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_export_xlsx [--db <catalog.db>] --out <path> [--snapshot <id>]");
-    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_import_xlsx --db <catalog.db> [--in <workbook>]");
-    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_diff_xlsx [--db <catalog.db>] [--base <path>] [--edited <path>]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_export_xlsx [--db <catalog.db>] --out <path> [--snapshot <id>] [--io closedxml|canonical]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_import_xlsx --db <catalog.db> --in <workbook> [--io closedxml|canonical]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_diff_xlsx [--db <catalog.db>] [--base <path>] [--edited <path>] [--io closedxml|canonical]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_staging_review --db <catalog.db> [--approve <batchId>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_search [--db <fixture.json>]  # S21 MCP search_osint");
     // S21: osint_digest, osint_list_staging_proposals, osint_get_proposal_detail, osint_submit_review_decision
@@ -360,7 +360,8 @@ static int RunPlatformExportXlsx(string[] args)
     var db = CliArgParser.GetFlag(args, "--db");
     var outPath = CliArgParser.GetFlag(args, "--out") ?? CliArgParser.GetFlag(args, "--output");
     var snapshotId = CliArgParser.GetFlag(args, "--snapshot") ?? CliArgParser.GetFlag(args, "--snapshot-id") ?? string.Empty;
-    return PlatformExportXlsxCommand.Run(db, outPath ?? string.Empty, snapshotId, Console.Out);
+    var ioFlag = CliArgParser.GetFlag(args, "--io");
+    return PlatformExportXlsxCommand.Run(db, outPath ?? string.Empty, snapshotId, ioFlag, Console.Out);
 }
 
 static int RunPlatformImportXlsx(string[] args)
@@ -375,7 +376,8 @@ static int RunPlatformImportXlsx(string[] args)
         return 1;
     }
 
-    return PlatformImportXlsxCommand.Run(db, inPath ?? string.Empty, actorType, actorId, Console.Out);
+    var ioFlag = CliArgParser.GetFlag(args, "--io");
+    return PlatformImportXlsxCommand.Run(db, inPath ?? string.Empty, actorType, actorId, ioFlag, Console.Out);
 }
 
 static int RunPlatformDiffXlsx(string[] args)
@@ -383,7 +385,8 @@ static int RunPlatformDiffXlsx(string[] args)
     var db = CliArgParser.GetFlag(args, "--db");
     var basePath = CliArgParser.GetFlag(args, "--base") ?? CliArgParser.GetFlag(args, "--source");
     var editedPath = CliArgParser.GetFlag(args, "--edited") ?? CliArgParser.GetFlag(args, "--in");
-    return PlatformDiffXlsxCommand.Run(db, basePath ?? string.Empty, editedPath ?? string.Empty, Console.Out);
+    var ioFlag = CliArgParser.GetFlag(args, "--io");
+    return PlatformDiffXlsxCommand.Run(db, basePath ?? string.Empty, editedPath ?? string.Empty, ioFlag, Console.Out);
 }
 
 static int RunOsintStagingReview(string[] args)

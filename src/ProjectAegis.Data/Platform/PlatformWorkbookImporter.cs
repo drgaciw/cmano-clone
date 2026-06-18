@@ -34,6 +34,25 @@ public sealed class PlatformWorkbookImporter
         _exporter = exporter ?? new PlatformWorkbookExporter();
     }
 
+    /// <summary>Loads a workbook from disk via the selected <see cref="IPlatformWorkbookIo"/> adapter.</summary>
+    public PlatformWorkbook ReadFromFile(string path, IPlatformWorkbookIo io)
+    {
+        if (io is null) throw new ArgumentNullException(nameof(io));
+        return io.Read(path);
+    }
+
+    /// <summary>Pure analysis on a workbook loaded from disk.</summary>
+    public PlatformImportPlan PlanFromFile(string path, IPlatformWorkbookIo io) => Plan(ReadFromFile(path, io));
+
+    /// <summary>Stages workbook changes loaded from disk through the write gate (propose only).</summary>
+    public PlatformImportResult StageFromFile(
+        string path,
+        IPlatformWorkbookIo io,
+        IWriteGate gate,
+        string actorType,
+        string actorId,
+        string rationale = "") => Stage(ReadFromFile(path, io), gate, actorType, actorId, rationale);
+
     /// <summary>Pure analysis: snapshot guard → re-export source → diff → validate → classify.</summary>
     public PlatformImportPlan Plan(PlatformWorkbook edited)
     {
