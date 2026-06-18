@@ -40,12 +40,12 @@ do **not** add a side-channel write.
 |-----------|----------------|------------------|
 | `WriteGate/` | The propose→approve→commit gate (ADR-006 / req-06). | `IWriteGate`, `CatalogWriteGate`, `ICatalogClock` — see [`WriteGate/README.md`](WriteGate/README.md) |
 | `Catalog/` | Catalog records, bindings, readers, and import/quarantine plumbing. | `ICatalogReader`, `SqliteCatalogReader`, `CatalogQuarantinePromoter`, `CatalogBulkImporter` — see [`Catalog/README.md`](Catalog/README.md) |
-| `Import/` | Parse CMO markdown (cmano-db.com exports) and stage rows. | `CmoMarkdownImporter`, `CmoMarkdownImportProposer` |
+| `Import/` | Parse CMO markdown (cmano-db.com exports) and stage rows. | `CmoMarkdownImporter`, `CmoMarkdownImportProposer` — see [`Import/README.md`](Import/README.md) |
 | `Osint/` | OSINT discovery → catalog proposals with confidence + TRL/doc routing. | `OsintCatalogMapper`, `OsintProposalGate`, `OsintDigestRunner`, `Connectors/` — see [`Osint/README.md`](Osint/README.md) |
 | `Platform/` | Excel/workbook round-trip for the platform editor (ADR-011). | `PlatformWorkbookExporter`, `PlatformWorkbookImporter`, `PlatformWorkbookDiff`, `PlatformWorkbookValidator` — see [`Platform/README.md`](Platform/README.md) |
 | `Validation/` | Deterministic scenario validation engine (ADR-008) + catalog rule pipeline. | `ScenarioValidationEngine`, `ValidationPipeline`, `Rules/` — see [`Validation/README.md`](Validation/README.md) |
-| `Agents/` | Headless, deterministic req-06 agent pipeline (no LLM in the tick path). | `IDatabaseIntelligenceAgent`, `DatabaseIntelligenceOrchestrator` |
-| `Scenario/` | Load and resolve scenario packages, policy catalogs, readiness maps. | `ScenarioPackageLoader`, `ScenarioPolicyJsonCatalog` |
+| `Agents/` | Headless, deterministic req-06 agent pipeline (no LLM in the tick path). | `IDatabaseIntelligenceAgent`, `DatabaseIntelligenceOrchestrator` — see [`Agents/README.md`](Agents/README.md) |
+| `Scenario/` | Load and resolve scenario packages, policy catalogs, readiness maps. | `ScenarioPackageLoader`, `ScenarioPolicyJsonCatalog`, `ScenarioDocumentEditor` — see [`Scenario/README.md`](Scenario/README.md) |
 | `Snapshots/` | Bind, hash, and read deterministic catalog snapshots + release-train metadata. | `DbSnapshotStore`, `CatalogSnapshotBinder`, `CatalogSnapshotHasher` — see [`Snapshots/README.md`](Snapshots/README.md) |
 | `Telemetry/` | Advisory win-rate balance drift detection (DBI-5). | `IBalanceTelemetrySink` — see [`Telemetry/README.md`](Telemetry/README.md) |
 
@@ -79,6 +79,9 @@ dotnet test src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj -v minima
 
 - [WriteGate — staged catalog writes](WriteGate/README.md)
 - [Catalog — records, readers & quarantine](Catalog/README.md)
+- [Import — CMO markdown → staged rows](Import/README.md)
+- [Agents — headless req-06 pipeline](Agents/README.md)
+- [Scenario — packages, authoring & policy catalog](Scenario/README.md)
 - [Validation — scenario & catalog validation](Validation/README.md)
 - [Snapshots — deterministic snapshots & release train](Snapshots/README.md)
 - [OSINT ingestion pipeline](Osint/README.md)
