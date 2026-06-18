@@ -292,6 +292,7 @@ public sealed class CatalogPhaseBValidationTests
         public List<IReadOnlyList<CatalogMobility>> MobilityProposals { get; } = new();
         public List<IReadOnlyList<CatalogSignature>> SignatureProposals { get; } = new();
         public List<IReadOnlyList<CatalogEmcon>> EmconProposals { get; } = new();
+        public List<IReadOnlyList<CatalogPlatformDamage>> DamageProposals { get; } = new();
         public List<IReadOnlyList<CatalogPlatformBinding>> PlatformProposals { get; } = new();
         public List<IReadOnlyList<CatalogWeaponRecord>> WeaponProposals { get; } = new();
 
@@ -341,6 +342,16 @@ public sealed class CatalogPhaseBValidationTests
         {
             EmconProposals.Add(proposed);
             return $"fake-batch-emcon-{EmconProposals.Count}";
+        }
+
+        public string ProposePlatformDamageBatch(
+            IReadOnlyList<CatalogPlatformDamage> proposed,
+            string actorType,
+            string actorId,
+            string rationale = "")
+        {
+            DamageProposals.Add(proposed);
+            return $"fake-batch-damage-{DamageProposals.Count}";
         }
 
         public string ProposePlatformBatch(IReadOnlyList<CatalogPlatformBinding> proposed, string actorType, string actorId, string rationale = "")
