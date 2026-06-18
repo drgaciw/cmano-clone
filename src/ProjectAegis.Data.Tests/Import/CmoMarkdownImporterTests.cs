@@ -234,6 +234,160 @@ public sealed class CmoMarkdownImporterTests
         Assert.Equal(0.75, radar.BasePd, precision: 6);
     }
 
+    [Fact]
+    public void ProposePlatformWeaponMounts_approve_readback_reflects_live_rows_in_stable_order()
+    {
+        var platformPath = CmoMarkdownImporter.ResolveBalticPlatformFixturePath();
+        var weaponPath = CmoMarkdownImporter.ResolveMiniWeaponFixturePath();
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cmo-e2e-{Guid.NewGuid():N}.db");
+
+        try
+        {
+            var proposed = CmoMarkdownImportProposer.ProposePlatformWeaponMounts(
+                dbPath,
+                platformPath,
+                weaponPath,
+                mapBalticPlatformIds: true,
+                clock: new FixedCatalogClock(9106));
+
+            using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9107)))
+            {
+                Assert.NotNull(proposed.PlatformBatchId);
+                Assert.NotNull(proposed.WeaponBatchId);
+                Assert.NotNull(proposed.MountBatchId);
+                Assert.True(gate.ApproveBatch(proposed.PlatformBatchId!, "human", "cmo-e2e").Committed);
+                Assert.True(gate.ApproveBatch(proposed.WeaponBatchId!, "human", "cmo-e2e").Committed);
+                Assert.True(gate.ApproveBatch(proposed.MountBatchId!, "human", "cmo-e2e").Committed);
+            }
+
+            using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
+            connection.Open();
+
+            var platformIds = ReadPlatformIds(connection);
+            Assert.Equal(["hostile-1", "hostile-far", "u1"], platformIds);
+
+            var weaponIds = ReadWeaponIds(connection);
+            Assert.Equal(["cmo-weapon-2001", "cmo-weapon-2002", "cmo-weapon-2003"], weaponIds);
+
+            var mounts = ReadMountKeys(connection);
+            Assert.Equal(4, mounts.Count);
+            Assert.Equal(
+                mounts.OrderBy(m => m, StringComparer.Ordinal).ToArray(),
+                mounts.ToArray());
+
+            var u1 = ReadPlatformRow(connection, "u1");
+            Assert.NotNull(u1);
+            Assert.Equal("Patrol Frigate U1 , Baltic Patrol", u1.Value.DisplayName);
+            Assert.Equal("Frigate", u1.Value.PlatformClass);
+
+            var standard = ReadWeaponRow(connection, "cmo-weapon-2001");
+            Assert.NotNull(standard);
+            Assert.Equal("RIM-66 Standard MR , USA", standard.Value.DisplayName);
+            Assert.Equal(74_000, standard.Value.MaxRangeMeters, precision: 0);
+        }
+        finally
+        {
+            SqliteConnection.ClearAllPools();
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    private static List<string> ReadPlatformIds(SqliteConnection connection)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT DISTINCT platform_id
+            FROM platform
+            WHERE display_name != ''
+            ORDER BY platform_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        var ids = new List<string>();
+        while (reader.Read())
+        {
+            ids.Add(reader.GetString(0));
+        }
+
+        return ids;
+    }
+
+    private static List<string> ReadWeaponIds(SqliteConnection connection)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = "SELECT weapon_id FROM weapon_catalog ORDER BY weapon_id ASC";
+        using var reader = cmd.ExecuteReader();
+        var ids = new List<string>();
+        while (reader.Read())
+        {
+            ids.Add(reader.GetString(0));
+        }
+
+        return ids;
+    }
+
+    private static List<string> ReadMountKeys(SqliteConnection connection)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id || '/' || mount_id
+            FROM platform_mount
+            ORDER BY platform_id ASC, mount_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        var keys = new List<string>();
+        while (reader.Read())
+        {
+            keys.Add(reader.GetString(0));
+        }
+
+        return keys;
+    }
+
+    private static (string DisplayName, string PlatformClass)? ReadPlatformRow(SqliteConnection connection, string platformId)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT display_name, platform_class
+            FROM platform
+            WHERE platform_id = $platform
+            ORDER BY snapshot_id ASC
+            LIMIT 1
+            """;
+        cmd.Parameters.AddWithValue("$platform", platformId);
+        using var reader = cmd.ExecuteReader();
+        if (!reader.Read())
+        {
+            return null;
+        }
+
+        return (reader.GetString(0), reader.GetString(1));
+    }
+
+    private static (string DisplayName, double MaxRangeMeters)? ReadWeaponRow(SqliteConnection connection, string weaponId)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT display_name, max_range_meters
+            FROM weapon_catalog
+            WHERE weapon_id = $weapon
+            """;
+        cmd.Parameters.AddWithValue("$weapon", weaponId);
+        using var reader = cmd.ExecuteReader();
+        if (!reader.Read())
+        {
+            return null;
+        }
+
+        return (reader.GetString(0), reader.GetDouble(1));
+    }
+
     private static int CountStagingRows(SqliteConnection connection, string table)
     {
         using var cmd = connection.CreateCommand();
