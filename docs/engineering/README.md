@@ -21,6 +21,16 @@ catalog. All four are anchored on [ADR-006 — Data Layer Boundary](../architect
 Tooling: the headless CLI/MCP verbs that drive these paths are documented in
 [`tools/mission-editor/README.md`](../../tools/mission-editor/README.md).
 
+## Simulation core (`ProjectAegis.Sim`)
+
+How the deterministic wargame stays reproducible: a given `(scenario, seed)` must
+produce the identical order log and end-state on every run. Anchored on
+[ADR-004 — Tick Pipeline Ordering](../architecture/adr-004-tick-pipeline-order.md).
+
+| Doc | Covers | Read when |
+|-----|--------|-----------|
+| [Simulation Determinism & Tick Pipeline](simulation-determinism.md) | fixed-timestep tick order; seeded RNG (`SimSeed`/`RngDomain`/`SeededRng`); layered `SimWorldHash`; replay/audit gates; non-determinism pitfalls | Adding a tick phase or randomized subsystem, or chasing a replay divergence |
+
 ## CI & branch protection
 
 | Doc | Covers |
