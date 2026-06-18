@@ -2,6 +2,9 @@
 
 Pinned world/detection hashes and optional `FINGERPRINT_SHA256` for Baltic harness runs.
 
+> Full subsystem reference (hash layers, fingerprint format, harness entry points,
+> regenerate/extend workflow): [`docs/engineering/replay-determinism-harness.md`](../../docs/engineering/replay-determinism-harness.md).
+
 ## CI gate
 
 `ReplayGoldenSuiteTests` runs on every PR via Buildkite ([`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml) / [`tools/buildkite/dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh)).
