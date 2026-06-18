@@ -27,8 +27,13 @@ public static class PlatformExportXlsxCommand
     {
         var clock = new FixedCatalogClock(0);
         var exporter = new PlatformWorkbookExporter();
-        var data = PlatformCatalogExportData.Empty;
         var effectiveSnapshot = string.IsNullOrWhiteSpace(snapshotId) ? "cli-s22-export" : snapshotId;
+        var snapshotResolved = PlatformCatalogExportResolver.TryResolve(dbPath, effectiveSnapshot, out var data);
+        if (!snapshotResolved)
+        {
+            data = PlatformCatalogExportData.Empty;
+        }
+
         var wb = exporter.Export(data, effectiveSnapshot, clock);
 
         var effectiveOut = string.IsNullOrWhiteSpace(outPath)
@@ -45,6 +50,10 @@ public static class PlatformExportXlsxCommand
             ok = true,
             verb = "platform_export_xlsx",
             snapshotId = effectiveSnapshot,
+            snapshotResolved,
+            phaseBMobilityRows = data.Mobility?.Count ?? 0,
+            phaseBSignatureRows = data.Signatures?.Count ?? 0,
+            phaseBEmconRows = data.Emcon?.Count ?? 0,
             outPath = effectiveOut,
             io = io.GetType().Name,
             note = "exported via PlatformWorkbookExporter + IPlatformWorkbookIo (ClosedXML default for .xlsx; canonical fallback via --io canonical)",

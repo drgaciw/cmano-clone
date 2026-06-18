@@ -40,7 +40,12 @@ public static class PlatformDiffXlsxCommand
         }
         else
         {
-            var data = PlatformCatalogExportData.Empty;
+            var effectiveSnapshot = "cli-s22-export";
+            if (!PlatformCatalogExportResolver.TryResolve(dbPath, effectiveSnapshot, out var data))
+            {
+                data = PlatformCatalogExportData.Empty;
+            }
+
             var source = exporter.Export(data, "base", clock);
             var edited = exporter.Export(data, "edited", clock);
             changes = PlatformWorkbookDiff.Compare(source, edited);

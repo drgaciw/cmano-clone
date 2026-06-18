@@ -839,7 +839,7 @@ sprint24_stories:
   - id: "24-2"
     name: "Phase B reader API + export provider"
     priority: must-have
-    status: backlog
+    status: done
     estimate_days: 2
     blocker: "24-1"
     note: "ICatalogReader Mobility/Signatures/Emcon; CLI real snapshot resolver"

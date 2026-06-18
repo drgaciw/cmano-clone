@@ -47,6 +47,20 @@ public static class CatalogSortKeyComparer
             .ThenBy(r => r.LinkId, StringComparer.Ordinal)
             .ToArray();
 
+    public static IReadOnlyList<CatalogMobility> SortMobility(IEnumerable<CatalogMobility> rows) =>
+        rows.OrderBy(r => r.PlatformId, StringComparer.Ordinal)
+            .ToArray();
+
+    public static IReadOnlyList<CatalogSignature> SortSignatures(IEnumerable<CatalogSignature> rows) =>
+        rows.OrderBy(r => r.PlatformId, StringComparer.Ordinal)
+            .ToArray();
+
+    public static IReadOnlyList<CatalogEmcon> SortEmcon(IEnumerable<CatalogEmcon> rows) =>
+        rows.OrderBy(r => r.PlatformId, StringComparer.Ordinal)
+            .ThenBy(r => r.Condition, StringComparer.Ordinal)
+            .ThenBy(r => r.EmitterId, StringComparer.Ordinal)
+            .ToArray();
+
     public static string FormatSensorKey(CatalogSensorBinding row) =>
         Join(row.PlatformId, row.SensorId);
 
@@ -62,6 +76,12 @@ public static class CatalogSortKeyComparer
         Join(row.PlatformId, row.LoadoutId, row.MountId, row.WeaponId);
 
     public static string FormatCommsKey(CatalogCommsBinding row) => Join(row.PlatformId, row.LinkId);
+
+    public static string FormatMobilityKey(CatalogMobility row) => row.PlatformId;
+
+    public static string FormatSignatureKey(CatalogSignature row) => row.PlatformId;
+
+    public static string FormatEmconKey(CatalogEmcon row) => Join(row.PlatformId, row.Condition, row.EmitterId);
 
     /// <summary>
     /// Deterministic SHA-256 over canonical sort-key tuples for all Catalog* entity domains.

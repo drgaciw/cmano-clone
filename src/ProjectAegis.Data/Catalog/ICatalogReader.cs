@@ -25,6 +25,48 @@ public interface ICatalogReader
     bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope) =>
         TryGetWeaponEnvelopeCore(weaponId, out envelope);
 
+    /// <summary>Req-21 Phase B: sorted mobility rows (platform_id).</summary>
+    IReadOnlyList<CatalogMobility> GetSortedMobility() => GetSortedMobilityCore();
+
+    /// <summary>Req-21 Phase B: sorted signature rows (platform_id).</summary>
+    IReadOnlyList<CatalogSignature> GetSortedSignatures() => GetSortedSignaturesCore();
+
+    /// <summary>Req-21 Phase B: sorted EMCON rows (platform_id, condition, emitter_id).</summary>
+    IReadOnlyList<CatalogEmcon> GetSortedEmcon() => GetSortedEmconCore();
+
+    bool TryGetMobility(string platformId, out CatalogMobility mobility) =>
+        TryGetMobilityCore(platformId, out mobility);
+
+    bool TryGetSignature(string platformId, out CatalogSignature signature) =>
+        TryGetSignatureCore(platformId, out signature);
+
+    bool TryGetEmcon(string platformId, string condition, string emitterId, out CatalogEmcon emcon) =>
+        TryGetEmconCore(platformId, condition, emitterId, out emcon);
+
+    IReadOnlyList<CatalogMobility> GetSortedMobilityCore() => [];
+
+    IReadOnlyList<CatalogSignature> GetSortedSignaturesCore() => [];
+
+    IReadOnlyList<CatalogEmcon> GetSortedEmconCore() => [];
+
+    bool TryGetMobilityCore(string platformId, out CatalogMobility mobility)
+    {
+        mobility = new CatalogMobility(platformId);
+        return false;
+    }
+
+    bool TryGetSignatureCore(string platformId, out CatalogSignature signature)
+    {
+        signature = new CatalogSignature(platformId);
+        return false;
+    }
+
+    bool TryGetEmconCore(string platformId, string condition, string emitterId, out CatalogEmcon emcon)
+    {
+        emcon = new CatalogEmcon(platformId, condition, emitterId);
+        return false;
+    }
+
     bool TryGetWeaponEnvelopeCore(string weaponId, out WeaponEnvelopeDto envelope)
     {
         envelope = default;
