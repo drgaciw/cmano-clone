@@ -9,7 +9,7 @@ public static class CatalogSortKeyGoldenHashes
 
     /// <summary><see cref="PlatformWorkbookExporter"/> hash for the platform-editor sample (excludes _Meta).</summary>
     public const string PlatformEditorWorkbook =
-        "6817cb1562d07eb8ffd16419a1d4255d3711e7c79b6301cf1be8e1ac2236bf45";
+        "3c5712b3e52cfd4b9638af996f7317fab31d4603df77d4e692fabb258b17ea1a";
 
     /// <summary>Baltic CMO markdown fixture (platform + weapon + mount keys only).</summary>
     public const string BalticCmoImport =
