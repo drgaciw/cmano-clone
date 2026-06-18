@@ -14,27 +14,32 @@ public static class MapPictureProjection
         foreach (var unit in oob)
         {
             var (x, y) = Place(unit.UnitId, layoutSeed);
+            var isDestroyed = !unit.IsAlive;
+            var (glyph, sidc) = App6Sidc.Resolve("Friendly", isDestroyed);
             symbols.Add(new MapSymbolEntry(
                 unit.UnitId,
                 "Friendly",
-                "■",
+                glyph,
                 unit.UnitId,
                 x,
                 y,
-                !unit.IsAlive));
+                isDestroyed,
+                sidc));
         }
 
         foreach (var contact in contacts)
         {
             var (x, y) = Place(contact.ContactId, layoutSeed + 17);
+            var (glyph, sidc) = App6Sidc.Resolve("Hostile");
             symbols.Add(new MapSymbolEntry(
                 contact.ContactId,
                 "Hostile",
-                "◆",
+                glyph,
                 $"{contact.ContactId} {contact.LifecycleState}",
                 x,
                 y,
-                IsDestroyed: false));
+                IsDestroyed: false,
+                sidc));
         }
 
         return symbols
