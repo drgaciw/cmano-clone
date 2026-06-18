@@ -572,58 +572,98 @@ goal: "Complete Platform Editor Phase A write-gate coverage and CLI verbs (Req 2
 start: "2026-06-23"
 end: "2026-07-07"
 generated: "2026-06-09"
-updated: "2026-06-09"
+updated: "2026-06-17"
+indexed_commit: 34d4e6f
+gitnexus_indexed: "2026-06-17"
+gitnexus_nodes: 8671
+gitnexus_edges: 17891
+gitnexus_detect_changes: "2026-06-17 all-scope: 75 symbols / 29 processes / CRITICAL (CatalogWriteGate, CmoMarkdownImporter, OsintCatalogMapper, DoctrineOverrideCommand)"
 kickoff: production/sprints/sprint-22-platform-editor-db-doctrine.md
+status: partial
+completed: "2026-06-17"
+sprint22_status: complete
+sprint22_nice_have_complete: true
+sprint22_nice_have_completed: "2026-06-17"
+closeout_note: "All 7 stories done (22-1–22-7) via parallel agent dispatch 2026-06-17. ADR-011 Proposed; xlsx adapter Phase B; Unity Editor doctrine visual deferred; git stack uncommitted."
+sprint22_must_have_complete: true
+sprint22_should_have_complete: true
+sprint22_must_have_completed: "2026-06-17"
+sprint22_should_have_completed: "2026-06-17"
+tests_passed_sprint22_platform: 25
+tests_passed_sprint22_cli: 21
+tests_passed_sprint22_cmomarkdown: 22
+tests_passed_sprint22_doctrine: 17
+evidence:
+  - production/qa/smoke-2026-06-17.md
+  - production/qa/sprint-22-signoff-2026-06-17.md
+  - production/retrospectives/retro-sprint-22-2026-06-17.md
+  - production/agentic/sprint-22-commit-plan-2026-06-17.md
+  - production/qa/sprint-22-gitnexus-2026-06-17.md
+  - production/session-state/active.md
+  - docs/architecture/adr-011-platform-editor-excel-roundtrip.md
 sprint22_stories:
   - id: "22-1"
     name: "Extend PlatformWorkbookImporter write-gate to Mounts/Loadouts/Magazines/Comms"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 3
     blocker: ""
+    completed: "2026-06-17"
+    note: "25 Platform tests PASS; ProposeMountBatch/Loadout/Magazine/Comms wired in PlatformWorkbookImporter"
   - id: "22-2"
     name: "Add CLI verbs platform_export_xlsx / platform_import_xlsx / platform_diff_xlsx"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 2
     blocker: "22-1"
+    completed: "2026-06-17"
+    note: "21 MissionEditor.Cli.Tests PASS; mcp-tools.json + CLI smoke (export/diff/import gate path)"
   - id: "22-3"
     name: "Author ADR-011 platform-editor-excel-roundtrip"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 0.5
     blocker: ""
+    completed: "2026-06-17"
   - id: "22-4"
     name: "Extend CmoMarkdownImporter to platform + weapon/mount entries"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 3
     blocker: "22-1"
+    completed: "2026-06-17"
+    note: "22 CmoMarkdown tests PASS; ProposePlatformBatch/ProposeWeaponBatch + Baltic fixtures; ApproveBatch platform path deferred"
   - id: "22-5"
     name: "Unity Doctrine Inheritance Panel (Req 13)"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 3
     blocker: ""
+    completed: "2026-06-17"
+    note: "17 doctrine tests PASS (4 DoctrineOverrideCommand + 8 projection/binder + 1 PlayMode smoke row); ZERO touch DelegationBridge.cs; Unity PlayMode DEFERRED (headless proxy)"
   - id: "22-6"
     name: "IBalanceTelemetrySink real accumulator + win-rate flag"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 2
-    blocker: "22-4"
+    blocker: ""
+    completed: "2026-06-17"
+    note: "10 Telemetry tests PASS; BalanceTelemetryAccumulator ±8% advisory flag; enableBalanceDrift default false; golden-hash pinned; no IWriteGate bypass"
   - id: "22-7"
     name: "OSINT OsintCatalogMapper TL routing"
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 2
     blocker: "S21 complete"
+    completed: "2026-06-17"
+    note: "OsintCatalogMapperTests TL routing + determinism + no-bypass; Osint filter PASS"
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
