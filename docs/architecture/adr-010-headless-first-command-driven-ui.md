@@ -158,3 +158,7 @@ Odin may be reconsidered later only for **editor-only convenience tooling**, deb
 | **Depends on** | ADR-001, ADR-005, ADR-006, ADR-007, ADR-008 |
 | **Enables** | Runtime C2 UI expansion, mission-editor UI, agentic scenario authoring, replay/AAR visualization |
 | **Conflicts with** | Any design that makes Unity UI, Odin serialization, scene objects, or ScriptableObjects authoritative for sim/scenario state |
+
+## Reference docs
+
+- [Doctrine inheritance panel — developer reference](../engineering/doctrine-inheritance-panel.md) — a worked example of the read-only projection/binder pattern plus its separate write command (`DoctrineOverrideCommand`).
