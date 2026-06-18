@@ -105,7 +105,7 @@ This subsystem feeds golden/fixture tests; non-determinism breaks them.
 
 ## CLI / MCP verb
 
-The wired production caller is `catalog_import_markdown` on `ProjectAegis.MissionEditor.Cli` (sensor path):
+The wired production caller is `catalog_import_markdown` on `ProjectAegis.MissionEditor.Cli` (sensor path; see all verbs in the [Mission Editor CLI / MCP reference](mission-editor-cli-reference.md)):
 
 ```bash
 dotnet run --project src/ProjectAegis.MissionEditor.Cli -- \

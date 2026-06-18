@@ -79,7 +79,7 @@ Two consequences for the `.xlsx` adapter:
 
 ## CLI / MCP verbs
 
-Three verbs on `ProjectAegis.MissionEditor.Cli` (also exposed as MCP tools in `tools/mission-editor/mcp-tools.json`):
+Three verbs on `ProjectAegis.MissionEditor.Cli` (also exposed as MCP tools in `tools/mission-editor/mcp-tools.json`; see the full verb surface in the [Mission Editor CLI / MCP reference](mission-editor-cli-reference.md)):
 
 ```bash
 # Export the bound snapshot to a workbook

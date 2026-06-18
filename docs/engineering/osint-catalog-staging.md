@@ -114,6 +114,8 @@ There are **two** discovery→binding mappers, and only one is currently wired i
 
 ## Operational runbook
 
+> Flags, exit codes, and the CLI ↔ MCP tool aliases for these verbs are catalogued in the [Mission Editor CLI / MCP reference](mission-editor-cli-reference.md).
+
 ```bash
 # 1. On-demand search (MCP search_osint fallback) — uses data/osint_facts.json or --db override.
 #    Prints proposals (>= 0.65 relevance) + log-only count; does NOT stage.
