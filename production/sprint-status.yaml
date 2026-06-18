@@ -797,8 +797,8 @@ end: "2026-08-06"
 generated: "2026-06-17"
 updated: "2026-06-17"
 status: in-progress
-branch: stack/sprint24/full-sln-gate
-indexed_commit: e77696d
+branch: stack/sprint24/closeout-replay-gitnexus
+indexed_commit: d0fc4db
 tests_passed_sprint23_baseline: 538
 tests_passed_sprint24_baseline: 540
 sprint24_baseline_date: "2026-06-17"
@@ -826,6 +826,7 @@ evidence:
   - docs/superpowers/plans/sprint-24-graphite-stack.md
   - production/qa/qa-plan-sprint-24-2026-06-17.md
   - production/qa/smoke-sprint-24-2026-06-17.md
+  - production/qa/sprint-24-gitnexus-2026-06-17.md
   - production/agentic/stacks/sprint24/README.md
   - production/agentic/stacks/sprint24/S24-05-DONE.md
   - production/agentic/stacks/sprint24/S24-06-DONE.md
@@ -895,10 +896,11 @@ sprint24_stories:
   - id: "24-9"
     name: "Closeout hygiene (replay + GitNexus)"
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: ""
-    note: "replay-verify all; gitnexus analyze @ stack tip; sprint-24-gitnexus evidence"
+    completed: "2026-06-17"
+    note: "ReplayGoldenSuiteTests 6/6; full sln 570/570 @ d0fc4db; gitnexus 9723/19973; detect_changes CRITICAL; DelegationBridge ZERO touch; evidence production/qa/sprint-24-gitnexus-2026-06-17.md"
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
