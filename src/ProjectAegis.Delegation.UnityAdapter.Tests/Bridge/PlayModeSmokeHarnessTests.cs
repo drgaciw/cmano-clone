@@ -165,6 +165,31 @@ public sealed class PlayModeSmokeHarnessTests
     }
 
     [Test]
+    public void Baltic_doctrine_mission_roe_harness_matches_doctrine_batch_preconditions()
+    {
+        var result = BalticReplayHarness.Run(42, "baltic-patrol-mission-roe", ticks: 6, mvpEngagement: false);
+        Assert.That(result.SensorC2.Contacts, Is.Not.Empty);
+
+        ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
+        var policy = ScenarioPolicyRepository.TryGet("baltic-patrol-mission-roe");
+        Assert.That(policy, Is.Not.Null);
+        Assert.That(policy!.MissionRoe, Is.Not.Null);
+        Assert.That(policy.MissionRoe!.Value.Roe, Is.EqualTo(RoeLevel.WeaponsTight));
+
+        var unitId = new TargetId("u1");
+        var entry = DoctrineInheritanceProjection.ProjectUnit(unitId, policy, isFriendly: true);
+        Assert.That(entry, Is.Not.Null);
+        var panel = DoctrineInheritancePanelBinder.Bind(entry!);
+        Assert.That(panel.RoeLine, Does.Contain("WeaponsTight"));
+        Assert.That(panel.SourceLine, Does.Contain("Mission"));
+
+        var oob = new[] { new OobTreeEntry("u1", true) };
+        var symbols = MapPictureProjection.Project(oob, result.SensorC2.Contacts, layoutSeed: 42);
+        var map = MapPanelBinder.Bind(symbols, "baltic-patrol-mission-roe", "u1", null);
+        Assert.That(map.Symbols.Single(s => s.SymbolId == "u1").IsSelected, Is.True);
+    }
+
+    [Test]
     public void Doctrine_override_round_trip_updates_policy_log_and_projection_bind()
     {
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
