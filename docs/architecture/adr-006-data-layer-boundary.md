@@ -16,7 +16,7 @@
 3. **Snapshots are immutable**; scenarios reference `dbSnapshotId` and fail load on resolve errors.
 4. **Sim and Delegation** consume read-only APIs (`ICatalogReader`, DTO export); they do not open SQLite directly.
 5. Move **scenario policy repository** from Sim to Data in the P0 stack (DATA-3).
-6. P0 validation is **schema + referential + sanity detect**; auto-normalization and balance drift are out of scope.
+6. P0 validation is **schema + referential + sanity detect**; auto-normalization and balance drift are out of scope. Balance drift ships post-P0 as an **advisory-only** telemetry hook that never mutates the catalog (DBI-5; see [balance telemetry drift runbook](../engineering/balance-telemetry-drift.md)).
 
 ## Consequences
 
