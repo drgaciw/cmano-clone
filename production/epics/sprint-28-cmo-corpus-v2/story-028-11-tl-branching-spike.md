@@ -66,3 +66,11 @@ ls production/agentic/sprint-28-tl-branching-spike-*.md 2>/dev/null || echo "spi
 - Skill: `database-branching-release-train`
 - Kickoff: `production/sprints/sprint-28-corpus-write-combat-v2.md` (S28-11)
 - QA plan: `production/qa/qa-plan-sprint-28-2026-09-18.md` *(create before implementation)*
+
+## Completion Notes
+
+**Completed**: 2026-06-18  
+**Criteria**: All AC passing  
+**Deviations**: None — production TL forks deferred per spike verdict  
+**Test Evidence**: Config — `production/agentic/sprint-28-tl-branching-spike-2026-06-18.md`; zero runtime `TlBranch`/`BranchDatabase` bindings; `production/agentic/stacks/sprint28/S28-11-DONE.md`  
+**Code Review**: Skipped (lean mode); doc-only spike

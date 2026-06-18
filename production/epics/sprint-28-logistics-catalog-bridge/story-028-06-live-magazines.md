@@ -69,3 +69,11 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 - S27-03 pattern: `production/epics/sprint-27-cmo-corpus-import/story-027-03-loadout-magazine-import.md`
 - Kickoff: `production/sprints/sprint-28-corpus-write-combat-v2.md` (S28-06)
 - QA plan: `production/qa/qa-plan-sprint-28-2026-09-18.md` *(create before implementation)*
+
+## Completion Notes
+
+**Completed**: 2026-06-18  
+**Criteria**: All AC passing  
+**Deviations**: None  
+**Test Evidence**: Integration — `CatalogMagazineResolverTests`, `CatalogMagazineLedgerSeederTests`, `CatalogMagazineReadinessEngageTests`; `production/agentic/stacks/sprint28/S28-06-DONE.md`  
+**Code Review**: Skipped (lean mode)

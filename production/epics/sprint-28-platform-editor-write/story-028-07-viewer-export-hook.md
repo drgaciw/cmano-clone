@@ -68,3 +68,11 @@ dotnet test src/ProjectAegis.MissionEditor.Cli.Tests/ProjectAegis.MissionEditor.
 - S26-10 spike: `production/qa/sprint-26-platform-viewer-spike-2026-06-18.md`
 - Kickoff: `production/sprints/sprint-28-corpus-write-combat-v2.md` (S28-07)
 - QA plan: `production/qa/qa-plan-sprint-28-2026-09-18.md` *(create before implementation)*
+
+## Completion Notes
+
+**Completed**: 2026-06-18  
+**Criteria**: All AC passing  
+**Deviations**: Optional Editor screenshot not captured (headless export path satisfies merge gate)  
+**Test Evidence**: Integration — `PlatformCatalogExportBridgeTests`, `PlatformCatalogViewerTests`; `production/agentic/stacks/sprint28/S28-07-DONE.md`  
+**Code Review**: Skipped (lean mode)

@@ -66,3 +66,11 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 - S22-06 pattern: `production/sprint-status.yaml` (sprint22_stories 22-6)
 - Kickoff: `production/sprints/sprint-28-corpus-write-combat-v2.md` (S28-10)
 - QA plan: `production/qa/qa-plan-sprint-28-2026-09-18.md` *(create before implementation)*
+
+## Completion Notes
+
+**Completed**: 2026-06-18  
+**Criteria**: All AC passing  
+**Deviations**: None  
+**Test Evidence**: Logic — `BalanceDriftAdvisoryConsumerTests`, `ScenarioPolicyBalanceTelemetryJsonTests`; ReplayGolden 6/6; `production/agentic/stacks/sprint28/S28-10-DONE.md`  
+**Code Review**: Skipped (lean mode)

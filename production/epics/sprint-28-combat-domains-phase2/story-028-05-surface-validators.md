@@ -69,3 +69,11 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 - S27-05 pattern: `production/epics/sprint-27-adr009-bounded/story-027-05-adr009-validators.md`
 - Kickoff: `production/sprints/sprint-28-corpus-write-combat-v2.md` (S28-05)
 - QA plan: `production/qa/qa-plan-sprint-28-2026-09-18.md` *(create before implementation)*
+
+## Completion Notes
+
+**Completed**: 2026-06-18  
+**Criteria**: All AC passing  
+**Deviations**: None  
+**Test Evidence**: Integration — `CombatDomainValidatorTests`, `DomainValidatorRegistryTests`; ReplayGolden 6/6; `production/agentic/stacks/sprint28/S28-05-DONE.md`  
+**Code Review**: Skipped (lean mode)
