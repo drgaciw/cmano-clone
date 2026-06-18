@@ -45,6 +45,10 @@ public sealed class DbSnapshotBindingTests
             var releases = store.GetSortedReleases();
             Assert.Contains(releases, r => r.SnapshotId == bind.SnapshotId);
             Assert.Contains(releases, r => r.Notes.Contains(batchId, StringComparison.Ordinal));
+
+            Assert.True(store.TryGetBranch(bind.SnapshotId, out var branch));
+            Assert.Equal(CatalogTlTier.Default, branch);
+            Assert.Equal(CatalogTlTier.Default, bind.TlTier);
         }
         finally
         {

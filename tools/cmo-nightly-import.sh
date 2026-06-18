@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# S28-02 — Off-CI nightly CMO corpus propose-only import (sensor + weapon v1 + platform v2).
-# Not wired into dotnet test CI. Requires human approve via catalog_write_approve.
+# S28-02 / S29-03 — Off-CI nightly CMO corpus propose-only import (sensor + weapon v1 + platform v2).
+# Not wired into dotnet test CI. Approve via tools/cmo-nightly-approve.sh or catalog_write_approve.
 set -euo pipefail
 
 export PATH="${HOME}/.dotnet:${PATH}"
@@ -14,7 +14,7 @@ usage() {
 Usage: tools/cmo-nightly-import.sh [options]
 
 Off-CI nightly CMO corpus propose-only import. Stages batches in a scratch DB;
-approve manually via catalog_write_approve before any catalog commit.
+approve via tools/cmo-nightly-approve.sh (or catalog_write_approve) before any catalog commit.
 
 Options:
   --entity <sensor|weapon|platform|all>  Entities to import (default: all)
@@ -187,7 +187,8 @@ if [[ "${DRY_RUN}" -eq 1 ]]; then
   exit 0
 fi
 
-echo "==> Done. Review staged batches in ${DB_PATH}; approve manually before commit."
+echo "==> Done. Review staged batches in ${DB_PATH}."
+echo "    Approve: ./tools/cmo-nightly-approve.sh --entity ${ENTITY} --run-date ${RUN_DATE}"
 if entity_selected sensor; then
   echo "    Sensor report: ${SCRATCH_DIR}/sensor-quarantine.json"
 fi

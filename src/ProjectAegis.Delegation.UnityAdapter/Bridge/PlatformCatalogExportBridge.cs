@@ -2,6 +2,7 @@ namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
+using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
 
 /// <summary>
@@ -33,10 +34,12 @@ public static class PlatformCatalogExportBridge
                 $"Snapshot '{snapshotId}' did not resolve against database '{databasePath}'.");
         }
 
+        var manifest = CatalogExportManifest.Resolve(databasePath, snapshotId);
         return (exporter ?? new PlatformWorkbookExporter()).Export(
             data,
             snapshotId,
-            new FixedCatalogClock(clockTicks));
+            new FixedCatalogClock(clockTicks),
+            manifest);
     }
 
     public static PlatformWorkbook ExportBalticWorkbook(string databasePath, long clockTicks = 0) =>

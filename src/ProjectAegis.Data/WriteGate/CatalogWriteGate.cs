@@ -405,7 +405,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             using var store = new DbSnapshotStore(_connection.DataSource);
             var sensorIds = approved.Select(a => a.SensorId).OrderBy(s => s, StringComparer.Ordinal).ToList();
             var src = approved.FirstOrDefault()?.SourceFile ?? "phase2-import";
-            _ = store.RecordApprovedImport(sensorIds, src, batchId);
+            _ = store.RecordApprovedImport(sensorIds, src, batchId, CatalogTlTier.Default);
         }
         catch
         {

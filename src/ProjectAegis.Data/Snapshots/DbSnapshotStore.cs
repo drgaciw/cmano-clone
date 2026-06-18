@@ -55,13 +55,35 @@ public sealed class DbSnapshotStore : IDisposable
         return !string.IsNullOrEmpty(contentHashSha256);
     }
 
+    public bool TryGetBranch(string snapshotId, out string branch)
+    {
+        branch = CatalogTlTier.Default;
+        if (!TableExists("catalog_snapshot") || !TableHasColumn("catalog_snapshot", "branch"))
+        {
+            return false;
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT branch FROM catalog_snapshot WHERE snapshot_id = $id";
+        cmd.Parameters.AddWithValue("$id", snapshotId);
+        var scalar = cmd.ExecuteScalar();
+        if (scalar == null || scalar is DBNull)
+        {
+            return false;
+        }
+
+        branch = CatalogTlTier.Normalize((string)scalar);
+        return true;
+    }
+
     public void RecordRelease(
         string releaseVersion,
         string snapshotId,
         string contentHashSha256,
         long createdUtcTicks,
         string schemaVersion = "006",
-        string notes = "")
+        string notes = "",
+        string? branch = null)
     {
         if (string.IsNullOrWhiteSpace(releaseVersion))
         {
@@ -78,17 +100,34 @@ public sealed class DbSnapshotStore : IDisposable
             throw new ArgumentException("Content hash required.", nameof(contentHashSha256));
         }
 
+        var resolvedBranch = CatalogTlTier.Normalize(branch);
         using var tx = _connection.BeginTransaction();
 
         using (var snap = tx.Connection!.CreateCommand())
         {
             snap.Transaction = tx;
-            snap.CommandText =
-                """
-                INSERT INTO catalog_snapshot (snapshot_id, content_hash_sha256)
-                VALUES ($id, $hash)
-                ON CONFLICT(snapshot_id) DO UPDATE SET content_hash_sha256 = excluded.content_hash_sha256
-                """;
+            if (TableHasColumn("catalog_snapshot", "branch"))
+            {
+                snap.CommandText =
+                    """
+                    INSERT INTO catalog_snapshot (snapshot_id, content_hash_sha256, branch)
+                    VALUES ($id, $hash, $branch)
+                    ON CONFLICT(snapshot_id) DO UPDATE SET
+                        content_hash_sha256 = excluded.content_hash_sha256,
+                        branch = excluded.branch
+                    """;
+                snap.Parameters.AddWithValue("$branch", resolvedBranch);
+            }
+            else
+            {
+                snap.CommandText =
+                    """
+                    INSERT INTO catalog_snapshot (snapshot_id, content_hash_sha256)
+                    VALUES ($id, $hash)
+                    ON CONFLICT(snapshot_id) DO UPDATE SET content_hash_sha256 = excluded.content_hash_sha256
+                    """;
+            }
+
             snap.Parameters.AddWithValue("$id", snapshotId);
             snap.Parameters.AddWithValue("$hash", contentHashSha256);
             snap.ExecuteNonQuery();
@@ -144,7 +183,11 @@ public sealed class DbSnapshotStore : IDisposable
     }
 
     /// <summary>Record snapshot after approve (gate auto-record). Deterministic hash for replay binding.</summary>
-    public DbSnapshotRecord RecordApprovedImport(IReadOnlyList<string> approvedIds, string sourceFile, string importBatchId)
+    public DbSnapshotRecord RecordApprovedImport(
+        IReadOnlyList<string> approvedIds,
+        string sourceFile,
+        string importBatchId,
+        string? branch = null)
     {
         var canonical = string.Join("|", approvedIds.OrderBy(id => id, StringComparer.Ordinal));
         var input = $"{canonical}|{sourceFile}|{importBatchId}";
@@ -155,12 +198,26 @@ public sealed class DbSnapshotStore : IDisposable
         var shortHash = hash.Length >= 8 ? hash.Substring(0, 8) : hash;
         var id = $"snap-{importBatchId}-{shortHash}";
 
+        var resolvedBranch = CatalogTlTier.Normalize(branch);
         using var cmd = _connection.CreateCommand();
-        cmd.CommandText = "INSERT OR IGNORE INTO catalog_snapshot (snapshot_id) VALUES ($id)";
+        if (TableHasColumn("catalog_snapshot", "branch"))
+        {
+            cmd.CommandText =
+                """
+                INSERT OR IGNORE INTO catalog_snapshot (snapshot_id, branch)
+                VALUES ($id, $branch)
+                """;
+            cmd.Parameters.AddWithValue("$branch", resolvedBranch);
+        }
+        else
+        {
+            cmd.CommandText = "INSERT OR IGNORE INTO catalog_snapshot (snapshot_id) VALUES ($id)";
+        }
+
         cmd.Parameters.AddWithValue("$id", id);
         cmd.ExecuteNonQuery();
 
-        return new DbSnapshotRecord(id, hash, sourceFile, importBatchId);
+        return new DbSnapshotRecord(id, hash, sourceFile, importBatchId, resolvedBranch);
     }
 
     public void Dispose()
@@ -187,4 +244,9 @@ public sealed class DbSnapshotStore : IDisposable
     }
 }
 
-public sealed record DbSnapshotRecord(string Id, string ContentHash, string SourceFile, string ImportBatchId);
+public sealed record DbSnapshotRecord(
+    string Id,
+    string ContentHash,
+    string SourceFile,
+    string ImportBatchId,
+    string Branch = CatalogTlTier.Default);

@@ -1,6 +1,6 @@
 ---
 id: S29-05
-status: Not Started
+status: Complete
 type: Integration
 priority: should-have
 graphite_branch: stack/sprint29/combat-baltic-enable
@@ -23,13 +23,13 @@ Flip **`combatDomainsEnabled=true`** on isolated Baltic golden fixture; pin new 
 
 ## Acceptance Criteria
 
-- [ ] `combatDomainsEnabled=true` on isolated Baltic golden fixture (not smoke pin)
-- [ ] New Baltic golden world-state hash pinned; `/replay-verify` PASS
-- [ ] `ReplayGoldenSuiteTests` — 6/6 PASS
-- [ ] `combat-domains-smoke.policy.json` remains on separate pin (unchanged hash)
-- [ ] Production Baltic fixture policy documented (when flag flips, hash evidence)
-- [ ] Domain validators (air/surface/subsurface) active on flag-on Baltic path
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] `combatDomainsEnabled=true` on isolated Baltic golden fixture (not smoke pin)
+- [x] New Baltic golden world-state hash pinned; `/replay-verify` PASS
+- [x] `ReplayGoldenSuiteTests` — 6/6 PASS
+- [x] `combat-domains-smoke.policy.json` remains on separate pin (unchanged hash)
+- [x] Production Baltic fixture policy documented (when flag flips, hash evidence)
+- [x] Domain validators (air/surface/subsurface) active on flag-on Baltic path
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

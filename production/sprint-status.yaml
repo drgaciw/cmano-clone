@@ -1613,13 +1613,21 @@ gitnexus_nodes: 12240
 gitnexus_edges: 24819
 tests_passed_sprint28_closeout: 801
 tests_passed_sprint29_baseline: 801
+tests_passed_sprint29_wave1: 819
 replay_golden_sprint29_baseline: pass
+replay_golden_sprint29_wave1: pass
 kickoff: production/sprints/sprint-29-operationalize-data-fight-loop.md
 parallel_kickoff: production/agentic/sprint-29-parallel-kickoff-2026-06-18.md
 qa_plan: production/qa/qa-plan-sprint-29-2026-10-02.md
 evidence:
   - production/qa/smoke-sprint-29-baseline-2026-06-18.md
   - production/agentic/stacks/sprint29/S29-01-DONE.md
+  - production/agentic/stacks/sprint29/S29-02-DONE.md
+  - production/agentic/stacks/sprint29/S29-03-DONE.md
+  - production/agentic/stacks/sprint29/S29-05-DONE.md
+  - production/qa/sprint-29-nightly-approve-2026-06-18.md
+  - production/agentic/sprint-29-tl-export-phase12-2026-06-18.md
+  - production/agentic/sprint-29-baltic-combat-enable-2026-06-18.md
 epics:
   - production/epics/sprint-29-tl-export-foundation/EPIC.md
   - production/epics/sprint-29-corpus-approve/EPIC.md
@@ -1642,18 +1650,20 @@ sprint29_stories:
     name: "TL export Phase 1-2"
     file: production/epics/sprint-29-tl-export-foundation/story-029-02-tl-export-phase12.md
     priority: must-have
-    status: ready-for-dev
+    status: done
     estimate_days: 2
-    blocker: "29-1"
-    completed: ""
+    blocker: ""
+    completed: "2026-06-18"
+    note: "migration 010 branch column; tlTier manifest; 819/819 sln; evidence production/agentic/stacks/sprint29/S29-02-DONE.md"
   - id: "29-3"
     name: "Nightly corpus approve workflow"
     file: production/epics/sprint-29-corpus-approve/story-029-03-nightly-approve.md
     priority: must-have
-    status: ready-for-dev
+    status: done
     estimate_days: 2
-    blocker: "29-1"
-    completed: ""
+    blocker: ""
+    completed: "2026-06-18"
+    note: "cmo-nightly-approve.sh; WriteGate curated tests; evidence production/qa/sprint-29-nightly-approve-2026-06-18.md"
   - id: "29-4"
     name: "Platform Editor Phase E Unity import UI"
     file: production/epics/sprint-29-platform-editor-phase-e/story-029-04-unity-import-ui.md
@@ -1666,10 +1676,11 @@ sprint29_stories:
     name: "Combat domains Baltic enablement"
     file: production/epics/sprint-29-combat-domains-phase3/story-029-05-baltic-combat-enable.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1.5
-    blocker: "29-1"
-    completed: ""
+    blocker: ""
+    completed: "2026-06-18"
+    note: "baltic-patrol-combat-domains isolated pin; ReplayGolden 6/6; smoke unchanged; evidence production/agentic/stacks/sprint29/S29-05-DONE.md"
   - id: "29-6"
     name: "Catalog Phase B sim consumption"
     file: production/epics/sprint-29-catalog-sim-bridge/story-029-06-phaseb-sim-consumption.md

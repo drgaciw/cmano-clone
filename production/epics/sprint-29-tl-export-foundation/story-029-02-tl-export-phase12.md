@@ -1,6 +1,6 @@
 ---
 id: S29-02
-status: Ready
+status: Complete
 type: Integration
 priority: must-have
 graphite_branch: stack/sprint29/tl-export-phase12
@@ -23,12 +23,12 @@ Implement TL export **Phases 1–2** from S28-11 PROCEED verdict: `tlTier` on ex
 
 ## Acceptance Criteria
 
-- [ ] Migration `007` applies; `catalog_snapshot.branch` column (`TL-0`…`TL-5`) present
-- [ ] Export drops carry `tlTier` manifest field
-- [ ] `rg TlBranch|BranchDatabase` → zero production runtime bindings
-- [ ] WriteGate regression PASS on curated fixtures
-- [ ] Evidence: `production/agentic/sprint-29-tl-export-phase12-*.md`
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] Migration `010` applies; `catalog_snapshot.branch` column (`TL-0`…`TL-5`) present
+- [x] Export drops carry `tlTier` manifest field
+- [x] `rg TlBranch|BranchDatabase` → zero production runtime bindings
+- [x] WriteGate regression PASS on curated fixtures
+- [x] Evidence: `production/agentic/sprint-29-tl-export-phase12-2026-06-18.md`
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

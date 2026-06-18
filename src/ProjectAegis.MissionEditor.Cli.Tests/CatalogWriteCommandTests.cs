@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Import;
 using ProjectAegis.MissionEditor.Cli;
 using Xunit;
 
@@ -37,6 +38,56 @@ public sealed class CatalogWriteCommandTests
         finally
         {
             if (File.Exists(dbPath)) File.Delete(dbPath);
+        }
+    }
+
+    [Fact]
+    public void catalog_import_markdown_then_write_approve_records_snapshot_hash_for_platform_slice()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-nightly-approve-{Guid.NewGuid():N}.db");
+        var markdown = CmoMarkdownImporter.ResolveShipSlice100FixturePath();
+
+        try
+        {
+            using (var importOut = new StringWriter())
+            {
+                Assert.Equal(
+                    0,
+                    CatalogImportMarkdownCommand.Run(
+                        dbPath,
+                        markdown,
+                        maxRecords: 12,
+                        chunkSize: 500,
+                        importOut,
+                        entity: CmoMarkdownImportEntity.Platform));
+
+                using var doc = JsonDocument.Parse(importOut.ToString());
+                var batches = doc.RootElement.GetProperty("batches");
+                Assert.Equal(1, batches.GetArrayLength());
+                var batchId = batches[0].GetProperty("batchId").GetString();
+                Assert.False(string.IsNullOrWhiteSpace(batchId));
+
+                using var approveOut = new StringWriter();
+                Assert.Equal(0, CatalogWriteApproveCommand.Run(
+                    dbPath,
+                    batchId!,
+                    approveOut,
+                    releaseVersion: "cli-nightly-platform-s29-03"));
+
+                using var approveDoc = JsonDocument.Parse(approveOut.ToString());
+                var root = approveDoc.RootElement;
+                Assert.True(root.GetProperty("ok").GetBoolean());
+                var hash = root.GetProperty("contentHashSha256").GetString();
+                Assert.Matches("^[a-f0-9]{64}$", hash);
+                Assert.Equal("cli-nightly-platform-s29-03", root.GetProperty("releaseVersion").GetString());
+            }
+        }
+        finally
+        {
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
         }
     }
 

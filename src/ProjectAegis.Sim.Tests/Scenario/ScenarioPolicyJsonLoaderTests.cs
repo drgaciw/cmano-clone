@@ -139,6 +139,31 @@ public sealed class ScenarioPolicyJsonLoaderTests
     }
 
     [Fact]
+    public void Loads_baltic_patrol_combat_domains_with_flag_enabled()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-combat-domains.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.Equal("baltic-patrol-combat-domains", profile.Id);
+        Assert.NotNull(profile.EngageDefaults);
+        Assert.True(profile.EngageDefaults!.CombatDomainsEnabled);
+        Assert.Equal(1.0, profile.DetectionTrials[0].EnvMask);
+    }
+
+    [Fact]
+    public void Loads_production_baltic_patrol_with_combat_domains_disabled()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.Equal("baltic-patrol", profile.Id);
+        Assert.NotNull(profile.EngageDefaults);
+        Assert.False(profile.EngageDefaults!.CombatDomainsEnabled);
+    }
+
+    [Fact]
     public void Loads_baltic_patrol_comms_logistics_and_display_settings()
     {
         var repoRoot = FindRepoRoot();

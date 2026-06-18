@@ -56,6 +56,7 @@ public static class CatalogWriteApproveCommand
             snapshotId = bind.SnapshotId,
             contentHashSha256 = bind.ContentHashSha256,
             sensorRowCount = bind.SensorRowCount,
+            tlTier = bind.TlTier,
         }, JsonOptions));
         return 0;
     }

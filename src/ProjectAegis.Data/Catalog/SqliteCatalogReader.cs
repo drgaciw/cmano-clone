@@ -297,6 +297,11 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return true;
         }
 
+        if (file.Contains("010", StringComparison.Ordinal) && MigrationColumnExists("catalog_snapshot", "branch"))
+        {
+            return true;
+        }
+
         return false;
     }
 

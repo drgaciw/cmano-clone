@@ -2,6 +2,7 @@ namespace ProjectAegis.Data.Platform;
 
 using System.Globalization;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
 
 /// <summary>
@@ -15,11 +16,16 @@ public sealed class PlatformWorkbookExporter
 {
     public const string SchemaVersion = "009";
 
-    public PlatformWorkbook Export(PlatformCatalogExportData data, string snapshotId, ICatalogClock clock)
+    public PlatformWorkbook Export(
+        PlatformCatalogExportData data,
+        string snapshotId,
+        ICatalogClock clock,
+        CatalogExportManifest? manifest = null)
     {
         if (data is null) throw new ArgumentNullException(nameof(data));
         if (clock is null) throw new ArgumentNullException(nameof(clock));
 
+        var resolvedManifest = manifest ?? CatalogExportManifest.DefaultForSnapshot(snapshotId);
         var sheets = new List<PlatformWorkbookSheet>
         {
             BuildPlatforms(data.Platforms, data.Damage),
@@ -35,7 +41,7 @@ public sealed class PlatformWorkbookExporter
 
         var withoutMeta = new PlatformWorkbook(sheets);
         var hash = PlatformWorkbookHash.Compute(withoutMeta);
-        sheets.Add(BuildMeta(snapshotId, clock.UtcTicks, hash));
+        sheets.Add(BuildMeta(snapshotId, clock.UtcTicks, hash, resolvedManifest));
         return new PlatformWorkbook(sheets);
     }
 
@@ -231,7 +237,11 @@ public sealed class PlatformWorkbookExporter
         return new PlatformWorkbookSheet("Emcon", header, rows);
     }
 
-    private static PlatformWorkbookSheet BuildMeta(string snapshotId, long exportUtcTicks, string workbookHash)
+    private static PlatformWorkbookSheet BuildMeta(
+        string snapshotId,
+        long exportUtcTicks,
+        string workbookHash,
+        CatalogExportManifest manifest)
     {
         var header = new[] { "Key", "Value" };
         var rows = new IReadOnlyList<string>[]
@@ -240,6 +250,11 @@ public sealed class PlatformWorkbookExporter
             new[] { "SchemaVersion", SchemaVersion },
             new[] { "ExportUtcTicks", Int64(exportUtcTicks) },
             new[] { "WorkbookHash", workbookHash },
+            new[] { "DbVersion", manifest.DbVersion },
+            new[] { "TlTier", manifest.TlTier },
+            new[] { "CatalogSchemaVersion", manifest.SchemaVersion },
+            new[] { "ContentHash", manifest.ContentHash },
+            new[] { "ExportSchemaVersion", manifest.ExportSchemaVersion },
         };
         return new PlatformWorkbookSheet(PlatformWorkbookHash.MetaSheetName, header, rows);
     }

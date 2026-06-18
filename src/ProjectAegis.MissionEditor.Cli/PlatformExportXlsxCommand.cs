@@ -3,6 +3,7 @@ namespace ProjectAegis.MissionEditor.Cli;
 using System.Text.Json;
 using ProjectAegis.Data.Excel;
 using ProjectAegis.Data.Platform;
+using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
 
 /// <summary>
@@ -34,7 +35,10 @@ public static class PlatformExportXlsxCommand
             data = PlatformCatalogExportData.Empty;
         }
 
-        var wb = exporter.Export(data, effectiveSnapshot, clock);
+        var manifest = !string.IsNullOrWhiteSpace(dbPath) && File.Exists(dbPath)
+            ? CatalogExportManifest.Resolve(dbPath, effectiveSnapshot)
+            : CatalogExportManifest.DefaultForSnapshot(effectiveSnapshot);
+        var wb = exporter.Export(data, effectiveSnapshot, clock, manifest);
 
         var effectiveOut = string.IsNullOrWhiteSpace(outPath)
             ? "platform-export.xlsx"
@@ -51,6 +55,14 @@ public static class PlatformExportXlsxCommand
             verb = "platform_export_xlsx",
             snapshotId = effectiveSnapshot,
             snapshotResolved,
+            manifest = new
+            {
+                dbVersion = manifest.DbVersion,
+                tlTier = manifest.TlTier,
+                schemaVersion = manifest.SchemaVersion,
+                contentHash = manifest.ContentHash,
+                exportSchemaVersion = manifest.ExportSchemaVersion,
+            },
             phaseBMobilityRows = data.Mobility?.Count ?? 0,
             phaseBSignatureRows = data.Signatures?.Count ?? 0,
             phaseBEmconRows = data.Emcon?.Count ?? 0,

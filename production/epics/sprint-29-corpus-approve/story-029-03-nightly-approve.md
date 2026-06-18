@@ -1,6 +1,6 @@
 ---
 id: S29-03
-status: Ready
+status: Complete
 type: Integration
 priority: must-have
 graphite_branch: stack/sprint29/corpus-approve
@@ -25,14 +25,14 @@ Close the **propose→approve gap** from S28-02: curator `ApproveBatch` path for
 
 ## Acceptance Criteria
 
-- [ ] Nightly job → propose → curator `ApproveBatch` path completes off-CI
-- [ ] `RecordRelease` + pinned snapshot hash recorded in evidence
-- [ ] All commits via `CatalogWriteGate` approve path (no direct SQLite writes)
-- [ ] **Not** wired into `dotnet test` CI (curated fixtures only)
-- [ ] Full 7208-record `sensor.md` remains nightly-only (not CI)
-- [ ] WriteGate regression PASS on curated fixtures
-- [ ] Evidence: `production/qa/sprint-29-nightly-approve-*.md`
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] Nightly job → propose → curator `ApproveBatch` path completes off-CI
+- [x] `RecordRelease` + pinned snapshot hash recorded in evidence
+- [x] All commits via `CatalogWriteGate` approve path (no direct SQLite writes)
+- [x] **Not** wired into `dotnet test` CI (curated fixtures only)
+- [x] Full 7208-record `sensor.md` remains nightly-only (not CI)
+- [x] WriteGate regression PASS on curated fixtures
+- [x] Evidence: `production/qa/sprint-29-nightly-approve-*.md`
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 
