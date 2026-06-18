@@ -56,3 +56,41 @@
     color: rgb(180, 120, 120);
     -unity-font-style: italic;
 }
+
+/* APP-6 atlas frame sprites (ADR-007 Phase C MVP — placeholder vector frames) */
+.map-app6-frame--friendly {
+    width: 16px;
+    height: 12px;
+    border-color: rgb(74, 158, 255);
+    border-width: 2px;
+    background-color: rgba(74, 158, 255, 0.2);
+    margin-right: 4px;
+}
+
+.map-app6-frame--hostile {
+    width: 12px;
+    height: 12px;
+    border-color: rgb(232, 93, 93);
+    border-width: 2px;
+    background-color: rgba(232, 93, 93, 0.2);
+    rotate: 45deg;
+    margin-right: 4px;
+}
+
+.map-app6-frame--friendly-destroyed {
+    width: 16px;
+    height: 12px;
+    border-color: rgb(90, 110, 130);
+    border-width: 2px;
+    background-color: rgba(0, 0, 0, 0);
+    opacity: 0.5;
+    margin-right: 4px;
+}
+
+.map-app6-frame--unknown {
+    width: 10px;
+    height: 10px;
+    border-radius: 5px;
+    background-color: rgb(140, 155, 170);
+    margin-right: 4px;
+}

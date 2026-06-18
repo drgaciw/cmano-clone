@@ -44,6 +44,9 @@ public sealed class MapPictureProjectionTests
         Assert.That(friendly.ShapeGlyph, Is.Not.EqualTo(hostile.ShapeGlyph));
         Assert.That(App6Sidc.IsValidSidc(friendly.App6Sidc), Is.True);
         Assert.That(App6Sidc.IsValidSidc(hostile.App6Sidc), Is.True);
+        Assert.That(friendly.App6UssFrameId, Is.EqualTo(App6Sidc.FriendlySurfaceUnitFrame));
+        Assert.That(hostile.App6UssFrameId, Is.EqualTo(App6Sidc.HostileContactFrame));
+        Assert.That(friendly.App6UssFrameId, Is.Not.EqualTo(hostile.App6UssFrameId));
     }
 
     [Test]

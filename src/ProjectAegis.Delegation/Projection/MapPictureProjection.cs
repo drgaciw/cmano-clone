@@ -15,31 +15,33 @@ public static class MapPictureProjection
         {
             var (x, y) = Place(unit.UnitId, layoutSeed);
             var isDestroyed = !unit.IsAlive;
-            var (glyph, sidc) = App6Sidc.Resolve("Friendly", isDestroyed);
+            var resolution = App6Sidc.ResolveMapGlyph("Friendly", isDestroyed);
             symbols.Add(new MapSymbolEntry(
                 unit.UnitId,
                 "Friendly",
-                glyph,
+                resolution.UnicodeGlyph,
                 unit.UnitId,
                 x,
                 y,
                 isDestroyed,
-                sidc));
+                resolution.Sidc,
+                resolution.UssFrameId));
         }
 
         foreach (var contact in contacts)
         {
             var (x, y) = Place(contact.ContactId, layoutSeed + 17);
-            var (glyph, sidc) = App6Sidc.Resolve("Hostile");
+            var resolution = App6Sidc.ResolveMapGlyph("Hostile");
             symbols.Add(new MapSymbolEntry(
                 contact.ContactId,
                 "Hostile",
-                glyph,
+                resolution.UnicodeGlyph,
                 $"{contact.ContactId} {contact.LifecycleState}",
                 x,
                 y,
                 IsDestroyed: false,
-                sidc));
+                resolution.Sidc,
+                resolution.UssFrameId));
         }
 
         return symbols
