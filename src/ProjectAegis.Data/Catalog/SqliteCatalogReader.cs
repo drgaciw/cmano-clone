@@ -1,6 +1,7 @@
 namespace ProjectAegis.Data.Catalog;
 
 using Microsoft.Data.Sqlite;
+using ProjectAegis.Data.Platform;
 
 /// <summary>SQLite-backed catalog reader; applies migrations on open.</summary>
 public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
@@ -15,6 +16,9 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     private Dictionary<string, CatalogPlatformEntry>? _platforms;
     private HashSet<string>? _snapshots;
     private bool? _hasPlatformTable;
+    private CatalogMobility[]? _mobilityCache;
+    private CatalogSignature[]? _signatureCache;
+    private CatalogEmcon[]? _emconCache;
 
     public SqliteCatalogReader(string databasePath, string layerVersion = "p0-sqlite")
     {
@@ -88,6 +92,87 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
 
     public bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope) =>
         CatalogWeaponDefaults.TryResolve(weaponId, out envelope);
+
+    public IReadOnlyList<CatalogMobility> GetSortedMobility()
+    {
+        _mobilityCache ??= LoadMobilitySorted();
+        return _mobilityCache;
+    }
+
+    public IReadOnlyList<CatalogSignature> GetSortedSignatures()
+    {
+        _signatureCache ??= LoadSignaturesSorted();
+        return _signatureCache;
+    }
+
+    public IReadOnlyList<CatalogEmcon> GetSortedEmcon()
+    {
+        _emconCache ??= LoadEmconSorted();
+        return _emconCache;
+    }
+
+    public bool TryGetMobility(string platformId, out CatalogMobility mobility)
+    {
+        foreach (var row in GetSortedMobility())
+        {
+            if (string.Equals(row.PlatformId, platformId, StringComparison.Ordinal))
+            {
+                mobility = row;
+                return true;
+            }
+        }
+
+        mobility = new CatalogMobility(platformId);
+        return false;
+    }
+
+    public bool TryGetSignature(string platformId, out CatalogSignature signature)
+    {
+        foreach (var row in GetSortedSignatures())
+        {
+            if (string.Equals(row.PlatformId, platformId, StringComparison.Ordinal))
+            {
+                signature = row;
+                return true;
+            }
+        }
+
+        signature = new CatalogSignature(platformId);
+        return false;
+    }
+
+    public bool TryGetEmcon(string platformId, string condition, string emitterId, out CatalogEmcon emcon)
+    {
+        foreach (var row in GetSortedEmcon())
+        {
+            if (string.Equals(row.PlatformId, platformId, StringComparison.Ordinal) &&
+                string.Equals(row.Condition, condition, StringComparison.Ordinal) &&
+                string.Equals(row.EmitterId, emitterId, StringComparison.Ordinal))
+            {
+                emcon = row;
+                return true;
+            }
+        }
+
+        emcon = new CatalogEmcon(platformId, condition, emitterId);
+        return false;
+    }
+
+    /// <summary>Req-21: build workbook export payload from the bound SQLite snapshot.</summary>
+    public PlatformCatalogExportData LoadExportData()
+    {
+        EnsurePlatformsLoaded();
+        return new PlatformCatalogExportData(
+            Platforms: _platforms!.Values.OrderBy(p => p.PlatformId, StringComparer.Ordinal).ToArray(),
+            Sensors: GetSortedSensorBindings(),
+            Mounts: LoadMountsSorted(),
+            Loadouts: LoadLoadoutsSorted(),
+            Magazines: LoadMagazinesSorted(),
+            Comms: LoadCommsSorted(),
+            Mobility: GetSortedMobility(),
+            Signatures: GetSortedSignatures(),
+            Emcon: GetSortedEmcon());
+    }
 
     public void Dispose()
     {
@@ -346,5 +431,227 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     {
         _hasPlatformTable ??= TableExists("platform");
         return _hasPlatformTable.Value;
+    }
+
+    private CatalogMobility[] LoadMobilitySorted()
+    {
+        if (!TableExists("platform_mobility"))
+        {
+            return [];
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, max_speed_knots, cruise_speed_knots, max_altitude_ft, max_depth_m,
+                   fuel_capacity, range_nm, endurance_hr, review_state, trl_level, value_tier, citation_ref
+            FROM platform_mobility
+            ORDER BY platform_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogMobility>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogMobility(
+                reader.GetString(0),
+                reader.GetDouble(1),
+                reader.GetDouble(2),
+                reader.GetDouble(3),
+                reader.GetDouble(4),
+                reader.GetDouble(5),
+                reader.GetDouble(6),
+                reader.GetDouble(7),
+                reader.GetString(8),
+                reader.GetInt32(9),
+                CatalogProvenanceTier.Normalize(reader.GetString(10)),
+                reader.GetString(11)));
+        }
+
+        return list.ToArray();
+    }
+
+    private CatalogSignature[] LoadSignaturesSorted()
+    {
+        if (!TableExists("platform_signature"))
+        {
+            return [];
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, rcs_band_dbsm, ir_signature, acoustic_signature_db, magnetic_signature,
+                   review_state, trl_level, value_tier, citation_ref
+            FROM platform_signature
+            ORDER BY platform_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogSignature>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogSignature(
+                reader.GetString(0),
+                reader.GetDouble(1),
+                reader.GetDouble(2),
+                reader.GetDouble(3),
+                reader.GetDouble(4),
+                reader.GetString(5),
+                reader.GetInt32(6),
+                CatalogProvenanceTier.Normalize(reader.GetString(7)),
+                reader.GetString(8)));
+        }
+
+        return list.ToArray();
+    }
+
+    private CatalogEmcon[] LoadEmconSorted()
+    {
+        if (!TableExists("platform_emcon"))
+        {
+            return [];
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, condition, emitter_id, posture, review_state
+            FROM platform_emcon
+            ORDER BY platform_id ASC, condition ASC, emitter_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogEmcon>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogEmcon(
+                reader.GetString(0),
+                reader.GetString(1),
+                reader.GetString(2),
+                reader.GetString(3),
+                reader.GetString(4)));
+        }
+
+        return list.ToArray();
+    }
+
+    private IReadOnlyList<CatalogMount> LoadMountsSorted()
+    {
+        if (!TableExists("platform_mount"))
+        {
+            return [];
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, mount_id, mount_type, arc_deg, capacity, review_state
+            FROM platform_mount
+            ORDER BY platform_id ASC, mount_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogMount>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogMount(
+                reader.GetString(0),
+                reader.GetString(1),
+                reader.GetString(2),
+                reader.GetDouble(3),
+                reader.GetInt32(4),
+                reader.GetString(5)));
+        }
+
+        return list;
+    }
+
+    private IReadOnlyList<CatalogLoadout> LoadLoadoutsSorted()
+    {
+        if (!TableExists("platform_loadout"))
+        {
+            return [];
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, loadout_id, loadout_name, role, is_default
+            FROM platform_loadout
+            ORDER BY platform_id ASC, loadout_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogLoadout>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogLoadout(
+                reader.GetString(0),
+                reader.GetString(1),
+                reader.GetString(2),
+                reader.GetString(3),
+                reader.GetInt32(4) == 1));
+        }
+
+        return list;
+    }
+
+    private IReadOnlyList<CatalogMagazineEntry> LoadMagazinesSorted()
+    {
+        if (!TableExists("platform_magazine"))
+        {
+            return [];
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, loadout_id, mount_id, weapon_id, quantity, reload_time_sec, depth
+            FROM platform_magazine
+            ORDER BY platform_id ASC, loadout_id ASC, mount_id ASC, weapon_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogMagazineEntry>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogMagazineEntry(
+                reader.GetString(0),
+                reader.GetString(1),
+                reader.GetString(2),
+                reader.GetString(3),
+                reader.GetInt32(4),
+                reader.GetInt32(5),
+                reader.GetInt32(6)));
+        }
+
+        return list;
+    }
+
+    private IReadOnlyList<CatalogCommsBinding> LoadCommsSorted()
+    {
+        if (!TableExists("platform_comms"))
+        {
+            return [];
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, link_id, role, satcom_capable, review_state, trl_level, value_tier, citation_ref
+            FROM platform_comms
+            ORDER BY platform_id ASC, link_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogCommsBinding>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogCommsBinding(
+                reader.GetString(0),
+                reader.GetString(1),
+                reader.GetString(2),
+                reader.GetInt32(3) == 1,
+                reader.GetString(4),
+                reader.GetInt32(5),
+                reader.GetString(6),
+                reader.GetString(7)));
+        }
+
+        return list;
     }
 }
