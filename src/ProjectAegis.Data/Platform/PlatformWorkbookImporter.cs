@@ -15,12 +15,16 @@ public sealed class PlatformWorkbookImporter
     public const int HumanApprovalRecordThreshold = 10;
 
     private const string SupportedSheet = "Sensors";
+    private const string PlatformsSheet = "Platforms";
     private static readonly string[] SupportedSheets =
     {
         "Sensors", "Mounts", "Loadouts", "Magazines", "Comms",
         "Mobility", "Signatures", "Emcon",
     };
-    private static readonly string[] UnsupportedSheets = { "Platforms" };
+    private static readonly string[] SupportedPlatformDamageColumns =
+    {
+        "MaxHp", "WithdrawThresholdPct", "CriticalFlags",
+    };
 
     private readonly Func<string, PlatformCatalogExportData?> _snapshotProvider;
     private readonly ICatalogClock _clock;
@@ -67,16 +71,52 @@ public sealed class PlatformWorkbookImporter
         var changes = PlatformWorkbookDiff.Compare(sourceWorkbook, edited);
         var findings = PlatformWorkbookValidator.Validate(edited);
 
-        var supported = changes
-            .Where(c => SupportedSheets.Contains(c.Sheet, StringComparer.Ordinal))
-            .ToArray();
-        var unsupported = changes
-            .Where(c => UnsupportedSheets.Contains(c.Sheet, StringComparer.Ordinal))
-            .ToArray();
+        var supported = new List<PlatformWorkbookChange>(changes.Count);
+        var unsupported = new List<PlatformWorkbookChange>();
+        foreach (var change in changes)
+        {
+            if (SupportedSheets.Contains(change.Sheet, StringComparer.Ordinal))
+            {
+                supported.Add(change);
+                continue;
+            }
+
+            if (string.Equals(change.Sheet, PlatformsSheet, StringComparison.Ordinal))
+            {
+                if (IsSupportedPlatformDamageChange(change))
+                {
+                    supported.Add(change);
+                }
+                else
+                {
+                    unsupported.Add(change);
+                }
+
+                continue;
+            }
+
+            unsupported.Add(change);
+        }
 
         var requiresApproval = changes.Count > HumanApprovalRecordThreshold;
 
         return new PlatformImportPlan(snapshotId, true, changes, findings, supported, unsupported, requiresApproval);
+    }
+
+    private static bool IsSupportedPlatformDamageChange(PlatformWorkbookChange change)
+    {
+        if (!string.Equals(change.Sheet, PlatformsSheet, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (change.Kind != PlatformWorkbookChangeKind.CellChanged)
+        {
+            return false;
+        }
+
+        var column = change.Detail.Split(':', 2)[0];
+        return SupportedPlatformDamageColumns.Contains(column, StringComparer.Ordinal);
     }
 
     public PlatformImportResult Stage(
@@ -187,9 +227,33 @@ public sealed class PlatformWorkbookImporter
             notes.Add($"Proposed {emconRows.Count} emcon row(s) as batch '{emconBatchId}'.");
         }
 
+        string? damageBatchId = null;
+        var damageRows = FilterKnownPlatforms(
+            BuildChangedDamageRows(edited, plan.SupportedChanges),
+            knownPlatformIds,
+            row => row.PlatformId,
+            notes,
+            "damage");
+        if (damageRows.Count > 0)
+        {
+            damageBatchId = gate.ProposePlatformDamageBatch(damageRows, actorType, actorId, rationale);
+            notes.Add($"Proposed {damageRows.Count} damage row(s) as batch '{damageBatchId}'.");
+        }
+
         if (plan.UnsupportedChanges.Count > 0)
         {
-            notes.Add($"{plan.UnsupportedChanges.Count} change(s) to platforms are not yet stageable (P0 write gate excludes platform changes) — pending gate extension.");
+            var platformCoreChanges = plan.UnsupportedChanges.Count(c =>
+                string.Equals(c.Sheet, PlatformsSheet, StringComparison.Ordinal));
+            if (platformCoreChanges > 0)
+            {
+                notes.Add($"{platformCoreChanges} change(s) to platform core fields (LatDeg/LonDeg/CombatRadiusNm/row adds) are not yet stageable — pending gate extension.");
+            }
+
+            var otherUnsupported = plan.UnsupportedChanges.Count - platformCoreChanges;
+            if (otherUnsupported > 0)
+            {
+                notes.Add($"{otherUnsupported} unsupported change(s) remain unstageable.");
+            }
         }
 
         var staged = sensorBatchId is not null
@@ -199,7 +263,8 @@ public sealed class PlatformWorkbookImporter
             || commsBatchId is not null
             || mobilityBatchId is not null
             || signatureBatchId is not null
-            || emconBatchId is not null;
+            || emconBatchId is not null
+            || damageBatchId is not null;
         return new PlatformImportResult(
             plan,
             Staged: staged,
@@ -211,11 +276,12 @@ public sealed class PlatformWorkbookImporter
             mobilityBatchId,
             signatureBatchId,
             emconBatchId,
+            damageBatchId,
             notes);
     }
 
     private static PlatformImportResult EmptyImportResult(PlatformImportPlan plan, IReadOnlyList<string> notes) =>
-        new(plan, Staged: false, null, null, null, null, null, null, null, null, notes);
+        new(plan, Staged: false, null, null, null, null, null, null, null, null, null, notes);
 
     private static IReadOnlyList<T> FilterKnownPlatforms<T>(
         IReadOnlyList<T> rows,
@@ -335,6 +401,15 @@ public sealed class PlatformWorkbookImporter
             Condition: Get(row, col, "Condition", "silent"),
             EmitterId: Get(row, col, "EmitterId"),
             Posture: Get(row, col, "Posture", "off")));
+
+    private static IReadOnlyList<CatalogPlatformDamage> BuildChangedDamageRows(
+        PlatformWorkbook edited,
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges) =>
+        BuildChangedRows(edited, supportedChanges, PlatformsSheet, (row, col) => new CatalogPlatformDamage(
+            PlatformId: Get(row, col, "PlatformId"),
+            MaxHp: ParseDouble(Get(row, col, "MaxHp", "100")),
+            WithdrawThresholdPct: ParseDouble(Get(row, col, "WithdrawThresholdPct", "0")),
+            CriticalFlags: ParseInt(Get(row, col, "CriticalFlags"), 0)));
 
     private static IReadOnlyList<T> BuildChangedRows<T>(
         PlatformWorkbook edited,

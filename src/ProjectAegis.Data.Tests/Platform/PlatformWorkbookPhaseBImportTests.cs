@@ -8,7 +8,7 @@ using Xunit;
 namespace ProjectAegis.Data.Tests.Platform;
 
 /// <summary>
-/// Req-21 / ADR-011 S24-04: Phase B importer wiring — Mobility/Signatures/Emcon stage via write gate,
+/// Req-21 / ADR-011 S24-04 / S25-05: Phase B importer wiring — Mobility/Signatures/Emcon/Damage stage via write gate,
 /// empty-diff golden on unedited round-trip, FK guard on PlatformId, E2E read-back via SqliteCatalogReader.
 /// </summary>
 [Collection("CatalogSqlite")]
@@ -19,7 +19,10 @@ public sealed class PlatformWorkbookPhaseBImportTests
     private static PlatformCatalogExportData PhaseBData(
         double maxSpeedKnots = 30,
         double rcsBandDbsm = -10,
-        string emconPosture = "off") => new(
+        string emconPosture = "off",
+        double maxHp = 100,
+        double withdrawThresholdPct = 25,
+        int criticalFlags = 0) => new(
         Platforms: new[] { new CatalogPlatformEntry("u1", 57.0, 20.0, 400.0) },
         Sensors: new[] { new CatalogSensorBinding("u1", "cmo-sensor-1", 0.85) },
         Mounts: new[] { new CatalogMount("u1", "vls-fwd", "vls", 360.0, 32) },
@@ -28,7 +31,8 @@ public sealed class PlatformWorkbookPhaseBImportTests
         Comms: new[] { new CatalogCommsBinding("u1", "NATO_TADIL_J") },
         Mobility: new[] { new CatalogMobility("u1", MaxSpeedKnots: maxSpeedKnots, CruiseSpeedKnots: 18, RangeNm: 4000) },
         Signatures: new[] { new CatalogSignature("u1", RcsBandDbsm: rcsBandDbsm, AcousticSignatureDb: 95) },
-        Emcon: new[] { new CatalogEmcon("u1", "silent", "cmo-sensor-1", emconPosture) });
+        Emcon: new[] { new CatalogEmcon("u1", "silent", "cmo-sensor-1", emconPosture) },
+        Damage: new[] { new CatalogPlatformDamage("u1", MaxHp: maxHp, WithdrawThresholdPct: withdrawThresholdPct, CriticalFlags: criticalFlags) });
 
     private static PlatformWorkbook Export(PlatformCatalogExportData data) =>
         new PlatformWorkbookExporter().Export(data, SnapshotId, new FixedCatalogClock(0));
@@ -74,9 +78,11 @@ public sealed class PlatformWorkbookPhaseBImportTests
         Assert.Null(result.MobilityBatchId);
         Assert.Null(result.SignatureBatchId);
         Assert.Null(result.EmconBatchId);
+        Assert.Null(result.DamageBatchId);
         Assert.Empty(gate.MobilityProposals);
         Assert.Empty(gate.SignatureProposals);
         Assert.Empty(gate.EmconProposals);
+        Assert.Empty(gate.DamageProposals);
     }
 
     [Fact]
@@ -109,6 +115,22 @@ public sealed class PlatformWorkbookPhaseBImportTests
         var proposed = Assert.Single(gate.SignatureProposals);
         Assert.Equal("u1", proposed[0].PlatformId);
         Assert.Equal(-15, proposed[0].RcsBandDbsm, precision: 6);
+    }
+
+    [Fact]
+    public void Stage_edited_MaxHp_proposes_damage_batch()
+    {
+        var source = PhaseBData(maxHp: 100);
+        var edited = Export(PhaseBData(maxHp: 120));
+        var gate = new FakeWriteGate();
+
+        var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit damage");
+
+        Assert.True(result.Staged);
+        Assert.NotNull(result.DamageBatchId);
+        var proposed = Assert.Single(gate.DamageProposals);
+        Assert.Equal("u1", proposed[0].PlatformId);
+        Assert.Equal(120, proposed[0].MaxHp, precision: 6);
     }
 
     [Fact]
@@ -165,6 +187,38 @@ public sealed class PlatformWorkbookPhaseBImportTests
         Assert.NotEmpty(gate.MobilityProposals);
         Assert.NotEmpty(gate.SignatureProposals);
         Assert.NotEmpty(gate.EmconProposals);
+    }
+
+    [Fact]
+    public void E2E_damage_export_edit_stage_approve_readback_via_SqliteCatalogReader()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-phase-b-e2e-damage-{Guid.NewGuid():N}.db");
+        try
+        {
+            CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
+            Assert.True(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var source));
+
+            var exported = new PlatformWorkbookExporter().Export(source, SnapshotId, new FixedCatalogClock(9650));
+            var edited = WithPlatformSheetCell(exported, "u1", "MaxHp", "120");
+
+            var importer = ImporterForDb(dbPath);
+            using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9651)))
+            {
+                var result = importer.Stage(edited, gate, "human", "drgamtd", "e2e damage");
+                Assert.True(result.Staged);
+                Assert.NotNull(result.DamageBatchId);
+                Assert.True(gate.ApproveBatch(result.DamageBatchId!, "human", "qa-reviewer").Committed);
+            }
+
+            using var reader = new SqliteCatalogReader(dbPath, "phase-b-e2e-damage");
+            Assert.True(reader.TryGetPlatformDamage("u1", out var damage));
+            Assert.Equal(120, damage.MaxHp, precision: 3);
+            Assert.Equal(25, damage.WithdrawThresholdPct, precision: 3);
+        }
+        finally
+        {
+            Cleanup(dbPath);
+        }
     }
 
     [Fact]
@@ -295,6 +349,32 @@ public sealed class PlatformWorkbookPhaseBImportTests
             VALUES ('u1', 'silent', 'radar-1', 'off', 'approved');
             """;
         cmd.ExecuteNonQuery();
+    }
+
+    private static PlatformWorkbook WithPlatformSheetCell(
+        PlatformWorkbook workbook,
+        string platformId,
+        string columnName,
+        string value)
+    {
+        var sheet = workbook.FindSheet("Platforms");
+        Assert.NotNull(sheet);
+        var platformCol = Array.IndexOf(sheet!.Header.ToArray(), "PlatformId");
+        Assert.True(platformCol >= 0);
+
+        var rowIndex = -1;
+        for (var i = 0; i < sheet.Rows.Count; i++)
+        {
+            if (i < sheet.Rows[i].Count
+                && string.Equals(sheet.Rows[i][platformCol], platformId, StringComparison.Ordinal))
+            {
+                rowIndex = i;
+                break;
+            }
+        }
+
+        Assert.True(rowIndex >= 0, $"Platform '{platformId}' not found on Platforms sheet.");
+        return WithSheetCell(workbook, "Platforms", rowIndex, columnName, value);
     }
 
     private static PlatformWorkbook WithSheetCell(

@@ -35,4 +35,5 @@ public sealed record PlatformImportResult(
     string? MobilityBatchId,
     string? SignatureBatchId,
     string? EmconBatchId,
+    string? DamageBatchId,
     IReadOnlyList<string> Notes);

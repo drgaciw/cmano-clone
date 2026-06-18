@@ -77,6 +77,7 @@ public static class PlatformImportXlsxCommand
                 mobilityBatchId = result.MobilityBatchId,
                 signatureBatchId = result.SignatureBatchId,
                 emconBatchId = result.EmconBatchId,
+                damageBatchId = result.DamageBatchId,
                 requiresHumanApproval = result.Plan.RequiresHumanApproval,
                 notes = result.Notes,
                 nextStep = "catalog_write_approve --db <path> --batch <batchId>",
