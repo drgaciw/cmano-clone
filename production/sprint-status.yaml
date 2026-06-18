@@ -560,7 +560,7 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 28
+current_sprint: 29
 requirements_program: complete
 requirements_program_completed: "2026-06-04"
 sprints_11_15_closeout: complete
@@ -1597,7 +1597,135 @@ sprint28_stories:
     blocker: ""
     completed: "2026-06-18"
     note: "801/801 sln; ReplayGolden 6/6; GitNexus 11851/24408; tracker rows 06/18/21; evidence production/agentic/stacks/sprint28/S28-13-DONE.md"
-next_backlog: production/sprints/sprint-29-planning.md
+next_backlog: production/sprints/sprint-29-operationalize-data-fight-loop.md
+
+sprint: 29
+goal: "Operationalize data-to-fight loop: TL export foundation, corpus approve, Unity import UI, combat Baltic enable."
+start: "2026-10-02"
+end: "2026-10-15"
+generated: "2026-06-18"
+updated: "2026-06-18"
+status: planned
+branch: main
+indexed_commit: 1d93e86
+tests_passed_sprint28_closeout: 801
+replay_golden_sprint29_baseline: pass
+kickoff: production/sprints/sprint-29-operationalize-data-fight-loop.md
+qa_plan: ""
+epics:
+  - production/epics/sprint-29-tl-export-foundation/EPIC.md
+  - production/epics/sprint-29-corpus-approve/EPIC.md
+  - production/epics/sprint-29-platform-editor-phase-e/EPIC.md
+  - production/epics/sprint-29-combat-domains-phase3/EPIC.md
+  - production/epics/sprint-29-catalog-sim-bridge/EPIC.md
+  - production/epics/sprint-29-c2-core-loop/EPIC.md
+  - production/epics/sprint-29-closeout-devops/EPIC.md
+sprint29_stories:
+  - id: "29-1"
+    name: "Full-solution re-baseline"
+    file: production/epics/sprint-29-closeout-devops/story-029-01-full-sln-gate.md
+    priority: must-have
+    status: ready-for-dev
+    estimate_days: 1
+    blocker: ""
+    completed: ""
+  - id: "29-2"
+    name: "TL export Phase 1-2"
+    file: production/epics/sprint-29-tl-export-foundation/story-029-02-tl-export-phase12.md
+    priority: must-have
+    status: ready-for-dev
+    estimate_days: 2
+    blocker: "29-1"
+    completed: ""
+  - id: "29-3"
+    name: "Nightly corpus approve workflow"
+    file: production/epics/sprint-29-corpus-approve/story-029-03-nightly-approve.md
+    priority: must-have
+    status: ready-for-dev
+    estimate_days: 2
+    blocker: "29-1"
+    completed: ""
+  - id: "29-4"
+    name: "Platform Editor Phase E Unity import UI"
+    file: production/epics/sprint-29-platform-editor-phase-e/story-029-04-unity-import-ui.md
+    priority: must-have
+    status: ready-for-dev
+    estimate_days: 2.5
+    blocker: "29-3"
+    completed: ""
+  - id: "29-5"
+    name: "Combat domains Baltic enablement"
+    file: production/epics/sprint-29-combat-domains-phase3/story-029-05-baltic-combat-enable.md
+    priority: should-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "29-1"
+    completed: ""
+  - id: "29-6"
+    name: "Catalog Phase B sim consumption"
+    file: production/epics/sprint-29-catalog-sim-bridge/story-029-06-phaseb-sim-consumption.md
+    priority: should-have
+    status: backlog
+    estimate_days: 2
+    blocker: "29-3"
+    completed: ""
+  - id: "29-7"
+    name: "Doctrine Inheritance Panel visual sign-off"
+    file: production/epics/sprint-29-c2-core-loop/story-029-07-doctrine-visual.md
+    priority: should-have
+    status: backlog
+    estimate_days: 1
+    blocker: "29-1"
+    completed: ""
+  - id: "29-8"
+    name: "Begin Execution UX"
+    file: production/epics/sprint-29-c2-core-loop/story-029-08-begin-execution.md
+    priority: should-have
+    status: backlog
+    estimate_days: 1
+    blocker: "29-1"
+    completed: ""
+  - id: "29-9"
+    name: "Damage hot-tick apply bounded"
+    file: production/epics/sprint-29-combat-domains-phase3/story-029-09-hot-tick-damage.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "29-5"
+    completed: ""
+  - id: "29-10"
+    name: "Balance drift catalog pipeline"
+    file: production/epics/sprint-29-corpus-approve/story-029-10-balance-drift-pipeline.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: "29-1"
+    completed: ""
+  - id: "29-11"
+    name: "Datalink side picture TR-sensor-004"
+    file: production/epics/sprint-29-combat-domains-phase3/story-029-11-datalink-side-picture.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 1
+    blocker: "29-1"
+    completed: ""
+  - id: "29-12"
+    name: "CI/local gate refresh"
+    file: production/epics/sprint-29-closeout-devops/story-029-12-ci-hygiene.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.25
+    blocker: "29-1"
+    completed: ""
+  - id: "29-13"
+    name: "Closeout hygiene"
+    file: production/epics/sprint-29-closeout-devops/story-029-13-closeout-hygiene.md
+    priority: should-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: ""
+    completed: ""
+next_backlog: production/sprints/sprint-30-planning.md
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
