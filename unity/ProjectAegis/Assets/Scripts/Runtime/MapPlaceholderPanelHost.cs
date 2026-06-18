@@ -22,6 +22,7 @@ namespace ProjectAegis.Unity.Runtime
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;
         [SerializeField] private bool showPanel = true;
+        [SerializeField] private bool useApp6AtlasFrames = true;
 
         private UIDocument _document = null!;
         private VisualElement? _rootPanel;
@@ -91,13 +92,15 @@ namespace ProjectAegis.Unity.Runtime
             var comms = CommsStateProjection.Project(bridgeHost.Bridge.Orchestrator.DecisionLog);
             var commsDisplay = bridgeHost.Bridge.Orchestrator.ScenarioPolicy?.CommsDisplay
                 ?? ScenarioCommsDisplaySettings.Default;
+            var atlas = useApp6AtlasFrames ? App6AtlasCatalog.Default : App6AtlasCatalog.Unavailable;
             _panelState = MapPanelBinder.Bind(
                 PresentationFeed.LastMapSymbols,
                 bridgeHost.ScenarioPolicyId,
                 PresentationFeed.SelectedUnitId,
                 PresentationFeed.SelectedContactId,
                 comms.State,
-                commsDisplay);
+                commsDisplay,
+                atlas);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
             RebuildSymbols();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
@@ -108,28 +111,46 @@ namespace ProjectAegis.Unity.Runtime
             _canvas!.Clear();
             foreach (var row in _panelState.Symbols)
             {
-                var label = new Label($"{row.Glyph} {row.Label}")
+                var container = new VisualElement
                 {
                     style =
                     {
                         position = Position.Absolute,
                         left = Length.Percent(row.NormalizedX * 100f),
                         top = Length.Percent(row.NormalizedY * 100f),
+                        flexDirection = FlexDirection.Row,
+                        alignItems = Align.Center,
                     },
                 };
-                label.AddToClassList("map-symbol");
-                label.AddToClassList(row.StyleClass);
-                label.userData = row.SymbolId;
+                container.AddToClassList("map-symbol");
+                foreach (var styleClass in row.StyleClass.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    container.AddToClassList(styleClass);
+                }
+
+                if (row.UsesAtlasFrame && !string.IsNullOrEmpty(row.AtlasFrameClass))
+                {
+                    var frame = new VisualElement();
+                    frame.AddToClassList(row.AtlasFrameClass);
+                    container.Add(frame);
+                }
+                else if (!string.IsNullOrEmpty(row.Glyph))
+                {
+                    container.Add(new Label(row.Glyph));
+                }
+
+                container.Add(new Label(row.Label));
+                container.userData = row.SymbolId;
                 if (!row.IsGhost)
                 {
-                    label.RegisterCallback<ClickEvent>(_ => OnSymbolClicked(row.SymbolId));
+                    container.RegisterCallback<ClickEvent>(_ => OnSymbolClicked(row.SymbolId));
                 }
                 else
                 {
-                    label.pickingMode = PickingMode.Ignore;
+                    container.pickingMode = PickingMode.Ignore;
                 }
 
-                _canvas.Add(label);
+                _canvas.Add(container);
             }
         }
 

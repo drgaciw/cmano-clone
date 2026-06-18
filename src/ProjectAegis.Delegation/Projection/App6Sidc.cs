@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.Projection;
 
 /// <summary>
-/// Data-driven APP-6 (2525C) glyph resolver for ADR-007 Phase C spike.
-/// Maps affiliation + lifecycle to distinct Toolkit placeholder glyphs and optional 15-char SIDC strings for a future icon atlas.
+/// Data-driven APP-6 (2525C) glyph resolver for ADR-007 Phase C.
+/// Maps affiliation + lifecycle to unicode fallback glyphs, USS atlas frame ids, and 15-char SIDC strings.
 /// </summary>
 public static class App6Sidc
 {
@@ -29,19 +29,46 @@ public static class App6Sidc
     /// <summary>Destroyed friendly unit — hollow frame variant.</summary>
     public const string FriendlyDestroyedGlyph = "▢";
 
-    private static readonly IReadOnlyDictionary<string, (string Glyph, string Sidc)> AffiliationTable =
-        new Dictionary<string, (string, string)>(StringComparer.Ordinal)
+    /// <summary>USS class for friendly rectangle APP-6 frame sprite.</summary>
+    public const string FriendlySurfaceUnitFrame = "map-app6-frame--friendly";
+
+    /// <summary>USS class for hostile diamond APP-6 frame sprite.</summary>
+    public const string HostileContactFrame = "map-app6-frame--hostile";
+
+    /// <summary>USS class for destroyed friendly hollow frame sprite.</summary>
+    public const string FriendlyDestroyedFrame = "map-app6-frame--friendly-destroyed";
+
+    /// <summary>USS class for unknown / fallback frame sprite.</summary>
+    public const string FallbackFrame = "map-app6-frame--unknown";
+
+    public static IReadOnlyList<string> KnownUssFrameIds { get; } =
+    [
+        FriendlySurfaceUnitFrame,
+        HostileContactFrame,
+        FriendlyDestroyedFrame,
+        FallbackFrame,
+    ];
+
+    private static readonly IReadOnlyDictionary<string, App6MapGlyphResolution> AffiliationTable =
+        new Dictionary<string, App6MapGlyphResolution>(StringComparer.Ordinal)
         {
-            ["Friendly"] = (FriendlySurfaceUnitGlyph, FriendlySurfaceUnitSidc),
-            ["Hostile"] = (HostileContactGlyph, HostileContactSidc),
+            ["Friendly"] = new(FriendlySurfaceUnitGlyph, FriendlySurfaceUnitFrame, FriendlySurfaceUnitSidc),
+            ["Hostile"] = new(HostileContactGlyph, HostileContactFrame, HostileContactSidc),
         };
 
     /// <summary>Resolve glyph + SIDC from tactical affiliation and destroyed state.</summary>
     public static (string Glyph, string Sidc) Resolve(string affiliation, bool isDestroyed = false)
     {
+        var resolution = ResolveMapGlyph(affiliation, isDestroyed);
+        return (resolution.UnicodeGlyph, resolution.Sidc);
+    }
+
+    /// <summary>Resolve unicode glyph, USS frame id, and SIDC from affiliation and destroyed state.</summary>
+    public static App6MapGlyphResolution ResolveMapGlyph(string affiliation, bool isDestroyed = false)
+    {
         if (string.Equals(affiliation, "Friendly", StringComparison.Ordinal) && isDestroyed)
         {
-            return (FriendlyDestroyedGlyph, FriendlySurfaceUnitSidc);
+            return new(FriendlyDestroyedGlyph, FriendlyDestroyedFrame, FriendlySurfaceUnitSidc);
         }
 
         if (AffiliationTable.TryGetValue(affiliation, out var entry))
@@ -49,22 +76,26 @@ public static class App6Sidc
             return entry;
         }
 
-        return (FallbackGlyph, FallbackSidc);
+        return new(FallbackGlyph, FallbackFrame, FallbackSidc);
     }
 
     /// <summary>Resolve glyph from an optional 15-char SIDC; falls back when missing or malformed.</summary>
-    public static string ResolveGlyphFromSidc(string? sidc)
+    public static string ResolveGlyphFromSidc(string? sidc) =>
+        ResolveMapGlyphFromSidc(sidc).UnicodeGlyph;
+
+    /// <summary>Resolve unicode glyph, USS frame id, and SIDC from an optional 15-char SIDC.</summary>
+    public static App6MapGlyphResolution ResolveMapGlyphFromSidc(string? sidc)
     {
         if (!TryParseStandardIdentity(sidc, out var identity))
         {
-            return FallbackGlyph;
+            return new(FallbackGlyph, FallbackFrame, FallbackSidc);
         }
 
         return identity switch
         {
-            'F' or 'A' or 'D' or 'M' or 'J' or 'K' or 'L' => FriendlySurfaceUnitGlyph,
-            'H' or 'S' => HostileContactGlyph,
-            _ => FallbackGlyph,
+            'F' or 'A' or 'D' or 'M' or 'J' or 'K' or 'L' => AffiliationTable["Friendly"],
+            'H' or 'S' => AffiliationTable["Hostile"],
+            _ => new(FallbackGlyph, FallbackFrame, FallbackSidc),
         };
     }
 

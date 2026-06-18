@@ -67,4 +67,35 @@ public sealed class App6SidcTests
             App6Sidc.ResolveGlyphFromSidc(App6Sidc.HostileContactSidc),
             Is.EqualTo(App6Sidc.HostileContactGlyph));
     }
+
+    [Test]
+    public void ResolveMapGlyph_friendly_and_hostile_have_distinct_uss_frame_ids()
+    {
+        var friendly = App6Sidc.ResolveMapGlyph("Friendly");
+        var hostile = App6Sidc.ResolveMapGlyph("Hostile");
+
+        Assert.That(friendly.UssFrameId, Is.EqualTo(App6Sidc.FriendlySurfaceUnitFrame));
+        Assert.That(hostile.UssFrameId, Is.EqualTo(App6Sidc.HostileContactFrame));
+        Assert.That(friendly.UssFrameId, Is.Not.EqualTo(hostile.UssFrameId));
+        Assert.That(App6Sidc.KnownUssFrameIds, Does.Contain(friendly.UssFrameId));
+        Assert.That(App6Sidc.KnownUssFrameIds, Does.Contain(hostile.UssFrameId));
+    }
+
+    [Test]
+    public void ResolveMapGlyph_destroyed_friendly_uses_destroyed_frame()
+    {
+        var destroyed = App6Sidc.ResolveMapGlyph("Friendly", isDestroyed: true);
+
+        Assert.That(destroyed.UssFrameId, Is.EqualTo(App6Sidc.FriendlyDestroyedFrame));
+        Assert.That(destroyed.UnicodeGlyph, Is.EqualTo(App6Sidc.FriendlyDestroyedGlyph));
+    }
+
+    [Test]
+    public void ResolveMapGlyphFromSidc_unknown_identity_uses_fallback_frame()
+    {
+        var fallback = App6Sidc.ResolveMapGlyphFromSidc("SUZPU----------");
+
+        Assert.That(fallback.UssFrameId, Is.EqualTo(App6Sidc.FallbackFrame));
+        Assert.That(fallback.UnicodeGlyph, Is.EqualTo(App6Sidc.FallbackGlyph));
+    }
 }
