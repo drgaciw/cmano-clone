@@ -560,12 +560,12 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 22
+current_sprint: 23
 requirements_program: complete
 requirements_program_completed: "2026-06-04"
 sprints_11_15_closeout: complete
 sprints_11_15_closeout_date: "2026-06-08"
-next_backlog: production/sprints/sprint-22-platform-editor-db-doctrine.md
+next_backlog: production/sprints/sprint-23-platform-phase-b-doctrine-polish.md
 
 sprint: 22
 goal: "Complete Platform Editor Phase A write-gate coverage and CLI verbs (Req 21), advance Database Intelligence P1 with platform+weapon import support (Req 06), and deliver the Unity Doctrine Inheritance Panel (Req 13)."
@@ -664,6 +664,87 @@ sprint22_stories:
     blocker: "S21 complete"
     completed: "2026-06-17"
     note: "OsintCatalogMapperTests TL routing + determinism + no-bypass; Osint filter PASS"
+
+sprint: 23
+goal: "Close Sprint 22 deferred gates: ClosedXML binary .xlsx I/O (Req 21), full-solution test baseline, and Unity Doctrine panel Editor visual sign-off (Req 13) toward MVP polish."
+start: "2026-07-08"
+end: "2026-07-22"
+generated: "2026-06-17"
+updated: "2026-06-17"
+indexed_commit: 7253381
+kickoff: production/sprints/sprint-23-platform-phase-b-doctrine-polish.md
+status: ready
+branch: main
+gitnexus_indexed: "pending-sprint-23-kickoff"
+tests_passed_sprint23_baseline: 498
+sprint23_baseline_date: "2026-06-17"
+closeout_note: "Planning complete 2026-06-17 via parallel dispatch. Must-have: ClosedXML (S23-01) over ApproveBatch (S23-04 should-have). Baseline pre-work GREEN 498/498 @ 7253381."
+evidence:
+  - production/sprints/sprint-23-platform-phase-b-doctrine-polish.md
+  - docs/superpowers/plans/sprint-23-implementation.md
+  - production/agentic/sprint-23-parallel-kickoff-2026-06-17.md
+  - production/agentic/sprint-23-plan-data-2026-06-17.md
+  - production/agentic/sprint-23-plan-unity-2026-06-17.md
+  - production/agentic/sprint-23-baseline-2026-06-17.md
+  - production/qa/qa-plan-sprint-23-2026-07-08.md
+  - production/retrospectives/retro-sprint-22-2026-06-17.md
+sprint23_stories:
+  - id: "23-1"
+    name: "ClosedXML .xlsx adapter wiring + integration tests"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 2.5
+    blocker: "23-2"
+    note: "Wire ClosedXmlPlatformWorkbookIo into CLI; empty-diff golden on binary .xlsx; PLE-2.1"
+  - id: "23-2"
+    name: "Full-solution test gate baseline"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 1
+    blocker: ""
+    note: "Pre-work GREEN 498/498 @ 7253381 (production/agentic/sprint-23-baseline-2026-06-17.md); formalize smoke evidence + Release config at kickoff"
+  - id: "23-3"
+    name: "Unity Doctrine Inheritance Panel Editor visual sign-off"
+    priority: must-have
+    status: ready-for-dev
+    owner: ""
+    estimate_days: 2.5
+    blocker: "23-2"
+    note: "DoctrineInheritancePanelHost PlayMode + manual evidence; ZERO touch DelegationBridge"
+  - id: "23-4"
+    name: "ApproveBatch multi-entity commit path"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 2.5
+    blocker: "23-2"
+    note: "Extend LoadStagingRows + ApproveBatch beyond sensor-only; S22-04 deferred path"
+  - id: "23-5"
+    name: "Phase B schema foundation spike (export-only)"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 2
+    blocker: "23-1"
+    note: "Signatures/Mobility/EMCON migration + types + exporter sheet stubs"
+  - id: "23-6"
+    name: "CanonicalId determinism on Catalog* types"
+    priority: nice-to-have
+    status: backlog
+    owner: ""
+    estimate_days: 1
+    blocker: "23-4"
+    note: "DBI-7.3 stable OrderBy composite keys"
+  - id: "23-7"
+    name: "GitNexus re-index @ 7253381"
+    priority: nice-to-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.5
+    blocker: ""
+    note: "analyze + detect_changes baseline for closeout"
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
