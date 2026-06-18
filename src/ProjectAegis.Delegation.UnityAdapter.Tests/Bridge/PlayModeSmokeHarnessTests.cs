@@ -165,6 +165,48 @@ public sealed class PlayModeSmokeHarnessTests
     }
 
     [Test]
+    public void Doctrine_override_round_trip_updates_policy_log_and_projection_bind()
+    {
+        ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
+        var bridge = new DelegationBridge(42, mvpEngagement: false, scenarioPolicyId: "baltic-patrol-mission-roe");
+        var unit = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
+        var agent = bridge.Orchestrator.CreateAgent(
+            new AgentId("a1"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous);
+        bridge.Orchestrator.AssignAgentToTarget(agent, unit.Target, EffectivePolicy.DefaultFree);
+        bridge.Orchestrator.Register(unit.Target);
+        bridge.BeginExecution();
+
+        var unitId = new TargetId("u1");
+        var policy = bridge.Orchestrator.ScenarioPolicy;
+        Assert.That(policy, Is.Not.Null);
+
+        var entry = DoctrineInheritanceProjection.ProjectUnit(unitId, policy, isFriendly: true);
+        var panel = DoctrineInheritancePanelBinder.Bind(entry);
+        Assert.That(panel.RoeLine, Does.Contain("WeaponsTight"));
+        Assert.That(panel.SourceLine, Does.Contain("Mission"));
+        Assert.That(panel.CanOverride, Is.False);
+
+        Assert.That(
+            DoctrineOverrideCommand.TryApply(bridge.Orchestrator, unitId, "HoldFire", simTime: 1.0),
+            Is.True);
+
+        var unitKey = ProjectAegis.Delegation.Roe.OrderActionMapper.TargetIdToUlong(unitId);
+        Assert.That(
+            bridge.Orchestrator.ResolveEffectivePolicyForUnit(unitKey).Roe,
+            Is.EqualTo(RoeLevel.HoldFire));
+        Assert.That(
+            bridge.Orchestrator.DecisionLog.PolicyUpdates.Any(u =>
+                u.Field == "roe" && u.NewValue == nameof(RoeLevel.HoldFire)),
+            Is.True);
+
+        Assert.That(
+            DoctrineOverrideCommand.TryApply(bridge.Orchestrator, unitId, "HoldFire", simTime: 2.0),
+            Is.False);
+    }
+
+    [Test]
     public void Engage_without_fire_control_track_aborts_via_bridge_snapshot()
     {
         var bridge = new DelegationBridge(3, mvpEngagement: true);
