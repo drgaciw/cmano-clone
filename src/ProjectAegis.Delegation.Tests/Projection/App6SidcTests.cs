@@ -40,9 +40,19 @@ public sealed class App6SidcTests
     }
 
     [Test]
+    public void Resolve_neutral_affiliation_uses_neutral_registry_entry()
+    {
+        var neutral = App6Sidc.Resolve("Neutral");
+
+        Assert.That(neutral.Glyph, Is.EqualTo(App6Sidc.NeutralUnitGlyph));
+        Assert.That(neutral.Sidc, Is.EqualTo(App6Sidc.NeutralUnitSidc));
+        Assert.That(neutral.Glyph, Is.Not.EqualTo(App6Sidc.FallbackGlyph));
+    }
+
+    [Test]
     public void Resolve_unknown_affiliation_falls_back()
     {
-        var unknown = App6Sidc.Resolve("Neutral");
+        var unknown = App6Sidc.Resolve("Unrecognized");
 
         Assert.That(unknown.Glyph, Is.EqualTo(App6Sidc.FallbackGlyph));
         Assert.That(unknown.Sidc, Is.EqualTo(App6Sidc.FallbackSidc));
@@ -97,5 +107,27 @@ public sealed class App6SidcTests
 
         Assert.That(fallback.UssFrameId, Is.EqualTo(App6Sidc.FallbackFrame));
         Assert.That(fallback.UnicodeGlyph, Is.EqualTo(App6Sidc.FallbackGlyph));
+    }
+
+    [Test]
+    public void ResolveMapGlyph_suspect_and_pending_have_distinct_frames()
+    {
+        var suspect = App6Sidc.ResolveMapGlyph("Suspect");
+        var pending = App6Sidc.ResolveMapGlyph("Pending");
+
+        Assert.That(suspect.UssFrameId, Is.EqualTo(App6Sidc.SuspectContactFrame));
+        Assert.That(pending.UssFrameId, Is.EqualTo(App6Sidc.PendingUnitFrame));
+        Assert.That(suspect.UnicodeGlyph, Is.EqualTo(App6Sidc.SuspectContactGlyph));
+        Assert.That(pending.UnicodeGlyph, Is.EqualTo(App6Sidc.PendingUnitGlyph));
+        Assert.That(App6Sidc.KnownUssFrameIds, Has.Count.EqualTo(7));
+    }
+
+    [Test]
+    public void ResolveMapGlyphFromSidc_suspect_identity_maps_to_suspect_not_hostile()
+    {
+        var resolution = App6Sidc.ResolveMapGlyphFromSidc(App6Sidc.SuspectContactSidc);
+
+        Assert.That(resolution.UssFrameId, Is.EqualTo(App6Sidc.SuspectContactFrame));
+        Assert.That(resolution.UssFrameId, Is.Not.EqualTo(App6Sidc.HostileContactFrame));
     }
 }

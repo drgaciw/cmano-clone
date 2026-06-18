@@ -6,4 +6,6 @@ public interface IApp6AtlasAvailability
     bool IsLoaded { get; }
 
     bool HasFrame(string ussFrameId);
+
+    bool TryGetSpriteSlice(string ussFrameId, out App6AtlasSpriteSlice slice);
 }

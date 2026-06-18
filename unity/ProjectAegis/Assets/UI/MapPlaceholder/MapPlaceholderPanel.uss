@@ -36,6 +36,22 @@
     opacity: 0.5;
 }
 
+.map-symbol--neutral {
+    color: rgb(120, 200, 120);
+}
+
+.map-symbol--suspect {
+    color: rgb(230, 200, 80);
+}
+
+.map-symbol--pending {
+    color: rgb(180, 180, 220);
+}
+
+.map-symbol--unknown {
+    color: rgb(140, 155, 170);
+}
+
 .map-symbol--selected {
     border-color: rgb(255, 200, 80);
     border-width: 1px;
@@ -57,40 +73,90 @@
     -unity-font-style: italic;
 }
 
-/* APP-6 atlas frame sprites (ADR-007 Phase C MVP — placeholder vector frames) */
+/* APP-6 texture atlas sprite sheet (S26-06 — Addressables key Map/App6FrameAtlas) */
+.map-app6-atlas-base {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    background-image: url("project://database/Assets/UI/MapPlaceholder/App6FrameAtlas.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-size: 112px 16px;
+}
+
 .map-app6-frame--friendly {
     width: 16px;
-    height: 12px;
-    border-color: rgb(74, 158, 255);
-    border-width: 2px;
-    background-color: rgba(74, 158, 255, 0.2);
+    height: 16px;
     margin-right: 4px;
+    background-image: url("project://database/Assets/UI/MapPlaceholder/App6FrameAtlas.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-size: 112px 16px;
+    background-position-x: 0px;
+    background-position-y: 0px;
 }
 
 .map-app6-frame--hostile {
-    width: 12px;
-    height: 12px;
-    border-color: rgb(232, 93, 93);
-    border-width: 2px;
-    background-color: rgba(232, 93, 93, 0.2);
-    rotate: 45deg;
+    width: 16px;
+    height: 16px;
     margin-right: 4px;
+    background-image: url("project://database/Assets/UI/MapPlaceholder/App6FrameAtlas.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-size: 112px 16px;
+    background-position-x: -16px;
+    background-position-y: 0px;
 }
 
 .map-app6-frame--friendly-destroyed {
     width: 16px;
-    height: 12px;
-    border-color: rgb(90, 110, 130);
-    border-width: 2px;
-    background-color: rgba(0, 0, 0, 0);
-    opacity: 0.5;
+    height: 16px;
     margin-right: 4px;
+    background-image: url("project://database/Assets/UI/MapPlaceholder/App6FrameAtlas.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-size: 112px 16px;
+    background-position-x: -32px;
+    background-position-y: 0px;
+    opacity: 0.5;
 }
 
 .map-app6-frame--unknown {
-    width: 10px;
-    height: 10px;
-    border-radius: 5px;
-    background-color: rgb(140, 155, 170);
+    width: 16px;
+    height: 16px;
     margin-right: 4px;
+    background-image: url("project://database/Assets/UI/MapPlaceholder/App6FrameAtlas.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-size: 112px 16px;
+    background-position-x: -48px;
+    background-position-y: 0px;
+}
+
+.map-app6-frame--neutral {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    background-image: url("project://database/Assets/UI/MapPlaceholder/App6FrameAtlas.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-size: 112px 16px;
+    background-position-x: -64px;
+    background-position-y: 0px;
+}
+
+.map-app6-frame--suspect {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    background-image: url("project://database/Assets/UI/MapPlaceholder/App6FrameAtlas.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-size: 112px 16px;
+    background-position-x: -80px;
+    background-position-y: 0px;
+}
+
+.map-app6-frame--pending {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    background-image: url("project://database/Assets/UI/MapPlaceholder/App6FrameAtlas.png");
+    -unity-background-scale-mode: stretch-to-fill;
+    background-size: 112px 16px;
+    background-position-x: -96px;
+    background-position-y: 0px;
 }

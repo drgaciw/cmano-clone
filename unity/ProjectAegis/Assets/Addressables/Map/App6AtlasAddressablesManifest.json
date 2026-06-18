@@ -1,0 +1,10 @@
+{
+  "group": "MapPresentation",
+  "entries": [
+    {
+      "address": "Map/App6FrameAtlas",
+      "assetPath": "Assets/UI/MapPlaceholder/App6FrameAtlas.png",
+      "labels": ["map", "app6", "atlas"]
+    }
+  ]
+}

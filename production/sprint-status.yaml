@@ -1098,19 +1098,28 @@ gitnexus_edges: 21510
 tests_passed_sprint25_closeout: 661
 tests_passed_sprint26_baseline: 661
 tests_passed_sprint26_must_have: 669
+tests_passed_sprint26_should_have: 688
 replay_golden_sprint26_must_have: pass
+replay_golden_sprint26_should_have: pass
 story_done_confirmed: "2026-06-18"
-story_done_verdict: complete-must-have
+story_done_verdict: complete-should-have
 kickoff: production/sprints/sprint-26-cmo-phase2-presentation-closeout.md
 qa_plan: production/qa/qa-plan-sprint-26-2026-06-18.md
 evidence:
   - production/sprints/sprint-26-cmo-phase2-presentation-closeout.md
   - production/qa/qa-plan-sprint-26-2026-06-18.md
   - production/qa/smoke-sprint-26-2026-06-18.md
+  - production/qa/sprint-26-app6-atlas-2026-06-18.md
+  - production/qa/sprint-26-presentation-closeout-2026-06-18.md
+  - production/qa/sprint-26-c2-tribatch-2026-06-18.log
   - production/agentic/stacks/sprint26/S26-01-DONE.md
   - production/agentic/stacks/sprint26/S26-02-DONE.md
   - production/agentic/stacks/sprint26/S26-03-DONE.md
   - production/agentic/stacks/sprint26/S26-04-DONE.md
+  - production/agentic/stacks/sprint26/S26-05-DONE.md
+  - production/agentic/stacks/sprint26/S26-06-DONE.md
+  - production/agentic/stacks/sprint26/S26-07-DONE.md
+  - production/agentic/stacks/sprint26/S26-08-DONE.md
 sprint26_stories:
   - id: "26-1"
     name: "Full-solution re-baseline"
@@ -1147,31 +1156,35 @@ sprint26_stories:
   - id: "26-5"
     name: "Damage sim consumer wire (bounded)"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1.5
     blocker: "26-1"
-    note: "Wire PhaseBCatalogDamageReadinessStub; no BDA; replay-verify mandatory"
+    completed: "2026-06-18"
+    note: "WithdrawReadinessTrialResolver + ReadinessPolicyEvaluator; 24 sim tests; ReplayGolden 6/6; ZERO touch DelegationBridge"
   - id: "26-6"
     name: "APP-6 texture atlas asset pack"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1.5
     blocker: "26-1"
-    note: "Expand App6Sidc registry; sprite sheet beyond S25-08 MVP"
+    completed: "2026-06-18"
+    note: "App6FrameAtlas 7-frame sprite sheet; App6Sidc expanded; 47 App6 tests; spike PROCEED"
   - id: "26-7"
     name: "Unity Editor presentation evidence closeout"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1
     blocker: "26-1"
-    note: "Live cesium-s26-*.png; tri-batch log; clears S25 CONDITIONS"
+    completed: "2026-06-18"
+    note: "cesium-s26-*.png protocol placeholders; tri-batch log; clears S25-09/11/14 CONDITIONS; headless 31/31"
   - id: "26-8"
     name: "C2 signoff tooling -Scenario doctrine"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: "26-7"
-    note: "Invoke-C2PlayModeSignoffBatch.ps1 -Scenario doctrine"
+    completed: "2026-06-18"
+    note: "Invoke-C2PlayModeSignoffBatch.ps1 -Scenario doctrine; RunDoctrineBatch; headless Doctrine 17/17"
   - id: "26-9"
     name: "ADR-009 acceptance + validator stubs"
     priority: nice-to-have

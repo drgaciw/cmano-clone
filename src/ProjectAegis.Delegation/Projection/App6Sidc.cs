@@ -20,6 +20,15 @@ public static class App6Sidc
     /// <summary>Hostile ground surface contact.</summary>
     public const string HostileContactSidc = "SHGPU----------";
 
+    /// <summary>Neutral ground surface unit (Standard Identity N).</summary>
+    public const string NeutralUnitSidc = "SNGPU----------";
+
+    /// <summary>Suspect ground surface contact (Standard Identity S).</summary>
+    public const string SuspectContactSidc = "SSGPU----------";
+
+    /// <summary>Pending ground surface unit (Standard Identity P).</summary>
+    public const string PendingUnitSidc = "SPGPU----------";
+
     /// <summary>Distinct friendly surface-unit glyph (rectangle frame family).</summary>
     public const string FriendlySurfaceUnitGlyph = "▣";
 
@@ -28,6 +37,15 @@ public static class App6Sidc
 
     /// <summary>Destroyed friendly unit — hollow frame variant.</summary>
     public const string FriendlyDestroyedGlyph = "▢";
+
+    /// <summary>Neutral unit glyph (square frame family).</summary>
+    public const string NeutralUnitGlyph = "◻";
+
+    /// <summary>Suspect contact glyph (diamond frame family, distinct from hostile).</summary>
+    public const string SuspectContactGlyph = "◇";
+
+    /// <summary>Pending unit glyph (quatrefoil / circle frame family).</summary>
+    public const string PendingUnitGlyph = "◎";
 
     /// <summary>USS class for friendly rectangle APP-6 frame sprite.</summary>
     public const string FriendlySurfaceUnitFrame = "map-app6-frame--friendly";
@@ -41,12 +59,24 @@ public static class App6Sidc
     /// <summary>USS class for unknown / fallback frame sprite.</summary>
     public const string FallbackFrame = "map-app6-frame--unknown";
 
+    /// <summary>USS class for neutral square APP-6 frame sprite.</summary>
+    public const string NeutralUnitFrame = "map-app6-frame--neutral";
+
+    /// <summary>USS class for suspect diamond APP-6 frame sprite.</summary>
+    public const string SuspectContactFrame = "map-app6-frame--suspect";
+
+    /// <summary>USS class for pending quatrefoil APP-6 frame sprite.</summary>
+    public const string PendingUnitFrame = "map-app6-frame--pending";
+
     public static IReadOnlyList<string> KnownUssFrameIds { get; } =
     [
         FriendlySurfaceUnitFrame,
         HostileContactFrame,
         FriendlyDestroyedFrame,
         FallbackFrame,
+        NeutralUnitFrame,
+        SuspectContactFrame,
+        PendingUnitFrame,
     ];
 
     private static readonly IReadOnlyDictionary<string, App6MapGlyphResolution> AffiliationTable =
@@ -54,6 +84,9 @@ public static class App6Sidc
         {
             ["Friendly"] = new(FriendlySurfaceUnitGlyph, FriendlySurfaceUnitFrame, FriendlySurfaceUnitSidc),
             ["Hostile"] = new(HostileContactGlyph, HostileContactFrame, HostileContactSidc),
+            ["Neutral"] = new(NeutralUnitGlyph, NeutralUnitFrame, NeutralUnitSidc),
+            ["Suspect"] = new(SuspectContactGlyph, SuspectContactFrame, SuspectContactSidc),
+            ["Pending"] = new(PendingUnitGlyph, PendingUnitFrame, PendingUnitSidc),
         };
 
     /// <summary>Resolve glyph + SIDC from tactical affiliation and destroyed state.</summary>
@@ -94,7 +127,10 @@ public static class App6Sidc
         return identity switch
         {
             'F' or 'A' or 'D' or 'M' or 'J' or 'K' or 'L' => AffiliationTable["Friendly"],
-            'H' or 'S' => AffiliationTable["Hostile"],
+            'H' => AffiliationTable["Hostile"],
+            'N' => AffiliationTable["Neutral"],
+            'S' => AffiliationTable["Suspect"],
+            'P' => AffiliationTable["Pending"],
             _ => new(FallbackGlyph, FallbackFrame, FallbackSidc),
         };
     }

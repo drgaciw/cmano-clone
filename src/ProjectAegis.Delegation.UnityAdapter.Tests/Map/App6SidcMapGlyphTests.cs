@@ -78,6 +78,19 @@ public sealed class App6SidcMapGlyphTests
     }
 
     [Test]
+    public void ResolveDisplay_neutral_and_suspect_use_distinct_atlas_frames_when_loaded()
+    {
+        var neutral = App6GlyphAtlas.ResolveDisplay("Neutral", atlas: App6AtlasCatalog.Default);
+        var suspect = App6GlyphAtlas.ResolveDisplay("Suspect", atlas: App6AtlasCatalog.Default);
+
+        Assert.That(neutral.UsesAtlasFrame, Is.True);
+        Assert.That(suspect.UsesAtlasFrame, Is.True);
+        Assert.That(neutral.AtlasFrameClass, Is.EqualTo(App6Sidc.NeutralUnitFrame));
+        Assert.That(suspect.AtlasFrameClass, Is.EqualTo(App6Sidc.SuspectContactFrame));
+        Assert.That(neutral.AtlasFrameClass, Is.Not.EqualTo(suspect.AtlasFrameClass));
+    }
+
+    [Test]
     public void MapPanelBinder_with_unavailable_atlas_emits_unicode_glyphs()
     {
         var symbols = MapPictureProjection.Project(

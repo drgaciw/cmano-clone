@@ -1,11 +1,21 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Catalog;
+using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
 using Xunit;
 
 namespace ProjectAegis.Sim.Tests.Catalog;
 
 public sealed class PhaseBDamageCatalogConsumerTests
 {
+    private static ScenarioPolicyProfile CatalogProfile(double currentHpPct = 20) =>
+        new(
+            EffectivePolicy.DefaultFree,
+            catalogWithdrawTargets:
+            [
+                new ScenarioCatalogWithdrawTarget("u1", currentHpPct),
+            ]);
+
     private static InMemoryCatalogReader DamageFixture(
         double withdrawThresholdPct = 25,
         int criticalFlags = 0) =>
@@ -37,6 +47,20 @@ public sealed class PhaseBDamageCatalogConsumerTests
     }
 
     [Fact]
+    public void PhaseB_Legacy_catalog_preserves_baseline_through_readiness_policy_resolver()
+    {
+        var profile = CatalogProfile(15);
+        var catalog = InMemoryCatalogReader.BalticPatrolFixture();
+
+        var trials = WithdrawReadinessTrialResolver.Resolve(profile, catalog);
+
+        Assert.Single(trials);
+        Assert.False(trials[0].CatalogResolved);
+        Assert.Equal(PhaseBCatalogDamageReadinessStub.NeutralReadinessScore, trials[0].ReadinessScore);
+        Assert.False(trials[0].WithdrawRecommended);
+    }
+
+    [Fact]
     public void PhaseB_Committed_platform_damage_changes_withdraw_trial_outcome()
     {
         var legacy = InMemoryCatalogReader.BalticPatrolFixture();
@@ -50,6 +74,23 @@ public sealed class PhaseBDamageCatalogConsumerTests
         Assert.True(modified.CatalogResolved);
         Assert.True(modified.WithdrawRecommended);
         Assert.NotEqual(baseline.ReadinessScore, modified.ReadinessScore);
+    }
+
+    [Fact]
+    public void PhaseB_Committed_platform_damage_changes_readiness_policy_resolver_outcome()
+    {
+        var profile = CatalogProfile(20);
+        var legacy = InMemoryCatalogReader.BalticPatrolFixture();
+        var withDamage = DamageFixture();
+
+        var baseline = WithdrawReadinessTrialResolver.Resolve(profile, legacy);
+        var modified = WithdrawReadinessTrialResolver.Resolve(profile, withDamage);
+
+        Assert.False(baseline[0].CatalogResolved);
+        Assert.False(baseline[0].WithdrawRecommended);
+        Assert.True(modified[0].CatalogResolved);
+        Assert.True(modified[0].WithdrawRecommended);
+        Assert.NotEqual(baseline[0].ReadinessScore, modified[0].ReadinessScore);
     }
 
     [Theory]

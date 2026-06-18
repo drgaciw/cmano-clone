@@ -19,4 +19,15 @@ public sealed class App6AtlasCatalog : IApp6AtlasAvailability
 
     public bool HasFrame(string ussFrameId) =>
         !string.IsNullOrEmpty(ussFrameId) && _frameIds.Contains(ussFrameId);
+
+    public bool TryGetSpriteSlice(string ussFrameId, out App6AtlasSpriteSlice slice)
+    {
+        if (!IsLoaded || !HasFrame(ussFrameId))
+        {
+            slice = default;
+            return false;
+        }
+
+        return App6AtlasSpriteSheet.TryGetSlice(ussFrameId, out slice);
+    }
 }

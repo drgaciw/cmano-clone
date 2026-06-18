@@ -75,7 +75,8 @@ public static class ScenarioPolicyJsonLoader
             missionUnitIds,
             ParseSpeculative(dto.Speculative),
             ParseUnitReadiness(dto.UnitReadiness),
-            ParseSpoofTransitions(dto.SpoofTracks))
+            ParseSpoofTransitions(dto.SpoofTracks),
+            catalogWithdrawTargets: ParseCatalogWithdrawTargets(dto.CatalogWithdraw))
         {
             Id = dto.Id,
         };
@@ -234,6 +235,19 @@ public static class ScenarioPolicyJsonLoader
                 d.ContactId,
                 d.EnvMask,
                 d.JamStrength))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ScenarioCatalogWithdrawTarget> ParseCatalogWithdrawTargets(
+        List<ScenarioCatalogWithdrawJsonDto>? catalogWithdraw)
+    {
+        if (catalogWithdraw == null || catalogWithdraw.Count == 0)
+        {
+            return Array.Empty<ScenarioCatalogWithdrawTarget>();
+        }
+
+        return catalogWithdraw
+            .Select(d => new ScenarioCatalogWithdrawTarget(d.PlatformId, d.CurrentHpPct))
             .ToArray();
     }
 

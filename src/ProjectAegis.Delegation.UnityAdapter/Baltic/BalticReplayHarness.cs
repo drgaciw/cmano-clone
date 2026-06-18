@@ -99,6 +99,12 @@ public static class BalticReplayHarness
             {
                 bridge.Session.UnitReadiness = new UnitReadinessMap(readiness);
             }
+
+            if (profile != null)
+            {
+                bridge.Session.BindCatalogWithdrawTrials(
+                    ReadinessPolicyEvaluator.ResolveCatalogTrials(profile, catalogReader));
+            }
         }
 
         var unitBinding = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");

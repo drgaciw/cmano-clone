@@ -282,6 +282,13 @@ public sealed class SimulationSession
 
     public UnitReadinessMap? UnitReadiness { get; set; }
 
+    /// <summary>Catalog-resolved withdraw/readiness trials (bounded — no hot-tick damage apply).</summary>
+    public IReadOnlyList<ScenarioWithdrawReadinessTrial> CatalogWithdrawTrials { get; private set; } =
+        Array.Empty<ScenarioWithdrawReadinessTrial>();
+
+    public void BindCatalogWithdrawTrials(IReadOnlyList<ScenarioWithdrawReadinessTrial> trials) =>
+        CatalogWithdrawTrials = trials;
+
     /// <summary>Salvo size for the next primed engage (interactive attack menu).</summary>
     public int? NextEngageSalvoOverride { get; set; }
 

@@ -26,6 +26,8 @@ public sealed class ScenarioPolicyJsonDto
 
     public List<ScenarioCatalogDetectionJsonDto>? CatalogDetection { get; set; }
 
+    public List<ScenarioCatalogWithdrawJsonDto>? CatalogWithdraw { get; set; }
+
     public List<ScenarioJammerJsonDto>? Jammers { get; set; }
 
     public ScenarioContactLifecycleJsonDto? ContactLifecycle { get; set; }
@@ -186,6 +188,13 @@ public sealed class ScenarioCatalogDetectionJsonDto
     public double EnvMask { get; set; } = 1.0;
 
     public double JamStrength { get; set; }
+}
+
+public sealed class ScenarioCatalogWithdrawJsonDto
+{
+    public string PlatformId { get; set; } = "u1";
+
+    public double CurrentHpPct { get; set; } = 100.0;
 }
 
 public sealed class ScenarioDetectionJsonDto

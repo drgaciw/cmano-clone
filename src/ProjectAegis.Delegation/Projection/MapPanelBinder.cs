@@ -55,7 +55,10 @@ public static class MapPanelBinder
                 "Friendly" when symbol.IsDestroyed => "map-symbol--friendly-dead",
                 "Friendly" => "map-symbol--friendly",
                 "Hostile" => "map-symbol--hostile",
-                _ => "map-symbol--neutral",
+                "Neutral" => "map-symbol--neutral",
+                "Suspect" => "map-symbol--suspect",
+                "Pending" => "map-symbol--pending",
+                _ => "map-symbol--unknown",
             };
             var selected = (!string.IsNullOrEmpty(selectedUnitId) && symbol.SymbolId == selectedUnitId)
                 || (!string.IsNullOrEmpty(selectedContactId) && symbol.SymbolId == selectedContactId);
