@@ -89,6 +89,9 @@ public sealed class PlatformWorkbookImporterTests
         Assert.Empty(gate.LoadoutProposals);
         Assert.Empty(gate.MagazineProposals);
         Assert.Empty(gate.CommsProposals);
+        Assert.Empty(gate.MobilityProposals);
+        Assert.Empty(gate.SignatureProposals);
+        Assert.Empty(gate.EmconProposals);
         Assert.Contains(result.Plan.Findings, f =>
             f.Code == PlatformWorkbookValidator.MagazineOverCapacity && f.Severity == ValidationSeverity.Error);
     }
@@ -236,6 +239,9 @@ public sealed class PlatformWorkbookImporterTests
         public List<IReadOnlyList<CatalogLoadout>> LoadoutProposals { get; } = new();
         public List<IReadOnlyList<CatalogMagazineEntry>> MagazineProposals { get; } = new();
         public List<IReadOnlyList<CatalogCommsBinding>> CommsProposals { get; } = new();
+        public List<IReadOnlyList<CatalogMobility>> MobilityProposals { get; } = new();
+        public List<IReadOnlyList<CatalogSignature>> SignatureProposals { get; } = new();
+        public List<IReadOnlyList<CatalogEmcon>> EmconProposals { get; } = new();
         public List<IReadOnlyList<CatalogPlatformBinding>> PlatformProposals { get; } = new();
         public List<IReadOnlyList<CatalogWeaponRecord>> WeaponProposals { get; } = new();
 
@@ -267,6 +273,24 @@ public sealed class PlatformWorkbookImporterTests
         {
             CommsProposals.Add(proposed);
             return $"fake-batch-comms-{CommsProposals.Count}";
+        }
+
+        public string ProposeMobilityBatch(IReadOnlyList<CatalogMobility> proposed, string actorType, string actorId, string rationale = "")
+        {
+            MobilityProposals.Add(proposed);
+            return $"fake-batch-mobility-{MobilityProposals.Count}";
+        }
+
+        public string ProposeSignatureBatch(IReadOnlyList<CatalogSignature> proposed, string actorType, string actorId, string rationale = "")
+        {
+            SignatureProposals.Add(proposed);
+            return $"fake-batch-signature-{SignatureProposals.Count}";
+        }
+
+        public string ProposeEmconBatch(IReadOnlyList<CatalogEmcon> proposed, string actorType, string actorId, string rationale = "")
+        {
+            EmconProposals.Add(proposed);
+            return $"fake-batch-emcon-{EmconProposals.Count}";
         }
 
         public string ProposePlatformBatch(IReadOnlyList<CatalogPlatformBinding> proposed, string actorType, string actorId, string rationale = "")

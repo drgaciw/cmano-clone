@@ -846,7 +846,7 @@ sprint24_stories:
   - id: "24-3"
     name: "Phase B write-gate commit path"
     priority: must-have
-    status: backlog
+    status: done
     estimate_days: 2.5
     blocker: "24-2"
     note: "CatalogWriteGate extend-only CRITICAL; Propose*/ApproveBatch for Phase B staging"

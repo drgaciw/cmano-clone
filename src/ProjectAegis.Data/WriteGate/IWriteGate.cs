@@ -49,6 +49,27 @@ public interface IWriteGate
         string actorId,
         string rationale = "");
 
+    /// <summary>S24-03: stage platform mobility rows from Phase B workbook edits.</summary>
+    string ProposeMobilityBatch(
+        IReadOnlyList<CatalogMobility> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
+    /// <summary>S24-03: stage platform signature rows from Phase B workbook edits.</summary>
+    string ProposeSignatureBatch(
+        IReadOnlyList<CatalogSignature> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
+    /// <summary>S24-03: stage platform EMCON rows from Phase B workbook edits.</summary>
+    string ProposeEmconBatch(
+        IReadOnlyList<CatalogEmcon> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
     WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId);
 
     WriteGateDecision RejectBatch(string batchId, string actorType, string actorId, string rationale = "");
