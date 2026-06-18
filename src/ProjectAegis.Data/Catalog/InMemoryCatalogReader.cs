@@ -7,12 +7,14 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     private readonly Dictionary<DetectionBindingKey, double> _lookup;
     private readonly Dictionary<string, CatalogPlatformEntry> _platforms;
     private readonly CatalogSignature[] _signatures;
+    private readonly CatalogPlatformDamage[] _damage;
 
     public InMemoryCatalogReader(
         IEnumerable<CatalogSensorBinding> bindings,
         string layerVersion = "p0-inmemory",
         IEnumerable<CatalogPlatformEntry>? platforms = null,
-        IEnumerable<CatalogSignature>? signatures = null)
+        IEnumerable<CatalogSignature>? signatures = null,
+        IEnumerable<CatalogPlatformDamage>? damage = null)
     {
         LayerVersion = layerVersion;
         _bindings = bindings
@@ -26,6 +28,9 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             .ToDictionary(p => p.PlatformId, StringComparer.Ordinal);
         _signatures = (signatures ?? Array.Empty<CatalogSignature>())
             .OrderBy(s => s.PlatformId, StringComparer.Ordinal)
+            .ToArray();
+        _damage = (damage ?? Array.Empty<CatalogPlatformDamage>())
+            .OrderBy(d => d.PlatformId, StringComparer.Ordinal)
             .ToArray();
     }
 
@@ -83,7 +88,7 @@ public sealed class InMemoryCatalogReader : ICatalogReader
 
     public IReadOnlyList<CatalogEmcon> GetSortedEmcon() => [];
 
-    public IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamage() => [];
+    public IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamage() => _damage;
 
     public bool TryGetMobility(string platformId, out CatalogMobility mobility)
     {
@@ -114,6 +119,15 @@ public sealed class InMemoryCatalogReader : ICatalogReader
 
     public bool TryGetPlatformDamage(string platformId, out CatalogPlatformDamage damage)
     {
+        foreach (var row in _damage)
+        {
+            if (string.Equals(row.PlatformId, platformId, StringComparison.Ordinal))
+            {
+                damage = row;
+                return true;
+            }
+        }
+
         damage = new CatalogPlatformDamage(platformId);
         return false;
     }
