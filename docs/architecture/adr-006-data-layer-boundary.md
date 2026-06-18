@@ -83,6 +83,8 @@
 
 **Temporary exception (migration):** `ScenarioPolicyRepository` remains in `ProjectAegis.Sim` until DATA-3; new code must not add further policy persistence in Sim.
 
+**Implementation guide:** see [Catalog Write-Gate & Determinism Contract](../engineering/catalog-write-gate-determinism.md) for the propose → approve → commit flow, per-entity sort keys, `ICatalogClock` rule, and golden-hash discipline.
+
 ## Migration Plan
 
 | Phase | Scope | Status |
