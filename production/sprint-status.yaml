@@ -560,7 +560,7 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 23
+current_sprint: 24
 requirements_program: complete
 requirements_program_completed: "2026-06-04"
 sprints_11_15_closeout: complete
@@ -788,6 +788,110 @@ sprint23_stories:
     blocker: ""
     completed: "2026-06-17"
     note: "analyze 9280/19007 @ d340436; detect_changes compare-main CRITICAL; DelegationBridge ZERO touch; evidence production/qa/sprint-23-gitnexus-2026-06-17.md"
+next_backlog: production/sprints/sprint-24-phase-b-import-present-polish.md
+
+sprint: 24
+goal: "Complete Platform Editor Phase B import→validate→write-gate commit loop (Req 21); maintain 538+ test baseline; land APP-6 or Cesium presentation polish slice."
+start: "2026-07-23"
+end: "2026-08-06"
+generated: "2026-06-17"
+updated: "2026-06-17"
+status: in-progress
+branch: stack/sprint24/full-sln-gate
+indexed_commit: e77696d
+tests_passed_sprint23_baseline: 538
+tests_passed_sprint24_baseline: 540
+sprint24_baseline_date: "2026-06-17"
+kickoff: production/sprints/sprint-24-phase-b-import-present-polish.md
+parallel_kickoff: production/agentic/sprint-24-parallel-kickoff-2026-06-17.md
+track_plans:
+  - production/agentic/sprint-24-plan-data-2026-06-17.md
+  - production/agentic/sprint-24-plan-unity-2026-06-17.md
+  - production/agentic/sprint-24-plan-qa-2026-06-17.md
+qa_plan: production/qa/qa-plan-sprint-24-2026-06-17.md
+graphite_stack: docs/superpowers/plans/sprint-24-graphite-stack.md
+graphite_stack_branches:
+  - stack/sprint24/full-sln-gate
+  - stack/sprint24/phase-b-reader
+  - stack/sprint24/phase-b-write-gate
+  - stack/sprint24/phase-b-importer
+  - stack/sprint24/phase-b-validator
+  - stack/sprint24/phase-b-sim-consumer
+  - stack/sprint24/c2-app6-spike
+  - stack/sprint24/cesium-polish
+  - stack/sprint24/closeout-replay-gitnexus
+evidence:
+  - production/sprints/sprint-24-phase-b-import-present-polish.md
+  - production/agentic/sprint-24-parallel-kickoff-2026-06-17.md
+  - docs/superpowers/plans/sprint-24-graphite-stack.md
+  - production/qa/qa-plan-sprint-24-2026-06-17.md
+  - production/qa/smoke-sprint-24-2026-06-17.md
+  - production/agentic/stacks/sprint24/README.md
+sprint24_stories:
+  - id: "24-1"
+    name: "Full-solution re-baseline"
+    priority: must-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-17"
+    note: "Day-1 gate GREEN 540/540 @ e77696d; ReplayGoldenSuiteTests 6/6; smoke production/qa/smoke-sprint-24-2026-06-17.md"
+  - id: "24-2"
+    name: "Phase B reader API + export provider"
+    priority: must-have
+    status: backlog
+    estimate_days: 2
+    blocker: "24-1"
+    note: "ICatalogReader Mobility/Signatures/Emcon; CLI real snapshot resolver"
+  - id: "24-3"
+    name: "Phase B write-gate commit path"
+    priority: must-have
+    status: backlog
+    estimate_days: 2.5
+    blocker: "24-2"
+    note: "CatalogWriteGate extend-only CRITICAL; Propose*/ApproveBatch for Phase B staging"
+  - id: "24-4"
+    name: "Phase B importer wiring + round-trip golden"
+    priority: must-have
+    status: backlog
+    estimate_days: 2.5
+    blocker: "24-3"
+    note: "PlatformWorkbookImporter Mobility/Signatures/Emcon; empty-diff contract"
+  - id: "24-5"
+    name: "Phase B validator rule pack"
+    priority: should-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "24-4"
+    note: "Header parity, FK guard, Emcon enums; validation hash golden"
+  - id: "24-6"
+    name: "Phase B sim consumer smoke"
+    priority: should-have
+    status: backlog
+    estimate_days: 2
+    blocker: "24-3"
+    note: "ICatalogReader TryGet* + detection modifier stub; replay-verify mandatory"
+  - id: "24-7"
+    name: "C2 regression + APP-6 Phase C spike"
+    priority: should-have
+    status: backlog
+    estimate_days: 2.5
+    blocker: "24-1"
+    note: "Tri-batch comms/classify/doctrine; App6Sidc map glyphs; ZERO touch DelegationBridge"
+  - id: "24-8"
+    name: "Cesium globe production polish"
+    priority: should-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "24-1"
+    note: "CesiumSpike.unity evidence; depth/occlusion checklist; useGlobeMap=false default"
+  - id: "24-9"
+    name: "Closeout hygiene (replay + GitNexus)"
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: ""
+    note: "replay-verify all; gitnexus analyze @ stack tip; sprint-24-gitnexus evidence"
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
