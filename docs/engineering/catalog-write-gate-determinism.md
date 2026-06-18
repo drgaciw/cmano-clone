@@ -177,6 +177,7 @@ dotnet test src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj -v minima
 
 ## See also
 
+- [Catalog Ingestion Pipeline (CMO Markdown + OSINT)](catalog-ingestion-pipeline.md) — the parse half that feeds `Propose*Batch` (markdown format, inference rules, quarantine, OSINT TL routing)
 - [Balance Drift Telemetry (Advisory)](balance-drift-telemetry.md) — advisory win-rate drift sink; never writes the catalog
 - [ADR-006 — Data Layer Boundary](../architecture/adr-006-data-layer-boundary.md)
 - [ADR-011 — Platform Editor Excel Round-trip](../architecture/adr-011-platform-editor-excel-roundtrip.md)
