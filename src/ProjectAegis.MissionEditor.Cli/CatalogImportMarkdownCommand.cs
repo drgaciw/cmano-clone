@@ -33,8 +33,9 @@ public static class CatalogImportMarkdownCommand
                 databasePath,
                 markdownPath,
                 mapBalticPlatformIds,
-                maxRecords,
-                chunkSize),
+                weaponMarkdownPath: null,
+                maxRecords: maxRecords,
+                chunkSize: chunkSize),
             _ => CmoMarkdownImportProposer.ProposeFromMarkdown(
                 databasePath,
                 markdownPath,

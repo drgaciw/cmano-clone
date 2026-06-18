@@ -54,18 +54,51 @@ public sealed class CmoMarkdownImportGoldenTests
                 Assert.True(gate.ApproveBatch(proposed.PlatformBatchId!, "human", "s26-regression").Committed);
                 Assert.True(gate.ApproveBatch(proposed.WeaponBatchId!, "human", "s26-regression").Committed);
                 Assert.True(gate.ApproveBatch(proposed.MountBatchId!, "human", "s26-regression").Committed);
+                Assert.True(gate.ApproveBatch(proposed.LoadoutBatchId!, "human", "s26-regression").Committed);
+                Assert.True(gate.ApproveBatch(proposed.MagazineBatchId!, "human", "s26-regression").Committed);
             }
+
+            var weaponLookup = CmoMarkdownImporter.BuildWeaponNameLookup(CmoMarkdownImporter.ReadWeaponBindings(weaponPath));
+            var (magazines, _) = CmoMarkdownImporter.PartitionPlatformMagazines(
+                platformPath,
+                mapBalticIds: true,
+                weaponLookup,
+                Path.GetFileName(platformPath));
 
             var fixture = new CatalogSortKeyFixture(
                 Sensors: [],
                 Platforms: CmoMarkdownImporter.ReadPlatformBindings(platformPath, mapBalticIds: true),
                 Weapons: CmoMarkdownImporter.ReadWeaponBindings(weaponPath),
                 Mounts: CmoMarkdownImporter.ReadPlatformMounts(platformPath, mapBalticIds: true),
-                Loadouts: [],
-                Magazines: [],
+                Loadouts: CmoMarkdownImporter.ReadPlatformLoadouts(platformPath, mapBalticIds: true),
+                Magazines: magazines,
                 Comms: []);
 
-            Assert.Equal(CatalogSortKeyGoldenHashes.BalticCmoImport, CatalogSortKeyComparer.ComputeOrderingHash(fixture));
+            Assert.Equal(CatalogSortKeyGoldenHashes.BalticCmoImportWithFittings, CatalogSortKeyComparer.ComputeOrderingHash(fixture));
+        }
+        finally
+        {
+            SqliteConnection.ClearAllPools();
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Fact]
+    public void Platform_fittings_reimport_identical_slice_preserves_catalog_ordering_hash()
+    {
+        var platformPath = CmoMarkdownImporter.ResolveBalticPlatformFixturePath();
+        var weaponPath = CmoMarkdownImporter.ResolveMiniWeaponFixturePath();
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-s27-golden-fittings-{Guid.NewGuid():N}.db");
+
+        try
+        {
+            var hashBefore = ImportApproveAndHashFittings(dbPath, platformPath, weaponPath, clockSeed: 27041);
+            var hashAfter = ImportApproveAndHashFittings(dbPath, platformPath, weaponPath, clockSeed: 27042);
+            Assert.Equal(hashBefore, hashAfter);
+            Assert.Equal(CatalogSortKeyGoldenHashes.BalticCmoImportWithFittings, hashBefore);
         }
         finally
         {
@@ -128,6 +161,47 @@ public sealed class CmoMarkdownImportGoldenTests
             Mounts: [],
             Loadouts: [],
             Magazines: [],
+            Comms: []);
+
+        return CatalogSortKeyComparer.ComputeOrderingHash(fixture);
+    }
+
+    private static string ImportApproveAndHashFittings(
+        string dbPath,
+        string platformPath,
+        string weaponPath,
+        long clockSeed)
+    {
+        var proposed = CmoMarkdownImportProposer.ProposePlatformWeaponMounts(
+            dbPath,
+            platformPath,
+            weaponPath,
+            mapBalticPlatformIds: true,
+            clock: new FixedCatalogClock(clockSeed));
+
+        using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(clockSeed + 1)))
+        {
+            Assert.True(gate.ApproveBatch(proposed.PlatformBatchId!, "human", "s27-golden").Committed);
+            Assert.True(gate.ApproveBatch(proposed.WeaponBatchId!, "human", "s27-golden").Committed);
+            Assert.True(gate.ApproveBatch(proposed.MountBatchId!, "human", "s27-golden").Committed);
+            Assert.True(gate.ApproveBatch(proposed.LoadoutBatchId!, "human", "s27-golden").Committed);
+            Assert.True(gate.ApproveBatch(proposed.MagazineBatchId!, "human", "s27-golden").Committed);
+        }
+
+        var weaponLookup = CmoMarkdownImporter.BuildWeaponNameLookup(CmoMarkdownImporter.ReadWeaponBindings(weaponPath));
+        var (magazines, _) = CmoMarkdownImporter.PartitionPlatformMagazines(
+            platformPath,
+            mapBalticIds: true,
+            weaponLookup,
+            Path.GetFileName(platformPath));
+
+        var fixture = new CatalogSortKeyFixture(
+            Sensors: [],
+            Platforms: CmoMarkdownImporter.ReadPlatformBindings(platformPath, mapBalticIds: true),
+            Weapons: CmoMarkdownImporter.ReadWeaponBindings(weaponPath),
+            Mounts: CmoMarkdownImporter.ReadPlatformMounts(platformPath, mapBalticIds: true),
+            Loadouts: CmoMarkdownImporter.ReadPlatformLoadouts(platformPath, mapBalticIds: true),
+            Magazines: magazines,
             Comms: []);
 
         return CatalogSortKeyComparer.ComputeOrderingHash(fixture);

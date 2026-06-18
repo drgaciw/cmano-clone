@@ -560,7 +560,7 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 24
+current_sprint: 27
 requirements_program: complete
 requirements_program_completed: "2026-06-04"
 sprints_11_15_closeout: complete
@@ -1220,6 +1220,172 @@ sprint26_stories:
     blocker: ""
     completed: "2026-06-18"
     note: "698/698; ReplayGolden 6/6; GitNexus 10656/22048; tracker row 06; stack/sprint25/* prune documented; evidence production/agentic/stacks/sprint26/S26-11-DONE.md"
+next_backlog: production/sprints/sprint-27-cmo-corpus-combat-bounded.md
+
+sprint: 27
+goal: "Nightly CMO corpus pipeline + mount/loadout/magazine import; ADR-011 Phase C viewer; ADR-009 bounded validators."
+start: "2026-09-04"
+end: "2026-09-17"
+generated: "2026-06-18"
+updated: "2026-06-18"
+status: in_progress
+producer_approved: "2026-06-18"
+producer_decisions:
+  s27_06_bda_slice: approved
+  nightly_corpus_v1: sensor_weapon_only
+  gha_billing: permanent_local_gate_advisory
+branch: main
+indexed_commit: f32174b
+tests_passed_sprint26_closeout: 698
+tests_passed_sprint27_baseline: 701
+kickoff: production/sprints/sprint-27-cmo-corpus-combat-bounded.md
+parallel_kickoff: production/agentic/sprint-27-parallel-kickoff-2026-06-18.md
+qa_plan: production/qa/qa-plan-sprint-27-2026-06-18.md
+track_plans:
+  - production/agentic/sprint-27-plan-data-2026-06-18.md
+  - production/agentic/sprint-27-plan-unity-2026-06-18.md
+  - production/agentic/sprint-27-plan-qa-2026-06-18.md
+epics:
+  - production/epics/sprint-27-cmo-corpus-import/EPIC.md
+  - production/epics/sprint-27-adr009-bounded/EPIC.md
+  - production/epics/sprint-27-phase-c-presentation/EPIC.md
+  - production/epics/sprint-27-closeout-devops/EPIC.md
+evidence:
+  - production/qa/smoke-sprint-27-baseline-2026-06-18.md
+  - production/qa/sprint-27-nightly-cmo-import-2026-06-18.md
+  - production/agentic/stacks/sprint27/S27-01-DONE.md
+  - production/agentic/stacks/sprint27/S27-02-DONE.md
+  - production/agentic/stacks/sprint27/S27-03-DONE.md
+  - production/agentic/stacks/sprint27/S27-04-DONE.md
+sprint27_stories:
+  - id: "27-1"
+    name: "Full-solution re-baseline"
+    file: production/epics/sprint-27-cmo-corpus-import/story-027-01-full-sln-gate.md
+    priority: must-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-18"
+  - id: "27-2"
+    name: "Nightly full CMO corpus import job"
+    file: production/epics/sprint-27-cmo-corpus-import/story-027-02-nightly-cmo-corpus.md
+    priority: must-have
+    status: done
+    estimate_days: 2
+    blocker: "27-1"
+    completed: "2026-06-18"
+  - id: "27-3"
+    name: "CMO mount→loadout→magazine markdown import"
+    file: production/epics/sprint-27-cmo-corpus-import/story-027-03-loadout-magazine-import.md
+    priority: must-have
+    status: done
+    estimate_days: 2
+    blocker: "27-1"
+    completed: "2026-06-18"
+  - id: "27-4"
+    name: "Import E2E + golden hygiene"
+    file: production/epics/sprint-27-cmo-corpus-import/story-027-04-import-golden-hygiene.md
+    priority: must-have
+    status: done
+    estimate_days: 1
+    blocker: "27-3"
+    completed: "2026-06-18"
+  - id: "27-5"
+    name: "ADR-009 bounded validators"
+    file: production/epics/sprint-27-adr009-bounded/story-027-05-adr009-validators.md
+    priority: should-have
+    status: backlog
+    estimate_days: 2
+    blocker: "27-1"
+    completed: ""
+  - id: "27-6"
+    name: "Order-log BDA slice (producer-approved)"
+    file: production/epics/sprint-27-adr009-bounded/story-027-06-order-log-bda.md
+    priority: should-have
+    status: backlog
+    estimate_days: 1
+    blocker: "27-5"
+    completed: ""
+  - id: "27-7"
+    name: "Addressables + Map/App6FrameAtlas live group"
+    file: production/epics/sprint-27-phase-c-presentation/story-027-07-addressables-app6.md
+    priority: should-have
+    status: backlog
+    estimate_days: 1
+    blocker: "27-1"
+    completed: ""
+  - id: "27-8"
+    name: "Platform catalog viewer panel (UXML/USS)"
+    file: production/epics/sprint-27-phase-c-presentation/story-027-08-platform-viewer-panel.md
+    priority: should-have
+    status: backlog
+    estimate_days: 2
+    blocker: "27-4"
+    completed: ""
+  - id: "27-9"
+    name: "Browse projection enrichment"
+    file: production/epics/sprint-27-cmo-corpus-import/story-027-09-browse-enrichment.md
+    priority: should-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: "27-3"
+    completed: ""
+  - id: "27-10"
+    name: "Editor presentation evidence"
+    file: production/epics/sprint-27-phase-c-presentation/story-027-10-editor-evidence.md
+    priority: should-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: "27-7,27-8"
+    completed: ""
+  - id: "27-11"
+    name: "Platform viewer smoke harness"
+    file: production/epics/sprint-27-phase-c-presentation/story-027-11-viewer-smoke-harness.md
+    priority: should-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: "27-8"
+    completed: ""
+  - id: "27-12"
+    name: "CI hygiene / GHA billing spike"
+    file: production/epics/sprint-27-closeout-devops/story-027-12-ci-hygiene.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: "27-1"
+    completed: ""
+  - id: "27-13"
+    name: "Closeout hygiene"
+    file: production/epics/sprint-27-closeout-devops/story-027-13-closeout-hygiene.md
+    priority: should-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: ""
+    completed: ""
+  - id: "27-14"
+    name: "Curated platform corpus slice"
+    file: production/epics/sprint-27-cmo-corpus-import/story-027-14-platform-corpus-slice.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 1
+    blocker: "27-3"
+    completed: ""
+  - id: "27-15"
+    name: "Platform browse detail pane"
+    file: production/epics/sprint-27-phase-c-presentation/story-027-15-browse-detail-pane.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: "27-8"
+    completed: ""
+  - id: "27-16"
+    name: "ADR-009 validation checklist closeout"
+    file: production/epics/sprint-27-adr009-bounded/story-027-16-adr009-checklist.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.25
+    blocker: "27-5"
+    completed: ""
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"

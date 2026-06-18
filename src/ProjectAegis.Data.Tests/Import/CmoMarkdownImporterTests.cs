@@ -205,15 +205,22 @@ public sealed class CmoMarkdownImporterTests
             Assert.Equal(3, result.PlatformCount);
             Assert.Equal(3, result.WeaponCount);
             Assert.Equal(4, result.MountCount);
+            Assert.Equal(3, result.LoadoutCount);
+            Assert.Equal(3, result.MagazineCount);
+            Assert.Equal(1, result.FittingQuarantinedCount);
             Assert.NotNull(result.PlatformBatchId);
             Assert.NotNull(result.WeaponBatchId);
             Assert.NotNull(result.MountBatchId);
+            Assert.NotNull(result.LoadoutBatchId);
+            Assert.NotNull(result.MagazineBatchId);
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
             Assert.Equal(3, CountStagingRows(connection, "catalog_staging_platform"));
             Assert.Equal(3, CountStagingRows(connection, "catalog_staging_weapon"));
             Assert.Equal(4, CountStagingRows(connection, "catalog_staging_mount"));
+            Assert.Equal(3, CountStagingRows(connection, "catalog_staging_loadout"));
+            Assert.Equal(3, CountStagingRows(connection, "catalog_staging_magazine"));
         }
         finally
         {

@@ -131,7 +131,8 @@ public sealed class CatalogImportMarkdownCommandTests
             var root = doc.RootElement;
             Assert.Equal("platform", root.GetProperty("entity").GetString());
             Assert.Equal(3, root.GetProperty("parsedCount").GetInt32());
-            Assert.Equal(2, root.GetProperty("batchCount").GetInt32());
+            Assert.Equal(3, root.GetProperty("batchCount").GetInt32());
+            Assert.Equal(4, root.GetProperty("quarantinedCount").GetInt32());
         }
         finally
         {

@@ -51,3 +51,12 @@
 | 13 | [sprint-13-wave5-spoof-readiness](../sprints/sprint-13-wave5-spoof-readiness.md) | Spoof + readiness |
 | 14 | [sprint-14-wave5-attack-menu](../sprints/sprint-14-wave5-attack-menu.md) | Attack menu |
 | 15 | [sprint-15-requirements-rtm-gate](../sprints/sprint-15-requirements-rtm-gate.md) | Req 04–06, 12, RTM |
+
+**Sprint 27 (planned):** [sprint-27-cmo-corpus-combat-bounded](../sprints/sprint-27-cmo-corpus-combat-bounded.md)
+
+| Epic | Stories | Focus |
+|------|---------|-------|
+| [sprint-27-cmo-corpus-import](sprint-27-cmo-corpus-import/EPIC.md) | 6 | Nightly corpus + loadout/magazine import |
+| [sprint-27-adr009-bounded](sprint-27-adr009-bounded/EPIC.md) | 3 | ADR-009 validators + BDA slice |
+| [sprint-27-phase-c-presentation](sprint-27-phase-c-presentation/EPIC.md) | 5 | Addressables + platform viewer UX |
+| [sprint-27-closeout-devops](sprint-27-closeout-devops/EPIC.md) | 2 | CI hygiene + closeout |

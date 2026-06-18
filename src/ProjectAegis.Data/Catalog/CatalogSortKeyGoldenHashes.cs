@@ -14,4 +14,8 @@ public static class CatalogSortKeyGoldenHashes
     /// <summary>Baltic CMO markdown fixture (platform + weapon + mount keys only).</summary>
     public const string BalticCmoImport =
         "6253cd54d85092c964fe4bbd5eb114565b76b8bffa06c164613a9fbe4491e43b";
+
+    /// <summary>Baltic CMO fixture including default loadouts + resolved magazine rows (S27-04).</summary>
+    public const string BalticCmoImportWithFittings =
+        "85e574cff8868a462aef5bdbe7e222c36d9154683c61d791560b4af4fd3461a6";
 }

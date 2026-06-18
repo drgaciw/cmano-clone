@@ -560,4 +560,254 @@ public static class CmoMarkdownImporter
 
         return "rail";
     }
+
+    public const string DefaultLoadoutId = "default";
+
+    public static IReadOnlyDictionary<string, string> BuildWeaponNameLookup(
+        IReadOnlyList<CatalogWeaponRecord> weapons)
+    {
+        var lookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var weapon in weapons)
+        {
+            var head = weapon.DisplayName.Split(',')[0].Trim();
+            if (!string.IsNullOrEmpty(head))
+            {
+                lookup.TryAdd(head, weapon.WeaponId);
+            }
+
+            lookup.TryAdd(weapon.WeaponId, weapon.WeaponId);
+        }
+
+        return lookup;
+    }
+
+    public static string? ResolveWeaponId(
+        string weaponLineName,
+        IReadOnlyDictionary<string, string> weaponLookup)
+    {
+        var name = weaponLineName.Trim();
+        if (weaponLookup.TryGetValue(name, out var direct))
+        {
+            return direct;
+        }
+
+        string? best = null;
+        var bestLen = 0;
+        foreach (var entry in weaponLookup)
+        {
+            if (name.StartsWith(entry.Key, StringComparison.OrdinalIgnoreCase) ||
+                entry.Key.StartsWith(name, StringComparison.OrdinalIgnoreCase))
+            {
+                if (entry.Key.Length > bestLen)
+                {
+                    best = entry.Value;
+                    bestLen = entry.Key.Length;
+                }
+            }
+        }
+
+        return best;
+    }
+
+    public static IReadOnlyList<CatalogLoadout> ReadPlatformLoadouts(
+        string markdownPath,
+        int? maxRecords = null,
+        bool mapBalticIds = false)
+    {
+        if (!File.Exists(markdownPath))
+        {
+            throw new FileNotFoundException($"CMO markdown not found: {markdownPath}");
+        }
+
+        return ReadPlatformLoadoutsFromText(File.ReadAllText(markdownPath), maxRecords, mapBalticIds);
+    }
+
+    public static IReadOnlyList<CatalogLoadout> ReadPlatformLoadoutsFromText(
+        string markdown,
+        int? maxRecords = null,
+        bool mapBalticIds = false)
+    {
+        var loadouts = new List<CatalogLoadout>();
+        string? title = null;
+        string? platformId = null;
+
+        void FlushPlatform()
+        {
+            title = null;
+            platformId = null;
+        }
+
+        foreach (var rawLine in markdown.Split('\n'))
+        {
+            var line = rawLine.TrimEnd('\r');
+            var heading = SectionHeading.Match(line);
+            if (heading.Success)
+            {
+                FlushPlatform();
+                title = heading.Groups[1].Value.Trim();
+                var slug = SlugPlatformId(title);
+                platformId = mapBalticIds && BalticPlatformIds.TryGetValue(slug, out var mapped)
+                    ? mapped
+                    : slug;
+                continue;
+            }
+
+            if (platformId == null)
+            {
+                continue;
+            }
+
+            if (line.StartsWith("**Weapons**", StringComparison.Ordinal))
+            {
+                loadouts.Add(new CatalogLoadout(
+                    platformId,
+                    DefaultLoadoutId,
+                    LoadoutName: "Default Loadout",
+                    Role: "general",
+                    IsDefault: true));
+
+                if (maxRecords.HasValue && loadouts.Count >= maxRecords.Value)
+                {
+                    break;
+                }
+
+                continue;
+            }
+        }
+
+        return loadouts
+            .OrderBy(l => l.PlatformId, StringComparer.Ordinal)
+            .ThenBy(l => l.LoadoutId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    public static (IReadOnlyList<CatalogMagazineEntry> Approved, IReadOnlyList<CmoMarkdownFittingQuarantineEntry> Quarantined)
+        PartitionPlatformMagazines(
+            string markdownPath,
+            bool mapBalticIds,
+            IReadOnlyDictionary<string, string> weaponLookup,
+            string sourceFile,
+            int? maxRecords = null)
+    {
+        if (!File.Exists(markdownPath))
+        {
+            throw new FileNotFoundException($"CMO markdown not found: {markdownPath}");
+        }
+
+        return PartitionPlatformMagazinesFromText(
+            File.ReadAllText(markdownPath),
+            mapBalticIds,
+            weaponLookup,
+            sourceFile,
+            maxRecords);
+    }
+
+    public static (IReadOnlyList<CatalogMagazineEntry> Approved, IReadOnlyList<CmoMarkdownFittingQuarantineEntry> Quarantined)
+        PartitionPlatformMagazinesFromText(
+            string markdown,
+            bool mapBalticIds,
+            IReadOnlyDictionary<string, string> weaponLookup,
+            string sourceFile,
+            int? maxRecords = null)
+    {
+        var approved = new List<CatalogMagazineEntry>();
+        var quarantined = new List<CmoMarkdownFittingQuarantineEntry>();
+        string? title = null;
+        string? platformId = null;
+        bool inWeaponsSection;
+        var mountIds = new HashSet<string>(StringComparer.Ordinal);
+
+        void FlushPlatform()
+        {
+            title = null;
+            platformId = null;
+            inWeaponsSection = false;
+            mountIds.Clear();
+        }
+
+        inWeaponsSection = false;
+        foreach (var rawLine in markdown.Split('\n'))
+        {
+            var line = rawLine.TrimEnd('\r');
+            var heading = SectionHeading.Match(line);
+            if (heading.Success)
+            {
+                FlushPlatform();
+                title = heading.Groups[1].Value.Trim();
+                var slug = SlugPlatformId(title);
+                platformId = mapBalticIds && BalticPlatformIds.TryGetValue(slug, out var mapped)
+                    ? mapped
+                    : slug;
+                continue;
+            }
+
+            if (platformId == null)
+            {
+                continue;
+            }
+
+            if (line.StartsWith("**Weapons**", StringComparison.Ordinal))
+            {
+                inWeaponsSection = true;
+                continue;
+            }
+
+            if (!inWeaponsSection)
+            {
+                continue;
+            }
+
+            var weaponMatch = PlatformWeaponLine.Match(line);
+            if (!weaponMatch.Success)
+            {
+                continue;
+            }
+
+            var weaponName = weaponMatch.Groups[1].Value.Trim();
+            var weaponType = weaponMatch.Groups[2].Value.Trim();
+            var mountId = SlugWeaponMountId(weaponName);
+            mountIds.Add(mountId);
+
+            var weaponId = ResolveWeaponId(weaponName, weaponLookup);
+            if (weaponId is null)
+            {
+                quarantined.Add(new CmoMarkdownFittingQuarantineEntry(
+                    platformId,
+                    DefaultLoadoutId,
+                    mountId,
+                    weaponName,
+                    "orphan_weapon_id",
+                    sourceFile));
+                continue;
+            }
+
+            var quantity = weaponType.Contains("gun", StringComparison.OrdinalIgnoreCase) ? 200 : 16;
+            approved.Add(new CatalogMagazineEntry(
+                platformId,
+                DefaultLoadoutId,
+                mountId,
+                weaponId,
+                Quantity: quantity,
+                ReloadTimeSec: 0,
+                Depth: 0));
+
+            if (maxRecords.HasValue && approved.Count >= maxRecords.Value)
+            {
+                break;
+            }
+        }
+
+        return (
+            approved
+                .OrderBy(m => m.PlatformId, StringComparer.Ordinal)
+                .ThenBy(m => m.LoadoutId, StringComparer.Ordinal)
+                .ThenBy(m => m.MountId, StringComparer.Ordinal)
+                .ThenBy(m => m.WeaponId, StringComparer.Ordinal)
+                .ToArray(),
+            quarantined
+                .OrderBy(q => q.PlatformId, StringComparer.Ordinal)
+                .ThenBy(q => q.MountId, StringComparer.Ordinal)
+                .ThenBy(q => q.WeaponRef, StringComparer.Ordinal)
+                .ToArray());
+    }
 }

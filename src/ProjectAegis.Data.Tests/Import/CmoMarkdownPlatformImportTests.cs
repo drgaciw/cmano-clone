@@ -25,9 +25,12 @@ public sealed class CmoMarkdownPlatformImportTests
                 clock: new FixedCatalogClock(2603));
 
             Assert.Equal(3, result.ParsedCount);
-            Assert.Equal(2, result.Batches.Count);
+            Assert.Equal(3, result.Batches.Count);
             Assert.Equal(3, result.Batches[0].RecordCount);
             Assert.Equal(4, result.Batches[1].RecordCount);
+            Assert.Equal(3, result.Batches[2].RecordCount);
+            Assert.Equal(4, result.QuarantinedCount);
+            Assert.Equal(4, result.FittingQuarantineReport.Count);
 
             foreach (var batch in result.Batches)
             {

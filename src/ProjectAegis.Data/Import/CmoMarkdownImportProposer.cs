@@ -60,7 +60,8 @@ public static class CmoMarkdownImportProposer
             approved.Length,
             quarantined.Length,
             batches,
-            quarantineReport);
+            quarantineReport,
+            []);
     }
 
     /// <summary>S22-04: parse platform + weapon + mount markdown and stage via write gate (no auto-commit).</summary>
@@ -120,13 +121,47 @@ public static class CmoMarkdownImportProposer
                 $"catalog_import_mount:{Path.GetFileName(platformMarkdownPath)}");
         }
 
+        var weaponLookup = CmoMarkdownImporter.BuildWeaponNameLookup(weapons);
+        var loadouts = CmoMarkdownImporter.ReadPlatformLoadouts(platformMarkdownPath, mapBalticIds: mapBalticPlatformIds);
+        var (magazines, fittingQuarantine) = CmoMarkdownImporter.PartitionPlatformMagazines(
+            platformMarkdownPath,
+            mapBalticIds: mapBalticPlatformIds,
+            weaponLookup,
+            Path.GetFileName(platformMarkdownPath));
+
+        string? loadoutBatchId = null;
+        if (loadouts.Count > 0)
+        {
+            loadoutBatchId = gate.ProposeLoadoutBatch(
+                loadouts,
+                "agent",
+                "cmo-markdown-import",
+                $"catalog_import_loadout:{Path.GetFileName(platformMarkdownPath)}");
+        }
+
+        string? magazineBatchId = null;
+        if (magazines.Count > 0)
+        {
+            magazineBatchId = gate.ProposeMagazineBatch(
+                magazines,
+                "agent",
+                "cmo-markdown-import",
+                $"catalog_import_magazine:{Path.GetFileName(platformMarkdownPath)}");
+        }
+
         return new CmoMarkdownPlatformImportResult(
             platforms.Count,
             weapons.Count,
             mounts.Count,
+            loadouts.Count,
+            magazines.Count,
+            fittingQuarantine.Count,
             platformBatchId,
             weaponBatchId,
-            mountBatchId);
+            mountBatchId,
+            loadoutBatchId,
+            magazineBatchId,
+            fittingQuarantine);
     }
 
     /// <summary>S26-02: parse weapon markdown, chunk, and stage via <see cref="IWriteGate.ProposeWeaponBatch"/>.</summary>
@@ -169,6 +204,7 @@ public static class CmoMarkdownImportProposer
             weapons.Count,
             0,
             batches,
+            [],
             []);
     }
 
@@ -177,6 +213,7 @@ public static class CmoMarkdownImportProposer
         string databasePath,
         string markdownPath,
         bool mapBalticPlatformIds = false,
+        string? weaponMarkdownPath = null,
         int? maxRecords = null,
         int chunkSize = DefaultChunkSize,
         ICatalogClock? clock = null)
@@ -201,6 +238,23 @@ public static class CmoMarkdownImportProposer
         var mountLookup = allMounts
             .GroupBy(m => m.PlatformId, StringComparer.Ordinal)
             .ToDictionary(g => g.Key, g => g.OrderBy(m => m.MountId, StringComparer.Ordinal).ToArray(), StringComparer.Ordinal);
+
+        var weapons = weaponMarkdownPath is not null && File.Exists(weaponMarkdownPath)
+            ? CmoMarkdownImporter.ReadWeaponBindings(weaponMarkdownPath)
+            : Array.Empty<CatalogWeaponRecord>();
+        var weaponLookup = CmoMarkdownImporter.BuildWeaponNameLookup(weapons);
+        var allLoadouts = CmoMarkdownImporter.ReadPlatformLoadouts(markdownPath, mapBalticIds: mapBalticPlatformIds);
+        var loadoutLookup = allLoadouts
+            .GroupBy(l => l.PlatformId, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.OrderBy(l => l.LoadoutId, StringComparer.Ordinal).ToArray(), StringComparer.Ordinal);
+        var (allMagazines, fittingQuarantine) = CmoMarkdownImporter.PartitionPlatformMagazines(
+            markdownPath,
+            mapBalticIds: mapBalticPlatformIds,
+            weaponLookup,
+            Path.GetFileName(markdownPath));
+        var magazineLookup = allMagazines
+            .GroupBy(m => m.PlatformId, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.ToArray(), StringComparer.Ordinal);
 
         EnsureDatabase(databasePath);
 
@@ -232,14 +286,49 @@ public static class CmoMarkdownImportProposer
                     $"catalog_import_mount:{Path.GetFileName(markdownPath)}");
                 batches.Add(new CmoMarkdownImportBatch(mountBatchId, mountChunk.Length));
             }
+
+            var loadoutChunk = platformChunk
+                .SelectMany(p => loadoutLookup.TryGetValue(p.PlatformId, out var loadouts) ? loadouts : [])
+                .OrderBy(l => l.PlatformId, StringComparer.Ordinal)
+                .ThenBy(l => l.LoadoutId, StringComparer.Ordinal)
+                .ToArray();
+
+            if (loadoutChunk.Length > 0)
+            {
+                var loadoutBatchId = gate.ProposeLoadoutBatch(
+                    loadoutChunk,
+                    "agent",
+                    "cmo-markdown-import",
+                    $"catalog_import_loadout:{Path.GetFileName(markdownPath)}");
+                batches.Add(new CmoMarkdownImportBatch(loadoutBatchId, loadoutChunk.Length));
+            }
+
+            var magazineChunk = platformChunk
+                .SelectMany(p => magazineLookup.TryGetValue(p.PlatformId, out var magazines) ? magazines : [])
+                .OrderBy(m => m.PlatformId, StringComparer.Ordinal)
+                .ThenBy(m => m.LoadoutId, StringComparer.Ordinal)
+                .ThenBy(m => m.MountId, StringComparer.Ordinal)
+                .ThenBy(m => m.WeaponId, StringComparer.Ordinal)
+                .ToArray();
+
+            if (magazineChunk.Length > 0)
+            {
+                var magazineBatchId = gate.ProposeMagazineBatch(
+                    magazineChunk,
+                    "agent",
+                    "cmo-markdown-import",
+                    $"catalog_import_magazine:{Path.GetFileName(markdownPath)}");
+                batches.Add(new CmoMarkdownImportBatch(magazineBatchId, magazineChunk.Length));
+            }
         }
 
         return new CmoMarkdownImportResult(
             platforms.Count,
             platforms.Count,
-            0,
+            fittingQuarantine.Count,
             batches,
-            []);
+            [],
+            fittingQuarantine);
     }
 
     public static CatalogWeaponRecord[][] ChunkWeapons(
@@ -332,12 +421,19 @@ public sealed record CmoMarkdownImportResult(
     int ApprovedCount,
     int QuarantinedCount,
     IReadOnlyList<CmoMarkdownImportBatch> Batches,
-    IReadOnlyList<CmoMarkdownQuarantineReportEntry> QuarantineReport);
+    IReadOnlyList<CmoMarkdownQuarantineReportEntry> QuarantineReport,
+    IReadOnlyList<CmoMarkdownFittingQuarantineEntry> FittingQuarantineReport);
 
 public sealed record CmoMarkdownPlatformImportResult(
     int PlatformCount,
     int WeaponCount,
     int MountCount,
+    int LoadoutCount,
+    int MagazineCount,
+    int FittingQuarantinedCount,
     string? PlatformBatchId,
     string? WeaponBatchId,
-    string? MountBatchId);
+    string? MountBatchId,
+    string? LoadoutBatchId,
+    string? MagazineBatchId,
+    IReadOnlyList<CmoMarkdownFittingQuarantineEntry> FittingQuarantineReport);
