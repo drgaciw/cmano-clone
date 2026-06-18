@@ -14,4 +14,7 @@ public static class ValidationGoldenHashes
 
     /// <summary>Phase B workbook fixture with deliberate header/FK/enum/sanity errors (PLE-4.3).</summary>
     public const string PhaseBFixtureErrors = "1bad2aad2d2cee480adc802ed6ffd36c7afc867141ad1e1a05d264712bdfa110";
+
+    /// <summary>Phase B damage fixture with deliberate HP/withdraw/flag errors (PLE-4.3 / S25-06).</summary>
+    public const string PhaseBDamageFixtureErrors = "c88e90a96af0a13f064b3c533e8675eeae032f62c2cddc15b91515350a4c8ff6";
 }
