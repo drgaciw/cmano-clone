@@ -1,12 +1,25 @@
 # Sprint 24 Graphite PR Stack — Draft (submit fallback)
 
 **Date:** 2026-06-17  
-**Reason:** `gt submit --stack --no-interactive` failed — `stack/sprint24/closeout-replay-gitnexus` diverged from Graphite tracking after manual rebase.  
-**Stack tip:** `fd80953` @ `stack/sprint24/closeout-replay-gitnexus`  
-**Trunk:** `main`  
+**Updated:** 2026-06-17 (Desktop Commander closeout)  
+**Status:** **SUBMITTED** — `gt submit --stack` opened #203–#210; closeout #211 via `closeout-replay-gitnexus-clean`  
+**Stack tip:** `stack/sprint24/closeout-replay-gitnexus-clean` (cherry-pick onto restacked `cesium-polish`)  
+**Trunk:** `main` @ `dea2151`  
 **Closeout smoke:** `production/qa/smoke-sprint-24-closeout-2026-06-17.md` — **577/577 PASS**, ReplayGolden **6/6**
 
-Submit order: bottom → top (9 PRs).
+| PR | Branch |
+|----|--------|
+| [#203](https://github.com/drgaciw/cmano-clone/pull/203) | `stack/sprint24/full-sln-gate` |
+| [#204](https://github.com/drgaciw/cmano-clone/pull/204) | `stack/sprint24/phase-b-reader` |
+| [#205](https://github.com/drgaciw/cmano-clone/pull/205) | `stack/sprint24/phase-b-write-gate` |
+| [#206](https://github.com/drgaciw/cmano-clone/pull/206) | `stack/sprint24/phase-b-importer` |
+| [#207](https://github.com/drgaciw/cmano-clone/pull/207) | `stack/sprint24/phase-b-validator` |
+| [#208](https://github.com/drgaciw/cmano-clone/pull/208) | `stack/sprint24/phase-b-sim-consumer` |
+| [#209](https://github.com/drgaciw/cmano-clone/pull/209) | `stack/sprint24/c2-app6-spike` |
+| [#210](https://github.com/drgaciw/cmano-clone/pull/210) | `stack/sprint24/cesium-polish` |
+| [#211](https://github.com/drgaciw/cmano-clone/pull/211) | `stack/sprint24/closeout-replay-gitnexus-clean` |
+
+Submit order: bottom → top (9 PRs). Merge after CI green.
 
 ---
 
