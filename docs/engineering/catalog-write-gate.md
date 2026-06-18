@@ -167,6 +167,7 @@ emits a `nextStep` pointing at `catalog_write_approve`.
 - [Platform editor — Excel round-trip runbook](platform-editor-excel-roundtrip.md)
 - [CMO markdown catalog import — developer reference](cmo-markdown-catalog-import.md)
 - [OSINT discovery pipeline — developer reference](osint-discovery-pipeline.md)
+- [Balance telemetry & drift detection — developer reference](balance-telemetry-drift.md) (advisory-only; never bypasses this gate)
 - Requirement [06 — Database Intelligence](../../Game-Requirements/requirements/06-Database-Intelligence.md)
 - Code: `src/ProjectAegis.Data/WriteGate/`,
   `assets/data/catalog/migrations/{005_req06_provenance_audit_staging,007_platform_editor_phase_a}.sql`,
