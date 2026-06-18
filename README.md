@@ -36,7 +36,7 @@ dotnet run --project src/ProjectAegis.Delegation.Demo
 
 **Cursor Cloud agents:** see the [Cursor Cloud specific instructions](AGENTS.md#cursor-cloud-specific-instructions) section in `AGENTS.md` (headless build/test, Play Mode smoke harness, `.cursor/cloud-install.sh` bootstrap via `.cursor/environment.json`).
 
-Headless simulation and delegation spine are implemented (`ProjectAegis.Sim`, Baltic replay harness, sensor classify FSM, UI Toolkit C2/message log). Unity project lives under `unity/ProjectAegis/` (Editor optional; headless smoke in CI). Requirements live under `Game-Requirements/`.
+Headless simulation and delegation spine are implemented ([`ProjectAegis.Sim`](src/ProjectAegis.Sim/README.md), Baltic replay harness, sensor classify FSM, UI Toolkit C2/message log). Unity project lives under `unity/ProjectAegis/` (Editor optional; headless smoke in CI). Requirements live under `Game-Requirements/`.
 
 ## Tech Stack
 
