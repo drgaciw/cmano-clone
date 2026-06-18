@@ -142,7 +142,7 @@ Cross-system “impossible combo” rules (doc 06 §3) → P1 rule pack.
 | Doc 06 question | P0 decision |
 |-----------------|-------------|
 | Auto vs human normalization | **Human confirmation** for any commit affecting >N records (default N=10) or any field tagged `balanceCritical` |
-| Balance drift tolerance | **Out of scope** P0; hook interface `IBalanceTelemetrySink` no-op |
+| Balance drift tolerance | **Out of scope** P0; hook interface `IBalanceTelemetrySink` no-op. Post-P0 advisory accumulator now implemented — see [`docs/engineering/balance-drift-telemetry.md`](../../engineering/balance-drift-telemetry.md). |
 | Branching databases | **Out of scope** P0; single `main` catalog + tagged snapshots; design reserve `branch` column on snapshot metadata |
 
 ---
