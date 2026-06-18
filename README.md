@@ -19,6 +19,8 @@ The repository contains requirements documentation and an initial **agent delega
 
 **CI:** Buildkite primary pipeline — [buildkite-ci.md](docs/engineering/buildkite-ci.md)
 
+**Engineering docs:** subsystem references, runbooks, CI, and workflow guides are indexed in [docs/engineering/README.md](docs/engineering/README.md).
+
 Build and test (requires [.NET 8 SDK](https://dotnet.microsoft.com/download) **8.0.400**, see `global.json`):
 
 ```bash
