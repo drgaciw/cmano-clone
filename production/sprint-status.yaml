@@ -1605,13 +1605,21 @@ start: "2026-10-02"
 end: "2026-10-15"
 generated: "2026-06-18"
 updated: "2026-06-18"
-status: planned
+status: in_progress
 branch: main
 indexed_commit: 1d93e86
+gitnexus_indexed: "2026-06-18"
+gitnexus_nodes: 12240
+gitnexus_edges: 24819
 tests_passed_sprint28_closeout: 801
+tests_passed_sprint29_baseline: 801
 replay_golden_sprint29_baseline: pass
 kickoff: production/sprints/sprint-29-operationalize-data-fight-loop.md
-qa_plan: ""
+parallel_kickoff: production/agentic/sprint-29-parallel-kickoff-2026-06-18.md
+qa_plan: production/qa/qa-plan-sprint-29-2026-10-02.md
+evidence:
+  - production/qa/smoke-sprint-29-baseline-2026-06-18.md
+  - production/agentic/stacks/sprint29/S29-01-DONE.md
 epics:
   - production/epics/sprint-29-tl-export-foundation/EPIC.md
   - production/epics/sprint-29-corpus-approve/EPIC.md
@@ -1625,10 +1633,11 @@ sprint29_stories:
     name: "Full-solution re-baseline"
     file: production/epics/sprint-29-closeout-devops/story-029-01-full-sln-gate.md
     priority: must-have
-    status: ready-for-dev
+    status: done
     estimate_days: 1
     blocker: ""
-    completed: ""
+    completed: "2026-06-18"
+    note: "Day-1 gate GREEN 801/801; ReplayGolden 6/6; GitNexus 12240/24819; smoke production/qa/smoke-sprint-29-baseline-2026-06-18.md"
   - id: "29-2"
     name: "TL export Phase 1-2"
     file: production/epics/sprint-29-tl-export-foundation/story-029-02-tl-export-phase12.md

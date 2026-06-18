@@ -150,9 +150,7 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 
 ## QA Plan
 
-> ⚠️ **No QA Plan**: Run `/qa-plan sprint` before implementation begins. The Production → Polish gate requires QA sign-off, which requires a QA plan.
-
-Target path: `production/qa/qa-plan-sprint-29-2026-10-02.md`
+`production/qa/qa-plan-sprint-29-2026-10-02.md`
 
 ## Definition of Done for this Sprint
 
