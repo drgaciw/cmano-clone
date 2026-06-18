@@ -2,6 +2,10 @@
 
 ADR-008 headless tools for Unity-MCP and CI. No Unity required.
 
+> **Full verb catalog** (all 20+ commands, JSON result envelope, exit codes, examples):
+> [docs/engineering/mission-editor-cli-reference.md](../../docs/engineering/mission-editor-cli-reference.md).
+> This page is a wrapper-script quickstart for the most common verbs.
+
 ## `scenario_validate`
 
 ```powershell
