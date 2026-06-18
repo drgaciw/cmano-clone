@@ -1,6 +1,7 @@
 ---
 id: S27-08
-status: Ready
+status: Complete
+Last Updated: 2026-06-18
 type: UI
 priority: should-have
 graphite_branch: stack/sprint27/platform-viewer-panel
@@ -24,12 +25,12 @@ Upgrade S26-10 spike to full `PlatformCatalogPanel.uxml` + `.uss` with search/fi
 
 ## Acceptance Criteria
 
-- [ ] UXML/USS assets (`platform-catalog-root`, `platform-catalog-search`, `platform-catalog-list`)
-- [ ] Case-insensitive filter; stable sort preserved
-- [ ] Headless `PlatformCatalogViewerTests` PASS
-- [ ] No `IWriteGate` / `Propose*` / `ApproveBatch` in viewer path
-- [ ] ZERO touch `DelegationBridge.cs`
-- [ ] CLI `catalog_platform_browse` JSON shape unchanged
+- [x] UXML/USS assets (`platform-catalog-root`, `platform-catalog-search`, `platform-catalog-list`)
+- [x] Case-insensitive filter; stable sort preserved
+- [x] Headless `PlatformCatalogViewerTests` PASS
+- [x] No `IWriteGate` / `Propose*` / `ApproveBatch` in viewer path
+- [x] ZERO touch `DelegationBridge.cs`
+- [x] CLI `catalog_platform_browse` JSON shape unchanged
 
 ## QA Test Cases
 
@@ -48,3 +49,10 @@ Upgrade S26-10 spike to full `PlatformCatalogPanel.uxml` + `.uss` with search/fi
 
 - Spike: `production/qa/sprint-26-platform-viewer-spike-2026-06-18.md`
 - QA plan: `production/qa/qa-plan-sprint-27-2026-06-18.md`
+
+## Completion Notes
+**Completed**: 2026-06-18
+**Criteria**: 6/6 passing (Editor screenshot advisory deferred to S27-10)
+**Deviations**: Advisory — manual screenshot evidence deferred per lean QA
+**Test Evidence**: UI — headless `PlatformCatalogViewerTests` 7/7 + `PlatformCatalogFilterProjectionTests` 4/4
+**Code Review**: Skipped (lean mode)

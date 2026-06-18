@@ -37,7 +37,7 @@ public sealed class DomainValidatorRegistry
 
     public static DomainValidatorRegistry MvpStubs { get; } = new(
     [
-        new NoOpAirDomainValidator(),
+        new AirAspectDomainValidator(),
         new NoOpSurfaceDomainValidator(),
     ]);
 }

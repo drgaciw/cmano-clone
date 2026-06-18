@@ -1229,6 +1229,7 @@ end: "2026-09-17"
 generated: "2026-06-18"
 updated: "2026-06-18"
 status: in_progress
+tests_passed_sprint27_should_have: 723
 producer_approved: "2026-06-18"
 producer_decisions:
   s27_06_bda_slice: approved
@@ -1258,6 +1259,10 @@ evidence:
   - production/agentic/stacks/sprint27/S27-02-DONE.md
   - production/agentic/stacks/sprint27/S27-03-DONE.md
   - production/agentic/stacks/sprint27/S27-04-DONE.md
+  - production/agentic/stacks/sprint27/S27-05-DONE.md
+  - production/agentic/stacks/sprint27/S27-06-DONE.md
+  - production/agentic/stacks/sprint27/S27-07-DONE.md
+  - production/agentic/stacks/sprint27/S27-08-DONE.md
 sprint27_stories:
   - id: "27-1"
     name: "Full-solution re-baseline"
@@ -1295,34 +1300,38 @@ sprint27_stories:
     name: "ADR-009 bounded validators"
     file: production/epics/sprint-27-adr009-bounded/story-027-05-adr009-validators.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 2
     blocker: "27-1"
-    completed: ""
+    completed: "2026-06-18"
+    note: "DeterministicDamageApplyBatch + AirAspectDomainValidator; Combat|Domain|Damage 33/33; ReplayGolden 6/6; ZERO touch DelegationBridge"
   - id: "27-6"
     name: "Order-log BDA slice (producer-approved)"
     file: production/epics/sprint-27-adr009-bounded/story-027-06-order-log-bda.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1
     blocker: "27-5"
-    completed: ""
+    completed: "2026-06-18"
+    note: "OrderLogBdaProjection + ProjectWithBda; projection-only; KilledTargetRegistry default path unchanged"
   - id: "27-7"
     name: "Addressables + Map/App6FrameAtlas live group"
     file: production/epics/sprint-27-phase-c-presentation/story-027-07-addressables-app6.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1
     blocker: "27-1"
-    completed: ""
+    completed: "2026-06-18"
+    note: "com.unity.addressables 2.3.16; App6AddressablesCatalog; App6|MapPanelBinder 28/28"
   - id: "27-8"
     name: "Platform catalog viewer panel (UXML/USS)"
     file: production/epics/sprint-27-phase-c-presentation/story-027-08-platform-viewer-panel.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 2
     blocker: "27-4"
-    completed: ""
+    completed: "2026-06-18"
+    note: "PlatformCatalogPanel UXML/USS + filter projection; PlatformCatalogViewer 7/7; Editor screenshot advisory → S27-10"
   - id: "27-9"
     name: "Browse projection enrichment"
     file: production/epics/sprint-27-cmo-corpus-import/story-027-09-browse-enrichment.md

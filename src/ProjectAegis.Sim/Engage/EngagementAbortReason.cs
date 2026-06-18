@@ -18,4 +18,5 @@ public enum EngagementAbortReason
     DomainNoSolution = 13,
     AirNotReady = 14,
     TrackSpoofed = 15,
+    AirAspectBlock = 16,
 }

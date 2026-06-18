@@ -19,4 +19,5 @@ public readonly record struct EngageContext(
     bool AirOperationsReady = true,
     bool IsHypersonicTarget = false,
     bool HasHypersonicDefenseLayer = false,
-    bool TrackSpoofed = false);
+    bool TrackSpoofed = false,
+    bool AirAspectInEnvelope = true);

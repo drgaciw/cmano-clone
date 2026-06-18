@@ -1,0 +1,20 @@
+.platform-catalog-panel {
+    flex-grow: 1;
+    min-width: 260px;
+    padding: 6px;
+    background-color: rgba(12, 18, 28, 0.92);
+}
+
+.platform-catalog-title {
+    -unity-font-style: bold;
+    color: rgb(200, 210, 220);
+    margin-bottom: 4px;
+}
+
+.platform-catalog-search {
+    margin-bottom: 6px;
+}
+
+.platform-catalog-list {
+    flex-grow: 1;
+}

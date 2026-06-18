@@ -23,6 +23,9 @@ namespace ProjectAegis.Unity.Runtime
         [SerializeField] private StyleSheet? panelStyles;
         [SerializeField] private bool showPanel = true;
         [SerializeField] private bool useApp6AtlasFrames = true;
+        [SerializeField] private bool preferAddressablesAtlas = true;
+        [SerializeField] private string app6AtlasManifestRelativePath =
+            "Addressables/Map/App6AtlasAddressablesManifest.json";
 
         private UIDocument _document = null!;
         private VisualElement? _rootPanel;
@@ -96,7 +99,7 @@ namespace ProjectAegis.Unity.Runtime
             var comms = CommsStateProjection.Project(bridgeHost.Bridge.Orchestrator.DecisionLog);
             var commsDisplay = bridgeHost.Bridge.Orchestrator.ScenarioPolicy?.CommsDisplay
                 ?? ScenarioCommsDisplaySettings.Default;
-            var atlas = useApp6AtlasFrames ? App6AtlasCatalog.Default : App6AtlasCatalog.Unavailable;
+            var atlas = ResolveAtlasCatalog();
             _panelState = MapPanelBinder.Bind(
                 PresentationFeed.LastMapSymbols,
                 bridgeHost.ScenarioPolicyId,
@@ -108,6 +111,40 @@ namespace ProjectAegis.Unity.Runtime
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
             RebuildSymbols();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private IApp6AtlasAvailability ResolveAtlasCatalog()
+        {
+            if (!useApp6AtlasFrames)
+            {
+                return App6AtlasCatalog.Unavailable;
+            }
+
+            if (preferAddressablesAtlas
+                && TryResolveAddressablesAtlas(out var addressablesAtlas))
+            {
+                return addressablesAtlas;
+            }
+
+            return App6AtlasCatalog.Default;
+        }
+
+        private bool TryResolveAddressablesAtlas(out IApp6AtlasAvailability atlas)
+        {
+            atlas = App6AtlasCatalog.Unavailable;
+            if (string.IsNullOrWhiteSpace(app6AtlasManifestRelativePath))
+            {
+                return false;
+            }
+
+            var manifestPath = System.IO.Path.Combine(Application.dataPath, app6AtlasManifestRelativePath);
+            return App6AddressablesCatalog.TryResolveFromManifest(
+                manifestPath,
+                Application.dataPath,
+                out var catalog,
+                out _)
+                && catalog.IsLoaded
+                && (atlas = catalog).IsLoaded;
         }
 
         private void RebuildSymbols()

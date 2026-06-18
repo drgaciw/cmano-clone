@@ -1,6 +1,7 @@
 ---
 id: S27-06
-status: Ready
+status: Complete
+Last Updated: 2026-06-18
 type: Integration
 priority: should-have
 graphite_branch: stack/sprint27/adr009-validators-bda
@@ -24,11 +25,11 @@ After S27-05 batch sort, emit order-log-only BDA: sorted kill outcomes → `Cont
 
 ## Acceptance Criteria
 
-- [ ] Projection tests: killed contact drops from contact picture
-- [ ] **No** change to `KilledTargetRegistry` apply path in default config
-- [ ] Flag-gated test fixture only (`combatDomainsEnabled=true`)
-- [ ] Baltic ReplayGolden 6/6 unchanged
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] Projection tests: killed contact drops from contact picture
+- [x] **No** change to `KilledTargetRegistry` apply path in default config
+- [x] Flag-gated test fixture only (`combatDomainsEnabled=true`)
+- [x] Baltic ReplayGolden 6/6 unchanged
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 
@@ -42,3 +43,10 @@ After S27-05 batch sort, emit order-log-only BDA: sorted kill outcomes → `Cont
 
 - GDD: `design/gdd/combat-domains-damage.md` § BDA
 - QA plan: `production/qa/qa-plan-sprint-27-2026-06-18.md`
+
+## Completion Notes
+**Completed**: 2026-06-18
+**Criteria**: 5/5 passing
+**Deviations**: None
+**Test Evidence**: Integration — `OrderLogBdaProjectionTests` + `ContactPictureProjection.ProjectWithBda`
+**Code Review**: Skipped (lean mode)

@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="platform-catalog-root" class="platform-catalog-panel">
+        <ui:Label text="PLATFORM CATALOG" class="platform-catalog-title" />
+        <ui:TextField name="platform-catalog-search" class="platform-catalog-search" label="Filter" />
+        <ui:ListView name="platform-catalog-list" class="platform-catalog-list" selection-type="None" />
+    </ui:VisualElement>
+</ui:UXML>

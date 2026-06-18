@@ -1,4 +1,5 @@
 using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 using Xunit;
@@ -81,6 +82,100 @@ public sealed class DomainValidatorRegistryTests
     {
         Assert.False(ScenarioEngageDefaults.MvpFallback.CombatDomainsEnabled);
     }
+
+    [Fact]
+    public void CombatDomainsEnabled_true_aspect_blocked_aborts_with_AirAspectBlock()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 2);
+        var request = new EngageRequest(1, 2, 0, 0);
+        var ctx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            AirAspectInEnvelope: false);
+        world.Set(request, ctx);
+
+        var resolver = new MvpEngagementResolver(
+            world,
+            magazines,
+            combatDomainsEnabled: true,
+            domainValidators: DomainValidatorRegistry.MvpStubs);
+
+        var result = resolver.Resolve(request);
+        Assert.False(result.Launched);
+        Assert.Equal(EngagementAbortReason.AirAspectBlock, result.AbortReason);
+    }
+
+    [Fact]
+    public void Validator_deny_maps_to_AIR_ASPECT_BLOCK_order_log_code()
+    {
+        var registry = DomainValidatorRegistry.MvpStubs;
+        var ctx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            AirAspectInEnvelope: false);
+
+        var result = registry.Validate(CombatDomain.Air, in ctx);
+        Assert.False(result.Allowed);
+        Assert.Equal(FireAbortReason.AirAspectBlock, result.AbortReason);
+
+        var mapped = MapDomainDenialForTest(result.AbortReason!.Value);
+        Assert.Equal(AbortReasonCatalog.Engage.AIR_ASPECT_BLOCK, EngagementAbortReasonCodes.ToLogCode(mapped));
+    }
+
+    [Fact]
+    public void Baltic_flag_off_zero_abort_delta_despite_deny_registry()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 2);
+        var request = new EngageRequest(1, 2, 0, 0);
+        var blockedCtx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            AirAspectInEnvelope: false);
+        world.Set(request, blockedCtx);
+
+        var denyRegistry = new DomainValidatorRegistry(
+        [
+            new AirAspectDomainValidator(),
+        ]);
+
+        var flagOffResolver = new MvpEngagementResolver(
+            world,
+            magazines,
+            combatDomainsEnabled: false,
+            domainValidators: denyRegistry);
+        var flagOffResult = flagOffResolver.Resolve(request);
+
+        var flagOffDefaultResolver = new MvpEngagementResolver(
+            world,
+            magazines,
+            combatDomainsEnabled: false,
+            domainValidators: DomainValidatorRegistry.MvpStubs);
+        var flagOffDefaultResult = flagOffDefaultResolver.Resolve(request);
+
+        Assert.True(flagOffResult.Launched);
+        Assert.True(flagOffDefaultResult.Launched);
+        Assert.Equal(flagOffDefaultResult.Launched, flagOffResult.Launched);
+        Assert.Equal(flagOffDefaultResult.AbortReason, flagOffResult.AbortReason);
+    }
+
+    private static EngagementAbortReason MapDomainDenialForTest(FireAbortReason reason) =>
+        reason switch
+        {
+            FireAbortReason.NoFireControlTrack => EngagementAbortReason.NoFireControlTrack,
+            FireAbortReason.EmconOff => EngagementAbortReason.EmconOff,
+            FireAbortReason.AirAspectBlock => EngagementAbortReason.AirAspectBlock,
+            _ => EngagementAbortReason.DomainNoSolution,
+        };
 
     private sealed class DenyAllDomainValidator(CombatDomain domain) : IDomainValidator
     {

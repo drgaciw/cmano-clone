@@ -120,6 +120,39 @@ public sealed class App6AtlasAssetTests
     }
 
     [Test]
+    public void Addressables_catalog_resolves_manifest_key_to_sprite_sheet_metadata()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        Assert.That(
+            App6AddressablesCatalog.TryResolveFromRepo(repoRoot!, out var catalog, out var resolution),
+            Is.True);
+
+        Assert.That(resolution.AddressableKey, Is.EqualTo(App6AtlasSpriteSheet.AddressableKey));
+        Assert.That(resolution.TextureAssetPath, Is.EqualTo(App6AtlasSpriteSheet.TextureAssetPath));
+        Assert.That(resolution.AddressableGroup, Is.EqualTo(App6AtlasSpriteSheet.AddressableGroup));
+        Assert.That(resolution.FrameSlices, Has.Count.EqualTo(App6Sidc.KnownUssFrameIds.Count));
+        Assert.That(catalog.IsLoaded, Is.True);
+        Assert.That(catalog.TryGetSpriteSlice(App6Sidc.FriendlySurfaceUnitFrame, out var friendly), Is.True);
+        Assert.That(friendly.X, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void Unity_manifest_includes_com_unity_addressables_package()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var manifestPath = Path.Combine(repoRoot!, "unity", "ProjectAegis", "Packages", "manifest.json");
+        Assert.That(File.Exists(manifestPath), Is.True);
+
+        var manifest = File.ReadAllText(manifestPath);
+        Assert.That(manifest, Does.Contain("com.unity.addressables"));
+        Assert.That(manifest, Does.Contain("2.3.16"));
+    }
+
+    [Test]
     public void Addressables_manifest_and_texture_assets_exist_in_repo()
     {
         var repoRoot = FindRepoRoot();

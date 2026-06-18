@@ -1,6 +1,7 @@
 ---
 id: S27-07
-status: Ready
+status: Complete
+Last Updated: 2026-06-18
 type: Integration
 priority: should-have
 graphite_branch: stack/sprint27/addressables-app6-atlas
@@ -23,12 +24,12 @@ Add `com.unity.addressables` to manifest; promote `App6AtlasAddressablesManifest
 
 ## Acceptance Criteria
 
-- [ ] `com.unity.addressables` in `Packages/manifest.json`
-- [ ] Key `Map/App6FrameAtlas` resolves to sprite sheet metadata
-- [ ] Headless App6 + MapPanel tests PASS
-- [ ] Unicode fallback when `App6AtlasCatalog.Unavailable`
-- [ ] ZERO touch `DelegationBridge.cs`
-- [ ] `useGlobeMap=false` on `DelegationSmoke.unity` unchanged
+- [x] `com.unity.addressables` in `Packages/manifest.json`
+- [x] Key `Map/App6FrameAtlas` resolves to sprite sheet metadata
+- [x] Headless App6 + MapPanel tests PASS
+- [x] Unicode fallback when `App6AtlasCatalog.Unavailable`
+- [x] ZERO touch `DelegationBridge.cs`
+- [x] `useGlobeMap=false` on `DelegationSmoke.unity` unchanged
 
 ## QA Test Cases
 
@@ -50,3 +51,10 @@ git diff main -- src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridg
 
 - S26-06: `production/qa/sprint-26-app6-atlas-2026-06-18.md`
 - QA plan: `production/qa/qa-plan-sprint-27-2026-06-18.md`
+
+## Completion Notes
+**Completed**: 2026-06-18
+**Criteria**: 6/6 passing
+**Deviations**: None
+**Test Evidence**: Integration — `App6AtlasAssetTests` + `App6|MapPanelBinder` filter 28/28
+**Code Review**: Skipped (lean mode)

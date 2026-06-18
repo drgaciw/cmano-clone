@@ -91,6 +91,31 @@ public sealed class App6SidcMapGlyphTests
     }
 
     [Test]
+    public void MapPanelBinder_with_addressables_catalog_uses_atlas_frames()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+        Assert.That(
+            App6AddressablesCatalog.TryResolveFromRepo(repoRoot!, out var catalog, out _),
+            Is.True);
+
+        var symbols = MapPictureProjection.Project(
+            [new OobTreeEntry("u1", true)],
+            [new ContactPictureEntry("c1", "hostile-1", "u1", "Detected", 1, 1.0)],
+            layoutSeed: 42);
+
+        var state = MapPanelBinder.Bind(symbols, "baltic-patrol-app6-addressables", catalog);
+
+        var friendly = state.Symbols.Single(s => s.SymbolId == "u1");
+        var hostile = state.Symbols.Single(s => s.SymbolId == "c1");
+
+        Assert.That(friendly.UsesAtlasFrame, Is.True);
+        Assert.That(hostile.UsesAtlasFrame, Is.True);
+        Assert.That(friendly.AtlasFrameClass, Is.EqualTo(App6Sidc.FriendlySurfaceUnitFrame));
+        Assert.That(hostile.AtlasFrameClass, Is.EqualTo(App6Sidc.HostileContactFrame));
+    }
+
+    [Test]
     public void MapPanelBinder_with_unavailable_atlas_emits_unicode_glyphs()
     {
         var symbols = MapPictureProjection.Project(
@@ -107,5 +132,21 @@ public sealed class App6SidcMapGlyphTests
         Assert.That(hostile.UsesAtlasFrame, Is.False);
         Assert.That(friendly.Glyph, Is.EqualTo(App6Sidc.FriendlySurfaceUnitGlyph));
         Assert.That(hostile.Glyph, Is.EqualTo(App6Sidc.HostileContactGlyph));
+    }
+
+    private static string? FindRepoRoot()
+    {
+        var dir = AppContext.BaseDirectory;
+        for (var i = 0; i < 8; i++)
+        {
+            if (File.Exists(Path.Combine(dir, "ProjectAegis.sln")))
+            {
+                return dir;
+            }
+
+            dir = Directory.GetParent(dir)?.FullName ?? dir;
+        }
+
+        return null;
     }
 }

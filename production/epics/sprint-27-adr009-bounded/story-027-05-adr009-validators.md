@@ -1,6 +1,7 @@
 ---
 id: S27-05
-status: Ready
+status: Complete
+Last Updated: 2026-06-18
 type: Integration
 priority: should-have
 graphite_branch: stack/sprint27/adr009-validators-bda
@@ -23,12 +24,12 @@ Implement deterministic damage outcome batch sort (`OrderBy(EngagementId).ThenBy
 
 ## Acceptance Criteria
 
-- [ ] `DeterministicDamageApplyBatch` (or equivalent) with ≥4 sort-order unit tests
-- [ ] `AirAspectDomainValidator`: allow in envelope, deny with `AirAspectBlock`
-- [ ] Validator deny appends order-log abort code in flag-on fixture
-- [ ] `combatDomainsEnabled=false` on Baltic — zero abort delta
-- [ ] `ReplayGoldenSuiteTests` — 6/6 PASS on default path
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] `DeterministicDamageApplyBatch` (or equivalent) with ≥4 sort-order unit tests
+- [x] `AirAspectDomainValidator`: allow in envelope, deny with `AirAspectBlock`
+- [x] Validator deny appends order-log abort code in flag-on fixture
+- [x] `combatDomainsEnabled=false` on Baltic — zero abort delta
+- [x] `ReplayGoldenSuiteTests` — 6/6 PASS on default path
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 
@@ -57,3 +58,10 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 - ADR-009: `docs/architecture/adr-009-combat-domain-validators.md`
 - S26-09: `production/agentic/stacks/sprint26/S26-09-DONE.md`
 - QA plan: `production/qa/qa-plan-sprint-27-2026-06-18.md`
+
+## Completion Notes
+**Completed**: 2026-06-18
+**Criteria**: 6/6 passing
+**Deviations**: None
+**Test Evidence**: Integration — `DeterministicDamageApplyBatchTests` + `DomainValidatorRegistryTests`; ReplayGolden 6/6
+**Code Review**: Skipped (lean mode)
