@@ -32,4 +32,7 @@ public sealed record PlatformImportResult(
     string? LoadoutBatchId,
     string? MagazineBatchId,
     string? CommsBatchId,
+    string? MobilityBatchId,
+    string? SignatureBatchId,
+    string? EmconBatchId,
     IReadOnlyList<string> Notes);
