@@ -33,6 +33,10 @@
     color: rgb(170, 185, 200);
 }
 
+.doctrine-line--emcon {
+    color: rgb(160, 175, 190);
+}
+
 .doctrine-line--override {
     margin-bottom: 6px;
 }

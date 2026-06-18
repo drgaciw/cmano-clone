@@ -186,6 +186,7 @@ public sealed class PlayModeSmokeHarnessTests
         var panel = DoctrineInheritancePanelBinder.Bind(entry);
         Assert.That(panel.RoeLine, Does.Contain("WeaponsTight"));
         Assert.That(panel.SalvoLine, Does.Contain("SALVO:"));
+        Assert.That(panel.EmconLine, Does.StartWith("EMCON:"));
         Assert.That(panel.SourceLine, Does.Contain("Mission"));
         Assert.That(panel.OverrideLine, Does.Contain("OVERRIDE:"));
         Assert.That(panel.CanOverride, Is.False);
@@ -242,6 +243,7 @@ public sealed class PlayModeSmokeHarnessTests
             "unit-id-label",
             "roe-label",
             "salvo-label",
+            "emcon-label",
             "source-label",
             "override-label",
             "roe-dropdown",

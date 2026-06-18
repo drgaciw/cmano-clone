@@ -7,6 +7,7 @@
         <ui:Label name="unit-id-label" text="UNIT: —" class="doctrine-line" />
         <ui:Label name="roe-label" text="ROE: —" class="doctrine-line doctrine-line--roe" />
         <ui:Label name="salvo-label" text="SALVO: —" class="doctrine-line doctrine-line--wra" />
+        <ui:Label name="emcon-label" text="EMCON: —" class="doctrine-line doctrine-line--emcon" />
         <ui:Label name="source-label" text="SOURCE: —" class="doctrine-line" />
         <ui:Label name="override-label" text="OVERRIDE: UNAVAILABLE" class="doctrine-line doctrine-line--override" />
         <ui:VisualElement class="doctrine-override-row">
