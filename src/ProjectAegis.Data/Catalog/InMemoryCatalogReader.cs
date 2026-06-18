@@ -6,11 +6,13 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     private readonly CatalogSensorBinding[] _bindings;
     private readonly Dictionary<DetectionBindingKey, double> _lookup;
     private readonly Dictionary<string, CatalogPlatformEntry> _platforms;
+    private readonly CatalogSignature[] _signatures;
 
     public InMemoryCatalogReader(
         IEnumerable<CatalogSensorBinding> bindings,
         string layerVersion = "p0-inmemory",
-        IEnumerable<CatalogPlatformEntry>? platforms = null)
+        IEnumerable<CatalogPlatformEntry>? platforms = null,
+        IEnumerable<CatalogSignature>? signatures = null)
     {
         LayerVersion = layerVersion;
         _bindings = bindings
@@ -22,6 +24,9 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             b => b.BasePd);
         _platforms = (platforms ?? Array.Empty<CatalogPlatformEntry>())
             .ToDictionary(p => p.PlatformId, StringComparer.Ordinal);
+        _signatures = (signatures ?? Array.Empty<CatalogSignature>())
+            .OrderBy(s => s.PlatformId, StringComparer.Ordinal)
+            .ToArray();
     }
 
     public string LayerVersion { get; }
@@ -74,7 +79,7 @@ public sealed class InMemoryCatalogReader : ICatalogReader
 
     public IReadOnlyList<CatalogMobility> GetSortedMobility() => [];
 
-    public IReadOnlyList<CatalogSignature> GetSortedSignatures() => [];
+    public IReadOnlyList<CatalogSignature> GetSortedSignatures() => _signatures;
 
     public IReadOnlyList<CatalogEmcon> GetSortedEmcon() => [];
 
@@ -86,6 +91,15 @@ public sealed class InMemoryCatalogReader : ICatalogReader
 
     public bool TryGetSignature(string platformId, out CatalogSignature signature)
     {
+        foreach (var row in _signatures)
+        {
+            if (string.Equals(row.PlatformId, platformId, StringComparison.Ordinal))
+            {
+                signature = row;
+                return true;
+            }
+        }
+
         signature = new CatalogSignature(platformId);
         return false;
     }
