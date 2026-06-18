@@ -160,6 +160,60 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return batchId;
     }
 
+    public string ProposePlatformBatch(
+        IReadOnlyList<CatalogPlatformBinding> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "")
+    {
+        if (proposed.Count == 0)
+        {
+            throw new ArgumentException("At least one platform row required.", nameof(proposed));
+        }
+
+        var batchId = $"batch-platform-{proposed.Count}-{_clock.UtcTicks}";
+        var sorted = proposed
+            .OrderBy(p => p.PlatformId, StringComparer.Ordinal)
+            .ToArray();
+
+        using var tx = _connection.BeginTransaction();
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        foreach (var row in sorted)
+        {
+            InsertStagingPlatform(tx, batchId, row);
+        }
+
+        tx.Commit();
+        return batchId;
+    }
+
+    public string ProposeWeaponBatch(
+        IReadOnlyList<CatalogWeaponRecord> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "")
+    {
+        if (proposed.Count == 0)
+        {
+            throw new ArgumentException("At least one weapon row required.", nameof(proposed));
+        }
+
+        var batchId = $"batch-weapon-{proposed.Count}-{_clock.UtcTicks}";
+        var sorted = proposed
+            .OrderBy(w => w.WeaponId, StringComparer.Ordinal)
+            .ToArray();
+
+        using var tx = _connection.BeginTransaction();
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        foreach (var row in sorted)
+        {
+            InsertStagingWeapon(tx, batchId, row);
+        }
+
+        tx.Commit();
+        return batchId;
+    }
+
     public WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId)
     {
         var staged = LoadStagingRows(batchId);
@@ -389,6 +443,52 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         cmd.ExecuteNonQuery();
     }
 
+    private static void InsertStagingPlatform(SqliteTransaction tx, string batchId, CatalogPlatformBinding row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO catalog_staging_platform
+                (batch_id, platform_id, display_name, domain, platform_class, nationality,
+                 game_technology_level, review_state, trl_level, value_tier, citation_ref)
+            VALUES ($batch, $platform, $name, $domain, $class, $nat, $gtl, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$name", row.DisplayName);
+        cmd.Parameters.AddWithValue("$domain", row.Domain);
+        cmd.Parameters.AddWithValue("$class", row.PlatformClass);
+        cmd.Parameters.AddWithValue("$nat", row.Nationality);
+        cmd.Parameters.AddWithValue("$gtl", row.GameTechnologyLevel);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
+        cmd.Parameters.AddWithValue("$trl", row.TrlLevel);
+        cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.Normalize(row.ValueTier));
+        cmd.Parameters.AddWithValue("$citation", row.CitationRef);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertStagingWeapon(SqliteTransaction tx, string batchId, CatalogWeaponRecord row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO catalog_staging_weapon
+                (batch_id, weapon_id, display_name, min_range_meters, max_range_meters, weapon_type, guidance, review_state)
+            VALUES ($batch, $weapon, $name, $min, $max, $type, $guidance, $review)
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        cmd.Parameters.AddWithValue("$weapon", row.WeaponId);
+        cmd.Parameters.AddWithValue("$name", row.DisplayName);
+        cmd.Parameters.AddWithValue("$min", row.MinRangeMeters);
+        cmd.Parameters.AddWithValue("$max", row.MaxRangeMeters);
+        cmd.Parameters.AddWithValue("$type", row.WeaponType);
+        cmd.Parameters.AddWithValue("$guidance", row.Guidance);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
+        cmd.ExecuteNonQuery();
+    }
+
     private static void UpsertSensor(SqliteTransaction tx, CatalogSensorBinding row, string actorId)
     {
         using var cmd = tx.Connection!.CreateCommand();
@@ -502,12 +602,14 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
     private static void DeleteStagingRows(SqliteTransaction tx, string batchId)
     {
-        // S22-01 / DBI-1.4: purge mount/loadout/magazine/comms staging on reject.
+        // S22-04 / DBI-1.4: purge all staging tables so RejectBatch never leaves orphan rows.
         using var cmd = tx.Connection!.CreateCommand();
         cmd.Transaction = tx;
         foreach (var table in new[]
         {
             "catalog_staging_sensor",
+            "catalog_staging_platform",
+            "catalog_staging_weapon",
             "catalog_staging_mount",
             "catalog_staging_loadout",
             "catalog_staging_magazine",

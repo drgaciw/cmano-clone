@@ -35,6 +35,20 @@ public interface IWriteGate
         string actorId,
         string rationale = "");
 
+    /// <summary>S22-04: stage platform metadata parsed from CMO markdown platform sections.</summary>
+    string ProposePlatformBatch(
+        IReadOnlyList<CatalogPlatformBinding> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
+    /// <summary>S22-04: stage weapon catalog rows parsed from CMO weapon markdown sections.</summary>
+    string ProposeWeaponBatch(
+        IReadOnlyList<CatalogWeaponRecord> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
     WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId);
 
     WriteGateDecision RejectBatch(string batchId, string actorType, string actorId, string rationale = "");

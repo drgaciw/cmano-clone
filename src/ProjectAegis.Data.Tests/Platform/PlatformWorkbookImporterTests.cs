@@ -236,6 +236,8 @@ public sealed class PlatformWorkbookImporterTests
         public List<IReadOnlyList<CatalogLoadout>> LoadoutProposals { get; } = new();
         public List<IReadOnlyList<CatalogMagazineEntry>> MagazineProposals { get; } = new();
         public List<IReadOnlyList<CatalogCommsBinding>> CommsProposals { get; } = new();
+        public List<IReadOnlyList<CatalogPlatformBinding>> PlatformProposals { get; } = new();
+        public List<IReadOnlyList<CatalogWeaponRecord>> WeaponProposals { get; } = new();
 
         public string ProposeSensorBatch(IReadOnlyList<CatalogSensorBinding> proposed, string actorType, string actorId, string rationale = "")
         {
@@ -265,6 +267,18 @@ public sealed class PlatformWorkbookImporterTests
         {
             CommsProposals.Add(proposed);
             return $"fake-batch-comms-{CommsProposals.Count}";
+        }
+
+        public string ProposePlatformBatch(IReadOnlyList<CatalogPlatformBinding> proposed, string actorType, string actorId, string rationale = "")
+        {
+            PlatformProposals.Add(proposed);
+            return $"fake-batch-platform-{PlatformProposals.Count}";
+        }
+
+        public string ProposeWeaponBatch(IReadOnlyList<CatalogWeaponRecord> proposed, string actorType, string actorId, string rationale = "")
+        {
+            WeaponProposals.Add(proposed);
+            return $"fake-batch-weapon-{WeaponProposals.Count}";
         }
 
         public WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId) => new(true, batchId, []);

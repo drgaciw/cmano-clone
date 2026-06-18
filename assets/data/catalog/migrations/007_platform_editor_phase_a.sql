@@ -76,7 +76,37 @@ CREATE TABLE IF NOT EXISTS platform_magazine (
 CREATE INDEX IF NOT EXISTS idx_platform_magazine_loadout
     ON platform_magazine (platform_id ASC, loadout_id ASC, mount_id ASC, weapon_id ASC);
 
--- S22-01: write-gate staging tables for mount/loadout/magazine/comms (DBI-1.4 orphan guard).
+-- S22-04: write-gate staging tables (additive; DBI-1.4 orphan guard via DeleteStagingRows).
+-- All new Propose* use explicit ORDER BY canonical keys for determinism (DBI-1.1/7.3).
+
+CREATE TABLE IF NOT EXISTS catalog_staging_platform (
+    batch_id TEXT NOT NULL,
+    platform_id TEXT NOT NULL,
+    display_name TEXT NOT NULL DEFAULT '',
+    domain TEXT NOT NULL DEFAULT 'surface',
+    platform_class TEXT NOT NULL DEFAULT '',
+    nationality TEXT NOT NULL DEFAULT '',
+    game_technology_level INTEGER NOT NULL DEFAULT 0,
+    review_state TEXT NOT NULL DEFAULT 'provisional',
+    trl_level INTEGER NOT NULL DEFAULT 9,
+    value_tier TEXT NOT NULL DEFAULT 'gameplay_abstraction',
+    citation_ref TEXT NOT NULL DEFAULT '',
+    PRIMARY KEY (batch_id, platform_id),
+    FOREIGN KEY (batch_id) REFERENCES catalog_staging_batch(batch_id)
+);
+
+CREATE TABLE IF NOT EXISTS catalog_staging_weapon (
+    batch_id TEXT NOT NULL,
+    weapon_id TEXT NOT NULL,
+    display_name TEXT NOT NULL DEFAULT '',
+    min_range_meters REAL NOT NULL DEFAULT 0 CHECK (min_range_meters >= 0),
+    max_range_meters REAL NOT NULL DEFAULT 0 CHECK (max_range_meters >= 0),
+    weapon_type TEXT NOT NULL DEFAULT '',
+    guidance TEXT NOT NULL DEFAULT '',
+    review_state TEXT NOT NULL DEFAULT 'provisional',
+    PRIMARY KEY (batch_id, weapon_id),
+    FOREIGN KEY (batch_id) REFERENCES catalog_staging_batch(batch_id)
+);
 
 CREATE TABLE IF NOT EXISTS catalog_staging_mount (
     batch_id TEXT NOT NULL,
@@ -128,4 +158,5 @@ CREATE TABLE IF NOT EXISTS catalog_staging_comms (
     FOREIGN KEY (batch_id) REFERENCES catalog_staging_batch(batch_id)
 );
 
+CREATE INDEX IF NOT EXISTS idx_staging_platform_batch ON catalog_staging_platform (batch_id ASC, platform_id ASC);
 CREATE INDEX IF NOT EXISTS idx_staging_mount_batch ON catalog_staging_mount (batch_id ASC);
