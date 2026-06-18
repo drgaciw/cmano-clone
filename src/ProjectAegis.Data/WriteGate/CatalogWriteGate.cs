@@ -193,6 +193,82 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return batchId;
     }
 
+
+    public string ProposeMobilityBatch(
+        IReadOnlyList<CatalogMobility> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "")
+    {
+        if (proposed.Count == 0)
+        {
+            throw new ArgumentException("At least one mobility row required.", nameof(proposed));
+        }
+
+        var batchId = $"batch-mobility-{proposed.Count}-{_clock.UtcTicks}";
+        var sorted = CatalogSortKeyComparer.SortMobility(proposed);
+
+        using var tx = _connection.BeginTransaction();
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Count, rationale, "proposed");
+        foreach (var row in sorted)
+        {
+            InsertStagingMobility(tx, batchId, row);
+        }
+
+        tx.Commit();
+        return batchId;
+    }
+
+    public string ProposeSignatureBatch(
+        IReadOnlyList<CatalogSignature> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "")
+    {
+        if (proposed.Count == 0)
+        {
+            throw new ArgumentException("At least one signature row required.", nameof(proposed));
+        }
+
+        var batchId = $"batch-signature-{proposed.Count}-{_clock.UtcTicks}";
+        var sorted = CatalogSortKeyComparer.SortSignatures(proposed);
+
+        using var tx = _connection.BeginTransaction();
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Count, rationale, "proposed");
+        foreach (var row in sorted)
+        {
+            InsertStagingSignature(tx, batchId, row);
+        }
+
+        tx.Commit();
+        return batchId;
+    }
+
+    public string ProposeEmconBatch(
+        IReadOnlyList<CatalogEmcon> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "")
+    {
+        if (proposed.Count == 0)
+        {
+            throw new ArgumentException("At least one emcon row required.", nameof(proposed));
+        }
+
+        var batchId = $"batch-emcon-{proposed.Count}-{_clock.UtcTicks}";
+        var sorted = CatalogSortKeyComparer.SortEmcon(proposed);
+
+        using var tx = _connection.BeginTransaction();
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Count, rationale, "proposed");
+        foreach (var row in sorted)
+        {
+            InsertStagingEmcon(tx, batchId, row);
+        }
+
+        tx.Commit();
+        return batchId;
+    }
+
     public WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId)
     {
         var content = LoadStagingContent(batchId);
@@ -239,6 +315,21 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         if (content.Comms.Count > 0)
         {
             return ApproveCommsStaging(batchId, actorType, actorId, content.Comms);
+        }
+
+        if (content.Mobility.Count > 0)
+        {
+            return ApproveMobilityStaging(batchId, actorType, actorId, content.Mobility);
+        }
+
+        if (content.Signatures.Count > 0)
+        {
+            return ApproveSignatureStaging(batchId, actorType, actorId, content.Signatures);
+        }
+
+        if (content.Emcon.Count > 0)
+        {
+            return ApproveEmconStaging(batchId, actorType, actorId, content.Emcon);
         }
 
         return new WriteGateDecision(false, batchId, ["staging_batch_not_found"]);
@@ -460,6 +551,115 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return new WriteGateDecision(true, batchId, []);
     }
 
+
+    private WriteGateDecision ApproveMobilityStaging(
+        string batchId,
+        string actorType,
+        string actorId,
+        IReadOnlyList<CatalogMobility> staged)
+    {
+        var orphans = staged.Where(row => !PlatformExists(row.PlatformId)).ToArray();
+        if (orphans.Length > 0)
+        {
+            return new WriteGateDecision(
+                false,
+                batchId,
+                orphans.Select(row => $"orphan_platform:{row.PlatformId}").ToArray());
+        }
+
+        using var tx = _connection.BeginTransaction();
+        foreach (var row in staged)
+        {
+            UpsertMobility(tx, row);
+            AppendEntityChangeLog(
+                tx,
+                batchId,
+                "platform_mobility",
+                row.PlatformId,
+                "max_speed_knots",
+                "",
+                row.MaxSpeedKnots.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                actorType,
+                actorId);
+        }
+
+        MarkBatchState(tx, batchId, "approved", actorType, actorId);
+        tx.Commit();
+        return new WriteGateDecision(true, batchId, []);
+    }
+
+    private WriteGateDecision ApproveSignatureStaging(
+        string batchId,
+        string actorType,
+        string actorId,
+        IReadOnlyList<CatalogSignature> staged)
+    {
+        var orphans = staged.Where(row => !PlatformExists(row.PlatformId)).ToArray();
+        if (orphans.Length > 0)
+        {
+            return new WriteGateDecision(
+                false,
+                batchId,
+                orphans.Select(row => $"orphan_platform:{row.PlatformId}").ToArray());
+        }
+
+        using var tx = _connection.BeginTransaction();
+        foreach (var row in staged)
+        {
+            UpsertSignature(tx, row);
+            AppendEntityChangeLog(
+                tx,
+                batchId,
+                "platform_signature",
+                row.PlatformId,
+                "rcs_band_dbsm",
+                "",
+                row.RcsBandDbsm.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                actorType,
+                actorId);
+        }
+
+        MarkBatchState(tx, batchId, "approved", actorType, actorId);
+        tx.Commit();
+        return new WriteGateDecision(true, batchId, []);
+    }
+
+    private WriteGateDecision ApproveEmconStaging(
+        string batchId,
+        string actorType,
+        string actorId,
+        IReadOnlyList<CatalogEmcon> staged)
+    {
+        var orphans = staged.Where(row => !PlatformExists(row.PlatformId)).ToArray();
+        if (orphans.Length > 0)
+        {
+            return new WriteGateDecision(
+                false,
+                batchId,
+                orphans.Select(row => $"orphan_platform:{row.PlatformId}").ToArray());
+        }
+
+        using var tx = _connection.BeginTransaction();
+        foreach (var row in staged)
+        {
+            UpsertEmcon(tx, row);
+            AppendEntityChangeLog(
+                tx,
+                batchId,
+                "platform_emcon",
+                $"{row.PlatformId}/{row.Condition}/{row.EmitterId}",
+                "posture",
+                "",
+                row.Posture,
+                actorType,
+                actorId);
+        }
+
+        MarkBatchState(tx, batchId, "approved", actorType, actorId);
+        tx.Commit();
+        return new WriteGateDecision(true, batchId, []);
+    }
+
     public WriteGateDecision RejectBatch(string batchId, string actorType, string actorId, string rationale = "")
     {
         using var tx = _connection.BeginTransaction();
@@ -634,6 +834,76 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         cmd.Parameters.AddWithValue("$trl", row.TrlLevel);
         cmd.Parameters.AddWithValue("$tier", row.ValueTier);
         cmd.Parameters.AddWithValue("$citation", row.CitationRef);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertStagingMobility(SqliteTransaction tx, string batchId, CatalogMobility row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO catalog_staging_mobility
+                (batch_id, platform_id, max_speed_knots, cruise_speed_knots, max_altitude_ft, max_depth_m,
+                 fuel_capacity, range_nm, endurance_hr, review_state, trl_level, value_tier, citation_ref)
+            VALUES ($batch, $platform, $max, $cruise, $alt, $depth, $fuel, $range, $endurance, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$max", row.MaxSpeedKnots);
+        cmd.Parameters.AddWithValue("$cruise", row.CruiseSpeedKnots);
+        cmd.Parameters.AddWithValue("$alt", row.MaxAltitudeFt);
+        cmd.Parameters.AddWithValue("$depth", row.MaxDepthM);
+        cmd.Parameters.AddWithValue("$fuel", row.FuelCapacity);
+        cmd.Parameters.AddWithValue("$range", row.RangeNm);
+        cmd.Parameters.AddWithValue("$endurance", row.EnduranceHr);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
+        cmd.Parameters.AddWithValue("$trl", row.TrlLevel);
+        cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.Normalize(row.ValueTier));
+        cmd.Parameters.AddWithValue("$citation", row.CitationRef);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertStagingSignature(SqliteTransaction tx, string batchId, CatalogSignature row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO catalog_staging_signature
+                (batch_id, platform_id, rcs_band_dbsm, ir_signature, acoustic_signature_db, magnetic_signature,
+                 review_state, trl_level, value_tier, citation_ref)
+            VALUES ($batch, $platform, $rcs, $ir, $acoustic, $magnetic, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$rcs", row.RcsBandDbsm);
+        cmd.Parameters.AddWithValue("$ir", row.IrSignature);
+        cmd.Parameters.AddWithValue("$acoustic", row.AcousticSignatureDb);
+        cmd.Parameters.AddWithValue("$magnetic", row.MagneticSignature);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
+        cmd.Parameters.AddWithValue("$trl", row.TrlLevel);
+        cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.Normalize(row.ValueTier));
+        cmd.Parameters.AddWithValue("$citation", row.CitationRef);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertStagingEmcon(SqliteTransaction tx, string batchId, CatalogEmcon row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO catalog_staging_emcon
+                (batch_id, platform_id, condition, emitter_id, posture, review_state)
+            VALUES ($batch, $platform, $condition, $emitter, $posture, $review)
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$condition", row.Condition);
+        cmd.Parameters.AddWithValue("$emitter", row.EmitterId);
+        cmd.Parameters.AddWithValue("$posture", row.Posture);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
         cmd.ExecuteNonQuery();
     }
 
@@ -832,6 +1102,9 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             "catalog_staging_loadout",
             "catalog_staging_magazine",
             "catalog_staging_comms",
+            "catalog_staging_mobility",
+            "catalog_staging_signature",
+            "catalog_staging_emcon",
         })
         {
             cmd.CommandText = $"DELETE FROM {table} WHERE batch_id = $id";
@@ -860,6 +1133,9 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         content.Loadouts.AddRange(LoadStagingLoadoutRows(batchId));
         content.Magazines.AddRange(LoadStagingMagazineRows(batchId));
         content.Comms.AddRange(LoadStagingCommsRows(batchId));
+        content.Mobility.AddRange(LoadStagingMobilityRows(batchId));
+        content.Signatures.AddRange(LoadStagingSignatureRows(batchId));
+        content.Emcon.AddRange(LoadStagingEmconRows(batchId));
         return content;
     }
 
@@ -1068,6 +1344,97 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return list;
     }
 
+    private List<CatalogMobility> LoadStagingMobilityRows(string batchId)
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, max_speed_knots, cruise_speed_knots, max_altitude_ft, max_depth_m,
+                   fuel_capacity, range_nm, endurance_hr, review_state, trl_level, value_tier, citation_ref
+            FROM catalog_staging_mobility
+            WHERE batch_id = $batch
+            ORDER BY platform_id ASC
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogMobility>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogMobility(
+                reader.GetString(0),
+                reader.GetDouble(1),
+                reader.GetDouble(2),
+                reader.GetDouble(3),
+                reader.GetDouble(4),
+                reader.GetDouble(5),
+                reader.GetDouble(6),
+                reader.GetDouble(7),
+                reader.GetString(8),
+                reader.GetInt32(9),
+                reader.GetString(10),
+                reader.GetString(11)));
+        }
+
+        return list;
+    }
+
+    private List<CatalogSignature> LoadStagingSignatureRows(string batchId)
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, rcs_band_dbsm, ir_signature, acoustic_signature_db, magnetic_signature,
+                   review_state, trl_level, value_tier, citation_ref
+            FROM catalog_staging_signature
+            WHERE batch_id = $batch
+            ORDER BY platform_id ASC
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogSignature>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogSignature(
+                reader.GetString(0),
+                reader.GetDouble(1),
+                reader.GetDouble(2),
+                reader.GetDouble(3),
+                reader.GetDouble(4),
+                reader.GetString(5),
+                reader.GetInt32(6),
+                reader.GetString(7),
+                reader.GetString(8)));
+        }
+
+        return list;
+    }
+
+    private List<CatalogEmcon> LoadStagingEmconRows(string batchId)
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, condition, emitter_id, posture, review_state
+            FROM catalog_staging_emcon
+            WHERE batch_id = $batch
+            ORDER BY platform_id ASC, condition ASC, emitter_id ASC
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogEmcon>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogEmcon(
+                reader.GetString(0),
+                reader.GetString(1),
+                reader.GetString(2),
+                reader.GetString(3),
+                reader.GetString(4)));
+        }
+
+        return list;
+    }
+
     private static void UpsertPlatform(SqliteTransaction tx, CatalogPlatformBinding row)
     {
         var existing = TryReadCurrentPlatformRow(tx, row.PlatformId);
@@ -1195,6 +1562,73 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         cmd.ExecuteNonQuery();
     }
 
+    private static void UpsertMobility(SqliteTransaction tx, CatalogMobility row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO platform_mobility
+                (platform_id, max_speed_knots, cruise_speed_knots, max_altitude_ft, max_depth_m,
+                 fuel_capacity, range_nm, endurance_hr, review_state, trl_level, value_tier, citation_ref)
+            VALUES ($platform, $max, $cruise, $alt, $depth, $fuel, $range, $endurance, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$max", row.MaxSpeedKnots);
+        cmd.Parameters.AddWithValue("$cruise", row.CruiseSpeedKnots);
+        cmd.Parameters.AddWithValue("$alt", row.MaxAltitudeFt);
+        cmd.Parameters.AddWithValue("$depth", row.MaxDepthM);
+        cmd.Parameters.AddWithValue("$fuel", row.FuelCapacity);
+        cmd.Parameters.AddWithValue("$range", row.RangeNm);
+        cmd.Parameters.AddWithValue("$endurance", row.EnduranceHr);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
+        cmd.Parameters.AddWithValue("$trl", row.TrlLevel);
+        cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.Normalize(row.ValueTier));
+        cmd.Parameters.AddWithValue("$citation", row.CitationRef);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void UpsertSignature(SqliteTransaction tx, CatalogSignature row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO platform_signature
+                (platform_id, rcs_band_dbsm, ir_signature, acoustic_signature_db, magnetic_signature,
+                 review_state, trl_level, value_tier, citation_ref)
+            VALUES ($platform, $rcs, $ir, $acoustic, $magnetic, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$rcs", row.RcsBandDbsm);
+        cmd.Parameters.AddWithValue("$ir", row.IrSignature);
+        cmd.Parameters.AddWithValue("$acoustic", row.AcousticSignatureDb);
+        cmd.Parameters.AddWithValue("$magnetic", row.MagneticSignature);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
+        cmd.Parameters.AddWithValue("$trl", row.TrlLevel);
+        cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.Normalize(row.ValueTier));
+        cmd.Parameters.AddWithValue("$citation", row.CitationRef);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void UpsertEmcon(SqliteTransaction tx, CatalogEmcon row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO platform_emcon
+                (platform_id, condition, emitter_id, posture, review_state)
+            VALUES ($platform, $condition, $emitter, $posture, $review)
+            """;
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$condition", row.Condition);
+        cmd.Parameters.AddWithValue("$emitter", row.EmitterId);
+        cmd.Parameters.AddWithValue("$posture", row.Posture);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
+        cmd.ExecuteNonQuery();
+    }
+
     private static void EnsureSnapshotRow(SqliteTransaction tx, string snapshotId)
     {
         using var cmd = tx.Connection!.CreateCommand();
@@ -1277,6 +1711,28 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             : Convert.ToInt32(scalar, System.Globalization.CultureInfo.InvariantCulture);
     }
 
+    private bool PlatformExists(string platformId)
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM platform WHERE platform_id = $platform";
+        cmd.Parameters.AddWithValue("$platform", platformId);
+        var count = Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture);
+        if (count > 0)
+        {
+            return true;
+        }
+
+        foreach (var platform in CatalogValidationDefaults.BalticPlatforms())
+        {
+            if (string.Equals(platform.PlatformId, platformId, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private sealed class StagingBatchContent
     {
         public List<CatalogSensorBinding> Sensors { get; } = [];
@@ -1286,6 +1742,9 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         public List<CatalogLoadout> Loadouts { get; } = [];
         public List<CatalogMagazineEntry> Magazines { get; } = [];
         public List<CatalogCommsBinding> Comms { get; } = [];
+        public List<CatalogMobility> Mobility { get; } = [];
+        public List<CatalogSignature> Signatures { get; } = [];
+        public List<CatalogEmcon> Emcon { get; } = [];
 
         public bool IsEmpty =>
             Sensors.Count == 0 &&
@@ -1294,7 +1753,10 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             Mounts.Count == 0 &&
             Loadouts.Count == 0 &&
             Magazines.Count == 0 &&
-            Comms.Count == 0;
+            Comms.Count == 0 &&
+            Mobility.Count == 0 &&
+            Signatures.Count == 0 &&
+            Emcon.Count == 0;
 
         public int PopulatedTableCount =>
             (Sensors.Count > 0 ? 1 : 0) +
@@ -1303,7 +1765,10 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             (Mounts.Count > 0 ? 1 : 0) +
             (Loadouts.Count > 0 ? 1 : 0) +
             (Magazines.Count > 0 ? 1 : 0) +
-            (Comms.Count > 0 ? 1 : 0);
+            (Comms.Count > 0 ? 1 : 0) +
+            (Mobility.Count > 0 ? 1 : 0) +
+            (Signatures.Count > 0 ? 1 : 0) +
+            (Emcon.Count > 0 ? 1 : 0);
     }
 
     private sealed record PlatformRowSnapshot(
