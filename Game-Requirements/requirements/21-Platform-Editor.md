@@ -1,10 +1,10 @@
 # 21 - Platform Editor (Catalog Authoring & Excel Round-Trip)
 
-**Last Updated:** 2026-06-08
+**Last Updated:** 2026-06-17
 **Status:** Draft — ready for design review
 **Author basis:** Codebase review of `ProjectAegis.Data` (write gate, snapshots, provenance, validation, importers); CMO Official Manual platform/DB concepts (clean-room, observable patterns only); requirements 06, 11, 15, 16, 18, 19.
 **Related:** [06-Database-Intelligence.md](06-Database-Intelligence.md) · [11-Agentic-Mission-Editor.md](11-Agentic-Mission-Editor.md) · [15-Sensor-Detection-And-EW.md](15-Sensor-Detection-And-EW.md) · [16-Logistics-And-Magazines.md](16-Logistics-And-Magazines.md) · [18-Combat-Domains.md](18-Combat-Domains.md) · [19-Cyber-And-Comms.md](19-Cyber-And-Comms.md)
-**Decision record:** [ADR-011 Platform Editor Excel Round-Trip](../../docs/architecture/adr-011-platform-editor-excel-roundtrip.md)
+**Decision record:** [ADR-011 Platform Editor Excel Round-Trip (Accepted)](../../docs/architecture/adr-011-platform-editor-excel-roundtrip.md)
 
 ## Purpose
 
