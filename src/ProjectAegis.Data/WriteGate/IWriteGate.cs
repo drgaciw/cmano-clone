@@ -70,6 +70,13 @@ public interface IWriteGate
         string actorId,
         string rationale = "");
 
+    /// <summary>S25-04: stage platform damage rows from Phase B workbook edits.</summary>
+    string ProposePlatformDamageBatch(
+        IReadOnlyList<CatalogPlatformDamage> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
     WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId);
 
     WriteGateDecision RejectBatch(string batchId, string actorType, string actorId, string rationale = "");

@@ -269,6 +269,31 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return batchId;
     }
 
+    public string ProposePlatformDamageBatch(
+        IReadOnlyList<CatalogPlatformDamage> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "")
+    {
+        if (proposed.Count == 0)
+        {
+            throw new ArgumentException("At least one damage row required.", nameof(proposed));
+        }
+
+        var batchId = $"batch-damage-{proposed.Count}-{_clock.UtcTicks}";
+        var sorted = CatalogSortKeyComparer.SortPlatformDamage(proposed);
+
+        using var tx = _connection.BeginTransaction();
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Count, rationale, "proposed");
+        foreach (var row in sorted)
+        {
+            InsertStagingDamage(tx, batchId, row);
+        }
+
+        tx.Commit();
+        return batchId;
+    }
+
     public WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId)
     {
         var content = LoadStagingContent(batchId);
@@ -330,6 +355,11 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         if (content.Emcon.Count > 0)
         {
             return ApproveEmconStaging(batchId, actorType, actorId, content.Emcon);
+        }
+
+        if (content.Damage.Count > 0)
+        {
+            return ApprovePlatformDamageStaging(batchId, actorType, actorId, content.Damage);
         }
 
         return new WriteGateDecision(false, batchId, ["staging_batch_not_found"]);
@@ -660,6 +690,42 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return new WriteGateDecision(true, batchId, []);
     }
 
+    private WriteGateDecision ApprovePlatformDamageStaging(
+        string batchId,
+        string actorType,
+        string actorId,
+        IReadOnlyList<CatalogPlatformDamage> staged)
+    {
+        var orphans = staged.Where(row => !PlatformExists(row.PlatformId)).ToArray();
+        if (orphans.Length > 0)
+        {
+            return new WriteGateDecision(
+                false,
+                batchId,
+                orphans.Select(row => $"orphan_platform:{row.PlatformId}").ToArray());
+        }
+
+        using var tx = _connection.BeginTransaction();
+        foreach (var row in staged)
+        {
+            UpsertPlatformDamage(tx, row);
+            AppendEntityChangeLog(
+                tx,
+                batchId,
+                "platform_damage",
+                row.PlatformId,
+                "max_hp",
+                "",
+                row.MaxHp.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                actorType,
+                actorId);
+        }
+
+        MarkBatchState(tx, batchId, "approved", actorType, actorId);
+        tx.Commit();
+        return new WriteGateDecision(true, batchId, []);
+    }
+
     public WriteGateDecision RejectBatch(string batchId, string actorType, string actorId, string rationale = "")
     {
         using var tx = _connection.BeginTransaction();
@@ -907,6 +973,29 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         cmd.ExecuteNonQuery();
     }
 
+    private static void InsertStagingDamage(SqliteTransaction tx, string batchId, CatalogPlatformDamage row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO catalog_staging_damage
+                (batch_id, platform_id, max_hp, withdraw_threshold_pct, critical_flags,
+                 review_state, trl_level, value_tier, citation_ref)
+            VALUES ($batch, $platform, $maxHp, $withdraw, $flags, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$maxHp", row.MaxHp);
+        cmd.Parameters.AddWithValue("$withdraw", row.WithdrawThresholdPct);
+        cmd.Parameters.AddWithValue("$flags", row.CriticalFlags);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
+        cmd.Parameters.AddWithValue("$trl", row.TrlLevel);
+        cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.Normalize(row.ValueTier));
+        cmd.Parameters.AddWithValue("$citation", row.CitationRef);
+        cmd.ExecuteNonQuery();
+    }
+
     private static void InsertStagingPlatform(SqliteTransaction tx, string batchId, CatalogPlatformBinding row)
     {
         using var cmd = tx.Connection!.CreateCommand();
@@ -1105,6 +1194,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             "catalog_staging_mobility",
             "catalog_staging_signature",
             "catalog_staging_emcon",
+            "catalog_staging_damage",
         })
         {
             cmd.CommandText = $"DELETE FROM {table} WHERE batch_id = $id";
@@ -1136,6 +1226,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         content.Mobility.AddRange(LoadStagingMobilityRows(batchId));
         content.Signatures.AddRange(LoadStagingSignatureRows(batchId));
         content.Emcon.AddRange(LoadStagingEmconRows(batchId));
+        content.Damage.AddRange(LoadStagingPlatformDamageRows(batchId));
         return content;
     }
 
@@ -1435,6 +1526,36 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return list;
     }
 
+    private List<CatalogPlatformDamage> LoadStagingPlatformDamageRows(string batchId)
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, max_hp, withdraw_threshold_pct, critical_flags,
+                   review_state, trl_level, value_tier, citation_ref
+            FROM catalog_staging_damage
+            WHERE batch_id = $batch
+            ORDER BY platform_id ASC
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogPlatformDamage>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogPlatformDamage(
+                reader.GetString(0),
+                reader.GetDouble(1),
+                reader.GetDouble(2),
+                reader.GetInt32(3),
+                reader.GetString(4),
+                reader.GetInt32(5),
+                CatalogProvenanceTier.Normalize(reader.GetString(6)),
+                reader.GetString(7)));
+        }
+
+        return list;
+    }
+
     private static void UpsertPlatform(SqliteTransaction tx, CatalogPlatformBinding row)
     {
         var existing = TryReadCurrentPlatformRow(tx, row.PlatformId);
@@ -1629,6 +1750,28 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         cmd.ExecuteNonQuery();
     }
 
+    private static void UpsertPlatformDamage(SqliteTransaction tx, CatalogPlatformDamage row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO platform_damage
+                (platform_id, max_hp, withdraw_threshold_pct, critical_flags,
+                 review_state, trl_level, value_tier, citation_ref)
+            VALUES ($platform, $maxHp, $withdraw, $flags, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$maxHp", row.MaxHp);
+        cmd.Parameters.AddWithValue("$withdraw", row.WithdrawThresholdPct);
+        cmd.Parameters.AddWithValue("$flags", row.CriticalFlags);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
+        cmd.Parameters.AddWithValue("$trl", row.TrlLevel);
+        cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.Normalize(row.ValueTier));
+        cmd.Parameters.AddWithValue("$citation", row.CitationRef);
+        cmd.ExecuteNonQuery();
+    }
+
     private static void EnsureSnapshotRow(SqliteTransaction tx, string snapshotId)
     {
         using var cmd = tx.Connection!.CreateCommand();
@@ -1745,6 +1888,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         public List<CatalogMobility> Mobility { get; } = [];
         public List<CatalogSignature> Signatures { get; } = [];
         public List<CatalogEmcon> Emcon { get; } = [];
+        public List<CatalogPlatformDamage> Damage { get; } = [];
 
         public bool IsEmpty =>
             Sensors.Count == 0 &&
@@ -1756,7 +1900,8 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             Comms.Count == 0 &&
             Mobility.Count == 0 &&
             Signatures.Count == 0 &&
-            Emcon.Count == 0;
+            Emcon.Count == 0 &&
+            Damage.Count == 0;
 
         public int PopulatedTableCount =>
             (Sensors.Count > 0 ? 1 : 0) +
@@ -1768,7 +1913,8 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             (Comms.Count > 0 ? 1 : 0) +
             (Mobility.Count > 0 ? 1 : 0) +
             (Signatures.Count > 0 ? 1 : 0) +
-            (Emcon.Count > 0 ? 1 : 0);
+            (Emcon.Count > 0 ? 1 : 0) +
+            (Damage.Count > 0 ? 1 : 0);
     }
 
     private sealed record PlatformRowSnapshot(
