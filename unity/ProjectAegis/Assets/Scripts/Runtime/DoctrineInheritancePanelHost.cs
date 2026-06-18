@@ -16,6 +16,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string UnitIdName = "unit-id-label";
         private const string RoeName = "roe-label";
         private const string SalvoName = "salvo-label";
+        private const string EmconName = "emcon-label";
         private const string SourceName = "source-label";
         private const string OverrideName = "override-label";
         private const string RoeDropdownName = "roe-dropdown";
@@ -30,12 +31,13 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _unitIdLabel;
         private Label? _roeLabel;
         private Label? _salvoLabel;
+        private Label? _emconLabel;
         private Label? _sourceLabel;
         private Label? _overrideLabel;
         private DropdownField? _roeDropdown;
         private Button? _applyButton;
         private DoctrineInheritancePanelState _panelState = new(
-            "UNIT: —", "ROE: —", "SALVO: —", "SOURCE: —", "OVERRIDE: UNAVAILABLE",
+            "UNIT: —", "ROE: —", "SALVO: —", "EMCON: —", "SOURCE: —", "OVERRIDE: UNAVAILABLE",
             false, System.Array.Empty<RoeLevelOption>());
         private bool _wired;
 
@@ -96,12 +98,13 @@ namespace ProjectAegis.Unity.Runtime
             _unitIdLabel = panel.Q<Label>(UnitIdName);
             _roeLabel = panel.Q<Label>(RoeName);
             _salvoLabel = panel.Q<Label>(SalvoName);
+            _emconLabel = panel.Q<Label>(EmconName);
             _sourceLabel = panel.Q<Label>(SourceName);
             _overrideLabel = panel.Q<Label>(OverrideName);
             _roeDropdown = panel.Q<DropdownField>(RoeDropdownName);
             _applyButton = panel.Q<Button>(ApplyButtonName);
             _wired = _unitIdLabel != null && _roeLabel != null && _salvoLabel != null &&
-                     _sourceLabel != null && _overrideLabel != null &&
+                     _emconLabel != null && _sourceLabel != null && _overrideLabel != null &&
                      _roeDropdown != null && _applyButton != null;
 
             if (_applyButton != null)
@@ -130,6 +133,7 @@ namespace ProjectAegis.Unity.Runtime
             _unitIdLabel!.text = _panelState.UnitIdLine;
             _roeLabel!.text = _panelState.RoeLine;
             _salvoLabel!.text = _panelState.SalvoLine;
+            _emconLabel!.text = _panelState.EmconLine;
             _sourceLabel!.text = _panelState.SourceLine;
             _overrideLabel!.text = _panelState.OverrideLine;
 
