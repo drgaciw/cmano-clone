@@ -109,6 +109,12 @@ the staged batch ids but **commits nothing**. Approval is a separate, human-gate
 - Use `ListPendingBatches()` (or the `platform_import_xlsx` output's `pending_batches`) to see
   what is awaiting approval.
 
+> **Approve commits sensors only (today).** `Stage` proposes one batch per changed domain, but
+> `CatalogWriteGate.ApproveBatch` currently materializes **only the sensor batch** into the live
+> catalog. Mount/loadout/magazine/comms batches stage and are reviewable/rejectable, yet approving
+> one returns `staging_batch_not_found` and commits nothing until the gate's approve path is
+> extended. See the [Catalog write gate reference](catalog-write-gate.md#commit-asymmetry-read-this).
+
 ## CLI / MCP reference
 
 Run from the repo root. The MCP tools in `tools/mission-editor/mcp-tools.json` wrap these verbs
@@ -173,12 +179,14 @@ caveats matter operationally:
 - **Sheet names are capped at 31 chars** and forbid `: \ / ? * [ ]`; the adapter sanitizes, but keep
   domain sheet names short and clean if you extend the schema.
 - **Approval is mandatory.** Seeing batch ids in `platform_import_xlsx` output does **not** mean the
-  edits are live. Run `catalog_write_approve` and check `WriteGateDecision.Committed`.
+  edits are live. Run `catalog_write_approve` and check `WriteGateDecision.Committed` — and remember
+  only the **sensor** batch commits today (see the governance note above).
 
 ## Related
 
 - [ADR-011 — Platform editor Excel round-trip](../architecture/adr-011-platform-editor-excel-roundtrip.md)
 - [ADR-006 — Data layer boundary](../architecture/adr-006-data-layer-boundary.md)
+- [Catalog write gate — developer reference](catalog-write-gate.md)
 - Requirement [21 — Platform editor](../../Game-Requirements/requirements/21-Platform-Editor.md),
   [06 — Database intelligence](../../Game-Requirements/requirements/06-Database-Intelligence.md)
 - Code: `src/ProjectAegis.Data/Platform/`, `src/ProjectAegis.Data.Excel/`,
