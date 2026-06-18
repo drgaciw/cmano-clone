@@ -38,10 +38,10 @@ do **not** add a side-channel write.
 
 | Directory | Responsibility | Key entry points |
 |-----------|----------------|------------------|
-| `WriteGate/` | The propose→approve→commit gate (ADR-006 / req-06). | `IWriteGate`, `CatalogWriteGate`, `ICatalogClock` |
+| `WriteGate/` | The propose→approve→commit gate (ADR-006 / req-06). | `IWriteGate`, `CatalogWriteGate`, `ICatalogClock` — see [`WriteGate/README.md`](WriteGate/README.md) |
 | `Catalog/` | Catalog records, bindings, readers, and import/quarantine plumbing. | `ICatalogReader`, `SqliteCatalogReader`, `CatalogQuarantinePromoter`, `CatalogBulkImporter` |
 | `Import/` | Parse CMO markdown (cmano-db.com exports) and stage rows. | `CmoMarkdownImporter`, `CmoMarkdownImportProposer` |
-| `Osint/` | OSINT discovery → catalog proposals with confidence + TRL/doc routing. | `OsintCatalogMapper`, `OsintProposalGate`, `OsintDigestRunner`, `Connectors/` |
+| `Osint/` | OSINT discovery → catalog proposals with confidence + TRL/doc routing. | `OsintCatalogMapper`, `OsintProposalGate`, `OsintDigestRunner`, `Connectors/` — see [`Osint/README.md`](Osint/README.md) |
 | `Platform/` | Excel/workbook round-trip for the platform editor (ADR-011). | `PlatformWorkbookExporter`, `PlatformWorkbookImporter`, `PlatformWorkbookDiff`, `PlatformWorkbookValidator` — see [`Platform/README.md`](Platform/README.md) |
 | `Validation/` | Deterministic scenario validation engine (ADR-008) + catalog rule pipeline. | `ScenarioValidationEngine`, `ValidationPipeline`, `Rules/` |
 | `Agents/` | Headless, deterministic req-06 agent pipeline (no LLM in the tick path). | `IDatabaseIntelligenceAgent`, `DatabaseIntelligenceOrchestrator` |
@@ -77,6 +77,8 @@ dotnet test src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj -v minima
 
 ## See also
 
+- [WriteGate — staged catalog writes](WriteGate/README.md)
+- [OSINT ingestion pipeline](Osint/README.md)
 - [ADR-006 — data-layer boundary](../../docs/architecture/adr-006-data-layer-boundary.md)
 - [ADR-008 — mission-editor validation engine](../../docs/architecture/adr-008-mission-editor-validation-engine.md)
 - [ADR-011 — platform editor Excel round-trip](../../docs/architecture/adr-011-platform-editor-excel-roundtrip.md)
