@@ -2,6 +2,10 @@
 
 ADR-008 headless tools for Unity-MCP and CI. No Unity required.
 
+> This page covers host-side wiring and the most-used verbs. For the **full verb
+> reference, JSON output contract, and exit codes**, see
+> [`src/ProjectAegis.MissionEditor.Cli/README.md`](../../src/ProjectAegis.MissionEditor.Cli/README.md).
+
 ## `scenario_validate`
 
 ```powershell
