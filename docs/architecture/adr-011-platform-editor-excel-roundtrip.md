@@ -69,6 +69,7 @@ Every Excel-originated change is staged via `IWriteGate.Propose*Batch` and commi
 
 ## Related
 
+- Operational runbook: [Platform editor Excel round-trip](../engineering/platform-editor-excel-roundtrip.md) (verified CLI/library behavior, current gaps)
 - Requirement [21-Platform-Editor](../../Game-Requirements/requirements/21-Platform-Editor.md)
 - [06-Database-Intelligence](../../Game-Requirements/requirements/06-Database-Intelligence.md) (write gate, snapshots, provenance)
 - [ADR-006 Data Layer Boundary](adr-006-data-layer-boundary.md), [ADR-008 Mission Editor Validation Engine](adr-008-mission-editor-validation-engine.md)

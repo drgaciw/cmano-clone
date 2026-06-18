@@ -197,6 +197,7 @@ dotnet test src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj \
 
 ## See also
 
+- [Platform editor Excel round-trip runbook](platform-editor-excel-roundtrip.md) — the authoring surface that stages batches into this gate
 - [ADR-006 — Data layer boundary](../architecture/adr-006-data-layer-boundary.md)
 - [ADR-011 — Platform editor Excel round-trip](../architecture/adr-011-platform-editor-excel-roundtrip.md)
 - Story S23-04 — `production/epics/sprint-23-platform-phase-b/story-023-04-approve-batch.md`
