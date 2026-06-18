@@ -248,6 +248,11 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return true;
         }
 
+        if (file.Contains("009", StringComparison.Ordinal) && TableExists("platform_damage"))
+        {
+            return true;
+        }
+
         return false;
     }
 

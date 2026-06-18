@@ -11,6 +11,10 @@ public static class CatalogSeedBootstrap
         if (File.Exists(jsonPath))
         {
             CatalogJsonImporter.ImportToSqlite(jsonPath, databasePath, overwrite);
+            using var jsonConnection = new SqliteConnection($"Data Source={databasePath};Pooling=false");
+            jsonConnection.Open();
+            SeedBalticPlatforms(jsonConnection);
+            SeedBalticDamage(jsonConnection);
             return;
         }
 
@@ -47,6 +51,7 @@ public static class CatalogSeedBootstrap
         }
 
         SeedBalticPlatforms(connection);
+        SeedBalticDamage(connection);
     }
 
     private static void SeedBalticPlatforms(SqliteConnection connection)
@@ -78,6 +83,31 @@ public static class CatalogSeedBootstrap
             snap.Parameters.AddWithValue("$id", CatalogValidationDefaults.BalticSnapshotId);
             snap.ExecuteNonQuery();
         }
+    }
+
+    private static void SeedBalticDamage(SqliteConnection connection)
+    {
+        if (!TableExists(connection, "platform_damage"))
+        {
+            return;
+        }
+
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO platform_damage (platform_id, max_hp, withdraw_threshold_pct, critical_flags,
+                review_state, trl_level, value_tier, citation_ref)
+            VALUES ($id, $maxHp, $withdraw, $flags, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$id", "u1");
+        cmd.Parameters.AddWithValue("$maxHp", 100);
+        cmd.Parameters.AddWithValue("$withdraw", 25);
+        cmd.Parameters.AddWithValue("$flags", 0);
+        cmd.Parameters.AddWithValue("$review", CatalogReviewStates.Provisional);
+        cmd.Parameters.AddWithValue("$trl", 9);
+        cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.GameplayAbstraction);
+        cmd.Parameters.AddWithValue("$citation", string.Empty);
+        cmd.ExecuteNonQuery();
     }
 
     private static bool TableExists(SqliteConnection connection, string table)
