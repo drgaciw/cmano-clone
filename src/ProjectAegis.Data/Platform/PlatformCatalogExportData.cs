@@ -17,9 +17,11 @@ public sealed record PlatformCatalogExportData(
     IReadOnlyList<CatalogCommsBinding> Comms,
     IReadOnlyList<CatalogMobility>? Mobility = null,
     IReadOnlyList<CatalogSignature>? Signatures = null,
-    IReadOnlyList<CatalogEmcon>? Emcon = null)
+    IReadOnlyList<CatalogEmcon>? Emcon = null,
+    IReadOnlyList<CatalogPlatformDamage>? Damage = null)
 {
     public static PlatformCatalogExportData Empty { get; } = new(
+        [],
         [],
         [],
         [],

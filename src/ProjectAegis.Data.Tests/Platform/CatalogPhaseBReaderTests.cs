@@ -18,7 +18,9 @@ public sealed class CatalogPhaseBReaderTests
         Assert.Empty(reader.GetSortedMobility());
         Assert.Empty(reader.GetSortedSignatures());
         Assert.Empty(reader.GetSortedEmcon());
+        Assert.Empty(reader.GetSortedPlatformDamage());
         Assert.False(reader.TryGetMobility("u1", out _));
+        Assert.False(reader.TryGetPlatformDamage("u1", out _));
         Assert.False(reader.TryGetSignature("u1", out _));
         Assert.False(reader.TryGetEmcon("u1", "silent", "radar-1", out _));
         Assert.True(reader.TryGetBasePd("u1", "radar-1", out _));
