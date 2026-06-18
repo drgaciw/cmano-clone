@@ -281,6 +281,40 @@ public sealed class PlayModeSmokeHarnessTests
     }
 
     [Test]
+    public void Delegation_smoke_keeps_useGlobeMap_false_for_ci_safe_default()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var scenePath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Scenes",
+            "DelegationSmoke.unity");
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+
+        Assert.That(File.Exists(scenePath), Is.True, "DelegationSmoke.unity must exist for CI PlayMode path");
+        Assert.That(File.Exists(builderPath), Is.True);
+
+        var sceneYaml = File.ReadAllText(scenePath);
+        Assert.That(sceneYaml, Does.Contain("useGlobeMap: 0"), "DelegationSmoke must keep globe map disabled for headless CI");
+
+        var builder = File.ReadAllText(builderPath);
+        Assert.That(builder, Does.Contain("CreatePanelHost<MapPlaceholderPanelHost>"));
+        Assert.That(builder, Does.Not.Contain("CreatePanelHost<CesiumGlobeHost>"));
+        Assert.That(builder, Does.Not.Contain("useGlobeMap\", true"));
+        Assert.That(builder, Does.Not.Contain("useGlobeMap\", True"));
+    }
+
+    [Test]
     public void Engage_without_fire_control_track_aborts_via_bridge_snapshot()
     {
         var bridge = new DelegationBridge(3, mvpEngagement: true);
