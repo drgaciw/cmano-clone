@@ -95,7 +95,9 @@ Run the ADR-008 validation engine over a scenario.
 | `--path` | yes | Scenario JSON to validate |
 
 Returns `{ passed, canExport, reportHash, findings[] }`. Exit `0` = export
-allowed; `1` = blocking findings (or missing `--path`).
+allowed; `1` = blocking findings (or missing `--path`). For the rule pipeline,
+finding codes, sort/hash determinism, and golden fixtures see
+[`scenario-validation-engine.md`](scenario-validation-engine.md).
 
 ### `scenario_export_brief`
 Validate first, then write a stub brief only when `canExport` is true.
