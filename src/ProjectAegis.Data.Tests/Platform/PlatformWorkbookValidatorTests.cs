@@ -87,4 +87,33 @@ public sealed class PlatformWorkbookValidatorTests
 
         Assert.Equal(a.Select(f => f.Code), b.Select(f => f.Code));
     }
+
+    [Fact]
+    public void Phase_A_validation_regression_unchanged_with_empty_Phase_B_sheets()
+    {
+        var wb = Export(OneVls, OneLoadout, new[]
+        {
+            new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "mvp-weapon", 16, 0, 32),
+        });
+
+        Assert.Empty(PlatformWorkbookValidator.Validate(wb));
+    }
+
+    [Fact]
+    public void Phase_B_populated_export_passes_validator_when_fitting_is_clean()
+    {
+        var data = PlatformCatalogExportData.Empty with
+        {
+            Platforms = new[] { new CatalogPlatformEntry("u1", 57.0, 20.0, 400.0) },
+            Mounts = OneVls,
+            Loadouts = OneLoadout,
+            Magazines = new[] { new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "mvp-weapon", 16, 0, 32) },
+            Mobility = new[] { new CatalogMobility("u1", MaxSpeedKnots: 30, RangeNm: 4000) },
+            Signatures = new[] { new CatalogSignature("u1", RcsBandDbsm: -10) },
+            Emcon = new[] { new CatalogEmcon("u1", "restricted", "cmo-sensor-1", "standby") },
+        };
+        var wb = new PlatformWorkbookExporter().Export(data, "baltic_patrol", new FixedCatalogClock(0));
+
+        Assert.Empty(PlatformWorkbookValidator.Validate(wb));
+    }
 }

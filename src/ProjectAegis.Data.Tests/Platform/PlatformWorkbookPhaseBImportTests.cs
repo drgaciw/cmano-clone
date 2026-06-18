@@ -1,6 +1,7 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
+using ProjectAegis.Data.Validation;
 using ProjectAegis.Data.WriteGate;
 using Xunit;
 
@@ -140,9 +141,12 @@ public sealed class PlatformWorkbookPhaseBImportTests
         var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd");
 
         Assert.False(result.Staged);
+        Assert.True(result.Plan.Blocked);
         Assert.Empty(gate.MobilityProposals);
-        Assert.Contains(result.Notes, n => n.Contains("unknown-platform", StringComparison.Ordinal));
-        Assert.Contains(result.Notes, n => n.Contains("orphan mobility", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(result.Plan.Findings, f =>
+            f.Code == PlatformWorkbookValidator.PhaseBOrphanPlatform
+            && f.UnitId == "unknown-platform"
+            && f.Severity == ValidationSeverity.Error);
     }
 
     [Fact]
@@ -207,7 +211,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
             var exported = new PlatformWorkbookExporter().Export(source, SnapshotId, new FixedCatalogClock(9610));
             var edited = WithSheetCell(exported, "Mobility", 0, "MaxSpeedKnots", "36");
             edited = WithSheetCell(edited, "Signatures", 0, "RcsBandDbsm", "-18");
-            edited = WithSheetCell(edited, "Emcon", 1, "Posture", "passive");
+            edited = WithSheetCell(edited, "Emcon", 1, "Posture", "standby");
 
             var importer = ImporterForDb(dbPath);
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9611)))
@@ -230,7 +234,7 @@ public sealed class PlatformWorkbookPhaseBImportTests
             Assert.Equal(-18, signature.RcsBandDbsm, precision: 3);
 
             Assert.True(reader.TryGetEmcon("u1", "silent", "radar-1", out var emcon));
-            Assert.Equal("passive", emcon.Posture);
+            Assert.Equal("standby", emcon.Posture);
             Assert.True(reader.TryGetEmcon("u1", "free", "radar-1", out var unchanged));
             Assert.Equal("active", unchanged.Posture);
         }

@@ -861,10 +861,11 @@ sprint24_stories:
   - id: "24-5"
     name: "Phase B validator rule pack"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1.5
     blocker: "24-4"
-    note: "Header parity, FK guard, Emcon enums; validation hash golden"
+    completed: "2026-06-17"
+    note: "PlatformWorkbookValidator Phase B rules; golden hash pinned; 18 new tests; 105 filtered PASS"
   - id: "24-6"
     name: "Phase B sim consumer smoke"
     priority: should-have

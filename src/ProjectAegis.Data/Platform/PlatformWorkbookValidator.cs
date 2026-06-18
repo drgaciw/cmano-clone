@@ -16,7 +16,42 @@ public static class PlatformWorkbookValidator
     public const string MagazineOverCapacity = "PLE-MAG-CAPACITY";
     public const string MountRangeInvalid = "PLE-MOUNT-RANGE";
 
+    public const string MobilityHeaderMismatch = "PLE-MOB-HEADER";
+    public const string SignaturesHeaderMismatch = "PLE-SIG-HEADER";
+    public const string EmconHeaderMismatch = "PLE-EMC-HEADER";
+    public const string PhaseBOrphanPlatform = "PLE-PHB-ORPHAN";
+    public const string EmconInvalidCondition = "PLE-EMCON-CONDITION";
+    public const string EmconInvalidPosture = "PLE-EMCON-POSTURE";
+    public const string MobilityNegativeSpeed = "PLE-MOB-SPEED";
+    public const string MobilityNegativeRange = "PLE-MOB-RANGE";
+
     private static readonly char KeySeparator = (char)31; // US — unit separator, absent from catalog IDs
+
+    private static readonly string[] ExpectedMobilityHeader =
+    [
+        "PlatformId", "MaxSpeedKnots", "CruiseSpeedKnots", "MaxAltitudeFt", "MaxDepthM",
+        "FuelCapacity", "RangeNm", "EnduranceHr",
+    ];
+
+    private static readonly string[] ExpectedSignaturesHeader =
+    [
+        "PlatformId", "RcsBandDbsm", "IrSignature", "AcousticSignatureDb", "MagneticSignature",
+    ];
+
+    private static readonly string[] ExpectedEmconHeader =
+    [
+        "PlatformId", "Condition", "EmitterId", "Posture",
+    ];
+
+    private static readonly HashSet<string> AllowedEmconConditions = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "silent", "restricted", "free",
+    };
+
+    private static readonly HashSet<string> AllowedEmconPostures = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "off", "standby", "active",
+    };
 
     public static IReadOnlyList<ValidationFinding> Validate(PlatformWorkbook workbook)
     {
@@ -101,10 +136,222 @@ public static class PlatformWorkbookValidator
             }
         }
 
+        ValidatePhaseB(workbook, findings);
+
         return findings
             .OrderBy(f => f.Code, StringComparer.Ordinal)
             .ThenBy(f => f.Message, StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static void ValidatePhaseB(PlatformWorkbook workbook, List<ValidationFinding> findings)
+    {
+        ValidateHeader(workbook, "Mobility", ExpectedMobilityHeader, MobilityHeaderMismatch, findings);
+        ValidateHeader(workbook, "Signatures", ExpectedSignaturesHeader, SignaturesHeaderMismatch, findings);
+        ValidateHeader(workbook, "Emcon", ExpectedEmconHeader, EmconHeaderMismatch, findings);
+
+        var platformIds = CollectPlatformIds(workbook);
+
+        ValidateMobilityRows(workbook, platformIds, findings);
+        ValidateSignatureRows(workbook, platformIds, findings);
+        ValidateEmconRows(workbook, platformIds, findings);
+    }
+
+    private static HashSet<string> CollectPlatformIds(PlatformWorkbook workbook)
+    {
+        var platformIds = new HashSet<string>(StringComparer.Ordinal);
+        var platforms = SheetView.For(workbook, "Platforms");
+        if (platforms is null)
+        {
+            return platformIds;
+        }
+
+        foreach (var row in platforms.Rows)
+        {
+            var platformId = platforms.Cell(row, "PlatformId");
+            if (!string.IsNullOrEmpty(platformId))
+            {
+                platformIds.Add(platformId);
+            }
+        }
+
+        return platformIds;
+    }
+
+    private static void ValidateHeader(
+        PlatformWorkbook workbook,
+        string sheetName,
+        IReadOnlyList<string> expectedHeader,
+        string code,
+        List<ValidationFinding> findings)
+    {
+        var sheet = workbook.FindSheet(sheetName);
+        if (sheet is null)
+        {
+            findings.Add(new ValidationFinding(
+                code,
+                ValidationSeverity.Error,
+                $"Sheet '{sheetName}' is missing; expected Req-21 Phase B header parity."));
+            return;
+        }
+
+        if (!HeadersEqual(sheet.Header, expectedHeader))
+        {
+            findings.Add(new ValidationFinding(
+                code,
+                ValidationSeverity.Error,
+                $"Sheet '{sheetName}' header does not match Req-21 Phase B export contract."));
+        }
+    }
+
+    private static void ValidateMobilityRows(
+        PlatformWorkbook workbook,
+        HashSet<string> platformIds,
+        List<ValidationFinding> findings)
+    {
+        var mobility = SheetView.For(workbook, "Mobility");
+        if (mobility is null)
+        {
+            return;
+        }
+
+        foreach (var row in mobility.Rows)
+        {
+            var platformId = mobility.Cell(row, "PlatformId");
+            if (string.IsNullOrEmpty(platformId))
+            {
+                continue;
+            }
+
+            if (!platformIds.Contains(platformId))
+            {
+                findings.Add(new ValidationFinding(
+                    PhaseBOrphanPlatform,
+                    ValidationSeverity.Error,
+                    $"Mobility row references unknown platform '{platformId}'.",
+                    UnitId: platformId));
+            }
+
+            var maxSpeed = ParseDouble(mobility.Cell(row, "MaxSpeedKnots"));
+            if (maxSpeed < 0)
+            {
+                findings.Add(new ValidationFinding(
+                    MobilityNegativeSpeed,
+                    ValidationSeverity.Error,
+                    $"Mobility on '{platformId}' has negative MaxSpeedKnots ({maxSpeed}).",
+                    UnitId: platformId));
+            }
+
+            var range = ParseDouble(mobility.Cell(row, "RangeNm"));
+            if (range < 0)
+            {
+                findings.Add(new ValidationFinding(
+                    MobilityNegativeRange,
+                    ValidationSeverity.Error,
+                    $"Mobility on '{platformId}' has negative RangeNm ({range}).",
+                    UnitId: platformId));
+            }
+        }
+    }
+
+    private static void ValidateSignatureRows(
+        PlatformWorkbook workbook,
+        HashSet<string> platformIds,
+        List<ValidationFinding> findings)
+    {
+        var signatures = SheetView.For(workbook, "Signatures");
+        if (signatures is null)
+        {
+            return;
+        }
+
+        foreach (var row in signatures.Rows)
+        {
+            var platformId = signatures.Cell(row, "PlatformId");
+            if (string.IsNullOrEmpty(platformId))
+            {
+                continue;
+            }
+
+            if (!platformIds.Contains(platformId))
+            {
+                findings.Add(new ValidationFinding(
+                    PhaseBOrphanPlatform,
+                    ValidationSeverity.Error,
+                    $"Signatures row references unknown platform '{platformId}'.",
+                    UnitId: platformId));
+            }
+        }
+    }
+
+    private static void ValidateEmconRows(
+        PlatformWorkbook workbook,
+        HashSet<string> platformIds,
+        List<ValidationFinding> findings)
+    {
+        var emcon = SheetView.For(workbook, "Emcon");
+        if (emcon is null)
+        {
+            return;
+        }
+
+        foreach (var row in emcon.Rows)
+        {
+            var platformId = emcon.Cell(row, "PlatformId");
+            if (string.IsNullOrEmpty(platformId))
+            {
+                continue;
+            }
+
+            if (!platformIds.Contains(platformId))
+            {
+                findings.Add(new ValidationFinding(
+                    PhaseBOrphanPlatform,
+                    ValidationSeverity.Error,
+                    $"Emcon row references unknown platform '{platformId}'.",
+                    UnitId: platformId));
+            }
+
+            var condition = emcon.Cell(row, "Condition");
+            if (!string.IsNullOrEmpty(condition) && !AllowedEmconConditions.Contains(condition))
+            {
+                findings.Add(new ValidationFinding(
+                    EmconInvalidCondition,
+                    ValidationSeverity.Error,
+                    $"Emcon on '{platformId}' has invalid Condition '{condition}' (expected silent, restricted, or free).",
+                    UnitId: platformId,
+                    TargetId: emcon.Cell(row, "EmitterId")));
+            }
+
+            var posture = emcon.Cell(row, "Posture");
+            if (!string.IsNullOrEmpty(posture) && !AllowedEmconPostures.Contains(posture))
+            {
+                findings.Add(new ValidationFinding(
+                    EmconInvalidPosture,
+                    ValidationSeverity.Error,
+                    $"Emcon on '{platformId}' has invalid Posture '{posture}' (expected off, standby, or active).",
+                    UnitId: platformId,
+                    TargetId: emcon.Cell(row, "EmitterId")));
+            }
+        }
+    }
+
+    private static bool HeadersEqual(IReadOnlyList<string> actual, IReadOnlyList<string> expected)
+    {
+        if (actual.Count != expected.Count)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < expected.Count; i++)
+        {
+            if (!string.Equals(actual[i], expected[i], StringComparison.Ordinal))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static string Key(string a, string b) => a + KeySeparator + b;
