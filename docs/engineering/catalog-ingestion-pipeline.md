@@ -124,6 +124,11 @@ OSINT digest/connector hits arrive as
 gates are encoded on staged rows — the branch tag and `SourceFactId` carry the routing
 downstream, the mapper itself never decides admission.
 
+> The full OSINT *discovery* half — connectors (`IOsintConnector`), the digest runner,
+> the proposal gate, and how digest hits are de-duped and staged — is documented separately
+> in [OSINT Discovery Pipeline](osint-discovery-pipeline.md). Note that the digest runner uses
+> its **own** mapping (`MapProposalsToBindings`), distinct from `ToSensorBinding` above.
+
 > ⚠️ OSINT rows are emitted **`provisional`**, so the import gate's default
 > `requireApproved` check (below) quarantines them with `review_state_provisional` until a
 > reviewer promotes them. This is intentional: OSINT never auto-commits to the catalog.
@@ -203,6 +208,7 @@ dotnet test src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj \
 ## See also
 
 - [Catalog Write-Gate & Determinism](catalog-write-gate-determinism.md) — the commit half (propose → approve → commit, sort keys, snapshots)
+- [OSINT Discovery Pipeline](osint-discovery-pipeline.md) — connectors, digest runner, proposal gate, and staging review
 - [Balance Drift Telemetry (Advisory)](balance-drift-telemetry.md) — advisory drift sink; never writes the catalog
 - [ADR-006 — Data Layer Boundary](../architecture/adr-006-data-layer-boundary.md)
 - `Game-Requirements/requirements/06-Database-Intelligence.md`, `21-Platform-Editor.md`

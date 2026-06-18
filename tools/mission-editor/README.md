@@ -153,6 +153,9 @@ dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_export_xlsx 
 | `osint_search` | `[--db <fixture.json>]` | Proposals + `logOnlyCount` from `FileOsintConnector` + digest runner (defaults to `data/osint_facts.json`) |
 | `osint_staging_review` | `--db <catalog.db> [--approve <batchId>]` | Pending OSINT proposals; with `--approve`, submits a review decision |
 
+See [OSINT Discovery Pipeline](../../docs/engineering/osint-discovery-pipeline.md) for the
+connectors, digest runner, proposal gate, JSON shapes, and the two mapping paths behind these verbs.
+
 ## Unity-MCP wiring
 
 Register the verbs from [`mcp-tools.json`](mcp-tools.json) (schema v2) in the Unity-MCP host,
