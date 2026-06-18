@@ -2,9 +2,9 @@
 
 **Date:** 2026-06-18  
 **Story:** S26-01 — Full-solution re-baseline  
-**Indexed commit:** `76b57e6` (pre-S26 trunk; S25 stack merged @ main; PRs #213–#226)  
+**Indexed commit:** `076a7eb` (`076a7eb` — S26 must-have data track merged locally)  
 **Kickoff baseline:** `76b57e6` — 661/661 tests, ReplayGolden 6/6  
-**Branch:** `main` (local S26 data-track worktree)
+**Branch:** `main`
 
 ## Verdict: **PASS**
 
@@ -34,7 +34,7 @@
 | Ref | Commit | Total | Notes |
 |-----|--------|-------|-------|
 | S25 closeout | `76b57e6` | **661** | S25-01 authoritative closeout |
-| S26 day-1 gate (this run) | local | **669** | +8 vs S25 closeout (S26-02..04 import tests) |
+| S26 must-have closeout | `076a7eb` | **669** | +8 vs S25 closeout (S26-02..04 import tests) |
 
 ## Data-track filtered gates (S26-02..04 prep)
 
