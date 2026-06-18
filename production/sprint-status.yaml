@@ -671,7 +671,8 @@ start: "2026-07-08"
 end: "2026-07-22"
 generated: "2026-06-17"
 updated: "2026-06-17"
-indexed_commit: aa36dc9
+indexed_commit: 7f8e51f
+tests_passed_s23_05_platform: 51
 tests_passed_s23_04: 63
 tests_passed_s23_04_writegate: 9
 kickoff: production/sprints/sprint-23-platform-phase-b-doctrine-polish.md
@@ -731,11 +732,12 @@ sprint23_stories:
   - id: "23-5"
     name: "Phase B schema foundation spike (export-only)"
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 2
     blocker: "23-1"
-    note: "Signatures/Mobility/EMCON migration + types + exporter sheet stubs"
+    completed: "2026-06-17"
+    note: "51 Platform tests PASS @ 7f8e51f; migration 008 + CatalogSignature/Mobility/Emcon + exporter stubs; import deferred S24"
   - id: "23-6"
     name: "CanonicalId determinism on Catalog* types"
     priority: nice-to-have
