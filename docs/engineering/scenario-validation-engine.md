@@ -35,8 +35,9 @@ The engine enforces three rules of engagement:
 > `ScenarioValidationEngine` (this doc, ADR-008, scenario authoring) is **not**
 > the same as `ValidationPipeline` (`src/ProjectAegis.Data/Validation/ValidationPipeline.cs`),
 > which is the catalog **Database Intelligence** pipeline (req-06) that delegates
-> to `DatabaseIntelligenceOrchestrator`. They share the `ValidationFinding` /
-> `ValidationSeverity` types but are different inputs and different gates — don't
+> to `DatabaseIntelligenceOrchestrator` and emits `DatabaseAgentFinding`s (see
+> the [database intelligence agent pipeline reference](database-intelligence-agent-pipeline.md)).
+> The two surfaces grade different inputs and gate different operations — don't
 > conflate them.
 
 ## Pipeline

@@ -223,7 +223,9 @@ Run the requirement-06 database intelligence agent pipeline (MCP/CI).
 | `--db` | no | Catalog SQLite path; falls back to the Baltic-patrol fixture if absent |
 
 Returns `{ ok, agents[]{ agentId, passed, findings[] }, mcpTools[] }`. `ok`
-mirrors the orchestrator's `Passed`; exit `1` when any agent fails.
+mirrors the orchestrator's `Passed`; exit `1` when any agent fails. For the
+agents, finding codes, severities, and pass/fail rules see the
+[database intelligence agent pipeline reference](database-intelligence-agent-pipeline.md).
 
 ### `catalog_entity_map`
 Emit the canonical entity → table binding map (no flags).
