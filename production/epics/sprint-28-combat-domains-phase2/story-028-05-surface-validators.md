@@ -1,6 +1,6 @@
 ---
 id: S28-05
-status: Not Started
+status: Complete
 type: Integration
 priority: should-have
 graphite_branch: stack/sprint28/combat-phase2
@@ -23,14 +23,14 @@ Extend ADR-009 beyond air aspect with **surface** and **subsurface** domain vali
 
 ## Acceptance Criteria
 
-- [ ] `SurfaceAspectDomainValidator` (or equivalent): allow in envelope, deny with documented abort code
-- [ ] `SubsurfaceAspectDomainValidator` (or equivalent): allow/deny with documented abort code
-- [ ] Validator deny appends order-log abort code in **isolated flag-on fixtures** only
-- [ ] `combatDomainsEnabled=false` on Baltic — zero abort delta
-- [ ] `ReplayGoldenSuiteTests` — 6/6 PASS on default path
-- [ ] `/replay-verify` PASS on sim merge
-- [ ] ZERO touch `DelegationBridge.cs`
-- [ ] No mine/land/facility combat at full runtime (validators only)
+- [x] `SurfaceAspectDomainValidator` (or equivalent): allow in envelope, deny with documented abort code
+- [x] `SubsurfaceAspectDomainValidator` (or equivalent): allow/deny with documented abort code
+- [x] Validator deny appends order-log abort code in **isolated flag-on fixtures** only
+- [x] `combatDomainsEnabled=false` on Baltic — zero abort delta
+- [x] `ReplayGoldenSuiteTests` — 6/6 PASS on default path
+- [x] `/replay-verify` PASS on sim merge
+- [x] ZERO touch `DelegationBridge.cs`
+- [x] No mine/land/facility combat at full runtime (validators only)
 
 ## QA Test Cases
 

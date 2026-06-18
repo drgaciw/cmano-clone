@@ -164,6 +164,8 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             FireAbortReason.NoFireControlTrack => EngagementAbortReason.NoFireControlTrack,
             FireAbortReason.EmconOff => EngagementAbortReason.EmconOff,
             FireAbortReason.AirAspectBlock => EngagementAbortReason.AirAspectBlock,
+            FireAbortReason.SurfaceAspectBlock => EngagementAbortReason.SurfaceAspectBlock,
+            FireAbortReason.SubsurfaceAspectBlock => EngagementAbortReason.SubsurfaceAspectBlock,
             _ => EngagementAbortReason.DomainNoSolution,
         };
 }

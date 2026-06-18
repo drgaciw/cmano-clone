@@ -1,6 +1,6 @@
 ---
 id: S28-02
-status: Ready
+status: Complete
 type: Integration
 priority: must-have
 graphite_branch: stack/sprint28/corpus-v2
@@ -23,14 +23,14 @@ Extend `tools/cmo-nightly-import.sh` beyond sensor+weapon v1 to **platform corpu
 
 ## Acceptance Criteria
 
-- [ ] `tools/cmo-nightly-import.sh` extended for platform entity slices (v2 scope)
-- [ ] Nightly job runs platform slices with chunk 500/batch
-- [ ] Propose-only path; quarantine JSON artifacts per batch
-- [ ] No direct SQLite writes; all commits via `CatalogWriteGate` approve path
-- [ ] **Not** wired into `dotnet test` CI (curated fixtures only)
-- [ ] Full 7208-record `sensor.md` remains nightly-only (not CI)
-- [ ] Evidence: `production/qa/sprint-28-nightly-cmo-import-*.md`
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] `tools/cmo-nightly-import.sh` extended for platform entity slices (v2 scope)
+- [x] Nightly job runs platform slices with chunk 500/batch
+- [x] Propose-only path; quarantine JSON artifacts per batch
+- [x] No direct SQLite writes; all commits via `CatalogWriteGate` approve path
+- [x] **Not** wired into `dotnet test` CI (curated fixtures only)
+- [x] Full 7208-record `sensor.md` remains nightly-only (not CI)
+- [x] Evidence: `production/qa/sprint-28-nightly-cmo-import-*.md`
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 
@@ -72,4 +72,11 @@ dotnet test src/ProjectAegis.MissionEditor.Cli.Tests/ProjectAegis.MissionEditor.
 - S27-02 pattern: `production/epics/sprint-27-cmo-corpus-import/story-027-02-nightly-cmo-corpus.md`
 - S27 evidence: `production/qa/sprint-27-nightly-cmo-import-2026-06-18.md`
 - Kickoff: `production/sprints/sprint-28-corpus-write-combat-v2.md` (S28-02)
-- QA plan: `production/qa/qa-plan-sprint-28-2026-09-18.md` *(create before implementation)*
+- QA plan: `production/qa/qa-plan-sprint-28-2026-09-18.md`
+
+## Completion Notes
+**Completed**: 2026-06-18
+**Criteria**: 8/8 passing (local gate `MAX_RECORDS=12`; full ship.md off-CI)
+**Deviations**: None
+**Test Evidence**: `production/qa/sprint-28-nightly-cmo-import-2026-06-18.md`
+**Code Review**: Skipped (lean mode)

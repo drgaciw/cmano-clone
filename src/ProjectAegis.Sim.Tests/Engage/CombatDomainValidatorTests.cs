@@ -1,4 +1,5 @@
 using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Policy;
 using Xunit;
 
 namespace ProjectAegis.Sim.Tests.Engage;
@@ -28,5 +29,69 @@ public sealed class CombatDomainValidatorTests
             CombatDomain: CombatDomain.Subsurface,
             ContactIdentified: false);
         Assert.Equal(EngagementAbortReason.DomainNoSolution, CombatDomainValidator.Validate(CombatDomain.Subsurface, in ctx));
+    }
+
+    [Fact]
+    public void Surface_aspect_validator_allows_in_envelope()
+    {
+        var validator = new SurfaceAspectDomainValidator();
+        var ctx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            CombatDomain: CombatDomain.Surface,
+            SurfaceAspectInEnvelope: true);
+
+        Assert.True(validator.Validate(in ctx).Allowed);
+    }
+
+    [Fact]
+    public void Surface_aspect_validator_denies_out_of_aspect_with_abort_code()
+    {
+        var validator = new SurfaceAspectDomainValidator();
+        var ctx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            CombatDomain: CombatDomain.Surface,
+            SurfaceAspectInEnvelope: false);
+
+        var result = validator.Validate(in ctx);
+        Assert.False(result.Allowed);
+        Assert.Equal(FireAbortReason.SurfaceAspectBlock, result.AbortReason);
+    }
+
+    [Fact]
+    public void Subsurface_aspect_validator_allows_in_envelope()
+    {
+        var validator = new SubsurfaceAspectDomainValidator();
+        var ctx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            CombatDomain: CombatDomain.Subsurface,
+            SubsurfaceAspectInEnvelope: true);
+
+        Assert.True(validator.Validate(in ctx).Allowed);
+    }
+
+    [Fact]
+    public void Subsurface_aspect_validator_denies_out_of_aspect_with_abort_code()
+    {
+        var validator = new SubsurfaceAspectDomainValidator();
+        var ctx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            CombatDomain: CombatDomain.Subsurface,
+            SubsurfaceAspectInEnvelope: false);
+
+        var result = validator.Validate(in ctx);
+        Assert.False(result.Allowed);
+        Assert.Equal(FireAbortReason.SubsurfaceAspectBlock, result.AbortReason);
     }
 }

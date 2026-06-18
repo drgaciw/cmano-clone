@@ -1,6 +1,6 @@
 ---
 id: S28-04
-status: Ready
+status: Complete
 type: Integration
 priority: must-have
 graphite_branch: stack/sprint28/excel-write
@@ -23,13 +23,13 @@ Unity/CLI hook to stage platform workbook changes via `CatalogWriteGate` (propos
 
 ## Acceptance Criteria
 
-- [ ] Headless write-gate tests PASS for Phase D platform workbook staging
-- [ ] Unity or CLI hook invokes propose path (no direct DB writes)
-- [ ] Export→edit→propose round-trip on Baltic fixture completes
-- [ ] `CatalogWriteGate` extend-only — `gitnexus impact` before edit
-- [ ] GitNexus CRITICAL documented on `CatalogWriteGate`
-- [ ] No full Unity Excel import UI chrome (write path + CLI authority only)
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] Headless write-gate tests PASS for Phase D platform workbook staging
+- [x] Unity or CLI hook invokes propose path (no direct DB writes)
+- [x] Export→edit→propose round-trip on Baltic fixture completes
+- [x] `CatalogWriteGate` extend-only — `gitnexus impact` before edit
+- [x] GitNexus CRITICAL documented on `CatalogWriteGate`
+- [x] No full Unity Excel import UI chrome (write path + CLI authority only)
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

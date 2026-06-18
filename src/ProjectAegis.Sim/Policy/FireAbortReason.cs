@@ -11,4 +11,6 @@ public enum FireAbortReason
     NoFireControlTrack = 6,
     CommsDenied = 7,
     AirAspectBlock = 8,
+    SurfaceAspectBlock = 9,
+    SubsurfaceAspectBlock = 10,
 }

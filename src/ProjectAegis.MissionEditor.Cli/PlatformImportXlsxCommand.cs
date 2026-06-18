@@ -53,9 +53,15 @@ public static class PlatformImportXlsxCommand
                 inPath,
                 ioFlag,
                 PlatformWorkbookIoFactories.ClosedXml);
-            var importer = new PlatformWorkbookImporter(snapshotId => ResolveSnapshot(snapshotId, db), clock);
-            using var gate = new CatalogWriteGate(db, clock);
-            var result = importer.StageFromFile(inPath, io, gate, actorType ?? "cli", actorId ?? "user");
+            var writeService = new PlatformWorkbookWriteService();
+            var writeResult = writeService.ProposeFromFile(
+                db,
+                inPath,
+                io,
+                clock,
+                actorType ?? "cli",
+                actorId ?? "user");
+            var result = writeResult.Import;
 
             var payload = new
             {
@@ -69,6 +75,8 @@ public static class PlatformImportXlsxCommand
                 snapshotResolved = result.Plan.SnapshotResolved,
                 changeCount = result.Plan.Changes.Count,
                 staged = result.Staged,
+                proposed = writeResult.Proposed,
+                batchIds = writeResult.BatchIds,
                 sensorBatchId = result.SensorBatchId,
                 mountBatchId = result.MountBatchId,
                 loadoutBatchId = result.LoadoutBatchId,
@@ -94,16 +102,4 @@ public static class PlatformImportXlsxCommand
         }
     }
 
-    /// <summary>PLE-1.3: resolve workbook baseline from bound catalog snapshot when db path is known.</summary>
-    private static PlatformCatalogExportData? ResolveSnapshot(string snapshotId, string? dbPath)
-    {
-        if (PlatformCatalogExportResolver.TryResolve(dbPath, snapshotId, out var data))
-        {
-            return data;
-        }
-
-        return string.Equals(snapshotId, "cli-s22-export", StringComparison.Ordinal)
-            ? PlatformCatalogExportData.Empty
-            : null;
-    }
 }

@@ -19,4 +19,6 @@ public enum EngagementAbortReason
     AirNotReady = 14,
     TrackSpoofed = 15,
     AirAspectBlock = 16,
+    SurfaceAspectBlock = 17,
+    SubsurfaceAspectBlock = 18,
 }
