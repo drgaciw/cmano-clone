@@ -40,6 +40,23 @@ Scenario `metadata` should include `seed` and `policyId` (defaults: `42`, `balti
 dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_plan_suggest --intent "patrol and strike baltic"
 ```
 
+## Platform editor — Excel round-trip (`platform_export_xlsx` / `platform_import_xlsx` / `platform_diff_xlsx`)
+
+Author catalog platform data by round-tripping a workbook through the staged
+write gate (ADR-011). Export → edit → diff → import (stage) → approve.
+
+```bash
+dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_export_xlsx --db <catalog.db> --out <workbook> [--snapshot <id>]
+dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_diff_xlsx [--db <catalog.db>] [--base <path>] [--edited <path>]
+dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_import_xlsx --db <catalog.db> [--in <workbook>]
+dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_approve --db <catalog.db> --batch <batchId>
+```
+
+Import only **stages** a batch (`IWriteGate.Propose*Batch`); nothing commits without
+`catalog_write_approve`. The `.xlsx` adapter is deferred (S23-01) — the verbs
+currently use the canonical text reference format. Full workflow, sheet layout,
+status, and pitfalls: [`docs/engineering/platform-editor-excel-roundtrip.md`](../../docs/engineering/platform-editor-excel-roundtrip.md).
+
 ## Unity-MCP wiring
 
 Register tools from [`mcp-tools.json`](mcp-tools.json) (schema v2 — create, mission CRUD, validate, simulate, plan suggest) in the Unity-MCP host, or call `Invoke-MissionEditorMcp.ps1` / `Invoke-*.ps1` directly — same contract as `design/gdd/agentic-mission-editor.md` §3.7.
