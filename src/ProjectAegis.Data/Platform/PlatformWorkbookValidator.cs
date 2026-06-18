@@ -25,6 +25,15 @@ public static class PlatformWorkbookValidator
     public const string MobilityNegativeSpeed = "PLE-MOB-SPEED";
     public const string MobilityNegativeRange = "PLE-MOB-RANGE";
 
+    public const string PlatformsHeaderMismatch = "PLE-PLT-HEADER";
+    public const string DamageNonPositiveMaxHp = "PLE-DMG-HP";
+    public const string DamageMaxHpExceedsCeiling = "PLE-DMG-HP-CEIL";
+    public const string DamageWithdrawThresholdInvalid = "PLE-DMG-WITHDRAW";
+    public const string DamageCriticalFlagsInvalid = "PLE-DMG-FLAGS";
+
+    /// <summary>Gameplay abstraction ceiling for platform HP (DBI-2.2).</summary>
+    public const double MaxHpCeiling = 100_000;
+
     private static readonly char KeySeparator = (char)31; // US — unit separator, absent from catalog IDs
 
     private static readonly string[] ExpectedMobilityHeader =
@@ -41,6 +50,12 @@ public static class PlatformWorkbookValidator
     private static readonly string[] ExpectedEmconHeader =
     [
         "PlatformId", "Condition", "EmitterId", "Posture",
+    ];
+
+    private static readonly string[] ExpectedPlatformsHeader =
+    [
+        "PlatformId", "LatDeg", "LonDeg", "CombatRadiusNm",
+        "MaxHp", "WithdrawThresholdPct", "CriticalFlags",
     ];
 
     private static readonly HashSet<string> AllowedEmconConditions = new(StringComparer.OrdinalIgnoreCase)
@@ -146,12 +161,14 @@ public static class PlatformWorkbookValidator
 
     private static void ValidatePhaseB(PlatformWorkbook workbook, List<ValidationFinding> findings)
     {
+        ValidateHeader(workbook, "Platforms", ExpectedPlatformsHeader, PlatformsHeaderMismatch, findings);
         ValidateHeader(workbook, "Mobility", ExpectedMobilityHeader, MobilityHeaderMismatch, findings);
         ValidateHeader(workbook, "Signatures", ExpectedSignaturesHeader, SignaturesHeaderMismatch, findings);
         ValidateHeader(workbook, "Emcon", ExpectedEmconHeader, EmconHeaderMismatch, findings);
 
         var platformIds = CollectPlatformIds(workbook);
 
+        ValidateDamageRows(workbook, findings);
         ValidateMobilityRows(workbook, platformIds, findings);
         ValidateSignatureRows(workbook, platformIds, findings);
         ValidateEmconRows(workbook, platformIds, findings);
@@ -201,6 +218,62 @@ public static class PlatformWorkbookValidator
                 code,
                 ValidationSeverity.Error,
                 $"Sheet '{sheetName}' header does not match Req-21 Phase B export contract."));
+        }
+    }
+
+    private static void ValidateDamageRows(PlatformWorkbook workbook, List<ValidationFinding> findings)
+    {
+        var platforms = SheetView.For(workbook, "Platforms");
+        if (platforms is null)
+        {
+            return;
+        }
+
+        foreach (var row in platforms.Rows)
+        {
+            var platformId = platforms.Cell(row, "PlatformId");
+            if (string.IsNullOrEmpty(platformId))
+            {
+                continue;
+            }
+
+            var maxHp = ParseDouble(platforms.Cell(row, "MaxHp"));
+            if (maxHp <= 0)
+            {
+                findings.Add(new ValidationFinding(
+                    DamageNonPositiveMaxHp,
+                    ValidationSeverity.Error,
+                    $"Platform '{platformId}' has non-positive MaxHp ({maxHp}).",
+                    UnitId: platformId));
+            }
+            else if (maxHp > MaxHpCeiling)
+            {
+                findings.Add(new ValidationFinding(
+                    DamageMaxHpExceedsCeiling,
+                    ValidationSeverity.Error,
+                    $"Platform '{platformId}' MaxHp ({maxHp}) exceeds ceiling ({MaxHpCeiling}).",
+                    UnitId: platformId));
+            }
+
+            var withdraw = ParseDouble(platforms.Cell(row, "WithdrawThresholdPct"));
+            if (withdraw < 0 || withdraw > maxHp)
+            {
+                findings.Add(new ValidationFinding(
+                    DamageWithdrawThresholdInvalid,
+                    ValidationSeverity.Error,
+                    $"Platform '{platformId}' has invalid WithdrawThresholdPct ({withdraw}); expected 0..MaxHp ({maxHp}).",
+                    UnitId: platformId));
+            }
+
+            var flags = ParseInt(platforms.Cell(row, "CriticalFlags"));
+            if (flags < 0)
+            {
+                findings.Add(new ValidationFinding(
+                    DamageCriticalFlagsInvalid,
+                    ValidationSeverity.Error,
+                    $"Platform '{platformId}' has invalid CriticalFlags ({flags}); expected non-negative bitmask.",
+                    UnitId: platformId));
+            }
         }
     }
 
