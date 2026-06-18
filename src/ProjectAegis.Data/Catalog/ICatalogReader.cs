@@ -49,6 +49,11 @@ public interface ICatalogReader
     bool TryGetPlatformDamage(string platformId, out CatalogPlatformDamage damage) =>
         TryGetPlatformDamageCore(platformId, out damage);
 
+    /// <summary>Req-21 Phase A: sorted mount rows (platform_id, mount_id).</summary>
+    IReadOnlyList<CatalogMount> GetSortedMounts() => GetSortedMountsCore();
+
+    IReadOnlyList<CatalogMount> GetSortedMountsCore() => [];
+
     IReadOnlyList<CatalogMobility> GetSortedMobilityCore() => [];
 
     IReadOnlyList<CatalogSignature> GetSortedSignaturesCore() => [];

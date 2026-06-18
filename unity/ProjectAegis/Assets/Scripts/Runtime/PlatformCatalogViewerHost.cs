@@ -104,7 +104,7 @@ namespace ProjectAegis.Unity.Runtime
         {
             var filtered = PlatformCatalogFilterProjection.Apply(_allRows, _searchField?.value);
             _displayItems = filtered
-                .Select(r => $"{r.PlatformId} hp={r.MaxHp} speed={r.MaxSpeedKnots}")
+                .Select(r => $"{r.PlatformId} hp={r.MaxHp} speed={r.MaxSpeedKnots} mounts={r.MountCount} sensors={r.SensorCount}")
                 .ToList();
 
             if (_platformList != null)

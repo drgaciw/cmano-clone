@@ -1,6 +1,7 @@
 ---
 id: S27-11
-status: Ready
+status: Complete
+Last Updated: 2026-06-18
 type: Integration
 priority: should-have
 graphite_branch: stack/sprint27/platform-viewer-harness
@@ -22,10 +23,10 @@ Add PlayMode smoke row or scene integration binding Baltic fixture via `ICatalog
 
 ## Acceptance Criteria
 
-- [ ] `PlayModeSmoke` or harness row for platform catalog viewer
-- [ ] Sorted rows + filter narrows list (headless)
-- [ ] `rg` grep: no `CatalogWriteGate` in viewer host
-- [ ] Full sln regression green
+- [x] `PlayModeSmoke` or harness row for platform catalog viewer
+- [x] Sorted rows + filter narrows list (headless)
+- [x] `rg` grep: no `CatalogWriteGate` in viewer host
+- [x] Full sln regression green
 
 ## QA Test Cases
 
@@ -44,3 +45,10 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 ## References
 
 - QA plan: `production/qa/qa-plan-sprint-27-2026-06-18.md`
+
+## Completion Notes
+**Completed**: 2026-06-18
+**Criteria**: 4/4 passing
+**Deviations**: None
+**Test Evidence**: Integration — `PlayModeSmokeHarnessTests` + `PlatformCatalogViewer` 22/22 filter
+**Code Review**: Skipped (lean mode)

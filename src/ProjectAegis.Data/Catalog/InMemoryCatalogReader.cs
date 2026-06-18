@@ -8,13 +8,15 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     private readonly Dictionary<string, CatalogPlatformEntry> _platforms;
     private readonly CatalogSignature[] _signatures;
     private readonly CatalogPlatformDamage[] _damage;
+    private readonly CatalogMount[] _mounts;
 
     public InMemoryCatalogReader(
         IEnumerable<CatalogSensorBinding> bindings,
         string layerVersion = "p0-inmemory",
         IEnumerable<CatalogPlatformEntry>? platforms = null,
         IEnumerable<CatalogSignature>? signatures = null,
-        IEnumerable<CatalogPlatformDamage>? damage = null)
+        IEnumerable<CatalogPlatformDamage>? damage = null,
+        IEnumerable<CatalogMount>? mounts = null)
     {
         LayerVersion = layerVersion;
         _bindings = bindings
@@ -31,6 +33,10 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             .ToArray();
         _damage = (damage ?? Array.Empty<CatalogPlatformDamage>())
             .OrderBy(d => d.PlatformId, StringComparer.Ordinal)
+            .ToArray();
+        _mounts = (mounts ?? Array.Empty<CatalogMount>())
+            .OrderBy(m => m.PlatformId, StringComparer.Ordinal)
+            .ThenBy(m => m.MountId, StringComparer.Ordinal)
             .ToArray();
     }
 
@@ -89,6 +95,8 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     public IReadOnlyList<CatalogEmcon> GetSortedEmcon() => [];
 
     public IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamage() => _damage;
+
+    public IReadOnlyList<CatalogMount> GetSortedMounts() => _mounts;
 
     public bool TryGetMobility(string platformId, out CatalogMobility mobility)
     {

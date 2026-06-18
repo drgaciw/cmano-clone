@@ -1,6 +1,7 @@
 ---
 id: S27-09
-status: Ready
+status: Complete
+Last Updated: 2026-06-18
 type: Logic
 priority: should-have
 graphite_branch: stack/sprint27/browse-projection-enrich
@@ -23,10 +24,10 @@ Extend `CatalogPlatformBrowseProjection` + `CatalogPlatformBrowseRow` with `Moun
 
 ## Acceptance Criteria
 
-- [ ] `MountCount`, `SensorCount` populated from `ICatalogReader` sorted paths
-- [ ] CLI JSON schema versioned; existing tests updated
-- [ ] Stable sort by `PlatformId` preserved (determinism)
-- [ ] `CatalogPlatformBrowseProjectionTests` PASS
+- [x] `MountCount`, `SensorCount` populated from `ICatalogReader` sorted paths
+- [x] CLI JSON schema versioned; existing tests updated
+- [x] Stable sort by `PlatformId` preserved (determinism)
+- [x] `CatalogPlatformBrowseProjectionTests` PASS
 
 ## QA Test Cases
 
@@ -40,3 +41,10 @@ Extend `CatalogPlatformBrowseProjection` + `CatalogPlatformBrowseRow` with `Moun
 
 - S26-10 spike: `production/qa/sprint-26-platform-viewer-spike-2026-06-18.md`
 - QA plan: `production/qa/qa-plan-sprint-27-2026-06-18.md`
+
+## Completion Notes
+**Completed**: 2026-06-18
+**Criteria**: 4/4 passing
+**Deviations**: None
+**Test Evidence**: Logic — `CatalogPlatformBrowseProjectionTests` 5/5 + CLI 2/2
+**Code Review**: Skipped (lean mode)

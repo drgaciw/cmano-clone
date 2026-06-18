@@ -1,6 +1,7 @@
 ---
 id: S27-12
-status: Ready
+status: Complete
+Last Updated: 2026-06-18
 type: Config
 priority: nice-to-have
 graphite_branch: stack/sprint27/closeout-gitnexus
@@ -24,12 +25,19 @@ Document CI merge policy: Buildkite required; GHA CodeQL advisory; refresh `veri
 
 ## Acceptance Criteria
 
-- [ ] Evidence doc: `production/qa/sprint-27-ci-hygiene-*.md`
-- [ ] Buildkite = merge authority documented
-- [ ] Local gate fallback path documented
-- [ ] Non-blocking for sprint closeout
+- [x] Evidence doc: `production/qa/sprint-27-ci-hygiene-*.md`
+- [x] Buildkite = merge authority documented
+- [x] Local gate fallback path documented
+- [x] Non-blocking for sprint closeout
 
 ## References
 
 - S16 triage: `production/qa/pr-69-ci-triage-2026-06-04.md`
 - QA plan: `production/qa/qa-plan-sprint-27-2026-06-18.md`
+
+## Completion Notes
+**Completed**: 2026-06-18
+**Criteria**: 4/4 passing
+**Deviations**: None
+**Test Evidence**: Config/Data — `production/qa/sprint-27-ci-hygiene-2026-06-18.md`
+**Code Review**: Skipped (lean mode); documentation-only

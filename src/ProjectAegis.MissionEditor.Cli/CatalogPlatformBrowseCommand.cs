@@ -22,6 +22,7 @@ public static class CatalogPlatformBrowseCommand
 
         var payload = new
         {
+            schemaVersion = 2,
             rowCount = rows.Count,
             rows = rows.Select(r => new
             {
@@ -31,6 +32,8 @@ public static class CatalogPlatformBrowseCommand
                 r.CombatRadiusNm,
                 r.MaxHp,
                 r.MaxSpeedKnots,
+                mountCount = r.MountCount,
+                sensorCount = r.SensorCount,
             }),
         };
 

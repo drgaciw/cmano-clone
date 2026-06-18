@@ -1229,7 +1229,7 @@ end: "2026-09-17"
 generated: "2026-06-18"
 updated: "2026-06-18"
 status: in_progress
-tests_passed_sprint27_should_have: 723
+tests_passed_sprint27_should_have: 729
 producer_approved: "2026-06-18"
 producer_decisions:
   s27_06_bda_slice: approved
@@ -1263,6 +1263,12 @@ evidence:
   - production/agentic/stacks/sprint27/S27-06-DONE.md
   - production/agentic/stacks/sprint27/S27-07-DONE.md
   - production/agentic/stacks/sprint27/S27-08-DONE.md
+  - production/agentic/stacks/sprint27/S27-09-DONE.md
+  - production/agentic/stacks/sprint27/S27-10-DONE.md
+  - production/agentic/stacks/sprint27/S27-11-DONE.md
+  - production/agentic/stacks/sprint27/S27-12-DONE.md
+  - production/qa/sprint-27-presentation-evidence-2026-06-18.md
+  - production/qa/sprint-27-ci-hygiene-2026-06-18.md
 sprint27_stories:
   - id: "27-1"
     name: "Full-solution re-baseline"
@@ -1336,34 +1342,38 @@ sprint27_stories:
     name: "Browse projection enrichment"
     file: production/epics/sprint-27-cmo-corpus-import/story-027-09-browse-enrichment.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: "27-3"
-    completed: ""
+    completed: "2026-06-18"
+    note: "MountCount/SensorCount + CLI schemaVersion 2; CatalogPlatformBrowse 7/7"
   - id: "27-10"
     name: "Editor presentation evidence"
     file: production/epics/sprint-27-phase-c-presentation/story-027-10-editor-evidence.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: "27-7,27-8"
-    completed: ""
+    completed: "2026-06-18"
+    note: "Protocol PNG placeholders; clears S27-07/08 screenshot advisories; headless 35/35"
   - id: "27-11"
     name: "Platform viewer smoke harness"
     file: production/epics/sprint-27-phase-c-presentation/story-027-11-viewer-smoke-harness.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: "27-8"
-    completed: ""
+    completed: "2026-06-18"
+    note: "PlayModeSmoke harness rows + DelegationSmoke scene wiring; PlatformCatalogViewer|PlayModeSmoke 22/22"
   - id: "27-12"
-    name: "CI hygiene / GHA billing spike"
+    name: "CI hygiene / GHA billing doc"
     file: production/epics/sprint-27-closeout-devops/story-027-12-ci-hygiene.md
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: "27-1"
-    completed: ""
+    completed: "2026-06-18"
+    note: "sprint-27-ci-hygiene-2026-06-18.md; Buildkite merge authority + local gate; non-blocking"
   - id: "27-13"
     name: "Closeout hygiene"
     file: production/epics/sprint-27-closeout-devops/story-027-13-closeout-hygiene.md

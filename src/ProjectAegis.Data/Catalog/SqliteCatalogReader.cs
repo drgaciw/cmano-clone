@@ -20,6 +20,7 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     private CatalogSignature[]? _signatureCache;
     private CatalogEmcon[]? _emconCache;
     private CatalogPlatformDamage[]? _damageCache;
+    private CatalogMount[]? _mountsCache;
 
     public SqliteCatalogReader(string databasePath, string layerVersion = "p0-sqlite")
     {
@@ -178,6 +179,12 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
 
         damage = new CatalogPlatformDamage(platformId);
         return false;
+    }
+
+    public IReadOnlyList<CatalogMount> GetSortedMounts()
+    {
+        _mountsCache ??= LoadMountsSorted().ToArray();
+        return _mountsCache;
     }
 
     /// <summary>Req-21: build workbook export payload from the bound SQLite snapshot.</summary>

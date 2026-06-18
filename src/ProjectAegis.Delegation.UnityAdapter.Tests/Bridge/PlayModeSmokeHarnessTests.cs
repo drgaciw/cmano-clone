@@ -9,6 +9,7 @@ using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.Comms;
+using ProjectAegis.Data.Catalog;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Sim.Scenario;
@@ -287,6 +288,63 @@ public sealed class PlayModeSmokeHarnessTests
     }
 
     [Test]
+    public void Platform_catalog_viewer_baltic_fixture_sorted_rows_and_filter()
+    {
+        var reader = InMemoryCatalogReader.BalticPatrolFixture();
+        var rows = CatalogPlatformBrowseProjection.FromReader(reader);
+
+        Assert.That(rows, Is.Not.Empty);
+        Assert.That(
+            rows.Select(r => r.PlatformId),
+            Is.EqualTo(rows.OrderBy(r => r.PlatformId, StringComparer.Ordinal).Select(r => r.PlatformId)));
+
+        var browseRows = BalticBrowseRows();
+        Assert.That(browseRows.Count, Is.GreaterThanOrEqualTo(3));
+        var filtered = PlatformCatalogFilterProjection.Apply(browseRows, "hostile");
+        Assert.That(filtered.Count, Is.LessThan(browseRows.Count));
+        Assert.That(
+            filtered.Select(r => r.PlatformId).ToArray(),
+            Is.EqualTo(new[] { "hostile-1", "hostile-far" }));
+
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var hostPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Scripts",
+            "Runtime",
+            "PlatformCatalogViewerHost.cs");
+        Assert.That(File.Exists(hostPath), Is.True);
+
+        var source = File.ReadAllText(hostPath);
+        Assert.That(source, Does.Not.Contain("CatalogWriteGate"), "Viewer host must not reference CatalogWriteGate");
+    }
+
+    [Test]
+    public void Delegation_smoke_scene_builder_includes_platform_catalog_viewer()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+        var builder = File.ReadAllText(builderPath);
+
+        Assert.That(builder, Does.Contain("PlatformCatalogViewerHost"));
+        Assert.That(builder, Does.Contain("\"PlatformCatalog\""));
+        Assert.That(builder, Does.Contain("Assets/UI/PlatformCatalog/PlatformCatalogPanel.uxml"));
+        Assert.That(builder, Does.Contain("Assets/UI/PlatformCatalog/PlatformCatalogPanel.uss"));
+    }
+
+    [Test]
     public void Doctrine_smoke_scene_builder_registers_doctrine_panel_host()
     {
         var repoRoot = FindRepoRoot();
@@ -399,6 +457,16 @@ public sealed class PlayModeSmokeHarnessTests
 
         public void ApplyOrder(EntityKey entity, in Order order) =>
             _applied.Add((entity, order));
+    }
+
+    private static IReadOnlyList<CatalogPlatformBrowseRow> BalticBrowseRows()
+    {
+        var platforms = CatalogValidationDefaults.BalticPlatforms();
+        var bindings = platforms
+            .Select(p => new CatalogSensorBinding(p.PlatformId, "radar-1", 1.0, $"baltic-fixture-{p.PlatformId}"))
+            .ToArray();
+        var reader = new InMemoryCatalogReader(bindings, "p0-baltic-fixture", platforms);
+        return CatalogPlatformBrowseProjection.FromReader(reader);
     }
 
     private static string? FindRepoRoot()
