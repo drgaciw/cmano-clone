@@ -33,6 +33,10 @@ namespace ProjectAegis.Unity.Runtime
 
         private IC2PresentationFeed? PresentationFeed => bridgeHost;
 
+        /// <summary>Read-only map symbols from presentation feed (Cesium APP-6 billboard wiring, ADR-010).</summary>
+        public IReadOnlyList<MapSymbolEntry> CurrentMapSymbols =>
+            PresentationFeed?.LastMapSymbols ?? Array.Empty<MapSymbolEntry>();
+
         private void Awake()
         {
             _document = GetComponent<UIDocument>();
