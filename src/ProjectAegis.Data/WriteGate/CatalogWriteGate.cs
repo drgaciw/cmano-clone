@@ -30,13 +30,10 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         }
 
         var batchId = $"batch-{proposed.Count}-{_clock.UtcTicks}";
-        var sorted = proposed
-            .OrderBy(b => b.PlatformId, StringComparer.Ordinal)
-            .ThenBy(b => b.SensorId, StringComparer.Ordinal)
-            .ToArray();
+        var sorted = CatalogSortKeyComparer.SortSensors(proposed);
 
         using var tx = _connection.BeginTransaction();
-        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Count, rationale, "proposed");
         foreach (var row in sorted)
         {
             InsertStagingSensor(tx, batchId, row);
@@ -58,13 +55,10 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         }
 
         var batchId = $"batch-mount-{proposed.Count}-{_clock.UtcTicks}";
-        var sorted = proposed
-            .OrderBy(m => m.PlatformId, StringComparer.Ordinal)
-            .ThenBy(m => m.MountId, StringComparer.Ordinal)
-            .ToArray();
+        var sorted = CatalogSortKeyComparer.SortMounts(proposed);
 
         using var tx = _connection.BeginTransaction();
-        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Count, rationale, "proposed");
         foreach (var row in sorted)
         {
             InsertStagingMount(tx, batchId, row);
@@ -86,13 +80,10 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         }
 
         var batchId = $"batch-loadout-{proposed.Count}-{_clock.UtcTicks}";
-        var sorted = proposed
-            .OrderBy(l => l.PlatformId, StringComparer.Ordinal)
-            .ThenBy(l => l.LoadoutId, StringComparer.Ordinal)
-            .ToArray();
+        var sorted = CatalogSortKeyComparer.SortLoadouts(proposed);
 
         using var tx = _connection.BeginTransaction();
-        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Count, rationale, "proposed");
         foreach (var row in sorted)
         {
             InsertStagingLoadout(tx, batchId, row);
@@ -114,15 +105,10 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         }
 
         var batchId = $"batch-magazine-{proposed.Count}-{_clock.UtcTicks}";
-        var sorted = proposed
-            .OrderBy(m => m.PlatformId, StringComparer.Ordinal)
-            .ThenBy(m => m.LoadoutId, StringComparer.Ordinal)
-            .ThenBy(m => m.MountId, StringComparer.Ordinal)
-            .ThenBy(m => m.WeaponId, StringComparer.Ordinal)
-            .ToArray();
+        var sorted = CatalogSortKeyComparer.SortMagazines(proposed);
 
         using var tx = _connection.BeginTransaction();
-        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Count, rationale, "proposed");
         foreach (var row in sorted)
         {
             InsertStagingMagazine(tx, batchId, row);
@@ -144,13 +130,10 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         }
 
         var batchId = $"batch-comms-{proposed.Count}-{_clock.UtcTicks}";
-        var sorted = proposed
-            .OrderBy(c => c.PlatformId, StringComparer.Ordinal)
-            .ThenBy(c => c.LinkId, StringComparer.Ordinal)
-            .ToArray();
+        var sorted = CatalogSortKeyComparer.SortComms(proposed);
 
         using var tx = _connection.BeginTransaction();
-        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Count, rationale, "proposed");
         foreach (var row in sorted)
         {
             InsertStagingComms(tx, batchId, row);
@@ -172,12 +155,10 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         }
 
         var batchId = $"batch-platform-{proposed.Count}-{_clock.UtcTicks}";
-        var sorted = proposed
-            .OrderBy(p => p.PlatformId, StringComparer.Ordinal)
-            .ToArray();
+        var sorted = CatalogSortKeyComparer.SortPlatforms(proposed);
 
         using var tx = _connection.BeginTransaction();
-        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Count, rationale, "proposed");
         foreach (var row in sorted)
         {
             InsertStagingPlatform(tx, batchId, row);
@@ -199,12 +180,10 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         }
 
         var batchId = $"batch-weapon-{proposed.Count}-{_clock.UtcTicks}";
-        var sorted = proposed
-            .OrderBy(w => w.WeaponId, StringComparer.Ordinal)
-            .ToArray();
+        var sorted = CatalogSortKeyComparer.SortWeapons(proposed);
 
         using var tx = _connection.BeginTransaction();
-        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Length, rationale, "proposed");
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Count, rationale, "proposed");
         foreach (var row in sorted)
         {
             InsertStagingWeapon(tx, batchId, row);

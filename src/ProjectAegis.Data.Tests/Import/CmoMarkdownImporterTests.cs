@@ -19,6 +19,9 @@ public sealed class CmoMarkdownImporterTests
         Assert.Equal(3, first.Count);
         Assert.Equal(first.Count, second.Count);
         Assert.Equal(["hostile-1", "hostile-far", "u1"], first.Select(p => p.PlatformId).ToArray());
+        Assert.Equal(
+            CatalogSortKeyComparer.SortPlatforms(first).Select(CatalogSortKeyComparer.FormatPlatformKey).ToArray(),
+            first.Select(CatalogSortKeyComparer.FormatPlatformKey).ToArray());
 
         var u1 = Assert.Single(first, p => p.PlatformId == "u1");
         Assert.Equal("Patrol Frigate U1 , Baltic Patrol", u1.DisplayName);
@@ -232,6 +235,26 @@ public sealed class CmoMarkdownImporterTests
         var radar = Assert.Single(bindings, b => b.SensorId == "cmo-sensor-1001");
         Assert.Equal("test-radar-an-spy-1", radar.PlatformId);
         Assert.Equal(0.75, radar.BasePd, precision: 6);
+    }
+
+    [Fact]
+    public void CatalogSortKey_baltic_cmo_import_ordering_hash_matches_golden()
+    {
+        var platformPath = CmoMarkdownImporter.ResolveBalticPlatformFixturePath();
+        var weaponPath = CmoMarkdownImporter.ResolveMiniWeaponFixturePath();
+
+        var fixture = new CatalogSortKeyFixture(
+            Sensors: [],
+            Platforms: CmoMarkdownImporter.ReadPlatformBindings(platformPath, mapBalticIds: true),
+            Weapons: CmoMarkdownImporter.ReadWeaponBindings(weaponPath),
+            Mounts: CmoMarkdownImporter.ReadPlatformMounts(platformPath, mapBalticIds: true),
+            Loadouts: [],
+            Magazines: [],
+            Comms: []);
+
+        var hash = CatalogSortKeyComparer.ComputeOrderingHash(fixture);
+        Assert.Equal(hash, CatalogSortKeyComparer.ComputeOrderingHash(fixture));
+        Assert.Equal(CatalogSortKeyGoldenHashes.BalticCmoImport, hash);
     }
 
     [Fact]
