@@ -127,6 +127,18 @@ public sealed class ScenarioPolicyJsonLoaderTests
     }
 
     [Fact]
+    public void Loads_combat_domains_smoke_with_flag_enabled()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot!, "data", "scenarios", "combat-domains-smoke.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.Equal("combat-domains-smoke", profile.Id);
+        Assert.NotNull(profile.EngageDefaults);
+        Assert.True(profile.EngageDefaults!.CombatDomainsEnabled);
+    }
+
+    [Fact]
     public void Loads_baltic_patrol_comms_logistics_and_display_settings()
     {
         var repoRoot = FindRepoRoot();

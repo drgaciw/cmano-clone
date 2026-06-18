@@ -17,4 +17,23 @@
 
 .platform-catalog-list {
     flex-grow: 1;
+    min-height: 120px;
+}
+
+.platform-catalog-detail {
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top-width: 1px;
+    border-top-color: rgba(80, 100, 130, 0.6);
+}
+
+.platform-catalog-detail-title {
+    -unity-font-style: bold;
+    color: rgb(180, 190, 200);
+    margin-bottom: 2px;
+}
+
+.platform-catalog-detail-line {
+    color: rgb(170, 180, 190);
+    margin-bottom: 1px;
 }

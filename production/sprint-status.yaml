@@ -1228,15 +1228,24 @@ start: "2026-09-04"
 end: "2026-09-17"
 generated: "2026-06-18"
 updated: "2026-06-18"
-status: in_progress
+status: complete
+completed: "2026-06-18"
+story_done_confirmed: "2026-06-18"
+story_done_verdict: complete-full
+sprint27_closeout_date: "2026-06-18"
 tests_passed_sprint27_should_have: 729
+tests_passed_sprint27_closeout: 741
+replay_golden_sprint27_closeout: pass
+gitnexus_indexed: "2026-06-18"
+gitnexus_nodes: 11192
+gitnexus_edges: 22977
 producer_approved: "2026-06-18"
 producer_decisions:
   s27_06_bda_slice: approved
   nightly_corpus_v1: sensor_weapon_only
   gha_billing: permanent_local_gate_advisory
 branch: main
-indexed_commit: c665fa2
+indexed_commit: ad42810
 tests_passed_sprint26_closeout: 698
 tests_passed_sprint27_baseline: 701
 tests_passed_sprint27_must_have: 701
@@ -1267,8 +1276,15 @@ evidence:
   - production/agentic/stacks/sprint27/S27-10-DONE.md
   - production/agentic/stacks/sprint27/S27-11-DONE.md
   - production/agentic/stacks/sprint27/S27-12-DONE.md
+  - production/agentic/stacks/sprint27/S27-13-DONE.md
+  - production/agentic/stacks/sprint27/S27-14-DONE.md
+  - production/agentic/stacks/sprint27/S27-15-DONE.md
+  - production/agentic/stacks/sprint27/S27-16-DONE.md
   - production/qa/sprint-27-presentation-evidence-2026-06-18.md
   - production/qa/sprint-27-ci-hygiene-2026-06-18.md
+  - production/qa/sprint-27-gitnexus-2026-06-18.md
+  - production/qa/smoke-sprint-27-closeout-2026-06-18.md
+next_backlog: production/sprints/sprint-27-cmo-corpus-combat-bounded.md
 sprint27_stories:
   - id: "27-1"
     name: "Full-solution re-baseline"
@@ -1378,34 +1394,37 @@ sprint27_stories:
     name: "Closeout hygiene"
     file: production/epics/sprint-27-closeout-devops/story-027-13-closeout-hygiene.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: ""
-    completed: ""
+    completed: "2026-06-18"
+    note: "741/741; ReplayGolden 6/6; GitNexus 11192/22977; tracker rows 06/18/21; stack/sprint26/* prune documented (0 local refs); evidence production/agentic/stacks/sprint27/S27-13-DONE.md"
   - id: "27-14"
     name: "Curated platform corpus slice"
     file: production/epics/sprint-27-cmo-corpus-import/story-027-14-platform-corpus-slice.md
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 1
     blocker: "27-3"
-    completed: ""
+    completed: "2026-06-18"
+    note: "ship-slice-100.md + ChunkPlatforms 501→2 + fitting quarantine JSON; CmoMarkdownPlatform 4/4"
   - id: "27-15"
     name: "Platform browse detail pane"
     file: production/epics/sprint-27-phase-c-presentation/story-027-15-browse-detail-pane.md
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: "27-8"
-    completed: ""
+    completed: "2026-06-18"
   - id: "27-16"
     name: "ADR-009 validation checklist closeout"
     file: production/epics/sprint-27-adr009-bounded/story-027-16-adr009-checklist.md
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 0.25
     blocker: "27-5"
-    completed: ""
+    completed: "2026-06-18"
+    note: "ADR-009 validation criteria 1-4 closed; combat-domains-smoke test fixture; pinned world hash 17144800277401907079; ReplayGolden 6/6 unchanged; evidence production/agentic/stacks/sprint27/S27-16-DONE.md"
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"

@@ -10,7 +10,7 @@
 
 ## Last Verified
 
-2026-06-18 (S26-09: `IDomainValidator` no-op stubs + registry; feature flag default off)
+2026-06-18 (S27-16: validation criteria 1–4 closed with file:line evidence; `combat-domains-smoke` test-only fixture)
 
 ## Decision Makers
 
@@ -96,10 +96,10 @@ applyOrder = outcomes.OrderBy(e => e.EngagementId).ThenBy(e => e.SequenceId)
 
 ## Validation Criteria
 
-- [ ] `IDomainValidator` + registry with stable domain ordering
-- [ ] Golden replay: same seed → same abort set (empty for MVP allow-all)
-- [ ] Damage apply order test: shuffled input → sorted apply order
-- [ ] Order log contains abort code when validator denies
+- [x] `IDomainValidator` + registry with stable domain ordering — `src/ProjectAegis.Sim/Engage/IDomainValidator.cs:4-8`, `DomainValidatorRegistry.cs:6-14`, `DomainValidatorRegistryTests.cs:28-32`
+- [x] Golden replay: same seed → same abort set (empty for MVP allow-all) — `CombatDomainsSmokePolicyTests.cs:33-44`, `DomainValidatorRegistryTests.cs:61-77`
+- [x] Damage apply order test: shuffled input → sorted apply order — `DeterministicDamageApplyBatch.cs:6-9`, `DeterministicDamageApplyBatchTests.cs:24-49`
+- [x] Order log contains abort code when validator denies — `DomainValidatorRegistryTests.cs:112-128`, `MvpEngagementResolver.cs:83-89`, `AirAspectDomainValidator.cs:17`
 
 ## Migration Plan
 

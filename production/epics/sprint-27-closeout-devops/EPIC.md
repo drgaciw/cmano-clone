@@ -20,10 +20,10 @@ Note: **S27-01** day-1 baseline lives in `sprint-27-cmo-corpus-import` epic (sha
 
 ## Definition of Done
 
-- [ ] Closeout smoke doc + GitNexus evidence
-- [ ] `stack/sprint26/*` pruned (merged branches)
-- [ ] `sprint-status.yaml` closeout counters
-- [ ] `/smoke-check sprint` PASS
+- [x] Closeout smoke doc + GitNexus evidence
+- [x] `stack/sprint26/*` pruned (merged branches — 0 local refs @ S27-13)
+- [x] `sprint-status.yaml` closeout counters
+- [x] `/smoke-check sprint` PASS
 
 ## References
 

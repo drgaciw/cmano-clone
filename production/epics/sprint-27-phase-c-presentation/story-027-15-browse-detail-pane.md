@@ -1,6 +1,7 @@
 ---
 id: S27-15
-status: Ready
+status: Complete
+Last Updated: 2026-06-18
 type: UI
 priority: nice-to-have
 graphite_branch: stack/sprint27/platform-viewer-detail
@@ -22,9 +23,9 @@ Row select shows `LatDeg`, `LonDeg`, `CombatRadiusNm`, `MaxHp`, `MaxSpeedKnots` 
 
 ## Acceptance Criteria
 
-- [ ] Detail pane binds selected row fields
-- [ ] Headless test for selected-row projection bind
-- [ ] No write-gate calls
+- [x] Detail pane binds selected row fields
+- [x] Headless test for selected-row projection bind
+- [x] No write-gate calls
 
 ## QA Test Cases
 
@@ -37,3 +38,10 @@ Row select shows `LatDeg`, `LonDeg`, `CombatRadiusNm`, `MaxHp`, `MaxSpeedKnots` 
 
 - Deferred from S26-10 spike
 - QA plan: `production/qa/qa-plan-sprint-27-2026-06-18.md`
+
+## Completion Notes
+**Completed**: 2026-06-18
+**Criteria**: 3/3 passing
+**Deviations**: None
+**Test Evidence**: UI — headless `PlatformCatalogViewerTests` 9/9 + `PlatformCatalogDetailProjectionTests` 3/3
+**Code Review**: Skipped (lean mode)

@@ -13,5 +13,6 @@ Optional JSON fields (default when omitted): `playerInfoModel` (`fullTransparenc
 JSON files: `data/scenarios/*.policy.json` loaded by `ScenarioPolicyRepository` (overrides built-in catalog when ids match).
 
 | `baltic-patrol-catalog` | Weapons free | Weapons tight | `catalogDetection` (no inline `basePd`; uses platform catalog) | Catalog-backed Pd harness |
+| `combat-domains-smoke` | Weapons free | Weapons tight | `engage.combatDomainsEnabled=true` | **Test-only** ADR-009 flag-on smoke (`CombatDomainsSmokePolicyTests`; not ReplayGolden 6/6) |
 
 Override per unit via `unitOverrides` in JSON.

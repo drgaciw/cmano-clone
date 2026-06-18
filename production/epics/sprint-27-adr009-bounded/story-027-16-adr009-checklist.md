@@ -1,6 +1,6 @@
 ---
 id: S27-16
-status: Ready
+status: Complete
 type: Config
 priority: nice-to-have
 graphite_branch: stack/sprint27/adr009-validators-bda
@@ -22,9 +22,9 @@ Close ADR-009 unchecked validation boxes; add `combat-domains-smoke` test-only p
 
 ## Acceptance Criteria
 
-- [ ] ADR-009 criteria 1–4 marked satisfied with file:line evidence
-- [ ] Flag-on smoke fixture documented
-- [ ] Separate hash pin (not Baltic golden)
+- [x] ADR-009 criteria 1–4 marked satisfied with file:line evidence
+- [x] Flag-on smoke fixture documented
+- [x] Separate hash pin (not Baltic golden)
 
 ## References
 

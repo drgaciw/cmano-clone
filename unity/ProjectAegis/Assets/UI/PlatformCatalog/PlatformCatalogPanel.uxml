@@ -2,6 +2,14 @@
     <ui:VisualElement name="platform-catalog-root" class="platform-catalog-panel">
         <ui:Label text="PLATFORM CATALOG" class="platform-catalog-title" />
         <ui:TextField name="platform-catalog-search" class="platform-catalog-search" label="Filter" />
-        <ui:ListView name="platform-catalog-list" class="platform-catalog-list" selection-type="None" />
+        <ui:ListView name="platform-catalog-list" class="platform-catalog-list" selection-type="Single" />
+        <ui:VisualElement name="platform-catalog-detail" class="platform-catalog-detail">
+            <ui:Label text="DETAIL" class="platform-catalog-detail-title" />
+            <ui:Label name="platform-catalog-detail-lat" text="LAT: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-lon" text="LON: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-radius" text="RADIUS: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-hp" text="HP: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-speed" text="SPEED: —" class="platform-catalog-detail-line" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

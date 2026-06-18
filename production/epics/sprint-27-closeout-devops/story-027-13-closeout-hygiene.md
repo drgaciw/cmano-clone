@@ -1,6 +1,6 @@
 ---
 id: S27-13
-status: Ready
+status: Complete
 type: Config
 priority: should-have
 graphite_branch: stack/sprint27/closeout-gitnexus
@@ -22,13 +22,13 @@ Replay 6/6; GitNexus @ stack tip; tracker rows 06/18/21; prune merged `stack/spr
 
 ## Acceptance Criteria
 
-- [ ] `ReplayGoldenSuiteTests` — 6/6 PASS
-- [ ] `dotnet test ProjectAegis.sln` — ≥698 @ closeout
-- [ ] `production/qa/sprint-27-gitnexus-*.md` with nodes/edges
-- [ ] `production/qa/smoke-sprint-27-closeout-*.md`
-- [ ] Tracker rows 06, 18, 21 updated
-- [ ] `stack/sprint26/*` prune documented (merged branches only)
-- [ ] `sprint-status.yaml` closeout counters + evidence list
+- [x] `ReplayGoldenSuiteTests` — 6/6 PASS
+- [x] `dotnet test ProjectAegis.sln` — ≥698 @ closeout (741/741)
+- [x] `production/qa/sprint-27-gitnexus-*.md` with nodes/edges
+- [x] `production/qa/smoke-sprint-27-closeout-*.md`
+- [x] Tracker rows 06, 18, 21 updated
+- [x] `stack/sprint26/*` prune documented (merged branches only)
+- [x] `sprint-status.yaml` closeout counters + evidence list
 
 ## Verify Commands
 

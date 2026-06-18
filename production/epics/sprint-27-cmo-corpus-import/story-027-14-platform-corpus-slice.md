@@ -1,6 +1,6 @@
 ---
 id: S27-14
-status: Ready
+status: Complete
 type: Integration
 priority: nice-to-have
 graphite_branch: stack/sprint27/platform-corpus-slice
@@ -23,10 +23,16 @@ Add `ship-slice-100.md` fixture (≥100 platforms) + chunk boundary test (501 re
 
 ## Acceptance Criteria
 
-- [ ] Fixture under `tools/cmano-db-crawler/fixtures/` (≥100 platforms)
-- [ ] Chunk boundary test: 501 → 2 batches
-- [ ] Quarantine report JSON emitted on invalid rows
-- [ ] Scoped CmoMarkdown tests PASS
+- [x] Fixture under `tools/cmano-db-crawler/fixtures/` (≥100 platforms)
+- [x] Chunk boundary test: 501 → 2 batches
+- [x] Quarantine report JSON emitted on invalid rows
+- [x] Scoped CmoMarkdown tests PASS
+
+## Completion Notes
+
+- Added `ship-slice-100.md` (100 synthetic ship platforms, IDs 4001–4100) and `ResolveShipSlice100FixturePath()`.
+- Extended `CmoMarkdownPlatformImportTests` with E2E ship-slice import, `ChunkPlatforms` 501→2 boundary, and fitting-quarantine JSON artifact test.
+- Verify: `dotnet test src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj --filter "CmoMarkdownPlatform|CmoMarkdownShip" -v minimal` → 4/4 PASS.
 
 ## QA Test Cases
 

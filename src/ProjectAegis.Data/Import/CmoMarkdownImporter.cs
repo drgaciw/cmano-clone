@@ -57,6 +57,10 @@ public static class CmoMarkdownImporter
         CatalogJsonImporter.ResolveRepoRelative(
             Path.Combine("tools", "cmano-db-crawler", "fixtures", "weapon-slice-50.md"));
 
+    public static string ResolveShipSlice100FixturePath() =>
+        CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("tools", "cmano-db-crawler", "fixtures", "ship-slice-100.md"));
+
     public static string ResolveReferenceSensorMarkdownPath() =>
         CatalogJsonImporter.ResolveRepoRelative(
             Path.Combine("docs", "reference", "cmano-db", "sensor.md"));
