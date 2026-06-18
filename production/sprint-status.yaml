@@ -827,6 +827,8 @@ evidence:
   - production/qa/qa-plan-sprint-24-2026-06-17.md
   - production/qa/smoke-sprint-24-2026-06-17.md
   - production/agentic/stacks/sprint24/README.md
+  - production/agentic/stacks/sprint24/S24-05-DONE.md
+  - production/agentic/stacks/sprint24/S24-06-DONE.md
 sprint24_stories:
   - id: "24-1"
     name: "Full-solution re-baseline"
@@ -861,17 +863,19 @@ sprint24_stories:
   - id: "24-5"
     name: "Phase B validator rule pack"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1.5
     blocker: "24-4"
-    note: "Header parity, FK guard, Emcon enums; validation hash golden"
+    completed: "2026-06-17"
+    note: "PlatformWorkbookValidator Phase B rules; golden hash pinned; 18 new tests; 105 filtered PASS"
   - id: "24-6"
     name: "Phase B sim consumer smoke"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 2
     blocker: "24-3"
-    note: "ICatalogReader TryGet* + detection modifier stub; replay-verify mandatory"
+    completed: "2026-06-17"
+    note: "PhaseBCatalogDetectionModifier + DetectionTrialResolver wire; Sim 8/8; ReplayGoldenSuiteTests 6/6; production/agentic/stacks/sprint24/S24-06-DONE.md"
   - id: "24-7"
     name: "C2 regression + APP-6 Phase C spike"
     priority: should-have
