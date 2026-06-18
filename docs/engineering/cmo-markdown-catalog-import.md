@@ -162,6 +162,7 @@ Reference markdown lives in [`docs/reference/cmano-db/`](../reference/cmano-db/)
 ## Related
 
 - [Catalog write gate — developer reference](catalog-write-gate.md)
+- [OSINT discovery pipeline — developer reference](osint-discovery-pipeline.md)
 - [Platform editor — Excel round-trip runbook](platform-editor-excel-roundtrip.md)
 - [ADR-006 — Data layer boundary](../architecture/adr-006-data-layer-boundary.md)
 - Requirement [06 — Database Intelligence](../../Game-Requirements/requirements/06-Database-Intelligence.md)
