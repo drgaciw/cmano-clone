@@ -17,7 +17,7 @@ public sealed class PlatformWorkbookBinaryGoldenTests
 
     // Pinned logical workbook hash for ExportPhaseB() @ FixedCatalogClock(17_001).
     private const string PhaseBWorkbookHashGolden =
-        "cb916356f9782b62f69e8923c151be2b7ed4b6a436fe6ad1af2367d0dc635025";
+        "6bb2776e12fd90541c097f593c4bab41a348d2d168cbc6f51df49bb4f89275cb";
 
     [Fact]
     public void Phase_B_binary_round_trip_preserves_workbook_hash_golden()
@@ -118,7 +118,8 @@ public sealed class PlatformWorkbookBinaryGoldenTests
         [
             new CatalogEmcon("u1", "silent", "radar-1", "off"),
             new CatalogEmcon("u1", "free", "radar-1", "active"),
-        ]);
+        ],
+        Damage: [new CatalogPlatformDamage("u1")]);
 
     private static PlatformWorkbook WithEmconPosture(PlatformWorkbook workbook, int rowIndex, string posture)
     {
