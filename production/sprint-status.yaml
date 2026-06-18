@@ -671,7 +671,9 @@ start: "2026-07-08"
 end: "2026-07-22"
 generated: "2026-06-17"
 updated: "2026-06-17"
-indexed_commit: fb3fc75
+indexed_commit: aa36dc9
+tests_passed_s23_04: 63
+tests_passed_s23_04_writegate: 9
 kickoff: production/sprints/sprint-23-platform-phase-b-doctrine-polish.md
 status: in-progress
 branch: main
