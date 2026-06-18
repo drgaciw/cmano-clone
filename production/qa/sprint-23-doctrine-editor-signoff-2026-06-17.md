@@ -14,8 +14,8 @@
 | Gate | Command / artifact | Result |
 |------|-------------------|--------|
 | Solution build | `dotnet build ProjectAegis.sln -v minimal` | See verify log below |
-| PlayMode smoke + doctrine | `dotnet test ... --filter "Doctrine\|PlayModeSmoke" -v minimal` | See verify log below |
-| Delegation doctrine regression | `dotnet test ... --filter "Doctrine" -v minimal` | See verify log below |
+| PlayMode smoke + doctrine | `dotnet test ... --filter "Doctrine\|PlayModeSmoke" -v minimal` | **15 PASS** (2026-06-17 story-done) |
+| Delegation doctrine regression | `dotnet test ... --filter "Doctrine" -v minimal` | **8 PASS** (2026-06-17 story-done) |
 | Bridge zero-touch | `rg "DelegationBridge" DoctrineInheritancePanelHost.cs` | Indirect seam only via `DelegationBridgeHost` |
 | UXML element contract | `PlayModeSmokeHarnessTests.Doctrine_panel_uxml_assets_define_host_element_names` | PASS |
 | Scene wiring | `PlayModeSmokeHarnessTests.Doctrine_smoke_scene_builder_registers_doctrine_panel_host` | PASS |
