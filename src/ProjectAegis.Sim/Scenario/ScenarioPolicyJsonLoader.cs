@@ -327,7 +327,8 @@ public static class ScenarioPolicyJsonLoader
                 DlzPersonalityParser.Parse(engage.DlzPersonality),
                 CombatDomainParser.Parse(engage.CombatDomain),
                 engage.MountOnline ?? true,
-                engage.ContactIdentified ?? true);
+                engage.ContactIdentified ?? true,
+                engage.CombatDomainsEnabled ?? false);
 
     private static RoeLevel ParseRoe(string value) =>
         Enum.TryParse<RoeLevel>(value, ignoreCase: true, out var roe)

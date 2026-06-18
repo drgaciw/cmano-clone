@@ -54,6 +54,8 @@ switch (command)
         return RunPlatformImportXlsx(args.Skip(1).ToArray());
     case "platform_diff_xlsx":
         return RunPlatformDiffXlsx(args.Skip(1).ToArray());
+    case "catalog_platform_browse":
+        return RunCatalogPlatformBrowse(args.Skip(1).ToArray());
     case "osint_staging_review":
         return RunOsintStagingReview(args.Skip(1).ToArray());
     case "osint_search":
@@ -333,6 +335,7 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_export_xlsx [--db <catalog.db>] --out <path> [--snapshot <id>] [--io closedxml|canonical]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_import_xlsx --db <catalog.db> --in <workbook> [--io closedxml|canonical]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_diff_xlsx [--db <catalog.db>] [--base <path>] [--edited <path>] [--io closedxml|canonical]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_platform_browse [--db <catalog.db>] [--max-records N]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_staging_review --db <catalog.db> [--approve <batchId>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_search [--db <fixture.json>]  # S21 MCP search_osint");
     // S21: osint_digest, osint_list_staging_proposals, osint_get_proposal_detail, osint_submit_review_decision
@@ -453,6 +456,16 @@ static int RunCatalogIntelligence(string[] args)
 {
     var db = CliArgParser.GetFlag(args, "--db");
     return CatalogIntelligenceRunCommand.Run(db, Console.Out);
+}
+
+static int RunCatalogPlatformBrowse(string[] args)
+{
+    var db = CliArgParser.GetFlag(args, "--db");
+    var maxRecords = CliArgParser.GetIntFlag(args, "--max-records", 0);
+    return CatalogPlatformBrowseCommand.Run(
+        db,
+        Console.Out,
+        maxRecords > 0 ? maxRecords : null);
 }
 
 static int RunCatalogWritePropose(string[] args)

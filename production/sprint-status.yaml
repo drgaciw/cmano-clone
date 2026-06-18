@@ -1089,20 +1089,24 @@ start: "2026-08-21"
 end: "2026-09-03"
 generated: "2026-06-18"
 updated: "2026-06-18"
-status: in-progress
+status: complete
+completed: "2026-06-18"
 branch: main
-indexed_commit: 9638a2c
+indexed_commit: pending-s26-closeout-commit
 gitnexus_indexed: "2026-06-18"
-gitnexus_nodes: 10385
-gitnexus_edges: 21510
+gitnexus_nodes: 10656
+gitnexus_edges: 22048
 tests_passed_sprint25_closeout: 661
 tests_passed_sprint26_baseline: 661
 tests_passed_sprint26_must_have: 669
 tests_passed_sprint26_should_have: 688
+tests_passed_sprint26_closeout: 698
 replay_golden_sprint26_must_have: pass
 replay_golden_sprint26_should_have: pass
+replay_golden_sprint26_closeout: pass
 story_done_confirmed: "2026-06-18"
-story_done_verdict: complete-should-have
+story_done_verdict: complete-full
+sprint26_closeout_date: "2026-06-18"
 kickoff: production/sprints/sprint-26-cmo-phase2-presentation-closeout.md
 qa_plan: production/qa/qa-plan-sprint-26-2026-06-18.md
 evidence:
@@ -1120,6 +1124,13 @@ evidence:
   - production/agentic/stacks/sprint26/S26-06-DONE.md
   - production/agentic/stacks/sprint26/S26-07-DONE.md
   - production/agentic/stacks/sprint26/S26-08-DONE.md
+  - production/agentic/stacks/sprint26/S26-09-DONE.md
+  - production/agentic/stacks/sprint26/S26-10-DONE.md
+  - production/agentic/stacks/sprint26/S26-11-DONE.md
+  - production/agentic/stacks/sprint26/S26-12-DONE.md
+  - production/qa/sprint-26-gitnexus-2026-06-18.md
+  - production/qa/smoke-sprint-26-closeout-2026-06-18.md
+  - production/qa/sprint-26-platform-viewer-spike-2026-06-18.md
 sprint26_stories:
   - id: "26-1"
     name: "Full-solution re-baseline"
@@ -1188,24 +1199,27 @@ sprint26_stories:
   - id: "26-9"
     name: "ADR-009 acceptance + validator stubs"
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 1.5
     blocker: "26-1"
-    note: "IDomainValidator no-op stubs; combatDomainsEnabled=false default"
+    completed: "2026-06-18"
+    note: "ADR-009 Accepted; DomainValidatorRegistry no-op stubs; combatDomainsEnabled=false default; 5 sim tests; ReplayGolden 6/6; evidence production/agentic/stacks/sprint26/S26-09-DONE.md"
   - id: "26-10"
     name: "ADR-011 Phase C platform viewer spike"
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 1.5
     blocker: "26-4"
-    note: "Read-only ICatalogReader browse; PROCEED/DEFER doc"
+    completed: "2026-06-18"
+    note: "CatalogPlatformBrowseProjection + CLI + PlatformCatalogViewerHost; PROCEED spike doc; 5 browse tests; ZERO touch DelegationBridge; evidence production/agentic/stacks/sprint26/S26-10-DONE.md"
   - id: "26-11"
     name: "Closeout hygiene"
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: ""
-    note: "Replay 6/6; GitNexus @ stack tip; tracker row 06; prune stack/sprint25/*"
+    completed: "2026-06-18"
+    note: "698/698; ReplayGolden 6/6; GitNexus 10656/22048; tracker row 06; stack/sprint25/* prune documented; evidence production/agentic/stacks/sprint26/S26-11-DONE.md"
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"

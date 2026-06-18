@@ -14,6 +14,8 @@ public sealed class MvpEngagementResolver : IEngagementResolver
     private readonly Func<ulong, EffectivePolicy>? _resolvePolicy;
     private readonly KilledTargetRegistry _killedTargets;
     private readonly ScenarioSpeculativeSettings _speculative;
+    private readonly bool _combatDomainsEnabled;
+    private readonly DomainValidatorRegistry _domainValidators;
     private ulong _nextEngagementId = 1;
 
     public MvpEngagementResolver(
@@ -23,7 +25,9 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         Func<ulong, EffectivePolicy>? resolvePolicy = null,
         SimSeed? seed = null,
         KilledTargetRegistry? killedTargets = null,
-        ScenarioSpeculativeSettings? speculative = null)
+        ScenarioSpeculativeSettings? speculative = null,
+        bool combatDomainsEnabled = false,
+        DomainValidatorRegistry? domainValidators = null)
     {
         _seed = seed ?? SimSeed.FromScenario(0);
         _world = world;
@@ -32,6 +36,8 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         _resolvePolicy = resolvePolicy;
         _killedTargets = killedTargets ?? new KilledTargetRegistry();
         _speculative = speculative ?? ScenarioSpeculativeSettings.CampaignDefault;
+        _combatDomainsEnabled = combatDomainsEnabled;
+        _domainValidators = domainValidators ?? DomainValidatorRegistry.MvpStubs;
     }
 
     public MagazineLedger Magazines => _magazines;
@@ -71,6 +77,15 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             if (!verdict.Allowed)
             {
                 return EngageResult.Aborted(MapPolicyDenial(verdict.Reason));
+            }
+        }
+
+        if (_combatDomainsEnabled)
+        {
+            var domainResult = _domainValidators.Validate(ctx.CombatDomain, in ctx);
+            if (!domainResult.Allowed)
+            {
+                return EngageResult.Aborted(MapDomainDenial(domainResult.AbortReason!.Value));
             }
         }
 
@@ -141,5 +156,13 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             FireAbortReason.EmconOff => EngagementAbortReason.EmconOff,
             FireAbortReason.NoFireControlTrack => EngagementAbortReason.NoFireControlTrack,
             _ => EngagementAbortReason.RoeHoldFire,
+        };
+
+    private static EngagementAbortReason MapDomainDenial(FireAbortReason reason) =>
+        reason switch
+        {
+            FireAbortReason.NoFireControlTrack => EngagementAbortReason.NoFireControlTrack,
+            FireAbortReason.EmconOff => EngagementAbortReason.EmconOff,
+            _ => EngagementAbortReason.DomainNoSolution,
         };
 }

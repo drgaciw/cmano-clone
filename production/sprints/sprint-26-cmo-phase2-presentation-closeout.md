@@ -126,3 +126,18 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 ## QA Plan
 
 `production/qa/qa-plan-sprint-26-2026-06-18.md`
+
+## Closeout (2026-06-18)
+
+**Verdict:** Sprint 26 **COMPLETE** — 11/11 stories done (must + should + nice-to-have).
+
+| Gate | Result |
+|------|--------|
+| Full solution tests | **698/698 PASS** |
+| ReplayGolden | **6/6 PASS** |
+| GitNexus | 10,656 nodes / 22,048 edges |
+| `DelegationBridge.cs` | ZERO touch |
+
+**Evidence:** `production/qa/smoke-sprint-26-closeout-2026-06-18.md`, `production/qa/sprint-26-gitnexus-2026-06-18.md`, `production/agentic/stacks/sprint26/S26-*-DONE.md`
+
+**Carry to S27:** ADR-009 runtime BDA (still stub-only); ADR-011 Phase C full editor UX; full CMO corpus nightly import; GitHub Actions billing remediation.

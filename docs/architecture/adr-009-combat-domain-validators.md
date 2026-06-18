@@ -2,7 +2,7 @@
 
 ## Status
 
-**Proposed**
+**Accepted** (S26-09 stub validators + `combatDomainsEnabled` default false; no runtime BDA)
 
 ## Date
 
@@ -10,7 +10,7 @@
 
 ## Last Verified
 
-2026-06-03 (architecture queue — not yet implemented)
+2026-06-18 (S26-09: `IDomainValidator` no-op stubs + registry; feature flag default off)
 
 ## Decision Makers
 

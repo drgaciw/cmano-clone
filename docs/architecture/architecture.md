@@ -152,7 +152,7 @@ Full matrix: expand as each GDD is approved (`/create-architecture` continuation
 | [ADR-006](adr-006-data-layer-boundary.md) | ProjectAegis.Data boundary, snapshots, write gate | **Accepted** |
 | [ADR-007](adr-007-c2-map-presentation.md) | C2 map presentation (phased globe) | **Accepted** |
 | [ADR-008](adr-008-mission-editor-validation-engine.md) | Mission editor deterministic validation | **Accepted** |
-| [ADR-009](adr-009-combat-domain-validators.md) | Combat domain validators & damage order | **Proposed** |
+| [ADR-009](adr-009-combat-domain-validators.md) | Combat domain validators & damage order | **Accepted** (S26-09 stubs) |
 | [ADR-010](adr-010-headless-first-command-driven-ui.md) | Headless-first command-driven UI | **Accepted** |
 
 ## Engine Note

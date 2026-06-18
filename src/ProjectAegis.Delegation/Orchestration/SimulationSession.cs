@@ -44,6 +44,8 @@ public sealed class SimulationSession
         var killedTargets = new KilledTargetRegistry();
         var speculative = orchestrator.ScenarioPolicy?.Speculative
             ?? ScenarioSpeculativeSettings.CampaignDefault;
+        var engageDefaults = orchestrator.ScenarioPolicy?.EngageDefaults
+            ?? ScenarioEngageDefaults.MvpFallback;
         var resolver = new MvpEngagementResolver(
             world,
             magazines,
@@ -51,7 +53,8 @@ public sealed class SimulationSession
             orchestrator.ResolveEffectivePolicyForUnit,
             seed,
             killedTargets,
-            speculative);
+            speculative,
+            engageDefaults.CombatDomainsEnabled);
         var sim = new SimTickPipeline(seed, resolver);
         return new SimulationSession(orchestrator, sim)
         {

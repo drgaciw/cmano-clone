@@ -271,4 +271,7 @@ public sealed class ScenarioEngageJsonDto
     public bool? MountOnline { get; set; }
 
     public bool? ContactIdentified { get; set; }
+
+    /// <summary>ADR-009: enable registry validators on engage path (default false).</summary>
+    public bool? CombatDomainsEnabled { get; set; }
 }
