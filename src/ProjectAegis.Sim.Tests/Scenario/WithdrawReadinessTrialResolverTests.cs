@@ -1,4 +1,5 @@
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 using Xunit;
@@ -46,6 +47,25 @@ public sealed class WithdrawReadinessTrialResolverTests
         Assert.Single(trials);
         Assert.Equal(0.25, trials[0].ReadinessScore);
         Assert.True(trials[0].WithdrawRecommended);
+    }
+
+    [Fact]
+    public void Catalog_withdraw_without_damage_rows_emits_neutral_unresolved_trial()
+    {
+        var profile = new ScenarioPolicyProfile(
+            EffectivePolicy.DefaultFree,
+            catalogWithdrawTargets:
+            [
+                new ScenarioCatalogWithdrawTarget("u1", 15),
+            ]);
+        var catalog = InMemoryCatalogReader.BalticPatrolFixture();
+
+        var trials = WithdrawReadinessTrialResolver.Resolve(profile, catalog);
+
+        Assert.Single(trials);
+        Assert.False(trials[0].CatalogResolved);
+        Assert.False(trials[0].WithdrawRecommended);
+        Assert.Equal(PhaseBCatalogDamageReadinessStub.NeutralReadinessScore, trials[0].ReadinessScore);
     }
 
     [Fact]

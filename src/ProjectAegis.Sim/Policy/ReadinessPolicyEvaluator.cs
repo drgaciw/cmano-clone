@@ -21,6 +21,11 @@ public static class ReadinessPolicyEvaluator
         ICatalogReader catalog) =>
         WithdrawReadinessTrialResolver.Resolve(profile, catalog);
 
+    public static CatalogMagazineResolver.MagazineReadiness EvaluateMagazine(
+        string platformId,
+        ICatalogReader catalog) =>
+        CatalogMagazineResolver.EvaluateInitialMagazine(platformId, catalog);
+
     public static EffectiveReadiness EvaluateUnit(
         string platformId,
         ScenarioPolicyProfile profile,

@@ -18,4 +18,8 @@ public static class CatalogSortKeyGoldenHashes
     /// <summary>Baltic CMO fixture including default loadouts + resolved magazine rows (S27-04).</summary>
     public const string BalticCmoImportWithFittings =
         "85e574cff8868a462aef5bdbe7e222c36d9154683c61d791560b4af4fd3461a6";
+
+    /// <summary>Curated ship-slice-100 platform v2 nightly fixture (S28-03).</summary>
+    public const string ShipSlice100PlatformV2 =
+        "f0712b4225b14186d080636afdbcb0cdacdba895bb3247ae1b274f6c4421db90";
 }

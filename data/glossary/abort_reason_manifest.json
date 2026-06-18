@@ -38,7 +38,8 @@
         { "logCode": "CYBER_SPOOF_TRACK", "member": "TrackSpoofed" },
         { "logCode": "AIR_ASPECT_BLOCK", "member": "AirAspectBlock" },
         { "logCode": "SURFACE_ASPECT_BLOCK", "member": "SurfaceAspectBlock" },
-        { "logCode": "SUBSURFACE_ASPECT_BLOCK", "member": "SubsurfaceAspectBlock" }
+        { "logCode": "SUBSURFACE_ASPECT_BLOCK", "member": "SubsurfaceAspectBlock" },
+        { "logCode": "DAMAGE_WITHDRAW_RECOMMENDED", "member": "DamageWithdrawRecommended" }
       ]
     },
     {

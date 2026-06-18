@@ -1,6 +1,6 @@
 ---
 id: S28-07
-status: Not Started
+status: Complete
 type: Integration
 priority: should-have
 graphite_branch: stack/sprint28/platform-write-ui
@@ -23,12 +23,12 @@ Read-only export trigger from Phase C platform catalog viewer; defers import/wri
 
 ## Acceptance Criteria
 
-- [ ] Viewer panel exposes export/diff trigger (read-only — no direct writes)
-- [ ] Export invokes CLI or data API path (not raw SQLite)
-- [ ] Headless export path test PASS
-- [ ] No `CatalogWriteGate` / `IWriteGate` bypass in viewer host
-- [ ] Import UI deferred to CLI authority (ADR-011 Excel-primary)
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] Viewer panel exposes export/diff trigger (read-only — no direct writes)
+- [x] Export invokes CLI or data API path (not raw SQLite)
+- [x] Headless export path test PASS
+- [x] No `CatalogWriteGate` / `IWriteGate` bypass in viewer host
+- [x] Import UI deferred to CLI authority (ADR-011 Excel-primary)
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

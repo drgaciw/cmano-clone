@@ -1,8 +1,11 @@
-// S27-08/15: ADR-011 Phase C read-only platform catalog browse with search/filter + detail pane (no write-gate bypass).
+// S27-08/15 + S28-07: ADR-011 Phase C read-only platform catalog browse with search/filter + detail pane
+// and read-only export/diff triggers (no write-gate bypass; import/write deferred to CLI).
 #if UNITY_5_3_OR_NEWER
+using System.IO;
 using System.Linq;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -13,6 +16,8 @@ namespace ProjectAegis.Unity.Runtime
     public sealed class PlatformCatalogViewerHost : MonoBehaviour
     {
         private const string RootName = "platform-catalog-root";
+        private const string ExportButtonName = "platform-catalog-export";
+        private const string DiffButtonName = "platform-catalog-diff";
         private const string SearchName = "platform-catalog-search";
         private const string ListName = "platform-catalog-list";
         private const string DetailLatName = "platform-catalog-detail-lat";
@@ -24,10 +29,16 @@ namespace ProjectAegis.Unity.Runtime
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;
         [SerializeField] private bool showPanel = true;
+        [SerializeField] private string databasePathForExport = string.Empty;
+        [SerializeField] private string exportOutFileName = "platform-catalog-export.platform.txt";
 
         private UIDocument _document = null!;
+        private Button? _exportButton;
+        private Button? _diffButton;
         private ListView? _platformList;
         private TextField? _searchField;
+        private string? _boundDatabasePath;
+        private string _boundSnapshotId = CatalogValidationDefaults.BalticSnapshotId;
         private Label? _detailLat;
         private Label? _detailLon;
         private Label? _detailRadius;
@@ -75,6 +86,15 @@ namespace ProjectAegis.Unity.Runtime
         public void BindReader(ICatalogReader reader) =>
             BindRows(CatalogPlatformBrowseProjection.FromReader(reader));
 
+        public void BindExportContext(string databasePath, string? snapshotId = null)
+        {
+            _boundDatabasePath = databasePath;
+            _boundSnapshotId = string.IsNullOrWhiteSpace(snapshotId)
+                ? CatalogValidationDefaults.BalticSnapshotId
+                : snapshotId;
+            TryWireElements();
+        }
+
         private void TryWireElements()
         {
             var root = _document.rootVisualElement;
@@ -109,6 +129,26 @@ namespace ProjectAegis.Unity.Runtime
                 }
             }
 
+            if (_exportButton == null)
+            {
+                _exportButton = root.Q<Button>(ExportButtonName);
+                if (_exportButton != null)
+                {
+                    _exportButton.clicked -= OnExportClicked;
+                    _exportButton.clicked += OnExportClicked;
+                }
+            }
+
+            if (_diffButton == null)
+            {
+                _diffButton = root.Q<Button>(DiffButtonName);
+                if (_diffButton != null)
+                {
+                    _diffButton.clicked -= OnDiffClicked;
+                    _diffButton.clicked += OnDiffClicked;
+                }
+            }
+
             _detailLat ??= root.Q<Label>(DetailLatName);
             _detailLon ??= root.Q<Label>(DetailLonName);
             _detailRadius ??= root.Q<Label>(DetailRadiusName);
@@ -116,6 +156,68 @@ namespace ProjectAegis.Unity.Runtime
             _detailSpeed ??= root.Q<Label>(DetailSpeedName);
 
             _wired = _platformList != null;
+        }
+
+        private string? ResolveDatabasePath()
+        {
+            if (!string.IsNullOrWhiteSpace(_boundDatabasePath))
+            {
+                return _boundDatabasePath;
+            }
+
+            return string.IsNullOrWhiteSpace(databasePathForExport) ? null : databasePathForExport;
+        }
+
+        private void OnExportClicked()
+        {
+            var databasePath = ResolveDatabasePath();
+            if (string.IsNullOrWhiteSpace(databasePath))
+            {
+                Debug.LogWarning("[PlatformCatalogViewerHost] Export skipped: no database path bound (use CLI platform_export_xlsx).");
+                return;
+            }
+
+            try
+            {
+                var outPath = Path.Combine(Application.persistentDataPath, exportOutFileName);
+                PlatformCatalogExportBridge.ExportToFile(
+                    databasePath,
+                    _boundSnapshotId,
+                    outPath,
+                    clockTicks: 0);
+                Debug.Log(
+                    $"[PlatformCatalogViewerHost] Export ok snapshot={_boundSnapshotId} out={outPath} " +
+                    "(canonical text; use CLI platform_export_xlsx for .xlsx).");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[PlatformCatalogViewerHost] Export failed: {ex.Message}");
+            }
+        }
+
+        private void OnDiffClicked()
+        {
+            var databasePath = ResolveDatabasePath();
+            if (string.IsNullOrWhiteSpace(databasePath))
+            {
+                Debug.LogWarning("[PlatformCatalogViewerHost] Diff skipped: no database path bound.");
+                return;
+            }
+
+            try
+            {
+                var changes = PlatformCatalogExportBridge.DiffUneditedRoundTrip(
+                    databasePath,
+                    _boundSnapshotId,
+                    clockTicks: 0);
+                Debug.Log(
+                    $"[PlatformCatalogViewerHost] Diff ok snapshot={_boundSnapshotId} diffCount={changes.Count} " +
+                    "(read-only; propose/approve remains CLI/Phase D).");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[PlatformCatalogViewerHost] Diff failed: {ex.Message}");
+            }
         }
 
         private void OnSelectionChanged(IEnumerable<object> selection)

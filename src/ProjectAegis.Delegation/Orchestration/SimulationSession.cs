@@ -36,7 +36,8 @@ public sealed class SimulationSession
     public static SimulationSession BindMvpEngagement(
         DelegationOrchestrator orchestrator,
         EngageContext defaultEngageContext,
-        int defaultMagazineRounds = 2)
+        int defaultMagazineRounds = 2,
+        ICatalogReader? catalogReader = null)
     {
         var seed = SimSeed.FromScenario((ulong)orchestrator.GlobalSeed);
         var world = new DictionaryEngageWorldQuery();
@@ -64,6 +65,7 @@ public sealed class SimulationSession
             MvpResolver = resolver,
             DefaultEngageContext = defaultEngageContext,
             DefaultMagazineRounds = defaultMagazineRounds,
+            CatalogReader = catalogReader,
         };
     }
 
@@ -83,7 +85,7 @@ public sealed class SimulationSession
         engage = CatalogEngageEnvelope.Apply(engage, catalog, weaponId);
         var rounds = profile?.EngageDefaults?.DefaultMagazineRounds
             ?? ScenarioEngageDefaults.MvpFallback.DefaultMagazineRounds;
-        return BindMvpEngagement(orchestrator, engage, rounds);
+        return BindMvpEngagement(orchestrator, engage, rounds, catalog);
     }
 
     public SimulationPhase Phase => Orchestrator.Phase;
@@ -283,6 +285,9 @@ public sealed class SimulationSession
 
     public int? DefaultMagazineRounds { get; init; }
 
+    /// <summary>ADR-006 read path for live magazine counts (Req-16).</summary>
+    public ICatalogReader? CatalogReader { get; init; }
+
     public UnitReadinessMap? UnitReadiness { get; set; }
 
     /// <summary>Catalog-resolved withdraw/readiness trials (bounded — no hot-tick damage apply).</summary>
@@ -308,6 +313,9 @@ public sealed class SimulationSession
         if (DefaultEngageContext is { } template)
         {
             var airReady = UnitReadiness?.IsReadyForLaunch(shooterUnitId) ?? true;
+            var damageWithdrawBlocked = CatalogDamageWithdrawEngageGate.BlocksEngage(
+                shooterUnitId,
+                CatalogWithdrawTrials);
             var victimId = state.PrimaryHostileContactId?.Value;
             var simTick = (ulong)Math.Max(0, (long)state.SimTime);
             var spoofed = IsContactSpoofed?.Invoke(victimId ?? "", simTick) ?? false;
@@ -318,6 +326,7 @@ public sealed class SimulationSession
                 HasFireControlTrack = state.HasFireControlTrack,
                 RadarEmconActive = state.RadarEmconActive,
                 AirOperationsReady = airReady,
+                CatalogDamageWithdrawBlocked = damageWithdrawBlocked,
                 TrackSpoofed = spoofed,
                 SalvoSize = Math.Max(1, salvo),
             };
@@ -328,9 +337,17 @@ public sealed class SimulationSession
             return;
         }
 
-        if (Magazines != null && DefaultMagazineRounds is int defaultRounds && defaultRounds > 0)
+        if (Magazines != null)
         {
-            Magazines.EnsureInitialRounds(request.ShooterUnitId, request.MountId, defaultRounds);
+            var fallbackRounds = DefaultMagazineRounds ?? 0;
+            CatalogMagazineLedgerSeeder.TrySeedInitialRounds(
+                Magazines,
+                CatalogReader,
+                shooterUnitId,
+                request.ShooterUnitId,
+                request.MountId,
+                fallbackRounds,
+                out _);
         }
     }
 }

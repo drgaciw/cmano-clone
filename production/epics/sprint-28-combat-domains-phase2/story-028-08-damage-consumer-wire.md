@@ -1,6 +1,6 @@
 ---
 id: S28-08
-status: Not Started
+status: Complete
 type: Integration
 priority: should-have
 graphite_branch: stack/sprint28/combat-phase2
@@ -23,14 +23,14 @@ Connect Phase B damage catalog to readiness/withdraw evaluation beyond S25 stub.
 
 ## Acceptance Criteria
 
-- [ ] `PhaseBCatalogDamageReadinessStub` (or successor) extended with catalog damage columns
-- [ ] Readiness/withdraw evaluation consumes catalog damage data
-- [ ] Sim tests PASS (`Combat|Domain|Damage|Readiness` filters)
-- [ ] `ReplayGoldenSuiteTests` — 6/6 PASS on default path
-- [ ] `/replay-verify` PASS on sim merge
-- [ ] No hot-tick world-state damage apply / full BDA component model
-- [ ] `combatDomainsEnabled=false` on Baltic production fixtures
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] `PhaseBCatalogDamageReadinessStub` (or successor) extended with catalog damage columns
+- [x] Readiness/withdraw evaluation consumes catalog damage data
+- [x] Sim tests PASS (`Combat|Domain|Damage|Readiness` filters)
+- [x] `ReplayGoldenSuiteTests` — 6/6 PASS on default path
+- [x] `/replay-verify` PASS on sim merge
+- [x] No hot-tick world-state damage apply / full BDA component model
+- [x] `combatDomainsEnabled=false` on Baltic production fixtures
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 
@@ -69,3 +69,4 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 - S26-05 pattern: `production/agentic/stacks/sprint26/S26-05-DONE.md`
 - Kickoff: `production/sprints/sprint-28-corpus-write-combat-v2.md` (S28-08)
 - QA plan: `production/qa/qa-plan-sprint-28-2026-09-18.md` *(create before implementation)*
+- Evidence: `production/agentic/stacks/sprint28/S28-08-DONE.md`

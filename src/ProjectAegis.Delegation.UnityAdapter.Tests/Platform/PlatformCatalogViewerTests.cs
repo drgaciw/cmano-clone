@@ -72,6 +72,8 @@ public sealed class PlatformCatalogViewerTests
         Assert.That("platform-catalog-detail-radius", Is.EqualTo("platform-catalog-detail-radius"));
         Assert.That("platform-catalog-detail-hp", Is.EqualTo("platform-catalog-detail-hp"));
         Assert.That("platform-catalog-detail-speed", Is.EqualTo("platform-catalog-detail-speed"));
+        Assert.That("platform-catalog-export", Is.EqualTo("platform-catalog-export"));
+        Assert.That("platform-catalog-diff", Is.EqualTo("platform-catalog-diff"));
     }
 
     [Test]
@@ -102,6 +104,8 @@ public sealed class PlatformCatalogViewerTests
                      "platform-catalog-detail-radius",
                      "platform-catalog-detail-hp",
                      "platform-catalog-detail-speed",
+                     "platform-catalog-export",
+                     "platform-catalog-diff",
                  })
         {
             Assert.That(uxml, Does.Contain($"name=\"{name}\""), $"Missing UXML element: {name}");
@@ -146,6 +150,43 @@ public sealed class PlatformCatalogViewerTests
         Assert.That(source, Does.Contain("CatalogPlatformBrowseRow"));
         Assert.That(source, Does.Contain("platform-catalog-detail-lat"));
         Assert.That(source, Does.Contain("platform-catalog-detail-speed"));
+        Assert.That(source, Does.Contain("platform-catalog-export"));
+        Assert.That(source, Does.Contain("PlatformCatalogExportBridge"));
+    }
+
+    [Test]
+    public void Export_trigger_with_baltic_fixture_produces_workbook_via_read_only_bridge()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-viewer-export-{Guid.NewGuid():N}.db");
+        var outPath = Path.Combine(Path.GetTempPath(), $"aegis-viewer-export-{Guid.NewGuid():N}.platform.txt");
+        try
+        {
+            CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
+
+            var workbook = ProjectAegis.Delegation.UnityAdapter.Bridge.PlatformCatalogExportBridge.ExportBalticWorkbook(
+                dbPath,
+                clockTicks: 9920);
+            Assert.That(workbook.Sheets, Is.Not.Empty);
+
+            ProjectAegis.Delegation.UnityAdapter.Bridge.PlatformCatalogExportBridge.ExportBalticToFile(
+                dbPath,
+                outPath,
+                clockTicks: 9921);
+            Assert.That(File.Exists(outPath), Is.True);
+        }
+        finally
+        {
+            Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+
+            if (File.Exists(outPath))
+            {
+                File.Delete(outPath);
+            }
+        }
     }
 
     [Test]
@@ -169,10 +210,13 @@ public sealed class PlatformCatalogViewerTests
         Assert.That(File.Exists(hostPath), Is.True);
 
         var source = File.ReadAllText(hostPath);
-        foreach (var token in new[] { "IWriteGate", "Propose", "ApproveBatch" })
+        foreach (var token in new[] { "IWriteGate", "CatalogWriteGate", "Propose", "ApproveBatch", "SqliteConnection" })
         {
             Assert.That(source, Does.Not.Contain(token), $"Viewer host must not reference {token}");
         }
+
+        Assert.That(source, Does.Contain("PlatformCatalogExportBridge"));
+        Assert.That(source, Does.Not.Contain("PlatformWorkbookWriteBridge"));
     }
 
     private static void AssertNoWriteGateTypes(Type projectionType)

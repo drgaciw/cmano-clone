@@ -22,4 +22,5 @@ public readonly record struct EngageContext(
     bool TrackSpoofed = false,
     bool AirAspectInEnvelope = true,
     bool SurfaceAspectInEnvelope = true,
-    bool SubsurfaceAspectInEnvelope = true);
+    bool SubsurfaceAspectInEnvelope = true,
+    bool CatalogDamageWithdrawBlocked = false);

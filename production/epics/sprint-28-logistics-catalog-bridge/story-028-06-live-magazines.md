@@ -1,6 +1,6 @@
 ---
 id: S28-06
-status: Not Started
+status: Complete
 type: Integration
 priority: should-have
 graphite_branch: stack/sprint28/live-magazines
@@ -23,12 +23,12 @@ Req 16 bridge: catalog loadout/magazine → engage readiness / validation. Wire 
 
 ## Acceptance Criteria
 
-- [ ] Catalog reader exposes loadout/magazine counts for engage readiness evaluation
-- [ ] Readiness tests PASS with catalog-sourced magazine counts
-- [ ] Engage validation uses live counts (not hardcoded stub values)
-- [ ] No direct SQLite writes outside write gate
-- [ ] `ReplayGoldenSuiteTests` — 6/6 unchanged on default path
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] Catalog reader exposes loadout/magazine counts for engage readiness evaluation
+- [x] Readiness tests PASS with catalog-sourced magazine counts
+- [x] Engage validation uses live counts (not hardcoded stub values)
+- [x] No direct SQLite writes outside write gate
+- [x] `ReplayGoldenSuiteTests` — 6/6 unchanged on default path
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

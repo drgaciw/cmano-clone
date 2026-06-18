@@ -1,9 +1,10 @@
 namespace ProjectAegis.Sim.Catalog;
 
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Sim.Scenario;
 
 /// <summary>
-/// Req-21 Phase B smoke: applies committed platform damage to catalog-resolved withdraw/readiness trials.
+/// Req-21 Phase B: applies committed platform damage to catalog-resolved withdraw/readiness trials.
 /// Additive-only — when <see cref="ICatalogReader.TryGetPlatformDamage"/> misses, inputs pass through unchanged.
 /// </summary>
 public static class PhaseBCatalogDamageReadinessStub
@@ -51,5 +52,24 @@ public static class PhaseBCatalogDamageReadinessStub
         const double criticalPenaltyPerFlag = 0.1;
         var penalty = Math.Min(0.5, damage.CriticalFlags * criticalPenaltyPerFlag);
         return Math.Clamp(hpNorm - penalty, 0.0, 1.0);
+    }
+
+    /// <summary>Maps catalog damage columns to a scenario trial DTO when damage resolves.</summary>
+    public static ScenarioWithdrawReadinessTrial? TryResolveScenarioTrial(
+        string platformId,
+        double currentHpPct,
+        ICatalogReader catalog)
+    {
+        var trial = EvaluateWithdrawReadiness(platformId, currentHpPct, catalog);
+        if (!trial.CatalogResolved)
+        {
+            return null;
+        }
+
+        return new ScenarioWithdrawReadinessTrial(
+            platformId,
+            trial.ReadinessScore,
+            trial.WithdrawRecommended,
+            CatalogResolved: true);
     }
 }

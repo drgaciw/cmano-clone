@@ -30,4 +30,17 @@ public sealed class InMemoryCatalogReaderTests
         Assert.True(reader.TryGetBasePd("u1", "radar-1", out var basePd));
         Assert.Equal(1.0, basePd);
     }
+
+    [Fact]
+    public void Baltic_magazine_fixture_exposes_sorted_loadout_and_magazine_rows()
+    {
+        var reader = InMemoryCatalogReader.BalticMagazineFixture(magazineQuantity: 16);
+
+        Assert.Single(reader.GetSortedLoadouts());
+        Assert.Equal("asuw-default", reader.GetSortedLoadouts()[0].LoadoutId);
+        Assert.True(reader.GetSortedLoadouts()[0].IsDefault);
+
+        Assert.Single(reader.GetSortedMagazines());
+        Assert.Equal(16, reader.GetSortedMagazines()[0].Quantity);
+    }
 }

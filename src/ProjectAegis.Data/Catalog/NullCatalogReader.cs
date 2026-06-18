@@ -57,4 +57,10 @@ public sealed class NullCatalogReader : ICatalogReader
         damage = new CatalogPlatformDamage(platformId);
         return false;
     }
+
+    public IReadOnlyList<CatalogMount> GetSortedMounts() => [];
+
+    public IReadOnlyList<CatalogLoadout> GetSortedLoadouts() => [];
+
+    public IReadOnlyList<CatalogMagazineEntry> GetSortedMagazines() => [];
 }

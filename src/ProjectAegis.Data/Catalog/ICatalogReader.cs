@@ -52,7 +52,17 @@ public interface ICatalogReader
     /// <summary>Req-21 Phase A: sorted mount rows (platform_id, mount_id).</summary>
     IReadOnlyList<CatalogMount> GetSortedMounts() => GetSortedMountsCore();
 
+    /// <summary>Req-21 Phase A: sorted loadout rows (platform_id, loadout_id).</summary>
+    IReadOnlyList<CatalogLoadout> GetSortedLoadouts() => GetSortedLoadoutsCore();
+
+    /// <summary>Req-16: sorted magazine rows (platform_id, loadout_id, mount_id, weapon_id).</summary>
+    IReadOnlyList<CatalogMagazineEntry> GetSortedMagazines() => GetSortedMagazinesCore();
+
     IReadOnlyList<CatalogMount> GetSortedMountsCore() => [];
+
+    IReadOnlyList<CatalogLoadout> GetSortedLoadoutsCore() => [];
+
+    IReadOnlyList<CatalogMagazineEntry> GetSortedMagazinesCore() => [];
 
     IReadOnlyList<CatalogMobility> GetSortedMobilityCore() => [];
 

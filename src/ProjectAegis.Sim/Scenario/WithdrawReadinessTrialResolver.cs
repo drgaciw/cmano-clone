@@ -24,16 +24,20 @@ public static class WithdrawReadinessTrialResolver
         foreach (var target in profile.CatalogWithdrawTargets
                      .OrderBy(t => t.PlatformId, StringComparer.Ordinal))
         {
-            var stubTrial = PhaseBCatalogDamageReadinessStub.EvaluateWithdrawReadiness(
-                target.PlatformId,
-                target.CurrentHpPct,
-                catalog);
+            if (PhaseBCatalogDamageReadinessStub.TryResolveScenarioTrial(
+                    target.PlatformId,
+                    target.CurrentHpPct,
+                    catalog) is { } resolvedTrial)
+            {
+                trials.Add(resolvedTrial);
+                continue;
+            }
 
             trials.Add(new ScenarioWithdrawReadinessTrial(
                 target.PlatformId,
-                stubTrial.ReadinessScore,
-                stubTrial.WithdrawRecommended,
-                stubTrial.CatalogResolved));
+                PhaseBCatalogDamageReadinessStub.NeutralReadinessScore,
+                WithdrawRecommended: false,
+                CatalogResolved: false));
         }
 
         return trials;

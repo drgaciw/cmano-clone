@@ -1,5 +1,6 @@
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Catalog;
+using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 using Xunit;
@@ -32,6 +33,25 @@ public sealed class PhaseBDamageCatalogConsumerTests
                     WithdrawThresholdPct: withdrawThresholdPct,
                     CriticalFlags: criticalFlags),
             ]);
+
+    private static InMemoryCatalogReader BalticPatrolWithSeededDamage(
+        double withdrawThresholdPct = 25,
+        int criticalFlags = 0)
+    {
+        var baltic = InMemoryCatalogReader.BalticPatrolFixture();
+        return new InMemoryCatalogReader(
+            baltic.GetSortedSensorBindings(),
+            $"{baltic.LayerVersion}+damage",
+            CatalogValidationDefaults.BalticPlatforms(),
+            damage:
+            [
+                new CatalogPlatformDamage(
+                    "u1",
+                    MaxHp: 100,
+                    WithdrawThresholdPct: withdrawThresholdPct,
+                    CriticalFlags: criticalFlags),
+            ]);
+    }
 
     [Fact]
     public void PhaseB_Legacy_catalog_without_damage_preserves_baseline_readiness()
@@ -173,5 +193,42 @@ public sealed class PhaseBDamageCatalogConsumerTests
 
         Assert.True(trial.CatalogResolved);
         Assert.False(trial.WithdrawRecommended);
+    }
+
+    [Fact]
+    public void PhaseB_Baltic_seeded_damage_fixture_changes_readiness_policy_outcome()
+    {
+        var profile = CatalogProfile(20);
+        var legacy = InMemoryCatalogReader.BalticPatrolFixture();
+        var withDamage = BalticPatrolWithSeededDamage();
+
+        var baseline = ReadinessPolicyEvaluator.EvaluateUnit("u1", profile, legacy);
+        var modified = ReadinessPolicyEvaluator.EvaluateUnit("u1", profile, withDamage);
+
+        Assert.False(baseline.CatalogResolved);
+        Assert.False(baseline.WithdrawRecommended);
+        Assert.True(modified.CatalogResolved);
+        Assert.True(modified.WithdrawRecommended);
+        Assert.NotEqual(baseline.ReadinessScore, modified.ReadinessScore);
+    }
+
+    [Fact]
+    public void PhaseB_Baltic_seeded_damage_fixture_blocks_engage_gate_when_withdraw_recommended()
+    {
+        var profile = CatalogProfile(20);
+        var catalog = BalticPatrolWithSeededDamage();
+        var trials = ReadinessPolicyEvaluator.ResolveCatalogTrials(profile, catalog);
+
+        Assert.True(CatalogDamageWithdrawEngageGate.BlocksEngage("u1", trials));
+    }
+
+    [Fact]
+    public void PhaseB_Try_resolve_scenario_trial_returns_null_when_damage_absent()
+    {
+        var catalog = InMemoryCatalogReader.BalticPatrolFixture();
+
+        var trial = PhaseBCatalogDamageReadinessStub.TryResolveScenarioTrial("u1", 10, catalog);
+
+        Assert.Null(trial);
     }
 }

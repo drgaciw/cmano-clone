@@ -1,6 +1,10 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="platform-catalog-root" class="platform-catalog-panel">
         <ui:Label text="PLATFORM CATALOG" class="platform-catalog-title" />
+        <ui:VisualElement class="platform-catalog-actions">
+            <ui:Button name="platform-catalog-export" text="Export" class="platform-catalog-action-button" />
+            <ui:Button name="platform-catalog-diff" text="Diff" class="platform-catalog-action-button" />
+        </ui:VisualElement>
         <ui:TextField name="platform-catalog-search" class="platform-catalog-search" label="Filter" />
         <ui:ListView name="platform-catalog-list" class="platform-catalog-list" selection-type="Single" />
         <ui:VisualElement name="platform-catalog-detail" class="platform-catalog-detail">

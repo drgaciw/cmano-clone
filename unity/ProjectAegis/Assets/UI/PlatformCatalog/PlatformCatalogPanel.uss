@@ -11,6 +11,16 @@
     margin-bottom: 4px;
 }
 
+.platform-catalog-actions {
+    flex-direction: row;
+    margin-bottom: 4px;
+}
+
+.platform-catalog-action-button {
+    margin-right: 4px;
+    min-width: 64px;
+}
+
 .platform-catalog-search {
     margin-bottom: 6px;
 }

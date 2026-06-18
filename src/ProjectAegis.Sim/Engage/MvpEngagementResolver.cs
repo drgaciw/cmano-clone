@@ -94,6 +94,12 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(EngagementAbortReason.AirNotReady);
         }
 
+        var damageWithdrawAbort = CatalogDamageWithdrawEngageGate.Evaluate(in ctx);
+        if (damageWithdrawAbort != null)
+        {
+            return EngageResult.Aborted(damageWithdrawAbort.Value);
+        }
+
         if (ctx.TrackSpoofed)
         {
             return EngageResult.Aborted(EngagementAbortReason.TrackSpoofed);

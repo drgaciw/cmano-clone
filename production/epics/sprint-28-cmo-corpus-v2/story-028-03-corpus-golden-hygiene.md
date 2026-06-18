@@ -1,6 +1,6 @@
 ---
 id: S28-03
-status: Not Started
+status: Complete
 type: Integration
 priority: must-have
 graphite_branch: stack/sprint28/corpus-golden
@@ -23,13 +23,13 @@ Extend import golden tests for v2 nightly platform output on **curated fixtures*
 
 ## Acceptance Criteria
 
-- [ ] `CmoMarkdownImportGoldenTests` extended for platform v2 curated slice + hash pin
-- [ ] Re-import identical curated platform slice → stable ordering hash
-- [ ] WriteGate regression: sensor + Phase A/B + damage + platform PASS
-- [ ] `ReplayGoldenSuiteTests` — 6/6 unchanged
-- [ ] Platform corpus round-trip through `CatalogWriteGate` (propose→approve on fixture)
-- [ ] No 7208-record sensor in CI tests
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] `CmoMarkdownImportGoldenTests` extended for platform v2 curated slice + hash pin
+- [x] Re-import identical curated platform slice → stable ordering hash
+- [x] WriteGate regression: sensor + Phase A/B + damage + platform PASS
+- [x] `ReplayGoldenSuiteTests` — 6/6 unchanged
+- [x] Platform corpus round-trip through `CatalogWriteGate` (propose→approve on fixture)
+- [x] No 7208-record sensor in CI tests
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 
@@ -69,3 +69,10 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 - S26-04 pattern: `production/agentic/stacks/sprint26/S26-04-DONE.md`
 - Kickoff: `production/sprints/sprint-28-corpus-write-combat-v2.md` (S28-03)
 - QA plan: `production/qa/qa-plan-sprint-28-2026-09-18.md` *(create before implementation)*
+
+## Completion Notes
+**Completed**: 2026-06-18
+**Criteria**: 7/7 passing
+**Deviations**: None
+**Test Evidence**: `src/ProjectAegis.Data.Tests/Import/CmoMarkdownImportGoldenTests.cs`, `production/agentic/stacks/sprint28/S28-03-DONE.md`
+**Code Review**: Skipped (lean mode)

@@ -9,6 +9,8 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     private readonly CatalogSignature[] _signatures;
     private readonly CatalogPlatformDamage[] _damage;
     private readonly CatalogMount[] _mounts;
+    private readonly CatalogLoadout[] _loadouts;
+    private readonly CatalogMagazineEntry[] _magazines;
 
     public InMemoryCatalogReader(
         IEnumerable<CatalogSensorBinding> bindings,
@@ -16,7 +18,9 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         IEnumerable<CatalogPlatformEntry>? platforms = null,
         IEnumerable<CatalogSignature>? signatures = null,
         IEnumerable<CatalogPlatformDamage>? damage = null,
-        IEnumerable<CatalogMount>? mounts = null)
+        IEnumerable<CatalogMount>? mounts = null,
+        IEnumerable<CatalogLoadout>? loadouts = null,
+        IEnumerable<CatalogMagazineEntry>? magazines = null)
     {
         LayerVersion = layerVersion;
         _bindings = bindings
@@ -38,6 +42,16 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             .OrderBy(m => m.PlatformId, StringComparer.Ordinal)
             .ThenBy(m => m.MountId, StringComparer.Ordinal)
             .ToArray();
+        _loadouts = (loadouts ?? Array.Empty<CatalogLoadout>())
+            .OrderBy(l => l.PlatformId, StringComparer.Ordinal)
+            .ThenBy(l => l.LoadoutId, StringComparer.Ordinal)
+            .ToArray();
+        _magazines = (magazines ?? Array.Empty<CatalogMagazineEntry>())
+            .OrderBy(m => m.PlatformId, StringComparer.Ordinal)
+            .ThenBy(m => m.LoadoutId, StringComparer.Ordinal)
+            .ThenBy(m => m.MountId, StringComparer.Ordinal)
+            .ThenBy(m => m.WeaponId, StringComparer.Ordinal)
+            .ToArray();
     }
 
     public string LayerVersion { get; }
@@ -50,6 +64,24 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         ],
         "p0-baltic-fixture",
         CatalogValidationDefaults.BalticPlatforms());
+
+    /// <summary>Baltic patrol + default loadout/magazine rows for Req-16 engage readiness tests.</summary>
+    public static InMemoryCatalogReader BalticMagazineFixture(int magazineQuantity = 2) =>
+        new(
+        [
+            new CatalogSensorBinding("u1", "radar-1", 1.0, "baltic-fixture-radar1"),
+            new CatalogSensorBinding("u1", "radar-2", 0.75, "baltic-fixture-radar2"),
+        ],
+        "p0-baltic-magazine-fixture",
+        CatalogValidationDefaults.BalticPlatforms(),
+        loadouts:
+        [
+            new CatalogLoadout("u1", "asuw-default", "ASUW Default", "asuw", IsDefault: true),
+        ],
+        magazines:
+        [
+            new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", CatalogWeaponIds.MvpDefault, magazineQuantity),
+        ]);
 
     public IReadOnlyList<CatalogSensorBinding> GetSortedSensorBindings() => _bindings;
 
@@ -97,6 +129,10 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     public IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamage() => _damage;
 
     public IReadOnlyList<CatalogMount> GetSortedMounts() => _mounts;
+
+    public IReadOnlyList<CatalogLoadout> GetSortedLoadouts() => _loadouts;
+
+    public IReadOnlyList<CatalogMagazineEntry> GetSortedMagazines() => _magazines;
 
     public bool TryGetMobility(string platformId, out CatalogMobility mobility)
     {

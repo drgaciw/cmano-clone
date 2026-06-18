@@ -111,6 +111,76 @@ public sealed class CmoMarkdownImportGoldenTests
     }
 
     [Fact]
+    public void Platform_ship_slice100_reimport_identical_slice_preserves_catalog_ordering_hash()
+    {
+        var platformPath = CmoMarkdownImporter.ResolveShipSlice100FixturePath();
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-s28-golden-platform-{Guid.NewGuid():N}.db");
+
+        try
+        {
+            var hashBefore = ImportApproveAndHashPlatforms(dbPath, platformPath, clockSeed: 28031);
+            var hashAfter = ImportApproveAndHashPlatforms(dbPath, platformPath, clockSeed: 28032);
+            Assert.Equal(hashBefore, hashAfter);
+            Assert.Equal(CatalogSortKeyGoldenHashes.ShipSlice100PlatformV2, hashBefore);
+        }
+        finally
+        {
+            SqliteConnection.ClearAllPools();
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Fact]
+    public void Platform_ship_slice100_corpus_roundtrip_through_WriteGate_pins_ordering_hash()
+    {
+        var platformPath = CmoMarkdownImporter.ResolveShipSlice100FixturePath();
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-s28-platform-roundtrip-{Guid.NewGuid():N}.db");
+
+        try
+        {
+            var proposed = CmoMarkdownImportProposer.ProposePlatformsFromMarkdown(
+                dbPath,
+                platformPath,
+                mapBalticPlatformIds: false,
+                maxRecords: null,
+                chunkSize: 500,
+                clock: new FixedCatalogClock(28033));
+
+            Assert.Equal(100, proposed.ParsedCount);
+            Assert.Equal(100, proposed.ApprovedCount);
+            Assert.Single(proposed.Batches);
+            Assert.Equal(100, proposed.Batches[0].RecordCount);
+
+            using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(28034)))
+            {
+                Assert.True(gate.ApproveBatch(proposed.Batches[0].BatchId, "human", "s28-golden").Committed);
+            }
+
+            var fixture = new CatalogSortKeyFixture(
+                Sensors: [],
+                Platforms: CmoMarkdownImporter.ReadPlatformBindings(platformPath, mapBalticIds: false),
+                Weapons: [],
+                Mounts: [],
+                Loadouts: [],
+                Magazines: [],
+                Comms: []);
+
+            Assert.Equal(CatalogSortKeyGoldenHashes.ShipSlice100PlatformV2, CatalogSortKeyComparer.ComputeOrderingHash(fixture));
+        }
+        finally
+        {
+            SqliteConnection.ClearAllPools();
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Fact]
     public void Sensor_import_path_unchanged_after_weapon_platform_cli_additions()
     {
         var markdown = CmoMarkdownImporter.ResolveMiniFixturePath();
@@ -202,6 +272,36 @@ public sealed class CmoMarkdownImportGoldenTests
             Mounts: CmoMarkdownImporter.ReadPlatformMounts(platformPath, mapBalticIds: true),
             Loadouts: CmoMarkdownImporter.ReadPlatformLoadouts(platformPath, mapBalticIds: true),
             Magazines: magazines,
+            Comms: []);
+
+        return CatalogSortKeyComparer.ComputeOrderingHash(fixture);
+    }
+
+    private static string ImportApproveAndHashPlatforms(string dbPath, string platformPath, long clockSeed)
+    {
+        var proposed = CmoMarkdownImportProposer.ProposePlatformsFromMarkdown(
+            dbPath,
+            platformPath,
+            mapBalticPlatformIds: false,
+            maxRecords: null,
+            chunkSize: 500,
+            clock: new FixedCatalogClock(clockSeed));
+
+        using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(clockSeed + 1)))
+        {
+            foreach (var batch in proposed.Batches)
+            {
+                Assert.True(gate.ApproveBatch(batch.BatchId, "human", "s28-golden").Committed);
+            }
+        }
+
+        var fixture = new CatalogSortKeyFixture(
+            Sensors: [],
+            Platforms: CmoMarkdownImporter.ReadPlatformBindings(platformPath, mapBalticIds: false),
+            Weapons: [],
+            Mounts: [],
+            Loadouts: [],
+            Magazines: [],
             Comms: []);
 
         return CatalogSortKeyComparer.ComputeOrderingHash(fixture);

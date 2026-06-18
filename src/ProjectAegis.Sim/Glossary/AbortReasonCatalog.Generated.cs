@@ -38,6 +38,7 @@ public static partial class AbortReasonCatalog
         public const string AIR_ASPECT_BLOCK = "AIR_ASPECT_BLOCK";
         public const string SURFACE_ASPECT_BLOCK = "SURFACE_ASPECT_BLOCK";
         public const string SUBSURFACE_ASPECT_BLOCK = "SUBSURFACE_ASPECT_BLOCK";
+        public const string DAMAGE_WITHDRAW_RECOMMENDED = "DAMAGE_WITHDRAW_RECOMMENDED";
     }
 
     public static class Logistics
