@@ -2,6 +2,10 @@
 
 ADR-008 headless tools for Unity-MCP and CI. No Unity required.
 
+> **Full verb index, exit-code/JSON contract, and CLI↔MCP mapping:**
+> [`docs/engineering/mission-editor-cli-reference.md`](../../docs/engineering/mission-editor-cli-reference.md).
+> This file shows the common quick-start wrappers; the reference is the complete contract.
+
 ## `scenario_validate`
 
 ```powershell
