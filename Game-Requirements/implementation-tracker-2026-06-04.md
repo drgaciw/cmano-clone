@@ -1,7 +1,7 @@
 # Game Requirements — Implementation Tracker
 
-**Base:** `main` @ `afd2e1a` (`afd2e1a` on `main`)
-**Last Updated:** 2026-06-08 (Sprints 11–15 program closeout + Sprint 21 baseline)
+**Base:** `main` @ `bd225ae` (`bd225ae` on `main`)
+**Last Updated:** 2026-06-18 (S25-12 closeout — Req 21 Phase B complete)
 **Index:** [Game-Requirements-Index.md](Game-Requirements-Index.md) | [00-Master-Index.md](../00-Master-Index.md)
 
 ## Verdict
@@ -50,7 +50,7 @@ pwsh tools/unity/Invoke-ManualQaHeadlessGate.ps1
 | 18 | Combat Domains | **Partial** | `CombatDomainValidator`, `MountOffline`/`DomainNoSolution` abort codes | Mine/land runtime; facility damage |
 | 19 | Cyber & Comms | **Partial** | `SpoofTrackTimelineSimulator`, `BalticReplayHarnessSpoofTests`, `tests/regression/replay-golden-baltic-spoof-2026-06-04.txt`, `CYBER_SPOOF_TRACK` | JADC2 node damage; ECCM Phase 2 |
 | 20 | Command & Control UI | **Partial** | `RightUnitPanelHost`, `DelegationBridgeAttackOptionTests`, `AttackMenuPanelBinderTests`, `UnitDetailPanelBinderAttackMenuTests`, [c2-automated-proxy-2026-06-02.md](../production/qa/c2-automated-proxy-2026-06-02.md), [pi-006-headless-proxy-2026-06-04.md](../production/qa/pi-006-headless-proxy-2026-06-04.md) | Globe map; Unity manual C2 sign-off (S19-01 pending) |
-| 21 | Platform Editor (Excel round-trip) | **Partial — Phase B import→write-gate commit loop (S24-02..04)** | Req [21-Platform-Editor.md](requirements/21-Platform-Editor.md), [ADR-011](../docs/architecture/adr-011-platform-editor-excel-roundtrip.md); Phase A: migration `007`, mounts/loadouts/magazines/comms, `IPlatformWorkbookIo` + exporter/diff/validator/importer; Phase B (S23-05): migration `008`, `CatalogSignature`/`CatalogMobility`/`CatalogEmcon`, exporter sheets; **S24-02** `ICatalogReader` Phase B reads + CLI snapshot resolver; **S24-03** `CatalogWriteGate` extend-only `Propose*/ApproveBatch` for Phase B staging; **S24-04** `PlatformWorkbookImporter` Mobility/Signatures/Emcon + round-trip golden (`PlatformWorkbookPhaseBImportTests`); tests `CatalogPhaseBReaderTests`, `CatalogWriteGatePhaseBApproveTests` | Phase B validator rule pack (S24-05 parallel); sim consumer (S24-06 parallel); damage-model columns; ClosedXML Phase B UX (S24-11) |
+| 21 | Platform Editor (Excel round-trip) | **Partial — Phase B complete (S24-02..06 + S25-02..06)** | Req [21-Platform-Editor.md](requirements/21-Platform-Editor.md), [ADR-011](../docs/architecture/adr-011-platform-editor-excel-roundtrip.md); Phase A: migration `007`, mounts/loadouts/magazines/comms; Phase B: migration `008` Mobility/Signatures/Emcon + migration `009` platform damage (`MaxHp`, `WithdrawThresholdPct`, `CriticalFlags` on Platforms sheet); **S24-02..06** reader/export, write-gate, importer, validator, sim consumer; **S25-02..06** damage schema/reader/export, `ProposePlatformDamageBatch`, importer E2E, validator rule pack; **S25-07** ClosedXML enum dropdowns (S24-11); tests `CatalogPhaseBReaderTests`, `CatalogPhaseBDamageMigrationTests`, `CatalogPhaseBDamageReaderTests`, `CatalogWriteGatePhaseBDamageTests`, `CatalogPhaseBDamageValidationTests`, `PlatformWorkbookPhaseBImportTests`; evidence [sprint-25-gitnexus-2026-06-18.md](../production/qa/sprint-25-gitnexus-2026-06-18.md) | Phase C in-engine viewer (ADR-011); damage sim consumer stub (S25-13); CMO catalog Phase 2 import |
 
 ## Research open gaps (P1)
 

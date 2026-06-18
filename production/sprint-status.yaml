@@ -912,11 +912,17 @@ end: "2026-08-20"
 generated: "2026-06-18"
 updated: "2026-06-18"
 status: in-progress
-branch: stack/sprint25/full-sln-gate
-indexed_commit: 9ecbf2c
+branch: stack/sprint25/closeout-gitnexus
+indexed_commit: bd225ae
+gitnexus_indexed: "2026-06-18"
+gitnexus_nodes: 10171
+gitnexus_edges: 21083
 tests_passed_sprint24_closeout: 592
 tests_passed_sprint25_baseline: 592
+tests_passed_sprint25_closeout: 639
+replay_golden_sprint25_closeout: pass
 sprint25_baseline_date: "2026-06-18"
+sprint25_closeout_date: "2026-06-18"
 kickoff: production/sprints/sprint-25-phase-b-damage-assurance.md
 parallel_kickoff: production/agentic/sprint-25-parallel-kickoff-2026-06-17.md
 track_plans:
@@ -943,6 +949,8 @@ evidence:
   - production/agentic/sprint-25-parallel-kickoff-2026-06-17.md
   - production/qa/qa-plan-sprint-25-2026-06-17.md
   - production/qa/smoke-sprint-25-2026-06-17.md
+  - production/qa/sprint-25-gitnexus-2026-06-18.md
+  - production/agentic/stacks/sprint25/S25-12-DONE.md
 sprint25_stories:
   - id: "25-1"
     name: "Full-solution re-baseline"
@@ -955,53 +963,67 @@ sprint25_stories:
   - id: "25-2"
     name: "Damage schema migration 009"
     priority: must-have
-    status: backlog
+    status: done
     estimate_days: 1
     blocker: "25-1"
-    note: "CatalogPlatformDamage types; Baltic fixture seed"
+    completed: "2026-06-18"
+    note: "PR #214; migration 009 + CatalogPlatformDamage; Baltic fixture seeded"
   - id: "25-3"
     name: "Damage reader + export"
     priority: must-have
-    status: backlog
+    status: done
     estimate_days: 1.5
     blocker: "25-2"
+    completed: "2026-06-18"
+    note: "PR #215; TryGetPlatformDamage + Platforms export columns"
   - id: "25-4"
     name: "Damage write-gate commit"
     priority: must-have
-    status: backlog
+    status: done
     estimate_days: 2
     blocker: "25-3"
+    completed: "2026-06-18"
+    note: "PR #216; extend-only ProposePlatformDamageBatch + ApproveBatch"
   - id: "25-5"
     name: "Damage importer E2E"
     priority: must-have
-    status: backlog
+    status: done
     estimate_days: 1.5
     blocker: "25-4"
+    completed: "2026-06-18"
+    note: "PR #217; empty-diff golden + read-back; damage path complete"
   - id: "25-6"
     name: "Damage validator rule pack"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1
     blocker: "25-5"
+    completed: "2026-06-18"
+    note: "PR #218; PLE-DMG-* rules + validation hash golden"
   - id: "25-7"
     name: "S24-11 ClosedXML carryover"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1
     blocker: "25-1"
-    note: "stack/sprint24/closedxml-phase-b-ux rebased @ a9db122"
+    completed: "2026-06-18"
+    note: "PR #219; Emcon enum dropdowns + binary golden"
   - id: "25-8"
     name: "APP-6 glyph atlas MVP"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1.5
     blocker: "25-1"
+    completed: "2026-06-18"
+    note: "PR #221; App6GlyphAtlas + USS frames; 639 tests"
   - id: "25-9"
     name: "Cesium Editor evidence"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1
     blocker: "25-1"
+    completed: "2026-06-18"
+    note: "PR #220; cesium-s25-*.png protocol placeholders + smoke 12/12"
   - id: "25-10"
     name: "S24-10 EMCON panel merge"
     priority: should-have
@@ -1018,9 +1040,11 @@ sprint25_stories:
   - id: "25-12"
     name: "Closeout hygiene"
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: ""
+    completed: "2026-06-18"
+    note: "Replay 6/6; GitNexus @ bd225ae; tracker row 21 Phase B complete; sprint24 branches pruned; evidence production/qa/sprint-25-gitnexus-2026-06-18.md; re-run before S25-10/11 final merge"
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
