@@ -560,7 +560,7 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 27
+current_sprint: 28
 requirements_program: complete
 requirements_program_completed: "2026-06-04"
 sprints_11_15_closeout: complete
@@ -1284,7 +1284,7 @@ evidence:
   - production/qa/sprint-27-ci-hygiene-2026-06-18.md
   - production/qa/sprint-27-gitnexus-2026-06-18.md
   - production/qa/smoke-sprint-27-closeout-2026-06-18.md
-next_backlog: production/sprints/sprint-27-cmo-corpus-combat-bounded.md
+next_backlog: production/sprints/sprint-28-corpus-write-combat-v2.md
 sprint27_stories:
   - id: "27-1"
     name: "Full-solution re-baseline"
@@ -1425,6 +1425,136 @@ sprint27_stories:
     blocker: "27-5"
     completed: "2026-06-18"
     note: "ADR-009 validation criteria 1-4 closed; combat-domains-smoke test fixture; pinned world hash 17144800277401907079; ReplayGolden 6/6 unchanged; evidence production/agentic/stacks/sprint27/S27-16-DONE.md"
+
+sprint: 28
+goal: "Nightly CMO platform corpus v2; ADR-011 Phase D Excel write path; ADR-009 surface/subsurface validators."
+start: "2026-09-18"
+end: "2026-10-01"
+generated: "2026-06-18"
+updated: "2026-06-18"
+status: planned
+branch: main
+indexed_commit: a93b55e
+tests_passed_sprint27_closeout: 741
+tests_passed_sprint28_baseline: 741
+kickoff: production/sprints/sprint-28-corpus-write-combat-v2.md
+parallel_kickoff: production/agentic/sprint-28-parallel-kickoff-2026-06-18.md
+qa_plan: ""
+epics:
+  - production/epics/sprint-28-cmo-corpus-v2/EPIC.md
+  - production/epics/sprint-28-platform-editor-write/EPIC.md
+  - production/epics/sprint-28-combat-domains-phase2/EPIC.md
+  - production/epics/sprint-28-logistics-catalog-bridge/EPIC.md
+  - production/epics/sprint-28-closeout-devops/EPIC.md
+evidence:
+  - production/sprints/sprint-28-corpus-write-combat-v2.md
+  - production/agentic/sprint-28-parallel-kickoff-2026-06-18.md
+sprint28_stories:
+  - id: "28-1"
+    name: "Full-solution re-baseline"
+    file: production/epics/sprint-28-closeout-devops/story-028-01-full-sln-gate.md
+    priority: must-have
+    status: ready-for-dev
+    estimate_days: 1
+    blocker: ""
+    completed: ""
+  - id: "28-2"
+    name: "Nightly CMO corpus v2 — platform slices"
+    file: production/epics/sprint-28-cmo-corpus-v2/story-028-02-nightly-platform-corpus.md
+    priority: must-have
+    status: ready-for-dev
+    estimate_days: 2
+    blocker: "28-1"
+    completed: ""
+  - id: "28-3"
+    name: "Platform corpus E2E + golden hygiene"
+    file: production/epics/sprint-28-cmo-corpus-v2/story-028-03-corpus-golden-hygiene.md
+    priority: must-have
+    status: backlog
+    estimate_days: 1
+    blocker: "28-2"
+    completed: ""
+  - id: "28-4"
+    name: "ADR-011 Phase D — in-engine Excel write path"
+    file: production/epics/sprint-28-platform-editor-write/story-028-04-excel-write-path.md
+    priority: must-have
+    status: ready-for-dev
+    estimate_days: 2.5
+    blocker: "28-1"
+    completed: ""
+  - id: "28-5"
+    name: "Surface/subsurface domain validators (bounded)"
+    file: production/epics/sprint-28-combat-domains-phase2/story-028-05-surface-validators.md
+    priority: should-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "28-1"
+    completed: ""
+  - id: "28-6"
+    name: "Live magazine counts from catalog"
+    file: production/epics/sprint-28-logistics-catalog-bridge/story-028-06-live-magazines.md
+    priority: should-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "28-3"
+    completed: ""
+  - id: "28-7"
+    name: "Platform viewer export/diff hook"
+    file: production/epics/sprint-28-platform-editor-write/story-028-07-viewer-export-hook.md
+    priority: should-have
+    status: backlog
+    estimate_days: 1
+    blocker: "28-4"
+    completed: ""
+  - id: "28-8"
+    name: "Damage sim consumer wire (beyond stub)"
+    file: production/epics/sprint-28-combat-domains-phase2/story-028-08-damage-consumer-wire.md
+    priority: should-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "28-1"
+    completed: ""
+  - id: "28-9"
+    name: "Facility damage projection stub"
+    file: production/epics/sprint-28-combat-domains-phase2/story-028-09-facility-damage-stub.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 1
+    blocker: "28-5"
+    completed: ""
+  - id: "28-10"
+    name: "Balance drift telemetry consumer"
+    file: production/epics/sprint-28-combat-domains-phase2/story-028-10-balance-drift-consumer.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: "28-1"
+    completed: ""
+  - id: "28-11"
+    name: "TL branching spike (export-only)"
+    file: production/epics/sprint-28-cmo-corpus-v2/story-028-11-tl-branching-spike.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 1
+    blocker: "28-2"
+    completed: ""
+  - id: "28-12"
+    name: "CI/local gate refresh"
+    file: production/epics/sprint-28-closeout-devops/story-028-12-ci-hygiene.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.25
+    blocker: "28-1"
+    completed: ""
+  - id: "28-13"
+    name: "Closeout hygiene"
+    file: production/epics/sprint-28-closeout-devops/story-028-13-closeout-hygiene.md
+    priority: should-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: ""
+    completed: ""
+next_backlog: production/sprints/sprint-28-corpus-write-combat-v2.md
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
