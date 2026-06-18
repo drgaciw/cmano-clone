@@ -61,6 +61,11 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/MessageLog/MessageLogPanel.uxml",
                 "Assets/UI/MessageLog/MessageLogPanel.uss");
+            CreatePanelHost<DoctrineInheritancePanelHost>(
+                "DoctrineInheritance",
+                bridge,
+                "Assets/UI/DoctrineInheritance/DoctrineInheritancePanel.uxml",
+                "Assets/UI/DoctrineInheritance/DoctrineInheritancePanel.uss");
 
             var scenesDir = "Assets/Scenes";
             if (!AssetDatabase.IsValidFolder(scenesDir))

@@ -185,8 +185,11 @@ public sealed class PlayModeSmokeHarnessTests
         var entry = DoctrineInheritanceProjection.ProjectUnit(unitId, policy, isFriendly: true);
         var panel = DoctrineInheritancePanelBinder.Bind(entry);
         Assert.That(panel.RoeLine, Does.Contain("WeaponsTight"));
+        Assert.That(panel.SalvoLine, Does.Contain("SALVO:"));
         Assert.That(panel.SourceLine, Does.Contain("Mission"));
+        Assert.That(panel.OverrideLine, Does.Contain("OVERRIDE:"));
         Assert.That(panel.CanOverride, Is.False);
+        Assert.That(panel.RoeOptions, Has.Count.EqualTo(3));
 
         Assert.That(
             DoctrineOverrideCommand.TryApply(bridge.Orchestrator, unitId, "HoldFire", simTime: 1.0),
@@ -204,6 +207,77 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(
             DoctrineOverrideCommand.TryApply(bridge.Orchestrator, unitId, "HoldFire", simTime: 2.0),
             Is.False);
+    }
+
+    [Test]
+    public void Doctrine_panel_uxml_assets_define_host_element_names()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var uxmlPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "UI",
+            "DoctrineInheritance",
+            "DoctrineInheritancePanel.uxml");
+        var ussPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "UI",
+            "DoctrineInheritance",
+            "DoctrineInheritancePanel.uss");
+
+        Assert.That(File.Exists(uxmlPath), Is.True);
+        Assert.That(File.Exists(ussPath), Is.True);
+
+        var uxml = File.ReadAllText(uxmlPath);
+        var requiredNames = new[]
+        {
+            "doctrine-root",
+            "unit-id-label",
+            "roe-label",
+            "salvo-label",
+            "source-label",
+            "override-label",
+            "roe-dropdown",
+            "apply-override-button",
+        };
+
+        foreach (var name in requiredNames)
+        {
+            Assert.That(uxml, Does.Contain($"name=\"{name}\""), $"Missing UXML element: {name}");
+        }
+
+        Assert.That(
+            uxml,
+            Does.Contain("unit → embarked → mission → group → side → scenario"),
+            "Inheritance order hint should be visible in panel layout");
+    }
+
+    [Test]
+    public void Doctrine_smoke_scene_builder_registers_doctrine_panel_host()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+        var builder = File.ReadAllText(builderPath);
+
+        Assert.That(builder, Does.Contain("CreatePanelHost<DoctrineInheritancePanelHost>"));
+        Assert.That(builder, Does.Contain("\"DoctrineInheritance\""));
+        Assert.That(builder, Does.Contain("Assets/UI/DoctrineInheritance/DoctrineInheritancePanel.uxml"));
+        Assert.That(builder, Does.Contain("Assets/UI/DoctrineInheritance/DoctrineInheritancePanel.uss"));
     }
 
     [Test]
@@ -264,5 +338,21 @@ public sealed class PlayModeSmokeHarnessTests
 
         public void ApplyOrder(EntityKey entity, in Order order) =>
             _applied.Add((entity, order));
+    }
+
+    private static string? FindRepoRoot()
+    {
+        var dir = AppContext.BaseDirectory;
+        for (var i = 0; i < 8; i++)
+        {
+            if (File.Exists(Path.Combine(dir, "ProjectAegis.sln")))
+            {
+                return dir;
+            }
+
+            dir = Directory.GetParent(dir)?.FullName ?? dir;
+        }
+
+        return null;
     }
 }

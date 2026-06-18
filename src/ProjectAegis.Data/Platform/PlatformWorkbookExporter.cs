@@ -13,7 +13,7 @@ using ProjectAegis.Data.WriteGate;
 /// </summary>
 public sealed class PlatformWorkbookExporter
 {
-    public const string SchemaVersion = "007";
+    public const string SchemaVersion = "008";
 
     public PlatformWorkbook Export(PlatformCatalogExportData data, string snapshotId, ICatalogClock clock)
     {
@@ -28,6 +28,9 @@ public sealed class PlatformWorkbookExporter
             BuildLoadouts(data.Loadouts),
             BuildMagazines(data.Magazines),
             BuildComms(data.Comms),
+            BuildMobility(data.Mobility ?? []),
+            BuildSignatures(data.Signatures ?? []),
+            BuildEmcon(data.Emcon ?? []),
         };
 
         var withoutMeta = new PlatformWorkbook(sheets);
@@ -152,6 +155,66 @@ public sealed class PlatformWorkbookExporter
         return new PlatformWorkbookSheet("Comms", header, rows);
     }
 
+
+    private static PlatformWorkbookSheet BuildMobility(IReadOnlyList<CatalogMobility> mobility)
+    {
+        var header = new[]
+        {
+            "PlatformId", "MaxSpeedKnots", "CruiseSpeedKnots", "MaxAltitudeFt", "MaxDepthM",
+            "FuelCapacity", "RangeNm", "EnduranceHr",
+        };
+        var rows = mobility
+            .OrderBy(m => m.PlatformId, StringComparer.Ordinal)
+            .Select(m => (IReadOnlyList<string>)new[]
+            {
+                m.PlatformId,
+                Num(m.MaxSpeedKnots),
+                Num(m.CruiseSpeedKnots),
+                Num(m.MaxAltitudeFt),
+                Num(m.MaxDepthM),
+                Num(m.FuelCapacity),
+                Num(m.RangeNm),
+                Num(m.EnduranceHr),
+            })
+            .ToArray();
+        return new PlatformWorkbookSheet("Mobility", header, rows);
+    }
+
+    private static PlatformWorkbookSheet BuildSignatures(IReadOnlyList<CatalogSignature> signatures)
+    {
+        var header = new[] { "PlatformId", "RcsBandDbsm", "IrSignature", "AcousticSignatureDb", "MagneticSignature" };
+        var rows = signatures
+            .OrderBy(s => s.PlatformId, StringComparer.Ordinal)
+            .Select(s => (IReadOnlyList<string>)new[]
+            {
+                s.PlatformId,
+                Num(s.RcsBandDbsm),
+                Num(s.IrSignature),
+                Num(s.AcousticSignatureDb),
+                Num(s.MagneticSignature),
+            })
+            .ToArray();
+        return new PlatformWorkbookSheet("Signatures", header, rows);
+    }
+
+    private static PlatformWorkbookSheet BuildEmcon(IReadOnlyList<CatalogEmcon> emcon)
+    {
+        var header = new[] { "PlatformId", "Condition", "EmitterId", "Posture" };
+        var rows = emcon
+            .OrderBy(e => e.PlatformId, StringComparer.Ordinal)
+            .ThenBy(e => e.Condition, StringComparer.Ordinal)
+            .ThenBy(e => e.EmitterId, StringComparer.Ordinal)
+            .Select(e => (IReadOnlyList<string>)new[]
+            {
+                e.PlatformId,
+                e.Condition,
+                e.EmitterId,
+                e.Posture,
+            })
+            .ToArray();
+        return new PlatformWorkbookSheet("Emcon", header, rows);
+    }
+
     private static PlatformWorkbookSheet BuildMeta(string snapshotId, long exportUtcTicks, string workbookHash)
     {
         var header = new[] { "Key", "Value" };
@@ -172,4 +235,19 @@ public sealed class PlatformWorkbookExporter
     private static string Int64(long value) => value.ToString(CultureInfo.InvariantCulture);
 
     private static string Bool(bool value) => value ? "true" : "false";
+
+    /// <summary>Serializes an exported workbook through the selected <see cref="IPlatformWorkbookIo"/> adapter.</summary>
+    public void WriteToFile(PlatformWorkbook workbook, string path, IPlatformWorkbookIo io)
+    {
+        if (workbook is null) throw new ArgumentNullException(nameof(workbook));
+        if (io is null) throw new ArgumentNullException(nameof(io));
+        io.Write(workbook, path);
+    }
+
+    /// <summary>Loads a workbook from disk via the selected <see cref="IPlatformWorkbookIo"/> adapter.</summary>
+    public PlatformWorkbook ReadFromFile(string path, IPlatformWorkbookIo io)
+    {
+        if (io is null) throw new ArgumentNullException(nameof(io));
+        return io.Read(path);
+    }
 }

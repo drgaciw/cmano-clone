@@ -1,6 +1,6 @@
 ---
 id: S23-07
-status: Ready
+status: Complete
 type: Config
 priority: nice-to-have
 graphite_branch: stack/sprint23/closeout-gitnexus
@@ -10,7 +10,8 @@ dependencies:
   - Sprint closeout (all must-have stories merged)
 owner: c-sharp-devops-engineer
 sprint: 23
-indexed_commit: 7253381
+indexed_commit: d340436
+last_updated: 2026-06-17
 ---
 
 # Story 023-07 — GitNexus Re-Index + Closeout Baseline
@@ -21,14 +22,14 @@ indexed_commit: 7253381
 
 ## Summary
 
-GitNexus re-index @ `7253381` (or post-merge trunk) + `detect_changes` baseline for sprint closeout. Evidence doc with node/edge counts for comparison on future sprints.
+GitNexus re-index @ stack tip `d340436` + `detect_changes` baseline vs `main` for sprint closeout. Evidence doc with node/edge counts for comparison on future sprints.
 
 ## Acceptance Criteria
 
-- [ ] `npx gitnexus analyze --force` completes @ trunk commit
-- [ ] `npx gitnexus detect_changes --repo cmano-clone` baseline captured
-- [ ] `production/qa/sprint-23-gitnexus-*.md` with node/edge counts
-- [ ] CRITICAL/HIGH symbol blast-radius summary documented for sprint touch set
+- [x] `npx gitnexus analyze --force` completes @ stack-tip commit
+- [x] `npx gitnexus detect_changes` baseline captured (compare vs `main`)
+- [x] `production/qa/sprint-23-gitnexus-*.md` with node/edge counts
+- [x] CRITICAL/HIGH symbol blast-radius summary documented for sprint touch set
 
 ## Verify Commands
 
@@ -56,6 +57,13 @@ Full-repo analyze — no symbol edit required.
 |--------|------|
 | Create | `production/qa/sprint-23-gitnexus-*.md` |
 | Modify | `production/sprint-status.yaml` (`gitnexus_indexed` timestamp) |
+
+## Completion Notes
+
+- Analyze: 9,280 nodes / 19,007 edges @ `d340436` (+609 nodes vs Sprint 22).
+- `detect_changes compare main`: 337 symbols / 72 processes / **CRITICAL**.
+- `DelegationBridge.cs`: zero diff vs `main`; `DoctrineInheritancePanelHost` upstream risk **LOW**.
+- Evidence: `production/qa/sprint-23-gitnexus-2026-06-17.md`.
 
 ## References
 

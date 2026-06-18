@@ -1,0 +1,60 @@
+.doctrine-panel {
+    flex-grow: 1;
+    min-width: 300px;
+    padding: 8px;
+    background-color: rgba(12, 18, 28, 0.92);
+    border-left-width: 1px;
+    border-left-color: rgb(50, 65, 80);
+}
+
+.doctrine-title {
+    -unity-font-style: bold;
+    color: rgb(200, 210, 220);
+    margin-bottom: 4px;
+}
+
+.doctrine-inheritance-order {
+    color: rgb(140, 155, 170);
+    font-size: 11px;
+    margin-bottom: 6px;
+    white-space: normal;
+}
+
+.doctrine-line {
+    color: rgb(180, 190, 200);
+    margin-bottom: 2px;
+}
+
+.doctrine-line--roe {
+    -unity-font-style: bold;
+}
+
+.doctrine-line--wra {
+    color: rgb(170, 185, 200);
+}
+
+.doctrine-line--override {
+    margin-bottom: 6px;
+}
+
+.doctrine-override-row {
+    flex-direction: row;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.doctrine-dropdown {
+    flex-grow: 1;
+    min-width: 160px;
+    margin-right: 8px;
+    margin-bottom: 4px;
+}
+
+.doctrine-apply-button {
+    margin-bottom: 4px;
+}
+
+.doctrine-apply-button:disabled {
+    opacity: 0.45;
+}

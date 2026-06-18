@@ -9,6 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
+    <ProjectReference Include="..\ProjectAegis.Data.Excel\ProjectAegis.Data.Excel.csproj" />
     <ProjectReference Include="..\ProjectAegis.Delegation.UnityAdapter\ProjectAegis.Delegation.UnityAdapter.csproj" />
   </ItemGroup>
 </Project>

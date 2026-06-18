@@ -1,12 +1,13 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
+using ProjectAegis.Data.Excel;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
 
 /// <summary>
-/// S22-02: platform_export_xlsx verb (pattern from CatalogImportMarkdownCommand).
-/// Exports via PlatformWorkbookExporter + IPlatformWorkbookIo (Canonical for headless; ClosedXML deferred per ADR-011).
+/// S22-02 / S23-01: platform_export_xlsx verb (pattern from CatalogImportMarkdownCommand).
+/// Exports via PlatformWorkbookExporter + IPlatformWorkbookIo (ClosedXML for .xlsx; canonical text fallback).
 /// Always executes, returns McpToolResult-style JSON. No auto-commit.
 /// </summary>
 public static class PlatformExportXlsxCommand
@@ -21,24 +22,32 @@ public static class PlatformExportXlsxCommand
         string? dbPath,
         string outPath,
         string snapshotId,
+        string? ioFlag,
         TextWriter output)
     {
         var clock = new FixedCatalogClock(0);
         var exporter = new PlatformWorkbookExporter();
         var data = PlatformCatalogExportData.Empty;
-        var wb = exporter.Export(data, string.IsNullOrWhiteSpace(snapshotId) ? "cli-s22-export" : snapshotId, clock);
+        var effectiveSnapshot = string.IsNullOrWhiteSpace(snapshotId) ? "cli-s22-export" : snapshotId;
+        var wb = exporter.Export(data, effectiveSnapshot, clock);
 
-        string effectiveOut = string.IsNullOrWhiteSpace(outPath) ? "platform-export.platform.txt" : outPath;
-        var io = new CanonicalTextWorkbookIo();
-        io.Write(wb, effectiveOut);
+        var effectiveOut = string.IsNullOrWhiteSpace(outPath)
+            ? "platform-export.xlsx"
+            : outPath;
+        var io = PlatformWorkbookIoSelection.Resolve(
+            effectiveOut,
+            ioFlag,
+            PlatformWorkbookIoFactories.ClosedXml);
+        exporter.WriteToFile(wb, effectiveOut, io);
 
         var payload = new
         {
             ok = true,
             verb = "platform_export_xlsx",
-            snapshotId = string.IsNullOrWhiteSpace(snapshotId) ? "cli-s22-export" : snapshotId,
+            snapshotId = effectiveSnapshot,
             outPath = effectiveOut,
-            note = "exported via PlatformWorkbookExporter + CanonicalTextWorkbookIo (xlsx adapter deferred; see ADR-011)",
+            io = io.GetType().Name,
+            note = "exported via PlatformWorkbookExporter + IPlatformWorkbookIo (ClosedXML default for .xlsx; canonical fallback via --io canonical)",
         };
 
         output.WriteLine(JsonSerializer.Serialize(payload, JsonOptions));

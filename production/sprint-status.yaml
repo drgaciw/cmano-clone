@@ -671,80 +671,123 @@ start: "2026-07-08"
 end: "2026-07-22"
 generated: "2026-06-17"
 updated: "2026-06-17"
-indexed_commit: 7253381
+indexed_commit: 1e27ed6
+tests_passed_s23_06: 13
+tests_passed_s23_06_scoped: 68
+tests_passed_s23_05_platform: 51
+tests_passed_s23_04: 63
+tests_passed_s23_04_writegate: 9
 kickoff: production/sprints/sprint-23-platform-phase-b-doctrine-polish.md
-status: ready
-branch: main
-gitnexus_indexed: "pending-sprint-23-kickoff"
-tests_passed_sprint23_baseline: 498
+status: complete
+completed: "2026-06-17"
+branch: stack/sprint23/closeout-gitnexus
+gitnexus_indexed: "2026-06-17"
+gitnexus_nodes: 9280
+gitnexus_edges: 19007
+gitnexus_detect_changes: "2026-06-17 compare-main: 337 symbols / 72 processes / CRITICAL (CatalogWriteGate, PlatformWorkbookExporter, IPlatformWorkbookIo)"
+tests_passed_sprint23_baseline: 538
 sprint23_baseline_date: "2026-06-17"
-closeout_note: "Planning complete 2026-06-17 via parallel dispatch. Must-have: ClosedXML (S23-01) over ApproveBatch (S23-04 should-have). Baseline pre-work GREEN 498/498 @ 7253381."
+closeout_note: "All S23-01..07 done; stack-tip 538/538; GitNexus 9280/19007 @ d340436; merge stack #139→#145 pending; S23-03 Editor manual visual still open (C4)."
+graphite_stack: docs/superpowers/plans/sprint-23-graphite-stack.md
+graphite_stack_branches:
+  - stack/sprint23/full-sln-gate
+  - stack/sprint23/closedxml-xlsx-io
+  - stack/sprint23/doctrine-editor-visual
+  - stack/sprint23/approve-batch-multi
+  - stack/sprint23/phase-b-schema
+  - stack/sprint23/canonical-determinism
+  - stack/sprint23/closeout-gitnexus
+epic: production/epics/sprint-23-platform-phase-b/EPIC.md
 evidence:
   - production/sprints/sprint-23-platform-phase-b-doctrine-polish.md
   - docs/superpowers/plans/sprint-23-implementation.md
+  - docs/superpowers/plans/sprint-23-graphite-stack.md
   - production/agentic/sprint-23-parallel-kickoff-2026-06-17.md
   - production/agentic/sprint-23-plan-data-2026-06-17.md
   - production/agentic/sprint-23-plan-unity-2026-06-17.md
   - production/agentic/sprint-23-baseline-2026-06-17.md
   - production/qa/qa-plan-sprint-23-2026-07-08.md
+  - production/qa/smoke-sprint-23-2026-06-17.md
+  - production/qa/sprint-23-gitnexus-2026-06-17.md
   - production/retrospectives/retro-sprint-22-2026-06-17.md
 sprint23_stories:
   - id: "23-1"
     name: "ClosedXML .xlsx adapter wiring + integration tests"
+    file: production/epics/sprint-23-platform-phase-b/story-023-01-closedxml-xlsx.md
+    branch: stack/sprint23/closedxml-xlsx-io
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 2.5
     blocker: "23-2"
-    note: "Wire ClosedXmlPlatformWorkbookIo into CLI; empty-diff golden on binary .xlsx; PLE-2.1"
+    completed: "2026-06-17"
+    note: "43 Data.Tests (Platform|ClosedXml|WriteGate) + 4 Cli.Tests (Mcp|Platform) PASS @ 7339ee1; ClosedXml empty-diff golden + canonical parity; GitNexus IPlatformWorkbookIo LOW"
   - id: "23-2"
     name: "Full-solution test gate baseline"
+    file: production/epics/sprint-23-platform-phase-b/story-023-02-full-sln-gate.md
+    branch: stack/sprint23/full-sln-gate
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 1
     blocker: ""
-    note: "Pre-work GREEN 498/498 @ 7253381 (production/agentic/sprint-23-baseline-2026-06-17.md); formalize smoke evidence + Release config at kickoff"
+    completed: "2026-06-17"
+    note: "Closeout GREEN 498/498 @ fb3fc75; stack-tip 513/513 @ aa36dc9; smoke production/qa/smoke-sprint-23-2026-06-17.md"
   - id: "23-3"
     name: "Unity Doctrine Inheritance Panel Editor visual sign-off"
+    file: production/epics/sprint-23-platform-phase-b/story-023-03-doctrine-editor.md
+    branch: stack/sprint23/doctrine-editor-visual
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 2.5
     blocker: "23-2"
-    note: "DoctrineInheritancePanelHost PlayMode + manual evidence; ZERO touch DelegationBridge"
+    completed: "2026-06-17"
+    note: "17 doctrine-related tests PASS (15 UnityAdapter + 8 Delegation); UXML/USS + scene builder wired; ZERO touch DelegationBridge.cs; Editor manual visual DEFERRED WITH CONDITIONS (headless proxy PASS per lean QA)"
   - id: "23-4"
     name: "ApproveBatch multi-entity commit path"
+    file: production/epics/sprint-23-platform-phase-b/story-023-04-approve-batch.md
+    branch: stack/sprint23/approve-batch-multi
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 2.5
     blocker: "23-2"
-    note: "Extend LoadStagingRows + ApproveBatch beyond sensor-only; S22-04 deferred path"
+    completed: "2026-06-17"
+    note: "WriteGate|Platform|CmoMarkdown 63/63 + WriteGate 9/9 PASS @ aa36dc9; platform/weapon/mount/loadout/magazine/comms ApproveBatch + DBI-1.4 reject purge; sensor regression unchanged; GitNexus CatalogWriteGate CRITICAL documented; closes S22 C3"
   - id: "23-5"
     name: "Phase B schema foundation spike (export-only)"
+    file: production/epics/sprint-23-platform-phase-b/story-023-05-phase-b-schema.md
+    branch: stack/sprint23/phase-b-schema
     priority: should-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 2
     blocker: "23-1"
-    note: "Signatures/Mobility/EMCON migration + types + exporter sheet stubs"
+    completed: "2026-06-17"
+    note: "51 Platform tests PASS @ ab4a825; migration 008 + CatalogSignature/Mobility/Emcon + exporter stubs; import deferred S24"
   - id: "23-6"
     name: "CanonicalId determinism on Catalog* types"
+    file: production/epics/sprint-23-platform-phase-b/story-023-06-canonical-id.md
+    branch: stack/sprint23/canonical-determinism
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 1
     blocker: "23-4"
-    note: "DBI-7.3 stable OrderBy composite keys"
+    completed: "2026-06-17"
+    note: "CatalogSortKeyDeterminismTests 13/13 + WriteGate|Platform|CatalogSortKey 68/68 PASS @ 1e27ed6; golden hashes pinned; GitNexus detect deferred S23-07"
   - id: "23-7"
-    name: "GitNexus re-index @ 7253381"
+    name: "GitNexus re-index @ stack tip"
+    file: production/epics/sprint-23-platform-phase-b/story-023-07-closeout-gitnexus.md
+    branch: stack/sprint23/closeout-gitnexus
     priority: nice-to-have
-    status: backlog
+    status: done
     owner: ""
     estimate_days: 0.5
     blocker: ""
-    note: "analyze + detect_changes baseline for closeout"
+    completed: "2026-06-17"
+    note: "analyze 9280/19007 @ d340436; detect_changes compare-main CRITICAL; DelegationBridge ZERO touch; evidence production/qa/sprint-23-gitnexus-2026-06-17.md"
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"

@@ -1,6 +1,6 @@
 ---
 id: S23-04
-status: Ready
+status: Complete
 type: Integration
 priority: should-have
 graphite_branch: stack/sprint23/approve-batch-multi
@@ -11,6 +11,7 @@ dependencies:
 owner: c-sharp-engineer / team-data
 sprint: 23
 req_trace: DBI-1.1, DBI-1.4, DBI-4.1, PLE-3.1–3.5
+last_updated: 2026-06-17
 ---
 
 # Story 023-04 — ApproveBatch Multi-Entity Commit Path
@@ -25,14 +26,14 @@ Extend `CatalogWriteGate.LoadStagingRows` + `ApproveBatch` beyond sensor-only to
 
 ## Acceptance Criteria
 
-- [ ] `ProposePlatformBatch` → `ApproveBatch` commits to live tables
-- [ ] Mount/loadout/magazine/comms commit paths implemented
-- [ ] `RejectBatch` purges all staging tables (DBI-1.4) — no orphan rows
-- [ ] CmoMarkdown platform import E2E test PASS
-- [ ] `WriteGate` filter green
-- [ ] Extend-only on `CatalogWriteGate` — sensor path regression unchanged
-- [ ] GitNexus impact on `CatalogWriteGate` (CRITICAL) documented before merge
-- [ ] No importer or MCP path auto-commits without `ApproveBatch` (PLE-3.1)
+- [x] `ProposePlatformBatch` → `ApproveBatch` commits to live tables
+- [x] Mount/loadout/magazine/comms commit paths implemented
+- [x] `RejectBatch` purges all staging tables (DBI-1.4) — no orphan rows
+- [x] CmoMarkdown platform import E2E test PASS
+- [x] `WriteGate` filter green
+- [x] Extend-only on `CatalogWriteGate` — sensor path regression unchanged
+- [x] GitNexus impact on `CatalogWriteGate` (CRITICAL) documented before merge
+- [x] No importer or MCP path auto-commits without `ApproveBatch` (PLE-3.1)
 
 ## Verify Commands
 
@@ -72,3 +73,34 @@ After edits: `npx gitnexus detect_changes --repo cmano-clone` before commit.
 - Implementation plan: `docs/superpowers/plans/sprint-23-implementation.md`
 - Data plan: `production/agentic/sprint-23-plan-data-2026-06-17.md` (S23-D01)
 - Req 06: `Game-Requirements/requirements/06-Database-Intelligence.md`
+
+## Test-Criterion Traceability
+
+| Criterion | Test / Evidence | Status |
+|-----------|-----------------|--------|
+| `ProposePlatformBatch` → `ApproveBatch` commits to live tables | `CatalogWriteGatePlatformApproveTests.ApproveBatch_platform_batch_commits_to_live_table` | COVERED |
+| Mount/loadout/magazine/comms commit paths | `CatalogWriteGatePlatformApproveTests.ApproveBatch_mount_loadout_magazine_comms_commit_paths` + `ApproveBatch_weapon_batch_commits_to_live_table` | COVERED |
+| `RejectBatch` purges all staging tables (DBI-1.4) | `CatalogWriteGatePlatformApproveTests.RejectBatch_purges_all_staging_tables_DBI_1_4` + `CmoMarkdownImporterTests.Reject_platform_batch_removes_all_staging_rows_DBI_1_4_orphan_guard` | COVERED |
+| CmoMarkdown platform import E2E test PASS | `CmoMarkdownImporterTests.ProposePlatformWeaponMounts_approve_readback_reflects_live_rows_in_stable_order` | COVERED |
+| `WriteGate` filter green | `dotnet test … --filter "WriteGate"` → **9/9 PASS** | COVERED |
+| Extend-only — sensor path regression unchanged | `CatalogWriteGateTests` (3 sensor tests) + `ApproveSensorStaging` preserved in `CatalogWriteGate.cs` | COVERED |
+| GitNexus impact on `CatalogWriteGate` (CRITICAL) documented | Commit `aa36dc9` body: CRITICAL, 51 symbols, 14 processes, 9 modules | COVERED |
+| No importer/MCP auto-commit without `ApproveBatch` (PLE-3.1) | `CmoMarkdownImportProposer.ProposePlatformWeaponMounts` docstring + `PlatformWorkbookImporter` PLE-3.1 comment; propose-only tests | COVERED |
+
+## Completion Notes
+
+**Completed:** 2026-06-17  
+**Verdict:** Complete  
+**Criteria:** 8/8 passing  
+**Implementation commit:** `aa36dc9` — `feat(data): ApproveBatch multi-entity commit path [S23-04]`  
+**Deviations:** None — extend-only `CatalogWriteGate`; sensor `ApproveSensorStaging` path preserved verbatim  
+**Test Evidence:**
+- `src/ProjectAegis.Data.Tests/WriteGate/CatalogWriteGatePlatformApproveTests.cs` (5 tests)
+- `src/ProjectAegis.Data.Tests/WriteGate/CatalogWriteGateTests.cs` (3 sensor regression tests)
+- `src/ProjectAegis.Data.Tests/Import/CmoMarkdownImporterTests.cs` (E2E approve → readback extension)
+**Verify runs (2026-06-17):**
+- `dotnet test …Data.Tests… --filter "WriteGate|Platform|CmoMarkdown"` → **63/63 PASS**
+- `dotnet test …Data.Tests… --filter "WriteGate"` → **9/9 PASS**
+**GitNexus:** `npx gitnexus impact CatalogWriteGate --direction upstream --repo cmano-clone` → **CRITICAL**, 51 symbols, 14 processes, 9 modules (documented in `aa36dc9`)  
+**Code Review:** Skipped (lean mode)  
+**Closes:** Sprint 22 sign-off **C3** (ApproveBatch platform/weapon commit path)

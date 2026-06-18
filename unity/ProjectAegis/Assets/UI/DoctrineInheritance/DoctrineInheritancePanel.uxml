@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="doctrine-root" class="doctrine-panel">
+        <ui:Label text="DOCTRINE INHERITANCE" class="doctrine-title" />
+        <ui:Label name="inheritance-order-label"
+                  text="INHERITANCE: unit → embarked → mission → group → side → scenario"
+                  class="doctrine-inheritance-order" />
+        <ui:Label name="unit-id-label" text="UNIT: —" class="doctrine-line" />
+        <ui:Label name="roe-label" text="ROE: —" class="doctrine-line doctrine-line--roe" />
+        <ui:Label name="salvo-label" text="SALVO: —" class="doctrine-line doctrine-line--wra" />
+        <ui:Label name="source-label" text="SOURCE: —" class="doctrine-line" />
+        <ui:Label name="override-label" text="OVERRIDE: UNAVAILABLE" class="doctrine-line doctrine-line--override" />
+        <ui:VisualElement class="doctrine-override-row">
+            <ui:DropdownField name="roe-dropdown" label="ROE Override" class="doctrine-dropdown" />
+            <ui:Button name="apply-override-button" text="Apply" class="doctrine-apply-button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

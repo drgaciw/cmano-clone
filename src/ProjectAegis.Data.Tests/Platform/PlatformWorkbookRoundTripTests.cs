@@ -1,4 +1,5 @@
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Excel;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
 using Xunit;
@@ -55,6 +56,29 @@ public sealed class PlatformWorkbookRoundTripTests
     }
 
     [Fact]
+    public void CatalogSortKey_export_sheet_row_order_matches_comparer()
+    {
+        var data = SampleData();
+        var workbook = Export(data);
+
+        Assert.Equal(
+            CatalogSortKeyComparer.SortMounts(data.Mounts).Select(CatalogSortKeyComparer.FormatMountKey).ToArray(),
+            MountKeys(workbook));
+
+        Assert.Equal(
+            CatalogSortKeyComparer.SortLoadouts(data.Loadouts).Select(CatalogSortKeyComparer.FormatLoadoutKey).ToArray(),
+            LoadoutKeys(workbook));
+
+        Assert.Equal(
+            CatalogSortKeyComparer.SortMagazines(data.Magazines).Select(CatalogSortKeyComparer.FormatMagazineKey).ToArray(),
+            MagazineKeys(workbook));
+
+        Assert.Equal(
+            CatalogSortKeyComparer.SortComms(data.Comms).Select(CatalogSortKeyComparer.FormatCommsKey).ToArray(),
+            CommsKeys(workbook));
+    }
+
+    [Fact]
     public void Meta_sheet_binds_snapshot_and_content_hash()
     {
         var workbook = Export(SampleData());
@@ -73,6 +97,27 @@ public sealed class PlatformWorkbookRoundTripTests
         var roundTripped = CanonicalTextWorkbookIo.Deserialize(CanonicalTextWorkbookIo.Serialize(original));
 
         Assert.True(PlatformWorkbookDiff.IsEmpty(original, roundTripped));
+    }
+
+    [Fact]
+    public void ClosedXml_unedited_round_trip_matches_canonical_empty_diff_contract()
+    {
+        var original = Export(SampleData());
+        var path = Path.Combine(Path.GetTempPath(), $"platform-rt-{Guid.NewGuid():N}.xlsx");
+        try
+        {
+            var io = new ClosedXmlPlatformWorkbookIo();
+            io.Write(original, path);
+            var roundTripped = io.Read(path);
+            Assert.True(PlatformWorkbookDiff.IsEmpty(original, roundTripped));
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
     }
 
     [Fact]
@@ -107,5 +152,26 @@ public sealed class PlatformWorkbookRoundTripTests
         }
 
         return string.Empty;
+    }
+
+    private static string[] MountKeys(PlatformWorkbook workbook) =>
+        SheetCompositeKeys(workbook, "Mounts", 0, 1);
+
+    private static string[] LoadoutKeys(PlatformWorkbook workbook) =>
+        SheetCompositeKeys(workbook, "Loadouts", 0, 1);
+
+    private static string[] MagazineKeys(PlatformWorkbook workbook) =>
+        SheetCompositeKeys(workbook, "Magazines", 0, 1, 2, 3);
+
+    private static string[] CommsKeys(PlatformWorkbook workbook) =>
+        SheetCompositeKeys(workbook, "Comms", 0, 1);
+
+    private static string[] SheetCompositeKeys(PlatformWorkbook workbook, string sheetName, params int[] columns)
+    {
+        var sheet = workbook.FindSheet(sheetName);
+        Assert.NotNull(sheet);
+        return sheet!.Rows
+            .Select(row => string.Join('\t', columns.Select(i => row[i])))
+            .ToArray();
     }
 }
