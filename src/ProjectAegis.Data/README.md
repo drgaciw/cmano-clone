@@ -42,7 +42,7 @@ do **not** add a side-channel write.
 | `Catalog/` | Catalog records, bindings, readers, and import/quarantine plumbing. | `ICatalogReader`, `SqliteCatalogReader`, `CatalogQuarantinePromoter`, `CatalogBulkImporter` |
 | `Import/` | Parse CMO markdown (cmano-db.com exports) and stage rows. | `CmoMarkdownImporter`, `CmoMarkdownImportProposer` |
 | `Osint/` | OSINT discovery → catalog proposals with confidence + TRL/doc routing. | `OsintCatalogMapper`, `OsintProposalGate`, `OsintDigestRunner`, `Connectors/` |
-| `Platform/` | Excel/workbook round-trip for the platform editor (ADR-011). | `PlatformWorkbookExporter`, `PlatformWorkbookImporter`, `PlatformWorkbookDiff`, `PlatformWorkbookValidator` |
+| `Platform/` | Excel/workbook round-trip for the platform editor (ADR-011). | `PlatformWorkbookExporter`, `PlatformWorkbookImporter`, `PlatformWorkbookDiff`, `PlatformWorkbookValidator` — see [`Platform/README.md`](Platform/README.md) |
 | `Validation/` | Deterministic scenario validation engine (ADR-008) + catalog rule pipeline. | `ScenarioValidationEngine`, `ValidationPipeline`, `Rules/` |
 | `Agents/` | Headless, deterministic req-06 agent pipeline (no LLM in the tick path). | `IDatabaseIntelligenceAgent`, `DatabaseIntelligenceOrchestrator` |
 | `Scenario/` | Load and resolve scenario packages, policy catalogs, readiness maps. | `ScenarioPackageLoader`, `ScenarioPolicyJsonCatalog` |
