@@ -671,7 +671,7 @@ start: "2026-07-08"
 end: "2026-07-22"
 generated: "2026-06-17"
 updated: "2026-06-17"
-indexed_commit: 47419e4
+indexed_commit: 1e27ed6
 tests_passed_s23_06: 13
 tests_passed_s23_06_scoped: 68
 tests_passed_s23_05_platform: 51
@@ -683,7 +683,7 @@ branch: main
 gitnexus_indexed: "pending-sprint-23-kickoff"
 tests_passed_sprint23_baseline: 538
 sprint23_baseline_date: "2026-06-17"
-closeout_note: "S23-01/02/03/04/05/06 done; stack-tip 538/538 @ 47419e4; S23-07 GitNexus closeout backlog; full-sln gate formalized @ fb3fc75."
+closeout_note: "S23-01/02/03/04/05/06 done; stack-tip 538/538 @ 1e27ed6; S23-07 GitNexus closeout backlog; full-sln gate formalized @ fb3fc75."
 graphite_stack: docs/superpowers/plans/sprint-23-graphite-stack.md
 graphite_stack_branches:
   - stack/sprint23/full-sln-gate
@@ -771,7 +771,7 @@ sprint23_stories:
     estimate_days: 1
     blocker: "23-4"
     completed: "2026-06-17"
-    note: "CatalogSortKeyDeterminismTests 13/13 + WriteGate|Platform|CatalogSortKey 68/68 PASS @ 47419e4; golden hashes pinned; GitNexus detect deferred S23-07"
+    note: "CatalogSortKeyDeterminismTests 13/13 + WriteGate|Platform|CatalogSortKey 68/68 PASS @ 1e27ed6; golden hashes pinned; GitNexus detect deferred S23-07"
   - id: "23-7"
     name: "GitNexus re-index @ 7253381"
     file: production/epics/sprint-23-platform-phase-b/story-023-07-closeout-gitnexus.md
