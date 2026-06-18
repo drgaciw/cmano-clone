@@ -132,3 +132,32 @@ dotnet test src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj \
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj \
   --filter "PlayModeSmoke|Doctrine|MapPanelBinder|App6" -v minimal
 ```
+
+## Sprint Closeout — 2026-06-18
+
+**Status:** COMPLETE (14/14 stories merged)  
+**Trunk:** `main` @ `76b57e6`  
+**Tests:** 661/661 PASS · ReplayGolden 6/6 PASS  
+**Merged PRs:** #213–#226  
+**Indexed commit:** `76b57e6` (GitNexus @ 2026-06-18)
+
+| ID | Verdict | PR |
+|----|---------|-----|
+| S25-01 | DONE | #213 |
+| S25-02 | DONE | #214 |
+| S25-03 | DONE | #215 |
+| S25-04 | DONE | #216 |
+| S25-05 | DONE | #217 |
+| S25-06 | DONE | #218 |
+| S25-07 | DONE | #219 |
+| S25-08 | DONE | #221 |
+| S25-09 | DONE | #220 |
+| S25-10 | DONE | #222 |
+| S25-11 | DONE | #224 |
+| S25-12 | DONE | #223 |
+| S25-13 | DONE | #225 |
+| S25-14 | DONE | #226 |
+
+**Advisory (non-blocking):** Live Unity Editor re-capture for S25-09/S25-11/S25-14 protocol placeholders remains optional per lean review mode.
+
+**Evidence index:** `production/sprint-status.yaml` · `production/agentic/stacks/sprint25/S25-*-DONE.md`

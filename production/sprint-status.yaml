@@ -1235,9 +1235,10 @@ producer_decisions:
   nightly_corpus_v1: sensor_weapon_only
   gha_billing: permanent_local_gate_advisory
 branch: main
-indexed_commit: f32174b
+indexed_commit: c665fa2
 tests_passed_sprint26_closeout: 698
 tests_passed_sprint27_baseline: 701
+tests_passed_sprint27_must_have: 701
 kickoff: production/sprints/sprint-27-cmo-corpus-combat-bounded.md
 parallel_kickoff: production/agentic/sprint-27-parallel-kickoff-2026-06-18.md
 qa_plan: production/qa/qa-plan-sprint-27-2026-06-18.md
