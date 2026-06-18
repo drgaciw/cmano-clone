@@ -19,6 +19,7 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     private CatalogMobility[]? _mobilityCache;
     private CatalogSignature[]? _signatureCache;
     private CatalogEmcon[]? _emconCache;
+    private CatalogPlatformDamage[]? _damageCache;
 
     public SqliteCatalogReader(string databasePath, string layerVersion = "p0-sqlite")
     {
@@ -158,6 +159,27 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         return false;
     }
 
+    public IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamage()
+    {
+        _damageCache ??= LoadDamageSorted();
+        return _damageCache;
+    }
+
+    public bool TryGetPlatformDamage(string platformId, out CatalogPlatformDamage damage)
+    {
+        foreach (var row in GetSortedPlatformDamage())
+        {
+            if (string.Equals(row.PlatformId, platformId, StringComparison.Ordinal))
+            {
+                damage = row;
+                return true;
+            }
+        }
+
+        damage = new CatalogPlatformDamage(platformId);
+        return false;
+    }
+
     /// <summary>Req-21: build workbook export payload from the bound SQLite snapshot.</summary>
     public PlatformCatalogExportData LoadExportData()
     {
@@ -171,7 +193,8 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             Comms: LoadCommsSorted(),
             Mobility: GetSortedMobility(),
             Signatures: GetSortedSignatures(),
-            Emcon: GetSortedEmcon());
+            Emcon: GetSortedEmcon(),
+            Damage: GetSortedPlatformDamage());
     }
 
     public void Dispose()
@@ -533,6 +556,39 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                 reader.GetString(2),
                 reader.GetString(3),
                 reader.GetString(4)));
+        }
+
+        return list.ToArray();
+    }
+
+    private CatalogPlatformDamage[] LoadDamageSorted()
+    {
+        if (!TableExists("platform_damage"))
+        {
+            return [];
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, max_hp, withdraw_threshold_pct, critical_flags,
+                   review_state, trl_level, value_tier, citation_ref
+            FROM platform_damage
+            ORDER BY platform_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogPlatformDamage>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogPlatformDamage(
+                reader.GetString(0),
+                reader.GetDouble(1),
+                reader.GetDouble(2),
+                reader.GetInt32(3),
+                reader.GetString(4),
+                reader.GetInt32(5),
+                CatalogProvenanceTier.Normalize(reader.GetString(6)),
+                reader.GetString(7)));
         }
 
         return list.ToArray();

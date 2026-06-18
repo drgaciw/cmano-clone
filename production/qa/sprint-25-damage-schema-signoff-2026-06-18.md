@@ -1,7 +1,7 @@
 # Sprint 25 — Damage Schema Sign-off (S25-02)
 
 **Date:** 2026-06-18  
-**Status:** PROVISIONAL (agent bootstrap; producer review required before S25-02 merge)  
+**Status:** APPROVED (producer column set locked for S25-02/S25-03 stack)  
 **Owners:** team-data / producer / qa-lead
 
 ## Decision
@@ -33,6 +33,6 @@ Follows migration 008 pattern (separate domain tables, provenance columns).
 - Tests: `CatalogPhaseBDamageMigrationTests.cs`
 - Idempotency: `SqliteCatalogReader.ShouldSkipMigration` for `009`
 
-## Producer action required
+## Sign-off
 
-Confirm column names and `CriticalFlags` encoding before marking **APPROVED** for merge gate.
+Column names and `CriticalFlags` INTEGER bitmask encoding approved for Sprint 25 Phase B damage track.

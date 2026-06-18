@@ -83,6 +83,8 @@ public sealed class InMemoryCatalogReader : ICatalogReader
 
     public IReadOnlyList<CatalogEmcon> GetSortedEmcon() => [];
 
+    public IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamage() => [];
+
     public bool TryGetMobility(string platformId, out CatalogMobility mobility)
     {
         mobility = new CatalogMobility(platformId);
@@ -107,6 +109,12 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     public bool TryGetEmcon(string platformId, string condition, string emitterId, out CatalogEmcon emcon)
     {
         emcon = new CatalogEmcon(platformId, condition, emitterId);
+        return false;
+    }
+
+    public bool TryGetPlatformDamage(string platformId, out CatalogPlatformDamage damage)
+    {
+        damage = new CatalogPlatformDamage(platformId);
         return false;
     }
 }

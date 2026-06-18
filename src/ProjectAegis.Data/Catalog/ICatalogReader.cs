@@ -43,11 +43,19 @@ public interface ICatalogReader
     bool TryGetEmcon(string platformId, string condition, string emitterId, out CatalogEmcon emcon) =>
         TryGetEmconCore(platformId, condition, emitterId, out emcon);
 
+    /// <summary>Req-21 Phase B: sorted platform damage rows (platform_id).</summary>
+    IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamage() => GetSortedPlatformDamageCore();
+
+    bool TryGetPlatformDamage(string platformId, out CatalogPlatformDamage damage) =>
+        TryGetPlatformDamageCore(platformId, out damage);
+
     IReadOnlyList<CatalogMobility> GetSortedMobilityCore() => [];
 
     IReadOnlyList<CatalogSignature> GetSortedSignaturesCore() => [];
 
     IReadOnlyList<CatalogEmcon> GetSortedEmconCore() => [];
+
+    IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamageCore() => [];
 
     bool TryGetMobilityCore(string platformId, out CatalogMobility mobility)
     {
@@ -64,6 +72,12 @@ public interface ICatalogReader
     bool TryGetEmconCore(string platformId, string condition, string emitterId, out CatalogEmcon emcon)
     {
         emcon = new CatalogEmcon(platformId, condition, emitterId);
+        return false;
+    }
+
+    bool TryGetPlatformDamageCore(string platformId, out CatalogPlatformDamage damage)
+    {
+        damage = new CatalogPlatformDamage(platformId);
         return false;
     }
 

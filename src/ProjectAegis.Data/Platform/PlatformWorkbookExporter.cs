@@ -13,7 +13,7 @@ using ProjectAegis.Data.WriteGate;
 /// </summary>
 public sealed class PlatformWorkbookExporter
 {
-    public const string SchemaVersion = "008";
+    public const string SchemaVersion = "009";
 
     public PlatformWorkbook Export(PlatformCatalogExportData data, string snapshotId, ICatalogClock clock)
     {
@@ -22,7 +22,7 @@ public sealed class PlatformWorkbookExporter
 
         var sheets = new List<PlatformWorkbookSheet>
         {
-            BuildPlatforms(data.Platforms),
+            BuildPlatforms(data.Platforms, data.Damage),
             BuildSensors(data.Sensors),
             BuildMounts(data.Mounts),
             BuildLoadouts(data.Loadouts),
@@ -39,17 +39,33 @@ public sealed class PlatformWorkbookExporter
         return new PlatformWorkbook(sheets);
     }
 
-    private static PlatformWorkbookSheet BuildPlatforms(IReadOnlyList<CatalogPlatformEntry> platforms)
+    private static PlatformWorkbookSheet BuildPlatforms(
+        IReadOnlyList<CatalogPlatformEntry> platforms,
+        IReadOnlyList<CatalogPlatformDamage>? damage = null)
     {
-        var header = new[] { "PlatformId", "LatDeg", "LonDeg", "CombatRadiusNm" };
+        var damageByPlatform = damage is null
+            ? new Dictionary<string, CatalogPlatformDamage>(StringComparer.Ordinal)
+            : damage.ToDictionary(d => d.PlatformId, StringComparer.Ordinal);
+        var header = new[]
+        {
+            "PlatformId", "LatDeg", "LonDeg", "CombatRadiusNm",
+            "MaxHp", "WithdrawThresholdPct", "CriticalFlags",
+        };
         var rows = platforms
             .OrderBy(p => p.PlatformId, StringComparer.Ordinal)
-            .Select(p => (IReadOnlyList<string>)new[]
+            .Select(p =>
             {
-                p.PlatformId,
-                Num(p.LatDeg),
-                Num(p.LonDeg),
-                Num(p.CombatRadiusNm),
+                damageByPlatform.TryGetValue(p.PlatformId, out var d);
+                return (IReadOnlyList<string>)new[]
+                {
+                    p.PlatformId,
+                    Num(p.LatDeg),
+                    Num(p.LonDeg),
+                    Num(p.CombatRadiusNm),
+                    Num(d?.MaxHp ?? 100),
+                    Num(d?.WithdrawThresholdPct ?? 0),
+                    Int(d?.CriticalFlags ?? 0),
+                };
             })
             .ToArray();
         return new PlatformWorkbookSheet("Platforms", header, rows);

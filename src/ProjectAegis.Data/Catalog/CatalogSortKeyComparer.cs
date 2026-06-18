@@ -61,6 +61,10 @@ public static class CatalogSortKeyComparer
             .ThenBy(r => r.EmitterId, StringComparer.Ordinal)
             .ToArray();
 
+    public static IReadOnlyList<CatalogPlatformDamage> SortPlatformDamage(IEnumerable<CatalogPlatformDamage> rows) =>
+        rows.OrderBy(r => r.PlatformId, StringComparer.Ordinal)
+            .ToArray();
+
     public static string FormatSensorKey(CatalogSensorBinding row) =>
         Join(row.PlatformId, row.SensorId);
 
@@ -82,6 +86,8 @@ public static class CatalogSortKeyComparer
     public static string FormatSignatureKey(CatalogSignature row) => row.PlatformId;
 
     public static string FormatEmconKey(CatalogEmcon row) => Join(row.PlatformId, row.Condition, row.EmitterId);
+
+    public static string FormatPlatformDamageKey(CatalogPlatformDamage row) => row.PlatformId;
 
     /// <summary>
     /// Deterministic SHA-256 over canonical sort-key tuples for all Catalog* entity domains.
