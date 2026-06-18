@@ -48,6 +48,12 @@ switch (command)
         return RunCatalogWriteApprove(args.Skip(1).ToArray());
     case "catalog_import_markdown":
         return RunCatalogImportMarkdown(args.Skip(1).ToArray());
+    case "platform_export_xlsx":
+        return RunPlatformExportXlsx(args.Skip(1).ToArray());
+    case "platform_import_xlsx":
+        return RunPlatformImportXlsx(args.Skip(1).ToArray());
+    case "platform_diff_xlsx":
+        return RunPlatformDiffXlsx(args.Skip(1).ToArray());
     case "osint_staging_review":
         return RunOsintStagingReview(args.Skip(1).ToArray());
     case "osint_search":
@@ -324,6 +330,9 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_propose --db <catalog.db> --platform P --sensor S --base-pd 0.7");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_approve --db <catalog.db> --batch <batchId>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <sensor.md> [--max-records N] [--chunk-size 500] [--report-out report.json]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_export_xlsx [--db <catalog.db>] --out <path> [--snapshot <id>]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_import_xlsx --db <catalog.db> [--in <workbook>]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_diff_xlsx [--db <catalog.db>] [--base <path>] [--edited <path>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_staging_review --db <catalog.db> [--approve <batchId>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_search [--db <fixture.json>]  # S21 MCP search_osint");
     // S21: osint_digest, osint_list_staging_proposals, osint_get_proposal_detail, osint_submit_review_decision
@@ -344,6 +353,37 @@ static int RunCatalogImportMarkdown(string[] args)
     var chunkSize = CliArgParser.GetIntFlag(args, "--chunk-size", CmoMarkdownImportProposer.DefaultChunkSize);
     var reportOut = CliArgParser.GetFlag(args, "--report-out");
     return CatalogImportMarkdownCommand.Run(db, markdown, maxRecords, chunkSize, Console.Out, reportOut);
+}
+
+static int RunPlatformExportXlsx(string[] args)
+{
+    var db = CliArgParser.GetFlag(args, "--db");
+    var outPath = CliArgParser.GetFlag(args, "--out") ?? CliArgParser.GetFlag(args, "--output");
+    var snapshotId = CliArgParser.GetFlag(args, "--snapshot") ?? CliArgParser.GetFlag(args, "--snapshot-id") ?? string.Empty;
+    return PlatformExportXlsxCommand.Run(db, outPath ?? string.Empty, snapshotId, Console.Out);
+}
+
+static int RunPlatformImportXlsx(string[] args)
+{
+    var db = CliArgParser.GetFlag(args, "--db");
+    var inPath = CliArgParser.GetFlag(args, "--in") ?? CliArgParser.GetFlag(args, "--input");
+    var actorType = CliArgParser.GetFlag(args, "--actor-type") ?? "cli";
+    var actorId = CliArgParser.GetFlag(args, "--actor-id") ?? "mission-editor";
+    if (string.IsNullOrWhiteSpace(db))
+    {
+        Console.Error.WriteLine("platform_import_xlsx requires --db <catalog.db> [--in <workbook.xlsx>]");
+        return 1;
+    }
+
+    return PlatformImportXlsxCommand.Run(db, inPath ?? string.Empty, actorType, actorId, Console.Out);
+}
+
+static int RunPlatformDiffXlsx(string[] args)
+{
+    var db = CliArgParser.GetFlag(args, "--db");
+    var basePath = CliArgParser.GetFlag(args, "--base") ?? CliArgParser.GetFlag(args, "--source");
+    var editedPath = CliArgParser.GetFlag(args, "--edited") ?? CliArgParser.GetFlag(args, "--in");
+    return PlatformDiffXlsxCommand.Run(db, basePath ?? string.Empty, editedPath ?? string.Empty, Console.Out);
 }
 
 static int RunOsintStagingReview(string[] args)

@@ -25,6 +25,9 @@ public sealed class McpToolsManifestTests
         "osint_list_staging_proposals",
         "osint_get_proposal_detail",
         "osint_submit_review_decision",
+        "platform_export_xlsx",
+        "platform_import_xlsx",
+        "platform_diff_xlsx",
     ];
 
     [Fact]
