@@ -796,9 +796,11 @@ start: "2026-07-23"
 end: "2026-08-06"
 generated: "2026-06-17"
 updated: "2026-06-17"
-status: in-progress
-branch: stack/sprint24/closeout-replay-gitnexus
-indexed_commit: d0fc4db
+status: complete
+completed: "2026-06-18"
+branch: main
+indexed_commit: 9ecbf2c
+tests_passed_sprint24_closeout: 592
 tests_passed_sprint23_baseline: 538
 tests_passed_sprint24_baseline: 540
 sprint24_baseline_date: "2026-06-17"
@@ -900,7 +902,125 @@ sprint24_stories:
     estimate_days: 0.5
     blocker: ""
     completed: "2026-06-17"
-    note: "ReplayGoldenSuiteTests 6/6; full sln 570/570 @ d0fc4db; gitnexus 9723/19973; detect_changes CRITICAL; DelegationBridge ZERO touch; evidence production/qa/sprint-24-gitnexus-2026-06-17.md"
+    note: "ReplayGoldenSuiteTests 6/6; full sln 592/592 @ 9ecbf2c; merged PRs #203-#211; evidence production/qa/sprint-24-gitnexus-2026-06-17.md"
+next_backlog: production/sprints/sprint-25-phase-b-damage-assurance.md
+
+sprint: 25
+goal: "Close ADR-011 Phase B damage columns + merge S24 stretch; presentation assurance (Cesium/APP-6/tri-batch)."
+start: "2026-08-07"
+end: "2026-08-20"
+generated: "2026-06-18"
+updated: "2026-06-18"
+status: in-progress
+branch: stack/sprint25/full-sln-gate
+indexed_commit: 9ecbf2c
+tests_passed_sprint24_closeout: 592
+tests_passed_sprint25_baseline: 592
+sprint25_baseline_date: "2026-06-18"
+kickoff: production/sprints/sprint-25-phase-b-damage-assurance.md
+parallel_kickoff: production/agentic/sprint-25-parallel-kickoff-2026-06-17.md
+track_plans:
+  - production/agentic/sprint-25-plan-data-2026-06-17.md
+  - production/agentic/sprint-25-plan-unity-2026-06-17.md
+  - production/agentic/sprint-25-plan-qa-2026-06-17.md
+qa_plan: production/qa/qa-plan-sprint-25-2026-06-17.md
+graphite_stack: docs/superpowers/plans/sprint-25-graphite-stack.md
+graphite_stack_branches:
+  - stack/sprint25/full-sln-gate
+  - stack/sprint25/damage-schema-009
+  - stack/sprint25/damage-reader-export
+  - stack/sprint25/damage-write-gate
+  - stack/sprint25/damage-importer
+  - stack/sprint25/damage-validator
+  - stack/sprint25/closedxml-phase-b-ux
+  - stack/sprint25/doctrine-emcon-readonly
+  - stack/sprint25/app6-atlas-phase-c
+  - stack/sprint25/cesium-editor-evidence
+  - stack/sprint25/c2-editor-tri-batch
+  - stack/sprint25/closeout-gitnexus
+evidence:
+  - production/sprints/sprint-25-phase-b-damage-assurance.md
+  - production/agentic/sprint-25-parallel-kickoff-2026-06-17.md
+  - production/qa/qa-plan-sprint-25-2026-06-17.md
+  - production/qa/smoke-sprint-25-2026-06-17.md
+sprint25_stories:
+  - id: "25-1"
+    name: "Full-solution re-baseline"
+    priority: must-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-18"
+    note: "Day-1 gate GREEN 592/592 @ 9ecbf2c; ReplayGolden 6/6; smoke production/qa/smoke-sprint-25-2026-06-17.md; PR #213"
+  - id: "25-2"
+    name: "Damage schema migration 009"
+    priority: must-have
+    status: backlog
+    estimate_days: 1
+    blocker: "25-1"
+    note: "CatalogPlatformDamage types; Baltic fixture seed"
+  - id: "25-3"
+    name: "Damage reader + export"
+    priority: must-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "25-2"
+  - id: "25-4"
+    name: "Damage write-gate commit"
+    priority: must-have
+    status: backlog
+    estimate_days: 2
+    blocker: "25-3"
+  - id: "25-5"
+    name: "Damage importer E2E"
+    priority: must-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "25-4"
+  - id: "25-6"
+    name: "Damage validator rule pack"
+    priority: should-have
+    status: backlog
+    estimate_days: 1
+    blocker: "25-5"
+  - id: "25-7"
+    name: "S24-11 ClosedXML carryover"
+    priority: should-have
+    status: backlog
+    estimate_days: 1
+    blocker: "25-1"
+    note: "stack/sprint24/closedxml-phase-b-ux rebased @ a9db122"
+  - id: "25-8"
+    name: "APP-6 glyph atlas MVP"
+    priority: should-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "25-1"
+  - id: "25-9"
+    name: "Cesium Editor evidence"
+    priority: should-have
+    status: backlog
+    estimate_days: 1
+    blocker: "25-1"
+  - id: "25-10"
+    name: "S24-10 EMCON panel merge"
+    priority: should-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: "25-1"
+    note: "stack/sprint24/doctrine-emcon-readonly rebased @ 96b63b0"
+  - id: "25-11"
+    name: "C2 Editor tri-batch sign-off"
+    priority: should-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: "25-10"
+  - id: "25-12"
+    name: "Closeout hygiene"
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: ""
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
