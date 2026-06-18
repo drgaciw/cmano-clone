@@ -886,10 +886,11 @@ sprint24_stories:
   - id: "24-8"
     name: "Cesium globe production polish"
     priority: should-have
-    status: backlog
+    status: in-progress
     estimate_days: 1.5
     blocker: "24-1"
-    note: "CesiumSpike.unity evidence; depth/occlusion checklist; useGlobeMap=false default"
+    evidence: production/qa/sprint-24-cesium-polish-2026-06-17.md
+    note: "Headless useGlobeMap=false regression PASS; depth/occlusion + selection OOB checklist closed; Editor screenshots pending per evidence doc"
   - id: "24-9"
     name: "Closeout hygiene (replay + GitNexus)"
     priority: nice-to-have

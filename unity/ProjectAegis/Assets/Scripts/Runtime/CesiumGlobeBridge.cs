@@ -86,6 +86,8 @@ namespace ProjectAegis.Unity.Runtime
                 anchor.height = 200.0; // meters above surface for billboard visibility
 
                 // Visual marker (primitive for spike; replace with symbol prefab in production).
+                // S24-08 depth/occlusion: 25 km sphere scale keeps billboards visible at Baltic overview altitude;
+                // production would use Cesium billboard + depth offset to avoid terrain overlap.
                 // Size scaled for earth-sized globe; color by affiliation to match UX (■ friendly green, ◆ hostile red).
                 var visual = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 visual.name = $"{label}Visual";
