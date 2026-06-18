@@ -17,6 +17,7 @@ The repository contains requirements documentation and an initial **agent delega
 - **Unity wiring:** `unity/ProjectAegis/` (DLL copy + optional `DelegationBridgeHost`)
 - **Console demo:** `src/ProjectAegis.Delegation.Demo/`
 - **Headless mission-editor CLI / MCP verbs:** `src/ProjectAegis.MissionEditor.Cli/` — full verb catalog, result envelope, and exit codes in [docs/engineering/mission-editor-cli-reference.md](docs/engineering/mission-editor-cli-reference.md)
+- **Deterministic replay & world-hash verification:** seeded RNG, layered world hash, order-log fingerprint, and the Baltic golden regression gate — see [docs/engineering/deterministic-replay-verification.md](docs/engineering/deterministic-replay-verification.md)
 
 **CI:** Buildkite primary pipeline — [buildkite-ci.md](docs/engineering/buildkite-ci.md)
 

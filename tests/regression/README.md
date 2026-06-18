@@ -2,6 +2,9 @@
 
 Pinned world/detection hashes and optional `FINGERPRINT_SHA256` for Baltic harness runs.
 
+> Full toolchain reference (RNG primitives, world-hash layering, fingerprint format, what a
+> divergence means): [`docs/engineering/deterministic-replay-verification.md`](../../docs/engineering/deterministic-replay-verification.md).
+
 ## CI gate
 
 `ReplayGoldenSuiteTests` runs on every PR via Buildkite ([`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml) / [`tools/buildkite/dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh)).
