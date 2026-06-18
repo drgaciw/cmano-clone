@@ -1432,12 +1432,15 @@ start: "2026-09-18"
 end: "2026-10-01"
 generated: "2026-06-18"
 updated: "2026-06-18"
-status: in_progress
+status: complete
+completed: "2026-06-18"
 branch: main
-indexed_commit: e680075
+indexed_commit: a4a481a
 gitnexus_indexed: "2026-06-18"
-gitnexus_nodes: 11327
-gitnexus_edges: 23129
+gitnexus_nodes: 11851
+gitnexus_edges: 24408
+closeout_note: "Wave-3 parallel dispatch S28-09/10/11/12/13; 801/801 full sln; ReplayGolden 6/6; ZERO touch DelegationBridge"
+tests_passed_sprint28_closeout: 801
 tests_passed_sprint27_closeout: 741
 tests_passed_sprint28_baseline: 741
 replay_golden_sprint28_baseline: pass
@@ -1464,8 +1467,18 @@ evidence:
   - production/agentic/stacks/sprint28/S28-06-DONE.md
   - production/agentic/stacks/sprint28/S28-07-DONE.md
   - production/agentic/stacks/sprint28/S28-08-DONE.md
+  - production/agentic/stacks/sprint28/S28-09-DONE.md
+  - production/agentic/stacks/sprint28/S28-10-DONE.md
+  - production/agentic/stacks/sprint28/S28-11-DONE.md
+  - production/agentic/stacks/sprint28/S28-12-DONE.md
+  - production/agentic/stacks/sprint28/S28-13-DONE.md
+  - production/agentic/sprint-28-tl-branching-spike-2026-06-18.md
+  - production/qa/smoke-sprint-28-closeout-2026-06-18.md
+  - production/qa/sprint-28-ci-hygiene-2026-06-18.md
+  - production/qa/sprint-28-gitnexus-2026-06-18.md
 tests_passed_sprint28_wave1: 759
 tests_passed_sprint28_wave2: 787
+tests_passed_sprint28_wave3: 801
 sprint28_stories:
   - id: "28-1"
     name: "Full-solution re-baseline"
@@ -1543,43 +1556,48 @@ sprint28_stories:
     name: "Facility damage projection stub"
     file: production/epics/sprint-28-combat-domains-phase2/story-028-09-facility-damage-stub.md
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 1
     blocker: "28-5"
-    completed: ""
+    completed: "2026-06-18"
+    note: "OrderLogFacilityDamageProjection + FacilityPictureProjection; 7 Delegation.Tests; ReplayGolden 6/6; evidence production/agentic/stacks/sprint28/S28-09-DONE.md"
   - id: "28-10"
     name: "Balance drift telemetry consumer"
     file: production/epics/sprint-28-combat-domains-phase2/story-028-10-balance-drift-consumer.md
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: "28-1"
-    completed: ""
+    completed: "2026-06-18"
+    note: "BalanceDriftAdvisoryConsumer; telemetry.enableBalanceDrift default false; policy fixture; evidence production/agentic/stacks/sprint28/S28-10-DONE.md"
   - id: "28-11"
     name: "TL branching spike (export-only)"
     file: production/epics/sprint-28-cmo-corpus-v2/story-028-11-tl-branching-spike.md
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 1
     blocker: "28-2"
-    completed: ""
+    completed: "2026-06-18"
+    note: "PROCEED export-only; defer runtime TL forks; evidence production/agentic/sprint-28-tl-branching-spike-2026-06-18.md"
   - id: "28-12"
     name: "CI/local gate refresh"
     file: production/epics/sprint-28-closeout-devops/story-028-12-ci-hygiene.md
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 0.25
     blocker: "28-1"
-    completed: ""
+    completed: "2026-06-18"
+    note: "verify-ci-local.ps1 comment refresh; Buildkite merge authority doc; evidence production/qa/sprint-28-ci-hygiene-2026-06-18.md"
   - id: "28-13"
     name: "Closeout hygiene"
     file: production/epics/sprint-28-closeout-devops/story-028-13-closeout-hygiene.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: ""
-    completed: ""
-next_backlog: production/sprints/sprint-28-corpus-write-combat-v2.md
+    completed: "2026-06-18"
+    note: "801/801 sln; ReplayGolden 6/6; GitNexus 11851/24408; tracker rows 06/18/21; evidence production/agentic/stacks/sprint28/S28-13-DONE.md"
+next_backlog: production/sprints/sprint-29-planning.md
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"

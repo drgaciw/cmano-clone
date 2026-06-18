@@ -1,6 +1,6 @@
 ---
 id: S28-11
-status: Not Started
+status: Complete
 type: Config
 priority: nice-to-have
 graphite_branch: stack/sprint28/tl-branch-spike
@@ -23,12 +23,12 @@ Document TL-gated branch DB workflow for export-only evaluation. Spike doc with 
 
 ## Acceptance Criteria
 
-- [ ] Spike doc authored with TL-0–TL-5 branch workflow outline
-- [ ] Export-only workflow documented (diffable drops, snapshot hashes)
-- [ ] PROCEED or DEFER verdict recorded with rationale
-- [ ] No runtime branch binding in code
-- [ ] No TL-0–TL-5 production branch databases shipped
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] Spike doc authored with TL-0–TL-5 branch workflow outline
+- [x] Export-only workflow documented (diffable drops, snapshot hashes)
+- [x] PROCEED or DEFER verdict recorded with rationale
+- [x] No runtime branch binding in code
+- [x] No TL-0–TL-5 production branch databases shipped
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

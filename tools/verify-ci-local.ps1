@@ -1,5 +1,6 @@
 # Mirrors tools/buildkite/dotnet-ci.sh / .buildkite/pipeline.yml (local CI parity gate).
-# Policy: production/qa/sprint-27-ci-hygiene-2026-06-18.md (S27-12)
+# Policy: production/qa/sprint-28-ci-hygiene-2026-06-18.md (S28-12)
+# Baseline (Release @ trunk): >=787 solution tests; ReplayGolden 6/6; PlayModeSmoke 15/15
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot

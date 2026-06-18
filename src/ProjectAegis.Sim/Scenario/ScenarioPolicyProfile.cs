@@ -34,7 +34,8 @@ public sealed class ScenarioPolicyProfile
         IReadOnlyDictionary<string, bool>? unitReadiness = null,
         IReadOnlyList<ScenarioSpoofTransition>? spoofTransitions = null,
         IReadOnlyList<ScenarioWithdrawReadinessTrial>? withdrawReadinessTrials = null,
-        IReadOnlyList<ScenarioCatalogWithdrawTarget>? catalogWithdrawTargets = null)
+        IReadOnlyList<ScenarioCatalogWithdrawTarget>? catalogWithdrawTargets = null,
+        ScenarioBalanceTelemetrySettings? balanceTelemetry = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -65,6 +66,7 @@ public sealed class ScenarioPolicyProfile
         SpoofTransitions = spoofTransitions ?? Array.Empty<ScenarioSpoofTransition>();
         WithdrawReadinessTrials = withdrawReadinessTrials ?? Array.Empty<ScenarioWithdrawReadinessTrial>();
         CatalogWithdrawTargets = catalogWithdrawTargets ?? Array.Empty<ScenarioCatalogWithdrawTarget>();
+        BalanceTelemetry = balanceTelemetry ?? ScenarioBalanceTelemetrySettings.Disabled;
     }
 
     public string Id { get; init; } = "";
@@ -126,6 +128,9 @@ public sealed class ScenarioPolicyProfile
 
     /// <summary>Trials resolved via <see cref="WithdrawReadinessTrialResolver"/> when <see cref="WithdrawReadinessTrials"/> is empty.</summary>
     public IReadOnlyList<ScenarioCatalogWithdrawTarget> CatalogWithdrawTargets { get; }
+
+    /// <summary>Balance drift telemetry advisory settings (DBI-5; default disabled).</summary>
+    public ScenarioBalanceTelemetrySettings BalanceTelemetry { get; }
 
     public EngageContext ResolveEngageContext()
     {

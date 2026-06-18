@@ -11,6 +11,7 @@ using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
+using ProjectAegis.Sim.Telemetry;
 using ProjectAegis.Sim.Time;
 
 /// <summary>Headless/interactive session: delegation tick then sim engagement phase.</summary>
@@ -66,6 +67,7 @@ public sealed class SimulationSession
             DefaultEngageContext = defaultEngageContext,
             DefaultMagazineRounds = defaultMagazineRounds,
             CatalogReader = catalogReader,
+            BalanceDriftConsumer = new BalanceDriftAdvisoryConsumer(orchestrator.ScenarioPolicy?.BalanceTelemetry),
         };
     }
 
@@ -235,6 +237,8 @@ public sealed class SimulationSession
                     {
                         KilledTargets.MarkKilled(processed[i].TargetId, victim.Value);
                     }
+
+                    BalanceDriftConsumer?.RecordEngagementOutcome(order.Target.Value, result.OutcomeCode);
                 }
             }
             else
@@ -293,6 +297,9 @@ public sealed class SimulationSession
     /// <summary>Catalog-resolved withdraw/readiness trials (bounded — no hot-tick damage apply).</summary>
     public IReadOnlyList<ScenarioWithdrawReadinessTrial> CatalogWithdrawTrials { get; private set; } =
         Array.Empty<ScenarioWithdrawReadinessTrial>();
+
+    /// <summary>Advisory-only balance drift telemetry consumer (DBI-5; default disabled).</summary>
+    public BalanceDriftAdvisoryConsumer? BalanceDriftConsumer { get; init; }
 
     public void BindCatalogWithdrawTrials(IReadOnlyList<ScenarioWithdrawReadinessTrial> trials) =>
         CatalogWithdrawTrials = trials;

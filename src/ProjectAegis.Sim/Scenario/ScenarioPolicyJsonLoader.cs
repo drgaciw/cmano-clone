@@ -2,6 +2,7 @@ namespace ProjectAegis.Sim.Scenario;
 
 using System.Text.Json;
 using ProjectAegis.Data.Scenario.Policy;
+using ProjectAegis.Data.Telemetry;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 
@@ -76,11 +77,60 @@ public static class ScenarioPolicyJsonLoader
             ParseSpeculative(dto.Speculative),
             ParseUnitReadiness(dto.UnitReadiness),
             ParseSpoofTransitions(dto.SpoofTracks),
-            catalogWithdrawTargets: ParseCatalogWithdrawTargets(dto.CatalogWithdraw))
+            catalogWithdrawTargets: ParseCatalogWithdrawTargets(dto.CatalogWithdraw),
+            balanceTelemetry: ParseBalanceTelemetry(dto.Telemetry))
         {
             Id = dto.Id,
         };
     }
+
+    private static ScenarioBalanceTelemetrySettings ParseBalanceTelemetry(ScenarioTelemetryJsonDto? telemetry)
+    {
+        if (telemetry == null)
+        {
+            return ScenarioBalanceTelemetrySettings.Disabled;
+        }
+
+        var enable = telemetry.EnableBalanceDrift ?? false;
+        BalanceDriftOptions? options = null;
+        if (telemetry.WinRateDriftThreshold != null ||
+            telemetry.MinimumSampleRuns != null ||
+            telemetry.DefaultExpectedWinRate != null)
+        {
+            options = new BalanceDriftOptions
+            {
+                WinRateDriftThreshold = telemetry.WinRateDriftThreshold ?? 0.08,
+                MinimumSampleRuns = telemetry.MinimumSampleRuns ?? 500,
+                DefaultExpectedWinRate = telemetry.DefaultExpectedWinRate ?? 0.5,
+            };
+        }
+
+        return new ScenarioBalanceTelemetrySettings(
+            enableBalanceDrift: enable,
+            options: options,
+            balanceTrials: ParseBalanceTrials(telemetry.BalanceTrials));
+    }
+
+    private static IReadOnlyList<ScenarioBalanceTrial> ParseBalanceTrials(
+        List<ScenarioBalanceTrialJsonDto>? balanceTrials)
+    {
+        if (balanceTrials == null || balanceTrials.Count == 0)
+        {
+            return Array.Empty<ScenarioBalanceTrial>();
+        }
+
+        return balanceTrials
+            .Select(t => new ScenarioBalanceTrial(
+                t.EntityId,
+                ParseBalanceEntityKind(t.EntityKind),
+                t.ExpectedWinRate))
+            .ToArray();
+    }
+
+    private static BalanceEntityKind ParseBalanceEntityKind(string value) =>
+        Enum.TryParse<BalanceEntityKind>(value, ignoreCase: true, out var kind)
+            ? kind
+            : throw new InvalidDataException($"Unknown balance entity kind: {value}");
 
     private static IReadOnlyDictionary<string, bool> ParseUnitReadiness(
         Dictionary<string, ScenarioUnitReadinessJsonDto>? readiness)

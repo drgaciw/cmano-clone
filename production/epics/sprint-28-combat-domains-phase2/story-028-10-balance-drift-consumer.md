@@ -1,6 +1,6 @@
 ---
 id: S28-10
-status: Not Started
+status: Complete
 type: Logic
 priority: nice-to-have
 graphite_branch: stack/sprint28/combat-phase2
@@ -23,12 +23,12 @@ Wire `enableBalanceDrift` advisory from S22-06 `IBalanceTelemetrySink` / `Balanc
 
 ## Acceptance Criteria
 
-- [ ] Sim consumer reads balance drift advisory when flag enabled
-- [ ] Telemetry tests PASS
-- [ ] `enableBalanceDrift` default **false**
-- [ ] `ReplayGoldenSuiteTests` — 6/6 unchanged on default path
-- [ ] No `IWriteGate` bypass
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] Sim consumer reads balance drift advisory when flag enabled
+- [x] Telemetry tests PASS
+- [x] `enableBalanceDrift` default **false**
+- [x] `ReplayGoldenSuiteTests` — 6/6 unchanged on default path
+- [x] No `IWriteGate` bypass
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

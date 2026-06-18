@@ -51,6 +51,30 @@ public sealed class ScenarioPolicyJsonDto
     public Dictionary<string, ScenarioUnitReadinessJsonDto>? UnitReadiness { get; set; }
 
     public List<ScenarioSpoofJsonDto>? SpoofTracks { get; set; }
+
+    public ScenarioTelemetryJsonDto? Telemetry { get; set; }
+}
+
+public sealed class ScenarioTelemetryJsonDto
+{
+    public bool? EnableBalanceDrift { get; set; }
+
+    public double? WinRateDriftThreshold { get; set; }
+
+    public int? MinimumSampleRuns { get; set; }
+
+    public double? DefaultExpectedWinRate { get; set; }
+
+    public List<ScenarioBalanceTrialJsonDto>? BalanceTrials { get; set; }
+}
+
+public sealed class ScenarioBalanceTrialJsonDto
+{
+    public string EntityId { get; set; } = "";
+
+    public string EntityKind { get; set; } = "Platform";
+
+    public double? ExpectedWinRate { get; set; }
 }
 
 public sealed class ScenarioUnitReadinessJsonDto

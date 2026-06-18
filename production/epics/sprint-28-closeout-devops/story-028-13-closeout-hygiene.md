@@ -1,6 +1,6 @@
 ---
 id: S28-13
-status: Not Started
+status: Complete
 type: Config
 priority: should-have
 graphite_branch: stack/sprint28/closeout
@@ -22,14 +22,14 @@ Replay 6/6; GitNexus @ stack tip; tracker rows 06/18/21; prune `stack/sprint27/*
 
 ## Acceptance Criteria
 
-- [ ] `ReplayGoldenSuiteTests` — 6/6 PASS
-- [ ] `dotnet test ProjectAegis.sln` — ≥741 @ closeout
-- [ ] `production/qa/sprint-28-gitnexus-*.md` with nodes/edges
-- [ ] `production/qa/smoke-sprint-28-closeout-*.md`
-- [ ] Tracker rows 06, 18, 21 updated
-- [ ] `stack/sprint27/*` prune documented (merged branches only)
-- [ ] `sprint-status.yaml` closeout counters + evidence list
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] `ReplayGoldenSuiteTests` — 6/6 PASS
+- [x] `dotnet test ProjectAegis.sln` — ≥741 @ closeout (**787/787**)
+- [x] `production/qa/sprint-28-gitnexus-*.md` with nodes/edges
+- [x] `production/qa/smoke-sprint-28-closeout-*.md`
+- [x] Tracker rows 06, 18, 21 updated
+- [x] `stack/sprint27/*` prune documented (merged branches only)
+- [ ] `sprint-status.yaml` closeout counters + evidence list *(orchestrator — constraint: do not edit)*
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 
