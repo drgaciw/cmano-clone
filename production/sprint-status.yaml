@@ -853,10 +853,11 @@ sprint24_stories:
   - id: "24-4"
     name: "Phase B importer wiring + round-trip golden"
     priority: must-have
-    status: backlog
+    status: done
     estimate_days: 2.5
     blocker: "24-3"
-    note: "PlatformWorkbookImporter Mobility/Signatures/Emcon; empty-diff contract"
+    completed: "2026-06-17"
+    note: "PlatformWorkbookImporter Mobility/Signatures/Emcon; empty-diff + E2E read-back; 10 importer tests PASS"
   - id: "24-5"
     name: "Phase B validator rule pack"
     priority: should-have
@@ -874,10 +875,10 @@ sprint24_stories:
   - id: "24-7"
     name: "C2 regression + APP-6 Phase C spike"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 2.5
     blocker: "24-1"
-    note: "Tri-batch comms/classify/doctrine; App6Sidc map glyphs; ZERO touch DelegationBridge"
+    note: "Tri-batch PlayMode PASS (17); App6Sidc glyphs ▣/⬥; spike PROCEED; ZERO touch DelegationBridge"
   - id: "24-8"
     name: "Cesium globe production polish"
     priority: should-have

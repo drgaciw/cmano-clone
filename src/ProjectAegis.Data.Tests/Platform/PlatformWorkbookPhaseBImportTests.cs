@@ -8,11 +8,12 @@ namespace ProjectAegis.Data.Tests.Platform;
 
 /// <summary>
 /// Req-21 / ADR-011 S24-04: Phase B importer wiring — Mobility/Signatures/Emcon stage via write gate,
-/// empty-diff golden on unedited round-trip, FK guard on PlatformId.
+/// empty-diff golden on unedited round-trip, FK guard on PlatformId, E2E read-back via SqliteCatalogReader.
 /// </summary>
+[Collection("CatalogSqlite")]
 public sealed class PlatformWorkbookPhaseBImportTests
 {
-    private const string SnapshotId = "baltic_patrol";
+    private const string SnapshotId = CatalogValidationDefaults.BalticSnapshotId;
 
     private static PlatformCatalogExportData PhaseBData(
         double maxSpeedKnots = 30,
@@ -33,6 +34,17 @@ public sealed class PlatformWorkbookPhaseBImportTests
 
     private static PlatformWorkbookImporter ImporterFor(PlatformCatalogExportData source) =>
         new(id => string.Equals(id, SnapshotId, StringComparison.Ordinal) ? source : null, new FixedCatalogClock(0));
+
+    private static PlatformWorkbookImporter ImporterForDb(string dbPath) =>
+        new(id =>
+        {
+            if (!string.Equals(id, SnapshotId, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            return PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var data) ? data : null;
+        }, new FixedCatalogClock(0));
 
     [Fact]
     public void Plan_unedited_Phase_B_round_trip_has_no_supported_changes()
@@ -152,6 +164,83 @@ public sealed class PlatformWorkbookPhaseBImportTests
     }
 
     [Fact]
+    public void E2E_mobility_export_edit_stage_approve_readback_via_SqliteCatalogReader()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-phase-b-e2e-mobility-{Guid.NewGuid():N}.db");
+        try
+        {
+            SeedPhaseBDatabase(dbPath);
+            Assert.True(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var source));
+
+            var exported = new PlatformWorkbookExporter().Export(source, SnapshotId, new FixedCatalogClock(9600));
+            var edited = WithSheetCell(exported, "Mobility", 0, "MaxSpeedKnots", "36");
+
+            var importer = ImporterForDb(dbPath);
+            using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9601)))
+            {
+                var result = importer.Stage(edited, gate, "human", "drgamtd", "e2e mobility");
+                Assert.True(result.Staged);
+                Assert.NotNull(result.MobilityBatchId);
+                Assert.True(gate.ApproveBatch(result.MobilityBatchId!, "human", "qa-reviewer").Committed);
+            }
+
+            using var reader = new SqliteCatalogReader(dbPath, "phase-b-e2e-mobility");
+            Assert.True(reader.TryGetMobility("u1", out var mobility));
+            Assert.Equal(36, mobility.MaxSpeedKnots, precision: 3);
+            Assert.Equal(4200, mobility.RangeNm, precision: 3);
+        }
+        finally
+        {
+            Cleanup(dbPath);
+        }
+    }
+
+    [Fact]
+    public void E2E_all_Phase_B_sheets_export_edit_stage_approve_readback_via_SqliteCatalogReader()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-phase-b-e2e-all-{Guid.NewGuid():N}.db");
+        try
+        {
+            SeedPhaseBDatabase(dbPath);
+            Assert.True(PlatformCatalogExportResolver.TryResolve(dbPath, SnapshotId, out var source));
+
+            var exported = new PlatformWorkbookExporter().Export(source, SnapshotId, new FixedCatalogClock(9610));
+            var edited = WithSheetCell(exported, "Mobility", 0, "MaxSpeedKnots", "36");
+            edited = WithSheetCell(edited, "Signatures", 0, "RcsBandDbsm", "-18");
+            edited = WithSheetCell(edited, "Emcon", 1, "Posture", "passive");
+
+            var importer = ImporterForDb(dbPath);
+            using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9611)))
+            {
+                var result = importer.Stage(edited, gate, "human", "drgamtd", "e2e phase b all");
+                Assert.True(result.Staged);
+                Assert.NotNull(result.MobilityBatchId);
+                Assert.NotNull(result.SignatureBatchId);
+                Assert.NotNull(result.EmconBatchId);
+                Assert.True(gate.ApproveBatch(result.MobilityBatchId!, "human", "qa-reviewer").Committed);
+                Assert.True(gate.ApproveBatch(result.SignatureBatchId!, "human", "qa-reviewer").Committed);
+                Assert.True(gate.ApproveBatch(result.EmconBatchId!, "human", "qa-reviewer").Committed);
+            }
+
+            using var reader = new SqliteCatalogReader(dbPath, "phase-b-e2e-all");
+            Assert.True(reader.TryGetMobility("u1", out var mobility));
+            Assert.Equal(36, mobility.MaxSpeedKnots, precision: 3);
+
+            Assert.True(reader.TryGetSignature("u1", out var signature));
+            Assert.Equal(-18, signature.RcsBandDbsm, precision: 3);
+
+            Assert.True(reader.TryGetEmcon("u1", "silent", "radar-1", out var emcon));
+            Assert.Equal("passive", emcon.Posture);
+            Assert.True(reader.TryGetEmcon("u1", "free", "radar-1", out var unchanged));
+            Assert.Equal("active", unchanged.Posture);
+        }
+        finally
+        {
+            Cleanup(dbPath);
+        }
+    }
+
+    [Fact]
     public void ApproveBatch_mobility_batch_commits_to_live_table()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-phase-b-mobility-{Guid.NewGuid():N}.db");
@@ -180,6 +269,68 @@ public sealed class PlatformWorkbookPhaseBImportTests
         {
             Cleanup(dbPath);
         }
+    }
+
+    private static void SeedPhaseBDatabase(string dbPath)
+    {
+        CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
+        using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
+        connection.Open();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO platform_mobility
+                (platform_id, max_speed_knots, cruise_speed_knots, range_nm, review_state, trl_level, value_tier, citation_ref)
+            VALUES ('u1', 32, 18, 4200, 'approved', 9, 'interpreted_value', 'unit-test');
+            INSERT OR REPLACE INTO platform_signature
+                (platform_id, rcs_band_dbsm, acoustic_signature_db, review_state, trl_level, value_tier, citation_ref)
+            VALUES ('u1', -12, 88, 'approved', 9, 'interpreted_value', 'unit-test');
+            INSERT OR REPLACE INTO platform_emcon (platform_id, condition, emitter_id, posture, review_state)
+            VALUES ('u1', 'free', 'radar-1', 'active', 'approved');
+            INSERT OR REPLACE INTO platform_emcon (platform_id, condition, emitter_id, posture, review_state)
+            VALUES ('u1', 'silent', 'radar-1', 'off', 'approved');
+            """;
+        cmd.ExecuteNonQuery();
+    }
+
+    private static PlatformWorkbook WithSheetCell(
+        PlatformWorkbook workbook,
+        string sheetName,
+        int rowIndex,
+        string columnName,
+        string value)
+    {
+        var sheets = workbook.Sheets.Select(sheet =>
+        {
+            if (!string.Equals(sheet.Name, sheetName, StringComparison.Ordinal))
+            {
+                return sheet;
+            }
+
+            var colIndex = Array.IndexOf(sheet.Header.ToArray(), columnName);
+            Assert.True(colIndex >= 0, $"Column '{columnName}' not found on sheet '{sheetName}'.");
+
+            var rows = sheet.Rows.Select((row, i) =>
+            {
+                if (i != rowIndex)
+                {
+                    return row;
+                }
+
+                var cells = row.ToList();
+                while (cells.Count <= colIndex)
+                {
+                    cells.Add(string.Empty);
+                }
+
+                cells[colIndex] = value;
+                return (IReadOnlyList<string>)cells;
+            }).ToArray();
+
+            return sheet with { Rows = rows };
+        }).ToArray();
+
+        return workbook with { Sheets = sheets };
     }
 
     private static void SeedPlatform(string dbPath, string platformId)
