@@ -129,6 +129,165 @@ public static class CmoMarkdownImportProposer
             mountBatchId);
     }
 
+    /// <summary>S26-02: parse weapon markdown, chunk, and stage via <see cref="IWriteGate.ProposeWeaponBatch"/>.</summary>
+    public static CmoMarkdownImportResult ProposeWeaponsFromMarkdown(
+        string databasePath,
+        string markdownPath,
+        int? maxRecords = null,
+        int chunkSize = DefaultChunkSize,
+        ICatalogClock? clock = null)
+    {
+        if (string.IsNullOrWhiteSpace(databasePath))
+        {
+            throw new ArgumentException("Database path required.", nameof(databasePath));
+        }
+
+        if (!File.Exists(markdownPath))
+        {
+            throw new FileNotFoundException($"CMO markdown not found: {markdownPath}");
+        }
+
+        var weapons = CmoMarkdownImporter.ReadWeaponBindings(markdownPath, maxRecords);
+        EnsureDatabase(databasePath);
+
+        var batches = new List<CmoMarkdownImportBatch>();
+        var catalogClock = clock ?? new FixedCatalogClock(0);
+        using var gate = new CatalogWriteGate(databasePath, catalogClock);
+
+        foreach (var chunk in ChunkWeapons(weapons, Math.Max(1, chunkSize)))
+        {
+            var batchId = gate.ProposeWeaponBatch(
+                chunk,
+                "agent",
+                "cmo-markdown-import",
+                $"catalog_import_markdown:{Path.GetFileName(markdownPath)}");
+            batches.Add(new CmoMarkdownImportBatch(batchId, chunk.Length));
+        }
+
+        return new CmoMarkdownImportResult(
+            weapons.Count,
+            weapons.Count,
+            0,
+            batches,
+            []);
+    }
+
+    /// <summary>S26-03: parse platform (+ mounts) markdown, chunk platforms, stage via write gate.</summary>
+    public static CmoMarkdownImportResult ProposePlatformsFromMarkdown(
+        string databasePath,
+        string markdownPath,
+        bool mapBalticPlatformIds = false,
+        int? maxRecords = null,
+        int chunkSize = DefaultChunkSize,
+        ICatalogClock? clock = null)
+    {
+        if (string.IsNullOrWhiteSpace(databasePath))
+        {
+            throw new ArgumentException("Database path required.", nameof(databasePath));
+        }
+
+        if (!File.Exists(markdownPath))
+        {
+            throw new FileNotFoundException($"CMO markdown not found: {markdownPath}");
+        }
+
+        var platforms = CmoMarkdownImporter.ReadPlatformBindings(markdownPath, mapBalticIds: mapBalticPlatformIds);
+        if (maxRecords.HasValue)
+        {
+            platforms = platforms.Take(maxRecords.Value).ToArray();
+        }
+
+        var allMounts = CmoMarkdownImporter.ReadPlatformMounts(markdownPath, mapBalticIds: mapBalticPlatformIds);
+        var mountLookup = allMounts
+            .GroupBy(m => m.PlatformId, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.OrderBy(m => m.MountId, StringComparer.Ordinal).ToArray(), StringComparer.Ordinal);
+
+        EnsureDatabase(databasePath);
+
+        var batches = new List<CmoMarkdownImportBatch>();
+        var catalogClock = clock ?? new FixedCatalogClock(0);
+        using var gate = new CatalogWriteGate(databasePath, catalogClock);
+
+        foreach (var platformChunk in ChunkPlatforms(platforms, Math.Max(1, chunkSize)))
+        {
+            var platformBatchId = gate.ProposePlatformBatch(
+                platformChunk,
+                "agent",
+                "cmo-markdown-import",
+                $"catalog_import_markdown:{Path.GetFileName(markdownPath)}");
+            batches.Add(new CmoMarkdownImportBatch(platformBatchId, platformChunk.Length));
+
+            var mountChunk = platformChunk
+                .SelectMany(p => mountLookup.TryGetValue(p.PlatformId, out var mounts) ? mounts : [])
+                .OrderBy(m => m.PlatformId, StringComparer.Ordinal)
+                .ThenBy(m => m.MountId, StringComparer.Ordinal)
+                .ToArray();
+
+            if (mountChunk.Length > 0)
+            {
+                var mountBatchId = gate.ProposeMountBatch(
+                    mountChunk,
+                    "agent",
+                    "cmo-markdown-import",
+                    $"catalog_import_mount:{Path.GetFileName(markdownPath)}");
+                batches.Add(new CmoMarkdownImportBatch(mountBatchId, mountChunk.Length));
+            }
+        }
+
+        return new CmoMarkdownImportResult(
+            platforms.Count,
+            platforms.Count,
+            0,
+            batches,
+            []);
+    }
+
+    public static CatalogWeaponRecord[][] ChunkWeapons(
+        IReadOnlyList<CatalogWeaponRecord> weapons,
+        int chunkSize)
+    {
+        if (weapons.Count == 0)
+        {
+            return [];
+        }
+
+        var sorted = CatalogSortKeyComparer.SortWeapons(weapons);
+        return ChunkArray(sorted, chunkSize);
+    }
+
+    public static CatalogPlatformBinding[][] ChunkPlatforms(
+        IReadOnlyList<CatalogPlatformBinding> platforms,
+        int chunkSize)
+    {
+        if (platforms.Count == 0)
+        {
+            return [];
+        }
+
+        var sorted = CatalogSortKeyComparer.SortPlatforms(platforms);
+        return ChunkArray(sorted, chunkSize);
+    }
+
+    private static void EnsureDatabase(string databasePath)
+    {
+        if (!File.Exists(databasePath))
+        {
+            CatalogSeedBootstrap.SeedBalticPatrol(databasePath, overwrite: false);
+        }
+    }
+
+    private static T[][] ChunkArray<T>(IReadOnlyList<T> sorted, int chunkSize)
+    {
+        var chunkCount = (sorted.Count + chunkSize - 1) / chunkSize;
+        var chunks = new T[chunkCount][];
+        for (var i = 0; i < chunkCount; i++)
+        {
+            chunks[i] = sorted.Skip(i * chunkSize).Take(chunkSize).ToArray();
+        }
+
+        return chunks;
+    }
+
     public static IReadOnlyList<CmoMarkdownQuarantineReportEntry> BuildQuarantineReport(
         IReadOnlyList<QuarantinedCatalogBinding> quarantined) =>
         quarantined

@@ -329,7 +329,7 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_entity_map");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_propose --db <catalog.db> --platform P --sensor S --base-pd 0.7");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_approve --db <catalog.db> --batch <batchId>");
-    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <sensor.md> [--max-records N] [--chunk-size 500] [--report-out report.json]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <path.md> [--entity sensor|weapon|platform] [--map-baltic-platform-ids] [--max-records N] [--chunk-size 500] [--report-out report.json]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_export_xlsx [--db <catalog.db>] --out <path> [--snapshot <id>] [--io closedxml|canonical]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_import_xlsx --db <catalog.db> --in <workbook> [--io closedxml|canonical]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_diff_xlsx [--db <catalog.db>] [--base <path>] [--edited <path>] [--io closedxml|canonical]");
@@ -352,7 +352,26 @@ static int RunCatalogImportMarkdown(string[] args)
     int? maxRecords = int.TryParse(maxRecordsRaw, out var max) ? max : null;
     var chunkSize = CliArgParser.GetIntFlag(args, "--chunk-size", CmoMarkdownImportProposer.DefaultChunkSize);
     var reportOut = CliArgParser.GetFlag(args, "--report-out");
-    return CatalogImportMarkdownCommand.Run(db, markdown, maxRecords, chunkSize, Console.Out, reportOut);
+    var entityRaw = CliArgParser.GetFlag(args, "--entity");
+    var mapBaltic = args.Any(a => a.Equals("--map-baltic-platform-ids", StringComparison.Ordinal));
+    try
+    {
+        var entity = CatalogImportMarkdownCommand.ParseEntity(entityRaw);
+        return CatalogImportMarkdownCommand.Run(
+            db,
+            markdown,
+            maxRecords,
+            chunkSize,
+            Console.Out,
+            reportOut,
+            entity,
+            mapBaltic);
+    }
+    catch (ArgumentException ex)
+    {
+        Console.Error.WriteLine(ex.Message);
+        return 1;
+    }
 }
 
 static int RunPlatformExportXlsx(string[] args)

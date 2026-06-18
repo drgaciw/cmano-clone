@@ -911,18 +911,23 @@ start: "2026-08-07"
 end: "2026-08-20"
 generated: "2026-06-18"
 updated: "2026-06-18"
-status: in-progress
-branch: stack/sprint25/closeout-gitnexus
-indexed_commit: bd225ae
+status: complete
+completed: "2026-06-18"
+branch: main
+indexed_commit: 76b57e6
 gitnexus_indexed: "2026-06-18"
 gitnexus_nodes: 10171
 gitnexus_edges: 21083
+tests_passed: 661
 tests_passed_sprint24_closeout: 592
 tests_passed_sprint25_baseline: 592
-tests_passed_sprint25_closeout: 639
+tests_passed_sprint25_closeout: 661
 replay_golden_sprint25_closeout: pass
 sprint25_baseline_date: "2026-06-18"
 sprint25_closeout_date: "2026-06-18"
+story_done_confirmed: "2026-06-18"
+story_done_verdict: complete-full
+merged_prs: "#213-#226"
 kickoff: production/sprints/sprint-25-phase-b-damage-assurance.md
 parallel_kickoff: production/agentic/sprint-25-parallel-kickoff-2026-06-17.md
 track_plans:
@@ -944,13 +949,26 @@ graphite_stack_branches:
   - stack/sprint25/cesium-editor-evidence
   - stack/sprint25/c2-editor-tri-batch
   - stack/sprint25/closeout-gitnexus
+  - stack/sprint25/damage-sim-consumer
+  - stack/sprint25/cesium-app6-glyphs
 evidence:
   - production/sprints/sprint-25-phase-b-damage-assurance.md
   - production/agentic/sprint-25-parallel-kickoff-2026-06-17.md
   - production/qa/qa-plan-sprint-25-2026-06-17.md
   - production/qa/smoke-sprint-25-2026-06-17.md
   - production/qa/sprint-25-gitnexus-2026-06-18.md
+  - production/qa/sprint-25-c2-tribatch-2026-06-17.md
+  - production/qa/sprint-25-cesium-app6-billboards-2026-06-17.md
+  - production/agentic/stacks/sprint25/S25-06-DONE.md
+  - production/agentic/stacks/sprint25/S25-07-DONE.md
+  - production/agentic/stacks/sprint25/S25-08-DONE.md
+  - production/agentic/stacks/sprint25/S25-09-DONE.md
+  - production/agentic/stacks/sprint25/S25-10-DONE.md
+  - production/agentic/stacks/sprint25/S25-11-DONE.md
   - production/agentic/stacks/sprint25/S25-12-DONE.md
+  - production/agentic/stacks/sprint25/S25-13-DONE.md
+  - production/agentic/stacks/sprint25/S25-14-DONE.md
+next_backlog: production/sprints/sprint-26-cmo-phase2-presentation-closeout.md
 sprint25_stories:
   - id: "25-1"
     name: "Full-solution re-baseline"
@@ -1027,16 +1045,19 @@ sprint25_stories:
   - id: "25-10"
     name: "S24-10 EMCON panel merge"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: "25-1"
-    note: "stack/sprint24/doctrine-emcon-readonly rebased @ 96b63b0"
+    completed: "2026-06-18"
+    note: "PR #222; read-only EMCON on doctrine panel; Doctrine filter 16/16; ZERO touch DelegationBridge; evidence production/agentic/stacks/sprint25/S25-10-DONE.md"
   - id: "25-11"
     name: "C2 Editor tri-batch sign-off"
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: "25-10"
+    completed: "2026-06-18"
+    note: "PR #224; headless tri-batch proxy APPROVED WITH CONDITIONS; production/qa/sprint-25-c2-tribatch-2026-06-17.md; evidence production/agentic/stacks/sprint25/S25-11-DONE.md"
   - id: "25-12"
     name: "Closeout hygiene"
     priority: nice-to-have
@@ -1044,7 +1065,134 @@ sprint25_stories:
     estimate_days: 0.5
     blocker: ""
     completed: "2026-06-18"
-    note: "Replay 6/6; GitNexus @ bd225ae; tracker row 21 Phase B complete; sprint24 branches pruned; evidence production/qa/sprint-25-gitnexus-2026-06-18.md; re-run before S25-10/11 final merge"
+    note: "PR #223; Replay 6/6; GitNexus @ stack tip; tracker row 21 Phase B complete; sprint24 branches pruned; evidence production/qa/sprint-25-gitnexus-2026-06-18.md"
+  - id: "25-13"
+    name: "Damage sim consumer stub"
+    priority: nice-to-have
+    status: done
+    estimate_days: 1.5
+    blocker: "25-3"
+    completed: "2026-06-18"
+    note: "PR #225; PhaseBCatalogDamageReadinessStub + 19 sim tests; ReplayGolden 6/6; stub-only no BDA; evidence production/agentic/stacks/sprint25/S25-13-DONE.md"
+  - id: "25-14"
+    name: "Cesium APP-6 billboards"
+    priority: nice-to-have
+    status: done
+    estimate_days: 1
+    blocker: "25-8,25-9"
+    completed: "2026-06-18"
+    note: "PR #226; CesiumBillboardProjection + GetBillboardMarkers; 8 contract tests; protocol placeholder cesium-s25-app6-billboards.png; evidence production/agentic/stacks/sprint25/S25-14-DONE.md"
+
+sprint: 26
+goal: "Bounded CMO weapon/platform markdown import through write gate; close S24/S25 presentation advisory gaps; catalog-to-sim readiness without ADR-009 runtime combat."
+start: "2026-08-21"
+end: "2026-09-03"
+generated: "2026-06-18"
+updated: "2026-06-18"
+status: in-progress
+branch: main
+indexed_commit: 76b57e6
+gitnexus_indexed: "2026-06-18"
+gitnexus_nodes: 10385
+gitnexus_edges: 21510
+tests_passed_sprint25_closeout: 661
+tests_passed_sprint26_baseline: 661
+tests_passed_sprint26_must_have: 669
+replay_golden_sprint26_must_have: pass
+story_done_confirmed: "2026-06-18"
+story_done_verdict: complete-must-have
+kickoff: production/sprints/sprint-26-cmo-phase2-presentation-closeout.md
+qa_plan: production/qa/qa-plan-sprint-26-2026-06-18.md
+evidence:
+  - production/sprints/sprint-26-cmo-phase2-presentation-closeout.md
+  - production/qa/qa-plan-sprint-26-2026-06-18.md
+  - production/qa/smoke-sprint-26-2026-06-18.md
+  - production/agentic/stacks/sprint26/S26-01-DONE.md
+  - production/agentic/stacks/sprint26/S26-02-DONE.md
+  - production/agentic/stacks/sprint26/S26-03-DONE.md
+  - production/agentic/stacks/sprint26/S26-04-DONE.md
+sprint26_stories:
+  - id: "26-1"
+    name: "Full-solution re-baseline"
+    priority: must-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-18"
+    note: "Day-1 gate GREEN 669/669; ReplayGolden 6/6; smoke production/qa/smoke-sprint-26-2026-06-18.md; GitNexus 10385/21510"
+  - id: "26-2"
+    name: "CMO weapon markdown import CLI"
+    priority: must-have
+    status: done
+    estimate_days: 2
+    blocker: "26-1"
+    completed: "2026-06-18"
+    note: "weapon-slice-50.md; ProposeWeaponsFromMarkdown; CLI --entity weapon; 2 Data + 1 CLI tests PASS"
+  - id: "26-3"
+    name: "CMO platform markdown import CLI"
+    priority: must-have
+    status: done
+    estimate_days: 2
+    blocker: "26-2"
+    completed: "2026-06-18"
+    note: "ProposePlatformsFromMarkdown; CLI --entity platform; baltic fixture 3 platforms + 4 mounts; 1 Data + 1 CLI tests PASS"
+  - id: "26-4"
+    name: "Import E2E + golden hygiene"
+    priority: must-have
+    status: done
+    estimate_days: 1.5
+    blocker: "26-3"
+    completed: "2026-06-18"
+    note: "CmoMarkdownImportGoldenTests 3/3; BalticCmoImport hash pinned; ReplayGolden 6/6 unchanged; ZERO touch DelegationBridge"
+  - id: "26-5"
+    name: "Damage sim consumer wire (bounded)"
+    priority: should-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "26-1"
+    note: "Wire PhaseBCatalogDamageReadinessStub; no BDA; replay-verify mandatory"
+  - id: "26-6"
+    name: "APP-6 texture atlas asset pack"
+    priority: should-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "26-1"
+    note: "Expand App6Sidc registry; sprite sheet beyond S25-08 MVP"
+  - id: "26-7"
+    name: "Unity Editor presentation evidence closeout"
+    priority: should-have
+    status: backlog
+    estimate_days: 1
+    blocker: "26-1"
+    note: "Live cesium-s26-*.png; tri-batch log; clears S25 CONDITIONS"
+  - id: "26-8"
+    name: "C2 signoff tooling -Scenario doctrine"
+    priority: should-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: "26-7"
+    note: "Invoke-C2PlayModeSignoffBatch.ps1 -Scenario doctrine"
+  - id: "26-9"
+    name: "ADR-009 acceptance + validator stubs"
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "26-1"
+    note: "IDomainValidator no-op stubs; combatDomainsEnabled=false default"
+  - id: "26-10"
+    name: "ADR-011 Phase C platform viewer spike"
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 1.5
+    blocker: "26-4"
+    note: "Read-only ICatalogReader browse; PROCEED/DEFER doc"
+  - id: "26-11"
+    name: "Closeout hygiene"
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: ""
+    note: "Replay 6/6; GitNexus @ stack tip; tracker row 06; prune stack/sprint25/*"
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
