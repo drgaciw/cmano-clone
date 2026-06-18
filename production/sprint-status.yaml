@@ -679,18 +679,32 @@ gitnexus_indexed: "pending-sprint-23-kickoff"
 tests_passed_sprint23_baseline: 498
 sprint23_baseline_date: "2026-06-17"
 closeout_note: "Planning complete 2026-06-17 via parallel dispatch. Must-have: ClosedXML (S23-01) over ApproveBatch (S23-04 should-have). Baseline pre-work GREEN 498/498 @ 7253381."
+graphite_stack: docs/superpowers/plans/sprint-23-graphite-stack.md
+graphite_stack_branches:
+  - stack/sprint23/full-sln-gate
+  - stack/sprint23/closedxml-xlsx-io
+  - stack/sprint23/doctrine-editor-visual
+  - stack/sprint23/approve-batch-multi
+  - stack/sprint23/phase-b-schema
+  - stack/sprint23/canonical-determinism
+  - stack/sprint23/closeout-gitnexus
+epic: production/epics/sprint-23-platform-phase-b/EPIC.md
 evidence:
   - production/sprints/sprint-23-platform-phase-b-doctrine-polish.md
   - docs/superpowers/plans/sprint-23-implementation.md
+  - docs/superpowers/plans/sprint-23-graphite-stack.md
   - production/agentic/sprint-23-parallel-kickoff-2026-06-17.md
   - production/agentic/sprint-23-plan-data-2026-06-17.md
   - production/agentic/sprint-23-plan-unity-2026-06-17.md
   - production/agentic/sprint-23-baseline-2026-06-17.md
   - production/qa/qa-plan-sprint-23-2026-07-08.md
+  - production/qa/smoke-sprint-23-2026-06-17.md
   - production/retrospectives/retro-sprint-22-2026-06-17.md
 sprint23_stories:
   - id: "23-1"
     name: "ClosedXML .xlsx adapter wiring + integration tests"
+    file: production/epics/sprint-23-platform-phase-b/story-023-01-closedxml-xlsx.md
+    branch: stack/sprint23/closedxml-xlsx-io
     priority: must-have
     status: ready-for-dev
     owner: ""
@@ -699,14 +713,18 @@ sprint23_stories:
     note: "Wire ClosedXmlPlatformWorkbookIo into CLI; empty-diff golden on binary .xlsx; PLE-2.1"
   - id: "23-2"
     name: "Full-solution test gate baseline"
+    file: production/epics/sprint-23-platform-phase-b/story-023-02-full-sln-gate.md
+    branch: stack/sprint23/full-sln-gate
     priority: must-have
     status: ready-for-dev
     owner: ""
     estimate_days: 1
     blocker: ""
-    note: "Pre-work GREEN 498/498 @ 7253381 (production/agentic/sprint-23-baseline-2026-06-17.md); formalize smoke evidence + Release config at kickoff"
+    note: "Pre-work GREEN 498/498 @ 7253381; smoke production/qa/smoke-sprint-23-2026-06-17.md on graphite stack"
   - id: "23-3"
     name: "Unity Doctrine Inheritance Panel Editor visual sign-off"
+    file: production/epics/sprint-23-platform-phase-b/story-023-03-doctrine-editor.md
+    branch: stack/sprint23/doctrine-editor-visual
     priority: must-have
     status: ready-for-dev
     owner: ""
@@ -715,6 +733,8 @@ sprint23_stories:
     note: "DoctrineInheritancePanelHost PlayMode + manual evidence; ZERO touch DelegationBridge"
   - id: "23-4"
     name: "ApproveBatch multi-entity commit path"
+    file: production/epics/sprint-23-platform-phase-b/story-023-04-approve-batch.md
+    branch: stack/sprint23/approve-batch-multi
     priority: should-have
     status: backlog
     owner: ""
@@ -723,6 +743,8 @@ sprint23_stories:
     note: "Extend LoadStagingRows + ApproveBatch beyond sensor-only; S22-04 deferred path"
   - id: "23-5"
     name: "Phase B schema foundation spike (export-only)"
+    file: production/epics/sprint-23-platform-phase-b/story-023-05-phase-b-schema.md
+    branch: stack/sprint23/phase-b-schema
     priority: should-have
     status: backlog
     owner: ""
@@ -731,6 +753,8 @@ sprint23_stories:
     note: "Signatures/Mobility/EMCON migration + types + exporter sheet stubs"
   - id: "23-6"
     name: "CanonicalId determinism on Catalog* types"
+    file: production/epics/sprint-23-platform-phase-b/story-023-06-canonical-id.md
+    branch: stack/sprint23/canonical-determinism
     priority: nice-to-have
     status: backlog
     owner: ""
@@ -739,6 +763,8 @@ sprint23_stories:
     note: "DBI-7.3 stable OrderBy composite keys"
   - id: "23-7"
     name: "GitNexus re-index @ 7253381"
+    file: production/epics/sprint-23-platform-phase-b/story-023-07-closeout-gitnexus.md
+    branch: stack/sprint23/closeout-gitnexus
     priority: nice-to-have
     status: backlog
     owner: ""
