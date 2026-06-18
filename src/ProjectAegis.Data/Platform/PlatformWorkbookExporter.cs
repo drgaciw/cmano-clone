@@ -172,4 +172,19 @@ public sealed class PlatformWorkbookExporter
     private static string Int64(long value) => value.ToString(CultureInfo.InvariantCulture);
 
     private static string Bool(bool value) => value ? "true" : "false";
+
+    /// <summary>Serializes an exported workbook through the selected <see cref="IPlatformWorkbookIo"/> adapter.</summary>
+    public void WriteToFile(PlatformWorkbook workbook, string path, IPlatformWorkbookIo io)
+    {
+        if (workbook is null) throw new ArgumentNullException(nameof(workbook));
+        if (io is null) throw new ArgumentNullException(nameof(io));
+        io.Write(workbook, path);
+    }
+
+    /// <summary>Loads a workbook from disk via the selected <see cref="IPlatformWorkbookIo"/> adapter.</summary>
+    public PlatformWorkbook ReadFromFile(string path, IPlatformWorkbookIo io)
+    {
+        if (io is null) throw new ArgumentNullException(nameof(io));
+        return io.Read(path);
+    }
 }

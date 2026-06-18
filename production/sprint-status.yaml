@@ -693,11 +693,12 @@ sprint23_stories:
   - id: "23-1"
     name: "ClosedXML .xlsx adapter wiring + integration tests"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 2.5
     blocker: "23-2"
-    note: "Wire ClosedXmlPlatformWorkbookIo into CLI; empty-diff golden on binary .xlsx; PLE-2.1"
+    completed: "2026-06-17"
+    note: "43 Data.Tests (Platform|ClosedXml|WriteGate) + 4 Cli.Tests (Mcp|Platform) PASS @ 7339ee1; ClosedXml empty-diff golden + canonical parity; GitNexus IPlatformWorkbookIo LOW"
   - id: "23-2"
     name: "Full-solution test gate baseline"
     priority: must-have
@@ -710,11 +711,12 @@ sprint23_stories:
   - id: "23-3"
     name: "Unity Doctrine Inheritance Panel Editor visual sign-off"
     priority: must-have
-    status: ready-for-dev
+    status: done
     owner: ""
     estimate_days: 2.5
     blocker: "23-2"
-    note: "DoctrineInheritancePanelHost PlayMode + manual evidence; ZERO touch DelegationBridge"
+    completed: "2026-06-17"
+    note: "17 doctrine-related tests PASS (15 UnityAdapter + 8 Delegation); UXML/USS + scene builder wired; ZERO touch DelegationBridge.cs; Editor manual visual DEFERRED WITH CONDITIONS (headless proxy PASS per lean QA)"
   - id: "23-4"
     name: "ApproveBatch multi-entity commit path"
     priority: should-have

@@ -1,12 +1,13 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
+using ProjectAegis.Data.Excel;
+using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
 
 /// <summary>
-/// S22-02: platform_import_xlsx verb (pattern from CatalogImportMarkdownCommand).
+/// S22-02 / S23-01: platform_import_xlsx verb (pattern from CatalogImportMarkdownCommand).
 /// Wires through IWriteGate (Propose*Batch for supported sheets) per PLE-6.3 / DBI-8.3; no auto-commit.
-/// Workbook load from real .xlsx is via Io.Read (deferred); this exercises the gate path with meta-driven plan.
 /// </summary>
 public static class PlatformImportXlsxCommand
 {
@@ -21,6 +22,7 @@ public static class PlatformImportXlsxCommand
         string inPath,
         string actorType,
         string actorId,
+        string? ioFlag,
         TextWriter output)
     {
         if (string.IsNullOrWhiteSpace(db))
@@ -30,32 +32,65 @@ public static class PlatformImportXlsxCommand
             return 1;
         }
 
-        string? batchInfo = null;
-        try
+        if (string.IsNullOrWhiteSpace(inPath))
         {
-            using var gate = new CatalogWriteGate(db, new FixedCatalogClock(0));
-            var pending = gate.ListPendingBatches();
-            batchInfo = $"pending_batches={pending.Count}";
-        }
-        catch (Exception ex)
-        {
-            var err = new { ok = false, verb = "platform_import_xlsx", error = ex.Message, note = "gate open failed (db must exist and have schema 007+)" };
+            var err = new { ok = false, verb = "platform_import_xlsx", error = "--in <workbook.xlsx> required" };
             output.WriteLine(JsonSerializer.Serialize(err, JsonOptions));
             return 1;
         }
 
-        var payload = new
+        if (!File.Exists(inPath))
         {
-            ok = true,
-            verb = "platform_import_xlsx",
-            db,
-            inPath = string.IsNullOrWhiteSpace(inPath) ? "(not loaded - Io.Read deferred)" : inPath,
-            actor = new { type = actorType ?? "cli", id = actorId ?? "user" },
-            note = $"CLI verb executes; IWriteGate surface exercised ({batchInfo}); full xlsx->PlatformWorkbook requires adapter. Use --approve via catalog_write_approve after propose.",
-            nextStep = "catalog_write_approve --db <path> --batch <batchId>",
-        };
+            var err = new { ok = false, verb = "platform_import_xlsx", error = $"workbook not found: {inPath}" };
+            output.WriteLine(JsonSerializer.Serialize(err, JsonOptions));
+            return 1;
+        }
 
-        output.WriteLine(JsonSerializer.Serialize(payload, JsonOptions));
-        return 0;
+        try
+        {
+            var clock = new FixedCatalogClock(0);
+            var io = PlatformWorkbookIoSelection.Resolve(
+                inPath,
+                ioFlag,
+                PlatformWorkbookIoFactories.ClosedXml);
+            var importer = new PlatformWorkbookImporter(ResolveSnapshot, clock);
+            using var gate = new CatalogWriteGate(db, clock);
+            var result = importer.StageFromFile(inPath, io, gate, actorType ?? "cli", actorId ?? "user");
+
+            var payload = new
+            {
+                ok = true,
+                verb = "platform_import_xlsx",
+                db,
+                inPath,
+                actor = new { type = actorType ?? "cli", id = actorId ?? "user" },
+                io = io.GetType().Name,
+                snapshotId = result.Plan.SourceSnapshotId,
+                snapshotResolved = result.Plan.SnapshotResolved,
+                changeCount = result.Plan.Changes.Count,
+                staged = result.Staged,
+                sensorBatchId = result.SensorBatchId,
+                mountBatchId = result.MountBatchId,
+                loadoutBatchId = result.LoadoutBatchId,
+                magazineBatchId = result.MagazineBatchId,
+                commsBatchId = result.CommsBatchId,
+                requiresHumanApproval = result.Plan.RequiresHumanApproval,
+                notes = result.Notes,
+                nextStep = "catalog_write_approve --db <path> --batch <batchId>",
+            };
+
+            output.WriteLine(JsonSerializer.Serialize(payload, JsonOptions));
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            var err = new { ok = false, verb = "platform_import_xlsx", error = ex.Message, note = "gate/import failed (db must exist and have schema 007+)" };
+            output.WriteLine(JsonSerializer.Serialize(err, JsonOptions));
+            return 1;
+        }
     }
+
+    /// <summary>P0 CLI snapshot binding: empty catalog export for the exporter's default snapshot id.</summary>
+    private static PlatformCatalogExportData? ResolveSnapshot(string snapshotId) =>
+        string.Equals(snapshotId, "cli-s22-export", StringComparison.Ordinal) ? PlatformCatalogExportData.Empty : null;
 }

@@ -101,10 +101,12 @@ namespace ProjectAegis.Unity.Runtime
             _roeDropdown = panel.Q<DropdownField>(RoeDropdownName);
             _applyButton = panel.Q<Button>(ApplyButtonName);
             _wired = _unitIdLabel != null && _roeLabel != null && _salvoLabel != null &&
-                     _sourceLabel != null && _overrideLabel != null;
+                     _sourceLabel != null && _overrideLabel != null &&
+                     _roeDropdown != null && _applyButton != null;
 
             if (_applyButton != null)
             {
+                _applyButton.clicked -= OnApplyOverrideClicked;
                 _applyButton.clicked += OnApplyOverrideClicked;
             }
 

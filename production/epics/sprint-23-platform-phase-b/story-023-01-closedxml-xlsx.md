@@ -1,6 +1,6 @@
 ---
 id: S23-01
-status: Ready
+status: Complete
 type: Integration
 priority: must-have
 graphite_branch: stack/sprint23/closedxml-xlsx-io
@@ -27,14 +27,14 @@ Wire `ClosedXmlPlatformWorkbookIo` into `platform_export_xlsx` / `platform_impor
 
 ## Acceptance Criteria
 
-- [ ] CLI export produces real `.xlsx` (not canonical text)
-- [ ] Import round-trip yields empty diff on unedited workbook
-- [ ] `ClosedXmlPlatformWorkbookIo` integration test PASS
-- [ ] `Platform|WriteGate` scoped tests green
-- [ ] GitNexus impact on `IPlatformWorkbookIo` checked
-- [ ] Parity: same logical diff whether via `CanonicalTextWorkbookIo` or `ClosedXmlPlatformWorkbookIo`
-- [ ] Text column format `@` prevents numeric coercion (existing adapter contract)
-- [ ] `_Meta.SourceSnapshotId` and `WorkbookHash` survive binary write/read (PLE-1.1)
+- [x] CLI export produces real `.xlsx` (not canonical text)
+- [x] Import round-trip yields empty diff on unedited workbook
+- [x] `ClosedXmlPlatformWorkbookIo` integration test PASS
+- [x] `Platform|WriteGate` scoped tests green
+- [x] GitNexus impact on `IPlatformWorkbookIo` checked
+- [x] Parity: same logical diff whether via `CanonicalTextWorkbookIo` or `ClosedXmlPlatformWorkbookIo`
+- [x] Text column format `@` prevents numeric coercion (existing adapter contract)
+- [x] `_Meta.SourceSnapshotId` and `WorkbookHash` survive binary write/read (PLE-1.1)
 
 ## Verify Commands
 
@@ -81,3 +81,19 @@ After edits: `npx gitnexus detect_changes --repo cmano-clone` before commit.
 - Implementation plan: `docs/superpowers/plans/sprint-23-implementation.md`
 - ADR-011: `docs/architecture/adr-011-platform-editor-excel-roundtrip.md`
 - Req 21: `Game-Requirements/requirements/21-Platform-Editor.md`
+
+## Completion Notes
+
+- **Completed:** 2026-06-17
+- **Implementation commit:** `7339ee1` — `feat(data): wire ClosedXML xlsx adapter for platform workbook I/O [S23-01]`
+- **Criteria:** all 8 passing (lean review mode)
+- **Test Evidence:**
+  - `src/ProjectAegis.Data.Tests/Platform/ClosedXmlPlatformWorkbookIoTests.cs` (6 tests)
+  - `src/ProjectAegis.Data.Tests/Platform/PlatformWorkbookRoundTripTests.cs` (ClosedXml round-trip extension)
+  - `src/ProjectAegis.MissionEditor.Cli.Tests/McpToolsManifestTests.cs` (platform CLI verbs in MCP manifest)
+- **Verify runs (2026-06-17):**
+  - `dotnet test …Data.Tests… --filter "Platform|ClosedXml|WriteGate"` → **43/43 PASS**
+  - `dotnet test …MissionEditor.Cli.Tests… --filter "Mcp|Platform"` → **4/4 PASS**
+  - `platform_export_xlsx` smoke → `io: ClosedXmlPlatformWorkbookIo`, binary `.xlsx` (ZIP PK header)
+- **GitNexus:** `npx gitnexus impact IPlatformWorkbookIo --direction upstream --repo cmano-clone` → 4 symbols impacted, **LOW** risk; `PlatformExportXlsxCommand.Run` in affected processes
+- **Code Review:** Skipped (lean mode)
