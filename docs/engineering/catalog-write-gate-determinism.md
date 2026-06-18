@@ -177,6 +177,7 @@ dotnet test src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj -v minima
 
 ## See also
 
+- [Balance Drift Telemetry (Advisory)](balance-drift-telemetry.md) — advisory win-rate drift sink; never writes the catalog
 - [ADR-006 — Data Layer Boundary](../architecture/adr-006-data-layer-boundary.md)
 - [ADR-011 — Platform Editor Excel Round-trip](../architecture/adr-011-platform-editor-excel-roundtrip.md)
 - `Game-Requirements/requirements/06-Database-Intelligence.md` (`DBI-1.1`, `DBI-1.2`, `DBI-7.3`)
