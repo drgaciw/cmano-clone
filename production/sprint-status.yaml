@@ -1245,7 +1245,7 @@ producer_decisions:
   nightly_corpus_v1: sensor_weapon_only
   gha_billing: permanent_local_gate_advisory
 branch: main
-indexed_commit: ad42810
+indexed_commit: 7088ce6
 tests_passed_sprint26_closeout: 698
 tests_passed_sprint27_baseline: 701
 tests_passed_sprint27_must_have: 701
