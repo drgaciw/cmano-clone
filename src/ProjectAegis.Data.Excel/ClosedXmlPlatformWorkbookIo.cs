@@ -9,11 +9,8 @@ using ProjectAegis.Data.Platform;
 /// the column number-format is pinned to text ("@") so numeric-looking values such as "57" round-trip
 /// byte-for-byte rather than being coerced to numbers. The round-trip contract proven by
 /// <see cref="CanonicalTextWorkbookIo"/> golden tests must hold here too.
-/// Data-validation dropdowns and sheet/PK-column protection (PLE-1.2, doc 21 OQ5) are layered on in Phase A.
-///
-/// NOTE: this project carries the ClosedXML NuGet dependency — run `dotnet restore` after adding it to the
-/// solution. It is intentionally not unit-tested in the deterministic core; add an integration test once
-/// the package is restored locally.
+/// Phase B UX (S24-11): Emcon <c>Condition</c>/<c>Posture</c> list validation per migration 008 / Req 21.
+/// Sheet/PK-column protection (PLE-1.2, doc 21 OQ5) remains deferred.
 /// </summary>
 public sealed class ClosedXmlPlatformWorkbookIo : IPlatformWorkbookIo
 {
@@ -42,6 +39,8 @@ public sealed class ClosedXmlPlatformWorkbookIo : IPlatformWorkbookIo
                     ws.Cell(r + 2, c + 1).Value = row[c];
                 }
             }
+
+            ApplyPhaseBSheetUx(ws, sheet);
         }
 
         wb.SaveAs(path);
@@ -86,6 +85,56 @@ public sealed class ClosedXmlPlatformWorkbookIo : IPlatformWorkbookIo
         }
 
         return new PlatformWorkbook(sheets);
+    }
+
+    private const int EnumValidationLastRow = 1000;
+
+    private static void ApplyPhaseBSheetUx(IXLWorksheet ws, PlatformWorkbookSheet sheet)
+    {
+        if (!string.Equals(sheet.Name, PlatformEmconEnums.EmconSheetName, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        ApplyListValidation(ws, sheet.Header, PlatformEmconEnums.ConditionColumn, PlatformEmconEnums.Conditions);
+        ApplyListValidation(ws, sheet.Header, PlatformEmconEnums.PostureColumn, PlatformEmconEnums.Postures);
+    }
+
+    private static void ApplyListValidation(
+        IXLWorksheet ws,
+        IReadOnlyList<string> header,
+        string columnName,
+        IReadOnlyList<string> allowedValues)
+    {
+        var columnIndex = IndexOfHeader(header, columnName);
+        if (columnIndex < 0)
+        {
+            return;
+        }
+
+        var excelColumn = columnIndex + 1;
+        var firstDataRow = 2;
+        var lastDataRow = Math.Max(firstDataRow, ws.LastRowUsed()?.RowNumber() ?? firstDataRow);
+        lastDataRow = Math.Max(lastDataRow, EnumValidationLastRow);
+
+        var range = ws.Range(firstDataRow, excelColumn, lastDataRow, excelColumn);
+        var validation = range.CreateDataValidation();
+        validation.List(PlatformEmconEnums.ToExcelList(allowedValues));
+        validation.InCellDropdown = true;
+        validation.IgnoreBlanks = true;
+    }
+
+    private static int IndexOfHeader(IReadOnlyList<string> header, string columnName)
+    {
+        for (var i = 0; i < header.Count; i++)
+        {
+            if (string.Equals(header[i], columnName, StringComparison.Ordinal))
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     // Excel worksheet names are capped at 31 chars and forbid : \ / ? * [ ]. Our names are short/clean,

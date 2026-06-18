@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectAegis.MissionEditor.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectAegis.Data.Excel", "src\ProjectAegis.Data.Excel\ProjectAegis.Data.Excel.csproj", "{7F5CAC72-1A04-45D1-99B6-628B76E9B38A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectAegis.Data.Excel.Tests", "src\ProjectAegis.Data.Excel.Tests\ProjectAegis.Data.Excel.Tests.csproj", "{24624DD0-1392-4ABD-9F95-2A513CC90A67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -183,6 +185,18 @@ Global
 		{7F5CAC72-1A04-45D1-99B6-628B76E9B38A}.Release|x64.Build.0 = Release|Any CPU
 		{7F5CAC72-1A04-45D1-99B6-628B76E9B38A}.Release|x86.ActiveCfg = Release|Any CPU
 		{7F5CAC72-1A04-45D1-99B6-628B76E9B38A}.Release|x86.Build.0 = Release|Any CPU
+		{24624DD0-1392-4ABD-9F95-2A513CC90A67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24624DD0-1392-4ABD-9F95-2A513CC90A67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24624DD0-1392-4ABD-9F95-2A513CC90A67}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{24624DD0-1392-4ABD-9F95-2A513CC90A67}.Debug|x64.Build.0 = Debug|Any CPU
+		{24624DD0-1392-4ABD-9F95-2A513CC90A67}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{24624DD0-1392-4ABD-9F95-2A513CC90A67}.Debug|x86.Build.0 = Debug|Any CPU
+		{24624DD0-1392-4ABD-9F95-2A513CC90A67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24624DD0-1392-4ABD-9F95-2A513CC90A67}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24624DD0-1392-4ABD-9F95-2A513CC90A67}.Release|x64.ActiveCfg = Release|Any CPU
+		{24624DD0-1392-4ABD-9F95-2A513CC90A67}.Release|x64.Build.0 = Release|Any CPU
+		{24624DD0-1392-4ABD-9F95-2A513CC90A67}.Release|x86.ActiveCfg = Release|Any CPU
+		{24624DD0-1392-4ABD-9F95-2A513CC90A67}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -197,5 +211,6 @@ Global
 		{CFA78D6F-88C9-44DD-B19D-7470284E9997} = {781C214C-CA04-46D6-99A4-82828530E562}
 		{1B1083DD-738B-4F2A-A988-15D695B92CE8} = {781C214C-CA04-46D6-99A4-82828530E562}
 		{7F5CAC72-1A04-45D1-99B6-628B76E9B38A} = {781C214C-CA04-46D6-99A4-82828530E562}
+		{24624DD0-1392-4ABD-9F95-2A513CC90A67} = {781C214C-CA04-46D6-99A4-82828530E562}
 	EndGlobalSection
 EndGlobal
