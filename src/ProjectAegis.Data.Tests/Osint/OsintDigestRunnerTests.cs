@@ -63,7 +63,9 @@ public sealed class OsintDigestRunnerTests
             var runner = new OsintDigestRunner(0.65);
             var (proposals, _) = runner.Run(records);
 
-            var bindings = OsintCatalogMapper.ToSensorBindings(proposals, "osint-s19");
+            var bindings = OsintCatalogMapper.ToSensorBindings(proposals, "osint-s19")
+                .Select(b => b with { ReviewState = CatalogReviewStates.Approved })
+                .ToList();
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(4242)))
             {
