@@ -33,6 +33,23 @@ public static class PlatformWorkbookWriteBridge
             actorId,
             rationale);
 
+    public static PlatformWorkbookWriteResult ProposeWorkbookFromFile(
+        string databasePath,
+        string workbookPath,
+        string actorType,
+        string actorId,
+        long clockTicks = 0,
+        string rationale = "",
+        string? ioFlag = null) =>
+        WriteService.ProposeFromFile(
+            databasePath,
+            workbookPath,
+            PlatformWorkbookIoSelection.Resolve(workbookPath, ioFlag),
+            new FixedCatalogClock(clockTicks),
+            actorType,
+            actorId,
+            rationale);
+
     public static PlatformWorkbookWriteDecisionResult ApproveBatches(
         string databasePath,
         IEnumerable<string> batchIds,

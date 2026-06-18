@@ -1,6 +1,6 @@
 ---
 id: S29-08
-status: Not Started
+status: Complete
 type: UI+Integration
 priority: should-have
 graphite_branch: stack/sprint29/begin-execution
@@ -24,13 +24,13 @@ req_trace: Req 02 Core Loop; Req 03 Simulation Modes; TR-simcore-003
 
 ## Acceptance Criteria
 
-- [ ] C2 top bar exposes **Begin Execution** control while `SimulationPhase.Planning`
-- [ ] `Begin Execution` invokes `DelegationBridgeHost.BeginExecution()` (not direct orchestrator mutation)
-- [ ] Phase transition appends `ModeChange` order-log row (`Planning` → `Executing`)
-- [ ] Score/loss counters frozen until execution begins
-- [ ] Ticks no-op while Planning (`SimulationSessionPhaseTests` regression PASS)
-- [ ] PlayMode harness phase transition tests PASS
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] C2 top bar exposes **Begin Execution** control while `SimulationPhase.Planning`
+- [x] `Begin Execution` invokes `DelegationBridgeHost.BeginExecution()` (not direct orchestrator mutation)
+- [x] Phase transition appends `ModeChange` order-log row (`Planning` → `Executing`)
+- [x] Score/loss counters frozen until execution begins
+- [x] Ticks no-op while Planning (`SimulationSessionPhaseTests` regression PASS)
+- [x] PlayMode harness phase transition tests PASS
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

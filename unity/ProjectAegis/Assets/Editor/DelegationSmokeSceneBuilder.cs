@@ -71,6 +71,11 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/PlatformCatalog/PlatformCatalogPanel.uxml",
                 "Assets/UI/PlatformCatalog/PlatformCatalogPanel.uss");
+            CreatePanelHost<PlatformImportPanelHost>(
+                "PlatformImport",
+                bridge,
+                "Assets/UI/PlatformImport/PlatformImportPanel.uxml",
+                "Assets/UI/PlatformImport/PlatformImportPanel.uss");
 
             var scenesDir = "Assets/Scenes";
             if (!AssetDatabase.IsValidFolder(scenesDir))

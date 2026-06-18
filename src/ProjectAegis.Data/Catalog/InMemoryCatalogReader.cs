@@ -6,7 +6,9 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     private readonly CatalogSensorBinding[] _bindings;
     private readonly Dictionary<DetectionBindingKey, double> _lookup;
     private readonly Dictionary<string, CatalogPlatformEntry> _platforms;
+    private readonly CatalogMobility[] _mobility;
     private readonly CatalogSignature[] _signatures;
+    private readonly CatalogEmcon[] _emcon;
     private readonly CatalogPlatformDamage[] _damage;
     private readonly CatalogMount[] _mounts;
     private readonly CatalogLoadout[] _loadouts;
@@ -16,7 +18,9 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         IEnumerable<CatalogSensorBinding> bindings,
         string layerVersion = "p0-inmemory",
         IEnumerable<CatalogPlatformEntry>? platforms = null,
+        IEnumerable<CatalogMobility>? mobility = null,
         IEnumerable<CatalogSignature>? signatures = null,
+        IEnumerable<CatalogEmcon>? emcon = null,
         IEnumerable<CatalogPlatformDamage>? damage = null,
         IEnumerable<CatalogMount>? mounts = null,
         IEnumerable<CatalogLoadout>? loadouts = null,
@@ -32,8 +36,16 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             b => b.BasePd);
         _platforms = (platforms ?? Array.Empty<CatalogPlatformEntry>())
             .ToDictionary(p => p.PlatformId, StringComparer.Ordinal);
+        _mobility = (mobility ?? Array.Empty<CatalogMobility>())
+            .OrderBy(m => m.PlatformId, StringComparer.Ordinal)
+            .ToArray();
         _signatures = (signatures ?? Array.Empty<CatalogSignature>())
             .OrderBy(s => s.PlatformId, StringComparer.Ordinal)
+            .ToArray();
+        _emcon = (emcon ?? Array.Empty<CatalogEmcon>())
+            .OrderBy(e => e.PlatformId, StringComparer.Ordinal)
+            .ThenBy(e => e.Condition, StringComparer.Ordinal)
+            .ThenBy(e => e.EmitterId, StringComparer.Ordinal)
             .ToArray();
         _damage = (damage ?? Array.Empty<CatalogPlatformDamage>())
             .OrderBy(d => d.PlatformId, StringComparer.Ordinal)
@@ -64,6 +76,27 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         ],
         "p0-baltic-fixture",
         CatalogValidationDefaults.BalticPlatforms());
+
+    /// <summary>Baltic patrol + Phase B mobility/signature/EMCON rows for Req-21 sim consumption tests.</summary>
+    public static InMemoryCatalogReader BalticPhaseBFixture(
+        double maxSpeedKnots = 32,
+        double rangeNm = 4200,
+        double rcsBandDbsm = -12,
+        string emconPosture = "active") =>
+        new(
+        [
+            new CatalogSensorBinding("u1", "radar-1", 1.0, "baltic-fixture-radar1"),
+            new CatalogSensorBinding("u1", "radar-2", 0.75, "baltic-fixture-radar2"),
+        ],
+        "p0-baltic-phase-b-fixture",
+        CatalogValidationDefaults.BalticPlatforms(),
+        mobility: [new CatalogMobility("u1", MaxSpeedKnots: maxSpeedKnots, RangeNm: rangeNm)],
+        signatures: [new CatalogSignature("u1", RcsBandDbsm: rcsBandDbsm)],
+        emcon:
+        [
+            new CatalogEmcon("u1", "free", "radar-1", emconPosture),
+            new CatalogEmcon("u1", "silent", "radar-1", "off"),
+        ]);
 
     /// <summary>Baltic patrol + default loadout/magazine rows for Req-16 engage readiness tests.</summary>
     public static InMemoryCatalogReader BalticMagazineFixture(int magazineQuantity = 2) =>
@@ -120,11 +153,11 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     public bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope) =>
         CatalogWeaponDefaults.TryResolve(weaponId, out envelope);
 
-    public IReadOnlyList<CatalogMobility> GetSortedMobility() => [];
+    public IReadOnlyList<CatalogMobility> GetSortedMobility() => _mobility;
 
     public IReadOnlyList<CatalogSignature> GetSortedSignatures() => _signatures;
 
-    public IReadOnlyList<CatalogEmcon> GetSortedEmcon() => [];
+    public IReadOnlyList<CatalogEmcon> GetSortedEmcon() => _emcon;
 
     public IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamage() => _damage;
 
@@ -136,6 +169,15 @@ public sealed class InMemoryCatalogReader : ICatalogReader
 
     public bool TryGetMobility(string platformId, out CatalogMobility mobility)
     {
+        foreach (var row in _mobility)
+        {
+            if (string.Equals(row.PlatformId, platformId, StringComparison.Ordinal))
+            {
+                mobility = row;
+                return true;
+            }
+        }
+
         mobility = new CatalogMobility(platformId);
         return false;
     }
@@ -157,6 +199,17 @@ public sealed class InMemoryCatalogReader : ICatalogReader
 
     public bool TryGetEmcon(string platformId, string condition, string emitterId, out CatalogEmcon emcon)
     {
+        foreach (var row in _emcon)
+        {
+            if (string.Equals(row.PlatformId, platformId, StringComparison.Ordinal) &&
+                string.Equals(row.Condition, condition, StringComparison.Ordinal) &&
+                string.Equals(row.EmitterId, emitterId, StringComparison.Ordinal))
+            {
+                emcon = row;
+                return true;
+            }
+        }
+
         emcon = new CatalogEmcon(platformId, condition, emitterId);
         return false;
     }

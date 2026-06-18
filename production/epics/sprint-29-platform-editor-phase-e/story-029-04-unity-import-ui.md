@@ -1,6 +1,6 @@
 ---
 id: S29-04
-status: Ready
+status: Complete
 type: UI+Integration
 priority: must-have
 graphite_branch: stack/sprint29/unity-import-ui
@@ -23,13 +23,13 @@ In-engine Unity import UI — import → propose → approve atop S28-04 `Platfo
 
 ## Acceptance Criteria
 
-- [ ] In-engine import flow invokes `PlatformWorkbookWriteBridge` propose path (no direct DB writes)
-- [ ] Staging review UX wired (diff preview before approve)
-- [ ] Import→propose→approve round-trip on Baltic fixture completes
-- [ ] Headless write-gate + viewer tests PASS
-- [ ] `CatalogWriteGate` extend-only — `gitnexus impact` before edit
-- [ ] No `CatalogWriteGate` / `IWriteGate` bypass in viewer or import host
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] In-engine import flow invokes `PlatformWorkbookWriteBridge` propose path (no direct DB writes)
+- [x] Staging review UX wired (diff preview before approve)
+- [x] Import→propose→approve round-trip on Baltic fixture completes
+- [x] Headless write-gate + viewer tests PASS
+- [x] `CatalogWriteGate` extend-only — `gitnexus impact` before edit
+- [x] No `CatalogWriteGate` / `IWriteGate` bypass in viewer or import host
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

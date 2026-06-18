@@ -1,5 +1,6 @@
 namespace ProjectAegis.Sim.Sensors;
 
+using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
@@ -10,6 +11,7 @@ public sealed class PdDetectionContactSimulator
     private readonly SimSeed _seed;
     private readonly ScenarioDetectionTrial[] _trials;
     private readonly IReadOnlyDictionary<string, EmconState>? _unitRadarEmcon;
+    private readonly ICatalogReader? _catalog;
     private readonly IReadOnlyList<ScenarioJammer> _jammers;
     private readonly HashSet<string> _detectedContacts = new(StringComparer.Ordinal);
     private readonly HashSet<string> _destroyedTargets = new(StringComparer.Ordinal);
@@ -26,10 +28,12 @@ public sealed class PdDetectionContactSimulator
         IReadOnlyList<ScenarioDetectionTrial> trials,
         IReadOnlyDictionary<string, EmconState>? unitRadarEmcon = null,
         IReadOnlyList<ScenarioJammer>? jammers = null,
-        ScenarioContactLifecycle? contactLifecycle = null)
+        ScenarioContactLifecycle? contactLifecycle = null,
+        ICatalogReader? catalog = null)
     {
         _seed = seed;
         _unitRadarEmcon = unitRadarEmcon;
+        _catalog = catalog;
         _jammers = jammers ?? Array.Empty<ScenarioJammer>();
         _trials = trials.ToArray();
         var lifecycle = contactLifecycle ?? ScenarioContactLifecycle.Default;
@@ -60,7 +64,8 @@ public sealed class PdDetectionContactSimulator
             _trials,
             _unitRadarEmcon,
             _detectedContacts,
-            _jammers);
+            _jammers,
+            catalog: _catalog);
         LastDetectionHash = DetectionWorldHash.MixTick(LastDetectionHash, rolls);
 
         var transitions = new List<ContactTransition>();

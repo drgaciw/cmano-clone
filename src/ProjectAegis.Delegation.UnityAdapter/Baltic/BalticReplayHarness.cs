@@ -71,7 +71,8 @@ public static class BalticReplayHarness
                 detectionTrials,
                 profile.UnitRadarEmcon,
                 profile.Jammers,
-                profile.ContactLifecycle);
+                profile.ContactLifecycle,
+                catalogReader);
         }
         else if (profile?.ContactSeeds.Count > 0)
         {

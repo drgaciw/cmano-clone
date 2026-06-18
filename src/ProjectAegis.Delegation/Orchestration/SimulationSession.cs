@@ -7,6 +7,7 @@ using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -320,6 +321,24 @@ public sealed class SimulationSession
         if (DefaultEngageContext is { } template)
         {
             var airReady = UnitReadiness?.IsReadyForLaunch(shooterUnitId) ?? true;
+            if (CatalogReader != null)
+            {
+                var mobilityReady = PhaseBCatalogMobilityReadinessStub.EvaluateLaunchReadiness(
+                    shooterUnitId,
+                    CatalogReader);
+                airReady = airReady && mobilityReady.ReadyForLaunch;
+            }
+
+            var radarActive = state.RadarEmconActive;
+            if (CatalogReader != null)
+            {
+                var emconState = ScenarioEmconResolver.ResolveRadar(
+                    shooterUnitId,
+                    Orchestrator.ScenarioPolicy?.UnitRadarEmcon,
+                    CatalogReader);
+                radarActive = radarActive && emconState == EmconState.Active;
+            }
+
             var damageWithdrawBlocked = CatalogDamageWithdrawEngageGate.BlocksEngage(
                 shooterUnitId,
                 CatalogWithdrawTrials);
@@ -331,7 +350,7 @@ public sealed class SimulationSession
             var primed = template with
             {
                 HasFireControlTrack = state.HasFireControlTrack,
-                RadarEmconActive = state.RadarEmconActive,
+                RadarEmconActive = radarActive,
                 AirOperationsReady = airReady,
                 CatalogDamageWithdrawBlocked = damageWithdrawBlocked,
                 TrackSpoofed = spoofed,

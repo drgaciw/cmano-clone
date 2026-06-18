@@ -324,6 +324,82 @@ public sealed class PlayModeSmokeHarnessTests
     }
 
     [Test]
+    public void Platform_import_staging_projection_ack_gate_before_approve()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-import-smoke-{Guid.NewGuid():N}.db");
+        try
+        {
+            CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
+            var exported = PlatformWorkbookWriteBridge.ExportBalticWorkbook(dbPath, clockTicks: 9930);
+            var sheets = exported.Sheets.Select(sheet =>
+            {
+                if (!string.Equals(sheet.Name, "Sensors", StringComparison.Ordinal))
+                {
+                    return sheet;
+                }
+
+                var colIndex = Array.IndexOf(sheet.Header.ToArray(), "BasePd");
+                Assert.That(colIndex, Is.GreaterThanOrEqualTo(0));
+                var rows = sheet.Rows.Select((row, i) =>
+                {
+                    if (i != 0)
+                    {
+                        return row;
+                    }
+
+                    var cells = row.ToList();
+                    cells[colIndex] = "0.47";
+                    return (IReadOnlyList<string>)cells;
+                }).ToArray();
+                return sheet with { Rows = rows };
+            }).ToArray();
+            var edited = exported with { Sheets = sheets };
+
+            var propose = PlatformWorkbookWriteBridge.ProposeWorkbook(
+                dbPath,
+                edited,
+                actorType: "unity",
+                actorId: "platform-import-host",
+                clockTicks: 9931);
+            var beforeAck = PlatformImportStagingProjection.Bind(propose, reviewAcknowledged: false);
+            var afterAck = PlatformImportStagingProjection.Bind(propose, reviewAcknowledged: true);
+
+            Assert.That(beforeAck.ApproveEnabled, Is.False);
+            Assert.That(afterAck.ApproveEnabled, Is.True);
+            Assert.That(beforeAck.DiffRows, Is.Not.Empty);
+        }
+        finally
+        {
+            Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Test]
+    public void Delegation_smoke_scene_builder_includes_platform_import_panel()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+        var builder = File.ReadAllText(builderPath);
+
+        Assert.That(builder, Does.Contain("PlatformImportPanelHost"));
+        Assert.That(builder, Does.Contain("\"PlatformImport\""));
+        Assert.That(builder, Does.Contain("Assets/UI/PlatformImport/PlatformImportPanel.uxml"));
+        Assert.That(builder, Does.Contain("Assets/UI/PlatformImport/PlatformImportPanel.uss"));
+    }
+
+    [Test]
     public void Delegation_smoke_scene_builder_includes_platform_catalog_viewer()
     {
         var repoRoot = FindRepoRoot();

@@ -1614,8 +1614,10 @@ gitnexus_edges: 24819
 tests_passed_sprint28_closeout: 801
 tests_passed_sprint29_baseline: 801
 tests_passed_sprint29_wave1: 819
+tests_passed_sprint29_wave2: 847
 replay_golden_sprint29_baseline: pass
 replay_golden_sprint29_wave1: pass
+replay_golden_sprint29_wave2: pass
 kickoff: production/sprints/sprint-29-operationalize-data-fight-loop.md
 parallel_kickoff: production/agentic/sprint-29-parallel-kickoff-2026-06-18.md
 qa_plan: production/qa/qa-plan-sprint-29-2026-10-02.md
@@ -1628,6 +1630,12 @@ evidence:
   - production/qa/sprint-29-nightly-approve-2026-06-18.md
   - production/agentic/sprint-29-tl-export-phase12-2026-06-18.md
   - production/agentic/sprint-29-baltic-combat-enable-2026-06-18.md
+  - production/agentic/stacks/sprint29/S29-04-DONE.md
+  - production/agentic/stacks/sprint29/S29-06-DONE.md
+  - production/agentic/stacks/sprint29/S29-07-DONE.md
+  - production/agentic/stacks/sprint29/S29-08-DONE.md
+  - production/qa/sprint-29-catalog-sim-bridge-2026-06-18.md
+  - production/qa/evidence/doctrine-panel-s29-2026-06-18.md
 epics:
   - production/epics/sprint-29-tl-export-foundation/EPIC.md
   - production/epics/sprint-29-corpus-approve/EPIC.md
@@ -1668,10 +1676,11 @@ sprint29_stories:
     name: "Platform Editor Phase E Unity import UI"
     file: production/epics/sprint-29-platform-editor-phase-e/story-029-04-unity-import-ui.md
     priority: must-have
-    status: ready-for-dev
+    status: done
     estimate_days: 2.5
-    blocker: "29-3"
-    completed: ""
+    blocker: ""
+    completed: "2026-06-18"
+    note: "PlatformImportPanelHost; staging review UX; 847/847 sln; evidence production/agentic/stacks/sprint29/S29-04-DONE.md"
   - id: "29-5"
     name: "Combat domains Baltic enablement"
     file: production/epics/sprint-29-combat-domains-phase3/story-029-05-baltic-combat-enable.md
@@ -1685,26 +1694,29 @@ sprint29_stories:
     name: "Catalog Phase B sim consumption"
     file: production/epics/sprint-29-catalog-sim-bridge/story-029-06-phaseb-sim-consumption.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 2
-    blocker: "29-3"
-    completed: ""
+    blocker: ""
+    completed: "2026-06-18"
+    note: "mobility/signatures/EMCON via ICatalogReader; ReplayGolden 6/6; evidence production/qa/sprint-29-catalog-sim-bridge-2026-06-18.md"
   - id: "29-7"
     name: "Doctrine Inheritance Panel visual sign-off"
     file: production/epics/sprint-29-c2-core-loop/story-029-07-doctrine-visual.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1
-    blocker: "29-1"
-    completed: ""
+    blocker: ""
+    completed: "2026-06-18"
+    note: "DelegationSmoke doctrine wiring; lean evidence production/qa/evidence/doctrine-panel-s29-2026-06-18.md"
   - id: "29-8"
     name: "Begin Execution UX"
     file: production/epics/sprint-29-c2-core-loop/story-029-08-begin-execution.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 1
-    blocker: "29-1"
-    completed: ""
+    blocker: ""
+    completed: "2026-06-18"
+    note: "C2 top bar Begin Execution; score freeze Planning; evidence production/agentic/stacks/sprint29/S29-08-DONE.md"
   - id: "29-9"
     name: "Damage hot-tick apply bounded"
     file: production/epics/sprint-29-combat-domains-phase3/story-029-09-hot-tick-damage.md

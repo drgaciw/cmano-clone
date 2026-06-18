@@ -1,5 +1,6 @@
 namespace ProjectAegis.Sim.Sensors;
 
+using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
@@ -13,7 +14,8 @@ public static class DeterministicDetectionLoop
         IReadOnlyList<ScenarioDetectionTrial> trials,
         IReadOnlyDictionary<string, EmconState>? unitRadarEmcon,
         IReadOnlyCollection<string>? alreadyDetectedContactIds = null,
-        IReadOnlyList<ScenarioJammer>? jammers = null)
+        IReadOnlyList<ScenarioJammer>? jammers = null,
+        ICatalogReader? catalog = null)
     {
         if (trials.Count == 0)
         {
@@ -37,7 +39,7 @@ public static class DeterministicDetectionLoop
             }
 
             if (trial.RequiresActiveRadar &&
-                ScenarioEmconResolver.ResolveRadar(trial.ObserverId, unitRadarEmcon) != EmconState.Active)
+                ScenarioEmconResolver.ResolveRadar(trial.ObserverId, unitRadarEmcon, catalog) != EmconState.Active)
             {
                 continue;
             }

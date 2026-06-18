@@ -1,6 +1,6 @@
 ---
 id: S29-06
-status: Not Started
+status: Complete
 type: Integration
 priority: should-have
 graphite_branch: stack/sprint29/catalog-sim-bridge
@@ -23,13 +23,13 @@ Wire Catalog **Phase B** rows — mobility, signatures, EMCON — into bounded s
 
 ## Acceptance Criteria
 
-- [ ] `ICatalogReader` exposes mobility, signatures, EMCON metadata for sim validation
-- [ ] Sim tests PASS with catalog-sourced Phase B metadata
-- [ ] Bounded validation/readiness paths consume catalog rows (not hardcoded stubs)
-- [ ] No direct SQLite in `ProjectAegis.Sim`
-- [ ] `ReplayGoldenSuiteTests` — 6/6 unchanged on default path
-- [ ] Evidence: `production/qa/sprint-29-catalog-sim-bridge-*.md`
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] `ICatalogReader` exposes mobility, signatures, EMCON metadata for sim validation
+- [x] Sim tests PASS with catalog-sourced Phase B metadata
+- [x] Bounded validation/readiness paths consume catalog rows (not hardcoded stubs)
+- [x] No direct SQLite in `ProjectAegis.Sim`
+- [x] `ReplayGoldenSuiteTests` — 6/6 unchanged on default path
+- [x] Evidence: `production/qa/sprint-29-catalog-sim-bridge-2026-06-18.md`
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

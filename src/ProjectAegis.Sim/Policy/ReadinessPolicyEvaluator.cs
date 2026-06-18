@@ -26,6 +26,17 @@ public static class ReadinessPolicyEvaluator
         ICatalogReader catalog) =>
         CatalogMagazineResolver.EvaluateInitialMagazine(platformId, catalog);
 
+    public static PhaseBCatalogMobilityReadinessStub.MobilityReadiness EvaluateMobility(
+        string platformId,
+        ICatalogReader catalog) =>
+        PhaseBCatalogMobilityReadinessStub.EvaluateLaunchReadiness(platformId, catalog);
+
+    public static EmconState EvaluateRadarEmcon(
+        string platformId,
+        ScenarioPolicyProfile profile,
+        ICatalogReader catalog) =>
+        ScenarioEmconResolver.ResolveRadar(platformId, profile.UnitRadarEmcon, catalog);
+
     public static EffectiveReadiness EvaluateUnit(
         string platformId,
         ScenarioPolicyProfile profile,
@@ -34,6 +45,8 @@ public static class ReadinessPolicyEvaluator
         var scenarioReady = profile.UnitReadiness.TryGetValue(platformId, out var ready)
             ? ready
             : true;
+        var mobility = EvaluateMobility(platformId, catalog);
+        var readyForLaunch = scenarioReady && mobility.ReadyForLaunch;
 
         var catalogTrial = ResolveCatalogTrials(profile, catalog)
             .FirstOrDefault(t => string.Equals(t.PlatformId, platformId, StringComparison.Ordinal));
@@ -41,16 +54,18 @@ public static class ReadinessPolicyEvaluator
         if (catalogTrial == null)
         {
             return new EffectiveReadiness(
-                scenarioReady,
-                PhaseBCatalogDamageReadinessStub.NeutralReadinessScore,
+                readyForLaunch,
+                mobility.CatalogResolved
+                    ? mobility.MobilityScore
+                    : PhaseBCatalogDamageReadinessStub.NeutralReadinessScore,
                 WithdrawRecommended: false,
-                CatalogResolved: false);
+                CatalogResolved: mobility.CatalogResolved);
         }
 
         return new EffectiveReadiness(
-            scenarioReady,
+            readyForLaunch,
             catalogTrial.ReadinessScore,
             catalogTrial.WithdrawRecommended,
-            catalogTrial.CatalogResolved);
+            catalogTrial.CatalogResolved || mobility.CatalogResolved);
     }
 }

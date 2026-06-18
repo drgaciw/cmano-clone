@@ -1,6 +1,6 @@
 ---
 id: S29-07
-status: Not Started
+status: Complete
 type: UI
 priority: should-have
 graphite_branch: stack/sprint29/doctrine-visual
@@ -23,13 +23,13 @@ Editor/PlayMode evidence for **Doctrine Inheritance Panel** (closes S22/S23 defe
 
 ## Acceptance Criteria
 
-- [ ] `DoctrineInheritancePanelHost` wired with UXML/USS in `DelegationSmoke` scene
-- [ ] Editor or PlayMode evidence captured: `production/qa/evidence/doctrine-panel-s29-*.png` or lean proxy doc
-- [ ] ROE override round-trip visible in panel (apply → read-back)
-- [ ] Headless doctrine tests unchanged PASS (`DoctrineOverrideCommandTests`, `DoctrineInheritanceProjectionTests`, `DoctrineInheritancePanelBinderTests`)
-- [ ] `PlayModeSmokeHarnessTests` doctrine row PASS
-- [ ] Doctrine writes route `DoctrineInheritancePanelHost` → `DelegationBridgeHost.TrySetDoctrineOverride` only
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] `DoctrineInheritancePanelHost` wired with UXML/USS in `DelegationSmoke` scene
+- [x] Editor or PlayMode evidence captured: `production/qa/evidence/doctrine-panel-s29-2026-06-18.md` (lean proxy)
+- [x] ROE override round-trip visible in panel (apply → read-back)
+- [x] Headless doctrine tests unchanged PASS (`DoctrineOverrideCommandTests`, `DoctrineInheritanceProjectionTests`, `DoctrineInheritancePanelBinderTests`)
+- [x] `PlayModeSmokeHarnessTests` doctrine row PASS
+- [x] Doctrine writes route `DoctrineInheritancePanelHost` → `DelegationBridgeHost.TrySetDoctrineOverride` only
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 
