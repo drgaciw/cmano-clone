@@ -502,11 +502,23 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
     private static void DeleteStagingRows(SqliteTransaction tx, string batchId)
     {
+        // S22-01 / DBI-1.4: purge mount/loadout/magazine/comms staging on reject.
         using var cmd = tx.Connection!.CreateCommand();
         cmd.Transaction = tx;
-        cmd.CommandText = "DELETE FROM catalog_staging_sensor WHERE batch_id = $id";
-        cmd.Parameters.AddWithValue("$id", batchId);
-        cmd.ExecuteNonQuery();
+        foreach (var table in new[]
+        {
+            "catalog_staging_sensor",
+            "catalog_staging_mount",
+            "catalog_staging_loadout",
+            "catalog_staging_magazine",
+            "catalog_staging_comms",
+        })
+        {
+            cmd.CommandText = $"DELETE FROM {table} WHERE batch_id = $id";
+            cmd.Parameters.Clear();
+            cmd.Parameters.AddWithValue("$id", batchId);
+            cmd.ExecuteNonQuery();
+        }
     }
 
     private static bool BatchExists(SqliteTransaction tx, string batchId)
