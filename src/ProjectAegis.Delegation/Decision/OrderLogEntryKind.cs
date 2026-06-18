@@ -19,4 +19,5 @@ public enum OrderLogEntryKind
     CommsStateChange = 14,
     FuelStateChange = 15,
     FuelBurn = 16,
+    PlatformDamageChange = 17,
 }

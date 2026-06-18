@@ -231,4 +231,19 @@ public sealed class PhaseBDamageCatalogConsumerTests
 
         Assert.Null(trial);
     }
+
+    [Fact]
+    public void PhaseB_Hot_tick_ledger_refresh_changes_withdraw_trial_after_ambient_drain()
+    {
+        var catalog = DamageFixture();
+        var ledger = PlatformHpLedger.SeedFromWithdrawTargets(
+            [new ScenarioCatalogWithdrawTarget("u1", 26)]);
+
+        CatalogDamageHotTickApplier.ApplyAmbientTickDrain(ledger, catalog);
+        var trials = CatalogDamageHotTickApplier.ResolveWithdrawTrials(ledger, catalog);
+
+        Assert.True(trials[0].CatalogResolved);
+        Assert.True(trials[0].WithdrawRecommended);
+        Assert.True(CatalogDamageWithdrawEngageGate.BlocksEngage("u1", trials));
+    }
 }

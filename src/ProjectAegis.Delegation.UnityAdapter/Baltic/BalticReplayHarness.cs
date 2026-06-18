@@ -64,6 +64,7 @@ public static class BalticReplayHarness
             : DetectionTrialResolver.Resolve(profile, catalogReader);
         PdDetectionContactSimulator? pdSim = null;
         ScenarioContactSimulator? scheduleSim = null;
+        DatalinkSidePictureMerger? datalinkMerger = null;
         if (detectionTrials.Count > 0 && profile != null)
         {
             pdSim = new PdDetectionContactSimulator(
@@ -73,6 +74,10 @@ public static class BalticReplayHarness
                 profile.Jammers,
                 profile.ContactLifecycle,
                 catalogReader);
+            if (profile.DatalinkDoctrine.IsSharingEnabled)
+            {
+                datalinkMerger = new DatalinkSidePictureMerger(profile.DatalinkDoctrine, detectionTrials);
+            }
         }
         else if (profile?.ContactSeeds.Count > 0)
         {
@@ -173,6 +178,15 @@ public static class BalticReplayHarness
             var transitions = pdSim != null
                 ? pdSim.Tick(simTick, harness.SimTime)
                 : scheduleSim?.Tick(simTick, harness.SimTime) ?? Array.Empty<ContactTransition>();
+            if (datalinkMerger != null)
+            {
+                var shared = datalinkMerger.Merge(transitions, simTick, harness.SimTime);
+                if (shared.Count > 0)
+                {
+                    transitions = transitions.Concat(shared).ToArray();
+                }
+            }
+
             foreach (var transition in transitions)
             {
                 bridge.Orchestrator.OrderLog.AppendContactTransition(transition);

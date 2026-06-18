@@ -1,6 +1,6 @@
 ---
 id: S29-11
-status: Not Started
+status: Complete
 type: Integration
 priority: nice-to-have
 graphite_branch: stack/sprint29/datalink-side-picture
@@ -24,13 +24,13 @@ Bounded **contact sharing** via datalink with **deterministic merge order**. `Co
 
 ## Acceptance Criteria
 
-- [ ] Observers on a side share contacts per scenario datalink doctrine (unless `organicOnly`)
-- [ ] Contact merge uses stable sorted order — deterministic across replays
-- [ ] Every shared contact transition emits `ContactChange` in order log
-- [ ] `ContactChange` order-log tests PASS
-- [ ] `ReplayGoldenSuiteTests` — 6/6 PASS
-- [ ] Bounded scope — no full datalink delay model or ECCM Phase 2
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] Observers on a side share contacts per scenario datalink doctrine (unless `organicOnly`)
+- [x] Contact merge uses stable sorted order — deterministic across replays
+- [x] Every shared contact transition emits `ContactChange` in order log
+- [x] `ContactChange` order-log tests PASS
+- [x] `ReplayGoldenSuiteTests` — 6/6 PASS
+- [x] Bounded scope — no full datalink delay model or ECCM Phase 2
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

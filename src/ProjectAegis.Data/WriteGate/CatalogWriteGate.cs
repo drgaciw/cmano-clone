@@ -766,6 +766,53 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return list;
     }
 
+    /// <summary>S29-10 advisory-only: entity ids referenced by a pending staging batch diff.</summary>
+    public IReadOnlyList<string> ListStagingEntityIds(string batchId)
+    {
+        if (string.IsNullOrWhiteSpace(batchId))
+        {
+            return [];
+        }
+
+        var ids = new SortedSet<string>(StringComparer.Ordinal);
+        foreach (var (tableName, columnName) in new (string, string)[]
+        {
+            ("catalog_staging_sensor", "platform_id"),
+            ("catalog_staging_platform", "platform_id"),
+            ("catalog_staging_mount", "platform_id"),
+            ("catalog_staging_loadout", "platform_id"),
+            ("catalog_staging_magazine", "platform_id"),
+            ("catalog_staging_comms", "platform_id"),
+            ("catalog_staging_mobility", "platform_id"),
+            ("catalog_staging_signature", "platform_id"),
+            ("catalog_staging_emcon", "platform_id"),
+            ("catalog_staging_damage", "platform_id"),
+            ("catalog_staging_weapon", "weapon_id"),
+        })
+        {
+            using var cmd = _connection.CreateCommand();
+            cmd.CommandText =
+                $"""
+                 SELECT DISTINCT {columnName}
+                 FROM {tableName}
+                 WHERE batch_id = $batch
+                 ORDER BY {columnName} ASC
+                 """;
+            cmd.Parameters.AddWithValue("$batch", batchId);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var value = reader.GetString(0);
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    ids.Add(value);
+                }
+            }
+        }
+
+        return ids.ToArray();
+    }
+
     public void Dispose()
     {
         _connection.Close();

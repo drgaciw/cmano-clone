@@ -1,6 +1,8 @@
 namespace ProjectAegis.Data.Import;
 
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Platform;
+using ProjectAegis.Data.Telemetry;
 using ProjectAegis.Data.WriteGate;
 
 /// <summary>Phase 2 — parse CMO markdown and stage rows through the write gate (no direct SQLite writes).</summary>
@@ -13,7 +15,8 @@ public static class CmoMarkdownImportProposer
         string markdownPath,
         int? maxRecords = null,
         int chunkSize = DefaultChunkSize,
-        ICatalogClock? clock = null)
+        ICatalogClock? clock = null,
+        CatalogBalanceDriftPipelineSettings? balanceDrift = null)
     {
         if (string.IsNullOrWhiteSpace(databasePath))
         {
@@ -54,14 +57,18 @@ public static class CmoMarkdownImportProposer
         }
 
         var quarantineReport = BuildQuarantineReport(quarantined);
+        var diffEntityIds = CatalogPipelineDiffEntityResolver.ResolveFromPlatformIds(
+            approved.Select(binding => binding.PlatformId));
 
-        return new CmoMarkdownImportResult(
+        return BuildImportResult(
             parsed.Count,
             approved.Length,
             quarantined.Length,
             batches,
             quarantineReport,
-            []);
+            [],
+            balanceDrift,
+            diffEntityIds);
     }
 
     /// <summary>S22-04: parse platform + weapon + mount markdown and stage via write gate (no auto-commit).</summary>
@@ -170,7 +177,8 @@ public static class CmoMarkdownImportProposer
         string markdownPath,
         int? maxRecords = null,
         int chunkSize = DefaultChunkSize,
-        ICatalogClock? clock = null)
+        ICatalogClock? clock = null,
+        CatalogBalanceDriftPipelineSettings? balanceDrift = null)
     {
         if (string.IsNullOrWhiteSpace(databasePath))
         {
@@ -199,13 +207,15 @@ public static class CmoMarkdownImportProposer
             batches.Add(new CmoMarkdownImportBatch(batchId, chunk.Length));
         }
 
-        return new CmoMarkdownImportResult(
+        return BuildImportResult(
             weapons.Count,
             weapons.Count,
             0,
             batches,
             [],
-            []);
+            [],
+            balanceDrift,
+            diffEntityIds: []);
     }
 
     /// <summary>S26-03: parse platform (+ mounts) markdown, chunk platforms, stage via write gate.</summary>
@@ -216,7 +226,8 @@ public static class CmoMarkdownImportProposer
         string? weaponMarkdownPath = null,
         int? maxRecords = null,
         int chunkSize = DefaultChunkSize,
-        ICatalogClock? clock = null)
+        ICatalogClock? clock = null,
+        CatalogBalanceDriftPipelineSettings? balanceDrift = null)
     {
         if (string.IsNullOrWhiteSpace(databasePath))
         {
@@ -322,13 +333,18 @@ public static class CmoMarkdownImportProposer
             }
         }
 
-        return new CmoMarkdownImportResult(
+        var diffEntityIds = CatalogPipelineDiffEntityResolver.ResolveFromPlatformIds(
+            platforms.Select(platform => platform.PlatformId));
+
+        return BuildImportResult(
             platforms.Count,
             platforms.Count,
             fittingQuarantine.Count,
             batches,
             [],
-            fittingQuarantine);
+            fittingQuarantine,
+            balanceDrift,
+            diffEntityIds);
     }
 
     public static CatalogWeaponRecord[][] ChunkWeapons(
@@ -389,6 +405,27 @@ public static class CmoMarkdownImportProposer
                 q.Binding.SourceFile))
             .ToArray();
 
+    private static CmoMarkdownImportResult BuildImportResult(
+        int parsedCount,
+        int approvedCount,
+        int quarantinedCount,
+        IReadOnlyList<CmoMarkdownImportBatch> batches,
+        IReadOnlyList<CmoMarkdownQuarantineReportEntry> quarantineReport,
+        IReadOnlyList<CmoMarkdownFittingQuarantineEntry> fittingQuarantineReport,
+        CatalogBalanceDriftPipelineSettings? balanceDrift,
+        IReadOnlyList<string> diffEntityIds)
+    {
+        var advisory = CatalogBalanceDriftPipelineEvaluator.EvaluateForDiff(balanceDrift, diffEntityIds);
+        return new CmoMarkdownImportResult(
+            parsedCount,
+            approvedCount,
+            quarantinedCount,
+            batches,
+            quarantineReport,
+            fittingQuarantineReport,
+            advisory);
+    }
+
     public static CatalogSensorBinding[][] ChunkBindings(
         IReadOnlyList<CatalogSensorBinding> approved,
         int chunkSize)
@@ -422,7 +459,8 @@ public sealed record CmoMarkdownImportResult(
     int QuarantinedCount,
     IReadOnlyList<CmoMarkdownImportBatch> Batches,
     IReadOnlyList<CmoMarkdownQuarantineReportEntry> QuarantineReport,
-    IReadOnlyList<CmoMarkdownFittingQuarantineEntry> FittingQuarantineReport);
+    IReadOnlyList<CmoMarkdownFittingQuarantineEntry> FittingQuarantineReport,
+    BalanceDriftReport? BalanceDriftAdvisory = null);
 
 public sealed record CmoMarkdownPlatformImportResult(
     int PlatformCount,

@@ -1,6 +1,6 @@
 ---
 id: S29-09
-status: Not Started
+status: Complete
 type: Integration
 priority: nice-to-have
 graphite_branch: stack/sprint29/hot-tick-damage
@@ -23,13 +23,13 @@ Extend S28-08 readiness wire to **tick-level catalog damage apply** — bounded,
 
 ## Acceptance Criteria
 
-- [ ] Tick-level catalog damage apply wired beyond S28-08 readiness/withdraw path
-- [ ] Damage sourced from gate-approved catalog snapshot (no hot-path SQLite)
-- [ ] Sim tests PASS (`Combat|Domain|Damage|Readiness` filters)
-- [ ] `/replay-verify` PASS on sim merge
-- [ ] `ReplayGoldenSuiteTests` — 6/6 PASS on default path
-- [ ] No full BDA component model / mine-land-facility full runtime
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] Tick-level catalog damage apply wired beyond S28-08 readiness/withdraw path
+- [x] Damage sourced from gate-approved catalog snapshot (no hot-path SQLite)
+- [x] Sim tests PASS (`Combat|Domain|Damage|Readiness` filters)
+- [x] `/replay-verify` PASS on sim merge
+- [x] `ReplayGoldenSuiteTests` — 6/6 PASS on default path
+- [x] No full BDA component model / mine-land-facility full runtime
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

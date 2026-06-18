@@ -1,5 +1,6 @@
 namespace ProjectAegis.Data.Platform;
 
+using ProjectAegis.Data.Telemetry;
 using ProjectAegis.Data.WriteGate;
 
 /// <summary>
@@ -8,6 +9,12 @@ using ProjectAegis.Data.WriteGate;
 /// </summary>
 public sealed class PlatformWorkbookWriteService
 {
+    private readonly CatalogBalanceDriftPipelineSettings _balanceDrift;
+
+    public PlatformWorkbookWriteService(CatalogBalanceDriftPipelineSettings? balanceDrift = null)
+    {
+        _balanceDrift = balanceDrift ?? CatalogBalanceDriftPipelineSettings.Disabled;
+    }
     public PlatformWorkbook ExportFromDatabase(
         string databasePath,
         string snapshotId,
@@ -56,7 +63,7 @@ public sealed class PlatformWorkbookWriteService
         using var gate = new CatalogWriteGate(databasePath, clock);
         var effectiveImporter = importer ?? CreateImporter(databasePath, clock);
         var import = effectiveImporter.Stage(edited, gate, actorType, actorId, rationale);
-        return PlatformWorkbookWriteResult.FromImport(import);
+        return BuildProposeResult(import, edited);
     }
 
     public PlatformWorkbookWriteResult ProposeFromFile(
@@ -78,8 +85,9 @@ public sealed class PlatformWorkbookWriteService
 
         using var gate = new CatalogWriteGate(databasePath, clock);
         var effectiveImporter = importer ?? CreateImporter(databasePath, clock);
-        var import = effectiveImporter.StageFromFile(workbookPath, io, gate, actorType, actorId, rationale);
-        return PlatformWorkbookWriteResult.FromImport(import);
+        var edited = effectiveImporter.ReadFromFile(workbookPath, io);
+        var import = effectiveImporter.Stage(edited, gate, actorType, actorId, rationale);
+        return BuildProposeResult(import, edited);
     }
 
     public PlatformWorkbookWriteDecisionResult ApproveBatches(
@@ -89,7 +97,7 @@ public sealed class PlatformWorkbookWriteService
         string actorType,
         string actorId)
     {
-        return ProcessBatches(databasePath, batchIds, clock, actorType, actorId, (gate, batchId) =>
+        return ProcessBatches(databasePath, batchIds, clock, actorType, actorId, _balanceDrift, (gate, batchId) =>
             gate.ApproveBatch(batchId, actorType, actorId));
     }
 
@@ -101,7 +109,7 @@ public sealed class PlatformWorkbookWriteService
         string actorId,
         string rationale = "")
     {
-        return ProcessBatches(databasePath, batchIds, clock, actorType, actorId, (gate, batchId) =>
+        return ProcessBatches(databasePath, batchIds, clock, actorType, actorId, _balanceDrift, (gate, batchId) =>
             gate.RejectBatch(batchId, actorType, actorId, rationale));
     }
 
@@ -124,6 +132,7 @@ public sealed class PlatformWorkbookWriteService
         ICatalogClock clock,
         string actorType,
         string actorId,
+        CatalogBalanceDriftPipelineSettings balanceDrift,
         Func<CatalogWriteGate, string, WriteGateDecision> process)
     {
         if (string.IsNullOrWhiteSpace(databasePath)) throw new ArgumentException("Database path is required.", nameof(databasePath));
@@ -136,11 +145,17 @@ public sealed class PlatformWorkbookWriteService
         var processed = new List<string>();
         var committed = new List<string>();
         var errors = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        var approveDiffEntityIds = new SortedSet<string>(StringComparer.Ordinal);
 
         using var gate = new CatalogWriteGate(databasePath, clock);
         foreach (var batchId in batchIds.Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.Ordinal))
         {
             processed.Add(batchId);
+            foreach (var entityId in gate.ListStagingEntityIds(batchId))
+            {
+                approveDiffEntityIds.Add(entityId);
+            }
+
             var decision = process(gate, batchId);
             if (decision.Committed)
             {
@@ -151,6 +166,31 @@ public sealed class PlatformWorkbookWriteService
             errors[batchId] = decision.Errors;
         }
 
-        return new PlatformWorkbookWriteDecisionResult(processed, committed, errors);
+        var advisory = CatalogBalanceDriftPipelineEvaluator.EvaluateForDiff(
+            balanceDrift,
+            approveDiffEntityIds.ToArray());
+        return new PlatformWorkbookWriteDecisionResult(
+            processed,
+            committed,
+            errors,
+            advisory);
+    }
+
+    private PlatformWorkbookWriteResult BuildProposeResult(PlatformImportResult import, PlatformWorkbook? edited)
+    {
+        var diffEntityIds = edited is null
+            ? []
+            : CatalogPipelineDiffEntityResolver.ResolveFromImportPlan(import.Plan, edited);
+        var advisory = CatalogBalanceDriftPipelineEvaluator.EvaluateForDiff(_balanceDrift, diffEntityIds);
+        if (advisory.Findings.Count == 0)
+        {
+            return PlatformWorkbookWriteResult.FromImport(import, advisory);
+        }
+
+        var notes = import.Notes
+            .Concat(CatalogBalanceDriftPipelineEvaluator.FormatAdvisoryNotes(advisory))
+            .ToArray();
+        var enrichedImport = import with { Notes = notes };
+        return PlatformWorkbookWriteResult.FromImport(enrichedImport, advisory);
     }
 }

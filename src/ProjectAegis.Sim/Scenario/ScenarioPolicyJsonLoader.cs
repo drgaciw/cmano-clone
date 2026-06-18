@@ -78,10 +78,29 @@ public static class ScenarioPolicyJsonLoader
             ParseUnitReadiness(dto.UnitReadiness),
             ParseSpoofTransitions(dto.SpoofTracks),
             catalogWithdrawTargets: ParseCatalogWithdrawTargets(dto.CatalogWithdraw),
-            balanceTelemetry: ParseBalanceTelemetry(dto.Telemetry))
+            balanceTelemetry: ParseBalanceTelemetry(dto.Telemetry),
+            datalinkDoctrine: ParseDatalinkDoctrine(dto.Datalink))
         {
             Id = dto.Id,
         };
+    }
+
+    private static ScenarioDatalinkDoctrine ParseDatalinkDoctrine(ScenarioDatalinkJsonDto? datalink)
+    {
+        if (datalink == null)
+        {
+            return ScenarioDatalinkDoctrine.Default;
+        }
+
+        var unitSides = datalink.UnitSides == null || datalink.UnitSides.Count == 0
+            ? null
+            : datalink.UnitSides
+                .OrderBy(p => p.Key, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
+
+        return new ScenarioDatalinkDoctrine(
+            datalink.OrganicOnly ?? true,
+            unitSides);
     }
 
     private static ScenarioBalanceTelemetrySettings ParseBalanceTelemetry(ScenarioTelemetryJsonDto? telemetry)

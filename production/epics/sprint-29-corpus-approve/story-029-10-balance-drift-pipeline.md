@@ -1,6 +1,6 @@
 ---
 id: S29-10
-status: Not Started
+status: Complete
 type: Integration
 priority: nice-to-have
 graphite_branch: stack/sprint29/balance-drift-pipeline
@@ -23,13 +23,13 @@ Surface `enableBalanceDrift` advisory on import/approve diffs in the catalog pip
 
 ## Acceptance Criteria
 
-- [ ] Import/approve diff path emits balance drift advisory when `enableBalanceDrift=true`
-- [ ] Pipeline tests PASS on curated fixtures
-- [ ] `enableBalanceDrift` Sim default **false** (unchanged)
-- [ ] `ReplayGoldenSuiteTests` — 6/6 unchanged on default path
-- [ ] No `CatalogWriteGate` bypass
-- [ ] Evidence: `production/qa/sprint-29-balance-drift-pipeline-*.md`
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] Import/approve diff path emits balance drift advisory when `enableBalanceDrift=true`
+- [x] Pipeline tests PASS on curated fixtures
+- [x] `enableBalanceDrift` Sim default **false** (unchanged)
+- [x] `ReplayGoldenSuiteTests` — 6/6 unchanged on default path
+- [x] No `CatalogWriteGate` bypass
+- [x] Evidence: `production/qa/sprint-29-balance-drift-pipeline-2026-06-18.md`
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

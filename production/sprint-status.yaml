@@ -1605,19 +1605,23 @@ start: "2026-10-02"
 end: "2026-10-15"
 generated: "2026-06-18"
 updated: "2026-06-18"
-status: in_progress
+status: complete
 branch: main
-indexed_commit: ac77631
+indexed_commit: pending
 gitnexus_indexed: "2026-06-18"
-gitnexus_nodes: 12240
-gitnexus_edges: 24819
+gitnexus_nodes: 12802
+gitnexus_edges: 26402
 tests_passed_sprint28_closeout: 801
 tests_passed_sprint29_baseline: 801
 tests_passed_sprint29_wave1: 819
 tests_passed_sprint29_wave2: 847
+tests_passed_sprint29_closeout: 878
 replay_golden_sprint29_baseline: pass
 replay_golden_sprint29_wave1: pass
 replay_golden_sprint29_wave2: pass
+replay_golden_sprint29_closeout: pass
+sprint29_status: complete
+completed: "2026-06-18"
 kickoff: production/sprints/sprint-29-operationalize-data-fight-loop.md
 parallel_kickoff: production/agentic/sprint-29-parallel-kickoff-2026-06-18.md
 qa_plan: production/qa/qa-plan-sprint-29-2026-10-02.md
@@ -1636,6 +1640,15 @@ evidence:
   - production/agentic/stacks/sprint29/S29-08-DONE.md
   - production/qa/sprint-29-catalog-sim-bridge-2026-06-18.md
   - production/qa/evidence/doctrine-panel-s29-2026-06-18.md
+  - production/agentic/stacks/sprint29/S29-09-DONE.md
+  - production/agentic/stacks/sprint29/S29-10-DONE.md
+  - production/agentic/stacks/sprint29/S29-11-DONE.md
+  - production/agentic/stacks/sprint29/S29-12-DONE.md
+  - production/agentic/stacks/sprint29/S29-13-DONE.md
+  - production/qa/sprint-29-balance-drift-pipeline-2026-06-18.md
+  - production/qa/sprint-29-ci-hygiene-2026-06-18.md
+  - production/qa/sprint-29-gitnexus-2026-06-18.md
+  - production/qa/smoke-sprint-29-closeout-2026-06-18.md
 epics:
   - production/epics/sprint-29-tl-export-foundation/EPIC.md
   - production/epics/sprint-29-corpus-approve/EPIC.md
@@ -1721,42 +1734,47 @@ sprint29_stories:
     name: "Damage hot-tick apply bounded"
     file: production/epics/sprint-29-combat-domains-phase3/story-029-09-hot-tick-damage.md
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 1.5
-    blocker: "29-5"
-    completed: ""
+    blocker: ""
+    completed: "2026-06-18"
+    note: "CatalogDamageHotTickApplier; PlatformDamageChange order log; ReplayGolden 6/6; evidence production/agentic/stacks/sprint29/S29-09-DONE.md"
   - id: "29-10"
     name: "Balance drift catalog pipeline"
     file: production/epics/sprint-29-corpus-approve/story-029-10-balance-drift-pipeline.md
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 0.5
-    blocker: "29-1"
-    completed: ""
+    blocker: ""
+    completed: "2026-06-18"
+    note: "CatalogBalanceDriftPipelineEvaluator on propose/approve; evidence production/qa/sprint-29-balance-drift-pipeline-2026-06-18.md"
   - id: "29-11"
     name: "Datalink side picture TR-sensor-004"
     file: production/epics/sprint-29-combat-domains-phase3/story-029-11-datalink-side-picture.md
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 1
-    blocker: "29-1"
-    completed: ""
+    blocker: ""
+    completed: "2026-06-18"
+    note: "DatalinkSidePictureMerger deterministic merge; ReplayGolden 6/6; evidence production/agentic/stacks/sprint29/S29-11-DONE.md"
   - id: "29-12"
     name: "CI/local gate refresh"
     file: production/epics/sprint-29-closeout-devops/story-029-12-ci-hygiene.md
     priority: nice-to-have
-    status: backlog
+    status: done
     estimate_days: 0.25
-    blocker: "29-1"
-    completed: ""
+    blocker: ""
+    completed: "2026-06-18"
+    note: "verify-ci-local.ps1 baseline >=878; evidence production/qa/sprint-29-ci-hygiene-2026-06-18.md"
   - id: "29-13"
     name: "Closeout hygiene"
     file: production/epics/sprint-29-closeout-devops/story-029-13-closeout-hygiene.md
     priority: should-have
-    status: backlog
+    status: done
     estimate_days: 0.5
     blocker: ""
-    completed: ""
+    completed: "2026-06-18"
+    note: "878/878 sln; ReplayGolden 6/6; GitNexus 12802/26402; evidence production/qa/smoke-sprint-29-closeout-2026-06-18.md"
 next_backlog: production/sprints/sprint-30-planning.md
 
 sprint: 16

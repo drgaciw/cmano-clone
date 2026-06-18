@@ -164,6 +164,20 @@ public sealed class ScenarioPolicyJsonLoaderTests
     }
 
     [Fact]
+    public void Loads_baltic_patrol_datalink_doctrine_with_side_sharing_enabled()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.NotNull(repoRoot);
+        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-datalink.policy.json");
+        var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
+        Assert.Equal("baltic-patrol-datalink", profile.Id);
+        Assert.False(profile.DatalinkDoctrine.OrganicOnly);
+        Assert.True(profile.DatalinkDoctrine.IsSharingEnabled);
+        Assert.Equal("blue", profile.DatalinkDoctrine.ResolveSide("u1"));
+        Assert.Equal("blue", profile.DatalinkDoctrine.ResolveSide("u2"));
+    }
+
+    [Fact]
     public void Loads_baltic_patrol_comms_logistics_and_display_settings()
     {
         var repoRoot = FindRepoRoot();

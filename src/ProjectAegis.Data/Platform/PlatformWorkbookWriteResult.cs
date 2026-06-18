@@ -1,14 +1,19 @@
 namespace ProjectAegis.Data.Platform;
 
+using ProjectAegis.Data.Telemetry;
+
 /// <summary>ADR-011 Phase D: outcome of staging an edited workbook through <see cref="CatalogWriteGate"/>.</summary>
 public sealed record PlatformWorkbookWriteResult(
     PlatformImportResult Import,
-    bool Proposed)
+    bool Proposed,
+    BalanceDriftReport BalanceDriftAdvisory)
 {
     public IReadOnlyList<string> BatchIds => CollectBatchIds(Import);
 
-    public static PlatformWorkbookWriteResult FromImport(PlatformImportResult import) =>
-        new(import, import.Staged);
+    public static PlatformWorkbookWriteResult FromImport(
+        PlatformImportResult import,
+        BalanceDriftReport? balanceDriftAdvisory = null) =>
+        new(import, import.Staged, balanceDriftAdvisory ?? BalanceDriftReport.EmptyDisabled);
 
     public static IReadOnlyList<string> CollectBatchIds(PlatformImportResult import)
     {
@@ -38,7 +43,8 @@ public sealed record PlatformWorkbookWriteResult(
 public sealed record PlatformWorkbookWriteDecisionResult(
     IReadOnlyList<string> ProcessedBatchIds,
     IReadOnlyList<string> CommittedBatchIds,
-    IReadOnlyDictionary<string, IReadOnlyList<string>> Errors)
+    IReadOnlyDictionary<string, IReadOnlyList<string>> Errors,
+    BalanceDriftReport BalanceDriftAdvisory)
 {
     public bool AllCommitted =>
         ProcessedBatchIds.Count > 0

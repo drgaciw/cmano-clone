@@ -1,6 +1,6 @@
 ---
 id: S29-12
-status: Not Started
+status: Complete
 type: Config
 priority: nice-to-have
 graphite_branch: stack/sprint29/closeout
@@ -23,11 +23,11 @@ Update `verify-ci-local.ps1` evidence for 801+ baseline. Doc-only; non-blocking.
 
 ## Acceptance Criteria
 
-- [ ] `verify-ci-local.ps1` or equivalent local gate doc updated for 801+ baseline
-- [ ] Evidence doc: `production/qa/sprint-29-ci-hygiene-*.md`
-- [ ] Buildkite merge authority + local gate advisory documented
-- [ ] Non-blocking (does not gate sprint closeout)
-- [ ] ZERO touch `DelegationBridge.cs`
+- [x] `verify-ci-local.ps1` or equivalent local gate doc updated for 878+ baseline
+- [x] Evidence doc: `production/qa/sprint-29-ci-hygiene-2026-06-18.md`
+- [x] Buildkite merge authority + local gate advisory documented
+- [x] Non-blocking (does not gate sprint closeout)
+- [x] ZERO touch `DelegationBridge.cs`
 
 ## QA Test Cases
 

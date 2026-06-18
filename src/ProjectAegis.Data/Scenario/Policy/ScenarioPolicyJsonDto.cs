@@ -53,6 +53,15 @@ public sealed class ScenarioPolicyJsonDto
     public List<ScenarioSpoofJsonDto>? SpoofTracks { get; set; }
 
     public ScenarioTelemetryJsonDto? Telemetry { get; set; }
+
+    public ScenarioDatalinkJsonDto? Datalink { get; set; }
+}
+
+public sealed class ScenarioDatalinkJsonDto
+{
+    public bool? OrganicOnly { get; set; }
+
+    public Dictionary<string, string>? UnitSides { get; set; }
 }
 
 public sealed class ScenarioTelemetryJsonDto

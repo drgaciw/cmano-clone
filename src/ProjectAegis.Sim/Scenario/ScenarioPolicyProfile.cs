@@ -35,7 +35,8 @@ public sealed class ScenarioPolicyProfile
         IReadOnlyList<ScenarioSpoofTransition>? spoofTransitions = null,
         IReadOnlyList<ScenarioWithdrawReadinessTrial>? withdrawReadinessTrials = null,
         IReadOnlyList<ScenarioCatalogWithdrawTarget>? catalogWithdrawTargets = null,
-        ScenarioBalanceTelemetrySettings? balanceTelemetry = null)
+        ScenarioBalanceTelemetrySettings? balanceTelemetry = null,
+        ScenarioDatalinkDoctrine? datalinkDoctrine = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -67,6 +68,7 @@ public sealed class ScenarioPolicyProfile
         WithdrawReadinessTrials = withdrawReadinessTrials ?? Array.Empty<ScenarioWithdrawReadinessTrial>();
         CatalogWithdrawTargets = catalogWithdrawTargets ?? Array.Empty<ScenarioCatalogWithdrawTarget>();
         BalanceTelemetry = balanceTelemetry ?? ScenarioBalanceTelemetrySettings.Disabled;
+        DatalinkDoctrine = datalinkDoctrine ?? ScenarioDatalinkDoctrine.Default;
     }
 
     public string Id { get; init; } = "";
@@ -131,6 +133,9 @@ public sealed class ScenarioPolicyProfile
 
     /// <summary>Balance drift telemetry advisory settings (DBI-5; default disabled).</summary>
     public ScenarioBalanceTelemetrySettings BalanceTelemetry { get; }
+
+    /// <summary>TR-sensor-004 bounded side-picture sharing (default organic-only / no sharing).</summary>
+    public ScenarioDatalinkDoctrine DatalinkDoctrine { get; }
 
     public EngageContext ResolveEngageContext()
     {

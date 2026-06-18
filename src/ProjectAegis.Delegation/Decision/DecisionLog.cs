@@ -27,6 +27,7 @@ public sealed class DecisionLog : IOrderLog
     private readonly List<CommsStateChangeRecord> _commsStateChanges = new();
     private readonly List<FuelStateChangeRecord> _fuelStateChanges = new();
     private readonly List<FuelBurnRecord> _fuelBurns = new();
+    private readonly List<PlatformDamageChangeRecord> _platformDamageChanges = new();
 
     public IReadOnlyList<DecisionRecord> Records =>
         _agentDecisions.Select(p => p.ToDecisionRecord()).ToArray();
@@ -62,6 +63,8 @@ public sealed class DecisionLog : IOrderLog
     public IReadOnlyList<FuelStateChangeRecord> FuelStateChanges => _fuelStateChanges;
 
     public IReadOnlyList<FuelBurnRecord> FuelBurns => _fuelBurns;
+
+    public IReadOnlyList<PlatformDamageChangeRecord> PlatformDamageChanges => _platformDamageChanges;
 
     public void Append(OrderLogEntry entry)
     {
@@ -123,6 +126,9 @@ public sealed class DecisionLog : IOrderLog
                 break;
             case OrderLogEntryKind.FuelBurn when entry.Payload is FuelBurnRecord fuelBurn:
                 _fuelBurns.Add(fuelBurn with { SequenceId = sequenceId });
+                break;
+            case OrderLogEntryKind.PlatformDamageChange when entry.Payload is PlatformDamageChangeRecord damageChange:
+                _platformDamageChanges.Add(damageChange with { SequenceId = sequenceId });
                 break;
             default:
                 throw new ArgumentException($"Unsupported order log entry kind: {entry.Kind}", nameof(entry));
@@ -194,6 +200,9 @@ public sealed class DecisionLog : IOrderLog
 
     public void AppendFuelBurn(FuelBurnRecord burn) =>
         Append(OrderLogEntryFactories.FromFuelBurn(burn));
+
+    public void AppendPlatformDamageChange(PlatformDamageChangeRecord change) =>
+        Append(OrderLogEntryFactories.FromPlatformDamageChange(change));
 
     /// <summary>Unified timeline sorted by sequence (ADR-003 MVP).</summary>
     public IReadOnlyList<OrderLogEntry> ChronologicalEntries()
@@ -289,6 +298,11 @@ public sealed class DecisionLog : IOrderLog
             entries.Add(new OrderLogEntry(b.SequenceId, OrderLogEntryKind.FuelBurn, b.SimTime, b));
         }
 
+        foreach (var d in _platformDamageChanges)
+        {
+            entries.Add(new OrderLogEntry(d.SequenceId, OrderLogEntryKind.PlatformDamageChange, d.SimTime, d));
+        }
+
         return entries.OrderBy(e => e.SequenceId).ToArray();
     }
 
@@ -350,6 +364,8 @@ public sealed class DecisionLog : IOrderLog
                 $"{f.SimTick}|{f.UnitId.Value}|{f.PreviousState}|{f.NewState}|{f.RemainingFuelKg:R}",
             OrderLogEntryKind.FuelBurn when entry.Payload is FuelBurnRecord b =>
                 $"{b.SimTick}|{b.UnitId.Value}|{b.DeltaKg:R}|{b.RemainingFuelKg:R}",
+            OrderLogEntryKind.PlatformDamageChange when entry.Payload is PlatformDamageChangeRecord d =>
+                $"{d.SimTick}|{d.UnitId.Value}|{d.PreviousHpPct:R}|{d.NewHpPct:R}|{d.ReasonCode}",
             _ => "?",
         };
 

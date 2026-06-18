@@ -69,6 +69,10 @@ public sealed class SimulationSession
             DefaultMagazineRounds = defaultMagazineRounds,
             CatalogReader = catalogReader,
             BalanceDriftConsumer = new BalanceDriftAdvisoryConsumer(orchestrator.ScenarioPolicy?.BalanceTelemetry),
+            CatalogDamageHotTickTracker = CatalogDamageHotTickTracker.TryCreate(
+                orchestrator.ScenarioPolicy,
+                engageDefaults.CombatDomainsEnabled,
+                catalogReader),
         };
     }
 
@@ -176,6 +180,43 @@ public sealed class SimulationSession
 
         Sim.TickOnce(TimeCompressionMode.RealTime);
         LogEngagementResults(state, queued);
+        ApplyCatalogDamageHotTick(state, queued);
+    }
+
+    private void ApplyCatalogDamageHotTick(
+        ObservedState state,
+        IReadOnlyList<(Order Order, TargetId Victim)> queued)
+    {
+        if (CatalogDamageHotTickTracker == null || CatalogReader == null)
+        {
+            return;
+        }
+
+        var simTick = (ulong)Math.Max(0, (long)state.SimTime);
+        var outcomes = new List<CatalogDamageHotTickApplier.OutcomeApply>(queued.Count);
+        var results = Sim.LastEngagementResults;
+        for (var i = 0; i < queued.Count; i++)
+        {
+            if (i >= results.Count || !results[i].Launched || results[i].OutcomeCode == null)
+            {
+                continue;
+            }
+
+            var (order, victim) = queued[i];
+            outcomes.Add(new CatalogDamageHotTickApplier.OutcomeApply(
+                victim.Value,
+                results[i].EngagementId,
+                simTick,
+                results[i].OutcomeCode));
+        }
+
+        var tickResult = CatalogDamageHotTickTracker.ApplyTick(simTick, state.SimTime, outcomes);
+        foreach (var change in tickResult.Changes)
+        {
+            Orchestrator.DecisionLog.AppendPlatformDamageChange(change);
+        }
+
+        BindCatalogWithdrawTrials(tickResult.WithdrawTrials);
     }
 
     private void LogEngagementResults(ObservedState state, IReadOnlyList<(Order Order, TargetId Victim)> queued)
@@ -295,9 +336,12 @@ public sealed class SimulationSession
 
     public UnitReadinessMap? UnitReadiness { get; set; }
 
-    /// <summary>Catalog-resolved withdraw/readiness trials (bounded — no hot-tick damage apply).</summary>
+    /// <summary>Catalog-resolved withdraw/readiness trials (refreshed by hot-tick applier when enabled).</summary>
     public IReadOnlyList<ScenarioWithdrawReadinessTrial> CatalogWithdrawTrials { get; private set; } =
         Array.Empty<ScenarioWithdrawReadinessTrial>();
+
+    /// <summary>Bounded catalog hot-tick damage tracker (combatDomainsEnabled + catalogWithdraw only).</summary>
+    public CatalogDamageHotTickTracker? CatalogDamageHotTickTracker { get; init; }
 
     /// <summary>Advisory-only balance drift telemetry consumer (DBI-5; default disabled).</summary>
     public BalanceDriftAdvisoryConsumer? BalanceDriftConsumer { get; init; }
