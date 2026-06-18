@@ -39,3 +39,7 @@ bridge.TryEnqueueHumanOrder(new EntityKey(1), OrderKind.Hold, simTime: sim.Clock
 ## Unity Editor wiring
 
 See `unity/ProjectAegis/README.md` — build DLLs, copy to `Plugins`, optional `DelegationBridgeHost` MonoBehaviour.
+
+## Deep reference
+
+See [`docs/engineering/delegation-unity-bridge.md`](../../docs/engineering/delegation-unity-bridge.md) for the full contract and tick-pipeline reference: the `ISimWorldSnapshot` / `IOrderSink` contracts, MVP-engage vs delegation-only dispatch, player-order injection, the read-only C2 presentation seam, determinism rules, and common pitfalls.
