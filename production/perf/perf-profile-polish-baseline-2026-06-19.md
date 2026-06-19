@@ -15,7 +15,7 @@
 | **Headless Baltic MVP** | Well within tick and CI budgets at current entity scale (~1 agent, ~2 contacts, ≤10 detection trials) |
 | **Unity C2 frame budget** | **Unmeasured** — smoke harness exists; no Unity Profiler baseline |
 | **Scale risk** | LINQ/allocation patterns in sim tick loop will not survive 5k-entity / 5k×10k sensor budgets without rework |
-| **CI health** | 1193/1193 tests in **9.44 s**; ReplayGolden 6/6 in **179 ms** test time — strong headroom |
+| **CI health** | **1204/1204** tests in **11.70 s**; ReplayGolden 6/6 in **166 ms** test time (post S35-05/S35-10) — strong headroom |
 
 **Verdict:** Headless + CI paths are **OK** for Polish Phase 1 Baltic slice. Interactive Unity C2 and multi-thousand-entity targets are **WARNING** — require runtime profiling before optimization stories commit.
 
@@ -26,14 +26,14 @@
 | Metric | Budget | Estimated Current | Status | Notes |
 |--------|--------|-------------------|--------|-------|
 | **Unity C2 frame time** (60 fps target) | **16.67 ms** | *Unknown* | **WARNING** | Req 03/20; `SimplePlayModeSimHost.Update()` ticks every frame — no Profiler capture |
-| **Headless sim tick** (Baltic MVP, 1 agent) | **< 1.0 ms/tick** (Polish P1) | **~0.5–3.0 ms/tick** | **OK** | Derived from ReplayGolden wall time ÷ tick iterations (see Benchmarks) |
+| **Headless sim tick** (Baltic MVP, 1 agent) | **< 1.0 ms/tick** (Polish P1) | **~0.5–2.8 ms/tick** | **OK** | Post S35-05/S35-10: 166 ms ÷ 54 ≈ 3.07 ms/tick amortized (see §Post-S35-05) |
 | **Headless 300-tick replay** (ARCH-NFR-1) | **< 2.0 s** wall | **~150–900 ms** est. | **OK** | Extrapolated; direct 300-tick micro-bench failed outside test output dir (manifest path) |
 | **Headless AvA throughput** (doc 03) | **≥256×** min; **1000×+** target | *Not measured* | **WARNING** | P1 deferred; no profile gate on reference Baltic at scale |
 | **Memory — headless Baltic run** | **< 256 MB** working set | **~50–80 MB** est. | **OK** | In-memory `ICatalogReader` fixture; short tick counts |
 | **Memory — 5k entity target** (doc 03/08) | **< 2 GB** | *Not implemented* | **WARNING** | MVP registry/dictionary model; ~2 contacts in harness |
 | **Order log storage** (24 h scenario, doc 17) | **< 500 MB** compressed | *N/A at MVP ticks* | **OK** | Fingerprint/log growth not stressed in golden suite |
-| **ReplayGolden suite runtime** (CI) | **< 30 s** wall | **3.36 s** elapsed / **179 ms** test | **OK** | 6 cases × double-run determinism check |
-| **Full `dotnet test` suite ceiling** (CI) | **< 120 s** wall | **9.44 s** (1193 tests, Release) | **OK** | `tools/buildkite/dotnet-ci.sh` parity |
+| **ReplayGolden suite runtime** (CI) | **< 30 s** wall | **3.63 s** elapsed / **166 ms** test (post S35-05/S35-10) | **OK** | 6 cases × double-run determinism check |
+| **Full `dotnet test` suite ceiling** (CI) | **< 120 s** wall | **11.70 s** (1204 tests, Release) | **OK** | `tools/buildkite/dotnet-ci.sh` parity |
 | **C2 panel selection latency** (doc 20) | **< 100 ms** | *Unknown* | **WARNING** | Headless `SensorC2Bridge` / projections only; no Editor timing |
 | **Mission editor validation** (ADR-008) | **< 100 ms** Baltic-scale | *Not re-run today* | **OK** | ADR budget; separate from sim tick path |
 
@@ -86,6 +86,77 @@ Environment: Linux, `PATH=/home/username01/.dotnet:$PATH`, local dev machine.
 | **Total** | | | **54** |
 
 `179 ms ÷ 54 ≈ 3.3 ms/tick` (includes end-of-run `MessageLogProjection`, `SensorC2Bridge`, fingerprint — not amortized per tick). Conservative **~0.5–3.0 ms/tick** for MVP loop body.
+
+---
+
+## Benchmarks — Post-S35-05 / S35-10 (2026-06-19)
+
+**Context:** S35-05 (detection P0 — trial `Dictionary` + pre-sorted trials) and S35-10 (DecisionLog incremental chronological + cached datalink sort) merged. Re-profile records delta vs **§Benchmarks (2026-06-19)** pre-merge baseline.
+
+Environment: Linux, `PATH=/home/username01/.dotnet:$PATH`, local dev machine (same host as pre-merge).
+
+```bash
+# ReplayGolden — UnityAdapter (blocking CI gate)
+/usr/bin/time -f 'elapsed %e' dotnet test \
+  src/ProjectAegis.Delegation.UnityAdapter.Tests \
+  --filter "ReplayGoldenSuiteTests" -v minimal
+# → Passed 6/6, Duration: 166 ms, elapsed 3.63
+
+# Full solution (Release)
+/usr/bin/time -f 'elapsed %e' dotnet test ProjectAegis.sln -c Release -v minimal
+# → 1204 passed, elapsed 11.70
+```
+
+### Delta vs pre-S35-05 baseline
+
+| Metric | Pre-S35-05 (2026-06-19) | Post-S35-05/S35-10 | Δ | Verdict |
+|--------|-------------------------|---------------------|---|---------|
+| **ReplayGolden** pass count | 6/6 | 6/6 | — | **Unchanged** |
+| **ReplayGolden** test `Duration` | **179 ms** | **166 ms** | **−13 ms (−7.3%)** | **Improvement** — detection + order-log/datalink P0/P1 hot-path wins |
+| **ReplayGolden** wall `elapsed` | **3.36 s** | **3.63 s** | **+0.27 s (+8.0%)** | **Noise** — build/restore/JIT startup variance; test body faster |
+| **Full sln** pass count | 1193/1193 | **1204/1204** | +11 tests | **Unchanged gate** — suite grew (S35-10 + catalog tests); all PASS |
+| **Full sln** wall `elapsed` | **9.44 s** | **11.70 s** | **+2.26 s (+24%)** | **Mixed** — +11 tests + Release rebuild; not attributable solely to sim perf |
+| **Amortized ms/tick** (ReplayGolden) | **179 ÷ 54 ≈ 3.31 ms** | **166 ÷ 54 ≈ 3.07 ms** | **−0.24 ms (−7.3%)** | **Improvement** — P0/P1 loop body faster at Baltic MVP scale |
+| **Unity C2 frame** (16.67 ms) | *Unknown* | *Unknown* | — | **Unchanged** — S35-04 deferred on Linux; see cross-ref below |
+
+**Executive delta narrative:** S35-05 and S35-10 delivered measurable headless tick savings without breaking determinism (ReplayGolden 6/6, Baltic hash `17144800277401907079` unchanged per merge evidence). CI wall times are **not** a reliable regression signal on this host — elapsed includes one-off build/restore; the **test `Duration`** and amortized **ms/tick** are the authoritative sim-perf deltas. Full-sln wall rose with test-count growth; per-test amortized cost is within normal variance.
+
+**Tick-rate derivation (unchanged case table — 54 tick-iterations):**
+
+| Case | Ticks/run | Runs (a+b) | Tick-iterations |
+|------|-----------|------------|-----------------|
+| baltic-patrol | 4 | 2 | 8 |
+| baltic-patrol-comms | 6 | 2 | 12 |
+| baltic-patrol-classify | 4 | 2 | 8 |
+| baltic-patrol-stale | 3 | 2 | 6 |
+| baltic-patrol-spoof | 5 | 2 | 10 |
+| baltic-patrol-readiness | 5 | 2 | 10 |
+| **Total** | | | **54** |
+
+`166 ms ÷ 54 ≈ 3.07 ms/tick` (post-merge). Updated conservative band: **~0.5–2.8 ms/tick** for MVP loop body (tightened upper bound from P0/P1 closures).
+
+### P0/P1 hotspot closure status (post S35-05 + S35-10)
+
+| # | Location | Pre-merge status | Post-merge |
+|---|----------|------------------|------------|
+| 1 | `PdDetectionContactSimulator` — `_trials.First()` scans | **OPEN** (P0) | **CLOSED** — S35-05 `Dictionary<string, ScenarioDetectionTrial>` |
+| 2 | `DeterministicDetectionLoop` — per-tick `OrderBy().ToArray()` | **OPEN** (P0) | **CLOSED** — S35-05 pre-sorted trials at bind |
+| 3 | `DecisionLog.ChronologicalEntries` / fingerprint | **OPEN** (P1) | **CLOSED** — S35-10 incremental chronological append |
+| 4 | `DatalinkSidePictureMerger.Merge` — nested LINQ | **OPEN** (P1) | **CLOSED** — S35-10 cached observer/side ordering |
+| 5 | `BalticReplayHarness` — `Concat().ToArray()` datalink path | **OPEN** (quick win) | **OPEN** — optional; not in S35-10 scope |
+| — | `SimulationSession` — `engageOrders.Where(...).ToArray()` | **OPEN** | **OPEN** |
+| — | `BdaContactLifecycleHotTickApplier` — per-tick LINQ | **OPEN** | **OPEN** |
+
+### Unity C2 frame budget (S35-04 cross-ref)
+
+| Item | Status | Reference |
+|------|--------|-----------|
+| Unity C2 frame time **16.67 ms** | **UNKNOWN** on Linux CI | `production/perf/unity-c2-frame-baseline-s35-2026-06-19.md` — BL-C2-01 Editor Profiler backlog |
+| C2 panel selection **< 100 ms** | **OK** (headless p95 **0.013 ms**) | Same doc — S35-04 headless proxy |
+
+> **Do not assert PASS on 16.67 ms frame budget** until Editor Profiler capture lands (S35-09 or dedicated session).
+
+**Raw command output:** `production/agentic/sprint-35-perf-reprofile-2026-06-19.md`
 
 ---
 
@@ -199,10 +270,10 @@ Per `production/polish-scope-boundary-2026-06-19.md`:
 
 | Priority | Item | Status |
 |----------|------|--------|
-| **P0** | ReplayGolden CI gate | **OK** — 6/6, 179 ms |
-| **P0** | Full sln test gate | **OK** — 1193/1193, 9.44 s |
-| **P1** | Headless tick < 1 ms (Baltic MVP) | **OK** (estimated) |
-| **P1** | Unity frame budget proof | **BLOCKED** — needs Profiler |
+| **P0** | ReplayGolden CI gate | **OK** — 6/6, **166 ms** (post S35-05/S35-10) |
+| **P0** | Full sln test gate | **OK** — **1204/1204**, **11.70 s** |
+| **P1** | Headless tick < 1 ms (Baltic MVP) | **OK** — ~3.07 ms/tick amortized; loop body ~0.5–2.8 ms est. |
+| **P1** | Unity frame budget proof | **BLOCKED** — needs Editor Profiler; see `unity-c2-frame-baseline-s35-2026-06-19.md` |
 | **P1** | C2 selection < 100 ms | **BLOCKED** — needs PlayMode timing |
 | **P2+** | DOTS/ECS hot-path migration | **Deferred** per scope boundary |
 

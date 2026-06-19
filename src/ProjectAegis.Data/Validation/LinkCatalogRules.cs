@@ -10,11 +10,31 @@ public static class LinkCatalogRules
     public const string TypeInvalidCode = "LINK_TYPE_INVALID";
     public const string LatencyInvalidCode = "LINK_LATENCY_INVALID";
 
+    /// <summary>Workbook sheet names surfaced in diagnostics (Platform Editor phases G–H).</summary>
+    public const string CommsSheetName = "Comms";
+    public const string LinkCatalogSheetName = "LinkCatalog";
+
+    /// <summary>Allowed LinkCatalog.LinkType values for round-trip repair hints.</summary>
+    public const string AllowedLinkTypesHint =
+        $"{CatalogLinkTypes.Strategic}, {CatalogLinkTypes.Tactical}, {CatalogLinkTypes.Voice}, {CatalogLinkTypes.Satcom}";
+
     /// <summary>Minimum inclusive nominal latency (ms). Negative values are invalid.</summary>
     public const int MinLatencyMsNominal = 0;
 
     /// <summary>Maximum inclusive nominal latency (ms) for tactical/voice/satcom/strategic envelopes.</summary>
     public const int MaxLatencyMsNominal = 300_000;
+
+    public static string FormatOrphanCommsMessage(string platformId, string linkId) =>
+        $"{CommsSheetName}/{platformId}: LinkId '{linkId}' not found in {LinkCatalogSheetName} sheet — " +
+        $"add a {LinkCatalogSheetName} row or correct Comms.LinkId before re-import";
+
+    public static string FormatTypeInvalidMessage(string linkId, string linkType) =>
+        $"{LinkCatalogSheetName}/{linkId}: LinkType '{linkType}' invalid — " +
+        $"set LinkType to one of {AllowedLinkTypesHint}";
+
+    public static string FormatLatencyInvalidMessage(string linkId, int latencyMsNominal) =>
+        $"{LinkCatalogSheetName}/{linkId}: LatencyMsNominal={latencyMsNominal} out of range " +
+        $"[{MinLatencyMsNominal},{MaxLatencyMsNominal}] ms — fix LinkCatalog row before approve";
 
     public static IReadOnlyList<DatabaseAgentFinding> Evaluate(ICatalogReader catalog)
     {
@@ -63,7 +83,7 @@ public static class LinkCatalogRules
 
         findings.Add(new DatabaseAgentFinding(
             OrphanCommsCode,
-            $"{comms.PlatformId}/{comms.LinkId}: link '{comms.LinkId}' missing from link_catalog",
+            FormatOrphanCommsMessage(comms.PlatformId, comms.LinkId),
             "error"));
     }
 
@@ -76,7 +96,7 @@ public static class LinkCatalogRules
 
         findings.Add(new DatabaseAgentFinding(
             TypeInvalidCode,
-            $"{link.LinkId}: link_type '{link.LinkType}' not in CatalogLinkTypes",
+            FormatTypeInvalidMessage(link.LinkId, link.LinkType),
             "error"));
     }
 
@@ -90,7 +110,7 @@ public static class LinkCatalogRules
 
         findings.Add(new DatabaseAgentFinding(
             LatencyInvalidCode,
-            $"{link.LinkId}: latency_ms_nominal={link.LatencyMsNominal} out of bounds [{MinLatencyMsNominal},{MaxLatencyMsNominal}]",
+            FormatLatencyInvalidMessage(link.LinkId, link.LatencyMsNominal),
             "error"));
     }
 

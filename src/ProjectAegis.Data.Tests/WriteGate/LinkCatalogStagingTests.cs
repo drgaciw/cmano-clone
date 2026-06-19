@@ -73,6 +73,58 @@ public sealed class LinkCatalogStagingTests
     }
 
     [Fact]
+    public void Approve_link_batch_extend_only_preserves_existing_catalog_rows()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-link-extend-{Guid.NewGuid():N}.db");
+        try
+        {
+            var seed = CatalogValidationDefaults.BalticLinks();
+            using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(3404)))
+            {
+                var seedBatch = gate.ProposeLinkCatalogBatch(seed, "agent", "seed-links");
+                Assert.True(gate.ApproveBatch(seedBatch, "human", "qa-reviewer").Committed);
+
+                var extension = new CatalogLinkEntry(
+                    "CUSTOM_LINK",
+                    "Custom Datalink",
+                    CatalogLinkTypes.Tactical,
+                    LatencyMsNominal: 120);
+                var extendBatch = gate.ProposeLinkCatalogBatch([extension], "agent", "extend-links");
+                Assert.True(gate.ApproveBatch(extendBatch, "human", "qa-reviewer").Committed);
+            }
+
+            using var reader = new SqliteCatalogReader(dbPath, "link-extend-only-test");
+            var links = reader.GetSortedLinks();
+            Assert.Equal(3, links.Count);
+            Assert.Contains(links, l => l.LinkId == "NATO_TADIL_J");
+            Assert.Contains(links, l => l.LinkId == "SATCOM_B");
+            Assert.Contains(links, l => l.LinkId == "CUSTOM_LINK");
+        }
+        finally
+        {
+            Cleanup(dbPath);
+        }
+    }
+
+    [Fact]
+    public void CatalogWriteGate_has_zero_forbidden_link_catalog_delete_surfaces()
+    {
+        var gateSourcePath = Path.GetFullPath(
+            Path.Combine(
+                AppContext.BaseDirectory,
+                "..", "..", "..", "..",
+                "ProjectAegis.Data",
+                "WriteGate",
+                "CatalogWriteGate.cs"));
+
+        Assert.True(File.Exists(gateSourcePath), $"Missing source file: {gateSourcePath}");
+        var source = File.ReadAllText(gateSourcePath);
+
+        Assert.DoesNotContain("DELETE FROM link_catalog", source, StringComparison.Ordinal);
+        Assert.Contains("INSERT OR REPLACE INTO link_catalog", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Reject_batch_purges_link_staging_without_commit()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-link-reject-{Guid.NewGuid():N}.db");

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Mirrors .github/workflows/dotnet-reusable.yml and tools/verify-ci-local.ps1
-# Policy: production/qa/sprint-33-ci-hygiene-2026-06-19.md (S33-12)
-# Day-1 baseline (Release @ trunk): >=1046 solution tests (S32 closeout floor); closeout target >=1086
-# Current sln ~1143 tests (S33-12 verify); ReplayGolden 6/6; PlayModeSmoke 17/17
+# Policy: production/qa/sprint-35-ci-hygiene-2026-06-19.md (S35-15)
+# Day-1 baseline (Release @ trunk): >=1204 solution tests (S35-01 floor 1193; current sln count)
+# Closeout target >=1204; ReplayGolden 6/6; PlayModeSmoke 17/17
 # PowerShell parity: pwsh -File tools/verify-ci-local.ps1
 set -euo pipefail
 

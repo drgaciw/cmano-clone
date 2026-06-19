@@ -11,10 +11,14 @@ public sealed class DatalinkSidePictureMerger
     private readonly ScenarioDatalinkDoctrine _doctrine;
     private readonly IReadOnlyDictionary<string, string> _targetByContactId;
     private readonly IReadOnlyDictionary<(string ObserverId, string TargetId), string> _sensorByObserverTarget;
+    private readonly SideObservers[] _sidesOrdered;
     private readonly Dictionary<string, ContactLifecycleState> _organicByObserverTarget = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ContactLifecycleState> _shareableOrganicByObserverTarget = new(StringComparer.Ordinal);
     private readonly List<PendingShareableOrganic> _pendingShareable = new();
+    private readonly List<PendingShareableOrganic> _readyPending = new();
     private readonly Dictionary<string, ContactLifecycleState> _sharedByObserverTarget = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _targetDedup = new(StringComparer.Ordinal);
+    private readonly List<string> _targetsScratch = new();
 
     public DatalinkSidePictureMerger(
         ScenarioDatalinkDoctrine doctrine,
@@ -27,6 +31,7 @@ public sealed class DatalinkSidePictureMerger
         _sensorByObserverTarget = trials
             .GroupBy(t => (t.ObserverId, t.TargetId))
             .ToDictionary(g => g.Key, g => g.First().SensorId);
+        _sidesOrdered = BuildObserversBySideSorted();
     }
 
     public IReadOnlyList<ContactTransition> Merge(
@@ -126,15 +131,18 @@ public sealed class DatalinkSidePictureMerger
             return;
         }
 
-        var ready = _pendingShareable
-            .Where(p => p.ApplyTick <= simTick)
-            .OrderBy(p => p.ApplyTick)
-            .ThenBy(p => p.ObserverId, StringComparer.Ordinal)
-            .ThenBy(p => p.TargetId, StringComparer.Ordinal)
-            .ThenBy(p => LifecycleRank(p.State))
-            .ToList();
+        _readyPending.Clear();
+        foreach (var pending in _pendingShareable)
+        {
+            if (pending.ApplyTick <= simTick)
+            {
+                _readyPending.Add(pending);
+            }
+        }
 
-        foreach (var pending in ready)
+        _readyPending.Sort(ComparePendingShareable);
+
+        foreach (var pending in _readyPending)
         {
             _pendingShareable.Remove(pending);
             var key = ObserverTargetKey(pending.ObserverId, pending.TargetId);
@@ -153,16 +161,15 @@ public sealed class DatalinkSidePictureMerger
         double simTime,
         DatalinkCommsShareState commsState)
     {
-        var observersBySide = BuildObserversBySide();
         var shared = new List<ContactTransition>();
 
-        foreach (var (_, observers) in observersBySide.OrderBy(p => p.Key, StringComparer.Ordinal))
+        foreach (var side in _sidesOrdered)
         {
-            var targetsOnSide = CollectTargetsForSide(observers);
-            foreach (var targetId in targetsOnSide.OrderBy(id => id, StringComparer.Ordinal))
+            CollectTargetsForSide(side.Observers, _targetsScratch);
+            foreach (var targetId in _targetsScratch)
             {
-                var bestOrganic = ResolveBestOrganicState(observers, targetId);
-                foreach (var observerId in observers.OrderBy(id => id, StringComparer.Ordinal))
+                var bestOrganic = ResolveBestOrganicState(side.Observers, targetId);
+                foreach (var observerId in side.Observers)
                 {
                     var observerTargetKey = ObserverTargetKey(observerId, targetId);
                     if (HasActiveOrganicAtOrAbove(observerTargetKey, bestOrganic.State))
@@ -203,11 +210,8 @@ public sealed class DatalinkSidePictureMerger
             }
         }
 
-        return shared
-            .OrderBy(t => t.ObserverId, StringComparer.Ordinal)
-            .ThenBy(t => ResolveSensorId(t.ObserverId, t.TargetId), StringComparer.Ordinal)
-            .ThenBy(t => t.TargetId, StringComparer.Ordinal)
-            .ToList();
+        shared.Sort(CompareSharedTransitions);
+        return shared;
     }
 
     private void EmitSharedTransition(
@@ -262,7 +266,7 @@ public sealed class DatalinkSidePictureMerger
         ContactLifecycleState best = ContactLifecycleState.Unknown;
         string? bestObserver = null;
 
-        foreach (var observerId in observers.OrderBy(id => id, StringComparer.Ordinal))
+        foreach (var observerId in observers)
         {
             var key = ObserverTargetKey(observerId, targetId);
             if (!TryGetShareableOrganic(key, out var state))
@@ -285,7 +289,7 @@ public sealed class DatalinkSidePictureMerger
 
         if (bestObserver == null)
         {
-            foreach (var observerId in observers.OrderBy(id => id, StringComparer.Ordinal))
+            foreach (var observerId in observers)
             {
                 var key = ObserverTargetKey(observerId, targetId);
                 if (_sharedByObserverTarget.ContainsKey(key))
@@ -320,9 +324,11 @@ public sealed class DatalinkSidePictureMerger
         return LifecycleRank(organic) >= LifecycleRank(sharedState);
     }
 
-    private HashSet<string> CollectTargetsForSide(IReadOnlyList<string> observers)
+    private void CollectTargetsForSide(IReadOnlyList<string> observers, List<string> targets)
     {
-        var targets = new HashSet<string>(StringComparer.Ordinal);
+        targets.Clear();
+        _targetDedup.Clear();
+
         foreach (var observerId in observers)
         {
             foreach (var pair in _organicByObserverTarget)
@@ -333,7 +339,10 @@ public sealed class DatalinkSidePictureMerger
                     continue;
                 }
 
-                targets.Add(targetId);
+                if (_targetDedup.Add(targetId))
+                {
+                    targets.Add(targetId);
+                }
             }
 
             foreach (var pair in _shareableOrganicByObserverTarget)
@@ -344,7 +353,10 @@ public sealed class DatalinkSidePictureMerger
                     continue;
                 }
 
-                targets.Add(targetId);
+                if (_targetDedup.Add(targetId))
+                {
+                    targets.Add(targetId);
+                }
             }
 
             foreach (var pair in _sharedByObserverTarget)
@@ -355,38 +367,98 @@ public sealed class DatalinkSidePictureMerger
                     continue;
                 }
 
-                targets.Add(targetId);
+                if (_targetDedup.Add(targetId))
+                {
+                    targets.Add(targetId);
+                }
             }
         }
 
-        return targets;
+        targets.Sort(StringComparer.Ordinal);
     }
 
-    private Dictionary<string, List<string>> BuildObserversBySide()
+    private SideObservers[] BuildObserversBySideSorted()
     {
-        var map = new Dictionary<string, List<string>>(StringComparer.Ordinal);
         if (_doctrine.UnitSides == null)
         {
-            return map;
+            return Array.Empty<SideObservers>();
         }
 
-        foreach (var pair in _doctrine.UnitSides.OrderBy(p => p.Key, StringComparer.Ordinal))
+        var map = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+        var unitIds = _doctrine.UnitSides.Keys.ToList();
+        unitIds.Sort(StringComparer.Ordinal);
+
+        foreach (var unitId in unitIds)
         {
-            if (string.IsNullOrEmpty(pair.Value))
+            var side = _doctrine.UnitSides[unitId];
+            if (string.IsNullOrEmpty(side))
             {
                 continue;
             }
 
-            if (!map.TryGetValue(pair.Value, out var observers))
+            if (!map.TryGetValue(side, out var observers))
             {
                 observers = new List<string>();
-                map[pair.Value] = observers;
+                map[side] = observers;
             }
 
-            observers.Add(pair.Key);
+            observers.Add(unitId);
         }
 
-        return map;
+        var sides = map.Keys.ToList();
+        sides.Sort(StringComparer.Ordinal);
+        var result = new SideObservers[sides.Count];
+        for (var i = 0; i < sides.Count; i++)
+        {
+            var observers = map[sides[i]];
+            observers.Sort(StringComparer.Ordinal);
+            result[i] = new SideObservers(sides[i], observers.ToArray());
+        }
+
+        return result;
+    }
+
+    private int ComparePendingShareable(PendingShareableOrganic a, PendingShareableOrganic b)
+    {
+        var cmp = a.ApplyTick.CompareTo(b.ApplyTick);
+        if (cmp != 0)
+        {
+            return cmp;
+        }
+
+        cmp = string.Compare(a.ObserverId, b.ObserverId, StringComparison.Ordinal);
+        if (cmp != 0)
+        {
+            return cmp;
+        }
+
+        cmp = string.Compare(a.TargetId, b.TargetId, StringComparison.Ordinal);
+        if (cmp != 0)
+        {
+            return cmp;
+        }
+
+        return LifecycleRank(a.State).CompareTo(LifecycleRank(b.State));
+    }
+
+    private int CompareSharedTransitions(ContactTransition a, ContactTransition b)
+    {
+        var cmp = string.Compare(a.ObserverId, b.ObserverId, StringComparison.Ordinal);
+        if (cmp != 0)
+        {
+            return cmp;
+        }
+
+        cmp = string.Compare(
+            ResolveSensorId(a.ObserverId, a.TargetId),
+            ResolveSensorId(b.ObserverId, b.TargetId),
+            StringComparison.Ordinal);
+        if (cmp != 0)
+        {
+            return cmp;
+        }
+
+        return string.Compare(a.TargetId, b.TargetId, StringComparison.Ordinal);
     }
 
     private string ResolveSensorId(string observerId, string targetId) =>
@@ -429,4 +501,17 @@ public sealed class DatalinkSidePictureMerger
         string TargetId,
         ContactLifecycleState State,
         ulong ApplyTick);
+
+    private sealed class SideObservers
+    {
+        public SideObservers(string side, string[] observers)
+        {
+            Side = side;
+            Observers = observers;
+        }
+
+        public string Side { get; }
+
+        public string[] Observers { get; }
+    }
 }

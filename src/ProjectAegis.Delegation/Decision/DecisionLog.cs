@@ -28,6 +28,7 @@ public sealed class DecisionLog : IOrderLog
     private readonly List<FuelStateChangeRecord> _fuelStateChanges = new();
     private readonly List<FuelBurnRecord> _fuelBurns = new();
     private readonly List<PlatformDamageChangeRecord> _platformDamageChanges = new();
+    private readonly List<OrderLogEntry> _chronological = new();
 
     public IReadOnlyList<DecisionRecord> Records =>
         _agentDecisions.Select(p => p.ToDecisionRecord()).ToArray();
@@ -74,61 +75,98 @@ public sealed class DecisionLog : IOrderLog
             case OrderLogEntryKind.AgentDecision when entry.Payload is AgentDecisionPayload payload:
                 _agentDecisions.Add(payload);
                 _decisionSequences.Add(sequenceId);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.AgentDecision, payload.SimTime, payload);
                 break;
             case OrderLogEntryKind.AgentDecision when entry.Payload is DecisionRecord legacy:
-                _agentDecisions.Add(AgentDecisionPayload.FromDecisionRecord(legacy, legacy.SimTick));
+                var migrated = AgentDecisionPayload.FromDecisionRecord(legacy, legacy.SimTick);
+                _agentDecisions.Add(migrated);
                 _decisionSequences.Add(sequenceId);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.AgentDecision, legacy.SimTime, migrated);
                 break;
             case OrderLogEntryKind.PolicyDenial when entry.Payload is PolicyDenialRecord denial:
-                _policyDenials.Add(denial with { SequenceId = sequenceId });
+                var denialRecord = denial with { SequenceId = sequenceId };
+                _policyDenials.Add(denialRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.PolicyDenial, denialRecord.SimTime, denialRecord);
                 break;
             case OrderLogEntryKind.Engagement when entry.Payload is EngagementRecord engagement:
-                _engagements.Add(engagement with { SequenceId = sequenceId });
+                var engagementRecord = engagement with { SequenceId = sequenceId };
+                _engagements.Add(engagementRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.Engagement, engagementRecord.SimTime, engagementRecord);
                 break;
             case OrderLogEntryKind.EngagementOutcome when entry.Payload is EngagementOutcomeRecord outcome:
-                _engagementOutcomes.Add(outcome with { SequenceId = sequenceId });
+                var outcomeRecord = outcome with { SequenceId = sequenceId };
+                _engagementOutcomes.Add(outcomeRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.EngagementOutcome, outcomeRecord.SimTime, outcomeRecord);
                 break;
             case OrderLogEntryKind.MagazineChange when entry.Payload is MagazineChangeRecord magazine:
-                _magazineChanges.Add(magazine with { SequenceId = sequenceId });
+                var magazineRecord = magazine with { SequenceId = sequenceId };
+                _magazineChanges.Add(magazineRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.MagazineChange, magazineRecord.SimTime, magazineRecord);
                 break;
             case OrderLogEntryKind.ContactChange when entry.Payload is ContactChangeRecord contact:
-                _contactChanges.Add(contact with { SequenceId = sequenceId });
+                var contactRecord = contact with { SequenceId = sequenceId };
+                _contactChanges.Add(contactRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.ContactChange, contactRecord.SimTime, contactRecord);
                 break;
             case OrderLogEntryKind.MissionTransition when entry.Payload is MissionTransitionRecord mission:
-                _missionTransitions.Add(mission with { SequenceId = sequenceId });
+                var missionRecord = mission with { SequenceId = sequenceId };
+                _missionTransitions.Add(missionRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.MissionTransition, missionRecord.SimTime, missionRecord);
                 break;
             case OrderLogEntryKind.EventFired when entry.Payload is EventFiredRecord fired:
-                _eventFired.Add(fired with { SequenceId = sequenceId });
+                var firedRecord = fired with { SequenceId = sequenceId };
+                _eventFired.Add(firedRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.EventFired, firedRecord.SimTime, firedRecord);
                 break;
             case OrderLogEntryKind.ControllerChange when entry.Payload is ControllerChangeRecord controller:
-                _controllerChanges.Add(controller with { SequenceId = sequenceId });
+                var controllerRecord = controller with { SequenceId = sequenceId };
+                _controllerChanges.Add(controllerRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.ControllerChange, controllerRecord.SimTime, controllerRecord);
                 break;
             case OrderLogEntryKind.GroupMemberDetach when entry.Payload is GroupMemberDetachRecord detach:
-                _groupMemberDetaches.Add(detach with { SequenceId = sequenceId });
+                var detachRecord = detach with { SequenceId = sequenceId };
+                _groupMemberDetaches.Add(detachRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.GroupMemberDetach, detachRecord.SimTime, detachRecord);
                 break;
             case OrderLogEntryKind.GroupMemberRejoin when entry.Payload is GroupMemberRejoinRecord rejoin:
-                _groupMemberRejoins.Add(rejoin with { SequenceId = sequenceId });
+                var rejoinRecord = rejoin with { SequenceId = sequenceId };
+                _groupMemberRejoins.Add(rejoinRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.GroupMemberRejoin, rejoinRecord.SimTime, rejoinRecord);
                 break;
             case OrderLogEntryKind.PlayerOrder when entry.Payload is PlayerOrderRecord playerOrder:
-                _playerOrders.Add(playerOrder with { SequenceId = sequenceId });
+                var playerOrderRecord = playerOrder with { SequenceId = sequenceId };
+                _playerOrders.Add(playerOrderRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.PlayerOrder, playerOrderRecord.SimTime, playerOrderRecord);
                 break;
             case OrderLogEntryKind.PolicyUpdate when entry.Payload is PolicyUpdateRecord policyUpdate:
-                _policyUpdates.Add(policyUpdate with { SequenceId = sequenceId });
+                var policyUpdateRecord = policyUpdate with { SequenceId = sequenceId };
+                _policyUpdates.Add(policyUpdateRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.PolicyUpdate, policyUpdateRecord.SimTime, policyUpdateRecord);
                 break;
             case OrderLogEntryKind.ModeChange when entry.Payload is ModeChangeRecord modeChange:
-                _modeChanges.Add(modeChange with { SequenceId = sequenceId });
+                var modeChangeRecord = modeChange with { SequenceId = sequenceId };
+                _modeChanges.Add(modeChangeRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.ModeChange, modeChangeRecord.SimTime, modeChangeRecord);
                 break;
             case OrderLogEntryKind.CommsStateChange when entry.Payload is CommsStateChangeRecord commsChange:
-                _commsStateChanges.Add(commsChange with { SequenceId = sequenceId });
+                var commsChangeRecord = commsChange with { SequenceId = sequenceId };
+                _commsStateChanges.Add(commsChangeRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.CommsStateChange, commsChangeRecord.SimTime, commsChangeRecord);
                 break;
             case OrderLogEntryKind.FuelStateChange when entry.Payload is FuelStateChangeRecord fuelChange:
-                _fuelStateChanges.Add(fuelChange with { SequenceId = sequenceId });
+                var fuelChangeRecord = fuelChange with { SequenceId = sequenceId };
+                _fuelStateChanges.Add(fuelChangeRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.FuelStateChange, fuelChangeRecord.SimTime, fuelChangeRecord);
                 break;
             case OrderLogEntryKind.FuelBurn when entry.Payload is FuelBurnRecord fuelBurn:
-                _fuelBurns.Add(fuelBurn with { SequenceId = sequenceId });
+                var fuelBurnRecord = fuelBurn with { SequenceId = sequenceId };
+                _fuelBurns.Add(fuelBurnRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.FuelBurn, fuelBurnRecord.SimTime, fuelBurnRecord);
                 break;
             case OrderLogEntryKind.PlatformDamageChange when entry.Payload is PlatformDamageChangeRecord damageChange:
-                _platformDamageChanges.Add(damageChange with { SequenceId = sequenceId });
+                var damageChangeRecord = damageChange with { SequenceId = sequenceId };
+                _platformDamageChanges.Add(damageChangeRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.PlatformDamageChange, damageChangeRecord.SimTime, damageChangeRecord);
                 break;
             default:
                 throw new ArgumentException($"Unsupported order log entry kind: {entry.Kind}", nameof(entry));
@@ -205,112 +243,13 @@ public sealed class DecisionLog : IOrderLog
         Append(OrderLogEntryFactories.FromPlatformDamageChange(change));
 
     /// <summary>Unified timeline sorted by sequence (ADR-003 MVP).</summary>
-    public IReadOnlyList<OrderLogEntry> ChronologicalEntries()
-    {
-        var entries = new List<OrderLogEntry>();
-        for (var i = 0; i < _agentDecisions.Count; i++)
-        {
-            var payload = _agentDecisions[i];
-            entries.Add(new OrderLogEntry(
-                _decisionSequences[i],
-                OrderLogEntryKind.AgentDecision,
-                payload.SimTime,
-                payload));
-        }
-
-        foreach (var d in _policyDenials)
-        {
-            entries.Add(new OrderLogEntry(d.SequenceId, OrderLogEntryKind.PolicyDenial, d.SimTime, d));
-        }
-
-        foreach (var e in _engagements)
-        {
-            entries.Add(new OrderLogEntry(e.SequenceId, OrderLogEntryKind.Engagement, e.SimTime, e));
-        }
-
-        foreach (var c in _controllerChanges)
-        {
-            entries.Add(new OrderLogEntry(c.SequenceId, OrderLogEntryKind.ControllerChange, c.SimTime, c));
-        }
-
-        foreach (var d in _groupMemberDetaches)
-        {
-            entries.Add(new OrderLogEntry(d.SequenceId, OrderLogEntryKind.GroupMemberDetach, d.SimTime, d));
-        }
-
-        foreach (var r in _groupMemberRejoins)
-        {
-            entries.Add(new OrderLogEntry(r.SequenceId, OrderLogEntryKind.GroupMemberRejoin, r.SimTime, r));
-        }
-
-        foreach (var m in _magazineChanges)
-        {
-            entries.Add(new OrderLogEntry(m.SequenceId, OrderLogEntryKind.MagazineChange, m.SimTime, m));
-        }
-
-        foreach (var c in _contactChanges)
-        {
-            entries.Add(new OrderLogEntry(c.SequenceId, OrderLogEntryKind.ContactChange, c.SimTime, c));
-        }
-
-        foreach (var m in _missionTransitions)
-        {
-            entries.Add(new OrderLogEntry(m.SequenceId, OrderLogEntryKind.MissionTransition, m.SimTime, m));
-        }
-
-        foreach (var e in _eventFired)
-        {
-            entries.Add(new OrderLogEntry(e.SequenceId, OrderLogEntryKind.EventFired, e.SimTime, e));
-        }
-
-        foreach (var o in _engagementOutcomes)
-        {
-            entries.Add(new OrderLogEntry(o.SequenceId, OrderLogEntryKind.EngagementOutcome, o.SimTime, o));
-        }
-
-        foreach (var p in _playerOrders)
-        {
-            entries.Add(new OrderLogEntry(p.SequenceId, OrderLogEntryKind.PlayerOrder, p.SimTime, p));
-        }
-
-        foreach (var u in _policyUpdates)
-        {
-            entries.Add(new OrderLogEntry(u.SequenceId, OrderLogEntryKind.PolicyUpdate, u.SimTime, u));
-        }
-
-        foreach (var m in _modeChanges)
-        {
-            entries.Add(new OrderLogEntry(m.SequenceId, OrderLogEntryKind.ModeChange, m.SimTime, m));
-        }
-
-        foreach (var c in _commsStateChanges)
-        {
-            entries.Add(new OrderLogEntry(c.SequenceId, OrderLogEntryKind.CommsStateChange, c.SimTime, c));
-        }
-
-        foreach (var f in _fuelStateChanges)
-        {
-            entries.Add(new OrderLogEntry(f.SequenceId, OrderLogEntryKind.FuelStateChange, f.SimTime, f));
-        }
-
-        foreach (var b in _fuelBurns)
-        {
-            entries.Add(new OrderLogEntry(b.SequenceId, OrderLogEntryKind.FuelBurn, b.SimTime, b));
-        }
-
-        foreach (var d in _platformDamageChanges)
-        {
-            entries.Add(new OrderLogEntry(d.SequenceId, OrderLogEntryKind.PlatformDamageChange, d.SimTime, d));
-        }
-
-        return entries.OrderBy(e => e.SequenceId).ToArray();
-    }
+    public IReadOnlyList<OrderLogEntry> ChronologicalEntries() => _chronological;
 
     /// <summary>Deterministic replay fingerprint including denials and engagements.</summary>
     public string ComputeFingerprint()
     {
         var sb = new StringBuilder();
-        foreach (var entry in ChronologicalEntries())
+        foreach (var entry in _chronological)
         {
             sb.Append(entry.Kind);
             sb.Append('|');
@@ -370,4 +309,29 @@ public sealed class DecisionLog : IOrderLog
         };
 
     internal ulong NextSequence() => ++_sequenceId;
+
+    private void AppendChronologicalEntry(
+        ulong sequenceId,
+        OrderLogEntryKind kind,
+        double simTime,
+        object payload)
+    {
+        var entry = new OrderLogEntry(sequenceId, kind, simTime, payload);
+        if (_chronological.Count == 0 || sequenceId >= _chronological[^1].SequenceId)
+        {
+            _chronological.Add(entry);
+            return;
+        }
+
+        var index = _chronological.BinarySearch(entry, ChronologicalSequenceComparer.Instance);
+        _chronological.Insert(index < 0 ? ~index : index, entry);
+    }
+
+    private sealed class ChronologicalSequenceComparer : IComparer<OrderLogEntry>
+    {
+        public static readonly ChronologicalSequenceComparer Instance = new();
+
+        public int Compare(OrderLogEntry? x, OrderLogEntry? y) =>
+            (x?.SequenceId ?? 0).CompareTo(y?.SequenceId ?? 0);
+    }
 }

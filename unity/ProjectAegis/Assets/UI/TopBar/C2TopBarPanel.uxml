@@ -1,11 +1,19 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="c2-topbar-root" class="c2-topbar">
-        <ui:Label name="sim-time-label" text="SIM 00:00:00" class="c2-topbar-item" />
-        <ui:Label name="phase-label" text="PHASE: Planning" class="c2-topbar-item" />
-        <ui:Button name="begin-execution-button" text="Begin Execution" class="c2-topbar-begin-execution" />
-        <ui:Label name="compression-label" text="TIME: 1x" class="c2-topbar-item" />
-        <ui:Label name="mode-label" text="MODE: —" class="c2-topbar-item" />
-        <ui:Label name="comms-label" text="COMMS: NOMINAL" class="c2-topbar-item c2-topbar-item--comms" />
-        <ui:Label name="score-label" text="SCORE: 0" class="c2-topbar-item c2-topbar-item--score" />
+        <ui:VisualElement name="c2-topbar-status-row" class="c2-topbar-status-row">
+            <ui:Label name="sim-time-label" text="SIM 00:00:00" class="c2-topbar-item" />
+            <ui:Label name="phase-label" text="PHASE: Planning" class="c2-topbar-item" />
+            <ui:Button name="begin-execution-button" text="Begin Execution" class="c2-topbar-begin-execution" />
+            <ui:Label name="compression-label" text="TIME: 1x" class="c2-topbar-item" />
+            <ui:Label name="mode-label" text="MODE: —" class="c2-topbar-item" />
+            <ui:Label name="comms-label" text="COMMS: NOMINAL" class="c2-topbar-item c2-topbar-item--comms" />
+            <ui:Label name="score-label" text="SCORE: 0" class="c2-topbar-item c2-topbar-item--score" />
+        </ui:VisualElement>
+        <ui:VisualElement name="c2-topbar-comms-legend" class="c2-topbar-comms-legend">
+            <ui:Label text="COMMS LEGEND:" class="c2-topbar-legend-title" />
+            <ui:Label text="NOMINAL = full picture" class="c2-topbar-legend-item c2-topbar-legend-item--nominal" />
+            <ui:Label text="DEGRADED = stale contacts, reduced symbol opacity" class="c2-topbar-legend-item c2-topbar-legend-item--degraded" />
+            <ui:Label text="DENIED = no new engagements, map dimmed" class="c2-topbar-legend-item c2-topbar-legend-item--denied" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

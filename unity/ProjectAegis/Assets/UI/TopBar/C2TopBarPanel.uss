@@ -1,11 +1,50 @@
 .c2-topbar {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
+    flex-direction: column;
     padding: 4px 8px;
     background-color: rgba(10, 16, 26, 0.95);
     border-bottom-width: 1px;
     border-bottom-color: rgb(50, 65, 80);
+}
+
+.c2-topbar-status-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.c2-topbar-comms-legend {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 2px;
+    padding-top: 2px;
+    border-top-width: 1px;
+    border-top-color: rgba(50, 65, 80, 0.6);
+}
+
+.c2-topbar-legend-title {
+    margin-right: 8px;
+    color: rgb(140, 155, 170);
+    font-size: 10px;
+    -unity-font-style: bold;
+}
+
+.c2-topbar-legend-item {
+    margin-right: 12px;
+    font-size: 10px;
+    color: rgb(170, 180, 190);
+}
+
+.c2-topbar-legend-item--nominal {
+    color: rgb(100, 200, 140);
+}
+
+.c2-topbar-legend-item--degraded {
+    color: rgb(240, 180, 80);
+}
+
+.c2-topbar-legend-item--denied {
+    color: rgb(230, 90, 90);
 }
 
 .c2-topbar-item {

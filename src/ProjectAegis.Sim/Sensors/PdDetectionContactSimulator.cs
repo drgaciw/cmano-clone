@@ -10,6 +10,7 @@ public sealed class PdDetectionContactSimulator
 {
     private readonly SimSeed _seed;
     private readonly ScenarioDetectionTrial[] _trials;
+    private readonly Dictionary<string, ScenarioDetectionTrial> _trialsByContactId;
     private readonly IReadOnlyDictionary<string, EmconState>? _unitRadarEmcon;
     private readonly ICatalogReader? _catalog;
     private readonly IReadOnlyList<ScenarioJammer> _jammers;
@@ -37,6 +38,13 @@ public sealed class PdDetectionContactSimulator
         _catalog = catalog;
         _jammers = jammers ?? Array.Empty<ScenarioJammer>();
         _trials = trials.ToArray();
+        DeterministicDetectionLoop.SortTrials(_trials);
+        _trialsByContactId = new Dictionary<string, ScenarioDetectionTrial>(_trials.Length, StringComparer.Ordinal);
+        foreach (var trial in _trials)
+        {
+            _trialsByContactId[trial.ContactId] = trial;
+        }
+
         var lifecycle = contactLifecycle ?? ScenarioContactLifecycle.Default;
         _staleThresholdTicks = Math.Max(1, lifecycle.StaleThresholdTicks);
         _classifyAfterTicks = Math.Max(0, lifecycle.ClassifyAfterTicks);
@@ -66,7 +74,8 @@ public sealed class PdDetectionContactSimulator
             _unitRadarEmcon,
             _detectedContacts,
             _jammers,
-            catalog: _catalog);
+            catalog: _catalog,
+            trialsPreSorted: true);
         LastDetectionHash = DetectionWorldHash.MixTick(LastDetectionHash, rolls);
 
         var transitions = new List<ContactTransition>();
@@ -117,7 +126,7 @@ public sealed class PdDetectionContactSimulator
                 continue;
             }
 
-            var trial = _trials.First(t => t.ContactId == contactId);
+            var trial = _trialsByContactId[contactId];
             EmitLifecyclePromotions(simTick, simTime, trial, track, transitions);
         }
 
@@ -196,7 +205,7 @@ public sealed class PdDetectionContactSimulator
                 continue;
             }
 
-            var trial = _trials.First(t => t.ContactId == pair.Key);
+            var trial = _trialsByContactId[pair.Key];
             var previous = pair.Value.State;
             pair.Value.State = ContactLifecycleState.Lost;
             lost.Add(pair.Key);
@@ -215,7 +224,7 @@ public sealed class PdDetectionContactSimulator
             _detectedContacts.Remove(contactId);
             if (_primaryTargetId != null &&
                 _tracks.TryGetValue(contactId, out var track) &&
-                _trials.First(t => t.ContactId == contactId).TargetId == _primaryTargetId)
+                _trialsByContactId[contactId].TargetId == _primaryTargetId)
             {
                 RecomputePrimary();
             }
@@ -228,7 +237,7 @@ public sealed class PdDetectionContactSimulator
         _primaryHasTrack = false;
         foreach (var id in _detectedContacts)
         {
-            var trial = _trials.First(t => t.ContactId == id);
+            var trial = _trialsByContactId[id];
             UpdatePrimary(trial);
         }
     }
@@ -262,7 +271,7 @@ public sealed class PdDetectionContactSimulator
     {
         var transitions = new List<ContactTransition>();
         var lostContacts = _tracks.Keys
-            .Where(contactId => _trials.First(t => t.ContactId == contactId).TargetId == targetId)
+            .Where(contactId => _trialsByContactId[contactId].TargetId == targetId)
             .OrderBy(contactId => contactId, StringComparer.Ordinal)
             .ToArray();
 
@@ -274,7 +283,7 @@ public sealed class PdDetectionContactSimulator
                 continue;
             }
 
-            var trial = _trials.First(t => t.ContactId == contactId);
+            var trial = _trialsByContactId[contactId];
             var previous = track.State;
             track.State = ContactLifecycleState.Lost;
             transitions.Add(new ContactTransition(
@@ -305,7 +314,7 @@ public sealed class PdDetectionContactSimulator
     {
         var transitions = new List<ContactTransition>();
         var lostContacts = _tracks.Keys
-            .Where(contactId => _trials.First(t => t.ContactId == contactId).TargetId == targetId)
+            .Where(contactId => _trialsByContactId[contactId].TargetId == targetId)
             .ToArray();
 
         foreach (var contactId in lostContacts)
@@ -316,7 +325,7 @@ public sealed class PdDetectionContactSimulator
                 continue;
             }
 
-            var trial = _trials.First(t => t.ContactId == contactId);
+            var trial = _trialsByContactId[contactId];
             var previous = track.State;
             track.State = ContactLifecycleState.Lost;
             transitions.Add(new ContactTransition(

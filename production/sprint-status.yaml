@@ -2567,6 +2567,189 @@ sprint34_stories:
     completed: "2026-06-19"
     note: "1193/1193 sln; ReplayGolden 6/6; GitNexus 16138/33074; stack/sprint33/* 0 refs; evidence production/qa/smoke-sprint-34-closeout-2026-06-19.md"
 
+sprint: 35
+goal: "Polish Phase 1 entry — UX foundation, sim perf P0, C2/Platform Editor hardening."
+start: "2026-06-20"
+end: "2026-07-03"
+generated: "2026-06-19"
+updated: "2026-06-19"
+status: complete
+completed: "2026-06-19"
+branch: main
+indexed_commit: 8de98b1
+tests_passed_sprint35_baseline_target: 1193
+tests_passed_sprint35_closeout_target: 1193
+tests_passed_sprint35_current: 1204
+replay_golden_sprint35_baseline: pass
+replay_golden_sprint35_closeout: pass
+kickoff: production/sprints/sprint-35-polish-phase-1-entry.md
+parallel_kickoff: production/agentic/sprint-35-parallel-kickoff-2026-06-19.md
+closeout: production/qa/smoke-sprint-35-closeout-2026-06-19.md
+qa_plan: production/qa/qa-plan-sprint-35-2026-06-19.md
+qa_signoff: production/qa/qa-signoff-sprint-35-2026-06-19.md
+qa_verdict: APPROVED_WITH_CONDITIONS
+stage: Polish
+stage_advanced: "2026-06-19"
+gate_ack: production/gate-checks/production-to-polish-2026-06-19-r2.md
+note: "S35 COMPLETE (2026-06-19). 17/17 stories; QA APPROVED WITH CONDITIONS; stage Polish; 1204/1204 PASS; ReplayGolden 6/6; C2 18/18 PASS WITH NOTES; Baltic hash 17144800277401907079; evidence production/qa/qa-signoff-sprint-35-2026-06-19.md"
+epics:
+  - production/epics/sprint-35-polish-foundation/EPIC.md
+  - production/epics/sprint-35-sim-perf/EPIC.md
+  - production/epics/sprint-35-c2-platform-polish/EPIC.md
+  - production/epics/sprint-35-closeout-devops/EPIC.md
+sprint35_stories:
+  - id: "35-1"
+    name: "Full-solution re-baseline"
+    file: production/epics/sprint-35-closeout-devops/story-035-01-full-sln-gate.md
+    priority: must-have
+    status: complete
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-19"
+    note: "1193/1193 sln @ 8de98b1; ReplayGolden 6/6; Baltic hash 17144800277401907079; evidence production/qa/smoke-sprint-35-baseline-2026-06-19.md"
+  - id: "35-2"
+    name: "Sprint 35 QA plan"
+    file: production/epics/sprint-35-polish-foundation/story-035-02-qa-plan.md
+    priority: must-have
+    status: complete
+    estimate_days: 1
+    blocker: "35-1"
+    completed: "2026-06-19"
+    note: "production/qa/qa-plan-sprint-35-2026-06-19.md; C2 18/18 filters; playtest protocol; smoke closeout checklist"
+  - id: "35-3"
+    name: "UX foundation docs"
+    file: production/epics/sprint-35-polish-foundation/story-035-03-ux-foundation.md
+    priority: must-have
+    status: complete
+    estimate_days: 2
+    blocker: "35-2"
+    completed: "2026-06-19"
+    note: "design/accessibility-requirements.md; design/ux/interaction-patterns.md; design/difficulty-curve.md; lean review APPROVED WITH NOTES"
+  - id: "35-4"
+    name: "Unity C2 frame budget baseline"
+    file: production/epics/sprint-35-c2-platform-polish/story-035-04-c2-profiler-baseline.md
+    priority: must-have
+    status: complete
+    estimate_days: 1.5
+    blocker: "35-1"
+    completed: "2026-06-19"
+    note: "production/perf/unity-c2-frame-baseline-s35-2026-06-19.md; panel-bind p95 0.013ms; ReplayGolden 6/6; C2 85/85+58/58; frame p95 deferred Editor Profiler"
+  - id: "35-5"
+    name: "Sim perf P0 detection hot path"
+    file: production/epics/sprint-35-sim-perf/story-035-05-detection-perf-p0.md
+    priority: must-have
+    status: complete
+    estimate_days: 3
+    blocker: ""
+    completed: "2026-06-19"
+    note: "1197/1197 sln; ReplayGolden 6/6; Baltic hash 17144800277401907079 unchanged; PdDetection|DeterministicDetection 8/8; ZERO touch DelegationBridge"
+  - id: "35-6"
+    name: "C2 onboarding and comms tooltips"
+    file: production/epics/sprint-35-c2-platform-polish/story-035-06-c2-tooltips-onboarding.md
+    priority: must-have
+    status: complete
+    estimate_days: 2
+    blocker: ""
+    completed: "2026-06-19"
+    note: "C2 checks 1-13 filter 85/85; ReplayGolden 6/6; inline COMMS legend + catalog lag helper + onboarding-baltic.md; ZERO touch DelegationBridge"
+  - id: "35-7"
+    name: "C2 sign-off refresh 18/18"
+    file: production/epics/sprint-35-polish-foundation/story-035-07-c2-signoff-refresh.md
+    priority: must-have
+    status: complete
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-19"
+    note: "18/18 PASS WITH NOTES; checks 1-13 filter 85/85; checks 14-18 filter 58/58; S35-06 comms legend acknowledged; sprint-35-c2-signoff-2026-06-19.md; ZERO touch DelegationBridge"
+  - id: "35-8"
+    name: "AegisTokens USS consolidation"
+    file: production/epics/sprint-35-c2-platform-polish/story-035-08-aegistokens-uss.md
+    priority: should-have
+    status: complete
+    estimate_days: 1.5
+    blocker: "35-4"
+    completed: "2026-06-19"
+  - id: "35-9"
+    name: "Live Editor presentation evidence"
+    file: production/epics/sprint-35-c2-platform-polish/story-035-09-live-editor-evidence.md
+    priority: should-have
+    status: complete
+    estimate_days: 2
+    blocker: "35-8"
+    completed: "2026-06-19"
+    note: "lean PASS WITH NOTES; 12/12 s30-s34 PNG placeholders mapped; headless filter 58/58; sprint-35-presentation-evidence-2026-06-19.md; live Editor capture deferred"
+  - id: "35-10"
+    name: "Sim perf P1 DecisionLog and Datalink LINQ"
+    file: production/epics/sprint-35-sim-perf/story-035-10-sim-perf-p1.md
+    priority: should-have
+    status: complete
+    estimate_days: 2.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "1204/1204 sln; ReplayGolden 6/6; Baltic hash 17144800277401907079 unchanged; DecisionLog|DatalinkSidePicture 19/19; ZERO touch DelegationBridge; incremental chronological + cached datalink sort"
+  - id: "35-11"
+    name: "Playtest session 7"
+    file: production/epics/sprint-35-polish-foundation/story-035-11-playtest-session-7.md
+    priority: should-have
+    status: complete
+    estimate_days: 1
+    blocker: "35-3"
+    completed: "2026-06-19"
+  - id: "35-12"
+    name: "Platform Editor C-H validation polish"
+    file: production/epics/sprint-35-polish-foundation/story-035-12-validation-polish.md
+    priority: should-have
+    status: complete
+    estimate_days: 1
+    blocker: "35-1"
+    completed: "2026-06-19"
+    note: "LINK_* sheet-aware diagnostics; filter 201/201; ZERO CatalogWriteGate link_catalog DELETE; evidence production/agentic/sprint-35-validation-polish-2026-06-19.md"
+  - id: "35-13"
+    name: "Stage advance Production to Polish"
+    file: production/epics/sprint-35-closeout-devops/story-035-13-stage-advance-polish.md
+    priority: should-have
+    status: complete
+    estimate_days: 0.25
+    blocker: "35-14"
+    completed: "2026-06-19"
+    note: "stage.txt Production→Polish; gate r2 CONCERNS user-ack 2026-06-19; residual carry-forward in smoke-sprint-35-closeout user-ack section"
+  - id: "35-14"
+    name: "Closeout hygiene"
+    file: production/epics/sprint-35-closeout-devops/story-035-14-closeout-hygiene.md
+    priority: must-have
+    status: complete
+    estimate_days: 0.5
+    blocker: "35-5"
+    completed: "2026-06-19"
+    note: "1204/1204 sln; ReplayGolden 6/6; C2 85/85+58/58; GitNexus 16794/33811; ZERO touch DelegationBridge; evidence production/qa/smoke-sprint-35-closeout-2026-06-19.md"
+  - id: "35-15"
+    name: "CI local gate refresh"
+    file: production/epics/sprint-35-closeout-devops/story-035-15-ci-hygiene.md
+    priority: nice-to-have
+    status: complete
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "1204/1204 sln verify; verify-ci-local.ps1 + dotnet-ci.sh ≥1204; tests/unit/ DEFER 6th; evidence production/qa/sprint-35-ci-hygiene-2026-06-19.md"
+  - id: "35-16"
+    name: "Dependency graph platform-link plan-only"
+    file: production/epics/sprint-35-polish-foundation/story-035-16-dependency-graph-plan.md
+    priority: nice-to-have
+    status: complete
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "PLAN-ONLY; sprint-35-dependency-graph-platform-link-plan-2026-06-19.md; PlatformToLink sketch + invalidation + Phase H UI touchpoints; S36+ deferral; zero runtime diffs"
+  - id: "35-17"
+    name: "Perf re-profile appendix"
+    file: production/epics/sprint-35-sim-perf/story-035-17-perf-reprofile.md
+    priority: nice-to-have
+    status: complete
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "Post-S35-05/S35-10 appendix in perf-profile-polish-baseline-2026-06-19.md; ReplayGolden 6/6 166ms (−7.3%); sln 1204/1204 11.70s; ms/tick 3.07; Unity frame UNKNOWN cross-ref unity-c2-frame-baseline-s35; raw sprint-35-perf-reprofile-2026-06-19.md"
+
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"
 start: "2026-06-04"

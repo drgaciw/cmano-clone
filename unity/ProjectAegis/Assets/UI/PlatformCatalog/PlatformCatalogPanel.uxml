@@ -21,6 +21,7 @@
         <ui:VisualElement name="platform-catalog-comms" class="platform-catalog-comms">
             <ui:Label text="COMMS" class="platform-catalog-detail-title" />
             <ui:ListView name="platform-catalog-comms-list" class="platform-catalog-comms-list" selection-type="None" />
+            <ui:Label name="platform-catalog-comms-lag-helper" text="LatencyMsNominal (catalog) drives share-lag ticks in sim (S34-07)" class="platform-catalog-comms-helper" />
         </ui:VisualElement>
         <ui:VisualElement name="platform-catalog-links" class="platform-catalog-links">
             <ui:Label text="LINK CATALOG" class="platform-catalog-detail-title" />

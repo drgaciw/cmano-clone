@@ -20,7 +20,7 @@ public sealed class LinkCatalogRulePackTests
         Assert.Contains(findings, f =>
             f.Code == LinkCatalogRules.OrphanCommsCode &&
             f.Severity == "error" &&
-            f.Message.Contains("UNKNOWN_LINK", StringComparison.Ordinal));
+            f.Message == LinkCatalogRules.FormatOrphanCommsMessage("u1", "UNKNOWN_LINK"));
     }
 
     [Fact]
@@ -49,7 +49,7 @@ public sealed class LinkCatalogRulePackTests
         Assert.Contains(findings, f =>
             f.Code == LinkCatalogRules.TypeInvalidCode &&
             f.Severity == "error" &&
-            f.Message.Contains("hf-radio", StringComparison.Ordinal));
+            f.Message == LinkCatalogRules.FormatTypeInvalidMessage("BAD_TYPE_LINK", "hf-radio"));
     }
 
     [Theory]
@@ -78,7 +78,7 @@ public sealed class LinkCatalogRulePackTests
         Assert.Contains(findings, f =>
             f.Code == LinkCatalogRules.LatencyInvalidCode &&
             f.Severity == "error" &&
-            f.Message.Contains("latency_ms_nominal=-1", StringComparison.Ordinal));
+            f.Message == LinkCatalogRules.FormatLatencyInvalidMessage("NEG_LATENCY", -1));
     }
 
     [Fact]
@@ -99,7 +99,9 @@ public sealed class LinkCatalogRulePackTests
         Assert.Contains(findings, f =>
             f.Code == LinkCatalogRules.LatencyInvalidCode &&
             f.Severity == "error" &&
-            f.Message.Contains("out of bounds", StringComparison.Ordinal));
+            f.Message == LinkCatalogRules.FormatLatencyInvalidMessage(
+                "HIGH_LATENCY",
+                LinkCatalogRules.MaxLatencyMsNominal + 1));
     }
 
     [Theory]
@@ -207,6 +209,37 @@ public sealed class LinkCatalogRulePackTests
         Assert.Contains(linkCodes, c => c == LinkCatalogRules.OrphanCommsCode);
         Assert.Contains(linkCodes, c => c == LinkCatalogRules.TypeInvalidCode);
         Assert.Contains(linkCodes, c => c == LinkCatalogRules.LatencyInvalidCode);
+    }
+
+    [Fact]
+    public void Link_validation_messages_stable_on_curated_invalid_fixture()
+    {
+        var reader = BuildLinkReader(
+            comms: [new CatalogCommsBinding("u1", "GHOST_LINK")],
+            links:
+            [
+                new CatalogLinkEntry("BAD_LINK", "Bad", "hf-radio", LatencyMsNominal: -1),
+            ]);
+
+        var findings = LinkCatalogRules.Evaluate(reader);
+        var byCode = findings.ToDictionary(f => f.Code, StringComparer.Ordinal);
+
+        Assert.Equal(
+            LinkCatalogRules.FormatOrphanCommsMessage("u1", "GHOST_LINK"),
+            byCode[LinkCatalogRules.OrphanCommsCode].Message);
+        Assert.Equal(
+            LinkCatalogRules.FormatTypeInvalidMessage("BAD_LINK", "hf-radio"),
+            byCode[LinkCatalogRules.TypeInvalidCode].Message);
+        Assert.Equal(
+            LinkCatalogRules.FormatLatencyInvalidMessage("BAD_LINK", -1),
+            byCode[LinkCatalogRules.LatencyInvalidCode].Message);
+
+        var rerun = LinkCatalogRules.Evaluate(reader);
+        Assert.Equal(findings.Count, rerun.Count);
+        for (var i = 0; i < findings.Count; i++)
+        {
+            Assert.Equal(findings[i], rerun[i]);
+        }
     }
 
     [Fact]

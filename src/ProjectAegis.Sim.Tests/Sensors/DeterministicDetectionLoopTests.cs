@@ -46,6 +46,31 @@ public sealed class DeterministicDetectionLoopTests
     }
 
     [Fact]
+    public void Pre_sorted_trials_skip_per_tick_sort_allocation()
+    {
+        var unsorted = new[]
+        {
+            new ScenarioDetectionTrial("u2", "s1", "t9", "c9", 1.0),
+            new ScenarioDetectionTrial("u1", "s2", "t1", "c2", 1.0),
+            new ScenarioDetectionTrial("u1", "s1", "t2", "c1", 1.0),
+        };
+        var sorted = DeterministicDetectionLoop.SortTrialsCopy(unsorted);
+        var seed = SimSeed.FromScenario(1);
+
+        var sortedPath = DeterministicDetectionLoop.RollTick(seed, 1, sorted, null, trialsPreSorted: true);
+        var legacyPath = DeterministicDetectionLoop.RollTick(seed, 1, unsorted, null);
+
+        Assert.Equal(sortedPath.Count, legacyPath.Count);
+        for (var i = 0; i < sortedPath.Count; i++)
+        {
+            Assert.Equal(sortedPath[i].Trial.TargetId, legacyPath[i].Trial.TargetId);
+            Assert.Equal(sortedPath[i].Pd, legacyPath[i].Pd);
+            Assert.Equal(sortedPath[i].Draw, legacyPath[i].Draw);
+            Assert.Equal(sortedPath[i].Detected, legacyPath[i].Detected);
+        }
+    }
+
+    [Fact]
     public void BasePd_one_always_detects_basePd_zero_never_detects()
     {
         var always = DeterministicDetectionLoop.RollTick(
