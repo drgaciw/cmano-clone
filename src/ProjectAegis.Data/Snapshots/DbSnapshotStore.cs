@@ -153,6 +153,110 @@ public sealed class DbSnapshotStore : IDisposable
         tx.Commit();
     }
 
+    /// <summary>
+    /// S32-02: consolidate per-domain nightly <c>releaseVersion</c> rows into one curator drop manifest.
+    /// </summary>
+    public UnifiedReleaseTrainManifest RecordUnifiedRelease(
+        string unifiedReleaseVersion,
+        string snapshotId,
+        string tlTier,
+        IReadOnlyList<string> domainReleaseVersions,
+        long createdUtcTicks,
+        string schemaVersion = "010")
+    {
+        var manifest = UnifiedReleaseTrainManifest.Consolidate(
+            this,
+            unifiedReleaseVersion,
+            snapshotId,
+            tlTier,
+            domainReleaseVersions);
+
+        RecordRelease(
+            manifest.ReleaseVersion,
+            manifest.SnapshotId,
+            manifest.ContentHashSha256,
+            createdUtcTicks,
+            schemaVersion: schemaVersion,
+            notes: manifest.ToNotesJson(),
+            branch: manifest.TlTier);
+
+        return manifest;
+    }
+
+    public bool TryResolveReleaseVersion(string releaseVersion, out string snapshotId)
+    {
+        snapshotId = "";
+        if (string.IsNullOrWhiteSpace(releaseVersion))
+        {
+            return false;
+        }
+
+        foreach (var release in GetSortedReleases())
+        {
+            if (string.Equals(release.ReleaseVersion, releaseVersion.Trim(), StringComparison.Ordinal))
+            {
+                snapshotId = release.SnapshotId;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool TryGetUnifiedManifest(string releaseVersion, out UnifiedReleaseTrainManifest manifest)
+    {
+        manifest = null!;
+        if (string.IsNullOrWhiteSpace(releaseVersion))
+        {
+            return false;
+        }
+
+        foreach (var release in GetSortedReleases())
+        {
+            if (!string.Equals(release.ReleaseVersion, releaseVersion.Trim(), StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (UnifiedReleaseTrainManifest.TryParseFromNotes(release.Notes, release.ReleaseVersion, out manifest))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        return false;
+    }
+
+    public bool TryGetLatestUnifiedManifestForSnapshot(string snapshotId, out UnifiedReleaseTrainManifest manifest)
+    {
+        manifest = null!;
+        UnifiedReleaseTrainManifest? latest = null;
+        foreach (var release in GetSortedReleases())
+        {
+            if (!string.Equals(release.SnapshotId, snapshotId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (!UnifiedReleaseTrainManifest.TryParseFromNotes(release.Notes, release.ReleaseVersion, out var candidate))
+            {
+                continue;
+            }
+
+            latest = candidate;
+        }
+
+        if (latest == null)
+        {
+            return false;
+        }
+
+        manifest = latest;
+        return true;
+    }
+
     public IReadOnlyList<DbReleaseRecord> GetSortedReleases()
     {
         if (!TableExists("db_release"))
@@ -180,6 +284,55 @@ public sealed class DbSnapshotStore : IDisposable
         }
 
         return list;
+    }
+
+    /// <summary>
+    /// S31-03: resolve snapshotId+dbRef for a normalized TL branch from catalog_snapshot + db_release.
+    /// </summary>
+    public bool TryResolveSnapshotForBranch(string tlBranch, out string snapshotId, out string dbRef)
+    {
+        snapshotId = "";
+        dbRef = "";
+
+        if (!TableExists("catalog_snapshot") || !TableHasColumn("catalog_snapshot", "branch"))
+        {
+            return false;
+        }
+
+        var normalized = CatalogTlTier.Normalize(tlBranch);
+        var matchingIds = new List<string>();
+        using (var cmd = _connection.CreateCommand())
+        {
+            cmd.CommandText =
+                """
+                SELECT snapshot_id
+                FROM catalog_snapshot
+                WHERE branch = $branch
+                ORDER BY snapshot_id ASC
+                """;
+            cmd.Parameters.AddWithValue("$branch", normalized);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                matchingIds.Add(reader.GetString(0));
+            }
+        }
+
+        if (!CatalogReleaseTrainResolver.TryResolveFromCandidates(
+                matchingIds,
+                GetSortedReleases(),
+                out snapshotId,
+                out dbRef))
+        {
+            return false;
+        }
+
+        if (TryGetLatestUnifiedManifestForSnapshot(snapshotId, out var manifest))
+        {
+            dbRef = manifest.ReleaseVersion;
+        }
+
+        return true;
     }
 
     /// <summary>Record snapshot after approve (gate auto-record). Deterministic hash for replay binding.</summary>

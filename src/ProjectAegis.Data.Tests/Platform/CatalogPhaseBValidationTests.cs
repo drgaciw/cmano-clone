@@ -289,6 +289,7 @@ public sealed class CatalogPhaseBValidationTests
         public List<IReadOnlyList<CatalogLoadout>> LoadoutProposals { get; } = new();
         public List<IReadOnlyList<CatalogMagazineEntry>> MagazineProposals { get; } = new();
         public List<IReadOnlyList<CatalogCommsBinding>> CommsProposals { get; } = new();
+        public List<IReadOnlyList<CatalogLinkEntry>> LinkProposals { get; } = new();
         public List<IReadOnlyList<CatalogMobility>> MobilityProposals { get; } = new();
         public List<IReadOnlyList<CatalogSignature>> SignatureProposals { get; } = new();
         public List<IReadOnlyList<CatalogEmcon>> EmconProposals { get; } = new();
@@ -324,6 +325,12 @@ public sealed class CatalogPhaseBValidationTests
         {
             CommsProposals.Add(proposed);
             return $"fake-batch-comms-{CommsProposals.Count}";
+        }
+
+        public string ProposeLinkCatalogBatch(IReadOnlyList<CatalogLinkEntry> proposed, string actorType, string actorId, string rationale = "")
+        {
+            LinkProposals.Add(proposed);
+            return $"fake-batch-link-{LinkProposals.Count}";
         }
 
         public string ProposeMobilityBatch(IReadOnlyList<CatalogMobility> proposed, string actorType, string actorId, string rationale = "")

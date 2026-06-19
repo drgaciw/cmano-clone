@@ -25,7 +25,12 @@ public sealed class PlatformWorkbookImporterTests
         Mounts: new[] { new CatalogMount("u1", "vls-fwd", "vls", 360.0, 32) },
         Loadouts: new[] { new CatalogLoadout("u1", "asuw-default", "ASuW", "asuw", IsDefault: true) },
         Magazines: new[] { new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "mvp-weapon", magazineQty, 0, 32) },
-        Comms: new[] { new CatalogCommsBinding("u1", "NATO_TADIL_J") });
+        Comms: new[] { new CatalogCommsBinding("u1", "NATO_TADIL_J") },
+        Links: new[]
+        {
+            new CatalogLinkEntry("NATO_TADIL_J", "NATO Link 16", CatalogLinkTypes.Tactical, LatencyMsNominal: 50),
+            new CatalogLinkEntry("SATCOM_B", "SATCOM Wideband", CatalogLinkTypes.Satcom, LatencyMsNominal: 250),
+        });
 
     private static PlatformWorkbook Export(PlatformCatalogExportData data, string snapshotId = SnapshotId) =>
         new PlatformWorkbookExporter().Export(data, snapshotId, new FixedCatalogClock(0));
@@ -165,6 +170,30 @@ public sealed class PlatformWorkbookImporterTests
     }
 
     [Fact]
+    public void Stage_edited_link_proposes_link_batch()
+    {
+        var source = BaseData();
+        var editedData = BaseData() with
+        {
+            Links = new[]
+            {
+                new CatalogLinkEntry("NATO_TADIL_J", "NATO Link 16", CatalogLinkTypes.Tactical, LatencyMsNominal: 75),
+                new CatalogLinkEntry("SATCOM_B", "SATCOM Wideband", CatalogLinkTypes.Satcom, LatencyMsNominal: 250),
+            },
+        };
+        var edited = Export(editedData);
+        var gate = new FakeWriteGate();
+
+        var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit link");
+
+        Assert.True(result.Staged);
+        Assert.NotNull(result.LinkBatchId);
+        var proposed = Assert.Single(gate.LinkProposals);
+        Assert.Equal("NATO_TADIL_J", proposed[0].LinkId);
+        Assert.Equal(75, proposed[0].LatencyMsNominal);
+    }
+
+    [Fact]
     public void Stage_edited_comms_proposes_comms_batch()
     {
         var source = BaseData();
@@ -239,6 +268,7 @@ public sealed class PlatformWorkbookImporterTests
         public List<IReadOnlyList<CatalogLoadout>> LoadoutProposals { get; } = new();
         public List<IReadOnlyList<CatalogMagazineEntry>> MagazineProposals { get; } = new();
         public List<IReadOnlyList<CatalogCommsBinding>> CommsProposals { get; } = new();
+        public List<IReadOnlyList<CatalogLinkEntry>> LinkProposals { get; } = new();
         public List<IReadOnlyList<CatalogMobility>> MobilityProposals { get; } = new();
         public List<IReadOnlyList<CatalogSignature>> SignatureProposals { get; } = new();
         public List<IReadOnlyList<CatalogEmcon>> EmconProposals { get; } = new();
@@ -274,6 +304,12 @@ public sealed class PlatformWorkbookImporterTests
         {
             CommsProposals.Add(proposed);
             return $"fake-batch-comms-{CommsProposals.Count}";
+        }
+
+        public string ProposeLinkCatalogBatch(IReadOnlyList<CatalogLinkEntry> proposed, string actorType, string actorId, string rationale = "")
+        {
+            LinkProposals.Add(proposed);
+            return $"fake-batch-link-{LinkProposals.Count}";
         }
 
         public string ProposeMobilityBatch(IReadOnlyList<CatalogMobility> proposed, string actorType, string actorId, string rationale = "")

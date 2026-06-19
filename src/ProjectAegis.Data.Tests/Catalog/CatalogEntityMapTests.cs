@@ -20,6 +20,7 @@ public sealed class CatalogEntityMapTests
     [InlineData("CatalogLoadout", "platform_loadout", "platform_id ASC, loadout_id ASC")]
     [InlineData("CatalogMagazineEntry", "platform_magazine", "platform_id ASC, loadout_id ASC, mount_id ASC, weapon_id ASC")]
     [InlineData("CatalogCommsBinding", "platform_comms", "platform_id ASC, link_id ASC")]
+    [InlineData("CatalogLinkEntry", "link_catalog", "link_id ASC")]
     [InlineData("CatalogPlatformBinding", "platform", "platform_id ASC")]
     [InlineData("CatalogWeaponRecord", "weapon_catalog", "weapon_id ASC")]
     public void Entity_map_includes_phase_b_catalog_types_with_stable_order_by(

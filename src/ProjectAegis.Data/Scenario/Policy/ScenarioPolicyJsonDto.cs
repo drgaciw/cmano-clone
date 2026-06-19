@@ -55,6 +55,39 @@ public sealed class ScenarioPolicyJsonDto
     public ScenarioTelemetryJsonDto? Telemetry { get; set; }
 
     public ScenarioDatalinkJsonDto? Datalink { get; set; }
+
+    public ScenarioMineHazardJsonDto? MineHazard { get; set; }
+}
+
+public sealed class ScenarioMineHazardJsonDto
+{
+    public double ZoneMinRangeMeters { get; set; }
+
+    public double ZoneMaxRangeMeters { get; set; }
+
+    public double? TriggerRadiusMeters { get; set; }
+
+    public double? HazardSeverity { get; set; }
+
+    public List<ScenarioMinePlacementJsonDto>? Mines { get; set; }
+
+    public List<ScenarioMineTransitJsonDto>? Transit { get; set; }
+}
+
+public sealed class ScenarioMinePlacementJsonDto
+{
+    public string MineId { get; set; } = "";
+
+    public double RangeMeters { get; set; }
+
+    public double Lethality { get; set; } = 1.0;
+}
+
+public sealed class ScenarioMineTransitJsonDto
+{
+    public string PlatformId { get; set; } = "u1";
+
+    public List<double>? RangesMeters { get; set; }
 }
 
 public sealed class ScenarioDatalinkJsonDto
@@ -62,6 +95,8 @@ public sealed class ScenarioDatalinkJsonDto
     public bool? OrganicOnly { get; set; }
 
     public Dictionary<string, string>? UnitSides { get; set; }
+
+    public int? ShareLagTicks { get; set; }
 }
 
 public sealed class ScenarioTelemetryJsonDto
@@ -245,6 +280,8 @@ public sealed class ScenarioDetectionJsonDto
     public double EnvMask { get; set; } = 1.0;
 
     public double JamStrength { get; set; }
+
+    public double EccmFactor { get; set; } = 1.0;
 }
 
 public sealed class ScenarioEmconJsonDto

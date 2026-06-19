@@ -12,6 +12,13 @@ public static class CatalogValidationDefaults
         new CatalogPlatformEntry("hostile-far", 65.0, 35.0, 200.0),
     ];
 
+    /// <summary>Baltic comms FK targets for link_catalog seeding (S34-02).</summary>
+    public static IReadOnlyList<CatalogLinkEntry> BalticLinks() =>
+    [
+        new CatalogLinkEntry("NATO_TADIL_J", "NATO Link 16", CatalogLinkTypes.Tactical, LatencyMsNominal: 50),
+        new CatalogLinkEntry("SATCOM_B", "SATCOM Wideband", CatalogLinkTypes.Satcom, LatencyMsNominal: 250),
+    ];
+
     public static bool TryResolveBalticDbRef(string dbRef, out string snapshotId)
     {
         if (string.Equals(dbRef, BalticSnapshotId, StringComparison.OrdinalIgnoreCase) ||

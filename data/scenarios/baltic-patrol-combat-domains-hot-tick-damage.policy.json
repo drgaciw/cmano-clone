@@ -8,6 +8,9 @@
     "envelopeMaxMeters": 120000,
     "defaultMagazineRounds": 4,
     "hasFireControlTrack": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.0,
     "combatDomainsEnabled": true
   },
   "detection": [

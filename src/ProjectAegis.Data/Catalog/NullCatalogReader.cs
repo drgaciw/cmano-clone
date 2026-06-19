@@ -63,4 +63,6 @@ public sealed class NullCatalogReader : ICatalogReader
     public IReadOnlyList<CatalogLoadout> GetSortedLoadouts() => [];
 
     public IReadOnlyList<CatalogMagazineEntry> GetSortedMagazines() => [];
+
+    public IReadOnlyList<CatalogDependencyEdge> GetSortedDependencyEdges() => [];
 }

@@ -91,6 +91,7 @@ public sealed class CatalogWriteGatePlatformApproveTests
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-fitting-approve-{Guid.NewGuid():N}.db");
         try
         {
+            var platform = new CatalogPlatformBinding("u1", "Test Hull", Domain: "surface", PlatformClass: "Frigate");
             var mount = new CatalogMount("u1", "vls-fore", MountType: "vls", ArcDeg: 90, Capacity: 8);
             var loadout = new CatalogLoadout("u1", "asuw-default", LoadoutName: "ASUW Default", Role: "asuw", IsDefault: true);
             var magazine = new CatalogMagazineEntry("u1", "asuw-default", "vls-fore", "rim-66", Quantity: 16, ReloadTimeSec: 30, Depth: 0);
@@ -106,6 +107,9 @@ public sealed class CatalogWriteGatePlatformApproveTests
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9203)))
             {
+                var platformBatch = gate.ProposePlatformBatch([platform], "agent", "fitting-test");
+                Assert.True(gate.ApproveBatch(platformBatch, "human", "qa").Committed);
+
                 var mountBatch = gate.ProposeMountBatch([mount], "agent", "fitting-test");
                 Assert.True(gate.ApproveBatch(mountBatch, "human", "qa").Committed);
 
@@ -179,6 +183,10 @@ public sealed class CatalogWriteGatePlatformApproveTests
                     [new CatalogCommsBinding("u-reject", "link-reject")],
                     "agent",
                     "reject-test");
+                var linkBatch = gate.ProposeLinkCatalogBatch(
+                    [new CatalogLinkEntry("link-catalog-reject", "Reject Link")],
+                    "agent",
+                    "reject-test");
 
                 Assert.False(gate.RejectBatch(platformBatch, "human", "qa").Committed);
                 Assert.False(gate.RejectBatch(weaponBatch, "human", "qa").Committed);
@@ -186,6 +194,7 @@ public sealed class CatalogWriteGatePlatformApproveTests
                 Assert.False(gate.RejectBatch(loadoutBatch, "human", "qa").Committed);
                 Assert.False(gate.RejectBatch(magazineBatch, "human", "qa").Committed);
                 Assert.False(gate.RejectBatch(commsBatch, "human", "qa").Committed);
+                Assert.False(gate.RejectBatch(linkBatch, "human", "qa").Committed);
             }
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
@@ -196,6 +205,7 @@ public sealed class CatalogWriteGatePlatformApproveTests
             Assert.Equal(0, CountRows(connection, "catalog_staging_loadout"));
             Assert.Equal(0, CountRows(connection, "catalog_staging_magazine"));
             Assert.Equal(0, CountRows(connection, "catalog_staging_comms"));
+            Assert.Equal(0, CountRows(connection, "catalog_staging_link"));
             Assert.Equal(0, CountRows(connection, "platform", "platform_id = 'u-reject'"));
             Assert.Equal(0, CountRows(connection, "weapon_catalog", "weapon_id = 'w-reject'"));
         }

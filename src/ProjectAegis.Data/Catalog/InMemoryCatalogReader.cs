@@ -13,6 +13,10 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     private readonly CatalogMount[] _mounts;
     private readonly CatalogLoadout[] _loadouts;
     private readonly CatalogMagazineEntry[] _magazines;
+    private readonly CatalogCommsBinding[] _comms;
+    private readonly CatalogLinkEntry[] _links;
+    private readonly Dictionary<string, int> _linkLatencyLookup;
+    private readonly CatalogDependencyEdge[] _dependencyEdges;
 
     public InMemoryCatalogReader(
         IEnumerable<CatalogSensorBinding> bindings,
@@ -24,7 +28,9 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         IEnumerable<CatalogPlatformDamage>? damage = null,
         IEnumerable<CatalogMount>? mounts = null,
         IEnumerable<CatalogLoadout>? loadouts = null,
-        IEnumerable<CatalogMagazineEntry>? magazines = null)
+        IEnumerable<CatalogMagazineEntry>? magazines = null,
+        IEnumerable<CatalogCommsBinding>? comms = null,
+        IEnumerable<CatalogLinkEntry>? links = null)
     {
         LayerVersion = layerVersion;
         _bindings = bindings
@@ -64,6 +70,13 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             .ThenBy(m => m.MountId, StringComparer.Ordinal)
             .ThenBy(m => m.WeaponId, StringComparer.Ordinal)
             .ToArray();
+        _comms = (comms ?? Array.Empty<CatalogCommsBinding>())
+            .OrderBy(c => c.PlatformId, StringComparer.Ordinal)
+            .ThenBy(c => c.LinkId, StringComparer.Ordinal)
+            .ToArray();
+        _links = CatalogSortKeyComparer.SortLinks(links ?? Array.Empty<CatalogLinkEntry>()).ToArray();
+        _linkLatencyLookup = _links.ToDictionary(l => l.LinkId, l => l.LatencyMsNominal, StringComparer.Ordinal);
+        _dependencyEdges = CatalogDependencyGraphIndex.BuildFrom(_mounts, _magazines, _bindings).ToArray();
     }
 
     public string LayerVersion { get; }
@@ -75,7 +88,8 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             new CatalogSensorBinding("u1", "radar-2", 0.75, "baltic-fixture-radar2"),
         ],
         "p0-baltic-fixture",
-        CatalogValidationDefaults.BalticPlatforms());
+        CatalogValidationDefaults.BalticPlatforms(),
+        links: CatalogValidationDefaults.BalticLinks());
 
     /// <summary>Baltic patrol + Phase B mobility/signature/EMCON rows for Req-21 sim consumption tests.</summary>
     public static InMemoryCatalogReader BalticPhaseBFixture(
@@ -124,6 +138,39 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     public bool TryResolveDbRef(string dbRef, out string resolvedSnapshotId) =>
         CatalogValidationDefaults.TryResolveBalticDbRef(dbRef, out resolvedSnapshotId);
 
+    public bool TryGetSnapshotBranch(string snapshotId, out string branch)
+    {
+        branch = CatalogTlTier.Default;
+        if (string.IsNullOrWhiteSpace(snapshotId))
+        {
+            return false;
+        }
+
+        if (string.Equals(snapshotId, CatalogValidationDefaults.BalticSnapshotId, StringComparison.Ordinal) ||
+            CatalogValidationDefaults.TryResolveBalticDbRef(snapshotId, out _))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool TryResolveSnapshotForTlBranch(string tlBranch, out string snapshotId, out string dbRef)
+    {
+        snapshotId = "";
+        dbRef = "";
+
+        var normalized = CatalogTlTier.Normalize(tlBranch);
+        if (!string.Equals(normalized, CatalogTlTier.Tl0, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        snapshotId = CatalogValidationDefaults.BalticSnapshotId;
+        dbRef = CatalogValidationDefaults.BalticSnapshotId;
+        return true;
+    }
+
     public bool TryGetCombatRadiusNm(string platformId, out double combatRadiusNm)
     {
         if (_platforms.TryGetValue(platformId, out var entry))
@@ -166,6 +213,15 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     public IReadOnlyList<CatalogLoadout> GetSortedLoadouts() => _loadouts;
 
     public IReadOnlyList<CatalogMagazineEntry> GetSortedMagazines() => _magazines;
+
+    public IReadOnlyList<CatalogCommsBinding> GetSortedComms() => _comms;
+
+    public IReadOnlyList<CatalogLinkEntry> GetSortedLinks() => _links;
+
+    public bool TryGetLinkLatencyMs(string linkId, out int latencyMsNominal) =>
+        _linkLatencyLookup.TryGetValue(linkId, out latencyMsNominal);
+
+    public IReadOnlyList<CatalogDependencyEdge> GetSortedDependencyEdges() => _dependencyEdges;
 
     public bool TryGetMobility(string platformId, out CatalogMobility mobility)
     {

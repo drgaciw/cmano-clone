@@ -47,3 +47,25 @@
     color: rgb(170, 180, 190);
     margin-bottom: 1px;
 }
+
+.platform-catalog-comms {
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top-width: 1px;
+    border-top-color: rgba(80, 100, 130, 0.6);
+}
+
+.platform-catalog-comms-list {
+    min-height: 48px;
+}
+
+.platform-catalog-links {
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top-width: 1px;
+    border-top-color: rgba(80, 100, 130, 0.6);
+}
+
+.platform-catalog-links-list {
+    min-height: 48px;
+}

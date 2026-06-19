@@ -9,7 +9,7 @@ public static class CatalogSortKeyGoldenHashes
 
     /// <summary><see cref="PlatformWorkbookExporter"/> hash for the platform-editor sample (excludes _Meta).</summary>
     public const string PlatformEditorWorkbook =
-        "3c5712b3e52cfd4b9638af996f7317fab31d4603df77d4e692fabb258b17ea1a";
+        "bfc0d10eefab70240929213466fbb0ab88582097d8e867fcb9f4d65458f88324";
 
     /// <summary>Baltic CMO markdown fixture (platform + weapon + mount keys only).</summary>
     public const string BalticCmoImport =
@@ -22,4 +22,16 @@ public static class CatalogSortKeyGoldenHashes
     /// <summary>Curated ship-slice-100 platform v2 nightly fixture (S28-03).</summary>
     public const string ShipSlice100PlatformV2 =
         "f0712b4225b14186d080636afdbcb0cdacdba895bb3247ae1b274f6c4421db90";
+
+    /// <summary>Curated aircraft-slice-100 platform nightly fixture (S30-11).</summary>
+    public const string AircraftSlice100PlatformV2 =
+        "5d82b0aaa6f0be92f69a4062fe8e398061e38f5075dcfe222b6f934949a91d81";
+
+    /// <summary>Curated submarine-slice-100 platform nightly fixture (S30-11).</summary>
+    public const string SubmarineSlice100PlatformV2 =
+        "dc0b03fa4cc890e40f5dcfdfb9317fb6f8071d2a0aebc79c249ae532f9446c69";
+
+    /// <summary>Curated facility-slice-100 platform nightly fixture (S30-11).</summary>
+    public const string FacilitySlice100PlatformV2 =
+        "ba5d2b5f9af537ceb7799965f450f34bb16e13a106b851f3951b6d5db2699cf9";
 }

@@ -15,6 +15,7 @@ public sealed record PlatformCatalogExportData(
     IReadOnlyList<CatalogLoadout> Loadouts,
     IReadOnlyList<CatalogMagazineEntry> Magazines,
     IReadOnlyList<CatalogCommsBinding> Comms,
+    IReadOnlyList<CatalogLinkEntry>? Links = null,
     IReadOnlyList<CatalogMobility>? Mobility = null,
     IReadOnlyList<CatalogSignature>? Signatures = null,
     IReadOnlyList<CatalogEmcon>? Emcon = null,
@@ -27,8 +28,8 @@ public sealed record PlatformCatalogExportData(
         [],
         [],
         [],
-        [],
-        [],
-        [],
-        []);
+        Mobility: [],
+        Signatures: [],
+        Emcon: [],
+        Damage: []);
 }

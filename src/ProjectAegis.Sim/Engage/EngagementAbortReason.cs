@@ -21,5 +21,8 @@ public enum EngagementAbortReason
     AirAspectBlock = 16,
     SurfaceAspectBlock = 17,
     SubsurfaceAspectBlock = 18,
-    DamageWithdrawRecommended = 19,
+    LandAspectBlock = 19,
+    DamageWithdrawRecommended = 20,
+    MineAspectBlock = 21,
+    FacilityAspectBlock = 22,
 }

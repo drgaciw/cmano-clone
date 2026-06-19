@@ -1,4 +1,4 @@
-# Golden fingerprint — baltic-patrol seed=42 ticks=4 (kill persists, no re-detect)
+# Golden fingerprint — baltic-patrol seed=42 ticks=4 (ADR-009 combatDomainsEnabled=true since S30-09)
 # Regenerate: dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-patrol --ticks 4
 
 WORLD_HASH=17144800277401907079

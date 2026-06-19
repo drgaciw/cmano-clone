@@ -560,7 +560,7 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 29
+current_sprint: 33
 requirements_program: complete
 requirements_program_completed: "2026-06-04"
 sprints_11_15_closeout: complete
@@ -1775,7 +1775,797 @@ sprint29_stories:
     blocker: ""
     completed: "2026-06-18"
     note: "878/878 sln; ReplayGolden 6/6; GitNexus 12802/26402; evidence production/qa/smoke-sprint-29-closeout-2026-06-18.md"
-next_backlog: production/sprints/sprint-30-planning.md
+next_backlog: production/sprints/sprint-31-planning.md
+
+sprint: 30
+goal: "Close TL release-train loop (Phase 3–4), scale off-CI ship.md approve, land validators + presentation closeout."
+start: "2026-10-16"
+end: "2026-10-29"
+generated: "2026-06-18"
+updated: "2026-06-18"
+status: complete
+completed: "2026-06-18"
+branch: main
+indexed_commit: 3406bc4
+gitnexus_indexed: "2026-06-18"
+gitnexus_reverified: "2026-06-18"
+gitnexus_nodes: 13496
+gitnexus_edges: 27690
+tests_passed_sprint29_closeout: 878
+tests_passed_sprint30_baseline: 878
+tests_passed_sprint30_closeout: 956
+replay_golden_sprint30_baseline: pass
+replay_golden_sprint30_closeout: pass
+sprint30_status: complete
+kickoff: production/sprints/sprint-30-tl-bind-corpus-scale.md
+parallel_kickoff: production/agentic/sprint-30-parallel-kickoff-2026-06-18.md
+qa_plan: production/qa/qa-plan-sprint-30-2026-10-16.md
+evidence:
+  - production/qa/smoke-sprint-30-baseline-2026-06-18.md
+  - production/agentic/stacks/sprint30/S30-01-DONE.md
+  - production/agentic/stacks/sprint30/S30-02-DONE.md
+  - production/agentic/stacks/sprint30/S30-03-DONE.md
+  - production/agentic/stacks/sprint30/S30-05-DONE.md
+  - production/agentic/stacks/sprint30/S30-06-DONE.md
+  - production/agentic/stacks/sprint30/S30-10-DONE.md
+  - production/qa/sprint-30-presentation-evidence-2026-06-18.md
+  - production/agentic/sprint-30-tl-phase4-2026-06-18.md
+  - production/qa/qa-signoff-sprint-29-2026-06-18.md
+  - production/qa/sprint-30-nightly-ship-2026-06-18.md
+  - production/agentic/stacks/sprint30/S30-07-DONE.md
+  - production/agentic/stacks/sprint30/S30-08-DONE.md
+  - production/agentic/stacks/sprint30/S30-09-DONE.md
+  - production/agentic/stacks/sprint30/S30-11-DONE.md
+  - production/agentic/stacks/sprint30/S30-13-DONE.md
+  - production/qa/sprint-30-gitnexus-2026-06-18.md
+  - production/qa/smoke-sprint-30-closeout-2026-06-18.md
+  - production/qa/qa-signoff-sprint-30-2026-06-18.md
+tests_passed_sprint30_wave2: 896
+tests_passed_sprint30_wave3: 956
+epics:
+  - production/epics/sprint-30-tl-export-phase34/EPIC.md
+  - production/epics/sprint-30-corpus-approve-scale/EPIC.md
+  - production/epics/sprint-30-combat-domains-phase4/EPIC.md
+  - production/epics/sprint-30-c2-planning-chrome/EPIC.md
+  - production/epics/sprint-30-closeout-devops/EPIC.md
+sprint30_stories:
+  - id: "30-1"
+    name: "Full-solution re-baseline"
+    file: production/epics/sprint-30-closeout-devops/story-030-01-full-sln-gate.md
+    priority: must-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-18"
+    note: "Day-1 gate GREEN 878/878 @ 3406bc4; ReplayGolden 6/6; GitNexus 12,852/26,452; smoke production/qa/smoke-sprint-30-baseline-2026-06-18.md"
+  - id: "30-2"
+    name: "TL export Phase 3 — per-tier filtered export"
+    file: production/epics/sprint-30-tl-export-phase34/story-030-02-tl-phase3-export.md
+    priority: must-have
+    status: done
+    note: "Phase 3 complete — per-tier filtered ICatalogReader export; 887/887 sln; 9 new TlTier tests"
+    estimate_days: 2
+    blocker: "30-1"
+    completed: "2026-06-18"
+  - id: "30-3"
+    name: "TL export Phase 4 — scenario tlBranch binding"
+    file: production/epics/sprint-30-tl-export-phase34/story-030-03-tl-phase4-binding.md
+    priority: must-have
+    status: done
+    estimate_days: 2.5
+    blocker: "30-2"
+    completed: "2026-06-18"
+    note: "Phase 4 complete — tlBranch load-time validation; 896/896 sln; ReplayGolden 6/6; evidence production/agentic/sprint-30-tl-phase4-2026-06-18.md"
+  - id: "30-4"
+    name: "Nightly ship.md approve at scale"
+    file: production/epics/sprint-30-corpus-approve-scale/story-030-04-ship-approve-scale.md
+    priority: must-have
+    status: done
+    estimate_days: 2
+    blocker: "30-1"
+    completed: "2026-06-18"
+    note: "Full ship.md 4844 propose→approve off-CI; pinned hash nightly-ship-s30-04-20260618; Data 182/182; sln 897/897; evidence production/qa/sprint-30-nightly-ship-2026-06-18.md"
+  - id: "30-5"
+    name: "Land aspect domain validator"
+    file: production/epics/sprint-30-combat-domains-phase4/story-030-05-land-validator.md
+    priority: should-have
+    status: done
+    estimate_days: 1.5
+    blocker: "30-1"
+    completed: "2026-06-18"
+    note: "LandAspectDomainValidator + LAND_ASPECT_BLOCK; Combat|Domain 35/35; ReplayGolden 6/6; baltic-patrol combatDomainsEnabled=false unchanged; evidence production/agentic/stacks/sprint30/S30-05-DONE.md"
+  - id: "30-6"
+    name: "Editor presentation evidence batch"
+    file: production/epics/sprint-30-c2-planning-chrome/story-030-06-presentation-evidence.md
+    priority: should-have
+    status: done
+    estimate_days: 1
+    blocker: "30-1"
+    completed: "2026-06-18"
+    note: "S30-06 protocol placeholders *-s30-*.png; signoff import+begin-execution scenarios; headless 35/35; evidence production/qa/sprint-30-presentation-evidence-2026-06-18.md"
+  - id: "30-7"
+    name: "Begin Execution planning chrome"
+    file: production/epics/sprint-30-c2-planning-chrome/story-030-07-planning-chrome.md
+    priority: should-have
+    status: done
+    estimate_days: 1.5
+    blocker: "30-1"
+    completed: "2026-06-18"
+  - id: "30-8"
+    name: "Hot-tick damage Hit → HP extensions"
+    file: production/epics/sprint-30-combat-domains-phase4/story-030-08-hot-tick-hits.md
+    priority: should-have
+    status: done
+    estimate_days: 1.5
+    blocker: "30-5"
+    completed: "2026-06-18"
+  - id: "30-9"
+    name: "Production Baltic combatDomainsEnabled flip"
+    file: production/epics/sprint-30-combat-domains-phase4/story-030-09-baltic-flag-flip.md
+    priority: nice-to-have
+    status: done
+    estimate_days: 0.5
+    blocker: "30-5"
+    completed: "2026-06-18"
+    note: "ADR-009 migration step 4; baltic-patrol.policy.json combatDomainsEnabled=true; WORLD_HASH=17144800277401907079 unchanged; ReplayGolden 6/6; smoke + isolated pins unchanged; ZERO touch DelegationBridge; evidence production/agentic/stacks/sprint30/S30-09-DONE.md"
+  - id: "30-10"
+    name: "Datalink share lag (TR-sensor-004)"
+    file: production/epics/sprint-30-combat-domains-phase4/story-030-10-datalink-lag.md
+    priority: nice-to-have
+    status: done
+    estimate_days: 1.5
+    blocker: "30-1"
+    completed: "2026-06-18"
+    note: "shareLagTicks lag queue on DatalinkSidePictureMerger; fixture baltic-patrol-datalink-lag; Sim 58/58 Combat|Domain|Datalink|Contact; ReplayGolden 6/6; ZERO touch DelegationBridge; evidence production/agentic/stacks/sprint30/S30-10-DONE.md"
+  - id: "30-11"
+    name: "CMO entity nightly slices (aircraft/sub/facility)"
+    file: production/epics/sprint-30-corpus-approve-scale/story-030-11-cmo-entity-slices.md
+    priority: nice-to-have
+    status: done
+    estimate_days: 2
+    blocker: "30-4"
+    completed: "2026-06-18"
+    note: "aircraft/submarine/facility nightly scripts + *-slice-100 fixtures; CmoMarkdownEntitySlice 12 tests; Data 194/194 filtered; sln 912/912; ReplayGolden 6/6"
+  - id: "30-12"
+    name: "CI/local gate refresh"
+    file: production/epics/sprint-30-closeout-devops/story-030-12-ci-hygiene.md
+    priority: nice-to-have
+    status: done
+    estimate_days: 0.25
+    blocker: ""
+    completed: "2026-06-18"
+    note: "verify-ci-local.ps1 day-1 >=878 closeout >=918; evidence production/qa/sprint-30-ci-hygiene-2026-06-18.md"
+  - id: "30-13"
+    name: "Closeout hygiene"
+    file: production/epics/sprint-30-closeout-devops/story-030-13-closeout-hygiene.md
+    priority: should-have
+    status: done
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-06-18"
+    note: "956/956 sln; ReplayGolden 6/6; GitNexus 13496/27690 @ 3406bc4 (re-index 2026-06-18); tracker rows 06/18/21; stack/sprint29/* prune documented; evidence production/qa/smoke-sprint-30-closeout-2026-06-18.md"
+next_backlog: production/sprints/sprint-32-planning.md
+
+sprint: 31
+goal: "Finish off-CI corpus approve loop, TL release-train snapshot resolution, ADR-009 Phase 5 mine/facility/BDA, close S30 presentation debt."
+start: "2026-10-30"
+end: "2026-11-12"
+generated: "2026-06-18"
+updated: "2026-06-18"
+status: complete
+completed: "2026-06-18"
+branch: main
+indexed_commit: 3406bc4
+gitnexus_indexed: "2026-06-18"
+gitnexus_reverified: "2026-06-18"
+gitnexus_nodes: 14160
+gitnexus_edges: 28928
+tests_passed_sprint30_closeout: 956
+tests_passed_sprint31_baseline: 956
+replay_golden_sprint31_baseline: pass
+tests_passed_sprint31_wave1: 962
+tests_passed_sprint31_s31_03: 967
+tests_passed_sprint31_wave3: 998
+tests_passed_sprint31_closeout: 1006
+replay_golden_sprint31_closeout: pass
+qa_signoff: production/qa/qa-signoff-sprint-31-2026-06-18.md
+closeout: production/qa/smoke-sprint-31-closeout-2026-06-18.md
+kickoff: production/sprints/sprint-31-corpus-combat-polish.md
+parallel_kickoff: production/agentic/sprint-31-parallel-kickoff-2026-06-18.md
+qa_plan: production/qa/qa-plan-sprint-31-2026-10-30.md
+evidence:
+  - production/sprints/sprint-31-corpus-combat-polish.md
+  - production/agentic/sprint-31-parallel-kickoff-2026-06-18.md
+  - production/qa/qa-plan-sprint-31-2026-10-30.md
+  - production/agentic/stacks/sprint31/S31-07-DONE.md
+  - production/qa/sprint-31-presentation-evidence-2026-06-18.md
+  - production/qa/sprint-31-c2-signoff-2026-06-18.md
+  - production/qa/sprint-31-balance-drift-nightly-2026-06-18.md
+  - production/qa/sprint-31-nightly-weapon-2026-06-18.md
+  - production/qa/sprint-31-nightly-entity-2026-06-18.md
+  - production/qa/smoke-sprint-31-closeout-2026-06-18.md
+  - production/qa/sprint-31-gitnexus-2026-06-18.md
+  - production/agentic/stacks/sprint31/S31-13-DONE.md
+epics:
+  - production/epics/sprint-31-corpus-approve-complete/EPIC.md
+  - production/epics/sprint-31-tl-release-train/EPIC.md
+  - production/epics/sprint-31-combat-domains-phase5/EPIC.md
+  - production/epics/sprint-31-presentation-polish/EPIC.md
+  - production/epics/sprint-31-closeout-devops/EPIC.md
+sprint31_stories:
+  - id: "31-1"
+    name: "Full-solution re-baseline"
+    file: production/epics/sprint-31-closeout-devops/story-031-01-full-sln-gate.md
+    priority: must-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-18"
+  - id: "31-2"
+    name: "Nightly sensor.md approve at scale (off-CI)"
+    file: production/epics/sprint-31-corpus-approve-complete/story-031-02-nightly-sensor-approve.md
+    priority: must-have
+    status: done
+    estimate_days: 2
+    blocker: "31-1"
+    completed: "2026-06-18"
+  - id: "31-3"
+    name: "TL release-train snapshot resolution at load"
+    file: production/epics/sprint-31-tl-release-train/story-031-03-tl-release-train-load.md
+    priority: must-have
+    status: done
+    estimate_days: 2
+    blocker: "31-1"
+    completed: "2026-06-18"
+  - id: "31-4"
+    name: "Mine aspect domain validator"
+    file: production/epics/sprint-31-combat-domains-phase5/story-031-04-mine-validator.md
+    priority: must-have
+    status: done
+    estimate_days: 1.5
+    blocker: "31-1"
+    completed: "2026-06-18"
+  - id: "31-5"
+    name: "Facility combat hot-tick"
+    file: production/epics/sprint-31-combat-domains-phase5/story-031-05-facility-hot-tick.md
+    priority: should-have
+    status: done
+    estimate_days: 2
+    blocker: "31-1"
+    completed: "2026-06-18"
+    note: "FacilityHpCapacity + ApplySortedFacilityOutcomes; OrderLogFacilityDamageProjection HP-ledger path; ReplayGolden 6/6; evidence production/agentic/stacks/sprint31/S31-05-DONE.md"
+  - id: "31-6"
+    name: "BDA hot path (bounded)"
+    file: production/epics/sprint-31-combat-domains-phase5/story-031-06-bda-hot-path.md
+    priority: should-have
+    status: done
+    estimate_days: 1.5
+    blocker: "31-1"
+    completed: "2026-06-18"
+  - id: "31-7"
+    name: "Live Editor presentation evidence"
+    file: production/epics/sprint-31-presentation-polish/story-031-07-presentation-evidence.md
+    priority: should-have
+    status: done
+    estimate_days: 1
+    blocker: "31-1"
+    completed: "2026-06-18"
+    note: "S31-07 protocol placeholders *-s31-*.png replace S30-06; signoff import+begin-execution verified; headless 35/35; evidence production/qa/sprint-31-presentation-evidence-2026-06-18.md"
+  - id: "31-8"
+    name: "C2 manual sign-off refresh"
+    file: production/epics/sprint-31-presentation-polish/story-031-08-c2-signoff-refresh.md
+    priority: should-have
+    status: done
+    estimate_days: 1
+    blocker: "31-7"
+    completed: "2026-06-18"
+    note: "S31-08 C2 checklist 16/16 PASS WITH NOTES @ 3406bc4; baseline 61/61 + checks 14-16 21/21 headless; S31-07 *-s31-*.png linked; evidence production/qa/sprint-31-c2-signoff-2026-06-18.md"
+  - id: "31-9"
+    name: "Balance drift advisory on nightly approve"
+    file: production/epics/sprint-31-corpus-approve-complete/story-031-09-balance-drift-nightly.md
+    priority: nice-to-have
+    status: done
+    estimate_days: 0.5
+    blocker: "31-2"
+    completed: "2026-06-18"
+    note: "NightlyApproveBalanceDriftSummary + --enable-balance-drift on cmo-nightly-approve.sh (default off); Data 173/173; ReplayGolden 6/6; evidence production/qa/sprint-31-balance-drift-nightly-2026-06-18.md"
+  - id: "31-10"
+    name: "Nightly weapon.md approve at scale"
+    file: production/epics/sprint-31-corpus-approve-complete/story-031-10-weapon-approve-scale.md
+    priority: nice-to-have
+    status: done
+    estimate_days: 2
+    blocker: "31-2"
+    completed: "2026-06-18"
+    note: "Full weapon.md 4403 records off-CI; pinned hash nightly-weapon-s31-10-20260618; CI weapon-slice-50 only; evidence production/qa/sprint-31-nightly-weapon-2026-06-18.md"
+  - id: "31-11"
+    name: "Entity corpus nightly approve at scale"
+    file: production/epics/sprint-31-corpus-approve-complete/story-031-11-entity-approve-scale.md
+    priority: nice-to-have
+    status: done
+    estimate_days: 2
+    blocker: "31-2"
+    completed: "2026-06-18"
+    note: "Aircraft/facility/submarine full corpora off-CI; per-domain hashes; evidence production/qa/sprint-31-nightly-entity-2026-06-18.md"
+  - id: "31-12"
+    name: "CI/local gate refresh"
+    file: production/epics/sprint-31-closeout-devops/story-031-12-ci-hygiene.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.25
+    blocker: ""
+    completed: ""
+  - id: "31-13"
+    name: "Closeout hygiene"
+    file: production/epics/sprint-31-closeout-devops/story-031-13-closeout-hygiene.md
+    priority: should-have
+    status: done
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-06-18"
+    note: "1006/1006 sln; ReplayGolden 6/6; GitNexus 14160/28928 @ 3406bc4; tracker rows 06/18/21; stack/sprint30/* 0 refs; evidence production/qa/smoke-sprint-31-closeout-2026-06-18.md"
+
+sprint: 32
+goal: "Unified release-train manifest + quarantine remediation, ADR-009 Phase 6 facility/ECCM, Platform Editor Phase F damage Unity."
+start: "2026-11-13"
+end: "2026-11-26"
+generated: "2026-06-18"
+updated: "2026-06-19"
+status: complete
+branch: main
+indexed_commit: d3db76dbca07237200f5e7ad69eb5d4fdcaa118f
+gitnexus_indexed: "2026-06-19"
+gitnexus_nodes: 15064
+gitnexus_edges: 30605
+tests_passed_sprint31_closeout: 1006
+replay_golden_sprint31_closeout: pass
+tests_passed_sprint32_baseline: 1006
+replay_golden_sprint32_baseline: pass
+tests_passed_sprint32_closeout: 1073
+replay_golden_sprint32_closeout: pass
+tests_passed_sprint32_closeout_target: 1046
+evidence:
+  - production/qa/smoke-sprint-32-baseline-2026-06-18.md
+  - production/qa/smoke-sprint-32-closeout-2026-06-19.md
+  - production/qa/sprint-32-gitnexus-2026-06-19.md
+  - production/agentic/stacks/sprint32/S32-01-DONE.md
+  - production/agentic/stacks/sprint32/S32-13-DONE.md
+kickoff: production/sprints/sprint-32-release-train-combat-phase6-platform-phase-f.md
+parallel_kickoff: production/agentic/sprint-32-parallel-kickoff-2026-06-18.md
+qa_plan: production/qa/qa-plan-sprint-32-2026-11-13.md
+epics:
+  - production/epics/sprint-32-release-train-ops/EPIC.md
+  - production/epics/sprint-32-combat-domains-phase6/EPIC.md
+  - production/epics/sprint-32-platform-editor-phase-f/EPIC.md
+  - production/epics/sprint-32-presentation-qa/EPIC.md
+  - production/epics/sprint-32-closeout-devops/EPIC.md
+sprint32_stories:
+  - id: "32-1"
+    name: "Full-solution re-baseline"
+    file: production/epics/sprint-32-closeout-devops/story-032-01-full-sln-gate.md
+    priority: must-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-18"
+    note: "1006/1006 @ d3db76db; ReplayGolden 6/6; GitNexus 14424/29218; evidence production/qa/smoke-sprint-32-baseline-2026-06-18.md"
+  - id: "32-2"
+    name: "Unified release-train manifest"
+    file: production/epics/sprint-32-release-train-ops/story-032-02-unified-release-train-manifest.md
+    priority: must-have
+    status: done
+    estimate_days: 2
+    blocker: "32-1"
+    completed: "2026-06-19"
+    note: "UnifiedReleaseTrainManifest + RecordUnifiedRelease; Data 219/219 filtered; Cli 24/24; evidence production/agentic/sprint-32-release-train-manifest-2026-06-19.md"
+  - id: "32-3"
+    name: "Mount/loadout quarantine triage"
+    file: production/epics/sprint-32-release-train-ops/story-032-03-mount-loadout-quarantine.md
+    priority: must-have
+    status: done
+    estimate_days: 2.5
+    blocker: "32-2"
+    completed: "2026-06-19"
+    note: "MountLoadoutQuarantineTriage + bounded FK repair envelope; Data 212/212 filtered; evidence production/agentic/sprint-32-quarantine-triage-2026-06-19.md"
+  - id: "32-4"
+    name: "Facility aspect domain validator"
+    file: production/epics/sprint-32-combat-domains-phase6/story-032-04-facility-validator.md
+    priority: must-have
+    status: done
+    estimate_days: 1.5
+    blocker: "32-1"
+    completed: "2026-06-19"
+    note: "FacilityAspectDomainValidator + FACILITY_ASPECT_BLOCK; Combat|Domain|Facility 69/69; ReplayGolden 6/6; Baltic world hash 17144800277401907079 unchanged; evidence production/agentic/stacks/sprint32/S32-04-DONE.md"
+  - id: "32-5"
+    name: "ECCM scenario factor (bounded)"
+    file: production/epics/sprint-32-combat-domains-phase6/story-032-05-eccm-scenario-factor.md
+    priority: must-have
+    status: done
+    estimate_days: 1.5
+    blocker: "32-1"
+    completed: "2026-06-19"
+  - id: "32-6"
+    name: "Platform Editor Phase F damage Unity"
+    file: production/epics/sprint-32-platform-editor-phase-f/story-032-06-platform-phase-f-damage.md
+    priority: must-have
+    status: done
+    estimate_days: 2
+    blocker: "32-1"
+    completed: "2026-06-19"
+    note: "Damage workbook surfacing; PlatformImport|PlatformCatalogViewer 21/21; evidence production/agentic/stacks/sprint32/S32-06-DONE.md"
+  - id: "32-7"
+    name: "Release diff report CLI"
+    file: production/epics/sprint-32-release-train-ops/story-032-07-release-diff-cli.md
+    priority: should-have
+    status: done
+    estimate_days: 1.5
+    blocker: "32-2"
+    completed: "2026-06-19"
+    note: "catalog_release_diff CLI; Data.Tests 63/63 + Cli.Tests 10/10 filtered; evidence production/agentic/stacks/sprint32/S32-07-DONE.md"
+  - id: "32-8"
+    name: "Mine transit hazard hot-tick"
+    file: production/epics/sprint-32-combat-domains-phase6/story-032-08-mine-transit-hazard.md
+    priority: should-have
+    status: done
+    estimate_days: 2
+    blocker: "32-4"
+    completed: "2026-06-19"
+    note: "mineHazard hot-tick; baltic-patrol-mine-transit-hazard isolated; Combat|Domain|Mine 77/77; evidence production/agentic/stacks/sprint32/S32-08-DONE.md"
+    note: "mineHazard policy zone+seeded placement; MineTransitHazardHotTickApplier; baltic-patrol-mine-transit-hazard isolated fixture; Combat|Domain|Mine 77/77; ReplayGolden 6/6; evidence production/agentic/stacks/sprint32/S32-08-DONE.md"
+  - id: "32-9"
+    name: "BDA contact lifecycle sim hook"
+    file: production/epics/sprint-32-combat-domains-phase6/story-032-09-bda-lifecycle-hook.md
+    priority: should-have
+    status: done
+    estimate_days: 1.5
+    blocker: "31-6"
+    completed: "2026-06-19"
+    note: "BdaContactLifecycleHotTickApplier; baltic-patrol-bda-lifecycle isolated; Combat|Domain|Bda|Damage 126/126; ReplayGolden 6/6; evidence production/agentic/stacks/sprint32/S32-09-DONE.md"
+  - id: "32-10"
+    name: "Live Editor presentation evidence"
+    file: production/epics/sprint-32-platform-editor-phase-f/story-032-10-presentation-evidence.md
+    priority: should-have
+    status: done
+    estimate_days: 1.5
+    blocker: "32-1"
+    completed: "2026-06-19"
+    note: "S32-10 protocol placeholders *-s32-*.png (damage viewer + import MaxHp diff); signoff import+doctrine verified; headless 47/47; evidence production/qa/sprint-32-presentation-evidence-2026-06-19.md"
+  - id: "32-11"
+    name: "C2 manual sign-off upgrade"
+    file: production/epics/sprint-32-presentation-qa/story-032-11-c2-signoff-upgrade.md
+    priority: should-have
+    status: done
+    estimate_days: 1
+    blocker: "32-6,32-10"
+    completed: "2026-06-19"
+    note: "S32-11 C2 checks 14-16 upgraded post-S32; check 14 Phase F damage (PlatformCatalogViewer 11/11 + s32 PNGs); headless 33/33; evidence production/qa/sprint-32-c2-signoff-2026-06-19.md @ d3db76d"
+  - id: "32-12"
+    name: "CI/local gate refresh"
+    file: production/epics/sprint-32-closeout-devops/story-032-12-ci-hygiene.md
+    priority: nice-to-have
+    status: done
+    estimate_days: 0.25
+    blocker: ""
+    completed: "2026-06-19"
+    note: "S31-12 carryover; doc-only gate refresh; closeout target ≥1046 documented; evidence production/qa/sprint-32-ci-hygiene-2026-06-19.md"
+  - id: "32-13"
+    name: "Closeout hygiene"
+    file: production/epics/sprint-32-closeout-devops/story-032-13-closeout-hygiene.md
+    priority: should-have
+    status: done
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "1073/1073 sln; ReplayGolden 6/6; GitNexus 15064/30605 @ d3db76db; tracker rows 06/18/20/21; stack/sprint31/* 0 refs; evidence production/qa/smoke-sprint-32-closeout-2026-06-19.md"
+next_backlog: production/agentic/sprint-32-parallel-kickoff-2026-06-18.md
+planned_sprint: 33
+
+sprint: 33
+goal: "DBI P1 kill-chain intelligence, datalink comms share gate, Platform Editor Phase G comms Unity."
+start: "2026-11-27"
+end: "2026-12-10"
+generated: "2026-06-19"
+updated: "2026-06-19"
+status: complete
+completed: "2026-06-19"
+branch: main
+indexed_commit: d3db76dbca07237200f5e7ad69eb5d4fdcaa118f
+gitnexus_indexed: "2026-06-19"
+gitnexus_nodes: 15638
+gitnexus_edges: 32132
+predecessor_closeout: d3db76dbca07237200f5e7ad69eb5d4fdcaa118f
+tests_passed_sprint32_closeout: 1073
+replay_golden_sprint32_closeout: pass
+tests_passed_sprint33_baseline: 1073
+tests_passed_sprint33_baseline_target: 1073
+tests_passed_sprint33_closeout: 1143
+tests_passed_sprint33_closeout_target: 1086
+replay_golden_sprint33_closeout: pass
+gitnexus_indexed_sprint33_baseline: "2026-06-19"
+gitnexus_nodes_sprint33_baseline: 15210
+gitnexus_edges_sprint33_baseline: 30768
+indexed_commit_sprint33_baseline: d3db76dbca07237200f5e7ad69eb5d4fdcaa118f
+replay_golden_sprint33_baseline: pass
+kickoff: production/sprints/sprint-33-kill-chain-intelligence-comms-integration.md
+parallel_kickoff: production/agentic/sprint-33-parallel-kickoff-2026-06-19.md
+qa_plan: production/qa/qa-plan-sprint-33-2026-11-27.md
+closeout_note: "13/13 stories complete @ 1143/1143; ReplayGolden 6/6; GitNexus 15638/32132; tracker rows 06/18/20/21; stack/sprint32/* 0 refs"
+evidence:
+  - production/qa/smoke-sprint-33-baseline-2026-06-19.md
+  - production/qa/smoke-sprint-33-closeout-2026-06-19.md
+  - production/qa/sprint-33-gitnexus-2026-06-19.md
+  - production/agentic/stacks/sprint33/S33-01-DONE.md
+  - production/agentic/stacks/sprint33/S33-13-DONE.md
+note: "S33 COMPLETE (closeout hygiene 2026-06-19). 1143/1143 sln; ReplayGolden 6/6; GitNexus @ d3db76db."
+epics:
+  - production/epics/sprint-33-kill-chain-intelligence/EPIC.md
+  - production/epics/sprint-33-cyber-comms-datalink/EPIC.md
+  - production/epics/sprint-33-platform-editor-phase-g/EPIC.md
+  - production/epics/sprint-33-presentation-qa/EPIC.md
+  - production/epics/sprint-33-closeout-devops/EPIC.md
+sprint33_stories:
+  - id: "33-1"
+    name: "Full-solution re-baseline"
+    file: production/epics/sprint-33-closeout-devops/story-033-01-full-sln-gate.md
+    priority: must-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-19"
+    note: "1073/1073 sln; ReplayGolden 6/6; GitNexus 15210/30768 @ d3db76db; evidence production/qa/smoke-sprint-33-baseline-2026-06-19.md"
+  - id: "33-2"
+    name: "Weapon→mount→sensor dependency graph"
+    file: production/epics/sprint-33-kill-chain-intelligence/story-033-02-dependency-graph-index.md
+    priority: must-have
+    status: done
+    estimate_days: 2.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "GetSortedDependencyEdges + commit invalidation; 13 tests; filter 165/165; evidence sprint-33-dependency-graph-2026-06-19.md"
+  - id: "33-3"
+    name: "Kill-chain impossibility rule pack"
+    file: production/epics/sprint-33-kill-chain-intelligence/story-033-03-kill-chain-rule-pack.md
+    priority: must-have
+    status: done
+    estimate_days: 2.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "R1-R4 KILL_CHAIN_* rules; 17 tests; filter 74/74; evidence sprint-33-kill-chain-rules-2026-06-19.md"
+  - id: "33-4"
+    name: "Datalink comms share gate"
+    file: production/epics/sprint-33-cyber-comms-datalink/story-033-04-datalink-comms-share-gate.md
+    priority: must-have
+    status: done
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "DatalinkCommsShareState gate; harness wiring; Datalink|Comms 22/22; ReplayGolden 6/6; sln 1092"
+  - id: "33-5"
+    name: "Orchestrator kill-chain gate"
+    file: production/epics/sprint-33-kill-chain-intelligence/story-033-05-orchestrator-kill-chain-gate.md
+    priority: should-have
+    status: done
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "KillChainCommitGate + write-gate block; PipelineAgentOrder; filter 51/51; sln 1138/1138; evidence stacks/sprint33/S33-05-DONE.md"
+  - id: "33-6"
+    name: "Platform Editor Phase G comms Unity"
+    file: production/epics/sprint-33-platform-editor-phase-g/story-033-06-platform-phase-g-comms.md
+    priority: must-have
+    status: done
+    estimate_days: 2
+    blocker: ""
+    completed: "2026-06-19"
+    note: "Phase G comms viewer + COMMS staging diff + headless round-trip; filter 28/28; sln 1128/1128"
+  - id: "33-7"
+    name: "Datalink-comms isolated fixture"
+    file: production/epics/sprint-33-cyber-comms-datalink/story-033-07-datalink-comms-fixture.md
+    priority: should-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-19"
+    note: "baltic-patrol-datalink-comms fixture; 8 tests; golden 7476249154626599167; ReplayGolden 6/6"
+  - id: "33-8"
+    name: "Kill-chain CLI verbs"
+    file: production/epics/sprint-33-kill-chain-intelligence/story-033-08-kill-chain-cli.md
+    priority: should-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-19"
+    note: "catalog_dependency_graph + catalog_kill_chain_report; filter 4/4; read-only; evidence stacks/sprint33/S33-08-DONE.md"
+  - id: "33-9"
+    name: "Phase 6 regression smoke (optional)"
+    file: production/epics/sprint-33-cyber-comms-datalink/story-033-09-phase6-integration-smoke.md
+    priority: nice-to-have
+    status: done
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "Regression-only PASS; filter 115/115; ReplayGolden 6/6; no combat-phase6-smoke fixture; evidence stacks/sprint33/S33-09-DONE.md"
+  - id: "33-10"
+    name: "Live Editor presentation evidence"
+    file: production/epics/sprint-33-platform-editor-phase-g/story-033-10-presentation-evidence.md
+    priority: should-have
+    status: done
+    estimate_days: 1.5
+    blocker: "33-6"
+    completed: "2026-06-19"
+    note: "S33 Phase G protocol placeholders *-s33-*.png; headless 38/38; lean PASS WITH NOTES; evidence sprint-33-presentation-evidence-2026-06-19.md"
+  - id: "33-11"
+    name: "C2 manual sign-off upgrade"
+    file: production/epics/sprint-33-presentation-qa/story-033-11-c2-signoff-upgrade.md
+    priority: should-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-19"
+    note: "S33-11 check 17 Phase G comms; headless 45/45; lean PASS WITH NOTES 17/17 @ d3db76d; evidence sprint-33-c2-signoff-2026-06-19.md"
+  - id: "33-12"
+    name: "CI/local gate refresh"
+    file: production/epics/sprint-33-closeout-devops/story-033-12-ci-hygiene.md
+    priority: nice-to-have
+    status: done
+    estimate_days: 0.25
+    blocker: ""
+    completed: "2026-06-19"
+    note: "S32-12 carryover; doc-only gate refresh; closeout target ≥1086 documented; evidence production/qa/sprint-33-ci-hygiene-2026-06-19.md"
+  - id: "33-13"
+    name: "Closeout hygiene"
+    file: production/epics/sprint-33-closeout-devops/story-033-13-closeout-hygiene.md
+    priority: should-have
+    status: done
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "1143/1143 sln; ReplayGolden 6/6; GitNexus 15638/32132 @ d3db76db; tracker rows 06/18/20/21; stack/sprint32/* 0 refs; evidence production/qa/smoke-sprint-33-closeout-2026-06-19.md"
+next_backlog: production/agentic/sprint-34-parallel-kickoff-2026-06-19.md
+planned_sprint: 34
+
+sprint: 34
+goal: "LinkCatalog workbook round-trip, catalog datalink latency bridge, Platform Editor Phase H Unity."
+start: "2026-12-11"
+end: "2026-12-24"
+generated: "2026-06-19"
+updated: "2026-06-19"
+status: complete
+completed: "2026-06-19"
+branch: main
+indexed_commit: d3db76dbca07237200f5e7ad69eb5d4fdcaa118f
+predecessor_closeout: d3db76dbca07237200f5e7ad69eb5d4fdcaa118f
+tests_passed_sprint33_closeout: 1143
+replay_golden_sprint33_closeout: pass
+tests_passed_sprint34_baseline_target: 1143
+tests_passed_sprint34_closeout_target: 1156
+tests_passed_sprint34_current: 1193
+replay_golden_sprint34_closeout: pass
+kickoff: production/sprints/sprint-34-linkcatalog-datalink-latency-phase-h.md
+parallel_kickoff: production/agentic/sprint-34-parallel-kickoff-2026-06-19.md
+closeout: production/qa/smoke-sprint-34-closeout-2026-06-19.md
+qa_plan: production/qa/qa-plan-sprint-34-2026-06-19.md
+qa_signoff: production/qa/qa-signoff-sprint-34-2026-06-19.md
+qa_verdict: APPROVED
+note: "S34 COMPLETE (2026-06-19). 11/12 stories done (S34-09/12 skipped nice); 1193/1193 PASS; ReplayGolden 6/6; C2 18/18 PASS WITH NOTES."
+epics:
+  - production/epics/sprint-34-link-catalog-data/EPIC.md
+  - production/epics/sprint-34-datalink-latency/EPIC.md
+  - production/epics/sprint-34-platform-editor-phase-h/EPIC.md
+  - production/epics/sprint-34-presentation-qa/EPIC.md
+  - production/epics/sprint-34-closeout-devops/EPIC.md
+sprint34_stories:
+  - id: "34-1"
+    name: "Full-solution re-baseline"
+    file: production/epics/sprint-34-closeout-devops/story-034-01-full-sln-gate.md
+    priority: must-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-19"
+  - id: "34-2"
+    name: "Link catalog data model + write-gate"
+    file: production/epics/sprint-34-link-catalog-data/story-034-02-link-catalog-staging.md
+    priority: must-have
+    status: done
+    estimate_days: 2
+    blocker: ""
+    completed: "2026-06-19"
+  - id: "34-3"
+    name: "LinkCatalog workbook round-trip"
+    file: production/epics/sprint-34-link-catalog-data/story-034-03-linkcatalog-workbook.md
+    priority: must-have
+    status: done
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-06-19"
+  - id: "34-4"
+    name: "Catalog-derived datalink share lag"
+    file: production/epics/sprint-34-datalink-latency/story-034-04-catalog-share-lag.md
+    priority: must-have
+    status: done
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-06-19"
+  - id: "34-5"
+    name: "Link FK + validation rules"
+    file: production/epics/sprint-34-link-catalog-data/story-034-05-link-validation.md
+    priority: should-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-19"
+    note: "LINK_* rules in LinkCatalogRules; 17 tests; evidence production/agentic/sprint-34-link-validation-2026-06-19.md"
+  - id: "34-6"
+    name: "Platform Editor Phase H LinkCatalog Unity"
+    file: production/epics/sprint-34-platform-editor-phase-h/story-034-06-platform-phase-h-link-catalog.md
+    priority: must-have
+    status: done
+    estimate_days: 2
+    completed: "2026-06-19"
+    blocker: ""
+    completed: ""
+  - id: "34-7"
+    name: "Datalink catalog-latency isolated fixture"
+    file: production/epics/sprint-34-datalink-latency/story-034-07-datalink-catalog-latency-fixture.md
+    priority: should-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-19"
+    note: "baltic-patrol-datalink-catalog-latency fixture; 6 tests; golden 12661701758887629394; ReplayGolden 6/6; evidence production/agentic/sprint-34-datalink-catalog-latency-fixture-2026-06-19.md"
+  - id: "34-8"
+    name: "catalog_link_report CLI"
+    file: production/epics/sprint-34-link-catalog-data/story-034-08-link-report-cli.md
+    priority: should-have
+    status: done
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "CatalogLinkReportCommand; 2 CLI tests; evidence production/agentic/stacks/sprint34/S34-08-DONE.md"
+  - id: "34-9"
+    name: "Datalink regression smoke (optional)"
+    file: production/epics/sprint-34-datalink-latency/story-034-09-datalink-regression-smoke.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.5
+    blocker: "34-4"
+    completed: ""
+  - id: "34-10"
+    name: "Live Editor presentation evidence (Phase H)"
+    file: production/epics/sprint-34-platform-editor-phase-h/story-034-10-presentation-evidence.md
+    priority: should-have
+    status: done
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "Protocol PNG placeholders; headless 51/51; evidence production/qa/sprint-34-presentation-evidence-2026-06-19.md"
+  - id: "34-11"
+    name: "C2 manual sign-off upgrade"
+    file: production/epics/sprint-34-presentation-qa/story-034-11-c2-signoff-upgrade.md
+    priority: should-have
+    status: done
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-06-19"
+    note: "C2 Check 18 LinkCatalog; 18/18 PASS WITH NOTES; evidence production/qa/sprint-34-c2-signoff-2026-06-19.md"
+  - id: "34-12"
+    name: "CI/local gate refresh"
+    file: production/epics/sprint-34-closeout-devops/story-034-12-ci-hygiene.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.25
+    blocker: ""
+    completed: ""
+  - id: "34-13"
+    name: "Closeout hygiene"
+    file: production/epics/sprint-34-closeout-devops/story-034-13-closeout-hygiene.md
+    priority: should-have
+    status: done
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-06-19"
+    note: "1193/1193 sln; ReplayGolden 6/6; GitNexus 16138/33074; stack/sprint33/* 0 refs; evidence production/qa/smoke-sprint-34-closeout-2026-06-19.md"
 
 sprint: 16
 goal: "PR merge + DATA P0 plan + backlog execution"

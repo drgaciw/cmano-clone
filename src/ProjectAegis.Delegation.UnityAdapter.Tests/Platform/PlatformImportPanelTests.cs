@@ -129,6 +129,58 @@ public sealed class PlatformImportPanelTests
     }
 
     [Test]
+    public void Import_damage_MaxHp_round_trip_propose_acknowledge_approve_readback_baltic_fixture()
+    {
+        var dbPath = CreateTempDbPath("unity-phase-f-damage-e2e");
+        try
+        {
+            CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
+
+            var exported = PlatformWorkbookWriteBridge.ExportBalticWorkbook(dbPath, clockTicks: 9930);
+            var edited = WithPlatformSheetCell(exported, "u1", "MaxHp", "120");
+
+            var propose = PlatformWorkbookWriteBridge.ProposeWorkbook(
+                dbPath,
+                edited,
+                actorType: "unity",
+                actorId: "platform-import-host",
+                clockTicks: 9931,
+                rationale: "unity import panel damage e2e");
+            Assert.That(propose.Proposed, Is.True);
+            Assert.That(propose.BatchIds, Is.Not.Empty);
+
+            var damageRows = PlatformImportStagingProjection.ExtractDamageDeltaRows(propose.Import.Plan.Changes);
+            Assert.That(damageRows, Is.Not.Empty);
+            Assert.That(damageRows[0].SummaryLine, Does.Contain("DAMAGE"));
+            Assert.That(damageRows[0].SummaryLine, Does.Contain("MaxHp"));
+
+            var panel = PlatformImportStagingProjection.Bind(propose, reviewAcknowledged: true);
+            Assert.That(panel.DiffRows[0].SummaryLine, Does.Contain("MaxHp"));
+            Assert.That(panel.ApproveEnabled, Is.True);
+
+            var approve = PlatformWorkbookWriteBridge.ApproveBatches(
+                dbPath,
+                propose.BatchIds,
+                actorType: "human",
+                actorId: "curator",
+                clockTicks: 9932);
+            Assert.That(approve.AllCommitted, Is.True);
+
+            using var reader = new SqliteCatalogReader(dbPath, "unity-phase-f-damage-readback");
+            Assert.That(reader.TryGetPlatformDamage("u1", out var damage), Is.True);
+            Assert.That(damage.MaxHp, Is.EqualTo(120).Within(0.000001));
+
+            var browseRows = CatalogPlatformBrowseProjection.FromReader(reader);
+            var u1 = browseRows.Single(r => r.PlatformId == "u1");
+            Assert.That(u1.MaxHp, Is.EqualTo(120));
+        }
+        finally
+        {
+            Cleanup(dbPath);
+        }
+    }
+
+    [Test]
     public void Staging_projection_groups_entity_level_diff_rows_by_sheet()
     {
         var changes = new[]
@@ -300,6 +352,46 @@ public sealed class PlatformImportPanelTests
     {
         Assert.That(typeName, Does.Not.Contain("SqliteConnection"), methodName);
         Assert.That(typeName, Does.Not.Contain("CatalogWriteGate"), methodName);
+    }
+
+    private static PlatformWorkbook WithPlatformSheetCell(
+        PlatformWorkbook workbook,
+        string platformId,
+        string columnName,
+        string value)
+    {
+        var sheets = workbook.Sheets.Select(sheet =>
+        {
+            if (!string.Equals(sheet.Name, "Platforms", StringComparison.Ordinal))
+            {
+                return sheet;
+            }
+
+            var colIndex = Array.IndexOf(sheet.Header.ToArray(), columnName);
+            Assert.That(colIndex, Is.GreaterThanOrEqualTo(0), $"Column '{columnName}' missing on Platforms.");
+
+            var rows = sheet.Rows.Select(row =>
+            {
+                var platformCol = Array.IndexOf(sheet.Header.ToArray(), "PlatformId");
+                if (platformCol < 0 || platformCol >= row.Count || !string.Equals(row[platformCol], platformId, StringComparison.Ordinal))
+                {
+                    return row;
+                }
+
+                var cells = row.ToList();
+                while (cells.Count <= colIndex)
+                {
+                    cells.Add(string.Empty);
+                }
+
+                cells[colIndex] = value;
+                return (IReadOnlyList<string>)cells;
+            }).ToArray();
+
+            return sheet with { Rows = rows };
+        }).ToArray();
+
+        return workbook with { Sheets = sheets };
     }
 
     private static PlatformWorkbook WithSheetCell(

@@ -16,6 +16,7 @@ using ProjectAegis.Data.Scenario;
 using ProjectAegis.Delegation.Mission;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Replay;
+using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -37,7 +38,8 @@ public static class BalticReplayHarness
         IReadOnlyList<ReplayCheckpoint> Checkpoints,
         IReadOnlyList<MessageLogLine> Messages,
         SensorC2Snapshot SensorC2,
-        string ScoringCsvRow);
+        string ScoringCsvRow,
+        DecisionLog DecisionLog);
 
     public static Result Run(
         int seed,
@@ -76,7 +78,8 @@ public static class BalticReplayHarness
                 catalogReader);
             if (profile.DatalinkDoctrine.IsSharingEnabled)
             {
-                datalinkMerger = new DatalinkSidePictureMerger(profile.DatalinkDoctrine, detectionTrials);
+                var datalinkDoctrine = DatalinkShareLagResolver.Resolve(profile.DatalinkDoctrine, catalogReader);
+                datalinkMerger = new DatalinkSidePictureMerger(datalinkDoctrine, detectionTrials);
             }
         }
         else if (profile?.ContactSeeds.Count > 0)
@@ -180,7 +183,11 @@ public static class BalticReplayHarness
                 : scheduleSim?.Tick(simTick, harness.SimTime) ?? Array.Empty<ContactTransition>();
             if (datalinkMerger != null)
             {
-                var shared = datalinkMerger.Merge(transitions, simTick, harness.SimTime);
+                var shared = datalinkMerger.Merge(
+                    transitions,
+                    simTick,
+                    harness.SimTime,
+                    MapDatalinkCommsShareState(bridge.CurrentCommsState));
                 if (shared.Count > 0)
                 {
                     transitions = transitions.Concat(shared).ToArray();
@@ -202,6 +209,18 @@ public static class BalticReplayHarness
                     {
                         bridge.Orchestrator.OrderLog.AppendContactTransition(killTransition);
                     }
+                }
+            }
+
+            if (bridge.Session?.BdaContactLifecycleRegistry is { } bdaLifecycle && pdSim != null)
+            {
+                foreach (var lostTransition in BdaContactLifecycleHotTickApplier.ApplyFromRegistry(
+                             pdSim,
+                             simTick,
+                             harness.SimTime,
+                             bdaLifecycle))
+                {
+                    bridge.Orchestrator.OrderLog.AppendContactTransition(lostTransition);
                 }
             }
 
@@ -242,7 +261,8 @@ public static class BalticReplayHarness
             checkpointStore.Checkpoints,
             messages,
             sensorC2,
-            scoringCsv);
+            scoringCsv,
+            bridge.Orchestrator.DecisionLog);
     }
 
     private sealed class HeadlessSnapshot : ISimWorldSnapshot, IOrderSink
@@ -378,6 +398,14 @@ public static class BalticReplayHarness
 
         throw new FileNotFoundException("near_future_archetypes.json");
     }
+
+    private static DatalinkCommsShareState MapDatalinkCommsShareState(CommsState state) =>
+        state switch
+        {
+            CommsState.Degraded => DatalinkCommsShareState.Degraded,
+            CommsState.Denied => DatalinkCommsShareState.Denied,
+            _ => DatalinkCommsShareState.Nominal,
+        };
 
     private sealed class EngageOnlyPolicy : IPolicy
     {

@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 /// <summary>
 /// ADR-009 flag-on Baltic golden fixture — isolated from ReplayGolden 6/6 and combat-domains-smoke pin.
-/// Production <c>baltic-patrol</c> remains <c>combatDomainsEnabled=false</c> until post-merge flip.
+/// Production <c>baltic-patrol</c> flipped <c>combatDomainsEnabled=true</c> per S30-09 (ADR-009 migration step 4).
 /// </summary>
 [TestFixture]
 public sealed class BalticCombatDomainsPolicyTests
@@ -38,14 +38,28 @@ public sealed class BalticCombatDomainsPolicyTests
     }
 
     [Test]
-    public void Production_baltic_patrol_remains_combatDomainsEnabled_false()
+    public void Production_baltic_patrol_has_combatDomainsEnabled_true()
     {
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         var profile = ScenarioPolicyRepository.TryGet("baltic-patrol");
 
         Assert.That(profile, Is.Not.Null);
         Assert.That(profile!.EngageDefaults, Is.Not.Null);
-        Assert.That(profile.EngageDefaults!.CombatDomainsEnabled, Is.False);
+        Assert.That(profile.EngageDefaults!.CombatDomainsEnabled, Is.True);
+    }
+
+    [Test]
+    public void Production_baltic_patrol_flag_on_matches_isolated_combat_domains_hash()
+    {
+        var production = BalticReplayHarness.Run(Seed, "baltic-patrol", Ticks);
+        var isolated = BalticReplayHarness.Run(Seed, PolicyId, Ticks);
+
+        Assert.That(production.WorldHash, Is.EqualTo(isolated.WorldHash));
+        Assert.That(production.DetectionWorldHash, Is.EqualTo(isolated.DetectionWorldHash));
+        Assert.That(production.FingerprintSha256, Is.EqualTo(isolated.FingerprintSha256));
+        Assert.That(production.WorldHash, Is.EqualTo(PinnedWorldHash));
+        Assert.That(production.Fingerprint, Does.Not.Contain("|Abort|"));
+        Assert.That(production.Fingerprint, Does.Not.Contain("LAND_ASPECT_BLOCK"));
     }
 
     [Test]

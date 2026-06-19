@@ -36,7 +36,8 @@ public sealed class ScenarioPolicyProfile
         IReadOnlyList<ScenarioWithdrawReadinessTrial>? withdrawReadinessTrials = null,
         IReadOnlyList<ScenarioCatalogWithdrawTarget>? catalogWithdrawTargets = null,
         ScenarioBalanceTelemetrySettings? balanceTelemetry = null,
-        ScenarioDatalinkDoctrine? datalinkDoctrine = null)
+        ScenarioDatalinkDoctrine? datalinkDoctrine = null,
+        ScenarioMineHazardSettings? mineHazard = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -69,6 +70,7 @@ public sealed class ScenarioPolicyProfile
         CatalogWithdrawTargets = catalogWithdrawTargets ?? Array.Empty<ScenarioCatalogWithdrawTarget>();
         BalanceTelemetry = balanceTelemetry ?? ScenarioBalanceTelemetrySettings.Disabled;
         DatalinkDoctrine = datalinkDoctrine ?? ScenarioDatalinkDoctrine.Default;
+        MineHazard = mineHazard;
     }
 
     public string Id { get; init; } = "";
@@ -136,6 +138,9 @@ public sealed class ScenarioPolicyProfile
 
     /// <summary>TR-sensor-004 bounded side-picture sharing (default organic-only / no sharing).</summary>
     public ScenarioDatalinkDoctrine DatalinkDoctrine { get; }
+
+    /// <summary>ADR-009 bounded mine transit hazard zone + seeded placement (S32-08).</summary>
+    public ScenarioMineHazardSettings? MineHazard { get; }
 
     public EngageContext ResolveEngageContext()
     {

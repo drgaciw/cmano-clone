@@ -9,6 +9,8 @@ public static class CatalogPipelineDiffEntityResolver
         "Mobility", "Signatures", "Emcon", "Platforms",
     };
 
+    private static readonly string[] LinkIdSheets = { "LinkCatalog" };
+
     public static IReadOnlyList<string> ResolveFromImportPlan(PlatformImportPlan plan, PlatformWorkbook edited)
     {
         if (plan is null) throw new ArgumentNullException(nameof(plan));
@@ -26,13 +28,24 @@ public static class CatalogPipelineDiffEntityResolver
                 continue;
             }
 
-            if (!PlatformIdSheets.Contains(change.Sheet, StringComparer.Ordinal))
+            var sheet = edited.FindSheet(change.Sheet);
+            if (sheet is null || change.RowIndex >= sheet.Rows.Count)
             {
                 continue;
             }
 
-            var sheet = edited.FindSheet(change.Sheet);
-            if (sheet is null || change.RowIndex >= sheet.Rows.Count)
+            if (LinkIdSheets.Contains(change.Sheet, StringComparer.Ordinal))
+            {
+                var linkId = ReadLinkId(sheet, change.RowIndex);
+                if (!string.IsNullOrWhiteSpace(linkId))
+                {
+                    ids.Add(linkId);
+                }
+
+                continue;
+            }
+
+            if (!PlatformIdSheets.Contains(change.Sheet, StringComparer.Ordinal))
             {
                 continue;
             }
@@ -59,6 +72,17 @@ public static class CatalogPipelineDiffEntityResolver
             .Distinct(StringComparer.Ordinal)
             .OrderBy(id => id, StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static string ReadLinkId(PlatformWorkbookSheet sheet, int rowIndex)
+    {
+        var col = HeaderIndex(sheet);
+        if (!col.TryGetValue("LinkId", out var linkCol) || linkCol >= sheet.Rows[rowIndex].Count)
+        {
+            return string.Empty;
+        }
+
+        return sheet.Rows[rowIndex][linkCol];
     }
 
     private static string ReadPlatformId(PlatformWorkbookSheet sheet, int rowIndex)

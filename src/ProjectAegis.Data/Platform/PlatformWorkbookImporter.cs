@@ -18,7 +18,7 @@ public sealed class PlatformWorkbookImporter
     private const string PlatformsSheet = "Platforms";
     private static readonly string[] SupportedSheets =
     {
-        "Sensors", "Mounts", "Loadouts", "Magazines", "Comms",
+        "Sensors", "Mounts", "Loadouts", "Magazines", "Comms", "LinkCatalog",
         "Mobility", "Signatures", "Emcon",
     };
     private static readonly string[] SupportedPlatformDamageColumns =
@@ -188,6 +188,14 @@ public sealed class PlatformWorkbookImporter
             notes.Add($"Proposed {commsRows.Count} comms row(s) as batch '{commsBatchId}'.");
         }
 
+        string? linkBatchId = null;
+        var linkRows = BuildChangedLinkRows(edited, plan.SupportedChanges);
+        if (linkRows.Count > 0)
+        {
+            linkBatchId = gate.ProposeLinkCatalogBatch(linkRows, actorType, actorId, rationale);
+            notes.Add($"Proposed {linkRows.Count} link catalog row(s) as batch '{linkBatchId}'.");
+        }
+
         string? mobilityBatchId = null;
         var mobilityRows = FilterKnownPlatforms(
             BuildChangedMobilityRows(edited, plan.SupportedChanges),
@@ -261,6 +269,7 @@ public sealed class PlatformWorkbookImporter
             || loadoutBatchId is not null
             || magazineBatchId is not null
             || commsBatchId is not null
+            || linkBatchId is not null
             || mobilityBatchId is not null
             || signatureBatchId is not null
             || emconBatchId is not null
@@ -273,6 +282,7 @@ public sealed class PlatformWorkbookImporter
             loadoutBatchId,
             magazineBatchId,
             commsBatchId,
+            linkBatchId,
             mobilityBatchId,
             signatureBatchId,
             emconBatchId,
@@ -281,7 +291,7 @@ public sealed class PlatformWorkbookImporter
     }
 
     private static PlatformImportResult EmptyImportResult(PlatformImportPlan plan, IReadOnlyList<string> notes) =>
-        new(plan, Staged: false, null, null, null, null, null, null, null, null, null, notes);
+        new(plan, Staged: false, null, null, null, null, null, null, null, null, null, null, notes);
 
     private static IReadOnlyList<T> FilterKnownPlatforms<T>(
         IReadOnlyList<T> rows,
@@ -369,6 +379,15 @@ public sealed class PlatformWorkbookImporter
             TrlLevel: ParseInt(Get(row, col, "TrlLevel"), 9),
             ValueTier: CatalogProvenanceTier.Normalize(Get(row, col, "ValueTier")),
             CitationRef: Get(row, col, "CitationRef")));
+
+    private static IReadOnlyList<CatalogLinkEntry> BuildChangedLinkRows(
+        PlatformWorkbook edited,
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges) =>
+        BuildChangedRows(edited, supportedChanges, "LinkCatalog", (row, col) => new CatalogLinkEntry(
+            LinkId: Get(row, col, "LinkId"),
+            DisplayName: Get(row, col, "DisplayName"),
+            LinkType: Get(row, col, "LinkType", CatalogLinkTypes.Tactical),
+            LatencyMsNominal: ParseInt(Get(row, col, "LatencyMsNominal"))));
 
     private static IReadOnlyList<CatalogMobility> BuildChangedMobilityRows(
         PlatformWorkbook edited,

@@ -7,7 +7,7 @@ using Xunit;
 
 namespace ProjectAegis.Data.Tests.Import;
 
-/// <summary>S29-03 curated nightly propose→approve→RecordRelease regression (off-CI path).</summary>
+/// <summary>S29-03 / S30-04 curated nightly propose→approve→RecordRelease regression (off-CI path).</summary>
 [Collection("CatalogSqlite")]
 public sealed class CmoNightlyApproveWorkflowTests
 {

@@ -1,6 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
+using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Excel;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Snapshots;
@@ -24,12 +25,19 @@ public static class PlatformExportXlsxCommand
         string outPath,
         string snapshotId,
         string? ioFlag,
-        TextWriter output)
+        TextWriter output,
+        string? tlTierFilter = null)
     {
         var clock = new FixedCatalogClock(0);
         var exporter = new PlatformWorkbookExporter();
         var effectiveSnapshot = string.IsNullOrWhiteSpace(snapshotId) ? "cli-s22-export" : snapshotId;
-        var snapshotResolved = PlatformCatalogExportResolver.TryResolve(dbPath, effectiveSnapshot, out var data);
+        var filterActive = !string.IsNullOrWhiteSpace(tlTierFilter) && CatalogTlTier.IsValid(tlTierFilter);
+        var resolvedTlTier = filterActive ? CatalogTlTier.Normalize(tlTierFilter) : null;
+        var snapshotResolved = PlatformCatalogExportResolver.TryResolve(
+            dbPath,
+            effectiveSnapshot,
+            out var data,
+            resolvedTlTier);
         if (!snapshotResolved)
         {
             data = PlatformCatalogExportData.Empty;
@@ -38,6 +46,11 @@ public static class PlatformExportXlsxCommand
         var manifest = !string.IsNullOrWhiteSpace(dbPath) && File.Exists(dbPath)
             ? CatalogExportManifest.Resolve(dbPath, effectiveSnapshot)
             : CatalogExportManifest.DefaultForSnapshot(effectiveSnapshot);
+        if (filterActive)
+        {
+            manifest = manifest with { TlTier = resolvedTlTier! };
+        }
+
         var wb = exporter.Export(data, effectiveSnapshot, clock, manifest);
 
         var effectiveOut = string.IsNullOrWhiteSpace(outPath)
@@ -55,6 +68,7 @@ public static class PlatformExportXlsxCommand
             verb = "platform_export_xlsx",
             snapshotId = effectiveSnapshot,
             snapshotResolved,
+            tlTierFilter = filterActive ? resolvedTlTier : null,
             manifest = new
             {
                 dbVersion = manifest.DbVersion,

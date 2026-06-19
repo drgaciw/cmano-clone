@@ -1,10 +1,121 @@
 namespace ProjectAegis.Data.Validation.Rules;
 
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Scenario;
 using ProjectAegis.Data.Scenario.Authoring;
 
 internal static class ValidationRules
 {
+    public static void TlBranchRule(ScenarioDocumentDto scenario, ICatalogReader catalog, List<ValidationFinding> sink)
+    {
+        var tlBranch = scenario.Metadata.TlBranch;
+        if (string.IsNullOrWhiteSpace(tlBranch))
+        {
+            sink.Add(new ValidationFinding(
+                "TL_BRANCH_MISSING",
+                ValidationSeverity.Error,
+                "Scenario package metadata.tlBranch is required (TL-0…TL-5).",
+                Data: new Dictionary<string, string> { ["field"] = "tlBranch" }));
+            return;
+        }
+
+        var trimmed = tlBranch.Trim();
+        if (!CatalogTlTier.IsValid(trimmed))
+        {
+            sink.Add(new ValidationFinding(
+                "TL_BRANCH_INVALID",
+                ValidationSeverity.Error,
+                $"Scenario tlBranch '{trimmed}' is not a valid TL tier (TL-0…TL-5).",
+                Data: new Dictionary<string, string> { ["tlBranch"] = trimmed }));
+            return;
+        }
+
+        var normalized = CatalogTlTier.Normalize(trimmed);
+        string snapshotId;
+        if (ScenarioPackage.HasExplicitDbBinding(scenario.Metadata))
+        {
+            snapshotId = ResolveExplicitSnapshotId(scenario.Metadata, catalog);
+        }
+        else if (!catalog.TryResolveSnapshotForTlBranch(normalized, out snapshotId, out _))
+        {
+            return;
+        }
+
+        if (catalog.TryGetSnapshotBranch(snapshotId, out var snapshotBranch) &&
+            !string.Equals(normalized, snapshotBranch, StringComparison.Ordinal))
+        {
+            sink.Add(new ValidationFinding(
+                "TL_BRANCH_SNAPSHOT_MISMATCH",
+                ValidationSeverity.Error,
+                $"Scenario tlBranch '{normalized}' does not match catalog_snapshot.branch '{snapshotBranch}' for snapshot '{snapshotId}'.",
+                Data: new Dictionary<string, string>
+                {
+                    ["tlBranch"] = normalized,
+                    ["snapshotBranch"] = snapshotBranch,
+                    ["snapshotId"] = snapshotId,
+                }));
+        }
+    }
+
+    public static void TlReleaseTrainRule(ScenarioDocumentDto scenario, ICatalogReader catalog, List<ValidationFinding> sink)
+    {
+        var tlBranch = scenario.Metadata.TlBranch;
+        if (string.IsNullOrWhiteSpace(tlBranch))
+        {
+            return;
+        }
+
+        var trimmed = tlBranch.Trim();
+        if (!CatalogTlTier.IsValid(trimmed))
+        {
+            return;
+        }
+
+        var normalized = CatalogTlTier.Normalize(trimmed);
+        if (!catalog.TryResolveSnapshotForTlBranch(normalized, out var resolvedSnapshot, out _))
+        {
+            sink.Add(new ValidationFinding(
+                "TL_RELEASE_TRAIN_NOT_FOUND",
+                ValidationSeverity.Error,
+                $"No catalog snapshot in release train for tlBranch '{normalized}'.",
+                Data: new Dictionary<string, string> { ["tlBranch"] = normalized }));
+            return;
+        }
+
+        if (!ScenarioPackage.HasExplicitDbBinding(scenario.Metadata))
+        {
+            return;
+        }
+
+        var explicitSnapshot = ResolveExplicitSnapshotId(scenario.Metadata, catalog);
+        if (!string.Equals(explicitSnapshot, resolvedSnapshot, StringComparison.Ordinal))
+        {
+            var dbRef = scenario.Metadata.DbRef ?? scenario.Metadata.DbSnapshotId ?? "";
+            sink.Add(new ValidationFinding(
+                "TL_RELEASE_TRAIN_MISMATCH",
+                ValidationSeverity.Error,
+                $"Explicit database binding '{dbRef}' resolves to snapshot '{explicitSnapshot}' but tlBranch '{normalized}' release train expects '{resolvedSnapshot}'.",
+                Data: new Dictionary<string, string>
+                {
+                    ["tlBranch"] = normalized,
+                    ["explicitSnapshot"] = explicitSnapshot,
+                    ["releaseTrainSnapshot"] = resolvedSnapshot,
+                    ["dbRef"] = dbRef,
+                }));
+        }
+    }
+
+    private static string ResolveExplicitSnapshotId(ScenarioMetadataDto metadata, ICatalogReader catalog)
+    {
+        var dbRef = metadata.DbRef ?? metadata.DbSnapshotId;
+        if (!string.IsNullOrWhiteSpace(dbRef) && catalog.TryResolveDbRef(dbRef, out var resolved))
+        {
+            return resolved;
+        }
+
+        return ScenarioPackage.ResolveDbSnapshotId(metadata);
+    }
+
     public static void DbRefRule(ScenarioDocumentDto scenario, ICatalogReader catalog, List<ValidationFinding> sink)
     {
         var dbRef = scenario.Metadata.DbRef ?? scenario.Metadata.DbSnapshotId;

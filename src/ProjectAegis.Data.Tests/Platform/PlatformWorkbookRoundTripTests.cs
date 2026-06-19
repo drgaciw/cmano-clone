@@ -42,6 +42,11 @@ public sealed class PlatformWorkbookRoundTripTests
         Comms: new[]
         {
             new CatalogCommsBinding("u1", "NATO_TADIL_J", "txrx", SatcomCapable: false),
+        },
+        Links: new[]
+        {
+            new CatalogLinkEntry("NATO_TADIL_J", "NATO Link 16", CatalogLinkTypes.Tactical, LatencyMsNominal: 50),
+            new CatalogLinkEntry("SATCOM_B", "SATCOM Wideband", CatalogLinkTypes.Satcom, LatencyMsNominal: 250),
         });
 
     private static PlatformWorkbook Export(PlatformCatalogExportData data) =>
@@ -76,6 +81,10 @@ public sealed class PlatformWorkbookRoundTripTests
         Assert.Equal(
             CatalogSortKeyComparer.SortComms(data.Comms).Select(CatalogSortKeyComparer.FormatCommsKey).ToArray(),
             CommsKeys(workbook));
+
+        Assert.Equal(
+            CatalogSortKeyComparer.SortLinks(data.Links).Select(CatalogSortKeyComparer.FormatLinkKey).ToArray(),
+            LinkKeys(workbook));
     }
 
     [Fact]
@@ -165,6 +174,9 @@ public sealed class PlatformWorkbookRoundTripTests
 
     private static string[] CommsKeys(PlatformWorkbook workbook) =>
         SheetCompositeKeys(workbook, "Comms", 0, 1);
+
+    private static string[] LinkKeys(PlatformWorkbook workbook) =>
+        SheetCompositeKeys(workbook, "LinkCatalog", 0);
 
     private static string[] SheetCompositeKeys(PlatformWorkbook workbook, string sheetName, params int[] columns)
     {

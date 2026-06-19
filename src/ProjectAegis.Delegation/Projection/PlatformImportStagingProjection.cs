@@ -22,6 +22,28 @@ public sealed record PlatformImportStagingPanelState(
 
 public static class PlatformImportStagingProjection
 {
+    private static readonly string[] DamageWorkbookColumns =
+    [
+        "MaxHp",
+        "WithdrawThresholdPct",
+        "CriticalFlags",
+    ];
+
+    private static readonly string[] CommsWorkbookColumns =
+    [
+        "LinkId",
+        "Role",
+        "SatcomCapable",
+    ];
+
+    private static readonly string[] LinkCatalogWorkbookColumns =
+    [
+        "LinkId",
+        "DisplayName",
+        "LinkType",
+        "LatencyMsNominal",
+    ];
+
     public static PlatformImportStagingPanelState Bind(
         PlatformWorkbookWriteResult? proposeResult,
         bool reviewAcknowledged)
@@ -34,7 +56,7 @@ public static class PlatformImportStagingProjection
         var plan = proposeResult.Import.Plan;
         if (plan.Blocked)
         {
-            var blockedRows = GroupChangesByEntity(plan.Changes);
+            var blockedRows = BuildDiffRows(plan.Changes);
             return new PlatformImportStagingPanelState(
                 "STAGING: blocked by validation errors — resolve before approve",
                 blockedRows,
@@ -63,7 +85,7 @@ public static class PlatformImportStagingProjection
 
         var batchIds = proposeResult.BatchIds;
         var hasPending = proposeResult.Proposed && batchIds.Count > 0;
-        var diffRows = GroupChangesByEntity(plan.Changes);
+        var diffRows = BuildDiffRows(plan.Changes);
         var approvalHint = plan.RequiresHumanApproval
             ? " | human approval required"
             : string.Empty;
@@ -79,6 +101,65 @@ public static class PlatformImportStagingProjection
             RejectEnabled: hasPending,
             IsEmptyDiff: false);
     }
+
+    public static IReadOnlyList<PlatformImportStagingRow> BuildDiffRows(
+        IReadOnlyList<PlatformWorkbookChange> changes)
+    {
+        if (changes.Count == 0)
+        {
+            return Array.Empty<PlatformImportStagingRow>();
+        }
+
+        var damageRows = ExtractDamageDeltaRows(changes);
+        var commsRows = ExtractCommsDeltaRows(changes);
+        var linkRows = ExtractLinkCatalogDeltaRows(changes);
+        var remaining = changes
+            .Where(change => !IsDamageWorkbookChange(change)
+                && !IsCommsWorkbookChange(change)
+                && !IsLinkCatalogWorkbookChange(change))
+            .ToArray();
+        return damageRows
+            .Concat(commsRows)
+            .Concat(linkRows)
+            .Concat(GroupChangesByEntity(remaining))
+            .ToArray();
+    }
+
+    public static IReadOnlyList<PlatformImportStagingRow> ExtractDamageDeltaRows(
+        IReadOnlyList<PlatformWorkbookChange> changes) =>
+        changes
+            .Where(IsDamageWorkbookChange)
+            .OrderBy(change => change.RowIndex)
+            .ThenBy(change => change.Detail, StringComparer.Ordinal)
+            .Select(change => new PlatformImportStagingRow(
+                "Platforms",
+                1,
+                $"DAMAGE row={FormatRow(change.RowIndex)}: {Truncate(change.Detail, 72)}"))
+            .ToArray();
+
+    public static IReadOnlyList<PlatformImportStagingRow> ExtractCommsDeltaRows(
+        IReadOnlyList<PlatformWorkbookChange> changes) =>
+        changes
+            .Where(IsCommsWorkbookChange)
+            .OrderBy(change => change.RowIndex)
+            .ThenBy(change => change.Detail, StringComparer.Ordinal)
+            .Select(change => new PlatformImportStagingRow(
+                "Comms",
+                1,
+                $"COMMS row={FormatRow(change.RowIndex)}: {Truncate(change.Detail, 72)}"))
+            .ToArray();
+
+    public static IReadOnlyList<PlatformImportStagingRow> ExtractLinkCatalogDeltaRows(
+        IReadOnlyList<PlatformWorkbookChange> changes) =>
+        changes
+            .Where(IsLinkCatalogWorkbookChange)
+            .OrderBy(change => change.RowIndex)
+            .ThenBy(change => change.Detail, StringComparer.Ordinal)
+            .Select(change => new PlatformImportStagingRow(
+                "LinkCatalog",
+                1,
+                $"LINK row={FormatRow(change.RowIndex)}: {Truncate(change.Detail, 72)}"))
+            .ToArray();
 
     public static IReadOnlyList<PlatformImportStagingRow> GroupChangesByEntity(
         IReadOnlyList<PlatformWorkbookChange> changes)
@@ -107,7 +188,27 @@ public static class PlatformImportStagingProjection
     }
 
     public static IReadOnlyList<string> FormatDiffLines(IReadOnlyList<PlatformWorkbookChange> changes) =>
-        GroupChangesByEntity(changes).Select(row => row.SummaryLine).ToArray();
+        BuildDiffRows(changes).Select(row => row.SummaryLine).ToArray();
+
+    public static bool IsDamageWorkbookChange(PlatformWorkbookChange change) =>
+        string.Equals(change.Sheet, "Platforms", StringComparison.Ordinal)
+        && change.Kind == PlatformWorkbookChangeKind.CellChanged
+        && DamageWorkbookColumns.Any(column =>
+            change.Detail.StartsWith($"{column}:", StringComparison.Ordinal));
+
+    public static bool IsCommsWorkbookChange(PlatformWorkbookChange change) =>
+        string.Equals(change.Sheet, "Comms", StringComparison.Ordinal)
+        && (change.Kind == PlatformWorkbookChangeKind.RowAdded
+            || (change.Kind == PlatformWorkbookChangeKind.CellChanged
+                && CommsWorkbookColumns.Any(column =>
+                    change.Detail.StartsWith($"{column}:", StringComparison.Ordinal))));
+
+    public static bool IsLinkCatalogWorkbookChange(PlatformWorkbookChange change) =>
+        string.Equals(change.Sheet, "LinkCatalog", StringComparison.Ordinal)
+        && (change.Kind == PlatformWorkbookChangeKind.RowAdded
+            || (change.Kind == PlatformWorkbookChangeKind.CellChanged
+                && LinkCatalogWorkbookColumns.Any(column =>
+                    change.Detail.StartsWith($"{column}:", StringComparison.Ordinal))));
 
     private static PlatformImportStagingPanelState Idle(bool reviewAcknowledged) =>
         new(

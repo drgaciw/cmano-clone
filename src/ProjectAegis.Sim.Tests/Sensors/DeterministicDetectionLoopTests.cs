@@ -68,6 +68,7 @@ public sealed class DeterministicDetectionLoopTests
     {
         Assert.Equal(0.5, DetectionProbability.ComputePd(1.0, envMask: 0.5));
         Assert.Equal(0.25, DetectionProbability.ComputePd(1.0, jamStrength: 0.75));
+        Assert.Equal(0.375, DetectionProbability.ComputePd(1.0, eccmFactor: 0.75, jamStrength: 0.5));
     }
 
     [Fact]

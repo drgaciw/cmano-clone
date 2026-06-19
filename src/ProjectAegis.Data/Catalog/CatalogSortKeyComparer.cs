@@ -47,6 +47,10 @@ public static class CatalogSortKeyComparer
             .ThenBy(r => r.LinkId, StringComparer.Ordinal)
             .ToArray();
 
+    public static IReadOnlyList<CatalogLinkEntry> SortLinks(IEnumerable<CatalogLinkEntry> rows) =>
+        rows.OrderBy(r => r.LinkId, StringComparer.Ordinal)
+            .ToArray();
+
     public static IReadOnlyList<CatalogMobility> SortMobility(IEnumerable<CatalogMobility> rows) =>
         rows.OrderBy(r => r.PlatformId, StringComparer.Ordinal)
             .ToArray();
@@ -80,6 +84,8 @@ public static class CatalogSortKeyComparer
         Join(row.PlatformId, row.LoadoutId, row.MountId, row.WeaponId);
 
     public static string FormatCommsKey(CatalogCommsBinding row) => Join(row.PlatformId, row.LinkId);
+
+    public static string FormatLinkKey(CatalogLinkEntry row) => row.LinkId;
 
     public static string FormatMobilityKey(CatalogMobility row) => row.PlatformId;
 

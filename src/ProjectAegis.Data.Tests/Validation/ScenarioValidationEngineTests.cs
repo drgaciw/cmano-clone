@@ -5,6 +5,8 @@ using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
 using Xunit;
 
+using CatalogTlTier = ProjectAegis.Data.Catalog.CatalogTlTier;
+
 public sealed class ScenarioValidationEngineTests
 {
     private readonly ScenarioValidationEngine _engine = new();
@@ -80,6 +82,7 @@ public sealed class ScenarioValidationEngineTests
     private static ScenarioDocumentDto StrikeScenario() =>
         new()
         {
+            Metadata = new ScenarioMetadataDto { TlBranch = CatalogTlTier.Default },
             Missions =
             [
                 new ScenarioMissionDto
@@ -123,6 +126,27 @@ public sealed class ScenarioValidationEngineTests
         public bool TryResolveDbRef(string dbRef, out string resolvedSnapshotId)
         {
             resolvedSnapshotId = dbRef;
+            return true;
+        }
+
+        public bool TryGetSnapshotBranch(string snapshotId, out string branch)
+        {
+            branch = CatalogTlTier.Tl0;
+            return true;
+        }
+
+        public bool TryResolveSnapshotForTlBranch(string tlBranch, out string snapshotId, out string dbRef)
+        {
+            snapshotId = "";
+            dbRef = "";
+
+            if (!string.Equals(CatalogTlTier.Normalize(tlBranch), CatalogTlTier.Tl0, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            snapshotId = "validation-snapshot";
+            dbRef = "validation-snapshot";
             return true;
         }
 

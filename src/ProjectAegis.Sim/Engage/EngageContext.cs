@@ -23,4 +23,7 @@ public readonly record struct EngageContext(
     bool AirAspectInEnvelope = true,
     bool SurfaceAspectInEnvelope = true,
     bool SubsurfaceAspectInEnvelope = true,
+    bool LandAspectInEnvelope = true,
+    bool MineAspectInEnvelope = true,
+    bool FacilityAspectInEnvelope = true,
     bool CatalogDamageWithdrawBlocked = false);

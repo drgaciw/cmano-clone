@@ -72,7 +72,11 @@ public sealed class SimulationSession
             CatalogDamageHotTickTracker = CatalogDamageHotTickTracker.TryCreate(
                 orchestrator.ScenarioPolicy,
                 engageDefaults.CombatDomainsEnabled,
-                catalogReader),
+                catalogReader,
+                orchestrator.GlobalSeed),
+            BdaContactLifecycleRegistry = BdaContactLifecycleHotTickApplier.IsEnabled(engageDefaults.CombatDomainsEnabled)
+                ? new BdaContactLifecycleRegistry()
+                : null,
         };
     }
 
@@ -207,7 +211,10 @@ public sealed class SimulationSession
                 victim.Value,
                 results[i].EngagementId,
                 simTick,
-                results[i].OutcomeCode));
+                results[i].OutcomeCode!,
+                results[i].OutcomeCode == EngagementOutcomeCodes.Hit
+                    ? CombatDamageLevel.DefaultHitSeverity
+                    : 0.0));
         }
 
         var tickResult = CatalogDamageHotTickTracker.ApplyTick(simTick, state.SimTime, outcomes);
@@ -217,6 +224,34 @@ public sealed class SimulationSession
         }
 
         BindCatalogWithdrawTrials(tickResult.WithdrawTrials);
+        ApplyBdaContactLifecycleHotTick(tickResult.Changes);
+    }
+
+    private void ApplyBdaContactLifecycleHotTick(IReadOnlyList<PlatformDamageChangeRecord> changes)
+    {
+        if (BdaContactLifecycleRegistry == null || changes.Count == 0)
+        {
+            return;
+        }
+
+        var combatDomainsEnabled = Orchestrator.ScenarioPolicy?.EngageDefaults?.CombatDomainsEnabled ?? false;
+        if (!BdaContactLifecycleHotTickApplier.IsEnabled(combatDomainsEnabled))
+        {
+            return;
+        }
+
+        var applies = changes
+            .Select(change => new BdaContactLifecycleHotTickApplier.DamageLifecycleApply(
+                change.UnitId.Value,
+                change.DamageLevel,
+                change.NewHpPct,
+                change.ReasonCode))
+            .ToArray();
+
+        foreach (var targetId in BdaContactLifecycleHotTickApplier.ResolveSortedLostTargets(applies))
+        {
+            BdaContactLifecycleRegistry.MarkLost(targetId);
+        }
     }
 
     private void LogEngagementResults(ObservedState state, IReadOnlyList<(Order Order, TargetId Victim)> queued)
@@ -342,6 +377,9 @@ public sealed class SimulationSession
 
     /// <summary>Bounded catalog hot-tick damage tracker (combatDomainsEnabled + catalogWithdraw only).</summary>
     public CatalogDamageHotTickTracker? CatalogDamageHotTickTracker { get; init; }
+
+    /// <summary>Pending BDA Lost promotions drained by replay harness after each tick (S32-09).</summary>
+    public BdaContactLifecycleRegistry? BdaContactLifecycleRegistry { get; init; }
 
     /// <summary>Advisory-only balance drift telemetry consumer (DBI-5; default disabled).</summary>
     public BalanceDriftAdvisoryConsumer? BalanceDriftConsumer { get; init; }

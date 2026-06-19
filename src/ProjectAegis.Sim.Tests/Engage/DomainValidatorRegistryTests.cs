@@ -24,6 +24,12 @@ public sealed class DomainValidatorRegistryTests
         Assert.True(registry.Validate(CombatDomain.Surface, in surfaceCtx).Allowed);
         var subsurfaceCtx = ctx with { CombatDomain = CombatDomain.Subsurface };
         Assert.True(registry.Validate(CombatDomain.Subsurface, in subsurfaceCtx).Allowed);
+        var landCtx = ctx with { CombatDomain = CombatDomain.Land };
+        Assert.True(registry.Validate(CombatDomain.Land, in landCtx).Allowed);
+        var mineCtx = ctx with { CombatDomain = CombatDomain.Mine };
+        Assert.True(registry.Validate(CombatDomain.Mine, in mineCtx).Allowed);
+        var facilityCtx = ctx with { CombatDomain = CombatDomain.Facility };
+        Assert.True(registry.Validate(CombatDomain.Facility, in facilityCtx).Allowed);
     }
 
     [Fact]
@@ -31,7 +37,16 @@ public sealed class DomainValidatorRegistryTests
     {
         var registry = DomainValidatorRegistry.MvpStubs;
         var domains = registry.Validators.Select(v => v.Domain).ToArray();
-        Assert.Equal([CombatDomain.Air, CombatDomain.Surface, CombatDomain.Subsurface], domains);
+        Assert.Equal(
+            [
+                CombatDomain.Air,
+                CombatDomain.Surface,
+                CombatDomain.Subsurface,
+                CombatDomain.Land,
+                CombatDomain.Mine,
+                CombatDomain.Facility,
+            ],
+            domains);
     }
 
     [Fact]
@@ -225,6 +240,147 @@ public sealed class DomainValidatorRegistryTests
     }
 
     [Fact]
+    public void CombatDomainsEnabled_true_land_aspect_blocked_aborts_with_LandAspectBlock()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 2);
+        var request = new EngageRequest(1, 2, 0, 0);
+        var ctx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            CombatDomain: CombatDomain.Land,
+            LandAspectInEnvelope: false);
+        world.Set(request, ctx);
+
+        var resolver = new MvpEngagementResolver(
+            world,
+            magazines,
+            combatDomainsEnabled: true,
+            domainValidators: DomainValidatorRegistry.MvpStubs);
+
+        var result = resolver.Resolve(request);
+        Assert.False(result.Launched);
+        Assert.Equal(EngagementAbortReason.LandAspectBlock, result.AbortReason);
+    }
+
+    [Fact]
+    public void Validator_deny_maps_to_LAND_ASPECT_BLOCK_order_log_code()
+    {
+        var registry = DomainValidatorRegistry.MvpStubs;
+        var ctx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            CombatDomain: CombatDomain.Land,
+            LandAspectInEnvelope: false);
+
+        var result = registry.Validate(CombatDomain.Land, in ctx);
+        Assert.False(result.Allowed);
+        Assert.Equal(FireAbortReason.LandAspectBlock, result.AbortReason);
+
+        var mapped = MapDomainDenialForTest(result.AbortReason!.Value);
+        Assert.Equal(AbortReasonCatalog.Engage.LAND_ASPECT_BLOCK, EngagementAbortReasonCodes.ToLogCode(mapped));
+    }
+
+    [Fact]
+    public void CombatDomainsEnabled_true_mine_aspect_blocked_aborts_with_MineAspectBlock()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 2);
+        var request = new EngageRequest(1, 2, 0, 0);
+        var ctx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            CombatDomain: CombatDomain.Mine,
+            MineAspectInEnvelope: false);
+        world.Set(request, ctx);
+
+        var resolver = new MvpEngagementResolver(
+            world,
+            magazines,
+            combatDomainsEnabled: true,
+            domainValidators: DomainValidatorRegistry.MvpStubs);
+
+        var result = resolver.Resolve(request);
+        Assert.False(result.Launched);
+        Assert.Equal(EngagementAbortReason.MineAspectBlock, result.AbortReason);
+    }
+
+    [Fact]
+    public void Validator_deny_maps_to_MINE_ASPECT_BLOCK_order_log_code()
+    {
+        var registry = DomainValidatorRegistry.MvpStubs;
+        var ctx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            CombatDomain: CombatDomain.Mine,
+            MineAspectInEnvelope: false);
+
+        var result = registry.Validate(CombatDomain.Mine, in ctx);
+        Assert.False(result.Allowed);
+        Assert.Equal(FireAbortReason.MineAspectBlock, result.AbortReason);
+
+        var mapped = MapDomainDenialForTest(result.AbortReason!.Value);
+        Assert.Equal(AbortReasonCatalog.Engage.MINE_ASPECT_BLOCK, EngagementAbortReasonCodes.ToLogCode(mapped));
+    }
+
+    [Fact]
+    public void CombatDomainsEnabled_true_facility_aspect_blocked_aborts_with_FacilityAspectBlock()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 2);
+        var request = new EngageRequest(1, 2, 0, 0);
+        var ctx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            CombatDomain: CombatDomain.Facility,
+            FacilityAspectInEnvelope: false);
+        world.Set(request, ctx);
+
+        var resolver = new MvpEngagementResolver(
+            world,
+            magazines,
+            combatDomainsEnabled: true,
+            domainValidators: DomainValidatorRegistry.MvpStubs);
+
+        var result = resolver.Resolve(request);
+        Assert.False(result.Launched);
+        Assert.Equal(EngagementAbortReason.FacilityAspectBlock, result.AbortReason);
+    }
+
+    [Fact]
+    public void Validator_deny_maps_to_FACILITY_ASPECT_BLOCK_order_log_code()
+    {
+        var registry = DomainValidatorRegistry.MvpStubs;
+        var ctx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            CombatDomain: CombatDomain.Facility,
+            FacilityAspectInEnvelope: false);
+
+        var result = registry.Validate(CombatDomain.Facility, in ctx);
+        Assert.False(result.Allowed);
+        Assert.Equal(FireAbortReason.FacilityAspectBlock, result.AbortReason);
+
+        var mapped = MapDomainDenialForTest(result.AbortReason!.Value);
+        Assert.Equal(AbortReasonCatalog.Engage.FACILITY_ASPECT_BLOCK, EngagementAbortReasonCodes.ToLogCode(mapped));
+    }
+
+    [Fact]
     public void Baltic_flag_off_zero_abort_delta_despite_deny_registry()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -244,6 +400,9 @@ public sealed class DomainValidatorRegistryTests
             new AirAspectDomainValidator(),
             new SurfaceAspectDomainValidator(),
             new SubsurfaceAspectDomainValidator(),
+            new LandAspectDomainValidator(),
+            new MineAspectDomainValidator(),
+            new FacilityAspectDomainValidator(),
         ]);
 
         var flagOffResolver = new MvpEngagementResolver(
@@ -266,13 +425,103 @@ public sealed class DomainValidatorRegistryTests
         Assert.Equal(flagOffDefaultResult.AbortReason, flagOffResult.AbortReason);
     }
 
+    [Fact]
+    public void Baltic_flag_off_facility_domain_zero_delta_despite_facility_validator_in_registry()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 2);
+        var request = new EngageRequest(1, 2, 0, 0);
+        var blockedCtx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            CombatDomain: CombatDomain.Facility,
+            FacilityAspectInEnvelope: false);
+        world.Set(request, blockedCtx);
+
+        var withoutFacilityRegistry = new DomainValidatorRegistry(
+        [
+            new AirAspectDomainValidator(),
+            new SurfaceAspectDomainValidator(),
+            new SubsurfaceAspectDomainValidator(),
+            new LandAspectDomainValidator(),
+            new MineAspectDomainValidator(),
+        ]);
+
+        var flagOffWithoutFacility = new MvpEngagementResolver(
+            world,
+            magazines,
+            combatDomainsEnabled: false,
+            domainValidators: withoutFacilityRegistry);
+        var flagOffWithFacility = new MvpEngagementResolver(
+            world,
+            magazines,
+            combatDomainsEnabled: false,
+            domainValidators: DomainValidatorRegistry.MvpStubs);
+
+        var withoutFacilityResult = flagOffWithoutFacility.Resolve(request);
+        var withFacilityResult = flagOffWithFacility.Resolve(request);
+
+        Assert.Equal(withoutFacilityResult.Launched, withFacilityResult.Launched);
+        Assert.Equal(withoutFacilityResult.AbortReason, withFacilityResult.AbortReason);
+    }
+
+    [Fact]
+    public void Baltic_flag_off_mine_domain_zero_delta_despite_mine_validator_in_registry()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 2);
+        var request = new EngageRequest(1, 2, 0, 0);
+        var blockedCtx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            CombatDomain: CombatDomain.Mine,
+            MineAspectInEnvelope: false);
+        world.Set(request, blockedCtx);
+
+        var withoutMineRegistry = new DomainValidatorRegistry(
+        [
+            new AirAspectDomainValidator(),
+            new SurfaceAspectDomainValidator(),
+            new SubsurfaceAspectDomainValidator(),
+            new LandAspectDomainValidator(),
+        ]);
+
+        var flagOffWithoutMine = new MvpEngagementResolver(
+            world,
+            magazines,
+            combatDomainsEnabled: false,
+            domainValidators: withoutMineRegistry);
+        var flagOffWithMine = new MvpEngagementResolver(
+            world,
+            magazines,
+            combatDomainsEnabled: false,
+            domainValidators: DomainValidatorRegistry.MvpStubs);
+
+        var withoutMineResult = flagOffWithoutMine.Resolve(request);
+        var withMineResult = flagOffWithMine.Resolve(request);
+
+        Assert.Equal(withoutMineResult.Launched, withMineResult.Launched);
+        Assert.Equal(withoutMineResult.AbortReason, withMineResult.AbortReason);
+    }
+
     [Theory]
-    [InlineData(CombatDomain.Surface, false, true)]
-    [InlineData(CombatDomain.Subsurface, true, false)]
-    public void Baltic_flag_off_zero_abort_delta_for_surface_and_subsurface_blocks(
+    [InlineData(CombatDomain.Surface, false, true, true, true, true)]
+    [InlineData(CombatDomain.Subsurface, true, false, true, true, true)]
+    [InlineData(CombatDomain.Land, true, true, false, true, true)]
+    [InlineData(CombatDomain.Facility, true, true, true, true, false)]
+    public void Baltic_flag_off_zero_abort_delta_for_domain_aspect_blocks(
         CombatDomain domain,
         bool surfaceAspectInEnvelope,
-        bool subsurfaceAspectInEnvelope)
+        bool subsurfaceAspectInEnvelope,
+        bool landAspectInEnvelope,
+        bool mineAspectInEnvelope,
+        bool facilityAspectInEnvelope)
     {
         var world = new DictionaryEngageWorldQuery();
         var magazines = new MagazineLedger();
@@ -285,7 +534,10 @@ public sealed class DomainValidatorRegistryTests
             true,
             CombatDomain: domain,
             SurfaceAspectInEnvelope: surfaceAspectInEnvelope,
-            SubsurfaceAspectInEnvelope: subsurfaceAspectInEnvelope);
+            SubsurfaceAspectInEnvelope: subsurfaceAspectInEnvelope,
+            LandAspectInEnvelope: landAspectInEnvelope,
+            MineAspectInEnvelope: mineAspectInEnvelope,
+            FacilityAspectInEnvelope: facilityAspectInEnvelope);
         world.Set(request, blockedCtx);
 
         var flagOffResolver = new MvpEngagementResolver(
@@ -314,6 +566,9 @@ public sealed class DomainValidatorRegistryTests
             FireAbortReason.AirAspectBlock => EngagementAbortReason.AirAspectBlock,
             FireAbortReason.SurfaceAspectBlock => EngagementAbortReason.SurfaceAspectBlock,
             FireAbortReason.SubsurfaceAspectBlock => EngagementAbortReason.SubsurfaceAspectBlock,
+            FireAbortReason.LandAspectBlock => EngagementAbortReason.LandAspectBlock,
+            FireAbortReason.MineAspectBlock => EngagementAbortReason.MineAspectBlock,
+            FireAbortReason.FacilityAspectBlock => EngagementAbortReason.FacilityAspectBlock,
             _ => EngagementAbortReason.DomainNoSolution,
         };
 

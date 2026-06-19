@@ -14,6 +14,9 @@ public sealed class ScenarioMetadataDto
     /// <summary>Maps to <c>data/scenarios/*.policy.json</c> id for harness sample runs.</summary>
     public string? PolicyId { get; init; }
 
+    /// <summary>Req-06 TL branch binding at scenario load (TL-0…TL-5); validated at load, not mid-tick.</summary>
+    public string? TlBranch { get; init; }
+
     /// <summary>Per-unit launch readiness for validation (req 16).</summary>
     public Dictionary<string, ScenarioUnitReadinessDto>? UnitReadiness { get; init; }
 

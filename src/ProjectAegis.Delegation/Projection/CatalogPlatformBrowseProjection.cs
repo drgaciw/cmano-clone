@@ -10,6 +10,9 @@ public sealed record CatalogPlatformBrowseRow(
     double? LonDeg,
     double? CombatRadiusNm,
     double? MaxHp,
+    double? Resilience,
+    double? WithdrawThresholdPct,
+    int? CriticalFlags,
     double? MaxSpeedKnots,
     int MountCount = 0,
     int SensorCount = 0);
@@ -41,6 +44,9 @@ public static class CatalogPlatformBrowseProjection
                     p.LonDeg,
                     p.CombatRadiusNm,
                     damage?.MaxHp,
+                    damage?.Resilience,
+                    damage?.WithdrawThresholdPct,
+                    damage?.CriticalFlags,
                     mobility?.MaxSpeedKnots,
                     mountCountById.GetValueOrDefault(p.PlatformId),
                     sensorCountById.GetValueOrDefault(p.PlatformId));
@@ -79,6 +85,9 @@ public static class CatalogPlatformBrowseProjection
                     hasPos ? lon : null,
                     hasRadius ? radius : null,
                     hasDamage ? damage.MaxHp : null,
+                    hasDamage ? damage.Resilience : null,
+                    hasDamage ? damage.WithdrawThresholdPct : null,
+                    hasDamage ? damage.CriticalFlags : null,
                     hasMobility ? mobility.MaxSpeedKnots : null,
                     mountCountById.GetValueOrDefault(id),
                     sensorCountById.GetValueOrDefault(id));

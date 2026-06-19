@@ -43,7 +43,7 @@
 |------|---------|---------|
 | Must-have | S29-01..04 | **PASS** |
 | Should-have | S29-05..08, S29-13 | **PASS** |
-| Nice-to-have | S29-09..11 | **DEFER** — cut line applied |
+| Nice-to-have | S29-09..11 | **PASS** — wave 3 delivered (hot-tick damage, balance drift pipeline, datalink side picture) |
 | Non-blocking | S29-12 (CI/local gate refresh) | **PASS** — doc-only; complete |
 
 ## Commands executed

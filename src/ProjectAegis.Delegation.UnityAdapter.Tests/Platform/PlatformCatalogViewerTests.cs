@@ -15,7 +15,11 @@ public sealed class PlatformCatalogViewerTests
         var bindings = platforms
             .Select(p => new CatalogSensorBinding(p.PlatformId, "radar-1", 1.0, $"baltic-fixture-{p.PlatformId}"))
             .ToArray();
-        var reader = new InMemoryCatalogReader(bindings, "p0-baltic-fixture", platforms);
+        var damage = new[]
+        {
+            new CatalogPlatformDamage("u1", MaxHp: 100, WithdrawThresholdPct: 25, CriticalFlags: 0, Resilience: 1.0),
+        };
+        var reader = new InMemoryCatalogReader(bindings, "p0-baltic-fixture", platforms, damage: damage);
         return CatalogPlatformBrowseProjection.FromReader(reader);
     }
 
@@ -71,6 +75,9 @@ public sealed class PlatformCatalogViewerTests
         Assert.That("platform-catalog-detail-lon", Is.EqualTo("platform-catalog-detail-lon"));
         Assert.That("platform-catalog-detail-radius", Is.EqualTo("platform-catalog-detail-radius"));
         Assert.That("platform-catalog-detail-hp", Is.EqualTo("platform-catalog-detail-hp"));
+        Assert.That("platform-catalog-detail-resilience", Is.EqualTo("platform-catalog-detail-resilience"));
+        Assert.That("platform-catalog-detail-withdraw", Is.EqualTo("platform-catalog-detail-withdraw"));
+        Assert.That("platform-catalog-detail-flags", Is.EqualTo("platform-catalog-detail-flags"));
         Assert.That("platform-catalog-detail-speed", Is.EqualTo("platform-catalog-detail-speed"));
         Assert.That("platform-catalog-export", Is.EqualTo("platform-catalog-export"));
         Assert.That("platform-catalog-diff", Is.EqualTo("platform-catalog-diff"));
@@ -103,6 +110,9 @@ public sealed class PlatformCatalogViewerTests
                      "platform-catalog-detail-lon",
                      "platform-catalog-detail-radius",
                      "platform-catalog-detail-hp",
+                     "platform-catalog-detail-resilience",
+                     "platform-catalog-detail-withdraw",
+                     "platform-catalog-detail-flags",
                      "platform-catalog-detail-speed",
                      "platform-catalog-export",
                      "platform-catalog-diff",
@@ -126,7 +136,30 @@ public sealed class PlatformCatalogViewerTests
         Assert.That(detail.LonLabel, Does.Contain(selected.LonDeg!.Value.ToString()));
         Assert.That(detail.CombatRadiusLabel, Does.Contain(selected.CombatRadiusNm!.Value.ToString()));
         Assert.That(detail.MaxHpLabel, Is.EqualTo("HP: —"));
+        Assert.That(detail.ResilienceLabel, Is.EqualTo("RESILIENCE: —"));
+        Assert.That(detail.WithdrawThresholdLabel, Is.EqualTo("WITHDRAW: —"));
+        Assert.That(detail.CriticalFlagsLabel, Is.EqualTo("FLAGS: —"));
         Assert.That(detail.MaxSpeedLabel, Is.EqualTo("SPEED: —"));
+    }
+
+    [Test]
+    public void Baltic_fixture_damage_row_surfaces_workbook_values_in_list_and_detail()
+    {
+        var rows = BalticBrowseRows();
+        var selected = rows.Single(r => r.PlatformId == "u1");
+
+        Assert.That(selected.MaxHp, Is.EqualTo(100));
+        Assert.That(selected.Resilience, Is.EqualTo(1.0));
+        Assert.That(selected.WithdrawThresholdPct, Is.EqualTo(25));
+        Assert.That(selected.CriticalFlags, Is.EqualTo(0));
+
+        var listLine = PlatformCatalogListProjection.FormatRow(selected);
+        Assert.That(listLine, Does.Contain("hp=100"));
+        Assert.That(listLine, Does.Contain("withdraw=25"));
+
+        var detail = PlatformCatalogDetailProjection.Format(selected);
+        Assert.That(detail.MaxHpLabel, Is.EqualTo("HP: 100"));
+        Assert.That(detail.WithdrawThresholdLabel, Is.EqualTo("WITHDRAW: 25%"));
     }
 
     [Test]
@@ -149,7 +182,11 @@ public sealed class PlatformCatalogViewerTests
         Assert.That(source, Does.Contain("PlatformCatalogDetailProjection.Format"));
         Assert.That(source, Does.Contain("CatalogPlatformBrowseRow"));
         Assert.That(source, Does.Contain("platform-catalog-detail-lat"));
+        Assert.That(source, Does.Contain("platform-catalog-detail-resilience"));
+        Assert.That(source, Does.Contain("platform-catalog-detail-withdraw"));
+        Assert.That(source, Does.Contain("platform-catalog-detail-flags"));
         Assert.That(source, Does.Contain("platform-catalog-detail-speed"));
+        Assert.That(source, Does.Contain("PlatformCatalogListProjection.FormatRow"));
         Assert.That(source, Does.Contain("platform-catalog-export"));
         Assert.That(source, Does.Contain("PlatformCatalogExportBridge"));
     }

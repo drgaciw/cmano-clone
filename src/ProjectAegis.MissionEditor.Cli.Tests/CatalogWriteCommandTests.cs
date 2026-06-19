@@ -92,6 +92,65 @@ public sealed class CatalogWriteCommandTests
     }
 
     [Fact]
+    public void catalog_write_approve_default_omits_balance_drift_advisory()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-balance-default-{Guid.NewGuid():N}.db");
+        try
+        {
+            using var proposeOut = new StringWriter();
+            Assert.Equal(0, CatalogWriteProposeCommand.Run(
+                dbPath, "u-cli-balance", "radar-balance", 0.55, proposeOut));
+            using var proposeDoc = JsonDocument.Parse(proposeOut.ToString());
+            var batchId = proposeDoc.RootElement.GetProperty("batchId").GetString();
+
+            using var approveOut = new StringWriter();
+            Assert.Equal(0, CatalogWriteApproveCommand.Run(dbPath, batchId!, approveOut));
+            using var approveDoc = JsonDocument.Parse(approveOut.ToString());
+            Assert.False(approveDoc.RootElement.TryGetProperty("balanceDriftAdvisory", out _));
+        }
+        finally
+        {
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Fact]
+    public void catalog_write_approve_enable_balance_drift_includes_advisory_payload()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-balance-enabled-{Guid.NewGuid():N}.db");
+        try
+        {
+            using var proposeOut = new StringWriter();
+            Assert.Equal(0, CatalogWriteProposeCommand.Run(
+                dbPath, "u-cli-balance-on", "radar-balance-on", 0.55, proposeOut));
+            using var proposeDoc = JsonDocument.Parse(proposeOut.ToString());
+            var batchId = proposeDoc.RootElement.GetProperty("batchId").GetString();
+
+            using var approveOut = new StringWriter();
+            Assert.Equal(0, CatalogWriteApproveCommand.Run(
+                dbPath,
+                batchId!,
+                approveOut,
+                enableBalanceDrift: true));
+
+            using var approveDoc = JsonDocument.Parse(approveOut.ToString());
+            var advisory = approveDoc.RootElement.GetProperty("balanceDriftAdvisory");
+            Assert.True(advisory.GetProperty("driftDetectionEnabled").GetBoolean());
+            Assert.Equal(0, advisory.GetProperty("findingCount").GetInt32());
+        }
+        finally
+        {
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Fact]
     public void catalog_write_approve_missing_db_returns_error()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-missing-{Guid.NewGuid():N}.db");

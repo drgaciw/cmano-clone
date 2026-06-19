@@ -1,16 +1,17 @@
 # GitNexus + filesystem snapshot for dashboard delta comparison.
-# Updated by /project-dashboard 2026-06-04 pm.
+# Updated by /project-dashboard 2026-06-19 pm.
 
 last_run:
-  timestamp: "2026-06-04T19:52:00Z"
+  timestamp: "2026-06-19T12:00:00Z"
   label: pm
-  compared_to_baseline: docs/reports/dashboard-snapshots/2026-05-31-initial.md
+  compared_to_baseline: docs/reports/project-dashboard.md
+  compared_to_prior: docs/reports/dashboard-snapshots/2026-06-04-pm.md
 
 gitnexus:
-  indexed_commit: "ff49ef2"
-  nodes: 6220
-  edges: 15105
-  clusters: 157
+  indexed_commit: "d3db76d"
+  nodes: 14424
+  edges: 29218
+  clusters: null
   flows: 300
   index_status: fresh
   changed_symbols_count: null
@@ -23,22 +24,22 @@ gitnexus:
     SqliteCatalogReader: CRITICAL
 
 filesystem:
-  sprint_plans: 10
+  sprint_plans: 32
   sprint_status_yaml: true
   stage_txt: true
-  milestones: 1
-  epics: 15
-  stories: 27
-  tests_total: 351
-  gdd_files: 15
+  milestones: 2
+  epics: 49
+  stories: 132
+  tests_total: 1006
+  gdd_files: 18
   gdd_systems_with_docs: 12
   gdd_systems_total: 20
-  adrs: 10
-  architecture_files: 12
-  production_qa_files: 6
+  adrs: 11
+  architecture_files: 13
+  production_qa_files: 40
   determinism_audits: 2
-  test_files: 207
-  source_files: 368
+  test_files: 310
+  source_files: 523
   requirements_files: 26
   asset_manifest_exists: false
   vertical_slice_gate: PROCEED
@@ -60,14 +61,18 @@ plans:
     note: stale — implementation largely complete
 
 sprint:
-  current: requirements-wave
-  sprints_headless_complete: 10
-  sprint_status_done_entries: 54
-  latest_requirement_prs: [63, 64, 65, 66, 67, 68]
-  qa_unity_manual: pending
+  current: 32
+  sprints_documented: 32
+  sprints_complete_through: 31
+  sprint_31_stories: "12/13 (S31-12 deferred)"
+  sprint_32_stories: "1/13 (S32-01 done)"
+  sprint_status_done_entries: 245
+  qa_unity_manual: pass_with_notes_16_of_16
 
 requirements:
   docs_complete: 20
-  mvp_partial: 19
-  mvp_not_started: 1
-  req_06_p0: merged
+  mvp_partial: 20
+  mvp_not_started: 0
+  req_06_corpus_approve: complete_off_ci
+  req_18_combat_phase: 5
+  req_21_platform_editor: phase_e_plus_presentation

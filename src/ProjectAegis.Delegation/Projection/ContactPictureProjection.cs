@@ -57,14 +57,14 @@ public static class ContactPictureProjection
 
         var basePicture = Project(contactEntries);
         var contactByTargetId = basePicture.ToDictionary(c => c.TargetId, StringComparer.Ordinal);
-        var bdaLost = OrderLogBdaProjection.ProjectLostContacts(log, contactByTargetId);
-        if (bdaLost.Count == 0)
+        var bdaChanges = OrderLogBdaProjection.ProjectBdaContactChanges(log, contactByTargetId);
+        if (bdaChanges.Count == 0)
         {
             return basePicture;
         }
 
         var mergedEntries = contactEntries
-            .Concat(bdaLost.Select(c => OrderLogEntryFactories.FromContactChange(c)))
+            .Concat(bdaChanges.Select(c => OrderLogEntryFactories.FromContactChange(c)))
             .OrderBy(e => e.SimTime)
             .ThenBy(e => e.SequenceId)
             .ToArray();

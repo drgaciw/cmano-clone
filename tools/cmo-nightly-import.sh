@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# S28-02 / S29-03 — Off-CI nightly CMO corpus propose-only import (sensor + weapon v1 + platform v2).
+# S28-02 / S29-03 / S30-04 / S30-11 — Off-CI nightly CMO corpus propose-only import.
 # Not wired into dotnet test CI. Approve via tools/cmo-nightly-approve.sh or catalog_write_approve.
 set -euo pipefail
 
@@ -17,7 +17,7 @@ Off-CI nightly CMO corpus propose-only import. Stages batches in a scratch DB;
 approve via tools/cmo-nightly-approve.sh (or catalog_write_approve) before any catalog commit.
 
 Options:
-  --entity <sensor|weapon|platform|all>  Entities to import (default: all)
+  --entity <sensor|weapon|platform|aircraft|submarine|facility|all>  Entities to import (default: all)
   --chunk-size <N>                       Records per batch (default: 500)
   --max-records <N>                      Cap parsed records per entity (smoke/CI gate)
   --propose-only                         Propose-only mode (default; no auto-approve)
@@ -25,12 +25,14 @@ Options:
   -h, --help                             Show this help
 
 Environment overrides:
-  CHUNK_SIZE, MAX_RECORDS, PLATFORM_MD
+  CHUNK_SIZE, MAX_RECORDS, PLATFORM_MD, AIRCRAFT_MD, SUBMARINE_MD, FACILITY_MD
 
 Examples:
   MAX_RECORDS=12 ./tools/cmo-nightly-import.sh
   ./tools/cmo-nightly-import.sh --entity platform --chunk-size 500 --propose-only
-  ./tools/cmo-nightly-import.sh --dry-run --entity platform --max-records 12
+  ./tools/cmo-nightly-import.sh --entity aircraft --dry-run
+  AIRCRAFT_MD=tools/cmano-db-crawler/fixtures/aircraft-slice-100.md \
+    MAX_RECORDS=12 ./tools/cmo-nightly-import.sh --entity aircraft --propose-only
 EOF
 }
 
@@ -43,7 +45,7 @@ DRY_RUN=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --entity)
-      ENTITY="${2:?--entity requires sensor|weapon|platform|all}"
+      ENTITY="${2:?--entity requires sensor|weapon|platform|aircraft|submarine|facility|all}"
       shift 2
       ;;
     --chunk-size)
@@ -75,9 +77,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "${ENTITY}" in
-  sensor|weapon|platform|all) ;;
+  sensor|weapon|platform|aircraft|submarine|facility|all) ;;
   *)
-    echo "Invalid --entity '${ENTITY}'. Use sensor, weapon, platform, or all." >&2
+    echo "Invalid --entity '${ENTITY}'. Use sensor, weapon, platform, aircraft, submarine, facility, or all." >&2
     exit 1
     ;;
 esac
@@ -93,7 +95,13 @@ DB_PATH="${SCRATCH_DIR}/catalog-proposed.db"
 SENSOR_MD="${REPO_ROOT}/docs/reference/cmano-db/sensor.md"
 WEAPON_MD="${REPO_ROOT}/docs/reference/cmano-db/weapon.md"
 PLATFORM_MD="${PLATFORM_MD:-${REPO_ROOT}/docs/reference/cmano-db/ship.md}"
+AIRCRAFT_MD="${AIRCRAFT_MD:-${REPO_ROOT}/docs/reference/cmano-db/aircraft.md}"
+SUBMARINE_MD="${SUBMARINE_MD:-${REPO_ROOT}/docs/reference/cmano-db/submarine.md}"
+FACILITY_MD="${FACILITY_MD:-${REPO_ROOT}/docs/reference/cmano-db/facility.md}"
 SHIP_SLICE_MD="${REPO_ROOT}/tools/cmano-db-crawler/fixtures/ship-slice-100.md"
+AIRCRAFT_SLICE_MD="${REPO_ROOT}/tools/cmano-db-crawler/fixtures/aircraft-slice-100.md"
+SUBMARINE_SLICE_MD="${REPO_ROOT}/tools/cmano-db-crawler/fixtures/submarine-slice-100.md"
+FACILITY_SLICE_MD="${REPO_ROOT}/tools/cmano-db-crawler/fixtures/facility-slice-100.md"
 CLI_PROJECT="src/ProjectAegis.MissionEditor.Cli/ProjectAegis.MissionEditor.Cli.csproj"
 
 entity_selected() {
@@ -153,6 +161,39 @@ if entity_selected platform; then
   fi
 fi
 
+if entity_selected aircraft; then
+  if [[ ! -f "${AIRCRAFT_MD}" ]]; then
+    echo "Missing aircraft corpus: ${AIRCRAFT_MD}" >&2
+    exit 1
+  fi
+  if [[ ! -f "${AIRCRAFT_SLICE_MD}" ]]; then
+    echo "Missing curated aircraft fixture: ${AIRCRAFT_SLICE_MD}" >&2
+    exit 1
+  fi
+fi
+
+if entity_selected submarine; then
+  if [[ ! -f "${SUBMARINE_MD}" ]]; then
+    echo "Missing submarine corpus: ${SUBMARINE_MD}" >&2
+    exit 1
+  fi
+  if [[ ! -f "${SUBMARINE_SLICE_MD}" ]]; then
+    echo "Missing curated submarine fixture: ${SUBMARINE_SLICE_MD}" >&2
+    exit 1
+  fi
+fi
+
+if entity_selected facility; then
+  if [[ ! -f "${FACILITY_MD}" ]]; then
+    echo "Missing facility corpus: ${FACILITY_MD}" >&2
+    exit 1
+  fi
+  if [[ ! -f "${FACILITY_SLICE_MD}" ]]; then
+    echo "Missing curated facility fixture: ${FACILITY_SLICE_MD}" >&2
+    exit 1
+  fi
+fi
+
 echo "==> Nightly CMO import (propose-only) @ ${RUN_DATE}"
 echo "    DB: ${DB_PATH}"
 echo "    Entity: ${ENTITY}"
@@ -182,6 +223,21 @@ if entity_selected platform; then
   echo "    Curated fixture (CI gate): ${SHIP_SLICE_MD}"
 fi
 
+if entity_selected aircraft; then
+  import_entity aircraft "${AIRCRAFT_MD}"
+  echo "    Curated fixture (CI gate): ${AIRCRAFT_SLICE_MD}"
+fi
+
+if entity_selected submarine; then
+  import_entity submarine "${SUBMARINE_MD}"
+  echo "    Curated fixture (CI gate): ${SUBMARINE_SLICE_MD}"
+fi
+
+if entity_selected facility; then
+  import_entity facility "${FACILITY_MD}"
+  echo "    Curated fixture (CI gate): ${FACILITY_SLICE_MD}"
+fi
+
 if [[ "${DRY_RUN}" -eq 1 ]]; then
   echo "==> Dry-run complete. Paths validated; no batches staged."
   exit 0
@@ -197,4 +253,13 @@ if entity_selected weapon; then
 fi
 if entity_selected platform; then
   echo "    Platform report: ${SCRATCH_DIR}/platform-quarantine.json"
+fi
+if entity_selected aircraft; then
+  echo "    Aircraft report: ${SCRATCH_DIR}/aircraft-quarantine.json"
+fi
+if entity_selected submarine; then
+  echo "    Submarine report: ${SCRATCH_DIR}/submarine-quarantine.json"
+fi
+if entity_selected facility; then
+  echo "    Facility report: ${SCRATCH_DIR}/facility-quarantine.json"
 fi

@@ -29,7 +29,10 @@ public static class CatalogImportMarkdownCommand
                 markdownPath,
                 maxRecords,
                 chunkSize),
-            CmoMarkdownImportEntity.Platform => CmoMarkdownImportProposer.ProposePlatformsFromMarkdown(
+            CmoMarkdownImportEntity.Platform or
+            CmoMarkdownImportEntity.Aircraft or
+            CmoMarkdownImportEntity.Submarine or
+            CmoMarkdownImportEntity.Facility => CmoMarkdownImportProposer.ProposePlatformsFromMarkdown(
                 databasePath,
                 markdownPath,
                 mapBalticPlatformIds,
@@ -96,8 +99,12 @@ public static class CatalogImportMarkdownCommand
         {
             "weapon" or "weapons" => CmoMarkdownImportEntity.Weapon,
             "platform" or "platforms" => CmoMarkdownImportEntity.Platform,
+            "aircraft" or "aircrafts" => CmoMarkdownImportEntity.Aircraft,
+            "submarine" or "submarines" => CmoMarkdownImportEntity.Submarine,
+            "facility" or "facilities" => CmoMarkdownImportEntity.Facility,
             "sensor" or "sensors" => CmoMarkdownImportEntity.Sensor,
-            _ => throw new ArgumentException($"Unknown --entity '{raw}'. Use sensor, weapon, or platform."),
+            _ => throw new ArgumentException(
+                $"Unknown --entity '{raw}'. Use sensor, weapon, platform, aircraft, submarine, or facility."),
         };
     }
 }

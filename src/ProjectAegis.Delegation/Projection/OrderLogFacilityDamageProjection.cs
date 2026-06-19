@@ -2,17 +2,19 @@ namespace ProjectAegis.Delegation.Projection;
 
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
+using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Engage;
 
-/// <summary>Order-log-only facility damage: sorted hit/kill outcomes emit capacity change rows (ADR-009 / TR-combat-dom-003).</summary>
+/// <summary>Order-log facility damage: HP-ledger projection (S31-05) with S28-09 outcome fallback.</summary>
 public static class OrderLogFacilityDamageProjection
 {
     public static IReadOnlyList<FacilityDamageChangeRecord> ProjectDamageChanges(
         DecisionLog log,
         IReadOnlyDictionary<string, FacilityPictureEntry> facilityByTargetId) =>
-        ProjectDamageChanges(log.EngagementOutcomes, facilityByTargetId);
+        ProjectDamageChanges(log.PlatformDamageChanges, log.EngagementOutcomes, facilityByTargetId);
 
     public static IReadOnlyList<FacilityDamageChangeRecord> ProjectDamageChanges(
+        IReadOnlyList<PlatformDamageChangeRecord> platformDamageChanges,
         IReadOnlyList<EngagementOutcomeRecord> outcomes,
         IReadOnlyDictionary<string, FacilityPictureEntry> facilityByTargetId)
     {
@@ -21,6 +23,69 @@ public static class OrderLogFacilityDamageProjection
             return Array.Empty<FacilityDamageChangeRecord>();
         }
 
+        var facilityHpChanges = platformDamageChanges
+            .Where(c => facilityByTargetId.ContainsKey(c.UnitId.Value))
+            .OrderBy(c => c.SimTick)
+            .ThenBy(c => c.SequenceId)
+            .ToArray();
+        if (facilityHpChanges.Length > 0)
+        {
+            return ProjectDamageChangesFromHpLedger(facilityHpChanges, facilityByTargetId);
+        }
+
+        return ProjectDamageChangesFromOutcomes(outcomes, facilityByTargetId);
+    }
+
+    public static IReadOnlyList<FacilityDamageChangeRecord> ProjectDamageChanges(
+        IReadOnlyList<EngagementOutcomeRecord> outcomes,
+        IReadOnlyDictionary<string, FacilityPictureEntry> facilityByTargetId) =>
+        ProjectDamageChangesFromOutcomes(outcomes, facilityByTargetId);
+
+    private static IReadOnlyList<FacilityDamageChangeRecord> ProjectDamageChangesFromHpLedger(
+        IReadOnlyList<PlatformDamageChangeRecord> hpChanges,
+        IReadOnlyDictionary<string, FacilityPictureEntry> facilityByTargetId)
+    {
+        var changes = new List<FacilityDamageChangeRecord>(hpChanges.Count);
+        var capacityByTargetId = facilityByTargetId.ToDictionary(
+            kvp => kvp.Key,
+            kvp => kvp.Value.CapacityState,
+            StringComparer.Ordinal);
+
+        foreach (var hpChange in hpChanges)
+        {
+            var targetId = hpChange.UnitId.Value;
+            if (!facilityByTargetId.TryGetValue(targetId, out var facility))
+            {
+                continue;
+            }
+
+            var previous = capacityByTargetId.GetValueOrDefault(targetId, FacilityCapacityStates.Operational);
+            var nextHpCapacity = FacilityHpCapacity.MapHpPctToCapacityState(hpChange.NewHpPct);
+
+            if (!FacilityHpCapacity.ShouldEmitCapacityTransition(previous, nextHpCapacity))
+            {
+                continue;
+            }
+
+            changes.Add(new FacilityDamageChangeRecord(
+                hpChange.SequenceId,
+                hpChange.SimTime,
+                hpChange.SimTick,
+                facility.FacilityId,
+                facility.TargetId,
+                previous,
+                nextHpCapacity));
+
+            capacityByTargetId[targetId] = nextHpCapacity;
+        }
+
+        return changes;
+    }
+
+    private static IReadOnlyList<FacilityDamageChangeRecord> ProjectDamageChangesFromOutcomes(
+        IReadOnlyList<EngagementOutcomeRecord> outcomes,
+        IReadOnlyDictionary<string, FacilityPictureEntry> facilityByTargetId)
+    {
         var damageOutcomes = outcomes
             .Where(o =>
                 (o.OutcomeCode == EngagementOutcomeCodes.Hit || o.OutcomeCode == EngagementOutcomeCodes.Kill) &&

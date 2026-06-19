@@ -35,4 +35,30 @@ public static class CatalogTlTier
         !string.IsNullOrWhiteSpace(tier) && All.Contains(tier.Trim(), StringComparer.Ordinal);
 
     public static string Normalize(string? tier) => IsValid(tier) ? tier!.Trim() : Default;
+
+    /// <summary>Ordinal index for TL-0…TL-5 (0-based). Unknown tiers map to TL-0.</summary>
+    public static int ToOrdinal(string? tier)
+    {
+        var normalized = Normalize(tier);
+        for (var i = 0; i < All.Count; i++)
+        {
+            if (string.Equals(All[i], normalized, StringComparison.Ordinal))
+            {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    public static string FromOrdinal(int ordinal) =>
+        All[Math.Clamp(ordinal, 0, All.Count - 1)];
+
+    /// <summary>True when <paramref name="recordTier"/> is at or below the export ceiling <paramref name="maxTier"/>.</summary>
+    public static bool IsAtOrBelow(string? recordTier, string? maxTier) =>
+        ToOrdinal(recordTier) <= ToOrdinal(maxTier);
+
+    /// <summary>Clamp game technology level (0–5) to a TL label.</summary>
+    public static string FromGameTechnologyLevel(int gameTechnologyLevel) =>
+        FromOrdinal(Math.Clamp(gameTechnologyLevel, 0, 5));
 }

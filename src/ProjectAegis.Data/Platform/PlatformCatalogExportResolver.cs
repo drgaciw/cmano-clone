@@ -8,7 +8,11 @@ using ProjectAegis.Data.Catalog;
 /// </summary>
 public static class PlatformCatalogExportResolver
 {
-    public static bool TryResolve(string? dbPath, string snapshotId, out PlatformCatalogExportData data)
+    public static bool TryResolve(
+        string? dbPath,
+        string snapshotId,
+        out PlatformCatalogExportData data,
+        string? maxTlTier = null)
     {
         data = PlatformCatalogExportData.Empty;
         if (string.IsNullOrWhiteSpace(dbPath) || !File.Exists(dbPath))
@@ -22,7 +26,7 @@ public static class PlatformCatalogExportResolver
             return false;
         }
 
-        data = reader.LoadExportData();
+        data = reader.LoadExportData(maxTlTier);
         return true;
     }
 }

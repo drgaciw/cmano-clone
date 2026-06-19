@@ -4,6 +4,7 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Sim.Catalog;
+using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>Ledger-backed catalog hot-tick damage apply and withdraw trial refresh (S29-09).</summary>
@@ -11,34 +12,49 @@ public sealed class CatalogDamageHotTickTracker
 {
     private readonly PlatformHpLedger _ledger;
     private readonly ICatalogReader _catalog;
+    private readonly ScenarioMineHazardSettings? _mineHazard;
+    private readonly SimSeed _seed;
 
     public CatalogDamageHotTickTracker(
         PlatformHpLedger ledger,
-        ICatalogReader catalog)
+        ICatalogReader catalog,
+        SimSeed seed,
+        ScenarioMineHazardSettings? mineHazard = null)
     {
         _ledger = ledger;
         _catalog = catalog;
+        _seed = seed;
+        _mineHazard = mineHazard;
     }
 
     public static CatalogDamageHotTickTracker? TryCreate(
         ScenarioPolicyProfile? profile,
         bool combatDomainsEnabled,
-        ICatalogReader? catalog)
+        ICatalogReader? catalog,
+        int globalSeed)
     {
         if (profile == null || catalog == null)
         {
             return null;
         }
 
-        if (!CatalogDamageHotTickApplier.IsEnabled(
-                combatDomainsEnabled,
-                profile.CatalogWithdrawTargets.Count))
+        var catalogHotTickEnabled = CatalogDamageHotTickApplier.IsEnabled(
+            combatDomainsEnabled,
+            profile.CatalogWithdrawTargets.Count);
+        var mineHazardEnabled = MineTransitHazardHotTickApplier.IsEnabled(
+            combatDomainsEnabled,
+            profile.MineHazard);
+        if (!catalogHotTickEnabled && !mineHazardEnabled)
         {
             return null;
         }
 
         var ledger = PlatformHpLedger.SeedFromWithdrawTargets(profile.CatalogWithdrawTargets);
-        return new CatalogDamageHotTickTracker(ledger, catalog);
+        return new CatalogDamageHotTickTracker(
+            ledger,
+            catalog,
+            SimSeed.FromScenario((ulong)globalSeed),
+            profile.MineHazard);
     }
 
     public PlatformHpLedger Ledger => _ledger;
@@ -59,6 +75,19 @@ public sealed class CatalogDamageHotTickTracker
             changes.Add(ToRecord(simTick, simTime, change));
         }
 
+        if (_mineHazard != null)
+        {
+            foreach (var change in MineTransitHazardHotTickApplier.ApplyTransitHazardTick(
+                         _seed,
+                         simTick,
+                         _ledger,
+                         _catalog,
+                         _mineHazard))
+            {
+                changes.Add(ToRecord(simTick, simTime, change));
+            }
+        }
+
         var trials = CatalogDamageHotTickApplier.ResolveWithdrawTrials(_ledger, _catalog);
         return new CatalogDamageHotTickTickResult(changes, trials, _ledger.ComputeWorldHashMix());
     }
@@ -74,7 +103,8 @@ public sealed class CatalogDamageHotTickTracker
             new TargetId(change.PlatformId),
             change.PreviousHpPct,
             change.NewHpPct,
-            change.ReasonCode);
+            change.ReasonCode,
+            change.DamageLevel);
 }
 
 public sealed record CatalogDamageHotTickTickResult(

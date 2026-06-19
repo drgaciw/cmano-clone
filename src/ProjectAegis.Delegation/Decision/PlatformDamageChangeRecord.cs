@@ -10,4 +10,5 @@ public sealed record PlatformDamageChangeRecord(
     TargetId UnitId,
     double PreviousHpPct,
     double NewHpPct,
-    string ReasonCode);
+    string ReasonCode,
+    int DamageLevel = 0);

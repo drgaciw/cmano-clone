@@ -24,7 +24,12 @@ namespace ProjectAegis.Unity.Runtime
         private const string DetailLonName = "platform-catalog-detail-lon";
         private const string DetailRadiusName = "platform-catalog-detail-radius";
         private const string DetailHpName = "platform-catalog-detail-hp";
+        private const string DetailResilienceName = "platform-catalog-detail-resilience";
+        private const string DetailWithdrawName = "platform-catalog-detail-withdraw";
+        private const string DetailFlagsName = "platform-catalog-detail-flags";
         private const string DetailSpeedName = "platform-catalog-detail-speed";
+        private const string CommsListName = "platform-catalog-comms-list";
+        private const string LinksListName = "platform-catalog-links-list";
 
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;
@@ -43,10 +48,20 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _detailLon;
         private Label? _detailRadius;
         private Label? _detailHp;
+        private Label? _detailResilience;
+        private Label? _detailWithdraw;
+        private Label? _detailFlags;
         private Label? _detailSpeed;
+        private ListView? _commsList;
+        private ListView? _linksList;
         private IReadOnlyList<CatalogPlatformBrowseRow> _allRows = Array.Empty<CatalogPlatformBrowseRow>();
+        private IReadOnlyList<CatalogCommsBinding> _allComms = Array.Empty<CatalogCommsBinding>();
+        private IReadOnlyList<CatalogLinkEntry> _allLinks = Array.Empty<CatalogLinkEntry>();
+        private IReadOnlyDictionary<string, string> _linkDisplayNames = new Dictionary<string, string>();
         private List<CatalogPlatformBrowseRow> _filteredRows = new();
         private List<string> _displayItems = new();
+        private List<string> _commsDisplayItems = new();
+        private List<string> _linksDisplayItems = new();
         private bool _wired;
 
         private void Awake()
@@ -70,7 +85,10 @@ namespace ProjectAegis.Unity.Runtime
             ApplyPanelVisibility();
         }
 
-        public void BindRows(IReadOnlyList<CatalogPlatformBrowseRow> rows)
+        public void BindRows(
+            IReadOnlyList<CatalogPlatformBrowseRow> rows,
+            IReadOnlyList<CatalogCommsBinding>? comms = null,
+            IReadOnlyList<CatalogLinkEntry>? links = null)
         {
             if (_document == null)
             {
@@ -78,13 +96,19 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _allRows = rows;
+            _allComms = comms ?? Array.Empty<CatalogCommsBinding>();
+            _allLinks = links ?? Array.Empty<CatalogLinkEntry>();
+            _linkDisplayNames = CatalogLinkListProjection.BuildDisplayNameLookup(_allLinks);
             TryWireElements();
             RefreshList();
             ApplyPanelVisibility();
         }
 
         public void BindReader(ICatalogReader reader) =>
-            BindRows(CatalogPlatformBrowseProjection.FromReader(reader));
+            BindRows(
+                CatalogPlatformBrowseProjection.FromReader(reader),
+                reader.GetSortedComms(),
+                CatalogLinkListProjection.FromReader(reader));
 
         public void BindExportContext(string databasePath, string? snapshotId = null)
         {
@@ -153,7 +177,42 @@ namespace ProjectAegis.Unity.Runtime
             _detailLon ??= root.Q<Label>(DetailLonName);
             _detailRadius ??= root.Q<Label>(DetailRadiusName);
             _detailHp ??= root.Q<Label>(DetailHpName);
+            _detailResilience ??= root.Q<Label>(DetailResilienceName);
+            _detailWithdraw ??= root.Q<Label>(DetailWithdrawName);
+            _detailFlags ??= root.Q<Label>(DetailFlagsName);
             _detailSpeed ??= root.Q<Label>(DetailSpeedName);
+
+            if (_commsList == null)
+            {
+                _commsList = root.Q<ListView>(CommsListName);
+                if (_commsList != null)
+                {
+                    _commsList.makeItem = () => new Label();
+                    _commsList.bindItem = (element, index) =>
+                    {
+                        if (element is Label label && index >= 0 && index < _commsDisplayItems.Count)
+                        {
+                            label.text = _commsDisplayItems[index];
+                        }
+                    };
+                }
+            }
+
+            if (_linksList == null)
+            {
+                _linksList = root.Q<ListView>(LinksListName);
+                if (_linksList != null)
+                {
+                    _linksList.makeItem = () => new Label();
+                    _linksList.bindItem = (element, index) =>
+                    {
+                        if (element is Label label && index >= 0 && index < _linksDisplayItems.Count)
+                        {
+                            label.text = _linksDisplayItems[index];
+                        }
+                    };
+                }
+            }
 
             _wired = _platformList != null;
         }
@@ -232,6 +291,7 @@ namespace ProjectAegis.Unity.Runtime
                 ? _filteredRows[index]
                 : null;
             BindDetail(row);
+            BindComms(row?.PlatformId);
         }
 
         private void BindDetail(CatalogPlatformBrowseRow? row)
@@ -257,9 +317,51 @@ namespace ProjectAegis.Unity.Runtime
                 _detailHp.text = detail.MaxHpLabel;
             }
 
+            if (_detailResilience != null)
+            {
+                _detailResilience.text = detail.ResilienceLabel;
+            }
+
+            if (_detailWithdraw != null)
+            {
+                _detailWithdraw.text = detail.WithdrawThresholdLabel;
+            }
+
+            if (_detailFlags != null)
+            {
+                _detailFlags.text = detail.CriticalFlagsLabel;
+            }
+
             if (_detailSpeed != null)
             {
                 _detailSpeed.text = detail.MaxSpeedLabel;
+            }
+        }
+
+        private void BindComms(string? platformId)
+        {
+            var fittings = string.IsNullOrWhiteSpace(platformId)
+                ? Array.Empty<CatalogCommsBinding>()
+                : CatalogPlatformCommsProjection.ForPlatform(_allComms, platformId);
+            _commsDisplayItems = PlatformCommsListProjection
+                .FormatRows(fittings, _linkDisplayNames)
+                .ToList();
+
+            if (_commsList != null)
+            {
+                _commsList.itemsSource = _commsDisplayItems;
+                _commsList.Rebuild();
+            }
+        }
+
+        private void BindLinks()
+        {
+            _linksDisplayItems = PlatformLinkListProjection.FormatRows(_allLinks).ToList();
+
+            if (_linksList != null)
+            {
+                _linksList.itemsSource = _linksDisplayItems;
+                _linksList.Rebuild();
             }
         }
 
@@ -267,7 +369,7 @@ namespace ProjectAegis.Unity.Runtime
         {
             _filteredRows = PlatformCatalogFilterProjection.Apply(_allRows, _searchField?.value).ToList();
             _displayItems = _filteredRows
-                .Select(r => $"{r.PlatformId} hp={r.MaxHp} speed={r.MaxSpeedKnots} mounts={r.MountCount} sensors={r.SensorCount}")
+                .Select(PlatformCatalogListProjection.FormatRow)
                 .ToList();
 
             if (_platformList != null)
@@ -278,6 +380,8 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             BindDetail(null);
+            BindComms(null);
+            BindLinks();
         }
 
         private void ApplyPanelVisibility()

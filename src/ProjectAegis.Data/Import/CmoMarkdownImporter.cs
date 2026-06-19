@@ -61,9 +61,46 @@ public static class CmoMarkdownImporter
         CatalogJsonImporter.ResolveRepoRelative(
             Path.Combine("tools", "cmano-db-crawler", "fixtures", "ship-slice-100.md"));
 
+    public static string ResolveAircraftSlice100FixturePath() =>
+        CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("tools", "cmano-db-crawler", "fixtures", "aircraft-slice-100.md"));
+
+    public static string ResolveSubmarineSlice100FixturePath() =>
+        CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("tools", "cmano-db-crawler", "fixtures", "submarine-slice-100.md"));
+
+    public static string ResolveFacilitySlice100FixturePath() =>
+        CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("tools", "cmano-db-crawler", "fixtures", "facility-slice-100.md"));
+
     public static string ResolveReferenceSensorMarkdownPath() =>
         CatalogJsonImporter.ResolveRepoRelative(
             Path.Combine("docs", "reference", "cmano-db", "sensor.md"));
+
+    /// <summary>Full platform corpus for off-CI nightly propose→approve (S30-04; 4844 records).</summary>
+    public static string ResolveReferenceShipMarkdownPath() =>
+        CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("docs", "reference", "cmano-db", "ship.md"));
+
+    /// <summary>Full aircraft corpus for off-CI nightly propose→approve (S30-11; 7387 records).</summary>
+    public static string ResolveReferenceAircraftMarkdownPath() =>
+        CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("docs", "reference", "cmano-db", "aircraft.md"));
+
+    /// <summary>Full submarine corpus for off-CI nightly propose→approve (S30-11; 732 records).</summary>
+    public static string ResolveReferenceSubmarineMarkdownPath() =>
+        CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("docs", "reference", "cmano-db", "submarine.md"));
+
+    /// <summary>Full facility corpus for off-CI nightly propose→approve (S30-11; 4511 records).</summary>
+    public static string ResolveReferenceFacilityMarkdownPath() =>
+        CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("docs", "reference", "cmano-db", "facility.md"));
+
+    /// <summary>Full weapon corpus for off-CI nightly propose→approve (S31-10; 4403 records).</summary>
+    public static string ResolveReferenceWeaponMarkdownPath() =>
+        CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("docs", "reference", "cmano-db", "weapon.md"));
 
     public static IReadOnlyList<CatalogSensorBinding> ReadSensorBindings(
         string markdownPath,

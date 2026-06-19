@@ -9,4 +9,5 @@ public sealed record CatalogPlatformDamage(
     string ReviewState = CatalogReviewStates.Provisional,
     int TrlLevel = 9,
     string ValueTier = CatalogProvenanceTier.GameplayAbstraction,
-    string CitationRef = "");
+    string CitationRef = "",
+    double Resilience = 1.0);

@@ -52,7 +52,11 @@ public static class DeterministicDetectionLoop
                     ScenarioJamResolver.ResolveJam(trial.ObserverId, trial.TargetId, simTick, jammers));
             }
 
-            var pd = DetectionProbability.ComputePd(trial.BasePd, trial.EnvMask, jamStrength: jamStrength);
+            var pd = DetectionProbability.ComputePd(
+                trial.BasePd,
+                trial.EnvMask,
+                trial.EccmFactor,
+                jamStrength: jamStrength);
             var entityId = DetectionEntityId.FromTrial(trial.ObserverId, trial.SensorId, trial.TargetId);
             var draw = SeededRng.UnitFloat(seed, RngDomain.Detection, entityId, simTick, drawIndex++);
             var detected = draw < pd;

@@ -10,20 +10,19 @@ using ProjectAegis.Sim.Scenario;
 /// </summary>
 public static class CatalogDamageHotTickApplier
 {
-    /// <summary>Bounded light damage per Hit outcome (MVP platform level).</summary>
-    public const double HitDamageHpPct = 25.0;
-
     public sealed record OutcomeApply(
         string VictimPlatformId,
         ulong EngagementId,
         ulong SequenceId,
-        string OutcomeCode);
+        string OutcomeCode,
+        double HitSeverity = CombatDamageLevel.DefaultHitSeverity);
 
     public sealed record DamageChange(
         string PlatformId,
         double PreviousHpPct,
         double NewHpPct,
-        string ReasonCode);
+        string ReasonCode,
+        int DamageLevel = 0);
 
     public static bool IsEnabled(bool combatDomainsEnabled, int catalogWithdrawTargetCount) =>
         combatDomainsEnabled && catalogWithdrawTargetCount > 0;
@@ -72,6 +71,28 @@ public static class CatalogDamageHotTickApplier
         return changes;
     }
 
+    /// <summary>
+    /// Facility-domain slice: apply only outcomes whose victim is a known facility target id.
+    /// Reuses <see cref="ApplySortedOutcomes"/> + <see cref="DeterministicDamageApplyBatch"/> ordering.
+    /// </summary>
+    public static IReadOnlyList<DamageChange> ApplySortedFacilityOutcomes(
+        PlatformHpLedger ledger,
+        ICatalogReader catalog,
+        IReadOnlyList<OutcomeApply> outcomes,
+        IEnumerable<string> facilityTargetIds)
+    {
+        var facilitySet = new HashSet<string>(facilityTargetIds);
+        if (facilitySet.Count == 0 || outcomes.Count == 0)
+        {
+            return Array.Empty<DamageChange>();
+        }
+
+        var filtered = outcomes
+            .Where(o => facilitySet.Contains(o.VictimPlatformId))
+            .ToArray();
+        return ApplySortedOutcomes(ledger, catalog, filtered);
+    }
+
     public static IReadOnlyList<DamageChange> ApplySortedOutcomes(
         PlatformHpLedger ledger,
         ICatalogReader catalog,
@@ -104,15 +125,20 @@ public static class CatalogDamageHotTickApplier
                 continue;
             }
 
-            if (!catalog.TryGetPlatformDamage(platformId, out _))
+            if (!catalog.TryGetPlatformDamage(platformId, out var damage))
             {
                 continue;
             }
 
+            var damageLevel = 0;
             var newHp = outcome.OutcomeCode switch
             {
                 EngagementOutcomeCodes.Kill => 0.0,
-                EngagementOutcomeCodes.Hit => Math.Max(0.0, previousHp - HitDamageHpPct),
+                EngagementOutcomeCodes.Hit => ApplyHitHpDelta(
+                    previousHp,
+                    apply.HitSeverity,
+                    damage,
+                    out damageLevel),
                 _ => previousHp,
             };
             if (Math.Abs(newHp - previousHp) < 1e-9)
@@ -125,7 +151,8 @@ public static class CatalogDamageHotTickApplier
                 platformId,
                 previousHp,
                 newHp,
-                outcome.OutcomeCode));
+                outcome.OutcomeCode,
+                damageLevel));
         }
 
         return changes;
@@ -154,6 +181,19 @@ public static class CatalogDamageHotTickApplier
 
         return trials;
     }
+
+    private static double ApplyHitHpDelta(
+        double previousHp,
+        double hitSeverity,
+        CatalogPlatformDamage damage,
+        out int damageLevel)
+    {
+        damageLevel = CombatDamageLevel.ComputeLevel(
+            hitSeverity,
+            CombatDamageLevel.ResolvePlatformResilience(damage));
+        var delta = CombatDamageLevel.HitHpDeltaPct(damageLevel);
+        return Math.Max(0.0, previousHp - delta);
+    }
 }
 
 /// <summary>Order-log reason codes for bounded platform damage apply.</summary>
@@ -164,4 +204,6 @@ public static class PlatformDamageChangeReasonCodes
     public const string Hit = EngagementOutcomeCodes.Hit;
 
     public const string Kill = EngagementOutcomeCodes.Kill;
+
+    public const string MineTransitHazard = "MINE_TRANSIT_HAZARD";
 }

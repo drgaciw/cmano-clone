@@ -40,5 +40,8 @@ public sealed class DomainValidatorRegistry
         new AirAspectDomainValidator(),
         new SurfaceAspectDomainValidator(),
         new SubsurfaceAspectDomainValidator(),
+        new LandAspectDomainValidator(),
+        new MineAspectDomainValidator(),
+        new FacilityAspectDomainValidator(),
     ]);
 }

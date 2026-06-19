@@ -56,6 +56,16 @@ switch (command)
         return RunPlatformDiffXlsx(args.Skip(1).ToArray());
     case "catalog_platform_browse":
         return RunCatalogPlatformBrowse(args.Skip(1).ToArray());
+    case "catalog_mount_loadout_quarantine_triage":
+        return RunMountLoadoutQuarantineTriage(args.Skip(1).ToArray());
+    case "catalog_release_diff":
+        return RunCatalogReleaseDiff(args.Skip(1).ToArray());
+    case "catalog_dependency_graph":
+        return RunCatalogDependencyGraph(args.Skip(1).ToArray());
+    case "catalog_kill_chain_report":
+        return RunCatalogKillChainReport(args.Skip(1).ToArray());
+    case "catalog_link_report":
+        return RunCatalogLinkReport(args.Skip(1).ToArray());
     case "osint_staging_review":
         return RunOsintStagingReview(args.Skip(1).ToArray());
     case "osint_search":
@@ -330,12 +340,17 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_intelligence_run [--db <catalog.db>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_entity_map");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_propose --db <catalog.db> --platform P --sensor S --base-pd 0.7");
-    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_approve --db <catalog.db> --batch <batchId>");
-    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <path.md> [--entity sensor|weapon|platform] [--map-baltic-platform-ids] [--max-records N] [--chunk-size 500] [--report-out report.json]");
-    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_export_xlsx [--db <catalog.db>] --out <path> [--snapshot <id>] [--io closedxml|canonical]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_approve --db <catalog.db> --batch <batchId> [--enable-balance-drift]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <path.md> [--entity sensor|weapon|platform|aircraft|submarine|facility] [--map-baltic-platform-ids] [--max-records N] [--chunk-size 500] [--report-out report.json]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_export_xlsx [--db <catalog.db>] --out <path> [--snapshot <id>] [--tl-tier TL-0..TL-5] [--io closedxml|canonical]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_import_xlsx --db <catalog.db> --in <workbook> [--io closedxml|canonical]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_diff_xlsx [--db <catalog.db>] [--base <path>] [--edited <path>] [--io closedxml|canonical]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_platform_browse [--db <catalog.db>] [--max-records N]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_mount_loadout_quarantine_triage --db <catalog.db> [--entity platform|submarine|facility] [--propose-json <path>] [--apply]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_release_diff --db <catalog.db> --from <releaseVersion> --to <releaseVersion>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_dependency_graph [--db <catalog.db>]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_kill_chain_report [--db <catalog.db>]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_link_report [--db <catalog.db>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_staging_review --db <catalog.db> [--approve <batchId>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_search [--db <fixture.json>]  # S21 MCP search_osint");
     // S21: osint_digest, osint_list_staging_proposals, osint_get_proposal_detail, osint_submit_review_decision
@@ -383,7 +398,8 @@ static int RunPlatformExportXlsx(string[] args)
     var outPath = CliArgParser.GetFlag(args, "--out") ?? CliArgParser.GetFlag(args, "--output");
     var snapshotId = CliArgParser.GetFlag(args, "--snapshot") ?? CliArgParser.GetFlag(args, "--snapshot-id") ?? string.Empty;
     var ioFlag = CliArgParser.GetFlag(args, "--io");
-    return PlatformExportXlsxCommand.Run(db, outPath ?? string.Empty, snapshotId, ioFlag, Console.Out);
+    var tlTier = CliArgParser.GetFlag(args, "--tl-tier") ?? CliArgParser.GetFlag(args, "--tlTier");
+    return PlatformExportXlsxCommand.Run(db, outPath ?? string.Empty, snapshotId, ioFlag, Console.Out, tlTier);
 }
 
 static int RunPlatformImportXlsx(string[] args)
@@ -468,6 +484,125 @@ static int RunCatalogPlatformBrowse(string[] args)
         maxRecords > 0 ? maxRecords : null);
 }
 
+static int RunCatalogDependencyGraph(string[] args)
+{
+    if (args.Contains("--help", StringComparer.Ordinal) || args.Contains("-h", StringComparer.Ordinal))
+    {
+        CatalogDependencyGraphCommand.PrintHelp(Console.Out);
+        return 0;
+    }
+
+    var db = CliArgParser.GetFlag(args, "--db");
+    try
+    {
+        return CatalogDependencyGraphCommand.Run(db, Console.Out);
+    }
+    catch (ArgumentException ex)
+    {
+        Console.Error.WriteLine(ex.Message);
+        CatalogDependencyGraphCommand.PrintHelp(Console.Error);
+        return 1;
+    }
+}
+
+static int RunCatalogKillChainReport(string[] args)
+{
+    if (args.Contains("--help", StringComparer.Ordinal) || args.Contains("-h", StringComparer.Ordinal))
+    {
+        CatalogKillChainReportCommand.PrintHelp(Console.Out);
+        return 0;
+    }
+
+    var db = CliArgParser.GetFlag(args, "--db");
+    try
+    {
+        return CatalogKillChainReportCommand.Run(db, Console.Out);
+    }
+    catch (ArgumentException ex)
+    {
+        Console.Error.WriteLine(ex.Message);
+        CatalogKillChainReportCommand.PrintHelp(Console.Error);
+        return 1;
+    }
+}
+
+static int RunCatalogLinkReport(string[] args)
+{
+    if (args.Contains("--help", StringComparer.Ordinal) || args.Contains("-h", StringComparer.Ordinal))
+    {
+        CatalogLinkReportCommand.PrintHelp(Console.Out);
+        return 0;
+    }
+
+    var db = CliArgParser.GetFlag(args, "--db");
+    try
+    {
+        return CatalogLinkReportCommand.Run(db, Console.Out);
+    }
+    catch (ArgumentException ex)
+    {
+        Console.Error.WriteLine(ex.Message);
+        CatalogLinkReportCommand.PrintHelp(Console.Error);
+        return 1;
+    }
+}
+
+static int RunCatalogReleaseDiff(string[] args)
+{
+    if (args.Contains("--help", StringComparer.Ordinal) || args.Contains("-h", StringComparer.Ordinal))
+    {
+        CatalogReleaseDiffCommand.PrintHelp(Console.Out);
+        return 0;
+    }
+
+    var db = CliArgParser.GetFlag(args, "--db");
+    var from = CliArgParser.GetFlag(args, "--from");
+    var to = CliArgParser.GetFlag(args, "--to");
+    if (string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(to))
+    {
+        var positional = args
+            .Where(a => !a.StartsWith("-", StringComparison.Ordinal))
+            .ToArray();
+        if (positional.Length >= 2)
+        {
+            from ??= positional[0];
+            to ??= positional[1];
+        }
+    }
+
+    if (string.IsNullOrWhiteSpace(db) || string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(to))
+    {
+        Console.Error.WriteLine("catalog_release_diff requires --db --from --to");
+        CatalogReleaseDiffCommand.PrintHelp(Console.Error);
+        return 1;
+    }
+
+    try
+    {
+        return CatalogReleaseDiffCommand.Run(db, from, to, Console.Out);
+    }
+    catch (ArgumentException ex)
+    {
+        Console.Error.WriteLine(ex.Message);
+        return 1;
+    }
+}
+
+static int RunMountLoadoutQuarantineTriage(string[] args)
+{
+    var db = CliArgParser.GetFlag(args, "--db");
+    if (string.IsNullOrWhiteSpace(db))
+    {
+        Console.Error.WriteLine("catalog_mount_loadout_quarantine_triage requires --db");
+        return 1;
+    }
+
+    var entity = CliArgParser.GetFlag(args, "--entity");
+    var proposeJson = CliArgParser.GetFlag(args, "--propose-json");
+    var dryRun = !args.Contains("--apply", StringComparer.Ordinal);
+    return MountLoadoutQuarantineTriageCommand.Run(db, dryRun, entity, proposeJson, Console.Out);
+}
+
 static int RunCatalogWritePropose(string[] args)
 {
     var db = CliArgParser.GetFlag(args, "--db");
@@ -496,5 +631,12 @@ static int RunCatalogWriteApprove(string[] args)
 
     var snapshotId = CliArgParser.GetFlag(args, "--snapshot-id");
     var releaseVersion = CliArgParser.GetFlag(args, "--release-version");
-    return CatalogWriteApproveCommand.Run(db, batch, Console.Out, snapshotId, releaseVersion);
+    var enableBalanceDrift = args.Contains("--enable-balance-drift", StringComparer.Ordinal);
+    return CatalogWriteApproveCommand.Run(
+        db,
+        batch,
+        Console.Out,
+        snapshotId,
+        releaseVersion,
+        enableBalanceDrift);
 }

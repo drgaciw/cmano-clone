@@ -46,7 +46,7 @@ public static class DetectionTrialResolver
                 effectiveBasePd,
                 effectiveEnvMask,
                 target.JamStrength,
-                target.RequiresActiveRadar));
+                RequiresActiveRadar: target.RequiresActiveRadar));
         }
 
         return trials;

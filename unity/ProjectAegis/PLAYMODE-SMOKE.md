@@ -82,12 +82,16 @@ When Unity **6000.3.14f1** is installed locally:
 pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario comms
 pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario classify -SkipBuild
 pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario doctrine -SkipBuild
+pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario import -SkipBuild
+pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario begin-execution -SkipBuild
 ```
 
-Opens `DelegationSmoke.unity`, enters Play Mode in batchmode, and fails on game console errors. Evidence: `unity-c2-playmode-signoff.log`. Full checklist: `production/qa/c2-manual-signoff-2026-06-02.md`.
+Opens `DelegationSmoke.unity`, enters Play Mode in batchmode, and fails on game console errors. Evidence: `unity-c2-playmode-signoff.log`. Full checklist: `production/qa/c2-manual-signoff-2026-06-02.md`. S30-06 presentation evidence README: `production/qa/evidence/README-presentation-evidence-s30.md`.
 
 | Scenario | `-executeMethod` | Policy id |
 |----------|------------------|-----------|
 | `comms` | `C2PlayModeSignoffBatchRunner.RunBatch` | `baltic-patrol-comms` |
 | `classify` | `C2PlayModeSignoffBatchRunner.RunClassifyBatch` | `baltic-patrol-classify` |
 | `doctrine` | `C2PlayModeSignoffBatchRunner.RunDoctrineBatch` | `baltic-patrol-mission-roe` |
+| `import` | `C2PlayModeSignoffBatchRunner.RunImportBatch` | `baltic-patrol-classify` |
+| `begin-execution` | `C2PlayModeSignoffBatchRunner.RunBeginExecutionBatch` | `baltic-patrol-classify` |

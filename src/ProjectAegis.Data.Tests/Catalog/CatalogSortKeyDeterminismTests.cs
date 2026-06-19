@@ -149,6 +149,8 @@ public sealed class CatalogSortKeyDeterminismTests
         Assert.Equal(
             CatalogSortKeyComparer.SortComms(fixture.Comms).Select(CatalogSortKeyComparer.FormatCommsKey).ToArray(),
             SheetKeys(workbook, "Comms", 0, 1));
+
+        Assert.NotNull(workbook.FindSheet("LinkCatalog"));
     }
 
     [Fact]

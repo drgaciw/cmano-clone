@@ -23,17 +23,29 @@ public sealed class CatalogPlatformBrowseProjectionTests
             Magazines: [],
             Comms: [],
             Mobility: [new CatalogMobility("a-platform", MaxSpeedKnots: 30)],
-            Damage: [new CatalogPlatformDamage("b-platform", MaxHp: 500)]);
+            Damage:
+            [
+                new CatalogPlatformDamage(
+                    "b-platform",
+                    MaxHp: 500,
+                    WithdrawThresholdPct: 25,
+                    CriticalFlags: 1,
+                    Resilience: 1.25),
+            ]);
 
         var rows = CatalogPlatformBrowseProjection.FromExportData(data);
 
         Assert.That(rows.Count, Is.EqualTo(2));
         Assert.That(rows[0].PlatformId, Is.EqualTo("a-platform"));
         Assert.That(rows[0].MaxSpeedKnots, Is.EqualTo(30));
+        Assert.That(rows[0].MaxHp, Is.Null);
         Assert.That(rows[0].MountCount, Is.EqualTo(0));
         Assert.That(rows[0].SensorCount, Is.EqualTo(0));
         Assert.That(rows[1].PlatformId, Is.EqualTo("b-platform"));
         Assert.That(rows[1].MaxHp, Is.EqualTo(500));
+        Assert.That(rows[1].Resilience, Is.EqualTo(1.25));
+        Assert.That(rows[1].WithdrawThresholdPct, Is.EqualTo(25));
+        Assert.That(rows[1].CriticalFlags, Is.EqualTo(1));
         Assert.That(rows[1].MountCount, Is.EqualTo(0));
         Assert.That(rows[1].SensorCount, Is.EqualTo(0));
     }

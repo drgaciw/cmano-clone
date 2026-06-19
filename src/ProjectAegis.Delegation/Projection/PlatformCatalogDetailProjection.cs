@@ -8,6 +8,9 @@ public sealed record PlatformCatalogDetailEntry(
     string LonLabel,
     string CombatRadiusLabel,
     string MaxHpLabel,
+    string ResilienceLabel,
+    string WithdrawThresholdLabel,
+    string CriticalFlagsLabel,
     string MaxSpeedLabel);
 
 public static class PlatformCatalogDetailProjection
@@ -26,6 +29,9 @@ public static class PlatformCatalogDetailProjection
             FormatField("LON", row.LonDeg, suffix: "°"),
             FormatField("RADIUS", row.CombatRadiusNm, suffix: " nm"),
             FormatField("HP", row.MaxHp),
+            FormatField("RESILIENCE", row.Resilience),
+            FormatField("WITHDRAW", row.WithdrawThresholdPct, suffix: "%"),
+            FormatIntField("FLAGS", row.CriticalFlags),
             FormatField("SPEED", row.MaxSpeedKnots, suffix: " kt"));
     }
 
@@ -35,6 +41,9 @@ public static class PlatformCatalogDetailProjection
             "LON: —",
             "RADIUS: —",
             "HP: —",
+            "RESILIENCE: —",
+            "WITHDRAW: —",
+            "FLAGS: —",
             "SPEED: —");
 
     private static string FormatField(string name, double? value, string suffix = "")
@@ -46,5 +55,15 @@ public static class PlatformCatalogDetailProjection
 
         var formatted = value.Value.ToString("G", CultureInfo.InvariantCulture);
         return $"{name}: {formatted}{suffix}";
+    }
+
+    private static string FormatIntField(string name, int? value)
+    {
+        if (!value.HasValue)
+        {
+            return $"{name}: {Missing}";
+        }
+
+        return $"{name}: {value.Value.ToString(CultureInfo.InvariantCulture)}";
     }
 }

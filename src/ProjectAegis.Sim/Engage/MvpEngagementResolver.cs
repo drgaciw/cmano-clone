@@ -172,6 +172,9 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             FireAbortReason.AirAspectBlock => EngagementAbortReason.AirAspectBlock,
             FireAbortReason.SurfaceAspectBlock => EngagementAbortReason.SurfaceAspectBlock,
             FireAbortReason.SubsurfaceAspectBlock => EngagementAbortReason.SubsurfaceAspectBlock,
+            FireAbortReason.LandAspectBlock => EngagementAbortReason.LandAspectBlock,
+            FireAbortReason.MineAspectBlock => EngagementAbortReason.MineAspectBlock,
+            FireAbortReason.FacilityAspectBlock => EngagementAbortReason.FacilityAspectBlock,
             _ => EngagementAbortReason.DomainNoSolution,
         };
 }

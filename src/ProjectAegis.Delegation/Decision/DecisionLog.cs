@@ -365,7 +365,7 @@ public sealed class DecisionLog : IOrderLog
             OrderLogEntryKind.FuelBurn when entry.Payload is FuelBurnRecord b =>
                 $"{b.SimTick}|{b.UnitId.Value}|{b.DeltaKg:R}|{b.RemainingFuelKg:R}",
             OrderLogEntryKind.PlatformDamageChange when entry.Payload is PlatformDamageChangeRecord d =>
-                $"{d.SimTick}|{d.UnitId.Value}|{d.PreviousHpPct:R}|{d.NewHpPct:R}|{d.ReasonCode}",
+                $"{d.SimTick}|{d.UnitId.Value}|{d.PreviousHpPct:R}|{d.NewHpPct:R}|{d.ReasonCode}|{d.DamageLevel}",
             _ => "?",
         };
 

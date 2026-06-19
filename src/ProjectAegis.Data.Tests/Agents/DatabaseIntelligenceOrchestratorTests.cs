@@ -7,6 +7,15 @@ namespace ProjectAegis.Data.Tests.Agents;
 public sealed class DatabaseIntelligenceOrchestratorTests
 {
     [Fact]
+    public void Pipeline_reports_follow_documented_agent_order()
+    {
+        var result = new DatabaseIntelligenceOrchestrator().Run(InMemoryCatalogReader.BalticPatrolFixture());
+        Assert.Equal(
+            DatabaseIntelligenceOrchestrator.PipelineAgentOrder,
+            result.Reports.Select(r => r.AgentId).ToArray());
+    }
+
+    [Fact]
     public void Baltic_fixture_pipeline_passes_rules_agent()
     {
         var result = new DatabaseIntelligenceOrchestrator().Run(InMemoryCatalogReader.BalticPatrolFixture());

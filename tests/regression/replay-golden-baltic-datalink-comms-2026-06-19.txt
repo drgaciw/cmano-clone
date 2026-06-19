@@ -1,0 +1,6 @@
+# Golden fingerprint — baltic-patrol-datalink-comms seed=42 ticks=6 (datalink share + comms degrade/deny)
+# Regenerate: dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-patrol-datalink-comms --ticks 6
+
+WORLD_HASH=7476249154626599167
+DETECTION_WORLD_HASH=13126
+FINGERPRINT_SHA256=cdc885c8e40cafe5e25abafe30f32e70e0948407b5c28b230908f6ad404c7ae7

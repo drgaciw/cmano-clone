@@ -41,7 +41,7 @@ public static class CatalogSnapshotBinder
                 contentHash,
                 clock.UtcTicks,
                 schemaVersion: CatalogTlTier.CatalogSchemaVersion,
-                notes: $"batch={batchId}",
+                notes: $"batch={batchId};contentHash={contentHash}",
                 branch: resolvedTlTier);
         }
 

@@ -14,7 +14,10 @@
         { "logCode": "COMMS_DENIED", "member": "CommsDenied" },
         { "logCode": "AIR_ASPECT_BLOCK", "member": "AirAspectBlock" },
         { "logCode": "SURFACE_ASPECT_BLOCK", "member": "SurfaceAspectBlock" },
-        { "logCode": "SUBSURFACE_ASPECT_BLOCK", "member": "SubsurfaceAspectBlock" }
+        { "logCode": "SUBSURFACE_ASPECT_BLOCK", "member": "SubsurfaceAspectBlock" },
+        { "logCode": "LAND_ASPECT_BLOCK", "member": "LandAspectBlock" },
+        { "logCode": "MINE_ASPECT_BLOCK", "member": "MineAspectBlock" },
+        { "logCode": "FACILITY_ASPECT_BLOCK", "member": "FacilityAspectBlock" }
       ]
     },
     {
@@ -39,6 +42,9 @@
         { "logCode": "AIR_ASPECT_BLOCK", "member": "AirAspectBlock" },
         { "logCode": "SURFACE_ASPECT_BLOCK", "member": "SurfaceAspectBlock" },
         { "logCode": "SUBSURFACE_ASPECT_BLOCK", "member": "SubsurfaceAspectBlock" },
+        { "logCode": "LAND_ASPECT_BLOCK", "member": "LandAspectBlock" },
+        { "logCode": "MINE_ASPECT_BLOCK", "member": "MineAspectBlock" },
+        { "logCode": "FACILITY_ASPECT_BLOCK", "member": "FacilityAspectBlock" },
         { "logCode": "DAMAGE_WITHDRAW_RECOMMENDED", "member": "DamageWithdrawRecommended" }
       ]
     },

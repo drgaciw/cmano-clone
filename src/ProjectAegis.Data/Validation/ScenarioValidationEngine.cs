@@ -13,6 +13,8 @@ public sealed class ScenarioValidationEngine : IScenarioValidationEngine
         ValidationConfig config)
     {
         var findings = new List<ValidationFinding>();
+        ValidationRules.TlBranchRule(scenario, catalog, findings);
+        ValidationRules.TlReleaseTrainRule(scenario, catalog, findings);
         ValidationRules.DbRefRule(scenario, catalog, findings);
         ValidationRules.MissionNoUnitsRule(scenario, findings);
         ValidationRules.PatrolZoneRule(scenario, findings);

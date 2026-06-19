@@ -79,10 +79,57 @@ public static class ScenarioPolicyJsonLoader
             ParseSpoofTransitions(dto.SpoofTracks),
             catalogWithdrawTargets: ParseCatalogWithdrawTargets(dto.CatalogWithdraw),
             balanceTelemetry: ParseBalanceTelemetry(dto.Telemetry),
-            datalinkDoctrine: ParseDatalinkDoctrine(dto.Datalink))
+            datalinkDoctrine: ParseDatalinkDoctrine(dto.Datalink),
+            mineHazard: ParseMineHazard(dto.MineHazard))
         {
             Id = dto.Id,
         };
+    }
+
+    private static ScenarioMineHazardSettings? ParseMineHazard(ScenarioMineHazardJsonDto? mineHazard)
+    {
+        if (mineHazard == null)
+        {
+            return null;
+        }
+
+        if (mineHazard.ZoneMinRangeMeters > mineHazard.ZoneMaxRangeMeters)
+        {
+            throw new InvalidDataException("mineHazard.zoneMinRangeMeters must be <= zoneMaxRangeMeters.");
+        }
+
+        var triggerRadius = mineHazard.TriggerRadiusMeters ?? 5_000;
+        if (triggerRadius < 0)
+        {
+            throw new InvalidDataException("mineHazard.triggerRadiusMeters must be non-negative.");
+        }
+
+        var mines = mineHazard.Mines == null || mineHazard.Mines.Count == 0
+            ? Array.Empty<ScenarioMinePlacement>()
+            : mineHazard.Mines
+                .OrderBy(m => m.MineId, StringComparer.Ordinal)
+                .Select(m => new ScenarioMinePlacement(
+                    m.MineId,
+                    m.RangeMeters,
+                    Math.Clamp(m.Lethality, 0.0, 1.0)))
+                .ToArray();
+
+        var transit = mineHazard.Transit == null || mineHazard.Transit.Count == 0
+            ? Array.Empty<ScenarioMineTransitSchedule>()
+            : mineHazard.Transit
+                .OrderBy(t => t.PlatformId, StringComparer.Ordinal)
+                .Select(t => new ScenarioMineTransitSchedule(
+                    t.PlatformId,
+                    t.RangesMeters?.ToArray() ?? Array.Empty<double>()))
+                .ToArray();
+
+        return new ScenarioMineHazardSettings(
+            mineHazard.ZoneMinRangeMeters,
+            mineHazard.ZoneMaxRangeMeters,
+            triggerRadius,
+            mineHazard.HazardSeverity ?? 1.0,
+            mines,
+            transit);
     }
 
     private static ScenarioDatalinkDoctrine ParseDatalinkDoctrine(ScenarioDatalinkJsonDto? datalink)
@@ -98,9 +145,17 @@ public static class ScenarioPolicyJsonLoader
                 .OrderBy(p => p.Key, StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
 
+        var shareLagTicks = datalink.ShareLagTicks ?? 0;
+        if (shareLagTicks < 0)
+        {
+            throw new InvalidDataException("datalink.shareLagTicks must be a non-negative integer.");
+        }
+
         return new ScenarioDatalinkDoctrine(
             datalink.OrganicOnly ?? true,
-            unitSides);
+            unitSides,
+            shareLagTicks,
+            ShareLagTicksSpecified: datalink.ShareLagTicks.HasValue);
     }
 
     private static ScenarioBalanceTelemetrySettings ParseBalanceTelemetry(ScenarioTelemetryJsonDto? telemetry)
@@ -336,7 +391,8 @@ public static class ScenarioPolicyJsonLoader
                 d.ContactId,
                 d.BasePd,
                 d.EnvMask,
-                d.JamStrength))
+                d.JamStrength,
+                d.EccmFactor))
             .ToArray();
     }
 

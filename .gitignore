@@ -45,6 +45,9 @@ docs/manual/assets/images/
 # CMO DB crawler raw data
 tools/cmano-db-crawler/_raw/
 
+# Ephemeral nightly approve/import scratch (regenerable; may exceed GitHub 100MB limit)
+scratch/
+
 # Local editor / tool configs
 .kilo/
 .claude/settings.local.json

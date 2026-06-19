@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Mirrors .github/workflows/dotnet-reusable.yml and tools/verify-ci-local.ps1
-# Policy: production/qa/sprint-29-ci-hygiene-2026-06-18.md (S29-12)
-# Baseline (Release @ trunk): >=878 solution tests; ReplayGolden 6/6; PlayModeSmoke 17/17
+# Policy: production/qa/sprint-33-ci-hygiene-2026-06-19.md (S33-12)
+# Day-1 baseline (Release @ trunk): >=1046 solution tests (S32 closeout floor); closeout target >=1086
+# Current sln ~1143 tests (S33-12 verify); ReplayGolden 6/6; PlayModeSmoke 17/17
+# PowerShell parity: pwsh -File tools/verify-ci-local.ps1
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

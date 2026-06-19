@@ -3,15 +3,18 @@ namespace ProjectAegis.Data.WriteGate;
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Snapshots;
+using ProjectAegis.Data.Validation;
 
 /// <summary>SQLite-backed write gate for sensor catalog rows (req-06 P0).</summary>
 public sealed class CatalogWriteGate : IWriteGate, IDisposable
 {
+    private readonly string _databasePath;
     private readonly SqliteConnection _connection;
     private readonly ICatalogClock _clock;
 
     public CatalogWriteGate(string databasePath, ICatalogClock? clock = null)
     {
+        _databasePath = databasePath;
         _clock = clock ?? new FixedCatalogClock(0);
         _connection = new SqliteConnection($"Data Source={databasePath};Pooling=false");
         _connection.Open();
@@ -137,6 +140,31 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         foreach (var row in sorted)
         {
             InsertStagingComms(tx, batchId, row);
+        }
+
+        tx.Commit();
+        return batchId;
+    }
+
+    public string ProposeLinkCatalogBatch(
+        IReadOnlyList<CatalogLinkEntry> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "")
+    {
+        if (proposed.Count == 0)
+        {
+            throw new ArgumentException("At least one link catalog row required.", nameof(proposed));
+        }
+
+        var batchId = $"batch-link-{proposed.Count}-{_clock.UtcTicks}";
+        var sorted = CatalogSortKeyComparer.SortLinks(proposed);
+
+        using var tx = _connection.BeginTransaction();
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Count, rationale, "proposed");
+        foreach (var row in sorted)
+        {
+            InsertStagingLink(tx, batchId, row);
         }
 
         tx.Commit();
@@ -342,6 +370,11 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             return ApproveCommsStaging(batchId, actorType, actorId, content.Comms);
         }
 
+        if (content.Links.Count > 0)
+        {
+            return ApproveLinkStaging(batchId, actorType, actorId, content.Links);
+        }
+
         if (content.Mobility.Count > 0)
         {
             return ApproveMobilityStaging(batchId, actorType, actorId, content.Mobility);
@@ -398,6 +431,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
         MarkBatchState(tx, batchId, "approved", actorType, actorId);
         tx.Commit();
+        NotifyDependencyGraphCommitted();
 
         // P2-3: record stable snapshot for approved batch (enables replay binding / scenario package). Deterministic, non-fatal.
         try
@@ -421,6 +455,14 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         string actorId,
         IReadOnlyList<CatalogPlatformBinding> staged)
     {
+        var killChainBlock = TryBlockKillChainCommit(
+            batchId,
+            reader => CatalogStagingOverlayReader.PreviewAfterPlatforms(reader, staged));
+        if (killChainBlock != null)
+        {
+            return killChainBlock;
+        }
+
         using var tx = _connection.BeginTransaction();
         EnsureSnapshotRow(tx, CatalogValidationDefaults.BalticSnapshotId);
         foreach (var row in staged)
@@ -441,6 +483,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
         MarkBatchState(tx, batchId, "approved", actorType, actorId);
         tx.Commit();
+        NotifyDependencyGraphCommitted();
         return new WriteGateDecision(true, batchId, []);
     }
 
@@ -450,6 +493,14 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         string actorId,
         IReadOnlyList<CatalogWeaponRecord> staged)
     {
+        var killChainBlock = TryBlockKillChainCommit(
+            batchId,
+            reader => CatalogStagingOverlayReader.PreviewAfterWeapons(reader, staged));
+        if (killChainBlock != null)
+        {
+            return killChainBlock;
+        }
+
         using var tx = _connection.BeginTransaction();
         foreach (var row in staged)
         {
@@ -469,6 +520,35 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
         MarkBatchState(tx, batchId, "approved", actorType, actorId);
         tx.Commit();
+        NotifyDependencyGraphCommitted();
+        return new WriteGateDecision(true, batchId, []);
+    }
+
+    private WriteGateDecision ApproveLinkStaging(
+        string batchId,
+        string actorType,
+        string actorId,
+        IReadOnlyList<CatalogLinkEntry> staged)
+    {
+        using var tx = _connection.BeginTransaction();
+        foreach (var row in staged)
+        {
+            var previous = TryReadCurrentLinkDisplayName(tx, row.LinkId);
+            UpsertLink(tx, row);
+            AppendEntityChangeLog(
+                tx,
+                batchId,
+                "link_catalog",
+                row.LinkId,
+                "display_name",
+                previous ?? "",
+                row.DisplayName,
+                actorType,
+                actorId);
+        }
+
+        MarkBatchState(tx, batchId, "approved", actorType, actorId);
+        tx.Commit();
         return new WriteGateDecision(true, batchId, []);
     }
 
@@ -478,6 +558,23 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         string actorId,
         IReadOnlyList<CatalogMount> staged)
     {
+        var orphans = staged.Where(row => !PlatformExists(row.PlatformId)).ToArray();
+        if (orphans.Length > 0)
+        {
+            return new WriteGateDecision(
+                false,
+                batchId,
+                orphans.Select(row => $"orphan_platform:{row.PlatformId}").ToArray());
+        }
+
+        var killChainBlock = TryBlockKillChainCommit(
+            batchId,
+            reader => CatalogStagingOverlayReader.PreviewAfterMounts(reader, staged));
+        if (killChainBlock != null)
+        {
+            return killChainBlock;
+        }
+
         using var tx = _connection.BeginTransaction();
         foreach (var row in staged)
         {
@@ -496,6 +593,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
         MarkBatchState(tx, batchId, "approved", actorType, actorId);
         tx.Commit();
+        NotifyDependencyGraphCommitted();
         return new WriteGateDecision(true, batchId, []);
     }
 
@@ -505,6 +603,15 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         string actorId,
         IReadOnlyList<CatalogLoadout> staged)
     {
+        var orphans = staged.Where(row => !PlatformExists(row.PlatformId)).ToArray();
+        if (orphans.Length > 0)
+        {
+            return new WriteGateDecision(
+                false,
+                batchId,
+                orphans.Select(row => $"orphan_platform:{row.PlatformId}").ToArray());
+        }
+
         using var tx = _connection.BeginTransaction();
         foreach (var row in staged)
         {
@@ -523,6 +630,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
         MarkBatchState(tx, batchId, "approved", actorType, actorId);
         tx.Commit();
+        NotifyDependencyGraphCommitted();
         return new WriteGateDecision(true, batchId, []);
     }
 
@@ -551,6 +659,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
         MarkBatchState(tx, batchId, "approved", actorType, actorId);
         tx.Commit();
+        NotifyDependencyGraphCommitted();
         return new WriteGateDecision(true, batchId, []);
     }
 
@@ -578,6 +687,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
         MarkBatchState(tx, batchId, "approved", actorType, actorId);
         tx.Commit();
+        NotifyDependencyGraphCommitted();
         return new WriteGateDecision(true, batchId, []);
     }
 
@@ -615,6 +725,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
         MarkBatchState(tx, batchId, "approved", actorType, actorId);
         tx.Commit();
+        NotifyDependencyGraphCommitted();
         return new WriteGateDecision(true, batchId, []);
     }
 
@@ -651,6 +762,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
         MarkBatchState(tx, batchId, "approved", actorType, actorId);
         tx.Commit();
+        NotifyDependencyGraphCommitted();
         return new WriteGateDecision(true, batchId, []);
     }
 
@@ -687,6 +799,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
         MarkBatchState(tx, batchId, "approved", actorType, actorId);
         tx.Commit();
+        NotifyDependencyGraphCommitted();
         return new WriteGateDecision(true, batchId, []);
     }
 
@@ -723,6 +836,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
 
         MarkBatchState(tx, batchId, "approved", actorType, actorId);
         tx.Commit();
+        NotifyDependencyGraphCommitted();
         return new WriteGateDecision(true, batchId, []);
     }
 
@@ -788,6 +902,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             ("catalog_staging_emcon", "platform_id"),
             ("catalog_staging_damage", "platform_id"),
             ("catalog_staging_weapon", "weapon_id"),
+            ("catalog_staging_link", "link_id"),
         })
         {
             using var cmd = _connection.CreateCommand();
@@ -819,6 +934,9 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         _connection.Dispose();
         SqliteConnection.ClearAllPools();
     }
+
+    private void NotifyDependencyGraphCommitted() =>
+        CatalogDependencyGraphCacheInvalidator.InvalidateForDatabase(_databasePath);
 
     private void EnsureSchema()
     {
@@ -947,6 +1065,24 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         cmd.Parameters.AddWithValue("$trl", row.TrlLevel);
         cmd.Parameters.AddWithValue("$tier", row.ValueTier);
         cmd.Parameters.AddWithValue("$citation", row.CitationRef);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertStagingLink(SqliteTransaction tx, string batchId, CatalogLinkEntry row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO catalog_staging_link
+                (batch_id, link_id, display_name, link_type, latency_ms_nominal)
+            VALUES ($batch, $link, $name, $type, $latency)
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        cmd.Parameters.AddWithValue("$link", row.LinkId);
+        cmd.Parameters.AddWithValue("$name", row.DisplayName);
+        cmd.Parameters.AddWithValue("$type", row.LinkType);
+        cmd.Parameters.AddWithValue("$latency", row.LatencyMsNominal);
         cmd.ExecuteNonQuery();
     }
 
@@ -1242,6 +1378,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             "catalog_staging_signature",
             "catalog_staging_emcon",
             "catalog_staging_damage",
+            "catalog_staging_link",
         })
         {
             cmd.CommandText = $"DELETE FROM {table} WHERE batch_id = $id";
@@ -1270,6 +1407,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         content.Loadouts.AddRange(LoadStagingLoadoutRows(batchId));
         content.Magazines.AddRange(LoadStagingMagazineRows(batchId));
         content.Comms.AddRange(LoadStagingCommsRows(batchId));
+        content.Links.AddRange(LoadStagingLinkRows(batchId));
         content.Mobility.AddRange(LoadStagingMobilityRows(batchId));
         content.Signatures.AddRange(LoadStagingSignatureRows(batchId));
         content.Emcon.AddRange(LoadStagingEmconRows(batchId));
@@ -1482,6 +1620,31 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return list;
     }
 
+    private List<CatalogLinkEntry> LoadStagingLinkRows(string batchId)
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT link_id, display_name, link_type, latency_ms_nominal
+            FROM catalog_staging_link
+            WHERE batch_id = $batch
+            ORDER BY link_id ASC
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogLinkEntry>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogLinkEntry(
+                reader.GetString(0),
+                reader.GetString(1),
+                reader.GetString(2),
+                reader.GetInt32(3)));
+        }
+
+        return list;
+    }
+
     private List<CatalogMobility> LoadStagingMobilityRows(string batchId)
     {
         using var cmd = _connection.CreateCommand();
@@ -1649,6 +1812,23 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         cmd.Parameters.AddWithValue("$max", row.MaxRangeMeters);
         cmd.Parameters.AddWithValue("$type", row.WeaponType);
         cmd.Parameters.AddWithValue("$guidance", row.Guidance);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void UpsertLink(SqliteTransaction tx, CatalogLinkEntry row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO link_catalog
+                (link_id, display_name, link_type, latency_ms_nominal)
+            VALUES ($link, $name, $type, $latency)
+            """;
+        cmd.Parameters.AddWithValue("$link", row.LinkId);
+        cmd.Parameters.AddWithValue("$name", row.DisplayName);
+        cmd.Parameters.AddWithValue("$type", row.LinkType);
+        cmd.Parameters.AddWithValue("$latency", row.LatencyMsNominal);
         cmd.ExecuteNonQuery();
     }
 
@@ -1881,6 +2061,16 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return scalar == null || scalar is DBNull ? null : Convert.ToString(scalar, System.Globalization.CultureInfo.InvariantCulture);
     }
 
+    private static string? TryReadCurrentLinkDisplayName(SqliteTransaction tx, string linkId)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText = "SELECT display_name FROM link_catalog WHERE link_id = $link";
+        cmd.Parameters.AddWithValue("$link", linkId);
+        var scalar = cmd.ExecuteScalar();
+        return scalar == null || scalar is DBNull ? null : Convert.ToString(scalar, System.Globalization.CultureInfo.InvariantCulture);
+    }
+
     private static int? TryReadCurrentMagazineQuantity(SqliteTransaction tx, CatalogMagazineEntry row)
     {
         using var cmd = tx.Connection!.CreateCommand();
@@ -1923,6 +2113,21 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return false;
     }
 
+    private WriteGateDecision? TryBlockKillChainCommit(
+        string batchId,
+        Func<ICatalogReader, ICatalogReader> buildPreview)
+    {
+        using var live = new SqliteCatalogReader(_databasePath, "write-gate-kill-chain-preview");
+        var preview = buildPreview(live);
+        var reasons = KillChainCommitGate.GetBlockingReasons(preview);
+        if (reasons.Count == 0)
+        {
+            return null;
+        }
+
+        return new WriteGateDecision(false, batchId, reasons);
+    }
+
     private sealed class StagingBatchContent
     {
         public List<CatalogSensorBinding> Sensors { get; } = [];
@@ -1932,6 +2137,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         public List<CatalogLoadout> Loadouts { get; } = [];
         public List<CatalogMagazineEntry> Magazines { get; } = [];
         public List<CatalogCommsBinding> Comms { get; } = [];
+        public List<CatalogLinkEntry> Links { get; } = [];
         public List<CatalogMobility> Mobility { get; } = [];
         public List<CatalogSignature> Signatures { get; } = [];
         public List<CatalogEmcon> Emcon { get; } = [];
@@ -1945,6 +2151,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             Loadouts.Count == 0 &&
             Magazines.Count == 0 &&
             Comms.Count == 0 &&
+            Links.Count == 0 &&
             Mobility.Count == 0 &&
             Signatures.Count == 0 &&
             Emcon.Count == 0 &&
@@ -1958,6 +2165,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             (Loadouts.Count > 0 ? 1 : 0) +
             (Magazines.Count > 0 ? 1 : 0) +
             (Comms.Count > 0 ? 1 : 0) +
+            (Links.Count > 0 ? 1 : 0) +
             (Mobility.Count > 0 ? 1 : 0) +
             (Signatures.Count > 0 ? 1 : 0) +
             (Emcon.Count > 0 ? 1 : 0) +

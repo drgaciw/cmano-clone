@@ -32,6 +32,7 @@ public sealed record PlatformImportResult(
     string? LoadoutBatchId,
     string? MagazineBatchId,
     string? CommsBatchId,
+    string? LinkBatchId,
     string? MobilityBatchId,
     string? SignatureBatchId,
     string? EmconBatchId,

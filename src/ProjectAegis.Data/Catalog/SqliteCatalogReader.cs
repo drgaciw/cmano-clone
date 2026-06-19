@@ -2,6 +2,7 @@ namespace ProjectAegis.Data.Catalog;
 
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Platform;
+using ProjectAegis.Data.Snapshots;
 
 /// <summary>SQLite-backed catalog reader; applies migrations on open.</summary>
 public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
@@ -11,6 +12,7 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         "sensor",
         "sensor_quarantine",
     };
+    private readonly string _databasePath;
     private readonly SqliteConnection _connection;
     private CatalogSensorBinding[]? _cache;
     private Dictionary<string, CatalogPlatformEntry>? _platforms;
@@ -23,13 +25,18 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     private CatalogMount[]? _mountsCache;
     private CatalogLoadout[]? _loadoutsCache;
     private CatalogMagazineEntry[]? _magazinesCache;
+    private CatalogCommsBinding[]? _commsCache;
+    private CatalogLinkEntry[]? _linksCache;
+    private CatalogDependencyEdge[]? _dependencyEdgesCache;
 
     public SqliteCatalogReader(string databasePath, string layerVersion = "p0-sqlite")
     {
+        _databasePath = databasePath;
         LayerVersion = layerVersion;
         _connection = new SqliteConnection($"Data Source={databasePath};Pooling=false");
         _connection.Open();
         ApplyMigrations();
+        CatalogDependencyGraphCacheInvalidator.Register(this, _databasePath);
     }
 
     public string LayerVersion { get; }
@@ -65,7 +72,44 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return true;
         }
 
+        using (var store = new DbSnapshotStore(_databasePath))
+        {
+            if (store.TryResolveReleaseVersion(dbRef, out resolvedSnapshotId))
+            {
+                return true;
+            }
+        }
+
         return CatalogValidationDefaults.TryResolveBalticDbRef(dbRef, out resolvedSnapshotId);
+    }
+
+    public bool TryGetSnapshotBranch(string snapshotId, out string branch)
+    {
+        branch = CatalogTlTier.Default;
+        if (string.IsNullOrWhiteSpace(snapshotId) ||
+            !TableExists("catalog_snapshot") ||
+            !MigrationColumnExists("catalog_snapshot", "branch"))
+        {
+            return false;
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT branch FROM catalog_snapshot WHERE snapshot_id = $id";
+        cmd.Parameters.AddWithValue("$id", snapshotId.Trim());
+        var scalar = cmd.ExecuteScalar();
+        if (scalar == null || scalar is DBNull)
+        {
+            return false;
+        }
+
+        branch = CatalogTlTier.Normalize((string)scalar);
+        return true;
+    }
+
+    public bool TryResolveSnapshotForTlBranch(string tlBranch, out string snapshotId, out string dbRef)
+    {
+        using var store = new DbSnapshotStore(_databasePath);
+        return store.TryResolveSnapshotForBranch(tlBranch, out snapshotId, out dbRef);
     }
 
     public bool TryGetCombatRadiusNm(string platformId, out double combatRadiusNm)
@@ -201,25 +245,81 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         return _magazinesCache;
     }
 
-    /// <summary>Req-21: build workbook export payload from the bound SQLite snapshot.</summary>
-    public PlatformCatalogExportData LoadExportData()
+    public IReadOnlyList<CatalogCommsBinding> GetSortedComms()
+    {
+        _commsCache ??= LoadCommsSorted().ToArray();
+        return _commsCache;
+    }
+
+    public IReadOnlyList<CatalogLinkEntry> GetSortedLinks()
+    {
+        _linksCache ??= LoadLinksSorted().ToArray();
+        return _linksCache;
+    }
+
+    public bool TryGetLinkLatencyMs(string linkId, out int latencyMsNominal)
+    {
+        foreach (var link in GetSortedLinks())
+        {
+            if (string.Equals(link.LinkId, linkId, StringComparison.Ordinal))
+            {
+                latencyMsNominal = link.LatencyMsNominal;
+                return true;
+            }
+        }
+
+        latencyMsNominal = 0;
+        return false;
+    }
+
+    public IReadOnlyList<CatalogDependencyEdge> GetSortedDependencyEdges()
+    {
+        _dependencyEdgesCache ??= CatalogDependencyGraphIndex.BuildFrom(this).ToArray();
+        return _dependencyEdgesCache;
+    }
+
+    internal void InvalidateDependencyGraphCache()
+    {
+        _dependencyEdgesCache = null;
+        _cache = null;
+        _mountsCache = null;
+        _magazinesCache = null;
+    }
+
+    /// <summary>Req-21 / S30-02: build workbook export payload from the bound SQLite snapshot.</summary>
+    public PlatformCatalogExportData LoadExportData(string? maxTlTier = null) =>
+        LoadExportDataCore(maxTlTier);
+
+    public PlatformCatalogExportData LoadExportDataCore(string? maxTlTier = null)
     {
         EnsurePlatformsLoaded();
-        return new PlatformCatalogExportData(
+        var data = new PlatformCatalogExportData(
             Platforms: _platforms!.Values.OrderBy(p => p.PlatformId, StringComparer.Ordinal).ToArray(),
             Sensors: GetSortedSensorBindings(),
             Mounts: LoadMountsSorted(),
             Loadouts: LoadLoadoutsSorted(),
             Magazines: LoadMagazinesSorted(),
             Comms: LoadCommsSorted(),
+            Links: GetSortedLinks(),
             Mobility: GetSortedMobility(),
             Signatures: GetSortedSignatures(),
             Emcon: GetSortedEmcon(),
             Damage: GetSortedPlatformDamage());
+
+        if (string.IsNullOrWhiteSpace(maxTlTier) || !CatalogTlTier.IsValid(maxTlTier))
+        {
+            return data;
+        }
+
+        return CatalogTlExportFilter.Apply(
+            data,
+            CatalogTlTier.Normalize(maxTlTier),
+            LoadPlatformGameTechnologyLevels());
     }
 
     public void Dispose()
     {
+        CatalogDependencyGraphCacheInvalidator.Unregister(this, _databasePath);
         _connection.Close();
         _connection.Dispose();
         SqliteConnection.ClearAllPools();
@@ -298,6 +398,11 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         }
 
         if (file.Contains("010", StringComparison.Ordinal) && MigrationColumnExists("catalog_snapshot", "branch"))
+        {
+            return true;
+        }
+
+        if (file.Contains("011", StringComparison.Ordinal) && TableExists("catalog_staging_link"))
         {
             return true;
         }
@@ -485,6 +590,30 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     {
         _hasPlatformTable ??= TableExists("platform");
         return _hasPlatformTable.Value;
+    }
+
+    private Dictionary<string, int> LoadPlatformGameTechnologyLevels()
+    {
+        var map = new Dictionary<string, int>(StringComparer.Ordinal);
+        if (!PlatformTableExists() || !MigrationColumnExists("platform", "game_technology_level"))
+        {
+            return map;
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, game_technology_level
+            FROM platform
+            ORDER BY platform_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            map[reader.GetString(0)] = reader.GetInt32(1);
+        }
+
+        return map;
     }
 
     private CatalogMobility[] LoadMobilitySorted()
@@ -737,6 +866,39 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                 reader.GetInt32(5),
                 reader.GetString(6),
                 reader.GetString(7)));
+        }
+
+        return list;
+    }
+
+    private IReadOnlyList<CatalogLinkEntry> LoadLinksSorted()
+    {
+        if (!TableExists("link_catalog"))
+        {
+            return [];
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT link_id, display_name, link_type, latency_ms_nominal
+            FROM link_catalog
+            ORDER BY link_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogLinkEntry>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogLinkEntry(
+                reader.GetString(0),
+                reader.GetString(1),
+                reader.GetString(2),
+                reader.GetInt32(3)));
+        }
+
+        if (list.Count == 0)
+        {
+            return CatalogValidationDefaults.BalticLinks().ToArray();
         }
 
         return list;

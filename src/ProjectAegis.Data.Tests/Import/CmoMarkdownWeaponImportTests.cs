@@ -52,6 +52,25 @@ public sealed class CmoMarkdownWeaponImportTests
     }
 
     [Fact]
+    public void Reference_weapon_markdown_parses_4403_records_for_off_ci_nightly_scale()
+    {
+        var path = CmoMarkdownImporter.ResolveReferenceWeaponMarkdownPath();
+        if (!File.Exists(path))
+        {
+            return;
+        }
+
+        var weapons = CmoMarkdownImporter.ReadWeaponBindings(path);
+        Assert.Equal(4403, weapons.Count);
+
+        var chunks = CmoMarkdownImportProposer.ChunkWeapons(weapons, chunkSize: 500);
+        Assert.Equal(9, chunks.Length);
+        Assert.Equal(500, chunks[0].Length);
+        Assert.Equal(500, chunks[7].Length);
+        Assert.Equal(403, chunks[8].Length);
+    }
+
+    [Fact]
     public void ChunkWeapons_with_501_rows_produces_two_batches_at_chunk_size_500()
     {
         var rows = Enumerable.Range(0, 501)

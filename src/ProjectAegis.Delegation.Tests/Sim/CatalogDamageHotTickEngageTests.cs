@@ -81,6 +81,60 @@ public sealed class CatalogDamageHotTickEngageTests
     }
 
     [Test]
+    public void Session_hit_outcome_logs_platform_damage_change_with_hit_reason()
+    {
+        var catalog = new InMemoryCatalogReader(
+            InMemoryCatalogReader.BalticPatrolFixture().GetSortedSensorBindings(),
+            "baltic+damage-hot-tick-hit",
+            CatalogValidationDefaults.BalticPlatforms(),
+            damage: [new CatalogPlatformDamage("hostile-1", MaxHp: 100, WithdrawThresholdPct: 25)]);
+        var orchestrator = new DelegationOrchestrator(17)
+        {
+            ScenarioPolicy = new ScenarioPolicyProfile(
+                EffectivePolicy.DefaultFree,
+                engageDefaults: new ScenarioEngageDefaults(
+                    45_000,
+                    5_000,
+                    120_000,
+                    defaultMagazineRounds: 4,
+                    hasFireControlTrack: true,
+                    pkKill: 0.0,
+                    combatDomainsEnabled: true),
+                catalogWithdrawTargets:
+                [
+                    new ScenarioCatalogWithdrawTarget("hostile-1", 80),
+                ]),
+        };
+        var engage = CatalogEngageEnvelope.Apply(
+            orchestrator.ScenarioPolicy!.ResolveEngageContext(),
+            catalog);
+        var session = SimulationSession.BindMvpEngagement(
+            orchestrator,
+            engage,
+            defaultMagazineRounds: 4,
+            catalogReader: catalog);
+
+        var unit = new UnitTarget(new TargetId("u1"));
+        var agent = orchestrator.CreateAgent(
+            new AgentId("a1"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous,
+            policy: new EngageOnlyPolicy());
+        orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
+        orchestrator.Register(unit);
+        session.BeginExecution();
+
+        session.Tick(MvpObservedStates.EngageTick(0));
+
+        Assert.That(orchestrator.DecisionLog.PlatformDamageChanges, Is.Not.Empty);
+        Assert.That(
+            orchestrator.DecisionLog.PlatformDamageChanges.Any(
+                c => c.ReasonCode == PlatformDamageChangeReasonCodes.Hit),
+            Is.True);
+        Assert.That(orchestrator.DecisionLog.ComputeFingerprint(), Does.Contain("PlatformDamageChange|"));
+    }
+
+    [Test]
     public void Session_without_combat_domains_does_not_create_hot_tick_tracker()
     {
         var catalog = BalticWithDamage();

@@ -42,6 +42,11 @@ public sealed record CatalogExportManifest(
             ? releaseVersion.Trim()
             : ResolveReleaseVersion(store, snapshotId) ?? snapshotId;
 
+        if (store.TryGetUnifiedManifest(dbVersion, out var unified))
+        {
+            return unified.ToExportManifest();
+        }
+
         return new CatalogExportManifest(
             dbVersion,
             tlTier,

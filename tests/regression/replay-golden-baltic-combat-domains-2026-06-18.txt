@@ -1,6 +1,6 @@
 # Golden fingerprint — baltic-patrol-combat-domains seed=42 ticks=4 (ADR-009 flag-on Baltic isolate)
 # Regenerate: dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-patrol-combat-domains --ticks 4
-# NOT ReplayGolden 6/6 catalog; production baltic-patrol remains combatDomainsEnabled=false until merge.
+# NOT ReplayGolden 6/6 catalog; isolated from production baltic-patrol pin (S29-05 / S30-09).
 
 WORLD_HASH=17144800277401907079
 DETECTION_WORLD_HASH=15600

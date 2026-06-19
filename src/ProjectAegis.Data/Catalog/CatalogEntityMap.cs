@@ -26,6 +26,8 @@ public static class CatalogEntityMap
             "platform_id ASC, loadout_id ASC, mount_id ASC, weapon_id ASC", nameof(CatalogMagazineEntry)),
         new("CatalogCommsBinding", "platform_comms", "platform_id,link_id",
             "platform_id ASC, link_id ASC", nameof(CatalogCommsBinding)),
+        new("CatalogLinkEntry", "link_catalog", "link_id",
+            "link_id ASC", nameof(CatalogLinkEntry)),
         new("QuarantinedCatalogBinding", "sensor_quarantine", "platform_id,sensor_id",
             "platform_id ASC, sensor_id ASC", nameof(QuarantinedCatalogBinding)),
         new("CatalogPlatformEntry", "platform", "platform_id,snapshot_id",

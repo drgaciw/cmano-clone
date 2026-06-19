@@ -123,4 +123,87 @@ public sealed class CatalogDamageHotTickApplierTests
 
         Assert.Equal(expectedWithdraw, trial.WithdrawRecommended);
     }
+
+    [Fact]
+    public void HotTick_Hit_damage_level_bounded_0_to_3_from_severity_and_resilience()
+    {
+        var ledger = Ledger(hpPct: 100);
+        var catalog = new InMemoryCatalogReader(
+            [new CatalogSensorBinding("u1", "radar-1", 1.0, "fixture-radar1")],
+            damage:
+            [
+                new CatalogPlatformDamage("u1", MaxHp: 100, WithdrawThresholdPct: 0, Resilience: 2.0),
+            ]);
+        var outcomes = new[]
+        {
+            new CatalogDamageHotTickApplier.OutcomeApply(
+                "u1",
+                10,
+                1,
+                EngagementOutcomeCodes.Hit,
+                HitSeverity: 1.0),
+        };
+
+        var changes = CatalogDamageHotTickApplier.ApplySortedOutcomes(ledger, catalog, outcomes);
+
+        Assert.Single(changes);
+        Assert.Equal(2, changes[0].DamageLevel);
+        Assert.Equal(50.0, ledger.TryGetHpPct("u1", out var hp) ? hp : -1, precision: 6);
+    }
+
+    [Fact]
+    public void HotTick_Zero_resilience_hit_produces_no_hp_change()
+    {
+        var ledger = Ledger(hpPct: 80);
+        var catalog = new InMemoryCatalogReader(
+            [new CatalogSensorBinding("u1", "radar-1", 1.0, "fixture-radar1")],
+            damage:
+            [
+                new CatalogPlatformDamage("u1", MaxHp: 100, WithdrawThresholdPct: 0, Resilience: 0.0),
+            ]);
+        var outcomes = new[]
+        {
+            new CatalogDamageHotTickApplier.OutcomeApply("u1", 10, 1, EngagementOutcomeCodes.Hit),
+        };
+
+        var changes = CatalogDamageHotTickApplier.ApplySortedOutcomes(ledger, catalog, outcomes);
+
+        Assert.Empty(changes);
+        Assert.Equal(80.0, ledger.TryGetHpPct("u1", out var hp) ? hp : -1, precision: 6);
+    }
+
+    [Fact]
+    public void HotTick_Kill_outcome_zeroes_hp_after_prior_hit()
+    {
+        var ledger = Ledger(hpPct: 80);
+        var catalog = DamageFixture(withdrawThresholdPct: 0);
+        var outcomes = new[]
+        {
+            new CatalogDamageHotTickApplier.OutcomeApply("u1", 10, 1, EngagementOutcomeCodes.Hit),
+            new CatalogDamageHotTickApplier.OutcomeApply("u1", 20, 2, EngagementOutcomeCodes.Kill),
+        };
+
+        var changes = CatalogDamageHotTickApplier.ApplySortedOutcomes(ledger, catalog, outcomes);
+
+        Assert.Equal(2, changes.Count);
+        Assert.Equal(EngagementOutcomeCodes.Hit, changes[0].ReasonCode);
+        Assert.Equal(EngagementOutcomeCodes.Kill, changes[1].ReasonCode);
+        Assert.Equal(0.0, ledger.TryGetHpPct("u1", out var hp) ? hp : -1, precision: 6);
+    }
+
+    [Fact]
+    public void HotTick_Missing_damage_row_skips_hit_apply()
+    {
+        var ledger = Ledger(hpPct: 80);
+        var catalog = InMemoryCatalogReader.BalticPatrolFixture();
+        var outcomes = new[]
+        {
+            new CatalogDamageHotTickApplier.OutcomeApply("u1", 10, 1, EngagementOutcomeCodes.Hit),
+        };
+
+        var changes = CatalogDamageHotTickApplier.ApplySortedOutcomes(ledger, catalog, outcomes);
+
+        Assert.Empty(changes);
+        Assert.Equal(80.0, ledger.TryGetHpPct("u1", out var hp) ? hp : -1, precision: 6);
+    }
 }

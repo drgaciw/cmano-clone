@@ -13,4 +13,7 @@ public enum FireAbortReason
     AirAspectBlock = 8,
     SurfaceAspectBlock = 9,
     SubsurfaceAspectBlock = 10,
+    LandAspectBlock = 11,
+    MineAspectBlock = 12,
+    FacilityAspectBlock = 13,
 }

@@ -14,7 +14,7 @@ using ProjectAegis.Data.WriteGate;
 /// </summary>
 public sealed class PlatformWorkbookExporter
 {
-    public const string SchemaVersion = "009";
+    public const string SchemaVersion = "010";
 
     public PlatformWorkbook Export(
         PlatformCatalogExportData data,
@@ -34,6 +34,7 @@ public sealed class PlatformWorkbookExporter
             BuildLoadouts(data.Loadouts),
             BuildMagazines(data.Magazines),
             BuildComms(data.Comms),
+            BuildLinkCatalog(data.Links ?? []),
             BuildMobility(data.Mobility ?? []),
             BuildSignatures(data.Signatures ?? []),
             BuildEmcon(data.Emcon ?? []),
@@ -177,6 +178,21 @@ public sealed class PlatformWorkbookExporter
         return new PlatformWorkbookSheet("Comms", header, rows);
     }
 
+    private static PlatformWorkbookSheet BuildLinkCatalog(IReadOnlyList<CatalogLinkEntry> links)
+    {
+        var header = new[] { "LinkId", "DisplayName", "LinkType", "LatencyMsNominal" };
+        var rows = links
+            .OrderBy(l => l.LinkId, StringComparer.Ordinal)
+            .Select(l => (IReadOnlyList<string>)new[]
+            {
+                l.LinkId,
+                l.DisplayName,
+                l.LinkType,
+                Int(l.LatencyMsNominal),
+            })
+            .ToArray();
+        return new PlatformWorkbookSheet("LinkCatalog", header, rows);
+    }
 
     private static PlatformWorkbookSheet BuildMobility(IReadOnlyList<CatalogMobility> mobility)
     {

@@ -2,6 +2,7 @@ namespace ProjectAegis.Data.Scenario.Authoring;
 
 using System.Security.Cryptography;
 using System.Text;
+using ProjectAegis.Data.Catalog;
 
 /// <summary>Mutable scenario document with optimistic concurrency (req 11 / ADR-008).</summary>
 public sealed class ScenarioDocumentEditor
@@ -33,6 +34,7 @@ public sealed class ScenarioDocumentEditor
             new ScenarioMetadataDto
             {
                 DbRef = dbRef,
+                TlBranch = CatalogTlTier.Default,
                 Seed = seed,
                 PolicyId = policyId,
                 EditVersion = 1,
@@ -73,9 +75,13 @@ public sealed class ScenarioDocumentEditor
         {
             DbRef = Metadata.DbRef,
             DbSnapshotId = Metadata.DbSnapshotId,
+            TlBranch = Metadata.TlBranch,
             EditVersion = Metadata.EditVersion + 1,
             Seed = Metadata.Seed,
             PolicyId = Metadata.PolicyId,
+            MaxTechnologyLevel = Metadata.MaxTechnologyLevel,
+            UnitReadiness = Metadata.UnitReadiness,
+            NearFutureUnits = Metadata.NearFutureUnits,
         };
     }
 

@@ -1,9 +1,11 @@
 namespace ProjectAegis.Sim.Scenario;
 
-/// <summary>TR-sensor-004 bounded side-picture sharing (no delay/ECCM Phase 2).</summary>
+/// <summary>TR-sensor-004 bounded side-picture sharing; optional share lag (no ECCM Phase 2).</summary>
 public sealed record ScenarioDatalinkDoctrine(
     bool OrganicOnly = true,
-    IReadOnlyDictionary<string, string>? UnitSides = null)
+    IReadOnlyDictionary<string, string>? UnitSides = null,
+    int ShareLagTicks = 0,
+    bool ShareLagTicksSpecified = false)
 {
     public static ScenarioDatalinkDoctrine Default { get; } = new();
 

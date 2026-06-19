@@ -2,6 +2,7 @@
 #if UNITY_5_3_OR_NEWER
 using System;
 using System.Collections.Generic;
+using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Scenario;
@@ -17,6 +18,9 @@ namespace ProjectAegis.Unity.Runtime
         private const string RootName = "map-placeholder-root";
         private const string TheaterName = "theater-label";
         private const string CanvasName = "map-canvas";
+        private const string PlanningDimOverlayName = "planning-dim-overlay";
+        private const string PlanningDimmedClass = "map-placeholder-panel--planning-dimmed";
+        private const string PlanningDimOverlayHiddenClass = "map-planning-dim-overlay--hidden";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -31,10 +35,15 @@ namespace ProjectAegis.Unity.Runtime
         private VisualElement? _rootPanel;
         private Label? _theaterLabel;
         private VisualElement? _canvas;
+        private VisualElement? _planningDimOverlay;
         private MapPanelState _panelState = new("—", Array.Empty<MapSymbolDisplayRow>());
+        private C2PlanningChromeState _planningChrome = new(false, false, SimulationPhase.Planning);
         private bool _wired;
 
         private IC2PresentationFeed? PresentationFeed => bridgeHost;
+
+        /// <summary>True while <see cref="SimulationPhase.Planning"/> chrome dims the map (S30-07).</summary>
+        public bool IsDimmed => _planningChrome.IsMapDimmed;
 
         /// <summary>Read-only map symbols from presentation feed (Cesium APP-6 billboard wiring, ADR-010).</summary>
         public IReadOnlyList<MapSymbolEntry> CurrentMapSymbols =>
@@ -81,6 +90,7 @@ namespace ProjectAegis.Unity.Runtime
             _rootPanel = root.Q<VisualElement>(RootName) ?? root;
             _theaterLabel = _rootPanel.Q<Label>(TheaterName);
             _canvas = _rootPanel.Q<VisualElement>(CanvasName);
+            _planningDimOverlay = _rootPanel.Q<VisualElement>(PlanningDimOverlayName);
             if (panelStyles != null && !_rootPanel.styleSheets.Contains(panelStyles))
             {
                 _rootPanel.styleSheets.Add(panelStyles);
@@ -110,7 +120,40 @@ namespace ProjectAegis.Unity.Runtime
                 atlas);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
             RebuildSymbols();
+            ApplyPlanningChrome();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private void ApplyPlanningChrome()
+        {
+            if (bridgeHost == null || _rootPanel == null)
+            {
+                return;
+            }
+
+            _planningChrome = C2PlanningChromeProjection.Project(bridgeHost.Phase);
+            if (_planningChrome.IsMapDimmed)
+            {
+                _rootPanel.AddToClassList(PlanningDimmedClass);
+            }
+            else
+            {
+                _rootPanel.RemoveFromClassList(PlanningDimmedClass);
+            }
+
+            if (_planningDimOverlay == null)
+            {
+                return;
+            }
+
+            if (_planningChrome.IsMapDimmed)
+            {
+                _planningDimOverlay.RemoveFromClassList(PlanningDimOverlayHiddenClass);
+            }
+            else
+            {
+                _planningDimOverlay.AddToClassList(PlanningDimOverlayHiddenClass);
+            }
         }
 
         private IApp6AtlasAvailability ResolveAtlasCatalog()

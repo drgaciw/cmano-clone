@@ -22,6 +22,7 @@ public sealed class PlatformWorkbookPhaseBSheetTests
         "Loadouts",
         "Magazines",
         "Comms",
+        "LinkCatalog",
     ];
 
     private static readonly string[] ExpectedMobilityHeader =
@@ -88,7 +89,7 @@ public sealed class PlatformWorkbookPhaseBSheetTests
             .Select(s => s.Name)
             .ToArray();
 
-        var phaseAEnd = Array.IndexOf(dataSheetNames, "Comms");
+        var phaseAEnd = Array.IndexOf(dataSheetNames, "LinkCatalog");
         Assert.Equal(PhaseADataSheetOrder, dataSheetNames.Take(phaseAEnd + 1).ToArray());
         Assert.Equal(["Mobility", "Signatures", "Emcon"], dataSheetNames.Skip(phaseAEnd + 1).ToArray());
     }
@@ -124,13 +125,13 @@ public sealed class PlatformWorkbookPhaseBSheetTests
     }
 
     [Fact]
-    public void Meta_sheet_reports_schema_version_009()
+    public void Meta_sheet_reports_schema_version_010()
     {
         var meta = Export(PlatformCatalogExportData.Empty).FindSheet(PlatformWorkbookHash.MetaSheetName);
         Assert.NotNull(meta);
         Assert.Contains(meta!.Rows, row => row.Count >= 2
             && string.Equals(row[0], "SchemaVersion", StringComparison.Ordinal)
-            && string.Equals(row[1], "009", StringComparison.Ordinal));
+            && string.Equals(row[1], "010", StringComparison.Ordinal));
     }
 
     [Fact]

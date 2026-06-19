@@ -16,6 +16,9 @@ public static partial class AbortReasonCatalog
         public const string AIR_ASPECT_BLOCK = "AIR_ASPECT_BLOCK";
         public const string SURFACE_ASPECT_BLOCK = "SURFACE_ASPECT_BLOCK";
         public const string SUBSURFACE_ASPECT_BLOCK = "SUBSURFACE_ASPECT_BLOCK";
+        public const string LAND_ASPECT_BLOCK = "LAND_ASPECT_BLOCK";
+        public const string MINE_ASPECT_BLOCK = "MINE_ASPECT_BLOCK";
+        public const string FACILITY_ASPECT_BLOCK = "FACILITY_ASPECT_BLOCK";
     }
 
     public static class Engage
@@ -38,6 +41,9 @@ public static partial class AbortReasonCatalog
         public const string AIR_ASPECT_BLOCK = "AIR_ASPECT_BLOCK";
         public const string SURFACE_ASPECT_BLOCK = "SURFACE_ASPECT_BLOCK";
         public const string SUBSURFACE_ASPECT_BLOCK = "SUBSURFACE_ASPECT_BLOCK";
+        public const string LAND_ASPECT_BLOCK = "LAND_ASPECT_BLOCK";
+        public const string MINE_ASPECT_BLOCK = "MINE_ASPECT_BLOCK";
+        public const string FACILITY_ASPECT_BLOCK = "FACILITY_ASPECT_BLOCK";
         public const string DAMAGE_WITHDRAW_RECOMMENDED = "DAMAGE_WITHDRAW_RECOMMENDED";
     }
 

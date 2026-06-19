@@ -5,6 +5,23 @@
     border-width: 1px;
 }
 
+.map-placeholder-panel--planning-dimmed .map-canvas {
+    opacity: 0.42;
+}
+
+.map-planning-dim-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(4, 8, 14, 0.35);
+}
+
+.map-planning-dim-overlay--hidden {
+    display: none;
+}
+
 .map-theater-label {
     color: rgb(140, 155, 170);
     margin: 4px;

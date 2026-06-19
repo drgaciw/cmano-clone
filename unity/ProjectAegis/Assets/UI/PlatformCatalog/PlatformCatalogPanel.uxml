@@ -13,7 +13,18 @@
             <ui:Label name="platform-catalog-detail-lon" text="LON: —" class="platform-catalog-detail-line" />
             <ui:Label name="platform-catalog-detail-radius" text="RADIUS: —" class="platform-catalog-detail-line" />
             <ui:Label name="platform-catalog-detail-hp" text="HP: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-resilience" text="RESILIENCE: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-withdraw" text="WITHDRAW: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-flags" text="FLAGS: —" class="platform-catalog-detail-line" />
             <ui:Label name="platform-catalog-detail-speed" text="SPEED: —" class="platform-catalog-detail-line" />
+        </ui:VisualElement>
+        <ui:VisualElement name="platform-catalog-comms" class="platform-catalog-comms">
+            <ui:Label text="COMMS" class="platform-catalog-detail-title" />
+            <ui:ListView name="platform-catalog-comms-list" class="platform-catalog-comms-list" selection-type="None" />
+        </ui:VisualElement>
+        <ui:VisualElement name="platform-catalog-links" class="platform-catalog-links">
+            <ui:Label text="LINK CATALOG" class="platform-catalog-detail-title" />
+            <ui:ListView name="platform-catalog-links-list" class="platform-catalog-links-list" selection-type="None" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

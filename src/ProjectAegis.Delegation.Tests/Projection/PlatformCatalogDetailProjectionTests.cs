@@ -15,6 +15,9 @@ public sealed class PlatformCatalogDetailProjectionTests
             LonDeg: 21.0,
             CombatRadiusNm: 200.0,
             MaxHp: 500,
+            Resilience: 1.5,
+            WithdrawThresholdPct: 25,
+            CriticalFlags: 2,
             MaxSpeedKnots: 30);
 
         var detail = PlatformCatalogDetailProjection.Format(row);
@@ -23,6 +26,9 @@ public sealed class PlatformCatalogDetailProjectionTests
         Assert.That(detail.LonLabel, Is.EqualTo("LON: 21°"));
         Assert.That(detail.CombatRadiusLabel, Is.EqualTo("RADIUS: 200 nm"));
         Assert.That(detail.MaxHpLabel, Is.EqualTo("HP: 500"));
+        Assert.That(detail.ResilienceLabel, Is.EqualTo("RESILIENCE: 1.5"));
+        Assert.That(detail.WithdrawThresholdLabel, Is.EqualTo("WITHDRAW: 25%"));
+        Assert.That(detail.CriticalFlagsLabel, Is.EqualTo("FLAGS: 2"));
         Assert.That(detail.MaxSpeedLabel, Is.EqualTo("SPEED: 30 kt"));
     }
 
@@ -35,6 +41,9 @@ public sealed class PlatformCatalogDetailProjectionTests
         Assert.That(detail.LonLabel, Is.EqualTo("LON: —"));
         Assert.That(detail.CombatRadiusLabel, Is.EqualTo("RADIUS: —"));
         Assert.That(detail.MaxHpLabel, Is.EqualTo("HP: —"));
+        Assert.That(detail.ResilienceLabel, Is.EqualTo("RESILIENCE: —"));
+        Assert.That(detail.WithdrawThresholdLabel, Is.EqualTo("WITHDRAW: —"));
+        Assert.That(detail.CriticalFlagsLabel, Is.EqualTo("FLAGS: —"));
         Assert.That(detail.MaxSpeedLabel, Is.EqualTo("SPEED: —"));
     }
 
@@ -47,11 +56,17 @@ public sealed class PlatformCatalogDetailProjectionTests
             LonDeg: 2,
             CombatRadiusNm: 10,
             MaxHp: null,
+            Resilience: null,
+            WithdrawThresholdPct: null,
+            CriticalFlags: null,
             MaxSpeedKnots: null);
 
         var detail = PlatformCatalogDetailProjection.Format(row);
 
         Assert.That(detail.MaxHpLabel, Is.EqualTo("HP: —"));
+        Assert.That(detail.ResilienceLabel, Is.EqualTo("RESILIENCE: —"));
+        Assert.That(detail.WithdrawThresholdLabel, Is.EqualTo("WITHDRAW: —"));
+        Assert.That(detail.CriticalFlagsLabel, Is.EqualTo("FLAGS: —"));
         Assert.That(detail.MaxSpeedLabel, Is.EqualTo("SPEED: —"));
     }
 }

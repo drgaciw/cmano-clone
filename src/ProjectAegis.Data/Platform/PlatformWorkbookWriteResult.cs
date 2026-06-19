@@ -17,12 +17,13 @@ public sealed record PlatformWorkbookWriteResult(
 
     public static IReadOnlyList<string> CollectBatchIds(PlatformImportResult import)
     {
-        var ids = new List<string>(9);
+        var ids = new List<string>(10);
         AddIfPresent(ids, import.SensorBatchId);
         AddIfPresent(ids, import.MountBatchId);
         AddIfPresent(ids, import.LoadoutBatchId);
         AddIfPresent(ids, import.MagazineBatchId);
         AddIfPresent(ids, import.CommsBatchId);
+        AddIfPresent(ids, import.LinkBatchId);
         AddIfPresent(ids, import.MobilityBatchId);
         AddIfPresent(ids, import.SignatureBatchId);
         AddIfPresent(ids, import.EmconBatchId);

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# S29-03 — Off-CI nightly CMO corpus approve path after propose-only import (S28-02).
+# S29-03 / S30-04 / S30-11 / S31-09 — Off-CI nightly CMO corpus approve path after propose-only import (S28-02).
 # Runs curator ApproveBatch + RecordRelease via catalog_write_approve. Not wired into dotnet test CI.
 set -euo pipefail
 
@@ -18,21 +18,23 @@ Reads *-propose.json artifacts, approves each staged batch through CatalogWriteG
 and records snapshot hash + release metadata via catalog_write_approve.
 
 Options:
-  --entity <sensor|weapon|platform|all>  Entities to approve (default: all)
+  --entity <sensor|weapon|platform|aircraft|submarine|facility|all>  Entities to approve (default: all)
   --run-date <YYYYMMDD>                  Scratch dir date (default: today UTC)
   --scratch-dir <path>                   Override scratch directory
   --snapshot-id <id>                     Snapshot id for RecordRelease (optional)
   --release-version <ver>                Release version prefix (optional)
   --dry-run                              Print planned approvals only
+  --enable-balance-drift                 Surface balance drift advisory in summary JSON (default: off)
   -h, --help                             Show this help
 
 Environment overrides:
-  ENTITY, RUN_DATE, SCRATCH_DIR, SNAPSHOT_ID, RELEASE_VERSION
+  ENTITY, RUN_DATE, SCRATCH_DIR, SNAPSHOT_ID, RELEASE_VERSION, ENABLE_BALANCE_DRIFT
 
 Examples:
   ./tools/cmo-nightly-approve.sh --entity platform --run-date 20260618
-  MAX_RECORDS=12 ./tools/cmo-nightly-import.sh --entity platform --propose-only
-  ./tools/cmo-nightly-approve.sh --entity platform --dry-run
+  ./tools/cmo-nightly-approve.sh --entity aircraft --dry-run
+  MAX_RECORDS=12 ./tools/cmo-nightly-import.sh --entity aircraft --propose-only
+  ./tools/cmo-nightly-approve.sh --entity aircraft --dry-run
 EOF
 }
 
@@ -42,11 +44,12 @@ SCRATCH_DIR="${SCRATCH_DIR:-${REPO_ROOT}/scratch/nightly-cmo-${RUN_DATE}}"
 SNAPSHOT_ID="${SNAPSHOT_ID:-}"
 RELEASE_VERSION="${RELEASE_VERSION:-}"
 DRY_RUN=0
+ENABLE_BALANCE_DRIFT="${ENABLE_BALANCE_DRIFT:-0}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --entity)
-      ENTITY="${2:?--entity requires sensor|weapon|platform|all}"
+      ENTITY="${2:?--entity requires sensor|weapon|platform|aircraft|submarine|facility|all}"
       shift 2
       ;;
     --run-date)
@@ -70,6 +73,10 @@ while [[ $# -gt 0 ]]; do
       DRY_RUN=1
       shift
       ;;
+    --enable-balance-drift)
+      ENABLE_BALANCE_DRIFT=1
+      shift
+      ;;
     -h|--help)
       usage
       exit 0
@@ -83,9 +90,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "${ENTITY}" in
-  sensor|weapon|platform|all) ;;
+  sensor|weapon|platform|aircraft|submarine|facility|all) ;;
   *)
-    echo "Invalid --entity '${ENTITY}'. Use sensor, weapon, platform, or all." >&2
+    echo "Invalid --entity '${ENTITY}'. Use sensor, weapon, platform, aircraft, submarine, facility, or all." >&2
     exit 1
     ;;
 esac
@@ -123,13 +130,14 @@ write_entity_summary() {
   local entity="$1"
   local propose_json="${SCRATCH_DIR}/${entity}-propose.json"
   local summary_json="${SCRATCH_DIR}/${entity}-approve-summary.json"
-  python3 - "${entity}" "${propose_json}" "${SCRATCH_DIR}" "${summary_json}" <<'PY'
+  python3 - "${entity}" "${propose_json}" "${SCRATCH_DIR}" "${summary_json}" "${ENABLE_BALANCE_DRIFT}" <<'PY'
 import glob
 import json
 import os
 import sys
 
-entity, propose_path, scratch_dir, summary_path = sys.argv[1:5]
+entity, propose_path, scratch_dir, summary_path, enable_balance_drift = sys.argv[1:6]
+enable_balance_drift = enable_balance_drift == "1"
 with open(propose_path, encoding="utf-8") as handle:
     propose = json.load(handle)
 
@@ -140,6 +148,38 @@ for path in sorted(glob.glob(pattern)):
         continue
     with open(path, encoding="utf-8") as handle:
         approvals.append(json.load(handle))
+
+def merge_balance_drift_advisories(items):
+    enabled = False
+    findings = []
+    notes = []
+    state_hash = ""
+    for item in items:
+        advisory = item.get("balanceDriftAdvisory")
+        if not advisory:
+            continue
+        enabled = enabled or advisory.get("driftDetectionEnabled", False)
+        findings.extend(advisory.get("findings", []))
+        notes.extend(advisory.get("advisoryNotes", []))
+        if advisory.get("stateHash"):
+            state_hash = advisory["stateHash"]
+    if not enabled:
+        return None
+    deduped_findings = []
+    seen = set()
+    for finding in sorted(findings, key=lambda f: (f.get("entityId", ""), f.get("code", ""))):
+        key = (finding.get("entityId", ""), finding.get("code", ""))
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped_findings.append(finding)
+    return {
+        "driftDetectionEnabled": True,
+        "findingCount": len(deduped_findings),
+        "findings": deduped_findings,
+        "stateHash": state_hash,
+        "advisoryNotes": sorted(set(notes)),
+    }
 
 summary = {
     "ok": all(item.get("ok") for item in approvals),
@@ -153,10 +193,20 @@ summary = {
             "releaseVersion": item.get("releaseVersion"),
             "contentHashSha256": item.get("contentHashSha256"),
             "sensorRowCount": item.get("sensorRowCount"),
+            **(
+                {"balanceDriftAdvisory": item["balanceDriftAdvisory"]}
+                if enable_balance_drift and item.get("balanceDriftAdvisory") is not None
+                else {}
+            ),
         }
         for item in approvals
     ],
 }
+if enable_balance_drift:
+    summary["enableBalanceDrift"] = True
+    merged = merge_balance_drift_advisories(approvals)
+    if merged is not None:
+        summary["balanceDriftAdvisory"] = merged
 with open(summary_path, "w", encoding="utf-8") as handle:
     json.dump(summary, handle, indent=2)
     handle.write("\n")
@@ -184,7 +234,11 @@ approve_entity() {
 
   if [[ "${DRY_RUN}" -eq 1 ]]; then
     for batch_id in "${batch_ids[@]}"; do
-      echo "    [dry-run] catalog_write_approve --db ${DB_PATH} --batch ${batch_id}"
+      local dry_run_cmd="catalog_write_approve --db ${DB_PATH} --batch ${batch_id}"
+      if [[ "${ENABLE_BALANCE_DRIFT}" -eq 1 ]]; then
+        dry_run_cmd+=" --enable-balance-drift"
+      fi
+      echo "    [dry-run] ${dry_run_cmd}"
     done
     return 0
   fi
@@ -195,6 +249,9 @@ approve_entity() {
   fi
   if [[ -n "${RELEASE_VERSION}" ]]; then
     approve_args+=(--release-version "${RELEASE_VERSION}")
+  fi
+  if [[ "${ENABLE_BALANCE_DRIFT}" -eq 1 ]]; then
+    approve_args+=(--enable-balance-drift)
   fi
 
   local failures=0
@@ -223,16 +280,49 @@ approve_entity() {
 
 write_final_summary() {
   local entities=("$@")
-  python3 - "${SUMMARY_OUT}" "${RUN_DATE}" "${SCRATCH_DIR}" "${DB_PATH}" "${entities[@]}" <<'PY'
+  python3 - "${SUMMARY_OUT}" "${RUN_DATE}" "${SCRATCH_DIR}" "${DB_PATH}" "${ENABLE_BALANCE_DRIFT}" "${entities[@]}" <<'PY'
 import json
 import sys
 
-out_path, run_date, scratch_dir, db_path, *entities = sys.argv[1:]
+out_path, run_date, scratch_dir, db_path, enable_balance_drift, *entities = sys.argv[1:]
+enable_balance_drift = enable_balance_drift == "1"
 entity_summaries = []
 for entity in entities:
     summary_path = f"{scratch_dir}/{entity}-approve-summary.json"
     with open(summary_path, encoding="utf-8") as handle:
         entity_summaries.append(json.load(handle))
+
+def merge_entity_advisories(items):
+    enabled = False
+    findings = []
+    notes = []
+    state_hash = ""
+    for item in items:
+        advisory = item.get("balanceDriftAdvisory")
+        if not advisory:
+            continue
+        enabled = enabled or advisory.get("driftDetectionEnabled", False)
+        findings.extend(advisory.get("findings", []))
+        notes.extend(advisory.get("advisoryNotes", []))
+        if advisory.get("stateHash"):
+            state_hash = advisory["stateHash"]
+    if not enabled:
+        return None
+    deduped_findings = []
+    seen = set()
+    for finding in sorted(findings, key=lambda f: (f.get("entityId", ""), f.get("code", ""))):
+        key = (finding.get("entityId", ""), finding.get("code", ""))
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped_findings.append(finding)
+    return {
+        "driftDetectionEnabled": True,
+        "findingCount": len(deduped_findings),
+        "findings": deduped_findings,
+        "stateHash": state_hash,
+        "advisoryNotes": sorted(set(notes)),
+    }
 
 summary = {
     "ok": all(item.get("ok", False) for item in entity_summaries),
@@ -241,6 +331,11 @@ summary = {
     "dbPath": db_path,
     "entities": entity_summaries,
 }
+if enable_balance_drift:
+    summary["enableBalanceDrift"] = True
+    merged = merge_entity_advisories(entity_summaries)
+    if merged is not None:
+        summary["balanceDriftAdvisory"] = merged
 with open(out_path, "w", encoding="utf-8") as handle:
     json.dump(summary, handle, indent=2)
     handle.write("\n")
@@ -272,6 +367,9 @@ fi
 if [[ "${DRY_RUN}" -eq 1 ]]; then
   echo "    Mode: dry-run (no dotnet invocations)"
 fi
+if [[ "${ENABLE_BALANCE_DRIFT}" -eq 1 ]]; then
+  echo "    Balance drift advisory: enabled"
+fi
 
 if [[ "${DRY_RUN}" -eq 0 ]]; then
   dotnet build "${CLI_PROJECT}" -v minimal -nologo
@@ -299,6 +397,30 @@ fi
 if entity_selected platform; then
   if approve_entity platform; then
     approved_entities+=("platform")
+  else
+    failures=$((failures + 1))
+  fi
+fi
+
+if entity_selected aircraft; then
+  if approve_entity aircraft; then
+    approved_entities+=("aircraft")
+  else
+    failures=$((failures + 1))
+  fi
+fi
+
+if entity_selected submarine; then
+  if approve_entity submarine; then
+    approved_entities+=("submarine")
+  else
+    failures=$((failures + 1))
+  fi
+fi
+
+if entity_selected facility; then
+  if approve_entity facility; then
+    approved_entities+=("facility")
   else
     failures=$((failures + 1))
   fi

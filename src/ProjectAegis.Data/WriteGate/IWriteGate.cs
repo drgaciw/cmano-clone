@@ -35,6 +35,13 @@ public interface IWriteGate
         string actorId,
         string rationale = "");
 
+    /// <summary>S34-02: stage link_catalog rows from LinkCatalog workbook edits.</summary>
+    string ProposeLinkCatalogBatch(
+        IReadOnlyList<CatalogLinkEntry> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
     /// <summary>S22-04: stage platform metadata parsed from CMO markdown platform sections.</summary>
     string ProposePlatformBatch(
         IReadOnlyList<CatalogPlatformBinding> proposed,
