@@ -1,7 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (12240 symbols, 24819 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (14160 symbols, 28928 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -97,6 +97,21 @@ Simulation runtime banks (`agent-*`, `aar-*`, `agent-xp-*`) are populated by `Hi
 - Do not retain secrets or credentials.
 
 <!-- hindsight:end -->
+
+## Buildkite CI agents (local)
+
+Official [Buildkite skills](https://github.com/buildkite/skills) are vendored under `.claude/skills/buildkite-*` and `.cursor/skills/buildkite-*`.
+
+| Agent | Use for |
+|-------|---------|
+| `buildkite-ci-lead` | Default for Buildkite CI; owns `.buildkite/` and `tools/buildkite/` |
+| `buildkite-pipelines-engineer` | Pipeline YAML, plugins, step design |
+| `buildkite-migration-engineer` | CI migration from GitHub Actions or other providers |
+| `buildkite-operations-engineer` | `bk`, API, preflight, build triage |
+
+Refresh: `bash tools/buildkite/install-buildkite-skills.sh` — see [`docs/engineering/buildkite-agent-skills.md`](docs/engineering/buildkite-agent-skills.md).
+
+MCP: `buildkite` → `https://mcp.buildkite.com/mcp` in `.cursor/mcp.json`.
 
 ## Superpowers (global methodology)
 

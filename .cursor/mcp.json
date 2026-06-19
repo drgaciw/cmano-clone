@@ -15,6 +15,9 @@
     "gitnexus": {
       "command": "npx",
       "args": ["-y", "gitnexus@latest", "mcp"]
+    },
+    "buildkite": {
+      "url": "https://mcp.buildkite.com/mcp"
     }
   }
 }
