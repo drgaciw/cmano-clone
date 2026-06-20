@@ -713,9 +713,29 @@ retro: production/retrospectives/retro-sprint-39-2026-06-20.md
 
 sprint: 40
 goal: "Horizon 2 deeper polish: Catalog/Import read-model surfacing, perf P1 burn-down, replay maint, playtest 12"
-status: planned
+start: "2026-06-20"
+completed: "2026-06-20"
+status: complete
 kickoff: production/sprints/sprint-40-deeper-polish-catalog-import-perf.md
 parallel_kickoff: production/agentic/sprint-40-parallel-kickoff-2026-06-20.md
+qa_plan: production/qa/qa-plan-sprint-40-2026-06-20.md
+smoke: production/qa/smoke-sprint-40-closeout-2026-06-20.md
+tests_passed: 1226
+replay_golden: "6/6"
+c2_proxy: "18/18"
+sprint40_must_have_complete: true
+sprint40_tracks_complete:
+  catalog_import: true
+  perf_p1: true
+  replay_maint: true
+  closeout: true
+sprint40_parallel_agents_used: 1
+s40_closeout_note: "S40-01..06 must-haves PASS. Catalog/Import projection surfacing (+9 tests). Perf P1 doc-only appendix. Replay 6/6 no fixture delta. Gates: 1226 tests, proxy 18/18, ZERO DelegationBridge, extend-only CatalogWriteGate. S40-07/08 deferred per cut line."
+evidence:
+  - production/qa/smoke-sprint-40-closeout-2026-06-20.md
+  - production/qa/qa-plan-sprint-40-2026-06-20.md
+  - production/perf/perf-profile-polish-baseline-2026-06-19.md
+  - polish-scope-boundary-2026-06-19.md
 program_guide: production/agentic/s39-s48-program-execution-guide.md
 
 sprint: 41

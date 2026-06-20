@@ -522,3 +522,34 @@ S39-05 COMPLETE - isolated track.
 References (boundary enforced): polish-scope-boundary-2026-06-19.md (P0/P1 only, hash discipline), sprint-39-deeper-polish-c2-platform-hygiene.md §S39-05, qa-plan-sprint-39-2026-06-20.md §S39-05 Perf/Replay, prior S38-08 appendix in this doc.
 
 **Cross-gates (this track only):** Replay 6/6, no hash touch, ZERO DelegationBridge, perf P1 stable. Ready for S39 closeout (perf/replay sub-track).
+
+---
+
+## S40-04 Delta Note (perf P1 burn-down + replay maintenance)
+
+**Date:** 2026-06-20  
+**Track:** Perf P1 (S40-04) + Replay maint (S40-05) per `production/sprints/sprint-40-deeper-polish-catalog-import-perf.md`  
+**Authority:** `production/polish-scope-boundary-2026-06-19.md` + `production/qa/qa-plan-sprint-40-2026-06-20.md`  
+**Scope (strict):** Doc-only perf follow-up; replay golden suite verification only; **no sim hot-path edits**; **no prod Baltic hash change**; ZERO `DelegationBridge`.
+
+### Re-profile vs S39 closeout
+- ReplayGoldenSuiteTests: **6/6 PASS** (Duration ~171 ms @ S40 closeout run; within S39 variance band).
+- Full sln: **1226/1226** (+9 projection tests from S40-03 Catalog surfacing; no perf regression attributable to perf/replay tracks).
+- Production Baltic hash `17144800277401907079` **unchanged** (ReplayGolden enforced).
+- Catalog projection surfacing (S40-03) is read-model only — no per-tick catalog reads added.
+
+### P1 items status
+| P1 Item | vs S39 | Status / Delta |
+|---------|--------|----------------|
+| Unity C2 frame time (16.67 ms target) | Unchanged | **Unmeasured** on Linux headless; no code fix identified — deferred per boundary. |
+| C2 panel selection latency (<100 ms) | Unchanged | Headless proxy only; no new measurement. |
+| Catalog load (bind / harness) | Stable | S40-03 adds projection formatters only at bind/review time — **not per-tick**. |
+| Headless tick budget (<1 ms target at MVP) | Stable | ReplayGolden amortized tick cost unchanged within noise. |
+
+### Replay / determinism maint (S40-05)
+- ReplayGoldenSuiteTests **6/6 PASS** — no isolated fixture updates required.
+- `/replay-verify` equivalent satisfied via golden suite re-run post S40-03.
+
+**No concrete P1 code fixes identified** — appendix documents stable baseline; burn-down deferred to Track B scale-out (S45) if Editor Profiler captures regressions.
+
+S40-04/05 COMPLETE — doc + gate verification only.
