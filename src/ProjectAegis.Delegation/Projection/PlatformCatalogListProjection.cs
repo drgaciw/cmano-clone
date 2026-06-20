@@ -17,4 +17,8 @@ public static class PlatformCatalogListProjection
 
     private static string FormatOptionalInt(int? value) =>
         value.HasValue ? value.Value.ToString(CultureInfo.InvariantCulture) : Missing;
+
+    // S42-03 B1 Req16/21: magazine-augmented row formatting (projection-side loadout surfacing; uses external count lookup for deterministic display; cite boundary + S41 ack).
+    public static string FormatRowWithMagazine(CatalogPlatformBrowseRow row, IReadOnlyDictionary<string, int> magazineCountsByPlatform) =>
+        $"{FormatRow(row)} mags={magazineCountsByPlatform.GetValueOrDefault(row.PlatformId)}";
 }

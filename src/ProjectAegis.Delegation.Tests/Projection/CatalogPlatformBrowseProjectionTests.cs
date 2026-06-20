@@ -151,4 +151,24 @@ public sealed class CatalogPlatformBrowseProjectionTests
         Assert.That(row.MountCount, Is.EqualTo(0));
         Assert.That(row.SensorCount, Is.EqualTo(1));
     }
+
+    [Test]
+    public void GetEccmCatalogFlags_surfaces_jam_from_sensor_binding_for_ew_req()
+    {
+        // TDD: test for Req 15/19 ECCM catalog flags (added in S42 content wave; fixed for RC build)
+        // Uses JamStrength now on CatalogSensorBinding (default 0.0 for backward compat)
+        var reader = new InMemoryCatalogReader(
+            bindings:
+            [
+                new CatalogSensorBinding("u1", "radar-1", 0.9, JamStrength: 0.5),
+                new CatalogSensorBinding("u1", "radar-2", 0.8, JamStrength: 0.2),
+                new CatalogSensorBinding("u2", "ir-1", 0.7),
+            ]);
+
+        var flags = CatalogPlatformBrowseProjection.GetEccmCatalogFlags(reader, "u1");
+
+        Assert.That(flags.Count, Is.EqualTo(2));
+        Assert.That(flags, Does.Contain("ECCM:jam=0.5"));
+        Assert.That(flags, Does.Contain("ECCM:jam=0.2"));
+    }
 }
