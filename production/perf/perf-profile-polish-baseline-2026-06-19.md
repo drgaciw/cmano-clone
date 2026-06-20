@@ -305,3 +305,43 @@ Per `production/polish-scope-boundary-2026-06-19.md`:
 - `design/gdd/simulation-core-time.md` — tick pipeline, headless batch
 - `src/ProjectAegis.Delegation.UnityAdapter/Baltic/BalticReplayHarness.cs` — headless hot loop
 - `tools/buildkite/dotnet-ci.sh` — CI test ceilings
+
+---
+
+## S37-12: Perf Re-profile + Appendix (Simulation/Perf Track, Sprint 37)
+
+**Date:** 2026-06-20  
+**Track:** Simulation/Perf (S37-09 + S37-12 isolated)  
+**Authority:** `production/sprints/sprint-37-graph-surfacing-deeper-polish.md` + `production/qa/qa-plan-sprint-37-2026-06-20.md` + `production/polish-scope-boundary-2026-06-19.md` (Phase 2 deeper Polish)  
+**Review mode:** lean (`production/review-mode.txt`)
+
+### P2 Follow-ups Implemented (S37-09)
+- Allocation/LINQ hotspots from S36-08 carryover + prior P1 (S35-10).
+- `src/ProjectAegis.Delegation/Orchestration/SimulationSession.cs`: replaced `acceptedSlots.Select(...)` LINQ with explicit foreach + pre-sized HashSet in per-engage deconflict path (P2 follow-up).
+- `src/ProjectAegis.Sim/Sensors/PdDetectionContactSimulator.cs`: changed `_detectedContacts` from HashSet to SortedSet<String> (Ordinal) — eliminates per-tick `OrderBy(...).` allocation + sort in Tick() while preserving deterministic Ordinal iteration order and all hashes.
+- Behavior, order logs, and world-state hashes identical by construction (no reordering, no RNG, stable keys).
+
+### Verification (S37-09 / S37-12)
+- `dotnet build` (Sim + Delegation): clean.
+- Affected unit tests (PdDetection*, Bda*, SimulationSession/engage, OrderLog): 13 + 71 PASS.
+- `ReplayGoldenSuiteTests` (filter ReplayGolden): 17 PASS (includes Baltic fixtures).
+- Production Baltic hash `17144800277401907079` unchanged (asserted in harness runs and pinned tests); `/replay-verify` equivalent gate PASS (no intra-run divergence, no drift vs prior golden).
+- Zero touch on `DelegationBridge.cs`; within polish-boundary; hash-identical vs S36 baseline; no new scope.
+
+### Updated Hotspot Status (P2)
+| # | Location | Prior (P1 closure) | S37-09 P2 | Notes |
+|---|----------|--------------------|-----------|-------|
+| 3 | DecisionLog / fingerprint | CLOSED (S35-10) | unchanged | incremental append maintained |
+| 4 | DatalinkSidePictureMerger | CLOSED (S35-10) | unchanged | cached ordering maintained |
+| 5 | BalticReplayHarness datalink | P1 List fix | unchanged | List reuse maintained |
+| — | SimulationSession engage deconflict Select | OPEN LINQ | CLOSED (explicit loop) | per-tick allocation reduced |
+| — | PdDetectionContactSimulator Tick OrderBy | OPEN per-tick sort | CLOSED (SortedSet) | per-tick alloc eliminated for detected loop |
+| — | BdaContactLifecycleHotTickApplier | P1 explicit | unchanged | loop+HashSet maintained |
+
+**Baltic MVP tick budget:** still within P1 (<1ms target met at slice scale); alloc reduction provides headroom for future scale without hash impact.
+
+**Next (deferred per boundary):** Unity Profiler for C2 16.67 ms, full 300-tick bench, scale >MVP.
+
+S37-12 complete: appendix appended. No new test file (Config/Data per qa-plan). 
+
+References: sprint-37 §Wave 3, qa-plan S37-09/S37-12, ADR-003 (order log determinism), polish-scope-boundary-2026-06-19.md.

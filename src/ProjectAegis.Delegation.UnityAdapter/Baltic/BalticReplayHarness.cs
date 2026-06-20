@@ -190,7 +190,12 @@ public static class BalticReplayHarness
                     MapDatalinkCommsShareState(bridge.CurrentCommsState));
                 if (shared.Count > 0)
                 {
-                    transitions = transitions.Concat(shared).ToArray();
+                    // Allocation follow-up P1: List concat instead of LINQ Concat+ToArray.
+                    // Order preserved (transitions then shared) for identical order-log appends and hash.
+                    var merged = new List<ContactTransition>(transitions.Count + shared.Count);
+                    merged.AddRange(transitions);
+                    merged.AddRange(shared);
+                    transitions = merged.ToArray();
                 }
             }
 

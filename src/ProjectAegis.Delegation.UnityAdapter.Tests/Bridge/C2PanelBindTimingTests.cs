@@ -79,6 +79,11 @@ public sealed class C2PanelBindTimingTests
         var summary = ContactSummaryProjection.Project(contactId, sensorC2.Contacts);
         Assert.That(summary, Is.Not.Null);
 
+        // S37-06: include graph surfacing bind in timing path (no frame spike post S37-04)
+        var graphHighlights = new List<string> { defaultUnit ?? "u1", "sen-x" };
+        var oobGraph = OobTreePanelBinder.Bind(oob, defaultUnit, graphHighlights);
+        Assert.That(oobGraph, Is.Not.Null);
+
         var mapContact = MapPanelBinder.Bind(symbols, "baltic-patrol-classify", null, contactId);
         var drawerContacts = SensorC2PanelBinder.Bind(sensorC2);
 

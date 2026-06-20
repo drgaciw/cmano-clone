@@ -41,12 +41,25 @@ public static class BdaContactLifecycleHotTickApplier
             return Array.Empty<string>();
         }
 
-        return changes
-            .Where(c => ShouldPromoteToLost(c))
-            .Select(c => c.PlatformId)
-            .Distinct(StringComparer.Ordinal)
-            .OrderBy(id => id, StringComparer.Ordinal)
-            .ToArray();
+        // Allocation follow-up: explicit loop + HashSet + final sort (no LINQ chain).
+        // Output identical to prior Distinct+OrderBy because final sort on unique ids (Ordinal).
+        // Preserves determinism for replay/hash (lexicographic id order on lost targets).
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        var ids = new List<string>(changes.Count);
+        for (int i = 0; i < changes.Count; i++)
+        {
+            var c = changes[i];
+            if (ShouldPromoteToLost(c))
+            {
+                var id = c.PlatformId;
+                if (seen.Add(id))
+                {
+                    ids.Add(id);
+                }
+            }
+        }
+        ids.Sort(StringComparer.Ordinal);
+        return ids.ToArray();
     }
 
     public static IReadOnlyList<ContactTransition> ApplySortedTargets(

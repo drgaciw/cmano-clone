@@ -27,7 +27,7 @@ Polish Phase 1 hardens the **Baltic vertical slice + C2 + Platform Editor** play
 
 ### C2 UI path (checks 1–18)
 
-- **Headless proxy (primary gate):** `Invoke-ManualQaHeadlessGate.ps1` + `c2-automated-proxy-2026-06-02.md` — maintain **18/18** checks via `ProjectAegis.Delegation.UnityAdapter.Tests` filters (`PlayModeSmoke|C2Selection|OobTree|LossesScoring|BalticReplay|FuelState|AttackMenu|PlatformImport|Doctrine|C2TopBar|PlatformCatalogViewer|PlatformComms|PlatformLinkCatalog`).
+- **Headless proxy (primary gate):** `Invoke-ManualQaHeadlessGate.ps1` + `c2-automated-proxy-2026-06-02.md` — maintain **18/18** checks via `ProjectAegis.Delegation.UnityAdapter.Tests` filters (`PlayModeSmoke|C2Selection|OobTree|LossesScoring|BalticReplay|FuelState|AttackMenu|PlatformImport|Doctrine|C2TopBar|PlatformCatalogViewer|PlatformComms|PlatformLinkCatalog|Graph*`).  // S37-04/13 extension
 - **Manual sign-off checklist:** `production/qa/c2-manual-signoff-2026-06-02.md` — checks 1–18 per [sprint-34-c2-signoff-2026-06-19.md](qa/sprint-34-c2-signoff-2026-06-19.md).
 - **Editor when available (advisory, non-blocking):** live Unity re-capture of `*-s30..s34-*.png` protocol placeholders; `Invoke-C2PlayModeSignoffBatch.ps1` for import + begin-execution scenarios on Windows/macOS host.
 - **UX polish within C2 path only:** `design/ux/c2-command-post.md`, map placeholder panel, selection/OOB/attack menu/comms bar feel — no globe/Cesium production work.
@@ -103,7 +103,7 @@ Polish Phase 1 hardens the **Baltic vertical slice + C2 + Platform Editor** play
 
 ### Studio template / doc-only tracker gaps
 
-- Migrating test evidence to `tests/unit/` + `tests/integration/` studio layout (audit hygiene — not Polish feature work).
+- Migrating test evidence to `tests/unit/` + `tests/integration/` studio layout (audit hygiene — not Polish feature work). **S36-09 CLOSED**: Layout decision documented (see .claude/docs/directory-structure.md) — co-located src/*Tests projects + tests/regression/ retained for .NET solution hygiene. Flat layout aspirational only; no migration executed in Polish phase. (c-sharp-devops-engineer isolated).
 - Art bible, full accessibility tier, interaction-pattern library at `design/ux/interaction-patterns.md` — track as parallel UX foundation, not scope-expanding gameplay.
 
 ---

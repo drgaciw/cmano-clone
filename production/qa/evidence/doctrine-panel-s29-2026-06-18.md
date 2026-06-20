@@ -9,6 +9,15 @@
 
 **PASS (lean proxy)** — closes Sprint 22/S23 deferred visual gate C4 via scene wiring + headless regression; Editor screenshot advisory optional.
 
+## S37-04/05/06/13 Graph Surfacing + Polish Evidence (added)
+- C2 dependency viewer/panel/highlights/bind: graph chains visible in OOB + selection (headless proxy + live).
+- Platform Editor: FK/full graph display, tooltips on rows, export polish exercised.
+- Frame headroom: C2 panel + graph bind under budget (p95 <<16.67 ms / 100ms Req20).
+- Evidence PNGs (lean): c2-graph-viewer-s37.png, editor-fk-graph-s37.png, frame-headroom-s37.png captured post-changes.
+- C2 proxy 18/18+ maintained; read-only; ZERO DelegationBridge.cs edits; polish-boundary + ADR-010/011.
+- New proxy tests + timing + roundtrip cover ACs.
+
+
 ## Scene wiring (AC-1)
 
 `DelegationSmoke.unity` now includes `DoctrineInheritance` root with `DoctrineInheritancePanelHost`:

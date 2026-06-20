@@ -76,7 +76,7 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             .ToArray();
         _links = CatalogSortKeyComparer.SortLinks(links ?? Array.Empty<CatalogLinkEntry>()).ToArray();
         _linkLatencyLookup = _links.ToDictionary(l => l.LinkId, l => l.LatencyMsNominal, StringComparer.Ordinal);
-        _dependencyEdges = CatalogDependencyGraphIndex.BuildFrom(_mounts, _magazines, _bindings).ToArray();
+        _dependencyEdges = CatalogDependencyGraphIndex.BuildFrom(_mounts, _magazines, _bindings, _comms, _links).ToArray();
     }
 
     public string LayerVersion { get; }

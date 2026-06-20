@@ -560,7 +560,49 @@ sprint11_tasks:
     completed: "2026-06-04"
     note: production/agentic/sprint-11-hindsight-recall-2026-06-04.md
 
-current_sprint: 33
+current_sprint: 37
+
+sprint: 36
+goal: "Polish Phase 2: implement platform→link dependency graph runtime + surfacing (S35-16 seed), close residual Polish 0 carryovers (C2 frame budget, live evidence, test layout, art bible), and execute parallel polish tracks."
+status: complete
+completed: "2026-07-17"
+kickoff: production/sprints/sprint-36-polish-phase-2-dependency-graph.md
+qa_plan: production/qa/qa-plan-sprint-36-2026-07-06.md
+parallel_kickoff: production/agentic/sprint-36-parallel-kickoff-2026-07-06.md
+evidence:
+  - production/sprints/sprint-36-polish-phase-2-dependency-graph.md
+  - production/qa/qa-plan-sprint-36-2026-07-06.md
+sprint36_tracks_complete:
+  data: true
+  unity: true
+  simulation: true
+  qa_devops_hygiene: true
+sprint36_parallel_agents_used: 4
+dispatching_parallel_agents: used for tracks per superpowers skill
+
+sprint: 37
+goal: "Complete UI surfacing of the dependency graph (C2 + Platform Editor integration beyond S36 runtime/Phase H), drive deeper Polish (perf P2, playtests cadence, hygiene), and refine superpowers dispatching for improved parallel agent execution — all while preserving determinism, C2 18/18 proxy, ReplayGolden, and polish-boundary scope."
+status: complete
+completed: "2026-07-20"
+kickoff: production/sprints/sprint-37-graph-surfacing-deeper-polish.md
+qa_plan: production/qa/qa-plan-sprint-37-2026-06-20.md
+parallel_kickoff: production/agentic/sprint-37-parallel-kickoff-2026-07-20.md
+evidence:
+  - production/sprints/sprint-37-graph-surfacing-deeper-polish.md
+  - production/qa/qa-plan-sprint-37-2026-06-20.md
+  - production/qa/qa-signoff-sprint-37-2026-07-20.md
+  - production/playtests/playtest-s37-session-9-graph-ux-2026-07-20.md
+sprint37_tracks_complete:
+  data: true
+  unity_c2_editor: true
+  sim_perf: true
+  qa_process_hygiene: true
+sprint37_parallel_agents_used: 4
+dispatching_parallel_agents: used for tracks per superpowers skill
+smoke: UNKNOWN (no dedicated report; indirect from playtest and prior baselines)
+team_qa_verdict: APPROVED WITH CONDITIONS
+gate_review: CONCERNS (missing explicit smoke artifact; strong positives on delivery and gates)
+
 requirements_program: complete
 requirements_program_completed: "2026-06-04"
 sprints_11_15_closeout: complete
@@ -3179,3 +3221,95 @@ sprint15_preview:
     - id: s15-rtm
       status: done
       note: "RTM rows 01-12 — requirements-traceability.md"
+
+# --- Sprint 36 (simulated mid-sprint /sprint-status via S36 QA/DevOps/Hygiene Track) ---
+sprint: 36
+goal: "Polish Phase 2: dependency graph runtime + S35 carryover residuals (tests/unit layout, playtest 8, art-bible, dispatching, closeout)."
+start: "2026-07-06"
+end: "2026-07-17"
+generated: "2026-07-06"
+updated: "2026-07-10"  # mid-sprint simulation
+status: in_progress
+branch: main
+indexed_commit: e60eadc
+tests_passed: 1204
+replay_golden: 6/6
+qa_plan: production/qa/qa-plan-sprint-36-*.md (S36-02 prerequisite)
+kickoff: production/sprints/sprint-36-polish-phase-2-dependency-graph.md
+parallel_kickoff: production/agentic/sprint-36-parallel-kickoff-2026-07-06.md
+current_wave: "Wave 4 — QA/DevOps/Hygiene Track + closeout prep"
+sprint36_stories:
+  # Must / core (prereqs + other waves assumed done for sim)
+  - id: "S36-01"
+    name: "Full-solution re-baseline post-S35 + GitNexus + ReplayGolden"
+    priority: must-have
+    status: done
+    owner: "c-sharp-devops-engineer"
+    completed: "2026-07-06"
+  - id: "S36-02"
+    name: "Sprint 36 QA plan"
+    priority: must-have
+    status: done
+    owner: "team-qa"
+    completed: "2026-07-06"
+  # QA/DevOps/Hygiene Track (S36-09,10,11,13,14) — focus of task
+  - id: "S36-09"
+    name: "tests/unit/ layout or ADR"
+    priority: should-have
+    status: done
+    owner: "c-sharp-devops-engineer"
+    completed: "2026-07-08"
+    note: "hybrid layout documented in directory-structure.md + polish-boundary (isolated devops)"
+  - id: "S36-10"
+    name: "Playtest session 8"
+    priority: should-have
+    status: done
+    owner: "team-qa"
+    completed: "2026-07-09"
+    note: "Report in playtests/README.md (qa specialist)"
+  - id: "S36-11"
+    name: "AD-ART-BIBLE sign-off facilitation"
+    priority: should-have
+    status: done
+    owner: "team-ui"
+    completed: "2026-07-09"
+    note: "Verdict note in art-bible.md (ui specialist)"
+  - id: "S36-13"
+    name: "Dispatching-parallel-agents refinement"
+    priority: nice-to-have
+    status: done
+    owner: "coordinator / c-sharp-devops-engineer"
+    completed: "2026-07-10"
+    note: "Pattern + isolation contract updates in kickoff + coordination-map (isolated)"
+  - id: "S36-14"
+    name: "Closeout hygiene"
+    priority: must-have
+    status: in_progress
+    owner: "c-sharp-devops-engineer"
+    note: "Smoke + replay 6/6 pending full waves; baseline hold. Isolated hygiene."
+  # Other tracks abbreviated for mid-sim
+  - id: "S36-03"
+    name: "CatalogDependencyGraphIndex Platform→Link edges + tests"
+    priority: must-have
+    status: in_progress
+    owner: "team-data"
+  - id: "S36-05"
+    name: "Unity C2 frame budget capture + remediation"
+    priority: must-have
+    status: in_progress
+    owner: "team-unity"
+sprint36_qa_devops_hygiene:
+  track: "Wave 4 + Closeout"
+  stories_complete: 4
+  stories_in_progress: 1  # S36-14
+  specialists_used: ["qa-lead", "qa-tester", "c-sharp-devops-engineer", "ui-experience-lead", "team-ui"]
+  isolation: "true (no cross-track edits)"
+  sprint_status_sim: "mid (2026-07-10); 09-11+13 done; 14 hygiene active; burndown On Track per /sprint-status skill sim"
+evidence:
+  - production/sprints/sprint-36-polish-phase-2-dependency-graph.md
+  - production/agentic/sprint-36-parallel-kickoff-2026-07-06.md
+  - .claude/docs/directory-structure.md (S36-09)
+  - production/playtests/README.md (S36-10)
+  - design/art/art-bible.md (S36-11)
+  - .claude/docs/agent-coordination-map.md (S36-13)
+  - sprint-status.yaml updates (S36-14 prep)

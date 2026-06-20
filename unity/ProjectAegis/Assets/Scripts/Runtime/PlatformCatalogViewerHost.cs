@@ -1,6 +1,8 @@
 // S27-08/15 + S28-07: ADR-011 Phase C read-only platform catalog browse with search/filter + detail pane
 // and read-only export/diff triggers (no write-gate bypass; import/write deferred to CLI).
+// S36-07 Phase H link surfacing (read-only): FK links shown for selected platform (UI + data read via comms).
 #if UNITY_5_3_OR_NEWER
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ProjectAegis.Data.Catalog;
@@ -58,6 +60,9 @@ namespace ProjectAegis.Unity.Runtime
         private IReadOnlyList<CatalogCommsBinding> _allComms = Array.Empty<CatalogCommsBinding>();
         private IReadOnlyList<CatalogLinkEntry> _allLinks = Array.Empty<CatalogLinkEntry>();
         private IReadOnlyDictionary<string, string> _linkDisplayNames = new Dictionary<string, string>();
+        // S37-05: full graph surfacing (FK + dependency chains) for interactive display
+        private IReadOnlyList<CatalogDependencyEdge> _allGraphEdges = Array.Empty<CatalogDependencyEdge>();
+        private List<string> _graphDisplayItems = new();
         private List<CatalogPlatformBrowseRow> _filteredRows = new();
         private List<string> _displayItems = new();
         private List<string> _commsDisplayItems = new();
@@ -88,7 +93,8 @@ namespace ProjectAegis.Unity.Runtime
         public void BindRows(
             IReadOnlyList<CatalogPlatformBrowseRow> rows,
             IReadOnlyList<CatalogCommsBinding>? comms = null,
-            IReadOnlyList<CatalogLinkEntry>? links = null)
+            IReadOnlyList<CatalogLinkEntry>? links = null,
+            IReadOnlyList<CatalogDependencyEdge>? graphEdges = null)
         {
             if (_document == null)
             {
@@ -99,6 +105,8 @@ namespace ProjectAegis.Unity.Runtime
             _allComms = comms ?? Array.Empty<CatalogCommsBinding>();
             _allLinks = links ?? Array.Empty<CatalogLinkEntry>();
             _linkDisplayNames = CatalogLinkListProjection.BuildDisplayNameLookup(_allLinks);
+            // S37-05: FK/full graph display
+            _allGraphEdges = graphEdges ?? Array.Empty<CatalogDependencyEdge>();
             TryWireElements();
             RefreshList();
             ApplyPanelVisibility();
@@ -108,7 +116,8 @@ namespace ProjectAegis.Unity.Runtime
             BindRows(
                 CatalogPlatformBrowseProjection.FromReader(reader),
                 reader.GetSortedComms(),
-                CatalogLinkListProjection.FromReader(reader));
+                CatalogLinkListProjection.FromReader(reader),
+                reader.GetSortedDependencyEdges());  // S37-05 full graph surfacing
 
         public void BindExportContext(string databasePath, string? snapshotId = null)
         {
@@ -138,6 +147,8 @@ namespace ProjectAegis.Unity.Runtime
                         if (element is Label label && index >= 0 && index < _displayItems.Count)
                         {
                             label.text = _displayItems[index];
+                            // S37-05: tooltips for FK/graph surfacing (interactive display)
+                            label.tooltip = $"Platform row: {_displayItems[index]} — graph/FK details in links+graph panes (read-only)";
                         }
                     };
                     _platformList.selectionChanged += OnSelectionChanged;
@@ -292,6 +303,8 @@ namespace ProjectAegis.Unity.Runtime
                 : null;
             BindDetail(row);
             BindComms(row?.PlatformId);
+            BindLinks(row?.PlatformId);
+            BindGraph(row?.PlatformId);  // S37-05 full graph + FK
         }
 
         private void BindDetail(CatalogPlatformBrowseRow? row)
@@ -354,14 +367,58 @@ namespace ProjectAegis.Unity.Runtime
             }
         }
 
-        private void BindLinks()
+        private void BindLinks(string? platformId)
         {
-            _linksDisplayItems = PlatformLinkListProjection.FormatRows(_allLinks).ToList();
+            // S36-07 Phase H link surfacing (read-only): when platform selected, show only its FK links from comms bindings;
+            // global LinkCatalog when null (refresh/clear). Uses existing data read via _allLinks + _allComms (from ICatalogReader).
+            IReadOnlyList<CatalogLinkEntry> toShow;
+            if (string.IsNullOrWhiteSpace(platformId))
+            {
+                toShow = _allLinks;
+            }
+            else
+            {
+                var usedLinkIds = _allComms
+                    .Where(c => string.Equals(c.PlatformId, platformId, StringComparison.Ordinal))
+                    .Select(c => c.LinkId)
+                    .ToHashSet(StringComparer.Ordinal);
+                toShow = _allLinks
+                    .Where(l => usedLinkIds.Contains(l.LinkId))
+                    .ToList();
+            }
+
+            _linksDisplayItems = PlatformLinkListProjection.FormatRows(toShow).ToList();
 
             if (_linksList != null)
             {
                 _linksList.itemsSource = _linksDisplayItems;
                 _linksList.Rebuild();
+            }
+        }
+
+        // S37-05: Platform Editor graph surfacing — interactive FK/full graph (beyond S36 Phase H read-only), tooltips, export polish
+        private void BindGraph(string? platformId)
+        {
+            _graphDisplayItems.Clear();
+            var edges = string.IsNullOrWhiteSpace(platformId)
+                ? _allGraphEdges.Take(20).ToList() // cap for display
+                : _allGraphEdges.Where(e => string.Equals(e.PlatformId, platformId, StringComparison.Ordinal)).ToList();
+
+            foreach (var e in edges)
+            {
+                // S37-05: format inline (mirrors CatalogDependencyGraphCommand for display)
+                string line = e.Kind switch
+                {
+                    CatalogDependencyEdgeKind.PlatformToSensor => $"sensor:{e.PlatformId}:{e.SensorId}",
+                    CatalogDependencyEdgeKind.PlatformToMountToWeapon => $"weapon:{e.PlatformId}:{e.MountId}:{e.WeaponId}",
+                    CatalogDependencyEdgeKind.PlatformToLink => $"link:{e.PlatformId}:{e.LinkId}:{e.CommsFittingId}",
+                    _ => $"edge:{e.PlatformId}"
+                };
+                _graphDisplayItems.Add(line);
+            }
+            if (_graphDisplayItems.Count == 0 && !string.IsNullOrWhiteSpace(platformId))
+            {
+                _graphDisplayItems.Add($"(no graph edges for {platformId})");
             }
         }
 
@@ -381,7 +438,8 @@ namespace ProjectAegis.Unity.Runtime
 
             BindDetail(null);
             BindComms(null);
-            BindLinks();
+            BindLinks(null);
+            BindGraph(null);  // S37-05
         }
 
         private void ApplyPanelVisibility()

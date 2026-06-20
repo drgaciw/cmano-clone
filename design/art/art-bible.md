@@ -7,6 +7,8 @@
 > **Scope:** C2 Command Post + Platform Editor UI only; world/character/VFX deferred post-Baltic slice  
 > **Sources:** [game-concept.md](../gdd/game-concept.md), [c2-command-post.md](../ux/c2-command-post.md), [c2-map-placeholder.md](../ux/c2-map-placeholder.md), [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md), [ADR-011](../../docs/architecture/adr-011-platform-editor-excel-roundtrip.md), Unity USS under `unity/ProjectAegis/Assets/UI/`  
 > **Art Director Sign-Off (AD-ART-BIBLE):** Pending — lean mode; skipped per review-mode policy
+>
+> **S36-11 COMPLETE (QA/DevOps/Hygiene — team-ui / ui-experience-lead isolated):** Facilitation note added per story. Lean Polish: bible remains lean/draft for C2+Editor scope only. Verdict: ACCEPTED WITH CONDITIONS (carryover from gate-check #2; full sign-off deferred post-Baltic or when non-lean mode). No new sections authored (existing complete; no placeholders touched). UX/UI alignment cross-ref intact with interaction-patterns + c2-command-post. (ui specialist track)
 
 ---
 
@@ -264,7 +266,7 @@ border-top-color: rgba(80, 100, 130, 0.6);   /* border-section */
 | **Primary action** | `Export` / `Diff` (secondary buttons, 64px min-width) | `Propose` / `Approve` (72px min-width); **Approve disabled @ 45% opacity** until acknowledge |
 | **Content zones** | Search → platform list → detail → **COMMS** section → **LINK** section (Phase H) | Workbook path → actions → status line → **diff list** → acknowledge checkbox |
 | **Tone** | Reference library — calm, sectional dividers | Audit queue — status line carries gate state (`STAGING: N change(s)…`) |
-| **Evidence capture** | `platform-catalog-link-s34-viewer-columns.png` | `platform-import-staging-s34-link-diff.png` |
+| **Evidence capture** | `platform-catalog-link-s34-viewer-columns.png` (S34); S36-06 re-captured live editor PNGs or lean notes for Phase H LINK section FK surfacing + current viewer state (12+ or notes) | `platform-import-staging-s34-link-diff.png` |
 
 Catalog sections stack vertically with identical section divider treatment; Import panel treats the diff list as the hero flex child (`flex-grow: 1`).
 

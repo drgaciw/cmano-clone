@@ -14,7 +14,9 @@ public sealed class PdDetectionContactSimulator
     private readonly IReadOnlyDictionary<string, EmconState>? _unitRadarEmcon;
     private readonly ICatalogReader? _catalog;
     private readonly IReadOnlyList<ScenarioJammer> _jammers;
-    private readonly HashSet<string> _detectedContacts = new(StringComparer.Ordinal);
+    // P2 allocation follow-up (S37-09): SortedSet for deterministic ordinal iteration without per-tick OrderBy/alloc.
+    // Iteration order identical to previous explicit OrderBy; HashSet elsewhere unchanged.
+    private readonly SortedSet<string> _detectedContacts = new(StringComparer.Ordinal);
     private readonly HashSet<string> _destroyedTargets = new(StringComparer.Ordinal);
     private readonly HashSet<string> _bdaLostTargets = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ContactTrack> _tracks = new(StringComparer.Ordinal);
@@ -118,7 +120,7 @@ public sealed class PdDetectionContactSimulator
                 ContactLifecycleState.Detected));
         }
 
-        foreach (var contactId in _detectedContacts.OrderBy(id => id, StringComparer.Ordinal))
+        foreach (var contactId in _detectedContacts)
         {
             if (!_tracks.TryGetValue(contactId, out var track) ||
                 track.State == ContactLifecycleState.Lost)

@@ -12,6 +12,8 @@
 | 2 | `playtest-2026-06-19-midgame-delegation-catalog.md` | Mid-game systems | Platform Editor, LinkCatalog, doctrine, execution |
 | 3 | `playtest-2026-06-19-difficulty-baltic-scenarios.md` | Difficulty curve | ReplayGolden, isolated fixtures, lag/comms |
 | 4 | `playtest-2026-06-19-s35-polish-validation.md` | S35 polish (session 7) | NPE onboarding copy, COMMS legend, catalog lag helper |
+| 5 (S36-10) | (inline in this README) | Polish Phase 2 / hygiene (session 8) | C2 frame proxy, dep-graph, dispatching isolation, art-bible state |
+| 6 (S37-10) | `playtest-s37-session-9-graph-ux-2026-07-20.md` | Graph surfacing UX (session 9) + polish feedback | C2 viewer/panel/selection/link-chain, Editor FK/tooltips, frame, density (W4 QA track) |
 
 ## Human think-aloud sessions (4/4)
 
@@ -28,6 +30,45 @@ Companion facilitated reviews in `human/` — one per proxy report (sessions 1�
 **Anchors:** `production/qa/c2-manual-signoff-2026-06-02.md` checks + sprint evidence; session 7 adds `design/ux/onboarding-baltic.md` + `design/ux/interaction-patterns.md`  
 **Automated gate (sessions 1–3):** `dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests --filter "PlatformImport|C2TopBar|PlatformLinkCatalog"` → **28/28 PASS** @ 2026-06-19  
 **Automated gate (session 7):** `C2CommsOnboarding` **4/4 PASS**; checks 1–13 **85/85**, checks 14–18 **58/58** @ 2026-06-19 (S35-07)
+
+## S36-10: Playtest Session 8 (QA/DevOps/Hygiene Track, team-qa / qa-lead isolated)
+**Date:** 2026-07-06 (mid S36)  
+**Build:** main @ e60eadc + S36-01 baseline (1204 tests, Replay 6/6)  
+**Focus:** Polish Phase 2 carryover validation — C2 frame budget remediation proxy, live PNG re-capture readiness, dep-graph (S36-03+), art-bible state, dispatching hygiene. (S36-10 acceptance: Report in playtests/)  
+**Session Type:** Proxy synthesis + lean human facilitation note (NPE/midgame refresh)
+
+### Session Info (playtest-report template)
+- Duration: ~45m proxy walkthrough
+- Tester: qa-tester (facilitated by qa-lead)
+- Input: KB+M lean host (Linux + simulated C2)
+- Automated gate proxy: dotnet test full sln (≥1204); C2 headless proxy 18/18
+
+### Test Focus
+- C2 frame budget post S36-05 remediation (proxy for 18/18)
+- Playtest corpus extension for Phase 2 (graph surfacing, editor link read-only)
+- Dispatching-parallel-agents isolation validation (no cross-track file drift observed)
+
+### First Impressions / Gameplay Flow
+- **Worked well**: Determinism pillars strong (replay golden stable). C2 polish (S35-07) carries; COMMS legend + onboarding reduce confusion.
+- **Pain points**: Frame budget capture doc pending full visual confirmation (S36-06 PNGs); link FK surfacing read-only in editor (S36-07) clear in headless.
+- **Moments of delight**: Agentic delegation trust signals from prior sessions still hold in proxy.
+
+### Bugs / Polish
+- No new blocking bugs (smoke green).
+- Polish item: live editor PNG re-capture (deferred visual evidence per lean).
+
+### Overall Assessment
+- Would play again: Yes
+- Difficulty/Pacing: Good (Polish carryovers contained)
+- Top Priorities: 1. Complete S36-06 PNGs for visual evidence. 2. S36-07 viewer FK surfacing. 3. Maintain replay 6/6 on graph changes.
+
+**Verdict (S36-10):** Report added per acceptance. Routed via qa specialist (team-qa). See human/ for companion if extended. Evidence closes part of playtest corpus gate. (Isolated QA track)
+
+## S37-10: Playtest Session 9 (QA/Process/Hygiene Track, team-qa isolated)
+**Date:** 2026-07-20  
+**Build:** post-S37-01 baseline (≥1215, Replay 6/6)  
+**Focus:** Graph surfacing UX (dependency visibility, link-chain, C2 selection/highlights, Editor FK/graph/tooltips/reverse) + polish feedback (C2 feel/responsiveness/frame). Per S37-10 AC + qa-plan.  
+**Verdict:** Structured report at `playtest-s37-session-9-graph-ux-2026-07-20.md`. Proxy gates green (18/18+ incl. graph, no frame regression, full kill-chains). UX clarity good; minor density residuals non-blocking. Routed coordinator + team-qa. AC met. (Isolated W4 track)
 
 ## Fun hypothesis
 

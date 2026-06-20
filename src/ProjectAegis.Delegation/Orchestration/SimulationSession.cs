@@ -127,15 +127,25 @@ public sealed class SimulationSession
     private void RunExecutingTick(ObservedState state)
     {
         Orchestrator.Tick(state);
-        var engageOrders = Orchestrator.ExecutedOrders
-            .Where(o => o.Kind == OrderKind.Engage)
-            .ToArray();
+        // Allocation follow-up P1: explicit loop instead of LINQ Where+ToArray per tick.
+        // Uses List<Order> (Count/foreach compatible) to avoid per-tick enumerator + array alloc.
+        // Behavior and iteration order identical (ExecutedOrders order preserved for engages).
+        var executed = Orchestrator.ExecutedOrders;
+        var engageOrders = new List<Order>(executed.Count);
+        for (int i = 0; i < executed.Count; i++)
+        {
+            var o = executed[i];
+            if (o.Kind == OrderKind.Engage)
+            {
+                engageOrders.Add(o);
+            }
+        }
 
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
         var commsBlocksEngage = CommsStateProjection.BlocksNewEngagement(
             CommsStateProjection.Project(Orchestrator.DecisionLog).State);
         var queued = new List<(Order Order, TargetId Victim)>();
-        var deconflictSlots = new List<SwarmSalvoDeconfliction.Slot>(engageOrders.Length);
+        var deconflictSlots = new List<SwarmSalvoDeconfliction.Slot>(engageOrders.Count);
         foreach (var order in engageOrders)
         {
             var victimId = state.PrimaryHostileContactId ?? new TargetId("hostile-1");
@@ -145,8 +155,13 @@ public sealed class SimulationSession
         }
 
         var acceptedSlots = SwarmSalvoDeconfliction.Allocate(deconflictSlots);
-        var acceptedPairs = new HashSet<(ulong Shooter, ulong Target)>(
-            acceptedSlots.Select(s => (s.ShooterUnitId, s.TargetId)));
+        // P2 allocation follow-up (S37-09): explicit loop instead of Select LINQ for HashSet population in hot engage path.
+        // Avoids per-tick iterator allocation while preserving identical membership and determinism.
+        var acceptedPairs = new HashSet<(ulong Shooter, ulong Target)>(acceptedSlots.Count);
+        foreach (var s in acceptedSlots)
+        {
+            acceptedPairs.Add((s.ShooterUnitId, s.TargetId));
+        }
 
         foreach (var order in engageOrders)
         {
@@ -240,13 +255,18 @@ public sealed class SimulationSession
             return;
         }
 
-        var applies = changes
-            .Select(change => new BdaContactLifecycleHotTickApplier.DamageLifecycleApply(
+        // Allocation follow-up P1: explicit foreach + List instead of Select+ToArray.
+        // DTOs still allocated (small records) but no LINQ iterator chain per tick.
+        // Same inputs to ResolveSortedLostTargets; determinism preserved.
+        var applies = new List<BdaContactLifecycleHotTickApplier.DamageLifecycleApply>(changes.Count);
+        foreach (var change in changes)
+        {
+            applies.Add(new BdaContactLifecycleHotTickApplier.DamageLifecycleApply(
                 change.UnitId.Value,
                 change.DamageLevel,
                 change.NewHpPct,
-                change.ReasonCode))
-            .ToArray();
+                change.ReasonCode));
+        }
 
         foreach (var targetId in BdaContactLifecycleHotTickApplier.ResolveSortedLostTargets(applies))
         {

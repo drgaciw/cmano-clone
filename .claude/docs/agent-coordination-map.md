@@ -21,6 +21,21 @@
                               |       |
                            perf-a   devops   analytics
 
+**S36-13 refinement (coordinator / c-sharp-devops-engineer isolated, QA/DevOps/Hygiene):** dispatching-parallel-agents pattern: 
+- One sub-agent per domain/track (Data/Unity/Sim/QA-DevOps-Hygiene).
+- Isolated context ONLY: story list + sprint excerpts + gates; NO cross-track file history or mutable state.
+- Dispatch rule: prereqs (S36-01/02) serial; then parallel waves.
+- Evidence: sprint-36 kickoff dispatch example + stack prefixes (e.g. stack/sprint36/qa-devops-hygiene-closeout).
+- Update: added explicit "no shared mutable" + "one agent per sub-track" to prevent drift in Polish.
+
+**S37-07 refinement (coordinator + c-sharp-devops-engineer + team-qa + team-ui isolated, QA/Process/Hygiene Track):** dispatching-parallel-agents wave tracking + status sync + templates:
+- Wave tracking: Explicit waves (W1 Data Track, W2 UI/C2+Editor Track, W3 Sim/Perf Track, W4 QA/Process/Hygiene Track [S37-07 dispatching, S37-10 playtest, S37-11 tests hygiene], Closeout S37-08 after waves green). See sprint-37 plan §Parallel Execution Waves & Tracks.
+- Status sync: Per-track independent updates to `production/sprint-status.yaml` (status: in_progress/done) + appends to `production/session-state/active.md` (Session Extract — /dev-story). Coordinator aggregates without cross-track mutation. Lean mode primary.
+- Multi-track examples: 4 isolated tracks + closeout. Dispatch rule: prereqs (S37-01 rebaseline + S37-02 QA plan) serial; then ` /story-readiness` + `/dev-story dispatch` per sub-track only. Stack prefix: `stack/sprint37/qa-process-hygiene` for this track. Kickoff artifact validates.
+- Kickoff templates: Canonical sections required in production/agentic/sprint-*-parallel-kickoff-*.md : header (date/trunk/sprint/qa-plan refs), sprint goal, wave plan table, carryovers, risks, hard gates list (replay 6/6, C2 18/18+, Baltic hash immutable, extend-only CatalogWriteGate, ZERO DelegationBridge), dispatch order (bash blocks with comments), post-dispatch notes, lean + polish-boundary enforcement note.
+- Backward compat: S36/S35 patterns remain valid (additive only). Existing kickoffs continue to work; S37-07 docs + examples are refinements only. No change to core "one agent per sub-track + isolated context" rule.
+- Enforced for this track: polish-scope-boundary-2026-06-19.md + lean (production/review-mode.txt) + qa-plan-sprint-37-2026-06-20.md. All stories cite boundaries. No out-of-scope.
+
    Additional Leads (Tier 2 - report to technical-director or game-designer):
      military-simulation-architect  -- Military simulation architecture, tactical systems, combat mechanics
      requirements-analyst          -- Requirements feasibility, technical constraints, implementation complexity

@@ -273,4 +273,126 @@ public sealed class DependencyGraphIndexTests
             }
         }
     }
+
+    // S36-03: PlatformToLink edges + tests + invalidation coverage
+    [Fact]
+    public void DependencyGraph_BuildFrom_emits_platform_link_edges_for_approved_comms()
+    {
+        var links = new[]
+        {
+            new CatalogLinkEntry("NATO_TADIL_J"),
+            new CatalogLinkEntry("SATCOM_B"),
+        };
+        var comms = new[]
+        {
+            new CatalogCommsBinding("u1", "NATO_TADIL_J", ReviewState: CatalogReviewStates.Approved),
+            new CatalogCommsBinding("u1", "SATCOM_B", ReviewState: CatalogReviewStates.Approved),
+        };
+
+        var edges = CatalogDependencyGraphIndex.BuildFrom([], [], [], comms, links);
+
+        Assert.Equal(2, edges.Count);
+        Assert.All(edges, e => Assert.Equal(CatalogDependencyEdgeKind.PlatformToLink, e.Kind));
+        Assert.Contains(edges, e => e.PlatformId == "u1" && e.LinkId == "NATO_TADIL_J" && e.CommsFittingId == CatalogSortKeyComparer.FormatCommsKey(new CatalogCommsBinding("u1", "NATO_TADIL_J")));
+        Assert.Contains(edges, e => e.PlatformId == "u1" && e.LinkId == "SATCOM_B");
+    }
+
+    [Fact]
+    public void DependencyGraph_BuildFrom_excludes_rejected_comms_and_orphan_links()
+    {
+        var links = new[] { new CatalogLinkEntry("NATO_TADIL_J") };
+        var comms = new[]
+        {
+            new CatalogCommsBinding("u1", "NATO_TADIL_J", ReviewState: CatalogReviewStates.Rejected),
+            new CatalogCommsBinding("u1", "ORPHAN_LINK", ReviewState: CatalogReviewStates.Approved),
+        };
+
+        var edges = CatalogDependencyGraphIndex.BuildFrom([], [], [], comms, links);
+
+        Assert.Empty(edges);
+    }
+
+    [Fact]
+    public void DependencyGraph_BuildFrom_unifies_sort_keys_including_link_edges()
+    {
+        var links = new[] { new CatalogLinkEntry("L1") };
+        var comms = new[] { new CatalogCommsBinding("p2", "L1", ReviewState: CatalogReviewStates.Approved) };
+        var mounts = new[] { new CatalogMount("p1", "m1", ReviewState: CatalogReviewStates.Approved) };
+
+        var edges = CatalogDependencyGraphIndex.BuildFrom(mounts, [], [], comms, links);
+
+        // mount first (p1), then link (p2) by platform ordinal
+        Assert.Equal(2, edges.Count);
+        Assert.Equal("p1", edges[0].PlatformId);
+        Assert.Equal(CatalogDependencyEdgeKind.PlatformToMount, edges[0].Kind);
+        Assert.Equal("p2", edges[1].PlatformId);
+        Assert.Equal(CatalogDependencyEdgeKind.PlatformToLink, edges[1].Kind);
+    }
+
+    [Fact]
+    public void DependencyGraph_BuildFrom_is_deterministic_with_link_edges()
+    {
+        var links = new[] { new CatalogLinkEntry("L1") };
+        var comms = new[] { new CatalogCommsBinding("u1", "L1", ReviewState: CatalogReviewStates.Approved) };
+
+        var first = CatalogDependencyGraphIndex.BuildFrom([], [], [], comms, links);
+        var second = CatalogDependencyGraphIndex.BuildFrom([], [], [], comms, links);
+
+        Assert.Equal(first.Count, second.Count);
+        for (var i = 0; i < first.Count; i++)
+        {
+            Assert.Equal(first[i], second[i]);
+        }
+    }
+
+    // S37-03: full kill-chain surfacing (platform→link + weapon→mount→sensor chains + API)
+    [Fact]
+    public void DependencyGraph_BuildFullKillChain_emits_platform_link_plus_weapon_mount_sensor_chains()
+    {
+        var mounts = new[]
+        {
+            new CatalogMount("u1", "vls-fwd", ReviewState: CatalogReviewStates.Approved),
+        };
+        var magazines = new[]
+        {
+            new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", CatalogWeaponIds.MvpDefault, 4),
+        };
+        var sensors = new[]
+        {
+            new CatalogSensorBinding("u1", "radar-1", 1.0, ReviewState: CatalogReviewStates.Approved),
+        };
+        var links = new[] { new CatalogLinkEntry("NATO_TADIL_J") };
+        var comms = new[]
+        {
+            new CatalogCommsBinding("u1", "NATO_TADIL_J", ReviewState: CatalogReviewStates.Approved),
+        };
+
+        // Use new S37-03 full API
+        var edgesViaFull = CatalogDependencyGraphIndex.BuildFullKillChain(mounts, magazines, sensors, comms, links);
+        var edgesViaReader = CatalogDependencyGraphIndex.BuildFullKillChain(
+            new InMemoryCatalogReader(
+                bindings: sensors,
+                mounts: mounts,
+                magazines: magazines,
+                comms: comms,
+                links: links)
+        );
+
+        Assert.Equal(4, edgesViaFull.Count); // 1 mount + 1 weapon + 1 sensor + 1 link (link uses comms key)
+        Assert.Equal(edgesViaFull.Count, edgesViaReader.Count);
+
+        var kinds = edgesViaFull.Select(e => e.Kind).ToHashSet();
+        Assert.Contains(CatalogDependencyEdgeKind.PlatformToMount, kinds);
+        Assert.Contains(CatalogDependencyEdgeKind.PlatformToMountToWeapon, kinds);
+        Assert.Contains(CatalogDependencyEdgeKind.PlatformToSensor, kinds);
+        Assert.Contains(CatalogDependencyEdgeKind.PlatformToLink, kinds);
+
+        // Deterministic: full chains identical across calls
+        var second = CatalogDependencyGraphIndex.BuildFullKillChain(mounts, magazines, sensors, comms, links);
+        Assert.Equal(edgesViaFull.Count, second.Count);
+        for (int i = 0; i < edgesViaFull.Count; i++)
+        {
+            Assert.Equal(edgesViaFull[i], second[i]);
+        }
+    }
 }
