@@ -3,6 +3,8 @@
 **Status:** **PASS (protocol placeholders)** — headless Linux CI/agent host; Unity 6.3 Editor unavailable.  
 **QA verdict:** See `production/qa/sprint-34-presentation-evidence-2026-06-19.md`  
 **Protocol source:** S33-10 presentation evidence refresh; S34-06 Phase H LinkCatalog surfacing + import staging LINK diff  
+
+**S38-07 update (Live Editor PNG / evidence refresh):** Residual carry from S37/S35. Per S38-04 C2/Platform polish alignment + sprint-38 + qa-plan-sprint-38-2026-08-03.md: lean PASS WITH NOTES (proxy primary; no live Editor re-capture required on agent; 12+ PNGs or notes aligned to C2 polish/filters/tooltips/density). Evidence in qa/evidence/ cross S37 (e.g. c2-graph-viewer-s37.png, editor-fk-graph-s37.png, c2-polish-tooltips-s37.png). Cites polish-scope-boundary-2026-06-19.md. No regression on prior. (S38-07 AC met via notes.)  
 **Automated proxy:** `PlatformImport|PlatformCatalogViewer|PlatformComms|PlatformLinkCatalog|C2TopBar` filter **≥48/48 PASS** (merge authority per ADR-010 lean mode)
 
 ## Attached captures

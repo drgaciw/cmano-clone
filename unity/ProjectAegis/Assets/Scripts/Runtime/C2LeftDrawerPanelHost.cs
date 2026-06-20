@@ -1,4 +1,5 @@
 // Doc-20 left drawer — tabbed OOB / missions / contacts (single UIDocument).
+// S38-04 C2/Platform polish residual (density/filters from S37 carry): part of C2 track. Per sprint-38 + qa-plan + polish-scope-boundary-2026-06-19.md (lean, isolated).
 #if UNITY_5_3_OR_NEWER
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;

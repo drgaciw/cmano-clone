@@ -14,6 +14,8 @@
 
 All files are **1920×1080 labeled protocol placeholders** generated on the headless agent host (2026-06-19). Each image documents the corresponding S32 Phase F protocol step and expected outcome. They satisfy the S32-10 attachment requirement; live Editor re-capture is optional polish.
 
+**S38-07 (Live PNG) + S38-04 polish alignment:** Evidence refresh / lean notes for C2/Platform residual polish. See qa-plan-sprint-38; cites polish-scope-boundary-2026-06-19.md. PASS WITH NOTES if no Editor re-capture. (Isolated C2/Polish track.)
+
 **Paths:**
 
 - Primary: `production/qa/evidence/platform-catalog-damage-s32-*.png`, `platform-import-staging-s32-*.png`

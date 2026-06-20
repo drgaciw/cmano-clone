@@ -2,7 +2,7 @@
 
 > **Status:** Committed — Sprint 35 (S35-03)  
 > **Version:** 1.0  
-> **Last Updated:** 2026-06-19  
+> **Last Updated:** 2026-08-03  
 > **Scope:** Implemented screens in Polish Phase 1 — no new gameplay systems  
 > **Related:** [c2-command-post.md](c2-command-post.md), [c2-map-placeholder.md](c2-map-placeholder.md), [art-bible.md](../art/art-bible.md), [accessibility-requirements.md](../accessibility-requirements.md)  
 > **Evidence:** `production/qa/c2-manual-signoff-2026-06-02.md` checks 1–18; `PlatformImportPanelTests` 10/10; human playtests `production/playtests/human/` @ 2026-06-19
@@ -273,6 +273,8 @@ These screens have UX specs but are **not expanded** in S35-03 — see linked do
 | Doctrine ROE override | Check 15; `DoctrineOverrideCommandTests` |
 | Message log row select | [c2-command-post.md §6](c2-command-post.md#6-interaction-map-mvp) P1 |
 | Catalog viewer (read-only) | [art-bible.md §6 Catalog panel](../art/art-bible.md#platform-catalog-vs-import-panels) |
+
+> S39-03 residual polish note (C2 + Platform Editor): tooltip/density improvements (PlatformCatalogViewerHost) + surfacing assertion; cross-ref [c2-command-post.md](c2-command-post.md). All per polish-scope-boundary-2026-06-19.md + sprint-39-deeper-polish-c2-platform-hygiene.md (extend-only; proxy maintained; evidence path ready). See also S38 carry.
 
 ---
 

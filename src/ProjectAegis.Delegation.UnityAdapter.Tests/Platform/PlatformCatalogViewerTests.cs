@@ -65,6 +65,22 @@ public sealed class PlatformCatalogViewerTests
     }
 
     [Test]
+    public void S39_03_residual_filter_polish_matches_formatted_display_for_density()
+    {
+        // S39-03: residual filter polish (covers formatted row match for hp/res etc per updated PlatformCatalogFilterProjection)
+        // Enforces: polish-scope-boundary + S37 + no regression on ID filter + C2/Editor paths.
+        var rows = BalticBrowseRows();
+        var u1Row = rows.SingleOrDefault(r => r.PlatformId == "u1");
+        Assert.That(u1Row, Is.Not.Null, "u1 fixture row for residual test");
+        // Matches via FormatRow containing "hp=100" (from S38-04 extension)
+        var filteredByHp = PlatformCatalogFilterProjection.Apply(rows, "100");
+        Assert.That(filteredByHp.Any(r => r.PlatformId == "u1"), Is.True);
+        // Still supports ID
+        var filteredById = PlatformCatalogFilterProjection.Apply(rows, "u1");
+        Assert.That(filteredById.Any(r => r.PlatformId == "u1"), Is.True);
+    }
+
+    [Test]
     public void Platform_catalog_viewer_host_element_names_are_stable()
     {
         Assert.That("platform-catalog-root", Is.EqualTo("platform-catalog-root"));

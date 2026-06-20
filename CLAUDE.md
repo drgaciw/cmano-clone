@@ -17,6 +17,7 @@ Each agent owns a specific domain, enforcing separation of concerns and quality.
 ## Project Structure
 
 @.claude/docs/directory-structure.md
+<!-- S39-04 hygiene: hybrid (co-located src/*Tests + tests/regression) retained; see appended sign-off in directory-structure.md + polish-scope-boundary-2026-06-19.md -->
 
 ## Engine Version Reference
 
@@ -62,7 +63,7 @@ Repo is Graphite-initialized. For branch/PR/stack work use **`gt`** (`gt create`
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (16794 symbols, 33811 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (17676 symbols, 34869 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 

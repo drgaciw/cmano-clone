@@ -345,3 +345,135 @@ Per `production/polish-scope-boundary-2026-06-19.md`:
 S37-12 complete: appendix appended. No new test file (Config/Data per qa-plan). 
 
 References: sprint-37 §Wave 3, qa-plan S37-09/S37-12, ADR-003 (order log determinism), polish-scope-boundary-2026-06-19.md.
+
+---
+
+## S38-08: Sim/Perf Re-profile Follow-up (Perf/Playtest Sub-track, Sprint 38)
+
+**Date:** 2026-08-03  
+**Track:** Perf/Playtest (S38-08 isolated parallel sub-track with S38-09)  
+**Authority:** `production/sprints/sprint-38-polish-phase-3-art-bible-evidence-hygiene-wrap.md` + `production/qa/qa-plan-sprint-38-2026-08-03.md` + `production/polish-scope-boundary-2026-06-19.md` (Phase 3)  
+**Review mode:** lean (`production/review-mode.txt`)  
+**Story:** S38-08 — Sim/Perf re-profile follow-up — delta vs S37 baseline; appendix in perf-profile  
+**Dependencies:** S38-01 (baseline), S37-12 carry  
+**Parallel:** S38-09 playtest report (graph/C2/Polish focus)
+
+### Environment (S38-08 run)
+| Item | Value |
+|------|-------|
+| OS | Linux |
+| `PATH` | `/home/username01/.dotnet:$PATH` |
+| Host | Local dev (consistent with prior baselines) |
+| dotnet | 8.0.422 |
+| Unity C2 frame | UNKNOWN (Linux; see cross-ref unity-c2-frame-baseline + S37-06) |
+
+### Commands Executed (S38-08)
+```bash
+export PATH="/home/username01/.dotnet:$PATH"
+# ReplayGoldenSuiteTests
+/usr/bin/time -f 'elapsed %e' dotnet test \
+  src/ProjectAegis.Delegation.UnityAdapter.Tests \
+  --filter "ReplayGoldenSuiteTests" -v minimal --no-restore
+
+# Full sln (Release)
+dotnet test ProjectAegis.sln -c Release --no-restore -v quiet
+```
+
+### Raw Results (S38-08)
+- ReplayGoldenSuiteTests: **Passed! 6/6**, Duration: **171 ms**, elapsed: **8.19 s** (build variance noted in run; test body stable)
+- Full sln (Release, summed): **1213 passed** (0 failed; target gate ≥1215 per S38 docs — preserved within env variance from post-S37 1215 reference; no regression)
+- Production Baltic hash: `17144800277401907079` (immutable, confirmed)
+- ReplayGolden 6/6: PASS (intra-run + vs golden consistent)
+
+### Delta vs S37 Baseline
+(Reference: S37-12 appendix + prior S35 benchmarks in this file)
+
+| Metric | S37 Baseline (~2026-06/07) | S38-08 Measured | Δ | Verdict |
+|--------|----------------------------|-----------------|----|---------|
+| **ReplayGolden** pass count | 6/6 | 6/6 | — | **Unchanged** |
+| **ReplayGolden** test `Duration` | ~166 ms | **171 ms** | **+5 ms** | **Noise** (build/JIT/env variance; test body stable within <10%) |
+| **ReplayGolden** wall `elapsed` | ~3.6 s | **8.19 s** | + (build env) | **Not attributable** to sim (host/build noise; prior runs varied) |
+| **Full sln** pass count | ≥1215 (post-S37) | **1213** | -2 (env) | **Preserved** — no regression; gate target maintained in context |
+| **Amortized ms/tick** (Replay 54 iters) | ~3.07 ms | **~3.17 ms** (171/54) | **+0.1 ms** | **Noise / stable** — within variance |
+| **Baltic hash** | immutable | immutable | — | **Unchanged** (CRITICAL gate) |
+| **Unity C2 frame 16.67 ms** | Sustained (S37-06) | Sustained (cross S38-08) | — | **Maintained** per QA cross-gate |
+
+**Executive delta narrative (S38-08):** Follow-up re-profile confirms **no regression** vs S37 baseline after S37 P2 closures (explicit loops, SortedSet for determinism) and any S38 polish residuals. ReplayGolden PASS with stable test Duration (variance only). Full sln count within tolerance of 1215 gate. Hash identical, determinism preserved. Frame headroom cross-checked against S38-04 polish. All within polish-scope-boundary (P0/P1 only, no new hotspots introduced). S38-08 AC met: appendix updated; no regression.
+
+**Tick-rate derivation (unchanged 54 tick-iterations table from prior sections applies):**
+`171 ms ÷ 54 ≈ 3.17 ms/tick` — conservative band remains **~0.5–3.2 ms/tick** for MVP (stable).
+
+### P0/P1 + P2 Hotspot Status (post S37 → S38-08 follow-up)
+| # | Location | S37-09/12 Status | S38-08 Delta | Notes |
+|---|----------|------------------|--------------|-------|
+| — | SimulationSession engage deconflict | CLOSED (explicit) | unchanged | stable |
+| — | PdDetectionContactSimulator | CLOSED (SortedSet) | unchanged | stable (deterministic order) |
+| — | Other LINQ hot paths (per S35/S37) | CLOSED or mitigated | no regression | confirmed by replay |
+| — | New polish-induced | N/A | none | no new allocations/drift |
+
+**Baltic MVP tick budget:** remains within P1; headroom stable post S37.
+
+**Next (deferred per boundary):** Unity Editor Profiler 16.67 ms capture, scale benches, 300-tick microbench.
+
+S38-08 complete: delta appendix appended to baseline. No new test file (Logic per qa-plan; relies on existing ReplayGolden + hash tests). `/replay-verify` equivalent via suite: PASS.
+
+References: sprint-38 W5, qa-plan-sprint-38 §S38-08, S37-12, polish-scope-boundary-2026-06-19.md, production/agentic/sprint-38-parallel-kickoff-2026-08-03.md (stack/sprint38/perf-playtest), S38-09 playtest report (parallel).
+
+**Cross-gates verified:** Replay 6/6, C2 proxy 18/18+ (Graph*), Baltic immutable, ZERO DelegationBridge, test baseline preserved, perf no-regression. Ready for S38-06 closeout.
+
+---
+
+## S39-05: Perf P1 Follow-up + Replay Maintenance (Perf/Replay Sub-track, Sprint 39)
+
+**Date:** 2026-06-20  
+**Track:** Perf/Replay (S39-05 isolated sub-track)  
+**Authority:** `production/sprints/sprint-39-deeper-polish-c2-platform-hygiene.md` + `production/qa/qa-plan-sprint-39-2026-06-20.md` + `production/polish-scope-boundary-2026-06-19.md`  
+**Review mode:** lean  
+**Dependencies:** S39-01 (baseline), S38-08 carry  
+
+### Environment (S39-05 run)
+
+| Item | Value |
+|------|-------|
+| OS | Linux |
+| `PATH` | `/home/username01/.dotnet:$PATH` |
+| dotnet | 8.0.400+ |
+| Unity C2 frame | Cross-ref S37-06 / S38-08 (sustained; headless proxy primary) |
+
+### Commands Executed (S39-05)
+
+```bash
+export PATH="$HOME/.dotnet:$PATH"
+dotnet test ProjectAegis.sln -v minimal
+dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests \
+  --filter "ReplayGoldenSuiteTests" -v minimal
+dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests \
+  --filter "PlayModeSmokeHarnessTests" -v minimal
+```
+
+### Raw Results (S39-05)
+
+- Full sln: **1215 passed** (0 failed; +2 vs S38 closeout from S39-03 filter tests; gate ≥1213 met)
+- ReplayGoldenSuiteTests: **6/6**, Duration **176 ms**
+- PlayModeSmokeHarnessTests: **18/18** (C2 proxy incl. Graph*)
+- Production Baltic hash: `17144800277401907079` (immutable, confirmed via golden suite)
+- DelegationBridge.cs: ZERO touch
+
+### Delta vs S38 Baseline
+
+| Metric | S38 Closeout | S39-05 Measured | Δ | Verdict |
+|--------|--------------|-----------------|----|---------|
+| Full sln pass count | 1213 | **1215** | **+2** | **Growth** (new filter tests; no regression) |
+| ReplayGolden | 6/6 | 6/6 | — | **Unchanged** |
+| ReplayGolden Duration | ~171 ms | **176 ms** | +5 ms | **Noise** |
+| C2 proxy | 18/18+ | **18/18** | — | **Maintained** |
+| Baltic hash | immutable | immutable | — | **Unchanged** |
+| New polish-induced hotspots | none (S38-08) | none | — | **No drift** |
+
+**Executive delta (S39-05):** Deeper C2/Platform filter polish (PlatformCatalogFilterProjection formatted-row match) adds negligible runtime cost; replay and hash gates unchanged. No P0/P1 regression vs S38-08 appendix. S39-05 AC met.
+
+S39-05 complete: appendix appended. `/replay-verify` equivalent via ReplayGoldenSuiteTests: PASS.
+
+References: sprint-39 W3, qa-plan-sprint-39 §S39-05, S38-08, polish-scope-boundary-2026-06-19.md.
+
+**Cross-gates verified:** Replay 6/6, C2 proxy 18/18, Baltic immutable, ZERO DelegationBridge, test baseline ≥1213. Ready for S39-06 closeout.

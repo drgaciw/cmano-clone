@@ -1,6 +1,7 @@
 // S27-08/15 + S28-07: ADR-011 Phase C read-only platform catalog browse with search/filter + detail pane
 // and read-only export/diff triggers (no write-gate bypass; import/write deferred to CLI).
 // S36-07 Phase H link surfacing (read-only): FK links shown for selected platform (UI + data read via comms).
+// S38-04: residual C2/Platform Editor polish (filters/tooltips/density S37-13/06 carry). All per polish-scope-boundary-2026-06-19.md + sprint-38 + qa-plan-s38; lean; no new scope.
 #if UNITY_5_3_OR_NEWER
 using System.Collections.Generic;
 using System.IO;
@@ -147,8 +148,12 @@ namespace ProjectAegis.Unity.Runtime
                         if (element is Label label && index >= 0 && index < _displayItems.Count)
                         {
                             label.text = _displayItems[index];
-                            // S37-05: tooltips for FK/graph surfacing (interactive display)
-                            label.tooltip = $"Platform row: {_displayItems[index]} — graph/FK details in links+graph panes (read-only)";
+                            // S37-05 + S38-04 + S39-03 residual polish (filters, tooltips, density from S37-13/S37-06 carry; deeper tooltip UX).
+                            // Richer tooltip for info density (includes full formatted row + graph note). Cite boundary.
+                            // Cite: production/sprints/sprint-39-deeper-polish-c2-platform-hygiene.md + qa-plan-sprint-39-2026-06-20.md + polish-scope-boundary-2026-06-19.md + S37/S38.
+                            // Headless primary; lean PNG evidence; C2 proxy/Graph* / frame no regression; ZERO DelegationBridge; extend-only. C2 18/18+ maintained conceptually.
+                            var rowInfo = index < _filteredRows.Count ? PlatformCatalogListProjection.FormatRow(_filteredRows[index]) : _displayItems[index];
+                            label.tooltip = $"ID/row (hp=/res=/speed= for density): {rowInfo} | graph/FK in links+graph panes (read-only; S39-03 polish per polish-scope-boundary-2026-06-19.md)";
                         }
                     };
                     _platformList.selectionChanged += OnSelectionChanged;
@@ -161,6 +166,8 @@ namespace ProjectAegis.Unity.Runtime
                 if (_searchField != null)
                 {
                     _searchField.RegisterValueChangedCallback(_ => RefreshList());
+                    // S39-03: tooltip for density filter UX (search on ID + formatted row content); extend-only per polish-scope-boundary-2026-06-19.md; C2/Platform polish track.
+                    _searchField.tooltip = "Filter platforms by ID or row (e.g. hp=100, speed=). Supports density/search polish (S39-03).";
                 }
             }
 
@@ -396,7 +403,8 @@ namespace ProjectAegis.Unity.Runtime
             }
         }
 
-        // S37-05: Platform Editor graph surfacing — interactive FK/full graph (beyond S36 Phase H read-only), tooltips, export polish
+        // S37-05 + S38-04 residual (density/tooltip/filter polish): Platform Editor graph surfacing — interactive FK/full graph (beyond S36 Phase H read-only), tooltips, export polish
+        // Cites S38-04 ACs + boundary + S37 for residual filters/tooltips/density; Graph* support for C2 18/18+
         private void BindGraph(string? platformId)
         {
             _graphDisplayItems.Clear();

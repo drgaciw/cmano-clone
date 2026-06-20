@@ -2,7 +2,7 @@
 
 > **Status:** Draft — Sprint 4  
 > **Author:** ux-design / milsim review  
-> **Last Updated:** 2026-06-02  
+> **Last Updated:** 2026-08-03  
 > **Screen / Flow Name:** `C2CommandPost`  
 > **Platform Target:** PC (keyboard/mouse primary); gamepad partial (Sprint 4+)  
 > **Related GDDs:** [command-and-control-ui.md](../gdd/command-and-control-ui.md), [sensor-detection-ew.md](../gdd/sensor-detection-ew.md)  

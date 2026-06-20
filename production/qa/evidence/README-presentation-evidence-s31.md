@@ -15,6 +15,8 @@
 
 All files are **1920×1080 labeled protocol placeholders** generated on the headless agent host (2026-06-18). Each image documents the corresponding S30 protocol step and expected outcome. They satisfy the S31-07 attachment requirement; live Editor re-capture is optional polish.
 
+**S38-07 Live PNG evidence refresh:** Per S38-04 + S38-07 in sprint-38 polish phase. Lean PASS WITH NOTES; aligned to C2/Platform polish (filters, tooltips, density). See qa-plan-sprint-38-2026-08-03.md + polish-scope-boundary-2026-06-19.md. Cross S37 evidence. (Isolated C2/Polish track implementation.)
+
 **Paths:**
 
 - Primary: `production/qa/evidence/platform-import-staging-s31-*.png`, `doctrine-panel-s31-*.png`, `begin-execution-s31-*.png`

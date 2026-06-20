@@ -1,7 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (16794 symbols, 33811 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (17676 symbols, 34869 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -157,7 +157,7 @@ Cloud VMs run `.cursor/cloud-install.sh` on startup via `.cursor/environment.jso
 |------|---------|
 | Restore | `dotnet restore ProjectAegis.sln` |
 | Build | `dotnet build ProjectAegis.sln` |
-| Test (full suite, 68 tests) | `dotnet test ProjectAegis.sln -v minimal` |
+| Test (full suite, ~1215 tests; hybrid layout retained) | `dotnet test ProjectAegis.sln -v minimal` |
 | Play Mode smoke (headless) | `dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests` |
 | Run delegation demo | `dotnet run --project src/ProjectAegis.Delegation.Demo` |
 | Format check | `dotnet format --verify-no-changes` (may report pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`) |
@@ -188,3 +188,17 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 ### Services
 
 No Docker compose or long-running servers. The “application” is in-process: `dotnet test` or the console demo. Unity-MCP (`http://localhost:8080`) and GitNexus MCP are agent tooling only, not required for CI-style verification.
+
+## Learned User Preferences
+
+- Use project-local skill `.cursor/skills/git-commit/SKILL.md` when asked to commit, push to `main`, merge branches, or clean worktrees on this repo.
+- Release v1.0 completion means the shippable Baltic vertical slice, not MVP-done on all 21 requirement tracker rows.
+- Prefer detailed sprint planning through the Release gate; post-release work stays as epic buckets only.
+
+## Learned Workspace Facts
+
+- Production stage is **Polish** (`production/stage.txt`); Sprint **39** must-have complete (S39-01..06 PASS, 2026-06-20).
+- Post–S38 release train roadmap lives in `docs/reports/future-sprint-roadpmap.md` (S39–S48 through Release gate).
+- Sprint stack worktrees use `.worktrees/` under the parent repo path (`/home/username01/cmano-clone/.worktrees/`).
+- Exclude from commits: `.cursor/hooks/`, `.pi/settings.json`, `.polly/` (local agent/tooling config).
+- `DelegationBridge.cs` remains zero-touch through Release v1.

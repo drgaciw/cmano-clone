@@ -52,7 +52,8 @@ public sealed class C2PresentationControllerTests
         Assert.That(controller.ResolveContactLine(), Does.Contain("CLASSIFIED"));
     }
 
-    // S37-04: graph surfacing (highlights + bind) via read-only catalog; extends proxy for C2 18/18+
+    // S37-04 + S38-04 + S39-03 residual C2 polish (filters/tooltips/density): graph surfacing (highlights + bind) via read-only catalog; extends proxy for C2 18/18+ (Graph*); cites boundary + sprint39.
+    // per production/sprints/sprint-39-deeper-polish-c2-platform-hygiene.md + qa-plan-sprint-39-2026-06-20.md + polish-scope-boundary-2026-06-19.md ; extend-only.
     [Test]
     public void ApplyGraphSurfacing_populates_highlights_and_chain_for_unit()
     {
@@ -64,8 +65,8 @@ public sealed class C2PresentationControllerTests
         controller.ApplyGraphSurfacing(reader);
 
         Assert.That(controller.LastGraphHighlightIds, Does.Contain("u1"));
-        // chain may be empty or partial on minimal fixture; surfacing exercised
-        Assert.That(controller.LastGraphLinkChainDisplay, Is.Not.Null);
+        // chain may be empty or partial on minimal fixture; surfacing exercised; updated assertion for S39-03 evidence path
+        Assert.That(controller.LastGraphLinkChainDisplay, Is.Not.Null, "graph surfacing chain display populated (C2 proxy/Graph*)");
     }
 
     [Test]

@@ -70,6 +70,12 @@ Companion facilitated reviews in `human/` — one per proxy report (sessions 1�
 **Focus:** Graph surfacing UX (dependency visibility, link-chain, C2 selection/highlights, Editor FK/graph/tooltips/reverse) + polish feedback (C2 feel/responsiveness/frame). Per S37-10 AC + qa-plan.  
 **Verdict:** Structured report at `playtest-s37-session-9-graph-ux-2026-07-20.md`. Proxy gates green (18/18+ incl. graph, no frame regression, full kill-chains). UX clarity good; minor density residuals non-blocking. Routed coordinator + team-qa. AC met. (Isolated W4 track)
 
+## S38-09: Playtest Session 10 (Perf/Playtest Sub-track, team-qa + team-simulation)
+**Date:** 2026-08-03  
+**Build:** post-S37 + S38-01 baseline (target ≥1215, Replay 6/6)  
+**Focus:** Residual C2/Editor polish UX (filters, tooltips, density from S37 carry), evidence refresh alignment, broader Polish feel (responsiveness, information density) + advisory think-aloud. Per S38-09 AC + qa-plan; parallel S38-08 perf re-profile.  
+**Verdict:** Structured report at `playtest-s38-session-10-graph-c2-polish-2026-08-03.md`. Proxy gates green (18/18+ incl. Graph*, no frame/perf regression, Baltic immutable). Polish feel maintained/improved on residuals; density/responsiveness stable per cross S38-08. Routed team-qa + Perf sub-track. AC met. (Isolated W5 track per sprint-38 kickoff)
+
 ## Fun hypothesis
 
 `fun-hypothesis-validation-2026-06-19.md` — **VALIDATED WITH NOTES** (proxy + human facilitated sessions; session 7 confirms S35 polish closes P0 presentation gaps)

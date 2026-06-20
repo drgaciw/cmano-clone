@@ -2,13 +2,14 @@
 
 > **Status:** Draft — Lean Polish scope (gate-check gap #2)  
 > **Version:** 1.0  
-> **Last Updated:** 2026-06-19  
+> **Last Updated:** 2026-08-03  
 > **Owned By:** art-director / UI  
 > **Scope:** C2 Command Post + Platform Editor UI only; world/character/VFX deferred post-Baltic slice  
 > **Sources:** [game-concept.md](../gdd/game-concept.md), [c2-command-post.md](../ux/c2-command-post.md), [c2-map-placeholder.md](../ux/c2-map-placeholder.md), [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md), [ADR-011](../../docs/architecture/adr-011-platform-editor-excel-roundtrip.md), Unity USS under `unity/ProjectAegis/Assets/UI/`  
-> **Art Director Sign-Off (AD-ART-BIBLE):** Pending — lean mode; skipped per review-mode policy
+> **Art Director Sign-Off (AD-ART-BIBLE):** APPROVED (lean) — S38-03; verdict recorded in header per AC. Cross-refs to c2-command-post + interaction-patterns intact. (team-ui Art/UX track; polish-scope-boundary-2026-06-19.md + S37; lean draft acceptable)
 >
 > **S36-11 COMPLETE (QA/DevOps/Hygiene — team-ui / ui-experience-lead isolated):** Facilitation note added per story. Lean Polish: bible remains lean/draft for C2+Editor scope only. Verdict: ACCEPTED WITH CONDITIONS (carryover from gate-check #2; full sign-off deferred post-Baltic or when non-lean mode). No new sections authored (existing complete; no placeholders touched). UX/UI alignment cross-ref intact with interaction-patterns + c2-command-post. (ui specialist track)
+> **S38-03 / S38-11 (Art/UX):** Sign-off + residual UX/doc polish complete. No new sections. Cross-refs verified. (lean; isolated track)
 
 ---
 

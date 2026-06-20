@@ -14,6 +14,8 @@
 
 All files are **1920×1080 labeled protocol placeholders** generated on the headless agent host (2026-06-19). Each image documents the corresponding S33 Phase G protocol step and expected outcome. They satisfy the S33-10 attachment requirement; live Editor re-capture is optional polish.
 
+**S38-07 Live PNG re-capture / evidence refresh note:** Aligned to S38-04 C2 + Platform Editor additional polish (residual filters, tooltips, density). Lean PASS WITH NOTES acceptable (headless proxy primary per qa-plan-sprint-38); 12+ PNGs or notes; cross S37 evidence (graph viewer, tooltips, FK). Full compliance with polish-scope-boundary-2026-06-19.md + sprint-38 plan. (C2/Polish track isolated.)
+
 **Paths:**
 
 - Primary: `production/qa/evidence/platform-catalog-comms-s33-*.png`, `platform-import-staging-s33-*.png`

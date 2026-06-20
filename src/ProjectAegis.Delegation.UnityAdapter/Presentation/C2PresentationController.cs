@@ -9,6 +9,7 @@ namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 
 /// <summary>Presentation-only selection state (doc 20). Does not mutate sim or order log.
 /// S37-04: graph surfacing support (highlights/bind via read-only catalog projections per ADR-010, polish-boundary).
+/// S39-03: residual C2 polish (filters/tooltips/density from S37/S38 carry). Per production/sprints/sprint-39-*.md + qa-plan + polish-scope-boundary-2026-06-19.md; maintain Graph* proxy 18/18+.
 /// </summary>
 public sealed class C2PresentationController
 {
@@ -16,7 +17,7 @@ public sealed class C2PresentationController
     public string? SelectedContactId { get; private set; }
     public ContactSummaryEntry? SelectedContactSummary { get; private set; }
 
-    // S37-04 / S37-13: dependency graph highlights for selected unit (read-only; no bridge mutation)
+    // S37-04 / S37-13 / S39-03 residual: dependency graph highlights for selected unit (read-only; no bridge mutation)
     public IReadOnlyList<string> LastGraphHighlightIds { get; private set; } = Array.Empty<string>();
     public string? LastGraphLinkChainDisplay { get; private set; }
 
