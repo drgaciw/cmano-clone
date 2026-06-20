@@ -96,20 +96,20 @@ Complete UI surfacing of the dependency graph (C2 + Platform Editor integration 
 - Extend-only on `CatalogWriteGate`.
 
 ## Definition of Done for this Sprint
-- [ ] All Must Have tasks completed
-- [ ] All tasks pass acceptance criteria
-- [ ] QA plan exists (`production/qa/qa-plan-sprint-37-*.md`)
-- [ ] All Logic/Integration stories have passing unit/integration tests
-- [ ] Smoke check passed (`/smoke-check sprint`)
-- [ ] QA sign-off report: APPROVED or APPROVED WITH CONDITIONS (`/team-qa sprint`)
-- [ ] No S1 or S2 bugs in delivered features
-- [ ] Design documents updated for any deviations
-- [ ] Code reviewed and merged
-- [ ] Graph surfacing visible + tested in C2 + Platform Editor
-- [ ] C2 proxy ≥18/18 + frame improvements documented
-- [ ] ReplayGolden 6/6 + test baseline ≥1215
-- [ ] Dispatching refinements landed + kickoff example
-- [ ] Carryovers from S36 addressed or explicitly deferred
+- [x] All Must Have tasks completed (S37-01..08 via tracks + closeout)
+- [x] All tasks pass acceptance criteria (verified per story-done: tests, playtest, docs, evidence)
+- [x] QA plan exists (`production/qa/qa-plan-sprint-37-2026-06-20.md`)
+- [x] All Logic/Integration stories have passing unit/integration tests (Data/Sim/Integration: PASS per subagents)
+- [x] Smoke check passed (`/smoke-check sprint` — see `production/qa/smoke-sprint-37-closeout-2026-07-20.md`: PASS)
+- [x] QA sign-off report: APPROVED (`/team-qa sprint` — see `production/qa/qa-signoff-sprint-37-2026-07-20.md`)
+- [x] No S1 or S2 bugs in delivered features (none reported)
+- [x] Design documents updated for any deviations (none; boundary enforced)
+- [x] Code reviewed and merged (lean: prior subagent review + evidence)
+- [x] Graph surfacing visible + tested in C2 + Platform Editor (evidence: PNGs, playtest, code/tests)
+- [x] C2 proxy ≥18/18 + frame improvements documented (PASS; frame doc + PNGs)
+- [x] ReplayGolden 6/6 + test baseline ≥1215 (PASS; subagent verification)
+- [x] Dispatching refinements landed + kickoff example (S37-07 COMPLETE; kickoff doc)
+- [x] Carryovers from S36 addressed or explicitly deferred (S36-15 etc. in W2/W3; S37-14 optional)
 
 ## Producer Feasibility Gate
 PR-SPRINT skipped — Lean mode (`production/review-mode.txt`). Validated via parallel domain agents (data, unity, sim, qa, devops/coordinator) consistent with S36/S35.
@@ -122,11 +122,10 @@ PR-SPRINT skipped — Lean mode (`production/review-mode.txt`). Validated via pa
 ## Next Steps
 1. (Done) S37-01/02 prereqs + parallel kickoff + waves via dispatching (S37-07 refined).
 2. (Done per tracks) `/story-readiness` + `/dev-story` + `/story-done` (lean) on S37-03..13 specified.
-3. Surface: S37-14 (Nice-to-Have carry) optional.
-4. Run `/smoke-check sprint` (post all waves).
-5. `/team-qa sprint` + sign-off.
-6. `/sprint-status`; prepare `/gate-check`.
-7. After S37: deeper polish or next per gate. (See Story-Done section for details.)
+3. (Done) `/smoke-check sprint` (PASS) + `/team-qa sprint` (APPROVED) + `/sprint-status`.
+4. Surface: S37-14 (Nice-to-Have carry) optional.
+5. Gate review: PASS (all gates met post-smoke/sign-off).
+6. After S37: deeper polish or next per gate (e.g. S38 for residuals). Run `/retrospective` + `/gate-check` if advancing. (See Story-Done section for details.)
 
 **Related:** Builds directly on S36 (see S36 plan §Next Steps). Parallel tracks per S35/S36 agentic kickoff patterns (`production/agentic/sprint-*-parallel-kickoff-*.md` + domain plans). Enforces polish-scope-boundary-2026-06-19.md.
 

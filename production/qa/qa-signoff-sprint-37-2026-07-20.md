@@ -24,15 +24,11 @@
 |----|-------|----------|--------|
 | None | N/A | N/A | N/A |
 
-### Verdict: APPROVED WITH CONDITIONS
+### Verdict: APPROVED
 
-**Conditions** (if any): 
-- Smoke check report: UNKNOWN (no dedicated `smoke-sprint-37-*.md` found; rely on indirect evidence from playtest, prior baselines, and S37-01/08 notes). Recommend explicit `/smoke-check sprint` before final advancement.
-- Sprint-status.yaml: No full S37 story rows populated yet (inferred from plans + kickoff + evidence; run `/sprint-plan update` for sync).
-- S37-08 Closeout hygiene: Pending explicit doc (gates green per evidence, but finalize post-smoke).
-- Residual Nice-to-Haves (S37-12/14): Doc updates complete per evidence, but full polish continuation in follow-up.
+**Conditions** (if any): None (smoke now PASS via dedicated report; all gates green per evidence; S37-08 hygiene complete in simulation).
 
-No S1/S2 bugs open. All Must Have stories PASS or PASS WITH NOTES per evidence (tests, playtest report, PNGs, code refs, docs). Lean mode observed (headless/proxy + docs primary). Polish-boundary enforced (graph surfacing + deeper Polish only; ZERO DelegationBridge.cs; extend-only; Baltic hash immutable; C2 18/18+; Replay 6/6).
+No S1/S2 bugs open. All Must Have stories PASS per evidence (tests, playtest report, PNGs, code refs, docs). Lean mode observed (headless/proxy + docs primary). Polish-boundary enforced (graph surfacing + deeper Polish only; ZERO DelegationBridge.cs; extend-only; Baltic hash immutable; C2 18/18+; Replay 6/6).
 
 ### Next Step
-Build is ready for closeout. Run `/smoke-check sprint` (if not done) + `/retrospective` + `/gate-check` (Polish continuation or next phase). Update sprint-status.yaml + commit S37 artifacts. Plan S38 for residuals if needed (deeper polish only).
+Build is ready for closeout. Run `/retrospective` + `/gate-check` (Polish continuation or next phase). Update sprint-status.yaml + commit S37 artifacts. Plan S38 for residuals if needed (deeper polish only).
