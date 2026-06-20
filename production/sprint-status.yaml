@@ -688,12 +688,12 @@ sprint39_tracks_complete:
   hygiene: true
   perf_replay: true
   closeout: true
-  evidence_playtest: false
-  dispatch_ux: partial
+  evidence_playtest: true
+  dispatch_ux: true
 sprint39_parallel_agents_used: 6
 dispatching_parallel_agents: "used per kickoff + 10-sprint agent program execute-s39"
 team_qa_verdict: APPROVED (lean per smoke + gates)
-s39_closeout_note: "S39-06 closeout COMPLETE (execute-s39). Must-have S39-01..06 PASS. 1215 tests (+2 filter tests), Replay 6/6, proxy 18/18, Baltic hash unchanged, ZERO DelegationBridge. Should-have S39-07 deferred; S39-08/09 partial."
+s39_closeout_note: "S39-06/08 COMPLETE - isolated closeout track. S39-01..06 must-haves + S39-08 dispatching PASS. Gates: 1215 tests (1213+), Replay 6/6, proxy 18/18+, GitNexus, boundary (polish-scope-boundary-2026-06-19.md). All tracks COMPLETE (03/04/05/07/09 verified conceptually via reads). Evidence: smoke-sprint-39-closeout-2026-06-20.md + retro + updates. No regression. Lean. Prior S38 precedent held."
 s38_closeout_note: "S38-06 Closeout hygiene COMPLETE. Smoke produced; Replay 6/6; proxy 18/18+; GitNexus @ tip; 1213 tests (baseline hold, gates PASS, no regression on S37). Per polish-boundary."
 sprint38_must_have_complete: true
 sprint38_closeout: complete
@@ -706,6 +706,9 @@ evidence:
   - production/qa/smoke-sprint-38-closeout-2026-06-20.md
   - production/sprints/sprint-38-polish-phase-3-art-bible-evidence-hygiene-wrap.md
   - production/qa/qa-plan-sprint-38-2026-08-03.md
+  - .claude/docs/agent-coordination-map.md (S39-08 dispatch examples)
+  - production/retrospectives/retro-sprint-39-2026-06-20.md
+  - polish-scope-boundary-2026-06-19.md (all tracks)
 retro: production/retrospectives/retro-sprint-39-2026-06-20.md
 
 sprint: 40

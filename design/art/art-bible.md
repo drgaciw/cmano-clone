@@ -10,6 +10,7 @@
 >
 > **S36-11 COMPLETE (QA/DevOps/Hygiene — team-ui / ui-experience-lead isolated):** Facilitation note added per story. Lean Polish: bible remains lean/draft for C2+Editor scope only. Verdict: ACCEPTED WITH CONDITIONS (carryover from gate-check #2; full sign-off deferred post-Baltic or when non-lean mode). No new sections authored (existing complete; no placeholders touched). UX/UI alignment cross-ref intact with interaction-patterns + c2-command-post. (ui specialist track)
 > **S38-03 / S38-11 (Art/UX):** Sign-off + residual UX/doc polish complete. No new sections. Cross-refs verified. (lean; isolated track)
+> **S39-07/09 (Evidence/Playtest + Art/UX residual):** Minimal playtest 11 entry (production/playtests/README.md) + lean cross-ref for C2/Platform polish (density/tooltips/surfacing S39-03). PNG/playtest 11 uses proxy + existing s37 PNGs (c2-graph-viewer-s37.png etc). No new sections. (isolated track; cites S39 plan + qa-plan + boundary)
 
 ---
 

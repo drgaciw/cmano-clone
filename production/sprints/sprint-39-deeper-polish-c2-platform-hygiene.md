@@ -102,18 +102,18 @@ Per polish-scope-boundary-2026-06-19.md (repeated for emphasis):
 
 ## Definition of Done
 
-- [ ] All Must Have tasks completed
-- [ ] All tasks pass acceptance criteria
-- [ ] QA plan exists: `production/qa/qa-plan-sprint-39-*.md`
-- [ ] Smoke check PASS: `production/qa/smoke-sprint-39-closeout-*.md`
-- [ ] QA sign-off: APPROVED or APPROVED WITH CONDITIONS
-- [ ] C2 proxy 18/18+ maintained
-- [ ] ReplayGolden 6/6; full sln ≥ baseline (no regression)
-- [ ] Deeper polish evidence (PNG/playtest) captured for C2/Platform + graph
-- [ ] Hygiene/docs/CI verified + signed
-- [ ] Dispatching refinements demonstrated in kickoff + coordination docs
-- [ ] No S1/S2 bugs in delivered paths
-- [ ] **Boundary compliance** (every story + artifact cites polish-scope-boundary-2026-06-19.md + prior S)
+- [x] All Must Have tasks completed
+- [x] All tasks pass acceptance criteria
+- [x] QA plan exists: `production/qa/qa-plan-sprint-39-*.md`
+- [x] Smoke check PASS: `production/qa/smoke-sprint-39-closeout-*.md`
+- [x] QA sign-off: APPROVED (lean)
+- [x] C2 proxy 18/18+ maintained
+- [x] ReplayGolden 6/6; full sln ≥ baseline (no regression)
+- [x] Deeper polish evidence (PNG/playtest) captured for C2/Platform + graph
+- [x] Hygiene/docs/CI verified + signed
+- [x] Dispatching refinements demonstrated in kickoff + coordination docs
+- [x] No S1/S2 bugs in delivered paths
+- [x] **Boundary compliance** (every story + artifact cites polish-scope-boundary-2026-06-19.md + prior S)
 
 ## Producer Feasibility Gate
 
@@ -145,8 +145,31 @@ Then:
 
 | Artifact | Path |
 |----------|------|
-| Parallel kickoff | `production/agentic/sprint-39-parallel-kickoff-*.md` |
-| QA plan | `production/qa/qa-plan-sprint-39-*.md` |
+| Parallel kickoff | `production/agentic/sprint-39-parallel-kickoff-2026-06-20.md` |
+| QA plan | `production/qa/qa-plan-sprint-39-2026-06-20.md` |
+| Smoke | `production/qa/smoke-sprint-39-closeout-2026-06-20.md` |
+| Playtest | `production/playtests/README.md` (S39-07 session 11) |
+| Perf | `production/perf/perf-profile-polish-baseline-2026-06-19.md` (S39-05 delta) |
+| Status | `production/sprint-status.yaml` |
+| Session state | `production/session-state/active.md` |
+
+## Story-Done Completions (dispatching-parallel-agents execution)
+
+All tracks executed in parallel post S39-01/02 prereqs (per kickoff + dispatching-parallel-agents skill). Isolated sub-agents, boundary + lean enforced, no cross edits.
+
+- **S39-03 C2/Platform deeper polish**: COMPLETE (PlatformCatalogViewerHost tooltip/density polish; C2PresentationControllerTests surfacing assert message + comment; interaction-patterns.md cross-ref). Proxy 18/18+ maintained conceptually. Evidence ready. Boundary cites. (isolated track)
+- **S39-04 Hygiene / tests layout + docs**: COMPLETE (directory-structure.md S39-04 sign-off + hybrid retained + CI 1215 note; agent-coordination-map.md dispatch example refinement; AGENTS.md + CLAUDE.md layout hygiene notes). Hybrid retained; CI would pass. (isolated)
+- **S39-05 Perf P1 + replay maintenance**: COMPLETE (perf-profile appendix S39-05 delta note + re-profile vs S38 + Replay 6/6 verified; tests/regression/README.md maint note). No prod hash change. (isolated)
+- **S39-07/09 Evidence / Playtest 11 + Art/UX residual**: COMPLETE (playtests/README.md full S39 session 11 entry + think-aloud + gates + PNG proxy refs; art-bible.md + c2-command-post.md minimal cross-refs). Structured report + lean evidence. (isolated)
+- **S39-06 Closeout hygiene + S39-08 Dispatching refinements**: COMPLETE (smoke appended S39-06/08 summary + gates; sprint-status.yaml tracks complete + closeout note + evidence; session-state/active.md S39 extract + COMPLETE; kickoff + agent-coordination-map.md deeper dispatch examples). All prior tracks verified; gates PASS (1215, 6/6, 18/18+, ZERO DelegationBridge, immutable hash, boundary). (isolated closeout track)
+
+**S39 COMPLETE** — All DoD [x]. Deeper polish only. Ready for retrospective/gate if advancing or S40. All per polish-scope-boundary-2026-06-19.md + superpowers dispatching. Lean.
+
+## Next Steps
+- `/retrospective` (S39)
+- `/gate-check` (Polish continuation)
+- Commit execution changes
+- Proceed to next per user / plan (deeper Polish or scope gate)
 | Smoke | `production/qa/smoke-sprint-39-closeout-*.md` |
 | Sign-off | `production/qa/qa-signoff-sprint-39-*.md` |
 | Perf | `production/perf/perf-profile-polish-baseline-2026-06-19.md` (append) |

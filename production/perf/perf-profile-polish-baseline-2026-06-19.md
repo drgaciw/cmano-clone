@@ -477,3 +477,48 @@ S39-05 complete: appendix appended. `/replay-verify` equivalent via ReplayGolden
 References: sprint-39 W3, qa-plan-sprint-39 §S39-05, S38-08, polish-scope-boundary-2026-06-19.md.
 
 **Cross-gates verified:** Replay 6/6, C2 proxy 18/18, Baltic immutable, ZERO DelegationBridge, test baseline ≥1213. Ready for S39-06 closeout.
+
+---
+
+## S39-05 Delta Note (isolated perf P1 follow-up + replay maintenance)
+
+**Date:** 2026-06-20  
+**Track:** Perf/Replay (S39-05 isolated sub-track per dispatching)  
+**Authority:** `production/sprints/sprint-39-deeper-polish-c2-platform-hygiene.md` (S39-05 ACs) + `production/qa/qa-plan-sprint-39-2026-06-20.md` + `production/polish-scope-boundary-2026-06-19.md`  
+**Review mode:** lean  
+**Scope (strict):** Deeper polish only; P0/P1 perf + replay maint; isolated fixtures ok; **no prod Baltic hash change**; **no DelegationBridge**.
+
+### Re-profile vs S38 (S38-08 appendix baseline)
+- Environment: same Linux dev host.
+- ReplayGoldenSuiteTests: 6/6 (verified run: Duration **204 ms** vs S38 ~171 ms / S39 pre ~176 ms; variance).
+- Amortized: `204 ms ÷ 54 tick-iters ≈ 3.78 ms/tick` (vs ~3.17 ms prior) — **stable within noise**; remains inside P1 Baltic MVP budget (~0.5–3.2 ms/tick band tightened post prior P0s).
+- Full sln: baseline preserved (1215+ per closeout; no regression attributable to perf/replay).
+- Production Baltic hash `17144800277401907079` **untouched** (confirmed in golden runs); isolated replay-golden-*.txt only if maint.
+
+### P1 items status (C2 frame / catalog load focus)
+| P1 Item | vs S38 | Status / Delta |
+|---------|--------|----------------|
+| Unity C2 frame time (16.67 ms target) | Unchanged | **Unmeasured** on Linux (no Editor Profiler capture); cross-ref `unity-c2-frame-baseline-s35-2026-06-19.md`; deferred per boundary — headless proxy primary. No delta introduced. |
+| C2 panel selection latency (<100 ms) | Unchanged | Headless proxy only; ~0.013 ms p95 prior; no new measurement this track (isolated). |
+| Catalog load (bind / harness) | Stable | Catalog reads (e.g. `DetectionTrialResolver.Resolve`, `DatalinkShareLagResolver`) remain at scenario bind only — **not per-tick**. No regression vs S38; negligible perf impact on ReplayGolden (confirmed). Hot-path catalog avoided per design. |
+| Headless tick budget (<1 ms target at MVP) | Stable | ~3.8 ms amortized incl. projections; loop body est. still OK for slice. No P1 regression. |
+
+### Replay / determinism maint
+- `/replay-verify` equivalent: **ReplayGoldenSuiteTests 6/6 PASS** (conceptual + run verified).
+- Determinism spot: no divergence (intra A/B + vs golden); prior mitigations (e.g. SortedSet, incremental log, cached order) stable.
+- Maint action: golden suite only; **no production scenario edits** (baltic-patrol.policy.json hash immutable per boundary rule 5).
+
+**No new hotspots** from this track. Prior P0/P1 (S35/S37/S38) remain closed or mitigated; no drift.
+
+**ACs met per sprint-39 / qa-plan:** 
+- perf-profile appendix (this delta note) appended.
+- Replay 6/6.
+- Isolated fixture maint only.
+- No prod hash change.
+- Boundary cited.
+
+S39-05 COMPLETE - isolated track.
+
+References (boundary enforced): polish-scope-boundary-2026-06-19.md (P0/P1 only, hash discipline), sprint-39-deeper-polish-c2-platform-hygiene.md §S39-05, qa-plan-sprint-39-2026-06-20.md §S39-05 Perf/Replay, prior S38-08 appendix in this doc.
+
+**Cross-gates (this track only):** Replay 6/6, no hash touch, ZERO DelegationBridge, perf P1 stable. Ready for S39 closeout (perf/replay sub-track).

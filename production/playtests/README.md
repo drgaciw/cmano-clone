@@ -14,6 +14,8 @@
 | 4 | `playtest-2026-06-19-s35-polish-validation.md` | S35 polish (session 7) | NPE onboarding copy, COMMS legend, catalog lag helper |
 | 5 (S36-10) | (inline in this README) | Polish Phase 2 / hygiene (session 8) | C2 frame proxy, dep-graph, dispatching isolation, art-bible state |
 | 6 (S37-10) | `playtest-s37-session-9-graph-ux-2026-07-20.md` | Graph surfacing UX (session 9) + polish feedback | C2 viewer/panel/selection/link-chain, Editor FK/tooltips, frame, density (W4 QA track) |
+| 7 (S38-09) | `playtest-s38-session-10-graph-c2-polish-2026-08-03.md` | Graph/C2/Polish (session 10) | Residual filters/tooltips/density, evidence alignment |
+| 8 (S39-07) | (inline S39 session entry in this README) | Evidence / Playtest 11 + Art/UX residual (S39-07/09) | C2/Platform polish evidence, PNG refs, think-aloud for density/tooltip residuals; proxy 18/18+ |
 
 ## Human think-aloud sessions (4/4)
 
@@ -75,6 +77,22 @@ Companion facilitated reviews in `human/` — one per proxy report (sessions 1�
 **Build:** post-S37 + S38-01 baseline (target ≥1215, Replay 6/6)  
 **Focus:** Residual C2/Editor polish UX (filters, tooltips, density from S37 carry), evidence refresh alignment, broader Polish feel (responsiveness, information density) + advisory think-aloud. Per S38-09 AC + qa-plan; parallel S38-08 perf re-profile.  
 **Verdict:** Structured report at `playtest-s38-session-10-graph-c2-polish-2026-08-03.md`. Proxy gates green (18/18+ incl. Graph*, no frame/perf regression, Baltic immutable). Polish feel maintained/improved on residuals; density/responsiveness stable per cross S38-08. Routed team-qa + Perf sub-track. AC met. (Isolated W5 track per sprint-38 kickoff)
+
+## S39-07: Playtest Session 11 (Evidence / Playtest + residual, team-qa + team-unity isolated)
+**Date:** 2026-06-20  
+**Build:** post-S38 + S39-01/03 baseline (≥1215 tests, Replay 6/6, C2 proxy 18/18+ Graph*)  
+**Focus:** Targeted C2/Platform + graph polish evidence (S39-03 residuals: density, tooltips, surfacing); PNG/playtest 11; structured playtest per S39-07 AC + qa-plan-sprint-39-2026-06-20.md. Advisory think-aloud synthesis on polish feel. Parallel to S39-09 residual cross-refs. (S39 sprint-39-deeper-polish-c2-platform-hygiene.md)  
+**Verdict:** Minimal structured note added (this README + evidence refs). Proxy gates green (18/18+ incl. Graph* filters; no frame/perf regression; Baltic hash 17144800277401907079 immutable). Polish residuals (filters/tooltips/density) verified in headless projections; lean evidence sufficient (prior PNGs representative: c2-graph-viewer-s37.png, c2-polish-tooltips-s37.png, editor-fk-graph-s37.png, frame-headroom-s37.png). No new PNGs captured (headless constraint per boundary). Routed isolated Evidence/Playtest track. AC met: evidence updated (notes), playtest structured. (Isolated W4 track per sprint-39 kickoff; S39-09 cross-refs lean)
+
+**Think-aloud / Polish feedback synthesis (lean):** 
+- **Worked well**: C2/Platform filter density (formatted-row) + tooltip surfacing from S39-03 make residual graph chains / catalog rows more legible without density regression. Proxy 18/18+ holds post-polish.
+- **Pain points (advisory, non-blocking)**: Live Editor full PNG refresh still deferred (lean proxy + s37 PNG batch representative per S39-07); long-chain visual on narrow panels remains low-pri residual.
+- **Evidence/Playtest 11**: Structured entry closes cadence for S39; aligns to qa-plan Playtest Protocol (C2/Platform deeper polish focus). Cross S39-09 minimal UX notes.
+- **Gates**: Full sln ≥1215; C2 18/18+; Replay 6/6; ZERO DelegationBridge; extend-only CatalogWriteGate; boundary (polish-scope-boundary-2026-06-19.md + S38) enforced.
+
+**Top priorities (residual only):** 1. Maintain proxy on future C2 polish. 2. S40 playtest 12 + any local PNG. 3. Route minor density notes to interaction-patterns if needed (lean).
+
+**Findings triage:** All S39-07 polish UX verified via proxy; no blocking; evidence/playtest structured in this corpus. ACs satisfied for isolated track.
 
 ## Fun hypothesis
 

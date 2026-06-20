@@ -98,6 +98,7 @@ Must ship: baseline + QA plan + C2/Platform polish + hygiene + perf/replay + clo
 - Smoke + gates green.
 - sprint-status.yaml + session-state/active.md updated.
 - Boundary + lean + superpowers compliance verified.
+- **S39-08 deeper dispatch integration example:** Isolated closeout dispatch (S39-06) + dispatch refinement: "Per S39 plan + qa-plan + boundary. Isolated sub-track only. Update status/tracker + smoke lean note. Refined examples added to kickoff/coord-map (wave isolation, prereq serial, track status sync, 'S39-06/08 COMPLETE - isolated closeout track' output). No cross-track. Prior S39-03/04/05/07/09 COMPLETE conceptually (c2 files, dir-structure signoff, perf delta, playtests, art-bible crossrefs)."
 
 ---
 

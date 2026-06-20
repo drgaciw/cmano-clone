@@ -21,3 +21,9 @@ Copy `WORLD_HASH`, `DETECTION_WORLD_HASH`, and `FINGERPRINT_SHA256` into the mat
 ```bash
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter FullyQualifiedName~ReplayGoldenSuiteTests
 ```
+
+## S39-05 replay maint note (isolated track only)
+
+S39-05 (Perf P1 follow-up + replay maintenance): ReplayGoldenSuiteTests 6/6 verified conceptually + run (see perf-profile-polish-baseline-2026-06-19.md delta append). Maintenance only via isolated fixtures (`replay-golden-*.txt`); **production Baltic hash unchanged** (`17144800277401907079`); no `DelegationBridge.cs` edits. Per `production/polish-scope-boundary-2026-06-19.md` + sprint-39 S39-05 ACs + qa-plan-sprint-39-2026-06-20.md. Determinism spot clean (no prod hash touch).
+
+S39-05 COMPLETE - isolated track.

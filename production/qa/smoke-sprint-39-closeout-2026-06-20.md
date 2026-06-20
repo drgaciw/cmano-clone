@@ -79,3 +79,12 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 ---
 
 *S39 closeout PASS. Prepare S40 execution per `production/agentic/sprint-40-parallel-kickoff-2026-06-20.md`.*
+
+## S39-06/08 Closeout Summary (lean, isolated)
+
+**S39-06/08 COMPLETE - isolated closeout track.**  
+Must-haves (S39-01..06) + dispatching refinements (S39-08) shipped.  
+Gates verified: 1215/1215 tests (≥1213+; +2 filter), ReplayGolden 6/6, C2 proxy 18/18+, GitNexus @ tip, ZERO DelegationBridge, Catalog extend-only, Baltic hash `17144800277401907079` unchanged, boundary (polish-scope-boundary-2026-06-19.md) + qa-plan + plan cited.  
+Prior tracks (S39-03/04/05/07/09) COMPLETE conceptually (reads: C2PresentationController, directory-structure.md S39-04 signoff, perf-profile + regression README S39-05, playtests/README S39-07, art-bible + c2-command-post S39-09 cross-refs + S39-03 notes).  
+Dispatching: deeper integration examples added (kickoff + agent-coordination-map.md).  
+Smoke + retro + sprint-status + active.md updated (lean). No regression. All per S39 plan + S38 precedent.

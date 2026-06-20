@@ -62,3 +62,29 @@ Recommendations R1 (graph rebuild / G5), R2 (Unity traceability / G1) are **out 
 |-----|-----|-------------|
 | R1 | G5 | Tooling — `npx gitnexus analyze --force` |
 | R2 | G1 | Code — Unity adapter seam for `SensorC2PanelHost` graph linkage |
+
+---
+
+## G1 / R2 — Unity SensorC2 panel bridge seam
+
+**Status:** **COMPLETE** (2026-06-20)
+
+**Action:** Added `ISensorC2PanelBridge`, `SensorC2PanelBridge`, `SensorC2Bridge.BindPanel`, routed `SensorC2PanelHost` through adapter seam; headless tests in `SensorC2BridgeTests`.
+
+**Commits:** `c5c945a` on `stack/spirit1/g1-sensor-c2-traceability`, merged to `main` as `9e72d24`.
+
+**GitNexus (post-G5 reindex):** `impact(BindPanel, upstream)` → **LOW** (3 direct callers; Bridge + Runtime modules).
+
+**Evidence:** `dotnet test` filter `SensorC2|PlayModeSmokeHarnessTests` — 24 PASS on `main` @ `9e72d24`.
+
+---
+
+## G5 / R1 — GitNexus graph rebuild
+
+**Status:** **COMPLETE** (2026-06-20)
+
+**Action:** Incremental reindex via `node .gitnexus/run.cjs analyze` from repo root @ `9e72d24` (post-G1 merge).
+
+**Index:** 17,700 nodes | 34,923 edges | 378 clusters | 300 flows (`gitnexus status` ✅ up-to-date).
+
+**Notes:** Prior index was stale at `712809a`; CLI `detect_changes` on G1 diff reported **low** risk (3 files, 10 symbols) before merge. Worktree cwd warnings resolved after analyze on primary checkout.
