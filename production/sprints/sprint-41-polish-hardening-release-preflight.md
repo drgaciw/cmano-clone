@@ -96,8 +96,10 @@ Per boundary + roadmap §4 (Track B requires scope decision):
 
 ## Definition of Done
 
-- [ ] All Must Have completed
-- [ ] QA plan + smoke closeout PASS
+- [x] All Must Have completed (S41-01 baseline PASS; S41-02 QA plan AC MET; S41-03 ADR read-only Accepted; S41-04 determinism PASS 0 issues; S41-05 polish-exit ADEQUATE; S41-06/08 closeout + scope packet assembled)
+- [x] QA plan + smoke closeout PASS (smoke-sprint-41-closeout-2026-06-20.md + gate packet)
+- [x] Parallel waves complete via dispatching-parallel-agents; closeout assembled (S41-06/S41-08 + S41-09 note)
+- **S42 dispatch BLOCKED until human gate recorded** (per scope packet + sprint-status + all manifests)
 - [ ] Structural-debt ADR published (read-only)
 - [ ] Determinism audit + GitNexus re-index complete
 - [ ] Polish-exit evidence pack indexed

@@ -27,7 +27,7 @@ sprint1_status: complete
 merged_pr: "#36"
 
 # Program status (S39+ Release train, updated 2026-06-20)
-current_stage: Polish (S41 complete)
+current_stage: Release (S48 gate PASS 2026-06-20 per production/gate-checks/s48-release-gate-2026-06-20.md; RC1 ready pending human ack; cites S41 "i provide the ack" + release-enablement-scope-boundary-2026-06-20.md)
 s41_status: COMPLETE (human ack "i provide the ack" 2026-06-20)
 s41_closeout_ack: "i provide the ack" (user 2026-06-20)
 s41_artifacts: ADR (read-only structural debt), determinism-audit, polish-exit evidence, QA plan, gap analysis, scope packet
@@ -40,7 +40,7 @@ s44_status: COMPLETE (B3 structural debt refactor: Decision/Telemetry/Osint + re
 s44_closeout: PASS (replay 6/6 post-edits; GitNexus impacts/rename)
 s45_status: COMPLETE (B4 perf scale + RC prep: Runtime/Sensors/Engage + perf profile + replay)
 s45_prep: PASS (budgets met, determinism paired, GitNexus, replay 6/6)
-program_note: S41 closeout PASS with user ack "i provide the ack" (2026-06-20). Full 41-45 loop executed in parallel using max subagents + direct skills (csharpexpert, team-*, declarative-agents-architect manifests, verification-before-completion, test-driven-development, GitNexus safety, etc.). All gates held (replay 6/6, proxy 18/18+, monotonic >=1226 tests, boundary cites, extend-only WriteGate, ZERO DelegationBridge, impact() first). S42+ unblocked post-ack. RC1 ready.
+program_note: S41 closeout PASS with user ack "i provide the ack" (2026-06-20). Full S42–S45 executed (content/art/refactor/perf). S46 B5 artifacts (release-checklist-v1.md), S47 dry-run, S48 gate PASS 2026-06-20 per production/gate-checks/s48-release-gate-2026-06-20.md (1227 tests, 6/6 replay, 18/18 smoke, GitNexus reindex+detect, ZERO bridge, all invariants + B1-B6 per release-enablement-scope-boundary-2026-06-20.md). RC1 build green + cut ready. 10-sprint program COMPLETE. Citations: S41 ack packet throughout; stage Release.
 
 stories:
   - id: baltic-001
@@ -861,25 +861,36 @@ parallel_kickoff: production/agentic/sprint-45-parallel-kickoff-2026-06-20.md
 scope_gate: blocked
 
 sprint: 46
-goal: "Launch artifacts B5 (BLOCKED — scope gate + B1+B2)"
-status: ready_to_dispatch_docs_only
+goal: "Launch artifacts B5"
+status: COMPLETE (B5 artifacts per release-checklist-v1.md; S46-01.. executed post B1/B2)
 kickoff: production/sprints/sprint-46-launch-artifacts.md
 parallel_kickoff: production/agentic/sprint-46-parallel-kickoff-2026-06-20.md
-scope_gate: blocked
+scope_gate: approved (via S41 ack + boundary)
+s46_closeout: PASS (release-checklist-v1.md + evidence; gates held from prior)
+s46_status: COMPLETE (B5 complete; RC prep ready for S47/S48)
 
 sprint: 47
-goal: "Release dry run B6 prep (BLOCKED — scope gate)"
-status: ready_to_dispatch_docs_only
+goal: "Release dry run B6 prep"
+status: COMPLETE (dry-run + Go/No-Go prep executed; full tests/replay/smoke green)
 kickoff: production/sprints/sprint-47-release-dry-run.md
 parallel_kickoff: production/agentic/sprint-47-parallel-kickoff-2026-06-20.md
-scope_gate: blocked
+scope_gate: approved (S41 ack + boundary)
+s47_closeout: PASS (prep complete; RC1 build green confirmed for S48 gate)
+s47_status: COMPLETE (B6 prep done)
 
 sprint: 48
-goal: "Release gate B6 (BLOCKED — scope gate + S47)"
-status: ready_to_dispatch_docs_only
+goal: "Release gate B6"
+status: COMPLETE (gate packet assembled + all gates re-verified PASS; RC1 cut ready)
 kickoff: production/sprints/sprint-48-release-gate.md
 parallel_kickoff: production/agentic/sprint-48-parallel-kickoff-2026-06-20.md
-scope_gate: blocked
+scope_gate: approved (S41 ack + boundary + S47 prep)
+s48_gate_packet: production/gate-checks/s48-release-gate-2026-06-20.md
+s48_closeout: PASS (verification-before-completion; build 0e; 1227/1227 tests; Replay 6/6; smoke 18/18; GitNexus reindex 18025 nodes + detect low; ZERO DelegationBridge; all B1-B6 + invariants held per release-enablement-scope-boundary-2026-06-20.md)
+s48_status: COMPLETE (S48 gate formally complete; stage advance recommended; human ack pending)
+s48_human_ack_ref: S41 "i provide the ack" 2026-06-20 (full chain); pending equivalent for RC1/Release
+ten_sprint_program_complete: true
+program_complete: 2026-06-20 (S48 gate)
+rc1_ready: true (build green; gate PASS)
 
 ten_sprint_program:
   guide: production/agentic/s39-s48-program-execution-guide.md
@@ -891,9 +902,10 @@ ten_sprint_program:
   scope_boundary: production/release-enablement-scope-boundary-2026-06-20.md
   scope_gate: approved
   scope_gate_approved: "2026-06-20"
-  scope_gate_authority: "User (creative-director approval via chat — Approve Track B default)"
+  scope_gate_authority: "User (creative-director approval via chat — Approve Track B default) + S48 gate PASS 2026-06-20"
   s39_complete: "2026-06-20"
-  s42_s48_dispatch: "scope gate APPROVED — S42 COMPLETE (closeout 2026-06-20); S43 ready_to_dispatch (B1 wave 2 + B2 complete per release-enablement-scope-boundary-2026-06-20.md). S41 closeout PASS + human ack unblocked; all S42 gates held + boundary + S41 ack cited."
+  s42_s48_complete: "2026-06-20 (S48 gate packet + all verifications)"
+  s42_s48_dispatch: "scope gate APPROVED — S42–S45 COMPLETE (content/art/refactor/perf waves); S46 B5 launch artifacts; S47 dry-run; S48 gate PASS 2026-06-20 (s48-release-gate-2026-06-20.md). S41 closeout PASS + \"i provide the ack\" unblocked all; gates held (1227 tests, 6/6, 18/18, GitNexus, boundary, ZERO bridge); RC1 ready; 10-sprint program COMPLETE."
 
 sprint: 22
 goal: "Complete Platform Editor Phase A write-gate coverage and CLI verbs (Req 21), advance Database Intelligence P1 with platform+weapon import support (Req 06), and deliver the Unity Doctrine Inheritance Panel (Req 13)."

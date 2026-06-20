@@ -94,6 +94,18 @@ Companion facilitated reviews in `human/` — one per proxy report (sessions 1�
 
 **Findings triage:** All S39-07 polish UX verified via proxy; no blocking; evidence/playtest structured in this corpus. ACs satisfied for isolated track.
 
+## S43 Cadence (Beta-Evidence-QA; Playtest 12-13 Focus)
+**S43-07 Evidence track (team-qa + playtest-report):** Playtest cadence continues for B1 wave 2 + B2.
+- **Playtest 12:** B1 W2 Engage/features (Req 03 Simulation Modes, 04 Agent Delegation badges, 14 Engagement/DLZ, 15 Sensor/EW ECCM, 17 Replay AAR, 18 Combat domains BDA, 19 Cyber/Comms JADC2). Focus: proxy + harness verification of engage/comms/delegation flows; difficulty curve from Baltic fixtures; order-log AAR hooks.
+- **Playtest 13:** B2 remainder + art bible complete (§5–9 + §8 asset specs). Lean synthesis on polish/asset alignment; human think-aloud advisory (density, C2 indicators post-content).
+- Updates: structured entries via playtest-report template; proxy gates (Replay 6/6, C2 18/18+ expanded for modes/badges if landed); boundary + S41-ack + S42 cites.
+- Verdicts: PASS WITH NOTES (lean proxy + harness sufficient per review-mode; no blocking; full local Editor PNGs advisory for release). Evidence pack updated in qa/evidence/README-s43-b1w2-b2-evidence-2026-06-20.md.
+
+**Gates (S43):** Full sln ≥1226 (monotonic); Replay 6/6; C2 proxy 18/18+; ZERO DelegationBridge; extend-only CatalogWriteGate; release-enablement-scope-boundary + S41 ack cited. B1 exit supported.
+
+## S42 / Prior Playtest 12 Note (carry)
+(Deferred execution in S42; S43 cadence 12-13 executed here.)
+
 ## Fun hypothesis
 
 `fun-hypothesis-validation-2026-06-19.md` — **VALIDATED WITH NOTES** (proxy + human facilitated sessions; session 7 confirms S35 polish closes P0 presentation gaps)

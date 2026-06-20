@@ -40,10 +40,14 @@ Complete B1 content scope (Engage/features batch + Platform/scenario remainder) 
 
 ## Definition of Done
 
-- [ ] B1 content complete per scope decision
-- [ ] B2 art bible 9 sections + asset specs complete
-- [ ] Replay 6/6; proxy 18/18+; tests monotonic
-- [ ] Evidence/playtest doc for wave 2
+- [x] B1 content complete per scope decision (W1 S42 + W2 S43; 13 rows)
+- [x] B2 art bible 9 sections + asset specs complete
+- [x] Replay 6/6; proxy 18/18+; tests monotonic (1226 hold)
+- [x] Evidence/playtest doc for wave 2 (Beta-Evidence-QA; cadence 12-13; S43-07)
+- [x] Closeout smoke + B1+B2 exit noted (S43-06); sprint-status + kickoff updated
+
+**S43-07 Evidence (Beta-Evidence-QA + team-qa):** Playtest 12-13; evidence pack README-s43-b1w2-b2-evidence; test-evidence-review ADEQUATE; local Editor note (lean).  
+**S43-06 Closeout:** Final smoke (regression/replay/proxy); verification all gates; AC MET; B1+B2 exit; retrospective; S44 dispatch. Worktree evidence/closeout. Cite S41 ack + S42.
 
 ## Parallel Execution Model
 
@@ -61,4 +65,4 @@ Roadmap §9; kickoff `production/agentic/sprint-43-parallel-kickoff-2026-06-20.m
 
 ---
 
-*Planning only. Requires scope gate + S42 completion.*
+*Planning + execution. Scope gate + S42 complete (cites S41 ack packet). S43 COMPLETE per smoke-sprint-43-closeout-2026-06-20.md + evidence pack (Beta-Evidence-QA) + closeout. B1+B2 exit MET. Gates held. S44 dispatch ready. Cite S41 ack + S42 in all.*

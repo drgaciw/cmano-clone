@@ -1,7 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (17789 symbols, 35073 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (18025 symbols, 35395 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -199,9 +199,9 @@ No Docker compose or long-running servers. The “application” is in-process: 
 
 ## Learned Workspace Facts
 
-- Production stage is **Polish** (`production/stage.txt`); Sprint **40** must-have complete (S40-01..06 PASS, 2026-06-20); **S41** is next Track A.
-- Track B scope expansion **APPROVED** (2026-06-20, `production/gate-checks/scope-expansion-decision-2026-06-20.md`); S42–S48 dispatch blocked until **S41 closeout**.
-- Headless test baseline is **≥1226** solution tests after S40 (ReplayGolden 6/6, C2 proxy 18/18).
+- Production stage is **Polish** (`production/stage.txt`); Sprint **40** must-have complete (S40-01..06 PASS, 2026-06-20); **S41 COMPLETE** (Polish exit + ADR + scope packet); **S42 COMPLETE** (B1 W1 + art §1-4; gates held).
+- Track B scope expansion **APPROVED** (2026-06-20, `production/gate-checks/scope-expansion-decision-2026-06-20.md` + S41 closeout ack); S42 COMPLETE; S43–S48 dispatch per release-enablement-scope-boundary-2026-06-20.md (cite new boundary + S41 ack packet).
+- Headless test baseline is **≥1226** solution tests after S40/S41 (ReplayGolden 6/6, C2 proxy 18/18; monotonic per S42 closeout).
 - Post–S38 release train roadmap lives in `docs/reports/future-sprint-roadpmap.md` (S39–S48 through Release gate).
 - Spirit1 gap-analysis tasks live in `Game-Requirements/reviews/spirit1-vertical-slice-gap-analysis-2026-06-05.md`.
 - Sprint stack worktrees use `.worktrees/` under the parent repo path (`/home/username01/cmano-clone/.worktrees/`).

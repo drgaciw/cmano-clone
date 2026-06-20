@@ -1,1 +1,1 @@
-Polish
+Release (S48 gate PASS 2026-06-20; pending final human ack per s48-release-gate-2026-06-20.md)

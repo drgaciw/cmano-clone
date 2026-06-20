@@ -71,11 +71,13 @@ cd /home/username01/cmano-clone/.worktrees/sprintNN-<track-slug>
 | S44 | `sprint44-osint-audit` | `stack/sprint44/osint-audit` | B3 Osint audit | Cloud |
 | S44 | `sprint44-replay-gate` | `stack/sprint44/replay-gate` | Replay regression | Cloud |
 | S44 | `sprint44-closeout` | `stack/sprint44/closeout` | Closeout | **Local** |
+| | Beta-B3-Refactor-Engineer manifest | `production/agentic/Beta-B3-Refactor-Engineer.md` | Declarative for B3 roles (c-sharp-engineer + GitNexus + replay) | Extended S44 |
 | S45 | `sprint45-runtime-sensors` | `stack/sprint45/runtime-sensors` | B4 Runtime/Sensors | Local lead |
 | S45 | `sprint45-engage-scale` | `stack/sprint45/engage-scale` | B4 Engage scale | Cloud + determinism review |
 | S45 | `sprint45-perf-profile` | `stack/sprint45/perf-profile` | Profiling / budgets | Cloud |
 | S45 | `sprint45-replay` | `stack/sprint45/replay` | Replay / determinism | Cloud |
 | S45 | `sprint45-closeout` | `stack/sprint45/closeout` | Closeout | **Local** |
+| | Beta-B4-Scale-Engineer manifest | `production/agentic/Beta-B4-Scale-Engineer.md` | Declarative for B4 roles (unity-dots + det + perf + engage) | Extended S45 |
 | S46 | `sprint46-release-checklist` | `stack/sprint46/release-checklist` | B5 checklist | Cloud |
 | S46 | `sprint46-store-pages` | `stack/sprint46/store-pages` | Store pages | Cloud |
 | S46 | `sprint46-i18n-pipeline` | `stack/sprint46/i18n-pipeline` | Localization | Cloud |

@@ -51,6 +51,16 @@ Replay 6/6; proxy 18/18+; `impact()` on all symbol edits; post-gate boundary cit
 
 `production/agentic/s39-s48-worktree-manifest.md` §S42.
 
+## S42-03 Status (team-data local lead, projection focus)
+GitNexus: CatalogWriteGate CRITICAL (176 imp); dep/mag CRITICAL upstream; projections LOW. 
+Rows: B1 Req02/06/12/13/16/21 per release-boundary + S41-close (UNBLOCKED ack). 
+Initial: planning inserted to sprint-42 doc; projection helpers added in CatalogPlatformBrowseProjection + PlatformCatalogListProjection (magazine, platform-link, provenance surfacing; read-model only). Build+relevant tests PASS. No WT bootstrap yet; changes tracked for stack. Cite S41 closeout + boundary. csharpexpert patterns followed. AC: partial (planning+initial surfacing). Parallel S42 content.
+
+## S42 Closeout Note (S42-06 assembled 2026-06-20)
+**S42 COMPLETE per smoke-sprint-42-closeout-2026-06-20.md.** Parallel tracks: S42-01 (baseline+gate matrix PASS), S42-02 (QA plan MET), S42-03 (PARTIAL delivered per scope), S42-04 (replay maint), S42-05 (art §1–4). Fresh smoke: 1226/1226, Replay 6/6, proxy 18/18+, GitNexus up-to-date, gates held. All artifacts cite `production/release-enablement-scope-boundary-2026-06-20.md` + `production/gate-checks/scope-expansion-decision-2026-06-20-S41-close.md` (S41 PASS + user ack 2026-06-20 unblocking S42).
+
+**S43 prep:** B1 wave 2 + B2 complete. Sprint-status updated (S42 complete; S43 ready_to_dispatch). Closeout handoff complete. Use verification-before-completion + boundary cites for S43.
+
 ---
 
-*Planning only — requires scope-expansion decision.*
+*S42 parallel execution closed. Cites new boundary + S41 ack. All gates held. S43 readiness confirmed.*

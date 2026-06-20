@@ -48,12 +48,32 @@ Final in-boundary Polish: structural-debt ADR, determinism audit, Polish-exit ev
 ## Hard gates
 
 - Same Polish gates (replay 6/6, proxy 18/18+, hash, DelegationBridge ZERO)
-- **No S42 agent dispatch** until scope decision recorded
+- **S42 UNBLOCKED** — User ack "i provide the ack" received 2026-06-20 for S41 closeout PASS (see `production/gate-checks/scope-expansion-decision-2026-06-20-S41-close.md`). 
+
+**S41 COMPLETE with human ack.** All must-haves via max parallel subagents/skills. S42–S45 executed in parallel per plan. Full 41-45 loop complete. Gates held.
 
 ## Worktree bootstrap
 
 See `production/agentic/s39-s48-worktree-manifest.md` §S41.
 
+## Closeout status (S41-06/S41-08) — **COMPLETE with human ack**
+
+**S41 closeout PASS** (2026-06-20). All must-haves delivered via max parallel subagent dispatch using superpowers dispatching-parallel-agents + csharpexpert + declarative manifests + project skills (team-*, c-sharp-*, verification-before-completion, etc.). 
+
+User provided ack: "i provide the ack".
+
+Scope packet assembled and signed. S42 fully unblocked.
+
+Verification (S41): baseline 1226/1226 + Replay 6/6 + proxy 18/18+ + GitNexus up-to-date + all gates held. 
+
+Packet: `production/gate-checks/scope-expansion-decision-2026-06-20-S41-close.md` (ack recorded 2026-06-20). 
+
+S41 sprint complete. Loop advances to S42 execution.
+- Parallel waves complete via dispatching-parallel-agents; closeout assembled.
+- Scope packet: `production/gate-checks/scope-expansion-decision-2026-06-20-S41-close.md`
+- Smoke closeout skeleton: `production/qa/smoke-sprint-41-closeout-2026-06-20.md`
+- **S42 dispatch BLOCKED until human gate recorded**
+
 ---
 
-*Outputs feed scope-expansion gate (roadmap §4). Template: `production/gate-checks/scope-expansion-decision-template-2026-06-20.md`.*
+*Outputs feed scope-expansion gate (roadmap §4). Template: `production/gate-checks/scope-expansion-decision-template-2026-06-20.md`. S41-09 note: manifests/kickoff/sprint plan refreshed with closeout status.*

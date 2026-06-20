@@ -1,16 +1,18 @@
-# Art Bible: Project Aegis (Lean — C2 & Platform Editor)
+# Art Bible: Project Aegis (Lean — C2 & Platform Editor; B2 Complete)
 
-> **Status:** Draft — Lean Polish scope (gate-check gap #2)  
-> **Version:** 1.0  
-> **Last Updated:** 2026-08-03  
-> **Owned By:** art-director / UI  
-> **Scope:** C2 Command Post + Platform Editor UI only; world/character/VFX deferred post-Baltic slice  
-> **Sources:** [game-concept.md](../gdd/game-concept.md), [c2-command-post.md](../ux/c2-command-post.md), [c2-map-placeholder.md](../ux/c2-map-placeholder.md), [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md), [ADR-011](../../docs/architecture/adr-011-platform-editor-excel-roundtrip.md), Unity USS under `unity/ProjectAegis/Assets/UI/`  
-> **Art Director Sign-Off (AD-ART-BIBLE):** APPROVED (lean) — S38-03; verdict recorded in header per AC. Cross-refs to c2-command-post + interaction-patterns intact. (team-ui Art/UX track; polish-scope-boundary-2026-06-19.md + S37; lean draft acceptable)
+> **Status:** B2 Complete (lean v1 for Baltic slice) — S43-05  
+> **Version:** 1.0 (B2)  
+> **Last Updated:** 2026-06-20  
+> **Owned By:** art-director / team-ui  
+> **Scope:** C2 Command Post + Platform Editor UI only; world/character/VFX deferred post-Baltic slice (per release-enablement-scope-boundary-2026-06-20.md B2)  
+> **Sources:** [game-concept.md](../gdd/game-concept.md), [c2-command-post.md](../ux/c2-command-post.md), [c2-map-placeholder.md](../ux/c2-map-placeholder.md), [interaction-patterns.md](../ux/interaction-patterns.md), [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md), [ADR-011](../../docs/architecture/adr-011-platform-editor-excel-roundtrip.md), Unity USS under `unity/ProjectAegis/Assets/UI/`  
+> **Art Director Sign-Off (AD-ART-BIBLE):** FULL VERDICT — APPROVED lean v1 (S43); §1–9 complete per B2; §5/§7 N/A explicit for v1. Cites S42 closeout + S41 ack. (art-director + team-ui + csharpexpert)
 >
 > **S36-11 COMPLETE (QA/DevOps/Hygiene — team-ui / ui-experience-lead isolated):** Facilitation note added per story. Lean Polish: bible remains lean/draft for C2+Editor scope only. Verdict: ACCEPTED WITH CONDITIONS (carryover from gate-check #2; full sign-off deferred post-Baltic or when non-lean mode). No new sections authored (existing complete; no placeholders touched). UX/UI alignment cross-ref intact with interaction-patterns + c2-command-post. (ui specialist track)
 > **S38-03 / S38-11 (Art/UX):** Sign-off + residual UX/doc polish complete. No new sections. Cross-refs verified. (lean; isolated track)
 > **S39-07/09 (Evidence/Playtest + Art/UX residual):** Minimal playtest 11 entry (production/playtests/README.md) + lean cross-ref for C2/Platform polish (density/tooltips/surfacing S39-03). PNG/playtest 11 uses proxy + existing s37 PNGs (c2-graph-viewer-s37.png etc). No new sections. (isolated track; cites S39 plan + qa-plan + boundary)
+> **S42-05 (B2 start):** §1–4 expanded + tokens context. COMPLETE per smoke-sprint-42-closeout-2026-06-20.md (cites release-enablement-scope-boundary + scope-expansion-decision-2026-06-20-S41-close.md "i provide the ack")
+> **S43-05 (B2 complete):** §5–9 + asset specs expanded (lean v1). N/A for §5/§7. §8 specs + §9 sign-off + full verdict. Worktree stack/sprint43/art-bible-complete. Budget held. (this pass; parallel independent)
 
 ---
 
@@ -206,7 +208,16 @@ Diff rows use **prefix token color**; entity key remains `text-data`.
 
 ## 5. Character Design Direction
 
-**Deferred post-Baltic slice.** Project Aegis v1 is map-first theater command; no on-screen avatars or unit portraits in Polish scope. Unit identity is APP-6 frame + `unitId` label + right-panel readout.
+**Formal N/A for v1 (B2 per release-enablement-scope-boundary-2026-06-20.md).** 
+
+Project Aegis v1 Baltic slice is map-first theater command (C2 workstation posture); no on-screen avatars, unit portraits, or character models. 
+
+- Unit identity: APP-6 frame shape + `unitId` label + right-panel readout (per §3 affiliation, §4 iconography, c2-command-post.md).
+- No production character assets or VFX for personnel in scope.
+- Post-v1 (B5+): consider NATO crew/ops room elements only if story-driven; budget separate.
+- Cross-ref: ux/c2-command-post.md (no avatar flows), interaction-patterns.md (APP-6 primary).
+
+**AD-ART-BIBLE note (S43):** N/A accepted; lean v1 gate passed. (art-director + team-ui)
 
 ---
 
@@ -293,7 +304,16 @@ Catalog sections stack vertically with identical section divider treatment; Impo
 
 ## 7. VFX & Particle Style
 
-**Deferred post-Baltic slice.** C2 Polish scope excludes combat particles, screen shake, and ambient map effects. The only permitted "motion" is UI scroll and time-compression clock advance — both deterministic and evidence-safe.
+**Formal N/A for v1 (B2 per release-enablement-scope-boundary-2026-06-20.md).**
+
+C2 Polish / Baltic v1 scope excludes combat particles, screen shake, ambient map VFX, and any non-deterministic decorative effects.
+
+- Permitted motion only: UI scroll + time-compression clock advance (deterministic; evidence-capture safe per §1 "every pixel serves the order log").
+- No particles / idle shaders / animated gradients on data panels (violates determinism + replay 6/6 gate).
+- Cross-ref: ux/interaction-patterns.md (reduced-motion default), design/gdd/sensor-detection-ew.md (no VFX in degraded comms), art-bible §2 mode carriers (opacity/text only).
+- Future (post B1): separate environment art bible for globe Phase B.
+
+**AD-ART-BIBLE note (S43):** N/A accepted; lean v1 gate passed. (art-director + team-ui; csharpexpert det cross-check)
 
 ---
 
@@ -309,6 +329,53 @@ Catalog sections stack vertically with identical section divider treatment; Impo
 | README | Each sprint batch documents scene, UXML bindings, and proxy test filter (see `README-presentation-evidence-s34.md`) |
 | Headless CI | Protocol placeholders acceptable on agent host; live Editor re-capture is optional polish |
 | Merge authority | Adapter tests (`PlatformImport\|PlatformCatalogViewer\|…`) ≥48/48 PASS per ADR-010 lean mode |
+
+### Lean v1 Asset Spec Sheets (B2 §8 complete; C2 + Platform Editor only)
+
+**APP-6 Frame Atlas (Map symbols)**
+- File: `unity/ProjectAegis/Assets/UI/MapPlaceholder/App6FrameAtlas.png`
+- Size: 112×16 px strip (7 frames × 16×16)
+- Format: PNG alpha
+- Spec: 1px padding; frames = friendly(□), hostile(◇), neutral, suspect, pending, unknown, friendly-destroyed (strikethrough)
+- Addressables key: `Map/App6FrameAtlas`
+- Usage: map-symbol--{affil} per §3; shape primary (colorblind safe)
+- Evidence: cesium-s26-*.png batches; no change post S26
+
+**C2 Top Bar Panel**
+- UXML/USS: `C2TopBar/C2TopBarPanel.{uxml,uss}`
+- Tokens: surface-topbar, text-topbar, comms-{nominal|degraded|denied}
+- Layout: 48px fixed; flex row; clock / compression / comms / Begin Execution CTA
+- States: per §2 (planning dim, executing, degraded amber, denied red, PAUSE)
+- Spec: 12px sans; no motion except clock; 100% deterministic capture
+
+**Message Log Panel**
+- UXML/USS: `MessageLog/MessageLogPanel.{uxml,uss}`
+- Font: 10px monospace (data); category tint per §3 (KILL #FFB4A0 etc)
+- Rows: ~14px; max 12 visible + scroll; left border accent on select
+- Spec: static; evidence-grade; no particles
+
+**Platform Catalog / Import Panels**
+- Catalog: `PlatformCatalog/PlatformCatalogPanel.{uxml,uss}` — read-only; list ~18px; mono ids; COMMS/LINK sections
+- Import: `PlatformImport/PlatformImportPanel.{uxml,uss}` — staging diff hero; approve @45% until ack; prefix colors per §3 diff-*
+- Common: surface-panel bg; border-section dividers; 260-280px min
+
+**Left Drawer / OOB / Right Panel**
+- Drawer: `C2LeftDrawer/C2LeftDrawerPanel.{uxml,uss}`; planning-readonly modifier per §6
+- OOB rows: 20px; 12px sans
+- Detail: 320px; dense 10px mono data
+
+**AegisTokens.uss (recommended shared)**
+- Path (proposed): `unity/ProjectAegis/Assets/UI/AegisTokens.uss`
+- Content: map §3 palette + space-*/border-* tokens; import into all panel USS
+- Status: doc rec from S35+; implement in polish if budget; copy hex fallback per §3 until then
+- csharpexpert: ensure no runtime cost; static USS
+
+**Texture/Atlas Budget (lean v1)**
+- APP-6 only production atlas (112px strip)
+- UI icons (future 16/24px flat PNG; deferred)
+- All evidence 1920x1080 PNG (no scale)
+
+All specs lean for v1; production assets limited to atlas + UI Toolkit panels. No VFX/character. Cross-ref ux/* + c2 gdd.
 
 ### USS naming conventions
 
@@ -376,6 +443,25 @@ Hard rules for C2 and Platform Editor — violations fail visual QA and gate-che
 | 6 | **No icon-only destructive actions** — Approve, Reject, Engage must have text labels in MVP | Evidence captures must stand alone |
 | 7 | **No consumer-game palette** — saturated purples, candy greens, or high-saturation backgrounds behind data tables | Keeps near-future military C2 tone |
 | 8 | **No decorative type** — script, stencil, or "hacker terminal" faces for non-data text | Undermines calm command authority |
+
+### AD-ART-BIBLE Full Sign-Off (B2 Complete — S43-05)
+
+**Verdict:** APPROVED (lean v1)
+
+- §1–4: S42 complete (S42-05; handed off from smoke-sprint-42-closeout-2026-06-20.md)
+- §5: Formal N/A v1 (character deferred)
+- §6: Retained + cross-ref ux/ (c2-command-post.md layout, interaction-patterns.md density)
+- §7: Formal N/A v1 (VFX deferred; det rules enforced)
+- §8: Full lean asset spec sheets (atlas, panels, evidence, tokens, budgets)
+- §9: Complete prohibitions + this verdict
+- Consistency: Verified against ux/c2-command-post.md, interaction-patterns.md, c2-map-placeholder.md + gdd/command-and-control-ui.md. Tokens match USS + §3.
+- AegisTokens.uss: Recommended (spec added); fallback hex until implemented.
+- Budget: Held (S42 3d + S43 2.5d = 5.5d total lean; per boundary 8d cap)
+- Cites: release-enablement-scope-boundary-2026-06-20.md + scope-expansion-decision-2026-06-20-S41-close.md ("i provide the ack") + S42 closeout + S43-05 plan + Art-Bible-Complete.md manifest. GitNexus (docs low impact).
+
+**Art Director + team-ui sign-off:** Lean B2 complete. Ready for B1 lock + S43 closeout. Post-Baltic: non-lean expansion + globe env bible.
+
+*Verification-before-completion: cross-read ux/* + art-bible history + boundary before edit.*
 
 ---
 

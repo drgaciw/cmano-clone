@@ -60,3 +60,12 @@ All B1–B5 prerequisites + standing invariants (roadmap §6):
 ---
 
 *Planning only. Final sprint of 10-sprint program. Human approval on verdict mandatory.*
+
+## Closeout (S48 gate 2026-06-20)
+- Gate packet: `production/gate-checks/s48-release-gate-2026-06-20.md` assembled + all gates re-verified PASS.
+- Verification: build 0e; 1227/1227 tests; Replay 6/6; smoke 18/18; GitNexus reindex (18025 nodes) + detect low; ZERO DelegationBridge (git/grep/diff); hash pinned; B1-B6 complete.
+- Updates: sprint-status.yaml (S46-48 COMPLETE + program complete + rc1_ready); stage.txt (Release); active.md (S48 extract); this note.
+- Citations: S41 ack packet ("i provide the ack"), release-enablement-scope-boundary-2026-06-20.md, S42/S43 smokes, checklist, all prior.
+- Verdict: **PASS**. RC1 cut ready. "S48 gate formally complete... RC1 cut ready."
+- Next: human sign-off; retro; Hindsight; stage confirm; program close.
+- Status: COMPLETE (per s48-release-gate packet). All invariants held.

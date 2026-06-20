@@ -39,7 +39,15 @@ Complete B1 (Engage/features + remainder) and B2 (sections 5–9 + asset specs).
 | `data/**` (scenario remainder) | Content remainder |
 | `design/art/art-bible.md` | Art bible |
 | `production/playtests/*` | Evidence |
+| `production/qa/evidence/README-s43*` + playtests cadence | Evidence (Beta-Evidence-QA) |
+| `production/sprint-status.yaml` + closeout smoke | Closeout coordinator |
+
+**S43-07 (Evidence, Beta-Evidence-QA declarative):** Playtest cadence 12-13 focus; evidence pack update B1 W2 + B2; local Editor if needed; test-evidence-review verdicts (ADEQUATE). Worktree: sprint43-evidence.
+
+**S43-06 (Closeout):** Final smoke (full regression, replay 6/6, proxy); status update; B1+B2 exit noted in sprint-status/kickoff; retrospective. Worktree: sprint43-closeout. c-sharp-devops-engineer + coordinator.
 
 ---
 
-*Planning only.*
+**S43 Complete (post closeout):** All gates held (1226/1226, 6/6 replay, 18/18 proxy); B1+B2 exit MET per release-enablement-scope-boundary-2026-06-20.md; S44 dispatch ready. Cites S41 ack packet + S42 closeout. Beta-Evidence-QA + coordinator manifests executed. Parallel S43 summary in smoke-sprint-43-closeout-2026-06-20.md + sprint-status.yaml.
+
+*Planning + execution. Post S42. Cite S41 ack + S42.*
