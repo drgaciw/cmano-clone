@@ -4336,7 +4336,8 @@ s36_perf_determinism_followup:
   generated: "2026-06-19"
   updated: "2026-06-20"
   branch: stack/s36/perf-determinism
-  status: in_progress
+  status: complete
+  completed: "2026-06-20"
   stories:
     - id: S36-01
       name: "Determinism audit P1 follow-up"

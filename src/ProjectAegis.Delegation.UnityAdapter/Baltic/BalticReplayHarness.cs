@@ -67,6 +67,27 @@ public static class BalticReplayHarness
         return fired;
     }
 
+    /// <summary>
+    /// Polish helper (S36-05): reports first mismatch tick + sub-hash component for divergence diagnosis.
+    /// Does not affect Run path, append order, or detection trial ordering. For test harness error paths only.
+    /// </summary>
+    public static string DiagnoseDivergence(Result a, Result b)
+    {
+        if (a.Fingerprint == b.Fingerprint && a.WorldHash == b.WorldHash && a.DetectionWorldHash == b.DetectionWorldHash)
+            return "MATCH";
+        // checkpoints provide tick-level localization (recorded at interval)
+        for (int i = 0; i < Math.Min(a.Checkpoints.Count, b.Checkpoints.Count); i++)
+        {
+            var ca = a.Checkpoints[i];
+            var cb = b.Checkpoints[i];
+            if (ca.WorldHash != cb.WorldHash || ca.LogFingerprint != cb.LogFingerprint)
+            {
+                return $"First mismatch at tick {ca.SimTick}: worldHash {ca.WorldHash} vs {cb.WorldHash}; fingerprint differs; layer hint in subhash";
+            }
+        }
+        return $"Final mismatch: WORLD={a.WorldHash}!={b.WorldHash} DET={a.DetectionWorldHash}!={b.DetectionWorldHash} FINGERPRINT differs";
+    }
+
     public static Result Run(
         int seed,
         string scenarioPolicyId,

@@ -1,8 +1,9 @@
 ---
 id: S36-10
-status: Ready
+status: In Progress
 type: Logic
 priority: should-have
+Last Updated: 2026-06-20
 graphite_branch: stack/s36/perf-determinism-decisionlog
 estimate_days: 2
 dependencies:

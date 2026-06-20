@@ -1,6 +1,6 @@
 ---
 id: S36-01
-status: Ready
+status: In Progress
 type: Logic
 priority: must-have
 Last Updated: 2026-06-20

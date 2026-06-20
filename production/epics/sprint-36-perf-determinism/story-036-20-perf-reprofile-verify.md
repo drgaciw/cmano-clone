@@ -1,8 +1,9 @@
 ---
 id: S36-20
-status: Ready
+status: Complete
 type: Config
 priority: nice-to-have
+Last Updated: 2026-06-20
 graphite_branch: stack/s36/perf-determinism-reprofile
 estimate_days: 0.5
 dependencies:

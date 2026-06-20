@@ -1,8 +1,9 @@
 ---
 id: S36-05
-status: Ready
+status: In Progress
 type: Logic
 priority: must-have
+Last Updated: 2026-06-20
 graphite_branch: stack/s36/perf-determinism-replay-maint
 estimate_days: 1.5
 dependencies:

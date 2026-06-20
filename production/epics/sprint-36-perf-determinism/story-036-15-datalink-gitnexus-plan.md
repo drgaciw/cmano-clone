@@ -1,8 +1,9 @@
 ---
 id: S36-15
-status: Ready
+status: In Progress
 type: Integration
 priority: should-have
+Last Updated: 2026-06-20
 graphite_branch: stack/s36/perf-determinism-datalink-plan
 estimate_days: 1
 dependencies:
