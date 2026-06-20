@@ -1,7 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (17700 symbols, 34923 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (17789 symbols, 35073 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -194,11 +194,16 @@ No Docker compose or long-running servers. The “application” is in-process: 
 - Use project-local skill `.cursor/skills/git-commit/SKILL.md` when asked to commit, push to `main`, merge branches, or clean worktrees on this repo.
 - Release v1.0 completion means the shippable Baltic vertical slice, not MVP-done on all 21 requirement tracker rows.
 - Prefer detailed sprint planning through the Release gate; post-release work stays as epic buckets only.
+- Do not edit attached `.cursor/plans/` files when implementing plans — treat them as read-only reference.
+- Run in-sprint parallel agent tracks via isolated git worktrees and `production/agentic/local-cloud-agent-routing.md` (local: Editor evidence/coordinator; cloud: code/tests/hygiene).
 
 ## Learned Workspace Facts
 
-- Production stage is **Polish** (`production/stage.txt`); Sprint **39** must-have complete (S39-01..06 PASS, 2026-06-20).
+- Production stage is **Polish** (`production/stage.txt`); Sprint **40** must-have complete (S40-01..06 PASS, 2026-06-20); **S41** is next Track A.
+- Track B scope expansion **APPROVED** (2026-06-20, `production/gate-checks/scope-expansion-decision-2026-06-20.md`); S42–S48 dispatch blocked until **S41 closeout**.
+- Headless test baseline is **≥1226** solution tests after S40 (ReplayGolden 6/6, C2 proxy 18/18).
 - Post–S38 release train roadmap lives in `docs/reports/future-sprint-roadpmap.md` (S39–S48 through Release gate).
+- Spirit1 gap-analysis tasks live in `Game-Requirements/reviews/spirit1-vertical-slice-gap-analysis-2026-06-05.md`.
 - Sprint stack worktrees use `.worktrees/` under the parent repo path (`/home/username01/cmano-clone/.worktrees/`).
 - Exclude from commits: `.cursor/hooks/`, `.pi/settings.json`, `.polly/` (local agent/tooling config).
 - `DelegationBridge.cs` remains zero-touch through Release v1.
