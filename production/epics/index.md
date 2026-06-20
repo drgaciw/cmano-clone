@@ -100,3 +100,9 @@
 | [sprint-31-tl-release-train](sprint-31-tl-release-train/EPIC.md) | 1 | TL snapshot resolution at scenario load |
 | [sprint-31-combat-domains-phase5](sprint-31-combat-domains-phase5/EPIC.md) | 3 | Mine validator + facility hot-tick + BDA hot path |
 | [sprint-31-presentation-polish](sprint-31-presentation-polish/EPIC.md) | 2 | Live Editor evidence + C2 sign-off refresh |
+
+**Sprint 36 (planning):** [sprint-36-perf-determinism](../epics/sprint-36-perf-determinism/EPIC.md) — 5 stories (P1 perf follow + determinism audit + replay maint + GitNexus planning). **Authority:** post-S35 perf-profile + polish-boundary. **Gate:** replay-verify + hash immutable + 6/6 golden. ZERO Delegation.
+
+| Epic | Stories | Focus |
+|------|---------|-------|
+| [sprint-36-perf-determinism](sprint-36-perf-determinism/EPIC.md) | 5 | Determinism audit P1, replay/harness maint, DecisionLog hash, Datalink GitNexus plan (no change), re-profile + verify gate |
