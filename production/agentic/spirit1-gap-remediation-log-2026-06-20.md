@@ -1,76 +1,82 @@
 # Spirit 1 Gap Remediation Log
 
 **Date opened:** 2026-06-20  
+**Date closed:** 2026-06-20  
 **Kickoff:** [`spirit1-gap-parallel-kickoff-2026-06-20.md`](spirit1-gap-parallel-kickoff-2026-06-20.md)  
 **Gap analysis:** [`Game-Requirements/reviews/spirit1-vertical-slice-gap-analysis-2026-06-05.md`](../../Game-Requirements/reviews/spirit1-vertical-slice-gap-analysis-2026-06-05.md)  
-**Status:** OPEN
+**Track outcomes (detail):** [`Game-Requirements/reviews/spirit1-gap-remediation-log-2026-06-20.md`](../../Game-Requirements/reviews/spirit1-gap-remediation-log-2026-06-20.md)  
+**Status:** **COMPLETE**
 
 ## Baseline (coordinator — W0)
 
 | Field | Value |
 |-------|-------|
-| Commit SHA | _(fill at W0)_ |
-| Test count | _(≥1215 expected)_ |
-| ReplayGolden | _(6/6 expected)_ |
-| C2 proxy | _(18/18+ expected)_ |
+| Commit SHA | `43feb28` |
+| Test count | **1226** |
+| ReplayGolden | **6/6** |
+| C2 proxy | **18/18** |
 | Baltic hash | `17144800277401907079` |
-| GitNexus tip | _(fill pre-G5)_ |
+| GitNexus tip (pre-G5) | `9e72d24` (stale) |
 
 ---
 
 ## Track: G5 GitNexus
 
-**Branch:** `stack/spirit1/gitnexus-index`  
-**Owner:** _(agent)_  
-**Status:** PENDING
+**Branch:** `stack/spirit1/g5-gitnexus-reindex` (local index only; not merged)  
+**Owner:** coordinator  
+**Status:** **COMPLETE**
 
 | Check | Result |
 |-------|--------|
-| `npx gitnexus analyze --force` | |
-| Embeddings > 0 | |
-| `query` semantic search | |
-| Post-index tip SHA | |
+| `node .gitnexus/run.cjs analyze` | **PASS** — incremental @ `43feb28` |
+| Embeddings > 0 | **PASS** — 8131 preserved |
+| `query` semantic search | **PASS** — BM25 + vector for "SensorC2 panel bridge seam" |
+| Post-index tip SHA | `43feb28` — **17,780 nodes \| 35,058 edges** |
 
-**[OUTCOME:]** _(agent fills)_
+**[OUTCOME: success]** GitNexus index rebuilt and up-to-date. Health doc: [`docs/engineering/gitnexus-index-health.md`](../../docs/engineering/gitnexus-index-health.md).
 
 ---
 
 ## Track: Docs R3 / G2 / R5
 
-**Branch:** `stack/spirit1/docs-traceability`  
-**Owner:** _(agent)_  
-**Status:** PENDING
+**Branch:** merged on `main` @ `712809a`  
+**Owner:** docs track (pre-closeout)  
+**Status:** **COMPLETE**
 
 | Item | Done |
 |------|------|
-| R3 — SimulationSession frozen-hub note | |
-| G2 — FSM honest labeling + tracker row | |
-| R5 — Vertical Slice MVP vocabulary | |
+| R3 — SimulationSession frozen-hub note | ✅ [`adr-simulation-session-frozen-hub-spirit1-2026-06-20.md`](../../docs/architecture/adr-simulation-session-frozen-hub-spirit1-2026-06-20.md) |
+| G2 — FSM honest labeling + tracker row | ✅ [`spirit1-classify-lifecycle-vs-fsm-2026-06-20.md`](../../Game-Requirements/reviews/spirit1-classify-lifecycle-vs-fsm-2026-06-20.md) |
+| R5 — Vertical Slice MVP vocabulary | ✅ [`vertical-slice-mvp-spirit1-alias-2026-06-20.md`](../../production/milestones/vertical-slice-mvp-spirit1-alias-2026-06-20.md) |
 
-**[OUTCOME:]** _(agent fills)_
+**[OUTCOME: success]** Docs track shipped before coordinator closeout; synced from Game-Requirements remediation log.
 
 ---
 
 ## Track: G1 SensorC2 seam
 
-**Branch:** `stack/spirit1/sensor-c2-seam`  
-**Owner:** _(agent)_  
-**Status:** PENDING
+**Branch:** merged on `main` @ `9e72d24` (`stack/spirit1/g1-sensor-c2-traceability`)  
+**Owner:** coordinator (verify-only)  
+**Status:** **COMPLETE**
 
 | Check | Result |
 |-------|--------|
-| `impact()` run before edits | |
-| Seam wired (host → `IC2PresentationFeed`) | |
-| Tests added/updated | |
-| `context(SensorC2PanelHost)` post-G5 | |
+| `impact()` run before edits | ✅ pre-merge @ `9e72d24` — **LOW** |
+| Seam wired (host → adapter) | ✅ `ISensorC2PanelBridge` / `SensorC2PanelBridge` / `SensorC2Bridge.BindPanel` |
+| Tests added/updated | ✅ `SensorC2BridgeTests` — 24 PASS (SensorC2 + PlayModeSmoke filter) |
+| `context(SensorC2PanelHost)` post-G5 | ✅ **Incoming via CALLS:** `Refresh` → `SensorC2Bridge.BindPanel` (depth 1); `OnEnable`/`LateUpdate` → `Refresh` (depth 2). **5 impacted symbols, LOW risk.** |
 
-**[OUTCOME:]** _(agent fills)_
+**[OUTCOME: success]** G1 acceptance met — graph edge from host to adapter seam visible post-G5 reindex.
 
 ---
 
 ## G4 — DEFERRED (coordinator note)
 
-**G4 — Full platform import:** Deferred to post-MVP / S40+ catalog track. No branch. See kickoff G4 section.
+**G4 — Full platform import:** Deferred to post-MVP / S40+ catalog track. No branch. See kickoff G4 section and [`s39-s48-worktree-manifest.md`](s39-s48-worktree-manifest.md).
+
+## G3 — Out of scope
+
+Unity Editor not in CI — mitigated by headless PlayMode harness (18/18 PASS).
 
 ---
 
@@ -78,11 +84,12 @@
 
 | Gate | PASS |
 |------|------|
-| dotnet test ≥ baseline | |
-| ReplayGolden 6/6 | |
-| PlayModeSmoke 18/18+ | |
-| DelegationBridge ZERO | |
-| Baltic hash unchanged | |
-| Merge order docs → gitnexus → G1 | |
+| dotnet test ≥ baseline | ✅ **1226/1226** |
+| ReplayGolden 6/6 | ✅ |
+| PlayModeSmoke 18/18 | ✅ |
+| S40 projection tests | ✅ **9/9** (CatalogImport + MountLoadout) |
+| DelegationBridge ZERO | ✅ |
+| Baltic hash unchanged | ✅ `17144800277401907079` |
+| Merge order docs → gitnexus → G1 | ✅ (code on main; index local) |
 
-**Status at close:** _(OPEN → COMPLETE)_
+**Status at close:** **COMPLETE**
