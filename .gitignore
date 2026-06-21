@@ -78,3 +78,10 @@ node_modules/
 # Local secrets (template: .env.example)
 .env
 .env.local
+
+# Project-local Hindsight memory server state
+.hindsight-local/
+
+# Agent worktrees (superpowers dispatching)
+.worktrees/
+worktrees/
