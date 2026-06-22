@@ -1,0 +1,31 @@
+# S63 E1 playtest loop manifest (per roadmap §10 S63 + baltic-v2-scope-boundary-2026-06-22.md)
+# Automated batch against full v2 scenario set + human template + ≥1 human per band.
+# Authority: docs/reports/future-sprint-roadpmap-062226.md §10 S63; production/baltic-v2-scope-boundary-2026-06-22.md
+# Baseline + expanded v2 family (scenarios from data/scenarios/ + S57+ slots). Bands per design/difficulty-curve.md
+# Verification-before gates: baseline ≥1227, ReplayGolden 6/6, C2 proxy 18/18, human signoff.
+baseline:
+  - baltic-patrol
+  - baltic-patrol-comms
+v2_slots:
+  - baltic-patrol-destroyed-target-reengage  # S57 AAR
+  - baltic-patrol-classify
+  - baltic-patrol-mission
+  - baltic-patrol-mission-roe
+  - baltic-patrol-catalog
+  - baltic-patrol-datalink
+  - baltic-patrol-combat-domains
+  - baltic-patrol-spoof
+  - baltic-patrol-readiness
+  - baltic-patrol-intercept
+  # Additional v2 theater/content from S58-S62 would populate here; current corpus for S63 batch
+all_scenarios: [baltic-patrol, baltic-patrol-comms, baltic-patrol-destroyed-target-reengage, baltic-patrol-classify, baltic-patrol-mission, baltic-patrol-mission-roe, baltic-patrol-catalog, baltic-patrol-datalink, baltic-patrol-combat-domains, baltic-patrol-spoof, baltic-patrol-readiness, baltic-patrol-intercept]
+bands:
+  A: [baltic-patrol, baltic-patrol-classify]  # NPE / easy
+  B: [baltic-patrol-comms, baltic-patrol-mission, baltic-patrol-catalog, baltic-patrol-datalink]  # mid-game
+  C: [baltic-patrol-destroyed-target-reengage, baltic-patrol-mission-roe, baltic-patrol-combat-domains, baltic-patrol-spoof, baltic-patrol-readiness, baltic-patrol-intercept]  # hard / stress
+# S63 batch config
+batch:
+  seeds: [42, 7, 123]
+  ticks: 120
+  mvpEngagement: true
+# Cite: boundary + roadmap §10 S63 E1. Full v2 playtest loop.

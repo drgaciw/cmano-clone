@@ -34,7 +34,7 @@ public sealed class PolicyDenialLogTests
 
         for (var tick = 0; tick < 12; tick++)
         {
-            orchestrator.Tick(new ObservedState(tick, 3, 1, new Dictionary<TargetId, bool>()));
+            orchestrator.Tick(new ObservedState(tick, 3, 1, new Dictionary<TargetId, bool>(), false));
         }
 
         Assert.That(orchestrator.DecisionLog.PolicyDenials, Is.Not.Empty);
@@ -52,5 +52,21 @@ public sealed class PolicyDenialLogTests
             _ = traits;
             return [new ScoredIntent(OrderKind.Engage, 1.0, RiskLevel.High)];
         }
+    }
+
+    [Test]
+    public void PatrolCandidate_policy_pre_filters_Engage_when_primary_destroyed()
+    {
+        var policy = new PatrolCandidateEngagePolicy();
+
+        var normal = new PerceivedState(10, 5, 1, PrimaryHostileDestroyed: false);
+        var destroyed = new PerceivedState(10, 5, 1, PrimaryHostileDestroyed: true);
+
+        var normalCands = policy.GenerateCandidates(normal, PersonalityCatalog.All[0].Traits);
+        var destroyedCands = policy.GenerateCandidates(destroyed, PersonalityCatalog.All[0].Traits);
+
+        Assert.That(normalCands.Any(c => c.Kind == OrderKind.Engage && c.Score > 0), Is.True);
+        Assert.That(destroyedCands.Any(c => c.Kind == OrderKind.Engage && c.Score > 0), Is.False);
+        Assert.That(destroyedCands.Any(c => c.Kind == OrderKind.Engage && c.Score == 0), Is.True);
     }
 }

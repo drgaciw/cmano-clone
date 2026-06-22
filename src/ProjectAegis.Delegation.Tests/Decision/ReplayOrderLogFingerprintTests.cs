@@ -60,7 +60,7 @@ public sealed class ReplayOrderLogFingerprintTests
 
         for (var tick = 0; tick < 6; tick++)
         {
-            orchestrator.Tick(new ObservedState(tick, 2 + tick % 2, tick % 2, new Dictionary<TargetId, bool>()));
+            orchestrator.Tick(new ObservedState(tick, 2 + tick % 2, tick % 2, new Dictionary<TargetId, bool>(), false));
         }
 
         return orchestrator.DecisionLog.ComputeFingerprint();

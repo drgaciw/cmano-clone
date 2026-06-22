@@ -26,4 +26,11 @@ public interface ISimWorldSnapshot
 
     /// <summary>Primary observer radar EMCON allows active illumination (Active = true).</summary>
     bool ObserverRadarEmconActive { get; }
+
+    /// <summary>
+    /// Whether the primary hostile contact has been confirmed destroyed/killed.
+    /// Used by patrol policies (e.g. PatrolCandidateEngagePolicy) to pre-filter Engage proposals for AAR remediation (S57-03).
+    /// Additive; defaults to false.
+    /// </summary>
+    bool PrimaryHostileDestroyed => false;
 }
