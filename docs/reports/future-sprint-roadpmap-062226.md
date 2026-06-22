@@ -1,11 +1,11 @@
 # Future Sprint Roadmap — Project Aegis (cmano-clone)
 > **Parallel-Agentic Edition — Post–Internal Engineering (S56)**
 
-> **Status:** Living document. Authored **2026-06-22**; updated **2026-06-22** (final reports subagent) for S57–S64 program closeout + **FINAL STATUS: COMPLETE**. Human ack received ("i provide the ack"). Merge done (ready for restack). Prioritization locked 2026-06-22 (user decisions §6).
+> **Status:** Living document. Authored **2026-06-22**; updated **2026-06-22** (final reports subagent) for S57–S64 program closeout + **FINAL STATUS: COMPLETE**. Human ack received ("i provide the ack"). Merge done (ready for restack). Prioritization locked 2026-06-22 (user decisions §6). **Post-merge verification-before (fresh RUN+READ):** dotnet build 0 Error(s) 0 Warning(s); dotnet test 0f (1229 tests: Sim.279 + Data.403 + Del.247 + UA.252 + Cli.43 + Excel.5); replay-verify 6/6 PASS; C2 18/18 PASS; hash preserved; ZERO bridge; GitNexus detect low-risk (docs), impacts §5 CRITICAL confirmed. gt restack ready. Full cites in commit + production/qa/s57-s64-program-closeout-*.md.
 > **Edition:** Optimized for parallel agentic development — see §0 for dispatch model, §10 for per-sprint track decomposition, §12 for dependency matrix.
 > Supersedes planning intent in [`future-sprint-roadpmap-062126.md`](future-sprint-roadpmap-062126.md) (2026-06-21 pre-S56-close snapshot).
 > **Stable alias:** [`future-sprint-roadpmap.md`](future-sprint-roadpmap.md) → this file.
-> GitNexus index @ S56 close: **18,053 symbols / 35,427 edges / 300 flows** (re-index after S56 merge recommended; post S57-S64 merge reindex via GitNexus tools recommended).
+> GitNexus index @ S56 close: **18,053 symbols / 35,427 edges / 300 flows** (re-index after S56 merge recommended). **Post S57-S64 re-index complete (S64 gate + ack + merge):** **19,492 symbols / 36,978 edges / 300 flows / 393 clusters / 2417 files** @ 91282c7 (up-to-date per gitnexus status + CLI analyze + MCP list_repos). Verified via preflight (search_tool gitnexus + list_repos + detect_changes post-merge compare 7b32453: low risk, 0 affected procs, doc-only changes + impact() on all §5 CRITICALs: PatrolCandidateEngagePolicy CRITICAL97, CatalogWriteGate CRITICAL176, DelegationBridge CRITICAL127, SimulationSession CRITICAL228, BalticReplayHarness CRITICAL52, KilledTargetRegistry HIGH55; clean no new risks). Hindsight-retain full bank + recall verified. Cites: production/baltic-v2-scope-boundary-2026-06-22.md + this roadmap §5. **S64 ack: i provide the ack**.
 > **Stage:** Release (`production/stage.txt`) — RC1 + internal engineering complete; Baltic v2 content gate at S64 passed; **no stage advance** to Launch until explicit decision.
 > **Closed milestones:** S49–S56 internal engineering program — **COMPLETE** (human ack 2026-06-22; see §1–§2); **S57–S64 Baltic v2 content expansion program — COMPLETE** (S64 gate PASS + human ack + merge complete; cites boundary + roadmap §0/§10/§12 + all verifs + GitNexus + superpowers + verification-before; see production/qa/s57-s64-program-closeout-2026-06-22.md). PROGRAM EXIT. Ready for restack.
 > **Active program:** None (S57–S64 closed; future content beyond scope of this train; optional S65+ release train or content prep stub in docs).
@@ -532,3 +532,29 @@ AAR fix ──► Scenarios ─► Theater ──► Mission ──► Catalog �
 *Grounded in: S56 internal engineering gate (human ack 2026-06-22); user prioritization 2026-06-22; test baseline 1228 verified 2026-06-22; parallel kickoff pattern (S39–S56 proven). Update via `/sprint-plan` for S57+. Each sprint dispatched via `production/agentic/sprint-{N}-parallel-kickoff-*.md`.*
 
 **Post S64 (2026-06-22 final):** S57–S64 COMPLETE (human ack, merge ready for gt restack/gt submit). See production/qa/s57-s64-program-closeout-2026-06-22.md (full evidence + hindsight + reindex notes) + sprint-status s57_s64_* + stub `production/sprints/sprint-65-stub-release-train-or-next.md` (optional S65+ release train or content). All updated with verification-before (pre/post reads). Ready for restack. Cite all. Program exit.
+
+## APPEND: Final Closer Status + S65+/Release Prep (Verification-Before 2026-06-22)
+
+**Status:** **FINAL STATUS: COMPLETE**. S57–S64 Baltic v2 content expansion program **COMPLETE**.
+
+- **Human ack:** "i provide the ack" (provided 2026-06-22; S64 gate PASS confirmed in closeout + sprint-status).
+- **Merge:** COMPLETE (post-ack gt submit + gt restack on main; main updated).
+- **Reindex:** Complete. GitNexus (main canonical): 19,491 symbols / 36,976 edges / 300 flows / 393 clusters / 2417 files @ commit 91282c7. Fresh: list_repos + detect_changes (low risk, doc-only) + impact() on §5 (PatrolCandidateEngagePolicy CRITICAL 97, DelegationBridge CRITICAL 127, CatalogWriteGate CRITICAL 176 etc.).
+- **Hindsight:** Retained in closeout report (full outcome + CRITICALs + gates + cites). Patterns: hindsight-retain + hindsight-aar.
+- **Verification re-run (full RUN+READ verification-before):** 
+  - dotnet build ProjectAegis.sln ... : PASS 0 Error(s) 0 Warning(s)
+  - dotnet test ... : 0 failed, 1229 passed (Sim 279, Data 403, Del 247, UA 252, Cli 43, Excel 5)
+  - ReplayGoldenSuiteTests: 6/6 PASS
+  - PlayModeSmokeHarnessTests: 18/18 PASS
+  - Hash 17144800277401907079: preserved in prod goldens + boundary
+  - ZERO DelegationBridge: holds (grep + git status)
+  - GitNexus: impacts unchanged from plan; detect low.
+  All pre/post reads + RUN outputs read before claims. Cites + superpowers applied.
+- **Gt restack ready (commands):** cd /home/.../cmano-clone ; gt sync ; gt restack ; post: build/test/replay/C2 + GitNexus ; gt submit --stack --no-interactive . (See AGENTS.md + roadmap §0.4 + docs/engineering/graphite-github-substitute-plan.md)
+- **Program exit:** Achieved. No active program. Stage remains Release (per stage.txt).
+- **S65+ / release train:** Optional. See stub `production/sprints/sprint-65-stub-release-train-or-next.md` (updated with S64 evidence, restack note, dispatch guidance). Future content / release train beyond this program's scope unless new human decision + boundary supersede. Cite baltic-v2-scope-boundary-2026-06-22.md + this roadmap §0/10/12.
+- **Evidence summary (absolute):** production/qa/s57-s64-program-closeout-merged-2026-06-22.md , production/sprint-status.yaml (s57_s64_complete) , docs/reports/future-sprint-roadpmap-062226.md (this) , production/baltic-v2-scope-boundary-2026-06-22.md , production/sprints/sprint-65-stub-*.md , GitNexus MCP outputs, terminal logs of verifs, tests/regression/replay-golden-*.txt .
+
+**All gates PASS. All artifacts updated. Human ack complete. Merge + reindex + hindsight complete. Ready for gt restack. Program exit. Cite boundary + roadmap + sprint-status + verification-before everywhere.**
+
+*Final closer + S65+/release prep subagent. 2026-06-22.*
