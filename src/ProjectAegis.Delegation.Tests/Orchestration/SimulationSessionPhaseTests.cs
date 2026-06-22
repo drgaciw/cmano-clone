@@ -30,7 +30,7 @@ public sealed class SimulationSessionPhaseTests
         session.Orchestrator.Register(unit);
 
         Assert.That(session.Phase, Is.EqualTo(SimulationPhase.Planning));
-        session.Tick(new ObservedState(0, 1, 0, new Dictionary<TargetId, bool>()));
+        session.Tick(new ObservedState(0, 1, 0, new Dictionary<TargetId, bool>(), false));
 
         Assert.That(session.Orchestrator.DecisionLog.Records, Is.Empty);
         Assert.That(session.Sim.LastWorldHash, Is.EqualTo(0UL));
@@ -50,7 +50,7 @@ public sealed class SimulationSessionPhaseTests
         session.Orchestrator.Register(unit);
 
         session.BeginExecution();
-        session.Tick(new ObservedState(0, 1, 0, new Dictionary<TargetId, bool>()));
+        session.Tick(new ObservedState(0, 1, 0, new Dictionary<TargetId, bool>(), false));
 
         Assert.That(session.Phase, Is.EqualTo(SimulationPhase.Executing));
         Assert.That(session.Orchestrator.DecisionLog.Records, Is.Not.Empty);

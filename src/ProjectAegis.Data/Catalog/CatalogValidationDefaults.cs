@@ -21,6 +21,12 @@ public static class CatalogValidationDefaults
 
     public static bool TryResolveBalticDbRef(string dbRef, out string snapshotId)
     {
+        if (string.IsNullOrWhiteSpace(dbRef))
+        {
+            snapshotId = "";
+            return false;
+        }
+
         if (string.Equals(dbRef, BalticSnapshotId, StringComparison.OrdinalIgnoreCase) ||
             string.Equals(dbRef, "baltic-patrol", StringComparison.OrdinalIgnoreCase) ||
             dbRef.Contains("baltic", StringComparison.OrdinalIgnoreCase))

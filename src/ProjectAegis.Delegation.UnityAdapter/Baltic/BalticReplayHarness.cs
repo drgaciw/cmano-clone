@@ -342,6 +342,17 @@ public static class BalticReplayHarness
         public bool ObserverRadarEmconActive =>
             ScenarioEmconResolver.ResolveRadar("u1", _unitRadarEmcon) == EmconState.Active;
 
+        public bool PrimaryHostileDestroyed
+        {
+            get
+            {
+                var primary = PrimaryHostileContactId;
+                if (primary is not { } p || _killedTargets == null) return false;
+                var id = Roe.OrderActionMapper.TargetIdToUlong(p);
+                return _killedTargets.IsKilled(id);
+            }
+        }
+
         public void Advance(double delta) => _simTime += delta;
 
         public bool IsMemberAlive(TargetId memberId)

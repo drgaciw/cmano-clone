@@ -10,7 +10,7 @@ public static class PlatformCatalogExportResolver
 {
     public static bool TryResolve(
         string? dbPath,
-        string snapshotId,
+        string? snapshotId,
         out PlatformCatalogExportData data,
         string? maxTlTier = null)
     {
@@ -20,8 +20,9 @@ public static class PlatformCatalogExportResolver
             return false;
         }
 
+        var sid = snapshotId ?? string.Empty;
         using var reader = new SqliteCatalogReader(dbPath, "cli-export-resolver");
-        if (!reader.TryResolveDbRef(snapshotId, out _))
+        if (!reader.TryResolveDbRef(sid, out _))
         {
             return false;
         }
