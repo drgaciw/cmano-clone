@@ -15,6 +15,6 @@ try {
     exit 0
 }
 catch {
-    Write-Error "Hindsight unreachable at $BaseUrl — start Docker (see .claude/skills/hindsight/hindsight-local-setup/SKILL.md). $_"
+    Write-Error "Hindsight unreachable at $BaseUrl — run tools/hindsight/start-hindsight-server.sh --detach or check firewall. $_"
     exit 1
 }

@@ -1,1 +1,1 @@
-Release (S48 gate PASS 2026-06-20; pending final human ack per s48-release-gate-2026-06-20.md)
+Release (S48 gate PASS with human ack "i provide the ack" 2026-06-20; RC1 cut; 10-sprint program COMPLETE)

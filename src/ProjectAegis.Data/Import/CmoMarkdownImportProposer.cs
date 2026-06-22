@@ -460,7 +460,7 @@ public sealed record CmoMarkdownImportResult(
     IReadOnlyList<CmoMarkdownImportBatch> Batches,
     IReadOnlyList<CmoMarkdownQuarantineReportEntry> QuarantineReport,
     IReadOnlyList<CmoMarkdownFittingQuarantineEntry> FittingQuarantineReport,
-    BalanceDriftReport? BalanceDriftAdvisory = null);
+    BalanceDriftReport BalanceDriftAdvisory);
 
 public sealed record CmoMarkdownPlatformImportResult(
     int PlatformCount,

@@ -25,7 +25,7 @@ Hindsight is a **local episodic memory sidecar** (default `http://localhost:8888
 | Synthesize AAR or post-mortem narrative | `hindsight-reflect` |
 | Simulation run AAR (delegation order log) | `hindsight-aar` |
 | Agentic dev memory banks & conventions | `hindsight-dev-memory` |
-| Docker install, health, CLI shortcuts | `hindsight-local-setup` |
+| Project-local server, health, CLI shortcuts | `hindsight-local-setup` |
 
 ## Memory bank conventions (this repo)
 
