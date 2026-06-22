@@ -63,7 +63,7 @@ Repo is Graphite-initialized. For branch/PR/stack work use **`gt`** (`gt create`
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (19492 symbols, 36978 relationships, 300 execution flows; 2417 files, 393 clusters). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely. (Re-indexed post S57-S64 merge @ 91282c7 via CLI analyze + MCP list_repos; detect_changes clean low-risk; impacts on all §5 CRITICALs per baltic-v2-scope-boundary-2026-06-22.md + roadmap-062226.md §5; hindsight-retain + recall verified. S64 ack: i provide the ack.)
+This project is indexed by GitNexus as **cmano-clone** (19497 symbols, 36982 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely. Post S57-S64 re-index (CLI analyze + MCP list_repos @ff1547c) + hindsight-retain complete; detect_changes clean (docs-only, 0 affected); §5 CRITICAL impacts confirmed. S64 ack: i provide the ack.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
