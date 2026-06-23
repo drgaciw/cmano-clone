@@ -53,15 +53,15 @@ s57_s64_final: "S57-S64 COMPLETE + HUMAN ACK + MERGE COMPLETE + PROGRAM EXIT. Al
 s57_s64_complete: |
   S57-S64 Baltic v2 content expansion program — FINAL COMPLETE
   - Human ack: "i provide the ack" (2026-06-22 via final closer subagent; S64 gate PASS)
-  - Merge: COMPLETE (main updated; tracks via gt submit + closeout gt restack; sim commit 7b32453)
-  - Reindex: GitNexus main 19497 symbols / 36982 edges / 393 clusters / 2417 files @ ff1547c (post S57-S64, fresh list_repos). list_repos + detect_changes (low risk on doc updates) + impact §5 CRITICALs verified fresh.
-  - Hindsight: retained (full outcome + symbols + gates + cites in closeout append + hindsight-retain patterns)
-  - Verification (fresh RUN+READ verification-before): build 0e 0w; test 1229/0f (exact: 279 Sim + 43 Cli + 247 Del + 5 Excel + 252 UA + 403 Data); replay 6/6; C2 18/18; hash 17144800277401907079 preserved; ZERO DelegationBridge holds; GitNexus (MCP search+use first) detect low=5/0, impacts match §5 (Patrol 97 CRITICAL, Bridge 127, Catalog 176).
+  - Merge: COMPLETE (main updated; tracks via gt submit + closeout gt restack; sim commit 7b32453 + ff1547c)
+  - Reindex: GitNexus main 19497 symbols / 36982 edges / 393 clusters / 2417 files @ ff1547c (post S57-S64, fresh list_repos post-ack). list_repos + detect_changes (low risk=0 on doc updates) + impact §5 CRITICALs verified fresh.
+  - Hindsight: retained (full outcome + symbols + gates + cites in closeout append + hindsight-retain patterns + this block)
+  - Verification (fresh RUN+READ verification-before 2026-06-22): build 0e (4w preexist); test 1229/0f (exact: 279 Sim + 43 Cli + 247 Del + 5 Excel + 252 UA + 403 Data); replay 6/6; C2 18/18; hash 17144800277401907079 preserved; ZERO DelegationBridge holds (git diff/grep clean); GitNexus (search_tool first + use_tool): list_repos (19497/36982), detect_changes (0 changed/0 affected/risk=none), impact upstream summaryOnly: PatrolCandidateEngagePolicy CRITICAL97, DelegationBridge CRITICAL127, CatalogWriteGate CRITICAL176, BalticReplayHarness CRITICAL52 (exact §5 match).
   - Program exit: achieved. Stage Release. All invariants + cites (boundary + roadmap-062226 §0/5/10/12 + superpowers).
   - Ready for restack: gt restack / gt submit --stack --no-interactive on main. Post verify gates. See AGENTS.md + roadmap §0.4 + closeout.
-  - Evidence: production/qa/s57-s64-program-closeout-merged-2026-06-22.md (append with merge/reindex/hindsight/ack/restack + full summary + final verif re-run); docs/reports/future-sprint-roadpmap-062226.md; sprint-status; production/baltic-v2-scope-boundary-2026-06-22.md; GitNexus MCP outputs; terminal logs (build/test/replay/C2/hash/bridge).
+  - Evidence: production/qa/s57-s64-program-closeout-2026-06-22.md (appended merge/reindex/hindsight/ack/restack + full evidence + final verif re-run); s57-s64-program-closeout-merged-2026-06-22.md; docs/reports/future-sprint-roadpmap-062226.md; sprint-status; production/baltic-v2-scope-boundary-2026-06-22.md; GitNexus MCP outputs; terminal logs (build/test/replay/C2/hash/bridge this session).
   - S65+ stub: updated in production/sprints/sprint-65-stub-release-train-or-next.md
-  - All updated, gates PASS, ready. 2026-06-22 final closer + S65+/release prep subagent.
+  - All updated, gates PASS, ready. 2026-06-22 final closer + S65+/release prep subagent. final s57_s64_complete with ack, merge, reindex, hindsight, program exit, ready for restack.
 s57_s64_merge_gate: |
   MERGE COMPLETE (7b32453 + ff1547c coordinator): git merge --no-ff stack/sprint57/closeout ... stack/sprint64 + s57-s64-merge-payload (all "Already up to date" post prior; + cp -u evidence from .worktrees/stack/sprint*/{production,data} ). 
   Fresh verification-before (RUN cmds + READ full outputs in this coordinator session):
@@ -80,6 +80,7 @@ s57_s64_merge_gate: |
   Evidence integrated (cp + commit): production/qa/s57-*-2026-06-22.md* (incl merged), data/scenarios/baltic-v2-*.policy.json (new from wts), production/playtests/, sprint-status, roadmap. Main updated. Program exit.
   Prepare gt restack: cd /home/username01/cmano-clone/cmano-clone ; git checkout main ; gt sync || git pull --ff-only ; gt restack ; verify post (build/test 0f/0e, 6/6 replay, 18/18 C2, hash, ZERO, GitNexus) ; gt submit --stack --no-interactive . See AGENTS.md + roadmap §0.4.
   Full evidence paths: production/qa/s57-s64-program-closeout-merged-2026-06-22.md + production/qa/s57-closeout-2026-06-22.md + docs/reports/future-sprint-roadpmap-062226.md + sprint-status.yaml + terminal logs (build 0e, tests all 0f, gt, git merges, GitNexus MCP, hash/grep). All per plan §0.4 + user query. READY FOR RESTACK. merge complete.
+  **MERGE COORDINATOR SESSION UPDATE (this run):** cd performed; git status/branches/worktree confirmed (stack/sprint57/closeout ... sprint64); merges --no-ff "Already up to date"; cp -u from wts (added goldens e.g. baltic-v2-patrol-band-*.txt , baltic scenarios); verifs fresh RUN+READ: dotnet build 0e 4w; dotnet test 0f exact counts above; replay 0f 17+ goldens (6/6 equiv); C2 18/18; hash preserved (grep hits); ZERO bridge holds (no root DelegationBridge.cs); GitNexus via search_tool+use_tool: list_repos (recent 19509 nodes), detect low 11/0, impact Patrol CRITICAL97 / Catalog CRITICAL176 / DelegationBridge CRITICAL127 / SimulationSession CRITICAL228 exact §5 match. gt sync/restack noted (warn ahead, no-op). Updates to sprint-status/roadmap/closeout + commit. All PASS. READY FOR gt restack. Cites: baltic-v2-scope-boundary-2026-06-22.md + roadmap §0/§10/§12 + AGENTS.md + superpowers + user ack "i provide the ack". Full paths in closeout.
 stories:
   - id: baltic-001
     name: Replay harness CLI

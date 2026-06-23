@@ -1,0 +1,9 @@
+# Golden for S58: baltic-v2-patrol-band-b seed=42 ticks=4 (isolated baltic-v2-* per roadmap S58-04)
+# Cite: production/baltic-v2-scope-boundary-2026-06-22.md + docs/reports/future-sprint-roadpmap-062226.md §10 S58
+# Regenerate: dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-v2-patrol-band-b --ticks 4
+# New isolated golden; prod 6 untouched. S59 theater prep ref for OOB variants.
+WORLD_HASH=17144800277401907079
+DETECTION_WORLD_HASH=15600
+FINGERPRINT_SHA256=080a4cbf18f620043a4e6401ac1f60749e9604760b91d2adfc770de816649917
+
+PolicyUpdate|1|0|0|1|roe|WeaponsFree|WeaponsFree
