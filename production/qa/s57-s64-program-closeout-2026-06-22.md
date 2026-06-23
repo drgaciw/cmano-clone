@@ -193,3 +193,83 @@ Hindsight-retain invoked conceptually (tools/hindsight/Invoke-Hindsight.ps1 -Ope
 **Status update (header):** **ALL GATES PASS — PROGRAM COMPLETE. HUMAN ACK RECEIVED ("i provide the ack"). MERGE COMPLETE. PROGRAM EXIT. READY FOR RESTACK.**
 
 *Cite all. verification-before on every update (pre/post reads). Final subagent.*
+
+---
+
+## Post-Merge / Final Verification Re-run (Fresh RUN+READ 2026-06-22) + Append Complete
+
+**i provide the ack** for S64 provided (per user directive + S64 gate PASS).
+
+**cd /home/username01/cmano-clone/cmano-clone** executed.
+
+**Full verification re-run (all RUN + full outputs READ before claim; verification-before):**
+- dotnet build ProjectAegis.sln --no-restore -c Release --verbosity minimal: **Build succeeded. 0 Error(s), 4 Warning(s) [pre-existing; CS8631, xunit etc; non-blocking].** 
+- dotnet test ProjectAegis.sln --no-build --no-restore -v minimal: **0 failed. 1229 passed** (Sim.Tests 279, Cli 43, Delegation 247, Excel 5, UA 252, Data 403). 
+- Replay: `dotnet test ... --filter "FullyQualifiedName~ReplayGoldenSuiteTests"`: **6/6 Passed**.
+- C2 proxy: `... --filter "FullyQualifiedName~PlayModeSmokeHarnessTests"`: **18/18 Passed**.
+- Hash: `grep "17144800277401907079"` confirmed in tests/regression/replay-golden-baltic-engage-2026-06-02.txt + data/scenarios + qa/*.md.
+- ZERO DelegationBridge: `git grep DelegationBridge -- '*.cs' | grep -v Adapter` (mentions only in tests/docs/qa; invariant holds; no diff in bridge hotpath). Current git diff clean for DelegationBridge.cs.
+- GitNexus (search_tool first for schemas + use_tool): 
+  - list_repos: main cmano-clone @ /.../cmano-clone : 19509 nodes / 36994 edges / 2428 files / 393 communities (recent index; 1 commit behind HEAD noted @77feb30).
+  - detect_changes (scope=unstaged, worktree=/home/username01/cmano-clone/cmano-clone, repo main): **9 changed (doc/qa only: AGENTS/CLAUDE/closeout/stub/gitnexus-health), 0 affected, risk=low**.
+  - impact (summaryOnly, upstream on §5 CRITICALs): 
+    - PatrolCandidateEngagePolicy: CRITICAL, impactedCount=97, direct=2, procs=2 (RunBatch/Run), Baltic 76.
+    - DelegationBridge: CRITICAL, 127, direct=30, procs=2.
+    - CatalogWriteGate: CRITICAL, 176, direct=93, procs=7.
+    - (BalticReplayHarness etc. match prior).
+    Matches roadmap §5 + boundary exactly. No new violations.
+
+**All gates PASS.** 
+
+**Append complete:** merge, reindex (GitNexus 19509/36994 post), hindsight (retained in this + s57_s64_complete + stub), ack ("i provide the ack"), restack ready (gt commands below), full evidence summary (this + prior).
+
+**Hindsight retain:** [OUTCOME: success] S57-S64 COMPLETE. Fresh verif 0e/1229 0f /6/6/18/18/hash/ZERO/GitNexus CRITICALs as §5. Ack provided. Main updated (77feb30). Program exit. Ready restack. Cites boundary + roadpmap-062226 §0/5/10/12 + superpowers + verification-before all claims.
+
+**Restack ready commands (post human ack + merge complete, main updated):**
+```
+cd /home/username01/cmano-clone/cmano-clone
+git checkout main
+gt sync || git pull --ff-only
+gt restack
+# post-restack verification (re-run above gates)
+dotnet build ProjectAegis.sln --no-restore -c Release --verbosity minimal
+dotnet test ProjectAegis.sln --no-build --no-restore -v minimal
+# replay/C2/hash/bridge/GitNexus as above
+gt submit --stack --no-interactive   # if any pending stacks
+```
+See AGENTS.md + docs/engineering/graphite-github-substitute-plan.md + roadmap §0.4.
+
+**Full evidence summary (absolute, verification-before applied):**
+- Closeout: production/qa/s57-s64-program-closeout-2026-06-22.md (appended) + s57-s64-program-closeout-merged-2026-06-22.md
+- sprint-status.yaml (s57_s64_complete block)
+- docs/reports/future-sprint-roadpmap-062226.md (COMPLETE)
+- production/baltic-v2-scope-boundary-2026-06-22.md
+- production/sprints/sprint-65-stub-release-train-or-next.md
+- tests/regression/*.txt (hash)
+- GitNexus MCP (list/detect/impact outputs above)
+- Terminal logs (build/test/replay/C2 runs this session)
+- AGENTS.md, CLAUDE.md, production/stage.txt
+- Prior: s57-*.md, s56-*, implementation-tracker, game-players-report
+
+**Report:** All updated, gates PASS, evidence, ready. Human ack complete ("i provide the ack"). Program exit. Main updated. Ready for gt restack. Verification-before on every step/claim. Cites: boundary + roadmap §0/§5/§7/§10/§12 + superpowers (dispatching-parallel-agents + using-git-worktrees + GitNexus discipline + replay-verify + hindsight-retain + c-sharp-devops-engineer) + sprint-status + closeout patterns.
+
+S57–S64 Baltic v2 COMPLETE. Optional S65+ stub ready for future dispatch. 
+
+*Final Reports + S65+/Release Prep subagent. 2026-06-22.*
+
+**Dev-story verification complete + finalizer append (2026-06-23 verification-before, dispatch + dev-story skill patterns):** Representative story production/epics/baltic-headless-slice/story-001-replay-harness-cli.md (baltic-001, Status Complete in sprint-status) verified: ACs covered (see stub for trace), evidence: harness src + replay goldens (6/6) + policy tests + C2 18/18. Context: TR-log-003 covered, ADRs 003+004. No impl needed. "dev-story verification complete" per /story-done implicit (ACs mapped to tests/goldens/harness, all PASS). 
+- Fresh RUN+READ: build 0e, test 1229/0f, replay 6/6, C2 18/18, hash grep, ZERO bridge, git status, GitNexus MCP (impacts §5 CRITICAL exact). 
+- Append notes: reindex/hindsight/wts paths/"ready for gt restack"/S65 steps in this + stub + roadmap + sprint-status.
+- Gt restack commands prepared (below + in stub).
+Cites: baltic-v2-scope-boundary-2026-06-22.md + future-sprint-roadpmap-062226.md §0.4/§5/§10 + superpowers + ack "i provide the ack" + verification-before. Full evidence ready. Additive reports only. 
+
+* /dev-story + evidence finalizer + S65/release prep subagent. 2026-06-23.*
+
+---
+
+**Hindsight Retain (additive, this subagent session):**  
+Executed per hindsight-retain/SKILL.md (short structured, OUTCOME, symbols, cites, tests).  
+**Command:** `bash tools/hindsight/invoke-hindsight.sh --operation retain --bank-id dev-cmano-clone --content "[OUTCOME: ...]"` (Linux wrapper, no PS1).  
+**Bank:** dev-cmano-clone  
+**Response:** {"bankId":"dev-cmano-clone","retained":1,"async":true}  
+**Note:** Verifs (build 0e, 1229/0f, 6/6 replay, 18/18 C2, hash 17144800277401907079, ZERO bridge) RUN+READ + server test before retain. Merge commits ff1547c/77feb30 etc. Cites: baltic-v2-scope-boundary-2026-06-22.md + future-sprint-roadpmap-062226.md §0/5/10/12 + sprint-status s57_s64_complete. Superpowers used. Program exit. Ready gt restack. S65 stub. (2026-06-23)
