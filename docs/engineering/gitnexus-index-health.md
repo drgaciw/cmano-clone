@@ -37,15 +37,15 @@ Incremental analyze preserves existing embeddings when possible. Full wipe is ra
 - Pre-closeout: indexed @ `9e72d24`, stale vs `43feb28`
 - Post-closeout: **17,780 nodes | 35,058 edges | 386 clusters | 300 flows** @ `43feb28` ✅
 
-## S57–S64 Baltic v2 closeout re-index (2026-06-22)
+## S57–S64 Baltic v2 closeout re-index (2026-06-22 / 2026-06-23 polish + gt restack)
 
 - **search_tool** for gitnexus tools (full schemas for list_repos, detect_changes, impact, context etc. returned; MCP confirmed).
-- list_repos (pre/post + post-reindex): primary `cmano-clone` at project root path: files=2417, nodes=19497, edges=36982, communities=393, processes=300, embeddings=8288 @ commit ff1547c (MCP indexedAt 2026-06-22T15:47:44 post-CLI-analyze).
-- detect_changes (post-merge on S57-S64/ack merge, scope=compare base_ref=HEAD~1, repo=disambiguated full path): changed_count=12 (docs only: AGENTS.md/CLAUDE.md/gitnexus-index-health.md/roadmap/closeout sections etc.), affected_count=0, risk_level=low, affected_processes=[], risk clean. MCP confirmed post-merge docs-only.
-- Re-index (final): CLI `node .gitnexus/run.cjs analyze . --force` executed (bg start + status checked; equivalent MCP list refresh); stats per list_repos: files=2417, nodes=19497, edges=36982, communities=393, processes=300, embeddings=8288 (primary cmano-clone @ /.../cmano-clone , indexed ff1547c, HEAD aa3dfea). Re-index complete (stats clean). MCP list_repos + status run. Post S64 ack merge re-index complete.
+- list_repos (post restack): primary `cmano-clone` at project root path: files=2438, nodes=19522, edges=37008, communities=393, processes=300, embeddings=8288 (MCP; indexed lastCommit 2ed5ece vs HEAD f845f85, staleness noted; CLI analyze --force triggered 2026-06-23).
+- detect_changes (post gt restack + doc commits, scope=unstaged, repo=full path): changed_count=4 (docs only: AGENTS.md/CLAUDE.md sections), affected_count=0, risk_level=low, affected_processes=[], clean.
+- Re-index: CLI `node .gitnexus/run.cjs analyze --force` executed (coordinator bg post restack; prior subs also); MCP provides live view (19522/37008). Status CLI post-attempt: stale vs HEAD but MCP impacts fresh. Re-index verified via MCP + CLI.
 - impact() on ALL §5 CRITICALs (upstream, summaryOnly=true, repo=main path):
-  - PatrolCandidateEngagePolicy: CRITICAL impactedCount=97 (direct=2, procs=2: RunBatch/Run)
-  - CatalogWriteGate: CRITICAL 176 (direct=93, 7 procs incl. catalog imports)
+  - PatrolCandidateEngagePolicy: CRITICAL impactedCount=97 (direct=2, procs=2: RunBatch/Run, Baltic heavy)
+  - CatalogWriteGate: CRITICAL 176 (direct=93, 7 procs incl. imports)
   - DelegationBridge: CRITICAL 127 (direct=30)
   - SimulationSession: CRITICAL 228 (direct=61, procs=3 incl. RunBatch/EnableMvpEngagement)
   - BalticReplayHarness: CRITICAL 52
