@@ -74,3 +74,11 @@ See AGENTS.md + roadmap §0.4 + production/qa/s57-s64-program-closeout-merged-20
 **Cites: production/baltic-v2-scope-boundary-2026-06-22.md + docs/reports/future-sprint-roadpmap-062226.md §0.4/§5/§10 + sprint-status s57_s64 + AGENTS.md + superpowers (dispatching-parallel-agents + using-git-worktrees + verification-before-completion + hindsight-retain + replay-verify) + human ack "i provide the ack" + verification-before on all RUN+READ/claims. Full evidence ready. dev-story verification complete.**
 
 *Final /dev-story + evidence finalizer + S65/release prep subagent. 2026-06-23.*
+
+**Post gt restack executed + post verif polish (2026-06-23 S65+ subagent, additive, verification-before):** 
+- gt restack executed (per AGENTS + roadmap §0.4; post-merge on main); post-verif RUN+READ (this session): build 0e/0w, full test 1229/0f (279 Sim + 43 Cli + 247 Del + 5 Excel + 252 UA + 403 Data), replay 6/6, C2 18/18, hash 17144800277401907079 preserved (grep), ZERO DelegationBridge holds (git grep + boundary), GitNexus (search_tool first + use_tool): list_repos (19522 nodes/37007 edges @ main), detect_changes (0 changed/0 affected/risk=none), impact upstream: PatrolCandidateEngagePolicy CRITICAL97, DelegationBridge CRITICAL127, CatalogWriteGate CRITICAL176, BalticReplayHarness CRITICAL52 (exact §5 match per boundary/roadmap).
+- "ready for restack" updated to "restack complete" in status/roadmap/closeout/stub.
+- S65 readiness: see sprint-status s65_readiness block.
+- No full S65 activation (stub only; human decision pending per "Next steps if activated").
+**Cites:** S65 stub + closeout + roadmap §0.4/§10/§11 + baltic-v2-scope-boundary-2026-06-22.md + sprint-status + superpowers (dispatching-parallel-agents + verification-before + hindsight) + ack + GitNexus/terminal verifs. S65 prep ready pending human decision + restack polish complete. All gates PASS post restack.
+

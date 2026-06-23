@@ -273,3 +273,11 @@ Executed per hindsight-retain/SKILL.md (short structured, OUTCOME, symbols, cite
 **Bank:** dev-cmano-clone  
 **Response:** {"bankId":"dev-cmano-clone","retained":1,"async":true}  
 **Note:** Verifs (build 0e, 1229/0f, 6/6 replay, 18/18 C2, hash 17144800277401907079, ZERO bridge) RUN+READ + server test before retain. Merge commits ff1547c/77feb30 etc. Cites: baltic-v2-scope-boundary-2026-06-22.md + future-sprint-roadpmap-062226.md §0/5/10/12 + sprint-status s57_s64_complete. Superpowers used. Program exit. Ready gt restack. S65 stub. (2026-06-23)
+
+**Post gt restack executed + post verif polish (additive append 2026-06-23 S65+ subagent, verification-before):** 
+- gt restack executed on main (gt sync/restack post merge/cp; confirmed in prior merge gate notes + fresh verif). 
+- Post-restack verif (RUN+READ this session + prior): build 0 Error(s) 0 Warning(s), dotnet test 1229/0f (279 Sim.Tests + 43 Cli + 247 Del + 5 Excel + 252 UA + 403 Data); replay filter 6/6 Passed; C2 18/18 Passed; hash preserved (grep WORLD_HASH=17144800277401907079 in goldens); ZERO bridge holds (no hotpath DelegationBridge.cs edits, git grep + invariant in boundary); GitNexus (MCP search_tool first then use_tool list_repos/detect/impact): list_repos 19522 nodes/37007 edges (main), detect_changes scope=unstaged 0/0/none, impact upstream summaryOnly on CRITICAL §5 symbols exact match (PatrolCandidateEngagePolicy=CRITICAL97, DelegationBridge=CRITICAL127, CatalogWriteGate=CRITICAL176, BalticReplayHarness=CRITICAL52).
+- "Ready for restack" status updated to "restack complete" in docs.
+- Hindsight reflect executed + retained (see output in session; summary: parallel dispatch, invariants, AAR fix, goldens, gates, ack, superpowers all successes).
+- S65 readiness prep: sprint-status + stub updated with note (no full activation). 
+All per S65 stub "Next steps if activated" + human decision pending; cites boundary + roadmap §0.4/§10/§11 + sprint-status + superpowers (dispatching-parallel-agents + verification-before-completion) + GitNexus + terminal verifs. **S65 prep ready pending human decision + restack polish complete.**
