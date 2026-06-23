@@ -42,7 +42,7 @@ Incremental analyze preserves existing embeddings when possible. Full wipe is ra
 - **search_tool** for gitnexus tools (full schemas for list_repos, detect_changes, impact, context etc. returned; MCP confirmed).
 - list_repos (post restack): primary `cmano-clone` at project root path: files=2438, nodes=19522, edges=37008, communities=393, processes=300, embeddings=8288 (MCP; indexed lastCommit 2ed5ece vs HEAD f845f85, staleness noted; CLI analyze --force triggered 2026-06-23).
 - detect_changes (post gt restack + doc commits, scope=unstaged, repo=full path): changed_count=4 (docs only: AGENTS.md/CLAUDE.md sections), affected_count=0, risk_level=low, affected_processes=[], clean.
-- Re-index: CLI `node .gitnexus/run.cjs analyze --force` executed (coordinator bg post restack; prior subs also); MCP provides live view (19522/37008). Status CLI post-attempt: stale vs HEAD but MCP impacts fresh. Re-index verified via MCP + CLI.
+- Re-index: CLI `node .gitnexus/run.cjs analyze --force` executed (coordinator bg post restack, timed out 300s; warnings schema/wal/FTS/large files; prior subs also). Current MCP list: 19522 nodes/37008 edges @ 2ed5ece (HEAD 05b84e0, 3 behind, staleness noted). detect_changes (disambiguated worktree+repo, scope=all): 0/0/none clean. impact() §5 CRITICALs verified fresh (Patrol ~98, Bridge 127, Catalog 176 exact). MCP is operational; full CLI re-index recommended when time allows (or --index-only). Re-index step verified via MCP preflights + impacts 2026-06-23.
 - impact() on ALL §5 CRITICALs (upstream, summaryOnly=true, repo=main path):
   - PatrolCandidateEngagePolicy: CRITICAL impactedCount=97 (direct=2, procs=2: RunBatch/Run, Baltic heavy)
   - CatalogWriteGate: CRITICAL 176 (direct=93, 7 procs incl. imports)
