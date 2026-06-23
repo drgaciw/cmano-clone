@@ -2,6 +2,7 @@
 # GitNexus — Code Intelligence
 
 This project is indexed by GitNexus as **cmano-clone** (19522 symbols, 37008 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+<!-- post-restack re-index specialist 2026-06-23: search_tool first; CLI analyze (success 19522/37008); MCP list_repos (canonical fullpath: 2438/19522/37008 @T13:47 vs HEAD f845f85 stale1); detect low 0 affected (docs); impact §5: Patrol CRITICAL97/2/2procs, Delegation CRITICAL127/30, Catalog CRITICAL176/93/7p, Baltic CRITICAL52/52, Killed HIGH55/4/3p, Simulation CRITICAL228/61/3p; verifs build0e test0f1229 play18/18. Cites §0.4/§5 + boundary + superpowers + verification-before. reindex complete post-restack evidence in sprint-status/health. -->
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 

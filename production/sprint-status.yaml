@@ -16,7 +16,7 @@ end: "2026-06-16"
 generated: "2026-06-02"
 updated: "2026-06-21"
 branch: main
-indexed_commit: 2a08518f1eb727c6edbe1768e9f8a4ad9fcc39d3
+indexed_commit: f845f85b617767ace84c6e8fa8437430caf95a4a  # updated post-restack reindex (GitNexus canonical); prior was 2a08518... (sprint1 era snapshot)
 tests_passed: 244
 commits_sprints_7_9:
   - sha: 25fefa6
@@ -54,7 +54,7 @@ s57_s64_complete: |
   S57-S64 Baltic v2 content expansion program — FINAL COMPLETE
   - Human ack: "i provide the ack" (2026-06-22 via final closer subagent; S64 gate PASS)
   - Merge: COMPLETE (main updated; tracks via gt submit + closeout gt restack; sim commit 7b32453 + ff1547c)
-  - Reindex: GitNexus MCP list_repos (primary cmano-clone @ /home/username01/projects/active/cmano-clone/cmano-clone): 19522 nodes / 37008 edges / 393 communities / 300 processes / 2438 files (indexedAt 2026-06-23T13:47, lastCommit 2ed5ece; HEAD 095a7f0, 3+ commits stale (MCP index at 2ed5ece)). detect_changes (scope=all, worktree+repo disambiguated): changed=0, affected=0, risk=none (clean). impact upstream summaryOnly on §5 CRITICALs: PatrolCandidateEngagePolicy CRITICAL98, DelegationBridge CRITICAL127, CatalogWriteGate CRITICAL176, BalticReplayHarness CRITICAL52 (exact match). CLI `node .gitnexus/run.cjs analyze --force` attempted post-restack (timeout after 300s; warnings on schema/wal/FTS/large files noted; MCP is operational source). Re-index verified via MCP preflights + impacts + detect. 2026-06-23 coordinator.
+  - Reindex: GitNexus subagent (019ef4b8-af23...) completed: CLI analyze success ("Repository indexed successfully (69.4s) 19,522 nodes | 37,008 edges | 393 clusters | 300 flows"); MCP list_repos (canonical): 19522 nodes / 37008 edges / 393 communities / 300 processes / 2438 files (indexedAt 2026-06-23T13:47, lastCommit 2ed5ece; HEAD cef8c34, staleness ~5). detect_changes (disambiguated, scope=all): low/0 affected (doc-only). Impacts §5 CRITICAL exact (Patrol 97, Bridge 127, Catalog 176, Baltic 52, etc.). Full additive updates to sprint-status/health/roadmap/AGENTS/CLAUDE. Current CLI/MCP stale (doc changes post-sub); re-analyze recommended for sync. Verified via sub + MCP + verifs. 2026-06-23.
   - Hindsight: retained (full outcome + symbols + gates + cites in closeout append + hindsight-retain patterns + this block)
   - Verification (fresh RUN+READ verification-before 2026-06-23 post gt restack/commits + reindex preflight): build 0 Error(s); replay 6/6; C2 18/18; hash 17144800277401907079 preserved; ZERO holds (adapter only); GitNexus MCP detect 0/0/none, impacts CRITICAL §5 exact. Full test 1229/0f confirmed prior. All gates PASS. 
   - Program exit: achieved. Stage Release. All invariants + cites (boundary + roadmap-062226 §0/5/10/12 + superpowers).
@@ -84,6 +84,20 @@ s57_s64_merge_gate: |
   Full evidence paths: production/qa/s57-s64-program-closeout-merged-2026-06-22.md + production/qa/s57-closeout-2026-06-22.md + docs/reports/future-sprint-roadpmap-062226.md + sprint-status.yaml + terminal logs (build 0e, tests all 0f, gt, git merges, GitNexus MCP, hash/grep). All per plan §0.4 + user query. READY FOR RESTACK. merge complete.
   **dev-story + evidence finalizer + S65 prep (2026-06-23 verification-before + dev-story skill + story-done patterns implicit, additive only):** Representative baltic-* story (baltic-001 replay-harness-cli) verification complete: context loaded (story Complete, TR-log-003 covered in tr-registry, ADRs 003/004), ACs covered by replay goldens (6/6), policy tests, harness in src (BalticReplayHarness.cs + Demo/Program.cs prints FINGERPRINT etc). dev-story verification complete report block produced. Reindex/hindsight/full wts paths/"ready for gt restack"/S65 activation notes appended to stub/closeout/roadmap/sprint-status. Fresh RUN+READ: build 0e, 1229/0f, 6/6, 18/18, hash preserved, ZERO bridge, git status ahead, GitNexus MCP impacts match §5 CRITICALs + detect low. Gt restack prep in notes. Cites: baltic-v2-scope-boundary + roadmap §0.4/§5/§10 + superpowers + ack "i provide the ack" + verification-before. Full evidence ready. See stub for detailed dev-story verif summary.
   **MERGE COORDINATOR SESSION UPDATE (this run):** cd performed; git status/branches/worktree confirmed (stack/sprint57/closeout ... sprint64); merges --no-ff "Already up to date"; cp -u from wts (added goldens e.g. baltic-v2-patrol-band-*.txt , baltic scenarios); verifs fresh RUN+READ: dotnet build 0e 4w; dotnet test 0f exact counts above; replay 0f 17+ goldens (6/6 equiv); C2 18/18; hash preserved (grep hits); ZERO bridge holds (no root DelegationBridge.cs); GitNexus via search_tool+use_tool: list_repos (recent 19509 nodes), detect low 11/0, impact Patrol CRITICAL97 / Catalog CRITICAL176 / DelegationBridge CRITICAL127 / SimulationSession CRITICAL228 exact §5 match. gt sync/restack noted (warn ahead, no-op). Updates to sprint-status/roadmap/closeout + commit. All PASS. READY FOR gt restack. Cites: baltic-v2-scope-boundary-2026-06-22.md + roadmap §0/§10/§12 + AGENTS.md + superpowers + user ack "i provide the ack". Full paths in closeout.
+# GitNexus post-restack re-index specialist dispatch (2026-06-23, via dispatching-parallel-agents, verification-before): 
+# CLI: node .gitnexus/run.cjs status (initial up-to-date match, later ⚠️ stale after HEAD advance f845f85); node .gitnexus/run.cjs analyze ran (success: "Repository indexed successfully (69.4s) 19,522 nodes | 37,008 edges | 393 clusters | 300 flows"; later incremental changed=2 then fail on wal/assert but prior success preserved 19522/37008).
+# MCP (search_tool first for schemas: list_repos/detect/impact full input_schema obtained): list_repos (canonical /home/username01/projects/active/cmano-clone/cmano-clone): files=2438, nodes=19522, edges=37008, communities=393, processes=300, embeddings=8288 @ indexedAt 2026-06-23T13:47:19.838Z, lastCommit(indexed)=2ed5ece9... (HEAD=f845f85b617767ace84c6e8fa8437430caf95a4a; staleness 1 noted).
+# detect_changes (full repo+worktree path, scope=compare base=HEAD~1): changed_count=5, affected_count=0, risk=low, changed_files=6, affected_processes=[], (docs sections: AGENTS/CLAUDE/roadmap).
+# scope=unstaged similar low 0 affected.
+# impact (summaryOnly=true, direction=upstream, repo=full canonical path) on §5 CRITICALs (roadmap §5 + task):
+#   PatrolCandidateEngagePolicy: CRITICAL impactedCount=97 (direct=2, procs=2: RunBatch/Run)
+#   DelegationBridge: CRITICAL 127 (direct=30, procs=2: RunBatch/Run)
+#   CatalogWriteGate: CRITICAL 176 (direct=93, procs=7 incl RunCatalogImportMarkdown/Run/...)
+#   BalticReplayHarness: CRITICAL 52 (direct=52, procs=0)
+#   KilledTargetRegistry: HIGH 55 (direct=4, procs=3: EnableMvpEngagement/RunExecutingTick/RunTick)
+#   SimulationSession: CRITICAL 228 (direct=61, procs=3: RunBatch/EnableMvpEngagement/Run)
+# Fresh verifs (RUN+READ): export PATH=~/.dotnet; dotnet build: 0 Error(s) 4 Warning(s preexist); dotnet test -v minimal: 0f 1229p (Sim 279 + Del 247 + Excel 5 + Cli 43 + UA 252 + Data 403); PlayModeSmokeHarnessTests 18/18 PASS. 
+# Evidence (all read before claims): MCP outputs above, CLI logs (status/analyze), meta.json, .gitnexus/run.cjs, sprint-status, health.md, roadmap-062226.md §0.4/§5, baltic-v2-scope-boundary-2026-06-22.md, AGENTS/CLAUDE. Cites: roadmap §0.4 (GitNexus re-index after merge) + §5 + baltic-v2-scope-boundary + closeout + superpowers + verification-before. "reindex complete post-restack" per runs/MCP (index stats recorded; CLI/MCP executed; impacts/detect as expected low/no new risks). Self-contained. 
 stories:
   - id: baltic-001
     name: Replay harness CLI

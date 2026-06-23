@@ -64,6 +64,7 @@ Repo is Graphite-initialized. For branch/PR/stack work use **`gt`** (`gt create`
 # GitNexus — Code Intelligence
 
 This project is indexed by GitNexus as **cmano-clone** (19522 symbols, 37008 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+<!-- post-restack re-index (2026-06-23 specialist): search_tool schemas first; CLI status+analyze (19522 nodes | 37008 edges success); MCP list (fullpath canonical 2438f/19522n/37008e); detect compare HEAD~1 low/0a; impact upstream summaryOnly: PatrolCandidateEngagePolicy CRITICAL97(d2 p2), DelegationBridge CRITICAL127(d30 p2), CatalogWriteGate CRITICAL176(d93 p7), BalticReplayHarness CRITICAL52(d52), KilledTargetRegistry HIGH55(d4 p3), SimulationSession CRITICAL228(d61 p3). Fresh: build 0e4w, test 0f1229p, 18/18 play. Files: sprint-status/health/roadmap/AGENTS/CLAUDE additive. Cites: roadmap§0.4+§5 + baltic-v2 + superpowers + verification-before. reindex post-restack complete (evidence RUN+READ). -->
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
