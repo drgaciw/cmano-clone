@@ -1,0 +1,13 @@
+# Golden fingerprint — baltic-patrol-v2 (S59 theater package, extended OOB + second-side) seed=42 ticks=4
+# Isolated from production Baltic hash 17144800277401907079
+# Regenerate: /home/username01/.dotnet/dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-patrol-v2 --ticks 4 --v2
+# Cites: production/baltic-v2-scope-boundary-2026-06-22.md + roadmap §10 S59
+# Theater hash family entry
+
+WORLD_HASH=1596423950699739708
+DETECTION_WORLD_HASH=16298264857725988276
+FINGERPRINT_SHA256=402228b2a8fb601a7f0014db61239e4a92766ccc0e90fa75a8d77b75ef507fac
+
+EngagementOutcome|8|1|1|1|hostile-1|Kill|0.006501966157579321
+EngagementOutcome|13|2|2|2|hostile-2|Kill|0.2836785489422452
+EngagementOutcome|19|3|3|3|hostile-far|Kill|0.7277704534884007

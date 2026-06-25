@@ -1,0 +1,14 @@
+# Golden fingerprint — baltic-v2-mission-event seed=42 ticks=4 (S58 wave1 Band B mission-event variant from AAR; isolated)
+# Regenerate: /home/username01/.dotnet/dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-v2-mission-event --ticks 4
+# Cites baltic-v2-scope-boundary + roadmap-062226.md §10 S58. MissionTransition + EventFired present.
+
+FINGERPRINT_SHA256=cb66aee1890a295027b64673e7461bceeb5f9586f6677b9dd1778253579e5a92
+DETECTION_WORLD_HASH=15600
+WORLD_HASH=17144800277401907079
+
+MissionTransition|3|1|1|start-exec|Execution
+EventFired|4|1|1|contact-window|contact_window_open
+EventFired|11|2|2|comms-window|comms_window_nominal
+EngagementOutcome|9|1|1|1|hostile-1|Kill|0.006501966157579321
+REPLAY_CHECKPOINT=2:5155818736020725847:13
+REPLAY_CHECKPOINT=4:17144800277401907079:17
