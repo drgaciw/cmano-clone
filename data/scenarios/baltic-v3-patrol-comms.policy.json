@@ -1,0 +1,47 @@
+{
+  "id": "baltic-v3-patrol-comms",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true
+  },
+  "detection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "basePd": 1.0
+    }
+  ],
+  "logistics": {
+    "jokerSimSeconds": 90,
+    "bingoSimSeconds": 180,
+    "fuelCapacityKg": 10000,
+    "burnRateKgPerSecond": 80,
+    "jokerFuelFraction": 0.25,
+    "bingoFuelFraction": 0.10
+  },
+  "commsDisplay": {
+    "degradedLagTicks": 2,
+    "ghostOffsetX": 0.06,
+    "ghostOffsetY": 0.04,
+    "degradedOrderDelayTicks": 2,
+    "degradedStaleThresholdDivisor": 2
+  },
+  "comms": [
+    {
+      "atTick": 3,
+      "newState": "Degraded",
+      "nodeId": "brigade-net",
+      "reason": "jamming"
+    }
+  ],
+  "replay": {
+    "checkpointIntervalTicks": 2
+  }
+}

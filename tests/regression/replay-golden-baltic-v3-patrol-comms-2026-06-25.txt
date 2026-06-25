@@ -1,0 +1,29 @@
+# Golden fingerprint — baltic-v3-patrol-comms seed=42 ticks=4 (S74 isolated v3 comms-challenged variant; per execute-plan S74-04)
+# Regenerate: /home/username01/.dotnet/dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-v3-patrol-comms --ticks 4
+# Cites: production/playtests/baltic-v3-scenario-manifest.yaml; docs/reports/roadmap-execute-plan-062526.01.md S74; future-sprint-roadpmap-062526.01.md; GitNexus pre (BalticReplayHarness CRIT 52); AGENTS.md; v3 manifest. 
+# Isolated v3 only. Preserve v2. Based on new baltic-v3-patrol-comms.policy.json (comms extension of v2 pattern).
+
+SEED=42 SCENARIO=baltic-v3-patrol-comms TICKS=4 ENGAGEMENTS=4
+FINGERPRINT=PolicyUpdate|1|0|0|1|roe|WeaponsFree|WeaponsFree
+ModeChange|2|0|0||Planning|Executing
+ContactChange|3|1|1|u1|c1|hostile-1|Unknown|Detected
+AgentDecision|4|1|1|a1|Engage|Engage:1:High|0.7963043056138354
+Engagement|5|1|1|u1|1|True|Launched
+MagazineChange|6|1|1|u1|0|-1|fire
+EngagementOutcome|7|1|1|1|hostile-1|Kill|0.006501966157579321
+ContactChange|8|1|1|u1|c1|hostile-1|Detected|Lost
+AgentDecision|9|2|2|a1|Engage|Engage:1:High|0.2351344103718382
+Engagement|10|2|2|u1|0|False|TARGET_DESTROYED
+CommsStateChange|11|3|3|brigade-net|Nominal|Degraded|jamming
+AgentDecision|12|3|3|a1|Engage|Engage:1:High|0.9749891734790539
+Engagement|13|3|3|u1|0|False|TARGET_DESTROYED
+AgentDecision|14|4|4|a1|Engage|Engage:1:High|0.20774793892626123
+Engagement|15|4|4|u1|0|False|TARGET_DESTROYED
+
+FINGERPRINT_SHA256=c680a0bb5479f2cbe27d8f47dbc9bf55f00991c8fb65cd1cbecd35868c1552ce
+DETECTION_WORLD_HASH=15600
+WORLD_HASH=17144800277401907079
+REPLAY_CHECKPOINT=2:5155818736020725847:10
+REPLAY_CHECKPOINT=4:17144800277401907079:15
+MESSAGE=KILL_CONFIRMED|Hostile destroyed: hostile-1 (engagement 1)
+MESSAGE=COMMS|Comms brigade-net: Nominal → Degraded (jamming)

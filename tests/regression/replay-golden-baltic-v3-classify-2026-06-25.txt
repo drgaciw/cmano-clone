@@ -1,0 +1,27 @@
+# Golden fingerprint — baltic-v3-classify seed=42 ticks=4 (S74 isolated v3 classify band A; per execute-plan S74-04)
+# Regenerate: /home/username01/.dotnet/dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-v3-classify --ticks 4
+# Cites all: roadmap-execute-plan-062526.01.md S74; future-sprint-roadpmap-062526.01.md; GitNexus pre BalticReplayHarness CRIT; AGENTS.md; baltic-v3-scenario-manifest.yaml; baltic-v3-patrol etc policies.
+# Isolated replay-golden-baltic-v3-*.txt only. v2 untouched. Hash same as base for this fixture (per policy data).
+
+SEED=42 SCENARIO=baltic-v3-classify TICKS=4 ENGAGEMENTS=4
+FINGERPRINT=PolicyUpdate|1|0|0|1|roe|WeaponsFree|WeaponsFree
+ModeChange|2|0|0||Planning|Executing
+ContactChange|3|1|1|u1|c1|hostile-1|Unknown|Detected
+AgentDecision|4|1|1|a1|Engage|Engage:1:High|0.7963043056138354
+Engagement|5|1|1|u1|1|True|Launched
+MagazineChange|6|1|1|u1|0|-1|fire
+EngagementOutcome|7|1|1|1|hostile-1|Kill|0.006501966157579321
+ContactChange|8|1|1|u1|c1|hostile-1|Detected|Lost
+AgentDecision|9|2|2|a1|Engage|Engage:1:High|0.2351344103718382
+Engagement|10|2|2|u1|0|False|TARGET_DESTROYED
+AgentDecision|11|3|3|a1|Engage|Engage:1:High|0.9749891734790539
+Engagement|12|3|3|u1|0|False|TARGET_DESTROYED
+AgentDecision|13|4|4|a1|Engage|Engage:1:High|0.20774793892626123
+Engagement|14|4|4|u1|0|False|TARGET_DESTROYED
+
+FINGERPRINT_SHA256=080a4cbf18f620043a4e6401ac1f60749e9604760b91d2adfc770de816649917
+DETECTION_WORLD_HASH=15600
+WORLD_HASH=17144800277401907079
+REPLAY_CHECKPOINT=2:5155818736020725847:10
+REPLAY_CHECKPOINT=4:17144800277401907079:14
+MESSAGE=KILL_CONFIRMED|Hostile destroyed: hostile-1 (engagement 1)
