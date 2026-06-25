@@ -1,9 +1,9 @@
 # Project Aegis — Master Architecture
 
-> **Status:** Draft (ADRs 001–005 **Accepted** 2026-05-29)  
-> **Last Updated:** 2026-05-29  
+> **Status:** Draft (ADRs 001–011 **Accepted**; post–S72 CONCERNS per architecture-review-2026-06-25-post-s72-v3.md)  
+> **Last Updated:** 2026-06-25  
 > **Engine:** Unity 6.3 LTS (6000.3.14f1) + C# / .NET 8 + DOTS/ECS — [Unity VERSION](../engine-reference/unity/VERSION.md), [.NET / Learn](../engine-reference/dotnet/README.md)  
-> **GitNexus repo:** `cmano-clone` (index current @ `10dae1a`)
+> **GitNexus repo:** `cmano-clone` (index @ `b2c9411`; 20496/38203)
 
 ## Purpose
 

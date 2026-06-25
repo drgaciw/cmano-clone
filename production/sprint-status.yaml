@@ -146,8 +146,18 @@ gt_integration:
         payload: "catalog sensors, manifest theater updates, S75 plan/kickoff/closeout"
       - branch: stack/sprint73-75/closeout
         payload: "roadmap 062526.01, execute-plan, design spec, sprint-status, playtests README"
-    submit: "gt submit --stack --no-interactive (Phase C)"
-    status: IN_PROGRESS
+    submit: "gt submit --stack --no-interactive (Phase C 2026-06-25)"
+    status: SUBMITTED
+    prs:
+      - branch: stack/sprint73/baltic-v3-foundations
+        pr: "https://app.graphite.com/github/pr/drgaciw/cmano-clone/232"
+      - branch: stack/sprint74/scenario-wave
+        pr: "https://app.graphite.com/github/pr/drgaciw/cmano-clone/233"
+      - branch: stack/sprint75/theater-package
+        note: "Renamed from theater-oob (worktree branch name collision)"
+        pr: "https://app.graphite.com/github/pr/drgaciw/cmano-clone/234"
+      - branch: stack/sprint73-75/closeout
+        pr: "https://app.graphite.com/github/pr/drgaciw/cmano-clone/235"
 s67_status: |
   S67 Buildkite preflight ∥ Regression baseline lock ∥ Branch-protection — COMPLETE (2026-06-25)
   - Per release-train-scope-boundary-2026-06-24.md S67 row. All tracks PASS.

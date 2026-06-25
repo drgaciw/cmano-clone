@@ -51,6 +51,16 @@
 
 ---
 
+## Future phase — Commercial launch execution (gated)
+
+> **Deferred.** Store submission, locale production, and revenue launch are **not** in scope for S73–S80 Baltic v3 content. When the program advances to Launch stage execution, use:
+>
+> [`production/gate-checks/commercial-launch-execution-gate-TBD.md`](../gate-checks/commercial-launch-execution-gate-TBD.md)
+>
+> Prerequisites: Launch stage in `production/stage.txt`, asset pipeline >5%, i18n production pass, store accounts, Buildkite production promotion. Human ack required.
+
+---
+
 ## Baltic v2 Content Manifest (from S66 v2; locked prereq)
 
 **10 policies** (data/scenarios/ + baltic-v2-*.policy.json per manifest + release-checklist-v2): baltic-patrol*, -comms, -destroyed-target-reengage, -classify, -mission, -mission-roe, -catalog, -datalink, -combat-domains, -spoof, -readiness, -intercept + v2 variants (comms-challenged, jammed, patrol-band-b/c, mission-event, narrative-arc, theater etc).  
@@ -69,9 +79,10 @@
 
 **Store Prep (S70-01/02 + assets):**  
 - [ ] store-page-draft.md (Steam short/long desc, features, tags; Baltic v2 corpus cited) — production/release/store/  
-- [ ] asset-checklist.md (capsule/screenshots/trailer placeholders)  
+- [x] asset-checklist.md (capsule/screenshots/trailer placeholders) — production/release/store/  
 - [ ] platform-notes.md (internal submission notes)  
-- [ ] Assets produced + reviewed (future; post S70 list)  
+- [x] **Asset manifest (Phase B 2026-06-25):** `design/assets/asset-manifest.md` (master; 42 items) + `design/assets/entity-inventory.md` (Phase 0b inventory; user review pending) + spec stubs `design/assets/specs/{c2-ui,baltic-patrol,store-capsule}-assets.md` — dashboard plan Phase B / asset-spec skill  
+- [ ] Assets produced + reviewed (future; post S70 list — capsules/screenshots/trailer still Needed per manifest)  
 
 **Community (S70-03):**  
 - [ ] community-templates.md (Steam/Discord/FAQ/support/runbook drafts) — this dir  
