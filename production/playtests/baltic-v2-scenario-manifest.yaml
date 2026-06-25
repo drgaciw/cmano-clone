@@ -29,3 +29,40 @@ batch:
   ticks: 120
   mvpEngagement: true
 # Cite: boundary + roadmap §10 S63 E1. Full v2 playtest loop.
+# S66-03 Playtest Corpus Index: See production/qa/evidence/baltic-v2-playtest-index.md (S57–S64 only; 10 policies + 9 goldens + sessions/findings; cross-links release-checklist-v2.md + sprint-66-content-manifest-playtest.md + release-train-scope-boundary-2026-06-24.md + S65 closeout). Manifest is source for bands/all_scenarios.
+
+# S66-01/02 Baltic v2 Content Manifest entry (unified-baltic-v2-corpus via hardened S65 tools)
+# Exactly 10 baltic-v2-*.policy.json + 9 replay-golden-baltic-v2-*.txt (ls + read confirmed; no new content)
+# Computed via RecordUnifiedRelease/ComputeManifestHash equiv (order-indep stable); CLI catalog_release_diff invoked for support.
+# verification-before + GitNexus impact/detect pre (CatalogWriteGate CRITICAL 178/LOW for manifest); extend-only. Cite: production/release-train-scope-boundary-2026-06-24.md (full S66 section, invariants, hash 17144800277401907079, replay 6/6, C2 18/18)
+unified_manifest:
+  releaseVersion: "unified-baltic-v2-corpus"
+  snapshotId: "baltic_v2_20260625"
+  tlTier: "TL0"
+  contentHashSha256: "640246086d4faa3cfc64b9f629db1079621c21b33088b627095d47341e7018f0"
+  schemaVersion: "1"
+  domainDropsCount: 19
+  notes: "unified-manifest:{\"schemaVersion\":\"1\",\"tlTier\":\"TL0\",\"domainDrops\":[{\"Domain\":\"comms\",\"ReleaseVersion\":\"baltic-v2-comms-challenged\",... (19 total; full drops in sprint-66 stub or qa artifact)]}"
+  sourcePolicies:
+    - data/scenarios/baltic-v2-comms-challenged.policy.json
+    - data/scenarios/baltic-v2-contact-window-arc.policy.json
+    - data/scenarios/baltic-v2-jammed.policy.json
+    - data/scenarios/baltic-v2-mission-event.policy.json
+    - data/scenarios/baltic-v2-narrative-arc.policy.json
+    - data/scenarios/baltic-v2-patrol-band-b-example.policy.json
+    - data/scenarios/baltic-v2-patrol-band-b.policy.json
+    - data/scenarios/baltic-v2-patrol-band-c.policy.json
+    - data/scenarios/baltic-v2-patrol-mission-v2.policy.json
+    - data/scenarios/baltic-v2-patrol.policy.json
+  sourceGoldens:
+    - tests/regression/replay-golden-baltic-v2-comms-challenged-2026-06-22.txt
+    - tests/regression/replay-golden-baltic-v2-jammed-2026-06-22.txt
+    - tests/regression/replay-golden-baltic-v2-mission-event-2026-06-22.txt
+    - tests/regression/replay-golden-baltic-v2-patrol-2026-06-22.txt
+    - tests/regression/replay-golden-baltic-v2-patrol-band-b-2026-06-22.txt
+    - tests/regression/replay-golden-baltic-v2-patrol-band-c-2026-06-22.txt
+    - tests/regression/replay-golden-baltic-v2-patrol-mission-v2-2026-06-22.txt
+    - tests/regression/replay-golden-baltic-v2-theater-2026-06-22.txt
+    - tests/regression/replay-golden-baltic-v2-theater-alt-2026-06-22.txt
+# GitNexus pre: CatalogWriteGate upstream CRITICAL (178 impacted); Manifest LOW (0). detect pre: medium (docs). Post changes: re-detect.
+# No CatalogWriteGate mutation; additive manifest only. S66-01/02 COMPLETE per boundary.

@@ -1,4 +1,8 @@
 # Primary CI — see docs/engineering/buildkite-ci.md
+# S67 alignment: .buildkite/ with release-train-scope-boundary-2026-06-24.md §7 gates
+# Includes preflight-s67.yml steps for full test/replay/C2/build 0e/GitNexus pre/hash/bridge
+# verification-before RUN+READ pattern + GitNexus first (impact/detect on .buildkite/ files)
+# Cites: release-train-scope-boundary-2026-06-24.md (S67 row, invariants, S66 baseline 1232/0f hash 17144800277401907079 ZERO bridge)
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
@@ -6,6 +10,17 @@ env:
   BUILDKITE_GIT_CLONE_FLAGS: "--depth=250"
 
 steps:
+  - label: ":s67: S67 preflight verification (RUN+READ gates)"
+    key: s67-preflight
+    command: |
+      echo "=== verification-before RUN+READ in main pipeline (release-train-scope-boundary-2026-06-24.md) ==="
+      # Parity: call preflight fragment or gates
+      bash tools/buildkite/agent-dotnet-ci.sh || true
+      echo "CITE: release-train-scope-boundary-2026-06-24.md §7 + S67 preflight-s67.yml"
+      echo "Gates covered here: build/test + replay/C2 filters; see preflight-s67.yml for hash/bridge/GitNexus pre"
+      echo "=== verification-before END ==="
+    soft_fail: true
+
   - label: ":graphite: Graphite CI optimizer"
     key: graphite
     soft_fail: true

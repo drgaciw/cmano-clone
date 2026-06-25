@@ -7,8 +7,11 @@ using System.Text.Json;
 using ProjectAegis.Data.Catalog;
 
 /// <summary>
-/// S32-02: curator drop manifest consolidating S31 per-domain <c>releaseVersion</c> rows
+/// S32-02 / S65-03 (Baltic v2 corpus hardening): curator drop manifest consolidating S31 per-domain <c>releaseVersion</c> rows
 /// into one deterministic export manifest for scenario load binding.
+/// Baltic v2 support via v2-named domain drops (e.g. nightly-*-baltic-v2-*) and unified releases.
+/// Extend-only per release-train-scope-boundary-2026-06-24.md + roadmap-062426.md §5/§7.
+/// GitNexus impact pre-edit: LOW.
 /// </summary>
 public sealed record UnifiedReleaseTrainDomainDrop(
     string Domain,

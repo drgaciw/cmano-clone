@@ -2,7 +2,11 @@ namespace ProjectAegis.Data.Snapshots;
 
 using ProjectAegis.Data.Catalog;
 
-/// <summary>S32-07: deterministic read-only diff between two <c>ReleaseVersion</c> values.</summary>
+/// <summary>S32-07 / S65-03 (Baltic v2 corpus hardening): deterministic read-only diff between two <c>ReleaseVersion</c> values.
+/// Supports v2 corpus release versions and domain hashes in diff rows (e.g. baltic-v2-* named drops).
+/// Extend-only Catalog; cite production/release-train-scope-boundary-2026-06-24.md + roadmap-062426.md §5/§7.
+/// GitNexus: Compare reported CRITICAL47 indirect - additive doc only.
+/// </summary>
 public enum UnifiedReleaseTrainDiffKind
 {
     Added,

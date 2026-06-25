@@ -200,6 +200,119 @@ public sealed class UnifiedReleaseTrainManifestTests
         }
     }
 
+    // S65-03 TDD extension for Baltic v2 corpus (per skill: AAA, deterministic, scenario_Expected naming).
+    // Uses v2 scenarios/goldens data refs (S64: 10 baltic-v2-*.policy + 9 replay-golden-baltic-v2-*.txt) via parse-safe release names.
+    // Covers v2 domain hashes, unified manifests for v2, order independence, ToNotes roundtrip.
+    // Cite: production/release-train-scope-boundary-2026-06-24.md ; roadmap-062426.md §5/§7/§10 ; S65-03/04.
+    // GitNexus impact pre-edit confirmed LOW on edited manifest symbols; tests only (no CRIT symbols touched).
+    // Pre-verif: dotnet test affected + full sln green (1229/0f); post will re-run + READ.
+
+    [Fact]
+    public void RecordUnifiedRelease_supports_baltic_v2_domain_drops_with_stable_content_hash()
+    {
+        // Arrange: v2-named domain releases (parse-safe as 'nightly-*-v2-*' -> domain from first post-nightly segment)
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-unified-manifest-v2-{Guid.NewGuid():N}.db");
+        const string unifiedVersion = "unified-corpus-TL-0-baltic-v2";
+
+        try
+        {
+            SeedDomainRelease(dbPath, "nightly-sensor-baltic-v2-0622", batchSuffix: "sensor-v2");
+            SeedDomainRelease(dbPath, "nightly-platform-baltic-v2-0622", batchSuffix: "platform-v2");
+
+            UnifiedReleaseTrainManifest first;
+            UnifiedReleaseTrainManifest second;
+            using (var store = new DbSnapshotStore(dbPath))
+            {
+                first = store.RecordUnifiedRelease(
+                    unifiedVersion,
+                    CatalogValidationDefaults.BalticSnapshotId,
+                    CatalogTlTier.Tl0,
+                    ["nightly-platform-baltic-v2-0622", "nightly-sensor-baltic-v2-0622"],
+                    createdUtcTicks: 9901);
+
+                second = store.RecordUnifiedRelease(
+                    unifiedVersion,
+                    CatalogValidationDefaults.BalticSnapshotId,
+                    CatalogTlTier.Tl0,
+                    ["nightly-sensor-baltic-v2-0622", "nightly-platform-baltic-v2-0622"],
+                    createdUtcTicks: 9902);
+            }
+
+            // Act + Assert (manifest-level roundtrips and hash stability; these manifest tests do not drive full ScenarioDocumentDto validation like some older tests) [cite: S65 review + production/release-train-scope-boundary-2026-06-24.md + roadmap-062426.md §10]
+            Assert.Equal(unifiedVersion, first.ReleaseVersion);
+            Assert.Equal(CatalogTlTier.Tl0, first.TlTier);
+            Assert.Equal(["platform", "sensor"], first.DomainDrops.Select(d => d.Domain).ToArray());
+            Assert.Matches("^[a-f0-9]{64}$", first.ContentHashSha256);
+            Assert.Equal(first.ContentHashSha256, second.ContentHashSha256);  // order independent stable hash
+
+            using (var store = new DbSnapshotStore(dbPath))
+            {
+                Assert.True(store.TryGetUnifiedManifest(unifiedVersion, out var loaded));
+                Assert.Equal(first.ContentHashSha256, loaded.ContentHashSha256);
+                Assert.Equal(2, loaded.DomainDrops.Count);
+            }
+        }
+        finally
+        {
+            Cleanup(dbPath);
+        }
+    }
+
+    [Fact]
+    public void Manifest_v2_scenario_refs_resolve_stable_hash_and_notes_roundtrip()
+    {
+        // Arrange: unified for v2 scenario (refs baltic-v2-patrol etc from S64 goldens corpus)
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-unified-v2-notes-{Guid.NewGuid():N}.db");
+        const string unifiedVersion = "unified-baltic-v2-patrol-mission";
+
+        try
+        {
+            SeedDomainRelease(dbPath, "nightly-sensor-baltic-v2-patrol", batchSuffix: "sensor-v2-notes");
+
+            UnifiedReleaseTrainManifest manifest;
+            using (var store = new DbSnapshotStore(dbPath))
+            {
+                manifest = store.RecordUnifiedRelease(
+                    unifiedVersion,
+                    CatalogValidationDefaults.BalticSnapshotId,
+                    CatalogTlTier.Tl0,
+                    ["nightly-sensor-baltic-v2-patrol"],
+                    createdUtcTicks: 9910);
+            }
+
+            // Act
+            var notes = manifest.ToNotesJson();
+            var parsedOk = UnifiedReleaseTrainManifest.TryParseFromNotes(notes, unifiedVersion, out var roundtrip);
+
+            // Assert
+            Assert.StartsWith(UnifiedReleaseTrainManifest.NotesPrefix, notes, StringComparison.Ordinal);
+            Assert.True(parsedOk);
+            Assert.Equal(manifest.ContentHashSha256, roundtrip.ContentHashSha256);
+            Assert.Equal("sensor", roundtrip.DomainDrops.Single().Domain);
+            Assert.Contains("baltic-v2", roundtrip.DomainDrops.Single().ReleaseVersion, StringComparison.Ordinal);
+        }
+        finally
+        {
+            Cleanup(dbPath);
+        }
+    }
+
+    [Fact]
+    public void V2_domain_drops_hash_is_order_independent_like_v1()
+    {
+        // Covers v2 corpus domain hash stability (aligns with S64 v2 goldens determinism)
+        var dropsV2a = new[]
+        {
+            new UnifiedReleaseTrainDomainDrop("platform", "nightly-platform-baltic-v2-0622", "baltic_patrol", "hash-v2-a"),
+            new UnifiedReleaseTrainDomainDrop("sensor", "nightly-sensor-baltic-v2-0622", "baltic_patrol", "hash-v2-b"),
+        };
+        var dropsV2b = dropsV2a.Reverse().ToArray();
+
+        Assert.Equal(
+            UnifiedReleaseTrainManifest.ComputeManifestHash(dropsV2a),
+            UnifiedReleaseTrainManifest.ComputeManifestHash(dropsV2b));
+    }
+
     private static CatalogSnapshotBinder.BindResult SeedDomainRelease(
         string dbPath,
         string releaseVersion,

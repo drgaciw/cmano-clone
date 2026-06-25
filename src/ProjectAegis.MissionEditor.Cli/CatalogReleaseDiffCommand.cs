@@ -3,7 +3,10 @@ namespace ProjectAegis.MissionEditor.Cli;
 using System.Text.Json;
 using ProjectAegis.Data.Snapshots;
 
-/// <summary>S32-07 / DBI-4.5: read-only deterministic diff between two release versions.</summary>
+/// <summary>S32-07 / DBI-4.5 / S65-03 (Baltic v2): read-only deterministic diff between two release versions.
+/// Hardened/extended for Baltic v2 corpus (10 v2 policies, 9 v2 goldens from S64); v2 domain hashes/scenarios in output.
+/// Extend-only; ZERO DelegationBridge. Cite: production/release-train-scope-boundary-2026-06-24.md §4 §8, roadmap §5/§7.
+/// </summary>
 public static class CatalogReleaseDiffCommand
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -72,6 +75,8 @@ public static class CatalogReleaseDiffCommand
         output.WriteLine("Notes:");
         output.WriteLine("  Read-only path; no CatalogWriteGate mutation.");
         output.WriteLine("  Compares unified manifests or per-domain nightly drops.");
+        output.WriteLine("  Baltic v2 corpus supported (S65-03): v2-named releases (e.g. *-baltic-v2-*) and scenario refs emit in canonicalLines/rows.");
         output.WriteLine("  Timestamp-only metadata changes are excluded from semantic equality.");
+        output.WriteLine("  Cite: release-train-scope-boundary-2026-06-24.md + roadmap §7 invariants.");
     }
 }

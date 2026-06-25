@@ -1,5 +1,8 @@
 # Apply branch protection for main (GitHub Pro, Team, or public repo required).
 # See docs/engineering/ci-and-branch-protection.md
+# S67 update: aligns with release-train-scope-boundary-2026-06-24.md (S67 row + §7 gates).
+# GitNexus pre: impact/detect_changes before edits (per AGENTS.md). Required status: buildkite/cmano-clone.
+# Baseline enforcement: >=1229 tests, Replay 6/6, C2 18/18, hash 17144800277401907079, ZERO DelegationBridge.
 
 $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot

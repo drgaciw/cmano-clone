@@ -24,7 +24,7 @@ public static class CatalogReleaseTrainDomains
         !string.IsNullOrWhiteSpace(domain) &&
         All.Contains(domain.Trim(), StringComparer.Ordinal);
 
-    /// <summary>Extract domain from S31 nightly release versions like <c>nightly-sensor-s31-02-20260618</c>.</summary>
+    /// <summary>Extract domain from nightly release versions of flexible shape "nightly-&lt;known-domain&gt;-&lt;corpus-variant&gt;-..." (S31+ variants, per release-train-scope-boundary-2026-06-24.md and S65 review).</summary>
     public static bool TryParseFromReleaseVersion(string? releaseVersion, out string domain)
     {
         domain = "";
