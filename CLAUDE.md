@@ -63,8 +63,7 @@ Repo is Graphite-initialized. For branch/PR/stack work use **`gt`** (`gt create`
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (19522 symbols, 37008 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
-<!-- post-restack re-index (2026-06-23 specialist): search_tool schemas first; CLI status+analyze (19522 nodes | 37008 edges success); MCP list (fullpath canonical 2438f/19522n/37008e); detect compare HEAD~1 low/0a; impact upstream summaryOnly: PatrolCandidateEngagePolicy CRITICAL97(d2 p2), DelegationBridge CRITICAL127(d30 p2), CatalogWriteGate CRITICAL176(d93 p7), BalticReplayHarness CRITICAL52(d52), KilledTargetRegistry HIGH55(d4 p3), SimulationSession CRITICAL228(d61 p3). Fresh: build 0e4w, test 0f1229p, 18/18 play. Files: sprint-status/health/roadmap/AGENTS/CLAUDE additive. Cites: roadmap§0.4+§5 + baltic-v2 + superpowers + verification-before. reindex post-restack complete (evidence RUN+READ). -->
+This project is indexed by GitNexus as **cmano-clone** (20193 symbols, 37859 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -73,8 +72,9 @@ This project is indexed by GitNexus as **cmano-clone** (19522 symbols, 37008 rel
 - **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
 - **MUST run `detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows. For regression review, compare against the default branch: `detect_changes({scope: "compare", base_ref: "main"})`.
 - **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
-- When exploring unfamiliar code, use `query({query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
+- When exploring unfamiliar code, use `query({search_query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
 - When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `context({name: "symbolName"})`.
+- For security review, `explain({target: "fileOrSymbol"})` lists taint findings (source→sink flows; needs `analyze --pdg`).
 
 ## Never Do
 

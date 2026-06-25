@@ -94,6 +94,14 @@ Companion facilitated reviews in `human/` — one per proxy report (sessions 1�
 
 **Findings triage:** All S39-07 polish UX verified via proxy; no blocking; evidence/playtest structured in this corpus. ACs satisfied for isolated track.
 
+## S57–S64 Baltic v2 Playtest Corpus (S66-03 Index)
+See `production/qa/evidence/baltic-v2-playtest-index.md` (created S66-03; strictly per release-train-scope-boundary-2026-06-24.md + baltic-v2-scope-boundary-2026-06-22.md; cites S65 closeout). 
+- 10 baltic-v2-*.policy.json + 9 replay-golden-baltic-v2-*.txt
+- Key qa: s57-s64-program-closeout-*.md, s57-closeout-2026-06-22.md, s57-validation-report, qa-plan-sprint-57, gate-matrix-baltic-v2
+- Manifest: this baltic-v2-scenario-manifest.yaml (bands A/B/C + batch)
+- Cross: production/release/release-checklist-v2.md (Playtest Corpus Index) + production/sprints/sprint-66-content-manifest-playtest.md (S66-03)
+- GitNexus/Verif: pre impact/detect (low for docs), RUN+READ (replay 6/6, hash preserved, counts 10/9) before index.
+
 ## S43 Cadence (Beta-Evidence-QA; Playtest 12-13 Focus)
 **S43-07 Evidence track (team-qa + playtest-report):** Playtest cadence continues for B1 wave 2 + B2.
 - **Playtest 12:** B1 W2 Engage/features (Req 03 Simulation Modes, 04 Agent Delegation badges, 14 Engagement/DLZ, 15 Sensor/EW ECCM, 17 Replay AAR, 18 Combat domains BDA, 19 Cyber/Comms JADC2). Focus: proxy + harness verification of engage/comms/delegation flows; difficulty curve from Baltic fixtures; order-log AAR hooks.

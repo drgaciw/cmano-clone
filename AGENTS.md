@@ -1,8 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (19522 symbols, 37008 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
-<!-- post-restack re-index specialist 2026-06-23: search_tool first; CLI analyze (success 19522/37008); MCP list_repos (canonical fullpath: 2438/19522/37008 @T13:47 vs HEAD f845f85 stale1); detect low 0 affected (docs); impact §5: Patrol CRITICAL97/2/2procs, Delegation CRITICAL127/30, Catalog CRITICAL176/93/7p, Baltic CRITICAL52/52, Killed HIGH55/4/3p, Simulation CRITICAL228/61/3p; verifs build0e test0f1229 play18/18. Cites §0.4/§5 + boundary + superpowers + verification-before. reindex complete post-restack evidence in sprint-status/health. -->
+This project is indexed by GitNexus as **cmano-clone** (20193 symbols, 37859 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -11,8 +10,9 @@ This project is indexed by GitNexus as **cmano-clone** (19522 symbols, 37008 rel
 - **MUST run impact analysis before editing any symbol.** Before modifying a function, class, or method, run `impact({target: "symbolName", direction: "upstream"})` and report the blast radius (direct callers, affected processes, risk level) to the user.
 - **MUST run `detect_changes()` before committing** to verify your changes only affect expected symbols and execution flows. For regression review, compare against the default branch: `detect_changes({scope: "compare", base_ref: "main"})`.
 - **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
-- When exploring unfamiliar code, use `query({query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
+- When exploring unfamiliar code, use `query({search_query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
 - When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `context({name: "symbolName"})`.
+- For security review, `explain({target: "fileOrSymbol"})` lists taint findings (source→sink flows; needs `analyze --pdg`).
 
 ## Never Do
 
@@ -134,6 +134,8 @@ This repo is Graphite-initialized (trunk `main`, [`.graphite_repo_config`](.grap
 
 Full guide: [`docs/engineering/graphite-github-substitute-plan.md`](docs/engineering/graphite-github-substitute-plan.md). Read-only `gh pr checks` / `gh pr diff` is fine for CI triage.
 
+**verification-before note for trunk resolution (e.g. "trunk out of date" block):** Before gt sync / restack / submit when blocked: (1) GitNexus pre (search_tool then list_repos + detect_changes(scope=staged) + impact(CatalogWriteGate upstream summaryOnly)); (2) full gates RUN+READ: dotnet build, dotnet test full (0f >=1229), ReplayGolden 6/6, PlayModeSmoke 18/18, hash grep `17144800277401907079`, ZERO DelegationBridge grep, gt status; (3) stage ONLY S66/S67 payload files per smoke-sprint-66-closeout.md list; (4) re-verif post each gt step. Cite production/release-train-scope-boundary-2026-06-24.md + this AGENTS + graphite plan. All RUN outputs READ before proceed. (See production/qa/smoke-sprint-66-closeout.md resolution section for commands.) 
+
 ## Cursor Cloud specific instructions
 
 Headless **.NET 8** development is the supported Cloud Agent path. Unity Editor 6.3 LTS (`unity/ProjectAegis`) is optional and usually not installed in the VM; use the headless Play Mode harness instead of opening the Editor.
@@ -194,17 +196,25 @@ No Docker compose or long-running servers. The “application” is in-process: 
 
 - Use project-local skill `.cursor/skills/git-commit/SKILL.md` when asked to commit, push to `main`, merge branches, or clean worktrees on this repo.
 - Release v1.0 completion means the shippable Baltic vertical slice, not MVP-done on all 21 requirement tracker rows.
-- Prefer detailed sprint planning through the Release gate; post-release work stays as epic buckets only.
+- Prefer detailed sprint planning through Release; post–Release trains use numbered sprints (S49+) with locked roadmap snapshots in `docs/reports/future-sprint-roadpmap-YYYYMMDD.md`.
 - Do not edit attached `.cursor/plans/` files when implementing plans — treat them as read-only reference.
 - Run in-sprint parallel agent tracks via isolated git worktrees and `production/agentic/local-cloud-agent-routing.md` (local: Editor evidence/coordinator; cloud: code/tests/hygiene).
+- When subagent API limits block full-sprint orchestrators, split into per-task parallel workers instead of retrying one large orchestrator.
+- Maintain stable alias `docs/reports/future-sprint-roadpmap.md` pointing at the latest dated roadmap snapshot (edit dated files, not the alias body).
+- Treat v1.0 / Spirit 1 vertical slice as a closed milestone — no ongoing gap-remediation program.
+- Internal engineering trains (RC1, S49–S56, Baltic v2) exclude E7 commercial launch scope unless explicitly scoped.
 
 ## Learned Workspace Facts
 
-- Production stage is **Polish** (`production/stage.txt`); Sprint **40** must-have complete (S40-01..06 PASS, 2026-06-20); **S41 COMPLETE** (Polish exit + ADR + scope packet); **S42 COMPLETE** (B1 W1 + art §1-4; gates held).
-- Track B scope expansion **APPROVED** (2026-06-20, `production/gate-checks/scope-expansion-decision-2026-06-20.md` + S41 closeout ack); S42 COMPLETE; S43–S48 dispatch per release-enablement-scope-boundary-2026-06-20.md (cite new boundary + S41 ack packet).
-- Headless test baseline is **≥1226** solution tests after S40/S41 (ReplayGolden 6/6, C2 proxy 18/18; monotonic per S42 closeout).
-- Post–S38 release train roadmap lives in `docs/reports/future-sprint-roadpmap.md` (S39–S48 through Release gate).
-- Spirit1 gap-analysis tasks live in `Game-Requirements/reviews/spirit1-vertical-slice-gap-analysis-2026-06-05.md`.
+- Production stage is **Release** (`production/stage.txt`; S48 gate PASS 2026-06-20; RC1 cut).
+- **S39–S48** Release enablement program COMPLETE (RC1 gate PASS).
+- **S49–S56** internal engineering program COMPLETE (E2 Agentic lead; all v1.0-deferred tracker rows; 21/21 MVP exit).
+- **S57–S64** Baltic v2 content expansion COMPLETE (human ack + merge 2026-06-22).
+- **S65–S68** release train COMPLETE (all gates PASS; S68 human ack ready "i provide the ack"; index 19792/37427/2455 per boundary).
+- Headless test baseline is **≥1229** solution tests (ReplayGolden 6/6, C2 proxy 18/18; monotonic per S57–S64 closeout).
+- Canonical forward roadmap is dated `docs/reports/future-sprint-roadpmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; current forward program is **S65+** (`production/sprints/sprint-65-stub-release-train-or-next.md`).
+- Production Baltic replay hash **`17144800277401907079`** must stay preserved unless an ADR explicitly changes it.
+- Baltic v2 content on disk includes 10 `baltic-v2-*` scenario policies and 9 v2 replay goldens (post–S64 baseline).
 - Sprint stack worktrees use `.worktrees/` under the parent repo path (`/home/username01/cmano-clone/.worktrees/`).
 - Exclude from commits: `.cursor/hooks/`, `.pi/settings.json`, `.polly/` (local agent/tooling config).
 - `DelegationBridge.cs` remains zero-touch through Release v1.

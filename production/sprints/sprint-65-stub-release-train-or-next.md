@@ -82,3 +82,12 @@ See AGENTS.md + roadmap §0.4 + production/qa/s57-s64-program-closeout-merged-20
 - No full S65 activation (stub only; human decision pending per "Next steps if activated").
 **Cites:** S65 stub + closeout + roadmap §0.4/§10/§11 + baltic-v2-scope-boundary-2026-06-22.md + sprint-status + superpowers (dispatching-parallel-agents + verification-before + hindsight) + ack + GitNexus/terminal verifs. S65 prep ready pending human decision + restack polish complete. All gates PASS post restack.
 
+**S65-05 GitNexus re-index (Cloud, per execute-plan §4 §8 Agent D + roadmap §5):** COMPLETE self-contained.
+- CLI: node /home/username01/.omnigent/.gitnexus/run.cjs analyze --force (after clean of stale wal); success 23s: "Repository indexed successfully (23.0s) 19,665 nodes | 37,292 edges | 366 clusters | 300 flows"
+- MCP (search_tool schemas first + use_tool): list_repos (cmano-clone canonical @28c582d: files=2446, nodes=19665, edges=37292, communities=366, processes=300, indexedAt=2026-06-24T19:49:47.235Z); detect_changes(scope=compare, base_ref=main, worktree+repo full): changed=23, affected=0, risk=low (docs + UnifiedReleaseTrain* + CatalogReleaseDiffCommand); impacts upstream summaryOnly on key: PatrolCandidateEngagePolicy=CRITICAL 97 (d2 p2), DelegationBridge=CRITICAL 127 (d30 p2), CatalogWriteGate=CRITICAL 178 (d93 p7), BalticReplayHarness=CRITICAL 52 (d52 p0), UnifiedReleaseTrainManifest (via uid)=LOW 9.
+- Status: ✅ up-to-date (was ⚠️ stale @2ed5ece vs HEAD 28c582d); meta updated.
+- Verification gates (fresh RUN+READ): dotnet build 0e 0w; dotnet test UA filter PlayModeSmokeHarnessTests 18/18 PASS; full sln test 0f (Sim279 + Del247 + UA252 + Data406 + Cli43 + Excel5); prior baseline ~1229 held monotonic.
+- Updated: production/sprint-status.yaml (main indexed_commit + S65-05 cite); note here + cites boundary/release-train-scope-boundary-2026-06-24.md + future-sprint-roadpmap-062426.md §0/§5 + execute-plan.
+- Evidence: terminal logs (analyze success, status, MCP, build/test), .gitnexus/meta.json, sprint-status, roadmap-execute-plan.
+Self contained. All per AGENTS.md GitNexus rules (impact before edit, detect before commit). 2026-06-24.
+
