@@ -102,6 +102,9 @@ See `production/qa/evidence/baltic-v2-playtest-index.md` (created S66-03; strict
 - Cross: production/release/release-checklist-v2.md (Playtest Corpus Index) + production/sprints/sprint-66-content-manifest-playtest.md (S66-03)
 - GitNexus/Verif: pre impact/detect (low for docs), RUN+READ (replay 6/6, hash preserved, counts 10/9) before index.
 
+## S73+ Baltic v3 Playtest Manifest (S73-02)
+S73-02 (qa-lead Cloud): production/playtests/baltic-v3-scenario-manifest.yaml created (extends v2 structure; v3_slots + bands A/B/C placeholders per design §3 + difficulty-curve.md; cites production/baltic-v3-scope-boundary-2026-06-25.md + execute-plan S73-02 + roadmap). Supersedes v2 for S73+ (v2 read-ref only). GitNexus pre (list/detect low; CatalogWriteGate extend-only CRITICAL 178; Unified MED/LOW) + full verification-before gates RUN+READ (0e/1232/0f/18/18/6/6+/hash/ZERO) complete. Placeholders for S74+ waves (S74 scenario, S75 theater, ... S79 loop, S80 gate). Low risk. See manifest for full pre/verif/evidence. S73-02 COMPLETE. Manifest path: production/playtests/baltic-v3-scenario-manifest.yaml.
+
 ## S43 Cadence (Beta-Evidence-QA; Playtest 12-13 Focus)
 **S43-07 Evidence track (team-qa + playtest-report):** Playtest cadence continues for B1 wave 2 + B2.
 - **Playtest 12:** B1 W2 Engage/features (Req 03 Simulation Modes, 04 Agent Delegation badges, 14 Engagement/DLZ, 15 Sensor/EW ECCM, 17 Replay AAR, 18 Combat domains BDA, 19 Cyber/Comms JADC2). Focus: proxy + harness verification of engage/comms/delegation flows; difficulty curve from Baltic fixtures; order-log AAR hooks.
