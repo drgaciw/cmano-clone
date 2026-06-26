@@ -213,3 +213,18 @@ S72-02 human sign-off prep + closeout COMPLETE (2026-06-25). All S69-S72 COMPLET
 
 **S72 closeout + program integration prep COMPLETE. Human ack ready. GT ready for user submit.**
 **S72 closeout COMPLETE. S69-S72 full prep COMPLETE. GT ready for user.**
+
+---
+
+## GT-01/02 RESOLVED (2026-06-25 — Phase A dashboard reconcile)
+
+**Status:** RESOLVED — same resolution as `production/qa/smoke-sprint-66-closeout.md` GT footer.
+
+- Trunk synced: main == origin/main (0 ahead); no staged S66/S67 payload.
+- S66–S72 on main @ `b2c9411818124daa03c473ba0b53f0cde8a77ad8`; `gt log short` shows `main` only.
+- Prior GT prep notes (resolve S66 payload before S70/S71 submit) are **obsolete** — do not recreate `stack/sprint70/*` or `stack/sprint71/*`.
+- **Next Graphite integration:** Baltic v3 S73–S75 untracked work → scoped `gt` stacks per `docs/reports/roadmap-execute-plan-062526.01.md`.
+
+**GitNexus pre:** 20354/38059 @ b2c9411; detect unstaged low; impacts 178/97/127/52 exact.
+
+**Gate re-verify log:** `production/qa/evidence/gates-post-s72-integration-2026-06-25.log`

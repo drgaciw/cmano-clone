@@ -589,3 +589,21 @@ gt status   # clean
 **GT READY FOR USER; CLOSEOUT FINAL** (S65-S68). Isolated agent. All per release-train-scope-boundary-2026-06-24.md. 
 
 Cites: production/release-train-scope-boundary-2026-06-24.md + AGENTS.md + verification-before. 2026-06-25. Final.
+
+---
+
+## GT-01/02 RESOLVED (2026-06-25 — Phase A dashboard reconcile)
+
+**Status:** RESOLVED — trunk synced; phantom "staged S66 payload" blocker closed.
+
+| Check | Result |
+|-------|--------|
+| `git status` | On branch main; up to date with `origin/main`; **no staged S66/S67 payload** |
+| `gt log short` | `main` only (no pending S66–S71 stack branches) |
+| HEAD | `b2c9411818124daa03c473ba0b53f0cde8a77ad8` — S66–S72 committed on main |
+| GT-01 (trunk ahead ~20 / staged payload) | **Closed** — dashboard snapshot assumption obsolete |
+| GT-02 (gt submit blocked) | **Closed** — no retroactive S70/S71 stack recreation; next GT target Baltic v3 |
+
+**GitNexus pre (MCP, canonical path):** list_repos 20354/38059 @ b2c9411; detect_changes(unstaged) 7/0 low; impact §5 exact (CatalogWriteGate 178, PatrolCandidateEngagePolicy 97, DelegationBridge 127, BalticReplayHarness 52).
+
+**Evidence:** `production/sprint-status.yaml` (`gt_integration` block), `docs/reports/dashboard-snapshots/2026-06-25-pm-addendum.md`, `production/qa/evidence/gates-post-s72-integration-2026-06-25.log`.

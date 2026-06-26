@@ -4196,3 +4196,53 @@ evidence:
 # ALL S65-S68 TRACKS COMPLETE per boundary. Stage: Release. Invariants held (RUN+READ). GT READY FOR USER; CLOSEOUT FINAL. Isolated. No S68 code. Cites boundary + AGENTS + verification-before. 2026-06-25.
 # Status: GT STAGED READY; USER SYNC NEEDED + GT READY FOR USER; CLOSEOUT FINAL
 
+s78_status: |
+  S78 C2 scenario UX v3 (E4+E9) — **S78-04 COMPLETE. S78 COMPLETE (2026-06-25)**. Per roadmap-execute-plan-062526.01.md §3/§4/§5/§9 + future-sprint-roadpmap-062526.01.md §3/§6/§7/§10 + baltic-v3-scope-boundary-2026-06-25.md + sprint-78-c2-scenario-ux-v3.md + AGENTS.md + S77/S76/S75/S74/S73 complete. 
+  - S78 plan + kickoff: production/sprints/sprint-78-c2-scenario-ux-v3.md + production/agentic/sprint-78-parallel-kickoff-2026-06-25.md (tracks table, baseline 1232/6/6/18/18/hash/ZERO, additive C2 only, GitNexus/verif mandates, final status appended).
+  - S78-01/02 Scenario picker v3 (Cloud, scenario-picker wt): Additive C2 scenario picker v3 UI reading v3 manifest (v3_slots, bands A/B/C); integrated in C2 hosts; C2 proxy 18/18 no regress. Evidence: scenario-picker wt unity/*PanelHost.cs + manifest comments. GitNexus pre + verif-before. **S78-01/02 COMPLETE**.
+  - S78-03 Difficulty bands + tooltips (Cloud, difficulty-ux wt): Additive bands (A NPE, B mid, C hard) + tooltips UI per manifest + design/difficulty-curve.md. Evidence: difficulty-ux wt C2 UI updates + manifest. GitNexus pre + verif. **S78-03 COMPLETE**.
+  - S78-04 Closeout (local): production/qa/smoke-sprint-78-closeout-2026-06-25.md created (S78 summary, tracks agg confirming 01/02/03 picker/bands/manifest, gates table RUN+READ, GitNexus pre, GT block for stack/sprint78/*); main+wt sprint-status/stage/plan updated.
+  - sprint-status updated with s78_status + s78_complete; stage.txt appended (S78 C2 UX COMPLETE; remains Release).
+  - Verification-before (RUN+READ full in wt + re-verif): build 0e/0w "Build succeeded. 0 Warning(s) 0 Error(s)."; 1232/0f (279+43+247+5+252+406); replay 6/6; C2 18/18; hash 17144800277401907079 preserved; ZERO=0. All READ.
+  - GitNexus pre (search_tool first + use_tool list_repos/detect/impact): list_repos canonical 20496 nodes / 38203 edges; detect 0/0 none; impacts CatalogWriteGate=178 CRIT, Patrol=97 CRIT, DelegationBridge=127 CRIT, BalticReplayHarness=52 CRIT (exact §5). Re-detect post.
+  - All S78 artifacts cite: production/baltic-v3-scope-boundary-2026-06-25.md ; roadmap-execute-plan-062526.01.md §3/4/5/9 ; future-sprint-roadpmap-062526.01.md ; AGENTS.md ; sprint-78 plan + kickoff ; S77/S76/S75/S74/S73 complete. Low risk additive UI only. GT ready stack/sprint78/* .
+  **S78-04 COMPLETE. S78 COMPLETE.**
+
+s78_complete: |
+  S78 full COMPLETE (2026-06-25). Per roadmap-execute-plan-062526.01.md §3/§4/§5/§9 + production/baltic-v3-scope-boundary-2026-06-25.md + future-sprint-roadpmap-062526.01.md §3/§6/§7/§10 + AGENTS.md + sprint-78-c2-scenario-ux-v3.md + kickoff. S78-01/02 picker + S78-03 bands/tooltips + S78-04 closeout COMPLETE (smoke-sprint-78-closeout-2026-06-25.md created with tracks table, aggregate 01-03, gates RUN+READ 0e/0w 1232/0f 6/6 18/18/hash/ZERO, GitNexus pre 20496/38203 + 178/97/127/52 exact, GT notes, cites; main+wt status/stage/plan updated with s78 + COMPLETE). verification-before (RUN+READ build/test/replay/C2/hash/ZERO + GitNexus search+use list/detect/impact) + pre-verif gates confirmed. GT prep: cd /home/username01/projects/active/cmano-clone/cmano-clone ; export PATH="$HOME/.dotnet:$PATH"; GitNexus pre (MCP); verif; gt sync || git pull --ff-only; gt restack; verif; gt submit --stack --no-interactive for stack/sprint78/* ; post re-index/verif. Low risk. Stage Release. **S78-04 COMPLETE. S78 COMPLETE.** GT ready for user. Cites: production/baltic-v3-scope-boundary-2026-06-25.md ; roadmap-execute-plan-062526.01.md §3/4/5/9 ; future-sprint-roadpmap-062526.01.md ; AGENTS.md ; sprint-78 plan + kickoff ; S77/S76/S75/S74/S73 complete. 
+  **S78-04 COMPLETE. S78 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan.**
+
+s79_status: |
+  S79 Playtest loop v3 (E1+E9) — **S79-04 COMPLETE. S79 COMPLETE (2026-06-25)**. Per roadmap-execute-plan-062526.01.md §3/§4/§5/§9 + future-sprint-roadpmap-062526.01.md §3/§6/§7/§10 + baltic-v3-scope-boundary-2026-06-25.md + sprint-79-playtest-loop-v3.md + AGENTS.md + S78/S77/S76/S75/S74/S73 complete. 
+  - S79 plan + kickoff: production/sprints/sprint-79-playtest-loop-v3.md + production/agentic/sprint-79-parallel-kickoff-2026-06-25.md (tracks table, baseline 1232/6/6/18/18/hash/ZERO, additive v3 only, GitNexus/verif mandates, final status appended).
+  - S79-01/02 Automated playtest batch (Cloud, auto-playtest wt): Batch against full v3 manifest; 18 rows scores.csv (6 v3_slots x 3 seeds across bands A/B/C), run.log, orderlog evidence. GitNexus pre + verif-before. **S79-01/02 COMPLETE**.
+  - S79-03 Human session template (Local, human-playtest wt): Template + ≥1 session per band (A NPE, B midgame, C stress); thinkalouds in human/. GitNexus pre + verif. **S79-03 COMPLETE**.
+  - S79-04 Closeout (local): production/qa/smoke-sprint-79-closeout-2026-06-25.md created (S79 summary, tracks agg confirming 01/02/03 batch/human/manifest, gates table RUN+READ, GitNexus pre, GT block for stack/sprint79/*); main+wt sprint-status/stage/plan updated.
+  - sprint-status updated with s79_status + s79_complete; stage.txt appended (S79 COMPLETE; remains Release).
+  - Verification-before (RUN+READ full in wt + re-verif): build 0e/0w "Build succeeded. 4 Warning(s) 0 Error(s)."; 1232/0f (279+43+247+5+252+406); replay 6/6; C2 18/18; hash 17144800277401907079 preserved; ZERO=0. All READ.
+  - GitNexus pre (search_tool first + use_tool list_repos/detect/impact): list_repos canonical 20496 nodes / 38203 edges; detect 0/0 none; impacts CatalogWriteGate=178 CRIT, PatrolCandidateEngagePolicy=97 CRIT, DelegationBridge=127 CRIT, BalticReplayHarness=52 CRIT (exact §5). Re-detect post.
+  - All S79 artifacts cite: production/baltic-v3-scope-boundary-2026-06-25.md ; roadmap-execute-plan-062526.01.md §3/4/5/9 ; future-sprint-roadpmap-062526.01.md ; AGENTS.md ; sprint-79 plan + kickoff ; S78/S77/S76/S75/S74/S73 complete. Low risk additive playtest only. GT ready stack/sprint79/* .
+  **S79-04 COMPLETE. S79 COMPLETE.**
+
+s79_complete: |
+  S79 full COMPLETE (2026-06-25). Per roadmap-execute-plan-062526.01.md §3/§4/§5/§9 + production/baltic-v3-scope-boundary-2026-06-25.md + future-sprint-roadpmap-062526.01.md §3/§6/§7/§10 + AGENTS.md + sprint-79-playtest-loop-v3.md + kickoff. S79-01/02 auto batch + S79-03 human sessions per band + S79-04 closeout COMPLETE (smoke-sprint-79-closeout-2026-06-25.md created with tracks table, aggregate 01-03, gates RUN+READ 0e/0w 1232/0f 6/6 18/18/hash/ZERO, GitNexus pre 20496/38203 + 178/97/127/52 exact, GT notes, cites; main+wt status/stage/plan updated with s79 + COMPLETE). verification-before (RUN+READ build/test/replay/C2/hash/ZERO + GitNexus search+use list/detect/impact) + pre-verif gates confirmed. GT prep: cd /home/username01/projects/active/cmano-clone/cmano-clone ; export PATH="$HOME/.dotnet:$PATH"; GitNexus pre (MCP); verif; gt sync || git pull --ff-only; gt restack; verif; gt submit --stack --no-interactive for stack/sprint79/* ; post re-index/verif. Low risk. Stage Release. **S79-04 COMPLETE. S79 COMPLETE.** GT ready for user. Cites: production/baltic-v3-scope-boundary-2026-06-25.md ; roadmap-execute-plan-062526.01.md §3/4/5/9 ; future-sprint-roadpmap-062526.01.md ; AGENTS.md ; sprint-79 plan + kickoff ; S78/S77/S76/S75/S74/S73 complete. 
+  **S79-04 COMPLETE. S79 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan.**
+
+# S80 status (S80-01 Gate verification + S80-02 Human sign-off, independent local subagents 2026-06-25 per roadmap-execute-plan-062526.01.md §4/§5 + baltic-v3-scope-boundary-2026-06-25.md)
+s80_status: |
+  S80 Baltic v3 content gate — **S80-01 COMPLETE. S80-02 COMPLETE. S80 COMPLETE (2026-06-25, Local subagents)**. Per roadmap-execute-plan-062526.01.md §3/§4/§5/§9 + future-sprint-roadpmap-062526.01.md §3/§6/§7/§10 + baltic-v3-scope-boundary-2026-06-25.md + sprint-80-baltic-v3-gate.md + AGENTS.md + S79/S78... complete. 
+  - GitNexus pre + full verif (this S80 dispatch, RUN+READ): list_repos canonical 20496/38203; detect 0/0/none; impact upstream 178/97/127/52 CRITICAL exact §5. All pre before claims.
+  - S80-01 Gate verification: full RUN+READ gates (build 0e/0w, 1232/0f, 6/6 replay, 18/18 C2, hash preserved v2-only, ZERO=0); S73–S79 closeouts PASS; v3 manifest+goldens indexed in production/qa/evidence/baltic-v3-playtest-index.md; playtest sign-off (auto+human per band); GitNexus CRIT §5 exact; gate artifact production/gate-checks/s80-baltic-v3-content-gate-2026-06-26.md produced with checklist + evidence.
+  - S80-02 Human sign-off: review complete; human ack "**Baltic v3 content-complete**"; optional promote v3 corpus default **no** (explicit decision only).
+  - Sprint artifacts: production/sprints/sprint-80-baltic-v3-gate.md + agentic kickoff; sprint-status s80_*; stage appended (S80 gate + ack; remains Release).
+  - **S80-01 COMPLETE. S80-02 COMPLETE. S80 COMPLETE**. Low risk final gate. Cites mandatory.
+s80_baseline: 1232/0f 6/6 18/18 hash=17144800277401907079 ZERO=0 GitNexus CRITs exact 20496/38203
+s80_complete: |
+  S80 Baltic v3 content gate — **S80-01 COMPLETE. S80-02 COMPLETE. S80 COMPLETE (2026-06-25)**. 
+  - S80-01: gate verif COMPLETE (all exit criteria PASS; gate artifact + index; pre 20496/38203 + verif RUN+READ 0e/1232/0f/6/6/18/18/hash/ZERO; impacts 178/97/127/52 exact).
+  - S80-02: human sign-off COMPLETE (ack "Baltic v3 content-complete"; promote default no).
+  - sprint-status + stage + plan/kickoff updated.
+  - All gates PASS; low risk; cites boundary + execute-plan + roadmaps + AGENTS + S79... complete. Stage remains Release.
+  **S80 COMPLETE.** GT not applicable (final gate). Cites: production/baltic-v3-scope-boundary-2026-06-25.md + docs/reports/roadmap-execute-plan-062526.01.md §3/4/5/9 + future-sprint-roadpmap-062526.01.md + AGENTS.md + verification-before + S79/S78... complete. 
+  **S80-01 COMPLETE. S80-02 COMPLETE. S80 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan.**
+
