@@ -773,7 +773,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegis.Unity.Runtime.DelegationBridgeHost
   globalSeed: 42
   enableMvpEngagement: 1
-  scenarioPolicyId: baltic-patrol-classify
+  scenarioPolicyId: baltic-v3-patrol
   useGlobeMap: 0
   timeCompressionLabel: 1x
   simulationModeLabel: Mixed

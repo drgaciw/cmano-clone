@@ -39,6 +39,8 @@ public static class CmoMarkdownImporter
             ["patrol-frigate-u1"] = "u1",
             ["hostile-corvette-h1"] = "hostile-1",
             ["distant-hostile-frigate"] = "hostile-far",
+            ["ucav-blue"] = "ucav-blue",
+            ["ucav-red"] = "ucav-red",
         };
 
     public static string ResolveMiniFixturePath() =>
@@ -48,6 +50,10 @@ public static class CmoMarkdownImporter
     public static string ResolveBalticPlatformFixturePath() =>
         CatalogJsonImporter.ResolveRepoRelative(
             Path.Combine("tools", "cmano-db-crawler", "fixtures", "baltic-platform-mini.md"));
+
+    public static string ResolveBalticV3UcavFixturePath() =>
+        CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("tools", "cmano-db-crawler", "fixtures", "baltic-v3-ucav-mini.md"));
 
     public static string ResolveMiniWeaponFixturePath() =>
         CatalogJsonImporter.ResolveRepoRelative(

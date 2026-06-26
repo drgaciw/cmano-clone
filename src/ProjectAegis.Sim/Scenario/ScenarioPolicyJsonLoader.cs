@@ -320,8 +320,39 @@ public static class ScenarioPolicyJsonLoader
                 e.Kind,
                 e.Code))
             .ToArray();
-        return new ScenarioMissionTimeline(fireOrder, events);
+        var triggers = ParseMissionContactTriggers(mission.Triggers);
+        return new ScenarioMissionTimeline(fireOrder, events, triggers);
     }
+
+    private static IReadOnlyList<ScenarioMissionContactTrigger> ParseMissionContactTriggers(
+        List<ScenarioMissionContactTriggerJsonDto>? triggers)
+    {
+        if (triggers == null || triggers.Count == 0)
+        {
+            return Array.Empty<ScenarioMissionContactTrigger>();
+        }
+
+        return triggers
+            .Select(t => new ScenarioMissionContactTrigger(
+                t.Id,
+                t.ObserverId,
+                ParseMissionContactTargetClass(t.TargetClass),
+                ParseMissionContactPolicySide(t.Side),
+                t.MissionCode,
+                ParseRoe(t.Roe),
+                t.UnitIds ?? []))
+            .ToArray();
+    }
+
+    private static MissionContactTargetClass ParseMissionContactTargetClass(string? label) =>
+        Enum.TryParse<MissionContactTargetClass>(label, ignoreCase: true, out var parsed)
+            ? parsed
+            : MissionContactTargetClass.Any;
+
+    private static MissionContactPolicySide ParseMissionContactPolicySide(string? label) =>
+        label?.Equals("opposing", StringComparison.OrdinalIgnoreCase) == true
+            ? MissionContactPolicySide.Opposing
+            : MissionContactPolicySide.Friendly;
 
     private static ScenarioContactLifecycle ParseContactLifecycle(ScenarioContactLifecycleJsonDto? lifecycle) =>
         lifecycle == null
@@ -392,7 +423,8 @@ public static class ScenarioPolicyJsonLoader
                 d.BasePd,
                 d.EnvMask,
                 d.JamStrength,
-                d.EccmFactor))
+                d.EccmFactor,
+                d.RequiresActiveRadar))
             .ToArray();
     }
 

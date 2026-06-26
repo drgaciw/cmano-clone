@@ -198,6 +198,25 @@ public sealed class ScenarioMissionJsonDto
     public List<string> FireOrder { get; set; } = [];
 
     public List<ScenarioMissionEventJsonDto> Events { get; set; } = [];
+
+    public List<ScenarioMissionContactTriggerJsonDto>? Triggers { get; set; }
+}
+
+public sealed class ScenarioMissionContactTriggerJsonDto
+{
+    public string Id { get; set; } = "";
+
+    public string ObserverId { get; set; } = "";
+
+    public string TargetClass { get; set; } = "Any";
+
+    public string Side { get; set; } = "friendly";
+
+    public string MissionCode { get; set; } = "";
+
+    public string Roe { get; set; } = "WeaponsFree";
+
+    public List<string>? UnitIds { get; set; }
 }
 
 /// <summary>Mission-level doctrine override (req 13 inheritance between side and unit).</summary>
@@ -282,6 +301,8 @@ public sealed class ScenarioDetectionJsonDto
     public double JamStrength { get; set; }
 
     public double EccmFactor { get; set; } = 1.0;
+
+    public bool RequiresActiveRadar { get; set; } = true;
 }
 
 public sealed class ScenarioEmconJsonDto

@@ -148,7 +148,7 @@ public sealed class SimulationSession
         var deconflictSlots = new List<SwarmSalvoDeconfliction.Slot>(engageOrders.Count);
         foreach (var order in engageOrders)
         {
-            var victimId = state.PrimaryHostileContactId ?? new TargetId("hostile-1");
+            var victimId = ResolveEngageVictim(order, state);
             deconflictSlots.Add(new SwarmSalvoDeconfliction.Slot(
                 OrderActionMapper.TargetIdToUlong(order.Target),
                 OrderActionMapper.TargetIdToUlong(victimId)));
@@ -179,7 +179,7 @@ public sealed class SimulationSession
                 continue;
             }
 
-            var victim = state.PrimaryHostileContactId ?? new TargetId("hostile-1");
+            var victim = ResolveEngageVictim(order, state);
             var shooterId = OrderActionMapper.TargetIdToUlong(order.Target);
             var targetId = OrderActionMapper.TargetIdToUlong(victim);
             if (!acceptedPairs.Contains((shooterId, targetId)))
@@ -477,5 +477,15 @@ public sealed class SimulationSession
                 fallbackRounds,
                 out _);
         }
+    }
+
+    private static TargetId ResolveEngageVictim(Order order, ObservedState state)
+    {
+        if (BalticV3SideRegistry.IsRedForceUnit(order.Target.Value))
+        {
+            return state.PrimaryBlueForceContactId ?? new TargetId("u1");
+        }
+
+        return state.PrimaryHostileContactId ?? new TargetId("hostile-1");
     }
 }

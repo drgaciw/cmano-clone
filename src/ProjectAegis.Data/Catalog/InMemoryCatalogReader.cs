@@ -91,6 +91,26 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         CatalogValidationDefaults.BalticPlatforms(),
         links: CatalogValidationDefaults.BalticLinks());
 
+    /// <summary>Baltic v3: patrol ships + UCAV per side with Recon [Internal IR] loadout.</summary>
+    public static InMemoryCatalogReader BalticV3Fixture() =>
+        new(
+        [
+            new CatalogSensorBinding("u1", "radar-1", 1.0, "baltic-fixture-radar1"),
+            new CatalogSensorBinding("u1", "radar-2", 0.75, "baltic-fixture-radar2"),
+            new CatalogSensorBinding("ucav-blue", "internal-ir", 0.85, "baltic-v3-ucav-blue-ir"),
+            new CatalogSensorBinding("ucav-blue", "recon-radar", 0.70, "baltic-v3-ucav-blue-radar"),
+            new CatalogSensorBinding("ucav-red", "internal-ir", 0.75, "baltic-v3-ucav-red-ir"),
+            new CatalogSensorBinding("ucav-red", "recon-radar", 0.65, "baltic-v3-ucav-red-radar"),
+        ],
+        "p0-baltic-v3-fixture",
+        CatalogValidationDefaults.BalticV3Platforms(),
+        loadouts:
+        [
+            new CatalogLoadout("ucav-blue", "recon-internal-ir", "Recon [Internal IR]", "recon", IsDefault: true),
+            new CatalogLoadout("ucav-red", "recon-internal-ir", "Recon [Internal IR]", "recon", IsDefault: true),
+        ],
+        links: CatalogValidationDefaults.BalticLinks());
+
     /// <summary>Baltic patrol + Phase B mobility/signature/EMCON rows for Req-21 sim consumption tests.</summary>
     public static InMemoryCatalogReader BalticPhaseBFixture(
         double maxSpeedKnots = 32,

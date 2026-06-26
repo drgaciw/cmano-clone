@@ -1,6 +1,6 @@
 {
   "id": "baltic-v3-comms-challenged",
-  "friendlyRoe": "WeaponsFree",
+  "friendlyRoe": "WeaponsTight",
   "opposingRoe": "WeaponsTight",
   "engage": {
     "rangeMeters": 30000,
@@ -12,6 +12,16 @@
   "replay": {
     "checkpointIntervalTicks": 2
   },
+  "emcon": {
+    "units": {
+      "ucav-blue": {
+        "radar": "Active"
+      },
+      "ucav-red": {
+        "radar": "Active"
+      }
+    }
+  },
   "detection": [
     {
       "observerId": "u1",
@@ -19,6 +29,82 @@
       "targetId": "hostile-1",
       "contactId": "c1",
       "basePd": 0.6,
+      "envMask": 0.7,
+      "jamStrength": 0.4
+    },
+    {
+      "observerId": "ucav-blue",
+      "sensorId": "internal-ir",
+      "targetId": "hostile-1",
+      "contactId": "c-ucav-1",
+      "basePd": 0.55,
+      "envMask": 0.7,
+      "jamStrength": 0.4,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "ucav-blue",
+      "sensorId": "recon-radar",
+      "targetId": "hostile-1",
+      "contactId": "c-ucav-2",
+      "basePd": 0.45,
+      "envMask": 0.7,
+      "jamStrength": 0.4
+    },
+    {
+      "observerId": "ucav-red",
+      "sensorId": "internal-ir",
+      "targetId": "u1",
+      "contactId": "c-ucav-red-1",
+      "basePd": 0.5,
+      "envMask": 0.7,
+      "jamStrength": 0.4,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "ucav-red",
+      "sensorId": "recon-radar",
+      "targetId": "u1",
+      "contactId": "c-ucav-red-2",
+      "basePd": 0.4,
+      "envMask": 0.7,
+      "jamStrength": 0.4
+    },
+    {
+      "observerId": "ucav-blue",
+      "sensorId": "internal-ir",
+      "targetId": "ucav-red",
+      "contactId": "c-ucav-air-red-1",
+      "basePd": 0.8,
+      "requiresActiveRadar": false,
+      "envMask": 0.7,
+      "jamStrength": 0.4
+    },
+    {
+      "observerId": "ucav-blue",
+      "sensorId": "recon-radar",
+      "targetId": "ucav-red",
+      "contactId": "c-ucav-air-red-2",
+      "basePd": 0.65,
+      "envMask": 0.7,
+      "jamStrength": 0.4
+    },
+    {
+      "observerId": "ucav-red",
+      "sensorId": "internal-ir",
+      "targetId": "ucav-blue",
+      "contactId": "c-ucav-air-blue-1",
+      "basePd": 0.78,
+      "requiresActiveRadar": false,
+      "envMask": 0.7,
+      "jamStrength": 0.4
+    },
+    {
+      "observerId": "ucav-red",
+      "sensorId": "recon-radar",
+      "targetId": "ucav-blue",
+      "contactId": "c-ucav-air-blue-2",
+      "basePd": 0.62,
       "envMask": 0.7,
       "jamStrength": 0.4
     }
@@ -41,5 +127,79 @@
     "ghostOffsetY": 0.09,
     "degradedOrderDelayTicks": 4,
     "degradedStaleThresholdDivisor": 4
+  },
+  "mission": {
+    "fireOrder": [
+      "recon-passive",
+      "recon-active",
+      "blue-asuw-surface",
+      "blue-aaa-air",
+      "red-asuw-surface",
+      "red-aaa-air"
+    ],
+    "events": [
+      {
+        "id": "recon-passive",
+        "fireAtTick": 0,
+        "kind": "EventFired",
+        "code": "recon_passive_start"
+      },
+      {
+        "id": "recon-active",
+        "fireAtTick": 1,
+        "kind": "EventFired",
+        "code": "recon_active_start"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "blue-asuw-surface",
+        "observerId": "ucav-blue",
+        "targetClass": "Surface",
+        "side": "friendly",
+        "missionCode": "ASuW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "u1",
+          "ucav-blue"
+        ]
+      },
+      {
+        "id": "blue-aaa-air",
+        "observerId": "ucav-blue",
+        "targetClass": "Air",
+        "side": "friendly",
+        "missionCode": "AAA",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "u1",
+          "ucav-blue"
+        ]
+      },
+      {
+        "id": "red-asuw-surface",
+        "observerId": "ucav-red",
+        "targetClass": "Surface",
+        "side": "opposing",
+        "missionCode": "ASuW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "hostile-1",
+          "ucav-red"
+        ]
+      },
+      {
+        "id": "red-aaa-air",
+        "observerId": "ucav-red",
+        "targetClass": "Air",
+        "side": "opposing",
+        "missionCode": "AAA",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "hostile-1",
+          "ucav-red"
+        ]
+      }
+    ]
   }
 }

@@ -1,29 +1,62 @@
-# Golden fingerprint — baltic-v3-patrol-comms seed=42 ticks=4 (S74 isolated v3 comms-challenged variant; per execute-plan S74-04)
-# Regenerate: /home/username01/.dotnet/dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-v3-patrol-comms --ticks 4
-# Cites: production/playtests/baltic-v3-scenario-manifest.yaml; docs/reports/roadmap-execute-plan-062526.01.md S74; future-sprint-roadpmap-062526.01.md; GitNexus pre (BalticReplayHarness CRIT 52); AGENTS.md; v3 manifest. 
-# Isolated v3 only. Preserve v2. Based on new baltic-v3-patrol-comms.policy.json (comms extension of v2 pattern).
+# Golden fingerprint — baltic-v3-patrol-comms seed=42 ticks=4
+# Regenerate: dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-v3-patrol-comms --ticks 4
+# v3 isolated golden; v2 production hash unchanged. Patrol-comms variant with contact triggers.
 
-SEED=42 SCENARIO=baltic-v3-patrol-comms TICKS=4 ENGAGEMENTS=4
-FINGERPRINT=PolicyUpdate|1|0|0|1|roe|WeaponsFree|WeaponsFree
-ModeChange|2|0|0||Planning|Executing
-ContactChange|3|1|1|u1|c1|hostile-1|Unknown|Detected
-AgentDecision|4|1|1|a1|Engage|Engage:1:High|0.7963043056138354
-Engagement|5|1|1|u1|1|True|Launched
-MagazineChange|6|1|1|u1|0|-1|fire
-EngagementOutcome|7|1|1|1|hostile-1|Kill|0.006501966157579321
-ContactChange|8|1|1|u1|c1|hostile-1|Detected|Lost
-AgentDecision|9|2|2|a1|Engage|Engage:1:High|0.2351344103718382
-Engagement|10|2|2|u1|0|False|TARGET_DESTROYED
-CommsStateChange|11|3|3|brigade-net|Nominal|Degraded|jamming
-AgentDecision|12|3|3|a1|Engage|Engage:1:High|0.9749891734790539
-Engagement|13|3|3|u1|0|False|TARGET_DESTROYED
-AgentDecision|14|4|4|a1|Engage|Engage:1:High|0.20774793892626123
-Engagement|15|4|4|u1|0|False|TARGET_DESTROYED
+SEED=42 SCENARIO=baltic-v3-patrol-comms TICKS=4 ENGAGEMENTS=8
+FINGERPRINT=PolicyUpdate|1|0|0|1|roe|WeaponsFree|WeaponsTight
+PolicyUpdate|2|0|0|2|roe|WeaponsFree|WeaponsTight
+ModeChange|3|0|0||Planning|Executing
+EventFired|4|1|1|recon-passive|recon_passive_start
+EventFired|5|1|1|recon-active|recon_active_start
+ContactChange|6|1|1|u1|c1|hostile-1|Unknown|Detected
+MissionTransition|7|1|1|blue-asuw-surface|ASuW
+PolicyUpdate|8|1|1|3|roe|WeaponsTight|WeaponsFree
+PolicyUpdate|9|1|1|4|roe|WeaponsTight|WeaponsFree
+ContactChange|10|1|1|ucav-blue|c-ucav-1|hostile-1|Unknown|Detected
+MissionTransition|11|1|1|blue-aaa-air|AAA
+ContactChange|12|1|1|ucav-blue|c-ucav-air-red-1|ucav-red|Unknown|Detected
+ContactChange|13|1|1|ucav-blue|c-ucav-2|hostile-1|Unknown|Detected
+MissionTransition|14|1|1|red-asuw-surface|ASuW
+PolicyUpdate|15|1|1|5|roe|WeaponsTight|WeaponsFree
+PolicyUpdate|16|1|1|6|roe|WeaponsTight|WeaponsFree
+ContactChange|17|1|1|ucav-red|c-ucav-red-1|u1|Unknown|Detected
+ContactChange|18|1|1|ucav-red|c-ucav-red-2|u1|Unknown|Detected
+AgentDecision|19|1|1|a1|Engage|Engage:1:High|0.7963043056138354
+AgentDecision|20|1|1|a-red|Engage|Engage:1:High|1.3736791113717115
+Engagement|21|1|1|u1|1|True|Launched
+MagazineChange|22|1|1|u1|0|-1|fire
+EngagementOutcome|23|1|1|1|hostile-1|Kill|0.006501966157579321
+Engagement|24|1|1|hostile-1|2|True|Launched
+MagazineChange|25|1|1|hostile-1|0|-1|fire
+EngagementOutcome|26|1|1|2|u1|Kill|0.05928149681055953
+ContactChange|27|1|1|u1|c1|hostile-1|Detected|Lost
+ContactChange|28|1|1|ucav-blue|c-ucav-1|hostile-1|Detected|Lost
+ContactChange|29|1|1|ucav-blue|c-ucav-2|hostile-1|Detected|Lost
+ContactChange|30|1|1|ucav-red|c-ucav-red-1|u1|Detected|Lost
+ContactChange|31|1|1|ucav-red|c-ucav-red-2|u1|Detected|Lost
+ContactChange|32|2|2|ucav-blue|c-ucav-air-red-2|ucav-red|Unknown|Detected
+MissionTransition|33|2|2|red-aaa-air|AAA
+ContactChange|34|2|2|ucav-red|c-ucav-air-blue-2|ucav-blue|Unknown|Detected
+AgentDecision|35|2|2|a1|Engage|Engage:1:High|0.2351344103718382
+AgentDecision|36|2|2|a-red|Engage|Engage:1:High|0.5883574798241438
+Engagement|37|2|2|u1|0|False|TARGET_DESTROYED
+Engagement|38|2|2|hostile-1|0|False|NO_FIRE_CONTROL_TRACK
+ContactChange|39|3|3|ucav-red|c-ucav-air-blue-1|ucav-blue|Unknown|Detected
+CommsStateChange|40|3|3|brigade-net|Nominal|Degraded|jamming
+AgentDecision|41|3|3|a1|Engage|Engage:1:High|0.9749891734790539
+AgentDecision|42|3|3|a-red|Engage|Engage:1:High|1.6309436380725668
+Engagement|43|3|3|u1|0|False|TARGET_DESTROYED
+Engagement|44|3|3|hostile-1|0|False|NO_FIRE_CONTROL_TRACK
+AgentDecision|45|4|4|a1|Engage|Engage:1:High|0.20774793892626123
+AgentDecision|46|4|4|a-red|Engage|Engage:1:High|2.56821545740288
+Engagement|47|4|4|u1|0|False|TARGET_DESTROYED
+Engagement|48|4|4|hostile-1|0|False|NO_FIRE_CONTROL_TRACK
 
-FINGERPRINT_SHA256=c680a0bb5479f2cbe27d8f47dbc9bf55f00991c8fb65cd1cbecd35868c1552ce
-DETECTION_WORLD_HASH=15600
-WORLD_HASH=17144800277401907079
-REPLAY_CHECKPOINT=2:5155818736020725847:10
-REPLAY_CHECKPOINT=4:17144800277401907079:15
+FINGERPRINT_SHA256=d119d6843a4c68ed80cc795a4c98489c8342de8fa4358e5c97ff4fba04681c97
+DETECTION_WORLD_HASH=16061676609001014851
+WORLD_HASH=7109224101844271209
+REPLAY_CHECKPOINT=2:2570100972716708516:38
+REPLAY_CHECKPOINT=4:7109224101844271209:48
 MESSAGE=KILL_CONFIRMED|Hostile destroyed: hostile-1 (engagement 1)
+MESSAGE=KILL_CONFIRMED|Hostile destroyed: u1 (engagement 2)
 MESSAGE=COMMS|Comms brigade-net: Nominal → Degraded (jamming)

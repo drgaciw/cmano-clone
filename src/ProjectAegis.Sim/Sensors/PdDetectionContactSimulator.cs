@@ -25,6 +25,7 @@ public sealed class PdDetectionContactSimulator
     private readonly int _classifyAfterTicks;
     private readonly int _identifyAfterTicks;
     private string? _primaryTargetId;
+    private string? _primaryBlueForceTargetId;
     private bool _primaryHasTrack;
 
     public PdDetectionContactSimulator(
@@ -64,6 +65,8 @@ public sealed class PdDetectionContactSimulator
     public int ActiveCount => _detectedContacts.Count;
 
     public string? PrimaryTargetId => _primaryTargetId;
+
+    public string? PrimaryBlueForceTargetId => _primaryBlueForceTargetId;
 
     public bool PrimaryHasFireControlTrack => _primaryHasTrack;
 
@@ -236,6 +239,7 @@ public sealed class PdDetectionContactSimulator
     private void RecomputePrimary()
     {
         _primaryTargetId = null;
+        _primaryBlueForceTargetId = null;
         _primaryHasTrack = false;
         foreach (var id in _detectedContacts)
         {
@@ -257,11 +261,23 @@ public sealed class PdDetectionContactSimulator
 
     private void UpdatePrimary(ScenarioDetectionTrial trial)
     {
-        if (_primaryTargetId == null ||
-            string.Compare(trial.TargetId, _primaryTargetId, StringComparison.Ordinal) < 0)
+        if (HostileContactFilter.IsEngageableHostileTarget(trial.TargetId))
         {
-            _primaryTargetId = trial.TargetId;
-            _primaryHasTrack = true;
+            if (_primaryTargetId == null ||
+                string.Compare(trial.TargetId, _primaryTargetId, StringComparison.Ordinal) < 0)
+            {
+                _primaryTargetId = trial.TargetId;
+                _primaryHasTrack = true;
+            }
+        }
+
+        if (BalticV3SideRegistry.IsBlueForceUnit(trial.TargetId))
+        {
+            if (_primaryBlueForceTargetId == null ||
+                string.Compare(trial.TargetId, _primaryBlueForceTargetId, StringComparison.Ordinal) < 0)
+            {
+                _primaryBlueForceTargetId = trial.TargetId;
+            }
         }
     }
 
