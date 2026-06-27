@@ -57,7 +57,7 @@ namespace ProjectAegis.Unity.Editor
                     setAsDefaultGroup: false,
                     readOnly: false,
                     postEvent: true,
-                    schemasToCopy: null,
+                    schemasToCopy: null!,
                     typeof(BundledAssetGroupSchema),
                     typeof(ContentUpdateGroupSchema));
 

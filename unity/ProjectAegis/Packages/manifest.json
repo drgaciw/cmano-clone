@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.ivanmurzak.unity.mcp": "0.82.2",
     "com.unity.addressables": "2.3.16",
     "com.unity.burst": "1.8.29",
     "com.unity.entities": "1.4.6",
