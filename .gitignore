@@ -85,3 +85,6 @@ node_modules/
 # Agent worktrees (superpowers dispatching)
 .worktrees/
 worktrees/
+
+# Transient skill/agent tooling caches (not source)
+.atl/
