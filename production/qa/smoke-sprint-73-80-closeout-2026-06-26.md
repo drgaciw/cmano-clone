@@ -104,3 +104,4 @@ Cites: baltic-v3-scope-boundary-2026-06-25.md + roadmap-execute-plan-062526.01.m
 - GREEN: edit to test assert (or Ambient); re-run PASS. Impact LOW/0. No behavior change.  
 
 All evidence RUN+READ + GitNexus before this claim.
+# S73-S80 payload processing note: Group1 finalized 2026-06-28 via dispatching-parallel-agents + verification-before + GitNexus pre (see commit body for cites).
