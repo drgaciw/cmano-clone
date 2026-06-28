@@ -1,0 +1,62 @@
+{
+  "schema": "1.0",
+  "project_root": "/home/username01/cmano-clone/cmano-clone",
+  "tasks": {
+    "pi-tdd-red": {
+      "title": "Pi sub-agent TDD red-phase tests",
+      "type": "implement",
+      "status": "dispatched",
+      "worktree": ".worktrees/pi-tdd-red",
+      "branch": "polly/pi-tdd-red",
+      "pr_url": null,
+      "conversation_id": null,
+      "phase": "red"
+    },
+    "investigate-s27": {
+      "title": "Investigate S27 open stories",
+      "type": "explore",
+      "status": "dispatched",
+      "worktree": null,
+      "branch": null,
+      "pr_url": null,
+      "conversation_id": null,
+      "phase": null
+    },
+    "s27-09": {
+      "title": "Browse projection enrichment",
+      "type": "implement",
+      "status": "pending",
+      "worktree": null,
+      "branch": null,
+      "pr_url": null,
+      "conversation_id": null
+    },
+    "s27-10": {
+      "title": "Editor presentation evidence",
+      "type": "implement",
+      "status": "pending",
+      "worktree": null,
+      "branch": null,
+      "pr_url": null,
+      "conversation_id": null
+    },
+    "s27-11": {
+      "title": "Platform viewer smoke harness",
+      "type": "implement",
+      "status": "pending",
+      "worktree": null,
+      "branch": null,
+      "pr_url": null,
+      "conversation_id": null
+    },
+    "s27-13": {
+      "title": "Closeout hygiene",
+      "type": "implement",
+      "status": "pending",
+      "worktree": null,
+      "branch": null,
+      "pr_url": null,
+      "conversation_id": null
+    }
+  }
+}
