@@ -69,4 +69,3 @@ gt sync || git pull --ff-only
 gt restack
 # gt submit --stack --no-interactive for stack/sprint80/*
 # interleaved verif after
-# S73-S80 payload processing note: Group2 finalized 2026-06-28 via dispatching-parallel-agents + verification-before + GitNexus pre (see commit body for cites).
