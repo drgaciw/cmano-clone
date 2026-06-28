@@ -206,7 +206,7 @@ No Docker compose or long-running servers. The “application” is in-process: 
 
 ## Learned User Preferences
 
-- Use project-local skill `.cursor/skills/git-commit/SKILL.md` when asked to commit, push to `main`, merge branches, or clean worktrees on this repo.
+- Use project-local skill `.cursor/skills/git-commit/SKILL.md` when asked to commit, push to `main`, merge branches, or clean worktrees on this repo; when the user says **include active worktrees**, commit the main repo and all dirty sprint stack worktrees under `.worktrees/` on their respective branches.
 - Release v1.0 completion means the shippable Baltic vertical slice, not MVP-done on all 21 requirement tracker rows.
 - Prefer detailed sprint planning through Release; post–Release trains use numbered sprints (S49+) with locked roadmap snapshots in `docs/reports/future-sprint-roadpmap-YYYYMMDD.md`.
 - Do not edit attached `.cursor/plans/` files when implementing plans — treat them as read-only reference.
@@ -228,4 +228,5 @@ No Docker compose or long-running servers. The “application” is in-process: 
 - Baltic v2 content on disk includes 10 `baltic-v2-*` scenario policies and 9 v2 replay goldens (post–S64 baseline).
 - Sprint stack worktrees use `.worktrees/` under the parent repo path (`/home/username01/cmano-clone/.worktrees/`).
 - Exclude from commits: `.cursor/hooks/`, `.pi/settings.json`, `.polly/` (local agent/tooling config).
+- Baltic v3 policies use contact-triggered dual-side ASuW/AAA (`mission.triggers`, `MissionContactTriggerRuntime`) with ROE escalation to Weapons Free on recon contact detection.
 - `DelegationBridge.cs` remains zero-touch through Release v1.
