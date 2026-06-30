@@ -70,10 +70,15 @@ public sealed class BalticReplayHarnessFacilityHotTickTests
             Ticks,
             catalog: BalticPatrolWithFacilityDamage());
 
-        Assert.That(result.Fingerprint, Does.Contain("PlatformDamageChange|"));
-        Assert.That(result.Fingerprint, Does.Contain("runway-1"));
+        var fp = result.Fingerprint;
+        Assert.That(fp, Does.Contain("PlatformDamageChange|"), () => "No PlatformDamageChange in: " + fp);
+        Assert.That(fp, Does.Contain("runway-1"), () => "No runway-1 in: " + fp);
+        // Fixture uses pkKill=0 + facility combat domain + ambient drain path for withdraw target runway-1.
+        // Emission via Catalog hot-tick ambient (CATALOG_AMBIENT_TICK) + ledger produces damage rows in fp.
         Assert.That(
-            result.Fingerprint,
-            Does.Contain(PlatformDamageChangeReasonCodes.Hit).Or.Contain(EngagementOutcomeCodes.Kill));
+            fp,
+            Does.Contain(PlatformDamageChangeReasonCodes.AmbientTick)
+                .Or.Contain(PlatformDamageChangeReasonCodes.Hit)
+                .Or.Contain(EngagementOutcomeCodes.Kill), () => "No known damage reason (Ambient/Hit/Kill) in: " + fp);
     }
 }

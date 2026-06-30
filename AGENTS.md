@@ -1,7 +1,7 @@
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (20193 symbols, 37859 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (20496 symbols, 38203 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -134,7 +134,19 @@ This repo is Graphite-initialized (trunk `main`, [`.graphite_repo_config`](.grap
 
 Full guide: [`docs/engineering/graphite-github-substitute-plan.md`](docs/engineering/graphite-github-substitute-plan.md). Read-only `gh pr checks` / `gh pr diff` is fine for CI triage.
 
-**verification-before note for trunk resolution (e.g. "trunk out of date" block):** Before gt sync / restack / submit when blocked: (1) GitNexus pre (search_tool then list_repos + detect_changes(scope=staged) + impact(CatalogWriteGate upstream summaryOnly)); (2) full gates RUN+READ: dotnet build, dotnet test full (0f >=1229), ReplayGolden 6/6, PlayModeSmoke 18/18, hash grep `17144800277401907079`, ZERO DelegationBridge grep, gt status; (3) stage ONLY S66/S67 payload files per smoke-sprint-66-closeout.md list; (4) re-verif post each gt step. Cite production/release-train-scope-boundary-2026-06-24.md + this AGENTS + graphite plan. All RUN outputs READ before proceed. (See production/qa/smoke-sprint-66-closeout.md resolution section for commands.) 
+**verification-before note for trunk resolution (e.g. "trunk out of date" block):** Before gt sync / restack / submit when blocked: (1) GitNexus pre (search_tool then list_repos + detect_changes(scope=staged) + impact(CatalogWriteGate upstream summaryOnly)); (2) full gates RUN+READ: dotnet build, dotnet test full (0f >=1229), ReplayGolden 6/6, PlayModeSmoke 18/18, hash grep `17144800277401907079`, ZERO DelegationBridge grep, gt status; (3) stage ONLY S66/S67 payload files per smoke-sprint-66-closeout.md list; (4) re-verif post each gt step. Cite production/release-train-scope-boundary-2026-06-24.md + this AGENTS + graphite plan. All RUN outputs READ before proceed. (See production/qa/smoke-sprint-66-closeout.md resolution section for commands.)
+
+### Hermes Agent skills
+
+When running under Hermes Agent, load these skills for Graphite/PR workflows:
+
+| Skill | When to use |
+|-------|-------------|
+| `graphite-pr-review` | Review/audit Graphite draft PR queues via GitHub CLI/API when browser auth blocks the web loop |
+| `github-workflows` | GitHub CLI operations — PRs, issues, code review, CI/CD |
+| `reviewer-checklist` | Adversarial review of engineering output |
+
+Load with: `/skill graphite-pr-review` or `hermes -s graphite-pr-review`
 
 ## Cursor Cloud specific instructions
 
@@ -194,7 +206,7 @@ No Docker compose or long-running servers. The “application” is in-process: 
 
 ## Learned User Preferences
 
-- Use project-local skill `.cursor/skills/git-commit/SKILL.md` when asked to commit, push to `main`, merge branches, or clean worktrees on this repo.
+- Use project-local skill `.cursor/skills/git-commit/SKILL.md` when asked to commit, push to `main`, merge branches, or clean worktrees on this repo; when the user says **include active worktrees**, commit the main repo and all dirty sprint stack worktrees under `.worktrees/` on their respective branches.
 - Release v1.0 completion means the shippable Baltic vertical slice, not MVP-done on all 21 requirement tracker rows.
 - Prefer detailed sprint planning through Release; post–Release trains use numbered sprints (S49+) with locked roadmap snapshots in `docs/reports/future-sprint-roadpmap-YYYYMMDD.md`.
 - Do not edit attached `.cursor/plans/` files when implementing plans — treat them as read-only reference.
@@ -203,18 +215,19 @@ No Docker compose or long-running servers. The “application” is in-process: 
 - Maintain stable alias `docs/reports/future-sprint-roadpmap.md` pointing at the latest dated roadmap snapshot (edit dated files, not the alias body).
 - Treat v1.0 / Spirit 1 vertical slice as a closed milestone — no ongoing gap-remediation program.
 - Internal engineering trains (RC1, S49–S56, Baltic v2) exclude E7 commercial launch scope unless explicitly scoped.
+- Post-MVP content-only expansion tracks (S57+) add evidence additively; do not re-litigate the 21/21 MVP implementation tracker closed @ S56.
 
 ## Learned Workspace Facts
 
 - Production stage is **Release** (`production/stage.txt`; S48 gate PASS 2026-06-20; RC1 cut).
-- **S39–S48** Release enablement program COMPLETE (RC1 gate PASS).
-- **S49–S56** internal engineering program COMPLETE (E2 Agentic lead; all v1.0-deferred tracker rows; 21/21 MVP exit).
-- **S57–S64** Baltic v2 content expansion COMPLETE (human ack + merge 2026-06-22).
-- **S65–S68** release train COMPLETE (all gates PASS; S68 human ack ready "i provide the ack"; index 19792/37427/2455 per boundary).
-- Headless test baseline is **≥1229** solution tests (ReplayGolden 6/6, C2 proxy 18/18; monotonic per S57–S64 closeout).
-- Canonical forward roadmap is dated `docs/reports/future-sprint-roadpmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; current forward program is **S65+** (`production/sprints/sprint-65-stub-release-train-or-next.md`).
-- Production Baltic replay hash **`17144800277401907079`** must stay preserved unless an ADR explicitly changes it.
+- **S39–S80** programs COMPLETE through Baltic v3 content expansion (RC1 S48, MVP exit S56, Baltic v2 S64, release train S68, launch prep S72, Baltic v3 S73–S80).
+- Headless test baseline is **≥1232** solution tests (ReplayGolden 6/6 v2, C2 proxy 18/18; monotonic per closeout).
+- Canonical forward roadmap is dated `docs/reports/future-sprint-roadpmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE (human ack "Baltic v3 content-complete" 2026-06-26; stage remains Release; `docs/reports/roadmap-execute-plan-062526.01.md`).
+- Production Baltic v2 replay hash **`17144800277401907079`** must stay preserved unless an ADR explicitly changes it.
+- Baltic v3 uses isolated **`baltic-v3-*`** scenario policies and replay goldens; v2 hash invariant unchanged.
+- Baltic v3 baseline OOB: **u1, hostile-1, ucav-blue, ucav-red** (surface + UCAV only; no subs/air beyond UCAV).
 - Baltic v2 content on disk includes 10 `baltic-v2-*` scenario policies and 9 v2 replay goldens (post–S64 baseline).
 - Sprint stack worktrees use `.worktrees/` under the parent repo path (`/home/username01/cmano-clone/.worktrees/`).
 - Exclude from commits: `.cursor/hooks/`, `.pi/settings.json`, `.polly/` (local agent/tooling config).
+- Baltic v3 policies use contact-triggered dual-side ASuW/AAA (`mission.triggers`, `MissionContactTriggerRuntime`) with ROE escalation to Weapons Free on recon contact detection.
 - `DelegationBridge.cs` remains zero-touch through Release v1.

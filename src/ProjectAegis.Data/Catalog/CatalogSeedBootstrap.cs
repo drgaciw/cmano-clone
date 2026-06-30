@@ -54,6 +54,40 @@ public static class CatalogSeedBootstrap
         SeedBalticDamage(connection);
     }
 
+    public static void SeedBalticV3(string databasePath, bool overwrite = true)
+    {
+        SeedBalticPatrol(databasePath, overwrite: false);
+        using var connection = new SqliteConnection($"Data Source={databasePath};Pooling=false");
+        connection.Open();
+        foreach (var binding in InMemoryCatalogReader.BalticV3Fixture().GetSortedSensorBindings())
+        {
+            if (string.Equals(binding.PlatformId, "u1", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText =
+                """
+                INSERT OR REPLACE INTO sensor (platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                    import_batch_id, source_file, review_state, trl_level)
+                VALUES ($platform, $sensor, $basePd, $source, $confidence, $batch, $file, $review, $trl)
+                """;
+            cmd.Parameters.AddWithValue("$platform", binding.PlatformId);
+            cmd.Parameters.AddWithValue("$sensor", binding.SensorId);
+            cmd.Parameters.AddWithValue("$basePd", binding.BasePd);
+            cmd.Parameters.AddWithValue("$source", binding.SourceFactId);
+            cmd.Parameters.AddWithValue("$confidence", binding.Confidence);
+            cmd.Parameters.AddWithValue("$batch", binding.ImportBatchId);
+            cmd.Parameters.AddWithValue("$file", binding.SourceFile);
+            cmd.Parameters.AddWithValue("$review", binding.ReviewState);
+            cmd.Parameters.AddWithValue("$trl", binding.TrlLevel);
+            cmd.ExecuteNonQuery();
+        }
+
+        SeedBalticV3Platforms(connection);
+    }
+
     private static void SeedBalticPlatforms(SqliteConnection connection)
     {
         if (!TableExists(connection, "platform"))
@@ -63,18 +97,7 @@ public static class CatalogSeedBootstrap
 
         foreach (var platform in CatalogValidationDefaults.BalticPlatforms())
         {
-            using var cmd = connection.CreateCommand();
-            cmd.CommandText =
-                """
-                INSERT OR REPLACE INTO platform (platform_id, snapshot_id, lat_deg, lon_deg, combat_radius_nm)
-                VALUES ($id, $snapshot, $lat, $lon, $radius)
-                """;
-            cmd.Parameters.AddWithValue("$id", platform.PlatformId);
-            cmd.Parameters.AddWithValue("$snapshot", CatalogValidationDefaults.BalticSnapshotId);
-            cmd.Parameters.AddWithValue("$lat", platform.LatDeg);
-            cmd.Parameters.AddWithValue("$lon", platform.LonDeg);
-            cmd.Parameters.AddWithValue("$radius", platform.CombatRadiusNm);
-            cmd.ExecuteNonQuery();
+            InsertPlatformRow(connection, platform);
         }
 
         using (var snap = connection.CreateCommand())
@@ -83,6 +106,42 @@ public static class CatalogSeedBootstrap
             snap.Parameters.AddWithValue("$id", CatalogValidationDefaults.BalticSnapshotId);
             snap.ExecuteNonQuery();
         }
+    }
+
+    private static void SeedBalticV3Platforms(SqliteConnection connection)
+    {
+        if (!TableExists(connection, "platform"))
+        {
+            return;
+        }
+
+        foreach (var platform in CatalogValidationDefaults.BalticV3Platforms())
+        {
+            if (string.Equals(platform.PlatformId, "u1", StringComparison.Ordinal) ||
+                string.Equals(platform.PlatformId, "hostile-1", StringComparison.Ordinal) ||
+                string.Equals(platform.PlatformId, "hostile-far", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            InsertPlatformRow(connection, platform);
+        }
+    }
+
+    private static void InsertPlatformRow(SqliteConnection connection, CatalogPlatformEntry platform)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO platform (platform_id, snapshot_id, lat_deg, lon_deg, combat_radius_nm)
+            VALUES ($id, $snapshot, $lat, $lon, $radius)
+            """;
+        cmd.Parameters.AddWithValue("$id", platform.PlatformId);
+        cmd.Parameters.AddWithValue("$snapshot", CatalogValidationDefaults.BalticSnapshotId);
+        cmd.Parameters.AddWithValue("$lat", platform.LatDeg);
+        cmd.Parameters.AddWithValue("$lon", platform.LonDeg);
+        cmd.Parameters.AddWithValue("$radius", platform.CombatRadiusNm);
+        cmd.ExecuteNonQuery();
     }
 
     private static void SeedBalticDamage(SqliteConnection connection)

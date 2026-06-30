@@ -3,7 +3,7 @@
 **Project:** Project Aegis — near-future hardcore military simulation (CMO-style, agentic)  
 **Last Updated:** 2026-06-04  
 **Canonical index:** [Game-Requirements/Game-Requirements-Index.md](Game-Requirements/Game-Requirements-Index.md)  
-**Implementation status:** [Game-Requirements/implementation-tracker-2026-06-04.md](Game-Requirements/implementation-tracker-2026-06-04.md)
+**Implementation status:** [Game-Requirements/implementation-tracker-2026-06-30.md](Game-Requirements/implementation-tracker-2026-06-30.md)
 
 > The May 28 index listed only docs 01–10. Requirements **11–20** (simulation, C2, combat) live under `Game-Requirements/requirements/` and are indexed in the canonical file above.
 
@@ -72,7 +72,7 @@ See [Game-Requirements-Index.md](Game-Requirements/Game-Requirements-Index.md) f
 
 ## Agentic implementation workflow
 
-1. Read MVP row in [implementation-tracker-2026-06-04.md](Game-Requirements/implementation-tracker-2026-06-04.md)  
+1. Read MVP row in [implementation-tracker-2026-06-30.md](Game-Requirements/implementation-tracker-2026-06-30.md)  
 2. `gitnexus_impact` before symbol edits  
 3. Skills: `team-simulation`, `team-data`, `replay-verify`, `c-sharp-engineer`  
 4. Verify: `dotnet test ProjectAegis.sln` (345 tests on `main`)

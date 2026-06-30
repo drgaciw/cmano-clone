@@ -55,6 +55,36 @@ public sealed class PdDetectionContactSimulatorTests
         }
     }
 
+    [Fact]
+    public void Primary_target_tracks_blue_force_for_red_side_engage()
+    {
+        var trials = new[]
+        {
+            new ScenarioDetectionTrial("ucav-red", "internal-ir", "u1", "c-friendly", 1.0, RequiresActiveRadar: false),
+            new ScenarioDetectionTrial("u1", "radar-1", "hostile-1", "c1", 1.0),
+        };
+        var sim = new PdDetectionContactSimulator(SimSeed.FromScenario(42), trials);
+        sim.Tick(1, 1.0);
+        Assert.Equal("u1", sim.PrimaryBlueForceTargetId);
+        Assert.Equal("hostile-1", sim.PrimaryTargetId);
+    }
+
+    [Fact]
+    public void Primary_target_ignores_non_hostile_detections()
+    {
+        var trials = new[]
+        {
+            new ScenarioDetectionTrial("ucav-red", "internal-ir", "u1", "c-friendly", 1.0, RequiresActiveRadar: false),
+            new ScenarioDetectionTrial("u1", "radar-1", "hostile-1", "c1", 1.0),
+        };
+        var sim = new PdDetectionContactSimulator(SimSeed.FromScenario(42), trials);
+        sim.Tick(1, 1.0);
+        Assert.Equal("hostile-1", sim.PrimaryTargetId);
+        sim.ApplyTargetKill(2, 2.0, "hostile-1");
+
+        Assert.Null(sim.PrimaryTargetId);
+    }
+
     private static List<ContactTransition> RunTransitions(
         SimSeed seed,
         IReadOnlyList<ScenarioDetectionTrial> trials,

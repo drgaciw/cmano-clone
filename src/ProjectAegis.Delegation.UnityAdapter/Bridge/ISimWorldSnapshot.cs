@@ -27,10 +27,15 @@ public interface ISimWorldSnapshot
     /// <summary>Primary observer radar EMCON allows active illumination (Active = true).</summary>
     bool ObserverRadarEmconActive { get; }
 
-    /// <summary>
-    /// Whether the primary hostile contact has been confirmed destroyed/killed.
+    /// <summary>Whether the primary hostile contact has been confirmed destroyed/killed.
     /// Used by patrol policies (e.g. PatrolCandidateEngagePolicy) to pre-filter Engage proposals for AAR remediation (S57-03).
     /// Additive; defaults to false.
     /// </summary>
     bool PrimaryHostileDestroyed => false;
+
+    /// <summary>Primary blue-force contact for red-side engage victim selection (Baltic v3).</summary>
+    TargetId? PrimaryBlueForceContactId => null;
+
+    /// <summary>Whether the primary blue-force contact has been destroyed (red-side patrol policies).</summary>
+    bool PrimaryBlueForceContactDestroyed => false;
 }

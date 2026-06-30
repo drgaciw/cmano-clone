@@ -369,4 +369,37 @@ internal static class ValidationRules
             }
         }
     }
+
+    // Model integrity extensions for continuous live validation (incompatible hosts, broken refs, terrain from research/11)
+    public static void IncompatibleHostRule(ScenarioDocumentDto scenario, List<ValidationFinding> sink)
+    {
+        // simplistic: air units require host capable platform (demo)
+        foreach (var mission in scenario.Missions)
+        {
+            if (!string.Equals(mission.Type, "Strike", StringComparison.OrdinalIgnoreCase) && !string.Equals(mission.Type, "Patrol", StringComparison.OrdinalIgnoreCase)) continue;
+            foreach (var uid in mission.AssignedUnitIds)
+            {
+                if (uid.Contains("air", StringComparison.OrdinalIgnoreCase) && scenario.Missions.Count(m => m.AssignedUnitIds.Contains("carrier")) == 0)
+                {
+                    sink.Add(new ValidationFinding("INCOMPATIBLE_HOST", ValidationSeverity.Error, $"Unit '{uid}' incompatible host relationship (no carrier).", MissionId: mission.Id, UnitId: uid));
+                }
+            }
+        }
+    }
+
+    public static void BrokenRefRule(ScenarioDocumentDto scenario, List<ValidationFinding> sink)
+    {
+        // detect broken mission refs demo
+        var allUnits = scenario.Missions.SelectMany(m => m.AssignedUnitIds).ToHashSet(StringComparer.Ordinal);
+        foreach (var m in scenario.Missions)
+        {
+            foreach (var t in m.TargetIds)
+            {
+                if (t.StartsWith("ref:") && !allUnits.Contains(t.Replace("ref:","")))
+                {
+                    sink.Add(new ValidationFinding("BROKEN_REF", ValidationSeverity.Error, $"Broken reference '{t}' in mission '{m.Id}'.", MissionId: m.Id));
+                }
+            }
+        }
+    }
 }

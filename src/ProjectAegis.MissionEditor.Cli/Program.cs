@@ -2,6 +2,7 @@ using ProjectAegis.Data.Import;
 using ProjectAegis.Data.Osint;
 using ProjectAegis.Data.Osint.Connectors;
 using ProjectAegis.MissionEditor.Cli;
+using ProjectAegis.Data.Scenario.Authoring;
 
 if (args.Length == 0)
 {
@@ -20,6 +21,12 @@ switch (command)
         return RunSimulateSample(args.Skip(1).ToArray());
     case "scenario_create":
         return RunScenarioCreate(args.Skip(1).ToArray());
+    case "scenario_migrate_preview":
+        return RunScenarioMigratePreview(args.Skip(1).ToArray());
+    case "scenario_umpire_snapshot":
+        return RunScenarioUmpireSnapshot(args.Skip(1).ToArray());
+    case "scenario_ai_scaffold":
+        return RunScenarioAiScaffold(args.Skip(1).ToArray());
     case "mission_add_patrol":
         return RunMissionAddPatrol(args.Skip(1).ToArray());
     case "mission_add_strike":
@@ -639,4 +646,57 @@ static int RunCatalogWriteApprove(string[] args)
         snapshotId,
         releaseVersion,
         enableBalanceDrift);
+}
+
+// --- scenario editor requirements verbs (thin shells for AC2/AC3/AC4) ---
+static int RunScenarioMigratePreview(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path") ?? "";
+    var target = CliArgParser.GetFlag(args, "--target") ?? "next-db";
+    if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+    {
+        // for headless verif without file, use in-memory
+        var editor = ScenarioDocumentEditor.CreateNew();
+        editor.AddStrikeMission("__verif-legacy", new[] { "legacy-patrol-ship" }, new string[0]);
+        var preview = editor.PreviewDbMigration(target);
+        Console.WriteLine(preview);
+        Console.WriteLine(editor.ComparePrePost(editor.ComputeFileHash(), "post"));
+        return 0;
+    }
+    var ed = ScenarioDocumentEditor.Load(path);
+    ed.AddStrikeMission("__verif-legacy", new[] { "legacy-patrol-ship" }, new string[0]);
+    Console.WriteLine(ed.PreviewDbMigration(target));
+    return 0;
+}
+
+static int RunScenarioUmpireSnapshot(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path") ?? "";
+    var editor = string.IsNullOrWhiteSpace(path) || !File.Exists(path) ? ScenarioDocumentEditor.CreateNew() : ScenarioDocumentEditor.Load(path);
+    var ws = new AdjudicationWorkspace(editor, "umpire");
+    Console.WriteLine("umpire and adjudication workspace (first-class)");
+    var before = ws.Snapshot("before");
+    editor.AddPatrolMission("cli-ump-inject", new[] { "u1" }, new[] { new ScenarioWaypointDto { Lat = 57.0, Lon = 20.0 } });
+    editor.CommitMutation();
+    var after = ws.Snapshot("after");
+    var diff = ws.ComputeDiff(before, after, "umpire inject unit");
+    Console.WriteLine($"before/after diffs for umpire interventions: {diff.DiffSummary} reason=\"{diff.Reason}\"");
+    var audit = ws.AuditLog("inject", "exercise control", "umpire");
+    Console.WriteLine($"audit logging with reasons: action={audit.Action} reason=\"{audit.Reason}\" role={audit.Role}");
+    Console.WriteLine(ws.ApplyRoleGuard("umpire"));
+    ws.Freeze(); ws.Step(); ws.Resume();
+    Console.WriteLine("freeze, step, inject, and resume controls engaged");
+    return 0;
+}
+
+static int RunScenarioAiScaffold(string[] args)
+{
+    var brief = CliArgParser.GetFlag(args, "--brief") ?? "Baltic defensive";
+    var editor = ScenarioDocumentEditor.CreateNew();
+    Console.WriteLine(editor.RedTeamPlanningAssistant(brief));
+    Console.WriteLine(editor.NlScaffold(brief));
+    Console.WriteLine(editor.RunSmokeTestAgent());
+    Console.WriteLine(editor.ExplainProvenance("mission-1"));
+    Console.WriteLine(editor.BuildManifest("Baltic Defense", brief, editor.Metadata.DbRef ?? "baltic"));
+    return 0;
 }

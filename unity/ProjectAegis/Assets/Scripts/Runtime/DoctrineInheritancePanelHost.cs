@@ -1,6 +1,7 @@
 // Doctrine inheritance panel (req 13 P0) — binds ResolvedUnitPolicy projection to UI Toolkit.
 #if UNITY_5_3_OR_NEWER
 using System.Collections.Generic;
+using System.Linq;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using UnityEngine;
@@ -169,7 +170,7 @@ namespace ProjectAegis.Unity.Runtime
 
             _roeDropdown.choices = choices;
 
-            var current = _panelState.RoeOptions.Find(o => o.IsCurrent);
+            var current = _panelState.RoeOptions.FirstOrDefault(o => o.IsCurrent);
             if (current != null)
             {
                 _roeDropdown.value = current.Label;

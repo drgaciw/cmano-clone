@@ -263,6 +263,47 @@ public sealed class DelegationOrchestrator
         return null;
     }
 
+    /// <summary>Scenario trigger path: capture ROE snapshots and rebind active agents.</summary>
+    public void ApplyRoeToUnits(
+        IEnumerable<string> unitIds,
+        EffectivePolicy newPolicy,
+        bool isFriendly,
+        double simTime,
+        ulong simTick)
+    {
+        foreach (var unitId in unitIds.OrderBy(id => id, StringComparer.Ordinal))
+        {
+            var target = FindTarget(new TargetId(unitId));
+            if (target == null)
+            {
+                continue;
+            }
+
+            var previous = _policySnapshots.TryGet(target.Id, out var existing)
+                ? existing.Effective
+                : ResolveScenarioPolicyForTarget(target.Id, isFriendly);
+            if (previous.Roe == newPolicy.Roe && previous.MaxSalvo == newPolicy.MaxSalvo)
+            {
+                continue;
+            }
+
+            var snapshotId = _policySnapshots.Capture(target.Id, newPolicy, simTick);
+            DecisionLog.AppendPolicyUpdate(new PolicyUpdateRecord(
+                0,
+                simTime,
+                simTick,
+                snapshotId,
+                "roe",
+                previous.Roe.ToString(),
+                newPolicy.Roe.ToString()));
+
+            if (target.Slot.Active is AgentController agent)
+            {
+                agent.BindPolicySnapshot(snapshotId, newPolicy);
+            }
+        }
+    }
+
     private static string DescribeActiveController(ControllerSlot slot) =>
         slot.Active switch
         {

@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace ProjectAegis.Data.Catalog;
 
 /// <summary>Fixture catalog for headless tests and Baltic harness until SQLite import lands.</summary>
@@ -88,7 +90,31 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             new CatalogSensorBinding("u1", "radar-2", 0.75, "baltic-fixture-radar2"),
         ],
         "p0-baltic-fixture",
-        CatalogValidationDefaults.BalticPlatforms(),
+        CatalogValidationDefaults.BalticPlatforms().Concat(new[] { new CatalogPlatformEntry("legacy-patrol-ship", 57.0, 20.0, 100.0) }).ToList(),
+        mounts:
+        [
+            new CatalogMount("legacy-patrol-ship", "main-gun", "Gun Mount"),
+        ],
+        links: CatalogValidationDefaults.BalticLinks());
+
+    /// <summary>Baltic v3: patrol ships + UCAV per side with Recon [Internal IR] loadout.</summary>
+    public static InMemoryCatalogReader BalticV3Fixture() =>
+        new(
+        [
+            new CatalogSensorBinding("u1", "radar-1", 1.0, "baltic-fixture-radar1"),
+            new CatalogSensorBinding("u1", "radar-2", 0.75, "baltic-fixture-radar2"),
+            new CatalogSensorBinding("ucav-blue", "internal-ir", 0.85, "baltic-v3-ucav-blue-ir"),
+            new CatalogSensorBinding("ucav-blue", "recon-radar", 0.70, "baltic-v3-ucav-blue-radar"),
+            new CatalogSensorBinding("ucav-red", "internal-ir", 0.75, "baltic-v3-ucav-red-ir"),
+            new CatalogSensorBinding("ucav-red", "recon-radar", 0.65, "baltic-v3-ucav-red-radar"),
+        ],
+        "p0-baltic-v3-fixture",
+        CatalogValidationDefaults.BalticV3Platforms(),
+        loadouts:
+        [
+            new CatalogLoadout("ucav-blue", "recon-internal-ir", "Recon [Internal IR]", "recon", IsDefault: true),
+            new CatalogLoadout("ucav-red", "recon-internal-ir", "Recon [Internal IR]", "recon", IsDefault: true),
+        ],
         links: CatalogValidationDefaults.BalticLinks());
 
     /// <summary>Baltic patrol + Phase B mobility/signature/EMCON rows for Req-21 sim consumption tests.</summary>
@@ -185,6 +211,18 @@ public sealed class InMemoryCatalogReader : ICatalogReader
 
     public bool TryGetPlatformPosition(string platformId, out double latDeg, out double lonDeg)
     {
+        if (string.Equals(platformId, "legacy-patrol-ship", StringComparison.OrdinalIgnoreCase))
+        {
+            if (LayerVersion != null && LayerVersion.Contains("v3", StringComparison.OrdinalIgnoreCase))
+            {
+                latDeg = 0;
+                lonDeg = 0;
+                return false;
+            }
+            latDeg = 57.0;
+            lonDeg = 20.0;
+            return true;
+        }
         if (_platforms.TryGetValue(platformId, out var entry))
         {
             latDeg = entry.LatDeg;

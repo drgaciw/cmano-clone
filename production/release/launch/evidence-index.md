@@ -70,4 +70,11 @@
 
 **All links/artifacts verified pre-index via RUN+READ + GitNexus pre (low risk docs). No scope creep. Self-contained.**
 
+## Asset manifest (Phase B — 2026-06-25)
+
+- Master manifest: `design/assets/asset-manifest.md` (42 tracked assets; 3 priority spec stubs)  
+- Entity inventory: `design/assets/entity-inventory.md` (Phase 0b; user review pending)  
+- Spec stubs: `design/assets/specs/c2-ui-assets.md`, `baltic-patrol-assets.md`, `store-capsule-assets.md`  
+- Live Editor PNG re-capture: **advisory deferred (2026-06-25)**; headless 18/18 remains merge authority (dashboard plan Phase B Task B3; no Unity Editor host in cloud VM).  
+
 *Cloud subagent S71-03/04 launch doc pack. Cites complete. Docs only. Pre closeout.*

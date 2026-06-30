@@ -64,5 +64,5 @@ node verify.mjs               # spot-check vs live site
 
 ## Related
 
-- [implementation-tracker-2026-06-04.md](implementation-tracker-2026-06-04.md) — req 06 row
+- [implementation-tracker-2026-06-30.md](implementation-tracker-2026-06-30.md) — req 06 row (prior: [2026-06-04](implementation-tracker-2026-06-04.md))
 - [research-traceability.md](research-traceability.md)
