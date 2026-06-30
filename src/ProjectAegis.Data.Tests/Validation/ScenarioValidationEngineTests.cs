@@ -177,4 +177,38 @@ public sealed class ScenarioValidationEngineTests
             return false;
         }
     }
+
+    [Fact]
+    public void Editor_migration_preview_from_clean_editor_plus_legacy_unit_produces_nonzero_ObsoleteCount_BrokenMounts_and_real_delta()
+    {
+        // clean start state, real shipped editor + pure preview Compute, no mocks of preview
+        var editor = ScenarioDocumentEditor.CreateNew(dbRef: "baltic_patrol");
+        editor.AddStrikeMission("__verif-legacy", new[] { "legacy-patrol-ship" }, new string[0]);
+        var current = InMemoryCatalogReader.BalticPatrolFixture();
+        var target = InMemoryCatalogReader.BalticV3Fixture();
+        var res = ScenarioDbMigrationPreview.Compute(editor.ToDto(), current, target);
+        // numeric from real preview + legacy in patrol platforms (position) + mount vs v3
+        Assert.True(res.ObsoleteCount >= 1, "ObsoleteCount");
+        Assert.True(res.BrokenMounts >= 1, "BrokenMounts");
+        var report = res.Report;
+        Assert.Contains("obsolete=1", report);
+        Assert.Contains("broken_mounts=1", report);
+    }
+
+    [Fact]
+    public void Editor_live_validation_and_migration_from_clean_state_emits_findings_and_preview_counts()
+    {
+        var editor = ScenarioDocumentEditor.CreateNew(dbRef: "baltic_patrol");
+        editor.AddStrikeMission("s-no-tgt", new[] { "u1" }, new string[0]);
+        var engine = new ScenarioValidationEngine();
+        var config = new ValidationConfig();
+        var catalog = ValidationCatalogFixture.Default();
+        var report = engine.Validate(editor.ToDto(), catalog, config);
+        Assert.Contains(report.Findings, f => f.Code == "STRIKE_NO_TARGETS");
+        // also drive preview numeric
+        editor.AddStrikeMission("__mig-legacy", new[] { "legacy-patrol-ship" }, new string[0]);
+        var mig = ScenarioDbMigrationPreview.Compute(editor.ToDto(), InMemoryCatalogReader.BalticPatrolFixture(), InMemoryCatalogReader.BalticV3Fixture());
+        Assert.True(mig.ObsoleteCount >= 1);
+        Assert.True(mig.BrokenMounts >= 1);
+    }
 }

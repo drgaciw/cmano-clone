@@ -215,13 +215,14 @@ No Docker compose or long-running servers. The “application” is in-process: 
 - Maintain stable alias `docs/reports/future-sprint-roadpmap.md` pointing at the latest dated roadmap snapshot (edit dated files, not the alias body).
 - Treat v1.0 / Spirit 1 vertical slice as a closed milestone — no ongoing gap-remediation program.
 - Internal engineering trains (RC1, S49–S56, Baltic v2) exclude E7 commercial launch scope unless explicitly scoped.
+- Post-MVP content-only expansion tracks (S57+) add evidence additively; do not re-litigate the 21/21 MVP implementation tracker closed @ S56.
 
 ## Learned Workspace Facts
 
 - Production stage is **Release** (`production/stage.txt`; S48 gate PASS 2026-06-20; RC1 cut).
-- **S39–S72** programs COMPLETE through commercial launch prep (RC1 S48, MVP exit S56, Baltic v2 S64, release train S68, launch prep S72).
+- **S39–S80** programs COMPLETE through Baltic v3 content expansion (RC1 S48, MVP exit S56, Baltic v2 S64, release train S68, launch prep S72, Baltic v3 S73–S80).
 - Headless test baseline is **≥1232** solution tests (ReplayGolden 6/6 v2, C2 proxy 18/18; monotonic per closeout).
-- Canonical forward roadmap is dated `docs/reports/future-sprint-roadpmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; current forward program is **S73–S80 Baltic v3** (`docs/reports/roadmap-execute-plan-062526.01.md`).
+- Canonical forward roadmap is dated `docs/reports/future-sprint-roadpmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE (human ack "Baltic v3 content-complete" 2026-06-26; stage remains Release; `docs/reports/roadmap-execute-plan-062526.01.md`).
 - Production Baltic v2 replay hash **`17144800277401907079`** must stay preserved unless an ADR explicitly changes it.
 - Baltic v3 uses isolated **`baltic-v3-*`** scenario policies and replay goldens; v2 hash invariant unchanged.
 - Baltic v3 baseline OOB: **u1, hostile-1, ucav-blue, ucav-red** (surface + UCAV only; no subs/air beyond UCAV).

@@ -23,6 +23,8 @@ public sealed class ScenarioValidationEngine : IScenarioValidationEngine
         ValidationRules.AirReadyLaunchRule(scenario, findings);
         ValidationRules.FerryReachabilityRule(scenario, catalog, config, findings);
         ValidationRules.StrikeReachabilityRule(scenario, catalog, config, findings);
+        ValidationRules.IncompatibleHostRule(scenario, findings); // model integrity "incompatible host relationships"
+        ValidationRules.BrokenRefRule(scenario, findings); // "broken references"
         return ValidationReport.FromFindings(findings);
     }
 }
