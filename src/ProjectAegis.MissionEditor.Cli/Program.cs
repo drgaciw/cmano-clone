@@ -27,6 +27,8 @@ switch (command)
         return RunScenarioUmpireSnapshot(args.Skip(1).ToArray());
     case "scenario_ai_scaffold":
         return RunScenarioAiScaffold(args.Skip(1).ToArray());
+    case "scenario_publish":
+        return RunScenarioPublish(args.Skip(1).ToArray());
     case "mission_add_patrol":
         return RunMissionAddPatrol(args.Skip(1).ToArray());
     case "mission_add_strike":
@@ -162,6 +164,18 @@ static int RunSimulateSample(string[] args)
     }
 
     return ScenarioSimulateSampleCommand.Run(path, ticks, quiet: false, Console.Out);
+}
+
+static int RunScenarioPublish(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    if (string.IsNullOrWhiteSpace(path))
+    {
+        Console.Error.WriteLine("scenario_publish requires --path <scenario.json>");
+        return 1;
+    }
+
+    return ScenarioPublishCommand.Run(path, Console.Out);
 }
 
 static int RunScenarioCreate(string[] args)
@@ -338,6 +352,7 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_strike --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--target T]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_delete --path <scenario.json> --edit-version N --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_validate --path <scenario.json>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_publish --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export_brief --path <scenario.json> [--out brief.md]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_simulate_sample --path <scenario.json> [--ticks N]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_plan_suggest --intent \"patrol and strike baltic\"");
