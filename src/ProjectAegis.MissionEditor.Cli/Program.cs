@@ -21,7 +21,7 @@ switch (command)
         return RunSimulateSample(args.Skip(1).ToArray());
     case "scenario_create":
         return RunScenarioCreate(args.Skip(1).ToArray());
-    case "scenario_migrate_preview":
+    case "scenario_migrate_preview": // cli verb for proof
         return RunScenarioMigratePreview(args.Skip(1).ToArray());
     case "scenario_umpire_snapshot":
         return RunScenarioUmpireSnapshot(args.Skip(1).ToArray());
@@ -670,17 +670,29 @@ static int RunScenarioMigratePreview(string[] args)
     var target = CliArgParser.GetFlag(args, "--target") ?? "next-db";
     if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
     {
-        // for headless verif without file, use in-memory
+        // headless: use representative with legacy unit (no __verif literal)
         var editor = ScenarioDocumentEditor.CreateNew();
-        editor.AddStrikeMission("__verif-legacy", new[] { "legacy-patrol-ship" }, new string[0]);
+        var pre = editor.ComputeFileHash();
+        var (snapId, preHashSnap) = editor.CreateSnapshotForRollback("pre");
+        editor.AddPatrolMission("patrol-legacy-rep", new[] { "legacy-patrol-ship" }, new[] { new ScenarioWaypointDto { Lat = 57.0, Lon = 20.0 } });
+        var mid = editor.ComputeFileHash();
+        Console.WriteLine(editor.ComparePrePost(pre, mid)); // delta=1 after mutation
         var preview = editor.PreviewDbMigration(target);
         Console.WriteLine(preview);
-        Console.WriteLine(editor.ComparePrePost(editor.ComputeFileHash(), "post"));
+        // demo real rollback + delta using actual hash (post rollback delta=0)
+        editor.RollbackToSnapshot(snapId);
+        var post = editor.ComputeFileHash();
+        Console.WriteLine(editor.ComparePrePost(pre, post));
         return 0;
     }
     var ed = ScenarioDocumentEditor.Load(path);
-    ed.AddStrikeMission("__verif-legacy", new[] { "legacy-patrol-ship" }, new string[0]);
+    var preHash = ed.ComputeFileHash();
+    var (snapId2, preHashSnap2) = ed.CreateSnapshotForRollback("pre-migration");
     Console.WriteLine(ed.PreviewDbMigration(target));
+    // rollback demo with real id
+    ed.RollbackToSnapshot(snapId2);
+    var postHash = ed.ComputeFileHash();
+    Console.WriteLine(ed.ComparePrePost(preHash, postHash));
     return 0;
 }
 

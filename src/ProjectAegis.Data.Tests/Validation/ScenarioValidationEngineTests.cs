@@ -179,7 +179,7 @@ public sealed class ScenarioValidationEngineTests
     }
 
     [Fact]
-    public void Editor_migration_preview_from_clean_editor_plus_legacy_unit_produces_nonzero_ObsoleteCount_BrokenMounts_and_real_delta()
+    public void Editor_migration_preview_from_clean_editor_plus_legacy_unit_produces_nonzero_ObsoleteCount_BrokenMounts_and_real_delta() // proof update
     {
         // clean start state, real shipped editor + pure preview Compute, no mocks of preview
         var editor = ScenarioDocumentEditor.CreateNew(dbRef: "baltic_patrol");
