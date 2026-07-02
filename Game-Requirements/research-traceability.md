@@ -84,7 +84,7 @@ Items identified in research but not yet fully specified in requirements 13–20
 
 ## Next workflow steps
 
-1. Track MVP implementation per [implementation-tracker-2026-06-30.md](implementation-tracker-2026-06-30.md)
+1. Track MVP implementation per [implementation-tracker-2026-07-01.md](implementation-tracker-2026-07-01.md)
 2. ~~Propagate TL framework into glossary~~ — done 2026-06-04 (req 12)
 3. Update GDDs when gap entities gain sim support
 4. Run `/military-requirements-impact` on new gap entities before database schema work
