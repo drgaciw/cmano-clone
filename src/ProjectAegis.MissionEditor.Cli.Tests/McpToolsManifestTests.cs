@@ -12,6 +12,8 @@ public sealed class McpToolsManifestTests
         "mission_add_strike",
         "mission_update_patrol",
         "mission_update_strike",
+        "mission_add_ferry",
+        "mission_update_ferry",
         "mission_delete",
         "mission_plan_suggest",
         "scenario_comms_status",

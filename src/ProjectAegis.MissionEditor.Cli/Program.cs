@@ -37,6 +37,10 @@ switch (command)
         return RunMissionUpdatePatrol(args.Skip(1).ToArray());
     case "mission_update_strike":
         return RunMissionUpdateStrike(args.Skip(1).ToArray());
+    case "mission_add_ferry":
+        return RunMissionAddFerry(args.Skip(1).ToArray());
+    case "mission_update_ferry":
+        return RunMissionUpdateFerry(args.Skip(1).ToArray());
     case "mission_delete":
         return RunMissionDelete(args.Skip(1).ToArray());
     case "mission_plan_suggest":
@@ -47,6 +51,8 @@ switch (command)
         return RunScenarioCyberStatus(args.Skip(1).ToArray());
     case "scenario_near_future_spawn":
         return RunScenarioNearFutureSpawn(args.Skip(1).ToArray());
+    case "scenario_event_trace":
+        return RunScenarioEventTrace(args.Skip(1).ToArray());
     case "catalog_intelligence_run":
         return RunCatalogIntelligence(args.Skip(1).ToArray());
     case "catalog_entity_map":
@@ -291,6 +297,46 @@ static int RunMissionUpdateStrike(string[] args)
         Console.Out);
 }
 
+static int RunMissionAddFerry(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_add_ferry requires --path --edit-version --id [--unit U]+ --destination D");
+        return 1;
+    }
+
+    return MissionAddFerryCommand.Run(
+        path,
+        editVersion,
+        missionId,
+        CliArgParser.GetRepeated(args, "--unit"),
+        CliArgParser.GetFlag(args, "--destination") ?? string.Empty,
+        Console.Out);
+}
+
+static int RunMissionUpdateFerry(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_update_ferry requires --path --edit-version --id [--unit U]+ [--destination D]");
+        return 1;
+    }
+
+    return MissionUpdateFerryCommand.Run(
+        path,
+        editVersion,
+        missionId,
+        CliArgParser.GetRepeated(args, "--unit"),
+        CliArgParser.GetFlag(args, "--destination"),
+        Console.Out);
+}
+
 static int RunMissionPlanSuggest(string[] args)
 {
     var intent = CliArgParser.GetFlag(args, "--intent");
@@ -350,6 +396,8 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_strike --path <scenario.json> --edit-version N --id <id> --unit U --target T");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_patrol --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--wp lat,lon]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_strike --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--target T]+");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_ferry --path <scenario.json> --edit-version N --id <id> [--unit U]+ --destination D");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_ferry --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--destination D]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_delete --path <scenario.json> --edit-version N --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_validate --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_publish --path <scenario.json>");
@@ -359,6 +407,7 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_comms_status --policy baltic-patrol-comms");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_cyber_status --policy baltic-patrol-comms");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_near_future_spawn --path <scenario.json>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_event_trace --path <scenario.json> [--event ID]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_intelligence_run [--db <catalog.db>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_entity_map");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_propose --db <catalog.db> --platform P --sensor S --base-pd 0.7");
@@ -725,5 +774,22 @@ static int RunScenarioAiScaffold(string[] args)
     Console.WriteLine(editor.RunSmokeTestAgent());
     Console.WriteLine(editor.ExplainProvenance("mission-1"));
     Console.WriteLine(editor.BuildManifest("Baltic Defense", brief, editor.Metadata.DbRef ?? "baltic"));
+    return 0;
+}
+
+static int RunScenarioEventTrace(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var eventId = CliArgParser.GetFlag(args, "--event") ?? CliArgParser.GetFlag(args, "--id") ?? "red_launch";
+    ScenarioDocumentEditor editor;
+    if (string.IsNullOrWhiteSpace(path))
+        editor = ScenarioDocumentEditor.CreateNew();
+    else
+        editor = ScenarioDocumentEditor.Load(path);
+    editor.AddEvent(eventId);
+    Console.WriteLine(editor.ExplainEventTrace(eventId));
+    Console.WriteLine("event trace tools: added event via editor from " + (string.IsNullOrWhiteSpace(path) ? "CreateNew" : "load"));
+    if (editor.EventIds.Count == 0)
+        Console.WriteLine("event trace tools: no events; graph empty");
     return 0;
 }
