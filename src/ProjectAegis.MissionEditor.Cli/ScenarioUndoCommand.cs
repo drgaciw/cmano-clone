@@ -2,15 +2,9 @@ namespace ProjectAegis.MissionEditor.Cli;
 
 using ProjectAegis.Data.Scenario.Authoring;
 
-public static class MissionUpdateFerryCommand
+public static class ScenarioUndoCommand
 {
-    public static int Run(
-        string scenarioPath,
-        int editVersion,
-        string missionId,
-        IReadOnlyList<string>? unitIds,
-        string? ferryDestinationBaseId,
-        TextWriter output)
+    public static int Run(string scenarioPath, int editVersion, TextWriter output)
     {
         if (!File.Exists(scenarioPath))
         {
@@ -21,20 +15,18 @@ public static class MissionUpdateFerryCommand
         {
             var editor = ScenarioDocumentEditor.Load(scenarioPath);
             editor.RequireEditVersion(editVersion, scenarioPath);
-            editor.PushUndoSnapshot(scenarioPath);
-            editor.UpdateFerryMission(
-                missionId,
-                unitIds?.Count > 0 ? unitIds : null,
-                string.IsNullOrWhiteSpace(ferryDestinationBaseId) ? null : ferryDestinationBaseId);
-            editor.CommitMutation();
-            editor.Save(scenarioPath);
+            if (!editor.PopUndo(scenarioPath))
+            {
+                return McpToolResult.WriteError(output, "NO_UNDO_SNAPSHOT", "No undo snapshot is available for this scenario.");
+            }
+
             return McpToolResult.WriteOk(output, new
             {
                 ok = true,
-                missionId,
-                type = "Ferry",
+                undone = true,
                 editVersion = editor.Metadata.EditVersion,
                 fileHash = editor.ComputeFileHash(),
+                remainingUndoDepth = ScenarioUndoStackStore.Count(scenarioPath),
             });
         }
         catch (ScenarioEditConflictException ex)
@@ -44,10 +36,6 @@ public static class MissionUpdateFerryCommand
                 ex.Code,
                 ex.Message,
                 new { currentEditVersion = ex.CurrentEditVersion, fileHash = ex.FileHash });
-        }
-        catch (InvalidOperationException ex)
-        {
-            return McpToolResult.WriteError(output, "MISSION_NOT_FOUND", ex.Message);
         }
     }
 }

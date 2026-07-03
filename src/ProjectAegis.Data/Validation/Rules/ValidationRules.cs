@@ -402,4 +402,41 @@ internal static class ValidationRules
             }
         }
     }
+
+    /// <summary>Resolves per-mission ROE from side default or mission override (AME-3.2 / AC-4).</summary>
+    public static void DoctrineInheritanceRule(ScenarioDocumentDto scenario, List<ValidationFinding> sink)
+    {
+        const string defaultRoe = "WeaponsFree";
+        var sideRoe = string.IsNullOrWhiteSpace(scenario.Metadata.SideRoe)
+            ? defaultRoe
+            : scenario.Metadata.SideRoe.Trim();
+
+        foreach (var mission in scenario.Missions.OrderBy(m => m.Id, StringComparer.Ordinal))
+        {
+            string resolvedRoe;
+            string inheritanceSource;
+            if (!string.IsNullOrWhiteSpace(mission.RoeOverride))
+            {
+                resolvedRoe = mission.RoeOverride.Trim();
+                inheritanceSource = "override";
+            }
+            else
+            {
+                resolvedRoe = sideRoe;
+                inheritanceSource = "side";
+            }
+
+            sink.Add(new ValidationFinding(
+                "DOCTRINE_RESOLVED",
+                ValidationSeverity.Info,
+                $"Mission '{mission.Id}' resolved ROE '{resolvedRoe}' from {inheritanceSource}.",
+                MissionId: mission.Id,
+                Data: new Dictionary<string, string>
+                {
+                    ["missionId"] = mission.Id,
+                    ["resolvedRoe"] = resolvedRoe,
+                    ["inheritanceSource"] = inheritanceSource,
+                }));
+        }
+    }
 }

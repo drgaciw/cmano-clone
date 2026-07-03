@@ -25,6 +25,9 @@ public sealed class ScenarioMetadataDto
 
     /// <summary>Near-future units to spawn at harness start (headless runtime).</summary>
     public List<ScenarioNearFutureUnitDto>? NearFutureUnits { get; init; }
+
+    /// <summary>Side-level ROE default (AME-3.2). Null means WeaponsFree.</summary>
+    public string? SideRoe { get; init; }
 }
 
 public sealed class ScenarioUnitReadinessDto

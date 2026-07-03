@@ -19,43 +19,7 @@ using Xunit;
 public sealed class StubScopePinTests
 {
     // ---------------------------------------------------------------
-    // Stub 1: Event debugger — ScenarioDocumentEditor.ExplainEventTrace
-    // ---------------------------------------------------------------
-
-    [Fact]
-    public void ExplainEventTrace_returns_flat_template_string_not_structured_order_log()
-    {
-        var editor = ScenarioDocumentEditor.CreateNew();
-
-        var result = editor.ExplainEventTrace("evt-42");
-
-        Assert.Equal(
-            "event trace tools: trigger evt-42 fired because conditions met at t=0 (type=Time)",
-            result);
-
-        // Pin today's stub level: a flat string, NOT the structured
-        // {eventId, simTick, sequenceId, unmetConditions[], actionResults[]}
-        // order-log projection that doc 11 AC-7 eventually requires. If this
-        // output ever starts containing JSON structural characters, that is a
-        // deliberate upgrade — update the doc, then this test.
-        Assert.DoesNotContain('{', result);
-        Assert.DoesNotContain('[', result);
-    }
-
-    [Fact]
-    public void ExplainEventTrace_blank_eventId_falls_back_to_hardcoded_evt()
-    {
-        var editor = ScenarioDocumentEditor.CreateNew();
-
-        var result = editor.ExplainEventTrace("   ");
-
-        Assert.Equal(
-            "event trace tools: trigger evt fired because conditions met at t=0 (type=Time)",
-            result);
-    }
-
-    // ---------------------------------------------------------------
-    // Stub 2: TCA static-analysis — ScenarioDocumentEditor.AnalyzeTcaGraph
+    // Stub 1: TCA static-analysis — ScenarioDocumentEditor.AnalyzeTcaGraph
     // ---------------------------------------------------------------
 
     [Fact]
@@ -109,7 +73,7 @@ public sealed class StubScopePinTests
     }
 
     // ---------------------------------------------------------------
-    // Stub 3: AI scaffold / NL stub — AiAuthoringServices.NlScaffold
+    // Stub 2: AI scaffold / NL stub — AiAuthoringServices.NlScaffold
     // ---------------------------------------------------------------
 
     [Fact]
@@ -139,7 +103,7 @@ public sealed class StubScopePinTests
     }
 
     // ---------------------------------------------------------------
-    // Stub 4: Model-integrity demo rules — IncompatibleHostRule / BrokenRefRule
+    // Stub 3: Model-integrity demo rules — IncompatibleHostRule / BrokenRefRule
     // (IncompatibleHostRule/BrokenRefRule are `internal`; exercised here
     // through the public ScenarioValidationEngine, matching the idiom in
     // ScenarioValidationEngineTests.cs)

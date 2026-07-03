@@ -12,6 +12,16 @@
       "type": "array",
       "description": "Mission list. Serialized from ScenarioDocumentDto.Missions (always present, may be empty []).",
       "items": { "$ref": "#/$defs/mission" }
+    },
+    "events": {
+      "type": ["array", "null"],
+      "description": "Optional typed event DSL entries (AME-5.x). Null when unset.",
+      "items": { "$ref": "#/$defs/event" }
+    },
+    "editorState": {
+      "type": ["object", "null"],
+      "description": "Derived-only editor UI state; never read by ScenarioValidationEngine.",
+      "additionalProperties": true
     }
   },
   "$defs": {
@@ -28,7 +38,8 @@
         "tlBranch",
         "unitReadiness",
         "maxTechnologyLevel",
-        "nearFutureUnits"
+        "nearFutureUnits",
+        "sideRoe"
       ],
       "properties": {
         "dbRef": {
@@ -71,6 +82,10 @@
           "type": ["array", "null"],
           "description": "Near-future archetype spawn rows to instantiate at harness start (req 09). Nullable when unset.",
           "items": { "$ref": "#/$defs/nearFutureUnit" }
+        },
+        "sideRoe": {
+          "type": ["string", "null"],
+          "description": "Side-level ROE default (AME-3.2). Null means WeaponsFree."
         }
       }
     },
@@ -132,7 +147,8 @@
         "assignedUnitIds",
         "targetIds",
         "ferryDestinationBaseId",
-        "patrolZone"
+        "patrolZone",
+        "roeOverride"
       ],
       "properties": {
         "id": {
@@ -142,7 +158,7 @@
         },
         "type": {
           "type": "string",
-          "enum": ["Patrol", "Strike", "Ferry"],
+          "enum": ["Patrol", "Strike", "Ferry", "Support"],
           "description": "Mission type discriminator (PascalCase values, as written by ScenarioDocumentEditor)."
         },
         "assignedUnitIds": {
@@ -163,6 +179,15 @@
           "type": "array",
           "description": "Patrol zone vertices. Meaningful for Patrol; empty [] for Strike/Ferry.",
           "items": { "$ref": "#/$defs/waypoint" }
+        },
+        "roeOverride": {
+          "type": ["string", "null"],
+          "description": "Mission-level ROE override (AME-3.2). Null inherits sideRoe or WeaponsFree."
+        },
+        "supportRole": {
+          "type": ["string", "null"],
+          "enum": ["Tanker", "AEW", "EW", null],
+          "description": "Support mission role. Meaningful for Support; null for other mission types."
         }
       },
       "allOf": [
@@ -205,8 +230,104 @@
               }
             }
           }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "Support" } }
+          },
+          "then": {
+            "properties": {
+              "supportRole": {
+                "type": "string",
+                "enum": ["Tanker", "AEW", "EW"]
+              },
+              "patrolZone": {
+                "type": "array",
+                "minItems": 3,
+                "description": "Support station geometry (stored in patrolZone)."
+              }
+            }
+          }
         }
       ]
+    },
+    "eventCondition": {
+      "type": "object",
+      "description": "Maps to ScenarioEventConditionDto.",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Condition type discriminator (e.g. UnitEntersZone, Time)."
+        },
+        "unitId": {
+          "type": ["string", "null"],
+          "description": "Unit id for zone-entry and unit-state conditions."
+        },
+        "zoneId": {
+          "type": ["string", "null"],
+          "description": "Zone id for UnitEntersZone conditions."
+        },
+        "result": {
+          "type": ["boolean", "null"],
+          "description": "Optional explicit evaluation hint for debugger fixtures."
+        }
+      }
+    },
+    "eventAction": {
+      "type": "object",
+      "description": "Maps to ScenarioEventActionDto.",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Action type discriminator (e.g. TeleportUnit, ActivateMission)."
+        },
+        "unitId": {
+          "type": ["string", "null"],
+          "description": "Target unit id for unit-scoped actions."
+        },
+        "lat": {
+          "type": ["number", "null"],
+          "description": "Latitude for TeleportUnit and placement actions."
+        },
+        "lon": {
+          "type": ["number", "null"],
+          "description": "Longitude for TeleportUnit and placement actions."
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "description": "Maps to ScenarioEventDto.",
+      "additionalProperties": false,
+      "required": ["id", "triggerType", "conditions", "actions"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique event id within the document."
+        },
+        "triggerType": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Primary trigger type (Time, UnitEntersZone, etc.)."
+        },
+        "conditions": {
+          "type": "array",
+          "description": "All conditions that must hold for the event to fire.",
+          "items": { "$ref": "#/$defs/eventCondition" }
+        },
+        "actions": {
+          "type": "array",
+          "description": "Actions executed when the event fires.",
+          "items": { "$ref": "#/$defs/eventAction" }
+        }
+      }
     }
   }
 }

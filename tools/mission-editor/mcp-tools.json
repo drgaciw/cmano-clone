@@ -93,6 +93,61 @@
       }
     },
     {
+      "name": "mission_add_support",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "mission_add_support",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${missionId}",
+        "--role",
+        "${supportRole}",
+        "--unit",
+        "${unitId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "missionId", "supportRole", "unitId"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "missionId": { "type": "string" },
+          "supportRole": { "type": "string", "enum": ["Tanker", "AEW", "EW"] },
+          "unitId": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "scenario_undo",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_undo",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" }
+        }
+      }
+    },
+    {
       "name": "mission_add_ferry",
       "command": "pwsh",
       "args": [

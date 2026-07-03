@@ -12,7 +12,8 @@
       }
     },
     "maxTechnologyLevel": 2,
-    "nearFutureUnits": null
+    "nearFutureUnits": null,
+    "sideRoe": null
   },
   "missions": [
     {
@@ -36,7 +37,9 @@
           "lat": 57.2,
           "lon": 20.2
         }
-      ]
+      ],
+      "roeOverride": null,
+      "supportRole": null
     }
   ]
 }

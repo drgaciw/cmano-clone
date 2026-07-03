@@ -15,7 +15,8 @@
       }
     },
     "maxTechnologyLevel": 2,
-    "nearFutureUnits": null
+    "nearFutureUnits": null,
+    "sideRoe": null
   },
   "missions": [
     {
@@ -30,7 +31,9 @@
         "target-baltiysk-pier"
       ],
       "ferryDestinationBaseId": null,
-      "patrolZone": []
+      "patrolZone": [],
+      "roeOverride": null,
+      "supportRole": null
     }
   ]
 }

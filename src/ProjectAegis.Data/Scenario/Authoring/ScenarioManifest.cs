@@ -26,7 +26,8 @@ public static class ManifestBuilder
         IReadOnlyList<string> Changelog,
         ValidationReport EmbeddedValidationReport,
         IReadOnlyList<ProvenanceTag> ProvenanceTags,
-        string ManifestHash);
+        string ManifestHash,
+        IReadOnlyList<ExportTransformRemovalEntry> ExportTransformLog);
 
     /// Produces "Scenario manifest" with provenance tags.
     public static ScenarioManifest Build(
@@ -39,7 +40,8 @@ public static class ManifestBuilder
         string? recommendedDb = null,
         string semver = "0.1.0",
         IReadOnlyList<string>? changelog = null,
-        IReadOnlyList<ProvenanceTag>? provenance = null)
+        IReadOnlyList<ProvenanceTag>? provenance = null,
+        IReadOnlyList<ExportTransformRemovalEntry>? exportTransformLog = null)
     {
         var meta = document.Metadata;
         var dbVer = recommendedDb ?? meta.DbRef ?? meta.DbSnapshotId ?? meta.TlBranch ?? "baltic_patrol";
@@ -59,6 +61,7 @@ public static class ManifestBuilder
         var ass = assumptions ?? new[] { "Baltic patrol vertical slice assumptions", "TL branch compatible DB" };
         var ch = changelog ?? new[] { $"Initial publish v{semver}" };
 
+        var transformLog = exportTransformLog?.ToArray() ?? Array.Empty<ExportTransformRemovalEntry>();
         var payloadForHash = new
         {
             scenarioId,
@@ -69,7 +72,8 @@ public static class ManifestBuilder
             semver,
             ch,
             validationHash = validationReport.ReportHash,
-            prov = prov.Select(p => p.Tag).ToArray()
+            prov = prov.Select(p => p.Tag).ToArray(),
+            transform = transformLog.Select(e => e.Message).ToArray(),
         };
         var hash = ComputeManifestHash(JsonSerializer.Serialize(payloadForHash));
 
@@ -82,7 +86,8 @@ public static class ManifestBuilder
             ch,
             validationReport,
             prov,
-            hash);
+            hash,
+            transformLog);
     }
 
     public static string Serialize(ScenarioManifest manifest)

@@ -19,13 +19,13 @@ public static class ScenarioPublishCommand
         var document = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
         var catalog = ScenarioValidateCommand.ResolveCatalogPublic(document); // reuse resolve, low risk
         var config = new ValidationConfig();
-        var (_, report) = ScenarioValidationExportGate.EvaluateExport(document, catalog, config);
+        var exportPackage = ScenarioExportCommand.Prepare(document, catalog, config);
 
         var id = Path.GetFileNameWithoutExtension(scenarioPath);
         var manifest = ManifestBuilder.Build(
             id,
-            document,
-            report,
+            exportPackage.ExportDocument,
+            exportPackage.ValidationReport,
             title: $"Published {id}",
             synopsis: $"Scaffolded/published scenario from {scenarioPath}",
             assumptions: new[] { "DB version pinned at publish", "Validation embedded", "AI or imported provenance tracked" },
@@ -35,8 +35,9 @@ public static class ScenarioPublishCommand
             provenance: new[]
             {
                 new ManifestBuilder.ProvenanceTag("publish", "user", "scenario-publish-cli", $"source:{scenarioPath}"),
-                new ManifestBuilder.ProvenanceTag("validation-embed", "system", null, report.ReportHash)
-            });
+                new ManifestBuilder.ProvenanceTag("validation-embed", "system", null, exportPackage.ValidationReport.ReportHash)
+            },
+            exportTransformLog: exportPackage.TransformManifest);
 
         output.WriteLine(ManifestBuilder.Serialize(manifest));
         return 0;

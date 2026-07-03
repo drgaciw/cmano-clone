@@ -8,7 +8,8 @@
     "tlBranch": "TL-2",
     "unitReadiness": null,
     "maxTechnologyLevel": 2,
-    "nearFutureUnits": null
+    "nearFutureUnits": null,
+    "sideRoe": null
   },
   "missions": [
     {
@@ -19,7 +20,9 @@
       ],
       "targetIds": [],
       "ferryDestinationBaseId": "base-amari",
-      "patrolZone": []
+      "patrolZone": [],
+      "roeOverride": null,
+      "supportRole": null
     }
   ]
 }

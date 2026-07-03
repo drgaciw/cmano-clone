@@ -43,7 +43,9 @@ public sealed class AdjudicationWorkspace
             AssignedUnitIds = m.AssignedUnitIds.ToArray(),
             TargetIds = m.TargetIds.ToArray(),
             FerryDestinationBaseId = m.FerryDestinationBaseId,
-            PatrolZone = m.PatrolZone.Select(w => new ScenarioWaypointDto { Lat = w.Lat, Lon = w.Lon }).ToArray()
+            PatrolZone = m.PatrolZone.Select(w => new ScenarioWaypointDto { Lat = w.Lat, Lon = w.Lon }).ToArray(),
+            SupportRole = m.SupportRole,
+            RoeOverride = m.RoeOverride,
         }).ToList();
         var dto = new ScenarioDocumentDto
         {

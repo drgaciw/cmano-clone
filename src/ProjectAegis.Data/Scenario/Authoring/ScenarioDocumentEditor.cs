@@ -18,8 +18,10 @@ public sealed class ScenarioDocumentEditor
 
     public List<ScenarioMissionDto> Missions { get; }
 
-    /// <summary>Minimal event ids support for AC4 / event trace tools (emits required observable strings).</summary>
+    /// <summary>Minimal event ids support for AC4 / event trace tools.</summary>
     public List<string> EventIds { get; } = new List<string>();
+
+    public List<ScenarioEventDto> Events { get; } = new();
 
     public void AddEvent(string id)
     {
@@ -27,18 +29,25 @@ public sealed class ScenarioDocumentEditor
         if (!EventIds.Contains(id)) EventIds.Add(id);
     }
 
-    public string ExplainEventTrace(string eventId)
-    {
-        if (string.IsNullOrWhiteSpace(eventId)) eventId = "evt";
-        return $"event trace tools: trigger {eventId} fired because conditions met at t=0 (type=Time)";
-    }
+    public string ExplainEventTrace(string eventId) =>
+        EventDebuggerTrace.ToJson(ToDto(), eventId);
 
     public static ScenarioDocumentEditor Load(string path)
     {
         var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
-        return new ScenarioDocumentEditor(
+        var editor = new ScenarioDocumentEditor(
             dto.Metadata,
             dto.Missions.ToList());
+        if (dto.Events != null)
+        {
+            editor.Events.AddRange(dto.Events);
+            foreach (var evt in dto.Events)
+            {
+                editor.AddEvent(evt.Id);
+            }
+        }
+
+        return editor;
     }
 
     public static ScenarioDocumentEditor CreateNew(
@@ -63,6 +72,7 @@ public sealed class ScenarioDocumentEditor
         {
             Metadata = Metadata,
             Missions = Missions,
+            Events = Events.Count == 0 ? null : Events,
         };
 
     public string ComputeFileHash()
@@ -158,6 +168,44 @@ public sealed class ScenarioDocumentEditor
         });
     }
 
+    public void AddSupportMission(
+        string missionId,
+        IReadOnlyList<string> assignedUnitIds,
+        string supportRole,
+        IReadOnlyList<ScenarioWaypointDto> stationZone)
+    {
+        if (Missions.Any(m => string.Equals(m.Id, missionId, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new InvalidOperationException($"Mission id '{missionId}' already exists.");
+        }
+
+        Missions.Add(new ScenarioMissionDto
+        {
+            Id = missionId,
+            Type = "Support",
+            AssignedUnitIds = assignedUnitIds,
+            SupportRole = supportRole,
+            PatrolZone = stationZone,
+        });
+    }
+
+    /// <summary>Captures the current document on the persisted undo stack before a committed mutation.</summary>
+    public void PushUndoSnapshot(string scenarioPath) =>
+        ScenarioUndoStackStore.Push(scenarioPath, ToDto());
+
+    /// <summary>Restores the most recent undo snapshot and writes the canonical file.</summary>
+    public bool PopUndo(string scenarioPath)
+    {
+        if (!ScenarioUndoStackStore.TryPop(scenarioPath, out var snapshot) || snapshot == null)
+        {
+            return false;
+        }
+
+        RestoreFromDto(snapshot);
+        Save(scenarioPath);
+        return true;
+    }
+
     public bool TryRemoveMission(string missionId)
     {
         var index = Missions.FindIndex(m =>
@@ -186,6 +234,8 @@ public sealed class ScenarioDocumentEditor
             TargetIds = mission.TargetIds,
             FerryDestinationBaseId = mission.FerryDestinationBaseId,
             PatrolZone = patrolZone ?? mission.PatrolZone,
+            SupportRole = mission.SupportRole,
+            RoeOverride = mission.RoeOverride,
         };
     }
 
@@ -204,6 +254,8 @@ public sealed class ScenarioDocumentEditor
             TargetIds = targetIds ?? mission.TargetIds,
             FerryDestinationBaseId = mission.FerryDestinationBaseId,
             PatrolZone = mission.PatrolZone,
+            SupportRole = mission.SupportRole,
+            RoeOverride = mission.RoeOverride,
         };
     }
 
@@ -222,11 +274,35 @@ public sealed class ScenarioDocumentEditor
             TargetIds = mission.TargetIds,
             FerryDestinationBaseId = ferryDestinationBaseId ?? mission.FerryDestinationBaseId,
             PatrolZone = mission.PatrolZone,
+            SupportRole = mission.SupportRole,
+            RoeOverride = mission.RoeOverride,
         };
     }
 
     public void Save(string path) =>
         ScenarioDocumentJsonWriter.WriteToFile(ToDto(), path);
+
+    private void RestoreFromDto(ScenarioDocumentDto snapshot)
+    {
+        Metadata = snapshot.Metadata;
+        Missions.Clear();
+        foreach (var mission in snapshot.Missions)
+        {
+            Missions.Add(new ScenarioMissionDto
+            {
+                Id = mission.Id,
+                Type = mission.Type,
+                AssignedUnitIds = mission.AssignedUnitIds.ToArray(),
+                TargetIds = mission.TargetIds.ToArray(),
+                FerryDestinationBaseId = mission.FerryDestinationBaseId,
+                PatrolZone = mission.PatrolZone
+                    .Select(w => new ScenarioWaypointDto { Lat = w.Lat, Lon = w.Lon })
+                    .ToArray(),
+                SupportRole = mission.SupportRole,
+                RoeOverride = mission.RoeOverride,
+            });
+        }
+    }
 
     private ScenarioMissionDto RequireMission(string missionId, string expectedType)
     {

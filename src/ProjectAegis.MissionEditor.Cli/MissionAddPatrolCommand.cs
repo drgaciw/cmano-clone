@@ -31,6 +31,7 @@ public static class MissionAddPatrolCommand
         {
             var editor = ScenarioDocumentEditor.Load(scenarioPath);
             editor.RequireEditVersion(editVersion, scenarioPath);
+            editor.PushUndoSnapshot(scenarioPath);
             editor.AddPatrolMission(missionId, unitIds, zone);
             editor.CommitMutation();
             editor.Save(scenarioPath);

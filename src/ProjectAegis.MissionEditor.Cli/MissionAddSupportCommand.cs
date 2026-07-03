@@ -2,14 +2,17 @@ namespace ProjectAegis.MissionEditor.Cli;
 
 using ProjectAegis.Data.Scenario.Authoring;
 
-public static class MissionUpdatePatrolCommand
+public static class MissionAddSupportCommand
 {
+    private static readonly string[] AllowedRoles = ["Tanker", "AEW", "EW"];
+
     public static int Run(
         string scenarioPath,
         int editVersion,
         string missionId,
-        IReadOnlyList<string>? unitIds,
-        IReadOnlyList<ScenarioWaypointDto>? zone,
+        IReadOnlyList<string> unitIds,
+        string supportRole,
+        IReadOnlyList<ScenarioWaypointDto> stationZone,
         TextWriter output)
     {
         if (!File.Exists(scenarioPath))
@@ -17,9 +20,23 @@ public static class MissionUpdatePatrolCommand
             return McpToolResult.WriteError(output, "NOT_FOUND", $"Scenario not found: {scenarioPath}");
         }
 
-        if (zone != null && zone.Count > 0 && zone.Count < 3)
+        if (stationZone.Count < 3)
         {
-            return McpToolResult.WriteError(output, "INVALID_ZONE", "Patrol zone requires at least 3 waypoints.");
+            return McpToolResult.WriteError(output, "INVALID_ZONE", "Support station zone requires at least 3 waypoints.");
+        }
+
+        if (unitIds.Count == 0)
+        {
+            return McpToolResult.WriteError(output, "NO_UNITS", "At least one --unit is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(supportRole) ||
+            !AllowedRoles.Contains(supportRole, StringComparer.OrdinalIgnoreCase))
+        {
+            return McpToolResult.WriteError(
+                output,
+                "INVALID_ROLE",
+                "Support role must be one of: Tanker, AEW, EW.");
         }
 
         try
@@ -27,17 +44,16 @@ public static class MissionUpdatePatrolCommand
             var editor = ScenarioDocumentEditor.Load(scenarioPath);
             editor.RequireEditVersion(editVersion, scenarioPath);
             editor.PushUndoSnapshot(scenarioPath);
-            editor.UpdatePatrolMission(
-                missionId,
-                unitIds?.Count > 0 ? unitIds : null,
-                zone?.Count > 0 ? zone : null);
+            editor.AddSupportMission(missionId, unitIds, supportRole, stationZone);
             editor.CommitMutation();
             editor.Save(scenarioPath);
+
             return McpToolResult.WriteOk(output, new
             {
                 ok = true,
                 missionId,
-                type = "Patrol",
+                type = "Support",
+                supportRole,
                 editVersion = editor.Metadata.EditVersion,
                 fileHash = editor.ComputeFileHash(),
             });
@@ -52,7 +68,7 @@ public static class MissionUpdatePatrolCommand
         }
         catch (InvalidOperationException ex)
         {
-            return McpToolResult.WriteError(output, "MISSION_NOT_FOUND", ex.Message);
+            return McpToolResult.WriteError(output, "DUPLICATE_MISSION", ex.Message);
         }
     }
 }

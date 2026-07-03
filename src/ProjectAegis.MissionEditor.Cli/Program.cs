@@ -39,8 +39,12 @@ switch (command)
         return RunMissionUpdateStrike(args.Skip(1).ToArray());
     case "mission_add_ferry":
         return RunMissionAddFerry(args.Skip(1).ToArray());
+    case "mission_add_support":
+        return RunMissionAddSupport(args.Skip(1).ToArray());
     case "mission_update_ferry":
         return RunMissionUpdateFerry(args.Skip(1).ToArray());
+    case "scenario_undo":
+        return RunScenarioUndo(args.Skip(1).ToArray());
     case "mission_delete":
         return RunMissionDelete(args.Skip(1).ToArray());
     case "mission_plan_suggest":
@@ -297,6 +301,48 @@ static int RunMissionUpdateStrike(string[] args)
         Console.Out);
 }
 
+static int RunMissionAddSupport(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_add_support requires --path --edit-version --id --role R [--unit U]+ [--wp lat,lon]+");
+        return 1;
+    }
+
+    try
+    {
+        var zone = CliArgParser.ParseWaypoints(CliArgParser.GetRepeated(args, "--wp"));
+        return MissionAddSupportCommand.Run(
+            path,
+            editVersion,
+            missionId,
+            CliArgParser.GetRepeated(args, "--unit"),
+            CliArgParser.GetFlag(args, "--role") ?? string.Empty,
+            zone,
+            Console.Out);
+    }
+    catch (FormatException ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "INVALID_ZONE", ex.Message);
+    }
+}
+
+static int RunScenarioUndo(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || editVersion < 0)
+    {
+        Console.Error.WriteLine("scenario_undo requires --path --edit-version");
+        return 1;
+    }
+
+    return ScenarioUndoCommand.Run(path, editVersion, Console.Out);
+}
+
 static int RunMissionAddFerry(string[] args)
 {
     var path = CliArgParser.GetFlag(args, "--path");
@@ -397,7 +443,9 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_patrol --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--wp lat,lon]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_strike --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--target T]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_ferry --path <scenario.json> --edit-version N --id <id> [--unit U]+ --destination D");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_support --path <scenario.json> --edit-version N --id <id> --role Tanker|AEW|EW [--unit U]+ [--wp lat,lon]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_ferry --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--destination D]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_undo --path <scenario.json> --edit-version N");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_delete --path <scenario.json> --edit-version N --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_validate --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_publish --path <scenario.json>");
@@ -788,8 +836,5 @@ static int RunScenarioEventTrace(string[] args)
         editor = ScenarioDocumentEditor.Load(path);
     editor.AddEvent(eventId);
     Console.WriteLine(editor.ExplainEventTrace(eventId));
-    Console.WriteLine("event trace tools: added event via editor from " + (string.IsNullOrWhiteSpace(path) ? "CreateNew" : "load"));
-    if (editor.EventIds.Count == 0)
-        Console.WriteLine("event trace tools: no events; graph empty");
     return 0;
 }
