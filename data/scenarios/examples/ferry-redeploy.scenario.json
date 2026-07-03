@@ -1,0 +1,25 @@
+{
+  "metadata": {
+    "dbRef": "baltic_patrol",
+    "dbSnapshotId": null,
+    "editVersion": 1,
+    "seed": 2024,
+    "policyId": "baltic-patrol-readiness",
+    "tlBranch": "TL-2",
+    "unitReadiness": null,
+    "maxTechnologyLevel": 2,
+    "nearFutureUnits": null
+  },
+  "missions": [
+    {
+      "id": "ferry-1",
+      "type": "Ferry",
+      "assignedUnitIds": [
+        "transport-1"
+      ],
+      "targetIds": [],
+      "ferryDestinationBaseId": "base-amari",
+      "patrolZone": []
+    }
+  ]
+}

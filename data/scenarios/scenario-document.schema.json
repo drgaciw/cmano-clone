@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectaegis.dev/schemas/scenario-document.schema.json",
+  "title": "Project Aegis Scenario Document",
+  "description": "Canonical scenario document format as serialized by ScenarioDocumentJsonWriter (ADR-008 authoring model). Property names are camelCase. The writer uses JsonSerializerOptions with CamelCase naming and no DefaultIgnoreCondition, so every DTO property is always emitted: nullable fields serialize as null and empty collections serialize as []. This schema reflects that always-emitted shape. NOTE: these documents are NOT the same as data/scenarios/*.policy.json (sim policy files); they are authoring documents mapping to ScenarioDocumentDto.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["metadata", "missions"],
+  "properties": {
+    "metadata": { "$ref": "#/$defs/metadata" },
+    "missions": {
+      "type": "array",
+      "description": "Mission list. Serialized from ScenarioDocumentDto.Missions (always present, may be empty []).",
+      "items": { "$ref": "#/$defs/mission" }
+    }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "description": "Maps to ScenarioMetadataDto. All properties are always serialized by the writer; nullable ones may be null.",
+      "additionalProperties": false,
+      "required": [
+        "dbRef",
+        "dbSnapshotId",
+        "editVersion",
+        "seed",
+        "policyId",
+        "tlBranch",
+        "unitReadiness",
+        "maxTechnologyLevel",
+        "nearFutureUnits"
+      ],
+      "properties": {
+        "dbRef": {
+          "type": ["string", "null"],
+          "description": "Catalog / database reference bound at scenario load (e.g. 'baltic_patrol'). Nullable."
+        },
+        "dbSnapshotId": {
+          "type": ["string", "null"],
+          "description": "Optional immutable snapshot id of the bound database. Nullable."
+        },
+        "editVersion": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Optimistic-concurrency edit version (req 11). CreateNew() seeds this at 1; each CommitMutation() increments it."
+        },
+        "seed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Scenario RNG root (GDD metadata.seed). Serialized from a ulong; DTO default is 42."
+        },
+        "policyId": {
+          "type": ["string", "null"],
+          "description": "Id of a data/scenarios/*.policy.json sim policy used for harness sample runs. Nullable."
+        },
+        "tlBranch": {
+          "type": ["string", "null"],
+          "description": "Technology-level branch binding at load (TL-0 through TL-5), e.g. 'TL-2'. Validated at load, not mid-tick. Nullable."
+        },
+        "unitReadiness": {
+          "type": ["object", "null"],
+          "description": "Per-unit launch readiness map keyed by unit id (req 16). Nullable when unset.",
+          "additionalProperties": { "$ref": "#/$defs/unitReadiness" }
+        },
+        "maxTechnologyLevel": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Scenario max technology level for near-future gates (req 09). DTO default is 2."
+        },
+        "nearFutureUnits": {
+          "type": ["array", "null"],
+          "description": "Near-future archetype spawn rows to instantiate at harness start (req 09). Nullable when unset.",
+          "items": { "$ref": "#/$defs/nearFutureUnit" }
+        }
+      }
+    },
+    "unitReadiness": {
+      "type": "object",
+      "description": "Maps to ScenarioUnitReadinessDto.",
+      "additionalProperties": false,
+      "required": ["readyForLaunch"],
+      "properties": {
+        "readyForLaunch": {
+          "type": "boolean",
+          "description": "Whether the unit is ready for launch. DTO default is true."
+        }
+      }
+    },
+    "nearFutureUnit": {
+      "type": "object",
+      "description": "Maps to ScenarioNearFutureUnitDto (req 09 CCA / attritable runtime).",
+      "additionalProperties": false,
+      "required": ["archetypeId", "unitId"],
+      "properties": {
+        "archetypeId": {
+          "type": "string",
+          "description": "Archetype id to spawn from."
+        },
+        "unitId": {
+          "type": "string",
+          "description": "Runtime unit id assigned to the spawned unit."
+        }
+      }
+    },
+    "waypoint": {
+      "type": "object",
+      "description": "Maps to ScenarioWaypointDto. A geographic vertex of a patrol zone.",
+      "additionalProperties": false,
+      "required": ["lat", "lon"],
+      "properties": {
+        "lat": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Latitude in decimal degrees."
+        },
+        "lon": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "description": "Longitude in decimal degrees."
+        }
+      }
+    },
+    "mission": {
+      "type": "object",
+      "description": "Maps to ScenarioMissionDto. The writer always emits all six properties for every mission regardless of type: unused collections serialize as [] and ferryDestinationBaseId serializes as null. The 'type' discriminator selects which fields carry meaningful content, enforced by the allOf branches below.",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "assignedUnitIds",
+        "targetIds",
+        "ferryDestinationBaseId",
+        "patrolZone"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique mission id within the document."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["Patrol", "Strike", "Ferry"],
+          "description": "Mission type discriminator (PascalCase values, as written by ScenarioDocumentEditor)."
+        },
+        "assignedUnitIds": {
+          "type": "array",
+          "description": "String ids of units assigned to the mission (always present, may be empty).",
+          "items": { "type": "string" }
+        },
+        "targetIds": {
+          "type": "array",
+          "description": "String ids of targets. Meaningful for Strike; empty [] for Patrol/Ferry.",
+          "items": { "type": "string" }
+        },
+        "ferryDestinationBaseId": {
+          "type": ["string", "null"],
+          "description": "Destination base id. Meaningful (non-null) for Ferry; null for Patrol/Strike."
+        },
+        "patrolZone": {
+          "type": "array",
+          "description": "Patrol zone vertices. Meaningful for Patrol; empty [] for Strike/Ferry.",
+          "items": { "$ref": "#/$defs/waypoint" }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "type": { "const": "Patrol" } }
+          },
+          "then": {
+            "properties": {
+              "patrolZone": {
+                "type": "array",
+                "minItems": 3,
+                "description": "A valid patrol zone is a closed area and requires at least 3 vertices."
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "Strike" } }
+          },
+          "then": {
+            "properties": {
+              "targetIds": {
+                "type": "array",
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "type": { "const": "Ferry" } }
+          },
+          "then": {
+            "properties": {
+              "ferryDestinationBaseId": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

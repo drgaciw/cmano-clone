@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "dbRef": "baltic_patrol",
+    "dbSnapshotId": null,
+    "editVersion": 1,
+    "seed": 42,
+    "policyId": "baltic-patrol-catalog",
+    "tlBranch": "TL-2",
+    "unitReadiness": {
+      "u1": {
+        "readyForLaunch": true
+      }
+    },
+    "maxTechnologyLevel": 2,
+    "nearFutureUnits": null
+  },
+  "missions": [
+    {
+      "id": "patrol-1",
+      "type": "Patrol",
+      "assignedUnitIds": [
+        "u1"
+      ],
+      "targetIds": [],
+      "ferryDestinationBaseId": null,
+      "patrolZone": [
+        {
+          "lat": 57.0,
+          "lon": 20.0
+        },
+        {
+          "lat": 57.1,
+          "lon": 20.1
+        },
+        {
+          "lat": 57.2,
+          "lon": 20.2
+        }
+      ]
+    }
+  ]
+}
