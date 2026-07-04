@@ -106,3 +106,9 @@
 | Epic | Stories | Focus |
 |------|---------|-------|
 | [sprint-36-perf-determinism](sprint-36-perf-determinism/EPIC.md) | 5 | Determinism audit P1, replay/harness maint, DecisionLog hash, Datalink GitNexus plan (no change), re-profile + verify gate |
+
+**Sprint 36 (Polish Phase 1 continuation):** UX foundations close-out + C2 frame notes
+
+| Epic | Stories | Focus |
+|------|---------|-------|
+| [sprint-36-ux-foundation](sprint-36-ux-foundation/EPIC.md) | 6 | Accessibility sign-off, interaction patterns polish, difficulty curve validation, art-bible lean review, C2 frame additional capture, UX tracker/GDD cross-ref close |
