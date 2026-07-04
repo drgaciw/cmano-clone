@@ -18,6 +18,14 @@ public sealed class ScenarioDocumentEditor
 
     public List<ScenarioMissionDto> Missions { get; }
 
+    private ScenarioFeaturesDto? _features;
+    private IReadOnlyList<ScenarioSideDto> _sides = Array.Empty<ScenarioSideDto>();
+    private ScenarioOrbatDto? _orbat;
+    private IReadOnlyList<ScenarioReferencePointDto> _referencePoints = Array.Empty<ScenarioReferencePointDto>();
+    private IReadOnlyList<ScenarioOperationTimelineEntryDto> _operationsTimeline = Array.Empty<ScenarioOperationTimelineEntryDto>();
+    private Dictionary<string, string>? _variables;
+    private Dictionary<string, System.Text.Json.JsonElement>? _editorState;
+
     /// <summary>Minimal event ids support for AC4 / event trace tools.</summary>
     public List<string> EventIds { get; } = new List<string>();
 
@@ -38,6 +46,7 @@ public sealed class ScenarioDocumentEditor
         var editor = new ScenarioDocumentEditor(
             dto.Metadata,
             dto.Missions.ToList());
+        editor.RestoreCanonicalSections(dto);
         if (dto.Events != null)
         {
             editor.Events.AddRange(dto.Events);
@@ -71,8 +80,15 @@ public sealed class ScenarioDocumentEditor
         new()
         {
             Metadata = Metadata,
+            Features = _features,
+            Sides = _sides,
+            Orbat = _orbat,
+            ReferencePoints = _referencePoints,
             Missions = Missions,
+            OperationsTimeline = _operationsTimeline,
             Events = Events.Count == 0 ? null : Events,
+            Variables = _variables,
+            EditorState = _editorState,
         };
 
     public string ComputeFileHash()
@@ -108,6 +124,7 @@ public sealed class ScenarioDocumentEditor
             MaxTechnologyLevel = Metadata.MaxTechnologyLevel,
             UnitReadiness = Metadata.UnitReadiness,
             NearFutureUnits = Metadata.NearFutureUnits,
+            SideRoe = Metadata.SideRoe,
         };
     }
 
@@ -186,6 +203,7 @@ public sealed class ScenarioDocumentEditor
             AssignedUnitIds = assignedUnitIds,
             SupportRole = supportRole,
             PatrolZone = stationZone,
+            StationGeometry = stationZone,
         });
     }
 
@@ -234,8 +252,10 @@ public sealed class ScenarioDocumentEditor
             TargetIds = mission.TargetIds,
             FerryDestinationBaseId = mission.FerryDestinationBaseId,
             PatrolZone = patrolZone ?? mission.PatrolZone,
+            StationGeometry = mission.StationGeometry,
             SupportRole = mission.SupportRole,
             RoeOverride = mission.RoeOverride,
+            EmconOverride = mission.EmconOverride,
         };
     }
 
@@ -254,8 +274,10 @@ public sealed class ScenarioDocumentEditor
             TargetIds = targetIds ?? mission.TargetIds,
             FerryDestinationBaseId = mission.FerryDestinationBaseId,
             PatrolZone = mission.PatrolZone,
+            StationGeometry = mission.StationGeometry,
             SupportRole = mission.SupportRole,
             RoeOverride = mission.RoeOverride,
+            EmconOverride = mission.EmconOverride,
         };
     }
 
@@ -274,8 +296,10 @@ public sealed class ScenarioDocumentEditor
             TargetIds = mission.TargetIds,
             FerryDestinationBaseId = ferryDestinationBaseId ?? mission.FerryDestinationBaseId,
             PatrolZone = mission.PatrolZone,
+            StationGeometry = mission.StationGeometry,
             SupportRole = mission.SupportRole,
             RoeOverride = mission.RoeOverride,
+            EmconOverride = mission.EmconOverride,
         };
     }
 
@@ -285,6 +309,7 @@ public sealed class ScenarioDocumentEditor
     private void RestoreFromDto(ScenarioDocumentDto snapshot)
     {
         Metadata = snapshot.Metadata;
+        RestoreCanonicalSections(snapshot);
         Missions.Clear();
         foreach (var mission in snapshot.Missions)
         {
@@ -298,8 +323,12 @@ public sealed class ScenarioDocumentEditor
                 PatrolZone = mission.PatrolZone
                     .Select(w => new ScenarioWaypointDto { Lat = w.Lat, Lon = w.Lon })
                     .ToArray(),
+                StationGeometry = mission.StationGeometry?
+                    .Select(w => new ScenarioWaypointDto { Lat = w.Lat, Lon = w.Lon })
+                    .ToArray(),
                 SupportRole = mission.SupportRole,
                 RoeOverride = mission.RoeOverride,
+                EmconOverride = mission.EmconOverride,
             });
         }
     }
@@ -349,6 +378,7 @@ public sealed class ScenarioDocumentEditor
         {
             // real restore of full state incl metadata
             Metadata = snap.Metadata;
+            RestoreCanonicalSections(snap);
             Missions.Clear();
             if (snap.Missions != null) Missions.AddRange(snap.Missions);
             return $"reversible migration with snapshot/rollback: restored {snapshotId}";
@@ -446,5 +476,16 @@ public sealed class ScenarioDocumentEditor
         var config = new ValidationConfig();
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
         return engine.Validate(ToDto(), catalog, config);
+    }
+
+    private void RestoreCanonicalSections(ScenarioDocumentDto snapshot)
+    {
+        _features = snapshot.Features;
+        _sides = snapshot.Sides;
+        _orbat = snapshot.Orbat;
+        _referencePoints = snapshot.ReferencePoints;
+        _operationsTimeline = snapshot.OperationsTimeline;
+        _variables = snapshot.Variables;
+        _editorState = snapshot.EditorState;
     }
 }
