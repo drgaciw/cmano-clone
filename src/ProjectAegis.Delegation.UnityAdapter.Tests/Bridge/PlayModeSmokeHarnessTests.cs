@@ -17,6 +17,9 @@ using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
+using ProjectAegis.Data.Scenario;
+using ProjectAegis.Data.Scenario.Authoring;
+using System.Text.Json;
 using NUnit.Framework;
 
 /// <summary>
@@ -510,6 +513,81 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(
             bridge.Orchestrator.DecisionLog.Engagements[0].AbortReasonCode,
             Is.EqualTo(AbortReasonCatalog.Engage.NO_FIRE_CONTROL_TRACK));
+    }
+
+    /// <summary>
+    /// S87 AC-8: Headless-authored scenario.json from examples/ loads with ORBAT (metadata+units), missions, events intact
+    /// and editorState round-trips (populated with schema defaults simulating Unity host load).
+    /// Uses Data loaders as headless proxy for Unity C2Presentation / host scenario consumption.
+    /// Does not mutate any canonical files; editorState never feeds sim/validation (AC-9).
+    /// </summary>
+    [Test]
+    public void AC8_Unity_host_roundtrip_loads_headless_scenario_json_intact_ORBAT_missions_events_editorState()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null, "Repo root required for example fixture load");
+
+        var scenarioPath = Path.Combine(repoRoot!, "data", "scenarios", "examples", "baltic-patrol.scenario.json");
+        Assert.That(File.Exists(scenarioPath), Is.True, $"Headless-authored fixture missing: {scenarioPath}");
+
+        var document = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        var package = ScenarioPackageLoader.LoadFromFile(scenarioPath);
+
+        // ORBAT proxy (dbRef + unitReadiness from metadata; units referenced by missions)
+        Assert.That(document.Metadata.DbRef, Is.EqualTo("baltic_patrol"));
+        Assert.That(document.Metadata.UnitReadiness, Is.Not.Null);
+        Assert.That(document.Metadata.UnitReadiness!.ContainsKey("u1"), Is.True, "ORBAT unit readiness for u1");
+        Assert.That(document.Missions.Any(m => m.AssignedUnitIds.Contains("u1")), Is.True);
+
+        // Missions intact
+        Assert.That(document.Missions, Is.Not.Empty);
+        var patrol = document.Missions[0];
+        Assert.That(patrol.Id, Is.EqualTo("patrol-1"));
+        Assert.That(patrol.Type, Is.EqualTo("Patrol"));
+        Assert.That(patrol.AssignedUnitIds, Contains.Item("u1"));
+
+        // Events intact (null for minimal headless example)
+        Assert.That(document.Events, Is.Null.Or.Empty);
+
+        // editorState intact + defaults simulation (Unity host populates derived-only on load)
+        // Use in-memory roundtrip (no file mutation of canonical)
+        var defaults = new Dictionary<string, JsonElement>
+        {
+            ["camera"] = JsonDocument.Parse("{\"lat\":57.05,\"lon\":20.05,\"zoom\":1}").RootElement.Clone(),
+            ["layers"] = JsonDocument.Parse("{\"all\":true,\"orbat\":true,\"events\":true}").RootElement.Clone()
+        };
+        var dtoWithState = new ScenarioDocumentDto
+        {
+            Metadata = document.Metadata,
+            Missions = document.Missions,
+            Events = document.Events,
+            EditorState = defaults
+        };
+
+        var serialized = ScenarioDocumentJsonWriter.Serialize(dtoWithState);
+        // Re-deserialize using loader-compatible options to prove roundtrip
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        };
+        var roundTripped = JsonSerializer.Deserialize<ScenarioDocumentDto>(serialized, options);
+        Assert.That(roundTripped, Is.Not.Null);
+        Assert.That(roundTripped!.EditorState, Is.Not.Null);
+        Assert.That(roundTripped.EditorState!.ContainsKey("camera"), Is.True, "editorState camera default intact");
+        Assert.That(roundTripped.EditorState.ContainsKey("layers"), Is.True, "editorState layers default intact");
+
+        // Package load (proxy for host scenario consumption) + non-editorState preserved
+        Assert.That(package, Is.Not.Null);
+        Assert.That(package.PolicyId, Does.Contain("baltic-patrol"));
+        Assert.That(package.Seed, Is.EqualTo(42u));
+        Assert.That(package.EditVersion, Is.EqualTo(1));
+
+        // Confirm canonical untouched outside editorState (we never wrote back)
+        var originalJson = File.ReadAllText(scenarioPath);
+        Assert.That(originalJson, Does.Not.Contain("editorState"), "Headless example remains without editorState per derived-only contract");
     }
 
     private sealed class PlayModeHarness : ISimWorldSnapshot, IOrderSink
