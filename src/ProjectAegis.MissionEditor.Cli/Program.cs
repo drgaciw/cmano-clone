@@ -3,6 +3,7 @@ using ProjectAegis.Data.Osint;
 using ProjectAegis.Data.Osint.Connectors;
 using ProjectAegis.MissionEditor.Cli;
 using ProjectAegis.Data.Scenario.Authoring;
+using ProjectAegis.Data.Validation;
 
 if (args.Length == 0)
 {
@@ -17,6 +18,8 @@ switch (command)
         return RunScenarioValidate(args.Skip(1).ToArray());
     case "scenario_export_brief":
         return RunExportBrief(args.Skip(1).ToArray());
+    case "scenario_export":  // S83-01 export command polish (track D); uses ScenarioExportCommand.Prepare; cites roadmap-execute-plan-07042026.md §4, sprint-83, boundary-2026-07-04.md, qa # (via AC-12)
+        return RunScenarioExport(args.Skip(1).ToArray());
     case "scenario_simulate_sample":
         return RunSimulateSample(args.Skip(1).ToArray());
     case "scenario_create":
@@ -149,6 +152,59 @@ static int RunExportBrief(string[] args)
     File.WriteAllText(outPath, $"# Scenario brief\n\nSource: `{path}`\n\n_Validation passed; briefing content is P1._\n");
     Console.WriteLine($"BRIEF_WRITTEN={outPath}");
     return 0;
+}
+
+/// <summary>
+/// scenario_export --path : S83-01 polished export surface. Loads, Prepare via ScenarioExportCommand (manifest + gate), emits JSON summary.
+/// Completes track D command surface. Cites: sprint-83-export-undo-ferry.md S83-01, roadmap-execute-plan-07042026.md, scenario-editor-scope-boundary-2026-07-04.md, qa-plan #5/#13/#14 transitively via editor, AGENTS.md GitNexus pre.
+/// </summary>
+static int RunScenarioExport(string[] args)
+{
+    string? path = null;
+    for (var i = 0; i < args.Length; i++)
+    {
+        if (args[i] == "--path" && i + 1 < args.Length)
+        {
+            path = args[++i];
+        }
+    }
+
+    if (string.IsNullOrWhiteSpace(path))
+    {
+        Console.Error.WriteLine("scenario_export requires --path <scenario.json>");
+        return 1;
+    }
+
+    if (!File.Exists(path))
+    {
+        return McpToolResult.WriteError(Console.Out, "NOT_FOUND", $"Scenario not found: {path}");
+    }
+
+    try
+    {
+        var document = ScenarioDocumentJsonLoader.LoadFromFile(path);
+        var catalog = ScenarioValidateCommand.ResolveCatalogPublic(document);
+        var config = new ValidationConfig();
+        var pkg = ScenarioExportCommand.Prepare(document, catalog, config);
+
+        // S83-01 polish: use new formatter + full package info
+        var summary = ScenarioExportCommand.FormatExportSummary(pkg);
+        var result = new
+        {
+            ok = pkg.Allowed,
+            path,
+            summary,
+            transformCount = pkg.TransformManifest?.Count ?? 0,
+            validationReportHash = pkg.ValidationReport?.ReportHash,
+            allowed = pkg.Allowed,
+            editVersion = pkg.ExportDocument?.Metadata?.EditVersion,
+        };
+        return McpToolResult.WriteOk(Console.Out, result);
+    }
+    catch (Exception ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "EXPORT_ERROR", ex.Message);
+    }
 }
 
 static int RunSimulateSample(string[] args)
@@ -449,6 +505,7 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_delete --path <scenario.json> --edit-version N --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_validate --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_publish --path <scenario.json>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export --path <scenario.json>   // S83-01 polished (cites roadmap-execute-plan-07042026.md + boundary-2026-07-04.md + qa units)");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export_brief --path <scenario.json> [--out brief.md]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_simulate_sample --path <scenario.json> [--ticks N]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_plan_suggest --intent \"patrol and strike baltic\"");
@@ -827,14 +884,7 @@ static int RunScenarioAiScaffold(string[] args)
 
 static int RunScenarioEventTrace(string[] args)
 {
-    var path = CliArgParser.GetFlag(args, "--path");
-    var eventId = CliArgParser.GetFlag(args, "--event") ?? CliArgParser.GetFlag(args, "--id") ?? "red_launch";
-    ScenarioDocumentEditor editor;
-    if (string.IsNullOrWhiteSpace(path))
-        editor = ScenarioDocumentEditor.CreateNew();
-    else
-        editor = ScenarioDocumentEditor.Load(path);
-    editor.AddEvent(eventId);
-    Console.WriteLine(editor.ExplainEventTrace(eventId));
-    return 0;
+    // S84-01: delegate to dedicated ScenarioEventTraceCommand for AC-7 structured unmet_conditions JSON.
+    // Cites: sprint-84-event-debugger.md, kickoff, roadmap-execute-plan-07042026.md, qa-plan unit#7.
+    return ScenarioEventTraceCommand.Run(args, Console.Out, Console.Error);
 }

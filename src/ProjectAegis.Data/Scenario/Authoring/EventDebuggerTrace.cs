@@ -94,25 +94,37 @@ public static class EventDebuggerTrace
             ZoneId = condition.ZoneId,
         };
 
+        bool holds;
         if (condition.Result == false)
         {
-            return false;
+            holds = false;
         }
-
-        if (string.Equals(condition.Type, "UnitEntersZone", StringComparison.OrdinalIgnoreCase))
+        else if (string.Equals(condition.Type, "UnitEntersZone", StringComparison.OrdinalIgnoreCase))
         {
             // Authoring documents do not carry live unit positions; without sim state
             // the zone-entry predicate never holds (AC-7 event-no-fire case).
-            return IsUnitInZone(document, condition.UnitId, condition.ZoneId);
+            holds = IsUnitInZone(document, condition.UnitId, condition.ZoneId);
         }
-
-        if (condition.Result == true)
+        else if (condition.Result == true)
         {
-            detail.Result = true;
-            return true;
+            holds = true;
+        }
+        else
+        {
+            // Default authoring evaluation: without live sim snapshot, most conditions
+            // (ContactDetected, Variable, etc.) are treated unmet for debugger projection.
+            // Matches order-log unmet_conditions semantics (AME-5.5, AC-7).
+            holds = false;
+            detail.Note = "no-sim-state";
         }
 
-        return false;
+        if (!holds && detail.Note == null && string.Equals(condition.Type, "UnitEntersZone", StringComparison.OrdinalIgnoreCase))
+        {
+            detail.Note = "no-sim-state";
+        }
+
+        detail.Result = holds;
+        return holds;
     }
 
     private static bool IsUnitInZone(ScenarioDocumentDto document, string? unitId, string? zoneId)
@@ -163,5 +175,10 @@ public static class EventDebuggerTrace
 
         [JsonPropertyName("zone_id")]
         public string? ZoneId { get; set; }
+
+        /// <summary>Optional detail for richer unmet reporting (e.g. "no-sim-state" for authoring debugger projection).</summary>
+        [JsonPropertyName("note")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Note { get; set; }
     }
 }

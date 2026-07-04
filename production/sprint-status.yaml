@@ -4246,3 +4246,20 @@ s80_complete: |
   **S80 COMPLETE.** GT not applicable (final gate). Cites: production/baltic-v3-scope-boundary-2026-06-25.md + docs/reports/roadmap-execute-plan-062526.01.md §3/4/5/9 + future-sprint-roadpmap-062526.01.md + AGENTS.md + verification-before + S79/S78... complete. 
   **S80-01 COMPLETE. S80-02 COMPLETE. S80 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan.**
 
+# S86 CLI/MCP Polish + UA Triage + No-Lua Gate (scenario editor program S81-S88; per roadmap-execute-plan-07042026.md §3/§4 + scenario-editor-scope-boundary-2026-07-04.md)
+s83_status: |
+  S83 COMPLETE (combined tracks): S83-01 export command polish (scenario_export verb + FormatExportSummary + cites), S83-02 undo CLI wiring AME-8.5 (disk persistence documented+extended test), S83-03 ferry sample + AC-5 fixture (extended simulate test using ferry verbs). Editor subset 56+21 green, build 0e, sln >=1340 pass 0f, replay 6/6, C2 proxy pass, hash preserved, ZERO bridge, GitNexus pre+detect. Cites: roadmap-execute-plan-07042026.md, scenario-editor-scope-boundary-2026-07-04.md, qa-plan #5/#13/#14, sprint-83 + kickoff, AGENTS. (work from active)
+s86_status: |
+  S86 CLI/MCP polish + UA triage + No-Lua gate (#19) — **S86-04 COMPLETE. S86 COMPLETE (2026-07-04, local closeout subagent)**. Per production/sprints/sprint-86-cli-mcp-polish.md + production/agentic/sprint-86-parallel-kickoff-2026-07-04.md + docs/reports/roadmap-execute-plan-07042026.md §3/§4 (S86) + production/scenario-editor-scope-boundary-2026-07-04.md + production/qa/qa-plan-scenario-editor-2026-07-01.md (#19 + UA) + Game-Requirements/requirements/11-Agentic-Mission-Editor.md + docs/architecture/adr-014-lua-compatibility-scope.md + docs/reports/baltic-headless-slice-gate-2026-07-04.md + AGENTS.md + S81-S85.
+  - Dispatch: S86-04 closeout (local) parallel to S86-01 MCP (mcp-polish), S86-02 UA (ua-engage-fix), S86-03 No-Lua (no-lua-gate) via .worktrees/stack/sprint86/* + dispatching-parallel-agents.
+  - Tracks: MCP manifest+verbs complete (mcp-tools.json schema2 + RequiredCliVerbs incl scenario_event_trace etc S86-01; Mcp filter 1/1); UA triage fix (PolicyDenial/WeaponsTight expectations in BalticReplayHarnessPolicyEngageTests; 3/3 + full UA 260/0f); No-Lua gate extended (#19 sources incl export/reach/ai/editguard; 9/9 PASS; no forbidden).
+  - sprint-status + closeout doc updated (smoke-sprint-86-closeout-2026-07-04.md); stage remains Release.
+  - Verification-before (RUN+READ full block): build 0e/0w; full 1341/0f (281+249+5+70+260+476); Mcp 1/1, NoDyn 9/9, UA engage 3/3; replay 6/6; playmode 0f; hash preserved; ZERO bridge=0; GitNexus CLI/MCP list 20496/38203 + impacts (Editor 20 CRIT, Validation 17 HIGH, Baltic 52 CRIT); detect 37/14 high (S86); smoke-ac6 PASS; worktrees 4x confirmed; all gates PASS (UA resolved). GitNexus pre on symbols before edits.
+  - GT prep: user-run block in closeout (GitNexus + verif + gt sync/restack/submit --stack --no-interactive post ack; resolve trunk first).
+  - Next: S87 Unity roundtrip after ack + submit. S88 gate.
+  - All artifacts + closeout cite full chain + AGENTS. Low risk (intended changes only).
+  **S86-04 COMPLETE. S86 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan + sprint-86 + qa-plan #19.**
+s86_complete: |
+  S86 full COMPLETE (2026-07-04). Per roadmap-execute-plan-07042026.md §3/§4 + production/sprints/sprint-86-cli-mcp-polish.md + kickoff + boundary + qa-plan + AGENTS. S86-01/02/03 tracks + S86-04 closeout COMPLETE (doc created, status, verifs 1341/0f 6/6 filters green UA resolved, GitNexus 20496/38203 + CRITs, worktrees, GT prep). verification-before (full RUN+READ) + pre applied. GT ready user. Stage Release. Cites: production/scenario-editor-scope-boundary-2026-07-04.md ; roadmap-execute-plan-07042026.md ; sprint-86 + kickoff ; qa-plan-scenario-editor-2026-07-01.md ; AGENTS.md ; S81-S85 + S82 closeout pattern. 
+  **S86-04 COMPLETE. S86 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan.**
+

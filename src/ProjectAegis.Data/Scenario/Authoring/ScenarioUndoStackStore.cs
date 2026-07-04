@@ -5,6 +5,13 @@ using System.Text.Json;
 /// <summary>
 /// Persists committed-mutation undo snapshots alongside the canonical scenario file (AME-8.5).
 /// Each CLI invocation loads/pushes/pops this stack so undo survives process boundaries.
+/// 
+/// S83-02 (AME-8.5): disk vs in-process note.
+/// Design lock: disk-backed via JSON sidecar (ResolveStackPath = scenarioPath + ".undo-stack.json").
+/// Confirmed by File IO in Load/Save/Push/TryPop (not pure in-memory on ScenarioDocumentEditor instance).
+/// Enables cross-process CLI undo (e.g. separate `dotnet run` invocations). See qa-plan-scenario-editor-2026-07-01.md #14,
+/// sprint-83-export-undo-ferry.md, roadmap-execute-plan-07042026.md §4, scenario-editor-scope-boundary-2026-07-04.md.
+/// Round-trip tests must (and do) survive process boundaries via disk.
 /// </summary>
 public static class ScenarioUndoStackStore
 {

@@ -13,12 +13,43 @@ using Xunit;
 /// </summary>
 public sealed class ScenarioDocumentSchemaConformanceTests
 {
-    private static readonly string[] FixtureFileNames =
+    // Extended (S82-02) to dynamically cover *all* examples/*.scenario.json + the live
+    // ScenarioDocumentEditor-produced output (AME-2.6 / AC-9). Hard list replaced for
+    // robustness as examples evolve (currently 3 fixtures).
+    private static readonly string[] FixtureFileNames = DiscoverExampleFixtures();
+
+    private static string[] DiscoverExampleFixtures()
     {
-        "baltic-patrol.scenario.json",
-        "strike-package.scenario.json",
-        "ferry-redeploy.scenario.json",
-    };
+        var examplesDir = ResolveExamplesDir();
+        if (examplesDir == null || !Directory.Exists(examplesDir))
+        {
+            // Fallback to known 3 if discovery fails at test runtime (keeps tests stable)
+            return new[]
+            {
+                "baltic-patrol.scenario.json",
+                "strike-package.scenario.json",
+                "ferry-redeploy.scenario.json",
+            };
+        }
+
+        return Directory.GetFiles(examplesDir, "*.scenario.json")
+            .Select(f => Path.GetFileName(f)!)
+            .OrderBy(n => n, StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    private static string? ResolveExamplesDir()
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        for (var i = 0; i < 12; i++)
+        {
+            if (dir == null) break;
+            var candidate = Path.Combine(dir.FullName, "data", "scenarios", "examples");
+            if (Directory.Exists(candidate)) return candidate;
+            dir = dir.Parent;
+        }
+        return null;
+    }
 
     public static IEnumerable<object[]> FixtureFiles() =>
         FixtureFileNames.Select(name => new object[] { name });

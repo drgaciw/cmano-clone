@@ -97,7 +97,7 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 | **A** | Live validation + doctrine | `DoctrineInheritanceValidateTests`, doctrine fixture, expanded `ValidationRules` | **Partial+** |
 | **B** | Event debugger / export transforms | `EventDebuggerTrace.cs`, `EventDebuggerTests`, `TeleportUnitExportTests`, `ExportTransformManifest` | **Partial** (debugger beyond stub) |
 | **C** | Schema / derived-only invariants | Expanded schema (+127 lines), `DerivedOnlyInvariantTests`, `ScenarioDocumentSchemaConformanceTests` | **Partial+** |
-| **D** | Undo / export command surface | `ScenarioUndoStackStore`, `ScenarioExportCommand`, `ScenarioUndoCliTests` | **Partial** |
+| **D** | Undo / export command surface | `ScenarioUndoStackStore`, `ScenarioExportCommand`, `ScenarioUndoCliTests`, scenario_export verb, AC-5 ferry sample | **Partial+** (S83: export polish, undo disk wiring+test, ferry AC-5 fixture; cites sprint-83 + execute-plan + boundary + qa #5/13/14) |
 
 ### Headless component inventory
 

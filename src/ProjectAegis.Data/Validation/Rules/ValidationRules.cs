@@ -439,4 +439,86 @@ internal static class ValidationRules
                 }));
         }
     }
+
+    /// <summary>
+    /// ADR-016 / S84-03 / GDD §4.3: event graph complexity + peak tick density (soft warnings, never block)
+    /// + hard cap of MaxConditionsPerEvent per event (blocking error).
+    /// complexity = E + sum(conditions) + C * cross_refs (proxy via unit/zone/action refs to missions).
+    /// density proxy: count of Time-triggered events (real impl resolves trigger_time).
+    /// Cites: roadmap-execute-plan-07042026.md, qa-plan-scenario-editor-2026-07-01.md#16, adr-016-event-graph-complexity-caps.md, agentic-mission-editor.md §4.3.
+    /// Additive extension only.
+    /// </summary>
+    public static void EventGraphComplexityRule(
+        ScenarioDocumentDto scenario,
+        ValidationConfig config,
+        List<ValidationFinding> sink)
+    {
+        var events = scenario.Events ?? Array.Empty<ScenarioEventDto>();
+        if (events.Count == 0)
+        {
+            return;
+        }
+
+        int E = events.Count;
+        int totalConds = events.Sum(e => e.Conditions?.Count ?? 0);
+
+        var missionIds = (scenario.Missions ?? Array.Empty<ScenarioMissionDto>())
+            .Select(m => m.Id)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        int crossRefs = 0;
+        foreach (var evt in events)
+        {
+            foreach (var c in evt.Conditions ?? Array.Empty<ScenarioEventConditionDto>())
+            {
+                if (!string.IsNullOrEmpty(c.UnitId) || !string.IsNullOrEmpty(c.ZoneId))
+                {
+                    crossRefs++;
+                }
+            }
+            foreach (var a in evt.Actions ?? Array.Empty<ScenarioEventActionDto>())
+            {
+                if (!string.IsNullOrEmpty(a.UnitId) && missionIds.Count > 0)
+                {
+                    crossRefs++;
+                }
+            }
+        }
+
+        int complexity = E + totalConds + config.CrossRefWeight * crossRefs;
+        if (complexity > config.ComplexityWarnThreshold)
+        {
+            sink.Add(new ValidationFinding(
+                "EVENT_GRAPH_COMPLEXITY_HIGH",
+                ValidationSeverity.Warning,
+                $"Event graph complexity {complexity} exceeds soft WARN_THRESHOLD {config.ComplexityWarnThreshold} (E+sumConds+C*refs; ADR-016). Soft warning only — export not blocked.",
+                Data: new Dictionary<string, string> { ["complexity"] = complexity.ToString(), ["threshold"] = config.ComplexityWarnThreshold.ToString() }));
+        }
+
+        // Peak tick density proxy (Time triggers can cluster at same resolved tick)
+        int timeTriggered = events.Count(e => string.Equals(e.TriggerType, "Time", StringComparison.OrdinalIgnoreCase));
+        int peakDensity = Math.Max(1, timeTriggered);
+        if (peakDensity > config.DensityWarnThreshold)
+        {
+            sink.Add(new ValidationFinding(
+                "EVENT_GRAPH_PEAK_TICK_DENSITY_HIGH",
+                ValidationSeverity.Warning,
+                $"Peak tick density {peakDensity} exceeds soft DENSITY_THRESHOLD {config.DensityWarnThreshold} (ADR-016). Soft warning only — export not blocked.",
+                Data: new Dictionary<string, string> { ["peakDensity"] = peakDensity.ToString(), ["threshold"] = config.DensityWarnThreshold.ToString() }));
+        }
+
+        // Hard cap: 32 conditions per event is blocking error
+        foreach (var evt in events)
+        {
+            int n = evt.Conditions?.Count ?? 0;
+            if (n > config.MaxConditionsPerEvent)
+            {
+                sink.Add(new ValidationFinding(
+                    "EVENT_CONDITION_CAP_EXCEEDED",
+                    ValidationSeverity.Error,
+                    $"Event '{evt.Id}' has {n} conditions; hard cap {config.MaxConditionsPerEvent} per ADR-016 (only hard limit; soft caps are warnings).",
+                    /* event context if available */ Data: new Dictionary<string, string> { ["eventId"] = evt.Id, ["count"] = n.ToString(), ["cap"] = config.MaxConditionsPerEvent.ToString() }));
+            }
+        }
+    }
 }

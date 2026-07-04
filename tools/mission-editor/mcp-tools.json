@@ -4,6 +4,7 @@
   "tools": [
     {
       "name": "scenario_create",
+      "description": "Create a new canonical scenario document (headless; emits editorState derived). S86-01 polished.",
       "command": "pwsh",
       "args": [
         "-File",
@@ -24,12 +25,13 @@
         "type": "object",
         "required": ["scenarioPath"],
         "properties": {
-          "scenarioPath": { "type": "string" },
+          "scenarioPath": { "type": "string", "description": "Output path for new .scenario.json" },
           "dbRef": { "type": "string", "default": "baltic_patrol" },
           "policyId": { "type": "string", "default": "baltic-patrol-catalog" },
           "seed": { "type": "integer", "default": 42 }
         }
-      }
+      },
+      "returns": "Path to created scenario (schemaVersion 2 contract)"
     },
     {
       "name": "mission_add_patrol",
@@ -288,6 +290,7 @@
     },
     {
       "name": "mission_plan_suggest",
+      "description": "Heuristic intent-to-mission suggestions (stub; no LLM in blocking path per doc 11). S86-01 verb polish.",
       "command": "pwsh",
       "args": [
         "-File",
@@ -302,10 +305,10 @@
         "type": "object",
         "required": ["intent"],
         "properties": {
-          "intent": { "type": "string" }
+          "intent": { "type": "string", "description": "Natural language intent (e.g. 'patrol and strike baltic')" }
         }
       },
-      "returns": "JSON suggestions for mission_add_* tools"
+      "returns": "JSON suggestions for mission_add_* tools (stub per AME-8.6 / qa-plan #17)"
     },
     {
       "name": "scenario_cyber_status",
@@ -408,6 +411,41 @@
         }
       },
       "returns": "JSON sample summary (worldHash, fingerprint, engagementCount); exit 1 if validation blocks"
+    },
+    {
+      "name": "scenario_event_trace",
+      "command": "pwsh",
+      "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "scenario_event_trace", "-ExtraArgs", "--path", "${scenarioPath}", "--event", "${eventId}"],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath"],
+        "properties": {
+          "scenarioPath": { "type": "string", "description": "Repo-relative path to canonical scenario.json" },
+          "eventId": { "type": "string", "default": "red_launch" }
+        }
+      },
+      "returns": "Trace string from ScenarioDocumentEditor.ExplainEventTrace (stub per ADR-016 / doc 11 #17)"
+    },
+    {
+      "name": "scenario_publish",
+      "description": "Publish/validate+export gate for scenario (S86-01 MCP parity).",
+      "command": "pwsh",
+      "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "scenario_publish", "-ExtraArgs", "--path", "${scenarioPath}"],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath"],
+        "properties": { "scenarioPath": { "type": "string" } }
+      }
+    },
+    {
+      "name": "scenario_ai_scaffold",
+      "description": "AI scaffold / NL planning stub (no LLM blocking per doc11). S86-01.",
+      "command": "pwsh",
+      "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "scenario_ai_scaffold", "-ExtraArgs", "--brief", "${brief}"],
+      "inputSchema": {
+        "type": "object",
+        "properties": { "brief": { "type": "string" } }
+      }
     },
     {
       "name": "osint_search",

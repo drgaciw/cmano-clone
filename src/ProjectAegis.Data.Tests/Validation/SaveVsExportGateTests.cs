@@ -14,6 +14,8 @@ using CatalogTlTier = ProjectAegis.Data.Catalog.CatalogTlTier;
 /// export/play/simulate must be REJECTED for that same file via
 /// <see cref="ScenarioValidationExportGate"/>. Also proves the export-block severity floor
 /// tuning knob (<see cref="ValidationConfig.ExportBlockSeverityFloor"/>).
+///
+/// S82-03: clear save-ok/export-blocked test; hardened gate. Cites boundary + sprint-82 + execute-plan + roadmap.
 /// </summary>
 public sealed class SaveVsExportGateTests
 {
@@ -52,6 +54,11 @@ public sealed class SaveVsExportGateTests
     [Fact]
     public void Export_is_rejected_for_the_same_scenario_that_saved_successfully()
     {
+        // S82-03 / AC-12 (qa-plan-scenario-editor-2026-07-01.md unit #12):
+        // Clear assertion: save path succeeds for blocking-error state; export gate + Prepare
+        // (used by scenario_export_brief / simulate / publish) are blocked on the *same file*.
+        // Cites: scenario-editor-scope-boundary-2026-07-04.md, roadmap-execute-plan-07042026.md,
+        // production/sprints/sprint-82-validation-tracks-ac.md, 11-Agentic-Mission-Editor.md AME-6.5.
         var editor = ScenarioDocumentEditor.CreateNew(dbRef: "baltic_patrol");
         editor.AddStrikeMission("strike-1", new[] { "u1" }, new string[0]);
 
@@ -59,13 +66,24 @@ public sealed class SaveVsExportGateTests
         try
         {
             editor.Save(path);
-            Assert.True(File.Exists(path));
+            Assert.True(File.Exists(path), "save must succeed for scenario with blocking validation errors");
+
+            // Reload from the persisted file to prove the saved artifact carries the bad state.
+            var reloaded = ScenarioDocumentEditor.Load(path);
+            var reloadedDto = reloaded.ToDto();
 
             var catalog = ValidationCatalogFixture.Default();
-            var (allowed, report) = ScenarioValidationExportGate.EvaluateExport(editor.ToDto(), catalog);
 
-            Assert.False(allowed);
+            // Direct gate (used by scenario_validate and export_brief pre-check)
+            var (allowed, report) = ScenarioValidationExportGate.EvaluateExport(reloadedDto, catalog);
+            Assert.False(allowed, "export must be blocked (via gate) for the scenario that saved successfully");
             Assert.Contains(report.Findings, f => f.Code == "STRIKE_NO_TARGETS" && f.Severity == ValidationSeverity.Error);
+
+            // Real export pipeline path (Prepare applies transforms then gate; used by simulate + publish)
+            var exportPackage = ScenarioExportCommand.Prepare(reloadedDto, catalog);
+            Assert.False(exportPackage.Allowed);
+            Assert.NotNull(exportPackage.ValidationReport);
+            Assert.Contains(exportPackage.ValidationReport.Findings, f => f.Code == "STRIKE_NO_TARGETS");
         }
         finally
         {

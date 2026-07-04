@@ -15,8 +15,12 @@ using Xunit;
 /// code execution APIs (Reflection.Emit, Roslyn scripting, Process.Start,
 /// eval-style constructs).
 ///
-/// See docs/architecture/adr-014-lua-compatibility-scope.md and
-/// Game-Requirements/requirements/11-Agentic-Mission-Editor.md.
+/// S86-03 extension: additional reachable sources per qa-plan-scenario-editor-2026-07-01.md #19
+/// and sprint-86 kickoff (ScenarioValidationExportGate, Reachability*, AiAuthoring*, EditVersionGuard).
+/// Primary files + cites: roadmap-execute-plan-07042026.md, scenario-editor-scope-boundary-2026-07-04.md,
+/// production/sprints/sprint-86-cli-mcp-polish.md, AGENTS.md (GitNexus impact on ValidationEngine 17 HIGH / Editor 20 CRITICAL),
+/// docs/architecture/adr-014-lua-compatibility-scope.md, Game-Requirements/requirements/11-Agentic-Mission-Editor.md (NFR #19).
+/// Test remains green; no dynamic surface introduced.
 /// </summary>
 public sealed class NoDynamicExecutionGateTests
 {
@@ -81,6 +85,11 @@ public sealed class NoDynamicExecutionGateTests
     [InlineData("src", "ProjectAegis.Data", "Validation", "ScenarioValidationEngine.cs")]
     [InlineData("src", "ProjectAegis.Data", "Validation", "Rules", "ValidationRules.cs")]
     [InlineData("src", "ProjectAegis.Data", "Scenario", "Authoring", "ScenarioDocumentEditor.cs")]
+    // S86-03: extend per qa-plan #19 for additional reachable authoring/validation path sources (export gate, reachability, AI stub, edit guard)
+    [InlineData("src", "ProjectAegis.Data", "Validation", "ScenarioValidationExportGate.cs")]
+    [InlineData("src", "ProjectAegis.Data", "Validation", "ReachabilityCalculator.cs")]
+    [InlineData("src", "ProjectAegis.Data", "Scenario", "Authoring", "AiAuthoringServices.cs")]
+    [InlineData("src", "ProjectAegis.Data", "Scenario", "Authoring", "ScenarioEditVersionGuard.cs")]
     public void Validation_and_authoring_source_has_no_dynamic_code_execution(params string[] relativeSegments)
     {
         var path = ResolveRepoFile(relativeSegments);
