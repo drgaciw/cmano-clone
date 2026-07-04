@@ -26,6 +26,7 @@ public static class MissionUpdatePatrolCommand
         {
             var editor = ScenarioDocumentEditor.Load(scenarioPath);
             editor.RequireEditVersion(editVersion, scenarioPath);
+            editor.PushUndoSnapshot(scenarioPath);
             editor.UpdatePatrolMission(
                 missionId,
                 unitIds?.Count > 0 ? unitIds : null,

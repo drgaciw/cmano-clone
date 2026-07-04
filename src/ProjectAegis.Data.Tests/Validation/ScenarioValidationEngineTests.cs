@@ -57,6 +57,25 @@ public sealed class ScenarioValidationEngineTests
         Assert.False(string.IsNullOrEmpty(finding.Data!["excess_nm"]));
     }
 
+    /// <summary>
+    /// Doc 11 AC-1: the STRIKE_UNREACHABLE finding message must take the exact form
+    /// "…out of combat radius by N nm…" (see StrikeReachabilityRule in ValidationRules.cs).
+    /// ValidationCatalogFixture.Unreachable() positions 'u1' and 'tgt-1' 800 nm apart (along a
+    /// meridian) against a 400 nm combat radius, which Haversine resolves to ~800.539 nm —
+    /// excess = distance - combatRadiusNm = ~400.539 nm, rounded to 400.5.
+    /// </summary>
+    [Fact]
+    public void Strike_unreachable_message_matches_AC1_format_with_computed_excess_nm()
+    {
+        var scenario = StrikeScenario();
+        var report = _engine.Validate(scenario, ValidationCatalogFixture.Unreachable(), _config);
+        var finding = Assert.Single(report.Findings, f => f.Code == "STRIKE_UNREACHABLE");
+
+        Assert.Equal(
+            "Strike mission 'strike-1' target 'tgt-1' is out of combat radius by 400.5 nm.",
+            finding.Message);
+    }
+
     [Fact]
     public void Strike_within_combat_radius_but_over_fuel_budget_emits_STRIKE_UNREACHABLE_FUEL()
     {
@@ -77,6 +96,26 @@ public sealed class ScenarioValidationEngineTests
 
         var report = _engine.Validate(scenario, ValidationCatalogFixture.Default(), _config);
         Assert.Contains(report.Findings, f => f.Code == "MISSION_NO_UNITS");
+    }
+
+    /// <summary>
+    /// One of the six doc-11 AME-6.2 v1 rule codes (AC-3a-f). Prior coverage only exercised
+    /// DB_MISMATCH inside the combined ValidationGoldenTests.All_six_v1_rules_emit_expected_codes
+    /// test — this pins it down as its own focused unit test, mirroring
+    /// Mission_no_units_emits_MISSION_NO_UNITS above. Uses InMemoryCatalogReader (not the local
+    /// ValidationCatalogFixture, whose TryResolveDbRef always returns true and would never fire
+    /// DB_MISMATCH).
+    /// </summary>
+    [Fact]
+    public void Db_ref_mismatch_emits_DB_MISMATCH()
+    {
+        var scenario = new ScenarioDocumentDto
+        {
+            Metadata = new ScenarioMetadataDto { DbRef = "missing-db-xyz" },
+        };
+
+        var report = _engine.Validate(scenario, InMemoryCatalogReader.BalticPatrolFixture(), _config);
+        Assert.Contains(report.Findings, f => f.Code == "DB_MISMATCH");
     }
 
     private static ScenarioDocumentDto StrikeScenario() =>
@@ -179,7 +218,7 @@ public sealed class ScenarioValidationEngineTests
     }
 
     [Fact]
-    public void Editor_migration_preview_from_clean_editor_plus_legacy_unit_produces_nonzero_ObsoleteCount_BrokenMounts_and_real_delta()
+    public void Editor_migration_preview_from_clean_editor_plus_legacy_unit_produces_nonzero_ObsoleteCount_BrokenMounts_and_real_delta() // proof update
     {
         // clean start state, real shipped editor + pure preview Compute, no mocks of preview
         var editor = ScenarioDocumentEditor.CreateNew(dbRef: "baltic_patrol");

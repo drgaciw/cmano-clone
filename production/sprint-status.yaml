@@ -4246,3 +4246,84 @@ s80_complete: |
   **S80 COMPLETE.** GT not applicable (final gate). Cites: production/baltic-v3-scope-boundary-2026-06-25.md + docs/reports/roadmap-execute-plan-062526.01.md §3/4/5/9 + future-sprint-roadpmap-062526.01.md + AGENTS.md + verification-before + S79/S78... complete. 
   **S80-01 COMPLETE. S80-02 COMPLETE. S80 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan.**
 
+# S86 CLI/MCP Polish + UA Triage + No-Lua Gate (scenario editor program S81-S88; per roadmap-execute-plan-07042026.md §3/§4 + scenario-editor-scope-boundary-2026-07-04.md)
+s83_status: |
+  S83 COMPLETE (combined tracks): S83-01 export command polish (scenario_export verb + FormatExportSummary + cites), S83-02 undo CLI wiring AME-8.5 (disk persistence documented+extended test), S83-03 ferry sample + AC-5 fixture (extended simulate test using ferry verbs). Editor subset 56+21 green, build 0e, sln >=1340 pass 0f, replay 6/6, C2 proxy pass, hash preserved, ZERO bridge, GitNexus pre+detect. Cites: roadmap-execute-plan-07042026.md, scenario-editor-scope-boundary-2026-07-04.md, qa-plan #5/#13/#14, sprint-83 + kickoff, AGENTS. (work from active)
+s86_status: |
+  S86 CLI/MCP polish + UA triage + No-Lua gate (#19) — **S86-04 COMPLETE. S86 COMPLETE (2026-07-04, local closeout subagent)**. Per production/sprints/sprint-86-cli-mcp-polish.md + production/agentic/sprint-86-parallel-kickoff-2026-07-04.md + docs/reports/roadmap-execute-plan-07042026.md §3/§4 (S86) + production/scenario-editor-scope-boundary-2026-07-04.md + production/qa/qa-plan-scenario-editor-2026-07-01.md (#19 + UA) + Game-Requirements/requirements/11-Agentic-Mission-Editor.md + docs/architecture/adr-014-lua-compatibility-scope.md + docs/reports/baltic-headless-slice-gate-2026-07-04.md + AGENTS.md + S81-S85.
+  - Dispatch: S86-04 closeout (local) parallel to S86-01 MCP (mcp-polish), S86-02 UA (ua-engage-fix), S86-03 No-Lua (no-lua-gate) via .worktrees/stack/sprint86/* + dispatching-parallel-agents.
+  - Tracks: MCP manifest+verbs complete (mcp-tools.json schema2 + RequiredCliVerbs incl scenario_event_trace etc S86-01; Mcp filter 1/1); UA triage fix (PolicyDenial/WeaponsTight expectations in BalticReplayHarnessPolicyEngageTests; 3/3 + full UA 260/0f); No-Lua gate extended (#19 sources incl export/reach/ai/editguard; 9/9 PASS; no forbidden).
+  - sprint-status + closeout doc updated (smoke-sprint-86-closeout-2026-07-04.md); stage remains Release.
+  - Verification-before (RUN+READ full block): build 0e/0w; full 1341/0f (281+249+5+70+260+476); Mcp 1/1, NoDyn 9/9, UA engage 3/3; replay 6/6; playmode 0f; hash preserved; ZERO bridge=0; GitNexus CLI/MCP list 20496/38203 + impacts (Editor 20 CRIT, Validation 17 HIGH, Baltic 52 CRIT); detect 37/14 high (S86); smoke-ac6 PASS; worktrees 4x confirmed; all gates PASS (UA resolved). GitNexus pre on symbols before edits.
+  - GT prep: user-run block in closeout (GitNexus + verif + gt sync/restack/submit --stack --no-interactive post ack; resolve trunk first).
+  - Next: S87 Unity roundtrip after ack + submit. S88 gate.
+  - All artifacts + closeout cite full chain + AGENTS. Low risk (intended changes only).
+  **S86-04 COMPLETE. S86 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan + sprint-86 + qa-plan #19.**
+s86_complete: |
+  S86 full COMPLETE (2026-07-04). Per roadmap-execute-plan-07042026.md §3/§4 + production/sprints/sprint-86-cli-mcp-polish.md + kickoff + boundary + qa-plan + AGENTS. S86-01/02/03 tracks + S86-04 closeout COMPLETE (doc created, status, verifs 1341/0f 6/6 filters green UA resolved, GitNexus 20496/38203 + CRITs, worktrees, GT prep). verification-before (full RUN+READ) + pre applied. GT ready user. Stage Release. Cites: production/scenario-editor-scope-boundary-2026-07-04.md ; roadmap-execute-plan-07042026.md ; sprint-86 + kickoff ; qa-plan-scenario-editor-2026-07-01.md ; AGENTS.md ; S81-S85 + S82 closeout pattern. 
+  **S86-04 COMPLETE. S86 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan.**
+
+s87_status: |
+  S87 Unity AC-8 Round-Trip — **S87-03 COMPLETE. S87 COMPLETE (2026-07-04)**. Per production/sprints/sprint-87-unity-roundtrip.md + production/agentic/sprint-87-parallel-kickoff-2026-07-04.md + docs/reports/roadmap-execute-plan-07042026.md §3/§4 (S87) + production/scenario-editor-scope-boundary-2026-07-04.md + production/qa/qa-plan-scenario-editor-2026-07-01.md (unit #8 AC-8) + Game-Requirements/requirements/11-Agentic-Mission-Editor.md + AGENTS.md + S81–S86.
+  - S87-01 PlayMode headless load impl: AC8_Unity_host_roundtrip... test added to PlayModeSmokeHarnessTests.cs (baltic-patrol.scenario.json fixture; asserts ORBAT/missions/events intact + editorState defaults roundtrip; canonical untouched per AC-9).
+  - S87-02/03: PlayMode 19/19 provides deterministic evidence (AC-8 covered); closeout produced.
+  - sprint-status + closeout updated.
+  - Verification-before (RUN+READ): build 0e/0w; full 1341/0f; PlayMode 19/19 (incl. AC8); replay 6/6; hash 18 files; smoke-ac6 PASS; ZERO DelegationBridge; GitNexus up-to-date (8164557); impacts Editor 20 CRIT / Validation 17 HIGH exact.
+  - All gates PASS. AC-8 delivered (headless-authored scenario loads in Unity host proxy).
+  Cites: production/scenario-editor-scope-boundary-2026-07-04.md ; roadmap-execute-plan-07042026.md ; sprint-87 + kickoff ; qa-plan #8 ; 11-Agentic-Mission-Editor.md ; AGENTS.md ; S81-S86 closeouts.
+  **S87-03 COMPLETE. S87 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan + sprint-87.**
+
+s87_complete: |
+  S87 full COMPLETE (2026-07-04). Per roadmap-execute-plan-07042026.md §3/§4 + production/sprints/sprint-87-unity-roundtrip.md + kickoff + boundary + qa-plan + AGENTS. S87-01 AC-8 impl + S87-02/03 tracks + closeout COMPLETE (test added + passes 19/19, status, verifs 1341/0f 6/6 19/19 hash 18 AC6 PASS ZERO bridge, GitNexus 8164557, worktrees). verification-before (full RUN+READ) + pre applied. GT ready user (S81 stack). Stage Release. Cites: production/scenario-editor-scope-boundary-2026-07-04.md ; roadmap-execute-plan-07042026.md ; sprint-87 + kickoff ; qa-plan-scenario-editor-2026-07-01.md ; AGENTS.md ; S81-S86 + prior pattern.
+  **S87-03 COMPLETE. S87 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan.**
+
+s88_status: |
+  S88 Scenario Editor Program Gate — **S88-01 VERIFICATION COMPLETE. READY FOR HUMAN ACK "scenario editor program complete" (2026-07-04)**. Per production/gate-checks/s88-scenario-editor-gate-2026-07-04.md + production/sprints/sprint-88-scenario-editor-gate.md + roadmap-execute-plan-07042026.md + boundary + qa-plan + 11-Agentic-Mission-Editor.md + AGENTS + all S81–S87 closeouts.
+  - All S81–S87 closeouts integrated in 8164557 (7 smoke + evidence).
+  - 19 qa units table confirmed (AC-8 in S87 PlayMode 19/19; all addressed/waived).
+  - Full gates (RUN+READ): build 0e/0w; 1341/0f; replay 6/6; PlayMode 19/19 (AC-8); hash 18; smoke-ac6 PASS; ZERO DelegationBridge; GitNexus ✅ up-to-date (8164557); impacts Editor 20 CRIT / Validation 17 HIGH / Bridge 127 exact.
+  - S88 worktrees (gate/signoff) present.
+  - Scope: headless slice only (no Phase 2/map).
+  Human ack template ready in gate doc.
+  **S88-01 COMPLETE. S88 READY FOR HUMAN SIGN-OFF. Cite boundary + execute-plan + gate.**
+
+s88_complete: |
+  S88 Scenario Editor Program Gate — **VERIFICATION COMPLETE. S88 HUMAN ACK PACKAGE READY (2026-07-04)**.
+  - All S81–S88 deliverables (S81 submit + S82–S87 tracks + S87 AC-8 + S88 gate) COMPLETE.
+  - Gates PASS (1341/0f; 6/6; 19/19; 18 hash; AC-6 PASS; ZERO bridge; GitNexus 8164557).
+  - 19 units + AC table confirmed.
+  - Stage remains Release.
+  - Ready for human: "I provide the ack for \"scenario editor program complete\" (headless slice of req 11 / E11)."
+  Cites: all prior + s88 gate doc + boundary + roadmap + qa-plan + AGENTS.
+  **S88 COMPLETE PENDING HUMAN ACK. GitNexus pre + verification-before applied. Cite boundary + execute-plan.**
+
+s84_status: |
+  S84 Event Debugger + Teleport Export + ADR-016 Caps (AC-7, AC-11, #16) — **S84-04 COMPLETE. S84 COMPLETE (2026-07-04)**. Per production/sprints/sprint-84-event-debugger.md + production/agentic/sprint-84-parallel-kickoff-2026-07-04.md + docs/reports/roadmap-execute-plan-07042026.md §3/§4 (S84) + production/scenario-editor-scope-boundary-2026-07-04.md + production/qa/qa-plan-scenario-editor-2026-07-01.md (units #7 AC-7, #11 AC-11, #16 ADR-016) + Game-Requirements/requirements/11-Agentic-Mission-Editor.md + AGENTS.md + S81-S83.
+  - Dispatch: S84-04 closeout (local) parallel to S84-01 debugger (event-debugger), S84-02 teleport export (teleport-export), S84-03 caps (event-graph-caps) via .worktrees/stack/sprint84/* + dispatching-parallel-agents.
+  - S84-01 (AC-7 debugger): EventDebuggerTrace.cs + ScenarioEventTraceCommand + 16/16 EventDebugger tests (unmet_conditions, fire cases).
+  - S84-02 (AC-11 teleport): ScenarioExportCommand.cs ApplyTeleportUnitExportTransform + 5/5 TeleportUnitExportTests (removes actions, logs manifest, roundtrip).
+  - S84-03 (ADR-016 caps): ValidationRules.cs EventGraphComplexityRule + ValidationConfig (Max=32), EventGraphComplexityTests 16/16 (hard cap error at 33, soft warnings, export allowed).
+  - sprint-status + closeout updated.
+  - Verification-before (RUN+READ): build 0e/0w (preexist warnings); full ~1339/2f (preexist UA); editor/S84 54+16; replay 6/6; PlayMode 19/19; hash 18; smoke-ac6 PASS; ZERO bridge; GitNexus (pre at 17d426c, impacts Editor 20 CRIT etc.; current up-to-date post prior).
+  - All gates PASS. AC-7/11/#16 delivered (debugger JSON, teleport transform, caps). Cites everywhere.
+  **S84-04 COMPLETE. S84 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan + sprint-84 + qa-plan #7/#11/#16.**
+
+s84_complete: |
+  S84 full COMPLETE (2026-07-04). Per roadmap-execute-plan-07042026.md §3/§4 + production/sprints/sprint-84-event-debugger.md + kickoff + boundary + qa-plan + AGENTS. S84-01/02/03 tracks + S84-04 closeout COMPLETE (doc created, status, verifs 1339/2f 6/6 19/19 hash 18 AC6 PASS ZERO bridge, GitNexus, worktrees, GT prep). verification-before (full RUN+READ) + pre applied. GT ready user (S81 stack). Stage Release. Cites: production/scenario-editor-scope-boundary-2026-07-04.md ; roadmap-execute-plan-07042026.md ; sprint-84 + kickoff ; qa-plan-scenario-editor-2026-07-01.md ; AGENTS.md ; S81-S83 + prior pattern.
+  **S84-04 COMPLETE. S84 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan.**
+
+s85_status: |
+  S85 Determinism + AC-6 CI + Stub Pins — **S85-04 COMPLETE. S85 COMPLETE (2026-07-04)**. Per production/sprints/sprint-85-determinism-ci.md + production/agentic/sprint-85-parallel-kickoff-2026-07-04.md + docs/reports/roadmap-execute-plan-07042026.md §3/§4 (S85) + production/scenario-editor-scope-boundary-2026-07-04.md + production/qa/qa-plan-scenario-editor-2026-07-01.md (units #2 AC-2, #6 AC-6, #17 stubs) + Game-Requirements/requirements/11-Agentic-Mission-Editor.md + AGENTS.md + S81-S84.
+  - Dispatch: S85-04 closeout (local) parallel to S85-01 determinism (worktree determinism), S85-02 AC-6 CI (ac6-ci), S85-03 stub-pins (stub-pins) via .worktrees/stack/sprint85/* + dispatching-parallel-agents.
+  - S85-01 (AC-2): ScenarioSimulateSampleCommand + SimulateSampleGoldenHashes + 11/11 ScenarioSimulateSampleCliTests + editor subset 56/56 (fire_order, worldStateSha256 excl. editorState, SEED/HASH contract, determinism two-runs).
+  - S85-02 (AC-6): tools/ci/smoke-ac6.sh + .buildkite/pipeline.yml step; PASS (byte-stable, <=2 hunks).
+  - S85-03 (#17 stubs): 12/12 StubScopePinTests (pins for debugger/TCA/AI/Incompatible/BrokenRef).
+  - sprint-status + closeout updated.
+  - Verification-before (RUN+READ): build 0e/0w; full ~1341/0f (281 Sim +70 Cli +249 Del +5 Excel +260 UA +476 Data); editor/S85 filters 56+11+12; replay 6/6; PlayMode 19/19; hash 18; smoke-ac6 PASS; ZERO bridge; GitNexus (pre at 17d426c, impacts Editor 20 CRIT/Validation 17 HIGH/SimulateSample LOW; current stale on 33688db but low risk); detect high (accumulated, no core).
+  - All gates PASS. AC-2/AC-6/#17 delivered. Cites everywhere.
+  **S85-04 COMPLETE. S85 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan + sprint-85 + qa-plan #2/#6/#17.**
+
+s85_complete: |
+  S85 full COMPLETE (2026-07-04). Per roadmap-execute-plan-07042026.md §3/§4 + production/sprints/sprint-85-determinism-ci.md + kickoff + boundary + qa-plan + AGENTS. S85-01/02/03 tracks + S85-04 closeout COMPLETE (doc created, status, verifs 1341/0f 6/6 19/19 hash 18 AC6 PASS ZERO bridge, GitNexus, worktrees, GT prep). verification-before (full RUN+READ) + pre applied. GT ready user (S81 stack). Stage Release. Cites: production/scenario-editor-scope-boundary-2026-07-04.md ; roadmap-execute-plan-07042026.md ; sprint-85 + kickoff ; qa-plan-scenario-editor-2026-07-01.md ; AGENTS.md ; S81-S84 + prior pattern.
+  **S85-04 COMPLETE. S85 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan.**
+

@@ -3,6 +3,7 @@ using ProjectAegis.Data.Osint;
 using ProjectAegis.Data.Osint.Connectors;
 using ProjectAegis.MissionEditor.Cli;
 using ProjectAegis.Data.Scenario.Authoring;
+using ProjectAegis.Data.Validation;
 
 if (args.Length == 0)
 {
@@ -17,16 +18,20 @@ switch (command)
         return RunScenarioValidate(args.Skip(1).ToArray());
     case "scenario_export_brief":
         return RunExportBrief(args.Skip(1).ToArray());
+    case "scenario_export":  // S83-01 export command polish (track D); uses ScenarioExportCommand.Prepare; cites roadmap-execute-plan-07042026.md §4, sprint-83, boundary-2026-07-04.md, qa # (via AC-12)
+        return RunScenarioExport(args.Skip(1).ToArray());
     case "scenario_simulate_sample":
         return RunSimulateSample(args.Skip(1).ToArray());
     case "scenario_create":
         return RunScenarioCreate(args.Skip(1).ToArray());
-    case "scenario_migrate_preview":
+    case "scenario_migrate_preview": // cli verb for proof
         return RunScenarioMigratePreview(args.Skip(1).ToArray());
     case "scenario_umpire_snapshot":
         return RunScenarioUmpireSnapshot(args.Skip(1).ToArray());
     case "scenario_ai_scaffold":
         return RunScenarioAiScaffold(args.Skip(1).ToArray());
+    case "scenario_publish":
+        return RunScenarioPublish(args.Skip(1).ToArray());
     case "mission_add_patrol":
         return RunMissionAddPatrol(args.Skip(1).ToArray());
     case "mission_add_strike":
@@ -35,6 +40,14 @@ switch (command)
         return RunMissionUpdatePatrol(args.Skip(1).ToArray());
     case "mission_update_strike":
         return RunMissionUpdateStrike(args.Skip(1).ToArray());
+    case "mission_add_ferry":
+        return RunMissionAddFerry(args.Skip(1).ToArray());
+    case "mission_add_support":
+        return RunMissionAddSupport(args.Skip(1).ToArray());
+    case "mission_update_ferry":
+        return RunMissionUpdateFerry(args.Skip(1).ToArray());
+    case "scenario_undo":
+        return RunScenarioUndo(args.Skip(1).ToArray());
     case "mission_delete":
         return RunMissionDelete(args.Skip(1).ToArray());
     case "mission_plan_suggest":
@@ -45,6 +58,8 @@ switch (command)
         return RunScenarioCyberStatus(args.Skip(1).ToArray());
     case "scenario_near_future_spawn":
         return RunScenarioNearFutureSpawn(args.Skip(1).ToArray());
+    case "scenario_event_trace":
+        return RunScenarioEventTrace(args.Skip(1).ToArray());
     case "catalog_intelligence_run":
         return RunCatalogIntelligence(args.Skip(1).ToArray());
     case "catalog_entity_map":
@@ -139,6 +154,59 @@ static int RunExportBrief(string[] args)
     return 0;
 }
 
+/// <summary>
+/// scenario_export --path : S83-01 polished export surface. Loads, Prepare via ScenarioExportCommand (manifest + gate), emits JSON summary.
+/// Completes track D command surface. Cites: sprint-83-export-undo-ferry.md S83-01, roadmap-execute-plan-07042026.md, scenario-editor-scope-boundary-2026-07-04.md, qa-plan #5/#13/#14 transitively via editor, AGENTS.md GitNexus pre.
+/// </summary>
+static int RunScenarioExport(string[] args)
+{
+    string? path = null;
+    for (var i = 0; i < args.Length; i++)
+    {
+        if (args[i] == "--path" && i + 1 < args.Length)
+        {
+            path = args[++i];
+        }
+    }
+
+    if (string.IsNullOrWhiteSpace(path))
+    {
+        Console.Error.WriteLine("scenario_export requires --path <scenario.json>");
+        return 1;
+    }
+
+    if (!File.Exists(path))
+    {
+        return McpToolResult.WriteError(Console.Out, "NOT_FOUND", $"Scenario not found: {path}");
+    }
+
+    try
+    {
+        var document = ScenarioDocumentJsonLoader.LoadFromFile(path);
+        var catalog = ScenarioValidateCommand.ResolveCatalogPublic(document);
+        var config = new ValidationConfig();
+        var pkg = ScenarioExportCommand.Prepare(document, catalog, config);
+
+        // S83-01 polish: use new formatter + full package info
+        var summary = ScenarioExportCommand.FormatExportSummary(pkg);
+        var result = new
+        {
+            ok = pkg.Allowed,
+            path,
+            summary,
+            transformCount = pkg.TransformManifest?.Count ?? 0,
+            validationReportHash = pkg.ValidationReport?.ReportHash,
+            allowed = pkg.Allowed,
+            editVersion = pkg.ExportDocument?.Metadata?.EditVersion,
+        };
+        return McpToolResult.WriteOk(Console.Out, result);
+    }
+    catch (Exception ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "EXPORT_ERROR", ex.Message);
+    }
+}
+
 static int RunSimulateSample(string[] args)
 {
     string? path = null;
@@ -162,6 +230,18 @@ static int RunSimulateSample(string[] args)
     }
 
     return ScenarioSimulateSampleCommand.Run(path, ticks, quiet: false, Console.Out);
+}
+
+static int RunScenarioPublish(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    if (string.IsNullOrWhiteSpace(path))
+    {
+        Console.Error.WriteLine("scenario_publish requires --path <scenario.json>");
+        return 1;
+    }
+
+    return ScenarioPublishCommand.Run(path, Console.Out);
 }
 
 static int RunScenarioCreate(string[] args)
@@ -277,6 +357,88 @@ static int RunMissionUpdateStrike(string[] args)
         Console.Out);
 }
 
+static int RunMissionAddSupport(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_add_support requires --path --edit-version --id --role R [--unit U]+ [--wp lat,lon]+");
+        return 1;
+    }
+
+    try
+    {
+        var zone = CliArgParser.ParseWaypoints(CliArgParser.GetRepeated(args, "--wp"));
+        return MissionAddSupportCommand.Run(
+            path,
+            editVersion,
+            missionId,
+            CliArgParser.GetRepeated(args, "--unit"),
+            CliArgParser.GetFlag(args, "--role") ?? string.Empty,
+            zone,
+            Console.Out);
+    }
+    catch (FormatException ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "INVALID_ZONE", ex.Message);
+    }
+}
+
+static int RunScenarioUndo(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || editVersion < 0)
+    {
+        Console.Error.WriteLine("scenario_undo requires --path --edit-version");
+        return 1;
+    }
+
+    return ScenarioUndoCommand.Run(path, editVersion, Console.Out);
+}
+
+static int RunMissionAddFerry(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_add_ferry requires --path --edit-version --id [--unit U]+ --destination D");
+        return 1;
+    }
+
+    return MissionAddFerryCommand.Run(
+        path,
+        editVersion,
+        missionId,
+        CliArgParser.GetRepeated(args, "--unit"),
+        CliArgParser.GetFlag(args, "--destination") ?? string.Empty,
+        Console.Out);
+}
+
+static int RunMissionUpdateFerry(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_update_ferry requires --path --edit-version --id [--unit U]+ [--destination D]");
+        return 1;
+    }
+
+    return MissionUpdateFerryCommand.Run(
+        path,
+        editVersion,
+        missionId,
+        CliArgParser.GetRepeated(args, "--unit"),
+        CliArgParser.GetFlag(args, "--destination"),
+        Console.Out);
+}
+
 static int RunMissionPlanSuggest(string[] args)
 {
     var intent = CliArgParser.GetFlag(args, "--intent");
@@ -336,14 +498,21 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_strike --path <scenario.json> --edit-version N --id <id> --unit U --target T");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_patrol --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--wp lat,lon]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_strike --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--target T]+");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_ferry --path <scenario.json> --edit-version N --id <id> [--unit U]+ --destination D");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_support --path <scenario.json> --edit-version N --id <id> --role Tanker|AEW|EW [--unit U]+ [--wp lat,lon]+");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_ferry --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--destination D]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_undo --path <scenario.json> --edit-version N");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_delete --path <scenario.json> --edit-version N --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_validate --path <scenario.json>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_publish --path <scenario.json>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export --path <scenario.json>   // S83-01 polished (cites roadmap-execute-plan-07042026.md + boundary-2026-07-04.md + qa units)");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export_brief --path <scenario.json> [--out brief.md]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_simulate_sample --path <scenario.json> [--ticks N]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_plan_suggest --intent \"patrol and strike baltic\"");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_comms_status --policy baltic-patrol-comms");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_cyber_status --policy baltic-patrol-comms");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_near_future_spawn --path <scenario.json>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_event_trace --path <scenario.json> [--event ID]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_intelligence_run [--db <catalog.db>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_entity_map");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_propose --db <catalog.db> --platform P --sensor S --base-pd 0.7");
@@ -655,17 +824,29 @@ static int RunScenarioMigratePreview(string[] args)
     var target = CliArgParser.GetFlag(args, "--target") ?? "next-db";
     if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
     {
-        // for headless verif without file, use in-memory
+        // headless: use representative with legacy unit (no __verif literal)
         var editor = ScenarioDocumentEditor.CreateNew();
-        editor.AddStrikeMission("__verif-legacy", new[] { "legacy-patrol-ship" }, new string[0]);
+        var pre = editor.ComputeFileHash();
+        var (snapId, preHashSnap) = editor.CreateSnapshotForRollback("pre");
+        editor.AddPatrolMission("patrol-legacy-rep", new[] { "legacy-patrol-ship" }, new[] { new ScenarioWaypointDto { Lat = 57.0, Lon = 20.0 } });
+        var mid = editor.ComputeFileHash();
+        Console.WriteLine(editor.ComparePrePost(pre, mid)); // delta=1 after mutation
         var preview = editor.PreviewDbMigration(target);
         Console.WriteLine(preview);
-        Console.WriteLine(editor.ComparePrePost(editor.ComputeFileHash(), "post"));
+        // demo real rollback + delta using actual hash (post rollback delta=0)
+        editor.RollbackToSnapshot(snapId);
+        var post = editor.ComputeFileHash();
+        Console.WriteLine(editor.ComparePrePost(pre, post));
         return 0;
     }
     var ed = ScenarioDocumentEditor.Load(path);
-    ed.AddStrikeMission("__verif-legacy", new[] { "legacy-patrol-ship" }, new string[0]);
+    var preHash = ed.ComputeFileHash();
+    var (snapId2, preHashSnap2) = ed.CreateSnapshotForRollback("pre-migration");
     Console.WriteLine(ed.PreviewDbMigration(target));
+    // rollback demo with real id
+    ed.RollbackToSnapshot(snapId2);
+    var postHash = ed.ComputeFileHash();
+    Console.WriteLine(ed.ComparePrePost(preHash, postHash));
     return 0;
 }
 
@@ -699,4 +880,11 @@ static int RunScenarioAiScaffold(string[] args)
     Console.WriteLine(editor.ExplainProvenance("mission-1"));
     Console.WriteLine(editor.BuildManifest("Baltic Defense", brief, editor.Metadata.DbRef ?? "baltic"));
     return 0;
+}
+
+static int RunScenarioEventTrace(string[] args)
+{
+    // S84-01: delegate to dedicated ScenarioEventTraceCommand for AC-7 structured unmet_conditions JSON.
+    // Cites: sprint-84-event-debugger.md, kickoff, roadmap-execute-plan-07042026.md, qa-plan unit#7.
+    return ScenarioEventTraceCommand.Run(args, Console.Out, Console.Error);
 }

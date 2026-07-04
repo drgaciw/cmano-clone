@@ -6,7 +6,7 @@
 
 ## Implementation
 
-- [Implementation tracker (MVP status 01–21)](implementation-tracker-2026-06-30.md) — **2026-06-30** (supersedes [2026-06-04](implementation-tracker-2026-06-04.md))
+- [Implementation tracker (MVP status 01–21)](implementation-tracker-2026-07-04.md) — **2026-07-04** (supersedes [2026-07-01](implementation-tracker-2026-07-01.md))
 - [Root master index](../00-Master-Index.md) — redirects here + tracker
 - [Data population (CMAO DB)](Data-Population-CMAODB.md)
 
@@ -59,7 +59,7 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 
 ## Authoring & Design Tools
 
-- [11-Agentic-Mission-Editor.md](requirements/11-Agentic-Mission-Editor.md) — Agentic mission/scenario editor (CMO parity + NL/MCP authoring, validation agents, operations timeline)
+- [11-Agentic-Mission-Editor.md](requirements/11-Agentic-Mission-Editor.md) — Agentic mission/scenario editor (CMO parity + NL/MCP authoring, deterministic Validation Engine, operations timeline); *Revised 2026-07-01, implementation-aligned (AME-* IDs)*; see [ADR-008](../docs/architecture/adr-008-mission-editor-validation-engine.md), [ADR-013…017](../docs/architecture/adr-013-cmo-scenario-import-policy.md)
 - [21-Platform-Editor.md](requirements/21-Platform-Editor.md) — Platform/catalog editor (ships, subs, aircraft, loadouts, comms, sensor suites) with Microsoft Excel round-trip on the write gate; see [ADR-011](../docs/architecture/adr-011-platform-editor-excel-roundtrip.md)
 
 ## Reference
@@ -88,7 +88,7 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 
 ## Next workflow steps
 
-- Execute MVP rows in [implementation-tracker-2026-06-30.md](implementation-tracker-2026-06-30.md) on `stack/*` branches
+- Execute MVP rows in [implementation-tracker-2026-07-04.md](implementation-tracker-2026-07-04.md) on `stack/*` branches
 - Run `/design-review` on docs **01, 04, 06–10** + **13–20** when mechanics change
 - Run `/military-requirements-impact` before DB schema for JADC2, C-UAS, hypersonic defense
 - Close Unity C2 manual sign-off (`production/qa/c2-manual-signoff-2026-06-02.md`)

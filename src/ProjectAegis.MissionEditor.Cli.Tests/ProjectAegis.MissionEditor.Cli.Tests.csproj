@@ -18,4 +18,7 @@
     <ProjectReference Include="..\ProjectAegis.MissionEditor.Cli\ProjectAegis.MissionEditor.Cli.csproj" />
     <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\assets\data\scenarios\validation\**\*" Link="assets\data\scenarios\validation\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

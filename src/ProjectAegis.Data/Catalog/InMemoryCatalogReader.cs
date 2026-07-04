@@ -19,6 +19,7 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     private readonly CatalogLinkEntry[] _links;
     private readonly Dictionary<string, int> _linkLatencyLookup;
     private readonly CatalogDependencyEdge[] _dependencyEdges;
+    private readonly HashSet<string> _doctrinePlatforms;
 
     public InMemoryCatalogReader(
         IEnumerable<CatalogSensorBinding> bindings,
@@ -32,7 +33,8 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         IEnumerable<CatalogLoadout>? loadouts = null,
         IEnumerable<CatalogMagazineEntry>? magazines = null,
         IEnumerable<CatalogCommsBinding>? comms = null,
-        IEnumerable<CatalogLinkEntry>? links = null)
+        IEnumerable<CatalogLinkEntry>? links = null,
+        IEnumerable<string>? doctrinePlatforms = null)
     {
         LayerVersion = layerVersion;
         _bindings = bindings
@@ -79,6 +81,7 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         _links = CatalogSortKeyComparer.SortLinks(links ?? Array.Empty<CatalogLinkEntry>()).ToArray();
         _linkLatencyLookup = _links.ToDictionary(l => l.LinkId, l => l.LatencyMsNominal, StringComparer.Ordinal);
         _dependencyEdges = CatalogDependencyGraphIndex.BuildFrom(_mounts, _magazines, _bindings, _comms, _links).ToArray();
+        _doctrinePlatforms = (doctrinePlatforms ?? Array.Empty<string>()).ToHashSet(StringComparer.Ordinal);
     }
 
     public string LayerVersion { get; }
@@ -93,9 +96,10 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         CatalogValidationDefaults.BalticPlatforms().Concat(new[] { new CatalogPlatformEntry("legacy-patrol-ship", 57.0, 20.0, 100.0) }).ToList(),
         mounts:
         [
-            new CatalogMount("legacy-patrol-ship", "main-gun", "Gun Mount"),
+            new CatalogMount("legacy-patrol-ship", "main-gun", "Gun Mount"), // legacy for obsolete proof
         ],
-        links: CatalogValidationDefaults.BalticLinks());
+        links: CatalogValidationDefaults.BalticLinks(),
+        doctrinePlatforms: new[] { "legacy-patrol-ship" });
 
     /// <summary>Baltic v3: patrol ships + UCAV per side with Recon [Internal IR] loadout.</summary>
     public static InMemoryCatalogReader BalticV3Fixture() =>
@@ -115,7 +119,8 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             new CatalogLoadout("ucav-blue", "recon-internal-ir", "Recon [Internal IR]", "recon", IsDefault: true),
             new CatalogLoadout("ucav-red", "recon-internal-ir", "Recon [Internal IR]", "recon", IsDefault: true),
         ],
-        links: CatalogValidationDefaults.BalticLinks());
+        links: CatalogValidationDefaults.BalticLinks(),
+        doctrinePlatforms: Array.Empty<string>());
 
     /// <summary>Baltic patrol + Phase B mobility/signature/EMCON rows for Req-21 sim consumption tests.</summary>
     public static InMemoryCatalogReader BalticPhaseBFixture(
@@ -322,4 +327,6 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         damage = new CatalogPlatformDamage(platformId);
         return false;
     }
+
+    public bool PlatformHasDoctrine(string platformId) => _doctrinePlatforms.Contains(platformId);
 }

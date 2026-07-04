@@ -39,7 +39,33 @@ public static class BalticReplayHarness
         IReadOnlyList<MessageLogLine> Messages,
         SensorC2Snapshot SensorC2,
         string ScoringCsvRow,
-        DecisionLog DecisionLog);
+        DecisionLog DecisionLog,
+        IReadOnlyList<string> FireOrder);
+
+    /// <summary>
+    /// Resolves AC-2 <c>fire_order</c>: policy mission timeline when present, else chronological
+    /// <see cref="OrderLogEntryKind.EventFired"/> event ids from the decision log.
+    /// </summary>
+    public static IReadOnlyList<string> ResolveFireOrder(
+        ScenarioMissionTimeline? missionTimeline,
+        DecisionLog decisionLog)
+    {
+        if (missionTimeline != null)
+        {
+            return missionTimeline.FireOrder;
+        }
+
+        var fired = new List<string>();
+        foreach (var entry in decisionLog.ChronologicalEntries())
+        {
+            if (entry.Kind == OrderLogEntryKind.EventFired && entry.Payload is EventFiredRecord record)
+            {
+                fired.Add(record.EventId);
+            }
+        }
+
+        return fired;
+    }
 
     public static Result Run(
         int seed,
@@ -306,6 +332,7 @@ public static class BalticReplayHarness
             "BLUE",
             bridge.Orchestrator.DecisionLog);
         var fingerprint = bridge.Orchestrator.DecisionLog.ComputeFingerprint();
+        var fireOrder = ResolveFireOrder(profile?.MissionTimeline, bridge.Orchestrator.DecisionLog);
         return new Result(
             seed,
             scenarioPolicyId,
@@ -319,7 +346,8 @@ public static class BalticReplayHarness
             messages,
             sensorC2,
             scoringCsv,
-            bridge.Orchestrator.DecisionLog);
+            bridge.Orchestrator.DecisionLog,
+            fireOrder);
     }
 
     private sealed class HeadlessSnapshot : ISimWorldSnapshot, IOrderSink

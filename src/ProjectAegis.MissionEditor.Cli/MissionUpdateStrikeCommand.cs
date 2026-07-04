@@ -21,6 +21,7 @@ public static class MissionUpdateStrikeCommand
         {
             var editor = ScenarioDocumentEditor.Load(scenarioPath);
             editor.RequireEditVersion(editVersion, scenarioPath);
+            editor.PushUndoSnapshot(scenarioPath);
             editor.UpdateStrikeMission(
                 missionId,
                 unitIds?.Count > 0 ? unitIds : null,

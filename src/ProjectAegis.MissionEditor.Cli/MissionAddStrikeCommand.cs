@@ -31,6 +31,7 @@ public static class MissionAddStrikeCommand
         {
             var editor = ScenarioDocumentEditor.Load(scenarioPath);
             editor.RequireEditVersion(editVersion, scenarioPath);
+            editor.PushUndoSnapshot(scenarioPath);
             editor.AddStrikeMission(missionId, unitIds, targetIds);
             editor.CommitMutation();
             editor.Save(scenarioPath);
