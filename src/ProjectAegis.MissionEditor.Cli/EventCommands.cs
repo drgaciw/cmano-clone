@@ -36,10 +36,7 @@ public static class EventAddCommand
             editor.CommitMutation();
             editor.Save(scenarioPath);
 
-            var fireOrder = editor.Events
-                .OrderBy(e => e.Id, StringComparer.OrdinalIgnoreCase)
-                .Select(e => e.Id)
-                .ToArray();
+            var fireOrder = EventFireOrderCalculator.ComputeFireOrder(editor.Events);
 
             return McpToolResult.WriteOk(output, new
             {
