@@ -1,3 +1,5 @@
+# DISABLED (2026-06-20): GitHub Actions billing blocked; not required for merge.
+# Primary gate is Buildkite. Re-enable when billing is restored.
 name: Dismiss Stale Approvals (Graphite-compatible)
 
 # This workflow is the recommended replacement for GitHub's built-in
@@ -13,10 +15,7 @@ name: Dismiss Stale Approvals (Graphite-compatible)
 # Action: https://github.com/withgraphite/dismiss-stale-approvals
 
 on:
-  pull_request:
-    types: [synchronize]
-    branches-ignore:
-      - "**/graphite-base/**"
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.repository }}-${{ github.workflow }}-${{ github.ref }}
@@ -24,6 +23,7 @@ concurrency:
 
 jobs:
   dismiss_stale_approvals:
+    if: false
     runs-on: ubuntu-latest
     permissions:
       contents: read

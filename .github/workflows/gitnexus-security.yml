@@ -1,11 +1,10 @@
+# DISABLED (2026-06-20): GitHub Actions billing blocked; primary CI is Buildkite
+# (`buildkite/cmano-clone`). Gitleaks runs on Buildkite (`agent-gitleaks.sh`).
+# Re-enable when billing is restored — see production/qa/sprint-19-ci-local-gate-2026-06-08.md.
 name: GitNexus Security Checks
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-  schedule:
-    - cron: '0 6 * * 1'
+  workflow_dispatch:
 
 permissions:
   actions: read
@@ -15,6 +14,7 @@ permissions:
 
 jobs:
   codeql-csharp:
+    if: false
     name: CodeQL (C#)
     runs-on: ubuntu-latest
     steps:
@@ -38,6 +38,7 @@ jobs:
         continue-on-error: true
 
   codeql-javascript:
+    if: false
     name: CodeQL (JavaScript/TypeScript)
     runs-on: ubuntu-latest
     steps:
@@ -56,6 +57,7 @@ jobs:
         continue-on-error: true
 
   dependency-review:
+    if: false
     name: Dependency Review
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
