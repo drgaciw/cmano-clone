@@ -4297,6 +4297,21 @@ s88_complete: |
   Cites: all prior + s88 gate doc + boundary + roadmap + qa-plan + AGENTS.
   **S88 COMPLETE PENDING HUMAN ACK. GitNexus pre + verification-before applied. Cite boundary + execute-plan.**
 
+s84_status: |
+  S84 Event Debugger + Teleport Export + ADR-016 Caps (AC-7, AC-11, #16) — **S84-04 COMPLETE. S84 COMPLETE (2026-07-04)**. Per production/sprints/sprint-84-event-debugger.md + production/agentic/sprint-84-parallel-kickoff-2026-07-04.md + docs/reports/roadmap-execute-plan-07042026.md §3/§4 (S84) + production/scenario-editor-scope-boundary-2026-07-04.md + production/qa/qa-plan-scenario-editor-2026-07-01.md (units #7 AC-7, #11 AC-11, #16 ADR-016) + Game-Requirements/requirements/11-Agentic-Mission-Editor.md + AGENTS.md + S81-S83.
+  - Dispatch: S84-04 closeout (local) parallel to S84-01 debugger (event-debugger), S84-02 teleport export (teleport-export), S84-03 caps (event-graph-caps) via .worktrees/stack/sprint84/* + dispatching-parallel-agents.
+  - S84-01 (AC-7 debugger): EventDebuggerTrace.cs + ScenarioEventTraceCommand + 16/16 EventDebugger tests (unmet_conditions, fire cases).
+  - S84-02 (AC-11 teleport): ScenarioExportCommand.cs ApplyTeleportUnitExportTransform + 5/5 TeleportUnitExportTests (removes actions, logs manifest, roundtrip).
+  - S84-03 (ADR-016 caps): ValidationRules.cs EventGraphComplexityRule + ValidationConfig (Max=32), EventGraphComplexityTests 16/16 (hard cap error at 33, soft warnings, export allowed).
+  - sprint-status + closeout updated.
+  - Verification-before (RUN+READ): build 0e/0w (preexist warnings); full ~1339/2f (preexist UA); editor/S84 54+16; replay 6/6; PlayMode 19/19; hash 18; smoke-ac6 PASS; ZERO bridge; GitNexus (pre at 17d426c, impacts Editor 20 CRIT etc.; current up-to-date post prior).
+  - All gates PASS. AC-7/11/#16 delivered (debugger JSON, teleport transform, caps). Cites everywhere.
+  **S84-04 COMPLETE. S84 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan + sprint-84 + qa-plan #7/#11/#16.**
+
+s84_complete: |
+  S84 full COMPLETE (2026-07-04). Per roadmap-execute-plan-07042026.md §3/§4 + production/sprints/sprint-84-event-debugger.md + kickoff + boundary + qa-plan + AGENTS. S84-01/02/03 tracks + S84-04 closeout COMPLETE (doc created, status, verifs 1339/2f 6/6 19/19 hash 18 AC6 PASS ZERO bridge, GitNexus, worktrees, GT prep). verification-before (full RUN+READ) + pre applied. GT ready user (S81 stack). Stage Release. Cites: production/scenario-editor-scope-boundary-2026-07-04.md ; roadmap-execute-plan-07042026.md ; sprint-84 + kickoff ; qa-plan-scenario-editor-2026-07-01.md ; AGENTS.md ; S81-S83 + prior pattern.
+  **S84-04 COMPLETE. S84 COMPLETE. GitNexus pre + verification-before applied. Cite boundary + execute-plan.**
+
 s85_status: |
   S85 Determinism + AC-6 CI + Stub Pins — **S85-04 COMPLETE. S85 COMPLETE (2026-07-04)**. Per production/sprints/sprint-85-determinism-ci.md + production/agentic/sprint-85-parallel-kickoff-2026-07-04.md + docs/reports/roadmap-execute-plan-07042026.md §3/§4 (S85) + production/scenario-editor-scope-boundary-2026-07-04.md + production/qa/qa-plan-scenario-editor-2026-07-01.md (units #2 AC-2, #6 AC-6, #17 stubs) + Game-Requirements/requirements/11-Agentic-Mission-Editor.md + AGENTS.md + S81-S84.
   - Dispatch: S85-04 closeout (local) parallel to S85-01 determinism (worktree determinism), S85-02 AC-6 CI (ac6-ci), S85-03 stub-pins (stub-pins) via .worktrees/stack/sprint85/* + dispatching-parallel-agents.
