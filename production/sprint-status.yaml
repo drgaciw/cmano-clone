@@ -4510,3 +4510,10 @@ s36_sprint_plan_followup: |
       note: "Proxy only; within boundary"
 
   # End S36 plan section. Stories initialized: must=ready-for-dev, should/nice=backlog per skill.
+
+# S88 Scenario Editor Program (headless slice of req 11 / E11) — COMPLETE 2026-07-05
+s88_status: COMPLETE (S81–S88; S88 gate human ack path followed; 19 qa units addressed; S81-S87 closeouts aggregated; S88 payload: gate + PostAck + qa-plan-s81-s88 + agentic plan + phase0 smokes committed/merged)
+s88_gates: build 0e/0w (6w nonblock); full test baseline met; PlayModeSmokeHarnessTests 19/19; ReplayGoldenSuiteTests 6/6; AC-6 smoke PASS; rg hash 17144800277401907079 → 18 files; GitNexus (status up-to-date post; detect low/0; impacts exact: ScenarioDocumentEditor=20 CRITICAL, DelegationBridge=127 CRITICAL, CatalogWriteGate=178 CRITICAL, ScenarioValidationEngine=17 HIGH, BalticReplayHarness=52 CRITICAL, PatrolCandidateEngagePolicy=97 CRITICAL)
+s88_hygiene: ZERO DelegationBridge source edits (confirmed git + grep); Catalog extend-only preserved; Baltic frozen; Stage Release; no Phase2/map; sprint-status updated post-ack only.
+s88_flow: pre-submit verif (RUN+READ all) + selective git add ONLY approved S88 payload + gt submit --stack --no-interactive (abort on merged PR noted) + git checkout main + gt sync + gt restack + merge feature payload commit + re-verif green + status update. Cites: production/gate-checks/s88-scenario-editor-gate-2026-07-04.md + production/S88-PostAck-Commands.md + production/scenario-editor-scope-boundary-2026-07-04.md + AGENTS.md + qa-plan-s81-s88-scenario-editor-2026-07-05.md
+s88_program_close: Headless scenario editor program complete. (verification-before on every step)
