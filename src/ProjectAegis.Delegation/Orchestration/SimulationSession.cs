@@ -199,7 +199,50 @@ public sealed class SimulationSession
 
         Sim.TickOnce(TimeCompressionMode.RealTime);
         LogEngagementResults(state, queued);
+        SurfaceRoePolicyDeniedEngagements(state, simTick);
         ApplyCatalogDamageHotTick(state, queued);
+    }
+
+    /// <summary>
+    /// Policy–engage unification (epic policy-engage-unification-slice): an engage intent denied by ROE
+    /// (<see cref="FireAbortReason.WeaponsTight"/>) is rejected at the agent/policy layer before it reaches
+    /// <c>MvpEngagementResolver</c>, so it never produces an engagement-abort row on its own. Surface each such
+    /// denial for this tick as an <c>Engagement|…|ROE_WEAPONS_TIGHT</c> abort row so the harness fingerprint carries
+    /// the canonical abort code, mirroring the resolver-side mapping in <c>MvpEngagementResolver.MapPolicyDenial</c>.
+    /// The original <c>PolicyDenial</c> row is preserved; scoping to WeaponsTight leaves the comms-guard denial
+    /// (<see cref="FireAbortReason.CommsDenied"/>) and all other paths untouched.
+    /// </summary>
+    private void SurfaceRoePolicyDeniedEngagements(ObservedState state, ulong simTick)
+    {
+        var entries = Orchestrator.DecisionLog.ChronologicalEntries();
+        List<TargetId>? deniedShooters = null;
+        for (var i = 0; i < entries.Count; i++)
+        {
+            if (entries[i].Payload is PolicyDenialRecord denial &&
+                denial.SimTick == simTick &&
+                denial.AttemptedKind == OrderKind.Engage &&
+                denial.Reason == FireAbortReason.WeaponsTight)
+            {
+                (deniedShooters ??= new List<TargetId>()).Add(denial.TargetId);
+            }
+        }
+
+        if (deniedShooters == null)
+        {
+            return;
+        }
+
+        foreach (var shooter in deniedShooters)
+        {
+            Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromEngagement(new EngagementRecord(
+                SequenceId: 0,
+                state.SimTime,
+                simTick,
+                shooter,
+                EngagementId: 0,
+                Launched: false,
+                EngagementAbortReasonCodes.ToLogCode(EngagementAbortReason.WeaponsTight))));
+        }
     }
 
     private void ApplyCatalogDamageHotTick(
