@@ -23,6 +23,11 @@ public sealed class C2PresentationController
 
     public void SelectFriendlyUnit(string unitId)
     {
+        if (!string.Equals(SelectedUnitId, unitId, StringComparison.Ordinal))
+        {
+            ClearGraphSurfacing();
+        }
+
         SelectedUnitId = unitId;
         SelectedContactId = null;
         SelectedContactSummary = null;
@@ -30,6 +35,12 @@ public sealed class C2PresentationController
 
     public void SelectHostileContact(string contactId, IReadOnlyList<ContactPictureEntry> contacts)
     {
+        // BUG (qa-loop-08): contacts carry no platform graph of their own, but the previously
+        // selected friendly unit's graph highlights/link-chain must not be left dangling on the
+        // controller once selection moves away from that unit — otherwise a bound C2 graph panel
+        // keeps showing stale highlights for a unit that is no longer selected (C2 view desync).
+        ClearGraphSurfacing();
+
         SelectedContactId = contactId;
         SelectedContactSummary = ContactSummaryProjection.Project(contactId, contacts);
         SelectedUnitId = null;

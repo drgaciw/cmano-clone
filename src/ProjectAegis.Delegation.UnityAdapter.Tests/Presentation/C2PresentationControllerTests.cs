@@ -81,4 +81,32 @@ public sealed class C2PresentationControllerTests
         // fixture may have chains; ensure no crash and state set
         Assert.That(controller.LastGraphLinkChainDisplay, Is.Not.Null.Or.Empty);
     }
+
+    // BUG regression (qa-loop-08): switching selection from a friendly unit (with graph
+    // surfacing already applied) to a hostile contact left the previous unit's graph
+    // highlights/link-chain display stale on the controller. DelegationBridgeHost.SelectContact
+    // intentionally never calls ApplyGraphSurfacingForSelection for contacts ("contacts do not
+    // drive platform graph"), so this stale state is not transient — it persists until a
+    // different friendly unit is selected. A C2 dependency-graph panel bound to
+    // LastGraphHighlightIds/LastGraphLinkChainDisplay would keep highlighting equipment for a
+    // unit that is no longer selected while the UI shows a hostile contact selected instead
+    // (C2 view desync / editorState-vs-sim-state mismatch).
+    [Test]
+    public void SelectHostileContact_clears_stale_graph_highlights_from_previous_unit()
+    {
+        var controller = new C2PresentationController();
+        controller.SelectFriendlyUnit("u1");
+        controller.ApplyGraphSurfacing(InMemoryCatalogReader.BalticPatrolFixture());
+
+        // Sanity: graph surfacing actually populated highlights for u1 before switching away.
+        Assert.That(controller.LastGraphHighlightIds, Does.Contain("u1"));
+
+        controller.SelectHostileContact(
+            "c1",
+            [new ContactPictureEntry("c1", "t1", "u1", "CLASSIFIED", 5, 5.0)]);
+
+        Assert.That(controller.LastGraphHighlightIds, Is.Empty,
+            "graph highlights from the previously selected friendly unit must not remain visible once selection switches to a hostile contact");
+        Assert.That(controller.LastGraphLinkChainDisplay, Is.Null);
+    }
 }
