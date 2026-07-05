@@ -333,6 +333,7 @@ public sealed class PdDetectionContactSimulator
         var transitions = new List<ContactTransition>();
         var lostContacts = _tracks.Keys
             .Where(contactId => _trialsByContactId[contactId].TargetId == targetId)
+            .OrderBy(contactId => contactId, StringComparer.Ordinal)
             .ToArray();
 
         foreach (var contactId in lostContacts)
