@@ -5,7 +5,29 @@
 **Scope:** Pre-Production headless loop (plan → fight → replay without C2 UI)
 **Epic:** [baltic-headless-slice](../../production/epics/baltic-headless-slice/EPIC.md) — **Complete**
 **Verified against:** branch `fix-scenario-publish-cli-wiring` @ `17d426c`
-**Verdict:** original gate **PASS** (unchanged); lineage **AT RISK** (2026-07-04 refresh — 2 spine contract tests failing, see below)
+**Verdict:** original gate **PASS** (unchanged); lineage **AT RISK** (2026-07-04 refresh — 2 spine contract tests failing, see below) → **RESOLVED HEALTHY** (2026-07-05, see resolution)
+
+---
+
+## Resolution (2026-07-05)
+
+Recommendations #1 and #2 implemented on branch `fix/policy-engage-roe-abort-fingerprint`
+(off `main` @ `e20b87e`):
+
+- **#1 — policy-engage contract (approach A2, commit `66b52e0`).** `SimulationSession.SurfaceRoePolicyDeniedEngagements`
+  now emits an `Engagement|…|ROE_WEAPONS_TIGHT` abort row for each WeaponsTight engage denial,
+  preserving the existing `PolicyDenial` row. The two `BalticReplayHarnessPolicyEngageTests` asserts were
+  restored to the contract (reverting the interim S86-02 triage, which had aligned them *down* to `PolicyDenial`).
+- **#2 — invariant fingerprint floats (commit `2abef95`).** New `FingerprintFloat` helper formats fractional
+  fingerprint fields as `0.######` and `SimTime` as `R`, both under `InvariantCulture`. Trailing-zero trimming
+  keeps clean values unchanged, so only long-tail goldens regenerated (8 test-pinned `FINGERPRINT_SHA256`
+  lines + the intercept `EngagementOutcome` Pk lines + 2 inline pins). The pinned world hash
+  `17144800277401907079` is unaffected. Unasserted `band-b`/`band-c`/`v2-patrol` stub goldens were left as-is.
+- **Verification:** `dotnet build` 0e/0w; full suite **1,344 / 1,344**; ReplayGolden + PlayModeSmoke **25/0**;
+  AC-4 CLI `baltic-patrol` → `Launched`+`MagazineChange`+`Kill`; AC-6 byte-determinism **PASS**; pinned hash intact.
+- **#3** GitNexus reindexed. **#4/#5** `/replay-verify` + `gitnexus impact`/`detect_changes` applied throughout.
+
+The 2026-07-04 analysis below is retained as the record of the AT RISK state that prompted the fix.
 
 ---
 
