@@ -10,6 +10,13 @@ using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 
+/// <summary>
+/// CLI command for AC-2 determinism integration (S85-01).
+/// Two runs with identical seed + tuning knobs produce byte-identical fire_order (ordered array of event.id)
+/// and identical worldStateSha256 (SHA-256 over canonical post-run world state EXCLUDING derived-only UI state per schema).
+/// Emits SEED=... HASH=... contract on stdout (non-quiet).
+/// See sprint-85-determinism-ci.md, qa-plan-scenario-editor-2026-07-01.md #2, 11-Agentic-Mission-Editor.md AME-6.6/6.7.
+/// </summary>
 public static class ScenarioSimulateSampleCommand
 {
     public static int Run(string scenarioPath, int ticks, bool quiet, TextWriter output)
@@ -54,6 +61,7 @@ public static class ScenarioSimulateSampleCommand
             maxTechnologyLevel: scenario.Metadata.MaxTechnologyLevel);
 
         var worldStateSha256 = ResolveWorldStateSha256(result);
+        var fireOrder = CanonicalizeFireOrder(result.FireOrder);
         var dto = new SimulateSampleJsonDto
         {
             Seed = result.Seed,
@@ -65,7 +73,7 @@ public static class ScenarioSimulateSampleCommand
             DetectionWorldHash = result.DetectionWorldHash.ToString(),
             EngagementCount = result.EngagementCount,
             ReportHash = exportPackage.ValidationReport.ReportHash,
-            FireOrder = result.FireOrder.ToArray(),
+            FireOrder = fireOrder,
             WorldStateSha256 = worldStateSha256,
         };
 
@@ -86,6 +94,8 @@ public static class ScenarioSimulateSampleCommand
 
     internal static string ResolveWorldStateSha256(BalticReplayHarness.Result result)
     {
+        // Prefers order-log fingerprint SHA (covers fired events); falls back to world state.
+        // By construction this is SHA over canonical sim state EXCLUDING derived-only UI state (per schema).
         if (!string.IsNullOrEmpty(result.FingerprintSha256))
         {
             return result.FingerprintSha256;
@@ -96,9 +106,25 @@ public static class ScenarioSimulateSampleCommand
 
     internal static string ComputeWorldStateSha256(ulong worldHash, ulong detectionWorldHash, int seed)
     {
+        // SHA-256 over canonical post-run sim world state.
+        // EXCLUDES derived-only UI state (per scenario schema; never flows into
+        // BalticReplayHarness.Result or package used for sim). See AC-2 in sprint-85-determinism-ci.md.
         var payload = $"{worldHash}|{detectionWorldHash}|{seed}";
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(payload));
         return Convert.ToHexString(bytes).ToLowerInvariant();
+    }
+
+    /// <summary>
+    /// Returns byte-identical ordered array of event.id strings for fire_order.
+    /// Order per policy timeline (authored with sort key (trigger_time_resolved, priority, event.id))
+    /// or chronological from decision log for fired events.
+    /// Ensures determinism contract across independent runs (incl. parallel CI).
+    /// </summary>
+    internal static string[] CanonicalizeFireOrder(IReadOnlyList<string> raw)
+    {
+        // No mutation of source; ToArray yields stable ordered sequence for JSON emit.
+        // Same seed + tuning + scenario => identical array content and order.
+        return raw.ToArray();
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new()

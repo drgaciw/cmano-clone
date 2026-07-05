@@ -5,13 +5,13 @@
     "editVersion": 1,
     "seed": 1337,
     "policyId": "baltic-patrol-mission",
-    "tlBranch": "TL-2",
+    "tlBranch": "TL-0",
     "unitReadiness": {
       "strike-flight-1": {
         "readyForLaunch": true
       },
       "strike-flight-2": {
-        "readyForLaunch": false
+        "readyForLaunch": true
       }
     },
     "maxTechnologyLevel": 2,
