@@ -255,7 +255,7 @@ public sealed class DecisionLog : IOrderLog
             sb.Append('|');
             sb.Append(entry.SequenceId);
             sb.Append('|');
-            sb.Append(entry.SimTime.ToString("R"));
+            sb.Append(FingerprintFloat.Time(entry.SimTime));
             sb.Append('|');
             sb.Append(FormatPayload(entry));
             sb.Append('\n');
@@ -268,9 +268,9 @@ public sealed class DecisionLog : IOrderLog
         entry.Kind switch
         {
             OrderLogEntryKind.AgentDecision when entry.Payload is AgentDecisionPayload p =>
-                $"{p.SimTick}|{p.AgentId.Value}|{p.ChosenOrderKind}|{ScoredIntentFingerprint.Format(p.ScoredIntents)}|{p.RngDraw:R}",
+                $"{p.SimTick}|{p.AgentId.Value}|{p.ChosenOrderKind}|{ScoredIntentFingerprint.Format(p.ScoredIntents)}|{FingerprintFloat.Format(p.RngDraw)}",
             OrderLogEntryKind.AgentDecision when entry.Payload is DecisionRecord r =>
-                $"{r.SimTick}|{r.AgentId.Value}|{r.ChosenKind}|{ScoredIntentFingerprint.Format(r.Alternatives)}|{r.RngDraw:R}",
+                $"{r.SimTick}|{r.AgentId.Value}|{r.ChosenKind}|{ScoredIntentFingerprint.Format(r.Alternatives)}|{FingerprintFloat.Format(r.RngDraw)}",
             OrderLogEntryKind.PolicyDenial when entry.Payload is PolicyDenialRecord d =>
                 $"{d.TargetId.Value}|{d.Reason}|{d.AttemptedKind}",
             OrderLogEntryKind.Engagement when entry.Payload is EngagementRecord e =>
@@ -290,7 +290,7 @@ public sealed class DecisionLog : IOrderLog
             OrderLogEntryKind.EventFired when entry.Payload is EventFiredRecord f =>
                 $"{f.SimTick}|{f.EventId}|{f.EventCode}",
             OrderLogEntryKind.EngagementOutcome when entry.Payload is EngagementOutcomeRecord o =>
-                $"{o.SimTick}|{o.EngagementId}|{o.VictimTargetId.Value}|{o.OutcomeCode}|{o.PkDraw:R}",
+                $"{o.SimTick}|{o.EngagementId}|{o.VictimTargetId.Value}|{o.OutcomeCode}|{FingerprintFloat.Format(o.PkDraw)}",
             OrderLogEntryKind.PlayerOrder when entry.Payload is PlayerOrderRecord p =>
                 $"{p.SimTick}|{p.ResolvedExecuteSimTick}|{p.UnitId.Value}|{p.Kind}|{p.Source}",
             OrderLogEntryKind.PolicyUpdate when entry.Payload is PolicyUpdateRecord u =>
@@ -300,11 +300,11 @@ public sealed class DecisionLog : IOrderLog
             OrderLogEntryKind.CommsStateChange when entry.Payload is CommsStateChangeRecord c =>
                 $"{c.SimTick}|{c.NodeId}|{c.PreviousState}|{c.NewState}|{c.Reason}",
             OrderLogEntryKind.FuelStateChange when entry.Payload is FuelStateChangeRecord f =>
-                $"{f.SimTick}|{f.UnitId.Value}|{f.PreviousState}|{f.NewState}|{f.RemainingFuelKg:R}",
+                $"{f.SimTick}|{f.UnitId.Value}|{f.PreviousState}|{f.NewState}|{FingerprintFloat.Format(f.RemainingFuelKg)}",
             OrderLogEntryKind.FuelBurn when entry.Payload is FuelBurnRecord b =>
-                $"{b.SimTick}|{b.UnitId.Value}|{b.DeltaKg:R}|{b.RemainingFuelKg:R}",
+                $"{b.SimTick}|{b.UnitId.Value}|{FingerprintFloat.Format(b.DeltaKg)}|{FingerprintFloat.Format(b.RemainingFuelKg)}",
             OrderLogEntryKind.PlatformDamageChange when entry.Payload is PlatformDamageChangeRecord d =>
-                $"{d.SimTick}|{d.UnitId.Value}|{d.PreviousHpPct:R}|{d.NewHpPct:R}|{d.ReasonCode}|{d.DamageLevel}",
+                $"{d.SimTick}|{d.UnitId.Value}|{FingerprintFloat.Format(d.PreviousHpPct)}|{FingerprintFloat.Format(d.NewHpPct)}|{d.ReasonCode}|{d.DamageLevel}",
             _ => "?",
         };
 

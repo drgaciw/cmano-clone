@@ -22,7 +22,7 @@ public sealed class BalticCombatDomainsPolicyTests
     private const ulong PinnedDetectionWorldHash = 15600UL;
 
     private const string PinnedFingerprintSha256 =
-        "080a4cbf18f620043a4e6401ac1f60749e9604760b91d2adfc770de816649917";
+        "2cc200ecf3e274c24e6691deca2d6a4664d194835b0d66e901796ea47a83b2f2";
 
     private const string GoldenFile = "replay-golden-baltic-combat-domains-2026-06-18.txt";
 
