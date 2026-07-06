@@ -736,10 +736,10 @@ static int RunCatalogReleaseDiff(string[] args)
     var to = CliArgParser.GetFlag(args, "--to");
     if (string.IsNullOrWhiteSpace(from) || string.IsNullOrWhiteSpace(to))
     {
-        var positional = args
-            .Where(a => !a.StartsWith("-", StringComparison.Ordinal))
-            .ToArray();
-        if (positional.Length >= 2)
+        // "--db" takes a value, so it must be excluded (flag AND value) from the positional
+        // fallback below, or the db path itself gets misread as <fromReleaseVersion>.
+        var positional = CliArgParser.GetPositional(args, "--db");
+        if (positional.Count >= 2)
         {
             from ??= positional[0];
             to ??= positional[1];
