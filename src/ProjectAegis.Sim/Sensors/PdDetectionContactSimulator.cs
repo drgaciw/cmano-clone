@@ -192,28 +192,32 @@ public sealed class PdDetectionContactSimulator
         List<ContactTransition> transitions)
     {
         var lost = new List<string>();
-        foreach (var pair in _tracks)
+        var candidateContactIds = _tracks.Keys
+            .OrderBy(contactId => contactId, StringComparer.Ordinal)
+            .ToArray();
+        foreach (var contactId in candidateContactIds)
         {
-            if (pair.Value.State == ContactLifecycleState.Lost)
+            var track = _tracks[contactId];
+            if (track.State == ContactLifecycleState.Lost)
             {
                 continue;
             }
 
-            if (seenThisTick.Contains(pair.Key))
+            if (seenThisTick.Contains(contactId))
             {
                 continue;
             }
 
-            pair.Value.MissedTicks++;
-            if (pair.Value.MissedTicks < EffectiveStaleThresholdTicks)
+            track.MissedTicks++;
+            if (track.MissedTicks < EffectiveStaleThresholdTicks)
             {
                 continue;
             }
 
-            var trial = _trialsByContactId[pair.Key];
-            var previous = pair.Value.State;
-            pair.Value.State = ContactLifecycleState.Lost;
-            lost.Add(pair.Key);
+            var trial = _trialsByContactId[contactId];
+            var previous = track.State;
+            track.State = ContactLifecycleState.Lost;
+            lost.Add(contactId);
             transitions.Add(new ContactTransition(
                 simTick,
                 simTime,
