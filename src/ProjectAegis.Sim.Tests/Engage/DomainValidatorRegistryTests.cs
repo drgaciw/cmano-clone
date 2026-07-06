@@ -314,6 +314,45 @@ public sealed class DomainValidatorRegistryTests
     }
 
     [Fact]
+    public void CombatDomainsEnabled_true_mine_aspect_allowed_launches_successfully()
+    {
+        // ADR-009's MineAspectDomainValidator is a real (non-stub) geometry/aspect gate, exactly
+        // like the Air/Surface/Subsurface/Land/Facility validators, and is meant to be the
+        // authoritative gate for CombatDomain.Mine once combatDomainsEnabled is on (see
+        // adr-009-combat-domain-validators.md: mines are a "clear extension point ... without
+        // forking engage core"). But the legacy req-18 CombatDomainValidator.Validate — which
+        // MvpEngagementResolver.Resolve always runs unconditionally, regardless of the
+        // combatDomainsEnabled flag — still hardcodes `CombatDomain.Mine =>
+        // EngagementAbortReason.DomainNoSolution` with no escape hatch. Unlike every other
+        // domain (Facility has no legacy special-case at all; Air/Surface are unconditionally
+        // allowed; Subsurface/Land are only conditionally blocked), Mine can therefore never
+        // launch through the full resolver no matter what the new aspect validator decides.
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 2);
+        var request = new EngageRequest(1, 2, 0, 0);
+        var ctx = new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            2,
+            true,
+            CombatDomain: CombatDomain.Mine,
+            MineAspectInEnvelope: true);
+        world.Set(request, ctx);
+
+        var resolver = new MvpEngagementResolver(
+            world,
+            magazines,
+            combatDomainsEnabled: true,
+            domainValidators: DomainValidatorRegistry.MvpStubs);
+
+        var result = resolver.Resolve(request);
+
+        Assert.True(result.Launched);
+        Assert.Equal(1, magazines.GetRounds(1, 0));
+    }
+
+    [Fact]
     public void Validator_deny_maps_to_MINE_ASPECT_BLOCK_order_log_code()
     {
         var registry = DomainValidatorRegistry.MvpStubs;
