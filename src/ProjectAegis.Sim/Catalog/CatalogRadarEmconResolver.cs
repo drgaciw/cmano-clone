@@ -33,7 +33,11 @@ public static class CatalogRadarEmconResolver
     }
 
     public static EmconState MapPosture(string posture) =>
-        posture switch
+        // PlatformWorkbookValidator.AllowedEmconPostures validates off/standby/active case-insensitively
+        // (StringComparer.OrdinalIgnoreCase), so any casing accepted there must map correctly here too —
+        // otherwise a validly-authored "Off"/"Standby" posture silently (and dangerously) resolves to
+        // EmconState.Active, defeating EMCON discipline for detection and the engage RadarEmconActive gate.
+        posture?.Trim().ToLowerInvariant() switch
         {
             "off" => EmconState.Off,
             "standby" => EmconState.Passive,
