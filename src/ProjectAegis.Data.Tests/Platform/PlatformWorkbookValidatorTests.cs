@@ -74,6 +74,24 @@ public sealed class PlatformWorkbookValidatorTests
     }
 
     [Fact]
+    public void Cumulative_over_capacity_across_weapon_types_in_same_mount_is_flagged_as_error()
+    {
+        // Mixed-load VLS cell: two magazine rows for the same platform/loadout/mount, each individually
+        // within the mount's 32-cell capacity, but summing to 40 > 32. A real fitting like this (e.g. a
+        // VLS module loaded with both ESSM and Tomahawk rounds) must be rejected as over capacity even
+        // though no single row exceeds the cap on its own.
+        var wb = Export(OneVls, OneLoadout, new[]
+        {
+            new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "weapon-a", 20, 0, 20),
+            new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "weapon-b", 20, 0, 20),
+        });
+
+        Assert.Contains(
+            PlatformWorkbookValidator.Validate(wb),
+            f => f.Code == PlatformWorkbookValidator.MagazineOverCapacity);
+    }
+
+    [Fact]
     public void Findings_are_sorted_deterministically()
     {
         var a = PlatformWorkbookValidator.Validate(Export(OneVls, OneLoadout, new[]

@@ -112,12 +112,18 @@ public static class PlatformWorkbookValidator
 
         if (magazines is not null)
         {
+            // Accumulate loaded quantity per (platformId, loadoutId, mountId): a single mount can carry
+            // multiple weapon types under one loadout (e.g. a mixed VLS cell loaded with both ESSM and
+            // Tomahawk rounds), so capacity must be checked against the *sum* of quantities sharing a
+            // mount+loadout, not against each magazine row in isolation.
+            var loadedQuantity = new Dictionary<string, int>(StringComparer.Ordinal);
+            var loadGroupInfo = new Dictionary<string, (string PlatformId, string LoadoutId, string MountId)>(StringComparer.Ordinal);
+
             foreach (var row in magazines.Rows)
             {
                 var platformId = magazines.Cell(row, "PlatformId");
                 var loadoutId = magazines.Cell(row, "LoadoutId");
                 var mountId = magazines.Cell(row, "MountId");
-                var weaponId = magazines.Cell(row, "WeaponId");
                 var quantity = ParseInt(magazines.Cell(row, "Quantity"));
 
                 if (!loadoutKeys.Contains(Key(platformId, loadoutId)))
@@ -130,7 +136,7 @@ public static class PlatformWorkbookValidator
                         TargetId: loadoutId));
                 }
 
-                if (!mountCapacity.TryGetValue(Key(platformId, mountId), out var capacity))
+                if (!mountCapacity.ContainsKey(Key(platformId, mountId)))
                 {
                     findings.Add(new ValidationFinding(
                         MagazineUnknownMount,
@@ -138,13 +144,24 @@ public static class PlatformWorkbookValidator
                         $"Magazine on '{platformId}' references unknown mount '{mountId}'.",
                         UnitId: platformId,
                         TargetId: mountId));
+                    continue;
                 }
-                else if (quantity > capacity)
+
+                var loadGroupKey = Key(Key(platformId, loadoutId), mountId);
+                loadedQuantity[loadGroupKey] = loadedQuantity.GetValueOrDefault(loadGroupKey) + quantity;
+                loadGroupInfo[loadGroupKey] = (platformId, loadoutId, mountId);
+            }
+
+            foreach (var (loadGroupKey, totalQuantity) in loadedQuantity)
+            {
+                var (platformId, loadoutId, mountId) = loadGroupInfo[loadGroupKey];
+                var capacity = mountCapacity[Key(platformId, mountId)];
+                if (totalQuantity > capacity)
                 {
                     findings.Add(new ValidationFinding(
                         MagazineOverCapacity,
                         ValidationSeverity.Error,
-                        $"Magazine '{weaponId}' loads {quantity} into mount '{mountId}' (capacity {capacity}) on '{platformId}'.",
+                        $"Loadout '{loadoutId}' loads {totalQuantity} total round(s) into mount '{mountId}' (capacity {capacity}) on '{platformId}'.",
                         UnitId: platformId,
                         TargetId: mountId));
                 }
