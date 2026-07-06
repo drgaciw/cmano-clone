@@ -15,7 +15,7 @@ public static class CatalogKillChainReportCommand
 
     public static int Run(string? databasePath, TextWriter output)
     {
-        using var reader = OpenReader(databasePath);
+        using var reader = OpenReader(databasePath, out var resolvedDatabasePath);
         var findings = KillChainRules.Evaluate(reader);
         var canonicalLines = findings
             .Select(f => $"{f.Code}|{f.Severity}|{f.Message}")
@@ -26,7 +26,7 @@ public static class CatalogKillChainReportCommand
         {
             ok = true,
             verb = "catalog_kill_chain_report",
-            databasePath = databasePath ?? CatalogReaderFactory.ResolveBalticPatrolDatabasePath(),
+            databasePath = resolvedDatabasePath,
             isEmpty = findings.Count == 0,
             findingCount = findings.Count,
             findingsHash = KillChainRules.ComputeFindingsHash(findings),
@@ -48,16 +48,18 @@ public static class CatalogKillChainReportCommand
         output.WriteLine("  Detect-only DBI-3.5 rules; sorted stdout for curator review.");
     }
 
-    private static SqliteCatalogReader OpenReader(string? databasePath)
+    private static SqliteCatalogReader OpenReader(string? databasePath, out string resolvedDatabasePath)
     {
         if (!string.IsNullOrWhiteSpace(databasePath) && File.Exists(databasePath))
         {
-            return new SqliteCatalogReader(Path.GetFullPath(databasePath), "cli-kill-chain-report");
+            resolvedDatabasePath = Path.GetFullPath(databasePath);
+            return new SqliteCatalogReader(resolvedDatabasePath, "cli-kill-chain-report");
         }
 
         var resolved = CatalogReaderFactory.ResolveBalticPatrolDatabasePath();
         if (!string.IsNullOrWhiteSpace(resolved) && File.Exists(resolved))
         {
+            resolvedDatabasePath = resolved;
             return new SqliteCatalogReader(resolved, "cli-kill-chain-report-baltic");
         }
 
