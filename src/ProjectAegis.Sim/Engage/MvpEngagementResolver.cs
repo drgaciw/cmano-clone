@@ -18,6 +18,16 @@ public sealed class MvpEngagementResolver : IEngagementResolver
     private readonly DomainValidatorRegistry _domainValidators;
     private ulong _nextEngagementId = 1;
 
+    /// <summary>
+    /// Opaque non-zero PolicySnapshotId used for policy contexts this resolver builds itself
+    /// from its own <see cref="_resolvePolicy"/> callback. Never registered in, or looked up
+    /// from, any PolicySnapshotRegistry — its sole purpose is to signal to
+    /// <see cref="IPolicyEvaluator"/> implementations (like <see cref="PolicyEvaluator"/>) that
+    /// the accompanying <see cref="PolicyContext.Effective"/> value is already resolved and
+    /// must be trusted rather than re-resolved internally.
+    /// </summary>
+    private const ulong ResolvedPolicySnapshotMarker = 1;
+
     public MvpEngagementResolver(
         IEngageWorldQuery world,
         MagazineLedger magazines,
@@ -66,9 +76,18 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         {
             var effective = _resolvePolicy?.Invoke(request.ShooterUnitId) ?? EffectivePolicy.DefaultFree;
             var salvoSize = Math.Max(1, ctx.SalvoSize);
+
+            // PolicySnapshotId must be non-zero here: PolicyEvaluator.Evaluate treats 0 as
+            // "no snapshot resolved yet, re-resolve via my own internal resolvePolicy delegate"
+            // (see PolicySnapshotRegistry/RoePolicyAdapter, which legitimately rely on that
+            // sentinel). This resolver already resolved the live per-unit policy above via its
+            // own `_resolvePolicy` callback, so `effective` must be trusted as-is instead of
+            // being silently discarded in favor of whatever fallback the injected evaluator
+            // happens to carry — otherwise a unit's own ROE (e.g. HoldFire) can be ignored
+            // whenever it differs from the evaluator's unrelated default.
             var policyCtx = new PolicyContext(
                 request.ShooterUnitId,
-                0,
+                ResolvedPolicySnapshotMarker,
                 request.SimTick,
                 effective,
                 salvoSize);
