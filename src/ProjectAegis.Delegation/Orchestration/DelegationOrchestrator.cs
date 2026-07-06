@@ -184,6 +184,17 @@ public sealed class DelegationOrchestrator
             return false;
         }
 
+        if (unit.Slot.Active is HumanController)
+        {
+            // Already under direct human control (e.g. a redundant/double-clicked take-control
+            // request on a unit already detached from its group). FindParentGroup would miss
+            // here because Detach() already removed the unit from group.Members, so without this
+            // guard we would fall through to unconditionally installing a brand-new
+            // HumanController below, silently discarding any orders already queued in the
+            // existing one (req 19 comms-delay queue). Treat as a no-op success instead.
+            return true;
+        }
+
         var previous = DescribeActiveController(unit.Slot);
         var parentGroup = FindParentGroup(unit.Id);
 
