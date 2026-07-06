@@ -31,7 +31,10 @@ public sealed class FuelLedger
         EnsureUnit(unitId);
         var burn = _burnRateKgPerSecond * deltaSeconds;
         var previous = _remainingKg[unitId];
-        var next = Math.Max(0, previous - burn);
+        // Clamp to [0, capacity]: burn is normally non-negative, but a negative
+        // deltaSeconds (e.g. an out-of-order or clock-corrected tick from a replay
+        // re-sync) must never leave the tank holding more fuel than it can carry.
+        var next = Math.Clamp(previous - burn, 0, _capacityKg);
         _remainingKg[unitId] = next;
         return (next - previous, next);
     }
