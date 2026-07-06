@@ -26,11 +26,12 @@ public static class MissionUpdatePatrolCommand
         {
             var editor = ScenarioDocumentEditor.Load(scenarioPath);
             editor.RequireEditVersion(editVersion, scenarioPath);
-            editor.PushUndoSnapshot(scenarioPath);
+            var undoSnapshot = editor.CaptureUndoSnapshot();
             editor.UpdatePatrolMission(
                 missionId,
                 unitIds?.Count > 0 ? unitIds : null,
                 zone?.Count > 0 ? zone : null);
+            editor.PersistUndoSnapshot(scenarioPath, undoSnapshot);
             editor.CommitMutation();
             editor.Save(scenarioPath);
             return McpToolResult.WriteOk(output, new

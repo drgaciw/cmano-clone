@@ -114,6 +114,43 @@ public sealed class ScenarioUndoCliTests
         }
     }
 
+    [Fact]
+    public void scenario_undo_does_not_push_snapshot_on_mission_not_found_rejected_delete()
+    {
+        // Regression for the phantom-undo-snapshot bug: mutation commands call
+        // editor.PushUndoSnapshot(scenarioPath) unconditionally right after RequireEditVersion
+        // succeeds, but *before* attempting the actual mutation. When the mutation itself is then
+        // rejected (e.g. MISSION_NOT_FOUND on delete, or DUPLICATE_MISSION on add) the on-disk
+        // scenario file is correctly left untouched -- but the disk-backed undo-stack sidecar has
+        // already gained a spurious snapshot for a mutation that never happened. That phantom entry
+        // silently consumes an undo level and desyncs remainingUndoDepth from real edit history.
+        var path = Path.Combine(Path.GetTempPath(), $"aegis-undo-{Guid.NewGuid():N}.json");
+        try
+        {
+            ScenarioDocumentEditor.CreateNew().Save(path);
+            var zone = CliArgParser.ParseWaypoints(["57,20", "57.1,20.1", "57.2,20.2"]);
+
+            Assert.Equal(0, MissionAddPatrolCommand.Run(path, 1, "patrol-1", ["u1"], zone, new StringWriter()));
+            Assert.Equal(1, ScenarioUndoStackStore.Count(path));
+
+            using (var writer = new StringWriter())
+            {
+                var exitCode = MissionDeleteCommand.Run(path, 2, "does-not-exist", writer);
+                Assert.Equal(1, exitCode);
+                Assert.Contains("MISSION_NOT_FOUND", writer.ToString());
+            }
+
+            // A rejected delete (mission not found) must not leave a phantom undo snapshot behind:
+            // the scenario file was never actually mutated for this attempt.
+            Assert.Equal(1, ScenarioUndoStackStore.Count(path));
+        }
+        finally
+        {
+            DeleteIfExists(path);
+            DeleteIfExists(path + ".undo-stack.json");
+        }
+    }
+
     private static void DeleteIfExists(string path)
     {
         if (File.Exists(path))

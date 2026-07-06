@@ -31,8 +31,9 @@ public static class MissionAddFerryCommand
         {
             var editor = ScenarioDocumentEditor.Load(scenarioPath);
             editor.RequireEditVersion(editVersion, scenarioPath);
-            editor.PushUndoSnapshot(scenarioPath);
+            var undoSnapshot = editor.CaptureUndoSnapshot();
             editor.AddFerryMission(missionId, unitIds, ferryDestinationBaseId);
+            editor.PersistUndoSnapshot(scenarioPath, undoSnapshot);
             editor.CommitMutation();
             editor.Save(scenarioPath);
 
