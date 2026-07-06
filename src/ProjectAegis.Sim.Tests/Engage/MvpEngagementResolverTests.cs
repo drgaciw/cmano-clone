@@ -81,6 +81,31 @@ public sealed class MvpEngagementResolverTests
     }
 
     [Fact]
+    public void Resolver_resolve_policy_denies_hold_fire_even_when_evaluator_default_allows()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 2);
+        // Evaluator has no resolvePolicy override of its own; its internal fallback is
+        // EffectivePolicy.DefaultFree (WeaponsFree). The resolver's own per-unit resolvePolicy
+        // callback says HoldFire for this shooter, and that per-unit resolution must win —
+        // it must not be silently discarded in favor of the evaluator's unrelated default.
+        var evaluator = new PolicyEvaluator();
+        var resolver = new MvpEngagementResolver(
+            world,
+            magazines,
+            evaluator,
+            _ => new EffectivePolicy(RoeLevel.HoldFire));
+        var request = new EngageRequest(1, 2, 0, 0);
+        world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true));
+
+        var result = resolver.Resolve(request);
+
+        Assert.False(result.Launched);
+        Assert.Equal(EngagementAbortReason.RoeHoldFire, result.AbortReason);
+    }
+
+    [Fact]
     public void Dlz_out_aborts_when_approaching_edge()
     {
         var world = new DictionaryEngageWorldQuery();
