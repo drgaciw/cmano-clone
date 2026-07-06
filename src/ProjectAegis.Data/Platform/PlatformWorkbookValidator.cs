@@ -14,6 +14,7 @@ public static class PlatformWorkbookValidator
     public const string MagazineUnknownMount = "PLE-MAG-MOUNT";
     public const string MagazineUnknownLoadout = "PLE-MAG-LOADOUT";
     public const string MagazineOverCapacity = "PLE-MAG-CAPACITY";
+    public const string MagazineNegativeQuantity = "PLE-MAG-QTY-NEGATIVE";
     public const string MountRangeInvalid = "PLE-MOUNT-RANGE";
 
     public const string MobilityHeaderMismatch = "PLE-MOB-HEADER";
@@ -126,6 +127,21 @@ public static class PlatformWorkbookValidator
                 var mountId = magazines.Cell(row, "MountId");
                 var quantity = ParseInt(magazines.Cell(row, "Quantity"));
 
+                if (quantity < 0)
+                {
+                    // A negative Quantity is nonsensical data on its own, but it is also load-bearing for
+                    // the cumulative capacity check just below: if it were summed as-is, a negative row
+                    // could silently discount a genuinely over-capacity mount (e.g. +50 rounds offset by
+                    // -20 reads as "30 of 32 used", masking that the +50 weapon type alone busts capacity).
+                    // Flag it explicitly and never let it contribute a negative amount to the group total.
+                    findings.Add(new ValidationFinding(
+                        MagazineNegativeQuantity,
+                        ValidationSeverity.Error,
+                        $"Magazine '{magazines.Cell(row, "WeaponId")}' on '{platformId}' has negative Quantity ({quantity}).",
+                        UnitId: platformId,
+                        TargetId: mountId));
+                }
+
                 if (!loadoutKeys.Contains(Key(platformId, loadoutId)))
                 {
                     findings.Add(new ValidationFinding(
@@ -148,7 +164,7 @@ public static class PlatformWorkbookValidator
                 }
 
                 var loadGroupKey = Key(Key(platformId, loadoutId), mountId);
-                loadedQuantity[loadGroupKey] = loadedQuantity.GetValueOrDefault(loadGroupKey) + quantity;
+                loadedQuantity[loadGroupKey] = loadedQuantity.GetValueOrDefault(loadGroupKey) + Math.Max(0, quantity);
                 loadGroupInfo[loadGroupKey] = (platformId, loadoutId, mountId);
             }
 

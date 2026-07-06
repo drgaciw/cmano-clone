@@ -92,6 +92,25 @@ public sealed class PlatformWorkbookValidatorTests
     }
 
     [Fact]
+    public void Negative_magazine_quantity_is_rejected_and_cannot_mask_cumulative_overcapacity()
+    {
+        // weapon-a alone already exceeds the 32-cell capacity (50 rounds). A negative Quantity row
+        // (weapon-b, -20) must never be allowed to offset that cumulative sum down to a "safe" 30 —
+        // negative rounds-loaded is nonsensical data and must be its own error, not a silent discount
+        // that can mask a genuine over-capacity fitting.
+        var wb = Export(OneVls, OneLoadout, new[]
+        {
+            new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "weapon-a", 50, 0, 50),
+            new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "weapon-b", -20, 0, 0),
+        });
+
+        var findings = PlatformWorkbookValidator.Validate(wb);
+
+        Assert.Contains(findings, f => f.Code == PlatformWorkbookValidator.MagazineNegativeQuantity);
+        Assert.Contains(findings, f => f.Code == PlatformWorkbookValidator.MagazineOverCapacity);
+    }
+
+    [Fact]
     public void Findings_are_sorted_deterministically()
     {
         var a = PlatformWorkbookValidator.Validate(Export(OneVls, OneLoadout, new[]
