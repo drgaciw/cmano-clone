@@ -172,4 +172,22 @@ public sealed class PhaseBCatalogConsumerTests
     {
         Assert.Equal(expected, CatalogRadarEmconResolver.MapPosture(posture));
     }
+
+    // PlatformWorkbookValidator.AllowedEmconPostures validates "Posture" against off/standby/active
+    // using StringComparer.OrdinalIgnoreCase (see ProjectAegis.Data/Platform/PlatformWorkbookValidator.cs),
+    // so a workbook author who types "Off"/"STANDBY"/"Active" passes catalog validation cleanly. But
+    // MapPosture's switch only matches the exact lowercase literals, so any differently-cased-but-valid
+    // posture silently falls into the `_ => EmconState.Active` default instead of the doctrine-intended
+    // state — e.g. a unit authored as radar "Off" (EMCON silent) is misreported as radiating (Active),
+    // defeating EMCON discipline for detection rolls and the MvpEngagementResolver RadarEmconActive gate.
+    [Theory]
+    [InlineData("Off", EmconState.Off)]
+    [InlineData("OFF", EmconState.Off)]
+    [InlineData("Standby", EmconState.Passive)]
+    [InlineData("STANDBY", EmconState.Passive)]
+    [InlineData("Active", EmconState.Active)]
+    public void PhaseB_Catalog_posture_mapping_is_case_insensitive(string posture, EmconState expected)
+    {
+        Assert.Equal(expected, CatalogRadarEmconResolver.MapPosture(posture));
+    }
 }
