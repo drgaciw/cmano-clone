@@ -227,9 +227,9 @@ public sealed class PdDetectionContactSimulator
         foreach (var contactId in lost)
         {
             _detectedContacts.Remove(contactId);
-            if (_primaryTargetId != null &&
-                _tracks.TryGetValue(contactId, out var track) &&
-                _trialsByContactId[contactId].TargetId == _primaryTargetId)
+            var lostTargetId = _trialsByContactId[contactId].TargetId;
+            if ((_primaryTargetId != null && lostTargetId == _primaryTargetId) ||
+                (_primaryBlueForceTargetId != null && lostTargetId == _primaryBlueForceTargetId))
             {
                 RecomputePrimary();
             }
