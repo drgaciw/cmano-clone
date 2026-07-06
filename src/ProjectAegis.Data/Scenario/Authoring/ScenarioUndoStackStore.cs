@@ -79,7 +79,18 @@ public static class ScenarioUndoStackStore
     private static ScenarioDocumentDto CloneDocument(ScenarioDocumentDto source) =>
         new()
         {
+            // NOTE: this previously only copied Metadata + a partial Missions projection, silently
+            // dropping every other canonical section (and two mission fields) from every undo
+            // snapshot -- see BUG-undo-snapshot-drops-untouched-canonical-sections.md. All DTO
+            // sections must be represented here (defensively copied where mutable) so `scenario
+            // undo` restores exactly what it captured instead of resetting untouched data to
+            // its empty default.
             Metadata = source.Metadata,
+            Features = source.Features,
+            Sides = source.Sides,
+            Orbat = source.Orbat,
+            ReferencePoints = source.ReferencePoints,
+            OperationsTimeline = source.OperationsTimeline,
             Missions = source.Missions
                 .Select(m => new ScenarioMissionDto
                 {
@@ -91,9 +102,18 @@ public static class ScenarioUndoStackStore
                     PatrolZone = m.PatrolZone
                         .Select(w => new ScenarioWaypointDto { Lat = w.Lat, Lon = w.Lon })
                         .ToArray(),
+                    StationGeometry = m.StationGeometry?
+                        .Select(w => new ScenarioWaypointDto { Lat = w.Lat, Lon = w.Lon })
+                        .ToArray(),
                     SupportRole = m.SupportRole,
                     RoeOverride = m.RoeOverride,
+                    EmconOverride = m.EmconOverride,
                 })
                 .ToArray(),
+            Events = source.Events?.ToList(),
+            Variables = source.Variables == null ? null : new Dictionary<string, string>(source.Variables),
+            EditorState = source.EditorState == null
+                ? null
+                : new Dictionary<string, System.Text.Json.JsonElement>(source.EditorState),
         };
 }
