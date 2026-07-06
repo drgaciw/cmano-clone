@@ -14,7 +14,7 @@ public static class CatalogLinkReportCommand
 
     public static int Run(string? databasePath, TextWriter output)
     {
-        using var reader = OpenReader(databasePath);
+        using var reader = OpenReader(databasePath, out var resolvedDatabasePath);
         var links = reader.GetSortedLinks();
         var canonicalLines = LinkCatalogReport.BuildCanonicalLines(links);
 
@@ -22,7 +22,7 @@ public static class CatalogLinkReportCommand
         {
             ok = true,
             verb = "catalog_link_report",
-            databasePath = databasePath ?? CatalogReaderFactory.ResolveBalticPatrolDatabasePath(),
+            databasePath = resolvedDatabasePath,
             linkCount = links.Count,
             linksHash = LinkCatalogReport.ComputeLinksHash(links),
             canonicalLines,
@@ -49,16 +49,18 @@ public static class CatalogLinkReportCommand
         output.WriteLine("  Emits sorted link_catalog rows for curator review.");
     }
 
-    private static SqliteCatalogReader OpenReader(string? databasePath)
+    private static SqliteCatalogReader OpenReader(string? databasePath, out string resolvedDatabasePath)
     {
         if (!string.IsNullOrWhiteSpace(databasePath) && File.Exists(databasePath))
         {
-            return new SqliteCatalogReader(Path.GetFullPath(databasePath), "cli-link-report");
+            resolvedDatabasePath = Path.GetFullPath(databasePath);
+            return new SqliteCatalogReader(resolvedDatabasePath, "cli-link-report");
         }
 
         var resolved = CatalogReaderFactory.ResolveBalticPatrolDatabasePath();
         if (!string.IsNullOrWhiteSpace(resolved) && File.Exists(resolved))
         {
+            resolvedDatabasePath = resolved;
             return new SqliteCatalogReader(resolved, "cli-link-report-baltic");
         }
 

@@ -40,6 +40,24 @@ public sealed class CatalogKillChainReportCommandTests
     }
 
     [Fact]
+    public void KillChain_reported_database_path_reflects_actual_source_when_input_path_missing()
+    {
+        // A caller who mistypes/loses their --db path should never receive a report
+        // that silently claims the data came from a database that was never opened.
+        var missingPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-kc-missing-{Guid.NewGuid():N}.db");
+        Assert.False(File.Exists(missingPath));
+
+        using var writer = new StringWriter();
+        Assert.Equal(0, CatalogKillChainReportCommand.Run(missingPath, writer));
+
+        using var doc = JsonDocument.Parse(writer.ToString());
+        var reportedPath = doc.RootElement.GetProperty("databasePath").GetString();
+
+        Assert.NotEqual(missingPath, reportedPath);
+        Assert.Equal(CatalogReaderFactory.ResolveBalticPatrolDatabasePath(), reportedPath);
+    }
+
+    [Fact]
     public void KillChain_help_text_is_registered()
     {
         using var writer = new StringWriter();

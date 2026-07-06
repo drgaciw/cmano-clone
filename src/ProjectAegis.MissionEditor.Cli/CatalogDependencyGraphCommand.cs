@@ -14,7 +14,7 @@ public static class CatalogDependencyGraphCommand
 
     public static int Run(string? databasePath, TextWriter output)
     {
-        using var reader = OpenReader(databasePath);
+        using var reader = OpenReader(databasePath, out var resolvedDatabasePath);
         // S37-03: full chains via GetSortedDependencyEdges (platform→link + weapon→mount→sensor)
         var edges = reader.GetSortedDependencyEdges();
         var canonicalLines = edges
@@ -26,7 +26,7 @@ public static class CatalogDependencyGraphCommand
         {
             ok = true,
             verb = "catalog_dependency_graph",
-            databasePath = databasePath ?? CatalogReaderFactory.ResolveBalticPatrolDatabasePath(),
+            databasePath = resolvedDatabasePath,
             edgeCount = edges.Count,
             // S37-03: full kill-chain surfacing confirmed (platform→link + weapon→mount→sensor chains)
             fullKillChainSurfaced = true,
@@ -59,16 +59,18 @@ public static class CatalogDependencyGraphCommand
         output.WriteLine("  Deterministic (Ordinal); goldens stable; hash unchanged for Baltic.");
     }
 
-    private static SqliteCatalogReader OpenReader(string? databasePath)
+    private static SqliteCatalogReader OpenReader(string? databasePath, out string resolvedDatabasePath)
     {
         if (!string.IsNullOrWhiteSpace(databasePath) && File.Exists(databasePath))
         {
-            return new SqliteCatalogReader(Path.GetFullPath(databasePath), "cli-dependency-graph");
+            resolvedDatabasePath = Path.GetFullPath(databasePath);
+            return new SqliteCatalogReader(resolvedDatabasePath, "cli-dependency-graph");
         }
 
         var resolved = CatalogReaderFactory.ResolveBalticPatrolDatabasePath();
         if (!string.IsNullOrWhiteSpace(resolved) && File.Exists(resolved))
         {
+            resolvedDatabasePath = resolved;
             return new SqliteCatalogReader(resolved, "cli-dependency-graph-baltic");
         }
 
