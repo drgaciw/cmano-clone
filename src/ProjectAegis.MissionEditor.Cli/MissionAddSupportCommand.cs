@@ -43,8 +43,9 @@ public static class MissionAddSupportCommand
         {
             var editor = ScenarioDocumentEditor.Load(scenarioPath);
             editor.RequireEditVersion(editVersion, scenarioPath);
-            editor.PushUndoSnapshot(scenarioPath);
+            var undoSnapshot = editor.CaptureUndoSnapshot();
             editor.AddSupportMission(missionId, unitIds, supportRole, stationZone);
+            editor.PersistUndoSnapshot(scenarioPath, undoSnapshot);
             editor.CommitMutation();
             editor.Save(scenarioPath);
 

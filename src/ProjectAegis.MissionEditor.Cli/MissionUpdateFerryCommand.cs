@@ -21,11 +21,12 @@ public static class MissionUpdateFerryCommand
         {
             var editor = ScenarioDocumentEditor.Load(scenarioPath);
             editor.RequireEditVersion(editVersion, scenarioPath);
-            editor.PushUndoSnapshot(scenarioPath);
+            var undoSnapshot = editor.CaptureUndoSnapshot();
             editor.UpdateFerryMission(
                 missionId,
                 unitIds?.Count > 0 ? unitIds : null,
                 string.IsNullOrWhiteSpace(ferryDestinationBaseId) ? null : ferryDestinationBaseId);
+            editor.PersistUndoSnapshot(scenarioPath, undoSnapshot);
             editor.CommitMutation();
             editor.Save(scenarioPath);
             return McpToolResult.WriteOk(output, new

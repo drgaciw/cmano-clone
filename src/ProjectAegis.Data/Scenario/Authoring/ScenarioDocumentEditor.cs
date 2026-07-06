@@ -208,8 +208,49 @@ public sealed class ScenarioDocumentEditor
     }
 
     /// <summary>Captures the current document on the persisted undo stack before a committed mutation.</summary>
+    /// <remarks>
+    /// Callers that can still reject the *following* mutation (e.g. duplicate mission id on add,
+    /// mission-not-found on update/delete) must not call this before attempting the mutation --
+    /// doing so leaves a phantom snapshot on the disk-backed undo stack for a mutation that never
+    /// happened. Use <see cref="CaptureUndoSnapshot"/> before the mutation and
+    /// <see cref="PersistUndoSnapshot"/> only after it succeeds instead. This method is retained for
+    /// callers where the mutation cannot fail once reached.
+    /// </remarks>
     public void PushUndoSnapshot(string scenarioPath) =>
         ScenarioUndoStackStore.Push(scenarioPath, ToDto());
+
+    /// <summary>
+    /// Captures the current document state in memory (no disk I/O) so it can be persisted to the
+    /// undo stack only after a following mutation attempt actually succeeds.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="ToDto"/> assigns <c>Missions = Missions</c> directly (same live list reference), so
+    /// the captured DTO's mission collection must be materialized into a new list here. Otherwise a
+    /// subsequent Add/Remove/replace on the live <see cref="Missions"/> list (which happens before
+    /// <see cref="PersistUndoSnapshot"/> is called) would also be visible through this "captured"
+    /// snapshot, corrupting the undo entry with post-mutation content.
+    /// </remarks>
+    public ScenarioDocumentDto CaptureUndoSnapshot()
+    {
+        var dto = ToDto();
+        return new ScenarioDocumentDto
+        {
+            Metadata = dto.Metadata,
+            Features = dto.Features,
+            Sides = dto.Sides,
+            Orbat = dto.Orbat,
+            ReferencePoints = dto.ReferencePoints,
+            Missions = dto.Missions.ToList(),
+            OperationsTimeline = dto.OperationsTimeline,
+            Events = dto.Events,
+            Variables = dto.Variables,
+            EditorState = dto.EditorState,
+        };
+    }
+
+    /// <summary>Persists a snapshot previously captured via <see cref="CaptureUndoSnapshot"/>.</summary>
+    public void PersistUndoSnapshot(string scenarioPath, ScenarioDocumentDto snapshot) =>
+        ScenarioUndoStackStore.Push(scenarioPath, snapshot);
 
     /// <summary>Restores the most recent undo snapshot and writes the canonical file.</summary>
     public bool PopUndo(string scenarioPath)
