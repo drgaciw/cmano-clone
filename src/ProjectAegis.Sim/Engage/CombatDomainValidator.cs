@@ -16,7 +16,11 @@ public static class CombatDomainValidator
             CombatDomain.Subsurface when !ctx.ContactIdentified => EngagementAbortReason.DomainNoSolution,
             CombatDomain.Land when ctx.RangeMeters > ctx.Envelope.MaxRangeMeters * 0.5 =>
                 EngagementAbortReason.OutOfEnvelope,
-            CombatDomain.Mine => EngagementAbortReason.DomainNoSolution,
+            // Mine domain has no legacy-specific gate (matches Facility): ADR-009's
+            // MineAspectDomainValidator is the authoritative gate when combatDomainsEnabled is
+            // on. Previously this arm unconditionally denied every Mine-domain engagement with
+            // DomainNoSolution regardless of the aspect validator's verdict or the
+            // combatDomainsEnabled flag, making Mine the only domain that could never launch.
             _ => null,
         };
     }
