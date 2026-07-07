@@ -316,7 +316,13 @@ Decisions locked **2026-06-04** for Sprint 15 design review. Architecture ADRs *
 
 ### 4. Hot-path language split
 
-**Decision:** **Burst for hot paths** (sensors, movement, weapons); **managed C#** for policy, agents, I/O.
+**Decision (revised 2026-07-07):** **Managed data-oriented C# for all hot paths.** The original
+"Burst for hot paths" plan is **superseded** (ADR-005 reversed): the heaviest path (25k @ 1000×
+headless, §2) runs under `dotnet`, where Burst/Jobs do not exist, so hot-path throughput must come
+from managed parallelism (struct-of-arrays state, order-stable parallel reductions, optional
+`System.Numerics` SIMD), measured by the INF-5.1 benchmark. Policy, agents, and I/O stay managed.
+World state is **not** in DOTS/ECS. See
+[unity integration review](../../docs/reports/unity-integration-review-2026-07-07.md) §3.
 
 | Layer | Language | ADR |
 |-------|----------|-----|
