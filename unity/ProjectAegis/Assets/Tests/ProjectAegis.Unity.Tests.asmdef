@@ -11,7 +11,9 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "nunit.framework.dll"
+        "nunit.framework.dll",
+        "ProjectAegis.Delegation.dll",
+        "ProjectAegis.Delegation.UnityAdapter.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [
