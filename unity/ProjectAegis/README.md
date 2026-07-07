@@ -73,8 +73,33 @@ For production, wire `ISimWorldSnapshot` / `IOrderSink` from ECS in `SystemBase`
 
 See also: [Delegation ↔ Sim wiring](../../docs/architecture/wiring-delegation-sim-2026-05-29.md).
 
-## 5. DOTS notes (future)
+## 5. Simulation core: managed, not DOTS
 
-- **Read path:** A `SystemBase` (or `ISystem`) gathers contacts/engagements into a struct implementing `ISimWorldSnapshot`, then calls `DelegationBridge.Tick`.
-- **Write path:** `IOrderSink` writes to dynamic buffers / command components on entities keyed by `EntityKey.Value` (map to `Entity` in your registry).
-- Keep delegation on the **main thread** for v1; burst only the sim physics, not the orchestrator.
+The sim is a **managed, headless-first** deterministic tick (`ProjectAegis.Sim`, `netstandard2.1`)
+consumed through the `ISimWorldSnapshot` / `IOrderSink` seam above. **Unity DOTS/ECS is not used
+for world state** — see [`docs/reports/unity-integration-review-2026-07-07.md`](../../docs/reports/unity-integration-review-2026-07-07.md) §3
+for the rationale (the heaviest NFR — 25k @ 1000× headless — runs under `dotnet` where Burst/Jobs
+do not exist, and ECS world state would fork the deterministic replay/test story). Accordingly
+`com.unity.entities` and `com.unity.entities.graphics` were removed from the manifest. The
+interactive 5k-symbol @ 60 FPS target is a **rendering** problem (Cesium billboards /
+`BatchRendererGroup`), tracked separately. `com.unity.burst` remains only because
+`com.unity.ai.inference` (Sentis) depends on it.
+
+## 6. Assemblies, build & dev tooling
+
+- **Assembly definitions:** runtime scripts compile into `ProjectAegis.Unity.Runtime`
+  (`Assets/Scripts/Runtime`), editor tooling into `ProjectAegis.Unity.Editor`, tests into the
+  PlayMode `ProjectAegis.Unity.Tests` assembly, and the optional Cesium integration into
+  `ProjectAegis.Unity.Runtime.Cesium` (compiled only when `com.cesium.unity` is present).
+- **CI build:** `BuildPlayer.PerformBuild` reads `-buildTarget` / `-outputPath` /
+  `-scriptingBackend` (default **IL2CPP** for release) / `-buildVersion`, and exits non-zero on
+  failure. Example:
+  ```bash
+  Unity -batchmode -quit -projectPath . -executeMethod BuildPlayer.PerformBuild \
+    -buildTarget StandaloneLinux64 -outputPath Builds/Linux64/ProjectAegis -scriptingBackend IL2CPP
+  ```
+- **CI tests:** `Unity -batchmode -runTests -testPlatform PlayMode -testResults results.xml` runs
+  the C2 smoke + `MapSymbolPool` tests headlessly.
+- **`com.ivanmurzak.unity.mcp` is a dev-only Editor tool** (the AI/MCP bridge). It logs a benign
+  SignalR exception in headless Play Mode when no MCP server is attached; the smoke test ignores it
+  via `LogAssert.ignoreFailingMessages`. It is not required for player builds.
