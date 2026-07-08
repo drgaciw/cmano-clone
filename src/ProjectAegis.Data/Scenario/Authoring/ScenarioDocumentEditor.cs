@@ -714,18 +714,23 @@ public sealed class ScenarioDocumentEditor
         return $"freeze, step, inject, and resume controls: {op} applied (frozen={ws.IsFrozen}, steps={ws.StepCount}, audits={ws.AuditEntries.Count})";
     }
 
-    // --- AC4 / others --- real impl (graph from engine findings + live)
+    // --- AC4 / others --- real event static analysis (ME-W2 EventStaticAnalyzer)
+    /// <summary>
+    /// Formats <see cref="EventStaticAnalyzer"/> findings for the TCA/event graph surface.
+    /// Counts are by code prefix; nodes are event ids; findings list is CODE:eventId.
+    /// </summary>
     public string AnalyzeTcaGraph()
     {
-        var report = LiveValidate();
-        var dead = report.Findings.Count(f => f.Code == "MISSION_NO_UNITS" || f.Code.Contains("NO_UNITS"));
-        var unreach = report.Findings.Count(f => f.Code == "STRIKE_NO_TARGETS" || f.Code.Contains("UNREACHABLE"));
-        var contra = report.Findings.Count(f => f.Code == "INCOMPATIBLE_HOST");
-        var circ = report.Findings.Count(f => f.Code == "PATROL_ZONE_DEGENERATE" || f.Code.Contains("DEGEN"));
-        // real graph structure: nodes = mission ids, edges = simple sequential for demo + type links
-        var nodes = string.Join(",", Missions.Select(m => m.Id));
-        var edges = Missions.Count > 1 ? string.Join(";", Missions.Zip(Missions.Skip(1), (a,b) => $"{a.Id}->{b.Id}")) : "none";
-        return $"TCA static analysis: dead={dead} unreachable={unreach} contradictory={contra} circular={circ}; graph nodes=[{nodes}] edges=[{edges}] (no cycles)";
+        var findings = EventStaticAnalyzer.Analyze(ToDto());
+        var dead = findings.Count(f => f.Code == EventStaticAnalyzer.DeadTriggerCode);
+        var unreach = findings.Count(f => f.Code == EventStaticAnalyzer.UnreachableActionCode);
+        var contra = findings.Count(f => f.Code == EventStaticAnalyzer.ContradictoryCode);
+        var circ = findings.Count(f => f.Code == EventStaticAnalyzer.CircularCode);
+        var nodes = string.Join(",", Events.Select(e => e.Id));
+        var findingParts = string.Join(
+            ",",
+            findings.Select(f => $"{f.Code}:{EventStaticAnalyzer.EventIdOf(f)}"));
+        return $"TCA static analysis: dead={dead} unreachable={unreach} contradictory={contra} circular={circ}; graph nodes=[{nodes}]; findings=[{findingParts}]";
     }
     public string BuildManifest(string title, string synopsis, string dbRef) => $"Scenario manifest: title=\"{title}\" synopsis=\"{synopsis}\" dbRef=\"{dbRef}\" semver=\"1.0.0\" changelog=\"initial\" validation=\"passed\" provenance=\"ai-assisted,imported\" missions={Missions.Count}";
     public string NlScaffold(string brief)

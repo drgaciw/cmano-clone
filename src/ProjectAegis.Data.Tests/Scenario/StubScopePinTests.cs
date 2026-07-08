@@ -6,17 +6,10 @@ using ProjectAegis.Data.Validation;
 using Xunit;
 
 /// <summary>
-/// Pins the CURRENT demonstrative ("stub") behavior of four scenario-editor
-/// features. These are documented as placeholders, not real analysis engines
-/// (see production/qa/qa-plan-scenario-editor-2026-07-01.md unit #17 and
-/// doc 11). These tests assert the EXACT current output shape — not
-/// correctness — so a future refactor cannot silently regress the stub's
-/// observable contract, and cannot silently start doing real
-/// analysis/NL-understanding/LLM calls without a corresponding doc update.
-/// If any of these tests need to change, that change should be deliberate
-/// and visible in review, paired with a doc update.
-/// Pins: event debugger (ExplainEventTrace), TCA static analysis (AnalyzeTcaGraph),
-/// AI scaffold/NL (NlScaffold), IncompatibleHost/BrokenRef heuristics.
+/// Pins scenario-editor surface contracts: remaining stubs (event debugger
+/// ExplainEventTrace, AI/NL scaffold, IncompatibleHost/BrokenRef heuristics)
+/// plus ME-W2 real TCA event static analysis (AnalyzeTcaGraph → EventStaticAnalyzer).
+/// See production/qa/qa-plan-scenario-editor-2026-07-01.md unit #17 and doc 11.
 /// </summary>
 public sealed class StubScopePinTests
 {
@@ -91,17 +84,17 @@ public sealed class StubScopePinTests
     }
 
     // ---------------------------------------------------------------
-    // Stub 1: TCA static-analysis — ScenarioDocumentEditor.AnalyzeTcaGraph
+    // TCA static analysis — ScenarioDocumentEditor.AnalyzeTcaGraph
+    // (ME-W2 real EventStaticAnalyzer; no longer MISSION_NO_UNITS relabel)
     // ---------------------------------------------------------------
 
     [Fact]
-    public void AnalyzeTcaGraph_dead_count_is_just_a_relabeled_MISSION_NO_UNITS_finding_count()
+    public void AnalyzeTcaGraph_dead_count_is_EVENT_DEAD_TRIGGER_not_MISSION_NO_UNITS()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
 
-        // m1 has no assigned units -> triggers MISSION_NO_UNITS in the real
-        // validation engine. m2/m3 are clean so they don't add noise to the
-        // counted buckets (dead/unreachable/contradictory/circular).
+        // Missions alone must not inflate dead/unreachable counts (old stub
+        // relabeled MISSION_NO_UNITS as dead=). Real analysis only looks at events.
         editor.AddPatrolMission("m1", Array.Empty<string>(), new[]
         {
             new ScenarioWaypointDto { Lat = 57.0, Lon = 20.0 },
@@ -111,37 +104,61 @@ public sealed class StubScopePinTests
         editor.AddStrikeMission("m2", new[] { "u1" }, new[] { "t1" });
         editor.AddFerryMission("m3", new[] { "u1" }, "base-x");
 
+        editor.Events.Add(new ScenarioEventDto
+        {
+            Id = "evt-dead",
+            TriggerType = "UnitDestroyed",
+            Conditions = [],
+            Actions = [new ScenarioEventActionDto { Type = "Message" }],
+        });
+        editor.AddEvent("evt-dead");
+
         var liveReport = editor.LiveValidate();
         Assert.Contains(liveReport.Findings, f => f.Code == "MISSION_NO_UNITS" && f.MissionId == "m1");
+        Assert.Contains(liveReport.Findings, f => f.Code == "EVENT_DEAD_TRIGGER");
 
         var result = editor.AnalyzeTcaGraph();
 
-        // "dead=1" is not independent dead-trigger detection: it is exactly
-        // the MISSION_NO_UNITS finding count from the ordinary validation
-        // engine, relabeled under a new name.
         Assert.Equal(
             "TCA static analysis: dead=1 unreachable=0 contradictory=0 circular=0; " +
-            "graph nodes=[m1,m2,m3] edges=[m1->m2;m2->m3] (no cycles)",
+            "graph nodes=[evt-dead]; findings=[EVENT_DEAD_TRIGGER:evt-dead]",
             result);
     }
 
     [Fact]
-    public void AnalyzeTcaGraph_edges_are_a_trivial_sequential_chain_not_a_real_dependency_graph()
+    public void AnalyzeTcaGraph_nodes_are_event_ids_not_mission_chain()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
 
-        // Three missions with zero real event/dependency relationship between
-        // them: different types, disjoint units, disjoint targets.
+        // Missions present but nodes must come from events, not insertion-order mission chain.
         editor.AddStrikeMission("alpha", new[] { "u1" }, new[] { "t1" });
         editor.AddFerryMission("bravo", new[] { "u2" }, "base-x");
         editor.AddStrikeMission("charlie", new[] { "u3" }, new[] { "t2" });
 
+        editor.Events.Add(new ScenarioEventDto
+        {
+            Id = "e1",
+            TriggerType = "Time",
+            Conditions = [new ScenarioEventConditionDto { Type = "Time", Result = true }],
+            Actions = [new ScenarioEventActionDto { Type = "Message" }],
+        });
+        editor.Events.Add(new ScenarioEventDto
+        {
+            Id = "e2",
+            TriggerType = "Time",
+            Conditions = [new ScenarioEventConditionDto { Type = "Time", Result = true }],
+            Actions = [new ScenarioEventActionDto { Type = "Message" }],
+        });
+        editor.AddEvent("e1");
+        editor.AddEvent("e2");
+
         var result = editor.AnalyzeTcaGraph();
 
-        // Edges are always an insertion-order sequential chain regardless of
-        // the (non-existent) real dependency analysis between these missions.
-        Assert.Contains("graph nodes=[alpha,bravo,charlie]", result);
-        Assert.Contains("edges=[alpha->bravo;bravo->charlie]", result);
+        Assert.Contains("graph nodes=[e1,e2]", result);
+        Assert.DoesNotContain("edges=", result);
+        Assert.DoesNotContain("alpha", result);
+        Assert.Contains("dead=0", result);
+        Assert.Contains("findings=[]", result);
     }
 
     // ---------------------------------------------------------------
@@ -318,18 +335,19 @@ public sealed class StubScopePinTests
     }
 
     [Fact]
-    public void AnalyzeTcaGraph_stub_shape_is_fixed_text_not_real_analysis()
+    public void AnalyzeTcaGraph_shape_is_real_event_static_analysis()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
         editor.AddPatrolMission("p1", new[] { "u1" }, new[] { new ScenarioWaypointDto { Lat = 1, Lon = 2 } });
 
         var result = editor.AnalyzeTcaGraph();
 
-        // Harden pin: output is always the fixed descriptive string (relabel + chain), not computed graph.
-        // Use Contains matching existing stub pins (impl produces "dead=0 ..." + nodes/edges).
+        // No events → zero findings; nodes empty (missions are not graph nodes).
         Assert.Contains("dead=0", result);
         Assert.Contains("unreachable=0", result);
-        Assert.Contains("graph nodes=[p1]", result);
+        Assert.Contains("graph nodes=[]", result);
+        Assert.Contains("findings=[]", result);
         Assert.Contains("TCA static analysis:", result);
+        Assert.DoesNotContain("edges=", result);
     }
 }
