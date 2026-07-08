@@ -110,6 +110,20 @@ public sealed class ScenarioEditCommandBus
             }
         });
 
+    /// <summary>Inserts or replaces a scenario event (event graph authoring).</summary>
+    public ScenarioMutationResult UpsertEvent(int expectedEditVersion, ScenarioEventDto evt, bool save)
+        => Mutate(expectedEditVersion, save, e => e.UpsertEvent(evt));
+
+    /// <summary>Deletes a scenario event by id; fails when not found.</summary>
+    public ScenarioMutationResult DeleteEvent(int expectedEditVersion, string eventId, bool save)
+        => Mutate(expectedEditVersion, save, e =>
+        {
+            if (!e.TryRemoveEvent(eventId))
+            {
+                throw new InvalidOperationException($"Event id '{eventId}' was not found.");
+            }
+        });
+
     /// <summary>Re-runs live validation without mutating the document.</summary>
     public ValidationReport RefreshFindings()
     {

@@ -76,6 +76,11 @@ switch (command)
         return RunScenarioNearFutureSpawn(args.Skip(1).ToArray());
     case "scenario_event_trace":
         return RunScenarioEventTrace(args.Skip(1).ToArray());
+    case "event_add":
+    case "event_update": // alias: upsert same as event_add
+        return RunEventAdd(args.Skip(1).ToArray());
+    case "event_delete":
+        return RunEventDelete(args.Skip(1).ToArray());
     case "catalog_intelligence_run":
         return RunCatalogIntelligence(args.Skip(1).ToArray());
     case "catalog_entity_map":
@@ -652,6 +657,52 @@ static int RunMissionDelete(string[] args)
     return MissionDeleteCommand.Run(path, editVersion, missionId, Console.Out);
 }
 
+static int RunEventAdd(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var eventId = CliArgParser.GetFlag(args, "--id");
+    var trigger = CliArgParser.GetFlag(args, "--trigger");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(eventId) ||
+        string.IsNullOrWhiteSpace(trigger) ||
+        editVersion < 0)
+    {
+        Console.Error.WriteLine(
+            "event_add requires --path --edit-version --id --trigger TYPE [--condition Type[:UnitId[:ZoneId]]]* [--action Type[:UnitId]]*");
+        return 1;
+    }
+
+    try
+    {
+        var conditions = CliArgParser.GetRepeated(args, "--condition")
+            .Select(EventAddCommand.ParseCondition)
+            .ToArray();
+        var actions = CliArgParser.GetRepeated(args, "--action")
+            .Select(EventAddCommand.ParseAction)
+            .ToArray();
+        return EventAddCommand.Run(path, editVersion, eventId, trigger, conditions, actions, Console.Out);
+    }
+    catch (FormatException ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "INVALID_EVENT_TOKEN", ex.Message);
+    }
+}
+
+static int RunEventDelete(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var eventId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(eventId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("event_delete requires --path --edit-version --id");
+        return 1;
+    }
+
+    return EventDeleteCommand.Run(path, editVersion, eventId, Console.Out);
+}
+
 static int RunMissionList(string[] args)
 {
     var path = CliArgParser.GetFlag(args, "--path");
@@ -725,6 +776,9 @@ static void PrintUsage()
 
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_undo --path <scenario.json> --edit-version N");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_delete --path <scenario.json> --edit-version N --id <id>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- event_add --path <scenario.json> --edit-version N --id <id> --trigger TYPE [--condition Type[:UnitId[:ZoneId]]]* [--action Type[:UnitId]]*");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- event_update --path <scenario.json> --edit-version N --id <id> --trigger TYPE [...]  (alias of event_add upsert)");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- event_delete --path <scenario.json> --edit-version N --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_list --path <scenario.json> [--type T] [--side S] [--status Assigned|Unassigned]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_clone --path <scenario.json> --edit-version N --source SRC --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_from_template --path <scenario.json> --edit-version N --template tpl-patrol-empty --id <id>");
