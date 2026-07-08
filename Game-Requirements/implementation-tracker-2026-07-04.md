@@ -139,14 +139,14 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 | 10b | (KESSLER) | **Implemented (S54)** | — | Escalation ladder |
 | 11 | Agentic Mission Editor | **Partial** | **Major doc+code pass:** req 11 revised (`AME-*`, AC-1…12); tracks A–D @ `7b0f376`; ferry CLI; event debugger trace; teleport export transform; undo stack; 3 example fixtures | Unity host round-trip (AC-8); full event static analysis (AME-5.7) |
 | 12 | Terms Glossary | **Partial** | **doc honesty Wave 1 2026-07-08** (additive terms) | UI tooltips |
-| 13 | Doctrine ROE EMCON WRA | **Partial** | `DoctrineInheritanceValidateTests` + fixture; v3 mission-roe policy | Unity doctrine panel (ADR-010) |
-| 14 | Engagement & Fire Control | **Partial+** | v3 contact-triggered engage | **Fix 2 UA engage tests**; DLZ Phase 2 |
-| 15 | Sensor Detection & EW | **Partial** (MVP **COVERED**) | v3 classify + catalog sensor slices | ECCM Phase 2 |
-| 16 | Logistics & Magazines | **Partial** | — | UNREP; live magazines |
-| 17 | Replay AAR & Order Log | **Partial** | 6 v3 goldens; event debugger aligned to order-log projection (AME-5.5) | Scrub UI; AAR agent |
-| 18 | Combat Domains | **Partial+** | S75/S79 v3 theater | Mine-laying/clearing |
-| 19 | Cyber & Comms | **Partial** | v3 comms policies | JADC2 node damage |
-| 20 | Command & Control UI | **Partial** | S78 v3 picker + bands | Globe map; `HYPERSONIC_ALERT` UI |
+| 13 | Doctrine ROE EMCON WRA | **Partial** | `DoctrineInheritanceValidateTests` + fixture; v3 mission-roe policy; **doc honesty Wave 2 2026-07-08** | Unity doctrine panel (ADR-010) |
+| 14 | Engagement & Fire Control | **Partial+** | v3 contact-triggered engage; **doc honesty Wave 2 2026-07-08** | **Fix 2 UA engage tests**; DLZ Phase 2 |
+| 15 | Sensor Detection & EW | **Partial** (MVP **COVERED**) | v3 classify + catalog sensor slices; **doc honesty Wave 2 2026-07-08** | ECCM Phase 2 |
+| 16 | Logistics & Magazines | **Partial** | **doc honesty Wave 2 2026-07-08** (mapping: MagazineLedger/FuelLedger/AIR_NOT_READY) | UNREP; live magazines |
+| 17 | Replay AAR & Order Log | **Partial** | 6 v3 goldens; event debugger aligned to order-log projection (AME-5.5); **doc honesty Wave 2 2026-07-08** (headless P0 vs scrub residual) | Scrub UI; AAR agent |
+| 18 | Combat Domains | **Partial+** | S75/S79 v3 theater; **doc honesty Wave 2 2026-07-08** (ADR-009) | Mine-laying/clearing |
+| 19 | Cyber & Comms | **Partial** | v3 comms policies; **doc honesty Wave 2 2026-07-08** (spoof Shipped) | JADC2 node damage |
+| 20 | Command & Control UI | **Partial** | S78 v3 picker + bands; **doc honesty Wave 2 2026-07-08** (ADR-010) | Globe map; `HYPERSONIC_ALERT` UI |
 | 21 | Platform Editor | **MVP-done / Partial+ (S56)** | S77 v3 Excel slices | Live Editor screenshots |
 
 ## Research open gaps (P1)

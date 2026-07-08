@@ -1,10 +1,11 @@
 # Epic: Requirements Corpus Maturity (docs 01–21)
 
-> **Status:** In progress (Wave 1 complete; W2+ pending)
+> **Status:** In progress (Wave 2 complete; W3+ pending)
 > **Layer:** Documentation
 > **Design:** [2026-07-08-requirements-corpus-maturity-design.md](../../../docs/superpowers/specs/2026-07-08-requirements-corpus-maturity-design.md)
 > **Plan (Wave 0):** [2026-07-08-requirements-corpus-maturity-wave0-plan.md](../../../docs/superpowers/plans/2026-07-08-requirements-corpus-maturity-wave0-plan.md)
 > **Plan (Wave 1):** [2026-07-08-requirements-corpus-maturity-wave1-plan.md](../../../docs/superpowers/plans/2026-07-08-requirements-corpus-maturity-wave1-plan.md)
+> **Plan (Wave 2):** [2026-07-08-requirements-corpus-maturity-wave2-plan.md](../../../docs/superpowers/plans/2026-07-08-requirements-corpus-maturity-wave2-plan.md)
 > **Does not reopen:** [requirements-maturity-slice](../requirements-maturity-slice/EPIC.md) (S12–15 Complete)
 
 ## Goal
@@ -17,7 +18,7 @@ Bring requirement docs **01–21** to trustworthy maturity (shipped vs phased ho
 |----|-------|------|--------|
 | 001 | [story-001-hub-rebaseline.md](story-001-hub-rebaseline.md) | 0 | Complete |
 | 002 | [story-002-template-a-honesty.md](story-002-template-a-honesty.md) | 1 | Complete |
-| 003 | Template B drafts (13–20) | 2 | Pending plan |
+| 003 | [story-003-template-b-honesty.md](story-003-template-b-honesty.md) | 2 | Complete |
 | 004 | Content + platform (09, 10, 21) | 3 | Pending plan |
 | 005 | Consistency gate + RTM + design-review | 4 | Pending plan |
 
