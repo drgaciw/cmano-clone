@@ -1,6 +1,7 @@
 # Scenario Editor Phase 2 — Product Design
 
-**Status:** Draft for user review (brainstorm approved 2026-07-08)  
+**Status:** Approved (user 2026-07-08); P2.1 plan: `docs/superpowers/plans/2026-07-08-scenario-editor-phase2-1-plan.md`  
+
 **Date:** 2026-07-08  
 **Author:** Collaborative brainstorm (user + orchestrator)  
 **Requirement:** `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` (Phase 2 AME-*)  
