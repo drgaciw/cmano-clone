@@ -112,6 +112,7 @@ namespace ProjectAegis.Unity.Runtime
                     label.ClearClassList();
                     label.AddToClassList("message-log-row");
                     AddCategoryClass(label, row.Category);
+                    AddOrderStateClass(label, row.LifecycleState); // T2: req 20 §Order lifecycle
                 };
                 _messageList.selectionType = SelectionType.None;
 
@@ -160,7 +161,9 @@ namespace ProjectAegis.Unity.Runtime
                 lines = lines.Skip(lines.Count - maxRows).ToArray();
             }
 
-            var candidate = MessageLogPanelBinder.Bind(lines);
+            // T2: req 20 §Order lifecycle — surface each PLAYER_ORDER row's resolved lifecycle state.
+            var lifecycle = OrderLifecycleProjection.Project(bridgeHost.Bridge.Orchestrator.DecisionLog);
+            var candidate = MessageLogPanelBinder.Bind(lines, lifecycle);
 
             // req 20 AC-10 — skip itemsSource reassignment + Rebuild() when the bound snapshot is
             // structurally unchanged from the last frame that was actually pushed to the
@@ -200,6 +203,24 @@ namespace ProjectAegis.Unity.Runtime
                     element.AddToClassList("message-log-row--mission");
                     break;
             }
+        }
+
+        /// <summary>T2 (req 20 §Order lifecycle): tint PLAYER_ORDER rows with the Phase 0
+        /// .order-state--* USS class + icon/text tooltip (AA — colour is a secondary cue only).</summary>
+        private static void AddOrderStateClass(VisualElement element, OrderLifecycleState? lifecycleState)
+        {
+            if (lifecycleState == null)
+            {
+                return;
+            }
+
+            var chip = OrderStateChipBinder.Bind(lifecycleState.Value);
+            if (!string.IsNullOrEmpty(chip.CssClass))
+            {
+                element.AddToClassList(chip.CssClass);
+            }
+
+            element.tooltip = chip.Text;
         }
     }
 }

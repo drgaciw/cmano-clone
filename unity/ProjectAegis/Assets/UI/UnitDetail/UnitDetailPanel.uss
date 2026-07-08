@@ -1,3 +1,5 @@
+@import url("../AegisTokens.uss");
+
 .unit-detail-panel {
     flex-grow: 1;
     min-width: 280px;
@@ -30,4 +32,37 @@
 
 .unit-detail-attack-btn:disabled {
     opacity: 0.45;
+}
+
+/* OrderStateChip (T2, req 20 §Order lifecycle, TR-c2-006) — colour comes from the Phase 0
+ * .order-state--* utility classes in AegisTokens.uss; the base rule keeps the chip readable when no
+ * state class is applied yet (no order logged for the selected unit). Compound selectors below (two
+ * classes) guarantee the state colour wins over .unit-detail-line's own color regardless of
+ * @import/declaration order. */
+.unit-detail-line--order-state {
+    -unity-font-style: bold;
+}
+
+.unit-detail-line--order-state.order-state--accepted {
+    color: var(--aegis-order-accepted);
+}
+
+.unit-detail-line--order-state.order-state--queued {
+    color: var(--aegis-order-queued);
+}
+
+.unit-detail-line--order-state.order-state--executing {
+    color: var(--aegis-order-executing);
+}
+
+.unit-detail-line--order-state.order-state--completed {
+    color: var(--aegis-order-completed);
+}
+
+.unit-detail-line--order-state.order-state--denied {
+    color: var(--aegis-order-denied);
+}
+
+.unit-detail-line--order-state.order-state--aborted {
+    color: var(--aegis-order-aborted);
 }

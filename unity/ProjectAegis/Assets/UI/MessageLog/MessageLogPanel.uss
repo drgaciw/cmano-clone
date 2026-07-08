@@ -62,3 +62,31 @@
 .message-log-row--mission {
     color: rgb(160, 220, 180);
 }
+
+/* T2 (req 20 §Order lifecycle): PLAYER_ORDER row lifecycle tint. Compound selectors (two classes) so
+ * this always wins over the base .message-log-row color regardless of @import/declaration order —
+ * mirrors the .order-state--* palette in AegisTokens.uss (colour is a secondary cue; row tooltip
+ * carries the icon + text label per a11y). */
+.message-log-row.order-state--accepted {
+    color: var(--aegis-order-accepted);
+}
+
+.message-log-row.order-state--queued {
+    color: var(--aegis-order-queued);
+}
+
+.message-log-row.order-state--executing {
+    color: var(--aegis-order-executing);
+}
+
+.message-log-row.order-state--completed {
+    color: var(--aegis-order-completed);
+}
+
+.message-log-row.order-state--denied {
+    color: var(--aegis-order-denied);
+}
+
+.message-log-row.order-state--aborted {
+    color: var(--aegis-order-aborted);
+}

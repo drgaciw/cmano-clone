@@ -9,7 +9,9 @@ namespace ProjectAegis.Delegation.Input;
 /// a11y §6.3 defines <see cref="Cancel"/> and <see cref="FocusPrimaryThreat"/>. <see cref="CycleUnit"/>
 /// is defined here per the UX spec interaction map (N / P cycle next/previous friendly unit) but is
 /// NOT yet listed in accessibility-requirements.md §6.3 — cascade note: add <c>input.cycle_unit</c>
-/// to a11y §6.3 so this constant and the doc agree.
+/// to a11y §6.3 so this constant and the doc agree. <see cref="Confirm"/> is defined here (Track T2,
+/// req 20 §Order lifecycle) for the weapons-release confirmation gate — likewise NOT yet listed in
+/// a11y §6.3; cascade note: add <c>input.confirm</c> alongside <c>input.cancel</c>.
 /// </remarks>
 public static class C2InputActions
 {
@@ -23,4 +25,10 @@ public static class C2InputActions
     /// Close modal / cancel intent preview / cancel weapons-release gate (default Esc). a11y §6.3.
     /// </summary>
     public const string Cancel = "input.cancel";
+
+    /// <summary>
+    /// Confirm the weapons-release confirmation gate when ROE/doctrine requires positive control
+    /// (default Enter). See <see cref="ProjectAegis.Delegation.Projection.WeaponsReleaseConfirmationGate"/>.
+    /// </summary>
+    public const string Confirm = "input.confirm";
 }
