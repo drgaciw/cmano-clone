@@ -139,6 +139,7 @@ public sealed class CesiumApp6BillboardContractTests
             "Assets",
             "Scripts",
             "Runtime",
+            "Cesium",
             "CesiumGlobeBridge.cs");
         Assert.That(File.Exists(bridgePath), Is.True);
 
