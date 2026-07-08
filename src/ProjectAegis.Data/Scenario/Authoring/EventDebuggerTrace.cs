@@ -6,6 +6,8 @@ using System.Text.Json.Serialization;
 /// <summary>
 /// AC-7 event debugger: projects structured JSON for a single event evaluation.
 /// Filtered view aligned with order-log <c>EventFired</c> semantics (AME-5.5).
+/// Full projection fields: <c>sim_tick</c>, <c>sequence_id</c>, <c>action_results</c>
+/// plus existing <c>event_id</c>, <c>fired</c>, <c>last_evaluated_tick</c>, <c>unmet_conditions</c>.
 /// </summary>
 public static class EventDebuggerTrace
 {
@@ -17,12 +19,18 @@ public static class EventDebuggerTrace
         WriteIndented = false,
     };
 
+    /// <summary>
+    /// Serializes the AC-7 debugger projection for <paramref name="eventId"/> as compact JSON.
+    /// </summary>
     public static string ToJson(ScenarioDocumentDto document, string eventId, int? evaluationHorizonTicks = null)
     {
         var trace = Evaluate(document, eventId, evaluationHorizonTicks);
         return JsonSerializer.Serialize(trace, JsonOptions);
     }
 
+    /// <summary>
+    /// Evaluates a single event and returns the full AC-7 debugger projection DTO.
+    /// </summary>
     public static EventDebuggerTraceDto Evaluate(
         ScenarioDocumentDto document,
         string eventId,
@@ -42,7 +50,10 @@ public static class EventDebuggerTrace
                 EventId = eventId,
                 Fired = false,
                 LastEvaluatedTick = 0,
+                SimTick = 0,
+                SequenceId = 0,
                 UnmetConditions = Array.Empty<EventDebuggerUnmetConditionDto>(),
+                ActionResults = Array.Empty<EventDebuggerActionResultDto>(),
             };
         }
 
@@ -61,12 +72,19 @@ public static class EventDebuggerTrace
             fired = string.Equals(evt.TriggerType, "Time", StringComparison.OrdinalIgnoreCase);
         }
 
+        var lastEvaluatedTick = fired ? 0 : horizon;
+        // When fired: sim_tick is 0 (fires at evaluation start). When not: mirrors last_evaluated_tick/horizon.
+        var simTick = fired ? 0 : lastEvaluatedTick;
+
         return new EventDebuggerTraceDto
         {
             EventId = evt.Id,
             Fired = fired,
-            LastEvaluatedTick = fired ? 0 : horizon,
+            LastEvaluatedTick = lastEvaluatedTick,
+            SimTick = simTick,
+            SequenceId = ResolveSequenceId(document, evt.Id),
             UnmetConditions = unmet,
+            ActionResults = BuildActionResults(evt, fired),
         };
     }
 
@@ -79,6 +97,55 @@ public static class EventDebuggerTrace
 
         return document.Events.FirstOrDefault(e =>
             string.Equals(e.Id, eventId, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Index of the event in <c>document.Events</c> ordered by id ordinal (stable), or 0 if missing.
+    /// </summary>
+    private static int ResolveSequenceId(ScenarioDocumentDto document, string eventId)
+    {
+        if (document.Events == null || document.Events.Count == 0)
+        {
+            return 0;
+        }
+
+        // Stable OrderBy (LINQ) on id ordinal — authoring path, not a hot loop.
+        var ordered = document.Events
+            .OrderBy(e => e.Id, StringComparer.Ordinal)
+            .ToList();
+
+        for (var i = 0; i < ordered.Count; i++)
+        {
+            if (string.Equals(ordered[i].Id, eventId, StringComparison.OrdinalIgnoreCase))
+            {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
+    private static IReadOnlyList<EventDebuggerActionResultDto> BuildActionResults(
+        ScenarioEventDto evt,
+        bool fired)
+    {
+        if (evt.Actions == null || evt.Actions.Count == 0)
+        {
+            return Array.Empty<EventDebuggerActionResultDto>();
+        }
+
+        var results = new List<EventDebuggerActionResultDto>(evt.Actions.Count);
+        foreach (var action in evt.Actions)
+        {
+            results.Add(new EventDebuggerActionResultDto
+            {
+                Type = action.Type ?? "",
+                Applied = fired,
+                Note = fired ? null : "not-fired",
+            });
+        }
+
+        return results;
     }
 
     private static bool EvaluateCondition(
@@ -146,6 +213,7 @@ public static class EventDebuggerTrace
         return false;
     }
 
+    /// <summary>Full AC-7 event debugger projection (order-log-aligned fields).</summary>
     public sealed class EventDebuggerTraceDto
     {
         [JsonPropertyName("event_id")]
@@ -157,9 +225,46 @@ public static class EventDebuggerTrace
         [JsonPropertyName("last_evaluated_tick")]
         public int LastEvaluatedTick { get; init; }
 
+        /// <summary>
+        /// Sim tick of the evaluation: 0 when fired; otherwise equals
+        /// <see cref="LastEvaluatedTick"/> (horizon).
+        /// </summary>
+        [JsonPropertyName("sim_tick")]
+        public int SimTick { get; init; }
+
+        /// <summary>
+        /// Index of the event in <c>document.Events</c> ordered by id ordinal (stable),
+        /// or 0 when the event is missing.
+        /// </summary>
+        [JsonPropertyName("sequence_id")]
+        public int SequenceId { get; init; }
+
         [JsonPropertyName("unmet_conditions")]
         public IReadOnlyList<EventDebuggerUnmetConditionDto> UnmetConditions { get; init; } =
             Array.Empty<EventDebuggerUnmetConditionDto>();
+
+        /// <summary>
+        /// Per-action results. When fired, each action has <c>applied=true</c>;
+        /// when not fired, <c>applied=false</c> with <c>note="not-fired"</c>.
+        /// </summary>
+        [JsonPropertyName("action_results")]
+        public IReadOnlyList<EventDebuggerActionResultDto> ActionResults { get; init; } =
+            Array.Empty<EventDebuggerActionResultDto>();
+    }
+
+    /// <summary>Per-action projection entry for AC-7 <c>action_results</c>.</summary>
+    public sealed class EventDebuggerActionResultDto
+    {
+        [JsonPropertyName("type")]
+        public string Type { get; init; } = "";
+
+        [JsonPropertyName("applied")]
+        public bool Applied { get; init; }
+
+        /// <summary>Optional note (e.g. <c>not-fired</c> when the parent event did not fire).</summary>
+        [JsonPropertyName("note")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? Note { get; init; }
     }
 
     public sealed class EventDebuggerUnmetConditionDto

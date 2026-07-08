@@ -6,28 +6,28 @@ using ProjectAegis.Data.Validation;
 using Xunit;
 
 /// <summary>
-/// Pins the CURRENT demonstrative ("stub") behavior of four scenario-editor
-/// features. These are documented as placeholders, not real analysis engines
-/// (see production/qa/qa-plan-scenario-editor-2026-07-01.md unit #17 and
-/// doc 11). These tests assert the EXACT current output shape — not
-/// correctness — so a future refactor cannot silently regress the stub's
-/// observable contract, and cannot silently start doing real
-/// analysis/NL-understanding/LLM calls without a corresponding doc update.
+/// Pins the CURRENT demonstrative ("stub") behavior of remaining scenario-editor
+/// placeholder features, plus the lifted AC-7 event debugger projection shape.
+/// TCA static analysis and NL scaffold remain stubs (not real analysis engines —
+/// see production/qa/qa-plan-scenario-editor-2026-07-01.md unit #17 and doc 11).
+/// Event debugger is no longer a stub for AC-7 projection (ME-W2 Track W2-a):
+/// it must emit full order-log-aligned fields (sim_tick, sequence_id, action_results).
 /// If any of these tests need to change, that change should be deliberate
 /// and visible in review, paired with a doc update.
-/// Pins: event debugger (ExplainEventTrace), TCA static analysis (AnalyzeTcaGraph),
-/// AI scaffold/NL (NlScaffold), IncompatibleHost/BrokenRef heuristics.
+/// Pins: event debugger full projection (ExplainEventTrace), TCA static analysis
+/// (AnalyzeTcaGraph), AI scaffold/NL (NlScaffold), IncompatibleHost/BrokenRef heuristics.
 /// </summary>
 public sealed class StubScopePinTests
 {
     // ---------------------------------------------------------------
-    // Stub 4: Event debugger trace shape — ExplainEventTrace / scenario_event_trace
-    // (minimal stub per AME-5.5; "minimal trace strings" not full AC-7 projection)
-    // See: Game-Requirements/requirements/11-Agentic-Mission-Editor.md, sprint-85-determinism-ci.md
+    // Event debugger — ExplainEventTrace / scenario_event_trace
+    // Full AC-7 projection (ME-W2 Track W2-a): sim_tick, sequence_id, action_results
+    // plus event_id / fired / last_evaluated_tick / unmet_conditions.
+    // See: Game-Requirements/requirements/11-Agentic-Mission-Editor.md AC-7 / AME-5.5
     // ---------------------------------------------------------------
 
     [Fact]
-    public void ExplainEventTrace_returns_minimal_stub_json_shape_without_full_projection_fields()
+    public void ExplainEventTrace_returns_full_ac7_projection_fields_with_correct_types()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
         editor.Events.Add(new ScenarioEventDto
@@ -41,34 +41,39 @@ public sealed class StubScopePinTests
 
         var json = editor.ExplainEventTrace("evt-stub-demo");
 
-        // Pins CURRENT demonstrative output shape (compact JSON).
-        // Guards against silent upgrade to "real" debugger or full order-log projection (AC-7).
+        // Pins full AC-7 projection shape (compact JSON).
         Assert.StartsWith("{", json);
         Assert.Contains("\"event_id\":\"evt-stub-demo\"", json);
         Assert.Contains("\"fired\":", json);
         Assert.Contains("\"last_evaluated_tick\":", json);
         Assert.Contains("\"unmet_conditions\"", json);
 
-        // Explicitly no full AC-7 fields yet (per stub maturity note)
-        Assert.DoesNotContain("sim_tick", json, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("sequence_id", json, StringComparison.OrdinalIgnoreCase);
-        Assert.DoesNotContain("action_results", json, StringComparison.OrdinalIgnoreCase);
+        // Full AC-7 fields MUST appear with correct JSON types
+        using var doc = System.Text.Json.JsonDocument.Parse(json);
+        var root = doc.RootElement;
+        Assert.Equal(System.Text.Json.JsonValueKind.Number, root.GetProperty("sim_tick").ValueKind);
+        Assert.Equal(System.Text.Json.JsonValueKind.Number, root.GetProperty("sequence_id").ValueKind);
+        Assert.Equal(System.Text.Json.JsonValueKind.Array, root.GetProperty("action_results").ValueKind);
+        Assert.True(root.GetProperty("sim_tick").TryGetInt32(out _));
+        Assert.True(root.GetProperty("sequence_id").TryGetInt32(out _));
     }
 
     [Fact]
-    public void ExplainEventTrace_for_missing_event_and_unitenterszone_pin_stub_demonstrative_behavior()
+    public void ExplainEventTrace_for_missing_event_and_unitenterszone_pin_full_projection()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
-        // no events populated -> stub path for missing
+        // no events populated -> missing-event path
         var jsonMissing = editor.ExplainEventTrace("nonexistent-evt");
 
         Assert.Contains("\"event_id\":\"nonexistent-evt\"", jsonMissing);
         Assert.Contains("\"fired\":false", jsonMissing);
         Assert.Contains("\"last_evaluated_tick\":0", jsonMissing);
         Assert.Contains("\"unmet_conditions\":[]", jsonMissing);
+        Assert.Contains("\"sim_tick\":0", jsonMissing);
+        Assert.Contains("\"sequence_id\":0", jsonMissing);
+        Assert.Contains("\"action_results\":[]", jsonMissing);
 
-        // UnitEntersZone case without live editorState -> always stub "never holds"
-        // (no real sim analysis or zone eval; pins current demonstrative contract)
+        // UnitEntersZone case without live editorState -> never holds
         var doc = new ScenarioDocumentDto
         {
             Metadata = new ScenarioMetadataDto { Seed = 42 },
@@ -86,8 +91,11 @@ public sealed class StubScopePinTests
         var jsonZone = EventDebuggerTrace.ToJson(doc, "evt-zone");
 
         Assert.Contains("\"fired\":false", jsonZone);
-        Assert.Contains("\"last_evaluated_tick\":32", jsonZone); // pinned stub horizon default
+        Assert.Contains("\"last_evaluated_tick\":32", jsonZone); // pinned horizon default
         Assert.Contains("unmet_conditions", jsonZone);
+        Assert.Contains("\"sim_tick\":32", jsonZone);
+        Assert.Contains("\"sequence_id\":", jsonZone);
+        Assert.Contains("\"action_results\"", jsonZone);
     }
 
     // ---------------------------------------------------------------
@@ -296,25 +304,24 @@ public sealed class StubScopePinTests
     }
 
     // ---------------------------------------------------------------
-    // Additional stub pin for event debugger (ExplainEventTrace / scenario_event_trace)
-    // Per S85 #17: pin *current* minimal/stub output shape (not full AC-7 projection).
-    // Cites: scenario-editor-scope-boundary-2026-07-04.md, sprint-85-determinism-ci.md,
-    // roadmap-execute-plan-07042026.md S85, qa-plan-scenario-editor-2026-07-01.md #17,
-    // 11-Agentic-Mission-Editor.md (AC-7 stub note), StubScopePinTests.
+    // Additional pin for event debugger full AC-7 projection (missing-event path).
+    // Cites: ME-W2 Track W2-a, 11-Agentic-Mission-Editor.md AC-7 / AME-5.5.
     // ---------------------------------------------------------------
 
     [Fact]
-    public void ExplainEventTrace_stub_returns_minimal_shape_with_fired_false_for_missing_event()
+    public void ExplainEventTrace_returns_full_shape_with_fired_false_for_missing_event()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
-        // No events in document => stub path returns minimal non-firing shape.
+        // No events in document => missing path returns non-firing full projection.
         var json = editor.ExplainEventTrace("evt-no-such");
 
-        // Pin exact stub contract (current demonstrative, not real trace engine).
         Assert.Contains("\"event_id\":\"evt-no-such\"", json, StringComparison.Ordinal);
         Assert.Contains("\"fired\":false", json, StringComparison.Ordinal);
         Assert.Contains("\"last_evaluated_tick\":0", json, StringComparison.Ordinal);
         Assert.Contains("\"unmet_conditions\":[]", json, StringComparison.Ordinal);
+        Assert.Contains("\"sim_tick\":0", json, StringComparison.Ordinal);
+        Assert.Contains("\"sequence_id\":0", json, StringComparison.Ordinal);
+        Assert.Contains("\"action_results\":[]", json, StringComparison.Ordinal);
     }
 
     [Fact]
