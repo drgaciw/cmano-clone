@@ -4,18 +4,45 @@
 **Branch:** `feat/scenario-editor-p2-1`  
 **Design:** `docs/superpowers/specs/2026-07-08-scenario-editor-phase2-design.md`  
 **Plan:** `docs/superpowers/plans/2026-07-08-scenario-editor-phase2-1-plan.md`  
-**Status:** In progress (Task 0 spike complete)
+**Status:** Engineering complete (Tasks 0–8 + Task 9 deferred checklist); gate results below
 
 ---
 
-## Task 0 — Map / C2 reuse spike (2026-07-08)
+## In scope (shipped headless)
 
-1. **Reuse:** APP-6 glyph contracts (`App6GlyphAtlas`, `App6Sidc`, `CesiumBillboardProjection` / map tests under `UnityAdapter.Tests/Map/`) for affiliation/frame IDs when rendering ORBAT markers later; lat/lon live on `ScenarioOrbatUnitDto` / `ScenarioWaypointDto` (degrees).
-2. **Do not reuse as authoring host:** `C2PresentationController` is runtime selection bound to `ISimWorldSnapshot` / `DelegationBridge` for unit detail — wrong dependency for map authoring commits.
-3. **Do not overload:** Runtime UI hosts (`C2LeftDrawerPanelHost`, `MapPlaceholderPanelHost`, `OobTreePanelHost`, `CesiumGlobeHost`) are Play Mode C2 — keep separate from Edit Mode session/bus.
-4. **Existing Editor scripts:** batch runners / smoke scene builders only — no scenario map authoring window yet.
-5. **Decision (locked):** New headless namespace `ProjectAegis.Delegation.UnityAdapter.Authoring` for map surface, edit FSM, findings presenter; optional thin `unity/.../Editor/ScenarioMapAuthoringWindow.cs` later (Task 9).
-6. **Canonical mutations:** remain in `ProjectAegis.Data` `ScenarioDocumentEditor` + command bus — Unity never owns geometry truth.
+| Capability | Evidence |
+|------------|----------|
+| Geometry validity helper | `ScenarioGeometryValidity` + tests |
+| ORBAT place/move/clone + RP upsert | `ScenarioDocumentEditor` APIs + tests |
+| Session + command bus + undo/editVersion | `ScenarioAuthoringSession`, `ScenarioEditCommandBus` |
+| Map surface + selection (headless) | `MapAuthoringSurface`, `SelectionInspectorModel` |
+| Edit FSM + live findings | `EditModeController`, `LiveFindingsPresenter` |
+| Attach mission from selection | Bus `Attach*FromSelection` |
+| CLI/MCP parity | `orbat_*`, `reference_point_upsert` + mcp-tools.json |
+| Integration parity | `ScenarioMapAuthoringIntegrationTests` |
+
+## Out of P2.1
+
+- Mission Board (P2.2)
+- Visual event graph (P2.3)
+- NL agents / CMO import / Lua (Phase 3)
+- Full Unity EditorWindow (Task 9 deferred — see checklist)
+
+---
+
+## Task 0 — Map / C2 reuse spike
+
+1. **Reuse:** APP-6 glyph contracts for later marker styling; lat/lon on ORBAT/RP DTOs.  
+2. **Do not reuse as authoring host:** `C2PresentationController` (sim/bridge selection).  
+3. **Do not overload:** runtime C2 UI hosts.  
+4. **Decision:** `ProjectAegis.Delegation.UnityAdapter.Authoring` namespace.  
+5. **Canonical mutations:** Data `ScenarioDocumentEditor` + bus only.
+
+---
+
+## Task 9 — Unity host
+
+Deferred: `production/qa/scenario-editor-p2-1-editor-host-checklist.md`
 
 ---
 
@@ -33,10 +60,29 @@
 
 ---
 
-## Gate (fill at Task 10)
+## Gate commands
 
 ```bash
 dotnet build ProjectAegis.sln
 dotnet test ProjectAegis.sln -v minimal
-# … ReplayGolden, PlayModeSmoke, hash grep, bridge diff
+dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests
+dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter ReplayGolden
+grep -r "17144800277401907079" tests/ data/ | head
+git diff main --name-only | grep -i DelegationBridge || true
 ```
+
+## Gate results (2026-07-08)
+
+| Check | Result |
+|-------|--------|
+| Build | **PASS** 0 errors |
+| Full test | **PASS** 1462 total, 0 failed (311+260+5+277+528+81) |
+| PlayModeSmoke | **PASS** ≥18 (20 in phase0 filter) |
+| ReplayGolden | **PASS** 6/6 |
+| Hash present | **PASS** 18 files with `17144800277401907079` |
+| DelegationBridge production | **PASS** 0 diff lines vs merge-base main |
+| Phase0 smoke (quick) | **PASS** (after `smoke-ac6.sh` pipefail fix) |
+| Stage | Release |
+
+**Total commits on branch:** 10 feature/docs + gate docs  
+**Task 9:** Unity EditorWindow deferred — checklist only
