@@ -17,17 +17,17 @@ Finish Phase 2 mission editor product: map host residual, Mission Board, event g
 |----|-------|------|--------|
 | ME-001 | [story-me-001-w0-host-honesty.md](story-me-001-w0-host-honesty.md) | ME-W0 | **Complete** (2026-07-08) |
 | ME-002 | [story-me-002-w1-mission-board.md](story-me-002-w1-mission-board.md) | ME-W1 | **Complete** (2026-07-08; Unity panel deferred) |
-| ME-003 | [story-me-003-w2-event-graph.md](story-me-003-w2-event-graph.md) | ME-W2 | Pending W1 |
+| ME-003 | [story-me-003-w2-event-graph.md](story-me-003-w2-event-graph.md) | ME-W2 | **Complete** (2026-07-08; Unity visual graph deferred) |
 | ME-004 | [story-me-004-w3-residual.md](story-me-004-w3-residual.md) | ME-W3 | Pending |
 | ME-005 | [story-me-005-w4-gate.md](story-me-005-w4-gate.md) | ME-W4 | Pending |
 
 ## Acceptance (epic)
 
-1. [ ] Edit Mode host path for map ORBAT/RP + findings (or signed checklist)
-2. [ ] Mission Board: list/filter/clone/template for four mission types
-3. [ ] AC-7 green (full debugger); static analysis beyond TCA stub
-4. [ ] Doc 11 + tracker honest; human ack “Mission editor Phase 2 complete”
-5. [ ] Invariants: hash, bridge zero-touch, test floor, ReplayGolden, PlayModeSmoke
+1. [x] Edit Mode host path for map ORBAT/RP + findings (or signed checklist) — ME-W0
+2. [x] Mission Board: list/filter/clone/template for four mission types — ME-W1 (Unity panel deferred)
+3. [x] AC-7 green (full debugger); static analysis beyond TCA stub — ME-W2 (`EventDebuggerTrace` + `EventStaticAnalyzer`; Unity visual graph deferred)
+4. [ ] Doc 11 + tracker honest; human ack “Mission editor Phase 2 complete” — doc 11 ME-W2 honesty done; full Phase 2 ack waits ME-W3/W4
+5. [ ] Invariants: hash, bridge zero-touch, test floor, ReplayGolden, PlayModeSmoke — re-verify at ME-W4 gate
 
 ## Out of scope
 
