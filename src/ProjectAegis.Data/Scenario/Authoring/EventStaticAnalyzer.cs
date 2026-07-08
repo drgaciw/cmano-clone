@@ -30,7 +30,10 @@ public static class EventStaticAnalyzer
     /// <returns>Deterministic findings ordered by code then event id then message.</returns>
     public static IReadOnlyList<ValidationFinding> Analyze(ScenarioDocumentDto scenario)
     {
-        ArgumentNullException.ThrowIfNull(scenario);
+        if (scenario is null)
+        {
+            throw new ArgumentNullException(nameof(scenario));
+        }
 
         var events = scenario.Events ?? Array.Empty<ScenarioEventDto>();
         if (events.Count == 0)
