@@ -5,6 +5,19 @@ description: Search Unity's package registry plus locally installed packages (Gi
 
 # Package Manager / Search
 
+<!-- PROJECT-AEGIS:BEGIN -->
+### Project Aegis notes
+
+- Conventions: [`../../README.md`](../../README.md) · stack: [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Prefer **headless** `dotnet test` / PlayModeSmokeHarness for sim/delegation gates; use this Editor MCP tool for Editor-only work.
+- **Zero-touch:** do not modify `DelegationBridge` hotpath. Unity plugins target **netstandard2.1** (`./tools/copy-delegation-assemblies.ps1`).
+- **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
+
+- **When to use:** Discover package IDs before a human-approved `package-add`.
+- Do not treat search hits as install approval.
+<!-- PROJECT-AEGIS:END -->
+
+
 Search for packages in both Unity Package Manager registry and installed packages. Use this to find packages by name before installing them. Returns available versions and installation status. Searches both the Unity registry and locally installed packages (including Git, local, and embedded sources). Results are prioritized: exact name match, exact display name match, name substring, display name substring, description substring. Note: Online mode fetches exact matches from live registry, then supplements with cached substring matches.
 
 ## Inputs

@@ -5,6 +5,18 @@ description: Call a C# method by reflection — including private methods. Requi
 
 # Method C# / Call
 
+<!-- PROJECT-AEGIS:BEGIN -->
+### Project Aegis notes
+
+- Conventions: [`../../README.md`](../../README.md) · stack: [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Prefer **headless** `dotnet test` / PlayModeSmokeHarness for sim/delegation gates; use this Editor MCP tool for Editor-only work.
+- **Zero-touch:** do not modify `DelegationBridge` hotpath. Unity plugins target **netstandard2.1** (`./tools/copy-delegation-assemblies.ps1`).
+- **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
+
+- **High risk.** Do not invoke private DelegationBridge / sim hotpath methods to patch behavior.
+<!-- PROJECT-AEGIS:END -->
+
+
 Call C# method. Any method could be called, even private methods. It requires to receive proper method schema. Use 'reflection-method-find' to find available method before using it. Receives input parameters and returns result.
 
 ## Match levels (apply to `typeName`, `MethodName`, `Parameters`)

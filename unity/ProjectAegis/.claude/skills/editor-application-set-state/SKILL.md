@@ -1,9 +1,22 @@
 ---
 name: editor-application-set-state
-description: Start / stop / pause the Unity Editor 'playmode'. Use 'editor-application-get-state' to inspect the current state first. Throws if the project currently has compilation errors.
+description: "Start / stop / pause the Unity Editor 'playmode'. Use 'editor-application-get-state' to inspect the current state first. Throws if the project currently has compilation errors. Project Aegis: Play Mode for visual smoke (PLAYMODE-SMOKE.md); gates stay headless."
 ---
 
 # Editor / Application / Set State
+
+<!-- PROJECT-AEGIS:BEGIN -->
+### Project Aegis notes
+
+- Conventions: [`../../README.md`](../../README.md) · stack: [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Prefer **headless** `dotnet test` / PlayModeSmokeHarness for sim/delegation gates; use this Editor MCP tool for Editor-only work.
+- **Zero-touch:** do not modify `DelegationBridge` hotpath. Unity plugins target **netstandard2.1** (`./tools/copy-delegation-assemblies.ps1`).
+- **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
+
+- **When to use:** Enter/exit Play Mode for visual C2 smoke ([`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md)).
+- **When not:** Automated gates — use headless PlayModeSmokeHarness / `dotnet test`.
+<!-- PROJECT-AEGIS:END -->
+
 
 Control the Unity Editor application state. You can start, stop, or pause the 'playmode'. Use 'editor-application-get-state' tool to get the current state first.
 

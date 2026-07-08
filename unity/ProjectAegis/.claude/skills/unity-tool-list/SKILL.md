@@ -1,9 +1,22 @@
 ---
 name: unity-tool-list
-description: List all Unity-MCP tools registered in the connected Unity Editor instance. Optional regex filter matches against tool name, description, and argument names/descriptions. Use the `includeDescription` / `includeInputs` toggles to control the response size.
+description: "List all Unity-MCP tools registered in the connected Unity Editor instance. Optional regex filter matches against tool name, description, and argument names/descriptions. Use the `includeDescription` / `includeInputs` toggles to control the response size. Project Aegis: use when Editor MCP is up; do not invent tools if :8080 is down."
 ---
 
 # Tool / List
+
+<!-- PROJECT-AEGIS:BEGIN -->
+### Project Aegis notes
+
+- Conventions: [`../../README.md`](../../README.md) · stack: [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Prefer **headless** `dotnet test` / PlayModeSmokeHarness for sim/delegation gates; use this Editor MCP tool for Editor-only work.
+- **Zero-touch:** do not modify `DelegationBridge` hotpath. Unity plugins target **netstandard2.1** (`./tools/copy-delegation-assemblies.ps1`).
+- **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
+
+- **When to use:** Editor is up on `:8080` and you need to discover real tool names/args.
+- **When not:** Editor/plugin pending — use headless verification instead; do not invent tools.
+<!-- PROJECT-AEGIS:END -->
+
 
 List all Unity-MCP tools registered in the connected Unity Editor instance. Optionally filter by regex across tool names, descriptions, and arguments.
 

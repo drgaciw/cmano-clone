@@ -1,9 +1,23 @@
 ---
 name: script-update-or-create
-description: Write a `.cs` script file (create or overwrite) with the provided C# code. Validates syntax via Roslyn before write — invalid code is rejected with error details and the file is left untouched. Refreshes the AssetDatabase and delivers the final result via `requestId` after Unity finishes the triggered compilation. Use 'script-read' to inspect existing content first.
+description: "Write a `.cs` script file (create or overwrite) with the provided C# code. Validates syntax via Roslyn before write — invalid code is rejected with error details and the file is left untouched. Refreshes the AssetDatabase and delivers the final result via `requestId` after Unity finishes the triggered compilation. Use 'script-read' to inspect existing content first. Project Aegis: never edit DelegationBridge hotpath; Unity plugins netstandard2.1."
 ---
 
 # Script / Update or Create
+
+<!-- PROJECT-AEGIS:BEGIN -->
+### Project Aegis notes
+
+- Conventions: [`../../README.md`](../../README.md) · stack: [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Prefer **headless** `dotnet test` / PlayModeSmokeHarness for sim/delegation gates; use this Editor MCP tool for Editor-only work.
+- **Zero-touch:** do not modify `DelegationBridge` hotpath. Unity plugins target **netstandard2.1** (`./tools/copy-delegation-assemblies.ps1`).
+- **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
+
+- **When to use:** Create/update Editor/runtime scripts under `Assets/` (UI hosts, presentation).
+- **When not:** Do **not** rewrite `DelegationBridge` or sim hotpath; do not target headless `net8.0` assemblies via this tool.
+- New Unity plugin code must stay **netstandard2.1**-compatible; refresh plugin DLLs with `./tools/copy-delegation-assemblies.ps1` when bridging headless builds.
+<!-- PROJECT-AEGIS:END -->
+
 
 Updates or creates script file with the provided C# code. Does AssetDatabase.Refresh() at the end. Provides compilation error details if the code has syntax errors. Use 'script-read' tool to read existing script files first.
 

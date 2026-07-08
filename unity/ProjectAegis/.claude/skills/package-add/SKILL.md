@@ -1,9 +1,23 @@
 ---
 name: package-add
-description: Install a Unity package from the registry, a Git URL, or a local path. Modifies `manifest.json` and triggers package resolution; may also trigger a domain reload — the final result is delivered after the reload via the request's `requestId`. Use 'package-search' / 'package-list' for discovery first.
+description: "Install a Unity package from the registry, a Git URL, or a local path. Modifies `manifest.json` and triggers package resolution; may also trigger a domain reload — the final result is delivered after the reload via the request's `requestId`. Use 'package-search' / 'package-list' for discovery first. Project Aegis: human approval required; do not add URP/HDRP/Input System."
 ---
 
 # Package Manager / Add
+
+<!-- PROJECT-AEGIS:BEGIN -->
+### Project Aegis notes
+
+- Conventions: [`../../README.md`](../../README.md) · stack: [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Prefer **headless** `dotnet test` / PlayModeSmokeHarness for sim/delegation gates; use this Editor MCP tool for Editor-only work.
+- **Zero-touch:** do not modify `DelegationBridge` hotpath. Unity plugins target **netstandard2.1** (`./tools/copy-delegation-assemblies.ps1`).
+- **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
+
+- **When to use:** Explicitly approved package adds only.
+- **When not:** Do **not** add URP/HDRP/Input System or unpin Entities/Burst/Addressables/UI without approval.
+- Current pins: Entities 1.4.6, Burst 1.8.29, Entities.Graphics 1.4.20, UI Toolkit 2.0.0, Addressables 2.3.16.
+<!-- PROJECT-AEGIS:END -->
+
 
 Install a package from the Unity Package Manager registry, Git URL, or local path. This operation modifies the project's manifest.json and triggers package resolution. Note: Package installation may trigger a domain reload. The result will be sent after the reload completes. Use 'package-search' tool to search for packages and 'package-list' to list installed packages.
 

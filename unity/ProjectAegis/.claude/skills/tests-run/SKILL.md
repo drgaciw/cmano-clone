@@ -1,9 +1,23 @@
 ---
 name: tests-run
-description: "Execute Unity tests (`EditMode` or `PlayMode`) and return per-test results. Supports filtering by test assembly, namespace, class, and method. Refreshes the AssetDatabase first; defers execution across domain reloads if scripts changed. Precondition: every open scene must be saved — dirty scenes abort the run."
+description: "Execute Unity tests (`EditMode` or `PlayMode`) and return per-test results. Supports filtering by test assembly, namespace, class, and method. Refreshes the AssetDatabase first; defers execution across domain reloads if scripts changed. Precondition: every open scene must be saved — dirty scenes abort the run. Project Aegis: prefer headless PlayModeSmokeHarness/dotnet test for CI gates; Editor UTF for local iteration."
 ---
 
 # Tests / Run
+
+<!-- PROJECT-AEGIS:BEGIN -->
+### Project Aegis notes
+
+- Conventions: [`../../README.md`](../../README.md) · stack: [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Prefer **headless** `dotnet test` / PlayModeSmokeHarness for sim/delegation gates; use this Editor MCP tool for Editor-only work.
+- **Zero-touch:** do not modify `DelegationBridge` hotpath. Unity plugins target **netstandard2.1** (`./tools/copy-delegation-assemblies.ps1`).
+- **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
+
+- **When to use:** Editor UTF EditMode/PlayMode iteration with Unity Test Framework in-Editor.
+- **When not (prefer headless):** CI gates, ReplayGolden, PlayModeSmokeHarness — see [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Save dirty scenes before running; prefer `EditMode` for fast loops.
+<!-- PROJECT-AEGIS:END -->
+
 
 Execute Unity tests and return detailed results. Supports filtering by test mode, assembly, namespace, class, and method. Recommended to use 'EditMode' for faster iteration during development. Precondition: every open scene MUST be saved (no unsaved changes). If any open scene is dirty, this tool throws an InvalidOperationException listing the dirty scenes; save them and retry.
 
