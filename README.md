@@ -13,6 +13,8 @@ The repository contains requirements documentation and an initial **agent delega
 - **Design spec:** `docs/superpowers/specs/2026-05-28-agent-delegation-framework-design.md`
 - **Implementation plan:** `docs/superpowers/plans/2026-05-28-agent-delegation-framework.md`
 - **Library:** `src/ProjectAegis.Delegation/` (engine-agnostic .NET 8, NUnit tests)
+- **Simulation core:** `src/ProjectAegis.Sim/` — deterministic tick pipeline, sensors, engagement, policy ([README](src/ProjectAegis.Sim/README.md))
+- **Data / catalog layer:** `src/ProjectAegis.Data/` — SQLite catalog, staged write gate, immutable snapshots, scenario↔DB binding ([README](src/ProjectAegis.Data/README.md))
 - **Unity bridge:** `src/ProjectAegis.Delegation.UnityAdapter/` (`ISimWorldSnapshot` in, `IOrderSink` out)
 - **Unity wiring:** `unity/ProjectAegis/` (DLL copy + optional `DelegationBridgeHost`)
 - **Console demo:** `src/ProjectAegis.Delegation.Demo/`
