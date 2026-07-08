@@ -134,9 +134,9 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 | 06 | Database Intelligence | **Partial** | Scenario schema (AME-2.6), validation engine extensions, save-vs-export gate, migration preview w/ doctrine counts; **doc honesty Wave 1 2026-07-08** | Full corpora in CI; persisted migration rollback |
 | 07 | Agentic Infrastructure | **Partial** | Expanded `scenario_*` + ferry MCP/CLI; AC-6 smoke script; QA plan for editor program; **doc honesty Wave 1 2026-07-08** (product vs process) | Experiment workers; re-submit PR stack |
 | 08 | Agentic Architecture | **Partial** | ADR-017 editor topology (client vs scenario lab); **doc honesty Wave 1 2026-07-08** | DOTS sensor hot path |
-| 09 | Near-Future Technologies | **Partial** | — | Full DOTS spawn |
-| 10 | Speculative Systems | **Partial+** | S54 orbital DEW + Kessler | Escalation ladder |
-| 10b | (KESSLER) | **Implemented (S54)** | — | Escalation ladder |
+| 09 | Near-Future Technologies | **Partial** | **doc honesty Wave 3 2026-07-08** (FR-08; headless archetype/TL/spawn-plan spine mapped; full DOTS NF content Phase N; MVP grade unchanged) | Full DOTS spawn |
+| 10 | Speculative Systems | **Partial+** | Wave 3 honesty: Partial+ = TL/black-project SpeculativeEngageGate + catalog metadata; S54 OrbitalDew/Kessler runtime **not on main** 2026-07-08 | Escalation ladder (design); full orbital DEW/Kessler runtime Phase N |
+| 10b | (KESSLER) | **Phase N / not on main** | Wave 3: `OrbitalDewPlatform` / `KesslerRiskMeter` / `EscalationTier` absent from `src/` (rg zero hits 2026-07-08); design ladder only | Re-land runtime only with gate + tests; do not treat S54 wt claims as trunk |
 | 11 | Agentic Mission Editor | **Partial** | **Major doc+code pass:** req 11 revised (`AME-*`, AC-1…12); tracks A–D @ `7b0f376`; ferry CLI; event debugger trace; teleport export transform; undo stack; 3 example fixtures | Unity host round-trip (AC-8); full event static analysis (AME-5.7) |
 | 12 | Terms Glossary | **Partial** | **doc honesty Wave 1 2026-07-08** (additive terms) | UI tooltips |
 | 13 | Doctrine ROE EMCON WRA | **Partial** | `DoctrineInheritanceValidateTests` + fixture; v3 mission-roe policy; **doc honesty Wave 2 2026-07-08** | Unity doctrine panel (ADR-010) |
@@ -147,7 +147,7 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 | 18 | Combat Domains | **Partial+** | S75/S79 v3 theater; **doc honesty Wave 2 2026-07-08** (ADR-009) | Mine-laying/clearing |
 | 19 | Cyber & Comms | **Partial** | v3 comms policies; **doc honesty Wave 2 2026-07-08** (spoof Shipped) | JADC2 node damage |
 | 20 | Command & Control UI | **Partial** | S78 v3 picker + bands; **doc honesty Wave 2 2026-07-08** (ADR-010) | Globe map; `HYPERSONIC_ALERT` UI |
-| 21 | Platform Editor | **MVP-done / Partial+ (S56)** | S77 v3 Excel slices | Live Editor screenshots |
+| 21 | Platform Editor | **MVP-done / Partial+ (S56)** | S77 v3 Excel slices; **doc honesty Wave 3 2026-07-08** (FR-19; mapping New→Shipped/Partial+; residual live Editor screenshots Phase N; MVP grade frozen) | Live Editor screenshots |
 
 ## Research open gaps (P1)
 
