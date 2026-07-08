@@ -369,6 +369,172 @@ public sealed class ScenarioDocumentEditor
         };
     }
 
+    /// <summary>Inserts or replaces an ORBAT unit by id (map place / inspector apply).</summary>
+    /// <remarks>Does not call <see cref="CommitMutation"/>; the caller commits after a successful mutation.</remarks>
+    public void UpsertOrbatUnit(ScenarioOrbatUnitDto unit)
+    {
+        if (unit is null)
+        {
+            throw new ArgumentNullException(nameof(unit));
+        }
+
+        if (string.IsNullOrWhiteSpace(unit.Id))
+        {
+            throw new InvalidOperationException("Unit id is required.");
+        }
+
+        var units = (_orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>()).ToList();
+        var idx = units.FindIndex(u => string.Equals(u.Id, unit.Id, StringComparison.OrdinalIgnoreCase));
+        var copy = new ScenarioOrbatUnitDto
+        {
+            Id = unit.Id,
+            SideId = unit.SideId,
+            PlatformId = unit.PlatformId,
+            Lat = unit.Lat,
+            Lon = unit.Lon,
+            ParentUnitId = unit.ParentUnitId,
+            RoeOverride = unit.RoeOverride,
+            EmconOverride = unit.EmconOverride,
+        };
+        if (idx >= 0)
+        {
+            units[idx] = copy;
+        }
+        else
+        {
+            units.Add(copy);
+        }
+
+        _orbat = new ScenarioOrbatDto
+        {
+            Units = units,
+            Bases = _orbat?.Bases ?? Array.Empty<ScenarioOrbatBaseDto>(),
+        };
+    }
+
+    /// <summary>Moves an existing ORBAT unit; preserves non-position fields.</summary>
+    /// <remarks>Does not call <see cref="CommitMutation"/>; the caller commits after a successful mutation.</remarks>
+    public void MoveOrbatUnit(string unitId, double lat, double lon)
+    {
+        var units = (_orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>()).ToList();
+        var idx = units.FindIndex(u => string.Equals(u.Id, unitId, StringComparison.OrdinalIgnoreCase));
+        if (idx < 0)
+        {
+            throw new InvalidOperationException($"Unit id '{unitId}' was not found.");
+        }
+
+        var u = units[idx];
+        units[idx] = new ScenarioOrbatUnitDto
+        {
+            Id = u.Id,
+            SideId = u.SideId,
+            PlatformId = u.PlatformId,
+            Lat = lat,
+            Lon = lon,
+            ParentUnitId = u.ParentUnitId,
+            RoeOverride = u.RoeOverride,
+            EmconOverride = u.EmconOverride,
+        };
+        _orbat = new ScenarioOrbatDto
+        {
+            Units = units,
+            Bases = _orbat?.Bases ?? Array.Empty<ScenarioOrbatBaseDto>(),
+        };
+    }
+
+    /// <summary>Clones an existing unit under a new id at the given position.</summary>
+    /// <remarks>Does not call <see cref="CommitMutation"/>; the caller commits after a successful mutation.</remarks>
+    public void CloneOrbatUnit(string sourceUnitId, string newUnitId, double lat, double lon)
+    {
+        if (string.IsNullOrWhiteSpace(newUnitId))
+        {
+            throw new InvalidOperationException("New unit id is required.");
+        }
+
+        var units = (_orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>()).ToList();
+        if (units.Any(u => string.Equals(u.Id, newUnitId, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new InvalidOperationException($"Unit id '{newUnitId}' already exists.");
+        }
+
+        var src = units.FirstOrDefault(u =>
+            string.Equals(u.Id, sourceUnitId, StringComparison.OrdinalIgnoreCase));
+        if (src is null)
+        {
+            throw new InvalidOperationException($"Unit id '{sourceUnitId}' was not found.");
+        }
+
+        units.Add(new ScenarioOrbatUnitDto
+        {
+            Id = newUnitId,
+            SideId = src.SideId,
+            PlatformId = src.PlatformId,
+            Lat = lat,
+            Lon = lon,
+            ParentUnitId = src.ParentUnitId,
+            RoeOverride = src.RoeOverride,
+            EmconOverride = src.EmconOverride,
+        });
+        _orbat = new ScenarioOrbatDto
+        {
+            Units = units,
+            Bases = _orbat?.Bases ?? Array.Empty<ScenarioOrbatBaseDto>(),
+        };
+    }
+
+    /// <summary>Inserts or replaces a reference point by id (map draw gesture-end).</summary>
+    /// <remarks>Does not call <see cref="CommitMutation"/>; the caller commits after a successful mutation.</remarks>
+    public void UpsertReferencePoint(ScenarioReferencePointDto point)
+    {
+        if (point is null)
+        {
+            throw new ArgumentNullException(nameof(point));
+        }
+
+        if (string.IsNullOrWhiteSpace(point.Id))
+        {
+            throw new InvalidOperationException("Reference point id is required.");
+        }
+
+        var list = _referencePoints.ToList();
+        var idx = list.FindIndex(p => string.Equals(p.Id, point.Id, StringComparison.OrdinalIgnoreCase));
+        var copy = new ScenarioReferencePointDto
+        {
+            Id = point.Id,
+            Type = point.Type,
+            Geometry = point.Geometry?
+                .Select(w => new ScenarioWaypointDto { Lat = w.Lat, Lon = w.Lon })
+                .ToArray() ?? Array.Empty<ScenarioWaypointDto>(),
+            RadiusNm = point.RadiusNm,
+        };
+        if (idx >= 0)
+        {
+            list[idx] = copy;
+        }
+        else
+        {
+            list.Add(copy);
+        }
+
+        _referencePoints = list;
+    }
+
+    /// <summary>Removes a reference point by id. Returns false when not found.</summary>
+    /// <remarks>Does not call <see cref="CommitMutation"/>; the caller commits after a successful removal.</remarks>
+    public bool TryRemoveReferencePoint(string referencePointId)
+    {
+        var list = _referencePoints.ToList();
+        var removed = list.RemoveAll(p =>
+            string.Equals(p.Id, referencePointId, StringComparison.OrdinalIgnoreCase));
+        if (removed == 0)
+        {
+            return false;
+        }
+
+        _referencePoints = list;
+        return true;
+    }
+
     public void Save(string path) =>
         ScenarioDocumentJsonWriter.WriteToFile(ToDto(), path);
 
