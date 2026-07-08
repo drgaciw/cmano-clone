@@ -48,4 +48,96 @@ public sealed class C2SelectionResolverTests
             Is.True);
         Assert.That(contactId, Is.EqualTo("c1"));
     }
+
+    // req20-rev2 Track T1 (TR-c2-005): N/P cycle next/previous friendly unit within OOB order.
+
+    [Test]
+    public void CycleUnit_forward_moves_to_next_alive_unit_in_oob_order()
+    {
+        var oob = new[]
+        {
+            new OobTreeEntry("u1", true),
+            new OobTreeEntry("u2", true),
+            new OobTreeEntry("u3", true),
+        };
+
+        Assert.That(C2SelectionResolver.CycleUnit(oob, "u1", forward: true), Is.EqualTo("u2"));
+        Assert.That(C2SelectionResolver.CycleUnit(oob, "u2", forward: true), Is.EqualTo("u3"));
+    }
+
+    [Test]
+    public void CycleUnit_forward_wraps_around_at_the_end()
+    {
+        var oob = new[]
+        {
+            new OobTreeEntry("u1", true),
+            new OobTreeEntry("u2", true),
+        };
+
+        Assert.That(C2SelectionResolver.CycleUnit(oob, "u2", forward: true), Is.EqualTo("u1"));
+    }
+
+    [Test]
+    public void CycleUnit_backward_wraps_around_at_the_start()
+    {
+        var oob = new[]
+        {
+            new OobTreeEntry("u1", true),
+            new OobTreeEntry("u2", true),
+        };
+
+        Assert.That(C2SelectionResolver.CycleUnit(oob, "u1", forward: false), Is.EqualTo("u2"));
+    }
+
+    [Test]
+    public void CycleUnit_skips_destroyed_units_regardless_of_display_order()
+    {
+        var oob = new[]
+        {
+            new OobTreeEntry("u1", true),
+            new OobTreeEntry("u2", false), // destroyed — never a cycle target
+            new OobTreeEntry("u3", true),
+        };
+
+        Assert.That(C2SelectionResolver.CycleUnit(oob, "u1", forward: true), Is.EqualTo("u3"));
+    }
+
+    [Test]
+    public void CycleUnit_with_no_current_selection_returns_first_or_last_alive()
+    {
+        var oob = new[]
+        {
+            new OobTreeEntry("u1", true),
+            new OobTreeEntry("u2", true),
+        };
+
+        Assert.That(C2SelectionResolver.CycleUnit(oob, null, forward: true), Is.EqualTo("u1"));
+        Assert.That(C2SelectionResolver.CycleUnit(oob, null, forward: false), Is.EqualTo("u2"));
+    }
+
+    [Test]
+    public void CycleUnit_with_current_unit_not_in_alive_list_falls_back_to_edge()
+    {
+        var oob = new[]
+        {
+            new OobTreeEntry("u1", true),
+            new OobTreeEntry("u2", true),
+        };
+
+        // "stale" was the last selected id but is no longer present in the OOB at all.
+        Assert.That(C2SelectionResolver.CycleUnit(oob, "stale", forward: true), Is.EqualTo("u1"));
+        Assert.That(C2SelectionResolver.CycleUnit(oob, "stale", forward: false), Is.EqualTo("u2"));
+    }
+
+    [Test]
+    public void CycleUnit_returns_null_when_no_unit_is_alive()
+    {
+        var oob = new[]
+        {
+            new OobTreeEntry("u1", false),
+            new OobTreeEntry("u2", false),
+        };
+
+        Assert.That(C2SelectionResolver.CycleUnit(oob, "u1", forward: true), Is.Null);
+    }
 }

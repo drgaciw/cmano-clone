@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using ProjectAegis.Sim.Scenario;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -35,15 +36,13 @@ namespace ProjectAegis.Unity.Runtime
         // Icon size ladder + label declutter are driven by the pure functions in
         // ProjectAegis.Delegation.Projection (MapIconSizeLadder / MapLabelDeclutterProjection).
         // No camera/zoom system exists yet on this placeholder map, so `zoomBand` is a serialized
-        // stand-in until a real camera controller drives it.
+        // stand-in until a real camera controller drives it. Actual VisualElement construction for
+        // icon size / domain modifier / label declutter lives in MapSymbolPool.Apply — this host only
+        // resolves the per-frame inputs (icon size px, label visibility, per-symbol declutter map).
         [SerializeField] private MapZoomBand zoomBand = MapZoomBand.Tactical;
         [SerializeField] private float labelCollisionRadiusNormalized = 0.05f;
         [SerializeField] private int maxDirectLabels = 24;
         [SerializeField] private int maxLeaderLineLabels = 12;
-
-        private const string DomainModifierName = "domain-modifier";
-        private const string LabelHiddenClass = "map-symbol__label--hidden";
-        private const string LabelLeaderLineClass = "map-symbol__label--leader-line";
         // --------------------------------------------------------------------------------------------
 
         private UIDocument _document = null!;
@@ -54,6 +53,24 @@ namespace ProjectAegis.Unity.Runtime
         private MapPanelState _panelState = new("—", Array.Empty<MapSymbolDisplayRow>());
         private C2PlanningChromeState _planningChrome = new(false, false, SimulationPhase.Planning);
         private bool _wired;
+
+        private MapSymbolPool? _symbolPool;
+        private bool _refreshedOnce;
+        private IReadOnlyList<MapSymbolEntry>? _dirtySymbolsRef;
+        private string? _dirtySelectedUnit;
+        private string? _dirtySelectedContact;
+        private SimulationPhase _dirtyPhase;
+        private bool _dirtyShowPanel;
+
+        // req20-rev2 Track T1 (TR-c2-005): drag-box marquee + shift-click multi-select. Pointer/marquee
+        // handling only — symbol rendering stays in MapSymbolPool (T4 territory, untouched here).
+        private const string MarqueeBoxClass = "map-marquee-box";
+        private Vector2? _dragStartNormalized;
+        private Vector2 _dragCurrentNormalized;
+        private bool _isDragging;
+        private bool _suppressNextSymbolClick;
+        private bool _pointerDownShiftKey;
+        private VisualElement? _marqueeBox;
 
         private IC2PresentationFeed? PresentationFeed => bridgeHost;
 
@@ -104,7 +121,16 @@ namespace ProjectAegis.Unity.Runtime
 
             _rootPanel = root.Q<VisualElement>(RootName) ?? root;
             _theaterLabel = _rootPanel.Q<Label>(TheaterName);
-            _canvas = _rootPanel.Q<VisualElement>(CanvasName);
+            var canvas = _rootPanel.Q<VisualElement>(CanvasName);
+            if (!ReferenceEquals(canvas, _canvas))
+            {
+                _canvas = canvas;
+                _symbolPool = _canvas != null ? new MapSymbolPool(_canvas) : null;
+                _refreshedOnce = false;
+                _marqueeBox = null;
+                WireMarqueeInput();
+            }
+
             _planningDimOverlay = _rootPanel.Q<VisualElement>(PlanningDimOverlayName);
             if (panelStyles != null && !_rootPanel.styleSheets.Contains(panelStyles))
             {
@@ -117,6 +143,12 @@ namespace ProjectAegis.Unity.Runtime
         private void Refresh()
         {
             if (!_wired || PresentationFeed == null || bridgeHost.Bridge == null || _canvas == null)
+            {
+                return;
+            }
+
+            // Dirty-flag: skip the whole rebind/rebuild while nothing that affects the map changed.
+            if (!IsDirty())
             {
                 return;
             }
@@ -134,9 +166,43 @@ namespace ProjectAegis.Unity.Runtime
                 commsDisplay,
                 atlas);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
-            RebuildSymbols();
+
+            // T4 Symbology: icon size ladder (req 20 rev 2) — pure function of zoom band only.
+            var iconSizePx = MapIconSizeLadder.ResolveIconSizePx(zoomBand);
+            var labelsVisible = MapIconSizeLadder.AreLabelsVisible(zoomBand);
+            var declutter = ResolveLabelDeclutter();
+            _symbolPool!.Sync(_panelState.Symbols, OnSymbolClicked, iconSizePx, labelsVisible, declutter);
+
             ApplyPlanningChrome();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+            CaptureDirtyState();
+        }
+
+        private bool IsDirty()
+        {
+            var feed = PresentationFeed;
+            if (feed == null)
+            {
+                return false;
+            }
+
+            return !_refreshedOnce
+                || !ReferenceEquals(feed.LastMapSymbols, _dirtySymbolsRef)
+                || feed.SelectedUnitId != _dirtySelectedUnit
+                || feed.SelectedContactId != _dirtySelectedContact
+                || bridgeHost.Phase != _dirtyPhase
+                || showPanel != _dirtyShowPanel;
+        }
+
+        private void CaptureDirtyState()
+        {
+            var feed = PresentationFeed;
+            _dirtySymbolsRef = feed?.LastMapSymbols;
+            _dirtySelectedUnit = feed?.SelectedUnitId;
+            _dirtySelectedContact = feed?.SelectedContactId;
+            _dirtyPhase = bridgeHost.Phase;
+            _dirtyShowPanel = showPanel;
+            _refreshedOnce = true;
         }
 
         private void ApplyPlanningChrome()
@@ -205,110 +271,6 @@ namespace ProjectAegis.Unity.Runtime
                 && (atlas = catalog).IsLoaded;
         }
 
-        private void RebuildSymbols()
-        {
-            _canvas!.Clear();
-
-            // T4 Symbology: icon size ladder (req 20 rev 2) — pure function of zoom band only.
-            var iconSizePx = MapIconSizeLadder.ResolveIconSizePx(zoomBand);
-            var declutter = ResolveLabelDeclutter();
-
-            foreach (var row in _panelState.Symbols)
-            {
-                var container = new VisualElement
-                {
-                    style =
-                    {
-                        position = Position.Absolute,
-                        left = Length.Percent(row.NormalizedX * 100f),
-                        top = Length.Percent(row.NormalizedY * 100f),
-                        flexDirection = FlexDirection.Row,
-                        alignItems = Align.Center,
-                    },
-                };
-                container.AddToClassList("map-symbol");
-                foreach (var styleClass in row.StyleClass.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    container.AddToClassList(styleClass);
-                }
-
-                // Icon/frame shape is always shown regardless of declutter — only the text label is
-                // decluttered (a11y §5: affiliation must remain shape-readable at every zoom band).
-                if (row.UsesAtlasFrame && !string.IsNullOrEmpty(row.AtlasFrameClass))
-                {
-                    var frame = new VisualElement
-                    {
-                        style = { width = iconSizePx, height = iconSizePx },
-                    };
-                    frame.AddToClassList(row.AtlasFrameClass);
-                    container.Add(frame);
-                }
-                else if (!string.IsNullOrEmpty(row.Glyph))
-                {
-                    var glyphLabel = new Label(row.Glyph) { style = { fontSize = iconSizePx } };
-                    container.Add(glyphLabel);
-                }
-
-                // Domain modifier (Air/Surface/Subsurface/Land/Mine/Facility) — secondary cue layered
-                // on the frame, never a substitute for the affiliation shape above.
-                if (!string.IsNullOrEmpty(row.DomainModifierClass))
-                {
-                    var domainBadge = new VisualElement { name = DomainModifierName };
-                    domainBadge.AddToClassList(row.DomainModifierClass);
-                    container.Add(domainBadge);
-                }
-
-                container.Add(BuildLabel(row, declutter));
-                container.userData = row.SymbolId;
-                if (!row.IsGhost)
-                {
-                    container.RegisterCallback<ClickEvent>(_ => OnSymbolClicked(row.SymbolId));
-                }
-                else
-                {
-                    container.pickingMode = PickingMode.Ignore;
-                }
-
-                _canvas.Add(container);
-            }
-        }
-
-        /// <summary>
-        /// Build the text label element for a symbol row, applying the zoom-band visibility rule
-        /// ("labels appear from regional zoom") and the declutter outcome (shown / leader-line / hidden)
-        /// for the current frame. Ghost rows (comms-degraded duplicates) are exempt from declutter —
-        /// they already carry their own lag-offset visual language.
-        /// </summary>
-        private Label BuildLabel(MapSymbolDisplayRow row, IReadOnlyDictionary<string, MapLabelDeclutterOutcome> declutter)
-        {
-            var label = new Label(row.Label);
-            if (!MapIconSizeLadder.AreLabelsVisible(zoomBand))
-            {
-                label.AddToClassList(LabelHiddenClass);
-                return label;
-            }
-
-            if (row.IsGhost || !declutter.TryGetValue(row.SymbolId, out var outcome))
-            {
-                return label;
-            }
-
-            switch (outcome)
-            {
-                case MapLabelDeclutterOutcome.Hidden:
-                    label.AddToClassList(LabelHiddenClass);
-                    break;
-                case MapLabelDeclutterOutcome.LeaderLine:
-                    label.AddToClassList(LabelLeaderLineClass);
-                    break;
-                case MapLabelDeclutterOutcome.Shown:
-                default:
-                    break;
-            }
-
-            return label;
-        }
-
         /// <summary>
         /// Resolve declutter outcomes for the current frame's non-ghost labels via the pure
         /// <see cref="MapLabelDeclutterProjection"/> (req 20 rev 2: "selected &gt; engaged &gt; hostile &gt;
@@ -372,10 +334,27 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
+            // A marquee drag just resolved on this pointer gesture — swallow the synthesized click
+            // so releasing over a symbol doesn't also fire a conflicting single-select on top of the
+            // marquee result (req 20 §Selection, TR-c2-005).
+            if (_suppressNextSymbolClick)
+            {
+                _suppressNextSymbolClick = false;
+                return;
+            }
+
             var symbols = PresentationFeed.LastMapSymbols;
             if (C2SelectionResolver.TryResolveFriendlyUnitFromSymbol(symbolId, symbols, out var unitId))
             {
-                PresentationFeed.SelectUnit(unitId);
+                if (_pointerDownShiftKey)
+                {
+                    PresentationFeed.ToggleUnit(unitId);
+                }
+                else
+                {
+                    PresentationFeed.SelectUnit(unitId);
+                }
+
                 return;
             }
 
@@ -383,6 +362,152 @@ namespace ProjectAegis.Unity.Runtime
             {
                 PresentationFeed.SelectContact(contactId);
             }
+        }
+
+        // req20-rev2 Track T1 (TR-c2-005): drag-box marquee + shift-click multi-select. The rect→ids
+        // math itself lives in the pure, headless-testable SelectionBoxResolver
+        // (src/ProjectAegis.Delegation.UnityAdapter/Presentation/SelectionBoxResolver.cs) — this host
+        // only feeds pointer coordinates in and applies the resulting id list.
+
+        private void WireMarqueeInput()
+        {
+            if (_canvas == null)
+            {
+                return;
+            }
+
+            _canvas.RegisterCallback<PointerDownEvent>(OnCanvasPointerDown);
+            _canvas.RegisterCallback<PointerMoveEvent>(OnCanvasPointerMove);
+            _canvas.RegisterCallback<PointerUpEvent>(OnCanvasPointerUp);
+            _canvas.RegisterCallback<PointerLeaveEvent>(OnCanvasPointerLeave);
+        }
+
+        private void OnCanvasPointerDown(PointerDownEvent evt)
+        {
+            if (_canvas == null || evt.button != 0)
+            {
+                return;
+            }
+
+            _pointerDownShiftKey = evt.shiftKey;
+            _dragStartNormalized = ToNormalized(evt.localPosition);
+            _dragCurrentNormalized = _dragStartNormalized.Value;
+            _isDragging = false;
+        }
+
+        private void OnCanvasPointerMove(PointerMoveEvent evt)
+        {
+            if (_canvas == null || _dragStartNormalized == null)
+            {
+                return;
+            }
+
+            _dragCurrentNormalized = ToNormalized(evt.localPosition);
+            var rect = CurrentDragRect();
+
+            if (!_isDragging && rect.IsDrag)
+            {
+                _isDragging = true;
+            }
+
+            if (_isDragging)
+            {
+                UpdateMarqueeVisual(rect);
+            }
+        }
+
+        private void OnCanvasPointerUp(PointerUpEvent evt)
+        {
+            if (_canvas == null || _dragStartNormalized == null)
+            {
+                ResetDragState();
+                return;
+            }
+
+            if (_isDragging && PresentationFeed != null)
+            {
+                var rect = CurrentDragRect();
+                var symbols = PresentationFeed.LastMapSymbols;
+                var boxIds = SelectionBoxResolver.Resolve(rect, symbols);
+
+                if (_pointerDownShiftKey)
+                {
+                    PresentationFeed.AddUnits(boxIds);
+                }
+                else
+                {
+                    PresentationFeed.SelectUnits(boxIds);
+                }
+
+                _suppressNextSymbolClick = true;
+            }
+
+            ResetDragState();
+        }
+
+        private void OnCanvasPointerLeave(PointerLeaveEvent evt) => ResetDragState();
+
+        private NormalizedRect CurrentDragRect() =>
+            NormalizedRect.FromCorners(
+                _dragStartNormalized!.Value.x,
+                _dragStartNormalized.Value.y,
+                _dragCurrentNormalized.x,
+                _dragCurrentNormalized.y);
+
+        private void ResetDragState()
+        {
+            _dragStartNormalized = null;
+            _isDragging = false;
+            HideMarqueeVisual();
+        }
+
+        private Vector2 ToNormalized(Vector2 localPosition)
+        {
+            var width = Mathf.Max(1f, _canvas!.resolvedStyle.width);
+            var height = Mathf.Max(1f, _canvas.resolvedStyle.height);
+            return new Vector2(
+                Mathf.Clamp01(localPosition.x / width),
+                Mathf.Clamp01(localPosition.y / height));
+        }
+
+        private void UpdateMarqueeVisual(NormalizedRect rect)
+        {
+            if (_canvas == null)
+            {
+                return;
+            }
+
+            if (_marqueeBox == null)
+            {
+                _marqueeBox = new VisualElement { pickingMode = PickingMode.Ignore };
+                _marqueeBox.AddToClassList(MarqueeBoxClass);
+                // Inline style only (no new USS rule) — this stays a minimal, self-contained pointer/
+                // marquee change; symbol/theme styling remains T4's territory in MapPlaceholderPanel.uss.
+                _marqueeBox.style.position = Position.Absolute;
+                _marqueeBox.style.borderTopWidth = 1f;
+                _marqueeBox.style.borderBottomWidth = 1f;
+                _marqueeBox.style.borderLeftWidth = 1f;
+                _marqueeBox.style.borderRightWidth = 1f;
+                var borderColor = new Color(1f, 1f, 1f, 0.85f);
+                _marqueeBox.style.borderTopColor = borderColor;
+                _marqueeBox.style.borderBottomColor = borderColor;
+                _marqueeBox.style.borderLeftColor = borderColor;
+                _marqueeBox.style.borderRightColor = borderColor;
+                _marqueeBox.style.backgroundColor = new Color(1f, 1f, 1f, 0.08f);
+                _canvas.Add(_marqueeBox);
+            }
+
+            _marqueeBox.style.left = Length.Percent(rect.MinX * 100f);
+            _marqueeBox.style.top = Length.Percent(rect.MinY * 100f);
+            _marqueeBox.style.width = Length.Percent((rect.MaxX - rect.MinX) * 100f);
+            _marqueeBox.style.height = Length.Percent((rect.MaxY - rect.MinY) * 100f);
+            _marqueeBox.BringToFront();
+        }
+
+        private void HideMarqueeVisual()
+        {
+            _marqueeBox?.RemoveFromHierarchy();
+            _marqueeBox = null;
         }
     }
 }

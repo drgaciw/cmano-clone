@@ -150,6 +150,10 @@ namespace ProjectAegis.Unity.Runtime
 
             ApplyAccessibilityScale(panel);
 
+            // req20-rev2 Track T1 (TR-c2-005): N/P cycle default keys (registered once per panel wire).
+            panel.UnregisterCallback<KeyDownEvent>(OnDrawerKeyDown);
+            panel.RegisterCallback<KeyDownEvent>(OnDrawerKeyDown);
+
             _wired = _tabOob != null && _oobList != null && _missionList != null && _contactList != null;
         }
 
@@ -220,7 +224,41 @@ namespace ProjectAegis.Unity.Runtime
         {
             if (evt.currentTarget is Label { userData: string unitId } && bridgeHost != null)
             {
-                bridgeHost.SelectUnit(unitId);
+                // req20-rev2 Track T1 (TR-c2-005): ctrl-click multi-add/remove; plain click keeps the
+                // existing single-select (replace) behavior.
+                if (evt.ctrlKey || evt.commandKey)
+                {
+                    bridgeHost.ToggleUnit(unitId);
+                }
+                else
+                {
+                    bridgeHost.SelectUnit(unitId);
+                }
+            }
+        }
+
+        /// <summary>
+        /// N/P cycle to the next/previous alive friendly unit within the friendly OOB order (req 20
+        /// §Keyboard; <see cref="ProjectAegis.Delegation.Input.C2InputActions.CycleUnit"/> default
+        /// keys). Registered on the drawer root so the drawer's focus scope receives N/P while a C2
+        /// panel is active; the actual cycle math is the pure
+        /// <see cref="ProjectAegis.Delegation.Projection.C2SelectionResolver.CycleUnit"/> helper.
+        /// </summary>
+        private void OnDrawerKeyDown(KeyDownEvent evt)
+        {
+            if (bridgeHost == null || _planningChrome.IsDrawerReadOnly)
+            {
+                return;
+            }
+
+            switch (evt.character)
+            {
+                case 'n' or 'N':
+                    bridgeHost.CycleUnit(forward: true);
+                    break;
+                case 'p' or 'P':
+                    bridgeHost.CycleUnit(forward: false);
+                    break;
             }
         }
 

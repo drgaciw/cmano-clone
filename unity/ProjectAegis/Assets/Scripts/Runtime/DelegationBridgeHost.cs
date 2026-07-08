@@ -41,6 +41,16 @@ namespace ProjectAegis.Unity.Runtime
 
         public string? SelectedContactId => Presentation.SelectedContactId;
 
+        /// <summary>Full ordered multi-select (anchor first). req20-rev2 Track T1 (TR-c2-005).</summary>
+        public IReadOnlyList<string> SelectedUnitIds => Presentation.Selection.OrderedTargetIds;
+
+        /// <summary>
+        /// Normalized centroid of the current selection's live map symbols, recomputed whenever
+        /// selection or map symbols change (req 20 §Selection, TR-c2-005; center-on-selection). Null
+        /// when nothing in the selection currently resolves to a live friendly symbol.
+        /// </summary>
+        public CenterOnSelectionTarget? LastCenterOnSelectionTarget { get; private set; }
+
         public DelegationBridge Bridge { get; private set; } = null!;
 
         /// <summary>MVP engage session (same orchestrator as <see cref="Bridge"/>).</summary>
@@ -143,6 +153,50 @@ namespace ProjectAegis.Unity.Runtime
             // contacts do not drive platform graph
         }
 
+        // req20-rev2 Track T1 (TR-c2-005): multi-select wrappers, mirroring SelectUnit's
+        // refresh + graph-surfacing sequencing.
+
+        /// <summary>Replace the whole selection (drag-box marquee, no modifier).</summary>
+        public void SelectUnits(IReadOnlyList<string> unitIds)
+        {
+            Presentation.SelectFriendlyUnits(unitIds);
+            RefreshSelectionPresentation();
+            ApplyGraphSurfacingForSelection();
+        }
+
+        /// <summary>Union into the current selection without deselecting anything (shift+drag-box).</summary>
+        public void AddUnits(IReadOnlyList<string> unitIds)
+        {
+            Presentation.AddFriendlyUnits(unitIds);
+            RefreshSelectionPresentation();
+            ApplyGraphSurfacingForSelection();
+        }
+
+        /// <summary>Shift-click (map) / ctrl-click (OOB row) add-or-remove a single unit.</summary>
+        public void ToggleUnit(string unitId)
+        {
+            Presentation.ToggleFriendlyUnit(unitId);
+            RefreshSelectionPresentation();
+            ApplyGraphSurfacingForSelection();
+        }
+
+        /// <summary>
+        /// N/P cycle to the next/previous alive friendly unit within the friendly OOB order
+        /// (<see cref="ProjectAegis.Delegation.Input.C2InputActions.CycleUnit"/>). Returns false
+        /// (no-op, no refresh) when there is no alive friendly unit to cycle to.
+        /// </summary>
+        public bool CycleUnit(bool forward)
+        {
+            if (!Presentation.CycleFriendlyUnit(LastOobTree, forward))
+            {
+                return false;
+            }
+
+            RefreshSelectionPresentation();
+            ApplyGraphSurfacingForSelection();
+            return true;
+        }
+
         /// <summary>
         /// Call once per sim step after building snapshot and sink for this frame.
         /// </summary>
@@ -167,11 +221,14 @@ namespace ProjectAegis.Unity.Runtime
                 timeCompressionLabel,
                 simulationModeLabel,
                 Bridge.Orchestrator.DecisionLog);
+            LastCenterOnSelectionTarget = CenterOnSelectionResolver.Resolve(Presentation.Selection, LastMapSymbols);
             return result;
         }
 
         private void RefreshSelectionPresentation()
         {
+            LastCenterOnSelectionTarget = CenterOnSelectionResolver.Resolve(Presentation.Selection, LastMapSymbols);
+
             if (_lastSnapshot == null)
             {
                 return;
