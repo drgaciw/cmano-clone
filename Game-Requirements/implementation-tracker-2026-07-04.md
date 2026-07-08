@@ -126,7 +126,7 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 
 | Req | Title | MVP status (S56) | Post-S56 note (through 2026-07-04) | Next stack task |
 |-----|-------|------------------|--------------------------------------|-----------------|
-| 01 | Project Overview | **MVP-done (S56)** | S72 commercial launch prep complete | (complete @ S56) |
+| 01 | Project Overview | **MVP-done (S56)** | S72 commercial launch prep complete; **doc charter re-baseline 2026-07-08** (hub FR-19/index/invariants — corpus maturity W0; MVP grade unchanged) | (complete @ S56); corpus W1+ pending |
 | 02 | Core Gameplay Loop | **Partial** | S74/S76 v3 policies + contact-triggered ROE | Begin Execution UX polish |
 | 03 | Simulation Modes | **Partial+** | S76 mission-event policies on v3 fixtures | Mode UI on C2 top bar |
 | 04 | Agent Delegation | **Partial+** | — | C2 delegation badges |

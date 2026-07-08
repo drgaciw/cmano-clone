@@ -1,8 +1,8 @@
 # Game Requirements - Master Index
 
-**Last Updated:** 2026-06-08
+**Last Updated:** 2026-07-08
 
-**Program note:** Post-MVP Requirements Program (Sprints 11–15) is **complete** — docs 01–12 locked, Wave 5 spoof/readiness/attack-menu shipped, RTM + consistency gate closed. Closeout: `production/agentic/sprint-11-15-closeout-2026-06-08.md`.
+**Program note:** Post-MVP Requirements Program (Sprints 11–15) complete for docs 01–12 Template A. **Corpus maturity program (2026-07)** re-baselines hub + drafts 13–21 honesty — design: `docs/superpowers/specs/2026-07-08-requirements-corpus-maturity-design.md`. Scenario editor (req 11) is the **active code train** (S81–S88). Doc 11 revised 2026-07-01 (`AME-*`). Doc 21 Platform Editor is first-class under Authoring.
 
 ## Implementation
 
@@ -84,11 +84,13 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 1. **12** Glossary → **13** Policy → **15** Sensors → **14** Engagement  
 2. **16** Logistics → **18** Combat → **19** Cyber  
 3. **20** UI → **17** Replay (ties systems to player evidence)  
-4. **11** Mission editor (authoring) with **06** Database
+4. **11** Mission editor (authoring) with **06** Database  
+5. **21** Platform editor (catalog) with **06** Database — after or parallel to 11  
+6. **01** Project Overview last as hub re-check (FR map + NFR)
 
 ## Next workflow steps
 
-- Execute MVP rows in [implementation-tracker-2026-07-04.md](implementation-tracker-2026-07-04.md) on `stack/*` branches
-- Run `/design-review` on docs **01, 04, 06–10** + **13–20** when mechanics change
+- Execute scenario editor rows (req 11) per [implementation-tracker-2026-07-04.md](implementation-tracker-2026-07-04.md) and S81–S88 roadmap
+- Run corpus maturity Waves 1–4 per design spec (locked Template A honesty → drafts 13–20 → 09/10/21 → consistency gate)
+- Run `/design-review` when mechanics change on **01, 04, 06–11, 13–21**
 - Run `/military-requirements-impact` before DB schema for JADC2, C-UAS, hypersonic defense
-- Close Unity C2 manual sign-off (`production/qa/c2-manual-signoff-2026-06-02.md`)
