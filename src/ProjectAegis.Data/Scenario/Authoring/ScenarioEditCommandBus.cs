@@ -44,6 +44,7 @@ public sealed class ScenarioEditCommandBus
         bool save)
         => Mutate(expectedEditVersion, save, e => e.UpsertReferencePoint(rp));
 
+    // Design Q3: inspector dropdown preferred over radial menu for mission type selection.
     /// <summary>Attaches a Patrol mission from current map selection (units + zone vertices).</summary>
     public ScenarioMutationResult AttachPatrolFromSelection(
         int expectedEditVersion,
@@ -52,6 +53,40 @@ public sealed class ScenarioEditCommandBus
         IReadOnlyList<ScenarioWaypointDto> zone,
         bool save)
         => Mutate(expectedEditVersion, save, e => e.AddPatrolMission(missionId, unitIds, zone));
+
+    /// <summary>Attaches a Strike mission from current map selection (units + target ids).</summary>
+    public ScenarioMutationResult AttachStrikeFromSelection(
+        int expectedEditVersion,
+        string missionId,
+        IReadOnlyList<string> unitIds,
+        IReadOnlyList<string> targetIds,
+        bool save)
+        => Mutate(expectedEditVersion, save, e => e.AddStrikeMission(missionId, unitIds, targetIds));
+
+    /// <summary>Attaches a Ferry mission from current map selection (units + destination base).</summary>
+    public ScenarioMutationResult AttachFerryFromSelection(
+        int expectedEditVersion,
+        string missionId,
+        IReadOnlyList<string> unitIds,
+        string ferryDestinationBaseId,
+        bool save)
+        => Mutate(
+            expectedEditVersion,
+            save,
+            e => e.AddFerryMission(missionId, unitIds, ferryDestinationBaseId));
+
+    /// <summary>Attaches a Support mission from current map selection (units + role + station zone).</summary>
+    public ScenarioMutationResult AttachSupportFromSelection(
+        int expectedEditVersion,
+        string missionId,
+        IReadOnlyList<string> unitIds,
+        string supportRole,
+        IReadOnlyList<ScenarioWaypointDto> stationZone,
+        bool save)
+        => Mutate(
+            expectedEditVersion,
+            save,
+            e => e.AddSupportMission(missionId, unitIds, supportRole, stationZone));
 
     /// <summary>Re-runs live validation without mutating the document.</summary>
     public ValidationReport RefreshFindings()
