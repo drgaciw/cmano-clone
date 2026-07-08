@@ -102,7 +102,7 @@ A self-improving game infrastructure where specialized AI agents support develop
 
 **Acceptance**
 
-- [ ] **INF-5.1** Headless benchmark records entity count, ticks executed, and wall-clock duration per run (CSV or JSON artifact).
+- [x] **INF-5.1** Headless benchmark records entity count, ticks executed, and wall-clock duration per run (CSV or JSON artifact). — `src/ProjectAegis.Sim.Benchmark` (CSV+JSON, unit-tested); see [sim entity-scale benchmark & gap report](../../docs/reports/sim-entity-scale-benchmark-2026-07-08.md). *Note: the 25k@1000× NFR (doc 08 §2) is not yet measurable — the sim has no per-entity per-tick workload; the report derives the required per-entity budget.*
 - [ ] **INF-5.2** Swarm scenario policy flag enables automatic LOD / sensor-rate degradation without changing order-log schema.
 - [ ] **INF-5.3** Performance suggestions are advisory artifacts — no silent sim-parameter mutation in CI golden paths.
 - [ ] **INF-5.4** `Invoke-ManualQaHeadlessGate.ps1` documents baseline PASS thresholds for Baltic fixtures.
