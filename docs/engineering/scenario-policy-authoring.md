@@ -9,8 +9,9 @@ golden tests load.
 > **Not the same as scenario *documents*.** `data/scenarios/*.policy.json` (this guide, mapped to
 > `ScenarioPolicyJsonDto`) is distinct from the ADR-008 authoring documents validated by
 > [`scenario-document.schema.json`](../../data/scenarios/scenario-document.schema.json)
-> (`ScenarioDocumentDto`). Policy files are **sim-runtime** config; documents are **authoring**
-> artifacts. Do not conflate the two.
+> (`ScenarioDocumentDto`) — see [scenario-document-authoring.md](scenario-document-authoring.md).
+> Policy files are **sim-runtime** config; documents are **authoring** artifacts. Do not conflate
+> the two.
 
 For the short template-ID matrix and per-sprint content notes, see
 [`data/scenarios/scenario-policy-ids.md`](../../data/scenarios/scenario-policy-ids.md); this page
@@ -208,6 +209,7 @@ Validate a scenario end-to-end (id resolution, catalog references, determinism) 
 | Where | What |
 |-------|------|
 | [`data/scenarios/scenario-policy-ids.md`](../../data/scenarios/scenario-policy-ids.md) | Template-ID matrix + per-sprint content notes. |
+| [scenario-document-authoring.md](scenario-document-authoring.md) | The sibling `*.scenario.json` authoring-document format (`ScenarioDocumentDto`). |
 | [determinism-and-replay.md](determinism-and-replay.md) | Replay hashing, golden-fixture workflow, the hash invariant. |
 | [mission-editor-cli.md](mission-editor-cli.md) | Headless CLI/MCP verbs to author, validate, and simulate scenarios. |
 | [`ProjectAegis.Sim` README](../../src/ProjectAegis.Sim/README.md) · [`ProjectAegis.Data` README](../../src/ProjectAegis.Data/README.md) | Sim/Data assemblies that own the loader and index. |
