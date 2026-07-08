@@ -88,6 +88,28 @@ public sealed class ScenarioEditCommandBus
             save,
             e => e.AddSupportMission(missionId, unitIds, supportRole, stationZone));
 
+    /// <summary>Clones an existing mission under a new id (Mission Board).</summary>
+    public ScenarioMutationResult CloneMission(int expectedEditVersion, string sourceId, string newId, bool save)
+        => Mutate(expectedEditVersion, save, e => e.CloneMission(sourceId, newId));
+
+    /// <summary>Adds a mission from a built-in template (Mission Board wizard).</summary>
+    public ScenarioMutationResult AddFromTemplate(
+        int expectedEditVersion,
+        string templateId,
+        string newMissionId,
+        bool save)
+        => Mutate(expectedEditVersion, save, e => e.AddMissionFromTemplate(templateId, newMissionId));
+
+    /// <summary>Deletes a mission by id; fails when not found.</summary>
+    public ScenarioMutationResult DeleteMission(int expectedEditVersion, string missionId, bool save)
+        => Mutate(expectedEditVersion, save, e =>
+        {
+            if (!e.TryRemoveMission(missionId))
+            {
+                throw new InvalidOperationException($"Mission id '{missionId}' was not found.");
+            }
+        });
+
     /// <summary>Re-runs live validation without mutating the document.</summary>
     public ValidationReport RefreshFindings()
     {
