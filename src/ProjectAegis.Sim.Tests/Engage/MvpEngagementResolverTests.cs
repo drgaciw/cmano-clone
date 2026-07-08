@@ -80,6 +80,96 @@ public sealed class MvpEngagementResolverTests
         Assert.Equal(EngagementAbortReason.RoeHoldFire, result.AbortReason);
     }
 
+    /// <summary>Wave 2 adversarial: WeaponsTight reason identity through full resolver (doc 14 ENG-07).</summary>
+    [Fact]
+    public void WeaponsTight_denies_with_WeaponsTight_not_RoeHoldFire()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 2);
+        var evaluator = new PolicyEvaluator(_ => new EffectivePolicy(RoeLevel.WeaponsTight));
+        var resolver = new MvpEngagementResolver(
+            world,
+            magazines,
+            evaluator,
+            _ => new EffectivePolicy(RoeLevel.WeaponsTight));
+        var request = new EngageRequest(1, 2, 0, 0);
+        world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true));
+
+        var result = resolver.Resolve(request);
+        Assert.False(result.Launched);
+        Assert.Equal(EngagementAbortReason.WeaponsTight, result.AbortReason);
+        Assert.NotEqual(EngagementAbortReason.RoeHoldFire, result.AbortReason);
+        Assert.Equal(2, magazines.GetRounds(1, 0));
+    }
+
+    /// <summary>Wave 2 adversarial: WRA exact max allows launch on resolver path.</summary>
+    [Fact]
+    public void Wra_salvo_exact_max_allows_launch()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 4);
+        var resolver = new MvpEngagementResolver(
+            world,
+            magazines,
+            new PolicyEvaluator(_ => new EffectivePolicy(RoeLevel.WeaponsFree, 2)),
+            _ => new EffectivePolicy(RoeLevel.WeaponsFree, 2));
+        var request = new EngageRequest(1, 2, 0, 0);
+        world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 4, true, SalvoSize: 2));
+
+        var result = resolver.Resolve(request);
+        Assert.True(result.Launched);
+    }
+
+    /// <summary>Wave 2 adversarial: MountOffline via full resolver + no magazine consume (doc 18 AC-2).</summary>
+    [Fact]
+    public void Resolve_MountOnline_false_aborts_MountOffline_does_not_consume_magazine()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 4);
+        var request = new EngageRequest(1, 2, 0, 0);
+        world.Set(request, new EngageContext(
+            50_000,
+            new WeaponEnvelope(1_000, 100_000),
+            RoundsRemaining: 4,
+            HasFireControlTrack: true,
+            MountOnline: false));
+
+        var resolver = new MvpEngagementResolver(world, magazines);
+        var result = resolver.Resolve(request);
+
+        Assert.False(result.Launched);
+        Assert.Equal(EngagementAbortReason.MountOffline, result.AbortReason);
+        Assert.Equal(4, magazines.GetRounds(1, 0));
+    }
+
+    /// <summary>Wave 2 adversarial: ASW unidentified contact aborts DomainNoSolution (doc 18 AC-3).</summary>
+    [Fact]
+    public void Resolve_subsurface_ContactIdentified_false_aborts_DomainNoSolution()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 2);
+        var request = new EngageRequest(1, 2, 0, 0);
+        world.Set(request, new EngageContext(
+            5_000,
+            new WeaponEnvelope(100, 20_000),
+            RoundsRemaining: 2,
+            HasFireControlTrack: true,
+            CombatDomain: CombatDomain.Subsurface,
+            ContactIdentified: false,
+            SubsurfaceAspectInEnvelope: true));
+
+        var resolver = new MvpEngagementResolver(world, magazines, combatDomainsEnabled: true);
+        var result = resolver.Resolve(request);
+
+        Assert.False(result.Launched);
+        Assert.Equal(EngagementAbortReason.DomainNoSolution, result.AbortReason);
+        Assert.Equal(2, magazines.GetRounds(1, 0));
+    }
+
     [Fact]
     public void Resolver_resolve_policy_denies_hold_fire_even_when_evaluator_default_allows()
     {
