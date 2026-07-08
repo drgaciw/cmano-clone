@@ -1,12 +1,14 @@
 # 02 - Core Gameplay Loop
 
-**Last Updated:** 2026-06-04  
-**Related:** 01, 03, 04, 11, 13, 14, 15, 16, 17, 19, 20  
+**Last Updated:** 2026-07-08  
+**Related:** [01](01-Project-Overview.md), [03](03-Simulation-Modes.md), [04](04-Agent-Delegation.md), 11, 13, 14, 15, 16, 17, 19, 20 · [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md)  
 **Status:** Locked  
 **Locked spec:** [2026-05-30-core-gameplay-loop-decisions-design.md](../../docs/superpowers/specs/2026-05-30-core-gameplay-loop-decisions-design.md)
 
 ## Purpose
 Define the primary gameplay loop that players and AI agents will experience, ensuring it supports seamless operation across human-only, mixed human+agent, and fully autonomous agent-versus-agent modes.
+
+Implements hub **FR-01** ([01](01-Project-Overview.md)).
 
 ## Vision
 A clean, intuitive, and deeply strategic gameplay loop that feels like commanding a real theater-level operation. The loop must scale from slow, deliberate human planning to lightning-fast agent-driven execution while maintaining full player oversight and replayability.
@@ -126,16 +128,26 @@ personalityEditPolicy: anytime | planningOnly | tieredRebrief
 
 Mission editor (req 11) is the preferred authoring surface; exported scenarios must emit these fields (defaulting when omitted).
 
+## Implementation Mapping (headless)
+
+| Area | Path / type | Status | Evidence |
+|------|-------------|--------|----------|
+| Phase gate / Begin Execution | `DelegationOrchestrator.Phase`, `SimulationSession` | Shipped | `SimulationSessionPhaseTests`, `C2TopBarBeginExecutionTests` |
+| Loop policy (personality edit / player info) | `LoopPolicyGate`, `ScenarioPolicyProfile` | Shipped | `LoopPolicyGateTests`, `PlayerInfoFilterTests` |
+| Order log / deterministic replay | order log + goldens | Shipped (Partial UI) | ReplayGolden 6/6; doc 17 |
+| C2 planning chrome | UI Toolkit hosts | Partial | PlayModeSmoke 18/18; tracker: Begin Execution UX polish |
+| Phase 1 force composition / Phase 4 AI AAR heatmaps / Phase 5 balance feedback | — | Phase N / Partial narrative | Not full C2 product surfaces |
+
 ## Non-Functional Requirements
 
-- Loop must feel responsive even at 5,000+ entities
+- **5,000+ entities** interactive responsiveness is a **north-star / Deferred** scale target (hub **OV-SC-N1** in [01](01-Project-Overview.md)) — not the current CI gate
 - Clear visual and audio feedback for agent decisions and autonomy changes
 - Full deterministic replay support with seed-based reproducibility
 - Smooth transition between interactive and headless execution
 
 ## Technical Considerations
 
-- **Phase gate:** `DelegationOrchestrator.Phase` blocks ticks and orders until `BeginExecution()` ([03](03-Simulation-Modes.md))
+- **Phase gate:** `DelegationOrchestrator.Phase` blocks ticks and orders until `BeginExecution()` ([03](03-Simulation-Modes.md)); design: [`docs/superpowers/specs/2026-05-30-phase-gate-loop-policy-design.md`](../../docs/superpowers/specs/2026-05-30-phase-gate-loop-policy-design.md)
 - **Loop policy:** `LoopPolicyGate` enforces personality-edit rules per scenario JSON
 - **Order log:** single append-only stream for replay and live HUD filtering ([17](17-Replay-AAR-And-Order-Log.md))
 - **C2 UI:** map, unit detail, and message log bind to projection layer only — no sim mutation from UI ([20](20-Command-And-Control-UI.md))
@@ -156,4 +168,4 @@ Mission editor (req 11) is the preferred authoring surface; exported scenarios m
 
 ---
 
-**Status:** Gameplay loop structure approved; Template A complete (Sprint 12). Open questions resolved May 30, 2026.
+**Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 02. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

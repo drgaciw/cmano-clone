@@ -136,7 +136,7 @@ High-level capabilities delivered across the requirements corpus (details in lin
 | FR-01 | Five-phase theater command loop with RTwP planning | [02](02-Core-Gameplay-Loop.md) |
 | FR-02 | Human / Mixed / Agent-vs-Agent modes with phase gates | [03](03-Simulation-Modes.md) |
 | FR-03 | Unit and task-force agent delegation | [04](04-Agent-Delegation.md) |
-| FR-04 | Dynamic systems tuning agent | [05](05-Dynamic-Systems-Agent.md) |
+| FR-04 | Dynamic systems discovery / OSINT proposal agent (not balance tuning — see FR-06/07) | [05](05-Dynamic-Systems-Agent.md) |
 | FR-05 | SQLite intelligence layer + provenance | [06](06-Database-Intelligence.md) |
 | FR-06 | Agentic dev infrastructure (MCP, skills) | [07](07-Agentic-Infrastructure.md) |
 | FR-07 | In-simulation agent architecture | [08](08-Agentic-Architecture.md) |

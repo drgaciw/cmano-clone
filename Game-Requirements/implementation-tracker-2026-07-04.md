@@ -127,18 +127,18 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 | Req | Title | MVP status (S56) | Post-S56 note (through 2026-07-04) | Next stack task |
 |-----|-------|------------------|--------------------------------------|-----------------|
 | 01 | Project Overview | **MVP-done (S56)** | S72 commercial launch prep complete; **doc charter re-baseline 2026-07-08** (hub FR-19/index/invariants — corpus maturity W0; MVP grade unchanged) | (complete @ S56); corpus W1+ pending |
-| 02 | Core Gameplay Loop | **Partial** | S74/S76 v3 policies + contact-triggered ROE | Begin Execution UX polish |
-| 03 | Simulation Modes | **Partial+** | S76 mission-event policies on v3 fixtures | Mode UI on C2 top bar |
-| 04 | Agent Delegation | **Partial+** | — | C2 delegation badges |
-| 05 | Dynamic Speculative Systems Agent | **Partial+** | — | MCP polish; Data P1 |
-| 06 | Database Intelligence | **Partial** | Scenario schema (AME-2.6), validation engine extensions, save-vs-export gate, migration preview w/ doctrine counts | Full corpora in CI; persisted migration rollback |
-| 07 | Agentic Infrastructure | **Partial** | Expanded `scenario_*` + ferry MCP/CLI; AC-6 smoke script; QA plan for editor program | Experiment workers; re-submit PR stack |
-| 08 | Agentic Architecture | **Partial** | ADR-017 editor topology (client vs scenario lab) | DOTS sensor hot path |
+| 02 | Core Gameplay Loop | **Partial** | S74/S76 v3 policies + contact-triggered ROE; **doc honesty Wave 1 2026-07-08** (mapping; MVP grade unchanged) | Begin Execution UX polish |
+| 03 | Simulation Modes | **Partial+** | S76 mission-event policies on v3 fixtures; **doc honesty Wave 1 2026-07-08** | Mode UI on C2 top bar |
+| 04 | Agent Delegation | **Partial+** | **doc honesty Wave 1 2026-07-08** (expanded mapping) | C2 delegation badges |
+| 05 | Dynamic Speculative Systems Agent | **Partial+** | **doc honesty Wave 1 2026-07-08** (OSINT mapping) | MCP polish; Data P1 |
+| 06 | Database Intelligence | **Partial** | Scenario schema (AME-2.6), validation engine extensions, save-vs-export gate, migration preview w/ doctrine counts; **doc honesty Wave 1 2026-07-08** | Full corpora in CI; persisted migration rollback |
+| 07 | Agentic Infrastructure | **Partial** | Expanded `scenario_*` + ferry MCP/CLI; AC-6 smoke script; QA plan for editor program; **doc honesty Wave 1 2026-07-08** (product vs process) | Experiment workers; re-submit PR stack |
+| 08 | Agentic Architecture | **Partial** | ADR-017 editor topology (client vs scenario lab); **doc honesty Wave 1 2026-07-08** | DOTS sensor hot path |
 | 09 | Near-Future Technologies | **Partial** | — | Full DOTS spawn |
 | 10 | Speculative Systems | **Partial+** | S54 orbital DEW + Kessler | Escalation ladder |
 | 10b | (KESSLER) | **Implemented (S54)** | — | Escalation ladder |
 | 11 | Agentic Mission Editor | **Partial** | **Major doc+code pass:** req 11 revised (`AME-*`, AC-1…12); tracks A–D @ `7b0f376`; ferry CLI; event debugger trace; teleport export transform; undo stack; 3 example fixtures | Unity host round-trip (AC-8); full event static analysis (AME-5.7) |
-| 12 | Terms Glossary | **Partial** | — | UI tooltips |
+| 12 | Terms Glossary | **Partial** | **doc honesty Wave 1 2026-07-08** (additive terms) | UI tooltips |
 | 13 | Doctrine ROE EMCON WRA | **Partial** | `DoctrineInheritanceValidateTests` + fixture; v3 mission-roe policy | Unity doctrine panel (ADR-010) |
 | 14 | Engagement & Fire Control | **Partial+** | v3 contact-triggered engage | **Fix 2 UA engage tests**; DLZ Phase 2 |
 | 15 | Sensor Detection & EW | **Partial** (MVP **COVERED**) | v3 classify + catalog sensor slices | ECCM Phase 2 |

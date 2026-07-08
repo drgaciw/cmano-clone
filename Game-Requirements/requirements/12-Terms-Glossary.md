@@ -1,11 +1,11 @@
 # 12 - Terms Glossary
 
-**Last Updated:** 2026-06-04  
-**Related:** [13](13-Doctrine-ROE-EMCON-WRA.md)–[20](20-Command-And-Control-UI.md) (simulation slice)  
-**Status:** Locked (Sprint 15)
+**Last Updated:** 2026-07-08  
+**Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md)–[11](11-Agentic-Mission-Editor.md), [13](13-Doctrine-ROE-EMCON-WRA.md)–[21](21-Platform-Editor.md), [implementation tracker](../implementation-tracker-2026-07-04.md)  
+**Status:** Locked (Sprint 15) — vocabulary additive-only; implementation **Partial** (UI tooltips residual)
 
 **Purpose:**
-This glossary defines the core simulation terms used by the project, starting from the CMO manual's opening terminology and adapting them into a clearer, more agent-friendly vocabulary for this game.
+This glossary defines the core simulation terms used by the project, starting from the CMO manual's opening terminology and adapting them into a clearer, more agent-friendly vocabulary for this game. Engineering gate law (hash, test floor, zero-touch bridge) lives in [01](01-Project-Overview.md) Standing invariants — this file indexes product vocabulary only.
 
 **Reference Reviewed:**
 [Command: Modern Operations manual PDF](https://www.matrixgames.com/amazon/PDF/CMO/CMO_manual_EBOOK.pdf), starting at page 19.
@@ -73,6 +73,21 @@ From [09-Near-Future-Technologies](09-Near-Future-Technologies.md) and [10-Specu
 | **Fire 1** | Interactive attack option that primes a single-round engage (`SalvoSize = 1`); UI label “Fire 1” / “Fire 1 round”. | [14](14-Engagement-And-Fire-Control.md), [20](20-Command-And-Control-UI.md) |
 | **Salvo** | Multi-round engage quantity for one firing action; capped by WRA `maxSalvo`, magazine depth, and deterministic salvo deconfliction across swarm shooters. | [13](13-Doctrine-ROE-EMCON-WRA.md), [14](14-Engagement-And-Fire-Control.md) |
 | **Hold Fire** | ROE state that prohibits weapons release; denials log `ROE_HOLD_FIRE` / `FireAbortReason.RoeHoldFire` and grey out attack options even when geometry and magazines allow a shot. | [13](13-Doctrine-ROE-EMCON-WRA.md), [14](14-Engagement-And-Fire-Control.md) |
+| **RTwP / Planning–Execution** | Real-time with pause loop: Planning phase blocks sim ticks until **Begin Execution** opens Execution; phase gate is deterministic and shared by human and agents. | [02](02-Core-Gameplay-Loop.md), [03](03-Simulation-Modes.md) |
+| **Begin Execution** | Player/session action that transitions from Planning to Execution (`BeginExecution()`); unlocks ticks and agent auto-orders per loop policy. | [02](02-Core-Gameplay-Loop.md), [03](03-Simulation-Modes.md) |
+| **Simulation Mode** | Session control mode: **Human**, **Mixed**, or **Agent-vs-Agent** (`SimulationModeKind`). Spectator is AvA + replay attach, not a fourth enum. | [03](03-Simulation-Modes.md) |
+| **AutonomyLevel** | Per-unit/agent autonomy tier **Manual → Assisted → SemiAutonomous → FullAutonomous** gating auto-execution of actions. Distinct from mission-agent **Autonomy Mode** (below). | [04](04-Agent-Delegation.md) |
+| **TraitVector / Personality** | Named trait weights and personality presets that drive stochastic agent choice; hot-swap gated by `personalityEditPolicy`. | [04](04-Agent-Delegation.md) |
+| **Attention bandwidth** | Per-agent budget (default 20) and degradation ladder under overload; personality may modulate budget. | [04](04-Agent-Delegation.md) |
+| **Detach–Rejoin** | Group override: member detaches under human control; group agent replans next cycle; rejoin on release. | [04](04-Agent-Delegation.md) |
+| **EffectivePolicy** | Resolved `(RoeLevel, MaxSalvo)` (and related policy fields) applied to a unit at evaluation time. | [13](13-Doctrine-ROE-EMCON-WRA.md), [03](03-Simulation-Modes.md) |
+| **SeededRng / Determinism** | All sim/delegation RNG is seed-driven; same seed + order log → replayable results (ReplayGolden CI). | [01](01-Project-Overview.md), [17](17-Replay-AAR-And-Order-Log.md) |
+| **CatalogWriteGate** | Extend-only write API for catalog mutations; agents/OSINT **propose**, humans **approve**; never alter existing write paths in place. | [06](06-Database-Intelligence.md), [01](01-Project-Overview.md) |
+| **Scenario Document / Validation Engine** | Schema-backed scenario JSON + deterministic validation rules for authoring (req 11); `editVersion` concurrency. | [11](11-Agentic-Mission-Editor.md) |
+| **Platform Editor** | Catalog/platform authoring surface with Excel round-trip on the write gate (req 21). | [21](21-Platform-Editor.md) |
+| **BLACK_PROJECT_MODE / Future Combat Mode** | Optional scenario flag enabling speculative TL-4+ / black-project systems (doc 10). | [10](10-Speculative-Systems.md) |
+
+**Disambiguation:** **Autonomy Mode** (mission-agent propose/edit authority on a mission graph) ≠ **AutonomyLevel** (unit controller tier Manual…FullAutonomous). Prefer the precise term in UI and logs.
 
 ## Terms from Simulation Slice (13–20)
 
@@ -98,3 +113,7 @@ One-line pointers only—full rules, enums, and acceptance criteria live in the 
 - Where the project introduces a new agentic concept, the definition should explain how it differs from a legacy manual workflow.
 - **Authoritative source rule:** Every glossary table includes an **Authoritative source** column. If a term’s normative definition, enum, or acceptance criteria appear in another requirement doc (especially [13](13-Doctrine-ROE-EMCON-WRA.md)–[20](20-Command-And-Control-UI.md)), that doc is the source of truth; this file indexes and disambiguates only. Do not duplicate full specs here—link instead.
 - Wave 5 runtime codes (**CYBER_SPOOF_TRACK**, **AIR_NOT_READY**) are also listed in `data/glossary/abort_reason_manifest.json`; requirement docs [14](14-Engagement-And-Fire-Control.md), [16](16-Logistics-And-Magazines.md), and [19](19-Cyber-And-Comms.md) define when they fire.
+- **Additive only:** Wave 1 (2026-07-08) added product terms for loop/modes/delegation/data/authoring without rewriting CMO base definitions.
+
+---
+**Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 12 (UI tooltips residual). Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

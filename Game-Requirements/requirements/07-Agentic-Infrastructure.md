@@ -1,20 +1,41 @@
 # 07 - Agentic Infrastructure Framework
 
-**Last Updated:** 2026-06-04  
-**Related:** [04-Agent-Delegation.md](04-Agent-Delegation.md) · [06-Database-Intelligence.md](06-Database-Intelligence.md) · [08-Agentic-Architecture.md](08-Agentic-Architecture.md) · [11-Agentic-Mission-Editor.md](11-Agentic-Mission-Editor.md) · [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md)  
+**Last Updated:** 2026-07-08  
+**Related:** [01-Project-Overview.md](01-Project-Overview.md) · [04-Agent-Delegation.md](04-Agent-Delegation.md) · [06-Database-Intelligence.md](06-Database-Intelligence.md) · [08-Agentic-Architecture.md](08-Agentic-Architecture.md) · [11-Agentic-Mission-Editor.md](11-Agentic-Mission-Editor.md) · [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md)  
 **Status:** Locked  
+**FR reverse-ref:** [FR-06](01-Project-Overview.md) — Agentic dev infrastructure (product surfaces + process tooling split below)  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)  
-**GDD:** [agentic-infrastructure.md](../../design/gdd/agentic-infrastructure.md)
+**GDD:** [agentic-infrastructure.md](../../design/gdd/agentic-infrastructure.md)  
+**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) §07 — **Partial** (Release stage)
 
 ## Purpose
 
 Provide a comprehensive set of high-level infrastructure agents that automate and enhance the entire game development and simulation lifecycle — scenario authoring, batch analysis, balance, events, performance, and human-supervised operator assistance — aligned with professional wargaming workflows (Monte Carlo, experiment runners, external telemetry).
 
+### Product infrastructure agents (player/analyst-facing)
+
+**INF-1…8** define product-facing capabilities (with phase tags in acceptance rows). Primary product surfaces today:
+
+| Surface | Role | INF anchors |
+|---------|------|-------------|
+| Headless batch / replay | Reproducible AvA and score CSV (`BalticReplayHarness`, `BalticBatchRunner`) | INF-2, INF-3, INF-5, INF-6 |
+| AAR / order-log consumers | Read-only debriefs over log + checkpoints | INF-2 |
+| Mission Editor CLI | `scenario_validate` / export / sample / `mission_plan_suggest` | INF-1, INF-4 |
+| Operator copilot (supervised) | Evidence-linked COA suggestions; no silent lethal path | INF-7 |
+| Catalog intelligence (CLI-first) | Audits and staging proposals via write gate | INF-8 |
+| Runtime Hindsight (config-gated) | Optional retain on `DecisionLog`; sim banks `agent-*` / `aar-*` | INF-2, INF-3 |
+
+These surfaces support players, analysts, and headless research workflows. They are the **product** success surface for this document.
+
+### Studio process tooling (not product success criteria)
+
+GitNexus, Superpowers skills, Hindsight **dev** banks (`dev-cmano-clone`, `dev-story-*`, `dev-pr-*`), and the Claude/Cursor session loop are **engineering process** tooling. They improve developer velocity and blast-radius hygiene; they are **not** OV success criteria. See hub doc [01 Agentic Capabilities](01-Project-Overview.md#agentic-capabilities) process note: *“Agentic development workflow quality is a process goal tracked in 07, not a product success criterion.”*
+
 ## Vision
 
 A self-improving game infrastructure where specialized AI agents support developers, analysts, and players. Agents generate scenarios, orchestrate reproducible experiments, tune balance, manage events, optimize performance, and act as **supervised copilots** — every recommendation evidence-linked and reversible. Inspired by CMO Professional Edition analysis tooling, implemented as a clean-room, API-first platform.
 
-**Sprint 15 scope:** Document maturity + RTM traceability for eight infrastructure agents. **P0 shipped slice:** headless batch replay, mission-editor MCP/CLI validation, optional Hindsight retain on `DecisionLog` (config-gated). **P1+:** NL scenario generation, full Monte Carlo orchestration UI, operator copilot in C2, balance auto-sweep workers.
+**Sprint 15 scope (design lock):** Document maturity + RTM traceability for eight infrastructure agents. **P0 shipped slice (Release):** headless batch replay, Mission Editor **CLI** validation (MCP host optional/partial), optional Hindsight retain on `DecisionLog` (config-gated). **P1+:** NL scenario generation, full Monte Carlo orchestration UI, operator copilot in C2, balance auto-sweep workers.
 
 ## Functional Requirements
 
@@ -28,7 +49,7 @@ A self-improving game infrastructure where specialized AI agents support develop
 - Supports parameter-driven generation (difficulty, entity count, weather, electronic warfare intensity)
 - Outputs complete scenario files ready for immediate play or agent-vs-agent testing
 
-**P0 note:** **Assistive authoring** via `mission_plan_suggest` and validation/export CLI (doc 11); full procedural ORBAT generation is **P1**.
+**P0 note:** **Assistive authoring** via `mission_plan_suggest` and validation/export **CLI** (doc 11; MCP host optional); full procedural ORBAT generation is **P1**.
 
 **Acceptance**
 
@@ -69,7 +90,7 @@ A self-improving game infrastructure where specialized AI agents support develop
 **Acceptance**
 
 - [ ] **INF-3.1** Headless batch runs accept scenario id list + seed grid + tick count and emit CSV rows (`scenarioId,seed,side,score,kills,missilesFired,denials,fingerprint`).
-- [ ] **INF-3.2** Same seed + scenario + build produces identical `fingerprint` across two runs (determinism gate).
+- [ ] **INF-3.2** Same seed + scenario + build produces identical `fingerprint` across two runs (determinism gate: ReplayGolden suite + production hash `17144800277401907079`).
 - [ ] **INF-3.3** Balance proposals are structured patch bundles with confidence score — never direct catalog SQL.
 - [ ] **INF-3.4** Proposals route through `IWriteGate` / `ApproveBatch` (doc 06); human approval required for any stat change.
 - [ ] **INF-3.5** Post-P0: `balance-tuning` Hindsight bank retains experiment matrices and rejected hypotheses (`balance-tuning-memory-agent`).
@@ -88,7 +109,7 @@ A self-improving game infrastructure where specialized AI agents support develop
 - [ ] **INF-4.1** Agent-expanded events compile to doc 11 declarative schema (`events[]` with `trigger` / `conditions` / `actions`).
 - [ ] **INF-4.2** Conditional chains reference scenario variables store (`ScenEdit_SetKeyValue` successor) — no hidden global Lua state.
 - [ ] **INF-4.3** Every fired event produces `EventFired` order-log entry (doc 17) with stable `eventId`.
-- [ ] **INF-4.4** MCP/CLI can list and diff event modules before export (`scenario_validate` includes event feasibility findings).
+- [ ] **INF-4.4** CLI (primary) can list and diff event modules before export (`scenario_validate` includes event feasibility findings); MCP host optional where registered.
 - [ ] **INF-4.5** Post-P0: agent-suggested event chains enter human review queue (same pattern as doc 05 staging).
 
 ### 5. Performance Optimization Agent
@@ -162,7 +183,7 @@ Infrastructure wrappers for the five-stage DB agent pipeline:
 
 All writes route through Database Intelligence Layer; no direct merge.
 
-**P0 note:** `DatabaseIntelligenceOrchestrator` + `catalog_*` MCP/CLI; OSINT scheduling deferred to doc 05.
+**P0 note:** `DatabaseIntelligenceOrchestrator` + `catalog_*` surfaces are **CLI-primary** (`ProjectAegis.MissionEditor.Cli` / Data headless entry points). There is no full “Data MCP server” product surface; any MCP wrapping is optional/partial host glue over the same CLI contracts. OSINT scheduling deferred to doc 05.
 
 **Acceptance**
 
@@ -170,34 +191,37 @@ All writes route through Database Intelligence Layer; no direct merge.
 - [ ] **INF-8.2** All catalog mutations use `IWriteGate` — infrastructure agents have no direct SQLite write path.
 - [ ] **INF-8.3** Weekly report includes provenance tier breakdown and open staging batch count.
 - [ ] **INF-8.4** Post-speculative-system proposals (docs 09/10) enter staging as sensor/platform batches with `actorType=agent`.
-- [ ] **INF-8.5** MCP `catalog_intelligence_run` (or CLI equivalent) shares the same orchestrator entry point as headless CI smoke.
+- [ ] **INF-8.5** CLI `catalog_intelligence_run` (or equivalent MissionEditor.Cli command) shares the same orchestrator entry point as headless CI smoke; optional MCP host must call that path, not a shadow write API.
 
 ## Non-Functional Requirements
 
-- All agents must be **headless-capable** (run without Unity Editor open)
-- Agents must integrate with Unity-MCP for live editing when the editor is open
+- All **product** agents must be **headless-capable** (run without Unity Editor open)
+- Optional Unity-MCP / editor host may wrap the same CLI contracts for live editing when the editor is open — not required for CI or product gates
 - Full logging and traceability of all agent decisions and changes
 - Support for parallel execution (multiple scenarios or tuning runs simultaneously)
-- **Determinism:** No `recall` / `reflect` on simulation hot path (`Tick()`, policy selection) — Hindsight retain-only when enabled (see `src/ProjectAegis.Delegation/Hindsight/README.md`)
-- **GitNexus:** Symbol edits to `DelegationBridge`, harness, or orchestrator require `gitnexus_impact` per `AGENTS.md`
+- **Determinism (product gate):** ReplayGolden suite **6/6** (Baltic v2) and production hash **`17144800277401907079`** must stay preserved; no `recall` / `reflect` on simulation hot path (`Tick()`, policy selection) — Hindsight retain-only when enabled (see `src/ProjectAegis.Delegation/Hindsight/README.md`)
+- **Studio process:** Symbol edits to `DelegationBridge`, harness, or orchestrator require `gitnexus_impact` per `AGENTS.md` (process hygiene, not a player-facing AC)
 
 ## Agentic Capabilities
 
-- Every infrastructure agent exposes **MCP tools** so Claude/Cursor can:
-  - Trigger scenario generation with natural language prompts
-  - Request detailed AARs on specific replays
-  - Ask the Balance Tuning Agent for recommendations on specific systems
-  - Define new event rules conversationally
-  - Monitor and adjust performance settings during large-scale tests
+**Product (player/analyst):** infrastructure capabilities are exposed primarily as **CLI and headless runners**. Phase N / partial MCP bindings may wrap those CLIs for conversational hosts; they are not a separate product surface.
+
+- Target workflows (CLI today; optional MCP where registered):
+  - Trigger scenario generation / assistive plan suggest with typed inputs (NL prompts Phase N)
+  - Request detailed AARs on specific replays (log + checkpoint inputs)
+  - Ask the Balance Tuning Agent for recommendations on specific systems (suggest-only)
+  - Define new event rules as declarative modules (doc 11 schema)
+  - Monitor performance settings during large-scale headless tests
 
 - Agents can collaborate (e.g., Scenario Generation Agent → Balance Tuning Agent → AAR Agent in a single workflow)
 
-**Skill priority (dev sessions):** user instructions → GitNexus → Hindsight → `.claude/skills/` → Superpowers globals (`AGENTS.md`).
+**Studio process (not product ACs):** skill priority for dev sessions — user instructions → GitNexus → Hindsight → `.claude/skills/` → Superpowers globals (`AGENTS.md`).
 
 ## Technical Considerations
 
-- Built as Unity Editor tools + standalone headless executables
-- Uses Unity’s Job System and Burst for high-speed simulation batches (doc 08 hot paths)
+- Product path: standalone headless executables / `dotnet` CLI (`MissionEditor.Cli`, Baltic harness) first
+- Optional Unity Editor tools and Unity-MCP host for interactive authoring when installed
+- Uses Unity’s Job System and Burst for high-speed simulation batches where applicable (doc 08 hot paths; post-P0 DOTS)
 - Stores results in a structured database (SQLite or similar) for querying and trend analysis
 - Designed to work with the Database Intelligence Layer for consistent data (doc 06)
 
@@ -218,7 +242,7 @@ All writes route through Database Intelligence Layer; no direct merge.
 | 4 — Agentic layer | Copilot, experiment orchestration, DB research assistants |
 | 5 — Pro workflow | Full Monte Carlo management, external connectors, institutional approval flows |
 
-**Current tracker (2026-06-04):** Phase 3 partial — `BalticReplayHarness`, `MissionEditor.Cli`, Hindsight hooks; Phase 4–5 items tracked via INF-6.x / INF-7.x post-P0 rows.
+**Current tracker (2026-07-04 / Release stage):** Phase 3 partial — `BalticReplayHarness`, `MissionEditor.Cli` (CLI primary), runtime Hindsight hooks; Phase 4–5 items tracked via INF-6.x / INF-7.x post-P0 rows. Implementation grade: **Partial** ([tracker §07](../implementation-tracker-2026-07-04.md)).
 
 ## Cross-Domain Traceability
 
@@ -226,9 +250,9 @@ All writes route through Database Intelligence Layer; no direct merge.
 |-----|------------------------------|
 | [04](04-Agent-Delegation.md) | Unit-level agents execute inside `DelegationOrchestrator`; infrastructure **Operator Copilot** suggests COAs but does not replace controllers. Batch runs drive delegation metrics for balance and AAR. Trust/`TrustSignal` remain emit-only per scenario. |
 | [06](06-Database-Intelligence.md) | Balance proposals, normalization audits, and DB Research Assistants **only** commit via `IWriteGate`. Scenario gen binds `dbRef` / snapshot IDs from catalog reader. |
-| [08](08-Agentic-Architecture.md) | Automation layer hosts MCP tools, headless API, and batch workers atop `ProjectAegis.Sim` + `ProjectAegis.Delegation`. Deterministic stepping (ADR-003/004) is mandatory for experiment agent. |
-| [11](11-Agentic-Mission-Editor.md) | Scenario Generation and Event agents output doc 11 packages; `scenario_validate` / `scenario_simulate_sample` / `mission_plan_suggest` are the P0 MCP/CLI surface. |
-| [17](17-Replay-AAR-And-Order-Log.md) | AAR, batch scoring, and Monte Carlo artifacts consume canonical order log; replay-verify golden hashes are regression gates for infrastructure changes. |
+| [08](08-Agentic-Architecture.md) | Automation layer hosts headless CLI / batch workers atop `ProjectAegis.Sim` + `ProjectAegis.Delegation` (optional MCP host). Deterministic stepping (ADR-003/004) + ReplayGolden hash `17144800277401907079` are mandatory for experiment agent. |
+| [11](11-Agentic-Mission-Editor.md) | Scenario Generation and Event agents output doc 11 packages; `scenario_validate` / `scenario_simulate_sample` / `mission_plan_suggest` are the P0 **CLI** surface (MCP optional). |
+| [17](17-Replay-AAR-And-Order-Log.md) | AAR, batch scoring, and Monte Carlo artifacts consume canonical order log; ReplayGolden / replay-verify hashes (`17144800277401907079`) are regression gates for infrastructure changes. |
 
 ## Open Questions / Decisions Needed
 
@@ -243,34 +267,42 @@ All charter questions for agentic infrastructure are **locked** for Sprint 15 de
 | Monte Carlo v1.0 scope? | [§5 Experiment / Monte Carlo scope](#5-experiment--monte-carlo-scope) |
 | Operator copilot vs delegation? | [§6 Operator copilot boundaries](#6-operator-copilot-boundaries) |
 
-## Implementation Mapping (headless + agent tooling)
+## Implementation Mapping
+
+### Product surfaces (player / analyst)
 
 | Requirement area | Path / type | Notes |
 |------------------|-------------|-------|
-| Batch replay & CSV scores | `BalticReplayHarness`, `ProjectAegis.Delegation.Demo` (`--batch`), `tools/batch-replay/README.md` | `LossesScoringCsvExporter`; CI: `BalticBatchRunnerTests` |
-| Scenario validate / export / sample sim | `src/ProjectAegis.MissionEditor.Cli`, `tools/mission-editor/Invoke-*.ps1`, `tools/mission-editor/mcp-tools.json` | ADR-008; Unity-MCP registers same contract |
+| Batch replay & CSV scores | `BalticReplayHarness`, `BalticBatchRunner`, `ProjectAegis.Delegation.Demo` (`--batch`), `tools/batch-replay/README.md` | `LossesScoringCsvExporter`; CI: ReplayGolden **6/6**, hash `17144800277401907079` |
+| Scenario validate / export / sample sim | `src/ProjectAegis.MissionEditor.Cli`, `tools/mission-editor/Invoke-*.ps1` | **CLI primary** (ADR-008); optional `tools/mission-editor/mcp-tools.json` host bindings |
 | Headless QA gate | `tools/unity/Invoke-ManualQaHeadlessGate.ps1` | Play Mode smoke + build gate |
-| Catalog intelligence / audits | `DatabaseIntelligenceOrchestrator`, `ProjectAegis.Data` MCP `catalog_*` | INF-8.x; pairs with `tools/cmano-db-crawler/` for import |
-| Delegation + order log source | `DelegationOrchestrator`, `DelegationBridge`, `DecisionLog` | AAR read-only; **GitNexus CRITICAL** on bridge |
-| Hindsight dev CLI | `tools/hindsight/Invoke-Hindsight.ps1`, `tools/hindsight/Test-HindsightServer.ps1` | Banks: `dev-cmano-clone`, `dev-story-{slug}`, `dev-pr-{n}`, `balance-tuning` |
-| Hindsight sim integration | `src/ProjectAegis.Delegation/Hindsight/`, `HindsightBankIds.cs` | Runtime: `agent-*`, `aar-*`, `agent-xp-*`; retain-only on hot path |
-| GitNexus MCP | `gitnexus_impact`, `gitnexus_detect_changes`, `gitnexus://repo/cmano-clone/*` | Required before bridge/harness edits (`AGENTS.md`) |
-| Unity-MCP (editor) | `http://localhost:8080` host + `tools/mission-editor/mcp-tools.json` | Optional for CI; headless path preferred in Cloud Agent VM |
+| Catalog intelligence / audits | `DatabaseIntelligenceOrchestrator`, MissionEditor.Cli / Data CLI `catalog_*` | INF-8.x; **not** a standalone Data MCP product; pairs with `tools/cmano-db-crawler/` for import |
+| Delegation + order log source | `DelegationOrchestrator`, `DelegationBridge`, `DecisionLog` | AAR read-only; bridge **zero-touch** hotpath through Release v1 |
+| Runtime Hindsight (sim) | `src/ProjectAegis.Delegation/Hindsight/`, `HindsightBankIds.cs` | Banks: `agent-*`, `aar-*`, `agent-xp-*`; retain-only on hot path |
+| Unity-MCP (editor, optional) | `http://localhost:8080` host + `tools/mission-editor/mcp-tools.json` | Partial/optional; headless CLI preferred in CI and Cloud Agent VM |
+
+### Studio process tooling (not product success criteria)
+
+| Requirement area | Path / type | Notes |
+|------------------|-------------|-------|
+| Hindsight **dev** CLI | `tools/hindsight/Invoke-Hindsight.ps1`, `tools/hindsight/Test-HindsightServer.ps1` | Dev banks only — not player-facing |
+| GitNexus MCP | `gitnexus_impact`, `gitnexus_detect_changes`, `gitnexus://repo/cmano-clone/*` | Required before bridge/harness edits (`AGENTS.md`) — process hygiene |
 | Superpowers install | `tools/install-superpowers.ps1` | `brainstorming`, `writing-plans`, `test-driven-development` for infra epics |
+| Claude/Cursor session loop | `.claude/skills/`, `.claude/agents/`, `AGENTS.md` | Engineering process; see [01 process note](01-Project-Overview.md#agentic-capabilities) |
 
-### Hindsight memory banks (AGENTS.md)
+#### Hindsight memory banks (split)
 
-| Bank | Use |
-|------|-----|
-| `dev-cmano-clone` | Default repo-wide agent memory (Sprint decisions, experiment outcomes) |
-| `dev-story-{slug}` | Active production story / epic |
-| `dev-pr-{number}` | PR / review cycle |
-| `balance-tuning` | Trait and balance experiment matrices (`balance-tuning-memory-agent`) |
-| `agent-{personality}-{agentId}` | Per-agent decision memory (sim runtime, config-gated) |
-| `aar-{scenario}-{runId}` | Post-run AAR (`hindsight-aar-analyst`) |
-| `agent-xp-{agentId}` | Trust signals at `FinalizeScenario` |
+| Bank | Track | Use |
+|------|-------|-----|
+| `dev-cmano-clone` | Studio process | Default repo-wide agent memory (Sprint decisions, experiment outcomes) |
+| `dev-story-{slug}` | Studio process | Active production story / epic |
+| `dev-pr-{number}` | Studio process | PR / review cycle |
+| `balance-tuning` | Studio process + product experiment memory | Trait and balance experiment matrices (`balance-tuning-memory-agent`) |
+| `agent-{personality}-{agentId}` | Product (runtime) | Per-agent decision memory (sim runtime, config-gated) |
+| `aar-{scenario}-{runId}` | Product (runtime AAR) | Post-run AAR (`hindsight-aar-analyst` over sim banks) |
+| `agent-xp-{agentId}` | Product (runtime) | Trust signals at `FinalizeScenario` |
 
-### Agent skills (`.claude/skills/`)
+#### Agent skills (`.claude/skills/`) — studio process
 
 | Task | Skill file |
 |------|------------|
@@ -284,7 +316,7 @@ All charter questions for agentic infrastructure are **locked** for Sprint 15 de
 | Replay verification | `.claude/skills/replay-verify/SKILL.md` |
 | GitNexus impact / explore | `.claude/skills/gitnexus/gitnexus-impact-analysis/SKILL.md`, `gitnexus-exploring/SKILL.md` |
 
-### Local agents (`.claude/agents/`)
+#### Local agents (`.claude/agents/`) — studio process
 
 | Agent | Role |
 |-------|------|
@@ -292,7 +324,7 @@ All charter questions for agentic infrastructure are **locked** for Sprint 15 de
 | `hindsight-aar-analyst` | Post-run AAR over simulation banks |
 | `balance-tuning-memory-agent` | Cross-session trait tuning memory |
 
-**Recommended dev loop:** `gitnexus://repo/cmano-clone/context` → `gitnexus_impact` → `Invoke-Hindsight.ps1 -Operation recall -BankId dev-cmano-clone` → implement → `retain` with `[OUTCOME:]` → `gitnexus_detect_changes()` before commit.
+**Recommended studio dev loop (not a product AC):** `gitnexus://repo/cmano-clone/context` → `gitnexus_impact` → `Invoke-Hindsight.ps1 -Operation recall -BankId dev-cmano-clone` → implement → `retain` with `[OUTCOME:]` → `gitnexus_detect_changes()` before commit.
 
 ## Resolved Design Decisions
 
@@ -375,11 +407,11 @@ Experiment definitions must not introduce nondeterministic fields into order log
 | In P0 / partial now | Deferred |
 |---------------------|----------|
 | `BalticReplayHarness` + batch CSV | Full Monte Carlo orchestration UI |
-| Mission Editor validate/simulate MCP | NL scenario generation publish path |
+| Mission Editor validate/simulate **CLI** (MCP optional) | NL scenario generation publish path |
 | Optional Hindsight retain on `DecisionLog` | Copilot NL state query (INF-7.5) |
-| `DatabaseIntelligenceOrchestrator` audits | Scheduled OSINT ingestion (doc 05) |
-| `replay-verify` golden suite | Cloud scenario farm |
-| `tools/mission-editor` MCP bindings | Unity editor perf one-click panel (INF-5.5) |
+| `DatabaseIntelligenceOrchestrator` audits (CLI) | Scheduled OSINT ingestion (doc 05) |
+| `replay-verify` / ReplayGolden suite (hash `17144800277401907079`) | Cloud scenario farm |
+| Partial optional MCP host bindings (`tools/mission-editor/mcp-tools.json`) | Unity editor perf one-click panel (INF-5.5) |
 
 ---
 
@@ -387,15 +419,17 @@ Experiment definitions must not introduce nondeterministic fields into order log
 
 | Epic / FR | This document |
 |-----------|---------------|
-| FR-06 (doc 01) | Agentic dev infrastructure |
+| **FR-06** ([01](01-Project-Overview.md)) | Agentic infrastructure — product INF-1…8 + studio process tooling (not OV success criteria) |
 | Doc 04 Delegation | Unit agents vs Operator Copilot §7 |
 | Doc 06 Database | DB Research Assistants §8, balance staging §3 |
-| Doc 08 Architecture | Automation layer, headless API |
+| Doc 08 Architecture | Automation layer, headless CLI / batch API |
 | Doc 11 Mission Editor | Scenario gen + events §1, §4 |
-| Doc 17 Replay/AAR | Order log truth, batch CSV, experiment artifacts §2, §6 |
+| Doc 17 Replay/AAR | Order log truth, batch CSV, ReplayGolden hash, experiment artifacts §2, §6 |
 | GDD | [agentic-infrastructure.md](../../design/gdd/agentic-infrastructure.md) |
-| Tracker | [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) §07 |
+| Tracker | [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) §07 — **Partial** (Release) |
 
 ---
 
-**Status:** Locked (Sprint 15)
+**Status:** Locked (Sprint 15)  
+**Tracker row 07:** **Partial** — [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md)  
+**Implementation grade:** Partial — Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.
