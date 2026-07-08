@@ -117,7 +117,7 @@ Every requirement carries an **AME-N.M** ID and a **priority** marker. P0 = v1 b
 
 - **AME-3.2** (P0) — All types support **doctrine / ROE / EMCON inheritance** from parent unit with explicit override, resolved at validation time and surfaced as a parent→child chain (doc 13; AC-4).
 - **AME-3.3** (P0) — Typed mission CRUD emits identical canonical objects regardless of front-end. *Shipped (headless)* — `ScenarioDocumentEditor` + `mission_add_*` / `mission_update_*` / `mission_delete`.
-- **AME-3.4** (P1) — **Mission Board** UI (single view by side/type/status, add-mission wizard, clone, template library, flight-plan preview). *Phase 2 — not in v1 headless.*
+- **AME-3.4** (P1) — **Mission Board** UI (single view by side/type/status, add-mission wizard, clone, template library, flight-plan preview). ***Phase 2 Partial+ (headless board APIs):*** `MissionBoardQuery` / bus clone+template / CLI+MCP / headless `MissionBoardPresenter` + integration tests (ME-W1). ***Residual:*** Unity `ScenarioMissionBoardWindow` product chrome (deferred).
 - **AME-3.5** (P1) — **Operations timeline**: Gantt binding missions to start/end triggers, per-unit priority stack, editor scrub preview. *Phase 2 — `operationsTimeline[]` node reserved in schema.*
 - **AME-3.6** (P1) — Mining / mine-clear / cargo-delivery / cargo-transfer archetypes. *Phase 2.*
 
@@ -284,7 +284,7 @@ warn if complexity > WARN_THRESHOLD OR peak_tick_density > DENSITY_THRESHOLD
 | Event static analysis | TCA static-analysis hook on editor | Stub |
 | AI scaffold / NL | `Scenario/Authoring/AiAuthoringServices`, `ScenarioAiScaffoldCommand`, `mission_plan_suggest` | Stub (advisory) |
 | Model-integrity rules | `IncompatibleHostRule` / `BrokenRefRule` | Shipped (demo/simplistic) |
-| Map-first Edit Mode GUI / Mission Board / timeline UI | Unity `EditorWindow` host + product chrome | **Not started / residual** — headless map mutations **are** shipped (AME-4.2/4.3 Partial+); full map GUI host = ME-W0 residual; Mission Board / timeline = later Phase 2 waves |
+| Map-first Edit Mode GUI / Mission Board / timeline UI | Unity `EditorWindow` host + product chrome | **Partial+ / residual** — headless map mutations shipped (AME-4.2/4.3); **AME-3.4 headless Mission Board APIs shipped (ME-W1)**; Unity Mission Board window + map GUI host + timeline remain residual |
 | Authoring agents | Mission Planner / Red Force / Briefing / Balance / Migration | Not started (Phase 3 — do not claim shipped) |
 | Tests (co-located) | `src/ProjectAegis.Data.Tests/Scenario/` (incl. `ScenarioOrbatReferencePointEditorTests`, `ScenarioMapAuthoringIntegrationTests`), `…/Validation/`, `…/Architecture/`, `src/ProjectAegis.MissionEditor.Cli.Tests/` (incl. `OrbatReferencePointCliTests`), `src/ProjectAegis.Delegation.UnityAdapter.Tests/Authoring/` (`MapAuthoringSurfaceTests`, `EditModeControllerTests`, `LiveFindingsPresenterTests`), AC-8 proxy in `…/Bridge/PlayModeSmokeHarnessTests.cs` | Shipped (AC-1…6,9–12 green headless; **AC-7 Partial**; **AC-8 Met** host load path; P2.1 map suite green) |
 
@@ -327,7 +327,7 @@ Data-driven; live in `assets/data/editor/validation-config.json` unless noted (`
 | Phase | Scope | Status |
 |-------|-------|--------|
 | **v1 (headless)** | Canonical file + schema, Strike/Patrol/Support/Ferry archetypes, typed events (stub/Partial), Validation Engine (six rules + extras), determinism contract, editVersion concurrency, headless sample, core CLI/MCP (ferry + support + undo shipped), publish/umpire/migration-preview (partial) | **Shipped (Partial+)** — residual: event maturity (AME-5.x / **AC-7 Partial**), live-validation UX (AME-6.9). **AC-8 Met** (host load path) |
-| **Phase 2** | Map authoring (ORBAT/RP), Unity edit-mode host UX, Mission Board, operations timeline, mining/cargo archetypes, visual event graph + full static analysis (AC-7 green), reversible migration persistence; NL Mission Planner / CMO import deferred toward Phase 2/3 boundary | **In progress (Partial+)** — **P2.1 headless map ORBAT/RP + live findings + CLI shipped** (AME-4.2/4.3 Partial+); residual: Unity Edit Mode map GUI host (ME-W0), Mission Board (ME-W1), event graph/AC-7/static analysis (ME-W2+). **Do not claim Phase 2 complete** |
+| **Phase 2** | Map authoring (ORBAT/RP), Unity edit-mode host UX, Mission Board, operations timeline, mining/cargo archetypes, visual event graph + full static analysis (AC-7 green), reversible migration persistence; NL Mission Planner / CMO import deferred toward Phase 2/3 boundary | **In progress (Partial+)** — **P2.1 headless map ORBAT/RP + live findings + CLI shipped** (AME-4.2/4.3 Partial+); **ME-W1 headless Mission Board APIs shipped (AME-3.4 Partial+; Unity panel deferred)**; residual: Unity Edit Mode map GUI host, Unity Mission Board window, event graph/AC-7/static analysis (ME-W2+). **Do not claim Phase 2 complete** |
 | **Phase 3** | Full event DSL + optional Lua shim, Red Force Agent, collaborative review, Workshop-style sharing | **Not started** — do not invent as shipped |
 
 ## Open Questions / Decisions Needed
