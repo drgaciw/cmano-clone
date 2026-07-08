@@ -2,7 +2,7 @@
 
 **Epic:** mission-editor-phase2-completion  
 **Wave:** ME-W0  
-**Status:** Ready (W0-c docs honesty done 2026-07-08; host/QA tracks open)  
+**Status:** Complete (2026-07-08) (W0-c docs honesty done 2026-07-08; host/QA tracks open)  
 **Type:** Unity host + docs  
 
 ## Context

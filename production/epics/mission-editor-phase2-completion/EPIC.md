@@ -15,8 +15,8 @@ Finish Phase 2 mission editor product: map host residual, Mission Board, event g
 
 | ID | Story | Wave | Status |
 |----|-------|------|--------|
-| ME-001 | [story-me-001-w0-host-honesty.md](story-me-001-w0-host-honesty.md) | ME-W0 | Ready |
-| ME-002 | [story-me-002-w1-mission-board.md](story-me-002-w1-mission-board.md) | ME-W1 | Pending W0 |
+| ME-001 | [story-me-001-w0-host-honesty.md](story-me-001-w0-host-honesty.md) | ME-W0 | **Complete** (2026-07-08) |
+| ME-002 | [story-me-002-w1-mission-board.md](story-me-002-w1-mission-board.md) | ME-W1 | Ready |
 | ME-003 | [story-me-003-w2-event-graph.md](story-me-003-w2-event-graph.md) | ME-W2 | Pending W1 |
 | ME-004 | [story-me-004-w3-residual.md](story-me-004-w3-residual.md) | ME-W3 | Pending |
 | ME-005 | [story-me-005-w4-gate.md](story-me-005-w4-gate.md) | ME-W4 | Pending |
