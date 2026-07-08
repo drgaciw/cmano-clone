@@ -37,6 +37,74 @@ public sealed class ScenarioDocumentEditor
         if (!EventIds.Contains(id)) EventIds.Add(id);
     }
 
+    /// <summary>
+    /// Inserts or replaces a scenario event by id (case-insensitive). Deep-copies conditions/actions
+    /// and keeps <see cref="EventIds"/> in sync. Does not call <see cref="CommitMutation"/>.
+    /// </summary>
+    public void UpsertEvent(ScenarioEventDto evt)
+    {
+        if (evt is null)
+        {
+            throw new ArgumentNullException(nameof(evt));
+        }
+
+        if (string.IsNullOrWhiteSpace(evt.Id))
+        {
+            throw new InvalidOperationException("Event id is required.");
+        }
+
+        var copy = DeepCopyEvent(evt);
+        var idx = Events.FindIndex(e =>
+            string.Equals(e.Id, copy.Id, StringComparison.OrdinalIgnoreCase));
+        if (idx >= 0)
+        {
+            var previousId = Events[idx].Id;
+            Events[idx] = copy;
+            var idIdx = EventIds.FindIndex(id =>
+                string.Equals(id, previousId, StringComparison.OrdinalIgnoreCase));
+            if (idIdx >= 0)
+            {
+                EventIds[idIdx] = copy.Id;
+            }
+            else if (!EventIds.Exists(id =>
+                         string.Equals(id, copy.Id, StringComparison.OrdinalIgnoreCase)))
+            {
+                EventIds.Add(copy.Id);
+            }
+        }
+        else
+        {
+            Events.Add(copy);
+            if (!EventIds.Exists(id =>
+                    string.Equals(id, copy.Id, StringComparison.OrdinalIgnoreCase)))
+            {
+                EventIds.Add(copy.Id);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Removes a scenario event by id (case-insensitive) and drops the matching
+    /// <see cref="EventIds"/> entry. Returns false when not found.
+    /// Does not call <see cref="CommitMutation"/>.
+    /// </summary>
+    public bool TryRemoveEvent(string eventId)
+    {
+        var index = Events.FindIndex(e =>
+            string.Equals(e.Id, eventId, StringComparison.OrdinalIgnoreCase));
+        if (index < 0)
+        {
+            return false;
+        }
+
+        var removedId = Events[index].Id;
+        Events.RemoveAt(index);
+        EventIds.RemoveAll(id =>
+            string.Equals(id, removedId, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(id, eventId, StringComparison.OrdinalIgnoreCase));
+        return true;
+    }
+
     public string ExplainEventTrace(string eventId) =>
         EventDebuggerTrace.ToJson(ToDto(), eventId);
 
@@ -283,6 +351,8 @@ public sealed class ScenarioDocumentEditor
     public ScenarioDocumentDto CaptureUndoSnapshot()
     {
         var dto = ToDto();
+        // Missions and Events are live mutable lists on the editor — materialize independent copies
+        // so a subsequent Add/Remove/replace does not corrupt the in-memory undo snapshot.
         return new ScenarioDocumentDto
         {
             Metadata = dto.Metadata,
@@ -292,7 +362,7 @@ public sealed class ScenarioDocumentEditor
             ReferencePoints = dto.ReferencePoints,
             Missions = dto.Missions.ToList(),
             OperationsTimeline = dto.OperationsTimeline,
-            Events = dto.Events,
+            Events = dto.Events?.Select(DeepCopyEvent).ToList(),
             Variables = dto.Variables,
             EditorState = dto.EditorState,
         };
@@ -613,7 +683,49 @@ public sealed class ScenarioDocumentEditor
                 EmconOverride = mission.EmconOverride,
             });
         }
+
+        Events.Clear();
+        EventIds.Clear();
+        if (snapshot.Events != null)
+        {
+            foreach (var evt in snapshot.Events)
+            {
+                var copy = DeepCopyEvent(evt);
+                Events.Add(copy);
+                if (!string.IsNullOrWhiteSpace(copy.Id) &&
+                    !EventIds.Exists(id =>
+                        string.Equals(id, copy.Id, StringComparison.OrdinalIgnoreCase)))
+                {
+                    EventIds.Add(copy.Id);
+                }
+            }
+        }
     }
+
+    private static ScenarioEventDto DeepCopyEvent(ScenarioEventDto evt) =>
+        new()
+        {
+            Id = evt.Id,
+            TriggerType = evt.TriggerType,
+            Conditions = (evt.Conditions ?? Array.Empty<ScenarioEventConditionDto>())
+                .Select(c => new ScenarioEventConditionDto
+                {
+                    Type = c.Type,
+                    UnitId = c.UnitId,
+                    ZoneId = c.ZoneId,
+                    Result = c.Result,
+                })
+                .ToArray(),
+            Actions = (evt.Actions ?? Array.Empty<ScenarioEventActionDto>())
+                .Select(a => new ScenarioEventActionDto
+                {
+                    Type = a.Type,
+                    UnitId = a.UnitId,
+                    Lat = a.Lat,
+                    Lon = a.Lon,
+                })
+                .ToArray(),
+        };
 
     private ScenarioMissionDto RequireMission(string missionId, string expectedType)
     {

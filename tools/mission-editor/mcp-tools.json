@@ -525,6 +525,104 @@
       }
     },
     {
+      "name": "event_add",
+      "description": "Insert or replace a scenario event (ME-W2 event graph CRUD upsert).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "event_add",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${eventId}",
+        "--trigger",
+        "${triggerType}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "eventId", "triggerType"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "eventId": { "type": "string" },
+          "triggerType": { "type": "string", "description": "e.g. Time, UnitEntersZone" },
+          "condition": {
+            "type": "string",
+            "description": "Optional repeated via CLI --condition Type[:UnitId[:ZoneId]]"
+          },
+          "action": {
+            "type": "string",
+            "description": "Optional repeated via CLI --action Type[:UnitId]"
+          }
+        }
+      },
+      "returns": "JSON ok + eventId + editVersion + fileHash + fireOrder"
+    },
+    {
+      "name": "event_update",
+      "description": "Alias of event_add — upsert scenario event by id (ME-W2).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "event_update",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${eventId}",
+        "--trigger",
+        "${triggerType}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "eventId", "triggerType"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "eventId": { "type": "string" },
+          "triggerType": { "type": "string" }
+        }
+      },
+      "returns": "JSON ok + eventId + editVersion + fileHash (same as event_add)"
+    },
+    {
+      "name": "event_delete",
+      "description": "Delete a scenario event by id (ME-W2 event graph CRUD).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "event_delete",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${eventId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "eventId"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "eventId": { "type": "string" }
+        }
+      },
+      "returns": "JSON ok + deletedEventId + editVersion + fileHash"
+    },
+    {
       "name": "mission_list",
       "description": "Read-only Mission Board list with optional type/side/status filters (ME-W1 / AME-3.4).",
       "command": "pwsh",
