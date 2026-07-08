@@ -25,7 +25,7 @@ subsystem is exercised headless with `dotnet test`.
 | `Catalog/` | Hot-tick appliers bridging `ProjectAegis.Data` catalog values into sim state | `CatalogDamageHotTickApplier`, `CatalogMagazineResolver`, `CatalogRadarEmconResolver`, `PlatformHpLedger` |
 | `Logistics/` | Fuel accounting | `FuelLedger` |
 | `Time/` | Fixed-timestep clock + time-compression | `SimClock`, `TimeCompressionMode` |
-| `Glossary/` | Generated abort-reason catalog/manifest | `AbortReasonManifest` |
+| `Glossary/` | Generated abort-reason catalog/manifest ([guide](../../docs/engineering/abort-reason-catalog.md)) | `AbortReasonManifest`, `AbortReasonCatalog` |
 
 ---
 
@@ -88,7 +88,9 @@ the resolved `EffectivePolicy`, checks the weapon envelope / dynamic launch zone
 (`DlzEvaluator`), consumes magazines (`MagazineLedger`), validates the combat domain
 (`DomainValidatorRegistry`, ADR-009), and records kills in `KilledTargetRegistry` (which
 contributes the `killMix` layer of the world hash). `EngageResult` reports `Launched`, the
-monotonic `EngagementId`, an `OutcomeCode`, or an `EngagementAbortReason`. Test/fixture
+monotonic `EngagementId`, an `OutcomeCode`, or an `EngagementAbortReason` — the abort reason
+is turned into a stable order-log/message-log code via the manifest-driven
+[abort-reason catalog](../../docs/engineering/abort-reason-catalog.md). Test/fixture
 resolvers (`StubEngagementResolver`, `RecordingEngagementResolver`) implement the same
 interface for isolation.
 
@@ -121,6 +123,7 @@ goldens that assert reproducibility of this core live in
 | Topic | Doc |
 |-------|-----|
 | Determinism rules, hashing, golden workflow | [`docs/engineering/determinism-and-replay.md`](../../docs/engineering/determinism-and-replay.md) |
+| Abort-reason codes (manifest → codegen → order log) | [`docs/engineering/abort-reason-catalog.md`](../../docs/engineering/abort-reason-catalog.md) |
 | Tick pipeline order + world-hash layers | [`adr-004-tick-pipeline-order.md`](../../docs/architecture/adr-004-tick-pipeline-order.md) |
 | Policy evaluator boundary | [`adr-002-policy-evaluator.md`](../../docs/architecture/adr-002-policy-evaluator.md) |
 | Sim assembly boundary (no Unity) | [`adr-001-sim-assembly-boundary.md`](../../docs/architecture/adr-001-sim-assembly-boundary.md) |
