@@ -10,6 +10,8 @@
 
 **Status:** POST-ACK PREP COMPLETE (read-only additive note only). No git push/submit executed. Awaiting human ack phrase ("scenario editor program complete" or equivalent per S88 gate) to proceed with user-driven gt commands.
 
+**SE-W0 update (2026-07-08):** Headless engineering is **on main** (`fix-scenario-publish-cli-wiring` is an ancestor of `main`). Formal S88 phrase still optional for historical headless-only close; the **active completion epic** (`scenario-editor-completion`) collects a single combined ack at **SE-W3**: *"scenario editor headless + AC-8 program complete"*. See `production/agentic/se-w0-status-truth-2026-07-08.md`.
+
 ## Exact Safe Post-Ack Commands (from gate + branch-integration-plan + scope-boundary + AGENTS.md verification-before)
 
 **Always:** Graphite-first. Use `gt` (never `gh pr create` or raw `git push` on stack). Run **full verification-before** (GitNexus pre + gates RUN+READ all outputs) before any `gt submit` / sync / restack when trunk resolution or blocked. Stage **only** approved payload files (S88 / editor closeout list; no .cursor/hooks etc). Re-verif post each gt step. Cite gate/boundary everywhere.

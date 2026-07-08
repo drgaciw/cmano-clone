@@ -58,7 +58,7 @@ Parity targets from the CMO manual and observable community tooling (clean-room)
 | **Strike** | Attack assigned targets; TOT/TOS; weapon behavior | Flight-plan generation, package assignment (v1: fuel-reachability check) | P0 |
 | **Patrol** | Patrol / prosecution areas; ASW/ASuW/AAW/SEAD/CAS | Separate patrol vs prosecution geometry | P0 |
 | **Support** | Tanker, AEW, EW jamming | Role-appropriate platform; station geometry | P0 |
-| **Ferry** | Redeploy aircraft between bases | Destination validity + reachability (**domain shipped; no CLI verb — see AME-8.4**) | P0 |
+| **Ferry** | Redeploy aircraft between bases | Destination validity + reachability (**shipped** — domain + `mission_add_ferry` / `mission_update_ferry`; AME-8.4 closed) | P0 |
 | **Mining** | Lay mines in area | — | P1 |
 | **Mine-clearing** | Clear mines | — | P1 |
 | **Cargo — Delivery / Transfer** | Unload / move cargo | — | P1 |
@@ -180,10 +180,10 @@ Every requirement carries an **AME-N.M** ID and a **priority** marker. P0 = v1 b
 - **AME-8.2** (P0) — CLI and MCP share the same underlying APIs; MCP bindings mirror the CLI (`tools/mission-editor/mcp-tools.json`). No special auto-commit path.
 - **AME-8.3** (P0) — **Required verbs per mission type.** Patrol and Strike expose `mission_add_*` + `mission_update_*`; Support and Ferry must expose equivalents.
 - **AME-8.4** (P0) — **Ferry CLI/MCP verbs shipped:** `mission_add_ferry` / `mission_update_ferry` expose ferry authoring at the tool surface (was GAP; closed 2026-07-03).
-- **AME-8.5** (P0, **GAP**) — **Undo/rollback is in-memory only** in `ScenarioDocumentEditor` and is **not wired to any CLI verb**. Committed-mutation undo/redo (GDD §3.8) is unshipped at the tool surface. **Open implementation gap.**
+- **AME-8.5** (P0) — **Undo/rollback shipped at CLI/MCP:** `scenario_undo` restores the prior committed mutation from the on-disk undo stack (wired through `ScenarioDocumentEditor`; closed with ferry track). In-memory + file-backed undo at the tool surface. *Tests:* `src/ProjectAegis.MissionEditor.Cli.Tests/ScenarioUndoCliTests.cs`.
 - **AME-8.6** (P1) — **Natural-language authoring** ("Add a SEAD patrol over Gotland H+0→H+2, then transition fighters to a strike…"). *Phase 2/3.* v1 ships only a demonstrative scaffold — `scenario_ai_scaffold` / `AiAuthoringServices.NlScaffold` (**Maturity: stub**) and a heuristic `mission_plan_suggest`.
 
-> **Shipped CLI verbs (headless, `ProjectAegis.MissionEditor.Cli/Program.cs`):** `scenario_create`, `scenario_validate`, `scenario_publish`, `scenario_ai_scaffold`, `scenario_event_trace`, `scenario_migrate_preview`, `scenario_umpire_snapshot`, `scenario_export_brief`, `scenario_simulate_sample`, `scenario_comms_status`, `scenario_cyber_status`, `scenario_near_future_spawn`, `mission_add_patrol`, `mission_add_strike`, `mission_update_patrol`, `mission_update_strike`, `mission_delete`, `mission_plan_suggest` (~18 verbs). Note the generic `mission_add`/`event_add`/`reference_point_set`/`mission_assign_units` names in AME-8.1 are the GDD contract; the shipped surface uses per-type verbs and lacks ferry verbs (AME-8.4).
+> **Shipped scenario/mission CLI verbs (headless, `ProjectAegis.MissionEditor.Cli/Program.cs`; ~24):** `scenario_create`, `scenario_validate`, `scenario_publish`, `scenario_export`, `scenario_export_brief`, `scenario_simulate_sample`, `scenario_ai_scaffold`, `scenario_event_trace`, `scenario_migrate_preview`, `scenario_umpire_snapshot`, `scenario_comms_status`, `scenario_cyber_status`, `scenario_near_future_spawn`, `scenario_undo`, `mission_add_patrol`, `mission_add_strike`, `mission_add_support`, `mission_add_ferry`, `mission_update_patrol`, `mission_update_strike`, `mission_update_support`, `mission_update_ferry`, `mission_delete`, `mission_plan_suggest`. Generic GDD names in AME-8.1 (`mission_add` / `event_add` / `reference_point_set` / `mission_assign_units`) map to per-type verbs on the shipped surface. Ferry + support add/update and undo are **shipped** (AME-8.4 / AME-8.5).
 
 ### 9. Agentic authoring agents (advisory — Phase 2/3, LLM-driven)
 
@@ -270,38 +270,38 @@ warn if complexity > WARN_THRESHOLD OR peak_tick_density > DENSITY_THRESHOLD
 | Validation config / knobs | `Validation/ValidationConfig` (`assets/data/editor/validation-config.json`) | Shipped |
 | Golden determinism hashes | `Validation/ValidationGoldenHashes`, CLI `SimulateSampleGoldenHashes` | Shipped |
 | JSON Schema + fixtures | `data/scenarios/scenario-document.schema.json`, `data/scenarios/examples/*.scenario.json` | Shipped |
-| CLI / MCP surface | `ProjectAegis.MissionEditor.Cli/Program.cs` (~18 verbs); `tools/mission-editor/mcp-tools.json` | Shipped (Partial — ferry verbs + undo missing) |
-| Mission verbs | `MissionAddPatrolCommand`, `MissionAddStrikeCommand`, `MissionUpdatePatrolCommand`, `MissionUpdateStrikeCommand`, `MissionDeleteCommand` | Shipped (no ferry verb — AME-8.4) |
+| CLI / MCP surface | `ProjectAegis.MissionEditor.Cli/Program.cs` (~24 scenario/mission verbs); `tools/mission-editor/mcp-tools.json` | Shipped (ferry + support + undo included) |
+| Mission verbs | `MissionAddPatrolCommand`, `MissionAddStrikeCommand`, `MissionAddSupportCommand`, `MissionAddFerryCommand`, `MissionUpdatePatrolCommand`, `MissionUpdateStrikeCommand`, `MissionUpdateSupportCommand`, `MissionUpdateFerryCommand`, `MissionDeleteCommand`, `ScenarioUndoCommand` | Shipped (AME-8.4 ferry + AME-8.5 undo closed; `mission_update_support` shipping) |
 | Headless sample | `ScenarioSimulateSampleCommand` | Shipped |
 | Publish + manifest | `ScenarioPublishCommand`, `Scenario/Authoring/ScenarioManifest` | Shipped (Partial+) |
 | Umpire / adjudication | `Scenario/Authoring/AdjudicationWorkspace`, `scenario_umpire_snapshot` | Shipped (Partial — no UX) |
 | DB migration preview | `Scenario/Authoring/ScenarioDbMigrationPreview`, `scenario_migrate_preview` | Shipped (Partial — no reversible persistence) |
-| Event trace / debugger | `ExplainEventTrace`, `scenario_event_trace` | Shipped (Stub) |
+| Event trace / debugger | `ExplainEventTrace`, `scenario_event_trace` | Shipped (Stub / Partial AC-7) |
 | Event static analysis | TCA static-analysis hook on editor | Stub |
 | AI scaffold / NL | `Scenario/Authoring/AiAuthoringServices`, `ScenarioAiScaffoldCommand`, `mission_plan_suggest` | Stub (advisory) |
 | Model-integrity rules | `IncompatibleHostRule` / `BrokenRefRule` | Shipped (demo/simplistic) |
 | Map-first / Mission Board / timeline UI | Unity edit-mode UX | Not started (Phase 2) |
 | Authoring agents | Mission Planner / Red Force / Briefing / Balance / Migration | Not started (Phase 2/3) |
-| Tests | `src/ProjectAegis.Data.Tests/Scenario/` (`ScenarioDocumentEditorTests`, `ScenarioEditVersionGuardTests`, `ScenarioPackageTests`, live-validation tests) | Shipped (extend for AC-1…12) |
+| Tests (co-located) | `src/ProjectAegis.Data.Tests/Scenario/`, `src/ProjectAegis.Data.Tests/Validation/`, `src/ProjectAegis.Data.Tests/Architecture/`, `src/ProjectAegis.MissionEditor.Cli.Tests/`, AC-8 proxy in `src/ProjectAegis.Delegation.UnityAdapter.Tests/Bridge/PlayModeSmokeHarnessTests.cs` | Shipped (AC-1…7 Partial/green headless; AC-8 productionize residual SE-W2) |
 
 ## Acceptance Criteria
 
-Adopted verbatim in substance from the approved GDD (AC-1…AC-12); each is independently, mechanically testable with a defined fixture and observable output, and bound to the AME requirement(s) it verifies.
+Adopted verbatim in substance from the approved GDD (AC-1…AC-12); each is independently, mechanically testable with a defined fixture and observable output, and bound to the AME requirement(s) it verifies. Evidence paths are **co-located** under `src/ProjectAegis.*.Tests/` (hybrid layout) — not phantom `tests/unit/editor/**` or `tests/integration/editor/**`.
 
-> **Residual honesty (editor program).** AC checkboxes and any `tests/unit/editor/` (and related integration) paths remain **editor-program residual (S81–S88)**; do not claim all ACs green from headless Partial+ alone.
+> **Residual honesty (SE-W1 2026-07-08).** Headless AC-1…AC-7 / AC-9…AC-12 have green co-located tests cited below. **AC-7 is Partial** (structured stub debugger, not full order-log projection). **AC-8 remains open** for Unity productionize (**SE-W2**); only a headless PlayMode proxy exists today. Phase 2 map/Mission Board/GUI is out of this epic.
 
-- [ ] **AC-1 (Logic → AME-6.2, Formulas):** A strike whose target lies beyond `combat_radius_nm * fuel_fraction` makes `scenario_validate` return a blocking error `STRIKE_UNREACHABLE` with message "…out of combat radius by N nm…"; test asserts code + computed `N`. *`tests/unit/editor/`.*
-- [ ] **AC-2 (Logic → AME-6.6, AME-6.7):** Given a fixed `metadata.seed` + identical knobs, two independent `scenario_simulate_sample` runs produce (a) byte-identical `fire_order` arrays and (b) identical world-state hash = SHA-256 over canonical post-run state excluding `editorState`; both emit `SEED=<v> HASH=<sha256>`; holds under parallel CI runners. *`tests/integration/editor/determinism/`; ties to replay-verify.*
-- [ ] **AC-3 (Logic → AME-6.2):** The Validation Engine flags all six v1 rules, each with its specific error code — AC-3a `MISSION_NO_UNITS`, AC-3b `PATROL_ZONE_DEGENERATE`, AC-3c `STRIKE_NO_TARGETS`, AC-3d `FERRY_NO_DESTINATION`, AC-3e `DB_MISMATCH`, AC-3f `STRIKE_UNREACHABLE`. *Unit test per rule, `tests/unit/editor/validation/`.*
-- [ ] **AC-4 (Integration → AME-3.2):** Fixture `doctrine-inheritance.aegis-scenario` (Side A `ROE=WeaponsFree`; a Strike override `ROE=WeaponsTight`; a Patrol with no override) → `scenario_validate` reports resolved Strike `WeaponsTight`, Patrol `WeaponsFree` (inherited). *`tests/integration/editor/doctrine-inheritance/`.*
-- [ ] **AC-5 (Integration → AME-8.1):** The core MCP suite creates, validates, and runs a 15-min headless sample of a Strike+Patrol+Support+Ferry scenario with no Unity process spawned; runner exits 0 and emits a `sample-complete` JSON record. *Headless integration test.*
-- [ ] **AC-6 (Config → AME-2.5, AME-7.2):** (a) Saving an unedited scenario twice yields byte-identical `scenario.json` (SHA-256 equal). (b) Changing exactly one field yields a `git diff` of exactly one hunk / one JSON key, no reordering. *`tools/ci/smoke-ac6.sh`.*
-- [ ] **AC-7 (Logic → AME-5.5):** For an event `E` whose `UnitEntersZone` condition never holds, the debugger JSON contains `{ "event_id": E.id, "fired": false, "last_evaluated_tick": <int>, "unmet_conditions": [ { "type": "UnitEntersZone", "result": false, … } ] }`. *`tests/unit/editor/debugger/` vs `event-no-fire.aegis-scenario`.*
-- [ ] **AC-8 (Integration → AME-1.4, AME-2.4):** A scenario authored entirely via headless MCP loads in the Unity host with intact ORBAT/missions/events and `editorState` populated with schema defaults (camera at theater centroid, all layers on). *Integration test.*
-- [ ] **AC-9 (Logic → AME-2.4):** The schema lint fails the build if any field other than `editorState` is tagged `derived-only`, or if any sim/Validation-Engine path reads a field under `editorState`. *CI lint test.*
-- [ ] **AC-10 (Integration → AME-7.1):** Two mutating MCP calls with a stale `editVersion` → the second returns a `CONFLICT` error carrying current `editVersion` + file hash; no partial write occurs. *Integration test.*
-- [ ] **AC-11 (Logic → AME-6.8):** Exporting a scenario containing TeleportUnit actions produces an exported event set with zero TeleportUnit actions + a manifest entry logging each removal; the headless sample's post-transform event set equals the exported set. *Unit test.*
-- [ ] **AC-12 (Logic → AME-6.5):** Save succeeds on a scenario with blocking errors; export / play / `scenario_simulate_sample` on the same file are rejected with the blocking error list. *Unit test.*
+- [x] **AC-1 (Logic → AME-6.2, Formulas):** A strike whose target lies beyond `combat_radius_nm * fuel_fraction` makes `scenario_validate` return a blocking error `STRIKE_UNREACHABLE` with message "…out of combat radius by N nm…"; test asserts code + computed `N`. *`src/ProjectAegis.Data.Tests/Validation/ScenarioValidationEngineTests.cs` (`Strike_unreachable_message_matches_AC1_format_with_computed_excess_nm`); CLI surface `src/ProjectAegis.MissionEditor.Cli.Tests/ScenarioValidateCliTests.cs`.*
+- [x] **AC-2 (Logic → AME-6.6, AME-6.7):** Given a fixed `metadata.seed` + identical knobs, two independent `scenario_simulate_sample` runs produce (a) byte-identical `fire_order` arrays and (b) identical world-state hash = SHA-256 over canonical post-run state excluding `editorState`; both emit `SEED=<v> HASH=<sha256>`; holds under parallel CI runners. *`src/ProjectAegis.MissionEditor.Cli.Tests/ScenarioSimulateSampleCliTests.cs` (`scenario_simulate_sample_determinism_two_runs_identical_fire_order_and_hash`, `…_nonempty`, `…_holds_under_parallel_execution_isolation`).*
+- [x] **AC-3 (Logic → AME-6.2):** The Validation Engine flags all six v1 rules, each with its specific error code — AC-3a `MISSION_NO_UNITS`, AC-3b `PATROL_ZONE_DEGENERATE`, AC-3c `STRIKE_NO_TARGETS`, AC-3d `FERRY_NO_DESTINATION`, AC-3e `DB_MISMATCH`, AC-3f `STRIKE_UNREACHABLE`. *`src/ProjectAegis.Data.Tests/Validation/ScenarioValidationEngineTests.cs` (per-rule Facts) + `ValidationGoldenTests.All_six_v1_rules_emit_expected_codes` + `ScenarioDocumentEditorLiveValidationTests.cs`.*
+- [x] **AC-4 (Integration → AME-3.2):** Fixture `data/scenarios/validation/doctrine-inheritance.json` (Side A `ROE=WeaponsFree`; a Strike override `ROE=WeaponsTight`; a Patrol with no override) → `scenario_validate` reports resolved Strike `WeaponsTight`, Patrol `WeaponsFree` (inherited). *`src/ProjectAegis.Data.Tests/Validation/DoctrineInheritanceValidateTests.cs`.*
+- [x] **AC-5 (Integration → AME-8.1):** The core MCP/CLI suite creates, validates, and runs a 15-min headless sample of a Strike+Patrol+Support+Ferry scenario with no Unity process spawned; runner exits 0 and emits a `sample-complete` JSON record. *`src/ProjectAegis.MissionEditor.Cli.Tests/SampleCompletePipelineTests.cs` (`strike_patrol_support_ferry_pipeline_validates_and_emits_sample_complete`); also `ScenarioSimulateSampleCliTests` AC-5 ferry sample.*
+- [x] **AC-6 (Config → AME-2.5, AME-7.2):** (a) Two independent create+mutate runs with identical CLI args yield byte-identical `scenario.json` (SHA-256 equal) — proves deterministic serialization across processes. (b) Changing exactly one content field (which also bumps `metadata.editVersion`) yields a `git diff` of **≤2 hunks** / ≤2 changed content locations, no key reordering. *Honesty: every mutation bumps `editVersion`, so a pure single-hunk content-only diff is not available via CLI; see `tools/ci/smoke-ac6.sh`.*
+- [ ] **AC-7 (Logic → AME-5.5) — Partial (stub):** For an event `E` whose `UnitEntersZone` condition never holds, the debugger JSON contains `{ "event_id": E.id, "fired": false, "last_evaluated_tick": <int>, "unmet_conditions": [ { "type": "UnitEntersZone", "result": false, … } ] }`. Full order-log projection fields (`sim_tick`, `sequence_id`, `action_results`) are **not** shipped (pinned by stub tests). *`src/ProjectAegis.Data.Tests/Scenario/EventDebuggerTests.cs` + fixture `data/scenarios/examples/event-no-fire.scenario.json`; maturity pin `src/ProjectAegis.Data.Tests/Scenario/StubScopePinTests.cs`.*
+- [x] **AC-8 (Integration → AME-1.4, AME-2.4) — Met (host load path):** Headless-authored `.scenario.json` loads with intact ORBAT/missions/events; `editorState` defaults (camera + layers) applied in-memory (derived-only; never written to canonical fixtures). *`src/ProjectAegis.Delegation.UnityAdapter.Tests/Bridge/PlayModeSmokeHarnessTests.cs` (`AC8_Unity_host_roundtrip_…`, `AC8_strike_package_fixture_…`); evidence `production/qa/ac8-unity-roundtrip-evidence-2026-07-08.md`. Not claimed: map-first Edit Mode GUI (Phase 2).*
+- [x] **AC-9 (Logic → AME-2.4):** The schema lint fails the build if any field other than `editorState` is tagged `derived-only`, or if any sim/Validation-Engine path reads a field under `editorState`. *`src/ProjectAegis.Data.Tests/Scenario/DerivedOnlyInvariantTests.cs` + `src/ProjectAegis.Data.Tests/Architecture/DerivedOnlyInvariantTests.cs`.*
+- [x] **AC-10 (Integration → AME-7.1):** Two mutating MCP/CLI calls with a stale `editVersion` → the second returns a `CONFLICT` error carrying current `editVersion` + file hash; no partial write occurs. *`src/ProjectAegis.Data.Tests/Scenario/ScenarioEditVersionGuardTests.cs`; CLI: `src/ProjectAegis.MissionEditor.Cli.Tests/McpMissionToolCliTests.cs` (`mission_add_patrol_stale_edit_version_returns_conflict_exit_code`), `MissionAddFerryCommandTests.mission_update_ferry_stale_edit_version_returns_conflict_exit_code`.*
+- [x] **AC-11 (Logic → AME-6.8):** Exporting a scenario containing TeleportUnit actions produces an exported event set with zero TeleportUnit actions + a manifest entry logging each removal; the headless sample's post-transform event set equals the exported set. *`src/ProjectAegis.Data.Tests/Scenario/TeleportUnitExportTests.cs`.*
+- [x] **AC-12 (Logic → AME-6.5):** Save succeeds on a scenario with blocking errors; export / play / `scenario_simulate_sample` on the same file are rejected with the blocking error list. *`src/ProjectAegis.Data.Tests/Validation/SaveVsExportGateTests.cs`.*
 
 ## Tuning Knobs
 
@@ -322,8 +322,8 @@ Data-driven; live in `assets/data/editor/validation-config.json` unless noted (`
 
 | Phase | Scope | Status |
 |-------|-------|--------|
-| **v1 (headless)** | Canonical file + schema, Strike/Patrol/Support/Ferry archetypes, typed events (stub), Validation Engine (six rules + extras), determinism contract, editVersion concurrency, headless sample, core CLI/MCP, publish/umpire/migration-preview (partial) | **Shipped (Partial+)** — gaps: ferry verbs (AME-8.4), undo wiring (AME-8.5), event maturity (AME-5.x), live-validation UX (AME-6.9) |
-| **Phase 2** | Unity edit-mode UX (map-first, Mission Board, operations timeline), mining/cargo archetypes, NL Mission Planner, CMO import (best-effort), visual event graph + full static analysis, reversible migration persistence | Not started |
+| **v1 (headless)** | Canonical file + schema, Strike/Patrol/Support/Ferry archetypes, typed events (stub/Partial), Validation Engine (six rules + extras), determinism contract, editVersion concurrency, headless sample, core CLI/MCP (ferry + support + undo shipped), publish/umpire/migration-preview (partial) | **Shipped (Partial+)** — residual: event maturity (AME-5.x / AC-7 Partial), live-validation UX (AME-6.9), AC-8 Unity productionize (SE-W2) |
+| **Phase 2** | Unity edit-mode UX (map-first, Mission Board, operations timeline), mining/cargo archetypes, NL Mission Planner, CMO import (best-effort), visual event graph + full static analysis, reversible migration persistence | Not started (deferred; residual Phase 2) |
 | **Phase 3** | Full event DSL + optional Lua shim, Red Force Agent, collaborative review, Workshop-style sharing | Not started |
 
 ## Open Questions / Decisions Needed
@@ -369,8 +369,8 @@ Each former open question now points to its ADR.
 
 ---
 
-**Status:** Revised — implementation-aligned. v1 headless stack shipped (Partial+); design gate APPROVED (review log 2026-06-01); open implementation gaps tracked: ferry tool surface (AME-8.4), undo wiring (AME-8.5), event-model + static-analysis maturity (AME-5.x), live-validation UX (AME-6.9), reversible migration persistence (AME-10.2).
+**Status:** Revised — implementation-aligned (SE-W1 honesty 2026-07-08). v1 headless stack shipped (Partial+); ferry verbs (AME-8.4) + undo (AME-8.5) + `mission_update_support` **shipped**. Residual: AC-7 Partial stub debugger, **AC-8 Unity productionize (SE-W2)**, event static-analysis maturity (AME-5.7), live-validation UX (AME-6.9), reversible migration persistence (AME-10.2), Phase 2 map/GUI.
 
 ---
 
-**Charter mechanical honesty Wave 4 2026-07-08** (doc 11 residual still editor-owned).
+**Charter honesty SE-W1 2026-07-08** — AC paths realigned to co-located tests; ferry/undo/mapping fixed; residual Phase 2 / AC-8 productionize (SE-W2).

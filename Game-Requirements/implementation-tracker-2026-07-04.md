@@ -13,7 +13,7 @@
 | Requirements **documentation** (01–21) | **Complete** — **req 11 revised 2026-07-01** (`AME-*` IDs, AC-1…AC-12, ADR-008/013–017 cross-refs); other docs 01–10, 12–21 unchanged |
 | **MVP / Phase 1 gameplay** implementation | **COMPLETE 21/21** (S56 gate PASS 2026-06-21) — grades frozen; Baltic ACs (replay 6/6, proxy 18/18, hash `17144800277401907079`) |
 | **Post-MVP content programs** (S57–S80) | **COMPLETE** — Baltic v2/v3, release train, E7 prep; S80 ack **"Baltic v3 content-complete"** (2026-06-26); stage **Release** |
-| **Forward engineering** (post-S80) | **In progress — scenario editor program** on `fix-scenario-publish-cli-wiring`; validation **tracks A–D** wired @ `7b0f376`; see [Scenario editor program](#scenario-editor-program-post-s80) |
+| **Forward engineering** (post-S80) | **In progress — scenario editor completion** (headless done; AC-8 remaining). Epic `scenario-editor-completion`; plan `docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md`; roadmap `future-sprint-roadpmap-07042026.md`. Branch `fix-scenario-publish-cli-wiring` merged into main ancestry |
 
 Completing the full requirements corpus as *shipped game features* is multi-year work (req 07 phases 1–5). **Post-MVP tracks add evidence additively; they do not re-litigate S56 MVP row grades** ([baltic-v3-scope-boundary-2026-06-25.md](../production/baltic-v3-scope-boundary-2026-06-25.md)).
 
@@ -124,7 +124,9 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 
 **S56 gate: 21/21 MVP-done / documented Partial+.** Evidence @ S56: [implementation-tracker-2026-06-04.md](implementation-tracker-2026-06-04.md). **Post-S56 note** is additive only.
 
-**Program note (corpus maturity W0–W4, 2026-07-08):** Waves 0–4 corpus honesty complete; **no MVP regrade**. Req **10b** remains **Phase N / not on main**. Forward engineering continues on the scenario editor train (req 11).
+**Program note (corpus maturity W0–W4, 2026-07-08):** Waves 0–4 corpus honesty complete; **no MVP regrade**. Req **10b** remains **Phase N / not on main**.
+
+**Program note (scenario editor SE-W0, 2026-07-08):** S81–S88 **headless** engineering complete on trunk (closeouts + S88 gate package READY). Forward work is epic **`scenario-editor-completion`**: SE-W1 doc honesty + residual tools; **SE-W2 Unity AC-8 productionize**; SE-W3 gate + human ack for **headless + AC-8**. Phase 2 map/GUI **deferred**. Status truth: `production/agentic/se-w0-status-truth-2026-07-08.md`.
 
 | Req | Title | MVP status (S56) | Post-S56 note (through 2026-07-04) | Next stack task |
 |-----|-------|------------------|--------------------------------------|-----------------|
@@ -139,7 +141,7 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 | 09 | Near-Future Technologies | **Partial** | **doc honesty Wave 3 2026-07-08** (FR-08; headless archetype/TL/spawn-plan spine mapped; full DOTS NF content Phase N; MVP grade unchanged) | Full DOTS spawn |
 | 10 | Speculative Systems | **Partial+** | Wave 3 honesty: Partial+ = TL/black-project SpeculativeEngageGate + catalog metadata; S54 OrbitalDew/Kessler runtime **not on main** 2026-07-08 | Escalation ladder (design); full orbital DEW/Kessler runtime Phase N |
 | 10b | (KESSLER) | **Phase N / not on main** | Wave 3: `OrbitalDewPlatform` / `KesslerRiskMeter` / `EscalationTier` absent from `src/` (rg zero hits 2026-07-08); design ladder only | Re-land runtime only with gate + tests; do not treat S54 wt claims as trunk |
-| 11 | Agentic Mission Editor | **Partial** | **Major doc+code pass:** req 11 revised (`AME-*`, AC-1…12); tracks A–D @ `7b0f376`; ferry CLI; event debugger trace; teleport export transform; undo stack; 3 example fixtures | Unity host round-trip (AC-8); full event static analysis (AME-5.7) |
+| 11 | Agentic Mission Editor | **Partial+** (headless + AC-8 host path) | **S81–S88 + scenario-editor-completion SE-W0–W3:** headless ACs honest; ferry/undo/`mission_update_support` shipped; AC-8 dual-fixture host load + evidence 2026-07-08; gate package READY | Phase 2 map/GUI / full event static analysis deferred |
 | 12 | Terms Glossary | **Partial** | **doc honesty Wave 1 2026-07-08** (additive terms) | UI tooltips |
 | 13 | Doctrine ROE EMCON WRA | **Partial** | `DoctrineInheritanceValidateTests` + fixture; v3 mission-roe policy; **doc honesty Wave 2 2026-07-08** | Unity doctrine panel (ADR-010) |
 | 14 | Engagement & Fire Control | **Partial+** | v3 contact-triggered engage; **doc honesty Wave 2 2026-07-08** | **Fix 2 UA engage tests**; DLZ Phase 2 |
