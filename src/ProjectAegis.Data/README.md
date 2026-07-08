@@ -62,6 +62,11 @@ damage). Existing propose/approve paths are never altered — this is a hard inv
 [`AGENTS.md`](../../AGENTS.md#hard-invariants--never-break-these)). A staging batch must resolve
 to a single row kind; a mixed batch is rejected with `ambiguous_staging_batch`.
 
+> **Deep-dive.** For the full propose batch-kind table, per-kind approve validation, the
+> machine-readable error-code catalog (`quarantine:*`, `orphan_platform:*`, `kill_chain:*`, …),
+> the CLI verbs, and the runbook for adding a new row kind, see
+> [`docs/engineering/catalog-write-gate.md`](../../docs/engineering/catalog-write-gate.md).
+
 ### Provenance & TL tiers
 
 Every persisted value carries a provenance classification so downstream tooling can separate
