@@ -51,6 +51,8 @@ Full explanation, diagnostics, and other-editor notes: [docs/engineering/local-d
 
 **Determinism & replay:** the sim is bit-for-bit reproducible per `(scenario, seed)`. Rules, the world-state/order-log hashing model, the golden-fixture workflow, and common pitfalls: [docs/engineering/determinism-and-replay.md](docs/engineering/determinism-and-replay.md).
 
+**Engineering docs:** subsystem guides, CI/branch-protection, Graphite workflow, and local setup are indexed in [docs/engineering/README.md](docs/engineering/README.md).
+
 **Cursor Cloud agents:** see the [Cursor Cloud specific instructions](AGENTS.md#cursor-cloud-specific-instructions) section in `AGENTS.md` (headless build/test, Play Mode smoke harness, `.cursor/cloud-install.sh` bootstrap via `.cursor/environment.json`).
 
 Headless simulation and delegation spine are implemented (`ProjectAegis.Sim`, Baltic replay harness, sensor classify FSM, UI Toolkit C2/message log). Unity project lives under `unity/ProjectAegis/` (Editor optional; headless smoke in CI). Requirements live under `Game-Requirements/`.
