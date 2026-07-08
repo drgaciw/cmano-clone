@@ -2,6 +2,7 @@
 #if UNITY_5_3_OR_NEWER
 using System.Linq;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -14,15 +15,24 @@ namespace ProjectAegis.Unity.Runtime
         private const string RootName = "message-log-root";
         private const string ListName = "message-list";
 
+        /// <summary>Estimated single-line row height (px) at 100% scale — used only to seed
+        /// fixed-height virtualization; not a pixel-perfect layout guarantee (req 20 AC-10).</summary>
+        private const float FixedRowHeightPx = 16f;
+
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;
         [SerializeField] private bool showPanel = true;
         [SerializeField] private int maxRows = 12;
 
+        /// <summary>req 20 AC-1 / F5 — text scale tier (accessibility-requirements.md §3). Default
+        /// 100% until a settings UI ships.</summary>
+        [SerializeField] private C2TextScalePercent scalePercent = C2AccessibilitySettings.DefaultScalePercent;
+
         private UIDocument _document = null!;
         private ListView? _messageList;
         private MessageLogPanelState _panelState = new(Array.Empty<MessageLogDisplayRow>());
+        private readonly PanelRefreshGate<MessageLogDisplayRow> _refreshGate = new();
         private bool _wired;
 
         private void Reset()
@@ -104,6 +114,12 @@ namespace ProjectAegis.Unity.Runtime
                     AddCategoryClass(label, row.Category);
                 };
                 _messageList.selectionType = SelectionType.None;
+
+                // req 20 AC-10 / NFR virtualization — explicit fixed-height virtualization so
+                // Unity only realizes viewport (+ pool) elements at 5k+ rows instead of the whole
+                // list (see also the itemsSource/Rebuild dirty-gate in Refresh()).
+                _messageList.virtualizationMethod = CollectionVirtualizationMethod.FixedHeight;
+                _messageList.fixedItemHeight = FixedRowHeightPx;
             }
 
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
@@ -111,7 +127,24 @@ namespace ProjectAegis.Unity.Runtime
                 panel.styleSheets.Add(panelStyles);
             }
 
+            ApplyAccessibilityScale(panel);
+
             panel.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        /// <summary>req 20 AC-1 / F5 — toggles the AegisTokens.uss scale-tier class matching
+        /// <see cref="scalePercent"/> onto the panel root; font-size is inherited from there down
+        /// to every ".message-log-row" Label (accessibility-requirements.md §3).</summary>
+        private void ApplyAccessibilityScale(VisualElement panel)
+        {
+            panel.RemoveFromClassList("aegis-scale-125");
+            panel.RemoveFromClassList("aegis-scale-150");
+
+            var scaleClass = C2AccessibilitySettings.ScaleUssClass(scalePercent);
+            if (scaleClass != null)
+            {
+                panel.AddToClassList(scaleClass);
+            }
         }
 
         private void Refresh()
@@ -127,9 +160,21 @@ namespace ProjectAegis.Unity.Runtime
                 lines = lines.Skip(lines.Count - maxRows).ToArray();
             }
 
-            _panelState = MessageLogPanelBinder.Bind(lines);
+            var candidate = MessageLogPanelBinder.Bind(lines);
+
+            // req 20 AC-10 — skip itemsSource reassignment + Rebuild() when the bound snapshot is
+            // structurally unchanged from the last frame that was actually pushed to the
+            // ListView. Rebuild() tears down pooled/visible elements; doing that unconditionally
+            // every LateUpdate defeats ListView's recycling virtualization at scale.
+            if (!_refreshGate.IsDirty(candidate.Rows))
+            {
+                return;
+            }
+
+            _panelState = candidate;
             _messageList.itemsSource = _panelState.Rows.ToList();
             _messageList.Rebuild();
+            _refreshGate.MarkApplied(_panelState.Rows);
         }
 
         private static void AddCategoryClass(VisualElement element, string category)
