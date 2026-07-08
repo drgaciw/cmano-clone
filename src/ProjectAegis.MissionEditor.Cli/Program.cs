@@ -60,6 +60,12 @@ switch (command)
         return RunScenarioUndo(args.Skip(1).ToArray());
     case "mission_delete":
         return RunMissionDelete(args.Skip(1).ToArray());
+    case "mission_list":
+        return RunMissionList(args.Skip(1).ToArray());
+    case "mission_clone":
+        return RunMissionClone(args.Skip(1).ToArray());
+    case "mission_add_from_template":
+        return RunMissionAddFromTemplate(args.Skip(1).ToArray());
     case "mission_plan_suggest":
         return RunMissionPlanSuggest(args.Skip(1).ToArray());
     case "scenario_comms_status":
@@ -646,6 +652,59 @@ static int RunMissionDelete(string[] args)
     return MissionDeleteCommand.Run(path, editVersion, missionId, Console.Out);
 }
 
+static int RunMissionList(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    if (string.IsNullOrWhiteSpace(path))
+    {
+        Console.Error.WriteLine("mission_list requires --path [--type T] [--side S] [--status Assigned|Unassigned]");
+        return 1;
+    }
+
+    return MissionListCommand.Run(
+        path,
+        CliArgParser.GetFlag(args, "--type"),
+        CliArgParser.GetFlag(args, "--side"),
+        CliArgParser.GetFlag(args, "--status"),
+        Console.Out);
+}
+
+static int RunMissionClone(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var sourceId = CliArgParser.GetFlag(args, "--source");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(sourceId) ||
+        string.IsNullOrWhiteSpace(missionId) ||
+        editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_clone requires --path --edit-version --source --id");
+        return 1;
+    }
+
+    return MissionCloneCommand.Run(path, editVersion, sourceId, missionId, Console.Out);
+}
+
+static int RunMissionAddFromTemplate(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var templateId = CliArgParser.GetFlag(args, "--template");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(templateId) ||
+        string.IsNullOrWhiteSpace(missionId) ||
+        editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_add_from_template requires --path --edit-version --template --id");
+        return 1;
+    }
+
+    return MissionAddFromTemplateCommand.Run(path, editVersion, templateId, missionId, Console.Out);
+}
+
 static void PrintUsage()
 {
     Console.WriteLine("Project Aegis — Mission Editor headless MCP tools");
@@ -666,6 +725,9 @@ static void PrintUsage()
 
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_undo --path <scenario.json> --edit-version N");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_delete --path <scenario.json> --edit-version N --id <id>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_list --path <scenario.json> [--type T] [--side S] [--status Assigned|Unassigned]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_clone --path <scenario.json> --edit-version N --source SRC --id <id>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_from_template --path <scenario.json> --edit-version N --template tpl-patrol-empty --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_validate --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_publish --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export --path <scenario.json>   // S83-01 polished (cites roadmap-execute-plan-07042026.md + boundary-2026-07-04.md + qa units)");

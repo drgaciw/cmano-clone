@@ -525,6 +525,96 @@
       }
     },
     {
+      "name": "mission_list",
+      "description": "Read-only Mission Board list with optional type/side/status filters (ME-W1 / AME-3.4).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "mission_list",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--type",
+        "${type}",
+        "--side",
+        "${side}",
+        "--status",
+        "${status}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "type": { "type": "string", "description": "Optional type filter: Patrol|Strike|Ferry|Support" },
+          "side": { "type": "string", "description": "Optional side id filter" },
+          "status": { "type": "string", "description": "Optional status filter: Assigned|Unassigned" }
+        }
+      }
+    },
+    {
+      "name": "mission_clone",
+      "description": "Deep-copy a mission under a new id (Mission Board clone).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "mission_clone",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--source",
+        "${sourceMissionId}",
+        "--id",
+        "${missionId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "sourceMissionId", "missionId"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "sourceMissionId": { "type": "string" },
+          "missionId": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "mission_add_from_template",
+      "description": "Create a mission from a built-in template (tpl-patrol-empty, tpl-strike-empty, tpl-ferry-empty, tpl-support-tanker).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "mission_add_from_template",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--template",
+        "${templateId}",
+        "--id",
+        "${missionId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "templateId", "missionId"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "templateId": { "type": "string" },
+          "missionId": { "type": "string" }
+        }
+      }
+    },
+    {
       "name": "mission_plan_suggest",
       "description": "Heuristic intent-to-mission suggestions (stub; no LLM in blocking path per doc 11). S86-01 verb polish.",
       "command": "pwsh",
