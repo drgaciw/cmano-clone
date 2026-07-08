@@ -78,6 +78,7 @@ public static class MapPanelBinder
             }
 
             var display = ResolveSymbolDisplay(symbol, atlas);
+            var domainModifier = symbol.Domain.HasValue ? App6DomainModifier.Resolve(symbol.Domain.Value) : null;
             rows.Add(new MapSymbolDisplayRow(
                 symbol.SymbolId,
                 display.Glyph,
@@ -88,7 +89,9 @@ public static class MapPanelBinder
                 selected,
                 false,
                 display.AtlasFrameClass,
-                display.UsesAtlasFrame));
+                display.UsesAtlasFrame,
+                domainModifier?.ModifierClass,
+                domainModifier?.UnicodeIcon));
         }
 
         return new MapPanelState(theaterLabel, rows);

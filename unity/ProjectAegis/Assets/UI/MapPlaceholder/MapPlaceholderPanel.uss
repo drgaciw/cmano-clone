@@ -177,3 +177,33 @@
     background-position-x: -96px;
     background-position-y: 0px;
 }
+
+/* T4 Symbology (req 20 rev 2 §Map and Symbology): APP-6(D) domain (battle-dimension) modifier badges.
+   Secondary cue layered on the affiliation frame above -- never a substitute for shape (a11y §5). */
+.map-app6-domain--air,
+.map-app6-domain--surface,
+.map-app6-domain--subsurface,
+.map-app6-domain--land,
+.map-app6-domain--mine,
+.map-app6-domain--facility {
+    width: 6px;
+    height: 6px;
+    margin-left: -3px;
+    margin-top: -3px;
+    border-width: 1px;
+    border-color: rgb(16, 24, 36);
+}
+
+/* T4 Symbology: label declutter states (leader lines before hiding). */
+.map-symbol__label--hidden {
+    display: none;
+}
+
+.map-symbol__label--leader-line {
+    -unity-font-style: italic;
+    opacity: 0.85;
+    margin-left: 6px;
+    border-left-width: 1px;
+    border-left-color: rgb(140, 155, 170);
+    padding-left: 2px;
+}
