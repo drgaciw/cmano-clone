@@ -1,5 +1,8 @@
 @import url("../AegisTokens.uss");
 
+/* T3 (req 20 §Alerting and Interruption, TR-c2-007): imported for the .toast--critical/-notable/-routine
+ * severity border-cue classes applied additively in MessageLogPanelHost.AddCategoryClass. */
+
 .message-log-panel {
     position: absolute;
     right: 8px;

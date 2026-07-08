@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="toast-stack-root" class="toast-stack-root">
+        <ui:VisualElement name="toast-list" class="toast-stack-list" />
+        <ui:VisualElement name="toast-overflow-chip" class="toast-overflow-chip" style="display: none;">
+            <ui:Label name="toast-overflow-label" text="+0 more" class="toast-overflow-label" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

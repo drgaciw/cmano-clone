@@ -35,6 +35,27 @@ namespace ProjectAegis.Unity.Runtime
         private readonly PanelRefreshGate<MessageLogDisplayRow> _refreshGate = new();
         private bool _wired;
 
+        // --- T3 additions (req 20 §Message log filters, TR-c2-008): per-category log filter -----------
+        // Pure model in ProjectAegis.Delegation.Projection.MessageLogFilterModel (unit-tested headlessly
+        // in MessageLogFilterModelTests.cs). State persists for the session lifetime (in-memory, owned by
+        // this host — not serialized to disk). T2/T5: this is additive to Refresh()/AddCategoryClass()
+        // below; it does not change MessageLogPanelBinder or MessageLogProjection output shape.
+        private readonly MessageLogFilterModel _filter = new();
+
+        /// <summary>Categories currently hidden from the log (req 20 §Message log filters).</summary>
+        public IReadOnlyCollection<string> DisabledCategories => _filter.DisabledCategories;
+
+        /// <summary>Enables or disables a single message-log category for this session.</summary>
+        public void SetCategoryFilterEnabled(string category, bool enabled) =>
+            _filter.SetEnabled(category, enabled);
+
+        /// <summary>Flips a category's enabled state and returns the new state.</summary>
+        public bool ToggleCategoryFilter(string category) => _filter.Toggle(category);
+
+        /// <summary>Re-enables every category (clears all filters).</summary>
+        public void ResetCategoryFilters() => _filter.Reset();
+        // --- end T3 filter additions ---------------------------------------------------------------
+
         private void Reset()
         {
             if (bridgeHost == null)
@@ -155,7 +176,9 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            var lines = bridgeHost.LastMessageLog;
+            // T3: apply the per-category filter before trimming to maxRows, so a filtered-out category
+            // never displaces a visible row (filter first, then trim to the most recent N matches).
+            var lines = _filter.Apply(bridgeHost.LastMessageLog);
             if (maxRows > 0 && lines.Count > maxRows)
             {
                 lines = lines.Skip(lines.Count - maxRows).ToArray();
@@ -203,7 +226,20 @@ namespace ProjectAegis.Unity.Runtime
                     element.AddToClassList("message-log-row--mission");
                     break;
             }
+
+            // T3 addition (req 20 §Alerting and Interruption, TR-c2-007): severity border cue from the
+            // Phase 0 AlertSeverityMap contract, additive to the category classes above. Colour is not
+            // the sole cue here — the row's existing "[CATEGORY] text" text label (see FormatLine in
+            // MessageLogPanelBinder) already pairs every row with its category name (a11y §5).
+            element.AddToClassList(SeverityRowClass(AlertSeverityMap.ForCategory(category)));
         }
+
+        private static string SeverityRowClass(AlertSeverity severity) => severity switch
+        {
+            AlertSeverity.Critical => "toast--critical",
+            AlertSeverity.Notable => "toast--notable",
+            _ => "toast--routine",
+        };
 
         /// <summary>T2 (req 20 §Order lifecycle): tint PLAYER_ORDER rows with the Phase 0
         /// .order-state--* USS class + icon/text tooltip (AA — colour is a secondary cue only).</summary>
