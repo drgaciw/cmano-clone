@@ -15,10 +15,10 @@ The repository contains requirements documentation and an initial **agent delega
 - **Delegation framework:** `src/ProjectAegis.Delegation/` — engine-agnostic agent delegation core (tick → decision → autonomy/ROE gate → order log) ([README](src/ProjectAegis.Delegation/README.md))
 - **Simulation core:** `src/ProjectAegis.Sim/` — deterministic tick pipeline, sensors, engagement, policy ([README](src/ProjectAegis.Sim/README.md))
 - **Data / catalog layer:** `src/ProjectAegis.Data/` — SQLite catalog, staged write gate, immutable snapshots, scenario↔DB binding ([README](src/ProjectAegis.Data/README.md))
-- **Unity bridge:** `src/ProjectAegis.Delegation.UnityAdapter/` (`ISimWorldSnapshot` in, `IOrderSink` out)
+- **Unity bridge:** `src/ProjectAegis.Delegation.UnityAdapter/` (`ISimWorldSnapshot` in, `IOrderSink` out) ([README](src/ProjectAegis.Delegation.UnityAdapter/README.md))
 - **Unity wiring:** `unity/ProjectAegis/` (DLL copy + optional `DelegationBridgeHost`)
-- **Console demo:** `src/ProjectAegis.Delegation.Demo/`
-- **Mission Editor CLI / MCP tools:** `src/ProjectAegis.MissionEditor.Cli/` — headless scenario authoring, validation, and catalog verbs ([reference](docs/engineering/mission-editor-cli.md))
+- **Console demo:** `src/ProjectAegis.Delegation.Demo/` ([README](src/ProjectAegis.Delegation.Demo/README.md))
+- **Mission Editor CLI / MCP tools:** `src/ProjectAegis.MissionEditor.Cli/` — headless scenario authoring, validation, and catalog verbs ([README](src/ProjectAegis.MissionEditor.Cli/README.md), [full reference](docs/engineering/mission-editor-cli.md))
 
 **CI:** Buildkite primary pipeline — [buildkite-ci.md](docs/engineering/buildkite-ci.md)
 

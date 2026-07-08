@@ -238,6 +238,7 @@ is validated in
 
 | Topic | Doc |
 |-------|-----|
+| Assembly shape & conventions (co-located) | [`src/ProjectAegis.MissionEditor.Cli/README.md`](../../src/ProjectAegis.MissionEditor.Cli/README.md) |
 | Quickstart (validate / brief / simulate / plan) | [`tools/mission-editor/README.md`](../../tools/mission-editor/README.md) |
 | Validation engine design | [`adr-008-mission-editor-validation-engine.md`](../architecture/adr-008-mission-editor-validation-engine.md) |
 | Headless-first command-driven UI | [`adr-010-headless-first-command-driven-ui.md`](../architecture/adr-010-headless-first-command-driven-ui.md) |
