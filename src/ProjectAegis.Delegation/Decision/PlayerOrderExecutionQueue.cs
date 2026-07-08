@@ -34,5 +34,29 @@ public sealed class PlayerOrderExecutionQueue
         return ready;
     }
 
+    /// <summary>
+    /// Remove the oldest still-pending order for <paramref name="target"/> before it drains
+    /// (req 20 rev 2 §Order lifecycle cancel/replan). Returns false when the target has no pending order.
+    /// Additive — <see cref="DrainReady"/> and <see cref="Enqueue"/> are unchanged, so replays that never
+    /// cancel behave identically.
+    /// </summary>
+    public bool TryRemove(TargetId target, out Order removed, out ulong executeSimTick)
+    {
+        for (var i = 0; i < _pending.Count; i++)
+        {
+            if (_pending[i].Order.Target.Equals(target))
+            {
+                removed = _pending[i].Order;
+                executeSimTick = _pending[i].ExecuteSimTick;
+                _pending.RemoveAt(i);
+                return true;
+            }
+        }
+
+        removed = default!;
+        executeSimTick = 0;
+        return false;
+    }
+
     public int PendingCount => _pending.Count;
 }

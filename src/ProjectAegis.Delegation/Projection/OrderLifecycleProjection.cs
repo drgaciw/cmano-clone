@@ -27,12 +27,14 @@ using ProjectAegis.Delegation.Decision;
 /// <see cref="OrderLifecycleState.Aborted"/>.
 /// </para>
 /// <para>
-/// Known MVP gaps (Track T2 report, req 20 AC-8): (1) non-Engage order kinds (Move, Hold,
-/// SetEwPosture, ReturnToBase) have no "underway"/"outcome" log evidence in the current schema, so
-/// they remain Accepted/Queued unless denied. (2) There is no <c>PlayerOrderCancelled</c> /
-/// <see cref="OrderLogEntryKind"/> today, so a player-initiated cancel of a queued order cannot reach
-/// <see cref="OrderLifecycleState.Aborted"/> via the log — that requires a new bridge affordance
-/// (see Track T2 report).
+/// A player cancel of a queued order (<see cref="OrderLogEntryKind.PlayerOrderCancelled"/>, Phase 2b via
+/// <c>DelegationBridge.TryCancelHumanOrder</c>) maps to <see cref="OrderLifecycleState.Aborted"/>, matched
+/// FIFO to the oldest still-open order for the unit with the same <see cref="OrderKind"/>.
+/// </para>
+/// <para>
+/// Known MVP gap (Track T2 report, req 20 AC-8): non-Engage order kinds (Move, Hold, SetEwPosture,
+/// ReturnToBase) have no "underway"/"outcome" log evidence in the current schema, so they remain
+/// Accepted/Queued unless denied or cancelled.
 /// </para>
 /// </remarks>
 public static class OrderLifecycleProjection
@@ -110,6 +112,20 @@ public static class OrderLifecycleProjection
                         states[key] = OrderLifecycleState.Completed;
                         RemoveOpen(openByUnit, key);
                         keyByEngagementId.Remove(outcome.EngagementId);
+                    }
+
+                    break;
+                }
+
+                case OrderLogEntryKind.PlayerOrderCancelled when entry.Payload is PlayerOrderCancelledRecord cancelled:
+                {
+                    // Phase 2b (req 20 AC-8): a player cancel of a queued order → Aborted. Matched FIFO to
+                    // the oldest still-open order for the unit with the same OrderKind.
+                    if (TryTakeOldestOpen(
+                            openByUnit, kindByKey, cancelled.UnitId.Value, cancelled.Kind,
+                            remove: true, out var key))
+                    {
+                        states[key] = OrderLifecycleState.Aborted;
                     }
 
                     break;
