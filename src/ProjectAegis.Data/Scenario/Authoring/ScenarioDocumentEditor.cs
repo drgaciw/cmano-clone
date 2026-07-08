@@ -207,6 +207,56 @@ public sealed class ScenarioDocumentEditor
         });
     }
 
+    /// <summary>Deep-copies a mission under a new id (Mission Board clone). Does not CommitMutation.</summary>
+    public void CloneMission(string sourceMissionId, string newMissionId)
+    {
+        if (string.IsNullOrWhiteSpace(newMissionId))
+        {
+            throw new InvalidOperationException("New mission id is required.");
+        }
+
+        if (Missions.Any(m => string.Equals(m.Id, newMissionId, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new InvalidOperationException($"Mission id '{newMissionId}' already exists.");
+        }
+
+        var src = Missions.FirstOrDefault(m =>
+            string.Equals(m.Id, sourceMissionId, StringComparison.OrdinalIgnoreCase));
+        if (src is null)
+        {
+            throw new InvalidOperationException($"Mission id '{sourceMissionId}' was not found.");
+        }
+
+        Missions.Add(new ScenarioMissionDto
+        {
+            Id = newMissionId,
+            Type = src.Type,
+            AssignedUnitIds = src.AssignedUnitIds.ToArray(),
+            TargetIds = src.TargetIds.ToArray(),
+            FerryDestinationBaseId = src.FerryDestinationBaseId,
+            PatrolZone = src.PatrolZone
+                .Select(w => new ScenarioWaypointDto { Lat = w.Lat, Lon = w.Lon })
+                .ToArray(),
+            StationGeometry = src.StationGeometry?
+                .Select(w => new ScenarioWaypointDto { Lat = w.Lat, Lon = w.Lon })
+                .ToArray(),
+            SupportRole = src.SupportRole,
+            RoeOverride = src.RoeOverride,
+            EmconOverride = src.EmconOverride,
+        });
+    }
+
+    /// <summary>Adds a mission from a built-in template. Does not CommitMutation.</summary>
+    public void AddMissionFromTemplate(string templateId, string newMissionId)
+    {
+        if (Missions.Any(m => string.Equals(m.Id, newMissionId, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new InvalidOperationException($"Mission id '{newMissionId}' already exists.");
+        }
+
+        Missions.Add(MissionTemplateCatalog.Materialize(templateId, newMissionId));
+    }
+
     /// <summary>Captures the current document on the persisted undo stack before a committed mutation.</summary>
     /// <remarks>
     /// Callers that can still reject the *following* mutation (e.g. duplicate mission id on add,
