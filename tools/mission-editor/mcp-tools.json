@@ -63,6 +63,150 @@
       }
     },
     {
+      "name": "orbat_upsert_unit",
+      "description": "Place or replace an ORBAT unit (map place / inspector apply).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "orbat_upsert_unit",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${unitId}",
+        "--side",
+        "${sideId}",
+        "--platform",
+        "${platformId}",
+        "--lat",
+        "${lat}",
+        "--lon",
+        "${lon}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "unitId", "sideId", "platformId", "lat", "lon"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "unitId": { "type": "string" },
+          "sideId": { "type": "string" },
+          "platformId": { "type": "string" },
+          "lat": { "type": "number" },
+          "lon": { "type": "number" }
+        }
+      }
+    },
+    {
+      "name": "orbat_move_unit",
+      "description": "Move an existing ORBAT unit to a new lat/lon (preserves non-position fields).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "orbat_move_unit",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${unitId}",
+        "--lat",
+        "${lat}",
+        "--lon",
+        "${lon}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "unitId", "lat", "lon"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "unitId": { "type": "string" },
+          "lat": { "type": "number" },
+          "lon": { "type": "number" }
+        }
+      }
+    },
+    {
+      "name": "orbat_clone_unit",
+      "description": "Clone an existing ORBAT unit under a new id at the given position.",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "orbat_clone_unit",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--source",
+        "${sourceUnitId}",
+        "--id",
+        "${unitId}",
+        "--lat",
+        "${lat}",
+        "--lon",
+        "${lon}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "sourceUnitId", "unitId", "lat", "lon"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "sourceUnitId": { "type": "string" },
+          "unitId": { "type": "string" },
+          "lat": { "type": "number" },
+          "lon": { "type": "number" }
+        }
+      }
+    },
+    {
+      "name": "reference_point_upsert",
+      "description": "Insert or replace a reference point (point/line/polygon/circle) by id.",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "reference_point_upsert",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${referencePointId}",
+        "--type",
+        "${type}",
+        "--latlon",
+        "${latlon}",
+        "--radius-nm",
+        "${radiusNm}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "referencePointId", "type", "latlon"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "referencePointId": { "type": "string" },
+          "type": { "type": "string", "enum": ["point", "line", "polygon", "circle"] },
+          "latlon": { "type": "string", "description": "lat,lon vertex (repeatable via host)" },
+          "radiusNm": { "type": "number", "description": "Optional radius in nautical miles (circle)" }
+        }
+      }
+    },
+    {
       "name": "mission_add_strike",
       "command": "pwsh",
       "args": [

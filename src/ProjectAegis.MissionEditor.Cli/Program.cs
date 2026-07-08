@@ -48,6 +48,14 @@ switch (command)
         return RunMissionUpdateFerry(args.Skip(1).ToArray());
     case "mission_update_support":
         return RunMissionUpdateSupport(args.Skip(1).ToArray());
+    case "orbat_upsert_unit":
+        return RunOrbatUpsertUnit(args.Skip(1).ToArray());
+    case "orbat_move_unit":
+        return RunOrbatMoveUnit(args.Skip(1).ToArray());
+    case "orbat_clone_unit":
+        return RunOrbatCloneUnit(args.Skip(1).ToArray());
+    case "reference_point_upsert":
+        return RunReferencePointUpsert(args.Skip(1).ToArray());
     case "scenario_undo":
         return RunScenarioUndo(args.Skip(1).ToArray());
     case "mission_delete":
@@ -288,6 +296,121 @@ static int RunMissionAddPatrol(string[] args)
     catch (FormatException ex)
     {
         return McpToolResult.WriteError(Console.Out, "INVALID_ZONE", ex.Message);
+    }
+}
+
+static int RunOrbatUpsertUnit(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var unitId = CliArgParser.GetFlag(args, "--id");
+    var sideId = CliArgParser.GetFlag(args, "--side");
+    var platformId = CliArgParser.GetFlag(args, "--platform");
+    var latRaw = CliArgParser.GetFlag(args, "--lat");
+    var lonRaw = CliArgParser.GetFlag(args, "--lon");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(unitId) ||
+        string.IsNullOrWhiteSpace(sideId) ||
+        string.IsNullOrWhiteSpace(platformId) ||
+        string.IsNullOrWhiteSpace(latRaw) ||
+        string.IsNullOrWhiteSpace(lonRaw) ||
+        editVersion < 0 ||
+        !double.TryParse(latRaw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lat) ||
+        !double.TryParse(lonRaw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lon))
+    {
+        Console.Error.WriteLine("orbat_upsert_unit requires --path --edit-version --id --side --platform --lat --lon");
+        return 1;
+    }
+
+    return OrbatUpsertUnitCommand.Run(path, editVersion, unitId, sideId, platformId, lat, lon, Console.Out);
+}
+
+static int RunOrbatMoveUnit(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var unitId = CliArgParser.GetFlag(args, "--id");
+    var latRaw = CliArgParser.GetFlag(args, "--lat");
+    var lonRaw = CliArgParser.GetFlag(args, "--lon");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(unitId) ||
+        string.IsNullOrWhiteSpace(latRaw) ||
+        string.IsNullOrWhiteSpace(lonRaw) ||
+        editVersion < 0 ||
+        !double.TryParse(latRaw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lat) ||
+        !double.TryParse(lonRaw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lon))
+    {
+        Console.Error.WriteLine("orbat_move_unit requires --path --edit-version --id --lat --lon");
+        return 1;
+    }
+
+    return OrbatMoveUnitCommand.Run(path, editVersion, unitId, lat, lon, Console.Out);
+}
+
+static int RunOrbatCloneUnit(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var sourceId = CliArgParser.GetFlag(args, "--source");
+    var unitId = CliArgParser.GetFlag(args, "--id");
+    var latRaw = CliArgParser.GetFlag(args, "--lat");
+    var lonRaw = CliArgParser.GetFlag(args, "--lon");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(sourceId) ||
+        string.IsNullOrWhiteSpace(unitId) ||
+        string.IsNullOrWhiteSpace(latRaw) ||
+        string.IsNullOrWhiteSpace(lonRaw) ||
+        editVersion < 0 ||
+        !double.TryParse(latRaw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lat) ||
+        !double.TryParse(lonRaw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lon))
+    {
+        Console.Error.WriteLine("orbat_clone_unit requires --path --edit-version --source --id --lat --lon");
+        return 1;
+    }
+
+    return OrbatCloneUnitCommand.Run(path, editVersion, sourceId, unitId, lat, lon, Console.Out);
+}
+
+static int RunReferencePointUpsert(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var id = CliArgParser.GetFlag(args, "--id");
+    var type = CliArgParser.GetFlag(args, "--type");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(id) ||
+        string.IsNullOrWhiteSpace(type) ||
+        editVersion < 0)
+    {
+        Console.Error.WriteLine("reference_point_upsert requires --path --edit-version --id --type [--latlon lat,lon]+ [--radius-nm N]");
+        return 1;
+    }
+
+    double? radiusNm = null;
+    var radiusRaw = CliArgParser.GetFlag(args, "--radius-nm");
+    if (!string.IsNullOrWhiteSpace(radiusRaw))
+    {
+        if (!double.TryParse(
+                radiusRaw,
+                System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var parsedRadius))
+        {
+            Console.Error.WriteLine("reference_point_upsert --radius-nm must be a number");
+            return 1;
+        }
+
+        radiusNm = parsedRadius;
+    }
+
+    try
+    {
+        var geometry = CliArgParser.ParseWaypoints(CliArgParser.GetRepeated(args, "--latlon"));
+        return ReferencePointUpsertCommand.Run(path, editVersion, id, type, geometry, radiusNm, Console.Out);
+    }
+    catch (FormatException ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "INVALID_GEOMETRY", ex.Message);
     }
 }
 
@@ -536,6 +659,10 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_support --path <scenario.json> --edit-version N --id <id> --role Tanker|AEW|EW [--unit U]+ [--wp lat,lon]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_ferry --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--destination D]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_support --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--role Tanker|AEW|EW] [--wp lat,lon]+");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- orbat_upsert_unit --path <scenario.json> --edit-version N --id <id> --side S --platform P --lat LAT --lon LON");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- orbat_move_unit --path <scenario.json> --edit-version N --id <id> --lat LAT --lon LON");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- orbat_clone_unit --path <scenario.json> --edit-version N --source SRC --id <id> --lat LAT --lon LON");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- reference_point_upsert --path <scenario.json> --edit-version N --id <id> --type point|line|polygon|circle [--latlon lat,lon]+ [--radius-nm N]");
 
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_undo --path <scenario.json> --edit-version N");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_delete --path <scenario.json> --edit-version N --id <id>");
