@@ -124,9 +124,11 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 
 **S56 gate: 21/21 MVP-done / documented Partial+.** Evidence @ S56: [implementation-tracker-2026-06-04.md](implementation-tracker-2026-06-04.md). **Post-S56 note** is additive only.
 
+**Program note (corpus maturity W0–W4, 2026-07-08):** Waves 0–4 corpus honesty complete; **no MVP regrade**. Req **10b** remains **Phase N / not on main**. Forward engineering continues on the scenario editor train (req 11).
+
 | Req | Title | MVP status (S56) | Post-S56 note (through 2026-07-04) | Next stack task |
 |-----|-------|------------------|--------------------------------------|-----------------|
-| 01 | Project Overview | **MVP-done (S56)** | S72 commercial launch prep complete; **doc charter re-baseline 2026-07-08** (hub FR-19/index/invariants — corpus maturity W0; MVP grade unchanged) | (complete @ S56); corpus W1+ pending |
+| 01 | Project Overview | **MVP-done (S56)** | S72 commercial launch prep complete; **doc charter re-baseline 2026-07-08** (hub FR-19/index/invariants — corpus maturity W0; MVP grade unchanged) | (complete @ S56); corpus maturity W0–W4 complete 2026-07-08; editor train (req 11) still active |
 | 02 | Core Gameplay Loop | **Partial** | S74/S76 v3 policies + contact-triggered ROE; **doc honesty Wave 1 2026-07-08** (mapping; MVP grade unchanged) | Begin Execution UX polish |
 | 03 | Simulation Modes | **Partial+** | S76 mission-event policies on v3 fixtures; **doc honesty Wave 1 2026-07-08** | Mode UI on C2 top bar |
 | 04 | Agent Delegation | **Partial+** | **doc honesty Wave 1 2026-07-08** (expanded mapping) | C2 delegation badges |

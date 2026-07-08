@@ -1,6 +1,6 @@
 # Requirements Traceability Matrix (RTM)
 
-> **Last updated:** 2026-07-08 (Wave 0 hub note; full baseline refresh at corpus W4)
+> **Last updated:** 2026-07-08 (corpus W4 complete)
 > **Scope:** Requirements docs **01–21** on disk (hub + Template A 01–12 + MVP slice 13–20 + **21 Platform Editor**); implementation grades in Game-Requirements tracker  
 > **Coverage:** Headless chain GDD → ADR → code → test (see [architecture-review-2026-06-02.md](architecture-review-2026-06-02.md))  
 > **Gates (current):** solution tests ≥1232; ReplayGolden 6/6; PlayModeSmoke 18/18; hash `17144800277401907079` — supersedes historical 403/7 baselines in older closeout notes below
@@ -65,6 +65,17 @@ Shared symbols across **policy-engage-unification-slice**, **wave5-engage-cyber-
 | TR-editor-001 | agentic-mission-editor | ADR-006 | MCP/editor (planned) | PARTIAL |
 | TR-sensor-002 (catalog) | sensor-detection-ew | ADR-006 | `platform-db-basepd-slice` / catalog reader tests | PARTIAL |
 
+## Platform editor (req 21 / FR-19)
+
+Hub **[FR-19](../../Game-Requirements/requirements/01-Project-Overview.md)** — platform/catalog editor Excel write-gate round-trip. Spec: [21-Platform-Editor.md](../../Game-Requirements/requirements/21-Platform-Editor.md); decision: [ADR-011](adr-011-platform-editor-excel-roundtrip.md).
+
+| Area | Detail |
+|------|--------|
+| ADR | [ADR-011](adr-011-platform-editor-excel-roundtrip.md) (Accepted) |
+| Symbols | `IPlatformWorkbookIo`, `PlatformWorkbookExporter` / `PlatformWorkbookImporter` / `PlatformWorkbookDiff`, `CatalogWriteGate` platform `Propose*` consumer (**extend-only**) |
+| Tests | `PlatformWorkbook*` / ClosedXml I/O / `CatalogWriteGatePlatformApprove*`; Wave 3 honesty docs optional |
+| Status | **PARTIAL** |
+
 ## Requirements maturity (docs 01–12 + 21 note) — Sprint 11–15 + corpus W0
 
 | Doc | Title | Maturity | Locked spec / notes | GDD |
@@ -81,11 +92,11 @@ Shared symbols across **policy-engage-unification-slice**, **wave5-engage-cyber-
 | 10 | Speculative Systems | **FULL** (pre-existing) | — | PARTIAL |
 | 11 | Agentic Mission Editor | **FULL** (pre-existing) | — | PARTIAL |
 | 12 | Terms Glossary | **FULL** | Wave 5 + slice 13–20 index | N/A |
-| 21 | Platform Editor | **PARTIAL** (doc Draft; impl Partial+) | [ADR-011](adr-011-platform-editor-excel-roundtrip.md); hub FR-19 as of 2026-07-08 | — |
+| 21 | Platform Editor | **PARTIAL** (doc Draft; impl Partial+) | [ADR-011](adr-011-platform-editor-excel-roundtrip.md); hub FR-19 as of 2026-07-08; Wave 3 doc honesty 2026-07-08 | — |
 
 **Maturity** = requirement document completeness (Template A/B). **GDD** = separate game design doc under `design/gdd/` per Agentic-Development-Plan follow-on.
 
-> **Sprint 11–15 program closeout (2026-06-08):** Requirements maturity track + Wave 5 implementation **COMPLETE**. Baseline: `dotnet test ProjectAegis.sln` → **403/403 PASS**; PlayMode smoke **7/7**. Tracker rows 14/16/19/20 at **Partial+** with automated AC. Evidence: [post-mvp-requirements-program.md](../../production/milestones/post-mvp-requirements-program.md), [smoke-2026-06-08.md](../../production/qa/smoke-2026-06-08.md).
+> **Sprint 11–15 program closeout (2026-06-08) — historical only:** Requirements maturity track + Wave 5 implementation closed at that date with baseline `dotnet test ProjectAegis.sln` → **403/403 PASS** and PlayMode smoke **7/7**. Those floors are **not current**. Use the **Gates (current)** line in this file’s header (≥1232 / ReplayGolden 6/6 / PlayModeSmoke 18/18 / hash `17144800277401907079`). Tracker rows 14/16/19/20 were Partial+ with automated AC at closeout. Evidence: [post-mvp-requirements-program.md](../../production/milestones/post-mvp-requirements-program.md), [smoke-2026-06-08.md](../../production/qa/smoke-2026-06-08.md).
 
 ## Uncovered (post-MVP)
 

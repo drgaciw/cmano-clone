@@ -1,12 +1,15 @@
 # 11 - Agentic Mission & Scenario Editor
 
-**Last Updated:** 2026-07-01
+**Last Updated:** 2026-07-08
 **Status:** Revised — implementation-aligned (was Draft; realigned to approved GDD + shipped headless stack)
+**FR reverse-ref:** [FR-09](01-Project-Overview.md) — Scenario/mission editor
 **Author basis:** Approved GDD [`design/gdd/agentic-mission-editor.md`](../../design/gdd/agentic-mission-editor.md) (terminology, determinism contract, AC-1…AC-12); codebase review of `ProjectAegis.Data/Scenario/Authoring` + `ProjectAegis.Data/Validation` + `ProjectAegis.MissionEditor.Cli`; [scenario-editor research](../../docs/research/scenario-editor-research.md); [CMO Official Manual](https://www.matrixgames.com/amazon/PDF/CMO/CMO_manual_EBOOK.pdf) (Mission Editor §3.3.17/§7.1, Scenario Editor §4.1.5, ScenEdit §5, clean-room observable behavior only); requirements 01–10, 13, 14, 17.
-**Related:** [06-Database-Intelligence.md](06-Database-Intelligence.md) · [21-Platform-Editor.md](21-Platform-Editor.md) · [04-Agent-Delegation.md](04-Agent-Delegation.md) · [07-Agentic-Infrastructure.md](07-Agentic-Infrastructure.md) · [08-Agentic-Architecture.md](08-Agentic-Architecture.md) · [13-Doctrine-ROE-EMCON-WRA.md](13-Doctrine-ROE-EMCON-WRA.md) · [17-Replay-And-Order-Log.md](17-Replay-And-Order-Log.md)
+**Related:** [06-Database-Intelligence.md](06-Database-Intelligence.md) · [21-Platform-Editor.md](21-Platform-Editor.md) · [04-Agent-Delegation.md](04-Agent-Delegation.md) · [07-Agentic-Infrastructure.md](07-Agentic-Infrastructure.md) · [08-Agentic-Architecture.md](08-Agentic-Architecture.md) · [13-Doctrine-ROE-EMCON-WRA.md](13-Doctrine-ROE-EMCON-WRA.md) · [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md)
 **Decision record:** [ADR-008 Mission-Editor Validation Engine (Accepted)](../../docs/architecture/adr-008-mission-editor-validation-engine.md) · [ADR-013 CMO Scenario Import Policy (Proposed)](../../docs/architecture/adr-013-cmo-scenario-import-policy.md) · [ADR-014 Lua Compatibility Scope (Accepted)](../../docs/architecture/adr-014-lua-compatibility-scope.md) · [ADR-015 Agent-Authored Scenario Transparency (Proposed)](../../docs/architecture/adr-015-agent-authored-scenario-transparency.md) · [ADR-016 Event-Graph Complexity Caps (Accepted)](../../docs/architecture/adr-016-event-graph-complexity-caps.md) · [ADR-017 Editor Topology: Client vs Scenario Lab (Proposed)](../../docs/architecture/adr-017-editor-topology-client-vs-scenario-lab.md)
 
 ## Purpose
+
+Implements hub **[FR-09](01-Project-Overview.md)** (Scenario/mission editor).
 
 Define requirements for an **agentic mission and scenario editor** that preserves the depth and designer power of Command: Modern Operations (CMO) while delivering a uniquely improved authoring experience built on an **intent-compiler spine**: a single canonical declarative scenario file is the source of truth, and every authoring path (map drawing, natural language, MCP tool calls) emits the *same* canonical objects. Determinism, git-diffability, deterministic validation, headless generation, and AI co-authoring are therefore structural properties of the file format, not features layered on top.
 
@@ -266,7 +269,7 @@ warn if complexity > WARN_THRESHOLD OR peak_tick_density > DENSITY_THRESHOLD
 | Export gate | `Validation/ScenarioValidationExportGate` + `ValidationReport.CanExport` | Shipped |
 | Validation config / knobs | `Validation/ValidationConfig` (`assets/data/editor/validation-config.json`) | Shipped |
 | Golden determinism hashes | `Validation/ValidationGoldenHashes`, CLI `SimulateSampleGoldenHashes` | Shipped |
-| JSON Schema + fixtures | `data/scenarios/scenario-document.schema.json`, `data/scenarios/examples/*.scenario.json` | New (data workstream) |
+| JSON Schema + fixtures | `data/scenarios/scenario-document.schema.json`, `data/scenarios/examples/*.scenario.json` | Shipped |
 | CLI / MCP surface | `ProjectAegis.MissionEditor.Cli/Program.cs` (~18 verbs); `tools/mission-editor/mcp-tools.json` | Shipped (Partial — ferry verbs + undo missing) |
 | Mission verbs | `MissionAddPatrolCommand`, `MissionAddStrikeCommand`, `MissionUpdatePatrolCommand`, `MissionUpdateStrikeCommand`, `MissionDeleteCommand` | Shipped (no ferry verb — AME-8.4) |
 | Headless sample | `ScenarioSimulateSampleCommand` | Shipped |
@@ -284,6 +287,8 @@ warn if complexity > WARN_THRESHOLD OR peak_tick_density > DENSITY_THRESHOLD
 ## Acceptance Criteria
 
 Adopted verbatim in substance from the approved GDD (AC-1…AC-12); each is independently, mechanically testable with a defined fixture and observable output, and bound to the AME requirement(s) it verifies.
+
+> **Residual honesty (editor program).** AC checkboxes and any `tests/unit/editor/` (and related integration) paths remain **editor-program residual (S81–S88)**; do not claim all ACs green from headless Partial+ alone.
 
 - [ ] **AC-1 (Logic → AME-6.2, Formulas):** A strike whose target lies beyond `combat_radius_nm * fuel_fraction` makes `scenario_validate` return a blocking error `STRIKE_UNREACHABLE` with message "…out of combat radius by N nm…"; test asserts code + computed `N`. *`tests/unit/editor/`.*
 - [ ] **AC-2 (Logic → AME-6.6, AME-6.7):** Given a fixed `metadata.seed` + identical knobs, two independent `scenario_simulate_sample` runs produce (a) byte-identical `fire_order` arrays and (b) identical world-state hash = SHA-256 over canonical post-run state excluding `editorState`; both emit `SEED=<v> HASH=<sha256>`; holds under parallel CI runners. *`tests/integration/editor/determinism/`; ties to replay-verify.*
@@ -365,3 +370,7 @@ Each former open question now points to its ADR.
 ---
 
 **Status:** Revised — implementation-aligned. v1 headless stack shipped (Partial+); design gate APPROVED (review log 2026-06-01); open implementation gaps tracked: ferry tool surface (AME-8.4), undo wiring (AME-8.5), event-model + static-analysis maturity (AME-5.x), live-validation UX (AME-6.9), reversible migration persistence (AME-10.2).
+
+---
+
+**Charter mechanical honesty Wave 4 2026-07-08** (doc 11 residual still editor-owned).

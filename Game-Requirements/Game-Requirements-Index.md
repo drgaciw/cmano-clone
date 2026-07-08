@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-07-08
 
-**Program note:** Post-MVP Requirements Program (Sprints 11–15) complete for docs 01–12 Template A. **Corpus maturity program (2026-07)** re-baselines hub + drafts 13–21 honesty — design: `docs/superpowers/specs/2026-07-08-requirements-corpus-maturity-design.md`. Scenario editor (req 11) is the **active code train** (S81–S88). Doc 11 revised 2026-07-01 (`AME-*`). Doc 21 Platform Editor is first-class under Authoring.
+**Program note:** **Corpus maturity W0–W4 complete (2026-07-08)** — hub + drafts 13–21 honesty re-baselined; design: `docs/superpowers/specs/2026-07-08-requirements-corpus-maturity-design.md`. Scenario editor (req 11) remains the **active code train (S81–S88)**; design link retained. Post-MVP Requirements Program (Sprints 11–15) complete for docs 01–12 Template A. Doc 11 revised 2026-07-01 (`AME-*`). Doc 21 Platform Editor is first-class under Authoring.
 
 ## Implementation
 
@@ -90,7 +90,7 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 
 ## Next workflow steps
 
-- Execute scenario editor rows (req 11) per [implementation-tracker-2026-07-04.md](implementation-tracker-2026-07-04.md) and S81–S88 roadmap
-- Run corpus maturity Waves 1–4 per design spec (locked Template A honesty → drafts 13–20 → 09/10/21 → consistency gate)
+- **Corpus maturity program closed** (W0–W4 complete 2026-07-08); no further corpus waves
+- **Scenario editor train continues** (req 11): execute rows per [implementation-tracker-2026-07-04.md](implementation-tracker-2026-07-04.md) and S81–S88 roadmap
 - Run `/design-review` when mechanics change on **01, 04, 06–11, 13–21**
 - Run `/military-requirements-impact` before DB schema for JADC2, C-UAS, hypersonic defense
