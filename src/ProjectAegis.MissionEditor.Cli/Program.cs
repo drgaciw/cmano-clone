@@ -46,6 +46,8 @@ switch (command)
         return RunMissionAddSupport(args.Skip(1).ToArray());
     case "mission_update_ferry":
         return RunMissionUpdateFerry(args.Skip(1).ToArray());
+    case "mission_update_support":
+        return RunMissionUpdateSupport(args.Skip(1).ToArray());
     case "scenario_undo":
         return RunScenarioUndo(args.Skip(1).ToArray());
     case "mission_delete":
@@ -439,6 +441,38 @@ static int RunMissionUpdateFerry(string[] args)
         Console.Out);
 }
 
+static int RunMissionUpdateSupport(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_update_support requires --path --edit-version --id [--unit U]+ [--role R] [--wp lat,lon]+");
+        return 1;
+    }
+
+    try
+    {
+        var zoneArgs = CliArgParser.GetRepeated(args, "--wp");
+        IReadOnlyList<ScenarioWaypointDto>? zone = zoneArgs.Count > 0
+            ? CliArgParser.ParseWaypoints(zoneArgs)
+            : null;
+        return MissionUpdateSupportCommand.Run(
+            path,
+            editVersion,
+            missionId,
+            CliArgParser.GetRepeated(args, "--unit"),
+            CliArgParser.GetFlag(args, "--role"),
+            zone,
+            Console.Out);
+    }
+    catch (FormatException ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "INVALID_ZONE", ex.Message);
+    }
+}
+
 static int RunMissionPlanSuggest(string[] args)
 {
     var intent = CliArgParser.GetFlag(args, "--intent");
@@ -501,6 +535,8 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_ferry --path <scenario.json> --edit-version N --id <id> [--unit U]+ --destination D");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_support --path <scenario.json> --edit-version N --id <id> --role Tanker|AEW|EW [--unit U]+ [--wp lat,lon]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_ferry --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--destination D]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_support --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--role Tanker|AEW|EW] [--wp lat,lon]+");
+
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_undo --path <scenario.json> --edit-version N");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_delete --path <scenario.json> --edit-version N --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_validate --path <scenario.json>");

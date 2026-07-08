@@ -182,6 +182,98 @@
       }
     },
     {
+      "name": "mission_update_support",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "mission_update_support",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${missionId}",
+        "--role",
+        "${supportRole}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "missionId"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "missionId": { "type": "string" },
+          "supportRole": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "scenario_export",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_export",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--out",
+        "${outPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "outPath"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "outPath": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "scenario_migrate_preview",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_migrate_preview",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath"],
+        "properties": {
+          "scenarioPath": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "scenario_umpire_snapshot",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_umpire_snapshot",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath"],
+        "properties": {
+          "scenarioPath": { "type": "string" }
+        }
+      }
+    },
+    {
       "name": "mission_update_patrol",
       "command": "pwsh",
       "args": [

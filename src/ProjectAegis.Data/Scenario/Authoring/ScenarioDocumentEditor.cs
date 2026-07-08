@@ -344,6 +344,31 @@ public sealed class ScenarioDocumentEditor
         };
     }
 
+    /// <summary>Updates a Support mission (role and/or station zone and/or assigned units).</summary>
+    public void UpdateSupportMission(
+        string missionId,
+        IReadOnlyList<string>? assignedUnitIds = null,
+        string? supportRole = null,
+        IReadOnlyList<ScenarioWaypointDto>? stationZone = null)
+    {
+        var mission = RequireMission(missionId, "Support");
+        var index = Missions.IndexOf(mission);
+        var zone = stationZone ?? mission.StationGeometry ?? mission.PatrolZone;
+        Missions[index] = new ScenarioMissionDto
+        {
+            Id = mission.Id,
+            Type = mission.Type,
+            AssignedUnitIds = assignedUnitIds ?? mission.AssignedUnitIds,
+            TargetIds = mission.TargetIds,
+            FerryDestinationBaseId = mission.FerryDestinationBaseId,
+            PatrolZone = zone,
+            StationGeometry = zone,
+            SupportRole = supportRole ?? mission.SupportRole,
+            RoeOverride = mission.RoeOverride,
+            EmconOverride = mission.EmconOverride,
+        };
+    }
+
     public void Save(string path) =>
         ScenarioDocumentJsonWriter.WriteToFile(ToDto(), path);
 
