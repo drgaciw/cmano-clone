@@ -13,7 +13,14 @@ namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 /// </summary>
 public sealed class C2PresentationController
 {
-    public string? SelectedUnitId { get; private set; }
+    /// <summary>Ordered multi-select set of friendly unit ids (req 20 §Selection, TR-c2-005).
+    /// Single-select is a set of one; <see cref="SelectedUnitId"/> is the anchor unit.</summary>
+    public SelectionSet Selection { get; } = new SelectionSet();
+
+    /// <summary>Anchor (primary) selected friendly unit id, or null. Mirrors the pre-rev-2
+    /// single-select contract by projecting <see cref="SelectionSet.PrimaryUnitId"/>.</summary>
+    public string? SelectedUnitId => Selection.PrimaryUnitId;
+
     public string? SelectedContactId { get; private set; }
     public ContactSummaryEntry? SelectedContactSummary { get; private set; }
 
@@ -28,7 +35,7 @@ public sealed class C2PresentationController
             ClearGraphSurfacing();
         }
 
-        SelectedUnitId = unitId;
+        Selection.ReplaceWith(unitId);
         SelectedContactId = null;
         SelectedContactSummary = null;
     }
@@ -43,7 +50,7 @@ public sealed class C2PresentationController
 
         SelectedContactId = contactId;
         SelectedContactSummary = ContactSummaryProjection.Project(contactId, contacts);
-        SelectedUnitId = null;
+        Selection.Clear();
     }
 
     public void ApplyDefaultSelection(IReadOnlyList<OobTreeEntry> oob)
@@ -56,7 +63,7 @@ public sealed class C2PresentationController
         var defaultUnit = C2SelectionResolver.ResolveDefaultFriendlyUnit(oob);
         if (defaultUnit != null)
         {
-            SelectedUnitId = defaultUnit;
+            Selection.ReplaceWith(defaultUnit);
         }
     }
 
