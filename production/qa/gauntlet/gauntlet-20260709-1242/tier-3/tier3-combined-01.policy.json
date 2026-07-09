@@ -1,0 +1,76 @@
+{
+  "metadata": {
+    "title": "Tier 3 Combined 01 — Submarine Escort + UCAV Strike",
+    "description": "Combined escort+strike mission. usub-blue (attack submarine) escorts HVU u1 under a positive-ID-required (WeaponsTight) engagement doctrine while remaining passive (EMCON phase 1: stealth transit). Concurrently, ucav-blue executes a Strike mission against designated Red target hostile-1, actively emitting for target acquisition (EMCON phase 2: active strike). Red fields a lurking attack submarine (usub-red) as an ASW threat to the HVU. Timed event chain: contact classification at tick 5, weapons release authorization at tick 10.",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 42,
+    "policyId": "baltic-v3-tier3-combined-01",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsTight"
+  },
+  "missions": [
+    {
+      "id": "blue-escort-hvu-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["u1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 57.0, "lon": 19.5 },
+        { "lat": 57.3, "lon": 19.7 },
+        { "lat": 56.9, "lon": 20.0 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "blue-sub-escort-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["usub-blue"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 57.1, "lon": 19.6 },
+        { "lat": 57.4, "lon": 19.8 },
+        { "lat": 57.0, "lon": 20.1 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "blue-air-strike-01",
+      "type": "Strike",
+      "assignedUnitIds": ["ucav-blue"],
+      "targetIds": ["hostile-1"],
+      "patrolZone": [
+        { "lat": 58.2, "lon": 21.0 },
+        { "lat": 58.5, "lon": 21.3 },
+        { "lat": 58.0, "lon": 21.6 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "red-defend-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["hostile-1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 58.3, "lon": 21.2 },
+        { "lat": 58.5, "lon": 21.4 },
+        { "lat": 58.1, "lon": 21.6 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-sub-threat-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["usub-red"],
+      "targetIds": ["u1"],
+      "patrolZone": [
+        { "lat": 57.05, "lon": 19.55 },
+        { "lat": 57.35, "lon": 19.75 },
+        { "lat": 56.95, "lon": 20.05 }
+      ],
+      "roeOverride": "WeaponsTight"
+    }
+  ]
+}
