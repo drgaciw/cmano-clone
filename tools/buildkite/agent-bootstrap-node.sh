@@ -34,4 +34,4 @@ ensure_node_on_path() {
 
 ensure_node_on_path
 node --version
-npm --version
+npm --version || echo "WARN: npm unavailable (node export tests do not require npm)"

@@ -21,7 +21,14 @@ fi
 dotnet restore ProjectAegis.sln
 dotnet build ProjectAegis.sln -c Release --no-restore
 # READ build 0e/0w expected
+set +e
 dotnet test ProjectAegis.sln -c Release --no-build -v minimal
+test_exit=$?
+set -e
+if [[ $test_exit -ne 0 ]]; then
+  echo "ERROR: dotnet test failed with exit $test_exit"
+  exit "$test_exit"
+fi
 
 # replay 6/6
 dotnet test \
