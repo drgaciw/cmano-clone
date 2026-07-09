@@ -130,11 +130,12 @@ namespace ProjectAegis.Unity.Runtime
             var isReplay = bridgeHost.Bridge != null && bridgeHost.Bridge.AttachReplayViewer;
             if (_model.IsReplaySuppressed != isReplay)
             {
-                // Mode changed (e.g. entered replay) — rebuild the model under the new suppression
-                // policy and reset the watermark so we do not flood-replay a backlog of old alerts.
+                // Mode changed (e.g. entered/left replay) — rebuild the model under the new
+                // suppression policy. Seed the watermark to the current max sequence so historical
+                // Notable/Critical lines are not re-toasted as "new" after the toggle.
                 _model = new ToastStackModel(isReplaySuppressed: isReplay);
                 _spawnTimes.Clear();
-                _lastProcessedSequenceId = null;
+                SeedWatermark(bridgeHost.LastMessageLog);
             }
 
             EnqueueNewAlerts(bridgeHost.LastMessageLog, isReplay);
@@ -142,12 +143,25 @@ namespace ProjectAegis.Unity.Runtime
             RenderVisibleToasts();
         }
 
+        private void SeedWatermark(IReadOnlyList<MessageLogLine> lines)
+        {
+            _lastProcessedSequenceId = lines.Count > 0 ? lines[lines.Count - 1].SequenceId : 0UL;
+        }
+
         private void EnqueueNewAlerts(IReadOnlyList<MessageLogLine> lines, bool isReplay)
         {
+            // First run: seed watermark to the latest sequence so startup does not flood the stack
+            // with the entire historical LastMessageLog as fresh toasts.
+            if (!_lastProcessedSequenceId.HasValue)
+            {
+                SeedWatermark(lines);
+                return;
+            }
+
             var newCriticalAlerts = new List<AlertItem>();
             foreach (var line in lines)
             {
-                if (_lastProcessedSequenceId.HasValue && line.SequenceId <= _lastProcessedSequenceId.Value)
+                if (line.SequenceId <= _lastProcessedSequenceId.Value)
                 {
                     continue;
                 }
@@ -157,7 +171,9 @@ namespace ProjectAegis.Unity.Runtime
                 var severity = AlertSeverityMap.ForCategory(line.Category);
                 // req 20 default matrix: Critical -> toast + log + optional auto-pause; Notable -> toast
                 // (flash) + log; Routine -> log only (never toasted).
-                if (severity != AlertSeverity.Routine)
+                // Skip spawn-time bookkeeping during replay: ToastStackModel.Add is a no-op while
+                // suppressed, and growing _spawnTimes would leak memory for the whole replay.
+                if (severity != AlertSeverity.Routine && !isReplay)
                 {
                     _model.Add(new ToastEntry(line.SequenceId, severity, line.Category, line.Text, line.UnitId));
                     _spawnTimes[line.SequenceId] = Time.unscaledTime;

@@ -154,7 +154,16 @@ public static class OrderLifecycleProjection
     /// for <paramref name="unitId"/> and its currently resolved lifecycle state, or <c>null</c> if the
     /// unit has never had a player order logged.
     /// </summary>
-    public static UnitOrderState? ProjectLatestForUnit(DecisionLog log, string unitId)
+    /// <param name="log">Decision / order log to scan for the unit's latest player order.</param>
+    /// <param name="unitId">Friendly unit id whose latest order chip should be projected.</param>
+    /// <param name="states">
+    /// Optional pre-projected lifecycle map (e.g. <c>DelegationBridgeHost.LastLifecycleStates</c>).
+    /// When provided, avoids re-running <see cref="Project(DecisionLog)"/> every frame.
+    /// </param>
+    public static UnitOrderState? ProjectLatestForUnit(
+        DecisionLog log,
+        string unitId,
+        IReadOnlyDictionary<OrderKey, OrderLifecycleState>? states = null)
     {
         PlayerOrderRecord? latest = null;
         ulong latestKeySequence = 0;
@@ -175,8 +184,8 @@ public static class OrderLifecycleProjection
         }
 
         var key = new OrderKey(unitId, latestKeySequence);
-        var states = Project(log);
-        var state = states.TryGetValue(key, out var resolved) ? resolved : OrderLifecycleState.Accepted;
+        var resolvedStates = states ?? Project(log);
+        var state = resolvedStates.TryGetValue(key, out var resolved) ? resolved : OrderLifecycleState.Accepted;
         return new UnitOrderState(key, latest.Kind, state);
     }
 
