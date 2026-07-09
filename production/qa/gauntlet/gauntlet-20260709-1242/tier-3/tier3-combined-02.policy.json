@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "title": "Tier 3 Combined 02 — Direct Strike With Submarine ASW Escort",
+    "description": "Combined escort+strike, seed variant. u1 holds a direct fire-control track on designated target hostile-1 and executes the Strike mission itself (WeaponsFree), while usub-blue provides ASW escort for u1 against the lurking usub-red threat under positive-ID-required (WeaponsTight) doctrine. EMCON phase 1 (ticks 1-16): u1 active for strike acquisition, usub-blue passive for stealth escort. Event chain: target lock at tick 4, engagement release at tick 8.",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 7,
+    "policyId": "baltic-v3-tier3-combined-02",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsFree"
+  },
+  "missions": [
+    {
+      "id": "blue-strike-hvu-02",
+      "type": "Strike",
+      "assignedUnitIds": ["u1"],
+      "targetIds": ["hostile-1"],
+      "patrolZone": [
+        { "lat": 55.2, "lon": 14.5 },
+        { "lat": 55.5, "lon": 15.0 },
+        { "lat": 55.1, "lon": 15.5 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "blue-sub-asw-escort-02",
+      "type": "Patrol",
+      "assignedUnitIds": ["usub-blue"],
+      "targetIds": ["usub-red"],
+      "patrolZone": [
+        { "lat": 55.3, "lon": 14.7 },
+        { "lat": 55.6, "lon": 15.2 },
+        { "lat": 55.0, "lon": 15.7 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-defend-02",
+      "type": "Patrol",
+      "assignedUnitIds": ["hostile-1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 56.5, "lon": 19.5 },
+        { "lat": 56.8, "lon": 20.0 },
+        { "lat": 56.3, "lon": 20.5 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-sub-shadow-02",
+      "type": "Patrol",
+      "assignedUnitIds": ["usub-red"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 55.25, "lon": 14.6 },
+        { "lat": 55.55, "lon": 15.1 },
+        { "lat": 55.05, "lon": 15.6 }
+      ],
+      "roeOverride": "WeaponsTight"
+    }
+  ]
+}

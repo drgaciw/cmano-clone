@@ -101,7 +101,9 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         links: CatalogValidationDefaults.BalticLinks(),
         doctrinePlatforms: new[] { "legacy-patrol-ship" });
 
-    /// <summary>Baltic v3: patrol ships + UCAV per side with Recon [Internal IR] loadout.</summary>
+    /// <summary>Baltic v3: patrol ships + UCAV per side with Recon [Internal IR] loadout,
+    /// plus one attack submarine per side (Virginia-class-derived hull sonar + towed array;
+    /// QA-gauntlet Tier-3 fixture addition, see production/qa/gauntlet/gauntlet-20260709-1242/tier-3/).</summary>
     public static InMemoryCatalogReader BalticV3Fixture() =>
         new(
         [
@@ -111,6 +113,10 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             new CatalogSensorBinding("ucav-blue", "recon-radar", 0.70, "baltic-v3-ucav-blue-radar"),
             new CatalogSensorBinding("ucav-red", "internal-ir", 0.75, "baltic-v3-ucav-red-ir"),
             new CatalogSensorBinding("ucav-red", "recon-radar", 0.65, "baltic-v3-ucav-red-radar"),
+            new CatalogSensorBinding("usub-blue", "hull-sonar", 0.80, "baltic-v3-usub-blue-hull-sonar"),
+            new CatalogSensorBinding("usub-blue", "towed-array-sonar", 0.90, "baltic-v3-usub-blue-twa-sonar"),
+            new CatalogSensorBinding("usub-red", "hull-sonar", 0.75, "baltic-v3-usub-red-hull-sonar"),
+            new CatalogSensorBinding("usub-red", "towed-array-sonar", 0.85, "baltic-v3-usub-red-twa-sonar"),
         ],
         "p0-baltic-v3-fixture",
         CatalogValidationDefaults.BalticV3Platforms(),
@@ -118,6 +124,8 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         [
             new CatalogLoadout("ucav-blue", "recon-internal-ir", "Recon [Internal IR]", "recon", IsDefault: true),
             new CatalogLoadout("ucav-red", "recon-internal-ir", "Recon [Internal IR]", "recon", IsDefault: true),
+            new CatalogLoadout("usub-blue", "asw-strike", "ASW/Strike [Torpedo + VLS]", "asw", IsDefault: true),
+            new CatalogLoadout("usub-red", "asw-strike", "ASW/Strike [Torpedo + VLS]", "asw", IsDefault: true),
         ],
         links: CatalogValidationDefaults.BalticLinks(),
         doctrinePlatforms: Array.Empty<string>());

@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "title": "Tier 3 Combined 03 — Submarine Strike Under ID-Required ROE",
+    "description": "usub-blue conducts the Strike mission directly against designated target hostile-1 (submarine as primary striker, VLS-launched), while u1 provides surface escort for the HVU role under positive-ID-required (WeaponsTight) doctrine. Both Blue submarine and escort maintain active sensors this scenario (EMCON phase: coordinated active search). Event chain: firing solution computed at tick 6, weapons free authorized at tick 12.",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 123,
+    "policyId": "baltic-v3-tier3-combined-03",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsFree"
+  },
+  "missions": [
+    {
+      "id": "blue-sub-strike-03",
+      "type": "Strike",
+      "assignedUnitIds": ["usub-blue"],
+      "targetIds": ["hostile-1"],
+      "patrolZone": [
+        { "lat": 57.2, "lon": 19.8 },
+        { "lat": 57.4, "lon": 20.0 },
+        { "lat": 57.0, "lon": 20.2 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "blue-escort-hvu-03",
+      "type": "Patrol",
+      "assignedUnitIds": ["u1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 57.0, "lon": 19.5 },
+        { "lat": 57.3, "lon": 19.7 },
+        { "lat": 56.9, "lon": 20.0 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-defend-03",
+      "type": "Patrol",
+      "assignedUnitIds": ["hostile-1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 58.3, "lon": 21.2 },
+        { "lat": 58.5, "lon": 21.4 },
+        { "lat": 58.1, "lon": 21.6 }
+      ],
+      "roeOverride": "WeaponsTight"
+    }
+  ]
+}
