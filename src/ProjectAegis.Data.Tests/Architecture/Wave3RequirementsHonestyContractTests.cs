@@ -39,7 +39,14 @@ public sealed class Wave3RequirementsHonestyContractTests
 
         Assert.Contains("FR-19", text, StringComparison.Ordinal);
         Assert.Contains("Implementation Mapping", text, StringComparison.Ordinal);
-        Assert.Contains("re-honesty: Wave 3", text, StringComparison.Ordinal);
+        // PE-W0–W4 closeout: Design Status is Revised/implementation-aligned (not Draft-only).
+        // Accept either legacy Wave 3 re-honesty pin or PE completion honesty language.
+        Assert.True(
+            text.Contains("re-honesty: Wave 3", StringComparison.Ordinal) ||
+            text.Contains("Revised — implementation-aligned", StringComparison.Ordinal) ||
+            text.Contains("PE-W0–W4 COMPLETE", StringComparison.Ordinal),
+            "Doc 21 must carry Wave 3 or PE completion honesty language");
+        Assert.DoesNotContain("Design Status remains **Draft**", text, StringComparison.Ordinal);
 
         var mapIdx = text.IndexOf("## Implementation Mapping", StringComparison.Ordinal);
         Assert.True(mapIdx >= 0, "Implementation Mapping heading missing");
