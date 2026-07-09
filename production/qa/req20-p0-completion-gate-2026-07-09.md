@@ -47,4 +47,5 @@
 
 ## Human ack
 
-Awaiting user: **Req 20 P0 complete** (optional; engineering gate already green).
+- [x] User proceed after gate: **Req 20 P0 complete** (2026-07-09)
+
