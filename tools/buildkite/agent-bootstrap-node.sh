@@ -6,11 +6,11 @@ NODE_VERSION="${BUILDKITE_NODE_VERSION:-${GITNEXUS_NODE_VERSION:-20.18.0}}"
 NODE_DIR="${HOME}/.cache/buildkite/node-v${NODE_VERSION}-linux-x64"
 
 ensure_node_on_path() {
-  if command -v node >/dev/null 2>&1; then
+  if command -v node >/dev/null 2>&1 && node --version >/dev/null 2>&1; then
     return 0
   fi
 
-  if [[ -x "${NODE_DIR}/bin/node" ]]; then
+  if [[ -x "${NODE_DIR}/bin/node" ]] && "${NODE_DIR}/bin/node" --version >/dev/null 2>&1; then
     export PATH="${NODE_DIR}/bin:${PATH}"
     return 0
   fi

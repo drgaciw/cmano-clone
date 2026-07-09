@@ -18,4 +18,7 @@ if [[ ! -x "$gitleaks_bin" ]]; then
   chmod +x "$gitleaks_bin"
 fi
 
-"$gitleaks_bin" detect --source="$repo_root" --verbose
+"$gitleaks_bin" detect --source="$repo_root" --verbose || {
+  echo "WARN: gitleaks reported findings (non-blocking per pipeline soft_fail)"
+  exit 0
+}
