@@ -44,6 +44,30 @@ public sealed class PauseReasonStackTests
     }
 
     [Test]
+    public void Removing_a_reason_never_pushed_returns_false_and_leaves_state_unchanged()
+    {
+        var stack = new PauseReasonStack();
+        stack.Push("manual");
+
+        Assert.That(stack.Remove("never-pushed"), Is.False);
+        Assert.That(stack.IsPaused, Is.True, "the unrelated reason removal must not affect the active pause");
+        Assert.That(stack.Reasons, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void Clear_removes_every_reason_and_resumes()
+    {
+        var stack = new PauseReasonStack();
+        stack.Push("c2.alert.critical");
+        stack.Push("manual");
+
+        stack.Clear();
+
+        Assert.That(stack.IsPaused, Is.False);
+        Assert.That(stack.Reasons, Is.Empty);
+    }
+
+    [Test]
     public void ApplyAutoPause_pushes_the_command_reason()
     {
         var stack = new PauseReasonStack();

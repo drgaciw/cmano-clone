@@ -146,4 +146,117 @@ public sealed class OrderLifecycleProjectionTests
 
         Assert.That(latest, Is.Null);
     }
+
+    [Test]
+    public void A_cancel_logged_after_the_order_has_already_launched_does_not_downgrade_Executing()
+    {
+        // Adversarial: PlayerOrderExecutionQueue.TryRemove only finds STILL-PENDING orders, so the real
+        // bridge (DelegationBridge.TryCancelHumanOrder) can never produce a PlayerOrderCancelled record
+        // for an order that already launched (drained + Engagement Launched=true) — TryRemove would have
+        // already returned false. But OrderLifecycleProjection is a pure function over whatever log it is
+        // given, so it must not silently re-open and downgrade an Executing order if a stray/out-of-order
+        // cancel record for the same unit+kind ever appears after the launch.
+        var log = new DecisionLog();
+        log.AppendPlayerOrder(new PlayerOrderRecord(
+            0, 10.0, 10, new TargetId("u1"), OrderKind.Engage, ExecuteSimTick: 10));
+        log.AppendEngagement(new EngagementRecord(
+            0, 11.0, 11, new TargetId("u1"), EngagementId: 501, Launched: true));
+        log.AppendPlayerOrderCancelled(new PlayerOrderCancelledRecord(
+            0, 12.0, 12, new TargetId("u1"), OrderKind.Engage, CancelledExecuteSimTick: 10));
+
+        var states = OrderLifecycleProjection.Project(log);
+
+        var key = new OrderLifecycleProjection.OrderKey("u1", 1);
+        Assert.That(states[key], Is.EqualTo(OrderLifecycleState.Executing),
+            "an order that has already launched must stay Executing; a late/stray cancel record must not " +
+            "retroactively downgrade it to Aborted");
+    }
+
+    [Test]
+    public void A_cancel_logged_after_the_order_has_already_completed_is_a_noop()
+    {
+        // Companion coverage case: once an order reaches Completed it is already removed from the
+        // open-order tracking (RemoveOpen on EngagementOutcome), so a stray late cancel record correctly
+        // finds nothing to match and leaves the Completed state untouched.
+        var log = new DecisionLog();
+        log.AppendPlayerOrder(new PlayerOrderRecord(
+            0, 10.0, 10, new TargetId("u1"), OrderKind.Engage, ExecuteSimTick: 10));
+        log.AppendEngagement(new EngagementRecord(
+            0, 11.0, 11, new TargetId("u1"), EngagementId: 501, Launched: true));
+        log.AppendEngagementOutcome(new EngagementOutcomeRecord(
+            0, 12.0, 12, new TargetId("u1"), new TargetId("hostile-1"), EngagementId: 501,
+            OutcomeCode: "KILL", PkDraw: 0.1));
+        log.AppendPlayerOrderCancelled(new PlayerOrderCancelledRecord(
+            0, 13.0, 13, new TargetId("u1"), OrderKind.Engage, CancelledExecuteSimTick: 10));
+
+        var states = OrderLifecycleProjection.Project(log);
+
+        var key = new OrderLifecycleProjection.OrderKey("u1", 1);
+        Assert.That(states[key], Is.EqualTo(OrderLifecycleState.Completed));
+    }
+
+    [Test]
+    public void Cancel_matches_the_oldest_open_order_of_the_same_kind_FIFO()
+    {
+        // Mirrors Evidence_matches_oldest_open_order_of_same_kind_for_the_unit_FIFO, but for the cancel
+        // path specifically: two queued Move orders for the same unit, then one cancel — must resolve to
+        // the OLDEST still-open order, leaving the newer one untouched.
+        var log = new DecisionLog();
+        log.AppendPlayerOrder(new PlayerOrderRecord(
+            0, 10.0, 10, new TargetId("u1"), OrderKind.Move, ExecuteSimTick: 20));
+        log.AppendPlayerOrder(new PlayerOrderRecord(
+            0, 11.0, 11, new TargetId("u1"), OrderKind.Move, ExecuteSimTick: 21));
+        log.AppendPlayerOrderCancelled(new PlayerOrderCancelledRecord(
+            0, 12.0, 12, new TargetId("u1"), OrderKind.Move, CancelledExecuteSimTick: 20));
+
+        var states = OrderLifecycleProjection.Project(log);
+
+        var firstKey = new OrderLifecycleProjection.OrderKey("u1", 1);
+        var secondKey = new OrderLifecycleProjection.OrderKey("u1", 2);
+        Assert.That(states[firstKey], Is.EqualTo(OrderLifecycleState.Aborted));
+        Assert.That(states[secondKey], Is.EqualTo(OrderLifecycleState.Queued));
+    }
+
+    [Test]
+    public void Cancel_after_a_cancel_of_the_same_unit_and_kind_only_aborts_the_next_oldest_open_order()
+    {
+        // Interleaved PlayerOrder/Cancel ordering: two queued Move orders, cancel twice — the second
+        // cancel must resolve to the (now oldest) SECOND order, not double-apply to the first.
+        var log = new DecisionLog();
+        log.AppendPlayerOrder(new PlayerOrderRecord(
+            0, 10.0, 10, new TargetId("u1"), OrderKind.Move, ExecuteSimTick: 20));
+        log.AppendPlayerOrder(new PlayerOrderRecord(
+            0, 11.0, 11, new TargetId("u1"), OrderKind.Move, ExecuteSimTick: 21));
+        log.AppendPlayerOrderCancelled(new PlayerOrderCancelledRecord(
+            0, 12.0, 12, new TargetId("u1"), OrderKind.Move, CancelledExecuteSimTick: 20));
+        log.AppendPlayerOrderCancelled(new PlayerOrderCancelledRecord(
+            0, 13.0, 13, new TargetId("u1"), OrderKind.Move, CancelledExecuteSimTick: 21));
+
+        var states = OrderLifecycleProjection.Project(log);
+
+        var firstKey = new OrderLifecycleProjection.OrderKey("u1", 1);
+        var secondKey = new OrderLifecycleProjection.OrderKey("u1", 2);
+        Assert.That(states[firstKey], Is.EqualTo(OrderLifecycleState.Aborted));
+        Assert.That(states[secondKey], Is.EqualTo(OrderLifecycleState.Aborted));
+    }
+
+    [Test]
+    public void Cancel_of_a_non_Engage_kind_Accepted_order_maps_to_Aborted()
+    {
+        // Known-MVP-gap kinds (Move, Hold, SetEwPosture, ReturnToBase) stay Accepted absent evidence —
+        // a cancel of one of those (immediate, no comms delay) must still resolve to Aborted.
+        var log = new DecisionLog();
+        log.AppendPlayerOrder(new PlayerOrderRecord(
+            0, 10.0, 10, new TargetId("u1"), OrderKind.Hold, ExecuteSimTick: 10));
+
+        var beforeCancel = OrderLifecycleProjection.Project(log);
+        var key = new OrderLifecycleProjection.OrderKey("u1", 1);
+        Assert.That(beforeCancel[key], Is.EqualTo(OrderLifecycleState.Accepted));
+
+        log.AppendPlayerOrderCancelled(new PlayerOrderCancelledRecord(
+            0, 11.0, 11, new TargetId("u1"), OrderKind.Hold, CancelledExecuteSimTick: 10));
+
+        var afterCancel = OrderLifecycleProjection.Project(log);
+        Assert.That(afterCancel[key], Is.EqualTo(OrderLifecycleState.Aborted));
+    }
 }

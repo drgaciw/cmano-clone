@@ -50,13 +50,24 @@ public sealed class ToastStackModel
     public int TotalCount => _queue.Count;
 
     /// <summary>
-    /// Enqueues a toast. No-op when <see cref="IsReplaySuppressed"/> is true (req 20 §Replay suppression).
+    /// Enqueues a toast. No-op when <see cref="IsReplaySuppressed"/> is true (req 20 §Replay suppression),
+    /// or when a toast with the same <see cref="ToastEntry.SequenceId"/> is already queued — sequence ids
+    /// are unique message-log line identifiers, so a repeat means the caller re-delivered the same alert
+    /// and must not duplicate it in the stack.
     /// </summary>
     public void Add(ToastEntry entry)
     {
         if (IsReplaySuppressed)
         {
             return;
+        }
+
+        foreach (var existing in _queue)
+        {
+            if (existing.SequenceId == entry.SequenceId)
+            {
+                return;
+            }
         }
 
         _queue.Add(entry);

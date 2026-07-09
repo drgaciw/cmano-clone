@@ -120,10 +120,18 @@ public static class OrderLifecycleProjection
                 case OrderLogEntryKind.PlayerOrderCancelled when entry.Payload is PlayerOrderCancelledRecord cancelled:
                 {
                     // Phase 2b (req 20 AC-8): a player cancel of a queued order → Aborted. Matched FIFO to
-                    // the oldest still-open order for the unit with the same OrderKind.
+                    // the oldest still-open order for the unit with the same OrderKind. An order that has
+                    // already launched (Executing) stays open in openByUnit until its EngagementOutcome
+                    // arrives, so the predicate below excludes it — the real bridge path
+                    // (PlayerOrderExecutionQueue.TryRemove) can never produce a cancel for an
+                    // already-launched order, but this guards the pure projection against a
+                    // stray/out-of-order cancel record retroactively downgrading Executing to Aborted.
                     if (TryTakeOldestOpen(
                             openByUnit, kindByKey, cancelled.UnitId.Value, cancelled.Kind,
-                            remove: true, out var key))
+                            remove: true, out var key,
+                            predicate: candidate =>
+                                !states.TryGetValue(candidate, out var candidateState) ||
+                                candidateState is OrderLifecycleState.Accepted or OrderLifecycleState.Queued))
                     {
                         states[key] = OrderLifecycleState.Aborted;
                     }
@@ -192,7 +200,8 @@ public static class OrderLifecycleProjection
         string unitId,
         OrderKind kind,
         bool remove,
-        out OrderKey key)
+        out OrderKey key,
+        Func<OrderKey, bool>? predicate = null)
     {
         key = default;
         if (!openByUnit.TryGetValue(unitId, out var list) || list.Count == 0)
@@ -203,7 +212,8 @@ public static class OrderLifecycleProjection
         for (var i = 0; i < list.Count; i++)
         {
             var candidate = list[i];
-            if (kindByKey.TryGetValue(candidate, out var candidateKind) && candidateKind == kind)
+            if (kindByKey.TryGetValue(candidate, out var candidateKind) && candidateKind == kind &&
+                (predicate is null || predicate(candidate)))
             {
                 key = candidate;
                 if (remove)

@@ -40,6 +40,35 @@ public sealed class PlayerOrderCancellationTests
     }
 
     [Test]
+    public void Queue_TryRemove_picks_the_OLDEST_of_two_pending_orders_for_the_same_target()
+    {
+        // A player can re-issue an order for the same unit before the first one drains (e.g. replanning
+        // faster than the comms delay). TryRemove must cancel the oldest (first-issued) one, matching the
+        // FIFO semantics used everywhere else in the order log, and leave the newer order pending.
+        var queue = new PlayerOrderExecutionQueue();
+        queue.Enqueue(MoveOrder("u1"), executeSimTick: 20);
+        queue.Enqueue(MoveOrder("u1"), executeSimTick: 30);
+
+        Assert.That(queue.TryRemove(new TargetId("u1"), out _, out var executeTick), Is.True);
+        Assert.That(executeTick, Is.EqualTo((ulong)20), "the oldest (first-enqueued) order is removed");
+        Assert.That(queue.PendingCount, Is.EqualTo(1), "the newer order for u1 remains pending");
+
+        Assert.That(queue.TryRemove(new TargetId("u1"), out _, out var secondExecuteTick), Is.True);
+        Assert.That(secondExecuteTick, Is.EqualTo((ulong)30));
+    }
+
+    [Test]
+    public void Controller_TryCancel_returns_false_on_a_double_cancel_of_the_same_target()
+    {
+        var controller = new HumanController();
+        controller.Enqueue(MoveOrder("u1"), executeSimTick: 20);
+
+        Assert.That(controller.TryCancel(new TargetId("u1"), out _, out _), Is.True);
+        Assert.That(controller.TryCancel(new TargetId("u1"), out _, out _), Is.False,
+            "the order was already cancelled; a second cancel of the same target has nothing pending");
+    }
+
+    [Test]
     public void Cancelled_order_before_execute_never_drains()
     {
         var controller = new HumanController();
