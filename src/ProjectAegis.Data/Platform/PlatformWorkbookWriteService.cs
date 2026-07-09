@@ -149,6 +149,13 @@ public sealed class PlatformWorkbookWriteService
         var approveDiffEntityIds = new SortedSet<string>(StringComparer.Ordinal);
 
         using var gate = new CatalogWriteGate(databasePath, clock);
+        // PLE-3.5: only pending (proposed) batches may trigger BindAfterApprove / new release rows.
+        // CatalogWriteGate.ApproveBatch can re-upsert already-approved staging rows; treat those as
+        // explicit non-commits for release bookkeeping so double-approve stays idempotent.
+        var pendingBefore = gate.ListPendingBatches()
+            .Select(b => b.BatchId)
+            .ToHashSet(StringComparer.Ordinal);
+
         foreach (var batchId in batchIds.Where(id => !string.IsNullOrWhiteSpace(id)).Distinct(StringComparer.Ordinal))
         {
             processed.Add(batchId);
@@ -157,9 +164,16 @@ public sealed class PlatformWorkbookWriteService
                 approveDiffEntityIds.Add(entityId);
             }
 
+            var wasPending = pendingBefore.Contains(batchId);
             var decision = process(gate, batchId);
             if (decision.Committed)
             {
+                if (!wasPending)
+                {
+                    errors[batchId] = ["batch_already_committed_or_not_pending"];
+                    continue;
+                }
+
                 committed.Add(batchId);
                 continue;
             }

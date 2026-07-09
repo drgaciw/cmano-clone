@@ -95,6 +95,81 @@ public sealed class CatalogTlExportFilterTests
             string.Equals(s.ReviewState, CatalogReviewStates.Provisional, StringComparison.OrdinalIgnoreCase));
     }
 
+    /// <summary>
+    /// PLE-5.3 adversarial: provisional sensor stays excluded across multiple max TL ceilings
+    /// (not only the permissive TL-5 slice).
+    /// </summary>
+    [Fact]
+    public void Adversarial_provisional_sensor_excluded_at_multiple_max_tl_tiers()
+    {
+        var provisional = new CatalogSensorBinding(
+            "u-fielded",
+            "sensor-provisional-multi",
+            0.95,
+            ReviewState: CatalogReviewStates.Provisional,
+            TrlLevel: 9,
+            ValueTier: CatalogProvenanceTier.SourceFact,
+            ImportBatchId: "nightly-cmo-20261001");
+        var data = SampleExportData() with
+        {
+            Sensors = [Tl0Sensor, provisional],
+        };
+
+        foreach (var tier in new[] { CatalogTlTier.Tl0, CatalogTlTier.Tl2, CatalogTlTier.Tl5 })
+        {
+            var filtered = CatalogTlExportFilter.Apply(data, tier);
+            Assert.DoesNotContain(filtered.Sensors, s => s.SensorId == "sensor-provisional-multi");
+            Assert.Contains(filtered.Sensors, s => s.SensorId == "sensor-tl0");
+        }
+    }
+
+    /// <summary>PLE-5.3 adversarial: rejected review state is never sim-visible.</summary>
+    [Fact]
+    public void Adversarial_rejected_review_state_excluded_from_tl_export()
+    {
+        var rejected = new CatalogSensorBinding(
+            "u-fielded",
+            "sensor-rejected",
+            0.99,
+            ReviewState: CatalogReviewStates.Rejected,
+            TrlLevel: 9,
+            ValueTier: CatalogProvenanceTier.SourceFact,
+            ImportBatchId: "nightly-cmo-20261001");
+        var data = SampleExportData() with
+        {
+            Sensors = [Tl0Sensor, rejected],
+        };
+
+        var filtered = CatalogTlExportFilter.Apply(data, CatalogTlTier.Tl5);
+        Assert.DoesNotContain(filtered.Sensors, s => s.SensorId == "sensor-rejected");
+        Assert.DoesNotContain(filtered.Sensors, s =>
+            string.Equals(s.ReviewState, CatalogReviewStates.Rejected, StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(filtered.Sensors, s => s.SensorId == "sensor-tl0");
+    }
+
+    /// <summary>PLE-5.3 adversarial control: approved sensor is retained when under the TL ceiling.</summary>
+    [Fact]
+    public void Adversarial_approved_sensor_retained_control()
+    {
+        var approved = new CatalogSensorBinding(
+            "u-fielded",
+            "sensor-approved-control",
+            0.88,
+            ReviewState: CatalogReviewStates.Approved,
+            TrlLevel: 9,
+            ValueTier: CatalogProvenanceTier.SourceFact,
+            ImportBatchId: "nightly-cmo-20261001");
+        var data = SampleExportData() with
+        {
+            Sensors = [approved],
+        };
+
+        var filtered = CatalogTlExportFilter.Apply(data, CatalogTlTier.Tl0);
+        Assert.Contains(filtered.Sensors, s =>
+            s.SensorId == "sensor-approved-control"
+            && string.Equals(s.ReviewState, CatalogReviewStates.Approved, StringComparison.OrdinalIgnoreCase));
+    }
+
     [Fact]
     public void Filtered_export_tl0_default_excludes_near_future_rows()
     {
