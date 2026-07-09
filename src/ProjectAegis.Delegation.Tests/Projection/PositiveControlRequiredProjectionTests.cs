@@ -33,4 +33,17 @@ public sealed class PositiveControlRequiredProjectionTests
             WeaponsReleaseConfirmationGate.ShouldEmit(required, WeaponsReleaseConfirmationGate.GateAction.Cancel),
             Is.False);
     }
+
+    [Test]
+    public void Host_proxy_must_not_use_raw_WeaponsTight_equality_for_gate()
+    {
+        // T3 residual: hosts call IsRequired rather than Roe == WeaponsTight.
+        // Keep behavioral parity with the historical WeaponsTight heuristic.
+        foreach (RoeLevel roe in Enum.GetValues(typeof(RoeLevel)))
+        {
+            var viaProjection = PositiveControlRequiredProjection.IsRequired(roe);
+            var legacyHeuristic = roe == RoeLevel.WeaponsTight;
+            Assert.That(viaProjection, Is.EqualTo(legacyHeuristic), $"ROE {roe}");
+        }
+    }
 }

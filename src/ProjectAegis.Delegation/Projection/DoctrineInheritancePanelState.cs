@@ -1,11 +1,13 @@
 namespace ProjectAegis.Delegation.Projection;
 
-/// <summary>UI-ready state for doctrine inheritance panel binding (req 13 P0).</summary>
+/// <summary>UI-ready state for doctrine inheritance panel binding (req 13 P0 / req 20 T3).</summary>
 public sealed record DoctrineInheritancePanelState(
     string UnitIdLine,
     string RoeLine,
     string SalvoLine,
     string EmconLine,
+    string WraLine,
+    string PositiveControlLine,
     string SourceLine,
     string OverrideLine,
     bool CanOverride,
