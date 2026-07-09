@@ -51,6 +51,35 @@ namespace ProjectAegis.Unity.Runtime
         /// </summary>
         public CenterOnSelectionTarget? LastCenterOnSelectionTarget { get; private set; }
 
+        private IReadOnlyDictionary<OrderLifecycleProjection.OrderKey, OrderLifecycleState>? _cachedLifecycleStates;
+        private int _lastLifecycleEntryCount = -1;
+
+        /// <summary>
+        /// Cached <see cref="OrderLifecycleProjection"/> of the current decision log. Invalidated when
+        /// the chronological entry count changes so panel hosts can bind without re-projecting the
+        /// full log every frame (req 20 T5 panel perf).
+        /// </summary>
+        public IReadOnlyDictionary<OrderLifecycleProjection.OrderKey, OrderLifecycleState> LastLifecycleStates
+        {
+            get
+            {
+                if (Bridge == null)
+                {
+                    return new Dictionary<OrderLifecycleProjection.OrderKey, OrderLifecycleState>();
+                }
+
+                var entries = Bridge.Orchestrator.DecisionLog.ChronologicalEntries();
+                var count = entries.Count;
+                if (_cachedLifecycleStates == null || count != _lastLifecycleEntryCount)
+                {
+                    _cachedLifecycleStates = OrderLifecycleProjection.Project(entries);
+                    _lastLifecycleEntryCount = count;
+                }
+
+                return _cachedLifecycleStates;
+            }
+        }
+
         public DelegationBridge Bridge { get; private set; } = null!;
 
         /// <summary>MVP engage session (same orchestrator as <see cref="Bridge"/>).</summary>

@@ -57,7 +57,11 @@ namespace ProjectAegis.Unity.Runtime
 
         // Track T2 weapons-release confirmation gate (req 20 §Order lifecycle; GDD
         // command-and-control-ui.md — Enter confirms, Esc cancels; ADR-010: cancel emits no intent).
+        // Bind pending intent to the unit that opened the gate so a mid-gate selection change cannot
+        // re-resolve positive-control / fire from a different unit (Codex P1).
         private string? _pendingAttackOptionId;
+        private string? _pendingAttackUnitId;
+        private bool _pendingPositiveControlRequired;
 
         private void Reset()
         {
@@ -242,9 +246,14 @@ namespace ProjectAegis.Unity.Runtime
             // selected unit's ROE requires positive control (req 20 §Order lifecycle). ADR-010: no
             // bridge call happens until the pure gate decision (WeaponsReleaseConfirmationGate)
             // resolves — cancel never reaches the bridge.
-            if (IsWeaponsReleaseOption(optionId) && ResolvePositiveControlRequired())
+            var unitId = bridgeHost.SelectedUnitId;
+            if (IsWeaponsReleaseOption(optionId) &&
+                !string.IsNullOrEmpty(unitId) &&
+                ResolvePositiveControlRequired(unitId))
             {
                 _pendingAttackOptionId = optionId;
+                _pendingAttackUnitId = unitId;
+                _pendingPositiveControlRequired = true;
                 Refresh();
                 return;
             }
@@ -265,10 +274,20 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
+            // Cancel a pending fire confirm if the operator re-selected away from the bound unit.
+            if (_pendingAttackOptionId != null &&
+                !string.Equals(bridgeHost.SelectedUnitId, _pendingAttackUnitId, StringComparison.Ordinal))
+            {
+                ClearPendingAttackConfirmation();
+            }
+
             var unitId = bridgeHost.SelectedUnitId;
             var latest = string.IsNullOrEmpty(unitId)
                 ? null
-                : OrderLifecycleProjection.ProjectLatestForUnit(bridgeHost.Bridge.Orchestrator.DecisionLog, unitId);
+                : OrderLifecycleProjection.ProjectLatestForUnit(
+                    bridgeHost.Bridge.Orchestrator.DecisionLog,
+                    unitId,
+                    bridgeHost.LastLifecycleStates);
 
             if (latest == null)
             {
@@ -331,13 +350,22 @@ namespace ProjectAegis.Unity.Runtime
             WeaponsReleaseConfirmationGate.GateAction action)
         {
             var optionId = _pendingAttackOptionId;
-            _pendingAttackOptionId = null;
-            if (optionId == null || bridgeHost == null)
+            var unitId = _pendingAttackUnitId;
+            var positiveControlRequired = _pendingPositiveControlRequired;
+            ClearPendingAttackConfirmation();
+            if (optionId == null || bridgeHost == null || string.IsNullOrEmpty(unitId))
             {
                 return;
             }
 
-            var positiveControlRequired = ResolvePositiveControlRequired();
+            // Ensure the bridge fires from the unit that opened the gate, not whatever is currently
+            // selected (selection may have drifted; we cancel on drift in RefreshOrderStateChip, but
+            // bind here as a second line of defense).
+            if (!string.Equals(bridgeHost.SelectedUnitId, unitId, StringComparison.Ordinal))
+            {
+                bridgeHost.SelectUnit(unitId);
+            }
+
             if (!WeaponsReleaseConfirmationGate.ShouldEmit(
                     positiveControlRequired, action))
             {
@@ -352,15 +380,21 @@ namespace ProjectAegis.Unity.Runtime
             }
         }
 
-        private bool ResolvePositiveControlRequired()
+        private void ClearPendingAttackConfirmation()
         {
-            var unitId = bridgeHost?.SelectedUnitId;
-            if (string.IsNullOrEmpty(unitId))
+            _pendingAttackOptionId = null;
+            _pendingAttackUnitId = null;
+            _pendingPositiveControlRequired = false;
+        }
+
+        private bool ResolvePositiveControlRequired(string? unitId)
+        {
+            if (string.IsNullOrEmpty(unitId) || bridgeHost == null)
             {
                 return false;
             }
 
-            var policy = bridgeHost!.Bridge.Orchestrator.ScenarioPolicy;
+            var policy = bridgeHost.Bridge.Orchestrator.ScenarioPolicy;
             if (policy == null)
             {
                 return false;

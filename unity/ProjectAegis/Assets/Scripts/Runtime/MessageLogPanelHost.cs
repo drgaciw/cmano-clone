@@ -185,7 +185,8 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             // T2: req 20 §Order lifecycle — surface each PLAYER_ORDER row's resolved lifecycle state.
-            var lifecycle = OrderLifecycleProjection.Project(bridgeHost.Bridge.Orchestrator.DecisionLog);
+            // Use the host-cached projection so we do not re-walk DecisionLog every LateUpdate.
+            var lifecycle = bridgeHost.LastLifecycleStates;
             var candidate = MessageLogPanelBinder.Bind(lines, lifecycle);
 
             // req 20 AC-10 — skip itemsSource reassignment + Rebuild() when the bound snapshot is

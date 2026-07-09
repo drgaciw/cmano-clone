@@ -60,9 +60,12 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# find returns non-zero when bin/Release is missing; with pipefail that would exit
-# before the Release build below. Swallow pipeline status so empty → build path runs.
-CLI_DLL="$(find "$REPO_ROOT/src/ProjectAegis.MissionEditor.Cli/bin/Release" -name "ProjectAegis.MissionEditor.Cli.dll" 2>/dev/null | sort | tail -1 || true)"
+# find exits non-zero when bin/Release is missing; with set -o pipefail that aborts
+# before the rebuild branch below. Tolerate a missing tree so the script can build it.
+CLI_DLL=""
+if [[ -d "$REPO_ROOT/src/ProjectAegis.MissionEditor.Cli/bin/Release" ]]; then
+  CLI_DLL="$(find "$REPO_ROOT/src/ProjectAegis.MissionEditor.Cli/bin/Release" -name "ProjectAegis.MissionEditor.Cli.dll" 2>/dev/null | sort | tail -1 || true)"
+fi
 if [[ -z "$CLI_DLL" ]]; then
   echo "== AC-6 smoke: building CLI dependency chain (Release) =="
   dotnet build "$CLI_PROJ" -c Release -v minimal -m:1

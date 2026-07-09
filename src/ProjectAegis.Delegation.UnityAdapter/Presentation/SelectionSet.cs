@@ -1,6 +1,29 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 
 /// <summary>
+/// Read-only view of an ordered, de-duplicated friendly-unit selection (req 20 §Selection; GDD
+/// TR-c2-005). Exposed publicly by <see cref="C2PresentationController"/> so consumers can inspect
+/// multi-select state without mutating it and bypassing controller side effects.
+/// </summary>
+public interface IReadOnlySelectionSet
+{
+    /// <summary>Selected unit ids in insertion order.</summary>
+    IReadOnlyList<string> OrderedTargetIds { get; }
+
+    /// <summary>Number of units in the set.</summary>
+    int Count { get; }
+
+    /// <summary>True when no unit is selected.</summary>
+    bool IsEmpty { get; }
+
+    /// <summary>Anchor unit (first selected), or null when empty.</summary>
+    string? PrimaryUnitId { get; }
+
+    /// <summary>True if <paramref name="unitId"/> is currently selected.</summary>
+    bool Contains(string? unitId);
+}
+
+/// <summary>
 /// Ordered, de-duplicated set of friendly unit ids held as presentation state (req 20 §Selection;
 /// GDD TR-c2-005). This is never sim state (ADR-010). Single-select is a set of one via
 /// <see cref="ReplaceWith"/>; multi-select adds/removes/toggles.
@@ -10,8 +33,10 @@ namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 /// the pre-rev-2 single-select contract for existing consumers of
 /// <see cref="C2PresentationController.SelectedUnitId"/>. Drag-box marquee, shift/ctrl handling, and
 /// group-order fan-out that build on this set are implemented in Track T1.
+/// Mutations must go through <see cref="C2PresentationController"/> selection methods so side effects
+/// (hostile contact clear, graph surfacing) stay coordinated.
 /// </remarks>
-public sealed class SelectionSet
+public sealed class SelectionSet : IReadOnlySelectionSet
 {
     private readonly List<string> _ordered = new List<string>();
     private readonly HashSet<string> _lookup = new HashSet<string>(StringComparer.Ordinal);

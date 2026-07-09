@@ -18,7 +18,7 @@ public static class AlertSeverityMap
     /// Severity tier for a message-log category. Unknown or null categories default to
     /// <see cref="AlertSeverity.Routine"/> (log-only) so a new category never silently escalates.
     /// </summary>
-    public static AlertSeverity ForCategory(string? category) => category switch
+    public static AlertSeverity ForCategory(string? category) => category?.ToUpperInvariant() switch
     {
         // Critical — unit lost / ROE breach.
         "KILL_CONFIRMED" => AlertSeverity.Critical,
