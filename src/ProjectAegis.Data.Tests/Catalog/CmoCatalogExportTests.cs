@@ -46,9 +46,25 @@ public sealed class CmoCatalogExportTests
             return;
         }
 
-        var golden = CatalogJsonImporter.ResolveRepoRelative(
-            Path.Combine("tools", "cmano-db-crawler", "fixtures", "sensor-mini-export.golden.json"));
+        var golden = ResolveGoldenExportPath();
+        if (!File.Exists(golden))
+        {
+            throw new FileNotFoundException($"CMO export golden fixture not found: {golden}");
+        }
+
         File.Copy(golden, outJson, overwrite: true);
+    }
+
+    private static string ResolveGoldenExportPath()
+    {
+        var copied = Path.Combine(AppContext.BaseDirectory, "fixtures", "sensor-mini-export.golden.json");
+        if (File.Exists(copied))
+        {
+            return copied;
+        }
+
+        return CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("tools", "cmano-db-crawler", "fixtures", "sensor-mini-export.golden.json"));
     }
 
     private static bool TryRunNodeExport(string rawFixture, string outJson)
