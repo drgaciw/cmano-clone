@@ -1,6 +1,7 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Platform;
+using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
 using Xunit;
 
@@ -167,6 +168,57 @@ public sealed class PlatformWorkbookPhaseDWriteTests
             Assert.Equal(0.61, basePd, precision: 6);
             Assert.True(reader.TryGetMobility("u1", out var mobility));
             Assert.Equal(34, mobility.MaxSpeedKnots, precision: 3);
+        }
+        finally
+        {
+            Cleanup(dbPath);
+        }
+    }
+
+    /// <summary>
+    /// PLE-3.5: successful Excel-path ApproveBatches records immutable db_release / snapshot via
+    /// existing CatalogSnapshotBinder + DbSnapshotStore (single release train).
+    /// </summary>
+    [Fact]
+    public void ApproveBatches_records_db_release_and_snapshot_PLE_3_5()
+    {
+        var dbPath = CreateTempDbPath("phase-d-release-golden");
+        try
+        {
+            CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
+            var exported = _writeService.ExportFromDatabase(dbPath, SnapshotId, new FixedCatalogClock(9740));
+            var edited = WithSheetCell(exported, "Sensors", 0, "BasePd", "0.57");
+
+            var propose = _writeService.Propose(
+                dbPath,
+                edited,
+                new FixedCatalogClock(9741),
+                "human",
+                "drgamtd",
+                "phase d release golden");
+            Assert.True(propose.Proposed);
+            var batchId = Assert.Single(propose.BatchIds);
+
+            var approve = _writeService.ApproveBatches(
+                dbPath,
+                [batchId],
+                new FixedCatalogClock(9742),
+                "human",
+                "qa-reviewer");
+            Assert.True(approve.AllCommitted);
+            Assert.False(string.IsNullOrWhiteSpace(approve.ReleaseVersion));
+            Assert.False(string.IsNullOrWhiteSpace(approve.SnapshotId));
+            Assert.Matches("^[a-f0-9]{64}$", approve.ContentHashSha256!);
+            Assert.StartsWith("platform-workbook-", approve.ReleaseVersion, StringComparison.Ordinal);
+
+            using var store = new DbSnapshotStore(dbPath);
+            Assert.True(store.TryGetContentHash(approve.SnapshotId!, out var storedHash));
+            Assert.Equal(approve.ContentHashSha256, storedHash);
+
+            var releases = store.GetSortedReleases();
+            Assert.Contains(releases, r =>
+                string.Equals(r.ReleaseVersion, approve.ReleaseVersion, StringComparison.Ordinal)
+                && string.Equals(r.SnapshotId, approve.SnapshotId, StringComparison.Ordinal));
         }
         finally
         {

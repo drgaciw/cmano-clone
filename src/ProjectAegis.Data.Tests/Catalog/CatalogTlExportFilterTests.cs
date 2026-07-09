@@ -59,6 +59,42 @@ public sealed class CatalogTlExportFilterTests
         Assert.DoesNotContain(filtered.Sensors, s => s.SensorId == "sensor-tl5");
     }
 
+    /// <summary>
+    /// PLE-5.3 / DBI-6.3: provisional (non-approved) sensors edited into export data are excluded from
+    /// sim-visible <see cref="CatalogTlExportFilter.Apply"/> output until promoted to approved.
+    /// </summary>
+    [Fact]
+    public void Filtered_export_excludes_provisional_non_approved_sensors_PLE_5_3()
+    {
+        var provisional = new CatalogSensorBinding(
+            "u-provisional",
+            "sensor-provisional",
+            0.90,
+            ReviewState: CatalogReviewStates.Provisional,
+            TrlLevel: 9,
+            ValueTier: CatalogProvenanceTier.InterpretedValue,
+            ImportBatchId: "excel-edit");
+        var approved = Tl0Sensor;
+        var data = new PlatformCatalogExportData(
+            Platforms:
+            [
+                new CatalogPlatformEntry("u-fielded", 57.0, 20.0, 400),
+                new CatalogPlatformEntry("u-provisional", 58.0, 21.0, 350),
+            ],
+            Sensors: [approved, provisional],
+            Mounts: [],
+            Loadouts: [],
+            Magazines: [],
+            Comms: []);
+
+        var filtered = CatalogTlExportFilter.Apply(data, CatalogTlTier.Tl5);
+
+        Assert.Contains(filtered.Sensors, s => s.SensorId == "sensor-tl0");
+        Assert.DoesNotContain(filtered.Sensors, s => s.SensorId == "sensor-provisional");
+        Assert.DoesNotContain(filtered.Sensors, s =>
+            string.Equals(s.ReviewState, CatalogReviewStates.Provisional, StringComparison.OrdinalIgnoreCase));
+    }
+
     [Fact]
     public void Filtered_export_tl0_default_excludes_near_future_rows()
     {
