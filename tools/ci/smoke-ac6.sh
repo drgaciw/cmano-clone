@@ -60,11 +60,16 @@ cleanup() {
 }
 trap cleanup EXIT
 
-CLI_DLL="$(find "$REPO_ROOT/src/ProjectAegis.MissionEditor.Cli/bin/Release" -name "ProjectAegis.MissionEditor.Cli.dll" 2>/dev/null | sort | tail -1)"
+# find exits non-zero when bin/Release is missing; with set -o pipefail that aborts
+# before the rebuild branch below. Tolerate a missing tree so the script can build it.
+CLI_DLL=""
+if [[ -d "$REPO_ROOT/src/ProjectAegis.MissionEditor.Cli/bin/Release" ]]; then
+  CLI_DLL="$(find "$REPO_ROOT/src/ProjectAegis.MissionEditor.Cli/bin/Release" -name "ProjectAegis.MissionEditor.Cli.dll" 2>/dev/null | sort | tail -1 || true)"
+fi
 if [[ -z "$CLI_DLL" ]]; then
   echo "== AC-6 smoke: building CLI dependency chain (Release) =="
   dotnet build "$CLI_PROJ" -c Release -v minimal -m:1
-  CLI_DLL="$(find "$REPO_ROOT/src/ProjectAegis.MissionEditor.Cli/bin/Release" -name "ProjectAegis.MissionEditor.Cli.dll" 2>/dev/null | sort | tail -1)"
+  CLI_DLL="$(find "$REPO_ROOT/src/ProjectAegis.MissionEditor.Cli/bin/Release" -name "ProjectAegis.MissionEditor.Cli.dll" 2>/dev/null | sort | tail -1 || true)"
 fi
 if [[ -z "$CLI_DLL" ]]; then
   echo "FAIL: could not locate built ProjectAegis.MissionEditor.Cli.dll under bin/Release" >&2
