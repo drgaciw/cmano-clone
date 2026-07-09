@@ -36,8 +36,8 @@ public sealed class ContextActionRegistryTests
     {
         var registry = new ContextActionRegistry();
         registry.Register(new StubAction("dup", eligible: true));
-        TestDelegate act = () => registry.Register(new StubAction("dup", eligible: true));
-        Assert.Throws<InvalidOperationException>(act);
+        Action act = () => registry.Register(new StubAction("dup", eligible: true));
+        Assert.That(act, Throws.TypeOf<InvalidOperationException>());
     }
 
     [Test]
