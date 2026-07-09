@@ -22,7 +22,11 @@ public static class UnitDetailProjection
         var doctrineLabel = ResolveDoctrineLabel(unitId.Value, policy);
         var engageDefaults = policy?.EngageDefaults ?? ScenarioEngageDefaults.MvpFallback;
         var engageCtx = engageDefaults.ToEngageContext(engageDefaults.DefaultMagazineRounds);
-        var engagePreview = EngagePreviewProjection.Project(engageCtx, engageDefaults.DlzPersonality);
+        EffectivePolicy? doctrinePolicy = policy == null
+            ? null
+            : policy.ResolveUnitPolicy(unitId.Value, isFriendly: true).Effective;
+        var engagePreview = EngagePreviewProjection.Project(
+            engageCtx, engageDefaults.DlzPersonality, doctrinePolicy);
         var engageLabel = FormatEngagePreview(engagePreview);
         var attackMenu = EngageAttackOptions.Build(engageCtx, engagePreview);
         var attackLabel = FormatAttackOptions(attackMenu);

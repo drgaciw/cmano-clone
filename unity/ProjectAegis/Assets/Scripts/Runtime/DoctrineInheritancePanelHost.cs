@@ -38,7 +38,8 @@ namespace ProjectAegis.Unity.Runtime
         private DropdownField? _roeDropdown;
         private Button? _applyButton;
         private DoctrineInheritancePanelState _panelState = new(
-            "UNIT: —", "ROE: —", "SALVO: —", "EMCON: —", "SOURCE: —", "OVERRIDE: UNAVAILABLE",
+            "UNIT: —", "ROE: —", "SALVO: —", "EMCON: —", "WRA: —", "POSITIVE_CONTROL: —",
+            "SOURCE: —", "OVERRIDE: UNAVAILABLE",
             false, System.Array.Empty<RoeLevelOption>());
         private bool _wired;
 

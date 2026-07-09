@@ -366,11 +366,9 @@ namespace ProjectAegis.Unity.Runtime
                 return false;
             }
 
-            // MVP heuristic (Track T2 assumption — see report): WeaponsTight is the doctrine level that
-            // requires positive ID/authorization before weapons release. No dedicated "positive
-            // control" policy field exists yet; this is the closest existing projection signal.
+            // Req 20 P0 / TR-c2-006 residual (T3): policy projection flag, not a raw WeaponsTight check.
             var resolved = policy.ResolveUnitPolicy(unitId, isFriendly: true);
-            return resolved.Effective.Roe == ProjectAegis.Sim.Policy.RoeLevel.WeaponsTight;
+            return PositiveControlRequiredProjection.IsRequired(resolved.Effective);
         }
     }
 }

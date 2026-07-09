@@ -16,6 +16,8 @@ public sealed class DoctrineInheritancePanelBinderTests
         Assert.That(panel.RoeLine, Is.EqualTo("ROE: WeaponsTight"));
         Assert.That(panel.SalvoLine, Is.EqualTo("SALVO: 2"));
         Assert.That(panel.EmconLine, Is.EqualTo("EMCON: ACTIVE"));
+        Assert.That(panel.WraLine, Is.EqualTo("WRA: max salvo 2"));
+        Assert.That(panel.PositiveControlLine, Is.EqualTo("POSITIVE_CONTROL: REQUIRED"));
         Assert.That(panel.SourceLine, Is.EqualTo("SOURCE: Mission"));
         Assert.That(panel.OverrideLine, Is.EqualTo("OVERRIDE: NONE"));
     }
@@ -28,6 +30,8 @@ public sealed class DoctrineInheritancePanelBinderTests
         var panel = DoctrineInheritancePanelBinder.Bind(entry);
         Assert.That(panel.CanOverride, Is.False);
         Assert.That(panel.RoeOptions.Any(o => o.IsCurrent && o.Label == "WeaponsTight"), Is.True);
+        Assert.That(panel.EmconLine, Is.EqualTo("EMCON: OFF"));
+        Assert.That(panel.WraLine, Is.EqualTo("WRA: max salvo 2"));
     }
 
     [Test]
@@ -38,6 +42,8 @@ public sealed class DoctrineInheritancePanelBinderTests
         Assert.That(panel.RoeLine, Is.EqualTo("ROE: —"));
         Assert.That(panel.SalvoLine, Is.EqualTo("SALVO: —"));
         Assert.That(panel.EmconLine, Is.EqualTo("EMCON: —"));
+        Assert.That(panel.WraLine, Is.EqualTo("WRA: —"));
+        Assert.That(panel.PositiveControlLine, Is.EqualTo("POSITIVE_CONTROL: —"));
         Assert.That(panel.SourceLine, Is.EqualTo("SOURCE: —"));
         Assert.That(panel.OverrideLine, Is.EqualTo("OVERRIDE: UNAVAILABLE"));
         Assert.That(panel.CanOverride, Is.False);
@@ -52,5 +58,14 @@ public sealed class DoctrineInheritancePanelBinderTests
         var panel = DoctrineInheritancePanelBinder.Bind(entry);
         Assert.That(panel.CanOverride, Is.True);
         Assert.That(panel.RoeOptions, Has.Count.EqualTo(3));
+        Assert.That(panel.WraLine, Is.EqualTo("WRA: max salvo 1"));
+        Assert.That(panel.PositiveControlLine, Is.EqualTo("POSITIVE_CONTROL: NOT_REQUIRED"));
+    }
+
+    [Test]
+    public void FormatWraSummary_from_salvo_label()
+    {
+        Assert.That(DoctrineInheritancePanelBinder.FormatWraSummary("SALVO: 4"), Is.EqualTo("WRA: max salvo 4"));
+        Assert.That(DoctrineInheritancePanelBinder.FormatWraSummary("SALVO: —"), Is.EqualTo("WRA: —"));
     }
 }
