@@ -10,26 +10,33 @@ Primary blocking CI runs on **Buildkite hosted Linux agents** using repo-committ
 
 **Agent skills:** Official Buildkite skills and project agents are documented in [buildkite-agent-skills.md](./buildkite-agent-skills.md). Refresh skills with `bash tools/buildkite/install-buildkite-skills.sh`.
 
-**2026-07-09 optimization pass (PR #263, iterated after upload failures):** the previous
-monolithic `agent-dotnet-ci.sh` step still had two **redundant filtered re-runs** of
-Replay/C2 tests after the full suite. Those re-runs are gone: the blocking gate now
-uses `agent-dotnet-build.sh` + `run-tests-sharded.sh` (with `JOB_COUNT=1` on one agent)
-+ an inline `annotate-test-summary.sh` pass. Multi-agent `parallelism: 4` + `depends_on`
-was attempted but Build #554 failed at runtime without API log access; the scripts still
-honor `BUILDKITE_PARALLEL_JOB{,_COUNT}` so sharding can be re-enabled once logs confirm
-agent capacity. Native `cache:` volumes are **not** used (pipeline upload rejection —
-see Caching). Graphite CI optimizer plugin remains removed.
+**2026-07-09 PR #263 status (Build #559 green):** the live pipeline blocking gate matches
+`origin/main` (`agent-dotnet-ci.sh`) after a series of upload and step failures on the
+optimization path. Groundwork scripts remain under `tools/buildkite/` for a follow-up
+once Buildkite API logs are available:
+
+| Build | What | Result |
+|-------|------|--------|
+| #535 | `cache:` + `key`/`{{ checksum }}` | ~3s **upload reject** |
+| #541 | `cache:` `paths`/`name`/`size` only | ~3s **upload reject** |
+| #552 | no cache; retries/timeouts/analytics/plugin | ~2s **upload reject** |
+| #554 | simplified YAML + `depends_on` + `parallelism:4` | uploaded; failed ~1m29s |
+| #558 | single-agent new build/shard/annotate scripts | uploaded; failed ~1m32s |
+| #559 | main-identical gate (`agent-dotnet-ci.sh`) | **passed** ~1m28s |
+
+Native `cache:` volumes are **not** used (see Caching). Graphite CI optimizer remains removed.
 
 | Step | When | Purpose |
 |------|------|---------|
-| `:hammer: Build and test` | All builds | Single blocking step (main-compatible shape): Release build + S67 hash/bridge check, then all `src/*/*.Tests.csproj` via the sharded runner (`JOB_COUNT=1`), then TRX summary annotation. Uploads `test-results/**/*.trx`. No redundant Replay/C2 re-filters (those tests already run inside UnityAdapter.Tests) |
+| `:hammer: Build and test` | All builds | `agent-dotnet-ci.sh` — Release restore/build/test + Replay/C2 filters (same as main) |
 | Gitleaks | All builds | Secret scan (`soft_fail: true`) |
 | Baltic replay golden | `main` only | Post-merge `ReplayGolden*` filter |
 | GitNexus PR analysis | Pull requests | `analyze` + `detect_changes`; annotation; `soft_fail: true` |
-| GitNexus reindex | `main` only | Knowledge graph refresh; `soft_fail: true` (exit-75 sentinel still in script for future scoped soft_fail) |
+| GitNexus reindex | `main` only | Knowledge graph refresh; `soft_fail: true` (script has exit-75 sentinel ready for scoped soft_fail) |
 
-Blocking step uses the same `retry.automatic: exit_status: "*"` / `limit: 1` as main.
-Parallel siblings (Gitleaks, Baltic, GitNexus) still start alongside the blocking gate.
+**Follow-up (not active in pipeline):** `agent-dotnet-build.sh`, `run-tests-sharded.sh`
+(honors `BUILDKITE_PARALLEL_JOB{,_COUNT}`), `annotate-test-summary.sh` — verified locally
+(1599/1599) but not wired until #554/#558 agent failures are diagnosed.
 
 ### Caching
 
@@ -48,13 +55,13 @@ are a **Pro/Enterprise** feature and must be enabled on the cluster. Until a hum
 confirms **Agents → cluster → Cache Storage** is active for this org, do not re-add
 native `cache:` blocks — they reject pipeline upload before any job starts.
 
-Pipeline still sets `NUGET_PACKAGES: ".nuget/packages"` so a future volume or
-[cache plugin](https://github.com/buildkite-plugins/cache-buildkite-plugin) can mount
-that path without path churn.
+When re-enabling cache, set `NUGET_PACKAGES: ".nuget/packages"` in pipeline `env` so a
+volume or [cache plugin](https://github.com/buildkite-plugins/cache-buildkite-plugin)
+can mount a workspace-relative path without path churn. The sharded runner scripts
+already default to that path.
 
 **Do not cache `bin/` or `obj/`.** Restoring them across commits/agents breaks .NET
-incremental compilation (timestamp-based) and is a known anti-pattern. Test shards
-rebuild their assigned projects when Release output is missing.
+incremental compilation (timestamp-based) and is a known anti-pattern.
 
 No `packages.lock.json` exists in this repo today. Preferred re-enable path once
 approved:
