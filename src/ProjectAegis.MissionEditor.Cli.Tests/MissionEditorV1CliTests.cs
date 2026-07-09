@@ -12,14 +12,14 @@ public sealed class MissionEditorV1CliTests
         var path = Path.Combine(Path.GetTempPath(), $"ac5-{Guid.NewGuid():N}.json");
         try
         {
-            ScenarioCreateCommand.Run(path, "baltic_patrol", "baltic-patrol-catalog", 42, new StringWriter());
+            Assert.Equal(0, ScenarioCreateCommand.Run(path, "baltic_patrol", "baltic-patrol-catalog", 42, new StringWriter()));
             var zone = CliArgParser.ParseWaypoints(["57,20", "57.1,20.1", "57.2,20.2"]);
             var station = CliArgParser.ParseWaypoints(["57.5,20.5"]);
 
-            MissionAddPatrolCommand.Run(path, 1, "patrol-1", ["u1"], zone, new StringWriter());
-            MissionAddStrikeCommand.Run(path, 2, "strike-1", ["u1"], ["hostile-1"], new StringWriter());
-            MissionAddSupportCommand.Run(path, 3, "support-1", ["u2"], "Tanker", station, new StringWriter());
-            MissionAddFerryCommand.Run(path, 4, "ferry-1", ["u3"], "base-alpha", new StringWriter());
+            Assert.Equal(0, MissionAddPatrolCommand.Run(path, 1, "patrol-1", ["u1"], zone, new StringWriter()));
+            Assert.Equal(0, MissionAddStrikeCommand.Run(path, 2, "strike-1", ["u1"], ["hostile-1"], new StringWriter()));
+            Assert.Equal(0, MissionAddSupportCommand.Run(path, 3, "support-1", ["u2"], "Tanker", station, new StringWriter()));
+            Assert.Equal(0, MissionAddFerryCommand.Run(path, 4, "ferry-1", ["u3"], "base-alpha", new StringWriter()));
 
             using var validateWriter = new StringWriter();
             Assert.Equal(0, ScenarioValidateCommand.Run(path, quiet: false, validateWriter));
@@ -46,7 +46,7 @@ public sealed class MissionEditorV1CliTests
         try
         {
             ScenarioDocumentEditor.CreateNew().Save(path);
-            EventAddCommand.Run(path, 1, "evt-zone", 100, "Time", 0, new StringWriter());
+            Assert.Equal(0, EventAddCommand.Run(path, 1, "evt-zone", 100, "Time", 0, new StringWriter()));
 
             using var writer = new StringWriter();
             Assert.Equal(0, EventValidateCommand.Run(path, "evt-zone", writer));

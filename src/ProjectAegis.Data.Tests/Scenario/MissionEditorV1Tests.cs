@@ -124,6 +124,8 @@ public sealed class EditorStateSchemaLintTests
     [Fact]
     public void Editor_state_lint_finds_no_sim_validation_reads()
     {
+        // Force-load forbidden consumer assemblies so lazy AppDomain loading cannot skip the scan.
+        try { System.Reflection.Assembly.Load("ProjectAegis.Sim"); } catch { /* optional for this test host */ }
         var violations = ProjectAegis.Data.Validation.EditorStateSchemaLint.FindViolations();
         Assert.Empty(violations);
     }
@@ -168,8 +170,8 @@ public sealed class ScenarioSaveExportGateTests
         };
 
         Assert.True(ScenarioSaveExportGate.CanSave(doc));
-        var (_, report) = ScenarioSaveExportGate.CanExportOrPlay(doc, ValidationCatalogFixture.Default(), new ValidationConfig());
-        Assert.False(report.CanExport(new ValidationConfig()));
+        var (allowed, report) = ScenarioSaveExportGate.CanExportOrPlay(doc, ValidationCatalogFixture.Default(), new ValidationConfig());
+        Assert.False(allowed);
         Assert.Contains(report.Findings, f => f.Code == "MISSION_NO_UNITS");
     }
 
