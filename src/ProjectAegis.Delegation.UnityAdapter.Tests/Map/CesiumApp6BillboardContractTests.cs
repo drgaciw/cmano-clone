@@ -132,6 +132,7 @@ public sealed class CesiumApp6BillboardContractTests
         var repoRoot = FindRepoRoot();
         Assert.That(repoRoot, Is.Not.Null);
 
+        // Cesium sources live under Runtime/Cesium/ (CESIUM_FOR_UNITY-gated asmdef subfolder).
         var bridgePath = Path.Combine(
             repoRoot!,
             "unity",
@@ -139,6 +140,7 @@ public sealed class CesiumApp6BillboardContractTests
             "Assets",
             "Scripts",
             "Runtime",
+            "Cesium",
             "CesiumGlobeBridge.cs");
         Assert.That(File.Exists(bridgePath), Is.True);
 
