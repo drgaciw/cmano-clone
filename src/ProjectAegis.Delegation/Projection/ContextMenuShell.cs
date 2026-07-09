@@ -65,17 +65,20 @@ public sealed class ContextMenuShell
             throw new ArgumentNullException(nameof(context));
         }
 
-        if (string.IsNullOrWhiteSpace(actionId))
+        if (string.IsNullOrWhiteSpace(actionId) || context.IsReplay)
         {
             return null;
         }
 
-        foreach (var provider in _registry.Eligible(context))
+        // Iterate providers directly — avoid Eligible() ToArray() allocation on hot Invoke path.
+        foreach (var provider in _registry.Providers)
         {
-            if (string.Equals(provider.ActionId, actionId, StringComparison.Ordinal))
+            if (!string.Equals(provider.ActionId, actionId, StringComparison.Ordinal))
             {
-                return provider.CreateIntent(context);
+                continue;
             }
+
+            return provider.IsEligible(context) ? provider.CreateIntent(context) : null;
         }
 
         return null;
