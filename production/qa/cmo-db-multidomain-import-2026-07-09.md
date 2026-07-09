@@ -1,36 +1,28 @@
-# cmo-db.com multi-domain catalog import evidence
+# cmo-db.com multi-domain catalog import evidence (fixed ranges + Visby magazines)
 
 **Date:** 2026-07-09  
-**Method:** Playwright Chromium headless browser automation (`scrape-platforms.mjs`)  
-**Source:** https://cmano-db.com/ (platform/sensor/weapon detail pages)  
-**Legal:** Internal design reference / staged curated import only. Site reserves TDM rights (EU Dir. 2019/790 Art. 4). Not redistributing CMO proprietary product DB.
+**Method:** Playwright Chromium (`scrape-platforms.mjs`) + platform HTML weapon/range extraction  
+**Source:** https://cmano-db.com/  
+**Legal:** Internal design reference only; not redistributing CMO proprietary DB.
 
-## Baseline → Post-import
+## Counts
+| Table | Count |
+|---|---|
+| platform | 19 (3 seed + 16 harvested) |
+| weapon_catalog | 109 (all max_range_meters > 0) |
+| platform_magazine (Visby) | 2 (`cmo-weapon-455`, `cmo-weapon-1140`) |
 
-| Table | Before | After |
-|---|---|---|
-| platform | 3 | 19 |
-| sensor | 2 | 106 |
-| weapon_catalog | 2 | 19 |
-| platform_mount | 2 | 85 |
-| platform_loadout | 1 | 17 |
-| platform_magazine | 2 | 22 |
+## Weapon fixture fix
+`ReadWeaponBindings` only parses ranges under `**Weapons**` with `Air/Surface/Land/Sub Max: N km`.
+Fixtures rewritten from platform scrape tables (107 weapons). Zero-range count = 0.
 
-**Domains:** surface=9, air=6, subsurface=4
-
-## Harvest
-- Targets: 16 combat platforms (Baltic-relevant ships/air/subs: Visby, Orkan, Steregushchiy, Sachsen, Slazak, Buyan-M, Gripen, Su-27/30/35, Gotland, Type 212A, Kilo, F-16)
-- Related: 91 sensor pages + 17 weapon pages scraped
-- Artifacts: `/tmp/grok-goal-539a46171f2e/implementer/cmo-db-scrape/` (`harvest.json`, `pages/*.html`, `scrape.log`)
-
-## Import path
-- Fixtures: `tools/cmano-db-crawler/fixtures/baltic-multidomain-*.md`
-- Tool: `tools/cmano-db-crawler/import-qa-slice` → `CmoMarkdownImportProposer` + `CatalogWriteGate` propose→approve
-- Log: `catalog-import.log` (7 batches committed, 0 failed; 87 magazine fittings quarantined as orphan_weapon_id — expected when weapon detail not in the 17-weapon slice)
-
-## Scenario
-- Policy: `data/scenarios/baltic-multidomain-visby-sample.policy.json`
-- Run: seed 42, 6 ticks — exit 0; fingerprint shows contact `k-31-visby-2009` → `mpk-steregushchiy-pr-20380-2018`
+## Visby showcase
+- Scraped weapon detail pages: `weapon/455`, `weapon/1140` (HTTP 200)
+- Magazines: Dual Trap + 57mm Bofors linked via name-matched platform lines
 
 ## Tests
-- Data.Tests: 627 passed (incl. `BalticMultidomainImportResolutionTests` ×2)
+BalticMultidomainImportResolutionTests: 4/4  
+Data.Tests: see post-import-tests.log
+
+## Scenario
+`baltic-multidomain-visby-sample` seed 42 → exit 0 (see scenario-new-platform-run.log)
