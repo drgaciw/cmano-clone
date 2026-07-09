@@ -61,3 +61,29 @@ FullyQualifiedName~PlatformWorkbookPeIntegrationHardeningTests
 
 - All pins went GREEN on first run — PE-W1/W2 surfaces are **already hard** for these cross invariants; tests retained as adversarial regression nets.
 - No production code fixes required.
+
+## Orchestrator integration (post-merge)
+
+| Check | Result |
+|-------|--------|
+| Full solution | **1599** passed / 0 failed |
+| Excel.Tests | 24 |
+| Data.Tests | 616 |
+| PlayModeSmoke+ReplayGolden | 37 |
+| Hash `17144800277401907079` | 18 files |
+| DelegationBridge / CatalogWriteGate rewrite | ZERO |
+
+### Real bugs fixed by adversarial tracks
+
+1. **ToExcelList** — reject comma/quote/newline tokens that corrupt Excel list formulas
+2. **ErrorStyle** — Warning (soft UX) instead of default Stop
+3. **Double ApproveBatches** — no second `db_release` bind; `batch_already_committed_or_not_pending`
+4. **Quarantine sort** — EntityKind → PlatformId → EntityId → Reason
+5. **Doc 21 honesty contract** — PE completion language supersedes Wave 3 footer pin
+
+### Residual honesty
+
+- OQ5 sheet protect remains passwordless soft UX
+- CatalogWriteGate may still re-upsert staging if called directly; WriteService blocks release double-bind
+- Phase N Live Editor screenshots still residual
+
