@@ -47,8 +47,11 @@ public sealed class PauseReasonStack
     public void Clear() => _reasons.Clear();
 
     /// <summary>
-    /// Apply an <see cref="AutoPauseCommand"/> from the alerting layer by pushing its reason. A null
-    /// command (no Critical alert, or replay-suppressed) is a no-op. Returns true if a new pause was added.
+    /// Apply an <see cref="AutoPauseCommand"/> from the alerting layer by pushing the canonical
+    /// <see cref="PauseReasonIds.AutoPauseSeverity"/> reason (aligned with
+    /// <see cref="AutoPausePolicy.CriticalAlertReason"/>). A null command (no Critical alert, or
+    /// replay-suppressed) is a no-op. Returns true if a new pause was added.
     /// </summary>
-    public bool ApplyAutoPause(AutoPauseCommand? command) => command != null && Push(command.Reason);
+    public bool ApplyAutoPause(AutoPauseCommand? command) =>
+        command != null && Push(PauseReasonIds.AutoPauseSeverity);
 }
