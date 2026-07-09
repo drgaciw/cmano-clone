@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 
@@ -73,9 +74,22 @@ public sealed class PanelRefreshGate<TRow>
     /// <summary>Records <paramref name="applied"/> as the last-applied snapshot. Call only after
     /// actually pushing a refresh (i.e. only when <see cref="IsDirty"/> returned true) so
     /// <see cref="AppliedCount"/> reflects real render work.</summary>
+    /// <remarks>
+    /// Defensively copies <paramref name="applied"/> into a private array rather than retaining
+    /// the caller's list reference. Some callers rebuild a fresh list every bind (safe either
+    /// way), but a caller that reuses and mutates the same list instance across frames would
+    /// otherwise alias <c>_lastApplied</c> — the <see cref="IsDirty"/> reference-equality
+    /// short-circuit would then compare the mutated list against itself and wrongly report "not
+    /// dirty" for a real content change.
+    /// </remarks>
     public void MarkApplied(IReadOnlyList<TRow> applied)
     {
-        _lastApplied = applied ?? throw new ArgumentNullException(nameof(applied));
+        if (applied is null)
+        {
+            throw new ArgumentNullException(nameof(applied));
+        }
+
+        _lastApplied = applied.ToArray();
         _hasApplied = true;
         AppliedCount++;
     }

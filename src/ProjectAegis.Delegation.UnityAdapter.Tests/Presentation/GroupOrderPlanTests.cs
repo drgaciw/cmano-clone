@@ -91,4 +91,30 @@ public sealed class GroupOrderPlanTests
         Assert.That(plan.IneligibleUnits, Is.Empty);
         Assert.That(plan.HasAnyEligible, Is.False);
     }
+
+    [Test]
+    public void Build_with_null_selection_yields_empty_plan_instead_of_throwing()
+    {
+        var plan = GroupOrderPlan.Build(null!, GroupOrderUnitVerdict.Eligible);
+
+        Assert.That(plan.EligibleUnitIds, Is.Empty);
+        Assert.That(plan.IneligibleUnits, Is.Empty);
+        Assert.That(plan.HasAnyEligible, Is.False);
+    }
+
+    [Test]
+    public void Build_null_or_empty_ids_within_the_selection_are_skipped_not_evaluated()
+    {
+        var evaluationCount = 0;
+        var plan = GroupOrderPlan.Build(
+            new[] { "u1", null, "", "u2" }!,
+            id =>
+            {
+                evaluationCount++;
+                return GroupOrderUnitVerdict.Eligible(id);
+            });
+
+        Assert.That(evaluationCount, Is.EqualTo(2), "null/empty entries in the selection are never evaluated");
+        Assert.That(plan.EligibleUnitIds, Is.EqualTo(new[] { "u1", "u2" }));
+    }
 }

@@ -77,6 +77,59 @@ public sealed class SelectionBoxResolverTests
     }
 
     [Test]
+    public void Resolve_returns_empty_for_null_symbols()
+    {
+        var rect = NormalizedRect.FromCorners(0f, 0f, 1f, 1f);
+        Assert.That(SelectionBoxResolver.Resolve(rect, null!), Is.Empty);
+    }
+
+    [Test]
+    public void Resolve_matches_a_symbol_exactly_at_a_zero_area_click_point()
+    {
+        var symbols = new[]
+        {
+            new MapSymbolEntry("u1", "Friendly", "■", "u1", 0.5f, 0.5f, false),
+        };
+
+        // A drag-box gesture that never actually moved — both corners coincide (a click-sized rect).
+        var rect = NormalizedRect.FromCorners(0.5f, 0.5f, 0.5f, 0.5f);
+        var result = SelectionBoxResolver.Resolve(rect, symbols);
+
+        Assert.That(result, Is.EqualTo(new[] { "u1" }));
+    }
+
+    [Test]
+    public void Resolve_min_boundary_is_inclusive()
+    {
+        var symbols = new[]
+        {
+            new MapSymbolEntry("u1", "Friendly", "■", "u1", 0.1f, 0.1f, false), // exactly on the min boundary
+        };
+
+        var rect = NormalizedRect.FromCorners(0.1f, 0.1f, 0.5f, 0.5f);
+        var result = SelectionBoxResolver.Resolve(rect, symbols);
+
+        Assert.That(result, Is.EqualTo(new[] { "u1" }));
+    }
+
+    [Test]
+    public void Resolve_excludes_a_symbol_just_outside_each_boundary()
+    {
+        var symbols = new[]
+        {
+            new MapSymbolEntry("left", "Friendly", "■", "left", 0.0999f, 0.3f, false),
+            new MapSymbolEntry("right", "Friendly", "■", "right", 0.5001f, 0.3f, false),
+            new MapSymbolEntry("top", "Friendly", "■", "top", 0.3f, 0.0999f, false),
+            new MapSymbolEntry("bottom", "Friendly", "■", "bottom", 0.3f, 0.5001f, false),
+        };
+
+        var rect = NormalizedRect.FromCorners(0.1f, 0.1f, 0.5f, 0.5f);
+        var result = SelectionBoxResolver.Resolve(rect, symbols);
+
+        Assert.That(result, Is.Empty, "a hair outside any edge must not be picked up by the marquee");
+    }
+
+    [Test]
     public void FromCorners_normalizes_arbitrary_corner_order()
     {
         var rect = NormalizedRect.FromCorners(0.7f, 0.7f, 0.2f, 0.2f); // pointer-up above/left of pointer-down

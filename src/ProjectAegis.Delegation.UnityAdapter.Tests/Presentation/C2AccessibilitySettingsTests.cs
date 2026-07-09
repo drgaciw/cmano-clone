@@ -1,3 +1,4 @@
+using System;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using NUnit.Framework;
 
@@ -85,5 +86,58 @@ public sealed class C2AccessibilitySettingsTests
         Assert.That(C2AccessibilitySettings.ScaleUssClass(C2TextScalePercent.Scale100), Is.Null);
         Assert.That(C2AccessibilitySettings.ScaleUssClass(C2TextScalePercent.Scale125), Is.EqualTo("aegis-scale-125"));
         Assert.That(C2AccessibilitySettings.ScaleUssClass(C2TextScalePercent.Scale150), Is.EqualTo("aegis-scale-150"));
+    }
+
+    [Test]
+    public void ResolveFontSizePx_10px_base_never_drops_below_floor_at_125_or_150_percent()
+    {
+        // An exact-floor (10px) baseline only ever scales upward — 125%/150% must never
+        // round-trip back down through the floor. Coverage: implementation was already correct,
+        // this scenario (as opposed to the sub-floor 8px case) was untested.
+        Assert.That(
+            C2AccessibilitySettings.ResolveFontSizePx(10f, C2TextScalePercent.Scale125),
+            Is.EqualTo(12.5f));
+        Assert.That(
+            C2AccessibilitySettings.ResolveFontSizePx(10f, C2TextScalePercent.Scale150),
+            Is.EqualTo(15f));
+    }
+
+    [Test]
+    public void BaseFontSizePx_throws_for_an_undefined_surface_enum_value()
+    {
+        // Coverage: the switch expression's default arm already throws for any C2TextSurface
+        // value outside the three documented surfaces (e.g. a future surface added to the enum
+        // without a matching §3 baseline entry) — was untested.
+        var undefinedSurface = (C2TextSurface)999;
+
+        Assert.Throws<ArgumentOutOfRangeException>((Action)(() =>
+            C2AccessibilitySettings.BaseFontSizePx(undefinedSurface)));
+    }
+
+    [Test]
+    public void ScaleUssClass_throws_for_an_undefined_scale_percent_enum_value()
+    {
+        // Coverage: ScaleUssClass validates its enum argument via a switch default arm (unlike
+        // the numeric ResolveFontSizePx overload, which tolerates an out-of-range scale via the
+        // redundant floor safety net rather than throwing) — was untested.
+        var undefinedScale = (C2TextScalePercent)999;
+
+        Assert.Throws<ArgumentOutOfRangeException>((Action)(() =>
+            C2AccessibilitySettings.ScaleUssClass(undefinedScale)));
+    }
+
+    [Test]
+    public void ResolveFontSizePx_floor_safety_net_still_holds_for_an_undefined_scale_percent_enum_value()
+    {
+        // Coverage: unlike ScaleUssClass/BaseFontSizePx, the numeric ResolveFontSizePx overload
+        // does not validate scalePercent via a switch — an out-of-range value (e.g. a
+        // hypothetical 0% tier) is tolerated and falls through to the redundant
+        // Math.Max(scaled, MinFontSizePx) safety net documented in the XML remarks. Confirms
+        // that documented fallback actually behaves as claimed.
+        var undefinedScale = (C2TextScalePercent)0;
+
+        Assert.That(
+            C2AccessibilitySettings.ResolveFontSizePx(10f, undefinedScale),
+            Is.EqualTo(10f));
     }
 }
