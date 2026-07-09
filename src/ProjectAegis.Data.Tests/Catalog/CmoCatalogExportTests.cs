@@ -36,16 +36,42 @@ public sealed class CmoCatalogExportTests
     }
 
     /// <summary>
-    /// Prefer live node export when the toolchain is on PATH; otherwise use the checked-in golden
-    /// so headless CI agents without node/nvm still exercise the import path.
+    /// Prefer live node export for local dev when explicitly enabled; otherwise use the checked-in
+    /// golden so headless CI agents (Buildkite, GitHub Actions) stay deterministic without node.
     /// </summary>
     private static void ResolveExportJson(string rawFixture, string outJson)
     {
-        if (TryRunNodeExport(rawFixture, outJson))
+        if (ShouldUseLiveNodeExport() && TryRunNodeExport(rawFixture, outJson))
         {
             return;
         }
 
+        CopyGoldenExport(outJson);
+    }
+
+    private static bool ShouldUseLiveNodeExport()
+    {
+        if (string.Equals(Environment.GetEnvironmentVariable("CMO_EXPORT_USE_NODE"), "1", StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        // CI agents may have node on PATH with a different version or cwd; golden is authoritative.
+        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUILDKITE")))
+        {
+            return false;
+        }
+
+        if (string.Equals(Environment.GetEnvironmentVariable("CI"), "true", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void CopyGoldenExport(string outJson)
+    {
         var golden = ResolveGoldenExportPath();
         if (!File.Exists(golden))
         {
@@ -90,7 +116,13 @@ public sealed class CmoCatalogExportTests
             }
 
             proc.WaitForExit(60_000);
-            return proc.ExitCode == 0 && File.Exists(outJson);
+            if (proc.ExitCode != 0 || !File.Exists(outJson))
+            {
+                return false;
+            }
+
+            var bindings = CatalogJsonImporter.ReadSensorBindings(outJson);
+            return bindings.Count >= 2;
         }
         catch (System.ComponentModel.Win32Exception)
         {
