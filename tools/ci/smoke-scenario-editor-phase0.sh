@@ -116,17 +116,61 @@ echo "== DelegationBridge.cs additive-only vs merge-base main =="
 if git rev-parse --verify main >/dev/null 2>&1; then
   MB="$(git merge-base main HEAD 2>/dev/null || true)"
   if [[ -n "$MB" ]]; then
-    # req 20 rev 2 Phase 2b (approved 2026-07-08): the bridge may gain the ADDITIVE
-    # TryCancelHumanOrder command affordance, but every existing method must stay byte-for-byte
-    # untouched. A pure insertion has zero deletion lines; any modification/removal of existing
-    # bridge code shows as a '-' line and still fails. This supersedes the former zero-diff rule
-    # while preserving its protective intent (no changes to the existing bridge surface).
-    BRIDGE_DEL="$(git diff "$MB"..HEAD -- src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs | grep -c '^-[^-]' || true)"
+    # req 20 rev 2 Phase 2b / ADR-019: DelegationBridge may gain ADDITIVE API surface
+    # (new members / usings only). Existing methods must stay byte-for-byte untouched.
+    # Guard:
+    #  1) zero deletion/modification lines (include deleted empty lines; exclude --- headers)
+    #  2) pure-insertion hunks must start at member/using level — reject mid-method inserts
+    #     that would otherwise pass a deletions-only check (Codex P1 on PR #259).
+    BRIDGE_PATH="src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs"
+    BRIDGE_DIFF="$(git diff "$MB"..HEAD -- "$BRIDGE_PATH" || true)"
+    BRIDGE_DEL="$(printf '%s\n' "$BRIDGE_DIFF" | grep -E -c '^-([^-]|$)' || true)"
     echo "merge-base: $(git rev-parse --short "$MB") bridge deletion/modification lines vs merge-base: $BRIDGE_DEL"
     if [[ "${BRIDGE_DEL:-0}" -ne 0 ]]; then
       echo "FAIL: DelegationBridge.cs modifies/removes existing code vs merge-base (additive-only invariant)" >&2
       exit 1
     fi
+
+    # Walk unified-diff addition runs. The first non-blank '+' line of each contiguous run
+    # must be a file-level using or a class-member introduction (4-space indent + docs/
+    # attributes/accessors). Deeper first lines imply insertion inside an existing method body.
+    BRIDGE_MID_METHOD=0
+    in_run=0
+    while IFS= read -r line || [[ -n "$line" ]]; do
+      case "$line" in
+        +++*|---*)
+          in_run=0
+          continue
+          ;;
+        +*)
+          content="${line#+}"
+          if [[ "$in_run" -eq 0 ]]; then
+            # skip blank starters inside a new run
+            if [[ -z "${content//[[:space:]]/}" ]]; then
+              continue
+            fi
+            in_run=1
+            if [[ "$content" =~ ^using[[:space:]] ]] || \
+               [[ "$content" =~ ^[[:space:]]{4}(///|//|\[|#region|#endregion|public[[:space:]]|private[[:space:]]|internal[[:space:]]|protected[[:space:]]|static[[:space:]]|sealed[[:space:]]|readonly[[:space:]]|partial[[:space:]]|class[[:space:]]|struct[[:space:]]|enum[[:space:]]|record[[:space:]]|\}) ]]; then
+              :
+            else
+              BRIDGE_MID_METHOD=1
+              echo "FAIL: non-member-level insertion into DelegationBridge.cs: ${content:0:120}" >&2
+              break
+            fi
+          fi
+          ;;
+        *)
+          in_run=0
+          ;;
+      esac
+    done <<< "$BRIDGE_DIFF"
+
+    if [[ "${BRIDGE_MID_METHOD:-0}" -ne 0 ]]; then
+      echo "FAIL: DelegationBridge.cs inserts into existing method bodies (additive member-level only)" >&2
+      exit 1
+    fi
+    echo "bridge additive-only: deletions=0, no mid-method insertions"
   else
     echo "SKIP: could not compute merge-base with main"
   fi
