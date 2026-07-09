@@ -123,7 +123,7 @@ public sealed class KillChainRulePackTests
     }
 
     [Fact]
-    public void KillChain_R3_missing_mobility_emits_warning_not_error()
+    public void KillChain_R3_missing_mobility_skips_speed_check_without_finding()
     {
         var reader = BuildWeaponChainReader(
             combatRadiusNm: 400,
@@ -133,9 +133,7 @@ public sealed class KillChainRulePackTests
 
         var findings = KillChainRules.Evaluate(reader);
 
-        var speedFinding = Assert.Single(findings, f => f.Code == KillChainRules.SpeedMismatchCode);
-        Assert.Equal("warning", speedFinding.Severity);
-        Assert.Contains("mobility missing", speedFinding.Message, StringComparison.Ordinal);
+        Assert.DoesNotContain(findings, f => f.Code == KillChainRules.SpeedMismatchCode);
     }
 
     [Fact]

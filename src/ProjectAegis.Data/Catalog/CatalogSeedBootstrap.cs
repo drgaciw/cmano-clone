@@ -238,13 +238,14 @@ public static class CatalogSeedBootstrap
 
         if (TableExists(connection, "platform_magazine"))
         {
+            // Quantities must not exceed mount capacity (PLE-MAG-CAPACITY blocks propose/export diffs).
             InsertMagazine(connection, "u1", "asuw-default", "vls-fwd", CatalogWeaponIds.BalticRim66, quantity: 8);
-            InsertMagazine(connection, "u1", "asuw-default", "gun-76", CatalogWeaponIds.BalticOto76, quantity: 120);
+            InsertMagazine(connection, "u1", "asuw-default", "gun-76", CatalogWeaponIds.BalticOto76, quantity: 1);
         }
 
-        // Intentionally no platform_mobility row: kill-chain speed rule compares inferred
-        // weapon flight speed to platform max_speed; ship speeds fail that heuristic as errors.
-        // Missing mobility yields advisory warnings only (ok:true).
+        // Intentionally no platform_mobility row: kill-chain speed rule skips when mobility is
+        // absent (warnings would break clean Baltic golden/report emptiness). Ship max speeds
+        // also fail the weapon flight-speed heuristic as errors when present at real values.
     }
 
     private static void InsertWeapon(
@@ -316,6 +317,31 @@ public static class CatalogSeedBootstrap
         cmd.Parameters.AddWithValue("$mount", mountId);
         cmd.Parameters.AddWithValue("$weapon", weaponId);
         cmd.Parameters.AddWithValue("$qty", quantity);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertMobility(
+        SqliteConnection connection,
+        string platformId,
+        double maxSpeedKnots,
+        double cruiseSpeedKnots,
+        double rangeNm)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO platform_mobility
+                (platform_id, max_speed_knots, cruise_speed_knots, range_nm, review_state, trl_level, value_tier, citation_ref)
+            VALUES ($platform, $max, $cruise, $range, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$platform", platformId);
+        cmd.Parameters.AddWithValue("$max", maxSpeedKnots);
+        cmd.Parameters.AddWithValue("$cruise", cruiseSpeedKnots);
+        cmd.Parameters.AddWithValue("$range", rangeNm);
+        cmd.Parameters.AddWithValue("$review", CatalogReviewStates.Approved);
+        cmd.Parameters.AddWithValue("$trl", 9);
+        cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.GameplayAbstraction);
+        cmd.Parameters.AddWithValue("$citation", "baltic-seed-mobility");
         cmd.ExecuteNonQuery();
     }
 

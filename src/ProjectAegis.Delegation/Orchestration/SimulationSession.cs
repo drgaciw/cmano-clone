@@ -519,6 +519,18 @@ public sealed class SimulationSession
                 request.MountId,
                 fallbackRounds,
                 out _);
+
+            // Scenario policy DefaultMagazineRounds is an authoritative engagement budget.
+            // Cap catalog-seeded totals so magazine-depletion scenarios (e.g. baltic-patrol-magazine)
+            // still emit NO_AMMO when the policy specifies a tight magazine.
+            if (DefaultMagazineRounds is int policyRounds && policyRounds > 0)
+            {
+                var have = Magazines.GetRounds(request.ShooterUnitId, request.MountId);
+                if (have > policyRounds)
+                {
+                    Magazines.SetRounds(request.ShooterUnitId, request.MountId, policyRounds);
+                }
+            }
         }
     }
 
