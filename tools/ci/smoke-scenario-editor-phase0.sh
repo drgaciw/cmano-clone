@@ -100,7 +100,11 @@ dotnet test "$DATA_PROJ" "${NOBUILD[@]}" --filter "$EDITOR_FILTER" -v minimal
 
 echo
 echo "== Baltic production hash present =="
-HASH_COUNT="$(rg -l '17144800277401907079' tests/regression/ data/ 2>/dev/null | wc -l | tr -d ' ')"
+if command -v rg >/dev/null 2>&1; then
+  HASH_COUNT="$(rg -l '17144800277401907079' tests/regression/ data/ 2>/dev/null | wc -l | tr -d ' ')"
+else
+  HASH_COUNT="$(grep -rFl '17144800277401907079' tests/regression/ data/ 2>/dev/null | wc -l | tr -d ' ')"
+fi
 echo "hash file count: $HASH_COUNT"
 if [[ "${HASH_COUNT:-0}" -lt 18 ]]; then
   echo "FAIL: expected >= 18 files containing production hash, got $HASH_COUNT" >&2

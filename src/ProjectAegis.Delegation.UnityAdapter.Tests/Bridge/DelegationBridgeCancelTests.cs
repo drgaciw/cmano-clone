@@ -110,4 +110,40 @@ public sealed class DelegationBridgeCancelTests
         Assert.That(reason, Is.EqualTo("replay"));
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrderCancellations, Is.Empty);
     }
+
+    [Test]
+    public void TryCancelHumanOrder_clears_NextEngageSalvoOverride_for_Engage()
+    {
+        // Codex P2 on PR #257: canceling a queued Engage must clear sticky Session.NextEngageSalvoOverride
+        // so a later engage cannot inherit the canceled salvo (add-only path in TryCancelHumanOrder).
+        var bridge = new DelegationBridge(42, mvpEngagement: true, scenarioPolicyId: "baltic-patrol");
+        var u1 = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
+        u1.Target.Slot.SetActive(new HumanController());
+        bridge.BeginExecution();
+
+        Assert.That(bridge.Session, Is.Not.Null);
+        bridge.Session!.NextEngageSalvoOverride = 1;
+
+        Assert.That(bridge.TryEnqueueHumanOrder(new EntityKey(1), OrderKind.Engage, simTime: 10.0), Is.True);
+        Assert.That(bridge.TryCancelHumanOrder(new EntityKey(1), simTime: 12.0, out var reason), Is.True);
+        Assert.That(reason, Is.Null);
+        Assert.That(bridge.Session.NextEngageSalvoOverride, Is.Null);
+    }
+
+    [Test]
+    public void TryCancelHumanOrder_does_not_clear_salvo_override_for_non_Engage()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: true, scenarioPolicyId: "baltic-patrol");
+        var u1 = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
+        u1.Target.Slot.SetActive(new HumanController());
+        bridge.BeginExecution();
+
+        Assert.That(bridge.Session, Is.Not.Null);
+        bridge.Session!.NextEngageSalvoOverride = 3;
+
+        Assert.That(bridge.TryEnqueueHumanOrder(new EntityKey(1), OrderKind.Move, simTime: 10.0), Is.True);
+        Assert.That(bridge.TryCancelHumanOrder(new EntityKey(1), simTime: 12.0, out _), Is.True);
+        Assert.That(bridge.Session.NextEngageSalvoOverride, Is.EqualTo(3),
+            "canceling a non-Engage must leave a pending engage salvo override intact");
+    }
 }
