@@ -36,6 +36,28 @@ public sealed class BalticMultidomainImportResolutionTests
     }
 
     [Fact]
+    public void Expansion_wave2_fixture_parses_additional_ship_air_sub_platforms()
+    {
+        var path = Path.Combine(
+            CatalogJsonImporter.ResolveRepoRelative("tools/cmano-db-crawler/fixtures"),
+            "baltic-multidomain-expand.md");
+        Assert.True(File.Exists(path), $"Missing expansion fixture: {path}");
+
+        var platforms = CmoMarkdownImporter.ReadPlatformBindings(path, mapBalticIds: false);
+        Assert.True(platforms.Count >= 20, $"Expected expansion slice ≥20, got {platforms.Count}");
+
+        var domains = platforms.Select(p => p.Domain).ToHashSet(StringComparer.Ordinal);
+        Assert.Contains("surface", domains);
+        Assert.Contains("air", domains);
+        Assert.Contains("subsurface", domains);
+
+        Assert.Contains(platforms, p => p.PlatformId.Contains("stockholm", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(platforms, p => p.PlatformId.Contains("gripen", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(platforms, p => p.PlatformId.Contains("gotland", StringComparison.OrdinalIgnoreCase)
+            || p.PlatformId.Contains("lada", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
     public void Weapon_fixture_parses_non_zero_max_ranges_via_importer()
     {
         var path = Path.Combine(
@@ -148,5 +170,15 @@ public sealed class BalticMultidomainImportResolutionTests
 
         Assert.True(reader.TryGetCombatRadiusNm("jas-39c-gripen-2005", out _));
         Assert.True(reader.TryGetCombatRadiusNm("a-19-gotland-2020", out _));
+
+        // Expansion wave-2 showcase IDs (must remain after further imports)
+        Assert.True(reader.TryGetCombatRadiusNm("k-11-stockholm-spica-iii-1986", out _));
+        Assert.True(reader.TryGetCombatRadiusNm("jas-39a-gripen-1997", out _));
+        Assert.True(reader.TryGetCombatRadiusNm("a-19-gotland-1996", out _));
+
+        var stockholmMags = reader.GetSortedMagazines()
+            .Where(m => string.Equals(m.PlatformId, "k-11-stockholm-spica-iii-1986", StringComparison.Ordinal))
+            .ToArray();
+        Assert.NotEmpty(stockholmMags);
     }
 }
