@@ -91,7 +91,7 @@ public sealed class CatalogReleaseDiffCommandTests
 
             var kinds = root.GetProperty("rows")
                 .EnumerateArray()
-                .Select(r => r.GetProperty("kind").GetString())
+                .Select(r => r.GetProperty("kind").GetString() ?? string.Empty)
                 .OrderBy(k => k, StringComparer.Ordinal)
                 .ToArray();
             Assert.Equal(["Added", "Changed", "Removed"], kinds);
