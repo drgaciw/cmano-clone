@@ -28,8 +28,11 @@ using ProjectAegis.Delegation.Decision;
 /// </para>
 /// <para>
 /// A player cancel of a queued order (<see cref="OrderLogEntryKind.PlayerOrderCancelled"/>, Phase 2b via
-/// <c>DelegationBridge.TryCancelHumanOrder</c>) maps to <see cref="OrderLifecycleState.Aborted"/>, matched
-/// FIFO to the oldest still-open order for the unit with the same <see cref="OrderKind"/>.
+/// <c>DelegationBridge.TryCancelHumanOrder</c>) maps to <see cref="OrderLifecycleState.Aborted"/>.
+/// Correlation prefers <see cref="PlayerOrderCancelledRecord.CancelledExecuteSimTick"/> against the
+/// originating <see cref="PlayerOrderRecord.ResolvedExecuteSimTick"/> so a cancel of a later queued
+/// order does not abort an earlier same-kind order that already drained but remains open (MVP gap for
+/// non-Engage kinds). Falls back to FIFO among Accepted/Queued open orders when the cancel tick is 0.
 /// </para>
 /// <para>
 /// Known MVP gap (Track T2 report, req 20 AC-8): non-Engage order kinds (Move, Hold, SetEwPosture,
@@ -53,6 +56,7 @@ public static class OrderLifecycleProjection
     {
         var states = new Dictionary<OrderKey, OrderLifecycleState>();
         var kindByKey = new Dictionary<OrderKey, OrderKind>();
+        var executeTickByKey = new Dictionary<OrderKey, ulong>();
         var openByUnit = new Dictionary<string, List<OrderKey>>(StringComparer.Ordinal);
         var keyByEngagementId = new Dictionary<ulong, OrderKey>();
 
@@ -67,6 +71,7 @@ public static class OrderLifecycleProjection
                         ? OrderLifecycleState.Queued
                         : OrderLifecycleState.Accepted;
                     kindByKey[key] = playerOrder.Kind;
+                    executeTickByKey[key] = playerOrder.ResolvedExecuteSimTick;
                     Open(openByUnit, playerOrder.UnitId.Value, key);
                     break;
                 }
@@ -119,11 +124,19 @@ public static class OrderLifecycleProjection
 
                 case OrderLogEntryKind.PlayerOrderCancelled when entry.Payload is PlayerOrderCancelledRecord cancelled:
                 {
-                    // Phase 2b (req 20 AC-8): a player cancel of a queued order → Aborted. Matched FIFO to
-                    // the oldest still-open order for the unit with the same OrderKind.
-                    if (TryTakeOldestOpen(
-                            openByUnit, kindByKey, cancelled.UnitId.Value, cancelled.Kind,
-                            remove: true, out var key))
+                    // Phase 2b (req 20 AC-8): cancel → Aborted. Prefer CancelledExecuteSimTick correlation
+                    // so a cancel of a still-queued order does not FIFO-match an earlier same-kind order
+                    // that already drained but remains open (non-Engage MVP gap). Exclude Executing so a
+                    // stray/out-of-order cancel cannot downgrade a launched engage.
+                    if (TryTakeOpenForCancel(
+                            openByUnit,
+                            kindByKey,
+                            executeTickByKey,
+                            states,
+                            cancelled.UnitId.Value,
+                            cancelled.Kind,
+                            cancelled.CancelledExecuteSimTick,
+                            out var key))
                     {
                         states[key] = OrderLifecycleState.Aborted;
                     }
@@ -213,6 +226,79 @@ public static class OrderLifecycleProjection
 
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Selects the open order a player cancel should abort. Prefer matching
+    /// <paramref name="cancelledExecuteSimTick"/> to the originating order's resolved execute tick;
+    /// otherwise FIFO among still-Accepted/Queued open orders of the same kind.
+    /// </summary>
+    private static bool TryTakeOpenForCancel(
+        Dictionary<string, List<OrderKey>> openByUnit,
+        Dictionary<OrderKey, OrderKind> kindByKey,
+        Dictionary<OrderKey, ulong> executeTickByKey,
+        Dictionary<OrderKey, OrderLifecycleState> states,
+        string unitId,
+        OrderKind kind,
+        ulong cancelledExecuteSimTick,
+        out OrderKey key)
+    {
+        key = default;
+        if (!openByUnit.TryGetValue(unitId, out var list) || list.Count == 0)
+        {
+            return false;
+        }
+
+        static bool IsCancellable(OrderLifecycleState state) =>
+            state is OrderLifecycleState.Accepted or OrderLifecycleState.Queued;
+
+        if (cancelledExecuteSimTick != 0)
+        {
+            for (var i = 0; i < list.Count; i++)
+            {
+                var candidate = list[i];
+                if (!kindByKey.TryGetValue(candidate, out var candidateKind) || candidateKind != kind)
+                {
+                    continue;
+                }
+
+                if (!executeTickByKey.TryGetValue(candidate, out var executeTick) ||
+                    executeTick != cancelledExecuteSimTick)
+                {
+                    continue;
+                }
+
+                if (states.TryGetValue(candidate, out var candidateState) && !IsCancellable(candidateState))
+                {
+                    continue;
+                }
+
+                key = candidate;
+                list.RemoveAt(i);
+                return true;
+            }
+        }
+
+        // Fallback: oldest Accepted/Queued open of the same kind (legacy / zero execute-tick cancels).
+        for (var i = 0; i < list.Count; i++)
+        {
+            var candidate = list[i];
+            if (!kindByKey.TryGetValue(candidate, out var candidateKind) || candidateKind != kind)
+            {
+                continue;
+            }
+
+            if (states.TryGetValue(candidate, out var candidateState) && !IsCancellable(candidateState))
+            {
+                continue;
+            }
+
+            key = candidate;
+            list.RemoveAt(i);
+            return true;
         }
 
         return false;
