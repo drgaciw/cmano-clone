@@ -21,4 +21,8 @@
   <ItemGroup>
     <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Adversarial tests assert ToExcelList comma guards and formula formatting. -->
+    <InternalsVisibleTo Include="ProjectAegis.Data.Excel.Tests" />
+  </ItemGroup>
 </Project>

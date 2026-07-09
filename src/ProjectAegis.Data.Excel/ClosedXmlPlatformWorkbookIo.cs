@@ -13,7 +13,8 @@ using ProjectAegis.Data.Platform;
 /// PLE-1.2: Excel list data-validation on known enum columns via
 /// <see cref="PlatformWorkbookEnumCatalog"/> (Emcon Condition/Posture plus ReviewState, ValueTier,
 /// MountType, LinkType, roles, TRL, booleans). Validation is <b>export-time UX only</b> — the importer
-/// does not reject rows solely because these lists are incomplete.
+/// does not reject rows solely because these lists are incomplete. List DV uses IgnoreBlanks=true and
+/// ErrorStyle=Warning (soft override allowed).
 /// </para>
 /// <para>
 /// OQ5 best-effort protection: the <c>_Meta</c> sheet is worksheet-protected; primary-key columns
@@ -186,6 +187,9 @@ public sealed class ClosedXmlPlatformWorkbookIo : IPlatformWorkbookIo
         validation.List(PlatformWorkbookEnumCatalog.ToExcelList(allowedValues));
         validation.InCellDropdown = true;
         validation.IgnoreBlanks = true;
+        // Soft export UX: warn on invalid picks but allow override (not Stop). Blanks remain allowed.
+        validation.ShowErrorMessage = true;
+        validation.ErrorStyle = XLErrorStyle.Warning;
     }
 
     private static int IndexOfHeader(IReadOnlyList<string> header, string columnName)
