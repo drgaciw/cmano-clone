@@ -1,0 +1,196 @@
+{
+  "tiers": {
+    "1": {
+      "scenarioIds": [
+        "gauntlet-t1-patrol-a",
+        "gauntlet-t1-patrol-b",
+        "gauntlet-t1-patrol-c",
+        "gauntlet-t1-patrol-d"
+      ],
+      "ticks": 6,
+      "status": "pending"
+    },
+    "2": {
+      "scenarioIds": [
+        "gauntlet-t2-strike-a",
+        "gauntlet-t2-escort-a",
+        "gauntlet-t2-strike-event",
+        "gauntlet-t2-escort-passive"
+      ],
+      "ticks": 10,
+      "status": "pending"
+    },
+    "3": {
+      "scenarioIds": [
+        "gauntlet-t3-escort-strike",
+        "gauntlet-t3-id-roe",
+        "gauntlet-t3-event-chain",
+        "gauntlet-t3-emcon-phases"
+      ],
+      "ticks": 16,
+      "status": "pending"
+    },
+    "4": {
+      "scenarioIds": [
+        "gauntlet-t4-multi-mission",
+        "gauntlet-t4-weighted",
+        "gauntlet-t4-random-inject",
+        "gauntlet-t4-asymm-roe"
+      ],
+      "ticks": 24,
+      "status": "pending"
+    },
+    "5": {
+      "scenarioIds": [
+        "gauntlet-t5-theater",
+        "gauntlet-t5-dynamic-obj",
+        "gauntlet-t5-cascade",
+        "gauntlet-t5-roe-change"
+      ],
+      "ticks": 40,
+      "status": "pending"
+    }
+  },
+  "scenarios": [
+    {
+      "id": "gauntlet-t1-patrol-a",
+      "tier": 1,
+      "intent": "Single patrol: Blue survives N ticks under weapons free",
+      "oracle": "Blue survives; finite non-zero fingerprint; no crash",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-1/gauntlet-t1-patrol-a.policy.json"
+    },
+    {
+      "id": "gauntlet-t1-patrol-b",
+      "tier": 1,
+      "intent": "Bilateral weapons free surface patrol",
+      "oracle": "Run completes all ticks; scores finite",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-1/gauntlet-t1-patrol-b.policy.json"
+    },
+    {
+      "id": "gauntlet-t1-patrol-c",
+      "tier": 1,
+      "intent": "Patrol with reduced Pd",
+      "oracle": "Detections plausible; run stable",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-1/gauntlet-t1-patrol-c.policy.json"
+    },
+    {
+      "id": "gauntlet-t1-patrol-d",
+      "tier": 1,
+      "intent": "Patrol vs far hostile",
+      "oracle": "Run completes; far contact may remain undetected",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-1/gauntlet-t1-patrol-d.policy.json"
+    },
+    {
+      "id": "gauntlet-t2-strike-a",
+      "tier": 2,
+      "intent": "Strike profile: destroy designated hostile-1; Red weapons tight",
+      "oracle": "Engagements may fire; Red ROE tight",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-2/gauntlet-t2-strike-a.policy.json"
+    },
+    {
+      "id": "gauntlet-t2-escort-a",
+      "tier": 2,
+      "intent": "Escort: Blue weapons tight",
+      "oracle": "Blue respects tight ROE where enforced",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-2/gauntlet-t2-escort-a.policy.json"
+    },
+    {
+      "id": "gauntlet-t2-strike-event",
+      "tier": 2,
+      "intent": "Strike with scripted timed event placeholder (policy-level)",
+      "oracle": "Stable run with engage enabled",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-2/gauntlet-t2-strike-event.policy.json"
+    },
+    {
+      "id": "gauntlet-t2-escort-passive",
+      "tier": 2,
+      "intent": "Escort with passive EMCON on Blue",
+      "oracle": "EmconOff aborts or delayed detection patterns",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-2/gauntlet-t2-escort-passive.policy.json"
+    },
+    {
+      "id": "gauntlet-t3-escort-strike",
+      "tier": 3,
+      "intent": "Combined escort+strike multi-contact",
+      "oracle": "Both contacts processed; stable multi-sensor",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-3/gauntlet-t3-escort-strike.policy.json"
+    },
+    {
+      "id": "gauntlet-t3-id-roe",
+      "tier": 3,
+      "intent": "ID-required style tight ROE Blue",
+      "oracle": "Tight ROE path exercised",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-3/gauntlet-t3-id-roe.policy.json"
+    },
+    {
+      "id": "gauntlet-t3-event-chain",
+      "tier": 3,
+      "intent": "Timed event chain via multi-tick engage (salvo 2)",
+      "oracle": "Salvo drains magazine faster; stable",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-3/gauntlet-t3-event-chain.policy.json"
+    },
+    {
+      "id": "gauntlet-t3-emcon-phases",
+      "tier": 3,
+      "intent": "Timed EMCON active phase",
+      "oracle": "Radar active allows FC track",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-3/gauntlet-t3-emcon-phases.policy.json"
+    },
+    {
+      "id": "gauntlet-t4-multi-mission",
+      "tier": 4,
+      "intent": "ASW/AAW multi-mission surface stand-in (catalog limited to surface)",
+      "oracle": "Multi-target detection; jam weak",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-4/gauntlet-t4-multi-mission.policy.json"
+    },
+    {
+      "id": "gauntlet-t4-weighted",
+      "tier": 4,
+      "intent": "Weighted multi-objective scoring path",
+      "oracle": "Finite scores; kill possible",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-4/gauntlet-t4-weighted.policy.json"
+    },
+    {
+      "id": "gauntlet-t4-random-inject",
+      "tier": 4,
+      "intent": "Seeded random inject stand-in via jamStrength",
+      "oracle": "Jam reduces Pd effect; deterministic per seed",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-4/gauntlet-t4-random-inject.policy.json"
+    },
+    {
+      "id": "gauntlet-t4-asymm-roe",
+      "tier": 4,
+      "intent": "Asymmetric per-side ROE",
+      "oracle": "Asymmetric ROE does not crash",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-4/gauntlet-t4-asymm-roe.policy.json"
+    },
+    {
+      "id": "gauntlet-t5-theater",
+      "tier": 5,
+      "intent": "Multi-domain theater stand-in (surface catalog only)",
+      "oracle": "Longer run stable; multi-sensor jam",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-5/gauntlet-t5-theater.policy.json"
+    },
+    {
+      "id": "gauntlet-t5-dynamic-obj",
+      "tier": 5,
+      "intent": "Conditional objectives stand-in via high pkKill",
+      "oracle": "Engagement outcomes vary by seed but fingerprint stable per seed",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-5/gauntlet-t5-dynamic-obj.policy.json"
+    },
+    {
+      "id": "gauntlet-t5-cascade",
+      "tier": 5,
+      "intent": "Cascading injects stand-in: jam + env mask",
+      "oracle": "Degraded sensors; no crash",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-5/gauntlet-t5-cascade.policy.json"
+    },
+    {
+      "id": "gauntlet-t5-roe-change",
+      "tier": 5,
+      "intent": "Mid-mission ROE/EMCON contested stand-in",
+      "oracle": "Active EMCON + free ROE engages",
+      "path": "production/qa/gauntlet/gauntlet-20260709-1744/tier-5/gauntlet-t5-roe-change.policy.json"
+    }
+  ]
+}

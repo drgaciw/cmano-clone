@@ -1,0 +1,40 @@
+{
+  "id": "gauntlet-t4-asymm-roe",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "runId": "gauntlet-20260709-1744",
+    "tier": 4,
+    "intent": "Asymmetric per-side ROE",
+    "oracle": "Asymmetric ROE does not crash"
+  },
+  "missionPolicy": {
+    "roe": "WeaponsTight",
+    "unitIds": [
+      "u1"
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "tiers": {
+    "1": {
+      "status": "green",
+      "rows": 12,
+      "stability_ok": true,
+      "exception_hits": 0,
+      "degenerate_rows": 0,
+      "scenarios": [
+        "?"
+      ]
+    },
+    "2": {
+      "status": "green",
+      "rows": 12,
+      "stability_ok": true,
+      "exception_hits": 0,
+      "degenerate_rows": 0,
+      "scenarios": [
+        "?"
+      ]
+    },
+    "3": {
+      "status": "green",
+      "rows": 12,
+      "stability_ok": true,
+      "exception_hits": 0,
+      "degenerate_rows": 0,
+      "scenarios": [
+        "?"
+      ]
+    },
+    "4": {
+      "status": "green",
+      "rows": 12,
+      "stability_ok": true,
+      "exception_hits": 0,
+      "degenerate_rows": 0,
+      "scenarios": [
+        "?"
+      ]
+    },
+    "5": {
+      "status": "green",
+      "rows": 12,
+      "stability_ok": true,
+      "exception_hits": 0,
+      "degenerate_rows": 0,
+      "scenarios": [
+        "?"
+      ]
+    }
+  },
+  "determinism_t1": true
+}

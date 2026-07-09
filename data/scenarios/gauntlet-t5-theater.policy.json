@@ -1,0 +1,43 @@
+{
+  "id": "gauntlet-t5-theater",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 6,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "detection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "u1",
+      "sensorId": "radar-2",
+      "targetId": "hostile-far",
+      "contactId": "c2",
+      "basePd": 0.5,
+      "envMask": 0.7,
+      "jamStrength": 0.3
+    }
+  ],
+  "gauntlet": {
+    "runId": "gauntlet-20260709-1744",
+    "tier": 5,
+    "intent": "Multi-domain theater stand-in (surface catalog only)",
+    "oracle": "Longer run stable; multi-sensor jam"
+  }
+}

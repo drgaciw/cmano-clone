@@ -1,0 +1,34 @@
+{
+  "id": "gauntlet-t5-cascade",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 5,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "basePd": 0.7,
+      "envMask": 0.5,
+      "jamStrength": 0.4
+    }
+  ],
+  "gauntlet": {
+    "runId": "gauntlet-20260709-1744",
+    "tier": 5,
+    "intent": "Cascading injects stand-in: jam + env mask",
+    "oracle": "Degraded sensors; no crash"
+  }
+}

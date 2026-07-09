@@ -1,0 +1,34 @@
+{
+  "id": "gauntlet-t4-random-inject",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "basePd": 0.8,
+      "envMask": 0.9,
+      "jamStrength": 0.2
+    }
+  ],
+  "gauntlet": {
+    "runId": "gauntlet-20260709-1744",
+    "tier": 4,
+    "intent": "Seeded random inject stand-in via jamStrength",
+    "oracle": "Jam reduces Pd effect; deterministic per seed"
+  }
+}
