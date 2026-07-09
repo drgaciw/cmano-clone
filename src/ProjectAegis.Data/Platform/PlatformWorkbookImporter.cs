@@ -424,13 +424,17 @@ public sealed class PlatformWorkbookImporter
         _ => string.Empty,
     };
 
+    /// <summary>
+    /// PLE-2.3: deterministic quarantine order — EntityKind, PlatformId, EntityId, then Reason
+    /// for stable ties when the same entity surfaces multiple gate codes.
+    /// </summary>
     private static IReadOnlyList<PlatformImportQuarantineEntry> SortQuarantine(
         IReadOnlyList<PlatformImportQuarantineEntry> entries) =>
         entries
-            .OrderBy(e => e.Reason, StringComparer.Ordinal)
+            .OrderBy(e => e.EntityKind, StringComparer.Ordinal)
             .ThenBy(e => e.PlatformId, StringComparer.Ordinal)
             .ThenBy(e => e.EntityId, StringComparer.Ordinal)
-            .ThenBy(e => e.EntityKind, StringComparer.Ordinal)
+            .ThenBy(e => e.Reason, StringComparer.Ordinal)
             .ToArray();
 
     private static IReadOnlyList<CatalogSensorBinding> BuildChangedSensorRows(
