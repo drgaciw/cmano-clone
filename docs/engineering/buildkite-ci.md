@@ -164,6 +164,7 @@ Checklist:
 | Pipeline not found | Confirm `.buildkite/pipeline.yml` on default branch; re-save pipeline “read from repo” setting |
 | Graphite optimizer always runs full CI | Token missing/wrong in Buildkite env; step is skipped when unset; optimizer fails open when present |
 | First build slow on hosted agents | Expected: `agent-dotnet-ci.sh` downloads .NET SDK 8.0.400 on cold agents |
+| `CmoCatalogExportTests` fails with `node` not found | `agent-bootstrap-node.sh` installs Node 20.x to `~/.cache/buildkite/` (sourced from `agent-dotnet-ci.sh`) |
 | Required check name mismatch | Copy exact context from GitHub PR checks tab after first build |
 | Gitleaks false positive | Add allowlist in `.gitleaks.toml` if needed (not present today) |
 
