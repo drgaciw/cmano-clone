@@ -12,17 +12,18 @@ Primary blocking CI runs on **Buildkite hosted Linux agents** using repo-committ
 
 **2026-07-09 optimization pass:** the previous single `:hammer: Build and test` step
 (build + full test suite + two redundant filtered re-runs of the same tests) was split
-into a cached `:hammer: Build` step and a `parallelism: 4` `:test_tube: Test %n` step,
+into a `:hammer: Build` step and a `parallelism: 4` `:test_tube: Test %n` step,
 plus retries, artifacts, a test-summary annotation, and (dormant, token-gated) Test
-Analytics upload. The Graphite CI optimizer plugin step was removed in an earlier pass
-(pre-checkout empty-pipeline `--replace` was skipping `:hammer:` on stacked branches) —
-see the git history of `.buildkite/pipeline.yml` if it needs to come back.
+Analytics placeholder. Native `cache:` volumes are **not** enabled (pipeline upload
+rejection on this org — see Caching). The Graphite CI optimizer plugin step was removed
+in an earlier pass (pre-checkout empty-pipeline `--replace` was skipping `:hammer:` on
+stacked branches) — see the git history of `.buildkite/pipeline.yml` if it needs to come back.
 
 | Step | When | Purpose |
 |------|------|---------|
-| `:hammer: Build` | All builds | `restore` → Release `build` → S67 hash/DelegationBridge-ZERO check. Hosted cache volume on `.nuget/packages` (`NUGET_PACKAGES`). Uploads `**/bin/Release/**/*.dll` as informational artifacts |
+| `:hammer: Build` | All builds | `restore` → Release `build` → S67 hash/DelegationBridge-ZERO check. `NUGET_PACKAGES=.nuget/packages` (workspace-relative; ready for future cache). Uploads `**/bin/Release/**/*.dll` as informational artifacts |
 | `:test_tube: Test %n` | All builds | `depends_on: build`, `parallelism: 4`. Shards the 6 `src/*/*.Tests.csproj` projects across `BUILDKITE_PARALLEL_JOB`/`_JOB_COUNT`. Rebuilds assigned projects when Release output is missing (normal on ephemeral agents), then `dotnet test --no-build`, writes `.trx` to `test-results/`. Replay/C2 filter coverage (`ReplayGoldenSuiteTests`, `PlayModeSmokeHarnessTests`) is exercised by `ProjectAegis.Delegation.UnityAdapter.Tests`'s normal full-suite run once sharded in — no separate redundant filtered pass |
-| `:bar_chart: Test analytics upload` | All builds, only if `BUILDKITE_ANALYTICS_TOKEN` is set | `depends_on: test`, `allow_dependency_failure: true`. `test-collector#v1.11.0` uploads `test-results/**/*.trx` (`format: dotnet-trx`) to Buildkite Test Engine. **Currently a no-op** — token not yet wired, see "Test Analytics setup" below |
+| `:bar_chart: Test analytics upload` | All builds, only if `BUILDKITE_ANALYTICS_TOKEN` is set | `depends_on: test`, `allow_dependency_failure: true`. Placeholder only — `test-collector` accepts **`junit`/`json` only** (not TRX). **Currently a no-op** until a JUnit logger/converter is wired; see "Test Analytics setup" below |
 | `:memo: Test summary annotation` | All builds | `depends_on: test`, `allow_dependency_failure: true`. Aggregates pass/fail/skip counts from the `.trx` files into a `buildkite-agent annotate` summary |
 | Gitleaks | All builds | Secret scan (moved from `gitnexus-security.yml`; `soft_fail: true`) |
 | Baltic replay golden | `main` only | Post-merge `ReplayGolden*` filter; `.trx` uploaded from `test-results-replay/` |
@@ -40,45 +41,62 @@ or `depends_on: test`, unchanged from before this pass.
 
 ### Caching
 
-Hosted-agent **cache volumes** (no plugin) on `:hammer: Build`, `:test_tube: Test %n`,
-and Baltic replay. Official attributes are only `paths` / `name` / `size` — there is
-**no** `key` and **no** `{{ checksum }}` template (those are CircleCI / GitHub Actions
-syntax and will fail pipeline upload). See
-[Cache volumes](https://buildkite.com/docs/agent/buildkite-hosted/cache-volumes).
+**Native step-level `cache:` is intentionally NOT used** in `.buildkite/pipeline.yml`.
 
-```yaml
-env:
-  NUGET_PACKAGES: ".nuget/packages"
+Evidence (PR #263):
 
-# per step (or top-level):
-cache:
-  paths:
-    - ".nuget/packages"
-  name: "nuget-packages"
-  size: "20g"
-```
+| Build | Config | Result |
+|-------|--------|--------|
+| #535 | `cache:` with `key` + `{{ checksum }}` (CircleCI/GHA syntax) | Failed ~3s — pipeline upload rejection |
+| #541 | `cache:` with only `paths` / `name` / `size` (official volume syntax) | Failed ~3s — still upload rejection |
+| Main PRs | No `cache:` at all | SUCCESS |
+
+Hosted [cache volumes](https://buildkite.com/docs/agent/buildkite-hosted/cache-volumes)
+are a **Pro/Enterprise** feature and must be enabled on the cluster. Until a human
+confirms **Agents → cluster → Cache Storage** is active for this org, do not re-add
+native `cache:` blocks — they reject pipeline upload before any job starts.
+
+Pipeline still sets `NUGET_PACKAGES: ".nuget/packages"` so a future volume or
+[cache plugin](https://github.com/buildkite-plugins/cache-buildkite-plugin) can mount
+that path without path churn.
 
 **Do not cache `bin/` or `obj/`.** Restoring them across commits/agents breaks .NET
 incremental compilation (timestamp-based) and is a known anti-pattern. Test shards
-rebuild their assigned projects when Release output is missing; a warm NuGet volume
-keeps that fast.
+rebuild their assigned projects when Release output is missing.
 
-No `packages.lock.json` exists in this repo today. If `RestorePackagesWithLockFile=true`
-is adopted later, consider the [Cache plugin](https://github.com/buildkite-plugins/cache-buildkite-plugin)
-with a lockfile `manifest` for deterministic object-store keys in addition to volumes.
+No `packages.lock.json` exists in this repo today. Preferred re-enable path once
+approved:
+
+1. Confirm hosted cache volumes are enabled **or** configure the cache plugin with an
+   object-store backend (`s3`/`gcs`/etc.)
+2. Cache **only** `.nuget/packages` (never `bin/`/`obj/`)
+3. If using volumes: only `paths` / `name` / `size` — **never** `key` or `{{ checksum }}`
 
 ### Test Analytics setup (Task 5 — needs a human with Buildkite org UI access)
 
-The `:bar_chart: Test analytics upload` step is wired but dormant. To activate:
+The `:bar_chart: Test analytics upload` step is **token-gated and currently a no-op
+placeholder**. Important constraint from the
+[test-collector plugin](https://github.com/buildkite-plugins/test-collector-buildkite-plugin):
 
-1. Buildkite → **Test Suites** → **New suite** (or select the existing `cmano-clone`
-   suite if one exists)
-2. Copy the suite's **API token**
-3. Buildkite → pipeline **Settings → Environment** → add `BUILDKITE_ANALYTICS_TOKEN`
-   with that value (pipeline-level secret/env var, **not** a committed file)
-4. Next build automatically picks it up — the step's `if: build.env("BUILDKITE_ANALYTICS_TOKEN")
-   != null && ... != ""` condition mirrors the old Graphite-optimizer gating pattern, so
-   nothing else needs to change in `.buildkite/pipeline.yml`
+> `format` only allows: **`junit`**, **`json`** — **not** `dotnet-trx`.
+
+To activate for real:
+
+1. Emit JUnit (or JSON) from the test shards — e.g. add
+   [`JunitXml.TestLogger`](https://www.nuget.org/packages/JunitXml.TestLogger)
+   / `--logger "junit;LogFileName=..."` (or a TRX→JUnit conversion step)
+2. Buildkite → **Test Suites** → **New suite** (or select existing `cmano-clone`)
+3. Copy the suite's **API token**
+4. Buildkite → pipeline **Settings → Environment** → add `BUILDKITE_ANALYTICS_TOKEN`
+   (pipeline-level secret/env var, **not** a committed file)
+5. Re-add the plugin block on the analytics step:
+
+```yaml
+plugins:
+  - test-collector#v1.11.0:
+      files: "test-results/**/*.xml"
+      format: "junit"
+```
 
 ### GitNexus reindex soft-fail scoping (Task 6)
 
@@ -248,7 +266,8 @@ Checklist:
 |---------|-----|
 | Pipeline not found | Confirm `.buildkite/pipeline.yml` on default branch; re-save pipeline “read from repo” setting |
 | Graphite optimizer always runs full CI | Token missing/wrong in Buildkite env; step is skipped when unset; optimizer fails open when present |
-| First build slow on hosted agents | Expected: `agent-dotnet-build.sh` (and `run-tests-sharded.sh`'s bootstrap) download .NET SDK 8.0.400 on cold agents; cache warms it up on subsequent builds |
+| First build slow on hosted agents | Expected: `agent-dotnet-build.sh` (and `run-tests-sharded.sh`'s bootstrap) download .NET SDK 8.0.400 on cold agents; NuGet restore is cold until a cache volume/plugin is enabled |
+| Build fails in ~3s with no step logs | Classic **pipeline upload rejection**. Most often invalid YAML attributes (historically `cache:` with `key`/`{{ checksum }}`, or native `cache:` when volumes are not enabled on the cluster). Diff against `main`'s `.buildkite/pipeline.yml` and remove unsupported fields |
 | `CmoCatalogExportTests` fails with `node` not found | Checked-in golden at `tools/cmano-db-crawler/fixtures/sensor-mini-export.golden.json` (copied to test output); live `node` export is optional |
 | Build fails ~1m with no `:hammer:` log | Graphite optimizer on **main** pipeline can `pipeline upload --replace` with empty steps; merge branch `.buildkite/pipeline.yml` to `main` or disable `GRAPHITE_CI_OPTIMIZER_TOKEN` until then |
 | Agent has dotnet 6/7 on PATH | `agent-bootstrap-dotnet.sh` installs 8.0.400 when major &lt; 8 |

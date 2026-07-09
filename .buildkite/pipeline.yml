@@ -1,19 +1,23 @@
 # Primary CI — see docs/engineering/buildkite-ci.md
-# 2026-07-09 optimization pass (Tasks 1-7): Release build (NuGet-cached) -> sharded
-# test run (parallelism: 4), plus parallel siblings (gitleaks, Baltic replay, GitNexus)
+# 2026-07-09 optimization pass (Tasks 1-7): Release build -> sharded test run
+# (parallelism: 4), plus parallel siblings (gitleaks, Baltic replay, GitNexus)
 # that still kick off immediately alongside :hammer: Build.
 # Graphite CI optimizer plugin removed previously (pre-checkout empty-pipeline replace
 # blocked :hammer: on stacks) — see docs/engineering/graphite-github-substitute-plan.md.
 #
-# Hosted cache volumes: only `paths` / `name` / `size` are valid (NO `key`, NO
-# `{{ checksum }}` — those are CircleCI/GHA syntax and reject pipeline upload).
-# Cache NuGet packages only; never bin/obj (incremental-compile timestamp poison).
+# IMPORTANT: do NOT use native step-level `cache:` (hosted cache volumes) in this
+# pipeline. Builds #535/#541 rejected pipeline upload in ~3s with cache present —
+# including after stripping invalid key/{{ checksum }} syntax (paths/name/size only).
+# Hosted cache volumes are Pro/Enterprise + feature-gated; this org's upload path
+# rejects them. Re-introduce only after a human confirms Cache Storage is enabled
+# on the cluster, or switch to the cache plugin with an object-store backend.
+# NUGET_PACKAGES remains workspace-relative so a future volume/plugin can mount it.
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
   DOTNET_NOLOGO: "true"
   BUILDKITE_GIT_CLONE_FLAGS: "--depth=250"
-  # Workspace-relative NuGet global packages folder (cached below).
+  # Workspace-relative NuGet global packages folder (ready for future cache wiring).
   NUGET_PACKAGES: ".nuget/packages"
 
 steps:
@@ -31,12 +35,6 @@ steps:
           limit: 2
       manual:
         allowed: true
-    # Hosted agent cache volume — NuGet packages only (see docs/engineering/buildkite-ci.md).
-    cache:
-      paths:
-        - ".nuget/packages"
-      name: "nuget-packages"
-      size: "20g"
     artifact_paths:
       # Informational compile outputs; test shards rebuild locally on a cold agent
       # (DLL-only artifacts are insufficient for `dotnet test --no-build`).
@@ -56,18 +54,12 @@ steps:
           limit: 2
       manual:
         allowed: true
-    cache:
-      paths:
-        - ".nuget/packages"
-      name: "nuget-packages"
-      size: "20g"
     artifact_paths:
       - "test-results/**/*.trx"
 
-  # Test Analytics upload (Task 5) — no-ops until a human wires BUILDKITE_ANALYTICS_TOKEN
-  # into the Buildkite pipeline environment (mirrors the previous Graphite optimizer's
-  # `if: build.env(...) != null` gating pattern). See report / docs for the manual setup
-  # checklist.
+  # Test Analytics (Task 5) — dormant until a human wires BUILDKITE_ANALYTICS_TOKEN
+  # AND a junit/json producer. The test-collector plugin only accepts format:
+  # junit | json (NOT "dotnet-trx"). See docs/engineering/buildkite-ci.md.
   - label: ":bar_chart: Test analytics upload"
     key: test-analytics
     depends_on: test
@@ -84,12 +76,22 @@ steps:
       manual:
         allowed: true
     command: |
+      set -euo pipefail
       mkdir -p test-results
-      buildkite-agent artifact download "test-results/**/*.trx" .
-    plugins:
-      - test-collector#v1.11.0:
-          files: "test-results/**/*.trx"
-          format: "dotnet-trx"
+      buildkite-agent artifact download "test-results/**/*" . || true
+      # Prefer junit if a future logger/converter lands them; fall back to a clear skip.
+      shopt -s nullglob
+      junit_files=(test-results/**/*.xml test-results/**/*.junit.xml)
+      if [[ ${#junit_files[@]} -eq 0 ]]; then
+        echo "--- :warning: No JUnit/JSON test reports found"
+        echo "test-collector only accepts format: junit | json (not trx)."
+        echo "Add a JUnit logger (or TRX→JUnit conversion) then re-enable the plugin block."
+        echo "TRX artifacts remain available under test-results/ for the summary step."
+        exit 0
+      fi
+      echo "JUnit reports present but plugin upload is intentionally not wired until"
+      echo "format+paths are confirmed. Files: ${junit_files[*]}"
+      exit 0
 
   # Pass/fail/skip annotation (Task 7). allow_dependency_failure so the summary still
   # renders when a test shard fails.
@@ -135,11 +137,6 @@ steps:
       manual:
         allowed: true
     command: bash tools/buildkite/agent-baltic-replay.sh
-    cache:
-      paths:
-        - ".nuget/packages"
-      name: "nuget-packages"
-      size: "20g"
     artifact_paths:
       - "test-results-replay/**/*.trx"
 
@@ -178,11 +175,10 @@ steps:
         allowed: true
     command: bash tools/buildkite/agent-gitnexus-reindex.sh
 
-  - wait: ~
-    continue_on_failure: true
-
   # Structural placeholder (Task 7, "optional" ask) — no deploy/release pipeline exists
   # yet for cmano-clone. When one is stood up, gate it here, e.g.:
+  #   - wait: ~
+  #     continue_on_failure: true
   #   - block: ":shipit: Approve deploy"
   #     branches: "main"
   #   - trigger: "cmano-clone-deploy"

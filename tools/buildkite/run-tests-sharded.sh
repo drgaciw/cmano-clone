@@ -9,8 +9,10 @@
 # normal full-suite run once it lands in a shard — no separate redundant filtered pass
 # (that redundancy in the old dotnet-ci.sh is exactly what this split removes).
 #
-# Cross-job sharing is NuGet-only (hosted cache volume on `.nuget/packages` via
-# NUGET_PACKAGES). bin/obj are intentionally NOT cached (incremental-compile poison).
+# NuGet packages land under NUGET_PACKAGES (workspace-relative .nuget/packages).
+# Native Buildkite cache volumes are NOT wired (pipeline upload rejection on this org
+# until Cache Storage is confirmed enabled — see docs/engineering/buildkite-ci.md).
+# bin/obj are intentionally never cached (incremental-compile poison).
 # Each shard builds its assigned projects when Release output is missing (normal on
 # ephemeral agents after the :hammer: Build step).
 set -euo pipefail
