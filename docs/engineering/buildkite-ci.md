@@ -10,34 +10,26 @@ Primary blocking CI runs on **Buildkite hosted Linux agents** using repo-committ
 
 **Agent skills:** Official Buildkite skills and project agents are documented in [buildkite-agent-skills.md](./buildkite-agent-skills.md). Refresh skills with `bash tools/buildkite/install-buildkite-skills.sh`.
 
-**2026-07-09 optimization pass:** the previous single `:hammer: Build and test` step
-(build + full test suite + two redundant filtered re-runs of the same tests) was split
-into a `:hammer: Build` step and a `parallelism: 4` `:test_tube: Test %n` step,
-plus retries, artifacts, a test-summary annotation, and (dormant, token-gated) Test
-Analytics placeholder. Native `cache:` volumes are **not** enabled (pipeline upload
-rejection on this org — see Caching). The Graphite CI optimizer plugin step was removed
-in an earlier pass (pre-checkout empty-pipeline `--replace` was skipping `:hammer:` on
-stacked branches) — see the git history of `.buildkite/pipeline.yml` if it needs to come back.
+**2026-07-09 optimization pass (PR #263, iterated after upload failures):** the previous
+monolithic `agent-dotnet-ci.sh` step still had two **redundant filtered re-runs** of
+Replay/C2 tests after the full suite. Those re-runs are gone: the blocking gate now
+uses `agent-dotnet-build.sh` + `run-tests-sharded.sh` (with `JOB_COUNT=1` on one agent)
++ an inline `annotate-test-summary.sh` pass. Multi-agent `parallelism: 4` + `depends_on`
+was attempted but Build #554 failed at runtime without API log access; the scripts still
+honor `BUILDKITE_PARALLEL_JOB{,_COUNT}` so sharding can be re-enabled once logs confirm
+agent capacity. Native `cache:` volumes are **not** used (pipeline upload rejection —
+see Caching). Graphite CI optimizer plugin remains removed.
 
 | Step | When | Purpose |
 |------|------|---------|
-| `:hammer: Build` | All builds | `restore` → Release `build` → S67 hash/DelegationBridge-ZERO check. `NUGET_PACKAGES=.nuget/packages` (workspace-relative; ready for future cache). Uploads `**/bin/Release/**/*.dll` as informational artifacts |
-| `:test_tube: Test %n` | All builds | `depends_on: build`, `parallelism: 4`. Shards the 6 `src/*/*.Tests.csproj` projects across `BUILDKITE_PARALLEL_JOB`/`_JOB_COUNT`. Rebuilds assigned projects when Release output is missing (normal on ephemeral agents), then `dotnet test --no-build`, writes `.trx` to `test-results/`. Replay/C2 filter coverage (`ReplayGoldenSuiteTests`, `PlayModeSmokeHarnessTests`) is exercised by `ProjectAegis.Delegation.UnityAdapter.Tests`'s normal full-suite run once sharded in — no separate redundant filtered pass |
-| `:bar_chart: Test analytics upload` | All builds, only if `BUILDKITE_ANALYTICS_TOKEN` is set | `depends_on: test`, `allow_dependency_failure: true`. Placeholder only — `test-collector` accepts **`junit`/`json` only** (not TRX). **Currently a no-op** until a JUnit logger/converter is wired; see "Test Analytics setup" below |
-| `:memo: Test summary annotation` | All builds | `depends_on: test`, `allow_dependency_failure: true`. Aggregates pass/fail/skip counts from the `.trx` files into a `buildkite-agent annotate` summary |
-| Gitleaks | All builds | Secret scan (moved from `gitnexus-security.yml`; `soft_fail: true`) |
-| Baltic replay golden | `main` only | Post-merge `ReplayGolden*` filter; `.trx` uploaded from `test-results-replay/` |
-| GitNexus PR analysis | Pull requests | `analyze` + `detect_changes`; Buildkite annotation (+ optional `gh pr comment`); `soft_fail: true` |
-| GitNexus reindex | `main` only | Knowledge graph refresh; skips doc-only pushes (parity with GH workflow). `soft_fail` is now scoped to exit code `75` (see "GitNexus reindex soft-fail scoping" below) instead of a blanket `soft_fail: true` |
+| `:hammer: Build and test` | All builds | Single blocking step (main-compatible shape): Release build + S67 hash/bridge check, then all `src/*/*.Tests.csproj` via the sharded runner (`JOB_COUNT=1`), then TRX summary annotation. Uploads `test-results/**/*.trx`. No redundant Replay/C2 re-filters (those tests already run inside UnityAdapter.Tests) |
+| Gitleaks | All builds | Secret scan (`soft_fail: true`) |
+| Baltic replay golden | `main` only | Post-merge `ReplayGolden*` filter |
+| GitNexus PR analysis | Pull requests | `analyze` + `detect_changes`; annotation; `soft_fail: true` |
+| GitNexus reindex | `main` only | Knowledge graph refresh; `soft_fail: true` (exit-75 sentinel still in script for future scoped soft_fail) |
 
-All command steps carry the same `retry.automatic` policy (`exit_status: -1` and `143`,
-limit 2 each — agent-lost/SIGTERM-style transient infra failures only; deliberately
-**no** wildcard `"*"` retry, so a genuine test/build failure fails the build instead of
-silently re-running), `retry.manual.allowed: true`, and `timeout_in_minutes: 15`.
-
-The parallel siblings (Gitleaks, Baltic replay, GitNexus PR/reindex) still kick off
-immediately alongside `:hammer: Build` — they are not gated behind `depends_on: build`
-or `depends_on: test`, unchanged from before this pass.
+Blocking step uses the same `retry.automatic: exit_status: "*"` / `limit: 1` as main.
+Parallel siblings (Gitleaks, Baltic, GitNexus) still start alongside the blocking gate.
 
 ### Caching
 

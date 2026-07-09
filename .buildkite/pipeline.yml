@@ -1,16 +1,19 @@
 # Primary CI — see docs/engineering/buildkite-ci.md
-# 2026-07-09 optimization pass: Release build -> sharded test (parallelism: 4),
-# plus parallel siblings (gitleaks, Baltic replay, GitNexus).
-# Graphite CI optimizer plugin removed previously (pre-checkout empty-pipeline replace
-# blocked :hammer: on stacks) — see docs/engineering/graphite-github-substitute-plan.md.
+# 2026-07-09 optimization pass (PR #263):
+# - Split scripts: agent-dotnet-build.sh + run-tests-sharded.sh (usable with
+#   BUILDKITE_PARALLEL_JOB{,_COUNT} for future multi-agent sharding)
+# - Blocking gate stays a SINGLE command step (main-compatible attribute surface)
+#   so one agent runs build then all test projects — avoids depends_on/parallelism
+#   job-graph issues observed on Build #554 after upload was fixed.
+# - Soft siblings unchanged from main (gitleaks, Baltic replay, GitNexus).
 #
-# Upload-rejection history (PR #263):
-# - #535: cache key/{{ checksum }} → rejected ~3s
-# - #541: cache paths/name/size only → still rejected ~3s
-# - #552: no cache, but analytics plugin/complex if/soft_fail list/extra steps → still ~2s
-# Keep this file as close as possible to main's working attribute surface while
-# preserving the build/test split + sharding. Re-add retries/timeouts/annotations
-# only after a green upload is confirmed.
+# Upload-rejection history:
+# - #535: cache key/{{ checksum }} → ~3s reject
+# - #541: cache paths/name/size → ~3s reject
+# - #552: no cache but complex retries/analytics/soft_fail list → ~2s reject
+# - #554: simplified YAML uploaded OK; multi-step depends_on+parallelism:4 failed ~1m29s
+# Native step-level `cache:` is NOT used (Pro/feature-gated; rejects upload here).
+# Graphite CI optimizer plugin removed previously — see graphite-github-substitute-plan.md.
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
@@ -19,32 +22,26 @@ env:
   NUGET_PACKAGES: ".nuget/packages"
 
 steps:
-  # Blocking gate MUST run first — Release build only (test execution is sharded below).
-  - label: ":hammer: Build"
+  # Blocking gate MUST run first (same shape as main's single :hammer: step).
+  # Runs Release build, then all test projects via the sharded runner with
+  # JOB_COUNT=1 (all projects on this agent). Multi-agent parallelism can be
+  # re-enabled once Buildkite logs confirm agent capacity for depends_on DAGs.
+  - label: ":hammer: Build and test"
     key: build
-    command: bash tools/buildkite/agent-dotnet-build.sh
+    command: |
+      set -euo pipefail
+      bash tools/buildkite/agent-dotnet-build.sh
+      # Single-agent shard covering every *.Tests.csproj (no multi-job graph).
+      export BUILDKITE_PARALLEL_JOB=0
+      export BUILDKITE_PARALLEL_JOB_COUNT=1
+      bash tools/buildkite/run-tests-sharded.sh
+      bash tools/buildkite/annotate-test-summary.sh
     retry:
       automatic:
         - exit_status: "*"
           limit: 1
-
-  - label: ":test_tube: Test %n"
-    key: test
-    depends_on: build
-    parallelism: 4
-    command: bash tools/buildkite/run-tests-sharded.sh
     artifact_paths:
       - "test-results/**/*.trx"
-    retry:
-      automatic:
-        - exit_status: "*"
-          limit: 1
-
-  - label: ":memo: Test summary annotation"
-    key: test-summary
-    depends_on: test
-    allow_dependency_failure: true
-    command: bash tools/buildkite/annotate-test-summary.sh
 
   - label: ":gitleaks: Secret scan"
     key: gitleaks
@@ -55,8 +52,6 @@ steps:
     key: baltic-replay
     branches: main
     command: bash tools/buildkite/agent-baltic-replay.sh
-    artifact_paths:
-      - "test-results-replay/**/*.trx"
 
   - label: ":gitnexus: PR impact analysis"
     key: gitnexus-pr
