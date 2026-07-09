@@ -51,6 +51,7 @@ scratch/
 # Local editor / tool configs
 .kilo/
 .claude/settings.local.json
+.cursor/hooks/
 
 # obra/superpowers — junctions from tools/install-superpowers.ps1 (see .claude/skills/superpowers/README.md)
 .claude/skills/superpowers/*/
