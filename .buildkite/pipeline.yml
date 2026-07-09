@@ -10,14 +10,16 @@ env:
   BUILDKITE_GIT_CLONE_FLAGS: "--depth=250"
 
 steps:
+  - label: ":hammer: Build and test"
+    key: build
+    command: bash tools/buildkite/agent-dotnet-ci.sh
+
   - label: ":s67: S67 preflight verification (RUN+READ gates)"
     key: s67-preflight
     command: |
       echo "=== verification-before RUN+READ in main pipeline (release-train-scope-boundary-2026-06-24.md) ==="
-      # Parity: call preflight fragment or gates
-      bash tools/buildkite/agent-dotnet-ci.sh || true
       echo "CITE: release-train-scope-boundary-2026-06-24.md §7 + S67 preflight-s67.yml"
-      echo "Gates covered here: build/test + replay/C2 filters; see preflight-s67.yml for hash/bridge/GitNexus pre"
+      echo "Gates covered by :hammer: step; hash/bridge logged in agent-dotnet-ci.sh"
       echo "=== verification-before END ==="
     soft_fail: true
 
@@ -30,10 +32,6 @@ steps:
           graphite_token: "${GRAPHITE_CI_OPTIMIZER_TOKEN}"
 
   - wait
-
-  - label: ":hammer: Build and test"
-    key: build
-    command: bash tools/buildkite/agent-dotnet-ci.sh
 
   - label: ":gitleaks: Secret scan"
     key: gitleaks

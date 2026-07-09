@@ -13,6 +13,10 @@ cd "$repo_root"
 
 echo "=== Buildkite .NET CI (Release) [S67 preflight gates aligned] ==="
 echo "=== verification-before RUN+READ (release-train-scope-boundary-2026-06-24.md S67 §7 + S66 closeout) ==="
+echo "=== CI toolchain: dotnet=$(command -v dotnet 2>/dev/null || echo missing) node=$(command -v node 2>/dev/null || echo missing) ==="
+if command -v node >/dev/null 2>&1; then
+  echo "=== node version: $(node --version 2>/dev/null || echo broken) ==="
+fi
 
 dotnet restore ProjectAegis.sln
 dotnet build ProjectAegis.sln -c Release --no-restore
