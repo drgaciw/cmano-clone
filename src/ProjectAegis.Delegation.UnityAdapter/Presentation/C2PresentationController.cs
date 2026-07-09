@@ -19,13 +19,18 @@ namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 /// </summary>
 public sealed class C2PresentationController
 {
+    private readonly SelectionSet _selection = new SelectionSet();
+
     /// <summary>Ordered multi-select set of friendly unit ids (req 20 §Selection, TR-c2-005).
-    /// Single-select is a set of one; <see cref="SelectedUnitId"/> is the anchor unit.</summary>
-    public SelectionSet Selection { get; } = new SelectionSet();
+    /// Single-select is a set of one; <see cref="SelectedUnitId"/> is the anchor unit.
+    /// Read-only: mutate only via controller selection methods so hostile contact + graph side
+    /// effects stay coordinated.
+    /// </summary>
+    public IReadOnlySelectionSet Selection => _selection;
 
     /// <summary>Anchor (primary) selected friendly unit id, or null. Mirrors the pre-rev-2
     /// single-select contract by projecting <see cref="SelectionSet.PrimaryUnitId"/>.</summary>
-    public string? SelectedUnitId => Selection.PrimaryUnitId;
+    public string? SelectedUnitId => _selection.PrimaryUnitId;
 
     public string? SelectedContactId { get; private set; }
     public ContactSummaryEntry? SelectedContactSummary { get; private set; }
@@ -41,7 +46,7 @@ public sealed class C2PresentationController
             ClearGraphSurfacing();
         }
 
-        Selection.ReplaceWith(unitId);
+        _selection.ReplaceWith(unitId);
         SelectedContactId = null;
         SelectedContactSummary = null;
     }
@@ -55,7 +60,7 @@ public sealed class C2PresentationController
     public void ToggleFriendlyUnit(string unitId)
     {
         ClearGraphSurfacing();
-        Selection.Toggle(unitId);
+        _selection.Toggle(unitId);
         SelectedContactId = null;
         SelectedContactSummary = null;
     }
@@ -68,12 +73,12 @@ public sealed class C2PresentationController
     public void SelectFriendlyUnits(IReadOnlyList<string>? unitIds)
     {
         ClearGraphSurfacing();
-        Selection.Clear();
+        _selection.Clear();
         if (unitIds != null)
         {
             foreach (var unitId in unitIds)
             {
-                Selection.Add(unitId);
+                _selection.Add(unitId);
             }
         }
 
@@ -96,7 +101,7 @@ public sealed class C2PresentationController
         ClearGraphSurfacing();
         foreach (var unitId in unitIds)
         {
-            Selection.Add(unitId);
+            _selection.Add(unitId);
         }
 
         SelectedContactId = null;
@@ -131,7 +136,7 @@ public sealed class C2PresentationController
 
         SelectedContactId = contactId;
         SelectedContactSummary = ContactSummaryProjection.Project(contactId, contacts);
-        Selection.Clear();
+        _selection.Clear();
     }
 
     public void ApplyDefaultSelection(IReadOnlyList<OobTreeEntry> oob)
@@ -144,7 +149,7 @@ public sealed class C2PresentationController
         var defaultUnit = C2SelectionResolver.ResolveDefaultFriendlyUnit(oob);
         if (defaultUnit != null)
         {
-            Selection.ReplaceWith(defaultUnit);
+            _selection.ReplaceWith(defaultUnit);
         }
     }
 

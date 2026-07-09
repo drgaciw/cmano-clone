@@ -68,7 +68,7 @@ public sealed class GroupOrderPlan
     /// </summary>
     public static GroupOrderPlan Build(
         IReadOnlyList<string> selectedUnitIds,
-        Func<string, GroupOrderUnitVerdict> evaluate)
+        Func<string, GroupOrderUnitVerdict?> evaluate)
     {
         if (evaluate == null)
         {
@@ -88,6 +88,12 @@ public sealed class GroupOrderPlan
             }
 
             var verdict = evaluate(unitId);
+            if (verdict == null)
+            {
+                // Defensive: a null evaluator result must not NRE the plan builder. Treat as unknown.
+                verdict = GroupOrderUnitVerdict.Ineligible(unitId, GroupOrderIneligibleReason.UnknownUnit);
+            }
+
             all.Add(verdict);
 
             if (verdict.IsEligible)
