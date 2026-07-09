@@ -1,0 +1,12 @@
+{
+  "id": "qa-tier1-patrol-02",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true
+  }
+}

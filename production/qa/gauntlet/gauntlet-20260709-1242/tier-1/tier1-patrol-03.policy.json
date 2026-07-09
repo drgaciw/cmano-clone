@@ -6,7 +6,7 @@
     "schemaVersion": 1,
     "dbRef": "baltic_patrol",
     "seed": 123,
-    "policyId": "baltic-patrol-catalog",
+    "policyId": "qa-tier1-patrol-03",
     "tlBranch": "TL-0",
     "maxTechnologyLevel": 0,
     "sideRoe": "WeaponsFree"
