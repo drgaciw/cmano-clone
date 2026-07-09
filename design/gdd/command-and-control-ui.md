@@ -116,8 +116,9 @@ See [c2-command-post.md](../ux/c2-command-post.md) — authoritative layout and 
 | TR | Status | Notes |
 |----|--------|-------|
 | TR-c2-005 | **Implemented (headless)** | Drag-box/shift/ctrl multi-select, N/P cycle, group-order fan-out (one intent per eligible unit, destroyed dropped). ADR-010 preserved — fan-out over existing bridge command API. |
-| TR-c2-006 | **Partial+** | Lifecycle + `OrderStateChip` + weapons gate; **Phase 2b:** `PlayerOrderCancelled` + `DelegationBridge.TryCancelHumanOrder` (add-only). **P0 Phase 0:** `PositiveControlRequiredProjection` replaces raw WeaponsTight host proxies (still ROE-mapped). |
-| TR-c2-007 | **Partial+** | Severity/toast/command; **Phase 2b:** `PauseReasonStack` + `ApplyAutoPause`; **P0 Phase 0:** canonical `PauseReasonIds`. Multitasker bookmarks remain T5. |
+| TR-c2-004 | **Partial+ (headless)** | Theater quick-jump + globe pick/drag-box contracts (T1/ADR-018); Cesium host Editor residual; CI `useGlobeMap=false`. |
+| TR-c2-006 | **Implemented (headless)** | Lifecycle + chips + weapons gate; Phase 2b cancel; P0 PositiveControl projection + cancel presenter. |
+| TR-c2-007 | **Implemented (headless)** | Severity/toast; Phase 2b pause stack; P0 multitasker bookmarks + canonical pause reason ids. |
 | TR-c2-008 | **Implemented (headless)** | Per-category log filters (`MessageLogFilterModel`), session-lifetime. |
 
 > Landed on `c2-req20-integration` (full sln 1551/0, C2 proxy + 3 rev-2 seams, ReplayGolden green, **DelegationBridge zero-diff**, Baltic hash `17144800277401907079` unchanged). Unity host/UXML/USS verified via projection/model tests; an Editor PlayMode pass is the remaining finisher. See [requirements-traceability](../../docs/architecture/requirements-traceability.md#c2-ui-rev-2-tr-c2-005008).
