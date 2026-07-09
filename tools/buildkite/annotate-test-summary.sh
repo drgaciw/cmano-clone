@@ -32,12 +32,17 @@ skipped=0
 for f in "${trx_files[@]}"; do
   # dotnet test TRX summary line, e.g.:
   # <Counters total="42" executed="42" passed="40" failed="1" error="0" ... notExecuted="1" .../>
+  # Portable bash [[ =~ ]] — avoid grep -oP (GNU PCRE; missing on some agents / macOS).
   line="$(grep -o '<Counters[^/]*/>' "$f" || true)"
   [[ -z "$line" ]] && continue
-  t=$(grep -oP 'total="\K[0-9]+' <<< "$line" || echo 0)
-  p=$(grep -oP 'passed="\K[0-9]+' <<< "$line" || echo 0)
-  fl=$(grep -oP 'failed="\K[0-9]+' <<< "$line" || echo 0)
-  sk=$(grep -oP 'notExecuted="\K[0-9]+' <<< "$line" || echo 0)
+  t=0
+  p=0
+  fl=0
+  sk=0
+  [[ "$line" =~ total=\"([0-9]+)\" ]] && t="${BASH_REMATCH[1]}"
+  [[ "$line" =~ passed=\"([0-9]+)\" ]] && p="${BASH_REMATCH[1]}"
+  [[ "$line" =~ failed=\"([0-9]+)\" ]] && fl="${BASH_REMATCH[1]}"
+  [[ "$line" =~ notExecuted=\"([0-9]+)\" ]] && sk="${BASH_REMATCH[1]}"
   total=$((total + t))
   passed=$((passed + p))
   failed=$((failed + fl))

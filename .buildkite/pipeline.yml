@@ -1,14 +1,20 @@
 # Primary CI — see docs/engineering/buildkite-ci.md
-# 2026-07-09 optimization pass (Tasks 1-7): Release build (cached) -> sharded test run
-# (parallelism: 4), plus parallel siblings (gitleaks, Baltic replay, GitNexus) that
-# still kick off immediately alongside :hammer: Build, unchanged from before this pass.
+# 2026-07-09 optimization pass (Tasks 1-7): Release build (NuGet-cached) -> sharded
+# test run (parallelism: 4), plus parallel siblings (gitleaks, Baltic replay, GitNexus)
+# that still kick off immediately alongside :hammer: Build.
 # Graphite CI optimizer plugin removed previously (pre-checkout empty-pipeline replace
 # blocked :hammer: on stacks) — see docs/engineering/graphite-github-substitute-plan.md.
+#
+# Hosted cache volumes: only `paths` / `name` / `size` are valid (NO `key`, NO
+# `{{ checksum }}` — those are CircleCI/GHA syntax and reject pipeline upload).
+# Cache NuGet packages only; never bin/obj (incremental-compile timestamp poison).
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
   DOTNET_NOLOGO: "true"
   BUILDKITE_GIT_CLONE_FLAGS: "--depth=250"
+  # Workspace-relative NuGet global packages folder (cached below).
+  NUGET_PACKAGES: ".nuget/packages"
 
 steps:
   # Blocking gate MUST run first — Release build only (Task 3 split; test execution
@@ -25,13 +31,15 @@ steps:
           limit: 2
       manual:
         allowed: true
+    # Hosted agent cache volume — NuGet packages only (see docs/engineering/buildkite-ci.md).
     cache:
       paths:
-        - "~/.nuget/packages"
-        - "**/obj"
-        - "**/bin"
-      key: 'v1-dotnet-{{ checksum "**/*.csproj" }}-{{ checksum "global.json" }}'
+        - ".nuget/packages"
+      name: "nuget-packages"
+      size: "20g"
     artifact_paths:
+      # Informational compile outputs; test shards rebuild locally on a cold agent
+      # (DLL-only artifacts are insufficient for `dotnet test --no-build`).
       - "**/bin/Release/**/*.dll"
 
   - label: ":test_tube: Test %n"
@@ -50,10 +58,9 @@ steps:
         allowed: true
     cache:
       paths:
-        - "~/.nuget/packages"
-        - "**/obj"
-        - "**/bin"
-      key: 'v1-dotnet-{{ checksum "**/*.csproj" }}-{{ checksum "global.json" }}'
+        - ".nuget/packages"
+      name: "nuget-packages"
+      size: "20g"
     artifact_paths:
       - "test-results/**/*.trx"
 
@@ -128,6 +135,11 @@ steps:
       manual:
         allowed: true
     command: bash tools/buildkite/agent-baltic-replay.sh
+    cache:
+      paths:
+        - ".nuget/packages"
+      name: "nuget-packages"
+      size: "20g"
     artifact_paths:
       - "test-results-replay/**/*.trx"
 

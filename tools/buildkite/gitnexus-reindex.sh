@@ -79,6 +79,15 @@ upload_logs() {
   fi
 }
 
+# Missing CLI is an infra/bootstrap failure — fail hard (exit 1), not soft-fail 75.
+# Soft-fail is reserved for gitnexus analyze/status best-effort CLI modes only.
+if ! command -v gitnexus >/dev/null 2>&1; then
+  echo "ERROR: gitnexus CLI is not installed or not on PATH (bootstrap failure — not a soft-fail)" >&2
+  annotate "**GitNexus reindex failed hard** — \`gitnexus\` CLI missing from PATH (toolchain/bootstrap). Not soft-failed." "error"
+  upload_logs
+  exit 1
+fi
+
 if ! gitnexus analyze 2>&1 | tee .gitnexus/logs/analyze.log; then
   echo "WARN: gitnexus analyze failed — known non-blocking GitNexus CLI failure mode (reindex is best-effort by design, does not gate PR merges)"
   annotate "**GitNexus reindex degraded** — \`gitnexus analyze\` failed; see job artifacts (\`.gitnexus/logs/analyze.log\`). Non-blocking (best-effort)." "warning"

@@ -20,8 +20,8 @@ see the git history of `.buildkite/pipeline.yml` if it needs to come back.
 
 | Step | When | Purpose |
 |------|------|---------|
-| `:hammer: Build` | All builds | `restore` → Release `build` → S67 hash/DelegationBridge-ZERO check. Cached (`~/.nuget/packages`, `**/obj`, `**/bin`, keyed on `**/*.csproj` + `global.json` checksum — no `packages.lock.json` in this repo). Uploads `**/bin/Release/**/*.dll` as artifacts |
-| `:test_tube: Test %n` | All builds | `depends_on: build`, `parallelism: 4`. Shards the 6 `src/*/*.Tests.csproj` projects across `BUILDKITE_PARALLEL_JOB`/`_JOB_COUNT`, runs each with `--no-build`, writes `.trx` to `test-results/` (uploaded as artifacts). Falls back to a local per-project build on a cache miss. Replay/C2 filter coverage (`ReplayGoldenSuiteTests`, `PlayModeSmokeHarnessTests`) is exercised by `ProjectAegis.Delegation.UnityAdapter.Tests`'s normal full-suite run once sharded in — no separate redundant filtered pass |
+| `:hammer: Build` | All builds | `restore` → Release `build` → S67 hash/DelegationBridge-ZERO check. Hosted cache volume on `.nuget/packages` (`NUGET_PACKAGES`). Uploads `**/bin/Release/**/*.dll` as informational artifacts |
+| `:test_tube: Test %n` | All builds | `depends_on: build`, `parallelism: 4`. Shards the 6 `src/*/*.Tests.csproj` projects across `BUILDKITE_PARALLEL_JOB`/`_JOB_COUNT`. Rebuilds assigned projects when Release output is missing (normal on ephemeral agents), then `dotnet test --no-build`, writes `.trx` to `test-results/`. Replay/C2 filter coverage (`ReplayGoldenSuiteTests`, `PlayModeSmokeHarnessTests`) is exercised by `ProjectAegis.Delegation.UnityAdapter.Tests`'s normal full-suite run once sharded in — no separate redundant filtered pass |
 | `:bar_chart: Test analytics upload` | All builds, only if `BUILDKITE_ANALYTICS_TOKEN` is set | `depends_on: test`, `allow_dependency_failure: true`. `test-collector#v1.11.0` uploads `test-results/**/*.trx` (`format: dotnet-trx`) to Buildkite Test Engine. **Currently a no-op** — token not yet wired, see "Test Analytics setup" below |
 | `:memo: Test summary annotation` | All builds | `depends_on: test`, `allow_dependency_failure: true`. Aggregates pass/fail/skip counts from the `.trx` files into a `buildkite-agent annotate` summary |
 | Gitleaks | All builds | Secret scan (moved from `gitnexus-security.yml`; `soft_fail: true`) |
@@ -40,22 +40,32 @@ or `depends_on: test`, unchanged from before this pass.
 
 ### Caching
 
-Hosted-agent native `cache:` (no plugin) on both `:hammer: Build` and `:test_tube: Test
-%n`, same key so the test shards can reuse the build step's Release output:
+Hosted-agent **cache volumes** (no plugin) on `:hammer: Build`, `:test_tube: Test %n`,
+and Baltic replay. Official attributes are only `paths` / `name` / `size` — there is
+**no** `key` and **no** `{{ checksum }}` template (those are CircleCI / GitHub Actions
+syntax and will fail pipeline upload). See
+[Cache volumes](https://buildkite.com/docs/agent/buildkite-hosted/cache-volumes).
 
 ```yaml
+env:
+  NUGET_PACKAGES: ".nuget/packages"
+
+# per step (or top-level):
 cache:
   paths:
-    - "~/.nuget/packages"
-    - "**/obj"
-    - "**/bin"
-  key: 'v1-dotnet-{{ checksum "**/*.csproj" }}-{{ checksum "global.json" }}'
+    - ".nuget/packages"
+  name: "nuget-packages"
+  size: "20g"
 ```
 
-No `packages.lock.json` exists anywhere in this repo (lock-file restore isn't enabled),
-so the key checksums `**/*.csproj` + `global.json` instead. If `RestorePackagesWithLockFile=true`
-is adopted repo-wide later, switch the checksum to the generated lock files for tighter
-cache invalidation.
+**Do not cache `bin/` or `obj/`.** Restoring them across commits/agents breaks .NET
+incremental compilation (timestamp-based) and is a known anti-pattern. Test shards
+rebuild their assigned projects when Release output is missing; a warm NuGet volume
+keeps that fast.
+
+No `packages.lock.json` exists in this repo today. If `RestorePackagesWithLockFile=true`
+is adopted later, consider the [Cache plugin](https://github.com/buildkite-plugins/cache-buildkite-plugin)
+with a lockfile `manifest` for deterministic object-store keys in addition to volumes.
 
 ### Test Analytics setup (Task 5 — needs a human with Buildkite org UI access)
 
@@ -105,7 +115,7 @@ Shell entrypoints (parity with local dev):
 ### Orphaned / out-of-scope files (not touched by this pass)
 
 - [`.buildkite/preflight-s67.yml`](../../.buildkite/preflight-s67.yml) — never referenced by any `buildkite-agent pipeline upload` command; left as-is pending a separate cleanup decision
-- `packages.lock.json` adoption — no lock files exist in this repo today; cache keys checksum `**/*.csproj` + `global.json` instead (see "Caching" above)
+- `packages.lock.json` adoption — no lock files exist in this repo today (see "Caching" above)
 
 ## One-time Buildkite setup (human)
 
