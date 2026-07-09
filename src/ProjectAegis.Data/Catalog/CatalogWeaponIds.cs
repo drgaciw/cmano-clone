@@ -11,10 +11,4 @@ public static class CatalogWeaponIds
     public const string KillChainShortRange = "kill-chain-short-range";
 
     public const string KillChainHypersonic = "kill-chain-hypersonic";
-
-    /// <summary>Baltic production seed — RIM-66 Standard MR (catalog-backed envelope).</summary>
-    public const string BalticRim66 = "baltic-rim-66";
-
-    /// <summary>Baltic production seed — 76mm OTO Melara gun.</summary>
-    public const string BalticOto76 = "baltic-oto-76";
 }

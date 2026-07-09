@@ -138,44 +138,8 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         return false;
     }
 
-    public bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope)
-    {
-        if (TryGetWeaponEnvelopeFromCatalog(weaponId, out envelope))
-        {
-            return true;
-        }
-
-        return CatalogWeaponDefaults.TryResolve(weaponId, out envelope);
-    }
-
-    /// <summary>Reads min/max range from <c>weapon_catalog</c> when the table and row exist.</summary>
-    private bool TryGetWeaponEnvelopeFromCatalog(string weaponId, out WeaponEnvelopeDto envelope)
-    {
-        envelope = default;
-        if (string.IsNullOrWhiteSpace(weaponId) || !TableExists("weapon_catalog"))
-        {
-            return false;
-        }
-
-        using var cmd = _connection.CreateCommand();
-        cmd.CommandText =
-            """
-            SELECT min_range_meters, max_range_meters
-            FROM weapon_catalog
-            WHERE weapon_id = $id
-            """;
-        cmd.Parameters.AddWithValue("$id", weaponId.Trim());
-        using var reader = cmd.ExecuteReader();
-        if (!reader.Read())
-        {
-            return false;
-        }
-
-        var minRange = reader.GetDouble(0);
-        var maxRange = reader.GetDouble(1);
-        envelope = new WeaponEnvelopeDto(minRange, maxRange);
-        return true;
-    }
+    public bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope) =>
+        CatalogWeaponDefaults.TryResolve(weaponId, out envelope);
 
     public IReadOnlyList<CatalogMobility> GetSortedMobility()
     {
