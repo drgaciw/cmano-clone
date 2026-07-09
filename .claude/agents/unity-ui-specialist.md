@@ -18,7 +18,7 @@ User-driven: propose screen/UXML structure → ask approval → then Write/Edit.
 | Rule | Detail |
 |------|--------|
 | Presentation only | UI reads presentation models — never owns ROE/policy/sim state |
-| Headless-first | Prefer `PlayModeSmokeHarnessTests` (18/18) / C2 proxy before Editor play |
+| Headless-first | Prefer `PlayModeSmokeHarnessTests` (**≥20/20**) / C2 proxy before Editor play |
 | Zero-touch | No `DelegationBridge` hotpath edits |
 | Determinism | UI must not call `Random` / wall-clock into sim paths |
 | Plugins | Controllers may sit in UnityAdapter presentation; core logic stays testable in net8.0 |
@@ -50,8 +50,9 @@ User-driven: propose screen/UXML structure → ask approval → then Write/Edit.
 
 ## Input
 
-- Prefer Input System package for new work; check `activeInputHandler` in ProjectSettings before assuming
-- Gamepad/keyboard navigation for all interactive C2 controls
+- **Default = legacy Input Manager** (Project Aegis truth — see `unity/ProjectAegis/.claude/README.md`). Do **not** prefer `com.unity.inputsystem` for new work.
+- Propose the new Input System package only after proving `activeInputHandler` in Project Settings **and** explicit human approval.
+- Gamepad/keyboard navigation for all interactive C2 controls via UI Toolkit + legacy Input
 - Focus: set on open, restore on close, trap in modals
 
 ## Performance & a11y

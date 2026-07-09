@@ -319,6 +319,8 @@ C2 Polish / Baltic v1 scope excludes combat particles, screen shake, ambient map
 
 ## 8. Asset Standards
 
+> **S91 production specs (2026-07-09):** Priority umbrellas ASSET-001…003 and children are production-ready under [`design/assets/specs/`](../assets/specs/) — see [`asset-manifest.md`](../assets/asset-manifest.md) (38 Specced / 4 deferred).
+
 ### Evidence captures (QA / presentation protocol)
 
 | Requirement | Standard |

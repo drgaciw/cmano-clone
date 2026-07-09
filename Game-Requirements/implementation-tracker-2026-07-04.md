@@ -13,13 +13,15 @@
 | Requirements **documentation** (01–21) | **Complete** — **req 11 revised 2026-07-01** (`AME-*` IDs, AC-1…AC-12, ADR-008/013–017 cross-refs); other docs 01–10, 12–21 unchanged |
 | **MVP / Phase 1 gameplay** implementation | **COMPLETE 21/21** (S56 gate PASS 2026-06-21) — grades frozen; Baltic ACs (replay 6/6, proxy 18/18, hash `17144800277401907079`) |
 | **Post-MVP content programs** (S57–S80) | **COMPLETE** — Baltic v2/v3, release train, E7 prep; S80 ack **"Baltic v3 content-complete"** (2026-06-26); stage **Release** |
-| **Forward engineering** (post-S80) | **In progress — scenario editor completion** (headless done; AC-8 remaining). Epic `scenario-editor-completion`; plan `docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md`; roadmap `future-sprint-roadpmap-07042026.md`. Branch `fix-scenario-publish-cli-wiring` merged into main ancestry |
+| **Forward engineering** (post-S80) | **SCOPED — S89–S92 post-editor hygiene** (2026-07-09). Editors complete: S81–S88 scenario editor, ME Phase 2, PE (req 21). Epic hygiene train; roadmap [`future-sprint-roadpmap-07092026.md`](../docs/reports/future-sprint-roadpmap-07092026.md); boundary [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../production/post-editor-hygiene-scope-boundary-2026-07-09.md); status truth [`post-editor-status-truth-2026-07-09.md`](../production/agentic/post-editor-status-truth-2026-07-09.md). Stage **Release**. |
 
 Completing the full requirements corpus as *shipped game features* is multi-year work (req 07 phases 1–5). **Post-MVP tracks add evidence additively; they do not re-litigate S56 MVP row grades** ([baltic-v3-scope-boundary-2026-06-25.md](../production/baltic-v3-scope-boundary-2026-06-25.md)).
 
 ## Verification baseline
 
-**Gate baseline (S80, 2026-06-26):** ≥**1232/0f**; ReplayGolden **6/6**; PlayMode smoke **18/18**; hash **`17144800277401907079`** preserved; ZERO `DelegationBridge` hotpath edits.
+**Gate baseline (post-PE, 2026-07-09):** ≥**1599/0f**; ReplayGolden **6/6**; PlayMode smoke **≥20/20**; hash **`17144800277401907079`** preserved; ZERO `DelegationBridge` hotpath edits. Evidence: [`production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log`](../production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log).
+
+**Gate baseline (S80, 2026-06-26, superseded floor):** ≥**1232/0f**; ReplayGolden **6/6**; PlayMode smoke **18/18**; hash preserved; ZERO bridge.
 
 **Measured @ 2026-07-04 (`fix-scenario-publish-cli-wiring`, RUN):**
 
@@ -35,11 +37,11 @@ Completing the full requirements corpus as *shipped game features* is multi-year
 
 **Hard gates (subset, RUN @ 2026-07-04):** ReplayGoldenSuite **6/6 PASS**; PlayModeSmokeHarnessTests **18/18 PASS**; hash invariant preserved.
 
-**UA failures (open):** `Friendly_weapons_tight_surfaces_policy_abort_in_engagement_log`, `Restricted_engagement_scenario_fingerprint_is_deterministic` (`BalticReplayHarnessPolicyEngageTests`) — pre-existing; unrelated to scenario-editor commits.
+**UA engage (req 14):** **CLOSED @ green** (2026-07-09). `BalticReplayHarnessPolicyEngageTests` **3/3** on trunk @ `223a5fe`. Historically 2 failures (2026-07-04) — resolved; see [`production/qa/ua-engage-triage-2026-07-09.md`](../production/qa/ua-engage-triage-2026-07-09.md). **Include in gate** — no exclusion.
 
 ```bash
 dotnet build ProjectAegis.sln
-dotnet test ProjectAegis.sln -v minimal                    # floor ≥1232/0f (current 1308/1310)
+dotnet test ProjectAegis.sln -v minimal                    # floor ≥1599/0f (post-PE 2026-07-09)
 dotnet test ProjectAegis.sln --filter "FullyQualifiedName~ReplayGoldenSuiteTests"
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests
 dotnet test src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj --filter "ScenarioDocumentEditor|ScenarioValidation|SaveVsExport|DoctrineInheritance|EventDebugger|SchemaConformance|StubScope|DerivedOnly"
@@ -126,7 +128,7 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 
 **Program note (corpus maturity W0–W4, 2026-07-08):** Waves 0–4 corpus honesty complete; **no MVP regrade**. Req **10b** remains **Phase N / not on main**.
 
-**Program note (scenario editor SE-W0, 2026-07-08):** S81–S88 **headless** engineering complete on trunk (closeouts + S88 gate package READY). Forward work is epic **`scenario-editor-completion`**: SE-W1 doc honesty + residual tools; **SE-W2 Unity AC-8 productionize**; SE-W3 gate + human ack for **headless + AC-8**. Phase 2 map/GUI **deferred**. Status truth: `production/agentic/se-w0-status-truth-2026-07-08.md`.
+**Program note (post-editor forward scope, 2026-07-09):** S81–S88 + scenario-editor-completion + ME Phase 2 + PE **COMPLETE** on trunk. Forward program = **S89–S92 engineering hygiene + asset specs** per `future-sprint-roadpmap-07092026.md`. Floors: **1599/0f**, C2 **20/20**. GitNexus fresh @ `223a5fe` (24,418 / 47,032). Launch stage **not** advanced.
 
 | Req | Title | MVP status (S56) | Post-S56 note (through 2026-07-04) | Next stack task |
 |-----|-------|------------------|--------------------------------------|-----------------|

@@ -30,6 +30,8 @@ Pinned packages in `unity/ProjectAegis/Packages/manifest.json` (do not invent ve
 
 Engine pin and DOTS notes: [docs/engine-reference/unity/VERSION.md](docs/engine-reference/unity/VERSION.md). Headless sim stays under `src/` (`net8.0`); Unity plugins target `netstandard2.1`.
 
+**Project Aegis Unity invariants** (Input Manager, Built-in RP, MCP pending, headless-vs-Editor): [`unity/ProjectAegis/.claude/README.md`](unity/ProjectAegis/.claude/README.md).
+
 ### Unity / C2 agent routing
 
 Use these Cursor/Claude agents from `.claude/agents/` (do not invent specialists):

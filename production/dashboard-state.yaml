@@ -1,78 +1,113 @@
 # GitNexus + filesystem snapshot for dashboard delta comparison.
-# Updated by /project-dashboard 2026-06-19 pm.
+# Updated by /project-dashboard + post-editor immediate priorities 2026-07-09.
 
 last_run:
-  timestamp: "2026-06-19T12:00:00Z"
-  label: pm
-  compared_to_baseline: docs/reports/project-dashboard.md
-  compared_to_prior: docs/reports/dashboard-snapshots/2026-06-04-pm.md
+  timestamp: "2026-07-09T16:30:00Z"
+  label: post-editor-hygiene-s92-verification
+  compared_to_baseline: docs/reports/dashboard-snapshots/2026-07-09-am.md
+  compared_to_prior: docs/reports/dashboard-snapshots/2026-06-25-pm.md
+  archive: docs/reports/dashboard-snapshots/2026-07-09-am.md
 
 gitnexus:
-  indexed_commit: "d3db76d"
-  nodes: 14424
-  edges: 29218
-  clusters: null
+  indexed_commit: "223a5fe"
+  head_commit: "223a5fe"
+  nodes: 24418
+  edges: 47032
+  clusters: 424
   flows: 300
+  files: 2888
   index_status: fresh
+  commits_behind: 0
+  analyze_duration_s: 181.9
   changed_symbols_count: null
   affected_processes_count: null
   watchlist_risks:
-    IRoeFilter: LOW
-    DecisionLog: HIGH
-    DelegationOrchestrator: HIGH
-    SimTickPipeline: LOW
-    SqliteCatalogReader: CRITICAL
+    ScenarioDocumentEditor: CRITICAL_233
+    CatalogWriteGate: CRITICAL_186
+    DelegationBridge: CRITICAL_145
+    PatrolCandidateEngagePolicy: CRITICAL_113
+    BalticReplayHarness: CRITICAL_54
+
+gates:
+  evidence_log: production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log
+  build: "0e/0w"
+  tests_total: 1599
+  tests_failed: 0
+  replay_golden: "6/6"
+  c2_proxy: "20/20"
+  hash_paths: 18
+  ua_engage_filter: "3/3"
+  delegation_bridge_hotpath: ZERO
 
 filesystem:
-  sprint_plans: 32
+  sprint_plans: 131
   sprint_status_yaml: true
   stage_txt: true
-  milestones: 2
-  epics: 49
-  stories: 132
-  tests_total: 1006
+  milestones: 4
+  epics: 70
+  stories: 264
+  tests_total: 1599
+  test_breakdown:
+    Sim: 311
+    Delegation: 260
+    UnityAdapter: 286
+    Excel: 24
+    Data: 616
+    Cli: 102
   gdd_files: 18
   gdd_systems_with_docs: 12
   gdd_systems_total: 20
-  adrs: 11
-  architecture_files: 13
-  production_qa_files: 40
-  determinism_audits: 2
-  test_files: 310
-  source_files: 523
+  adrs: 18
+  test_files: 403
+  source_files: 609
   requirements_files: 26
-  asset_manifest_exists: false
+  asset_manifest_exists: true
+  asset_manifest_total: 42
+  asset_manifest_needed: 4
+  asset_manifest_specced: 38
+  asset_manifest_done: 0
   vertical_slice_gate: PROCEED
-  implementation_tracker: Game-Requirements/implementation-tracker-2026-06-04.md
+  implementation_tracker: Game-Requirements/implementation-tracker-2026-07-04.md
+  baltic_v2_policies: 11
+  baltic_v3_policies: 6
+  baltic_v3_goldens: 6
+  regression_goldens: 35
+
+forward_program:
+  name: S89-S92_post_editor_hygiene
+  roadmap: docs/reports/future-sprint-roadpmap-07092026.md
+  execute_plan: docs/reports/roadmap-execute-plan-07092026.md
+  scope_boundary: production/post-editor-hygiene-scope-boundary-2026-07-09.md
+  status_truth: production/agentic/post-editor-status-truth-2026-07-09.md
+  status: verification_complete_human_ack_pending
+  sprints:
+    s89: complete
+    s90: complete
+    s91: complete
+    s92: verification_complete_human_ack_pending
+  stage: Release
 
 plans:
-  simulation_modes_decisions:
-    complete: 7
-    open: 0
-  delegation_graphite_stack:
-    complete: 10
-    open: 0
-  phase_gate_loop_policy:
-    complete: 6
-    open: 1
-  agent_delegation_framework:
-    complete: 0
-    open: 58
-    note: stale — implementation largely complete
+  scenario_editor_s81_s88: complete
+  scenario_editor_completion: complete
+  mission_editor_phase2: complete
+  platform_editor_completion: complete
+  pe_adversarial_hardening: complete
+  post_editor_hygiene_s89_s92: verification_complete_human_ack_pending
 
 sprint:
-  current: 32
-  sprints_documented: 32
-  sprints_complete_through: 31
-  sprint_31_stories: "12/13 (S31-12 deferred)"
-  sprint_32_stories: "1/13 (S32-01 done)"
-  sprint_status_done_entries: 245
-  qa_unity_manual: pass_with_notes_16_of_16
+  current: s92_verification_complete_ack_pending
+  sprints_documented: 131
+  sprints_complete_through: 91
+  s92_gate: production/gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md
+  sprint_status_done_entries: 287
+  qa_c2_proxy: pass_20_of_20
+  replay_golden: pass_6_of_6
+  solution_tests: 1599
 
 requirements:
   docs_complete: 20
-  mvp_partial: 20
-  mvp_not_started: 0
-  req_06_corpus_approve: complete_off_ci
-  req_18_combat_phase: 5
-  req_21_platform_editor: phase_e_plus_presentation
+  mvp_program_exit: 21
+  req_11_scenario_editor: complete
+  req_21_platform_editor: complete
+  stage: Release

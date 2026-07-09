@@ -10,7 +10,7 @@ This guide covers the Claude-specific integrations configured for Project Aegis:
 | Unity-MCP CLI | `npx unity-mcp-cli` **0.77.0** (global npm install optional) | Partial — not on PATH unless installed |
 | MCP server config | `.cursor/mcp.json`, `.mcp.json` | Yes (needs Editor + plugin active on :8080) |
 | Game-Studios agents/skills | `.claude/` vendored | Yes (Claude Code) |
-| Unity Editor plugin | `com.ivanmurzak.unity.mcp` **0.77.0** in manifest | **Pending** — open Editor once to resolve package |
+| Unity Editor plugin | `com.ivanmurzak.unity.mcp` — **not** a direct `manifest.json` dependency yet (OpenUPM scopes only) | **Pending** — run `install-plugin`, then open Editor once |
 | MCP HTTP server | `http://localhost:8080` | **No** until Editor running with plugin logged in |
 
 ---
@@ -37,9 +37,9 @@ Unity-MCP connects Claude and Cursor to a running Unity Editor via MCP on `http:
 
 ### Activation steps (from repo root)
 
-Plugin package is already listed in `unity/ProjectAegis/Packages/manifest.json` (`com.ivanmurzak.unity.mcp`). Complete activation on your machine:
+OpenUPM **scopes** for `com.ivanmurzak` are already in `unity/ProjectAegis/Packages/manifest.json`. The package **`com.ivanmurzak.unity.mcp` is not yet a direct dependency** — install it before expecting `:8080` (matches [`Tech-Stack.md`](../Tech-Stack.md)):
 
-1. **Install or refresh the plugin** (idempotent):
+1. **Install the plugin** (adds the package to dependencies):
    ```powershell
    npx --yes unity-mcp-cli install-plugin ./unity/ProjectAegis
    ```
@@ -66,6 +66,8 @@ Plugin package is already listed in `unity/ProjectAegis/Packages/manifest.json` 
    Invoke-WebRequest -Uri http://localhost:8080 -UseBasicParsing -TimeoutSec 5
    ```
    Cursor connects via `.cursor/mcp.json` → `ai-game-developer`.
+
+**Do not** claim the plugin is already listed under `dependencies` until `install-plugin` has been run and `manifest.json` shows `com.ivanmurzak.unity.mcp`.
 
 ### Unity-MCP limitations
 
@@ -154,7 +156,8 @@ Before committing code changes, run `gitnexus_detect_changes()` via the GitNexus
 - [x] Godot/Unreal agents removed
 - [x] No nested `.git` directories
 - [x] Unity project at `unity/ProjectAegis/` (Editor pin `6000.3.14f1`)
-- [x] `com.ivanmurzak.unity.mcp` in `Packages/manifest.json` (0.77.0)
+- [x] OpenUPM scopes for `com.ivanmurzak` in `Packages/manifest.json`
+- [ ] `com.ivanmurzak.unity.mcp` as a **direct** `Packages/manifest.json` dependency (run `npx unity-mcp-cli install-plugin ./unity/ProjectAegis`)
 - [x] Delegation plugin DLLs (`tools/copy-delegation-assemblies.ps1` + guardrail)
 - [ ] `unity-mcp-cli` on PATH (optional — `npx` works)
 - [ ] Unity Editor opened once after plugin install (Package Manager resolve)

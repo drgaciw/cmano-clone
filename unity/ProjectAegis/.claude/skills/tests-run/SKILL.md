@@ -14,7 +14,7 @@ description: "Execute Unity tests (`EditMode` or `PlayMode`) and return per-test
 - **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
 
 - **When to use:** Editor UTF EditMode/PlayMode iteration with Unity Test Framework in-Editor.
-- **When not (prefer headless):** CI gates, ReplayGolden, PlayModeSmokeHarness — see [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- **When not (prefer headless):** CI gates, ReplayGolden, **C2 / PlayModeSmokeHarness** (`PlayModeSmokeHarnessTests` ≥20/20) — see [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md). Do not treat Editor UTF as a substitute for those gates.
 - Save dirty scenes before running; prefer `EditMode` for fast loops.
 <!-- PROJECT-AEGIS:END -->
 
