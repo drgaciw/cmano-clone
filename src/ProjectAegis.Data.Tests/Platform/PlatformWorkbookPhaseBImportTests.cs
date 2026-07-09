@@ -171,6 +171,30 @@ public sealed class PlatformWorkbookPhaseBImportTests
             && f.Severity == ValidationSeverity.Error);
     }
 
+    /// <summary>PLE-2.3: orphan PlatformId FK emits quarantine-style report entry; nothing staged/committed.</summary>
+    [Fact]
+    public void Stage_orphan_platform_mobility_emits_quarantine_report_entry_PLE_2_3()
+    {
+        var source = PhaseBData();
+        var editedData = PhaseBData(maxSpeedKnots: 30) with
+        {
+            Mobility = new[] { new CatalogMobility("unknown-platform", MaxSpeedKnots: 99) },
+        };
+        var edited = Export(editedData);
+        var gate = new FakeWriteGate();
+
+        var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd");
+
+        Assert.False(result.Staged);
+        Assert.Empty(gate.MobilityProposals);
+        Assert.NotEmpty(result.Plan.QuarantineEntries);
+        Assert.NotEmpty(result.QuarantineEntries);
+        Assert.Contains(result.QuarantineEntries, q =>
+            q.Reason == PlatformWorkbookValidator.PhaseBOrphanPlatform
+            && q.PlatformId == "unknown-platform"
+            && q.EntityKind == "platform_fk");
+    }
+
     [Fact]
     public void Stage_multiple_Phase_B_entity_types_proposes_all_batches()
     {

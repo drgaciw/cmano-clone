@@ -102,7 +102,7 @@ The catalog today persists a thin P0 slice — `CatalogPlatformEntry(PlatformId,
 **Acceptance**
 - [x] **PLE-2.1** `PlatformWorkbookImporter.Diff(workbook)` returns per-entity add/edit/delete sets; an unedited round-tripped workbook yields an **empty** diff (no spurious changes). — `PlatformWorkbookRoundTripTests.Unedited_round_trip_yields_empty_diff`, `PlatformWorkbookImporterTests.Plan_unedited_round_trip_has_no_changes`, `PlatformWorkbookBinaryGoldenTests.Phase_B_unedited_binary_round_trip_yields_empty_diff`
 - [x] **PLE-2.2** Import rejects a workbook whose `SourceSnapshotId` is unknown or stale relative to the current head, with an explainable error. — `PlatformWorkbookImporterTests.Plan_unknown_snapshot_is_unresolved` (guard logic in `PlatformWorkbookImporter` / plan notes; no separate `PlatformEditVersionGuard` type)
-- [ ] **PLE-2.3** A row whose FK does not resolve is routed to quarantine with a `CmoMarkdownQuarantineReportEntry`-style report entry, never committed. — **Partial:** orphan rows rejected / not proposed (`Stage_orphan_platform_mobility_is_rejected_not_proposed`, validator dangling-ref findings); full `CatalogQuarantinePromoter` report-entry path not universal for every sheet
+- [x] **PLE-2.3** A row whose FK does not resolve is routed to quarantine with a `CmoMarkdownQuarantineReportEntry`-style report entry, never committed. — `PlatformImportQuarantineEntry` on plan/result; `Stage_orphan_platform_mobility_emits_quarantine_report_entry_PLE_2_3`, `Stage_dangling_magazine_mount_fk_emits_quarantine_entry_and_stages_nothing`, `Stage_orphan_platform_mobility_is_rejected_not_proposed`
 - [x] **PLE-2.4** Deletions are explicit (row removed from sheet) and surface as a distinct diff category requiring confirmation. — `PlatformWorkbookDiff` emits `RowRemoved` / `SheetRemoved` (`PlatformWorkbookChangeKind`)
 
 ### 3. Write-Gate Staging & Governance
@@ -116,7 +116,7 @@ The catalog today persists a thin P0 slice — `CatalogPlatformEntry(PlatformId,
 - [x] **PLE-3.2** A bulk import of M rows produces M change-log entries on commit and exactly one staging batch summary. — `CatalogWriteGatePlatformApproveTests.ApproveBatch_writes_change_log_for_platform_commit`, multi-entity propose tests
 - [x] **PLE-3.3** A batch touching > 10 records or any `balanceCritical` field returns `Committed == false` until a human `ApproveBatch` is supplied (reuses **DBI-2.4** threshold). — `PlatformWorkbookImporterTests.Plan_large_changeset_requires_human_approval`
 - [x] **PLE-3.4** `RejectBatch` discards staging and leaves the head snapshot unchanged. — `PlatformWorkbookPhaseDWriteTests.Reject_batch_discards_staging_without_live_commit`, `CatalogWriteGatePlatformApproveTests.RejectBatch_purges_all_staging_tables_DBI_1_4`
-- [ ] **PLE-3.5** Commit produces a new immutable `snapshotId` / `db_release` row (doc 06 §4). — **Partial / reuse:** `DbSnapshotStore` / `DbReleaseRecord` exist; Excel commit path stages via gate batches — dedicated post-import release-row golden not cited here
+- [x] **PLE-3.5** Commit produces a new immutable `snapshotId` / `db_release` row (doc 06 §4). — `PlatformWorkbookWriteService.ApproveBatches` → `CatalogSnapshotBinder.BindAfterApprove` / `DbSnapshotStore.RecordRelease`; golden `PlatformWorkbookPhaseDWriteTests.ApproveBatches_records_db_release_and_snapshot_PLE_3_5`
 
 ### 4. Validation on Import
 
@@ -127,7 +127,7 @@ The catalog today persists a thin P0 slice — `CatalogPlatformEntry(PlatformId,
 - [x] **PLE-4.1** Import surfaces unit-enum and sanity findings (range ≤ 0, Mach > 25) as explainable `ValidationFinding` codes (extends DBI-2.1/2.2). — `PlatformWorkbookValidatorTests` (negative quantity, over-capacity, clean fitting); Phase B validation packs
 - [x] **PLE-4.2** Mount/weapon incompatibility and magazine-over-capacity produce blocking findings before approve. — `PlatformWorkbookValidatorTests.Over_capacity_is_flagged_as_error`, `Dangling_mount_reference_is_flagged`, `Stage_blocked_by_validation_error_stages_nothing`
 - [x] **PLE-4.3** `ValidationReport` for a given workbook is deterministic (golden-hash stable). — `PlatformWorkbookValidatorTests.Findings_are_sorted_deterministically`
-- [ ] **PLE-4.4** Speculative/near-future rows respect `TrlLevel` / `CatalogArchetypeGate`; black-project rows stay gated (docs 09/10). — **Partial / deferred** to archetype/TL export paths; not fully asserted on workbook import alone
+- [x] **PLE-4.4** Speculative/near-future rows respect `TrlLevel` / `CatalogArchetypeGate`; black-project rows stay gated (docs 09/10). — Excel sensor staging partitions via `CatalogImportGate.PartitionForImport` (min TRL 4 + approved); `Stage_trl_gate_quarantines_low_trl_provisional_sensor_and_stages_approved_high_trl`. Archetype entity gate remains `CatalogArchetypeGate` / `CatalogArchetypeGateTests` (no archetype workbook sheet in exporter).
 
 ### 5. Provenance Capture from Excel
 
@@ -137,7 +137,7 @@ The catalog today persists a thin P0 slice — `CatalogPlatformEntry(PlatformId,
 **Acceptance**
 - [x] **PLE-5.1** Round-tripped provenance is preserved exactly (no tier downgrade on unedited rows). — export/import preserve `ValueTier`/`ReviewState`/`CitationRef` on sensor/comms sheets; empty-diff round-trips above
 - [x] **PLE-5.2** Blank `ValueTier` normalizes to `gameplay_abstraction`; unknown `ReviewState` normalizes to `provisional`. — `CatalogProvenanceTier.Normalize` + importer `ValueTier: CatalogProvenanceTier.Normalize(...)`; damage seed defaults (`CatalogPhaseBDamageMigrationTests`)
-- [ ] **PLE-5.3** Edited values not explicitly approved export to sim as non-`approved` and are excluded from sim-visible export until promoted (reuses DBI-6.3 path). — **Partial / deferred:** sim-visible export gate is doc-06 path; not fully asserted as Excel-only AC
+- [x] **PLE-5.3** Edited values not explicitly approved export to sim as non-`approved` and are excluded from sim-visible export until promoted (reuses DBI-6.3 path). — `CatalogTlExportFilter.Apply` (approved-only sensors); `CatalogTlExportFilterTests.Filtered_export_excludes_provisional_non_approved_sensors_PLE_5_3` (doc-06 path; no second Excel export pipeline)
 
 ### 6. CLI & MCP Surface
 

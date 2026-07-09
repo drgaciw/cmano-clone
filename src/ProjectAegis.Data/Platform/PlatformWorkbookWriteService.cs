@@ -1,5 +1,6 @@
 namespace ProjectAegis.Data.Platform;
 
+using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.Telemetry;
 using ProjectAegis.Data.WriteGate;
 
@@ -169,11 +170,40 @@ public sealed class PlatformWorkbookWriteService
         var advisory = CatalogBalanceDriftPipelineEvaluator.EvaluateForDiff(
             balanceDrift,
             approveDiffEntityIds.ToArray());
+
+        // PLE-3.5: after at least one Excel-path batch commits, record immutable release via existing
+        // DbSnapshotStore / CatalogSnapshotBinder (single release train — no parallel path).
+        string? releaseVersion = null;
+        string? snapshotId = null;
+        string? contentHash = null;
+        if (committed.Count > 0)
+        {
+            var bind = CatalogSnapshotBinder.BindAfterApprove(
+                databasePath,
+                committed[0],
+                clock,
+                releaseVersion: $"platform-workbook-{SanitizeReleaseToken(committed[0])}");
+            releaseVersion = bind.ReleaseVersion;
+            snapshotId = bind.SnapshotId;
+            contentHash = bind.ContentHashSha256;
+        }
+
         return new PlatformWorkbookWriteDecisionResult(
             processed,
             committed,
             errors,
-            advisory);
+            advisory)
+        {
+            ReleaseVersion = releaseVersion,
+            SnapshotId = snapshotId,
+            ContentHashSha256 = contentHash,
+        };
+    }
+
+    private static string SanitizeReleaseToken(string batchId)
+    {
+        var token = batchId.Replace(':', '-');
+        return token.Length <= 48 ? token : token[..48];
     }
 
     private PlatformWorkbookWriteResult BuildProposeResult(PlatformImportResult import, PlatformWorkbook? edited)

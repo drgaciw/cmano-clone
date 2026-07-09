@@ -246,6 +246,108 @@ public sealed class PlatformWorkbookImporterTests
         Assert.True(plan.RequiresHumanApproval);
     }
 
+    /// <summary>PLE-2.3: dangling magazine FK produces quarantine report entry and never stages.</summary>
+    [Fact]
+    public void Stage_dangling_magazine_mount_fk_emits_quarantine_entry_and_stages_nothing()
+    {
+        var source = BaseData(magazineQty: 16);
+        var editedData = BaseData(magazineQty: 16) with
+        {
+            Magazines = new[]
+            {
+                new CatalogMagazineEntry("u1", "asuw-default", "does-not-exist-mount", "mvp-weapon", 8, 0, 8),
+            },
+        };
+        var edited = Export(editedData);
+        var gate = new FakeWriteGate();
+
+        var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "dangling mount fk");
+
+        Assert.False(result.Staged);
+        Assert.Empty(gate.MagazineProposals);
+        Assert.Empty(gate.SensorProposals);
+        Assert.True(result.Plan.Blocked);
+        Assert.Contains(result.Plan.Findings, f => f.Code == PlatformWorkbookValidator.MagazineUnknownMount);
+        Assert.NotEmpty(result.QuarantineEntries);
+        Assert.Contains(result.QuarantineEntries, q =>
+            q.Reason == PlatformWorkbookValidator.MagazineUnknownMount
+            && q.PlatformId == "u1"
+            && q.EntityId == "does-not-exist-mount"
+            && q.SourceSheet == "Magazines");
+        Assert.Equal(result.Plan.QuarantineEntries.Count, result.QuarantineEntries.Count);
+    }
+
+    /// <summary>PLE-4.4: low-TRL / provisional sensors are quarantined and not proposed; high-TRL approved still stage.</summary>
+    [Fact]
+    public void Stage_trl_gate_quarantines_low_trl_provisional_sensor_and_stages_approved_high_trl()
+    {
+        var source = new PlatformCatalogExportData(
+            Platforms: new[] { new CatalogPlatformEntry("u1", 57.0, 20.0, 400.0) },
+            Sensors: new[]
+            {
+                new CatalogSensorBinding(
+                    "u1",
+                    "sensor-approved-high",
+                    0.80,
+                    ReviewState: CatalogReviewStates.Approved,
+                    TrlLevel: 9),
+                new CatalogSensorBinding(
+                    "u1",
+                    "sensor-provisional-low",
+                    0.80,
+                    ReviewState: CatalogReviewStates.Provisional,
+                    TrlLevel: 1),
+            },
+            Mounts: new[] { new CatalogMount("u1", "vls-fwd", "vls", 360.0, 32) },
+            Loadouts: new[] { new CatalogLoadout("u1", "asuw-default", "ASuW", "asuw", IsDefault: true) },
+            Magazines: new[] { new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "mvp-weapon", 16, 0, 32) },
+            Comms: new[] { new CatalogCommsBinding("u1", "NATO_TADIL_J") },
+            Links: new[]
+            {
+                new CatalogLinkEntry("NATO_TADIL_J", "NATO Link 16", CatalogLinkTypes.Tactical, LatencyMsNominal: 50),
+            });
+
+        var editedData = source with
+        {
+            Sensors = new[]
+            {
+                new CatalogSensorBinding(
+                    "u1",
+                    "sensor-approved-high",
+                    0.50,
+                    ReviewState: CatalogReviewStates.Approved,
+                    TrlLevel: 9),
+                new CatalogSensorBinding(
+                    "u1",
+                    "sensor-provisional-low",
+                    0.50,
+                    ReviewState: CatalogReviewStates.Provisional,
+                    TrlLevel: 1),
+            },
+        };
+        var edited = Export(editedData);
+        var gate = new FakeWriteGate();
+
+        var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "trl gate");
+
+        Assert.True(result.Staged);
+        Assert.NotNull(result.SensorBatchId);
+        var proposed = Assert.Single(gate.SensorProposals);
+        var only = Assert.Single(proposed);
+        Assert.Equal("sensor-approved-high", only.SensorId);
+        Assert.Equal(0.50, only.BasePd, precision: 6);
+        Assert.Equal(CatalogReviewStates.Approved, only.ReviewState);
+        Assert.Equal(9, only.TrlLevel);
+
+        Assert.Contains(result.QuarantineEntries, q =>
+            q.EntityKind == "sensor"
+            && q.EntityId == "sensor-provisional-low"
+            && q.PlatformId == "u1"
+            && (q.Reason is "trl_below_minimum" or "review_state_provisional")
+            && q.SourceSheet == "Sensors");
+        Assert.DoesNotContain(result.QuarantineEntries, q => q.EntityId == "sensor-approved-high");
+    }
+
     private static PlatformCatalogExportData ManySensors(int count, int basePdMilli)
     {
         var sensors = new List<CatalogSensorBinding>();
