@@ -1,0 +1,54 @@
+=== S92 Program Gate ===
+Date: 2026-07-09T16:26:28Z
+HEAD: 223a5fe2751f74f0a1e9975779e5868330adfb95
+
+=== GitNexus status ===
+Repository: /home/username01/cmano-clone
+Branch: main
+Indexed: 7/9/2026, 10:44:52 AM
+Indexed commit: 223a5fe
+Current commit: 223a5fe
+Status: ✅ up-to-date
+
+=== Build ===
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:07.67
+
+=== Full test ===
+
+Passed!  - Failed:     0, Passed:   311, Skipped:     0, Total:   311, Duration: 812 ms - ProjectAegis.Sim.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   260, Skipped:     0, Total:   260, Duration: 2 s - ProjectAegis.Delegation.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   286, Skipped:     0, Total:   286, Duration: 4 s - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:    24, Skipped:     0, Total:    24, Duration: 13 s - ProjectAegis.Data.Excel.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   102, Skipped:     0, Total:   102, Duration: 18 s - ProjectAegis.MissionEditor.Cli.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   616, Skipped:     0, Total:   616, Duration: 21 s - ProjectAegis.Data.Tests.dll (net8.0)
+
+=== ReplayGolden ===
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     6, Skipped:     0, Total:     6, Duration: 440 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+
+=== C2 PlayModeSmoke ===
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20, Duration: 751 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+
+=== UA engage ===
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 380 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+
+=== Hash paths ===
+18
+
+=== DelegationBridge diff ===

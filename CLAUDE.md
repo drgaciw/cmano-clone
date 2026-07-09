@@ -1,6 +1,7 @@
 # Claude Code Game Studios -- Game Studio Agent Architecture
 
-Indie game development managed through 49 coordinated Claude Code subagents.
+Indie game development managed through **67** coordinated Claude Code subagents
+(on-disk count under `.claude/agents/` as of 2026-07-09).
 Each agent owns a specific domain, enforcing separation of concerns and quality.
 
 ## Technology Stack
@@ -11,8 +12,9 @@ Each agent owns a specific domain, enforcing separation of concerns and quality.
 - **Build System**: Unity Build Pipeline + `dotnet` for headless assemblies
 - **Asset Pipeline**: Unity Asset Import Pipeline + Addressables
 
-> **Note**: Engine-specialist agents exist for Godot, Unity, and Unreal with
-> dedicated sub-specialists. Use the set matching your engine.
+> **Note:** This repo uses the **Unity** engine-specialist set only
+> (`unity-specialist` + DOTS/UI/Addressables/shader sub-specialists).
+> Godot/Unreal agent sets are not active here.
 
 ## Project Structure
 
@@ -63,7 +65,7 @@ Repo is Graphite-initialized. For branch/PR/stack work use **`gt`** (`gt create`
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (24262 symbols, 46367 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (24418 symbols, 47032 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 

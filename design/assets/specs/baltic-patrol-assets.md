@@ -3,8 +3,10 @@
 > **Source:** `production/release/store/asset-checklist.md`, Baltic v2/v3 playtest corpus, `design/ux/onboarding-baltic.md`, `design/gdd/cyber-comms-degradation.md`, `design/gdd/combat-domains-damage.md`  
 > **Art Bible:** `design/art/art-bible.md` (lean B2 — map/UI only)  
 > **Generated:** 2026-06-25  
-> **Status:** 6 assets specced (stub) / 0 approved / 0 in production / 0 done  
-> **Review:** Stub for Phase B — user review pending on inventory; expand with playtest stills when Editor host available
+> **Refined:** 2026-07-09 (S91 asset spec production)  
+> **Status:** 7 assets **Specced** (production-ready) / 0 approved / 0 in production / 0 done  
+> **Sprint:** S91 — ASSET-002 umbrella + Baltic theater children (018–022, 039)  
+> **Authority:** [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../../../production/post-editor-hygiene-scope-boundary-2026-07-09.md), Baltic v2/v3 corpora frozen (hash `17144800277401907079`)
 
 ---
 
@@ -15,14 +17,23 @@
 | Category | Environment / UI |
 | Dimensions | 1920×1080 map region |
 | Format | USS + scenario policy bindings |
-| Naming | `baltic-patrol-*` scenario family |
+| Naming | `baltic-patrol-*`, `baltic-v2-*`, `baltic-v3-*` policy family |
 
 **Visual Description:**  
-Theater-level Baltic patrol presents naval contacts on map placeholder with APP-6 symbology; comms degradation scenarios (`baltic-patrol-comms`, `baltic-v2-jammed`, v3 variants) drive opacity/ghost modifiers per art bible §2 — no environmental 3D assets in v1.
+Theater-level Baltic patrol presents naval contacts on map placeholder with APP-6 symbology; comms degradation scenarios drive opacity/ghost modifiers per art bible §2 — no environmental 3D assets in v1.
 
 **Art Bible Anchors:** §2 mood modes (Executing, Degraded, Denied); §6 map modifiers
 
-**Status:** Needed
+**Acceptance Criteria:**
+- [ ] Band B/C and comms-challenged captures match store checklist scenarios
+- [ ] No Baltic v2 replay hash change without ADR
+- [ ] ReplayGolden **6/6** preserved
+
+**Dependencies:** ASSET-009 map canvas, ASSET-010 comms modifiers, `production/playtests/baltic-v2-scenario-manifest.yaml`
+
+**Verification:** Replay golden suite; policy-specific PlayMode smoke where applicable
+
+**Status:** Specced
 
 ---
 
@@ -39,7 +50,7 @@ Cool neutral-cool panel stack; map field `#080E16`; theater label in `text-muted
 
 **Source:** `production/playtests/baltic-v2-scenario-manifest.yaml`, v3 manifest prep
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -54,7 +65,7 @@ Cool neutral-cool panel stack; map field `#080E16`; theater label in `text-muted
 **Visual Description:**  
 Live contacts at full opacity with datalink-active presentation; suitable for store screenshot #1 (asset-checklist). Use `baltic-v2-patrol-band-b` or v3 equivalent policy for capture.
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -71,7 +82,7 @@ Degraded amber comms line; stale hostile symbols 55%; optional ghost duplicates 
 
 **Art Bible Anchors:** §2 Degraded comms; §3 `comms-degraded`, `ghost-track`
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -88,7 +99,7 @@ Static HUD surfacing domain engagement state during hot-tick (`baltic-patrol-com
 
 **Source:** `design/gdd/combat-domains-damage.md`; asset-checklist screenshot #4
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -105,7 +116,7 @@ Dense contact picture with suspect/pending frames; message log scroll required; 
 
 **Source:** `design/difficulty-curve.md` band C; `production/qa/evidence/baltic-v2-playtest-index.md`
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -122,7 +133,7 @@ First-run guidance for Baltic patrol flow; restrained typography matching C2 chr
 
 **Source:** `design/ux/onboarding-baltic.md`
 
-**Status:** Needed (P1)
+**Status:** Specced (P1)
 
 ---
 

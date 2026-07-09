@@ -14,7 +14,7 @@ description: "Start / stop / pause the Unity Editor 'playmode'. Use 'editor-appl
 - **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
 
 - **When to use:** Enter/exit Play Mode for visual C2 smoke ([`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md)).
-- **When not:** Automated gates — use headless PlayModeSmokeHarness / `dotnet test`.
+- **When not:** Automated C2 / CI gates — use headless `PlayModeSmokeHarnessTests` (≥20/20) / `dotnet test`. Editor Play Mode is not a gate substitute.
 <!-- PROJECT-AEGIS:END -->
 
 
