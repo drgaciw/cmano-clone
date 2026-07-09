@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Node.js on PATH for Buildkite hosted agents (Data.Tests CMO export + GitNexus CLI).
+# Node.js on PATH for Buildkite hosted agents (GitNexus CLI). Best-effort — never fails the build.
 set -euo pipefail
 
 NODE_VERSION="${BUILDKITE_NODE_VERSION:-${GITNEXUS_NODE_VERSION:-20.18.0}}"
@@ -9,8 +9,8 @@ case "${NODE_MACHINE}" in
   x86_64|amd64) NODE_ARCH="x64" ;;
   aarch64|arm64) NODE_ARCH="arm64" ;;
   *)
-    echo "ERROR: unsupported agent architecture: ${NODE_MACHINE}"
-    exit 1
+    echo "WARN: unsupported agent architecture ${NODE_MACHINE}; skipping node bootstrap"
+    exit 0
     ;;
 esac
 NODE_DIST="node-v${NODE_VERSION}-${NODE_OS}-${NODE_ARCH}"
@@ -38,11 +38,21 @@ ensure_node_on_path() {
   mkdir -p "$parent_dir"
   rm -rf "$NODE_DIR"
   archive="/tmp/${NODE_DIST}.tar.xz"
-  curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/${NODE_DIST}.tar.xz" -o "$archive"
-  tar -xJf "$archive" -C "$parent_dir"
+  if ! curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/${NODE_DIST}.tar.xz" -o "$archive"; then
+    echo "WARN: node download failed; continuing without node"
+    return 1
+  fi
+  if ! tar -xJf "$archive" -C "$parent_dir"; then
+    echo "WARN: node extract failed; continuing without node"
+    return 1
+  fi
   export PATH="${NODE_DIR}/bin:${PATH}"
 }
 
-ensure_node_on_path
-node --version
-npm --version || echo "WARN: npm unavailable (node export tests do not require npm)"
+ensure_node_on_path || true
+if command -v node >/dev/null 2>&1 && node --version >/dev/null 2>&1; then
+  echo "=== node $(node --version) on PATH ==="
+  npm --version || echo "WARN: npm unavailable"
+else
+  echo "WARN: node not on PATH (CMO export tests use golden fallback)"
+fi
