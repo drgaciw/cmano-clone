@@ -1,9 +1,22 @@
 ---
 name: ping
-description: Lightweight readiness probe. Returns the input `message` echoed back, or `'pong'` when omitted. Useful for CLI health checks and SignalR connectivity smoke tests.
+description: "Lightweight readiness probe. Returns the input `message` echoed back, or `'pong'` when omitted. Useful for CLI health checks and SignalR connectivity smoke tests. Project Aegis: first check that Unity-MCP on localhost:8080 is alive."
 ---
 
 # Ping
+
+<!-- PROJECT-AEGIS:BEGIN -->
+### Project Aegis notes
+
+- Conventions: [`../../README.md`](../../README.md) · stack: [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Prefer **headless** `dotnet test` / PlayModeSmokeHarness for sim/delegation gates; use this Editor MCP tool for Editor-only work.
+- **Zero-touch:** do not modify `DelegationBridge` hotpath. Unity plugins target **netstandard2.1** (`./tools/copy-delegation-assemblies.ps1`).
+- **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
+
+- **When to use:** First connectivity check after Editor + Unity-MCP login.
+- **When not:** `:8080` down — fix Editor/plugin first ([Claude-Agent-Setup](../../../../../Game-Requirements/Claude-Agent-Setup.md)).
+<!-- PROJECT-AEGIS:END -->
+
 
 Lightweight readiness probe. Returns the input message or 'pong' if omitted.
 

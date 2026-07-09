@@ -21,6 +21,13 @@ public sealed record PlatformImportPlan(
     public bool Blocked => Findings.Any(f => f.Severity == ValidationSeverity.Error);
 
     public bool HasChanges => Changes.Count > 0;
+
+    /// <summary>
+    /// PLE-2.3: quarantine-style report entries for unresolved FK / orphan rows detected at plan time.
+    /// Never committed — staging refuses blocked plans and omits quarantined rows.
+    /// </summary>
+    public IReadOnlyList<PlatformImportQuarantineEntry> QuarantineEntries { get; init; } =
+        Array.Empty<PlatformImportQuarantineEntry>();
 }
 
 /// <summary>Outcome of staging an unblocked plan through <see cref="ProjectAegis.Data.WriteGate.IWriteGate"/>.</summary>
@@ -37,4 +44,11 @@ public sealed record PlatformImportResult(
     string? SignatureBatchId,
     string? EmconBatchId,
     string? DamageBatchId,
-    IReadOnlyList<string> Notes);
+    IReadOnlyList<string> Notes)
+{
+    /// <summary>
+    /// PLE-2.3 / PLE-4.4: plan-time FK quarantine plus stage-time TRL/orphan quarantine entries.
+    /// </summary>
+    public IReadOnlyList<PlatformImportQuarantineEntry> QuarantineEntries { get; init; } =
+        Array.Empty<PlatformImportQuarantineEntry>();
+}

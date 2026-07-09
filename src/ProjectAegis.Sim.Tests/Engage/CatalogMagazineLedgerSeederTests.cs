@@ -46,6 +46,27 @@ public sealed class CatalogMagazineLedgerSeederTests
         Assert.Equal(4, ledger.GetRounds(7, 0));
     }
 
+    /// <summary>Wave 2 adversarial: catalog-resolved zero must not silently apply fallback (LOG-02).</summary>
+    [Fact]
+    public void TrySeedInitialRounds_catalog_resolved_zero_does_not_apply_fallback_and_leaves_ledger_empty()
+    {
+        var ledger = new MagazineLedger();
+        var catalog = InMemoryCatalogReader.BalticMagazineFixture(magazineQuantity: 0);
+
+        var usedCatalog = CatalogMagazineLedgerSeeder.TrySeedInitialRounds(
+            ledger,
+            catalog,
+            platformId: "u1",
+            shooterUnitId: 1,
+            mountId: 0,
+            fallbackRounds: 99,
+            out var seeded);
+
+        Assert.True(usedCatalog);
+        Assert.Equal(0, seeded);
+        Assert.Equal(0, ledger.GetRounds(1, 0));
+    }
+
     [Fact]
     public void Resolver_aborts_second_salvo_when_catalog_seeded_magazine_depleted()
     {

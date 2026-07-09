@@ -46,10 +46,26 @@ switch (command)
         return RunMissionAddSupport(args.Skip(1).ToArray());
     case "mission_update_ferry":
         return RunMissionUpdateFerry(args.Skip(1).ToArray());
+    case "mission_update_support":
+        return RunMissionUpdateSupport(args.Skip(1).ToArray());
+    case "orbat_upsert_unit":
+        return RunOrbatUpsertUnit(args.Skip(1).ToArray());
+    case "orbat_move_unit":
+        return RunOrbatMoveUnit(args.Skip(1).ToArray());
+    case "orbat_clone_unit":
+        return RunOrbatCloneUnit(args.Skip(1).ToArray());
+    case "reference_point_upsert":
+        return RunReferencePointUpsert(args.Skip(1).ToArray());
     case "scenario_undo":
         return RunScenarioUndo(args.Skip(1).ToArray());
     case "mission_delete":
         return RunMissionDelete(args.Skip(1).ToArray());
+    case "mission_list":
+        return RunMissionList(args.Skip(1).ToArray());
+    case "mission_clone":
+        return RunMissionClone(args.Skip(1).ToArray());
+    case "mission_add_from_template":
+        return RunMissionAddFromTemplate(args.Skip(1).ToArray());
     case "mission_plan_suggest":
         return RunMissionPlanSuggest(args.Skip(1).ToArray());
     case "scenario_comms_status":
@@ -60,6 +76,23 @@ switch (command)
         return RunScenarioNearFutureSpawn(args.Skip(1).ToArray());
     case "scenario_event_trace":
         return RunScenarioEventTrace(args.Skip(1).ToArray());
+    case "event_add":
+    case "event_update": // alias: upsert same as event_add
+        return RunEventAdd(args.Skip(1).ToArray());
+    case "event_delete":
+        return RunEventDelete(args.Skip(1).ToArray());
+    case "side_list":
+        return RunSideList(args.Skip(1).ToArray());
+    case "side_upsert":
+        return RunSideUpsert(args.Skip(1).ToArray());
+    case "side_delete":
+        return RunSideDelete(args.Skip(1).ToArray());
+    case "timeline_list":
+        return RunTimelineList(args.Skip(1).ToArray());
+    case "timeline_upsert":
+        return RunTimelineUpsert(args.Skip(1).ToArray());
+    case "timeline_delete":
+        return RunTimelineDelete(args.Skip(1).ToArray());
     case "catalog_intelligence_run":
         return RunCatalogIntelligence(args.Skip(1).ToArray());
     case "catalog_entity_map":
@@ -289,6 +322,121 @@ static int RunMissionAddPatrol(string[] args)
     }
 }
 
+static int RunOrbatUpsertUnit(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var unitId = CliArgParser.GetFlag(args, "--id");
+    var sideId = CliArgParser.GetFlag(args, "--side");
+    var platformId = CliArgParser.GetFlag(args, "--platform");
+    var latRaw = CliArgParser.GetFlag(args, "--lat");
+    var lonRaw = CliArgParser.GetFlag(args, "--lon");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(unitId) ||
+        string.IsNullOrWhiteSpace(sideId) ||
+        string.IsNullOrWhiteSpace(platformId) ||
+        string.IsNullOrWhiteSpace(latRaw) ||
+        string.IsNullOrWhiteSpace(lonRaw) ||
+        editVersion < 0 ||
+        !double.TryParse(latRaw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lat) ||
+        !double.TryParse(lonRaw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lon))
+    {
+        Console.Error.WriteLine("orbat_upsert_unit requires --path --edit-version --id --side --platform --lat --lon");
+        return 1;
+    }
+
+    return OrbatUpsertUnitCommand.Run(path, editVersion, unitId, sideId, platformId, lat, lon, Console.Out);
+}
+
+static int RunOrbatMoveUnit(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var unitId = CliArgParser.GetFlag(args, "--id");
+    var latRaw = CliArgParser.GetFlag(args, "--lat");
+    var lonRaw = CliArgParser.GetFlag(args, "--lon");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(unitId) ||
+        string.IsNullOrWhiteSpace(latRaw) ||
+        string.IsNullOrWhiteSpace(lonRaw) ||
+        editVersion < 0 ||
+        !double.TryParse(latRaw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lat) ||
+        !double.TryParse(lonRaw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lon))
+    {
+        Console.Error.WriteLine("orbat_move_unit requires --path --edit-version --id --lat --lon");
+        return 1;
+    }
+
+    return OrbatMoveUnitCommand.Run(path, editVersion, unitId, lat, lon, Console.Out);
+}
+
+static int RunOrbatCloneUnit(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var sourceId = CliArgParser.GetFlag(args, "--source");
+    var unitId = CliArgParser.GetFlag(args, "--id");
+    var latRaw = CliArgParser.GetFlag(args, "--lat");
+    var lonRaw = CliArgParser.GetFlag(args, "--lon");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(sourceId) ||
+        string.IsNullOrWhiteSpace(unitId) ||
+        string.IsNullOrWhiteSpace(latRaw) ||
+        string.IsNullOrWhiteSpace(lonRaw) ||
+        editVersion < 0 ||
+        !double.TryParse(latRaw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lat) ||
+        !double.TryParse(lonRaw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var lon))
+    {
+        Console.Error.WriteLine("orbat_clone_unit requires --path --edit-version --source --id --lat --lon");
+        return 1;
+    }
+
+    return OrbatCloneUnitCommand.Run(path, editVersion, sourceId, unitId, lat, lon, Console.Out);
+}
+
+static int RunReferencePointUpsert(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var id = CliArgParser.GetFlag(args, "--id");
+    var type = CliArgParser.GetFlag(args, "--type");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(id) ||
+        string.IsNullOrWhiteSpace(type) ||
+        editVersion < 0)
+    {
+        Console.Error.WriteLine("reference_point_upsert requires --path --edit-version --id --type [--latlon lat,lon]+ [--radius-nm N]");
+        return 1;
+    }
+
+    double? radiusNm = null;
+    var radiusRaw = CliArgParser.GetFlag(args, "--radius-nm");
+    if (!string.IsNullOrWhiteSpace(radiusRaw))
+    {
+        if (!double.TryParse(
+                radiusRaw,
+                System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var parsedRadius))
+        {
+            Console.Error.WriteLine("reference_point_upsert --radius-nm must be a number");
+            return 1;
+        }
+
+        radiusNm = parsedRadius;
+    }
+
+    try
+    {
+        var geometry = CliArgParser.ParseWaypoints(CliArgParser.GetRepeated(args, "--latlon"));
+        return ReferencePointUpsertCommand.Run(path, editVersion, id, type, geometry, radiusNm, Console.Out);
+    }
+    catch (FormatException ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "INVALID_GEOMETRY", ex.Message);
+    }
+}
+
 static int RunMissionAddStrike(string[] args)
 {
     var path = CliArgParser.GetFlag(args, "--path");
@@ -439,6 +587,38 @@ static int RunMissionUpdateFerry(string[] args)
         Console.Out);
 }
 
+static int RunMissionUpdateSupport(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_update_support requires --path --edit-version --id [--unit U]+ [--role R] [--wp lat,lon]+");
+        return 1;
+    }
+
+    try
+    {
+        var zoneArgs = CliArgParser.GetRepeated(args, "--wp");
+        IReadOnlyList<ScenarioWaypointDto>? zone = zoneArgs.Count > 0
+            ? CliArgParser.ParseWaypoints(zoneArgs)
+            : null;
+        return MissionUpdateSupportCommand.Run(
+            path,
+            editVersion,
+            missionId,
+            CliArgParser.GetRepeated(args, "--unit"),
+            CliArgParser.GetFlag(args, "--role"),
+            zone,
+            Console.Out);
+    }
+    catch (FormatException ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "INVALID_ZONE", ex.Message);
+    }
+}
+
 static int RunMissionPlanSuggest(string[] args)
 {
     var intent = CliArgParser.GetFlag(args, "--intent");
@@ -489,6 +669,203 @@ static int RunMissionDelete(string[] args)
     return MissionDeleteCommand.Run(path, editVersion, missionId, Console.Out);
 }
 
+static int RunEventAdd(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var eventId = CliArgParser.GetFlag(args, "--id");
+    var trigger = CliArgParser.GetFlag(args, "--trigger");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(eventId) ||
+        string.IsNullOrWhiteSpace(trigger) ||
+        editVersion < 0)
+    {
+        Console.Error.WriteLine(
+            "event_add requires --path --edit-version --id --trigger TYPE [--condition Type[:UnitId[:ZoneId]]]* [--action Type[:UnitId]]*");
+        return 1;
+    }
+
+    try
+    {
+        var conditions = CliArgParser.GetRepeated(args, "--condition")
+            .Select(EventAddCommand.ParseCondition)
+            .ToArray();
+        var actions = CliArgParser.GetRepeated(args, "--action")
+            .Select(EventAddCommand.ParseAction)
+            .ToArray();
+        return EventAddCommand.Run(path, editVersion, eventId, trigger, conditions, actions, Console.Out);
+    }
+    catch (FormatException ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "INVALID_EVENT_TOKEN", ex.Message);
+    }
+}
+
+static int RunEventDelete(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var eventId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(eventId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("event_delete requires --path --edit-version --id");
+        return 1;
+    }
+
+    return EventDeleteCommand.Run(path, editVersion, eventId, Console.Out);
+}
+
+static int RunSideList(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    if (string.IsNullOrWhiteSpace(path))
+    {
+        Console.Error.WriteLine("side_list requires --path");
+        return 1;
+    }
+
+    return SideListCommand.Run(path, Console.Out);
+}
+
+static int RunSideUpsert(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var sideId = CliArgParser.GetFlag(args, "--id");
+    var name = CliArgParser.GetFlag(args, "--name");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(sideId) ||
+        string.IsNullOrWhiteSpace(name) ||
+        editVersion < 0)
+    {
+        Console.Error.WriteLine(
+            "side_upsert requires --path --edit-version --id --name [--roe ROE] [--emcon EMCON] [--posture P]*");
+        return 1;
+    }
+
+    return SideUpsertCommand.Run(
+        path,
+        editVersion,
+        sideId,
+        name,
+        CliArgParser.GetFlag(args, "--roe"),
+        CliArgParser.GetFlag(args, "--emcon"),
+        CliArgParser.GetRepeated(args, "--posture"),
+        Console.Out);
+}
+
+static int RunSideDelete(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var sideId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(sideId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("side_delete requires --path --edit-version --id");
+        return 1;
+    }
+
+    return SideDeleteCommand.Run(path, editVersion, sideId, Console.Out);
+}
+
+static int RunTimelineDelete(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--mission");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("timeline_delete requires --path --edit-version --mission");
+        return 1;
+    }
+
+    return TimelineDeleteCommand.Run(path, editVersion, missionId, Console.Out);
+}
+
+static int RunTimelineUpsert(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--mission");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    var tickRaw = CliArgParser.GetFlag(args, "--tick");
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(missionId) ||
+        editVersion < 0 ||
+        string.IsNullOrWhiteSpace(tickRaw) ||
+        !int.TryParse(tickRaw, out var tick))
+    {
+        Console.Error.WriteLine("timeline_upsert requires --path --edit-version --mission --tick N");
+        return 1;
+    }
+
+    return TimelineUpsertCommand.Run(path, editVersion, missionId, tick, Console.Out);
+}
+
+static int RunTimelineList(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    if (string.IsNullOrWhiteSpace(path))
+    {
+        Console.Error.WriteLine("timeline_list requires --path");
+        return 1;
+    }
+
+    return TimelineListCommand.Run(path, Console.Out);
+}
+
+static int RunMissionList(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    if (string.IsNullOrWhiteSpace(path))
+    {
+        Console.Error.WriteLine("mission_list requires --path [--type T] [--side S] [--status Assigned|Unassigned]");
+        return 1;
+    }
+
+    return MissionListCommand.Run(
+        path,
+        CliArgParser.GetFlag(args, "--type"),
+        CliArgParser.GetFlag(args, "--side"),
+        CliArgParser.GetFlag(args, "--status"),
+        Console.Out);
+}
+
+static int RunMissionClone(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var sourceId = CliArgParser.GetFlag(args, "--source");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(sourceId) ||
+        string.IsNullOrWhiteSpace(missionId) ||
+        editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_clone requires --path --edit-version --source --id");
+        return 1;
+    }
+
+    return MissionCloneCommand.Run(path, editVersion, sourceId, missionId, Console.Out);
+}
+
+static int RunMissionAddFromTemplate(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var templateId = CliArgParser.GetFlag(args, "--template");
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(templateId) ||
+        string.IsNullOrWhiteSpace(missionId) ||
+        editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_add_from_template requires --path --edit-version --template --id");
+        return 1;
+    }
+
+    return MissionAddFromTemplateCommand.Run(path, editVersion, templateId, missionId, Console.Out);
+}
+
 static void PrintUsage()
 {
     Console.WriteLine("Project Aegis — Mission Editor headless MCP tools");
@@ -501,8 +878,23 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_ferry --path <scenario.json> --edit-version N --id <id> [--unit U]+ --destination D");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_support --path <scenario.json> --edit-version N --id <id> --role Tanker|AEW|EW [--unit U]+ [--wp lat,lon]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_ferry --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--destination D]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_support --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--role Tanker|AEW|EW] [--wp lat,lon]+");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- orbat_upsert_unit --path <scenario.json> --edit-version N --id <id> --side S --platform P --lat LAT --lon LON");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- orbat_move_unit --path <scenario.json> --edit-version N --id <id> --lat LAT --lon LON");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- orbat_clone_unit --path <scenario.json> --edit-version N --source SRC --id <id> --lat LAT --lon LON");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- reference_point_upsert --path <scenario.json> --edit-version N --id <id> --type point|line|polygon|circle [--latlon lat,lon]+ [--radius-nm N]");
+
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_undo --path <scenario.json> --edit-version N");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_delete --path <scenario.json> --edit-version N --id <id>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- event_add --path <scenario.json> --edit-version N --id <id> --trigger TYPE [--condition Type[:UnitId[:ZoneId]]]* [--action Type[:UnitId]]*");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- event_update --path <scenario.json> --edit-version N --id <id> --trigger TYPE [...]  (alias of event_add upsert)");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- event_delete --path <scenario.json> --edit-version N --id <id>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- side_list --path <scenario.json>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- side_upsert --path <scenario.json> --edit-version N --id <id> --name <name> [--roe ROE] [--emcon EMCON] [--posture P]*");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- side_delete --path <scenario.json> --edit-version N --id <id>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_list --path <scenario.json> [--type T] [--side S] [--status Assigned|Unassigned]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_clone --path <scenario.json> --edit-version N --source SRC --id <id>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_from_template --path <scenario.json> --edit-version N --template tpl-patrol-empty --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_validate --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_publish --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export --path <scenario.json>   // S83-01 polished (cites roadmap-execute-plan-07042026.md + boundary-2026-07-04.md + qa units)");

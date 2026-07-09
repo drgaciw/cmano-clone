@@ -4517,3 +4517,264 @@ s88_gates: build 0e/0w (6w nonblock); full test baseline met; PlayModeSmokeHarne
 s88_hygiene: ZERO DelegationBridge source edits (confirmed git + grep); Catalog extend-only preserved; Baltic frozen; Stage Release; no Phase2/map; sprint-status updated post-ack only.
 s88_flow: pre-submit verif (RUN+READ all) + selective git add ONLY approved S88 payload + gt submit --stack --no-interactive (abort on merged PR noted) + git checkout main + gt sync + gt restack + merge feature payload commit + re-verif green + status update. Cites: production/gate-checks/s88-scenario-editor-gate-2026-07-04.md + production/S88-PostAck-Commands.md + production/scenario-editor-scope-boundary-2026-07-04.md + AGENTS.md + qa-plan-s81-s88-scenario-editor-2026-07-05.md
 s88_program_close: Headless scenario editor program complete. (verification-before on every step)
+
+# Post-Editor Forward Program (S89–S92 hygiene) — SCOPED 2026-07-09
+post_editor_forward_status: |
+  Post-editor immediate priorities COMPLETE (Phase 1–2 hygiene pass 2026-07-09).
+  - GitNexus re-index @ HEAD 223a5fe: 24418 nodes / 47032 edges / 424 clusters / 300 flows — FRESH.
+  - Gates RUN+READ: build 0e/0w; 1599/0f (311 Sim + 260 Del + 286 UA + 24 Excel + 616 Data + 102 Cli); Replay 6/6; C2 20/20; hash 18 paths; UA engage 3/3; ZERO bridge.
+  - Forward program SCOPED: S89–S92 Engineering Hygiene + Asset Spec Production.
+  - Artifacts: future-sprint-roadpmap-07092026.md; roadmap-execute-plan-07092026.md; post-editor-hygiene-scope-boundary-2026-07-09.md; post-editor-status-truth-2026-07-09.md.
+  - Stable alias retargeted: future-sprint-roadpmap.md → 07092026.
+  - Stage remains Release. Launch advance NOT in scope.
+  - Roadmap APPROVED 2026-07-09. S89 plan published: production/sprints/sprint-89-invariant-hygiene.md
+  - S89 **COMPLETE** (2026-07-09): AGENTS floors ≥1599/20/20; UA engage 3/3; smoke-sprint-89-closeout.
+  - S90 plan published: production/sprints/sprint-90-agent-skill-sync.md (agent/skill P0 A1–A3/B1–B3).
+  - S91 plan + QA published: sprint-91-asset-spec-production.md; qa-plan-sprint-91-asset-spec-production-2026-07-09.md (dispatch after S90).
+  - S91 **COMPLETE** (2026-07-09): ASSET-001…003 Specced; manifest 38/42; smoke-sprint-91-closeout.
+  - S92 **COMPLETE** (2026-07-09): gate verification + human ack **"i acknowledge"** — post-editor hygiene program complete (S89–S92).
+  - **S89–S92 PROGRAM COMPLETE.** Stage remains Release. Launch advance NOT in scope.
+  Cites: docs/reports/future-sprint-roadpmap-07092026.md + production/post-editor-hygiene-scope-boundary-2026-07-09.md + AGENTS.md + gates-post-editor-hygiene-2026-07-09.log + s92-post-editor-hygiene-gate-2026-07-09.md
+post_editor_forward_gates: build 0e/0w; test 1599/0f; ReplayGolden 6/6; C2 20/20; hash 17144800277401907079 preserved (18 files); GitNexus impacts: ScenarioDocumentEditor=233 CRIT, CatalogWriteGate=186 CRIT, DelegationBridge=145 CRIT, PatrolCandidateEngagePolicy=113 CRIT, BalticReplayHarness=54 CRIT
+
+# Sprint 89 — Post-Editor Invariant + UA Hygiene (S89–S92 program sprint 1)
+sprint: 89
+goal: "Bump agent/tracker docs to post-PE floors (≥1599/20/20); UA engage hygiene; S89 closeout with full gate re-verification. Stage Release."
+start: "2026-07-09"
+end: "2026-07-14"
+generated: "2026-07-09"
+updated: "2026-07-09"
+status: complete
+completed: "2026-07-09"
+closeout: production/qa/smoke-sprint-89-closeout-2026-07-09.md
+kickoff: production/agentic/sprint-89-parallel-kickoff-2026-07-09.md
+plan: production/sprints/sprint-89-invariant-hygiene.md
+qa_plan: production/qa/qa-plan-sprint-89-post-editor-hygiene-2026-07-09.md
+s89_gates: build 0e/0w; test 1599/0f; ReplayGolden 6/6; C2 20/20; hash 18 paths; UA engage 3/3; ZERO bridge
+
+stories:
+  - id: "S89-01"
+    name: "Floor doc sync — AGENTS/tracker to ≥1599/20/20"
+    file: "production/sprints/sprint-89-invariant-hygiene.md"
+    priority: must-have
+    status: done
+    owner: ""
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-07-09"
+    note: "AGENTS.md + tracker updated"
+  - id: "S89-02"
+    name: "UA engage hygiene — triage/document BalticReplayHarnessPolicyEngageTests"
+    file: "production/sprints/sprint-89-invariant-hygiene.md"
+    priority: must-have
+    status: done
+    owner: ""
+    estimate_days: 2
+    blocker: ""
+    completed: "2026-07-09"
+    note: "ua-engage-triage-2026-07-09.md — 3/3 green"
+  - id: "S89-03"
+    name: "S89 closeout — gates, smoke doc, sprint-status"
+    file: "production/sprints/sprint-89-invariant-hygiene.md"
+    priority: must-have
+    status: done
+    owner: ""
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-07-09"
+    note: "smoke-sprint-89-closeout-2026-07-09.md"
+  - id: "S89-04"
+    name: "GitNexus freshness cadence note"
+    file: "production/sprints/sprint-89-invariant-hygiene.md"
+    priority: should-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.5
+    blocker: "S89-01"
+    completed: ""
+    note: "Optional post-closeout analyze"
+  - id: "S89-05"
+    name: "Dashboard cross-link to S89 closeout"
+    file: "production/sprints/sprint-89-invariant-hygiene.md"
+    priority: nice-to-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.25
+    blocker: "S89-03"
+    completed: ""
+    note: "project-dashboard.md link"
+
+# Sprint 90 — Agent / Skill P0 Sync (S89–S92 program sprint 2)
+# Auto-generated by /sprint-plan. Updated by /story-done and /dev-story.
+sprint: 90
+goal: "Close tech-stack P0 agent/skill/doc drift (A1–A3 / B1–B3): Input Manager truth, VERSION.md, Claude-Agent-Setup MCP honesty. Docs only; stage Release."
+start: "2026-07-09"
+end: "2026-07-14"
+generated: "2026-07-09"
+updated: "2026-07-09"
+status: complete
+completed: "2026-07-09"
+closeout: production/qa/smoke-sprint-90-closeout-2026-07-09.md
+plan: production/sprints/sprint-90-agent-skill-sync.md
+qa_plan: production/qa/qa-plan-sprint-90-agent-skill-sync-2026-07-09.md
+predecessor: "S89 COMPLETE"
+s90_gates: build 0e/0w; test 1599/0f; ReplayGolden 6/6; C2 20/20; hash 18 paths; UA engage 3/3; ZERO bridge; docs honesty PASS
+
+stories:
+  - id: "S90-01"
+    name: "Agent YAML — A1 unity-ui-specialist + A2 unity-specialist"
+    file: "production/sprints/sprint-90-agent-skill-sync.md"
+    priority: must-have
+    status: done
+    owner: ""
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-07-09"
+    note: "legacy Input Manager default; MCP pending honesty"
+  - id: "S90-02"
+    name: "Docs/skills — B1 Claude-Agent-Setup + B2 VERSION.md + B3 when-not"
+    file: "production/sprints/sprint-90-agent-skill-sync.md"
+    priority: must-have
+    status: done
+    owner: ""
+    estimate_days: 2
+    blocker: ""
+    completed: "2026-07-09"
+    note: "scopes-only MCP; VERSION package table; C2 when-not"
+  - id: "S90-03"
+    name: "S90 closeout — gates, smoke, sprint-status"
+    file: "production/sprints/sprint-90-agent-skill-sync.md"
+    priority: must-have
+    status: done
+    owner: ""
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-07-09"
+    note: "smoke-sprint-90-closeout-2026-07-09.md"
+  - id: "S90-04"
+    name: "Light team-unity/team-ui ProjectAegis README cross-link"
+    file: "production/sprints/sprint-90-agent-skill-sync.md"
+    priority: should-have
+    status: done
+    owner: ""
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-07-09"
+    note: "Tech-Stack + AGENTS link README"
+  - id: "S90-05"
+    name: "CLAUDE.md agent count honesty"
+    file: "production/sprints/sprint-90-agent-skill-sync.md"
+    priority: nice-to-have
+    status: done
+    owner: ""
+    estimate_days: 0.25
+    blocker: ""
+    completed: "2026-07-09"
+    note: "67 agents; Unity-only note"
+
+# Sprint 91 — Asset Spec Production (S89–S92 program sprint 3)
+# Auto-generated by /sprint-plan. Updated by /story-done and /dev-story.
+# DO NOT edit manually — use /story-done to update story status.
+#
+# Status value mapping (yaml ↔ story file Status field):
+#   backlog        ↔  Not Started
+#   ready-for-dev  ↔  Ready
+#   in-progress    ↔  In Progress
+#   review         ↔  In Review
+#   done           ↔  Complete
+#   blocked        ↔  Blocked
+#
+# Note: Prefer S90 complete before dispatching S91 tracks (serial program order).
+sprint: 91
+goal: "Refine ASSET-001…003 production specs under design/assets/specs/; update manifest; closeout with standing gates. Specs only; stage Release."
+start: "2026-07-15"
+end: "2026-07-21"
+generated: "2026-07-09"
+updated: "2026-07-09"
+status: complete
+completed: "2026-07-09"
+closeout: production/qa/smoke-sprint-91-closeout-2026-07-09.md
+s91_gates: build 0e/0w; test 1599/0f; ReplayGolden 6/6; C2 20/20; hash 18; specs-only
+
+stories:
+  - id: "S91-01"
+    name: "Refine C2 + Baltic specs (ASSET-001/002 + stub expansion)"
+    file: "production/sprints/sprint-91-asset-spec-production.md"
+    priority: must-have
+    status: done
+    owner: ""
+    estimate_days: 2.5
+    blocker: ""
+    completed: "2026-07-09"
+  - id: "S91-02"
+    name: "Refine store capsule pack (ASSET-003 + 023…035)"
+    file: "production/sprints/sprint-91-asset-spec-production.md"
+    priority: must-have
+    status: done
+    owner: ""
+    estimate_days: 2
+    blocker: ""
+    completed: "2026-07-09"
+  - id: "S91-03"
+    name: "S91 closeout — manifest, gates, smoke, sprint-status"
+    file: "production/sprints/sprint-91-asset-spec-production.md"
+    priority: must-have
+    status: done
+    owner: ""
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-07-09"
+  - id: "S91-04"
+    name: "Manifest progress summary + closeout cross-links"
+    file: "production/sprints/sprint-91-asset-spec-production.md"
+    priority: should-have
+    status: done
+    owner: ""
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-07-09"
+  - id: "S91-05"
+    name: "Art bible §8 cross-ref to ASSET-001…003"
+    file: "production/sprints/sprint-91-asset-spec-production.md"
+    priority: nice-to-have
+    status: done
+    owner: ""
+    estimate_days: 0.25
+    blocker: ""
+    completed: "2026-07-09"
+
+# Sprint 92 — Post-Editor Hygiene Program Gate (S89–S92 program sprint 4)
+sprint: 92
+goal: "S89–S92 program gate verification + human ack package. Stage Release; no Launch advance."
+start: "2026-07-09"
+end: "2026-07-09"
+generated: "2026-07-09"
+updated: "2026-07-09"
+status: complete
+completed: "2026-07-09"
+human_ack: "i acknowledge (2026-07-09) — post-editor hygiene program complete (S89–S92); stage remains Release"
+plan: production/sprints/sprint-92-post-editor-hygiene-gate.md
+gate: production/gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md
+closeout: production/qa/smoke-sprint-92-closeout-2026-07-09.md
+s92_gates: build 0e/0w; test 1599/0f; ReplayGolden 6/6; C2 20/20; hash 18; UA 3/3; GitNexus fresh @ 223a5fe
+
+stories:
+  - id: "S92-01"
+    name: "Gate verification — aggregate S89–S91 + standing gates"
+    file: "production/sprints/sprint-92-post-editor-hygiene-gate.md"
+    priority: must-have
+    status: done
+    owner: ""
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-07-09"
+  - id: "S92-02"
+    name: "Human ack package — post-editor hygiene program complete"
+    file: "production/sprints/sprint-92-post-editor-hygiene-gate.md"
+    priority: must-have
+    status: done
+    owner: ""
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-07-09"
+    note: "Human ack PROVIDED — i acknowledge 2026-07-09; program COMPLETE; stage Release"

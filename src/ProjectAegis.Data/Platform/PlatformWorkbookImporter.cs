@@ -99,8 +99,12 @@ public sealed class PlatformWorkbookImporter
         }
 
         var requiresApproval = changes.Count > HumanApprovalRecordThreshold;
+        var quarantine = BuildQuarantineFromFindings(findings);
 
-        return new PlatformImportPlan(snapshotId, true, changes, findings, supported, unsupported, requiresApproval);
+        return new PlatformImportPlan(snapshotId, true, changes, findings, supported, unsupported, requiresApproval)
+        {
+            QuarantineEntries = quarantine,
+        };
     }
 
     private static bool IsSupportedPlatformDamageChange(PlatformWorkbookChange change)
@@ -130,17 +134,18 @@ public sealed class PlatformWorkbookImporter
 
         var plan = Plan(edited);
         var notes = new List<string>();
+        var quarantine = new List<PlatformImportQuarantineEntry>(plan.QuarantineEntries);
 
         if (!plan.SnapshotResolved)
         {
             notes.Add($"Source snapshot '{plan.SourceSnapshotId}' did not resolve; nothing staged.");
-            return EmptyImportResult(plan, notes);
+            return EmptyImportResult(plan, notes, quarantine);
         }
 
         if (plan.Blocked)
         {
             notes.Add($"{plan.Findings.Count} validation finding(s); resolve errors before staging.");
-            return EmptyImportResult(plan, notes);
+            return EmptyImportResult(plan, notes, quarantine);
         }
 
         var source = _snapshotProvider(plan.SourceSnapshotId);
@@ -150,6 +155,26 @@ public sealed class PlatformWorkbookImporter
 
         string? sensorBatchId = null;
         var sensorRows = BuildChangedSensorRows(edited, plan.SupportedChanges);
+        // PLE-4.4: partition via CatalogImportGate — low-TRL / non-approved sensors quarantine, not proposed.
+        if (sensorRows.Count > 0)
+        {
+            var (importable, gatedOut) = CatalogImportGate.PartitionForImport(sensorRows);
+            foreach (var q in gatedOut)
+            {
+                quarantine.Add(new PlatformImportQuarantineEntry(
+                    EntityKind: "sensor",
+                    PlatformId: q.Binding.PlatformId,
+                    EntityId: q.Binding.SensorId,
+                    Reason: q.RejectionReason,
+                    SourceSheet: SupportedSheet,
+                    Detail: $"TrlLevel={q.Binding.TrlLevel};ReviewState={q.Binding.ReviewState}"));
+                notes.Add(
+                    $"Quarantined sensor '{q.Binding.SensorId}' on '{q.Binding.PlatformId}' ({q.RejectionReason}).");
+            }
+
+            sensorRows = importable;
+        }
+
         if (sensorRows.Count > 0)
         {
             sensorBatchId = gate.ProposeSensorBatch(sensorRows, actorType, actorId, rationale);
@@ -202,7 +227,9 @@ public sealed class PlatformWorkbookImporter
             knownPlatformIds,
             row => row.PlatformId,
             notes,
-            "mobility");
+            quarantine,
+            "mobility",
+            "Mobility");
         if (mobilityRows.Count > 0)
         {
             mobilityBatchId = gate.ProposeMobilityBatch(mobilityRows, actorType, actorId, rationale);
@@ -215,7 +242,9 @@ public sealed class PlatformWorkbookImporter
             knownPlatformIds,
             row => row.PlatformId,
             notes,
-            "signature");
+            quarantine,
+            "signature",
+            "Signatures");
         if (signatureRows.Count > 0)
         {
             signatureBatchId = gate.ProposeSignatureBatch(signatureRows, actorType, actorId, rationale);
@@ -228,7 +257,9 @@ public sealed class PlatformWorkbookImporter
             knownPlatformIds,
             row => row.PlatformId,
             notes,
-            "emcon");
+            quarantine,
+            "emcon",
+            "Emcon");
         if (emconRows.Count > 0)
         {
             emconBatchId = gate.ProposeEmconBatch(emconRows, actorType, actorId, rationale);
@@ -241,7 +272,9 @@ public sealed class PlatformWorkbookImporter
             knownPlatformIds,
             row => row.PlatformId,
             notes,
-            "damage");
+            quarantine,
+            "damage",
+            PlatformsSheet);
         if (damageRows.Count > 0)
         {
             damageBatchId = gate.ProposePlatformDamageBatch(damageRows, actorType, actorId, rationale);
@@ -287,18 +320,29 @@ public sealed class PlatformWorkbookImporter
             signatureBatchId,
             emconBatchId,
             damageBatchId,
-            notes);
+            notes)
+        {
+            QuarantineEntries = SortQuarantine(quarantine),
+        };
     }
 
-    private static PlatformImportResult EmptyImportResult(PlatformImportPlan plan, IReadOnlyList<string> notes) =>
-        new(plan, Staged: false, null, null, null, null, null, null, null, null, null, null, notes);
+    private static PlatformImportResult EmptyImportResult(
+        PlatformImportPlan plan,
+        IReadOnlyList<string> notes,
+        IReadOnlyList<PlatformImportQuarantineEntry>? quarantine = null) =>
+        new(plan, Staged: false, null, null, null, null, null, null, null, null, null, null, notes)
+        {
+            QuarantineEntries = SortQuarantine(quarantine ?? plan.QuarantineEntries),
+        };
 
     private static IReadOnlyList<T> FilterKnownPlatforms<T>(
         IReadOnlyList<T> rows,
         HashSet<string> knownPlatformIds,
         Func<T, string> platformIdSelector,
         ICollection<string> notes,
-        string entityLabel)
+        ICollection<PlatformImportQuarantineEntry> quarantine,
+        string entityLabel,
+        string sourceSheet)
     {
         if (rows.Count == 0)
         {
@@ -316,11 +360,82 @@ public sealed class PlatformWorkbookImporter
             else
             {
                 notes.Add($"Rejected orphan {entityLabel} row for unknown PlatformId '{platformId}'.");
+                quarantine.Add(new PlatformImportQuarantineEntry(
+                    EntityKind: entityLabel,
+                    PlatformId: platformId,
+                    EntityId: string.Empty,
+                    Reason: PlatformWorkbookValidator.PhaseBOrphanPlatform,
+                    SourceSheet: sourceSheet,
+                    Detail: $"Rejected orphan {entityLabel} row for unknown PlatformId '{platformId}'."));
             }
         }
 
         return accepted;
     }
+
+    private static readonly HashSet<string> FkQuarantineFindingCodes = new(StringComparer.Ordinal)
+    {
+        PlatformWorkbookValidator.PhaseBOrphanPlatform,
+        PlatformWorkbookValidator.MagazineUnknownMount,
+        PlatformWorkbookValidator.MagazineUnknownLoadout,
+    };
+
+    private static IReadOnlyList<PlatformImportQuarantineEntry> BuildQuarantineFromFindings(
+        IReadOnlyList<ProjectAegis.Data.Validation.ValidationFinding> findings)
+    {
+        if (findings.Count == 0)
+        {
+            return [];
+        }
+
+        var entries = new List<PlatformImportQuarantineEntry>();
+        foreach (var finding in findings)
+        {
+            if (!FkQuarantineFindingCodes.Contains(finding.Code))
+            {
+                continue;
+            }
+
+            entries.Add(new PlatformImportQuarantineEntry(
+                EntityKind: EntityKindForFindingCode(finding.Code),
+                PlatformId: finding.UnitId ?? string.Empty,
+                EntityId: finding.TargetId ?? string.Empty,
+                Reason: finding.Code,
+                SourceSheet: SourceSheetForFindingCode(finding.Code),
+                Detail: finding.Message));
+        }
+
+        return SortQuarantine(entries);
+    }
+
+    private static string EntityKindForFindingCode(string code) => code switch
+    {
+        PlatformWorkbookValidator.PhaseBOrphanPlatform => "platform_fk",
+        PlatformWorkbookValidator.MagazineUnknownMount => "magazine",
+        PlatformWorkbookValidator.MagazineUnknownLoadout => "magazine",
+        _ => "unknown",
+    };
+
+    private static string SourceSheetForFindingCode(string code) => code switch
+    {
+        PlatformWorkbookValidator.PhaseBOrphanPlatform => "Mobility",
+        PlatformWorkbookValidator.MagazineUnknownMount => "Magazines",
+        PlatformWorkbookValidator.MagazineUnknownLoadout => "Magazines",
+        _ => string.Empty,
+    };
+
+    /// <summary>
+    /// PLE-2.3: deterministic quarantine order — EntityKind, PlatformId, EntityId, then Reason
+    /// for stable ties when the same entity surfaces multiple gate codes.
+    /// </summary>
+    private static IReadOnlyList<PlatformImportQuarantineEntry> SortQuarantine(
+        IReadOnlyList<PlatformImportQuarantineEntry> entries) =>
+        entries
+            .OrderBy(e => e.EntityKind, StringComparer.Ordinal)
+            .ThenBy(e => e.PlatformId, StringComparer.Ordinal)
+            .ThenBy(e => e.EntityId, StringComparer.Ordinal)
+            .ThenBy(e => e.Reason, StringComparer.Ordinal)
+            .ToArray();
 
     private static IReadOnlyList<CatalogSensorBinding> BuildChangedSensorRows(
         PlatformWorkbook edited,

@@ -313,7 +313,7 @@ public sealed class ScenarioSimulateSampleCliTests
     }
 
     [Fact]
-    public void scenario_simulate_sample_determinism_holds_under_parallel_execution_isolation()
+    public async Task scenario_simulate_sample_determinism_holds_under_parallel_execution_isolation()
     {
         // Verifies sim isolation (no shared event queues/state) under parallel runs; required for CI parallel.
         // See sprint plan: "Test holds under parallel CI (isolation)".
@@ -332,8 +332,8 @@ public sealed class ScenarioSimulateSampleCliTests
             return SplitSimulateSampleOutput(writer.ToString());
         });
 
-        var (json1, seed1) = task1.Result;
-        var (json2, seed2) = task2.Result;
+        var (json1, seed1) = await task1;
+        var (json2, seed2) = await task2;
 
         Assert.Equal(json1, json2);
         Assert.Equal(seed1, seed2);

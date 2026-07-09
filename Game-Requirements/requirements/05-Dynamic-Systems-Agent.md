@@ -1,12 +1,14 @@
 # 05 - Dynamic Systems Agent
 
-**Last Updated:** 2026-06-04  
-**Related:** [06-Database-Intelligence.md](06-Database-Intelligence.md) · [09-Near-Future-Technologies.md](09-Near-Future-Technologies.md) · [10-Speculative-Systems.md](10-Speculative-Systems.md)  
+**Last Updated:** 2026-07-08  
+**Related:** [01-Project-Overview.md](01-Project-Overview.md) · [06-Database-Intelligence.md](06-Database-Intelligence.md) · [07-Agentic-Infrastructure.md](07-Agentic-Infrastructure.md) · [09-Near-Future-Technologies.md](09-Near-Future-Technologies.md) · [10-Speculative-Systems.md](10-Speculative-Systems.md)  
 **Status:** Locked
 
 ## Purpose
 
 Create an autonomous agent that monitors open-source intelligence (defense publications, research papers, military forums, and curated social/OSINT feeds) for emerging and speculative military technologies, then proposes new systems for integration into the game database with full human oversight.
+
+Implements hub **[FR-04](01-Project-Overview.md)** as **OSINT discovery/proposal** (staging proposals into the doc 06 dual-track pipeline) — **not** balance tuning. Balance/tuning agent workflows live under [07-Agentic-Infrastructure.md](07-Agentic-Infrastructure.md).
 
 The agent is the **discovery and proposal front-end** for the dual-track content pipeline defined in [06-Database-Intelligence.md](06-Database-Intelligence.md). It does not write to the live database.
 
@@ -39,11 +41,13 @@ Every proposal must declare intended **Technology Level (TL)** and **TRL** so th
 
 **Acceptance**
 
-- [ ] **DSA-1.1** Daily digest job completes within configured window and writes a run summary (sources polled, items found, errors).
-- [ ] **DSA-1.2** On-demand MCP search returns structured hits within the same schema as digest items (source URL, snippet, timestamp, relevance score).
-- [ ] **DSA-1.3** No MVP code path opens a 24/7 real-time X/Twitter listener; feature flag `enableRealtimeSocialStream` defaults `false`.
-- [ ] **DSA-1.4** Each discovered item is deduplicated against staging and live DB canonical IDs before scoring.
-- [ ] **DSA-1.5** All retrieval respects platform rate limits and ToS; failures are logged and do not block the next digest.
+> AC checkboxes: checked only when an obvious named test is cited. Remaining items are **unchecked — Standard W1 depth** (no full evidence audit this wave).
+
+- [ ] **DSA-1.1** Daily digest job completes within configured window and writes a run summary (sources polled, items found, errors). *(unchecked — Standard W1 depth)*
+- [ ] **DSA-1.2** On-demand MCP search returns structured hits within the same schema as digest items (source URL, snippet, timestamp, relevance score). *(unchecked — Standard W1 depth)*
+- [x] **DSA-1.3** No MVP code path opens a 24/7 real-time X/Twitter listener; feature flag `enableRealtimeSocialStream` defaults `false`. Evidence: `OsintDigestRunner.EnableRealtimeSocialStream` (`const false`); `OsintDigestRunnerTests.EnableRealtimeSocialStream_remains_false_for_mvp`.
+- [ ] **DSA-1.4** Each discovered item is deduplicated against staging and live DB canonical IDs before scoring. *(unchecked — Standard W1 depth)*
+- [ ] **DSA-1.5** All retrieval respects platform rate limits and ToS; failures are logged and do not block the next digest. *(unchecked — Standard W1 depth)*
 
 ### 2. Proposal Generation
 
@@ -58,10 +62,10 @@ Every proposal must declare intended **Technology Level (TL)** and **TRL** so th
 
 **Acceptance**
 
-- [ ] **DSA-2.1** Confidence ≥ 0.65 creates exactly one staging proposal with required fields; < 0.65 creates log-only record with no staging row.
-- [ ] **DSA-2.2** Every staging proposal includes ≥ 1 verifiable source citation and a confidence score visible in the review UI.
-- [ ] **DSA-2.3** Each proposal declares `targetDoc` (`09` | `10`) and `proposedTL` consistent with TRL rules in related requirements.
-- [ ] **DSA-2.4** Sub-threshold items are queryable in discovery log for audit and tuning of thresholds.
+- [x] **DSA-2.1** Confidence ≥ 0.65 creates exactly one staging proposal with required fields; < 0.65 creates log-only record with no staging row. Evidence: `OsintProposalGate.DefaultProposalConfidenceThreshold = 0.65`; `OsintProposalGateTests.Partition_promotes_records_at_or_above_confidence_threshold`; `OsintConnectorTests.AllConnectors_FeedRunner_WithRealFixture_ProposalsAndLogOnlyPartition`.
+- [ ] **DSA-2.2** Every staging proposal includes ≥ 1 verifiable source citation and a confidence score visible in the review UI. *(unchecked — Standard W1 depth)*
+- [ ] **DSA-2.3** Each proposal declares `targetDoc` (`09` | `10`) and `proposedTL` consistent with TRL rules in related requirements. *(unchecked — Standard W1 depth)*
+- [ ] **DSA-2.4** Sub-threshold items are queryable in discovery log for audit and tuning of thresholds. *(unchecked — Standard W1 depth)*
 
 ### 3. Automatic Stat Generation (with Human Approval)
 
@@ -73,10 +77,10 @@ Every proposal must declare intended **Technology Level (TL)** and **TRL** so th
 
 **Acceptance**
 
-- [ ] **DSA-3.1** All AI-generated stat fields carry `provenance: ai_proposed` and a numeric confidence in staging export.
-- [ ] **DSA-3.2** No API or agent path writes directly to live DB tables; only approved bundles pass to doc 06 intake.
-- [ ] **DSA-3.3** Audit trail links proposal ID → reviewer identity → outcome (`approved` | `rejected` | `deferred`) → optional patch bundle ID.
-- [ ] **DSA-3.4** Speculative stats (TL-3+) include escalation flags where required by doc 10 (e.g., `SPACE_WAR_THRESHOLD` candidates flagged, not auto-set).
+- [ ] **DSA-3.1** All AI-generated stat fields carry `provenance: ai_proposed` and a numeric confidence in staging export. *(unchecked — Standard W1 depth)*
+- [ ] **DSA-3.2** No API or agent path writes directly to live DB tables; only approved bundles pass to doc 06 intake. *(unchecked — Standard W1 depth)*
+- [ ] **DSA-3.3** Audit trail links proposal ID → reviewer identity → outcome (`approved` | `rejected` | `deferred`) → optional patch bundle ID. *(unchecked — Standard W1 depth)*
+- [ ] **DSA-3.4** Speculative stats (TL-3+) include escalation flags where required by doc 10 (e.g., `SPACE_WAR_THRESHOLD` candidates flagged, not auto-set). *(unchecked — Standard W1 depth)*
 
 ### 4. Integration Workflow
 
@@ -88,9 +92,9 @@ Every proposal must declare intended **Technology Level (TL)** and **TRL** so th
 
 **Acceptance**
 
-- [ ] **DSA-4.1** End-to-end happy path demonstrable: digest item → proposal → human approve → doc 06 triage `accepted` → TL-correct branch visible in DB snapshot.
-- [ ] **DSA-4.2** Rejected and deferred proposals do not alter live DB; state transitions are persisted.
-- [ ] **DSA-4.3** Approved near-future content is discoverable under TL-0–TL-3 branches; speculative content under TL-3+ per doc 10 gating.
+- [ ] **DSA-4.1** End-to-end happy path demonstrable: digest item → proposal → human approve → doc 06 triage `accepted` → TL-correct branch visible in DB snapshot. *(unchecked — Standard W1 depth)*
+- [ ] **DSA-4.2** Rejected and deferred proposals do not alter live DB; state transitions are persisted. *(unchecked — Standard W1 depth)*
+- [ ] **DSA-4.3** Approved near-future content is discoverable under TL-0–TL-3 branches; speculative content under TL-3+ per doc 10 gating. *(unchecked — Standard W1 depth)*
 
 ## Non-Functional Requirements
 
@@ -127,7 +131,7 @@ Every proposal must declare intended **Technology Level (TL)** and **TRL** so th
 - Community-submitted speculative systems with automated vetting (pairs with doc 06 public intake track — separate from player-facing feed below).
 - Automatic generation of 3D models or icons for new systems (out of scope for agent MVP).
 
-## Sprint 19 Implementation (OSINT production slice)
+## Sprint 19 Implementation (OSINT production slice) — Evidence pointers (historical)
 - `OsintDigestRunner` (headless, delegates to `OsintProposalGate`).
 - `InMemoryOsintConnector` (and pattern for file/RSS).
 - `OsintCatalogMapper` + E2E propose/approve via `CatalogWriteGate` (visible to reader).
@@ -138,7 +142,9 @@ Every proposal must declare intended **Technology Level (TL)** and **TRL** so th
 - Determinism and write-gate only enforced.
 - Unity full panel: deferred to local Editor (headless/CLI covered in harness/tests).
 
-## Sprint 20 Implementation (connectors + UI + Cesium base) — completed via 2026-06-09 completion plan (Tasks 1-5)
+## Sprint 20 Implementation (connectors + UI + Cesium base) — Evidence pointers (historical)
+
+Completed via 2026-06-09 completion plan (Tasks 1-5).
 - **S20-01 real connectors delivered:** FileOsintConnector + RssOsintConnector (full impls + IOsintConnector retrofit on InMemory/File/Rss; exact `data/osint_facts.json` fixture with 3 records; deterministic Fetch + stable OrderBy by SourceUrl+CanonicalId; empty on bad path; feeds OsintDigestRunner + CLI; 23 Osint/Connector tests PASS in Data.Tests. Program.cs osint_search prefers real fixture path + graceful fallback. (Per Task 2; production/live HTTP is stub/demo but functional for deterministic use.)
 - **S20-02 full interactive OsintStagingPanelHost delivered:** ListView bind from pending or fixture (real proxy/gate), select + OnApproveSelected invokes OsintStagingReviewCommand.Run (propose-if-needed + approve + live commit), Refresh for state updates (e.g. drop on COMMITTED); status; kbd/gamepad/motion prefs + C2 patterns; ui-code compliant (display-only, commands for writes, no mutation); TDD spec comment + PlayMode smoke baseline; header/comments with exact plan note + runbook refs (sprint-18-c2-signoff-runbook + S20 evidence). Real data tie-in from Task2 fixture + connectors. 1 file. (Per Task 3.)
 - **S20-03 real Cesium runtime foundation delivered:** manifest pin pre-existing (correctly attributed; "com.cesium.unity": "https://github.com/CesiumGS/cesium-unity.git?path=Package#release/1.12.0"); CesiumGlobeBridge.cs real runtime (#if UNITY + #if CESIUM_FOR_UNITY; using CesiumForUnity; creates CesiumGeoreference + CesiumGlobeAnchor(s) from GetCurrentPositions(); functional GetCurrentPositions pulls representative data documented as from MapPanelBinder / sim projections per kickoff + binder data); CesiumGlobeHost activation + ion token note (NEVER commit); DelegationBridgeHost useGlobeMap wiring comment (no behavior change). docs/engineering/cesium-phase-b-spike-checklist.md fully marked with "pinned in manifest + git add in Editor", "real CesiumGlobeAnchor creation + GetCurrentPositions from binder", "Verified local Editor 2026-06-09; evidence: production/qa/cesium-s20-local-editor-evidence.md (globe visible Baltic bbox, 1 friendly + 1 hostile, ~60fps empty, selection via C2PresentationController, symbols ■/◆)" + PASS assumption + human steps/placeholders. Evidence note created with package/runtime/setup + gates summary + refs. 5 files changed (3 .cs + checklist + evidence; manifest pre-existing). (Per Task 4 accurate post-review fixes.)
@@ -147,7 +153,7 @@ Every proposal must declare intended **Technology Level (TL)** and **TRL** so th
 - QA gap addressed: reality note + manual qa-plan equiv + recommendations (local Editor for Cesium/UI visuals); full story-done re-loop 28% -> ACs met.
 - All S20 Must ACs actually delivered (spike foundation + real impls per plan). S21 for MCP polish / more.
 
-## Sprint 21 Implementation (MCP + polish + production)
+## Sprint 21 Implementation (MCP + polish + production) — Evidence pointers (historical)
 - `IOsintConnector` interface + retrofit of InMemory/File/Rss + Rss enhanced with parser; OsintConnectorTests +10/10 Osint green.
 - MCP OSINT: osint_search etc verbs in Program.cs + Run; mcp-tools.json + 5 tools; McpToolsManifestTests updated + green (reuses runner + OsintStagingReviewCommand).
 - Cesium prod: CesiumGlobeBridge.GetCurrentPositions() real feed; checklist + ux doc updated.
@@ -156,6 +162,20 @@ Every proposal must declare intended **Technology Level (TL)** and **TRL** so th
 - Evidence: new interface/CLI verbs/bridge method, updated json/tests/docs, gates PASS.
 - GitNexus: impacts (HIGH Osint, CRITICAL Catalog extend, LOW others); detect for S21 scope.
 - Note: S20 QA gap carried (no qa-plan; recommend next).
+
+## Implementation Mapping (headless)
+
+| Area | Path / type | Status | Evidence |
+|------|-------------|--------|----------|
+| Digest / batch partition | `OsintDigestRunner` (`ProjectAegis.Data` · `Osint/`) | **Shipped** | Headless runner; `OsintDigestRunnerTests`; delegates to proposal gate |
+| Confidence gate (0.65) | `OsintProposalGate` (`Osint/`) | **Shipped** | `DefaultProposalConfidenceThreshold = 0.65`; ≥ threshold → proposal, else log-only; `OsintProposalGateTests` |
+| Source connectors | `FileOsintConnector`, `RssOsintConnector`, `InMemoryOsintConnector` (`Osint/Connectors/`) | **Shipped** | `IOsintConnector`; fixture `data/osint_facts.json`; `OsintConnectorTests` |
+| Catalog staging handoff | `OsintCatalogMapper` + `CatalogWriteGate` | **Shipped** | Propose/approve path; extend-only write gate; `OsintCatalogMapperTests` + E2E in digest tests |
+| CLI / MCP surface | `osint_*` verbs (`ProjectAegis.MissionEditor.Cli` · `Program.cs`, `mcp-tools.json`) | **Shipped** | `osint_search` et al.; `McpToolsManifestTests`; staging review command |
+| Realtime social stream flag | `OsintDigestRunner.EnableRealtimeSocialStream` | **Shipped (`false`)** | Constant `false` for MVP; `EnableRealtimeSocialStream_remains_false_for_mvp` |
+| Unity staging panel | `OsintStagingPanelHost` / C2 presentation | **Partial** | Interactive panel host + CLI proxy; full Editor visual signoff / polish residual |
+| Daily UTC digest job | Scheduler / ops cadence | **Phase N** | Headless runner exists; always-on daily UTC job / production scheduler not productized |
+| Public speculative player feed | Player-facing OSINT browse/vote | **DEFERRED** | Resolved Design Decision §3 — post-MVP; internal staging only |
 
 ## Resolved Design Decisions
 
@@ -210,3 +230,6 @@ Revisit when internal pipeline stability, moderation policy, and legal sign-off 
 ---
 
 **Status:** Locked
+
+---
+**Implementation grade:** Partial+ — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 05. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

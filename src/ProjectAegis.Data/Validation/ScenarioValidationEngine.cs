@@ -27,6 +27,8 @@ public sealed class ScenarioValidationEngine : IScenarioValidationEngine
         ValidationRules.BrokenRefRule(scenario, findings); // "broken references"
         ValidationRules.DoctrineInheritanceRule(scenario, findings);
         ValidationRules.EventGraphComplexityRule(scenario, config, findings); // ADR-016 S84: soft warnings + hard 32-cond cap (never blocks on soft)
+        // ME-W2: pure event static analysis as warnings (export honesty; does not block at Error floor)
+        findings.AddRange(EventStaticAnalyzer.Analyze(scenario));
         return ValidationReport.FromFindings(findings);
     }
 }
