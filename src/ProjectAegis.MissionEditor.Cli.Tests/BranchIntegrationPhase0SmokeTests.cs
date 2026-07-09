@@ -23,7 +23,14 @@ public sealed class BranchIntegrationPhase0SmokeTests
         var script = Path.Combine(repoRoot, "tools", "ci", "smoke-scenario-editor-phase0.sh");
         Assert.True(File.Exists(script), $"Expected Phase 0 script at {script}");
 
-        // Prefer the configuration the solution was built with (CI uses Release).
+        // Hosted Buildkite already runs Phase 0 via tools/buildkite/agent-dotnet-ci.sh.
+        // Skip nested bash smoke under the test host on agents (avoids MSBuild/node thrash).
+        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUILDKITE")))
+        {
+            return;
+        }
+
+        // Prefer the configuration the solution was built with (local runs often Debug).
         var config = Directory.Exists(Path.Combine(repoRoot, "src", "ProjectAegis.Data", "bin", "Release"))
             ? "Release"
             : "Debug";

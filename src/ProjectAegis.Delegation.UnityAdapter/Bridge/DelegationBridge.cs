@@ -235,6 +235,14 @@ public sealed class DelegationBridge
             binding.TargetId,
             cancelled.Kind,
             CancelledExecuteSimTick: executeTick));
+
+        // Cancel of a queued Engage must not leave Session.NextEngageSalvoOverride sticky for a later
+        // engage (Codex P2 on PR #257). Additive path only — no existing hotpath method body change.
+        if (cancelled.Kind == OrderKind.Engage && Session is not null)
+        {
+            Session.NextEngageSalvoOverride = null;
+        }
+
         failureReason = null;
         return true;
     }
