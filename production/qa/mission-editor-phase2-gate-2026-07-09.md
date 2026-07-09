@@ -1,8 +1,9 @@
 # Mission Editor Phase 2 — Gate Evidence (2026-07-09)
 
-**Status:** ENGINEERING GATE **PASS** — **READY FOR HUMAN ACK**  
-**Tip:** `b0f5fe5` + docs commit (see log)  
-**Phrase for human ack:** `Mission editor Phase 2 complete`
+**Status:** **CLOSED** — engineering PASS + human ack  
+**Tip at close:** see `main` (closeout commit after `b88c646`)  
+**Human ack phrase:** `Mission editor Phase 2 complete`  
+**Ack received:** 2026-07-09 (user: “close the epic”)
 
 ## Results
 
@@ -14,6 +15,7 @@
 | Hash `17144800277401907079` | **PASS** 18 files |
 | DelegationBridge in diff | **PASS** none |
 | Stage | Release |
+| GitNexus reindex | **PASS** (up-to-date post-land) |
 
 ## Shipped Phase 2 (summary)
 
@@ -26,4 +28,4 @@
 
 ## Human ack
 
-- [ ] User confirms: **Mission editor Phase 2 complete**
+- [x] User confirms: **Mission editor Phase 2 complete** (2026-07-09)
