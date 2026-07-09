@@ -1,0 +1,40 @@
+{
+  "metadata": {
+    "title": "Tier 1 Patrol 02 — Gotland Corridor Standoff",
+    "description": "Single patrol, 1 surface unit per side, weapons free both sides, unrestricted EMCON, survive 6 ticks. South-central Baltic corridor; Blue at long-range from Red to test detection envelope at extended range.",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 7,
+    "policyId": "baltic-patrol-catalog",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsFree"
+  },
+  "missions": [
+    {
+      "id": "blue-patrol-02",
+      "type": "Patrol",
+      "assignedUnitIds": ["u1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 57.4, "lon": 18.5 },
+        { "lat": 57.6, "lon": 19.0 },
+        { "lat": 57.2, "lon": 19.5 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "red-patrol-02",
+      "type": "Patrol",
+      "assignedUnitIds": ["hostile-far"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 59.8, "lon": 24.0 },
+        { "lat": 60.1, "lon": 24.5 },
+        { "lat": 59.6, "lon": 25.0 }
+      ],
+      "roeOverride": "WeaponsFree"
+    }
+  ]
+}

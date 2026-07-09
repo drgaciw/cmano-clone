@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "title": "Tier 1 Patrol 03 — Bornholm Picket Line",
+    "description": "Single patrol, 2 surface units Blue vs 1 Red, weapons free both sides, unrestricted EMCON, survive 6 ticks. South Baltic near Bornholm; Blue fielding two surface combatants tests 2-vs-1 surface engagement stability.",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 123,
+    "policyId": "baltic-patrol-catalog",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsFree"
+  },
+  "missions": [
+    {
+      "id": "blue-patrol-03a",
+      "type": "Patrol",
+      "assignedUnitIds": ["u1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 55.2, "lon": 14.5 },
+        { "lat": 55.5, "lon": 15.0 },
+        { "lat": 55.1, "lon": 15.5 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "blue-patrol-03b",
+      "type": "Patrol",
+      "assignedUnitIds": ["hostile-far"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 55.3, "lon": 16.0 },
+        { "lat": 55.6, "lon": 16.3 },
+        { "lat": 55.0, "lon": 16.7 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "red-patrol-03",
+      "type": "Patrol",
+      "assignedUnitIds": ["hostile-1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 56.5, "lon": 19.5 },
+        { "lat": 56.8, "lon": 20.0 },
+        { "lat": 56.3, "lon": 20.5 }
+      ],
+      "roeOverride": "WeaponsFree"
+    }
+  ]
+}
