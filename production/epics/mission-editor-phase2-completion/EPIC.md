@@ -1,15 +1,17 @@
 # Epic: Mission Editor Phase 2 Completion
 
-> **Status:** In progress  
+> **Status:** In progress — ME-W0…W3 Complete; **ME-W4 gate package READY FOR HUMAN ACK**  
 > **Layer:** Req 11 / Phase 2 (P1) only  
 > **Plan:** [2026-07-08-mission-editor-phase2-completion-plan.md](../../../docs/superpowers/plans/2026-07-08-mission-editor-phase2-completion-plan.md)  
+> **W3/W4 plan:** [2026-07-09-mission-editor-w3-w4-plan.md](../../../docs/superpowers/plans/2026-07-09-mission-editor-w3-w4-plan.md)  
 > **Boundary:** [mission-editor-phase2-completion-scope-boundary-2026-07-08.md](../../mission-editor-phase2-completion-scope-boundary-2026-07-08.md)  
+> **Gate package:** [mission-editor-phase2-gate-2026-07-09.md](../../qa/mission-editor-phase2-gate-2026-07-09.md)  
 > **Prior:** headless SE complete; P2.1 map slice merged  
 > **Does not reopen:** Baltic gates; Phase 3 agents/import/Lua
 
 ## Goal
 
-Finish Phase 2 mission editor product: map host residual, Mission Board, event graph/AC-7/static analysis, honest docs — with headless/CLI parity and standing invariants.
+Finish Phase 2 mission editor product: map host residual, Mission Board, event graph/AC-7/static analysis, sides/timeline/diff residual (or honesty defer), honest docs — with headless/CLI parity and standing invariants.
 
 ## Stories
 
@@ -18,17 +20,25 @@ Finish Phase 2 mission editor product: map host residual, Mission Board, event g
 | ME-001 | [story-me-001-w0-host-honesty.md](story-me-001-w0-host-honesty.md) | ME-W0 | **Complete** (2026-07-08) |
 | ME-002 | [story-me-002-w1-mission-board.md](story-me-002-w1-mission-board.md) | ME-W1 | **Complete** (2026-07-08; Unity panel deferred) |
 | ME-003 | [story-me-003-w2-event-graph.md](story-me-003-w2-event-graph.md) | ME-W2 | **Complete** (2026-07-08; Unity visual graph deferred) |
-| ME-004 | [story-me-004-w3-residual.md](story-me-004-w3-residual.md) | ME-W3 | Pending |
-| ME-005 | [story-me-005-w4-gate.md](story-me-005-w4-gate.md) | ME-W4 | Pending |
+| ME-004 | [story-me-004-w3-residual.md](story-me-004-w3-residual.md) | ME-W3 | **Complete** (2026-07-09; partial implement + honesty defer) |
+| ME-005 | [story-me-005-w4-gate.md](story-me-005-w4-gate.md) | ME-W4 | **In progress** — gate package ready; orchestrator RUN+READ + human ack pending |
 
 ## Acceptance (epic)
 
 1. [x] Edit Mode host path for map ORBAT/RP + findings (or signed checklist) — ME-W0
 2. [x] Mission Board: list/filter/clone/template for four mission types — ME-W1 (Unity panel deferred)
 3. [x] AC-7 green (full debugger); static analysis beyond TCA stub — ME-W2 (`EventDebuggerTrace` + `EventStaticAnalyzer`; Unity visual graph deferred)
-4. [ ] Doc 11 + tracker honest; human ack “Mission editor Phase 2 complete” — doc 11 ME-W2 honesty done; full Phase 2 ack waits ME-W3/W4
-5. [ ] Invariants: hash, bridge zero-touch, test floor, ReplayGolden, PlayModeSmoke — re-verify at ME-W4 gate
+4. [x] Doc 11 + tracker honest — ME-W3 honesty: AME-3.5/4.5/7.3 Partial+ headless; AME-3.6 + AME-4.4 Phase 2.4+ deferred; **READY FOR HUMAN ACK** phrase: **“Mission editor Phase 2 complete”**
+5. [ ] Invariants: hash, bridge zero-touch, test floor, ReplayGolden, PlayModeSmoke — re-verify at ME-W4 gate (see gate package PENDING table)
 
 ## Out of scope
 
 Phase 3 NL agents; CMO import; Lua; Steam Workshop.
+
+## Human ack
+
+**READY FOR HUMAN ACK** — when gate package invariants PASS, human speaks:
+
+> **Mission editor Phase 2 complete**
+
+Epic flips to **Complete** only after that phrase + gate package filled PASS.
