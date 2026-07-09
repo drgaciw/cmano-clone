@@ -1,9 +1,11 @@
 # Req 20 P0 Completion — Gate Evidence (2026-07-09)
 
-**Status:** Engineering **PASS** (headless) — Editor PlayMode PNG pass still residual  
+**Status:** **CLOSED** — engineering PASS + human proceed  
 **Branch:** `c2-req20-p0-phase0-contracts` @ tip after T1–T6 merge  
 **Prompt:** `production/agentic/req20-p0-completion-parallel-implementation-prompt-2026-07-08.md`  
-**Base:** `c2-req20-p2c-tdd-hardening` (rev 2 + Phase 2b cancel/pause)
+**Base:** `c2-req20-p2c-tdd-hardening` (rev 2 + Phase 2b cancel/pause)  
+**Human ack phrase:** `Req 20 P0 complete`  
+**Ack received:** 2026-07-09 (user: “proceed” after gate report)
 
 ## Decisions
 
