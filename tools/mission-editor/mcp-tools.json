@@ -623,6 +623,87 @@
       "returns": "JSON ok + deletedEventId + editVersion + fileHash"
     },
     {
+      "name": "timeline_list",
+      "description": "Read-only operations timeline list (AME-3.5 Partial+ headless; sorted by activateAtTick).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "timeline_list",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath"],
+        "properties": {
+          "scenarioPath": { "type": "string" }
+        }
+      },
+      "returns": "JSON ok + entries[{missionId,activateAtTick}] + count"
+    },
+    {
+      "name": "timeline_upsert",
+      "description": "Insert or replace an operations-timeline entry by mission id (AME-3.5 Partial+).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "timeline_upsert",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--mission",
+        "${missionId}",
+        "--tick",
+        "${activateAtTick}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "missionId", "activateAtTick"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "missionId": { "type": "string" },
+          "activateAtTick": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "returns": "JSON ok + missionId + activateAtTick + editVersion + fileHash"
+    },
+    {
+      "name": "timeline_delete",
+      "description": "Delete an operations-timeline entry by mission id (AME-3.5 Partial+).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "timeline_delete",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--mission",
+        "${missionId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "missionId"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "missionId": { "type": "string" }
+        }
+      },
+      "returns": "JSON ok + deletedMissionId + editVersion + fileHash"
+    },
+    {
       "name": "mission_list",
       "description": "Read-only Mission Board list with optional type/side/status filters (ME-W1 / AME-3.4).",
       "command": "pwsh",

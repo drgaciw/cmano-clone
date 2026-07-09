@@ -124,6 +124,29 @@ public sealed class ScenarioEditCommandBus
             }
         });
 
+    /// <summary>
+    /// Inserts or replaces an operations-timeline entry by mission id (AME-3.5 Partial+ headless).
+    /// </summary>
+    public ScenarioMutationResult UpsertTimelineEntry(
+        int expectedEditVersion,
+        ScenarioOperationTimelineEntryDto entry,
+        bool save)
+        => Mutate(expectedEditVersion, save, e => e.UpsertTimelineEntry(entry));
+
+    /// <summary>Deletes an operations-timeline entry by mission id; fails when not found.</summary>
+    public ScenarioMutationResult DeleteTimelineEntry(
+        int expectedEditVersion,
+        string missionId,
+        bool save)
+        => Mutate(expectedEditVersion, save, e =>
+        {
+            if (!e.TryRemoveTimelineEntry(missionId))
+            {
+                throw new InvalidOperationException(
+                    $"Timeline entry for mission '{missionId}' was not found.");
+            }
+        });
+
     /// <summary>Re-runs live validation without mutating the document.</summary>
     public ValidationReport RefreshFindings()
     {
