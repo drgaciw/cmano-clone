@@ -57,10 +57,10 @@ jobs:
         continue-on-error: true
 
   dependency-review:
+    # Disabled with CodeQL jobs (billing). Was: github.event_name == 'pull_request'
     if: false
     name: Dependency Review
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v6
       - name: Dependency Review
