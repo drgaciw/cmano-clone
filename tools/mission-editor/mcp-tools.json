@@ -811,6 +811,31 @@
       "returns": "JSON ValidationReport (passed, canExport, reportHash, findings)"
     },
     {
+      "name": "scenario_diff_summary",
+      "description": "AME-7.3 Partial+ semantic diff summary between two scenario JSON documents (ME-W3 W3-c).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_diff_summary",
+        "-ExtraArgs",
+        "--before",
+        "${beforePath}",
+        "--after",
+        "${afterPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["beforePath", "afterPath"],
+        "properties": {
+          "beforePath": { "type": "string", "description": "Baseline scenario.json path" },
+          "afterPath": { "type": "string", "description": "Comparison scenario.json path" }
+        }
+      },
+      "returns": "JSON { ok, summary } — ordinal-sorted mission/side/unit/timeline/event bullets joined by '; '"
+    },
+    {
       "name": "scenario_export_brief",
       "command": "pwsh",
       "args": ["-File", "tools/mission-editor/Invoke-ScenarioValidate.ps1", "-ScenarioPath", "${scenarioPath}", "-ExportBrief"],

@@ -36,6 +36,7 @@ public sealed class McpToolsManifestTests
         "scenario_cyber_status",
         "scenario_near_future_spawn",
         "scenario_validate",
+        "scenario_diff_summary",
         "scenario_export_brief",
         "scenario_simulate_sample",
         "scenario_event_trace",  // S86-01: added for Program.cs parity (active headless verb via ScenarioDocumentEditor.ExplainEventTrace)
