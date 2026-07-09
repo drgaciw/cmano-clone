@@ -21,5 +21,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\tools\cmano-db-crawler\fixtures\sensor-mini-export.golden.json" Link="fixtures\sensor-mini-export.golden.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
