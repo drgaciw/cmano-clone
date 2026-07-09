@@ -16,10 +16,8 @@ public sealed record CesiumBillboardMarker(
 /// <summary>Projects tactical map symbols into Cesium billboard markers with APP-6 glyphs/frames.</summary>
 public static class CesiumBillboardProjection
 {
-    private const double BalticLatMin = 59.5;
-    private const double BalticLatSpan = 1.0;
-    private const double BalticLonMin = 24.0;
-    private const double BalticLonSpan = 1.5;
+    // Baltic demo geo shares production theater bounds with TheaterQuickJump (ADR-018 / TR-c2-004).
+    private static GeographicBounds Baltic => TheaterQuickJump.BalticBounds;
 
     /// <summary>Resolve APP-6 glyph/frame from symbol entry; uses SIDC when present, affiliation when missing.</summary>
     public static App6MapGlyphResolution ResolveGlyph(MapSymbolEntry symbol)
@@ -107,16 +105,17 @@ public static class CesiumBillboardProjection
 
     private static (double Lat, double Lon) MapToBalticGeo(MapSymbolEntry symbol, int layoutSeed)
     {
+        var bounds = Baltic;
         if (symbol.NormalizedX > 0f || symbol.NormalizedY > 0f)
         {
             return (
-                BalticLatMin + symbol.NormalizedY * BalticLatSpan,
-                BalticLonMin + symbol.NormalizedX * BalticLonSpan);
+                bounds.MinLatitude + symbol.NormalizedY * bounds.LatitudeSpan,
+                bounds.MinLongitude + symbol.NormalizedX * bounds.LongitudeSpan);
         }
 
         var (x, y) = MapPictureProjection.Place(symbol.SymbolId, layoutSeed);
         return (
-            BalticLatMin + y * BalticLatSpan,
-            BalticLonMin + x * BalticLonSpan);
+            bounds.MinLatitude + y * bounds.LatitudeSpan,
+            bounds.MinLongitude + x * bounds.LongitudeSpan);
     }
 }

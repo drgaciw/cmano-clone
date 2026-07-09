@@ -33,6 +33,20 @@ User decision **D1** (2026-07-09, Req 20 P0 completion program): **Cesium produc
 - GitNexus re-index after globe assembly lands.
 - Doc 20 open question 3 → **Resolved: Cesium**.
 
+## Headless contracts (T1 / TR-c2-004)
+
+| Contract | Location | Role |
+|----------|----------|------|
+| Theater catalog + quick-jump | `TheaterQuickJump` / `GeographicBounds` | Named theaters (Baltic bbox + GIUK / EastMed / PersianGulf); scenario aliases (`baltic-*` → Baltic) |
+| NDC ↔ WGS84 | `GlobeCoordinateMapper` | Maps lat/lon into placeholder NDC (`NormalizedX` = lon fraction, `NormalizedY` = lat fraction within theater bounds) |
+| Globe pick | `GlobePickResolver` | Nearest live friendly within NDC hit radius → `C2PresentationController` / `SelectionSet` |
+| Drag-box parity | `GlobeCoordinateMapper.ToNormalizedRect` + `SelectionBoxResolver` | Two surface lat/lon corners → `NormalizedRect` → same multi-select path as MapPlaceholder |
+| Host adapter | `IGlobeMapSurface` / `HeadlessGlobeMapSurface` | Thin surface for Cesium hosts; CI keeps `UseGlobeMap=false` |
+
+**Mapping (authoritative):**  
+`lon = LonMin + NormalizedX * LonSpan`, `lat = LatMin + NormalizedY * LatSpan`  
+(inverse of `CesiumBillboardProjection` Baltic placement; Baltic bounds = lat [59.5, 60.5], lon [24.0, 25.5]).
+
 ## GDD / TR
 
 - TR-c2-004 Globe map P0  
