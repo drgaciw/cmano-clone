@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "title": "Tier 2 Strike 01 — Baltic Frigate Strike on Designated Target",
+    "description": "Blue strike mission (u1 surface + ucav-blue air recon/escort) against a designated Red surface target (hostile-1). Red is weapons-tight and passive EMCON (no active radar, must positively ID before engaging). Blue is weapons-free and active. One scripted event at tick 5 confirms target designation.",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 42,
+    "policyId": "baltic-v3-tier2-strike-01",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsFree"
+  },
+  "missions": [
+    {
+      "id": "blue-strike-01",
+      "type": "Strike",
+      "assignedUnitIds": ["u1"],
+      "targetIds": ["hostile-1"],
+      "patrolZone": [
+        { "lat": 55.2, "lon": 14.5 },
+        { "lat": 55.5, "lon": 15.0 },
+        { "lat": 55.1, "lon": 15.5 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "blue-recon-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["ucav-blue"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 55.3, "lon": 14.7 },
+        { "lat": 55.6, "lon": 15.2 },
+        { "lat": 55.0, "lon": 15.7 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-defend-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["hostile-1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 56.5, "lon": 19.5 },
+        { "lat": 56.8, "lon": 20.0 },
+        { "lat": 56.3, "lon": 20.5 }
+      ],
+      "roeOverride": "WeaponsTight"
+    }
+  ]
+}
