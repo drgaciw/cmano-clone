@@ -90,7 +90,7 @@ The catalog today persists a thin P0 slice — `CatalogPlatformEntry(PlatformId,
 
 **Acceptance**
 - [x] **PLE-1.1** `PlatformWorkbookExporter.Export(snapshotId)` produces an `.xlsx` whose `_Meta.SourceSnapshotId` equals the requested snapshot and `WorkbookHash` is reproducible across runs. — `PlatformWorkbookRoundTripTests.Meta_sheet_binds_snapshot_and_content_hash`, `ClosedXmlPlatformWorkbookIoTests.ClosedXml_meta_snapshot_and_workbook_hash_survive_binary_round_trip`, `PlatformWorkbookBinaryGoldenTests`
-- [ ] **PLE-1.2** Every enum column carries Excel data validation restricting input to the allowed set. — **Partial:** ClosedXML list validation for Emcon `Condition`/`Posture` (`ClosedXmlPlatformWorkbookIo`); full enum-column coverage incomplete
+- [x] **PLE-1.2** Every enum column carries Excel data validation restricting input to the allowed set. — `PlatformWorkbookEnumCatalog` + `ClosedXmlPlatformWorkbookIo` list validation for Emcon Condition/Posture, ReviewState, ValueTier, MountType, LinkType, roles, TRL, booleans; evidence: `ClosedXmlValidationMetadataTests`, `PlatformWorkbookEnumValidationTests` (PE-W1)
 - [x] **PLE-1.3** Rows are sorted by stable composite keys (e.g., `Sensors` by `(PlatformId, SensorId)`) identical to `GetSortedSensorBindings()`. — `PlatformWorkbookRoundTripTests.CatalogSortKey_export_sheet_row_order_matches_comparer`, `PlatformWorkbookPhaseBSheetTests.Phase_B_rows_export_with_stable_OrderBy_keys`
 - [x] **PLE-1.4** Export contains no machine-local paths or wall-clock timestamps in cell data (only in `_Meta.ExportUtc`, injected via `ICatalogClock`). — `PlatformWorkbookRoundTripTests.Export_is_deterministic` (`FixedCatalogClock`)
 
@@ -163,14 +163,15 @@ The catalog today persists a thin P0 slice — `CatalogPlatformEntry(PlatformId,
 - **Snapshot guard:** unknown/stale `SourceSnapshotId` handled in `PlatformWorkbookImporter` plan path (no separate `PlatformEditVersionGuard` type on disk).
 - **Reuse, don't replace:** staging (`CatalogWriteGate` — **extend-only consumer**; Excel path does not claim write-path mutations), provenance (`CatalogProvenanceTier`), snapshots (`DbSnapshotStore`), change log (`CatalogChangeLogEntry`), quarantine (`CatalogQuarantinePromoter` / mount-loadout triage), validation agents — the editor is a **front door** onto existing machinery.
 - **Impact discipline (CLAUDE.md):** run `gitnexus_impact` before extending `CatalogPlatformEntry`, `CatalogSensorBinding`, `ICatalogReader`, or `WeaponEnvelopeDto` — these are consumed by `ProjectAegis.Sim` (engage/envelope, DATA-4) and `ProjectAegis.Delegation`; widening them is likely **HIGH** blast radius.
-- **Not shipped:** in-engine WYSIWYG platform editor; live Excel/Office.js add-in; full sheet/PK workbook protection (OQ5).
+- **Not shipped:** in-engine WYSIWYG platform editor; live Excel/Office.js add-in.
+- **OQ5 (best-effort shipped PE-W1):** `_Meta` worksheet protection + PK column locks via ClosedXML (`ClosedXmlPlatformWorkbookIo`). Soft UX only — passwordless Unprotect Sheet, ZIP/XML edits bypass; not cryptographic integrity.
 
 ## Implementation Mapping (headless)
 
 | Area | Path / type | Status | Evidence |
 |------|-------------|--------|----------|
 | Excel I/O port | `IPlatformWorkbookIo` (`ProjectAegis.Data` · `Platform/`) | **Shipped** | `IPlatformWorkbookIo.cs`; selection via `PlatformWorkbookIoSelection` |
-| ClosedXML adapter | `ClosedXmlPlatformWorkbookIo`, `PlatformWorkbookIoFactories` (`ProjectAegis.Data.Excel`) | **Shipped** | `ClosedXmlPlatformWorkbookIoTests`, `PlatformWorkbookBinaryGoldenTests` |
+| ClosedXML adapter | `ClosedXmlPlatformWorkbookIo`, `PlatformWorkbookIoFactories`, `PlatformWorkbookEnumCatalog` (`ProjectAegis.Data.Excel`) | **Shipped** | `ClosedXmlPlatformWorkbookIoTests`, `PlatformWorkbookBinaryGoldenTests`, `ClosedXmlValidationMetadataTests`, `PlatformWorkbookEnumValidationTests` |
 | Canonical text I/O | `CanonicalTextWorkbookIo` | **Shipped** | golden/reference path in round-trip tests |
 | Export | `PlatformWorkbookExporter`, `PlatformWorkbookHash`, `PlatformCatalogExportResolver` | **Shipped** | `PlatformWorkbookRoundTripTests`, Phase B sheet tests |
 | Import / diff | `PlatformWorkbookImporter`, `PlatformWorkbookDiff`, `PlatformImportPlan` | **Shipped** | `PlatformWorkbookImporterTests`, empty-diff goldens |
@@ -200,7 +201,7 @@ The catalog today persists a thin P0 slice — `CatalogPlatformEntry(PlatformId,
 | **C** | Read-only in-engine viewer (browse/filter/detail) | **Shipped Partial+** | `PlatformCatalogViewerHost` + proxy tests; **not** full TL branch UI |
 | **D** | In-engine / bridge Excel write path (propose→approve via gate) | **Shipped Partial+** | `PlatformWorkbookWriteService` + `PlatformWorkbookWriteBridge` + Phase D tests |
 | **E–H** | Import panel chrome, damage/comms/LinkCatalog Unity surfacing (Phases E–H per S29–S34) | **Shipped Partial+ (headless/proxy)** | UA Platform/* tests; presentation polish residual |
-| **Phase N** | **Live Editor screenshots** / full Editor Mode presentation evidence; remaining OQ5 sheet/PK protection; full enum data-validation matrix; WYSIWYG editor (if ever) | **Residual** | Tracker residual: Live Editor screenshots |
+| **Phase N** | **Live Editor screenshots** / full Editor Mode presentation evidence; WYSIWYG editor (if ever). Enum matrix (PLE-1.2) + OQ5 best-effort protection closed in PE-W1. | **Residual (screenshots only)** | Tracker residual: Live Editor screenshots |
 
 ## Open Questions / Decisions Needed
 
@@ -210,7 +211,7 @@ The catalog today persists a thin P0 slice — `CatalogPlatformEntry(PlatformId,
 | 2 | Excel library: `ClosedXML` vs `EPPlus` (licensing — EPPlus is non-commercial-restricted) vs OpenXML SDK? | **ClosedXML Accepted** — production code uses `ClosedXML` via `ClosedXmlPlatformWorkbookIo` (`ProjectAegis.Data.Excel`); MIT; behind `IPlatformWorkbookIo`. |
 | 3 | Bulk threshold `N` for forced human approval? | Reuse **DBI-2.4 default of 10**; make per-entity tuneable in `CatalogValidationDefaults`. — exercised by `Plan_large_changeset_requires_human_approval`. |
 | 4 | Should comms/datalink **behavior** (doc 19) ship with the Phase-A schema, or schema-only first? | **Schema-only in A**, behavior wiring lag OK — schema + Unity surfacing shipped; sim share-lag bridge is separate. |
-| 5 | Workbook protection: lock `_Meta` and PK columns against edit? | **Partial / deferred** — `ClosedXmlPlatformWorkbookIo` comment: sheet/PK-column protection (OQ5) remains deferred; Emcon list validation exists. |
+| 5 | Workbook protection: lock `_Meta` and PK columns against edit? | **Best-effort shipped (PE-W1 / OQ5)** — `_Meta` protected; PK columns locked + non-PK unlocked under sheet protect. Soft UX only (passwordless Unprotect; ZIP edits bypass). Evidence: `ClosedXmlValidationMetadataTests.Meta_sheet_is_protected_after_export`, `Primary_key_columns_are_locked_on_protected_data_sheets`. |
 
 ## Traceability
 

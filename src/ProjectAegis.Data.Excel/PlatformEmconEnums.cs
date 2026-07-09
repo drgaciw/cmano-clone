@@ -2,7 +2,8 @@ namespace ProjectAegis.Data.Excel;
 
 /// <summary>
 /// Req-21 / migration 008: allowed EMCON enum values surfaced as Excel list validation on the
-/// <c>Emcon</c> sheet (<c>Condition</c>, <c>Posture</c> columns).
+/// <c>Emcon</c> sheet (<c>Condition</c>, <c>Posture</c> columns). Included in the broader
+/// <see cref="PlatformWorkbookEnumCatalog"/> matrix (PLE-1.2).
 /// </summary>
 public static class PlatformEmconEnums
 {
@@ -16,6 +17,7 @@ public static class PlatformEmconEnums
     public const string ConditionColumn = "Condition";
     public const string PostureColumn = "Posture";
 
+    /// <summary>Formats allowed values as an Excel list-validation formula fragment.</summary>
     internal static string ToExcelList(IReadOnlyList<string> values) =>
-        $"\"{string.Join(",", values)}\"";
+        PlatformWorkbookEnumCatalog.ToExcelList(values);
 }

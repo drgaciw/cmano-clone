@@ -9,8 +9,19 @@ using ProjectAegis.Data.Platform;
 /// the column number-format is pinned to text ("@") so numeric-looking values such as "57" round-trip
 /// byte-for-byte rather than being coerced to numbers. The round-trip contract proven by
 /// <see cref="CanonicalTextWorkbookIo"/> golden tests must hold here too.
-/// Phase B UX (S24-11): Emcon <c>Condition</c>/<c>Posture</c> list validation per migration 008 / Req 21.
-/// Sheet/PK-column protection (PLE-1.2, doc 21 OQ5) remains deferred.
+/// <para>
+/// PLE-1.2: Excel list data-validation on known enum columns via
+/// <see cref="PlatformWorkbookEnumCatalog"/> (Emcon Condition/Posture plus ReviewState, ValueTier,
+/// MountType, LinkType, roles, TRL, booleans). Validation is <b>export-time UX only</b> — the importer
+/// does not reject rows solely because these lists are incomplete.
+/// </para>
+/// <para>
+/// OQ5 best-effort protection: the <c>_Meta</c> sheet is worksheet-protected; primary-key columns
+/// (<see cref="PlatformWorkbookEnumCatalog.ProtectedPrimaryKeyColumns"/>) are locked and non-PK cells
+/// unlocked before sheet protect so editors can still change data cells. Limitations: protection is
+/// passwordless (Excel "Unprotect Sheet" removes it), ZIP/XML edits bypass it, and ClosedXML read
+/// ignores protection by design. Soft UX guard only — not cryptographic integrity.
+/// </para>
 /// </summary>
 public sealed class ClosedXmlPlatformWorkbookIo : IPlatformWorkbookIo
 {
@@ -40,7 +51,7 @@ public sealed class ClosedXmlPlatformWorkbookIo : IPlatformWorkbookIo
                 }
             }
 
-            ApplyPhaseBSheetUx(ws, sheet);
+            ApplySheetUx(ws, sheet);
         }
 
         wb.SaveAs(path);
@@ -89,15 +100,68 @@ public sealed class ClosedXmlPlatformWorkbookIo : IPlatformWorkbookIo
 
     private const int EnumValidationLastRow = 1000;
 
-    private static void ApplyPhaseBSheetUx(IXLWorksheet ws, PlatformWorkbookSheet sheet)
+    /// <summary>
+    /// Applies enum list validation and OQ5 best-effort sheet/PK protection for a written worksheet.
+    /// </summary>
+    private static void ApplySheetUx(IXLWorksheet ws, PlatformWorkbookSheet sheet)
     {
-        if (!string.Equals(sheet.Name, PlatformEmconEnums.EmconSheetName, StringComparison.Ordinal))
+        ApplyEnumListValidations(ws, sheet);
+        ApplySheetProtection(ws, sheet);
+    }
+
+    private static void ApplyEnumListValidations(IXLWorksheet ws, PlatformWorkbookSheet sheet)
+    {
+        foreach (var column in PlatformWorkbookEnumCatalog.ForSheet(sheet.Name))
         {
+            ApplyListValidation(ws, sheet.Header, column.ColumnName, column.AllowedValues);
+        }
+    }
+
+    private static void ApplySheetProtection(IXLWorksheet ws, PlatformWorkbookSheet sheet)
+    {
+        if (PlatformWorkbookEnumCatalog.IsMetaSheet(sheet.Name))
+        {
+            // Default cell Locked=true; protect entire _Meta sheet (read-only UX).
+            ws.Protect();
             return;
         }
 
-        ApplyListValidation(ws, sheet.Header, PlatformEmconEnums.ConditionColumn, PlatformEmconEnums.Conditions);
-        ApplyListValidation(ws, sheet.Header, PlatformEmconEnums.PostureColumn, PlatformEmconEnums.Postures);
+        var lastRow = Math.Max(EnumValidationLastRow, ws.LastRowUsed()?.RowNumber() ?? 1);
+        var lastCol = Math.Max(1, sheet.Header.Count);
+        var used = ws.Range(1, 1, lastRow, lastCol);
+        used.Style.Protection.Locked = false;
+
+        var lockedAnyPk = false;
+        for (var i = 0; i < sheet.Header.Count; i++)
+        {
+            if (!IsProtectedPkColumn(sheet.Header[i]))
+            {
+                continue;
+            }
+
+            lockedAnyPk = true;
+            var excelColumn = i + 1;
+            ws.Range(1, excelColumn, lastRow, excelColumn).Style.Protection.Locked = true;
+        }
+
+        // Protect only when there is something meaningful to lock (PK columns present).
+        if (lockedAnyPk)
+        {
+            ws.Protect();
+        }
+    }
+
+    private static bool IsProtectedPkColumn(string headerName)
+    {
+        foreach (var pk in PlatformWorkbookEnumCatalog.ProtectedPrimaryKeyColumns)
+        {
+            if (string.Equals(pk, headerName, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static void ApplyListValidation(
@@ -119,7 +183,7 @@ public sealed class ClosedXmlPlatformWorkbookIo : IPlatformWorkbookIo
 
         var range = ws.Range(firstDataRow, excelColumn, lastDataRow, excelColumn);
         var validation = range.CreateDataValidation();
-        validation.List(PlatformEmconEnums.ToExcelList(allowedValues));
+        validation.List(PlatformWorkbookEnumCatalog.ToExcelList(allowedValues));
         validation.InCellDropdown = true;
         validation.IgnoreBlanks = true;
     }
