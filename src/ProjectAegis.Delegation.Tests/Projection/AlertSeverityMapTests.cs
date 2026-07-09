@@ -52,4 +52,12 @@ public sealed class AlertSeverityMapTests
     {
         Assert.That(AlertSeverityMap.ForCategory(category), Is.EqualTo(AlertSeverity.Routine));
     }
+
+    [TestCase("kill_confirmed", AlertSeverity.Critical)]
+    [TestCase("Contact", AlertSeverity.Notable)]
+    [TestCase("weapon_launch", AlertSeverity.Routine)]
+    public void Mapping_is_case_insensitive(string category, AlertSeverity expected)
+    {
+        Assert.That(AlertSeverityMap.ForCategory(category), Is.EqualTo(expected));
+    }
 }

@@ -13,13 +13,18 @@ namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 /// </summary>
 public sealed class C2PresentationController
 {
+    private readonly SelectionSet _selection = new SelectionSet();
+
     /// <summary>Ordered multi-select set of friendly unit ids (req 20 §Selection, TR-c2-005).
-    /// Single-select is a set of one; <see cref="SelectedUnitId"/> is the anchor unit.</summary>
-    public SelectionSet Selection { get; } = new SelectionSet();
+    /// Single-select is a set of one; <see cref="SelectedUnitId"/> is the anchor unit.
+    /// Read-only: mutate only via <see cref="SelectFriendlyUnit"/> / <see cref="SelectHostileContact"/>
+    /// / <see cref="ApplyDefaultSelection"/> so hostile contact + graph side effects stay coordinated.
+    /// </summary>
+    public IReadOnlySelectionSet Selection => _selection;
 
     /// <summary>Anchor (primary) selected friendly unit id, or null. Mirrors the pre-rev-2
     /// single-select contract by projecting <see cref="SelectionSet.PrimaryUnitId"/>.</summary>
-    public string? SelectedUnitId => Selection.PrimaryUnitId;
+    public string? SelectedUnitId => _selection.PrimaryUnitId;
 
     public string? SelectedContactId { get; private set; }
     public ContactSummaryEntry? SelectedContactSummary { get; private set; }
@@ -35,7 +40,7 @@ public sealed class C2PresentationController
             ClearGraphSurfacing();
         }
 
-        Selection.ReplaceWith(unitId);
+        _selection.ReplaceWith(unitId);
         SelectedContactId = null;
         SelectedContactSummary = null;
     }
@@ -50,7 +55,7 @@ public sealed class C2PresentationController
 
         SelectedContactId = contactId;
         SelectedContactSummary = ContactSummaryProjection.Project(contactId, contacts);
-        Selection.Clear();
+        _selection.Clear();
     }
 
     public void ApplyDefaultSelection(IReadOnlyList<OobTreeEntry> oob)
@@ -63,7 +68,7 @@ public sealed class C2PresentationController
         var defaultUnit = C2SelectionResolver.ResolveDefaultFriendlyUnit(oob);
         if (defaultUnit != null)
         {
-            Selection.ReplaceWith(defaultUnit);
+            _selection.ReplaceWith(defaultUnit);
         }
     }
 
