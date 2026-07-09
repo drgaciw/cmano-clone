@@ -1,7 +1,7 @@
 # Buildkite CI
 
-> **Last updated:** 2026-06-13  
-> **Replaces:** `.NET CI`, `Graphite CI`, `Post-Merge CI`, and Gitleaks in GitHub Actions  
+> **Last updated:** 2026-07-09
+> **Replaces:** `.NET CI`, `Graphite CI`, `Post-Merge CI`, and Gitleaks in GitHub Actions
 > **Graphite workflow:** [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md)
 
 ## Overview
@@ -10,27 +10,102 @@ Primary blocking CI runs on **Buildkite hosted Linux agents** using repo-committ
 
 **Agent skills:** Official Buildkite skills and project agents are documented in [buildkite-agent-skills.md](./buildkite-agent-skills.md). Refresh skills with `bash tools/buildkite/install-buildkite-skills.sh`.
 
+**2026-07-09 optimization pass:** the previous single `:hammer: Build and test` step
+(build + full test suite + two redundant filtered re-runs of the same tests) was split
+into a cached `:hammer: Build` step and a `parallelism: 4` `:test_tube: Test %n` step,
+plus retries, artifacts, a test-summary annotation, and (dormant, token-gated) Test
+Analytics upload. The Graphite CI optimizer plugin step was removed in an earlier pass
+(pre-checkout empty-pipeline `--replace` was skipping `:hammer:` on stacked branches) —
+see the git history of `.buildkite/pipeline.yml` if it needs to come back.
+
 | Step | When | Purpose |
 |------|------|---------|
-| Graphite CI optimizer | PR builds (when token set) | Skips redundant stack runs via [graphite-ci-buildkite-plugin](https://github.com/withgraphite/graphite-ci-buildkite-plugin) |
-| .NET build and test | All builds (unless optimizer skips) | `restore` → Release `build` → full `test` → replay golden suite → PlayMode smoke |
+| `:hammer: Build` | All builds | `restore` → Release `build` → S67 hash/DelegationBridge-ZERO check. Cached (`~/.nuget/packages`, `**/obj`, `**/bin`, keyed on `**/*.csproj` + `global.json` checksum — no `packages.lock.json` in this repo). Uploads `**/bin/Release/**/*.dll` as artifacts |
+| `:test_tube: Test %n` | All builds | `depends_on: build`, `parallelism: 4`. Shards the 6 `src/*/*.Tests.csproj` projects across `BUILDKITE_PARALLEL_JOB`/`_JOB_COUNT`, runs each with `--no-build`, writes `.trx` to `test-results/` (uploaded as artifacts). Falls back to a local per-project build on a cache miss. Replay/C2 filter coverage (`ReplayGoldenSuiteTests`, `PlayModeSmokeHarnessTests`) is exercised by `ProjectAegis.Delegation.UnityAdapter.Tests`'s normal full-suite run once sharded in — no separate redundant filtered pass |
+| `:bar_chart: Test analytics upload` | All builds, only if `BUILDKITE_ANALYTICS_TOKEN` is set | `depends_on: test`, `allow_dependency_failure: true`. `test-collector#v1.11.0` uploads `test-results/**/*.trx` (`format: dotnet-trx`) to Buildkite Test Engine. **Currently a no-op** — token not yet wired, see "Test Analytics setup" below |
+| `:memo: Test summary annotation` | All builds | `depends_on: test`, `allow_dependency_failure: true`. Aggregates pass/fail/skip counts from the `.trx` files into a `buildkite-agent annotate` summary |
 | Gitleaks | All builds | Secret scan (moved from `gitnexus-security.yml`; `soft_fail: true`) |
-| Baltic replay golden | `main` only | Post-merge `ReplayGolden*` filter |
-| GitNexus PR analysis | Pull requests | `analyze` + `detect_changes`; Buildkite annotation (+ optional `gh pr comment`) |
-| GitNexus reindex | `main` only | Knowledge graph refresh; skips doc-only pushes (parity with GH workflow) |
+| Baltic replay golden | `main` only | Post-merge `ReplayGolden*` filter; `.trx` uploaded from `test-results-replay/` |
+| GitNexus PR analysis | Pull requests | `analyze` + `detect_changes`; Buildkite annotation (+ optional `gh pr comment`); `soft_fail: true` |
+| GitNexus reindex | `main` only | Knowledge graph refresh; skips doc-only pushes (parity with GH workflow). `soft_fail` is now scoped to exit code `75` (see "GitNexus reindex soft-fail scoping" below) instead of a blanket `soft_fail: true` |
+
+All command steps carry the same `retry.automatic` policy (`exit_status: -1` and `143`,
+limit 2 each — agent-lost/SIGTERM-style transient infra failures only; deliberately
+**no** wildcard `"*"` retry, so a genuine test/build failure fails the build instead of
+silently re-running), `retry.manual.allowed: true`, and `timeout_in_minutes: 15`.
+
+The parallel siblings (Gitleaks, Baltic replay, GitNexus PR/reindex) still kick off
+immediately alongside `:hammer: Build` — they are not gated behind `depends_on: build`
+or `depends_on: test`, unchanged from before this pass.
+
+### Caching
+
+Hosted-agent native `cache:` (no plugin) on both `:hammer: Build` and `:test_tube: Test
+%n`, same key so the test shards can reuse the build step's Release output:
+
+```yaml
+cache:
+  paths:
+    - "~/.nuget/packages"
+    - "**/obj"
+    - "**/bin"
+  key: 'v1-dotnet-{{ checksum "**/*.csproj" }}-{{ checksum "global.json" }}'
+```
+
+No `packages.lock.json` exists anywhere in this repo (lock-file restore isn't enabled),
+so the key checksums `**/*.csproj` + `global.json` instead. If `RestorePackagesWithLockFile=true`
+is adopted repo-wide later, switch the checksum to the generated lock files for tighter
+cache invalidation.
+
+### Test Analytics setup (Task 5 — needs a human with Buildkite org UI access)
+
+The `:bar_chart: Test analytics upload` step is wired but dormant. To activate:
+
+1. Buildkite → **Test Suites** → **New suite** (or select the existing `cmano-clone`
+   suite if one exists)
+2. Copy the suite's **API token**
+3. Buildkite → pipeline **Settings → Environment** → add `BUILDKITE_ANALYTICS_TOKEN`
+   with that value (pipeline-level secret/env var, **not** a committed file)
+4. Next build automatically picks it up — the step's `if: build.env("BUILDKITE_ANALYTICS_TOKEN")
+   != null && ... != ""` condition mirrors the old Graphite-optimizer gating pattern, so
+   nothing else needs to change in `.buildkite/pipeline.yml`
+
+### GitNexus reindex soft-fail scoping (Task 6)
+
+`tools/buildkite/gitnexus-reindex.sh` previously let any failure from `gitnexus analyze`
+/ `gitnexus status` propagate under `set -euo pipefail`, and the pipeline masked *all* of
+it with a blanket `soft_fail: true` — including real infra problems (permissions, disk
+full, script bugs), not just the GitNexus CLI's own best-effort failure modes. The
+script now catches those two commands explicitly and exits `75` (`EX_TEMPFAIL`,
+`sysexits.h`) as a documented "known, non-blocking-by-design" sentinel. The pipeline
+step now soft-fails only on that exact code:
+
+```yaml
+soft_fail:
+  - exit_status: 75
+```
+
+Any other exit code fails the step for real, restoring signal for genuine bugs.
 
 Shell entrypoints (parity with local dev):
 
-- [`tools/buildkite/agent-dotnet-ci.sh`](../../tools/buildkite/agent-dotnet-ci.sh) — bootstrap .NET SDK + [`dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh)
+- [`tools/buildkite/agent-dotnet-build.sh`](../../tools/buildkite/agent-dotnet-build.sh) — bootstrap .NET SDK + [`dotnet-build.sh`](../../tools/buildkite/dotnet-build.sh) (build-only; used by the `:hammer: Build` step)
+- [`tools/buildkite/run-tests-sharded.sh`](../../tools/buildkite/run-tests-sharded.sh) — sharded `--no-build` test runner used by `:test_tube: Test %n`
+- [`tools/buildkite/annotate-test-summary.sh`](../../tools/buildkite/annotate-test-summary.sh) — aggregates `.trx` counts into a build annotation
+- [`tools/buildkite/agent-dotnet-ci.sh`](../../tools/buildkite/agent-dotnet-ci.sh) + [`dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh) — **no longer called by the pipeline**; kept for full local-parity/legacy runs (mirrors `tools/verify-ci-local.ps1`)
 - [`tools/buildkite/agent-gitleaks.sh`](../../tools/buildkite/agent-gitleaks.sh) — bootstrap gitleaks binary
 - [`tools/buildkite/agent-baltic-replay.sh`](../../tools/buildkite/agent-baltic-replay.sh) — bootstrap .NET + [`baltic-replay.sh`](../../tools/buildkite/baltic-replay.sh)
 - [`tools/buildkite/agent-gitnexus-pr-analysis.sh`](../../tools/buildkite/agent-gitnexus-pr-analysis.sh) — bootstrap Node + GitNexus + [`gitnexus-pr-analysis.sh`](../../tools/buildkite/gitnexus-pr-analysis.sh)
-- [`tools/buildkite/agent-gitnexus-reindex.sh`](../../tools/buildkite/agent-gitnexus-reindex.sh) — bootstrap Node + GitNexus + [`gitnexus-reindex.sh`](../../tools/buildkite/gitnexus-reindex.sh)
+- [`tools/buildkite/agent-gitnexus-reindex.sh`](../../tools/buildkite/agent-gitnexus-reindex.sh) — bootstrap Node + GitNexus + [`gitnexus-reindex.sh`](../../tools/buildkite/gitnexus-reindex.sh) (exit-75 sentinel, see above)
 - [`tools/buildkite/agent-gitnexus-wiki.sh`](../../tools/buildkite/agent-gitnexus-wiki.sh) — manual wiki job (requires `OPENAI_API_KEY`; not in default pipeline)
-- [`tools/buildkite/dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh) — core dotnet commands (also used by agents)
 - [`tools/buildkite/baltic-replay.sh`](../../tools/buildkite/baltic-replay.sh)
 - [`tools/buildkite/agent-bootstrap-gitnexus.sh`](../../tools/buildkite/agent-bootstrap-gitnexus.sh) — Node 20 + global `gitnexus` CLI
 - [`tools/verify-ci-local.ps1`](../../tools/verify-ci-local.ps1) (Windows local gate)
+
+### Orphaned / out-of-scope files (not touched by this pass)
+
+- [`.buildkite/preflight-s67.yml`](../../.buildkite/preflight-s67.yml) — never referenced by any `buildkite-agent pipeline upload` command; left as-is pending a separate cleanup decision
+- `packages.lock.json` adoption — no lock files exist in this repo today; cache keys checksum `**/*.csproj` + `global.json` instead (see "Caching" above)
 
 ## One-time Buildkite setup (human)
 
@@ -163,7 +238,7 @@ Checklist:
 |---------|-----|
 | Pipeline not found | Confirm `.buildkite/pipeline.yml` on default branch; re-save pipeline “read from repo” setting |
 | Graphite optimizer always runs full CI | Token missing/wrong in Buildkite env; step is skipped when unset; optimizer fails open when present |
-| First build slow on hosted agents | Expected: `agent-dotnet-ci.sh` downloads .NET SDK 8.0.400 on cold agents |
+| First build slow on hosted agents | Expected: `agent-dotnet-build.sh` (and `run-tests-sharded.sh`'s bootstrap) download .NET SDK 8.0.400 on cold agents; cache warms it up on subsequent builds |
 | `CmoCatalogExportTests` fails with `node` not found | Checked-in golden at `tools/cmano-db-crawler/fixtures/sensor-mini-export.golden.json` (copied to test output); live `node` export is optional |
 | Build fails ~1m with no `:hammer:` log | Graphite optimizer on **main** pipeline can `pipeline upload --replace` with empty steps; merge branch `.buildkite/pipeline.yml` to `main` or disable `GRAPHITE_CI_OPTIMIZER_TOKEN` until then |
 | Agent has dotnet 6/7 on PATH | `agent-bootstrap-dotnet.sh` installs 8.0.400 when major &lt; 8 |

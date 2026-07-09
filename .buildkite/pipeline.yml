@@ -1,6 +1,9 @@
 # Primary CI — see docs/engineering/buildkite-ci.md
-# Minimal blocking gate: Release build + test + replay/C2 filters via agent-dotnet-ci.sh
-# Graphite CI optimizer plugin removed (pre-checkout empty-pipeline replace blocked :hammer: on stacks).
+# 2026-07-09 optimization pass (Tasks 1-7): Release build (cached) -> sharded test run
+# (parallelism: 4), plus parallel siblings (gitleaks, Baltic replay, GitNexus) that
+# still kick off immediately alongside :hammer: Build, unchanged from before this pass.
+# Graphite CI optimizer plugin removed previously (pre-checkout empty-pipeline replace
+# blocked :hammer: on stacks) — see docs/engineering/graphite-github-substitute-plan.md.
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
@@ -8,34 +11,167 @@ env:
   BUILDKITE_GIT_CLONE_FLAGS: "--depth=250"
 
 steps:
-  # Blocking gate MUST run first — Graphite optimizer (main pipeline) can --replace with
-  # empty steps and skip :hammer: when placed after the optimizer plugin.
-  - label: ":hammer: Build and test"
+  # Blocking gate MUST run first — Release build only (Task 3 split; test execution
+  # moved to the sharded :test_tube: Test step below via depends_on, no `wait` needed).
+  - label: ":hammer: Build"
     key: build
-    command: bash tools/buildkite/agent-dotnet-ci.sh
+    command: bash tools/buildkite/agent-dotnet-build.sh
+    timeout_in_minutes: 15
     retry:
       automatic:
-        - exit_status: "*"
-          limit: 1
+        - exit_status: -1
+          limit: 2
+        - exit_status: 143
+          limit: 2
+      manual:
+        allowed: true
+    cache:
+      paths:
+        - "~/.nuget/packages"
+        - "**/obj"
+        - "**/bin"
+      key: 'v1-dotnet-{{ checksum "**/*.csproj" }}-{{ checksum "global.json" }}'
+    artifact_paths:
+      - "**/bin/Release/**/*.dll"
+
+  - label: ":test_tube: Test %n"
+    key: test
+    depends_on: build
+    parallelism: 4
+    command: bash tools/buildkite/run-tests-sharded.sh
+    timeout_in_minutes: 15
+    retry:
+      automatic:
+        - exit_status: -1
+          limit: 2
+        - exit_status: 143
+          limit: 2
+      manual:
+        allowed: true
+    cache:
+      paths:
+        - "~/.nuget/packages"
+        - "**/obj"
+        - "**/bin"
+      key: 'v1-dotnet-{{ checksum "**/*.csproj" }}-{{ checksum "global.json" }}'
+    artifact_paths:
+      - "test-results/**/*.trx"
+
+  # Test Analytics upload (Task 5) — no-ops until a human wires BUILDKITE_ANALYTICS_TOKEN
+  # into the Buildkite pipeline environment (mirrors the previous Graphite optimizer's
+  # `if: build.env(...) != null` gating pattern). See report / docs for the manual setup
+  # checklist.
+  - label: ":bar_chart: Test analytics upload"
+    key: test-analytics
+    depends_on: test
+    allow_dependency_failure: true
+    if: build.env("BUILDKITE_ANALYTICS_TOKEN") != null && build.env("BUILDKITE_ANALYTICS_TOKEN") != ""
+    soft_fail: true
+    timeout_in_minutes: 15
+    retry:
+      automatic:
+        - exit_status: -1
+          limit: 2
+        - exit_status: 143
+          limit: 2
+      manual:
+        allowed: true
+    command: |
+      mkdir -p test-results
+      buildkite-agent artifact download "test-results/**/*.trx" .
+    plugins:
+      - test-collector#v1.11.0:
+          files: "test-results/**/*.trx"
+          format: "dotnet-trx"
+
+  # Pass/fail/skip annotation (Task 7). allow_dependency_failure so the summary still
+  # renders when a test shard fails.
+  - label: ":memo: Test summary annotation"
+    key: test-summary
+    depends_on: test
+    allow_dependency_failure: true
+    timeout_in_minutes: 15
+    retry:
+      automatic:
+        - exit_status: -1
+          limit: 2
+        - exit_status: 143
+          limit: 2
+      manual:
+        allowed: true
+    command: bash tools/buildkite/annotate-test-summary.sh
 
   - label: ":gitleaks: Secret scan"
     key: gitleaks
     soft_fail: true
+    timeout_in_minutes: 15
+    retry:
+      automatic:
+        - exit_status: -1
+          limit: 2
+        - exit_status: 143
+          limit: 2
+      manual:
+        allowed: true
     command: bash tools/buildkite/agent-gitleaks.sh
 
   - label: ":repeat: Baltic replay golden (main)"
     key: baltic-replay
     branches: main
+    timeout_in_minutes: 15
+    retry:
+      automatic:
+        - exit_status: -1
+          limit: 2
+        - exit_status: 143
+          limit: 2
+      manual:
+        allowed: true
     command: bash tools/buildkite/agent-baltic-replay.sh
+    artifact_paths:
+      - "test-results-replay/**/*.trx"
 
   - label: ":gitnexus: PR impact analysis"
     key: gitnexus-pr
     if: build.pull_request.id != null
     soft_fail: true
+    timeout_in_minutes: 15
+    retry:
+      automatic:
+        - exit_status: -1
+          limit: 2
+        - exit_status: 143
+          limit: 2
+      manual:
+        allowed: true
     command: bash tools/buildkite/agent-gitnexus-pr-analysis.sh
 
+  # Task 6: soft_fail scoped to exit 75 (EX_TEMPFAIL) — the sentinel
+  # gitnexus-reindex.sh now uses for its own known, non-blocking-by-design failure
+  # modes (see script comments). Any other exit code is a real bug/infra problem and
+  # now genuinely fails this step instead of being silently swallowed.
   - label: ":gitnexus: Reindex knowledge graph (main)"
     key: gitnexus-reindex
     branches: main
-    soft_fail: true
+    soft_fail:
+      - exit_status: 75
+    timeout_in_minutes: 15
+    retry:
+      automatic:
+        - exit_status: -1
+          limit: 2
+        - exit_status: 143
+          limit: 2
+      manual:
+        allowed: true
     command: bash tools/buildkite/agent-gitnexus-reindex.sh
+
+  - wait: ~
+    continue_on_failure: true
+
+  # Structural placeholder (Task 7, "optional" ask) — no deploy/release pipeline exists
+  # yet for cmano-clone. When one is stood up, gate it here, e.g.:
+  #   - block: ":shipit: Approve deploy"
+  #     branches: "main"
+  #   - trigger: "cmano-clone-deploy"
+  #     branches: "main"
