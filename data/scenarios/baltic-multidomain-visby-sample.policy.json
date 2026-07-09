@@ -1,0 +1,41 @@
+{
+  "id": "baltic-multidomain-visby-sample",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 1000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.75,
+    "pkIntercept": 0.0,
+    "pkKill": 0.25,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "cmo-sensor-2582",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c-visby-stereo",
+      "basePd": 0.9,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "qaImport": {
+    "note": "References cmo-db.com harvested Visby + Steregushchiy catalog IDs (2026-07-09 Playwright scrape)",
+    "source": "https://cmano-db.com/ship/439/"
+  }
+}
