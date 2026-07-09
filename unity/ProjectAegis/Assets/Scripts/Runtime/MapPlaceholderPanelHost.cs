@@ -68,7 +68,12 @@ namespace ProjectAegis.Unity.Runtime
         private Vector2? _dragStartNormalized;
         private Vector2 _dragCurrentNormalized;
         private bool _isDragging;
-        private bool _suppressNextSymbolClick;
+        /// <summary>
+        /// Frame through which symbol clicks are swallowed after a marquee resolve. Using a frame
+        /// watermark (not a sticky bool) ensures an empty-canvas marquee does not permanently
+        /// suppress the next ordinary symbol click.
+        /// </summary>
+        private int _suppressSymbolClickThroughFrame = -1;
         private bool _pointerDownShiftKey;
         private VisualElement? _marqueeBox;
 
@@ -336,10 +341,10 @@ namespace ProjectAegis.Unity.Runtime
 
             // A marquee drag just resolved on this pointer gesture — swallow the synthesized click
             // so releasing over a symbol doesn't also fire a conflicting single-select on top of the
-            // marquee result (req 20 §Selection, TR-c2-005).
-            if (_suppressNextSymbolClick)
+            // marquee result (req 20 §Selection, TR-c2-005). Frame-scoped so empty-canvas marquees
+            // do not leave a sticky suppress that eats the next ordinary click.
+            if (Time.frameCount <= _suppressSymbolClickThroughFrame)
             {
-                _suppressNextSymbolClick = false;
                 return;
             }
 
@@ -439,7 +444,9 @@ namespace ProjectAegis.Unity.Runtime
                     PresentationFeed.SelectUnits(boxIds);
                 }
 
-                _suppressNextSymbolClick = true;
+                // Swallow only ClickEvents raised for this pointer-up's frame (same-frame symbol
+                // click synthesis). Next frame's clicks are free again.
+                _suppressSymbolClickThroughFrame = Time.frameCount;
             }
 
             ResetDragState();
