@@ -353,11 +353,13 @@ public sealed class ScenarioDocumentEditor
         var dto = ToDto();
         // Missions and Events are live mutable lists on the editor — materialize independent copies
         // so a subsequent Add/Remove/replace does not corrupt the in-memory undo snapshot.
+        // Sides are replaced wholesale on UpsertSide/TryRemoveSide, but deep-copy postures so a
+        // shared postures array on the input DTO cannot mutate the undo snapshot.
         return new ScenarioDocumentDto
         {
             Metadata = dto.Metadata,
             Features = dto.Features,
-            Sides = dto.Sides,
+            Sides = dto.Sides.Select(DeepCopySide).ToList(),
             Orbat = dto.Orbat,
             ReferencePoints = dto.ReferencePoints,
             Missions = dto.Missions.ToList(),
@@ -655,6 +657,58 @@ public sealed class ScenarioDocumentEditor
         return true;
     }
 
+    /// <summary>
+    /// Inserts or replaces a side/faction by id (case-insensitive). Deep-copies <see cref="ScenarioSideDto.Postures"/>.
+    /// Does not cascade to ORBAT units. Does not call <see cref="CommitMutation"/>.
+    /// </summary>
+    /// <remarks>AME-4.5 headless sides CRUD (ME-W3 track W3-a).</remarks>
+    public void UpsertSide(ScenarioSideDto side)
+    {
+        if (side is null)
+        {
+            throw new ArgumentNullException(nameof(side));
+        }
+
+        if (string.IsNullOrWhiteSpace(side.Id))
+        {
+            throw new InvalidOperationException("Side id is required.");
+        }
+
+        var list = _sides.ToList();
+        var idx = list.FindIndex(s =>
+            string.Equals(s.Id, side.Id, StringComparison.OrdinalIgnoreCase));
+        var copy = DeepCopySide(side);
+        if (idx >= 0)
+        {
+            list[idx] = copy;
+        }
+        else
+        {
+            list.Add(copy);
+        }
+
+        _sides = list;
+    }
+
+    /// <summary>
+    /// Removes a side by id (case-insensitive). Returns false when not found.
+    /// Does not cascade-delete ORBAT units that reference the side. Does not call <see cref="CommitMutation"/>.
+    /// </summary>
+    /// <remarks>AME-4.5 headless sides CRUD (ME-W3 track W3-a).</remarks>
+    public bool TryRemoveSide(string sideId)
+    {
+        var list = _sides.ToList();
+        var removed = list.RemoveAll(s =>
+            string.Equals(s.Id, sideId, StringComparison.OrdinalIgnoreCase));
+        if (removed == 0)
+        {
+            return false;
+        }
+
+        _sides = list;
+        return true;
+    }
+
     public void Save(string path) =>
         ScenarioDocumentJsonWriter.WriteToFile(ToDto(), path);
 
@@ -725,6 +779,16 @@ public sealed class ScenarioDocumentEditor
                     Lon = a.Lon,
                 })
                 .ToArray(),
+        };
+
+    private static ScenarioSideDto DeepCopySide(ScenarioSideDto side) =>
+        new()
+        {
+            Id = side.Id,
+            Name = side.Name,
+            DefaultRoe = side.DefaultRoe,
+            DefaultEmcon = side.DefaultEmcon,
+            Postures = (side.Postures ?? Array.Empty<string>()).ToArray(),
         };
 
     private ScenarioMissionDto RequireMission(string missionId, string expectedType)

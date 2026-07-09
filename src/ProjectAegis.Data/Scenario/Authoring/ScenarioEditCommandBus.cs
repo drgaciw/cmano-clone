@@ -124,6 +124,20 @@ public sealed class ScenarioEditCommandBus
             }
         });
 
+    /// <summary>Inserts or replaces a side/faction (AME-4.5 / ME-W3).</summary>
+    public ScenarioMutationResult UpsertSide(int expectedEditVersion, ScenarioSideDto side, bool save)
+        => Mutate(expectedEditVersion, save, e => e.UpsertSide(side));
+
+    /// <summary>Deletes a side by id; fails when not found. Does not cascade ORBAT units.</summary>
+    public ScenarioMutationResult DeleteSide(int expectedEditVersion, string sideId, bool save)
+        => Mutate(expectedEditVersion, save, e =>
+        {
+            if (!e.TryRemoveSide(sideId))
+            {
+                throw new InvalidOperationException($"Side id '{sideId}' was not found.");
+            }
+        });
+
     /// <summary>Re-runs live validation without mutating the document.</summary>
     public ValidationReport RefreshFindings()
     {

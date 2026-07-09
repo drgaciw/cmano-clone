@@ -623,6 +623,97 @@
       "returns": "JSON ok + deletedEventId + editVersion + fileHash"
     },
     {
+      "name": "side_list",
+      "description": "Read-only list of scenario sides/factions (ME-W3 / AME-4.5).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "side_list",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath"],
+        "properties": {
+          "scenarioPath": { "type": "string" }
+        }
+      },
+      "returns": "JSON ok + sides[] (id, name, defaultRoe, defaultEmcon, postures)"
+    },
+    {
+      "name": "side_upsert",
+      "description": "Insert or replace a side/faction by id (ME-W3 / AME-4.5). Does not cascade ORBAT units.",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "side_upsert",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${sideId}",
+        "--name",
+        "${name}",
+        "--roe",
+        "${defaultRoe}",
+        "--emcon",
+        "${defaultEmcon}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "sideId", "name"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "sideId": { "type": "string" },
+          "name": { "type": "string" },
+          "defaultRoe": { "type": "string", "description": "Optional side default ROE" },
+          "defaultEmcon": { "type": "string", "description": "Optional side default EMCON" },
+          "posture": {
+            "type": "string",
+            "description": "Optional repeated via CLI --posture"
+          }
+        }
+      },
+      "returns": "JSON ok + sideId + editVersion + fileHash"
+    },
+    {
+      "name": "side_delete",
+      "description": "Delete a side by id without cascading ORBAT units (ME-W3 / AME-4.5).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "side_delete",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${sideId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["scenarioPath", "editVersion", "sideId"],
+        "properties": {
+          "scenarioPath": { "type": "string" },
+          "editVersion": { "type": "integer" },
+          "sideId": { "type": "string" }
+        }
+      },
+      "returns": "JSON ok + deletedSideId + editVersion + fileHash"
+    },
+    {
       "name": "mission_list",
       "description": "Read-only Mission Board list with optional type/side/status filters (ME-W1 / AME-3.4).",
       "command": "pwsh",

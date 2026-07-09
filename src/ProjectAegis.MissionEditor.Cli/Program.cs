@@ -81,6 +81,12 @@ switch (command)
         return RunEventAdd(args.Skip(1).ToArray());
     case "event_delete":
         return RunEventDelete(args.Skip(1).ToArray());
+    case "side_list":
+        return RunSideList(args.Skip(1).ToArray());
+    case "side_upsert":
+        return RunSideUpsert(args.Skip(1).ToArray());
+    case "side_delete":
+        return RunSideDelete(args.Skip(1).ToArray());
     case "catalog_intelligence_run":
         return RunCatalogIntelligence(args.Skip(1).ToArray());
     case "catalog_entity_map":
@@ -703,6 +709,59 @@ static int RunEventDelete(string[] args)
     return EventDeleteCommand.Run(path, editVersion, eventId, Console.Out);
 }
 
+static int RunSideList(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    if (string.IsNullOrWhiteSpace(path))
+    {
+        Console.Error.WriteLine("side_list requires --path");
+        return 1;
+    }
+
+    return SideListCommand.Run(path, Console.Out);
+}
+
+static int RunSideUpsert(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var sideId = CliArgParser.GetFlag(args, "--id");
+    var name = CliArgParser.GetFlag(args, "--name");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(sideId) ||
+        string.IsNullOrWhiteSpace(name) ||
+        editVersion < 0)
+    {
+        Console.Error.WriteLine(
+            "side_upsert requires --path --edit-version --id --name [--roe ROE] [--emcon EMCON] [--posture P]*");
+        return 1;
+    }
+
+    return SideUpsertCommand.Run(
+        path,
+        editVersion,
+        sideId,
+        name,
+        CliArgParser.GetFlag(args, "--roe"),
+        CliArgParser.GetFlag(args, "--emcon"),
+        CliArgParser.GetRepeated(args, "--posture"),
+        Console.Out);
+}
+
+static int RunSideDelete(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var sideId = CliArgParser.GetFlag(args, "--id");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(sideId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("side_delete requires --path --edit-version --id");
+        return 1;
+    }
+
+    return SideDeleteCommand.Run(path, editVersion, sideId, Console.Out);
+}
+
 static int RunMissionList(string[] args)
 {
     var path = CliArgParser.GetFlag(args, "--path");
@@ -779,6 +838,9 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- event_add --path <scenario.json> --edit-version N --id <id> --trigger TYPE [--condition Type[:UnitId[:ZoneId]]]* [--action Type[:UnitId]]*");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- event_update --path <scenario.json> --edit-version N --id <id> --trigger TYPE [...]  (alias of event_add upsert)");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- event_delete --path <scenario.json> --edit-version N --id <id>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- side_list --path <scenario.json>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- side_upsert --path <scenario.json> --edit-version N --id <id> --name <name> [--roe ROE] [--emcon EMCON] [--posture P]*");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- side_delete --path <scenario.json> --edit-version N --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_list --path <scenario.json> [--type T] [--side S] [--status Assigned|Unassigned]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_clone --path <scenario.json> --edit-version N --source SRC --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_from_template --path <scenario.json> --edit-version N --template tpl-patrol-empty --id <id>");
