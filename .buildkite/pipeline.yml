@@ -1,141 +1,59 @@
 # Primary CI — see docs/engineering/buildkite-ci.md
-# 2026-07-09 optimization pass (Tasks 1-7): Release build -> sharded test run
-# (parallelism: 4), plus parallel siblings (gitleaks, Baltic replay, GitNexus)
-# that still kick off immediately alongside :hammer: Build.
+# 2026-07-09 optimization pass: Release build -> sharded test (parallelism: 4),
+# plus parallel siblings (gitleaks, Baltic replay, GitNexus).
 # Graphite CI optimizer plugin removed previously (pre-checkout empty-pipeline replace
 # blocked :hammer: on stacks) — see docs/engineering/graphite-github-substitute-plan.md.
 #
-# IMPORTANT: do NOT use native step-level `cache:` (hosted cache volumes) in this
-# pipeline. Builds #535/#541 rejected pipeline upload in ~3s with cache present —
-# including after stripping invalid key/{{ checksum }} syntax (paths/name/size only).
-# Hosted cache volumes are Pro/Enterprise + feature-gated; this org's upload path
-# rejects them. Re-introduce only after a human confirms Cache Storage is enabled
-# on the cluster, or switch to the cache plugin with an object-store backend.
-# NUGET_PACKAGES remains workspace-relative so a future volume/plugin can mount it.
+# Upload-rejection history (PR #263):
+# - #535: cache key/{{ checksum }} → rejected ~3s
+# - #541: cache paths/name/size only → still rejected ~3s
+# - #552: no cache, but analytics plugin/complex if/soft_fail list/extra steps → still ~2s
+# Keep this file as close as possible to main's working attribute surface while
+# preserving the build/test split + sharding. Re-add retries/timeouts/annotations
+# only after a green upload is confirmed.
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
   DOTNET_NOLOGO: "true"
   BUILDKITE_GIT_CLONE_FLAGS: "--depth=250"
-  # Workspace-relative NuGet global packages folder (ready for future cache wiring).
   NUGET_PACKAGES: ".nuget/packages"
 
 steps:
-  # Blocking gate MUST run first — Release build only (Task 3 split; test execution
-  # moved to the sharded :test_tube: Test step below via depends_on, no `wait` needed).
+  # Blocking gate MUST run first — Release build only (test execution is sharded below).
   - label: ":hammer: Build"
     key: build
     command: bash tools/buildkite/agent-dotnet-build.sh
-    timeout_in_minutes: 15
     retry:
       automatic:
-        - exit_status: -1
-          limit: 2
-        - exit_status: 143
-          limit: 2
-      manual:
-        allowed: true
-    artifact_paths:
-      # Informational compile outputs; test shards rebuild locally on a cold agent
-      # (DLL-only artifacts are insufficient for `dotnet test --no-build`).
-      - "**/bin/Release/**/*.dll"
+        - exit_status: "*"
+          limit: 1
 
   - label: ":test_tube: Test %n"
     key: test
     depends_on: build
     parallelism: 4
     command: bash tools/buildkite/run-tests-sharded.sh
-    timeout_in_minutes: 15
-    retry:
-      automatic:
-        - exit_status: -1
-          limit: 2
-        - exit_status: 143
-          limit: 2
-      manual:
-        allowed: true
     artifact_paths:
       - "test-results/**/*.trx"
-
-  # Test Analytics (Task 5) — dormant until a human wires BUILDKITE_ANALYTICS_TOKEN
-  # AND a junit/json producer. The test-collector plugin only accepts format:
-  # junit | json (NOT "dotnet-trx"). See docs/engineering/buildkite-ci.md.
-  - label: ":bar_chart: Test analytics upload"
-    key: test-analytics
-    depends_on: test
-    allow_dependency_failure: true
-    if: build.env("BUILDKITE_ANALYTICS_TOKEN") != null && build.env("BUILDKITE_ANALYTICS_TOKEN") != ""
-    soft_fail: true
-    timeout_in_minutes: 15
     retry:
       automatic:
-        - exit_status: -1
-          limit: 2
-        - exit_status: 143
-          limit: 2
-      manual:
-        allowed: true
-    command: |
-      set -euo pipefail
-      mkdir -p test-results
-      buildkite-agent artifact download "test-results/**/*" . || true
-      # Prefer junit if a future logger/converter lands them; fall back to a clear skip.
-      shopt -s nullglob
-      junit_files=(test-results/**/*.xml test-results/**/*.junit.xml)
-      if [[ ${#junit_files[@]} -eq 0 ]]; then
-        echo "--- :warning: No JUnit/JSON test reports found"
-        echo "test-collector only accepts format: junit | json (not trx)."
-        echo "Add a JUnit logger (or TRX→JUnit conversion) then re-enable the plugin block."
-        echo "TRX artifacts remain available under test-results/ for the summary step."
-        exit 0
-      fi
-      echo "JUnit reports present but plugin upload is intentionally not wired until"
-      echo "format+paths are confirmed. Files: ${junit_files[*]}"
-      exit 0
+        - exit_status: "*"
+          limit: 1
 
-  # Pass/fail/skip annotation (Task 7). allow_dependency_failure so the summary still
-  # renders when a test shard fails.
   - label: ":memo: Test summary annotation"
     key: test-summary
     depends_on: test
     allow_dependency_failure: true
-    timeout_in_minutes: 15
-    retry:
-      automatic:
-        - exit_status: -1
-          limit: 2
-        - exit_status: 143
-          limit: 2
-      manual:
-        allowed: true
     command: bash tools/buildkite/annotate-test-summary.sh
 
   - label: ":gitleaks: Secret scan"
     key: gitleaks
     soft_fail: true
-    timeout_in_minutes: 15
-    retry:
-      automatic:
-        - exit_status: -1
-          limit: 2
-        - exit_status: 143
-          limit: 2
-      manual:
-        allowed: true
     command: bash tools/buildkite/agent-gitleaks.sh
 
   - label: ":repeat: Baltic replay golden (main)"
     key: baltic-replay
     branches: main
-    timeout_in_minutes: 15
-    retry:
-      automatic:
-        - exit_status: -1
-          limit: 2
-        - exit_status: 143
-          limit: 2
-      manual:
-        allowed: true
     command: bash tools/buildkite/agent-baltic-replay.sh
     artifact_paths:
       - "test-results-replay/**/*.trx"
@@ -144,42 +62,10 @@ steps:
     key: gitnexus-pr
     if: build.pull_request.id != null
     soft_fail: true
-    timeout_in_minutes: 15
-    retry:
-      automatic:
-        - exit_status: -1
-          limit: 2
-        - exit_status: 143
-          limit: 2
-      manual:
-        allowed: true
     command: bash tools/buildkite/agent-gitnexus-pr-analysis.sh
 
-  # Task 6: soft_fail scoped to exit 75 (EX_TEMPFAIL) — the sentinel
-  # gitnexus-reindex.sh now uses for its own known, non-blocking-by-design failure
-  # modes (see script comments). Any other exit code is a real bug/infra problem and
-  # now genuinely fails this step instead of being silently swallowed.
   - label: ":gitnexus: Reindex knowledge graph (main)"
     key: gitnexus-reindex
     branches: main
-    soft_fail:
-      - exit_status: 75
-    timeout_in_minutes: 15
-    retry:
-      automatic:
-        - exit_status: -1
-          limit: 2
-        - exit_status: 143
-          limit: 2
-      manual:
-        allowed: true
+    soft_fail: true
     command: bash tools/buildkite/agent-gitnexus-reindex.sh
-
-  # Structural placeholder (Task 7, "optional" ask) — no deploy/release pipeline exists
-  # yet for cmano-clone. When one is stood up, gate it here, e.g.:
-  #   - wait: ~
-  #     continue_on_failure: true
-  #   - block: ":shipit: Approve deploy"
-  #     branches: "main"
-  #   - trigger: "cmano-clone-deploy"
-  #     branches: "main"
