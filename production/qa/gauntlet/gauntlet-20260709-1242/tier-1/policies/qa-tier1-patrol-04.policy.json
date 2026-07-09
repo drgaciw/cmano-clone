@@ -1,0 +1,22 @@
+{
+  "id": "qa-tier1-patrol-04",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true
+  },
+  "catalogDetection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ]
+}
