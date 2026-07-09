@@ -115,7 +115,26 @@ public sealed class CmoCatalogExportTests
                 return false;
             }
 
-            proc.WaitForExit(60_000);
+            // Drain pipes async so a full buffer cannot deadlock WaitForExit.
+            var stdoutTask = proc.StandardOutput.ReadToEndAsync();
+            var stderrTask = proc.StandardError.ReadToEndAsync();
+            if (!proc.WaitForExit(60_000))
+            {
+                try
+                {
+                    proc.Kill(entireProcessTree: true);
+                }
+                catch
+                {
+                    // Best-effort kill; fall through to golden-file fallback.
+                }
+
+                return false;
+            }
+
+            // Process has exited — safe to read ExitCode. Ignore drain results; we only care exit + output file.
+            _ = Task.WhenAll(stdoutTask, stderrTask).Wait(5_000);
+
             if (proc.ExitCode != 0 || !File.Exists(outJson))
             {
                 return false;
