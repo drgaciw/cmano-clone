@@ -23,9 +23,9 @@ public sealed class PauseReasonStackTests
     {
         var stack = new PauseReasonStack();
 
-        Assert.That(stack.Push("c2.alert.critical"), Is.True);
+        Assert.That(stack.Push(PauseReasonIds.AutoPauseSeverity), Is.True);
         Assert.That(stack.IsPaused, Is.True);
-        Assert.That(stack.Push("c2.alert.critical"), Is.False, "same reason does not stack twice");
+        Assert.That(stack.Push(PauseReasonIds.AutoPauseSeverity), Is.False, "same reason does not stack twice");
         Assert.That(stack.Reasons, Has.Count.EqualTo(1));
     }
 
@@ -33,13 +33,13 @@ public sealed class PauseReasonStackTests
     public void Sim_stays_paused_until_every_reason_is_removed()
     {
         var stack = new PauseReasonStack();
-        stack.Push("c2.alert.critical");
-        stack.Push("manual");
+        stack.Push(PauseReasonIds.AutoPauseSeverity);
+        stack.Push(PauseReasonIds.User);
 
-        stack.Remove("c2.alert.critical");
-        Assert.That(stack.IsPaused, Is.True, "manual reason still holds the pause");
+        stack.Remove(PauseReasonIds.AutoPauseSeverity);
+        Assert.That(stack.IsPaused, Is.True, "user reason still holds the pause");
 
-        stack.Remove("manual");
+        stack.Remove(PauseReasonIds.User);
         Assert.That(stack.IsPaused, Is.False);
     }
 
@@ -47,7 +47,7 @@ public sealed class PauseReasonStackTests
     public void Removing_a_reason_never_pushed_returns_false_and_leaves_state_unchanged()
     {
         var stack = new PauseReasonStack();
-        stack.Push("manual");
+        stack.Push(PauseReasonIds.User);
 
         Assert.That(stack.Remove("never-pushed"), Is.False);
         Assert.That(stack.IsPaused, Is.True, "the unrelated reason removal must not affect the active pause");
@@ -58,8 +58,8 @@ public sealed class PauseReasonStackTests
     public void Clear_removes_every_reason_and_resumes()
     {
         var stack = new PauseReasonStack();
-        stack.Push("c2.alert.critical");
-        stack.Push("manual");
+        stack.Push(PauseReasonIds.AutoPauseSeverity);
+        stack.Push(PauseReasonIds.User);
 
         stack.Clear();
 
@@ -68,13 +68,15 @@ public sealed class PauseReasonStackTests
     }
 
     [Test]
-    public void ApplyAutoPause_pushes_the_command_reason()
+    public void ApplyAutoPause_pushes_canonical_AutoPauseSeverity()
     {
         var stack = new PauseReasonStack();
         var command = new AutoPauseCommand(AutoPausePolicy.CriticalAlertReason, TriggerSequenceId: 7, SourceUnitId: "u1");
 
         Assert.That(stack.ApplyAutoPause(command), Is.True);
-        Assert.That(stack.Contains(AutoPausePolicy.CriticalAlertReason), Is.True);
+        Assert.That(stack.Contains(PauseReasonIds.AutoPauseSeverity), Is.True);
+        Assert.That(AutoPausePolicy.CriticalAlertReason, Is.EqualTo(PauseReasonIds.AutoPauseSeverity),
+            "command reason and stack id must stay string-aligned");
     }
 
     [Test]
@@ -102,5 +104,6 @@ public sealed class PauseReasonStackTests
 
         stack.ApplyAutoPause(AutoPausePolicy.Evaluate(alerts, isReplay: false));
         Assert.That(stack.IsPaused, Is.True, "outside replay the same Critical alert does pause");
+        Assert.That(stack.Contains(PauseReasonIds.AutoPauseSeverity), Is.True);
     }
 }
