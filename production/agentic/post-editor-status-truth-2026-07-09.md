@@ -12,14 +12,15 @@
 | **Platform Editor (req 21)** | **COMPLETE** | `platform-editor-completion-gate-2026-07-09.md` — ack "Platform editor requirements complete" |
 | **GitNexus index** | **FRESH @ HEAD `223a5fe`** | `node .gitnexus/run.cjs analyze` 2026-07-09 — 24,418 / 47,032 / 424 / 300 |
 | **Standing invariants** | **PASS** | `production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log` — 1599/0f, 6/6, 20/20, hash, ZERO bridge |
-| **Forward program** | **S89–S91 COMPLETE; S92 verification COMPLETE — human ack pending** | S89–S92 closeouts + `s92-post-editor-hygiene-gate-2026-07-09.md` |
+| **Forward program** | **S89–S92 COMPLETE** | Human ack **"i acknowledge"** 2026-07-09 — post-editor hygiene program complete |
 | **S91 asset specs** | **COMPLETE** | `smoke-sprint-91-closeout-2026-07-09.md` — 38 Specced / 4 deferred |
+| **S92 program gate** | **COMPLETE** | `s92-post-editor-hygiene-gate-2026-07-09.md` + human ack |
 | **Launch stage** | **NOT advanced** | Explicit human gate remains separate |
 
 ## Program narrative (use this wording)
 
 > **Editor programs (scenario, ME Phase 2, platform) are complete on trunk.**  
-> **S89–S92 post-editor hygiene:** S89–S91 **COMPLETE**; S92 **verification COMPLETE** — **human ack pending**.  
+> **S89–S92 post-editor hygiene program COMPLETE** (human ack 2026-07-09).  
 > **Stage remains Release.** Launch / commercial execution deferred.
 
 ## Hygiene actions (this wave)
@@ -35,11 +36,13 @@
 9. S90 **COMPLETE** 2026-07-09 — `smoke-sprint-90-closeout-2026-07-09.md` (A1–A3 / B1–B3)
 10. S91 **COMPLETE** 2026-07-09 — ASSET-001…003 Specced; `smoke-sprint-91-closeout-2026-07-09.md`
 11. S92 **VERIFICATION COMPLETE** 2026-07-09 — `s92-post-editor-hygiene-gate-2026-07-09.md`
-12. **Pending:** User human ack for program exit
+12. **Human ack PROVIDED** 2026-07-09 — `"i acknowledge"` / post-editor hygiene program complete (S89–S92)
 
-## Human ack (required — copy/paste)
+## Human ack (recorded)
 
 ```
 I provide the ack for "post-editor hygiene program complete" (S89–S92).
 Stage remains Release. Launch / commercial execution remains deferred.
 ```
+
+**User phrase:** `i acknowledge` (2026-07-09)

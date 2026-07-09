@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-09  
 **Sprint:** S92 (S89–S92 program **final gate**)  
-**Status:** **S92 VERIFICATION COMPLETE** — human ack pending
+**Status:** **S92 COMPLETE** — human ack provided 2026-07-09
 
 **Authority:** [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md), [`sprint-92-post-editor-hygiene-gate.md`](../sprints/sprint-92-post-editor-hygiene-gate.md), [`s92-post-editor-hygiene-gate-2026-07-09.md`](../gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md)
 
@@ -48,21 +48,21 @@ Evidence: [`production/qa/evidence/gates-sprint-92-closeout-2026-07-09.log`](evi
 
 ---
 
-## Human ack (required for program COMPLETE)
+## Human ack (program COMPLETE)
 
 ```
 I provide the ack for "post-editor hygiene program complete" (S89–S92).
 Stage remains Release. Launch / commercial execution remains deferred.
 ```
 
-- [ ] User provided ack (program exit)
-- [ ] `gt submit` docs stack (when user requests)
+- [x] User provided ack — **"i acknowledge"** (2026-07-09)
+- [x] `gt submit` docs stack (PR #260 / Graphite stack)
 
 ---
 
 ## Forward
 
-Post-S92 engineering is **not** Launch — consult [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md) for next planning cycle after ack.
+Post-S92 engineering is **not** Launch — consult [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md) for next planning cycle.
 
 ---
-*S92 closeout. S89–S92 verification-before complete.*
+*S92 closeout. S89–S92 program COMPLETE. Human ack recorded. Stage remains Release.*

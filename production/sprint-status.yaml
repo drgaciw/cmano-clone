@@ -4532,9 +4532,9 @@ post_editor_forward_status: |
   - S90 plan published: production/sprints/sprint-90-agent-skill-sync.md (agent/skill P0 A1–A3/B1–B3).
   - S91 plan + QA published: sprint-91-asset-spec-production.md; qa-plan-sprint-91-asset-spec-production-2026-07-09.md (dispatch after S90).
   - S91 **COMPLETE** (2026-07-09): ASSET-001…003 Specced; manifest 38/42; smoke-sprint-91-closeout.
-  - S92 **VERIFICATION COMPLETE** — human ack pending (gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md).
-  - Program exit: user ack "post-editor hygiene program complete". Stage remains Release.
-  Cites: docs/reports/future-sprint-roadpmap-07092026.md + production/post-editor-hygiene-scope-boundary-2026-07-09.md + AGENTS.md + gates-post-editor-hygiene-2026-07-09.log
+  - S92 **COMPLETE** (2026-07-09): gate verification + human ack **"i acknowledge"** — post-editor hygiene program complete (S89–S92).
+  - **S89–S92 PROGRAM COMPLETE.** Stage remains Release. Launch advance NOT in scope.
+  Cites: docs/reports/future-sprint-roadpmap-07092026.md + production/post-editor-hygiene-scope-boundary-2026-07-09.md + AGENTS.md + gates-post-editor-hygiene-2026-07-09.log + s92-post-editor-hygiene-gate-2026-07-09.md
 post_editor_forward_gates: build 0e/0w; test 1599/0f; ReplayGolden 6/6; C2 20/20; hash 17144800277401907079 preserved (18 files); GitNexus impacts: ScenarioDocumentEditor=233 CRIT, CatalogWriteGate=186 CRIT, DelegationBridge=145 CRIT, PatrolCandidateEngagePolicy=113 CRIT, BalticReplayHarness=54 CRIT
 
 # Sprint 89 — Post-Editor Invariant + UA Hygiene (S89–S92 program sprint 1)
@@ -4750,7 +4750,9 @@ start: "2026-07-09"
 end: "2026-07-09"
 generated: "2026-07-09"
 updated: "2026-07-09"
-status: verification_complete_human_ack_pending
+status: complete
+completed: "2026-07-09"
+human_ack: "i acknowledge (2026-07-09) — post-editor hygiene program complete (S89–S92); stage remains Release"
 plan: production/sprints/sprint-92-post-editor-hygiene-gate.md
 gate: production/gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md
 closeout: production/qa/smoke-sprint-92-closeout-2026-07-09.md
@@ -4775,4 +4777,4 @@ stories:
     estimate_days: 1
     blocker: ""
     completed: "2026-07-09"
-    note: "Ack template published; awaiting user phrase"
+    note: "Human ack PROVIDED — i acknowledge 2026-07-09; program COMPLETE; stage Release"

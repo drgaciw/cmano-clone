@@ -169,7 +169,7 @@ Evidence: [`production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log`](..
 - [x] S89 closeout — [`smoke-sprint-89-closeout-2026-07-09.md`](../../production/qa/smoke-sprint-89-closeout-2026-07-09.md)
 - [x] S91 closeout — [`smoke-sprint-91-closeout-2026-07-09.md`](../../production/qa/smoke-sprint-91-closeout-2026-07-09.md)
 - [x] S92 verification — [`s92-post-editor-hygiene-gate-2026-07-09.md`](../../production/gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md)
-- [ ] Human ack: "post-editor hygiene program complete" (S89–S92 program exit)
+- [x] Human ack: "post-editor hygiene program complete" (S89–S92 program exit) — **"i acknowledge"** 2026-07-09
 
 ---
 

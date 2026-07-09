@@ -1,7 +1,7 @@
 # S92 Post-Editor Hygiene Program Gate — Verification ∥ Human Sign-off
 
 **Date:** 2026-07-09 (S92-01/02 executed; verification-before on all)  
-**Status:** **VERIFICATION COMPLETE** — S92 HUMAN ACK PACKAGE READY. Target: HUMAN ACK ("post-editor hygiene program complete"). Stage remains **Release**.  
+**Status:** **PROGRAM COMPLETE** — S92 HUMAN ACK PROVIDED ("i acknowledge" 2026-07-09). Stage remains **Release**.  
 **Gate position:** Final gate of S89–S92 Post-Editor Engineering Hygiene + Asset Spec Production.  
 **Authority:** [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../post-editor-hygiene-scope-boundary-2026-07-09.md), [`roadmap-execute-plan-07092026.md`](../../docs/reports/roadmap-execute-plan-07092026.md) §3/§4/§7, [`future-sprint-roadpmap-07092026.md`](../../docs/reports/future-sprint-roadpmap-07092026.md), AGENTS.md, S89–S91 closeouts.
 
@@ -70,23 +70,23 @@ Evidence: [`production/qa/evidence/gates-sprint-92-closeout-2026-07-09.log`](../
 
 ---
 
-## S92 Exit Criteria — ALL MET (pending human ack)
+## S92 Exit Criteria — ALL MET
 
 - [x] S89–S91 closeouts PASS
 - [x] Standing gates RUN+READ PASS @ S92
 - [x] GitNexus fresh @ HEAD
 - [x] Program deliverables table complete
-- [ ] **Human ack** — copy/paste template below
+- [x] **Human ack** — **"i acknowledge"** (2026-07-09)
 
-### Human ack template
+### Human ack (recorded)
 
 ```
 I provide the ack for "post-editor hygiene program complete" (S89–S92).
 Stage remains Release. Launch / commercial execution remains deferred.
 ```
 
-After ack: update `production/sprint-status.yaml`, `production/agentic/post-editor-status-truth-2026-07-09.md`, and optional `production/stage.txt` note (stage unchanged).
+**User phrase:** `i acknowledge` (2026-07-09). Stage unchanged (Release). Launch / commercial execution remains deferred.
 
 ---
 
-*S92 gate verification complete. Cite boundary + execute-plan + AGENTS on all follow-up.*
+*S92 gate COMPLETE. Cite boundary + execute-plan + AGENTS on all follow-up.*

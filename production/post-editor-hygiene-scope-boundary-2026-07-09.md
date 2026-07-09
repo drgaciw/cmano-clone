@@ -104,9 +104,9 @@ Evidence: [`production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log`](./
 
 ## Exit Criteria (S92)
 
-- [ ] S89–S91 closeouts PASS per sprint-status.yaml
-- [ ] AGENTS.md + tracker cite **≥1599** / **≥20/20** floors
-- [ ] ASSET-001…003 spec files refined under `design/assets/specs/`
-- [ ] S90 agent/skill P0 doc sync complete (tech-stack recs A1–A3 / B1–B3)
-- [ ] S92 gate artifact + human ack **"post-editor hygiene program complete"**
-- [ ] Stage remains **Release**
+- [x] S89–S91 closeouts PASS per sprint-status.yaml
+- [x] AGENTS.md + tracker cite **≥1599** / **≥20/20** floors
+- [x] ASSET-001…003 spec files refined under `design/assets/specs/`
+- [x] S90 agent/skill P0 doc sync complete (tech-stack recs A1–A3 / B1–B3)
+- [x] S92 gate artifact + human ack **"post-editor hygiene program complete"** — **"i acknowledge"** 2026-07-09
+- [x] Stage remains **Release**
