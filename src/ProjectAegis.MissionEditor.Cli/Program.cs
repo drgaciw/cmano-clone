@@ -16,8 +16,6 @@ switch (command)
 {
     case "scenario_validate":
         return RunScenarioValidate(args.Skip(1).ToArray());
-    case "scenario_diff_summary":
-        return RunScenarioDiffSummary(args.Skip(1).ToArray());
     case "scenario_export_brief":
         return RunExportBrief(args.Skip(1).ToArray());
     case "scenario_export":  // S83-01 export command polish (track D); uses ScenarioExportCommand.Prepare; cites roadmap-execute-plan-07042026.md §4, sprint-83, boundary-2026-07-04.md, qa # (via AC-12)
@@ -89,6 +87,12 @@ switch (command)
         return RunSideUpsert(args.Skip(1).ToArray());
     case "side_delete":
         return RunSideDelete(args.Skip(1).ToArray());
+    case "timeline_list":
+        return RunTimelineList(args.Skip(1).ToArray());
+    case "timeline_upsert":
+        return RunTimelineUpsert(args.Skip(1).ToArray());
+    case "timeline_delete":
+        return RunTimelineDelete(args.Skip(1).ToArray());
     case "catalog_intelligence_run":
         return RunCatalogIntelligence(args.Skip(1).ToArray());
     case "catalog_entity_map":
@@ -146,19 +150,6 @@ static int RunScenarioValidate(string[] args)
     }
 
     return ScenarioValidateCommand.Run(path, quiet: false, Console.Out);
-}
-
-static int RunScenarioDiffSummary(string[] args)
-{
-    var before = CliArgParser.GetFlag(args, "--before");
-    var after = CliArgParser.GetFlag(args, "--after");
-    if (string.IsNullOrWhiteSpace(before) || string.IsNullOrWhiteSpace(after))
-    {
-        Console.Error.WriteLine("scenario_diff_summary requires --before <scenario.json> --after <scenario.json>");
-        return 1;
-    }
-
-    return ScenarioDiffSummaryCommand.Run(before, after, Console.Out);
 }
 
 static int RunExportBrief(string[] args)
@@ -777,6 +768,51 @@ static int RunSideDelete(string[] args)
     return SideDeleteCommand.Run(path, editVersion, sideId, Console.Out);
 }
 
+static int RunTimelineDelete(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--mission");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("timeline_delete requires --path --edit-version --mission");
+        return 1;
+    }
+
+    return TimelineDeleteCommand.Run(path, editVersion, missionId, Console.Out);
+}
+
+static int RunTimelineUpsert(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var missionId = CliArgParser.GetFlag(args, "--mission");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    var tickRaw = CliArgParser.GetFlag(args, "--tick");
+    if (string.IsNullOrWhiteSpace(path) ||
+        string.IsNullOrWhiteSpace(missionId) ||
+        editVersion < 0 ||
+        string.IsNullOrWhiteSpace(tickRaw) ||
+        !int.TryParse(tickRaw, out var tick))
+    {
+        Console.Error.WriteLine("timeline_upsert requires --path --edit-version --mission --tick N");
+        return 1;
+    }
+
+    return TimelineUpsertCommand.Run(path, editVersion, missionId, tick, Console.Out);
+}
+
+static int RunTimelineList(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    if (string.IsNullOrWhiteSpace(path))
+    {
+        Console.Error.WriteLine("timeline_list requires --path");
+        return 1;
+    }
+
+    return TimelineListCommand.Run(path, Console.Out);
+}
+
 static int RunMissionList(string[] args)
 {
     var path = CliArgParser.GetFlag(args, "--path");
@@ -860,7 +896,6 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_clone --path <scenario.json> --edit-version N --source SRC --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_from_template --path <scenario.json> --edit-version N --template tpl-patrol-empty --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_validate --path <scenario.json>");
-    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_diff_summary --before <a.json> --after <b.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_publish --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export --path <scenario.json>   // S83-01 polished (cites roadmap-execute-plan-07042026.md + boundary-2026-07-04.md + qa units)");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export_brief --path <scenario.json> [--out brief.md]");

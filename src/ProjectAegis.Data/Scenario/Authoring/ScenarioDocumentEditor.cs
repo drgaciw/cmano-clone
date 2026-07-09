@@ -353,8 +353,6 @@ public sealed class ScenarioDocumentEditor
         var dto = ToDto();
         // Missions and Events are live mutable lists on the editor — materialize independent copies
         // so a subsequent Add/Remove/replace does not corrupt the in-memory undo snapshot.
-        // Sides are replaced wholesale on UpsertSide/TryRemoveSide, but deep-copy postures so a
-        // shared postures array on the input DTO cannot mutate the undo snapshot.
         return new ScenarioDocumentDto
         {
             Metadata = dto.Metadata,
@@ -363,7 +361,15 @@ public sealed class ScenarioDocumentEditor
             Orbat = dto.Orbat,
             ReferencePoints = dto.ReferencePoints,
             Missions = dto.Missions.ToList(),
-            OperationsTimeline = dto.OperationsTimeline,
+            // Materialize independent timeline copies so a subsequent Upsert/Remove does not
+            // corrupt the in-memory undo snapshot (same list-replace hazard as Missions/Events).
+            OperationsTimeline = dto.OperationsTimeline
+                .Select(e => new ScenarioOperationTimelineEntryDto
+                {
+                    MissionId = e.MissionId,
+                    ActivateAtTick = e.ActivateAtTick,
+                })
+                .ToArray(),
             Events = dto.Events?.Select(DeepCopyEvent).ToList(),
             Variables = dto.Variables,
             EditorState = dto.EditorState,
@@ -658,10 +664,67 @@ public sealed class ScenarioDocumentEditor
     }
 
     /// <summary>
-    /// Inserts or replaces a side/faction by id (case-insensitive). Deep-copies <see cref="ScenarioSideDto.Postures"/>.
-    /// Does not cascade to ORBAT units. Does not call <see cref="CommitMutation"/>.
+    /// Inserts or replaces an operations-timeline entry keyed by <see cref="ScenarioOperationTimelineEntryDto.MissionId"/>
+    /// (case-insensitive). Does not call <see cref="CommitMutation"/>.
     /// </summary>
-    /// <remarks>AME-4.5 headless sides CRUD (ME-W3 track W3-a).</remarks>
+    /// <remarks>
+    /// AME-3.5 Partial+ headless list/edit. Full Gantt UI is deferred (ME-W3 honesty).
+    /// </remarks>
+    public void UpsertTimelineEntry(ScenarioOperationTimelineEntryDto entry)
+    {
+        if (entry is null)
+        {
+            throw new ArgumentNullException(nameof(entry));
+        }
+
+        if (string.IsNullOrWhiteSpace(entry.MissionId))
+        {
+            throw new InvalidOperationException("Mission id is required.");
+        }
+
+        if (entry.ActivateAtTick < 0)
+        {
+            throw new InvalidOperationException("ActivateAtTick must be >= 0.");
+        }
+
+        var list = _operationsTimeline.ToList();
+        var copy = new ScenarioOperationTimelineEntryDto
+        {
+            MissionId = entry.MissionId,
+            ActivateAtTick = entry.ActivateAtTick,
+        };
+        var idx = list.FindIndex(e =>
+            string.Equals(e.MissionId, copy.MissionId, StringComparison.OrdinalIgnoreCase));
+        if (idx >= 0)
+        {
+            list[idx] = copy;
+        }
+        else
+        {
+            list.Add(copy);
+        }
+
+        _operationsTimeline = list;
+    }
+
+    /// <summary>
+    /// Removes an operations-timeline entry by mission id (case-insensitive). Returns false when not found.
+    /// Does not call <see cref="CommitMutation"/>.
+    /// </summary>
+    public bool TryRemoveTimelineEntry(string missionId)
+    {
+        var list = _operationsTimeline.ToList();
+        var removed = list.RemoveAll(e =>
+            string.Equals(e.MissionId, missionId, StringComparison.OrdinalIgnoreCase));
+        if (removed == 0)
+        {
+            return false;
+        }
+
+        _operationsTimeline = list;
+        return true;
+    }
+
     public void UpsertSide(ScenarioSideDto side)
     {
         if (side is null)
@@ -708,6 +771,7 @@ public sealed class ScenarioDocumentEditor
         _sides = list;
         return true;
     }
+
 
     public void Save(string path) =>
         ScenarioDocumentJsonWriter.WriteToFile(ToDto(), path);
@@ -779,16 +843,6 @@ public sealed class ScenarioDocumentEditor
                     Lon = a.Lon,
                 })
                 .ToArray(),
-        };
-
-    private static ScenarioSideDto DeepCopySide(ScenarioSideDto side) =>
-        new()
-        {
-            Id = side.Id,
-            Name = side.Name,
-            DefaultRoe = side.DefaultRoe,
-            DefaultEmcon = side.DefaultEmcon,
-            Postures = (side.Postures ?? Array.Empty<string>()).ToArray(),
         };
 
     private ScenarioMissionDto RequireMission(string missionId, string expectedType)
@@ -940,6 +994,16 @@ public sealed class ScenarioDocumentEditor
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
         return engine.Validate(ToDto(), catalog, config);
     }
+
+    private static ScenarioSideDto DeepCopySide(ScenarioSideDto side) =>
+        new()
+        {
+            Id = side.Id,
+            Name = side.Name,
+            DefaultRoe = side.DefaultRoe,
+            DefaultEmcon = side.DefaultEmcon,
+            Postures = (side.Postures ?? Array.Empty<string>()).ToArray(),
+        };
 
     private void RestoreCanonicalSections(ScenarioDocumentDto snapshot)
     {
