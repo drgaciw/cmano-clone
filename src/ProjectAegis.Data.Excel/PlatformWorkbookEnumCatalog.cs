@@ -134,9 +134,55 @@ public static class PlatformWorkbookEnumCatalog
     public static IEnumerable<EnumColumn> ForSheet(string sheetName) =>
         Columns.Where(c => string.Equals(c.SheetName, sheetName, StringComparison.Ordinal));
 
-    /// <summary>Formats allowed values as an Excel list-validation formula fragment.</summary>
-    internal static string ToExcelList(IReadOnlyList<string> values) =>
-        $"\"{string.Join(",", values)}\"";
+    /// <summary>
+    /// Formats allowed values as an Excel list-validation formula fragment
+    /// (<c>"a,b,c"</c>). Tokens must be clean: no commas, double-quotes, or blank entries —
+    /// Excel list formulas are comma-delimited and cannot round-trip embedded commas without
+    /// a separate named-range strategy (out of scope for PLE-1.2 export UX).
+    /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="values"/> is null.</exception>
+    /// <exception cref="ArgumentException">Empty list or a token contains comma/quote/whitespace-only.</exception>
+    internal static string ToExcelList(IReadOnlyList<string> values)
+    {
+        if (values is null)
+        {
+            throw new ArgumentNullException(nameof(values));
+        }
+
+        if (values.Count == 0)
+        {
+            throw new ArgumentException("Excel list validation requires at least one allowed value.", nameof(values));
+        }
+
+        for (var i = 0; i < values.Count; i++)
+        {
+            var token = values[i];
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                throw new ArgumentException(
+                    $"Excel list token at index {i} is null/blank.",
+                    nameof(values));
+            }
+
+            if (token.Contains(',', StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    $"Excel list token at index {i} contains a comma ('{token}'); commas break list formulas.",
+                    nameof(values));
+            }
+
+            if (token.Contains('"', StringComparison.Ordinal)
+                || token.Contains('\n', StringComparison.Ordinal)
+                || token.Contains('\r', StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    $"Excel list token at index {i} contains illegal quote/newline characters ('{token}').",
+                    nameof(values));
+            }
+        }
+
+        return $"\"{string.Join(",", values)}\"";
+    }
 
     /// <summary>Whether <paramref name="sheetName"/> is the export <c>_Meta</c> sheet.</summary>
     public static bool IsMetaSheet(string sheetName) =>
