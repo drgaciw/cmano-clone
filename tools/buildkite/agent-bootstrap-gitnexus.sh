@@ -11,10 +11,16 @@ if ! command -v gitnexus >/dev/null 2>&1; then
   export NPM_CONFIG_PREFIX="${HOME}/.npm-global"
   mkdir -p "${NPM_CONFIG_PREFIX}/bin"
   export PATH="${NPM_CONFIG_PREFIX}/bin:${PATH}"
-  npm install -g gitnexus
+  if ! npm install -g gitnexus; then
+    echo "WARN: gitnexus npm install failed (non-blocking per pipeline soft_fail)"
+    exit 0
+  fi
 fi
 
 export GITNEXUS_SKIP_OPTIONAL_GRAMMARS="${GITNEXUS_SKIP_OPTIONAL_GRAMMARS:-1}"
 export GITNEXUS_WORKER_POOL_SIZE="${GITNEXUS_WORKER_POOL_SIZE:-4}"
 
-gitnexus --version
+gitnexus --version || {
+  echo "WARN: gitnexus --version failed (non-blocking per pipeline soft_fail)"
+  exit 0
+}

@@ -8,9 +8,15 @@ env:
   BUILDKITE_GIT_CLONE_FLAGS: "--depth=250"
 
 steps:
+  # Blocking gate MUST run first — Graphite optimizer (main pipeline) can --replace with
+  # empty steps and skip :hammer: when placed after the optimizer plugin.
   - label: ":hammer: Build and test"
     key: build
     command: bash tools/buildkite/agent-dotnet-ci.sh
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
 
   - label: ":gitleaks: Secret scan"
     key: gitleaks

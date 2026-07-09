@@ -40,9 +40,19 @@ Verdict: PRODUCT GATES PASS — merge-eligible on local evidence per
 production/qa/sprint-19-ci-local-gate-2026-06-08.md fallback policy.
 
 === Owner action for Buildkite green ===
-1. Open https://buildkite.com/drgaciw/cmano-clone/builds/513 — confirm :hammer: step log
-2. Rebuild after 4b8e19a push (expected green if node bootstrap applies)
+1. Open https://buildkite.com/drgaciw/cmano-clone/builds/524 — confirm :hammer: step log
+2. Rebuild after bootstrap hardening push (expected green if agent had dotnet 6/7 on PATH)
 3. If pipeline reads from main only: merge CI fix commits to main first OR
    set pipeline config branch to "branch being built"
+4. If Graphite optimizer skip=true: main pipeline must place :hammer: before optimizer
+   (branch pipeline.yml already omits Graphite plugin)
+
+=== Follow-up @ HEAD after 4bd8942 ===
+- fix(ci): require .NET 8 SDK in agent-bootstrap-dotnet (reject dotnet 6/7 on PATH)
+- fix(ci): arch-aware gitleaks bootstrap (arm64/x64)
+- fix(ci): gitnexus npm install soft-fail parity
+- fix(ci): pipeline build step retry + comment on Graphite empty-pipeline hazard
+
+Local repro (minimal PATH, clean): 1599/0f PASS
 
 === PASS (local) ===
