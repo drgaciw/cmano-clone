@@ -1,13 +1,6 @@
 # Primary CI — see docs/engineering/buildkite-ci.md
-# PR #263 recovery path: match main's proven blocking gate so upload+run succeed.
-# Optimization scripts (agent-dotnet-build.sh, run-tests-sharded.sh,
-# annotate-test-summary.sh, gitnexus exit-75) remain in tools/buildkite/ for a
-# follow-up once Buildkite API logs diagnose #554/#558 (~1m30s step failures).
-#
-# Upload-rejection history (do NOT reintroduce without green upload):
-# - native cache: (any form) → ~3s reject on this org
-# - complex retry/timeout/analytics/plugin extras → ~2s reject (#552)
-# Graphite CI optimizer plugin removed previously — see graphite-github-substitute-plan.md.
+# Minimal blocking gate: Release build + test + replay/C2 filters via agent-dotnet-ci.sh
+# Graphite CI optimizer plugin removed (pre-checkout empty-pipeline replace blocked :hammer: on stacks).
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
@@ -15,7 +8,8 @@ env:
   BUILDKITE_GIT_CLONE_FLAGS: "--depth=250"
 
 steps:
-  # Blocking gate MUST run first — same as origin/main (agent-dotnet-ci.sh).
+  # Blocking gate MUST run first — Graphite optimizer (main pipeline) can --replace with
+  # empty steps and skip :hammer: when placed after the optimizer plugin.
   - label: ":hammer: Build and test"
     key: build
     command: bash tools/buildkite/agent-dotnet-ci.sh
