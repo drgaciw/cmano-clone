@@ -12,6 +12,7 @@ using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Delegation.Trust;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -27,6 +28,13 @@ public sealed class DelegationBridge
     private readonly CommsTimelineSimulator? _commsTimeline;
     private readonly SpoofTrackTimelineSimulator? _spoofTimeline;
     private readonly FuelTimelineTracker? _fuelTimeline;
+
+    // ADR-019 session state (NOT order-log / fingerprint): agent pause + logged C2 intents.
+    // Golden Baltic path never pauses/resumes/changes autonomy → hash unchanged.
+    private readonly HashSet<string> _pausedAgentUnitIds = new(StringComparer.Ordinal);
+    private readonly List<AgentPauseRequested> _agentPauseIntents = new();
+    private readonly List<AgentResumeRequested> _agentResumeIntents = new();
+    private readonly List<AutonomyLevelChangeRequested> _autonomyChangeIntents = new();
 
     public DelegationBridge(
         int globalSeed,
@@ -229,6 +237,188 @@ public sealed class DelegationBridge
             CancelledExecuteSimTick: executeTick));
         failureReason = null;
         return true;
+    }
+
+    /// <summary>
+    /// ADR-019 / Req 20 P0: pause agent decisions for <paramref name="entity"/> and push
+    /// <see cref="PauseReasonIds.AgentGate"/> onto the optional T5 pause stack. ADDITIVE —
+    /// no Tick/hotpath change. Session-only state (not order-log), so Baltic goldens that never
+    /// pause keep an identical fingerprint. No-op in replay.
+    /// </summary>
+    /// <returns>True if the unit was newly paused; otherwise false with <paramref name="failureReason"/> set.</returns>
+    public bool TryPauseAgent(
+        EntityKey entity,
+        double simTime,
+        PauseReasonStack? pauseStack,
+        out string? failureReason)
+    {
+        if (Orchestrator.AttachReplayViewer)
+        {
+            failureReason = "replay";
+            return false;
+        }
+
+        if (!Registry.TryGetBinding(entity, out var binding))
+        {
+            failureReason = "unknown-entity";
+            return false;
+        }
+
+        if (binding.Target.Slot.Active is not AgentController)
+        {
+            failureReason = "no-active-agent";
+            return false;
+        }
+
+        var unitId = binding.TargetId.Value;
+        if (!_pausedAgentUnitIds.Add(unitId))
+        {
+            failureReason = "already-paused";
+            return false;
+        }
+
+        if (_pausedAgentUnitIds.Count == 1)
+        {
+            pauseStack?.Push(PauseReasonIds.AgentGate);
+        }
+
+        _agentPauseIntents.Add(new AgentPauseRequested(unitId, simTime));
+        failureReason = null;
+        return true;
+    }
+
+    /// <summary>
+    /// ADR-019 / Req 20 P0: resume a previously paused agent and pop
+    /// <see cref="PauseReasonIds.AgentGate"/> when no units remain paused. ADDITIVE — no Tick change.
+    /// No-op in replay.
+    /// </summary>
+    public bool TryResumeAgent(
+        EntityKey entity,
+        double simTime,
+        PauseReasonStack? pauseStack,
+        out string? failureReason)
+    {
+        if (Orchestrator.AttachReplayViewer)
+        {
+            failureReason = "replay";
+            return false;
+        }
+
+        if (!Registry.TryGetBinding(entity, out var binding))
+        {
+            failureReason = "unknown-entity";
+            return false;
+        }
+
+        var unitId = binding.TargetId.Value;
+        if (!_pausedAgentUnitIds.Remove(unitId))
+        {
+            failureReason = "not-paused";
+            return false;
+        }
+
+        if (_pausedAgentUnitIds.Count == 0)
+        {
+            pauseStack?.Remove(PauseReasonIds.AgentGate);
+        }
+
+        _agentResumeIntents.Add(new AgentResumeRequested(unitId, simTime));
+        failureReason = null;
+        return true;
+    }
+
+    /// <summary>
+    /// ADR-019 / Req 20 P0: set autonomy for the agent on <paramref name="entity"/> (active or
+    /// suspended under C5 override). ADDITIVE — no Tick change. Logs
+    /// <see cref="AutonomyLevelChangeRequested"/> session intent only (not order-log). No-op in replay.
+    /// </summary>
+    public bool TrySetAutonomyLevel(
+        EntityKey entity,
+        AutonomyLevel autonomyLevel,
+        double simTime,
+        out string? failureReason)
+    {
+        if (Orchestrator.AttachReplayViewer)
+        {
+            failureReason = "replay";
+            return false;
+        }
+
+        if (!Registry.TryGetBinding(entity, out var binding))
+        {
+            failureReason = "unknown-entity";
+            return false;
+        }
+
+        var agent = binding.Target.Slot.Active as AgentController
+            ?? binding.Target.Slot.SuspendedAgent;
+        if (agent is null)
+        {
+            failureReason = "no-agent";
+            return false;
+        }
+
+        if (agent.Autonomy == autonomyLevel)
+        {
+            failureReason = "unchanged";
+            return false;
+        }
+
+        agent.Autonomy = autonomyLevel;
+        _autonomyChangeIntents.Add(new AutonomyLevelChangeRequested(
+            binding.TargetId.Value,
+            autonomyLevel,
+            simTime));
+        failureReason = null;
+        return true;
+    }
+
+    /// <summary>True when the unit is in the ADR-019 agent-pause set (session/UI state).</summary>
+    public bool IsAgentPaused(string unitId) =>
+        !string.IsNullOrEmpty(unitId) && _pausedAgentUnitIds.Contains(unitId);
+
+    /// <summary>Logged <see cref="AgentPauseRequested"/> intents (session; not order-log fingerprint).</summary>
+    public IReadOnlyList<AgentPauseRequested> AgentPauseIntents => _agentPauseIntents;
+
+    /// <summary>Logged <see cref="AgentResumeRequested"/> intents (session; not order-log fingerprint).</summary>
+    public IReadOnlyList<AgentResumeRequested> AgentResumeIntents => _agentResumeIntents;
+
+    /// <summary>Logged <see cref="AutonomyLevelChangeRequested"/> intents (session; not order-log fingerprint).</summary>
+    public IReadOnlyList<AutonomyLevelChangeRequested> AutonomyChangeIntents => _autonomyChangeIntents;
+
+    /// <summary>
+    /// ADR-019 read projection for one entity from controller ownership + session pause set.
+    /// </summary>
+    public bool TryProjectDelegationState(EntityKey entity, out DelegationStateProjection? projection)
+    {
+        if (!Registry.TryGetBinding(entity, out var binding))
+        {
+            projection = null;
+            return false;
+        }
+
+        var unitId = binding.TargetId.Value;
+        projection = DelegationStateProjectionBuilder.FromSlot(
+            unitId,
+            binding.Target.Slot,
+            paused: _pausedAgentUnitIds.Contains(unitId));
+        return true;
+    }
+
+    /// <summary>Project all registered bindings for badge / OOB ownership filters.</summary>
+    public IReadOnlyList<DelegationStateProjection> ProjectAllDelegationStates()
+    {
+        var result = new List<DelegationStateProjection>(Registry.Bindings.Count);
+        foreach (var binding in Registry.Bindings)
+        {
+            var unitId = binding.TargetId.Value;
+            result.Add(DelegationStateProjectionBuilder.FromSlot(
+                unitId,
+                binding.Target.Slot,
+                paused: _pausedAgentUnitIds.Contains(unitId)));
+        }
+
+        return result;
     }
 
     /// <summary>Attack menu entries for UI binding (live engage context).</summary>
