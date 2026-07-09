@@ -56,3 +56,10 @@ production/qa/sprint-19-ci-local-gate-2026-06-08.md fallback policy.
 Local repro (minimal PATH, clean): 1599/0f PASS
 
 === PASS (local) ===
+
+=== Buildkite green @ 74ae838 ===
+Build #532 PASSED (1m26s) after:
+- skip BranchIntegrationPhase0SmokeTests on BUILDKITE (rg/Debug skew on hosted agents)
+- CMO export golden on BUILDKITE/CI
+- agent-bootstrap-dotnet SDK 8 hardening
+- minimal pipeline (build-first, no Graphite plugin)
