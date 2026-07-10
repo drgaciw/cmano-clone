@@ -287,4 +287,48 @@ public sealed class BalticMultidomainImportResolutionTests
             .ToArray();
         Assert.NotEmpty(gorshkovMags);
     }
+
+    [Fact]
+    public void Sweden_1990_wave_fixture_parses_multi_domain_and_resolves_showcase_ids()
+    {
+        var fixtures = CatalogJsonImporter.ResolveRepoRelative("tools/cmano-db-crawler/fixtures");
+        var path = Path.Combine(fixtures, "baltic-sweden-1990-platforms.md");
+        Assert.True(File.Exists(path), $"Missing Sweden 1990+ fixture: {path}");
+
+        var platforms = CmoMarkdownImporter.ReadPlatformBindings(path, mapBalticIds: false);
+        Assert.True(platforms.Count >= 8, $"Expected ≥8 Sweden platforms, got {platforms.Count}");
+
+        var domains = platforms.Select(p => p.Domain).ToHashSet(StringComparer.Ordinal);
+        Assert.Contains("surface", domains);
+        Assert.Contains("air", domains);
+        Assert.Contains("subsurface", domains);
+
+        Assert.Contains(platforms, p => p.PlatformId.Contains("gavle", StringComparison.OrdinalIgnoreCase)
+            || p.PlatformId.Contains("goteborg", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(platforms, p => p.PlatformId.Contains("sodermanland", StringComparison.OrdinalIgnoreCase)
+            || p.PlatformId.Contains("södermanland", StringComparison.OrdinalIgnoreCase)
+            || p.PlatformId.Contains("blekinge", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(platforms, p => p.PlatformId.Contains("hkp-14", StringComparison.OrdinalIgnoreCase)
+            || p.PlatformId.Contains("argus", StringComparison.OrdinalIgnoreCase));
+
+        var weapons = CmoMarkdownImporter.ReadWeaponBindings(
+            Path.Combine(fixtures, "baltic-sweden-1990-weapons.md"));
+        Assert.True(weapons.Count >= 8);
+        Assert.All(weapons, w => Assert.True(w.MaxRangeMeters > 0, w.WeaponId));
+
+        var dbPath = CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("assets", "data", "catalog", "baltic_patrol.db"));
+        using var reader = new SqliteCatalogReader(dbPath, "qa-sweden-1990-resolution");
+        Assert.True(reader.TryGetCombatRadiusNm("k-22-gavle-ex-goteborg-class", out _));
+        Assert.True(reader.TryGetCombatRadiusNm("a-26-blekinge", out _));
+        Assert.True(reader.TryGetCombatRadiusNm("hkp-14f-nh90-ttt", out _));
+
+        Assert.True(reader.TryGetWeaponEnvelope("cmo-weapon-82001", out var rbs));
+        Assert.True(rbs.MaxRangeMeters > 0);
+
+        var gavleMags = reader.GetSortedMagazines()
+            .Where(m => m.PlatformId.Contains("gavle", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        Assert.NotEmpty(gavleMags);
+    }
 }
