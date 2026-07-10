@@ -231,11 +231,60 @@ public sealed class BalticMultidomainImportResolutionTests
     [Theory]
     [InlineData("Aircraft - Multirole (Fighter/Attack)", "air")]
     [InlineData("Aircraft - Helicopter ASW (NFH)", "air")]
+    [InlineData("Anti-Submarine Warfare (ASW)", "air")]
+    [InlineData("Aircraft - Helicopter ASW (Helix)", "air")]
     [InlineData("Submarine - Attack Submarine", "subsurface")]
     [InlineData("SSK - Hunter-Killer Submarine", "subsurface")]
     [InlineData("DDG - Guided Missile Destroyer", "surface")]
     public void InferDomain_maps_cmo_db_type_labels(string platformClass, string expectedDomain)
     {
         Assert.Equal(expectedDomain, CmoMarkdownImporter.InferDomain(platformClass));
+    }
+
+    [Fact]
+    public void Russia_1990_wave_fixture_parses_multi_domain_and_resolves_showcase_ids()
+    {
+        var fixtures = CatalogJsonImporter.ResolveRepoRelative("tools/cmano-db-crawler/fixtures");
+        var path = Path.Combine(fixtures, "baltic-russia-1990-platforms.md");
+        Assert.True(File.Exists(path), $"Missing Russia 1990+ fixture: {path}");
+
+        var platforms = CmoMarkdownImporter.ReadPlatformBindings(path, mapBalticIds: false);
+        Assert.True(platforms.Count >= 12, $"Expected ≥12 Russia platforms, got {platforms.Count}");
+
+        var domains = platforms.Select(p => p.Domain).ToHashSet(StringComparer.Ordinal);
+        Assert.Contains("surface", domains);
+        Assert.Contains("air", domains);
+        Assert.Contains("subsurface", domains);
+
+        Assert.Contains(platforms, p => p.PlatformId.Contains("gorshkov", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(platforms, p => p.PlatformId.Contains("felon", StringComparison.OrdinalIgnoreCase)
+            || p.PlatformId.Contains("su-57", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(platforms, p => p.PlatformId.Contains("yasen", StringComparison.OrdinalIgnoreCase));
+
+        // Anti-Submarine helicopter must classify as air (not subsurface).
+        Assert.DoesNotContain(platforms, p =>
+            p.PlatformId.Contains("helix", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(p.Domain, "subsurface", StringComparison.Ordinal));
+
+        var weapons = CmoMarkdownImporter.ReadWeaponBindings(
+            Path.Combine(fixtures, "baltic-russia-1990-weapons.md"));
+        Assert.True(weapons.Count >= 10);
+        Assert.All(weapons, w => Assert.True(w.MaxRangeMeters > 0, w.WeaponId));
+
+        var dbPath = CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("assets", "data", "catalog", "baltic_patrol.db"));
+        using var reader = new SqliteCatalogReader(dbPath, "qa-russia-1990-resolution");
+        Assert.True(reader.TryGetCombatRadiusNm("skr-admiral-sergey-gorshkov-pr-2235-0", out _));
+        Assert.True(reader.TryGetCombatRadiusNm("su-57-felon", out _));
+        Assert.True(reader.TryGetCombatRadiusNm("pla-885-severodvinsk-yasen", out _));
+        Assert.True(reader.TryGetCombatRadiusNm("ka-27m-helix-a", out _));
+
+        Assert.True(reader.TryGetWeaponEnvelope("cmo-weapon-81001", out var w1));
+        Assert.True(w1.MaxRangeMeters > 0);
+
+        var gorshkovMags = reader.GetSortedMagazines()
+            .Where(m => m.PlatformId.Contains("gorshkov", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        Assert.NotEmpty(gorshkovMags);
     }
 }
