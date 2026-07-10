@@ -176,9 +176,66 @@ public sealed class BalticMultidomainImportResolutionTests
         Assert.True(reader.TryGetCombatRadiusNm("jas-39a-gripen-1997", out _));
         Assert.True(reader.TryGetCombatRadiusNm("a-19-gotland-1996", out _));
 
+        // Expansion wave-3 multi-domain (cmo-db.com /en/cmo/ harvest)
+        Assert.True(reader.TryGetCombatRadiusNm("d-32-daring-type-45-batch-1", out _));
+        Assert.True(reader.TryGetCombatRadiusNm("f-35a-lightning-ii", out _));
+        Assert.True(reader.TryGetCombatRadiusNm("ssn-774-virginia-blk-i-ii", out _));
+        Assert.True(reader.TryGetWeaponEnvelope("cmo-weapon-80001", out var aster));
+        Assert.True(aster.MaxRangeMeters > 0);
+        Assert.True(reader.TryGetWeaponEnvelope("cmo-weapon-80004", out var amraam));
+        Assert.True(amraam.MaxRangeMeters > 0);
+        Assert.True(reader.TryGetWeaponEnvelope("cmo-weapon-80007", out var mk48));
+        Assert.True(mk48.MaxRangeMeters > 0);
+
         var stockholmMags = reader.GetSortedMagazines()
             .Where(m => string.Equals(m.PlatformId, "k-11-stockholm-spica-iii-1986", StringComparison.Ordinal))
             .ToArray();
         Assert.NotEmpty(stockholmMags);
+
+        var daringMags = reader.GetSortedMagazines()
+            .Where(m => string.Equals(m.PlatformId, "d-32-daring-type-45-batch-1", StringComparison.Ordinal))
+            .ToArray();
+        Assert.NotEmpty(daringMags);
+        Assert.Contains(daringMags, m => string.Equals(m.WeaponId, "cmo-weapon-80001", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Expansion_wave3_fixture_parses_ship_air_sub_with_correct_domains()
+    {
+        var path = Path.Combine(
+            CatalogJsonImporter.ResolveRepoRelative("tools/cmano-db-crawler/fixtures"),
+            "baltic-multidomain-wave3.md");
+        Assert.True(File.Exists(path), $"Missing wave-3 fixture: {path}");
+
+        var platforms = CmoMarkdownImporter.ReadPlatformBindings(path, mapBalticIds: false);
+        Assert.True(platforms.Count >= 10, $"Expected wave-3 slice ≥10, got {platforms.Count}");
+
+        var domains = platforms.Select(p => p.Domain).ToHashSet(StringComparer.Ordinal);
+        Assert.Contains("surface", domains);
+        Assert.Contains("air", domains);
+        Assert.Contains("subsurface", domains);
+
+        Assert.Contains(platforms, p => p.PlatformId.Contains("daring", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(platforms, p => p.PlatformId.Contains("f-35", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(platforms, p => p.PlatformId.Contains("virginia", StringComparison.OrdinalIgnoreCase));
+
+        var weapons = CmoMarkdownImporter.ReadWeaponBindings(
+            Path.Combine(
+                CatalogJsonImporter.ResolveRepoRelative("tools/cmano-db-crawler/fixtures"),
+                "baltic-multidomain-weapons-wave3.md"));
+        Assert.Contains(weapons, w => w.WeaponId == "cmo-weapon-80001" && w.MaxRangeMeters > 0);
+        Assert.Contains(weapons, w => w.WeaponId == "cmo-weapon-80004" && w.MaxRangeMeters > 0);
+        Assert.Contains(weapons, w => w.WeaponId == "cmo-weapon-80007" && w.MaxRangeMeters > 0);
+    }
+
+    [Theory]
+    [InlineData("Aircraft - Multirole (Fighter/Attack)", "air")]
+    [InlineData("Aircraft - Helicopter ASW (NFH)", "air")]
+    [InlineData("Submarine - Attack Submarine", "subsurface")]
+    [InlineData("SSK - Hunter-Killer Submarine", "subsurface")]
+    [InlineData("DDG - Guided Missile Destroyer", "surface")]
+    public void InferDomain_maps_cmo_db_type_labels(string platformClass, string expectedDomain)
+    {
+        Assert.Equal(expectedDomain, CmoMarkdownImporter.InferDomain(platformClass));
     }
 }

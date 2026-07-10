@@ -567,15 +567,28 @@ public static class CmoMarkdownImporter
 
     public static string InferDomain(string platformClass)
     {
-        if (platformClass.Contains("aircraft", StringComparison.OrdinalIgnoreCase) ||
-            platformClass.Contains("helicopter", StringComparison.OrdinalIgnoreCase))
-        {
-            return "air";
-        }
-
-        if (platformClass.Contains("submarine", StringComparison.OrdinalIgnoreCase))
+        // Subsurface first: SSK/SSN labels must not fall through to surface.
+        if (platformClass.Contains("submarine", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains(" ssk", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("ssn", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("ssbn", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("hunter-killer", StringComparison.OrdinalIgnoreCase))
         {
             return "subsurface";
+        }
+
+        if (platformClass.Contains("aircraft", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("helicopter", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("fixed wing", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("fighter", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("bomber", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("multirole", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("attack)", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("asw", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("nfh", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("tth", StringComparison.OrdinalIgnoreCase))
+        {
+            return "air";
         }
 
         if (platformClass.Contains("facility", StringComparison.OrdinalIgnoreCase) ||
