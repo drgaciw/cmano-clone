@@ -1,0 +1,790 @@
+{
+  "platforms": [
+    {
+      "platformId": "k-31-visby-2009",
+      "displayName": "K 31 Visby - 2009, Version 4",
+      "domain": "surface",
+      "platformClass": "FFL - Corvette",
+      "nationality": "Sweden",
+      "combatRadiusNm": 1.0
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "displayName": "F 219 Sachsen [Type F124] - 2006",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "Germany",
+      "combatRadiusNm": 1.0
+    },
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "displayName": "241 Slazak [Meko 100 Mod] - 2019, Pr.621M",
+      "domain": "surface",
+      "platformClass": "OPV - Offshore Patrol Vessel",
+      "nationality": "Poland",
+      "combatRadiusNm": 1.0
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "displayName": "421 Orkan [Pr.660] - 2015, All Ships, 4x RB 15 in peacetime",
+      "domain": "surface",
+      "platformClass": "PCFG - Fast Guided Missile Patrol Craft",
+      "nationality": "Poland",
+      "combatRadiusNm": 1.0
+    },
+    {
+      "platformId": "jas-39c-gripen-2005",
+      "displayName": "JAS 39C Gripen - 2005, Batch 3, MS18.5, Gun & AIM-9L Only",
+      "domain": "air",
+      "platformClass": "Aircraft - Multirole (Fighter/Attack)",
+      "nationality": "Sweden",
+      "combatRadiusNm": 1.0
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "displayName": "F-16C Blk 52IQ Falcon - 2015",
+      "domain": "air",
+      "platformClass": "Aircraft - Multirole (Fighter/Attack)",
+      "nationality": "Iraq",
+      "combatRadiusNm": 1.0
+    },
+    {
+      "platformId": "hostile-1",
+      "displayName": "",
+      "domain": "surface",
+      "platformClass": "",
+      "nationality": "",
+      "combatRadiusNm": 200.0
+    },
+    {
+      "platformId": "hostile-far",
+      "displayName": "",
+      "domain": "surface",
+      "platformClass": "",
+      "nationality": "",
+      "combatRadiusNm": 200.0
+    },
+    {
+      "platformId": "u1",
+      "displayName": "",
+      "domain": "surface",
+      "platformClass": "",
+      "nationality": "",
+      "combatRadiusNm": 400.0
+    }
+  ],
+  "sensors": [
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "sensorId": "cmo-sensor-2238",
+      "basePd": 0.8333333333333334,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "sensorId": "cmo-sensor-3435",
+      "basePd": 0.395,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "sensorId": "cmo-sensor-3600",
+      "basePd": 0.18533333333333335,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "sensorId": "cmo-sensor-3601",
+      "basePd": 0.05,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "sensorId": "cmo-sensor-3602",
+      "basePd": 0.18533333333333335,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "sensorId": "cmo-sensor-3692",
+      "basePd": 0.6173333333333333,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "sensorId": "cmo-sensor-3693",
+      "basePd": 0.05,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "sensorId": "cmo-sensor-3694",
+      "basePd": 0.6173333333333333,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "sensorId": "cmo-sensor-1931",
+      "basePd": 0.3333333333333333,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "sensorId": "cmo-sensor-3434",
+      "basePd": 0.395,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "sensorId": "cmo-sensor-3599",
+      "basePd": 0.148,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "sensorId": "cmo-sensor-3689",
+      "basePd": 0.49399999999999994,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "sensorId": "cmo-sensor-3690",
+      "basePd": 0.49399999999999994,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "sensorId": "cmo-sensor-3691",
+      "basePd": 0.05,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "sensorId": "cmo-sensor-1438",
+      "basePd": 0.49399999999999994,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "sensorId": "cmo-sensor-1920",
+      "basePd": 0.05,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "sensorId": "cmo-sensor-4397",
+      "basePd": 0.7406666666666666,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "cmo-sensor-1829",
+      "basePd": 1.0,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "cmo-sensor-1830",
+      "basePd": 0.05,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "cmo-sensor-2009",
+      "basePd": 0.5556666666666666,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "cmo-sensor-2010",
+      "basePd": 1.0,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "cmo-sensor-2012",
+      "basePd": 0.24699999999999997,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "cmo-sensor-203",
+      "basePd": 0.15433333333333332,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "cmo-sensor-353",
+      "basePd": 0.148,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "cmo-sensor-519",
+      "basePd": 1.0,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "jas-39c-gripen-2005",
+      "sensorId": "cmo-sensor-1315",
+      "basePd": 0.7406666666666666,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "jas-39c-gripen-2005",
+      "sensorId": "cmo-sensor-664",
+      "basePd": 0.7406666666666666,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "k-31-visby-2009",
+      "sensorId": "cmo-sensor-1827",
+      "basePd": 0.09266666666666667,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "k-31-visby-2009",
+      "sensorId": "cmo-sensor-2419",
+      "basePd": 0.09266666666666667,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "k-31-visby-2009",
+      "sensorId": "cmo-sensor-2556",
+      "basePd": 0.6173333333333333,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "k-31-visby-2009",
+      "sensorId": "cmo-sensor-2582",
+      "basePd": 1.0,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "k-31-visby-2009",
+      "sensorId": "cmo-sensor-2776",
+      "basePd": 0.6,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "k-31-visby-2009",
+      "sensorId": "cmo-sensor-3354",
+      "basePd": 0.6173333333333333,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "k-31-visby-2009",
+      "sensorId": "cmo-sensor-567",
+      "basePd": 0.05,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "k-31-visby-2009",
+      "sensorId": "cmo-sensor-568",
+      "basePd": 0.29633333333333334,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "u1",
+      "sensorId": "radar-1",
+      "basePd": 1.0,
+      "reviewState": "approved"
+    },
+    {
+      "platformId": "u1",
+      "sensorId": "radar-2",
+      "basePd": 0.75,
+      "reviewState": "approved"
+    }
+  ],
+  "weapons": [
+    {
+      "weaponId": "cmo-weapon-1000",
+      "displayName": "RIM-116B RAM Blk I",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 11100.0
+    },
+    {
+      "weaponId": "cmo-weapon-1068",
+      "displayName": "AN/SLQ-25 Nixie",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 1900.0
+    },
+    {
+      "weaponId": "cmo-weapon-1105",
+      "displayName": "Generic Chaff Rocket",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 1900.0
+    },
+    {
+      "weaponId": "cmo-weapon-1108",
+      "displayName": "AK-630M 30mm/65 Gatling Burst [400 rnds]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 1900.0
+    },
+    {
+      "weaponId": "cmo-weapon-1140",
+      "displayName": "57mm/70 Bofors Mk3 GP Burst [4 rnds]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 2200.0
+    },
+    {
+      "weaponId": "cmo-weapon-1195",
+      "displayName": "RIM-66M-2 SM-2MR Blk IIIA",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 166700.0
+    },
+    {
+      "weaponId": "cmo-weapon-1273",
+      "displayName": "Bullfighter Chaff/Flare Seduction",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 1900.0
+    },
+    {
+      "weaponId": "cmo-weapon-1350",
+      "displayName": "Generic Flare Rocket [Single Spectral]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 1900.0
+    },
+    {
+      "weaponId": "cmo-weapon-1374",
+      "displayName": "AK-176 76mm/60 Frag Burst [2 rnds]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 2800.0
+    },
+    {
+      "weaponId": "cmo-weapon-1375",
+      "displayName": "AK-176 76mm/60 HE Burst [2 rnds]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 2800.0
+    },
+    {
+      "weaponId": "cmo-weapon-1384",
+      "displayName": "AIM-9M Sidewinder",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 18500.0
+    },
+    {
+      "weaponId": "cmo-weapon-1400",
+      "displayName": "AIM-7M Sparrow III",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 70400.0
+    },
+    {
+      "weaponId": "cmo-weapon-1401",
+      "displayName": "AIM-9L Sidewinder",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 18500.0
+    },
+    {
+      "weaponId": "cmo-weapon-1450",
+      "displayName": "MU-90 Impact",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 7400.0
+    },
+    {
+      "weaponId": "cmo-weapon-1523",
+      "displayName": "300 USG Drop Tank",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 40000.0
+    },
+    {
+      "weaponId": "cmo-weapon-1611",
+      "displayName": "RGM-84D Harpoon IC",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 138900.0
+    },
+    {
+      "weaponId": "cmo-weapon-166",
+      "displayName": "76mm/62 Super Rapido HE Burst [2 rnds]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 2800.0
+    },
+    {
+      "weaponId": "cmo-weapon-1695",
+      "displayName": "12.7mm/50 MG Burst [10 rnds]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 1900.0
+    },
+    {
+      "weaponId": "cmo-weapon-1763",
+      "displayName": "370 USG Drop Tank",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 40000.0
+    },
+    {
+      "weaponId": "cmo-weapon-1814",
+      "displayName": "Mk82 500lb LDGP",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 1900.0
+    },
+    {
+      "weaponId": "cmo-weapon-1839",
+      "displayName": "Mk84 2000lb LDGP",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 1900.0
+    },
+    {
+      "weaponId": "cmo-weapon-1906",
+      "displayName": "GBU-12D/B Paveway II LGB [Mk82]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 7400.0
+    },
+    {
+      "weaponId": "cmo-weapon-1920",
+      "displayName": "GBU-10E/B Paveway II LGB [Mk84]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 7400.0
+    },
+    {
+      "weaponId": "cmo-weapon-20",
+      "displayName": "RB 15M Mk3",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 203700.0
+    },
+    {
+      "weaponId": "cmo-weapon-21",
+      "displayName": "1275 liter Drop Tank",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 40000.0
+    },
+    {
+      "weaponId": "cmo-weapon-22",
+      "displayName": "AGM-65K Maverick IR",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 14800.0
+    },
+    {
+      "weaponId": "cmo-weapon-2799",
+      "displayName": "PZR Grom",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 5600.0
+    },
+    {
+      "weaponId": "cmo-weapon-2883",
+      "displayName": "30mm/70 OTO MARLIN-WS Burst [20 rnds]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 1900.0
+    },
+    {
+      "weaponId": "cmo-weapon-455",
+      "displayName": "DUAL TRAP Chaff/Flare",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 1900.0
+    },
+    {
+      "weaponId": "cmo-weapon-459",
+      "displayName": "AN/AAQ-33 Sniper XR Pod [FLIR + LRMTS, 40k ft]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 40000.0
+    },
+    {
+      "weaponId": "cmo-weapon-523",
+      "displayName": "SA-N-8 Gremlin [9M36]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 5600.0
+    },
+    {
+      "weaponId": "cmo-weapon-680",
+      "displayName": "27mm MLG-27 Burst [20 rnds]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 1500.0
+    },
+    {
+      "weaponId": "cmo-weapon-871",
+      "displayName": "GBU-24A/B Paveway III LGB [BLU-109/B]",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 14800.0
+    },
+    {
+      "weaponId": "cmo-weapon-927",
+      "displayName": "RIM-162B ESSM",
+      "minRangeMeters": 0.0,
+      "maxRangeMeters": 55600.0
+    }
+  ],
+  "magazines": [
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "loadoutId": "default",
+      "mountId": "12-7mm-50-mg-burst-10-rnds",
+      "weaponId": "cmo-weapon-1695",
+      "quantity": 200
+    },
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "loadoutId": "default",
+      "mountId": "30mm-70-oto-marlin-ws-burst-20-rnds",
+      "weaponId": "cmo-weapon-2883",
+      "quantity": 200
+    },
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "loadoutId": "default",
+      "mountId": "76mm-62-super-rapido-he-burst-2-rnds",
+      "weaponId": "cmo-weapon-166",
+      "quantity": 200
+    },
+    {
+      "platformId": "241-slazak-meko-100-mod-2019",
+      "loadoutId": "default",
+      "mountId": "pzr-grom",
+      "weaponId": "cmo-weapon-2799",
+      "quantity": 16
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "loadoutId": "default",
+      "mountId": "ak",
+      "weaponId": "cmo-weapon-1374",
+      "quantity": 200
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "loadoutId": "default",
+      "mountId": "ak-176-76mm-60-frag-burst-2-rnds",
+      "weaponId": "cmo-weapon-1374",
+      "quantity": 200
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "loadoutId": "default",
+      "mountId": "ak-176-76mm-60-he-burst-2-rnds",
+      "weaponId": "cmo-weapon-1375",
+      "quantity": 200
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "loadoutId": "default",
+      "mountId": "ak-630m-30mm-65-gatling-burst-400-rnds",
+      "weaponId": "cmo-weapon-1108",
+      "quantity": 200
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "loadoutId": "default",
+      "mountId": "generic-chaff-rocket",
+      "weaponId": "cmo-weapon-1105",
+      "quantity": 16
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "loadoutId": "default",
+      "mountId": "generic-flare-rocket-single-spectral",
+      "weaponId": "cmo-weapon-1350",
+      "quantity": 16
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "loadoutId": "default",
+      "mountId": "pzr-grom",
+      "weaponId": "cmo-weapon-2799",
+      "quantity": 16
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "loadoutId": "default",
+      "mountId": "rb-15m-mk3",
+      "weaponId": "cmo-weapon-20",
+      "quantity": 16
+    },
+    {
+      "platformId": "421-orkan-pr-660-2015",
+      "loadoutId": "default",
+      "mountId": "sa-n-8-gremlin-9m36",
+      "weaponId": "cmo-weapon-523",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "loadoutId": "default",
+      "mountId": "300-usg-drop-tank",
+      "weaponId": "cmo-weapon-1523",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "loadoutId": "default",
+      "mountId": "370-usg-drop-tank",
+      "weaponId": "cmo-weapon-1763",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "loadoutId": "default",
+      "mountId": "agm-65k-maverick-ir",
+      "weaponId": "cmo-weapon-22",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "loadoutId": "default",
+      "mountId": "aim",
+      "weaponId": "cmo-weapon-1384",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "loadoutId": "default",
+      "mountId": "aim-7m-sparrow-iii",
+      "weaponId": "cmo-weapon-1400",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "loadoutId": "default",
+      "mountId": "aim-9m-sidewinder",
+      "weaponId": "cmo-weapon-1384",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "loadoutId": "default",
+      "mountId": "an-aaq",
+      "weaponId": "cmo-weapon-459",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "loadoutId": "default",
+      "mountId": "an-aaq-33-sniper-xr-pod-flir-lrmts-40k-ft",
+      "weaponId": "cmo-weapon-459",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "loadoutId": "default",
+      "mountId": "gbu-10e-b-paveway-ii-lgb-mk84",
+      "weaponId": "cmo-weapon-1920",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "loadoutId": "default",
+      "mountId": "gbu-12d-b-paveway-ii-lgb-mk82",
+      "weaponId": "cmo-weapon-1906",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "loadoutId": "default",
+      "mountId": "gbu-24a-b-paveway-iii-lgb-blu-109-b",
+      "weaponId": "cmo-weapon-871",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "loadoutId": "default",
+      "mountId": "mk82-500lb-ldgp",
+      "weaponId": "cmo-weapon-1814",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-16c-blk-52iq-falcon-2015",
+      "loadoutId": "default",
+      "mountId": "mk84-2000lb-ldgp",
+      "weaponId": "cmo-weapon-1839",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "loadoutId": "default",
+      "mountId": "27mm-mlg-27-burst-20-rnds",
+      "weaponId": "cmo-weapon-680",
+      "quantity": 200
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "loadoutId": "default",
+      "mountId": "76mm-62-super-rapido-he-burst-2-rnds",
+      "weaponId": "cmo-weapon-166",
+      "quantity": 200
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "loadoutId": "default",
+      "mountId": "an-slq-25-nixie",
+      "weaponId": "cmo-weapon-1068",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "loadoutId": "default",
+      "mountId": "bullfighter-chaff-flare-seduction",
+      "weaponId": "cmo-weapon-1273",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "loadoutId": "default",
+      "mountId": "mu-90-impact",
+      "weaponId": "cmo-weapon-1450",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "loadoutId": "default",
+      "mountId": "rgm-84d-harpoon-ic",
+      "weaponId": "cmo-weapon-1611",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "loadoutId": "default",
+      "mountId": "rim-116b-ram-blk-i",
+      "weaponId": "cmo-weapon-1000",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "loadoutId": "default",
+      "mountId": "rim-162b-essm",
+      "weaponId": "cmo-weapon-927",
+      "quantity": 16
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "loadoutId": "default",
+      "mountId": "rim-66m-2-sm-2mr-blk-iiia",
+      "weaponId": "cmo-weapon-1195",
+      "quantity": 16
+    },
+    {
+      "platformId": "jas-39c-gripen-2005",
+      "loadoutId": "default",
+      "mountId": "1275-liter-drop-tank",
+      "weaponId": "cmo-weapon-21",
+      "quantity": 16
+    },
+    {
+      "platformId": "jas-39c-gripen-2005",
+      "loadoutId": "default",
+      "mountId": "aim",
+      "weaponId": "cmo-weapon-1384",
+      "quantity": 16
+    },
+    {
+      "platformId": "jas-39c-gripen-2005",
+      "loadoutId": "default",
+      "mountId": "aim-9l-sidewinder",
+      "weaponId": "cmo-weapon-1401",
+      "quantity": 16
+    },
+    {
+      "platformId": "k-31-visby-2009",
+      "loadoutId": "default",
+      "mountId": "57mm-70-bofors-mk3-gp-burst-4-rnds",
+      "weaponId": "cmo-weapon-1140",
+      "quantity": 200
+    },
+    {
+      "platformId": "k-31-visby-2009",
+      "loadoutId": "default",
+      "mountId": "dual-trap-chaff-flare",
+      "weaponId": "cmo-weapon-455",
+      "quantity": 16
+    }
+  ],
+  "emcon": [],
+  "source": "assets/data/catalog/baltic_patrol.db"
+}

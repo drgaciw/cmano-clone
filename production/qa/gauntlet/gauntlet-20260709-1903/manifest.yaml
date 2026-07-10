@@ -1,0 +1,36 @@
+run_id: gauntlet-20260709-1903
+created_utc: 2026-07-10T00:04:47Z
+completed_utc: 2026-07-10T00:20:00Z
+git_sha_start: e6ddf5b743cd4b11dfe94a44e6ba6b8709bf2cc6
+branch: 07-09-qa_gauntlet_gauntlet-20260709-1903
+args:
+  tiers: 5
+  scenarios_per_tier: 4
+  seeds: [42, 7, 123]
+  max_fix_attempts: 3
+baseline:
+  test_count: 1614
+  suite_status: green
+  replay_golden: 6/6
+  smoke_check: batch_sample_pass
+  catalog_db: assets/data/catalog/baltic_patrol.db
+  catalog_platforms: 43
+preflight:
+  suite: green_1614
+  replay_golden: 6/6
+  catalog_openable: true
+tiers:
+  1: {ticks: 6, status: green, rows: 12, defects_found: 0}
+  2: {ticks: 10, status: green, rows: 12, defects_found: 0}
+  3: {ticks: 16, status: green, rows: 12, defects_found: 0}
+  4: {ticks: 24, status: green, rows: 12, defects_found: 1, note: "oracle-0 fixed FIX-SD-001"}
+  5: {ticks: 40, status: green, rows: 12, defects_found: 0}
+defects:
+  - id: FIX-SD-001
+    class: scenario-data
+    status: fixed
+    summary: tier 4-5 rosters missing Baltic harness seeds
+quarantined_critical: []
+oracle_eval: production/qa/gauntlet/gauntlet-20260709-1903/oracle-eval.json
+aar: production/qa/gauntlet/gauntlet-20260709-1903/AAR.md
+fixes: production/qa/gauntlet/gauntlet-20260709-1903/fixes.md

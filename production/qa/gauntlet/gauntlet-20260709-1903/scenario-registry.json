@@ -1,0 +1,105 @@
+{
+  "runId": "gauntlet-20260709-1903",
+  "scenarios": [
+    {
+      "id": "gauntlet-t1-patrol-a",
+      "tier": 1,
+      "path": "tier-1/gauntlet-t1-patrol-a.policy.json"
+    },
+    {
+      "id": "gauntlet-t1-patrol-b",
+      "tier": 1,
+      "path": "tier-1/gauntlet-t1-patrol-b.policy.json"
+    },
+    {
+      "id": "gauntlet-t1-patrol-c",
+      "tier": 1,
+      "path": "tier-1/gauntlet-t1-patrol-c.policy.json"
+    },
+    {
+      "id": "gauntlet-t1-patrol-d",
+      "tier": 1,
+      "path": "tier-1/gauntlet-t1-patrol-d.policy.json"
+    },
+    {
+      "id": "gauntlet-t2-strike-a",
+      "tier": 2,
+      "path": "tier-2/gauntlet-t2-strike-a.policy.json"
+    },
+    {
+      "id": "gauntlet-t2-escort-a",
+      "tier": 2,
+      "path": "tier-2/gauntlet-t2-escort-a.policy.json"
+    },
+    {
+      "id": "gauntlet-t2-strike-event",
+      "tier": 2,
+      "path": "tier-2/gauntlet-t2-strike-event.policy.json"
+    },
+    {
+      "id": "gauntlet-t2-escort-passive",
+      "tier": 2,
+      "path": "tier-2/gauntlet-t2-escort-passive.policy.json"
+    },
+    {
+      "id": "gauntlet-t3-escort-strike",
+      "tier": 3,
+      "path": "tier-3/gauntlet-t3-escort-strike.policy.json"
+    },
+    {
+      "id": "gauntlet-t3-event-chain",
+      "tier": 3,
+      "path": "tier-3/gauntlet-t3-event-chain.policy.json"
+    },
+    {
+      "id": "gauntlet-t3-id-roe",
+      "tier": 3,
+      "path": "tier-3/gauntlet-t3-id-roe.policy.json"
+    },
+    {
+      "id": "gauntlet-t3-emcon-phases",
+      "tier": 3,
+      "path": "tier-3/gauntlet-t3-emcon-phases.policy.json"
+    },
+    {
+      "id": "gauntlet-t4-multi-mission",
+      "tier": 4,
+      "path": "tier-4/gauntlet-t4-multi-mission.policy.json"
+    },
+    {
+      "id": "gauntlet-t4-asymm-roe",
+      "tier": 4,
+      "path": "tier-4/gauntlet-t4-asymm-roe.policy.json"
+    },
+    {
+      "id": "gauntlet-t4-random-inject",
+      "tier": 4,
+      "path": "tier-4/gauntlet-t4-random-inject.policy.json"
+    },
+    {
+      "id": "gauntlet-t4-weighted",
+      "tier": 4,
+      "path": "tier-4/gauntlet-t4-weighted.policy.json"
+    },
+    {
+      "id": "gauntlet-t5-theater",
+      "tier": 5,
+      "path": "tier-5/gauntlet-t5-theater.policy.json"
+    },
+    {
+      "id": "gauntlet-t5-cascade",
+      "tier": 5,
+      "path": "tier-5/gauntlet-t5-cascade.policy.json"
+    },
+    {
+      "id": "gauntlet-t5-dynamic-obj",
+      "tier": 5,
+      "path": "tier-5/gauntlet-t5-dynamic-obj.policy.json"
+    },
+    {
+      "id": "gauntlet-t5-roe-change",
+      "tier": 5,
+      "path": "tier-5/gauntlet-t5-roe-change.policy.json"
+    }
+  ]
+}

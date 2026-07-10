@@ -1,0 +1,47 @@
+{
+  "runId": "gauntlet-20260709-1903",
+  "tiers": {
+    "1": {
+      "status": "PASS",
+      "rows": 12,
+      "catalog_resolution": "PASS",
+      "catalog_issues": [],
+      "stability": "PASS",
+      "sanity": "PASS"
+    },
+    "2": {
+      "status": "PASS",
+      "rows": 12,
+      "catalog_resolution": "PASS",
+      "catalog_issues": [],
+      "stability": "PASS",
+      "sanity": "PASS"
+    },
+    "3": {
+      "status": "PASS",
+      "rows": 12,
+      "catalog_resolution": "PASS",
+      "catalog_issues": [],
+      "stability": "PASS",
+      "sanity": "PASS"
+    },
+    "4": {
+      "status": "PASS",
+      "rows": 12,
+      "catalog_resolution": "PASS",
+      "catalog_issues": [],
+      "stability": "PASS",
+      "sanity": "PASS"
+    },
+    "5": {
+      "status": "PASS",
+      "rows": 12,
+      "catalog_resolution": "PASS",
+      "catalog_issues": [],
+      "stability": "PASS",
+      "sanity": "PASS"
+    }
+  },
+  "defects": [],
+  "overall": "PASS"
+}
