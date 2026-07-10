@@ -1,0 +1,2 @@
+=== TIER 4 ticks=24 scenarios=gauntlet-t4-multi-mission,gauntlet-t4-weighted,gauntlet-t4-random-inject,gauntlet-t4-asymm-roe ===
+Wrote 12 rows to production/qa/gauntlet/gauntlet-20260710-1352/tier-4/results.csv

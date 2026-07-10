@@ -1,0 +1,93 @@
+{
+  "run_id": "gauntlet-20260710-1352",
+  "tiers": {
+    "1": {
+      "status": "green",
+      "rows": 12,
+      "oracle0_issues": [],
+      "empty_fingerprints": 0,
+      "score_min": -30.0,
+      "score_max": 100.0,
+      "all_zero": false,
+      "stability": true,
+      "scenarios": [
+        "gauntlet-t1-patrol-a",
+        "gauntlet-t1-patrol-b",
+        "gauntlet-t1-patrol-c",
+        "gauntlet-t1-patrol-d"
+      ]
+    },
+    "2": {
+      "status": "green",
+      "rows": 12,
+      "oracle0_issues": [],
+      "empty_fingerprints": 0,
+      "score_min": -50.0,
+      "score_max": 100.0,
+      "all_zero": false,
+      "stability": true,
+      "scenarios": [
+        "gauntlet-t2-escort-a",
+        "gauntlet-t2-escort-passive",
+        "gauntlet-t2-strike-a",
+        "gauntlet-t2-strike-event"
+      ]
+    },
+    "3": {
+      "status": "green",
+      "rows": 12,
+      "oracle0_issues": [],
+      "empty_fingerprints": 0,
+      "score_min": -80.0,
+      "score_max": 100.0,
+      "all_zero": false,
+      "stability": true,
+      "scenarios": [
+        "gauntlet-t3-emcon-phases",
+        "gauntlet-t3-escort-strike",
+        "gauntlet-t3-event-chain",
+        "gauntlet-t3-id-roe"
+      ]
+    },
+    "4": {
+      "status": "green",
+      "rows": 12,
+      "oracle0_issues": [],
+      "empty_fingerprints": 0,
+      "score_min": 0.0,
+      "score_max": 100.0,
+      "all_zero": false,
+      "stability": true,
+      "scenarios": [
+        "gauntlet-t4-asymm-roe",
+        "gauntlet-t4-multi-mission",
+        "gauntlet-t4-random-inject",
+        "gauntlet-t4-weighted"
+      ]
+    },
+    "5": {
+      "status": "green",
+      "rows": 12,
+      "oracle0_issues": [],
+      "empty_fingerprints": 0,
+      "score_min": -200.0,
+      "score_max": 200.0,
+      "all_zero": false,
+      "stability": true,
+      "scenarios": [
+        "gauntlet-t5-cascade",
+        "gauntlet-t5-dynamic-obj",
+        "gauntlet-t5-roe-change",
+        "gauntlet-t5-theater"
+      ]
+    }
+  },
+  "defects": [],
+  "determinism": {
+    "scenario": "gauntlet-t1-patrol-a",
+    "seed": 42,
+    "pass": true
+  },
+  "ladder_green": true,
+  "defects_found": 0
+}
