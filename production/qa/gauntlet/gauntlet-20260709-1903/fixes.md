@@ -2,6 +2,7 @@
 
 ## FIX-SD-001 — Tier 4–5 rosters omitted Baltic harness seed platforms
 
+- **Commit:** `c60faf5` — `qa(gauntlet): run gauntlet-20260709-1903 ladder + roster oracle-0 fix`
 - **Classification:** `scenario-data` (not sim-code)
 - **Tier found:** Oracle-0 catalog resolution after ladder batch (tiers 4–5 FAIL; tiers 1–3 PASS)
 - **Symptom:** Multi-domain tier rosters listed Visby/Gripen/Gotland/etc. but omitted `u1`, `hostile-1`, `hostile-far`. Gauntlet policies still detect/engage via harness seeds → oracle-0 unresolved observer/target IDs.
