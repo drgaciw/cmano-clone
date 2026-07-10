@@ -4778,3 +4778,88 @@ stories:
     blocker: ""
     completed: "2026-07-09"
     note: "Human ack PROVIDED — i acknowledge 2026-07-09; program COMPLETE; stage Release"
+
+# Sprint 93 — Asset Production Wave (post–S92 forward)
+sprint: 93
+goal: "First binary asset wave for ASSET-001…003 priority children; manifest ≥6 Done."
+start: "2026-07-09"
+end: "2026-07-09"
+generated: "2026-07-09"
+updated: "2026-07-09"
+status: complete
+completed: "2026-07-09"
+plan: production/sprints/sprint-93-asset-production-wave.md
+boundary: production/s93-asset-production-scope-boundary-2026-07-09.md
+closeout: production/qa/smoke-sprint-93-closeout-2026-07-09.md
+s93_gates: build 0e/0w; test 1599/0f; ReplayGolden 6/6; C2 20/20; hash 18; ZERO bridge; manifest 8 Done / 3 In Production
+
+s93_status: |
+  S93 Asset Production Wave — COMPLETE (2026-07-09).
+  Binary wave: production/assets/c2/, store/, baltic/.
+  Manifest: 8 Done (004, 005, 014, 018, 019, 023–025); umbrellas 001–003 In Production.
+  Dashboard items 4 (Stay Release), 5 (asset wave), 6 (Editor PNG defer) resolved.
+  Gates PASS. Stage Release. Cites: s93-asset-production-scope-boundary-2026-07-09.md + smoke-sprint-93-closeout + S91 closeout + AGENTS.md.
+
+s93_complete:
+  sprint: 93
+  status: COMPLETE
+  completed: "2026-07-09"
+  deliverables:
+    - production/assets/c2/App6FrameAtlas.png
+    - production/assets/c2/AegisTokens.uss
+    - production/assets/c2/C2TopBarPanel.uss
+    - production/assets/baltic/baltic-theater-framing-v1.png
+    - production/assets/baltic/ASSET-019-band-b-contact-overlay-spec.md
+    - production/assets/store/ProjectAegis_BalticMainCapsule_v1.png
+    - production/assets/store/ProjectAegis_SmallCapsule.png
+    - production/assets/store/ProjectAegis_Logo_Dark_v1.png
+    - production/assets/store/ProjectAegis_Icon_v1.png
+  manifest_after: "27 Specced / 3 In Production / 8 Done"
+  stage: Release
+
+stories:
+  - id: "S93-01"
+    name: "C2 binary wave — atlas, tokens, top bar USS"
+    file: "production/sprints/sprint-93-asset-production-wave.md"
+    priority: must-have
+    status: done
+    owner: technical-artist
+    estimate_days: 2
+    blocker: ""
+    completed: "2026-07-09"
+  - id: "S93-02"
+    name: "Store capsules + logo variants"
+    file: "production/sprints/sprint-93-asset-production-wave.md"
+    priority: must-have
+    status: done
+    owner: art-director
+    estimate_days: 2
+    blocker: ""
+    completed: "2026-07-09"
+  - id: "S93-03"
+    name: "Baltic theater framing + band-B overlay sheet"
+    file: "production/sprints/sprint-93-asset-production-wave.md"
+    priority: must-have
+    status: done
+    owner: art-director
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-07-09"
+  - id: "S93-04"
+    name: "S93 closeout — manifest, gates, smoke"
+    file: "production/sprints/sprint-93-asset-production-wave.md"
+    priority: must-have
+    status: done
+    owner: producer
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-07-09"
+  - id: "S93-05"
+    name: "Dashboard hygiene — short-term items 4–6"
+    file: "production/sprints/sprint-93-asset-production-wave.md"
+    priority: should-have
+    status: done
+    owner: producer
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-07-09"

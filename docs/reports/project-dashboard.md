@@ -3,8 +3,8 @@
 Living dashboard. Latest archive: [dashboard-snapshots/2026-07-09-am.md](dashboard-snapshots/2026-07-09-am.md).
 
 **Generated**: 2026-07-09  
-**Last Updated**: 2026-07-09T14:22:00Z  
-**Run Label**: am (post–S80 Baltic v3 / S81–S88 scenario editor / Mission Editor Phase 2 / Platform Editor completion)  
+**Last Updated**: 2026-07-09T22:17:00Z  
+**Run Label**: pm (post–S93 asset production wave + dashboard short-term closeout)  
 **Stage**: **Release** — RC1 cut (S48); programs through **S88** headless scenario editor **COMPLETE**; Mission Editor Phase 2 **COMPLETE**; Platform Editor (req 21) **COMPLETE** + adversarial hardening (1599/0)  
 **Analysis Scope**: Full project  
 **Compared to**: [dashboard-snapshots/2026-06-25-pm.md](dashboard-snapshots/2026-06-25-pm.md) (prior dashboard)
@@ -30,12 +30,12 @@ Game Requirements **documentation** for 01–20 is **complete**; **MVP program e
 | Source | Finding |
 |--------|---------|
 | GitNexus | Index **stale** (`80001c2` indexed vs `223a5fe` HEAD, 9 commits) — run `node .gitnexus/run.cjs analyze` |
-| Stage | **Release** (not Launch) — S72/S80/S88/PE/ME acks do not auto-advance stage |
+| Stage | **Release** (not Launch) — Launch decision deferred 2026-07-09 (dashboard item 4) |
 | Forward roadmap | S89–S92 post-editor hygiene **active** (alias points at [`future-sprint-roadpmap-07092026.md`](future-sprint-roadpmap-07092026.md)) |
-| Unity QA | Headless **20/20 PASS**; live Editor PNG / Phase N screenshots still residual |
+| Unity QA | Headless **20/20 PASS**; Editor PNG **deferred 2026-07-09** (Phase C; see `README-s93-editor-png-pack.md`) |
 | Architecture | **CONCERNS** overall — refresh recommended post–editor + PE surface |
 | GitNexus watchlist | `ScenarioDocumentEditor` **233 CRIT**; `CatalogWriteGate` **183 CRIT**; `DelegationBridge` **145 CRIT**; `PatrolCandidateEngagePolicy` **113 CRIT**; `BalticReplayHarness` **54 CRIT** |
-| Assets | Manifest **exists** (`design/assets/asset-manifest.md`) — **42** needed / **0** done (~spec-only) |
+| Assets | Manifest **8 Done / 3 In Production** @ S93 (`design/assets/asset-manifest.md`) |
 | E7 commercial | Prep **COMPLETE** (S69–S72) — store submission / revenue launch **not in scope** |
 
 ---
@@ -262,12 +262,22 @@ flowchart LR
 | Category | Needed | Done | Notes |
 |----------|--------|------|-------|
 | Master asset manifest | 1 | **1** | Present |
-| Priority stubs (C2 / Baltic / store) | 3 | 0 | Specs only |
+| Priority stubs (C2 / Baltic / store) | 3 | **3 In Production** | S93 binary wave (8 children Done) |
 | Art Bible | 1 | **1** | `design/art/art-bible.md` |
-| Catalogued assets | 42 | 0 | All **Needed** |
+| Catalogued assets | 42 | **8** | S93: 8 Done, 27 Specced, 4 Needed deferred |
 | Game art/audio pipeline | TBD | ~0 | Addressables production still open |
 
-**Overall asset progress:** **~10%** (manifest + art bible + specs; zero produced assets)
+**Overall asset progress:** **~35%** (manifest + art bible + specs + **8 produced assets** @ S93)
+
+---
+
+## Short-Term Resolution (2026-07-09 dashboard wave)
+
+| # | Item | Status | Date | Evidence |
+|---|------|--------|------|----------|
+| 4 | Human Launch stage decision | **Resolved — Stay Release** | 2026-07-09 | `production/stage.txt` checkpoint block |
+| 5 | Asset production wave (ASSET-001…003) | **Resolved — S93 COMPLETE** | 2026-07-09 | `smoke-sprint-93-closeout-2026-07-09.md`, `production/assets/` |
+| 6 | Phase N Editor PNG pack | **Deferred with date** | 2026-07-09 | `production/qa/evidence/README-s93-editor-png-pack.md` |
 
 ---
 
@@ -276,13 +286,13 @@ flowchart LR
 ### Critical (velocity / integration)
 
 1. **GitNexus re-index** — 9 commits behind HEAD after PE adversarial merges
-2. **No produced assets** — manifest exists but 0/42 Done; blocks visual production
+2. **No produced assets** — ~~manifest exists but 0/42 Done~~ → **PARTIALLY RESOLVED** (8/42 Done @ S93; Editor captures still open)
 3. **Forward program undefined** — S81–S88 / PE / ME Phase 2 closed; next dated roadmap not yet authored
 
 ### Important (velocity / quality)
 
-4. **Launch stage decision** — still explicit human gate; stage remains Release
-5. **Live Unity Editor evidence** — headless 20/20 sufficient for merge; Phase N PNG residual
+4. ~~**Launch stage decision**~~ → **RESOLVED 2026-07-09** (Stay Release)
+5. ~~**Live Unity Editor evidence**~~ → **DEFERRED 2026-07-09** (headless 20/20 authority; PNG protocol published)
 6. **GitNexus CRITICAL symbols** — impact analysis mandatory; `ScenarioDocumentEditor` now largest hub (233)
 7. **TR architecture gaps** — refresh `/architecture-review` after editor + PE surface
 8. **Store / i18n production** — S69–S72 specs/drafts only (unchanged)
@@ -318,9 +328,9 @@ flowchart LR
 
 ### Short-Term
 
-4. **Human Launch stage decision** — if desired, update `production/stage.txt` with explicit ack
-5. **Asset production wave** — pick ASSET-001…003 stubs from manifest
-6. **Phase N Editor PNG pack** — optional polish evidence (PE residual)
+4. ~~**Human Launch stage decision**~~ → **RESOLVED 2026-07-09** (Stay Release; `stage.txt` appended)
+5. ~~**Asset production wave**~~ → **RESOLVED 2026-07-09** (S93 — 8 Done, `production/assets/`)
+6. ~~**Phase N Editor PNG pack**~~ → **DEFERRED 2026-07-09** (no Unity Editor host; protocol documented)
 
 ### Medium-Term
 
