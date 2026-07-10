@@ -1,224 +1,162 @@
-# Weapons — Sweden 1990+ flotilla wave
+# Weapons — Sweden 1990+ flotilla wave (mount-derived / cmo-db)
+
+> Only munitions from platform mounts or linked cmo-db weapon pages with positive range.
+> Gun envelopes use cmo-db weapon IDs; Mk2/Mk3 GP surface envelope aligned to class pages when air-only burst data is partial.
 
 ## Harvested
 
-### RBS 15 Mk3
-<sub>[/weapon/82001/](https://cmo-db.com/en/cmo/weapon/82001)</sub>
-
-| Field | Value |
-|---|---|
-| Type | Guided Weapon |
-
-**Weapons**
-
-- RBS 15 Mk3 — Guided Weapon — Surface Max: 200 km.
-
-### 57mm/70 SAK Mk3
-<sub>[/weapon/82002/](https://cmo-db.com/en/cmo/weapon/82002)</sub>
-
-| Field | Value |
-|---|---|
-| Type | Gun |
-
-**Weapons**
-
-- 57mm/70 SAK Mk3 — Gun — Air Max: 8 km. Surface Max: 17 km.
-
-### Tp 45 Torpedo
-<sub>[/weapon/82003/](https://cmo-db.com/en/cmo/weapon/82003)</sub>
+### Tp 613
+<sub>[/weapon/349/](https://cmo-db.com/en/cmo/weapon/349)</sub>
 
 | Field | Value |
 |---|---|
 | Type | Torpedo |
+| Provenance | cmo-db weapon/349; mount 533mm TT comment Tp 613 |
 
 **Weapons**
 
-- Tp 45 Torpedo — Torpedo — Sub Max: 20 km.
+- Tp 613 — Torpedo — Surface Max: 22.2 km.
 
-### RBS 15 Mk2
-<sub>[/weapon/82004/](https://cmo-db.com/en/cmo/weapon/82004)</sub>
-
-| Field | Value |
-|---|---|
-| Type | Guided Weapon |
-
-**Weapons**
-
-- RBS 15 Mk2 — Guided Weapon — Surface Max: 70 km.
-
-### 57mm/70 SAK Mk2
-<sub>[/weapon/82005/](https://cmo-db.com/en/cmo/weapon/82005)</sub>
+### 7.62mm MG Burst [20 rnds]
+<sub>[/weapon/626/](https://cmo-db.com/en/cmo/weapon/626)</sub>
 
 | Field | Value |
 |---|---|
 | Type | Gun |
+| Provenance | cmo-db weapon/626; mount 7.62mm MG |
 
 **Weapons**
 
-- 57mm/70 SAK Mk2 — Gun — Air Max: 8 km. Surface Max: 17 km.
+- 7.62mm MG Burst [20 rnds] — Gun — Surface Max: 1.1 km. Land Max: 1.1 km.
 
-### Tp 43 Torpedo
-<sub>[/weapon/82006/](https://cmo-db.com/en/cmo/weapon/82006)</sub>
+### Tp 62
+<sub>[/weapon/901/](https://cmo-db.com/en/cmo/weapon/901)</sub>
 
 | Field | Value |
 |---|---|
 | Type | Torpedo |
+| Provenance | cmo-db weapon/901; mount 533mm TT comment Tp 62 |
 
 **Weapons**
 
-- Tp 43 Torpedo — Torpedo — Sub Max: 15 km.
+- Tp 62 — Torpedo — Surface Max: 11.1 km. Sub Max: 11.1 km.
 
-### 12.7mm MG
-<sub>[/weapon/82007/](https://cmo-db.com/en/cmo/weapon/82007)</sub>
+### 57mm/70 Bofors Mk3 GP Burst [4 rnds]
+<sub>[/weapon/1140/](https://cmo-db.com/en/cmo/weapon/1140)</sub>
 
 | Field | Value |
 |---|---|
 | Type | Gun |
+| Provenance | cmo-db weapon/1140; mount 57mm/70 Bofors Mk3 |
 
 **Weapons**
 
-- 12.7mm MG — Gun — Air Max: 1.5 km. Surface Max: 1.5 km.
+- 57mm/70 Bofors Mk3 GP Burst [4 rnds] — Gun — Surface Max: 8.3 km. Land Max: 8.3 km. Air Max: 2.2 km.
 
-### Mine Neutralization Charge
-<sub>[/weapon/82008/](https://cmo-db.com/en/cmo/weapon/82008)</sub>
-
-| Field | Value |
-|---|---|
-| Type | Bomb |
-
-**Weapons**
-
-- Mine Neutralization Charge — Bomb — Sub Max: 2 km.
-
-### 57mm/70 SAK
-<sub>[/weapon/82009/](https://cmo-db.com/en/cmo/weapon/82009)</sub>
+### 40mm/70 Mk3 Single Bofors Burst [4 rnds]
+<sub>[/weapon/1347/](https://cmo-db.com/en/cmo/weapon/1347)</sub>
 
 | Field | Value |
 |---|---|
 | Type | Gun |
+| Provenance | cmo-db weapon/1347; mount 40mm/70 Single Bofors / m/48 |
 
 **Weapons**
 
-- 57mm/70 SAK — Gun — Air Max: 8 km. Surface Max: 17 km.
+- 40mm/70 Mk3 Single Bofors Burst [4 rnds] — Gun — Surface Max: 5.6 km. Land Max: 5.6 km. Air Max: 2.2 km.
 
-### RBS 70
-<sub>[/weapon/82010/](https://cmo-db.com/en/cmo/weapon/82010)</sub>
-
-| Field | Value |
-|---|---|
-| Type | Guided Weapon |
-
-**Weapons**
-
-- RBS 70 — Guided Weapon — Air Max: 8 km.
-
-### RBS 15 Mk1
-<sub>[/weapon/82011/](https://cmo-db.com/en/cmo/weapon/82011)</sub>
-
-| Field | Value |
-|---|---|
-| Type | Guided Weapon |
-
-**Weapons**
-
-- RBS 15 Mk1 — Guided Weapon — Surface Max: 70 km.
-
-### Tp 62 Torpedo
-<sub>[/weapon/82012/](https://cmo-db.com/en/cmo/weapon/82012)</sub>
+### Tp 432
+<sub>[/weapon/1380/](https://cmo-db.com/en/cmo/weapon/1380)</sub>
 
 | Field | Value |
 |---|---|
 | Type | Torpedo |
+| Provenance | cmo-db weapon/1380; mount 400mm TT comment Tp 432 |
 
 **Weapons**
 
-- Tp 62 Torpedo — Torpedo — Sub Max: 40 km.
+- Tp 432 — Torpedo — Sub Max: 7.4 km.
 
-### Tp 47 Torpedo
-<sub>[/weapon/82013/](https://cmo-db.com/en/cmo/weapon/82013)</sub>
-
-| Field | Value |
-|---|---|
-| Type | Torpedo |
-
-**Weapons**
-
-- Tp 47 Torpedo — Torpedo — Sub Max: 25 km.
-
-### NLOS Cruise Missile
-<sub>[/weapon/82014/](https://cmo-db.com/en/cmo/weapon/82014)</sub>
+### Elma ASW-600 ASW Mortar Salvo [M83 Soft Kill DC, 9 rnds]
+<sub>[/weapon/1407/](https://cmo-db.com/en/cmo/weapon/1407)</sub>
 
 | Field | Value |
 |---|---|
 | Type | Guided Weapon |
+| Provenance | cmo-db weapon/1407; mount Elma ASW-600 ASW Mortar [Soft Kill] |
 
 **Weapons**
 
-- NLOS Cruise Missile — Guided Weapon — Land Max: 1000 km.
+- Elma ASW-600 ASW Mortar Salvo [M83 Soft Kill DC, 9 rnds] — Guided Weapon — Sub Max: 0.4 km.
 
-### Tp 613 Torpedo
-<sub>[/weapon/82015/](https://cmo-db.com/en/cmo/weapon/82015)</sub>
-
-| Field | Value |
-|---|---|
-| Type | Torpedo |
-
-**Weapons**
-
-- Tp 613 Torpedo — Torpedo — Sub Max: 20 km.
-
-### Depth Charge
-<sub>[/weapon/82016/](https://cmo-db.com/en/cmo/weapon/82016)</sub>
-
-| Field | Value |
-|---|---|
-| Type | Bomb |
-
-**Weapons**
-
-- Depth Charge — Bomb — Sub Max: 3 km.
-
-### Door Gun 7.62mm
-<sub>[/weapon/82017/](https://cmo-db.com/en/cmo/weapon/82017)</sub>
+### 57mm/70 Bofors Mk1 HCER Burst [4 rnds]
+<sub>[/weapon/1437/](https://cmo-db.com/en/cmo/weapon/1437)</sub>
 
 | Field | Value |
 |---|---|
 | Type | Gun |
+| Provenance | cmo-db weapon/1437; mount 57mm/70 Bofors Mk1 |
 
 **Weapons**
 
-- Door Gun 7.62mm — Gun — Air Max: 1 km. Surface Max: 1 km.
+- 57mm/70 Bofors Mk1 HCER Burst [4 rnds] — Gun — Surface Max: 8.3 km. Land Max: 8.3 km.
 
-### 20mm Aden
-<sub>[/weapon/82018/](https://cmo-db.com/en/cmo/weapon/82018)</sub>
+### RB 15M Mk2
+<sub>[/weapon/1455/](https://cmo-db.com/en/cmo/weapon/1455)</sub>
+
+| Field | Value |
+|---|---|
+| Type | Guided Weapon |
+| Provenance | cmo-db weapon/1455; mount RBS 15M Mk2 Twin (comment RBS 15SF) |
+
+**Weapons**
+
+- RB 15M Mk2 — Guided Weapon — Surface Max: 148.2 km.
+
+### AGM-119B Penguin Mk2 Mod 7
+<sub>[/weapon/1475/](https://cmo-db.com/en/cmo/weapon/1475)</sub>
+
+| Field | Value |
+|---|---|
+| Type | Guided Weapon |
+| Provenance | cmo-db weapon/1475; mount Penguin Mk2 Box (Hugin only) |
+
+**Weapons**
+
+- AGM-119B Penguin Mk2 Mod 7 — Guided Weapon — Surface Max: 37.0 km.
+
+### 57mm/70 Bofors Mk2 GP Burst [4 rnds]
+<sub>[/weapon/1495/](https://cmo-db.com/en/cmo/weapon/1495)</sub>
 
 | Field | Value |
 |---|---|
 | Type | Gun |
+| Provenance | cmo-db weapon/1495; mount 57mm/70 Bofors Mk2 (range envelope from class pages / fixture corpus) |
 
 **Weapons**
 
-- 20mm Aden — Gun — Air Max: 2 km. Surface Max: 2 km.
+- 57mm/70 Bofors Mk2 GP Burst [4 rnds] — Gun — Surface Max: 8.3 km. Land Max: 8.3 km. Air Max: 2.2 km.
 
-### Rb 24J Sidewinder
-<sub>[/weapon/82019/](https://cmo-db.com/en/cmo/weapon/82019)</sub>
+### Tp 45
+<sub>[/weapon/1595/](https://cmo-db.com/en/cmo/weapon/1595)</sub>
 
 | Field | Value |
 |---|---|
-| Type | Guided Weapon |
+| Type | Torpedo |
+| Provenance | cmo-db weapon/1595; aircraft loadout / 400mm family (incl. mount comment Tp 451) |
 
 **Weapons**
 
-- Rb 24J Sidewinder — Guided Weapon — Air Max: 10 km.
+- Tp 45 — Torpedo — Sub Max: 7.4 km.
 
-### Self-Defense ESM
-<sub>[/weapon/82020/](https://cmo-db.com/en/cmo/weapon/82020)</sub>
+### Tp 47
+<sub>[/weapon/3936/](https://cmo-db.com/en/cmo/weapon/3936)</sub>
 
 | Field | Value |
 |---|---|
-| Type | Guided Weapon |
+| Type | Torpedo |
+| Provenance | cmo-db weapon/3936; mount 400mm TT comment Tp 47 |
 
 **Weapons**
 
-- Self-Defense ESM — Guided Weapon — Air Max: 5 km.
-
+- Tp 47 — Torpedo — Sub Max: 20.0 km.

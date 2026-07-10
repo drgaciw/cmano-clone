@@ -308,13 +308,19 @@ public sealed class BalticMultidomainImportResolutionTests
         Assert.Contains(platforms, p => p.PlatformId.Contains("sodermanland", StringComparison.OrdinalIgnoreCase)
             || p.PlatformId.Contains("södermanland", StringComparison.OrdinalIgnoreCase)
             || p.PlatformId.Contains("blekinge", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(platforms, p => p.PlatformId.Contains("hkp-14", StringComparison.OrdinalIgnoreCase)
-            || p.PlatformId.Contains("argus", StringComparison.OrdinalIgnoreCase));
+        // Combat air: NH90 ASW (HKp 14F) — chrome Argus/trainer/cargo excluded from combat set
+        Assert.Contains(platforms, p => p.PlatformId.Contains("hkp-14f", StringComparison.OrdinalIgnoreCase));
 
         var weapons = CmoMarkdownImporter.ReadWeaponBindings(
             Path.Combine(fixtures, "baltic-sweden-1990-weapons.md"));
         Assert.True(weapons.Count >= 8);
         Assert.All(weapons, w => Assert.True(w.MaxRangeMeters > 0, w.WeaponId));
+
+        // Honest munitions must include real cmo-db RB 15M Mk2 (not synthetic invent IDs)
+        Assert.Contains(weapons, w => w.WeaponId == "cmo-weapon-1455"
+            && w.DisplayName.Contains("RB 15M Mk2", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(weapons, w => w.WeaponId == "cmo-weapon-1475"
+            && w.DisplayName.Contains("Penguin", StringComparison.OrdinalIgnoreCase));
 
         var dbPath = CatalogJsonImporter.ResolveRepoRelative(
             Path.Combine("assets", "data", "catalog", "baltic_patrol.db"));
@@ -323,12 +329,20 @@ public sealed class BalticMultidomainImportResolutionTests
         Assert.True(reader.TryGetCombatRadiusNm("a-26-blekinge", out _));
         Assert.True(reader.TryGetCombatRadiusNm("hkp-14f-nh90-ttt", out _));
 
-        Assert.True(reader.TryGetWeaponEnvelope("cmo-weapon-82001", out var rbs));
-        Assert.True(rbs.MaxRangeMeters > 0);
+        Assert.True(reader.TryGetWeaponEnvelope("cmo-weapon-1455", out var rb15));
+        Assert.True(rb15.MaxRangeMeters > 50_000, $"RB 15M Mk2 range too low: {rb15.MaxRangeMeters}");
 
         var gavleMags = reader.GetSortedMagazines()
             .Where(m => m.PlatformId.Contains("gavle", StringComparison.OrdinalIgnoreCase))
             .ToArray();
         Assert.NotEmpty(gavleMags);
+        Assert.Contains(gavleMags, m => m.WeaponId == "cmo-weapon-1455");
+
+        // Gavle ASuW is RB 15, not Penguin; Penguin is Hugin-only
+        var huginMags = reader.GetSortedMagazines()
+            .Where(m => m.PlatformId.Contains("hugin", StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        Assert.Contains(huginMags, m => m.WeaponId == "cmo-weapon-1475");
+        Assert.DoesNotContain(gavleMags, m => m.WeaponId == "cmo-weapon-1475");
     }
 }
