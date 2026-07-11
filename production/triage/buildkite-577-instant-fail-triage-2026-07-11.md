@@ -189,3 +189,16 @@ For questions or escalation:
 - **Buildkite operations**: `buildkite-operations-engineer` skill / agent
 - **CI/CD lead**: `buildkite-ci-lead` agent  
 - **Pipeline author**: `buildkite-pipelines-engineer` agent
+
+---
+
+## Update 2026-07-11T21:02Z — minimal pipeline also fails (#578)
+
+Pushed an ultra-minimal `.buildkite/pipeline.yml` (single `Build and test` step, no
+soft_fail siblings, no retry, no emoji labels). **Build #578 failed instantly** with
+the same no-duration status as #576/#577.
+
+**Conclusion:** failure is independent of pipeline YAML content (byte-identical to
+main and a minimal subset both fail). Restore full main pipeline; unblock requires
+Buildkite UI/API access (`BUILDKITE_API_TOKEN` or human UI checklist above).
+
