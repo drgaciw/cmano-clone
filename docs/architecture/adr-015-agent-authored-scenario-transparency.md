@@ -16,6 +16,8 @@
 
 Enterprise architect (DRGAMTD); milsim architecture review. **Resolution owner: Design.** **Target decision date: 2026-09-01.** Resolves Open Question 3 of requirement [11-Agentic-Mission-Editor](../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md).
 
+**Review date:** 2026-09-01 — Design must decide before any player-facing agent-authorship labels ship.
+
 ## Summary
 
 Phase 2/3 introduces LLM authoring agents (Mission Planner, Red Force, Briefing Writer, Balance) that draft scenario content as reviewable proposals. This ADR proposes — leaning **yes** — that agent-authored or agent-assisted scenarios be **labeled for transparency** in multiplayer and briefing surfaces, backed by the provenance record the GDD already mandates (prompt, rationale, diff hash, approving id).

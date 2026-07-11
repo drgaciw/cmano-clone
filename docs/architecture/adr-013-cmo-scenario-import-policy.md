@@ -16,6 +16,8 @@
 
 Enterprise architect (DRGAMTD); milsim architecture review. **Resolution owner: Product / Legal.** **Target decision date: 2026-09-01.** Resolves Open Question 1 of requirement [11-Agentic-Mission-Editor](../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md).
 
+**Review date:** 2026-09-01 — Product / Legal must Accept, Reject, or defer with a new dated legal review note.
+
 ## Summary
 
 The Agentic Mission Editor requirement asks whether Project Aegis should import Command: Modern Operations (`.scen`) scenarios, and on what legal footing. This ADR proposes that **v1 ships no CMO import**; a best-effort importer is deferred to Phase 2, and — if built — must be a **clean-room mapping over observable patterns only** (no proprietary CMO data, schema dumps, or decompiled artifacts), pending explicit Product/Legal sign-off.

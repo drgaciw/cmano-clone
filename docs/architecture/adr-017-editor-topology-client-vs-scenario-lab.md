@@ -16,6 +16,8 @@
 
 Enterprise architect (DRGAMTD); milsim architecture review. **Resolution owner: Technical Director.** **Target decision date: 2026-10-01.** Resolves Open Question 5 of requirement [11-Agentic-Mission-Editor](../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md).
 
+**Review date:** 2026-10-01 — Technical Director must decide before any standalone Scenario Lab epic is scheduled.
+
 ## Summary
 
 The editor requirement asks whether authoring runs only inside the game client or also as a standalone "Scenario Lab" desktop app sharing the core library. This ADR proposes a **headless-first shared core** (`ProjectAegis.Data` + CLI/MCP, per ADR-010) as the single system of record, with the in-client Unity editor as the v1 surface and a possible standalone Scenario Lab as an **optional later front-end onto the same core — never a fork**.

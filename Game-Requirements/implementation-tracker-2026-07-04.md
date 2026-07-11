@@ -120,7 +120,7 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 
 **CLI verbs:** `scenario_create`, `scenario_validate`, `scenario_publish`, `scenario_export` (track D), `scenario_ai_scaffold`, `scenario_event_trace`, `scenario_migrate_preview`, `scenario_umpire_snapshot`, `scenario_export_brief`, `scenario_simulate_sample`, `mission_add_ferry`, `mission_update_ferry`, plus existing status/spawn verbs.
 
-**Not started / Phase 2:** Unity edit-mode UX (AME-1.2/4.x map); visual event graph; full Monte Carlo handoff; Lua shim (ADR-014 deferred); `HYPERSONIC_ALERT` UI.
+**Phase 2 residual / Phase 2.4+ / Phase 3:** Unity map host/product chrome, Unity Mission Board window, visual event graph chrome, Gantt UI, layers/minimap, mining/cargo archetypes, reversible migration UX, CMO import, Lua, and Phase 3 authoring agents remain deferred/scoped. Headless AC-1…AC-12 are green.
 
 ## MVP status by requirement
 
@@ -143,7 +143,7 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 | 09 | Near-Future Technologies | **Partial** | **doc honesty Wave 3 2026-07-08** (FR-08; headless archetype/TL/spawn-plan spine mapped; full DOTS NF content Phase N; MVP grade unchanged) | Full DOTS spawn |
 | 10 | Speculative Systems | **Partial+** | Wave 3 honesty: Partial+ = TL/black-project SpeculativeEngageGate + catalog metadata; S54 OrbitalDew/Kessler runtime **not on main** 2026-07-08 | Escalation ladder (design); full orbital DEW/Kessler runtime Phase N |
 | 10b | (KESSLER) | **Phase N / not on main** | Wave 3: `OrbitalDewPlatform` / `KesslerRiskMeter` / `EscalationTier` absent from `src/` (rg zero hits 2026-07-08); design ladder only | Re-land runtime only with gate + tests; do not treat S54 wt claims as trunk |
-| 11 | Agentic Mission Editor | **Partial+** (headless + AC-8 host path) | **S81–S88 + scenario-editor-completion SE-W0–W3:** headless ACs honest; ferry/undo/`mission_update_support` shipped; AC-8 dual-fixture host load + evidence 2026-07-08; gate package READY | Phase 2 map/GUI / full event static analysis deferred |
+| 11 | Agentic Mission Editor | **Partial+** (headless; AC-1…AC-12 green) | **S81–S88 + ME Phase 2 COMPLETE 2026-07-09:** ferry/support/undo, AC-7, AC-8, sides, timeline, semantic diff, event/static analysis shipped headless; stage remains Release | Phase 2.4+ Unity/product chrome; Phase 3 agents/import/Lua deferred |
 | 12 | Terms Glossary | **Partial** | **doc honesty Wave 1 2026-07-08** (additive terms) | UI tooltips |
 | 13 | Doctrine ROE EMCON WRA | **Partial** | `DoctrineInheritanceValidateTests` + fixture; v3 mission-roe policy; **doc honesty Wave 2 2026-07-08** | Unity doctrine panel (ADR-010) |
 | 14 | Engagement & Fire Control | **Partial+** | v3 contact-triggered engage; **doc honesty Wave 2 2026-07-08** | **Fix 2 UA engage tests**; DLZ Phase 2 |
@@ -161,7 +161,7 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 |-----|-------|------|
 | `HYPERSONIC_ALERT` UI | 20 | Deferred |
 | Visual event graph editor | 11 | ADR-016 caps specified; TCA stub only |
-| Unity edit-mode / map placement (AME-4.x) | 11 | Phase 2 per revised req 11 |
+| Unity map/product chrome residual (AME-4.x) | 11 | Headless ORBAT/RP map mutations shipped Partial+; Unity host chrome remains Phase 2.4+ residual |
 | Lua compatibility shim | 11 | **Deferred** — ADR-014 |
 | Monte Carlo experiment schema | 17 | Phase 5 / req 07 |
 | v3 corpus promotion | 02 | S80 ack: **no** unless explicit |

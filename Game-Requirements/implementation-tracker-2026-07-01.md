@@ -1,5 +1,7 @@
 # Game Requirements — Implementation Tracker
 
+> **Historical tracker:** Superseded by [implementation-tracker-2026-07-04.md](implementation-tracker-2026-07-04.md) and post-editor status truth dated 2026-07-09. Current req 11 state: AC-1…AC-12 green headless; Mission Editor Phase 2 complete; residual UI/Phase 2.4+/Phase 3 scoped; production stage remains Release.
+
 **Base:** `fix-scenario-publish-cli-wiring` @ `ee4dc58` (`ee4dc58dc85dea4d9083f3f74772432482aa5532` — scenario editor validation + event trace + doctrine inspection)  
 **Last Updated:** 2026-07-01 (post–S80 Baltic v3 gate; scenario editor stack active on branch; S56 21/21 MVP unchanged; verification-before + GitNexus)  
 **Supersedes:** [implementation-tracker-2026-06-30.md](implementation-tracker-2026-06-30.md)  
