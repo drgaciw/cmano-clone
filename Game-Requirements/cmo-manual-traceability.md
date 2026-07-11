@@ -64,7 +64,7 @@ Map every major manual section to Project Aegis requirement documents so gaps ar
 | 3.3.14 | EMCON Tab | **13** Doctrine | Draft |
 | 3.3.15 | WRA Tab | **13**, **14** | Draft |
 | 3.3.16 | Withdraw/Redeploy Tab | **13**, 04 | Draft |
-| 3.3.17 | Mission Editor | 11 Mission Editor | Full |
+| 3.3.17 | Mission Editor | 11 Mission Editor | Partial+ headless; UI/product chrome residual |
 
 ## Chapter 4 — Menus and Dialogs
 
@@ -74,7 +74,7 @@ Map every major manual section to Project Aegis requirement documents so gaps ar
 | 4.1.2 | ASW-specific Actions | **18** Combat | Draft |
 | 4.1.3 | Context Menu, Cont. | **20** Command UI | Draft |
 | 4.1.4 | Group Operations | **20**, 04 | Draft |
-| 4.1.5 | Scenario Editor | 11 Mission Editor | Full |
+| 4.1.5 | Scenario Editor | 11 Mission Editor | Partial+ headless; UI/product chrome residual |
 | 4.2 | Control Right Click on Map | **20** | Draft |
 | 4.3 | Unit/Group/Weapon Symbols | **20** | Draft |
 | 4.4 | Group Mode and Unit View Mode | **20** | Draft |
@@ -161,7 +161,7 @@ Map every major manual section to Project Aegis requirement documents so gaps ar
 | ID | File | Status |
 |----|------|--------|
 | 01–10 | Core, agents, DB, tech, near-future | Approved / draft mix |
-| 11 | Agentic Mission Editor | Revised (2026-07-01, implementation-aligned; AME-* IDs, ADR-008/013–017) |
+| 11 | Agentic Mission Editor | Revised (2026-07-09, implementation-aligned; AME-* IDs, AC-1…AC-12 green headless, ME Phase 2 complete; ADR-008/013–017) |
 | 12 | Terms Glossary | Active |
 | 13 | Doctrine, ROE, EMCON, WRA | Draft |
 | 14 | Engagement & Fire Control | Draft |

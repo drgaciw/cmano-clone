@@ -197,7 +197,7 @@ Test assembly breakdown at baseline:
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (24418 symbols, 47032 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (24729 symbols, 47512 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -415,13 +415,14 @@ No Docker compose or long-running servers. The "application" is in-process: `dot
 - Internal engineering trains (RC1, S49–S56, Baltic v2) exclude E7 commercial launch scope unless explicitly scoped.
 - Post-MVP content-only expansion tracks (S57+) add evidence additively; do not re-litigate the 21/21 MVP implementation tracker closed @ S56.
 - When publishing a new dated implementation tracker at `Game-Requirements/implementation-tracker-YYYY-MM-DD.md`, supersede the prior tracker and refresh active index links in `Game-Requirements-Index.md`, `research-traceability.md`, `Data-Population-CMAODB.md`, `requirements/07-Agentic-Infrastructure.md`, and `production/qa/00-Master-Index.md`.
+- Short program-gate acks ("i acknowledge", "acknowledged") count as formal exit confirmation when the gate package is ready; do not require the long template verbatim.
 
 ## Learned Workspace Facts
 
-- Production stage is **Release** (`production/stage.txt`; S48 gate PASS 2026-06-20; RC1 cut).
+- Production stage is **Release** (`production/stage.txt`; S48 gate PASS 2026-06-20; RC1 cut); Launch / commercial execution remains deferred pending an explicit separate decision.
 - **S39–S80** programs COMPLETE through Baltic v3 content expansion (RC1 S48, MVP exit S56, Baltic v2 S64, release train S68, launch prep S72, Baltic v3 S73–S80).
 - Headless test baseline floor is **≥1599** solution tests (ReplayGolden 6/6, C2 proxy ≥20/20; monotonic). UA engage filter (`BalticReplayHarnessPolicyEngageTests`) **3/3 green** @ post-PE gate 2026-07-09 — see [`production/qa/ua-engage-triage-2026-07-09.md`](production/qa/ua-engage-triage-2026-07-09.md).
-- Canonical forward roadmap is dated `docs/reports/future-sprint-roadpmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE (human ack "Baltic v3 content-complete" 2026-06-26; stage remains Release); **S81–S88 + ME Phase 2 + PE** COMPLETE (2026-07-09); active forward program is **S89–S92 post-editor hygiene** per `future-sprint-roadpmap-07092026.md`.
+- Canonical forward roadmap is dated `docs/reports/future-sprint-roadpmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE (human ack "Baltic v3 content-complete" 2026-06-26); **S81–S88 + ME Phase 2 + PE** COMPLETE (2026-07-09); **S89–S92 post-editor hygiene** COMPLETE (human ack "i acknowledge" 2026-07-09; stage remains Release); next forward cycle TBD per `future-sprint-roadpmap-07092026.md`.
 - Production Baltic v2 replay hash **`17144800277401907079`** must stay preserved unless an ADR explicitly changes it.
 - Baltic v3 uses isolated **`baltic-v3-*`** scenario policies and replay goldens; v2 hash invariant unchanged.
 - Baltic v3 baseline OOB: **u1, hostile-1, ucav-blue, ucav-red** (surface + UCAV only; no subs/air beyond UCAV).

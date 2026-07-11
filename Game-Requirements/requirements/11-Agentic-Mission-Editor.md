@@ -3,7 +3,7 @@
 **Last Updated:** 2026-07-09
 **Status:** Revised — implementation-aligned (was Draft; realigned to approved GDD + shipped headless stack)
 **FR reverse-ref:** [FR-09](01-Project-Overview.md) — Scenario/mission editor
-**Author basis:** Approved GDD [`design/gdd/agentic-mission-editor.md`](../../design/gdd/agentic-mission-editor.md) (terminology, determinism contract, AC-1…AC-12); codebase review of `ProjectAegis.Data/Scenario/Authoring` + `ProjectAegis.Data/Validation` + `ProjectAegis.MissionEditor.Cli`; [scenario-editor research](../../docs/research/scenario-editor-research.md); [CMO Official Manual](https://www.matrixgames.com/amazon/PDF/CMO/CMO_manual_EBOOK.pdf) (Mission Editor §3.3.17/§7.1, Scenario Editor §4.1.5, ScenEdit §5, clean-room observable behavior only); requirements 01–10, 13, 14, 17.
+**Author basis:** Historical approved GDD [`design/gdd/agentic-mission-editor.md`](../../design/gdd/agentic-mission-editor.md) (original terminology, determinism contract, AC-1…AC-12); current codebase review of `ProjectAegis.Data/Scenario/Authoring` + `ProjectAegis.Data/Validation` + `ProjectAegis.MissionEditor.Cli`; [scenario-editor research](../../docs/research/scenario-editor-research.md); [CMO Official Manual](https://www.matrixgames.com/amazon/PDF/CMO/CMO_manual_EBOOK.pdf) (Mission Editor §3.3.17/§7.1, Scenario Editor §4.1.5, ScenEdit §5, clean-room observable behavior only); requirements 01–10, 13, 14, 17.
 **Related:** [06-Database-Intelligence.md](06-Database-Intelligence.md) · [21-Platform-Editor.md](21-Platform-Editor.md) · [04-Agent-Delegation.md](04-Agent-Delegation.md) · [07-Agentic-Infrastructure.md](07-Agentic-Infrastructure.md) · [08-Agentic-Architecture.md](08-Agentic-Architecture.md) · [13-Doctrine-ROE-EMCON-WRA.md](13-Doctrine-ROE-EMCON-WRA.md) · [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md)
 **Decision record:** [ADR-008 Mission-Editor Validation Engine (Accepted)](../../docs/architecture/adr-008-mission-editor-validation-engine.md) · [ADR-013 CMO Scenario Import Policy (Proposed)](../../docs/architecture/adr-013-cmo-scenario-import-policy.md) · [ADR-014 Lua Compatibility Scope (Accepted)](../../docs/architecture/adr-014-lua-compatibility-scope.md) · [ADR-015 Agent-Authored Scenario Transparency (Proposed)](../../docs/architecture/adr-015-agent-authored-scenario-transparency.md) · [ADR-016 Event-Graph Complexity Caps (Accepted)](../../docs/architecture/adr-016-event-graph-complexity-caps.md) · [ADR-017 Editor Topology: Client vs Scenario Lab (Proposed)](../../docs/architecture/adr-017-editor-topology-client-vs-scenario-lab.md)
 
@@ -36,6 +36,14 @@ Scenario design should feel like **theater planning with an expert staff**, not 
 | **Editor topology** | Proposed — in-client editor vs standalone "Scenario Lab" sharing the core library | ADR-017 |
 
 **Out of scope (v1):** Unity Edit Mode map GUI; sides/factions placement UI; operations-timeline UI; mining/mine-clear/cargo missions; NL Mission Planner; CMO import execution; Lua; Steam-Workshop sharing. *(Headless map ORBAT/RP mutations shipped under Phase 2 Partial+ — AME-4.2/4.3; not a v1 claim.)* Remaining Phase 2/3 product UI and agents stay phased.
+
+## Status Vocabulary
+
+- **P0 / P1 / P2:** delivery priority: v1 blocking, Phase 2, and Phase 3/advisory respectively. Priority does not imply implementation status.
+- **Shipped:** implemented on the canonical headless path with cited automated evidence.
+- **Partial+:** a useful, tested subset is shipped, but named product/UI or breadth requirements remain.
+- **Residual:** an unshipped portion of an otherwise Partial+ requirement; it must have an explicit completion gate below.
+- **Deferred:** intentionally outside the completed phase and not claimed as shipped.
 
 ## CMO Baseline — What We Must Match or Exceed
 
@@ -121,6 +129,8 @@ Every requirement carries an **AME-N.M** ID and a **priority** marker. P0 = v1 b
 - **AME-3.5** (P1) — **Operations timeline**: Gantt binding missions to start/end triggers, per-unit priority stack, editor scrub preview. ***Phase 2 Partial+ (headless ME-W3):*** `ScenarioDocumentEditor.UpsertTimelineEntry` / `TryRemoveTimelineEntry`; bus commit; CLI/MCP `timeline_list` / `timeline_upsert` / `timeline_delete` over `operationsTimeline[]`. Tests: `ScenarioTimelineEditorTests`, `TimelineCliTests`. ***Residual / Phase 2.4+ deferred:*** full Gantt UI, per-unit priority stack chrome, editor scrub preview.
 - **AME-3.6** (P1) — Mining / mine-clear / cargo-delivery / cargo-transfer archetypes. ***Phase 2.4+ deferred (ME-W3 honesty):*** new archetypes need validation formulas and mission-type wiring — not started; do not claim shipped.
 
+**Residual completion gate (AME-3.4/3.5):** PlayMode/manual evidence must show filtering by side/type/status, clone/template actions, keyboard traversal, timeline drag/edit, validation feedback, and scrub preview. **AME-3.6** is complete only when all four archetypes have DTOs, validation rules, CLI/MCP verbs, sample fixtures, and export/play rejection tests.
+
 ### 4. Geometry & map authoring (phased)
 
 > **Honesty note (P2.1 / ME-W0, 2026-07-08):** **v1** ships patrol-waypoint lat/lon via `mission_add_patrol --wp lat,lon` (AME-4.1 only). **Phase 2 Partial+ (P2.1)** ships **headless** ORBAT place/move/clone and reference-point upsert/remove on the canonical document (API + CLI + co-located tests) plus headless authoring surfaces under `ProjectAegis.Delegation.UnityAdapter.Authoring` (`MapAuthoringSurface`, `EditModeController`, `LiveFindingsPresenter`) wired through `ScenarioAuthoringSession` + `ScenarioEditCommandBus`. **Not claimed:** full Unity Edit Mode map GUI / `EditorWindow` (ME-W0 host residual), snap/measure tools, layer toggles UI, sides/faction placement UI, or invalid-draw-on-screen chrome.
@@ -130,6 +140,8 @@ Every requirement carries an **AME-N.M** ID and a **priority** marker. P0 = v1 b
 - **AME-4.3** (P1) — Draw/edit reference geometries (polygon, circle, line, corridor); snap/measure tools; invalid-draw stays on screen marked invalid rather than being erased. ***Phase 2 Partial+ (headless):*** `ScenarioDocumentEditor.UpsertReferencePoint` / `TryRemoveReferencePoint`; CLI `reference_point_upsert`; typed geometry on `referencePoints[]` via headless surface/session. Tests: same suite as AME-4.2. ***Residual:*** snap/measure tools, invalid-draw-on-screen marking, full map GUI draw gestures (Unity host).
 - **AME-4.4** (P1) — Layer toggles (ORBAT, missions, EMCON, contacts, EW, airspace, mining), minimap + theater bounds, LOD icon density. ***Phase 2.4+ deferred (ME-W3 honesty):*** Unity map chrome residual — not started; do not claim shipped.
 - **AME-4.5** (P1) — Sides / factions authoring and per-side briefing/posture placement. ***Phase 2 Partial+ (headless ME-W3):*** `ScenarioDocumentEditor.UpsertSide` / `TryRemoveSide`; bus commit; CLI/MCP `side_list` / `side_upsert` / `side_delete` over `sides[]` (name, ROE, EMCON, postures). Tests: `ScenarioSideEditorTests`, `SideCliTests`. ***Residual:*** per-side briefing/placement UI; Unity faction chrome.
+
+**Residual completion gate (AME-4.2–4.5):** the Unity host must demonstrate scenario load, selection/group-select, gesture-end commits, persistent invalid-geometry overlays, layer toggles, minimap/theater bounds, documented LOD thresholds, and dated screenshot/PlayMode evidence.
 
 ### 5. Event & trigger system (typed DSL, no Lua v1)
 
@@ -142,6 +154,8 @@ Every requirement carries an **AME-N.M** ID and a **priority** marker. P0 = v1 b
 - **AME-5.7** (P1) — **Event static analysis**: dead triggers, unreachable states, contradictory conditions, circular dependencies. ***Phase 2 Partial+ / Shipped headless (ME-W2):*** pure `EventStaticAnalyzer` codes `EVENT_DEAD_TRIGGER`, `EVENT_UNREACHABLE_ACTION`, `EVENT_CONTRADICTORY`, `EVENT_CIRCULAR`; editor surface `AnalyzeTcaGraph()`; tests `EventStaticAnalyzerTests` + StubScope pins. ***Residual:*** visual event-graph EditorWindow; full state-reachability beyond ActivateMission↔MissionComplete cycles.
 
 > **Maturity note (ME-W2 honesty 2026-07-08):** AME-5.5 debugger + AME-5.7 static analysis codes are **Shipped headless (Partial+)**. Typed event CRUD (`event_add` / `event_update` / `event_delete`) and headless graph node listing via `AnalyzeTcaGraph` ship with ME-W2. AME-5.2–5.4 trigger/action *type catalogs* remain partially demonstrated (condition evaluation is structured for AC-7 fixtures, not a full sim event runtime for every listed type). Do **not** claim Unity visual event-graph product chrome or Phase 3 Lua.
+
+**Residual completion gate (AME-5.5/5.7):** graph nodes/edges must render from the canonical event model, dead/circular paths must be highlighted, and trace drill-down must use the order-log projection without creating a second event store.
 
 ### 6. Validation Engine & determinism (deterministic — no LLM)
 
@@ -165,6 +179,8 @@ Every requirement carries an **AME-N.M** ID and a **priority** marker. P0 = v1 b
 - **AME-6.8** (P0) — **TeleportUnit transform (AC-11):** at export, an **explicit, logged** transform removes all TeleportUnit actions and records each removal in the export manifest (**not a silent strip**); the headless sample and exported scenario share an identical post-transform event set. UI badges TeleportUnit actions "edit-test only" persistently.
 - **AME-6.9** (P0) — **Live / continuous validation** during authoring (re-validate on mutation, surface findings in place). *Maturity: in flight — `track1-continuous-live-validation`; headless per-mutation validation shipped via `ScenarioDocumentEditor` + live-validation tests; UX not built.*
 - **AME-6.10** — **Maturity flags:** `IncompatibleHostRule` (`INCOMPATIBLE_HOST`) and `BrokenRefRule` (`BROKEN_REF`) are **simplistic/demo** rules (heuristic host/ref checks), not production model-integrity validation. Treat as demonstrative.
+
+**Residual completion gate (AME-6.9):** every supported mutation must refresh findings in place in the Unity authoring UI, with PlayMode evidence for added, updated, and cleared findings.
 
 ### 7. Concurrency, import, export & versioning
 
@@ -205,6 +221,10 @@ Capabilities that shipped in the headless stack but were previously unspecified.
 - **AME-10.3** (P1) — **Publish manifest & governance**: publish emits a provenance manifest (semver, embedded validation report, review gate, ORBAT provenance) and blocks on validation failure (research §publish). *Shipped* — `ScenarioPublishCommand` + `ScenarioManifest` / `ManifestBuilder` + `scenario_publish`. **Maturity: Partial+.**
 - **AME-10.4** (P1) — **Live / continuous validation during authoring** — see AME-6.9 (`track1-continuous-live-validation` in flight).
 - **AME-10.5** (P1) — **Event static analysis** — see AME-5.7 (**ME-W2 Shipped headless:** `EventStaticAnalyzer` codes for dead / unreachable / contradictory / circular; visual graph UI residual).
+
+**Residual completion gate (AME-10.2):** migration must write a persisted rollback snapshot and manifest entry, expose a restore command, and pass an interrupted/failing-migration recovery test.
+
+**Phase 3 acceptance gate (AME-9.1–9.6):** before any authoring agent is called shipped, each agent must define a proposal-diff schema, provenance fields, approval policy, deterministic Validation Engine handoff, transparency-label behavior, and an automated test proving no LLM can block export.
 
 ## Formulas
 
@@ -256,6 +276,15 @@ warn if complexity > WARN_THRESHOLD OR peak_tick_density > DENSITY_THRESHOLD
 | Localization | All player-facing briefing strings externalized |
 | Audit | Full edit log per scenario; publish manifest carries provenance (AME-10.3) |
 
+## Requirement Status Matrix
+
+| AME IDs | Priority / phase | Current state | Evidence | Residual / completion boundary |
+|---------|------------------|---------------|----------|--------------------------------|
+| AME-1.1…2.6, 3.1…3.3, 4.1, 6.1…6.8, 7.1…7.4, 8.1…8.5 | P0 / v1 | **Shipped / Partial+ headless** | Implementation mapping + AC-1…AC-12 manifest | Keep canonical paths and deterministic gates green |
+| AME-3.4…3.5, 4.2…4.3, 4.5, 5.5, 5.7, 7.3, 10.1, 10.3, 10.5 | P1 / Phase 2 | **Shipped / Partial+ headless; phase gate complete 2026-07-09** | Headless mapping, co-located tests, phase gate | Unity/product chrome and breadth gates above remain open |
+| AME-3.6, 4.4, 6.9, 10.2, 10.4 | P0/P1 / Phase 2.4+ | **Residual or Deferred** | Existing headless subset where cited | Archetype, UI, live-finding, and rollback gates above |
+| AME-5.6, 7.5, 8.6, 9.1…9.6 | P1/P2 / Phase 3 | **Deferred / not shipped** | ADR-013…015 and agent acceptance gate | Legal/design decisions and deterministic proposal workflow required |
+
 ## Implementation Mapping (headless)
 
 | Requirement area | Type / path (`ProjectAegis.Data` unless noted) | Status |
@@ -296,7 +325,7 @@ warn if complexity > WARN_THRESHOLD OR peak_tick_density > DENSITY_THRESHOLD
 
 ## Acceptance Criteria
 
-Adopted verbatim in substance from the approved GDD (AC-1…AC-12); each is independently, mechanically testable with a defined fixture and observable output, and bound to the AME requirement(s) it verifies. Evidence paths are **co-located** under `src/ProjectAegis.*.Tests/` (hybrid layout) — not phantom `tests/unit/editor/**` or `tests/integration/editor/**`.
+Adopted in substance from the historical approved GDD (AC-1…AC-12); each is independently, mechanically testable with a defined fixture and observable output, and bound to the AME requirement(s) it verifies. Primary test evidence is co-located under `src/ProjectAegis.*.Tests/` (hybrid layout); supporting fixtures, scripts, and gate notes are cited where relevant. Auditable path inventory: [req-11 scenario-editor evidence manifest (2026-07-11)](../evidence/req-11-scenario-editor-evidence-2026-07-11.md).
 
 > **Residual honesty (SE-W1 + P2.1 ME-W0-c + ME-W2 + ME-W3 2026-07-09).** Headless AC-1…AC-12 have green co-located tests cited below. **AC-7 is Met** (full debugger projection: `sim_tick`, `sequence_id`, `action_results`) — evidence `EventDebuggerTests` + `StubScopePinTests`. **AC-8 is Met** (host load path / PlayMode proxy evidence) — not reopened. **AME-4.2/4.3** are **Phase 2 Partial+ headless**; **AME-5.5 / 5.7** are **Phase 2 Partial+ / Shipped headless (ME-W2)**; **AME-3.5 / 4.5 / 7.3** are **Phase 2 Partial+ / Shipped headless (ME-W3)**; **AME-3.6 mining/cargo** and **AME-4.4 layers/minimap** are **Phase 2.4+ deferred** (honest non-ship). Unity visual event-graph chrome, Mission Board product window, Gantt UI residual. Phase 3 agents/import/Lua **not** shipped.
 
@@ -333,20 +362,20 @@ Data-driven; live in `assets/data/editor/validation-config.json` unless noted (`
 | Phase | Scope | Status |
 |-------|-------|--------|
 | **v1 (headless)** | Canonical file + schema, Strike/Patrol/Support/Ferry archetypes, typed events (Partial+ after ME-W2 debugger/static analysis), Validation Engine (six rules + extras), determinism contract, editVersion concurrency, headless sample, core CLI/MCP (ferry + support + undo shipped), publish/umpire/migration-preview (partial) | **Shipped (Partial+)** — residual: live-validation UX (AME-6.9). **AC-7 Met** / **AC-8 Met** |
-| **Phase 2** | Map authoring (ORBAT/RP), Unity edit-mode host UX, Mission Board, operations timeline, mining/cargo archetypes, visual event graph + full static analysis (AC-7 green), reversible migration persistence; NL Mission Planner / CMO import deferred toward Phase 2/3 boundary | **Partial+ — ME-W0…W3 implement/honesty done; ME-W4 gate package READY FOR HUMAN ACK** — **P2.1 headless map ORBAT/RP** (AME-4.2/4.3); **ME-W1 headless Mission Board** (AME-3.4; Unity panel deferred); **ME-W2 headless event debugger (AC-7 Met) + static analysis + event CRUD** (AME-5.5/5.7); **ME-W3 headless sides (AME-4.5), operations timeline (AME-3.5), semantic diff (AME-7.3)**; **AME-3.6 mining/cargo + AME-4.4 layers/minimap Phase 2.4+ deferred**. Residual product chrome: Unity map host, Mission Board window, Gantt, layers/minimap. Human ack phrase: **“Mission editor Phase 2 complete”**. |
+| **Phase 2** | Map authoring (ORBAT/RP), Unity edit-mode host UX, Mission Board, operations timeline, mining/cargo archetypes, visual event graph + full static analysis (AC-7 green), reversible migration persistence; NL Mission Planner / CMO import deferred toward Phase 2/3 boundary | **Phase gate complete 2026-07-09 (Partial+ headless)** — human ack received: **“Mission editor Phase 2 complete”**. P2.1 headless map ORBAT/RP, Mission Board APIs, event debugger/static analysis/CRUD, sides, timeline, and semantic diff shipped. Mining/cargo, layers/minimap, reversible migration persistence, and Unity product chrome remain explicit Phase 2.4+ residual/deferred scope. |
 | **Phase 3** | Full event DSL + optional Lua shim, Red Force Agent, collaborative review, Workshop-style sharing | **Not started** — do not invent as shipped |
 
 ## Open Questions / Decisions Needed
 
 Each former open question now points to its ADR.
 
-| # | Question | ADR | Status / Recommendation |
-|---|----------|-----|-------------------------|
-| Q1 | Legal/policy stance on **CMO scenario import** (feasibility vs licensing) | ADR-013 | **Proposed** — best-effort, advisory Migration Agent only, never blocking; confirm licensing before build |
-| Q2 | **Lua compatibility**: full `ScenEdit_*` shim vs curated subset | ADR-014 | **Accepted** — typed DSL is v1; **no Lua v1**; optional shim deferred to Phase 3 |
-| Q3 | Should **agent-authored scenarios** be labeled for transparency? | ADR-015 | **Proposed — recommend yes**; store in `metadata`/provenance (affects Phase 2/3 agents only) |
-| Q4 | Maximum **event-graph complexity** before warnings (soft cap) | ADR-016 | **Accepted** — soft complexity + tick-density warnings; hard cap 32 conditions/event; never blocks export; finalize thresholds at perf budgeting |
-| Q5 | Editor **inside game client** only, or standalone **Scenario Lab** sharing the core library | ADR-017 | **Proposed** — v1 is headless/file-based; topology decision pending |
+| # | Question | ADR | Owner / review date | Status / Recommendation |
+|---|----------|-----|---------------------|-------------------------|
+| Q1 | Legal/policy stance on **CMO scenario import** (feasibility vs licensing) | ADR-013 | Product / Legal · 2026-09-01 | **Proposed** — best-effort, advisory Migration Agent only, never blocking; confirm licensing before build |
+| Q2 | **Lua compatibility**: full `ScenEdit_*` shim vs curated subset | ADR-014 | Accepted; no pending review | **Accepted** — typed DSL is v1; **no Lua v1**; optional shim deferred to Phase 3 |
+| Q3 | Should **agent-authored scenarios** be labeled for transparency? | ADR-015 | Design · 2026-09-01 | **Proposed — recommend yes**; store in `metadata`/provenance (affects Phase 2/3 agents only) |
+| Q4 | Maximum **event-graph complexity** before warnings (soft cap) | ADR-016 | Accepted; perf-budget review | **Accepted** — soft complexity + tick-density warnings; hard cap 32 conditions/event; never blocks export; finalize thresholds at perf budgeting |
+| Q5 | Editor **inside game client** only, or standalone **Scenario Lab** sharing the core library | ADR-017 | Technical Director · 2026-10-01 | **Proposed** — v1 is headless/file-based; topology decision pending |
 
 ## Traceability
 
@@ -365,7 +394,7 @@ Each former open question now points to its ADR.
 | ADR-008 | Validation Engine + determinism (authority) |
 | ADR-013…017 | Import policy, Lua scope, agent labeling, event-graph caps, editor topology |
 | `data/scenarios/scenario-document.schema.json` + `examples/` | Machine contract + fixtures (AME-2.6) |
-| GDD `agentic-mission-editor.md` | Authoritative content source: terminology, determinism, AC-1…AC-12 |
+| GDD `agentic-mission-editor.md` | Historical design source; current implementation truth is this requirement plus the 2026-07-09 gate evidence |
 | CMO Manual §3.3.17 / §4.1.5 / §5 / §7.1–7.3 | Parity baseline (clean-room, observable only) |
 
 ---
@@ -379,9 +408,11 @@ Each former open question now points to its ADR.
 
 ---
 
-**Status:** Revised — implementation-aligned (SE-W1 + P2.1 ME-W0-c + ME-W2 + **ME-W3 honesty 2026-07-09**). v1 headless stack shipped (Partial+); ferry verbs (AME-8.4) + undo (AME-8.5) + `mission_update_support` **shipped**. **AME-4.2/4.3 Phase 2 Partial+ headless**. **AME-5.5 / AC-7 Met** (full `EventDebuggerTrace` projection). **AME-5.7 / 10.5 Partial+ headless** (`EventStaticAnalyzer` codes). **AME-3.5 / 4.5 / 7.3 Phase 2 Partial+ headless (ME-W3)**. **AME-3.6 mining/cargo + AME-4.4 layers/minimap Phase 2.4+ deferred**. Residual: Unity visual event-graph chrome, Unity Mission Board window, Gantt / layers chrome, live-validation UX (AME-6.9), reversible migration (AME-10.2). **AC-8 Met**. Phase 3 **not** shipped. ME-W4 gate package ready — human ack **“Mission editor Phase 2 complete”**.
+**Status:** Revised — implementation-aligned through Mission Editor Phase 2 gate completion on 2026-07-09. v1/headless and named Phase 2 headless capabilities are shipped Partial+ with AC-1…AC-12 green. Residual Phase 2.4+ product UI and archetype/migration work is governed by the explicit completion gates above. Phase 3 agents/import/Lua are not shipped.
 
 ---
+
+## Delivery History Appendix
 
 **Charter honesty SE-W1 2026-07-08** — AC paths realigned to co-located tests; ferry/undo/mapping fixed.  
 **P2.1 ME-W0-c 2026-07-08** — Doc honesty for headless map ORBAT/RP ship; removed “map not started” / blanket “no map-first” claims that contradicted AME-4.2/4.3 Partial+; Unity map GUI host residual explicit.  
