@@ -202,3 +202,4 @@ the same no-duration status as #576/#577.
 main and a minimal subset both fail). Restore full main pipeline; unblock requires
 Buildkite UI/API access (`BUILDKITE_API_TOKEN` or human UI checklist above).
 
+Restored main-identical pipeline; **Build #579** also failed instantly (expected while infra broken).
