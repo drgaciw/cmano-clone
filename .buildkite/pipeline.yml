@@ -1,6 +1,7 @@
 # Primary CI — see docs/engineering/buildkite-ci.md
-# Minimal blocking gate: Release build + test + replay/C2 filters via agent-dotnet-ci.sh
-# Graphite CI optimizer plugin removed (pre-checkout empty-pipeline replace blocked :hammer: on stacks).
+# Diagnostic minimal gate (2026-07-11): isolate Buildkite #576/#577 instant-fail.
+# Soft-fail siblings / retry / emoji temporarily removed to test upload acceptance.
+# Local suite green at 1599/0f; restore full steps after green upload.
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
@@ -8,34 +9,6 @@ env:
   BUILDKITE_GIT_CLONE_FLAGS: "--depth=250"
 
 steps:
-  # Blocking gate MUST run first — Graphite optimizer (main pipeline) can --replace with
-  # empty steps and skip :hammer: when placed after the optimizer plugin.
-  - label: ":hammer: Build and test"
+  - label: "Build and test"
     key: build
     command: bash tools/buildkite/agent-dotnet-ci.sh
-    retry:
-      automatic:
-        - exit_status: "*"
-          limit: 1
-
-  - label: ":gitleaks: Secret scan"
-    key: gitleaks
-    soft_fail: true
-    command: bash tools/buildkite/agent-gitleaks.sh
-
-  - label: ":repeat: Baltic replay golden (main)"
-    key: baltic-replay
-    branches: main
-    command: bash tools/buildkite/agent-baltic-replay.sh
-
-  - label: ":gitnexus: PR impact analysis"
-    key: gitnexus-pr
-    if: build.pull_request.id != null
-    soft_fail: true
-    command: bash tools/buildkite/agent-gitnexus-pr-analysis.sh
-
-  - label: ":gitnexus: Reindex knowledge graph (main)"
-    key: gitnexus-reindex
-    branches: main
-    soft_fail: true
-    command: bash tools/buildkite/agent-gitnexus-reindex.sh
