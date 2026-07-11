@@ -166,6 +166,7 @@ Checklist:
 | First build slow on hosted agents | Expected: `agent-dotnet-ci.sh` downloads .NET SDK 8.0.400 on cold agents |
 | `CmoCatalogExportTests` fails with `node` not found | Checked-in golden at `tools/cmano-db-crawler/fixtures/sensor-mini-export.golden.json` (copied to test output); live `node` export is optional |
 | Build fails ~1m with no `:hammer:` log | Graphite optimizer on **main** pipeline can `pipeline upload --replace` with empty steps; merge branch `.buildkite/pipeline.yml` to `main` or disable `GRAPHITE_CI_OPTIMIZER_TOKEN` until then |
+| Build fails instantly with **no duration** (e.g. `#570+`, `#576–#579`) | Not a test failure — pipeline upload / pre-agent. Confirm UI “Read steps from repository”, clear stale `GRAPHITE_CI_OPTIMIZER_TOKEN`, check agents/billing. See `production/triage/buildkite-577-instant-fail-triage-2026-07-11.md`. Empty-commit retrigger and YAML trim do **not** help when every new build fails this way. |
 | Agent has dotnet 6/7 on PATH | `agent-bootstrap-dotnet.sh` installs 8.0.400 when major &lt; 8 |
 | Required check name mismatch | Copy exact context from GitHub PR checks tab after first build |
 | Gitleaks false positive | Add allowlist in `.gitleaks.toml` if needed (not present today) |
