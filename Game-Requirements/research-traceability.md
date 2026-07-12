@@ -1,6 +1,6 @@
 # Research → Requirements Traceability
 
-**Last Updated:** 2026-06-30
+**Last Updated:** 2026-07-11
 
 Maps research supplements under `docs/research/` to Game Requirements documents and downstream design artifacts.
 
@@ -28,7 +28,7 @@ Maps research supplements under `docs/research/` to Game Requirements documents 
 | Simulation API, import/export, telemetry | [08](../requirements/08-Agentic-Architecture.md) § Interchange | Integrated May 29 |
 | Clean-room legal boundaries | [01-Project-Overview](../requirements/01-Project-Overview.md) § Goal 5 | Integrated May 29 |
 | Build roadmap phases 1–5 | [07](../requirements/07-Agentic-Infrastructure.md) § Build Phase Alignment | Integrated May 29 |
-| NL/MCP mission editor patterns | [11-Agentic-Mission-Editor](../requirements/11-Agentic-Mission-Editor.md) | Pre-existing parity |
+| NL/MCP mission editor patterns; umpire, migration, publish governance, live validation, static analysis | [11-Agentic-Mission-Editor](requirements/11-Agentic-Mission-Editor.md) AME-10.1…10.5 + residual completion gates | Integrated; req 11 revised 2026-07-09, AC-1…AC-12 green headless, ME Phase 2 complete; residual UI/Phase 3 scoped |
 
 ---
 

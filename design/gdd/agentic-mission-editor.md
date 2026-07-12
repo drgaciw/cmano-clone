@@ -1,11 +1,13 @@
 # GDD: Agentic Mission & Scenario Editor
 
-> **Status:** Draft (for design review)
+> **Status:** Historical design source; superseded for implementation truth by `Game-Requirements/requirements/11-Agentic-Mission-Editor.md` as of 2026-07-09.
 > **Created:** 2026-05-30
 > **System:** 11 (`design/gdd/systems-index.md`)
 > **Concept:** `design/gdd/agentic-mission-editor-concept.md`
 > **Requirement:** `Game-Requirements/requirements/11-Agentic-Mission-Editor.md`
 > **Depends on:** Platform Database (4), Mission Runtime (9), Simulation Core (1), Policy/ROE/EMCON (3), Order Log & Replay (2), Database Intelligence Pipeline (20)
+
+> **Implementation truth note (2026-07-09):** This GDD preserves original design intent. Current shipped scope is headless/file-based `.scenario.json`; full Unity map-first GUI remains residual/Phase 2.4+; acceptance evidence is maintained in req 11 and its dated evidence manifest. Current gate authority: [`production/qa/mission-editor-phase2-gate-2026-07-09.md`](../../production/qa/mission-editor-phase2-gate-2026-07-09.md).
 
 ---
 
@@ -13,15 +15,15 @@
 
 The Agentic Mission & Scenario Editor is the human- and machine-facing authoring surface for Project Aegis scenarios. Its architecture is an **intent compiler**: a single canonical declarative scenario file is the source of truth, and every authoring path — map drawing, natural language, and MCP tool calls — emits the *same* canonical objects. Validation, determinism, git-diffability, headless generation, and AI co-authoring are therefore structural properties of the file format rather than features layered on top.
 
-v1 ships the canonical-file foundation, a map ORBAT view, four mission archetypes (Strike, Patrol, Support, Ferry) with policy inheritance, a typed declarative event system, save/load, a blocking **Validation Engine**, and the core MCP tool suite. Operations-timeline polish, the LLM-driven authoring **agents** (Mission Planner, Red Force, Briefing Writer, Balance), deep NL, CMO import, and Lua are deferred (Phase 2/3).
+v1 ships the canonical-file foundation, four mission archetypes (Strike, Patrol, Support, Ferry) with policy inheritance, a typed declarative event system, save/load, a blocking **Validation Engine**, and the core MCP tool suite. Headless ORBAT/reference-point mutations shipped later as Partial+; the Unity map ORBAT view and product chrome remain residual. The LLM-driven authoring **agents** (Mission Planner, Red Force, Briefing Writer, Balance), deep NL, CMO import, and Lua are deferred (Phase 2/3).
 
 > **Terminology:** "Engine" = deterministic rule code (the Validation Engine is pure, reproducible, no LLM). "Agent" is reserved exclusively for the Phase 2/3 LLM-driven systems. v1 contains **no** LLM in any blocking path — this protects the determinism pillar.
 
 ## 2. Player Fantasy
 
-### v1 fantasy (what ships)
+### Original v1 fantasy (historical target)
 
-You are the **theater designer**. You build the scenario directly — place the ORBAT, draw patrol zones, lay missions and triggers on a map-first surface, never fighting a modal-heavy desktop tool. The difference from every editor you've used: **the tool never lets you ship something broken silently.** The moment a strike can't reach its target on fuel, a patrol zone is empty, or a ferry has no destination, the editor tells you *what* is wrong, *where*, and *how to fix it* — in plain language, before you ever press play. The scenario is a plain, diffable artifact you can version, share, and replay with confidence it behaves identically every run.
+You are the **theater designer**. The original target was to place the ORBAT, draw patrol zones, and lay missions and triggers on a map-first surface. The shipped headless foundation delivers the plain, diffable scenario artifact and deterministic validation; the full map-first surface remains later product scope.
 
 ### Phase 2/3 north star (vision, not v1)
 
@@ -37,9 +39,10 @@ Later, an expert AI staff drafts the ORBAT, missions, and triggers as reviewable
 
 All three operate on the identical canonical file. Headless and UI are the same code path with different front-ends.
 
-### 3.2 Canonical scenario file (`*.aegis-scenario`)
+### 3.2 Scenario document and future package direction
 
-- ZIP package: `manifest.json`, `scenario.json` (canonical), optional `cache.bin` (derived, never authoritative).
+- The current shipped canonical authoring document is `.scenario.json`, used by CLI/MCP, schema, fixtures, validation, and tests.
+- `*.aegis-scenario` is a package/helper and possible future distribution wrapper (`manifest.json`, `scenario.json`, optional derived `cache.bin`); it is not the canonical CLI/MCP surface until end-to-end package integration ships.
 - `scenario.json` schema (refines doc §Data Model):
   - `metadata` — required keys: `title`, `description`, `author`, `schemaVersion`, `dbRef`, `seed` (ulong, scenario RNG root for sim/replay), `editVersion` (int, monotonic optimistic-lock counter; bumped on every committed write, distinct from `schemaVersion`)
   - `features` (magazines, realism toggles, time-compression limits)
