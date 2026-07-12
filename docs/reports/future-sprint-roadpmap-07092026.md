@@ -185,3 +185,26 @@ Evidence: [`production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log`](..
 | Dashboard snapshot | `docs/reports/dashboard-snapshots/2026-07-09-am.md` |
 
 **End of future-sprint-roadpmap-07092026.md (S89–S92 hygiene focus). Supersedes 07042026 for forward planning; carries invariants. Publish → update alias → dispatch S89.**
+
+---
+
+## 8. S93 — Asset Production Wave (post–S92 forward)
+
+**User decision 2026-07-09:** Dashboard short-term item 5 = **full S93 sprint** (binary wave post-S91 specs).
+
+| Sprint | Theme | Primary deliverable |
+|--------|-------|---------------------|
+| **S93** | First binary asset wave | ASSET-001…003 P0 children → `production/assets/`; manifest **≥6 Done** |
+
+**Scope:** C2 tokens/atlas (004, 005, 014), Baltic refs (018, 019), store capsules/logos (023–025). Placeholders acceptable. **No** Addressables bulk, **no** store upload, **no** C# hotpath, **no** Launch advance.
+
+**Parallel tracks:** `stack/sprint93/asset-c2` ∥ `asset-store` ∥ `asset-baltic` → closeout.
+
+**Authority:** [`s93-asset-production-scope-boundary-2026-07-09.md`](../../production/s93-asset-production-scope-boundary-2026-07-09.md), [`sprint-93-asset-production-wave.md`](../../production/sprints/sprint-93-asset-production-wave.md), [`docs/superpowers/plans/2026-07-09-short-term-dashboard-wave.md`](docs/superpowers/plans/2026-07-09-short-term-dashboard-wave.md).
+
+**Exit:** S93 closeout — manifest honest; gates held; stage **Release**. Editor PNG (ASSET-027+) deferred to Phase C / local Unity host.
+
+- [x] S93 scope boundary published — 2026-07-09
+- [x] Sprint plan + QA + kickoff published
+- [x] Binary wave produced @ `production/assets/`
+- [x] Closeout — [`smoke-sprint-93-closeout-2026-07-09.md`](../../production/qa/smoke-sprint-93-closeout-2026-07-09.md)

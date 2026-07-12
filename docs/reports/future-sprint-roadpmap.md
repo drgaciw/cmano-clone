@@ -6,7 +6,7 @@ This file is a **stable link target**. Do not edit program content here — upda
 
 | Snapshot | Date | Program |
 |----------|------|---------|
-| [`future-sprint-roadpmap-07092026.md`](future-sprint-roadpmap-07092026.md) | 2026-07-09 | **Current** — S89–S92 Post-Editor Engineering Hygiene + Asset Spec Production |
+| [`future-sprint-roadpmap-07092026.md`](future-sprint-roadpmap-07092026.md) | 2026-07-09 | **Current** — S89–S92 Post-Editor Hygiene **COMPLETE**; **S93** Asset Production Wave active (§8) |
 | [`future-sprint-roadpmap-07042026.md`](future-sprint-roadpmap-07042026.md) | 2026-07-04 | Archived — S81–S88 Scenario Editor (req 11 / E11) COMPLETE |
 | [`future-sprint-roadpmap-062526.01.md`](future-sprint-roadpmap-062526.01.md) | 2026-06-25 | Archived — S73–S80 Baltic v3 content expansion (COMPLETE) |
 | [`future-sprint-roadpmap-062526.md`](future-sprint-roadpmap-062526.md) | 2026-06-25 | Archived — S69–S72 E7 commercial launch prep (COMPLETE) |

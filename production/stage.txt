@@ -129,3 +129,10 @@ S89–S91 closeouts PASS; S92 gates PASS (0e/1599/0f/6/6/20/20/hash 18/UA 3/3/ZE
 Stage **remains Release**. Launch / commercial execution remains deferred (explicit separate decision).
 Cites: production/post-editor-hygiene-scope-boundary-2026-07-09.md + docs/reports/future-sprint-roadpmap-07092026.md + docs/reports/roadmap-execute-plan-07092026.md + production/gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md + AGENTS.md.
 **S89–S92 POST-EDITOR HYGIENE PROGRAM COMPLETE.** STAGE REMAINS Release.
+
+# Launch stage decision (2026-07-09 dashboard short-term — explicit checkpoint)
+Launch stage decision: deferred; remains Release post-S92 hygiene ack (2026-07-09).
+S92 ack was "post-editor hygiene program complete" — not Launch / commercial execution.
+Explicit user instruction to advance to Launch: none.
+Cites: post-editor-hygiene-scope-boundary-2026-07-09.md + commercial-launch-scope-boundary-2026-06-25.md + stage.txt S92 rows + future-sprint-roadpmap-07092026.md.
+STAGE REMAINS Release (launch decision deferred 2026-07-09).

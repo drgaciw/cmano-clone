@@ -77,4 +77,19 @@
 - Spec stubs: `design/assets/specs/c2-ui-assets.md`, `baltic-patrol-assets.md`, `store-capsule-assets.md`  
 - Live Editor PNG re-capture: **advisory deferred (2026-06-25)**; headless 18/18 remains merge authority (dashboard plan Phase B Task B3; no Unity Editor host in cloud VM).  
 
+## S93 Editor PNG pack — deferred (2026-07-09)
+
+**Track:** Dashboard short-term item 6 / Phase C (ASSET-027+, ASSET-042)  
+**Decision:** Cloud VM has **no Unity Editor** — defer capture; headless **20/20** remains merge authority.  
+**Protocol:** [`production/qa/evidence/README-s93-editor-png-pack.md`](../../production/qa/evidence/README-s93-editor-png-pack.md)  
+**S93 closeout:** **not blocked** — store capsules use placeholder art; screenshot captures trail local Editor host.  
+**Cites:** PE-W3 defer, `platform-editor-completion-scope-boundary-2026-07-09.md`, dashboard wave plan Phase C Task C1 skip path.
+
+## S93 Asset Production (2026-07-09)
+
+- Binary wave: `production/assets/c2/`, `production/assets/store/`, `production/assets/baltic/`  
+- Manifest: 8 Done (004, 005, 014, 018, 019, 023–025); umbrellas 001–003 In Production  
+- Closeout: `production/qa/smoke-sprint-93-closeout-2026-07-09.md`  
+- Gates: `production/qa/evidence/gates-sprint-93-closeout-2026-07-09.log`
+
 *Cloud subagent S71-03/04 launch doc pack. Cites complete. Docs only. Pre closeout.*

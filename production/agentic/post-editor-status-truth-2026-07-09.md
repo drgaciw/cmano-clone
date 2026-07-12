@@ -14,6 +14,7 @@
 | **Standing invariants** | **PASS** | `production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log` — 1599/0f, 6/6, 20/20, hash, ZERO bridge |
 | **Forward program** | **S89–S92 COMPLETE** | Human ack **"i acknowledge"** 2026-07-09 — post-editor hygiene program complete |
 | **S91 asset specs** | **COMPLETE** | `smoke-sprint-91-closeout-2026-07-09.md` — 38 Specced / 4 deferred |
+| **S93 asset production** | **COMPLETE** | `smoke-sprint-93-closeout-2026-07-09.md` — 8 Done / 3 In Production |
 | **S92 program gate** | **COMPLETE** | `s92-post-editor-hygiene-gate-2026-07-09.md` + human ack |
 | **Launch stage** | **NOT advanced** | Explicit human gate remains separate |
 
@@ -37,6 +38,7 @@
 10. S91 **COMPLETE** 2026-07-09 — ASSET-001…003 Specced; `smoke-sprint-91-closeout-2026-07-09.md`
 11. S92 **VERIFICATION COMPLETE** 2026-07-09 — `s92-post-editor-hygiene-gate-2026-07-09.md`
 12. **Human ack PROVIDED** 2026-07-09 — `"i acknowledge"` / post-editor hygiene program complete (S89–S92)
+13. **S93 COMPLETE** 2026-07-09 — first binary asset wave; manifest 8 Done / 3 In Production; `smoke-sprint-93-closeout-2026-07-09.md`
 
 ## Human ack (recorded)
 
