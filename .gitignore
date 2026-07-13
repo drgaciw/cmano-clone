@@ -92,3 +92,6 @@ worktrees/
 
 # Superpowers brainstorm visual companion sessions
 .superpowers/
+
+# NuGet packages folder when NUGET_PACKAGES=.nuget/packages (Buildkite cache volume)
+.nuget/
