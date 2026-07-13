@@ -1,0 +1,68 @@
+{
+  "id": "gauntlet-joint-orbat-smoke",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "Phase 2 joint catalog ORBAT smoke: surface + air + subsurface registration",
+    "oracle": "Fingerprint includes CATALOG_UNIT events for all three domains; engage path still fires",
+    "catalogRefs": [
+      "u1",
+      "hostile-1",
+      "k-31-visby-2009",
+      "jas-39c-gripen-2005",
+      "a-19-gotland-2022",
+      "624-pr-205p-tarantul-1992"
+    ],
+    "units": [
+      {
+        "unitId": "blue-visby",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "blue-gripen",
+        "platformId": "jas-39c-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "blue-gotland",
+        "platformId": "a-19-gotland-2022",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "red-tarantul",
+        "platformId": "624-pr-205p-tarantul-1992",
+        "domain": "surface",
+        "side": "red"
+      }
+    ],
+    "runId": "gauntlet-joint-orbat-smoke",
+    "tier": 0
+  }
+}
