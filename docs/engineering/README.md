@@ -21,6 +21,7 @@ Deep-dives into engine-agnostic subsystems, verified against source and pinned b
 | [mission-editor-cli.md](mission-editor-cli.md) | Operational reference for the headless Mission Editor CLI and its MCP verbs — author, validate, simulate, publish scenarios and browse/extend the catalog without Unity. |
 | [scenario-policy-authoring.md](scenario-policy-authoring.md) | How to author `data/scenarios/*.policy.json` sim policy files: the loader/override model, the full top-level + `engage` field reference, enum values (and which throw), contact-triggered ROE escalation, validation errors, and replay constraints. |
 | [scenario-document-authoring.md](scenario-document-authoring.md) | How to author `*.scenario.json` authoring documents (`ScenarioDocumentDto`, ADR-008): the tolerant loader / canonical writer, the edit-version / undo / export-gate lifecycle, the full metadata + section + mission field reference, per-mission-type rules, and the validation-finding catalog. |
+| [catalog-write-gate.md](catalog-write-gate.md) | The `CatalogWriteGate` propose → approve → commit workflow (ADR-006, req-06): the extend-only propose batch kinds, per-kind approve validation, the machine-readable error-code catalog, the CLI verbs, determinism constraints, and the runbook for adding a new catalog row kind. |
 
 ## Local environment & agentic tooling
 
