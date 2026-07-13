@@ -30,6 +30,22 @@
     /* Selection */
     --aegis-selected-row-bg: rgba(74, 158, 255, 0.25);    /* #4A9EFF @ 25% */
     --aegis-selected-row-bar: rgb(74, 158, 255);          /* #4A9EFF */
+
+    /* Order lifecycle chip (req 20 §Order lifecycle, TR-c2-006) — hues vs surface-panel, AA per a11y §2.
+     * Colour is a SECONDARY cue only: OrderStateChip must pair every state with an icon + text label
+     * (a11y §5, never colour-alone). */
+    --aegis-order-accepted: rgb(140, 155, 170);           /* #8C9BAA muted — logged, not yet scheduled */
+    --aegis-order-queued: rgb(160, 180, 210);             /* #A0B4D2 — scheduled/awaiting */
+    --aegis-order-executing: rgb(74, 158, 255);           /* #4A9EFF — active */
+    --aegis-order-completed: rgb(100, 200, 140);          /* #64C88C — success (6.2:1) */
+    --aegis-order-denied: rgb(230, 90, 90);               /* #E65A5A — ROE/policy denial (4.9:1) */
+    --aegis-order-aborted: rgb(240, 180, 80);             /* #F0B450 — cancelled/aborted (7.2:1) */
+
+    /* Alert severity / ToastStack (req 20 §Alerting, TR-c2-007) — hues vs surface-panel, AA per a11y §2.
+     * Colour is SECONDARY: toasts pair severity with an icon + label (a11y §5, never colour-alone). */
+    --aegis-toast-critical: rgb(230, 90, 90);             /* #E65A5A (4.9:1) */
+    --aegis-toast-notable: rgb(240, 180, 80);             /* #F0B450 (7.2:1) */
+    --aegis-toast-routine: rgb(140, 155, 170);            /* #8C9BAA (5.8:1) */
 }
 
 /* Surface utilities */
@@ -101,4 +117,49 @@
 .aegis-border-section {
     border-top-width: 1px;
     border-top-color: var(--aegis-border-section);
+}
+
+/* Order lifecycle chip utilities (T2 OrderStateChip) — colour is the secondary cue; the chip element
+ * supplies the icon + state label. */
+.order-state--accepted {
+    color: var(--aegis-order-accepted);
+}
+
+.order-state--queued {
+    color: var(--aegis-order-queued);
+}
+
+.order-state--executing {
+    color: var(--aegis-order-executing);
+    -unity-font-style: bold;
+}
+
+.order-state--completed {
+    color: var(--aegis-order-completed);
+}
+
+.order-state--denied {
+    color: var(--aegis-order-denied);
+    -unity-font-style: bold;
+}
+
+.order-state--aborted {
+    color: var(--aegis-order-aborted);
+}
+
+/* Alert severity / toast utilities (T3 ToastStack) — colour is the secondary cue; the toast element
+ * supplies the icon + severity label. */
+.toast--critical {
+    border-left-width: 3px;
+    border-left-color: var(--aegis-toast-critical);
+}
+
+.toast--notable {
+    border-left-width: 3px;
+    border-left-color: var(--aegis-toast-notable);
+}
+
+.toast--routine {
+    border-left-width: 3px;
+    border-left-color: var(--aegis-toast-routine);
 }

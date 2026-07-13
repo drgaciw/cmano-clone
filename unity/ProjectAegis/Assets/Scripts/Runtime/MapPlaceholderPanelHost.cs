@@ -40,6 +40,14 @@ namespace ProjectAegis.Unity.Runtime
         private C2PlanningChromeState _planningChrome = new(false, false, SimulationPhase.Planning);
         private bool _wired;
 
+        private MapSymbolPool? _symbolPool;
+        private bool _refreshedOnce;
+        private IReadOnlyList<MapSymbolEntry>? _dirtySymbolsRef;
+        private string? _dirtySelectedUnit;
+        private string? _dirtySelectedContact;
+        private SimulationPhase _dirtyPhase;
+        private bool _dirtyShowPanel;
+
         private IC2PresentationFeed? PresentationFeed => bridgeHost;
 
         /// <summary>True while <see cref="SimulationPhase.Planning"/> chrome dims the map (S30-07).</summary>
@@ -89,7 +97,14 @@ namespace ProjectAegis.Unity.Runtime
 
             _rootPanel = root.Q<VisualElement>(RootName) ?? root;
             _theaterLabel = _rootPanel.Q<Label>(TheaterName);
-            _canvas = _rootPanel.Q<VisualElement>(CanvasName);
+            var canvas = _rootPanel.Q<VisualElement>(CanvasName);
+            if (!ReferenceEquals(canvas, _canvas))
+            {
+                _canvas = canvas;
+                _symbolPool = _canvas != null ? new MapSymbolPool(_canvas) : null;
+                _refreshedOnce = false;
+            }
+
             _planningDimOverlay = _rootPanel.Q<VisualElement>(PlanningDimOverlayName);
             if (panelStyles != null && !_rootPanel.styleSheets.Contains(panelStyles))
             {
@@ -102,6 +117,12 @@ namespace ProjectAegis.Unity.Runtime
         private void Refresh()
         {
             if (!_wired || PresentationFeed == null || bridgeHost.Bridge == null || _canvas == null)
+            {
+                return;
+            }
+
+            // Dirty-flag: skip the whole rebind/rebuild while nothing that affects the map changed.
+            if (!IsDirty())
             {
                 return;
             }
@@ -119,9 +140,37 @@ namespace ProjectAegis.Unity.Runtime
                 commsDisplay,
                 atlas);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
-            RebuildSymbols();
+            _symbolPool!.Sync(_panelState.Symbols, OnSymbolClicked);
             ApplyPlanningChrome();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+            CaptureDirtyState();
+        }
+
+        private bool IsDirty()
+        {
+            var feed = PresentationFeed;
+            if (feed == null)
+            {
+                return false;
+            }
+
+            return !_refreshedOnce
+                || !ReferenceEquals(feed.LastMapSymbols, _dirtySymbolsRef)
+                || feed.SelectedUnitId != _dirtySelectedUnit
+                || feed.SelectedContactId != _dirtySelectedContact
+                || bridgeHost.Phase != _dirtyPhase
+                || showPanel != _dirtyShowPanel;
+        }
+
+        private void CaptureDirtyState()
+        {
+            var feed = PresentationFeed;
+            _dirtySymbolsRef = feed?.LastMapSymbols;
+            _dirtySelectedUnit = feed?.SelectedUnitId;
+            _dirtySelectedContact = feed?.SelectedContactId;
+            _dirtyPhase = bridgeHost.Phase;
+            _dirtyShowPanel = showPanel;
+            _refreshedOnce = true;
         }
 
         private void ApplyPlanningChrome()
@@ -188,54 +237,6 @@ namespace ProjectAegis.Unity.Runtime
                 out _)
                 && catalog.IsLoaded
                 && (atlas = catalog).IsLoaded;
-        }
-
-        private void RebuildSymbols()
-        {
-            _canvas!.Clear();
-            foreach (var row in _panelState.Symbols)
-            {
-                var container = new VisualElement
-                {
-                    style =
-                    {
-                        position = Position.Absolute,
-                        left = Length.Percent(row.NormalizedX * 100f),
-                        top = Length.Percent(row.NormalizedY * 100f),
-                        flexDirection = FlexDirection.Row,
-                        alignItems = Align.Center,
-                    },
-                };
-                container.AddToClassList("map-symbol");
-                foreach (var styleClass in row.StyleClass.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    container.AddToClassList(styleClass);
-                }
-
-                if (row.UsesAtlasFrame && !string.IsNullOrEmpty(row.AtlasFrameClass))
-                {
-                    var frame = new VisualElement();
-                    frame.AddToClassList(row.AtlasFrameClass);
-                    container.Add(frame);
-                }
-                else if (!string.IsNullOrEmpty(row.Glyph))
-                {
-                    container.Add(new Label(row.Glyph));
-                }
-
-                container.Add(new Label(row.Label));
-                container.userData = row.SymbolId;
-                if (!row.IsGhost)
-                {
-                    container.RegisterCallback<ClickEvent>(_ => OnSymbolClicked(row.SymbolId));
-                }
-                else
-                {
-                    container.pickingMode = PickingMode.Ignore;
-                }
-
-                _canvas.Add(container);
-            }
         }
 
         private void OnSymbolClicked(string symbolId)

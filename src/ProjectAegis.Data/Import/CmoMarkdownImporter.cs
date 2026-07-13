@@ -412,7 +412,7 @@ public static class CmoMarkdownImporter
                 continue;
             }
 
-            if (IsWeaponsSectionHeader(line))
+            if (line.StartsWith("**Weapons**", StringComparison.Ordinal))
             {
                 inWeaponsSection = true;
                 continue;
@@ -503,7 +503,7 @@ public static class CmoMarkdownImporter
                 continue;
             }
 
-            if (IsWeaponsSectionHeader(line))
+            if (line.StartsWith("**Weapons**", StringComparison.Ordinal))
             {
                 inWeaponsSection = true;
                 continue;
@@ -724,7 +724,7 @@ public static class CmoMarkdownImporter
                 continue;
             }
 
-            if (IsWeaponsSectionHeader(line))
+            if (line.StartsWith("**Weapons**", StringComparison.Ordinal))
             {
                 loadouts.Add(new CatalogLoadout(
                     platformId,
@@ -813,7 +813,7 @@ public static class CmoMarkdownImporter
                 continue;
             }
 
-            if (IsWeaponsSectionHeader(line))
+            if (line.StartsWith("**Weapons**", StringComparison.Ordinal))
             {
                 inWeaponsSection = true;
                 continue;
@@ -876,26 +876,5 @@ public static class CmoMarkdownImporter
                 .ThenBy(q => q.MountId, StringComparer.Ordinal)
                 .ThenBy(q => q.WeaponRef, StringComparer.Ordinal)
                 .ToArray());
-    }
-
-    /// <summary>
-    /// KILLCHAIN-05: ships use <c>**Weapons**</c>; aircraft corpus uses <c>**Weapons / Loadouts**</c>.
-    /// Both must open the weapons section.
-    /// </summary>
-    public static bool IsWeaponsSectionHeader(string line)
-    {
-        if (string.IsNullOrWhiteSpace(line))
-        {
-            return false;
-        }
-
-        var trimmed = line.Trim();
-        if (!trimmed.StartsWith("**Weapons", StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        // **Weapons** or **Weapons / Loadouts** (and minor title variants ending with **)
-        return trimmed.EndsWith("**", StringComparison.Ordinal);
     }
 }

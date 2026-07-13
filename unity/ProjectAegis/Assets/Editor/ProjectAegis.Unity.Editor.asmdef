@@ -1,0 +1,20 @@
+{
+    "name": "ProjectAegis.Unity.Editor",
+    "rootNamespace": "",
+    "references": [
+        "ProjectAegis.Unity.Runtime",
+        "Unity.Addressables",
+        "Unity.Addressables.Editor"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

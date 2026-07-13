@@ -1,20 +1,9 @@
 #!/usr/bin/env bash
-# Sharded test runner for the Buildkite ":test_tube: Test %n" step (Task 3 build/test
-# split, 2026-07-09 CI optimization pass). Shards the co-located src/*/*.Tests.csproj
-# projects across BUILDKITE_PARALLEL_JOB / BUILDKITE_PARALLEL_JOB_COUNT and runs each
-# with `--no-build` when a Release DLL is already present.
-#
-# Replay/C2 filter coverage (ReplayGoldenSuiteTests, PlayModeSmokeHarnessTests) lives
-# inside ProjectAegis.Delegation.UnityAdapter.Tests and is exercised by that project's
-# normal full-suite run once it lands in a shard — no separate redundant filtered pass
-# (that redundancy in the old dotnet-ci.sh is exactly what this split removes).
-#
-# NuGet packages land under NUGET_PACKAGES (workspace-relative .nuget/packages).
-# Native Buildkite cache volumes are NOT wired (pipeline upload rejection on this org
-# until Cache Storage is confirmed enabled — see docs/engineering/buildkite-ci.md).
-# bin/obj are intentionally never cached (incremental-compile poison).
-# Each shard builds its assigned projects when Release output is missing (normal on
-# ephemeral agents after the :hammer: Build step).
+# GROUNDWORK ONLY — not called by live .buildkite/pipeline.yml (still agent-dotnet-ci.sh).
+# Future sharded test runner: splits src/*/*.Tests.csproj across
+# BUILDKITE_PARALLEL_JOB / BUILDKITE_PARALLEL_JOB_COUNT. Defaults to job 0/1 (single agent).
+# Replay/C2 coverage stays inside UnityAdapter.Tests full suite when that project is sharded.
+# NuGet under NUGET_PACKAGES; never cache bin/obj. See docs/engineering/buildkite-ci.md.
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
