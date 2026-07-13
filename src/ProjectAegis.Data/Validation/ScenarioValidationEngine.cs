@@ -21,6 +21,8 @@ public sealed class ScenarioValidationEngine : IScenarioValidationEngine
         ValidationRules.AirReadyLaunchRule(scenario, findings);
         ValidationRules.FerryReachabilityRule(scenario, catalog, config, findings);
         ValidationRules.StrikeReachabilityRule(scenario, catalog, config, findings);
+        ValidationRules.SupportMissionRule(scenario, findings);
+        ValidationRules.DoctrineResolutionRule(scenario, findings);
         return ValidationReport.FromFindings(findings);
     }
 }

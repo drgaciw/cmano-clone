@@ -258,4 +258,57 @@ internal static class ValidationRules
             }
         }
     }
+
+    public static void SupportMissionRule(ScenarioDocumentDto scenario, List<ValidationFinding> sink)
+    {
+        foreach (var mission in scenario.Missions)
+        {
+            if (!string.Equals(mission.Type, "Support", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(mission.SupportRole))
+            {
+                sink.Add(new ValidationFinding(
+                    "SUPPORT_NO_ROLE",
+                    ValidationSeverity.Error,
+                    $"Support mission '{mission.Id}' requires a role (Tanker/AEW/EW).",
+                    MissionId: mission.Id));
+            }
+
+            if (mission.StationGeometry is not { Count: >= 1 })
+            {
+                sink.Add(new ValidationFinding(
+                    "SUPPORT_NO_STATION",
+                    ValidationSeverity.Error,
+                    $"Support mission '{mission.Id}' requires station geometry.",
+                    MissionId: mission.Id));
+            }
+        }
+    }
+
+    public static void DoctrineResolutionRule(ScenarioDocumentDto scenario, List<ValidationFinding> sink)
+    {
+        if (scenario.Sides.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var mission in scenario.Missions.OrderBy(m => m.Id, StringComparer.Ordinal))
+        {
+            var resolved = ScenarioDoctrineResolver.ResolveMissionDoctrine(scenario, mission);
+            sink.Add(new ValidationFinding(
+                "DOCTRINE_RESOLVED",
+                ValidationSeverity.Info,
+                $"Mission '{mission.Id}' resolved ROE={resolved.Roe} EMCON={resolved.Emcon}.",
+                MissionId: mission.Id,
+                Data: new Dictionary<string, string>
+                {
+                    ["roe"] = resolved.Roe,
+                    ["emcon"] = resolved.Emcon,
+                    ["inherited"] = (!resolved.HasRoeOverride).ToString(),
+                }));
+        }
+    }
 }
