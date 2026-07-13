@@ -1,0 +1,40 @@
+{
+  "id": "baltic-multidomain-stockholm-sample",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 35000,
+    "envelopeMinMeters": 500,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.8,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "k-11-stockholm-spica-iii-1986",
+      "sensorId": "cmo-sensor-1037",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c-stockholm-stereo",
+      "basePd": 0.9,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "qaImport": {
+    "note": "Expansion wave-2: Stockholm FAC from cmo-db.com ship/76 Playwright scrape",
+    "source": "https://cmano-db.com/ship/76/"
+  }
+}
