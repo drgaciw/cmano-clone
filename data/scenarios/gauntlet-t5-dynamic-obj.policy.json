@@ -1,5 +1,4 @@
 {
-  "id": "gauntlet-joint-orbat-smoke",
   "friendlyRoe": "WeaponsFree",
   "opposingRoe": "WeaponsTight",
   "engage": {
@@ -11,7 +10,7 @@
     "combatDomainsEnabled": true,
     "pkBase": 0.85,
     "pkIntercept": 0.0,
-    "pkKill": 0.2,
+    "pkKill": 0.25,
     "salvoSize": 1
   },
   "detection": [
@@ -45,21 +44,46 @@
     }
   ],
   "gauntlet": {
-    "intent": "Joint ORBAT: catalog surface/air/sub as detection observers + surface as engage shooter with catalog magazines. Air/sub are detection-role in this smoke (ASW sensor net); surface Visby is primary shooter. [catalog red: Sovremenny]",
-    "oracle": "ContactChange for each catalog platform; MAGAZINE_SEED with range>0; Engagement from k-31-visby-2009",
-    "expect": {
-      "side": "BLUE",
-      "requireNonEmptyFingerprint": true,
-      "minScore": -1000,
-      "maxScore": 1000
-    },
+    "intent": "Conditional/dynamic objectives stand-in (multi-target priority) [catalog red: Sovremenny]",
+    "oracle": "Multi-target path completes",
     "catalogRefs": [
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "624-pr-205p-tarantul-1992",
+      "70-rauma-helsinki-ii-1990",
+      "80-hamina-rauma-2-2006",
+      "a-17-vastergotland-1999",
+      "a-19-gotland-1996",
       "a-19-gotland-2022",
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
       "em-sovremenny-i-pr-956-sarych",
+      "f-207-bremen-type-f122-1982",
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "f-341-absalon-2020",
+      "f-35a-lightning-ii",
+      "f-361-iver-huitfeldt-2012",
+      "f-a-18c-hornet-f-18c",
+      "hkp-14f-nh90-ttt",
+      "jas-39a-gripen-1997",
+      "jas-39b-gripen-1997",
       "jas-39c-gripen-2005",
+      "jas-39e-gripen-ng-2021",
       "k-31-visby-2009",
       "mpk-steregushchiy-pr-20380-2018"
     ],
+    "runId": "gauntlet-t3t5-catalog-red",
+    "tier": 5,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -130.0,
+      "maxScore": 30.0,
+      "maxMissilesFired": 7,
+      "maxDenials": 46,
+      "minKills": 1,
+      "minDenials": 34
+    },
     "units": [
       {
         "unitId": "k-31-visby-2009",
@@ -91,7 +115,7 @@
         "domain": "surface",
         "side": "red"
       }
-    ],
-    "runId": "gauntlet-t3t5-catalog-red"
-  }
+    ]
+  },
+  "id": "gauntlet-t5-dynamic-obj"
 }

@@ -524,11 +524,28 @@ public sealed class SimulationSession
 
     private static TargetId ResolveEngageVictim(Order order, ObservedState state)
     {
+        // order.Target is the shooter unit id. Red shooters engage blue force;
+        // blue (and unknown) shooters engage preferred or primary hostile contact.
         if (BalticV3SideRegistry.IsRedForceUnit(order.Target.Value))
         {
-            return state.PrimaryBlueForceContactId ?? new TargetId("u1");
+            var blue = state.PrimaryBlueForceContactId
+                ?? (BalticV3SideRegistry.GetDefaultBlueUnitId() is { } bid
+                    ? new TargetId(bid)
+                    : new TargetId("u1"));
+            return blue;
         }
 
-        return state.PrimaryHostileContactId ?? new TargetId("hostile-1");
+        // Multi-domain: each shooter uses its detection-paired red when present.
+        if (state.PreferredHostileByShooter != null
+            && state.PreferredHostileByShooter.TryGetValue(order.Target.Value, out var preferred)
+            && !string.IsNullOrWhiteSpace(preferred))
+        {
+            return new TargetId(preferred);
+        }
+
+        return state.PrimaryHostileContactId
+            ?? (BalticV3SideRegistry.GetDefaultRedUnitId() is { } rid
+                ? new TargetId(rid)
+                : new TargetId("hostile-1"));
     }
 }

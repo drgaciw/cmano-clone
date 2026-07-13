@@ -12,7 +12,13 @@ public sealed record ObservedState(
     bool RadarEmconActive = true,
     bool PrimaryHostileDestroyed = false,
     TargetId? PrimaryBlueForceContactId = null,
-    bool PrimaryBlueForceContactDestroyed = false);
+    bool PrimaryBlueForceContactDestroyed = false,
+    /// <summary>
+    /// Optional multi-domain map: shooter platformId → preferred hostile platformId
+    /// (from detection trials). Enables concurrent air/surface/sub engage without
+    /// SwarmSalvoDeconfliction collapsing all blues onto one victim.
+    /// </summary>
+    IReadOnlyDictionary<string, string>? PreferredHostileByShooter = null);
 
 public sealed record PerceivedState(
     double SimTime,

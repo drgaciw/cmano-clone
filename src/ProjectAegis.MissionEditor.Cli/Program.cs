@@ -121,6 +121,8 @@ switch (command)
         return RunCatalogKillChainReport(args.Skip(1).ToArray());
     case "catalog_link_report":
         return RunCatalogLinkReport(args.Skip(1).ToArray());
+    case "gauntlet_oracle_eval":
+        return RunGauntletOracleEval(args.Skip(1).ToArray());
     case "osint_staging_review":
         return RunOsintStagingReview(args.Skip(1).ToArray());
     case "osint_search":
@@ -919,6 +921,8 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_dependency_graph [--db <catalog.db>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_kill_chain_report [--db <catalog.db>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_link_report [--db <catalog.db>]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- gauntlet_oracle_eval --policy <path.json> --csv <path.csv> [--out <oracle-eval.json>]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- gauntlet_oracle_eval --policy-dir <dir> --csv <path.csv> [--out <oracle-eval.json>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_staging_review --db <catalog.db> [--approve <batchId>]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_search [--db <fixture.json>]  # S21 MCP search_osint");
     // S21: osint_digest, osint_list_staging_proposals, osint_get_proposal_detail, osint_submit_review_decision
@@ -1113,6 +1117,21 @@ static int RunCatalogLinkReport(string[] args)
         CatalogLinkReportCommand.PrintHelp(Console.Error);
         return 1;
     }
+}
+
+static int RunGauntletOracleEval(string[] args)
+{
+    if (args.Contains("--help", StringComparer.Ordinal) || args.Contains("-h", StringComparer.Ordinal))
+    {
+        GauntletOracleEvalCommand.PrintHelp(Console.Out);
+        return 0;
+    }
+
+    var policy = CliArgParser.GetFlag(args, "--policy");
+    var policyDir = CliArgParser.GetFlag(args, "--policy-dir");
+    var csv = CliArgParser.GetFlag(args, "--csv");
+    var outPath = CliArgParser.GetFlag(args, "--out");
+    return GauntletOracleEvalCommand.Run(policy, policyDir, csv, outPath, Console.Out);
 }
 
 static int RunCatalogReleaseDiff(string[] args)

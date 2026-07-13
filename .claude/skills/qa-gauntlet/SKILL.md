@@ -151,9 +151,31 @@ is an automatic tier fail.
 
 **Required:** after batch, run the shipped evaluator
 `ProjectAegis.Data.Catalog.GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policyJson, resultsCsv)`
-(or equivalent harness wrapper) and write `tier-N/oracle-eval.json`. A tier is **not**
-green on stability/fingerprint alone — if the evaluator returns `Passed=false`, the
-tier fails and defects are opened.
+via CLI (preferred) or equivalent harness wrapper, and write `tier-N/oracle-eval.json`:
+
+```bash
+dotnet run --project src/ProjectAegis.MissionEditor.Cli -- gauntlet_oracle_eval \
+  --policy-dir production/qa/gauntlet/<RUN_ID>/tier-N \
+  --csv production/qa/gauntlet/<RUN_ID>/tier-N/results.csv \
+  --out production/qa/gauntlet/<RUN_ID>/tier-N/oracle-eval.json
+```
+
+A tier is **not** green on stability/fingerprint alone — if the evaluator returns
+`Passed=false` (CLI exit 1), the tier fails and defects are opened.
+
+**CI:** PR workflow `.github/workflows/gauntlet-oracle.yml` runs Demo batch + this CLI
+(fail-closed). Local dry-run mirrors that job.
+
+**Hindsight re-test:** closed defects live in `production/qa/gauntlet-defect-registry.json`.
+Re-run a closed defect after a fix:
+
+```bash
+tools/qa-gauntlet/retest-defect.sh <defect-id> --out-dir <scratch>
+```
+
+**Multi-domain:** policies with surface+air+sub `gauntlet.units` assign engage agents to
+every blue unit; detection observer→target pairs feed preferred victims so concurrent
+domain launches are not collapsed by salvo deconfliction.
 
 Spawn `qa-lead` to evaluate `results.csv` + `run.log` + evaluator output against:
 

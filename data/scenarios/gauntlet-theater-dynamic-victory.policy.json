@@ -1,17 +1,17 @@
 {
-  "id": "gauntlet-joint-orbat-smoke",
+  "id": "gauntlet-theater-dynamic-victory",
   "friendlyRoe": "WeaponsFree",
   "opposingRoe": "WeaponsTight",
   "engage": {
     "rangeMeters": 45000,
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
-    "defaultMagazineRounds": 4,
+    "defaultMagazineRounds": 6,
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
-    "pkBase": 0.85,
+    "pkBase": 0.9,
     "pkIntercept": 0.0,
-    "pkKill": 0.2,
+    "pkKill": 0.35,
     "salvoSize": 1
   },
   "detection": [
@@ -19,45 +19,57 @@
       "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
       "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-visby",
+      "contactId": "c-near",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "jas-39c-gripen-2005",
+      "observerId": "k-22-gavle-ex-goteborg-class",
       "sensorId": "radar-1",
       "targetId": "mpk-steregushchiy-pr-20380-2018",
-      "contactId": "c-gripen",
+      "contactId": "c-far",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
-    },
-    {
-      "observerId": "a-19-gotland-2022",
-      "sensorId": "sonar-1",
-      "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-gotland",
-      "basePd": 1.0,
-      "envMask": 1.0,
-      "jamStrength": 0,
-      "requiresActiveRadar": false
     }
   ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "objective-shift-dual-kill"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "objective-shift-dual-kill",
+        "fireAtTick": 2,
+        "kind": "EventFired",
+        "code": "dynamic_victory_require_dual_kill"
+      }
+    ]
+  },
   "gauntlet": {
-    "intent": "Joint ORBAT: catalog surface/air/sub as detection observers + surface as engage shooter with catalog magazines. Air/sub are detection-role in this smoke (ASW sensor net); surface Visby is primary shooter. [catalog red: Sovremenny]",
-    "oracle": "ContactChange for each catalog platform; MAGAZINE_SEED with range>0; Engagement from k-31-visby-2009",
+    "intent": "Phase-3 dynamic victory: Visby+G\u00e4vle vs two catalog reds; mid-run dynamic_victory_require_dual_kill; expect \u22652 kills",
+    "oracle": "minKills\u22652; fingerprint includes dynamic_victory_require_dual_kill",
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minScore": -1000,
-      "maxScore": 1000
+      "minScore": 100.0,
+      "maxScore": 180.0,
+      "maxMissilesFired": 10,
+      "maxDenials": 20,
+      "minKills": 2
     },
     "catalogRefs": [
-      "a-19-gotland-2022",
-      "em-sovremenny-i-pr-956-sarych",
-      "jas-39c-gripen-2005",
       "k-31-visby-2009",
+      "k-22-gavle-ex-goteborg-class",
+      "em-sovremenny-i-pr-956-sarych",
       "mpk-steregushchiy-pr-20380-2018"
     ],
     "units": [
@@ -68,15 +80,9 @@
         "side": "blue"
       },
       {
-        "unitId": "jas-39c-gripen-2005",
-        "platformId": "jas-39c-gripen-2005",
-        "domain": "air",
-        "side": "blue"
-      },
-      {
-        "unitId": "a-19-gotland-2022",
-        "platformId": "a-19-gotland-2022",
-        "domain": "subsurface",
+        "unitId": "k-22-gavle-ex-goteborg-class",
+        "platformId": "k-22-gavle-ex-goteborg-class",
+        "domain": "surface",
         "side": "blue"
       },
       {
@@ -92,6 +98,7 @@
         "side": "red"
       }
     ],
-    "runId": "gauntlet-t3t5-catalog-red"
+    "tier": 5,
+    "runId": "gauntlet-theater-phase3"
   }
 }

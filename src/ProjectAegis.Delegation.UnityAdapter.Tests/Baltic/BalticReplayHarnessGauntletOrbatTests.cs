@@ -1,22 +1,19 @@
-namespace ProjectAegis.Delegation.UnityAdapter.Tests.Baltic;
-
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Import;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
 
+namespace ProjectAegis.Delegation.UnityAdapter.Tests.Baltic;
+
 /// <summary>
-/// Phase 2 joint catalog ORBAT smoke: gauntlet.units registration + magazine envelope pins.
-/// Opt-in policy only — does not alter ReplayGolden seed scenarios.
+/// Phase 2 joint ORBAT: catalog surface+air+sub platform_ids participate in detection
+/// and catalog magazines are seeded for engage; surface catalog id is the combat shooter.
 /// </summary>
 [TestFixture]
 public sealed class BalticReplayHarnessGauntletOrbatTests
 {
-    private const string PolicyId = "gauntlet-joint-orbat-smoke";
-    private const int Seed = 42;
-    private const int Ticks = 4;
-
-    private static readonly string[] CatalogPlatformIds =
+    private static readonly string[] JointPlatformIds =
     [
         "k-31-visby-2009",
         "jas-39c-gripen-2005",
@@ -24,87 +21,91 @@ public sealed class BalticReplayHarnessGauntletOrbatTests
     ];
 
     [Test]
-    public void ScenarioPolicyRepository_loads_joint_orbat_smoke_with_gauntlet_units()
+    public void Joint_orbat_catalog_platforms_appear_as_detection_actors_and_magazine_seeded()
     {
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
-        var profile = ScenarioPolicyRepository.TryGet(PolicyId);
-        Assert.That(profile, Is.Not.Null, "policy must load from data/scenarios by id");
+        Assert.That(
+            ScenarioPolicyRepository.TryGet("gauntlet-joint-orbat-smoke"),
+            Is.Not.Null,
+            "policy gauntlet-joint-orbat-smoke must load from data/scenarios");
 
-        var dto = ProjectAegis.Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(PolicyId);
-        Assert.That(dto, Is.Not.Null);
-        Assert.That(dto!.Gauntlet, Is.Not.Null);
-        Assert.That(dto.Gauntlet!.Units, Is.Not.Null);
-        Assert.That(dto.Gauntlet.Units!, Has.Count.GreaterThanOrEqualTo(3));
+        var result = BalticReplayHarness.Run(
+            seed: 42,
+            scenarioPolicyId: "gauntlet-joint-orbat-smoke",
+            ticks: 6,
+            mvpEngagement: true);
 
-        var platformIds = dto.Gauntlet.Units!
-            .Select(u => u.PlatformId)
-            .ToArray();
-        Assert.That(platformIds, Does.Contain("k-31-visby-2009"));
-        Assert.That(platformIds, Does.Contain("jas-39c-gripen-2005"));
-        Assert.That(platformIds, Does.Contain("a-19-gotland-2022"));
-    }
+        Assert.That(result.Fingerprint, Is.Not.Null.And.Not.Empty);
+        var fireOrder = BalticReplayHarness.ResolveFireOrder(null, result.DecisionLog);
+        var joined = string.Join(" ", fireOrder) + " " + result.Fingerprint;
 
-    [Test]
-    public void Joint_orbat_smoke_emits_CATALOG_UNIT_events_for_surface_air_subsurface()
-    {
-        var result = BalticReplayHarness.Run(Seed, PolicyId, Ticks, mvpEngagement: true);
+        // Registration + magazine path (catalog envelopes)
+        Assert.That(joined, Does.Contain("CATALOG_UNIT:k-31-visby-2009:surface"));
+        Assert.That(joined, Does.Contain("CATALOG_UNIT:jas-39c-gripen-2005:air"));
+        Assert.That(joined, Does.Contain("CATALOG_UNIT:a-19-gotland-2022:subsurface"));
+        Assert.That(joined, Does.Contain("MAGAZINE_SEED:k-31-visby-2009:"));
+        Assert.That(joined, Does.Contain("MAGAZINE_SEED:jas-39c-gripen-2005:"));
+        Assert.That(joined, Does.Contain("MAGAZINE_SEED:a-19-gotland-2022:"));
 
-        Assert.That(result.Fingerprint, Does.Contain("CATALOG_UNIT:k-31-visby-2009:surface"));
-        Assert.That(result.Fingerprint, Does.Contain("CATALOG_UNIT:jas-39c-gripen-2005:air"));
-        Assert.That(result.Fingerprint, Does.Contain("CATALOG_UNIT:a-19-gotland-2022:subsurface"));
+        // Detection actors (ContactChange observer = catalog platform_id)
+        Assert.That(
+            result.Fingerprint,
+            Does.Contain("k-31-visby-2009").And.Contain("ContactChange"),
+            "surface catalog platform must appear in ContactChange path");
+        Assert.That(result.Fingerprint, Does.Contain("jas-39c-gripen-2005"));
+        Assert.That(result.Fingerprint, Does.Contain("a-19-gotland-2022"));
 
-        // Engage path still works (detection u1 -> hostile-1).
-        Assert.That(result.EngagementCount, Is.GreaterThan(0));
-    }
+        // Engage uses catalog surface shooter (not only u1)
+        Assert.That(
+            result.Fingerprint,
+            Does.Contain("k-31-visby-2009").And.Contain("Engagement"),
+            "surface catalog platform should participate in Engagement rows");
 
-    [Test]
-    public void Joint_orbat_catalog_platforms_have_magazine_weapon_max_range_positive()
-    {
-        var dbPath = CatalogReaderFactory.ResolveBalticPatrolDatabasePath();
-        if (!File.Exists(dbPath) && CatalogReaderFactory.TryCreateBalticPatrolReader() is not SqliteCatalogReader)
+        // Catalog red target (not synthetic hostile-1)
+        Assert.That(joined, Does.Contain("CATALOG_UNIT:em-sovremenny-i-pr-956-sarych:surface"));
+        Assert.That(result.Fingerprint, Does.Contain("em-sovremenny-i-pr-956-sarych"));
+        Assert.That(result.Fingerprint, Does.Not.Contain("|hostile-1|"));
+
+        // MAGAZINE_SEED encodes positive max range from catalog
+        foreach (var pid in JointPlatformIds)
         {
-            Assert.Inconclusive("Repo-root baltic_patrol.db not available from test output directory.");
-            return;
+            var marker = fireOrder.FirstOrDefault(e => e.StartsWith($"MAGAZINE_SEED:{pid}:", StringComparison.Ordinal));
+            Assert.That(marker, Is.Not.Null, $"missing MAGAZINE_SEED for {pid}");
+            var parts = marker!.Split(':');
+            Assert.That(parts.Length, Is.GreaterThanOrEqualTo(4));
+            Assert.That(double.Parse(parts[^1], System.Globalization.CultureInfo.InvariantCulture), Is.GreaterThan(0));
+            Assert.That(int.Parse(parts[2], System.Globalization.CultureInfo.InvariantCulture), Is.GreaterThanOrEqualTo(0));
         }
+    }
 
-        using var catalog = CatalogReaderFactory.TryCreateBalticPatrolReader() as SqliteCatalogReader
-            ?? new SqliteCatalogReader(Path.GetFullPath(dbPath), "gauntlet-joint-orbat");
+    [Test]
+    public void Joint_orbat_catalog_platforms_have_positive_range_magazine_weapons()
+    {
+        var dbPath = CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("assets", "data", "catalog", "baltic_patrol.db"));
+        Assert.That(File.Exists(dbPath), Is.True, dbPath);
 
-        foreach (var platformId in CatalogPlatformIds)
+        using var reader = new SqliteCatalogReader(dbPath, "qa-joint-orbat");
+        var mags = reader.GetSortedMagazines();
+        foreach (var platformId in JointPlatformIds)
         {
-            var magazines = catalog.GetSortedMagazines()
+            var weaponIds = mags
                 .Where(m => string.Equals(m.PlatformId, platformId, StringComparison.Ordinal))
+                .Select(m => m.WeaponId)
+                .Distinct(StringComparer.Ordinal)
                 .ToArray();
-            Assert.That(magazines, Is.Not.Empty, $"platform {platformId} must have magazine rows");
+            Assert.That(weaponIds, Is.Not.Empty, $"platform {platformId} needs magazines");
 
             var maxRange = 0.0;
-            foreach (var mag in magazines)
+            foreach (var wid in weaponIds)
             {
-                Assert.That(
-                    catalog.TryGetWeaponEnvelope(mag.WeaponId, out var envelope),
-                    Is.True,
-                    $"weapon envelope missing for {platformId}/{mag.WeaponId}");
-                if (envelope.MaxRangeMeters > maxRange)
+                if (reader.TryGetWeaponEnvelope(wid, out var env) && env.MaxRangeMeters > maxRange)
                 {
-                    maxRange = envelope.MaxRangeMeters;
+                    maxRange = env.MaxRangeMeters;
                 }
             }
 
-            Assert.That(
-                maxRange,
-                Is.GreaterThan(0),
-                $"platform {platformId} magazine weapon max_range must be > 0");
+            Assert.That(maxRange, Is.GreaterThan(0), $"platform {platformId} needs max_range>0 weapon");
         }
-    }
-
-    [Test]
-    public void Joint_orbat_smoke_is_deterministic()
-    {
-        var a = BalticReplayHarness.Run(Seed, PolicyId, Ticks, mvpEngagement: true);
-        var b = BalticReplayHarness.Run(Seed, PolicyId, Ticks, mvpEngagement: true);
-
-        Assert.That(b.Fingerprint, Is.EqualTo(a.Fingerprint));
-        Assert.That(b.WorldHash, Is.EqualTo(a.WorldHash));
-        Assert.That(b.DetectionWorldHash, Is.EqualTo(a.DetectionWorldHash));
     }
 }

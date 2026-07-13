@@ -1,24 +1,23 @@
 {
-  "id": "gauntlet-joint-orbat-smoke",
   "friendlyRoe": "WeaponsFree",
   "opposingRoe": "WeaponsTight",
   "engage": {
     "rangeMeters": 45000,
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
-    "defaultMagazineRounds": 4,
+    "defaultMagazineRounds": 6,
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
     "pkBase": 0.85,
     "pkIntercept": 0.0,
     "pkKill": 0.2,
-    "salvoSize": 1
+    "salvoSize": 2
   },
   "detection": [
     {
       "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
-      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "targetId": "hostile-1",
       "contactId": "c-visby",
       "basePd": 1.0,
       "envMask": 1.0,
@@ -27,7 +26,7 @@
     {
       "observerId": "jas-39c-gripen-2005",
       "sensorId": "radar-1",
-      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "targetId": "hostile-1",
       "contactId": "c-gripen",
       "basePd": 1.0,
       "envMask": 1.0,
@@ -36,7 +35,7 @@
     {
       "observerId": "a-19-gotland-2022",
       "sensorId": "sonar-1",
-      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "targetId": "hostile-1",
       "contactId": "c-gotland",
       "basePd": 1.0,
       "envMask": 1.0,
@@ -45,21 +44,53 @@
     }
   ],
   "gauntlet": {
-    "intent": "Joint ORBAT: catalog surface/air/sub as detection observers + surface as engage shooter with catalog magazines. Air/sub are detection-role in this smoke (ASW sensor net); surface Visby is primary shooter. [catalog red: Sovremenny]",
-    "oracle": "ContactChange for each catalog platform; MAGAZINE_SEED with range>0; Engagement from k-31-visby-2009",
+    "intent": "Multi-domain theater op metadata (joint catalog ORBAT)",
+    "oracle": "Longer run stable; multi-sensor jam",
+    "catalogRefs": [
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "624-pr-205p-tarantul-1992",
+      "70-rauma-helsinki-ii-1990",
+      "80-hamina-rauma-2-2006",
+      "a-17-vastergotland-1999",
+      "a-19-gotland-1996",
+      "a-19-gotland-2022",
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "em-sovremenny-i-pr-956-sarych",
+      "f-207-bremen-type-f122-1982",
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "f-341-absalon-2020",
+      "f-35a-lightning-ii",
+      "f-361-iver-huitfeldt-2012",
+      "f-a-18c-hornet-f-18c",
+      "hkp-14f-nh90-ttt",
+      "hostile-1",
+      "hostile-far",
+      "jas-39a-gripen-1997",
+      "jas-39b-gripen-1997",
+      "jas-39c-gripen-2005",
+      "jas-39e-gripen-ng-2021",
+      "k-31-visby-2009",
+      "u1"
+    ],
+    "domains": [
+      "surface",
+      "air",
+      "subsurface"
+    ],
+    "runId": "gauntlet-20260713-1558",
+    "tier": 5,
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minScore": -1000,
-      "maxScore": 1000
+      "minScore": -120.0,
+      "maxScore": -80.0,
+      "maxMissilesFired": 8,
+      "minKills": 1,
+      "maxDenials": 44,
+      "minDenials": 36
     },
-    "catalogRefs": [
-      "a-19-gotland-2022",
-      "em-sovremenny-i-pr-956-sarych",
-      "jas-39c-gripen-2005",
-      "k-31-visby-2009",
-      "mpk-steregushchiy-pr-20380-2018"
-    ],
     "units": [
       {
         "unitId": "k-31-visby-2009",
@@ -78,20 +109,8 @@
         "platformId": "a-19-gotland-2022",
         "domain": "subsurface",
         "side": "blue"
-      },
-      {
-        "unitId": "em-sovremenny-i-pr-956-sarych",
-        "platformId": "em-sovremenny-i-pr-956-sarych",
-        "domain": "surface",
-        "side": "red"
-      },
-      {
-        "unitId": "mpk-steregushchiy-pr-20380-2018",
-        "platformId": "mpk-steregushchiy-pr-20380-2018",
-        "domain": "surface",
-        "side": "red"
       }
-    ],
-    "runId": "gauntlet-t3t5-catalog-red"
-  }
+    ]
+  },
+  "id": "gauntlet-t5-theater"
 }
