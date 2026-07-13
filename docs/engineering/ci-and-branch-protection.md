@@ -1,6 +1,6 @@
 # CI and branch protection
 
-> **Last updated:** 2026-06-25 (S67)  
+> **Last updated:** 2026-07-13 (#37 closed)  
 > **Cites:** production/release-train-scope-boundary-2026-06-24.md (S67 row: Buildkite preflight ∥ Regression baseline lock ∥ Branch-protection; .buildkite/ alignment with §7 gates; ci-and-branch-protection update) + future-sprint-roadpmap-062426.md §7 (standing invariants) + roadmap-execute-plan-062426.md §S67  
 > **Graphite-first workflow:** [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md) — use `gt submit`, not `gh pr create`, for stack work.  
 > **Buildkite setup:** [buildkite-ci.md](./buildkite-ci.md)
@@ -55,27 +55,42 @@ When Actions is blocked, run before merge:
 
 **Pass criteria (baseline @ `afd2e1a`):** **403/403** full-solution tests, **7/7** PlayMode smoke, replay golden suite **PASS**. Attach terminal evidence to the PR per the SOP.
 
-**Producer sign-off:** **FALLBACK ACTIVE** (billing unresolved). Retire this section when `buildkite/cmano-clone` is green on `main` and branch protection requires it.
+**Producer sign-off:** **SUPERSEDED for merge gating (2026-07-13).** Branch protection now requires `buildkite/cmano-clone` on `main` ([#37](https://github.com/drgaciw/cmano-clone/issues/37) closed). Keep `verify-ci-local.ps1` for offline/agent work; it is no longer the sole merge authority when Buildkite is green.
 
 ## Required status checks (branch protection)
 
-**Private repos on the free plan** cannot set or read branch protection via the API (HTTP 403 — *Upgrade to GitHub Pro or make this repository public*). Required status check names **cannot be API-verified** on the current plan. Enable and audit checks manually in the GitHub UI when the repo is **public** or the org has **GitHub Pro/Team**. Until then, use the Sprint 19 local gate SOP when merging with red Actions checks.
+**Status (2026-07-13):** **ENABLED and enforced** on `main`. Issue [#37](https://github.com/drgaciw/cmano-clone/issues/37) closed.
 
-Tracking issue: [Enable branch protection required checks on main](https://github.com/drgaciw/cmano-clone/issues/37).
+| Setting | Live value |
+|---------|------------|
+| Require status checks | yes |
+| Required context | `buildkite/cmano-clone` |
+| Require branches up to date (`strict`) | yes |
+| Dismiss stale pull request approvals | **false** (use Graphite dismiss workflow) |
+| Enforce for admins | yes |
+| Allow force pushes / deletions | false |
 
-### Settings → Branches → Add rule for `main`
+**Visibility note:** The repo was set **public** so Free-plan branch protection can enforce (private Free still returns API/UI 403). To go private again, move to GitHub Pro/Team first or protection will stop enforcing.
+
+Verify:
+
+```bash
+gh api repos/drgaciw/cmano-clone/branches/main/protection --jq '.required_status_checks'
+```
+
+### Settings → Branches → rule for `main` (recreate if needed)
 
 1. **Require status checks to pass**
-2. **Require branches to be up to date before merging** (recommended)
-3. Select this context (exact name from first green Buildkite build):
+2. **Require branches to be up to date before merging**
+3. Required context:
 
    | Context | Source |
    |---------|--------|
-   | `buildkite/cmano-clone` | Buildkite primary pipeline (adjust slug if yours differs). S67+ enforces §7 gates per release-train-scope-boundary-2026-06-24.md (tests, replay, GitNexus pre, baselines). |
+   | `buildkite/cmano-clone` | Buildkite primary pipeline. S67+ enforces §7 gates per release-train-scope-boundary-2026-06-24.md. |
 
 4. **Do not** enable “Dismiss stale pull request approvals when new commits are pushed” — Graphite rebases break that rule. Use [Dismiss Stale Approvals (Graphite-compatible)](../../.github/workflows/graphite-dismiss-stale-approvals.yml) instead.
 
-### Apply via CLI (Pro / public repo)
+### Apply / re-apply via CLI (public or Pro)
 
 ```powershell
 # From repo root — requires permission to manage branch protection
