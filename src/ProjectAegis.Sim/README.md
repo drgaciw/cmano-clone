@@ -125,6 +125,7 @@ goldens that assert reproducibility of this core live in
 | Policy evaluator boundary | [`adr-002-policy-evaluator.md`](../../docs/architecture/adr-002-policy-evaluator.md) |
 | Sim assembly boundary (no Unity) | [`adr-001-sim-assembly-boundary.md`](../../docs/architecture/adr-001-sim-assembly-boundary.md) |
 | Combat domain validators | [`adr-009-combat-domain-validators.md`](../../docs/architecture/adr-009-combat-domain-validators.md) |
+| Data / catalog layer (this core's only dependency) | [`../ProjectAegis.Data/README.md`](../ProjectAegis.Data/README.md) |
 | Delegation framework (consumer of this core) | [`../ProjectAegis.Delegation/README.md`](../ProjectAegis.Delegation/README.md) |
 | Replay harness / golden regeneration | [`../ProjectAegis.Delegation.Demo/README.md`](../ProjectAegis.Delegation.Demo/README.md) |
 | Hard invariants + verification block | [`AGENTS.md`](../../AGENTS.md#hard-invariants--never-break-these) |
