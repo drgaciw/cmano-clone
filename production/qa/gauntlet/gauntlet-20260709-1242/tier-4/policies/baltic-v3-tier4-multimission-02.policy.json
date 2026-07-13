@@ -1,0 +1,62 @@
+{
+  "id": "baltic-v3-tier4-multimission-02",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true
+  },
+  "emcon": {
+    "units": {
+      "u1": { "radar": "Passive" },
+      "usub-blue": { "radar": "Passive" },
+      "hostile-1": { "radar": "Passive" },
+      "usub-red": { "radar": "Active" },
+      "ucav-red": { "radar": "Active" }
+    }
+  },
+  "catalogDetection": [
+    {
+      "observerId": "ucav-red",
+      "sensorId": "recon-radar",
+      "targetId": "u1",
+      "contactId": "c1",
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "usub-red",
+      "sensorId": "hull-sonar",
+      "targetId": "usub-blue",
+      "contactId": "c2",
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "mission": {
+    "fireOrder": [],
+    "events": [
+      {
+        "id": "inject-01",
+        "fireAtTick": 5,
+        "kind": "MissionTransition",
+        "code": "RANDOM_INJECT_CONTACT_UPDATE"
+      },
+      {
+        "id": "inject-02",
+        "fireAtTick": 13,
+        "kind": "MissionTransition",
+        "code": "RANDOM_INJECT_ROE_REVIEW"
+      },
+      {
+        "id": "inject-03",
+        "fireAtTick": 21,
+        "kind": "MissionTransition",
+        "code": "RANDOM_INJECT_SCORE_CHECKPOINT"
+      }
+    ]
+  }
+}
