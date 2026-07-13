@@ -176,6 +176,12 @@ public static class BalticReplayHarness
             hostileBinding = bridge.Registry.RegisterUnit(new EntityKey(nextEntityKey++), "hostile-1");
         }
 
+        nextEntityKey = RegisterGauntletCatalogUnits(
+            bridge,
+            scenarioPolicyId,
+            catalogReader,
+            nextEntityKey);
+
         RegisterNearFutureUnits(bridge, nearFutureUnits, maxTechnologyLevel, nextEntityKey);
         var unit = unitBinding.Target;
         var patrolPolicyFactory = profile?.DelegationSettings.UsePatrolCandidates == true
@@ -506,6 +512,55 @@ public static class BalticReplayHarness
         }
 
         public void ApplyOrder(EntityKey entity, in Order order) { }
+    }
+
+    /// <summary>
+    /// Registers catalog-backed gauntlet.units (surface/air/sub) when present on the policy JSON.
+    /// Legacy scenarios without <c>gauntlet.units</c> are unchanged for ReplayGolden safety.
+    /// </summary>
+    /// <returns>Next free entity key after registration.</returns>
+    private static int RegisterGauntletCatalogUnits(
+        DelegationBridge bridge,
+        string scenarioPolicyId,
+        ICatalogReader catalogReader,
+        int startEntityKey)
+    {
+        var dto = ProjectAegis.Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(scenarioPolicyId);
+        var units = dto?.Gauntlet?.Units;
+        if (units == null || units.Count == 0)
+        {
+            return startEntityKey;
+        }
+
+        var entityKey = startEntityKey;
+        foreach (var unit in units)
+        {
+            if (string.IsNullOrWhiteSpace(unit.PlatformId))
+            {
+                continue;
+            }
+
+            var unitId = string.IsNullOrWhiteSpace(unit.UnitId) ? unit.PlatformId : unit.UnitId!;
+            var domain = string.IsNullOrWhiteSpace(unit.Domain) ? "surface" : unit.Domain;
+            bridge.Registry.RegisterUnit(new EntityKey(entityKey++), unitId);
+            // EventId is included in fire_order / fingerprint extraction paths.
+            bridge.Orchestrator.DecisionLog.AppendEventFired(new EventFiredRecord(
+                0,
+                0,
+                0,
+                $"CATALOG_UNIT:{unit.PlatformId}:{domain}",
+                unitId));
+
+            // Exercise catalog magazine resolution for combat-ready platforms.
+            if (catalogReader is not null)
+            {
+                _ = catalogReader.GetSortedMagazines()
+                    .Where(m => string.Equals(m.PlatformId, unit.PlatformId, StringComparison.Ordinal))
+                    .ToArray();
+            }
+        }
+
+        return entityKey;
     }
 
     private static void RegisterNearFutureUnits(
