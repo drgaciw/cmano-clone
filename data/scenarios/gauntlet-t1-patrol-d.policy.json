@@ -1,0 +1,47 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.7,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-far",
+      "contactId": "c-far",
+      "basePd": 0.5,
+      "envMask": 0.9,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "Long-range patrol contact on hostile-far",
+    "oracle": "Stable fingerprint; may not kill",
+    "catalogRefs": [
+      "hostile-1",
+      "hostile-far",
+      "u1",
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "624-pr-205p-tarantul-1992",
+      "70-rauma-helsinki-ii-1990",
+      "80-hamina-rauma-2-2006",
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "em-sovremenny-i-pr-956-sarych",
+      "f-207-bremen-type-f122-1982"
+    ],
+    "runId": "gauntlet-20260710-1352",
+    "tier": 1
+  },
+  "id": "gauntlet-t1-patrol-d"
+}
