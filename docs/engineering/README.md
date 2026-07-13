@@ -19,6 +19,7 @@ Deep-dives into engine-agnostic subsystems, verified against source and pinned b
 | [determinism-and-replay.md](determinism-and-replay.md) | How the sim stays bit-for-bit reproducible per `(scenario, seed)`: determinism rules, world-state / order-log hashing, the golden-fixture workflow, and common pitfalls. |
 | [abort-reason-catalog.md](abort-reason-catalog.md) | The stable machine-readable abort codes (`ENGAGE_ABORT` / `POLICY_DENIAL`): the manifest → codegen workflow, the two-layer enum split, and how to add a code without breaking replay. |
 | [mission-editor-cli.md](mission-editor-cli.md) | Operational reference for the headless Mission Editor CLI and its MCP verbs — author, validate, simulate, publish scenarios and browse/extend the catalog without Unity. |
+| [scenario-policy-authoring.md](scenario-policy-authoring.md) | How to author `data/scenarios/*.policy.json` sim policy files: the loader/override model, the full top-level + `engage` field reference, enum values (and which throw), contact-triggered ROE escalation, validation errors, and replay constraints. |
 
 ## Local environment & agentic tooling
 
