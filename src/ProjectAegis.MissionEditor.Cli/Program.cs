@@ -30,6 +30,20 @@ switch (command)
         return RunMissionUpdateStrike(args.Skip(1).ToArray());
     case "mission_delete":
         return RunMissionDelete(args.Skip(1).ToArray());
+    case "mission_add_support":
+        return RunMissionAddSupport(args.Skip(1).ToArray());
+    case "mission_add_ferry":
+        return RunMissionAddFerry(args.Skip(1).ToArray());
+    case "reference_point_set":
+        return RunReferencePointSet(args.Skip(1).ToArray());
+    case "scenario_load":
+        return RunScenarioLoad(args.Skip(1).ToArray());
+    case "scenario_save":
+        return RunScenarioSave(args.Skip(1).ToArray());
+    case "event_add":
+        return RunEventAdd(args.Skip(1).ToArray());
+    case "event_validate":
+        return RunEventValidate(args.Skip(1).ToArray());
     case "mission_plan_suggest":
         return RunMissionPlanSuggest(args.Skip(1).ToArray());
     case "scenario_comms_status":
@@ -302,6 +316,144 @@ static int RunMissionDelete(string[] args)
     return MissionDeleteCommand.Run(path, editVersion, missionId, Console.Out);
 }
 
+static int RunMissionAddSupport(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var role = CliArgParser.GetFlag(args, "--role") ?? "Tanker";
+    var units = CliArgParser.GetRepeated(args, "--unit");
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) ||
+        units.Count == 0 || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_add_support requires --path --edit-version --id --unit U [--wp lat,lon]+ [--role Tanker|AEW|EW]");
+        return 1;
+    }
+
+    try
+    {
+        var waypoints = CliArgParser.ParseWaypoints(CliArgParser.GetRepeated(args, "--wp"));
+        return MissionAddSupportCommand.Run(path, editVersion, missionId, units, role, waypoints, Console.Out);
+    }
+    catch (FormatException ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "INVALID_ZONE", ex.Message);
+    }
+}
+
+static int RunMissionAddFerry(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    var missionId = CliArgParser.GetFlag(args, "--id");
+    var destination = CliArgParser.GetFlag(args, "--destination");
+    var units = CliArgParser.GetRepeated(args, "--unit");
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(missionId) ||
+        string.IsNullOrWhiteSpace(destination) || units.Count == 0 || editVersion < 0)
+    {
+        Console.Error.WriteLine("mission_add_ferry requires --path --edit-version --id --unit U --destination <baseId>");
+        return 1;
+    }
+
+    return MissionAddFerryCommand.Run(path, editVersion, missionId, units, destination, Console.Out);
+}
+
+static int RunReferencePointSet(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    var pointId = CliArgParser.GetFlag(args, "--id");
+    var geometryType = CliArgParser.GetFlag(args, "--type") ?? "point";
+    var radiusRaw = CliArgParser.GetFlag(args, "--radius-nm");
+    double? radius = double.TryParse(radiusRaw, out var r) ? r : null;
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(pointId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("reference_point_set requires --path --edit-version --id --wp lat,lon");
+        return 1;
+    }
+
+    try
+    {
+        var waypoints = CliArgParser.ParseWaypoints(CliArgParser.GetRepeated(args, "--wp"));
+        if (waypoints.Count == 0)
+        {
+            Console.Error.WriteLine("reference_point_set requires --path --edit-version --id --wp lat,lon");
+            return 1;
+        }
+
+        return ReferencePointSetCommand.Run(path, editVersion, pointId, geometryType, waypoints, radius, Console.Out);
+    }
+    catch (FormatException ex)
+    {
+        return McpToolResult.WriteError(Console.Out, "INVALID_ZONE", ex.Message);
+    }
+}
+
+static int RunScenarioLoad(string[] args)
+{
+    var source = CliArgParser.GetFlag(args, "--path");
+    var dest = CliArgParser.GetFlag(args, "--out");
+    if (string.IsNullOrWhiteSpace(source))
+    {
+        Console.Error.WriteLine("scenario_load requires --path <file.json|.aegis-scenario> [--out dest.json]");
+        return 1;
+    }
+
+    // Package loads must not overwrite the zip with stable JSON; require an explicit --out.
+    if (source.EndsWith(".aegis-scenario", StringComparison.OrdinalIgnoreCase) &&
+        string.IsNullOrWhiteSpace(dest))
+    {
+        Console.Error.WriteLine("scenario_load of .aegis-scenario package requires --out <dest.json>");
+        return 1;
+    }
+
+    return ScenarioLoadCommand.Run(source, dest, Console.Out);
+}
+
+static int RunScenarioSave(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    if (string.IsNullOrWhiteSpace(path) || editVersion < 0)
+    {
+        Console.Error.WriteLine("scenario_save requires --path --edit-version N");
+        return 1;
+    }
+
+    return ScenarioSaveCommand.Run(path, editVersion, Console.Out);
+}
+
+static int RunEventAdd(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var editVersion = CliArgParser.GetIntFlag(args, "--edit-version", -1);
+    var eventId = CliArgParser.GetFlag(args, "--id");
+    var priority = CliArgParser.GetIntFlag(args, "--priority", 100);
+    var triggerType = CliArgParser.GetFlag(args, "--trigger") ?? "Time";
+    var atTick = CliArgParser.GetIntFlag(args, "--at-tick", -1);
+    int? tick = atTick >= 0 ? atTick : null;
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(eventId) || editVersion < 0)
+    {
+        Console.Error.WriteLine("event_add requires --path --edit-version --id --trigger Time [--at-tick N]");
+        return 1;
+    }
+
+    return EventAddCommand.Run(path, editVersion, eventId, priority, triggerType, tick, Console.Out);
+}
+
+static int RunEventValidate(string[] args)
+{
+    var path = CliArgParser.GetFlag(args, "--path");
+    var eventId = CliArgParser.GetFlag(args, "--id");
+    if (string.IsNullOrWhiteSpace(path) || string.IsNullOrWhiteSpace(eventId))
+    {
+        Console.Error.WriteLine("event_validate requires --path --id");
+        return 1;
+    }
+
+    return EventValidateCommand.Run(path, eventId, Console.Out);
+}
+
 static void PrintUsage()
 {
     Console.WriteLine("Project Aegis — Mission Editor headless MCP tools");
@@ -312,6 +464,13 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_patrol --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--wp lat,lon]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_strike --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--target T]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_delete --path <scenario.json> --edit-version N --id <id>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_support --path <scenario.json> --edit-version N --id <id> --unit U [--wp lat,lon]+ [--role Tanker|AEW|EW]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_ferry --path <scenario.json> --edit-version N --id <id> --unit U --destination <baseId>");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- reference_point_set --path <scenario.json> --edit-version N --id <id> --wp lat,lon");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_load --path <file.json|.aegis-scenario> [--out dest.json]  # --out required for packages");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_save --path <scenario.json> --edit-version N");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- event_add --path <scenario.json> --edit-version N --id <id> --trigger Time [--at-tick N]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- event_validate --path <scenario.json> --id <id>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_validate --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export_brief --path <scenario.json> [--out brief.md]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_simulate_sample --path <scenario.json> [--ticks N]");

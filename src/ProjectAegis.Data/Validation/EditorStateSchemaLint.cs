@@ -21,6 +21,11 @@ public static class EditorStateSchemaLint
             {
                 assembly = AppDomain.CurrentDomain.GetAssemblies()
                     .FirstOrDefault(a => string.Equals(a.GetName().Name, assemblyName, StringComparison.Ordinal));
+                if (assembly == null)
+                {
+                    // Assemblies load lazily; probe by name so the lint cannot false-negative.
+                    assembly = Assembly.Load(new AssemblyName(assemblyName));
+                }
             }
             catch
             {
