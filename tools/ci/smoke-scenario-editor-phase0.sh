@@ -116,14 +116,19 @@ echo "== AC-6 smoke =="
 bash tools/ci/smoke-ac6.sh
 
 echo
-echo "== DelegationBridge.cs unchanged vs merge-base main =="
+echo "== DelegationBridge.cs additive-only vs merge-base main =="
 if git rev-parse --verify main >/dev/null 2>&1; then
   MB="$(git merge-base main HEAD 2>/dev/null || true)"
   if [[ -n "$MB" ]]; then
-    BRIDGE_DIFF="$(git diff "$MB"..HEAD -- src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs | wc -l | tr -d ' ')"
-    echo "merge-base: $(git rev-parse --short "$MB") bridge diff lines: $BRIDGE_DIFF"
-    if [[ "${BRIDGE_DIFF:-0}" -ne 0 ]]; then
-      echo "FAIL: DelegationBridge.cs has changes vs merge-base (ZERO touch invariant)" >&2
+    # req 20 rev 2 Phase 2b (approved 2026-07-08): the bridge may gain the ADDITIVE
+    # TryCancelHumanOrder command affordance, but every existing method must stay byte-for-byte
+    # untouched. A pure insertion has zero deletion lines; any modification/removal of existing
+    # bridge code shows as a '-' line and still fails. This supersedes the former zero-diff rule
+    # while preserving its protective intent (no changes to the existing bridge surface).
+    BRIDGE_DEL="$(git diff "$MB"..HEAD -- src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs | grep -c '^-[^-]' || true)"
+    echo "merge-base: $(git rev-parse --short "$MB") bridge deletion/modification lines vs merge-base: $BRIDGE_DEL"
+    if [[ "${BRIDGE_DEL:-0}" -ne 0 ]]; then
+      echo "FAIL: DelegationBridge.cs modifies/removes existing code vs merge-base (additive-only invariant)" >&2
       exit 1
     fi
   else

@@ -15,4 +15,9 @@ public sealed class HumanController : IController
 
     public IReadOnlyList<Order> DrainIssuedOrders(ulong currentSimTick) =>
         _queue.DrainReady(currentSimTick);
+
+    /// <summary>Cancel the oldest pending order for <paramref name="target"/> before it executes
+    /// (req 20 rev 2 §Order lifecycle cancel/replan). Returns false when nothing is pending for it.</summary>
+    public bool TryCancel(TargetId target, out Order removed, out ulong executeSimTick) =>
+        _queue.TryRemove(target, out removed, out executeSimTick);
 }

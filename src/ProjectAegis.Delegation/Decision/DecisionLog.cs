@@ -22,6 +22,7 @@ public sealed class DecisionLog : IOrderLog
     private readonly List<EventFiredRecord> _eventFired = new();
     private readonly List<EngagementOutcomeRecord> _engagementOutcomes = new();
     private readonly List<PlayerOrderRecord> _playerOrders = new();
+    private readonly List<PlayerOrderCancelledRecord> _playerOrderCancellations = new();
     private readonly List<PolicyUpdateRecord> _policyUpdates = new();
     private readonly List<ModeChangeRecord> _modeChanges = new();
     private readonly List<CommsStateChangeRecord> _commsStateChanges = new();
@@ -54,6 +55,7 @@ public sealed class DecisionLog : IOrderLog
     public IReadOnlyList<EngagementOutcomeRecord> EngagementOutcomes => _engagementOutcomes;
 
     public IReadOnlyList<PlayerOrderRecord> PlayerOrders => _playerOrders;
+    public IReadOnlyList<PlayerOrderCancelledRecord> PlayerOrderCancellations => _playerOrderCancellations;
 
     public IReadOnlyList<PolicyUpdateRecord> PolicyUpdates => _policyUpdates;
 
@@ -137,6 +139,11 @@ public sealed class DecisionLog : IOrderLog
                 var playerOrderRecord = playerOrder with { SequenceId = sequenceId };
                 _playerOrders.Add(playerOrderRecord);
                 AppendChronologicalEntry(sequenceId, OrderLogEntryKind.PlayerOrder, playerOrderRecord.SimTime, playerOrderRecord);
+                break;
+            case OrderLogEntryKind.PlayerOrderCancelled when entry.Payload is PlayerOrderCancelledRecord playerOrderCancelled:
+                var playerOrderCancelledRecord = playerOrderCancelled with { SequenceId = sequenceId };
+                _playerOrderCancellations.Add(playerOrderCancelledRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.PlayerOrderCancelled, playerOrderCancelledRecord.SimTime, playerOrderCancelledRecord);
                 break;
             case OrderLogEntryKind.PolicyUpdate when entry.Payload is PolicyUpdateRecord policyUpdate:
                 var policyUpdateRecord = policyUpdate with { SequenceId = sequenceId };
@@ -224,6 +231,9 @@ public sealed class DecisionLog : IOrderLog
     public void AppendPlayerOrder(PlayerOrderRecord order) =>
         Append(OrderLogEntryFactories.FromPlayerOrder(order));
 
+    public void AppendPlayerOrderCancelled(PlayerOrderCancelledRecord cancelled) =>
+        Append(OrderLogEntryFactories.FromPlayerOrderCancelled(cancelled));
+
     public void AppendPolicyUpdate(PolicyUpdateRecord update) =>
         Append(OrderLogEntryFactories.FromPolicyUpdate(update));
 
@@ -293,6 +303,8 @@ public sealed class DecisionLog : IOrderLog
                 $"{o.SimTick}|{o.EngagementId}|{o.VictimTargetId.Value}|{o.OutcomeCode}|{FingerprintFloat.Format(o.PkDraw)}",
             OrderLogEntryKind.PlayerOrder when entry.Payload is PlayerOrderRecord p =>
                 $"{p.SimTick}|{p.ResolvedExecuteSimTick}|{p.UnitId.Value}|{p.Kind}|{p.Source}",
+            OrderLogEntryKind.PlayerOrderCancelled when entry.Payload is PlayerOrderCancelledRecord c =>
+                $"{c.SimTick}|{c.CancelledExecuteSimTick}|{c.UnitId.Value}|{c.Kind}|{c.Source}",
             OrderLogEntryKind.PolicyUpdate when entry.Payload is PolicyUpdateRecord u =>
                 $"{u.SimTick}|{u.PolicySnapshotId}|{u.Field}|{u.PreviousValue}|{u.NewValue}",
             OrderLogEntryKind.ModeChange when entry.Payload is ModeChangeRecord m =>

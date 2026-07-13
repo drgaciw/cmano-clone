@@ -20,4 +20,7 @@ public enum OrderLogEntryKind
     FuelStateChange = 15,
     FuelBurn = 16,
     PlatformDamageChange = 17,
+    // Additive (req 20 rev 2, Phase 2b): appended at the end so existing values 0–17 never shift —
+    // existing replays/fingerprints are byte-identical (no PlayerOrderCancelled entry unless a player cancels).
+    PlayerOrderCancelled = 18,
 }

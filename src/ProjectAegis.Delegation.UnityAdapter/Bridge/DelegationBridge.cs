@@ -190,6 +190,55 @@ public sealed class DelegationBridge
         return true;
     }
 
+    /// <summary>
+    /// Cancel the queued/plotted human order for <paramref name="entity"/> before it executes, emitting
+    /// a logged <c>PlayerOrderCancelled</c> intent (req 20 rev 2 §Order lifecycle, TR-c2-006). ADDITIVE
+    /// to the bridge command API — introduces no change to any existing method, so the CRITICAL upstream
+    /// surface is unaffected; and it only appends a log entry when a player actually cancels, so replays
+    /// that never cancel keep an identical order-log fingerprint (Baltic hash unchanged). No-op in replay.
+    /// </summary>
+    /// <returns>True if a pending order was cancelled; otherwise false with <paramref name="failureReason"/> set.</returns>
+    public bool TryCancelHumanOrder(EntityKey entity, double simTime, out string? failureReason)
+    {
+        if (Orchestrator.AttachReplayViewer)
+        {
+            failureReason = "replay";
+            return false;
+        }
+
+        if (!Registry.TryGetBinding(entity, out var binding) ||
+            binding.Target.Slot.Active is not HumanController human)
+        {
+            failureReason = "no-human-controller";
+            return false;
+        }
+
+        if (!human.TryCancel(binding.TargetId, out var cancelled, out var executeTick))
+        {
+            failureReason = "no-pending-order";
+            return false;
+        }
+
+        var simTick = (ulong)Math.Max(0, (long)simTime);
+        Orchestrator.DecisionLog.AppendPlayerOrderCancelled(new PlayerOrderCancelledRecord(
+            0,
+            simTime,
+            simTick,
+            binding.TargetId,
+            cancelled.Kind,
+            CancelledExecuteSimTick: executeTick));
+
+        // Cancel of a queued Engage must not leave Session.NextEngageSalvoOverride sticky for a later
+        // engage (Codex P2 on PR #257). Additive path only — no existing hotpath method body change.
+        if (cancelled.Kind == OrderKind.Engage && Session is not null)
+        {
+            Session.NextEngageSalvoOverride = null;
+        }
+
+        failureReason = null;
+        return true;
+    }
+
     /// <summary>Attack menu entries for UI binding (live engage context).</summary>
     public IReadOnlyList<EngageAttackOptions.AttackOption> GetAttackMenuOptions(
         string unitId,

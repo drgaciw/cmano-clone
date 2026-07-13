@@ -51,6 +51,9 @@ public static class OrderLogEntryFactories
     public static OrderLogEntry FromPlayerOrder(PlayerOrderRecord order, ulong sequenceId = 0) =>
         new(sequenceId, OrderLogEntryKind.PlayerOrder, order.SimTime, order);
 
+    public static OrderLogEntry FromPlayerOrderCancelled(PlayerOrderCancelledRecord cancelled, ulong sequenceId = 0) =>
+        new(sequenceId, OrderLogEntryKind.PlayerOrderCancelled, cancelled.SimTime, cancelled);
+
     public static OrderLogEntry FromPolicyUpdate(PolicyUpdateRecord update, ulong sequenceId = 0) =>
         new(sequenceId, OrderLogEntryKind.PolicyUpdate, update.SimTime, update);
 
