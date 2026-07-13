@@ -335,6 +335,90 @@
       "command": "pwsh",
       "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "osint_staging_review", "-ExtraArgs", "--db", "${db}", "--approve", "${batchId}"],
       "inputSchema": { "type": "object", "properties": { "db": { "type": "string" }, "batchId": { "type": "string" } } }
+    },
+    {
+      "name": "platform_export_xlsx",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "platform_export_xlsx",
+        "-ExtraArgs",
+        "--db",
+        "${dbRef}",
+        "--out",
+        "${outPath}",
+        "--snapshot",
+        "${snapshotId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["outPath"],
+        "properties": {
+          "dbRef": { "type": "string", "default": "baltic_patrol" },
+          "outPath": { "type": "string" },
+          "snapshotId": { "type": "string", "default": "" }
+        }
+      },
+      "returns": "JSON status + workbook (canonical text for headless roundtrip; xlsx adapter deferred per ADR-011)"
+    },
+    {
+      "name": "platform_import_xlsx",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "platform_import_xlsx",
+        "-ExtraArgs",
+        "--db",
+        "${dbRef}",
+        "--in",
+        "${inPath}",
+        "--actor-type",
+        "${actorType}",
+        "--actor-id",
+        "${actorId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": ["dbRef"],
+        "properties": {
+          "dbRef": { "type": "string" },
+          "inPath": { "type": "string" },
+          "actorType": { "type": "string", "default": "cli" },
+          "actorId": { "type": "string", "default": "mcp" }
+        }
+      },
+      "returns": "JSON {ok, verb, staged, notes, nextStep: catalog_write_approve}; uses IWriteGate (no auto-commit)"
+    },
+    {
+      "name": "platform_diff_xlsx",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "platform_diff_xlsx",
+        "-ExtraArgs",
+        "--db",
+        "${dbRef}",
+        "--base",
+        "${basePath}",
+        "--edited",
+        "${editedPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "dbRef": { "type": "string", "default": "baltic_patrol" },
+          "basePath": { "type": "string" },
+          "editedPath": { "type": "string" }
+        }
+      },
+      "returns": "JSON diff report (change count + determinism note)"
     }
   ]
 }

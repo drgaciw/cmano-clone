@@ -48,6 +48,12 @@ switch (command)
         return RunCatalogWriteApprove(args.Skip(1).ToArray());
     case "catalog_import_markdown":
         return RunCatalogImportMarkdown(args.Skip(1).ToArray());
+    case "platform_export_xlsx":
+        return RunPlatformExportXlsx(args.Skip(1).ToArray());
+    case "platform_import_xlsx":
+        return RunPlatformImportXlsx(args.Skip(1).ToArray());
+    case "platform_diff_xlsx":
+        return RunPlatformDiffXlsx(args.Skip(1).ToArray());
     case "osint_staging_review":
         return RunOsintStagingReview(args.Skip(1).ToArray());
     case "osint_search":
@@ -344,6 +350,39 @@ static int RunCatalogImportMarkdown(string[] args)
     var chunkSize = CliArgParser.GetIntFlag(args, "--chunk-size", CmoMarkdownImportProposer.DefaultChunkSize);
     var reportOut = CliArgParser.GetFlag(args, "--report-out");
     return CatalogImportMarkdownCommand.Run(db, markdown, maxRecords, chunkSize, Console.Out, reportOut);
+}
+
+static int RunPlatformExportXlsx(string[] args)
+{
+    // S22-02: thin wrapper per CatalogImportMarkdownCommand pattern. --db optional (export is read-only on snapshot).
+    var db = CliArgParser.GetFlag(args, "--db");
+    var outPath = CliArgParser.GetFlag(args, "--out") ?? CliArgParser.GetFlag(args, "--output");
+    var snapshotId = CliArgParser.GetFlag(args, "--snapshot") ?? CliArgParser.GetFlag(args, "--snapshot-id") ?? string.Empty;
+    return PlatformExportXlsxCommand.Run(db, outPath ?? string.Empty, snapshotId, Console.Out);
+}
+
+static int RunPlatformImportXlsx(string[] args)
+{
+    // S22-02: same IWriteGate path (no auto-commit). --db required; --in for workbook; actor defaults for CLI/MCP.
+    var db = CliArgParser.GetFlag(args, "--db");
+    var inPath = CliArgParser.GetFlag(args, "--in") ?? CliArgParser.GetFlag(args, "--input");
+    var actorType = CliArgParser.GetFlag(args, "--actor-type") ?? "cli";
+    var actorId = CliArgParser.GetFlag(args, "--actor-id") ?? "mission-editor";
+    if (string.IsNullOrWhiteSpace(db))
+    {
+        Console.Error.WriteLine("platform_import_xlsx requires --db <catalog.db> [--in <workbook.xlsx>]");
+        return 1;
+    }
+    return PlatformImportXlsxCommand.Run(db, inPath ?? string.Empty, actorType, actorId, Console.Out);
+}
+
+static int RunPlatformDiffXlsx(string[] args)
+{
+    // S22-02: diff verb for roundtrip verification (exercises exporter + diff, no gate).
+    var db = CliArgParser.GetFlag(args, "--db");
+    var basePath = CliArgParser.GetFlag(args, "--base") ?? CliArgParser.GetFlag(args, "--source");
+    var editedPath = CliArgParser.GetFlag(args, "--edited") ?? CliArgParser.GetFlag(args, "--in");
+    return PlatformDiffXlsxCommand.Run(db, basePath ?? string.Empty, editedPath ?? string.Empty, Console.Out);
 }
 
 static int RunOsintStagingReview(string[] args)
