@@ -1,8 +1,8 @@
 # UX Specification: C2 Command Post (Play Mode)
 
-> **Status:** Draft — Sprint 4  
+> **Status:** Draft — Sprint 4 (rev 2 cascade 2026-07-08: multi-select, order states, alerting per req 20 rev 2)  
 > **Author:** ux-design / milsim review  
-> **Last Updated:** 2026-08-03  
+> **Last Updated:** 2026-07-08 (corrects prior future-dated 2026-08-03)  
 > **Screen / Flow Name:** `C2CommandPost`  
 > **S39-09 residual note (lean, isolated Evidence/UX track):** Cross-ref for C2/Platform deeper polish (S39-03: density, tooltips, filter surfacing). See S39-07 playtest 11 entry (playtests/README.md) + art-bible.md; proxy evidence + s37 PNGs cover PNG/playtest 11. Minimal only; no new sections. (polish-scope-boundary-2026-06-19.md + S39 qa-plan)  
 > **Platform Target:** PC (keyboard/mouse primary); gamepad partial (Sprint 4+)  
@@ -77,11 +77,10 @@ Main Menu → Scenario Select → Mission Planning (RTwP) → [C2 Command Post] 
 
 | Zone | Size | MVP | Data source |
 |------|------|-----|-------------|
-| Top bar | 100% × 48px | P0 | Sim time, compression, `SimulationModeProfile` |
+| Top bar | 100% × 48px | **Done** | `C2TopBarProjection` (sim time, compression, `SimulationModeProfile`) |
 | Left drawer | 240px × flex | **Done** (Toolkit) | `OobTreeBridge`, `MissionListBridge`, `SensorC2Bridge` |
 | Map | center flex | **Done** (placeholder) | `MapPictureProjection` |
 | Right panel | 320px × flex | **Done** | `UnitDetailProjection` |
-| Top bar | 100% × 48px | **Done** | `C2TopBarProjection` |
 | Bottom log | 100% × 120px | **Done** (full categories) | `MessageLogBridge.ProjectFrom` |
 
 ### 4.3 Component inventory (delta — not yet built)
@@ -93,6 +92,10 @@ Main Menu → Scenario Select → Mission Planning (RTwP) → [C2 Command Post] 
 | DelegationBadge | Overlay | Map | P0 icon on unit |
 | TimeCompressionMenu | Menu | Top | P0 presets from doc 03 |
 | MessageLogRowSelect | List row | Bottom | P1 → focus unit |
+| SelectionBox *(rev 2)* | Map overlay | Map | P0 drag-box multi-select |
+| OrderStateChip *(rev 2)* | Chip | Right | P0 lifecycle state per order (`accepted…aborted`) |
+| ToastStack *(rev 2)* | Overlay | Map top-right | P0 max 3 + `+N` overflow; click focuses unit/`sequenceId` |
+| LegendOverlay *(rev 2)* | Overlay | Map | P1 symbology + COMMS legend toggle |
 
 ---
 
@@ -105,7 +108,8 @@ Main Menu → Scenario Select → Mission Planning (RTwP) → [C2 Command Post] 
 | Paused | Pause hotkey | Top bar PAUSE lit | Tick frozen; log still scrollable |
 | No selection | No unit picked | Right panel placeholder | "Select a unit on map or OOB" |
 | Unit selected | OOB row / map pick | Right panel populated | Doctrine, magazine, EMCON, sensors summary |
-| Replay | Replay mode | Time scrubber (future) | Read-only commands |
+| Multi-selected *(rev 2)* | Drag-box / shift-click / ctrl-click OOB | Right panel shows group summary (count, domains, worst fuel/magazine) | Context actions show per-unit eligibility before commit |
+| Replay | Replay mode | Time scrubber (future) | Read-only commands; toasts + auto-pause suppressed |
 
 ---
 
@@ -119,6 +123,12 @@ Main Menu → Scenario Select → Mission Planning (RTwP) → [C2 Command Post] 
 | Space | Pause / resume | Doc 03 |
 | `1–4` | Time compression preset | Doc 03 |
 | Esc | Close modal / cancel intent preview | Assisted mode |
+| Drag-box on map *(rev 2)* | Multi-select units | `SelectionBox`; shift-click add/remove |
+| Ctrl+click OOB row *(rev 2)* | Add/remove from selection set | Mirrors map multi-select |
+| `N` / `P` *(rev 2)* | Cycle next/previous friendly unit | Remap stub `input.cycle_unit` |
+| `F` *(rev 2)* | Center on primary hostile | Remap stub `input.focus_primary_threat` (accessibility §6.3) |
+| Enter / Esc *(rev 2)* | Confirm / cancel weapons-release gate | ROE positive-control intents only |
+| Log filter toggles *(rev 2)* | Show/hide category | Per doc 17 categories; persists per session |
 
 **Gamepad:** Deferred to Sprint 5; focus order: top bar → left drawer → log → right panel.
 
@@ -145,6 +155,8 @@ Main Menu → Scenario Select → Mission Planning (RTwP) → [C2 Command Post] 
 | Pause agent | `AgentPauseRequested` | Orchestrator (future C5) |
 | Time compression change | `ModeChangeRecord` | Order log |
 | Doctrine edit (P1) | Policy snapshot change | Policy evaluator |
+| Cancel queued/plotted order *(rev 2)* | `PlayerOrderCancelled` | Bridge command API → order log |
+| Critical-tier event *(rev 2)* | `AutoPauseRequested` (pause-reason stack) | Sim control — command, not mutation |
 
 ---
 
@@ -154,6 +166,7 @@ Main Menu → Scenario Select → Mission Planning (RTwP) → [C2 Command Post] 
 - Message log: scalable font; max 12 visible rows with scroll (configurable)
 - Focus: left drawer ListView keyboard navigable (Unity 6 default)
 - Reduced motion: instant tab switch, no map pan inertia
+- Toasts *(rev 2)*: AA text contrast on toast surface; appear/dismiss without slide/scale under `.reduced-motion`; never color-only severity (icon + label)
 
 ---
 
@@ -164,6 +177,9 @@ Main Menu → Scenario Select → Mission Planning (RTwP) → [C2 Command Post] 
 3. Right panel shows unit id, alive/destroyed, magazine summary, EMCON line for selected `u1`.
 4. No MonoBehaviour writes to `DecisionLog` except via bridge command API.
 5. Map zone may be placeholder (grid + unit dots) until globe ships — right panel must work without map.
+6. *(rev 2)* Drag-box selects ≥ 2 units; group engage issues one logged intent per eligible unit with pre-commit eligibility list (req 20 AC-7).
+7. *(rev 2)* Queued order shows lifecycle chip in right panel; cancel emits logged `PlayerOrderCancelled` (req 20 AC-8).
+8. *(rev 2)* Critical event with auto-pause on: sim pauses via pause-reason stack; toast click focuses source unit (req 20 AC-9).
 
 ---
 

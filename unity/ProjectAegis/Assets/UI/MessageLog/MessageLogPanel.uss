@@ -1,3 +1,8 @@
+@import url("../AegisTokens.uss");
+
+/* T3 (req 20 §Alerting and Interruption, TR-c2-007): imported for the .toast--critical/-notable/-routine
+ * severity border-cue classes applied additively in MessageLogPanelHost.AddCategoryClass. */
+
 .message-log-panel {
     position: absolute;
     right: 8px;
@@ -31,7 +36,9 @@
 }
 
 .message-log-row {
-    font-size: 10px;
+    /* req 20 AC-1 / F5 — scales with C2AccessibilitySettings.ScalePercent, 10px floor at 100%
+     * (accessibility-requirements.md §3). */
+    font-size: var(--aegis-font-size-log);
     color: rgb(210, 220, 230);
     padding-top: 1px;
     padding-bottom: 1px;
@@ -57,4 +64,32 @@
 
 .message-log-row--mission {
     color: rgb(160, 220, 180);
+}
+
+/* T2 (req 20 §Order lifecycle): PLAYER_ORDER row lifecycle tint. Compound selectors (two classes) so
+ * this always wins over the base .message-log-row color regardless of @import/declaration order —
+ * mirrors the .order-state--* palette in AegisTokens.uss (colour is a secondary cue; row tooltip
+ * carries the icon + text label per a11y). */
+.message-log-row.order-state--accepted {
+    color: var(--aegis-order-accepted);
+}
+
+.message-log-row.order-state--queued {
+    color: var(--aegis-order-queued);
+}
+
+.message-log-row.order-state--executing {
+    color: var(--aegis-order-executing);
+}
+
+.message-log-row.order-state--completed {
+    color: var(--aegis-order-completed);
+}
+
+.message-log-row.order-state--denied {
+    color: var(--aegis-order-denied);
+}
+
+.message-log-row.order-state--aborted {
+    color: var(--aegis-order-aborted);
 }

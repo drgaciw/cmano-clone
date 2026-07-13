@@ -11,12 +11,26 @@ namespace ProjectAegis.Unity.Runtime
     /// Pools tactical-map symbol <see cref="VisualElement"/>s keyed by symbol id so a per-tick
     /// refresh reuses elements instead of clearing and recreating the whole canvas every frame
     /// (the previous <c>RebuildSymbols</c> allocated a container + labels + a fresh click callback
-    /// for every symbol, every frame). Only rows whose <see cref="MapSymbolDisplayRow"/> value
-    /// actually changed are re-applied; ids that disappear are detached; new ids are created once.
+    /// for every symbol, every frame). <see cref="Sync"/> itself is only invoked by the host on
+    /// dirty ticks (see <c>MapPlaceholderPanelHost.IsDirty</c>), so every call re-applies content —
+    /// this is still far cheaper than the pre-pooling full rebuild because no
+    /// <see cref="VisualElement"/> is destroyed/recreated and no click callback is re-registered for
+    /// existing ids; only the (cheap) style/content diff of <see cref="Apply"/> runs.
     /// </summary>
+    /// <remarks>
+    /// req 20 rev 2 Track T4 (symbology): <see cref="Sync"/> additionally takes the current icon size
+    /// (px, from <c>MapIconSizeLadder.ResolveIconSizePx</c>), label visibility (zoom-band gated), and
+    /// the per-symbol label-declutter outcome map (<c>MapLabelDeclutterProjection</c>) so the pooled
+    /// content mirrors what the pre-pooling <c>RebuildSymbols</c>/<c>BuildLabel</c> implementation
+    /// produced — icon sizing, the domain-modifier badge, and label declutter are cross-row
+    /// computations the host resolves once per dirty tick and hands down here.
+    /// </remarks>
     public sealed class MapSymbolPool
     {
         private const string SymbolClass = "map-symbol";
+        private const string DomainModifierName = "domain-modifier";
+        private const string LabelHiddenClass = "map-symbol__label--hidden";
+        private const string LabelLeaderLineClass = "map-symbol__label--leader-line";
 
         private sealed class Entry
         {
@@ -39,9 +53,17 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>
         /// Reconciles the canvas to <paramref name="rows"/>: reuse-in-place for unchanged/moved
         /// symbols, create for new ids (registering <paramref name="onSymbolClicked"/> once), and
-        /// detach for removed ids.
+        /// detach for removed ids. <paramref name="iconSizePx"/> / <paramref name="labelsVisible"/> /
+        /// <paramref name="declutter"/> are T4 symbology inputs applied to every row on every call
+        /// (Sync is already dirty-gated by the host, so recomputation here is cheap and correct even
+        /// when declutter/selection changes affect rows whose own data is otherwise unchanged).
         /// </summary>
-        public void Sync(IReadOnlyList<MapSymbolDisplayRow> rows, Action<string> onSymbolClicked)
+        public void Sync(
+            IReadOnlyList<MapSymbolDisplayRow> rows,
+            Action<string> onSymbolClicked,
+            float iconSizePx,
+            bool labelsVisible,
+            IReadOnlyDictionary<string, MapLabelDeclutterOutcome> declutter)
         {
             if (rows == null)
             {
@@ -61,11 +83,9 @@ namespace ProjectAegis.Unity.Runtime
                     structuralChange = true;
                 }
 
-                if (entry.Applied != row)
-                {
-                    Apply(entry.Container, entry.Applied, row);
-                    entry.Applied = row;
-                }
+                declutter.TryGetValue(row.SymbolId, out var outcome);
+                Apply(entry.Container, entry.Applied, row, iconSizePx, labelsVisible, row.IsGhost ? null : outcome);
+                entry.Applied = row;
             }
 
             _stale.Clear();
@@ -136,7 +156,13 @@ namespace ProjectAegis.Unity.Runtime
             return container;
         }
 
-        private static void Apply(VisualElement container, MapSymbolDisplayRow? previous, MapSymbolDisplayRow row)
+        private static void Apply(
+            VisualElement container,
+            MapSymbolDisplayRow? previous,
+            MapSymbolDisplayRow row,
+            float iconSizePx,
+            bool labelsVisible,
+            MapLabelDeclutterOutcome? labelOutcome)
         {
             container.style.left = Length.Percent(row.NormalizedX * 100f);
             container.style.top = Length.Percent(row.NormalizedY * 100f);
@@ -155,21 +181,74 @@ namespace ProjectAegis.Unity.Runtime
                 container.AddToClassList(token);
             }
 
-            // Rebuild the small content (atlas frame or glyph, then label). Bounded by actual change.
+            // Rebuild the small content (atlas frame or glyph, domain modifier, then label). Bounded
+            // by actual change since Sync only calls Apply on dirty ticks.
             container.Clear();
+
+            // Icon/frame shape is always shown regardless of declutter — only the text label is
+            // decluttered (a11y §5: affiliation must remain shape-readable at every zoom band).
             if (row.UsesAtlasFrame && !string.IsNullOrEmpty(row.AtlasFrameClass))
             {
-                var frame = new VisualElement();
+                var frame = new VisualElement
+                {
+                    style = { width = iconSizePx, height = iconSizePx },
+                };
                 frame.AddToClassList(row.AtlasFrameClass);
                 container.Add(frame);
             }
             else if (!string.IsNullOrEmpty(row.Glyph))
             {
-                container.Add(new Label(row.Glyph));
+                container.Add(new Label(row.Glyph) { style = { fontSize = iconSizePx } });
             }
 
-            container.Add(new Label(row.Label));
+            // Domain modifier (Air/Surface/Subsurface/Land/Mine/Facility) — secondary cue layered
+            // on the frame, never a substitute for the affiliation shape above.
+            if (!string.IsNullOrEmpty(row.DomainModifierClass))
+            {
+                var domainBadge = new VisualElement { name = DomainModifierName };
+                domainBadge.AddToClassList(row.DomainModifierClass);
+                container.Add(domainBadge);
+            }
+
+            container.Add(BuildLabel(row, labelsVisible, labelOutcome));
             container.pickingMode = row.IsGhost ? PickingMode.Ignore : PickingMode.Position;
+        }
+
+        /// <summary>
+        /// Build the text label element for a symbol row, applying the zoom-band visibility rule
+        /// ("labels appear from regional zoom") and the declutter outcome (shown / leader-line /
+        /// hidden) for the current frame. Ghost rows (comms-degraded duplicates) are exempt from
+        /// declutter — <paramref name="labelOutcome"/> is <c>null</c> for them (see <see cref="Sync"/>)
+        /// and they already carry their own lag-offset visual language.
+        /// </summary>
+        private static Label BuildLabel(MapSymbolDisplayRow row, bool labelsVisible, MapLabelDeclutterOutcome? labelOutcome)
+        {
+            var label = new Label(row.Label);
+            if (!labelsVisible)
+            {
+                label.AddToClassList(LabelHiddenClass);
+                return label;
+            }
+
+            if (labelOutcome == null)
+            {
+                return label;
+            }
+
+            switch (labelOutcome.Value)
+            {
+                case MapLabelDeclutterOutcome.Hidden:
+                    label.AddToClassList(LabelHiddenClass);
+                    break;
+                case MapLabelDeclutterOutcome.LeaderLine:
+                    label.AddToClassList(LabelLeaderLineClass);
+                    break;
+                case MapLabelDeclutterOutcome.Shown:
+                default:
+                    break;
+            }
+
+            return label;
         }
 
         private static IEnumerable<string> Tokens(string styleClass) =>

@@ -1,3 +1,5 @@
+@import url("../AegisTokens.uss");
+
 .c2-drawer-panel {
     flex-grow: 1;
     min-width: 240px;
@@ -25,6 +27,14 @@
 
 .c2-drawer-list--hidden {
     display: none;
+}
+
+/* req 20 AC-1 / F5 — scales with C2AccessibilitySettings.ScalePercent, 12px baseline,
+ * accessibility-requirements.md §3. Covers oob-list / mission-list / contact-list uniformly
+ * (all share the c2-drawer-list class); descendant type selector so it applies regardless of
+ * which per-row style class is assigned (font-size is an inherited USS property). */
+.c2-drawer-list Label {
+    font-size: var(--aegis-font-size-oob);
 }
 
 .oob-row {

@@ -14,4 +14,6 @@ public sealed record MapSymbolDisplayRow(
     bool IsSelected,
     bool IsGhost = false,
     string? AtlasFrameClass = null,
-    bool UsesAtlasFrame = false);
+    bool UsesAtlasFrame = false,
+    string? DomainModifierClass = null,
+    string? DomainModifierGlyph = null);

@@ -1,5 +1,6 @@
 using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
 
@@ -110,5 +111,31 @@ public sealed class MapPanelBinderTests
         Assert.That(hostile.UsesAtlasFrame, Is.False);
         Assert.That(friendly.Glyph, Is.EqualTo(App6Sidc.FriendlySurfaceUnitGlyph));
         Assert.That(hostile.Glyph, Is.EqualTo(App6Sidc.HostileContactGlyph));
+    }
+
+    [Test]
+    public void Bind_symbol_with_domain_populates_domain_modifier_on_display_row()
+    {
+        var state = MapPanelBinder.Bind(
+            [new MapSymbolEntry("f1", "Hostile", "◆", "f1", 0.5f, 0.5f, false, Domain: CombatDomain.Air)],
+            "test");
+
+        var row = state.Symbols.Single(s => s.SymbolId == "f1");
+
+        Assert.That(row.DomainModifierClass, Is.EqualTo(App6DomainModifier.AirModifierClass));
+        Assert.That(row.DomainModifierGlyph, Is.EqualTo(App6DomainModifier.Resolve(CombatDomain.Air).UnicodeIcon));
+    }
+
+    [Test]
+    public void Bind_symbol_without_domain_leaves_domain_modifier_null()
+    {
+        var state = MapPanelBinder.Bind(
+            [new MapSymbolEntry("f1", "Friendly", "■", "f1", 0.5f, 0.5f, false)],
+            "test");
+
+        var row = state.Symbols.Single(s => s.SymbolId == "f1");
+
+        Assert.That(row.DomainModifierClass, Is.Null);
+        Assert.That(row.DomainModifierGlyph, Is.Null);
     }
 }

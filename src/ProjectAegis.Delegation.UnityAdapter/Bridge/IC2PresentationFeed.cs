@@ -26,6 +26,19 @@ public interface IC2PresentationFeed
 
     void SelectContact(string contactId);
 
+    // req20-rev2 Track T1 (TR-c2-005): multi-select surface for drag-box + shift-click on the map.
+    /// <summary>Full ordered multi-select (anchor first). Single-select is a set of one.</summary>
+    IReadOnlyList<string> SelectedUnitIds { get; }
+
+    /// <summary>Replace the whole selection (drag-box marquee, no modifier).</summary>
+    void SelectUnits(IReadOnlyList<string> unitIds);
+
+    /// <summary>Union into the current selection without deselecting anything (shift+drag-box).</summary>
+    void AddUnits(IReadOnlyList<string> unitIds);
+
+    /// <summary>Shift-click add-or-remove a single unit from the current selection.</summary>
+    void ToggleUnit(string unitId);
+
     // S37-04: graph surfacing extensions (viewer/panel/highlights/bind) — read-only projections
     IReadOnlyList<string> LastGraphHighlightIds { get; }
     string? LastGraphLinkChainDisplay { get; }

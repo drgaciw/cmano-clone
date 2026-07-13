@@ -1,3 +1,5 @@
+@import url("../AegisTokens.uss");
+
 .oob-tree-panel {
     flex-grow: 1;
     min-width: 220px;
@@ -13,4 +15,11 @@
 
 .oob-tree-list {
     flex-grow: 1;
+}
+
+/* req 20 AC-1 / F5 — scales with C2AccessibilitySettings.ScalePercent, 12px baseline,
+ * accessibility-requirements.md §3. Descendant type selector so it applies regardless of which
+ * per-row style class OobTreePanelBinder assigns (font-size is an inherited USS property). */
+.oob-tree-list Label {
+    font-size: var(--aegis-font-size-oob);
 }

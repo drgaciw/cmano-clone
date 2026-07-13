@@ -1,0 +1,96 @@
+@import url("../AegisTokens.uss");
+
+/* ToastStack (req 20 §Alerting and Interruption, TR-c2-007, Track T3).
+ * Anchored top-right, below the C2 top bar, narrower than the docked right-hand unit/detail panel so it
+ * never occludes it (a11y/layout note: right-panel content starts below this stack's max width+margin).
+ * Severity is never colour-alone (a11y §5): each toast pairs its `.toast--*` border colour with an icon
+ * glyph (.toast-item-icon) and a text severity label (.toast-item-category). */
+.toast-stack-root {
+    position: absolute;
+    top: 48px;
+    right: 8px;
+    width: 300px;
+    align-items: flex-end;
+}
+
+.toast-stack-list {
+    flex-direction: column;
+    width: 100%;
+}
+
+.toast-item {
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+    margin-bottom: 6px;
+    padding: 6px 8px;
+    background-color: var(--aegis-surface-panel);
+    border-radius: 3px;
+    border-width: 1px;
+    border-color: var(--aegis-border-section);
+    transition-property: opacity, translate;
+    transition-duration: 120ms;
+}
+
+/* Reduced-motion accessibility setting (a11y): an ancestor `.reduced-motion` class disables the
+ * enter/exit transition — toasts still appear/disappear, they just do not animate. */
+.reduced-motion .toast-item {
+    transition-duration: 0ms;
+}
+
+.toast-item-icon {
+    width: 16px;
+    margin-right: 6px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    color: var(--aegis-text-heading);
+}
+
+.toast-item-body {
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.toast-item-category {
+    font-size: 10px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+    color: var(--aegis-text-muted);
+}
+
+.toast-item-text {
+    font-size: 11px;
+    color: var(--aegis-text-body);
+    white-space: normal;
+}
+
+/* Severity label text colour mirrors the canonical `.toast--critical/-notable/-routine` border cue
+ * classes from AegisTokens.uss (applied to the same .toast-item element alongside these) — always
+ * paired with the icon glyph + category label above, never colour-alone. */
+.toast--critical .toast-item-category {
+    color: var(--aegis-toast-critical);
+}
+
+.toast--notable .toast-item-category {
+    color: var(--aegis-toast-notable);
+}
+
+.toast--routine .toast-item-category {
+    color: var(--aegis-toast-routine);
+}
+
+.toast-overflow-chip {
+    align-self: flex-end;
+    padding: 3px 8px;
+    background-color: var(--aegis-surface-panel);
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: var(--aegis-border-section);
+}
+
+.toast-overflow-label {
+    font-size: 10px;
+    -unity-font-style: bold;
+    color: var(--aegis-text-muted);
+}

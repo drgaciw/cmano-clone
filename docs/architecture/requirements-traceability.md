@@ -34,6 +34,19 @@
 
 > **Sprint 2 closeout (2026-06-08):** TR-sensor-001a/b/c verified via classify FSM (`PdContactClassifyTests`, `ReplayGoldenBalticClassifyTests`), C2 bridge/panel (`SensorC2BridgeTests`, `SensorC2PanelBinderTests`, `SensorC2PanelHost`), and `baltic-patrol-classify` scenario. Parent **TR-sensor-001** marked **COVERED** in [tr-registry.yaml](tr-registry.yaml). **TR-sensor-004** (side picture / datalink) remains deferred.
 
+## C2 UI rev 2 (TR-c2-005..008)
+
+GDD: [command-and-control-ui](../../design/gdd/command-and-control-ui.md) · Req: [20-Command-And-Control-UI](../../Game-Requirements/requirements/20-Command-And-Control-UI.md) (rev 2) · ADR-010 (presentation binds projections only; UI never mutates sim). Headless-first: every row is asserted in `ProjectAegis.Delegation(.UnityAdapter).Tests` before Editor work.
+
+| TR-ID | Requirement | Req AC | Test | Status |
+|-------|-------------|--------|------|--------|
+| TR-c2-005 | Multi-select (drag-box / shift / ctrl) + group-order fan-out (one intent per eligible unit) | AC-7 | `SelectionBoxResolverTests`, `C2PresentationControllerMultiSelectTests`, `GroupOrderPlanTests`, `GroupOrderFanOutTests`, `C2Rev2IntegrationProxyTests` | COVERED (headless) |
+| TR-c2-006 | Order lifecycle states in panel + log; weapons-release confirmation gate; cancel | AC-8 | `OrderLifecycleProjectionTests`, `WeaponsReleaseConfirmationGateTests`, `MessageLogPanelBinderTests` | PARTIAL — display + gate COVERED; **cancel emission deferred to Phase 2b** (needs bridge cancel affordance) |
+| TR-c2-007 | Severity tiers, toasts (max 3 + `+N`), auto-pause command | AC-9 | `AlertProjectionTests`, `ToastStackModelTests`, `AutoPausePolicyTests`, `AlertingIntegrationTests` | PARTIAL — severity/toast/command COVERED; **auto-pause actuation deferred to Phase 2b** (needs pause-reason stack) |
+| TR-c2-008 | Per-category message-log filters | AC-8/§Alerting | `MessageLogFilterModelTests` | COVERED (headless) |
+
+> **rev 2 integration (2026-07-08):** Phases 0–2a landed on `c2-req20-integration` (full sln **1551/0**, C2 proxy incl. 3 new rev-2 seams, ReplayGolden green, **DelegationBridge zero-diff**, Baltic hash `17144800277401907079` unchanged). TR-c2-006/007 "actuation" halves (`PlayerOrderCancelled` emit, sim auto-pause) are presentation-complete but gated on the Phase 2b scoped extension (order-cancel affordance + pause-reason stack) per the 2026-07-08 decision. Weapons-release positive-control uses a `WeaponsTight` proxy pending a real policy flag (systems-designer follow-up). Unity host/UXML/USS verified via models only — Editor PlayMode pass pending.
+
 ## Combat / engage spine
 
 > **Note:** ADR-005 is **DOTS/ECS world state**, not engagement. Engage/outcomes trace to ADR-001 (sim boundary) + ADR-004 (tick pipeline) + ADR-003 (order log).

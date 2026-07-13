@@ -3,6 +3,7 @@
 #if UNITY_5_3_OR_NEWER
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -22,10 +23,18 @@ namespace ProjectAegis.Unity.Runtime
         private const string HiddenClass = "c2-drawer-list--hidden";
         private const string PlanningReadOnlyClass = "c2-drawer-panel--planning-readonly";
 
+        /// <summary>Estimated single-line row height (px) at 100% scale — used only to seed
+        /// fixed-height virtualization; not a pixel-perfect layout guarantee (req 20 AC-10).</summary>
+        private const float FixedRowHeightPx = 18f;
+
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;
         [SerializeField] private bool showPanel = true;
+
+        /// <summary>req 20 AC-1 / F5 — text scale tier (accessibility-requirements.md §3). Default
+        /// 100% until a settings UI ships.</summary>
+        [SerializeField] private C2TextScalePercent scalePercent = C2AccessibilitySettings.DefaultScalePercent;
 
         private UIDocument _document = null!;
         private Toggle? _tabOob;
@@ -38,6 +47,9 @@ namespace ProjectAegis.Unity.Runtime
         private MissionListPanelState _missionState = new(Array.Empty<MissionListDisplayRow>());
         private SensorC2PanelState _contactState = new("EMCON: —", "TRACK: —", "CONTACTS: 0", Array.Empty<SensorC2ContactRow>());
         private C2PlanningChromeState _planningChrome = new(false, false, SimulationPhase.Planning);
+        private readonly PanelRefreshGate<OobTreeDisplayRow> _oobRefreshGate = new();
+        private readonly PanelRefreshGate<MissionListDisplayRow> _missionRefreshGate = new();
+        private readonly PanelRefreshGate<SensorC2ContactRow> _contactRefreshGate = new();
         private bool _wired;
 
         /// <summary>True while drawer tabs are view-only during <see cref="SimulationPhase.Planning"/> (S30-07).</summary>
@@ -109,6 +121,13 @@ namespace ProjectAegis.Unity.Runtime
             WireList(_missionList);
             WireContactList(_contactList);
 
+            // req 20 AC-10 / NFR virtualization — explicit fixed-height virtualization so Unity
+            // only realizes viewport (+ pool) elements at 5k+ rows instead of the whole list (see
+            // also the per-list itemsSource/Rebuild dirty-gates in Refresh()).
+            ApplyFixedHeightVirtualization(_oobList);
+            ApplyFixedHeightVirtualization(_missionList);
+            ApplyFixedHeightVirtualization(_contactList);
+
             if (_tabOob != null)
             {
                 _tabOob.RegisterValueChangedCallback(evt => OnTabChanged(DrawerTab.Oob, evt.newValue));
@@ -129,7 +148,39 @@ namespace ProjectAegis.Unity.Runtime
                 panel.styleSheets.Add(panelStyles);
             }
 
+            ApplyAccessibilityScale(panel);
+
+            // req20-rev2 Track T1 (TR-c2-005): N/P cycle default keys (registered once per panel wire).
+            panel.UnregisterCallback<KeyDownEvent>(OnDrawerKeyDown);
+            panel.RegisterCallback<KeyDownEvent>(OnDrawerKeyDown);
+
             _wired = _tabOob != null && _oobList != null && _missionList != null && _contactList != null;
+        }
+
+        private static void ApplyFixedHeightVirtualization(ListView? listView)
+        {
+            if (listView == null)
+            {
+                return;
+            }
+
+            listView.virtualizationMethod = CollectionVirtualizationMethod.FixedHeight;
+            listView.fixedItemHeight = FixedRowHeightPx;
+        }
+
+        /// <summary>req 20 AC-1 / F5 — toggles the AegisTokens.uss scale-tier class matching
+        /// <see cref="scalePercent"/> onto the panel root; font-size is inherited from there down
+        /// to every Label under ".c2-drawer-list" (accessibility-requirements.md §3).</summary>
+        private void ApplyAccessibilityScale(VisualElement panel)
+        {
+            panel.RemoveFromClassList("aegis-scale-125");
+            panel.RemoveFromClassList("aegis-scale-150");
+
+            var scaleClass = C2AccessibilitySettings.ScaleUssClass(scalePercent);
+            if (scaleClass != null)
+            {
+                panel.AddToClassList(scaleClass);
+            }
         }
 
         private void WireList(ListView? listView)
@@ -173,7 +224,41 @@ namespace ProjectAegis.Unity.Runtime
         {
             if (evt.currentTarget is Label { userData: string unitId } && bridgeHost != null)
             {
-                bridgeHost.SelectUnit(unitId);
+                // req20-rev2 Track T1 (TR-c2-005): ctrl-click multi-add/remove; plain click keeps the
+                // existing single-select (replace) behavior.
+                if (evt.ctrlKey || evt.commandKey)
+                {
+                    bridgeHost.ToggleUnit(unitId);
+                }
+                else
+                {
+                    bridgeHost.SelectUnit(unitId);
+                }
+            }
+        }
+
+        /// <summary>
+        /// N/P cycle to the next/previous alive friendly unit within the friendly OOB order (req 20
+        /// §Keyboard; <see cref="ProjectAegis.Delegation.Input.C2InputActions.CycleUnit"/> default
+        /// keys). Registered on the drawer root so the drawer's focus scope receives N/P while a C2
+        /// panel is active; the actual cycle math is the pure
+        /// <see cref="ProjectAegis.Delegation.Projection.C2SelectionResolver.CycleUnit"/> helper.
+        /// </summary>
+        private void OnDrawerKeyDown(KeyDownEvent evt)
+        {
+            if (bridgeHost == null || _planningChrome.IsDrawerReadOnly)
+            {
+                return;
+            }
+
+            switch (evt.character)
+            {
+                case 'n' or 'N':
+                    bridgeHost.CycleUnit(forward: true);
+                    break;
+                case 'p' or 'P':
+                    bridgeHost.CycleUnit(forward: false);
+                    break;
             }
         }
 
@@ -262,16 +347,38 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            _oobState = OobTreePanelBinder.Bind(bridgeHost.LastOobTree, bridgeHost.SelectedUnitId);
-            _missionState = MissionListPanelBinder.Bind(bridgeHost.LastMissionList);
-            _contactState = SensorC2PanelBinder.Bind(bridgeHost.LastSensorC2);
+            var oobCandidate = OobTreePanelBinder.Bind(bridgeHost.LastOobTree, bridgeHost.SelectedUnitId);
+            var missionCandidate = MissionListPanelBinder.Bind(bridgeHost.LastMissionList);
+            var contactCandidate = SensorC2PanelBinder.Bind(bridgeHost.LastSensorC2);
 
-            _oobList!.itemsSource = _oobState.UnitRows.ToList();
-            _missionList!.itemsSource = _missionState.MissionRows.ToList();
-            _contactList!.itemsSource = _contactState.ContactRows.ToList();
-            _oobList.Rebuild();
-            _missionList.Rebuild();
-            _contactList.Rebuild();
+            // req 20 AC-10 — skip itemsSource reassignment + Rebuild() per-list when its bound
+            // snapshot is structurally unchanged from the last frame that was actually pushed to
+            // that ListView. Rebuild() tears down pooled/visible elements; doing that
+            // unconditionally every LateUpdate (for all three lists, every frame) defeats
+            // ListView's recycling virtualization at scale.
+            if (_oobRefreshGate.IsDirty(oobCandidate.UnitRows))
+            {
+                _oobState = oobCandidate;
+                _oobList!.itemsSource = _oobState.UnitRows.ToList();
+                _oobList.Rebuild();
+                _oobRefreshGate.MarkApplied(_oobState.UnitRows);
+            }
+
+            if (_missionRefreshGate.IsDirty(missionCandidate.MissionRows))
+            {
+                _missionState = missionCandidate;
+                _missionList!.itemsSource = _missionState.MissionRows.ToList();
+                _missionList.Rebuild();
+                _missionRefreshGate.MarkApplied(_missionState.MissionRows);
+            }
+
+            if (_contactRefreshGate.IsDirty(contactCandidate.ContactRows))
+            {
+                _contactState = contactCandidate;
+                _contactList!.itemsSource = _contactState.ContactRows.ToList();
+                _contactList.Rebuild();
+                _contactRefreshGate.MarkApplied(_contactState.ContactRows);
+            }
 
             ApplyPlanningChrome();
 

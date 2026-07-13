@@ -46,6 +46,27 @@
     --aegis-toast-critical: rgb(230, 90, 90);             /* #E65A5A (4.9:1) */
     --aegis-toast-notable: rgb(240, 180, 80);             /* #F0B450 (7.2:1) */
     --aegis-toast-routine: rgb(140, 155, 170);            /* #8C9BAA (5.8:1) */
+
+    /* Accessibility text scaling — accessibility-requirements.md §3 "Text Scaling".
+     * ScalePercent {100,125,150}; values mirror
+     * ProjectAegis.Delegation.UnityAdapter.Presentation.C2AccessibilitySettings.ResolveFontSizePx
+     * (100% baseline; 10px hard floor per art-bible.md §4). Keep these two sources in sync. */
+    --aegis-font-size-log: 10px;   /* message log + staging diff baseline (10px mono) */
+    --aegis-font-size-oob: 12px;   /* OOB / catalog list baseline (12px sans) */
+}
+
+/* req 20 AC-1 / F5 — scale tiers. Apply the matching class (see
+ * C2AccessibilitySettings.ScaleUssClass) to a panel root; custom properties are inherited by all
+ * descendant text elements. No class is applied for the 100% tier — the :root defaults above
+ * already express it. */
+.aegis-scale-125 {
+    --aegis-font-size-log: 12.5px;
+    --aegis-font-size-oob: 15px;
+}
+
+.aegis-scale-150 {
+    --aegis-font-size-log: 15px;
+    --aegis-font-size-oob: 18px;
 }
 
 /* Surface utilities */
