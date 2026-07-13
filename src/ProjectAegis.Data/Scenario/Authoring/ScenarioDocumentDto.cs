@@ -74,8 +74,6 @@ public sealed class ScenarioMissionDto
 
     public string? FerryDestinationBaseId { get; init; }
 
-    public string? SupportRole { get; init; }
-
     public IReadOnlyList<ScenarioWaypointDto> PatrolZone { get; init; } = Array.Empty<ScenarioWaypointDto>();
 
     public IReadOnlyList<ScenarioWaypointDto>? StationGeometry { get; init; }
