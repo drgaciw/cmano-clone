@@ -16,6 +16,7 @@ The repository contains requirements documentation and an initial **agent delega
 - **Unity bridge:** `src/ProjectAegis.Delegation.UnityAdapter/` (`ISimWorldSnapshot` in, `IOrderSink` out)
 - **Unity wiring:** `unity/ProjectAegis/` (DLL copy + optional `DelegationBridgeHost`)
 - **Console demo:** `src/ProjectAegis.Delegation.Demo/`
+- **Mission Editor CLI / MCP tools:** `src/ProjectAegis.MissionEditor.Cli/` — headless scenario authoring, validation, and catalog verbs ([reference](docs/engineering/mission-editor-cli.md))
 
 **CI:** Buildkite primary pipeline — [buildkite-ci.md](docs/engineering/buildkite-ci.md)
 
