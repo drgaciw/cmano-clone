@@ -15,57 +15,108 @@
   },
   "detection": [
     {
-      "observerId": "u1",
+      "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
-      "targetId": "hostile-1",
-      "contactId": "c1",
-      "basePd": 0.5,
-      "envMask": 0.5,
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-visby",
+      "basePd": 1.0,
+      "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "u1",
-      "sensorId": "radar-2",
-      "targetId": "hostile-1",
-      "contactId": "c1-hot",
+      "observerId": "jas-39c-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c-gripen",
       "basePd": 1.0,
       "envMask": 1.0,
-      "jamStrength": 0.1
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-19-gotland-2022",
+      "sensorId": "sonar-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-gotland",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
     }
   ],
   "gauntlet": {
-    "intent": "Mid-mission ROE change stand-in (tight then free sensor lanes)",
+    "intent": "Mid-mission ROE change stand-in (tight then free sensor lanes) [catalog red: Sovremenny]",
     "oracle": "Mixed ROE/EMCON lanes stable",
     "catalogRefs": [
-      "f-219-sachsen-type-f124-2006",
-      "f-341-absalon-2020",
-      "jas-39c-gripen-2005",
-      "jas-39e-gripen-ng-2021",
-      "jas-39a-gripen-1997",
-      "jas-39b-gripen-1997",
-      "a-19-gotland-1996",
-      "a-19-gotland-2022",
-      "a-17-vastergotland-1999",
-      "u1",
-      "hostile-1",
-      "hostile-far",
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
       "624-pr-205p-tarantul-1992",
       "70-rauma-helsinki-ii-1990",
       "80-hamina-rauma-2-2006",
+      "a-17-vastergotland-1999",
+      "a-19-gotland-1996",
+      "a-19-gotland-2022",
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
       "em-sovremenny-i-pr-956-sarych",
       "f-207-bremen-type-f122-1982",
+      "f-219-sachsen-type-f124-2006",
       "f-310-fridtjof-nansen",
-      "f-361-iver-huitfeldt-2012",
+      "f-341-absalon-2020",
       "f-35a-lightning-ii",
+      "f-361-iver-huitfeldt-2012",
       "f-a-18c-hornet-f-18c",
-      "hkp-14f-nh90-ttt"
+      "hkp-14f-nh90-ttt",
+      "jas-39a-gripen-1997",
+      "jas-39b-gripen-1997",
+      "jas-39c-gripen-2005",
+      "jas-39e-gripen-ng-2021",
+      "k-31-visby-2009",
+      "mpk-steregushchiy-pr-20380-2018"
     ],
     "emcon": "contested",
-    "runId": "gauntlet-20260710-1352",
-    "tier": 5
+    "runId": "gauntlet-t3t5-catalog-red",
+    "tier": 5,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -130.0,
+      "maxScore": -70.0,
+      "maxMissilesFired": 9,
+      "maxDenials": 46,
+      "minKills": 1,
+      "minDenials": 34
+    },
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39c-gripen-2005",
+        "platformId": "jas-39c-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-19-gotland-2022",
+        "platformId": "a-19-gotland-2022",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "domain": "surface",
+        "side": "red"
+      }
+    ]
   },
   "id": "gauntlet-t5-roe-change"
 }

@@ -16,53 +16,82 @@
   },
   "detection": [
     {
-      "observerId": "u1",
+      "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
-      "targetId": "hostile-1",
-      "contactId": "c1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-visby",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39c-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c-gripen",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-19-gotland-2022",
+      "sensorId": "sonar-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-gotland",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
     }
   ],
   "gauntlet": {
-    "intent": "Phase 2 joint catalog ORBAT smoke: surface + air + subsurface registration",
-    "oracle": "Fingerprint includes CATALOG_UNIT events for all three domains; engage path still fires",
+    "intent": "Joint ORBAT: catalog surface/air/sub as detection observers + surface as engage shooter with catalog magazines. Air/sub are detection-role in this smoke (ASW sensor net); surface Visby is primary shooter. [catalog red: Sovremenny]",
+    "oracle": "ContactChange for each catalog platform; MAGAZINE_SEED with range>0; Engagement from k-31-visby-2009",
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -1000,
+      "maxScore": 1000
+    },
     "catalogRefs": [
-      "u1",
-      "hostile-1",
-      "k-31-visby-2009",
-      "jas-39c-gripen-2005",
       "a-19-gotland-2022",
-      "624-pr-205p-tarantul-1992"
+      "em-sovremenny-i-pr-956-sarych",
+      "jas-39c-gripen-2005",
+      "k-31-visby-2009",
+      "mpk-steregushchiy-pr-20380-2018"
     ],
     "units": [
       {
-        "unitId": "blue-visby",
+        "unitId": "k-31-visby-2009",
         "platformId": "k-31-visby-2009",
         "domain": "surface",
         "side": "blue"
       },
       {
-        "unitId": "blue-gripen",
+        "unitId": "jas-39c-gripen-2005",
         "platformId": "jas-39c-gripen-2005",
         "domain": "air",
         "side": "blue"
       },
       {
-        "unitId": "blue-gotland",
+        "unitId": "a-19-gotland-2022",
         "platformId": "a-19-gotland-2022",
         "domain": "subsurface",
         "side": "blue"
       },
       {
-        "unitId": "red-tarantul",
-        "platformId": "624-pr-205p-tarantul-1992",
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
         "domain": "surface",
         "side": "red"
       }
     ],
-    "runId": "gauntlet-joint-orbat-smoke",
-    "tier": 0
+    "runId": "gauntlet-t3t5-catalog-red"
   }
 }

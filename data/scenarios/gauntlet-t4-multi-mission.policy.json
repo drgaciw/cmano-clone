@@ -15,38 +15,44 @@
   },
   "detection": [
     {
-      "observerId": "u1",
+      "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
-      "targetId": "hostile-1",
-      "contactId": "c1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-visby",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "u1",
+      "observerId": "jas-39c-gripen-2005",
       "sensorId": "radar-1",
-      "targetId": "hostile-far",
-      "contactId": "c-far",
-      "basePd": 0.6,
-      "envMask": 0.8,
-      "jamStrength": 0.1
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c-gripen",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-19-gotland-2022",
+      "sensorId": "sonar-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-gotland",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
     }
   ],
   "gauntlet": {
-    "intent": "ASW/AAW multi-mission with joint catalog (surface+air+sub)",
+    "intent": "ASW/AAW multi-mission with joint catalog (surface+air+sub) [catalog red: Sovremenny]",
     "oracle": "Multi-target detection; jam weak",
     "catalogRefs": [
-      "jas-39e-gripen-ng-2021",
-      "a-19-gotland-2022",
-      "u1",
-      "hostile-1",
-      "hostile-far",
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
       "624-pr-205p-tarantul-1992",
       "70-rauma-helsinki-ii-1990",
       "80-hamina-rauma-2-2006",
+      "a-19-gotland-2022",
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
       "em-sovremenny-i-pr-956-sarych",
       "f-207-bremen-type-f122-1982",
@@ -58,15 +64,59 @@
       "jas-39a-gripen-1997",
       "jas-39b-gripen-1997",
       "jas-39c-gripen-2005",
-      "jas-39d-gripen-2005"
+      "jas-39d-gripen-2005",
+      "jas-39e-gripen-ng-2021",
+      "k-31-visby-2009",
+      "mpk-steregushchiy-pr-20380-2018"
     ],
     "domains": [
       "surface",
       "air",
       "subsurface"
     ],
-    "runId": "gauntlet-20260710-1352",
-    "tier": 4
+    "runId": "gauntlet-t3t5-catalog-red",
+    "tier": 4,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -150.0,
+      "maxScore": 10.0,
+      "maxMissilesFired": 7,
+      "maxDenials": 30,
+      "minDenials": 18
+    },
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39c-gripen-2005",
+        "platformId": "jas-39c-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-19-gotland-2022",
+        "platformId": "a-19-gotland-2022",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "domain": "surface",
+        "side": "red"
+      }
+    ]
   },
   "id": "gauntlet-t4-multi-mission"
 }

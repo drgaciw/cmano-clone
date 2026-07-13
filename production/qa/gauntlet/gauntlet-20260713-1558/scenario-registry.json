@@ -1,0 +1,142 @@
+[
+  {
+    "id": "gauntlet-t1-patrol-a",
+    "tier": 1,
+    "has_expect": true,
+    "units": 0,
+    "intent": "Single patrol: Blue survives N ticks under weapons free"
+  },
+  {
+    "id": "gauntlet-t1-patrol-b",
+    "tier": 1,
+    "has_expect": true,
+    "units": 0,
+    "intent": "Patrol duel weapons free both sides"
+  },
+  {
+    "id": "gauntlet-t1-patrol-c",
+    "tier": 1,
+    "has_expect": true,
+    "units": 0,
+    "intent": "Patrol with tight Blue ROE"
+  },
+  {
+    "id": "gauntlet-t1-patrol-d",
+    "tier": 1,
+    "has_expect": true,
+    "units": 0,
+    "intent": "Long-range patrol contact on hostile-far"
+  },
+  {
+    "id": "gauntlet-t2-escort-a",
+    "tier": 2,
+    "has_expect": true,
+    "units": 0,
+    "intent": "Escort HVU: multi-contact surface screen"
+  },
+  {
+    "id": "gauntlet-t2-escort-passive",
+    "tier": 2,
+    "has_expect": true,
+    "units": 0,
+    "intent": "Escort passive-EMCON stand-in (low Pd/env mask)"
+  },
+  {
+    "id": "gauntlet-t2-strike-a",
+    "tier": 2,
+    "has_expect": true,
+    "units": 0,
+    "intent": "Strike: destroy designated surface target; catalog air available for mix metadata"
+  },
+  {
+    "id": "gauntlet-t2-strike-event",
+    "tier": 2,
+    "has_expect": true,
+    "units": 0,
+    "intent": "Strike with light jam inject (timed event stand-in)"
+  },
+  {
+    "id": "gauntlet-t3-emcon-phases",
+    "tier": 3,
+    "has_expect": true,
+    "units": 3,
+    "intent": "EMCON phase stand-in: low then high Pd sensors"
+  },
+  {
+    "id": "gauntlet-t3-escort-strike",
+    "tier": 3,
+    "has_expect": true,
+    "units": 3,
+    "intent": "Escort+strike combined; multi-domain catalog (air+sub)"
+  },
+  {
+    "id": "gauntlet-t3-event-chain",
+    "tier": 3,
+    "has_expect": true,
+    "units": 3,
+    "intent": "Timed event chain stand-in (escalating jam)"
+  },
+  {
+    "id": "gauntlet-t3-id-roe",
+    "tier": 3,
+    "has_expect": true,
+    "units": 3,
+    "intent": "ID-required ROE both sides tight"
+  },
+  {
+    "id": "gauntlet-t4-asymm-roe",
+    "tier": 4,
+    "has_expect": true,
+    "units": 3,
+    "intent": "Asymmetric ROE free vs tight + multi-domain pool"
+  },
+  {
+    "id": "gauntlet-t4-multi-mission",
+    "tier": 4,
+    "has_expect": true,
+    "units": 3,
+    "intent": "ASW/AAW multi-mission with joint catalog (surface+air+sub)"
+  },
+  {
+    "id": "gauntlet-t4-random-inject",
+    "tier": 4,
+    "has_expect": true,
+    "units": 3,
+    "intent": "Seeded random inject stand-in (jam variance)"
+  },
+  {
+    "id": "gauntlet-t4-weighted",
+    "tier": 4,
+    "has_expect": true,
+    "units": 3,
+    "intent": "Weighted multi-objective (kill + survive magazine budget)"
+  },
+  {
+    "id": "gauntlet-t5-cascade",
+    "tier": 5,
+    "has_expect": true,
+    "units": 3,
+    "intent": "Cascading adversarial injects (comms/sensor degrade stand-in via jam)"
+  },
+  {
+    "id": "gauntlet-t5-dynamic-obj",
+    "tier": 5,
+    "has_expect": true,
+    "units": 3,
+    "intent": "Conditional/dynamic objectives stand-in (multi-target priority)"
+  },
+  {
+    "id": "gauntlet-t5-roe-change",
+    "tier": 5,
+    "has_expect": true,
+    "units": 3,
+    "intent": "Mid-mission ROE change stand-in (tight then free sensor lanes)"
+  },
+  {
+    "id": "gauntlet-t5-theater",
+    "tier": 5,
+    "has_expect": true,
+    "units": 3,
+    "intent": "Multi-domain theater op metadata (joint catalog ORBAT)"
+  }
+]

@@ -15,9 +15,9 @@
   },
   "detection": [
     {
-      "observerId": "u1",
+      "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
-      "targetId": "hostile-far",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
       "contactId": "c-far",
       "basePd": 0.5,
       "envMask": 0.9,
@@ -25,12 +25,9 @@
     }
   ],
   "gauntlet": {
-    "intent": "Long-range patrol contact on hostile-far",
+    "intent": "Long-range patrol contact on hostile-far [catalog ORBAT: Visby vs Sovremenny]",
     "oracle": "Stable fingerprint; may not kill",
     "catalogRefs": [
-      "hostile-1",
-      "hostile-far",
-      "u1",
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
       "624-pr-205p-tarantul-1992",
@@ -38,10 +35,41 @@
       "80-hamina-rauma-2-2006",
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
       "em-sovremenny-i-pr-956-sarych",
-      "f-207-bremen-type-f122-1982"
+      "f-207-bremen-type-f122-1982",
+      "k-31-visby-2009",
+      "mpk-steregushchiy-pr-20380-2018"
     ],
-    "runId": "gauntlet-20260710-1352",
-    "tier": 1
+    "runId": "gauntlet-t12-catalog-db-driven",
+    "tier": 1,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -50.0,
+      "maxScore": 90.0,
+      "maxMissilesFired": 6,
+      "maxDenials": 10,
+      "minDenials": 2
+    },
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "domain": "surface",
+        "side": "red"
+      }
+    ]
   },
   "id": "gauntlet-t1-patrol-d"
 }

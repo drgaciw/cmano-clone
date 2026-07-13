@@ -1,0 +1,86 @@
+# PR gate: produce a real Demo batch CSV then fail-closed on gauntlet_oracle_eval.
+# Uses shipped CLI only (ProjectAegis.MissionEditor.Cli gauntlet_oracle_eval).
+name: gauntlet-oracle
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  oracle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore & build
+        run: |
+          dotnet restore ProjectAegis.sln
+          dotnet build ProjectAegis.sln --no-restore -c Release -v q
+
+      - name: Stage oracle policy fixture set
+        run: |
+          mkdir -p artifacts/gauntlet-oracle/policies
+          cp data/scenarios/gauntlet-multidomain-shooters.policy.json \
+             data/scenarios/gauntlet-theater-inject.policy.json \
+             data/scenarios/gauntlet-theater-dynamic-victory.policy.json \
+             data/scenarios/gauntlet-t1-patrol-b.policy.json \
+             artifacts/gauntlet-oracle/policies/
+
+      - name: Batch Demo (real entry point)
+        run: |
+          SCENARIOS="gauntlet-multidomain-shooters,gauntlet-theater-inject,gauntlet-theater-dynamic-victory,gauntlet-t1-patrol-b"
+          dotnet run -c Release --no-build --project src/ProjectAegis.Delegation.Demo -- --batch \
+            --scenarios "$SCENARIOS" \
+            --seeds 42 \
+            --ticks 10 \
+            --csv-out artifacts/gauntlet-oracle/results.csv
+
+      - name: gauntlet_oracle_eval (shipped CLI — must pass)
+        run: |
+          dotnet run -c Release --no-build --project src/ProjectAegis.MissionEditor.Cli -- \
+            gauntlet_oracle_eval \
+            --policy-dir artifacts/gauntlet-oracle/policies \
+            --csv artifacts/gauntlet-oracle/results.csv \
+            --out artifacts/gauntlet-oracle/oracle-eval.json
+          python3 -c "import json; d=json.load(open('artifacts/gauntlet-oracle/oracle-eval.json')); assert d.get('allPassed') is True, d"
+
+      - name: Fail-closed smoke (broken expect fixture must exit non-zero)
+        run: |
+          mkdir -p artifacts/gauntlet-oracle/broken
+          python3 <<'PY'
+          import json
+          src = "data/scenarios/gauntlet-t1-patrol-b.policy.json"
+          d = json.load(open(src))
+          d["gauntlet"]["expect"] = {
+              "side": "BLUE",
+              "requireNonEmptyFingerprint": True,
+              "minKills": 9999,
+          }
+          json.dump(d, open("artifacts/gauntlet-oracle/broken/broken.policy.json", "w"), indent=2)
+          PY
+          set +e
+          dotnet run -c Release --no-build --project src/ProjectAegis.MissionEditor.Cli -- \
+            gauntlet_oracle_eval \
+            --policy artifacts/gauntlet-oracle/broken/broken.policy.json \
+            --csv artifacts/gauntlet-oracle/results.csv \
+            --out artifacts/gauntlet-oracle/broken-oracle.json
+          code=$?
+          set -e
+          if [[ "$code" -eq 0 ]]; then
+            echo "Expected non-zero exit for broken expect" >&2
+            exit 1
+          fi
+          echo "Fail-closed OK (exit=$code)"
+
+      - name: Upload oracle artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gauntlet-oracle
+          path: artifacts/gauntlet-oracle/

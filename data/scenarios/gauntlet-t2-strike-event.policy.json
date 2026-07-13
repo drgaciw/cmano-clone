@@ -15,9 +15,9 @@
   },
   "detection": [
     {
-      "observerId": "u1",
+      "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
-      "targetId": "hostile-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
       "contactId": "c1",
       "basePd": 1.0,
       "envMask": 1.0,
@@ -25,15 +25,11 @@
     }
   ],
   "gauntlet": {
-    "intent": "Strike with light jam inject (timed event stand-in)",
+    "intent": "Strike with light jam inject (timed event stand-in) [catalog ORBAT: Visby vs Sovremenny]",
     "oracle": "Completes with jam>0 trial",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
-      "jas-39c-gripen-2005",
-      "hostile-1",
-      "hostile-far",
-      "u1",
       "624-pr-205p-tarantul-1992",
       "70-rauma-helsinki-ii-1990",
       "80-hamina-rauma-2-2006",
@@ -44,10 +40,36 @@
       "f-a-18c-hornet-f-18c",
       "hkp-14f-nh90-ttt",
       "jas-39a-gripen-1997",
-      "jas-39b-gripen-1997"
+      "jas-39b-gripen-1997",
+      "jas-39c-gripen-2005",
+      "k-31-visby-2009"
     ],
-    "runId": "gauntlet-20260710-1352",
-    "tier": 2
+    "runId": "gauntlet-t12-catalog-db-driven",
+    "tier": 2,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 30.0,
+      "maxScore": 70.0,
+      "maxMissilesFired": 3,
+      "maxDenials": 14,
+      "minKills": 1,
+      "minDenials": 6
+    },
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      }
+    ]
   },
   "id": "gauntlet-t2-strike-event"
 }

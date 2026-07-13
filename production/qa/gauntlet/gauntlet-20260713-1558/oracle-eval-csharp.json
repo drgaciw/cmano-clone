@@ -1,0 +1,133 @@
+{
+  "run_id": "gauntlet-20260713-1558",
+  "engine": "GauntletOracleEvaluator.CSharp",
+  "tiers": {
+    "1": {
+      "status": "green",
+      "scenarios": [
+        {
+          "scenario": "gauntlet-t1-patrol-a",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t1-patrol-b",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t1-patrol-c",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t1-patrol-d",
+          "passed": true,
+          "failures": []
+        }
+      ]
+    },
+    "2": {
+      "status": "green",
+      "scenarios": [
+        {
+          "scenario": "gauntlet-t2-escort-a",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t2-escort-passive",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t2-strike-a",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t2-strike-event",
+          "passed": true,
+          "failures": []
+        }
+      ]
+    },
+    "3": {
+      "status": "green",
+      "scenarios": [
+        {
+          "scenario": "gauntlet-t3-emcon-phases",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t3-escort-strike",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t3-event-chain",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t3-id-roe",
+          "passed": true,
+          "failures": []
+        }
+      ]
+    },
+    "4": {
+      "status": "green",
+      "scenarios": [
+        {
+          "scenario": "gauntlet-t4-asymm-roe",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t4-multi-mission",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t4-random-inject",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t4-weighted",
+          "passed": true,
+          "failures": []
+        }
+      ]
+    },
+    "5": {
+      "status": "green",
+      "scenarios": [
+        {
+          "scenario": "gauntlet-t5-cascade",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t5-dynamic-obj",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t5-roe-change",
+          "passed": true,
+          "failures": []
+        },
+        {
+          "scenario": "gauntlet-t5-theater",
+          "passed": true,
+          "failures": []
+        }
+      ]
+    }
+  },
+  "ladder_green": true,
+  "defects": []
+}

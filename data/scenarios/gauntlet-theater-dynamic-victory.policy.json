@@ -1,0 +1,104 @@
+{
+  "id": "gauntlet-theater-dynamic-victory",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 6,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.9,
+    "pkIntercept": 0.0,
+    "pkKill": 0.35,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "radar-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-near",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "k-22-gavle-ex-goteborg-class",
+      "sensorId": "radar-1",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c-far",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "objective-shift-dual-kill"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "objective-shift-dual-kill",
+        "fireAtTick": 2,
+        "kind": "EventFired",
+        "code": "dynamic_victory_require_dual_kill"
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "Phase-3 dynamic victory: Visby+G\u00e4vle vs two catalog reds; mid-run dynamic_victory_require_dual_kill; expect \u22652 kills",
+    "oracle": "minKills\u22652; fingerprint includes dynamic_victory_require_dual_kill",
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 100.0,
+      "maxScore": 180.0,
+      "maxMissilesFired": 10,
+      "maxDenials": 20,
+      "minKills": 2
+    },
+    "catalogRefs": [
+      "k-31-visby-2009",
+      "k-22-gavle-ex-goteborg-class",
+      "em-sovremenny-i-pr-956-sarych",
+      "mpk-steregushchiy-pr-20380-2018"
+    ],
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "k-22-gavle-ex-goteborg-class",
+        "platformId": "k-22-gavle-ex-goteborg-class",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "domain": "surface",
+        "side": "red"
+      }
+    ],
+    "tier": 5,
+    "runId": "gauntlet-theater-phase3"
+  }
+}
