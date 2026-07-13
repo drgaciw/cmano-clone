@@ -1,14 +1,14 @@
 {
-  "friendlyRoe": "WeaponsTight",
+  "friendlyRoe": "WeaponsFree",
   "opposingRoe": "WeaponsFree",
   "engage": {
     "rangeMeters": 45000,
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
-    "defaultMagazineRounds": 6,
+    "defaultMagazineRounds": 5,
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
-    "pkBase": 0.85,
+    "pkBase": 0.7,
     "pkIntercept": 0.0,
     "pkKill": 0.2,
     "salvoSize": 2
@@ -44,8 +44,8 @@
     }
   ],
   "gauntlet": {
-    "intent": "Mid-mission ROE change stand-in (tight then free sensor lanes) [catalog red: Sovremenny] [WeaponsTight start; contact trigger\u2192WeaponsFree PolicyUpdate; mid-run comms degrade]",
-    "oracle": "Mixed ROE/EMCON lanes stable CommsStateChange/PolicyUpdate required.",
+    "intent": "Cascading adversarial injects (comms/sensor degrade stand-in via jam) [catalog red: Sovremenny] [real cascading comms Degraded\u2192Denied\u2192Degraded]",
+    "oracle": "High jam multi-contact stable CommsStateChange/PolicyUpdate required.",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
@@ -72,21 +72,21 @@
       "k-31-visby-2009",
       "mpk-steregushchiy-pr-20380-2018"
     ],
-    "emcon": "contested",
     "runId": "gauntlet-t3t5-catalog-red",
     "tier": 5,
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minKills": 1,
-      "maxMissilesFired": 12,
-      "maxDenials": 82,
-      "minScore": -350,
-      "maxScore": -150,
-      "minDenials": 78,
+      "minKills": 0,
+      "maxMissilesFired": 14,
+      "maxDenials": 18,
+      "minScore": -130,
+      "maxScore": 170,
+      "minDenials": 14,
       "requireFingerprintSubstrings": [
         "CommsStateChange",
-        "Degraded"
+        "Denied",
+        "cascade_link_down"
       ]
     },
     "units": [
@@ -122,7 +122,7 @@
       }
     ]
   },
-  "id": "gauntlet-t5-roe-change",
+  "id": "gauntlet-t5-cascade",
   "commsDisplay": {
     "degradedLagTicks": 2,
     "ghostOffsetX": 0.06,
@@ -132,16 +132,29 @@
   },
   "comms": [
     {
-      "atTick": 3,
+      "atTick": 2,
       "newState": "Degraded",
-      "nodeId": "ladder-t5-roe-net",
-      "reason": "roe_change_ew_pressure"
+      "nodeId": "ladder-t5-cascade-net",
+      "reason": "cascade_jamming"
+    },
+    {
+      "atTick": 4,
+      "newState": "Denied",
+      "nodeId": "ladder-t5-cascade-net",
+      "reason": "cascade_link_down"
+    },
+    {
+      "atTick": 8,
+      "newState": "Degraded",
+      "nodeId": "ladder-t5-cascade-net",
+      "reason": "cascade_partial_restore"
     }
   ],
   "mission": {
     "fireOrder": [
       "start-exec",
-      "roe-window"
+      "cascade-1",
+      "cascade-2"
     ],
     "events": [
       {
@@ -151,10 +164,16 @@
         "code": "Execution"
       },
       {
-        "id": "roe-window",
-        "fireAtTick": 1,
+        "id": "cascade-1",
+        "fireAtTick": 2,
         "kind": "EventFired",
-        "code": "roe_escalation_window"
+        "code": "cascade_inject_1"
+      },
+      {
+        "id": "cascade-2",
+        "fireAtTick": 4,
+        "kind": "EventFired",
+        "code": "cascade_inject_2"
       }
     ],
     "triggers": [

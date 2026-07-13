@@ -141,17 +141,19 @@ public static class GauntletOracleEvaluator
             return set;
         }
 
+        // netstandard2.1: no StringSplitOptions.TrimEntries — trim tokens manually
         foreach (var raw in fingerprint.Split(
-                     [' ', '\n', '\r', '\t'],
-                     StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                     new[] { ' ', '\n', '\r', '\t' },
+                     StringSplitOptions.RemoveEmptyEntries))
         {
-            if (!raw.StartsWith("Engagement|", StringComparison.Ordinal)
-                || !raw.Contains("|True|Launched", StringComparison.Ordinal))
+            var token = raw.Trim();
+            if (!token.StartsWith("Engagement|", StringComparison.Ordinal)
+                || !token.Contains("|True|Launched", StringComparison.Ordinal))
             {
                 continue;
             }
 
-            var parts = raw.Split('|');
+            var parts = token.Split('|');
             // Engagement|seq|t0|t1|shooter|engId|True|Launched
             if (parts.Length >= 6 && !string.IsNullOrEmpty(parts[4]))
             {

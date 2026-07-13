@@ -1,17 +1,17 @@
 {
-  "friendlyRoe": "WeaponsTight",
-  "opposingRoe": "WeaponsFree",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
   "engage": {
     "rangeMeters": 45000,
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
-    "defaultMagazineRounds": 6,
+    "defaultMagazineRounds": 4,
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
     "pkBase": 0.85,
     "pkIntercept": 0.0,
-    "pkKill": 0.2,
-    "salvoSize": 2
+    "pkKill": 0.25,
+    "salvoSize": 1
   },
   "detection": [
     {
@@ -44,8 +44,8 @@
     }
   ],
   "gauntlet": {
-    "intent": "Mid-mission ROE change stand-in (tight then free sensor lanes) [catalog red: Sovremenny] [WeaponsTight start; contact trigger\u2192WeaponsFree PolicyUpdate; mid-run comms degrade]",
-    "oracle": "Mixed ROE/EMCON lanes stable CommsStateChange/PolicyUpdate required.",
+    "intent": "Conditional/dynamic objectives stand-in (multi-target priority) [catalog red: Sovremenny]",
+    "oracle": "Multi-target path completes",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
@@ -72,22 +72,17 @@
       "k-31-visby-2009",
       "mpk-steregushchiy-pr-20380-2018"
     ],
-    "emcon": "contested",
     "runId": "gauntlet-t3t5-catalog-red",
     "tier": 5,
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
+      "minScore": -130.0,
+      "maxScore": 30.0,
+      "maxMissilesFired": 7,
+      "maxDenials": 46,
       "minKills": 1,
-      "maxMissilesFired": 12,
-      "maxDenials": 82,
-      "minScore": -350,
-      "maxScore": -150,
-      "minDenials": 78,
-      "requireFingerprintSubstrings": [
-        "CommsStateChange",
-        "Degraded"
-      ]
+      "minDenials": 34
     },
     "units": [
       {
@@ -122,53 +117,5 @@
       }
     ]
   },
-  "id": "gauntlet-t5-roe-change",
-  "commsDisplay": {
-    "degradedLagTicks": 2,
-    "ghostOffsetX": 0.06,
-    "ghostOffsetY": 0.04,
-    "degradedOrderDelayTicks": 2,
-    "degradedStaleThresholdDivisor": 2
-  },
-  "comms": [
-    {
-      "atTick": 3,
-      "newState": "Degraded",
-      "nodeId": "ladder-t5-roe-net",
-      "reason": "roe_change_ew_pressure"
-    }
-  ],
-  "mission": {
-    "fireOrder": [
-      "start-exec",
-      "roe-window"
-    ],
-    "events": [
-      {
-        "id": "start-exec",
-        "fireAtTick": 0,
-        "kind": "MissionTransition",
-        "code": "Execution"
-      },
-      {
-        "id": "roe-window",
-        "fireAtTick": 1,
-        "kind": "EventFired",
-        "code": "roe_escalation_window"
-      }
-    ],
-    "triggers": [
-      {
-        "id": "ladder-contact-roe",
-        "observerId": "k-31-visby-2009",
-        "targetClass": "Surface",
-        "side": "friendly",
-        "missionCode": "ASuW",
-        "roe": "WeaponsFree",
-        "unitIds": [
-          "k-31-visby-2009"
-        ]
-      }
-    ]
-  }
+  "id": "gauntlet-t5-dynamic-obj"
 }

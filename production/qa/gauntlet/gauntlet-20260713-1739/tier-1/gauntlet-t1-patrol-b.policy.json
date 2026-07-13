@@ -5,7 +5,7 @@
     "rangeMeters": 45000,
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
-    "defaultMagazineRounds": 4,
+    "defaultMagazineRounds": 3,
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
     "pkBase": 0.85,
@@ -19,23 +19,14 @@
       "sensorId": "radar-1",
       "targetId": "em-sovremenny-i-pr-956-sarych",
       "contactId": "c1",
-      "basePd": 1.0,
+      "basePd": 0.95,
       "envMask": 1.0,
-      "jamStrength": 0
-    },
-    {
-      "observerId": "k-22-gavle-ex-goteborg-class",
-      "sensorId": "radar-2",
-      "targetId": "mpk-steregushchiy-pr-20380-2018",
-      "contactId": "c2",
-      "basePd": 0.6,
-      "envMask": 0.9,
       "jamStrength": 0
     }
   ],
   "gauntlet": {
-    "intent": "Escort HVU: multi-contact surface screen [catalog ORBAT: Visby vs Sovremenny]",
-    "oracle": "Dual contact stable",
+    "intent": "Patrol duel weapons free both sides [catalog ORBAT: Visby vs Sovremenny]",
+    "oracle": "Stability; score finite",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
@@ -45,26 +36,18 @@
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
       "em-sovremenny-i-pr-956-sarych",
       "f-207-bremen-type-f122-1982",
-      "f-35a-lightning-ii",
-      "f-a-18c-hornet-f-18c",
-      "hkp-14f-nh90-ttt",
-      "jas-39a-gripen-1997",
-      "jas-39b-gripen-1997",
-      "jas-39c-gripen-2005",
-      "k-22-gavle-ex-goteborg-class",
-      "k-31-visby-2009",
-      "mpk-steregushchiy-pr-20380-2018"
+      "k-31-visby-2009"
     ],
     "runId": "gauntlet-t12-catalog-db-driven",
-    "tier": 2,
+    "tier": 1,
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minKills": 1,
-      "maxMissilesFired": 11,
-      "maxDenials": 2,
-      "minScore": 50,
-      "maxScore": 350
+      "minScore": 80.0,
+      "maxScore": 220.0,
+      "maxMissilesFired": 6,
+      "maxDenials": 4,
+      "minKills": 1
     },
     "units": [
       {
@@ -74,24 +57,12 @@
         "side": "blue"
       },
       {
-        "unitId": "k-22-gavle-ex-goteborg-class",
-        "platformId": "k-22-gavle-ex-goteborg-class",
-        "domain": "surface",
-        "side": "blue"
-      },
-      {
         "unitId": "em-sovremenny-i-pr-956-sarych",
         "platformId": "em-sovremenny-i-pr-956-sarych",
-        "domain": "surface",
-        "side": "red"
-      },
-      {
-        "unitId": "mpk-steregushchiy-pr-20380-2018",
-        "platformId": "mpk-steregushchiy-pr-20380-2018",
         "domain": "surface",
         "side": "red"
       }
     ]
   },
-  "id": "gauntlet-t2-escort-a"
+  "id": "gauntlet-t1-patrol-b"
 }
