@@ -163,6 +163,10 @@ are optional; `flag+` may be repeated.
 | `platform_import_xlsx` | `--db` | `[--in] [--io …]`; stages via the write gate (no auto-commit) → next step `catalog_write_approve`. |
 | `platform_diff_xlsx` | — | `[--db] [--base] [--edited] [--io …]`; deterministic diff report. |
 
+`--io closedxml` (the default for `.xlsx` paths) uses the ClosedXML adapter in
+[`ProjectAegis.Data.Excel`](../../src/ProjectAegis.Data.Excel/README.md); `--io canonical` uses the
+dependency-free text adapter for fully headless runs. Both satisfy the same round-trip contract.
+
 ### OSINT
 
 | Verb | Required flags | Notes |

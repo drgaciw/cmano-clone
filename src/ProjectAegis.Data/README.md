@@ -27,7 +27,7 @@ import/export pipeline. Pure C# with **no `UnityEngine` reference** (targets
 | `Validation/` | Deterministic validation pipeline + rules, kill-chain / export gates | `ValidationPipeline`, `ScenarioValidationEngine`, `ValidationReport`, `ValidationSeverity`, `KillChainCommitGate`, `IScenarioValidationRule` |
 | `Agents/` | Headless "database intelligence" agents (no LLM in tick path) + orchestrator | `IDatabaseIntelligenceAgent`, `DatabaseIntelligenceOrchestrator`, `CatalogConsistencyAgent`, `CatalogRulesValidationAgent`, `CatalogEntityResolutionAgent` |
 | `Import/` | CMO markdown importers + quarantine/proposer flow | `CmoMarkdownImporter`, `CmoMarkdownImportProposer`, `CmoMarkdownQuarantineReportEntry` |
-| `Platform/` | Platform-editor workbook round-trip (export → edit → diff → import) | `IPlatformWorkbookIo`, `PlatformWorkbookExporter`, `PlatformWorkbookImporter`, `PlatformWorkbookDiff`, `PlatformWorkbookWriteService`, `PlatformWorkbookHash` |
+| `Platform/` | Platform-editor workbook round-trip (export → edit → diff → import); ClosedXML `.xlsx` adapter lives in [`ProjectAegis.Data.Excel`](../ProjectAegis.Data.Excel/README.md) | `IPlatformWorkbookIo`, `CanonicalTextWorkbookIo`, `PlatformWorkbookExporter`, `PlatformWorkbookImporter`, `PlatformWorkbookDiff`, `PlatformWorkbookWriteService`, `PlatformWorkbookHash` |
 | `Osint/` | OSINT digest → proposal gate (staging only; extend-only) | `OsintDigestRunner`, `OsintCatalogMapper`, `OsintProposalGate`, `OsintDiscoveryRecord` |
 | `Telemetry/` | Balance-drift telemetry accumulation + deterministic state hashing | `BalanceTelemetryAccumulator`, `CatalogBalanceDriftPipelineEvaluator`, `IBalanceTelemetrySink` |
 | `Polyfills/` | `netstandard2.1` shims | `IsExternalInit` |
@@ -160,6 +160,7 @@ deterministic outputs — regenerate them intentionally, never silently.
 | Data-layer boundary decision | [`adr-006-data-layer-boundary.md`](../../docs/architecture/adr-006-data-layer-boundary.md) |
 | Scenario ↔ DB version binding / validation engine | [`adr-008-mission-editor-validation-engine.md`](../../docs/architecture/adr-008-mission-editor-validation-engine.md) |
 | Workbook round-trip CLI (import/export/diff) | [`docs/engineering/mission-editor-cli.md`](../../docs/engineering/mission-editor-cli.md) |
+| Production `.xlsx` (ClosedXML) adapter | [`../ProjectAegis.Data.Excel/README.md`](../ProjectAegis.Data.Excel/README.md) |
 | Simulation core (read-only consumer) | [`../ProjectAegis.Sim/README.md`](../ProjectAegis.Sim/README.md) |
 | Delegation framework (read-only consumer) | [`../ProjectAegis.Delegation/README.md`](../ProjectAegis.Delegation/README.md) |
 | Determinism rules (clock, ordering, hashing) | [`docs/engineering/determinism-and-replay.md`](../../docs/engineering/determinism-and-replay.md) |
