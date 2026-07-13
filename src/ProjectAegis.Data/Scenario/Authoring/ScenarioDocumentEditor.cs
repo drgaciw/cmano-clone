@@ -8,15 +8,16 @@ using ProjectAegis.Data.Validation;
 /// <summary>Mutable scenario document with optimistic concurrency (req 11 / ADR-008).</summary>
 public sealed class ScenarioDocumentEditor
 {
-    private ScenarioDocumentEditor(ScenarioMetadataDto metadata, List<ScenarioMissionDto> missions)
+    private ScenarioDocumentEditor(ScenarioDocumentDto document)
     {
-        Metadata = metadata;
-        Missions = missions;
+        Document = document;
     }
 
-    public ScenarioMetadataDto Metadata { get; private set; }
+    public ScenarioMetadataDto Metadata => Document.Metadata;
 
-    public List<ScenarioMissionDto> Missions { get; }
+    public List<ScenarioMissionDto> Missions { get; } = new();
+
+    private ScenarioDocumentDto Document { get; set; }
 
     private ScenarioFeaturesDto? _features;
     private IReadOnlyList<ScenarioSideDto> _sides = Array.Empty<ScenarioSideDto>();
@@ -132,16 +133,20 @@ public sealed class ScenarioDocumentEditor
         ulong seed = 42,
         string? policyId = "baltic-patrol-catalog")
     {
-        return new ScenarioDocumentEditor(
-            new ScenarioMetadataDto
+        return new ScenarioDocumentEditor(new ScenarioDocumentDto
+        {
+            Metadata = new ScenarioMetadataDto
             {
+                Title = "Untitled Scenario",
                 DbRef = dbRef,
                 TlBranch = CatalogTlTier.Default,
                 Seed = seed,
                 PolicyId = policyId,
                 EditVersion = 1,
+                SchemaVersion = 1,
             },
-            new List<ScenarioMissionDto>());
+            EditorState = null,
+        });
     }
 
     public ScenarioDocumentDto ToDto() =>
@@ -161,7 +166,7 @@ public sealed class ScenarioDocumentEditor
 
     public string ComputeFileHash()
     {
-        var json = ScenarioDocumentJsonWriter.Serialize(ToDto());
+        var json = ScenarioStableJsonWriter.Serialize(ToDto());
         using var sha = SHA256.Create();
         var bytes = sha.ComputeHash(Encoding.UTF8.GetBytes(json));
         return BitConverter.ToString(bytes).Replace("-", "", StringComparison.Ordinal).ToLowerInvariant();
@@ -181,7 +186,8 @@ public sealed class ScenarioDocumentEditor
 
     public void CommitMutation()
     {
-        Metadata = new ScenarioMetadataDto
+        var meta = Document.Metadata;
+        Document = CloneDocument(Document, new ScenarioMetadataDto
         {
             DbRef = Metadata.DbRef,
             DbSnapshotId = Metadata.DbSnapshotId,
@@ -420,6 +426,7 @@ public sealed class ScenarioDocumentEditor
             AssignedUnitIds = assignedUnitIds ?? mission.AssignedUnitIds,
             TargetIds = mission.TargetIds,
             FerryDestinationBaseId = mission.FerryDestinationBaseId,
+            SupportRole = mission.SupportRole,
             PatrolZone = patrolZone ?? mission.PatrolZone,
             StationGeometry = mission.StationGeometry,
             SupportRole = mission.SupportRole,
@@ -442,6 +449,7 @@ public sealed class ScenarioDocumentEditor
             AssignedUnitIds = assignedUnitIds ?? mission.AssignedUnitIds,
             TargetIds = targetIds ?? mission.TargetIds,
             FerryDestinationBaseId = mission.FerryDestinationBaseId,
+            SupportRole = mission.SupportRole,
             PatrolZone = mission.PatrolZone,
             StationGeometry = mission.StationGeometry,
             SupportRole = mission.SupportRole,
@@ -464,6 +472,7 @@ public sealed class ScenarioDocumentEditor
             AssignedUnitIds = assignedUnitIds ?? mission.AssignedUnitIds,
             TargetIds = mission.TargetIds,
             FerryDestinationBaseId = ferryDestinationBaseId ?? mission.FerryDestinationBaseId,
+            SupportRole = mission.SupportRole,
             PatrolZone = mission.PatrolZone,
             StationGeometry = mission.StationGeometry,
             SupportRole = mission.SupportRole,
