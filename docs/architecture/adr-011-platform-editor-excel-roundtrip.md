@@ -1,74 +1,60 @@
-# ADR-011: Platform Editor — Excel Round-Trip on the Write Gate
+# ADR-011: Platform Editor Excel Roundtrip (Phase A)
 
-## Status
+**Status:** Accepted
 
-**Proposed**
+**Date:** 2026-06-14
 
-## Date
+**Decision Makers:** Data + architecture per Sprint 22 kickoff and GitNexus impacts.
 
-2026-06-08
+## Summary
 
-## Decision Makers
-
-Enterprise architect (DRGAMTD); milsim architecture review. Pairs with requirement [21-Platform-Editor](../../Game-Requirements/requirements/21-Platform-Editor.md) and builds on [06-Database-Intelligence](../../Game-Requirements/requirements/06-Database-Intelligence.md), [ADR-006 Data Layer Boundary](adr-006-data-layer-boundary.md), and [ADR-008 Mission Editor Validation Engine](adr-008-mission-editor-validation-engine.md).
+Phase A of the platform catalog Excel roundtrip (Req 21) uses ClosedXML for export/import in PlatformWorkbookExporter/Importer. All modifications are staged exclusively through the write-gate (new ProposePlatformBatch + reuse of ProposeMount/Loadout/Magazine/CommsBatch → ApproveBatch). No auto-commit to live tables. Supports platforms + mounts/loadouts/magazines/comms. Migration 007 is extended additively with staging tables. CLI verbs (platform_export/import/diff_xlsx) added for headless/MCP use. Phase B is deferred (full diff provenance, UI integration, additional entity types).
 
 ## Context
 
-The catalog (`ProjectAegis.Data`) has mature, deterministic governance — staged write gate (`IWriteGate`), immutable snapshots / release trains (`DbSnapshotStore`, `db_release`), per-field provenance (`CatalogProvenanceTier`), append-only change log (`CatalogChangeLogEntry`), quarantine, and a deterministic validation chain. What it lacks is an **authoring surface** for full platform configuration (ships, subs, aircraft, ground, facilities) and their **mobility, signatures, sensor suites, comms/datalinks, mounts, loadouts/magazines, and EMCON** — and any **Microsoft Excel** path. The persisted model is a thin P0 slice (`CatalogPlatformEntry(PlatformId, Lat, Lon, CombatRadiusNm)`, `CatalogSensorBinding`, `WeaponEnvelopeDto`); "Full platform import" is marked **Not started**.
-
-The requirement is complete flexibility and editing ease for **all** platform configurations, with Excel as a supported editing tool, **without** regressing determinism, provenance, auditability, or validation.
+- Req 21 Platform Editor requires user-friendly editing of complex catalog data (platforms, weapons, fittings) beyond sensor-focused markdown.
+- Prior state: 007 added live platform_* / weapon / mount tables; PlatformWorkbookImporter treated "Platforms" as UnsupportedSheets; write-gate was sensor + 4 mount types only; no Excel roundtrip.
+- Safety/determinism requirements (DBI-1.x, 7.x, 8.3): changes must go through propose/approve (quarantine, snapshot, provenance), never direct DB writes or bypass. GitNexus flagged CatalogWriteGate as CRITICAL (extend-only only).
+- Existing pattern (sensor import, CmoMarkdownImportProposer, write-gate staging) must be mirrored for platforms.
+- ClosedXML chosen for Excel I/O (no other dependencies in Data layer).
 
 ## Decision
 
-Build a **headless Platform Editor in `ProjectAegis.Data`** whose primary editing surface is a **multi-sheet Excel workbook** that round-trips through the existing write gate. Four decisions are locked:
+- **Exporter (PlatformWorkbookExporter)**: Uses ClosedXML to write sheets for platforms + related entities (mounts, loadouts, magazines, comms, weapons) from catalog data. Deterministic ordering (PlatformId + composite keys, Ordinal).
 
-### 1. Excel model — full round-trip + snapshot diff
+- **Importer (PlatformWorkbookImporter)**: Reads xlsx via ClosedXML, produces Catalog* rows (PlatformEntry, Mount, etc.), stages via the gate. Extends to treat platforms as supported.
 
-Export a bound `dbSnapshotId` to `.xlsx` (one sheet per entity domain), edit offline, re-import. The importer **diffs the workbook against its source snapshot** (recorded in a read-only `_Meta` sheet) and stages **only the changes** — not a blind overwrite. An unedited round-tripped workbook must produce an **empty diff**.
+- **Write-gate staging pattern (core)**:
+  - Additive only: `string ProposePlatformBatch(IReadOnlyList<CatalogPlatformEntry> proposed, string actorType, string actorId, string rationale = "")` on IWriteGate + impl in CatalogWriteGate.
+  - New private `InsertStagingPlatform` (mirrors InsertStagingMount exactly).
+  - Extended `DeleteStagingRows` to cover *all* staging_* tables (sensor + mount + loadout + magazine + comms + platform) on reject — enforces DBI-1.4 no-orphan guard.
+  - No signature/behavior changes to existing ProposeSensorBatch/Propose* or Approve/Reject/List paths.
+  - Empty batch guard (DBI-7.1), stable `OrderBy(p => p.PlatformId, StringComparer.Ordinal)` + composite for determinism.
 
-*Rejected:* import-only (no safe edit-existing workflow, weak audit); live Office.js add-in (heavyweight, needs a live service, complicates determinism and the propose/approve gate); CSV-per-entity (loses Excel validation/dropdowns/multi-sheet ergonomics).
+- **ClosedXML adapter boundary**: Contained in the Platform/ workbook classes (exporter/importer). Adapter handles row mapping, validation, sheet naming. No ClosedXML leakage into gate or catalog layer.
 
-### 2. Editing surface — Excel-primary on the write-gate API
+- **Migration (007_platform_editor_phase_a.sql)**: Additive `CREATE TABLE IF NOT EXISTS catalog_staging_platform (...)` (and the mount/loadout/magazine/comms staging for completeness/consistency). Idempotent (CREATE IF NOT EXISTS), FK to batch, deterministic columns. Complements the live tables added earlier in 007. No app-logic table creation in C#.
 
-The exporter/importer are headless services in `ProjectAegis.Data`, exposed via CLI (`platform_export_xlsx` / `platform_import_xlsx` / `platform_diff_xlsx`) and matching MCP tools. **No new UI engine in v1.** A read-only in-engine viewer is sequenced post-P0. Excel I/O sits behind an `IPlatformWorkbookIo` port so the Data assembly stays engine-free (ADR-006) and unit-testable.
+- **CLI/MCP roundtrip (S22-02)**: New verbs `platform_export_xlsx` / `platform_import_xlsx` / `platform_diff_xlsx` in ProjectAegis.MissionEditor.Cli (exact pattern of CatalogImportMarkdownCommand). Update tools/mission-editor/mcp-tools.json + McpToolsManifestTests. Propose-only (no auto-commit); returns batch ids for approve via existing gate flow.
 
-*Rejected:* in-engine Unity panel (large UI build, violates headless-first); standalone external app (whole app to maintain); agent/MCP-only (no human authoring ergonomics).
+- **Tests & determinism**: Additive only. Use Baltic fixtures (CatalogValidationDefaults + in-memory markdown/xlsx equivalents), FixedCatalogClock, temp DB + cleanup, [Collection("CatalogSqlite")], explicit stable OrderBy. Cross tests for mixed types, orphan guard (staging row counts match batch, 0 after reject), roundtrip, no sensor regression. CLI manifest + execution tests.
 
-### 3. Schema scope — full schema specified now, phased delivery
+- **Phase B scope (deferred)**: Full workbook diff (export vs current), richer provenance/trl on all rows, UI panel integration (beyond CLI), additional sheets if needed, conflict resolution UX. This ADR locks Phase A boundaries.
 
-The complete editable schema (platform core, mobility, signatures, sensor suite, comms/datalinks, mounts, loadouts, magazines, EMCON) is specified in doc 21 up front, but delivered in phases: **Phase A** = sensors + mounts/loadouts/magazines + comms/datalinks (comms pulled forward to A per the user's explicit ask); **Phase B** = signatures, mobility, EMCON, damage. Canonical IDs are immutable across phases.
-
-*Rejected:* everything-at-once (longest lead, highest risk); narrow sensors+loadouts+comms-only (re-litigates schema later); full DB3000 taxonomy in one pass (excessive modeling effort before first value).
-
-### 4. Governance — write gate for all edits, with a bulk-author batch path
-
-Every Excel-originated change is staged via `IWriteGate.Propose*Batch` and committed only through `ApproveBatch`. A **bulk-author** mode validates a large import as a single batch (not row-by-row), but commits affecting **> N records** (default 10, `CatalogValidationDefaults`) or any `balanceCritical` field still require explicit human `ApproveBatch` — consistent with **DBI-2.4**. No direct-SQL/auto-commit path exists for the importer.
-
-*Rejected:* strict per-batch-review-always (no fast bulk path); trusted direct-write for designers (breaks uniform audit and provenance).
+The ADR is referenced in Game-Requirements/requirements/21-Platform-Editor.md and the Sprint 22 kickoff. Implementation follows GitNexus (extend-only on CRITICAL WriteGate), data/engine/test rules, and Graphite (gt create only).
 
 ## Consequences
 
-**Positive**
-- Reuses all existing governance — the editor is a new front door, not a parallel system.
-- Excel gives designers familiar bulk-edit ergonomics (dropdowns, validation, multi-sheet) with deterministic, auditable, reversible commits.
-- Headless + engine-free keeps it CI-testable (round-trip fidelity, empty-diff golden, validation hashes).
+- **Positive**: User-friendly Excel editing for complex data while preserving headless determinism, write safety, and provenance. Unblocks S22-04 (platform support in markdown importer too) and future UI. CLI/MCP verbs enable automation without direct DB access.
 
-**Negative / risks**
-- New Excel I/O dependency (recommend **ClosedXML / MIT**, behind `IPlatformWorkbookIo`, to avoid EPPlus non-commercial licensing). See doc 21 Open Question 2.
-- Extending `CatalogPlatformEntry` / `CatalogSensorBinding` / `WeaponEnvelopeDto` touches `ProjectAegis.Sim` and `ProjectAegis.Delegation` consumers — **run `gitnexus_impact` before widening; expect HIGH blast radius** (CLAUDE.md mandate).
-- Round-trip determinism requires strict `InvariantCulture` parsing and stable sort keys; locale/number drift is the most likely correctness bug.
-- New catalog tables (mounts, loadouts, magazines, comms, signatures, mobility, EMCON) need migrations and golden fixtures.
+- **Risks & mitigations**: CatalogWriteGate CRITICAL blast radius (18 impacted, 7 processes per impact analysis) — strictly extend-only (new overloads only; no existing Propose*/Approve changes). DBI-1.4 orphan risk mitigated by extended Delete + explicit tests + migration tables. No bypass of gate (DBI-8.3). Windows long-ref issues noted for some temp branch names (use short -m).
 
-## Compliance / Verification
+- **Trade-offs**: Additive migration + staging tables increase schema surface temporarily (Phase B will clean). ClosedXML is the boundary — future format changes isolated there.
 
-- Empty-diff golden test: export snapshot → import unedited → zero staged changes.
-- Write-gate parity test: no importer path reaches live tables without `ApproveBatch`; bulk batch over threshold returns `Committed == false` until approved.
-- Provenance round-trip test: tiers/review states preserved on unedited rows; blanks normalized per doc 06 §6.
-- Validation determinism: golden hash for a fixture workbook's `ValidationReport`.
-- ADR-001/006 boundary: no `UnityEngine` reference enters `ProjectAegis.Data`; Excel I/O isolated behind the port.
+- **Review gates**: Full build + targeted Data tests (PlatformWorkbook|Importer|WriteGate|Catalog) + CLI smoke + gitnexus detect_changes before each gt create + submit. Evidence in commits, test output, this ADR.
 
-## Related
+- **Next (Phase B / S23)**: Workbook diff command, richer provenance, UI binding, any additional entity types.
 
-- Requirement [21-Platform-Editor](../../Game-Requirements/requirements/21-Platform-Editor.md)
-- [06-Database-Intelligence](../../Game-Requirements/requirements/06-Database-Intelligence.md) (write gate, snapshots, provenance)
-- [ADR-006 Data Layer Boundary](adr-006-data-layer-boundary.md), [ADR-008 Mission Editor Validation Engine](adr-008-mission-editor-validation-engine.md)
+See also: Sprint 22 kickoff (S22-01/02/03 ACs + risks + Quality Gates), qa-plan-sprint-22-2026-06-09.md (22-1/2/3 cases), 007 migration, IWriteGate/CatalogWriteGate, PlatformWorkbook* classes, MissionEditor.Cli verbs, mcp-tools.json.
+
+All per AGENTS.md (impacts before edits, detect before commit), Graphite workflow (gt only), and .claude/rules.
