@@ -16,5 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ProjectAegis.Sim\ProjectAegis.Sim.csproj" />
+    <ProjectReference Include="..\ProjectAegis.Sim.Benchmark\ProjectAegis.Sim.Benchmark.csproj" />
   </ItemGroup>
 </Project>
