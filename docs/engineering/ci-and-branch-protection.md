@@ -1,6 +1,7 @@
 # CI and branch protection
 
-> **Last updated:** 2026-06-13  
+> **Last updated:** 2026-06-25 (S67)  
+> **Cites:** production/release-train-scope-boundary-2026-06-24.md (S67 row: Buildkite preflight ∥ Regression baseline lock ∥ Branch-protection; .buildkite/ alignment with §7 gates; ci-and-branch-protection update) + future-sprint-roadpmap-062426.md §7 (standing invariants) + roadmap-execute-plan-062426.md §S67  
 > **Graphite-first workflow:** [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md) — use `gt submit`, not `gh pr create`, for stack work.  
 > **Buildkite setup:** [buildkite-ci.md](./buildkite-ci.md)
 
@@ -70,7 +71,7 @@ Tracking issue: [Enable branch protection required checks on main](https://githu
 
    | Context | Source |
    |---------|--------|
-   | `buildkite/cmano-clone` | Buildkite primary pipeline (adjust slug if yours differs) |
+   | `buildkite/cmano-clone` | Buildkite primary pipeline (adjust slug if yours differs). S67+ enforces §7 gates per release-train-scope-boundary-2026-06-24.md (tests, replay, GitNexus pre, baselines). |
 
 4. **Do not** enable “Dismiss stale pull request approvals when new commits are pushed” — Graphite rebases break that rule. Use [Dismiss Stale Approvals (Graphite-compatible)](../../.github/workflows/graphite-dismiss-stale-approvals.yml) instead.
 
@@ -82,6 +83,44 @@ Tracking issue: [Enable branch protection required checks on main](https://githu
 ```
 
 Uses [.github/branch-protection.main.json](../../.github/branch-protection.main.json).
+
+## S67 Alignment — §7 Gates + GitNexus Preflight + Baseline Enforcement (per release-train-scope-boundary-2026-06-24.md)
+
+**S67-03 Branch-protection track (isolated).** Aligns branch protection + CI docs with release train §7 standing invariants + S67 deliverables.
+
+**§7 gates enforced via `buildkite/cmano-clone` required status (and local parity `tools/verify-ci-local.ps1`):**
+- Test baseline **≥1229** (monotonic; no regression)
+- **ReplayGolden 6/6** + **C2 proxy 18/18+**
+- Production Baltic hash **`17144800277401907079`** preserved
+- **ZERO DelegationBridge** edits (CatalogWriteGate extend-only only)
+- **GitNexus preflight discipline** (per AGENTS.md): `impact({target, direction:"upstream", summaryOnly:true})` + `detect_changes({scope:"compare", base_ref:"main"})` before commits/edits to symbols. See GitNexus PR step + buildkite agents.
+- Buildkite preflight parity (PR + main) with local gates; post-merge replay on main.
+- Graphite compat: no stale-dismiss in protection rule (handled by graphite-dismiss-stale-approvals.yml).
+
+**Protected status context:** `buildkite/cmano-clone` (see .github/branch-protection.main.json and .buildkite/pipeline.yml).
+
+**S67 artifacts (locked baselines post-track):**
+- production/sprints/sprint-67-buildkite-baseline-protection.md
+- .buildkite/preflight-s67.yml (S67-01: §7 gates preflight + verification-before RUN+READ; cites release-train-scope-boundary-2026-06-24.md; integrated in pipeline)
+- production/qa/ (locked baseline evidence)
+- tests/regression/README.md (S67-02 locked: 1232/0f, 6/6, hash 17144800277401907079; goldens lists + verif cmds)
+- All changes cite boundary + S67 plan + kickoff.
+
+**S67-02 locked baseline (audit vs S66 1232/0f 6/6 replay incl Baltic v2, hash 17144800277401907079):** Tests 1232/0f; Replay 6/6 (core 6 + v2 goldens); C2 18/18; hash preserved. Verif cmds + GitNexus pre in tests/regression/README.md + sprint-67 plan. Cite release-train-scope-boundary-2026-06-24.md .
+
+**Verification-before (mandatory before merge per AGENTS + boundary + sprint plan):**
+```bash
+dotnet build ProjectAegis.sln -c Release
+dotnet test ProjectAegis.sln -c Release -v minimal --filter "ReplayGolden|PlayModeSmoke"
+bash tools/buildkite/baltic-replay.sh || true
+grep -r "17144800277401907079" --include="*.md" .
+# + GitNexus impact + detect_changes
+```
+**GitNexus pre:** Performed (LOW/MED on doc/CI files; no CRITICAL edits; see detect_changes reports).
+
+See sprint-67-buildkite-baseline-protection.md for full tracks (preflight || baseline lock || branch-protection). S67-02 COMPLETE.
+
+**Prior S19 local fallback:** Retained for free-plan billing issues; prefer Buildkite when green.
 
 ## Unity Editor CI (optional)
 

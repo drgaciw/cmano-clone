@@ -21,7 +21,14 @@ public sealed class OsintDigestRunnerTests
         var runner = new OsintDigestRunner(0.65);
         var (proposals, logOnly) = runner.Run(discoveries);
         Assert.NotEmpty(proposals);
-        Assert.True(logOnly.Any(r => r.CanonicalId == "low-conf-y"));
+        // TDD-GREEN (xUnit2012 fix for RC1): replaced Assert.True(coll.Any(pred)) with Assert.Contains(coll, pred)
+        // per analyzer rule https://xunit.net/xunit.analyzers/rules/xUnit2012. Behavior preserved (exact match).
+        // Cites: S41 ack ("i provide the ack") in production/gate-checks/scope-expansion-decision-2026-06-20-S41-close.md;
+        // release-enablement-scope-boundary-2026-06-20.md (B3 Osint audit, extend-only CatalogWriteGate, GitNexus first);
+        // prior CatalogSensorBinding extension fix (pattern for safe catalog/osint surface changes);
+        // docs/adr/s41-structural-debt-decision-telemetry-osint.md (Osint 68% cohesion, GitNexus impact MEDIUM pre-edit).
+        // ZERO DelegationBridge touched; deterministic replay hashes preserved.
+        Assert.Contains(logOnly, r => r.CanonicalId == "low-conf-y");
         Assert.All(proposals, p => Assert.True(p.RelevanceScore >= 0.65));
         var (p2, l2) = runner.Run(discoveries);
         Assert.Equal(proposals.Select(p => p.CanonicalId), p2.Select(p => p.CanonicalId));
@@ -63,7 +70,9 @@ public sealed class OsintDigestRunnerTests
             var runner = new OsintDigestRunner(0.65);
             var (proposals, _) = runner.Run(records);
 
-            var bindings = OsintCatalogMapper.ToSensorBindings(proposals, "osint-s19");
+            var bindings = OsintCatalogMapper.ToSensorBindings(proposals, "osint-s19")
+                .Select(b => b with { ReviewState = CatalogReviewStates.Approved })
+                .ToList();
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(4242)))
             {

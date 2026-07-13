@@ -21,10 +21,12 @@ public static class MissionUpdateStrikeCommand
         {
             var editor = ScenarioDocumentEditor.Load(scenarioPath);
             editor.RequireEditVersion(editVersion, scenarioPath);
+            var undoSnapshot = editor.CaptureUndoSnapshot();
             editor.UpdateStrikeMission(
                 missionId,
                 unitIds?.Count > 0 ? unitIds : null,
                 targetIds?.Count > 0 ? targetIds : null);
+            editor.PersistUndoSnapshot(scenarioPath, undoSnapshot);
             editor.CommitMutation();
             editor.Save(scenarioPath);
             return McpToolResult.WriteOk(output, new

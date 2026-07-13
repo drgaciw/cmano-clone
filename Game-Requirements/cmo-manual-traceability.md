@@ -161,7 +161,7 @@ Map every major manual section to Project Aegis requirement documents so gaps ar
 | ID | File | Status |
 |----|------|--------|
 | 01–10 | Core, agents, DB, tech, near-future | Approved / draft mix |
-| 11 | Agentic Mission Editor | Draft |
+| 11 | Agentic Mission Editor | Revised (2026-07-01, implementation-aligned; AME-* IDs, ADR-008/013–017) |
 | 12 | Terms Glossary | Active |
 | 13 | Doctrine, ROE, EMCON, WRA | Draft |
 | 14 | Engagement & Fire Control | Draft |

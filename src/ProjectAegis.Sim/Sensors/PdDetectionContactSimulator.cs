@@ -1,5 +1,6 @@
 namespace ProjectAegis.Sim.Sensors;
 
+using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
@@ -9,16 +10,22 @@ public sealed class PdDetectionContactSimulator
 {
     private readonly SimSeed _seed;
     private readonly ScenarioDetectionTrial[] _trials;
+    private readonly Dictionary<string, ScenarioDetectionTrial> _trialsByContactId;
     private readonly IReadOnlyDictionary<string, EmconState>? _unitRadarEmcon;
+    private readonly ICatalogReader? _catalog;
     private readonly IReadOnlyList<ScenarioJammer> _jammers;
-    private readonly HashSet<string> _detectedContacts = new(StringComparer.Ordinal);
+    // P2 allocation follow-up (S37-09): SortedSet for deterministic ordinal iteration without per-tick OrderBy/alloc.
+    // Iteration order identical to previous explicit OrderBy; HashSet elsewhere unchanged.
+    private readonly SortedSet<string> _detectedContacts = new(StringComparer.Ordinal);
     private readonly HashSet<string> _destroyedTargets = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _bdaLostTargets = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ContactTrack> _tracks = new(StringComparer.Ordinal);
     private readonly int _staleThresholdTicks;
     private int _commsStaleThresholdDivisor = 1;
     private readonly int _classifyAfterTicks;
     private readonly int _identifyAfterTicks;
     private string? _primaryTargetId;
+    private string? _primaryBlueForceTargetId;
     private bool _primaryHasTrack;
 
     public PdDetectionContactSimulator(
@@ -26,12 +33,21 @@ public sealed class PdDetectionContactSimulator
         IReadOnlyList<ScenarioDetectionTrial> trials,
         IReadOnlyDictionary<string, EmconState>? unitRadarEmcon = null,
         IReadOnlyList<ScenarioJammer>? jammers = null,
-        ScenarioContactLifecycle? contactLifecycle = null)
+        ScenarioContactLifecycle? contactLifecycle = null,
+        ICatalogReader? catalog = null)
     {
         _seed = seed;
         _unitRadarEmcon = unitRadarEmcon;
+        _catalog = catalog;
         _jammers = jammers ?? Array.Empty<ScenarioJammer>();
         _trials = trials.ToArray();
+        DeterministicDetectionLoop.SortTrials(_trials);
+        _trialsByContactId = new Dictionary<string, ScenarioDetectionTrial>(_trials.Length, StringComparer.Ordinal);
+        foreach (var trial in _trials)
+        {
+            _trialsByContactId[trial.ContactId] = trial;
+        }
+
         var lifecycle = contactLifecycle ?? ScenarioContactLifecycle.Default;
         _staleThresholdTicks = Math.Max(1, lifecycle.StaleThresholdTicks);
         _classifyAfterTicks = Math.Max(0, lifecycle.ClassifyAfterTicks);
@@ -50,6 +66,8 @@ public sealed class PdDetectionContactSimulator
 
     public string? PrimaryTargetId => _primaryTargetId;
 
+    public string? PrimaryBlueForceTargetId => _primaryBlueForceTargetId;
+
     public bool PrimaryHasFireControlTrack => _primaryHasTrack;
 
     public IReadOnlyList<ContactTransition> Tick(ulong simTick, double simTime)
@@ -60,14 +78,17 @@ public sealed class PdDetectionContactSimulator
             _trials,
             _unitRadarEmcon,
             _detectedContacts,
-            _jammers);
+            _jammers,
+            catalog: _catalog,
+            trialsPreSorted: true);
         LastDetectionHash = DetectionWorldHash.MixTick(LastDetectionHash, rolls);
 
         var transitions = new List<ContactTransition>();
         var seenThisTick = new HashSet<string>(StringComparer.Ordinal);
         foreach (var roll in rolls)
         {
-            if (_destroyedTargets.Contains(roll.Trial.TargetId))
+            if (_destroyedTargets.Contains(roll.Trial.TargetId) ||
+                _bdaLostTargets.Contains(roll.Trial.TargetId))
             {
                 continue;
             }
@@ -102,7 +123,7 @@ public sealed class PdDetectionContactSimulator
                 ContactLifecycleState.Detected));
         }
 
-        foreach (var contactId in _detectedContacts.OrderBy(id => id, StringComparer.Ordinal))
+        foreach (var contactId in _detectedContacts)
         {
             if (!_tracks.TryGetValue(contactId, out var track) ||
                 track.State == ContactLifecycleState.Lost)
@@ -110,7 +131,7 @@ public sealed class PdDetectionContactSimulator
                 continue;
             }
 
-            var trial = _trials.First(t => t.ContactId == contactId);
+            var trial = _trialsByContactId[contactId];
             EmitLifecyclePromotions(simTick, simTime, trial, track, transitions);
         }
 
@@ -171,28 +192,32 @@ public sealed class PdDetectionContactSimulator
         List<ContactTransition> transitions)
     {
         var lost = new List<string>();
-        foreach (var pair in _tracks)
+        var candidateContactIds = _tracks.Keys
+            .OrderBy(contactId => contactId, StringComparer.Ordinal)
+            .ToArray();
+        foreach (var contactId in candidateContactIds)
         {
-            if (pair.Value.State == ContactLifecycleState.Lost)
+            var track = _tracks[contactId];
+            if (track.State == ContactLifecycleState.Lost)
             {
                 continue;
             }
 
-            if (seenThisTick.Contains(pair.Key))
+            if (seenThisTick.Contains(contactId))
             {
                 continue;
             }
 
-            pair.Value.MissedTicks++;
-            if (pair.Value.MissedTicks < EffectiveStaleThresholdTicks)
+            track.MissedTicks++;
+            if (track.MissedTicks < EffectiveStaleThresholdTicks)
             {
                 continue;
             }
 
-            var trial = _trials.First(t => t.ContactId == pair.Key);
-            var previous = pair.Value.State;
-            pair.Value.State = ContactLifecycleState.Lost;
-            lost.Add(pair.Key);
+            var trial = _trialsByContactId[contactId];
+            var previous = track.State;
+            track.State = ContactLifecycleState.Lost;
+            lost.Add(contactId);
             transitions.Add(new ContactTransition(
                 simTick,
                 simTime,
@@ -206,9 +231,9 @@ public sealed class PdDetectionContactSimulator
         foreach (var contactId in lost)
         {
             _detectedContacts.Remove(contactId);
-            if (_primaryTargetId != null &&
-                _tracks.TryGetValue(contactId, out var track) &&
-                _trials.First(t => t.ContactId == contactId).TargetId == _primaryTargetId)
+            var lostTargetId = _trialsByContactId[contactId].TargetId;
+            if ((_primaryTargetId != null && lostTargetId == _primaryTargetId) ||
+                (_primaryBlueForceTargetId != null && lostTargetId == _primaryBlueForceTargetId))
             {
                 RecomputePrimary();
             }
@@ -218,10 +243,11 @@ public sealed class PdDetectionContactSimulator
     private void RecomputePrimary()
     {
         _primaryTargetId = null;
+        _primaryBlueForceTargetId = null;
         _primaryHasTrack = false;
         foreach (var id in _detectedContacts)
         {
-            var trial = _trials.First(t => t.ContactId == id);
+            var trial = _trialsByContactId[id];
             UpdatePrimary(trial);
         }
     }
@@ -239,23 +265,36 @@ public sealed class PdDetectionContactSimulator
 
     private void UpdatePrimary(ScenarioDetectionTrial trial)
     {
-        if (_primaryTargetId == null ||
-            string.Compare(trial.TargetId, _primaryTargetId, StringComparison.Ordinal) < 0)
+        if (HostileContactFilter.IsEngageableHostileTarget(trial.TargetId))
         {
-            _primaryTargetId = trial.TargetId;
-            _primaryHasTrack = true;
+            if (_primaryTargetId == null ||
+                string.Compare(trial.TargetId, _primaryTargetId, StringComparison.Ordinal) < 0)
+            {
+                _primaryTargetId = trial.TargetId;
+                _primaryHasTrack = true;
+            }
+        }
+
+        if (BalticV3SideRegistry.IsBlueForceUnit(trial.TargetId))
+        {
+            if (_primaryBlueForceTargetId == null ||
+                string.Compare(trial.TargetId, _primaryBlueForceTargetId, StringComparison.Ordinal) < 0)
+            {
+                _primaryBlueForceTargetId = trial.TargetId;
+            }
         }
     }
 
-    /// <summary>Force-remove a destroyed target from the contact picture (combat kill).</summary>
-    public IReadOnlyList<ContactTransition> ApplyTargetKill(
+    /// <summary>Promote contacts for a damaged target to Lost without marking the target destroyed (BDA hook).</summary>
+    public IReadOnlyList<ContactTransition> ApplyTargetBdaLost(
         ulong simTick,
         double simTime,
         string targetId)
     {
         var transitions = new List<ContactTransition>();
         var lostContacts = _tracks.Keys
-            .Where(contactId => _trials.First(t => t.ContactId == contactId).TargetId == targetId)
+            .Where(contactId => _trialsByContactId[contactId].TargetId == targetId)
+            .OrderBy(contactId => contactId, StringComparer.Ordinal)
             .ToArray();
 
         foreach (var contactId in lostContacts)
@@ -266,7 +305,50 @@ public sealed class PdDetectionContactSimulator
                 continue;
             }
 
-            var trial = _trials.First(t => t.ContactId == contactId);
+            var trial = _trialsByContactId[contactId];
+            var previous = track.State;
+            track.State = ContactLifecycleState.Lost;
+            transitions.Add(new ContactTransition(
+                simTick,
+                simTime,
+                trial.ObserverId,
+                trial.ContactId,
+                trial.TargetId,
+                previous,
+                ContactLifecycleState.Lost));
+            _detectedContacts.Remove(contactId);
+        }
+
+        if (lostContacts.Length > 0)
+        {
+            _bdaLostTargets.Add(targetId);
+            RecomputePrimary();
+        }
+
+        return transitions;
+    }
+
+    /// <summary>Force-remove a destroyed target from the contact picture (combat kill).</summary>
+    public IReadOnlyList<ContactTransition> ApplyTargetKill(
+        ulong simTick,
+        double simTime,
+        string targetId)
+    {
+        var transitions = new List<ContactTransition>();
+        var lostContacts = _tracks.Keys
+            .Where(contactId => _trialsByContactId[contactId].TargetId == targetId)
+            .OrderBy(contactId => contactId, StringComparer.Ordinal)
+            .ToArray();
+
+        foreach (var contactId in lostContacts)
+        {
+            if (!_tracks.TryGetValue(contactId, out var track) ||
+                track.State == ContactLifecycleState.Lost)
+            {
+                continue;
+            }
+
+            var trial = _trialsByContactId[contactId];
             var previous = track.State;
             track.State = ContactLifecycleState.Lost;
             transitions.Add(new ContactTransition(

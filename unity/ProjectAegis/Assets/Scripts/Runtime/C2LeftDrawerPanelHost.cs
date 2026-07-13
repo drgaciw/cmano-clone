@@ -1,5 +1,7 @@
 // Doc-20 left drawer — tabbed OOB / missions / contacts (single UIDocument).
+// S38-04 C2/Platform polish residual (density/filters from S37 carry): part of C2 track. Per sprint-38 + qa-plan + polish-scope-boundary-2026-06-19.md (lean, isolated).
 #if UNITY_5_3_OR_NEWER
+using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -18,6 +20,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string MissionListName = "mission-list";
         private const string ContactListName = "contact-list";
         private const string HiddenClass = "c2-drawer-list--hidden";
+        private const string PlanningReadOnlyClass = "c2-drawer-panel--planning-readonly";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -34,7 +37,11 @@ namespace ProjectAegis.Unity.Runtime
         private OobTreePanelState _oobState = new(Array.Empty<OobTreeDisplayRow>());
         private MissionListPanelState _missionState = new(Array.Empty<MissionListDisplayRow>());
         private SensorC2PanelState _contactState = new("EMCON: —", "TRACK: —", "CONTACTS: 0", Array.Empty<SensorC2ContactRow>());
+        private C2PlanningChromeState _planningChrome = new(false, false, SimulationPhase.Planning);
         private bool _wired;
+
+        /// <summary>True while drawer tabs are view-only during <see cref="SimulationPhase.Planning"/> (S30-07).</summary>
+        public bool IsDrawerReadOnly => _planningChrome.IsDrawerReadOnly;
 
         private void Reset()
         {
@@ -104,17 +111,17 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_tabOob != null)
             {
-                _tabOob.RegisterValueChangedCallback(_ => SelectTab(DrawerTab.Oob));
+                _tabOob.RegisterValueChangedCallback(evt => OnTabChanged(DrawerTab.Oob, evt.newValue));
             }
 
             if (_tabMissions != null)
             {
-                _tabMissions.RegisterValueChangedCallback(_ => SelectTab(DrawerTab.Missions));
+                _tabMissions.RegisterValueChangedCallback(evt => OnTabChanged(DrawerTab.Missions, evt.newValue));
             }
 
             if (_tabContacts != null)
             {
-                _tabContacts.RegisterValueChangedCallback(_ => SelectTab(DrawerTab.Contacts));
+                _tabContacts.RegisterValueChangedCallback(evt => OnTabChanged(DrawerTab.Contacts, evt.newValue));
             }
 
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
@@ -199,6 +206,16 @@ namespace ProjectAegis.Unity.Runtime
             }
         }
 
+        private void OnTabChanged(DrawerTab tab, bool selected)
+        {
+            if (!selected || _planningChrome.IsDrawerReadOnly)
+            {
+                return;
+            }
+
+            SelectTab(tab);
+        }
+
         private void SelectTab(DrawerTab tab)
         {
             if (_tabOob != null)
@@ -256,11 +273,42 @@ namespace ProjectAegis.Unity.Runtime
             _missionList.Rebuild();
             _contactList.Rebuild();
 
+            ApplyPlanningChrome();
+
             var root = _document.rootVisualElement?.Q(RootName);
             if (root != null)
             {
                 root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
             }
+        }
+
+        private void ApplyPlanningChrome()
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            _planningChrome = C2PlanningChromeProjection.Project(bridgeHost.Phase);
+            var root = _document.rootVisualElement?.Q(RootName);
+            if (root == null)
+            {
+                return;
+            }
+
+            if (_planningChrome.IsDrawerReadOnly)
+            {
+                root.AddToClassList(PlanningReadOnlyClass);
+            }
+            else
+            {
+                root.RemoveFromClassList(PlanningReadOnlyClass);
+            }
+
+            var tabsReadOnly = _planningChrome.IsDrawerReadOnly;
+            _tabOob?.SetEnabled(!tabsReadOnly);
+            _tabMissions?.SetEnabled(!tabsReadOnly);
+            _tabContacts?.SetEnabled(!tabsReadOnly);
         }
 
         private enum DrawerTab

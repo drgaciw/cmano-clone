@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="platform-import-root" class="platform-import-panel">
+        <ui:Label text="PLATFORM IMPORT" class="platform-import-title" />
+        <ui:TextField name="platform-import-workbook-path" class="platform-import-workbook-path" label="Workbook" />
+        <ui:VisualElement class="platform-import-actions">
+            <ui:Button name="platform-import-propose" text="Propose" class="platform-import-action-button" />
+            <ui:Button name="platform-import-reject" text="Reject" class="platform-import-action-button" />
+            <ui:Button name="platform-import-approve" text="Approve" class="platform-import-action-button platform-import-approve-button" />
+        </ui:VisualElement>
+        <ui:Label name="platform-import-status" text="STAGING: pick workbook and propose to preview entity-level diff" class="platform-import-status" />
+        <ui:Label text="ENTITY DIFF" class="platform-import-diff-title" />
+        <ui:ListView name="platform-import-diff-list" class="platform-import-diff-list" selection-type="None" />
+        <ui:Toggle name="platform-import-acknowledge" label="I reviewed the entity-level diff" class="platform-import-acknowledge" />
+    </ui:VisualElement>
+</ui:UXML>

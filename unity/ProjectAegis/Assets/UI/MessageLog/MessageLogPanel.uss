@@ -18,6 +18,13 @@
     margin-bottom: 4px;
 }
 
+.message-log-onboarding-hint {
+    font-size: 10px;
+    color: rgb(160, 200, 180);
+    margin-bottom: 4px;
+    white-space: normal;
+}
+
 .message-log-list {
     flex-grow: 1;
     max-height: 180px;

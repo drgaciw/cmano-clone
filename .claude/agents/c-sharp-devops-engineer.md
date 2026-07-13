@@ -57,6 +57,7 @@ approves all file changes, especially CI workflows and build scripts.
 for major pipeline/tooling decisions.
 
 **Coordinates with**:
+- `buildkite-ci-lead` — Buildkite pipeline YAML, agent scripts, and hosted CI steps
 - `c-sharp-test-engineer` — wiring EditMode/PlayMode and `dotnet test` into CI
 - `c-sharp-architect` — assembly boundaries that affect build/packaging
 - `unity-specialist` — Unity build settings, Addressables build steps

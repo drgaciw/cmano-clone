@@ -1,0 +1,6 @@
+# Golden fingerprint — baltic-patrol-datalink-catalog-latency seed=42 ticks=5 (catalog NATO_TADIL_J 50ms → shareLagTicks=3)
+# Regenerate: dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-patrol-datalink-catalog-latency --ticks 5
+
+WORLD_HASH=12661701758887629394
+DETECTION_WORLD_HASH=10718004884873336994
+FINGERPRINT_SHA256=c297cf928c6d12b96849a1396fcedfce1b46fb616e5cda59edbc3e4815f7d7e9

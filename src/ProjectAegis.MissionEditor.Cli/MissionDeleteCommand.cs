@@ -15,11 +15,13 @@ public static class MissionDeleteCommand
         {
             var editor = ScenarioDocumentEditor.Load(scenarioPath);
             editor.RequireEditVersion(editVersion, scenarioPath);
+            var undoSnapshot = editor.CaptureUndoSnapshot();
             if (!editor.TryRemoveMission(missionId))
             {
                 return McpToolResult.WriteError(output, "MISSION_NOT_FOUND", $"Mission '{missionId}' was not found.");
             }
 
+            editor.PersistUndoSnapshot(scenarioPath, undoSnapshot);
             editor.CommitMutation();
             editor.Save(scenarioPath);
             return McpToolResult.WriteOk(output, new

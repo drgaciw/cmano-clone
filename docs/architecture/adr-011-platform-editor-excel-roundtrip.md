@@ -2,11 +2,11 @@
 
 ## Status
 
-**Proposed**
+**Accepted**
 
 ## Date
 
-2026-06-08
+2026-06-17
 
 ## Decision Makers
 

@@ -1,13 +1,17 @@
 # 13 - Doctrine, ROE, EMCON, and WRA
 
-**Last Updated:** May 29, 2026  
+**Last Updated:** 2026-07-08  
 **Status:** Draft — ready for design review  
+**FR reverse-ref:** [FR-11](01-Project-Overview.md) — Doctrine, ROE, EMCON, WRA  
 **CMO basis:** Manual §3.3.12–16, §4.5.6–8, §6.3.8–9; parity with CMO side/unit/mission doctrine UI  
-**Related:** 04 Agent Delegation, 11 Mission Editor, 14 Engagement, 12 Terms Glossary
+**Related:** 04 Agent Delegation, 11 Mission Editor, 14 Engagement, 12 Terms Glossary  
+**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 13 — **Partial**
 
 ## Purpose
 
 Define how **doctrine**, **rules of engagement (ROE)**, **emissions control (EMCON)**, and **weapon release authority (WRA)** are modeled, inherited, evaluated at runtime, and bound to **human and agent controllers** — with full **explainability** when actions are blocked (CMO “My Weapon Won’t Fire” class of problems).
+
+Implements hub **[FR-11](01-Project-Overview.md)** (doctrine / ROE / EMCON / WRA).
 
 ## Vision
 
@@ -108,6 +112,19 @@ capturedAtSimTime: "T+00:15:00"
 - Mission Board shows doctrine/ROE/EMCON tabs with inheritance diagram.
 - Validation Agent flags contradictory policies (e.g., strike mission + hold fire ROE).
 
+### Major IDs (ROE-*)
+
+| ID | Summary | Priority / maturity |
+|----|---------|---------------------|
+| **ROE-01** | Policy inheritance chain (unit → mission → group → side → scenario) | **P0** — Partial (validate + projection; full multi-level cascade UI Phase N) |
+| **ROE-02** | Immutable Policy Snapshot on agent assignment / rebind | **P0** — Shipped (`PolicySnapshotRegistry`) |
+| **ROE-03** | ROE states and multi-gate checks (hold / tight / free + detect/illuminate/fire/jam) | **P0** — Partial (`RoeLevel` + `PolicyEvaluator`; full multi-gate matrix Phase N) |
+| **ROE-04** | WRA per weapon/mount class (max salvo, range, target category) | **P0** — Partial (`MaxSalvo` / WRA denials; full category tables Phase N) |
+| **ROE-05** | EMCON per emitter class (radar/sonar/ESM/datalink/OECM) | **P0** — Partial (scenario policy + engage EMCON abort; full schedules Phase 2) |
+| **ROE-06** | Doctrine behavioral rules (ignore course, opportunity engage, withdraw) | **P0** — Partial (withdraw/damage gates; full doctrine set Phase 2) |
+| **ROE-07** | Explainability: `FireAbortReason` + policy field reference on deny | **P0** — Shipped (headless + order log); UI tooltips Partial |
+| **ROE-08** | Editor/MCP effective-policy resolve + contradictory-policy validation | **P0** — Partial (`DoctrineInheritanceValidateTests` + projection; full Mission Board Phase N) |
+
 ## Non-Functional Requirements
 
 | Area | Target |
@@ -155,15 +172,18 @@ FireAbortReason (enum + metadata)
 | **Phase 2** | Withdraw automation, EMCON schedules, special actions linkage |
 | **Phase 3** | Campaign-carry-forward policy reputation / trust (doc 04 open question) |
 
-## Implementation Mapping (Existing Code — GitNexus 2026-05-29)
+## Implementation Mapping (headless)
 
-| Requirement | Current code | Migration |
-|-------------|--------------|-----------|
-| ROE gate | `IRoeFilter`, `PassthroughRoeFilter`, `AutonomyGate` | `IPolicyEvaluator` reads `PolicySnapshot`; `IRoeFilter` becomes thin wrapper or replaced |
-| Orders | `Order`, `OrderKind`, `RiskLevel` | Add abort reasons; optional `Engage` payload (shooter, weapon, contact) |
-| Risk | `DefaultRiskClassifier` | Map to Assisted autonomy; align with doc 04 |
+| Area | Path / type | Status | Evidence |
+|------|-------------|--------|----------|
+| Effective policy / ROE·WRA evaluate | `PolicyEvaluator`, `IPolicyEvaluator`, `EffectivePolicy`, `FireAbortReason` (`ProjectAegis.Sim` · `Policy/`) | **Shipped (Partial gates)** | `PolicySnapshotEvaluatorTests`; hold-fire / max-salvo denials on engage path; full multi-gate ROE matrix + full WRA category tables remain **Phase N** |
+| ROE adapter into delegation | `RoePolicyAdapter`, `IRoeFilter`, `AutonomyGate` (`ProjectAegis.Delegation` · `Roe/`, `Orchestration/`) | **Shipped** | `RoePolicyAdapterTests`, `AutonomyGateTests`; ROE filter before engage |
+| Policy snapshot registry | `PolicySnapshotRegistry`, `PolicySnapshot` (`Delegation` · `Orchestration/`; `Sim` · `Policy/`) | **Shipped** | `PolicySnapshotRegistryTests`; immutable snapshot at controller assignment |
+| Scenario policy load | `ScenarioPolicyJsonLoader`, `ScenarioPolicyRepository`, `ScenarioPolicyProfile` (`Sim` · `Scenario/`) | **Shipped** | `ScenarioPolicyJsonLoaderTests`, `ScenarioPolicyJsonRoundTripTests`; `data/scenarios/*.policy.json` incl. v3 mission-roe |
+| Doctrine inheritance validate / projection | `DoctrineInheritanceValidateTests`, `DoctrineInheritanceProjection`, `DoctrineInheritancePanelBinder` | **Partial** | `src/ProjectAegis.Data.Tests/Validation/DoctrineInheritanceValidateTests.cs`; projection tests; Unity panel host present — full inheritance cascade authoring UI **Phase N** (tracker: ADR-010 doctrine panel polish) |
+| Full inheritance cascade / multi-gate ROE / full WRA categories / EMCON schedules | — | **Partial / Phase N** | Scenario JSON + MVP evaluator cover Baltic/v3 slices; CMO-parity multi-level cascade UI, full ROE gate matrix, and per-category WRA tables not complete |
 
-**Blast radius:** `npx gitnexus impact --repo cmano-clone -d upstream IRoeFilter` → **HIGH** (orchestrator, bridge, replay tests). Coordinate with `DelegationOrchestrator` changes.
+**Honesty note:** Design Status remains **Draft** (Template B). Shipped = headless policy evaluate + snapshot + scenario load + validation fixture; not full CMO doctrine UI parity.
 
 ## Open Questions
 
@@ -185,4 +205,5 @@ FireAbortReason (enum + metadata)
 
 ---
 
-**References:** CMO Manual §3.3.12–16, §4.5.8, §6.3.8; `docs/manual/index.html`
+**Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 13.
+Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.

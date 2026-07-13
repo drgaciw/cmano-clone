@@ -23,5 +23,16 @@
       "envMask": 1.0,
       "jamStrength": 0
     }
-  ]
+  ],
+  "s42Wave1Maint": {
+    "wave": "S42-04",
+    "item": "baltic-patrol-magazine",
+    "note": "B1 policy JSON maintenance (ties Req16 Logistics & Req21 Platform Editor per release-enablement-scope-boundary-2026-06-20.md). S41 closeout ack in scope-expansion-decision-2026-06-20-S41-close.md (\"i provide the ack\"). Replay-gated; no hash change. stack/sprint42/content-scenario. Deterministic via ScenarioPolicyRepository (csharpexpert)."
+  },
+  "s43Wave2Maint": {
+    "wave": "S43-04",
+    "item": "baltic-patrol-magazine",
+    "note": "B1 wave 2 remainder maint (Req 03/04/14-19 data side; platform/scenario projection maint). Cites S42 closeout + S41 ack \"i provide the ack\" + release-enablement-scope-boundary. stack/sprint43/content-remainder. Extend-only; replay 6/6. Beta-Content-Remainder manifest. team-data + csharpexpert.",
+    "date": "2026-06-20"
+  }
 }

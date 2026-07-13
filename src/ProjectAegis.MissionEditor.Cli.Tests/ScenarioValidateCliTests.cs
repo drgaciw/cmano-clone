@@ -5,6 +5,20 @@ using Xunit;
 
 public sealed class ScenarioValidateCliTests
 {
+    /// <summary>
+    /// Adversarial CLI process contract: missing file → exit 2 + JSON error (not crash / exit 0).
+    /// </summary>
+    [Fact]
+    public void scenario_validate_missing_file_returns_exit_2_json_error()
+    {
+        var missing = Path.Combine(Path.GetTempPath(), $"aegis-nope-{Guid.NewGuid():N}.json");
+        using var writer = new StringWriter();
+        Assert.Equal(2, ScenarioValidateCommand.Run(missing, quiet: false, writer));
+        var text = writer.ToString();
+        Assert.Contains("file not found", text, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("error", text, StringComparison.OrdinalIgnoreCase);
+    }
+
     [Fact]
     public void scenario_validate_clean_fixture_returns_exit_0()
     {
@@ -17,6 +31,126 @@ public sealed class ScenarioValidateCliTests
         using var writer = new StringWriter();
         Assert.Equal(0, ScenarioValidateCommand.Run(path, quiet: false, writer));
         Assert.Contains("passed", writer.ToString(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void scenario_validate_missing_tlBranch_returns_exit_1_with_finding()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"aegis-tl-missing-{Guid.NewGuid():N}.json");
+        try
+        {
+            File.WriteAllText(
+                path,
+                """
+                {
+                  "metadata": { "dbRef": "baltic_patrol" },
+                  "missions": [
+                    {
+                      "id": "patrol-1",
+                      "type": "Patrol",
+                      "assignedUnitIds": ["u1"],
+                      "patrolZone": [
+                        { "lat": 57.0, "lon": 20.0 },
+                        { "lat": 57.1, "lon": 20.1 },
+                        { "lat": 57.2, "lon": 20.2 }
+                      ]
+                    }
+                  ]
+                }
+                """);
+
+            using var writer = new StringWriter();
+            Assert.Equal(1, ScenarioValidateCommand.Run(path, quiet: false, writer));
+            Assert.Contains("TL_BRANCH_MISSING", writer.ToString());
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
+
+    [Fact]
+    public void scenario_validate_missing_release_train_returns_exit_1_with_finding()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"aegis-tl-not-found-{Guid.NewGuid():N}.json");
+        try
+        {
+            File.WriteAllText(
+                path,
+                """
+                {
+                  "metadata": { "tlBranch": "TL-2" },
+                  "missions": [
+                    {
+                      "id": "patrol-1",
+                      "type": "Patrol",
+                      "assignedUnitIds": ["u1"],
+                      "patrolZone": [
+                        { "lat": 57.0, "lon": 20.0 },
+                        { "lat": 57.1, "lon": 20.1 },
+                        { "lat": 57.2, "lon": 20.2 }
+                      ]
+                    }
+                  ]
+                }
+                """);
+
+            using var writer = new StringWriter();
+            Assert.Equal(1, ScenarioValidateCommand.Run(path, quiet: false, writer));
+            Assert.Contains("TL_RELEASE_TRAIN_NOT_FOUND", writer.ToString());
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+    }
+
+    [Fact]
+    public void scenario_validate_unknown_manifest_dbRef_returns_exit_1_with_DB_MISMATCH()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"aegis-unified-db-mismatch-{Guid.NewGuid():N}.json");
+        try
+        {
+            File.WriteAllText(
+                path,
+                """
+                {
+                  "metadata": {
+                    "dbRef": "unified-corpus-TL-0-not-published",
+                    "tlBranch": "TL-0"
+                  },
+                  "missions": [
+                    {
+                      "id": "patrol-1",
+                      "type": "Patrol",
+                      "assignedUnitIds": ["u1"],
+                      "patrolZone": [
+                        { "lat": 57.0, "lon": 20.0 },
+                        { "lat": 57.1, "lon": 20.1 },
+                        { "lat": 57.2, "lon": 20.2 }
+                      ]
+                    }
+                  ]
+                }
+                """);
+
+            using var writer = new StringWriter();
+            Assert.Equal(1, ScenarioValidateCommand.Run(path, quiet: false, writer));
+            Assert.Contains("DB_MISMATCH", writer.ToString());
+        }
+        finally
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
     }
 
     [Fact]

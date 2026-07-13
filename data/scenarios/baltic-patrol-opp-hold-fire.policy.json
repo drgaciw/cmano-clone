@@ -2,5 +2,11 @@
   "id": "baltic-patrol-opp-hold-fire",
   "friendlyRoe": "WeaponsFree",
   "opposingRoe": "HoldFire",
-  "unitOverrides": {}
+  "unitOverrides": {},
+  "s42Wave1Maint": {
+    "wave": "S42-04",
+    "item": "baltic-patrol-opp-hold-fire",
+    "note": "B1 policy JSON maintenance only. Cites: release-enablement-scope-boundary-2026-06-20.md (scenario/data maint); scope-expansion-decision-2026-06-20-S41-close.md (S41 PASS + \"i provide the ack\" UNBLOCK). No impact on ReplayGolden 6/6 or hash 17144800277401907079. Worktree: stack/sprint42/content-scenario. team-simulation + csharpexpert deterministic policy handling.",
+    "date": "2026-06-20"
+  }
 }

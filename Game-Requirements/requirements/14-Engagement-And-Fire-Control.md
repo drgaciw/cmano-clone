@@ -1,13 +1,17 @@
 # 14 - Engagement and Fire Control
 
-**Last Updated:** May 29, 2026  
+**Last Updated:** 2026-07-08  
 **Status:** Draft — ready for design review  
+**FR reverse-ref:** [FR-12](01-Project-Overview.md) — Engagement and fire control  
 **CMO basis:** Manual §3.3.1–2, §3.3.9, §4.1.1, §9.1–2, §9.2.8–9 (DLZ)  
-**Related:** 13 Doctrine/ROE/WRA, 15 Sensors, 18 Combat Domains, 04 Delegation, 17 Order Log
+**Related:** 13 Doctrine/ROE/WRA, 15 Sensors, 18 Combat Domains, 04 Delegation, 17 Order Log  
+**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 14 — **Partial+**
 
 ## Purpose
 
 Specify **manual**, **assisted**, and **autonomous** engagement paths, **fire-control resolution**, **dynamic launch zone (DLZ)** handling, and **swarm-scale** salvo coordination — with deterministic outcomes and shared explainability when engagements abort.
+
+Implements hub **[FR-12](01-Project-Overview.md)** (engagement and fire control).
 
 ## Vision
 
@@ -92,6 +96,19 @@ Intent (player | agent | mission auto)
 
 - **P1** Hypersonic, directed energy, swarm munitions register domain-specific geometry validators; still use FireAbortReason namespace.
 
+### Major IDs (ENG-*)
+
+| ID | Summary | Priority / maturity |
+|----|---------|---------------------|
+| **ENG-01** | Single engagement resolver pipeline (player / agent / mission-auto) | **P0** — Shipped (`MvpEngagementResolver`) |
+| **ENG-02** | Manual engage + attack options preview | **P0** — Shipped headless (`EngageAttackOptions`); C2 menu polish Partial |
+| **ENG-03** | Agent / assisted intents share resolver; personality affects DLZ timing only | **P0** — Shipped (`DlzEngageGate` + traits) |
+| **ENG-04** | Mission auto-engage / contact-triggered prosecution | **P0** — Shipped (v3 mission triggers + Baltic harness) |
+| **ENG-05** | DLZ evaluate + abort codes (`DLZ_OUT`; personality Early/Normal) | **P0** — Shipped headless; **`DLZ_CLOSING` UI Phase N** |
+| **ENG-06** | Swarm salvo slot deconfliction (deterministic per-tick target claim) | **P0** — **Shipped** (`SwarmSalvoDeconfliction`); sector coordinator P1 |
+| **ENG-07** | Dual abort taxonomy + stable log codes | **P0** — Shipped (`FireAbortReason` + `EngagementAbortReason` + `abort_reason_manifest.json`) |
+| **ENG-08** | Mount/magazine/readiness gates before launch | **P0** — Shipped (magazine, air-readiness, damage-withdraw gates) |
+
 ## FireAbortReason Catalog (initial)
 
 | Code | Typical cause |
@@ -137,9 +154,24 @@ Intent (player | agent | mission auto)
 
 | Phase | Scope |
 |-------|--------|
-| **MVP** | Pipeline, manual + mission auto, DLZ preview, core FireAbortReason, order log |
-| **Phase 2** | Full agent intents, swarm deconfliction, ASW hooks |
-| **Phase 3** | Near-future weapon validators, ML-assisted aim (research only) |
+| **MVP** | Pipeline, manual + mission auto, DLZ preview (headless), core FireAbortReason / EngagementAbortReason, order log |
+| **Phase 2** | Full agent intent UX, **ASW domain hooks**, swarm **sector coordinator** (P1) — **swarm slot deconfliction already Shipped** (`SwarmSalvoDeconfliction`) |
+| **Phase 3** | Near-future weapon validators, ML-assisted aim (research only); **`DLZ_CLOSING` UI** (Phase N / tracker DLZ polish) |
+
+**Shipped (not Phase 2 debt):** `SwarmSalvoDeconfliction.Allocate` — deterministic one-shooter-per-target per tick (sorted `(shooterId, targetId, weaponId)`). GDD sector coordinator remains P1 deferred.
+
+## Implementation Mapping (headless)
+
+| Area | Path / type | Status | Evidence |
+|------|-------------|--------|----------|
+| Unified resolver | `MvpEngagementResolver`, `IEngagementResolver` (`ProjectAegis.Sim` · `Engage/`) | **Shipped** | `MvpEngagementResolverTests`, `EngagementOrderLogContractTests`, `ReplayGoldenBalticEngageTests` |
+| DLZ geometry + personality | `DlzEvaluator`, `DlzEngageGate`, `DlzPersonality` | **Shipped (headless)** | `DlzEngageGateTests`, `MvpEngagementDlzPersonalityTests`; **`DLZ_CLOSING` UI = Phase N** |
+| Attack menu / preview | `EngageAttackOptions`, `EngageAttackOrderResolver`, `EngagePreviewProjection` (`Delegation` · `Projection/`) | **Shipped (Partial UI)** | `EngageAttackOptionsTests`, `EngageAttackOrderResolverTests`, `EngagePreviewProjectionTests` |
+| Swarm slot deconfliction | `SwarmSalvoDeconfliction` (`Sim` · `Engage/`) | **Shipped** | `SwarmSalvoDeconflictionTests`; wired pre-resolver in session path |
+| Dual abort enums + glossary | `FireAbortReason` (policy), `EngagementAbortReason` + `EngagementAbortReasonCodes` (engage), `data/glossary/abort_reason_manifest.json` | **Shipped** | Manifest dual-enum rows; order-log codes via `ToLogCode`; policy denials on ROE/WRA/EMCON |
+| Baltic / policy engage harness | `BalticReplayHarness`, policy-engage integration tests | **Partial+ residual** | **2 known UA failures** in `BalticReplayHarnessPolicyEngageTests` — **gate-excluded** (tracker row 14 / AGENTS.md); not a release-block |
+
+**Honesty note:** Design Status remains **Draft** (Template B). Headless single-resolver + swarm slot + dual abort taxonomy are on `main`; C2 DLZ closing indicator and UA residual remain open.
 
 ## Open Questions
 
@@ -159,4 +191,5 @@ Intent (player | agent | mission auto)
 
 ---
 
-**References:** CMO Manual §9.2.8–9; `docs/manual/index.html`
+**Implementation grade:** Partial+ — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 14.
+Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.

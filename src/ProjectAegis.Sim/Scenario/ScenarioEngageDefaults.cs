@@ -20,7 +20,8 @@ public sealed class ScenarioEngageDefaults
         DlzPersonality dlzPersonality = DlzPersonality.Normal,
         CombatDomain combatDomain = CombatDomain.Air,
         bool mountOnline = true,
-        bool contactIdentified = true)
+        bool contactIdentified = true,
+        bool combatDomainsEnabled = false)
     {
         RangeMeters = rangeMeters;
         EnvelopeMinMeters = envelopeMinMeters;
@@ -37,6 +38,7 @@ public sealed class ScenarioEngageDefaults
         CombatDomain = combatDomain;
         MountOnline = mountOnline;
         ContactIdentified = contactIdentified;
+        CombatDomainsEnabled = combatDomainsEnabled;
     }
 
     public double RangeMeters { get; }
@@ -68,6 +70,9 @@ public sealed class ScenarioEngageDefaults
     public bool MountOnline { get; }
 
     public bool ContactIdentified { get; }
+
+    /// <summary>ADR-009: when false (default), registry validators are not invoked on engage path.</summary>
+    public bool CombatDomainsEnabled { get; }
 
     public EngageContext ToEngageContext(int roundsRemaining) =>
         new(

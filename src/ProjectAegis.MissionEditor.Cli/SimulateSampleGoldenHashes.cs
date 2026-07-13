@@ -10,4 +10,7 @@ public static class SimulateSampleGoldenHashes
     public const string GoldenCleanDetectionWorldHash = "2870";
 
     public const int GoldenCleanEngagementCount = 32;
+
+    public const string GoldenCleanWorldStateSha256 =
+        "c956e8ea6c195aff910731a5bb5db518f3ea79d0389ec54fc507d911dbaa6a22";
 }

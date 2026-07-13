@@ -13,6 +13,12 @@ public static partial class AbortReasonCatalog
         public const string EMCON_OFF = "EMCON_OFF";
         public const string NO_FIRE_CONTROL_TRACK = "NO_FIRE_CONTROL_TRACK";
         public const string COMMS_DENIED = "COMMS_DENIED";
+        public const string AIR_ASPECT_BLOCK = "AIR_ASPECT_BLOCK";
+        public const string SURFACE_ASPECT_BLOCK = "SURFACE_ASPECT_BLOCK";
+        public const string SUBSURFACE_ASPECT_BLOCK = "SUBSURFACE_ASPECT_BLOCK";
+        public const string LAND_ASPECT_BLOCK = "LAND_ASPECT_BLOCK";
+        public const string MINE_ASPECT_BLOCK = "MINE_ASPECT_BLOCK";
+        public const string FACILITY_ASPECT_BLOCK = "FACILITY_ASPECT_BLOCK";
     }
 
     public static class Engage
@@ -32,6 +38,13 @@ public static partial class AbortReasonCatalog
         public const string DOMAIN_NO_SOLUTION = "DOMAIN_NO_SOLUTION";
         public const string AIR_NOT_READY = "AIR_NOT_READY";
         public const string CYBER_SPOOF_TRACK = "CYBER_SPOOF_TRACK";
+        public const string AIR_ASPECT_BLOCK = "AIR_ASPECT_BLOCK";
+        public const string SURFACE_ASPECT_BLOCK = "SURFACE_ASPECT_BLOCK";
+        public const string SUBSURFACE_ASPECT_BLOCK = "SUBSURFACE_ASPECT_BLOCK";
+        public const string LAND_ASPECT_BLOCK = "LAND_ASPECT_BLOCK";
+        public const string MINE_ASPECT_BLOCK = "MINE_ASPECT_BLOCK";
+        public const string FACILITY_ASPECT_BLOCK = "FACILITY_ASPECT_BLOCK";
+        public const string DAMAGE_WITHDRAW_RECOMMENDED = "DAMAGE_WITHDRAW_RECOMMENDED";
     }
 
     public static class Logistics

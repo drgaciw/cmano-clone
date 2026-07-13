@@ -35,12 +35,51 @@ public interface IWriteGate
         string actorId,
         string rationale = "");
 
-    /// <summary>
-    /// S22-04: Propose platform entries (parsed from CMO markdown platform sections or workbook platforms).
-    /// Extend-only addition (no changes to prior 5 Propose* or Approve/Reject/List signatures or behavior).
-    /// </summary>
+    /// <summary>S34-02: stage link_catalog rows from LinkCatalog workbook edits.</summary>
+    string ProposeLinkCatalogBatch(
+        IReadOnlyList<CatalogLinkEntry> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
+    /// <summary>S22-04: stage platform metadata parsed from CMO markdown platform sections.</summary>
     string ProposePlatformBatch(
-        IReadOnlyList<CatalogPlatformEntry> proposed,
+        IReadOnlyList<CatalogPlatformBinding> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
+    /// <summary>S22-04: stage weapon catalog rows parsed from CMO weapon markdown sections.</summary>
+    string ProposeWeaponBatch(
+        IReadOnlyList<CatalogWeaponRecord> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
+    /// <summary>S24-03: stage platform mobility rows from Phase B workbook edits.</summary>
+    string ProposeMobilityBatch(
+        IReadOnlyList<CatalogMobility> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
+    /// <summary>S24-03: stage platform signature rows from Phase B workbook edits.</summary>
+    string ProposeSignatureBatch(
+        IReadOnlyList<CatalogSignature> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
+    /// <summary>S24-03: stage platform EMCON rows from Phase B workbook edits.</summary>
+    string ProposeEmconBatch(
+        IReadOnlyList<CatalogEmcon> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
+    /// <summary>S25-04: stage platform damage rows from Phase B workbook edits.</summary>
+    string ProposePlatformDamageBatch(
+        IReadOnlyList<CatalogPlatformDamage> proposed,
         string actorType,
         string actorId,
         string rationale = "");

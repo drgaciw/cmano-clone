@@ -27,6 +27,7 @@ namespace ProjectAegis.Unity.Runtime
         // - Consumers (future scene builders / conditional map hosts) read UseGlobeMap to activate CesiumGlobe* vs MapPlaceholderPanelHost.
         // - Default=false keeps Phase A Toolkit map as vertical slice default. Flag is presentation-only; zero impact on RunTick, selection (C2PresentationController), or sim determinism.
         // - GitNexus impact: LOW (0 upstream). See DelegationBridgeHost.UseGlobeMap + Cesium* (presentation layer only).
+        // - S24-08: DelegationSmoke.unity keeps useGlobeMap=false (CI-safe); CesiumSpike.unity is the Editor polish scene per CESIUM-SPIKE-SETUP.md.
         [SerializeField] private string timeCompressionLabel = "1x";
         [SerializeField] private string simulationModeLabel = "Mixed";
 
@@ -71,6 +72,13 @@ namespace ProjectAegis.Unity.Runtime
         public SensorC2Snapshot LastSensorC2 { get; private set; } =
             new(Array.Empty<ContactPictureEntry>(), 0, true, false, null, 0);
 
+        // S37-04: C2 graph surfacing (dependency viewer/panel/highlights/bind) — read-only catalog projections only
+        public IReadOnlyList<string> LastGraphHighlightIds { get; private set; } = Array.Empty<string>();
+        public string? LastGraphLinkChainDisplay { get; private set; }
+
+        // S37-04/05: catalog for graph/FK surfacing (injected read-only; no bridge writes)
+        public ProjectAegis.Data.Catalog.ICatalogReader? CatalogReader { get; set; }
+
         private ISimWorldSnapshot? _lastSnapshot;
 
         private void Awake()
@@ -83,6 +91,22 @@ namespace ProjectAegis.Unity.Runtime
         }
 
         public void BeginExecution() => Bridge.BeginExecution();
+
+        // S37-04: bind graph surfacing after selection (viewer/panel/highlights + bind)
+        private void ApplyGraphSurfacingForSelection()
+        {
+            if (Presentation != null && CatalogReader != null)
+            {
+                Presentation.ApplyGraphSurfacing(CatalogReader);
+                LastGraphHighlightIds = Presentation.LastGraphHighlightIds;
+                LastGraphLinkChainDisplay = Presentation.LastGraphLinkChainDisplay;
+            }
+            else
+            {
+                LastGraphHighlightIds = Array.Empty<string>();
+                LastGraphLinkChainDisplay = "(graph n/a)";
+            }
+        }
 
         /// <summary>Interactive attack menu selection (req 14).</summary>
         public bool TrySelectAttackOption(string optionId, out string? failureReason)
@@ -108,6 +132,7 @@ namespace ProjectAegis.Unity.Runtime
         {
             Presentation.SelectFriendlyUnit(unitId);
             RefreshSelectionPresentation();
+            ApplyGraphSurfacingForSelection();  // S37-04 C2 graph surfacing (highlights/bind)
         }
 
         public void SelectContact(string contactId)
@@ -115,6 +140,7 @@ namespace ProjectAegis.Unity.Runtime
             var contacts = ContactPictureProjection.Project(Bridge.Orchestrator.DecisionLog);
             Presentation.SelectHostileContact(contactId, contacts);
             RefreshSelectionPresentation();
+            // contacts do not drive platform graph
         }
 
         /// <summary>
@@ -127,6 +153,7 @@ namespace ProjectAegis.Unity.Runtime
             LastMessageLog = MessageLogBridge.ProjectFrom(Bridge.Orchestrator.DecisionLog);
             LastOobTree = OobTreeBridge.Build(snapshot, Bridge.Registry);
             Presentation.ApplyDefaultSelection(LastOobTree);
+            ApplyGraphSurfacingForSelection(); // S37-04 ensure graph after default select
             LastSensorC2 = SensorC2Bridge.Build(snapshot, Bridge.Orchestrator.DecisionLog);
             LastUnitDetail = Presentation.ResolveUnitDetail(snapshot, Bridge.Registry, Bridge);
             LastMapSymbols = MapPictureBridge.Build(

@@ -50,6 +50,18 @@ public sealed class ContactPictureProjectionTests
         Assert.That(ids, Is.EqualTo(new[] { "c1", "c2" }));
     }
 
+    [Test]
+    public void Datalink_shared_contact_projects_for_peer_observer()
+    {
+        var log = new DecisionLog();
+        log.AppendContactChange(new ContactChangeRecord(0, 1.0, 1, "u1", "c1", "hostile-1", "Unknown", "Detected"));
+        log.AppendContactChange(new ContactChangeRecord(0, 1.0, 1, "u2", "dl-hostile-1", "hostile-1", "Unknown", "Detected"));
+
+        var picture = ContactPictureProjection.Project(log);
+        Assert.That(picture, Has.Count.EqualTo(2));
+        Assert.That(picture.Single(c => c.ObserverId == "u2").ContactId, Is.EqualTo("dl-hostile-1"));
+    }
+
     private static ContactChangeRecord Change(
         ulong tick,
         string contactId,

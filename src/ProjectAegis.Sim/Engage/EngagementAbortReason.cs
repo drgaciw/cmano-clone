@@ -18,4 +18,11 @@ public enum EngagementAbortReason
     DomainNoSolution = 13,
     AirNotReady = 14,
     TrackSpoofed = 15,
+    AirAspectBlock = 16,
+    SurfaceAspectBlock = 17,
+    SubsurfaceAspectBlock = 18,
+    LandAspectBlock = 19,
+    DamageWithdrawRecommended = 20,
+    MineAspectBlock = 21,
+    FacilityAspectBlock = 22,
 }

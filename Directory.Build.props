@@ -1,0 +1,10 @@
+<Project>
+  <!--
+    Avoid CS0006 metadata file missing under obj/Release/ref when dependent projects
+    compile while upstream ref assemblies are still being regenerated (common after
+    no-incremental solution builds or parallel CLI-only Release builds).
+  -->
+  <PropertyGroup>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+  </PropertyGroup>
+</Project>

@@ -63,6 +63,17 @@ public sealed class TargetRegistry
             throw new InvalidOperationException($"Entity {entity.Value} is already registered.");
         }
 
+        // BUG fix (qa-r2-08-unity-adapter): only EntityKey uniqueness was validated above. Two
+        // different entities registered under the same string target key would silently overwrite
+        // the TargetId -> binding mapping in `_byTarget` and append a duplicate TargetId into
+        // `_memberIds`, which flows straight into OobTreeProjection/MapPictureBridge/UnitDetailBridge
+        // (via CollectMemberIds) — rendering the same unit id twice in the C2 OOB tree/map picture.
+        if (_byTarget.ContainsKey(target.Id))
+        {
+            throw new InvalidOperationException(
+                $"Target '{target.Id.Value}' is already registered under a different entity.");
+        }
+
         var binding = new SimEntityBinding(entity, target.Id, target);
         _byEntity[entity] = binding;
         _byTarget[target.Id] = binding;

@@ -16,6 +16,7 @@ using ProjectAegis.Data.Scenario;
 using ProjectAegis.Delegation.Mission;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Replay;
+using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -37,7 +38,55 @@ public static class BalticReplayHarness
         IReadOnlyList<ReplayCheckpoint> Checkpoints,
         IReadOnlyList<MessageLogLine> Messages,
         SensorC2Snapshot SensorC2,
-        string ScoringCsvRow);
+        string ScoringCsvRow,
+        DecisionLog DecisionLog,
+        IReadOnlyList<string> FireOrder);
+
+    /// <summary>
+    /// Resolves AC-2 <c>fire_order</c>: policy mission timeline when present, else chronological
+    /// <see cref="OrderLogEntryKind.EventFired"/> event ids from the decision log.
+    /// </summary>
+    public static IReadOnlyList<string> ResolveFireOrder(
+        ScenarioMissionTimeline? missionTimeline,
+        DecisionLog decisionLog)
+    {
+        if (missionTimeline != null)
+        {
+            return missionTimeline.FireOrder;
+        }
+
+        var fired = new List<string>();
+        foreach (var entry in decisionLog.ChronologicalEntries())
+        {
+            if (entry.Kind == OrderLogEntryKind.EventFired && entry.Payload is EventFiredRecord record)
+            {
+                fired.Add(record.EventId);
+            }
+        }
+
+        return fired;
+    }
+
+    /// <summary>
+    /// Polish helper (S36-05): reports first mismatch tick + sub-hash component for divergence diagnosis.
+    /// Does not affect Run path, append order, or detection trial ordering. For test harness error paths only.
+    /// </summary>
+    public static string DiagnoseDivergence(Result a, Result b)
+    {
+        if (a.Fingerprint == b.Fingerprint && a.WorldHash == b.WorldHash && a.DetectionWorldHash == b.DetectionWorldHash)
+            return "MATCH";
+        // checkpoints provide tick-level localization (recorded at interval)
+        for (int i = 0; i < Math.Min(a.Checkpoints.Count, b.Checkpoints.Count); i++)
+        {
+            var ca = a.Checkpoints[i];
+            var cb = b.Checkpoints[i];
+            if (ca.WorldHash != cb.WorldHash || ca.LogFingerprint != cb.LogFingerprint)
+            {
+                return $"First mismatch at tick {ca.SimTick}: worldHash {ca.WorldHash} vs {cb.WorldHash}; fingerprint differs; layer hint in subhash";
+            }
+        }
+        return $"Final mismatch: WORLD={a.WorldHash}!={b.WorldHash} DET={a.DetectionWorldHash}!={b.DetectionWorldHash} FINGERPRINT differs";
+    }
 
     public static Result Run(
         int seed,
@@ -57,13 +106,13 @@ public static class BalticReplayHarness
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         var profile = ScenarioPolicyRepository.TryGet(scenarioPolicyId);
         var catalogReader = catalog
-            ?? CatalogReaderFactory.TryCreateBalticPatrolReader()
-            ?? InMemoryCatalogReader.BalticPatrolFixture();
+            ?? CatalogReaderFactory.ResolveForScenario(scenarioPolicyId);
         var detectionTrials = profile == null
             ? Array.Empty<ScenarioDetectionTrial>()
             : DetectionTrialResolver.Resolve(profile, catalogReader);
         PdDetectionContactSimulator? pdSim = null;
         ScenarioContactSimulator? scheduleSim = null;
+        DatalinkSidePictureMerger? datalinkMerger = null;
         if (detectionTrials.Count > 0 && profile != null)
         {
             pdSim = new PdDetectionContactSimulator(
@@ -71,7 +120,13 @@ public static class BalticReplayHarness
                 detectionTrials,
                 profile.UnitRadarEmcon,
                 profile.Jammers,
-                profile.ContactLifecycle);
+                profile.ContactLifecycle,
+                catalogReader);
+            if (profile.DatalinkDoctrine.IsSharingEnabled)
+            {
+                var datalinkDoctrine = DatalinkShareLagResolver.Resolve(profile.DatalinkDoctrine, catalogReader);
+                datalinkMerger = new DatalinkSidePictureMerger(datalinkDoctrine, detectionTrials);
+            }
         }
         else if (profile?.ContactSeeds.Count > 0)
         {
@@ -79,6 +134,10 @@ public static class BalticReplayHarness
         }
 
         var missionRuntime = profile != null ? MissionRuntimeFactory.TryCreate(profile.MissionTimeline) : null;
+        var contactTriggerRuntime = profile != null
+            ? MissionContactTriggerRuntimeFactory.TryCreate(profile.MissionTimeline)
+            : null;
+        var sideMaxSalvo = profile?.FriendlyDefault.MaxSalvo ?? EffectivePolicy.DefaultFree.MaxSalvo;
         var checkpointStore = new ReplayCheckpointStore();
         var checkpointInterval = profile?.ReplaySettings.CheckpointIntervalTicks ?? 0;
 
@@ -99,20 +158,51 @@ public static class BalticReplayHarness
             {
                 bridge.Session.UnitReadiness = new UnitReadinessMap(readiness);
             }
+
+            if (profile != null)
+            {
+                bridge.Session.BindCatalogWithdrawTrials(
+                    ReadinessPolicyEvaluator.ResolveCatalogTrials(profile, catalogReader));
+            }
         }
 
         var unitBinding = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
-        RegisterNearFutureUnits(bridge, nearFutureUnits, maxTechnologyLevel);
+        var nextEntityKey = 2;
+        SimEntityBinding? hostileBinding = null;
+        if (CatalogReaderFactory.IsBalticV3Scenario(scenarioPolicyId))
+        {
+            bridge.Registry.RegisterUnit(new EntityKey(nextEntityKey++), "ucav-blue");
+            bridge.Registry.RegisterUnit(new EntityKey(nextEntityKey++), "ucav-red");
+            hostileBinding = bridge.Registry.RegisterUnit(new EntityKey(nextEntityKey++), "hostile-1");
+        }
+
+        RegisterNearFutureUnits(bridge, nearFutureUnits, maxTechnologyLevel, nextEntityKey);
         var unit = unitBinding.Target;
-        var agentPolicy = profile?.DelegationSettings.UsePatrolCandidates == true
-            ? (IPolicy)new PatrolCandidateEngagePolicy()
-            : new EngageOnlyPolicy();
+        var patrolPolicyFactory = profile?.DelegationSettings.UsePatrolCandidates == true
+            ? (Func<EngagePrimaryMode, IPolicy>)(mode => new PatrolCandidateEngagePolicy(mode))
+            : _ => new EngageOnlyPolicy();
+        var bluePolicy = profile?.ResolveForUnit("u1", isFriendly: true) ?? EffectivePolicy.DefaultFree;
         var agent = bridge.Orchestrator.CreateAgent(
             new AgentId("a1"),
             PersonalityCatalog.All[0].Traits,
             AutonomyLevel.FullAutonomous,
-            policy: agentPolicy);
-        bridge.Orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
+            policy: patrolPolicyFactory(EngagePrimaryMode.Hostile));
+        bridge.Orchestrator.AssignAgentToTarget(agent, unit, bluePolicy, isFriendly: true);
+
+        if (hostileBinding != null)
+        {
+            var redPolicy = profile?.ResolveForUnit("hostile-1", isFriendly: false) ?? EffectivePolicy.DefaultFree;
+            var redAgent = bridge.Orchestrator.CreateAgent(
+                new AgentId("a-red"),
+                PersonalityCatalog.All[0].Traits,
+                AutonomyLevel.FullAutonomous,
+                policy: patrolPolicyFactory(EngagePrimaryMode.BlueForce));
+            bridge.Orchestrator.AssignAgentToTarget(
+                redAgent,
+                hostileBinding.Target,
+                redPolicy,
+                isFriendly: false);
+        }
         bridge.BeginExecution();
 
         var harness = new HeadlessSnapshot(
@@ -166,8 +256,50 @@ public static class BalticReplayHarness
             var transitions = pdSim != null
                 ? pdSim.Tick(simTick, harness.SimTime)
                 : scheduleSim?.Tick(simTick, harness.SimTime) ?? Array.Empty<ContactTransition>();
+            if (datalinkMerger != null)
+            {
+                var shared = datalinkMerger.Merge(
+                    transitions,
+                    simTick,
+                    harness.SimTime,
+                    MapDatalinkCommsShareState(bridge.CurrentCommsState));
+                if (shared.Count > 0)
+                {
+                    // Allocation follow-up P1: List concat instead of LINQ Concat+ToArray.
+                    // Order preserved (transitions then shared) for identical order-log appends and hash.
+                    var merged = new List<ContactTransition>(transitions.Count + shared.Count);
+                    merged.AddRange(transitions);
+                    merged.AddRange(shared);
+                    transitions = merged.ToArray();
+                }
+            }
+
             foreach (var transition in transitions)
             {
+                if (contactTriggerRuntime != null)
+                {
+                    foreach (var emission in contactTriggerRuntime.Evaluate(transition, harness.SimTime, simTick))
+                    {
+                        var trigger = emission.Trigger;
+                        bridge.Orchestrator.OrderLog.Append(
+                            OrderLogEntryFactories.FromMissionTransition(
+                                new MissionTransitionRecord(
+                                    0,
+                                    emission.SimTime,
+                                    emission.SimTick,
+                                    trigger.TriggerId,
+                                    trigger.MissionCode)));
+                        var isFriendly = trigger.PolicySide == MissionContactPolicySide.Friendly;
+                        var roePolicy = new EffectivePolicy(trigger.Roe, sideMaxSalvo);
+                        bridge.Orchestrator.ApplyRoeToUnits(
+                            trigger.UnitIds,
+                            roePolicy,
+                            isFriendly,
+                            emission.SimTime,
+                            emission.SimTick);
+                    }
+                }
+
                 bridge.Orchestrator.OrderLog.AppendContactTransition(transition);
             }
 
@@ -181,6 +313,18 @@ public static class BalticReplayHarness
                     {
                         bridge.Orchestrator.OrderLog.AppendContactTransition(killTransition);
                     }
+                }
+            }
+
+            if (bridge.Session?.BdaContactLifecycleRegistry is { } bdaLifecycle && pdSim != null)
+            {
+                foreach (var lostTransition in BdaContactLifecycleHotTickApplier.ApplyFromRegistry(
+                             pdSim,
+                             simTick,
+                             harness.SimTime,
+                             bdaLifecycle))
+                {
+                    bridge.Orchestrator.OrderLog.AppendContactTransition(lostTransition);
                 }
             }
 
@@ -209,6 +353,7 @@ public static class BalticReplayHarness
             "BLUE",
             bridge.Orchestrator.DecisionLog);
         var fingerprint = bridge.Orchestrator.DecisionLog.ComputeFingerprint();
+        var fireOrder = ResolveFireOrder(profile?.MissionTimeline, bridge.Orchestrator.DecisionLog);
         return new Result(
             seed,
             scenarioPolicyId,
@@ -221,7 +366,9 @@ public static class BalticReplayHarness
             checkpointStore.Checkpoints,
             messages,
             sensorC2,
-            scoringCsv);
+            scoringCsv,
+            bridge.Orchestrator.DecisionLog,
+            fireOrder);
     }
 
     private sealed class HeadlessSnapshot : ISimWorldSnapshot, IOrderSink
@@ -257,21 +404,59 @@ public static class BalticReplayHarness
 
         public int ActiveEngagementCount => 0;
 
+        public TargetId? PrimaryBlueForceContactId
+        {
+            get
+            {
+                string? candidate = _pd?.PrimaryBlueForceTargetId;
+                if (candidate == null || !BalticV3SideRegistry.IsBlueForceUnit(candidate))
+                {
+                    return null;
+                }
+
+                return new TargetId(candidate);
+            }
+        }
+
+        public bool PrimaryBlueForceContactDestroyed
+        {
+            get
+            {
+                var primary = PrimaryBlueForceContactId;
+                if (primary is not { } p || _killedTargets == null)
+                {
+                    return false;
+                }
+
+                var id = Roe.OrderActionMapper.TargetIdToUlong(p);
+                return _killedTargets.IsKilled(id);
+            }
+        }
+
         public TargetId? PrimaryHostileContactId
         {
             get
             {
+                string? candidate = null;
                 if (_pd?.PrimaryTargetId is { } pdId)
                 {
-                    return new TargetId(pdId);
+                    candidate = pdId;
                 }
-
-                if (_schedule?.PrimaryTargetId is { } schedId)
+                else if (_schedule?.PrimaryTargetId is { } schedId)
                 {
-                    return new TargetId(schedId);
+                    candidate = schedId;
+                }
+                else if (ContactCount > 0)
+                {
+                    candidate = "hostile-1";
                 }
 
-                return ContactCount > 0 ? new TargetId("hostile-1") : null;
+                if (candidate == null || !HostileContactFilter.IsEngageableHostileTarget(candidate))
+                {
+                    return null;
+                }
+
+                return new TargetId(candidate);
             }
         }
 
@@ -296,6 +481,17 @@ public static class BalticReplayHarness
         public bool ObserverRadarEmconActive =>
             ScenarioEmconResolver.ResolveRadar("u1", _unitRadarEmcon) == EmconState.Active;
 
+        public bool PrimaryHostileDestroyed
+        {
+            get
+            {
+                var primary = PrimaryHostileContactId;
+                if (primary is not { } p || _killedTargets == null) return false;
+                var id = Roe.OrderActionMapper.TargetIdToUlong(p);
+                return _killedTargets.IsKilled(id);
+            }
+        }
+
         public void Advance(double delta) => _simTime += delta;
 
         public bool IsMemberAlive(TargetId memberId)
@@ -315,7 +511,8 @@ public static class BalticReplayHarness
     private static void RegisterNearFutureUnits(
         DelegationBridge bridge,
         IReadOnlyList<ScenarioNearFutureUnitRequest>? nearFutureUnits,
-        int maxTechnologyLevel)
+        int maxTechnologyLevel,
+        int startEntityKey = 2)
     {
         if (nearFutureUnits == null || nearFutureUnits.Count == 0)
         {
@@ -328,7 +525,7 @@ public static class BalticReplayHarness
             maxTechnologyLevel,
             SwarmTier.Medium,
             catalogPath);
-        var entityKey = 2;
+        var entityKey = startEntityKey;
         foreach (var plan in plans)
         {
             bridge.Registry.RegisterUnit(new EntityKey(entityKey++), plan.UnitId);
@@ -357,6 +554,14 @@ public static class BalticReplayHarness
 
         throw new FileNotFoundException("near_future_archetypes.json");
     }
+
+    private static DatalinkCommsShareState MapDatalinkCommsShareState(CommsState state) =>
+        state switch
+        {
+            CommsState.Degraded => DatalinkCommsShareState.Degraded,
+            CommsState.Denied => DatalinkCommsShareState.Denied,
+            _ => DatalinkCommsShareState.Nominal,
+        };
 
     private sealed class EngageOnlyPolicy : IPolicy
     {

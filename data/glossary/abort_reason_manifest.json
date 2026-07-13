@@ -11,7 +11,13 @@
         { "logCode": "WRA_SALVO", "member": "WraSalvo" },
         { "logCode": "EMCON_OFF", "member": "EmconOff" },
         { "logCode": "NO_FIRE_CONTROL_TRACK", "member": "NoFireControlTrack" },
-        { "logCode": "COMMS_DENIED", "member": "CommsDenied" }
+        { "logCode": "COMMS_DENIED", "member": "CommsDenied" },
+        { "logCode": "AIR_ASPECT_BLOCK", "member": "AirAspectBlock" },
+        { "logCode": "SURFACE_ASPECT_BLOCK", "member": "SurfaceAspectBlock" },
+        { "logCode": "SUBSURFACE_ASPECT_BLOCK", "member": "SubsurfaceAspectBlock" },
+        { "logCode": "LAND_ASPECT_BLOCK", "member": "LandAspectBlock" },
+        { "logCode": "MINE_ASPECT_BLOCK", "member": "MineAspectBlock" },
+        { "logCode": "FACILITY_ASPECT_BLOCK", "member": "FacilityAspectBlock" }
       ]
     },
     {
@@ -32,7 +38,14 @@
         { "logCode": "MOUNT_OFFLINE", "member": "MountOffline" },
         { "logCode": "DOMAIN_NO_SOLUTION", "member": "DomainNoSolution" },
         { "logCode": "AIR_NOT_READY", "member": "AirNotReady" },
-        { "logCode": "CYBER_SPOOF_TRACK", "member": "TrackSpoofed" }
+        { "logCode": "CYBER_SPOOF_TRACK", "member": "TrackSpoofed" },
+        { "logCode": "AIR_ASPECT_BLOCK", "member": "AirAspectBlock" },
+        { "logCode": "SURFACE_ASPECT_BLOCK", "member": "SurfaceAspectBlock" },
+        { "logCode": "SUBSURFACE_ASPECT_BLOCK", "member": "SubsurfaceAspectBlock" },
+        { "logCode": "LAND_ASPECT_BLOCK", "member": "LandAspectBlock" },
+        { "logCode": "MINE_ASPECT_BLOCK", "member": "MineAspectBlock" },
+        { "logCode": "FACILITY_ASPECT_BLOCK", "member": "FacilityAspectBlock" },
+        { "logCode": "DAMAGE_WITHDRAW_RECOMMENDED", "member": "DamageWithdrawRecommended" }
       ]
     },
     {

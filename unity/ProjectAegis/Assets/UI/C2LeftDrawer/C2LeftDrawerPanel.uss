@@ -5,6 +5,16 @@
     background-color: rgba(12, 18, 28, 0.92);
 }
 
+.c2-drawer-panel--planning-readonly {
+    border-color: rgb(70, 82, 96);
+    border-width: 1px;
+    opacity: 0.88;
+}
+
+.c2-drawer-panel--planning-readonly .c2-drawer-tabs {
+    opacity: 0.65;
+}
+
 .c2-drawer-tabs {
     margin-bottom: 4px;
 }

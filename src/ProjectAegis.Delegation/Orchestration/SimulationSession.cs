@@ -7,10 +7,12 @@ using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Delegation.Sim;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
+using ProjectAegis.Sim.Telemetry;
 using ProjectAegis.Sim.Time;
 
 /// <summary>Headless/interactive session: delegation tick then sim engagement phase.</summary>
@@ -36,7 +38,8 @@ public sealed class SimulationSession
     public static SimulationSession BindMvpEngagement(
         DelegationOrchestrator orchestrator,
         EngageContext defaultEngageContext,
-        int defaultMagazineRounds = 2)
+        int defaultMagazineRounds = 2,
+        ICatalogReader? catalogReader = null)
     {
         var seed = SimSeed.FromScenario((ulong)orchestrator.GlobalSeed);
         var world = new DictionaryEngageWorldQuery();
@@ -44,6 +47,8 @@ public sealed class SimulationSession
         var killedTargets = new KilledTargetRegistry();
         var speculative = orchestrator.ScenarioPolicy?.Speculative
             ?? ScenarioSpeculativeSettings.CampaignDefault;
+        var engageDefaults = orchestrator.ScenarioPolicy?.EngageDefaults
+            ?? ScenarioEngageDefaults.MvpFallback;
         var resolver = new MvpEngagementResolver(
             world,
             magazines,
@@ -51,7 +56,8 @@ public sealed class SimulationSession
             orchestrator.ResolveEffectivePolicyForUnit,
             seed,
             killedTargets,
-            speculative);
+            speculative,
+            engageDefaults.CombatDomainsEnabled);
         var sim = new SimTickPipeline(seed, resolver);
         return new SimulationSession(orchestrator, sim)
         {
@@ -61,6 +67,16 @@ public sealed class SimulationSession
             MvpResolver = resolver,
             DefaultEngageContext = defaultEngageContext,
             DefaultMagazineRounds = defaultMagazineRounds,
+            CatalogReader = catalogReader,
+            BalanceDriftConsumer = new BalanceDriftAdvisoryConsumer(orchestrator.ScenarioPolicy?.BalanceTelemetry),
+            CatalogDamageHotTickTracker = CatalogDamageHotTickTracker.TryCreate(
+                orchestrator.ScenarioPolicy,
+                engageDefaults.CombatDomainsEnabled,
+                catalogReader,
+                orchestrator.GlobalSeed),
+            BdaContactLifecycleRegistry = BdaContactLifecycleHotTickApplier.IsEnabled(engageDefaults.CombatDomainsEnabled)
+                ? new BdaContactLifecycleRegistry()
+                : null,
         };
     }
 
@@ -80,7 +96,7 @@ public sealed class SimulationSession
         engage = CatalogEngageEnvelope.Apply(engage, catalog, weaponId);
         var rounds = profile?.EngageDefaults?.DefaultMagazineRounds
             ?? ScenarioEngageDefaults.MvpFallback.DefaultMagazineRounds;
-        return BindMvpEngagement(orchestrator, engage, rounds);
+        return BindMvpEngagement(orchestrator, engage, rounds, catalog);
     }
 
     public SimulationPhase Phase => Orchestrator.Phase;
@@ -111,26 +127,41 @@ public sealed class SimulationSession
     private void RunExecutingTick(ObservedState state)
     {
         Orchestrator.Tick(state);
-        var engageOrders = Orchestrator.ExecutedOrders
-            .Where(o => o.Kind == OrderKind.Engage)
-            .ToArray();
+        // Allocation follow-up P1: explicit loop instead of LINQ Where+ToArray per tick.
+        // Uses List<Order> (Count/foreach compatible) to avoid per-tick enumerator + array alloc.
+        // Behavior and iteration order identical (ExecutedOrders order preserved for engages).
+        var executed = Orchestrator.ExecutedOrders;
+        var engageOrders = new List<Order>(executed.Count);
+        for (int i = 0; i < executed.Count; i++)
+        {
+            var o = executed[i];
+            if (o.Kind == OrderKind.Engage)
+            {
+                engageOrders.Add(o);
+            }
+        }
 
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
         var commsBlocksEngage = CommsStateProjection.BlocksNewEngagement(
             CommsStateProjection.Project(Orchestrator.DecisionLog).State);
         var queued = new List<(Order Order, TargetId Victim)>();
-        var deconflictSlots = new List<SwarmSalvoDeconfliction.Slot>(engageOrders.Length);
+        var deconflictSlots = new List<SwarmSalvoDeconfliction.Slot>(engageOrders.Count);
         foreach (var order in engageOrders)
         {
-            var victimId = state.PrimaryHostileContactId ?? new TargetId("hostile-1");
+            var victimId = ResolveEngageVictim(order, state);
             deconflictSlots.Add(new SwarmSalvoDeconfliction.Slot(
                 OrderActionMapper.TargetIdToUlong(order.Target),
                 OrderActionMapper.TargetIdToUlong(victimId)));
         }
 
         var acceptedSlots = SwarmSalvoDeconfliction.Allocate(deconflictSlots);
-        var acceptedPairs = new HashSet<(ulong Shooter, ulong Target)>(
-            acceptedSlots.Select(s => (s.ShooterUnitId, s.TargetId)));
+        // P2 allocation follow-up (S37-09): explicit loop instead of Select LINQ for HashSet population in hot engage path.
+        // Avoids per-tick iterator allocation while preserving identical membership and determinism.
+        var acceptedPairs = new HashSet<(ulong Shooter, ulong Target)>(acceptedSlots.Count);
+        foreach (var s in acceptedSlots)
+        {
+            acceptedPairs.Add((s.ShooterUnitId, s.TargetId));
+        }
 
         foreach (var order in engageOrders)
         {
@@ -148,7 +179,7 @@ public sealed class SimulationSession
                 continue;
             }
 
-            var victim = state.PrimaryHostileContactId ?? new TargetId("hostile-1");
+            var victim = ResolveEngageVictim(order, state);
             var shooterId = OrderActionMapper.TargetIdToUlong(order.Target);
             var targetId = OrderActionMapper.TargetIdToUlong(victim);
             if (!acceptedPairs.Contains((shooterId, targetId)))
@@ -168,6 +199,122 @@ public sealed class SimulationSession
 
         Sim.TickOnce(TimeCompressionMode.RealTime);
         LogEngagementResults(state, queued);
+        SurfaceRoePolicyDeniedEngagements(state, simTick);
+        ApplyCatalogDamageHotTick(state, queued);
+    }
+
+    /// <summary>
+    /// Policy–engage unification (epic policy-engage-unification-slice): an engage intent denied by ROE
+    /// (<see cref="FireAbortReason.WeaponsTight"/>) is rejected at the agent/policy layer before it reaches
+    /// <c>MvpEngagementResolver</c>, so it never produces an engagement-abort row on its own. Surface each such
+    /// denial for this tick as an <c>Engagement|…|ROE_WEAPONS_TIGHT</c> abort row so the harness fingerprint carries
+    /// the canonical abort code, mirroring the resolver-side mapping in <c>MvpEngagementResolver.MapPolicyDenial</c>.
+    /// The original <c>PolicyDenial</c> row is preserved; scoping to WeaponsTight leaves the comms-guard denial
+    /// (<see cref="FireAbortReason.CommsDenied"/>) and all other paths untouched.
+    /// </summary>
+    private void SurfaceRoePolicyDeniedEngagements(ObservedState state, ulong simTick)
+    {
+        var entries = Orchestrator.DecisionLog.ChronologicalEntries();
+        List<TargetId>? deniedShooters = null;
+        for (var i = 0; i < entries.Count; i++)
+        {
+            if (entries[i].Payload is PolicyDenialRecord denial &&
+                denial.SimTick == simTick &&
+                denial.AttemptedKind == OrderKind.Engage &&
+                denial.Reason == FireAbortReason.WeaponsTight)
+            {
+                (deniedShooters ??= new List<TargetId>()).Add(denial.TargetId);
+            }
+        }
+
+        if (deniedShooters == null)
+        {
+            return;
+        }
+
+        foreach (var shooter in deniedShooters)
+        {
+            Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromEngagement(new EngagementRecord(
+                SequenceId: 0,
+                state.SimTime,
+                simTick,
+                shooter,
+                EngagementId: 0,
+                Launched: false,
+                EngagementAbortReasonCodes.ToLogCode(EngagementAbortReason.WeaponsTight))));
+        }
+    }
+
+    private void ApplyCatalogDamageHotTick(
+        ObservedState state,
+        IReadOnlyList<(Order Order, TargetId Victim)> queued)
+    {
+        if (CatalogDamageHotTickTracker == null || CatalogReader == null)
+        {
+            return;
+        }
+
+        var simTick = (ulong)Math.Max(0, (long)state.SimTime);
+        var outcomes = new List<CatalogDamageHotTickApplier.OutcomeApply>(queued.Count);
+        var results = Sim.LastEngagementResults;
+        for (var i = 0; i < queued.Count; i++)
+        {
+            if (i >= results.Count || !results[i].Launched || results[i].OutcomeCode == null)
+            {
+                continue;
+            }
+
+            var (order, victim) = queued[i];
+            outcomes.Add(new CatalogDamageHotTickApplier.OutcomeApply(
+                victim.Value,
+                results[i].EngagementId,
+                simTick,
+                results[i].OutcomeCode!,
+                results[i].OutcomeCode == EngagementOutcomeCodes.Hit
+                    ? CombatDamageLevel.DefaultHitSeverity
+                    : 0.0));
+        }
+
+        var tickResult = CatalogDamageHotTickTracker.ApplyTick(simTick, state.SimTime, outcomes);
+        foreach (var change in tickResult.Changes)
+        {
+            Orchestrator.DecisionLog.AppendPlatformDamageChange(change);
+        }
+
+        BindCatalogWithdrawTrials(tickResult.WithdrawTrials);
+        ApplyBdaContactLifecycleHotTick(tickResult.Changes);
+    }
+
+    private void ApplyBdaContactLifecycleHotTick(IReadOnlyList<PlatformDamageChangeRecord> changes)
+    {
+        if (BdaContactLifecycleRegistry == null || changes.Count == 0)
+        {
+            return;
+        }
+
+        var combatDomainsEnabled = Orchestrator.ScenarioPolicy?.EngageDefaults?.CombatDomainsEnabled ?? false;
+        if (!BdaContactLifecycleHotTickApplier.IsEnabled(combatDomainsEnabled))
+        {
+            return;
+        }
+
+        // Allocation follow-up P1: explicit foreach + List instead of Select+ToArray.
+        // DTOs still allocated (small records) but no LINQ iterator chain per tick.
+        // Same inputs to ResolveSortedLostTargets; determinism preserved.
+        var applies = new List<BdaContactLifecycleHotTickApplier.DamageLifecycleApply>(changes.Count);
+        foreach (var change in changes)
+        {
+            applies.Add(new BdaContactLifecycleHotTickApplier.DamageLifecycleApply(
+                change.UnitId.Value,
+                change.DamageLevel,
+                change.NewHpPct,
+                change.ReasonCode));
+        }
+
+        foreach (var targetId in BdaContactLifecycleHotTickApplier.ResolveSortedLostTargets(applies))
+        {
+            BdaContactLifecycleRegistry.MarkLost(targetId);
+        }
     }
 
     private void LogEngagementResults(ObservedState state, IReadOnlyList<(Order Order, TargetId Victim)> queued)
@@ -230,6 +377,8 @@ public sealed class SimulationSession
                     {
                         KilledTargets.MarkKilled(processed[i].TargetId, victim.Value);
                     }
+
+                    BalanceDriftConsumer?.RecordEngagementOutcome(order.Target.Value, result.OutcomeCode);
                 }
             }
             else
@@ -280,7 +429,26 @@ public sealed class SimulationSession
 
     public int? DefaultMagazineRounds { get; init; }
 
+    /// <summary>ADR-006 read path for live magazine counts (Req-16).</summary>
+    public ICatalogReader? CatalogReader { get; init; }
+
     public UnitReadinessMap? UnitReadiness { get; set; }
+
+    /// <summary>Catalog-resolved withdraw/readiness trials (refreshed by hot-tick applier when enabled).</summary>
+    public IReadOnlyList<ScenarioWithdrawReadinessTrial> CatalogWithdrawTrials { get; private set; } =
+        Array.Empty<ScenarioWithdrawReadinessTrial>();
+
+    /// <summary>Bounded catalog hot-tick damage tracker (combatDomainsEnabled + catalogWithdraw only).</summary>
+    public CatalogDamageHotTickTracker? CatalogDamageHotTickTracker { get; init; }
+
+    /// <summary>Pending BDA Lost promotions drained by replay harness after each tick (S32-09).</summary>
+    public BdaContactLifecycleRegistry? BdaContactLifecycleRegistry { get; init; }
+
+    /// <summary>Advisory-only balance drift telemetry consumer (DBI-5; default disabled).</summary>
+    public BalanceDriftAdvisoryConsumer? BalanceDriftConsumer { get; init; }
+
+    public void BindCatalogWithdrawTrials(IReadOnlyList<ScenarioWithdrawReadinessTrial> trials) =>
+        CatalogWithdrawTrials = trials;
 
     /// <summary>Salvo size for the next primed engage (interactive attack menu).</summary>
     public int? NextEngageSalvoOverride { get; set; }
@@ -298,6 +466,27 @@ public sealed class SimulationSession
         if (DefaultEngageContext is { } template)
         {
             var airReady = UnitReadiness?.IsReadyForLaunch(shooterUnitId) ?? true;
+            if (CatalogReader != null)
+            {
+                var mobilityReady = PhaseBCatalogMobilityReadinessStub.EvaluateLaunchReadiness(
+                    shooterUnitId,
+                    CatalogReader);
+                airReady = airReady && mobilityReady.ReadyForLaunch;
+            }
+
+            var radarActive = state.RadarEmconActive;
+            if (CatalogReader != null)
+            {
+                var emconState = ScenarioEmconResolver.ResolveRadar(
+                    shooterUnitId,
+                    Orchestrator.ScenarioPolicy?.UnitRadarEmcon,
+                    CatalogReader);
+                radarActive = radarActive && emconState == EmconState.Active;
+            }
+
+            var damageWithdrawBlocked = CatalogDamageWithdrawEngageGate.BlocksEngage(
+                shooterUnitId,
+                CatalogWithdrawTrials);
             var victimId = state.PrimaryHostileContactId?.Value;
             var simTick = (ulong)Math.Max(0, (long)state.SimTime);
             var spoofed = IsContactSpoofed?.Invoke(victimId ?? "", simTick) ?? false;
@@ -306,8 +495,9 @@ public sealed class SimulationSession
             var primed = template with
             {
                 HasFireControlTrack = state.HasFireControlTrack,
-                RadarEmconActive = state.RadarEmconActive,
+                RadarEmconActive = radarActive,
                 AirOperationsReady = airReady,
+                CatalogDamageWithdrawBlocked = damageWithdrawBlocked,
                 TrackSpoofed = spoofed,
                 SalvoSize = Math.Max(1, salvo),
             };
@@ -318,9 +508,27 @@ public sealed class SimulationSession
             return;
         }
 
-        if (Magazines != null && DefaultMagazineRounds is int defaultRounds && defaultRounds > 0)
+        if (Magazines != null)
         {
-            Magazines.EnsureInitialRounds(request.ShooterUnitId, request.MountId, defaultRounds);
+            var fallbackRounds = DefaultMagazineRounds ?? 0;
+            CatalogMagazineLedgerSeeder.TrySeedInitialRounds(
+                Magazines,
+                CatalogReader,
+                shooterUnitId,
+                request.ShooterUnitId,
+                request.MountId,
+                fallbackRounds,
+                out _);
         }
+    }
+
+    private static TargetId ResolveEngageVictim(Order order, ObservedState state)
+    {
+        if (BalticV3SideRegistry.IsRedForceUnit(order.Target.Value))
+        {
+            return state.PrimaryBlueForceContactId ?? new TargetId("u1");
+        }
+
+        return state.PrimaryHostileContactId ?? new TargetId("hostile-1");
     }
 }

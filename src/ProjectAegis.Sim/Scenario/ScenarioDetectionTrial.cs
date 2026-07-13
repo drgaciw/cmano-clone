@@ -9,4 +9,5 @@ public sealed record ScenarioDetectionTrial(
     double BasePd,
     double EnvMask = 1.0,
     double JamStrength = 0.0,
+    double EccmFactor = 1.0,
     bool RequiresActiveRadar = true);

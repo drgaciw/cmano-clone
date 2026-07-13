@@ -61,6 +61,21 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/MessageLog/MessageLogPanel.uxml",
                 "Assets/UI/MessageLog/MessageLogPanel.uss");
+            CreatePanelHost<DoctrineInheritancePanelHost>(
+                "DoctrineInheritance",
+                bridge,
+                "Assets/UI/DoctrineInheritance/DoctrineInheritancePanel.uxml",
+                "Assets/UI/DoctrineInheritance/DoctrineInheritancePanel.uss");
+            CreatePanelHost<PlatformCatalogViewerHost>(
+                "PlatformCatalog",
+                bridge,
+                "Assets/UI/PlatformCatalog/PlatformCatalogPanel.uxml",
+                "Assets/UI/PlatformCatalog/PlatformCatalogPanel.uss");
+            CreatePanelHost<PlatformImportPanelHost>(
+                "PlatformImport",
+                bridge,
+                "Assets/UI/PlatformImport/PlatformImportPanel.uxml",
+                "Assets/UI/PlatformImport/PlatformImportPanel.uss");
 
             var scenesDir = "Assets/Scenes";
             if (!AssetDatabase.IsValidFolder(scenesDir))
@@ -93,7 +108,14 @@ namespace ProjectAegis.Unity.Editor
             var go = new GameObject(objectName);
             go.AddComponent<UIDocument>();
             var host = go.AddComponent<T>();
-            SetObjectReference(host, "bridgeHost", bridge);
+            var hostSo = new SerializedObject(host);
+            var bridgeProp = hostSo.FindProperty("bridgeHost");
+            if (bridgeProp != null)
+            {
+                bridgeProp.objectReferenceValue = bridge;
+                hostSo.ApplyModifiedPropertiesWithoutUndo();
+            }
+
             SetObjectReference(host, "panelAsset", AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath));
             SetObjectReference(host, "panelStyles", AssetDatabase.LoadAssetAtPath<StyleSheet>(ussPath));
             return host;

@@ -76,15 +76,9 @@ CREATE TABLE IF NOT EXISTS platform_magazine (
 CREATE INDEX IF NOT EXISTS idx_platform_magazine_loadout
     ON platform_magazine (platform_id ASC, loadout_id ASC, mount_id ASC, weapon_id ASC);
 
--- S22-04 additive extension (DBI-1.4 orphan guard + ProposePlatformBatch enablement).
--- Staging tables for platform editor entities (live tables added earlier in this file; staging were
--- missing from migrations causing potential bypass or orphan risk on Reject/DeleteStagingRows).
--- Parser extensions (CmoMarkdownImporter) keep all sensor paths 100% untouched.
+-- S22-04: write-gate staging tables (additive; DBI-1.4 orphan guard via DeleteStagingRows).
 -- All new Propose* use explicit ORDER BY canonical keys for determinism (DBI-1.1/7.3).
--- Idempotent (IF NOT EXISTS); reader skip for "007" still keyed on live "platform_mount" presence.
--- Extended DeleteStagingRows (in CatalogWriteGate) will DELETE FROM all catalog_staging_* for the batch.
 
--- Platform catalog staging (for ProposePlatformBatch from markdown platform sections + Baltic coverage).
 CREATE TABLE IF NOT EXISTS catalog_staging_platform (
     batch_id TEXT NOT NULL,
     platform_id TEXT NOT NULL,
@@ -101,7 +95,6 @@ CREATE TABLE IF NOT EXISTS catalog_staging_platform (
     FOREIGN KEY (batch_id) REFERENCES catalog_staging_batch(batch_id)
 );
 
--- Weapon catalog staging (parsed from CMO weapon/markdown sections).
 CREATE TABLE IF NOT EXISTS catalog_staging_weapon (
     batch_id TEXT NOT NULL,
     weapon_id TEXT NOT NULL,
@@ -115,7 +108,6 @@ CREATE TABLE IF NOT EXISTS catalog_staging_weapon (
     FOREIGN KEY (batch_id) REFERENCES catalog_staging_batch(batch_id)
 );
 
--- Mount staging (enables full S22-01 ProposeMountBatch + S22-04 mount sections without bypass).
 CREATE TABLE IF NOT EXISTS catalog_staging_mount (
     batch_id TEXT NOT NULL,
     platform_id TEXT NOT NULL,
@@ -128,7 +120,6 @@ CREATE TABLE IF NOT EXISTS catalog_staging_mount (
     FOREIGN KEY (batch_id) REFERENCES catalog_staging_batch(batch_id)
 );
 
--- Loadout staging.
 CREATE TABLE IF NOT EXISTS catalog_staging_loadout (
     batch_id TEXT NOT NULL,
     platform_id TEXT NOT NULL,
@@ -140,7 +131,6 @@ CREATE TABLE IF NOT EXISTS catalog_staging_loadout (
     FOREIGN KEY (batch_id) REFERENCES catalog_staging_batch(batch_id)
 );
 
--- Magazine staging.
 CREATE TABLE IF NOT EXISTS catalog_staging_magazine (
     batch_id TEXT NOT NULL,
     platform_id TEXT NOT NULL,
@@ -154,7 +144,6 @@ CREATE TABLE IF NOT EXISTS catalog_staging_magazine (
     FOREIGN KEY (batch_id) REFERENCES catalog_staging_batch(batch_id)
 );
 
--- Comms staging.
 CREATE TABLE IF NOT EXISTS catalog_staging_comms (
     batch_id TEXT NOT NULL,
     platform_id TEXT NOT NULL,

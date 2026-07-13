@@ -2,6 +2,7 @@ namespace ProjectAegis.Sim.Scenario;
 
 using System.Text.Json;
 using ProjectAegis.Data.Scenario.Policy;
+using ProjectAegis.Data.Telemetry;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 
@@ -75,11 +76,135 @@ public static class ScenarioPolicyJsonLoader
             missionUnitIds,
             ParseSpeculative(dto.Speculative),
             ParseUnitReadiness(dto.UnitReadiness),
-            ParseSpoofTransitions(dto.SpoofTracks))
+            ParseSpoofTransitions(dto.SpoofTracks),
+            catalogWithdrawTargets: ParseCatalogWithdrawTargets(dto.CatalogWithdraw),
+            balanceTelemetry: ParseBalanceTelemetry(dto.Telemetry),
+            datalinkDoctrine: ParseDatalinkDoctrine(dto.Datalink),
+            mineHazard: ParseMineHazard(dto.MineHazard))
         {
             Id = dto.Id,
         };
     }
+
+    private static ScenarioMineHazardSettings? ParseMineHazard(ScenarioMineHazardJsonDto? mineHazard)
+    {
+        if (mineHazard == null)
+        {
+            return null;
+        }
+
+        if (mineHazard.ZoneMinRangeMeters > mineHazard.ZoneMaxRangeMeters)
+        {
+            throw new InvalidDataException("mineHazard.zoneMinRangeMeters must be <= zoneMaxRangeMeters.");
+        }
+
+        var triggerRadius = mineHazard.TriggerRadiusMeters ?? 5_000;
+        if (triggerRadius < 0)
+        {
+            throw new InvalidDataException("mineHazard.triggerRadiusMeters must be non-negative.");
+        }
+
+        var mines = mineHazard.Mines == null || mineHazard.Mines.Count == 0
+            ? Array.Empty<ScenarioMinePlacement>()
+            : mineHazard.Mines
+                .OrderBy(m => m.MineId, StringComparer.Ordinal)
+                .Select(m => new ScenarioMinePlacement(
+                    m.MineId,
+                    m.RangeMeters,
+                    Math.Clamp(m.Lethality, 0.0, 1.0)))
+                .ToArray();
+
+        var transit = mineHazard.Transit == null || mineHazard.Transit.Count == 0
+            ? Array.Empty<ScenarioMineTransitSchedule>()
+            : mineHazard.Transit
+                .OrderBy(t => t.PlatformId, StringComparer.Ordinal)
+                .Select(t => new ScenarioMineTransitSchedule(
+                    t.PlatformId,
+                    t.RangesMeters?.ToArray() ?? Array.Empty<double>()))
+                .ToArray();
+
+        return new ScenarioMineHazardSettings(
+            mineHazard.ZoneMinRangeMeters,
+            mineHazard.ZoneMaxRangeMeters,
+            triggerRadius,
+            mineHazard.HazardSeverity ?? 1.0,
+            mines,
+            transit);
+    }
+
+    private static ScenarioDatalinkDoctrine ParseDatalinkDoctrine(ScenarioDatalinkJsonDto? datalink)
+    {
+        if (datalink == null)
+        {
+            return ScenarioDatalinkDoctrine.Default;
+        }
+
+        var unitSides = datalink.UnitSides == null || datalink.UnitSides.Count == 0
+            ? null
+            : datalink.UnitSides
+                .OrderBy(p => p.Key, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
+
+        var shareLagTicks = datalink.ShareLagTicks ?? 0;
+        if (shareLagTicks < 0)
+        {
+            throw new InvalidDataException("datalink.shareLagTicks must be a non-negative integer.");
+        }
+
+        return new ScenarioDatalinkDoctrine(
+            datalink.OrganicOnly ?? true,
+            unitSides,
+            shareLagTicks,
+            ShareLagTicksSpecified: datalink.ShareLagTicks.HasValue);
+    }
+
+    private static ScenarioBalanceTelemetrySettings ParseBalanceTelemetry(ScenarioTelemetryJsonDto? telemetry)
+    {
+        if (telemetry == null)
+        {
+            return ScenarioBalanceTelemetrySettings.Disabled;
+        }
+
+        var enable = telemetry.EnableBalanceDrift ?? false;
+        BalanceDriftOptions? options = null;
+        if (telemetry.WinRateDriftThreshold != null ||
+            telemetry.MinimumSampleRuns != null ||
+            telemetry.DefaultExpectedWinRate != null)
+        {
+            options = new BalanceDriftOptions
+            {
+                WinRateDriftThreshold = telemetry.WinRateDriftThreshold ?? 0.08,
+                MinimumSampleRuns = telemetry.MinimumSampleRuns ?? 500,
+                DefaultExpectedWinRate = telemetry.DefaultExpectedWinRate ?? 0.5,
+            };
+        }
+
+        return new ScenarioBalanceTelemetrySettings(
+            enableBalanceDrift: enable,
+            options: options,
+            balanceTrials: ParseBalanceTrials(telemetry.BalanceTrials));
+    }
+
+    private static IReadOnlyList<ScenarioBalanceTrial> ParseBalanceTrials(
+        List<ScenarioBalanceTrialJsonDto>? balanceTrials)
+    {
+        if (balanceTrials == null || balanceTrials.Count == 0)
+        {
+            return Array.Empty<ScenarioBalanceTrial>();
+        }
+
+        return balanceTrials
+            .Select(t => new ScenarioBalanceTrial(
+                t.EntityId,
+                ParseBalanceEntityKind(t.EntityKind),
+                t.ExpectedWinRate))
+            .ToArray();
+    }
+
+    private static BalanceEntityKind ParseBalanceEntityKind(string value) =>
+        Enum.TryParse<BalanceEntityKind>(value, ignoreCase: true, out var kind)
+            ? kind
+            : throw new InvalidDataException($"Unknown balance entity kind: {value}");
 
     private static IReadOnlyDictionary<string, bool> ParseUnitReadiness(
         Dictionary<string, ScenarioUnitReadinessJsonDto>? readiness)
@@ -195,8 +320,39 @@ public static class ScenarioPolicyJsonLoader
                 e.Kind,
                 e.Code))
             .ToArray();
-        return new ScenarioMissionTimeline(fireOrder, events);
+        var triggers = ParseMissionContactTriggers(mission.Triggers);
+        return new ScenarioMissionTimeline(fireOrder, events, triggers);
     }
+
+    private static IReadOnlyList<ScenarioMissionContactTrigger> ParseMissionContactTriggers(
+        List<ScenarioMissionContactTriggerJsonDto>? triggers)
+    {
+        if (triggers == null || triggers.Count == 0)
+        {
+            return Array.Empty<ScenarioMissionContactTrigger>();
+        }
+
+        return triggers
+            .Select(t => new ScenarioMissionContactTrigger(
+                t.Id,
+                t.ObserverId,
+                ParseMissionContactTargetClass(t.TargetClass),
+                ParseMissionContactPolicySide(t.Side),
+                t.MissionCode,
+                ParseRoe(t.Roe),
+                t.UnitIds ?? []))
+            .ToArray();
+    }
+
+    private static MissionContactTargetClass ParseMissionContactTargetClass(string? label) =>
+        Enum.TryParse<MissionContactTargetClass>(label, ignoreCase: true, out var parsed)
+            ? parsed
+            : MissionContactTargetClass.Any;
+
+    private static MissionContactPolicySide ParseMissionContactPolicySide(string? label) =>
+        label?.Equals("opposing", StringComparison.OrdinalIgnoreCase) == true
+            ? MissionContactPolicySide.Opposing
+            : MissionContactPolicySide.Friendly;
 
     private static ScenarioContactLifecycle ParseContactLifecycle(ScenarioContactLifecycleJsonDto? lifecycle) =>
         lifecycle == null
@@ -237,6 +393,19 @@ public static class ScenarioPolicyJsonLoader
             .ToArray();
     }
 
+    private static IReadOnlyList<ScenarioCatalogWithdrawTarget> ParseCatalogWithdrawTargets(
+        List<ScenarioCatalogWithdrawJsonDto>? catalogWithdraw)
+    {
+        if (catalogWithdraw == null || catalogWithdraw.Count == 0)
+        {
+            return Array.Empty<ScenarioCatalogWithdrawTarget>();
+        }
+
+        return catalogWithdraw
+            .Select(d => new ScenarioCatalogWithdrawTarget(d.PlatformId, d.CurrentHpPct))
+            .ToArray();
+    }
+
     private static IReadOnlyList<ScenarioDetectionTrial> ParseDetectionTrials(
         List<ScenarioDetectionJsonDto>? detection)
     {
@@ -253,7 +422,9 @@ public static class ScenarioPolicyJsonLoader
                 d.ContactId,
                 d.BasePd,
                 d.EnvMask,
-                d.JamStrength))
+                d.JamStrength,
+                d.EccmFactor,
+                d.RequiresActiveRadar))
             .ToArray();
     }
 
@@ -313,7 +484,8 @@ public static class ScenarioPolicyJsonLoader
                 DlzPersonalityParser.Parse(engage.DlzPersonality),
                 CombatDomainParser.Parse(engage.CombatDomain),
                 engage.MountOnline ?? true,
-                engage.ContactIdentified ?? true);
+                engage.ContactIdentified ?? true,
+                engage.CombatDomainsEnabled ?? false);
 
     private static RoeLevel ParseRoe(string value) =>
         Enum.TryParse<RoeLevel>(value, ignoreCase: true, out var roe)

@@ -7,9 +7,7 @@ using ProjectAegis.Data.WriteGate;
 /// <summary>
 /// Req-21 / ADR-011 PLE-2.* / PLE-3.*: turns an edited workbook into staged write-gate batches.
 /// Re-exports the bound snapshot (via an injected provider) to diff against, validates fitting rules,
-/// and stages the entities the P0 write gate supports (sensors). Mount/loadout/magazine/comms changes
-/// are reported as <see cref="PlatformImportPlan.UnsupportedChanges"/> pending a gate extension — the
-/// importer never invents a commit path that bypasses <see cref="IWriteGate"/> (DBI-8.3 guardrail).
+/// and stages supported entity changes (Phase A + Phase B) through <see cref="IWriteGate"/>.
 /// </summary>
 public sealed class PlatformWorkbookImporter
 {
@@ -17,8 +15,16 @@ public sealed class PlatformWorkbookImporter
     public const int HumanApprovalRecordThreshold = 10;
 
     private const string SupportedSheet = "Sensors";
-    private static readonly string[] SupportedSheets = { "Sensors", "Mounts", "Loadouts", "Magazines", "Comms" };
-    private static readonly string[] UnsupportedSheets = { "Platforms" };
+    private const string PlatformsSheet = "Platforms";
+    private static readonly string[] SupportedSheets =
+    {
+        "Sensors", "Mounts", "Loadouts", "Magazines", "Comms", "LinkCatalog",
+        "Mobility", "Signatures", "Emcon",
+    };
+    private static readonly string[] SupportedPlatformDamageColumns =
+    {
+        "MaxHp", "WithdrawThresholdPct", "CriticalFlags",
+    };
 
     private readonly Func<string, PlatformCatalogExportData?> _snapshotProvider;
     private readonly ICatalogClock _clock;
@@ -34,7 +40,22 @@ public sealed class PlatformWorkbookImporter
         _exporter = exporter ?? new PlatformWorkbookExporter();
     }
 
-    /// <summary>Pure analysis: snapshot guard → re-export source → diff → validate → classify.</summary>
+    public PlatformWorkbook ReadFromFile(string path, IPlatformWorkbookIo io)
+    {
+        if (io is null) throw new ArgumentNullException(nameof(io));
+        return io.Read(path);
+    }
+
+    public PlatformImportPlan PlanFromFile(string path, IPlatformWorkbookIo io) => Plan(ReadFromFile(path, io));
+
+    public PlatformImportResult StageFromFile(
+        string path,
+        IPlatformWorkbookIo io,
+        IWriteGate gate,
+        string actorType,
+        string actorId,
+        string rationale = "") => Stage(ReadFromFile(path, io), gate, actorType, actorId, rationale);
+
     public PlatformImportPlan Plan(PlatformWorkbook edited)
     {
         if (edited is null) throw new ArgumentNullException(nameof(edited));
@@ -43,7 +64,6 @@ public sealed class PlatformWorkbookImporter
         var source = string.IsNullOrEmpty(snapshotId) ? null : _snapshotProvider(snapshotId);
         if (source is null)
         {
-            // PLE-2.2: unknown / stale source snapshot — cannot safely diff.
             return new PlatformImportPlan(snapshotId, false, [], [], [], [], RequiresHumanApproval: false);
         }
 
@@ -51,23 +71,58 @@ public sealed class PlatformWorkbookImporter
         var changes = PlatformWorkbookDiff.Compare(sourceWorkbook, edited);
         var findings = PlatformWorkbookValidator.Validate(edited);
 
-        var supported = changes
-            .Where(c => SupportedSheets.Contains(c.Sheet, StringComparer.Ordinal))
-            .ToArray();
-        var unsupported = changes
-            .Where(c => UnsupportedSheets.Contains(c.Sheet, StringComparer.Ordinal))
-            .ToArray();
+        var supported = new List<PlatformWorkbookChange>(changes.Count);
+        var unsupported = new List<PlatformWorkbookChange>();
+        foreach (var change in changes)
+        {
+            if (SupportedSheets.Contains(change.Sheet, StringComparer.Ordinal))
+            {
+                supported.Add(change);
+                continue;
+            }
+
+            if (string.Equals(change.Sheet, PlatformsSheet, StringComparison.Ordinal))
+            {
+                if (IsSupportedPlatformDamageChange(change))
+                {
+                    supported.Add(change);
+                }
+                else
+                {
+                    unsupported.Add(change);
+                }
+
+                continue;
+            }
+
+            unsupported.Add(change);
+        }
 
         var requiresApproval = changes.Count > HumanApprovalRecordThreshold;
+        var quarantine = BuildQuarantineFromFindings(findings);
 
-        return new PlatformImportPlan(snapshotId, true, changes, findings, supported, unsupported, requiresApproval);
+        return new PlatformImportPlan(snapshotId, true, changes, findings, supported, unsupported, requiresApproval)
+        {
+            QuarantineEntries = quarantine,
+        };
     }
 
-    /// <summary>
-    /// Side-effecting: stage the supported changes through the write gate. Refused when the
-    /// snapshot is unresolved or validation is blocked. Commit still requires a separate
-    /// <see cref="IWriteGate.ApproveBatch"/> — this only proposes (PLE-3.1).
-    /// </summary>
+    private static bool IsSupportedPlatformDamageChange(PlatformWorkbookChange change)
+    {
+        if (!string.Equals(change.Sheet, PlatformsSheet, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        if (change.Kind != PlatformWorkbookChangeKind.CellChanged)
+        {
+            return false;
+        }
+
+        var column = change.Detail.Split(':', 2)[0];
+        return SupportedPlatformDamageColumns.Contains(column, StringComparer.Ordinal);
+    }
+
     public PlatformImportResult Stage(
         PlatformWorkbook edited,
         IWriteGate gate,
@@ -79,21 +134,47 @@ public sealed class PlatformWorkbookImporter
 
         var plan = Plan(edited);
         var notes = new List<string>();
+        var quarantine = new List<PlatformImportQuarantineEntry>(plan.QuarantineEntries);
 
         if (!plan.SnapshotResolved)
         {
             notes.Add($"Source snapshot '{plan.SourceSnapshotId}' did not resolve; nothing staged.");
-            return new PlatformImportResult(plan, Staged: false, SensorBatchId: null, MountBatchId: null, LoadoutBatchId: null, MagazineBatchId: null, CommsBatchId: null, notes);
+            return EmptyImportResult(plan, notes, quarantine);
         }
 
         if (plan.Blocked)
         {
             notes.Add($"{plan.Findings.Count} validation finding(s); resolve errors before staging.");
-            return new PlatformImportResult(plan, Staged: false, SensorBatchId: null, MountBatchId: null, LoadoutBatchId: null, MagazineBatchId: null, CommsBatchId: null, notes);
+            return EmptyImportResult(plan, notes, quarantine);
         }
+
+        var source = _snapshotProvider(plan.SourceSnapshotId);
+        var knownPlatformIds = source?.Platforms
+            .Select(p => p.PlatformId)
+            .ToHashSet(StringComparer.Ordinal) ?? new HashSet<string>(StringComparer.Ordinal);
 
         string? sensorBatchId = null;
         var sensorRows = BuildChangedSensorRows(edited, plan.SupportedChanges);
+        // PLE-4.4: partition via CatalogImportGate — low-TRL / non-approved sensors quarantine, not proposed.
+        if (sensorRows.Count > 0)
+        {
+            var (importable, gatedOut) = CatalogImportGate.PartitionForImport(sensorRows);
+            foreach (var q in gatedOut)
+            {
+                quarantine.Add(new PlatformImportQuarantineEntry(
+                    EntityKind: "sensor",
+                    PlatformId: q.Binding.PlatformId,
+                    EntityId: q.Binding.SensorId,
+                    Reason: q.RejectionReason,
+                    SourceSheet: SupportedSheet,
+                    Detail: $"TrlLevel={q.Binding.TrlLevel};ReviewState={q.Binding.ReviewState}"));
+                notes.Add(
+                    $"Quarantined sensor '{q.Binding.SensorId}' on '{q.Binding.PlatformId}' ({q.RejectionReason}).");
+            }
+
+            sensorRows = importable;
+        }
+
         if (sensorRows.Count > 0)
         {
             sensorBatchId = gate.ProposeSensorBatch(sensorRows, actorType, actorId, rationale);
@@ -132,170 +213,345 @@ public sealed class PlatformWorkbookImporter
             notes.Add($"Proposed {commsRows.Count} comms row(s) as batch '{commsBatchId}'.");
         }
 
-        if (plan.UnsupportedChanges.Count > 0)
+        string? linkBatchId = null;
+        var linkRows = BuildChangedLinkRows(edited, plan.SupportedChanges);
+        if (linkRows.Count > 0)
         {
-            notes.Add($"{plan.UnsupportedChanges.Count} change(s) to platforms are not yet stageable (P0 write gate excludes platform changes) — pending gate extension.");
+            linkBatchId = gate.ProposeLinkCatalogBatch(linkRows, actorType, actorId, rationale);
+            notes.Add($"Proposed {linkRows.Count} link catalog row(s) as batch '{linkBatchId}'.");
         }
 
-        var staged = sensorBatchId is not null || mountBatchId is not null || loadoutBatchId is not null || magazineBatchId is not null || commsBatchId is not null;
-        return new PlatformImportResult(plan, Staged: staged, sensorBatchId, mountBatchId, loadoutBatchId, magazineBatchId, commsBatchId, notes);
+        string? mobilityBatchId = null;
+        var mobilityRows = FilterKnownPlatforms(
+            BuildChangedMobilityRows(edited, plan.SupportedChanges),
+            knownPlatformIds,
+            row => row.PlatformId,
+            notes,
+            quarantine,
+            "mobility",
+            "Mobility");
+        if (mobilityRows.Count > 0)
+        {
+            mobilityBatchId = gate.ProposeMobilityBatch(mobilityRows, actorType, actorId, rationale);
+            notes.Add($"Proposed {mobilityRows.Count} mobility row(s) as batch '{mobilityBatchId}'.");
+        }
+
+        string? signatureBatchId = null;
+        var signatureRows = FilterKnownPlatforms(
+            BuildChangedSignatureRows(edited, plan.SupportedChanges),
+            knownPlatformIds,
+            row => row.PlatformId,
+            notes,
+            quarantine,
+            "signature",
+            "Signatures");
+        if (signatureRows.Count > 0)
+        {
+            signatureBatchId = gate.ProposeSignatureBatch(signatureRows, actorType, actorId, rationale);
+            notes.Add($"Proposed {signatureRows.Count} signature row(s) as batch '{signatureBatchId}'.");
+        }
+
+        string? emconBatchId = null;
+        var emconRows = FilterKnownPlatforms(
+            BuildChangedEmconRows(edited, plan.SupportedChanges),
+            knownPlatformIds,
+            row => row.PlatformId,
+            notes,
+            quarantine,
+            "emcon",
+            "Emcon");
+        if (emconRows.Count > 0)
+        {
+            emconBatchId = gate.ProposeEmconBatch(emconRows, actorType, actorId, rationale);
+            notes.Add($"Proposed {emconRows.Count} emcon row(s) as batch '{emconBatchId}'.");
+        }
+
+        string? damageBatchId = null;
+        var damageRows = FilterKnownPlatforms(
+            BuildChangedDamageRows(edited, plan.SupportedChanges),
+            knownPlatformIds,
+            row => row.PlatformId,
+            notes,
+            quarantine,
+            "damage",
+            PlatformsSheet);
+        if (damageRows.Count > 0)
+        {
+            damageBatchId = gate.ProposePlatformDamageBatch(damageRows, actorType, actorId, rationale);
+            notes.Add($"Proposed {damageRows.Count} damage row(s) as batch '{damageBatchId}'.");
+        }
+
+        if (plan.UnsupportedChanges.Count > 0)
+        {
+            var platformCoreChanges = plan.UnsupportedChanges.Count(c =>
+                string.Equals(c.Sheet, PlatformsSheet, StringComparison.Ordinal));
+            if (platformCoreChanges > 0)
+            {
+                notes.Add($"{platformCoreChanges} change(s) to platform core fields (LatDeg/LonDeg/CombatRadiusNm/row adds) are not yet stageable — pending gate extension.");
+            }
+
+            var otherUnsupported = plan.UnsupportedChanges.Count - platformCoreChanges;
+            if (otherUnsupported > 0)
+            {
+                notes.Add($"{otherUnsupported} unsupported change(s) remain unstageable.");
+            }
+        }
+
+        var staged = sensorBatchId is not null
+            || mountBatchId is not null
+            || loadoutBatchId is not null
+            || magazineBatchId is not null
+            || commsBatchId is not null
+            || linkBatchId is not null
+            || mobilityBatchId is not null
+            || signatureBatchId is not null
+            || emconBatchId is not null
+            || damageBatchId is not null;
+        return new PlatformImportResult(
+            plan,
+            Staged: staged,
+            sensorBatchId,
+            mountBatchId,
+            loadoutBatchId,
+            magazineBatchId,
+            commsBatchId,
+            linkBatchId,
+            mobilityBatchId,
+            signatureBatchId,
+            emconBatchId,
+            damageBatchId,
+            notes)
+        {
+            QuarantineEntries = SortQuarantine(quarantine),
+        };
     }
 
-    /// <summary>
-    /// Reconstruct <see cref="CatalogSensorBinding"/> rows for the added/changed Sensors rows. Only the
-    /// editor-surfaced columns are read; unsurfaced provenance (SourceFactId, Confidence, ImportBatchId…)
-    /// takes record defaults here and would be merged from the source row in a full implementation.
-    /// </summary>
-    private static IReadOnlyList<CatalogSensorBinding> BuildChangedSensorRows(
-        PlatformWorkbook edited,
-        IReadOnlyList<PlatformWorkbookChange> supportedChanges)
+    private static PlatformImportResult EmptyImportResult(
+        PlatformImportPlan plan,
+        IReadOnlyList<string> notes,
+        IReadOnlyList<PlatformImportQuarantineEntry>? quarantine = null) =>
+        new(plan, Staged: false, null, null, null, null, null, null, null, null, null, null, notes)
+        {
+            QuarantineEntries = SortQuarantine(quarantine ?? plan.QuarantineEntries),
+        };
+
+    private static IReadOnlyList<T> FilterKnownPlatforms<T>(
+        IReadOnlyList<T> rows,
+        HashSet<string> knownPlatformIds,
+        Func<T, string> platformIdSelector,
+        ICollection<string> notes,
+        ICollection<PlatformImportQuarantineEntry> quarantine,
+        string entityLabel,
+        string sourceSheet)
     {
-        var sheet = edited.FindSheet(SupportedSheet);
-        if (sheet is null)
+        if (rows.Count == 0)
+        {
+            return rows;
+        }
+
+        var accepted = new List<T>(rows.Count);
+        foreach (var row in rows)
+        {
+            var platformId = platformIdSelector(row);
+            if (knownPlatformIds.Contains(platformId))
+            {
+                accepted.Add(row);
+            }
+            else
+            {
+                notes.Add($"Rejected orphan {entityLabel} row for unknown PlatformId '{platformId}'.");
+                quarantine.Add(new PlatformImportQuarantineEntry(
+                    EntityKind: entityLabel,
+                    PlatformId: platformId,
+                    EntityId: string.Empty,
+                    Reason: PlatformWorkbookValidator.PhaseBOrphanPlatform,
+                    SourceSheet: sourceSheet,
+                    Detail: $"Rejected orphan {entityLabel} row for unknown PlatformId '{platformId}'."));
+            }
+        }
+
+        return accepted;
+    }
+
+    private static readonly HashSet<string> FkQuarantineFindingCodes = new(StringComparer.Ordinal)
+    {
+        PlatformWorkbookValidator.PhaseBOrphanPlatform,
+        PlatformWorkbookValidator.MagazineUnknownMount,
+        PlatformWorkbookValidator.MagazineUnknownLoadout,
+    };
+
+    private static IReadOnlyList<PlatformImportQuarantineEntry> BuildQuarantineFromFindings(
+        IReadOnlyList<ProjectAegis.Data.Validation.ValidationFinding> findings)
+    {
+        if (findings.Count == 0)
         {
             return [];
         }
 
-        var changedRowIndices = supportedChanges
-            .Where(c => c.Kind is PlatformWorkbookChangeKind.CellChanged or PlatformWorkbookChangeKind.RowAdded)
-            .Where(c => string.Equals(c.Sheet, SupportedSheet, StringComparison.Ordinal))
-            .Select(c => c.RowIndex)
-            .Where(i => i >= 0 && i < sheet.Rows.Count)
-            .Distinct()
-            .OrderBy(i => i)
-            .ToArray();
-
-        var col = HeaderIndex(sheet);
-        var rows = new List<CatalogSensorBinding>();
-        foreach (var i in changedRowIndices)
+        var entries = new List<PlatformImportQuarantineEntry>();
+        foreach (var finding in findings)
         {
-            var row = sheet.Rows[i];
-            rows.Add(new CatalogSensorBinding(
-                PlatformId: Get(row, col, "PlatformId"),
-                SensorId: Get(row, col, "SensorId"),
-                BasePd: ParseDouble(Get(row, col, "BasePd")),
-                ReviewState: Get(row, col, "ReviewState", CatalogReviewStates.Provisional),
-                TrlLevel: ParseInt(Get(row, col, "TrlLevel"), 9),
-                ValueTier: CatalogProvenanceTier.Normalize(Get(row, col, "ValueTier")),
-                CitationRef: Get(row, col, "CitationRef")));
+            if (!FkQuarantineFindingCodes.Contains(finding.Code))
+            {
+                continue;
+            }
+
+            entries.Add(new PlatformImportQuarantineEntry(
+                EntityKind: EntityKindForFindingCode(finding.Code),
+                PlatformId: finding.UnitId ?? string.Empty,
+                EntityId: finding.TargetId ?? string.Empty,
+                Reason: finding.Code,
+                SourceSheet: SourceSheetForFindingCode(finding.Code),
+                Detail: finding.Message));
         }
 
-        return rows;
+        return SortQuarantine(entries);
     }
+
+    private static string EntityKindForFindingCode(string code) => code switch
+    {
+        PlatformWorkbookValidator.PhaseBOrphanPlatform => "platform_fk",
+        PlatformWorkbookValidator.MagazineUnknownMount => "magazine",
+        PlatformWorkbookValidator.MagazineUnknownLoadout => "magazine",
+        _ => "unknown",
+    };
+
+    private static string SourceSheetForFindingCode(string code) => code switch
+    {
+        PlatformWorkbookValidator.PhaseBOrphanPlatform => "Mobility",
+        PlatformWorkbookValidator.MagazineUnknownMount => "Magazines",
+        PlatformWorkbookValidator.MagazineUnknownLoadout => "Magazines",
+        _ => string.Empty,
+    };
+
+    /// <summary>
+    /// PLE-2.3: deterministic quarantine order — EntityKind, PlatformId, EntityId, then Reason
+    /// for stable ties when the same entity surfaces multiple gate codes.
+    /// </summary>
+    private static IReadOnlyList<PlatformImportQuarantineEntry> SortQuarantine(
+        IReadOnlyList<PlatformImportQuarantineEntry> entries) =>
+        entries
+            .OrderBy(e => e.EntityKind, StringComparer.Ordinal)
+            .ThenBy(e => e.PlatformId, StringComparer.Ordinal)
+            .ThenBy(e => e.EntityId, StringComparer.Ordinal)
+            .ThenBy(e => e.Reason, StringComparer.Ordinal)
+            .ToArray();
+
+    private static IReadOnlyList<CatalogSensorBinding> BuildChangedSensorRows(
+        PlatformWorkbook edited,
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges) =>
+        BuildChangedRows(edited, supportedChanges, SupportedSheet, (row, col) => new CatalogSensorBinding(
+            PlatformId: Get(row, col, "PlatformId"),
+            SensorId: Get(row, col, "SensorId"),
+            BasePd: ParseDouble(Get(row, col, "BasePd")),
+            ReviewState: Get(row, col, "ReviewState", CatalogReviewStates.Provisional),
+            TrlLevel: ParseInt(Get(row, col, "TrlLevel"), 9),
+            ValueTier: CatalogProvenanceTier.Normalize(Get(row, col, "ValueTier")),
+            CitationRef: Get(row, col, "CitationRef")));
 
     private static IReadOnlyList<CatalogMount> BuildChangedMountRows(
         PlatformWorkbook edited,
-        IReadOnlyList<PlatformWorkbookChange> supportedChanges)
-    {
-        var sheet = edited.FindSheet("Mounts");
-        if (sheet is null)
-        {
-            return [];
-        }
-
-        var changedRowIndices = supportedChanges
-            .Where(c => c.Kind is PlatformWorkbookChangeKind.CellChanged or PlatformWorkbookChangeKind.RowAdded)
-            .Where(c => string.Equals(c.Sheet, "Mounts", StringComparison.Ordinal))
-            .Select(c => c.RowIndex)
-            .Where(i => i >= 0 && i < sheet.Rows.Count)
-            .Distinct()
-            .OrderBy(i => i)
-            .ToArray();
-
-        var col = HeaderIndex(sheet);
-        var rows = new List<CatalogMount>();
-        foreach (var i in changedRowIndices)
-        {
-            var row = sheet.Rows[i];
-            rows.Add(new CatalogMount(
-                PlatformId: Get(row, col, "PlatformId"),
-                MountId: Get(row, col, "MountId"),
-                MountType: Get(row, col, "MountType", "rail"),
-                ArcDeg: ParseDouble(Get(row, col, "ArcDeg", "360")),
-                Capacity: ParseInt(Get(row, col, "Capacity"), 1),
-                ReviewState: Get(row, col, "ReviewState", CatalogReviewStates.Provisional)));
-        }
-
-        return rows;
-    }
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges) =>
+        BuildChangedRows(edited, supportedChanges, "Mounts", (row, col) => new CatalogMount(
+            PlatformId: Get(row, col, "PlatformId"),
+            MountId: Get(row, col, "MountId"),
+            MountType: Get(row, col, "MountType", "rail"),
+            ArcDeg: ParseDouble(Get(row, col, "ArcDeg", "360")),
+            Capacity: ParseInt(Get(row, col, "Capacity"), 1),
+            ReviewState: Get(row, col, "ReviewState", CatalogReviewStates.Provisional)));
 
     private static IReadOnlyList<CatalogLoadout> BuildChangedLoadoutRows(
         PlatformWorkbook edited,
-        IReadOnlyList<PlatformWorkbookChange> supportedChanges)
-    {
-        var sheet = edited.FindSheet("Loadouts");
-        if (sheet is null)
-        {
-            return [];
-        }
-
-        var changedRowIndices = supportedChanges
-            .Where(c => c.Kind is PlatformWorkbookChangeKind.CellChanged or PlatformWorkbookChangeKind.RowAdded)
-            .Where(c => string.Equals(c.Sheet, "Loadouts", StringComparison.Ordinal))
-            .Select(c => c.RowIndex)
-            .Where(i => i >= 0 && i < sheet.Rows.Count)
-            .Distinct()
-            .OrderBy(i => i)
-            .ToArray();
-
-        var col = HeaderIndex(sheet);
-        var rows = new List<CatalogLoadout>();
-        foreach (var i in changedRowIndices)
-        {
-            var row = sheet.Rows[i];
-            rows.Add(new CatalogLoadout(
-                PlatformId: Get(row, col, "PlatformId"),
-                LoadoutId: Get(row, col, "LoadoutId"),
-                LoadoutName: Get(row, col, "LoadoutName"),
-                Role: Get(row, col, "Role"),
-                IsDefault: ParseBool(Get(row, col, "IsDefault"))));
-        }
-
-        return rows;
-    }
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges) =>
+        BuildChangedRows(edited, supportedChanges, "Loadouts", (row, col) => new CatalogLoadout(
+            PlatformId: Get(row, col, "PlatformId"),
+            LoadoutId: Get(row, col, "LoadoutId"),
+            LoadoutName: Get(row, col, "LoadoutName"),
+            Role: Get(row, col, "Role"),
+            IsDefault: ParseBool(Get(row, col, "IsDefault"))));
 
     private static IReadOnlyList<CatalogMagazineEntry> BuildChangedMagazineRows(
         PlatformWorkbook edited,
-        IReadOnlyList<PlatformWorkbookChange> supportedChanges)
-    {
-        var sheet = edited.FindSheet("Magazines");
-        if (sheet is null)
-        {
-            return [];
-        }
-
-        var changedRowIndices = supportedChanges
-            .Where(c => c.Kind is PlatformWorkbookChangeKind.CellChanged or PlatformWorkbookChangeKind.RowAdded)
-            .Where(c => string.Equals(c.Sheet, "Magazines", StringComparison.Ordinal))
-            .Select(c => c.RowIndex)
-            .Where(i => i >= 0 && i < sheet.Rows.Count)
-            .Distinct()
-            .OrderBy(i => i)
-            .ToArray();
-
-        var col = HeaderIndex(sheet);
-        var rows = new List<CatalogMagazineEntry>();
-        foreach (var i in changedRowIndices)
-        {
-            var row = sheet.Rows[i];
-            rows.Add(new CatalogMagazineEntry(
-                PlatformId: Get(row, col, "PlatformId"),
-                LoadoutId: Get(row, col, "LoadoutId"),
-                MountId: Get(row, col, "MountId"),
-                WeaponId: Get(row, col, "WeaponId"),
-                Quantity: ParseInt(Get(row, col, "Quantity")),
-                ReloadTimeSec: ParseInt(Get(row, col, "ReloadTimeSec")),
-                Depth: ParseInt(Get(row, col, "Depth"))));
-        }
-
-        return rows;
-    }
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges) =>
+        BuildChangedRows(edited, supportedChanges, "Magazines", (row, col) => new CatalogMagazineEntry(
+            PlatformId: Get(row, col, "PlatformId"),
+            LoadoutId: Get(row, col, "LoadoutId"),
+            MountId: Get(row, col, "MountId"),
+            WeaponId: Get(row, col, "WeaponId"),
+            Quantity: ParseInt(Get(row, col, "Quantity")),
+            ReloadTimeSec: ParseInt(Get(row, col, "ReloadTimeSec")),
+            Depth: ParseInt(Get(row, col, "Depth"))));
 
     private static IReadOnlyList<CatalogCommsBinding> BuildChangedCommsRows(
         PlatformWorkbook edited,
-        IReadOnlyList<PlatformWorkbookChange> supportedChanges)
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges) =>
+        BuildChangedRows(edited, supportedChanges, "Comms", (row, col) => new CatalogCommsBinding(
+            PlatformId: Get(row, col, "PlatformId"),
+            LinkId: Get(row, col, "LinkId"),
+            Role: Get(row, col, "Role", "txrx"),
+            SatcomCapable: ParseBool(Get(row, col, "SatcomCapable")),
+            ReviewState: Get(row, col, "ReviewState", CatalogReviewStates.Provisional),
+            TrlLevel: ParseInt(Get(row, col, "TrlLevel"), 9),
+            ValueTier: CatalogProvenanceTier.Normalize(Get(row, col, "ValueTier")),
+            CitationRef: Get(row, col, "CitationRef")));
+
+    private static IReadOnlyList<CatalogLinkEntry> BuildChangedLinkRows(
+        PlatformWorkbook edited,
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges) =>
+        BuildChangedRows(edited, supportedChanges, "LinkCatalog", (row, col) => new CatalogLinkEntry(
+            LinkId: Get(row, col, "LinkId"),
+            DisplayName: Get(row, col, "DisplayName"),
+            LinkType: Get(row, col, "LinkType", CatalogLinkTypes.Tactical),
+            LatencyMsNominal: ParseInt(Get(row, col, "LatencyMsNominal"))));
+
+    private static IReadOnlyList<CatalogMobility> BuildChangedMobilityRows(
+        PlatformWorkbook edited,
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges) =>
+        BuildChangedRows(edited, supportedChanges, "Mobility", (row, col) => new CatalogMobility(
+            PlatformId: Get(row, col, "PlatformId"),
+            MaxSpeedKnots: ParseDouble(Get(row, col, "MaxSpeedKnots")),
+            CruiseSpeedKnots: ParseDouble(Get(row, col, "CruiseSpeedKnots")),
+            MaxAltitudeFt: ParseDouble(Get(row, col, "MaxAltitudeFt")),
+            MaxDepthM: ParseDouble(Get(row, col, "MaxDepthM")),
+            FuelCapacity: ParseDouble(Get(row, col, "FuelCapacity")),
+            RangeNm: ParseDouble(Get(row, col, "RangeNm")),
+            EnduranceHr: ParseDouble(Get(row, col, "EnduranceHr"))));
+
+    private static IReadOnlyList<CatalogSignature> BuildChangedSignatureRows(
+        PlatformWorkbook edited,
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges) =>
+        BuildChangedRows(edited, supportedChanges, "Signatures", (row, col) => new CatalogSignature(
+            PlatformId: Get(row, col, "PlatformId"),
+            RcsBandDbsm: ParseDouble(Get(row, col, "RcsBandDbsm")),
+            IrSignature: ParseDouble(Get(row, col, "IrSignature")),
+            AcousticSignatureDb: ParseDouble(Get(row, col, "AcousticSignatureDb")),
+            MagneticSignature: ParseDouble(Get(row, col, "MagneticSignature"))));
+
+    private static IReadOnlyList<CatalogEmcon> BuildChangedEmconRows(
+        PlatformWorkbook edited,
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges) =>
+        BuildChangedRows(edited, supportedChanges, "Emcon", (row, col) => new CatalogEmcon(
+            PlatformId: Get(row, col, "PlatformId"),
+            Condition: Get(row, col, "Condition", "silent"),
+            EmitterId: Get(row, col, "EmitterId"),
+            Posture: Get(row, col, "Posture", "off")));
+
+    private static IReadOnlyList<CatalogPlatformDamage> BuildChangedDamageRows(
+        PlatformWorkbook edited,
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges) =>
+        BuildChangedRows(edited, supportedChanges, PlatformsSheet, (row, col) => new CatalogPlatformDamage(
+            PlatformId: Get(row, col, "PlatformId"),
+            MaxHp: ParseDouble(Get(row, col, "MaxHp", "100")),
+            WithdrawThresholdPct: ParseDouble(Get(row, col, "WithdrawThresholdPct", "0")),
+            CriticalFlags: ParseInt(Get(row, col, "CriticalFlags"), 0)));
+
+    private static IReadOnlyList<T> BuildChangedRows<T>(
+        PlatformWorkbook edited,
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges,
+        string sheetName,
+        Func<IReadOnlyList<string>, Dictionary<string, int>, T> mapRow)
     {
-        var sheet = edited.FindSheet("Comms");
+        var sheet = edited.FindSheet(sheetName);
         if (sheet is null)
         {
             return [];
@@ -303,7 +559,7 @@ public sealed class PlatformWorkbookImporter
 
         var changedRowIndices = supportedChanges
             .Where(c => c.Kind is PlatformWorkbookChangeKind.CellChanged or PlatformWorkbookChangeKind.RowAdded)
-            .Where(c => string.Equals(c.Sheet, "Comms", StringComparison.Ordinal))
+            .Where(c => string.Equals(c.Sheet, sheetName, StringComparison.Ordinal))
             .Select(c => c.RowIndex)
             .Where(i => i >= 0 && i < sheet.Rows.Count)
             .Distinct()
@@ -311,19 +567,10 @@ public sealed class PlatformWorkbookImporter
             .ToArray();
 
         var col = HeaderIndex(sheet);
-        var rows = new List<CatalogCommsBinding>();
+        var rows = new List<T>(changedRowIndices.Length);
         foreach (var i in changedRowIndices)
         {
-            var row = sheet.Rows[i];
-            rows.Add(new CatalogCommsBinding(
-                PlatformId: Get(row, col, "PlatformId"),
-                LinkId: Get(row, col, "LinkId"),
-                Role: Get(row, col, "Role", "txrx"),
-                SatcomCapable: ParseBool(Get(row, col, "SatcomCapable")),
-                ReviewState: Get(row, col, "ReviewState", CatalogReviewStates.Provisional),
-                TrlLevel: ParseInt(Get(row, col, "TrlLevel"), 9),
-                ValueTier: CatalogProvenanceTier.Normalize(Get(row, col, "ValueTier")),
-                CitationRef: Get(row, col, "CitationRef")));
+            rows.Add(mapRow(sheet.Rows[i], col));
         }
 
         return rows;

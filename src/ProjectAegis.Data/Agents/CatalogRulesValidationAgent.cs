@@ -1,6 +1,7 @@
 namespace ProjectAegis.Data.Agents;
 
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Validation;
 
 /// <summary>Req-06 rules agent — TRL/review/confidence gates (wraps CatalogImportGate).</summary>
 public sealed class CatalogRulesValidationAgent : IDatabaseIntelligenceAgent
@@ -20,6 +21,9 @@ public sealed class CatalogRulesValidationAgent : IDatabaseIntelligenceAgent
                 "error"));
         }
 
-        return new DatabaseAgentReport(AgentId, findings.Count == 0, findings);
+        findings.AddRange(KillChainRules.Evaluate(context.Catalog));
+        findings.AddRange(LinkCatalogRules.Evaluate(context.Catalog));
+
+        return new DatabaseAgentReport(AgentId, findings.All(f => f.Severity != "error"), findings);
     }
 }

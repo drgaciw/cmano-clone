@@ -14,4 +14,6 @@ public sealed record CatalogSensorBinding(
     string ValueTier = CatalogProvenanceTier.GameplayAbstraction,
     string ReviewerId = "",
     long RevisedUtcTicks = 0,
-    string CitationRef = "");
+    string CitationRef = "",
+    double JamStrength = 0.0,
+    double EccmFactor = 1.0);
