@@ -93,10 +93,11 @@ public sealed class ReplayGoldenTests
         for (var tick = 0; tick < 8; tick++)
         {
             var state = new ObservedState(
-                SimTime: tick,
-                ContactCount: 2 + (tick % 3),
-                ActiveEngagementCount: tick % 2,
-                new Dictionary<TargetId, bool>());
+                tick,
+                2 + (tick % 3),
+                tick % 2,
+                new Dictionary<TargetId, bool>(),
+                PrimaryHostileDestroyed: false);
             orchestrator.Tick(state);
         }
 

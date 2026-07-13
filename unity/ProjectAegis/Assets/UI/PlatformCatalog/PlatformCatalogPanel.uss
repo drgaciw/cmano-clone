@@ -1,0 +1,79 @@
+@import url("../AegisTokens.uss");
+
+.platform-catalog-panel {
+    flex-grow: 1;
+    min-width: 260px;
+    padding: 6px;
+    background-color: var(--aegis-surface-panel);
+}
+
+.platform-catalog-title {
+    -unity-font-style: bold;
+    color: var(--aegis-text-heading);
+    margin-bottom: 4px;
+}
+
+.platform-catalog-actions {
+    flex-direction: row;
+    margin-bottom: 4px;
+}
+
+.platform-catalog-action-button {
+    margin-right: 4px;
+    min-width: 64px;
+}
+
+.platform-catalog-search {
+    margin-bottom: 6px;
+}
+
+.platform-catalog-list {
+    flex-grow: 1;
+    min-height: 120px;
+}
+
+.platform-catalog-list .unity-list-view__item--selected {
+    background-color: var(--aegis-selected-row-bg);
+    border-left-width: 3px;
+    border-left-color: var(--aegis-selected-row-bar);
+}
+
+.platform-catalog-detail {
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top-width: 1px;
+    border-top-color: var(--aegis-border-section);
+}
+
+.platform-catalog-detail-title {
+    -unity-font-style: bold;
+    color: var(--aegis-text-body);
+    margin-bottom: 2px;
+}
+
+.platform-catalog-detail-line {
+    color: var(--aegis-text-muted);
+    margin-bottom: 1px;
+}
+
+.platform-catalog-comms {
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top-width: 1px;
+    border-top-color: var(--aegis-border-section);
+}
+
+.platform-catalog-comms-list {
+    min-height: 48px;
+}
+
+.platform-catalog-links {
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top-width: 1px;
+    border-top-color: var(--aegis-border-section);
+}
+
+.platform-catalog-links-list {
+    min-height: 48px;
+}

@@ -1,0 +1,8 @@
+# Golden fingerprint — baltic-patrol-destroyed-target-reengage seed=42 ticks=8 (isolated regression for destroyed-target re-engage; per post-release-scope-boundary-2026-06-21.md + future-sprint-roadpmap.md §10 S57)
+# Regenerate: dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-patrol-destroyed-target-reengage --ticks 8
+
+WORLD_HASH=8463660412953226336
+DETECTION_WORLD_HASH=10819
+FINGERPRINT_SHA256=f9a39a92c87451ff6cb97f6576ce0f8313e911489d1ed567dd08737d3d901c73
+
+EngagementOutcome|7|1|1|1|hostile-1|Kill|0.006501966157579321

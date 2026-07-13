@@ -1,0 +1,42 @@
+Test run for /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Sim.Tests/bin/Debug/net8.0/ProjectAegis.Sim.Tests.dll (.NETCoreApp,Version=v8.0)
+Test run for /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Data.Tests/bin/Debug/net8.0/ProjectAegis.Data.Tests.dll (.NETCoreApp,Version=v8.0)
+Test run for /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Data.Excel.Tests/bin/Debug/net8.0/ProjectAegis.Data.Excel.Tests.dll (.NETCoreApp,Version=v8.0)
+Test run for /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Delegation.UnityAdapter.Tests/bin/Debug/net8.0/ProjectAegis.Delegation.UnityAdapter.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+
+VSTest version 17.11.1 (x64)
+
+Test run for /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.Delegation.Tests/bin/Debug/net8.0/ProjectAegis.Delegation.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+
+VSTest version 17.11.1 (x64)
+
+Test run for /home/username01/projects/active/cmano-clone/cmano-clone/src/ProjectAegis.MissionEditor.Cli.Tests/bin/Debug/net8.0/ProjectAegis.MissionEditor.Cli.Tests.dll (.NETCoreApp,Version=v8.0)
+Starting test execution, please wait...
+Starting test execution, please wait...
+VSTest version 17.11.1 (x64)
+A total of 1 test files matched the specified pattern.
+
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+VSTest version 17.11.1 (x64)
+
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:   279, Skipped:     0, Total:   279, Duration: 69 ms - ProjectAegis.Sim.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:    43, Skipped:     0, Total:    43, Duration: 274 ms - ProjectAegis.MissionEditor.Cli.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   246, Skipped:     0, Total:   246, Duration: 363 ms - ProjectAegis.Delegation.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:     5, Skipped:     0, Total:     5, Duration: 54 ms - ProjectAegis.Data.Excel.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   252, Skipped:     0, Total:   252, Duration: 855 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   403, Skipped:     0, Total:   403, Duration: 3 s - ProjectAegis.Data.Tests.dll (net8.0)

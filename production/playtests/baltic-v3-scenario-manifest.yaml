@@ -1,0 +1,69 @@
+# S73-02 Playtest manifest v3 (extends v2 structure; defines v3 slots, difficulty bands per design)
+# Authority: docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md §3; docs/reports/roadmap-execute-plan-062526.01.md (S73-02); docs/reports/future-sprint-roadpmap-062526.01.md §3/§10; production/baltic-v3-scope-boundary-2026-06-25.md (planned @ S73-01, supersedes commercial for S73+; v2 read-reference only)
+# GitNexus pre (search_tool + use_tool): list_repos (cmano-clone canonical: 20193 nodes / 37859 edges / 2487 files @28c582d); detect_changes (unstaged): changed=1 affected=0 risk=low (doc); impact CatalogWriteGate upstream summaryOnly=CRITICAL 178 (extend-only; 93 direct); impact UnifiedReleaseTrainManifest (record/ctor) LOW 0/9 (MED in manifest context). Exact match prior boundaries.
+# verification-before (full gates RUN+READ): build 0e/0w; dotnet test 1232/0f (279 Sim + 43 Cli + 247 Del + 5 Excel + 252 UA + 406 Data); UA Baltic filter 110p; PlayModeSmoke 18/18 (265ms); hash 17144800277401907079 preserved (grep in v2 goldens + manifest); ZERO DelegationBridge hotpath (only Adapter/Bridge); GitNexus pre done. All outputs READ before claim. Low risk. Independent. Cite boundary + execute-plan + design.
+# Baseline: v2 frozen (read only). v3: isolated baltic-v3-* prefix; placeholders for S74+ waves (scenario S74, theater S75, mission S76, catalog S77, C2 S78, loop S79); bands per design/difficulty-curve.md + design §3/§5 (A NPE/easy, B mid, C hard/stress). S80 promotion decision only.
+# Supersedes v2 manifest for S73+ playtest loop references. S66 v2 corpus hash 17144800277401907079 / 10+9 immutable.
+# Cite boundary: production/baltic-v3-scope-boundary-2026-06-25.md + design §3 (sprint map S73 foundations incl. manifest v3) + execute-plan S73-02 + S74-03 (difficulty Band B/C fixtures game-designer Cloud; worktree .worktrees/stack/sprint74/difficulty-fixtures). S74-03: bands B/C extended, fixtures/goldens added.
+
+baseline:
+  - baltic-patrol  # v2 frozen ref (read-only)
+  - baltic-patrol-comms
+
+# v2_slots retained for reference only (S73+ supersede; no mutation)
+v2_slots:
+  - baltic-patrol-destroyed-target-reengage
+  - baltic-patrol-classify
+  - baltic-patrol-mission
+  - baltic-patrol-mission-roe
+  - baltic-patrol-catalog
+  - baltic-patrol-datalink
+  - baltic-patrol-combat-domains
+  - baltic-patrol-spoof
+  - baltic-patrol-readiness
+  - baltic-patrol-intercept
+
+# v3_slots: placeholders for S74+ (wave 2 scenario content per execute S74; populates baltic-v3-*.policy.json + isolated replay-golden-baltic-v3-*.txt)
+v3_slots:
+  - baltic-v3-patrol  # S74-01/02 wave 2 patrol base (patrol variants)
+  - baltic-v3-patrol-comms
+  - baltic-v3-classify  # S74 band A
+  - baltic-v3-mission-band-b  # S74 band B example
+  - baltic-v3-mission-roe-band-c  # S74 band C
+  - baltic-v3-comms-challenged  # S74-01/02 comms-challenged variant (Band C)
+  # S75+ theater OOB extensions (theater-v3-*) will add here post S75
+  # S76 mission/narrative: contact-window + event arcs (S76-01/02 COMPLETE: baltic-v3-mission-event.policy.json + baltic-v3-contact-window-arc.policy.json + baltic-v3-narrative-arc.policy.json + briefing stubs; manifest S76 refs; S76-04 closeout COMPLETE)
+  # S77 catalog/platform slices (extend-only CatalogWriteGate)
+  # S78 C2 picker bands/toolips (additive)
+  # Additional S74-S79 waves populate prior to S79 automated batch + S80 gate
+
+all_scenarios_v3: [baltic-v3-patrol, baltic-v3-patrol-comms, baltic-v3-classify, baltic-v3-mission-band-b, baltic-v3-mission-roe-band-c, baltic-v3-comms-challenged]
+# Note: expands monotonically; S80 may promote subset to unified (ADR required; no v2 hash change)
+
+bands:
+  A: [baltic-v3-patrol, baltic-v3-classify]  # NPE / easy (per design/difficulty-curve.md)
+  B: [baltic-v3-patrol-comms, baltic-v3-mission-band-b]  # mid-game
+  C: [baltic-v3-mission-roe-band-c, baltic-v3-comms-challenged]  # hard / stress / comms
+  # S74+ waves (theater, mission, catalog) will extend bands B/C; placeholders only
+
+# S73 batch config (placeholder; full at S79)
+batch:
+  seeds: [42, 7, 123]
+  ticks: 120
+  mvpEngagement: true
+  v3Enabled: true  # enabled post S74 wave2 content
+
+# S73-02 stub entry (unified v3 at S80 decision only; read UnifiedReleaseTrainManifest until then)
+# Per design §4/§5: UnifiedReleaseTrainManifest MED; extend-only CatalogWriteGate at S77 single-owner
+v3_manifest_stub:
+  releaseVersion: "baltic-v3-corpus-stub"
+  snapshotId: "baltic_v3_s74_20260625"
+  tlTier: "TL0"
+  schemaVersion: "1"
+  domainDropsCount: 5  # S74 wave2 populated (5 policies + 5 goldens; isolated; no v2 mutation)
+  notes: "S74-01/02 COMPLETE (team-simulation, Cloud, per execute-plan §4 + baltic-v3 design). 5x baltic-v3-*.policy.json + 5x isolated replay-golden-baltic-v3-*.txt created in worktree .worktrees/stack/sprint74/scenarios (additive v3 prefix only; no v2 mutate). Policies: patrol, patrol-comms, classify, mission-band-b, mission-roe-band-c (+comms-challenged). Goldens new fingerprints/hashes per v3. Manifest updated with sources, v3Enabled, bands C extended. Cites: production/baltic-v3-scope-boundary-2026-06-25.md + docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md §3/§5/§8 + docs/reports/roadmap-execute-plan-062526.01.md §4 + AGENTS.md + S72/S69 complete + v2 baltic (ref only) + difficulty-curve.md. GitNexus pre FIRST: list_repos canonical (/home/username01/projects/active/cmano-clone/cmano-clone 20354/38059), detect unstaged (wt): 0/none, impact CatalogWriteGate upstream CRIT 178 (extend-only 93 direct), PatrolCandidateEngagePolicy CRIT 97 exact. verification-before (RUN+READ): build 0e/0w, test 1232/0f, replay 6/6, C2 18/18, hash 17144800277401907079 preserved, ZERO=0. Low risk (additive). S74-01/02 COMPLETE."
+  sourcePolicies: ["baltic-v3-patrol", "baltic-v3-patrol-comms", "baltic-v3-classify", "baltic-v3-mission-band-b", "baltic-v3-mission-roe-band-c", "baltic-v3-comms-challenged"]
+  sourceGoldens: ["replay-golden-baltic-v3-patrol-2026-06-25.txt", "replay-golden-baltic-v3-patrol-comms-2026-06-25.txt", "replay-golden-baltic-v3-classify-2026-06-25.txt", "replay-golden-baltic-v3-mission-band-b-2026-06-25.txt", "replay-golden-baltic-v3-mission-roe-band-c-2026-06-25.txt"]
+
+# GitNexus post-edit note: re-detect low (doc-only); impact unchanged (Catalog 178 extend-only; Unified MED/LOW). verification-before re-run before any commit. S73-02 COMPLETE.
+# Full cites: production/baltic-v3-scope-boundary-2026-06-25.md (S73 section) + docs/superpowers/specs/2026-06-25-baltic-v3-content-expansion-design.md §3/§5/§8 + docs/reports/roadmap-execute-plan-062526.01.md S73-02 + future-sprint-roadpmap-062526.01.md §10 + AGENTS.md + sprint-status (s73 section) + v2 manifest (read ref). Low risk. Independent subagent (Cloud, qa-lead). Worktree pattern followed in planning.

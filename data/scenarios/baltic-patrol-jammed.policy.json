@@ -22,7 +22,8 @@
       "sensorId": "radar-1",
       "targetId": "hostile-1",
       "contactId": "c1",
-      "basePd": 1.0
+      "basePd": 1.0,
+      "eccmFactor": 0.75
     }
   ]
 }

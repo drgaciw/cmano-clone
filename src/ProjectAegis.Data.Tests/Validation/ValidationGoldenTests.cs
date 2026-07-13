@@ -113,6 +113,12 @@ public sealed class ValidationGoldenTests
             ],
         };
         Assert.Contains(Engine.Validate(ferry, catalog, Config).Findings, f => f.Code == "FERRY_NO_DESTINATION");
+
+        var missingTl = new ScenarioDocumentDto
+        {
+            Metadata = new ScenarioMetadataDto { DbRef = "baltic_patrol" },
+        };
+        Assert.Contains(Engine.Validate(missingTl, catalog, Config).Findings, f => f.Code == "TL_BRANCH_MISSING");
     }
 
     private static string? ResolveFixture(string fileName)

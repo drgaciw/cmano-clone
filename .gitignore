@@ -45,9 +45,13 @@ docs/manual/assets/images/
 # CMO DB crawler raw data
 tools/cmano-db-crawler/_raw/
 
+# Ephemeral nightly approve/import scratch (regenerable; may exceed GitHub 100MB limit)
+scratch/
+
 # Local editor / tool configs
 .kilo/
 .claude/settings.local.json
+.cursor/hooks/
 
 # obra/superpowers — junctions from tools/install-superpowers.ps1 (see .claude/skills/superpowers/README.md)
 .claude/skills/superpowers/*/
@@ -76,5 +80,18 @@ node_modules/
 .env
 .env.local
 
+# Project-local Hindsight memory server state
+.hindsight-local/
+
+# Agent worktrees (superpowers dispatching)
+.worktrees/
+worktrees/
+
 # Transient skill/agent tooling caches (not source)
 .atl/
+
+# Superpowers brainstorm visual companion sessions
+.superpowers/
+
+# NuGet packages folder when NUGET_PACKAGES=.nuget/packages (Buildkite cache volume)
+.nuget/

@@ -19,4 +19,11 @@ public readonly record struct EngageContext(
     bool AirOperationsReady = true,
     bool IsHypersonicTarget = false,
     bool HasHypersonicDefenseLayer = false,
-    bool TrackSpoofed = false);
+    bool TrackSpoofed = false,
+    bool AirAspectInEnvelope = true,
+    bool SurfaceAspectInEnvelope = true,
+    bool SubsurfaceAspectInEnvelope = true,
+    bool LandAspectInEnvelope = true,
+    bool MineAspectInEnvelope = true,
+    bool FacilityAspectInEnvelope = true,
+    bool CatalogDamageWithdrawBlocked = false);

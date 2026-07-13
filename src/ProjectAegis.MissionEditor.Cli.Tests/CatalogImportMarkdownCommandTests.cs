@@ -72,6 +72,122 @@ public sealed class CatalogImportMarkdownCommandTests
     }
 
     [Fact]
+    public void catalog_import_markdown_weapon_entity_proposes_fifty_weapons()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-s26-weapon-{Guid.NewGuid():N}.db");
+        var markdown = CmoMarkdownImporter.ResolveWeaponSlice50FixturePath();
+
+        try
+        {
+            using var writer = new StringWriter();
+            Assert.Equal(
+                0,
+                CatalogImportMarkdownCommand.Run(
+                    dbPath,
+                    markdown,
+                    maxRecords: null,
+                    chunkSize: 500,
+                    writer,
+                    reportOutPath: null,
+                    entity: CmoMarkdownImportEntity.Weapon));
+
+            using var doc = JsonDocument.Parse(writer.ToString());
+            var root = doc.RootElement;
+            Assert.Equal("weapon", root.GetProperty("entity").GetString());
+            Assert.Equal(50, root.GetProperty("parsedCount").GetInt32());
+            Assert.Equal(1, root.GetProperty("batchCount").GetInt32());
+        }
+        finally
+        {
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Fact]
+    public void catalog_import_markdown_platform_entity_proposes_platform_and_mount_batches()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-s26-platform-{Guid.NewGuid():N}.db");
+        var markdown = CmoMarkdownImporter.ResolveBalticPlatformFixturePath();
+
+        try
+        {
+            using var writer = new StringWriter();
+            Assert.Equal(
+                0,
+                CatalogImportMarkdownCommand.Run(
+                    dbPath,
+                    markdown,
+                    maxRecords: null,
+                    chunkSize: 500,
+                    writer,
+                    reportOutPath: null,
+                    entity: CmoMarkdownImportEntity.Platform,
+                    mapBalticPlatformIds: true));
+
+            using var doc = JsonDocument.Parse(writer.ToString());
+            var root = doc.RootElement;
+            Assert.Equal("platform", root.GetProperty("entity").GetString());
+            Assert.Equal(3, root.GetProperty("parsedCount").GetInt32());
+            Assert.Equal(3, root.GetProperty("batchCount").GetInt32());
+            Assert.Equal(4, root.GetProperty("quarantinedCount").GetInt32());
+        }
+        finally
+        {
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData("aircraft", 100)]
+    [InlineData("submarine", 100)]
+    [InlineData("facility", 100)]
+    public void catalog_import_markdown_entity_slice_proposes_platform_batches(string entity, int expectedCount)
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-s30-{entity}-{Guid.NewGuid():N}.db");
+        var markdown = entity switch
+        {
+            "aircraft" => CmoMarkdownImporter.ResolveAircraftSlice100FixturePath(),
+            "submarine" => CmoMarkdownImporter.ResolveSubmarineSlice100FixturePath(),
+            "facility" => CmoMarkdownImporter.ResolveFacilitySlice100FixturePath(),
+            _ => throw new ArgumentOutOfRangeException(nameof(entity), entity, null),
+        };
+
+        try
+        {
+            using var writer = new StringWriter();
+            Assert.Equal(
+                0,
+                CatalogImportMarkdownCommand.Run(
+                    dbPath,
+                    markdown,
+                    maxRecords: null,
+                    chunkSize: 500,
+                    writer,
+                    reportOutPath: null,
+                    entity: CatalogImportMarkdownCommand.ParseEntity(entity)));
+
+            using var doc = JsonDocument.Parse(writer.ToString());
+            var root = doc.RootElement;
+            Assert.Equal(entity, root.GetProperty("entity").GetString());
+            Assert.Equal(expectedCount, root.GetProperty("parsedCount").GetInt32());
+            Assert.Equal(1, root.GetProperty("batchCount").GetInt32());
+        }
+        finally
+        {
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Fact]
     public void catalog_import_markdown_writes_report_out_file()
     {
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-p2-out-{Guid.NewGuid():N}.db");

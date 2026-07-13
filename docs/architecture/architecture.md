@@ -1,9 +1,9 @@
 # Project Aegis — Master Architecture
 
-> **Status:** Draft (ADRs 001–005 **Accepted** 2026-05-29)  
-> **Last Updated:** 2026-05-29  
+> **Status:** Draft (ADRs 001–011 **Accepted**; post–S72 CONCERNS per architecture-review-2026-06-25-post-s72-v3.md)  
+> **Last Updated:** 2026-06-25  
 > **Engine:** Unity 6.3 LTS (6000.3.14f1) + C# / .NET 8 + DOTS/ECS — [Unity VERSION](../engine-reference/unity/VERSION.md), [.NET / Learn](../engine-reference/dotnet/README.md)  
-> **GitNexus repo:** `cmano-clone` (index current @ `10dae1a`)
+> **GitNexus repo:** `cmano-clone` (index @ `b2c9411`; 20496/38203)
 
 ## Purpose
 
@@ -152,7 +152,7 @@ Full matrix: expand as each GDD is approved (`/create-architecture` continuation
 | [ADR-006](adr-006-data-layer-boundary.md) | ProjectAegis.Data boundary, snapshots, write gate | **Accepted** |
 | [ADR-007](adr-007-c2-map-presentation.md) | C2 map presentation (phased globe) | **Accepted** |
 | [ADR-008](adr-008-mission-editor-validation-engine.md) | Mission editor deterministic validation | **Accepted** |
-| [ADR-009](adr-009-combat-domain-validators.md) | Combat domain validators & damage order | **Proposed** |
+| [ADR-009](adr-009-combat-domain-validators.md) | Combat domain validators & damage order | **Accepted** (S26-09 stubs) |
 | [ADR-010](adr-010-headless-first-command-driven-ui.md) | Headless-first command-driven UI | **Accepted** |
 
 ## Engine Note

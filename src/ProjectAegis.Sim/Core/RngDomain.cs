@@ -7,4 +7,5 @@ public enum RngDomain
     AgentDecision = 2,
     Logistics = 3,
     Combat = 4,
+    MineHazard = 5,
 }

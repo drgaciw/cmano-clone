@@ -26,7 +26,7 @@ public sealed class OrderLogScoredIntentsFingerprintTests
         orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
         orchestrator.Register(unit);
         orchestrator.BeginExecution();
-        orchestrator.Tick(new ObservedState(0, 1, 0, new Dictionary<TargetId, bool>()));
+        orchestrator.Tick(new ObservedState(0, 1, 0, new Dictionary<TargetId, bool>(), false));
 
         var fingerprint = orchestrator.DecisionLog.ComputeFingerprint();
         Assert.That(fingerprint, Does.Contain("Hold:1:Low"));

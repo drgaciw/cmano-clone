@@ -1,0 +1,63 @@
+@import url("../AegisTokens.uss");
+
+.platform-import-panel {
+    flex-grow: 1;
+    min-width: 280px;
+    padding: 6px;
+    background-color: var(--aegis-surface-panel);
+}
+
+.platform-import-title {
+    -unity-font-style: bold;
+    color: var(--aegis-text-heading);
+    margin-bottom: 4px;
+}
+
+.platform-import-workbook-path {
+    margin-bottom: 4px;
+}
+
+.platform-import-actions {
+    flex-direction: row;
+    margin-bottom: 4px;
+}
+
+.platform-import-action-button {
+    margin-right: 4px;
+    min-width: 72px;
+}
+
+.platform-import-approve-button:disabled {
+    opacity: var(--aegis-diff-pending-opacity);
+}
+
+.platform-import-status {
+    color: var(--aegis-text-muted);
+    margin-bottom: 4px;
+    white-space: normal;
+}
+
+.platform-import-status--blocked {
+    color: var(--aegis-diff-blocked);
+    -unity-font-style: bold;
+}
+
+.platform-import-diff-title {
+    -unity-font-style: bold;
+    color: var(--aegis-text-body);
+    margin-bottom: 2px;
+}
+
+.platform-import-diff-list {
+    flex-grow: 1;
+    min-height: 100px;
+    margin-bottom: 4px;
+}
+
+.platform-import-diff-row {
+    color: var(--aegis-text-body);
+}
+
+.platform-import-acknowledge {
+    color: var(--aegis-diff-pending);
+}

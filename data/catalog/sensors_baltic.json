@@ -1,0 +1,18 @@
+{
+  "sensors": [
+    {
+      "platformId": "u1",
+      "sensorId": "radar-1",
+      "basePd": 1.0,
+      "sourceFactId": "catalog-import-baltic",
+      "confidence": 1.0
+    },
+    {
+      "platformId": "u1",
+      "sensorId": "radar-2",
+      "basePd": 0.75,
+      "sourceFactId": "catalog-import-baltic",
+      "confidence": 0.9
+    }
+  ]
+}

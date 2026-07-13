@@ -1,6 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="message-log-root" class="message-log-panel">
         <ui:Label text="MESSAGE LOG" class="message-log-title" />
+        <ui:Label name="message-log-onboarding-hint" text="MISSION: Patrol Baltic — classify hostile ◆ contacts, then Begin Execution." class="message-log-onboarding-hint" />
         <ui:ListView name="message-list" class="message-log-list" selection-type="None" />
     </ui:VisualElement>
 </ui:UXML>

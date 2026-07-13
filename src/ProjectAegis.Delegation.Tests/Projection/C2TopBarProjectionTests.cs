@@ -59,6 +59,25 @@ public sealed class C2TopBarProjectionTests
     }
 
     [Test]
+    public void Project_freezes_score_counters_while_planning()
+    {
+        var log = new DecisionLog();
+        log.AppendEngagementOutcome(new EngagementOutcomeRecord(
+            1, 1, 1, new TargetId("u1"), new TargetId("hostile-1"), 1,
+            EngagementOutcomeCodes.Kill, 0.1));
+
+        var state = C2TopBarProjection.Project(
+            10,
+            SimulationPhase.Planning,
+            "1x",
+            "Mixed",
+            log,
+            baseScore: 50);
+
+        Assert.That(state.ScoreLabel, Is.EqualTo("SCORE: 50  KILLS: 0  MSLS: 0"));
+    }
+
+    [Test]
     public void Project_merges_comms_state_into_top_bar_label()
     {
         var log = new DecisionLog();

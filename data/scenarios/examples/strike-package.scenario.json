@@ -1,0 +1,39 @@
+{
+  "metadata": {
+    "dbRef": "baltic_patrol",
+    "dbSnapshotId": null,
+    "editVersion": 1,
+    "seed": 1337,
+    "policyId": "baltic-patrol-mission",
+    "tlBranch": "TL-0",
+    "unitReadiness": {
+      "strike-flight-1": {
+        "readyForLaunch": true
+      },
+      "strike-flight-2": {
+        "readyForLaunch": true
+      }
+    },
+    "maxTechnologyLevel": 2,
+    "nearFutureUnits": null,
+    "sideRoe": null
+  },
+  "missions": [
+    {
+      "id": "strike-1",
+      "type": "Strike",
+      "assignedUnitIds": [
+        "strike-flight-1",
+        "strike-flight-2"
+      ],
+      "targetIds": [
+        "target-kaliningrad-sam",
+        "target-baltiysk-pier"
+      ],
+      "ferryDestinationBaseId": null,
+      "patrolZone": [],
+      "roeOverride": null,
+      "supportRole": null
+    }
+  ]
+}

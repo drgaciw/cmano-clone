@@ -21,6 +21,55 @@
                               |       |
                            perf-a   devops   analytics
 
+**S36-13 refinement (coordinator / c-sharp-devops-engineer isolated, QA/DevOps/Hygiene):** dispatching-parallel-agents pattern: 
+- One sub-agent per domain/track (Data/Unity/Sim/QA-DevOps-Hygiene).
+- Isolated context ONLY: story list + sprint excerpts + gates; NO cross-track file history or mutable state.
+- Dispatch rule: prereqs (S36-01/02) serial; then parallel waves.
+- Evidence: sprint-36 kickoff dispatch example + stack prefixes (e.g. stack/sprint36/qa-devops-hygiene-closeout).
+- Update: added explicit "no shared mutable" + "one agent per sub-track" to prevent drift in Polish.
+
+**S37-07 refinement (coordinator + c-sharp-devops-engineer + team-qa + team-ui isolated, QA/Process/Hygiene Track):** dispatching-parallel-agents wave tracking + status sync + templates:
+- Wave tracking: Explicit waves (W1 Data Track, W2 UI/C2+Editor Track, W3 Sim/Perf Track, W4 QA/Process/Hygiene Track [S37-07 dispatching, S37-10 playtest, S37-11 tests hygiene], Closeout S37-08 after waves green). See sprint-37 plan §Parallel Execution Waves & Tracks.
+- Status sync: Per-track independent updates to `production/sprint-status.yaml` (status: in_progress/done) + appends to `production/session-state/active.md` (Session Extract — /dev-story). Coordinator aggregates without cross-track mutation. Lean mode primary.
+- Multi-track examples: 4 isolated tracks + closeout. Dispatch rule: prereqs (S37-01 rebaseline + S37-02 QA plan) serial; then ` /story-readiness` + `/dev-story dispatch` per sub-track only. Stack prefix: `stack/sprint37/qa-process-hygiene` for this track. Kickoff artifact validates.
+- Kickoff templates: Canonical sections required in production/agentic/sprint-*-parallel-kickoff-*.md : header (date/trunk/sprint/qa-plan refs), sprint goal, wave plan table, carryovers, risks, hard gates list (replay 6/6, C2 18/18+, Baltic hash immutable, extend-only CatalogWriteGate, ZERO DelegationBridge), dispatch order (bash blocks with comments), post-dispatch notes, lean + polish-boundary enforcement note.
+- Backward compat: S36/S35 patterns remain valid (additive only). Existing kickoffs continue to work; S37-07 docs + examples are refinements only. No change to core "one agent per sub-track + isolated context" rule.
+- Enforced for this track: polish-scope-boundary-2026-06-19.md + lean (production/review-mode.txt) + qa-plan-sprint-37-2026-06-20.md. All stories cite boundaries. No out-of-scope.
+
+**S38-10 refinement (coordinator + team-qa isolated, QA/Process Track for dispatching QA integration):** dispatching QA patterns + team-qa integration + lean validation examples:
+- QA/Process track isolation: Dedicated coordinator + team-qa routing for meta-QA and dispatching stories (e.g. S38-10 itself validates examples in kickoff + coordination-map). One focused sub-agent; no shared state with C2/Art/Hygiene/Perf tracks. Stack prefix example: `stack/sprint38/qa-process`.
+- Dispatching QA specifics: 
+  - /qa-plan sprint always precedes any parallel waves (blocks dispatch).
+  - In QA/Process track: run `/story-readiness` + `/dev-story` for process stories; optionally invoke `/team-qa [sprint]` (lean) inside the dispatched context for QA sign-off integration and dispatching validation.
+  - Wave tracking specific to QA: W6 (S38-10 dispatching QA) parallel to Perf/Playtest after prereqs + core hygiene. Closeout aggregates only after all tracks (incl. QA) report green.
+  - Validation patterns: Kickoff artifact + coordination-map serve as executable example. Check: backward-compat (S36–S37 kickoffs unaffected), no cross-track file writes, smoke/replay/C2-proxy gates still enforced independently per track, /team-qa output isolated to qa/ + session-state/.
+- Status sync for QA: Independent updates via sprint-status.yaml (per-track keys) + active.md appends (e.g. `<!-- QA DISPATCH: ... -->`). Coordinator monitors; no mutation of other tracks' state.
+- Lean mode enforcement: production/review-mode.txt=lean; no PRs; headless proxy primary for evidence; polish-boundary + S37/S38 gates cited in all dispatched work. /team-qa uses lean review mode automatically.
+- Multi-example validation: S38 kickoff contains explicit # QA/Process (dispatching QA) dispatch block + post-dispatch notes. Prior tracks (S37-07, S36-13) remain valid without change.
+- Backward compat: Additive only. Core rule unchanged: one agent/sub-track + isolated context. S38-10 adds QA-specific orchestration detail (team-qa delegation inside dispatched QA process track) and validation checklist for dispatching integration.
+- Enforced for this track: polish-scope-boundary-2026-06-19.md + lean + qa-plan-sprint-38-2026-08-03.md. S38-10 AC: updated examples in kickoff + coordination-map (this doc). No out-of-scope.
+
+**S39-08 refinement (coordinator isolated, Dispatching + Art/UX residual track):** deeper polish dispatch pattern validated against S39 kickoff:
+- Serial prereqs enforced: S39-01 baseline + S39-02 QA plan before C2/Platform/Hygiene/Perf waves (see sprint-39-parallel-kickoff-2026-06-20.md).
+- Stack prefixes: `stack/sprint39/c2-platform-deeper`, `stack/sprint39/hygiene-ci`, `stack/sprint39/perf-replay`, `stack/sprint39/closeout` (Graphite-first per AGENTS.md).
+- Hygiene track dispatch example (S39-04): isolated prompt for c-sharp-devops-engineer with "Hygiene / tests layout + docs refinement — S39-04" + cite sprint-39-*.md + polish-scope-boundary-2026-06-19.md; tasks: append sign-off to directory-structure.md, refine this map for dispatching, minor AGENTS/CLAUDE layout polish; verify hybrid retained + CI would pass; output summary + "S39-04 COMPLETE - isolated track". No src edits.
+- **Deeper integration examples (S39-08 closeout + dispatch):** Closeout track (S39-06) isolated: "Execute S39-06 closeout hygiene per sprint-39 plan + qa-plan-sprint-39-2026-06-20.md + polish-scope-boundary-2026-06-19.md. Isolated. Verify smoke/replay 6/6/proxy 18/18+/GitNexus/boundary; no regression; update sprint-status + active.md; append lean smoke note. Output 'S39-06/08 COMPLETE - isolated closeout track'." Dispatch refinement track validates: post-waves, coordinator only updates kickoff/coord-map examples (e.g. wave table + isolation prompts + verification checklist); no other files mutated. Track status sync: sprint-status.yaml (dispatch_ux: true), active.md append. All tracks report COMPLETE before S39-06 aggregate.
+- One agent per sub-track; isolated context; no shared mutable state across tracks.
+- Closeout aggregates only after must-have tracks green (S39-06 smoke + sprint-status).
+- Backward compat: S37/S38 kickoff patterns remain valid (additive). Enforced: polish-scope-boundary + lean + qa-plan-sprint-39-2026-06-20.md.
+
+**S40–S48 program wave tracking (coordinator additive, 2026-06-20):** 10-sprint Release train S39→S48:
+- **Serial sprints, parallel tracks inside each sprint only.** Never two full sprints concurrently.
+- **Track A (Polish):** S39 COMPLETE (1215 tests, Replay 6/6, C2 18/18) → S40 → S41. Cites `polish-scope-boundary-2026-06-19.md`.
+- **Scope gate:** After S41; template `production/gate-checks/scope-expansion-decision-template-2026-06-20.md`. No S42 agents until signed.
+- **Track B (S42–S48):** **READY TO DISPATCH (docs only)** — blocked at scope gate. Epics B1–B6 per roadmap §9.
+- **Coordinator docs:** `s39-s48-program-execution-guide.md`, `s39-s48-worktree-manifest.md`, `local-cloud-agent-routing.md`, `sprint-42-48-readiness-checklist.md`.
+- **Kickoffs:** `production/agentic/sprint-NN-parallel-kickoff-2026-06-20.md` (N=40..48). Stack prefix `stack/sprintNN/<track-slug>`.
+- **Wave caps:** S40=4 (Catalog single-agent), S41=4, S42=5, S43=5, S44=3 code + replay, S45=4, S46=4, S47=4, S48=1–2 serial.
+- **Local vs cloud:** Editor evidence + closeout = local; code/test/hygiene = cloud-eligible (`local-cloud-agent-routing.md`).
+- **Standing gates:** Baltic hash immutable; Replay 6/6; C2 18/18+; DelegationBridge ZERO (Polish) / ADR (Release); CatalogWriteGate extend-only.
+- **Backward compat:** S36–S39 patterns valid; additive program tracking only.
+
    Additional Leads (Tier 2 - report to technical-director or game-designer):
      military-simulation-architect  -- Military simulation architecture, tactical systems, combat mechanics
      requirements-analyst          -- Requirements feasibility, technical constraints, implementation complexity
@@ -290,6 +339,17 @@ When the art bible or asset standards change, the art-director must notify:
 - technical-artist (pipeline changes)
 - All content creators working with affected assets
 - devops-engineer (if build pipeline is affected)
+
+**S39–S48 program wave tracking (10-sprint agent program — additive, backward compat):**
+
+- **Program shape:** Serial sprints S39→S48; parallelism **inside** each sprint only (4–6 tracks). Track A (S39–S41) in-boundary Polish; scope-expansion gate after S41; Track B (S42–S48) Release Enablement — **planning artifacts exist; dispatch blocked until gate**.
+- **Wave tracking:** Each sprint uses canonical kickoff sections (header, goal, wave plan table, track ownership + stack prefixes `stack/sprintNN/<slug>`, file ownership matrix, local vs cloud column, hard gates, dispatch order). See `production/agentic/sprint-39-parallel-kickoff-2026-06-20.md` through `sprint-48-*` and `production/agentic/local-cloud-agent-routing.md`.
+- **Worktrees:** One worktree per track under `/home/username01/cmano-clone/.worktrees/` — manifest at `production/agentic/s39-s48-worktree-manifest.md`. Bootstrap via `git worktree add`; cloud agents use same branch, fresh VM checkout.
+- **Local vs cloud:** Editor PNG evidence + coordinator merge = **local only**; code/test/hygiene/docs/perf/replay = cloud-eligible. Catalog cluster (S40–S42): **single agent per symbol cluster**, local lead preferred.
+- **Status sync:** Per-track independent `production/sprint-status.yaml` keys + `production/session-state/active.md` appends; coordinator merges at closeout only.
+- **Scope gate:** S41 produces scope packet; human fills `production/gate-checks/scope-expansion-decision-template-2026-06-20.md` → signed record before S42 bootstrap.
+- **Roadmap decomposition:** `docs/reports/future-sprint-roadpmap.md` §9 maps B1–B6 epics to S42–S48 sprint numbers.
+- **Backward compat:** S36–S39 patterns unchanged; this block extends coordination for the full release train only.
 
 ## Anti-Patterns to Avoid
 
