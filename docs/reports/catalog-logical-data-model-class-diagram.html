@@ -4,14 +4,35 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Project Aegis — Catalog Logical Data Model (Class Diagram)</title>
-  <script type="module">
-    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-    mermaid.initialize({
-      startOnLoad: true,
-      theme: "dark",
-      securityLevel: "loose",
-      class: { hideEmptyMembersBox: false },
-      flowchart: { htmlLabels: true, curve: "basis" },
+  <!--
+    Load Mermaid via classic script (not ES modules). ES module imports from
+    file:// pages hit unique-origin / CORS blocks in Chrome.
+    Prefer viewing via HTTP: python3 -m http.server -d docs/reports 8765
+    then open http://127.0.0.1:8765/catalog-logical-data-model-class-diagram.html
+  -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (typeof mermaid === "undefined") {
+        document.querySelectorAll(".mermaid").forEach(function (el) {
+          el.insertAdjacentHTML(
+            "beforebegin",
+            '<p class="note" role="alert"><strong>Mermaid failed to load.</strong> ' +
+              "Open this page over HTTP (not file://), e.g. " +
+              "<code>python3 -m http.server -d docs/reports 8765</code> then " +
+              "<code>http://127.0.0.1:8765/catalog-logical-data-model-class-diagram.html</code>.</p>"
+          );
+        });
+        return;
+      }
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+        securityLevel: "loose",
+      });
+      mermaid.run({ querySelector: ".mermaid" }).catch(function (err) {
+        console.error("Mermaid render error:", err);
+      });
     });
   </script>
   <style>
@@ -233,205 +254,146 @@
       <div class="body">
         <div class="mermaid">
 classDiagram
-  direction TB
-
   class CatalogSnapshot {
-    <<governance>>
-    +string snapshot_id PK
-    +string content_hash_sha256
-    +string branch "TL-0..TL-5 metadata"
+    +snapshot_id
+    +content_hash_sha256
+    +branch
   }
-  note for CatalogSnapshot "Immutable content snapshot.\nBranch is export TL tier (default TL-0)."
-
   class DbRelease {
-    <<governance>>
-    +string release_version PK
-    +string snapshot_id FK
-    +string schema_version
-    +long created_utc_ticks
-    +string notes
+    +release_version
+    +snapshot_id
+    +schema_version
+    +created_utc_ticks
+    +notes
   }
-  note for DbRelease "Release train label pointing at a snapshot.\nData releases independent of engine builds."
-
   class Platform {
-    <<core>>
-    +string platform_id PK
-    +string snapshot_id PK,FK
-    +double lat_deg
-    +double lon_deg
-    +double combat_radius_nm
-    +string display_name
-    +string domain "surface|air|subsurface|land"
-    +string platform_class
-    +string nationality
-    +int game_technology_level
+    +platform_id
+    +snapshot_id
+    +lat_deg
+    +lon_deg
+    +combat_radius_nm
+    +display_name
+    +domain
+    +platform_class
+    +nationality
+    +game_technology_level
   }
-  note for Platform "Combat unit or facility identity + placement.\nPrimary actor in detect→engage graphs."
-
   class Sensor {
-    <<engage / detect>>
-    +string platform_id PK
-    +string sensor_id PK
-    +double base_pd "0..1 detection scale"
-    +string source_fact_id
-    +double confidence
-    +string import_batch_id
-    +string source_file
-    +string review_state
-    +int trl_level "1..9"
-    +string value_tier
-    +string reviewer_id
-    +long revised_utc_ticks
-    +string citation_ref
+    +platform_id
+    +sensor_id
+    +base_pd
+    +source_fact_id
+    +confidence
+    +import_batch_id
+    +source_file
+    +review_state
+    +trl_level
+    +value_tier
+    +reviewer_id
+    +revised_utc_ticks
+    +citation_ref
   }
-  note for Sensor "P0 sensor binding with full provenance.\nbase_pd drives detect probability heuristics."
-
   class SensorQuarantine {
-    <<quarantine>>
-    +string platform_id PK
-    +string sensor_id PK
-    +double base_pd
-    +string rejection_reason
-    +string review_state
-    +int trl_level
+    +platform_id
+    +sensor_id
+    +base_pd
+    +rejection_reason
+    +review_state
+    +trl_level
   }
-  note for SensorQuarantine "Rejected/provisional sensors.\nNot exported to sim until promoted."
-
   class WeaponCatalog {
-    <<engage / reference>>
-    +string weapon_id PK
-    +string display_name
-    +double min_range_meters
-    +double max_range_meters
-    +string weapon_type
-    +string guidance
+    +weapon_id
+    +display_name
+    +min_range_meters
+    +max_range_meters
+    +weapon_type
+    +guidance
   }
-  note for WeaponCatalog "Shared weapon type catalog.\nEnvelope used by TryGetWeaponEnvelope."
-
   class LinkCatalog {
-    <<engage / C2>>
-    +string link_id PK
-    +string display_name
-    +string link_type "tactical|strategic|satcom|voice"
-    +int latency_ms_nominal
+    +link_id
+    +display_name
+    +link_type
+    +latency_ms_nominal
   }
-  note for LinkCatalog "Tactical data-link / comms medium definition."
-
   class PlatformMount {
-    <<engage>>
-    +string platform_id PK
-    +string mount_id PK
-    +string mount_type "vls|rail|gun|tube|pylon"
-    +double arc_deg
-    +int capacity
-    +string review_state
+    +platform_id
+    +mount_id
+    +mount_type
+    +arc_deg
+    +capacity
+    +review_state
   }
-  note for PlatformMount "Physical weapon host on a platform."
-
   class PlatformLoadout {
-    <<engage>>
-    +string platform_id PK
-    +string loadout_id PK
-    +string loadout_name
-    +string role "asuw|asw|aaw|strike|recon"
-    +int is_default
+    +platform_id
+    +loadout_id
+    +loadout_name
+    +role
+    +is_default
   }
-  note for PlatformLoadout "Named loadout configuration for a platform."
-
   class PlatformMagazine {
-    <<engage>>
-    +string platform_id PK
-    +string loadout_id PK
-    +string mount_id PK
-    +string weapon_id PK
-    +int quantity
-    +int reload_time_sec
-    +int depth
+    +platform_id
+    +loadout_id
+    +mount_id
+    +weapon_id
+    +quantity
+    +reload_time_sec
+    +depth
   }
-  note for PlatformMagazine "Kill-chain edge: platform→mount→weapon qty.\nFeeds dependency graph & engage readiness."
-
   class PlatformComms {
-    <<engage / C2>>
-    +string platform_id PK
-    +string link_id PK
-    +string role "tx|rx|txrx|relay"
-    +int satcom_capable
-    +string review_state
-    +int trl_level
-    +string value_tier
-    +string citation_ref
+    +platform_id
+    +link_id
+    +role
+    +satcom_capable
+    +review_state
+    +trl_level
+    +value_tier
+    +citation_ref
   }
-  note for PlatformComms "Platform fitting onto a link medium."
-
   class PlatformMobility {
-    <<phase-b>>
-    +string platform_id PK
-    +double max_speed_knots
-    +double cruise_speed_knots
-    +double max_altitude_ft
-    +double max_depth_m
-    +double fuel_capacity
-    +double range_nm
-    +double endurance_hr
-    +string review_state
-    +int trl_level
-    +string value_tier
-    +string citation_ref
+    +platform_id
+    +max_speed_knots
+    +cruise_speed_knots
+    +max_altitude_ft
+    +max_depth_m
+    +fuel_capacity
+    +range_nm
+    +endurance_hr
   }
-  note for PlatformMobility "Kinematic envelope for transit & reach checks."
-
   class PlatformSignature {
-    <<phase-b>>
-    +string platform_id PK
-    +double rcs_band_dbsm
-    +double ir_signature
-    +double acoustic_signature_db
-    +double magnetic_signature
-    +string review_state
-    +int trl_level
-    +string value_tier
-    +string citation_ref
+    +platform_id
+    +rcs_band_dbsm
+    +ir_signature
+    +acoustic_signature_db
+    +magnetic_signature
   }
-  note for PlatformSignature "Detectability multi-band signature profile."
-
   class PlatformEmcon {
-    <<phase-b>>
-    +string platform_id PK
-    +string condition PK "silent|restricted|free"
-    +string emitter_id PK
-    +string posture "off|standby|active"
-    +string review_state
+    +platform_id
+    +condition
+    +emitter_id
+    +posture
+    +review_state
   }
-  note for PlatformEmcon "Emission control posture per emitter."
-
   class PlatformDamage {
-    <<phase-b>>
-    +string platform_id PK
-    +double max_hp
-    +double withdraw_threshold_pct
-    +int critical_flags
-    +string review_state
-    +int trl_level
-    +string value_tier
-    +string citation_ref
+    +platform_id
+    +max_hp
+    +withdraw_threshold_pct
+    +critical_flags
   }
-  note for PlatformDamage "Survivability / withdraw thresholds."
-
-  CatalogSnapshot "1" --> "*" Platform : hosts platforms
-  CatalogSnapshot "1" --> "*" DbRelease : released_as
-  Platform "1" --> "*" Sensor : mounts sensors
-  Platform "1" --> "*" PlatformMount : has mounts
-  Platform "1" --> "*" PlatformLoadout : has loadouts
-  Platform "1" --> "0..1" PlatformMobility : profile
-  Platform "1" --> "0..1" PlatformSignature : profile
-  Platform "1" --> "*" PlatformEmcon : EMCON rows
-  Platform "1" --> "0..1" PlatformDamage : damage model
-  Platform "1" --> "*" PlatformComms : link fittings
-  PlatformLoadout "1" --> "*" PlatformMagazine : magazines
-  PlatformMount "1" --> "*" PlatformMagazine : hosted on
-  WeaponCatalog "1" --> "*" PlatformMagazine : weapon type
-  LinkCatalog "1" --> "*" PlatformComms : medium
-  Sensor ..> SensorQuarantine : promote / reject
+  CatalogSnapshot --> Platform : hosts
+  CatalogSnapshot --> DbRelease : releasedAs
+  Platform --> Sensor : sensors
+  Platform --> PlatformMount : mounts
+  Platform --> PlatformLoadout : loadouts
+  Platform --> PlatformMobility : mobility
+  Platform --> PlatformSignature : signature
+  Platform --> PlatformEmcon : emcon
+  Platform --> PlatformDamage : damage
+  Platform --> PlatformComms : comms
+  PlatformLoadout --> PlatformMagazine : magazines
+  PlatformMount --> PlatformMagazine : hostsWeapon
+  WeaponCatalog --> PlatformMagazine : weaponType
+  LinkCatalog --> PlatformComms : medium
+  Sensor ..> SensorQuarantine : promoteOrReject
         </div>
         <p class="note">
           <strong>Logical FKs:</strong> Magazine rows join platform + loadout + mount + weapon.
@@ -447,139 +409,107 @@ classDiagram
       <div class="body">
         <div class="mermaid">
 classDiagram
-  direction LR
-
   class CatalogStagingBatch {
-    <<write-gate>>
-    +string batch_id PK
-    +string actor_type
-    +string actor_id
-    +long proposed_utc_ticks
-    +string approval_state "proposed|approved|discarded"
-    +int record_count
-    +string rationale
+    +batch_id
+    +actor_type
+    +actor_id
+    +proposed_utc_ticks
+    +approval_state
+    +record_count
+    +rationale
   }
-  note for CatalogStagingBatch "Human-in-the-loop gate.\nAgents propose; humans approve/reject."
-
   class CatalogChangeLog {
-    <<audit>>
-    +int change_id PK
-    +string batch_id
-    +string table_name
-    +string entity_key
-    +string field_name
-    +string previous_value
-    +string new_value
-    +string actor_type
-    +string actor_id
-    +string rationale
-    +string approval_state
-    +long revised_utc_ticks
-    +string release_version
+    +change_id
+    +batch_id
+    +table_name
+    +entity_key
+    +field_name
+    +previous_value
+    +new_value
+    +actor_type
+    +actor_id
+    +rationale
+    +approval_state
+    +revised_utc_ticks
+    +release_version
   }
-  note for CatalogChangeLog "Append-only field-level audit of approvals."
-
   class CatalogStagingSensor {
-    <<staging>>
-    +string batch_id PK,FK
-    +string platform_id PK
-    +string sensor_id PK
-    +double base_pd
-    +... provenance columns
+    +batch_id
+    +platform_id
+    +sensor_id
+    +base_pd
   }
-
   class CatalogStagingPlatform {
-    <<staging>>
-    +string batch_id PK,FK
-    +string platform_id PK
-    +... platform fields
+    +batch_id
+    +platform_id
   }
-
   class CatalogStagingWeapon {
-    <<staging>>
-    +string batch_id PK,FK
-    +string weapon_id PK
-    +... weapon fields
+    +batch_id
+    +weapon_id
   }
-
   class CatalogStagingMount {
-    <<staging>>
-    +string batch_id PK,FK
-    +string platform_id PK
-    +string mount_id PK
+    +batch_id
+    +platform_id
+    +mount_id
   }
-
   class CatalogStagingLoadout {
-    <<staging>>
-    +string batch_id PK,FK
-    +string platform_id PK
-    +string loadout_id PK
+    +batch_id
+    +platform_id
+    +loadout_id
   }
-
   class CatalogStagingMagazine {
-    <<staging>>
-    +string batch_id PK,FK
-    +string platform_id PK
-    +string loadout_id PK
-    +string mount_id PK
-    +string weapon_id PK
+    +batch_id
+    +platform_id
+    +loadout_id
+    +mount_id
+    +weapon_id
   }
-
   class CatalogStagingComms {
-    <<staging>>
-    +string batch_id PK,FK
-    +string platform_id PK
-    +string link_id PK
+    +batch_id
+    +platform_id
+    +link_id
   }
-
   class CatalogStagingLink {
-    <<staging>>
-    +string batch_id PK,FK
-    +string link_id PK
+    +batch_id
+    +link_id
   }
-
   class CatalogStagingMobility {
-    <<staging>>
-    +string batch_id PK,FK
-    +string platform_id PK
+    +batch_id
+    +platform_id
   }
-
   class CatalogStagingSignature {
-    <<staging>>
-    +string batch_id PK,FK
-    +string platform_id PK
+    +batch_id
+    +platform_id
   }
-
   class CatalogStagingEmcon {
-    <<staging>>
-    +string batch_id PK,FK
-    +string platform_id PK
-    +string condition PK
-    +string emitter_id PK
+    +batch_id
+    +platform_id
+    +condition
+    +emitter_id
   }
-
   class CatalogStagingDamage {
-    <<staging>>
-    +string batch_id PK,FK
-    +string platform_id PK
+    +batch_id
+    +platform_id
   }
-
-  CatalogStagingBatch "1" --> "*" CatalogStagingSensor
-  CatalogStagingBatch "1" --> "*" CatalogStagingPlatform
-  CatalogStagingBatch "1" --> "*" CatalogStagingWeapon
-  CatalogStagingBatch "1" --> "*" CatalogStagingMount
-  CatalogStagingBatch "1" --> "*" CatalogStagingLoadout
-  CatalogStagingBatch "1" --> "*" CatalogStagingMagazine
-  CatalogStagingBatch "1" --> "*" CatalogStagingComms
-  CatalogStagingBatch "1" --> "*" CatalogStagingLink
-  CatalogStagingBatch "1" --> "*" CatalogStagingMobility
-  CatalogStagingBatch "1" --> "*" CatalogStagingSignature
-  CatalogStagingBatch "1" --> "*" CatalogStagingEmcon
-  CatalogStagingBatch "1" --> "*" CatalogStagingDamage
-  CatalogStagingBatch ..> CatalogChangeLog : on approve, append audit rows
-  CatalogStagingSensor ..> Sensor : merge on approve
-  CatalogStagingWeapon ..> WeaponCatalog : merge on approve
-  CatalogStagingPlatform ..> Platform : merge on approve
+  class Sensor
+  class Platform
+  class WeaponCatalog
+  CatalogStagingBatch --> CatalogStagingSensor
+  CatalogStagingBatch --> CatalogStagingPlatform
+  CatalogStagingBatch --> CatalogStagingWeapon
+  CatalogStagingBatch --> CatalogStagingMount
+  CatalogStagingBatch --> CatalogStagingLoadout
+  CatalogStagingBatch --> CatalogStagingMagazine
+  CatalogStagingBatch --> CatalogStagingComms
+  CatalogStagingBatch --> CatalogStagingLink
+  CatalogStagingBatch --> CatalogStagingMobility
+  CatalogStagingBatch --> CatalogStagingSignature
+  CatalogStagingBatch --> CatalogStagingEmcon
+  CatalogStagingBatch --> CatalogStagingDamage
+  CatalogStagingBatch ..> CatalogChangeLog : appendAudit
+  CatalogStagingSensor ..> Sensor : mergeOnApprove
+  CatalogStagingWeapon ..> WeaponCatalog : mergeOnApprove
+  CatalogStagingPlatform ..> Platform : mergeOnApprove
         </div>
         <p class="note">
           Staging tables mirror live entity shapes (subset of columns).
@@ -789,25 +719,27 @@ classDiagram
         <div class="mermaid">
 classDiagram
   class ProvenanceMixin {
-    <<stereotype / logical>>
-    +string source_fact_id
-    +double confidence
-    +string import_batch_id
-    +string source_file
-    +string review_state "approved|provisional|rejected"
-    +int trl_level "1..9"
-    +string value_tier "source_fact|interpreted_value|gameplay_abstraction"
-    +string reviewer_id
-    +long revised_utc_ticks
-    +string citation_ref
+    +source_fact_id
+    +confidence
+    +import_batch_id
+    +source_file
+    +review_state
+    +trl_level
+    +value_tier
+    +reviewer_id
+    +revised_utc_ticks
+    +citation_ref
   }
-  note for ProvenanceMixin "Fully realized on Sensor (+ staging sensor).\nPartial (review / TRL / tier / citation) on\ncomms, mobility, signature, damage.\nMissing on weapon_catalog, mount, loadout, magazine (post-P0 gap)."
-
-  Sensor --|> ProvenanceMixin : implements
-  PlatformComms ..|> ProvenanceMixin : partial
-  PlatformMobility ..|> ProvenanceMixin : partial
-  PlatformSignature ..|> ProvenanceMixin : partial
-  PlatformDamage ..|> ProvenanceMixin : partial
+  class Sensor
+  class PlatformComms
+  class PlatformMobility
+  class PlatformSignature
+  class PlatformDamage
+  ProvenanceMixin <|-- Sensor : implements
+  ProvenanceMixin <|.. PlatformComms : partial
+  ProvenanceMixin <|.. PlatformMobility : partial
+  ProvenanceMixin <|.. PlatformSignature : partial
+  ProvenanceMixin <|.. PlatformDamage : partial
         </div>
         <p class="note">
           Value tiers follow clean-room / Req&nbsp;06: <em>source_fact</em> (observed),
@@ -820,7 +752,10 @@ classDiagram
 
   <footer>
     Project Aegis · Catalog logical data model · SQLite migrations 001–011 ·
-    Open this file in a browser (requires network for Mermaid CDN). Offline: diagrams still document structure via entity tables above.
+    View via <code>http://</code> (not <code>file://</code>) so Mermaid can load.
+    Example: <code>python3 -m http.server -d docs/reports 8765</code> →
+    <a href="http://127.0.0.1:8765/catalog-logical-data-model-class-diagram.html">localhost:8765</a>.
+    Entity tables above remain readable offline without Mermaid.
   </footer>
 </body>
 </html>
