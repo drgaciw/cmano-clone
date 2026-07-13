@@ -32,6 +32,23 @@ dotnet run --project src/ProjectAegis.Delegation.Demo
 .\tools\verify-ci-local.ps1
 ```
 
+### VS Code on Linux — file watcher (ENOSPC)
+
+Opening this workspace in VS Code on Linux can trigger **"Visual Studio Code is unable to watch for file changes in this large workspace" (error ENOSPC)** because the kernel's `inotify` watch budget is exhausted by `obj/`, `.git/objects/`, Unity caches, and other generated trees.
+
+Two fixes are applied; both are needed for a comfortable experience:
+
+1. **Workspace `files.watcherExclude`** — `.vscode/settings.json` already excludes `bin/`, `obj/`, `node_modules/`, `.git/objects/`, Unity `Library/`/`Temp/`/`Logs/`, `mono_crash.mem.*.blob`, `.worktrees/`, and other generated/local paths. No action required; this file is committed.
+2. **Kernel `fs.inotify.max_user_watches`** — raise the limit on the host (one-time, system-wide):
+
+   ```bash
+   echo 'fs.inotify.max_user_watches=524288' | sudo tee /etc/sysctl.d/99-vscode-inotify.conf
+   sudo sysctl --system
+   cat /proc/sys/fs/inotify/max_user_watches   # should print 524288
+   ```
+
+   Each watch consumes ~1,080 bytes; 524,288 watches is ~540 MiB upper bound. In memory-constrained environments pick a smaller value and rely on `files.watcherExclude` instead. See the [official VS Code Linux setup guide](https://code.visualstudio.com/docs/setup/linux#_visual-studio-code-is-unable-to-watch-for-file-changes-in-this-large-workspace-error-enospc) for details.
+
 **CI / branch protection:** [docs/engineering/ci-and-branch-protection.md](docs/engineering/ci-and-branch-protection.md) — Buildkite blocking gate (`buildkite/cmano-clone`), Graphite optimizer, post-merge replay golden on `main`, GitHub Actions for CodeQL/GitNexus/Unity. Setup: [buildkite-ci.md](docs/engineering/buildkite-ci.md). Manual branch protection: [issue #37](https://github.com/drgaciw/cmano-clone/issues/37).
 
 **Cursor Cloud agents:** see the [Cursor Cloud specific instructions](AGENTS.md#cursor-cloud-specific-instructions) section in `AGENTS.md` (headless build/test, Play Mode smoke harness, `.cursor/cloud-install.sh` bootstrap via `.cursor/environment.json`).
