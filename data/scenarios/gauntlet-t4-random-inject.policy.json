@@ -44,8 +44,8 @@
     }
   ],
   "gauntlet": {
-    "intent": "Seeded random inject stand-in (jam variance) [catalog red: Sovremenny]",
-    "oracle": "Inject trials complete without exception",
+    "intent": "Seeded random inject stand-in (jam variance) [catalog red: Sovremenny] [real mid-run comms Degraded@2 + contact ROE trigger]",
+    "oracle": "Inject trials complete without exception CommsStateChange/PolicyUpdate required.",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
@@ -74,10 +74,16 @@
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minScore": -30.0,
-      "maxScore": 230.0,
-      "maxMissilesFired": 11,
-      "maxDenials": 6
+      "minKills": 0,
+      "maxMissilesFired": 14,
+      "maxDenials": 2,
+      "minScore": -50,
+      "maxScore": 250,
+      "requireFingerprintSubstrings": [
+        "CommsStateChange",
+        "Degraded",
+        "seeded_inject_jamming"
+      ]
     },
     "units": [
       {
@@ -112,5 +118,59 @@
       }
     ]
   },
-  "id": "gauntlet-t4-random-inject"
+  "id": "gauntlet-t4-random-inject",
+  "commsDisplay": {
+    "degradedLagTicks": 2,
+    "ghostOffsetX": 0.06,
+    "ghostOffsetY": 0.04,
+    "degradedOrderDelayTicks": 2,
+    "degradedStaleThresholdDivisor": 2
+  },
+  "comms": [
+    {
+      "atTick": 2,
+      "newState": "Degraded",
+      "nodeId": "ladder-t4-net",
+      "reason": "seeded_inject_jamming"
+    },
+    {
+      "atTick": 5,
+      "newState": "Nominal",
+      "nodeId": "ladder-t4-net",
+      "reason": "inject_recover"
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "inject-marker"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "inject-marker",
+        "fireAtTick": 2,
+        "kind": "EventFired",
+        "code": "ladder_seeded_inject"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "ladder-contact-roe",
+        "observerId": "k-31-visby-2009",
+        "targetClass": "Surface",
+        "side": "friendly",
+        "missionCode": "ASuW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "k-31-visby-2009"
+        ]
+      }
+    ]
+  }
 }

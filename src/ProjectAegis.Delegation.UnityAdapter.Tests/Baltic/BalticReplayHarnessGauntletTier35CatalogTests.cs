@@ -195,5 +195,7 @@ public sealed class BalticReplayHarnessGauntletTier35CatalogTests
         id is "k-31-visby-2009" or "k-22-gavle-ex-goteborg-class" or "jas-39c-gripen-2005" or "a-19-gotland-2022";
 
     private static bool IsCatalogRed(string id) =>
-        id is "em-sovremenny-i-pr-956-sarych" or "mpk-steregushchiy-pr-20380-2018";
+        id is "em-sovremenny-i-pr-956-sarych"
+            or "mpk-steregushchiy-pr-20380-2018"
+            or "mrk-buyan-pr-21630-buyan-2007";
 }

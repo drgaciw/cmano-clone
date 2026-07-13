@@ -19,7 +19,7 @@
       "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
       "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-visby",
+      "contactId": "c-surface",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -28,7 +28,7 @@
       "observerId": "jas-39c-gripen-2005",
       "sensorId": "radar-1",
       "targetId": "mpk-steregushchiy-pr-20380-2018",
-      "contactId": "c-gripen",
+      "contactId": "c-air",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -36,8 +36,8 @@
     {
       "observerId": "a-19-gotland-2022",
       "sensorId": "sonar-1",
-      "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-gotland",
+      "targetId": "mrk-buyan-pr-21630-buyan-2007",
+      "contactId": "c-sub",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0,
@@ -45,20 +45,29 @@
     }
   ],
   "gauntlet": {
-    "intent": "Joint ORBAT: catalog surface/air/sub as detection observers + surface as engage shooter with catalog magazines. Air/sub are detection-role in this smoke (ASW sensor net); surface Visby is primary shooter. [catalog red: Sovremenny]",
-    "oracle": "ContactChange for each catalog platform; MAGAZINE_SEED with range>0; Engagement from k-31-visby-2009",
+    "intent": "Multi-domain engage default: Visby\u2192Sovremenny, Gripen\u2192Steregushchiy, Gotland\u2192Buyan (distinct reds; concurrent True|Launched)",
+    "oracle": "Air and sub catalog blues True|Launched at paired catalog reds; CATALOG_UNIT+MAGAZINE_SEED all domains",
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minScore": -1000,
-      "maxScore": 1000
+      "minKills": 1,
+      "maxMissilesFired": 11,
+      "maxDenials": 12,
+      "minScore": 0,
+      "maxScore": 300,
+      "minDenials": 8,
+      "requireTrueLaunchedShooters": [
+        "jas-39c-gripen-2005",
+        "a-19-gotland-2022"
+      ]
     },
     "catalogRefs": [
       "a-19-gotland-2022",
       "em-sovremenny-i-pr-956-sarych",
       "jas-39c-gripen-2005",
       "k-31-visby-2009",
-      "mpk-steregushchiy-pr-20380-2018"
+      "mpk-steregushchiy-pr-20380-2018",
+      "mrk-buyan-pr-21630-buyan-2007"
     ],
     "units": [
       {
@@ -88,6 +97,12 @@
       {
         "unitId": "mpk-steregushchiy-pr-20380-2018",
         "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-buyan-pr-21630-buyan-2007",
+        "platformId": "mrk-buyan-pr-21630-buyan-2007",
         "domain": "surface",
         "side": "red"
       }

@@ -89,9 +89,77 @@ public static class GauntletOracleEvaluator
             {
                 failures.Add($"{prefix}: score {row.Score} > max {maxScore}");
             }
+
+            if (expect.RequireFingerprintSubstrings is { Count: > 0 })
+            {
+                var fp = row.Fingerprint ?? "";
+                foreach (var token in expect.RequireFingerprintSubstrings)
+                {
+                    if (string.IsNullOrEmpty(token))
+                    {
+                        continue;
+                    }
+
+                    if (fp.IndexOf(token, StringComparison.Ordinal) < 0)
+                    {
+                        failures.Add(
+                            $"{prefix}: fingerprint missing required substring '{token}'");
+                    }
+                }
+            }
+
+            if (expect.RequireTrueLaunchedShooters is { Count: > 0 })
+            {
+                var launched = CollectTrueLaunchedShooters(row.Fingerprint);
+                foreach (var shooter in expect.RequireTrueLaunchedShooters)
+                {
+                    if (string.IsNullOrEmpty(shooter))
+                    {
+                        continue;
+                    }
+
+                    if (!launched.Contains(shooter))
+                    {
+                        failures.Add(
+                            $"{prefix}: fingerprint missing True|Launched for shooter '{shooter}'");
+                    }
+                }
+            }
         }
 
         return new GauntletOracleEvaluationResult(failures.Count == 0, failures);
+    }
+
+    /// <summary>
+    /// Tokens shaped <c>Engagement|…|shooterId|…|True|Launched</c> (space-separated fingerprint).
+    /// </summary>
+    internal static HashSet<string> CollectTrueLaunchedShooters(string? fingerprint)
+    {
+        var set = new HashSet<string>(StringComparer.Ordinal);
+        if (string.IsNullOrWhiteSpace(fingerprint))
+        {
+            return set;
+        }
+
+        foreach (var raw in fingerprint.Split(
+                     [' ', '\n', '\r', '\t'],
+                     StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (!raw.StartsWith("Engagement|", StringComparison.Ordinal)
+                || !raw.Contains("|True|Launched", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var parts = raw.Split('|');
+            // Engagement|seq|t0|t1|shooter|engId|True|Launched
+            if (parts.Length >= 6 && !string.IsNullOrEmpty(parts[4]))
+            {
+                set.Add(parts[4]);
+            }
+        }
+
+        return set;
     }
 
     public static bool TryParseExpect(
@@ -134,7 +202,9 @@ public static class GauntletOracleEvaluator
                 MinScore: ReadDouble(exp, "minScore"),
                 MaxScore: ReadDouble(exp, "maxScore"),
                 RequireNonEmptyFingerprint: !exp.TryGetProperty("requireNonEmptyFingerprint", out var fp)
-                    || fp.ValueKind != JsonValueKind.False);
+                    || fp.ValueKind != JsonValueKind.False,
+                RequireFingerprintSubstrings: ReadStringArray(exp, "requireFingerprintSubstrings"),
+                RequireTrueLaunchedShooters: ReadStringArray(exp, "requireTrueLaunchedShooters"));
 
             failures = fails;
             return true;
@@ -222,6 +292,29 @@ public static class GauntletOracleEvaluator
         }
 
         return null;
+    }
+
+    private static IReadOnlyList<string>? ReadStringArray(JsonElement exp, string name)
+    {
+        if (!exp.TryGetProperty(name, out var el) || el.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        var list = new List<string>();
+        foreach (var item in el.EnumerateArray())
+        {
+            if (item.ValueKind == JsonValueKind.String)
+            {
+                var s = item.GetString();
+                if (!string.IsNullOrEmpty(s))
+                {
+                    list.Add(s);
+                }
+            }
+        }
+
+        return list.Count == 0 ? null : list;
     }
 
     private static double? ReadDouble(JsonElement exp, string name)

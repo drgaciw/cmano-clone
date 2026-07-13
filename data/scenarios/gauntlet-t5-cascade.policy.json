@@ -44,8 +44,8 @@
     }
   ],
   "gauntlet": {
-    "intent": "Cascading adversarial injects (comms/sensor degrade stand-in via jam) [catalog red: Sovremenny]",
-    "oracle": "High jam multi-contact stable",
+    "intent": "Cascading adversarial injects (comms/sensor degrade stand-in via jam) [catalog red: Sovremenny] [real cascading comms Degraded\u2192Denied\u2192Degraded]",
+    "oracle": "High jam multi-contact stable CommsStateChange/PolicyUpdate required.",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
@@ -77,10 +77,17 @@
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minScore": -30.0,
-      "maxScore": 230.0,
-      "maxMissilesFired": 11,
-      "maxDenials": 6
+      "minKills": 0,
+      "maxMissilesFired": 14,
+      "maxDenials": 18,
+      "minScore": -130,
+      "maxScore": 170,
+      "minDenials": 14,
+      "requireFingerprintSubstrings": [
+        "CommsStateChange",
+        "Denied",
+        "cascade_link_down"
+      ]
     },
     "units": [
       {
@@ -115,5 +122,72 @@
       }
     ]
   },
-  "id": "gauntlet-t5-cascade"
+  "id": "gauntlet-t5-cascade",
+  "commsDisplay": {
+    "degradedLagTicks": 2,
+    "ghostOffsetX": 0.06,
+    "ghostOffsetY": 0.04,
+    "degradedOrderDelayTicks": 2,
+    "degradedStaleThresholdDivisor": 2
+  },
+  "comms": [
+    {
+      "atTick": 2,
+      "newState": "Degraded",
+      "nodeId": "ladder-t5-cascade-net",
+      "reason": "cascade_jamming"
+    },
+    {
+      "atTick": 4,
+      "newState": "Denied",
+      "nodeId": "ladder-t5-cascade-net",
+      "reason": "cascade_link_down"
+    },
+    {
+      "atTick": 8,
+      "newState": "Degraded",
+      "nodeId": "ladder-t5-cascade-net",
+      "reason": "cascade_partial_restore"
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "cascade-1",
+      "cascade-2"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "cascade-1",
+        "fireAtTick": 2,
+        "kind": "EventFired",
+        "code": "cascade_inject_1"
+      },
+      {
+        "id": "cascade-2",
+        "fireAtTick": 4,
+        "kind": "EventFired",
+        "code": "cascade_inject_2"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "ladder-contact-roe",
+        "observerId": "k-31-visby-2009",
+        "targetClass": "Surface",
+        "side": "friendly",
+        "missionCode": "ASuW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "k-31-visby-2009"
+        ]
+      }
+    ]
+  }
 }
