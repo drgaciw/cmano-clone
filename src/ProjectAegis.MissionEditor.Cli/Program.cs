@@ -243,6 +243,7 @@ static int RunScenarioExport(string[] args)
 static int RunSimulateSample(string[] args)
 {
     string? path = null;
+    string? policyDir = null;
     var ticks = 32;
     for (var i = 0; i < args.Length; i++)
     {
@@ -254,12 +255,21 @@ static int RunSimulateSample(string[] args)
         {
             ticks = Math.Max(1, t);
         }
+        else if (args[i] == "--policy-dir" && i + 1 < args.Length)
+        {
+            policyDir = args[++i];
+        }
     }
 
     if (string.IsNullOrWhiteSpace(path))
     {
         Console.Error.WriteLine("scenario_simulate_sample requires --path <scenario.json>");
         return 1;
+    }
+
+    if (policyDir != null)
+    {
+        ProjectAegis.Sim.Scenario.ScenarioPolicyRepository.LoadFromDirectory(policyDir);
     }
 
     return ScenarioSimulateSampleCommand.Run(path, ticks, quiet: false, Console.Out);

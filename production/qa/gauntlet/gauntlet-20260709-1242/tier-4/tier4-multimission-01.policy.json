@@ -1,0 +1,64 @@
+{
+  "metadata": {
+    "title": "Tier 4 Multi-mission 01 — Combined ASW/AAW Task Group",
+    "description": "Blue conducts simultaneous ASW (usub-blue vs usub-red) and AAW (u1 vs ucav-red intruder) missions in one task group. Blue holds an asymmetric escalation-favoring ROE (WeaponsFree with active EMCON); Red is doctrine-constrained (WeaponsTight, passive). Weighted multi-objective scoring: both the ASW kill and the AAW kill contribute to the mission score, not just one designated target. Seeded random-inject event chain at ticks 3, 11, and 19 (deterministic per seed, framed as random injects per Tier-4 spec).",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 42,
+    "policyId": "baltic-v3-tier4-multimission-01",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsFree"
+  },
+  "missions": [
+    {
+      "id": "blue-aaw-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["u1"],
+      "targetIds": ["hostile-1"],
+      "patrolZone": [
+        { "lat": 57.0, "lon": 19.5 },
+        { "lat": 57.3, "lon": 19.7 },
+        { "lat": 56.9, "lon": 20.0 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "blue-asw-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["usub-blue"],
+      "targetIds": ["usub-red"],
+      "patrolZone": [
+        { "lat": 57.1, "lon": 19.6 },
+        { "lat": 57.4, "lon": 19.8 },
+        { "lat": 57.0, "lon": 20.1 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "red-aaw-threat-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["hostile-1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 58.3, "lon": 21.2 },
+        { "lat": 58.5, "lon": 21.4 },
+        { "lat": 58.1, "lon": 21.6 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-asw-threat-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["usub-red"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 57.05, "lon": 19.55 },
+        { "lat": 57.35, "lon": 19.75 },
+        { "lat": 56.95, "lon": 20.05 }
+      ],
+      "roeOverride": "WeaponsTight"
+    }
+  ]
+}
