@@ -8,4 +8,6 @@ public sealed record MapSymbolEntry(
     string Label,
     float NormalizedX,
     float NormalizedY,
-    bool IsDestroyed);
+    bool IsDestroyed,
+    string? App6Sidc = null,
+    string? App6UssFrameId = null);

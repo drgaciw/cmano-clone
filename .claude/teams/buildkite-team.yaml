@@ -1,0 +1,105 @@
+# Buildkite CI/CD Team
+#
+# Agents and skills for Buildkite pipeline design, migration, and operations
+# on cmano-clone. Skills sourced from https://github.com/buildkite/skills (MIT).
+#
+# Refresh skills: bash tools/buildkite/install-buildkite-skills.sh
+
+team:
+  id: buildkite
+  name: "Buildkite CI/CD Team"
+  description: >
+    Owns Buildkite pipeline YAML, agent bootstrap scripts, preflight workflows,
+    and CI migration/operations for the cmano-clone primary CI pipeline.
+  pipeline:
+    config: ".buildkite/pipeline.yml"
+    docs: "docs/engineering/buildkite-ci.md"
+    scripts: "tools/buildkite/"
+  skills_source: "https://github.com/buildkite/skills"
+
+  members:
+    - agent: buildkite-ci-lead
+      role: "Orchestrates Buildkite CI changes and routes specialists"
+      tier: lead
+      model: sonnet
+      owns:
+        - ".buildkite/**"
+        - "tools/buildkite/**"
+        - "docs/engineering/buildkite-ci.md"
+      when_to_use: >
+        Any Buildkite CI change, cross-cutting pipeline work, or when unsure
+        which Buildkite specialist to use.
+
+    - agent: buildkite-pipelines-engineer
+      role: "Pipeline YAML and in-job buildkite-agent usage"
+      tier: specialist
+      model: sonnet
+      owns:
+        - ".buildkite/pipeline.yml"
+      when_to_use: >
+        Step types, plugins, caching, parallelism, matrix, dynamic pipelines,
+        annotations, artifacts, concurrency, or soft-fail/if guards.
+
+    - agent: buildkite-migration-engineer
+      role: "CI provider migration and conversion planning"
+      tier: specialist
+      model: sonnet
+      when_to_use: >
+        Migrating GitHub Actions, Jenkins, GitLab CI, or other CI to Buildkite;
+        bk pipeline convert; cutover checklists.
+
+    - agent: buildkite-operations-engineer
+      role: "bk CLI, API, preflight, and build triage"
+      tier: specialist
+      model: haiku
+      when_to_use: >
+        Trigger or rebuild builds, inspect logs, download artifacts, manage
+        secrets via bk, run bk preflight on local changes.
+
+    - agent: c-sharp-devops-engineer
+      role: "dotnet/Unity commands executed inside Buildkite steps"
+      tier: specialist
+      model: sonnet
+      owns:
+        - "tools/buildkite/dotnet-ci.sh"
+        - "tools/buildkite/agent-dotnet-ci.sh"
+      when_to_use: >
+        Changing what dotnet build/test/replay commands run in CI, not how
+        Buildkite schedules steps.
+
+    - agent: devops-engineer
+      role: "Studio-wide CI policy and branch workflow"
+      tier: specialist
+      model: haiku
+      when_to_use: "Branch protection, required checks, release CI policy."
+
+  skills:
+    journey:
+      - buildkite-pipelines
+      - buildkite-migration
+    operations:
+      - buildkite-preflight
+      - buildkite-cli
+      - buildkite-api
+    runtime:
+      - buildkite-agent-runtime
+
+  routing:
+    - match: ".buildkite/pipeline.yml, plugins, step structure"
+      agent: buildkite-pipelines-engineer
+    - match: "migrate CI, convert GitHub Actions, bk pipeline convert"
+      agent: buildkite-migration-engineer
+    - match: "bk preflight, trigger build, build logs, API, secrets"
+      agent: buildkite-operations-engineer
+    - match: "dotnet test/build commands inside CI scripts"
+      agent: c-sharp-devops-engineer
+    - match: "ambiguous or multi-file Buildkite work"
+      agent: buildkite-ci-lead
+
+  coordination:
+    lead: buildkite-ci-lead
+    technical_authority: c-sharp-devops-engineer
+    escalation:
+      - "Pipeline vs dotnet command ownership → buildkite-ci-lead arbitrates"
+      - "Branch protection / required checks → devops-engineer + release-manager"
+      - "Graphite optimizer token / stacking → docs/engineering/graphite-github-substitute-plan.md"

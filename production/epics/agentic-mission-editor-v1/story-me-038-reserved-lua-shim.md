@@ -1,16 +1,16 @@
-﻿# Story ME-038: Reserved Lua shim
+# Story ME-038: Reserved Lua shim
 
-> **Epic:** agentic-mission-editor-v1  
-> **Status:** Deferred  
-> **Sprint:** 26  
-> **Layer:** Data / Editor  
-> **Type:** Logic  
+> **Epic:** agentic-mission-editor-v1
+> **Status:** Deferred
+> **Sprint:** 26
+> **Layer:** Data / Editor
+> **Type:** Logic
 > **Last Updated:** 2026-06-14
 
 ## Context
 
-**GDD:** `design/gdd/agentic-mission-editor.md`  
-**Requirement:** TR-editor-001..005 (Req 11)  
+**GDD:** `design/gdd/agentic-mission-editor.md`
+**Requirement:** TR-editor-001..005 (Req 11)
 **Governing ADRs:** ADR-006, ADR-008, ADR-010
 
 ## Acceptance Criteria
@@ -27,4 +27,3 @@
 ## Implementation Notes
 
 Program track breakdown in mission editor v1 execution plan.
-

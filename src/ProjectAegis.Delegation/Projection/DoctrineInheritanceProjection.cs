@@ -9,6 +9,7 @@ public sealed record DoctrineInheritanceEntry(
     string UnitId,
     string EffectiveRoeLabel,
     string EffectiveMaxSalvoLabel,
+    string EffectiveEmconLabel,
     string InheritanceSource,
     bool IsInheritedFromMission,
     bool HasLocalOverride,
@@ -28,6 +29,7 @@ public static class DoctrineInheritanceProjection
                 unitId.Value,
                 "ROE: —",
                 "SALVO: —",
+                "EMCON: —",
                 "SOURCE: —",
                 false,
                 false,
@@ -43,6 +45,7 @@ public static class DoctrineInheritanceProjection
             unitId.Value,
             $"ROE: {effective.Roe}",
             $"SALVO: {effective.MaxSalvo}",
+            FormatRadarEmconLabel(unitId.Value, policy),
             source,
             resolved.HasInheritedDoctrineFromMission,
             hasOverride,
@@ -82,5 +85,16 @@ public static class DoctrineInheritanceProjection
         }
 
         return "SOURCE: Scenario Default";
+    }
+
+    private static string FormatRadarEmconLabel(string unitId, ScenarioPolicyProfile policy)
+    {
+        var state = ScenarioEmconResolver.ResolveRadar(unitId, policy.UnitRadarEmcon);
+        return state switch
+        {
+            EmconState.Active => "EMCON: ACTIVE",
+            EmconState.Passive => "EMCON: PASSIVE",
+            _ => "EMCON: OFF",
+        };
     }
 }

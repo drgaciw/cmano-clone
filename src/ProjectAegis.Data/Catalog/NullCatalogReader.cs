@@ -25,4 +25,44 @@ public sealed class NullCatalogReader : ICatalogReader
         envelope = default;
         return false;
     }
+
+    public IReadOnlyList<CatalogMobility> GetSortedMobility() => [];
+
+    public IReadOnlyList<CatalogSignature> GetSortedSignatures() => [];
+
+    public IReadOnlyList<CatalogEmcon> GetSortedEmcon() => [];
+
+    public IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamage() => [];
+
+    public bool TryGetMobility(string platformId, out CatalogMobility mobility)
+    {
+        mobility = new CatalogMobility(platformId);
+        return false;
+    }
+
+    public bool TryGetSignature(string platformId, out CatalogSignature signature)
+    {
+        signature = new CatalogSignature(platformId);
+        return false;
+    }
+
+    public bool TryGetEmcon(string platformId, string condition, string emitterId, out CatalogEmcon emcon)
+    {
+        emcon = new CatalogEmcon(platformId, condition, emitterId);
+        return false;
+    }
+
+    public bool TryGetPlatformDamage(string platformId, out CatalogPlatformDamage damage)
+    {
+        damage = new CatalogPlatformDamage(platformId);
+        return false;
+    }
+
+    public IReadOnlyList<CatalogMount> GetSortedMounts() => [];
+
+    public IReadOnlyList<CatalogLoadout> GetSortedLoadouts() => [];
+
+    public IReadOnlyList<CatalogMagazineEntry> GetSortedMagazines() => [];
+
+    public IReadOnlyList<CatalogDependencyEdge> GetSortedDependencyEdges() => [];
 }

@@ -32,7 +32,12 @@ public sealed class ScenarioPolicyProfile
         IReadOnlyList<string>? missionUnitIds = null,
         ScenarioSpeculativeSettings? speculative = null,
         IReadOnlyDictionary<string, bool>? unitReadiness = null,
-        IReadOnlyList<ScenarioSpoofTransition>? spoofTransitions = null)
+        IReadOnlyList<ScenarioSpoofTransition>? spoofTransitions = null,
+        IReadOnlyList<ScenarioWithdrawReadinessTrial>? withdrawReadinessTrials = null,
+        IReadOnlyList<ScenarioCatalogWithdrawTarget>? catalogWithdrawTargets = null,
+        ScenarioBalanceTelemetrySettings? balanceTelemetry = null,
+        ScenarioDatalinkDoctrine? datalinkDoctrine = null,
+        ScenarioMineHazardSettings? mineHazard = null)
     {
         FriendlyDefault = friendlyDefault;
         OpposingDefault = opposingDefault ?? EffectivePolicy.DefaultFree;
@@ -61,6 +66,11 @@ public sealed class ScenarioPolicyProfile
         Speculative = speculative ?? ScenarioSpeculativeSettings.CampaignDefault;
         UnitReadiness = unitReadiness ?? new Dictionary<string, bool>();
         SpoofTransitions = spoofTransitions ?? Array.Empty<ScenarioSpoofTransition>();
+        WithdrawReadinessTrials = withdrawReadinessTrials ?? Array.Empty<ScenarioWithdrawReadinessTrial>();
+        CatalogWithdrawTargets = catalogWithdrawTargets ?? Array.Empty<ScenarioCatalogWithdrawTarget>();
+        BalanceTelemetry = balanceTelemetry ?? ScenarioBalanceTelemetrySettings.Disabled;
+        DatalinkDoctrine = datalinkDoctrine ?? ScenarioDatalinkDoctrine.Default;
+        MineHazard = mineHazard;
     }
 
     public string Id { get; init; } = "";
@@ -117,6 +127,20 @@ public sealed class ScenarioPolicyProfile
 
     /// <summary>Timed spoofed contact activations (req 19).</summary>
     public IReadOnlyList<ScenarioSpoofTransition> SpoofTransitions { get; }
+
+    public IReadOnlyList<ScenarioWithdrawReadinessTrial> WithdrawReadinessTrials { get; }
+
+    /// <summary>Trials resolved via <see cref="WithdrawReadinessTrialResolver"/> when <see cref="WithdrawReadinessTrials"/> is empty.</summary>
+    public IReadOnlyList<ScenarioCatalogWithdrawTarget> CatalogWithdrawTargets { get; }
+
+    /// <summary>Balance drift telemetry advisory settings (DBI-5; default disabled).</summary>
+    public ScenarioBalanceTelemetrySettings BalanceTelemetry { get; }
+
+    /// <summary>TR-sensor-004 bounded side-picture sharing (default organic-only / no sharing).</summary>
+    public ScenarioDatalinkDoctrine DatalinkDoctrine { get; }
+
+    /// <summary>ADR-009 bounded mine transit hazard zone + seeded placement (S32-08).</summary>
+    public ScenarioMineHazardSettings? MineHazard { get; }
 
     public EngageContext ResolveEngageContext()
     {

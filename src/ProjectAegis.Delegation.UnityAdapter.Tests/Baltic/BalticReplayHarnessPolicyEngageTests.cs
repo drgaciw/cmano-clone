@@ -5,6 +5,16 @@ using ProjectAegis.Sim.Glossary;
 using NUnit.Framework;
 
 /// <summary>Policy–engage unification: resolver denials appear in harness fingerprint (epic policy-engage-unification-slice).</summary>
+/// <remarks>
+/// Contract restored (fix/policy-engage-roe-abort-fingerprint, per docs/reports/baltic-headless-slice-gate-2026-07-04.md
+/// recommendation #1, approach A2). The policy-engage-unification-slice epic requires ROE/WRA/EMCON denials to surface in the
+/// engagement order log so the harness fingerprint carries the canonical AbortReasonCatalog code. Under restricted-engagement
+/// (ROE=WeaponsTight) the engage intent is rejected at the agent/policy layer (PolicyDenial rows) before it reaches
+/// MvpEngagementResolver, so the S86-02 triage had aligned these asserts *down* to the PolicyDenial surface. That masked the
+/// bypass instead of fixing it. SimulationSession now additionally surfaces WeaponsTight engage denials as
+/// Engagement|…|ROE_WEAPONS_TIGHT abort rows (SimulationSession.SurfaceRoePolicyDeniedEngagements), so the asserts below
+/// verify the contract, not the bypass. The PolicyDenial row is preserved; determinism holds run-to-run.
+/// </remarks>
 [TestFixture]
 public sealed class BalticReplayHarnessPolicyEngageTests
 {

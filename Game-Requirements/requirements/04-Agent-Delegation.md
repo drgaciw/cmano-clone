@@ -1,12 +1,14 @@
 # 04 - Agent Delegation System
 
-**Last Updated:** 2026-06-04  
-**Related:** 01, 02, 03, 08, 13, 14, 17, 19, 20  
+**Last Updated:** 2026-07-08  
+**Related:** [01-Project-Overview.md](01-Project-Overview.md) · [02-Core-Gameplay-Loop.md](02-Core-Gameplay-Loop.md) · [03-Simulation-Modes.md](03-Simulation-Modes.md) · [08-Agentic-Architecture.md](08-Agentic-Architecture.md) · [13-Doctrine-ROE-EMCON-WRA.md](13-Doctrine-ROE-EMCON-WRA.md) · [14-Engagement-And-Fire-Control.md](14-Engagement-And-Fire-Control.md) · [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md) · [19-Cyber-And-Comms.md](19-Cyber-And-Comms.md) · [20-Command-And-Control-UI.md](20-Command-And-Control-UI.md)  
 **Status:** Locked  
 **Locked spec:** [2026-05-30-agent-delegation-decisions-design.md](../../docs/superpowers/specs/2026-05-30-agent-delegation-decisions-design.md)
 
 ## Purpose
 Define how players can assign specialized AI agents to individual units, groups, weapon systems, or entire task forces, enabling realistic autonomous behavior while maintaining human oversight.
+
+Implements hub **[FR-03](01-Project-Overview.md#functional-requirements)** (unit and task-force agent delegation).
 
 ## Vision
 A flexible, intuitive delegation system that turns the game into a true “theater commander” experience. Players no longer need to micromanage every unit — they can assign agents with distinct personalities and let them execute with realistic human-like variability, while retaining the power to intervene at any moment.
@@ -14,10 +16,10 @@ A flexible, intuitive delegation system that turns the game into a true “theat
 ## Core Delegation Concepts
 
 ### Delegation Levels
-- **Unit Level** — Assign an agent to a single aircraft, ship, submarine, or drone
-- **Group / Task Force Level** — Assign one agent to control an entire squadron, surface action group, or drone swarm
-- **System Level** — Assign an agent to a specific weapon system (e.g., ship’s air defense, aircraft’s electronic warfare suite)
-- **Side Level** (Advanced) — Assign a high-level strategic agent to command an entire faction
+- **Unit Level** — Assign an agent to a single aircraft, ship, submarine, or drone (**shipped** — v1 target model)
+- **Group / Task Force Level** — Assign one agent to control an entire squadron, surface action group, or drone swarm (**shipped** — v1 target model)
+- **System Level** — Assign an agent to a specific weapon system (e.g., ship’s air defense, aircraft’s electronic warfare suite) — **Phase N (not v1 target model)**
+- **Side Level** (Advanced) — Assign a high-level strategic agent to command an entire faction — **Phase N (not v1 target model)**
 
 ### Agent Personalities (Initial Set)
 - **Aggressive** — Prioritizes offensive action and risk-taking
@@ -81,9 +83,10 @@ Autonomy levels must integrate with side/unit ROE and policy evaluator (req 13, 
 
 ## Technical Considerations
 
-- Built on the Decision Engine Agent (see 08-Agentic-Architecture.md)
-- Each agent runs as a pluggable module (behavior tree, utility AI, or neural network)
-- Agents must integrate cleanly with the ECS simulation core
+- Built on the Decision Engine layer ([08-Agentic-Architecture.md](08-Agentic-Architecture.md))
+- **Shipped decision path:** trait-weighted softmax via `DecisionPipeline` + `SeededRng` (deterministic given the same seed, traits, candidates, and attention)
+- **Phase N:** pluggable behavior-tree (BT) or neural-network (NN) brains — not v1; shipped path remains trait-weighted softmax only
+- Agents integrate with the ECS / world snapshot path via `DelegationBridge` / `ISimWorldSnapshot` (bridge hotpath is zero-touch)
 - Support for hot-swapping agent personalities during execution (subject to scenario `personalityEditPolicy`; default `anytime`)
 
 ## Future Extensibility
@@ -109,14 +112,22 @@ All charter questions for agent delegation are **locked**. See [Resolved Design 
 
 ## Implementation Mapping (headless)
 
-| Requirement area | Headless / bridge type | Notes |
-|------------------|------------------------|-------|
-| Session facade, tick + engage bind, comms/spoof/fuel timelines | `DelegationBridge` (`ProjectAegis.Delegation.UnityAdapter`) | Owns `Orchestrator`, optional `SimulationSession`, `TargetRegistry`; `BeginExecution()`, `Tick()`, human order enqueue. **GitNexus: CRITICAL** — run `gitnexus impact DelegationBridge` before any bridge API or tick-path change. |
-| Controller registry, attention/degradation, detach-rejoin, trust emit | `DelegationOrchestrator` (`ProjectAegis.Delegation`) | Phase gate (`SimulationPhase`), stochastic agent choice, group override detach-rejoin, `DecisionLog`, `FinalizeScenario()` → `TrustSignal`. Wired from bridge and `BalticReplayHarness` without Unity. |
-| Scenario loop policy (`personalityEditPolicy`, `playerInfoModel`) | `LoopPolicyGate` | Static gate used by orchestrator and live log filter; reads `ScenarioPolicyProfile` from scenario JSON (req 02, 13). |
-| Hot-swap personality / traits during execution | `DelegationOrchestrator.TryRebindAgentTraits` | Delegates to `LoopPolicyGate.CanEditPersonality`; denial returns `LoopPolicyVerdict` without mutating agent state. |
+| Area | Path / type | Status | Evidence |
+|------|-------------|--------|----------|
+| Traits / personality presets | `TraitVector`, `PersonalityCatalog` (`ProjectAegis.Delegation` · `Traits/`) | **Shipped** | `src/ProjectAegis.Delegation/Traits/`; personality presets (Aggressive, Defensive, Cautious, …) feed decision scoring |
+| Stochastic decision engine | `DecisionPipeline` + `SeededRng` (`Decision/`) | **Shipped** | Trait-weighted softmax; `src/ProjectAegis.Delegation.Tests/Decision/DecisionPipelineTests.cs`; deterministic given seed |
+| Autonomy + ROE gating | `AutonomyGate`, `RoePolicyAdapter` (`Orchestration/`, `Roe/`) | **Shipped** | `AutonomyGateTests`, `RoePolicyAdapterTests`; Manual→FullAutonomous tiers; ROE filter before engage |
+| Attention / bandwidth | `AttentionCalculator` (`Attention/`) | **Shipped** | Budget/load degradation; aligns with Resolved Design Decision §1 (default budget 20) |
+| Group override detach-rejoin | `DetachRejoinService` (`Groups/`) | **Shipped** | Detach-and-rejoin default; `GroupMemberDetach` / `GroupMemberRejoin` order-log events |
+| Trust / experience emit | `TrustSignalEmitter` (`Trust/`) | **Shipped (emit-only)** | `TrustSignalEmitterTests`; tactical MVP emit-only — no mid-run trait mutation (campaign aggregate Phase 3) |
+| Session facade / tick path | `DelegationBridge` (`ProjectAegis.Delegation.UnityAdapter` · `Bridge/`) | **Shipped — CRITICAL zero-touch hotpath** | Owns orchestrator bind, `Tick()`, engage/comms timelines; **GitNexus: CRITICAL** — no hotpath edits through Release v1; impact before any bridge change |
+| Controller registry + phase gate | `DelegationOrchestrator` (`Orchestration/`) | **Shipped** | Phase gate, stochastic agent choice, detach-rejoin, `DecisionLog`, `FinalizeScenario()` → trust; wired from bridge + `BalticReplayHarness` |
+| Scenario loop policy | `LoopPolicyGate` | **Shipped** | `personalityEditPolicy`, `playerInfoModel` from scenario JSON (req 02, 13) |
+| Hot-swap personality / traits | `DelegationOrchestrator.TryRebindAgentTraits` | **Shipped** | Denials via `LoopPolicyVerdict` without mutating agent state |
+| C2 delegation badges / drag-drop UI | Unity C2 hosts / presentation | **Partial / Phase N** | Headless projections + partial C2; full drag-drop assignment + polish badges remain UI debt (tracker row 04) |
+| BT / NN pluggable brains | Decision engine extension points | **Phase N** | Shipped = trait-weighted softmax only; BT/utility/NN modules deferred |
 
-**Blast radius:** Prefer orchestrator-only diffs for Sprint 13 doc maturity; bridge edits require impact report in PR (see [Sprint 13 kickoff](../../production/agentic/sprint-13-kickoff-2026-06-04.md)).
+**Blast radius:** Prefer orchestrator-only diffs; bridge edits require impact report and must preserve zero-touch hotpath (see [Sprint 13 kickoff](../../production/agentic/sprint-13-kickoff-2026-06-04.md), `AGENTS.md` invariants).
 
 ## Resolved Design Decisions
 
@@ -150,3 +161,6 @@ Decisions locked May 30, 2026. Full rationale: `docs/superpowers/specs/2026-05-3
 ---
 
 **Status:** Locked (Sprint 13). Resolved decisions locked May 30, 2026 — see [locked spec](../../docs/superpowers/specs/2026-05-30-agent-delegation-decisions-design.md).
+
+---
+**Implementation grade:** Partial+ — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 04. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

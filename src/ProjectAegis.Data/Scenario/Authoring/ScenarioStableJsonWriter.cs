@@ -69,7 +69,7 @@ public static class ScenarioStableJsonWriter
             WriteOperationsTimeline(w, doc.OperationsTimeline);
         }
 
-        if (doc.Events.Count > 0)
+        if (doc.Events is { Count: > 0 })
         {
             w.WritePropertyName("events");
             WriteEvents(w, doc.Events);
@@ -290,16 +290,7 @@ public static class ScenarioStableJsonWriter
         {
             w.WriteStartObject();
             w.WriteString("id", evt.Id);
-            w.WriteNumber("priority", evt.Priority);
-            w.WritePropertyName("trigger");
-            w.WriteStartObject();
-            w.WriteString("type", evt.Trigger.Type);
-            if (evt.Trigger.AtTick.HasValue)
-            {
-                w.WriteNumber("atTick", evt.Trigger.AtTick.Value);
-            }
-
-            w.WriteEndObject();
+            w.WriteString("triggerType", evt.TriggerType);
 
             if (evt.Conditions.Count > 0)
             {
@@ -311,6 +302,11 @@ public static class ScenarioStableJsonWriter
                     w.WriteString("type", cond.Type);
                     WriteStringIfPresent(w, "unitId", cond.UnitId);
                     WriteStringIfPresent(w, "zoneId", cond.ZoneId);
+                    if (cond.Result.HasValue)
+                    {
+                        w.WriteBoolean("result", cond.Result.Value);
+                    }
+
                     w.WriteEndObject();
                 }
 
@@ -325,7 +321,6 @@ public static class ScenarioStableJsonWriter
                 {
                     w.WriteStartObject();
                     w.WriteString("type", action.Type);
-                    WriteStringIfPresent(w, "missionId", action.MissionId);
                     WriteStringIfPresent(w, "unitId", action.UnitId);
                     if (action.Lat.HasValue)
                     {
@@ -360,13 +355,15 @@ public static class ScenarioStableJsonWriter
         w.WriteEndObject();
     }
 
-    private static void WriteEditorState(Utf8JsonWriter w, ScenarioEditorStateDto state)
+    private static void WriteEditorState(Utf8JsonWriter w, Dictionary<string, JsonElement> state)
     {
         w.WriteStartObject();
-        WriteNumber(w, "cameraLat", state.CameraLat);
-        WriteNumber(w, "cameraLon", state.CameraLon);
-        WriteNumber(w, "cameraZoom", state.CameraZoom);
-        w.WriteBoolean("layersVisible", state.LayersVisible);
+        foreach (var key in state.Keys.OrderBy(k => k, StringComparer.Ordinal))
+        {
+            w.WritePropertyName(key);
+            state[key].WriteTo(w);
+        }
+
         w.WriteEndObject();
     }
 

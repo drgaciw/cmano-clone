@@ -45,6 +45,10 @@ domain lead) should delegate to specialists.
 | `qa-tester` | Test execution | Haiku | Writing test cases, bug reports, test checklists |
 | `performance-analyst` | Performance | Sonnet | Profiling, optimization recs, memory analysis |
 | `devops-engineer` | Build/deploy | Haiku | CI/CD, build scripts, version control workflow |
+| `buildkite-ci-lead` | Buildkite CI orchestration | Sonnet | Buildkite pipeline changes, CI troubleshooting, `.buildkite/` ownership |
+| `buildkite-pipelines-engineer` | Buildkite pipeline YAML | Sonnet | Step types, plugins, caching, parallelism, dynamic pipelines |
+| `buildkite-migration-engineer` | CI migration to Buildkite | Sonnet | GitHub Actions/Jenkins/GitLab → Buildkite conversion |
+| `buildkite-operations-engineer` | Buildkite CLI/API/preflight | Haiku | `bk` commands, build triage, preflight local changes |
 | `analytics-engineer` | Telemetry | Sonnet | Event tracking, dashboards, A/B test design |
 | `ux-designer` | UX flows | Sonnet | User flows, wireframes, accessibility, input handling |
 | `prototyper` | Rapid prototyping | Sonnet | Throwaway prototypes, mechanic testing, feasibility validation |

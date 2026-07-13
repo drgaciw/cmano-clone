@@ -10,14 +10,16 @@ public static class CatalogSnapshotBinder
         string ReleaseVersion,
         string SnapshotId,
         string ContentHashSha256,
-        int SensorRowCount);
+        int SensorRowCount,
+        string TlTier);
 
     public static BindResult BindAfterApprove(
         string databasePath,
         string batchId,
         ICatalogClock clock,
         string? snapshotId = null,
-        string? releaseVersion = null)
+        string? releaseVersion = null,
+        string? tlTier = null)
     {
         var resolvedSnapshotId = string.IsNullOrWhiteSpace(snapshotId)
             ? CatalogValidationDefaults.BalticSnapshotId
@@ -25,6 +27,7 @@ public static class CatalogSnapshotBinder
         var resolvedRelease = string.IsNullOrWhiteSpace(releaseVersion)
             ? $"catalog-approve-{SanitizeReleaseToken(batchId)}"
             : releaseVersion.Trim();
+        var resolvedTlTier = CatalogTlTier.Normalize(tlTier);
 
         using var reader = new SqliteCatalogReader(databasePath, "snapshot-bind");
         var bindings = reader.GetSortedSensorBindings();
@@ -37,10 +40,12 @@ public static class CatalogSnapshotBinder
                 resolvedSnapshotId,
                 contentHash,
                 clock.UtcTicks,
-                notes: $"batch={batchId}");
+                schemaVersion: CatalogTlTier.CatalogSchemaVersion,
+                notes: $"batch={batchId};contentHash={contentHash}",
+                branch: resolvedTlTier);
         }
 
-        return new BindResult(resolvedRelease, resolvedSnapshotId, contentHash, bindings.Count);
+        return new BindResult(resolvedRelease, resolvedSnapshotId, contentHash, bindings.Count, resolvedTlTier);
     }
 
     private static string SanitizeReleaseToken(string batchId)

@@ -1,0 +1,31 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="platform-catalog-root" class="platform-catalog-panel">
+        <ui:Label text="PLATFORM CATALOG" class="platform-catalog-title" />
+        <ui:VisualElement class="platform-catalog-actions">
+            <ui:Button name="platform-catalog-export" text="Export" class="platform-catalog-action-button" />
+            <ui:Button name="platform-catalog-diff" text="Diff" class="platform-catalog-action-button" />
+        </ui:VisualElement>
+        <ui:TextField name="platform-catalog-search" class="platform-catalog-search" label="Filter" />
+        <ui:ListView name="platform-catalog-list" class="platform-catalog-list" selection-type="Single" />
+        <ui:VisualElement name="platform-catalog-detail" class="platform-catalog-detail">
+            <ui:Label text="DETAIL" class="platform-catalog-detail-title" />
+            <ui:Label name="platform-catalog-detail-lat" text="LAT: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-lon" text="LON: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-radius" text="RADIUS: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-hp" text="HP: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-resilience" text="RESILIENCE: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-withdraw" text="WITHDRAW: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-flags" text="FLAGS: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-speed" text="SPEED: —" class="platform-catalog-detail-line" />
+        </ui:VisualElement>
+        <ui:VisualElement name="platform-catalog-comms" class="platform-catalog-comms">
+            <ui:Label text="COMMS" class="platform-catalog-detail-title" />
+            <ui:ListView name="platform-catalog-comms-list" class="platform-catalog-comms-list" selection-type="None" />
+            <ui:Label name="platform-catalog-comms-lag-helper" text="LatencyMsNominal (catalog) drives share-lag ticks in sim (S34-07)" class="platform-catalog-comms-helper" />
+        </ui:VisualElement>
+        <ui:VisualElement name="platform-catalog-links" class="platform-catalog-links">
+            <ui:Label text="LINK CATALOG" class="platform-catalog-detail-title" />
+            <ui:ListView name="platform-catalog-links-list" class="platform-catalog-links-list" selection-type="None" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

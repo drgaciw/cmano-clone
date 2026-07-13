@@ -1,5 +1,12 @@
 # Unity DOTS/ECS — Project Aegis Notes (6.3 LTS)
 
+> ⚠️ **HISTORICAL / SUPERSEDED (2026-07-07).** Project Aegis does **not** use DOTS/ECS for world
+> state; `com.unity.entities` and `com.unity.entities.graphics` were removed. The sim is a managed,
+> headless-first tick (`ProjectAegis.Sim`). This file is kept only as a reference for the path not
+> taken — see [ADR-005](../../architecture/adr-005-dots-sim-core.md) and the
+> [unity integration review](../../reports/unity-integration-review-2026-07-07.md) §3. `ProjectAegis.Sim.DOTS`
+> below was never built.
+
 **Last verified:** 2026-05-29 · **Editor:** 6000.3.x
 
 ## Assembly split

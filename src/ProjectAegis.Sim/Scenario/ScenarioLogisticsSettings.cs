@@ -29,7 +29,14 @@ public sealed class ScenarioLogisticsSettings
             throw new ArgumentOutOfRangeException(nameof(fuelCapacityKg), "Fuel capacity and burn must be non-negative.");
         }
 
-        if (jokerFuelFraction is <= 0 or > 1 || bingoFuelFraction is <= 0 or > 1 || bingoFuelFraction > jokerFuelFraction)
+        // Fractions are only load-bearing when the burn model is active (see
+        // UsesFuelBurnModel / FuelLedger.ResolveBand / RemainingFuelFraction, all of which
+        // gate on capacity+burn > 0). Validating them unconditionally would crash scenario
+        // load for content that leaves the burn model disabled but still carries a stray or
+        // staged fraction override (e.g. copy-pasted from another scenario) that happens to
+        // conflict with the other fraction's default.
+        if (fuelCapacityKg > 0 && burnRateKgPerSecond > 0 &&
+            (jokerFuelFraction is <= 0 or > 1 || bingoFuelFraction is <= 0 or > 1 || bingoFuelFraction > jokerFuelFraction))
         {
             throw new ArgumentOutOfRangeException(nameof(jokerFuelFraction), "Fuel fractions must be in (0,1] with bingo <= joker.");
         }

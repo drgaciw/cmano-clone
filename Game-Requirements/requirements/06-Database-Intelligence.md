@@ -1,14 +1,14 @@
 # 06 - Database Intelligence Layer
 
-**Last Updated:** 2026-06-04  
-**Related:** [05-Dynamic-Systems-Agent.md](05-Dynamic-Systems-Agent.md) · [09-Near-Future-Technologies.md](09-Near-Future-Technologies.md) · [10-Speculative-Systems.md](10-Speculative-Systems.md) · [11-Agentic-Mission-Editor.md](11-Agentic-Mission-Editor.md) · [15-Sensor-Detection-And-EW.md](15-Sensor-Detection-And-EW.md) · [16-Logistics-And-Magazines.md](16-Logistics-And-Magazines.md) · [18-Combat-Domains.md](18-Combat-Domains.md)  
+**Last Updated:** 2026-07-08  
+**Related:** [01-Project-Overview.md](01-Project-Overview.md) · [05-Dynamic-Systems-Agent.md](05-Dynamic-Systems-Agent.md) · [09-Near-Future-Technologies.md](09-Near-Future-Technologies.md) · [10-Speculative-Systems.md](10-Speculative-Systems.md) · [11-Agentic-Mission-Editor.md](11-Agentic-Mission-Editor.md) · [15-Sensor-Detection-And-EW.md](15-Sensor-Detection-And-EW.md) · [16-Logistics-And-Magazines.md](16-Logistics-And-Magazines.md) · [18-Combat-Domains.md](18-Combat-Domains.md) · [21-Platform-Editor.md](21-Platform-Editor.md)  
 **Status:** Locked  
 **Locked spec:** [Database Intelligence P0 design](../../docs/superpowers/specs/2026-05-30-database-intelligence-p0-design.md)  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md) (database workflow), [Near-Future Tech Research](../../docs/research/near-future-tech-research.md), [Speculative Systems Research](../../docs/research/speculative-systems-research.md)
 
 ## Purpose
 
-Provide a robust, agent-driven layer that maintains the integrity, consistency, provenance, and balance of the entire game database (units, weapons, sensors, platforms, and speculative systems) as new content is added or existing data is modified.
+Provide a robust, agent-driven layer that maintains the integrity, consistency, provenance, and balance of the entire game database (units, weapons, sensors, platforms, and speculative systems) as new content is added or existing data is modified. Implements hub **FR-05** (SQLite intelligence layer + provenance) in [01-Project-Overview.md](01-Project-Overview.md).
 
 ## Vision
 
@@ -188,27 +188,28 @@ Posture: **propose, not auto-merge.** Agents function as research assistants and
 - All changes must be auditable and reversible
 - Agent decisions must be explainable (why a value was normalized or flagged)
 - Zero tolerance for data corruption or inconsistent states
-- **P0:** No `UnityEngine` in `ProjectAegis.Data`; Sim/Delegation may reference Data; Data references neither (ADR-001)
+- **P0:** No `UnityEngine` in `ProjectAegis.Data`; Sim/Delegation may reference Data; Data references neither — Data assembly boundary per **[ADR-006](../../docs/architecture/adr-006-data-layer-boundary.md)** (sim/consumer layering also aligns with [ADR-001](../../docs/architecture/adr-001-sim-assembly-boundary.md))
 - **P0:** Deterministic headless tests in `ProjectAegis.Data.Tests` (validation, snapshot immutability, write gate, scenario binding)
 
 ## Agentic Capabilities
 
 - Claude/Cursor (via Unity-MCP) can:
-  - Ask the Database Intelligence Layer to “normalize all new speculative systems added this week”
+  - Request consistency / normalization **reports** for speculative systems (**Phase N** — human-gated write path only; no auto-commit “normalize all new systems this week”)
   - Request a full consistency report across the entire database
   - Trigger a validation pass after approving new speculative content
-  - View change history and rollback specific updates
+  - View change history and rollback specific updates (load prior immutable snapshot)
 
-- All agents in the system (Dynamic Speculative Systems Agent, Balance Tuning Agent, etc.) must route their database writes through this layer
+- All agents in the system (Dynamic Speculative Systems Agent, Balance Tuning Agent, Platform Editor importer, etc.) must route their database writes through this layer
 
 **P0 guardrail:** MCP and code share the same `ICatalogReader` / `IWriteGate` APIs — no special auto-commit path.
 
 ## Technical Considerations
 
 - Built on a structured database (SQLite for development, scalable solution for production)
-- Uses Unity DOTS-friendly data formats for fast simulation access
+- Uses Unity DOTS-friendly data formats for fast simulation access (BlobAssets built **outside** Data assembly)
 - Implements a clear API so other agents can safely read/write data
 - Strong emphasis on data provenance and audit logging
+- **Assembly boundary:** [ADR-006](../../docs/architecture/adr-006-data-layer-boundary.md) — `ProjectAegis.Data` is engine-free; catalog mutations only via `IWriteGate`; snapshots immutable; Sim/Delegation consume read-only DTOs
 
 **P0 layout:** `data/catalog/aegis-catalog.dev.sqlite` (gitignored; seed via `CatalogSeedBootstrap` / CI). Runtime export: read-only DTO batches from SQLite; BlobAssets built in Unity layer, not in Data assembly.
 
@@ -246,25 +247,33 @@ All charter questions for database intelligence are **locked** for Sprint 14 des
 
 ## Implementation Mapping (headless)
 
-| Requirement area | Type / path (`ProjectAegis.Data`) | Notes |
-|------------------|-----------------------------------|-------|
-| Read API | `ICatalogReader`, `SqliteCatalogReader`, `InMemoryCatalogReader`, `CatalogReaderFactory` | Sorted sensor bindings; `TryResolveDbRef`, `TryGetCombatRadiusNm`, `TryGetPlatformPosition` |
-| Staged writes | `IWriteGate`, `CatalogWriteGate` | `ProposeSensorBatch` → `ApproveBatch` / `RejectBatch`; `CatalogStagingBatchSummary` |
-| Snapshots / release train | `DbSnapshotStore`, `DbReleaseRecord`, `CatalogValidationDefaults` | `catalog_snapshot`, `db_release` tables |
-| Import | `CatalogJsonImporter`, `CatalogBulkImporter`, `CatalogImportGate`, `CatalogSeedBootstrap` | JSON file drop → SQLite; review states on import |
-| Provenance | `CatalogProvenanceTier`, `CatalogSensorBinding`, `CatalogChangeLogEntry` | Tiers + per-row citation/confidence/reviewer |
-| Validation | `ScenarioValidationEngine`, `ValidationFinding`, `ValidationReport`, `CatalogRulesValidationAgent`, `CatalogConsistencyAgent` | Deterministic reports; golden hashes |
-| Intelligence pipeline | `DatabaseIntelligenceOrchestrator`, `IDatabaseIntelligenceAgent`, `CatalogEntityResolutionAgent`, `CatalogDiffProposalAgent` | Headless agent chain; `RunBalticDefault()` smoke |
-| Scenario authoring | `ScenarioDocumentDto`, `ScenarioDocumentJsonLoader`, `ScenarioMetadataDto`, `ScenarioDataPaths` | `dbRef` in metadata; moved from Sim per DATA-3 |
-| Near-future gates | `NearFutureArchetypeCatalog`, `CatalogArchetypeGate`, `SwarmTier`, `CatalogArchetypeBinding` | TL/archetype routing for docs 09/10 |
-| Quarantine | `CatalogQuarantinePromoter`, `QuarantinedCatalogBinding` | Failed import/review isolation |
-| Clock / determinism | `ICatalogClock`, `FixedCatalogClock` | Injectable time for commits |
+Columns: **Area | Path / type | Status | Evidence**. Status vocabulary: Shipped | Partial | Gap | Phase N.
+
+| Area | Path / type | Status | Evidence |
+|------|-------------|--------|----------|
+| Catalog write gate (extend-only multi `Propose*Batch`) | `WriteGate/IWriteGate`, `WriteGate/CatalogWriteGate` — `ProposeSensorBatch`, `ProposeMountBatch`, `ProposeLoadoutBatch`, `ProposeMagazineBatch`, `ProposeCommsBatch`, `ProposeLinkCatalogBatch`, `ProposePlatformBatch`, `ProposeWeaponBatch`, `ProposeMobilityBatch`, `ProposeSignatureBatch`, `ProposeEmconBatch`, `ProposePlatformDamageBatch` → `ApproveBatch` / `RejectBatch` | **Shipped** | `src/ProjectAegis.Data.Tests/WriteGate/*` (phase B + platform approve); Platform Editor importer is a write-gate consumer ([21](21-Platform-Editor.md)) |
+| Intelligence orchestrator | `Agents/DatabaseIntelligenceOrchestrator`, `IDatabaseIntelligenceAgent`, `CatalogEntityResolutionAgent`, `CatalogDiffProposalAgent`, `CatalogRulesValidationAgent`, `CatalogConsistencyAgent` | **Shipped Partial** | `Data.Tests/Agents/DatabaseIntelligenceOrchestratorTests`; CLI `CatalogIntelligenceRunCommand`; retrieval agent still post-P0 |
+| Kill-chain rules / commit gate | `Validation/KillChainRules`, `Validation/KillChainCommitGate`, `Validation/KillChainGoldenHashes` | **Partial** (post-P0) | `Data.Tests/Validation/KillChainRulePackTests`, `Agents/OrchestratorKillChainGateTests`; CLI `CatalogKillChainReportCommand` |
+| Dependency graph index + CLI | `Catalog/CatalogDependencyGraphIndex`, `CatalogDependencyEdge`, `CatalogDependencyGraphCacheInvalidator`; CLI `CatalogDependencyGraphCommand` | **Partial** (post-P0) | `MissionEditor.Cli.Tests/CatalogDependencyGraphCommandTests` |
+| Release train diff | `DbSnapshotStore` / `DbReleaseRecord` + CLI `CatalogReleaseDiffCommand` | **Partial** (post-P0) | `MissionEditor.Cli.Tests/CatalogReleaseDiffCommandTests`, `CatalogReleaseDiffCliArgsTests` |
+| Balance telemetry (advisory) | `Telemetry/IBalanceTelemetrySink`, `BalanceTelemetryAccumulator`, `BalanceTelemetrySinkFactory`, `NoOpBalanceTelemetrySink`; Sim `BalanceDriftAdvisoryConsumer` | **Partial** (not full auto-balance) | `Data.Tests/Telemetry/BalanceTelemetry*`; `Sim.Tests/Telemetry/BalanceDriftAdvisoryConsumerTests` — advisory only; never bypasses write gate |
+| OSINT staging (`Osint*`) | `Osint/OsintProposalGate`, `OsintCatalogMapper`, `Osint/Connectors/*` | **Partial** (internal track) | `Data.Tests/Osint/*`; maps to `ProposeSensorBatch` only |
+| Public dual-track community intake | Issue-only public channel + internal curation triage (process) | **Phase N** / process | Dual-Track § above; not a shipped product API |
+| Scenario validation engine extensions | `Validation/ScenarioValidationEngine`, export gate, migration preview (doc 11) | **Partial** (editor program) | Active scenario editor train (req 11 / S81–S88); Baltic fixtures bind `dbRef` |
+| Read API | `ICatalogReader`, `SqliteCatalogReader`, `InMemoryCatalogReader`, `CatalogReaderFactory` | **Shipped** | Sorted bindings; `TryResolveDbRef`, `TryGetCombatRadiusNm`, `TryGetPlatformPosition` |
+| Snapshots / release train rows | `Snapshots/DbSnapshotStore`, `DbReleaseRecord`, `CatalogValidationDefaults` | **Shipped** | `catalog_snapshot`, `db_release`; immutable `snapshotId` |
+| Import / seed | `Import/CatalogJsonImporter`, `CatalogBulkImporter`, `CatalogImportGate`, `CatalogSeedBootstrap` | **Shipped** | JSON drop → SQLite; review states on import |
+| Provenance | `CatalogProvenanceTier`, `CatalogSensorBinding`, `CatalogChangeLogEntry` | **Shipped** (sensor-row P0) | Tiers + citation/confidence/reviewer; per-entity-type provenance still post-P0 |
+| Platform Editor (write-gate consumer) | `Platform/PlatformWorkbookImporter` (+ exporter path per [21](21-Platform-Editor.md), ADR-011) | **Partial+** (doc 21) | Excel round-trip stages **only** via multi `Propose*Batch` / `ApproveBatch` — never bypasses this layer |
+| Near-future gates | `NearFutureArchetypeCatalog`, `CatalogArchetypeGate`, `SwarmTier`, `CatalogArchetypeBinding` | **Shipped Partial** | TL/archetype routing for docs 09/10 |
+| Quarantine | `CatalogQuarantinePromoter`, `QuarantinedCatalogBinding` | **Shipped** | Failed import/review isolation |
+| Clock / determinism | `ICatalogClock`, `FixedCatalogClock` | **Shipped** | Injectable time for commits |
 
 **Default DB path:** `CatalogReaderFactory.ResolveBalticPatrolDatabasePath()` → SQLite under `data/catalog/`.
 
-**Consumers (outside Data):** `ProjectAegis.Sim` engage/envelope (DATA-4), `ProjectAegis.Delegation` scenario policy — run `gitnexus impact` before moving `ScenarioPolicyRepository` or weapon envelope symbols.
+**Consumers (outside Data):** `ProjectAegis.Sim` engage/envelope (DATA-4); `ProjectAegis.Delegation` scenario policy; **[21 Platform Editor](21-Platform-Editor.md)** as primary bulk write-gate consumer; Mission Editor CLI for catalog report/diff/graph verbs. Run `gitnexus impact` before moving `ScenarioPolicyRepository` or weapon envelope symbols.
 
-**Tests:** `src/ProjectAegis.Data.Tests/` — validation, write gate, snapshot binding (P0 plan §7).
+**Tests:** `src/ProjectAegis.Data.Tests/` (+ Mission Editor CLI tests for catalog verbs). **Note (standard depth):** P0 ACs (DBI-*) are largely covered by `Data.Tests` — full checkbox pass deferred.
 
 ## Resolved Design Decisions
 
@@ -357,13 +366,19 @@ Human approval is **mandatory** for P0 (locks legacy open question #1). Doc 05 a
 
 | Epic / FR | This document |
 |-----------|---------------|
+| Hub **FR-05** ([01](01-Project-Overview.md)) | SQLite intelligence layer + provenance — this doc |
 | Doc 05 Dynamic Systems | Staging → doc 06 write gate; provenance handoff |
 | Doc 09 Near-future TL-0–TL-3 | `TrlLevel`, archetype catalog gates |
 | Doc 10 Speculative TL-3–TL-5 | Branch design §4; `CatalogArchetypeGate` |
 | Doc 11 Mission Editor | `dbRef` / snapshot binding, validation export |
 | Doc 15/16/18 | [Cross-Domain Traceability](#cross-domain-traceability) |
+| Doc 21 Platform Editor | Excel round-trip / bulk authoring **consumes** `IWriteGate` (ADR-011) |
 | P0 implementation | [Locked spec](../../docs/superpowers/specs/2026-05-30-database-intelligence-p0-design.md), plan `docs/superpowers/plans/2026-05-30-database-intelligence-p0.md` |
+| Assembly boundary | [ADR-006](../../docs/architecture/adr-006-data-layer-boundary.md) |
 
 ---
 
 **Status:** Locked (Sprint 14)
+
+---
+**Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 06. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

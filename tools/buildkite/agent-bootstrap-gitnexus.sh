@@ -2,30 +2,27 @@
 # Node.js + GitNexus CLI for Buildkite hosted agents (no docker-in-docker).
 set -euo pipefail
 
-NODE_VERSION="${GITNEXUS_NODE_VERSION:-20.18.0}"
-NODE_DIR="${HOME}/.cache/buildkite/node-v${NODE_VERSION}-linux-x64"
-
-if ! command -v node >/dev/null 2>&1; then
-  if [[ ! -x "${NODE_DIR}/bin/node" ]]; then
-    echo "=== Installing Node.js ${NODE_VERSION} ==="
-    mkdir -p "$(dirname "$NODE_DIR")"
-    archive="/tmp/node-v${NODE_VERSION}-linux-x64.tar.xz"
-    curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" -o "$archive"
-    tar -xJf "$archive" -C "$(dirname "$NODE_DIR")"
-    mv "$(dirname "$NODE_DIR")/node-v${NODE_VERSION}-linux-x64" "$NODE_DIR"
-  fi
-  export PATH="${NODE_DIR}/bin:${PATH}"
-fi
-
-node --version
-npm --version
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+# shellcheck source=agent-bootstrap-node.sh
+source "$repo_root/tools/buildkite/agent-bootstrap-node.sh"
 
 if ! command -v gitnexus >/dev/null 2>&1; then
   echo "=== Installing GitNexus CLI ==="
-  npm install -g gitnexus
+  export NPM_CONFIG_PREFIX="${HOME}/.npm-global"
+  mkdir -p "${NPM_CONFIG_PREFIX}/bin"
+  export PATH="${NPM_CONFIG_PREFIX}/bin:${PATH}"
+  if ! npm install -g gitnexus; then
+    # Exit 1 (not 0): missing CLI is infra. gitnexus-pr uses soft_fail: true;
+    # gitnexus-reindex soft-fails only on exit 75 from the reindex script itself.
+    echo "ERROR: gitnexus npm install failed" >&2
+    exit 1
+  fi
 fi
 
 export GITNEXUS_SKIP_OPTIONAL_GRAMMARS="${GITNEXUS_SKIP_OPTIONAL_GRAMMARS:-1}"
 export GITNEXUS_WORKER_POOL_SIZE="${GITNEXUS_WORKER_POOL_SIZE:-4}"
 
-gitnexus --version
+if ! gitnexus --version; then
+  echo "ERROR: gitnexus --version failed after install" >&2
+  exit 1
+fi

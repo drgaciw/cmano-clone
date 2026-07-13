@@ -1,10 +1,10 @@
 # Epic: Agentic Mission Editor v1
 
-> **Status:** In Progress (Sprint 23 kickoff)  
-> **Priority:** P0 — Req 11 intent-compiler MVP  
-> **Created:** 2026-06-14  
-> **Milestone:** [mission-editor-v1.md](../../milestones/mission-editor-v1.md)  
-> **Depends on:** [agentic-mission-editor.md](../../../design/gdd/agentic-mission-editor.md), ADR-006, ADR-008, ADR-010  
+> **Status:** In Progress (Sprint 23 kickoff)
+> **Priority:** P0 — Req 11 intent-compiler MVP
+> **Created:** 2026-06-14
+> **Milestone:** [mission-editor-v1.md](../../milestones/mission-editor-v1.md)
+> **Depends on:** [agentic-mission-editor.md](../../../design/gdd/agentic-mission-editor.md), ADR-006, ADR-008, ADR-010
 > **Design gate:** APPROVED 2026-06-01
 
 ## Goal

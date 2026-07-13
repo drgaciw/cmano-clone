@@ -6,6 +6,8 @@
 **Scope confirmed with requester:** "Spirit 1" = the **Baltic-Style Vertical Slice (MVP)** milestone
 (`production/milestones/vertical-slice-mvp.md`), cross-referenced against `Game-Requirements/`.
 
+> **Naming alias (2026-06-20):** "Spirit 1" is **not** a registered milestone in this repo — it is an informal alias for the Baltic Vertical Slice MVP (Phase 1). For canonical vocabulary, sprint/epic titles, and new planning artifacts, use **[vertical-slice-mvp.md](../../production/milestones/vertical-slice-mvp.md)** and the mapping in **[vertical-slice-mvp-spirit1-alias-2026-06-20.md](../../production/milestones/vertical-slice-mvp-spirit1-alias-2026-06-20.md)**. This filename and report body are unchanged for backward-compatible links. Remediation status: **[spirit1-gap-remediation-log-2026-06-20.md](spirit1-gap-remediation-log-2026-06-20.md)**.
+
 ---
 
 ## 0. Premise corrections (read first)

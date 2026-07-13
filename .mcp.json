@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "ai-game-developer": { "url": "http://localhost:8080" },
+    "ai-game-developer": { "url": "http://localhost:20065" },
     "playwright": { "url": "http://localhost:8931/mcp" },
     "gitnexus": {
       "command": "npx",

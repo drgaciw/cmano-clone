@@ -25,4 +25,8 @@ public interface IC2PresentationFeed
     void SelectUnit(string unitId);
 
     void SelectContact(string contactId);
+
+    // S37-04: graph surfacing extensions (viewer/panel/highlights/bind) — read-only projections
+    IReadOnlyList<string> LastGraphHighlightIds { get; }
+    string? LastGraphLinkChainDisplay { get; }
 }

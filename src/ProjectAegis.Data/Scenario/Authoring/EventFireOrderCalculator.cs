@@ -8,24 +8,22 @@ public static class EventFireOrderCalculator
         return events
             .Select(e => new EventSortKey(
                 e.Id,
-                ResolveTriggerTick(e),
-                e.Priority))
+                ResolveTriggerRank(e)))
             .OrderBy(k => k.TriggerTickResolved)
-            .ThenBy(k => k.Priority)
             .ThenBy(k => k.EventId, StringComparer.Ordinal)
             .Select(k => k.EventId)
             .ToArray();
     }
 
-    private static int ResolveTriggerTick(ScenarioEventDto evt)
+    private static int ResolveTriggerRank(ScenarioEventDto evt)
     {
-        if (string.Equals(evt.Trigger.Type, "Time", StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(evt.TriggerType, "Time", StringComparison.OrdinalIgnoreCase))
         {
-            return evt.Trigger.AtTick ?? 0;
+            return 0;
         }
 
         return int.MaxValue;
     }
 
-    private sealed record EventSortKey(string EventId, int TriggerTickResolved, int Priority);
+    private sealed record EventSortKey(string EventId, int TriggerTickResolved);
 }

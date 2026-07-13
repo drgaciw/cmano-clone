@@ -1,4 +1,6 @@
 # Primary CI — see docs/engineering/buildkite-ci.md
+# Minimal blocking gate: Release build + test + replay/C2 filters via agent-dotnet-ci.sh
+# Graphite CI optimizer plugin removed (pre-checkout empty-pipeline replace blocked :hammer: on stacks).
 
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
@@ -6,19 +8,15 @@ env:
   BUILDKITE_GIT_CLONE_FLAGS: "--depth=250"
 
 steps:
-  - label: ":graphite: Graphite CI optimizer"
-    key: graphite
-    soft_fail: true
-    if: build.env("GRAPHITE_CI_OPTIMIZER_TOKEN") != null && build.env("GRAPHITE_CI_OPTIMIZER_TOKEN") != ""
-    plugins:
-      - withgraphite/graphite-ci#main:
-          graphite_token: "${GRAPHITE_CI_OPTIMIZER_TOKEN}"
-
-  - wait
-
+  # Blocking gate MUST run first — Graphite optimizer (main pipeline) can --replace with
+  # empty steps and skip :hammer: when placed after the optimizer plugin.
   - label: ":hammer: Build and test"
     key: build
     command: bash tools/buildkite/agent-dotnet-ci.sh
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
 
   - label: ":gitleaks: Secret scan"
     key: gitleaks

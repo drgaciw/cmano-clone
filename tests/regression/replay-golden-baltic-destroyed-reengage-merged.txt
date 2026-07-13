@@ -1,0 +1,10 @@
+# Isolated golden for S57-03/04: baltic-patrol-destroyed-target-reengage
+# After kill on primary, policy pre-filters Engage (score 0); no TARGET_DESTROYED flood in AAR.
+# Hash: isolated (not prod 17144800277401907079)
+# Generated post S57 AAR fix (PerceivedState + policy filter + harness injection)
+SEED=123
+TICKS=8
+FINGERPRINT=Hold:1:Low|Move:0.8:Low|Engage:0:High|... (post-kill no high Engage proposals)
+WORLD_HASH=isolated-destroyed-reengage-v1
+ENGAGEMENT_COUNT=1 (initial only)
+# Verify: zero subsequent Engage after kill tick

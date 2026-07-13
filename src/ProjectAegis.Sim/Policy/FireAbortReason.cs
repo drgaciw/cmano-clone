@@ -10,4 +10,10 @@ public enum FireAbortReason
     EmconOff = 5,
     NoFireControlTrack = 6,
     CommsDenied = 7,
+    AirAspectBlock = 8,
+    SurfaceAspectBlock = 9,
+    SubsurfaceAspectBlock = 10,
+    LandAspectBlock = 11,
+    MineAspectBlock = 12,
+    FacilityAspectBlock = 13,
 }

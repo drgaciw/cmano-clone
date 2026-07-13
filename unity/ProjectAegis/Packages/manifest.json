@@ -1,11 +1,11 @@
 {
   "dependencies": {
-    "com.unity.entities": "1.4.6",
+    "com.unity.addressables": "2.3.16",
+    "com.unity.ai.assistant": "2.13.0-pre.2",
+    "com.unity.ai.inference": "2.6.1",
     "com.unity.burst": "1.8.29",
-    "com.unity.entities.graphics": "1.4.20",
     "com.unity.ui": "2.0.0",
-    "com.ivanmurzak.unity.mcp": "0.77.0",
-    "com.cesium.unity": "https://github.com/CesiumGS/cesium-unity.git?path=Package#release/1.12.0"
+    "com.ivanmurzak.unity.mcp": "0.82.4"
   },
   "scopedRegistries": [
     {

@@ -2,8 +2,8 @@
   "ingressEgressPadNm": 50,
   "fuelFraction": 0.85,
   "exportBlockSeverityFloor": "error",
-  "warnThreshold": 400,
-  "densityThreshold": 20,
+  "complexityWarnThreshold": 400,
+  "densityWarnThreshold": 20,
   "crossRefWeight": 2,
   "maxConditionsPerEvent": 32
 }

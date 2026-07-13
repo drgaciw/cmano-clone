@@ -23,8 +23,8 @@ public static class ValidationConfigLoader
             dto.IngressEgressPadNm,
             dto.FuelFraction,
             ParseSeverityFloor(dto.ExportBlockSeverityFloor),
-            dto.WarnThreshold,
-            dto.DensityThreshold,
+            dto.ComplexityWarnThreshold,
+            dto.DensityWarnThreshold,
             dto.CrossRefWeight,
             dto.MaxConditionsPerEvent);
     }
@@ -65,9 +65,9 @@ public static class ValidationConfigLoader
 
         public string ExportBlockSeverityFloor { get; init; } = "error";
 
-        public int WarnThreshold { get; init; } = 400;
+        public int ComplexityWarnThreshold { get; init; } = 400;
 
-        public int DensityThreshold { get; init; } = 20;
+        public int DensityWarnThreshold { get; init; } = 20;
 
         public int CrossRefWeight { get; init; } = 2;
 

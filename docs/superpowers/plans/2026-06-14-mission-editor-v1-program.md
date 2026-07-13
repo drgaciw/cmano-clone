@@ -1,6 +1,6 @@
 # Mission Editor v1 — Agile Program Plan
 
-> **Locked decisions:** Full GDD v1 MVP · Start after Sprint 22 · 2-week sprints, 1 FTE + parallel subagents  
+> **Locked decisions:** Full GDD v1 MVP · Start after Sprint 22 · 2-week sprints, 1 FTE + parallel subagents
 > **Saved:** 2026-06-14 (adapted from Cursor plan `mission_editor_v1_program_a86fd35b`)
 
 **Goal:** Ship the [Agentic Mission & Scenario Editor GDD v1](design/gdd/agentic-mission-editor.md) — canonical scenario file, four mission archetypes, typed events, Validation Engine, full MCP suite, Unity edit-mode shell, and mechanically testable AC-1..AC-12.

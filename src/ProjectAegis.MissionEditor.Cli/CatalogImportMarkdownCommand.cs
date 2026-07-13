@@ -3,7 +3,7 @@ namespace ProjectAegis.MissionEditor.Cli;
 using System.Text.Json;
 using ProjectAegis.Data.Import;
 
-/// <summary>Phase 2 CLI — propose CMO sensor markdown through the catalog write gate.</summary>
+/// <summary>Phase 2 CLI — propose CMO markdown (sensor / weapon / platform) through the catalog write gate.</summary>
 public static class CatalogImportMarkdownCommand
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -18,15 +18,35 @@ public static class CatalogImportMarkdownCommand
         int? maxRecords,
         int chunkSize,
         TextWriter output,
-        string? reportOutPath = null)
+        string? reportOutPath = null,
+        CmoMarkdownImportEntity entity = CmoMarkdownImportEntity.Sensor,
+        bool mapBalticPlatformIds = false)
     {
-        var result = CmoMarkdownImportProposer.ProposeFromMarkdown(
-            databasePath,
-            markdownPath,
-            maxRecords,
-            chunkSize);
+        var result = entity switch
+        {
+            CmoMarkdownImportEntity.Weapon => CmoMarkdownImportProposer.ProposeWeaponsFromMarkdown(
+                databasePath,
+                markdownPath,
+                maxRecords,
+                chunkSize),
+            CmoMarkdownImportEntity.Platform or
+            CmoMarkdownImportEntity.Aircraft or
+            CmoMarkdownImportEntity.Submarine or
+            CmoMarkdownImportEntity.Facility => CmoMarkdownImportProposer.ProposePlatformsFromMarkdown(
+                databasePath,
+                markdownPath,
+                mapBalticPlatformIds,
+                weaponMarkdownPath: null,
+                maxRecords: maxRecords,
+                chunkSize: chunkSize),
+            _ => CmoMarkdownImportProposer.ProposeFromMarkdown(
+                databasePath,
+                markdownPath,
+                maxRecords,
+                chunkSize),
+        };
 
-        var payload = BuildPayload(result);
+        var payload = BuildPayload(result, entity);
         var json = JsonSerializer.Serialize(payload, JsonOptions);
         output.WriteLine(json);
 
@@ -38,11 +58,12 @@ public static class CatalogImportMarkdownCommand
         return 0;
     }
 
-    internal static object BuildPayload(CmoMarkdownImportResult result)
+    internal static object BuildPayload(CmoMarkdownImportResult result, CmoMarkdownImportEntity entity = CmoMarkdownImportEntity.Sensor)
     {
         var payload = new Dictionary<string, object?>
         {
             ["ok"] = true,
+            ["entity"] = entity.ToString().ToLowerInvariant(),
             ["parsedCount"] = result.ParsedCount,
             ["approvedCount"] = result.ApprovedCount,
             ["quarantinedCount"] = result.QuarantinedCount,
@@ -65,5 +86,25 @@ public static class CatalogImportMarkdownCommand
         }
 
         return payload;
+    }
+
+    public static CmoMarkdownImportEntity ParseEntity(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return CmoMarkdownImportEntity.Sensor;
+        }
+
+        return raw.Trim().ToLowerInvariant() switch
+        {
+            "weapon" or "weapons" => CmoMarkdownImportEntity.Weapon,
+            "platform" or "platforms" => CmoMarkdownImportEntity.Platform,
+            "aircraft" or "aircrafts" => CmoMarkdownImportEntity.Aircraft,
+            "submarine" or "submarines" => CmoMarkdownImportEntity.Submarine,
+            "facility" or "facilities" => CmoMarkdownImportEntity.Facility,
+            "sensor" or "sensors" => CmoMarkdownImportEntity.Sensor,
+            _ => throw new ArgumentException(
+                $"Unknown --entity '{raw}'. Use sensor, weapon, platform, aircraft, submarine, or facility."),
+        };
     }
 }
