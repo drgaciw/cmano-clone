@@ -49,13 +49,15 @@ public sealed class CmoMarkdownLoadoutMagazineTests
             using (var loadoutCmd = connection.CreateCommand())
             {
                 loadoutCmd.CommandText = "SELECT COUNT(*) FROM platform_loadout";
-                Assert.Equal(3, Convert.ToInt32(loadoutCmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
+                // Seed asuw-default + CMO fixture loadouts (3) → 4 rows total.
+                Assert.Equal(4, Convert.ToInt32(loadoutCmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
             }
 
             using (var magazineCmd = connection.CreateCommand())
             {
                 magazineCmd.CommandText = "SELECT COUNT(*) FROM platform_magazine";
-                Assert.Equal(3, Convert.ToInt32(magazineCmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
+                // Seed (2) + CMO fixture magazines after approve.
+                Assert.Equal(5, Convert.ToInt32(magazineCmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
             }
         }
         finally
@@ -114,6 +116,8 @@ public sealed class CmoMarkdownLoadoutMagazineTests
             Assert.Equal(
                 [
                     "hostile-1:default:ss-n-25-switchblade:cmo-weapon-2002",
+                    "u1:asuw-default:gun-76:baltic-oto-76",
+                    "u1:asuw-default:vls-fwd:baltic-rim-66",
                     "u1:default:76mm-oto-melara:cmo-weapon-2003",
                     "u1:default:rim-66-standard-mr:cmo-weapon-2001",
                 ],

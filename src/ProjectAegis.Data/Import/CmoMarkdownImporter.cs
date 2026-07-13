@@ -567,13 +567,33 @@ public static class CmoMarkdownImporter
 
     public static string InferDomain(string platformClass)
     {
-        if (platformClass.Contains("aircraft", StringComparison.OrdinalIgnoreCase) ||
-            platformClass.Contains("helicopter", StringComparison.OrdinalIgnoreCase))
+        // Air before subsurface: "Anti-Submarine Warfare" must not match "submarine".
+        if (platformClass.Contains("anti-submarine", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("aircraft", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("helicopter", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("fixed wing", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("fighter", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("bomber", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("multirole", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("attack)", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("asw", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("nfh", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("tth", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("helix", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("maritime patrol", StringComparison.OrdinalIgnoreCase))
         {
             return "air";
         }
 
-        if (platformClass.Contains("submarine", StringComparison.OrdinalIgnoreCase))
+        // Subsurface: SSK/SSN/SSBN and true submarine classes.
+        if (platformClass.Contains("submarine", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains(" ssk", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("ssn", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("ssbn", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("hunter-killer", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("plarb", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("plark", StringComparison.OrdinalIgnoreCase) ||
+            Regex.IsMatch(platformClass, @"\bPLA-\d", RegexOptions.IgnoreCase))
         {
             return "subsurface";
         }

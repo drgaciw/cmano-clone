@@ -209,7 +209,8 @@ public sealed class CmoMarkdownPlatformImportTests
             using (var mountCmd = connection.CreateCommand())
             {
                 mountCmd.CommandText = "SELECT COUNT(*) FROM platform_mount";
-                Assert.Equal(4, Convert.ToInt32(mountCmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
+                // Seed (gun-76, vls-fwd) + 4 CMO Baltic fixture mounts.
+                Assert.Equal(6, Convert.ToInt32(mountCmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
             }
         }
         finally

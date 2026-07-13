@@ -297,10 +297,14 @@ public sealed class CmoMarkdownImporterTests
             Assert.Equal(["hostile-1", "hostile-far", "u1"], platformIds);
 
             var weaponIds = ReadWeaponIds(connection);
-            Assert.Equal(["cmo-weapon-2001", "cmo-weapon-2002", "cmo-weapon-2003"], weaponIds);
+            // Baltic seed ships baltic-rim-66 / baltic-oto-76; CMO import adds cmo-weapon-*.
+            Assert.Equal(
+                ["baltic-oto-76", "baltic-rim-66", "cmo-weapon-2001", "cmo-weapon-2002", "cmo-weapon-2003"],
+                weaponIds);
 
             var mounts = ReadMountKeys(connection);
-            Assert.Equal(4, mounts.Count);
+            // Seed mounts (gun-76, vls-fwd) + 4 CMO fixture mounts.
+            Assert.Equal(6, mounts.Count);
             Assert.Equal(
                 mounts.OrderBy(m => m, StringComparer.Ordinal).ToArray(),
                 mounts.ToArray());
