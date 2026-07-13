@@ -44,8 +44,8 @@
     }
   ],
   "gauntlet": {
-    "intent": "Mid-mission ROE change stand-in (tight then free sensor lanes) [catalog red: Sovremenny]",
-    "oracle": "Mixed ROE/EMCON lanes stable",
+    "intent": "Mid-mission ROE change stand-in (tight then free sensor lanes) [catalog red: Sovremenny] [WeaponsTight start; contact trigger\u2192WeaponsFree PolicyUpdate; mid-run comms degrade]",
+    "oracle": "Mixed ROE/EMCON lanes stable CommsStateChange/PolicyUpdate required.",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
@@ -78,12 +78,16 @@
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minScore": -130.0,
-      "maxScore": -70.0,
-      "maxMissilesFired": 9,
-      "maxDenials": 46,
       "minKills": 1,
-      "minDenials": 34
+      "maxMissilesFired": 12,
+      "maxDenials": 22,
+      "minScore": -50,
+      "maxScore": 150,
+      "minDenials": 18,
+      "requireFingerprintSubstrings": [
+        "CommsStateChange",
+        "Degraded"
+      ]
     },
     "units": [
       {
@@ -118,5 +122,53 @@
       }
     ]
   },
-  "id": "gauntlet-t5-roe-change"
+  "id": "gauntlet-t5-roe-change",
+  "commsDisplay": {
+    "degradedLagTicks": 2,
+    "ghostOffsetX": 0.06,
+    "ghostOffsetY": 0.04,
+    "degradedOrderDelayTicks": 2,
+    "degradedStaleThresholdDivisor": 2
+  },
+  "comms": [
+    {
+      "atTick": 3,
+      "newState": "Degraded",
+      "nodeId": "ladder-t5-roe-net",
+      "reason": "roe_change_ew_pressure"
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "roe-window"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "roe-window",
+        "fireAtTick": 1,
+        "kind": "EventFired",
+        "code": "roe_escalation_window"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "ladder-contact-roe",
+        "observerId": "k-31-visby-2009",
+        "targetClass": "Surface",
+        "side": "friendly",
+        "missionCode": "ASuW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "k-31-visby-2009"
+        ]
+      }
+    ]
+  }
 }
