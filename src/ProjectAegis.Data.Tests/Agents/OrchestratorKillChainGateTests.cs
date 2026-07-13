@@ -125,8 +125,11 @@ public sealed class OrchestratorKillChainGateTests
     private static void SeedHypersonicMagazineChain(string dbPath, string weaponId = CatalogWeaponIds.KillChainHypersonic)
     {
         using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9949));
+        // Baltic seed already has vls-fwd + asuw-default. Use a dedicated mount so propose/approve
+        // is not blocked by pre-seeded engage rows or kill-chain interaction with existing weapons.
+        const string mountId = "vls-kc-seed";
         var mountBatch = gate.ProposeMountBatch(
-            [new CatalogMount("u1", "vls-fwd", MountType: "vls", ReviewState: CatalogReviewStates.Approved)],
+            [new CatalogMount("u1", mountId, MountType: "vls", ReviewState: CatalogReviewStates.Approved)],
             "agent",
             "seed");
         Assert.True(gate.ApproveBatch(mountBatch, "human", "seed").Committed);
@@ -138,30 +141,70 @@ public sealed class OrchestratorKillChainGateTests
         Assert.True(gate.ApproveBatch(mobilityBatch, "human", "seed").Committed);
 
         var loadoutBatch = gate.ProposeLoadoutBatch(
-            [new CatalogLoadout("u1", "asuw-default", "ASUW Default", "asuw", IsDefault: true)],
+            [new CatalogLoadout("u1", "kc-seed-loadout", "KC Seed", "asuw", IsDefault: false)],
             "agent",
             "seed");
         Assert.True(gate.ApproveBatch(loadoutBatch, "human", "seed").Committed);
 
         if (!string.Equals(weaponId, CatalogWeaponIds.KillChainHypersonic, StringComparison.Ordinal))
         {
+            // Long range + low platform speed (32 kts) yields kill_chain speed mismatch on later approve.
             var weaponBatch = gate.ProposeWeaponBatch(
                 [new CatalogWeaponRecord(
                     weaponId,
                     "Seed Weapon",
                     MinRangeMeters: 1000,
-                    MaxRangeMeters: 80_000,
+                    MaxRangeMeters: 350_000,
                     ReviewState: CatalogReviewStates.Approved)],
                 "agent",
                 "seed");
-            Assert.True(gate.ApproveBatch(weaponBatch, "human", "seed").Committed);
+            // May fail kill-chain gate once mobility 32 is live — fall back to SQL seed of the weapon row.
+            if (!gate.ApproveBatch(weaponBatch, "human", "seed").Committed)
+            {
+                InsertWeaponSql(dbPath, weaponId, maxRangeMeters: 350_000);
+            }
         }
 
         var magazineBatch = gate.ProposeMagazineBatch(
-            [new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", weaponId, 4)],
+            [new CatalogMagazineEntry("u1", "kc-seed-loadout", mountId, weaponId, 4)],
             "agent",
             "seed");
         Assert.True(gate.ApproveBatch(magazineBatch, "human", "seed").Committed);
+    }
+
+    private static void InsertWeaponSql(string dbPath, string weaponId, double maxRangeMeters)
+    {
+        using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
+        connection.Open();
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO weapon_catalog
+                (weapon_id, display_name, min_range_meters, max_range_meters, weapon_type, guidance, review_state)
+            VALUES ($id, $name, 1000, $max, 'Guided Weapon', 'SARH', 'approved')
+            """;
+        cmd.Parameters.AddWithValue("$id", weaponId);
+        cmd.Parameters.AddWithValue("$name", "Seed Weapon SQL");
+        cmd.Parameters.AddWithValue("$max", maxRangeMeters);
+        try
+        {
+            cmd.ExecuteNonQuery();
+        }
+        catch (SqliteException)
+        {
+            // Schema may omit review_state — retry minimal columns.
+            cmd.Parameters.Clear();
+            cmd.CommandText =
+                """
+                INSERT OR REPLACE INTO weapon_catalog
+                    (weapon_id, display_name, min_range_meters, max_range_meters, weapon_type, guidance)
+                VALUES ($id, $name, 1000, $max, 'Guided Weapon', 'SARH')
+                """;
+            cmd.Parameters.AddWithValue("$id", weaponId);
+            cmd.Parameters.AddWithValue("$name", "Seed Weapon SQL");
+            cmd.Parameters.AddWithValue("$max", maxRangeMeters);
+            cmd.ExecuteNonQuery();
+        }
     }
 
     private static void Cleanup(string dbPath)

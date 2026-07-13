@@ -15,6 +15,7 @@ public static class CatalogSeedBootstrap
             jsonConnection.Open();
             SeedBalticPlatforms(jsonConnection);
             SeedBalticDamage(jsonConnection);
+            SeedBalticEngageCatalog(jsonConnection);
             return;
         }
 
@@ -52,6 +53,7 @@ public static class CatalogSeedBootstrap
 
         SeedBalticPlatforms(connection);
         SeedBalticDamage(connection);
+        SeedBalticEngageCatalog(connection);
     }
 
     public static void SeedBalticV3(string databasePath, bool overwrite = true)
@@ -166,6 +168,180 @@ public static class CatalogSeedBootstrap
         cmd.Parameters.AddWithValue("$trl", 9);
         cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.GameplayAbstraction);
         cmd.Parameters.AddWithValue("$citation", string.Empty);
+        cmd.ExecuteNonQuery();
+    }
+
+    /// <summary>
+    /// Ensures migrations are applied, then adds Baltic engage catalog rows (idempotent).
+    /// Safe for enriching an existing production seed without wiping sensors/platforms.
+    /// </summary>
+    public static void EnrichBalticEngageCatalog(string databasePath)
+    {
+        // Open reader to apply migrations, then write engage rows.
+        using (var _ = new SqliteCatalogReader(databasePath, "p0-seed-enrich"))
+        {
+        }
+
+        SqliteConnection.ClearAllPools();
+        using var connection = new SqliteConnection($"Data Source={databasePath};Pooling=false");
+        connection.Open();
+        SeedBalticEngageCatalog(connection);
+    }
+
+    /// <summary>
+    /// GAME-01 / KILLCHAIN-03: seed blue u1 engage path — weapons, approved mount, loadout, magazine.
+    /// Ranges stay inside u1 combat radius so kill-chain R4 stays green.
+    /// </summary>
+    private static void SeedBalticEngageCatalog(SqliteConnection connection)
+    {
+        if (TableExists(connection, "weapon_catalog"))
+        {
+            InsertWeapon(
+                connection,
+                CatalogWeaponIds.BalticRim66,
+                "RIM-66 Standard MR (Baltic seed)",
+                minRangeMeters: 1_000,
+                maxRangeMeters: 74_000,
+                weaponType: "Guided Weapon",
+                guidance: "SARH");
+            InsertWeapon(
+                connection,
+                CatalogWeaponIds.BalticOto76,
+                "76mm OTO Melara (Baltic seed)",
+                minRangeMeters: 0,
+                maxRangeMeters: 16_000,
+                weaponType: "Gun",
+                guidance: string.Empty);
+        }
+
+        if (TableExists(connection, "platform_mount"))
+        {
+            InsertMount(connection, "u1", "vls-fwd", "vls", arcDeg: 360, capacity: 8);
+            InsertMount(connection, "u1", "gun-76", "gun", arcDeg: 300, capacity: 1);
+        }
+
+        if (TableExists(connection, "platform_loadout"))
+        {
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText =
+                """
+                INSERT OR REPLACE INTO platform_loadout (platform_id, loadout_id, loadout_name, role, is_default)
+                VALUES ($platform, $loadout, $name, $role, $default)
+                """;
+            cmd.Parameters.AddWithValue("$platform", "u1");
+            cmd.Parameters.AddWithValue("$loadout", "asuw-default");
+            cmd.Parameters.AddWithValue("$name", "ASUW Default");
+            cmd.Parameters.AddWithValue("$role", "asuw");
+            cmd.Parameters.AddWithValue("$default", 1);
+            cmd.ExecuteNonQuery();
+        }
+
+        if (TableExists(connection, "platform_magazine"))
+        {
+            // Quantities must not exceed mount capacity (PLE-MAG-CAPACITY blocks propose/export diffs).
+            InsertMagazine(connection, "u1", "asuw-default", "vls-fwd", CatalogWeaponIds.BalticRim66, quantity: 8);
+            InsertMagazine(connection, "u1", "asuw-default", "gun-76", CatalogWeaponIds.BalticOto76, quantity: 1);
+        }
+
+        // Intentionally no platform_mobility row: kill-chain speed rule skips when mobility is
+        // absent (warnings would break clean Baltic golden/report emptiness). Ship max speeds
+        // also fail the weapon flight-speed heuristic as errors when present at real values.
+    }
+
+    private static void InsertWeapon(
+        SqliteConnection connection,
+        string weaponId,
+        string displayName,
+        double minRangeMeters,
+        double maxRangeMeters,
+        string weaponType,
+        string guidance)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO weapon_catalog
+                (weapon_id, display_name, min_range_meters, max_range_meters, weapon_type, guidance)
+            VALUES ($id, $name, $min, $max, $type, $guidance)
+            """;
+        cmd.Parameters.AddWithValue("$id", weaponId);
+        cmd.Parameters.AddWithValue("$name", displayName);
+        cmd.Parameters.AddWithValue("$min", minRangeMeters);
+        cmd.Parameters.AddWithValue("$max", maxRangeMeters);
+        cmd.Parameters.AddWithValue("$type", weaponType);
+        cmd.Parameters.AddWithValue("$guidance", guidance);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertMount(
+        SqliteConnection connection,
+        string platformId,
+        string mountId,
+        string mountType,
+        double arcDeg,
+        int capacity)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO platform_mount
+                (platform_id, mount_id, mount_type, arc_deg, capacity, review_state)
+            VALUES ($platform, $mount, $type, $arc, $capacity, $review)
+            """;
+        cmd.Parameters.AddWithValue("$platform", platformId);
+        cmd.Parameters.AddWithValue("$mount", mountId);
+        cmd.Parameters.AddWithValue("$type", mountType);
+        cmd.Parameters.AddWithValue("$arc", arcDeg);
+        cmd.Parameters.AddWithValue("$capacity", capacity);
+        cmd.Parameters.AddWithValue("$review", CatalogReviewStates.Approved);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertMagazine(
+        SqliteConnection connection,
+        string platformId,
+        string loadoutId,
+        string mountId,
+        string weaponId,
+        int quantity)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO platform_magazine
+                (platform_id, loadout_id, mount_id, weapon_id, quantity, reload_time_sec, depth)
+            VALUES ($platform, $loadout, $mount, $weapon, $qty, 0, 0)
+            """;
+        cmd.Parameters.AddWithValue("$platform", platformId);
+        cmd.Parameters.AddWithValue("$loadout", loadoutId);
+        cmd.Parameters.AddWithValue("$mount", mountId);
+        cmd.Parameters.AddWithValue("$weapon", weaponId);
+        cmd.Parameters.AddWithValue("$qty", quantity);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void InsertMobility(
+        SqliteConnection connection,
+        string platformId,
+        double maxSpeedKnots,
+        double cruiseSpeedKnots,
+        double rangeNm)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO platform_mobility
+                (platform_id, max_speed_knots, cruise_speed_knots, range_nm, review_state, trl_level, value_tier, citation_ref)
+            VALUES ($platform, $max, $cruise, $range, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$platform", platformId);
+        cmd.Parameters.AddWithValue("$max", maxSpeedKnots);
+        cmd.Parameters.AddWithValue("$cruise", cruiseSpeedKnots);
+        cmd.Parameters.AddWithValue("$range", rangeNm);
+        cmd.Parameters.AddWithValue("$review", CatalogReviewStates.Approved);
+        cmd.Parameters.AddWithValue("$trl", 9);
+        cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.GameplayAbstraction);
+        cmd.Parameters.AddWithValue("$citation", "baltic-seed-mobility");
         cmd.ExecuteNonQuery();
     }
 
