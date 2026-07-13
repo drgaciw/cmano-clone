@@ -179,6 +179,7 @@ the Release DLLs into `Plugins/` after a green build:
 | Replay harness / golden regeneration | [`../ProjectAegis.Delegation.Demo/README.md`](../ProjectAegis.Delegation.Demo/README.md) |
 | Data / catalog layer | [`../ProjectAegis.Data/README.md`](../ProjectAegis.Data/README.md) |
 | Determinism rules, hashing, golden workflow | [`docs/engineering/determinism-and-replay.md`](../../docs/engineering/determinism-and-replay.md) |
+| Abort-reason codes (`Engagement|`/`PolicyDenial` rows) | [`docs/engineering/abort-reason-catalog.md`](../../docs/engineering/abort-reason-catalog.md) |
 | Policy evaluator boundary | [`adr-002-policy-evaluator.md`](../../docs/architecture/adr-002-policy-evaluator.md) |
 | Order-log schema | [`adr-003-order-log-schema.md`](../../docs/architecture/adr-003-order-log-schema.md) |
 | C2 map / APP-6 presentation | [`adr-007-c2-map-presentation.md`](../../docs/architecture/adr-007-c2-map-presentation.md) |
