@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 # Mirrors .github/workflows/gitnexus-reindex.yml (main push, skip doc-only paths)
 #
-# Task 6 (2026-07-09 CI optimization pass): the pipeline used to wrap this whole step
-# in a blanket `soft_fail: true`, which swallowed every non-zero exit indiscriminately
-# — including real infra bugs (permission errors, disk full writing .gitnexus/logs,
-# etc.), not just the GitNexus CLI's own known best-effort failure modes. This script
-# now catches the two commands that can legitimately fail in a "reindex is best-effort,
-# don't block main" way (`gitnexus analyze` / `gitnexus status`) and exits with the
-# dedicated sentinel GITNEXUS_SOFT_FAIL_EXIT (75 = EX_TEMPFAIL, sysexits.h — a
-# well-known "temporary, non-fatal failure" code). .buildkite/pipeline.yml scopes
-# `soft_fail:` to exactly that exit status, so any OTHER exit code now genuinely fails
-# the build instead of being silently hidden.
+# Task 6 (2026-07-09 CI optimization pass): prep for scoped soft-fail. Live
+# .buildkite/pipeline.yml still uses blanket `soft_fail: true` on this step.
+# This script maps known best-effort CLI failures (`gitnexus analyze` / `status`)
+# to GITNEXUS_SOFT_FAIL_EXIT=75 (EX_TEMPFAIL). Bootstrap/missing-CLI failures exit 1.
+# A future pipeline change may soft-fail only exit 75; until then both codes are soft.
 set -euo pipefail
 
 GITNEXUS_SOFT_FAIL_EXIT=75

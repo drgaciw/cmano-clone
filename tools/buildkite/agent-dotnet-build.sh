@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Bootstrap wrapper for the build-only Buildkite step (Task 3 split). Mirrors
-# agent-dotnet-ci.sh's bootstrap-then-exec pattern.
+# GROUNDWORK ONLY — not called by live .buildkite/pipeline.yml.
+# Bootstrap wrapper for future build-only step; mirrors agent-dotnet-ci.sh pattern.
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
