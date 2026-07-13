@@ -199,6 +199,8 @@ grep -rn "DateTime.UtcNow\|DateTime.Now\|Random.Shared\|Guid.NewGuid" src --incl
 
 | Topic | Doc |
 |-------|-----|
+| Deterministic sim core (hashes, seeded RNG, tick) | [`ProjectAegis.Sim/README.md`](../../src/ProjectAegis.Sim/README.md) |
+| Replay harness / golden regeneration (console) | [`ProjectAegis.Delegation.Demo/README.md`](../../src/ProjectAegis.Delegation.Demo/README.md) |
 | Tick pipeline order + world-hash layers | [`adr-004-tick-pipeline-order.md`](../architecture/adr-004-tick-pipeline-order.md) |
 | Order-log schema | [`adr-003-order-log-schema.md`](../architecture/adr-003-order-log-schema.md) |
 | Sim assembly boundary | [`adr-001-sim-assembly-boundary.md`](../architecture/adr-001-sim-assembly-boundary.md) |
