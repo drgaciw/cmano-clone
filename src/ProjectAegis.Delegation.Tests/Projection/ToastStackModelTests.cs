@@ -79,6 +79,37 @@ public sealed class ToastStackModelTests
     }
 
     [Test]
+    public void Evicting_an_overflow_toast_directly_reduces_overflow_without_changing_visible()
+    {
+        var model = new ToastStackModel();
+        model.Add(Entry(1));
+        model.Add(Entry(2));
+        model.Add(Entry(3));
+        model.Add(Entry(4));
+
+        var evicted = model.Evict(4);
+
+        Assert.That(evicted, Is.True);
+        Assert.That(model.OverflowCount, Is.EqualTo(0));
+        Assert.That(model.VisibleToasts.Select(e => e.SequenceId), Is.EqualTo(new ulong[] { 1, 2, 3 }));
+        Assert.That(model.TotalCount, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void Adding_a_duplicate_sequence_id_is_rejected_and_does_not_grow_the_queue()
+    {
+        // Sequence ids are unique message-log line identifiers (MessageLogLine.SequenceId); the model
+        // should never present the same alert twice in the stack, whether the duplicate comes from a
+        // caller bug (re-adding the same batch) or an upstream data issue.
+        var model = new ToastStackModel();
+        model.Add(Entry(1));
+
+        model.Add(Entry(1));
+
+        Assert.That(model.TotalCount, Is.EqualTo(1), "duplicate sequence id must not be queued twice");
+    }
+
+    [Test]
     public void Click_resolves_to_focus_unit_id_when_present()
     {
         var model = new ToastStackModel();

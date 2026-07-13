@@ -140,4 +140,31 @@ public sealed class C2SelectionResolverTests
 
         Assert.That(C2SelectionResolver.CycleUnit(oob, "u1", forward: true), Is.Null);
     }
+
+    [Test]
+    public void CycleUnit_returns_null_for_an_empty_oob_instead_of_wrapping_on_nothing()
+    {
+        Assert.That(C2SelectionResolver.CycleUnit(Array.Empty<OobTreeEntry>(), null, forward: true), Is.Null);
+        Assert.That(C2SelectionResolver.CycleUnit(Array.Empty<OobTreeEntry>(), "stale", forward: false), Is.Null);
+    }
+
+    [Test]
+    public void CycleUnit_with_a_single_alive_unit_wraps_to_itself_in_both_directions()
+    {
+        var oob = new[] { new OobTreeEntry("u1", true) };
+
+        Assert.That(C2SelectionResolver.CycleUnit(oob, "u1", forward: true), Is.EqualTo("u1"));
+        Assert.That(C2SelectionResolver.CycleUnit(oob, "u1", forward: false), Is.EqualTo("u1"));
+    }
+
+    [Test]
+    public void CycleUnit_treats_a_null_oob_like_an_empty_one_rather_than_throwing()
+    {
+        // Every sibling resolver in this domain (SelectionBoxResolver, CenterOnSelectionResolver,
+        // GroupOrderPlan.Build) treats a null input collection as "nothing to resolve" rather than
+        // throwing. CycleUnit is called directly with host-supplied OOB data
+        // (C2PresentationController.CycleFriendlyUnit does no null-check of its own), so a failed/empty
+        // OOB projection must not crash N/P cycling.
+        Assert.That(C2SelectionResolver.CycleUnit(null!, "u1", forward: true), Is.Null);
+    }
 }

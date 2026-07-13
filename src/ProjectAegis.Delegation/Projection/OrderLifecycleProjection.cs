@@ -214,7 +214,8 @@ public static class OrderLifecycleProjection
         string unitId,
         OrderKind kind,
         bool remove,
-        out OrderKey key)
+        out OrderKey key,
+        Func<OrderKey, bool>? predicate = null)
     {
         key = default;
         if (!openByUnit.TryGetValue(unitId, out var list) || list.Count == 0)
@@ -225,7 +226,8 @@ public static class OrderLifecycleProjection
         for (var i = 0; i < list.Count; i++)
         {
             var candidate = list[i];
-            if (kindByKey.TryGetValue(candidate, out var candidateKind) && candidateKind == kind)
+            if (kindByKey.TryGetValue(candidate, out var candidateKind) && candidateKind == kind &&
+                (predicate is null || predicate(candidate)))
             {
                 key = candidate;
                 if (remove)

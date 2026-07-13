@@ -91,6 +91,38 @@ public sealed class PanelRefreshGateTests
         Assert.That(gate.IsDirty(rows), Is.False);
     }
 
+    [Test]
+    public void IsDirty_detects_in_place_mutation_of_the_same_list_instance_after_MarkApplied()
+    {
+        // Adversarial probe: if a caller reuses the SAME mutable List<T> instance across frames
+        // (rather than rebuilding a fresh list each bind, as MessageLogPanelBinder happens to do
+        // today) and mutates it in place after MarkApplied, the gate must still detect the change.
+        // If PanelRefreshGate stores a bare reference to the applied list, the ReferenceEquals
+        // short-circuit at the top of IsDirty will alias against the caller's now-mutated list and
+        // wrongly report "not dirty", silently dropping a real content change from the ListView.
+        var gate = new PanelRefreshGate<MessageLogDisplayRow>();
+        var rows = Rows("CONTACT");
+        gate.MarkApplied(rows);
+
+        rows.Add(new MessageLogDisplayRow("COMMS", "[COMMS] line"));
+
+        Assert.That(gate.IsDirty(rows), Is.True);
+    }
+
+    [Test]
+    public void IsDirty_detects_in_place_count_change_via_the_same_list_instance_after_MarkApplied()
+    {
+        // Same aliasing hazard as above, but exercised via removal so the count-mismatch branch
+        // (which sits after the ReferenceEquals short-circuit) is the one that would need to run.
+        var gate = new PanelRefreshGate<MessageLogDisplayRow>();
+        var rows = Rows("CONTACT", "COMMS");
+        gate.MarkApplied(rows);
+
+        rows.RemoveAt(0);
+
+        Assert.That(gate.IsDirty(rows), Is.True);
+    }
+
     private static List<MessageLogDisplayRow> Rows(params string[] categories)
     {
         var rows = new List<MessageLogDisplayRow>(categories.Length);

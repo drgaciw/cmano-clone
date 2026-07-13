@@ -1,3 +1,4 @@
+using System.Linq;
 using ProjectAegis.Delegation.Projection;
 using NUnit.Framework;
 
@@ -62,5 +63,30 @@ public sealed class AlertProjectionTests
     public void Project_of_empty_list_is_empty()
     {
         Assert.That(AlertProjection.Project(System.Array.Empty<MessageLogLine>()), Is.Empty);
+    }
+
+    [Test]
+    public void Project_preserves_input_order_even_when_not_sorted_by_sim_time_or_sequence()
+    {
+        // The projection must not reorder/sort — callers (e.g. ToastStackModel, message log rendering)
+        // depend on Project returning items in exactly the order MessageLogProjection produced them.
+        var lines = new[]
+        {
+            new MessageLogLine(9, 90.0, "FUEL", "later sequence, listed first", "u9"),
+            new MessageLogLine(2, 5.0, "KILL_CONFIRMED", "earlier sequence, listed second", "u2"),
+            new MessageLogLine(5, 40.0, "CONTACT", "middle", "u5"),
+        };
+
+        var items = AlertProjection.Project(lines);
+
+        Assert.That(items.Select(i => i.SequenceId), Is.EqualTo(new ulong[] { 9, 2, 5 }));
+    }
+
+    [Test]
+    public void ProjectSeverity_of_empty_list_is_empty()
+    {
+        Assert.That(
+            AlertProjection.ProjectSeverity(System.Array.Empty<MessageLogLine>(), AlertSeverity.Critical),
+            Is.Empty);
     }
 }

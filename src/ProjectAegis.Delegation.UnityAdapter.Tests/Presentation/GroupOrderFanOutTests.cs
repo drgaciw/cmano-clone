@@ -139,6 +139,51 @@ public sealed class GroupOrderFanOutTests
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Is.Empty);
     }
 
+    [Test]
+    public void ExecuteAttackOption_with_an_empty_plan_dispatches_nothing()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: true, scenarioPolicyId: "baltic-patrol");
+        bridge.BeginExecution();
+
+        var snapshot = new StubSnapshot(
+            SimTime: 1,
+            ContactCount: 0,
+            Alive: new Dictionary<TargetId, bool>(),
+            hasFireControlTrack: false);
+
+        var plan = GroupOrderPlan.Build(Array.Empty<string>(), GroupOrderUnitVerdict.Eligible);
+
+        var result = GroupOrderFanOut.ExecuteAttackOption(plan, bridge, snapshot, "hold-fire");
+
+        Assert.That(result.Dispatched, Is.Empty);
+        Assert.That(result.Failed, Is.Empty);
+        Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Is.Empty);
+    }
+
+    [Test]
+    public void ExecuteAttackOption_with_a_null_plan_bridge_or_snapshot_returns_the_empty_result_without_throwing()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: true, scenarioPolicyId: "baltic-patrol");
+        bridge.BeginExecution();
+        var snapshot = new StubSnapshot(SimTime: 1, ContactCount: 0, Alive: new Dictionary<TargetId, bool>());
+        var plan = GroupOrderPlan.Build(new[] { "u1" }, GroupOrderUnitVerdict.Eligible);
+
+        Assert.That(GroupOrderFanOut.ExecuteAttackOption(null!, bridge, snapshot, "hold-fire"), Is.EqualTo(GroupOrderFanOutResult.Empty));
+        Assert.That(GroupOrderFanOut.ExecuteAttackOption(plan, null!, snapshot, "hold-fire"), Is.EqualTo(GroupOrderFanOutResult.Empty));
+        Assert.That(GroupOrderFanOut.ExecuteAttackOption(plan, bridge, null!, "hold-fire"), Is.EqualTo(GroupOrderFanOutResult.Empty));
+    }
+
+    [Test]
+    public void ExecuteHumanOrder_with_a_null_plan_or_bridge_returns_the_empty_result_without_throwing()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: false, scenarioPolicyId: "baltic-patrol");
+        bridge.BeginExecution();
+        var plan = GroupOrderPlan.Build(new[] { "u1" }, GroupOrderUnitVerdict.Eligible);
+
+        Assert.That(GroupOrderFanOut.ExecuteHumanOrder(null!, bridge, OrderKind.Hold, simTime: 0), Is.EqualTo(GroupOrderFanOutResult.Empty));
+        Assert.That(GroupOrderFanOut.ExecuteHumanOrder(plan, null!, OrderKind.Hold, simTime: 0), Is.EqualTo(GroupOrderFanOutResult.Empty));
+    }
+
     private sealed class StubSnapshot(
         double SimTime,
         int ContactCount,

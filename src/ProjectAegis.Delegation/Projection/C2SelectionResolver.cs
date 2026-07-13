@@ -51,10 +51,17 @@ public static class C2SelectionResolver
     /// given (display) order — not re-sorted — filtering to <see cref="OobTreeEntry.IsAlive"/> units
     /// only, so cycling never lands on a destroyed unit. Wraps around at either end. When
     /// <paramref name="currentUnitId"/> is null/empty or is not present in the alive list, returns the
-    /// first (forward) or last (backward) alive unit. Returns null when no unit is alive.
+    /// first (forward) or last (backward) alive unit. Returns null when no unit is alive, or when
+    /// <paramref name="oob"/> itself is null/empty (matches the null-tolerant contract of sibling
+    /// resolvers in this namespace, e.g. <c>SelectionBoxResolver</c>, <c>CenterOnSelectionResolver</c>).
     /// </summary>
     public static string? CycleUnit(IReadOnlyList<OobTreeEntry> oob, string? currentUnitId, bool forward)
     {
+        if (oob == null)
+        {
+            return null;
+        }
+
         var alive = oob.Where(u => u.IsAlive).Select(u => u.UnitId).ToList();
         if (alive.Count == 0)
         {

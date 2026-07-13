@@ -122,4 +122,43 @@ public sealed class SelectionSetTests
 
         Assert.That(set.PrimaryUnitId, Is.EqualTo("u2"));
     }
+
+    [Test]
+    public void Removing_the_only_unit_leaves_no_anchor()
+    {
+        var set = new SelectionSet();
+        set.Add("u1");
+
+        set.Remove("u1");
+
+        Assert.That(set.PrimaryUnitId, Is.Null);
+        Assert.That(set.IsEmpty, Is.True);
+    }
+
+    [Test]
+    public void ReplaceWith_empty_string_clears_like_null()
+    {
+        var set = new SelectionSet();
+        set.Add("u1");
+
+        set.ReplaceWith(string.Empty);
+
+        Assert.That(set.IsEmpty, Is.True);
+    }
+
+    [Test]
+    public void Toggling_a_unit_back_on_re_adds_it_at_the_end_of_the_order()
+    {
+        // Toggle's re-add goes through Add, which always appends — re-selecting a previously
+        // deselected unit does not restore its original position/anchor status.
+        var set = new SelectionSet();
+        set.Add("u1");
+        set.Add("u2");
+
+        set.Toggle("u1"); // remove
+        set.Toggle("u1"); // re-add
+
+        Assert.That(set.OrderedTargetIds, Is.EqualTo(new[] { "u2", "u1" }));
+        Assert.That(set.PrimaryUnitId, Is.EqualTo("u2"), "u2 is now the anchor since u1 lost its original slot");
+    }
 }

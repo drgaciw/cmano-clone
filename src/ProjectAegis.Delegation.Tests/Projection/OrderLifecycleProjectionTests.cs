@@ -192,6 +192,7 @@ public sealed class OrderLifecycleProjectionTests
     [Test]
     public void Cancel_after_a_cancel_of_the_same_unit_and_kind_only_aborts_the_matching_execute_tick()
     {
+        // Two queued Move orders, cancel twice by execute tick — each cancel aborts its match.
         var log = new DecisionLog();
         log.AppendPlayerOrder(new PlayerOrderRecord(
             0, 10.0, 10, new TargetId("u1"), OrderKind.Move, ExecuteSimTick: 20));
@@ -213,6 +214,8 @@ public sealed class OrderLifecycleProjectionTests
     [Test]
     public void Cancel_of_a_non_Engage_kind_Accepted_order_maps_to_Aborted()
     {
+        // Known-MVP-gap kinds (Move, Hold, SetEwPosture, ReturnToBase) stay Accepted absent evidence —
+        // a cancel of one of those (immediate, no comms delay) must still resolve to Aborted.
         var log = new DecisionLog();
         log.AppendPlayerOrder(new PlayerOrderRecord(
             0, 10.0, 10, new TargetId("u1"), OrderKind.Hold, ExecuteSimTick: 10));
@@ -248,5 +251,26 @@ public sealed class OrderLifecycleProjectionTests
         Assert.That(states[key], Is.EqualTo(OrderLifecycleState.Executing),
             "an order that has already launched must stay Executing; a late/stray cancel record must not " +
             "retroactively downgrade it to Aborted");
+    }
+
+    [Test]
+    public void A_cancel_logged_after_the_order_has_already_completed_is_a_noop()
+    {
+        // Once Completed, open-order tracking is cleared — a late cancel finds nothing and leaves Completed.
+        var log = new DecisionLog();
+        log.AppendPlayerOrder(new PlayerOrderRecord(
+            0, 10.0, 10, new TargetId("u1"), OrderKind.Engage, ExecuteSimTick: 10));
+        log.AppendEngagement(new EngagementRecord(
+            0, 11.0, 11, new TargetId("u1"), EngagementId: 501, Launched: true));
+        log.AppendEngagementOutcome(new EngagementOutcomeRecord(
+            0, 12.0, 12, new TargetId("u1"), new TargetId("hostile-1"), EngagementId: 501,
+            OutcomeCode: "KILL", PkDraw: 0.1));
+        log.AppendPlayerOrderCancelled(new PlayerOrderCancelledRecord(
+            0, 13.0, 13, new TargetId("u1"), OrderKind.Engage, CancelledExecuteSimTick: 10));
+
+        var states = OrderLifecycleProjection.Project(log);
+
+        var key = new OrderLifecycleProjection.OrderKey("u1", 1);
+        Assert.That(states[key], Is.EqualTo(OrderLifecycleState.Completed));
     }
 }

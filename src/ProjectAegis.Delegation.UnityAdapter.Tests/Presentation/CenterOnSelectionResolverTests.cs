@@ -89,4 +89,40 @@ public sealed class CenterOnSelectionResolverTests
 
         Assert.That(CenterOnSelectionResolver.Resolve(selection, symbols), Is.Null);
     }
+
+    [Test]
+    public void Resolve_returns_null_when_a_selected_id_has_no_symbol_at_all()
+    {
+        // "u1" is selected but never appears in the symbols list — distinct from the "destroyed"
+        // case (Resolve_returns_null_when_none_of_the_selection_has_a_live_symbol), which does have a
+        // matching (but dead) symbol entry.
+        var selection = new SelectionSet();
+        selection.Add("u1");
+        var symbols = new[]
+        {
+            new MapSymbolEntry("other", "Friendly", "■", "other", 0.2f, 0.2f, false),
+        };
+
+        Assert.That(CenterOnSelectionResolver.Resolve(selection, symbols), Is.Null);
+    }
+
+    [Test]
+    public void Resolve_averages_only_the_ids_that_resolve_when_others_are_unknown()
+    {
+        var selection = new SelectionSet();
+        selection.Add("u1");
+        selection.Add("ghost"); // never registered as a map symbol
+        selection.Add("u3");
+        var symbols = new[]
+        {
+            new MapSymbolEntry("u1", "Friendly", "■", "u1", 0.0f, 0.0f, false),
+            new MapSymbolEntry("u3", "Friendly", "■", "u3", 1.0f, 1.0f, false),
+        };
+
+        var target = CenterOnSelectionResolver.Resolve(selection, symbols);
+
+        Assert.That(target, Is.Not.Null);
+        Assert.That(target!.Value.NormalizedX, Is.EqualTo(0.5f));
+        Assert.That(target.Value.NormalizedY, Is.EqualTo(0.5f));
+    }
 }

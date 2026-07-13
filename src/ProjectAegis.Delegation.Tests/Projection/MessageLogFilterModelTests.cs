@@ -100,4 +100,31 @@ public sealed class MessageLogFilterModelTests
 
         Assert.That(filter.Apply(lines), Is.Empty);
     }
+
+    [Test]
+    public void Category_matching_is_case_sensitive()
+    {
+        // MessageLogProjection categories are fixed all-caps identifiers (see AlertSeverityMap); the
+        // filter must match them exactly rather than silently folding case, so a lowercase disable
+        // request does not accidentally match — or fail to match — a differently-cased category.
+        var filter = new MessageLogFilterModel();
+        filter.SetEnabled("fuel", enabled: false);
+
+        Assert.That(filter.IsEnabled("FUEL"), Is.True, "disabling 'fuel' must not disable 'FUEL'");
+
+        var lines = new[] { new MessageLogLine(1, 1.0, "FUEL", "a", "u1") };
+        Assert.That(filter.Apply(lines), Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public void Toggling_a_category_never_seen_in_any_line_does_not_affect_other_categories()
+    {
+        var filter = new MessageLogFilterModel();
+
+        filter.SetEnabled("NOT_A_REAL_CATEGORY", enabled: false);
+
+        var lines = new[] { new MessageLogLine(1, 1.0, "COMMS", "a", "u1") };
+        Assert.That(filter.Apply(lines), Has.Count.EqualTo(1));
+        Assert.That(filter.DisabledCategories, Has.Count.EqualTo(1));
+    }
 }
