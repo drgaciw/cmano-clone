@@ -23,7 +23,7 @@ Open `unity/ProjectAegis` in **Unity Hub 6.3 LTS** (6000.3.x).
 7. **Right:** `RightUnitPanelHost` — `Assets/UI/UnitDetail/UnitDetailPanel.uxml` / `.uss`
 8. **Bottom:** `MessageLogPanelHost` — `Assets/UI/MessageLog/MessageLogPanel.uxml` / `.uss`
 9. Wire each host's `bridgeHost` to the same **DelegationBridgeHost**.
-10. Optional scenarios on bridge: `baltic-patrol-mission`, `baltic-patrol-classify`, `baltic-patrol-comms` (COMMS top bar + denials).
+10. Optional scenarios on bridge: `baltic-patrol-mission`, `baltic-patrol-classify`, `baltic-patrol-comms` (COMMS top bar + denials), `baltic-patrol-mission-roe` (doctrine inheritance panel).
 11. Enter **Play Mode** — top bar shows sim time + score; map shows ■/◆ symbols; drawer tabs work; no bridge errors.
 
 ## Sprint 7–9 — COMMS + fuel QA (manual)
@@ -41,6 +41,17 @@ Use `scenarioPolicyId` = `baltic-patrol-comms`.
 
 Full checklist: `production/qa/c2-manual-signoff-2026-06-02.md`  
 Headless gate first: `tools/unity/Invoke-ManualQaHeadlessGate.ps1`
+
+## Sprint 22–25 — doctrine QA (manual)
+
+Use `scenarioPolicyId` = `baltic-patrol-mission-roe`.
+
+| Step | Expected |
+|------|----------|
+| Play starts | First friendly unit selected; doctrine panel shows `WeaponsTight` ROE from mission |
+| Doctrine panel | `EMCON:` line populated; `SOURCE:` includes `Mission`; inheritance hint visible |
+| Override (when enabled) | ROE dropdown + apply updates policy log; duplicate apply rejected |
+| No console errors | Bridge tick continues; map/OOB selection still syncs |
 
 ## Sprint 6 — selection QA (manual)
 
@@ -70,6 +81,17 @@ When Unity **6000.3.14f1** is installed locally:
 ```powershell
 pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario comms
 pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario classify -SkipBuild
+pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario doctrine -SkipBuild
+pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario import -SkipBuild
+pwsh tools/unity/Invoke-C2PlayModeSignoffBatch.ps1 -Scenario begin-execution -SkipBuild
 ```
 
-Opens `DelegationSmoke.unity`, enters Play Mode in batchmode, and fails on game console errors. Evidence: `unity-c2-playmode-signoff.log`. Full checklist: `production/qa/c2-manual-signoff-2026-06-02.md`.
+Opens `DelegationSmoke.unity`, enters Play Mode in batchmode, and fails on game console errors. Evidence: `unity-c2-playmode-signoff.log`. Full checklist: `production/qa/c2-manual-signoff-2026-06-02.md`. S30-06 presentation evidence README: `production/qa/evidence/README-presentation-evidence-s30.md`.
+
+| Scenario | `-executeMethod` | Policy id |
+|----------|------------------|-----------|
+| `comms` | `C2PlayModeSignoffBatchRunner.RunBatch` | `baltic-patrol-comms` |
+| `classify` | `C2PlayModeSignoffBatchRunner.RunClassifyBatch` | `baltic-patrol-classify` |
+| `doctrine` | `C2PlayModeSignoffBatchRunner.RunDoctrineBatch` | `baltic-patrol-mission-roe` |
+| `import` | `C2PlayModeSignoffBatchRunner.RunImportBatch` | `baltic-patrol-classify` |
+| `begin-execution` | `C2PlayModeSignoffBatchRunner.RunBeginExecutionBatch` | `baltic-patrol-classify` |

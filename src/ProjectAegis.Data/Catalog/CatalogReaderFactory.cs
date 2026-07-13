@@ -18,7 +18,31 @@ public static class CatalogReaderFactory
     /// <summary>
     /// Seeds <see cref="CatalogSeedBootstrap"/> when missing and returns a SQLite reader, or null when the repo root cannot be resolved.
     /// </summary>
-    public static ICatalogReader? TryCreateBalticPatrolReader()
+    public static ICatalogReader? TryCreateBalticPatrolReader() =>
+        TryCreateBalticPatrolReaderCore(CatalogSeedBootstrap.SeedBalticPatrol);
+
+    public static ICatalogReader? TryCreateBalticV3Reader() =>
+        TryCreateBalticPatrolReaderCore(CatalogSeedBootstrap.SeedBalticV3);
+
+    public static ICatalogReader ResolveForScenario(string scenarioPolicyId, ICatalogReader? catalogOverride = null)
+    {
+        if (catalogOverride != null)
+        {
+            return catalogOverride;
+        }
+
+        if (IsBalticV3Scenario(scenarioPolicyId))
+        {
+            return InMemoryCatalogReader.BalticV3Fixture();
+        }
+
+        return TryCreateBalticPatrolReader() ?? InMemoryCatalogReader.BalticPatrolFixture();
+    }
+
+    public static bool IsBalticV3Scenario(string scenarioPolicyId) =>
+        scenarioPolicyId.StartsWith("baltic-v3-", StringComparison.OrdinalIgnoreCase);
+
+    private static ICatalogReader? TryCreateBalticPatrolReaderCore(Action<string, bool> seed)
     {
         var dbPath = ResolveBalticPatrolDatabasePath();
         if (!Path.IsPathRooted(dbPath) && !File.Exists(dbPath))
@@ -38,7 +62,7 @@ public static class CatalogReaderFactory
 
             if (!File.Exists(dbPath))
             {
-                CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
+                seed(dbPath, true);
             }
 
             return new SqliteCatalogReader(dbPath, "harness-baltic");

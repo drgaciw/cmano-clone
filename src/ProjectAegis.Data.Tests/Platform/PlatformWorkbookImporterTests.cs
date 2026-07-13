@@ -25,7 +25,12 @@ public sealed class PlatformWorkbookImporterTests
         Mounts: new[] { new CatalogMount("u1", "vls-fwd", "vls", 360.0, 32) },
         Loadouts: new[] { new CatalogLoadout("u1", "asuw-default", "ASuW", "asuw", IsDefault: true) },
         Magazines: new[] { new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "mvp-weapon", magazineQty, 0, 32) },
-        Comms: new[] { new CatalogCommsBinding("u1", "NATO_TADIL_J") });
+        Comms: new[] { new CatalogCommsBinding("u1", "NATO_TADIL_J") },
+        Links: new[]
+        {
+            new CatalogLinkEntry("NATO_TADIL_J", "NATO Link 16", CatalogLinkTypes.Tactical, LatencyMsNominal: 50),
+            new CatalogLinkEntry("SATCOM_B", "SATCOM Wideband", CatalogLinkTypes.Satcom, LatencyMsNominal: 250),
+        });
 
     private static PlatformWorkbook Export(PlatformCatalogExportData data, string snapshotId = SnapshotId) =>
         new PlatformWorkbookExporter().Export(data, snapshotId, new FixedCatalogClock(0));
@@ -89,6 +94,9 @@ public sealed class PlatformWorkbookImporterTests
         Assert.Empty(gate.LoadoutProposals);
         Assert.Empty(gate.MagazineProposals);
         Assert.Empty(gate.CommsProposals);
+        Assert.Empty(gate.MobilityProposals);
+        Assert.Empty(gate.SignatureProposals);
+        Assert.Empty(gate.EmconProposals);
         Assert.Contains(result.Plan.Findings, f =>
             f.Code == PlatformWorkbookValidator.MagazineOverCapacity && f.Severity == ValidationSeverity.Error);
     }
@@ -162,6 +170,30 @@ public sealed class PlatformWorkbookImporterTests
     }
 
     [Fact]
+    public void Stage_edited_link_proposes_link_batch()
+    {
+        var source = BaseData();
+        var editedData = BaseData() with
+        {
+            Links = new[]
+            {
+                new CatalogLinkEntry("NATO_TADIL_J", "NATO Link 16", CatalogLinkTypes.Tactical, LatencyMsNominal: 75),
+                new CatalogLinkEntry("SATCOM_B", "SATCOM Wideband", CatalogLinkTypes.Satcom, LatencyMsNominal: 250),
+            },
+        };
+        var edited = Export(editedData);
+        var gate = new FakeWriteGate();
+
+        var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "edit link");
+
+        Assert.True(result.Staged);
+        Assert.NotNull(result.LinkBatchId);
+        var proposed = Assert.Single(gate.LinkProposals);
+        Assert.Equal("NATO_TADIL_J", proposed[0].LinkId);
+        Assert.Equal(75, proposed[0].LatencyMsNominal);
+    }
+
+    [Fact]
     public void Stage_edited_comms_proposes_comms_batch()
     {
         var source = BaseData();
@@ -214,6 +246,108 @@ public sealed class PlatformWorkbookImporterTests
         Assert.True(plan.RequiresHumanApproval);
     }
 
+    /// <summary>PLE-2.3: dangling magazine FK produces quarantine report entry and never stages.</summary>
+    [Fact]
+    public void Stage_dangling_magazine_mount_fk_emits_quarantine_entry_and_stages_nothing()
+    {
+        var source = BaseData(magazineQty: 16);
+        var editedData = BaseData(magazineQty: 16) with
+        {
+            Magazines = new[]
+            {
+                new CatalogMagazineEntry("u1", "asuw-default", "does-not-exist-mount", "mvp-weapon", 8, 0, 8),
+            },
+        };
+        var edited = Export(editedData);
+        var gate = new FakeWriteGate();
+
+        var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "dangling mount fk");
+
+        Assert.False(result.Staged);
+        Assert.Empty(gate.MagazineProposals);
+        Assert.Empty(gate.SensorProposals);
+        Assert.True(result.Plan.Blocked);
+        Assert.Contains(result.Plan.Findings, f => f.Code == PlatformWorkbookValidator.MagazineUnknownMount);
+        Assert.NotEmpty(result.QuarantineEntries);
+        Assert.Contains(result.QuarantineEntries, q =>
+            q.Reason == PlatformWorkbookValidator.MagazineUnknownMount
+            && q.PlatformId == "u1"
+            && q.EntityId == "does-not-exist-mount"
+            && q.SourceSheet == "Magazines");
+        Assert.Equal(result.Plan.QuarantineEntries.Count, result.QuarantineEntries.Count);
+    }
+
+    /// <summary>PLE-4.4: low-TRL / provisional sensors are quarantined and not proposed; high-TRL approved still stage.</summary>
+    [Fact]
+    public void Stage_trl_gate_quarantines_low_trl_provisional_sensor_and_stages_approved_high_trl()
+    {
+        var source = new PlatformCatalogExportData(
+            Platforms: new[] { new CatalogPlatformEntry("u1", 57.0, 20.0, 400.0) },
+            Sensors: new[]
+            {
+                new CatalogSensorBinding(
+                    "u1",
+                    "sensor-approved-high",
+                    0.80,
+                    ReviewState: CatalogReviewStates.Approved,
+                    TrlLevel: 9),
+                new CatalogSensorBinding(
+                    "u1",
+                    "sensor-provisional-low",
+                    0.80,
+                    ReviewState: CatalogReviewStates.Provisional,
+                    TrlLevel: 1),
+            },
+            Mounts: new[] { new CatalogMount("u1", "vls-fwd", "vls", 360.0, 32) },
+            Loadouts: new[] { new CatalogLoadout("u1", "asuw-default", "ASuW", "asuw", IsDefault: true) },
+            Magazines: new[] { new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "mvp-weapon", 16, 0, 32) },
+            Comms: new[] { new CatalogCommsBinding("u1", "NATO_TADIL_J") },
+            Links: new[]
+            {
+                new CatalogLinkEntry("NATO_TADIL_J", "NATO Link 16", CatalogLinkTypes.Tactical, LatencyMsNominal: 50),
+            });
+
+        var editedData = source with
+        {
+            Sensors = new[]
+            {
+                new CatalogSensorBinding(
+                    "u1",
+                    "sensor-approved-high",
+                    0.50,
+                    ReviewState: CatalogReviewStates.Approved,
+                    TrlLevel: 9),
+                new CatalogSensorBinding(
+                    "u1",
+                    "sensor-provisional-low",
+                    0.50,
+                    ReviewState: CatalogReviewStates.Provisional,
+                    TrlLevel: 1),
+            },
+        };
+        var edited = Export(editedData);
+        var gate = new FakeWriteGate();
+
+        var result = ImporterFor(source).Stage(edited, gate, "human", "drgamtd", "trl gate");
+
+        Assert.True(result.Staged);
+        Assert.NotNull(result.SensorBatchId);
+        var proposed = Assert.Single(gate.SensorProposals);
+        var only = Assert.Single(proposed);
+        Assert.Equal("sensor-approved-high", only.SensorId);
+        Assert.Equal(0.50, only.BasePd, precision: 6);
+        Assert.Equal(CatalogReviewStates.Approved, only.ReviewState);
+        Assert.Equal(9, only.TrlLevel);
+
+        Assert.Contains(result.QuarantineEntries, q =>
+            q.EntityKind == "sensor"
+            && q.EntityId == "sensor-provisional-low"
+            && q.PlatformId == "u1"
+            && (q.Reason is "trl_below_minimum" or "review_state_provisional")
+            && q.SourceSheet == "Sensors");
+        Assert.DoesNotContain(result.QuarantineEntries, q => q.EntityId == "sensor-approved-high");
+    }
+
     private static PlatformCatalogExportData ManySensors(int count, int basePdMilli)
     {
         var sensors = new List<CatalogSensorBinding>();
@@ -236,6 +370,13 @@ public sealed class PlatformWorkbookImporterTests
         public List<IReadOnlyList<CatalogLoadout>> LoadoutProposals { get; } = new();
         public List<IReadOnlyList<CatalogMagazineEntry>> MagazineProposals { get; } = new();
         public List<IReadOnlyList<CatalogCommsBinding>> CommsProposals { get; } = new();
+        public List<IReadOnlyList<CatalogLinkEntry>> LinkProposals { get; } = new();
+        public List<IReadOnlyList<CatalogMobility>> MobilityProposals { get; } = new();
+        public List<IReadOnlyList<CatalogSignature>> SignatureProposals { get; } = new();
+        public List<IReadOnlyList<CatalogEmcon>> EmconProposals { get; } = new();
+        public List<IReadOnlyList<CatalogPlatformDamage>> DamageProposals { get; } = new();
+        public List<IReadOnlyList<CatalogPlatformBinding>> PlatformProposals { get; } = new();
+        public List<IReadOnlyList<CatalogWeaponRecord>> WeaponProposals { get; } = new();
 
         public string ProposeSensorBatch(IReadOnlyList<CatalogSensorBinding> proposed, string actorType, string actorId, string rationale = "")
         {
@@ -265,6 +406,52 @@ public sealed class PlatformWorkbookImporterTests
         {
             CommsProposals.Add(proposed);
             return $"fake-batch-comms-{CommsProposals.Count}";
+        }
+
+        public string ProposeLinkCatalogBatch(IReadOnlyList<CatalogLinkEntry> proposed, string actorType, string actorId, string rationale = "")
+        {
+            LinkProposals.Add(proposed);
+            return $"fake-batch-link-{LinkProposals.Count}";
+        }
+
+        public string ProposeMobilityBatch(IReadOnlyList<CatalogMobility> proposed, string actorType, string actorId, string rationale = "")
+        {
+            MobilityProposals.Add(proposed);
+            return $"fake-batch-mobility-{MobilityProposals.Count}";
+        }
+
+        public string ProposeSignatureBatch(IReadOnlyList<CatalogSignature> proposed, string actorType, string actorId, string rationale = "")
+        {
+            SignatureProposals.Add(proposed);
+            return $"fake-batch-signature-{SignatureProposals.Count}";
+        }
+
+        public string ProposeEmconBatch(IReadOnlyList<CatalogEmcon> proposed, string actorType, string actorId, string rationale = "")
+        {
+            EmconProposals.Add(proposed);
+            return $"fake-batch-emcon-{EmconProposals.Count}";
+        }
+
+        public string ProposePlatformDamageBatch(
+            IReadOnlyList<CatalogPlatformDamage> proposed,
+            string actorType,
+            string actorId,
+            string rationale = "")
+        {
+            DamageProposals.Add(proposed);
+            return $"fake-batch-damage-{DamageProposals.Count}";
+        }
+
+        public string ProposePlatformBatch(IReadOnlyList<CatalogPlatformBinding> proposed, string actorType, string actorId, string rationale = "")
+        {
+            PlatformProposals.Add(proposed);
+            return $"fake-batch-platform-{PlatformProposals.Count}";
+        }
+
+        public string ProposeWeaponBatch(IReadOnlyList<CatalogWeaponRecord> proposed, string actorType, string actorId, string rationale = "")
+        {
+            WeaponProposals.Add(proposed);
+            return $"fake-batch-weapon-{WeaponProposals.Count}";
         }
 
         public WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId) => new(true, batchId, []);

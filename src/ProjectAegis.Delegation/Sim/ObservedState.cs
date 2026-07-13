@@ -9,12 +9,17 @@ public sealed record ObservedState(
     IReadOnlyDictionary<TargetId, bool> MemberAlive,
     bool HasFireControlTrack = true,
     TargetId? PrimaryHostileContactId = null,
-    bool RadarEmconActive = true);
+    bool RadarEmconActive = true,
+    bool PrimaryHostileDestroyed = false,
+    TargetId? PrimaryBlueForceContactId = null,
+    bool PrimaryBlueForceContactDestroyed = false);
 
 public sealed record PerceivedState(
     double SimTime,
     int ContactCount,
-    int ActiveEngagementCount);
+    int ActiveEngagementCount,
+    bool PrimaryHostileDestroyed = false,
+    bool PrimaryBlueForceContactDestroyed = false);
 
 public static class PerceivedStateFactory
 {
@@ -23,6 +28,11 @@ public static class PerceivedStateFactory
         var factor = Math.Clamp(situationalAwareness, 0, 1);
         var contacts = (int)Math.Round(full.ContactCount * factor);
         var engagements = (int)Math.Round(full.ActiveEngagementCount * factor);
-        return new PerceivedState(full.SimTime, contacts, engagements);
+        return new PerceivedState(
+            full.SimTime,
+            contacts,
+            engagements,
+            full.PrimaryHostileDestroyed,
+            full.PrimaryBlueForceContactDestroyed);
     }
 }

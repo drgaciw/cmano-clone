@@ -4,6 +4,7 @@
   "tools": [
     {
       "name": "scenario_create",
+      "description": "Create a new canonical scenario document (headless; emits editorState derived). S86-01 polished.",
       "command": "pwsh",
       "args": [
         "-File",
@@ -22,14 +23,29 @@
       ],
       "inputSchema": {
         "type": "object",
-        "required": ["scenarioPath"],
+        "required": [
+          "scenarioPath"
+        ],
         "properties": {
-          "scenarioPath": { "type": "string" },
-          "dbRef": { "type": "string", "default": "baltic_patrol" },
-          "policyId": { "type": "string", "default": "baltic-patrol-catalog" },
-          "seed": { "type": "integer", "default": 42 }
+          "scenarioPath": {
+            "type": "string",
+            "description": "Output path for new .scenario.json"
+          },
+          "dbRef": {
+            "type": "string",
+            "default": "baltic_patrol"
+          },
+          "policyId": {
+            "type": "string",
+            "default": "baltic-patrol-catalog"
+          },
+          "seed": {
+            "type": "integer",
+            "default": 42
+          }
         }
-      }
+      },
+      "returns": "Path to created scenario (schemaVersion 2 contract)"
     },
     {
       "name": "mission_add_patrol",
@@ -51,12 +67,252 @@
       ],
       "inputSchema": {
         "type": "object",
-        "required": ["scenarioPath", "editVersion", "missionId", "unitId"],
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "missionId",
+          "unitId"
+        ],
         "properties": {
-          "scenarioPath": { "type": "string" },
-          "editVersion": { "type": "integer" },
-          "missionId": { "type": "string" },
-          "unitId": { "type": "string" }
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "missionId": {
+            "type": "string"
+          },
+          "unitId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "orbat_upsert_unit",
+      "description": "Place or replace an ORBAT unit (map place / inspector apply).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "orbat_upsert_unit",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${unitId}",
+        "--side",
+        "${sideId}",
+        "--platform",
+        "${platformId}",
+        "--lat",
+        "${lat}",
+        "--lon",
+        "${lon}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "unitId",
+          "sideId",
+          "platformId",
+          "lat",
+          "lon"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "unitId": {
+            "type": "string"
+          },
+          "sideId": {
+            "type": "string"
+          },
+          "platformId": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lon": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "name": "orbat_move_unit",
+      "description": "Move an existing ORBAT unit to a new lat/lon (preserves non-position fields).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "orbat_move_unit",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${unitId}",
+        "--lat",
+        "${lat}",
+        "--lon",
+        "${lon}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "unitId",
+          "lat",
+          "lon"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "unitId": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lon": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "name": "orbat_clone_unit",
+      "description": "Clone an existing ORBAT unit under a new id at the given position.",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "orbat_clone_unit",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--source",
+        "${sourceUnitId}",
+        "--id",
+        "${unitId}",
+        "--lat",
+        "${lat}",
+        "--lon",
+        "${lon}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "sourceUnitId",
+          "unitId",
+          "lat",
+          "lon"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "sourceUnitId": {
+            "type": "string"
+          },
+          "unitId": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lon": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    {
+      "name": "reference_point_upsert",
+      "description": "Insert or replace a reference point (point/line/polygon/circle) by id.",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "reference_point_upsert",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${referencePointId}",
+        "--type",
+        "${type}",
+        "--latlon",
+        "${latlon}",
+        "--radius-nm",
+        "${radiusNm}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "referencePointId",
+          "type",
+          "latlon"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "referencePointId": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "point",
+              "line",
+              "polygon",
+              "circle"
+            ]
+          },
+          "latlon": {
+            "type": "string",
+            "description": "lat,lon vertex (repeatable via host)"
+          },
+          "radiusNm": {
+            "type": "number",
+            "description": "Optional radius in nautical miles (circle)"
+          }
         }
       }
     },
@@ -82,13 +338,279 @@
       ],
       "inputSchema": {
         "type": "object",
-        "required": ["scenarioPath", "editVersion", "missionId", "unitId", "targetId"],
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "missionId",
+          "unitId",
+          "targetId"
+        ],
         "properties": {
-          "scenarioPath": { "type": "string" },
-          "editVersion": { "type": "integer" },
-          "missionId": { "type": "string" },
-          "unitId": { "type": "string" },
-          "targetId": { "type": "string" }
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "missionId": {
+            "type": "string"
+          },
+          "unitId": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "mission_add_support",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "mission_add_support",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${missionId}",
+        "--role",
+        "${supportRole}",
+        "--unit",
+        "${unitId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "missionId",
+          "supportRole",
+          "unitId"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "missionId": {
+            "type": "string"
+          },
+          "supportRole": {
+            "type": "string",
+            "enum": [
+              "Tanker",
+              "AEW",
+              "EW"
+            ]
+          },
+          "unitId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "scenario_undo",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_undo",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    {
+      "name": "mission_add_ferry",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "mission_add_ferry",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${missionId}",
+        "--unit",
+        "${unitId}",
+        "--destination",
+        "${destinationBaseId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "missionId",
+          "unitId",
+          "destinationBaseId"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "missionId": {
+            "type": "string"
+          },
+          "unitId": {
+            "type": "string"
+          },
+          "destinationBaseId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "mission_update_support",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "mission_update_support",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${missionId}",
+        "--role",
+        "${supportRole}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "missionId"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "missionId": {
+            "type": "string"
+          },
+          "supportRole": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "scenario_export",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_export",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--out",
+        "${outPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "outPath"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "outPath": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "scenario_migrate_preview",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_migrate_preview",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "scenario_umpire_snapshot",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_umpire_snapshot",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          }
         }
       }
     },
@@ -110,11 +632,21 @@
       ],
       "inputSchema": {
         "type": "object",
-        "required": ["scenarioPath", "editVersion", "missionId"],
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "missionId"
+        ],
         "properties": {
-          "scenarioPath": { "type": "string" },
-          "editVersion": { "type": "integer" },
-          "missionId": { "type": "string" }
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "missionId": {
+            "type": "string"
+          }
         }
       }
     },
@@ -136,11 +668,62 @@
       ],
       "inputSchema": {
         "type": "object",
-        "required": ["scenarioPath", "editVersion", "missionId"],
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "missionId"
+        ],
         "properties": {
-          "scenarioPath": { "type": "string" },
-          "editVersion": { "type": "integer" },
-          "missionId": { "type": "string" }
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "missionId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "mission_update_ferry",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "mission_update_ferry",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${missionId}",
+        "--destination",
+        "${destinationBaseId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "missionId"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "missionId": {
+            "type": "string"
+          },
+          "destinationBaseId": {
+            "type": "string"
+          }
         }
       }
     },
@@ -162,16 +745,291 @@
       ],
       "inputSchema": {
         "type": "object",
-        "required": ["scenarioPath", "editVersion", "missionId"],
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "missionId"
+        ],
         "properties": {
-          "scenarioPath": { "type": "string" },
-          "editVersion": { "type": "integer" },
-          "missionId": { "type": "string" }
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "missionId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "event_add",
+      "description": "Insert or replace a scenario event (ME-W2 event graph CRUD upsert).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "event_add",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${eventId}",
+        "--trigger",
+        "${triggerType}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "eventId",
+          "triggerType"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "triggerType": {
+            "type": "string",
+            "description": "e.g. Time, UnitEntersZone"
+          },
+          "condition": {
+            "type": "string",
+            "description": "Optional repeated via CLI --condition Type[:UnitId[:ZoneId]]"
+          },
+          "action": {
+            "type": "string",
+            "description": "Optional repeated via CLI --action Type[:UnitId]"
+          }
+        }
+      },
+      "returns": "JSON ok + eventId + editVersion + fileHash + fireOrder"
+    },
+    {
+      "name": "event_update",
+      "description": "Alias of event_add \u2014 upsert scenario event by id (ME-W2).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "event_update",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${eventId}",
+        "--trigger",
+        "${triggerType}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "eventId",
+          "triggerType"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "eventId": {
+            "type": "string"
+          },
+          "triggerType": {
+            "type": "string"
+          }
+        }
+      },
+      "returns": "JSON ok + eventId + editVersion + fileHash (same as event_add)"
+    },
+    {
+      "name": "event_delete",
+      "description": "Delete a scenario event by id (ME-W2 event graph CRUD).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "event_delete",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${eventId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "eventId"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "eventId": {
+            "type": "string"
+          }
+        }
+      },
+      "returns": "JSON ok + deletedEventId + editVersion + fileHash"
+    },
+    {
+      "name": "mission_list",
+      "description": "Read-only Mission Board list with optional type/side/status filters (ME-W1 / AME-3.4).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "mission_list",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--type",
+        "${type}",
+        "--side",
+        "${side}",
+        "--status",
+        "${status}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "description": "Optional type filter: Patrol|Strike|Ferry|Support"
+          },
+          "side": {
+            "type": "string",
+            "description": "Optional side id filter"
+          },
+          "status": {
+            "type": "string",
+            "description": "Optional status filter: Assigned|Unassigned"
+          }
+        }
+      }
+    },
+    {
+      "name": "mission_clone",
+      "description": "Deep-copy a mission under a new id (Mission Board clone).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "mission_clone",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--source",
+        "${sourceMissionId}",
+        "--id",
+        "${missionId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "sourceMissionId",
+          "missionId"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "sourceMissionId": {
+            "type": "string"
+          },
+          "missionId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "mission_add_from_template",
+      "description": "Create a mission from a built-in template (tpl-patrol-empty, tpl-strike-empty, tpl-ferry-empty, tpl-support-tanker).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "mission_add_from_template",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--template",
+        "${templateId}",
+        "--id",
+        "${missionId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "templateId",
+          "missionId"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "templateId": {
+            "type": "string"
+          },
+          "missionId": {
+            "type": "string"
+          }
         }
       }
     },
     {
       "name": "mission_plan_suggest",
+      "description": "Heuristic intent-to-mission suggestions (stub; no LLM in blocking path per doc 11). S86-01 verb polish.",
       "command": "pwsh",
       "args": [
         "-File",
@@ -184,12 +1042,17 @@
       ],
       "inputSchema": {
         "type": "object",
-        "required": ["intent"],
+        "required": [
+          "intent"
+        ],
         "properties": {
-          "intent": { "type": "string" }
+          "intent": {
+            "type": "string",
+            "description": "Natural language intent (e.g. 'patrol and strike baltic')"
+          }
         }
       },
-      "returns": "JSON suggestions for mission_add_* tools"
+      "returns": "JSON suggestions for mission_add_* tools (stub per AME-8.6 / qa-plan #17)"
     },
     {
       "name": "scenario_cyber_status",
@@ -205,9 +1068,13 @@
       ],
       "inputSchema": {
         "type": "object",
-        "required": ["policyId"],
+        "required": [
+          "policyId"
+        ],
         "properties": {
-          "policyId": { "type": "string" }
+          "policyId": {
+            "type": "string"
+          }
         }
       },
       "returns": "JSON cyber abort codes and comms coupling hints"
@@ -226,9 +1093,13 @@
       ],
       "inputSchema": {
         "type": "object",
-        "required": ["scenarioPath"],
+        "required": [
+          "scenarioPath"
+        ],
         "properties": {
-          "scenarioPath": { "type": "string" }
+          "scenarioPath": {
+            "type": "string"
+          }
         }
       },
       "returns": "JSON gated near-future spawn plan (CCA / hypersonic)"
@@ -247,9 +1118,14 @@
       ],
       "inputSchema": {
         "type": "object",
-        "required": ["policyId"],
+        "required": [
+          "policyId"
+        ],
         "properties": {
-          "policyId": { "type": "string", "description": "Scenario policy id (e.g. baltic-patrol-comms)" }
+          "policyId": {
+            "type": "string",
+            "description": "Scenario policy id (e.g. baltic-patrol-comms)"
+          }
         }
       },
       "returns": "JSON comms display settings and timeline transitions"
@@ -257,50 +1133,208 @@
     {
       "name": "scenario_validate",
       "command": "pwsh",
-      "args": ["-File", "tools/mission-editor/Invoke-ScenarioValidate.ps1", "-ScenarioPath", "${scenarioPath}"],
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-ScenarioValidate.ps1",
+        "-ScenarioPath",
+        "${scenarioPath}"
+      ],
       "inputSchema": {
         "type": "object",
-        "required": ["scenarioPath"],
+        "required": [
+          "scenarioPath"
+        ],
         "properties": {
-          "scenarioPath": { "type": "string", "description": "Repo-relative path to canonical scenario.json" }
+          "scenarioPath": {
+            "type": "string",
+            "description": "Repo-relative path to canonical scenario.json"
+          }
         }
       },
       "returns": "JSON ValidationReport (passed, canExport, reportHash, findings)"
     },
     {
-      "name": "scenario_export_brief",
+      "name": "scenario_diff_summary",
+      "description": "AME-7.3 Partial+ semantic diff summary between two scenario JSON documents (ME-W3 W3-c).",
       "command": "pwsh",
-      "args": ["-File", "tools/mission-editor/Invoke-ScenarioValidate.ps1", "-ScenarioPath", "${scenarioPath}", "-ExportBrief"],
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_diff_summary",
+        "-ExtraArgs",
+        "--before",
+        "${beforePath}",
+        "--after",
+        "${afterPath}"
+      ],
       "inputSchema": {
         "type": "object",
-        "required": ["scenarioPath"],
+        "required": [
+          "beforePath",
+          "afterPath"
+        ],
         "properties": {
-          "scenarioPath": { "type": "string" }
+          "beforePath": {
+            "type": "string",
+            "description": "Baseline scenario.json path"
+          },
+          "afterPath": {
+            "type": "string",
+            "description": "Comparison scenario.json path"
+          }
+        }
+      },
+      "returns": "JSON { ok, summary } \u2014 ordinal-sorted mission/side/unit/timeline/event bullets joined by '; '"
+    },
+    {
+      "name": "scenario_export_brief",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-ScenarioValidate.ps1",
+        "-ScenarioPath",
+        "${scenarioPath}",
+        "-ExportBrief"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          }
         }
       }
     },
     {
       "name": "scenario_simulate_sample",
       "command": "pwsh",
-      "args": ["-File", "tools/mission-editor/Invoke-ScenarioSimulateSample.ps1", "-ScenarioPath", "${scenarioPath}", "-Ticks", "${ticks}"],
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-ScenarioSimulateSample.ps1",
+        "-ScenarioPath",
+        "${scenarioPath}",
+        "-Ticks",
+        "${ticks}"
+      ],
       "inputSchema": {
         "type": "object",
-        "required": ["scenarioPath"],
+        "required": [
+          "scenarioPath"
+        ],
         "properties": {
-          "scenarioPath": { "type": "string" },
-          "ticks": { "type": "integer", "default": 32, "minimum": 1 }
+          "scenarioPath": {
+            "type": "string"
+          },
+          "ticks": {
+            "type": "integer",
+            "default": 32,
+            "minimum": 1
+          }
         }
       },
       "returns": "JSON sample summary (worldHash, fingerprint, engagementCount); exit 1 if validation blocks"
     },
     {
-      "name": "osint_search",
+      "name": "scenario_event_trace",
       "command": "pwsh",
-      "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "osint_search", "-ExtraArgs", "--db", "${db}"],
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_event_trace",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--event",
+        "${eventId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string",
+            "description": "Repo-relative path to canonical scenario.json"
+          },
+          "eventId": {
+            "type": "string",
+            "default": "red_launch"
+          }
+        }
+      },
+      "returns": "Trace string from ScenarioDocumentEditor.ExplainEventTrace (stub per ADR-016 / doc 11 #17)"
+    },
+    {
+      "name": "scenario_publish",
+      "description": "Publish/validate+export gate for scenario (S86-01 MCP parity).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_publish",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "scenario_ai_scaffold",
+      "description": "AI scaffold / NL planning stub (no LLM blocking per doc11). S86-01.",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "scenario_ai_scaffold",
+        "-ExtraArgs",
+        "--brief",
+        "${brief}"
+      ],
       "inputSchema": {
         "type": "object",
         "properties": {
-          "db": { "type": "string" }
+          "brief": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "osint_search",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "osint_search",
+        "-ExtraArgs",
+        "--db",
+        "${db}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "db": {
+            "type": "string"
+          }
         }
       },
       "returns": "JSON with proposals (from FileOsintConnector + runner) and logOnlyCount (S21 MCP search_osint per req05)"
@@ -308,12 +1342,24 @@
     {
       "name": "osint_list_staging_proposals",
       "command": "pwsh",
-      "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "osint_staging_review", "-ExtraArgs", "--db", "${db}"],
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "osint_staging_review",
+        "-ExtraArgs",
+        "--db",
+        "${db}"
+      ],
       "inputSchema": {
         "type": "object",
-        "required": ["db"],
+        "required": [
+          "db"
+        ],
         "properties": {
-          "db": { "type": "string" }
+          "db": {
+            "type": "string"
+          }
         }
       },
       "returns": "JSON pending proposals (reuses S20 osint_staging_review for list_staging_proposals)"
@@ -321,20 +1367,416 @@
     {
       "name": "osint_digest",
       "command": "pwsh",
-      "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "osint_search", "-ExtraArgs", "--db", "${db}"],
-      "inputSchema": { "type": "object", "properties": { "db": { "type": "string" } } }
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "osint_search",
+        "-ExtraArgs",
+        "--db",
+        "${db}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "db": {
+            "type": "string"
+          }
+        }
+      }
     },
     {
       "name": "osint_get_proposal_detail",
       "command": "pwsh",
-      "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "osint_staging_review", "-ExtraArgs", "--db", "${db}"],
-      "inputSchema": { "type": "object", "properties": { "db": { "type": "string" } } }
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "osint_staging_review",
+        "-ExtraArgs",
+        "--db",
+        "${db}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "db": {
+            "type": "string"
+          }
+        }
+      }
     },
     {
       "name": "osint_submit_review_decision",
       "command": "pwsh",
-      "args": ["-File", "tools/mission-editor/Invoke-MissionEditorMcp.ps1", "-Command", "osint_staging_review", "-ExtraArgs", "--db", "${db}", "--approve", "${batchId}"],
-      "inputSchema": { "type": "object", "properties": { "db": { "type": "string" }, "batchId": { "type": "string" } } }
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "osint_staging_review",
+        "-ExtraArgs",
+        "--db",
+        "${db}",
+        "--approve",
+        "${batchId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "db": {
+            "type": "string"
+          },
+          "batchId": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "name": "platform_export_xlsx",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "platform_export_xlsx",
+        "-ExtraArgs",
+        "--db",
+        "${dbRef}",
+        "--out",
+        "${outPath}",
+        "--snapshot",
+        "${snapshotId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "outPath"
+        ],
+        "properties": {
+          "dbRef": {
+            "type": "string",
+            "default": "baltic_patrol"
+          },
+          "outPath": {
+            "type": "string"
+          },
+          "snapshotId": {
+            "type": "string",
+            "default": ""
+          }
+        }
+      },
+      "returns": "JSON status + workbook (canonical text for headless roundtrip; xlsx adapter deferred per ADR-011)"
+    },
+    {
+      "name": "platform_import_xlsx",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "platform_import_xlsx",
+        "-ExtraArgs",
+        "--db",
+        "${dbRef}",
+        "--in",
+        "${inPath}",
+        "--actor-type",
+        "${actorType}",
+        "--actor-id",
+        "${actorId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "dbRef"
+        ],
+        "properties": {
+          "dbRef": {
+            "type": "string"
+          },
+          "inPath": {
+            "type": "string"
+          },
+          "actorType": {
+            "type": "string",
+            "default": "cli"
+          },
+          "actorId": {
+            "type": "string",
+            "default": "mcp"
+          }
+        }
+      },
+      "returns": "JSON {ok, verb, staged, notes, nextStep: catalog_write_approve}; uses IWriteGate (no auto-commit)"
+    },
+    {
+      "name": "platform_diff_xlsx",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "platform_diff_xlsx",
+        "-ExtraArgs",
+        "--db",
+        "${dbRef}",
+        "--base",
+        "${basePath}",
+        "--edited",
+        "${editedPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "dbRef": {
+            "type": "string",
+            "default": "baltic_patrol"
+          },
+          "basePath": {
+            "type": "string"
+          },
+          "editedPath": {
+            "type": "string"
+          }
+        }
+      },
+      "returns": "JSON diff report (change count + determinism note)"
+    },
+    {
+      "name": "side_delete",
+      "description": "Delete a side by id without cascading ORBAT units (ME-W3 / AME-4.5).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "side_delete",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${sideId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "sideId"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "sideId": {
+            "type": "string"
+          }
+        }
+      },
+      "returns": "JSON ok + deletedSideId + editVersion + fileHash"
+    },
+    {
+      "name": "side_list",
+      "description": "Read-only list of scenario sides/factions (ME-W3 / AME-4.5).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "side_list",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          }
+        }
+      },
+      "returns": "JSON ok + sides[] (id, name, defaultRoe, defaultEmcon, postures)"
+    },
+    {
+      "name": "side_upsert",
+      "description": "Insert or replace a side/faction by id (ME-W3 / AME-4.5). Does not cascade ORBAT units.",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "side_upsert",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--id",
+        "${sideId}",
+        "--name",
+        "${name}",
+        "--roe",
+        "${defaultRoe}",
+        "--emcon",
+        "${defaultEmcon}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "sideId",
+          "name"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "sideId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "defaultRoe": {
+            "type": "string",
+            "description": "Optional side default ROE"
+          },
+          "defaultEmcon": {
+            "type": "string",
+            "description": "Optional side default EMCON"
+          },
+          "posture": {
+            "type": "string",
+            "description": "Optional repeated via CLI --posture"
+          }
+        }
+      },
+      "returns": "JSON ok + sideId + editVersion + fileHash"
+    },
+    {
+      "name": "timeline_delete",
+      "description": "Delete an operations-timeline entry by mission id (AME-3.5 Partial+).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "timeline_delete",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--mission",
+        "${missionId}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "missionId"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "missionId": {
+            "type": "string"
+          }
+        }
+      },
+      "returns": "JSON ok + deletedMissionId + editVersion + fileHash"
+    },
+    {
+      "name": "timeline_list",
+      "description": "Read-only operations timeline list (AME-3.5 Partial+ headless; sorted by activateAtTick).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "timeline_list",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          }
+        }
+      },
+      "returns": "JSON ok + entries[{missionId,activateAtTick}] + count"
+    },
+    {
+      "name": "timeline_upsert",
+      "description": "Insert or replace an operations-timeline entry by mission id (AME-3.5 Partial+).",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "timeline_upsert",
+        "-ExtraArgs",
+        "--path",
+        "${scenarioPath}",
+        "--edit-version",
+        "${editVersion}",
+        "--mission",
+        "${missionId}",
+        "--tick",
+        "${activateAtTick}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenarioPath",
+          "editVersion",
+          "missionId",
+          "activateAtTick"
+        ],
+        "properties": {
+          "scenarioPath": {
+            "type": "string"
+          },
+          "editVersion": {
+            "type": "integer"
+          },
+          "missionId": {
+            "type": "string"
+          },
+          "activateAtTick": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "returns": "JSON ok + missionId + activateAtTick + editVersion + fileHash"
     }
   ]
 }

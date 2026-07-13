@@ -85,6 +85,53 @@ public sealed class CatalogWriteGateTests
         }
     }
 
+    /// <summary>
+    /// Adversarial: propose without approve must never surface staged sensors as live catalog reads.
+    /// Doc 06 dual-track / write-gate contract (staging ≠ live).
+    /// </summary>
+    [Fact]
+    public void ProposeSensorBatch_without_ApproveBatch_not_readable_as_live_catalog()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-propose-only-{Guid.NewGuid():N}.db");
+        try
+        {
+            CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
+            var staged = new CatalogSensorBinding(
+                "u-staged-only",
+                "radar-staged",
+                0.88,
+                ReviewState: CatalogReviewStates.Approved,
+                TrlLevel: 7,
+                ValueTier: CatalogProvenanceTier.InterpretedValue,
+                ReviewerId: "agent",
+                CitationRef: "no-human-approve");
+
+            string batchId;
+            using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(7)))
+            {
+                batchId = gate.ProposeSensorBatch([staged], "agent", "no-approve");
+                var pending = gate.ListPendingBatches();
+                Assert.Contains(pending, p => p.BatchId == batchId && p.ApprovalState == "proposed");
+            }
+
+            using var reader = new SqliteCatalogReader(dbPath, "propose-only");
+            Assert.False(reader.TryGetBasePd("u-staged-only", "radar-staged", out _));
+            Assert.DoesNotContain(
+                reader.GetSortedSensorBindings(),
+                b => b.PlatformId == "u-staged-only" && b.SensorId == "radar-staged");
+            Assert.True(reader.TryGetBasePd("u1", "radar-1", out var pd));
+            Assert.Equal(1.0, pd);
+        }
+        finally
+        {
+            SqliteConnection.ClearAllPools();
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
     [Fact]
     public void ApproveBatch_AfterPropose_RecordsStableSnapshotHash()
     {

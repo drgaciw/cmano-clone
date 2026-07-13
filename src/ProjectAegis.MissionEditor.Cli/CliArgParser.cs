@@ -52,6 +52,35 @@ public static class CliArgParser
         return list;
     }
 
+    /// <summary>
+    /// Returns the true positional (non-flag) tokens in <paramref name="args"/>, skipping both each
+    /// flag token in <paramref name="valueFlags"/> AND the value that immediately follows it. Without
+    /// this, a naive "drop tokens starting with '-'" filter leaves a flag's *value* behind (e.g. the
+    /// path argument to "--db") and it gets misread as if it were a positional argument, shifting every
+    /// subsequent positional index by one.
+    /// </summary>
+    public static IReadOnlyList<string> GetPositional(string[] args, params string[] valueFlags)
+    {
+        var flagSet = new HashSet<string>(valueFlags, StringComparer.Ordinal);
+        var positional = new List<string>();
+        for (var i = 0; i < args.Length; i++)
+        {
+            var arg = args[i];
+            if (!arg.StartsWith("-", StringComparison.Ordinal))
+            {
+                positional.Add(arg);
+                continue;
+            }
+
+            if (flagSet.Contains(arg) && i + 1 < args.Length)
+            {
+                i++; // consume this flag's value so it isn't counted as positional
+            }
+        }
+
+        return positional;
+    }
+
     public static IReadOnlyList<ScenarioWaypointDto> ParseWaypoints(IReadOnlyList<string> waypointArgs)
     {
         var zone = new List<ScenarioWaypointDto>();

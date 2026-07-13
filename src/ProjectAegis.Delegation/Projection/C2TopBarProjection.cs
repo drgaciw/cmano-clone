@@ -13,15 +13,26 @@ public static class C2TopBarProjection
         DecisionLog log,
         int baseScore = 0)
     {
-        var tally = LossesScoringProjection.Project(log, baseScore);
         var comms = CommsStateProjection.Project(log);
+        var scoreLabel = phase == SimulationPhase.Planning
+            ? FormatFrozenScoreLine(baseScore)
+            : FormatLiveScoreLine(log, baseScore);
         return new C2TopBarState(
             FormatSimTime(simTimeSeconds),
             $"PHASE: {phase}",
             $"TIME: {compressionLabel}",
             $"MODE: {simulationModeLabel}",
             comms.TopBarLabel,
-            $"SCORE: {tally.Score}  KILLS: {tally.HostileKills}  MSLS: {tally.MissilesFired}");
+            scoreLabel);
+    }
+
+    private static string FormatFrozenScoreLine(int baseScore) =>
+        $"SCORE: {baseScore}  KILLS: 0  MSLS: 0";
+
+    private static string FormatLiveScoreLine(DecisionLog log, int baseScore)
+    {
+        var tally = LossesScoringProjection.Project(log, baseScore);
+        return $"SCORE: {tally.Score}  KILLS: {tally.HostileKills}  MSLS: {tally.MissilesFired}";
     }
 
     private static string FormatSimTime(double seconds)

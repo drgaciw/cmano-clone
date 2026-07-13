@@ -1,12 +1,12 @@
 # Game Requirements - Master Index
 
-**Last Updated:** 2026-06-08
+**Last Updated:** 2026-07-08
 
-**Program note:** Post-MVP Requirements Program (Sprints 11–15) is **complete** — docs 01–12 locked, Wave 5 spoof/readiness/attack-menu shipped, RTM + consistency gate closed. Closeout: `production/agentic/sprint-11-15-closeout-2026-06-08.md`.
+**Program note:** **Corpus maturity W0–W4 complete (2026-07-08)** — hub + drafts 13–21 honesty re-baselined; design: `docs/superpowers/specs/2026-07-08-requirements-corpus-maturity-design.md`. Scenario editor (req 11): **S81–S88 headless engineering complete on trunk**; active completion epic **`scenario-editor-completion`** (SE-W1 honesty → SE-W2 AC-8 → SE-W3 gate). Plan: `docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md`. Status: `production/agentic/se-w0-status-truth-2026-07-08.md`. Post-MVP Requirements Program (Sprints 11–15) complete for docs 01–12 Template A. Doc 21 Platform Editor is first-class under Authoring.
 
 ## Implementation
 
-- [Implementation tracker (MVP status 01–20)](implementation-tracker-2026-06-04.md) — **2026-06-04**
+- [Implementation tracker (MVP status 01–21)](implementation-tracker-2026-07-04.md) — **2026-07-04** (supersedes [2026-07-01](implementation-tracker-2026-07-01.md))
 - [Root master index](../00-Master-Index.md) — redirects here + tracker
 - [Data population (CMAO DB)](Data-Population-CMAODB.md)
 
@@ -59,7 +59,7 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 
 ## Authoring & Design Tools
 
-- [11-Agentic-Mission-Editor.md](requirements/11-Agentic-Mission-Editor.md) — Agentic mission/scenario editor (CMO parity + NL/MCP authoring, validation agents, operations timeline)
+- [11-Agentic-Mission-Editor.md](requirements/11-Agentic-Mission-Editor.md) — Agentic mission/scenario editor (CMO parity + NL/MCP authoring, deterministic Validation Engine, operations timeline); *Revised 2026-07-01, implementation-aligned (AME-* IDs)*; see [ADR-008](../docs/architecture/adr-008-mission-editor-validation-engine.md), [ADR-013…017](../docs/architecture/adr-013-cmo-scenario-import-policy.md)
 - [21-Platform-Editor.md](requirements/21-Platform-Editor.md) — Platform/catalog editor (ships, subs, aircraft, loadouts, comms, sensor suites) with Microsoft Excel round-trip on the write gate; see [ADR-011](../docs/architecture/adr-011-platform-editor-excel-roundtrip.md)
 
 ## Reference
@@ -84,11 +84,13 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 1. **12** Glossary → **13** Policy → **15** Sensors → **14** Engagement  
 2. **16** Logistics → **18** Combat → **19** Cyber  
 3. **20** UI → **17** Replay (ties systems to player evidence)  
-4. **11** Mission editor (authoring) with **06** Database
+4. **11** Mission editor (authoring) with **06** Database  
+5. **21** Platform editor (catalog) with **06** Database — after or parallel to 11  
+6. **01** Project Overview last as hub re-check (FR map + NFR)
 
 ## Next workflow steps
 
-- Execute MVP rows in [implementation-tracker-2026-06-04.md](implementation-tracker-2026-06-04.md) on `stack/*` branches
-- Run `/design-review` on docs **01, 04, 06–10** + **13–20** when mechanics change
+- **Corpus maturity program closed** (W0–W4 complete 2026-07-08); no further corpus waves
+- **Scenario editor completion** (req 11): SE-W1 doc honesty + residual tools; SE-W2 Unity AC-8 productionize; SE-W3 gate — plan [2026-07-08-scenario-editor-completion-plan.md](../docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md); roadmap [future-sprint-roadpmap-07042026.md](../docs/reports/future-sprint-roadpmap-07042026.md)
+- Run `/design-review` when mechanics change on **01, 04, 06–11, 13–21**
 - Run `/military-requirements-impact` before DB schema for JADC2, C-UAS, hypersonic defense
-- Close Unity C2 manual sign-off (`production/qa/c2-manual-signoff-2026-06-02.md`)

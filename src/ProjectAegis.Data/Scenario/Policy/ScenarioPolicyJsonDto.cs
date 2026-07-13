@@ -26,6 +26,8 @@ public sealed class ScenarioPolicyJsonDto
 
     public List<ScenarioCatalogDetectionJsonDto>? CatalogDetection { get; set; }
 
+    public List<ScenarioCatalogWithdrawJsonDto>? CatalogWithdraw { get; set; }
+
     public List<ScenarioJammerJsonDto>? Jammers { get; set; }
 
     public ScenarioContactLifecycleJsonDto? ContactLifecycle { get; set; }
@@ -49,6 +51,74 @@ public sealed class ScenarioPolicyJsonDto
     public Dictionary<string, ScenarioUnitReadinessJsonDto>? UnitReadiness { get; set; }
 
     public List<ScenarioSpoofJsonDto>? SpoofTracks { get; set; }
+
+    public ScenarioTelemetryJsonDto? Telemetry { get; set; }
+
+    public ScenarioDatalinkJsonDto? Datalink { get; set; }
+
+    public ScenarioMineHazardJsonDto? MineHazard { get; set; }
+}
+
+public sealed class ScenarioMineHazardJsonDto
+{
+    public double ZoneMinRangeMeters { get; set; }
+
+    public double ZoneMaxRangeMeters { get; set; }
+
+    public double? TriggerRadiusMeters { get; set; }
+
+    public double? HazardSeverity { get; set; }
+
+    public List<ScenarioMinePlacementJsonDto>? Mines { get; set; }
+
+    public List<ScenarioMineTransitJsonDto>? Transit { get; set; }
+}
+
+public sealed class ScenarioMinePlacementJsonDto
+{
+    public string MineId { get; set; } = "";
+
+    public double RangeMeters { get; set; }
+
+    public double Lethality { get; set; } = 1.0;
+}
+
+public sealed class ScenarioMineTransitJsonDto
+{
+    public string PlatformId { get; set; } = "u1";
+
+    public List<double>? RangesMeters { get; set; }
+}
+
+public sealed class ScenarioDatalinkJsonDto
+{
+    public bool? OrganicOnly { get; set; }
+
+    public Dictionary<string, string>? UnitSides { get; set; }
+
+    public int? ShareLagTicks { get; set; }
+}
+
+public sealed class ScenarioTelemetryJsonDto
+{
+    public bool? EnableBalanceDrift { get; set; }
+
+    public double? WinRateDriftThreshold { get; set; }
+
+    public int? MinimumSampleRuns { get; set; }
+
+    public double? DefaultExpectedWinRate { get; set; }
+
+    public List<ScenarioBalanceTrialJsonDto>? BalanceTrials { get; set; }
+}
+
+public sealed class ScenarioBalanceTrialJsonDto
+{
+    public string EntityId { get; set; } = "";
+
+    public string EntityKind { get; set; } = "Platform";
+
+    public double? ExpectedWinRate { get; set; }
 }
 
 public sealed class ScenarioUnitReadinessJsonDto
@@ -128,6 +198,25 @@ public sealed class ScenarioMissionJsonDto
     public List<string> FireOrder { get; set; } = [];
 
     public List<ScenarioMissionEventJsonDto> Events { get; set; } = [];
+
+    public List<ScenarioMissionContactTriggerJsonDto>? Triggers { get; set; }
+}
+
+public sealed class ScenarioMissionContactTriggerJsonDto
+{
+    public string Id { get; set; } = "";
+
+    public string ObserverId { get; set; } = "";
+
+    public string TargetClass { get; set; } = "Any";
+
+    public string Side { get; set; } = "friendly";
+
+    public string MissionCode { get; set; } = "";
+
+    public string Roe { get; set; } = "WeaponsFree";
+
+    public List<string>? UnitIds { get; set; }
 }
 
 /// <summary>Mission-level doctrine override (req 13 inheritance between side and unit).</summary>
@@ -188,6 +277,13 @@ public sealed class ScenarioCatalogDetectionJsonDto
     public double JamStrength { get; set; }
 }
 
+public sealed class ScenarioCatalogWithdrawJsonDto
+{
+    public string PlatformId { get; set; } = "u1";
+
+    public double CurrentHpPct { get; set; } = 100.0;
+}
+
 public sealed class ScenarioDetectionJsonDto
 {
     public string ObserverId { get; set; } = "u1";
@@ -203,6 +299,10 @@ public sealed class ScenarioDetectionJsonDto
     public double EnvMask { get; set; } = 1.0;
 
     public double JamStrength { get; set; }
+
+    public double EccmFactor { get; set; } = 1.0;
+
+    public bool RequiresActiveRadar { get; set; } = true;
 }
 
 public sealed class ScenarioEmconJsonDto
@@ -262,4 +362,7 @@ public sealed class ScenarioEngageJsonDto
     public bool? MountOnline { get; set; }
 
     public bool? ContactIdentified { get; set; }
+
+    /// <summary>ADR-009: enable registry validators on engage path (default false).</summary>
+    public bool? CombatDomainsEnabled { get; set; }
 }

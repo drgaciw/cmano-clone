@@ -1,5 +1,6 @@
 // Sensor C2 HUD strip (read-only EMCON/track/contact list). Contact *selection* is owned by
 // C2LeftDrawerPanelHost Contacts tab — both consume IC2PresentationFeed.LastSensorC2.
+// Panel binding goes through ISensorC2PanelBridge (SensorC2Bridge.BindPanel) for GitNexus traceability (Spirit1 G1).
 #if UNITY_5_3_OR_NEWER
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
@@ -132,7 +133,7 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            _panelState = SensorC2PanelBinder.Bind(PresentationFeed.LastSensorC2);
+            _panelState = SensorC2Bridge.BindPanel(PresentationFeed.LastSensorC2);
             _emconLabel!.text = _panelState.EmconLabel;
             _trackLabel!.text = _panelState.TrackLabel;
             _contactCountLabel!.text = _panelState.ContactCountLabel;

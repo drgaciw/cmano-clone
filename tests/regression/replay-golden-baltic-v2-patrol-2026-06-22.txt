@@ -1,0 +1,12 @@
+# Golden fingerprint — baltic-v2-patrol seed=42 ticks=4 (S58 wave1 Band B base fixture; isolated v2 prefix, uses same sim params as prod baltic-patrol for curve baseline)
+# Regenerate: /home/username01/.dotnet/dotnet run --project src/ProjectAegis.Delegation.Demo -- --seed 42 --scenario baltic-v2-patrol --ticks 4
+# Cites baltic-v2-scope-boundary + roadmap-062226.md §10 S58 E9 lead. Baseline prod hash preserved (no edit to baltic-patrol.policy.json)
+# EngagementOutcome|Kill| as in replay-golden-baltic-engage
+
+FINGERPRINT_SHA256=080a4cbf18f620043a4e6401ac1f60749e9604760b91d2adfc770de816649917
+DETECTION_WORLD_HASH=15600
+WORLD_HASH=17144800277401907079
+
+EngagementOutcome|7|1|1|1|hostile-1|Kill|0.006501966157579321
+REPLAY_CHECKPOINT=2:5155818736020725847:10
+REPLAY_CHECKPOINT=4:17144800277401907079:14

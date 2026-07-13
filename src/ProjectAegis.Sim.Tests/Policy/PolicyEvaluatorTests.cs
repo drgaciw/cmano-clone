@@ -47,4 +47,35 @@ public sealed class PolicyEvaluatorTests
         var verdict = evaluator.Evaluate(ctx, new ActionRequest(ActionKind.FireGuided, 2, 0));
         Assert.True(verdict.Allowed);
     }
+
+    /// <summary>Wave 2 adversarial: WeaponsTight must not collapse to RoeHoldFire (doc 13 ROE-03 / dual abort codes).</summary>
+    [Fact]
+    public void WeaponsTight_denies_with_WeaponsTight_not_RoeHoldFire()
+    {
+        var evaluator = new PolicyEvaluator(_ => new EffectivePolicy(RoeLevel.WeaponsTight));
+        var verdict = evaluator.Evaluate(
+            new PolicyContext(1, 0, 0, new EffectivePolicy(RoeLevel.WeaponsTight)),
+            new ActionRequest(ActionKind.FireGuided, 2, 0));
+        Assert.False(verdict.Allowed);
+        Assert.Equal(FireAbortReason.WeaponsTight, verdict.Reason);
+        Assert.NotEqual(FireAbortReason.RoeHoldFire, verdict.Reason);
+    }
+
+    /// <summary>Wave 2 adversarial: WRA exact boundary + zero MaxSalvo (doc 13 ROE-04).</summary>
+    [Theory]
+    [InlineData(1, 1, true)]
+    [InlineData(2, 1, false)]
+    [InlineData(1, 0, false)]
+    public void Wra_max_salvo_exact_boundary(int salvoSize, int maxSalvo, bool allowed)
+    {
+        var policy = new EffectivePolicy(RoeLevel.WeaponsFree, maxSalvo);
+        var evaluator = new PolicyEvaluator(_ => policy);
+        var ctx = new PolicyContext(1, 0, 0, policy, SalvoSize: salvoSize);
+        var verdict = evaluator.Evaluate(ctx, new ActionRequest(ActionKind.FireGuided, 2, 0));
+        Assert.Equal(allowed, verdict.Allowed);
+        if (!allowed)
+        {
+            Assert.Equal(FireAbortReason.WraSalvo, verdict.Reason);
+        }
+    }
 }

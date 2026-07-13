@@ -1,6 +1,6 @@
 # Architecture Traceability Index
 
-**Last Updated:** 2026-06-08
+**Last Updated:** 2026-07-08
 **Engine:** Unity 6.3 LTS (6000.3.14f1) + .NET 8  
 **Review:** [architecture-review-2026-06-02.md](architecture-review-2026-06-02.md)  
 **TR IDs:** [tr-registry.yaml](tr-registry.yaml)
@@ -11,7 +11,9 @@
 - **Covered:** 15 (32%)
 - **Partial:** 20 (43%)
 - **Gaps:** 12 (25%)
-- **Sprint 11–15 program:** **CLOSED** @ 2026-06-08 — requirements maturity (docs 01–12) + Wave 5 on `main`; tracker rows **14/16/19/20** at **Partial+** with automated AC (`403/403` tests, PlayMode **7/7**). See [requirements-traceability.md](requirements-traceability.md) Wave 5 overlap spine.
+- **Current gates:** solution tests ≥1232; ReplayGolden 6/6; PlayModeSmoke 18/18; hash `17144800277401907079` — see [requirements-traceability.md](requirements-traceability.md) header. Historical Sprint 11–15 closeout (2026-06-08) cited `403/403` / PlayMode **7/7** only as program evidence, not live floors.
+- **Sprint 11–15 program:** **CLOSED** @ 2026-06-08 — requirements maturity (docs 01–12) + Wave 5 on `main`; tracker rows **14/16/19/20** at **Partial+** with automated AC (**historical** `403/403` / **7/7**). See [requirements-traceability.md](requirements-traceability.md) Wave 5 overlap spine.
+- **Platform editor (FR-19 / req 21):** ADR-011 Partial — see [requirements-traceability.md](requirements-traceability.md) § Platform editor.
 
 ## Full Matrix
 

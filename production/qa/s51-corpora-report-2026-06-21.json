@@ -1,0 +1,19 @@
+{
+  "status": "full",
+  "sprint": "s51",
+  "entity": "all",
+  "temp_db": "/tmp/corpora-ci-s51-stable.db",
+  "timestamp": "20260621T000000Z",
+  "max_records": "20",
+  "proposals": 5,
+  "validations": 1,
+  "snapshot_hash": "5c2fd267f416fc18",
+  "import_cohesion_hash": "10f45eccd4636c26",
+  "import_cohesion_status": "deterministic-stable-no-wall-clock",
+  "s51_track": "S51-05 import-cohesion",
+  "mapper_extended": "OsintCatalogMapper.ToCorporaSensor* (S51) + import monitor",
+  "gate_usage": "extend-only Propose via catalog_import_markdown + test",
+  "citation": "production/post-release-scope-boundary-2026-06-21.md (S51 Req06 import cohesion) + future-sprint-roadpmap.md §10 S51 + §0/§7 + S49 OSINT mapper",
+  "isolation": "worktree-only corpora-ci",
+  "gitnexus_preflight": "CatalogWriteGate CRITICAL (151) noted; mapper LOW; import symbols LOW"
+}

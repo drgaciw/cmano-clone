@@ -55,4 +55,60 @@ public sealed class MapPanelBinderTests
         Assert.That(state.Symbols[0].NormalizedX, Is.EqualTo(0.42f).Within(0.001f));
         Assert.That(state.Symbols[1].IsGhost, Is.False);
     }
+
+    [Test]
+    public void Bind_projected_app6_glyphs_flow_to_display_rows()
+    {
+        var symbols = MapPictureProjection.Project(
+            [new OobTreeEntry("u1", true)],
+            [new ContactPictureEntry("c1", "hostile-1", "u1", "Detected", 1, 1.0)],
+            layoutSeed: 42);
+
+        var state = MapPanelBinder.Bind(symbols, "baltic-patrol-app6", App6AtlasCatalog.Unavailable);
+
+        var friendly = state.Symbols.Single(s => s.SymbolId == "u1");
+        var hostile = state.Symbols.Single(s => s.SymbolId == "c1");
+
+        Assert.That(friendly.Glyph, Is.EqualTo(App6Sidc.FriendlySurfaceUnitGlyph));
+        Assert.That(hostile.Glyph, Is.EqualTo(App6Sidc.HostileContactGlyph));
+        Assert.That(friendly.Glyph, Is.Not.EqualTo(hostile.Glyph));
+    }
+
+    [Test]
+    public void Bind_with_default_atlas_uses_distinct_frame_classes_for_app6_symbols()
+    {
+        var symbols = MapPictureProjection.Project(
+            [new OobTreeEntry("u1", true)],
+            [new ContactPictureEntry("c1", "hostile-1", "u1", "Detected", 1, 1.0)],
+            layoutSeed: 42);
+
+        var state = MapPanelBinder.Bind(symbols, "baltic-patrol-app6-atlas", App6AtlasCatalog.Default);
+
+        var friendly = state.Symbols.Single(s => s.SymbolId == "u1");
+        var hostile = state.Symbols.Single(s => s.SymbolId == "c1");
+
+        Assert.That(friendly.UsesAtlasFrame, Is.True);
+        Assert.That(hostile.UsesAtlasFrame, Is.True);
+        Assert.That(friendly.AtlasFrameClass, Is.EqualTo(App6Sidc.FriendlySurfaceUnitFrame));
+        Assert.That(hostile.AtlasFrameClass, Is.EqualTo(App6Sidc.HostileContactFrame));
+    }
+
+    [Test]
+    public void Bind_with_unavailable_atlas_degrades_to_unicode_glyphs()
+    {
+        var symbols = MapPictureProjection.Project(
+            [new OobTreeEntry("u1", true)],
+            [new ContactPictureEntry("c1", "hostile-1", "u1", "Detected", 1, 1.0)],
+            layoutSeed: 42);
+
+        var state = MapPanelBinder.Bind(symbols, "baltic-patrol-app6-fallback", App6AtlasCatalog.Unavailable);
+
+        var friendly = state.Symbols.Single(s => s.SymbolId == "u1");
+        var hostile = state.Symbols.Single(s => s.SymbolId == "c1");
+
+        Assert.That(friendly.UsesAtlasFrame, Is.False);
+        Assert.That(hostile.UsesAtlasFrame, Is.False);
+        Assert.That(friendly.Glyph, Is.EqualTo(App6Sidc.FriendlySurfaceUnitGlyph));
+        Assert.That(hostile.Glyph, Is.EqualTo(App6Sidc.HostileContactGlyph));
+    }
 }

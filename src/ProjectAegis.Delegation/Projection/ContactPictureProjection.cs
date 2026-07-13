@@ -45,4 +45,30 @@ public static class ContactPictureProjection
             .OrderBy(c => c.ContactId, StringComparer.Ordinal)
             .ToArray();
     }
+
+    /// <summary>Merges sensor contact changes with order-log BDA Lost rows (projection-only).</summary>
+    public static IReadOnlyList<ContactPictureEntry> ProjectWithBda(DecisionLog log)
+    {
+        var contactEntries = log.ContactChanges
+            .OrderBy(c => c.SimTick)
+            .ThenBy(c => c.SequenceId)
+            .Select(c => OrderLogEntryFactories.FromContactChange(c))
+            .ToArray();
+
+        var basePicture = Project(contactEntries);
+        var contactByTargetId = basePicture.ToDictionary(c => c.TargetId, StringComparer.Ordinal);
+        var bdaChanges = OrderLogBdaProjection.ProjectBdaContactChanges(log, contactByTargetId);
+        if (bdaChanges.Count == 0)
+        {
+            return basePicture;
+        }
+
+        var mergedEntries = contactEntries
+            .Concat(bdaChanges.Select(c => OrderLogEntryFactories.FromContactChange(c)))
+            .OrderBy(e => e.SimTime)
+            .ThenBy(e => e.SequenceId)
+            .ToArray();
+
+        return Project(mergedEntries);
+    }
 }

@@ -5,6 +5,8 @@ using ProjectAegis.Data.Scenario;
 using ProjectAegis.Data.Scenario.Authoring;
 using Xunit;
 
+using CatalogTlTier = ProjectAegis.Data.Catalog.CatalogTlTier;
+
 public sealed class ScenarioPackageTests
 {
     [Fact]
@@ -21,6 +23,22 @@ public sealed class ScenarioPackageTests
 
         var package = ScenarioPackage.FromDocument("scenario_a", doc);
         Assert.Equal("catalog-p2-test-snapshot", package.DbSnapshotId);
+    }
+
+    [Fact]
+    public void FromDocument_binds_tlBranch_from_metadata()
+    {
+        var doc = new ScenarioDocumentDto
+        {
+            Metadata = new ScenarioMetadataDto
+            {
+                DbRef = "baltic_patrol",
+                TlBranch = CatalogTlTier.Tl2,
+            },
+        };
+
+        var package = ScenarioPackage.FromDocument("tl_scenario", doc);
+        Assert.Equal(CatalogTlTier.Tl2, package.TlBranch);
     }
 
     [Fact]

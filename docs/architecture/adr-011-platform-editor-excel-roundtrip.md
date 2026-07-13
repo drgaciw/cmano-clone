@@ -4,11 +4,9 @@
 
 **Accepted**
 
-**Date Accepted:** 2026-06-14 (closeout of Sprint 22)
-
 ## Date
 
-2026-06-08
+2026-06-17
 
 ## Decision Makers
 

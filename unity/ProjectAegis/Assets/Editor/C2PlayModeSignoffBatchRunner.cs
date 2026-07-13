@@ -15,6 +15,9 @@ namespace ProjectAegis.Unity.Editor
     /// Survives Enter Play Mode domain reload via SessionState + InitializeOnLoad.
     /// Entry: -executeMethod ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunBatch
     /// Classify: -executeMethod ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunClassifyBatch
+    /// Doctrine: -executeMethod ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunDoctrineBatch
+    /// Import: -executeMethod ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunImportBatch
+    /// Begin execution: -executeMethod ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunBeginExecutionBatch
     /// </summary>
     [InitializeOnLoad]
     public static class C2PlayModeSignoffBatchRunner
@@ -49,6 +52,12 @@ namespace ProjectAegis.Unity.Editor
         public static void RunBatch() => BeginRun("baltic-patrol-comms");
 
         public static void RunClassifyBatch() => BeginRun("baltic-patrol-classify");
+
+        public static void RunDoctrineBatch() => BeginRun("baltic-patrol-mission-roe");
+
+        public static void RunImportBatch() => BeginRun("baltic-patrol-classify");
+
+        public static void RunBeginExecutionBatch() => BeginRun("baltic-patrol-classify");
 
         private static void BeginRun(string scenarioPolicyId)
         {

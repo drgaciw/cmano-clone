@@ -1,6 +1,7 @@
 namespace ProjectAegis.Sim.Scenario;
 
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Sim.Catalog;
 
 /// <summary>Builds sorted detection trials from scenario JSON and/or catalog basePd.</summary>
 public static class DetectionTrialResolver
@@ -31,15 +32,21 @@ public static class DetectionTrialResolver
                     $"Catalog missing basePd for platform '{target.ObserverId}' sensor '{target.SensorId}'.");
             }
 
+            var (effectiveBasePd, effectiveEnvMask) = PhaseBCatalogDetectionModifier.Apply(
+                basePd,
+                target.EnvMask,
+                catalog,
+                target.ObserverId);
+
             trials.Add(new ScenarioDetectionTrial(
                 target.ObserverId,
                 target.SensorId,
                 target.TargetId,
                 target.ContactId,
-                basePd,
-                target.EnvMask,
+                effectiveBasePd,
+                effectiveEnvMask,
                 target.JamStrength,
-                target.RequiresActiveRadar));
+                RequiresActiveRadar: target.RequiresActiveRadar));
         }
 
         return trials;

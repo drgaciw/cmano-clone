@@ -11,6 +11,7 @@ public sealed class ScenarioPackage
         string policyId,
         string dbSnapshotId,
         string? dbRef = null,
+        string? tlBranch = null,
         ulong seed = 42,
         int editVersion = 0)
     {
@@ -18,6 +19,7 @@ public sealed class ScenarioPackage
         PolicyId = policyId;
         DbSnapshotId = dbSnapshotId;
         DbRef = dbRef;
+        TlBranch = CatalogTlTier.Normalize(tlBranch);
         Seed = seed;
         EditVersion = editVersion;
     }
@@ -30,25 +32,73 @@ public sealed class ScenarioPackage
 
     public string? DbRef { get; }
 
+    /// <summary>Resolved TL branch label (TL-0…TL-5) bound at authoring/load.</summary>
+    public string TlBranch { get; }
+
     public ulong Seed { get; }
 
     public int EditVersion { get; }
 
-    public static ScenarioPackage FromDocument(string scenarioId, ScenarioDocumentDto document)
+    public static ScenarioPackage FromDocument(string scenarioId, ScenarioDocumentDto document) =>
+        FromDocument(scenarioId, document, catalog: null);
+
+    public static ScenarioPackage FromDocument(string scenarioId, ScenarioDocumentDto document, ICatalogReader? catalog)
     {
         var meta = document.Metadata;
         var policyId = string.IsNullOrWhiteSpace(meta.PolicyId)
             ? "baltic-patrol"
             : meta.PolicyId.Trim();
-        var dbSnapshotId = ResolveDbSnapshotId(meta);
+        var binding = ResolveBinding(meta, catalog);
         return new ScenarioPackage(
             scenarioId,
             policyId,
-            dbSnapshotId,
-            meta.DbRef,
+            binding.DbSnapshotId,
+            binding.DbRef ?? meta.DbRef,
+            meta.TlBranch,
             meta.Seed,
             meta.EditVersion);
     }
+
+    public static bool HasExplicitDbBinding(ScenarioMetadataDto metadata) =>
+        !string.IsNullOrWhiteSpace(metadata.DbSnapshotId) ||
+        !string.IsNullOrWhiteSpace(metadata.DbRef);
+
+    public sealed record ScenarioDbBinding(string DbSnapshotId, string? DbRef);
+
+    public static ScenarioDbBinding ResolveBinding(ScenarioMetadataDto metadata, ICatalogReader? catalog)
+    {
+        if (!string.IsNullOrWhiteSpace(metadata.DbSnapshotId))
+        {
+            return new ScenarioDbBinding(metadata.DbSnapshotId.Trim(), metadata.DbRef?.Trim());
+        }
+
+        if (!string.IsNullOrWhiteSpace(metadata.DbRef))
+        {
+            var trimmedRef = metadata.DbRef.Trim();
+            if (catalog?.TryResolveDbRef(trimmedRef, out var resolved) == true)
+            {
+                return new ScenarioDbBinding(resolved, trimmedRef);
+            }
+
+            if (CatalogValidationDefaults.TryResolveBalticDbRef(trimmedRef, out var baltic))
+            {
+                return new ScenarioDbBinding(baltic, trimmedRef);
+            }
+
+            return new ScenarioDbBinding(trimmedRef, trimmedRef);
+        }
+
+        var tlBranch = ResolveTlBranch(metadata);
+        if (catalog?.TryResolveSnapshotForTlBranch(tlBranch, out var snapshotId, out var dbRef) == true)
+        {
+            return new ScenarioDbBinding(snapshotId, dbRef);
+        }
+
+        return new ScenarioDbBinding(CatalogValidationDefaults.BalticSnapshotId, null);
+    }
+
+    public static string ResolveTlBranch(ScenarioMetadataDto metadata) =>
+        CatalogTlTier.Normalize(metadata.TlBranch);
 
     public static string ResolveDbSnapshotId(ScenarioMetadataDto metadata)
     {

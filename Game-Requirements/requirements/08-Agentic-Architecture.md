@@ -1,10 +1,12 @@
 # 08 - Agentic Architecture Layer
 
-**Last Updated:** 2026-06-04  
+**Last Updated:** 2026-07-08  
 **Related:** [01-Project-Overview.md](01-Project-Overview.md) · [03-Simulation-Modes.md](03-Simulation-Modes.md) · [04-Agent-Delegation.md](04-Agent-Delegation.md) · [06-Database-Intelligence.md](06-Database-Intelligence.md) · [07-Agentic-Infrastructure.md](07-Agentic-Infrastructure.md) · [20-Command-And-Control-UI.md](20-Command-And-Control-UI.md)  
 **Status:** Locked  
+**FR reverse-ref:** [FR-07](01-Project-Overview.md) — In-simulation agent architecture  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)  
-**Architecture:** [Master Architecture](../../docs/architecture/architecture.md) · ADR-001–006 (see [Resolved Design Decisions](#resolved-design-decisions))
+**Architecture:** [Master Architecture](../../docs/architecture/architecture.md) · ADR-001–008 (see [Resolved Design Decisions](#resolved-design-decisions); ADR-007 C2 map, ADR-008 mission-editor validation)  
+**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) §08 — **Partial** (Release stage)
 
 ## Purpose
 
@@ -12,9 +14,9 @@ Define the core software architecture that enables true agentic development, hig
 
 ## Vision
 
-A modern, modular, agent-aware architecture built on a **pure C# simulation kernel** (`ProjectAegis.Sim`) plus a pluggable **delegation and decision layer** (`ProjectAegis.Delegation`). Unity DOTS/ECS hosts scalable world state per [ADR-005](../../docs/architecture/adr-005-dots-sim-core.md); the catalog and scenario packages live in `ProjectAegis.Data`. The simulation core, scenario model, databases, UX, and automation evolve **semi-independently** — matching the CMO pattern of preserving the sim kernel while improving interface and tooling.
+A modern, modular, agent-aware architecture. **The pure C# simulation kernel (`ProjectAegis.Sim`) plus pluggable delegation layer (`ProjectAegis.Delegation`) is shipped** as the headless-first spine; catalog and scenario packages live in `ProjectAegis.Data`. **DOTS/ECS remains a post-P0 dual-track path** for scalable world-state hosting per [ADR-005](../../docs/architecture/adr-005-dots-sim-core.md) — sim rules stay pure C# today. The simulation core, scenario model, databases, UX, and automation evolve **semi-independently** — matching the CMO pattern of preserving the sim kernel while improving interface and tooling.
 
-**P0 spine (shipped):** deterministic tick + engage + detection sub-hash, policy evaluator in Sim, delegation orchestration + unified order log, headless Baltic harness, catalog/scenario binding. **Post-P0:** full DOTS entity store, event priority queue, structured sim API for external RL agents, cloud batch farm.
+**P0 spine (shipped):** deterministic tick + engage + detection sub-hash, policy evaluator in Sim, delegation orchestration + unified order log, headless Baltic harness, catalog/scenario binding. **Post-P0:** full DOTS entity store (ADR-005 dual-track), event priority queue, structured sim API for external RL agents, cloud batch farm.
 
 ## Five-Layer Clean-Room Architecture *(research-aligned)*
 
@@ -24,7 +26,7 @@ A modern, modular, agent-aware architecture built on a **pure C# simulation kern
 | **Entity database** | Platforms, sensors, weapons, signatures, mounts, provenance | `src/ProjectAegis.Data/` · `data/catalog/` (SQLite, gitignored dev seed) | [ADR-006](../../docs/architecture/adr-006-data-layer-boundary.md), [06](06-Database-Intelligence.md) |
 | **Scenario system** | Sides, geography, ORBAT, triggers, events, objectives | `src/ProjectAegis.Data/Scenario/` · `data/scenarios/*.policy.json` · `assets/data/scenarios/validation/` · `src/ProjectAegis.MissionEditor.Cli/` | [ADR-008](../../docs/architecture/adr-008-mission-editor-validation-engine.md), [11](11-Agentic-Mission-Editor.md) |
 | **UX layer** | Map, timelines, planners, inspectors, agent supervision | `src/ProjectAegis.Delegation/Projection/` · `src/ProjectAegis.Delegation.UnityAdapter/Bridge/` · `unity/ProjectAegis/Assets/` (UI Toolkit + `C2PresentationController`) | [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md), [20](20-Command-And-Control-UI.md) |
-| **Automation layer** | Scripting, batch analysis, orchestration, human-in-the-loop review | `production/agentic/` · `src/ProjectAegis.MissionEditor.Cli/` · MCP hosts (doc [07](07-Agentic-Infrastructure.md)) · `src/ProjectAegis.Delegation.UnityAdapter/Baltic/BalticBatchRunner.cs` | [07](07-Agentic-Infrastructure.md), [17](17-Replay-AAR-And-Order-Log.md) |
+| **Automation layer** | Scripting, batch analysis, orchestration, human-in-the-loop review | **Runtime product:** `src/ProjectAegis.MissionEditor.Cli/` · `src/ProjectAegis.Delegation.UnityAdapter/Baltic/BalticBatchRunner.cs` · `BalticReplayHarness`. **Studio process docs (not product ACs):** `production/agentic/` · optional MCP hosts (doc [07](07-Agentic-Infrastructure.md) studio split) | [07](07-Agentic-Infrastructure.md), [17](17-Replay-AAR-And-Order-Log.md) |
 
 ### Assembly dependency rule *(ADR-001, ADR-006)*
 
@@ -197,23 +199,23 @@ Serialization, replay, and reproducibility.
 
 ## Agentic Capabilities
 
-- Every major system exposes **MCP tools** (via Unity-MCP and `ProjectAegis.MissionEditor.Cli`) so Claude/Cursor can:
-  - Inspect and modify entity archetypes (catalog read/write gate — doc 06)
-  - Tune sensor and weapon parameters in real time (staging batches only)
-  - Create new decision logic or agent personalities (Delegation traits)
-  - Run high-speed simulation batches and analyze results (`BalticBatchRunner`, Hindsight hooks)
-  - Debug and balance systems interactively
+- **Phase N / partial:** selected systems expose **CLI bindings** (primary: `ProjectAegis.MissionEditor.Cli`) and optional/partial MCP host wrappers so Claude/Cursor *may* drive authoring and batch workflows. This is **not** “every major system exposes MCP tools” as a shipped requirement.
+  - Inspect and propose entity archetype changes (catalog read/write gate — doc 06; CLI-primary `catalog_*`)
+  - Tune sensor and weapon parameters via staging batches only (no live shadow write)
+  - Exercise decision/personality paths via headless harness and tests (Delegation traits)
+  - Run high-speed simulation batches and analyze results (`BalticBatchRunner`, runtime Hindsight hooks)
+  - Debug and balance systems via CLI + optional editor host
 
-- Custom C# attributes allow rapid creation of new MCP tools without boilerplate (doc 07)
+- Rapid MCP tool scaffolding via custom C# attributes remains a **Phase N / optional host** convenience (doc 07 studio process) — not a P0 architecture deliverable or boilerplate-free guarantee.
 
-**P0 guardrail:** MCP and headless CLI share the same validation and catalog APIs — no shadow write path.
+**P0 guardrail:** any MCP host and headless CLI must share the same validation and catalog APIs — no shadow write path.
 
 ## Technical Considerations
 
 - **Primary Technology Stack**
-  - Unity 6 + DOTS (Entities 1.3+, Burst, Jobs) for presentation and future world store
-  - Unity-MCP for live AI control
-  - Pure C# tick pipeline (`SimTickPipeline`, `DelegationOrchestrator`) for headless parity
+  - **Unity 6.3 LTS** presentation layer; DOTS (Entities 1.3+, Burst, Jobs) for future world store (post-P0 dual-track, ADR-005)
+  - Optional Unity-MCP host for live AI control when editor is open
+  - Pure C# tick pipeline (`SimTickPipeline`, `DelegationOrchestrator`) for headless parity (shipped)
 
 - **Future-Proofing**
   - Custom deterministic lockstep first; Netcode for Entities when multiplayer is in scope
@@ -230,7 +232,7 @@ Serialization, replay, and reproducibility.
 | [03 Simulation modes](03-Simulation-Modes.md) | `SimulationModeConfigurator`, `SimulationModeKind`, headless AvA | `src/ProjectAegis.Delegation/Orchestration/` |
 | [04 Agent delegation](04-Agent-Delegation.md) | Decision engine layer | `DelegationOrchestrator`, `AgentController`, `DecisionPipeline` |
 | [06 Database intelligence](06-Database-Intelligence.md) | Entity database layer | `ICatalogReader`, `IWriteGate`, `data/catalog/` |
-| [07 Agentic infrastructure](07-Agentic-Infrastructure.md) | Automation layer | `BalticBatchRunner`, `MissionEditor.Cli`, `production/agentic/` |
+| [07 Agentic infrastructure](07-Agentic-Infrastructure.md) | Automation layer — product runtime vs studio process split | Runtime: `BalticBatchRunner`, `MissionEditor.Cli`; process: `production/agentic/`, GitNexus/Superpowers (not product ACs) |
 | [11 Mission editor](11-Agentic-Mission-Editor.md) | Scenario system | `ScenarioDocumentDto`, `ScenarioValidationEngine` |
 | [13 Doctrine / ROE](13-Doctrine-ROE-EMCON-WRA.md) | Sim policy phase | `PolicyEvaluator`, `IPolicyEvaluator`, `ScenarioPolicyProfile` |
 | [14 Engagement](14-Engagement-And-Fire-Control.md) | Sim engage phase | `IEngagementResolver`, `MvpEngagementResolver`, `DlzEngageGate` |
@@ -244,7 +246,7 @@ Serialization, replay, and reproducibility.
 
 ## Open Questions / Decisions Needed
 
-All charter questions for agentic architecture are **locked** for Sprint 15 design review. See [Resolved Design Decisions](#resolved-design-decisions) and ADR-001–006. No reopen without user approval.
+All charter questions for agentic architecture are **locked** for Sprint 15 design review. See [Resolved Design Decisions](#resolved-design-decisions) and ADR-001–008. No reopen without user approval.
 
 | Former open question | Resolution location |
 |---------------------|---------------------|
@@ -257,28 +259,29 @@ All charter questions for agentic architecture are **locked** for Sprint 15 desi
 
 ## Implementation Mapping (headless-first)
 
-| Requirement area | Assembly / path | Key types |
-|------------------|-----------------|-----------|
-| **Sim kernel — time** | `ProjectAegis.Sim` · `Core/`, `Time/` | `ISimTickRunner`, `SimTickRunner`, `SimTickPipeline`, `SimClock`, `SimSeed`, `SeededRng`, `SimWorldHash`, `TimeCompressionMode` |
-| **Sim kernel — policy** | `ProjectAegis.Sim` · `Policy/` | `IPolicyEvaluator`, `PolicyEvaluator`, `PassthroughPolicyEvaluator`, `PolicyContext`, `EffectivePolicy`, `ResolvedUnitPolicy`, `FireAbortReason`, `RoeLevel`, `EmconState` |
-| **Sim kernel — engage** | `ProjectAegis.Sim` · `Engage/` | `IEngagementResolver`, `MvpEngagementResolver`, `EngageRequest`, `EngageContext`, `CombatDomainValidator`, `DlzEngageGate`, `MagazineLedger`, `KilledTargetRegistry`, `SwarmSalvoDeconfliction` |
-| **Sim kernel — sensors** | `ProjectAegis.Sim` · `Sensors/` | `DeterministicDetectionLoop`, `PdDetectionContactSimulator`, `DetectionWorldHash`, `ContactLifecycleState`, `ScenarioContactSimulator` |
-| **Sim kernel — logistics** | `ProjectAegis.Sim` · `Logistics/` | `FuelLedger` |
-| **Sim kernel — scenario policy** | `ProjectAegis.Sim` · `Scenario/` | `ScenarioPolicyRepository`, `ScenarioPolicyJsonLoader`, `ScenarioPolicyProfile`, `ScenarioMissionTimeline`, `ScenarioEngageDefaults` |
-| **Delegation — orchestration** | `ProjectAegis.Delegation` · `Orchestration/` | `DelegationOrchestrator`, `SimulationSession`, `AutonomyGate`, `OverrideService`, `PolicySnapshotRegistry`, `SimulationModeConfigurator` |
-| **Delegation — controllers** | `ProjectAegis.Delegation` · `Controllers/`, `Decision/` | `IController`, `AgentController`, `HumanController`, `DecisionPipeline`, `DecisionLog`, `IOrderLog`, `PlayerOrderExecutionQueue` |
-| **Delegation — targets** | `ProjectAegis.Delegation` · `Targets/`, `Groups/` | `ICommandableTarget`, `UnitTarget`, `GroupTarget`, `DetachRejoinService` |
-| **Delegation — replay** | `ProjectAegis.Delegation` · `Replay/` | `ReplayCheckpointStore`, `ReplayCheckpoint`, `OrderLogReplayFingerprint` |
-| **Delegation — projections (C2 DTOs)** | `ProjectAegis.Delegation` · `Projection/` | `MessageLogProjection`, `MapPictureProjection`, `EngagePreviewProjection`, `UnitDetailProjection`, `SensorC2Projection` |
-| **Bridge / harness** | `ProjectAegis.Delegation.UnityAdapter` · `Bridge/`, `Baltic/` | `ISimWorldSnapshot`, `IOrderSink`, `DelegationBridge`, `BalticReplayHarness`, `ObservedStateBuilder`, `TargetRegistry` |
-| **Data — catalog** | `ProjectAegis.Data` · `Catalog/`, `WriteGate/`, `Snapshots/` | `ICatalogReader`, `SqliteCatalogReader`, `CatalogReaderFactory`, `IWriteGate`, `CatalogWriteGate`, `DbSnapshotStore` |
-| **Data — scenario** | `ProjectAegis.Data` · `Scenario/`, `Validation/` | `ScenarioDocumentDto`, `ScenarioValidationEngine`, `ValidationReport`, `ReachabilityCalculator` |
-| **Automation CLI** | `ProjectAegis.MissionEditor.Cli` | `ScenarioValidationExportGate`, `CatalogIntelligenceRunCommand`, `BalticBatchRunner` (via adapter) |
-| **Unity presentation** | `unity/ProjectAegis/Assets/Scripts/Runtime/` | `C2PresentationController`, `DelegationBridgeHost`, `RightUnitPanelHost` |
+| Requirement area | Assembly / path | Key types | Status (Release / 2026-07-04) |
+|------------------|-----------------|-----------|-------------------------------|
+| **Sim kernel — time** | `ProjectAegis.Sim` · `Core/`, `Time/` | `ISimTickRunner`, `SimTickRunner`, `SimTickPipeline`, `SimClock`, `SimSeed`, `SeededRng`, `SimWorldHash`, `TimeCompressionMode` | Shipped (P0) |
+| **Sim kernel — policy** | `ProjectAegis.Sim` · `Policy/` | `IPolicyEvaluator`, `PolicyEvaluator`, `PassthroughPolicyEvaluator`, `PolicyContext`, `EffectivePolicy`, `ResolvedUnitPolicy`, `FireAbortReason`, `RoeLevel`, `EmconState` | Shipped (P0) |
+| **Sim kernel — engage** | `ProjectAegis.Sim` · `Engage/` | `IEngagementResolver`, `MvpEngagementResolver`, `EngageRequest`, `EngageContext`, `CombatDomainValidator`, `DlzEngageGate`, `MagazineLedger`, `KilledTargetRegistry`, `SwarmSalvoDeconfliction` | Shipped (P0) |
+| **Sim kernel — sensors** | `ProjectAegis.Sim` · `Sensors/` | `DeterministicDetectionLoop`, `PdDetectionContactSimulator`, `DetectionWorldHash`, `ContactLifecycleState`, `ScenarioContactSimulator` | Shipped (P0 partial; full DOTS post-P0) |
+| **Sim kernel — logistics** | `ProjectAegis.Sim` · `Logistics/` | `FuelLedger` | Shipped (P0 partial) |
+| **Sim kernel — scenario policy** | `ProjectAegis.Sim` · `Scenario/` | `ScenarioPolicyRepository`, `ScenarioPolicyJsonLoader`, `ScenarioPolicyProfile`, `ScenarioMissionTimeline`, `ScenarioEngageDefaults` | Shipped (P0) |
+| **Delegation — orchestration** | `ProjectAegis.Delegation` · `Orchestration/` | `DelegationOrchestrator`, `SimulationSession`, `AutonomyGate`, `OverrideService`, `PolicySnapshotRegistry`, `SimulationModeConfigurator` | Shipped (P0) |
+| **Delegation — controllers** | `ProjectAegis.Delegation` · `Controllers/`, `Decision/` | `IController`, `AgentController`, `HumanController`, `DecisionPipeline`, `DecisionLog`, `IOrderLog`, `PlayerOrderExecutionQueue` | Shipped (P0) |
+| **Delegation — targets** | `ProjectAegis.Delegation` · `Targets/`, `Groups/` | `ICommandableTarget`, `UnitTarget`, `GroupTarget`, `DetachRejoinService` | Shipped (P0) |
+| **Delegation — replay** | `ProjectAegis.Delegation` · `Replay/` | `ReplayCheckpointStore`, `ReplayCheckpoint`, `OrderLogReplayFingerprint` | Shipped; ReplayGolden **6/6**, hash `17144800277401907079` |
+| **Delegation — projections (C2 DTOs)** | `ProjectAegis.Delegation` · `Projection/` | `MessageLogProjection`, `MapPictureProjection`, `EngagePreviewProjection`, `UnitDetailProjection`, `SensorC2Projection` | Shipped (P0); UI polish open |
+| **Bridge / harness** | `ProjectAegis.Delegation.UnityAdapter` · `Bridge/`, `Baltic/` | `ISimWorldSnapshot`, `IOrderSink`, `DelegationBridge`, `BalticReplayHarness`, `ObservedStateBuilder`, `TargetRegistry` | Shipped; **`DelegationBridge` zero-touch hotpath through Release v1** — no new hotpath edits |
+| **Data — catalog** | `ProjectAegis.Data` · `Catalog/`, `WriteGate/`, `Snapshots/` | `ICatalogReader`, `SqliteCatalogReader`, `CatalogReaderFactory`, `IWriteGate`, `CatalogWriteGate`, `DbSnapshotStore` | Shipped (P0; extend-only write gate) |
+| **Data — scenario** | `ProjectAegis.Data` · `Scenario/`, `Validation/` | `ScenarioDocumentDto`, `ScenarioValidationEngine`, `ValidationReport`, `ReachabilityCalculator` | Shipped (P0); editor program active (ADR-008) |
+| **Automation CLI (runtime product)** | `ProjectAegis.MissionEditor.Cli` · Baltic batch | `ScenarioValidationExportGate`, `CatalogIntelligenceRunCommand`, `BalticBatchRunner` | CLI primary; MCP host optional/partial |
+| **Studio process docs** | `production/agentic/` | Sprint/agent routing docs | **Not** product success criteria (doc 07 studio split) |
+| **Unity presentation** | `unity/ProjectAegis/Assets/Scripts/Runtime/` (**Unity 6.3 LTS**) | `C2PresentationController`, `DelegationBridgeHost`, `RightUnitPanelHost` | Partial (smoke 18/18; map polish open) |
 
 **Default scenario policy path:** `data/scenarios/baltic-patrol.policy.json` (and variants) via `ScenarioPolicyRepository`.
 
-**Tests:** `src/ProjectAegis.Sim.Tests/`, `src/ProjectAegis.Delegation.Tests/`, `src/ProjectAegis.Delegation.UnityAdapter.Tests/` (replay goldens), `src/ProjectAegis.Data.Tests/`.
+**Tests:** `src/ProjectAegis.Sim.Tests/`, `src/ProjectAegis.Delegation.Tests/`, `src/ProjectAegis.Delegation.UnityAdapter.Tests/` (ReplayGolden + PlayModeSmoke), `src/ProjectAegis.Data.Tests/`.
 
 ## Resolved Design Decisions
 
@@ -316,7 +319,13 @@ Decisions locked **2026-06-04** for Sprint 15 design review. Architecture ADRs *
 
 ### 4. Hot-path language split
 
-**Decision:** **Burst for hot paths** (sensors, movement, weapons); **managed C#** for policy, agents, I/O.
+**Decision (revised 2026-07-07):** **Managed data-oriented C# for all hot paths.** The original
+"Burst for hot paths" plan is **superseded** (ADR-005 reversed): the heaviest path (25k @ 1000×
+headless, §2) runs under `dotnet`, where Burst/Jobs do not exist, so hot-path throughput must come
+from managed parallelism (struct-of-arrays state, order-stable parallel reductions, optional
+`System.Numerics` SIMD), measured by the INF-5.1 benchmark. Policy, agents, and I/O stay managed.
+World state is **not** in DOTS/ECS. See
+[unity integration review](../../docs/reports/unity-integration-review-2026-07-07.md) §3.
 
 | Layer | Language | ADR |
 |-------|----------|-----|
@@ -363,15 +372,18 @@ Decisions locked **2026-06-04** for Sprint 15 design review. Architecture ADRs *
 
 | Epic / FR | This document |
 |-----------|---------------|
-| FR-07 ([01](01-Project-Overview.md)) | In-simulation agent architecture — five layers + ARCH-* acceptance |
+| **FR-07** ([01](01-Project-Overview.md)) | In-simulation agent architecture — five layers + ARCH-* acceptance |
 | Doc 03 | Modes, compression, headless AvA — ARCH-1.x, ARCH-NFR-* |
 | Doc 04 | Decision engine — ARCH-3.x |
 | Doc 06 | Database layer row in five-layer table |
-| Doc 07 | Automation layer row |
-| Doc 17 | Order log / replay — ARCH-5.x |
+| Doc 07 | Automation layer row (runtime product vs studio process) |
+| Doc 17 | Order log / replay — ARCH-5.x; ReplayGolden hash `17144800277401907079` |
 | Master architecture | [architecture.md](../../docs/architecture/architecture.md), [architecture-traceability-index.md](../../docs/architecture/architecture-traceability-index.md) |
-| ADR-001–006 | [Resolved Design Decisions](#resolved-design-decisions) |
+| ADR-001–008 | [Resolved Design Decisions](#resolved-design-decisions) · ADR-001…006 sim/data spine · [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md) UX · [ADR-008](../../docs/architecture/adr-008-mission-editor-validation-engine.md) scenario validation |
+| Tracker | [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) §08 — **Partial** (Release) |
 
 ---
 
-**Status:** Locked (Sprint 15)
+**Status:** Locked (Sprint 15)  
+**Tracker row 08:** **Partial** — [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md)  
+**Implementation grade:** Partial — Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

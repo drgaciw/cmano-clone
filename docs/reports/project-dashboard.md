@@ -1,129 +1,160 @@
 # Project Aegis — Project Dashboard
 
-**Generated**: 2026-06-04  
-**Last Updated**: 2026-06-04T19:52:00Z  
-**Run Label**: pm (post-req-06 / requirements waves)  
-**Stage**: Production — Baltic vertical slice **PROCEED**; Game Requirements implementation in flight  
+Living dashboard. Latest archive: [dashboard-snapshots/2026-07-09-am.md](dashboard-snapshots/2026-07-09-am.md).
+
+**Generated**: 2026-07-09  
+**Last Updated**: 2026-07-09T14:22:00Z  
+**Run Label**: am (post–S80 Baltic v3 / S81–S88 scenario editor / Mission Editor Phase 2 / Platform Editor completion)  
+**Stage**: **Release** — RC1 cut (S48); programs through **S88** headless scenario editor **COMPLETE**; Mission Editor Phase 2 **COMPLETE**; Platform Editor (req 21) **COMPLETE** + adversarial hardening (1599/0)  
 **Analysis Scope**: Full project  
-**Compared to**: [dashboard-snapshots/2026-05-31-initial.md](dashboard-snapshots/2026-05-31-initial.md) (baseline)
+**Compared to**: [dashboard-snapshots/2026-06-25-pm.md](dashboard-snapshots/2026-06-25-pm.md) (prior dashboard)
 
 ---
 
 ## Executive Summary
 
-In four days the project moved from **pre-production scaffolding** to a **shipped headless MVP loop** plus active **requirements 01–20** implementation. GitNexus at `ff49ef2` indexes **6,220 nodes**, **15,105 edges**, and **300 execution flows** (roughly **2.2×** symbol growth vs. the May 31 baseline). **`dotnet test ProjectAegis.sln`** reports **351 passing** tests with **0 failures**.
+In fourteen days since the last dashboard, the program advanced from **post–S72 commercial launch prep** through **S73–S80 Baltic v3 content expansion** (human ack **"Baltic v3 content-complete"**), **S81–S88 Scenario Editor** (req 11 / E11 headless + AC-8 host path), **scenario-editor-completion** (SE-W0–W3), **Mission Editor Phase 2** (ME-W0–W3; ack **"Mission editor Phase 2 complete"**), and **Platform Editor completion** (PE-W0–W4; ack **"Platform editor requirements complete"**) plus **adversarial TDD hardening** on trunk.
 
-Production tracking is **initialized and heavily used**: **10** sprint plan files (Sprints **1–10** headless code-complete), **15** epics, **27** story files, and `production/sprint-status.yaml` with **54** completed story/backlog entries. The [vertical slice gate](../production/vertical-slice/gate-2026-06-02.md) is **PROCEED**; architecture review blockers **C1–C4** are **closed** (C5 human-in-the-loop deferred).
+GitNexus at indexed commit `80001c2` reports **24,262 nodes** and **46,367 edges** (MCP list_repos 2026-07-09; index **9 commits behind** HEAD `223a5fe` — re-analyze recommended). AGENTS.md baseline cites **24,262 symbols / 46,367 relationships**. Live **`dotnet test ProjectAegis.sln`** reports **1,599 passing** tests with **0 failures** (verify 2026-07-09: Sim 311 + Delegation 260 + UnityAdapter 286 + Excel 24 + Data 616 + Cli 102).
 
-Game Requirements **documentation** for 01–20 is **complete**; **MVP gameplay** for each requirement remains **Partial** (tracker: [implementation-tracker-2026-06-04.md](../../Game-Requirements/implementation-tracker-2026-06-04.md)). Recent merges include parallel requirement waves **#63–#67** and **req-06** database intelligence P0 (**#68**).
+Production tracking remains **mature at Release scale**: **131** sprint plan files, **70** epics, **264** story files, and `production/sprint-status.yaml` with **287** completed story-status entries (plus extensive program closeout blocks through S88 / PE / ME Phase 2). Stage remains **Release** — no Launch advance.
 
-**Current focus:** Requirements stack tasks (C2 UI, live readiness, cyber spoof, platform import scale) and closing the **Unity manual C2 QA** gate.
+The [vertical slice gate](../production/vertical-slice/gate-2026-06-02.md) remains **PROCEED** (historical). **C2 proxy** is **20/20 PASS** via headless PlayMode smoke (expanded from 18/18 at S72); ReplayGolden **6/6**; Baltic production hash **`17144800277401907079`** preserved (18 paths).
+
+Game Requirements **documentation** for 01–20 is **complete**; **MVP program exit** remains **21/21** at S56; req **11** and **21** residual ACs closed via completion epics (2026-07-08/09). Tracker: [implementation-tracker-2026-07-04.md](../../Game-Requirements/implementation-tracker-2026-07-04.md).
+
+**Current focus:** Post–editor completion integration — GitNexus re-index to HEAD; optional forward program beyond S88 / PE / ME Phase 2; asset production from existing manifest; optional Launch stage decision (still explicit human gate).
 
 **Blocking / open gates:**
 
 | Source | Finding |
 |--------|---------|
-| Unity QA | [c2-manual-signoff-2026-06-02.md](../production/qa/c2-manual-signoff-2026-06-02.md) — **12 checks unchecked** (Editor-only) |
-| Cesium spike | Editor checklist — backlog in `sprint-status.yaml` |
-| Architecture | **CONCERNS** overall — **12** TR gaps, **21** partial ([architecture-review-2026-06-02.md](../architecture/architecture-review-2026-06-02.md)) |
-| GitNexus watchlist | `DecisionLog`, `DelegationOrchestrator` **HIGH**; `SqliteCatalogReader` **CRITICAL** after req-06 |
-| Assets | No `design/assets/asset-manifest.md` — pipeline **0%** |
-| Determinism hygiene | DET-002/DET-003 **LOW** — off hot path ([determinism audit](../production/determinism/)) |
+| GitNexus | Index **stale** (`80001c2` indexed vs `223a5fe` HEAD, 9 commits) — run `node .gitnexus/run.cjs analyze` |
+| Stage | **Release** (not Launch) — S72/S80/S88/PE/ME acks do not auto-advance stage |
+| Forward roadmap | S89–S92 post-editor hygiene **active** (alias points at [`future-sprint-roadpmap-07092026.md`](future-sprint-roadpmap-07092026.md)) |
+| Unity QA | Headless **20/20 PASS**; live Editor PNG / Phase N screenshots still residual |
+| Architecture | **CONCERNS** overall — refresh recommended post–editor + PE surface |
+| GitNexus watchlist | `ScenarioDocumentEditor` **233 CRIT**; `CatalogWriteGate` **183 CRIT**; `DelegationBridge` **145 CRIT**; `PatrolCandidateEngagePolicy` **113 CRIT**; `BalticReplayHarness` **54 CRIT** |
+| Assets | Manifest **exists** (`design/assets/asset-manifest.md`) — **42** needed / **0** done (~spec-only) |
+| E7 commercial | Prep **COMPLETE** (S69–S72) — store submission / revenue launch **not in scope** |
 
 ---
 
-## Since Last Update (vs 2026-05-31 baseline)
+## Since Last Update (vs 2026-06-25 dashboard)
 
-Comparison anchor: [2026-05-31-initial.md](dashboard-snapshots/2026-05-31-initial.md). Intermediate state was captured in `production/dashboard-state.yaml` @ 2026-06-02 (`1f7423e`).
+Comparison anchor: [2026-06-25-pm.md](dashboard-snapshots/2026-06-25-pm.md). See also [2026-06-25-pm-addendum.md](dashboard-snapshots/2026-06-25-pm-addendum.md) (GT-01/02 resolved same day).
 
-| Signal | 2026-05-31 (baseline) | 2026-06-04 (this run) | Delta |
-|--------|------------------------|------------------------|-------|
-| Indexed commit | `8debee4` | `ff49ef2` | +4 days dev |
-| GitNexus nodes | 2,815 | **6,220** | **+3,405 (+121%)** |
-| GitNexus edges | 5,198 | **15,105** | **+9,907 (+191%)** |
-| Execution flows | 100 | **300** | **+200 (+200%)** |
-| Clusters | 45 | **157** | +112 |
-| Sprint plans | **0** | **10** | Production tracking live |
-| Epics / stories | **0 / 0** | **15 / 27** | Full Baltic MVP stack |
-| `sprint-status.yaml` | Missing | Present — **54** `done` entries | Automated tracking |
-| C# source files (excl. tests) | 96 | **368** | **+272** |
-| C# test files | 36 | **207** | **+171** |
-| `dotnet test` (solution) | Not baselined | **351 passed**, 0 failed | CI-grade gate green |
-| GDD files in `design/gdd/` | 10 | **15** | +5 (C2, combat, cyber, scoring, infra) |
-| Systems with linked GDD | 6 / 20 (30%) | **12 / 20 (60%)** | +6 systems |
-| ADRs (Accepted) | 5 | **10** (001–010) | +5 |
-| Requirements docs | 26 | 26 + **implementation tracker** | Execution backlog formalized |
-| Vertical slice gate | Not filed | **PROCEED** | Milestone gate passed |
-| Design blockers C1–C5 | **Open** | **C1–C4 closed**, C5 deferred | Unblocks production |
-| Req 06 DB intelligence | Not started | **P0 on main** (#68) | Write gate + agents + MCP |
+| Signal | 2026-06-25 | 2026-07-09 (this run) | Delta |
+|--------|------------|------------------------|-------|
+| Indexed commit | `28c582d` (HEAD `b2c9411`, stale) | `80001c2` (HEAD `223a5fe`, 9 behind) | +14 days; PE/SE/ME land |
+| GitNexus nodes | ~20,174 / 20,193 | **24,262** | **+4,069–4,088 (~+20%)** |
+| GitNexus edges | ~37,840 / 37,859 | **46,367** | **+8,508–8,527 (~+22%)** |
+| Execution flows | 300 | **300** | Stable count |
+| Communities / clusters | — | **432** | Indexed |
+| Stage | Release (post–S72) | **Release** (post–S88 / PE / ME P2) | No Launch advance |
+| Sprint plans | 80 | **131** | +51 (S73–S88 + completion waves) |
+| Epics / stories | 63 / 176 | **70 / 264** | +7 / +88 |
+| `sprint-status.yaml` done | 287 | **287** | Stable entry count; program blocks expanded |
+| C# source files (excl. tests) | 565 | **609** | **+44** |
+| C# test files | 341 | **403** | **+62** |
+| `dotnet test` (solution) | 1,232 passed | **1,599 passed**, 0 failed | **+367 (+30%)** |
+| ReplayGolden suite | 6/6 PASS | **6/6 PASS** | Stable |
+| C2 proxy smoke | 18/18 PASS | **20/20 PASS** | +2 checks |
+| Baltic production hash | preserved | **preserved** (18 paths) | Invariant held |
+| Baltic v2 policies | 10 | **11** | +1 on disk |
+| Baltic v3 policies / goldens | untracked / pending | **6 / 6** committed | S73–S80 landed |
+| Regression golden files | 29 | **35** | +6 v3 (+ related) |
+| Asset manifest | missing | **present** (42 Needed / 0 Done) | Phase B delivered |
+| ADRs | 12 | **18** files (001–011, 013–017 + Spirit1) | +6 editor ADRs |
+| Current program | Post–S72 GT / forward TBD | **Editors complete** — forward TBD | S73–S88 + PE + ME P2 |
+| Req 11 Scenario Editor | Partial | **Headless + AC-8 COMPLETE**; Phase 2 GUI residual deferred | S81–S88 + SE epic |
+| Req 21 Platform Editor | Partial+ | **Requirements COMPLETE** (PE-W0–W4 + adversarial) | 2026-07-09 ack |
 
 ---
 
 ## GitNexus Code Intelligence
 
-**Index status:** Up-to-date (re-indexed 2026-06-04, commit `ff49ef2`)
+**Index status:** **Stale** (indexed 2026-07-09 @ `80001c2`; HEAD `223a5fe` — 9 commits behind; re-run analyze)
 
 | Metric | Value |
 |--------|-------|
-| Indexed commit | `ff49ef2` |
-| Nodes (symbols) | 6,220 |
-| Edges (relationships) | 15,105 |
-| Clusters | 157 |
+| Indexed commit | `80001c2` (HEAD `223a5fe`) |
+| Nodes (symbols) | **24,262** |
+| Edges (relationships) | **46,367** |
+| Files | 2,882 |
+| Communities | 432 |
 | Execution flows | 300 |
-| detect-changes | N/A on clean tree (multi-repo CLI — use repo-scoped MCP when available) |
+| detect-changes | Use repo-scoped MCP before commits |
 
 ### Watchlist Symbol Risk (upstream impact)
 
 | Symbol | Risk | Notes |
 |--------|------|-------|
-| `IRoeFilter` | LOW | Stable policy seam |
-| `DecisionLog` | **HIGH** | Order-log evolution — run `gitnexus impact` before edits |
+| `ScenarioDocumentEditor` | **CRITICAL (233)** | Scenario authoring hub — CLI/MCP + Unity editor consumers |
+| `CatalogWriteGate` | **CRITICAL (183)** | Corpus + manifest + TL export — extend-only |
+| `DelegationBridge` | **CRITICAL (145)** | **ZERO touch** — adapter-only consumers |
+| `PatrolCandidateEngagePolicy` | **CRITICAL (113)** | AAR/policy seam |
+| `BalticReplayHarness` | **CRITICAL (54)** | Replay goldens + hash invariant |
+| `DecisionLog` | **HIGH** | Order-log evolution |
 | `DelegationOrchestrator` | **HIGH** | Engage / tick integration |
 | `SimTickPipeline` | LOW | Tick ordering stable per ADR-004 |
-| `SqliteCatalogReader` | **CRITICAL** | Req-06 P0; migration 005 + provenance — test harness parity required |
 
-**Implication:** Prefer `ICatalogReader` / `IWriteGate` seams for new catalog work; avoid direct SQLite from Sim/Delegation.
+**Implication:** Prefer authoring/CLI seams and `ICatalogReader` / `IWriteGate`; never rewrite `CatalogWriteGate` write paths or touch `DelegationBridge` hotpath; run `gitnexus impact` before catalog/orchestrator/editor edits.
 
 ---
 
 ## Sprint Status
 
-**Status:** Sprints **1–10** documented; headless delivery **complete** per `production/sprint-status.yaml`. No Sprint 11 plan; **Game Requirements waves** (#63–#68) run parallel to numbered sprints.
+**Status:** Sprints **1–88** delivered across MVP, Release enablement, internal engineering, Baltic v2/v3, release train, commercial launch prep, and scenario editor. Completion epics for scenario editor, Mission Editor Phase 2, and Platform Editor closed 2026-07-08/09. Stage **Release** in `production/stage.txt`.
 
 | Metric | Value |
 |--------|-------|
-| Sprint plan files | 10 (`sprint-1` … `sprint-10`) |
-| `sprint-status.yaml` | Present — Sprints 1–9 **complete**, Sprint 7–10 code-complete |
-| Completed entries (`status: done`) | **54** |
-| Latest headless test count (qa_gate) | 276+ documented; current solution **351** |
-| Unity manual sign-off | **Pending** — blocks “signed-off C2” |
+| Sprint plan files | **131** |
+| Epics | **70** |
+| Story files | **264** |
+| `sprint-status.yaml` done entries | **287** |
+| Current solution tests | **1,599** (Sim 311 + Delegation 260 + Data 616 + UnityAdapter 286 + Cli 102 + Excel 24) |
+| ReplayGolden suite | **6/6** PASS |
+| Unity C2 sign-off | **20/20 PASS** (headless PlayMode smoke) |
+| Baltic v2 policies | **11** `baltic-v2-*` |
+| Baltic v3 policies / goldens | **6** / **6** isolated |
+| Regression golden files (disk) | **35** under `tests/regression/` |
 
-### Sprint summary (headless)
+### Program summary (since June 25)
 
-| Sprint | Theme | Status |
-|--------|-------|--------|
-| 1 | Headless MVP — plan → fight → replay | **Complete** (PR #36) |
-| 2 | Sensor classify + C2 presentation | **Complete** |
-| 3 | C2 shell — OOB, missions, message log | **Complete** |
-| 4 | C2 map prep + milestone close | **Complete** |
-| 5 | Map placeholder + scoring GDD | **Complete** |
-| 6 | C2 selection sync | **Complete** |
-| 7 | Scoring CSV, cyber GDD, Cesium prep | **Code-complete** |
-| 8 | Comms degradation + fuel readout | **Complete** |
-| 9 | Batch CSV + map ghost symbology | **Complete** |
-| 10 | Fuel ledger, replay SHA-256, QA prep | **Complete** (PR #55) |
+| Program | Sprints / Waves | Theme | Status |
+|---------|-----------------|-------|--------|
+| Baltic v3 content | S73–S80 | Dual-side triggers, playtest loop, C2 UX v3, content gate | **Complete** (ack 2026-06-26) |
+| Scenario Editor | S81–S88 | Headless authoring, validation, CLI/MCP, AC-8 host path | **Complete** (headless; SE gate ack package) |
+| Scenario editor completion | SE-W0–W3 | Doc honesty + AC-8 productionize + gate | **Complete** (ack package ready / collected at SE-W3) |
+| Mission Editor Phase 2 | ME-W0–W3 | Mission Board, event graph, sides/timeline (headless) | **Complete** (ack 2026-07-09) |
+| Platform Editor completion | PE-W0–W4 | Enum validation, quarantine, TRL, provenance, gate | **Complete** (ack 2026-07-09) |
+| PE adversarial hardening | CROSS + W1/W2 tracks | Real bugs + 1599/0 pins | **Complete** (2026-07-09) |
 
-### Requirements implementation (proxy burndown)
+### Active backlog (post–editor completion)
 
-From [implementation-tracker-2026-06-04.md](../../Game-Requirements/implementation-tracker-2026-06-04.md):
+| ID | Item | Status |
+|----|------|--------|
+| GN-01 | GitNexus re-index to HEAD `223a5fe` | Recommended |
+| FWD-01 | Post–S88 / PE / ME forward program | TBD — update dated roadmap when scoped |
+| STG-01 | Optional stage → **Launch** | Awaits explicit human decision |
+| ASSET-01 | Produce assets from manifest (42 Needed) | Spec-only; production pipeline open |
+| PNG-01 | Phase N / live Editor screenshot pack | Residual (PE-W3 honesty defer) |
+| ARCH-01 | `/architecture-review` post–editor + PE | Recommended |
+
+### Requirements implementation
+
+From [implementation-tracker-2026-07-04.md](../../Game-Requirements/implementation-tracker-2026-07-04.md) + 2026-07-08/09 completion gates:
 
 | Req bucket | Count |
 |------------|-------|
-| MVP **Partial** | 19 |
-| MVP **Not started** | 1 (req **05** — Dynamic Speculative Systems Agent) |
+| MVP **program exit** | **21/21** (S56; held) |
 | Requirements **docs** complete | 01–20 |
+| Req 11 Scenario / Mission Editor | Headless + AC-8 **COMPLETE**; Phase 2 GUI residual deferred |
+| Req 21 Platform Editor | **COMPLETE** (PE-W0–W4) |
+| Rows still **Partial+** at feature depth | Most other rows — multi-year full-game scope beyond Baltic ACs |
 
-**Recent PR train:** #63 (wave 1) → #64 (wave 2) → #65 (14/18/11) → #66 (wave 3) → #67 (wave 4) → **#68 (req-06 P0)**.
+**Notable depth since June 25:** Baltic v3 content + playtest; full scenario editor train; Mission Editor Phase 2 headless; Platform Editor residual ACs + adversarial hardening; asset manifest authored; ADRs 013–017.
 
 ---
 
@@ -131,11 +162,19 @@ From [implementation-tracker-2026-06-04.md](../../Game-Requirements/implementati
 
 | Field | Value |
 |-------|-------|
-| Formal milestone | [vertical-slice-mvp.md](../production/milestones/vertical-slice-mvp.md) |
-| Target date (proposed) | 2026-07-15 |
-| Gate verdict | **PROCEED** ([gate-2026-06-02](../production/vertical-slice/gate-2026-06-02.md)) |
-| Must-ship criteria | Headless plan→fight→replay, classify FSM, sensor C2 — **met** |
-| Outstanding for “production polish” | Globe/Cesium, full GDD coverage, asset pipeline, Editor QA |
+| Formal milestone (v1.0) | [vertical-slice-mvp.md](../production/milestones/vertical-slice-mvp.md) — **CLOSED** |
+| RC1 / Release | [s48-release-gate-2026-06-20.md](../production/gate-checks/s48-release-gate-2026-06-20.md) |
+| Baltic v2 | [s57-s64-program-closeout-2026-06-22.md](../production/qa/s57-s64-program-closeout-2026-06-22.md) |
+| Release train | [s68-release-train-gate-2026-06-25.md](../production/gate-checks/s68-release-train-gate-2026-06-25.md) |
+| Commercial launch prep | [s72-commercial-launch-prep-gate-2026-06-25.md](../production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md) |
+| Baltic v3 | [smoke-sprint-73-80-closeout-2026-06-26.md](../production/qa/smoke-sprint-73-80-closeout-2026-06-26.md) (S80 ack **"Baltic v3 content-complete"**) |
+| Scenario Editor | [s88-scenario-editor-gate-2026-07-04.md](../production/gate-checks/s88-scenario-editor-gate-2026-07-04.md) + [se-completion-gate-2026-07-08.md](../production/gate-checks/se-completion-gate-2026-07-08.md) |
+| Mission Editor Phase 2 | [mission-editor-phase2-gate-2026-07-09.md](../production/qa/mission-editor-phase2-gate-2026-07-09.md) |
+| Platform Editor | [platform-editor-completion-gate-2026-07-09.md](../production/qa/platform-editor-completion-gate-2026-07-09.md) |
+| Stage | **Release** (`production/stage.txt`) |
+| Gate verdict (vertical slice) | **PROCEED** (historical; superseded by Release gates) |
+| Must-ship criteria | Headless plan→fight→replay, classify FSM, sensor C2 — **met and locked** |
+| Outstanding for commercial ship | Store submission, production i18n, live Editor evidence, asset production, explicit Launch stage decision |
 
 ---
 
@@ -143,66 +182,74 @@ From [implementation-tracker-2026-06-04.md](../../Game-Requirements/implementati
 
 ### Design Documentation
 
-- **Status:** ~**60%** systems with linked GDDs (12 / 20 in [systems-index.md](../../design/gdd/systems-index.md))
-- **GDD files:** 15 under `design/gdd/`
-- **Narrative / levels / art bible:** Still absent
-- **Game Requirements:** 26 files + master index + **implementation tracker**
+- **Status:** ~**60%** systems with linked GDDs (12 / 20 in [systems-index.md](../../design/gdd/systems-index.md); index last refreshed Sprint 19)
+- **GDD files:** 18 under `design/gdd/`
+- **Art bible:** **`design/art/art-bible.md`**
+- **Asset manifest:** **`design/assets/asset-manifest.md`** (42 Needed / 0 Done)
+- **Narrative / levels:** Still absent
+- **Game Requirements:** 26+ files + master index + **implementation tracker** (2026-07-04)
 
-**Vs May 31:** 6/20 (30%) → 12/20 (60%); key additions include C2 UI, combat domains, cyber-comms, scoring, agentic infrastructure.
+**Vs June 25:** Asset manifest added; GDD count unchanged at 18.
 
 ### Architecture Documentation
 
-- **ADRs:** **10** (001–010), including Data (006), mission validation (008), combat validators (009), headless-first UI (010)
-- **Architecture review (2026-06-02):** **CONCERNS** — 14 covered / 21 partial / 12 gap TRs
-- **Blockers C1–C4:** **Closed** (order log, combat outcomes, ROE, EMCON)
+- **ADRs:** **18** files (001–011, 013–017 + Spirit1 frozen-hub) — editor topology, Lua scope, CMO import, event-graph caps, agent transparency
+- **Architecture review (2026-06-02):** **CONCERNS** — refresh recommended post–S73–S88 / PE / ME Phase 2
+- **Blockers C1–C4:** **Closed**
 - **Master architecture:** `docs/architecture/architecture.md` — still **Draft**
 
 ### Production Management
 
-- **Status:** ~**75%** for MVP engineering track (epics/stories/sprints/QA artifacts present)
-- **Sprint plans:** 10
-- **Milestones:** 1
-- **Epics:** 15 (all MVP slices documented)
-- **Stories:** 27
-- **Determinism / replay:** Audits + golden replay PASS
-- **QA:** Headless smoke PASS; **manual C2 open**
+- **Status:** ~**98%** for Release engineering track (131 sprints, 70 epics, 264 stories, gates through S88 / PE / ME P2)
+- **Release artifacts:** `production/release/` — store drafts, i18n spec, launch pack, checklist v3
+- **Determinism / replay:** Audits + golden replay **6/6** PASS; hash **`17144800277401907079`** pinned
+- **QA:** S80 + S88 + SE + ME Phase 2 + PE gates **APPROVED**; adversarial PE evidence on trunk
 
-**Vs May 31:** Production tracking went from **~5%** to fully operational for the Baltic MVP program.
+**Vs June 25:** Baltic v3 + scenario/mission/platform editor programs closed; GT-01/02 resolved (addendum).
 
 ### Source Code & Tests
 
-| Metric | May 31 | 2026-06-04 |
-|--------|--------|------------|
-| C# source files (excl. tests) | 96 | **368** |
-| C# test files | 36 | **207** |
-| Test projects | 4 | **5** (+ MissionEditor.Cli.Tests) |
-| Solution tests passing | Not baselined | **351** |
+| Metric | 2026-06-25 | 2026-07-09 |
+|--------|------------|------------|
+| C# source files (excl. tests) | 565 | **609** |
+| C# test files | 341 | **403** |
+| Test projects | 6 | **6** |
+| Solution tests passing | 1,232 | **1,599** |
 
-**Assemblies:** `ProjectAegis.Data`, `Sim`, `Delegation`, `Delegation.UnityAdapter`, `MissionEditor.Cli`, `Delegation.Demo`.
+**Assemblies:** `ProjectAegis.Data`, `ProjectAegis.Data.Excel`, `Sim`, `Delegation`, `Delegation.UnityAdapter`, `MissionEditor.Cli`, `Delegation.Demo`.
 
 ### MVP Systems Progress (Inferred)
 
 ```mermaid
 flowchart LR
-  subgraph done [Headless MVP Complete]
-    S1[Sim Core]
-    S2[Order Log Replay]
+  subgraph done [Release-Grade Headless]
+    S1[Sim Core + DOTS spawn]
+    S2[Order Log Replay 6/6]
     S5[Sensors Pd Classify]
-    S6[Engage Policy]
-    S11[Mission Editor MCP]
-    S20partial[C2 UI Toolkit Slice]
-    S4partial[Platform DB P0]
+    S6[Engage + Hypersonic gate]
+    S11[Mission Editor MCP + Phase 2]
+    S20[C2 UI 20/20 + Cesium]
+    S4[Platform DB + PE complete]
+    S18p[Combat Domains hot paths]
+    S21p[Platform Editor PE-W0-W4]
+    S10p[Orbital DEW + Kessler]
   end
-  subgraph wip [Requirements Partial 01-20]
-    R14[Engagement DLZ Swarm]
-    R16[Logistics Readiness]
-    R19[Cyber Comms]
-    R09[Near Future]
+  subgraph closed [Programs Closed]
+    RC1[S48 RC1]
+    INT[S49-S56 21/21 MVP]
+    BV2[S57-S64 Baltic v2]
+    RT[S65-S68 Release train]
+    E7[S69-S72 Launch prep docs]
+    BV3[S73-S80 Baltic v3]
+    SE[S81-S88 Scenario Editor]
+    MEP2[Mission Editor Phase 2]
+    PE[Platform Editor completion]
   end
-  subgraph todo [Not Started / Editor]
-    R05[Dynamic Systems Agent]
-    Assets[Asset Pipeline]
-    UnityQA[Unity Manual QA]
+  subgraph todo [Post-editor]
+    GN[GitNexus re-index]
+    Assets[Asset production 42]
+    Launch[Optional Launch stage]
+    Fwd[Forward program TBD]
   end
 ```
 
@@ -210,46 +257,54 @@ flowchart LR
 
 ## Asset Manifest
 
-**Source:** `design/assets/asset-manifest.md` — **does not exist**
+**Source:** `design/assets/asset-manifest.md` — **exists** (authored 2026-06-25 Phase B)
 
 | Category | Needed | Done | Notes |
 |----------|--------|------|-------|
-| Master asset manifest | 1 | 0 | Unchanged since May 31 |
-| Art Bible | 1 | 0 | Template only |
-| Game art/audio | TBD | ~0 | No `assets/` art pipeline |
+| Master asset manifest | 1 | **1** | Present |
+| Priority stubs (C2 / Baltic / store) | 3 | 0 | Specs only |
+| Art Bible | 1 | **1** | `design/art/art-bible.md` |
+| Catalogued assets | 42 | 0 | All **Needed** |
+| Game art/audio pipeline | TBD | ~0 | Addressables production still open |
 
-**Overall asset progress:** **0%**
+**Overall asset progress:** **~10%** (manifest + art bible + specs; zero produced assets)
 
 ---
 
 ## Gaps Identified
 
-### Critical (block polish / sign-off)
+### Critical (velocity / integration)
 
-1. **Unity manual C2 QA** — 12 checks open; headless proxy does not substitute ([c2-manual-signoff-2026-06-02.md](../production/qa/c2-manual-signoff-2026-06-02.md))
-2. **No asset pipeline** — blocks visual production and Addressables work
-3. **Req 05 not started** — Dynamic Speculative Systems Agent (OSINT staging) — dependency for full req-06 vision
+1. **GitNexus re-index** — 9 commits behind HEAD after PE adversarial merges
+2. **No produced assets** — manifest exists but 0/42 Done; blocks visual production
+3. **Forward program undefined** — S81–S88 / PE / ME Phase 2 closed; next dated roadmap not yet authored
 
 ### Important (velocity / quality)
 
-4. **12 TR architecture gaps** — see [architecture-traceability-index.md](../architecture/architecture-traceability-index.md)
-5. **19/20 requirements MVP partial** — multi-year scope; needs continued stacked PR discipline
-6. **GitNexus HIGH/CRITICAL symbols** — impact analysis mandatory before orchestrator/catalog edits
-7. **`sprint-status.yaml` header stale** — still says `sprint: 1`; internal sections through Sprint 10 are authoritative
+4. **Launch stage decision** — still explicit human gate; stage remains Release
+5. **Live Unity Editor evidence** — headless 20/20 sufficient for merge; Phase N PNG residual
+6. **GitNexus CRITICAL symbols** — impact analysis mandatory; `ScenarioDocumentEditor` now largest hub (233)
+7. **TR architecture gaps** — refresh `/architecture-review` after editor + PE surface
+8. **Store / i18n production** — S69–S72 specs/drafts only (unchanged)
 
-### Resolved since May 31
+### Resolved since June 25
 
-8. ~~No production tracking~~ → **10 sprints, 15 epics, 27 stories**
-9. ~~C1–C4 design blockers open~~ → **Closed** (C5 deferred)
-10. ~~No sprint/milestone~~ → **Vertical slice PROCEED**
-11. ~~DET-001 CRITICAL~~ → Fixed; **351** tests green
-12. ~~Req-06 P0 missing~~ → **#68 merged** (write gate, agents, MCP)
+9. ~~GT-01/02 Graphite trunk + staged payload~~ → **RESOLVED** (2026-06-25 addendum)
+10. ~~Post–S72 forward TBD only~~ → **S73–S80 Baltic v3 COMPLETE**
+11. ~~Scenario editor not started~~ → **S81–S88 + SE completion COMPLETE**
+12. ~~Mission Editor Phase 2 open~~ → **COMPLETE** (ack 2026-07-09)
+13. ~~Platform Editor residual ACs~~ → **COMPLETE** + adversarial hardening
+14. ~~1,232 tests~~ → **1,599** tests green (monotonic)
+15. ~~18/18 C2~~ → **20/20** headless proxy
+16. ~~No asset manifest~~ → **`design/assets/asset-manifest.md`** published
+17. ~~Baltic v3 untracked~~ → **6 policies + 6 goldens** on trunk
+18. ~~GitNexus ~20k symbols~~ → **24,262** symbols / **46,367** edges
 
 ### Nice-to-have
 
-13. Refresh `production/dashboard-state.yaml` automation on every `/project-dashboard` run (this run updates it)
-14. Cesium Phase B spike (Editor)
-15. Formal Sprint 11 plan tying requirement tracker rows to epics
+19. Author next dated `future-sprint-roadpmap-YYYYMMDD.md` and retarget stable alias
+20. Refresh `production/dashboard-state.yaml` on every `/project-dashboard` run (this run)
+21. Agent/skill hygiene from [tech-stack-agent-skill-recommendations-2026-07-08.md](tech-stack-agent-skill-recommendations-2026-07-08.md)
 
 ---
 
@@ -257,21 +312,21 @@ flowchart LR
 
 ### Immediate Priority
 
-1. **Unity C2 manual sign-off** — run `PLAYMODE-SMOKE.md` + `baltic-patrol-classify` / `baltic-patrol-comms`
-2. **Requirements wave 5** — top tracker rows: interactive attack menu (14/20), live readiness (16), cyber spoof (19)
-3. **`npx gitnexus impact SqliteCatalogReader`** before next catalog/schema edit
+1. **`node .gitnexus/run.cjs analyze`** — refresh index to HEAD `223a5fe`
+2. **Scope next forward program** — `/sprint-plan` or dated roadmap for post-editor epic bucket
+3. **Keep standing invariants** — hash, Replay 6/6, C2 ≥20/20, ZERO `DelegationBridge`, Catalog extend-only
 
 ### Short-Term
 
-4. **Update `sprint-status.yaml`** — set `current: 11` or “requirements-wave” mode; refresh `qa_gate.tests_total` to 351
-5. **`/architecture-review`** — refresh TR matrix after req-06 + waves 1–4
-6. **Req 05 spike** — OSINT proposal + staging DB (unblocks full database intelligence)
+4. **Human Launch stage decision** — if desired, update `production/stage.txt` with explicit ack
+5. **Asset production wave** — pick ASSET-001…003 stubs from manifest
+6. **Phase N Editor PNG pack** — optional polish evidence (PE residual)
 
 ### Medium-Term
 
-7. **`/art-bible`** → **`/asset-spec`** — unblock asset pipeline (still 0% since May 31)
-8. **CMO catalog import Phase 2** — full platform tables via `tools/cmano-db-crawler/`
-9. **Milestone review** @ 2026-07-15 target — extend beyond Baltic to next theater
+7. **`/architecture-review`** — post–editor + PE TR refresh
+8. **Commercial launch execution** — only after explicit scope beyond S72 prep
+9. **Agent/skill doc sync** — per 2026-07-08 tech-stack recommendations (Input Manager truth, MCP routing)
 
 ---
 
@@ -280,14 +335,14 @@ flowchart LR
 | Gap / Trigger | Skill or Command |
 |---------------|------------------|
 | Dashboard refresh | `/project-dashboard` |
-| Unity QA gate | `team-qa` + manual sign-off doc |
-| Requirements stack | `team-data` / `team-simulation` / `team-unity` per row |
-| Catalog / DB work | `sqlite-schema-management`, `provenance-audit-modeling` |
-| Pre-merge safety | `npx gitnexus analyze` + `gitnexus impact` (repo: cmano-clone) |
+| Pre-merge safety | `node .gitnexus/run.cjs analyze` + `gitnexus impact` (repo: cmano-clone) |
 | Determinism | `/replay-verify`, `/determinism-audit` |
 | Stage / gate | `/gate-check`, `/milestone-review` |
-| Stale plans | Archive `agent-delegation-framework` checklist (58 open, stale) |
-| Asset zero | `/art-bible` |
+| Launch decision | Human ack + update `production/stage.txt` |
+| Asset production | `/asset-spec` + produce from manifest |
+| Forward program | `/sprint-plan` + dated roadmap snapshot |
+| Architecture | `/architecture-review` |
+| Live C2 polish | `team-qa` + Unity Editor host |
 
 ---
 
@@ -295,33 +350,37 @@ flowchart LR
 
 ```
 design/
-  gdd/              15 files
+  gdd/              18 files
+  art/               1 file (art-bible.md)
   narrative/         0 files
   levels/            0 files
-  assets/            0 files (no manifest)
+  assets/            manifest + specs (42 Needed / 0 Done)
 
 docs/
-  architecture/     10+ ADRs + architecture + traceability
-  reports/           dashboard + snapshots/
+  architecture/     18 ADR files + architecture + traceability
+  reports/           dashboard + snapshots/ + roadmaps (07092026 active alias)
 
 production/
-  sprints/          10 files
-  milestones/        1 file
-  epics/            15 EPIC.md + 27 stories
+  sprints/          131 files
+  milestones/        4 files
+  epics/            70 EPIC.md + 264 stories
+  release/          store, i18n, launch, checklist-v3 (S69-S72)
+  gate-checks/      s48, s56, s68, s72, s88, se-completion, …
   determinism/       replay + audits
-  qa/                smoke + sign-off templates
-  agentic/           PI closure docs
+  qa/                smoke + sign-offs (S27–S88 + PE/ME gates)
+  agentic/           sprint stacks + SE/PE status truth
 
-Game-Requirements/   26+ requirements + tracker
+Game-Requirements/   26+ requirements + tracker (21/21 exit; req 11/21 completion)
 
 src/
-  source (.cs)       368 files (excl. Tests)
-  test (.cs)         207 files
+  source (.cs)       609 files (excl. Tests)
+  test (.cs)         403 files
 
-tests/               regression README (golden catalog)
+tests/regression/    35 replay golden files
+data/scenarios/      11 baltic-v2-* + 6 baltic-v3-* policies
 prototypes/          0
 ```
 
 ---
 
-*Generated by producer agent — aggregated from production, design, architecture, GitNexus, Game Requirements tracker, and audit artifacts*
+*Generated by producer agent — aggregated from production, design, architecture, GitNexus, Game Requirements tracker, sprint-status.yaml, future-sprint-roadpmap-07092026.md, PE/ME/SE gate packages, and live `dotnet test` verification (2026-07-09)*

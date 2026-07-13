@@ -12,4 +12,6 @@ public sealed record MapSymbolDisplayRow(
     float NormalizedY,
     string StyleClass,
     bool IsSelected,
-    bool IsGhost = false);
+    bool IsGhost = false,
+    string? AtlasFrameClass = null,
+    bool UsesAtlasFrame = false);

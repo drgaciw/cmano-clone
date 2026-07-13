@@ -92,7 +92,7 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 
 ## Definition of Done
 
-- [ ] All Must Have tasks completed
+- [x] All Must Have tasks completed (S22-01, S22-02, S22-03 — 2026-06-17)
 - [ ] All tasks pass acceptance criteria
 - [ ] QA plan exists (`production/qa/qa-plan-sprint-22.md`)
 - [ ] All Logic/Integration stories have passing unit/integration tests
@@ -170,9 +170,9 @@ All Must Have (S22-01/02/03) + Should Have (S22-04/05) completed and verified.
 - ADR exists at `docs/architecture/adr-011-platform-editor-excel-roundtrip.md` and referenced in `Game-Requirements/requirements/21-Platform-Editor.md`; covers Phase A decisions (exporter, importer, write-gate staging, ClosedXML boundary, Phase B scope) (kickoff AC).
 **Evidence**: doc review + sign-off (writer / lead-programmer).
 **Checklist**:
-- [ ] ADR exists and referenced
-- [ ] Covers locked decisions from GDD 21 + sprint kickoff (Excel round-trip, write-gate only, Phase A scope, governance)
-- [ ] No contradictions with DoD/Quality Gates/GitNexus rules in kickoff
+- [x] ADR exists and referenced
+- [x] Covers locked decisions from GDD 21 + sprint kickoff (Excel round-trip, write-gate only, Phase A scope, governance)
+- [x] No contradictions with DoD/Quality Gates/GitNexus rules in kickoff
 *Manual only per type.*
 
 ### 22-4 / S22-04 Extend CmoMarkdownImporter to platform + weapon/mount entries — Integration (Logic for parse + orphan guard)

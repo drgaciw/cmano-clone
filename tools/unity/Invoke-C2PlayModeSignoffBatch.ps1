@@ -1,6 +1,6 @@
 # S19-01 check 1: Unity Editor Play Mode starts without console errors (batchmode).
 param(
-    [ValidateSet("comms", "classify")]
+    [ValidateSet("comms", "classify", "doctrine", "import", "begin-execution")]
     [string]$Scenario = "comms",
     [string]$UnityVersion = "6000.3.14f1",
     [switch]$SkipBuild
@@ -12,10 +12,12 @@ $projectPath = Join-Path $repoRoot "unity/ProjectAegis"
 $unityExe = "C:\Program Files\Unity\Hub\Editor\$UnityVersion\Editor\Unity.exe"
 $logFile = Join-Path $repoRoot "unity-c2-playmode-signoff.log"
 
-$executeMethod = if ($Scenario -eq "classify") {
-    "ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunClassifyBatch"
-} else {
-    "ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunBatch"
+$executeMethod = switch ($Scenario) {
+    "classify"         { "ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunClassifyBatch" }
+    "doctrine"         { "ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunDoctrineBatch" }
+    "import"           { "ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunImportBatch" }
+    "begin-execution"  { "ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunBeginExecutionBatch" }
+    default            { "ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunBatch" }
 }
 
 if (-not (Test-Path $unityExe)) {

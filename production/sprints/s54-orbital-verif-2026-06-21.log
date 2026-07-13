@@ -1,0 +1,57 @@
+=== S54 ORBITAL BASELINE RUN 2026-06-21 ===
+Sun Jun 21 01:35:00 PM CDT 2026
+PATH export + build
+    0 Error(s)
+
+Time Elapsed 00:00:02.81
+=== FULL TEST ===
+
+Passed!  - Failed:     0, Passed:    42, Skipped:     0, Total:    42, Duration: 386 ms - ProjectAegis.MissionEditor.Cli.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   246, Skipped:     0, Total:   246, Duration: 620 ms - ProjectAegis.Delegation.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:     5, Skipped:     0, Total:     5, Duration: 101 ms - ProjectAegis.Data.Excel.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   252, Skipped:     0, Total:   252, Duration: 1 s - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+
+Passed!  - Failed:     0, Passed:   403, Skipped:     0, Total:   403, Duration: 3 s - ProjectAegis.Data.Tests.dll (net8.0)
+=== REPLAY GOLDEN SUITE 6/6 ===
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     6, Skipped:     0, Total:     6, Duration: 172 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+=== PLAYMODE C2 PROXY 18/18 ===
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    18, Skipped:     0, Total:    18, Duration: 263 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)
+=== ORBITAL DEW 9/9 ===
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:     9, Skipped:     0, Total:     9, Duration: 24 ms - ProjectAegis.Sim.Tests.dll (net8.0)
+=== GIT STATUS SNAPSHOT ===
+## stack/sprint54/orbital-dew
+ M Game-Requirements/implementation-tracker-2026-06-04.md
+ M production/sprint-status.yaml
+?? production/qa/s54-orbital-verif-2026-06-21.log
+?? src/ProjectAegis.Sim.Tests/Scenario/OrbitalDewRuntimeTests.cs
+?? src/ProjectAegis.Sim/Scenario/KesslerRiskMeter.cs
+?? src/ProjectAegis.Sim/Scenario/OrbitalDewPlatform.cs
+=== GITNEXUS DETECT (post run) ===
+=== FRESH VERIFICATION RUN APPENDED 2026-06-21T13:54:03-05:00 ===
+Using using-git-worktrees (detected in wt on branch), verification-before-completion (evidence before any claim), dispatching-parallel-agents.
+Citations: post-release-scope-boundary-2026-06-21.md + Req10 / E3 / S54-orbital per future-sprint-roadpmap.md
+Build: dotnet build ProjectAegis.sln  -> succeeded 0w 0e
+Orbital tests (fresh): Passed 9/9 0f
+Replay Golden (BalticReplayHarnessScenarioGoldenTests): 3/3 (suite 6/6 per qa docs + 84 broader replay passed)
+C2 proxy sample: 18/18 0f
+Full solution: 1236 passed 0 failed (>=1227)
+Baltic hash: 17144800277401907079 confirmed in golden txt + pinned consts (no change)
+ZERO DelegationBridge / CatalogWriteGate / hotpath: confirmed (git + grep + detect_changes low risk 0 affected processes)
+GitNexus preflight: CRITICALs (CatalogWriteGate, SimulationSession, DelegationBridge) reported only - no edits; LOW for BalticBatchRunner, OsintCatalogMapper; UNKNOWN for SensorHotPath
+Isolation: branch stack/sprint54/orbital-dew , dedicated wt, additive only (KesslerRiskMeter.cs + OrbitalDewPlatform.cs + test + tracker/sprint-status updates)
+S54-ORBITAL-VERIF evidence appended fresh.

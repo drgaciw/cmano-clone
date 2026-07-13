@@ -1,5 +1,6 @@
 using System.Text.Json;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Import;
 using ProjectAegis.MissionEditor.Cli;
 using Xunit;
 
@@ -37,6 +38,115 @@ public sealed class CatalogWriteCommandTests
         finally
         {
             if (File.Exists(dbPath)) File.Delete(dbPath);
+        }
+    }
+
+    [Fact]
+    public void catalog_import_markdown_then_write_approve_records_snapshot_hash_for_platform_slice()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-nightly-approve-{Guid.NewGuid():N}.db");
+        var markdown = CmoMarkdownImporter.ResolveShipSlice100FixturePath();
+
+        try
+        {
+            using (var importOut = new StringWriter())
+            {
+                Assert.Equal(
+                    0,
+                    CatalogImportMarkdownCommand.Run(
+                        dbPath,
+                        markdown,
+                        maxRecords: 12,
+                        chunkSize: 500,
+                        importOut,
+                        entity: CmoMarkdownImportEntity.Platform));
+
+                using var doc = JsonDocument.Parse(importOut.ToString());
+                var batches = doc.RootElement.GetProperty("batches");
+                Assert.Equal(1, batches.GetArrayLength());
+                var batchId = batches[0].GetProperty("batchId").GetString();
+                Assert.False(string.IsNullOrWhiteSpace(batchId));
+
+                using var approveOut = new StringWriter();
+                Assert.Equal(0, CatalogWriteApproveCommand.Run(
+                    dbPath,
+                    batchId!,
+                    approveOut,
+                    releaseVersion: "cli-nightly-platform-s29-03"));
+
+                using var approveDoc = JsonDocument.Parse(approveOut.ToString());
+                var root = approveDoc.RootElement;
+                Assert.True(root.GetProperty("ok").GetBoolean());
+                var hash = root.GetProperty("contentHashSha256").GetString();
+                Assert.Matches("^[a-f0-9]{64}$", hash);
+                Assert.Equal("cli-nightly-platform-s29-03", root.GetProperty("releaseVersion").GetString());
+            }
+        }
+        finally
+        {
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Fact]
+    public void catalog_write_approve_default_omits_balance_drift_advisory()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-balance-default-{Guid.NewGuid():N}.db");
+        try
+        {
+            using var proposeOut = new StringWriter();
+            Assert.Equal(0, CatalogWriteProposeCommand.Run(
+                dbPath, "u-cli-balance", "radar-balance", 0.55, proposeOut));
+            using var proposeDoc = JsonDocument.Parse(proposeOut.ToString());
+            var batchId = proposeDoc.RootElement.GetProperty("batchId").GetString();
+
+            using var approveOut = new StringWriter();
+            Assert.Equal(0, CatalogWriteApproveCommand.Run(dbPath, batchId!, approveOut));
+            using var approveDoc = JsonDocument.Parse(approveOut.ToString());
+            Assert.False(approveDoc.RootElement.TryGetProperty("balanceDriftAdvisory", out _));
+        }
+        finally
+        {
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Fact]
+    public void catalog_write_approve_enable_balance_drift_includes_advisory_payload()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-cli-balance-enabled-{Guid.NewGuid():N}.db");
+        try
+        {
+            using var proposeOut = new StringWriter();
+            Assert.Equal(0, CatalogWriteProposeCommand.Run(
+                dbPath, "u-cli-balance-on", "radar-balance-on", 0.55, proposeOut));
+            using var proposeDoc = JsonDocument.Parse(proposeOut.ToString());
+            var batchId = proposeDoc.RootElement.GetProperty("batchId").GetString();
+
+            using var approveOut = new StringWriter();
+            Assert.Equal(0, CatalogWriteApproveCommand.Run(
+                dbPath,
+                batchId!,
+                approveOut,
+                enableBalanceDrift: true));
+
+            using var approveDoc = JsonDocument.Parse(approveOut.ToString());
+            var advisory = approveDoc.RootElement.GetProperty("balanceDriftAdvisory");
+            Assert.True(advisory.GetProperty("driftDetectionEnabled").GetBoolean());
+            Assert.Equal(0, advisory.GetProperty("findingCount").GetInt32());
+        }
+        finally
+        {
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
         }
     }
 
