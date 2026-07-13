@@ -1,6 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
 using System.Diagnostics;
+using System.Text;
 using Xunit;
 
 /// <summary>
@@ -8,6 +9,11 @@ using Xunit;
 /// <c>production/agentic/scenario-editor-branch-integration-plan-2026-07-04.md</c>
 /// as an executable gate (TDD wrapper around <c>tools/ci/smoke-scenario-editor-phase0.sh</c>).
 /// </summary>
+/// <remarks>
+/// Does <b>not</b> nest a full <c>dotnet build</c>: CI already builds the solution before
+/// <c>dotnet test</c>, and a nested build under the test host is prone to MSBuild node-reuse
+/// deadlock and multiplies wall-clock beyond typical Buildkite budgets (~3 min agent kills).
+/// </remarks>
 public sealed class BranchIntegrationPhase0SmokeTests
 {
     [Fact]
@@ -17,19 +23,32 @@ public sealed class BranchIntegrationPhase0SmokeTests
         var script = Path.Combine(repoRoot, "tools", "ci", "smoke-scenario-editor-phase0.sh");
         Assert.True(File.Exists(script), $"Expected Phase 0 script at {script}");
 
-        // Hosted Buildkite already runs Release gates via tools/buildkite/agent-dotnet-ci.sh.
-        // This bash wrapper can fail on agents missing rg or with Debug/Release skew.
+        // Hosted Buildkite already runs Phase 0 via tools/buildkite/agent-dotnet-ci.sh.
+        // Skip nested bash smoke under the test host on agents (avoids MSBuild/node thrash).
         if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("BUILDKITE")))
         {
             return;
         }
 
-        // Pre-build solution so the script can use --skip-build (avoids MSBuild lock with test host).
-        var buildExit = RunDotnet(repoRoot, "build", "ProjectAegis.sln", "-v", "minimal");
-        Assert.Equal(0, buildExit);
+        // Prefer the configuration the solution was built with (local runs often Debug).
+        var config = Directory.Exists(Path.Combine(repoRoot, "src", "ProjectAegis.Data", "bin", "Release"))
+            ? "Release"
+            : "Debug";
 
-        var exitCode = RunBash(repoRoot, script, "--quick", "--skip-build");
-        Assert.Equal(0, exitCode);
+        var (exitCode, stdout, stderr) = RunProcess(
+            repoRoot,
+            "bash",
+            [script, "--quick", "--skip-build"],
+            timeoutMs: 180_000,
+            extraEnv: new Dictionary<string, string>
+            {
+                ["MSBUILDDISABLENODEREUSE"] = "1",
+                ["DOTNET_NOLOGO"] = "1",
+                ["Configuration"] = config,
+            });
+        Assert.True(
+            exitCode == 0,
+            $"Phase 0 smoke failed (exit {exitCode}).\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}");
     }
 
     private static string RequireRepoRoot()
@@ -47,53 +66,76 @@ public sealed class BranchIntegrationPhase0SmokeTests
             $"Could not locate repo root (ProjectAegis.sln) walking up from {AppContext.BaseDirectory}");
     }
 
-    private static int RunBash(string workingDirectory, string scriptPath, params string[] args)
+    /// <summary>
+    /// Run a process with redirected streams drained asynchronously to avoid pipe-buffer deadlock.
+    /// On timeout the process tree is killed; ExitCode is only read after the process has exited.
+    /// </summary>
+    private static (int ExitCode, string Stdout, string Stderr) RunProcess(
+        string workingDirectory,
+        string fileName,
+        IReadOnlyList<string> args,
+        int timeoutMs,
+        IReadOnlyDictionary<string, string>? extraEnv = null)
     {
         var psi = new ProcessStartInfo
         {
-            FileName = "bash",
+            FileName = fileName,
             WorkingDirectory = workingDirectory,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             UseShellExecute = false,
         };
-        psi.ArgumentList.Add(scriptPath);
+        if (extraEnv != null)
+        {
+            foreach (var (key, value) in extraEnv)
+            {
+                psi.Environment[key] = value;
+            }
+        }
+
         foreach (var arg in args)
         {
             psi.ArgumentList.Add(arg);
         }
 
-        using var proc = Process.Start(psi) ?? throw new InvalidOperationException("Failed to start bash");
-        var stdout = proc.StandardOutput.ReadToEnd();
-        var stderr = proc.StandardError.ReadToEnd();
-        proc.WaitForExit(300_000);
+        using var proc = Process.Start(psi) ?? throw new InvalidOperationException($"Failed to start {fileName}");
 
-        if (proc.ExitCode != 0)
+        var stdout = new StringBuilder();
+        var stderr = new StringBuilder();
+        proc.OutputDataReceived += (_, e) =>
         {
-            throw new InvalidOperationException(
-                $"Phase 0 smoke failed (exit {proc.ExitCode}).\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}");
-        }
-
-        return proc.ExitCode;
-    }
-
-    private static int RunDotnet(string workingDirectory, params string[] args)
-    {
-        var psi = new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            WorkingDirectory = workingDirectory,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
+            if (e.Data != null)
+            {
+                stdout.AppendLine(e.Data);
+            }
         };
-        foreach (var arg in args)
+        proc.ErrorDataReceived += (_, e) =>
         {
-            psi.ArgumentList.Add(arg);
+            if (e.Data != null)
+            {
+                stderr.AppendLine(e.Data);
+            }
+        };
+        proc.BeginOutputReadLine();
+        proc.BeginErrorReadLine();
+
+        if (!proc.WaitForExit(timeoutMs))
+        {
+            try
+            {
+                proc.Kill(entireProcessTree: true);
+            }
+            catch
+            {
+                // best-effort
+            }
+
+            proc.WaitForExit(10_000);
+            throw new TimeoutException(
+                $"{fileName} exceeded {timeoutMs}ms.\nSTDOUT:\n{stdout}\nSTDERR:\n{stderr}");
         }
 
-        using var proc = Process.Start(psi) ?? throw new InvalidOperationException("Failed to start dotnet");
-        proc.WaitForExit(600_000);
-        return proc.ExitCode;
+        proc.WaitForExit();
+        return (proc.ExitCode, stdout.ToString(), stderr.ToString());
     }
 }

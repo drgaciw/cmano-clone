@@ -186,7 +186,7 @@ Per genre conventions (`docs/military-simulation/genre-conventions-reference.md`
 
 1. ~~UI Toolkit vs UGUI~~ — **Resolved rev 2:** UI Toolkit (runtime) committed; hosts shipped.
 2. Single right panel vs detachable windows for multitaskers?
-3. Globe technology: Cesium vs custom URP terrain — **ADR pending** (see `docs/engineering/cesium-phase-b-spike-checklist.md`); placeholder map is the accepted interim per `design/ux/c2-map-placeholder.md`.
+3. Globe technology: Cesium vs custom URP terrain — **Resolved 2026-07-09: Cesium for Unity (ADR-018)**; CI default remains MapPlaceholder (`useGlobeMap=false`). Spike evidence: `docs/engineering/cesium-phase-b-spike-checklist.md`.
 4. *(rev 2)* Default auto-pause matrix per severity tier: fixed defaults or per-scenario/difficulty presets?
 
 ## Traceability
