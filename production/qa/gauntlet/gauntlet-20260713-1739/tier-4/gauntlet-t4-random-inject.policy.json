@@ -1,14 +1,14 @@
 {
-  "friendlyRoe": "WeaponsTight",
+  "friendlyRoe": "WeaponsFree",
   "opposingRoe": "WeaponsFree",
   "engage": {
     "rangeMeters": 45000,
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
-    "defaultMagazineRounds": 6,
+    "defaultMagazineRounds": 4,
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
-    "pkBase": 0.85,
+    "pkBase": 0.75,
     "pkIntercept": 0.0,
     "pkKill": 0.2,
     "salvoSize": 2
@@ -44,49 +44,45 @@
     }
   ],
   "gauntlet": {
-    "intent": "Mid-mission ROE change stand-in (tight then free sensor lanes) [catalog red: Sovremenny] [WeaponsTight start; contact trigger\u2192WeaponsFree PolicyUpdate; mid-run comms degrade]",
-    "oracle": "Mixed ROE/EMCON lanes stable CommsStateChange/PolicyUpdate required.",
+    "intent": "Seeded random inject stand-in (jam variance) [catalog red: Sovremenny] [real mid-run comms Degraded@2 + contact ROE trigger]",
+    "oracle": "Inject trials complete without exception CommsStateChange/PolicyUpdate required.",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
       "624-pr-205p-tarantul-1992",
       "70-rauma-helsinki-ii-1990",
       "80-hamina-rauma-2-2006",
-      "a-17-vastergotland-1999",
-      "a-19-gotland-1996",
       "a-19-gotland-2022",
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
       "em-sovremenny-i-pr-956-sarych",
       "f-207-bremen-type-f122-1982",
       "f-219-sachsen-type-f124-2006",
       "f-310-fridtjof-nansen",
-      "f-341-absalon-2020",
       "f-35a-lightning-ii",
-      "f-361-iver-huitfeldt-2012",
       "f-a-18c-hornet-f-18c",
       "hkp-14f-nh90-ttt",
       "jas-39a-gripen-1997",
       "jas-39b-gripen-1997",
       "jas-39c-gripen-2005",
+      "jas-39d-gripen-2005",
       "jas-39e-gripen-ng-2021",
       "k-31-visby-2009",
       "mpk-steregushchiy-pr-20380-2018"
     ],
-    "emcon": "contested",
     "runId": "gauntlet-t3t5-catalog-red",
-    "tier": 5,
+    "tier": 4,
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minKills": 1,
-      "maxMissilesFired": 12,
-      "maxDenials": 82,
-      "minScore": -350,
-      "maxScore": -150,
-      "minDenials": 78,
+      "minKills": 0,
+      "maxMissilesFired": 14,
+      "maxDenials": 2,
+      "minScore": -50,
+      "maxScore": 250,
       "requireFingerprintSubstrings": [
         "CommsStateChange",
-        "Degraded"
+        "Degraded",
+        "seeded_inject_jamming"
       ]
     },
     "units": [
@@ -122,7 +118,7 @@
       }
     ]
   },
-  "id": "gauntlet-t5-roe-change",
+  "id": "gauntlet-t4-random-inject",
   "commsDisplay": {
     "degradedLagTicks": 2,
     "ghostOffsetX": 0.06,
@@ -132,16 +128,22 @@
   },
   "comms": [
     {
-      "atTick": 3,
+      "atTick": 2,
       "newState": "Degraded",
-      "nodeId": "ladder-t5-roe-net",
-      "reason": "roe_change_ew_pressure"
+      "nodeId": "ladder-t4-net",
+      "reason": "seeded_inject_jamming"
+    },
+    {
+      "atTick": 5,
+      "newState": "Nominal",
+      "nodeId": "ladder-t4-net",
+      "reason": "inject_recover"
     }
   ],
   "mission": {
     "fireOrder": [
       "start-exec",
-      "roe-window"
+      "inject-marker"
     ],
     "events": [
       {
@@ -151,10 +153,10 @@
         "code": "Execution"
       },
       {
-        "id": "roe-window",
-        "fireAtTick": 1,
+        "id": "inject-marker",
+        "fireAtTick": 2,
         "kind": "EventFired",
-        "code": "roe_escalation_window"
+        "code": "ladder_seeded_inject"
       }
     ],
     "triggers": [

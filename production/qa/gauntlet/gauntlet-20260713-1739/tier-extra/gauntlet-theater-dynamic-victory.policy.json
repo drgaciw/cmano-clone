@@ -1,16 +1,17 @@
 {
+  "id": "gauntlet-theater-dynamic-victory",
   "friendlyRoe": "WeaponsFree",
-  "opposingRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
   "engage": {
     "rangeMeters": 45000,
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
-    "defaultMagazineRounds": 4,
+    "defaultMagazineRounds": 6,
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
-    "pkBase": 0.85,
+    "pkBase": 0.9,
     "pkIntercept": 0.0,
-    "pkKill": 0.2,
+    "pkKill": 0.35,
     "salvoSize": 1
   },
   "detection": [
@@ -18,54 +19,59 @@
       "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
       "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c1",
+      "contactId": "c-near",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
       "observerId": "k-22-gavle-ex-goteborg-class",
-      "sensorId": "radar-2",
+      "sensorId": "radar-1",
       "targetId": "mpk-steregushchiy-pr-20380-2018",
-      "contactId": "c2",
-      "basePd": 0.6,
-      "envMask": 0.9,
+      "contactId": "c-far",
+      "basePd": 1.0,
+      "envMask": 1.0,
       "jamStrength": 0
     }
   ],
-  "gauntlet": {
-    "intent": "Escort HVU: multi-contact surface screen [catalog ORBAT: Visby vs Sovremenny]",
-    "oracle": "Dual contact stable",
-    "catalogRefs": [
-      "241-slazak-meko-100-mod-2019",
-      "421-orkan-pr-660-2015",
-      "624-pr-205p-tarantul-1992",
-      "70-rauma-helsinki-ii-1990",
-      "80-hamina-rauma-2-2006",
-      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
-      "em-sovremenny-i-pr-956-sarych",
-      "f-207-bremen-type-f122-1982",
-      "f-35a-lightning-ii",
-      "f-a-18c-hornet-f-18c",
-      "hkp-14f-nh90-ttt",
-      "jas-39a-gripen-1997",
-      "jas-39b-gripen-1997",
-      "jas-39c-gripen-2005",
-      "k-22-gavle-ex-goteborg-class",
-      "k-31-visby-2009",
-      "mpk-steregushchiy-pr-20380-2018"
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "objective-shift-dual-kill"
     ],
-    "runId": "gauntlet-t12-catalog-db-driven",
-    "tier": 2,
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "objective-shift-dual-kill",
+        "fireAtTick": 2,
+        "kind": "EventFired",
+        "code": "dynamic_victory_require_dual_kill"
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "Phase-3 dynamic victory: Visby+G\u00e4vle vs two catalog reds; mid-run dynamic_victory_require_dual_kill; expect \u22652 kills",
+    "oracle": "minKills\u22652; fingerprint includes dynamic_victory_require_dual_kill",
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minKills": 1,
-      "maxMissilesFired": 11,
-      "maxDenials": 2,
-      "minScore": 50,
-      "maxScore": 350
+      "minScore": 100.0,
+      "maxScore": 180.0,
+      "maxMissilesFired": 10,
+      "maxDenials": 20,
+      "minKills": 2
     },
+    "catalogRefs": [
+      "k-31-visby-2009",
+      "k-22-gavle-ex-goteborg-class",
+      "em-sovremenny-i-pr-956-sarych",
+      "mpk-steregushchiy-pr-20380-2018"
+    ],
     "units": [
       {
         "unitId": "k-31-visby-2009",
@@ -91,7 +97,8 @@
         "domain": "surface",
         "side": "red"
       }
-    ]
-  },
-  "id": "gauntlet-t2-escort-a"
+    ],
+    "tier": 5,
+    "runId": "gauntlet-theater-phase3"
+  }
 }
