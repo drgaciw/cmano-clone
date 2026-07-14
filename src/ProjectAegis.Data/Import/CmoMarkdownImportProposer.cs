@@ -227,7 +227,8 @@ public static class CmoMarkdownImportProposer
         int? maxRecords = null,
         int chunkSize = DefaultChunkSize,
         ICatalogClock? clock = null,
-        CatalogBalanceDriftPipelineSettings? balanceDrift = null)
+        CatalogBalanceDriftPipelineSettings? balanceDrift = null,
+        string defaultDomain = "surface")
     {
         if (string.IsNullOrWhiteSpace(databasePath))
         {
@@ -239,7 +240,7 @@ public static class CmoMarkdownImportProposer
             throw new FileNotFoundException($"CMO markdown not found: {markdownPath}");
         }
 
-        var platforms = CmoMarkdownImporter.ReadPlatformBindings(markdownPath, mapBalticIds: mapBalticPlatformIds);
+        var platforms = CmoMarkdownImporter.ReadPlatformBindings(markdownPath, mapBalticIds: mapBalticPlatformIds, defaultDomain: defaultDomain);
         if (maxRecords.HasValue)
         {
             platforms = platforms.Take(maxRecords.Value).ToArray();
