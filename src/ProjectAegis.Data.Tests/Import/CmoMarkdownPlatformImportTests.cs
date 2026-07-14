@@ -75,6 +75,25 @@ public sealed class CmoMarkdownPlatformImportTests
     }
 
     [Fact]
+    public void Reference_ground_unit_markdown_parses_3289_records_for_off_ci_nightly_scale()
+    {
+        var path = CmoMarkdownImporter.ResolveReferenceGroundUnitMarkdownPath();
+        if (!File.Exists(path))
+        {
+            return;
+        }
+
+        var platforms = CmoMarkdownImporter.ReadPlatformBindings(path);
+        Assert.Equal(3289, platforms.Count);
+
+        var chunks = CmoMarkdownImportProposer.ChunkPlatforms(platforms, chunkSize: 500);
+        Assert.Equal(7, chunks.Length);
+        Assert.Equal(500, chunks[0].Length);
+        Assert.Equal(500, chunks[5].Length);
+        Assert.Equal(289, chunks[6].Length);
+    }
+
+    [Fact]
     public void ChunkPlatforms_with_501_rows_produces_two_batches_at_chunk_size_500()
     {
         var rows = Enumerable.Range(0, 501)

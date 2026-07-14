@@ -9,4 +9,5 @@ public enum CmoMarkdownImportEntity
     Aircraft = 3,
     Submarine = 4,
     Facility = 5,
+    GroundUnit = 6,
 }
