@@ -1,0 +1,31 @@
+=== PRE-LAND 2026-07-14T21:36:30Z ===
+target HEAD: 9ea9657
+source tip: d927684
+=== gitnexus status target ===
+Repository: /home/username01/cmano-clone
+Branch: stack/post-editor/s93-asset-production
+Indexed: 7/12/2026, 10:07:22 AM
+Indexed commit: 9ea9657
+Current commit: 9ea9657
+Status: ✅ up-to-date
+=== gitnexus status source ===
+Repository: /home/username01/projects/active/cmano-clone/cmano-clone
+Branch: 07-10-qa_gauntlet_gauntlet-20260710-1352
+Indexed: 7/13/2026, 3:05:11 PM
+Indexed commit: 72c4d03
+Current commit: d927684
+Status: ⚠️ stale (re-run gitnexus analyze)
+=== forbidden check on 5 commits ===
+-- 6f17f37 --
+-- d06e8a7 --
+-- fbf23bc --
+-- 917e716 --
+-- d927684 --
+=== IMPACT SUMMARY (MCP 2026-07-14, repo=/home/username01/cmano-clone) ===
+BalticReplayHarness upstream: CRITICAL impactedCount=54
+CatalogWriteGate upstream: CRITICAL impactedCount=186
+DelegationBridge upstream: CRITICAL impactedCount=145
+ScenarioDocumentEditor upstream: CRITICAL impactedCount=233
+PatrolCandidateEngagePolicy upstream: CRITICAL impactedCount=113
+Land set pre-check: no DelegationBridge / CatalogWriteGate write-path files in ordered cherry-picks.
+GREENLIGHT: proceed with cherry-pick 6f17f37..d927684 ordered list
