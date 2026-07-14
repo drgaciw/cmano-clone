@@ -1,0 +1,24 @@
+/* ASSET-036 Main Menu shell — lean stub (UI Toolkit) */
+/* Tokens: align with production/assets/c2/AegisTokens.uss when imported */
+.main-menu-root {
+    flex-grow: 1;
+    background-color: rgb(8, 14, 22);
+    padding: 48px;
+}
+.main-menu-title {
+    font-size: 42px;
+    color: rgb(232, 236, 241);
+    -unity-font-style: bold;
+    margin-bottom: 24px;
+}
+.main-menu-cta {
+    background-color: rgb(196, 140, 64);
+    color: rgb(8, 14, 22);
+    padding: 12px 28px;
+    border-radius: 4px;
+    margin-top: 12px;
+}
+.main-menu-secondary {
+    color: rgb(154, 163, 160);
+    margin-top: 8px;
+}

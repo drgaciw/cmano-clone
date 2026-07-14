@@ -1,0 +1,31 @@
+/* ASSET-037 Scenario Select — lean stub (UI Toolkit) */
+.scenario-select-root {
+    flex-grow: 1;
+    background-color: rgb(10, 16, 26);
+    padding: 32px;
+    flex-direction: row;
+}
+.scenario-card {
+    width: 280px;
+    min-height: 160px;
+    background-color: rgb(20, 28, 36);
+    border-color: rgb(44, 53, 56);
+    border-width: 1px;
+    border-radius: 6px;
+    margin: 8px;
+    padding: 16px;
+}
+.scenario-card--selected {
+    border-color: rgb(196, 140, 64);
+    border-width: 2px;
+}
+.scenario-card__title {
+    font-size: 16px;
+    color: rgb(232, 236, 241);
+    -unity-font-style: bold;
+}
+.scenario-card__tier {
+    font-size: 12px;
+    color: rgb(125, 186, 154);
+    margin-top: 6px;
+}

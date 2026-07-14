@@ -12,9 +12,9 @@
 
 | Total | Needed | Specced | In Production | Done | Approved |
 |-------|--------|---------|---------------|------|----------|
-| 42 | 4 | **27** | **3** | **8** | 0 |
+| 42 | **0** | **27** | **3** | **12** | 0 |
 
-*S93 @ 2026-07-09: First binary wave — **8 Done** (004, 005, 014, 018, 019, 023, 024, 025); umbrellas **001–003 In Production**. **Needed** (4): ASSET-036, 037, 040, 041 (deferred).*
+*S93 @ 2026-07-09: First binary wave — **8 Done**. Post-S93 Track B (2026-07-14): residual **036/037/040/041 → Done** (stubs under `production/assets/ui|audio`). Umbrellas **001–003 In Production**. **Needed: 0**.*
 
 ---
 
@@ -84,8 +84,8 @@
 
 | Asset ID | Name | Category | Status | Spec File |
 |----------|------|----------|--------|-----------|
-| ASSET-036 | Main Menu shell | UI | Needed (deferred) | — |
-| ASSET-037 | Scenario Select | UI | Needed (deferred) | — |
+| ASSET-036 | Main Menu shell | UI | **Done** | design/assets/specs/post-s93-residual-assets.md → `production/assets/ui/MainMenuShell.uss` |
+| ASSET-037 | Scenario Select | UI | **Done** | design/assets/specs/post-s93-residual-assets.md → `production/assets/ui/ScenarioSelect.uss` |
 | ASSET-038 | Mission Planning RTwP | UI | Specced | design/assets/specs/c2-ui-assets.md |
 | ASSET-039 | Onboarding Baltic overlay | UI | Specced | design/assets/specs/baltic-patrol-assets.md |
 
@@ -93,8 +93,8 @@
 
 | Asset ID | Name | Category | Status | Spec File |
 |----------|------|----------|--------|-----------|
-| ASSET-040 | Policy denial SFX | Audio | Needed (deferred) | — |
-| ASSET-041 | ROE change SFX | Audio | Needed (deferred) | — |
+| ASSET-040 | Policy denial SFX | Audio | **Done** | design/assets/specs/post-s93-residual-assets.md → `production/assets/audio/sfx_policy_denial.wav` |
+| ASSET-041 | ROE change SFX | Audio | **Done** | design/assets/specs/post-s93-residual-assets.md → `production/assets/audio/sfx_roe_change.wav` |
 
 ### Shared / cross-context
 
