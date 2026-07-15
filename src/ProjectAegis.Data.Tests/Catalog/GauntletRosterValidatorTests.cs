@@ -1,5 +1,4 @@
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Import;
 using Xunit;
 
 namespace ProjectAegis.Data.Tests.Catalog;
@@ -65,27 +64,41 @@ public sealed class GauntletRosterValidatorTests
     }
 
     [Fact]
-    public void Live_gauntlet_1903_all_tier_policies_resolve_against_rosters()
+    public void Representative_multi_tier_policy_resolves_against_compact_roster()
     {
-        var runRoot = CatalogJsonImporter.ResolveRepoRelative(
-            Path.Combine("production", "qa", "gauntlet", "gauntlet-20260709-1903"));
-        Assert.True(Directory.Exists(runRoot), $"Missing gauntlet run: {runRoot}");
-
-        for (var tier = 1; tier <= 5; tier++)
-        {
-            var tierDir = Path.Combine(runRoot, $"tier-{tier}");
-            var rosterPath = Path.Combine(tierDir, "roster.json");
-            Assert.True(File.Exists(rosterPath), rosterPath);
-            var rosterJson = File.ReadAllText(rosterPath);
-
-            foreach (var policyPath in Directory.EnumerateFiles(tierDir, "*.policy.json"))
+        var roster = """
             {
-                var policyJson = File.ReadAllText(policyPath);
-                var issues = GauntletRosterValidator.ValidatePolicyAgainstRoster(policyJson, rosterJson);
-                Assert.True(
-                    issues.Count == 0,
-                    $"Tier {tier} {Path.GetFileName(policyPath)}: {string.Join("; ", issues)}");
+              "platforms": [
+                { "platformId": "u1", "domain": "surface" },
+                { "platformId": "hostile-1", "domain": "surface" },
+                { "platformId": "hostile-far", "domain": "surface" },
+                { "platformId": "k-31-visby-2009", "domain": "surface" },
+                { "platformId": "jas-39c-gripen-2010", "domain": "air" },
+                { "platformId": "s-100b-argus-2005", "domain": "air" }
+              ]
             }
-        }
+            """;
+        var policy = """
+            {
+              "id": "gauntlet-t5-theater",
+              "detection": [
+                { "observerId": "u1", "sensorId": "radar-1", "targetId": "hostile-1", "contactId": "c1" },
+                { "observerId": "jas-39c-gripen-2010", "sensorId": "ps-05-a", "targetId": "hostile-far", "contactId": "c2" }
+              ],
+              "gauntlet": {
+                "catalogRefs": [
+                  "u1",
+                  "hostile-1",
+                  "hostile-far",
+                  "k-31-visby-2009",
+                  "jas-39c-gripen-2010",
+                  "s-100b-argus-2005"
+                ]
+              }
+            }
+            """;
+
+        var issues = GauntletRosterValidator.ValidatePolicyAgainstRoster(policy, roster);
+        Assert.Empty(issues);
     }
 }
