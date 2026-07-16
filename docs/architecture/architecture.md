@@ -1,13 +1,40 @@
 # Project Aegis — Master Architecture
 
-> **Status:** Draft (ADRs 001–011 **Accepted**; post–S72 CONCERNS per architecture-review-2026-06-25-post-s72-v3.md)  
-> **Last Updated:** 2026-06-25  
+> **Status:** Living draft — **Release hold** (post-S93 / post-gauntlet; adequate for Release engineering; Launch **not** cleared)  
+> **Last Updated:** 2026-07-15  
+> **Stage:** **Release** (`production/stage.txt`) — Launch not advanced  
+> **Closed through:** S81–S88 SE + ME P2 + PE complete; S89–S95 Release continuity through gauntlet productization  
+> **Verification floor:** suite **≥1638/0f**; Baltic hash **`17144800277401907079`** (immutable unless golden ADR)  
+> **Architecture authority:** [architecture-review-post-s93-2026-07-14.md](architecture-review-post-s93-2026-07-14.md) (verdict **CONCERNS** for Launch only); re-matrix [architecture-re-matrix-post-s93-s96-2026-07-15.md](architecture-re-matrix-post-s93-s96-2026-07-15.md)  
 > **Engine:** Unity 6.3 LTS (6000.3.14f1) + C# / .NET 8 + DOTS/ECS — [Unity VERSION](../engine-reference/unity/VERSION.md), [.NET / Learn](../engine-reference/dotnet/README.md)  
-> **GitNexus repo:** `cmano-clone` (index @ `b2c9411`; 20496/38203)
+> **GitNexus repo:** `cmano-clone` (~**25,311** symbols / **48,462** edges @ recent index `257d9e9`; re-analyze @ HEAD if stale)
 
 ## Purpose
 
 Translate approved requirements and GDDs into a **modular, deterministic, agent-aware** technical blueprint. This document defines assembly boundaries, tick ordering, and integration contracts—especially between the **future simulation core** and the **existing delegation layer** (`ProjectAegis.Delegation`).
+
+## Post-S93 / Gauntlet architecture state (S96)
+
+| Item | State |
+|------|-------|
+| Editors (SE / ME P2 / PE) | **Complete** (headless-first; PNG/Unity Editor pack deferred) |
+| Gauntlet / oracle QA | **Oracle fail-closed landed** (Track A); suite floor **≥1638/0f** |
+| Release hold | **Cleared for Release engineering** — do **not** claim Launch readiness |
+| Post-S93 review | [architecture-review-post-s93-2026-07-14.md](architecture-review-post-s93-2026-07-14.md) — verdict **CONCERNS** for **Launch only** |
+| Layer re-matrix (S96) | [architecture-re-matrix-post-s93-s96-2026-07-15.md](architecture-re-matrix-post-s93-s96-2026-07-15.md) |
+| CRITICAL hub playbook | [`production/agentic/critical-hub-merge-playbook-2026-07-14.md`](../../production/agentic/critical-hub-merge-playbook-2026-07-14.md) |
+
+**CRITICAL hubs (upstream, GitNexus impact summary):**
+
+| Symbol | Upstream | Constraint |
+|--------|----------|------------|
+| `ScenarioDocumentEditor` | **233** CRITICAL | Single authoring hub — impact first; prefer CLI/authoring seams |
+| `CatalogWriteGate` | **186** CRITICAL | **Extend-only** — no rewrite |
+| `DelegationBridge` | **142** CRITICAL | **ZERO hotpath** touch |
+| `PatrolCandidateEngagePolicy` | **111** CRITICAL | Engage doctrine seam |
+| `BalticReplayHarness` | **62** CRITICAL | Replay + gauntlet consumers; read/test/verify first |
+
+Determinism hash **`17144800277401907079`** remains the production Baltic golden unless explicitly golden-updated with ADR. Stage stays **Release**; Launch commercial surface is out of scope for this document refresh.
 
 ## Executive Summary
 

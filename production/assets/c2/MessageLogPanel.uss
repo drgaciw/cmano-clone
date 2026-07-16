@@ -1,0 +1,60 @@
+/* MessageLogPanel.uss — ASSET-006 Message Log Panel
+ * S94 wave-2 placeholder — quality bar = stub USS until art review.
+ * Authority: design/assets/specs/c2-ui-assets.md ASSET-006
+ * Tokens: AegisTokens.uss semantic palette (log-* categories)
+ */
+
+@import url("AegisTokens.uss");
+
+.message-log-panel {
+    flex-direction: column;
+    min-height: 120px;
+    max-height: 220px;
+    background-color: var(--surface-panel);
+    border-top-width: 1px;
+    border-top-color: var(--border-subtle);
+    padding: var(--space-sm);
+}
+
+.message-log-panel__scroll {
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.message-log-row {
+    flex-direction: row;
+    align-items: center;
+    height: 14px;
+    min-height: 14px;
+    font-size: 10px;
+    color: var(--text-data);
+    -unity-font: resource("Fonts/RobotoMono-Regular");
+    padding-left: var(--space-xs);
+    padding-right: var(--space-xs);
+}
+
+.message-log-row--kill {
+    color: var(--log-kill);
+}
+
+.message-log-row--magazine {
+    color: var(--log-magazine);
+}
+
+.message-log-row--comms {
+    color: var(--log-comms);
+}
+
+.message-log-row--contact {
+    color: var(--log-contact);
+}
+
+.message-log-row--mission {
+    color: var(--log-mission);
+}
+
+.message-log-row--selectable:focus {
+    background-color: var(--selected-row-bg);
+    border-left-width: 2px;
+    border-left-color: var(--selected-ring);
+}

@@ -22,7 +22,7 @@ Run from repo root (`cmano-clone/`):
 |------|---------|
 | Restore | `dotnet restore ProjectAegis.sln` |
 | Build | `dotnet build ProjectAegis.sln` |
-| Full test suite (≥1599) | `dotnet test ProjectAegis.sln -v minimal` |
+| Full test suite (≥1638) | `dotnet test ProjectAegis.sln -v minimal` |
 | Play Mode smoke (C2 proxy) | `dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests` |
 | Console demo | `dotnet run --project src/ProjectAegis.Delegation.Demo` |
 | Format check | `dotnet format --verify-no-changes` |
@@ -31,7 +31,7 @@ Run from repo root (`cmano-clone/`):
 
 ```bash
 dotnet build ProjectAegis.sln                   # 0 errors, 0 warnings
-dotnet test ProjectAegis.sln -v minimal          # ≥1599 / 0 failures
+dotnet test ProjectAegis.sln -v minimal          # ≥1638 / 0 failures (post S95 gauntlet land; prior floor ≥1599)
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests   # ≥20/20
 ```
 
@@ -112,7 +112,7 @@ IOrderSink.ApplyOrder(entityKey, order)  →  movement / weapons / EW systems
 | Invariant | Rule |
 |-----------|------|
 | **Replay golden hash** | `17144800277401907079` must be preserved in Baltic v2 replay golden files. Grep to verify: `grep -r "17144800277401907079" tests/ data/` |
-| **Test baseline** | ≥1599 solution tests, 0 failures (monotonic — never regress) |
+| **Test baseline** | ≥1638 solution tests, 0 failures (post S95 gauntlet land; prior ≥1599; monotonic — never regress) |
 | **ReplayGolden** | 6/6 (Baltic v2 replay suite) |
 | **PlayModeSmokeHarness** | ≥20/20 (C2 proxy tests) |
 | **DelegationBridge.cs** | Zero-touch through Release v1 — no hotpath changes |
@@ -197,7 +197,7 @@ Test assembly breakdown at baseline:
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (24703 symbols, 47459 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (25952 symbols, 49707 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -330,7 +330,7 @@ This repo is Graphite-initialized (trunk `main`, [`.graphite_repo_config`](.grap
 
 Full guide: [`docs/engineering/graphite-github-substitute-plan.md`](docs/engineering/graphite-github-substitute-plan.md). Read-only `gh pr checks` / `gh pr diff` is fine for CI triage.
 
-**verification-before note for trunk resolution (e.g. "trunk out of date" block):** Before gt sync / restack / submit when blocked: (1) GitNexus pre (search_tool then list_repos + detect_changes(scope=staged) + impact(CatalogWriteGate upstream summaryOnly)); (2) full gates RUN+READ: dotnet build, dotnet test full (0f ≥1599), ReplayGolden 6/6, PlayModeSmoke ≥20/20, hash grep `17144800277401907079`, ZERO DelegationBridge grep, gt status; (3) stage ONLY sprint-scoped payload files per active closeout; (4) re-verif post each gt step. Cite active scope boundary + this AGENTS + graphite plan. All RUN outputs READ before proceed.
+**verification-before note for trunk resolution (e.g. "trunk out of date" block):** Before gt sync / restack / submit when blocked: (1) GitNexus pre (search_tool then list_repos + detect_changes(scope=staged) + impact(CatalogWriteGate upstream summaryOnly)); (2) full gates RUN+READ: dotnet build, dotnet test full (0f ≥1638 post S95 gauntlet land; prior ≥1599), ReplayGolden 6/6, PlayModeSmoke ≥20/20, hash grep `17144800277401907079`, ZERO DelegationBridge grep, gt status; (3) stage ONLY sprint-scoped payload files per active closeout; (4) re-verif post each gt step. Cite active scope boundary + this AGENTS + graphite plan. All RUN outputs READ before proceed.
 
 ### Hermes Agent skills
 
@@ -370,7 +370,7 @@ Cloud VMs run `.cursor/cloud-install.sh` on startup via `.cursor/environment.jso
 |------|---------|
 | Restore | `dotnet restore ProjectAegis.sln` |
 | Build | `dotnet build ProjectAegis.sln` |
-| Test (full suite, ≥1599 tests; hybrid layout retained) | `dotnet test ProjectAegis.sln -v minimal` |
+| Test (full suite, ≥1638 tests post S95 gauntlet land; hybrid layout retained) | `dotnet test ProjectAegis.sln -v minimal` |
 | Play Mode smoke (headless) | `dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests` |
 | Run delegation demo | `dotnet run --project src/ProjectAegis.Delegation.Demo` |
 | Format check | `dotnet format --verify-no-changes` (may report pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`) |
@@ -415,13 +415,14 @@ No Docker compose or long-running servers. The "application" is in-process: `dot
 - Internal engineering trains (RC1, S49–S56, Baltic v2) exclude E7 commercial launch scope unless explicitly scoped.
 - Post-MVP content-only expansion tracks (S57+) add evidence additively; do not re-litigate the 21/21 MVP implementation tracker closed @ S56.
 - When publishing a new dated implementation tracker at `Game-Requirements/implementation-tracker-YYYY-MM-DD.md`, supersede the prior tracker and refresh active index links in `Game-Requirements-Index.md`, `research-traceability.md`, `Data-Population-CMAODB.md`, `requirements/07-Agentic-Infrastructure.md`, and `production/qa/00-Master-Index.md`.
+- Short program-gate acks ("i acknowledge", "acknowledged") count as formal exit confirmation when the gate package is ready; do not require the long template verbatim.
 
 ## Learned Workspace Facts
 
-- Production stage is **Release** (`production/stage.txt`; S48 gate PASS 2026-06-20; RC1 cut).
+- Production stage is **Release** (`production/stage.txt`; S48 gate PASS 2026-06-20; RC1 cut); Launch / commercial execution remains deferred pending an explicit separate decision.
 - **S39–S80** programs COMPLETE through Baltic v3 content expansion (RC1 S48, MVP exit S56, Baltic v2 S64, release train S68, launch prep S72, Baltic v3 S73–S80).
-- Headless test baseline floor is **≥1599** solution tests (ReplayGolden 6/6, C2 proxy ≥20/20; monotonic). UA engage filter (`BalticReplayHarnessPolicyEngageTests`) **3/3 green** @ post-PE gate 2026-07-09 — see [`production/qa/ua-engage-triage-2026-07-09.md`](production/qa/ua-engage-triage-2026-07-09.md).
-- Canonical forward roadmap is dated `docs/reports/future-sprint-roadpmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE (human ack "Baltic v3 content-complete" 2026-06-26; stage remains Release); **S81–S88 + ME Phase 2 + PE** COMPLETE (2026-07-09); active forward program is **S89–S92 post-editor hygiene** per `future-sprint-roadpmap-07092026.md`.
+- Headless test baseline floor is **≥1638** solution tests post S95 gauntlet land (prior floor ≥1599; ReplayGolden 6/6, C2 proxy ≥20/20; monotonic). UA engage filter (`BalticReplayHarnessPolicyEngageTests`) **3/3 green** @ post-PE gate 2026-07-09 — see [`production/qa/ua-engage-triage-2026-07-09.md`](production/qa/ua-engage-triage-2026-07-09.md).
+- Canonical forward roadmap is dated `docs/reports/future-sprint-roadpmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE (human ack "Baltic v3 content-complete" 2026-06-26); **S81–S88 + ME Phase 2 + PE** COMPLETE (2026-07-09); **S89–S92 post-editor hygiene** COMPLETE (human ack "i acknowledge" 2026-07-09; stage remains Release); next forward cycle TBD per `future-sprint-roadpmap-07092026.md`.
 - Production Baltic v2 replay hash **`17144800277401907079`** must stay preserved unless an ADR explicitly changes it.
 - Baltic v3 uses isolated **`baltic-v3-*`** scenario policies and replay goldens; v2 hash invariant unchanged.
 - Baltic v3 baseline OOB: **u1, hostile-1, ucav-blue, ucav-red** (surface + UCAV only; no subs/air beyond UCAV).

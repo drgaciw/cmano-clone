@@ -1,0 +1,12 @@
+=== tier1-patrol-01 ===
+{"error":"file not found","path":"production/qa/gauntlet/gauntlet-20260709-1242/tier-1/tier1-patrol-01.policy.json"}
+EXIT_CODE=0
+=== tier1-patrol-02 ===
+{"error":"file not found","path":"production/qa/gauntlet/gauntlet-20260709-1242/tier-1/tier1-patrol-02.policy.json"}
+EXIT_CODE=0
+=== tier1-patrol-03 ===
+{"error":"file not found","path":"production/qa/gauntlet/gauntlet-20260709-1242/tier-1/tier1-patrol-03.policy.json"}
+EXIT_CODE=0
+=== tier1-patrol-04 ===
+{"error":"file not found","path":"production/qa/gauntlet/gauntlet-20260709-1242/tier-1/tier1-patrol-04.policy.json"}
+EXIT_CODE=0

@@ -129,3 +129,36 @@ S89–S91 closeouts PASS; S92 gates PASS (0e/1599/0f/6/6/20/20/hash 18/UA 3/3/ZE
 Stage **remains Release**. Launch / commercial execution remains deferred (explicit separate decision).
 Cites: production/post-editor-hygiene-scope-boundary-2026-07-09.md + docs/reports/future-sprint-roadpmap-07092026.md + docs/reports/roadmap-execute-plan-07092026.md + production/gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md + AGENTS.md.
 **S89–S92 POST-EDITOR HYGIENE PROGRAM COMPLETE.** STAGE REMAINS Release.
+
+# Launch stage decision (2026-07-09 dashboard short-term — explicit checkpoint)
+Launch stage decision: deferred; remains Release post-S92 hygiene ack (2026-07-09).
+S92 ack was "post-editor hygiene program complete" — not Launch / commercial execution.
+Explicit user instruction to advance to Launch: none.
+Cites: post-editor-hygiene-scope-boundary-2026-07-09.md + commercial-launch-scope-boundary-2026-06-25.md + stage.txt S92 rows + future-sprint-roadpmap-07092026.md.
+STAGE REMAINS Release (launch decision deferred 2026-07-09).
+
+# S94 Asset Wave 2 Kickoff + Progress (2026-07-14)
+S94 sprint plan published (asset wave 2 + Approved path). User approved via roadmap protocol for S94 only (not S95–S97, not Launch).
+Wave-2 children Done: ASSET-006 MessageLogPanel.uss; ASSET-021 CombatDomainsHotTick.uss; ASSET-026 PressKit_LogoPack_README.md.
+Approved criteria: design/assets/approved-criteria-2026-07-14.md (no auto-Approved). Stage remains Release.
+
+# S95 Gauntlet Productization (2026-07-14)
+S95 COMPLETE: expect/CI discipline docs + defect-registry hygiene (residuals watched; closed defects retained).
+Suite floor cited ≥1638/0f (post-gauntlet-land evidence; docs/registry only). Stage remains Release. No Launch. S96–S97 not opened.
+
+# S96 Architecture Hygiene (2026-07-15)
+S96 COMPLETE: architecture.md Living draft / Release hold + re-matrix post-S93/S96; AGENTS.md CRITICAL hub playbook cite (233/186/142/111/62). Suite ≥1638 cited (docs-only). Stage remains Release. No Launch. S97 not opened.
+
+# S97 Release Continuity Gate (2026-07-15)
+S97 package COMPLETE: gate doc s97-release-continuity-gate-2026-07-15.md; human ack TEMPLATE READY (not claimed); smoke closeout.
+Release continuity engineering PASS (S94–S96 + floors ≥1638 cited; GitNexus up-to-date @ 257d9e9). Stage remains Release. Launch NOT advanced.
+
+# S97 Human Ack — Release Continuity Program COMPLETE (2026-07-16)
+S97 human ack PROVIDED: **"i acknowledge"** (2026-07-16) — "release continuity program complete" (S94–S97). Stage remains Release. Launch / commercial execution remains deferred. Gate: production/gate-checks/s97-release-continuity-gate-2026-07-15.md. Ack package: production/agentic/s97-human-ack-package-2026-07-15.md.
+**S94–S97 RELEASE CONTINUITY PROGRAM COMPLETE.** STAGE REMAINS Release.
+# S97 Human Ack — Release Continuity Program COMPLETE (2026-07-16)
+**S97 HUMAN ACK PROVIDED ("i acknowledge" 2026-07-16)** — "release continuity program complete" (S94–S97).
+S94–S96 closeouts PASS; S97 gate engineering PASS; human continuity ack recorded.
+Stage **remains Release**. Launch / commercial execution remains deferred (explicit separate decision).
+Cites: docs/reports/roadmap-execution-plan-071426.md + production/gate-checks/s97-release-continuity-gate-2026-07-15.md + production/agentic/s97-human-ack-package-2026-07-15.md + AGENTS.md.
+**S94–S97 RELEASE CONTINUITY PROGRAM COMPLETE.** STAGE REMAINS Release.
