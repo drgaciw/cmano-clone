@@ -5,6 +5,16 @@ description: List all known profiler module names with their local 'enabled' boo
 
 # Profiler / List Modules
 
+<!-- PROJECT-AEGIS:BEGIN -->
+### Project Aegis notes
+
+- Conventions: [`../../README.md`](../../README.md) · stack: [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Prefer **headless** `dotnet test` / PlayModeSmokeHarness for sim/delegation gates; use this Editor MCP tool for Editor-only work.
+- **Zero-touch:** do not modify `DelegationBridge` hotpath. Unity plugins target **netstandard2.1** (`./tools/copy-delegation-assemblies.ps1`).
+- **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
+<!-- PROJECT-AEGIS:END -->
+
+
 Returns `Tool_Profiler.AvailableModules` projected into a `ProfilerModulesData` list, with each entry's `Enabled` field reflecting the wrapper's local bookkeeping.
 
 ## Behavior

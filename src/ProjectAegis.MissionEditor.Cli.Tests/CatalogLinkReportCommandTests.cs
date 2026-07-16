@@ -40,7 +40,7 @@ public sealed class CatalogLinkReportCommandTests
                 lines);
 
             var linkIds = root.GetProperty("links").EnumerateArray()
-                .Select(link => link.GetProperty("linkId").GetString())
+                .Select(link => link.GetProperty("linkId").GetString() ?? string.Empty)
                 .ToArray();
             Assert.Equal(["NATO_TADIL_J", "SATCOM_B"], linkIds);
         }

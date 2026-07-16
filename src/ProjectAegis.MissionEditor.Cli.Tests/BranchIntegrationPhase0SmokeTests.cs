@@ -1,6 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Xunit;
 
 /// <summary>
@@ -64,9 +65,20 @@ public sealed class BranchIntegrationPhase0SmokeTests
         }
 
         using var proc = Process.Start(psi) ?? throw new InvalidOperationException("Failed to start bash");
-        var stdout = proc.StandardOutput.ReadToEnd();
-        var stderr = proc.StandardError.ReadToEnd();
-        proc.WaitForExit(300_000);
+        // Drain stdout/stderr asynchronously so a full pipe cannot deadlock WaitForExit,
+        // and so a hung smoke script fails the gate after the timeout instead of wedging CI.
+        var stdoutTask = proc.StandardOutput.ReadToEndAsync();
+        var stderrTask = proc.StandardError.ReadToEndAsync();
+        if (!proc.WaitForExit(300_000))
+        {
+            TryKill(proc);
+            throw new TimeoutException(
+                $"Phase 0 smoke timed out after 300s (process killed). Script: {scriptPath}");
+        }
+
+        Task.WaitAll(new Task[] { stdoutTask, stderrTask }, millisecondsTimeout: 30_000);
+        var stdout = stdoutTask.IsCompletedSuccessfully ? stdoutTask.Result : string.Empty;
+        var stderr = stderrTask.IsCompletedSuccessfully ? stderrTask.Result : string.Empty;
 
         if (proc.ExitCode != 0)
         {
@@ -93,7 +105,30 @@ public sealed class BranchIntegrationPhase0SmokeTests
         }
 
         using var proc = Process.Start(psi) ?? throw new InvalidOperationException("Failed to start dotnet");
-        proc.WaitForExit(600_000);
+        var stdoutTask = proc.StandardOutput.ReadToEndAsync();
+        var stderrTask = proc.StandardError.ReadToEndAsync();
+        if (!proc.WaitForExit(600_000))
+        {
+            TryKill(proc);
+            throw new TimeoutException("dotnet build timed out after 600s (process killed).");
+        }
+
+        Task.WaitAll(new Task[] { stdoutTask, stderrTask }, millisecondsTimeout: 30_000);
         return proc.ExitCode;
+    }
+
+    private static void TryKill(Process proc)
+    {
+        try
+        {
+            if (!proc.HasExited)
+            {
+                proc.Kill(entireProcessTree: true);
+            }
+        }
+        catch
+        {
+            // Best-effort cleanup for timeout paths.
+        }
     }
 }

@@ -3,8 +3,38 @@
 > **Source:** `design/gdd/command-and-control-ui.md`, `design/ux/c2-command-post.md`, `design/art/art-bible.md`  
 > **Art Bible:** `design/art/art-bible.md` (lean B2)  
 > **Generated:** 2026-06-25  
-> **Status:** 11 assets specced (stub) / 0 approved / 0 in production / 0 done  
-> **Review:** Stub for Phase B dashboard gap — expand via `/asset-spec system:command-and-control-ui --review full`
+> **Refined:** 2026-07-09 (S91 asset spec production)  
+> **Status:** 15 assets **Specced** (production-ready) / 0 approved / 0 in production / 0 done  
+> **Sprint:** S91 — ASSET-001 umbrella + C2/Platform UI children (004–017, 038, 042)  
+> **Authority:** [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../../../production/post-editor-hygiene-scope-boundary-2026-07-09.md), [`design/art/art-bible.md`](../../art/art-bible.md)
+
+---
+
+## ASSET-001 — C2 Command Post Panel Suite (umbrella)
+
+| Field | Value |
+|-------|-------|
+| Category | UI (screen shell) |
+| Dimensions | 1920×1080 baseline layout |
+| Format | UXML + USS + headless proxy tests |
+| Naming prefix | `C2*` panels under `Assets/UI/C2/` (proposed) |
+| Texture Res | Tier 1 UI — vector/USS-first; atlas Tier 1 for APP-6 |
+
+**Visual Description:**  
+Full Command Post shell: top bar, floating message log, left drawer (OOB/missions/contacts), center map placeholder, right unit detail. Matte dark surfaces (`#080E16` / `#0A101A`), mono data fields, single warm CTA in planning. Presentation-only — reads from `C2PresentationController` / bridge models; never mutates sim policy.
+
+**Art Bible Anchors:** §1 Visual Identity; §2 mode stack (Planning/Executing/Degraded/Denied); §3 palette + shape language; §6 spacing
+
+**Acceptance Criteria:**
+- [ ] All child panels (ASSET-005…008, 009) compose without UGUI mixing
+- [ ] PlayModeSmokeHarnessTests **≥20/20** after presentation binding changes
+- [ ] Evidence capture per ASSET-042 at 1920×1080
+
+**Dependencies:** ASSET-004 (APP-6 atlas), ASSET-014 (AegisTokens.uss), `design/ux/c2-command-post.md`
+
+**Verification:** `dotnet test ... --filter PlayModeSmokeHarnessTests`; optional Editor PNG per ASSET-042
+
+**Status:** Specced
 
 ---
 
@@ -28,7 +58,7 @@ Seven affiliation frames: friendly square, hostile diamond, neutral, suspect, pe
 **Generation Prompt:**  
 Flat military symbology sprite sheet, 16×16 pixel icons, dark navy UI background sample, APP-6 style frames, no gradients, crisp 1px lines, transparent PNG — *deferred; use existing atlas path.*
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -46,7 +76,7 @@ Matte `#0A101A` bar with clock, `1x 4x 8x` compression presets, SIDE/MODE labels
 
 **Art Bible Anchors:** §2 Executing/Degraded modes; §3 `surface-topbar`, `comms-*`
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -64,7 +94,7 @@ Matte `#0A101A` bar with clock, `1x 4x 8x` compression presets, SIDE/MODE labels
 
 **Art Bible Anchors:** §1 "every pixel serves the order log"; §3 message log categories
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -80,7 +110,7 @@ Matte `#0A101A` bar with clock, `1x 4x 8x` compression presets, SIDE/MODE labels
 **Visual Description:**  
 Tabbed OOB / missions / contacts; OOB rows 20px; planning-readonly modifier mutes tabs and borders (`#465260`).
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -95,7 +125,7 @@ Tabbed OOB / missions / contacts; OOB rows 20px; planning-readonly modifier mute
 **Visual Description:**  
 Selection readout with 10px mono for numeric/catalog fields; sans 12px section headers; no avatar portrait.
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -110,7 +140,7 @@ Selection readout with 10px mono for numeric/catalog fields; sans 12px section h
 **Visual Description:**  
 `#101824` canvas on `#080E16` field; symbols use APP-6 atlas; planning mode 42% opacity + dim overlay.
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -127,7 +157,7 @@ Stale 55% opacity; frozen 35%; ghost duplicate at lag offset with italic `(lag N
 
 **Art Bible Anchors:** §2 Degraded/Denied comms; §7 VFX N/A
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -142,7 +172,7 @@ Stale 55% opacity; frozen 35%; ghost duplicate at lag offset with italic `(lag N
 **Visual Description:**  
 Text-only `Human` / `Agent` / `Mixed` badges; icon atlas deferred post-v1.
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -159,7 +189,7 @@ Weapon greyed at 45% opacity when denied; tooltip shows policy abort reason; EMC
 
 **Source:** `design/gdd/policy-roe-emcon-wra.md` §Visual/Audio
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -174,7 +204,7 @@ Weapon greyed at 45% opacity when denied; tooltip shows policy abort reason; EMC
 **Visual Description:**  
 Replay mode disables order affordances; optional golden hash display for QA evidence captures.
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -190,7 +220,7 @@ Replay mode disables order affordances; optional golden hash display for QA evid
 **Visual Description:**  
 Shared import of §3 palette + §6 spacing/border tokens for all C2 and Platform Editor panels.
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -205,7 +235,7 @@ Shared import of §3 palette + §6 spacing/border tokens for all C2 and Platform
 **Visual Description:**  
 Read-only catalog browse; sectional COMMS/LINK lists; calm reference-library tone; Export/Diff text buttons 64px min-width.
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -220,7 +250,7 @@ Read-only catalog browse; sectional COMMS/LINK lists; calm reference-library ton
 **Visual Description:**  
 Audit-queue tone; diff list is hero flex child; Approve disabled @ 45% until acknowledge checkbox set.
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -235,7 +265,7 @@ Audit-queue tone; diff list is hero flex child; Approve disabled @ 45% until ack
 **Visual Description:**  
 Prefix token colors per art bible §3; entity keys in `text-data` mono.
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -250,7 +280,7 @@ Prefix token colors per art bible §3; entity keys in `text-data` mono.
 **Visual Description:**  
 Same shell as C2 Command Post with map dimmed, drawer read-only, Begin Execution CTA highlighted.
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -269,4 +299,4 @@ Game view captures at 100% UI scale; documents scene, UXML bindings, proxy test 
 
 **Art Bible Anchors:** §8 Asset Standards — Evidence captures
 
-**Status:** Needed
+**Status:** Specced

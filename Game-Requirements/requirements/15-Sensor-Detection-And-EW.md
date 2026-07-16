@@ -1,13 +1,28 @@
 # 15 - Sensor, Detection, and Electronic Warfare
 
-**Last Updated:** May 29, 2026  
+**Last Updated:** 2026-07-08  
 **Status:** Draft — ready for design review  
+**FR reverse-ref:** [FR-13](01-Project-Overview.md) — Sensors, detection, EW  
 **CMO basis:** Manual §3.3.10, §4.5.2, §6.3.8–9, §9.1.1, §9.2.6; appendix §10.7 (comms/EW overlap → doc 19)  
-**Related:** 13 Doctrine/EMCON, 14 Engagement, 18 Combat Domains, 06 Database Intelligence, 17 Order Log
+**Related:** 13 Doctrine/EMCON, 14 Engagement, 18 Combat Domains, 06 Database Intelligence, 17 Order Log  
+**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 15 — **Partial (MVP COVERED)**  
+**GDD:** [sensor-detection-ew.md](../../design/gdd/sensor-detection-ew.md)
 
 ## Purpose
 
 Define the **sensor model**, **contact lifecycle**, **detection and classification**, **electronic warfare** interactions, and **fog-of-war** rules — including how **agents** perceive and explain the battlespace under EMCON and jamming.
+
+Implements hub **[FR-13](01-Project-Overview.md)** (sensors, detection, EW).
+
+## MVP COVERED vs full CMO P0 (honesty)
+
+| Lane | Meaning | Status |
+|------|---------|--------|
+| **MVP COVERED** | Headless **deterministic detection loop**, **contact lifecycle FSM** (Unknown→Detected→Classified→Identified→Lost), **Pd-driven classify** promotions, **noise jam** via scenario jammers, Baltic/v3 classify + jam + datalink **policy slices**, order-log contact transitions on replay harness path | **Tracker grade:** Partial (**MVP COVERED**) — do not re-litigate S56 |
+| **Partial residual** | `DatalinkSidePictureMerger` lag/comms completeness; **SensorC2** panel/HUD projection polish; full side-picture fidelity under degraded comms (doc 19) | Open polish / Phase 2 |
+| **Not full CMO P0** | Full multi-band radar/sonar/EO physics, ECCM tables, coherent jamming, deception/false targets, MAD, satellite pass model, 5k×10k spatial broadphase at product FPS | **Phase N / Deferred** — historical CMO **P0** labels below are **product intent**, not “all shipped at CMO fidelity” |
+
+**Rule of thumb:** “MVP COVERED” = Baltic vertical-slice sensor/EW spine is green under CI (detect/classify/jam/harness). “Full CMO P0” remains the north-star parity table — residual rows stay **Partial** or **Phase N**.
 
 ## Vision
 
@@ -23,6 +38,8 @@ Awareness is the core resource in theater command. Detection must be **physicall
 | Radar, sonar, EO/IR, ESM | §9.1.1 | **P0** |
 | EW / jamming effects | §9.2.6 | **P0** |
 | Editor test contacts | §11 layers | **P0** — same model as runtime |
+
+**Honesty overlay:** P0 rows above = product intent / CMO basis. Shipped MVP spine is **detect + lifecycle + Pd classify + noise jam + EMCON gate + policy fixtures**; multi-sensor physics depth and ECCM remain **Phase N**.
 
 ## Contact Lifecycle
 
@@ -112,11 +129,11 @@ Fixed evaluation order per tick:
 - **P0** Hover: contributing sensors, classification confidence
 - **P1** **Sensor fan / range ring** toggle (performance LOD)
 
-| MCP tool | Description |
-|----------|-------------|
-| `contact_list` | Contacts for side with filters |
-| `contact_explain` | Why contact exists / classification level |
-| `sensor_set_emcon` | Change EMCON (policy check doc 13) |
+| MCP tool | Description | Honesty |
+|----------|-------------|---------|
+| `contact_list` | Contacts for side with filters | **Gap** — not shipped as product MCP verb |
+| `contact_explain` | Why contact exists / classification level | **Gap** — headless explainability via lifecycle/tests only |
+| `sensor_set_emcon` | Change EMCON (policy check doc 13) | **Gap** — EMCON via policy/scenario path; no dedicated MCP |
 
 ## Near-Future & Speculative (docs 09–10)
 
@@ -124,13 +141,26 @@ Fixed evaluation order per tick:
 - **P1** Quantum sensor / low-observable modifiers — DB flags, same pipeline
 - **P2** Swarm mesh sensing: aggregate detection from many small emitters
 
+## Major IDs (SEN-*)
+
+| ID | Summary | Priority / maturity |
+|----|---------|---------------------|
+| **SEN-01** | Deterministic detection tick — sorted trials, `SeededRng` Detection domain | **P0** — **Shipped** (`DeterministicDetectionLoop`) |
+| **SEN-02** | Contact lifecycle FSM (`Unknown`→`Detected`→`Classified`→`Identified`→`Lost`) | **P0** — **Shipped** (`ContactLifecycleState`, `ContactTransition`) |
+| **SEN-03** | Pd-driven detect + classify/identify promotions | **P0** — **Shipped** (`PdDetectionContactSimulator`; evidence `PdContactClassifyTests`) |
+| **SEN-04** | Scenario noise jamming on detection trials | **P0** — **Shipped** (`ScenarioJamResolver`, `ScenarioJammer`) |
+| **SEN-05** | Side-picture merge / datalink share | **P0** — **Partial** (`DatalinkSidePictureMerger`; lag/comms slices Partial) |
+| **SEN-06** | Sensor C2 projection / panel / bridge | **P0** — **Partial** (`SensorC2Projection`, `SensorC2PanelBinder`, `SensorC2Bridge`) |
+| **SEN-07** | EMCON-gated active detection (radar off → no active returns) | **P0** — **Shipped spine** (EMCON on Pd sim path; policy doc 13) |
+| **SEN-08** | MCP `contact_*` / `sensor_set_emcon` product tools | **P0 intent** — **Gap** (Phase N / residual) |
+
 ## Non-Functional Requirements
 
-| Area | Target |
-|------|--------|
-| Performance | 5k emitters × 10k targets budgeted via spatial broadphase |
-| Determinism | Golden contact timeline per seed |
-| Scale | Contact merge stable at 1000+ active tracks |
+| Area | Target | Honesty |
+|------|--------|---------|
+| Performance | 5k emitters × 10k targets budgeted via spatial broadphase | **Deferred** — not a Release CI gate; north-star scale (hub OV-SC-N1). Baltic-scale loops measured via harness, not 5k×10k |
+| Determinism | Golden contact timeline per seed | **Shipped spine** — sorted trials + seeded rolls |
+| Scale | Contact merge stable at 1000+ active tracks | **Partial / unmeasured at 1k+** — merge exists; scale not CI-gated |
 
 ## Acceptance Criteria
 
@@ -139,15 +169,31 @@ Fixed evaluation order per tick:
 3. Jamming reduces detection rate measurably in scripted test scenario.
 4. Player fog hides unidentified contacts beyond organic range; agents respect same when configured.
 5. Editor “test contacts” layer uses production detection code path.
-6. `contact_explain` returns sensor ids and EMCON state for a track.
+6. `contact_explain` returns sensor ids and EMCON state for a track. **(Residual / Gap — MCP not shipped; headless lifecycle evidence covers transitions.)**
 
 ## Phased Delivery
 
 | Phase | Scope |
 |-------|--------|
-| **MVP** | Core sensors, contact FSM, side picture, EMCON, basic jamming |
-| **Phase 2** | Datalink delay, delegation blind, ECCM, decoys |
-| **Phase 3** | Near-future EW profiles, swarm mesh |
+| **MVP (COVERED)** | Core sensors path, contact FSM, Pd classify, side-picture merge spine, EMCON gate, basic noise jamming, Baltic/v3 classify + jam policies |
+| **Phase 2** | Datalink delay polish, delegation blind, ECCM, decoys, SensorC2 UI completeness |
+| **Phase 3 / Phase N** | Near-future EW profiles, swarm mesh, full multi-band physics, **5k×10k broadphase**, MCP contact tools |
+
+## Implementation Mapping (headless)
+
+| Area | Path / type | Status | Evidence |
+|------|-------------|--------|----------|
+| Deterministic detection loop | `DeterministicDetectionLoop` (`ProjectAegis.Sim` · `Sensors/`) | **Shipped** | `DeterministicDetectionLoopTests`; sorted `(observer, sensor, target)` trials |
+| Contact lifecycle states | `ContactLifecycleState`, `ContactTransition` | **Shipped** | Enum FSM; used by Pd sim + datalink merger |
+| Pd detect / classify | `PdDetectionContactSimulator`, `ScenarioContactLifecycle`, `DetectionTrialResolver` | **Shipped** | `PdContactClassifyTests`, `PdDetectionContactSimulatorTests`; policies `baltic-patrol-classify`, `baltic-v3-classify` |
+| Noise jam | `ScenarioJamResolver`, `ScenarioJammer` | **Shipped** | `ScenarioJamResolverTests`; `baltic-patrol-jammed`, `baltic-v2-jammed`; `BalticReplayHarnessJamTests` |
+| Datalink side picture | `DatalinkSidePictureMerger`, `DatalinkShareLagResolver`, `ScenarioDatalinkDoctrine` | **Partial** | `DatalinkSidePictureMergerTests`, `DatalinkShareLagResolverTests`; `baltic-patrol-datalink*`; lag/comms completeness residual |
+| Sensor C2 | `SensorC2Projection`, `SensorC2PanelBinder`, `SensorC2Bridge`, `SensorC2PanelHost` | **Partial** | `SensorC2BridgeTests`, `SensorC2PanelBinderTests`; Unity hosts present — full CMO contact-list chrome residual |
+| Catalog detection modifiers | `PhaseBCatalogDetectionModifier`, sensor catalog slices | **Partial** | Catalog sensor bindings / Baltic sensor JSON |
+| MCP contact / EMCON tools | — | **Gap** | Spec tools `contact_list`, `contact_explain`, `sensor_set_emcon` not product MCP verbs |
+| 5k emitter × 10k target broadphase | — | **Deferred** | Performance NFR; not Release gate |
+
+**Honesty note:** Design Status remains **Draft** (Template B). Tracker **Partial (MVP COVERED)** = headless detect/lifecycle/classify/jam spine + Baltic fixtures. Full CMO multi-sensor P0 fidelity, ECCM, MCP, and 5k-scale perf are **not** claimed Shipped.
 
 ## Open Questions
 
@@ -159,6 +205,7 @@ Fixed evaluation order per tick:
 
 | Doc | Relationship |
 |-----|----------------|
+| Hub **FR-13** ([01](01-Project-Overview.md)) | Sensors, detection, EW — this doc |
 | 13 | EMCON gates emission |
 | 14 | Identification for engage |
 | 18 | Domain-specific sensing |
@@ -167,5 +214,8 @@ Fixed evaluation order per tick:
 | `cmo-manual-traceability.md` | §3.3.10, §9.1.1, §9.2.6 |
 
 ---
+
+**Implementation grade:** Partial (MVP COVERED) — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 15.  
+Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.
 
 **References:** CMO Manual §9.1.1, §9.2.6; `docs/manual/index.html`

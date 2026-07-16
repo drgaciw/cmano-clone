@@ -83,7 +83,9 @@ public sealed class PlatformWorkbookRoundTripTests
             CommsKeys(workbook));
 
         Assert.Equal(
-            CatalogSortKeyComparer.SortLinks(data.Links).Select(CatalogSortKeyComparer.FormatLinkKey).ToArray(),
+            CatalogSortKeyComparer.SortLinks(data.Links ?? Array.Empty<CatalogLinkEntry>())
+                .Select(CatalogSortKeyComparer.FormatLinkKey)
+                .ToArray(),
             LinkKeys(workbook));
     }
 

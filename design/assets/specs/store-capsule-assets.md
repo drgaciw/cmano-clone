@@ -3,8 +3,10 @@
 > **Source:** `production/release/store/asset-checklist.md` (S70-02)  
 > **Art Bible:** `design/art/art-bible.md` §1–3 (palette, posture)  
 > **Generated:** 2026-06-25  
-> **Status:** 13 assets specced (stub) / 0 approved / 0 in production / 0 done  
-> **Scope:** E7 prep placeholders only — no store upload in S70/S72 per `production/commercial-launch-scope-boundary-2026-06-25.md`
+> **Refined:** 2026-07-09 (S91 asset spec production)  
+> **Status:** 14 assets **Specced** (production-ready) / 0 approved / 0 in production / 0 done  
+> **Sprint:** S91 — ASSET-003 umbrella + store/marketing pack (023–035)  
+> **Scope:** E7 prep placeholders only — **no store upload** per [`commercial-launch-scope-boundary-2026-06-25.md`](../../../production/commercial-launch-scope-boundary-2026-06-25.md)
 
 ---
 
@@ -21,7 +23,16 @@ Near-future NATO C2 workstation aesthetic: matte dark surfaces, blue/gray naval 
 
 **Art Bible Anchors:** §1 Visual Identity; §3 Primary + affiliation palette; §9 prohibitions
 
-**Status:** Needed
+**Acceptance Criteria:**
+- [ ] Capsules readable at Steam thumbnail scale (616×353, 231×87)
+- [ ] Screenshot capture list maps to Baltic/C2 scenarios (ASSET-027…034)
+- [ ] **No store submission** in S91 — specs only
+
+**Dependencies:** ASSET-042 evidence protocol; `production/release/store/asset-checklist.md`
+
+**Verification:** Manual art review against art bible §9 prohibitions; file naming audit
+
+**Status:** Specced
 
 ---
 
@@ -40,7 +51,7 @@ Baltic patrol theater silhouette (surface/naval contacts implied), dark `#080E16
 **Generation Prompt:**  
 Military simulation game capsule art, dark navy command center aesthetic, Baltic sea theater, minimalist NATO C2 UI overlay, blue and gray palette #4A9EFF #080E16, no neon, no characters, flat matte, professional Steam store capsule 616x353 — negative: arcade HUD, explosions, sci-fi neon, text clutter
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -56,7 +67,7 @@ Military simulation game capsule art, dark navy command center aesthetic, Baltic
 **Visual Description:**  
 Dedicated crop or simplified mark readable at small size; retain affiliation blue + dark field contrast.
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -71,7 +82,7 @@ Dedicated crop or simplified mark readable at small size; retain affiliation blu
 **Visual Description:**  
 Wordmark + icon suitable for Steam library header and Discord/community avatar crops.
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -86,7 +97,7 @@ Wordmark + icon suitable for Steam library header and Discord/community avatar c
 **Visual Description:**  
 Logo on dark and light backgrounds; links to `production/release/release-checklist-v3.md` and `production/release/launch/evidence-index.md`.
 
-**Status:** Needed
+**Status:** Specced
 
 ---
 
@@ -106,7 +117,7 @@ Target folder: `production/assets/screenshots/` (future) or `production/qa/evide
 | ASSET-033 | `screenshot-07-band-c-intercept.png` | Band C intercept / spoof stress |
 | ASSET-034 | `screenshot-08-replay-aar.png` | Full replay AAR — log vs world |
 
-**Status (all):** Needed — production deferred; list authority in S70 asset-checklist
+**Status (screenshots 027–034):** Specced — capture specs ready; binary production deferred until Editor host available (S70 checklist authority)
 
 ---
 
@@ -122,7 +133,7 @@ Target folder: `production/assets/screenshots/` (future) or `production/qa/evide
 **Visual Description:**  
 Vertical slice arc: Baltic patrol start → delegation decision → replay verify (hash stable). Script from S46 launch template + `baltic-v2-narrative-arc` policy beats.
 
-**Status:** Needed (deferred — not produced in S70)
+**Status:** Specced (deferred — not produced in S70)
 
 ---
 

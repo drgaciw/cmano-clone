@@ -49,6 +49,53 @@ public sealed class CatalogWriteGatePlatformApproveTests
         }
     }
 
+    /// <summary>
+    /// Adversarial: ProposePlatformBatch without ApproveBatch must never surface staged
+    /// platforms as live catalog rows. Staging ≠ live (doc 06 / write-gate dual-track).
+    /// Mirrors ProposeSensorBatch_without_ApproveBatch_not_readable_as_live_catalog.
+    /// </summary>
+    [Fact]
+    public void ProposePlatformBatch_without_ApproveBatch_not_readable_as_live_catalog()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-platform-propose-only-{Guid.NewGuid():N}.db");
+        try
+        {
+            CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
+            var staged = new CatalogPlatformBinding(
+                "u-platform-staged-only",
+                "Staged-Only Hull",
+                Domain: "surface",
+                PlatformClass: "Frigate",
+                Nationality: "NATO",
+                GameTechnologyLevel: 6,
+                ReviewState: CatalogReviewStates.Approved,
+                TrlLevel: 7,
+                ValueTier: CatalogProvenanceTier.InterpretedValue,
+                CitationRef: "no-human-approve");
+
+            string batchId;
+            using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9210)))
+            {
+                batchId = gate.ProposePlatformBatch([staged], "agent", "no-approve");
+                var pending = gate.ListPendingBatches();
+                Assert.Contains(pending, p => p.BatchId == batchId && p.ApprovalState == "proposed");
+            }
+
+            using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
+            connection.Open();
+            var live = ReadLivePlatforms(connection);
+            Assert.DoesNotContain(live, p => p.PlatformId == "u-platform-staged-only");
+            // Seeded Baltic hull remains live; only the unapproved proposal is absent.
+            Assert.Contains(live, p => p.PlatformId == "u1");
+            Assert.Equal(0, CountRows(connection, "platform", "platform_id = 'u-platform-staged-only'"));
+            Assert.True(CountRows(connection, "catalog_staging_platform", "batch_id = '" + batchId.Replace("'", "''") + "'") >= 1);
+        }
+        finally
+        {
+            Cleanup(dbPath);
+        }
+    }
+
     [Fact]
     public void ApproveBatch_weapon_batch_commits_to_live_table()
     {

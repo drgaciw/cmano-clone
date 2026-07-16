@@ -53,6 +53,17 @@ public sealed class EventDebuggerTests
         Assert.False(root.GetProperty("fired").GetBoolean());
         Assert.Equal(EventDebuggerTrace.DefaultEvaluationHorizonTicks, root.GetProperty("last_evaluated_tick").GetInt32());
 
+        // AC-7 full projection fields (ME-W2 Track W2-a)
+        Assert.Equal(EventDebuggerTrace.DefaultEvaluationHorizonTicks, root.GetProperty("sim_tick").GetInt32());
+        Assert.Equal(0, root.GetProperty("sequence_id").GetInt32()); // single event → ordinal index 0
+
+        var actionResults = root.GetProperty("action_results");
+        Assert.Equal(JsonValueKind.Array, actionResults.ValueKind);
+        var action = Assert.Single(actionResults.EnumerateArray().ToArray());
+        Assert.Equal("Message", action.GetProperty("type").GetString());
+        Assert.False(action.GetProperty("applied").GetBoolean());
+        Assert.Equal("not-fired", action.GetProperty("note").GetString());
+
         var unmet = root.GetProperty("unmet_conditions");
         Assert.Equal(JsonValueKind.Array, unmet.ValueKind);
         var condition = Assert.Single(unmet.EnumerateArray().ToArray());
@@ -144,6 +155,11 @@ public sealed class EventDebuggerTests
         Assert.Equal("evt-no-fire", root.GetProperty("event_id").GetString());
         Assert.False(root.GetProperty("fired").GetBoolean());
         Assert.Equal(EventDebuggerTrace.DefaultEvaluationHorizonTicks, root.GetProperty("last_evaluated_tick").GetInt32());
+
+        // AC-7 full projection fields
+        Assert.Equal(EventDebuggerTrace.DefaultEvaluationHorizonTicks, root.GetProperty("sim_tick").GetInt32());
+        Assert.Equal(JsonValueKind.Number, root.GetProperty("sequence_id").ValueKind);
+        Assert.Equal(JsonValueKind.Array, root.GetProperty("action_results").ValueKind);
 
         var unmet = root.GetProperty("unmet_conditions");
         Assert.Equal(JsonValueKind.Array, unmet.ValueKind);

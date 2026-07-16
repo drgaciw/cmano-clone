@@ -5,6 +5,16 @@ description: Capture the current frame's timing info (delta time, FPS, frame cou
 
 # Profiler / Capture Frame
 
+<!-- PROJECT-AEGIS:BEGIN -->
+### Project Aegis notes
+
+- Conventions: [`../../README.md`](../../README.md) · stack: [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Prefer **headless** `dotnet test` / PlayModeSmokeHarness for sim/delegation gates; use this Editor MCP tool for Editor-only work.
+- **Zero-touch:** do not modify `DelegationBridge` hotpath. Unity plugins target **netstandard2.1** (`./tools/copy-delegation-assemblies.ps1`).
+- **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
+<!-- PROJECT-AEGIS:END -->
+
+
 Reads `UnityEngine.Time` fields and returns them in a single struct. This tool is intentionally a single-frame snapshot — Unity's runtime API does not expose historical frame-data outside the Profiler window.
 
 ## Fields

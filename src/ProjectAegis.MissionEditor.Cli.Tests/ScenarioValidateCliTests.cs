@@ -5,6 +5,20 @@ using Xunit;
 
 public sealed class ScenarioValidateCliTests
 {
+    /// <summary>
+    /// Adversarial CLI process contract: missing file → exit 2 + JSON error (not crash / exit 0).
+    /// </summary>
+    [Fact]
+    public void scenario_validate_missing_file_returns_exit_2_json_error()
+    {
+        var missing = Path.Combine(Path.GetTempPath(), $"aegis-nope-{Guid.NewGuid():N}.json");
+        using var writer = new StringWriter();
+        Assert.Equal(2, ScenarioValidateCommand.Run(missing, quiet: false, writer));
+        var text = writer.ToString();
+        Assert.Contains("file not found", text, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("error", text, StringComparison.OrdinalIgnoreCase);
+    }
+
     [Fact]
     public void scenario_validate_clean_fixture_returns_exit_0()
     {

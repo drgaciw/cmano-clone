@@ -590,6 +590,50 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(originalJson, Does.Not.Contain("editorState"), "Headless example remains without editorState per derived-only contract");
     }
 
+    /// <summary>
+    /// SE-W2 AC-8 productionize: second headless fixture (strike package) proves host load path
+    /// is fixture-agnostic — missions/targets preserved; editorState defaults applied in-memory only.
+    /// </summary>
+    [Test]
+    public void AC8_strike_package_fixture_loads_with_missions_and_editorState_defaults()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+        var scenarioPath = Path.Combine(repoRoot!, "data", "scenarios", "examples", "strike-package.scenario.json");
+        Assert.That(File.Exists(scenarioPath), Is.True, $"Fixture missing: {scenarioPath}");
+
+        var document = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
+        Assert.That(document.Missions, Is.Not.Empty);
+        Assert.That(document.Missions.Any(m => string.Equals(m.Type, "Strike", StringComparison.OrdinalIgnoreCase)), Is.True);
+
+        var defaults = new Dictionary<string, JsonElement>
+        {
+            ["camera"] = JsonDocument.Parse("{\"lat\":57.05,\"lon\":20.05,\"zoom\":1}").RootElement.Clone(),
+            ["layers"] = JsonDocument.Parse("{\"all\":true,\"orbat\":true,\"events\":true}").RootElement.Clone()
+        };
+        var dtoWithState = new ScenarioDocumentDto
+        {
+            Metadata = document.Metadata,
+            Missions = document.Missions,
+            Events = document.Events,
+            EditorState = defaults
+        };
+        var serialized = ScenarioDocumentJsonWriter.Serialize(dtoWithState);
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            ReadCommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true
+        };
+        var roundTripped = JsonSerializer.Deserialize<ScenarioDocumentDto>(serialized, options);
+        Assert.That(roundTripped, Is.Not.Null);
+        Assert.That(roundTripped!.EditorState, Is.Not.Null);
+        Assert.That(roundTripped.EditorState!.ContainsKey("camera"), Is.True);
+        Assert.That(roundTripped.Missions.Count, Is.EqualTo(document.Missions.Count));
+        Assert.That(File.ReadAllText(scenarioPath), Does.Not.Contain("editorState"));
+    }
+
     private sealed class PlayModeHarness : ISimWorldSnapshot, IOrderSink
     {
         private readonly int _contactCount;

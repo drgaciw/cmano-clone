@@ -13,13 +13,15 @@
 | Requirements **documentation** (01–21) | **Complete** — **req 11 revised 2026-07-01** (`AME-*` IDs, AC-1…AC-12, ADR-008/013–017 cross-refs); other docs 01–10, 12–21 unchanged |
 | **MVP / Phase 1 gameplay** implementation | **COMPLETE 21/21** (S56 gate PASS 2026-06-21) — grades frozen; Baltic ACs (replay 6/6, proxy 18/18, hash `17144800277401907079`) |
 | **Post-MVP content programs** (S57–S80) | **COMPLETE** — Baltic v2/v3, release train, E7 prep; S80 ack **"Baltic v3 content-complete"** (2026-06-26); stage **Release** |
-| **Forward engineering** (post-S80) | **In progress — scenario editor program** on `fix-scenario-publish-cli-wiring`; validation **tracks A–D** wired @ `7b0f376`; see [Scenario editor program](#scenario-editor-program-post-s80) |
+| **Forward engineering** (post-S80) | **SCOPED — S89–S92 post-editor hygiene** (2026-07-09). Editors complete: S81–S88 scenario editor, ME Phase 2, PE (req 21). Epic hygiene train; roadmap [`future-sprint-roadpmap-07092026.md`](../docs/reports/future-sprint-roadpmap-07092026.md); boundary [`post-editor-hygiene-scope-boundary-2026-07-09.md`](../production/post-editor-hygiene-scope-boundary-2026-07-09.md); status truth [`post-editor-status-truth-2026-07-09.md`](../production/agentic/post-editor-status-truth-2026-07-09.md). Stage **Release**. |
 
 Completing the full requirements corpus as *shipped game features* is multi-year work (req 07 phases 1–5). **Post-MVP tracks add evidence additively; they do not re-litigate S56 MVP row grades** ([baltic-v3-scope-boundary-2026-06-25.md](../production/baltic-v3-scope-boundary-2026-06-25.md)).
 
 ## Verification baseline
 
-**Gate baseline (S80, 2026-06-26):** ≥**1232/0f**; ReplayGolden **6/6**; PlayMode smoke **18/18**; hash **`17144800277401907079`** preserved; ZERO `DelegationBridge` hotpath edits.
+**Gate baseline (post-PE, 2026-07-09):** ≥**1599/0f**; ReplayGolden **6/6**; PlayMode smoke **≥20/20**; hash **`17144800277401907079`** preserved; ZERO `DelegationBridge` hotpath edits. Evidence: [`production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log`](../production/qa/evidence/gates-post-editor-hygiene-2026-07-09.log).
+
+**Gate baseline (S80, 2026-06-26, superseded floor):** ≥**1232/0f**; ReplayGolden **6/6**; PlayMode smoke **18/18**; hash preserved; ZERO bridge.
 
 **Measured @ 2026-07-04 (`fix-scenario-publish-cli-wiring`, RUN):**
 
@@ -35,11 +37,11 @@ Completing the full requirements corpus as *shipped game features* is multi-year
 
 **Hard gates (subset, RUN @ 2026-07-04):** ReplayGoldenSuite **6/6 PASS**; PlayModeSmokeHarnessTests **18/18 PASS**; hash invariant preserved.
 
-**UA failures (open):** `Friendly_weapons_tight_surfaces_policy_abort_in_engagement_log`, `Restricted_engagement_scenario_fingerprint_is_deterministic` (`BalticReplayHarnessPolicyEngageTests`) — pre-existing; unrelated to scenario-editor commits.
+**UA engage (req 14):** **CLOSED @ green** (2026-07-09). `BalticReplayHarnessPolicyEngageTests` **3/3** on trunk @ `223a5fe`. Historically 2 failures (2026-07-04) — resolved; see [`production/qa/ua-engage-triage-2026-07-09.md`](../production/qa/ua-engage-triage-2026-07-09.md). **Include in gate** — no exclusion.
 
 ```bash
 dotnet build ProjectAegis.sln
-dotnet test ProjectAegis.sln -v minimal                    # floor ≥1232/0f (current 1308/1310)
+dotnet test ProjectAegis.sln -v minimal                    # floor ≥1599/0f (post-PE 2026-07-09)
 dotnet test ProjectAegis.sln --filter "FullyQualifiedName~ReplayGoldenSuiteTests"
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests
 dotnet test src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj --filter "ScenarioDocumentEditor|ScenarioValidation|SaveVsExport|DoctrineInheritance|EventDebugger|SchemaConformance|StubScope|DerivedOnly"
@@ -124,30 +126,34 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 
 **S56 gate: 21/21 MVP-done / documented Partial+.** Evidence @ S56: [implementation-tracker-2026-06-04.md](implementation-tracker-2026-06-04.md). **Post-S56 note** is additive only.
 
+**Program note (corpus maturity W0–W4, 2026-07-08):** Waves 0–4 corpus honesty complete; **no MVP regrade**. Req **10b** remains **Phase N / not on main**.
+
+**Program note (post-editor forward scope, 2026-07-09):** S81–S88 + scenario-editor-completion + ME Phase 2 + PE **COMPLETE** on trunk. Forward program = **S89–S92 engineering hygiene + asset specs** per `future-sprint-roadpmap-07092026.md`. Floors: **1599/0f**, C2 **20/20**. GitNexus fresh @ `223a5fe` (24,418 / 47,032). Launch stage **not** advanced.
+
 | Req | Title | MVP status (S56) | Post-S56 note (through 2026-07-04) | Next stack task |
 |-----|-------|------------------|--------------------------------------|-----------------|
-| 01 | Project Overview | **MVP-done (S56)** | S72 commercial launch prep complete | (complete @ S56) |
-| 02 | Core Gameplay Loop | **Partial** | S74/S76 v3 policies + contact-triggered ROE | Begin Execution UX polish |
-| 03 | Simulation Modes | **Partial+** | S76 mission-event policies on v3 fixtures | Mode UI on C2 top bar |
-| 04 | Agent Delegation | **Partial+** | — | C2 delegation badges |
-| 05 | Dynamic Speculative Systems Agent | **Partial+** | — | MCP polish; Data P1 |
-| 06 | Database Intelligence | **Partial** | Scenario schema (AME-2.6), validation engine extensions, save-vs-export gate, migration preview w/ doctrine counts | Full corpora in CI; persisted migration rollback |
-| 07 | Agentic Infrastructure | **Partial** | Expanded `scenario_*` + ferry MCP/CLI; AC-6 smoke script; QA plan for editor program | Experiment workers; re-submit PR stack |
-| 08 | Agentic Architecture | **Partial** | ADR-017 editor topology (client vs scenario lab) | DOTS sensor hot path |
-| 09 | Near-Future Technologies | **Partial** | — | Full DOTS spawn |
-| 10 | Speculative Systems | **Partial+** | S54 orbital DEW + Kessler | Escalation ladder |
-| 10b | (KESSLER) | **Implemented (S54)** | — | Escalation ladder |
-| 11 | Agentic Mission Editor | **Partial** | **Major doc+code pass:** req 11 revised (`AME-*`, AC-1…12); tracks A–D @ `7b0f376`; ferry CLI; event debugger trace; teleport export transform; undo stack; 3 example fixtures | Unity host round-trip (AC-8); full event static analysis (AME-5.7) |
-| 12 | Terms Glossary | **Partial** | — | UI tooltips |
-| 13 | Doctrine ROE EMCON WRA | **Partial** | `DoctrineInheritanceValidateTests` + fixture; v3 mission-roe policy | Unity doctrine panel (ADR-010) |
-| 14 | Engagement & Fire Control | **Partial+** | v3 contact-triggered engage | **Fix 2 UA engage tests**; DLZ Phase 2 |
-| 15 | Sensor Detection & EW | **Partial** (MVP **COVERED**) | v3 classify + catalog sensor slices | ECCM Phase 2 |
-| 16 | Logistics & Magazines | **Partial** | — | UNREP; live magazines |
-| 17 | Replay AAR & Order Log | **Partial** | 6 v3 goldens; event debugger aligned to order-log projection (AME-5.5) | Scrub UI; AAR agent |
-| 18 | Combat Domains | **Partial+** | S75/S79 v3 theater | Mine-laying/clearing |
-| 19 | Cyber & Comms | **Partial** | v3 comms policies | JADC2 node damage |
-| 20 | Command & Control UI | **Partial** | S78 v3 picker + bands | Globe map; `HYPERSONIC_ALERT` UI |
-| 21 | Platform Editor | **MVP-done / Partial+ (S56)** | S77 v3 Excel slices | Live Editor screenshots |
+| 01 | Project Overview | **MVP-done (S56)** | S72 commercial launch prep complete; **doc charter re-baseline 2026-07-08** (hub FR-19/index/invariants — corpus maturity W0; MVP grade unchanged) | (complete @ S56); corpus maturity W0–W4 complete 2026-07-08; editor train (req 11) still active |
+| 02 | Core Gameplay Loop | **Partial** | S74/S76 v3 policies + contact-triggered ROE; **doc honesty Wave 1 2026-07-08** (mapping; MVP grade unchanged) | Begin Execution UX polish |
+| 03 | Simulation Modes | **Partial+** | S76 mission-event policies on v3 fixtures; **doc honesty Wave 1 2026-07-08** | Mode UI on C2 top bar |
+| 04 | Agent Delegation | **Partial+** | **doc honesty Wave 1 2026-07-08** (expanded mapping) | C2 delegation badges |
+| 05 | Dynamic Speculative Systems Agent | **Partial+** | **doc honesty Wave 1 2026-07-08** (OSINT mapping) | MCP polish; Data P1 |
+| 06 | Database Intelligence | **Partial** | Scenario schema (AME-2.6), validation engine extensions, save-vs-export gate, migration preview w/ doctrine counts; **doc honesty Wave 1 2026-07-08** | Full corpora in CI; persisted migration rollback |
+| 07 | Agentic Infrastructure | **Partial** | Expanded `scenario_*` + ferry MCP/CLI; AC-6 smoke script; QA plan for editor program; **doc honesty Wave 1 2026-07-08** (product vs process) | Experiment workers; re-submit PR stack |
+| 08 | Agentic Architecture | **Partial** | ADR-017 editor topology (client vs scenario lab); **doc honesty Wave 1 2026-07-08** | DOTS sensor hot path |
+| 09 | Near-Future Technologies | **Partial** | **doc honesty Wave 3 2026-07-08** (FR-08; headless archetype/TL/spawn-plan spine mapped; full DOTS NF content Phase N; MVP grade unchanged) | Full DOTS spawn |
+| 10 | Speculative Systems | **Partial+** | Wave 3 honesty: Partial+ = TL/black-project SpeculativeEngageGate + catalog metadata; S54 OrbitalDew/Kessler runtime **not on main** 2026-07-08 | Escalation ladder (design); full orbital DEW/Kessler runtime Phase N |
+| 10b | (KESSLER) | **Phase N / not on main** | Wave 3: `OrbitalDewPlatform` / `KesslerRiskMeter` / `EscalationTier` absent from `src/` (rg zero hits 2026-07-08); design ladder only | Re-land runtime only with gate + tests; do not treat S54 wt claims as trunk |
+| 11 | Agentic Mission Editor | **Partial+** (headless + AC-8 host path) | **S81–S88 + scenario-editor-completion SE-W0–W3:** headless ACs honest; ferry/undo/`mission_update_support` shipped; AC-8 dual-fixture host load + evidence 2026-07-08; gate package READY | Phase 2 map/GUI / full event static analysis deferred |
+| 12 | Terms Glossary | **Partial** | **doc honesty Wave 1 2026-07-08** (additive terms) | UI tooltips |
+| 13 | Doctrine ROE EMCON WRA | **Partial** | `DoctrineInheritanceValidateTests` + fixture; v3 mission-roe policy; **doc honesty Wave 2 2026-07-08** | Unity doctrine panel (ADR-010) |
+| 14 | Engagement & Fire Control | **Partial+** | v3 contact-triggered engage; **doc honesty Wave 2 2026-07-08** | **Fix 2 UA engage tests**; DLZ Phase 2 |
+| 15 | Sensor Detection & EW | **Partial** (MVP **COVERED**) | v3 classify + catalog sensor slices; **doc honesty Wave 2 2026-07-08** | ECCM Phase 2 |
+| 16 | Logistics & Magazines | **Partial** | **doc honesty Wave 2 2026-07-08** (mapping: MagazineLedger/FuelLedger/AIR_NOT_READY) | UNREP; live magazines |
+| 17 | Replay AAR & Order Log | **Partial** | 6 v3 goldens; event debugger aligned to order-log projection (AME-5.5); **doc honesty Wave 2 2026-07-08** (headless P0 vs scrub residual) | Scrub UI; AAR agent |
+| 18 | Combat Domains | **Partial+** | S75/S79 v3 theater; **doc honesty Wave 2 2026-07-08** (ADR-009) | Mine-laying/clearing |
+| 19 | Cyber & Comms | **Partial** | v3 comms policies; **doc honesty Wave 2 2026-07-08** (spoof Shipped) | JADC2 node damage |
+| 20 | Command & Control UI | **Partial** | S78 v3 picker + bands; **doc honesty Wave 2 2026-07-08** (ADR-010) | Globe map; `HYPERSONIC_ALERT` UI |
+| 21 | Platform Editor | **MVP-done / Partial+ (S56)** | S77 v3 Excel slices; **doc honesty Wave 3 2026-07-08** (FR-19; mapping New→Shipped/Partial+; residual live Editor screenshots Phase N; MVP grade frozen) | Live Editor screenshots |
 
 ## Research open gaps (P1)
 

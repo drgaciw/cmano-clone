@@ -1,9 +1,22 @@
 ---
 name: unity-skill-generate
-description: "Regenerate every `SKILL.md` from the project's currently-registered MCP tools into the configured skills folder (or a project-relative override path). Writes the YAML `description:` from `[AiSkillDescription]` and the body from `[AiSkillBody]`."
+description: "Regenerate every `SKILL.md` from the project's currently-registered MCP tools into the configured skills folder (or a project-relative override path). Writes the YAML `description:` from `[AiSkillDescription]` and the body from `[AiSkillBody]`. Project Aegis: regenerating wipes custom notes — restore PROJECT-AEGIS blocks; see .claude/README.md."
 ---
 
 # Skill (Tool) / Generate All
+
+<!-- PROJECT-AEGIS:BEGIN -->
+### Project Aegis notes
+
+- Conventions: [`../../README.md`](../../README.md) · stack: [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Prefer **headless** `dotnet test` / PlayModeSmokeHarness for sim/delegation gates; use this Editor MCP tool for Editor-only work.
+- **Zero-touch:** do not modify `DelegationBridge` hotpath. Unity plugins target **netstandard2.1** (`./tools/copy-delegation-assemblies.ps1`).
+- **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
+
+- **Danger:** Regenerates all `SKILL.md` files and **wipes** custom notes outside durable markers.
+- After regen: restore `<!-- PROJECT-AEGIS:BEGIN -->` blocks; keep [`../../README.md`](../../README.md).
+<!-- PROJECT-AEGIS:END -->
+
 
 Generate all skills from the existed Tools in the Unity Project.
 

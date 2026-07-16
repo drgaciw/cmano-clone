@@ -12,15 +12,17 @@ if ! command -v gitnexus >/dev/null 2>&1; then
   mkdir -p "${NPM_CONFIG_PREFIX}/bin"
   export PATH="${NPM_CONFIG_PREFIX}/bin:${PATH}"
   if ! npm install -g gitnexus; then
-    echo "WARN: gitnexus npm install failed (non-blocking per pipeline soft_fail)"
-    exit 0
+    # Exit 1 (not 0): missing CLI is infra. gitnexus-pr uses soft_fail: true;
+    # gitnexus-reindex soft-fails only on exit 75 from the reindex script itself.
+    echo "ERROR: gitnexus npm install failed" >&2
+    exit 1
   fi
 fi
 
 export GITNEXUS_SKIP_OPTIONAL_GRAMMARS="${GITNEXUS_SKIP_OPTIONAL_GRAMMARS:-1}"
 export GITNEXUS_WORKER_POOL_SIZE="${GITNEXUS_WORKER_POOL_SIZE:-4}"
 
-gitnexus --version || {
-  echo "WARN: gitnexus --version failed (non-blocking per pipeline soft_fail)"
-  exit 0
-}
+if ! gitnexus --version; then
+  echo "ERROR: gitnexus --version failed after install" >&2
+  exit 1
+fi

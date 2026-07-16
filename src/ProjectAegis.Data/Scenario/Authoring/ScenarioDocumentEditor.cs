@@ -37,6 +37,74 @@ public sealed class ScenarioDocumentEditor
         if (!EventIds.Contains(id)) EventIds.Add(id);
     }
 
+    /// <summary>
+    /// Inserts or replaces a scenario event by id (case-insensitive). Deep-copies conditions/actions
+    /// and keeps <see cref="EventIds"/> in sync. Does not call <see cref="CommitMutation"/>.
+    /// </summary>
+    public void UpsertEvent(ScenarioEventDto evt)
+    {
+        if (evt is null)
+        {
+            throw new ArgumentNullException(nameof(evt));
+        }
+
+        if (string.IsNullOrWhiteSpace(evt.Id))
+        {
+            throw new InvalidOperationException("Event id is required.");
+        }
+
+        var copy = DeepCopyEvent(evt);
+        var idx = Events.FindIndex(e =>
+            string.Equals(e.Id, copy.Id, StringComparison.OrdinalIgnoreCase));
+        if (idx >= 0)
+        {
+            var previousId = Events[idx].Id;
+            Events[idx] = copy;
+            var idIdx = EventIds.FindIndex(id =>
+                string.Equals(id, previousId, StringComparison.OrdinalIgnoreCase));
+            if (idIdx >= 0)
+            {
+                EventIds[idIdx] = copy.Id;
+            }
+            else if (!EventIds.Exists(id =>
+                         string.Equals(id, copy.Id, StringComparison.OrdinalIgnoreCase)))
+            {
+                EventIds.Add(copy.Id);
+            }
+        }
+        else
+        {
+            Events.Add(copy);
+            if (!EventIds.Exists(id =>
+                    string.Equals(id, copy.Id, StringComparison.OrdinalIgnoreCase)))
+            {
+                EventIds.Add(copy.Id);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Removes a scenario event by id (case-insensitive) and drops the matching
+    /// <see cref="EventIds"/> entry. Returns false when not found.
+    /// Does not call <see cref="CommitMutation"/>.
+    /// </summary>
+    public bool TryRemoveEvent(string eventId)
+    {
+        var index = Events.FindIndex(e =>
+            string.Equals(e.Id, eventId, StringComparison.OrdinalIgnoreCase));
+        if (index < 0)
+        {
+            return false;
+        }
+
+        var removedId = Events[index].Id;
+        Events.RemoveAt(index);
+        EventIds.RemoveAll(id =>
+            string.Equals(id, removedId, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(id, eventId, StringComparison.OrdinalIgnoreCase));
+        return true;
+    }
+
     public string ExplainEventTrace(string eventId) =>
         EventDebuggerTrace.ToJson(ToDto(), eventId);
 
@@ -207,6 +275,56 @@ public sealed class ScenarioDocumentEditor
         });
     }
 
+    /// <summary>Deep-copies a mission under a new id (Mission Board clone). Does not CommitMutation.</summary>
+    public void CloneMission(string sourceMissionId, string newMissionId)
+    {
+        if (string.IsNullOrWhiteSpace(newMissionId))
+        {
+            throw new InvalidOperationException("New mission id is required.");
+        }
+
+        if (Missions.Any(m => string.Equals(m.Id, newMissionId, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new InvalidOperationException($"Mission id '{newMissionId}' already exists.");
+        }
+
+        var src = Missions.FirstOrDefault(m =>
+            string.Equals(m.Id, sourceMissionId, StringComparison.OrdinalIgnoreCase));
+        if (src is null)
+        {
+            throw new InvalidOperationException($"Mission id '{sourceMissionId}' was not found.");
+        }
+
+        Missions.Add(new ScenarioMissionDto
+        {
+            Id = newMissionId,
+            Type = src.Type,
+            AssignedUnitIds = src.AssignedUnitIds.ToArray(),
+            TargetIds = src.TargetIds.ToArray(),
+            FerryDestinationBaseId = src.FerryDestinationBaseId,
+            PatrolZone = src.PatrolZone
+                .Select(w => new ScenarioWaypointDto { Lat = w.Lat, Lon = w.Lon })
+                .ToArray(),
+            StationGeometry = src.StationGeometry?
+                .Select(w => new ScenarioWaypointDto { Lat = w.Lat, Lon = w.Lon })
+                .ToArray(),
+            SupportRole = src.SupportRole,
+            RoeOverride = src.RoeOverride,
+            EmconOverride = src.EmconOverride,
+        });
+    }
+
+    /// <summary>Adds a mission from a built-in template. Does not CommitMutation.</summary>
+    public void AddMissionFromTemplate(string templateId, string newMissionId)
+    {
+        if (Missions.Any(m => string.Equals(m.Id, newMissionId, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new InvalidOperationException($"Mission id '{newMissionId}' already exists.");
+        }
+
+        Missions.Add(MissionTemplateCatalog.Materialize(templateId, newMissionId));
+    }
+
     /// <summary>Captures the current document on the persisted undo stack before a committed mutation.</summary>
     /// <remarks>
     /// Callers that can still reject the *following* mutation (e.g. duplicate mission id on add,
@@ -233,16 +351,26 @@ public sealed class ScenarioDocumentEditor
     public ScenarioDocumentDto CaptureUndoSnapshot()
     {
         var dto = ToDto();
+        // Missions and Events are live mutable lists on the editor — materialize independent copies
+        // so a subsequent Add/Remove/replace does not corrupt the in-memory undo snapshot.
         return new ScenarioDocumentDto
         {
             Metadata = dto.Metadata,
             Features = dto.Features,
-            Sides = dto.Sides,
+            Sides = dto.Sides.Select(DeepCopySide).ToList(),
             Orbat = dto.Orbat,
             ReferencePoints = dto.ReferencePoints,
             Missions = dto.Missions.ToList(),
-            OperationsTimeline = dto.OperationsTimeline,
-            Events = dto.Events,
+            // Materialize independent timeline copies so a subsequent Upsert/Remove does not
+            // corrupt the in-memory undo snapshot (same list-replace hazard as Missions/Events).
+            OperationsTimeline = dto.OperationsTimeline
+                .Select(e => new ScenarioOperationTimelineEntryDto
+                {
+                    MissionId = e.MissionId,
+                    ActivateAtTick = e.ActivateAtTick,
+                })
+                .ToArray(),
+            Events = dto.Events?.Select(DeepCopyEvent).ToList(),
             Variables = dto.Variables,
             EditorState = dto.EditorState,
         };
@@ -344,6 +472,307 @@ public sealed class ScenarioDocumentEditor
         };
     }
 
+    /// <summary>Updates a Support mission (role and/or station zone and/or assigned units).</summary>
+    public void UpdateSupportMission(
+        string missionId,
+        IReadOnlyList<string>? assignedUnitIds = null,
+        string? supportRole = null,
+        IReadOnlyList<ScenarioWaypointDto>? stationZone = null)
+    {
+        var mission = RequireMission(missionId, "Support");
+        var index = Missions.IndexOf(mission);
+        var zone = stationZone ?? mission.StationGeometry ?? mission.PatrolZone;
+        Missions[index] = new ScenarioMissionDto
+        {
+            Id = mission.Id,
+            Type = mission.Type,
+            AssignedUnitIds = assignedUnitIds ?? mission.AssignedUnitIds,
+            TargetIds = mission.TargetIds,
+            FerryDestinationBaseId = mission.FerryDestinationBaseId,
+            PatrolZone = zone,
+            StationGeometry = zone,
+            SupportRole = supportRole ?? mission.SupportRole,
+            RoeOverride = mission.RoeOverride,
+            EmconOverride = mission.EmconOverride,
+        };
+    }
+
+    /// <summary>Inserts or replaces an ORBAT unit by id (map place / inspector apply).</summary>
+    /// <remarks>Does not call <see cref="CommitMutation"/>; the caller commits after a successful mutation.</remarks>
+    public void UpsertOrbatUnit(ScenarioOrbatUnitDto unit)
+    {
+        if (unit is null)
+        {
+            throw new ArgumentNullException(nameof(unit));
+        }
+
+        if (string.IsNullOrWhiteSpace(unit.Id))
+        {
+            throw new InvalidOperationException("Unit id is required.");
+        }
+
+        var units = (_orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>()).ToList();
+        var idx = units.FindIndex(u => string.Equals(u.Id, unit.Id, StringComparison.OrdinalIgnoreCase));
+        var copy = new ScenarioOrbatUnitDto
+        {
+            Id = unit.Id,
+            SideId = unit.SideId,
+            PlatformId = unit.PlatformId,
+            Lat = unit.Lat,
+            Lon = unit.Lon,
+            ParentUnitId = unit.ParentUnitId,
+            RoeOverride = unit.RoeOverride,
+            EmconOverride = unit.EmconOverride,
+        };
+        if (idx >= 0)
+        {
+            units[idx] = copy;
+        }
+        else
+        {
+            units.Add(copy);
+        }
+
+        _orbat = new ScenarioOrbatDto
+        {
+            Units = units,
+            Bases = _orbat?.Bases ?? Array.Empty<ScenarioOrbatBaseDto>(),
+        };
+    }
+
+    /// <summary>Moves an existing ORBAT unit; preserves non-position fields.</summary>
+    /// <remarks>Does not call <see cref="CommitMutation"/>; the caller commits after a successful mutation.</remarks>
+    public void MoveOrbatUnit(string unitId, double lat, double lon)
+    {
+        var units = (_orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>()).ToList();
+        var idx = units.FindIndex(u => string.Equals(u.Id, unitId, StringComparison.OrdinalIgnoreCase));
+        if (idx < 0)
+        {
+            throw new InvalidOperationException($"Unit id '{unitId}' was not found.");
+        }
+
+        var u = units[idx];
+        units[idx] = new ScenarioOrbatUnitDto
+        {
+            Id = u.Id,
+            SideId = u.SideId,
+            PlatformId = u.PlatformId,
+            Lat = lat,
+            Lon = lon,
+            ParentUnitId = u.ParentUnitId,
+            RoeOverride = u.RoeOverride,
+            EmconOverride = u.EmconOverride,
+        };
+        _orbat = new ScenarioOrbatDto
+        {
+            Units = units,
+            Bases = _orbat?.Bases ?? Array.Empty<ScenarioOrbatBaseDto>(),
+        };
+    }
+
+    /// <summary>Clones an existing unit under a new id at the given position.</summary>
+    /// <remarks>Does not call <see cref="CommitMutation"/>; the caller commits after a successful mutation.</remarks>
+    public void CloneOrbatUnit(string sourceUnitId, string newUnitId, double lat, double lon)
+    {
+        if (string.IsNullOrWhiteSpace(newUnitId))
+        {
+            throw new InvalidOperationException("New unit id is required.");
+        }
+
+        var units = (_orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>()).ToList();
+        if (units.Any(u => string.Equals(u.Id, newUnitId, StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new InvalidOperationException($"Unit id '{newUnitId}' already exists.");
+        }
+
+        var src = units.FirstOrDefault(u =>
+            string.Equals(u.Id, sourceUnitId, StringComparison.OrdinalIgnoreCase));
+        if (src is null)
+        {
+            throw new InvalidOperationException($"Unit id '{sourceUnitId}' was not found.");
+        }
+
+        units.Add(new ScenarioOrbatUnitDto
+        {
+            Id = newUnitId,
+            SideId = src.SideId,
+            PlatformId = src.PlatformId,
+            Lat = lat,
+            Lon = lon,
+            ParentUnitId = src.ParentUnitId,
+            RoeOverride = src.RoeOverride,
+            EmconOverride = src.EmconOverride,
+        });
+        _orbat = new ScenarioOrbatDto
+        {
+            Units = units,
+            Bases = _orbat?.Bases ?? Array.Empty<ScenarioOrbatBaseDto>(),
+        };
+    }
+
+    /// <summary>Inserts or replaces a reference point by id (map draw gesture-end).</summary>
+    /// <remarks>Does not call <see cref="CommitMutation"/>; the caller commits after a successful mutation.</remarks>
+    public void UpsertReferencePoint(ScenarioReferencePointDto point)
+    {
+        if (point is null)
+        {
+            throw new ArgumentNullException(nameof(point));
+        }
+
+        if (string.IsNullOrWhiteSpace(point.Id))
+        {
+            throw new InvalidOperationException("Reference point id is required.");
+        }
+
+        var list = _referencePoints.ToList();
+        var idx = list.FindIndex(p => string.Equals(p.Id, point.Id, StringComparison.OrdinalIgnoreCase));
+        var copy = new ScenarioReferencePointDto
+        {
+            Id = point.Id,
+            Type = point.Type,
+            Geometry = point.Geometry?
+                .Select(w => new ScenarioWaypointDto { Lat = w.Lat, Lon = w.Lon })
+                .ToArray() ?? Array.Empty<ScenarioWaypointDto>(),
+            RadiusNm = point.RadiusNm,
+        };
+        if (idx >= 0)
+        {
+            list[idx] = copy;
+        }
+        else
+        {
+            list.Add(copy);
+        }
+
+        _referencePoints = list;
+    }
+
+    /// <summary>Removes a reference point by id. Returns false when not found.</summary>
+    /// <remarks>Does not call <see cref="CommitMutation"/>; the caller commits after a successful removal.</remarks>
+    public bool TryRemoveReferencePoint(string referencePointId)
+    {
+        var list = _referencePoints.ToList();
+        var removed = list.RemoveAll(p =>
+            string.Equals(p.Id, referencePointId, StringComparison.OrdinalIgnoreCase));
+        if (removed == 0)
+        {
+            return false;
+        }
+
+        _referencePoints = list;
+        return true;
+    }
+
+    /// <summary>
+    /// Inserts or replaces an operations-timeline entry keyed by <see cref="ScenarioOperationTimelineEntryDto.MissionId"/>
+    /// (case-insensitive). Does not call <see cref="CommitMutation"/>.
+    /// </summary>
+    /// <remarks>
+    /// AME-3.5 Partial+ headless list/edit. Full Gantt UI is deferred (ME-W3 honesty).
+    /// </remarks>
+    public void UpsertTimelineEntry(ScenarioOperationTimelineEntryDto entry)
+    {
+        if (entry is null)
+        {
+            throw new ArgumentNullException(nameof(entry));
+        }
+
+        if (string.IsNullOrWhiteSpace(entry.MissionId))
+        {
+            throw new InvalidOperationException("Mission id is required.");
+        }
+
+        if (entry.ActivateAtTick < 0)
+        {
+            throw new InvalidOperationException("ActivateAtTick must be >= 0.");
+        }
+
+        var list = _operationsTimeline.ToList();
+        var copy = new ScenarioOperationTimelineEntryDto
+        {
+            MissionId = entry.MissionId,
+            ActivateAtTick = entry.ActivateAtTick,
+        };
+        var idx = list.FindIndex(e =>
+            string.Equals(e.MissionId, copy.MissionId, StringComparison.OrdinalIgnoreCase));
+        if (idx >= 0)
+        {
+            list[idx] = copy;
+        }
+        else
+        {
+            list.Add(copy);
+        }
+
+        _operationsTimeline = list;
+    }
+
+    /// <summary>
+    /// Removes an operations-timeline entry by mission id (case-insensitive). Returns false when not found.
+    /// Does not call <see cref="CommitMutation"/>.
+    /// </summary>
+    public bool TryRemoveTimelineEntry(string missionId)
+    {
+        var list = _operationsTimeline.ToList();
+        var removed = list.RemoveAll(e =>
+            string.Equals(e.MissionId, missionId, StringComparison.OrdinalIgnoreCase));
+        if (removed == 0)
+        {
+            return false;
+        }
+
+        _operationsTimeline = list;
+        return true;
+    }
+
+    public void UpsertSide(ScenarioSideDto side)
+    {
+        if (side is null)
+        {
+            throw new ArgumentNullException(nameof(side));
+        }
+
+        if (string.IsNullOrWhiteSpace(side.Id))
+        {
+            throw new InvalidOperationException("Side id is required.");
+        }
+
+        var list = _sides.ToList();
+        var idx = list.FindIndex(s =>
+            string.Equals(s.Id, side.Id, StringComparison.OrdinalIgnoreCase));
+        var copy = DeepCopySide(side);
+        if (idx >= 0)
+        {
+            list[idx] = copy;
+        }
+        else
+        {
+            list.Add(copy);
+        }
+
+        _sides = list;
+    }
+
+    /// <summary>
+    /// Removes a side by id (case-insensitive). Returns false when not found.
+    /// Does not cascade-delete ORBAT units that reference the side. Does not call <see cref="CommitMutation"/>.
+    /// </summary>
+    /// <remarks>AME-4.5 headless sides CRUD (ME-W3 track W3-a).</remarks>
+    public bool TryRemoveSide(string sideId)
+    {
+        var list = _sides.ToList();
+        var removed = list.RemoveAll(s =>
+            string.Equals(s.Id, sideId, StringComparison.OrdinalIgnoreCase));
+        if (removed == 0)
+        {
+            return false;
+        }
+
+        _sides = list;
+        return true;
+    }
+
+
     public void Save(string path) =>
         ScenarioDocumentJsonWriter.WriteToFile(ToDto(), path);
 
@@ -372,7 +801,49 @@ public sealed class ScenarioDocumentEditor
                 EmconOverride = mission.EmconOverride,
             });
         }
+
+        Events.Clear();
+        EventIds.Clear();
+        if (snapshot.Events != null)
+        {
+            foreach (var evt in snapshot.Events)
+            {
+                var copy = DeepCopyEvent(evt);
+                Events.Add(copy);
+                if (!string.IsNullOrWhiteSpace(copy.Id) &&
+                    !EventIds.Exists(id =>
+                        string.Equals(id, copy.Id, StringComparison.OrdinalIgnoreCase)))
+                {
+                    EventIds.Add(copy.Id);
+                }
+            }
+        }
     }
+
+    private static ScenarioEventDto DeepCopyEvent(ScenarioEventDto evt) =>
+        new()
+        {
+            Id = evt.Id,
+            TriggerType = evt.TriggerType,
+            Conditions = (evt.Conditions ?? Array.Empty<ScenarioEventConditionDto>())
+                .Select(c => new ScenarioEventConditionDto
+                {
+                    Type = c.Type,
+                    UnitId = c.UnitId,
+                    ZoneId = c.ZoneId,
+                    Result = c.Result,
+                })
+                .ToArray(),
+            Actions = (evt.Actions ?? Array.Empty<ScenarioEventActionDto>())
+                .Select(a => new ScenarioEventActionDto
+                {
+                    Type = a.Type,
+                    UnitId = a.UnitId,
+                    Lat = a.Lat,
+                    Lon = a.Lon,
+                })
+                .ToArray(),
+        };
 
     private ScenarioMissionDto RequireMission(string missionId, string expectedType)
     {
@@ -473,18 +944,23 @@ public sealed class ScenarioDocumentEditor
         return $"freeze, step, inject, and resume controls: {op} applied (frozen={ws.IsFrozen}, steps={ws.StepCount}, audits={ws.AuditEntries.Count})";
     }
 
-    // --- AC4 / others --- real impl (graph from engine findings + live)
+    // --- AC4 / others --- real event static analysis (ME-W2 EventStaticAnalyzer)
+    /// <summary>
+    /// Formats <see cref="EventStaticAnalyzer"/> findings for the TCA/event graph surface.
+    /// Counts are by code prefix; nodes are event ids; findings list is CODE:eventId.
+    /// </summary>
     public string AnalyzeTcaGraph()
     {
-        var report = LiveValidate();
-        var dead = report.Findings.Count(f => f.Code == "MISSION_NO_UNITS" || f.Code.Contains("NO_UNITS"));
-        var unreach = report.Findings.Count(f => f.Code == "STRIKE_NO_TARGETS" || f.Code.Contains("UNREACHABLE"));
-        var contra = report.Findings.Count(f => f.Code == "INCOMPATIBLE_HOST");
-        var circ = report.Findings.Count(f => f.Code == "PATROL_ZONE_DEGENERATE" || f.Code.Contains("DEGEN"));
-        // real graph structure: nodes = mission ids, edges = simple sequential for demo + type links
-        var nodes = string.Join(",", Missions.Select(m => m.Id));
-        var edges = Missions.Count > 1 ? string.Join(";", Missions.Zip(Missions.Skip(1), (a,b) => $"{a.Id}->{b.Id}")) : "none";
-        return $"TCA static analysis: dead={dead} unreachable={unreach} contradictory={contra} circular={circ}; graph nodes=[{nodes}] edges=[{edges}] (no cycles)";
+        var findings = EventStaticAnalyzer.Analyze(ToDto());
+        var dead = findings.Count(f => f.Code == EventStaticAnalyzer.DeadTriggerCode);
+        var unreach = findings.Count(f => f.Code == EventStaticAnalyzer.UnreachableActionCode);
+        var contra = findings.Count(f => f.Code == EventStaticAnalyzer.ContradictoryCode);
+        var circ = findings.Count(f => f.Code == EventStaticAnalyzer.CircularCode);
+        var nodes = string.Join(",", Events.Select(e => e.Id));
+        var findingParts = string.Join(
+            ",",
+            findings.Select(f => $"{f.Code}:{EventStaticAnalyzer.EventIdOf(f)}"));
+        return $"TCA static analysis: dead={dead} unreachable={unreach} contradictory={contra} circular={circ}; graph nodes=[{nodes}]; findings=[{findingParts}]";
     }
     public string BuildManifest(string title, string synopsis, string dbRef) => $"Scenario manifest: title=\"{title}\" synopsis=\"{synopsis}\" dbRef=\"{dbRef}\" semver=\"1.0.0\" changelog=\"initial\" validation=\"passed\" provenance=\"ai-assisted,imported\" missions={Missions.Count}";
     public string NlScaffold(string brief)
@@ -518,6 +994,16 @@ public sealed class ScenarioDocumentEditor
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
         return engine.Validate(ToDto(), catalog, config);
     }
+
+    private static ScenarioSideDto DeepCopySide(ScenarioSideDto side) =>
+        new()
+        {
+            Id = side.Id,
+            Name = side.Name,
+            DefaultRoe = side.DefaultRoe,
+            DefaultEmcon = side.DefaultEmcon,
+            Postures = (side.Postures ?? Array.Empty<string>()).ToArray(),
+        };
 
     private void RestoreCanonicalSections(ScenarioDocumentDto snapshot)
     {

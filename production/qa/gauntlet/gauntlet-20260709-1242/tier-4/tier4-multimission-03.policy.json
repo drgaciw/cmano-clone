@@ -1,0 +1,77 @@
+{
+  "metadata": {
+    "title": "Tier 4 Multi-mission 03 — UCAV-Primary AAW With ASW Support",
+    "description": "AAW-focused multi-mission: ucav-blue holds the primary air-intercept track on hostile-1 (AAW kill resolves through u1's own track per established harness mechanics — see oracles.md), while usub-blue runs concurrent ASW patrol against usub-red. Weighted multi-objective scoring across both AAW and ASW dimensions. Seeded random-inject chain at ticks 7, 15.",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 123,
+    "policyId": "baltic-v3-tier4-multimission-03",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsFree"
+  },
+  "missions": [
+    {
+      "id": "blue-aaw-primary-03",
+      "type": "Patrol",
+      "assignedUnitIds": ["u1"],
+      "targetIds": ["hostile-1"],
+      "patrolZone": [
+        { "lat": 57.2, "lon": 19.8 },
+        { "lat": 57.4, "lon": 20.0 },
+        { "lat": 57.0, "lon": 20.2 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "blue-aaw-support-03",
+      "type": "Support",
+      "assignedUnitIds": ["ucav-blue"],
+      "targetIds": ["hostile-1"],
+      "patrolZone": [
+        { "lat": 57.3, "lon": 19.9 },
+        { "lat": 57.5, "lon": 20.1 },
+        { "lat": 57.1, "lon": 20.3 }
+      ],
+      "roeOverride": "WeaponsFree",
+      "supportRole": "AEW"
+    },
+    {
+      "id": "blue-asw-03",
+      "type": "Patrol",
+      "assignedUnitIds": ["usub-blue"],
+      "targetIds": ["usub-red"],
+      "patrolZone": [
+        { "lat": 57.15, "lon": 19.75 },
+        { "lat": 57.45, "lon": 19.95 },
+        { "lat": 57.05, "lon": 20.25 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "red-defend-03",
+      "type": "Patrol",
+      "assignedUnitIds": ["hostile-1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 58.3, "lon": 21.2 },
+        { "lat": 58.5, "lon": 21.4 },
+        { "lat": 58.1, "lon": 21.6 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-sub-shadow-03",
+      "type": "Patrol",
+      "assignedUnitIds": ["usub-red"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 57.2, "lon": 19.85 },
+        { "lat": 57.5, "lon": 20.05 },
+        { "lat": 57.1, "lon": 20.35 }
+      ],
+      "roeOverride": "WeaponsTight"
+    }
+  ]
+}

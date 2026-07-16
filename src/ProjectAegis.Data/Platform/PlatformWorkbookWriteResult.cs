@@ -51,4 +51,13 @@ public sealed record PlatformWorkbookWriteDecisionResult(
         ProcessedBatchIds.Count > 0
         && CommittedBatchIds.Count == ProcessedBatchIds.Count
         && Errors.Count == 0;
+
+    /// <summary>PLE-3.5: release version recorded via <c>DbSnapshotStore.RecordRelease</c> after commit (null when nothing committed).</summary>
+    public string? ReleaseVersion { get; init; }
+
+    /// <summary>PLE-3.5: snapshot id bound after successful approve.</summary>
+    public string? SnapshotId { get; init; }
+
+    /// <summary>PLE-3.5: content hash of post-approve catalog snapshot.</summary>
+    public string? ContentHashSha256 { get; init; }
 }

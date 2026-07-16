@@ -1,9 +1,22 @@
 ---
 name: script-execute
-description: Compiles and executes C# code dynamically using Roslyn. Supports a full-code mode (default) and a body-only mode — see the skill body for the difference and for how to pass Unity object references as parameters.
+description: "Compiles and executes C# code dynamically using Roslyn. Supports a full-code mode (default) and a body-only mode — see the skill body for the difference and for how to pass Unity object references as parameters. Project Aegis: no DelegationBridge hotpath mutation; prefer headless tests for sim logic."
 ---
 
 # Script / Execute
+
+<!-- PROJECT-AEGIS:BEGIN -->
+### Project Aegis notes
+
+- Conventions: [`../../README.md`](../../README.md) · stack: [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Prefer **headless** `dotnet test` / PlayModeSmokeHarness for sim/delegation gates; use this Editor MCP tool for Editor-only work.
+- **Zero-touch:** do not modify `DelegationBridge` hotpath. Unity plugins target **netstandard2.1** (`./tools/copy-delegation-assemblies.ps1`).
+- **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
+
+- **When to use:** Short Editor diagnostics / one-off Roslyn snippets.
+- **When not:** Do not call into `DelegationBridge` hotpath or mutate production sim state for fixes; prefer headless tests.
+<!-- PROJECT-AEGIS:END -->
+
 
 ## Modes
 

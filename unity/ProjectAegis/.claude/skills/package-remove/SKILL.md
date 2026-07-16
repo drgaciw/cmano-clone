@@ -1,9 +1,22 @@
 ---
 name: package-remove
-description: Uninstall a UPM package from the Unity project. Modifies `manifest.json` and may trigger a domain reload — the final result is delivered after the reload via the request's `requestId`. Built-in packages and packages that are dependencies of others cannot be removed. Use 'package-list' to list installed packages first.
+description: "Uninstall a UPM package from the Unity project. Modifies `manifest.json` and may trigger a domain reload — the final result is delivered after the reload via the request's `requestId`. Built-in packages and packages that are dependencies of others cannot be removed. Use 'package-list' to list installed packages first. Project Aegis: human approval required; do not remove pinned Entities/UI/Addressables/MCP."
 ---
 
 # Package Manager / Remove
+
+<!-- PROJECT-AEGIS:BEGIN -->
+### Project Aegis notes
+
+- Conventions: [`../../README.md`](../../README.md) · stack: [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md).
+- Prefer **headless** `dotnet test` / PlayModeSmokeHarness for sim/delegation gates; use this Editor MCP tool for Editor-only work.
+- **Zero-touch:** do not modify `DelegationBridge` hotpath. Unity plugins target **netstandard2.1** (`./tools/copy-delegation-assemblies.ps1`).
+- **Not in project:** URP, HDRP, new Input System — Built-in Forward + legacy Input Manager. Do not invent MCP tools or packages.
+
+- **When to use:** Explicitly approved removals only.
+- **When not:** Do not remove Entities, Burst, Entities.Graphics, UI Toolkit, Addressables, or Unity-MCP without approval.
+<!-- PROJECT-AEGIS:END -->
+
 
 Remove (uninstall) a package from the Unity project. This removes the package from the project's manifest.json and triggers package resolution. Note: Built-in packages and packages that are dependencies of other installed packages cannot be removed. Note: Package removal may trigger a domain reload. The result will be sent after the reload completes. Use 'package-list' tool to list installed packages first.
 

@@ -22,7 +22,7 @@ Run from repo root (`cmano-clone/`):
 |------|---------|
 | Restore | `dotnet restore ProjectAegis.sln` |
 | Build | `dotnet build ProjectAegis.sln` |
-| Full test suite (≥1232) | `dotnet test ProjectAegis.sln -v minimal` |
+| Full test suite (≥1599) | `dotnet test ProjectAegis.sln -v minimal` |
 | Play Mode smoke (C2 proxy) | `dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests` |
 | Console demo | `dotnet run --project src/ProjectAegis.Delegation.Demo` |
 | Format check | `dotnet format --verify-no-changes` |
@@ -31,8 +31,8 @@ Run from repo root (`cmano-clone/`):
 
 ```bash
 dotnet build ProjectAegis.sln                   # 0 errors, 0 warnings
-dotnet test ProjectAegis.sln -v minimal          # ≥1232 / 0 failures
-dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests   # 18/18
+dotnet test ProjectAegis.sln -v minimal          # ≥1599 / 0 failures
+dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests   # ≥20/20
 ```
 
 Run `.\tools\verify-ci-local.ps1` (PowerShell) for full CI parity including replay golden and secret scan steps.
@@ -112,9 +112,9 @@ IOrderSink.ApplyOrder(entityKey, order)  →  movement / weapons / EW systems
 | Invariant | Rule |
 |-----------|------|
 | **Replay golden hash** | `17144800277401907079` must be preserved in Baltic v2 replay golden files. Grep to verify: `grep -r "17144800277401907079" tests/ data/` |
-| **Test baseline** | ≥1232 solution tests, 0 failures (monotonic — never regress) |
+| **Test baseline** | ≥1599 solution tests, 0 failures (monotonic — never regress) |
 | **ReplayGolden** | 6/6 (Baltic v2 replay suite) |
-| **PlayModeSmokeHarness** | 18/18 (C2 proxy tests) |
+| **PlayModeSmokeHarness** | ≥20/20 (C2 proxy tests) |
 | **DelegationBridge.cs** | Zero-touch through Release v1 — no hotpath changes |
 | **CatalogWriteGate** | Extend-only (add new `Propose*` / `Approve*` overloads; never alter existing write paths) |
 | **DelegationBridge hotpath** | ZERO — grep `DelegationBridge` in `src/` hotpath methods must stay 0 new |
@@ -197,7 +197,7 @@ Test assembly breakdown at baseline:
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (20496 symbols, 38203 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (24703 symbols, 47459 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -330,7 +330,7 @@ This repo is Graphite-initialized (trunk `main`, [`.graphite_repo_config`](.grap
 
 Full guide: [`docs/engineering/graphite-github-substitute-plan.md`](docs/engineering/graphite-github-substitute-plan.md). Read-only `gh pr checks` / `gh pr diff` is fine for CI triage.
 
-**verification-before note for trunk resolution (e.g. "trunk out of date" block):** Before gt sync / restack / submit when blocked: (1) GitNexus pre (search_tool then list_repos + detect_changes(scope=staged) + impact(CatalogWriteGate upstream summaryOnly)); (2) full gates RUN+READ: dotnet build, dotnet test full (0f >=1229), ReplayGolden 6/6, PlayModeSmoke 18/18, hash grep `17144800277401907079`, ZERO DelegationBridge grep, gt status; (3) stage ONLY S66/S67 payload files per smoke-sprint-66-closeout.md list; (4) re-verif post each gt step. Cite production/release-train-scope-boundary-2026-06-24.md + this AGENTS + graphite plan. All RUN outputs READ before proceed. (See production/qa/smoke-sprint-66-closeout.md resolution section for commands.)
+**verification-before note for trunk resolution (e.g. "trunk out of date" block):** Before gt sync / restack / submit when blocked: (1) GitNexus pre (search_tool then list_repos + detect_changes(scope=staged) + impact(CatalogWriteGate upstream summaryOnly)); (2) full gates RUN+READ: dotnet build, dotnet test full (0f ≥1599), ReplayGolden 6/6, PlayModeSmoke ≥20/20, hash grep `17144800277401907079`, ZERO DelegationBridge grep, gt status; (3) stage ONLY sprint-scoped payload files per active closeout; (4) re-verif post each gt step. Cite active scope boundary + this AGENTS + graphite plan. All RUN outputs READ before proceed.
 
 ### Hermes Agent skills
 
@@ -347,6 +347,8 @@ Load with: `/skill graphite-pr-review` or `hermes -s graphite-pr-review`
 ## Cursor Cloud specific instructions
 
 Headless **.NET 8** development is the supported Cloud Agent path. Unity Editor 6.3 LTS (`unity/ProjectAegis`) is optional and usually not installed in the VM; use the headless Play Mode harness instead of opening the Editor.
+
+**Unity Editor invariants** (legacy Input Manager, Built-in RP, MCP pending, headless-vs-Editor routing): [`unity/ProjectAegis/.claude/README.md`](unity/ProjectAegis/.claude/README.md).
 
 Cloud VMs run `.cursor/cloud-install.sh` on startup via `.cursor/environment.json` (installs .NET SDK 8.0.400 when missing, then `dotnet restore`). See [Cloud agent setup](https://cursor.com/docs/cloud-agent/setup).
 
@@ -368,7 +370,7 @@ Cloud VMs run `.cursor/cloud-install.sh` on startup via `.cursor/environment.jso
 |------|---------|
 | Restore | `dotnet restore ProjectAegis.sln` |
 | Build | `dotnet build ProjectAegis.sln` |
-| Test (full suite, ≥1232 tests; hybrid layout retained) | `dotnet test ProjectAegis.sln -v minimal` |
+| Test (full suite, ≥1599 tests; hybrid layout retained) | `dotnet test ProjectAegis.sln -v minimal` |
 | Play Mode smoke (headless) | `dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests` |
 | Run delegation demo | `dotnet run --project src/ProjectAegis.Delegation.Demo` |
 | Format check | `dotnet format --verify-no-changes` (may report pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`) |
@@ -418,8 +420,8 @@ No Docker compose or long-running servers. The "application" is in-process: `dot
 
 - Production stage is **Release** (`production/stage.txt`; S48 gate PASS 2026-06-20; RC1 cut).
 - **S39–S80** programs COMPLETE through Baltic v3 content expansion (RC1 S48, MVP exit S56, Baltic v2 S64, release train S68, launch prep S72, Baltic v3 S73–S80).
-- Headless test baseline floor is **≥1232** solution tests (ReplayGolden 6/6 v2, C2 proxy 18/18; monotonic); **2 known pre-existing UA failures** in `BalticReplayHarnessPolicyEngageTests` are excluded from gate.
-- Canonical forward roadmap is dated `docs/reports/future-sprint-roadpmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE (human ack "Baltic v3 content-complete" 2026-06-26; stage remains Release); post-S80 forward engineering is the **scenario editor program** (req 11).
+- Headless test baseline floor is **≥1599** solution tests (ReplayGolden 6/6, C2 proxy ≥20/20; monotonic). UA engage filter (`BalticReplayHarnessPolicyEngageTests`) **3/3 green** @ post-PE gate 2026-07-09 — see [`production/qa/ua-engage-triage-2026-07-09.md`](production/qa/ua-engage-triage-2026-07-09.md).
+- Canonical forward roadmap is dated `docs/reports/future-sprint-roadpmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE (human ack "Baltic v3 content-complete" 2026-06-26; stage remains Release); **S81–S88 + ME Phase 2 + PE** COMPLETE (2026-07-09); active forward program is **S89–S92 post-editor hygiene** per `future-sprint-roadpmap-07092026.md`.
 - Production Baltic v2 replay hash **`17144800277401907079`** must stay preserved unless an ADR explicitly changes it.
 - Baltic v3 uses isolated **`baltic-v3-*`** scenario policies and replay goldens; v2 hash invariant unchanged.
 - Baltic v3 baseline OOB: **u1, hostile-1, ucav-blue, ucav-red** (surface + UCAV only; no subs/air beyond UCAV).
