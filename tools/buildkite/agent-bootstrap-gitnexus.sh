@@ -26,3 +26,5 @@ if ! gitnexus --version; then
   echo "ERROR: gitnexus --version failed after install" >&2
   exit 1
 fi
+
+# retrigger: ensure Buildkite posts buildkite/cmano-clone for PR #279
