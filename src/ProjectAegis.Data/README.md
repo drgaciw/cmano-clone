@@ -171,6 +171,7 @@ deterministic outputs — regenerate them intentionally, never silently.
 | Workbook round-trip CLI (import/export/diff) | [`docs/engineering/mission-editor-cli.md`](../../docs/engineering/mission-editor-cli.md) |
 | CMO markdown import pipeline (parse → propose → approve) | [`docs/engineering/cmo-markdown-import.md`](../../docs/engineering/cmo-markdown-import.md) |
 | Catalog seeding & reader resolution (headless/CI bootstrap) | [`docs/engineering/catalog-seeding.md`](../../docs/engineering/catalog-seeding.md) |
+| AI-authoring assist stubs & umpire adjudication workspace (`Scenario/Authoring/`) | [`docs/engineering/scenario-ai-authoring-and-adjudication.md`](../../docs/engineering/scenario-ai-authoring-and-adjudication.md) |
 | Production `.xlsx` (ClosedXML) adapter | [`../ProjectAegis.Data.Excel/README.md`](../ProjectAegis.Data.Excel/README.md) |
 | Simulation core (read-only consumer) | [`../ProjectAegis.Sim/README.md`](../ProjectAegis.Sim/README.md) |
 | Delegation framework (read-only consumer) | [`../ProjectAegis.Delegation/README.md`](../ProjectAegis.Delegation/README.md) |
