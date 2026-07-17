@@ -1,7 +1,8 @@
 /* MessageLogPanel.uss — ASSET-006 Message Log Panel
- * S94 wave-2 placeholder — quality bar = stub USS until art review.
+ * Status: Approved (S101-05 human asset approved: ASSET-006)
  * Authority: design/assets/specs/c2-ui-assets.md ASSET-006
  * Tokens: AegisTokens.uss semantic palette (log-* categories)
+ * Unity wire: unity/ProjectAegis/Assets/UI/MessageLog/MessageLogPanel.uss
  */
 
 @import url("AegisTokens.uss");
