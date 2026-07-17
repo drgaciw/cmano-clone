@@ -5223,3 +5223,172 @@ stories:
     estimate_days: 0.25
     blocker: "optional — no CRITICAL C# this sprint"
     completed: ""
+
+# Sprint 100 — First Approved Promotion Path + Residual Watch (2026-07-16)
+sprint: 100
+goal: "First Approved promotion path for pilot ASSET-006/021 (human phrase only) + gauntlet residual watch. Stage Release; not Launch."
+start: "2026-07-17"
+end: "2026-07-21"
+generated: "2026-07-16"
+updated: "2026-07-17"
+status: complete
+completed: "2026-07-17"
+plan: production/sprints/sprint-100-first-approved-promotion.md
+qa: production/qa/qa-plan-sprint-100-approved-promotion-2026-07-16.md
+kickoff: production/agentic/sprint-100-parallel-kickoff-2026-07-16.md
+closeout: production/qa/smoke-sprint-100-closeout-2026-07-17.md
+review_session: production/qa/s100-01-human-approved-review-session-2026-07-17.md
+residual_watch: production/qa/s100-02-gauntlet-residual-watch-2026-07-17.md
+gitnexus_note: production/qa/s100-04-gitnexus-status-2026-07-17.md
+stage: Release
+launch: "not authorized — residual Release work only"
+s100_status: "S100 COMPLETE — review session A7 deferred (Approved=0); residual watch + dual retest PASS; stage Release"
+s100_complete:
+  date: "2026-07-17"
+  tracks: ["S100-01", "S100-02", "S100-03", "S100-04", "S100-05", "S100-06"]
+  suite: "cited ≥1638/0f last-gate family (docs-only)"
+  retest: "GAUNTLET-SYN-T12-001 dual PASS; GAUNTLET-MD-001 PASS"
+  approved_count: 0
+  a7: "deferred — awaiting human art-director/producer; no invented phrase"
+  residuals: "5 watched — no fake-close"
+
+stories:
+  - id: "S100-01"
+    name: "Human Approved review execution"
+    file: "production/sprints/sprint-100-first-approved-promotion.md"
+    priority: must-have
+    status: done
+    owner: "producer"
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-07-17"
+  - id: "S100-02"
+    name: "Gauntlet residual watch + retest"
+    file: "production/sprints/sprint-100-first-approved-promotion.md"
+    priority: must-have
+    status: done
+    owner: "qa-lead"
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-07-17"
+  - id: "S100-03"
+    name: "Closeout smoke + floors cite"
+    file: "production/sprints/sprint-100-first-approved-promotion.md"
+    priority: must-have
+    status: done
+    owner: "producer"
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-07-17"
+  - id: "S100-04"
+    name: "GitNexus status note"
+    file: "production/sprints/sprint-100-first-approved-promotion.md"
+    priority: should-have
+    status: done
+    owner: "producer"
+    estimate_days: 0.25
+    blocker: ""
+    completed: "2026-07-17"
+  - id: "S100-05"
+    name: "Second pilot review if capacity"
+    file: "production/sprints/sprint-100-first-approved-promotion.md"
+    priority: should-have
+    status: done
+    owner: "producer"
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-07-17"
+  - id: "S100-06"
+    name: "Expect discipline pointer"
+    file: "production/sprints/sprint-100-first-approved-promotion.md"
+    priority: nice-to-have
+    status: done
+    owner: "qa-lead"
+    estimate_days: 0.25
+    blocker: ""
+    completed: "2026-07-17"
+
+# Sprint 101 — Residual Hold + Approval Wait + Gauntlet Cadence (2026-07-17)
+sprint: 101
+goal: "Residual hold while awaiting human asset approval; gauntlet retest + suite smoke. Stage Release; not Launch."
+start: "2026-07-17"
+end: "2026-07-21"
+generated: "2026-07-17"
+updated: "2026-07-17"
+status: complete
+plan: production/sprints/sprint-101-residual-hold-approval-wait.md
+qa: production/qa/qa-plan-sprint-101-residual-hold-2026-07-17.md
+kickoff: production/agentic/sprint-101-parallel-kickoff-2026-07-17.md
+closeout: production/qa/smoke-sprint-101-closeout-2026-07-17.md
+stage: Release
+launch: "not authorized"
+s101_status: "S101 COMPLETE — residual + suite 1699/0f + ladder; Path A COMPLETE Approved=2 (006+021); stage Release"
+s101_complete:
+  date: "2026-07-17"
+  path_a: "COMPLETE — asset approved ASSET-006 + ASSET-021; Approved=2"
+  path_b: "DONE — S101 evidence + gauntlet + smoke"
+  suite: "1699/0f live"
+  ladder: "gauntlet-20260717-s101 T1-T5 allPassed"
+  retest: "SYN-T12 dual PASS + MD-001 PASS; 5 residuals watched"
+  approved: 2
+
+stories:
+  - id: "S101-01"
+    name: "Approval-ready hold package"
+    file: "production/sprints/sprint-101-residual-hold-approval-wait.md"
+    priority: must-have
+    status: done
+    owner: "producer"
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-07-17"
+    evidence: "production/qa/s101-01-approval-ready-hold-2026-07-17.md"
+  - id: "S101-02"
+    name: "Gauntlet residual cadence"
+    file: "production/sprints/sprint-101-residual-hold-approval-wait.md"
+    priority: must-have
+    status: done
+    owner: "qa-lead"
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-07-17"
+    evidence: "production/qa/s101-02-gauntlet-residual-watch-2026-07-17.md"
+  - id: "S101-03"
+    name: "Suite/smoke floor"
+    file: "production/sprints/sprint-101-residual-hold-approval-wait.md"
+    priority: must-have
+    status: done
+    owner: "producer"
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-07-17"
+    evidence: "production/qa/s101-03-suite-smoke-2026-07-17.md"
+  - id: "S101-04"
+    name: "Full ladder smoke if capacity"
+    file: "production/sprints/sprint-101-residual-hold-approval-wait.md"
+    priority: should-have
+    status: done
+    owner: "qa-lead"
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-07-17"
+    evidence: "production/qa/s101-04-gauntlet-ladder-2026-07-17.md"
+  - id: "S101-05"
+    name: "Apply human approval if provided"
+    file: "production/sprints/sprint-101-residual-hold-approval-wait.md"
+    priority: should-have
+    status: done
+    owner: "producer"
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-07-17"
+    evidence: "production/qa/s101-05-human-asset-approval-2026-07-17.md"
+  - id: "S101-06"
+    name: "GitNexus status snapshot"
+    file: "production/sprints/sprint-101-residual-hold-approval-wait.md"
+    priority: nice-to-have
+    status: deferred
+    owner: ""
+    estimate_days: 0.25
+    blocker: ""
+    completed: ""
