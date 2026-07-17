@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="combat-domains-hot-tick-root" class="combat-domains-hot-tick">
+        <ui:Label text="COMBAT DOMAINS" class="combat-domains-hot-tick__title" />
+        <ui:VisualElement class="combat-domains-hot-tick__row">
+            <ui:Label text="AIR" class="combat-domains-hot-tick__domain" />
+            <ui:Label name="domain-air-state" text="IDLE" class="combat-domains-hot-tick__state" />
+        </ui:VisualElement>
+        <ui:VisualElement class="combat-domains-hot-tick__row">
+            <ui:Label text="SURFACE" class="combat-domains-hot-tick__domain" />
+            <ui:Label name="domain-surface-state" text="IDLE" class="combat-domains-hot-tick__state" />
+        </ui:VisualElement>
+        <ui:VisualElement class="combat-domains-hot-tick__row">
+            <ui:Label text="SUBSURFACE" class="combat-domains-hot-tick__domain" />
+            <ui:Label name="domain-sub-state" text="IDLE" class="combat-domains-hot-tick__state" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
