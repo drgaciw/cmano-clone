@@ -78,9 +78,9 @@
       "minKills": 1,
       "maxMissilesFired": 11,
       "maxDenials": 18,
-      "minScore": -30,
-      "maxScore": 270,
-      "minDenials": 14,
+      "minScore": 0,
+      "maxScore": 300,
+      "minDenials": 8,
       "requireTrueLaunchedShooters": [
         "jas-39c-gripen-2005",
         "a-19-gotland-2022"
