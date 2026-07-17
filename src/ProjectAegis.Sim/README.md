@@ -24,6 +24,7 @@ subsystem is exercised headless with `dotnet test`.
 | `Scenario/` | Scenario/policy profiles + JSON repository, comms/EMCON/mission triggers, blue/red side registry | `ScenarioPolicyProfile`, `ScenarioPolicyRepository`, `ScenarioMissionContactTrigger`, `DetectionTrialResolver`, `BalticV3SideRegistry` |
 | `Catalog/` | Hot-tick appliers bridging `ProjectAegis.Data` catalog values into sim state | `CatalogDamageHotTickApplier`, `CatalogMagazineResolver`, `CatalogRadarEmconResolver`, `PlatformHpLedger` |
 | `Logistics/` | Fuel accounting | `FuelLedger` |
+| `Telemetry/` | Advisory-only balance-drift consumer fed by engagement outcomes ([guide](../../docs/engineering/balance-drift-telemetry.md)) | `BalanceDriftAdvisoryConsumer` |
 | `Time/` | Fixed-timestep clock + time-compression | `SimClock`, `TimeCompressionMode` |
 | `Glossary/` | Generated abort-reason catalog/manifest ([guide](../../docs/engineering/abort-reason-catalog.md)) | `AbortReasonManifest`, `AbortReasonCatalog` |
 
@@ -139,6 +140,7 @@ goldens that assert reproducibility of this core live in
 | Determinism rules, hashing, golden workflow | [`docs/engineering/determinism-and-replay.md`](../../docs/engineering/determinism-and-replay.md) |
 | Engage/kill-chain gate chain + combat outcome | [`docs/engineering/engagement-pipeline.md`](../../docs/engineering/engagement-pipeline.md) |
 | Abort-reason codes (manifest → codegen → order log) | [`docs/engineering/abort-reason-catalog.md`](../../docs/engineering/abort-reason-catalog.md) |
+| Balance-drift telemetry (`Telemetry/`; advisory win-rate drift) | [`docs/engineering/balance-drift-telemetry.md`](../../docs/engineering/balance-drift-telemetry.md) |
 | Tick pipeline order + world-hash layers | [`adr-004-tick-pipeline-order.md`](../../docs/architecture/adr-004-tick-pipeline-order.md) |
 | Policy evaluator boundary | [`adr-002-policy-evaluator.md`](../../docs/architecture/adr-002-policy-evaluator.md) |
 | Sim assembly boundary (no Unity) | [`adr-001-sim-assembly-boundary.md`](../../docs/architecture/adr-001-sim-assembly-boundary.md) |

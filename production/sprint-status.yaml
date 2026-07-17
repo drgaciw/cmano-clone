@@ -5473,3 +5473,56 @@ stories:
     estimate_days: 0.5
     blocker: ""
     completed: ""
+
+# Sprint 103 — Approved C2 Wires + Residual Cadence (2026-07-17)
+sprint: 103
+goal: "Land 006 PR #316; wire ASSET-021 into Unity C2; residual retest + suite. Stage Release; not Launch."
+start: "2026-07-17"
+end: "2026-07-21"
+generated: "2026-07-17"
+updated: "2026-07-17"
+status: open
+plan: production/sprints/sprint-103-approved-c2-wires.md
+qa: production/qa/qa-plan-sprint-103-2026-07-17.md
+kickoff: production/agentic/sprint-103-parallel-kickoff-2026-07-17.md
+stage: Release
+launch: "not authorized"
+s103_status: "S103 OPEN — 021 wire + suite 1703/0f + retest PASS; #316 await human merge; stage Release"
+
+stories:
+  - id: "S103-01"
+    name: "Land PR #316 / 006 wire"
+    priority: must-have
+    status: in-progress
+    owner: "producer"
+    completed: ""
+    evidence: "production/qa/s103-01-pr-316-babysit-2026-07-17.md"
+    blocker: "human merge"
+  - id: "S103-02"
+    name: "ASSET-021 C2 wire"
+    priority: must-have
+    status: done
+    owner: "ui"
+    completed: "2026-07-17"
+    evidence: "production/qa/s103-02-asset021-combat-domains-wire-2026-07-17.md"
+  - id: "S103-03"
+    name: "Residual dual retest"
+    priority: must-have
+    status: done
+    owner: "qa-lead"
+    completed: "2026-07-17"
+    evidence: "production/qa/s103-03-residual-dual-retest-2026-07-17.md"
+  - id: "S103-04"
+    name: "Suite floor"
+    priority: must-have
+    status: done
+    owner: "producer"
+    completed: "2026-07-17"
+    evidence: "/tmp/s103-suite.log 1703/0f"
+  - id: "S103-05"
+    name: "Path A ASSET-005 if phrase"
+    priority: should-have
+    status: backlog
+    owner: "producer"
+    blocker: "needs human asset approved: ASSET-005"
+    completed: ""
