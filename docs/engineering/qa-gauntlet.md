@@ -138,6 +138,64 @@ scenarioId,seed,side,score,kills,missilesFired,denials,fingerprint
 
 ---
 
+## Side resolution — joint ORBAT
+
+`gauntlet.units[]` (the multi-domain / joint catalog ORBAT) declares each unit's `side`, but
+nothing in the *policy JSON* decides friend-or-foe at runtime. That job belongs to
+[`BalticV3SideRegistry`](../../src/ProjectAegis.Sim/Scenario/BalticV3SideRegistry.cs) — a
+thread-safe static that is the single source of truth for "is this unit id blue or red" in a
+headless Baltic run.
+
+### Two layers
+
+`GetSideForUnit(unitId)` resolves in this order:
+
+1. **Scenario-scoped registrations** — ids added for the current run via
+   `RegisterScenarioSide(unitId, "blue"|"red")` (the catalog/joint ORBAT). These win.
+2. **Legacy default map** — for the synthetic OOB: `u1` / `ucav-blue` → `blue`,
+   `hostile-1` / `ucav-red` → `red`.
+3. **Otherwise `null`** — no side; treated as neither friendly nor engageable-by-registry.
+
+`side` is normalized to exactly `"red"` or `"blue"`: **anything that is not the literal string
+`"red"` (case-insensitive) registers as blue.** So a catalog red unit *must* set
+`"side": "red"` in its `gauntlet.units[]` entry — omitting it makes the unit blue.
+
+### Lifecycle — register per run, clear after
+
+[`BalticReplayHarness`](../../src/ProjectAegis.Delegation.UnityAdapter/Baltic/BalticReplayHarness.cs)
+owns the lifecycle so registrations never leak between scenarios or seeds (which would break
+determinism and test isolation):
+
+```text
+BalticReplayHarness.Run(...)
+  ClearScenarioSides()                         # defensive pre-clear
+  try:
+    for each gauntlet.units[] entry:
+      RegisterScenarioSide(platformId, side == "red" ? "red" : "blue")
+    RunCore(...)                               # sim ticks
+  finally:
+    ClearScenarioSides()                       # always clear, even on throw
+```
+
+### Who reads the registry
+
+- [`HostileContactFilter.IsEngageableHostileTarget`](../../src/ProjectAegis.Sim/Sensors/HostileContactFilter.cs) —
+  blue-force ids are **never** engageable; registry-red ids **are**; otherwise it falls back to
+  the legacy `hostile*`-prefix heuristic. This is why a catalog red unit whose id does *not*
+  start with `hostile` is only attacked once it is registered red.
+- Engage-target fallback (`SimulationSession` / harness `PreferredHostileByShooter`) — a **red**
+  shooter targets blue force (`GetDefaultBlueUnitId()`, else `u1`); a **blue** shooter targets
+  the primary hostile contact (`GetDefaultRedUnitId()`, else `hostile-1`).
+  `GetDefaultBlueUnitId()` / `GetDefaultRedUnitId()` return the first ordinally-sorted
+  registered unit of that side, so red-on-blue engagement still resolves even when reverse
+  detection trials produced no primary contact.
+
+Pinned by
+[`BalticV3SideRegistryCatalogTests`](../../src/ProjectAegis.Sim.Tests/Scenario/BalticV3SideRegistryCatalogTests.cs)
+and the `GauntletOrbat` test slice.
+
+---
+
 ## The complexity ladder
 
 Scenarios escalate across six dimensions (mission type, platform mix, victory conditions,
@@ -332,6 +390,7 @@ Gauntlet behavior is pinned by xUnit tests; run the relevant slice while iterati
 | `row[…]: empty fingerprint` on a passive scenario | `requireNonEmptyFingerprint` defaults `true`. If the scenario is intentionally inert, set it to literal `false`. |
 | Numbers pass locally but fail in CI (or vice-versa) | Tick mismatch. CI uses 10 ticks; the expect envelope is only valid at the tier tick budget it was regenerated at. |
 | `requireTrueLaunchedShooters` fails though the unit fired | The shooter id must match the fingerprint token's `parts[4]` exactly (ordinal). Confirm the `gauntlet.units[].unitId`/`platformId` equals the launching entity's id. |
+| Catalog red unit is never engaged (nor treated as hostile) | It registered as **blue**. `side` only becomes red for the literal string `"red"` — set `"side": "red"` on its `gauntlet.units[]` entry. See [*Side resolution*](#side-resolution--joint-orbat). |
 | CSV parses wrong columns | The evaluator maps by header name, so keep the header line; a fingerprint with embedded commas is fine (tail-joined) but a stray newline is not. |
 | Editing `BalticReplayHarness` for a fix | CRITICAL blast radius — run GitNexus `impact` first, keep the suite floor, and never touch the `DelegationBridge` hotpath. |
 
