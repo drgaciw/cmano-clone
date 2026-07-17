@@ -1,60 +1,84 @@
+/* MessageLogPanel.uss — ASSET-006 Message Log Panel (Approved wire)
+ * Authority: design/assets/specs/c2-ui-assets.md ASSET-006
+ * Source of truth (Approved): production/assets/c2/MessageLogPanel.uss
+ * Live C2 keeps absolute chrome layout + onboarding; category tints use AegisTokens.
+ */
+
+@import url("../AegisTokens.uss");
+
 .message-log-panel {
     position: absolute;
     right: 8px;
     bottom: 8px;
     width: 420px;
+    min-height: 120px;
     max-height: 220px;
-    padding: 8px;
-    background-color: rgba(12, 18, 28, 0.92);
+    flex-direction: column;
+    padding: var(--space-sm);
+    background-color: var(--surface-panel);
     border-width: 1px;
-    border-color: rgb(56, 72, 96);
+    border-color: var(--border-panel);
     border-radius: 4px;
 }
 
 .message-log-title {
     font-size: 12px;
     -unity-font-style: bold;
-    color: rgb(200, 220, 240);
-    margin-bottom: 4px;
+    color: var(--text-heading);
+    margin-bottom: var(--space-xs);
 }
 
 .message-log-onboarding-hint {
     font-size: 10px;
-    color: rgb(160, 200, 180);
-    margin-bottom: 4px;
+    color: var(--log-mission);
+    margin-bottom: var(--space-xs);
     white-space: normal;
 }
 
 .message-log-list {
     flex-grow: 1;
     max-height: 180px;
+    overflow: hidden;
 }
 
 .message-log-row {
+    flex-direction: row;
+    align-items: center;
+    height: 14px;
+    min-height: 14px;
     font-size: 10px;
-    color: rgb(210, 220, 230);
+    color: var(--text-data);
+    -unity-font: resource("Fonts/RobotoMono-Regular");
+    padding-left: var(--space-xs);
+    padding-right: var(--space-xs);
     padding-top: 1px;
     padding-bottom: 1px;
     white-space: normal;
 }
 
 .message-log-row--kill {
-    color: rgb(255, 180, 160);
+    color: var(--log-kill);
 }
 
 .message-log-row--magazine {
-    color: rgb(180, 200, 255);
+    color: var(--log-magazine);
 }
 
 .message-log-row--comms {
-    color: rgb(200, 160, 255);
+    color: var(--log-comms);
     -unity-font-style: bold;
 }
 
 .message-log-row--contact {
-    color: rgb(140, 200, 255);
+    color: var(--log-contact);
 }
 
 .message-log-row--mission {
-    color: rgb(160, 220, 180);
+    color: var(--log-mission);
+}
+
+.message-log-row--selectable:focus {
+    background-color: var(--selected-row-bg);
+    border-left-width: 2px;
+    border-left-color: var(--selected-ring);
 }
