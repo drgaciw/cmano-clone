@@ -196,10 +196,11 @@ turns executed `Engage` orders into requests each tick:
 Orchestrator.Tick(state)              → ExecutedOrders (agent decisions, ROE-gated)
   filter Kind == Engage
   comms gate (CommsStateProjection.BlocksNewEngagement) → PolicyDenial COMMS_DENIED
+  per order: ResolveEngageVictim(order, state) → (shooter, victim) deconflict slot
   SwarmSalvoDeconfliction.Allocate     → one shooter per target this tick (deterministic sort)
-  per accepted order:
+  per accepted (shooter, victim) pair:
     PrimeEngageWorld(request, ...)     → populate the IEngageWorldQuery context
-    Sim.EnqueueEngagement(request)
+    Sim.EnqueueEngagement(request)     → EngageRequest(shooter, victim, mount, tick)
   Sim.TickOnce(RealTime)               → MvpEngagementResolver.Resolve per request (tick 8)
   LogEngagementResults / MarkKilled    → order-log rows + kill registry
   SurfaceRoePolicyDeniedEngagements    → emit ROE_WEAPONS_TIGHT abort rows for policy-denied intents
@@ -210,12 +211,49 @@ Orchestrator.Tick(state)              → ExecutedOrders (agent decisions, ROE-g
 allocates by sorted `(shooterId, targetId, weaponId)` so at most one shooter engages each target
 per slot — deterministically, regardless of order-log iteration order (req 14).
 
+### Victim resolution & multi-domain concurrent engage
+
+An `Engage` order names its **shooter** in `order.Target` (the unit acting), not the thing being
+shot. `SimulationSession.ResolveEngageVictim(order, state)` maps that shooter to the actual victim
+`TargetId` **before** deconfliction, so the `(shooter, victim)` pairs it feeds
+`SwarmSalvoDeconfliction` are correct. It is called twice per tick with identical inputs (once to
+build the deconflict slots, once when priming the accepted request) and is a pure function of
+`(order, ObservedState)`. The resolution order is:
+
+1. **Red-force shooter** (`BalticV3SideRegistry.IsRedForceUnit`) → engages blue force:
+   `state.PrimaryBlueForceContactId`, else `BalticV3SideRegistry.GetDefaultBlueUnitId()`, else the
+   `u1` fallback.
+2. **Per-shooter preferred hostile** — if `state.PreferredHostileByShooter` has an entry for this
+   shooter, engage that victim. This is the **multi-domain concurrent engage** path (see below).
+3. **Otherwise** → `state.PrimaryHostileContactId`, else
+   `BalticV3SideRegistry.GetDefaultRedUnitId()`, else the `hostile-1` fallback.
+
+`PreferredHostileByShooter` is an optional `shooter platformId → hostile platformId` map on
+[`ObservedState`](../../src/ProjectAegis.Delegation/Sim/ObservedState.cs) (populated from detection
+trials, surfaced through [`ISimWorldSnapshot.PreferredHostileByShooter`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/ISimWorldSnapshot.cs)
+and carried by `ObservedStateBuilder`). It defaults to `null`, which preserves the
+single-primary-hostile MVP behaviour: every blue shooter targets the one `PrimaryHostileContactId`,
+and `SwarmSalvoDeconfliction` collapses the salvo to a single shooter. When the map is present,
+each domain's shooter carries its own detection-paired victim, so air / surface / sub shots
+**deconflict onto distinct targets** and resolve concurrently in the same tick instead of piling
+onto one victim. Side membership (`IsRedForceUnit` / `GetDefaultBlueUnitId` / `GetDefaultRedUnitId`)
+is resolved through the joint-ORBAT registry — see the
+[side-resolution section of the QA Gauntlet guide](qa-gauntlet.md#side-resolution--joint-orbat).
+
 Build the MVP session for a scenario with
 `SimulationSession.BindMvpEngagementForScenario(orchestrator, scenarioPolicyId, catalog)`; it
 resolves the engage defaults (envelope, Pk, magazine rounds) from the scenario policy JSON's
 `engage` block (or the MVP fallback) and applies catalog weapon envelopes via
 `CatalogEngageEnvelope.Apply`. Magazine capacity is seeded once per shooter+mount with
 `MagazineLedger.EnsureInitialRounds` (no refill after consumption).
+
+When priming a shot, `PrimeEngageWorld` first seeds rounds from the catalog via
+`CatalogMagazineLedgerSeeder.TrySeedInitialRounds`, then **caps** the seeded total at the scenario
+policy's `DefaultMagazineRounds` when that value is set (`> 0`). The policy magazine is the
+authoritative engagement budget, so a catalog mount with a large capacity cannot silently exceed a
+tight policy magazine — depletion scenarios (e.g. `baltic-patrol-magazine`) still reach the
+`NO_AMMO` (`MagazineEmpty`) abort at the expected shot count. Leave `DefaultMagazineRounds` unset to
+use the raw catalog-seeded rounds.
 
 ---
 
