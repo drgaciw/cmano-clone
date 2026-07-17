@@ -164,6 +164,10 @@ The multi-select **`SelectionSet`** these contracts pair with lives in the Unity
 
 Create agents from a preset via `DelegationOrchestrator.CreateAgentFromPreset(id, preset, autonomy)`.
 
+The full trait/attention model — the exact load formula, the overload degradation ladder, which
+trait scalars are actually wired vs. declared-only, and the golden-load-bearing constants — is in
+[`docs/engineering/agent-traits-and-attention.md`](../../docs/engineering/agent-traits-and-attention.md).
+
 ## Public seams (for neighboring systems)
 
 | Seam | Type | Notes |
