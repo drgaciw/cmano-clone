@@ -1,165 +1,60 @@
-/* Art Bible §3 — canonical color tokens for C2 + Platform Editor USS.
- * Import via @import from panel USS; reference with var(--aegis-*) or utility classes. */
+/* AegisTokens.uss — Project Aegis semantic design tokens (S93 production)
+ * Authority: design/art/art-bible.md §3 Primary + Semantic palette
+ * Asset: ASSET-014 — production/assets/c2/AegisTokens.uss
+ * Sprint: S93 asset production wave (2026-07-09)
+ */
 
 :root {
     /* Primary surfaces */
-    --aegis-surface-primary: rgb(8, 14, 22);              /* #080E16 surface-deep */
-    --aegis-surface-panel: rgba(12, 18, 28, 0.92);        /* #0C121C @ 92% */
+    --surface-deep: #080E16;
+    --surface-map: #101824;
+    --surface-panel: rgba(12, 18, 28, 0.92);
+    --surface-topbar: rgba(10, 16, 26, 0.95);
+
+    /* Borders */
+    --border-subtle: #324150;
+    --border-panel: #384860;
+    --border-section: rgba(80, 100, 130, 0.6);
+    --border-planning: #465260;
 
     /* Typography */
-    --aegis-text-heading: rgb(200, 210, 220);               /* #C8D2DC */
-    --aegis-text-body: rgb(180, 190, 200);                /* #B4BEC8 */
-    --aegis-text-muted: rgb(140, 155, 170);               /* #8C9BAA */
+    --text-heading: #C8D2DC;
+    --text-body: #B4BEC8;
+    --text-muted: #8C9BAA;
+    --text-data: #D2DCE6;
+    --text-topbar: #BEC8D2;
 
-    /* Comms semantic */
-    --aegis-comms-nominal: rgb(100, 200, 140);            /* #64C88C */
-    --aegis-comms-degraded: rgb(240, 180, 80);            /* #F0B450 */
-    --aegis-comms-denied: rgb(230, 90, 90);               /* #E65A5A */
+    /* Affiliation */
+    --affil-friendly: #4A9EFF;
+    --affil-hostile: #E85D5D;
+    --affil-neutral: #78C878;
+    --affil-suspect: #E6C850;
+    --affil-pending: #B4B4DC;
+    --affil-unknown: #8C9BAA;
+    --affil-friendly-dead: rgba(90, 110, 130, 0.5);
 
-    /* Platform Import staging diff */
-    --aegis-diff-changed: rgb(230, 200, 80);              /* #E6C850 */
-    --aegis-diff-added: rgb(100, 200, 140);               /* #64C88C */
-    --aegis-diff-removed: rgb(232, 93, 93);               /* #E85D5D */
-    --aegis-diff-blocked: rgb(230, 90, 90);               /* #E65A5A */
-    --aegis-diff-pending: rgb(140, 155, 170);            /* #8C9BAA */
-    --aegis-diff-pending-opacity: 0.45;
+    /* Selection & focus */
+    --selected-ring: #FFC850;
+    --selected-row-bg: rgba(74, 158, 255, 0.25);
+    --score-accent: #F0C040;
 
-    /* Section chrome */
-    --aegis-border-section: rgba(80, 100, 130, 0.6);      /* #506482 @ 60% */
+    /* Comms */
+    --comms-nominal: #64C88C;
+    --comms-degraded: #F0B450;
+    --comms-denied: #E65A5A;
+    --ghost-track: #B47878;
 
-    /* Selection */
-    --aegis-selected-row-bg: rgba(74, 158, 255, 0.25);    /* #4A9EFF @ 25% */
-    --aegis-selected-row-bar: rgb(74, 158, 255);          /* #4A9EFF */
+    /* Message log categories */
+    --log-kill: #FFB4A0;
+    --log-magazine: #B4C8FF;
+    --log-comms: #C8A0FF;
+    --log-contact: #8CC8FF;
+    --log-mission: #A0DCB4;
 
-    /* Order lifecycle chip (req 20 §Order lifecycle, TR-c2-006) — hues vs surface-panel, AA per a11y §2.
-     * Colour is a SECONDARY cue only: OrderStateChip must pair every state with an icon + text label
-     * (a11y §5, never colour-alone). */
-    --aegis-order-accepted: rgb(140, 155, 170);           /* #8C9BAA muted — logged, not yet scheduled */
-    --aegis-order-queued: rgb(160, 180, 210);             /* #A0B4D2 — scheduled/awaiting */
-    --aegis-order-executing: rgb(74, 158, 255);           /* #4A9EFF — active */
-    --aegis-order-completed: rgb(100, 200, 140);          /* #64C88C — success (6.2:1) */
-    --aegis-order-denied: rgb(230, 90, 90);               /* #E65A5A — ROE/policy denial (4.9:1) */
-    --aegis-order-aborted: rgb(240, 180, 80);             /* #F0B450 — cancelled/aborted (7.2:1) */
-
-    /* Alert severity / ToastStack (req 20 §Alerting, TR-c2-007) — hues vs surface-panel, AA per a11y §2.
-     * Colour is SECONDARY: toasts pair severity with an icon + label (a11y §5, never colour-alone). */
-    --aegis-toast-critical: rgb(230, 90, 90);             /* #E65A5A (4.9:1) */
-    --aegis-toast-notable: rgb(240, 180, 80);             /* #F0B450 (7.2:1) */
-    --aegis-toast-routine: rgb(140, 155, 170);            /* #8C9BAA (5.8:1) */
-}
-
-/* Surface utilities */
-.aegis-surface-primary {
-    background-color: var(--aegis-surface-primary);
-}
-
-.aegis-surface-panel {
-    background-color: var(--aegis-surface-panel);
-}
-
-/* Typography utilities */
-.aegis-text-heading {
-    color: var(--aegis-text-heading);
-    -unity-font-style: bold;
-}
-
-.aegis-text-body {
-    color: var(--aegis-text-body);
-}
-
-.aegis-text-muted {
-    color: var(--aegis-text-muted);
-}
-
-/* Comms utilities */
-.comms-nominal {
-    color: var(--aegis-comms-nominal);
-}
-
-.comms-degraded {
-    color: var(--aegis-comms-degraded);
-}
-
-.comms-denied {
-    color: var(--aegis-comms-denied);
-}
-
-/* Platform Import diff row utilities */
-.diff-changed {
-    color: var(--aegis-diff-changed);
-}
-
-.diff-added {
-    color: var(--aegis-diff-added);
-}
-
-.diff-removed {
-    color: var(--aegis-diff-removed);
-}
-
-.diff-blocked {
-    color: var(--aegis-diff-blocked);
-    -unity-font-style: bold;
-}
-
-.diff-pending {
-    color: var(--aegis-diff-pending);
-}
-
-/* Selection utility — OOB / list row focus */
-.selected-row {
-    background-color: var(--aegis-selected-row-bg);
-    border-left-width: 3px;
-    border-left-color: var(--aegis-selected-row-bar);
-}
-
-/* Section divider utility */
-.aegis-border-section {
-    border-top-width: 1px;
-    border-top-color: var(--aegis-border-section);
-}
-
-/* Order lifecycle chip utilities (T2 OrderStateChip) — colour is the secondary cue; the chip element
- * supplies the icon + state label. */
-.order-state--accepted {
-    color: var(--aegis-order-accepted);
-}
-
-.order-state--queued {
-    color: var(--aegis-order-queued);
-}
-
-.order-state--executing {
-    color: var(--aegis-order-executing);
-    -unity-font-style: bold;
-}
-
-.order-state--completed {
-    color: var(--aegis-order-completed);
-}
-
-.order-state--denied {
-    color: var(--aegis-order-denied);
-    -unity-font-style: bold;
-}
-
-.order-state--aborted {
-    color: var(--aegis-order-aborted);
-}
-
-/* Alert severity / toast utilities (T3 ToastStack) — colour is the secondary cue; the toast element
- * supplies the icon + severity label. */
-.toast--critical {
-    border-left-width: 3px;
-    border-left-color: var(--aegis-toast-critical);
-}
-
-.toast--notable {
-    border-left-width: 3px;
-    border-left-color: var(--aegis-toast-notable);
-}
-
-.toast--routine {
-    border-left-width: 3px;
-    border-left-color: var(--aegis-toast-routine);
+    /* Spacing (art bible §6) */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 24px;
 }
