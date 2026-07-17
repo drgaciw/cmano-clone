@@ -116,7 +116,11 @@ catalog.TryGetWeaponEnvelope(weaponId, out var env);
 ```
 
 `CatalogReaderFactory` resolves the on-disk Baltic Patrol / Baltic v3 SQLite DB for the headless
-harness and CI, or returns an override reader for isolation.
+harness and CI, or returns an override reader for isolation. When the DB is missing it is
+seeded on demand by `CatalogSeedBootstrap` (the deterministic Baltic fixture + the `u1` engage
+chain). The full resolution/seed flow — including how the committed `baltic_patrol.db`,
+`sensors_baltic.json`, and the in-memory fixtures interact — is documented in
+[`docs/engineering/catalog-seeding.md`](../../docs/engineering/catalog-seeding.md).
 
 ---
 
@@ -166,6 +170,7 @@ deterministic outputs — regenerate them intentionally, never silently.
 | Scenario ↔ DB version binding / validation engine | [`adr-008-mission-editor-validation-engine.md`](../../docs/architecture/adr-008-mission-editor-validation-engine.md) |
 | Workbook round-trip CLI (import/export/diff) | [`docs/engineering/mission-editor-cli.md`](../../docs/engineering/mission-editor-cli.md) |
 | CMO markdown import pipeline (parse → propose → approve) | [`docs/engineering/cmo-markdown-import.md`](../../docs/engineering/cmo-markdown-import.md) |
+| Catalog seeding & reader resolution (headless/CI bootstrap) | [`docs/engineering/catalog-seeding.md`](../../docs/engineering/catalog-seeding.md) |
 | Production `.xlsx` (ClosedXML) adapter | [`../ProjectAegis.Data.Excel/README.md`](../ProjectAegis.Data.Excel/README.md) |
 | Simulation core (read-only consumer) | [`../ProjectAegis.Sim/README.md`](../ProjectAegis.Sim/README.md) |
 | Delegation framework (read-only consumer) | [`../ProjectAegis.Delegation/README.md`](../ProjectAegis.Delegation/README.md) |
