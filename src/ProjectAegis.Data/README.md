@@ -29,7 +29,7 @@ import/export pipeline. Pure C# with **no `UnityEngine` reference** (targets
 | `Import/` | CMO markdown importers + quarantine/proposer flow ([guide](../../docs/engineering/cmo-markdown-import.md)) | `CmoMarkdownImporter`, `CmoMarkdownImportProposer`, `CmoMarkdownQuarantineReportEntry` |
 | `Platform/` | Platform-editor workbook round-trip (export → edit → diff → import); ClosedXML `.xlsx` adapter lives in [`ProjectAegis.Data.Excel`](../ProjectAegis.Data.Excel/README.md) | `IPlatformWorkbookIo`, `CanonicalTextWorkbookIo`, `PlatformWorkbookExporter`, `PlatformWorkbookImporter`, `PlatformWorkbookDiff`, `PlatformWorkbookWriteService`, `PlatformWorkbookHash` |
 | `Osint/` | OSINT digest → proposal gate (staging only; extend-only) | `OsintDigestRunner`, `OsintCatalogMapper`, `OsintProposalGate`, `OsintDiscoveryRecord` |
-| `Telemetry/` | Balance-drift telemetry accumulation + deterministic state hashing | `BalanceTelemetryAccumulator`, `CatalogBalanceDriftPipelineEvaluator`, `IBalanceTelemetrySink` |
+| `Telemetry/` | Balance-drift telemetry accumulation + deterministic state hashing ([guide](../../docs/engineering/balance-drift-telemetry.md)) | `BalanceTelemetryAccumulator`, `CatalogBalanceDriftPipelineEvaluator`, `IBalanceTelemetrySink` |
 | `Polyfills/` | `netstandard2.1` shims | `IsExternalInit` |
 
 ---
@@ -171,6 +171,7 @@ deterministic outputs — regenerate them intentionally, never silently.
 | Platform-editor workbook round-trip & governance (`Platform/`) | [`docs/engineering/platform-workbook-roundtrip.md`](../../docs/engineering/platform-workbook-roundtrip.md) |
 | Workbook round-trip CLI (import/export/diff) | [`docs/engineering/mission-editor-cli.md`](../../docs/engineering/mission-editor-cli.md) |
 | CMO markdown import pipeline (parse → propose → approve) | [`docs/engineering/cmo-markdown-import.md`](../../docs/engineering/cmo-markdown-import.md) |
+| Balance-drift telemetry pipeline (`Telemetry/`; advisory-only) | [`docs/engineering/balance-drift-telemetry.md`](../../docs/engineering/balance-drift-telemetry.md) |
 | Catalog seeding & reader resolution (headless/CI bootstrap) | [`docs/engineering/catalog-seeding.md`](../../docs/engineering/catalog-seeding.md) |
 | AI-authoring assist stubs & umpire adjudication workspace (`Scenario/Authoring/`) | [`docs/engineering/scenario-ai-authoring-and-adjudication.md`](../../docs/engineering/scenario-ai-authoring-and-adjudication.md) |
 | Production `.xlsx` (ClosedXML) adapter | [`../ProjectAegis.Data.Excel/README.md`](../ProjectAegis.Data.Excel/README.md) |
