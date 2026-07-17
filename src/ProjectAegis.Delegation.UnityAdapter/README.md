@@ -161,8 +161,11 @@ Two static runners drive the delegation + engage pipeline end-to-end with no Uni
 
 - **`BalticReplayHarness.Run(seed, scenarioPolicyId, ticks, ...)`** → `Result` (fingerprint, both
   world hashes, checkpoints, message log, sensor C2, scoring CSV row, decision log, fire order).
-  This is the runner behind the replay-golden CI gate and the console demo. Golden workflow,
-  hashing model, and regeneration steps are documented in
+  This is the runner behind the replay-golden CI gate, the QA Gauntlet, the CLI, and the console
+  demo. Its `Run`/`Result` API, the composition pipeline (ORBAT build, detection wiring, tick
+  order), and how to extend it are documented in
+  [`baltic-replay-harness.md`](../../docs/engineering/baltic-replay-harness.md); the golden
+  workflow and hashing model are in
   [`determinism-and-replay.md`](../../docs/engineering/determinism-and-replay.md).
 - **`BalticBatchRunner.Run(request)` / `.ExportCsv(rows)` / `.DiscoverScenarioIds()`** →
   multi-seed / multi-scenario agent-vs-agent CSV export (GDD `agentic-infrastructure.md`). Driven
@@ -206,6 +209,7 @@ expose `IC2PresentationFeed` to UI Toolkit panels.
 |-------|-----|
 | Delegation core (orchestrator, decision pipeline, traits) | [`ProjectAegis.Delegation/README.md`](../ProjectAegis.Delegation/README.md) |
 | Deterministic sim core + world hashes | [`ProjectAegis.Sim/README.md`](../ProjectAegis.Sim/README.md) |
+| Baltic replay harness (Run/Result API, composition) | [`docs/engineering/baltic-replay-harness.md`](../../docs/engineering/baltic-replay-harness.md) |
 | Determinism & replay golden workflow | [`docs/engineering/determinism-and-replay.md`](../../docs/engineering/determinism-and-replay.md) |
 | Console demo / golden regeneration | [`ProjectAegis.Delegation.Demo/README.md`](../ProjectAegis.Delegation.Demo/README.md) |
 | Batch replay CSV | [`tools/batch-replay/README.md`](../../tools/batch-replay/README.md) |
