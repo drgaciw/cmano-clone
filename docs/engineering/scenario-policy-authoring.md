@@ -134,7 +134,9 @@ the bad value — a fast way to catch typos in CI.
 
 Baltic v3 uses `mission.triggers` to escalate ROE on first recon detection (e.g. ASuW/AAA →
 `WeaponsFree` when a recon unit first detects a contact). Runtime:
-[`MissionContactTriggerRuntime`](../../src/ProjectAegis.Delegation/Mission/MissionContactTriggerRuntime.cs).
+[`MissionContactTriggerRuntime`](../../src/ProjectAegis.Delegation/Mission/MissionContactTriggerRuntime.cs)
+— see [mission-timeline-runtime.md](mission-timeline-runtime.md) for the full runtime behaviour
+(tick ordering, order-log output, `ApplyRoeToUnits`, determinism).
 
 Semantics (verified against the runtime):
 
