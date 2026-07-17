@@ -174,6 +174,12 @@ dependency-free text adapter for fully headless runs. Both satisfy the same roun
 | `osint_search` | — | `[--db]`; falls back to the committed fixture `data/osint_facts.json`; returns proposals + `logOnlyCount`. |
 | `osint_staging_review` | `--db` | `[--approve batchId]`; list / approve staged OSINT proposals. |
 
+### QA
+
+| Verb | Required flags | Notes |
+|------|----------------|-------|
+| `gauntlet_oracle_eval` | `--csv` + exactly one of `--policy` / `--policy-dir` | Fail-closed post-batch oracle for the QA Gauntlet. `[--out oracle-eval.json]`. Filters CSV rows to each policy `id`, checks `gauntlet.expect` bounds + fingerprint gates; prints the JSON summary and **exits `0` iff every scenario passed, else `1`**. See [qa-gauntlet.md](qa-gauntlet.md). |
+
 ---
 
 ## Examples
@@ -243,6 +249,7 @@ is validated in
 | Validation engine design | [`adr-008-mission-editor-validation-engine.md`](../architecture/adr-008-mission-editor-validation-engine.md) |
 | Headless-first command-driven UI | [`adr-010-headless-first-command-driven-ui.md`](../architecture/adr-010-headless-first-command-driven-ui.md) |
 | Platform Excel round-trip | [`adr-011-platform-editor-excel-roundtrip.md`](../architecture/adr-011-platform-editor-excel-roundtrip.md) |
+| QA Gauntlet oracle (`gauntlet_oracle_eval`) | [`qa-gauntlet.md`](qa-gauntlet.md) |
 | Requirement (Agentic Mission Editor) | [`Game-Requirements/requirements/11-Agentic-Mission-Editor.md`](../../Game-Requirements/requirements/11-Agentic-Mission-Editor.md) |
 | Build / test / CI-parity commands | [`../../README.md`](../../README.md), [`../../AGENTS.md`](../../AGENTS.md) |
 | Local editor setup / ENOSPC | [`local-dev-environment.md`](local-dev-environment.md) |
