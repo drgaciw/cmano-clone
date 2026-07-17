@@ -5,6 +5,7 @@ name: GitNexus Security Checks
 
 on:
   workflow_dispatch:
+  pull_request:
 
 permissions:
   actions: read
@@ -57,7 +58,6 @@ jobs:
         continue-on-error: true
 
   dependency-review:
-    if: false
     name: Dependency Review
     runs-on: ubuntu-latest
     steps:
