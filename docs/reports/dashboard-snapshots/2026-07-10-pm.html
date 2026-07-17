@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Dashboard Snapshot — 2026-07-10 (pm)</title>
+<style>
+:root {
+  --bg: #f7f5f1;
+  --fg: #1a1a1a;
+  --muted: #5a5a5a;
+  --border: #d4cfc6;
+  --accent: #1f4b3a;
+  --th-bg: #e8e2d8;
+  --code-bg: #efeae2;
+  --pre-bg: #1e2430;
+  --pre-fg: #e8ecf1;
+  --link: #1a5f4a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  line-height: 1.55;
+  color: var(--fg);
+  background: linear-gradient(180deg, #ebe6dc 0%, var(--bg) 180px);
+}
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+header.doc-meta {
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+h1, h2, h3 {
+  font-family: "IBM Plex Serif", Georgia, serif;
+  color: var(--accent);
+  line-height: 1.25;
+}
+h1 { font-size: 1.85rem; margin: 0 0 0.75rem; }
+h2 { font-size: 1.35rem; margin-top: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.35rem; }
+h3 { font-size: 1.1rem; margin-top: 1.5rem; }
+p, li { font-size: 0.98rem; }
+a { color: var(--link); }
+hr { border: 0; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.88em;
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--pre-bg);
+  color: var(--pre-fg);
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+pre code { background: transparent; color: inherit; padding: 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0 1.5rem;
+  font-size: 0.9rem;
+  display: block;
+  overflow-x: auto;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.65rem;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: var(--th-bg); font-weight: 600; }
+tr:nth-child(even) td { background: rgba(255,255,255,0.45); }
+blockquote {
+  margin: 1rem 0;
+  padding: 0.25rem 0 0.25rem 1rem;
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+}
+.mermaid {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+footer {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14181c;
+    --fg: #e8ebe8;
+    --muted: #9aa3a0;
+    --border: #2c3538;
+    --accent: #7dba9a;
+    --th-bg: #1e2629;
+    --code-bg: #243033;
+    --link: #8fd0b0;
+  }
+  body { background: var(--bg); }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+  .mermaid { background: #1a2024; }
+}
+
+.badge {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  margin-right: 0.35rem;
+}
+</style>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+</script>
+</head>
+<body>
+<main class="wrap">
+<header class="doc-meta">
+  <p><span class="badge">DASHBOARD SNAPSHOT</span><span class="badge">Release</span></p>
+</header>
+<h1>Project Dashboard Snapshot — 2026-07-10 (pm)</h1>
+<p>Archived snapshot preserved from <code>docs/reports/project-dashboard.md</code> at generation time.</p>
+<p><strong>Generated</strong>: 2026-07-10  </p>
+<p><strong>Last Updated</strong>: 2026-07-10T19:15:00Z  </p>
+<p><strong>Run Label</strong>: pm (post–S89–S92 hygiene COMPLETE + S93 asset production wave)  </p>
+<p><strong>Stage</strong>: <strong>Release</strong> — RC1 cut (S48); programs through <strong>S93</strong> (asset production) <strong>COMPLETE</strong>; Launch deferred  </p>
+<p><strong>Analysis Scope</strong>: Full project  </p>
+<p><strong>Compared to</strong>: <a href="2026-07-09-am.md">2026-07-09-am.md</a> (prior full dashboard; see also <a href="2026-07-09-am-addendum.md">2026-07-09-am-addendum.md</a>)</p>
+<hr>
+<h2>Executive Summary</h2>
+<p>In one day since the 2026-07-09 AM dashboard, the program closed <strong>S89–S92 Post-Editor Engineering Hygiene</strong> (human ack <strong>&quot;i acknowledge&quot;</strong> / "post-editor hygiene program complete") and landed <strong>S93 Asset Production Wave</strong> — first binary assets under <code>production/assets/</code> (C2 tokens/atlas/top-bar, Baltic theater framing, store capsules/logos). Manifest moved from <strong>0 Done</strong> to <strong>8 Done / 3 In Production / 27 Specced / 4 Needed</strong>. Stage remains <strong>Release</strong>; Launch / commercial execution stays deferred (explicit checkpoint in <code>production/stage.txt</code>).</p>
+<p>GitNexus re-analyzed 2026-07-10 @ HEAD <code>45035c6</code> reports <strong>24,729 nodes</strong> and <strong>47,512 edges</strong> (<strong>427</strong> clusters / <strong>300</strong> flows / <strong>2,925</strong> files) — index <strong>fresh</strong>. Standing gates from S93 closeout: build <strong>0e/0w</strong>, <strong>1,599/0f</strong>, ReplayGolden <strong>6/6</strong>, C2 proxy <strong>20/20</strong>, hash <strong><code>17144800277401907079</code></strong> preserved (<strong>18</strong> canonical paths), DelegationBridge <strong>ZERO</strong>, UA engage <strong>3/3</strong>.</p>
+<p>Production tracking: <strong>136</strong> sprint plan files, <strong>70</strong> epics, <strong>263</strong> story files, <code>sprint-status.yaml</code> with <strong>307</strong> <code>status: done</code> entries. Forward roadmap alias → <a href="../future-sprint-roadpmap-07092026.md"><code>future-sprint-roadpmap-07092026.md</code></a> (S89–S92 COMPLETE; S93 documented).</p>
+<p><strong>Current focus:</strong> Post–S93 forward program TBD; continue asset production for remaining Specced children; optional <code>/architecture-review</code>; Launch only on explicit human decision.</p>
+<p><strong>Blocking / open gates:</strong></p>
+<table>
+<thead><tr>
+<th>Source</th>
+<th>Finding</th>
+</tr></thead>
+<tbody>
+<tr><td>Stage</td><td><strong>Release</strong> (not Launch) — S92/S93 acks do not auto-advance stage</td></tr>
+<tr><td>Forward roadmap</td><td>S89–S93 closed on working branch / closeouts; next epic bucket TBD</td></tr>
+<tr><td>Unity QA</td><td>Headless <strong>20/20 PASS</strong>; live Editor PNG pack <strong>deferred</strong> (no Editor host; protocol published)</td></tr>
+<tr><td>Architecture</td><td><strong>CONCERNS</strong> overall — refresh recommended post–editor + PE + assets</td></tr>
+<tr><td>GitNexus watchlist</td><td><code>ScenarioDocumentEditor</code> <strong>233 CRIT</strong>; <code>CatalogWriteGate</code> <strong>186 CRIT</strong>; <code>DelegationBridge</code> <strong>145 CRIT</strong>; <code>PatrolCandidateEngagePolicy</code> <strong>113 CRIT</strong>; <code>BalticReplayHarness</code> <strong>54 CRIT</strong></td></tr>
+<tr><td>Assets</td><td>Manifest <strong>8 Done / 3 In Production / 27 Specced / 4 Needed</strong> — Addressables import still open</td></tr>
+<tr><td>E7 commercial</td><td>Prep <strong>COMPLETE</strong> (S69–S72) — store submission / revenue launch <strong>not in scope</strong></td></tr>
+</tbody>
+</table>
+<hr>
+<h2>Since Last Update (vs 2026-07-09 AM dashboard)</h2>
+<p>Comparison anchor: <a href="2026-07-09-am.md">2026-07-09-am.md</a>. Mid-day resolutions also in <a href="2026-07-09-am-addendum.md">2026-07-09-am-addendum.md</a>.</p>
+<table>
+<thead><tr>
+<th>Signal</th>
+<th>2026-07-09 AM</th>
+<th>2026-07-10 PM (this run)</th>
+<th>Delta</th>
+</tr></thead>
+<tbody>
+<tr><td>Indexed commit</td><td><code>80001c2</code> (HEAD <code>223a5fe</code>, 9 behind)</td><td><strong><code>45035c6</code></strong> (fresh)</td><td>Re-index + S89–S93 docs/assets</td></tr>
+<tr><td>GitNexus nodes</td><td>24,262</td><td><strong>24,729</strong></td><td><strong>+467</strong></td></tr>
+<tr><td>GitNexus edges</td><td>46,367</td><td><strong>47,512</strong></td><td><strong>+1,145</strong></td></tr>
+<tr><td>Clusters</td><td>432</td><td><strong>427</strong></td><td>−5 (recluster)</td></tr>
+<tr><td>Execution flows</td><td>300</td><td><strong>300</strong></td><td>Stable</td></tr>
+<tr><td>Files indexed</td><td>2,882</td><td><strong>2,925</strong></td><td>+43</td></tr>
+<tr><td>Stage</td><td>Release (post–PE)</td><td><strong>Release</strong> (post–S93)</td><td>No Launch advance</td></tr>
+<tr><td>Sprint plans</td><td>131</td><td><strong>136</strong></td><td>+5 (S89–S93)</td></tr>
+<tr><td>Epics / stories</td><td>70 / 264</td><td><strong>70 / 263</strong></td><td>Stories recount</td></tr>
+<tr><td><code>sprint-status.yaml</code> done</td><td>287</td><td><strong>307</strong></td><td>+20</td></tr>
+<tr><td>C# source files (excl. tests)</td><td>609</td><td><strong>624</strong></td><td>+15</td></tr>
+<tr><td>C# test files</td><td>403</td><td><strong>421</strong></td><td>+18</td></tr>
+<tr><td><code>dotnet test</code> (solution)</td><td>1,599 / 0f</td><td><strong>1,599 / 0f</strong></td><td>Stable floor</td></tr>
+<tr><td>ReplayGolden / C2</td><td>6/6 · 20/20</td><td><strong>6/6 · 20/20</strong></td><td>Held</td></tr>
+<tr><td>Hash paths (canonical)</td><td>18</td><td><strong>18</strong></td><td>Held</td></tr>
+<tr><td>Asset manifest</td><td>42 Needed / 0 Done</td><td><strong>4 Needed / 27 Specced / 3 In Prod / 8 Done</strong></td><td>S91 specs + S93 binaries</td></tr>
+<tr><td>Forward program</td><td>Editors complete; hygiene TBD</td><td><strong>S89–S92 COMPLETE; S93 COMPLETE</strong></td><td>Hygiene + first asset wave</td></tr>
+<tr><td>CatalogWriteGate impact</td><td>183 CRIT</td><td><strong>186 CRIT</strong></td><td>+3</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>GitNexus Code Intelligence</h2>
+<p><strong>Index status:</strong> <strong>Fresh</strong> (analyzed 2026-07-10 @ <code>45035c6</code>; branch <code>stack/post-editor/s93-asset-production</code>)</p>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>Value</th>
+</tr></thead>
+<tbody>
+<tr><td>Indexed commit</td><td><strong><code>45035c6</code></strong></td></tr>
+<tr><td>Nodes (symbols)</td><td><strong>24,729</strong></td></tr>
+<tr><td>Edges (relationships)</td><td><strong>47,512</strong></td></tr>
+<tr><td>Files</td><td>2,925</td></tr>
+<tr><td>Communities / clusters</td><td>427</td></tr>
+<tr><td>Execution flows</td><td>300</td></tr>
+<tr><td>detect-changes</td><td>Use repo-scoped MCP (<code>repo: cmano-clone</code>) before commits</td></tr>
+</tbody>
+</table>
+<h3>Watchlist Symbol Risk (upstream impact)</h3>
+<table>
+<thead><tr>
+<th>Symbol</th>
+<th>Risk</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr><td><code>ScenarioDocumentEditor</code></td><td><strong>CRITICAL (233)</strong></td><td>Scenario authoring hub — CLI/MCP + Unity editor consumers</td></tr>
+<tr><td><code>CatalogWriteGate</code></td><td><strong>CRITICAL (186)</strong></td><td>Corpus + manifest + TL export — extend-only</td></tr>
+<tr><td><code>DelegationBridge</code></td><td><strong>CRITICAL (145)</strong></td><td><strong>ZERO touch</strong> — adapter-only consumers</td></tr>
+<tr><td><code>PatrolCandidateEngagePolicy</code></td><td><strong>CRITICAL (113)</strong></td><td>AAR/policy seam</td></tr>
+<tr><td><code>BalticReplayHarness</code></td><td><strong>CRITICAL (54)</strong></td><td>Replay goldens + hash invariant</td></tr>
+<tr><td><code>DecisionLog</code></td><td><strong>HIGH</strong></td><td>Order-log evolution</td></tr>
+<tr><td><code>DelegationOrchestrator</code></td><td><strong>HIGH</strong></td><td>Engage / tick integration</td></tr>
+<tr><td><code>SimTickPipeline</code></td><td>LOW</td><td>Tick ordering stable per ADR-004</td></tr>
+</tbody>
+</table>
+<p><strong>Implication:</strong> Prefer authoring/CLI seams and <code>ICatalogReader</code> / <code>IWriteGate</code>; never rewrite <code>CatalogWriteGate</code> write paths or touch <code>DelegationBridge</code> hotpath; run <code>gitnexus impact</code> before catalog/orchestrator/editor edits.</p>
+<hr>
+<h2>Sprint Status</h2>
+<p><strong>Status:</strong> Sprints <strong>1–93</strong> delivered across MVP, Release enablement, Baltic v2/v3, release train, commercial launch prep, scenario/mission/platform editors, post-editor hygiene, and first asset production wave. Stage <strong>Release</strong> in <code>production/stage.txt</code>.</p>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>Value</th>
+</tr></thead>
+<tbody>
+<tr><td>Sprint plan files</td><td><strong>136</strong></td></tr>
+<tr><td>Epics</td><td><strong>70</strong></td></tr>
+<tr><td>Story files</td><td><strong>263</strong></td></tr>
+<tr><td><code>sprint-status.yaml</code> done entries</td><td><strong>307</strong></td></tr>
+<tr><td>Current solution tests</td><td><strong>1,599</strong> (Sim 311 + Delegation 260 + Data 616 + UnityAdapter 286 + Cli 102 + Excel 24)</td></tr>
+<tr><td>ReplayGolden suite</td><td><strong>6/6</strong> PASS</td></tr>
+<tr><td>Unity C2 sign-off</td><td><strong>20/20 PASS</strong> (headless PlayMode smoke)</td></tr>
+<tr><td>UA engage filter</td><td><strong>3/3</strong> PASS</td></tr>
+<tr><td>Baltic v2 policies</td><td><strong>11</strong> <code>baltic-v2-*</code></td></tr>
+<tr><td>Baltic v3 policies / goldens</td><td><strong>6</strong> / <strong>6</strong> isolated</td></tr>
+<tr><td>Regression golden files (disk)</td><td><strong>35</strong> under <code>tests/regression/</code></td></tr>
+</tbody>
+</table>
+<h3>Program summary (recent)</h3>
+<table>
+<thead><tr>
+<th>Program</th>
+<th>Sprints / Waves</th>
+<th>Theme</th>
+<th>Status</th>
+</tr></thead>
+<tbody>
+<tr><td>Baltic v3 content</td><td>S73–S80</td><td>Dual-side triggers, playtest, C2 UX v3</td><td><strong>Complete</strong> (ack 2026-06-26)</td></tr>
+<tr><td>Scenario Editor</td><td>S81–S88</td><td>Headless authoring, validation, AC-8</td><td><strong>Complete</strong></td></tr>
+<tr><td>Mission Editor Phase 2</td><td>ME-W0–W3</td><td>Mission Board, event graph (headless)</td><td><strong>Complete</strong> (ack 2026-07-09)</td></tr>
+<tr><td>Platform Editor</td><td>PE-W0–W4 + adversarial</td><td>Residual ACs + TDD pins</td><td><strong>Complete</strong> (ack 2026-07-09)</td></tr>
+<tr><td>Post-editor hygiene</td><td>S89–S92</td><td>Invariant floors, agent/skill P0, asset specs, gate</td><td><strong>Complete</strong> (ack 2026-07-09)</td></tr>
+<tr><td>Asset production</td><td>S93</td><td>First binary wave (C2 / Baltic / store)</td><td><strong>Complete</strong> (2026-07-09)</td></tr>
+</tbody>
+</table>
+<h3>Active backlog (post–S93)</h3>
+<table>
+<thead><tr>
+<th>ID</th>
+<th>Item</th>
+<th>Status</th>
+</tr></thead>
+<tbody>
+<tr><td>FWD-01</td><td>Post–S93 forward program</td><td>TBD — dated roadmap / <code>/sprint-plan</code> when scoped</td></tr>
+<tr><td>STG-01</td><td>Optional stage → <strong>Launch</strong></td><td>Deferred — awaits explicit human decision</td></tr>
+<tr><td>ASSET-02</td><td>Continue Specced → Done (remaining children)</td><td>Open — 27 Specced remain</td></tr>
+<tr><td>PNG-01</td><td>Phase N / live Editor screenshot pack</td><td><strong>Deferred</strong> — <code>README-s93-editor-png-pack.md</code></td></tr>
+<tr><td>ARCH-01</td><td><code>/architecture-review</code> post–editor + PE + assets</td><td>Recommended</td></tr>
+<tr><td>ADDR-01</td><td>Addressables bulk import of <code>production/assets/</code></td><td>Out of S93 scope — future</td></tr>
+</tbody>
+</table>
+<h3>Requirements implementation</h3>
+<table>
+<thead><tr>
+<th>Req bucket</th>
+<th>Count</th>
+</tr></thead>
+<tbody>
+<tr><td>MVP <strong>program exit</strong></td><td><strong>21/21</strong> (S56; held)</td></tr>
+<tr><td>Requirements <strong>docs</strong> complete</td><td>01–20</td></tr>
+<tr><td>Req 11 Scenario / Mission Editor</td><td>Headless + AC-8 <strong>COMPLETE</strong>; Phase 2 GUI residual deferred</td></tr>
+<tr><td>Req 21 Platform Editor</td><td><strong>COMPLETE</strong> (PE-W0–W4)</td></tr>
+<tr><td>Rows still <strong>Partial+</strong> at feature depth</td><td>Most other rows — multi-year full-game scope beyond Baltic ACs</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>Milestone Tracking</h2>
+<table>
+<thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead>
+<tbody>
+<tr><td>Formal milestone (v1.0)</td><td><a href="../../../production/milestones/vertical-slice-mvp.md">vertical-slice-mvp.md</a> — <strong>CLOSED</strong></td></tr>
+<tr><td>RC1 / Release</td><td><a href="../../../production/gate-checks/s48-release-gate-2026-06-20.md">s48-release-gate-2026-06-20.md</a></td></tr>
+<tr><td>Baltic v2</td><td><a href="../../../production/qa/s57-s64-program-closeout-2026-06-22.md">s57-s64-program-closeout-2026-06-22.md</a></td></tr>
+<tr><td>Release train</td><td><a href="../../../production/gate-checks/s68-release-train-gate-2026-06-25.md">s68-release-train-gate-2026-06-25.md</a></td></tr>
+<tr><td>Commercial launch prep</td><td><a href="../../../production/gate-checks/s72-commercial-launch-prep-gate-2026-06-25.md">s72-commercial-launch-prep-gate-2026-06-25.md</a></td></tr>
+<tr><td>Baltic v3</td><td><a href="../../../production/qa/smoke-sprint-73-80-closeout-2026-06-26.md">smoke-sprint-73-80-closeout-2026-06-26.md</a></td></tr>
+<tr><td>Scenario Editor</td><td><a href="../../../production/gate-checks/s88-scenario-editor-gate-2026-07-04.md">s88-scenario-editor-gate-2026-07-04.md</a></td></tr>
+<tr><td>Mission Editor Phase 2</td><td><a href="../../../production/qa/mission-editor-phase2-gate-2026-07-09.md">mission-editor-phase2-gate-2026-07-09.md</a></td></tr>
+<tr><td>Platform Editor</td><td><a href="../../../production/qa/platform-editor-completion-gate-2026-07-09.md">platform-editor-completion-gate-2026-07-09.md</a></td></tr>
+<tr><td>Post-editor hygiene</td><td><a href="../../../production/gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md">s92-post-editor-hygiene-gate-2026-07-09.md</a></td></tr>
+<tr><td>Asset production</td><td><a href="../../../production/qa/smoke-sprint-93-closeout-2026-07-09.md">smoke-sprint-93-closeout-2026-07-09.md</a></td></tr>
+<tr><td>Stage</td><td><strong>Release</strong> (<code>production/stage.txt</code>)</td></tr>
+<tr><td>Gate verdict (vertical slice)</td><td><strong>PROCEED</strong> (historical)</td></tr>
+<tr><td>Outstanding for commercial ship</td><td>Store submission, production i18n, live Editor evidence, Addressables import, explicit Launch stage decision</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>Completeness Overview</h2>
+<h3>Design Documentation</h3>
+<ul>
+<li><strong>Status:</strong> ~<strong>60%</strong> systems with linked GDDs (12 / 20 in <a href="../../../design/gdd/systems-index.md">systems-index.md</a>; index last refreshed Sprint 19)</li>
+<li><strong>GDD files:</strong> 18 under <code>design/gdd/</code></li>
+<li><strong>Art bible:</strong> <strong><code>design/art/art-bible.md</code></strong></li>
+<li><strong>Asset manifest:</strong> <strong><code>design/assets/asset-manifest.md</code></strong> (8 Done / 3 In Production / 27 Specced / 4 Needed)</li>
+<li><strong>Narrative / levels:</strong> Still absent</li>
+<li><strong>Game Requirements:</strong> 37 files + master index + <strong>implementation tracker</strong> (2026-07-04)</li>
+</ul>
+<h3>Architecture Documentation</h3>
+<ul>
+<li><strong>ADRs:</strong> <strong>17</strong> numbered ADR files (001–011, 013–017) + Spirit1 frozen-hub = <strong>18</strong> architecture decision docs</li>
+<li><strong>Architecture review (2026-06-02):</strong> <strong>CONCERNS</strong> — refresh recommended post–S73–S93</li>
+<li><strong>Blockers C1–C4:</strong> <strong>Closed</strong></li>
+<li><strong>Master architecture:</strong> <code>docs/architecture/architecture.md</code> — still <strong>Draft</strong></li>
+</ul>
+<h3>Production Management</h3>
+<ul>
+<li><strong>Status:</strong> ~<strong>98%</strong> for Release engineering track (136 sprints, 70 epics, 263 stories, gates through S93)</li>
+<li><strong>Release artifacts:</strong> <code>production/release/</code> — store drafts, i18n spec, launch pack, checklist v3</li>
+<li><strong>Determinism / replay:</strong> Audits + golden replay <strong>6/6</strong> PASS; hash <strong><code>17144800277401907079</code></strong> pinned</li>
+<li><strong>QA:</strong> S80–S93 + SE + ME Phase 2 + PE gates <strong>APPROVED</strong> / closed</li>
+</ul>
+<h3>Source Code & Tests</h3>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>2026-07-09 AM</th>
+<th>2026-07-10 PM</th>
+</tr></thead>
+<tbody>
+<tr><td>C# source files (excl. tests)</td><td>609</td><td><strong>624</strong></td></tr>
+<tr><td>C# test files</td><td>403</td><td><strong>421</strong></td></tr>
+<tr><td>Test projects</td><td>6</td><td><strong>6</strong></td></tr>
+<tr><td>Solution tests passing</td><td>1,599</td><td><strong>1,599</strong></td></tr>
+</tbody>
+</table>
+<p><strong>Assemblies:</strong> <code>ProjectAegis.Data</code>, <code>ProjectAegis.Data.Excel</code>, <code>Sim</code>, <code>Delegation</code>, <code>Delegation.UnityAdapter</code>, <code>MissionEditor.Cli</code>, <code>Delegation.Demo</code>.</p>
+<h3>MVP Systems Progress (Inferred)</h3>
+<div class="mermaid">
+flowchart LR
+  subgraph done [Release-Grade Headless]
+    S1[Sim Core + DOTS spawn]
+    S2[Order Log Replay 6/6]
+    S5[Sensors Pd Classify]
+    S6[Engage + Hypersonic gate]
+    S11[Mission Editor MCP + Phase 2]
+    S20[C2 UI 20/20 + Cesium]
+    S4[Platform DB + PE complete]
+    S18p[Combat Domains hot paths]
+    S21p[Platform Editor PE-W0-W4]
+  end
+  subgraph closed [Programs Closed]
+    BV3[S73-S80 Baltic v3]
+    SE[S81-S88 Scenario Editor]
+    MEP2[Mission Editor Phase 2]
+    PE[Platform Editor completion]
+    Hyg[S89-S92 Post-editor hygiene]
+    S93[S93 Asset production wave]
+  end
+  subgraph todo [Post-S93]
+    Assets[Continue Specced assets]
+    Launch[Optional Launch stage]
+    Fwd[Forward program TBD]
+    Arch[Architecture review]
+  end
+</div>
+<hr>
+<h2>Asset Manifest</h2>
+<p><strong>Source:</strong> <code>design/assets/asset-manifest.md</code> — <strong>exists</strong> (S91 specs + S93 binaries)</p>
+<table>
+<thead><tr>
+<th>Category</th>
+<th>Count</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr><td>Total catalogued</td><td>42</td><td>Master inventory</td></tr>
+<tr><td><strong>Done</strong></td><td><strong>8</strong></td><td>004, 005, 014, 018, 019, 023, 024, 025</td></tr>
+<tr><td><strong>In Production</strong></td><td><strong>3</strong></td><td>Umbrellas 001–003</td></tr>
+<tr><td><strong>Specced</strong></td><td><strong>27</strong></td><td>Remaining priority children</td></tr>
+<tr><td><strong>Needed</strong> (deferred)</td><td><strong>4</strong></td><td>036, 037, 040, 041</td></tr>
+<tr><td>Art Bible</td><td>1</td><td><code>design/art/art-bible.md</code></td></tr>
+<tr><td>Binary roots</td><td>3</td><td><code>production/assets/c2/</code>, <code>store/</code>, <code>baltic/</code></td></tr>
+</tbody>
+</table>
+<p><strong>Overall asset progress:</strong> <strong>~35%</strong> (manifest + specs + first binary wave; Addressables import open)</p>
+<hr>
+<h2>Gaps Identified</h2>
+<h3>Critical (velocity / integration)</h3>
+<ol>
+<li><strong>Forward program undefined post–S93</strong> — next dated roadmap / sprint train not yet scoped</li>
+<li><strong>Remaining Specced assets</strong> — 27 children still need production; Addressables import not started</li>
+<li><strong>GitNexus CRITICAL symbols</strong> — impact analysis mandatory; <code>ScenarioDocumentEditor</code> largest hub (233)</li>
+</ol>
+<h3>Important (velocity / quality)</h3>
+<ol>
+<li><strong>Launch stage decision</strong> — deferred; stage remains Release</li>
+<li><strong>Live Unity Editor evidence</strong> — PNG pack deferred; headless 20/20 remains merge authority</li>
+<li><strong>TR architecture gaps</strong> — refresh <code>/architecture-review</code> after editor + PE + assets</li>
+<li><strong>Store / i18n production</strong> — S69–S72 specs/drafts only (unchanged)</li>
+</ol>
+<h3>Resolved since 2026-07-09 AM</h3>
+<ol>
+<li><s>GitNexus re-index</s> → <strong>FRESH</strong> @ <code>45035c6</code> (24,729 / 47,512)</li>
+<li><s>Forward program undefined (hygiene)</s> → <strong>S89–S92 COMPLETE</strong></li>
+<li><s>No produced assets</s> → <strong>S93 COMPLETE</strong> (8 Done / 3 In Production)</li>
+<li><s>Launch decision unrecorded</s> → <strong>Stay Release</strong> checkpoint in <code>stage.txt</code></li>
+<li><s>Phase N Editor PNG open</s> → <strong>DEFERRED</strong> with protocol README</li>
+<li><s>Agent/skill P0 drift</s> → <strong>S90 COMPLETE</strong></li>
+<li><s>Invariant floor docs stale</s> → <strong>S89 COMPLETE</strong> (≥1599 / ≥20/20)</li>
+</ol>
+<h3>Nice-to-have</h3>
+<ol>
+<li>Author next dated <code>future-sprint-roadpmap-YYYYMMDD.md</code> for post–S93</li>
+<li>Import <code>production/assets/</code> into Unity Addressables (scoped sprint)</li>
+<li>Refresh GDD systems-index (stale since Sprint 19)</li>
+</ol>
+<hr>
+<h2>Recommended Next Steps</h2>
+<h3>Immediate Priority</h3>
+<ol>
+<li><strong>Scope next forward program</strong> — <code>/sprint-plan</code> or dated roadmap for post–S93</li>
+<li><strong>Keep standing invariants</strong> — hash, Replay 6/6, C2 ≥20/20, ZERO <code>DelegationBridge</code>, Catalog extend-only</li>
+<li><strong><code>gt submit</code></strong> S93 stack when ready (<code>stack/post-editor/s93-asset-production</code>)</li>
+</ol>
+<h3>Short-Term</h3>
+<ol>
+<li><strong>Continue asset production</strong> — Specced → Done for next C2 / Baltic / store children</li>
+<li><strong>Human Launch stage decision</strong> — only if desired; update <code>production/stage.txt</code> with explicit ack</li>
+<li><strong>Editor PNG pack</strong> — when a Unity Editor host is available (protocol ready)</li>
+</ol>
+<h3>Medium-Term</h3>
+<ol>
+<li><strong><code>/architecture-review</code></strong> — post–editor + PE + asset surface</li>
+<li><strong>Addressables import</strong> — wire <code>production/assets/</code> into Unity content pipeline</li>
+<li><strong>Commercial launch execution</strong> — only after explicit scope beyond S72 prep</li>
+</ol>
+<hr>
+<h2>Follow-Up Skills to Run</h2>
+<table>
+<thead><tr>
+<th>Gap / Trigger</th>
+<th>Skill or Command</th>
+</tr></thead>
+<tbody>
+<tr><td>Dashboard refresh</td><td><code>/project-dashboard</code></td></tr>
+<tr><td>Pre-merge safety</td><td><code>node .gitnexus/run.cjs analyze</code> + <code>gitnexus impact</code> (repo: cmano-clone)</td></tr>
+<tr><td>Determinism</td><td><code>/replay-verify</code>, <code>/determinism-audit</code></td></tr>
+<tr><td>Stage / gate</td><td><code>/gate-check</code>, <code>/milestone-review</code></td></tr>
+<tr><td>Launch decision</td><td>Human ack + update <code>production/stage.txt</code></td></tr>
+<tr><td>Asset production</td><td><code>/asset-spec</code> + produce from manifest</td></tr>
+<tr><td>Forward program</td><td><code>/sprint-plan</code> + dated roadmap snapshot</td></tr>
+<tr><td>Architecture</td><td><code>/architecture-review</code></td></tr>
+<tr><td>Live C2 polish</td><td><code>team-qa</code> + Unity Editor host</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>Appendix: File Counts by Directory</h2>
+<pre><code>design/
+  gdd/              18 files
+  art/               1 file (art-bible.md)
+  narrative/         0 files
+  levels/            0 files
+  assets/            manifest + specs (8 Done / 3 In Prod / 27 Specced / 4 Needed)
+
+docs/
+  architecture/     17 ADR + Spirit1 + architecture + traceability
+  reports/           dashboard + snapshots/ + roadmaps (07092026 active alias)
+
+production/
+  sprints/          136 files
+  milestones/        4 files
+  epics/            70 EPIC.md + 263 stories
+  assets/           c2/ + store/ + baltic/ (S93 binaries)
+  release/          store, i18n, launch, checklist-v3 (S69-S72)
+  gate-checks/      s48…s92, se-completion, …
+  determinism/       replay + audits
+  qa/                smoke + sign-offs (through S93)
+  agentic/           sprint stacks + post-editor status truth
+
+Game-Requirements/   37 requirements + tracker (21/21 exit; req 11/21 completion)
+
+src/
+  source (.cs)       624 files (excl. Tests)
+  test (.cs)         421 files
+
+tests/regression/    35 replay golden files
+data/scenarios/      11 baltic-v2-* + 6 baltic-v3-* policies
+prototypes/          0</code></pre>
+<hr>
+<p>*Generated by producer agent — aggregated from production, design, architecture, GitNexus (fresh @ 45035c6), Game Requirements tracker, sprint-status.yaml, future-sprint-roadpmap-07092026.md, S89–S93 closeouts, and S93 gate evidence (2026-07-10)*</p>
+<footer>
+  <p>Generated from archived Markdown snapshot · style aligned with 2026-07-09-am.html</p>
+  <p>Source: <a href="2026-07-10-pm.md">2026-07-10-pm.md</a> · Prior HTML: <a href="2026-07-09-am.html">2026-07-09-am.html</a> · Living: <a href="../project-dashboard.md">project-dashboard.md</a></p>
+</footer>
+</main>
+</body>
+</html>

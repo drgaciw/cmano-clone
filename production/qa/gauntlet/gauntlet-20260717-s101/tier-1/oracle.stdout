@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t1-patrol-a",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t1-patrol-b",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t1-patrol-c",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t1-patrol-d",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    }
+  ],
+  "allPassed": true
+}
