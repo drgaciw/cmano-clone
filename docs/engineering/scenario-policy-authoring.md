@@ -80,12 +80,12 @@ these map 1:1 onto `ScenarioPolicyProfile` via the loader's `To*` parsers.
 | `mission` | object | — | `fireOrder`, `events`, `triggers` (see Mission triggers). |
 | `missionPolicy` | object | — | Mission-tier ROE override (`roe`, `unitIds`, `maxSalvo`); req 13 inheritance. |
 | `delegation` | object | defaults | `usePatrolCandidates`. |
-| `comms` | array | — | Timed comms-state transitions (`atTick`, `newState`, `nodeId`, `reason`). |
+| `comms` | array | — | Timed comms-state transitions (`atTick`, `newState`, `nodeId`, `reason`). Runtime effects: [comms-degradation-runtime.md](comms-degradation-runtime.md). |
 | `logistics` | object | defaults | Fuel/joker/bingo model. |
 | `commsDisplay` | object | defaults | Degraded-comms presentation (lag, ghost offset). |
 | `speculative` | object | campaign default | `blackProjectMode`, `maxTechnologyLevel`. |
 | `unitReadiness` | map `unitId → {readyForLaunch}` | — | Per-unit launch readiness. |
-| `spoofTracks` | array | — | Timed spoof events (`atTick`, `contactId`, `reason`). |
+| `spoofTracks` | array | — | Timed spoof events (`atTick`, `contactId`, `reason`). Runtime: [comms-degradation-runtime.md](comms-degradation-runtime.md). |
 | `telemetry` | object | disabled | Balance-drift detection + per-entity balance trials. |
 | `datalink` | object | defaults | `organicOnly` (default `true`), `unitSides`, `shareLagTicks` (≥0). |
 | `mineHazard` | object | — | Mine zone + transit schedule (see validation below). |
