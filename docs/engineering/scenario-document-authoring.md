@@ -93,7 +93,10 @@ is validation-gated.
   (`Error`) finding remains. See the finding catalog below.
 
 For the CLI-side read-modify-write loop and exit-code contract, see
-[mission-editor-cli.md](mission-editor-cli.md#optimistic-concurrency----edit-version).
+[mission-editor-cli.md](mission-editor-cli.md#optimistic-concurrency----edit-version). For the
+**in-process** object model that wraps this same pipeline for interactive hosts
+(`ScenarioAuthoringSession` / `ScenarioEditCommandBus` + the presenter view models), see
+[scenario-authoring-host.md](scenario-authoring-host.md).
 
 ---
 
