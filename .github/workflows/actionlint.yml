@@ -7,8 +7,8 @@ name: Actionlint
 # Note: 'if: false' is used intentionally across several workflows to disable
 # them while GitHub Actions billing is blocked (see gitnexus-security.yml).
 # actionlint flags that as a "constant expression" error, so it is ignored
-# here to avoid failing on the deliberate disables. Other checks (invalid
-# YAML, bad expressions, shellcheck) remain active.
+# here via -ignore. The regex avoids literal spaces (which the action splits
+# on) by using '.' to match the space. Other checks remain active.
 
 on:
   workflow_dispatch:
@@ -29,4 +29,4 @@ jobs:
       - name: Run actionlint
         uses: raven-actions/actionlint@v2
         with:
-          flags: '-ignore "constant expression"'
+          flags: -ignore constant.expression
