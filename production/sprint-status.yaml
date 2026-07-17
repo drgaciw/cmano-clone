@@ -5406,10 +5406,10 @@ qa: production/qa/qa-plan-sprint-102-2026-07-17.md
 kickoff: production/agentic/sprint-102-parallel-kickoff-2026-07-17.md
 stage: Release
 launch: "not authorized"
-s102_status: "S102 OPEN — package 004/005 ready; residual retest+suite+T1-T3 PASS; PR #315 ready (await merge/CI); stage Release"
+s102_status: "S102 OPEN — ASSET-004 Approved (count=3); residual PASS; PR #315 restacked await CI then merge; stage Release"
 s102_open:
   date: "2026-07-17"
-  path_a: "package ready — awaiting human asset approved for 004/005"
+  path_a: "ASSET-004 Approved; ASSET-005 still Done (await full phrase)"
   residual: "dual retest + suite + T1-T3 ladder in flight"
   pr_315: "ready for review; CI pending after restack"
 
@@ -5428,11 +5428,12 @@ stories:
     name: "Apply human approval if provided"
     file: "production/sprints/sprint-102-next-approved-and-residual.md"
     priority: must-have
-    status: backlog
+    status: done
     owner: "producer"
     estimate_days: 0.5
-    blocker: "needs human asset approved phrase"
-    completed: ""
+    blocker: ""
+    completed: "2026-07-17"
+    evidence: "production/qa/s102-02-human-asset-approval-004-2026-07-17.md"
   - id: "S102-03"
     name: "Residual retest + suite floor"
     file: "production/sprints/sprint-102-next-approved-and-residual.md"

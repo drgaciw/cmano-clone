@@ -14,7 +14,7 @@
 
 | ID | Name | Path | Manifest | A7 |
 |----|------|------|----------|-----|
-| ASSET-004 | APP-6 Frame Atlas | `production/assets/c2/App6FrameAtlas.png` | Done | Need `asset approved: ASSET-004` |
+| ASSET-004 | APP-6 Frame Atlas | `production/assets/c2/App6FrameAtlas.png` | **Approved** | Applied 2026-07-17 |
 | ASSET-005 | C2 Top Bar Panel | `production/assets/c2/C2TopBarPanel.uss` | Done | Need `asset approved: ASSET-005` |
 
 **Secondary queue (if capacity):** ASSET-014 (AegisTokens.uss), ASSET-018 (Baltic framing PNG), ASSET-019 (Band B contact overlay MD).
@@ -33,7 +33,7 @@ asset approved: ASSET-005
 3. `/smoke-check` + commit + `gt submit`  
 4. Stage remains **Release**
 
-**Approved count today:** **2** (unchanged until human phrase).
+**Approved count today:** **3** (004 applied; 005 still waiting).
 
 ---
 *S102-01 package — 2026-07-17. No auto-flip.*
