@@ -107,7 +107,10 @@ Otherwise the [`AutonomyLevel`](Core/AutonomyLevel.cs) decides:
 
 `SimulationModeConfigurator.Apply` assigns Human / Mixed / Agent-vs-Agent controllers per
 `SimulationModeProfile` (doc 03), and `AttachReplayViewer` blocks all human ingress for AvA
-observer runs.
+observer runs. See the
+[autonomy & ROE gating guide](../../docs/engineering/autonomy-roe-gating.md) for the full
+`GateResult` semantics, the two-layer ROE/WRA split, per-unit policy snapshots, and the
+player-approval-can't-override-ROE invariant.
 
 ## Possession & groups
 
