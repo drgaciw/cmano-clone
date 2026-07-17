@@ -130,7 +130,9 @@ Per tick, in order:
 The effective threshold is `max(1, staleThresholdTicks / commsStaleThresholdDivisor)`. The harness
 sets the divisor each tick from the current comms state via
 `CommsTrackStaleness.StaleThresholdDivisor(commsState, profile.CommsDisplay)` — degraded/denied
-comms shrink the threshold, so contacts go stale faster when the datalink is contested.
+comms shrink the threshold, so contacts go stale faster when the datalink is contested. Where the
+comms state itself comes from is documented in
+[comms-degradation-runtime.md](comms-degradation-runtime.md).
 
 ### BDA and kill removal (combat feedback)
 
