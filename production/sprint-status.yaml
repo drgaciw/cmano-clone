@@ -5058,3 +5058,168 @@ stories:
     priority: must-have
     status: done
     completed: "2026-07-15"
+
+# Sprint 98 — Release Residual Backlog (2026-07-16)
+sprint: 98
+goal: "Release residual backlog — Approved-path pilot package + gauntlet residual triage. Stage Release; not Launch."
+start: "2026-07-16"
+end: "2026-07-19"
+generated: "2026-07-16"
+updated: "2026-07-16"
+status: complete
+completed: "2026-07-16"
+plan: production/sprints/sprint-98-release-residual-backlog.md
+qa: production/qa/qa-plan-sprint-98-release-residual-2026-07-16.md
+kickoff: production/agentic/sprint-98-parallel-kickoff-2026-07-16.md
+closeout: production/qa/smoke-sprint-98-closeout-2026-07-16.md
+pilot: production/qa/s98-01-approved-path-pilot-2026-07-16.md
+residual_disposition: production/qa/s98-02-gauntlet-residual-disposition-2026-07-16.md
+stage: Release
+launch: "not authorized — residual Release work only"
+s98_status: "S98 COMPLETE — pilot + residual triage + closeout; Approved still 0; residuals watched; stage Release"
+s98_complete:
+  date: "2026-07-16"
+  tracks: ["S98-01", "S98-02", "S98-03"]
+  suite: "cited ≥1638/0f last-gate family (docs-only)"
+  retest: "GAUNTLET-SYN-T12-001 dual PASS; GAUNTLET-MD-001 corroboration PASS"
+  approved_count: 0
+  residuals: "5 watched — no fake-close"
+
+stories:
+  - id: "S98-01"
+    name: "Approved-path pilot package"
+    file: "production/sprints/sprint-98-release-residual-backlog.md"
+    priority: must-have
+    status: done
+    owner: "producer"
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-07-16"
+  - id: "S98-02"
+    name: "Gauntlet residual triage + retest"
+    file: "production/sprints/sprint-98-release-residual-backlog.md"
+    priority: must-have
+    status: done
+    owner: "qa-lead"
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-07-16"
+  - id: "S98-03"
+    name: "Closeout smoke + floors cite"
+    file: "production/sprints/sprint-98-release-residual-backlog.md"
+    priority: must-have
+    status: done
+    owner: "producer"
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-07-16"
+  - id: "S98-04"
+    name: "Expect discipline smoke (optional)"
+    file: "production/sprints/sprint-98-release-residual-backlog.md"
+    priority: should-have
+    status: done
+    owner: "qa-lead"
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-07-16"
+  - id: "S98-05"
+    name: "Umbrella status honesty note"
+    file: "production/sprints/sprint-98-release-residual-backlog.md"
+    priority: should-have
+    status: done
+    owner: "producer"
+    estimate_days: 0.25
+    blocker: ""
+    completed: "2026-07-16"
+  - id: "S98-06"
+    name: "GitNexus freshness note"
+    file: "production/sprints/sprint-98-release-residual-backlog.md"
+    priority: nice-to-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.25
+    blocker: "optional — no CRITICAL C# this sprint"
+    completed: ""
+
+# Sprint 99 — Approved Review Queue + Residual Hygiene (2026-07-16)
+sprint: 99
+goal: "Approved human-review queue for pilot ASSET-006/021 + gauntlet residual hygiene. Stage Release; not Launch."
+start: "2026-07-17"
+end: "2026-07-20"
+generated: "2026-07-16"
+updated: "2026-07-16"
+status: complete
+completed: "2026-07-16"
+plan: production/sprints/sprint-99-approved-review-queue-hygiene.md
+qa: production/qa/qa-plan-sprint-99-approved-queue-hygiene-2026-07-16.md
+kickoff: production/agentic/sprint-99-parallel-kickoff-2026-07-16.md
+closeout: production/qa/smoke-sprint-99-closeout-2026-07-16.md
+queue_package: production/qa/s99-01-approved-review-queue-2026-07-16.md
+residual_hygiene: production/qa/s99-02-gauntlet-residual-hygiene-2026-07-16.md
+stage: Release
+launch: "not authorized — residual Release work only"
+s99_status: "S99 COMPLETE — review queue + residual hygiene + closeout; Approved still 0; residuals watched; stage Release"
+s99_complete:
+  date: "2026-07-16"
+  tracks: ["S99-01", "S99-02", "S99-03"]
+  suite: "cited ≥1638/0f last-gate family (docs-only)"
+  retest: "GAUNTLET-SYN-T12-001 dual PASS; GAUNTLET-MD-001 corroboration PASS"
+  approved_count: 0
+  residuals: "5 watched — no fake-close"
+  human_approved_phrase: "template only — not claimed"
+
+stories:
+  - id: "S99-01"
+    name: "Approved human-review queue package"
+    file: "production/sprints/sprint-99-approved-review-queue-hygiene.md"
+    priority: must-have
+    status: done
+    owner: "producer"
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-07-16"
+  - id: "S99-02"
+    name: "Gauntlet residual hygiene + retest"
+    file: "production/sprints/sprint-99-approved-review-queue-hygiene.md"
+    priority: must-have
+    status: done
+    owner: "qa-lead"
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-07-16"
+  - id: "S99-03"
+    name: "Closeout smoke + floors cite"
+    file: "production/sprints/sprint-99-approved-review-queue-hygiene.md"
+    priority: must-have
+    status: done
+    owner: "producer"
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-07-16"
+  - id: "S99-04"
+    name: "Expect discipline pointer"
+    file: "production/sprints/sprint-99-approved-review-queue-hygiene.md"
+    priority: should-have
+    status: done
+    owner: "qa-lead"
+    estimate_days: 0.25
+    blocker: ""
+    completed: "2026-07-16"
+  - id: "S99-05"
+    name: "Umbrella honesty restatement"
+    file: "production/sprints/sprint-99-approved-review-queue-hygiene.md"
+    priority: should-have
+    status: done
+    owner: "producer"
+    estimate_days: 0.25
+    blocker: ""
+    completed: "2026-07-16"
+  - id: "S99-06"
+    name: "GitNexus status note"
+    file: "production/sprints/sprint-99-approved-review-queue-hygiene.md"
+    priority: nice-to-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.25
+    blocker: "optional — no CRITICAL C# this sprint"
+    completed: ""
