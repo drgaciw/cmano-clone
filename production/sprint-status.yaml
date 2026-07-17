@@ -5526,3 +5526,30 @@ stories:
     owner: "producer"
     blocker: "needs human asset approved: ASSET-005"
     completed: ""
+
+# Sprint 104 — Approved C2 Runtime Hosts (2026-07-17)
+sprint: 104
+goal: "CombatDomains host + MessageLog sequenceId select + TopBar 005 parity; residual retest; suite. Stage Release."
+start: "2026-07-17"
+end: "2026-07-21"
+status: open
+plan: production/sprints/sprint-104-approved-c2-runtime-hosts.md
+stage: Release
+launch: "not authorized"
+s104_status: "S104 OPEN — hosts+binders landed; suite 1717/0f; residual PASS; stage Release"
+stories:
+  - id: S104-01
+    status: done
+    completed: "2026-07-17"
+  - id: S104-02
+    status: done
+    completed: "2026-07-17"
+  - id: S104-03
+    status: done
+    completed: "2026-07-17"
+  - id: S104-04
+    status: done
+    completed: "2026-07-17"
+  - id: S104-05
+    status: done
+    completed: "2026-07-17"

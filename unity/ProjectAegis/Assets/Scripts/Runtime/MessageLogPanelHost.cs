@@ -1,4 +1,5 @@
 // Combat message log strip — UI Toolkit panel bound to DelegationBridgeHost.
+// S104-02: row selection exposes sequenceId + unitId (CMD-05 depth).
 #if UNITY_5_3_OR_NEWER
 using System.Linq;
 using ProjectAegis.Delegation.Projection;
@@ -24,6 +25,15 @@ namespace ProjectAegis.Unity.Runtime
         private ListView? _messageList;
         private MessageLogPanelState _panelState = new(Array.Empty<MessageLogDisplayRow>());
         private bool _wired;
+
+        /// <summary>Last selected order-log sequence id (null if none).</summary>
+        public ulong? SelectedSequenceId { get; private set; }
+
+        /// <summary>Last selected unit id from message log row (null if none).</summary>
+        public string? SelectedUnitId { get; private set; }
+
+        /// <summary>Current bound panel rows (for tests).</summary>
+        public MessageLogPanelState PanelState => _panelState;
 
         private void Reset()
         {
@@ -101,9 +111,12 @@ namespace ProjectAegis.Unity.Runtime
                     label.text = row.DisplayLine;
                     label.ClearClassList();
                     label.AddToClassList("message-log-row");
+                    label.AddToClassList("message-log-row--selectable");
                     AddCategoryClass(label, row.Category);
                 };
-                _messageList.selectionType = SelectionType.None;
+                _messageList.selectionType = SelectionType.Single;
+                _messageList.selectionChanged -= OnMessageSelectionChanged;
+                _messageList.selectionChanged += OnMessageSelectionChanged;
             }
 
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
@@ -112,6 +125,44 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             panel.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private void OnMessageSelectionChanged(System.Collections.Generic.IEnumerable<object> _)
+        {
+            if (_messageList == null)
+            {
+                return;
+            }
+
+            var index = _messageList.selectedIndex;
+            ApplySelectionIndex(index);
+        }
+
+        /// <summary>Headless-friendly selection entry (also used by host selection callback).</summary>
+        public bool TrySelectRow(int index)
+        {
+            var selection = MessageLogPanelSelection.SelectRow(_panelState, index);
+            if (selection == null)
+            {
+                SelectedSequenceId = null;
+                SelectedUnitId = null;
+                return false;
+            }
+
+            SelectedSequenceId = selection.SequenceId;
+            SelectedUnitId = selection.UnitId;
+
+            if (bridgeHost != null && !string.IsNullOrEmpty(selection.UnitId))
+            {
+                bridgeHost.SelectUnit(selection.UnitId);
+            }
+
+            return true;
+        }
+
+        private void ApplySelectionIndex(int index)
+        {
+            TrySelectRow(index);
         }
 
         private void Refresh()

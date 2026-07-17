@@ -10,7 +10,9 @@ public static class MessageLogPanelBinder
         {
             rows.Add(new MessageLogDisplayRow(
                 line.Category,
-                FormatLine(line.Category, line.Text)));
+                FormatLine(line.Category, line.Text),
+                line.SequenceId,
+                line.UnitId));
         }
 
         return new MessageLogPanelState(rows);

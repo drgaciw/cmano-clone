@@ -20,6 +20,10 @@ namespace ProjectAegis.Unity.Runtime
         private const string CommsName = "comms-label";
         private const string ScoreName = "score-label";
 
+        /// <summary>Repo-relative Approved production USS for ASSET-005 (Path A graduate).</summary>
+        public const string ApprovedProductionUssRelativePath =
+            ProjectAegis.Delegation.Projection.ApprovedC2AssetPaths.Asset005TopBarUss;
+
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;
@@ -35,12 +39,21 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _score;
         private bool _wired;
 
+        /// <summary>True after panel stylesheet has been applied to the top-bar root.</summary>
+        public bool StylesApplied { get; private set; }
+
         private void Awake()
         {
             _document = GetComponent<UIDocument>();
             if (panelAsset != null)
             {
                 _document.visualTreeAsset = panelAsset;
+            }
+
+            if (panelStyles != null && _document.rootVisualElement != null)
+            {
+                _document.rootVisualElement.styleSheets.Add(panelStyles);
+                StylesApplied = true;
             }
         }
 
@@ -84,6 +97,7 @@ namespace ProjectAegis.Unity.Runtime
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
             {
                 panel.styleSheets.Add(panelStyles);
+                StylesApplied = true;
             }
 
             if (_beginExecution != null)
@@ -93,6 +107,27 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _wired = _simTime != null && _phase != null && _compression != null && _mode != null && _score != null;
+        }
+
+        /// <summary>
+        /// Ensures Approved-style stylesheet is on the panel root (ASSET-005 parity).
+        /// </summary>
+        public bool EnsurePanelStylesApplied()
+        {
+            var root = _document != null ? _document.rootVisualElement : null;
+            if (root == null || panelStyles == null)
+            {
+                return StylesApplied;
+            }
+
+            var panel = root.Q<VisualElement>(RootName) ?? root;
+            if (!panel.styleSheets.Contains(panelStyles))
+            {
+                panel.styleSheets.Add(panelStyles);
+            }
+
+            StylesApplied = true;
+            return true;
         }
 
         private void OnBeginExecutionClicked()
