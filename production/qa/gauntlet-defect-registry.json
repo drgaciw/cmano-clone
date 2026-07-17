@@ -1,7 +1,7 @@
 {
   "version": 1,
   "description": "Gauntlet hindsight defect registry \u2014 closed defects re-run by tools/qa-gauntlet/retest-defect.sh; S95 hygiene 2026-07-14 (residuals watched, not fake-closed)",
-  "hygieneUtc": "2026-07-17T12:00:00Z",
+  "hygieneUtc": "2026-07-17T16:46:00Z",
   "retestTool": "tools/qa-gauntlet/retest-defect.sh",
   "defects": [
     {
@@ -38,7 +38,7 @@
       "class": "oracle-expect",
       "title": "Expect recalibration drift",
       "notes": "Gauntlet oracle expects can drift after sim/policy changes; tier-tick expect regen must stay fail-closed and audited. Do not treat allPassed after silent expect rewrites as a free pass.",
-      "lastReviewedUtc": "2026-07-17T12:00:00Z"
+      "lastReviewedUtc": "2026-07-17T16:46:00Z"
     },
     {
       "id": "GAUNTLET-RES-T5-001",
@@ -46,7 +46,7 @@
       "class": "discriminative-weakness",
       "title": "T5 discriminative weakness",
       "notes": "Tier-5 ladder scenarios remain weak at discriminating real regressions vs noise; catalog/red paths need continued hardening before T5 is a hard product gate.",
-      "lastReviewedUtc": "2026-07-17T12:00:00Z"
+      "lastReviewedUtc": "2026-07-17T16:46:00Z"
     },
     {
       "id": "GAUNTLET-RES-GHA-001",
@@ -54,7 +54,7 @@
       "class": "ci-ops",
       "title": "GHA billing-gated CI",
       "notes": "Org GitHub Actions may be billing-gated; local oracle dry-run remains the proof when remote GHA cannot run. Workflow files are product gates only when Actions execute.",
-      "lastReviewedUtc": "2026-07-17T12:00:00Z"
+      "lastReviewedUtc": "2026-07-17T16:46:00Z"
     },
     {
       "id": "GAUNTLET-RES-BRH-001",
@@ -62,7 +62,7 @@
       "class": "harness-critical",
       "title": "BalticReplayHarness CRITICAL (impact first)",
       "notes": "Any C#/harness touch affecting BalticReplayHarness is CRITICAL blast radius: GitNexus impact first, suite floor \u22651638/0f (or current floor), no DelegationBridge hotpath edits.",
-      "lastReviewedUtc": "2026-07-17T12:00:00Z"
+      "lastReviewedUtc": "2026-07-17T16:46:00Z"
     },
     {
       "id": "GAUNTLET-RES-WORKTREE-001",
@@ -70,7 +70,7 @@
       "class": "process-land",
       "title": "Dual-worktree land discipline",
       "notes": "Gauntlet source and product trees may not share a single worktree family; land via ordered cherry-pick / isolated worktrees per land plan \u2014 never wholesale merge of unrelated gau branch tips.",
-      "lastReviewedUtc": "2026-07-17T12:00:00Z"
+      "lastReviewedUtc": "2026-07-17T16:46:00Z"
     }
   ]
 }

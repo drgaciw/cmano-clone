@@ -5392,3 +5392,83 @@ stories:
     estimate_days: 0.25
     blocker: ""
     completed: ""
+
+# Sprint 102 — Next Approved Pilots + Residual Cadence (2026-07-17)
+sprint: 102
+goal: "Next Done→Approved pilots (004/005) on real human phrase; residual retest + suite. Stage Release; not Launch."
+start: "2026-07-17"
+end: "2026-07-21"
+generated: "2026-07-17"
+updated: "2026-07-17"
+status: open
+plan: production/sprints/sprint-102-next-approved-and-residual.md
+qa: production/qa/qa-plan-sprint-102-2026-07-17.md
+kickoff: production/agentic/sprint-102-parallel-kickoff-2026-07-17.md
+stage: Release
+launch: "not authorized"
+s102_status: "S102 OPEN — package 004/005 ready; residual retest+suite+T1-T3 PASS; PR #315 ready (await merge/CI); stage Release"
+s102_open:
+  date: "2026-07-17"
+  path_a: "package ready — awaiting human asset approved for 004/005"
+  residual: "dual retest + suite + T1-T3 ladder in flight"
+  pr_315: "ready for review; CI pending after restack"
+
+stories:
+  - id: "S102-01"
+    name: "Next Approved pilot package"
+    file: "production/sprints/sprint-102-next-approved-and-residual.md"
+    priority: must-have
+    status: done
+    owner: "producer"
+    estimate_days: 0.25
+    blocker: ""
+    completed: "2026-07-17"
+    evidence: "production/qa/s102-01-approval-ready-pilots-2026-07-17.md"
+  - id: "S102-02"
+    name: "Apply human approval if provided"
+    file: "production/sprints/sprint-102-next-approved-and-residual.md"
+    priority: must-have
+    status: backlog
+    owner: "producer"
+    estimate_days: 0.5
+    blocker: "needs human asset approved phrase"
+    completed: ""
+  - id: "S102-03"
+    name: "Residual retest + suite floor"
+    file: "production/sprints/sprint-102-next-approved-and-residual.md"
+    priority: must-have
+    status: done
+    owner: "qa-lead"
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-07-17"
+    evidence: "production/qa/s102-03-gauntlet-residual-watch-2026-07-17.md"
+  - id: "S102-04"
+    name: "Ladder smoke T1-T3"
+    file: "production/sprints/sprint-102-next-approved-and-residual.md"
+    priority: should-have
+    status: done
+    owner: "qa-lead"
+    estimate_days: 0.75
+    blocker: ""
+    completed: "2026-07-17"
+    evidence: "production/qa/s102-04-gauntlet-ladder-t1-t3-2026-07-17.md"
+  - id: "S102-05"
+    name: "Land PR #315 stack"
+    file: "production/sprints/sprint-102-next-approved-and-residual.md"
+    priority: should-have
+    status: in-progress
+    owner: "producer"
+    estimate_days: 0.25
+    blocker: "human merge after CI green"
+    completed: ""
+    evidence: "production/qa/s102-05-pr-315-babysit-2026-07-17.md"
+  - id: "S102-06"
+    name: "Approved USS C2 story seed (NTH)"
+    file: "production/sprints/sprint-102-next-approved-and-residual.md"
+    priority: nice-to-have
+    status: backlog
+    owner: ""
+    estimate_days: 0.5
+    blocker: ""
+    completed: ""
