@@ -113,7 +113,7 @@ are optional; `flag+` may be repeated.
 | `scenario_publish` | `--path` | Validate + export publish gate. |
 | `scenario_simulate_sample` | `--path` | `[--ticks N]` (default `32`); runs an isolated Baltic harness sample; reports `worldHash`, fingerprint, engagement count. |
 | `scenario_undo` | `--path`, `--edit-version` | Reverts the last captured mutation. |
-| `scenario_event_trace` | `--path` | `[--event ID]`; structured event-trigger trace. |
+| `scenario_event_trace` | `--path` | `[--event ID]` (default `evt-no-fire`); structured AC-7 event debugger trace. See [`scenario-event-system.md`](scenario-event-system.md#debugger-trace-scenario_event_trace). |
 | `scenario_comms_status` | `--policy` | JSON comms display settings / timeline transitions. |
 | `scenario_cyber_status` | `--policy` | JSON cyber abort codes + comms coupling hints. |
 | `scenario_near_future_spawn` | `--path` | Gated near-future spawn plan (CCA / hypersonic). |
@@ -134,6 +134,16 @@ are optional; `flag+` may be repeated.
 | `mission_add_support` | `--path`, `--edit-version`, `--id`, `--role` | `--role Tanker\|AEW\|EW`, `[--unit U]+ [--wp lat,lon]+`. |
 | `mission_delete` | `--path`, `--edit-version`, `--id` | Removes a mission. |
 | `mission_plan_suggest` | `--intent` | Heuristic intent→mission suggestions (stub; no LLM). |
+
+### Event authoring (mutating → require `--edit-version`)
+
+Deep-dive: [`scenario-event-system.md`](scenario-event-system.md).
+
+| Verb | Required flags | Notes |
+|------|----------------|-------|
+| `event_add` | `--path`, `--edit-version`, `--id`, `--trigger` | `[--condition Type[:UnitId[:ZoneId]]]+ [--action Type[:UnitId]]+`. Upserts by id; response has `fireOrder`. Tokens accept `:` or `,`. |
+| `event_update` | (same as `event_add`) | Alias of `event_add` (upsert). |
+| `event_delete` | `--path`, `--edit-version`, `--id` | `EVENT_NOT_FOUND` if the id is absent. |
 
 ### Catalog (read + extend-only write gate)
 
@@ -235,7 +245,7 @@ is validated in
 | `code: "FILE_EXISTS"` on create | `scenario_create --out` refuses to overwrite; choose a new path or delete the file. |
 | `catalog_release_diff` misreads the DB path as a version | Always pass `--from`/`--to` explicitly. The positional fallback skips the `--db` value, but relying on positionals is error-prone. |
 | Export/brief/publish returns exit `1` with no file | Validation is blocking — run `scenario_validate --path …` and clear the findings first. |
-| `event_add` / `event_validate` "unknown command" | Those command classes exist but are **not wired** into the CLI dispatch or the MCP manifest yet; they are not runnable verbs today. |
+| `event_validate` "unknown command" | `event_validate` is **not** a dispatched verb (its `EventValidateCommand` class exists but is unwired). Use `scenario_event_trace` for the read-only event debugger, and `scenario_validate` for the static-analysis findings. The mutating `event_add` / `event_update` / `event_delete` verbs **are** wired (CLI dispatch + MCP manifest). |
 | Missing-flag error is plain text, not JSON | Argument-validation errors go to **stderr** and return `1`; parse stdout for the JSON envelope. |
 
 ---

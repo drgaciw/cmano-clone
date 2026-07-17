@@ -125,7 +125,10 @@ rejoins it — all transitions are logged as `ControllerChange` / `GroupMemberDe
 `ComputeFingerprint()` produces the deterministic order-log hash the replay goldens assert.
 The `Projection/` types are **pure read-models** rebuilt from the log — the message log,
 contact/facility picture, OOB tree, sensor C2 panel, losses/scoring, and APP-6 map symbology —
-so the UI never mutates simulation state.
+so the UI never mutates simulation state. See the
+[C2 projection layer guide](../../docs/engineering/c2-projection-layer.md) for the
+`Projection → Binder → State` layering, the read-only contract, the full projection catalog,
+and how to add a panel without breaking replay.
 
 ## C2 rev-2 presentation contracts
 

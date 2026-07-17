@@ -93,7 +93,10 @@ is validation-gated.
   (`Error`) finding remains. See the finding catalog below.
 
 For the CLI-side read-modify-write loop and exit-code contract, see
-[mission-editor-cli.md](mission-editor-cli.md#optimistic-concurrency----edit-version).
+[mission-editor-cli.md](mission-editor-cli.md#optimistic-concurrency----edit-version). For the
+**in-process** object model that wraps this same pipeline for interactive hosts
+(`ScenarioAuthoringSession` / `ScenarioEditCommandBus` + the presenter view models), see
+[scenario-authoring-host.md](scenario-authoring-host.md).
 
 ---
 
@@ -181,6 +184,9 @@ Optional typed event entries (`events[]`) each declare `id`, `triggerType`, `con
 - The event graph is bounded by the complexity rule (ADR-016): soft `Warning` findings for high
   graph complexity and peak-tick density, and one **hard** blocking cap of **32 conditions per
   event** (`EVENT_CONDITION_CAP_EXCEEDED`).
+- Static analysis (dead triggers, unreachable `ActivateMission` actions, contradictory conditions,
+  cycles) and the single-event `scenario_event_trace` debugger are their own subsystem — see
+  [scenario-event-system.md](scenario-event-system.md).
 
 ---
 
@@ -213,6 +219,10 @@ and returns a [`ValidationReport`](../../src/ProjectAegis.Data/Validation/Valida
 | `EVENT_CONDITION_CAP_EXCEEDED` | Error | An event exceeds the 32-condition hard cap (ADR-016). |
 | `EVENT_GRAPH_COMPLEXITY_HIGH` | Warning | Event-graph complexity over the soft threshold — does **not** block export. |
 | `EVENT_GRAPH_PEAK_TICK_DENSITY_HIGH` | Warning | Peak tick density over the soft threshold — does **not** block export. |
+| `EVENT_DEAD_TRIGGER` | Warning | Event has zero conditions and `triggerType` ≠ `Time` (can never fire). |
+| `EVENT_UNREACHABLE_ACTION` | Warning | An `ActivateMission` action has no mission id, or targets a mission not in `missions[]`. |
+| `EVENT_CONTRADICTORY` | Warning | The same event has both a `result: true` and a `result: false` condition. |
+| `EVENT_CIRCULAR` | Warning | Event participates in an `ActivateMission → MissionComplete` cycle. |
 | `DOCTRINE_RESOLVED` | Info | Reports the resolved ROE per mission and its inheritance source (`override`/`side`). |
 
 Reachability and event thresholds come from
@@ -277,6 +287,7 @@ Author a Strike inline (ids resolve against the bound catalog):
 |-------|------|
 | [`scenario-document.schema.json`](../../data/scenarios/scenario-document.schema.json) | Canonical machine contract (draft 2020-12). |
 | [scenario-policy-authoring.md](scenario-policy-authoring.md) | The sibling `*.policy.json` sim-policy format. |
+| [scenario-event-system.md](scenario-event-system.md) | The event graph subsystem: static analysis (`EVENT_*` codes above), the `scenario_event_trace` debugger, fire order, and the event CLI verbs. |
 | [mission-editor-cli.md](mission-editor-cli.md) | Headless CLI/MCP verbs that create, edit, validate, simulate & publish documents. |
 | [determinism-and-replay.md](determinism-and-replay.md) | Replay hashing & the golden-fixture workflow. |
 | [`ProjectAegis.Data` README](../../src/ProjectAegis.Data/README.md) | The assembly that owns the DTOs, loader/writer, undo store, and validation engine. |
