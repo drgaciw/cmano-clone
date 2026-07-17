@@ -1,0 +1,125 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 6,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "detection": [
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "radar-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-visby",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39c-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c-gripen",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-19-gotland-2022",
+      "sensorId": "sonar-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-gotland",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    }
+  ],
+  "gauntlet": {
+    "intent": "Escort+strike combined; multi-domain catalog (air+sub) [catalog red: Sovremenny]",
+    "oracle": "Dual contact; salvo 2 stable",
+    "catalogRefs": [
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "624-pr-205p-tarantul-1992",
+      "70-rauma-helsinki-ii-1990",
+      "80-hamina-rauma-2-2006",
+      "a-17-s\u00f6dermanland-vastergotland-mod",
+      "a-17-vastergotland-1999",
+      "a-19-gotland-1996",
+      "a-19-gotland-2022",
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "em-sovremenny-i-pr-956-sarych",
+      "f-207-bremen-type-f122-1982",
+      "f-35a-lightning-ii",
+      "f-a-18c-hornet-f-18c",
+      "hkp-14f-nh90-ttt",
+      "jas-39a-gripen-1997",
+      "jas-39b-gripen-1997",
+      "jas-39c-gripen-2005",
+      "k-31-visby-2009",
+      "mpk-steregushchiy-pr-20380-2018"
+    ],
+    "subPool": [
+      "a-19-gotland-1996",
+      "021-messali-el-hadj-pl-636m-kilo-2011"
+    ],
+    "airPool": [
+      "jas-39c-gripen-2005",
+      "f-16c-blk-52iq-falcon-2015"
+    ],
+    "runId": "gauntlet-t3t5-catalog-red",
+    "tier": 3,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 1,
+      "maxMissilesFired": 12,
+      "maxDenials": 18,
+      "minScore": -30,
+      "maxScore": 170,
+      "minDenials": 14
+    },
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39c-gripen-2005",
+        "platformId": "jas-39c-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-19-gotland-2022",
+        "platformId": "a-19-gotland-2022",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "domain": "surface",
+        "side": "red"
+      }
+    ]
+  },
+  "id": "gauntlet-t3-escort-strike"
+}
