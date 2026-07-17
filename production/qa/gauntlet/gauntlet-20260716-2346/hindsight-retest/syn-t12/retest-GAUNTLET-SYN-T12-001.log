@@ -1,0 +1,26 @@
+=== Gauntlet defect re-test ===
+defect_id=GAUNTLET-SYN-T12-001
+scenario=gauntlet-t1-patrol-b seed=42 ticks=6
+registry=production/qa/gauntlet-defect-registry.json
+2026-07-17T04:49:22Z
+
+--- batch ---
+Wrote 1 rows to production/qa/gauntlet/gauntlet-20260716-2346/hindsight-retest/syn-t12/retest-GAUNTLET-SYN-T12-001.csv
+
+--- oracle ---
+{
+  "ok": true,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t1-patrol-b",
+      "passed": true,
+      "failures": [],
+      "rows": 1
+    }
+  ],
+  "allPassed": true
+}
+
+--- failure mode check ---
+PRIOR_FAILURE_ABSENT: CATALOG_UNIT:u1:
+retest_status=PASS
