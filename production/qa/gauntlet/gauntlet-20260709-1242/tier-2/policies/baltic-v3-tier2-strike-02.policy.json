@@ -1,0 +1,41 @@
+{
+  "id": "baltic-v3-tier2-strike-02",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true
+  },
+  "emcon": {
+    "units": {
+      "u1": { "radar": "Passive" },
+      "ucav-blue": { "radar": "Passive" },
+      "hostile-1": { "radar": "Active" },
+      "ucav-red": { "radar": "Active" }
+    }
+  },
+  "catalogDetection": [
+    {
+      "observerId": "ucav-red",
+      "sensorId": "recon-radar",
+      "targetId": "u1",
+      "contactId": "c1",
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "mission": {
+    "fireOrder": [],
+    "events": [
+      {
+        "id": "threat-designated",
+        "fireAtTick": 4,
+        "kind": "MissionTransition",
+        "code": "THREAT_DESIGNATED"
+      }
+    ]
+  }
+}

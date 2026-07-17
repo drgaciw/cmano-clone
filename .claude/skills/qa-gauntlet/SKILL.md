@@ -9,6 +9,9 @@ description: >
   /qa-gauntlet, or asks for "QA gauntlet", "escalating complexity QA", "tiered
   scenario stress test", "autonomous sim QA loop", "batch sim defect remediation",
   or "gauntlet AAR".
+argument-hint: "[--tiers N=5] [--scenarios-per-tier N=4] [--seeds 42,7,123] [--max-fix-attempts 3] [--resume <run-id>]"
+user-invocable: true
+allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion
 ---
 
 # QA Gauntlet — Autonomous Escalating-Complexity Test Loop

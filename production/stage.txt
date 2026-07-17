@@ -182,3 +182,24 @@ Stage remains Release. Launch NOT authorized. Commercial-launch-execution-gate n
 S99 COMPLETE: human Approved review queue for ASSET-006/021 (template phrase only; Approved remains 0) + gauntlet residual hygiene (5 watched; dual retest GAUNTLET-SYN-T12-001 PASS).
 Smoke: production/qa/smoke-sprint-99-closeout-2026-07-16.md. Suite floor cited ≥1638/0f last-gate family.
 Stage remains Release. Launch NOT advanced. S97 FULLY CLOSED + S98 COMPLETE preserved.
+
+# S100 Sprint Open — First Approved Promotion Path (2026-07-16)
+S100 opened via /sprint-plan new (lean): production/sprints/sprint-100-first-approved-promotion.md.
+Scope: human A7 for pilot ASSET-006/021 (no invented phrase) + gauntlet residual watch. Predecessors S94–S99 COMPLETE.
+Stage remains Release. Launch NOT authorized. Commercial-launch-execution-gate not opened.
+
+# S100 Closeout — First Approved Promotion Path COMPLETE (2026-07-17)
+S100 COMPLETE: human review session for ASSET-006/021 with A7 deferred (no invented asset approved phrase; Approved remains 0); dual retest SYN-T12 + MD-001 PASS; residuals 5 watched; GitNexus status noted.
+Smoke: production/qa/smoke-sprint-100-closeout-2026-07-17.md. Suite floor cited ≥1638/0f last-gate family.
+Stage remains Release. Launch NOT advanced. S97–S99 preserved complete.
+
+# S101 Sprint Open — Residual Hold + Approval Wait (2026-07-17)
+S101 opened (orchestrator): production/sprints/sprint-101-residual-hold-approval-wait.md.
+Path A human approval BLOCKED (no real asset approved phrase). Path B: residual hold + gauntlet + smoke cadence.
+Stage remains Release. Launch NOT authorized.
+
+# S101 Closeout — Residual Hold + Path A First Approved (2026-07-17)
+S101 COMPLETE: residual retest dual PASS; suite 1699/0f; gauntlet-20260717-s101 T1–T5 allPassed.
+Path A COMPLETE: human asset approved ASSET-006 + ASSET-021 → first Approved promotions (Approved=2).
+Evidence: production/qa/smoke-sprint-101-closeout-2026-07-17.md · s101-05-human-asset-approval-2026-07-17.md · smoke-path-a-approved-promotion-2026-07-17.md · commit 98e25e4.
+Stage remains Release. Launch NOT advanced. S97–S100 preserved complete.

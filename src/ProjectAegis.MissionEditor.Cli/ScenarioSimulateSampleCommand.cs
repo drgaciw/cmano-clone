@@ -29,7 +29,9 @@ public static class ScenarioSimulateSampleCommand
         }
 
         var scenario = ScenarioDocumentJsonLoader.LoadFromFile(scenarioPath);
-        var catalog = ScenarioValidateCommand.ResolveCatalogPublic(scenario);
+        var catalog = CatalogReaderFactory.IsBalticV3Scenario(scenario.Metadata.PolicyId ?? "")
+            ? InMemoryCatalogReader.BalticV3Fixture()
+            : ScenarioValidateCommand.ResolveCatalogPublic(scenario);
         var config = ValidationConfigLoader.LoadFromRepo();
         var exportPackage = ScenarioExportCommand.Prepare(scenario, catalog, config);
         if (!exportPackage.Allowed)
