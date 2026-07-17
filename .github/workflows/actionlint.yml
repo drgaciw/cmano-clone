@@ -3,6 +3,12 @@ name: Actionlint
 # Lints GitHub Actions workflow files to catch invalid YAML, bad if:
 # expressions, and shell issues (via shellcheck) before they merge.
 # Cheap and fast; only runs when workflow files change.
+#
+# Note: 'if: false' is used intentionally across several workflows to disable
+# them while GitHub Actions billing is blocked (see gitnexus-security.yml).
+# actionlint flags that as a "constant expression" error, so it is ignored
+# here to avoid failing on the deliberate disables. Other checks (invalid
+# YAML, bad expressions, shellcheck) remain active.
 
 on:
   workflow_dispatch:
@@ -22,3 +28,5 @@ jobs:
 
       - name: Run actionlint
         uses: raven-actions/actionlint@v2
+        with:
+          flags: '-ignore "constant expression"'
