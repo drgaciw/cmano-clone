@@ -18,10 +18,10 @@ subsystem is exercised headless with `dotnet test`.
 | Folder | Purpose | Key types |
 |--------|---------|-----------|
 | `Core/` | Tick pipeline, seeded RNG, world-state hashing, clock seed | `SimTickPipeline`, `SimTickRunner`, `ISimTickRunner`, `SimSeed`, `SeededRng`, `RngDomain`, `SimWorldHash` |
-| `Sensors/` | Tick-4 deterministic detection loop + detection sub-hash | `DeterministicDetectionLoop`, `DetectionWorldHash`, `PdDetectionContactSimulator`, `ContactLifecycleState`, `DatalinkSidePictureMerger` |
+| `Sensors/` | Tick-4 deterministic detection loop + detection sub-hash + hostile classification | `DeterministicDetectionLoop`, `DetectionWorldHash`, `PdDetectionContactSimulator`, `ContactLifecycleState`, `DatalinkSidePictureMerger`, `HostileContactFilter` |
 | `Engage/` | Tick-8 engagement pipeline: policy → track → envelope/DLZ → magazine → combat outcome | `IEngagementResolver`, `MvpEngagementResolver`, `EngageRequest`/`EngageResult`, `DlzEvaluator`, `MagazineLedger`, `CombatOutcomeResolver`, `DomainValidatorRegistry` |
 | `Policy/` | Per-unit policy evaluation at the orchestrator boundary (ADR-002) | `IPolicyEvaluator`, `PolicyEvaluator`, `EffectivePolicy`, `PolicyContext`, `RoeLevel`, `EmconState` |
-| `Scenario/` | Scenario/policy profiles + JSON repository, comms/EMCON/mission triggers | `ScenarioPolicyProfile`, `ScenarioPolicyRepository`, `ScenarioMissionContactTrigger`, `DetectionTrialResolver` |
+| `Scenario/` | Scenario/policy profiles + JSON repository, comms/EMCON/mission triggers, blue/red side registry | `ScenarioPolicyProfile`, `ScenarioPolicyRepository`, `ScenarioMissionContactTrigger`, `DetectionTrialResolver`, `BalticV3SideRegistry` |
 | `Catalog/` | Hot-tick appliers bridging `ProjectAegis.Data` catalog values into sim state | `CatalogDamageHotTickApplier`, `CatalogMagazineResolver`, `CatalogRadarEmconResolver`, `PlatformHpLedger` |
 | `Logistics/` | Fuel accounting | `FuelLedger` |
 | `Time/` | Fixed-timestep clock + time-compression | `SimClock`, `TimeCompressionMode` |
@@ -103,6 +103,17 @@ from `data/scenarios/*.policy.json` via
 [`ScenarioPolicyRepository`](Scenario/ScenarioPolicyRepository.cs) — gameplay numbers live in
 data, not in C# constants.
 
+## Blue/red side resolution
+
+Headless Baltic runs decide "friend or foe" through
+[`BalticV3SideRegistry`](Scenario/BalticV3SideRegistry.cs) — a thread-safe static that layers
+**scenario-scoped registrations** (added per run for catalog/joint ORBAT units) over a
+**legacy default map** (`u1`/`ucav-blue` → blue, `hostile-1`/`ucav-red` → red; unknown ids →
+no side). [`HostileContactFilter`](Sensors/HostileContactFilter.cs) and the engage-target
+fallback both read it instead of guessing from id prefixes. The full lifecycle (how the batch
+harness registers `gauntlet.units[]` and clears state after every run) is documented in the
+[QA Gauntlet runbook → *Side resolution (joint ORBAT)*](../../docs/engineering/qa-gauntlet.md#side-resolution--joint-orbat).
+
 ---
 
 ## Build & test
@@ -113,7 +124,7 @@ dotnet test  src/ProjectAegis.Sim.Tests/ProjectAegis.Sim.Tests.csproj -v minimal
 ```
 
 `ProjectAegis.Sim.Tests` mirrors this folder layout (`Core/`, `Sensors/`, `Engage/`,
-`Policy/`, `Scenario/`, …) and is part of the ≥1232-test solution baseline. The replay
+`Policy/`, `Scenario/`, …) and is part of the ≥1638-test solution baseline. The replay
 goldens that assert reproducibility of this core live in
 [`tests/regression/`](../../tests/regression/) and are driven by the
 [`ProjectAegis.Delegation.Demo`](../ProjectAegis.Delegation.Demo/README.md) harness.
