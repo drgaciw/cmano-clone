@@ -51,7 +51,10 @@ DelegationOrchestrator(globalSeed, policyEvaluator, hindsight: HindsightOptions?
 - **Point 2 — scenario finalize.** `DelegationOrchestrator.FinalizeScenario` (also surfaced via
   `DelegationBridge.FinalizeScenario`) is a post-run call. It always computes trust signals
   (`TrustSignalEmitter`), and — only if the sidecar is enabled — retains an AAR summary and the
-  per-agent trust signals.
+  per-agent trust signals. For *what those signals are and how they are computed* (the five
+  metrics, the emit-only contract, the Phase-3 campaign plan), see the
+  [trust / XP signal emit surface](trust-signal-emit-surface.md) — this page is only the
+  transport for them.
 
 `FinalizeScenario` is a teardown call, **not** part of `Tick()`. The trust metrics themselves are
 computed unconditionally (they are cheap, deterministic, and exposed via
