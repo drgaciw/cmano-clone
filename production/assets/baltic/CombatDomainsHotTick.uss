@@ -1,8 +1,9 @@
 /* CombatDomainsHotTick.uss — HUD hot-tick combat-domains overlay
  * Asset: ASSET-021 — production/assets/baltic/CombatDomainsHotTick.uss
+ * Status: Approved (S101-05 human asset approved: ASSET-021)
  * Authority: design/assets/specs/baltic-patrol-assets.md ASSET-021
- * Sprint: S94 wave-2 placeholder (minimal USS; full art deferred)
- * Note: no arcade VFX; KILL log tint aligns with AegisTokens --log-kill (#FFB4A0)
+ * Unity wire: unity/ProjectAegis/Assets/UI/CombatDomains/CombatDomainsHotTick.uss
+ * Note: no arcade VFX; KILL log tint aligns with AegisTokens --log-kill
  */
 
 .combat-domains-hot-tick {
