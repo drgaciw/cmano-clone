@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   wiki:
-    if: false
     name: Generate Code Wiki
     runs-on: ubuntu-latest
 

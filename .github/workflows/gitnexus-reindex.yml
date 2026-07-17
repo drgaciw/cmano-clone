@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   reindex:
-    if: false
     name: Reindex Knowledge Graph
     runs-on: ubuntu-latest
     timeout-minutes: 30
