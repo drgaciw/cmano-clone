@@ -57,6 +57,33 @@ public sealed class ScenarioPolicyJsonDto
     public ScenarioDatalinkJsonDto? Datalink { get; set; }
 
     public ScenarioMineHazardJsonDto? MineHazard { get; set; }
+
+    /// <summary>Optional qa-gauntlet block (intent, expect, catalog units for joint ORBAT).</summary>
+    public ScenarioGauntletJsonDto? Gauntlet { get; set; }
+}
+
+/// <summary>qa-gauntlet metadata + joint catalog unit plan.</summary>
+public sealed class ScenarioGauntletJsonDto
+{
+    public string? Intent { get; set; }
+
+    public string? Oracle { get; set; }
+
+    public List<string>? CatalogRefs { get; set; }
+
+    public List<ScenarioGauntletUnitJsonDto>? Units { get; set; }
+}
+
+/// <summary>One catalog-backed unit to register on the Baltic replay path.</summary>
+public sealed class ScenarioGauntletUnitJsonDto
+{
+    public string? UnitId { get; set; }
+
+    public string PlatformId { get; set; } = "";
+
+    public string Domain { get; set; } = "surface";
+
+    public string Side { get; set; } = "blue";
 }
 
 public sealed class ScenarioMineHazardJsonDto

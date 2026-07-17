@@ -1,0 +1,130 @@
+# PR gate: produce a real Demo batch CSV then fail-closed on gauntlet_oracle_eval.
+# Uses shipped CLI only (ProjectAegis.MissionEditor.Cli gauntlet_oracle_eval).
+name: gauntlet-oracle
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  oracle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore & build
+        run: |
+          dotnet restore ProjectAegis.sln
+          dotnet build ProjectAegis.sln --no-restore -c Release -v q
+
+      - name: Stage oracle policy fixture set
+        run: |
+          mkdir -p artifacts/gauntlet-oracle/policies
+          # Phase-3 anchors + Slice 1 ladder injects + Slice 2 multi-domain samples
+          cp data/scenarios/gauntlet-multidomain-shooters.policy.json \
+             data/scenarios/gauntlet-theater-inject.policy.json \
+             data/scenarios/gauntlet-theater-dynamic-victory.policy.json \
+             data/scenarios/gauntlet-t1-patrol-b.policy.json \
+             data/scenarios/gauntlet-t4-random-inject.policy.json \
+             data/scenarios/gauntlet-t5-cascade.policy.json \
+             data/scenarios/gauntlet-t5-roe-change.policy.json \
+             data/scenarios/gauntlet-joint-orbat-smoke.policy.json \
+             data/scenarios/gauntlet-t3-emcon-phases.policy.json \
+             artifacts/gauntlet-oracle/policies/
+
+      - name: Batch Demo (real entry point)
+        run: |
+          SCENARIOS="gauntlet-multidomain-shooters,gauntlet-theater-inject,gauntlet-theater-dynamic-victory,gauntlet-t1-patrol-b,gauntlet-t4-random-inject,gauntlet-t5-cascade,gauntlet-t5-roe-change,gauntlet-joint-orbat-smoke,gauntlet-t3-emcon-phases"
+          dotnet run -c Release --no-build --project src/ProjectAegis.Delegation.Demo -- --batch \
+            --scenarios "$SCENARIOS" \
+            --seeds 42 \
+            --ticks 10 \
+            --csv-out artifacts/gauntlet-oracle/results.csv
+
+      - name: gauntlet_oracle_eval (shipped CLI — must pass)
+        run: |
+          dotnet run -c Release --no-build --project src/ProjectAegis.MissionEditor.Cli -- \
+            gauntlet_oracle_eval \
+            --policy-dir artifacts/gauntlet-oracle/policies \
+            --csv artifacts/gauntlet-oracle/results.csv \
+            --out artifacts/gauntlet-oracle/oracle-eval.json
+          python3 -c "import json; d=json.load(open('artifacts/gauntlet-oracle/oracle-eval.json')); assert d.get('allPassed') is True, d"
+
+      - name: Fail-closed smoke (strip inject / multi-domain tokens must exit non-zero)
+        run: |
+          # Criterion 3: stripping inject CommsStateChange or multi-domain True|Launched
+          # must fail gauntlet_oracle_eval (fingerprint gates on slice policies).
+          rm -rf artifacts/gauntlet-oracle/broken
+          mkdir -p artifacts/gauntlet-oracle/broken
+          python3 <<'PY'
+          import csv, json, pathlib, re
+
+          out_dir = pathlib.Path("artifacts/gauntlet-oracle/broken")
+          # Keep expects (incl. requireFingerprintSubstrings / requireTrueLaunchedShooters)
+          # but strip the evidence tokens from the batch CSV.
+          for name in (
+              "gauntlet-t4-random-inject.policy.json",
+              "gauntlet-t3-emcon-phases.policy.json",
+          ):
+              src = pathlib.Path("data/scenarios") / name
+              (out_dir / name).write_text(src.read_text())
+
+          rows = list(csv.DictReader(open("artifacts/gauntlet-oracle/results.csv")))
+          stripped = []
+          for r in rows:
+              sid = r["scenarioId"]
+              fp = r["fingerprint"]
+              if sid == "gauntlet-t4-random-inject":
+                  # Remove inject mid-run tokens while keeping numeric columns intact
+                  fp = re.sub(r"CommsStateChange\|[^\s]*", "EventFired|0|0|0|stripped_inject|none", fp)
+                  fp = fp.replace("Degraded", "Nominal").replace("seeded_inject_jamming", "none")
+              if sid == "gauntlet-t3-emcon-phases":
+                  # Drop True|Launched engagements (leave CATALOG_UNIT / other tokens)
+                  parts = []
+                  for tok in fp.split():
+                      if tok.startswith("Engagement|") and "|True|Launched" in tok:
+                          tok = tok.replace("|True|Launched", "|False|NO_AMMO")
+                      parts.append(tok)
+                  fp = " ".join(parts)
+              if sid in ("gauntlet-t4-random-inject", "gauntlet-t3-emcon-phases"):
+                  r = dict(r)
+                  r["fingerprint"] = fp
+                  stripped.append(r)
+
+          with open(out_dir / "stripped-slice.csv", "w", newline="") as f:
+              w = csv.DictWriter(
+                  f,
+                  fieldnames=["scenarioId", "seed", "side", "score", "kills", "missilesFired", "denials", "fingerprint"],
+              )
+              w.writeheader()
+              w.writerows(stripped)
+          print("wrote stripped-slice.csv rows", len(stripped))
+          PY
+          set +e
+          dotnet run -c Release --no-build --project src/ProjectAegis.MissionEditor.Cli -- \
+            gauntlet_oracle_eval \
+            --policy-dir artifacts/gauntlet-oracle/broken \
+            --csv artifacts/gauntlet-oracle/broken/stripped-slice.csv \
+            --out artifacts/gauntlet-oracle/broken-oracle.json
+          code=$?
+          set -e
+          if [[ "$code" -eq 0 ]]; then
+            echo "Expected non-zero exit when inject/multi-domain tokens stripped" >&2
+            cat artifacts/gauntlet-oracle/broken-oracle.json >&2 || true
+            exit 1
+          fi
+          python3 -c "import json; d=json.load(open('artifacts/gauntlet-oracle/broken-oracle.json')); assert d.get('allPassed') is False, d; print('Fail-closed strip OK', d)"
+          echo "Fail-closed OK (exit=$code)"
+
+      - name: Upload oracle artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gauntlet-oracle
+          path: artifacts/gauntlet-oracle/

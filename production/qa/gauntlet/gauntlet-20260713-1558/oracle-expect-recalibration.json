@@ -1,0 +1,822 @@
+[
+  {
+    "scenario": "gauntlet-t1-patrol-a",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        100.0,
+        100.0
+      ],
+      "kills": [
+        1,
+        1
+      ],
+      "missiles": [
+        1,
+        3
+      ],
+      "denials": [
+        0,
+        0
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "minKills": 1,
+      "maxMissilesFired": 4,
+      "maxDenials": 0,
+      "minScore": 50,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 80.0,
+      "maxScore": 120.0,
+      "maxMissilesFired": 5,
+      "minKills": 1,
+      "maxDenials": 4
+    }
+  },
+  {
+    "scenario": "gauntlet-t1-patrol-b",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        100.0,
+        100.0
+      ],
+      "kills": [
+        1,
+        1
+      ],
+      "missiles": [
+        1,
+        3
+      ],
+      "denials": [
+        0,
+        0
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "minKills": 1,
+      "maxMissilesFired": 4,
+      "maxDenials": 0,
+      "minScore": 50,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 80.0,
+      "maxScore": 120.0,
+      "maxMissilesFired": 5,
+      "minKills": 1,
+      "maxDenials": 4
+    }
+  },
+  {
+    "scenario": "gauntlet-t1-patrol-c",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        -30.0,
+        -30.0
+      ],
+      "kills": [
+        0,
+        0
+      ],
+      "missiles": [
+        0,
+        0
+      ],
+      "denials": [
+        6,
+        6
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "minKills": 0,
+      "maxMissilesFired": 0,
+      "minDenials": 6,
+      "maxDenials": 6,
+      "minScore": -50,
+      "maxScore": 0,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -50.0,
+      "maxScore": -10.0,
+      "maxMissilesFired": 2,
+      "maxDenials": 10,
+      "minDenials": 2
+    }
+  },
+  {
+    "scenario": "gauntlet-t1-patrol-d",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        0.0,
+        100.0
+      ],
+      "kills": [
+        0,
+        1
+      ],
+      "missiles": [
+        1,
+        4
+      ],
+      "denials": [
+        0,
+        0
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "maxMissilesFired": 4,
+      "maxDenials": 0,
+      "minScore": -10,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -20.0,
+      "maxScore": 120.0,
+      "maxMissilesFired": 6,
+      "maxDenials": 4
+    }
+  },
+  {
+    "scenario": "gauntlet-t2-escort-a",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        100.0,
+        100.0
+      ],
+      "kills": [
+        1,
+        1
+      ],
+      "missiles": [
+        4,
+        4
+      ],
+      "denials": [
+        0,
+        0
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "minKills": 1,
+      "maxMissilesFired": 6,
+      "maxDenials": 0,
+      "minScore": 50,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 80.0,
+      "maxScore": 120.0,
+      "maxMissilesFired": 6,
+      "minKills": 1,
+      "maxDenials": 4
+    }
+  },
+  {
+    "scenario": "gauntlet-t2-escort-passive",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        -50.0,
+        -50.0
+      ],
+      "kills": [
+        0,
+        0
+      ],
+      "missiles": [
+        0,
+        0
+      ],
+      "denials": [
+        10,
+        10
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "maxMissilesFired": 0,
+      "minDenials": 8,
+      "maxDenials": 12,
+      "minScore": -80,
+      "maxScore": 0,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -70.0,
+      "maxScore": -30.0,
+      "maxMissilesFired": 2,
+      "maxDenials": 14,
+      "minDenials": 6
+    }
+  },
+  {
+    "scenario": "gauntlet-t2-strike-a",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        100.0,
+        100.0
+      ],
+      "kills": [
+        1,
+        1
+      ],
+      "missiles": [
+        1,
+        3
+      ],
+      "denials": [
+        0,
+        0
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "minKills": 1,
+      "maxMissilesFired": 4,
+      "maxDenials": 0,
+      "minScore": 50,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 80.0,
+      "maxScore": 120.0,
+      "maxMissilesFired": 5,
+      "minKills": 1,
+      "maxDenials": 4
+    }
+  },
+  {
+    "scenario": "gauntlet-t2-strike-event",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        100.0,
+        100.0
+      ],
+      "kills": [
+        1,
+        1
+      ],
+      "missiles": [
+        1,
+        1
+      ],
+      "denials": [
+        0,
+        0
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "minKills": 1,
+      "maxMissilesFired": 4,
+      "maxDenials": 0,
+      "minScore": 50,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 80.0,
+      "maxScore": 120.0,
+      "maxMissilesFired": 3,
+      "minKills": 1,
+      "maxDenials": 4
+    }
+  },
+  {
+    "scenario": "gauntlet-t3-emcon-phases",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        20.0,
+        20.0
+      ],
+      "kills": [
+        1,
+        1
+      ],
+      "missiles": [
+        1,
+        3
+      ],
+      "denials": [
+        16,
+        16
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "minKills": 1,
+      "maxMissilesFired": 4,
+      "maxDenials": 0,
+      "minScore": 50,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 0.0,
+      "maxScore": 40.0,
+      "maxMissilesFired": 5,
+      "minKills": 1,
+      "maxDenials": 20,
+      "minDenials": 12
+    }
+  },
+  {
+    "scenario": "gauntlet-t3-escort-strike",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        20.0,
+        20.0
+      ],
+      "kills": [
+        1,
+        1
+      ],
+      "missiles": [
+        2,
+        6
+      ],
+      "denials": [
+        16,
+        16
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "minKills": 1,
+      "maxMissilesFired": 8,
+      "maxDenials": 0,
+      "minScore": 50,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 0.0,
+      "maxScore": 40.0,
+      "maxMissilesFired": 8,
+      "minKills": 1,
+      "maxDenials": 20,
+      "minDenials": 12
+    }
+  },
+  {
+    "scenario": "gauntlet-t3-event-chain",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        100.0,
+        200.0
+      ],
+      "kills": [
+        1,
+        2
+      ],
+      "missiles": [
+        4,
+        8
+      ],
+      "denials": [
+        0,
+        0
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "maxMissilesFired": 6,
+      "maxDenials": 0,
+      "minScore": -10,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 80.0,
+      "maxScore": 220.0,
+      "maxMissilesFired": 10,
+      "minKills": 1,
+      "maxDenials": 4
+    }
+  },
+  {
+    "scenario": "gauntlet-t3-id-roe",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        -160.0,
+        -160.0
+      ],
+      "kills": [
+        0,
+        0
+      ],
+      "missiles": [
+        0,
+        0
+      ],
+      "denials": [
+        32,
+        32
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "maxMissilesFired": 0,
+      "minDenials": 12,
+      "maxDenials": 20,
+      "minScore": -120,
+      "maxScore": 0,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -180.0,
+      "maxScore": -140.0,
+      "maxMissilesFired": 2,
+      "maxDenials": 36,
+      "minDenials": 28
+    }
+  },
+  {
+    "scenario": "gauntlet-t4-asymm-roe",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        -20.0,
+        -20.0
+      ],
+      "kills": [
+        1,
+        1
+      ],
+      "missiles": [
+        1,
+        3
+      ],
+      "denials": [
+        24,
+        24
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "minKills": 1,
+      "maxMissilesFired": 4,
+      "maxDenials": 0,
+      "minScore": 50,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -40.0,
+      "maxScore": 0.0,
+      "maxMissilesFired": 5,
+      "minKills": 1,
+      "maxDenials": 28,
+      "minDenials": 20
+    }
+  },
+  {
+    "scenario": "gauntlet-t4-multi-mission",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        -120.0,
+        -20.0
+      ],
+      "kills": [
+        0,
+        1
+      ],
+      "missiles": [
+        2,
+        4
+      ],
+      "denials": [
+        24,
+        24
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "maxMissilesFired": 6,
+      "maxDenials": 0,
+      "minScore": -10,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -140.0,
+      "maxScore": 0.0,
+      "maxMissilesFired": 6,
+      "maxDenials": 28,
+      "minDenials": 20
+    }
+  },
+  {
+    "scenario": "gauntlet-t4-random-inject",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        0.0,
+        200.0
+      ],
+      "kills": [
+        0,
+        2
+      ],
+      "missiles": [
+        4,
+        8
+      ],
+      "denials": [
+        0,
+        0
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "maxMissilesFired": 6,
+      "maxDenials": 0,
+      "minScore": -10,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -20.0,
+      "maxScore": 220.0,
+      "maxMissilesFired": 10,
+      "maxDenials": 4
+    }
+  },
+  {
+    "scenario": "gauntlet-t4-weighted",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        -20.0,
+        -20.0
+      ],
+      "kills": [
+        1,
+        1
+      ],
+      "missiles": [
+        2,
+        2
+      ],
+      "denials": [
+        24,
+        24
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "minKills": 1,
+      "maxMissilesFired": 6,
+      "maxDenials": 0,
+      "minScore": 50,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -40.0,
+      "maxScore": 0.0,
+      "maxMissilesFired": 4,
+      "minKills": 1,
+      "maxDenials": 28,
+      "minDenials": 20
+    }
+  },
+  {
+    "scenario": "gauntlet-t5-cascade",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        0.0,
+        200.0
+      ],
+      "kills": [
+        0,
+        2
+      ],
+      "missiles": [
+        4,
+        8
+      ],
+      "denials": [
+        0,
+        0
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "maxMissilesFired": 6,
+      "maxDenials": 0,
+      "minScore": -10,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -20.0,
+      "maxScore": 220.0,
+      "maxMissilesFired": 10,
+      "maxDenials": 4
+    }
+  },
+  {
+    "scenario": "gauntlet-t5-dynamic-obj",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        -100.0,
+        -100.0
+      ],
+      "kills": [
+        1,
+        1
+      ],
+      "missiles": [
+        1,
+        1
+      ],
+      "denials": [
+        40,
+        40
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "minKills": 1,
+      "maxMissilesFired": 6,
+      "maxDenials": 0,
+      "minScore": 50,
+      "maxScore": 250,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -120.0,
+      "maxScore": -80.0,
+      "maxMissilesFired": 3,
+      "minKills": 1,
+      "maxDenials": 44,
+      "minDenials": 36
+    }
+  },
+  {
+    "scenario": "gauntlet-t5-roe-change",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        -100.0,
+        -100.0
+      ],
+      "kills": [
+        1,
+        1
+      ],
+      "missiles": [
+        2,
+        6
+      ],
+      "denials": [
+        40,
+        40
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "maxMissilesFired": 0,
+      "minDenials": 30,
+      "maxDenials": 50,
+      "minScore": -250,
+      "maxScore": 0,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -120.0,
+      "maxScore": -80.0,
+      "maxMissilesFired": 8,
+      "minKills": 1,
+      "maxDenials": 44,
+      "minDenials": 36
+    }
+  },
+  {
+    "scenario": "gauntlet-t5-theater",
+    "class": "oracle",
+    "reason": "Recalibrated after joint ORBAT (platformId units) changed multi-unit denial/score envelopes vs synthetic u1 baseline",
+    "observed": {
+      "score": [
+        -100.0,
+        -100.0
+      ],
+      "kills": [
+        1,
+        1
+      ],
+      "missiles": [
+        2,
+        6
+      ],
+      "denials": [
+        40,
+        40
+      ]
+    },
+    "old": {
+      "side": "BLUE",
+      "minKills": 1,
+      "maxMissilesFired": 8,
+      "maxDenials": 0,
+      "minScore": 50,
+      "maxScore": 150,
+      "requireNonEmptyFingerprint": true
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -120.0,
+      "maxScore": -80.0,
+      "maxMissilesFired": 8,
+      "minKills": 1,
+      "maxDenials": 44,
+      "minDenials": 36
+    }
+  }
+]

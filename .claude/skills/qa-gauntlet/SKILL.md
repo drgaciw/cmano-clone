@@ -1,6 +1,14 @@
 ---
 name: qa-gauntlet
-description: "Autonomous headless QA loop: generate scenarios of escalating complexity (mission type, platform mix, victory conditions, events, ROE, EMCON) grounded in the platform catalog DB, run them through the batch sim harness, and remediate every defect via TDD. Runs a fixed 5-tier ladder unattended, committing fixes to a QA branch, and delivers a full AAR at the end."
+description: >
+  Autonomous headless QA loop for Project Aegis: generate scenarios of escalating
+  complexity (mission type, platform mix, victory conditions, events, ROE, EMCON)
+  grounded in the platform catalog DB, run them through the batch sim harness, and
+  remediate every defect via TDD. Runs a fixed 5-tier ladder unattended, commits
+  fixes to a QA branch, and delivers a full AAR. Use when the user runs
+  /qa-gauntlet, or asks for "QA gauntlet", "escalating complexity QA", "tiered
+  scenario stress test", "autonomous sim QA loop", "batch sim defect remediation",
+  or "gauntlet AAR".
 argument-hint: "[--tiers N=5] [--scenarios-per-tier N=4] [--seeds 42,7,123] [--max-fix-attempts 3] [--resume <run-id>]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion
@@ -11,13 +19,29 @@ allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion
 You are the **QA Gauntlet Orchestrator**. Run the full loop unattended. This skill
 operates under an explicit user-granted autonomy override of the Collaborative
 Design Principle: you MAY write scenario files, tests, and fixes, and commit to the
-QA branch without per-change approval. All other CLAUDE.md rules remain binding —
-especially GitNexus impact analysis before every symbol edit, `detect_changes()`
-before every commit, and Graphite (`gt`) for all branch work.
+QA branch without per-change approval. All other CLAUDE.md / AGENTS.md rules remain
+binding — especially GitNexus impact analysis before every symbol edit,
+`detect_changes()` before every commit, and Graphite (`gt`) for all branch work.
 
 **Autonomy boundary:** if GitNexus impact returns CRITICAL on a symbol a fix must
 touch, do NOT edit it. Quarantine the defect (see Phase D), continue the tier with
 the remaining scenarios, and surface it prominently in the final report.
+
+## Invocation
+
+```
+/qa-gauntlet [--tiers N=5] [--scenarios-per-tier N=4] [--seeds 42,7,123] [--max-fix-attempts 3] [--resume <run-id>]
+```
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--tiers` | `5` | Number of complexity tiers to run (1–5) |
+| `--scenarios-per-tier` | `4` | Scenarios generated per tier |
+| `--seeds` | `42,7,123` | Comma-separated seeds; every scenario × every seed |
+| `--max-fix-attempts` | `3` | Max TDD remediation cycles per defect |
+| `--resume` | _(none)_ | Continue an existing run from its last completed tier |
+
+**Preferred tools for this skill:** Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion.
 
 ## Run identity & artifacts
 
@@ -93,12 +117,14 @@ plus a one-line intent + expected-outcome oracle per scenario (e.g. "Blue wins b
 HVU survival; Red fires ≤ X missiles under tight ROE").
 
 **A2 — Validation.** Validate every generated scenario before running:
+
 - **Catalog resolution (oracle 0):** every entity, sensor, and weapon ID in the
   scenario resolves against `tier-N/roster.json` (and therefore the catalog DB).
   Unresolved ID → `scenario-data` defect, regardless of whether the sim tolerates it.
 - `pwsh tools/mission-editor/Invoke-ScenarioValidate.ps1 <file>` (or the
   mission-editor CLI equivalent via `dotnet run --project src/ProjectAegis.MissionEditor.Cli`)
 - Run the `scenario-audit` skill on the batch.
+
 Invalid scenario → send back to the architect with the validator output, max 2
 regeneration attempts, then drop it and log why.
 
@@ -119,24 +145,61 @@ dotnet run --project src/ProjectAegis.Delegation.Demo -- --batch \
 Capture stdout/stderr to `tier-N/run.log`. Tick budget scales with tier
 (suggest 6 / 10 / 16 / 24 / 40 unless the scenario intent dictates otherwise).
 
-### Phase C — Oracle evaluation
+### Phase C — Oracle evaluation (hard gate — no stability-only green)
 
-Spawn `qa-lead` to evaluate `results.csv` + `run.log` against these oracles:
+**Required:** every scenario policy MUST include `gauntlet.intent` and machine-checkable
+`gauntlet.expect` (fields: `side`, `minKills`, `maxMissilesFired`, `minDenials`,
+`maxDenials`, `minScore`, `maxScore`, `requireNonEmptyFingerprint`). Missing expect
+is an automatic tier fail.
+
+**Required:** after batch, run the shipped evaluator
+`ProjectAegis.Data.Catalog.GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policyJson, resultsCsv)`
+via CLI (preferred) or equivalent harness wrapper, and write `tier-N/oracle-eval.json`:
+
+```bash
+dotnet run --project src/ProjectAegis.MissionEditor.Cli -- gauntlet_oracle_eval \
+  --policy-dir production/qa/gauntlet/<RUN_ID>/tier-N \
+  --csv production/qa/gauntlet/<RUN_ID>/tier-N/results.csv \
+  --out production/qa/gauntlet/<RUN_ID>/tier-N/oracle-eval.json
+```
+
+A tier is **not** green on stability/fingerprint alone — if the evaluator returns
+`Passed=false` (CLI exit 1), the tier fails and defects are opened.
+
+**CI:** PR workflow `.github/workflows/gauntlet-oracle.yml` runs Demo batch + this CLI
+(fail-closed). Local dry-run mirrors that job.
+
+**Hindsight re-test:** closed defects live in `production/qa/gauntlet-defect-registry.json`.
+Re-run a closed defect after a fix:
+
+```bash
+tools/qa-gauntlet/retest-defect.sh <defect-id> --out-dir <scratch>
+```
+
+**Multi-domain:** policies with surface+air+sub `gauntlet.units` assign engage agents to
+every blue unit; detection observer→target pairs feed preferred victims so concurrent
+domain launches are not collapsed by salvo deconfliction.
+
+Spawn `qa-lead` to evaluate `results.csv` + `run.log` + evaluator output against:
 
 1. **Stability** — zero unhandled exceptions, zero crashes, run completed all ticks.
 2. **Determinism** — identical `fingerprint` for identical (scenario, seed) across a
    repeat run; different seeds may differ. Any mismatch → also run the
    `determinism-audit` skill and treat as a defect owned by `determinism-engineer`.
-3. **Victory-condition correctness** — declared winner/score matches the scenario's
-   stated oracle from Phase A.
-4. **ROE compliance** — no engagements violating the scenario's ROE (e.g. weapons-tight
-   side firing without ID); check kills/missilesFired per side against intent.
+3. **Victory-condition correctness** — winner/score matches `gauntlet.expect` bounds
+   (enforced by `GauntletOracleEvaluator`).
+4. **ROE compliance** — no engagements violating ROE; denials/missiles vs expect
+   (enforced where expect bounds apply).
 5. **EMCON plausibility** — detection/denial patterns consistent with emissions
-   posture *as defined by each platform's catalog `CatalogEmcon` profile* (a
-   passive side should not be trivially detected earlier than an emitting baseline).
+   posture *as defined by each platform's catalog `CatalogEmcon` profile*.
 6. **Regression** — tier ≤ N-1 anchor scenarios (re-run 1 per prior tier) still pass;
    scores within tolerance of their previous CSVs.
-7. **Sanity** — scores finite, non-degenerate (not all-zero), CSV schema intact.
+7. **Sanity** — scores finite; fingerprint non-empty when required; CSV schema intact.
+
+**Joint ORBAT (tier ≥3 when available):** policies SHOULD set `gauntlet.units` with
+surface + air + subsurface catalog `platformId`s. The harness registers them and
+emits `CATALOG_UNIT:{platformId}:{domain}` events (see `gauntlet-joint-orbat-smoke`).
+Do not claim multi-domain play without those events in the run fingerprint/fire order.
 
 Every failed oracle becomes a defect entry via the `bug-triage` skill, classified as:
 `scenario-data` (bad generated JSON or catalog mismatch), `sim-code`, `oracle`

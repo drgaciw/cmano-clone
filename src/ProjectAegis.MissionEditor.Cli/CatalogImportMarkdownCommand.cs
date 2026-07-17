@@ -22,6 +22,18 @@ public static class CatalogImportMarkdownCommand
         CmoMarkdownImportEntity entity = CmoMarkdownImportEntity.Sensor,
         bool mapBalticPlatformIds = false)
     {
+        // S31-11 completeness fix: corpus-appropriate domain fallback for records whose Type
+        // field doesn't match any InferDomain keyword (was hardcoded "surface" for every entity,
+        // e.g. 100% of facility.md and 63% of aircraft.md defaulted to the wrong domain).
+        var defaultDomain = entity switch
+        {
+            CmoMarkdownImportEntity.Aircraft => "air",
+            CmoMarkdownImportEntity.Submarine => "subsurface",
+            CmoMarkdownImportEntity.Facility => "land",
+            CmoMarkdownImportEntity.GroundUnit => "land",
+            _ => "surface",
+        };
+
         var result = entity switch
         {
             CmoMarkdownImportEntity.Weapon => CmoMarkdownImportProposer.ProposeWeaponsFromMarkdown(
@@ -32,13 +44,15 @@ public static class CatalogImportMarkdownCommand
             CmoMarkdownImportEntity.Platform or
             CmoMarkdownImportEntity.Aircraft or
             CmoMarkdownImportEntity.Submarine or
-            CmoMarkdownImportEntity.Facility => CmoMarkdownImportProposer.ProposePlatformsFromMarkdown(
+            CmoMarkdownImportEntity.Facility or
+            CmoMarkdownImportEntity.GroundUnit => CmoMarkdownImportProposer.ProposePlatformsFromMarkdown(
                 databasePath,
                 markdownPath,
                 mapBalticPlatformIds,
                 weaponMarkdownPath: null,
                 maxRecords: maxRecords,
-                chunkSize: chunkSize),
+                chunkSize: chunkSize,
+                defaultDomain: defaultDomain),
             _ => CmoMarkdownImportProposer.ProposeFromMarkdown(
                 databasePath,
                 markdownPath,
@@ -102,9 +116,10 @@ public static class CatalogImportMarkdownCommand
             "aircraft" or "aircrafts" => CmoMarkdownImportEntity.Aircraft,
             "submarine" or "submarines" => CmoMarkdownImportEntity.Submarine,
             "facility" or "facilities" => CmoMarkdownImportEntity.Facility,
+            "ground-unit" or "ground-units" or "groundunit" => CmoMarkdownImportEntity.GroundUnit,
             "sensor" or "sensors" => CmoMarkdownImportEntity.Sensor,
             _ => throw new ArgumentException(
-                $"Unknown --entity '{raw}'. Use sensor, weapon, platform, aircraft, submarine, or facility."),
+                $"Unknown --entity '{raw}'. Use sensor, weapon, platform, aircraft, submarine, facility, or ground-unit."),
         };
     }
 }

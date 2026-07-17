@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-joint-orbat-smoke",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-multidomain-shooters",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-theater-dynamic-victory",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-theater-inject",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    }
+  ],
+  "allPassed": true
+}

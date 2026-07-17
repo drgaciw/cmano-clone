@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t2-escort-a",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t2-escort-passive",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t2-strike-a",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t2-strike-event",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    }
+  ],
+  "allPassed": true
+}

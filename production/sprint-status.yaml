@@ -4778,3 +4778,283 @@ stories:
     blocker: ""
     completed: "2026-07-09"
     note: "Human ack PROVIDED — i acknowledge 2026-07-09; program COMPLETE; stage Release"
+
+# Sprint 93 — Asset Production Wave (post–S92 forward)
+sprint: 93
+goal: "First binary asset wave for ASSET-001…003 priority children; manifest ≥6 Done."
+start: "2026-07-09"
+end: "2026-07-09"
+generated: "2026-07-09"
+updated: "2026-07-09"
+status: complete
+completed: "2026-07-09"
+plan: production/sprints/sprint-93-asset-production-wave.md
+boundary: production/s93-asset-production-scope-boundary-2026-07-09.md
+closeout: production/qa/smoke-sprint-93-closeout-2026-07-09.md
+s93_gates: build 0e/0w; test 1599/0f; ReplayGolden 6/6; C2 20/20; hash 18; ZERO bridge; manifest 8 Done / 3 In Production
+
+s93_status: |
+  S93 Asset Production Wave — COMPLETE (2026-07-09).
+  Binary wave: production/assets/c2/, store/, baltic/.
+  Manifest: 8 Done (004, 005, 014, 018, 019, 023–025); umbrellas 001–003 In Production.
+  Dashboard items 4 (Stay Release), 5 (asset wave), 6 (Editor PNG defer) resolved.
+  Gates PASS. Stage Release. Cites: s93-asset-production-scope-boundary-2026-07-09.md + smoke-sprint-93-closeout + S91 closeout + AGENTS.md.
+
+s93_complete:
+  sprint: 93
+  status: COMPLETE
+  completed: "2026-07-09"
+  deliverables:
+    - production/assets/c2/App6FrameAtlas.png
+    - production/assets/c2/AegisTokens.uss
+    - production/assets/c2/C2TopBarPanel.uss
+    - production/assets/baltic/baltic-theater-framing-v1.png
+    - production/assets/baltic/ASSET-019-band-b-contact-overlay-spec.md
+    - production/assets/store/ProjectAegis_BalticMainCapsule_v1.png
+    - production/assets/store/ProjectAegis_SmallCapsule.png
+    - production/assets/store/ProjectAegis_Logo_Dark_v1.png
+    - production/assets/store/ProjectAegis_Icon_v1.png
+  manifest_after: "27 Specced / 3 In Production / 8 Done"
+  stage: Release
+
+stories:
+  - id: "S93-01"
+    name: "C2 binary wave — atlas, tokens, top bar USS"
+    file: "production/sprints/sprint-93-asset-production-wave.md"
+    priority: must-have
+    status: done
+    owner: technical-artist
+    estimate_days: 2
+    blocker: ""
+    completed: "2026-07-09"
+  - id: "S93-02"
+    name: "Store capsules + logo variants"
+    file: "production/sprints/sprint-93-asset-production-wave.md"
+    priority: must-have
+    status: done
+    owner: art-director
+    estimate_days: 2
+    blocker: ""
+    completed: "2026-07-09"
+  - id: "S93-03"
+    name: "Baltic theater framing + band-B overlay sheet"
+    file: "production/sprints/sprint-93-asset-production-wave.md"
+    priority: must-have
+    status: done
+    owner: art-director
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-07-09"
+  - id: "S93-04"
+    name: "S93 closeout — manifest, gates, smoke"
+    file: "production/sprints/sprint-93-asset-production-wave.md"
+    priority: must-have
+    status: done
+    owner: producer
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-07-09"
+  - id: "S93-05"
+    name: "Dashboard hygiene — short-term items 4–6"
+    file: "production/sprints/sprint-93-asset-production-wave.md"
+    priority: should-have
+    status: done
+    owner: producer
+    estimate_days: 0.5
+    blocker: ""
+    completed: "2026-07-09"
+
+# Sprint 94 — Asset Wave 2 + Approved Path (2026-07-14)
+sprint: 94
+goal: "Asset wave 2 + Approved path — umbrella children Specced→Done; formal Approved criteria. Stage Release; S94 only (not S95–S97)."
+start: "2026-07-14"
+end: "2026-07-21"
+generated: "2026-07-14"
+updated: "2026-07-14"
+status: complete
+completed: "2026-07-14"
+plan: production/sprints/sprint-94-asset-wave-2.md
+qa: production/qa/qa-plan-sprint-94-asset-wave-2-2026-07-14.md
+kickoff: production/agentic/sprint-94-parallel-kickoff-2026-07-14.md
+closeout: production/qa/smoke-sprint-94-closeout-2026-07-14.md
+approved_criteria: design/assets/approved-criteria-2026-07-14.md
+manifest: "0 Needed / 24 Specced / 3 In Production / 15 Done / 0 Approved"
+stage: Release
+s94_status: "S94 wave-2 progress COMPLETE (006/021/026 Done; Approved criteria published; stage Release)"
+s94_complete:
+  date: "2026-07-14"
+  tracks: ["S94-01", "S94-02", "S94-03"]
+  done_assets: ["ASSET-006", "ASSET-021", "ASSET-026"]
+  smoke: production/qa/smoke-sprint-94-closeout-2026-07-14.md
+
+stories:
+  - id: "S94-01"
+    name: "C2 child wave — Message Log Panel (ASSET-006)"
+    file: "production/sprints/sprint-94-asset-wave-2.md"
+    priority: must-have
+    status: done
+    owner: technical-artist
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-07-14"
+  - id: "S94-02"
+    name: "Baltic/store child wave — ASSET-021 + ASSET-026"
+    file: "production/sprints/sprint-94-asset-wave-2.md"
+    priority: must-have
+    status: done
+    owner: art-director
+    estimate_days: 1.5
+    blocker: ""
+    completed: "2026-07-14"
+  - id: "S94-03"
+    name: "Approved criteria + closeout"
+    file: "production/sprints/sprint-94-asset-wave-2.md"
+    priority: must-have
+    status: done
+    owner: producer
+    estimate_days: 1
+    blocker: ""
+    completed: "2026-07-14"
+
+# Sprint 95 — Gauntlet Productization (2026-07-14)
+sprint: 95
+goal: "Gauntlet productization — expect/CI discipline + defect-registry hygiene. Stage Release; S95 only (not S96–S97)."
+start: "2026-07-14"
+end: "2026-07-21"
+generated: "2026-07-14"
+updated: "2026-07-14"
+status: complete
+completed: "2026-07-14"
+plan: production/sprints/sprint-95-gauntlet-productization.md
+qa: production/qa/qa-plan-sprint-95-gauntlet-productization-2026-07-14.md
+kickoff: production/agentic/sprint-95-parallel-kickoff-2026-07-14.md
+closeout: production/qa/smoke-sprint-95-closeout-2026-07-14.md
+stage: Release
+s95_status: "S95 COMPLETE — expect/CI discipline + registry hygiene; suite ≥1638 cited; stage Release"
+s95_complete:
+  date: "2026-07-14"
+  tracks: ["S95-01", "S95-02", "S95-03"]
+  artifacts:
+    - production/qa/gauntlet-expect-ci-discipline-2026-07-14.md
+    - tools/qa-gauntlet/README-expect-regen.md
+    - production/qa/gauntlet-defect-registry.json
+  suite: "cited ≥1638/0f gates-gauntlet-land-post-2026-07-14.log (docs/registry only)"
+
+stories:
+  - id: "S95-01"
+    name: "Expect regen / CI discipline"
+    file: "production/sprints/sprint-95-gauntlet-productization.md"
+    priority: must-have
+    status: done
+    owner: qa-engineer
+    estimate_days: 2
+    completed: "2026-07-14"
+  - id: "S95-02"
+    name: "Defect-registry hygiene"
+    file: "production/sprints/sprint-95-gauntlet-productization.md"
+    priority: must-have
+    status: done
+    owner: qa-engineer
+    estimate_days: 1.5
+    completed: "2026-07-14"
+  - id: "S95-03"
+    name: "Closeout + smoke + floors"
+    file: "production/sprints/sprint-95-gauntlet-productization.md"
+    priority: must-have
+    status: done
+    owner: producer
+    estimate_days: 1
+    completed: "2026-07-14"
+
+# Sprint 96 — Architecture Hygiene (2026-07-15)
+sprint: 96
+goal: "Architecture/docs hygiene — architecture.md freshness + AGENTS hub playbook. Stage Release; S96 only (not S97)."
+start: "2026-07-15"
+end: "2026-07-21"
+generated: "2026-07-15"
+updated: "2026-07-15"
+status: complete
+completed: "2026-07-15"
+plan: production/sprints/sprint-96-architecture-hygiene.md
+qa: production/qa/qa-plan-sprint-96-architecture-hygiene-2026-07-15.md
+kickoff: production/agentic/sprint-96-parallel-kickoff-2026-07-15.md
+closeout: production/qa/smoke-sprint-96-closeout-2026-07-15.md
+stage: Release
+s96_status: "S96 COMPLETE — architecture freshness + AGENTS hub playbook; stage Release"
+s96_complete:
+  date: "2026-07-15"
+  tracks: ["S96-01", "S96-02", "S96-03"]
+  artifacts:
+    - docs/architecture/architecture.md
+    - docs/architecture/architecture-re-matrix-post-s93-s96-2026-07-15.md
+    - AGENTS.md
+  suite: "cited ≥1638/0f (docs-only)"
+
+stories:
+  - id: "S96-01"
+    name: "Architecture promote / re-matrix"
+    file: "production/sprints/sprint-96-architecture-hygiene.md"
+    priority: must-have
+    status: done
+    completed: "2026-07-15"
+  - id: "S96-02"
+    name: "AGENTS hub playbook enforcement"
+    file: "production/sprints/sprint-96-architecture-hygiene.md"
+    priority: must-have
+    status: done
+    completed: "2026-07-15"
+  - id: "S96-03"
+    name: "Closeout smoke + floors"
+    file: "production/sprints/sprint-96-architecture-hygiene.md"
+    priority: must-have
+    status: done
+    completed: "2026-07-15"
+
+# Sprint 97 — Release Continuity Gate (2026-07-15)
+sprint: 97
+goal: "Release continuity gate package — S94–S96 closed matrix + floors + human ack template. Stage Release; not Launch."
+start: "2026-07-15"
+end: "2026-07-18"
+generated: "2026-07-15"
+updated: "2026-07-16"
+status: complete
+completed: "2026-07-15"
+plan: production/sprints/sprint-97-release-continuity-gate.md
+gate: production/gate-checks/s97-release-continuity-gate-2026-07-15.md
+qa: production/qa/qa-plan-sprint-97-release-continuity-2026-07-15.md
+kickoff: production/agentic/sprint-97-parallel-kickoff-2026-07-15.md
+ack_package: production/agentic/s97-human-ack-package-2026-07-15.md
+closeout: production/qa/smoke-sprint-97-closeout-2026-07-15.md
+stage: Release
+human_ack: "HUMAN ACK PROVIDED (\"i acknowledge\" 2026-07-16) — \"release continuity program complete\" (S94–S97); stage Release; Launch No"
+s97_status: "S97 FULLY CLOSED — HUMAN ACK PROVIDED (\"i acknowledge\" 2026-07-16); program \"release continuity program complete\"; stage Release; Launch deferred"
+s97_complete:
+  date: "2026-07-15"
+  tracks: ["S97-01", "S97-02", "S97-03"]
+  suite: "cited ≥1638/0f gates-gauntlet-land-post-2026-07-14.log"
+  gitnexus: "up-to-date @ 257d9e9"
+  retest: "GAUNTLET-SYN-T12-001 PASS (this goal SCRATCH)"
+  human_ack_phrase: "i acknowledge"
+  human_ack_date: "2026-07-16"
+  program: "release continuity program complete (S94–S97)"
+  launch: "not authorized"
+
+stories:
+  - id: "S97-01"
+    name: "Gate verification package"
+    file: "production/sprints/sprint-97-release-continuity-gate.md"
+    priority: must-have
+    status: done
+    completed: "2026-07-15"
+  - id: "S97-02"
+    name: "Human ack package (template)"
+    file: "production/sprints/sprint-97-release-continuity-gate.md"
+    priority: must-have
+    status: done
+    completed: "2026-07-15"
+  - id: "S97-03"
+    name: "Closeout smoke + floors cite"
+    file: "production/sprints/sprint-97-release-continuity-gate.md"
+    priority: must-have
+    status: done
+    completed: "2026-07-15"

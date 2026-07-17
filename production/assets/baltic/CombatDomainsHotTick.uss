@@ -1,0 +1,52 @@
+/* CombatDomainsHotTick.uss — HUD hot-tick combat-domains overlay
+ * Asset: ASSET-021 — production/assets/baltic/CombatDomainsHotTick.uss
+ * Authority: design/assets/specs/baltic-patrol-assets.md ASSET-021
+ * Sprint: S94 wave-2 placeholder (minimal USS; full art deferred)
+ * Note: no arcade VFX; KILL log tint aligns with AegisTokens --log-kill (#FFB4A0)
+ */
+
+.combat-domains-hot-tick {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    min-width: 220px;
+    padding: 8px 12px;
+    background-color: rgba(12, 18, 28, 0.92);
+    border-width: 1px;
+    border-color: rgb(50, 65, 80);
+    border-radius: 2px;
+    flex-direction: column;
+}
+
+.combat-domains-hot-tick__title {
+    font-size: 11px;
+    color: rgb(200, 210, 220);
+    -unity-font-style: bold;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+}
+
+.combat-domains-hot-tick__row {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.combat-domains-hot-tick__domain {
+    font-size: 11px;
+    color: rgb(180, 190, 200);
+}
+
+.combat-domains-hot-tick__state {
+    font-size: 11px;
+    color: rgb(100, 200, 140);
+}
+
+.combat-domains-hot-tick__state--engaged {
+    color: rgb(255, 180, 160); /* KILL tint — no arcade VFX */
+}
+
+.combat-domains-hot-tick__state--degraded {
+    color: rgb(240, 180, 80);
+}

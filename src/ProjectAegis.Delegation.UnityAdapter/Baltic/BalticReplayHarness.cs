@@ -103,6 +103,36 @@ public static class BalticReplayHarness
             throw new ArgumentOutOfRangeException(nameof(ticks), "ticks must be >= 1");
         }
 
+        // Scenario-scoped catalog sides (gauntlet ORBAT); always clear so runs don't leak.
+        BalticV3SideRegistry.ClearScenarioSides();
+        try
+        {
+            return RunCore(
+                seed,
+                scenarioPolicyId,
+                ticks,
+                mvpEngagement,
+                catalog,
+                unitReadiness,
+                nearFutureUnits,
+                maxTechnologyLevel);
+        }
+        finally
+        {
+            BalticV3SideRegistry.ClearScenarioSides();
+        }
+    }
+
+    private static Result RunCore(
+        int seed,
+        string scenarioPolicyId,
+        int ticks,
+        bool mvpEngagement,
+        ICatalogReader? catalog,
+        IReadOnlyDictionary<string, bool>? unitReadiness,
+        IReadOnlyList<ScenarioNearFutureUnitRequest>? nearFutureUnits,
+        int maxTechnologyLevel)
+    {
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         var profile = ScenarioPolicyRepository.TryGet(scenarioPolicyId);
         var catalogReader = catalog
@@ -176,22 +206,89 @@ public static class BalticReplayHarness
             hostileBinding = bridge.Registry.RegisterUnit(new EntityKey(nextEntityKey++), "hostile-1");
         }
 
+        var gauntletOrbat = RegisterGauntletCatalogUnits(
+            bridge,
+            scenarioPolicyId,
+            catalogReader,
+            nextEntityKey,
+            bridge.Session);
+        nextEntityKey = gauntletOrbat.NextEntityKey;
+
+        // Prefer catalog red unit as hostile target (eliminates synthetic hostile-1 when present).
+        var redCombat = gauntletOrbat.Units.FirstOrDefault(u =>
+            !u.IsBlue && string.Equals(u.Domain, "surface", StringComparison.OrdinalIgnoreCase))
+            ?? gauntletOrbat.Units.FirstOrDefault(u => !u.IsBlue);
+        if (redCombat != null)
+        {
+            hostileBinding = redCombat.Binding;
+        }
+        // Legacy fallback: joint ORBAT with blue-only units still needs a registry hostile for engage.
+        else if (gauntletOrbat.Units.Count > 0 && hostileBinding == null)
+        {
+            hostileBinding = bridge.Registry.RegisterUnit(new EntityKey(nextEntityKey++), "hostile-1");
+        }
+
         RegisterNearFutureUnits(bridge, nearFutureUnits, maxTechnologyLevel, nextEntityKey);
         var unit = unitBinding.Target;
+        // Prefer catalog blue surface as primary unit binding (legacy single-agent path still works).
+        var blueCombat = gauntletOrbat.Units.FirstOrDefault(u =>
+            u.IsBlue && string.Equals(u.Domain, "surface", StringComparison.OrdinalIgnoreCase))
+            ?? gauntletOrbat.Units.FirstOrDefault(u => u.IsBlue);
+        if (blueCombat != null)
+        {
+            unit = blueCombat.Binding.Target;
+        }
+
         var patrolPolicyFactory = profile?.DelegationSettings.UsePatrolCandidates == true
             ? (Func<EngagePrimaryMode, IPolicy>)(mode => new PatrolCandidateEngagePolicy(mode))
             : _ => new EngageOnlyPolicy();
-        var bluePolicy = profile?.ResolveForUnit("u1", isFriendly: true) ?? EffectivePolicy.DefaultFree;
-        var agent = bridge.Orchestrator.CreateAgent(
-            new AgentId("a1"),
-            PersonalityCatalog.All[0].Traits,
-            AutonomyLevel.FullAutonomous,
-            policy: patrolPolicyFactory(EngagePrimaryMode.Hostile));
-        bridge.Orchestrator.AssignAgentToTarget(agent, unit, bluePolicy, isFriendly: true);
+
+        // Multi-domain engage: assign an engage agent to EVERY blue catalog unit (surface/air/sub)
+        // so air and subsurface can True|Launched — not detection-only CATALOG_UNIT registration.
+        var blueUnits = gauntletOrbat.Units.Where(u => u.IsBlue).ToList();
+        if (blueUnits.Count > 0)
+        {
+            var agentIndex = 0;
+            foreach (var blue in blueUnits)
+            {
+                var blueUnitKey = blue.PlatformId;
+                var bluePolicy = profile?.ResolveForUnit(blueUnitKey, isFriendly: true)
+                    ?? profile?.ResolveForUnit("u1", isFriendly: true)
+                    ?? EffectivePolicy.DefaultFree;
+                var agentId = agentIndex == 0 ? "a1" : $"a-blue-{agentIndex}";
+                agentIndex++;
+                var agent = bridge.Orchestrator.CreateAgent(
+                    new AgentId(agentId),
+                    PersonalityCatalog.All[0].Traits,
+                    AutonomyLevel.FullAutonomous,
+                    policy: patrolPolicyFactory(EngagePrimaryMode.Hostile));
+                bridge.Orchestrator.AssignAgentToTarget(
+                    agent,
+                    blue.Binding.Target,
+                    bluePolicy,
+                    isFriendly: true);
+            }
+        }
+        else
+        {
+            // Legacy synthetic path (ReplayGolden / non-gauntlet).
+            var blueUnitKey = "u1";
+            var bluePolicy = profile?.ResolveForUnit(blueUnitKey, isFriendly: true)
+                ?? EffectivePolicy.DefaultFree;
+            var agent = bridge.Orchestrator.CreateAgent(
+                new AgentId("a1"),
+                PersonalityCatalog.All[0].Traits,
+                AutonomyLevel.FullAutonomous,
+                policy: patrolPolicyFactory(EngagePrimaryMode.Hostile));
+            bridge.Orchestrator.AssignAgentToTarget(agent, unit, bluePolicy, isFriendly: true);
+        }
 
         if (hostileBinding != null)
         {
-            var redPolicy = profile?.ResolveForUnit("hostile-1", isFriendly: false) ?? EffectivePolicy.DefaultFree;
+            var redUnitKey = redCombat?.PlatformId ?? "hostile-1";
+            var redPolicy = profile?.ResolveForUnit(redUnitKey, isFriendly: false)
+                ?? profile?.ResolveForUnit("hostile-1", isFriendly: false)
+                ?? EffectivePolicy.DefaultFree;
             var redAgent = bridge.Orchestrator.CreateAgent(
                 new AgentId("a-red"),
                 PersonalityCatalog.All[0].Traits,
@@ -205,13 +302,41 @@ public static class BalticReplayHarness
         }
         bridge.BeginExecution();
 
+        // Detection observer→target pairs enable concurrent multi-domain shooters
+        // (SwarmSalvoDeconfliction allows one shooter per distinct target).
+        IReadOnlyDictionary<string, string>? preferredHostileByShooter = null;
+        if (profile?.DetectionTrials is { Count: > 0 })
+        {
+            var map = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var trial in profile.DetectionTrials)
+            {
+                if (string.IsNullOrWhiteSpace(trial.ObserverId)
+                    || string.IsNullOrWhiteSpace(trial.TargetId))
+                {
+                    continue;
+                }
+
+                // Prefer first trial per observer (stable order from profile).
+                if (!map.ContainsKey(trial.ObserverId))
+                {
+                    map[trial.ObserverId] = trial.TargetId;
+                }
+            }
+
+            if (map.Count > 0)
+            {
+                preferredHostileByShooter = map;
+            }
+        }
+
         var harness = new HeadlessSnapshot(
             pdSim,
             scheduleSim,
             profile?.UnitRadarEmcon,
             bridge.Session?.KilledTargets,
             fallbackContactCount: 2,
-            fallbackHasTrack: true);
+            fallbackHasTrack: true,
+            preferredHostileByShooter);
         for (var t = 0; t < ticks; t++)
         {
             harness.Advance(1.0);
@@ -379,6 +504,7 @@ public static class BalticReplayHarness
         private readonly KilledTargetRegistry? _killedTargets;
         private readonly int _fallbackContactCount;
         private readonly bool _fallbackHasTrack;
+        private readonly IReadOnlyDictionary<string, string>? _preferredHostileByShooter;
         private double _simTime;
 
         public HeadlessSnapshot(
@@ -387,7 +513,8 @@ public static class BalticReplayHarness
             IReadOnlyDictionary<string, EmconState>? unitRadarEmcon,
             KilledTargetRegistry? killedTargets,
             int fallbackContactCount,
-            bool fallbackHasTrack)
+            bool fallbackHasTrack,
+            IReadOnlyDictionary<string, string>? preferredHostileByShooter = null)
         {
             _pd = pd;
             _schedule = schedule;
@@ -395,7 +522,11 @@ public static class BalticReplayHarness
             _killedTargets = killedTargets;
             _fallbackContactCount = fallbackContactCount;
             _fallbackHasTrack = fallbackHasTrack;
+            _preferredHostileByShooter = preferredHostileByShooter;
         }
+
+        public IReadOnlyDictionary<string, string>? PreferredHostileByShooter =>
+            _preferredHostileByShooter;
 
         public double SimTime => _simTime;
 
@@ -409,12 +540,19 @@ public static class BalticReplayHarness
             get
             {
                 string? candidate = _pd?.PrimaryBlueForceTargetId;
-                if (candidate == null || !BalticV3SideRegistry.IsBlueForceUnit(candidate))
+                if (candidate != null && BalticV3SideRegistry.IsBlueForceUnit(candidate))
                 {
-                    return null;
+                    return new TargetId(candidate);
                 }
 
-                return new TargetId(candidate);
+                // Catalog ORBAT: red can engage blue even without reverse detection trials.
+                var fallback = BalticV3SideRegistry.GetDefaultBlueUnitId();
+                if (fallback != null && BalticV3SideRegistry.IsBlueForceUnit(fallback))
+                {
+                    return new TargetId(fallback);
+                }
+
+                return null;
             }
         }
 
@@ -506,6 +644,110 @@ public static class BalticReplayHarness
         }
 
         public void ApplyOrder(EntityKey entity, in Order order) { }
+    }
+
+    private sealed record GauntletRegisteredUnit(
+        string PlatformId,
+        string Domain,
+        bool IsBlue,
+        int EntityKey,
+        SimEntityBinding Binding,
+        int SeededRounds,
+        double MaxWeaponRangeMeters);
+
+    private sealed record GauntletOrbatRegistration(
+        int NextEntityKey,
+        IReadOnlyList<GauntletRegisteredUnit> Units);
+
+    /// <summary>
+    /// Registers catalog-backed gauntlet.units (surface/air/sub) when present on the policy JSON,
+    /// seeds magazine rounds from the catalog path, and emits CATALOG_UNIT / MAGAZINE_SEED events.
+    /// Unit registry id = platformId so engage magazine seeder resolves catalog envelopes by shooter id.
+    /// Legacy scenarios without <c>gauntlet.units</c> are unchanged for ReplayGolden safety.
+    /// </summary>
+    private static GauntletOrbatRegistration RegisterGauntletCatalogUnits(
+        DelegationBridge bridge,
+        string scenarioPolicyId,
+        ICatalogReader catalogReader,
+        int startEntityKey,
+        SimulationSession? session)
+    {
+        var dto = ProjectAegis.Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(scenarioPolicyId);
+        var units = dto?.Gauntlet?.Units;
+        if (units == null || units.Count == 0)
+        {
+            return new GauntletOrbatRegistration(startEntityKey, Array.Empty<GauntletRegisteredUnit>());
+        }
+
+        var entityKey = startEntityKey;
+        var registered = new List<GauntletRegisteredUnit>();
+        foreach (var unit in units)
+        {
+            if (string.IsNullOrWhiteSpace(unit.PlatformId))
+            {
+                continue;
+            }
+
+            // platformId is the combat unit id so CatalogMagazineLedgerSeeder maps shooter→catalog.
+            var unitId = unit.PlatformId;
+            var domain = string.IsNullOrWhiteSpace(unit.Domain) ? "surface" : unit.Domain;
+            var isBlue = !string.Equals(unit.Side, "red", StringComparison.OrdinalIgnoreCase);
+            BalticV3SideRegistry.RegisterScenarioSide(unitId, isBlue ? "blue" : "red");
+            var key = entityKey++;
+            var binding = bridge.Registry.RegisterUnit(new EntityKey(key), unitId);
+
+            var maxRange = 0.0;
+            foreach (var mag in catalogReader.GetSortedMagazines())
+            {
+                if (!string.Equals(mag.PlatformId, unit.PlatformId, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (catalogReader.TryGetWeaponEnvelope(mag.WeaponId, out var env)
+                    && env.MaxRangeMeters > maxRange)
+                {
+                    maxRange = env.MaxRangeMeters;
+                }
+            }
+
+            var seededRounds = 0;
+            if (session?.Magazines != null && maxRange > 0)
+            {
+                CatalogMagazineLedgerSeeder.TrySeedInitialRounds(
+                    session.Magazines,
+                    catalogReader,
+                    unit.PlatformId,
+                    (ulong)key,
+                    mountId: 0,
+                    fallbackRounds: Math.Max(1, session.DefaultMagazineRounds ?? 4),
+                    out seededRounds);
+            }
+
+            bridge.Orchestrator.DecisionLog.AppendEventFired(new EventFiredRecord(
+                0,
+                0,
+                0,
+                $"CATALOG_UNIT:{unit.PlatformId}:{domain}",
+                unitId));
+            bridge.Orchestrator.DecisionLog.AppendEventFired(new EventFiredRecord(
+                0,
+                0,
+                0,
+                $"MAGAZINE_SEED:{unit.PlatformId}:{seededRounds}:{maxRange.ToString(System.Globalization.CultureInfo.InvariantCulture)}",
+                unitId));
+
+            registered.Add(new GauntletRegisteredUnit(
+                unit.PlatformId,
+                domain,
+                isBlue,
+                key,
+                binding,
+                seededRounds,
+                maxRange));
+        }
+
+        return new GauntletOrbatRegistration(entityKey, registered);
     }
 
     private static void RegisterNearFutureUnits(

@@ -23,6 +23,7 @@ public static class ObservedStateBuilder
             snapshot.ObserverRadarEmconActive,
             snapshot.PrimaryHostileDestroyed,
             snapshot.PrimaryBlueForceContactId,
-            snapshot.PrimaryBlueForceContactDestroyed);
+            snapshot.PrimaryBlueForceContactDestroyed,
+            snapshot.PreferredHostileByShooter);
     }
 }

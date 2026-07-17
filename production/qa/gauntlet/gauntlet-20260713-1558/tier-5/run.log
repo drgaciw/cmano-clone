@@ -1,0 +1,16 @@
+=== TIER 5 ticks=40 ===
+Wrote 12 rows to production/qa/gauntlet/gauntlet-20260713-1558/tier-5/results.csv
+exit=0 rows=13
+rows 12
+gauntlet-t5-cascade 42 BLUE 200 2 4 0
+gauntlet-t5-cascade 7 BLUE 100 1 8 0
+gauntlet-t5-cascade 123 BLUE 0 0 8 0
+gauntlet-t5-dynamic-obj 42 BLUE -100 1 1 40
+gauntlet-t5-dynamic-obj 7 BLUE -100 1 1 40
+gauntlet-t5-dynamic-obj 123 BLUE -100 1 1 40
+gauntlet-t5-roe-change 42 BLUE -100 1 2 40
+gauntlet-t5-roe-change 7 BLUE -100 1 6 40
+gauntlet-t5-roe-change 123 BLUE -100 1 2 40
+gauntlet-t5-theater 42 BLUE -100 1 2 40
+gauntlet-t5-theater 7 BLUE -100 1 6 40
+gauntlet-t5-theater 123 BLUE -100 1 2 40

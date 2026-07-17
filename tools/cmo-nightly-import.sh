@@ -17,7 +17,7 @@ Off-CI nightly CMO corpus propose-only import. Stages batches in a scratch DB;
 approve via tools/cmo-nightly-approve.sh (or catalog_write_approve) before any catalog commit.
 
 Options:
-  --entity <sensor|weapon|platform|aircraft|submarine|facility|all>  Entities to import (default: all)
+  --entity <sensor|weapon|platform|aircraft|submarine|facility|ground-unit|all>  Entities to import (default: all)
   --chunk-size <N>                       Records per batch (default: 500)
   --max-records <N>                      Cap parsed records per entity (smoke/CI gate)
   --propose-only                         Propose-only mode (default; no auto-approve)
@@ -25,7 +25,7 @@ Options:
   -h, --help                             Show this help
 
 Environment overrides:
-  CHUNK_SIZE, MAX_RECORDS, PLATFORM_MD, AIRCRAFT_MD, SUBMARINE_MD, FACILITY_MD
+  CHUNK_SIZE, MAX_RECORDS, PLATFORM_MD, AIRCRAFT_MD, SUBMARINE_MD, FACILITY_MD, GROUND_UNIT_MD
 
 Examples:
   MAX_RECORDS=12 ./tools/cmo-nightly-import.sh
@@ -45,7 +45,7 @@ DRY_RUN=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --entity)
-      ENTITY="${2:?--entity requires sensor|weapon|platform|aircraft|submarine|facility|all}"
+      ENTITY="${2:?--entity requires sensor|weapon|platform|aircraft|submarine|facility|ground-unit|all}"
       shift 2
       ;;
     --chunk-size)
@@ -77,9 +77,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "${ENTITY}" in
-  sensor|weapon|platform|aircraft|submarine|facility|all) ;;
+  sensor|weapon|platform|aircraft|submarine|facility|ground-unit|all) ;;
   *)
-    echo "Invalid --entity '${ENTITY}'. Use sensor, weapon, platform, aircraft, submarine, facility, or all." >&2
+    echo "Invalid --entity '${ENTITY}'. Use sensor, weapon, platform, aircraft, submarine, facility, ground-unit, or all." >&2
     exit 1
     ;;
 esac
@@ -98,6 +98,7 @@ PLATFORM_MD="${PLATFORM_MD:-${REPO_ROOT}/docs/reference/cmano-db/ship.md}"
 AIRCRAFT_MD="${AIRCRAFT_MD:-${REPO_ROOT}/docs/reference/cmano-db/aircraft.md}"
 SUBMARINE_MD="${SUBMARINE_MD:-${REPO_ROOT}/docs/reference/cmano-db/submarine.md}"
 FACILITY_MD="${FACILITY_MD:-${REPO_ROOT}/docs/reference/cmano-db/facility.md}"
+GROUND_UNIT_MD="${GROUND_UNIT_MD:-${REPO_ROOT}/docs/reference/cmano-db/ground-units.md}"
 SHIP_SLICE_MD="${REPO_ROOT}/tools/cmano-db-crawler/fixtures/ship-slice-100.md"
 AIRCRAFT_SLICE_MD="${REPO_ROOT}/tools/cmano-db-crawler/fixtures/aircraft-slice-100.md"
 SUBMARINE_SLICE_MD="${REPO_ROOT}/tools/cmano-db-crawler/fixtures/submarine-slice-100.md"
@@ -194,6 +195,13 @@ if entity_selected facility; then
   fi
 fi
 
+if entity_selected ground-unit; then
+  if [[ ! -f "${GROUND_UNIT_MD}" ]]; then
+    echo "Missing ground-unit corpus: ${GROUND_UNIT_MD}" >&2
+    exit 1
+  fi
+fi
+
 echo "==> Nightly CMO import (propose-only) @ ${RUN_DATE}"
 echo "    DB: ${DB_PATH}"
 echo "    Entity: ${ENTITY}"
@@ -238,6 +246,10 @@ if entity_selected facility; then
   echo "    Curated fixture (CI gate): ${FACILITY_SLICE_MD}"
 fi
 
+if entity_selected ground-unit; then
+  import_entity ground-unit "${GROUND_UNIT_MD}"
+fi
+
 if [[ "${DRY_RUN}" -eq 1 ]]; then
   echo "==> Dry-run complete. Paths validated; no batches staged."
   exit 0
@@ -262,4 +274,7 @@ if entity_selected submarine; then
 fi
 if entity_selected facility; then
   echo "    Facility report: ${SCRATCH_DIR}/facility-quarantine.json"
+fi
+if entity_selected ground-unit; then
+  echo "    Ground-unit report: ${SCRATCH_DIR}/ground-unit-quarantine.json"
 fi

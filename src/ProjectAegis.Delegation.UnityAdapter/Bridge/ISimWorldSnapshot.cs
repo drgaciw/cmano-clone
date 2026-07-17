@@ -38,4 +38,10 @@ public interface ISimWorldSnapshot
 
     /// <summary>Whether the primary blue-force contact has been destroyed (red-side patrol policies).</summary>
     bool PrimaryBlueForceContactDestroyed => false;
+
+    /// <summary>
+    /// Optional shooter→preferred-hostile map for multi-domain concurrent engage.
+    /// Default null preserves single-primary-hostile MVP behaviour.
+    /// </summary>
+    IReadOnlyDictionary<string, string>? PreferredHostileByShooter => null;
 }
