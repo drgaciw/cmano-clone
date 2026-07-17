@@ -1,12 +1,56 @@
 === tier1-patrol-01 ===
-{"error":"file not found","path":"production/qa/gauntlet/gauntlet-20260709-1242/tier-1/tier1-patrol-01.policy.json"}
-EXIT_CODE=0
+{"seed":42,"scenarioPolicyId":"qa-tier1-patrol-01","ticks":6,"fingerprint":"PolicyUpdate|1|0|0|1|roe|WeaponsFree|WeaponsFree\nModeChange|2|0|0||Planning|Executing\nContactChange|3|1|1|u1|c1|hostile-1|Unknown|Detected\nAgentDecision|4|1|1|a1|Engage|Engage:1:High|0.796304\nEngagement|5|1|1|u1|1|True|Launched\nMagazineChange|6|1|1|u1|0|-1|fire\nEngagementOutcome|7|1|1|1|hostile-1|Kill|0.006502\nContactChange|8|1|1|u1|c1|hostile-1|Detected|Lost\nAgentDecision|9|2|2|a1|Engage|Engage:1:High|0.235134\nEngagement|10|2|2|u1|0|False|TARGET_DESTROYED\nAgentDecision|11|3|3|a1|Engage|Engage:1:High|0.974989\nEngagement|12|3|3|u1|0|False|TARGET_DESTROYED\nAgentDecision|13|4|4|a1|Engage|Engage:1:High|0.207748\nEngagement|14|4|4|u1|0|False|TARGET_DESTROYED\nAgentDecision|15|5|5|a1|Engage|Engage:1:High|2.702277\nEngagement|16|5|5|u1|0|False|TARGET_DESTROYED\nAgentDecision|17|6|6|a1|Engage|Engage:1:High|0.654472\nEngagement|18|6|6|u1|0|False|TARGET_DESTROYED\n","fingerprintSha256":"79d350a41e9b21d42939d68fe9976fe510e0d870a20e61a0e41dfdc60e780815","worldHash":"9489786905462778189","detectionWorldHash":"1258","engagementCount":6,"reportHash":"3118aad2212f9659186a20bb94df8e35dd200724174c1da998dd0017f19ef450","fire_order":[],"worldStateSha256":"79d350a41e9b21d42939d68fe9976fe510e0d870a20e61a0e41dfdc60e780815"}
+SEED=42 HASH=79d350a41e9b21d42939d68fe9976fe510e0d870a20e61a0e41dfdc60e780815
+{
+  "recordType": "sample-complete",
+  "scenarioPath": "production/qa/gauntlet/gauntlet-20260709-1242/tier-1/tier1-patrol-01.policy.json",
+  "ticks": 6,
+  "seed": 42,
+  "worldHash": "79d350a41e9b21d42939d68fe9976fe510e0d870a20e61a0e41dfdc60e780815",
+  "missionTypes": [
+    "Patrol"
+  ],
+  "missionCount": 2
+}
 === tier1-patrol-02 ===
-{"error":"file not found","path":"production/qa/gauntlet/gauntlet-20260709-1242/tier-1/tier1-patrol-02.policy.json"}
-EXIT_CODE=0
+{"seed":7,"scenarioPolicyId":"qa-tier1-patrol-02","ticks":6,"fingerprint":"PolicyUpdate|1|0|0|1|roe|WeaponsFree|WeaponsFree\nModeChange|2|0|0||Planning|Executing\nAgentDecision|3|1|1|a1|Engage|Engage:1:High|3.133131\nEngagement|4|1|1|u1|1|True|Launched\nMagazineChange|5|1|1|u1|0|-1|fire\nEngagementOutcome|6|1|1|1|hostile-1|Kill|0.826851\nAgentDecision|7|2|2|a1|Engage|Engage:1:High|0.249756\nEngagement|8|2|2|u1|0|False|TARGET_DESTROYED\nAgentDecision|9|3|3|a1|Engage|Engage:1:High|0.031829\nEngagement|10|3|3|u1|0|False|TARGET_DESTROYED\nAgentDecision|11|4|4|a1|Engage|Engage:1:High|0.942103\nEngagement|12|4|4|u1|0|False|TARGET_DESTROYED\nAgentDecision|13|5|5|a1|Engage|Engage:1:High|1.833898\nEngagement|14|5|5|u1|0|False|TARGET_DESTROYED\nAgentDecision|15|6|6|a1|Engage|Engage:1:High|1.321819\nEngagement|16|6|6|u1|0|False|TARGET_DESTROYED\n","fingerprintSha256":"a41e76424eb02af091f4f2b46c22e6028fc4859eb6a47d2d3a8bcf65961d9590","worldHash":"11098357827964497019","detectionWorldHash":"0","engagementCount":6,"reportHash":"ed2e9e86d0318553b645307ae24e0bd88452f8486b80d745dded6f161a7d6418","fire_order":[],"worldStateSha256":"a41e76424eb02af091f4f2b46c22e6028fc4859eb6a47d2d3a8bcf65961d9590"}
+SEED=7 HASH=a41e76424eb02af091f4f2b46c22e6028fc4859eb6a47d2d3a8bcf65961d9590
+{
+  "recordType": "sample-complete",
+  "scenarioPath": "production/qa/gauntlet/gauntlet-20260709-1242/tier-1/tier1-patrol-02.policy.json",
+  "ticks": 6,
+  "seed": 7,
+  "worldHash": "a41e76424eb02af091f4f2b46c22e6028fc4859eb6a47d2d3a8bcf65961d9590",
+  "missionTypes": [
+    "Patrol"
+  ],
+  "missionCount": 2
+}
 === tier1-patrol-03 ===
-{"error":"file not found","path":"production/qa/gauntlet/gauntlet-20260709-1242/tier-1/tier1-patrol-03.policy.json"}
-EXIT_CODE=0
+{"seed":123,"scenarioPolicyId":"qa-tier1-patrol-03","ticks":6,"fingerprint":"PolicyUpdate|1|0|0|1|roe|WeaponsFree|WeaponsFree\nModeChange|2|0|0||Planning|Executing\nContactChange|3|1|1|u1|c1|hostile-1|Unknown|Detected\nAgentDecision|4|1|1|a1|Engage|Engage:1:High|0.24987\nEngagement|5|1|1|u1|1|True|Launched\nMagazineChange|6|1|1|u1|0|-1|fire\nEngagementOutcome|7|1|1|1|hostile-1|Kill|0.800307\nContactChange|8|1|1|u1|c1|hostile-1|Detected|Lost\nAgentDecision|9|2|2|a1|Engage|Engage:1:High|0.279434\nEngagement|10|2|2|u1|0|False|TARGET_DESTROYED\nAgentDecision|11|3|3|a1|Engage|Engage:1:High|1.743799\nEngagement|12|3|3|u1|0|False|TARGET_DESTROYED\nAgentDecision|13|4|4|a1|Engage|Engage:1:High|2.170743\nEngagement|14|4|4|u1|0|False|TARGET_DESTROYED\nAgentDecision|15|5|5|a1|Engage|Engage:1:High|0.838746\nEngagement|16|5|5|u1|0|False|TARGET_DESTROYED\nAgentDecision|17|6|6|a1|Engage|Engage:1:High|3.017865\nEngagement|18|6|6|u1|0|False|TARGET_DESTROYED\n","fingerprintSha256":"3568e5e5a09ba9a7c24353c806e56d7dd8d6d902bb16774800a85152a8ce6f77","worldHash":"613377091539829492","detectionWorldHash":"10819","engagementCount":6,"reportHash":"6daa2c4a7ec81a35bdb8714f456fd446280a5942a70415c580e826b84e4bb059","fire_order":[],"worldStateSha256":"3568e5e5a09ba9a7c24353c806e56d7dd8d6d902bb16774800a85152a8ce6f77"}
+SEED=123 HASH=3568e5e5a09ba9a7c24353c806e56d7dd8d6d902bb16774800a85152a8ce6f77
+{
+  "recordType": "sample-complete",
+  "scenarioPath": "production/qa/gauntlet/gauntlet-20260709-1242/tier-1/tier1-patrol-03.policy.json",
+  "ticks": 6,
+  "seed": 123,
+  "worldHash": "3568e5e5a09ba9a7c24353c806e56d7dd8d6d902bb16774800a85152a8ce6f77",
+  "missionTypes": [
+    "Patrol"
+  ],
+  "missionCount": 3
+}
 === tier1-patrol-04 ===
-{"error":"file not found","path":"production/qa/gauntlet/gauntlet-20260709-1242/tier-1/tier1-patrol-04.policy.json"}
-EXIT_CODE=0
+{"seed":999,"scenarioPolicyId":"qa-tier1-patrol-04","ticks":6,"fingerprint":"PolicyUpdate|1|0|0|1|roe|WeaponsFree|WeaponsFree\nModeChange|2|0|0||Planning|Executing\nContactChange|3|1|1|u1|c1|hostile-1|Unknown|Detected\nAgentDecision|4|1|1|a1|Engage|Engage:1:High|1.189113\nEngagement|5|1|1|u1|1|True|Launched\nMagazineChange|6|1|1|u1|0|-1|fire\nEngagementOutcome|7|1|1|1|hostile-1|Kill|0.628518\nContactChange|8|1|1|u1|c1|hostile-1|Detected|Lost\nAgentDecision|9|2|2|a1|Engage|Engage:1:High|0.624951\nEngagement|10|2|2|u1|0|False|TARGET_DESTROYED\nAgentDecision|11|3|3|a1|Engage|Engage:1:High|3.16789\nEngagement|12|3|3|u1|0|False|TARGET_DESTROYED\nAgentDecision|13|4|4|a1|Engage|Engage:1:High|0.710163\nEngagement|14|4|4|u1|0|False|TARGET_DESTROYED\nAgentDecision|15|5|5|a1|Engage|Engage:1:High|3.250753\nEngagement|16|5|5|u1|0|False|TARGET_DESTROYED\nAgentDecision|17|6|6|a1|Engage|Engage:1:High|1.048643\nEngagement|18|6|6|u1|0|False|TARGET_DESTROYED\n","fingerprintSha256":"5c85d8fe6323d810ae7a0f0367d786bb9d4bc53ac67865e591ed0fe4276e6de5","worldHash":"15572901354603811457","detectionWorldHash":"3412","engagementCount":6,"reportHash":"ef0ba1258648216ae1003a99c15b9966e80e61693fafd849a1b903c32fa1ecec","fire_order":[],"worldStateSha256":"5c85d8fe6323d810ae7a0f0367d786bb9d4bc53ac67865e591ed0fe4276e6de5"}
+SEED=999 HASH=5c85d8fe6323d810ae7a0f0367d786bb9d4bc53ac67865e591ed0fe4276e6de5
+{
+  "recordType": "sample-complete",
+  "scenarioPath": "production/qa/gauntlet/gauntlet-20260709-1242/tier-1/tier1-patrol-04.policy.json",
+  "ticks": 6,
+  "seed": 999,
+  "worldHash": "5c85d8fe6323d810ae7a0f0367d786bb9d4bc53ac67865e591ed0fe4276e6de5",
+  "missionTypes": [
+    "Patrol"
+  ],
+  "missionCount": 3
+}
