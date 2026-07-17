@@ -156,6 +156,7 @@ silently.
 | Topic | Doc |
 |-------|-----|
 | Data / catalog core (owns the exporter, diff, model, port) | [`../ProjectAegis.Data/README.md`](../ProjectAegis.Data/README.md) |
+| Core round-trip & governance pipeline (`Platform/`) | [`docs/engineering/platform-workbook-roundtrip.md`](../../docs/engineering/platform-workbook-roundtrip.md) |
 | Workbook round-trip CLI (export / import / diff) | [`docs/engineering/mission-editor-cli.md`](../../docs/engineering/mission-editor-cli.md) |
 | Data-layer boundary decision | [`adr-006-data-layer-boundary.md`](../../docs/architecture/adr-006-data-layer-boundary.md) |
 | Determinism rules (ordering, hashing) | [`docs/engineering/determinism-and-replay.md`](../../docs/engineering/determinism-and-replay.md) |
