@@ -36,7 +36,8 @@ autonomous agents; this assembly is where that delegation actually happens. It h
 | `Comms/` | Comms-state timeline + order-delay/staleness model (doc 19) | `CommsTimelineSimulator`, `CommsOrderDelay`, `CommsTrackStaleness`, `SpoofTrackTimelineSimulator` |
 | `Logistics/` | Fuel burn + band-transition ledger | `FuelTimelineTracker` |
 | `Replay/` | Scrub-to-tick checkpoints + order-log replay fingerprint | `ReplayCheckpoint`, `ReplayCheckpointStore`, `OrderLogReplayFingerprint` |
-| `Projection/` | **Read-only** projections of the order log into C2 UI view-models | `MessageLogProjection`, `ContactPictureProjection`, `LossesScoringProjection`, `OobTreeProjection`, `SensorC2Projection`, `App6Sidc` (APP-6/2525C symbology, ADR-007) |
+| `Projection/` | **Read-only** projections of the order log into C2 UI view-models | `MessageLogProjection`, `ContactPictureProjection`, `LossesScoringProjection`, `OobTreeProjection`, `SensorC2Projection`, `App6Sidc` (APP-6/2525C symbology, ADR-007); C2 rev-2 contracts `AlertSeverity`/`AlertSeverityMap`, `OrderLifecycleState`, `C2SelectionResolver` |
+| `Input/` | Remappable C2 keyboard-action IDs (req 20 §Keyboard, a11y §6.3) | `C2InputActions` |
 | `Trust/` | Emit-only post-scenario trust/XP signals for future campaign hooks | `TrustSignalEmitter`, `TrustSignal`, `AgentExperienceBlob` |
 | `Hindsight/` | Optional session-memory sidecar (off in CI/replay) | `HindsightIntegration`, `HindsightOptions`, `IHindsightMemoryClient` |
 
@@ -126,6 +127,22 @@ The `Projection/` types are **pure read-models** rebuilt from the log — the me
 contact/facility picture, OOB tree, sensor C2 panel, losses/scoring, and APP-6 map symbology —
 so the UI never mutates simulation state.
 
+## C2 rev-2 presentation contracts
+
+The req 20 rev-2 C2 UI delta adds four engine-agnostic, presentation-only contracts here so the
+parallel UI tracks (and the Unity host) share one source of truth. All are read-only taxonomy /
+lookup — none touch sim or order-log state (ADR-010).
+
+| Contract | Kind | Purpose |
+|----------|------|---------|
+| [`AlertSeverity`](Projection/AlertSeverity.cs) | enum | Alert tier (`Critical` → toast + optional auto-pause, `Notable` → log highlight, `Routine` → log only). Tier is never colour-only (a11y §5). |
+| [`AlertSeverityMap`](Projection/AlertSeverityMap.cs) | static | Single mapping from `MessageLogLine.Category` → `AlertSeverity`. `ForCategory` is case-insensitive and **fails safe**: unknown/null categories default to `Routine` so a new category never silently escalates. `WEAPON_LAUNCH` is `Routine` by decision (fires on friendly launches too; inbound criticality is carried by `KILL_CONFIRMED`/`POLICY_DENIAL`). |
+| [`OrderLifecycleState`](Projection/OrderLifecycleState.cs) | enum | Player-order lifecycle surfaced to the UI: `Accepted → Queued → Executing → Completed \| Denied \| Aborted` (terminal: last three). `Denied` links the "Why can't I fire?" explain. |
+| [`C2InputActions`](Input/C2InputActions.cs) | static | Remappable action IDs the sim resolves at session start — `input.cycle_unit`, `input.focus_primary_threat`, `input.cancel`. UI hosts bind default keys to these IDs. |
+
+The multi-select **`SelectionSet`** these contracts pair with lives in the Unity adapter with
+`C2PresentationController` — see the [adapter README](../ProjectAegis.Delegation.UnityAdapter/README.md#selection-state--c2presentationcontroller).
+
 ## Personality presets
 
 `PersonalityCatalog.All` ships six data-driven presets (default attention budget `20`):
@@ -163,7 +180,7 @@ dotnet test  src/ProjectAegis.Delegation.Tests/ProjectAegis.Delegation.Tests.csp
 dotnet run   --project src/ProjectAegis.Delegation.Demo        # Baltic replay harness
 ```
 
-`ProjectAegis.Delegation.Tests` is part of the ≥1232-test solution baseline. For Unity, copy
+`ProjectAegis.Delegation.Tests` is part of the ≥1638-test solution baseline. For Unity, copy
 the Release DLLs into `Plugins/` after a green build:
 
 ```bash
