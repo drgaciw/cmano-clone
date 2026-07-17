@@ -92,7 +92,10 @@ monotonic `EngagementId`, an `OutcomeCode`, or an `EngagementAbortReason` — th
 is turned into a stable order-log/message-log code via the manifest-driven
 [abort-reason catalog](../../docs/engineering/abort-reason-catalog.md). Test/fixture
 resolvers (`StubEngagementResolver`, `RecordingEngagementResolver`) implement the same
-interface for isolation.
+interface for isolation. The **exact ordered gate chain**, the `EngageContext` input surface,
+the DLZ personality table, the three-draw combat-outcome fold, and how to add a gate/validator
+without breaking combat goldens are documented in the
+[engagement / kill-chain pipeline guide](../../docs/engineering/engagement-pipeline.md).
 
 ## Policy evaluation
 
@@ -134,6 +137,7 @@ goldens that assert reproducibility of this core live in
 | Topic | Doc |
 |-------|-----|
 | Determinism rules, hashing, golden workflow | [`docs/engineering/determinism-and-replay.md`](../../docs/engineering/determinism-and-replay.md) |
+| Engage/kill-chain gate chain + combat outcome | [`docs/engineering/engagement-pipeline.md`](../../docs/engineering/engagement-pipeline.md) |
 | Abort-reason codes (manifest → codegen → order log) | [`docs/engineering/abort-reason-catalog.md`](../../docs/engineering/abort-reason-catalog.md) |
 | Tick pipeline order + world-hash layers | [`adr-004-tick-pipeline-order.md`](../../docs/architecture/adr-004-tick-pipeline-order.md) |
 | Policy evaluator boundary | [`adr-002-policy-evaluator.md`](../../docs/architecture/adr-002-policy-evaluator.md) |
