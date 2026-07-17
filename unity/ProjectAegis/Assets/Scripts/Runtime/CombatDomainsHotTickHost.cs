@@ -1,4 +1,4 @@
-// ASSET-021 Combat Domains Hot-Tick HUD — UI Toolkit host bound to headless binder state.
+// ASSET-021 Combat Domains Hot-Tick HUD — UI Toolkit host bound to headless binder + tracker (S105 A1).
 #if UNITY_5_3_OR_NEWER
 using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
@@ -21,11 +21,15 @@ namespace ProjectAegis.Unity.Runtime
         private UIDocument _document = null!;
         private VisualElement? _panelRoot;
         private readonly Dictionary<string, Label> _stateLabels = new();
+        private readonly CombatDomainsHotTickTracker _tracker = new();
         private CombatDomainsHotTickPanelState _panelState = CombatDomainsHotTickPanelBinder.BindIdle();
         private bool _wired;
 
         /// <summary>Last bound panel state (headless binder output).</summary>
         public CombatDomainsHotTickPanelState PanelState => _panelState;
+
+        /// <summary>Headless tracker used for domain engagement (tests / offline).</summary>
+        public CombatDomainsHotTickTracker Tracker => _tracker;
 
         private void Awake()
         {
@@ -69,6 +73,21 @@ namespace ProjectAegis.Unity.Runtime
             ApplyStateToLabels();
         }
 
+        /// <summary>Apply tracker snapshot through the headless binder.</summary>
+        public void ApplyTracker(CombatDomainsHotTickTracker tracker)
+        {
+            if (tracker == null)
+            {
+                _panelState = CombatDomainsHotTickPanelBinder.BindIdle();
+            }
+            else
+            {
+                _panelState = CombatDomainsHotTickPanelBinder.BindFromTracker(tracker);
+            }
+
+            ApplyStateToLabels();
+        }
+
         private void TryWireElements()
         {
             var root = _document.rootVisualElement;
@@ -87,6 +106,9 @@ namespace ProjectAegis.Unity.Runtime
             TryMapLabel("domain-air-state", "Air");
             TryMapLabel("domain-surface-state", "Surface");
             TryMapLabel("domain-sub-state", "Subsurface");
+            TryMapLabel("domain-land-state", "Land");
+            TryMapLabel("domain-mine-state", "Mine");
+            TryMapLabel("domain-facility-state", "Facility");
 
             _wired = _stateLabels.Count > 0;
             _panelRoot.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
@@ -114,15 +136,18 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            // Default idle; when bridge reports combat-domains activity tags, promote to Engaged.
-            // Keeps host free of sim hot-path coupling; tags can be extended without DelegationBridge edits.
-            IEnumerable<string> tags = System.Array.Empty<string>();
+            // Tracker rebuild each refresh from bridge message log + activity tags.
+            // No sim hot-path coupling; Degraded (POLICY) requires message-log observation.
+            _tracker.Clear();
             if (bridgeHost != null)
             {
-                tags = bridgeHost.LastCombatDomainActivityTags;
+                // Stamp with message-log depth (stable, headless-safe; not wall-clock).
+                var tick = bridgeHost.LastMessageLog?.Count ?? 0;
+                _tracker.ObserveMessageLog(tick, bridgeHost.LastMessageLog);
+                _tracker.ObserveActiveDomainTags(tick, bridgeHost.LastCombatDomainActivityTags);
             }
 
-            _panelState = CombatDomainsHotTickPanelBinder.BindFromActiveDomainTags(tags);
+            _panelState = CombatDomainsHotTickPanelBinder.BindFromTracker(_tracker);
             ApplyStateToLabels();
         }
 

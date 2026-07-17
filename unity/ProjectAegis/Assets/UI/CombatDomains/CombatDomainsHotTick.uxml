@@ -13,5 +13,17 @@
             <ui:Label text="SUBSURFACE" class="combat-domains-hot-tick__domain" />
             <ui:Label name="domain-sub-state" text="IDLE" class="combat-domains-hot-tick__state" />
         </ui:VisualElement>
+        <ui:VisualElement class="combat-domains-hot-tick__row">
+            <ui:Label text="LAND" class="combat-domains-hot-tick__domain" />
+            <ui:Label name="domain-land-state" text="IDLE" class="combat-domains-hot-tick__state" />
+        </ui:VisualElement>
+        <ui:VisualElement class="combat-domains-hot-tick__row">
+            <ui:Label text="MINE" class="combat-domains-hot-tick__domain" />
+            <ui:Label name="domain-mine-state" text="IDLE" class="combat-domains-hot-tick__state" />
+        </ui:VisualElement>
+        <ui:VisualElement class="combat-domains-hot-tick__row">
+            <ui:Label text="FACILITY" class="combat-domains-hot-tick__domain" />
+            <ui:Label name="domain-facility-state" text="IDLE" class="combat-domains-hot-tick__state" />
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

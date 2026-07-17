@@ -5,6 +5,11 @@ public static class MessageLogPanelBinder
 {
     public static MessageLogPanelState Bind(IReadOnlyList<MessageLogLine> lines)
     {
+        if (lines is null)
+        {
+            throw new ArgumentNullException(nameof(lines));
+        }
+
         var rows = new List<MessageLogDisplayRow>(lines.Count);
         foreach (var line in lines)
         {
@@ -12,7 +17,8 @@ public static class MessageLogPanelBinder
                 line.Category,
                 FormatLine(line.Category, line.Text),
                 line.SequenceId,
-                line.UnitId));
+                line.UnitId,
+                MessageLogCategoryClassMap.CssClassFor(line.Category)));
         }
 
         return new MessageLogPanelState(rows);

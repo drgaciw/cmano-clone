@@ -37,4 +37,31 @@ public sealed class DelegationBridgeHostDomainTagsTests
         Assert.That(sel!.SequenceId, Is.EqualTo(1001uL));
         Assert.That(sel.UnitId, Is.EqualTo("friendly-2"));
     }
+
+    [Test]
+    public void Tracker_from_message_log_binds_degraded_land_and_engaged_surface()
+    {
+        var tracker = new CombatDomainsHotTickTracker();
+        tracker.ObserveMessageLog(2, new[]
+        {
+            new MessageLogLine(1, 1.0, "KILL_CONFIRMED", "Destroyed", "u1"),
+            new MessageLogLine(2, 1.1, "POLICY_DENIAL", "ROE", "u2"),
+        });
+        var state = CombatDomainsHotTickPanelBinder.BindFromTracker(tracker);
+        Assert.That(state.Rows.Single(r => r.DomainKey == "Surface").StateLabel, Is.EqualTo("ENGAGED"));
+        Assert.That(state.Rows.Single(r => r.DomainKey == "Land").StateLabel, Is.EqualTo("DEGRADED"));
+    }
+
+    [Test]
+    public void SelectBySequenceId_and_category_css_roundtrip()
+    {
+        var panel = MessageLogPanelBinder.Bind(new[]
+        {
+            new MessageLogLine(55, 0.5, "POLICY_DENIAL", "Denied", "blue"),
+        });
+        Assert.That(panel.Rows[0].CategoryCssClass, Is.EqualTo("message-log-row--policy"));
+        var sel = MessageLogPanelSelection.SelectBySequenceId(panel, 55);
+        Assert.That(sel, Is.Not.Null);
+        Assert.That(sel!.UnitId, Is.EqualTo("blue"));
+    }
 }
