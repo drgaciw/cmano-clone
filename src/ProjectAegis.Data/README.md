@@ -168,6 +168,7 @@ deterministic outputs — regenerate them intentionally, never silently.
 |-------|-----|
 | Data-layer boundary decision | [`adr-006-data-layer-boundary.md`](../../docs/architecture/adr-006-data-layer-boundary.md) |
 | Scenario ↔ DB version binding / validation engine | [`adr-008-mission-editor-validation-engine.md`](../../docs/architecture/adr-008-mission-editor-validation-engine.md) |
+| Platform-editor workbook round-trip & governance (`Platform/`) | [`docs/engineering/platform-workbook-roundtrip.md`](../../docs/engineering/platform-workbook-roundtrip.md) |
 | Workbook round-trip CLI (import/export/diff) | [`docs/engineering/mission-editor-cli.md`](../../docs/engineering/mission-editor-cli.md) |
 | CMO markdown import pipeline (parse → propose → approve) | [`docs/engineering/cmo-markdown-import.md`](../../docs/engineering/cmo-markdown-import.md) |
 | Catalog seeding & reader resolution (headless/CI bootstrap) | [`docs/engineering/catalog-seeding.md`](../../docs/engineering/catalog-seeding.md) |
