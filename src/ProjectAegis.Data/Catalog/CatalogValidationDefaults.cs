@@ -12,7 +12,9 @@ public static class CatalogValidationDefaults
         new CatalogPlatformEntry("hostile-far", 65.0, 35.0, 200.0),
     ];
 
-    /// <summary>Baltic v3 OOB: patrol ships plus one UCAV per side (Recon [Internal IR]).</summary>
+    /// <summary>Baltic v3 OOB: patrol ships plus one UCAV per side (Recon [Internal IR]),
+    /// plus one attack submarine per side (Virginia-class-derived stats/sensors; QA-gauntlet
+    /// Tier-3 fixture addition, see production/qa/gauntlet/gauntlet-20260709-1242/tier-3/).</summary>
     public static IReadOnlyList<CatalogPlatformEntry> BalticV3Platforms() =>
     [
         new CatalogPlatformEntry("u1", 57.0, 20.0, 400.0),
@@ -20,6 +22,8 @@ public static class CatalogValidationDefaults
         new CatalogPlatformEntry("hostile-far", 65.0, 35.0, 200.0),
         new CatalogPlatformEntry("ucav-blue", 57.2, 19.8, 180.0),
         new CatalogPlatformEntry("ucav-red", 58.3, 21.2, 180.0),
+        new CatalogPlatformEntry("usub-blue", 57.1, 19.9, 500.0),
+        new CatalogPlatformEntry("usub-red", 58.4, 21.1, 500.0),
     ];
 
     /// <summary>Baltic comms FK targets for link_catalog seeding (S34-02).</summary>
