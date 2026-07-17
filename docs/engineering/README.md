@@ -45,6 +45,7 @@ Deep-dives into engine-agnostic subsystems, verified against source and pinned b
 |-----|--------|
 | [local-dev-environment.md](local-dev-environment.md) | Local editor setup and troubleshooting for this workspace's shape (large .NET 8 solution + Unity), including the VS Code Linux file-watcher `ENOSPC` fix. |
 | [hindsight-agentic-dev.md](hindsight-agentic-dev.md) | Using Hindsight session memory alongside GitNexus code intelligence in the agentic dev loop. |
+| [hindsight-session-memory-sidecar.md](hindsight-session-memory-sidecar.md) | The **runtime** Hindsight sidecar (distinct from the dev loop above): how a simulation optionally streams agent decisions, session AAR, and campaign trust signals into local `agent-*` / `aar-*` / `agent-xp-*` banks — the two `DelegationOrchestrator` seams (order-log append hook + `FinalizeScenario`), `HindsightOptions`, the bank-id / decision-memory / trust-signal model, the HTTP transport, and the null-object + fire-and-forget design that keeps replay hashes untouched. |
 | [superpowers-setup.md](superpowers-setup.md) | Installing/refreshing the global [obra/superpowers](https://github.com/obra/superpowers) agent methodology (TDD, debugging, plan-driven execution). |
 | [pi-skills-recommendations-review.md](pi-skills-recommendations-review.md) | Dated review (2026-06-03) of the `pi-skills-recommendations` doc through a milsim lens. |
 
