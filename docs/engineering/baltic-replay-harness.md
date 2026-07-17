@@ -197,5 +197,6 @@ correct point in the tick order and append to the order log with a **stable** or
 | QA Gauntlet ladder + oracle + `gauntlet.units` | [qa-gauntlet.md](qa-gauntlet.md) |
 | CLI `scenario_simulate_sample` | [mission-editor-cli.md](mission-editor-cli.md) |
 | Scenario policy field reference | [scenario-policy-authoring.md](scenario-policy-authoring.md) |
+| Mission timeline events + contact-triggered ROE runtime | [mission-timeline-runtime.md](mission-timeline-runtime.md) |
 | Tick pipeline order + world-hash layers | [adr-004-tick-pipeline-order.md](../architecture/adr-004-tick-pipeline-order.md) |
 | Hard invariants + verification block | [AGENTS.md](../../AGENTS.md#hard-invariants--never-break-these) |
