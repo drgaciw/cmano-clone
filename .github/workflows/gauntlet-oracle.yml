@@ -9,6 +9,10 @@ on:
 jobs:
   oracle:
     runs-on: ubuntu-latest
+    env:
+      # This is a fixed CI smoke profile, not the authoritative per-tier ladder budget.
+      GAUNTLET_ORACLE_SEED: "42"
+      GAUNTLET_ORACLE_TICKS: "10"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,9 +47,55 @@ jobs:
           SCENARIOS="gauntlet-multidomain-shooters,gauntlet-theater-inject,gauntlet-theater-dynamic-victory,gauntlet-t1-patrol-b,gauntlet-t4-random-inject,gauntlet-t5-cascade,gauntlet-t5-roe-change,gauntlet-joint-orbat-smoke,gauntlet-t3-emcon-phases"
           dotnet run -c Release --no-build --project src/ProjectAegis.Delegation.Demo -- --batch \
             --scenarios "$SCENARIOS" \
-            --seeds 42 \
-            --ticks 10 \
+            --seeds "$GAUNTLET_ORACLE_SEED" \
+            --ticks "$GAUNTLET_ORACLE_TICKS" \
             --csv-out artifacts/gauntlet-oracle/results.csv
+
+      - name: Record baseline provenance
+        run: |
+          python3 <<'PY'
+          import hashlib
+          import json
+          import os
+          import pathlib
+
+          root = pathlib.Path(".")
+          artifact_dir = root / "artifacts/gauntlet-oracle"
+          catalog = root / "assets/data/catalog/baltic_patrol.db"
+          policies = sorted((artifact_dir / "policies").glob("*.policy.json"))
+          results = artifact_dir / "results.csv"
+
+          def sha256(path):
+              digest = hashlib.sha256()
+              with path.open("rb") as stream:
+                  for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                      digest.update(chunk)
+              return digest.hexdigest()
+
+          context = {
+              "schemaVersion": 1,
+              "commit": os.environ["GITHUB_SHA"],
+              "seed": int(os.environ["GAUNTLET_ORACLE_SEED"]),
+              "ticks": int(os.environ["GAUNTLET_ORACLE_TICKS"]),
+              "catalog": {
+                  "path": str(catalog),
+                  "sha256": sha256(catalog),
+              },
+              "policies": [
+                  {"path": str(path), "sha256": sha256(path)}
+                  for path in policies
+              ],
+              "results": {
+                  "path": str(results),
+                  "sha256": sha256(results),
+              },
+          }
+          (artifact_dir / "baseline-context.json").write_text(
+              json.dumps(context, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(context, indent=2, sort_keys=True))
+          PY
 
       - name: gauntlet_oracle_eval (shipped CLI — must pass)
         run: |
