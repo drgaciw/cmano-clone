@@ -1,0 +1,69 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "radar-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "Single patrol: Blue survives N ticks under weapons free [catalog ORBAT: Visby vs Sovremenny]",
+    "oracle": "Blue survives; finite non-zero fingerprint; no crash",
+    "catalogRefs": [
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "624-pr-205p-tarantul-1992",
+      "70-rauma-helsinki-ii-1990",
+      "80-hamina-rauma-2-2006",
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "em-sovremenny-i-pr-956-sarych",
+      "f-207-bremen-type-f122-1982",
+      "k-31-visby-2009"
+    ],
+    "runId": "gauntlet-t12-catalog-db-driven",
+    "tier": 1,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 50.0,
+      "maxScore": 90.0,
+      "maxMissilesFired": 5,
+      "maxDenials": 10,
+      "minKills": 1,
+      "minDenials": 2
+    },
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      }
+    ]
+  },
+  "id": "gauntlet-t1-patrol-a"
+}

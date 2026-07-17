@@ -80,10 +80,10 @@
       "requireNonEmptyFingerprint": true,
       "minKills": 1,
       "maxMissilesFired": 12,
-      "maxDenials": 82,
-      "minScore": -350,
-      "maxScore": -150,
-      "minDenials": 78,
+      "maxDenials": 28,
+      "minScore": 50,
+      "maxScore": 170,
+      "minDenials": 14,
       "requireFingerprintSubstrings": [
         "CommsStateChange",
         "Degraded"
