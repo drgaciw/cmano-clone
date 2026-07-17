@@ -38,7 +38,7 @@ autonomous agents; this assembly is where that delegation actually happens. It h
 | `Replay/` | Scrub-to-tick checkpoints + order-log replay fingerprint | `ReplayCheckpoint`, `ReplayCheckpointStore`, `OrderLogReplayFingerprint` |
 | `Projection/` | **Read-only** projections of the order log into C2 UI view-models | `MessageLogProjection`, `ContactPictureProjection`, `LossesScoringProjection`, `OobTreeProjection`, `SensorC2Projection`, `App6Sidc` (APP-6/2525C symbology, ADR-007); C2 rev-2 contracts `AlertSeverity`/`AlertSeverityMap`, `OrderLifecycleState`, `C2SelectionResolver` |
 | `Input/` | Remappable C2 keyboard-action IDs (req 20 §Keyboard, a11y §6.3) | `C2InputActions` |
-| `Trust/` | Emit-only post-scenario trust/XP signals for future campaign hooks | `TrustSignalEmitter`, `TrustSignal`, `AgentExperienceBlob` |
+| `Trust/` | Emit-only post-scenario trust/XP signals for future campaign hooks ([guide](../../docs/engineering/trust-signal-emit-surface.md)) | `TrustSignalEmitter`, `TrustSignal`, `AgentExperienceBlob` |
 | `Hindsight/` | Optional session-memory sidecar (off in CI/replay) | `HindsightIntegration`, `HindsightOptions`, `IHindsightMemoryClient` |
 
 ---
@@ -164,6 +164,10 @@ The multi-select **`SelectionSet`** these contracts pair with lives in the Unity
 
 Create agents from a preset via `DelegationOrchestrator.CreateAgentFromPreset(id, preset, autonomy)`.
 
+The full trait/attention model — the exact load formula, the overload degradation ladder, which
+trait scalars are actually wired vs. declared-only, and the golden-load-bearing constants — is in
+[`docs/engineering/agent-traits-and-attention.md`](../../docs/engineering/agent-traits-and-attention.md).
+
 ## Public seams (for neighboring systems)
 
 | Seam | Type | Notes |
@@ -203,6 +207,7 @@ the Release DLLs into `Plugins/` after a green build:
 | Data / catalog layer | [`../ProjectAegis.Data/README.md`](../ProjectAegis.Data/README.md) |
 | Determinism rules, hashing, golden workflow | [`docs/engineering/determinism-and-replay.md`](../../docs/engineering/determinism-and-replay.md) |
 | Abort-reason codes (`Engagement|`/`PolicyDenial` rows) | [`docs/engineering/abort-reason-catalog.md`](../../docs/engineering/abort-reason-catalog.md) |
+| Trust / XP emit surface (`FinalizeScenario` → campaign feedback) | [`docs/engineering/trust-signal-emit-surface.md`](../../docs/engineering/trust-signal-emit-surface.md) |
 | Policy evaluator boundary | [`adr-002-policy-evaluator.md`](../../docs/architecture/adr-002-policy-evaluator.md) |
 | Order-log schema | [`adr-003-order-log-schema.md`](../../docs/architecture/adr-003-order-log-schema.md) |
 | C2 map / APP-6 presentation | [`adr-007-c2-map-presentation.md`](../../docs/architecture/adr-007-c2-map-presentation.md) |
