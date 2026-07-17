@@ -162,3 +162,23 @@ S94–S96 closeouts PASS; S97 gate engineering PASS; human continuity ack record
 Stage **remains Release**. Launch / commercial execution remains deferred (explicit separate decision).
 Cites: docs/reports/roadmap-execution-plan-071426.md + production/gate-checks/s97-release-continuity-gate-2026-07-15.md + production/agentic/s97-human-ack-package-2026-07-15.md + AGENTS.md.
 **S94–S97 RELEASE CONTINUITY PROGRAM COMPLETE.** STAGE REMAINS Release.
+
+# S98 Sprint Open — Release Residual Backlog (2026-07-16)
+S98 opened via /sprint-plan new (lean): production/sprints/sprint-98-release-residual-backlog.md.
+Scope: Approved-path pilot + gauntlet residual triage. Predecessors S94–S97 COMPLETE (S97 human ack "i acknowledge" 2026-07-16).
+Stage remains Release. Launch NOT authorized. Commercial-launch-execution-gate not opened.
+
+# S98 Closeout — Release Residual Backlog COMPLETE (2026-07-16)
+S98 COMPLETE: Approved-path pilot (ASSET-006 + ASSET-021 A1–A7; Approved remains 0) + gauntlet residual disposition (5 watched) + dual retest GAUNTLET-SYN-T12-001 PASS.
+Smoke: production/qa/smoke-sprint-98-closeout-2026-07-16.md. Suite floor cited ≥1638/0f last-gate family.
+Stage remains Release. Launch NOT advanced. S97 remains FULLY CLOSED (i acknowledge 2026-07-16).
+
+# S99 Sprint Open — Approved Review Queue + Residual Hygiene (2026-07-16)
+S99 opened via /sprint-plan new (lean): production/sprints/sprint-99-approved-review-queue-hygiene.md.
+Scope: human Approved review queue for ASSET-006/021 + gauntlet residual hygiene. Predecessors S94–S98 COMPLETE (S97 i acknowledge; S98 pilot+triage).
+Stage remains Release. Launch NOT authorized. Commercial-launch-execution-gate not opened.
+
+# S99 Closeout — Approved Review Queue + Residual Hygiene COMPLETE (2026-07-16)
+S99 COMPLETE: human Approved review queue for ASSET-006/021 (template phrase only; Approved remains 0) + gauntlet residual hygiene (5 watched; dual retest GAUNTLET-SYN-T12-001 PASS).
+Smoke: production/qa/smoke-sprint-99-closeout-2026-07-16.md. Suite floor cited ≥1638/0f last-gate family.
+Stage remains Release. Launch NOT advanced. S97 FULLY CLOSED + S98 COMPLETE preserved.

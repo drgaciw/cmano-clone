@@ -1,0 +1,27 @@
+=== Gauntlet defect re-test ===
+defect_id=GAUNTLET-MD-001
+scenario=gauntlet-multidomain-shooters seed=42 ticks=10
+registry=production/qa/gauntlet-defect-registry.json
+2026-07-17T04:49:34Z
+
+--- batch ---
+Wrote 1 rows to production/qa/gauntlet/gauntlet-20260716-2346/hindsight-retest/md001/retest-GAUNTLET-MD-001.csv
+
+--- oracle ---
+{
+  "ok": true,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-multidomain-shooters",
+      "passed": true,
+      "failures": [],
+      "rows": 1
+    }
+  ],
+  "allPassed": true
+}
+
+--- failure mode check ---
+PRIOR_FAILURE_ABSENT: hostile-1
+retest_status=PASS
+Wrote production/qa/gauntlet/gauntlet-20260716-2346/hindsight-retest/md001/retest-GAUNTLET-MD-001.log
