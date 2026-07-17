@@ -4,11 +4,12 @@ name: Actionlint
 # expressions, and shell issues (via shellcheck) before they merge.
 # Cheap and fast; only runs when workflow files change.
 #
-# Note: 'if: false' is used intentionally across several workflows to disable
-# them while GitHub Actions billing is blocked (see gitnexus-security.yml).
-# actionlint flags that as a "constant expression" error, so it is ignored
-# here via -ignore. The regex avoids literal spaces (which the action splits
-# on) by using '.' to match the space. Other checks remain active.
+# Note: 'if: false' remains on the two CodeQL jobs in gitnexus-security.yml
+# while GitHub Actions billing is blocked (CodeQL runs are expensive).
+# actionlint flags that as a "constant expression" error [if-cond], so it is
+# ignored via -ignore. The regex uses '.' instead of a literal space because
+# raven-actions/actionlint splits the flags string on whitespace. Other checks
+# (invalid YAML, bad expressions, shellcheck) remain active.
 
 on:
   workflow_dispatch:
