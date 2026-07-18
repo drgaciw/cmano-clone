@@ -1,6 +1,6 @@
 # 19 - Cyber Warfare and Communications
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Status:** Draft — ready for design review  
 **FR reverse-ref:** [FR-17](01-Project-Overview.md) — Cyber and comms degradation  
 **CMO basis:** Manual §10.7 Comms Disruption & Cyber Attacks; links §9.2.6 EW  
@@ -91,7 +91,7 @@ Scenario-defined **cyber actions** (events doc 11 or special actions / policy ti
 
 ### Full cyber action library — **Phase N**
 
-`Probe` / `Exploit` / `Disrupt` / free-form `cyber_trigger` action packs beyond scenario timelines and spoof are **Phase N**. Tracker residual: JADC2 node damage, ECCM depth (doc 15 coordination).
+`Probe` / `Exploit` / `Disrupt` / free-form `cyber_trigger` action packs beyond scenario timelines and spoof are **Phase N**. **Next stack task (tracker row 19):** JADC2 node damage. Secondary Phase N residuals: ECCM depth (doc 15 coordination), free-form exploit packs, cognitive EW profiles.
 
 ### Near-future (doc 09)
 
