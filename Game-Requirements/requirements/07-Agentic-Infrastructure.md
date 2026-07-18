@@ -1,6 +1,6 @@
 # 07 - Agentic Infrastructure Framework
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18 (verified CLI surface + AC-6 smoke script against `src/ProjectAegis.MissionEditor.Cli/Program.cs` and `tools/ci/smoke-ac6.sh`)  
 **Related:** [01-Project-Overview.md](01-Project-Overview.md) · [04-Agent-Delegation.md](04-Agent-Delegation.md) · [06-Database-Intelligence.md](06-Database-Intelligence.md) · [08-Agentic-Architecture.md](08-Agentic-Architecture.md) · [11-Agentic-Mission-Editor.md](11-Agentic-Mission-Editor.md) · [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md)  
 **Status:** Locked  
 **FR reverse-ref:** [FR-06](01-Project-Overview.md) — Agentic dev infrastructure (product surfaces + process tooling split below)  
@@ -20,7 +20,7 @@ Provide a comprehensive set of high-level infrastructure agents that automate an
 |---------|------|-------------|
 | Headless batch / replay | Reproducible AvA and score CSV (`BalticReplayHarness`, `BalticBatchRunner`) | INF-2, INF-3, INF-5, INF-6 |
 | AAR / order-log consumers | Read-only debriefs over log + checkpoints | INF-2 |
-| Mission Editor CLI | `scenario_validate` / export / sample / `mission_plan_suggest` | INF-1, INF-4 |
+| Mission Editor CLI | `scenario_validate` / `scenario_export` / `scenario_export_brief` / `scenario_simulate_sample` / `scenario_create` / `scenario_ai_scaffold` / `scenario_publish` / `scenario_umpire_snapshot` / `scenario_event_trace` + `mission_add` / `mission_update` / `mission_delete` (patrol, strike, **ferry**, support) / `mission_plan_suggest` | INF-1, INF-4, INF-8 |
 | Operator copilot (supervised) | Evidence-linked COA suggestions; no silent lethal path | INF-7 |
 | Catalog intelligence (CLI-first) | Audits and staging proposals via write gate | INF-8 |
 | Runtime Hindsight (config-gated) | Optional retain on `DecisionLog`; sim banks `agent-*` / `aar-*` | INF-2, INF-3 |
@@ -251,7 +251,7 @@ All writes route through Database Intelligence Layer; no direct merge.
 | [04](04-Agent-Delegation.md) | Unit-level agents execute inside `DelegationOrchestrator`; infrastructure **Operator Copilot** suggests COAs but does not replace controllers. Batch runs drive delegation metrics for balance and AAR. Trust/`TrustSignal` remain emit-only per scenario. |
 | [06](06-Database-Intelligence.md) | Balance proposals, normalization audits, and DB Research Assistants **only** commit via `IWriteGate`. Scenario gen binds `dbRef` / snapshot IDs from catalog reader. |
 | [08](08-Agentic-Architecture.md) | Automation layer hosts headless CLI / batch workers atop `ProjectAegis.Sim` + `ProjectAegis.Delegation` (optional MCP host). Deterministic stepping (ADR-003/004) + ReplayGolden hash `17144800277401907079` are mandatory for experiment agent. |
-| [11](11-Agentic-Mission-Editor.md) | Scenario Generation and Event agents output doc 11 packages; `scenario_validate` / `scenario_simulate_sample` / `mission_plan_suggest` are the P0 **CLI** surface (MCP optional). |
+| [11](11-Agentic-Mission-Editor.md) | Scenario Generation and Event agents output doc 11 packages; the full `scenario_*` + `mission_*` CLI surface (validate / export / simulate_sample / create / ai_scaffold / publish / event_trace + patrol / strike / ferry / support add/update) is the P0 **CLI** surface (MCP optional); AC-6 smoke (`tools/ci/smoke-ac6.sh`) gates it in CI. |
 | [17](17-Replay-AAR-And-Order-Log.md) | AAR, batch scoring, and Monte Carlo artifacts consume canonical order log; ReplayGolden / replay-verify hashes (`17144800277401907079`) are regression gates for infrastructure changes. |
 
 ## Open Questions / Decisions Needed
@@ -274,7 +274,8 @@ All charter questions for agentic infrastructure are **locked** for Sprint 15 de
 | Requirement area | Path / type | Notes |
 |------------------|-------------|-------|
 | Batch replay & CSV scores | `BalticReplayHarness`, `BalticBatchRunner`, `ProjectAegis.Delegation.Demo` (`--batch`), `tools/batch-replay/README.md` | `LossesScoringCsvExporter`; CI: ReplayGolden **6/6**, hash `17144800277401907079` |
-| Scenario validate / export / sample sim | `src/ProjectAegis.MissionEditor.Cli`, `tools/mission-editor/Invoke-*.ps1` | **CLI primary** (ADR-008); optional `tools/mission-editor/mcp-tools.json` host bindings |
+| Scenario + mission CLI (full surface) | `src/ProjectAegis.MissionEditor.Cli/Program.cs`, `tools/mission-editor/Invoke-*.ps1` | **CLI primary** (ADR-008). Verbs shipped: `scenario_{validate,export,export_brief,simulate_sample,create,migrate_preview,umpire_snapshot,ai_scaffold,publish,event_trace,comms_status,cyber_status,near_future_spawn,undo}` + `mission_{add,update,delete,list,clone,add_from_template,plan_suggest}` across patrol / strike / **ferry** / support (ferry + support added S77–S83). Optional `tools/mission-editor/mcp-tools.json` host bindings |
+| AC-6 acceptance smoke | `tools/ci/smoke-ac6.sh` | CI smoke for AC-6 (doc 11); exercises CLI agentic surface on canonical fixtures |
 | Headless QA gate | `tools/unity/Invoke-ManualQaHeadlessGate.ps1` | Play Mode smoke + build gate |
 | Catalog intelligence / audits | `DatabaseIntelligenceOrchestrator`, MissionEditor.Cli / Data CLI `catalog_*` | INF-8.x; **not** a standalone Data MCP product; pairs with `tools/cmano-db-crawler/` for import |
 | Delegation + order log source | `DelegationOrchestrator`, `DelegationBridge`, `DecisionLog` | AAR read-only; bridge **zero-touch** hotpath through Release v1 |
@@ -432,4 +433,4 @@ Experiment definitions must not introduce nondeterministic fields into order log
 
 **Status:** Locked (Sprint 15)  
 **Tracker row 07:** **Partial** — [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md)  
-**Implementation grade:** Partial — Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.
+**Implementation grade:** Partial — Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08; CLI surface + AC-6 smoke re-verified 2026-07-18. Experiment workers remain deferred (P1 stub, Phase 5 pro workflow).
