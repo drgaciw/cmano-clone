@@ -1,6 +1,6 @@
 # 18 - Combat Domains and Damage
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Status:** Draft — ready for design review  
 **FR reverse-ref:** [FR-16](01-Project-Overview.md) — Multi-domain combat  
 **CMO basis:** Manual §4.1.1–2, §9.2.1–7, §9.3; systems/damage §3.3.11  
@@ -178,7 +178,7 @@ Evidence policy: check only with named types/tests/fixtures; unbuilt fidelity st
 | BDA registry / lifecycle | `BdaContactLifecycleRegistry`, `BdaContactLifecycleHotTickApplier`, `OrderLogBdaProjection`, `BdaContactDamageStates` | **Partial+** | `BdaContactLifecycleHotTickApplierTests`; damageLevel → Lost; order-log BDA projection |
 | Kill / damage-withdraw | `KilledTargetRegistry`, `CatalogDamageWithdrawEngageGate` | **Partial+** | Engage kill path; withdraw on damage threshold |
 | Mine hazard | `MineAspectDomainValidator`, `MineTransitHazardHotTickApplier` | **Partial** | `baltic-patrol-mine-transit-hazard`; **mine warfare missions = Phase N** |
-| Combat-domains fixtures | `combat-domains-smoke`, `baltic-patrol-combat-domains` | **Shipped (test/isolation)** | `CombatDomainsSmokePolicyTests`, `BalticCombatDomainsPolicyTests`; hash invariant preserved |
+| Combat-domains fixtures | `combat-domains-smoke`, `baltic-patrol-combat-domains`; **v3 theater (S75/S79)**: `baltic-v3-patrol`, `baltic-v3-mission-roe-band-c` (`combatDomainsEnabled=true`) | **Shipped (test/isolation)** | `CombatDomainsSmokePolicyTests`, `BalticCombatDomainsPolicyTests`; `BalticReplayHarnessV3UcavTests` (v3 patrol with domains on); hash invariant preserved |
 | Full air/naval/sub fidelity | — | **Phase N** | Not claimed Shipped; PK tables / horizon / full ASW depth deferred |
 | Mine-laying / clearing missions | — | **Phase N** | Tracker residual row 18 |
 
@@ -202,6 +202,7 @@ Evidence policy: check only with named types/tests/fixtures; unbuilt fidelity st
 | 09–10 | Near-future / speculative domain extensions |
 | [ADR-009](../../docs/architecture/adr-009-combat-domain-validators.md) | Accepted architecture for validators + damage order |
 | `cmo-manual-traceability.md` | Ch 9 |
+| Tracker row 18 | Partial+ — S75/S79 v3 theater exercises combat-domains spine; mine-laying/clearing is next stack task |
 
 ---
 
