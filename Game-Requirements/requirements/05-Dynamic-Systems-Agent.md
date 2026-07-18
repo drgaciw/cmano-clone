@@ -1,6 +1,6 @@
 # 05 - Dynamic Systems Agent
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Related:** [01-Project-Overview.md](01-Project-Overview.md) · [06-Database-Intelligence.md](06-Database-Intelligence.md) · [07-Agentic-Infrastructure.md](07-Agentic-Infrastructure.md) · [09-Near-Future-Technologies.md](09-Near-Future-Technologies.md) · [10-Speculative-Systems.md](10-Speculative-Systems.md)  
 **Status:** Locked
 
@@ -78,7 +78,7 @@ Every proposal must declare intended **Technology Level (TL)** and **TRL** so th
 **Acceptance**
 
 - [ ] **DSA-3.1** All AI-generated stat fields carry `provenance: ai_proposed` and a numeric confidence in staging export. *(unchecked — Standard W1 depth)*
-- [ ] **DSA-3.2** No API or agent path writes directly to live DB tables; only approved bundles pass to doc 06 intake. *(unchecked — Standard W1 depth)*
+- [ ] **DSA-3.2** No API or agent path writes directly to live DB tables; all writes route through `IWriteGate` / `CatalogWriteGate` (extend-only invariant, see doc 06 / AGENTS.md); only approved bundles pass to doc 06 intake. *(unchecked — Standard W1 depth; invariant enforced by `OsintCatalogMapper` → `CatalogWriteGate`, no auto-merge path exists)*
 - [ ] **DSA-3.3** Audit trail links proposal ID → reviewer identity → outcome (`approved` | `rejected` | `deferred`) → optional patch bundle ID. *(unchecked — Standard W1 depth)*
 - [ ] **DSA-3.4** Speculative stats (TL-3+) include escalation flags where required by doc 10 (e.g., `SPACE_WAR_THRESHOLD` candidates flagged, not auto-set). *(unchecked — Standard W1 depth)*
 
@@ -100,7 +100,7 @@ Every proposal must declare intended **Technology Level (TL)** and **TRL** so th
 
 - Must respect rate limits and terms of service of all monitored platforms.
 - All proposals must include source citations for transparency.
-- Agent must **never** add unapproved data to the live game database.
+- Agent must **never** add unapproved data to the live game database — all writes route through `IWriteGate` / `CatalogWriteGate` (extend-only); no auto-merge path exists.
 - Low false-positive rate — confidence gating and human review are mandatory, not optional.
 - Digest and on-demand jobs must be idempotent and recoverable after partial failure.
 - Staging store must support diffable exports for doc 06 Research Agent workflow.
