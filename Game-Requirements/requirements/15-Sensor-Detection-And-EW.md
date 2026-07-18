@@ -1,11 +1,11 @@
 # 15 - Sensor, Detection, and Electronic Warfare
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Status:** Draft — ready for design review  
 **FR reverse-ref:** [FR-13](01-Project-Overview.md) — Sensors, detection, EW  
 **CMO basis:** Manual §3.3.10, §4.5.2, §6.3.8–9, §9.1.1, §9.2.6; appendix §10.7 (comms/EW overlap → doc 19)  
 **Related:** 13 Doctrine/EMCON, 14 Engagement, 18 Combat Domains, 06 Database Intelligence, 17 Order Log  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 15 — **Partial (MVP COVERED)**  
+**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 15 — **Partial (MVP COVERED)** — next stack task: **ECCM Phase 2**  
 **GDD:** [sensor-detection-ew.md](../../design/gdd/sensor-detection-ew.md)
 
 ## Purpose
@@ -103,7 +103,8 @@ Fixed evaluation order per tick:
 ### Defense
 
 - **P0** ESM detects emitters; links to contacts without active own-ship radar
-- **P1** Onboard ECCM flags from DB reduce jam effectiveness
+- **P0 (shipped spine)** Onboard ECCM catalog factor (`CatalogSensorBinding.EccmFactor`, `JamStrength`) reduces jam effectiveness in `DeterministicDetectionLoop`; surfaced via `CatalogPlatformBrowseProjection.GetEccmCatalogFlags`
+- **P1 / Phase 2** Adaptive / coherent ECCM tables, per-radar-mode reduction, operator-tunable threshold — **next stack task (tracker row 15)**
 
 ### Agent integration
 
@@ -153,6 +154,7 @@ Fixed evaluation order per tick:
 | **SEN-06** | Sensor C2 projection / panel / bridge | **P0** — **Partial** (`SensorC2Projection`, `SensorC2PanelBinder`, `SensorC2Bridge`) |
 | **SEN-07** | EMCON-gated active detection (radar off → no active returns) | **P0** — **Shipped spine** (EMCON on Pd sim path; policy doc 13) |
 | **SEN-08** | MCP `contact_*` / `sensor_set_emcon` product tools | **P0 intent** — **Gap** (Phase N / residual) |
+| **SEN-09** | Catalog ECCM factor + jam strength on detection trial | **P0 (spine)** — **Shipped** (`CatalogSensorBinding.EccmFactor`, `JamStrength`; `ScenarioDetectionTrial.EccmFactor`; `DeterministicDetectionLoop`) |
 
 ## Non-Functional Requirements
 
@@ -175,8 +177,8 @@ Fixed evaluation order per tick:
 
 | Phase | Scope |
 |-------|--------|
-| **MVP (COVERED)** | Core sensors path, contact FSM, Pd classify, side-picture merge spine, EMCON gate, basic noise jamming, Baltic/v3 classify + jam policies |
-| **Phase 2** | Datalink delay polish, delegation blind, ECCM, decoys, SensorC2 UI completeness |
+| **MVP (COVERED)** | Core sensors path, contact FSM, Pd classify, side-picture merge spine, EMCON gate, basic noise jamming, catalog ECCM factor + jam strength (Phase 1 spine), Baltic/v3 classify + jam policies |
+| **Phase 2** | Datalink delay polish, delegation blind, **adaptive/coherent ECCM tables (Phase 1 factor shipped — Phase 2 = per-radar-mode reduction)**, decoys, SensorC2 UI completeness |
 | **Phase 3 / Phase N** | Near-future EW profiles, swarm mesh, full multi-band physics, **5k×10k broadphase**, MCP contact tools |
 
 ## Implementation Mapping (headless)
@@ -190,6 +192,8 @@ Fixed evaluation order per tick:
 | Datalink side picture | `DatalinkSidePictureMerger`, `DatalinkShareLagResolver`, `ScenarioDatalinkDoctrine` | **Partial** | `DatalinkSidePictureMergerTests`, `DatalinkShareLagResolverTests`; `baltic-patrol-datalink*`; lag/comms completeness residual |
 | Sensor C2 | `SensorC2Projection`, `SensorC2PanelBinder`, `SensorC2Bridge`, `SensorC2PanelHost` | **Partial** | `SensorC2BridgeTests`, `SensorC2PanelBinderTests`; Unity hosts present — full CMO contact-list chrome residual |
 | Catalog detection modifiers | `PhaseBCatalogDetectionModifier`, sensor catalog slices | **Partial** | Catalog sensor bindings / Baltic sensor JSON |
+| Catalog ECCM / jam factors | `CatalogSensorBinding.EccmFactor`, `JamStrength`; `ScenarioDetectionTrial.EccmFactor`; `DeterministicDetectionLoop` | **Shipped (Phase 1 spine)** | `Eccm_jammed_fixture_not_in_replay_golden_regression_catalog`, `Eccm_jammed_fixture_replay_is_deterministic`, `GetEccmCatalogFlags_surfaces_jam_from_sensor_binding_for_ew_req` |
+| Adaptive / coherent ECCM tables | — | **Phase 2 (next)** | Tracker row 15 next stack task; P1 adaptive per-radar-mode reduction |
 | MCP contact / EMCON tools | — | **Gap** | Spec tools `contact_list`, `contact_explain`, `sensor_set_emcon` not product MCP verbs |
 | 5k emitter × 10k target broadphase | — | **Deferred** | Performance NFR; not Release gate |
 
@@ -215,7 +219,7 @@ Fixed evaluation order per tick:
 
 ---
 
-**Implementation grade:** Partial (MVP COVERED) — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 15.  
-Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.
+**Implementation grade:** Partial (MVP COVERED) — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 15. Next stack task: **ECCM Phase 2** (adaptive/coherent tables — Phase 1 catalog factor already shipped).  
+Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08; ECCM factor honesty verified 2026-07-18.
 
 **References:** CMO Manual §9.1.1, §9.2.6; `docs/manual/index.html`
