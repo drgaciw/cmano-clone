@@ -1,6 +1,6 @@
 # 03 - Simulation Modes
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md), [04](04-Agent-Delegation.md), 13, 17, 19, 20 · [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md)  
 **Status:** Locked  
 **Locked spec:** [2026-05-30-simulation-modes-decisions-design.md](../../docs/superpowers/specs/2026-05-30-simulation-modes-decisions-design.md)
@@ -14,6 +14,8 @@ Implements hub **FR-02** ([01](01-Project-Overview.md)).
 A single, unified simulation engine that can operate across the full spectrum of human involvement — from pure manual command to fully autonomous high-speed agent battles — while maintaining perfect determinism, replayability, and performance.
 
 ## Supported Simulation Modes
+
+> **Disambiguation — SimulationMode vs AutonomyLevel.** This doc defines three **session-level `SimulationMode` values** (Human / Mixed / Agent-vs-Agent). Per-unit controller autonomy is a separate axis: the `AutonomyLevel` enum in `src/ProjectAegis.Delegation/Core/AutonomyLevel.cs` defines four tiers — **`Manual = 1`, `Assisted = 2`, `SemiAutonomous = 3`, `FullAutonomous = 4`** — and is gated by `AutonomyGate`. Autonomy levels apply within Mixed Mode (player can promote/demote any unit's tier during play). See [04](04-Agent-Delegation.md) and glossary ([12](12-Terms-Glossary.md)) for the full per-tier contract.
 
 ### 1. Human Mode (Classic Command-Style)
 - Full manual control of all friendly forces
@@ -82,12 +84,14 @@ A single, unified simulation engine that can operate across the full spectrum of
 ### Headless Execution
 - Agent vs Agent mode must support completely headless runs (no Unity Editor or graphics required)
 - Suitable for cloud-based batch simulation farms
+- Contract: ADR-010 ([Accepted](../../docs/architecture/adr-010-headless-first-command-driven-ui.md)) — `ProjectAegis.Sim`, `ProjectAegis.Delegation`, and `ProjectAegis.Data` stay pure C# with no `UnityEngine` dependency; Unity UI / DOTS host is a decoupled client over the headless core
 
 ## Implementation Mapping (headless)
 
 | Area | Path / type | Status | Evidence |
 |------|-------------|--------|----------|
 | SimulationMode / SimulationModeConfigurator | `SimulationMode`, `SimulationModeConfigurator` | Shipped | `SimulationModeConfiguratorTests` |
+| Per-unit autonomy tiers (1–4) | `AutonomyLevel` enum, `AutonomyGate` (`Core/`, `Orchestration/`) | Shipped | `AutonomyGateTests` (Manual→FullAutonomous gate) |
 | Dual-side `allowDualSideControl` | scenario policy JSON | Shipped (sandbox) | `ScenarioPolicyJsonLoaderTests` |
 | AttachReplayViewer / spectator-as-flag | `AttachReplayViewer` | Shipped | `DelegationBridgeTests` / observer tests |
 | Headless batch AvA | `BalticReplayHarness`, `BalticBatchRunner` | Partial+ | ReplayGolden |
