@@ -1,6 +1,6 @@
 # 09 - Near-Future Technologies
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Status:** Research-integrated  
 **FR reverse-ref:** [FR-08](01-Project-Overview.md) — Near-future and speculative platforms (near-future half)  
 **Research basis:** [Near-Future Tech Research Supplement](../../docs/research/near-future-tech-research.md)  
@@ -271,7 +271,8 @@ Adaptive systems reduce one or two signatures at cost of power draw and heat (pa
 | Area | Path / type | Status | Evidence |
 |------|-------------|--------|----------|
 | Near-future archetype catalog (4) | `data/catalog/near_future_archetypes.json` + `NearFutureArchetypeCatalog` | **Shipped** | 4 archetypes: `replicator-attritable`, `cca-wingman`, `swarm-saturation`, `hypersonic-boost-glide` |
-| TL + swarm-tier gates | `CatalogArchetypeGate`, `SwarmTier` / `SwarmTierLimits` (`MediumMaxEntities = 500`) | **Shipped** | `CatalogArchetypeGateTests`; Medium cap enforced; MASS catalog row gated |
+| TRL 5–9 catalog metadata | `TrlLevel` field on `CatalogArchetypeBinding` / `CatalogSensorBinding` / `CatalogPlatformBinding` / `CatalogCommsBinding` / `CatalogMobility` / `CatalogSignature` / `CatalogPlatformDamage` (default 9, clamped 1–9 via `CatalogJsonImporter`/`CatalogImportGate`) | **Shipped** | Each archetype JSON row carries `trlLevel` (e.g. `cca-wingman`=8, `swarm-saturation`=6); `CatalogImportGate` rejects TRL<minimum; provenance link to doc 06 |
+| TL + swarm-tier gates | `CatalogArchetypeGate.ApplyTechnologyLevelGate` / `ApplySwarmTierCap` / `ApplyAllGates`, `SwarmTier` / `SwarmTierLimits` (`MediumMaxEntities = 500`) | **Shipped** | `CatalogArchetypeGateTests`; Medium cap enforced; MASS catalog row gated |
 | Spawn **plan** (not full DOTS) | `NearFutureArchetypeRuntime.PlanSpawns` | **Shipped (plan only)** | `NearFutureArchetypeRuntimeTests` — rejects MASS at Medium cap; **no** full DOTS entity spawn |
 | Scenario NF schema | `ScenarioMetadataDto.MaxTechnologyLevel`, `NearFutureUnits` (+ schema `nearFutureUnits`) | **Shipped** | `data/scenarios/scenario-document.schema.json`; authoring DTO |
 | CLI spawn plan | `ScenarioNearFutureSpawnCommand` / `scenario_near_future_spawn` | **Shipped** | `ScenarioNearFutureSpawnCommandTests`; MissionEditor.Cli verb |
@@ -300,4 +301,4 @@ Adaptive systems reduce one or two signatures at cost of power draw and heat (pa
 ---
 
 **Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 09.  
-Design Status remains **Research-integrated**. Charter re-honesty: Wave 3 2026-07-08.
+Design Status remains **Research-integrated**. Charter re-honesty: Wave 3 2026-07-08; TRL metadata row + gate-method names surfaced 2026-07-18.
