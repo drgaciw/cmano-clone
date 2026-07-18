@@ -22,6 +22,17 @@ namespace ProjectAegis.Unity.Runtime
         private const string PlanningDimmedClass = "map-placeholder-panel--planning-dimmed";
         private const string PlanningDimOverlayHiddenClass = "map-planning-dim-overlay--hidden";
 
+        /// <summary>Repo-relative Specced production USS for ASSET-009 (not Approved).</summary>
+        public const string SpeccedProductionUssRelativePath =
+            ProjectAegis.Delegation.Projection.SpeccedC2PanelStylePaths.Asset009MapPlaceholderUss;
+
+        /// <summary>Repo-relative Specced production USS for ASSET-010 comms degrade modifiers.</summary>
+        public const string SpeccedCommsDegradeUssRelativePath =
+            ProjectAegis.Delegation.Projection.SpeccedC2PanelStylePaths.Asset010MapCommsDegradeUss;
+
+        public const string UnityUssRelativePath =
+            ProjectAegis.Delegation.Projection.SpeccedC2PanelStylePaths.UnityMapPlaceholderUss;
+
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;

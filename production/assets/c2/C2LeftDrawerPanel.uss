@@ -1,0 +1,31 @@
+/* C2LeftDrawerPanel.uss — ASSET-007 Left Drawer Panel (Specced path-parity production stub)
+ * Authority: design/assets/specs/c2-ui-assets.md ASSET-007
+ * Status: Specced (not Approved — Path A human phrase required for Approved)
+ * Unity wire: unity/ProjectAegis/Assets/UI/C2LeftDrawer/C2LeftDrawerPanel.uss
+ * Tokens: AegisTokens.uss
+ */
+
+@import url("AegisTokens.uss");
+
+.c2-drawer-panel {
+    flex-grow: 1;
+    min-width: 240px;
+    padding: var(--space-sm);
+    background-color: var(--surface-panel);
+    border-right-width: 1px;
+    border-right-color: var(--border-subtle);
+}
+
+.c2-drawer-tabs {
+    flex-direction: row;
+    margin-bottom: var(--space-sm);
+}
+
+.c2-drawer-list--hidden {
+    display: none;
+}
+
+.c2-drawer-panel--planning-readonly {
+    opacity: 0.85;
+    border-color: rgb(70, 82, 96);
+}

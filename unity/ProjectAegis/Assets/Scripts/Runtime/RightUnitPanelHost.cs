@@ -22,6 +22,14 @@ namespace ProjectAegis.Unity.Runtime
         private const string AttackOptionsName = "attack-options-line";
         private const string ContactName = "contact-line";
 
+        /// <summary>Repo-relative Specced production USS for ASSET-008 (not Approved).</summary>
+        public const string SpeccedProductionUssRelativePath =
+            ProjectAegis.Delegation.Projection.SpeccedC2PanelStylePaths.Asset008RightUnitDetailUss;
+
+        /// <summary>Unity-side USS path constant for host style-path parity (S106).</summary>
+        public const string UnityUssRelativePath =
+            ProjectAegis.Delegation.Projection.SpeccedC2PanelStylePaths.UnityRightUnitDetailUss;
+
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;
@@ -40,6 +48,10 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _contactLine;
         private bool _wired;
         private bool _attackHandlersRegistered;
+        private UnitDetailPresentation _presentation = UnitDetailPresentation.Empty;
+
+        /// <summary>Last applied unit-detail presentation (S107 apply-state).</summary>
+        public UnitDetailPresentation LastPresentation => _presentation;
 
         private void Reset()
         {
@@ -129,6 +141,13 @@ namespace ProjectAegis.Unity.Runtime
             _attackButtons[optionId] = button;
         }
 
+        /// <summary>Apply panel state via shipped binder + apply-state path (S107).</summary>
+        public void ApplyPanelState(UnitDetailPanelState? state)
+        {
+            _presentation = UnitDetailApplyState.Apply(state);
+            ApplyPresentationToLabels();
+        }
+
         private void Refresh()
         {
             if (!_wired || bridgeHost == null)
@@ -139,37 +158,62 @@ namespace ProjectAegis.Unity.Runtime
             var state = UnitDetailPanelBinder.Bind(
                 bridgeHost.LastUnitDetail,
                 bridgeHost.Presentation.ResolveContactLine());
-            _unitIdLine!.text = state.UnitIdLine;
-            _statusLine!.text = state.StatusLine;
-            _magazineLine!.text = state.MagazineLine;
-            _emconLine!.text = state.EmconLine;
-            _doctrineLine!.text = state.DoctrineLine;
-            if (_fuelLine != null)
-            {
-                _fuelLine.text = state.FuelLine;
-            }
-
-            if (_engageLine != null)
-            {
-                _engageLine.text = state.EngagePreviewLine;
-            }
-
-            if (_attackOptionsLine != null)
-            {
-                _attackOptionsLine.text = state.AttackOptionsLine;
-            }
-
-            if (_contactLine != null)
-            {
-                _contactLine.text = state.ContactLine;
-            }
-
+            _presentation = UnitDetailApplyState.Apply(state);
+            ApplyPresentationToLabels();
             RefreshAttackMenuButtons(state.AttackMenu);
 
             var root = _document.rootVisualElement?.Q(RootName);
             if (root != null)
             {
                 root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
+        private void ApplyPresentationToLabels()
+        {
+            if (_unitIdLine != null)
+            {
+                _unitIdLine.text = _presentation.UnitIdLine;
+            }
+
+            if (_statusLine != null)
+            {
+                _statusLine.text = _presentation.StatusLine;
+            }
+
+            if (_magazineLine != null)
+            {
+                _magazineLine.text = _presentation.MagazineLine;
+            }
+
+            if (_emconLine != null)
+            {
+                _emconLine.text = _presentation.EmconLine;
+            }
+
+            if (_doctrineLine != null)
+            {
+                _doctrineLine.text = _presentation.DoctrineLine;
+            }
+
+            if (_fuelLine != null)
+            {
+                _fuelLine.text = _presentation.FuelLine;
+            }
+
+            if (_engageLine != null)
+            {
+                _engageLine.text = _presentation.EngagePreviewLine;
+            }
+
+            if (_attackOptionsLine != null)
+            {
+                _attackOptionsLine.text = _presentation.AttackOptionsLine;
+            }
+
+            if (_contactLine != null)
+            {
+                _contactLine.text = _presentation.ContactLine;
             }
         }
 

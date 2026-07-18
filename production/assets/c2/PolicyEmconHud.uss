@@ -1,0 +1,29 @@
+/* PolicyEmconHud.uss — ASSET-012 Policy denial + EMCON HUD (Specced / S107)
+ * Authority: design/assets/specs/c2-ui-assets.md ASSET-012
+ * Status: Specced (not Approved)
+ */
+
+@import url("AegisTokens.uss");
+
+.policy-emcon-hud {
+    flex-direction: column;
+    min-width: 160px;
+    padding: var(--space-xs);
+    background-color: var(--surface-panel);
+    border-width: 1px;
+    border-color: var(--border-subtle);
+}
+
+.policy-emcon-hud--idle {
+    opacity: 0.8;
+}
+
+.policy-emcon-hud--nominal {
+    border-color: var(--comms-nominal);
+}
+
+.policy-emcon-hud--denied {
+    border-color: var(--log-kill);
+    color: var(--log-kill);
+    -unity-font-style: bold;
+}
