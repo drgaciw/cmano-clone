@@ -1,0 +1,32 @@
+/* RightUnitDetailPanel.uss — ASSET-008 Right Unit Detail Panel (Specced path-parity production stub)
+ * Authority: design/assets/specs/c2-ui-assets.md ASSET-008
+ * Status: Specced (not Approved — Path A human phrase required for Approved)
+ * Unity wire: unity/ProjectAegis/Assets/UI/UnitDetail/UnitDetailPanel.uss
+ * Tokens: AegisTokens.uss
+ */
+
+@import url("AegisTokens.uss");
+
+.unit-detail-panel {
+    flex-direction: column;
+    min-width: 320px;
+    padding: var(--space-sm);
+    background-color: var(--surface-panel);
+    border-left-width: 1px;
+    border-left-color: var(--border-subtle);
+}
+
+.unit-detail-line {
+    font-size: 10px;
+    color: var(--text-data);
+    -unity-font: resource("Fonts/RobotoMono-Regular");
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.unit-detail-header {
+    font-size: 12px;
+    color: var(--text-primary);
+    -unity-font-style: bold;
+    margin-bottom: var(--space-xs);
+}

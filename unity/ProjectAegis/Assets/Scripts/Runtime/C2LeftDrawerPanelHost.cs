@@ -22,6 +22,14 @@ namespace ProjectAegis.Unity.Runtime
         private const string HiddenClass = "c2-drawer-list--hidden";
         private const string PlanningReadOnlyClass = "c2-drawer-panel--planning-readonly";
 
+        /// <summary>Repo-relative Specced production USS for ASSET-007 (not Approved).</summary>
+        public const string SpeccedProductionUssRelativePath =
+            ProjectAegis.Delegation.Projection.SpeccedC2PanelStylePaths.Asset007LeftDrawerUss;
+
+        /// <summary>Unity-side USS path constant for host style-path parity (S106).</summary>
+        public const string UnityUssRelativePath =
+            ProjectAegis.Delegation.Projection.SpeccedC2PanelStylePaths.UnityLeftDrawerUss;
+
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;

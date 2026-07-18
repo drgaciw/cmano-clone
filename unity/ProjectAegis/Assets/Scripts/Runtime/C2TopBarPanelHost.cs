@@ -38,9 +38,13 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _comms;
         private Label? _score;
         private bool _wired;
+        private C2TopBarPresentation _presentation = C2TopBarPresentation.Empty;
 
         /// <summary>True after panel stylesheet has been applied to the top-bar root.</summary>
         public bool StylesApplied { get; private set; }
+
+        /// <summary>Last applied presentation fields (headless-readable after ApplyPanelState).</summary>
+        public C2TopBarPresentation LastPresentation => _presentation;
 
         private void Awake()
         {
@@ -141,6 +145,16 @@ namespace ProjectAegis.Unity.Runtime
             Refresh();
         }
 
+        /// <summary>
+        /// Apply projected top-bar state via headless <see cref="C2TopBarApplyState"/> (S106).
+        /// Safe when UIDocument labels are not yet wired (presentation still recorded).
+        /// </summary>
+        public void ApplyPanelState(C2TopBarState? state)
+        {
+            _presentation = C2TopBarApplyState.Apply(state);
+            ApplyPresentationToLabels();
+        }
+
         private void Refresh()
         {
             if (!_wired || bridgeHost == null)
@@ -148,38 +162,58 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
+            // Prefer bridge-projected state through the shipped apply path so label fields
+            // match C2TopBarProjection output; live phase always wins on the host.
             var state = bridgeHost.LastTopBar;
-            _simTime!.text = state.SimTimeLabel;
-            _phase!.text = $"PHASE: {bridgeHost.Phase}";
-            _compression!.text = state.CompressionLabel;
-            _mode!.text = state.ModeLabel;
-            if (_comms != null)
+            _presentation = C2TopBarApplyState.Apply(state) with
             {
-                _comms.text = state.CommsLabel;
-                _comms.ClearClassList();
-                _comms.AddToClassList("c2-topbar-item");
-                _comms.AddToClassList("c2-topbar-item--comms");
-                if (state.CommsLabel.Contains("DEGRADED", System.StringComparison.Ordinal))
-                {
-                    _comms.AddToClassList("c2-topbar-item--comms-degraded");
-                }
-                else if (state.CommsLabel.Contains("DENIED", System.StringComparison.Ordinal))
-                {
-                    _comms.AddToClassList("c2-topbar-item--comms-denied");
-                }
-                else
-                {
-                    _comms.AddToClassList("c2-topbar-item--comms-nominal");
-                }
-            }
+                PhaseLabel = $"PHASE: {bridgeHost.Phase}",
+            };
 
-            _score!.text = state.ScoreLabel;
+            ApplyPresentationToLabels();
             RefreshBeginExecutionButton();
 
             var root = _document.rootVisualElement?.Q(RootName);
             if (root != null)
             {
                 root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
+        private void ApplyPresentationToLabels()
+        {
+            if (_simTime != null)
+            {
+                _simTime.text = _presentation.SimTimeLabel;
+            }
+
+            if (_phase != null)
+            {
+                _phase.text = _presentation.PhaseLabel;
+            }
+
+            if (_compression != null)
+            {
+                _compression.text = _presentation.CompressionLabel;
+            }
+
+            if (_mode != null)
+            {
+                _mode.text = _presentation.ModeLabel;
+            }
+
+            if (_score != null)
+            {
+                _score.text = _presentation.ScoreLabel;
+            }
+
+            if (_comms != null)
+            {
+                _comms.text = _presentation.CommsLabel;
+                _comms.ClearClassList();
+                _comms.AddToClassList("c2-topbar-item");
+                _comms.AddToClassList("c2-topbar-item--comms");
+                _comms.AddToClassList(_presentation.CommsCssClass);
             }
         }
 

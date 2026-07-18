@@ -22,6 +22,14 @@ namespace ProjectAegis.Unity.Runtime
         private const string AttackOptionsName = "attack-options-line";
         private const string ContactName = "contact-line";
 
+        /// <summary>Repo-relative Specced production USS for ASSET-008 (not Approved).</summary>
+        public const string SpeccedProductionUssRelativePath =
+            ProjectAegis.Delegation.Projection.SpeccedC2PanelStylePaths.Asset008RightUnitDetailUss;
+
+        /// <summary>Unity-side USS path constant for host style-path parity (S106).</summary>
+        public const string UnityUssRelativePath =
+            ProjectAegis.Delegation.Projection.SpeccedC2PanelStylePaths.UnityRightUnitDetailUss;
+
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;
