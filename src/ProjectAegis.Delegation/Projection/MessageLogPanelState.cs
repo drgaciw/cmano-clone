@@ -8,4 +8,5 @@ public sealed record MessageLogDisplayRow(
     string Category,
     string DisplayLine,
     ulong SequenceId = 0,
-    string? UnitId = null);
+    string? UnitId = null,
+    string? CategoryCssClass = null);

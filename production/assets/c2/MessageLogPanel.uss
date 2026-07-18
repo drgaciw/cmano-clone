@@ -54,6 +54,15 @@
     color: var(--log-mission);
 }
 
+.message-log-row--policy {
+    color: var(--log-kill);
+    -unity-font-style: bold;
+}
+
+.message-log-row--weapon {
+    color: var(--log-magazine);
+}
+
 .message-log-row--selectable:focus {
     background-color: var(--selected-row-bg);
     border-left-width: 2px;
