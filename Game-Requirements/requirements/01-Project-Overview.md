@@ -4,7 +4,7 @@
 **Related:** [Game-Requirements-Index](../Game-Requirements-Index.md), [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md), corpus docs 02–21 — see [Related Requirements Index](#related-requirements-index)  
 **Status:** Locked vision — charter re-baselined 2026-07-08; commercial name still open; implementation grades live in the tracker  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)  
-**Stage:** Release (`production/stage.txt`); S56 MVP closed; S73–S80 Baltic v3 content-complete; active forward program = scenario editor (req 11 / S81–S88)
+**Stage:** Release (`production/stage.txt`); S56 MVP closed; S73–S80 Baltic v3 content-complete; S81–S92 editor + post-editor hygiene programs COMPLETE; active forward program = Unity UI Productization (S101–S108 proposed) — see roadmap alias `docs/reports/future-sprint-roadpmap.md`
 
 ## Purpose
 
@@ -17,7 +17,7 @@ Charter for product vision, scope tiers, NFR spine, and **corpus index** (FR map
 | Production stage | **Release** (no Launch advance without explicit decision) |
 | MVP (S56) | 21/21 rows MVP-done or documented Partial+ — **grades frozen** |
 | Content (S57–S80) | Baltic v2 + v3 content programs complete; v3 isolated (`baltic-v3-*`) |
-| Active engineering | **Scenario editor (req 11)** — headless-first; see roadmap `docs/reports/future-sprint-roadpmap-07042026.md` |
+| Active engineering | **Unity UI Productization (S101–S108 proposed)** — C2 polish, Cesium/map, Mission Editor chrome; see roadmap alias `docs/reports/future-sprint-roadpmap.md` (S81–S92 editor + hygiene programs closed 2026-07-09) |
 | Working title | Project Aegis (commercial name **Open**) |
 
 ## Vision
