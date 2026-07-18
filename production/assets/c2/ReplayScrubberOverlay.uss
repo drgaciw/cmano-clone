@@ -1,0 +1,30 @@
+/* ReplayScrubberOverlay.uss — ASSET-013 Replay scrubber / hash overlay (Specced / S107)
+ * Authority: design/assets/specs/c2-ui-assets.md ASSET-013
+ * Status: Specced (not Approved)
+ */
+
+@import url("AegisTokens.uss");
+
+.replay-scrubber {
+    flex-direction: row;
+    align-items: center;
+    height: 28px;
+    min-height: 28px;
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+    background-color: var(--surface-panel);
+    border-top-width: 1px;
+    border-top-color: var(--border-subtle);
+}
+
+.replay-scrubber__hash {
+    font-size: 10px;
+    color: var(--text-data);
+    -unity-font: resource("Fonts/RobotoMono-Regular");
+}
+
+.replay-scrubber__tick {
+    font-size: 10px;
+    color: var(--text-primary);
+    margin-left: var(--space-sm);
+}

@@ -1,0 +1,27 @@
+/* DelegationBadgeOverlay.uss — ASSET-011 Delegation badge (Specced / S107)
+ * Authority: design/assets/specs/c2-ui-assets.md ASSET-011
+ * Status: Specced (not Approved)
+ */
+
+@import url("AegisTokens.uss");
+
+.delegation-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    background-color: var(--surface-panel);
+    border-radius: 2px;
+    color: var(--text-data);
+}
+
+.delegation-badge--idle {
+    opacity: 0.7;
+}
+
+.delegation-badge--human {
+    color: var(--comms-nominal);
+    -unity-font-style: bold;
+}
+
+.delegation-badge--agent {
+    color: var(--log-mission);
+}

@@ -46,10 +46,21 @@ namespace ProjectAegis.Unity.Runtime
         private MissionListPanelState _missionState = new(Array.Empty<MissionListDisplayRow>());
         private SensorC2PanelState _contactState = new("EMCON: —", "TRACK: —", "CONTACTS: 0", Array.Empty<SensorC2ContactRow>());
         private C2PlanningChromeState _planningChrome = new(false, false, SimulationPhase.Planning);
+        private LeftDrawerPresentation _oobPresentation = LeftDrawerPresentation.Empty;
         private bool _wired;
 
         /// <summary>True while drawer tabs are view-only during <see cref="SimulationPhase.Planning"/> (S30-07).</summary>
         public bool IsDrawerReadOnly => _planningChrome.IsDrawerReadOnly;
+
+        /// <summary>Last applied OOB presentation via <see cref="LeftDrawerApplyState"/> (S107).</summary>
+        public LeftDrawerPresentation LastOobPresentation => _oobPresentation;
+
+        /// <summary>Apply OOB panel state through the shipped apply-state path (S107).</summary>
+        public void ApplyOobPanelState(OobTreePanelState? state)
+        {
+            _oobState = state ?? new OobTreePanelState(Array.Empty<OobTreeDisplayRow>());
+            _oobPresentation = LeftDrawerApplyState.Apply(_oobState);
+        }
 
         private void Reset()
         {
@@ -271,6 +282,7 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _oobState = OobTreePanelBinder.Bind(bridgeHost.LastOobTree, bridgeHost.SelectedUnitId);
+            _oobPresentation = LeftDrawerApplyState.Apply(_oobState);
             _missionState = MissionListPanelBinder.Bind(bridgeHost.LastMissionList);
             _contactState = SensorC2PanelBinder.Bind(bridgeHost.LastSensorC2);
 
