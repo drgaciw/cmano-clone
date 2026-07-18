@@ -1,9 +1,10 @@
 # 04 - Agent Delegation System
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Related:** [01-Project-Overview.md](01-Project-Overview.md) · [02-Core-Gameplay-Loop.md](02-Core-Gameplay-Loop.md) · [03-Simulation-Modes.md](03-Simulation-Modes.md) · [08-Agentic-Architecture.md](08-Agentic-Architecture.md) · [13-Doctrine-ROE-EMCON-WRA.md](13-Doctrine-ROE-EMCON-WRA.md) · [14-Engagement-And-Fire-Control.md](14-Engagement-And-Fire-Control.md) · [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md) · [19-Cyber-And-Comms.md](19-Cyber-And-Comms.md) · [20-Command-And-Control-UI.md](20-Command-And-Control-UI.md)  
 **Status:** Locked  
-**Locked spec:** [2026-05-30-agent-delegation-decisions-design.md](../../docs/superpowers/specs/2026-05-30-agent-delegation-decisions-design.md)
+**Locked spec:** [2026-05-30-agent-delegation-decisions-design.md](../../docs/superpowers/specs/2026-05-30-agent-delegation-decisions-design.md)  
+**Charter honesty:** Wave 1 (2026-07-08) · re-verified 2026-07-18 against `src/ProjectAegis.Delegation/` (PersonalityCatalog 6 presets, AutonomyLevel enum, AutonomyGate, DetachRejoinService, AttentionCalculator, DecisionLog).
 
 ## Purpose
 Define how players can assign specialized AI agents to individual units, groups, weapon systems, or entire task forces, enabling realistic autonomous behavior while maintaining human oversight.
@@ -22,18 +23,24 @@ A flexible, intuitive delegation system that turns the game into a true “theat
 - **Side Level** (Advanced) — Assign a high-level strategic agent to command an entire faction — **Phase N (not v1 target model)**
 
 ### Agent Personalities (Initial Set)
-- **Aggressive** — Prioritizes offensive action and risk-taking
-- **Defensive** — Focuses on protection, survival, and force preservation
-- **Cautious** — Waits for clear advantage before committing
-- **Opportunistic** — Exploits momentary weaknesses aggressively
-- **Swarm Coordinator** — Optimized for managing large drone formations
-- **Electronic Warfare Specialist** — Prioritizes jamming, deception, and sensor denial
+
+Six presets shipped in `PersonalityCatalog` (`src/ProjectAegis.Delegation/Traits/PersonalityCatalog.cs`). Display name → code identifier:
+
+- **Aggressive** (`Aggressive`) — Prioritizes offensive action and risk-taking
+- **Defensive** (`Defensive`) — Focuses on protection, survival, and force preservation
+- **Cautious** (`Cautious`) — Waits for clear advantage before committing
+- **Opportunistic** (`Opportunistic`) — Exploits momentary weaknesses aggressively
+- **Swarm Coordinator** (`SwarmCoordinator`) — Optimized for managing large drone formations (attention budget ×1.25)
+- **Electronic Warfare Specialist** (`EwSpecialist`) — Prioritizes jamming, deception, and sensor denial (attention budget ×0.9)
 
 ### Autonomy Levels
-1. **Manual** — Agent suggests actions only; player must approve (`HUMAN_IN_LOOP`)
-2. **Assisted** — Agent executes low-risk actions automatically; asks for high-risk decisions
-3. **Semi-Autonomous** — Agent acts independently; player can override within reaction window (`HUMAN_ON_LOOP`)
-4. **Full Autonomous** — Agent operates with minimal oversight; highest escalation risk (`FULL_AUTONOMOUS` — see req 13, doc 10)
+
+Backed by the `AutonomyLevel` enum (`src/ProjectAegis.Delegation/Core/AutonomyLevel.cs`) and gated by `AutonomyGate` (`Orchestration/AutonomyGate.cs`):
+
+1. **Manual** (`Manual = 1`) — Agent suggests actions only; player must approve (`HUMAN_IN_LOOP`)
+2. **Assisted** (`Assisted = 2`) — Agent executes low-risk actions automatically; asks for high-risk decisions
+3. **Semi-Autonomous** (`SemiAutonomous = 3`) — Agent acts independently; player can override within reaction window (`HUMAN_ON_LOOP`)
+4. **Full Autonomous** (`FullAutonomous = 4`) — Agent operates with minimal oversight; highest escalation risk (`FULL_AUTONOMOUS` — see req 13, doc 10)
 
 Autonomy levels must integrate with side/unit ROE and policy evaluator (req 13, ADR-002). Full autonomous lethal engagement requires explicit player opt-in per mission phase.
 
@@ -122,6 +129,7 @@ All charter questions for agent delegation are **locked**. See [Resolved Design 
 | Trust / experience emit | `TrustSignalEmitter` (`Trust/`) | **Shipped (emit-only)** | `TrustSignalEmitterTests`; tactical MVP emit-only — no mid-run trait mutation (campaign aggregate Phase 3) |
 | Session facade / tick path | `DelegationBridge` (`ProjectAegis.Delegation.UnityAdapter` · `Bridge/`) | **Shipped — CRITICAL zero-touch hotpath** | Owns orchestrator bind, `Tick()`, engage/comms timelines; **GitNexus: CRITICAL** — no hotpath edits through Release v1; impact before any bridge change |
 | Controller registry + phase gate | `DelegationOrchestrator` (`Orchestration/`) | **Shipped** | Phase gate, stochastic agent choice, detach-rejoin, `DecisionLog`, `FinalizeScenario()` → trust; wired from bridge + `BalticReplayHarness` |
+| Append-only decision / order log | `DecisionLog` + `IOrderLog` (`Decision/`) | **Shipped** | Canonical stream consumed by replay (req 17): `AgentIntent`, `ControllerChange`, `GroupMemberDetach`/`Rejoin`, `PolicyDenial`, `TrustSignal`; `DecisionLogTests` |
 | Scenario loop policy | `LoopPolicyGate` | **Shipped** | `personalityEditPolicy`, `playerInfoModel` from scenario JSON (req 02, 13) |
 | Hot-swap personality / traits | `DelegationOrchestrator.TryRebindAgentTraits` | **Shipped** | Denials via `LoopPolicyVerdict` without mutating agent state |
 | C2 delegation badges / drag-drop UI | Unity C2 hosts / presentation | **Partial / Phase N** | Headless projections + partial C2; full drag-drop assignment + polish badges remain UI debt (tracker row 04) |
