@@ -1,6 +1,6 @@
 # 16 - Logistics, Magazines, and Platform Operations
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Status:** Draft — ready for design review  
 **FR reverse-ref:** [FR-14](01-Project-Overview.md) — Logistics and magazines  
 **CMO basis:** Manual §3.3.4–8, §3.3.6, §4.5.4–5, §6.3.13, §7.2.1–2 (ferry/support)  
@@ -154,6 +154,8 @@ Ferry authoring uses Mission Editor CLI (`mission_add_ferry` / `mission_update_f
 | **Phase 2** | Catalog live magazines polish, reachability/tanker parity, C2 magazine panel, swarm burn metrics |
 | **Phase 3 / Phase N** | UNREP, full air-ops FSM, crew rest, detailed maintenance, product MCP logistics tools |
 
+**Next stack (tracker row 16):** UNREP runtime model; live magazines C2 panel. Both remain **Phase N / Gap** — not on `main`.
+
 ## Implementation Mapping (headless)
 
 | Area | Path / type | Status | Evidence |
@@ -191,6 +193,8 @@ Ferry authoring uses Mission Editor CLI (`mission_add_ferry` / `mission_update_f
 ---
 
 **Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 16.  
-Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.
+Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08 (mapping: `MagazineLedger` / `FuelLedger` / `AIR_NOT_READY`).  
+
+**Verification 2026-07-18:** All 15 cited test files exist in `src/`; `MagazineLedger`, `FuelLedger`, `UnitReadinessMap`, `EngagementAbortReason.AirNotReady`, ferry CLI (`mission_add_ferry` / `mission_update_ferry`) confirmed on `main`. No drift against tracker row 16.
 
 **References:** CMO Manual §3.3.6–8; `docs/manual/index.html`
