@@ -1,6 +1,6 @@
 # 06 - Database Intelligence Layer
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Related:** [01-Project-Overview.md](01-Project-Overview.md) · [05-Dynamic-Systems-Agent.md](05-Dynamic-Systems-Agent.md) · [09-Near-Future-Technologies.md](09-Near-Future-Technologies.md) · [10-Speculative-Systems.md](10-Speculative-Systems.md) · [11-Agentic-Mission-Editor.md](11-Agentic-Mission-Editor.md) · [15-Sensor-Detection-And-EW.md](15-Sensor-Detection-And-EW.md) · [16-Logistics-And-Magazines.md](16-Logistics-And-Magazines.md) · [18-Combat-Domains.md](18-Combat-Domains.md) · [21-Platform-Editor.md](21-Platform-Editor.md)  
 **Status:** Locked  
 **Locked spec:** [Database Intelligence P0 design](../../docs/superpowers/specs/2026-05-30-database-intelligence-p0-design.md)  
@@ -48,9 +48,9 @@ Handling is **not FIFO** — driven by broader database objectives and **release
 
 **Acceptance**
 
-- [ ] **DBI-1.1** After `CatalogWriteGate.ApproveBatch` commits, subsequent `ICatalogReader.GetSortedSensorBindings()` reflects new rows in stable `(platformId, sensorId)` order.
-- [ ] **DBI-1.2** Catalog exports and agent runs use fixed sort keys — no `DateTime.Now` in commit or export paths (`ICatalogClock` injectable).
-- [ ] **DBI-1.3** `DatabaseIntelligenceOrchestrator.Run` completes on Baltic default catalog without manual re-index step.
+- [ ] **DBI-1.1** After `CatalogWriteGate.ApproveBatch` commits, subsequent `ICatalogReader.GetSortedSensorBindings()` reflects new rows in stable `(platformId, sensorId)` order. *(unchecked — Standard W1 depth; covered by `WriteGate/CatalogWriteGateTests.cs`)*
+- [ ] **DBI-1.2** Catalog exports and agent runs use fixed sort keys — no `DateTime.Now` in commit or export paths (`ICatalogClock` injectable). *(unchecked — Standard W1 depth; `Clock/FixedCatalogClock` shipped)*
+- [ ] **DBI-1.3** `DatabaseIntelligenceOrchestrator.Run` completes on Baltic default catalog without manual re-index step. *(unchecked — Standard W1 depth; `Agents/DatabaseIntelligenceOrchestratorTests.cs`)*
 - [ ] **DBI-1.4** Relationship lookups (`CatalogEntityMap`, detection keys) remain consistent after batch commit (no orphan staging rows).
 - [ ] **DBI-1.5** Post-P0: dedicated dependency graph index for weapon→mount→sensor chains (tracked in P1 plan).
 
@@ -83,8 +83,8 @@ Handling is **not FIFO** — driven by broader database objectives and **release
 
 - [ ] **DBI-3.1** `CatalogRulesValidationAgent` fails or warns when sensor bindings reference unknown `platformId` / `sensorId`.
 - [ ] **DBI-3.2** Scenario load fails with resolve error when `dbRef` / catalog ID missing from bound snapshot (`ICatalogReader.TryResolveDbRef`).
-- [ ] **DBI-3.3** `ScenarioValidationEngine` produces deterministic `ValidationReport` for Baltic patrol fixture (golden hash stable).
-- [ ] **DBI-3.4** Quarantined bindings (`CatalogQuarantinePromoter`, `sensor_quarantine` table) never appear in sim export until promoted.
+- [ ] **DBI-3.3** `ScenarioValidationEngine` produces deterministic `ValidationReport` for Baltic patrol fixture (golden hash stable). *(unchecked — Standard W1 depth; `Validation/ScenarioValidationEngineTests.cs` + `Validation/ValidationGoldenTests.cs`)*
+- [ ] **DBI-3.4** Quarantined bindings (`CatalogQuarantinePromoter`, `sensor_quarantine` table) never appear in sim export until promoted. *(unchecked — Standard W1 depth; quarantine shipped)*
 - [ ] **DBI-3.5** Post-P0: P1 rule pack for kill-chain impossibilities (doc 06 §3 full vision).
 
 ### 4. Version Control & Change Tracking
@@ -98,7 +98,7 @@ Handling is **not FIFO** — driven by broader database objectives and **release
 **Acceptance**
 
 - [ ] **DBI-4.1** Every approved batch writes change-log rows with `actorType`, `actorId`, `rationale`, `ApprovalState`, `RevisedUtcTicks`.
-- [ ] **DBI-4.2** `GetSortedSnapshotIds()` returns monotonic, immutable snapshot IDs; scenario JSON `dbRef` resolves via `TryResolveDbRef`.
+- [ ] **DBI-4.2** `GetSortedSnapshotIds()` returns monotonic, immutable snapshot IDs; scenario JSON `dbRef` resolves via `TryResolveDbRef`. *(unchecked — Standard W1 depth; `Validation/TlBranchValidationTests.cs` + `TlReleaseTrainValidationTests.cs`; `DbSnapshotStore.TryGetBranch` reserves `branch` column for TL splits)*
 - [ ] **DBI-4.3** `DbReleaseRecord` links `ReleaseVersion` to `SnapshotId` for release-train drops.
 - [ ] **DBI-4.4** Rejecting a staging batch (`RejectBatch`) leaves live tables unchanged and marks batch discarded.
 - [ ] **DBI-4.5** Post-P0: generated diff report between two `ReleaseVersion` values for curators.
@@ -137,9 +137,9 @@ Every database field must support optional provenance metadata:
 
 **Acceptance**
 
-- [ ] **DBI-6.1** Persisted sensor rows store `ValueTier` ∈ {`source_fact`, `interpreted_value`, `gameplay_abstraction`}; unknown tiers normalize to `gameplay_abstraction`.
-- [ ] **DBI-6.2** Import path (`CatalogJsonImporter`) preserves provenance fields from JSON fixtures.
-- [ ] **DBI-6.3** `ReviewState` ∈ {`approved`, `provisional`, `rejected`} (`CatalogReviewStates`); rejected rows do not export to sim.
+- [ ] **DBI-6.1** Persisted sensor rows store `ValueTier` ∈ {`source_fact`, `interpreted_value`, `gameplay_abstraction`}; unknown tiers normalize to `gameplay_abstraction`. *(unchecked — Standard W1 depth; `CatalogSensorBinding` carries all 7 provenance fields: `ValueTier`, `Confidence`, `CitationRef`, `ReviewerId`, `RevisedUtcTicks`, `TrlLevel`, `ReviewState`)*
+- [ ] **DBI-6.2** Import path (`CatalogJsonImporter`) preserves provenance fields from JSON fixtures. *(unchecked — Standard W1 depth)*
+- [ ] **DBI-6.3** `ReviewState` ∈ {`approved`, `provisional`, `rejected`} (`CatalogReviewStates`); rejected rows do not export to sim. *(unchecked — Standard W1 depth; enforced by `CatalogImportGate` / `CatalogDependencyGraphIndex`)*
 - [ ] **DBI-6.4** TRL and TL routing metadata present on bindings used by docs 09/10 gates (`CatalogArchetypeGate`, `NearFutureArchetypeCatalog`).
 - [ ] **DBI-6.5** Agent-proposed values from doc 05 remain `interpreted_value` or `gameplay_abstraction` until human reviewer sets `approved`.
 
@@ -176,10 +176,10 @@ Posture: **propose, not auto-merge.** Agents function as research assistants and
 
 **Acceptance**
 
-- [ ] **DBI-8.1** `DatabaseIntelligenceOrchestrator.Run` executes agents in fixed order and returns `DatabaseIntelligenceRunResult.Passed` only if all agents pass.
-- [ ] **DBI-8.2** `CatalogDiffProposalAgent` emits patch proposals without writing live tables.
-- [ ] **DBI-8.3** Dynamic Speculative Systems (doc 05) has no code path that bypasses `IWriteGate` for catalog writes.
-- [ ] **DBI-8.4** Human `ApproveBatch` required before sim-visible data changes.
+- [ ] **DBI-8.1** `DatabaseIntelligenceOrchestrator.Run` executes agents in fixed order and returns `DatabaseIntelligenceRunResult.Passed` only if all agents pass. *(unchecked — Standard W1 depth; `Agents/DatabaseIntelligenceOrchestratorTests.cs` + `Agents/OrchestratorKillChainGateTests.cs`)*
+- [ ] **DBI-8.2** `CatalogDiffProposalAgent` emits patch proposals without writing live tables. *(unchecked — Standard W1 depth)*
+- [ ] **DBI-8.3** Dynamic Speculative Systems (doc 05) has no code path that bypasses `IWriteGate` for catalog writes. *(unchecked — Standard W1 depth; `CatalogWriteGate` sealed / extend-only — 12 `Propose*Batch` overloads; AGENTS.md CRITICAL invariant)*
+- [ ] **DBI-8.4** Human `ApproveBatch` required before sim-visible data changes. *(unchecked — Standard W1 depth; AGENTS.md CatalogWriteGate extend-only)*
 - [ ] **DBI-8.5** Post-P0: retrieval agent connector feeds same orchestrator with cited source bundles.
 
 ## Non-Functional Requirements
@@ -381,4 +381,4 @@ Human approval is **mandatory** for P0 (locks legacy open question #1). Doc 05 a
 **Status:** Locked (Sprint 14)
 
 ---
-**Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 06. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.
+**Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 06. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08. **Verified 2026-07-18:** `CatalogWriteGate` sealed (extend-only, 12 `Propose*Batch` overloads); zero `UnityEngine` in `src/ProjectAegis.Data/**/*.cs`; ADR-006 boundary holds; `CatalogSensorBinding` carries all 7 provenance fields; `DbSnapshotStore.TryGetBranch` reserves `catalog_snapshot.branch` for TL splits; all cited tests in Implementation Mapping resolve under `src/ProjectAegis.Data.Tests/` and `src/ProjectAegis.MissionEditor.Cli.Tests/`. AC checkboxes remain unchecked per Standard W1 depth (named-test annotations added on DBI-1.1/1.2/1.3, 3.3/3.4, 4.2, 6.1/6.2/6.3, 8.1/8.2/8.3/8.4).
