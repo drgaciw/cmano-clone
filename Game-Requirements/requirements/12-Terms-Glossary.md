@@ -1,6 +1,6 @@
 # 12 - Terms Glossary
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md)–[11](11-Agentic-Mission-Editor.md), [13](13-Doctrine-ROE-EMCON-WRA.md)–[21](21-Platform-Editor.md), [implementation tracker](../implementation-tracker-2026-07-04.md)  
 **Status:** Locked (Sprint 15) — vocabulary additive-only; implementation **Partial** (UI tooltips residual)
 
@@ -113,7 +113,9 @@ One-line pointers only—full rules, enums, and acceptance criteria live in the 
 - Where the project introduces a new agentic concept, the definition should explain how it differs from a legacy manual workflow.
 - **Authoritative source rule:** Every glossary table includes an **Authoritative source** column. If a term’s normative definition, enum, or acceptance criteria appear in another requirement doc (especially [13](13-Doctrine-ROE-EMCON-WRA.md)–[20](20-Command-And-Control-UI.md)), that doc is the source of truth; this file indexes and disambiguates only. Do not duplicate full specs here—link instead.
 - Wave 5 runtime codes (**CYBER_SPOOF_TRACK**, **AIR_NOT_READY**) are also listed in `data/glossary/abort_reason_manifest.json`; requirement docs [14](14-Engagement-And-Fire-Control.md), [16](16-Logistics-And-Magazines.md), and [19](19-Cyber-And-Comms.md) define when they fire.
-- **Additive only:** Wave 1 (2026-07-08) added product terms for loop/modes/delegation/data/authoring without rewriting CMO base definitions.
+- **Additive only:** Wave 1 (2026-07-08) added product terms for loop/modes/delegation/data/authoring without rewriting CMO base definitions. Wave 5 (Sprints 13–15) added runtime abort codes (`CYBER_SPOOF_TRACK`, `AIR_NOT_READY`) without altering prior term semantics. Future term additions must remain strictly additive — no redefinition, narrowing, or removal of existing glossary entries (Locked doc invariant).
+
+**Verified 2026-07-18:** `data/glossary/abort_reason_manifest.json` exists and contains both Wave 5 codes (`AIR_NOT_READY` → `AirNotReady`, `CYBER_SPOOF_TRACK` → `TrackSpoofed`); consumed by `src/ProjectAegis.Sim/Glossary/AbortReasonManifest.cs` and `AbortReasonCatalog.Generated.cs` (which cites req 12). All 21 cross-referenced requirement docs (`01-*.md`…`21-*.md`) resolve under `Game-Requirements/requirements/`. Additive-only invariant holds — no CMO base definition (Unit, Group, Mount, Magazine, Mission, etc.) has been redefined since Locked. UI tooltips remains the only **Partial** residual per tracker row 12 (next stack task).
 
 ---
 **Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 12 (UI tooltips residual). Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.
