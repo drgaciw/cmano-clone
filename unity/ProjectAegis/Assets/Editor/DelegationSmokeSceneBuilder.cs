@@ -26,6 +26,9 @@ namespace ProjectAegis.Unity.Editor
         public static void Build(string scenarioPolicyId, bool exitBatchModeWhenDone = true)
         {
             var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+            // Default GameObjects include AudioListener; strip it when the audio built-in module
+            // is disabled (Console: "AudioListener component deleted: Component belongs to a disabled built-in package").
+            StripAudioListenersFromOpenScene();
 
             var root = new GameObject("DelegationSmoke");
             var bridge = root.AddComponent<DelegationBridgeHost>();
@@ -163,6 +166,49 @@ namespace ProjectAegis.Unity.Editor
             }
 
             FixPanelSettingsOnOpenScene();
+            if (Application.isBatchMode)
+            {
+                EditorApplication.Exit(0);
+            }
+        }
+
+        private static void StripAudioListenersFromOpenScene()
+        {
+            // Use type name so editor scripts still compile when the audio built-in module is disabled.
+            foreach (var component in Object.FindObjectsByType<Component>(
+                         FindObjectsInactive.Include,
+                         FindObjectsSortMode.None))
+            {
+                if (component != null && component.GetType().Name == "AudioListener")
+                {
+                    Object.DestroyImmediate(component);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Batch/menu: remove AudioListeners from the open scene (audio module disabled projects).
+        /// </summary>
+        [MenuItem("Project Aegis/Strip AudioListeners (open scene)")]
+        public static void StripAudioListenersMenu()
+        {
+            StripAudioListenersFromOpenScene();
+            EditorSceneManager.MarkAllScenesDirty();
+            EditorSceneManager.SaveOpenScenes();
+            Debug.Log("DelegationSmokeSceneBuilder: stripped AudioListener components from open scene.");
+        }
+
+        public static void StripAudioListenersBatch()
+        {
+            var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            if (!scene.IsValid())
+            {
+                Debug.LogError($"Failed to open {ScenePath}");
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            StripAudioListenersMenu();
             if (Application.isBatchMode)
             {
                 EditorApplication.Exit(0);
