@@ -146,7 +146,7 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 | 11 | Agentic Mission Editor | **Partial+** (headless; AC-1…AC-12 green) | **S81–S88 + ME Phase 2 COMPLETE 2026-07-09:** ferry/support/undo, AC-7, AC-8, sides, timeline, semantic diff, event/static analysis shipped headless; stage remains Release | Phase 2.4+ Unity/product chrome; Phase 3 agents/import/Lua deferred |
 | 12 | Terms Glossary | **Partial** | **doc honesty Wave 1 2026-07-08** (additive terms) | UI tooltips |
 | 13 | Doctrine ROE EMCON WRA | **Partial** | `DoctrineInheritanceValidateTests` + fixture; v3 mission-roe policy; **doc honesty Wave 2 2026-07-08** | Unity doctrine panel (ADR-010) |
-| 14 | Engagement & Fire Control | **Partial+** | v3 contact-triggered engage; **doc honesty Wave 2 2026-07-08** | **Fix 2 UA engage tests**; DLZ Phase 2 |
+| 14 | Engagement & Fire Control | **Partial+** | v3 contact-triggered engage; **UA engage 3/3 green @ post-PE gate 2026-07-09** (`BalticReplayHarnessPolicyEngageTests`); **doc honesty Wave 2 2026-07-08**; **corpus review 2026-07-18** (stale UA-failure claim reconciled) | DLZ Phase 2 |
 | 15 | Sensor Detection & EW | **Partial** (MVP **COVERED**) | v3 classify + catalog sensor slices; **doc honesty Wave 2 2026-07-08** | ECCM Phase 2 |
 | 16 | Logistics & Magazines | **Partial** | **doc honesty Wave 2 2026-07-08** (mapping: MagazineLedger/FuelLedger/AIR_NOT_READY) | UNREP; live magazines |
 | 17 | Replay AAR & Order Log | **Partial** | 6 v3 goldens; event debugger aligned to order-log projection (AME-5.5); **doc honesty Wave 2 2026-07-08** (headless P0 vs scrub residual) | Scrub UI; AAR agent |
@@ -165,7 +165,7 @@ Unchanged — **COMPLETE**. See [implementation-tracker-2026-07-01.md](implement
 | Lua compatibility shim | 11 | **Deferred** — ADR-014 |
 | Monte Carlo experiment schema | 17 | Phase 5 / req 07 |
 | v3 corpus promotion | 02 | S80 ack: **no** unless explicit |
-| UA regression (2 tests) | 14 | Open on branch |
+| UA regression (2 tests) | 14 | **CLOSED @ green 2026-07-09** (3/3 on trunk @ `223a5fe`); see [`production/qa/ua-engage-triage-2026-07-09.md`](../production/qa/ua-engage-triage-2026-07-09.md). Entry retained for audit trail. |
 | PR stack stale vs local | 07 | Re-run `gt submit` after review |
 
 ## Workflow (agents)
