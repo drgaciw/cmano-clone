@@ -106,7 +106,8 @@ namespace ProjectAegis.Unity.Editor
             where T : MonoBehaviour
         {
             var go = new GameObject(objectName);
-            go.AddComponent<UIDocument>();
+            var document = go.AddComponent<UIDocument>();
+            document.panelSettings = EnsurePanelSettingsAsset();
             var host = go.AddComponent<T>();
             var hostSo = new SerializedObject(host);
             var bridgeProp = hostSo.FindProperty("bridgeHost");
@@ -119,6 +120,79 @@ namespace ProjectAegis.Unity.Editor
             SetObjectReference(host, "panelAsset", AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath));
             SetObjectReference(host, "panelStyles", AssetDatabase.LoadAssetAtPath<StyleSheet>(ussPath));
             return host;
+        }
+
+        /// <summary>
+        /// Menu: assign shared PanelSettings to every UIDocument in the open scene (fixes empty Game view).
+        /// Batch: -executeMethod ProjectAegis.Unity.Editor.DelegationSmokeSceneBuilder.FixPanelSettingsBatch
+        /// </summary>
+        [MenuItem("Project Aegis/Fix UIDocument PanelSettings (open scene)")]
+        public static void FixPanelSettingsOnOpenScene()
+        {
+            var settings = EnsurePanelSettingsAsset();
+            var documents = Object.FindObjectsByType<UIDocument>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var fixedCount = 0;
+            foreach (var document in documents)
+            {
+                if (document.panelSettings == null)
+                {
+                    document.panelSettings = settings;
+                    EditorUtility.SetDirty(document);
+                    fixedCount++;
+                }
+            }
+
+            if (fixedCount > 0)
+            {
+                EditorSceneManager.MarkAllScenesDirty();
+                EditorSceneManager.SaveOpenScenes();
+            }
+
+            Debug.Log(
+                $"DelegationSmokeSceneBuilder: PanelSettings assigned on {fixedCount}/{documents.Length} UIDocument(s) path={UiDocumentPanelSettingsBootstrap.DefaultPanelSettingsAssetPath}");
+        }
+
+        public static void FixPanelSettingsBatch()
+        {
+            var scene = EditorSceneManager.OpenScene(ScenePath, OpenSceneMode.Single);
+            if (!scene.IsValid())
+            {
+                Debug.LogError($"Failed to open {ScenePath}");
+                EditorApplication.Exit(1);
+                return;
+            }
+
+            FixPanelSettingsOnOpenScene();
+            if (Application.isBatchMode)
+            {
+                EditorApplication.Exit(0);
+            }
+        }
+
+        private static PanelSettings EnsurePanelSettingsAsset()
+        {
+            var path = UiDocumentPanelSettingsBootstrap.DefaultPanelSettingsAssetPath;
+            var existing = AssetDatabase.LoadAssetAtPath<PanelSettings>(path);
+            if (existing != null)
+            {
+                return existing;
+            }
+
+            var dir = System.IO.Path.GetDirectoryName(path)?.Replace('\\', '/');
+            if (!string.IsNullOrEmpty(dir) && !AssetDatabase.IsValidFolder(dir))
+            {
+                // Assets/UI is expected; create only the leaf if missing
+                if (!AssetDatabase.IsValidFolder("Assets/UI"))
+                {
+                    AssetDatabase.CreateFolder("Assets", "UI");
+                }
+            }
+
+            var created = UiDocumentPanelSettingsBootstrap.CreateDefaultPanelSettings();
+            AssetDatabase.CreateAsset(created, path);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"Created PanelSettings asset at {path}");
+            return created;
         }
 
         private static void SetString(Object target, string propertyName, string value)

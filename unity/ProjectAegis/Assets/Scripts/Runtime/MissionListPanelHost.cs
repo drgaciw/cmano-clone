@@ -31,6 +31,7 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _document = GetComponent<UIDocument>();
+            UiDocumentPanelSettingsBootstrap.EnsureDocument(_document);
         }
 
         private void Awake()
