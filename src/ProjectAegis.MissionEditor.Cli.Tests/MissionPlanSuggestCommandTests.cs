@@ -18,6 +18,39 @@ public sealed class MissionPlanSuggestCommandTests
         Assert.Contains("scenario_comms_status", json);
         Assert.Contains("baltic-patrol-comms", json);
     }
+
+    /// <summary>
+    /// UAT 2026-07-19 board lane: "ferry redeploy tanker support" only returned validate fallback.
+    /// NL plan must suggest ferry + support mission verbs (and optional templates).
+    /// </summary>
+    [Fact]
+    public void Run_ferry_tanker_support_intent_suggests_ferry_and_support_tools()
+    {
+        using var writer = new StringWriter();
+        var exit = MissionPlanSuggestCommand.Run("ferry redeploy tanker support", writer);
+        var json = writer.ToString();
+
+        Assert.Equal(0, exit);
+        Assert.Contains("mission_add_ferry", json);
+        Assert.Contains("mission_add_support", json);
+        Assert.DoesNotContain("No mission keyword matched", json);
+        // Prefer also surface template ids used by mission_add_from_template
+        Assert.Contains("tpl-ferry-empty", json);
+        Assert.Contains("tpl-support-tanker", json);
+        // Role must be Tanker (not EW from substring "redeploy")
+        Assert.Contains("\"role\": \"Tanker\"", json);
+    }
+
+    [Fact]
+    public void Run_aew_support_intent_suggests_aew_role()
+    {
+        using var writer = new StringWriter();
+        var exit = MissionPlanSuggestCommand.Run("support aew station", writer);
+        var json = writer.ToString();
+        Assert.Equal(0, exit);
+        Assert.Contains("mission_add_support", json);
+        Assert.Contains("\"role\": \"AEW\"", json);
+    }
 }
 
 // Track 5/5: publishing/provenance + AI-assisted authoring tests (isolated)
