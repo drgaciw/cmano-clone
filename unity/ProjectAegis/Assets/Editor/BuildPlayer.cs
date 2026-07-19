@@ -44,7 +44,7 @@ public static class BuildPlayer
     }
 
     private static void Run(BuildTarget target, string outputPath, ScriptingImplementation backend,
-        string version, BuildOptions options)
+        string? version, BuildOptions options)
     {
         var dir = Path.GetDirectoryName(outputPath);
         if (!string.IsNullOrEmpty(dir))
@@ -97,7 +97,7 @@ public static class BuildPlayer
         return $"Builds/{target}/ProjectAegis{ext}";
     }
 
-    private static BuildTarget? ParseTarget(string value) => value switch
+    private static BuildTarget? ParseTarget(string? value) => value switch
     {
         null or "" => null,
         "StandaloneLinux64" or "Linux64" => BuildTarget.StandaloneLinux64,
@@ -106,7 +106,7 @@ public static class BuildPlayer
         _ => throw new ArgumentException($"Unsupported -buildTarget '{value}'"),
     };
 
-    private static ScriptingImplementation? ParseBackend(string value) => value switch
+    private static ScriptingImplementation? ParseBackend(string? value) => value switch
     {
         null or "" => null,
         "IL2CPP" => ScriptingImplementation.IL2CPP,
@@ -114,7 +114,7 @@ public static class BuildPlayer
         _ => throw new ArgumentException($"Unsupported -scriptingBackend '{value}'"),
     };
 
-    private static string GetArg(string[] args, string name)
+    private static string? GetArg(string[] args, string name)
     {
         var i = Array.IndexOf(args, name);
         return i >= 0 && i + 1 < args.Length ? args[i + 1] : null;
