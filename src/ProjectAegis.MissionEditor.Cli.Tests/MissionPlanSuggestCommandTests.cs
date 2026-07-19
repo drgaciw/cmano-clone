@@ -97,7 +97,15 @@ public sealed class ScenarioPublishAndAiScaffoldTests
         var tmp = Path.GetTempFileName() + ".json";
         try
         {
-            var minimal = "{\"Metadata\":{\"DbRef\":\"baltic_patrol\",\"EditVersion\":1},\"Missions\":[]}";
+            // Must include tlBranch so export gate allows publish (UAT 2026-07-19: publish blocked without validation).
+            var minimal = """
+                {
+                  "metadata": { "dbRef": "baltic_patrol", "editVersion": 1, "tlBranch": "TL-0", "seed": 1 },
+                  "missions": [],
+                  "sides": [],
+                  "orbat": { "units": [] }
+                }
+                """;
             File.WriteAllText(tmp, minimal);
             using var sw = new StringWriter();
             var exit = ScenarioPublishCommand.Run(tmp, sw);

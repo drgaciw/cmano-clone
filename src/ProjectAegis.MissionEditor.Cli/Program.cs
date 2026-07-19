@@ -76,6 +76,8 @@ switch (command)
         return RunScenarioNearFutureSpawn(args.Skip(1).ToArray());
     case "scenario_event_trace":
         return RunScenarioEventTrace(args.Skip(1).ToArray());
+    case "scenario_diff_summary":
+        return RunScenarioDiffSummary(args.Skip(1).ToArray());
     case "event_add":
     case "event_update": // alias: upsert same as event_add
         return RunEventAdd(args.Skip(1).ToArray());
@@ -234,12 +236,29 @@ static int RunScenarioExport(string[] args)
             allowed = pkg.Allowed,
             editVersion = pkg.ExportDocument?.Metadata?.EditVersion,
         };
+        // Always emit machine-readable JSON; non-zero exit when validation blocks export
+        // (parity with scenario_export_brief / scenario_simulate_sample).
+        if (!pkg.Allowed)
+        {
+            Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(
+                result,
+                new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+            return 1;
+        }
+
         return McpToolResult.WriteOk(Console.Out, result);
     }
     catch (Exception ex)
     {
         return McpToolResult.WriteError(Console.Out, "EXPORT_ERROR", ex.Message);
     }
+}
+
+static int RunScenarioDiffSummary(string[] args)
+{
+    var before = CliArgParser.GetFlag(args, "--before");
+    var after = CliArgParser.GetFlag(args, "--after");
+    return ScenarioDiffSummaryCommand.Run(before ?? string.Empty, after ?? string.Empty, Console.Out);
 }
 
 static int RunSimulateSample(string[] args)
@@ -883,7 +902,7 @@ static void PrintUsage()
     Console.WriteLine("Project Aegis — Mission Editor headless MCP tools");
     Console.WriteLine("Usage:");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_create --out <scenario.json> [--db-ref R] [--policy-id P] [--seed N]");
-    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_patrol --path <scenario.json> --edit-version N --id <id> --unit U [--wp lat,lon]+");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_patrol --path <scenario.json> --edit-version N --id <id> --unit U --wp lat,lon --wp lat,lon --wp lat,lon  (patrol zone needs ≥3 waypoints)");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_strike --path <scenario.json> --edit-version N --id <id> --unit U --target T");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_patrol --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--wp lat,lon]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_strike --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--target T]+");
@@ -911,6 +930,7 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_publish --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export --path <scenario.json>   // S83-01 polished (cites roadmap-execute-plan-07042026.md + boundary-2026-07-04.md + qa units)");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export_brief --path <scenario.json> [--out brief.md]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_diff_summary --before <a.json> --after <b.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_simulate_sample --path <scenario.json> [--ticks N]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_plan_suggest --intent \"patrol and strike baltic\"");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_comms_status --policy baltic-patrol-comms");
