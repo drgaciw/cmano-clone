@@ -1,8 +1,8 @@
 # Game Requirements - Master Index
 
-**Last Updated:** 2026-07-11
+**Last Updated:** 2026-07-18
 
-**Program note:** **Corpus maturity W0–W4 complete (2026-07-08)** — hub + drafts 13–21 honesty re-baselined. Scenario editor / Mission Editor Phase 2 is complete on trunk as of 2026-07-09: req 11 AC-1…AC-12 are green headless; residual Unity/product chrome remains Phase 2.4+, and Phase 3 agents/import/Lua are not shipped. Production stage remains **Release**. Post-MVP Requirements Program (Sprints 11–15) remains complete for docs 01–12 Template A. Doc 21 Platform Editor is first-class under Authoring.
+**Program note:** **Corpus maturity W0–W4 complete (2026-07-08)** — hub + drafts 13–21 honesty re-baselined. Scenario editor / Mission Editor Phase 2 is complete on trunk as of 2026-07-09: req 11 AC-1…AC-12 are green headless; residual Unity/product chrome remains Phase 2.4+, and Phase 3 agents/import/Lua are not shipped. Production stage remains **Release**. Post-MVP Requirements Program (Sprints 11–15) remains complete for docs 01–12 Template A. Doc 21 Platform Editor is first-class under Authoring. **2026-07-18 nemo corpus review:** docs 01–21 swept per `nemo-req-improv-plan.md`; stale gate floors (≥1232→≥1599, 18/18→≥20/20), stale UA-failure claims (resolved 3/3 green 2026-07-09), and missing implementation-mapping evidence reconciled across 21 docs. No status promotions, no ADR flips, no MVP regrades.
 
 ## Implementation
 
@@ -59,8 +59,8 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 
 ## Authoring & Design Tools
 
-- [11-Agentic-Mission-Editor.md](requirements/11-Agentic-Mission-Editor.md) — Agentic mission/scenario editor (CMO parity + NL/MCP authoring, deterministic Validation Engine, operations timeline); *Revised 2026-07-09, implementation-aligned (AME-* IDs; AC-1…AC-12 green headless; Mission Editor Phase 2 complete; residual UI/Phase 3 scoped)*; see [ADR-008](../docs/architecture/adr-008-mission-editor-validation-engine.md), [ADR-013…017](../docs/architecture/adr-013-cmo-scenario-import-policy.md)
-- [21-Platform-Editor.md](requirements/21-Platform-Editor.md) — Platform/catalog editor (ships, subs, aircraft, loadouts, comms, sensor suites) with Microsoft Excel round-trip on the write gate; see [ADR-011](../docs/architecture/adr-011-platform-editor-excel-roundtrip.md)
+- [11-Agentic-Mission-Editor.md](requirements/11-Agentic-Mission-Editor.md) — Agentic mission/scenario editor (CMO parity + NL/MCP authoring, deterministic Validation Engine, operations timeline); *Revised 2026-07-18, implementation-aligned (AME-IDs incl. 2.7/2.8/2.9 Phase 2 splits; AC-1…AC-12 green headless; Mission Editor Phase 2 complete; ADR-018 row added Proposed; residual UI/Phase 3 scoped)*; see [ADR-008](../docs/architecture/adr-008-mission-editor-validation-engine.md), [ADR-013…017](../docs/architecture/adr-013-cmo-scenario-import-policy.md)
+- [21-Platform-Editor.md](requirements/21-Platform-Editor.md) — Platform/catalog editor (ships, subs, aircraft, loadouts, comms, sensor suites) with Microsoft Excel round-trip on the write gate; *Revised 2026-07-18 (re-verification annotations);* see [ADR-011](../docs/architecture/adr-011-platform-editor-excel-roundtrip.md)
 
 ## Reference
 

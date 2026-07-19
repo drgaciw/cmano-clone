@@ -1,7 +1,7 @@
 # 13 - Doctrine, ROE, EMCON, and WRA
 
-**Last Updated:** 2026-07-08  
-**Status:** Draft — ready for design review  
+**Last Updated:** 2026-07-18  
+**Status:** Draft — ready for design review (status locked per nemo-req-improv-plan §7 Q2)  
 **FR reverse-ref:** [FR-11](01-Project-Overview.md) — Doctrine, ROE, EMCON, WRA  
 **CMO basis:** Manual §3.3.12–16, §4.5.6–8, §6.3.8–9; parity with CMO side/unit/mission doctrine UI  
 **Related:** 04 Agent Delegation, 11 Mission Editor, 14 Engagement, 12 Terms Glossary  
@@ -179,7 +179,7 @@ FireAbortReason (enum + metadata)
 | Effective policy / ROE·WRA evaluate | `PolicyEvaluator`, `IPolicyEvaluator`, `EffectivePolicy`, `FireAbortReason` (`ProjectAegis.Sim` · `Policy/`) | **Shipped (Partial gates)** | `PolicySnapshotEvaluatorTests`; hold-fire / max-salvo denials on engage path; full multi-gate ROE matrix + full WRA category tables remain **Phase N** |
 | ROE adapter into delegation | `RoePolicyAdapter`, `IRoeFilter`, `AutonomyGate` (`ProjectAegis.Delegation` · `Roe/`, `Orchestration/`) | **Shipped** | `RoePolicyAdapterTests`, `AutonomyGateTests`; ROE filter before engage |
 | Policy snapshot registry | `PolicySnapshotRegistry`, `PolicySnapshot` (`Delegation` · `Orchestration/`; `Sim` · `Policy/`) | **Shipped** | `PolicySnapshotRegistryTests`; immutable snapshot at controller assignment |
-| Scenario policy load | `ScenarioPolicyJsonLoader`, `ScenarioPolicyRepository`, `ScenarioPolicyProfile` (`Sim` · `Scenario/`) | **Shipped** | `ScenarioPolicyJsonLoaderTests`, `ScenarioPolicyJsonRoundTripTests`; `data/scenarios/*.policy.json` incl. v3 mission-roe |
+| Scenario policy load | `ScenarioPolicyJsonLoader`, `ScenarioPolicyRepository`, `ScenarioPolicyProfile` (`Sim` · `Scenario/`) | **Shipped** | `ScenarioPolicyJsonLoaderTests`, `ScenarioPolicyJsonRoundTripTests`; `data/scenarios/*.policy.json` incl. v3 mission-roe (`data/scenarios/baltic-v3-mission-roe-band-c.policy.json` — friendlyRoe WeaponsTight, opposingRoe WeaponsFree, EMCON radar bands per UCAV side) |
 | Doctrine inheritance validate / projection | `DoctrineInheritanceValidateTests`, `DoctrineInheritanceProjection`, `DoctrineInheritancePanelBinder` | **Partial** | `src/ProjectAegis.Data.Tests/Validation/DoctrineInheritanceValidateTests.cs`; projection tests; Unity panel host present — full inheritance cascade authoring UI **Phase N** (tracker: ADR-010 doctrine panel polish) |
 | Full inheritance cascade / multi-gate ROE / full WRA categories / EMCON schedules | — | **Partial / Phase N** | Scenario JSON + MVP evaluator cover Baltic/v3 slices; CMO-parity multi-level cascade UI, full ROE gate matrix, and per-category WRA tables not complete |
 
@@ -207,3 +207,5 @@ FireAbortReason (enum + metadata)
 
 **Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 13.
 Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.
+
+**Review note (2026-07-18):** All Implementation Mapping paths verified to exist in `src/` (9 cited test files: `PolicySnapshotEvaluatorTests`, `RoePolicyAdapterTests`, `AutonomyGateTests`, `PolicySnapshotRegistryTests`, `ScenarioPolicyJsonLoaderTests`, `ScenarioPolicyJsonRoundTripTests`, `DoctrineInheritanceValidateTests`, `DoctrineInheritanceProjectionTests`, `DoctrineInheritancePanelBinderTests`); Unity host `DoctrineInheritancePanelHost.cs` present; fixture `data/scenarios/validation/doctrine-inheritance.json` present. ADR-010 (Headless-First / Command-Driven UI) **Accepted** — doctrine inheritance is listed as a projection view model; full Unity doctrine panel authoring cascade remains **Phase N** per tracker row 13. Status stays Draft per nemo-req-improv-plan §7 Q2 (user-locked).

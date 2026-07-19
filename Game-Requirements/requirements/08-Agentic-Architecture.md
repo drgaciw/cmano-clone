@@ -1,11 +1,11 @@
 # 08 - Agentic Architecture Layer
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Related:** [01-Project-Overview.md](01-Project-Overview.md) · [03-Simulation-Modes.md](03-Simulation-Modes.md) · [04-Agent-Delegation.md](04-Agent-Delegation.md) · [06-Database-Intelligence.md](06-Database-Intelligence.md) · [07-Agentic-Infrastructure.md](07-Agentic-Infrastructure.md) · [20-Command-And-Control-UI.md](20-Command-And-Control-UI.md)  
 **Status:** Locked  
 **FR reverse-ref:** [FR-07](01-Project-Overview.md) — In-simulation agent architecture  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)  
-**Architecture:** [Master Architecture](../../docs/architecture/architecture.md) · ADR-001–008 (see [Resolved Design Decisions](#resolved-design-decisions); ADR-007 C2 map, ADR-008 mission-editor validation)  
+**Architecture:** [Master Architecture](../../docs/architecture/architecture.md) · ADR-001–008 (see [Resolved Design Decisions](#resolved-design-decisions); ADR-007 C2 map, ADR-008 mission-editor validation) · [ADR-017](../../docs/architecture/adr-017-editor-topology-client-vs-scenario-lab.md) editor topology — **Proposed**, target 2026-10-01
 **Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) §08 — **Partial** (Release stage)
 
 ## Purpose
@@ -93,7 +93,7 @@ High-performance entity management and runtime archetypes.
 - **High-Performance Entity Management**
   - Built on Unity DOTS (Entities, Components, Systems) per ADR-005 — **Unity layer**; sim rules stay pure C#
   - Support for 10,000–50,000+ entities with low memory footprint (target; MVP dictionary/registry model)
-  - Burst-compiled systems for sensor, movement, and weapon logic (post-P0 hot paths)
+  - Burst-compiled systems for sensor, movement, and weapon logic (post-P0 hot paths; **next stack task: DOTS sensor hot path** — see ARCH-2.5)
 
 - **Dynamic Entity Archetypes**
   - Aircraft, ships, submarines, drones, missiles, ground units, sensors, EW emitters
@@ -247,6 +247,8 @@ Serialization, replay, and reproducibility.
 ## Open Questions / Decisions Needed
 
 All charter questions for agentic architecture are **locked** for Sprint 15 design review. See [Resolved Design Decisions](#resolved-design-decisions) and ADR-001–008. No reopen without user approval.
+
+**Pending ADR (not blocking Release spine):** [ADR-017](../../docs/architecture/adr-017-editor-topology-client-vs-scenario-lab.md) — editor topology (in-client Unity vs standalone Scenario Lab sharing `ProjectAegis.Data` core). Status **Proposed**; resolution owner Technical Director; target decision 2026-10-01. Blocks any standalone Scenario Lab epic; does **not** block Release-v1 in-client editor or headless CLI/MCP automation layer.
 
 | Former open question | Resolution location |
 |---------------------|---------------------|

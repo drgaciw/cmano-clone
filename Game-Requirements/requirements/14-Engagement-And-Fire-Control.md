@@ -1,6 +1,6 @@
 # 14 - Engagement and Fire Control
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Status:** Draft — ready for design review  
 **FR reverse-ref:** [FR-12](01-Project-Overview.md) — Engagement and fire control  
 **CMO basis:** Manual §3.3.1–2, §3.3.9, §4.1.1, §9.1–2, §9.2.8–9 (DLZ)  
@@ -169,9 +169,9 @@ Intent (player | agent | mission auto)
 | Attack menu / preview | `EngageAttackOptions`, `EngageAttackOrderResolver`, `EngagePreviewProjection` (`Delegation` · `Projection/`) | **Shipped (Partial UI)** | `EngageAttackOptionsTests`, `EngageAttackOrderResolverTests`, `EngagePreviewProjectionTests` |
 | Swarm slot deconfliction | `SwarmSalvoDeconfliction` (`Sim` · `Engage/`) | **Shipped** | `SwarmSalvoDeconflictionTests`; wired pre-resolver in session path |
 | Dual abort enums + glossary | `FireAbortReason` (policy), `EngagementAbortReason` + `EngagementAbortReasonCodes` (engage), `data/glossary/abort_reason_manifest.json` | **Shipped** | Manifest dual-enum rows; order-log codes via `ToLogCode`; policy denials on ROE/WRA/EMCON |
-| Baltic / policy engage harness | `BalticReplayHarness`, policy-engage integration tests | **Partial+ residual** | **2 known UA failures** in `BalticReplayHarnessPolicyEngageTests` — **gate-excluded** (tracker row 14 / AGENTS.md); not a release-block |
+| Baltic / policy engage harness | `BalticReplayHarness`, policy-engage integration tests | **Shipped** | `BalticReplayHarnessPolicyEngageTests` — **3/3 green @ post-PE gate 2026-07-09** (was 2 failures pre-2026-07-09; resolved per [`production/qa/ua-engage-triage-2026-07-09.md`](../../production/qa/ua-engage-triage-2026-07-09.md)); UA engage residual cleared |
 
-**Honesty note:** Design Status remains **Draft** (Template B). Headless single-resolver + swarm slot + dual abort taxonomy are on `main`; C2 DLZ closing indicator and UA residual remain open.
+**Honesty note:** Design Status remains **Draft** (Template B). Headless single-resolver + swarm slot + dual abort taxonomy are on `main`; UA engage residual **cleared 2026-07-09** (3/3 green); C2 DLZ closing indicator remains Phase N. Next stack task: **DLZ Phase 2** (UI indicator + closing-state polish).
 
 ## Open Questions
 
@@ -192,4 +192,4 @@ Intent (player | agent | mission auto)
 ---
 
 **Implementation grade:** Partial+ — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 14.
-Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.
+Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08; UA engage residual cleared 2026-07-09 (3/3 green @ post-PE gate).

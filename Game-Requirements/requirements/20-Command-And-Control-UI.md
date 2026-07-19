@@ -1,7 +1,8 @@
 # 20 - Command and Control User Interface
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Status:** Draft — Template B (Wave 2 re-honesty)  
+**Verified 2026-07-18:** ADR-010 **Accepted**; `HYPERSONIC_ALERT` UI confirmed **Phase N / Deferred** (no code, no scenario fixtures); S78 v3 mission band-b / roe-band-c policies exercised via C2 hosts.
 **CMO basis:** Manual Ch 3–4, §6.2–7, §6.9, §1.3 multitaskers, §10.1 keyboard  
 **Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md), [03](03-Simulation-Modes.md), [04](04-Agent-Delegation.md), [11](11-Agentic-Mission-Editor.md), [12](12-Terms-Glossary.md), [13](13-Doctrine-ROE-EMCON-WRA.md)–[17](17-Replay-AAR-And-Order-Log.md), [19](19-Cyber-And-Comms.md) · [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md)  
 **Architecture (normative):** [ADR-010 Headless-First / Command-Driven UI](../../docs/architecture/adr-010-headless-first-command-driven-ui.md) · [ADR-007 C2 Map Presentation](../../docs/architecture/adr-007-c2-map-presentation.md)
@@ -79,6 +80,7 @@ The UI is a **command post**, not a game HUD. It must support long sessions, den
 - **Partial:** Mission areas / reference points as projection data permits
 - **Phase N / Deferred:** Full WGS84 Cesium globe product (pan, zoom, rotate, theater quick-jump); APP-6 / NATO icon atlas; LOD clustering for thousands of icons
 - **Phase N / Deferred:** Full EW overlay product layers
+- **Phase N / Deferred:** `HYPERSONIC_ALERT` UI — no code in `src/` and no scenario fixtures in `data/scenarios/`; Design Review 13–20 (2026-05-29) gap explicitly deferred, not v1
 
 ## Delegation Overlays (Aegis unique)
 
@@ -135,7 +137,7 @@ Per genre conventions (`docs/military-simulation/genre-conventions-reference.md`
 | Performance (product) | 60 FPS map pan with 5k symbols (LOD on) | **Phase N / Deferred** — hub **OV-SC-N1**; not the current CI gate |
 | Responsiveness | Panel update &lt; 100 ms on selection change | **Partial** — projection bind timing tested; full Editor frame p95 open |
 | Unity stack | **UI Toolkit shipped** for C2 hosts | **Resolved** — not UGUI for project C2 |
-| Architecture | Headless-first command-driven UI | **Normative** — [ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md) |
+| Architecture | Headless-first command-driven UI | **Normative** — [ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md) (**Accepted**) |
 | Map presentation | Placeholder → Cesium → APP-6 | [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md) |
 
 ## Implementation Mapping
@@ -153,6 +155,7 @@ Per genre conventions (`docs/military-simulation/genre-conventions-reference.md`
 | C2 proxy gate | `PlayModeSmokeHarnessTests` | **Shipped** | **18/18** |
 | Cesium / globe Phase B | Cesium bridge / host (where present) | **Partial** | ADR-007 Phase B; not full product globe |
 | Product multitasker / 5k@60 | — | **Phase N / Deferred** | Hub **OV-SC-N1** |
+| Mission picker / band fixtures (S78) | `baltic-v3-mission-band-b.policy.json`, `baltic-v3-mission-roe-band-c.policy.json` (`data/scenarios/`) | **Shipped** (data) | S78 v3 mission picker + ROE band policies; mission list / activation exercised via C2 hosts |
 
 ## Acceptance Criteria
 

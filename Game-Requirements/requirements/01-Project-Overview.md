@@ -1,10 +1,10 @@
 # 01 - Project Overview
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Related:** [Game-Requirements-Index](../Game-Requirements-Index.md), [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md), corpus docs 02–21 — see [Related Requirements Index](#related-requirements-index)  
 **Status:** Locked vision — charter re-baselined 2026-07-08; commercial name still open; implementation grades live in the tracker  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)  
-**Stage:** Release (`production/stage.txt`); S56 MVP closed; S73–S80 Baltic v3 content-complete; active forward program = scenario editor (req 11 / S81–S88)
+**Stage:** Release (`production/stage.txt`); S56 MVP closed; S73–S80 Baltic v3 content-complete; S81–S92 editor + post-editor hygiene programs COMPLETE; active forward program = Unity UI Productization (S101–S108 proposed) — see roadmap alias `docs/reports/future-sprint-roadpmap.md`
 
 ## Purpose
 
@@ -17,7 +17,7 @@ Charter for product vision, scope tiers, NFR spine, and **corpus index** (FR map
 | Production stage | **Release** (no Launch advance without explicit decision) |
 | MVP (S56) | 21/21 rows MVP-done or documented Partial+ — **grades frozen** |
 | Content (S57–S80) | Baltic v2 + v3 content programs complete; v3 isolated (`baltic-v3-*`) |
-| Active engineering | **Scenario editor (req 11)** — headless-first; see roadmap `docs/reports/future-sprint-roadpmap-07042026.md` |
+| Active engineering | **Unity UI Productization (S101–S108 proposed)** — C2 polish, Cesium/map, Mission Editor chrome; see roadmap alias `docs/reports/future-sprint-roadpmap.md` (S81–S92 editor + hygiene programs closed 2026-07-09) |
 | Working title | Project Aegis (commercial name **Open**) |
 
 ## Vision
@@ -97,9 +97,9 @@ These are the **operational** success criteria for the vertical slice. Evidence 
 
 | ID | Criterion | Tag | Evidence |
 |----|-----------|-----|----------|
-| OV-SC-G1 | Full solution tests meet monotonic floor **≥1232** with 0 gate failures (known UA exclusions documented in AGENTS.md) | **Measured** | `dotnet test ProjectAegis.sln`; AGENTS.md |
+| OV-SC-G1 | Full solution tests meet monotonic floor **≥1599** with 0 gate failures (known UA exclusions documented in AGENTS.md) | **Measured** | `dotnet test ProjectAegis.sln`; AGENTS.md |
 | OV-SC-G2 | Baltic v2 ReplayGolden **6/6**; production hash **`17144800277401907079`** preserved | **Measured** | `tests/regression/`; AGENTS.md hash grep |
-| OV-SC-G3 | PlayModeSmokeHarness **18/18** | **Measured** | UnityAdapter filter `PlayModeSmokeHarnessTests` |
+| OV-SC-G3 | PlayModeSmokeHarness **≥20/20** | **Measured** | UnityAdapter filter `PlayModeSmokeHarnessTests` |
 | OV-SC-G4 | Clean-room: no proprietary CMO DB/scenarios/code committed | **Proxy** | Process + review; Goal 5 |
 | OV-SC-G5 | Capability map FR-01…FR-19 each has a primary requirement doc on disk | **Measured** | Related Index + `ls Game-Requirements/requirements/` |
 
@@ -175,10 +175,10 @@ These are load-bearing production constraints (see AGENTS.md). Charter-level; do
 
 | Invariant | Rule |
 |-----------|------|
-| Test floor | Solution tests **≥1232**, 0 gate failures (monotonic; known UA exclusions documented) |
+| Test floor | Solution tests **≥1599**, 0 gate failures (monotonic; known UA exclusions documented) |
 | Replay hash | Production Baltic v2 hash **`17144800277401907079`** preserved unless golden ADR |
 | ReplayGolden | **6/6** v2 suite green |
-| C2 smoke | PlayModeSmokeHarness **18/18** |
+| C2 smoke | PlayModeSmokeHarness **≥20/20** |
 | DelegationBridge | **Zero-touch** on hotpath through Release v1 |
 | CatalogWriteGate | **Extend-only** write paths |
 | Baltic v3 isolation | `baltic-v3-*` policies/goldens independent of v2 |

@@ -1,6 +1,6 @@
 # 10 - Speculative & Black Project Systems
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Status:** Research-integrated  
 **FR reverse-ref:** [FR-08](01-Project-Overview.md) — Near-future and speculative platforms (**speculative half**; near-future half is [09](09-Near-Future-Technologies.md))  
 **Research basis:** [Speculative Systems Research Supplement](../../docs/research/speculative-systems-research.md)  
@@ -38,6 +38,8 @@ Push believable near-future warfare into the speculative realm while maintaining
 | S54 “Implemented (S54)” for Kessler row 10b | **Demoted** → tracker **Phase N / not on main** |
 
 Do **not** re-land S54 worktree-only types as shipped evidence without a new trunk PR and gate re-verification.
+
+**Adversarial CI pin (Wave 3 follow-on, verified 2026-07-18):** `SpeculativeHonestyPinsTests.src_assemblies_have_no_OrbitalDewPlatform_KesslerRiskMeter_or_EscalationTier_types` enumerates every loaded `ProjectAegis.*` assembly at test time and fails if any type named `OrbitalDewPlatform`, `KesslerRiskMeter`, or `EscalationTier` is defined. This makes the Phase N demotion a **compile/test-time hard pin**, not just a documentation claim — any future re-landing on trunk must either delete the pin or land the full gate + tests per the 10b re-land criteria below.
 
 ## Technology Level Framework (Extended)
 
@@ -321,12 +323,12 @@ All speculative systems map to an escalation tier — use triggers political cos
 | Engage gate | `SpeculativeEngageGate.Evaluate` | **Shipped** | Aborts `TechnologyLevelExceeded` / `BlackProjectRequired`; called from `MvpEngagementResolver` pre-resolve |
 | Catalog metadata loader | `SpeculativePlatformCatalog` + `data/catalog/speculative_platforms.json` | **Shipped (metadata only)** | Rows `orbital-dew-demo` (TL-4), `npx-laser-orbital` (TL-5 + black-project) — **not** full runtime platforms |
 | Scenario fixtures | `data/scenarios/baltic-patrol-black-project.policy.json`, `baltic-patrol-speculative-gated.policy.json` | **Shipped (test/isolation)** | Black-project allows TL-5 weapon; gated campaign TL-2 aborts TL-5 / black-project weapon |
-| Gate unit tests | `ScenarioSpeculativeGateTests` (`ProjectAegis.Sim.Tests`) | **Shipped** | Asserts null abort vs TL/black-project aborts; catalog path discovery for speculative JSON |
+| Gate unit tests | `ScenarioSpeculativeGateTests` + `SpeculativeHonestyPinsTests` (`ProjectAegis.Sim.Tests`) | **Shipped** | Gate asserts null abort vs TL/black-project aborts; catalog path discovery; **adversarial pin** enumerates loaded `ProjectAegis.*` assemblies and fails if `OrbitalDewPlatform` / `KesslerRiskMeter` / `EscalationTier` types appear (verified 2026-07-18) |
 | Orbital DEW full runtime | ~~`OrbitalDewPlatform`~~ | **Phase N / not on main** | Precondition `rg OrbitalDewPlatform src/` → **zero** class hits (Wave 3 2026-07-08) |
 | Kessler risk runtime | ~~`KesslerRiskMeter`~~ | **Phase N / not on main** | Precondition `rg KesslerRiskMeter src/` → **zero**; design `KESSLER_RISK_METER` text only |
 | 5-tier escalation runtime / SPACE_WAR first-fire | ~~`EscalationTier`~~, `SPACE_WAR_THRESHOLD` | **Phase N / not on main** | Precondition `rg EscalationTier src/` → **zero**; ladder + event names are design-only |
 
-**Honesty note:** Tracker **Partial+** for row 10 = gate spine + fixtures + catalog metadata. Row **10b** (Kessler / orbital DEW runtime) is **Phase N / not on main** — historical S54 “Implemented” claims referred to worktree-only or non-trunk artifacts and must not be treated as shipped product.
+**Honesty note:** Tracker **Partial+** for row 10 = gate spine + fixtures + catalog metadata. Row **10b** (Kessler / orbital DEW runtime) is **Phase N / not on main** — historical S54 “Implemented” claims referred to worktree-only or non-trunk artifacts and must not be treated as shipped product. The Phase N invariant is **adversarially pinned in CI** by `SpeculativeHonestyPinsTests` (see Gate unit tests row above); re-landing 10b runtime on `main` requires deleting or rewriting that pin alongside the new gate + tests.
 
 ---
 

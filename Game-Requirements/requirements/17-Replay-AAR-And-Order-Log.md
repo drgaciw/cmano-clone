@@ -1,6 +1,6 @@
 # 17 - Replay, AAR, and Order Log
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18  
 **Status:** Draft — ready for design review  
 **FR reverse-ref:** [FR-15](01-Project-Overview.md) — Replay, order log, AAR  
 **CMO basis:** Manual §6.3.11 Recorder, §6.3.12 Message Log, §6.3.13 Losses, §6.3.14 Scoring; §9.2.10 losses note  
@@ -18,7 +18,7 @@ Implements hub **[FR-15](01-Project-Overview.md#functional-requirements)** (repl
 
 | Lane | Scope | Status |
 |------|-------|--------|
-| **SHIPPED** | `DecisionLog` / `IOrderLog` append-only stream; `OrderLogEntry` + `OrderLogEntryKind` (incl. `AgentDecision`); `OrderLogReplayFingerprint` / `ComputeFingerprint`; **ReplayGolden 6/6**; production Baltic v2 hash **`17144800277401907079`**; `MessageLogProjection` (log → player-facing lines); `LossesScoringCsvExporter` / `LossesScoringProjection` batch CSV; `ReplayCheckpointStore` / `ReplayCheckpoint` | Headless-complete; CI-gated |
+| **SHIPPED** | `DecisionLog` / `IOrderLog` append-only stream; `OrderLogEntry` + `OrderLogEntryKind` (incl. `AgentDecision`); `OrderLogReplayFingerprint` / `ComputeFingerprint`; **ReplayGolden 6/6** (Baltic v2 suite) + **6 v3 goldens** (isolated `baltic-v3-*` policies, hash unchanged — see `tests/regression/replay-golden-baltic-v3-*.txt`); production Baltic v2 hash **`17144800277401907079`**; `MessageLogProjection` (log → player-facing lines); `LossesScoringCsvExporter` / `LossesScoringProjection` batch CSV; `ReplayCheckpointStore` / `ReplayCheckpoint` | Headless-complete; CI-gated |
 | **RESIDUAL** | Interactive timeline **scrub UI**; product **AAR natural-language** narrative (`aar_generate` product surface); agent decision **heatmaps** / kill-chain scrub chrome | Product UI / Phase 2 |
 | **STUDIO** | `hindsight-aar-analyst` agent; `/replay-verify` skill (`.claude/skills/replay-verify/`) | Optional studio process — **not** product ACs |
 
@@ -55,7 +55,7 @@ Canonical kind enum: `OrderLogEntryKind`. Prefer product naming **`AgentDecision
 | `EngagementOutcome` | Resolved outcome record when distinct from launch |
 | `ContactChange` | Detect, drop, classify |
 | `MissionTransition` | Activate/deactivate, timeline (doc 11) |
-| `EventFired` | Scenario event id + actions |
+| `EventFired` | Scenario event id + actions; event debugger projects from this entry (AME-5.5, doc 11 — `EventDebuggerTrace` / `scenario_event_trace` emit a filtered view, not a second store) |
 | `PolicyUpdate` | ROE/EMCON/WRA change |
 | `ModeChange` | Human/mixed/agent mode switch (doc 03) |
 | `ControllerChange` | Controller bind / rebind |
@@ -77,7 +77,7 @@ hashChain: "sha256-prev+this"  # optional P1 for tamper-evident exports
 **Unique Aegis:**
 
 - **RPL-02 — Headless schema parity.** Headless runs write the **same schema** as interactive play. **Met** via shared `DecisionLog` on `DelegationOrchestrator`.
-- **RPL-03 — Replay verify.** `/replay-verify` studio skill compares order log hash + final world-state hash. Product CI gate is **ReplayGolden 6/6** + hash `17144800277401907079`. Studio skill is optional (STUDIO lane).
+- **RPL-03 — Replay verify.** `/replay-verify` studio skill compares order log hash + final world-state hash. Product CI gate is **ReplayGolden 6/6** (Baltic v2) + **6 v3 goldens** (Baltic v3, isolated policies) + hash `17144800277401907079` (v2 production; v3 isolated, unchanged). Studio skill is optional (STUDIO lane).
 - **RPL-04 — Agent provenance.** Agent entries include `agentId`, personality/traits context, `policySnapshotId`, `autonomyLevel` (as carried on `AgentDecision` / `DecisionRecord` payloads).
 
 ## Replay System
@@ -98,7 +98,7 @@ hashChain: "sha256-prev+this"  # optional P1 for tamper-evident exports
 ### Determinism gate
 
 - **RPL-12 — Divergent re-sim FAIL.** Re-sim from checkpoint + log through divergent tick → FAIL build. **Met** via ReplayGolden suite.
-- **RPL-13 — CI golden.** CI runs golden scenario comparison; Baltic v2 production fingerprint **`17144800277401907079`** must remain preserved unless an ADR explicitly changes it. **Met** (ReplayGolden **6/6**).
+- **RPL-13 — CI golden.** CI runs golden scenario comparison; Baltic v2 production fingerprint **`17144800277401907079`** must remain preserved unless an ADR explicitly changes it (AGENTS.md hard invariant). **Met** (ReplayGolden **6/6** v2 suite; **6 v3 goldens** added under `baltic-v3-*` isolation, hash unchanged).
 
 ## Message Log
 
@@ -157,7 +157,7 @@ hashChain: "sha256-prev+this"  # optional P1 for tamper-evident exports
 | AC-3 | Policy denial in play appears in message log with same `sequenceId` as order log. | **Met** (projection from same log; interactive chrome polish residual) |
 | AC-4 | AAR Agent summary references only events present in log (spot-check 10 claims). | **Open** (product NL AAR residual; studio Hindsight optional) |
 | AC-5 | Batch of 100 agent-vs-agent runs exports scoring CSV without UI. | **Met** (headless CSV exporter + batch runner) |
-| AC-6 | `/replay-verify` PASS on golden Baltic scenario after sim merge. | **Met** as CI ReplayGolden **6/6** + hash `17144800277401907079`; studio skill optional adjunct |
+| AC-6 | `/replay-verify` PASS on golden Baltic scenario after sim merge. | **Met** as CI ReplayGolden **6/6** (v2) + **6 v3 goldens** (isolated) + hash `17144800277401907079`; studio skill optional adjunct |
 
 ## Phased Delivery
 
@@ -165,7 +165,7 @@ Corrected headless-first order (Wave 2 re-honesty — **not** scrub-first):
 
 | Phase | Scope | Honesty |
 |-------|--------|---------|
-| **MVP (shipped)** | Order log schema (`IOrderLog` / `DecisionLog` / `OrderLogEntry`); headless record; fingerprint; **ReplayGolden 6/6**; production hash **`17144800277401907079`**; `MessageLogProjection`; losses/scoring CSV; `ReplayCheckpointStore` | **Complete** for headless gate |
+| **MVP (shipped)** | Order log schema (`IOrderLog` / `DecisionLog` / `OrderLogEntry`); headless record; fingerprint; **ReplayGolden 6/6** (Baltic v2) + **6 v3 goldens** (Baltic v3 isolation); production hash **`17144800277401907079`** (v2; v3 isolated, unchanged); `MessageLogProjection`; losses/scoring CSV; `ReplayCheckpointStore` | **Complete** for headless gate |
 | **Phase 2** | Interactive **scrub UI**; product **AAR NL** narrative (`aar_generate`); agent heatmap; kill-chain scrub chrome | **Residual** product surfaces |
 | **Phase 3** | Tacview export, campaign metrics, tamper-evident hash chain | Deferred / P2 |
 
@@ -175,7 +175,7 @@ Corrected headless-first order (Wave 2 re-honesty — **not** scrub-first):
 |------|-------------|--------|----------|
 | Order log core | `DecisionLog` : `IOrderLog`; `OrderLogEntry`, `OrderLogEntryKind`, `OrderLogEntryFactories` (`ProjectAegis.Delegation` · `Decision/`) | **Shipped** | Append-only; kinds include `AgentDecision`, `PlayerOrder`, `PolicyDenial`, `Engagement`, … |
 | Agent decision payload | `AgentDecisionPayload`, `DecisionRecord` | **Shipped** | Prefer **`AgentDecision`** naming in docs; intent language maps to this kind |
-| Fingerprint / golden | `OrderLogReplayFingerprint`, `DecisionLog.ComputeFingerprint` (`Replay/`) | **Shipped** | ReplayGolden **6/6**; hash **`17144800277401907079`** |
+| Fingerprint / golden | `OrderLogReplayFingerprint`, `DecisionLog.ComputeFingerprint` (`Replay/`) | **Shipped** | ReplayGolden **6/6** (Baltic v2) + **6 v3 goldens** (`baltic-v3-*` isolation); hash **`17144800277401907079`** (v2 production; v3 isolated, unchanged) |
 | Checkpoints | `ReplayCheckpointStore`, `ReplayCheckpoint` (`Replay/`) | **Shipped** | Used by `BalticReplayHarness` |
 | Message log projection | `MessageLogProjection`, `MessageLogLine`, `MessageLogBridge` (`Projection/`, UnityAdapter `Bridge/`) | **Shipped** (projection); UI residual | Headless project-from-log |
 | Losses / scoring | `LossesScoringProjection`, `LossesScoringCsvExporter`, `LossesScoringSnapshot` (`Projection/`) | **Shipped** | `BalticBatchRunner` CSV path |
@@ -213,4 +213,5 @@ Corrected headless-first order (Wave 2 re-honesty — **not** scrub-first):
 **References:** CMO Manual §6.3.11–14, §9.2.10; `docs/manual/index.html`; `.claude/skills/replay-verify/SKILL.md`; hash invariant `17144800277401907079`
 
 **Tracker row 17:** **Partial** — [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md)  
-**Implementation grade:** Partial — headless MVP (log + golden + hash) shipped; scrub UI / product AAR NL residual. Design Status remains **Draft**. Charter re-honesty: Wave 2 2026-07-08.
+**Next stack tasks (tracker row 17):** Interactive **scrub UI** (RPL-07/08, AC-2); product **AAR agent** NL narrative `aar_generate` (RPL-23, AC-4).  
+**Implementation grade:** Partial — headless MVP (log + v2 golden 6/6 + 6 v3 goldens + hash) shipped; scrub UI / product AAR NL residual. Design Status remains **Draft**. Charter re-honesty: Wave 2 2026-07-08; v3 golden verification 2026-07-18.

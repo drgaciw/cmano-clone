@@ -1,7 +1,8 @@
 # 21 - Platform Editor (Catalog Authoring & Excel Round-Trip)
 
-**Last Updated:** 2026-07-09  
+**Last Updated:** 2026-07-18  
 **Status:** Revised — implementation-aligned; residual closeout **PE-W0–W4 COMPLETE** (MVP Partial+ headless Excel path; Phase N screenshots residual only)  
+**Review (2026-07-18):** ADR-011 **Accepted**; `PlatformWorkbookImporter` @ `src/ProjectAegis.Data/Platform/PlatformWorkbookImporter.cs`; ClosedXML adapter @ `src/ProjectAegis.Data.Excel/` (`ClosedXmlPlatformWorkbookIo.cs`, `PlatformWorkbookEnumCatalog.cs`, `PlatformWorkbookIoFactories.cs`); Wave 3 honesty mapping (FR-19 New→Shipped/Partial+) current; Live Editor screenshots remain **Residual → Phase N** (not claimed shipped).
 **FR reverse-ref:** [FR-19](01-Project-Overview.md) — Platform/catalog editor (Excel write-gate round-trip)  
 **Author basis:** Codebase review of `ProjectAegis.Data` (write gate, snapshots, provenance, validation, importers); CMO Official Manual platform/DB concepts (clean-room, observable patterns only); requirements 06, 11, 15, 16, 18, 19.  
 **Related:** [06-Database-Intelligence.md](06-Database-Intelligence.md) · [11-Agentic-Mission-Editor.md](11-Agentic-Mission-Editor.md) · [15-Sensor-Detection-And-EW.md](15-Sensor-Detection-And-EW.md) · [16-Logistics-And-Magazines.md](16-Logistics-And-Magazines.md) · [18-Combat-Domains.md](18-Combat-Domains.md) · [19-Cyber-And-Comms.md](19-Cyber-And-Comms.md)  
@@ -228,5 +229,5 @@ The catalog today persists a thin P0 slice — `CatalogPlatformEntry(PlatformId,
 
 ---
 
-**Implementation grade:** MVP-done / Partial+ (S56) — program residual closeout PE-W0–W4 **COMPLETE** 2026-07-09 (headless Excel write-gate editor). Phase N Live Editor screenshots remain residual only.  
+**Implementation grade:** MVP-done / Partial+ (S56) — program residual closeout PE-W0–W4 **COMPLETE** 2026-07-09 (headless Excel write-gate editor). Phase N Live Editor screenshots remain residual only. **Re-verified 2026-07-18** against `src/` (PlatformWorkbookImporter @ ProjectAegis.Data/Platform/; ClosedXML @ ProjectAegis.Data.Excel/) and ADR-011 (Accepted) — no drift.
 **Design Status:** **Revised — implementation-aligned** (not Draft). Gate: [platform-editor-completion-gate-2026-07-09.md](../../production/qa/platform-editor-completion-gate-2026-07-09.md).

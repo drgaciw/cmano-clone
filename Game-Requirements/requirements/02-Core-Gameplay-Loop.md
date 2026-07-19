@@ -1,6 +1,6 @@
 # 02 - Core Gameplay Loop
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-18 (verified phase-gate mapping + PlayModeSmoke baseline drift fix)
 **Related:** [01](01-Project-Overview.md), [03](03-Simulation-Modes.md), [04](04-Agent-Delegation.md), 11, 13, 14, 15, 16, 17, 19, 20 · [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md)  
 **Status:** Locked  
 **Locked spec:** [2026-05-30-core-gameplay-loop-decisions-design.md](../../docs/superpowers/specs/2026-05-30-core-gameplay-loop-decisions-design.md)
@@ -135,7 +135,7 @@ Mission editor (req 11) is the preferred authoring surface; exported scenarios m
 | Phase gate / Begin Execution | `DelegationOrchestrator.Phase`, `SimulationSession` | Shipped | `SimulationSessionPhaseTests`, `C2TopBarBeginExecutionTests` |
 | Loop policy (personality edit / player info) | `LoopPolicyGate`, `ScenarioPolicyProfile` | Shipped | `LoopPolicyGateTests`, `PlayerInfoFilterTests` |
 | Order log / deterministic replay | order log + goldens | Shipped (Partial UI) | ReplayGolden 6/6; doc 17 |
-| C2 planning chrome | UI Toolkit hosts | Partial | PlayModeSmoke 18/18; tracker: Begin Execution UX polish |
+| C2 planning chrome | UI Toolkit hosts | Partial | PlayModeSmoke 20/20 (floor per AGENTS.md); tracker: Begin Execution UX polish |
 | Phase 1 force composition / Phase 4 AI AAR heatmaps / Phase 5 balance feedback | — | Phase N / Partial narrative | Not full C2 product surfaces |
 
 ## Non-Functional Requirements
