@@ -6,6 +6,7 @@
 #if UNITY_5_3_OR_NEWER
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -24,7 +25,7 @@ namespace ProjectAegis.Unity.Tests
             public double SimTime { get; set; }
             public int ContactCount => 2;
             public int ActiveEngagementCount => 0;
-            public TargetId? PrimaryHostileContactId => new TargetId("hostile-1");
+            public TargetId? PrimaryHostileContactId => new TargetId(SimplePlayModeSimHost.SmokeHostileUnitId);
             public bool HasFireControlTrackOnPrimaryContact => true;
             public bool ObserverRadarEmconActive => true;
             public bool IsMemberAlive(TargetId memberId) => true;
@@ -50,6 +51,10 @@ namespace ProjectAegis.Unity.Tests
 
                 Assert.IsNotNull(host.Bridge, "DelegationBridgeHost.Awake should construct the Bridge.");
 
+                // Same seed path as SimplePlayModeSimHost (ORBAT + DecisionLog before BeginExecution).
+                Assert.IsTrue(
+                    SimplePlayModeSimHost.TrySeedSmokeOrbat(host.Bridge),
+                    "Smoke ORBAT seed should register u1 / hostile-1.");
                 host.BeginExecution();
 
                 var world = new StubWorld();
@@ -69,6 +74,16 @@ namespace ProjectAegis.Unity.Tests
                 Assert.IsNotNull(host.LastMessageLog, "Message log projection should be populated after ticking.");
                 Assert.IsNotNull(host.LastMapSymbols, "Map symbol projection should be populated after ticking.");
                 Assert.IsNotNull(host.LastOobTree, "OOB tree projection should be populated after ticking.");
+
+                Assert.IsNotEmpty(host.LastOobTree,
+                    "OOB tree must list seeded smoke units (u1 / hostile-1).");
+                Assert.IsNotNull(host.LastUnitDetail,
+                    "Unit Detail must resolve a primary unit after ORBAT seed + default selection.");
+                Assert.AreNotEqual("—", host.LastUnitDetail!.UnitId,
+                    "Unit Detail unit id must not be the empty placeholder.");
+                Assert.IsTrue(
+                    host.LastMessageLog.Any(m => m.Category is "CONTACT" or "MAGAZINE" or "MODE"),
+                    "Message log must include smoke contact/magazine and/or mode-change rows.");
             }
             finally
             {

@@ -497,9 +497,18 @@ public sealed class ScenarioDocumentEditor
         };
     }
 
-    /// <summary>Inserts or replaces an ORBAT unit by id (map place / inspector apply).</summary>
+    /// <summary>Inserts or replaces an ORBAT unit by id (inspector apply / CLI upsert).</summary>
     /// <remarks>Does not call <see cref="CommitMutation"/>; the caller commits after a successful mutation.</remarks>
-    public void UpsertOrbatUnit(ScenarioOrbatUnitDto unit)
+    public void UpsertOrbatUnit(ScenarioOrbatUnitDto unit) =>
+        UpsertOrbatUnitCore(unit, allowReplace: true);
+
+    /// <summary>
+    /// Places a new ORBAT unit. Rejects duplicate ids so map Place cannot silently overwrite.
+    /// </summary>
+    public void PlaceOrbatUnit(ScenarioOrbatUnitDto unit) =>
+        UpsertOrbatUnitCore(unit, allowReplace: false);
+
+    private void UpsertOrbatUnitCore(ScenarioOrbatUnitDto unit, bool allowReplace)
     {
         if (unit is null)
         {
@@ -511,13 +520,34 @@ public sealed class ScenarioDocumentEditor
             throw new InvalidOperationException("Unit id is required.");
         }
 
+        if (string.IsNullOrWhiteSpace(unit.SideId))
+        {
+            throw new InvalidOperationException("Side id is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(unit.PlatformId))
+        {
+            throw new InvalidOperationException("Platform id is required.");
+        }
+
+        if (!IsValidLatLon(unit.Lat, unit.Lon, out var coordError))
+        {
+            throw new InvalidOperationException(coordError);
+        }
+
         var units = (_orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>()).ToList();
         var idx = units.FindIndex(u => string.Equals(u.Id, unit.Id, StringComparison.OrdinalIgnoreCase));
+        if (idx >= 0 && !allowReplace)
+        {
+            throw new InvalidOperationException(
+                $"Unit id '{unit.Id}' already exists. Choose a new id (Place does not replace).");
+        }
+
         var copy = new ScenarioOrbatUnitDto
         {
-            Id = unit.Id,
-            SideId = unit.SideId,
-            PlatformId = unit.PlatformId,
+            Id = unit.Id.Trim(),
+            SideId = unit.SideId.Trim(),
+            PlatformId = unit.PlatformId.Trim(),
             Lat = unit.Lat,
             Lon = unit.Lon,
             ParentUnitId = unit.ParentUnitId,
@@ -538,6 +568,30 @@ public sealed class ScenarioDocumentEditor
             Units = units,
             Bases = _orbat?.Bases ?? Array.Empty<ScenarioOrbatBaseDto>(),
         };
+    }
+
+    private static bool IsValidLatLon(double lat, double lon, out string error)
+    {
+        if (double.IsNaN(lat) || double.IsInfinity(lat) || double.IsNaN(lon) || double.IsInfinity(lon))
+        {
+            error = "Latitude and longitude must be finite numbers.";
+            return false;
+        }
+
+        if (lat < -90.0 || lat > 90.0)
+        {
+            error = "Latitude must be between -90 and 90.";
+            return false;
+        }
+
+        if (lon < -180.0 || lon > 180.0)
+        {
+            error = "Longitude must be between -180 and 180.";
+            return false;
+        }
+
+        error = string.Empty;
+        return true;
     }
 
     /// <summary>Moves an existing ORBAT unit; preserves non-position fields.</summary>

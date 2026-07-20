@@ -68,6 +68,38 @@ public sealed class UnityUiAssetIntegrityTests
             "(Console: 'AudioListener component deleted: Component belongs to a disabled built-in package').");
     }
 
+    [Test]
+    public void Resources_Fonts_RobotoMono_Regular_exists_for_any_legacy_resource_path()
+    {
+        var root = FindUnityProjectRoot();
+        Assert.That(root, Is.Not.Null);
+        var font = Path.Combine(root!, "Assets", "Resources", "Fonts", "RobotoMono-Regular.ttf");
+        Assert.That(
+            File.Exists(font),
+            Is.True,
+            "Assets/Resources/Fonts/RobotoMono-Regular.ttf required so UI Toolkit " +
+            "resource(\"Fonts/RobotoMono-Regular\") does not Console-error.");
+    }
+
+    [Test]
+    public void ProjectConsoleQuietBootstrap_editor_script_exists_and_is_non_destructive()
+    {
+        var root = FindUnityProjectRoot();
+        Assert.That(root, Is.Not.Null);
+        var path = Path.Combine(root!, "Assets", "Editor", "ProjectConsoleQuietBootstrap.cs");
+        Assert.That(File.Exists(path), Is.True, path);
+        var text = File.ReadAllText(path);
+        // Non-destructive: no auto MCP rewrite or AudioListener strip on load/play.
+        Assert.That(text, Does.Contain("ProjectConsoleQuietBootstrap"));
+        Assert.That(text, Does.Not.Contain("ApplyMcpQuietConfigOnce"));
+        Assert.That(text, Does.Not.Contain("StripAudioListenersIfNeeded"));
+        Assert.That(text, Does.Not.Contain("DestroyImmediate"));
+        Assert.That(text, Does.Not.Contain("File.WriteAllText"));
+        Assert.That(text, Does.Not.Contain("[InitializeOnLoad]"));
+        Assert.That(text, Does.Not.Contain("sceneOpened"));
+        Assert.That(text, Does.Not.Contain("playModeStateChanged"));
+    }
+
     private static string? FindUnityProjectRoot()
     {
         var dir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);

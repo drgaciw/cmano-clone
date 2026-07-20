@@ -168,7 +168,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: a219e013849a60484b19d708e530a6f2, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 0}
-  m_SortingOrder: 0
+  m_SortingOrder: 20
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -241,7 +241,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: a219e013849a60484b19d708e530a6f2, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 0}
-  m_SortingOrder: 0
+  m_SortingOrder: 30
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -313,7 +313,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: a219e013849a60484b19d708e530a6f2, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 0}
-  m_SortingOrder: 0
+  m_SortingOrder: 15
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -369,7 +369,7 @@ MonoBehaviour:
   bridgeHost: {fileID: 2085677380}
   panelAsset: {fileID: 9197481963319205126, guid: b7e4a1c92f3d8e5062f0a4d9c3b5e7a2, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: c8f5b2d03a4e9f6173a1b5e0d4c6f8b3, type: 3}
-  showPanel: 1
+  showPanel: 0
 --- !u!114 &726747700
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -385,7 +385,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: a219e013849a60484b19d708e530a6f2, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 0}
-  m_SortingOrder: 0
+  m_SortingOrder: 25
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -695,7 +695,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegis.Unity.Runtime.PlatformCatalogViewerHost
   panelAsset: {fileID: 9197481963319205126, guid: 0a7c3e1f24b5d6a8091c2d4e6f708192, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: 0b8d4f2a35c6e7b9102d3e5f7a819203, type: 3}
-  showPanel: 1
+  showPanel: 0
   databasePathForExport: 
   exportOutFileName: platform-catalog-export.platform.txt
 --- !u!114 &1559696765
@@ -713,7 +713,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: a219e013849a60484b19d708e530a6f2, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 0}
-  m_SortingOrder: 0
+  m_SortingOrder: 35
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -728,6 +728,61 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1559696763}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1634841771
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1634841773}
+  - component: {fileID: 1634841772}
+  m_Layer: 5
+  m_Name: UIDocument
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1634841772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1634841771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: a219e013849a60484b19d708e530a6f2, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 0}
+  m_SortingOrder: 5
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!4 &1634841773
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1634841771}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -768,7 +823,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectAegis.Unity.Runtime.PlatformImportPanelHost
   panelAsset: {fileID: 9197481963319205126, guid: b8d4f2a13c6e7d9012ab4c5e8f3a1d67, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: c9e5a3b24d7f8ea023bc5d6f9a4b2e78, type: 3}
-  showPanel: 1
+  showPanel: 0
   databasePathForImport: 
   actorType: unity
   actorId: platform-import-host
@@ -789,7 +844,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: a219e013849a60484b19d708e530a6f2, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 0}
-  m_SortingOrder: 0
+  m_SortingOrder: 35
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -861,7 +916,7 @@ MonoBehaviour:
   m_PanelSettings: {fileID: 11400000, guid: a219e013849a60484b19d708e530a6f2, type: 2}
   m_ParentUI: {fileID: 0}
   sourceAsset: {fileID: 0}
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_Position: 0
   m_WorldSpaceSizeMode: 1
   m_WorldSpaceWidth: 1920
@@ -968,3 +1023,4 @@ SceneRoots:
   - {fileID: 726747701}
   - {fileID: 1559696766}
   - {fileID: 1700485164}
+  - {fileID: 1634841773}

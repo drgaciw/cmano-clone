@@ -19,7 +19,7 @@
 .unit-detail-line {
     font-size: 10px;
     color: var(--text-data);
-    -unity-font: resource("Fonts/RobotoMono-Regular");
+    /* -unity-font: resource("Fonts/RobotoMono-Regular"); removed — use default UI font (no Resources glyph errors) */
     margin-top: 2px;
     margin-bottom: 2px;
 }
