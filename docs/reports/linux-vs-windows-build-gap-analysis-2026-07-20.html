@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linux vs Windows Build Gap Analysis — Project Aegis (2026-07-20)</title>
+<style>
+:root {
+  --bg: #f7f5f1;
+  --fg: #1a1a1a;
+  --muted: #5a5a5a;
+  --border: #d4cfc6;
+  --accent: #1f4b3a;
+  --th-bg: #e8e2d8;
+  --code-bg: #efeae2;
+  --pre-bg: #1e2430;
+  --pre-fg: #e8ecf1;
+  --link: #1a5f4a;
+  --high: #8b2e1f;
+  --high-bg: #f5e4df;
+  --med: #8a5a12;
+  --med-bg: #f5edd9;
+  --low: #3a5a4a;
+  --low-bg: #e4efe8;
+  --ok: #1f4b3a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  line-height: 1.55;
+  color: var(--fg);
+  background: linear-gradient(180deg, #ebe6dc 0%, var(--bg) 180px);
+}
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+header.doc-meta {
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+h1, h2, h3 {
+  font-family: "IBM Plex Serif", Georgia, serif;
+  color: var(--accent);
+  line-height: 1.25;
+}
+h1 { font-size: 1.75rem; margin: 0 0 0.5rem; }
+h2 { font-size: 1.35rem; margin-top: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.35rem; }
+h3 { font-size: 1.1rem; margin-top: 1.4rem; }
+.meta { color: var(--muted); font-size: 0.92rem; }
+.meta dt { font-weight: 600; color: var(--fg); display: inline; }
+.meta dd { display: inline; margin: 0 1.25rem 0 0.35rem; }
+a { color: var(--link); }
+p, li { max-width: 72ch; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  margin: 1rem 0 1.5rem;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: var(--th-bg); font-weight: 600; }
+code, .path {
+  font-family: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  font-size: 0.88em;
+  background: var(--code-bg);
+  padding: 0.05em 0.3em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--pre-bg);
+  color: var(--pre-fg);
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+pre code { background: transparent; padding: 0; color: inherit; }
+.verdict {
+  background: #e8f0eb;
+  border-left: 4px solid var(--accent);
+  padding: 0.9rem 1.1rem;
+  margin: 1.25rem 0;
+}
+.sev {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+}
+.sev-high { background: var(--high-bg); color: var(--high); }
+.sev-med { background: var(--med-bg); color: var(--med); }
+.sev-low { background: var(--low-bg); color: var(--low); }
+.matrix {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--border);
+  margin: 1rem 0 1.5rem;
+  font-size: 0.88rem;
+}
+.matrix div {
+  padding: 0.55rem 0.65rem;
+  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+}
+.matrix .h { background: var(--th-bg); font-weight: 600; }
+.matrix .row-label { font-weight: 600; background: #f0ebe3; }
+.toc { background: #f0ebe3; padding: 0.9rem 1.1rem; border-radius: 6px; }
+.toc ol { margin: 0.4rem 0 0; padding-left: 1.25rem; }
+.toc a { text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+footer {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+@media (max-width: 720px) {
+  .matrix { grid-template-columns: 1fr; }
+  .matrix div { border-right: none; }
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="doc-meta">
+  <h1>Linux vs Windows Build Gap Analysis</h1>
+  <p class="meta">Project Aegis · Superpowers evaluation + GitNexus · 2026-07-20</p>
+  <dl class="meta">
+    <dt>Indexed commit</dt><dd><code>adf3748</code></dd>
+    <dt>GitNexus</dt><dd>26,939 nodes · 51,171 edges · 468 clusters · 300 flows</dd>
+    <dt>Markdown</dt><dd><a href="./linux-vs-windows-build-gap-analysis-2026-07-20.md">companion .md</a></dd>
+  </dl>
+</header>
+
+<nav class="toc" aria-label="Contents">
+  <strong>Contents</strong>
+  <ol>
+    <li><a href="#verdict">Executive verdict</a></li>
+    <li><a href="#method">Methodology</a></li>
+    <li><a href="#dotnet">Headless .NET parity</a></li>
+    <li><a href="#unity">Unity Editor / player</a></li>
+    <li><a href="#tooling">Tooling asymmetry</a></li>
+    <li><a href="#source">Source portability</a></li>
+    <li><a href="#gaps">Gap register</a></li>
+    <li><a href="#recs">Recommendations</a></li>
+  </ol>
+</nav>
+
+<section id="verdict">
+  <h2>1. Executive verdict</h2>
+  <div class="verdict">
+    <p><strong>Headless .NET is Linux-first and largely OS-agnostic.</strong> Buildkite hosted Linux agents own the blocking merge gate. Windows local verification is a thinner PowerShell mirror.</p>
+    <p><strong>Unity players are dual-target in API but CI-gated on neither OS.</strong> Linux is the documented batchmode example and the only Editor menu shortcut; Windows is assumed for interactive Editor automation via hardcoded <code>Unity.exe</code> paths.</p>
+    <p><strong>Core sim C# has no OS platform branching</strong> — gaps are tooling, Editor host, and player packaging.</p>
+  </div>
+
+  <div class="matrix" role="table" aria-label="OS capability matrix">
+    <div class="h">Surface</div><div class="h">Linux</div><div class="h">Windows</div>
+    <div class="row-label">Headless .NET</div>
+    <div>Buildkite (authoritative) · Cloud agents</div>
+    <div><code>verify-ci-local.ps1</code> (partial mirror)</div>
+    <div class="row-label">Unity Editor UTF</div>
+    <div>Manual GHA ubuntu + license</div>
+    <div>Hardcoded <code>Unity.exe</code> batch scripts</div>
+    <div class="row-label">Unity Player</div>
+    <div><code>BuildPlayer</code> API + Linux menu — <em>not in CI</em></div>
+    <div>Same API — <em>not in CI</em></div>
+    <div class="row-label">Plugin DLL copy</div>
+    <div>Needs <code>pwsh</code> today</div>
+    <div>Native PowerShell</div>
+    <div class="row-label">Core sim source</div>
+    <div>Portable (no OS #ifs)</div>
+    <div>Same under <code>dotnet</code></div>
+  </div>
+</section>
+
+<section id="method">
+  <h2>2. Methodology (Superpowers + GitNexus)</h2>
+  <h3>Superpowers</h3>
+  <p>Structured evaluation via the global Superpowers process skill: orient → evidence → compare surfaces → severity-ranked gaps → remediation. No product code changed for this study.</p>
+  <h3>GitNexus</h3>
+  <ul>
+    <li>Rebuilt index (<code>npx gitnexus analyze</code>) — up-to-date at <code>adf3748</code>.</li>
+    <li><code>query("Unity player build StandaloneLinux BuildPlayer")</code> → <code>BuildPlayer</code>, <code>BuildLinux64Menu</code>.</li>
+    <li><code>context(BuildPlayer)</code> / <code>context(PerformBuild)</code> → CLI entry parses Linux64 | Win64 | OSX; <strong>no upstream callers</strong> (external batchmode).</li>
+    <li><code>impact(BuildPlayer, upstream)</code> → <span class="sev sev-low">LOW</span> (0 callers).</li>
+    <li><code>impact(DelegationBridge, upstream)</code> → <span class="sev sev-high">CRITICAL</span> (168 impacted) — why merge gates stay on headless Linux.</li>
+    <li>Cypher: BuildPlayer/Standalone symbols only in Editor packaging + ADR-017 — no sim OS forks.</li>
+  </ul>
+  <p><strong>Graph implication:</strong> player packaging is low blast radius; <code>DelegationBridge</code> is not. Linux CI correctly treats headless .NET as merge authority.</p>
+</section>
+
+<section id="dotnet">
+  <h2>3. Headless .NET — Linux CI vs Windows local</h2>
+  <h3>Linux (authoritative)</h3>
+  <table>
+    <thead><tr><th>Surface</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Buildkite blocking gate</td><td><code>.buildkite/pipeline.yml</code> → <code>agent-dotnet-ci.sh</code></td></tr>
+      <tr><td>Release restore/build/test</td><td><code>tools/buildkite/dotnet-ci.sh</code></td></tr>
+      <tr><td>ReplayGolden + PlayModeSmoke</td><td>Same script</td></tr>
+      <tr><td>Hash + DelegationBridge greps</td><td><code>dotnet-ci.sh</code> verification-before block</td></tr>
+      <tr><td>Gitleaks</td><td><code>agent-gitleaks.sh</code> (Linux archive)</td></tr>
+      <tr><td>Cursor Cloud</td><td><code>.cursor/cloud-install.sh</code> + Linux <code>dotnet-install.sh</code></td></tr>
+    </tbody>
+  </table>
+  <h3>Parity</h3>
+  <table>
+    <thead><tr><th>Check</th><th>Linux <code>dotnet-ci.sh</code></th><th>Windows <code>verify-ci-local.ps1</code></th></tr></thead>
+    <tbody>
+      <tr><td>Restore / build / test Release</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>ReplayGolden filter</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>PlayModeSmokeHarness</td><td>Yes</td><td>Yes</td></tr>
+      <tr><td>Hash grep <code>17144800277401907079</code></td><td>Yes</td><td><strong>Missing</strong></td></tr>
+      <tr><td>DelegationBridge ref count</td><td>Yes</td><td><strong>Missing</strong></td></tr>
+      <tr><td>Gitleaks</td><td>Pipeline step</td><td><strong>Missing</strong></td></tr>
+      <tr><td>SDK bootstrap</td><td><code>agent-bootstrap-dotnet.sh</code></td><td>Assumes <code>dotnet</code> on PATH</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="unity">
+  <h2>4. Unity Editor and player builds</h2>
+  <table>
+    <thead><tr><th>Symbol</th><th>Role</th><th>Upstream impact</th></tr></thead>
+    <tbody>
+      <tr><td><code>BuildPlayer</code></td><td>Batchmode + menu</td><td><span class="sev sev-low">LOW</span> (0 callers)</td></tr>
+      <tr><td><code>PerformBuild</code></td><td>CLI entry</td><td>Calls <code>Run</code> / parsers</td></tr>
+      <tr><td><code>BuildLinux64Menu</code></td><td>Only menu item — Linux Mono</td><td>Isolated</td></tr>
+      <tr><td><code>ParseTarget</code></td><td>Linux64 | Win64 | OSX</td><td>—</td></tr>
+      <tr><td><code>ResolveScenes</code></td><td>Build Settings or smoke fallback</td><td>—</td></tr>
+    </tbody>
+  </table>
+  <ul>
+    <li>Documented CI example defaults to <strong>Linux64 + IL2CPP</strong>.</li>
+    <li>No automated player build in Buildkite or GHA (<code>unity-ci.yml</code> = manual test runner on <code>ubuntu-latest</code>).</li>
+    <li>Editor automation hardcodes <code>C:\Program Files\Unity\Hub\Editor\…\Unity.exe</code>.</li>
+    <li><code>EditorBuildSettings</code> scenes empty — both OS players fall back to <code>DelegationSmoke.unity</code>.</li>
+    <li>Built-in RP + legacy Input Manager — shared, OS-independent policy.</li>
+  </ul>
+</section>
+
+<section id="tooling">
+  <h2>5. Tooling OS asymmetry</h2>
+  <table>
+    <thead><tr><th>Category</th><th>Count / pattern</th></tr></thead>
+    <tbody>
+      <tr><td><code>tools/**/*.ps1</code></td><td>17</td></tr>
+      <tr><td><code>tools/**/*.sh</code></td><td>31</td></tr>
+      <tr><td>PS1-critical</td><td><code>verify-ci-local</code>, <code>copy-delegation-assemblies</code>, <code>init-unity-project</code>, Unity Invoke-*</td></tr>
+      <tr><td>SH-critical</td><td>Entire Buildkite agent stack</td></tr>
+      <tr><td><code>.gitattributes</code></td><td>LF only for <code>*.sh</code> / <code>.buildkite/*</code></td></tr>
+      <tr><td>Unity CI on Ubuntu</td><td>Still uses <code>shell: pwsh</code> for plugin copy</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="source">
+  <h2>6. Source-level portability</h2>
+  <p>Search of <code>src/</code> for <code>RuntimeInformation</code>, <code>OSPlatform</code>, <code>UNITY_STANDALONE_*</code>, RID packaging: <strong>zero OS platform branches</strong>. Unity <code>#if</code> usage is Editor/Cesium, not OS. TFMs are <code>net8.0</code> / <code>netstandard2.1</code> without win/linux RID packaging for the sim.</p>
+  <p>Under <code>dotnet build</code> / <code>dotnet test</code>, Linux and Windows should produce equivalent headless behavior.</p>
+</section>
+
+<section id="gaps">
+  <h2>7. Gap register</h2>
+  <table>
+    <thead><tr><th>ID</th><th>Gap</th><th>Severity</th><th>Remediation</th></tr></thead>
+    <tbody>
+      <tr><td>G1</td><td>No automated Unity player build (either OS)</td><td><span class="sev sev-high">High</span></td><td>Add Linux64 IL2CPP (game-ci / licensed Editor); optional Win64 artifact</td></tr>
+      <tr><td>G2</td><td>Editor scripts hardcode Windows <code>Unity.exe</code></td><td><span class="sev sev-high">High</span></td><td>Resolve via <code>UNITY_EDITOR</code> / Hub / Linux / macOS paths</td></tr>
+      <tr><td>G3</td><td>Windows local CI mirror incomplete</td><td><span class="sev sev-med">Medium</span></td><td>Add hash + bridge greps; or declare bash <code>dotnet-ci.sh</code> canonical</td></tr>
+      <tr><td>G4</td><td>Plugin scaffold PowerShell-only</td><td><span class="sev sev-med">Medium</span></td><td>Add <code>.sh</code> twins or MSBuild target</td></tr>
+      <tr><td>G5</td><td>No Windows Buildkite / OS matrix</td><td><span class="sev sev-med">Medium</span></td><td>Document Linux-only authority or add win-x64 smoke</td></tr>
+      <tr><td>G6</td><td>Player menu / backend defaults asymmetric</td><td><span class="sev sev-low">Low</span></td><td>Add Win64/OSX menus; pin release backend</td></tr>
+      <tr><td>G7</td><td>Narrow <code>.gitattributes</code> LF scope</td><td><span class="sev sev-low">Low</span></td><td>Extend <code>eol=lf</code> to <code>*.ps1</code> (and <code>*.cs</code>)</td></tr>
+      <tr><td>G8</td><td>Mission Editor MCP assumes <code>pwsh</code></td><td><span class="sev sev-low">Low</span></td><td>Bash entrypoints or document requirement</td></tr>
+      <tr><td>G9</td><td>Empty Editor build scene list</td><td><span class="sev sev-med">Medium</span></td><td>Commit enabled scenes for release players</td></tr>
+      <tr><td>G10</td><td>Stale player-build docs</td><td><span class="sev sev-low">Low</span></td><td>Sync to <code>PerformBuild</code> API</td></tr>
+      <tr><td>G11</td><td>Unity CI never builds player; license-gated</td><td><span class="sev sev-med">Medium</span></td><td>Fund builder or state manual ship-build policy</td></tr>
+      <tr><td>G12</td><td>Gitleaks Linux-only fetch</td><td><span class="sev sev-low">Low</span></td><td>Windows artifact if Win CI added</td></tr>
+      <tr><td>G13</td><td>Absolute path folklore in plans/QA</td><td><span class="sev sev-low">Low</span></td><td>Prefer <code>$REPO_ROOT</code> / env Unity</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="recs">
+  <h2>8. Priority recommendations</h2>
+  <ol>
+    <li><strong>Keep Linux Buildkite as headless authority</strong> — aligns with CRITICAL <code>DelegationBridge</code> risk and portable <code>src/</code>.</li>
+    <li><strong>Close G3</strong> — align <code>verify-ci-local.ps1</code> with Linux hash/bridge checks.</li>
+    <li><strong>Close G2</strong> — multi-OS Unity Editor path resolution.</li>
+    <li><strong>Decide ship policy for G1/G5/G11</strong> — document manual player builds, or add Linux64 IL2CPP as soft→hard gate.</li>
+    <li><strong>Close G4/G9</strong> before treating either OS player as release-ready.</li>
+  </ol>
+  <h3>Not gaps</h3>
+  <ul>
+    <li>Baltic v2 replay hash path under matching <code>dotnet test</code> filters.</li>
+    <li>ROE/delegation/sim OS forks (none in source or GitNexus).</li>
+    <li>Built-in RP + legacy Input — shared project policy.</li>
+  </ul>
+</section>
+
+<footer>
+  Generated 2026-07-20 via Superpowers-structured evaluation and GitNexus analyze / query / context / impact on commit <code>adf3748</code>.
+  Companion markdown: <a href="./linux-vs-windows-build-gap-analysis-2026-07-20.md">linux-vs-windows-build-gap-analysis-2026-07-20.md</a>.
+</footer>
+</main>
+</body>
+</html>
