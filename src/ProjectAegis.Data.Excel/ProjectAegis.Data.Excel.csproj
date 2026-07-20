@@ -16,7 +16,7 @@
     <Description>ClosedXML .xlsx adapter implementing IPlatformWorkbookIo for the platform editor (req 21).</Description>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="ClosedXML" Version="0.104.2" />
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
