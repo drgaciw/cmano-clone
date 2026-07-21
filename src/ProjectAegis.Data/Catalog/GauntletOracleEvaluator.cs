@@ -9,16 +9,23 @@ namespace ProjectAegis.Data.Catalog;
 /// </summary>
 public static class GauntletOracleEvaluator
 {
+    /// <summary>Ladder / default profile key — uses <c>gauntlet.expect</c> (tier-tick authority).</summary>
+    public const string ProfileLadder = "ladder";
+
+    /// <summary>CI smoke profile key — uses <c>gauntlet.expectCi</c> when present, else <c>expect</c>.</summary>
+    public const string ProfileCi = "ci";
+
     public static GauntletOracleEvaluationResult EvaluateFromPolicyAndCsv(
         string policyJson,
-        string resultsCsv)
+        string resultsCsv,
+        string profile = ProfileLadder)
     {
         if (string.IsNullOrWhiteSpace(policyJson))
         {
             return new GauntletOracleEvaluationResult(false, ["missing policy json"]);
         }
 
-        if (!TryParseExpect(policyJson, out var expect, out var parseFailures))
+        if (!TryParseExpect(policyJson, out var expect, out var parseFailures, profile))
         {
             return new GauntletOracleEvaluationResult(false, parseFailures);
         }
@@ -167,7 +174,8 @@ public static class GauntletOracleEvaluator
     public static bool TryParseExpect(
         string policyJson,
         out GauntletOracleExpect? expect,
-        out IReadOnlyList<string> failures)
+        out IReadOnlyList<string> failures,
+        string profile = ProfileLadder)
     {
         expect = null;
         var fails = new List<string>();
@@ -182,8 +190,22 @@ public static class GauntletOracleEvaluator
                 return false;
             }
 
-            if (!gauntlet.TryGetProperty("expect", out var exp)
-                || exp.ValueKind != JsonValueKind.Object)
+            // CI smoke may declare expectCi (ticks=10); ladder authority remains expect (tier ticks).
+            // Profile "ci" prefers expectCi when present, else falls back to expect.
+            var useCi = string.Equals(profile, ProfileCi, StringComparison.OrdinalIgnoreCase);
+            JsonElement exp;
+            if (useCi
+                && gauntlet.TryGetProperty("expectCi", out var expCi)
+                && expCi.ValueKind == JsonValueKind.Object)
+            {
+                exp = expCi;
+            }
+            else if (gauntlet.TryGetProperty("expect", out exp)
+                     && exp.ValueKind == JsonValueKind.Object)
+            {
+                // ladder default, or ci fallback when expectCi absent
+            }
+            else
             {
                 fails.Add("missing gauntlet.expect");
                 failures = fails;

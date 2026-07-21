@@ -1161,7 +1161,9 @@ static int RunGauntletOracleEval(string[] args)
     var policyDir = CliArgParser.GetFlag(args, "--policy-dir");
     var csv = CliArgParser.GetFlag(args, "--csv");
     var outPath = CliArgParser.GetFlag(args, "--out");
-    return GauntletOracleEvalCommand.Run(policy, policyDir, csv, outPath, Console.Out);
+    var profile = CliArgParser.GetFlag(args, "--profile")
+                  ?? ProjectAegis.Data.Catalog.GauntletOracleEvaluator.ProfileLadder;
+    return GauntletOracleEvalCommand.Run(policy, policyDir, csv, outPath, Console.Out, profile);
 }
 
 static int RunCatalogReleaseDiff(string[] args)

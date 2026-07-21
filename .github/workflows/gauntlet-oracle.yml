@@ -99,11 +99,14 @@ jobs:
 
       - name: gauntlet_oracle_eval (shipped CLI — must pass)
         run: |
+          # --profile ci: prefer gauntlet.expectCi when present (ticks=10 smoke budget).
+          # Ladder authority remains gauntlet.expect at tier ticks (default profile).
           dotnet run -c Release --no-build --project src/ProjectAegis.MissionEditor.Cli -- \
             gauntlet_oracle_eval \
             --policy-dir artifacts/gauntlet-oracle/policies \
             --csv artifacts/gauntlet-oracle/results.csv \
-            --out artifacts/gauntlet-oracle/oracle-eval.json
+            --out artifacts/gauntlet-oracle/oracle-eval.json \
+            --profile ci
           python3 -c "import json; d=json.load(open('artifacts/gauntlet-oracle/oracle-eval.json')); assert d.get('allPassed') is True, d"
 
       - name: Fail-closed smoke (strip inject / multi-domain tokens must exit non-zero)

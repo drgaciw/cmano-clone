@@ -27,7 +27,8 @@ public static class GauntletOracleEvalCommand
         string? policyDir,
         string? csvPath,
         string? outPath,
-        TextWriter output)
+        TextWriter output,
+        string profile = GauntletOracleEvaluator.ProfileLadder)
     {
         var hasPolicy = !string.IsNullOrWhiteSpace(policyPath);
         var hasDir = !string.IsNullOrWhiteSpace(policyDir);
@@ -118,7 +119,7 @@ public static class GauntletOracleEvalCommand
                 .Where(r => string.Equals(r.ScenarioId, scenarioId, StringComparison.Ordinal))
                 .ToList();
             var filteredCsv = BuildCsv(filteredRows);
-            var eval = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policyJson, filteredCsv);
+            var eval = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policyJson, filteredCsv, profile);
 
             scenarioResults.Add(new
             {
@@ -142,10 +143,12 @@ public static class GauntletOracleEvalCommand
     {
         output.WriteLine("gauntlet_oracle_eval — post-batch oracle evaluation (GauntletOracleEvaluator)");
         output.WriteLine("Usage:");
-        output.WriteLine("  gauntlet_oracle_eval --policy <path.json> --csv <path.csv> [--out <oracle-eval.json>]");
-        output.WriteLine("  gauntlet_oracle_eval --policy-dir <dir with *.policy.json> --csv <path.csv> [--out <oracle-eval.json>]");
+        output.WriteLine("  gauntlet_oracle_eval --policy <path.json> --csv <path.csv> [--out <oracle-eval.json>] [--profile ladder|ci]");
+        output.WriteLine("  gauntlet_oracle_eval --policy-dir <dir with *.policy.json> --csv <path.csv> [--out <oracle-eval.json>] [--profile ladder|ci]");
         output.WriteLine("Notes:");
         output.WriteLine("  Filters CSV rows to the policy id (scenarioId column) before evaluation.");
+        output.WriteLine("  --profile ladder (default): gauntlet.expect (tier-tick authority).");
+        output.WriteLine("  --profile ci: gauntlet.expectCi when present, else expect (CI ticks=10 smoke).");
         output.WriteLine("  Exit 0 when all scenarios Passed; exit 1 otherwise.");
         output.WriteLine("  Always prints JSON summary to stdout; --out also writes the same JSON.");
     }
