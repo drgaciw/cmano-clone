@@ -1,0 +1,143 @@
+# Gauntlet forge mutation recipe catalog
+# Operators mutate policy JSON only. Forbidden: locked eval C#, DelegationBridge,
+# ReplayGolden, CatalogWriteGate write paths, inventing gauntlet.expect without regen.
+
+version: 1
+updated: 2026-07-23
+
+recipes:
+  - id: platform-swap-underused
+    dims: [platform, orbat]
+    tierMin: 1
+    preconditions: ["catalog-roster-available"]
+    noveltyTags: [rare-platform, orbat-mix]
+    forbiddenTouches: [gauntlet.expect-without-regen, DelegationBridge, CatalogWriteGate]
+    description: >
+      Replace one or more unit platformIds with underused catalog IDs from
+      coverage-map counts / underusedPlatformHint while keeping domain mix valid.
+
+  - id: orbat-asymmetric-ratio
+    dims: [platform, orbat]
+    tierMin: 2
+    preconditions: ["tier-roster"]
+    noveltyTags: [asymmetric-force, pressure]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: >
+      Skew blue/red unit counts or capability (e.g. dense red vs lean blue) within
+      tier platform-mix caps.
+
+  - id: mission-combo-escort-strike
+    dims: [mission]
+    tierMin: 2
+    preconditions: []
+    noveltyTags: [multi-mission]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: Combine escort + strike objectives in one policy intent.
+
+  - id: mission-concurrent-asw-aaw
+    dims: [mission]
+    tierMin: 4
+    preconditions: ["multi-domain-units"]
+    noveltyTags: [asw, aaw, concurrent]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: Concurrent ASW/AAW (or multi-domain) mission pressure for T4+.
+
+  - id: victory-weighted-multi
+    dims: [victory]
+    tierMin: 4
+    preconditions: []
+    noveltyTags: [weighted-scoring]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: Weighted multi-objective victory / score terms.
+
+  - id: victory-trigger-conditional
+    dims: [victory]
+    tierMin: 5
+    preconditions: ["mission.triggers-supported"]
+    noveltyTags: [dynamic-objective]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: Conditional/dynamic objectives that change on contact or event trigger.
+
+  - id: event-timed-chain
+    dims: [events]
+    tierMin: 3
+    preconditions: []
+    noveltyTags: [event-chain]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: Scripted timed event chain (reinforcements, ROE hint, sensor loss).
+
+  - id: event-seeded-random-inject
+    dims: [events]
+    tierMin: 4
+    preconditions: ["seeded-injects"]
+    noveltyTags: [inject, seeded]
+    forbiddenTouches: [gauntlet.expect-without-regen, unseeded-rng]
+    description: Seeded random injects only (never Random.Shared / wall clock).
+
+  - id: event-cascading-adversarial
+    dims: [events]
+    tierMin: 5
+    preconditions: []
+    noveltyTags: [cascade, adversarial]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: Cascading adversarial injects (comms loss, sensor degradation, reinforcements).
+
+  - id: roe-asymmetric-per-side
+    dims: [roe]
+    tierMin: 3
+    preconditions: []
+    noveltyTags: [asymm-roe, id-criteria]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: Asymmetric ROE and/or ID-required engagement criteria.
+
+  - id: roe-mid-mission-change
+    dims: [roe, events]
+    tierMin: 5
+    preconditions: []
+    noveltyTags: [roe-change]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: Mid-mission ROE change via event (existing T5 pattern).
+
+  - id: emcon-timed-phases
+    dims: [emcon]
+    tierMin: 3
+    preconditions: ["CatalogEmcon-consistent"]
+    noveltyTags: [emcon-phases]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: Timed EMCON phases consistent with each platform CatalogEmcon profile.
+
+  - id: emcon-contested-deception
+    dims: [emcon]
+    tierMin: 5
+    preconditions: ["CatalogEmcon-consistent"]
+    noveltyTags: [contested-em, deception]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: Contested EM with deception emitters + EMCON discipline scoring.
+
+  - id: geometry-detection-lane-shift
+    dims: [geography]
+    tierMin: 1
+    preconditions: ["detection-array"]
+    noveltyTags: [detection-lane, geometry]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: Shift detection observer/target pairs, ranges, or HVU placement (schema-valid).
+
+  - id: trait-attention-overload
+    dims: [traits, attention]
+    tierMin: 3
+    preconditions: ["multi-unit-blue"]
+    noveltyTags: [attention-pressure, bandwidth]
+    forbiddenTouches: [gauntlet.expect-without-regen, sim-rng]
+    description: >
+      High-load multi-unit blue with data-driven trait vectors to stress decision
+      bandwidth (no in-sim RNG mutation).
+
+  - id: hard-case-replay
+    dims: [replay]
+    tierMin: 1
+    preconditions: ["hard-cases-nonempty"]
+    noveltyTags: [reflective-replay, hard-case]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: >
+      Re-sample a policy or signature from corpus/hard-cases/ (UCB-style prefer
+      hard + rare) into the next tier or next run.

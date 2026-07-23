@@ -52,10 +52,34 @@ tools/qa-gauntlet/retest-defect.sh <defect-id> --out-dir /tmp/gauntlet-retest
 
 Registry: `production/qa/gauntlet-defect-registry.json`.
 
+## Forge promote → expect regen
+
+When `/qa-gauntlet-forge` **promotes** an ephemeral candidate into
+`data/scenarios/`:
+
+1. Score with the mechanical helper (does not replace locked oracle eval):
+
+```bash
+python3 tools/qa-gauntlet/forge-scorecard.py \
+  --run-dir production/qa/gauntlet/<RUN_ID> \
+  --tier <N>
+```
+
+2. Copy the winner to `data/scenarios/<id>.policy.json`.
+3. **Immediately** regen `gauntlet.expect` at the **tier tick** above (batch CSV →
+   envelopes → `gauntlet_oracle_eval`). Do not invent envelopes.
+4. If the policy is also CI-smoke’d at 10 ticks, add dual CI/ladder envelopes
+   when ladder ticks ≠ 10 (T3–T5 pattern).
+5. Update `production/qa/gauntlet/corpus/index.yaml` + coverage-map; commit on
+   the QA branch with `qa(forge): promote …`.
+
+Corpus + skill: [`.claude/skills/qa-gauntlet-forge/SKILL.md`](../../.claude/skills/qa-gauntlet-forge/SKILL.md),
+[`production/qa/gauntlet/corpus/`](../../production/qa/gauntlet/corpus/).
+
 ## Stage
 
 Program stage remains **Release**. Expect regen is QA discipline, not Launch work.
 
 ---
 
-*S95-01 companion — 2026-07-14*
+*S95-01 companion — 2026-07-14; forge promote path — 2026-07-23*

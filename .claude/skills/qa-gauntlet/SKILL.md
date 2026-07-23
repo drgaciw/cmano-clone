@@ -8,7 +8,8 @@ description: >
   fixes to a QA branch, and delivers a full AAR. Use when the user runs
   /qa-gauntlet, or asks for "QA gauntlet", "escalating complexity QA", "tiered
   scenario stress test", "autonomous sim QA loop", "batch sim defect remediation",
-  or "gauntlet AAR".
+  or "gauntlet AAR". Companion variance/curriculum skill: /qa-gauntlet-forge
+  (invoke at Phase A0, E, and Final AAR).
 argument-hint: "[--tiers N=5] [--scenarios-per-tier N=4] [--seeds 42,7,123] [--max-fix-attempts 3] [--resume <run-id>]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion
@@ -22,6 +23,12 @@ Design Principle: you MAY write scenario files, tests, and fixes, and commit to 
 QA branch without per-change approval. All other CLAUDE.md / AGENTS.md rules remain
 binding — especially GitNexus impact analysis before every symbol edit,
 `detect_changes()` before every commit, and Graphite (`gt`) for all branch work.
+
+**Variance companion:** invoke `/qa-gauntlet-forge` for self-improving scenario /
+platform / mission variance (Karpathy-style promote loop). Forge owns candidates,
+corpus, recipe weights, and Hindsight bank `qa-gauntlet-forge`; this skill owns
+batch execution, oracle gates, and TDD remediation. See
+[`.claude/skills/qa-gauntlet-forge/SKILL.md`](../qa-gauntlet-forge/SKILL.md).
 
 **Autonomy boundary:** if GitNexus impact returns CRITICAL on a symbol a fix must
 touch, do NOT edit it. Quarantine the defect (see Phase D), continue the tier with
@@ -91,6 +98,21 @@ after remediation) or explicitly quarantined.
 ## Per-tier loop
 
 ### Phase A — Scenario generation (parallelizable with tier N execution)
+
+**Forge pre + A0 (required).** Before roster drafting for tier 1 (and again when
+starting each new tier's A0), invoke `/qa-gauntlet-forge`:
+
+```
+/qa-gauntlet-forge --run-id <RUN_ID> --tier <N> --phase pre
+/qa-gauntlet-forge --run-id <RUN_ID> --tier <N> --phase a0
+```
+
+Forge recalls Hindsight bank `qa-gauntlet-forge`, loads
+`production/qa/gauntlet/corpus/` (coverage-map, recipe weights, hard-cases),
+writes `forge/mid-tier-plan.yaml`, and drafts ephemeral candidates under
+`production/qa/gauntlet/<RUN_ID>/forge/candidates/` (gitignored). Prefer
+under-covered catalog platforms from the coverage map. Do **not** commit
+candidates until forge promotion after oracle.
 
 **A0 — Platform roster from the catalog.** Before scenario drafting, spawn
 `sim-data-specialist` to assemble the tier's platform roster from real data:
@@ -201,6 +223,18 @@ surface + air + subsurface catalog `platformId`s. The harness registers them and
 emits `CATALOG_UNIT:{platformId}:{domain}` events (see `gauntlet-joint-orbat-smoke`).
 Do not claim multi-domain play without those events in the run fingerprint/fire order.
 
+**Forge post-oracle (required).** After oracle-eval.json is written for the tier:
+
+```
+/qa-gauntlet-forge --run-id <RUN_ID> --tier <N> --phase post-oracle
+```
+
+Forge runs `tools/qa-gauntlet/forge-scorecard.py`, promotes winners into
+`data/scenarios/` + corpus (with expect-regen discipline), discards ephemeral
+losers, and feeds useful `sim-code` / `scenario-data` fails into
+`corpus/hard-cases/`. Locked eval (`GauntletOracleEvaluator`, CI workflow) is
+never edited by forge.
+
 Every failed oracle becomes a defect entry via the `bug-triage` skill, classified as:
 `scenario-data` (bad generated JSON or catalog mismatch), `sim-code`, `oracle`
 (our expectation was wrong), or `flaky` (route to `test-flakiness` skill).
@@ -244,20 +278,39 @@ Then retain the tier's learnings: use the hindsight skills
 (`hindsight-retain`) via `hindsight-dev-memory-lead`, and
 `balance-tuning-memory-agent` for any score/balance anomalies observed.
 
+**Forge mid-tier (required).** Before starting tier N+1 generation:
+
+```
+/qa-gauntlet-forge --run-id <RUN_ID> --tier <N> --phase e
+```
+
+Forge up-weights recipes that produced pressure, injects 1–2 hard-case replays
+into `forge/mid-tier-plan.yaml` for the next tier, and flags stuck recipe
+families (≥5 consecutive discards).
+
 ## Final phase — AAR & handoff
 
 After tier 5 (or an unrecoverable halt):
 
-1. Spawn `hindsight-aar-analyst` to write `AAR.md`: ladder results table, every
+1. Invoke forge final distillation:
+
+```
+/qa-gauntlet-forge --run-id <RUN_ID> --phase final
+```
+
+   Include `forge/promote-log.md`, coverage/weight deltas, and stuck families in
+   the AAR. Forge retains to Hindsight bank `qa-gauntlet-forge`.
+2. Spawn `hindsight-aar-analyst` to write `AAR.md`: ladder results table, every
    defect (root cause, fix commit, or quarantine reason), determinism findings,
-   balance/score trends across tiers, flaky-test notes, recommended follow-ups.
-2. Spawn `qa-lead` for the sign-off section: baseline vs final test count,
+   balance/score trends across tiers, flaky-test notes, forge promote summary,
+   recommended follow-ups.
+3. Spawn `qa-lead` for the sign-off section: baseline vs final test count,
    replay-golden status, regression anchors status.
-3. `detect_changes({scope: "compare", base_ref: "main"})` — attach output to AAR.
-4. `gt submit --stack --no-interactive` if fixes were committed; include AAR link
-   in the PR body. Do NOT merge.
-5. Print a concise terminal summary: tiers passed, scenarios run, defects
-   found/fixed/quarantined, commits, AAR path. Explicitly list every
+4. `detect_changes({scope: "compare", base_ref: "main"})` — attach output to AAR.
+5. `gt submit --stack --no-interactive` if fixes or forge promotions were
+   committed; include AAR link in the PR body. Do NOT merge.
+6. Print a concise terminal summary: tiers passed, scenarios run, defects
+   found/fixed/quarantined, forge promotes, commits, AAR path. Explicitly list every
    `QUARANTINED-CRITICAL` item — these require human decisions.
 
 ## Hard rules recap
