@@ -64,6 +64,9 @@ expect envelopes. Follow `tools/qa-gauntlet/README-expect-regen.md`.
 - Prefer weighting under-covered dims over random churn.
 - After 5 consecutive discards on a recipe family → stuck: down-weight + AAR note.
 - Retain FAILED attempts to Hindsight bank `qa-gauntlet-forge`.
+- Phase-static model aliases (`haiku`/`sonnet`/`opus`) are defined in the forge
+  SKILL.md routing table; no dynamic model shopping mid-run. Concrete dated model
+  IDs live only in `coordination-rules.md` — never pin them here.
 
 ## Seeds
 

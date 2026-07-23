@@ -6,9 +6,9 @@ description: >
   generate ephemeral candidates, score with a locked evaluator, auto-promote
   winners into the repo corpus and data/scenarios, update recipe weights, and
   retain learnings in Hindsight bank qa-gauntlet-forge. Use when the user runs
-  /qa-gauntlet-forge, or when /qa-gauntlet invokes forge at Phase A0, E, or Final
-  AAR; also for "gauntlet forge", "scenario variance", "mutation recipes",
-  "pressure-test curriculum", or "promote gauntlet candidate".
+  /qa-gauntlet-forge, or when /qa-gauntlet invokes forge at Phase pre, A0,
+  post-oracle, E, or Final AAR; also for "gauntlet forge", "scenario variance",
+  "mutation recipes", "pressure-test curriculum", or "promote gauntlet candidate".
 argument-hint: "[--run-id <id>] [--tier N] [--phase pre|a0|post-oracle|e|final] [--max-candidates N=4]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion
@@ -66,6 +66,22 @@ When invoked from `/qa-gauntlet`, inherit that run's `RUN_ID`, seeds, and tier.
 
 Loop: **hypothesize (recipe) → ephemeral candidate → locked eval → promote or discard → update weights / Hindsight → repeat.**
 
+## Phase-static model routing
+
+Phase assignments are fixed at invocation; no dynamic model shopping mid-run.
+Use `opus` only for: ≥5 consecutive stuck discards, CRITICAL corpus conflict, or multi-run synthesis.
+
+| Phase | Model | Notes |
+|---|---|---|
+| `pre` / scorecard plumbing / expect CSV digest | `haiku` or no LLM | Script-first |
+| A0 roster digest | `haiku` | |
+| `a0` / A1 candidate draft | `sonnet` | architect Tasks |
+| B batch + C oracle CLI | tools only | `haiku` to summarize exit codes |
+| D TDD Red/Green | `sonnet` | `opus` if CRITICAL / quarantine synthesis |
+| `post-oracle` promote judgment | `sonnet` after script scorecard | Never override `hardGatesPass` |
+| `e` / Phase E | `haiku` | |
+| `final` / AAR distill | `haiku` → `sonnet` prose | `opus` for stuck / multi-tier conflict |
+
 ## Artifact layout
 
 ```
@@ -99,20 +115,27 @@ data/scenarios/gauntlet-*.policy.json   # CI-facing promoted policies
 
 ### `a0` (with Phase A0/A1)
 
-1. Spawn `sim-data-specialist` for roster; **prefer under-covered** platforms from
+1. Spawn `sim-data-specialist` (model `haiku`) for roster; **prefer under-covered** platforms from
    coverage-map rarity counts.
 2. Apply top-weighted recipes (`tierMin` ≤ current tier) to draft up to
    `--max-candidates` policies into `forge/candidates/` (not `data/scenarios/` yet).
 3. Hand roster + candidates to `military-simulation-architect` for schema-complete
-   policies (intent + `gauntlet.expect` placeholders). Expects must be regenerated
-   at tier-tick boundaries after first successful batch — never invent envelopes.
+   policies (intent + `gauntlet.expect` placeholders). When candidates are
+   independent (disjoint write paths), spawn all architect Tasks **in one turn**
+   after roster is ready — do not serialize (see Parallel Task contract,
+   `production/agentic/qa-skills-parallel-task-contract-2026-07-23.md`). Expects
+   must be regenerated at tier-tick boundaries after first successful batch —
+   never invent envelopes.
 4. Validate candidates (catalog resolve, scenario-audit / mission-editor validate).
    Invalid → regenerate once, then discard + `FAILED:` retain.
 
 ### `post-oracle` (after Phase C)
 
-1. Run mechanical scorecard:
+1. Run mechanical scorecard **first** (script, no LLM):
    `python3 tools/qa-gauntlet/forge_scorecard.py --run-dir production/qa/gauntlet/<RUN_ID> --tier N`
+   The scorecard's `hardGatesPass` field is authoritative — never override it.
+   Use `sonnet` only for the promote/discard narrative writeup **after** hard gates
+   have been evaluated by the script.
 2. For each candidate in scorecard:
    - **Hard gates fail** → discard; retain `FAILED:`; down-weight recipe.
    - **Hard gates pass + novelty improves** → **promote** (see Promotion).
@@ -174,13 +197,13 @@ geography/geometry, trait/attention pressure. Each recipe has `id`, `dims`,
 
 ## Preferred agents
 
-| Agent | Role |
-|---|---|
-| `qa-lead` | Scorecard interpretation, promote/discard decision |
-| `military-simulation-architect` | Candidate drafting |
-| `sim-data-specialist` | Catalog roster / underused platforms |
-| `hindsight-dev-memory-lead` | Recall/retain bank `qa-gauntlet-forge` |
-| `hindsight-aar-analyst` | Final distillation into AAR |
+| Agent | Role | Model |
+|---|---|---|
+| `qa-lead` | Scorecard interpretation, promote/discard decision | `sonnet` |
+| `military-simulation-architect` | Candidate drafting | `sonnet` |
+| `sim-data-specialist` | Catalog roster / underused platforms | `haiku` |
+| `hindsight-dev-memory-lead` | Recall/retain bank `qa-gauntlet-forge` | `haiku`/`sonnet` as appropriate |
+| `hindsight-aar-analyst` | Final distillation into AAR | `haiku`/`sonnet` as appropriate |
 
 ## Hindsight bank contract (`qa-gauntlet-forge`)
 
@@ -220,3 +243,10 @@ qa-gauntlet **must** invoke this skill at:
 - Promoted policies in `data/scenarios/` pass gauntlet-oracle CI smoke + ladder seeds.
 - Recipe weights / hard-cases evolve only via commits after scorecard improvement.
 - Baltic v2 hash + DelegationBridge zero-touch preserved.
+
+## See also
+
+- `/qa-gauntlet` — owner runner for the full gauntlet pipeline; forge is a
+  companion, not a replacement.
+- `/team-qa` — sprint human QA workflow (story-path test cases, bug reports,
+  sign-off); a different domain from forge and not a substitute for it.
