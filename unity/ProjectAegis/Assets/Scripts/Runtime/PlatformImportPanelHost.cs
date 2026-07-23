@@ -1,6 +1,8 @@
 // S29-04: ADR-011 Phase E platform workbook import → propose → approve via PlatformWorkbookWriteBridge.
 // Staging review UX: entity-level diff preview; approve disabled until review acknowledged.
+// PE-UX-W1: section filters, colored DiffKind rows, blocked status class (P-PE-04).
 #if UNITY_5_3_OR_NEWER
+using System.Collections.Generic;
 using System.Linq;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Delegation.Projection;
@@ -22,6 +24,14 @@ namespace ProjectAegis.Unity.Runtime
         private const string AcknowledgeName = "platform-import-acknowledge";
         private const string ApproveButtonName = "platform-import-approve";
         private const string RejectButtonName = "platform-import-reject";
+        private const string FilterAllName = "platform-import-filter-all";
+        private const string FilterDamageName = "platform-import-filter-damage";
+        private const string FilterCommsName = "platform-import-filter-comms";
+        private const string FilterLinkName = "platform-import-filter-link";
+        private const string FilterOtherName = "platform-import-filter-other";
+        private const string SectionFilterActiveClass = "platform-import-section-filter--active";
+        private const string StatusBlockedClass = "platform-import-status--blocked";
+        private const string DiffRowBaseClass = "platform-import-diff-row";
 
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;
@@ -37,6 +47,11 @@ namespace ProjectAegis.Unity.Runtime
         private Button? _proposeButton;
         private Button? _approveButton;
         private Button? _rejectButton;
+        private Button? _filterAllButton;
+        private Button? _filterDamageButton;
+        private Button? _filterCommsButton;
+        private Button? _filterLinkButton;
+        private Button? _filterOtherButton;
         private ListView? _diffList;
         private Label? _statusLine;
         private Toggle? _acknowledgeToggle;
@@ -44,7 +59,8 @@ namespace ProjectAegis.Unity.Runtime
         private PlatformWorkbook? _boundWorkbook;
         private PlatformWorkbookWriteResult? _lastProposeResult;
         private bool _reviewAcknowledged;
-        private List<string> _diffDisplayItems = new();
+        private PlatformImportStagingSection? _sectionFilter;
+        private List<PlatformImportStagingRow> _diffRows = new();
         private long _clockTicks;
         private bool _wired;
 
@@ -65,7 +81,7 @@ namespace ProjectAegis.Unity.Runtime
         private void OnEnable()
         {
             TryWireElements();
-            ApplyPanelState(PlatformImportStagingProjection.Bind(_lastProposeResult, _reviewAcknowledged));
+            RefreshPanelState();
             ApplyPanelVisibility();
         }
 
@@ -103,13 +119,25 @@ namespace ProjectAegis.Unity.Runtime
                 _diffList = root.Q<ListView>(DiffListName);
                 if (_diffList != null)
                 {
-                    _diffList.makeItem = () => new Label();
+                    _diffList.makeItem = () =>
+                    {
+                        var label = new Label();
+                        label.AddToClassList(DiffRowBaseClass);
+                        return label;
+                    };
                     _diffList.bindItem = (element, index) =>
                     {
-                        if (element is Label label && index >= 0 && index < _diffDisplayItems.Count)
+                        if (element is not Label label || index < 0 || index >= _diffRows.Count)
                         {
-                            label.text = _diffDisplayItems[index];
+                            return;
                         }
+
+                        var row = _diffRows[index];
+                        label.text = row.SummaryLine;
+                        label.ClearClassList();
+                        label.AddToClassList(DiffRowBaseClass);
+                        label.AddToClassList(row.UssClass);
+                        label.tooltip = row.SummaryLine;
                     };
                 }
             }
@@ -128,38 +156,59 @@ namespace ProjectAegis.Unity.Runtime
                 }
             }
 
-            if (_proposeButton == null)
-            {
-                _proposeButton = root.Q<Button>(ProposeButtonName);
-                if (_proposeButton != null)
-                {
-                    _proposeButton.clicked -= OnProposeClicked;
-                    _proposeButton.clicked += OnProposeClicked;
-                }
-            }
-
-            if (_approveButton == null)
-            {
-                _approveButton = root.Q<Button>(ApproveButtonName);
-                if (_approveButton != null)
-                {
-                    _approveButton.clicked -= OnApproveClicked;
-                    _approveButton.clicked += OnApproveClicked;
-                }
-            }
-
-            if (_rejectButton == null)
-            {
-                _rejectButton = root.Q<Button>(RejectButtonName);
-                if (_rejectButton != null)
-                {
-                    _rejectButton.clicked -= OnRejectClicked;
-                    _rejectButton.clicked += OnRejectClicked;
-                }
-            }
+            WireActionButton(ref _proposeButton, ProposeButtonName, OnProposeClicked);
+            WireActionButton(ref _approveButton, ApproveButtonName, OnApproveClicked);
+            WireActionButton(ref _rejectButton, RejectButtonName, OnRejectClicked);
+            WireFilterButton(ref _filterAllButton, FilterAllName, OnFilterAllClicked);
+            WireFilterButton(ref _filterDamageButton, FilterDamageName, OnFilterDamageClicked);
+            WireFilterButton(ref _filterCommsButton, FilterCommsName, OnFilterCommsClicked);
+            WireFilterButton(ref _filterLinkButton, FilterLinkName, OnFilterLinkClicked);
+            WireFilterButton(ref _filterOtherButton, FilterOtherName, OnFilterOtherClicked);
 
             _wired = _diffList != null && _proposeButton != null;
         }
+
+        private void WireActionButton(ref Button? field, string name, System.Action handler)
+        {
+            if (field != null)
+            {
+                return;
+            }
+
+            var root = _document.rootVisualElement;
+            field = root?.Q<Button>(name);
+            if (field != null)
+            {
+                field.clicked -= handler;
+                field.clicked += handler;
+            }
+        }
+
+        private void WireFilterButton(ref Button? field, string name, System.Action handler)
+        {
+            if (field != null)
+            {
+                return;
+            }
+
+            var root = _document.rootVisualElement;
+            field = root?.Q<Button>(name);
+            if (field != null)
+            {
+                field.clicked -= handler;
+                field.clicked += handler;
+            }
+        }
+
+        private void OnFilterAllClicked() => OnSectionFilterClicked(null);
+
+        private void OnFilterDamageClicked() => OnSectionFilterClicked(PlatformImportStagingSection.Damage);
+
+        private void OnFilterCommsClicked() => OnSectionFilterClicked(PlatformImportStagingSection.Comms);
+
+        private void OnFilterLinkClicked() => OnSectionFilterClicked(PlatformImportStagingSection.Link);
+
+        private void OnFilterOtherClicked() => OnSectionFilterClicked(PlatformImportStagingSection.Other);
 
         private string? ResolveDatabasePath()
         {
@@ -171,13 +220,19 @@ namespace ProjectAegis.Unity.Runtime
             return string.IsNullOrWhiteSpace(databasePathForImport) ? null : databasePathForImport;
         }
 
+        private void OnSectionFilterClicked(PlatformImportStagingSection? section)
+        {
+            _sectionFilter = section;
+            RefreshPanelState();
+        }
+
         private void OnProposeClicked()
         {
             var databasePath = ResolveDatabasePath();
             if (string.IsNullOrWhiteSpace(databasePath))
             {
                 Debug.LogWarning("[PlatformImportPanelHost] Propose skipped: no database path bound.");
-                ApplyPanelState(PlatformImportStagingProjection.Bind(null, _reviewAcknowledged) with
+                ApplyPanelState(PlatformImportStagingProjection.Bind(null, _reviewAcknowledged, _sectionFilter) with
                 {
                     StatusLine = "STAGING: database path required before propose",
                 });
@@ -202,7 +257,7 @@ namespace ProjectAegis.Unity.Runtime
                     var workbookPath = _workbookPathField?.value?.Trim();
                     if (string.IsNullOrWhiteSpace(workbookPath))
                     {
-                        ApplyPanelState(PlatformImportStagingProjection.Bind(null, _reviewAcknowledged) with
+                        ApplyPanelState(PlatformImportStagingProjection.Bind(null, _reviewAcknowledged, _sectionFilter) with
                         {
                             StatusLine = "STAGING: workbook path or bound workbook required",
                         });
@@ -224,15 +279,15 @@ namespace ProjectAegis.Unity.Runtime
                     _acknowledgeToggle.SetValueWithoutNotify(false);
                 }
 
-                ApplyPanelState(PlatformImportStagingProjection.Bind(_lastProposeResult, _reviewAcknowledged));
+                RefreshPanelState();
                 Debug.Log(
                     $"[PlatformImportPanelHost] Propose ok proposed={_lastProposeResult.Proposed} " +
                     $"batchCount={_lastProposeResult.BatchIds.Count} changes={_lastProposeResult.Import.Plan.Changes.Count}");
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 Debug.LogWarning($"[PlatformImportPanelHost] Propose failed: {ex.Message}");
-                ApplyPanelState(PlatformImportStagingProjection.Bind(null, _reviewAcknowledged) with
+                ApplyPanelState(PlatformImportStagingProjection.Bind(null, _reviewAcknowledged, _sectionFilter) with
                 {
                     StatusLine = $"STAGING: propose failed — {ex.Message}",
                 });
@@ -248,7 +303,7 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            var panelState = PlatformImportStagingProjection.Bind(_lastProposeResult, _reviewAcknowledged);
+            var panelState = PlatformImportStagingProjection.Bind(_lastProposeResult, _reviewAcknowledged, _sectionFilter);
             if (!panelState.ApproveEnabled)
             {
                 Debug.LogWarning("[PlatformImportPanelHost] Approve skipped: review not acknowledged or no pending batches.");
@@ -265,7 +320,7 @@ namespace ProjectAegis.Unity.Runtime
                     reviewerActorId,
                     clockTicks: _clockTicks);
                 ClearStagingState();
-                ApplyPanelState(PlatformImportStagingProjection.Bind(null, _reviewAcknowledged) with
+                ApplyPanelState(PlatformImportStagingProjection.Bind(null, _reviewAcknowledged, _sectionFilter) with
                 {
                     StatusLine = approve.AllCommitted
                         ? $"STAGING: approved {approve.CommittedBatchIds.Count} batch(es)"
@@ -275,9 +330,13 @@ namespace ProjectAegis.Unity.Runtime
                     $"[PlatformImportPanelHost] Approve ok committed={approve.CommittedBatchIds.Count} " +
                     $"processed={approve.ProcessedBatchIds.Count}");
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 Debug.LogWarning($"[PlatformImportPanelHost] Approve failed: {ex.Message}");
+                ApplyPanelState(PlatformImportStagingProjection.Bind(_lastProposeResult, _reviewAcknowledged, _sectionFilter) with
+                {
+                    StatusLine = $"STAGING: approve failed — {ex.Message}",
+                });
             }
         }
 
@@ -290,7 +349,7 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            var panelState = PlatformImportStagingProjection.Bind(_lastProposeResult, _reviewAcknowledged);
+            var panelState = PlatformImportStagingProjection.Bind(_lastProposeResult, _reviewAcknowledged, _sectionFilter);
             if (!panelState.RejectEnabled)
             {
                 Debug.LogWarning("[PlatformImportPanelHost] Reject skipped: no pending batches.");
@@ -308,7 +367,7 @@ namespace ProjectAegis.Unity.Runtime
                     clockTicks: _clockTicks,
                     rationale: "unity import panel reject");
                 ClearStagingState();
-                ApplyPanelState(PlatformImportStagingProjection.Bind(null, _reviewAcknowledged) with
+                ApplyPanelState(PlatformImportStagingProjection.Bind(null, _reviewAcknowledged, _sectionFilter) with
                 {
                     StatusLine = reject.AllCommitted
                         ? "STAGING: reject completed unexpectedly — batches committed"
@@ -316,31 +375,41 @@ namespace ProjectAegis.Unity.Runtime
                 });
                 Debug.Log($"[PlatformImportPanelHost] Reject ok processed={reject.ProcessedBatchIds.Count}");
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 Debug.LogWarning($"[PlatformImportPanelHost] Reject failed: {ex.Message}");
+                ApplyPanelState(PlatformImportStagingProjection.Bind(_lastProposeResult, _reviewAcknowledged, _sectionFilter) with
+                {
+                    StatusLine = $"STAGING: reject failed — {ex.Message}",
+                });
             }
         }
 
         private void OnAcknowledgeChanged(ChangeEvent<bool> evt)
         {
             _reviewAcknowledged = evt.newValue;
-            ApplyPanelState(PlatformImportStagingProjection.Bind(_lastProposeResult, _reviewAcknowledged));
+            RefreshPanelState();
+        }
+
+        private void RefreshPanelState()
+        {
+            ApplyPanelState(PlatformImportStagingProjection.Bind(_lastProposeResult, _reviewAcknowledged, _sectionFilter));
         }
 
         private void ApplyPanelState(PlatformImportStagingPanelState panelState)
         {
-            _diffDisplayItems = panelState.DiffRows.Select(row => row.SummaryLine).ToList();
+            _diffRows = panelState.DiffRows.ToList();
 
             if (_diffList != null)
             {
-                _diffList.itemsSource = _diffDisplayItems;
+                _diffList.itemsSource = _diffRows;
                 _diffList.Rebuild();
             }
 
             if (_statusLine != null)
             {
                 _statusLine.text = panelState.StatusLine;
+                _statusLine.EnableInClassList(StatusBlockedClass, panelState.IsBlocked);
             }
 
             if (_approveButton != null)
@@ -352,6 +421,22 @@ namespace ProjectAegis.Unity.Runtime
             {
                 _rejectButton.SetEnabled(panelState.RejectEnabled);
             }
+
+            ApplySectionFilterChrome();
+        }
+
+        private void ApplySectionFilterChrome()
+        {
+            SetFilterActive(_filterAllButton, _sectionFilter is null);
+            SetFilterActive(_filterDamageButton, _sectionFilter == PlatformImportStagingSection.Damage);
+            SetFilterActive(_filterCommsButton, _sectionFilter == PlatformImportStagingSection.Comms);
+            SetFilterActive(_filterLinkButton, _sectionFilter == PlatformImportStagingSection.Link);
+            SetFilterActive(_filterOtherButton, _sectionFilter == PlatformImportStagingSection.Other);
+        }
+
+        private static void SetFilterActive(Button? button, bool active)
+        {
+            button?.EnableInClassList(SectionFilterActiveClass, active);
         }
 
         private void ClearStagingState()

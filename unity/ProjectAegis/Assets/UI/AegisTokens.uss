@@ -1,7 +1,7 @@
-/* AegisTokens.uss — Project Aegis semantic design tokens (S93 production)
+/* AegisTokens.uss — Project Aegis semantic design tokens (S93 production + PE-UX-W0)
  * Authority: design/art/art-bible.md §3 Primary + Semantic palette
  * Asset: ASSET-014 — production/assets/c2/AegisTokens.uss
- * Sprint: S93 asset production wave (2026-07-09)
+ * Sprint: S93 asset production wave (2026-07-09); PE-UX aliases 2026-07-23
  */
 
 :root {
@@ -36,6 +36,7 @@
     /* Selection & focus */
     --selected-ring: #FFC850;
     --selected-row-bg: rgba(74, 158, 255, 0.25);
+    --selected-row-bar: #FFC850;
     --score-accent: #F0C040;
 
     /* Comms */
@@ -51,10 +52,42 @@
     --log-contact: #8CC8FF;
     --log-mission: #A0DCB4;
 
+    /* Platform Import staging diff (art bible §3) */
+    --diff-changed: #E6C850;
+    --diff-added: #64C88C;
+    --diff-removed: #E85D5D;
+    --diff-blocked: #E65A5A;
+    --diff-pending: #8C9BAA;
+    --diff-pending-opacity: 0.45;
+
     /* Spacing (art bible §6) */
     --space-xs: 4px;
     --space-sm: 8px;
     --space-md: 12px;
     --space-lg: 16px;
     --space-xl: 24px;
+
+    /* --aegis-* aliases consumed by Platform Catalog / Import USS (PE-UX-W0) */
+    --aegis-surface-deep: var(--surface-deep);
+    --aegis-surface-map: var(--surface-map);
+    --aegis-surface-panel: var(--surface-panel);
+    --aegis-surface-topbar: var(--surface-topbar);
+    --aegis-border-subtle: var(--border-subtle);
+    --aegis-border-panel: var(--border-panel);
+    --aegis-border-section: var(--border-section);
+    --aegis-border-planning: var(--border-planning);
+    --aegis-text-heading: var(--text-heading);
+    --aegis-text-body: var(--text-body);
+    --aegis-text-muted: var(--text-muted);
+    --aegis-text-data: var(--text-data);
+    --aegis-text-topbar: var(--text-topbar);
+    --aegis-selected-ring: var(--selected-ring);
+    --aegis-selected-row-bg: var(--selected-row-bg);
+    --aegis-selected-row-bar: var(--selected-row-bar);
+    --aegis-diff-changed: var(--diff-changed);
+    --aegis-diff-added: var(--diff-added);
+    --aegis-diff-removed: var(--diff-removed);
+    --aegis-diff-blocked: var(--diff-blocked);
+    --aegis-diff-pending: var(--diff-pending);
+    --aegis-diff-pending-opacity: var(--diff-pending-opacity);
 }

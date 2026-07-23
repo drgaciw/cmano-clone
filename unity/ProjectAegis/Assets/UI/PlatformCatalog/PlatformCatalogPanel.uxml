@@ -5,18 +5,30 @@
             <ui:Button name="platform-catalog-export" text="Export" class="platform-catalog-action-button" />
             <ui:Button name="platform-catalog-diff" text="Diff" class="platform-catalog-action-button" />
         </ui:VisualElement>
+        <ui:Label name="platform-catalog-action-status" text="" class="platform-catalog-action-status" />
         <ui:TextField name="platform-catalog-search" class="platform-catalog-search" label="Filter" />
         <ui:ListView name="platform-catalog-list" class="platform-catalog-list" selection-type="Single" />
+        <ui:VisualElement name="platform-catalog-section-bar" class="platform-catalog-section-bar">
+            <ui:Button name="platform-catalog-section-identity" text="Identity" class="platform-catalog-section-button platform-catalog-section-button--active" />
+            <ui:Button name="platform-catalog-section-damage" text="Damage" class="platform-catalog-section-button" />
+            <ui:Button name="platform-catalog-section-fits" text="Fits" class="platform-catalog-section-button" />
+            <ui:Button name="platform-catalog-section-comms" text="Comms" class="platform-catalog-section-button" />
+            <ui:Button name="platform-catalog-section-links" text="Links" class="platform-catalog-section-button" />
+            <ui:Button name="platform-catalog-section-graph" text="Graph" class="platform-catalog-section-button" />
+        </ui:VisualElement>
         <ui:VisualElement name="platform-catalog-detail" class="platform-catalog-detail">
             <ui:Label text="DETAIL" class="platform-catalog-detail-title" />
-            <ui:Label name="platform-catalog-detail-lat" text="LAT: —" class="platform-catalog-detail-line" />
-            <ui:Label name="platform-catalog-detail-lon" text="LON: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-id" text="ID: —" class="platform-catalog-detail-line" />
             <ui:Label name="platform-catalog-detail-radius" text="RADIUS: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-speed" text="SPEED: —" class="platform-catalog-detail-line" />
             <ui:Label name="platform-catalog-detail-hp" text="HP: —" class="platform-catalog-detail-line" />
             <ui:Label name="platform-catalog-detail-resilience" text="RESILIENCE: —" class="platform-catalog-detail-line" />
             <ui:Label name="platform-catalog-detail-withdraw" text="WITHDRAW: —" class="platform-catalog-detail-line" />
             <ui:Label name="platform-catalog-detail-flags" text="FLAGS: —" class="platform-catalog-detail-line" />
-            <ui:Label name="platform-catalog-detail-speed" text="SPEED: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-mounts" text="MOUNTS: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-sensors" text="SENSORS: —" class="platform-catalog-detail-line" />
+            <ui:Label name="platform-catalog-detail-lat" text="SCENARIO LAT: — (doc 11)" class="platform-catalog-detail-line platform-catalog-detail-line--muted" />
+            <ui:Label name="platform-catalog-detail-lon" text="SCENARIO LON: — (doc 11)" class="platform-catalog-detail-line platform-catalog-detail-line--muted" />
         </ui:VisualElement>
         <ui:VisualElement name="platform-catalog-comms" class="platform-catalog-comms">
             <ui:Label text="COMMS" class="platform-catalog-detail-title" />
@@ -26,6 +38,10 @@
         <ui:VisualElement name="platform-catalog-links" class="platform-catalog-links">
             <ui:Label text="LINK CATALOG" class="platform-catalog-detail-title" />
             <ui:ListView name="platform-catalog-links-list" class="platform-catalog-links-list" selection-type="None" />
+        </ui:VisualElement>
+        <ui:VisualElement name="platform-catalog-graph" class="platform-catalog-graph">
+            <ui:Label text="DEPENDENCY GRAPH" class="platform-catalog-detail-title" />
+            <ui:ListView name="platform-catalog-graph-list" class="platform-catalog-graph-list" selection-type="None" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

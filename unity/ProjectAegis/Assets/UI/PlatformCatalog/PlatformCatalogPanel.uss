@@ -77,3 +77,51 @@
 .platform-catalog-links-list {
     min-height: 48px;
 }
+
+.platform-catalog-action-status {
+    color: var(--aegis-text-muted);
+    margin-bottom: 4px;
+    white-space: normal;
+    min-height: 14px;
+}
+
+.platform-catalog-section-bar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.platform-catalog-section-button {
+    margin-right: 4px;
+    margin-bottom: 2px;
+    min-width: 52px;
+}
+
+.platform-catalog-section-button--active {
+    border-bottom-width: 2px;
+    border-bottom-color: var(--aegis-selected-ring);
+}
+
+.platform-catalog-detail-line--muted {
+    color: var(--aegis-text-muted);
+    opacity: 0.85;
+}
+
+.platform-catalog-comms-helper {
+    color: var(--aegis-text-muted);
+    font-size: 10px;
+    margin-top: 2px;
+    white-space: normal;
+}
+
+.platform-catalog-graph {
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top-width: 1px;
+    border-top-color: var(--aegis-border-section);
+}
+
+.platform-catalog-graph-list {
+    min-height: 48px;
+}

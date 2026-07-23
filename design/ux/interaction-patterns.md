@@ -263,6 +263,41 @@ Propose → see blocked status
 
 ---
 
+## 9b. Unified Platform Editor Shell (P-PE-04)
+
+**Screen:** Platform Catalog + Platform Import (same curator session)  
+**Purpose:** Reduce cognitive load across damage / comms / link (and other) workbook domains without in-engine WYSIWYG editing (ADR-011).  
+**Evidence driver:** [playtest-2026-06-19-midgame-delegation-catalog-thinkaloud.md](../../production/playtests/human/playtest-2026-06-19-midgame-delegation-catalog-thinkaloud.md) — “Unified Platform Editor UX spec”.
+
+### Shell layout
+
+| Pane | Role |
+|------|------|
+| **Catalog** (`PlatformCatalogViewerHost`) | Read-only browse; section bar Identity / Damage / Fits / Comms / Links / Graph; Export/Diff with in-panel status |
+| **Import** (`PlatformImportPanelHost`) | Propose → section-filtered diff review → Acknowledge → Approve |
+
+### Section filter (Import)
+
+| Chip | Shows |
+|------|-------|
+| ALL | Every staging row |
+| DAMAGE | MaxHp / withdraw / flags deltas |
+| COMMS | Comms fitting deltas |
+| LINK | LinkCatalog deltas |
+| OTHER | Remaining sheets (Sensors, Mounts, …) |
+
+Global Acknowledge still gates Approve (P-PE-01). Filters only change which rows are visible for review.
+
+### Diff row styling
+
+Apply USS classes from projection `DiffKind` (P-PE-02 colors): `platform-import-diff-row--added|changed|removed|blocked|info`. Status uses `platform-import-status--blocked` when validation blocks.
+
+### Tokens
+
+Panels consume `--aegis-*` aliases from [AegisTokens.uss](../../unity/ProjectAegis/Assets/UI/AegisTokens.uss) (PE-UX-W0). Diff hex values match art bible §3.
+
+---
+
 ## 10. Related Patterns (reference only)
 
 These screens have UX specs but are **not expanded** in S35-03 — see linked docs:
@@ -292,3 +327,4 @@ These screens have UX specs but are **not expanded** in S35-03 — see linked do
 | Date | Change |
 |------|--------|
 | 2026-06-19 | Initial library — S35-03 gate r2 "interaction pattern library current" gap closed |
+| 2026-07-23 | P-PE-04 unified Platform Editor shell (PE-UX productization) |
