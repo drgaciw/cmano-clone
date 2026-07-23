@@ -33,13 +33,25 @@ Store the resolved mode for use in all subsequent phases.
 - **qa-lead** — QA strategy, test plan generation, story classification, sign-off report
 - **qa-tester** — Test case writing, bug report writing, manual QA documentation
 
+## Phase-static model routing
+
+Orchestrator frontmatter stays `model: sonnet`. Per-phase Task `model` overrides use aliases only — never version pins (canonical dated IDs live in `.claude/docs/coordination-rules.md` Model Tier Assignment):
+
+| Phase | Work | Task model |
+|-------|------|------------|
+| 1 | Context / digests | `haiku` |
+| 2–3 | Strategy + plan | `sonnet` (qa-lead) |
+| 4 | Bulk test-case scaffolding | `haiku`, one Task per story, all in one turn |
+| 5 | Manual QA digests | `haiku`; bug-report draft `sonnet` |
+| 6 | Sign-off | `sonnet`; `opus` only if NOT APPROVED + multi-doc / S1 gate |
+
 ## How to Delegate
 
 Use the Task tool to spawn each team member as a subagent:
 - `subagent_type: qa-lead` — Strategy, planning, classification, sign-off
 - `subagent_type: qa-tester` — Test case writing and bug report writing
 
-Always provide full context in each agent's prompt (story file paths, QA plan path, scope constraints). Launch independent qa-tester tasks in parallel where possible (e.g., multiple stories in Phase 5 can be scaffolded simultaneously).
+Always provide full context in each agent's prompt (story file paths, QA plan path, scope constraints). For Phase 4, the orchestrator MUST issue all independent qa-tester Tasks (one per story path) in a **single** orchestrator turn with `model: haiku` before waiting for any results. Each Task prompt must be self-contained (scope / goal / constraints / return summary). Do not pre-allocate BUG-NNN IDs during parallel Phase 4 scaffold — assign bug IDs only after collecting all results in the Phase 5 FAIL path.
 
 ## Pipeline
 
@@ -117,7 +129,9 @@ Write only after receiving approval.
 
 For each story requiring manual QA (Visual/Feel, UI, Integration without automated tests):
 
-Spawn `qa-tester` via Task for each story (run in parallel where possible), providing:
+> **MUST:** Issue all Phase 4 qa-tester Tasks in a **single** orchestrator turn using `model: haiku` before waiting for any results. Each Task prompt must be self-contained (scope / goal / constraints / return summary). Do not allocate BUG-NNN IDs during this phase — assign IDs only after collecting results in Phase 5. See contract: `production/agentic/qa-skills-parallel-task-contract-2026-07-23.md`.
+
+Spawn `qa-tester` via Task for each story (one Task per story, all dispatched in one turn), providing:
 - The story file path
 - The relevant section of the QA plan for that story
 - The GDD acceptance criteria for the system being tested (if available)
@@ -146,6 +160,8 @@ options:
 
 Walk through each story in the approved manual QA list.
 
+> **Model:** Use `model: haiku` for manual QA digest Tasks (result collection, status summarisation). Spawn `qa-tester` bug-report Tasks with `model: sonnet`.
+
 Batch stories into groups of 3-4 and use `AskUserQuestion` for each:
 
 ```
@@ -170,6 +186,8 @@ After collecting all results, summarize:
 ### Phase 6: QA Sign-Off Report
 
 Spawn `qa-lead` via Task to produce the sign-off report using all results from Phases 4–6.
+
+> **Model:** Use `model: sonnet` for the sign-off Task. Use `model: opus` only if the verdict is NOT APPROVED and the report requires multi-document synthesis or an S1-gate escalation decision.
 
 The sign-off report format:
 
@@ -242,3 +260,9 @@ After the final phase completes (sign-off report written or BLOCKED verdict reac
 ```
 <!-- QA RUN: [date] | Sprint: [sprint identifier or "ad-hoc"] | Verdict: [PASS/FAIL/CONCERNS] | Report: production/qa/qa-[date].md -->
 ```
+
+## See also
+
+- `/smoke-check` — smoke gate (run before Phase 2 if no existing report)
+- `/qa-gauntlet` — headless automated test ladder; complements but does not replace this skill's human sprint/feature QA package
+- `/qa-gauntlet-forge` — variance companion for gauntlet (oracle promotion, scorecard); team-qa is the human sprint/feature package, not a substitute for gauntlet
