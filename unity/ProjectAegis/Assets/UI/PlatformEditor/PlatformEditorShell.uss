@@ -1,0 +1,85 @@
+@import url("../AegisTokens.uss");
+
+.platform-editor-shell {
+    flex-grow: 1;
+    flex-direction: column;
+    background-color: var(--aegis-surface-panel);
+    padding: var(--space-sm);
+}
+
+.platform-editor-shell-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xs);
+}
+
+.platform-editor-shell-mode-title {
+    -unity-font-style: bold;
+    color: var(--aegis-text-heading);
+    font-size: 14px;
+}
+
+.platform-editor-shell-status {
+    color: var(--aegis-text-muted);
+    font-size: 11px;
+    white-space: normal;
+    flex-shrink: 1;
+}
+
+.platform-editor-shell-tabs {
+    flex-direction: row;
+    margin-bottom: var(--space-xs);
+}
+
+.platform-editor-shell-tab {
+    margin-right: var(--space-xs);
+    min-width: 88px;
+}
+
+.platform-editor-shell-tab--active {
+    border-bottom-width: 2px;
+    border-bottom-color: var(--aegis-selected-ring);
+    -unity-font-style: bold;
+}
+
+.platform-editor-shell-health {
+    color: var(--aegis-text-body);
+    font-size: 11px;
+    margin-bottom: var(--space-sm);
+    white-space: normal;
+}
+
+.platform-editor-shell-content {
+    flex-grow: 1;
+}
+
+.platform-editor-shell-slot {
+    flex-grow: 1;
+}
+
+.platform-editor-shell-slot--hidden {
+    display: none;
+}
+
+.platform-editor-shell--browse .platform-editor-shell-mode-title {
+    color: var(--aegis-text-heading);
+}
+
+.platform-editor-shell--import .platform-editor-shell-mode-title {
+    color: var(--aegis-diff-changed);
+}
+
+/* PE-UX-W6 a11y scale hooks */
+.aegis-scale-125 {
+    font-size: 125%;
+}
+
+.aegis-scale-150 {
+    font-size: 150%;
+}
+
+.reduced-motion {
+    /* Instant transitions — no decorative motion on Platform Editor */
+    transition-duration: 0s;
+}

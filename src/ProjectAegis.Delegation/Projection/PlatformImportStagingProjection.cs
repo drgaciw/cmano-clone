@@ -77,6 +77,34 @@ public static class PlatformImportStagingProjection
             _ => "platform-import-diff-row--info",
         };
 
+    /// <summary>PE-UX-W6: short text tag so color is never the sole diff indicator.</summary>
+    public static string TextTagFor(PlatformImportStagingDiffKind kind) =>
+        kind switch
+        {
+            PlatformImportStagingDiffKind.Added => "ADDED",
+            PlatformImportStagingDiffKind.Changed => "CHANGED",
+            PlatformImportStagingDiffKind.Removed => "REMOVED",
+            PlatformImportStagingDiffKind.Blocked => "BLOCKED",
+            _ => "INFO",
+        };
+
+    /// <summary>Display line with text tag prefix for ListView binding.</summary>
+    public static string FormatDisplayLine(PlatformImportStagingRow row)
+    {
+        if (row is null)
+        {
+            throw new ArgumentNullException(nameof(row));
+        }
+
+        var tag = TextTagFor(row.DiffKind);
+        if (row.SummaryLine.StartsWith($"[{tag}]", StringComparison.Ordinal))
+        {
+            return row.SummaryLine;
+        }
+
+        return $"[{tag}] {row.SummaryLine}";
+    }
+
     public static PlatformImportStagingDiffKind DiffKindFor(PlatformWorkbookChangeKind kind) =>
         kind switch
         {

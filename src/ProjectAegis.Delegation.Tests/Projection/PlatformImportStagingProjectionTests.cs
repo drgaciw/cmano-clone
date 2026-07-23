@@ -156,4 +156,27 @@ public sealed class PlatformImportStagingProjectionTests
             PlatformImportStagingProjection.UssClassFor(PlatformImportStagingDiffKind.Info),
             Is.EqualTo("platform-import-diff-row--info"));
     }
+
+    [Test]
+    public void TextTagFor_and_FormatDisplayLine_prefix_non_color_indicator()
+    {
+        Assert.That(
+            PlatformImportStagingProjection.TextTagFor(PlatformImportStagingDiffKind.Added),
+            Is.EqualTo("ADDED"));
+        Assert.That(
+            PlatformImportStagingProjection.TextTagFor(PlatformImportStagingDiffKind.Blocked),
+            Is.EqualTo("BLOCKED"));
+
+        var row = new PlatformImportStagingRow(
+            "Comms",
+            1,
+            "COMMS · +1",
+            PlatformImportStagingSection.Comms,
+            PlatformImportStagingDiffKind.Added,
+            "platform-import-diff-row--added");
+
+        Assert.That(
+            PlatformImportStagingProjection.FormatDisplayLine(row),
+            Is.EqualTo("[ADDED] COMMS · +1"));
+    }
 }

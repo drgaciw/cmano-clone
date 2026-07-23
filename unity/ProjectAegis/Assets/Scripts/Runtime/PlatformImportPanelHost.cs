@@ -41,6 +41,8 @@ namespace ProjectAegis.Unity.Runtime
         [SerializeField] private string actorId = "platform-import-host";
         [SerializeField] private string reviewerActorType = "human";
         [SerializeField] private string reviewerActorId = "curator";
+        [SerializeField] private C2AccessibilityScalePercent accessibilityScale = C2AccessibilityScalePercent.OneHundred;
+        [SerializeField] private bool reducedMotion = true;
 
         private UIDocument _document = null!;
         private TextField? _workbookPathField;
@@ -52,6 +54,7 @@ namespace ProjectAegis.Unity.Runtime
         private Button? _filterCommsButton;
         private Button? _filterLinkButton;
         private Button? _filterOtherButton;
+        private VisualElement? _sectionFilters;
         private ListView? _diffList;
         private Label? _statusLine;
         private Toggle? _acknowledgeToggle;
@@ -61,6 +64,7 @@ namespace ProjectAegis.Unity.Runtime
         private bool _reviewAcknowledged;
         private PlatformImportStagingSection? _sectionFilter;
         private List<PlatformImportStagingRow> _diffRows = new();
+        private int _blockedFindingCount;
         private long _clockTicks;
         private bool _wired;
 
@@ -101,6 +105,26 @@ namespace ProjectAegis.Unity.Runtime
 
         public bool ReviewAcknowledged => _reviewAcknowledged;
 
+        /// <summary>PE-UX-W5: pending staging row count for shell health strip.</summary>
+        public int PendingDiffCount => _diffRows.Count;
+
+        /// <summary>PE-UX-W5: blocked finding count from last propose bind.</summary>
+        public int BlockedFindingCount => _blockedFindingCount;
+
+        /// <summary>PE-UX-W4: shell toggles visibility without disabling host (staging preserved).</summary>
+        public void SetShellVisible(bool visible)
+        {
+            showPanel = visible;
+            ApplyPanelVisibility();
+        }
+
+        /// <summary>PE-UX-W5: set section filter from shell / curator jump (e.g. LINK).</summary>
+        public void SetSectionFilter(PlatformImportStagingSection? section)
+        {
+            _sectionFilter = section;
+            RefreshPanelState();
+        }
+
         private void TryWireElements()
         {
             var root = _document.rootVisualElement;
@@ -108,6 +132,8 @@ namespace ProjectAegis.Unity.Runtime
             {
                 return;
             }
+
+            ApplyAccessibility(root);
 
             if (_workbookPathField == null)
             {
@@ -133,12 +159,22 @@ namespace ProjectAegis.Unity.Runtime
                         }
 
                         var row = _diffRows[index];
-                        label.text = row.SummaryLine;
+                        label.text = PlatformImportStagingProjection.FormatDisplayLine(row);
                         label.ClearClassList();
                         label.AddToClassList(DiffRowBaseClass);
                         label.AddToClassList(row.UssClass);
-                        label.tooltip = row.SummaryLine;
+                        label.tooltip = label.text;
                     };
+                }
+            }
+
+            if (_sectionFilters == null)
+            {
+                _sectionFilters = root.Q("platform-import-section-filters");
+                if (_sectionFilters != null)
+                {
+                    _sectionFilters.focusable = true;
+                    _sectionFilters.RegisterCallback<KeyDownEvent>(OnSectionFiltersKeyDown);
                 }
             }
 
@@ -399,6 +435,13 @@ namespace ProjectAegis.Unity.Runtime
         private void ApplyPanelState(PlatformImportStagingPanelState panelState)
         {
             _diffRows = panelState.DiffRows.ToList();
+            _blockedFindingCount = panelState.IsBlocked
+                ? _diffRows.Count(r => r.DiffKind == PlatformImportStagingDiffKind.Blocked)
+                : 0;
+            if (panelState.IsBlocked && _blockedFindingCount == 0)
+            {
+                _blockedFindingCount = 1;
+            }
 
             if (_diffList != null)
             {
@@ -425,6 +468,49 @@ namespace ProjectAegis.Unity.Runtime
             ApplySectionFilterChrome();
         }
 
+        private void OnSectionFiltersKeyDown(KeyDownEvent evt)
+        {
+            PlatformImportStagingSection?[] order =
+            [
+                null,
+                PlatformImportStagingSection.Damage,
+                PlatformImportStagingSection.Comms,
+                PlatformImportStagingSection.Link,
+                PlatformImportStagingSection.Other,
+            ];
+            var index = 0;
+            for (var i = 0; i < order.Length; i++)
+            {
+                if (order[i] == _sectionFilter)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (evt.keyCode == KeyCode.RightArrow)
+            {
+                index = (index + 1) % order.Length;
+                OnSectionFilterClicked(order[index]);
+                evt.StopPropagation();
+            }
+            else if (evt.keyCode == KeyCode.LeftArrow)
+            {
+                index = (index - 1 + order.Length) % order.Length;
+                OnSectionFilterClicked(order[index]);
+                evt.StopPropagation();
+            }
+        }
+
+        private void ApplyAccessibility(VisualElement root)
+        {
+            var settings = new C2AccessibilitySettings(accessibilityScale, reducedMotion);
+            root.EnableInClassList("aegis-scale-100", settings.ScalePercent == C2AccessibilityScalePercent.OneHundred);
+            root.EnableInClassList("aegis-scale-125", settings.ScalePercent == C2AccessibilityScalePercent.OneTwentyFive);
+            root.EnableInClassList("aegis-scale-150", settings.ScalePercent == C2AccessibilityScalePercent.OneFifty);
+            root.EnableInClassList("reduced-motion", settings.ReducedMotion);
+        }
+
         private void ApplySectionFilterChrome()
         {
             SetFilterActive(_filterAllButton, _sectionFilter is null);
@@ -443,6 +529,7 @@ namespace ProjectAegis.Unity.Runtime
         {
             _lastProposeResult = null;
             _reviewAcknowledged = false;
+            _blockedFindingCount = 0;
             if (_acknowledgeToggle != null)
             {
                 _acknowledgeToggle.SetValueWithoutNotify(false);

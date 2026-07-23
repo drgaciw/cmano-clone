@@ -58,22 +58,29 @@
     color: var(--aegis-text-data);
     -unity-font-style: normal;
     white-space: normal;
+    border-left-width: 3px;
+    border-left-color: var(--aegis-diff-pending);
+    padding-left: 4px;
 }
 
 .platform-import-diff-row--changed {
     color: var(--aegis-diff-changed);
+    border-left-color: var(--aegis-diff-changed);
 }
 
 .platform-import-diff-row--added {
     color: var(--aegis-diff-added);
+    border-left-color: var(--aegis-diff-added);
 }
 
 .platform-import-diff-row--removed {
     color: var(--aegis-diff-removed);
+    border-left-color: var(--aegis-diff-removed);
 }
 
 .platform-import-diff-row--blocked {
     color: var(--aegis-diff-blocked);
+    border-left-color: var(--aegis-diff-blocked);
     -unity-font-style: bold;
 }
 

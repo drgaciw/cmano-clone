@@ -53,6 +53,8 @@ namespace ProjectAegis.Unity.Runtime
         private const string CommsListName = "platform-catalog-comms-list";
         private const string LinksListName = "platform-catalog-links-list";
         private const string GraphListName = "platform-catalog-graph-list";
+        private const string GraphSearchName = "platform-catalog-graph-search";
+        private const string SectionBarName = "platform-catalog-section-bar";
         private const string SectionActiveClass = "platform-catalog-section-button--active";
 
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -60,6 +62,11 @@ namespace ProjectAegis.Unity.Runtime
         [SerializeField] private bool showPanel = true;
         [SerializeField] private string databasePathForExport = string.Empty;
         [SerializeField] private string exportOutFileName = "platform-catalog-export.platform.txt";
+        [SerializeField] private C2AccessibilityScalePercent accessibilityScale = C2AccessibilityScalePercent.OneHundred;
+        [SerializeField] private bool reducedMotion = true;
+
+        /// <summary>PE-UX-W5: curator asks to jump from a comms row into Links for the selected platform.</summary>
+        public event System.Action<string?>? CommsLinkNavigateRequested;
 
         private UIDocument _document = null!;
         private Button? _exportButton;
@@ -67,6 +74,10 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _actionStatus;
         private ListView? _platformList;
         private TextField? _searchField;
+        private TextField? _graphSearchField;
+        private VisualElement? _sectionBar;
+        private string _graphSearch = string.Empty;
+        private string? _selectedPlatformId;
         private string? _boundDatabasePath;
         private string _boundSnapshotId = CatalogValidationDefaults.BalticSnapshotId;
         private Label? _detailId;
@@ -166,6 +177,44 @@ namespace ProjectAegis.Unity.Runtime
             TryWireElements();
         }
 
+        /// <summary>Edge count for shell health strip (read-only).</summary>
+        public int DependencyEdgeCount => _allGraphEdges.Count;
+
+        public string? SelectedPlatformId => _selectedPlatformId;
+
+        /// <summary>PE-UX-W4: shell toggles visibility without disabling the host (state preserved).</summary>
+        public void SetShellVisible(bool visible)
+        {
+            showPanel = visible;
+            ApplyPanelVisibility();
+        }
+
+        /// <summary>PE-UX-W5: select platform and open Links section (comms → link jump).</summary>
+        public void NavigateToLinksSection(string? platformId)
+        {
+            SelectPlatform(platformId);
+            _activeSection = CatalogSection.Links;
+            ApplySectionVisibility();
+            BindLinks(platformId);
+            BindGraph(platformId);
+        }
+
+        public void SelectPlatform(string? platformId)
+        {
+            _selectedPlatformId = platformId;
+            if (_platformList == null || string.IsNullOrWhiteSpace(platformId))
+            {
+                return;
+            }
+
+            var index = _filteredRows.FindIndex(r =>
+                string.Equals(r.PlatformId, platformId, System.StringComparison.Ordinal));
+            if (index >= 0)
+            {
+                _platformList.SetSelection(index);
+            }
+        }
+
         private void TryWireElements()
         {
             var root = _document.rootVisualElement;
@@ -173,6 +222,8 @@ namespace ProjectAegis.Unity.Runtime
             {
                 return;
             }
+
+            ApplyAccessibility(root);
 
             if (_platformList == null)
             {
@@ -257,6 +308,7 @@ namespace ProjectAegis.Unity.Runtime
                 _commsList = root.Q<ListView>(CommsListName);
                 if (_commsList != null)
                 {
+                    _commsList.selectionType = SelectionType.Single;
                     _commsList.makeItem = () => new Label();
                     _commsList.bindItem = (element, index) =>
                     {
@@ -265,6 +317,35 @@ namespace ProjectAegis.Unity.Runtime
                             label.text = _commsDisplayItems[index];
                         }
                     };
+                    _commsList.selectionChanged += _ =>
+                    {
+                        // PE-UX-W5: any comms row click jumps to Links for the selected platform.
+                        CommsLinkNavigateRequested?.Invoke(_selectedPlatformId);
+                        NavigateToLinksSection(_selectedPlatformId);
+                    };
+                }
+            }
+
+            if (_graphSearchField == null)
+            {
+                _graphSearchField = root.Q<TextField>(GraphSearchName);
+                if (_graphSearchField != null)
+                {
+                    _graphSearchField.RegisterValueChangedCallback(evt =>
+                    {
+                        _graphSearch = evt.newValue ?? string.Empty;
+                        BindGraph(_selectedPlatformId);
+                    });
+                }
+            }
+
+            if (_sectionBar == null)
+            {
+                _sectionBar = root.Q(SectionBarName);
+                if (_sectionBar != null)
+                {
+                    _sectionBar.focusable = true;
+                    _sectionBar.RegisterCallback<KeyDownEvent>(OnSectionBarKeyDown);
                 }
             }
 
@@ -302,6 +383,43 @@ namespace ProjectAegis.Unity.Runtime
 
             ApplySectionVisibility();
             _wired = _platformList != null;
+        }
+
+        private void OnSectionBarKeyDown(KeyDownEvent evt)
+        {
+            var order = new[]
+            {
+                CatalogSection.Identity,
+                CatalogSection.Damage,
+                CatalogSection.Fits,
+                CatalogSection.Comms,
+                CatalogSection.Links,
+                CatalogSection.Graph,
+            };
+            var index = System.Array.IndexOf(order, _activeSection);
+            if (evt.keyCode == KeyCode.RightArrow)
+            {
+                index = (index + 1) % order.Length;
+                _activeSection = order[index];
+                ApplySectionVisibility();
+                evt.StopPropagation();
+            }
+            else if (evt.keyCode == KeyCode.LeftArrow)
+            {
+                index = (index - 1 + order.Length) % order.Length;
+                _activeSection = order[index];
+                ApplySectionVisibility();
+                evt.StopPropagation();
+            }
+        }
+
+        private void ApplyAccessibility(VisualElement root)
+        {
+            var settings = new C2AccessibilitySettings(accessibilityScale, reducedMotion);
+            root.EnableInClassList("aegis-scale-100", settings.ScalePercent == C2AccessibilityScalePercent.OneHundred);
+            root.EnableInClassList("aegis-scale-125", settings.ScalePercent == C2AccessibilityScalePercent.OneTwentyFive);
+            root.EnableInClassList("aegis-scale-150", settings.ScalePercent == C2AccessibilityScalePercent.OneFifty);
+            root.EnableInClassList("reduced-motion", settings.ReducedMotion);
         }
 
         private void WireSectionButton(ref Button? field, string name, CatalogSection section)
@@ -480,10 +598,11 @@ namespace ProjectAegis.Unity.Runtime
             var row = index >= 0 && index < _filteredRows.Count
                 ? _filteredRows[index]
                 : null;
+            _selectedPlatformId = row?.PlatformId;
             BindDetail(row);
             BindComms(row?.PlatformId);
             BindLinks(row?.PlatformId);
-            BindGraph(row?.PlatformId);  // S37-05 full graph + FK
+            BindGraph(row?.PlatformId);  // PE-UX-W5 graph projection
         }
 
         private void BindDetail(CatalogPlatformBrowseRow? row)
@@ -592,31 +711,13 @@ namespace ProjectAegis.Unity.Runtime
             }
         }
 
-        // S37-05 + S38-04 residual (density/tooltip/filter polish): Platform Editor graph surfacing — interactive FK/full graph (beyond S36 Phase H read-only), tooltips, export polish
-        // Cites S38-04 ACs + boundary + S37 for residual filters/tooltips/density; Graph* support for C2 18/18+
+        // PE-UX-W5: graph lines via PlatformCatalogGraphProjection (focus + search beyond display cap).
         private void BindGraph(string? platformId)
         {
-            _graphDisplayItems.Clear();
-            var edges = string.IsNullOrWhiteSpace(platformId)
-                ? _allGraphEdges.Take(20).ToList() // cap for display
-                : _allGraphEdges.Where(e => string.Equals(e.PlatformId, platformId, StringComparison.Ordinal)).ToList();
-
-            foreach (var e in edges)
-            {
-                // S37-05: format inline (mirrors CatalogDependencyGraphCommand for display)
-                string line = e.Kind switch
-                {
-                    CatalogDependencyEdgeKind.PlatformToSensor => $"sensor:{e.PlatformId}:{e.SensorId}",
-                    CatalogDependencyEdgeKind.PlatformToMountToWeapon => $"weapon:{e.PlatformId}:{e.MountId}:{e.WeaponId}",
-                    CatalogDependencyEdgeKind.PlatformToLink => $"link:{e.PlatformId}:{e.LinkId}:{e.CommsFittingId}",
-                    _ => $"edge:{e.PlatformId}"
-                };
-                _graphDisplayItems.Add(line);
-            }
-            if (_graphDisplayItems.Count == 0 && !string.IsNullOrWhiteSpace(platformId))
-            {
-                _graphDisplayItems.Add($"(no graph edges for {platformId})");
-            }
+            _selectedPlatformId = platformId;
+            _graphDisplayItems = PlatformCatalogGraphProjection
+                .FormatLines(_allGraphEdges, focusPlatformId: platformId, search: _graphSearch)
+                .ToList();
 
             if (_graphList != null)
             {

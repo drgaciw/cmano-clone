@@ -40,3 +40,15 @@ Hosts stay thin; presentation kinds live in `ProjectAegis.Delegation.Projection`
 3. Catalog: sections; graph ListView bound; mounts/sensors in detail; Lat/Lon demoted  
 4. Export/Diff/Propose feedback visible in-panel  
 5. Headless Platform* tests green; no WriteGate/Bridge production diffs  
+6. **PE-UX-W4:** `PlatformEditorShellHost` Catalog|Import tabs; staging preserved across switch  
+7. **PE-UX-W5:** Comms→Links jump; health strip; graph focus/search beyond cap  
+8. **PE-UX-W6:** text tags on diffs; scale + `.reduced-motion` USS hooks; arrow-key section chips  
+
+## Wave status (2026-07-23 execution)
+
+| Wave | Status |
+|------|--------|
+| PE-UX-W0…W3 | Green (existing dirty tree + Platform* tests) |
+| PE-UX-W4 shell | Shipped (`PlatformEditorShell*` + shell projection) |
+| PE-UX-W5 curator | Shipped (graph projection, health strip, comms→links) |
+| PE-UX-W6 a11y | Shipped (`C2AccessibilitySettings`, text tags, keyboard chips) |

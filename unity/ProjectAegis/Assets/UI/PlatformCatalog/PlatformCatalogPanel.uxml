@@ -41,6 +41,7 @@
         </ui:VisualElement>
         <ui:VisualElement name="platform-catalog-graph" class="platform-catalog-graph">
             <ui:Label text="DEPENDENCY GRAPH" class="platform-catalog-detail-title" />
+            <ui:TextField name="platform-catalog-graph-search" class="platform-catalog-graph-search" label="Graph filter" />
             <ui:ListView name="platform-catalog-graph-list" class="platform-catalog-graph-list" selection-type="None" />
         </ui:VisualElement>
     </ui:VisualElement>

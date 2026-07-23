@@ -122,6 +122,10 @@
     border-top-color: var(--aegis-border-section);
 }
 
+.platform-catalog-graph-search {
+    margin-bottom: 4px;
+}
+
 .platform-catalog-graph-list {
     min-height: 48px;
 }
