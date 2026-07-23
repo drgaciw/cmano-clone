@@ -175,7 +175,8 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         _lookup.TryGetValue(new DetectionBindingKey(platformId, sensorId), out basePd);
 
     public bool TryResolveDbRef(string dbRef, out string resolvedSnapshotId) =>
-        CatalogValidationDefaults.TryResolveBalticDbRef(dbRef, out resolvedSnapshotId);
+        CatalogValidationDefaults.TryResolvePublicCorpusDbRef(dbRef, out resolvedSnapshotId)
+        || CatalogValidationDefaults.TryResolveBalticDbRef(dbRef, out resolvedSnapshotId);
 
     public bool TryGetSnapshotBranch(string snapshotId, out string branch)
     {

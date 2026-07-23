@@ -74,6 +74,39 @@ public sealed class CmoNightlyApproveWorkflowTests
     }
 
     [Fact]
+    public void ProposePlatformsFromMarkdown_default_clock_assigns_unique_batch_ids_per_chunk()
+    {
+        var platformPath = CmoMarkdownImporter.ResolveShipSlice100FixturePath();
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-batch-id-{Guid.NewGuid():N}.db");
+
+        try
+        {
+            var proposed = CmoMarkdownImportProposer.ProposePlatformsFromMarkdown(
+                dbPath,
+                platformPath,
+                mapBalticPlatformIds: false,
+                maxRecords: 12,
+                chunkSize: 5);
+
+            var platformBatchIds = proposed.Batches
+                .Where(batch => batch.BatchId.StartsWith("batch-platform-", StringComparison.Ordinal))
+                .Select(batch => batch.BatchId)
+                .ToArray();
+
+            Assert.True(platformBatchIds.Length >= 2);
+            Assert.Equal(platformBatchIds.Length, platformBatchIds.Distinct(StringComparer.Ordinal).Count());
+        }
+        finally
+        {
+            SqliteConnection.ClearAllPools();
+            if (File.Exists(dbPath))
+            {
+                File.Delete(dbPath);
+            }
+        }
+    }
+
+    [Fact]
     public void Nightly_multi_batch_platform_approve_commits_all_chunks_via_WriteGate()
     {
         var platformPath = CmoMarkdownImporter.ResolveShipSlice100FixturePath();

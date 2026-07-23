@@ -9,6 +9,7 @@ Push-Location $repoRoot
 try {
     Write-Host '=== CI local verify (Release) ==='
     dotnet restore ProjectAegis.sln
+    & (Join-Path $repoRoot 'scripts\verify-catalog-import.ps1')
     dotnet build ProjectAegis.sln -c Release --no-restore
     dotnet test ProjectAegis.sln -c Release --no-build -v minimal
     dotnet test `

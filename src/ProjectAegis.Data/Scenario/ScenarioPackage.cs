@@ -80,6 +80,11 @@ public sealed class ScenarioPackage
                 return new ScenarioDbBinding(resolved, trimmedRef);
             }
 
+            if (CatalogValidationDefaults.TryResolvePublicCorpusDbRef(trimmedRef, out var publicCorpus))
+            {
+                return new ScenarioDbBinding(publicCorpus, trimmedRef);
+            }
+
             if (CatalogValidationDefaults.TryResolveBalticDbRef(trimmedRef, out var baltic))
             {
                 return new ScenarioDbBinding(baltic, trimmedRef);
@@ -107,10 +112,18 @@ public sealed class ScenarioPackage
             return metadata.DbSnapshotId.Trim();
         }
 
-        if (!string.IsNullOrWhiteSpace(metadata.DbRef) &&
-            CatalogValidationDefaults.TryResolveBalticDbRef(metadata.DbRef.Trim(), out var fromRef))
+        if (!string.IsNullOrWhiteSpace(metadata.DbRef))
         {
-            return fromRef;
+            var trimmed = metadata.DbRef.Trim();
+            if (CatalogValidationDefaults.TryResolvePublicCorpusDbRef(trimmed, out var publicCorpus))
+            {
+                return publicCorpus;
+            }
+
+            if (CatalogValidationDefaults.TryResolveBalticDbRef(trimmed, out var fromRef))
+            {
+                return fromRef;
+            }
         }
 
         return CatalogValidationDefaults.BalticSnapshotId;

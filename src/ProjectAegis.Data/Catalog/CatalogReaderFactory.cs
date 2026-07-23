@@ -15,14 +15,33 @@ public static class CatalogReaderFactory
             Path.Combine("assets", "data", "catalog", "baltic_patrol.db"));
     }
 
+    public static string ResolvePublicCorpusDatabasePath() =>
+        CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("assets", "data", "catalog", CatalogValidationDefaults.PublicCorpusDatabaseFileName));
+
+    public static string ResolveDatabasePathForDbRef(string? dbRef)
+    {
+        if (!string.IsNullOrWhiteSpace(dbRef) &&
+            CatalogValidationDefaults.TryResolvePublicCorpusDbRef(dbRef.Trim(), out _))
+        {
+            return ResolvePublicCorpusDatabasePath();
+        }
+
+        return ResolveBalticPatrolDatabasePath();
+    }
+
     /// <summary>
     /// Seeds <see cref="CatalogSeedBootstrap"/> when missing and returns a SQLite reader, or null when the repo root cannot be resolved.
     /// </summary>
     public static ICatalogReader? TryCreateBalticPatrolReader() =>
-        TryCreateBalticPatrolReaderCore(CatalogSeedBootstrap.SeedBalticPatrol);
+        TryCreateCatalogReaderAtPath(ResolveBalticPatrolDatabasePath(), CatalogSeedBootstrap.SeedBalticPatrol);
 
     public static ICatalogReader? TryCreateBalticV3Reader() =>
-        TryCreateBalticPatrolReaderCore(CatalogSeedBootstrap.SeedBalticV3);
+        TryCreateCatalogReaderAtPath(ResolveBalticPatrolDatabasePath(), CatalogSeedBootstrap.SeedBalticV3);
+
+    /// <summary>Opens the enterprise public-corpus catalog (schema-only bootstrap when missing).</summary>
+    public static ICatalogReader? TryCreatePublicCorpusReader() =>
+        TryCreateCatalogReaderAtPath(ResolvePublicCorpusDatabasePath(), CatalogSeedBootstrap.EnsureSchemaOnly);
 
     public static ICatalogReader ResolveForScenario(string scenarioPolicyId, ICatalogReader? catalogOverride = null)
     {
@@ -42,9 +61,8 @@ public static class CatalogReaderFactory
     public static bool IsBalticV3Scenario(string scenarioPolicyId) =>
         scenarioPolicyId.StartsWith("baltic-v3-", StringComparison.OrdinalIgnoreCase);
 
-    private static ICatalogReader? TryCreateBalticPatrolReaderCore(Action<string, bool> seed)
+    private static ICatalogReader? TryCreateCatalogReaderAtPath(string dbPath, Action<string, bool> seed)
     {
-        var dbPath = ResolveBalticPatrolDatabasePath();
         if (!Path.IsPathRooted(dbPath) && !File.Exists(dbPath))
         {
             return null;
@@ -65,7 +83,7 @@ public static class CatalogReaderFactory
                 seed(dbPath, true);
             }
 
-            return new SqliteCatalogReader(dbPath, "harness-baltic");
+            return new SqliteCatalogReader(dbPath, "harness-catalog");
         }
         catch
         {
