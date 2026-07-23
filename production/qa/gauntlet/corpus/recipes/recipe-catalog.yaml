@@ -6,6 +6,16 @@ version: 1
 updated: 2026-07-23
 
 recipes:
+  - id: bootstrap-seed
+    dims: [bootstrap]
+    tierMin: 0
+    preconditions: []
+    noveltyTags: [provenance]
+    forbiddenTouches: [gauntlet.expect-without-regen]
+    description: >
+      Provenance tag for scenarios imported at corpus bootstrap (not a live
+      mutation operator). Weight kept low; do not select for new candidates.
+
   - id: platform-swap-underused
     dims: [platform, orbat]
     tierMin: 1

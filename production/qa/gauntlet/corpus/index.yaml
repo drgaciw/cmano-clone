@@ -101,8 +101,8 @@ promoted:
   - scenarioId: gauntlet-t3-event-chain
     path: data/scenarios/gauntlet-t3-event-chain.policy.json
     tier: 3
-    cellKey: "unknown|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|event-chain"
-    intentHash: 72ff8fbb94198c56
+    cellKey: "event-chain|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|event-chain"
+    intentHash: ccc097fd18a6ff2f
     promotedAt: bootstrap-2026-07-23
     recipes: [bootstrap-seed]
     noveltyScore: null
@@ -133,8 +133,8 @@ promoted:
   - scenarioId: gauntlet-t4-random-inject
     path: data/scenarios/gauntlet-t4-random-inject.policy.json
     tier: 4
-    cellKey: "roe|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|inject"
-    intentHash: f68bf921f324d7e5
+    cellKey: "inject|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|inject"
+    intentHash: 79bdb0ba287dfda0
     promotedAt: bootstrap-2026-07-23
     recipes: [bootstrap-seed]
     noveltyScore: null

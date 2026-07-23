@@ -229,7 +229,7 @@ Do not claim multi-domain play without those events in the run fingerprint/fire 
 /qa-gauntlet-forge --run-id <RUN_ID> --tier <N> --phase post-oracle
 ```
 
-Forge runs `tools/qa-gauntlet/forge-scorecard.py`, promotes winners into
+Forge runs `tools/qa-gauntlet/forge_scorecard.py`, promotes winners into
 `data/scenarios/` + corpus (with expect-regen discipline), discards ephemeral
 losers, and feeds useful `sim-code` / `scenario-data` fails into
 `corpus/hard-cases/`. Locked eval (`GauntletOracleEvaluator`, CI workflow) is

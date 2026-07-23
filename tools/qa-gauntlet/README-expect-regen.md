@@ -60,10 +60,12 @@ When `/qa-gauntlet-forge` **promotes** an ephemeral candidate into
 1. Score with the mechanical helper (does not replace locked oracle eval):
 
 ```bash
-python3 tools/qa-gauntlet/forge-scorecard.py \
+python3 tools/qa-gauntlet/forge_scorecard.py \
   --run-dir production/qa/gauntlet/<RUN_ID> \
   --tier <N>
 ```
+
+(Hyphenated alias `forge-scorecard.py` also works.)
 
 2. Copy the winner to `data/scenarios/<id>.policy.json`.
 3. **Immediately** regen `gauntlet.expect` at the **tier tick** above (batch CSV →

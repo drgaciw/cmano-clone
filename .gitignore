@@ -98,3 +98,4 @@ production/qa/gauntlet/*/forge/candidates/
 
 # NuGet packages folder when NUGET_PACKAGES=.nuget/packages (Buildkite cache volume)
 .nuget/
+.pytest_cache/

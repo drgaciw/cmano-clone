@@ -35,10 +35,12 @@ Hard gates are binary (all must pass). Novelty score is the scalar keep/discard
 signal. Run:
 
 ```bash
-python3 tools/qa-gauntlet/forge-scorecard.py \
+python3 tools/qa-gauntlet/forge_scorecard.py \
   --run-dir production/qa/gauntlet/<RUN_ID> \
   --tier <N>
 ```
+
+Hyphenated wrapper `forge-scorecard.py` is equivalent.
 
 Commit winners only when novelty improves corpus coverage or hard-cases gain a
 unique failure signature **and** hard gates pass.

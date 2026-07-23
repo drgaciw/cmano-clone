@@ -112,7 +112,7 @@ data/scenarios/gauntlet-*.policy.json   # CI-facing promoted policies
 ### `post-oracle` (after Phase C)
 
 1. Run mechanical scorecard:
-   `python3 tools/qa-gauntlet/forge-scorecard.py --run-dir production/qa/gauntlet/<RUN_ID> --tier N`
+   `python3 tools/qa-gauntlet/forge_scorecard.py --run-dir production/qa/gauntlet/<RUN_ID> --tier N`
 2. For each candidate in scorecard:
    - **Hard gates fail** → discard; retain `FAILED:`; down-weight recipe.
    - **Hard gates pass + novelty improves** → **promote** (see Promotion).
