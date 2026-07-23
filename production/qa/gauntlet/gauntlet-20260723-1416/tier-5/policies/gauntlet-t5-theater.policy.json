@@ -1,24 +1,24 @@
 {
-  "friendlyRoe": "WeaponsTight",
+  "friendlyRoe": "WeaponsFree",
   "opposingRoe": "WeaponsTight",
   "engage": {
     "rangeMeters": 45000,
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
-    "defaultMagazineRounds": 4,
+    "defaultMagazineRounds": 6,
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
     "pkBase": 0.85,
     "pkIntercept": 0.0,
     "pkKill": 0.2,
-    "salvoSize": 1
+    "salvoSize": 2
   },
   "detection": [
     {
       "observerId": "80-hamina-rauma-2-2006",
       "sensorId": "radar-1",
       "targetId": "mpk-steregushchiy-pr-20380-2018",
-      "contactId": "c-6151-1",
+      "contactId": "c-9964-1",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -27,7 +27,7 @@
       "observerId": "70-rauma-helsinki-ii-1990",
       "sensorId": "radar-1",
       "targetId": "mrk-buyan-pr-21630-buyan-2007",
-      "contactId": "c-6151-2",
+      "contactId": "c-9964-2",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -36,7 +36,16 @@
       "observerId": "241-slazak-meko-100-mod-2019",
       "sensorId": "radar-1",
       "targetId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
-      "contactId": "c-6151-3",
+      "contactId": "c-9964-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "421-orkan-pr-660-2015",
+      "sensorId": "radar-1",
+      "targetId": "mrk-shkval-pr-22800-karakurt",
+      "contactId": "c-9964-4",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -45,7 +54,7 @@
       "observerId": "nh90-tth-mrh90-taipan-2007",
       "sensorId": "radar-1",
       "targetId": "su-30sm-flanker-g-2019",
-      "contactId": "c-6151-4",
+      "contactId": "c-9964-5",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -54,7 +63,16 @@
       "observerId": "jas-39b-gripen-1997",
       "sensorId": "radar-1",
       "targetId": "su-35s-flanker-m-2023",
-      "contactId": "c-6151-5",
+      "contactId": "c-9964-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39d-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "su-30sm-flanker-g-2019",
+      "contactId": "c-9964-7",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -63,7 +81,17 @@
       "observerId": "a-17-s\u00f6dermanland-vastergotland-mod",
       "sensorId": "sonar-1",
       "targetId": "plarb-955-borei-borey",
-      "contactId": "c-6151-6",
+      "contactId": "c-9964-8",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "a-19-gotland-1996",
+      "sensorId": "sonar-1",
+      "targetId": "plarb-955-borei-borey",
+      "contactId": "c-9964-9",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0,
@@ -71,8 +99,8 @@
     }
   ],
   "gauntlet": {
-    "intent": "ID-required ROE both sides tight [catalog red: Sovremenny] [expanded ORBAT 12 units / 40 catalogRefs]",
-    "oracle": "No crash under dual tight ROE",
+    "intent": "Multi-domain theater op metadata (joint catalog ORBAT) [catalog red: Sovremenny] [expanded ORBAT 16 units / 43 catalogRefs]",
+    "oracle": "Longer run stable; multi-sensor jam",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
@@ -99,6 +127,8 @@
       "jas-39a-gripen-1997",
       "jas-39b-gripen-1997",
       "jas-39c-gripen-2005",
+      "jas-39d-gripen-2005",
+      "jas-39e-gripen-ng-2021",
       "k-11-stockholm-spica-iii-1986",
       "k-21-goteborg",
       "k-22-gavle-ex-goteborg-class",
@@ -107,6 +137,7 @@
       "m-73-koster-upgraded-landsort-class",
       "mpk-steregushchiy-pr-20380-2018",
       "mrk-buyan-pr-21630-buyan-2007",
+      "mrk-shkval-pr-22800-karakurt",
       "nh90-tth-mrh90-taipan-2007",
       "p-151-hugin",
       "p-840-holland",
@@ -115,17 +146,22 @@
       "su-30sm-flanker-g-2019",
       "su-35s-flanker-m-2023"
     ],
+    "domains": [
+      "surface",
+      "air",
+      "subsurface"
+    ],
     "runId": "gauntlet-t3t5-catalog-red",
-    "tier": 3,
+    "tier": 5,
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minKills": 0,
-      "maxMissilesFired": 36,
-      "maxDenials": 140,
-      "minScore": -700,
-      "maxScore": 100,
-      "minDenials": 80
+      "minKills": 1,
+      "maxMissilesFired": 48,
+      "maxDenials": 80,
+      "minScore": -150.0,
+      "maxScore": 500.0,
+      "minDenials": 4
     },
     "units": [
       {
@@ -147,6 +183,12 @@
         "side": "blue"
       },
       {
+        "unitId": "421-orkan-pr-660-2015",
+        "platformId": "421-orkan-pr-660-2015",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
         "unitId": "nh90-tth-mrh90-taipan-2007",
         "platformId": "nh90-tth-mrh90-taipan-2007",
         "domain": "air",
@@ -159,8 +201,20 @@
         "side": "blue"
       },
       {
+        "unitId": "jas-39d-gripen-2005",
+        "platformId": "jas-39d-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
         "unitId": "a-17-s\u00f6dermanland-vastergotland-mod",
         "platformId": "a-17-s\u00f6dermanland-vastergotland-mod",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-19-gotland-1996",
+        "platformId": "a-19-gotland-1996",
         "domain": "subsurface",
         "side": "blue"
       },
@@ -179,6 +233,12 @@
       {
         "unitId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
         "platformId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
         "domain": "surface",
         "side": "red"
       },
@@ -202,5 +262,5 @@
       }
     ]
   },
-  "id": "gauntlet-t3-id-roe"
+  "id": "gauntlet-t5-theater"
 }

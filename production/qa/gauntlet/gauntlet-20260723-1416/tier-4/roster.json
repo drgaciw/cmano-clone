@@ -1,0 +1,342 @@
+{
+  "tier": 4,
+  "platforms": [
+    {
+      "platform_id": "624-pr-205p-tarantul-1992",
+      "domain": "surface",
+      "nationality": "Russia",
+      "display_name": "624 [Pr.205P Tarantul] - 1992, 2x, S 004 from 2004, Transferred to Navy"
+    },
+    {
+      "platform_id": "70-rauma-helsinki-ii-1990",
+      "domain": "surface",
+      "nationality": "Finland",
+      "display_name": "70 Rauma [Helsinki II] - 1990"
+    },
+    {
+      "platform_id": "80-hamina-rauma-2-2006",
+      "domain": "surface",
+      "nationality": "Finland",
+      "display_name": "80 Hamina [Rauma 2] - 2006, Ex-74"
+    },
+    {
+      "platform_id": "a-17-vastergotland-1999",
+      "domain": "subsurface",
+      "nationality": "Sweden",
+      "display_name": "A 17 Vastergotland - 1999"
+    },
+    {
+      "platform_id": "f-207-bremen-type-f122-1982",
+      "domain": "surface",
+      "nationality": "Germany",
+      "display_name": "F 207 Bremen [Type F122] - 1982"
+    },
+    {
+      "platform_id": "f-341-absalon-2020",
+      "domain": "surface",
+      "nationality": "Denmark",
+      "display_name": "F 341 Absalon - 2020, 2x"
+    },
+    {
+      "platform_id": "f-361-iver-huitfeldt-2012",
+      "domain": "surface",
+      "nationality": "Denmark",
+      "display_name": "F 361 Iver Huitfeldt - 2012, Initial Weapon Outfit"
+    },
+    {
+      "platform_id": "f-450-elli-kortenaer-batch-ii-0",
+      "domain": "surface",
+      "nationality": "Greece",
+      "display_name": "F 450 Elli [Kortenaer Batch II] - 0, RIM-7P"
+    },
+    {
+      "platform_id": "jas-39a-gripen-1997",
+      "domain": "air",
+      "nationality": "Sweden",
+      "display_name": "JAS 39A Gripen - 1997, Batch 1"
+    },
+    {
+      "platform_id": "jas-39b-gripen-1997",
+      "domain": "air",
+      "nationality": "Sweden",
+      "display_name": "JAS 39B Gripen - 1997, Batch 1"
+    },
+    {
+      "platform_id": "jas-39d-gripen-2005",
+      "domain": "air",
+      "nationality": "Sweden",
+      "display_name": "JAS 39D Gripen - 2005, Batch 3, MS18.5, Gun & AIM-9L Only"
+    },
+    {
+      "platform_id": "k-11-stockholm-spica-iii-1986",
+      "domain": "surface",
+      "nationality": "Sweden",
+      "display_name": "K 11 Stockholm [Spica III] - 1986"
+    },
+    {
+      "platform_id": "mig-29-fulcrum-c-1999",
+      "domain": "air",
+      "nationality": "Russia",
+      "display_name": "MiG-29 Fulcrum C - 1999, 9.13"
+    },
+    {
+      "platform_id": "mrk-buyan-pr-21630-buyan-2007",
+      "domain": "surface",
+      "nationality": "Russia",
+      "display_name": "MRK Buyan [Pr.21630 Buyan] - 2007"
+    },
+    {
+      "platform_id": "pl-677-lada-b-585-sankt-peterburg-2011",
+      "domain": "subsurface",
+      "nationality": "Russia",
+      "display_name": "PL-677 Lada [B 585 Sankt Peterburg] - 2011, 1x, Pr.1650 Amur if Export"
+    },
+    {
+      "platform_id": "s-181-u-31-type-212a",
+      "domain": "subsurface",
+      "nationality": "Germany",
+      "display_name": "S 181 U 31 [Type 212A, Batch 1] - 2009, 4x"
+    },
+    {
+      "platform_id": "su-24m-fencer-d-1992",
+      "domain": "air",
+      "nationality": "Russia",
+      "display_name": "Su-24M Fencer D - 1992"
+    },
+    {
+      "platform_id": "241-slazak-meko-100-mod-2019",
+      "domain": "surface",
+      "nationality": "Poland",
+      "display_name": "241 Slazak [Meko 100 Mod] - 2019, Pr.621M"
+    },
+    {
+      "platform_id": "421-orkan-pr-660-2015",
+      "domain": "surface",
+      "nationality": "Poland",
+      "display_name": "421 Orkan [Pr.660] - 2015, All Ships, 4x RB 15 in peacetime"
+    },
+    {
+      "platform_id": "a-19-gotland-2020",
+      "domain": "subsurface",
+      "nationality": "Sweden",
+      "display_name": "A 19 Gotland - 2020, MLU"
+    },
+    {
+      "platform_id": "a-19-gotland-2022",
+      "domain": "subsurface",
+      "nationality": "Sweden",
+      "display_name": "A 19 Gotland - 2022, Tp 47"
+    },
+    {
+      "platform_id": "f-219-sachsen-type-f124-2006",
+      "domain": "surface",
+      "nationality": "Germany",
+      "display_name": "F 219 Sachsen [Type F124] - 2006"
+    },
+    {
+      "platform_id": "jas-39c-gripen-2005",
+      "domain": "air",
+      "nationality": "Sweden",
+      "display_name": "JAS 39C Gripen - 2005, Batch 3, MS18.5, Gun & AIM-9L Only"
+    },
+    {
+      "platform_id": "jas-39e-gripen-ng-2021",
+      "domain": "air",
+      "nationality": "Sweden",
+      "display_name": "JAS 39E Gripen NG - 2021, 28x"
+    },
+    {
+      "platform_id": "k-31-visby-2009",
+      "domain": "surface",
+      "nationality": "Sweden",
+      "display_name": "K 31 Visby - 2009, Version 4"
+    },
+    {
+      "platform_id": "mpk-steregushchiy-pr-20380-2018",
+      "domain": "surface",
+      "nationality": "Russia",
+      "display_name": "MPK Steregushchiy [Pr.20380] - 2018"
+    },
+    {
+      "platform_id": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "domain": "surface",
+      "nationality": "Russia",
+      "display_name": "MRK Buyan Mod [Pr.21631 Buyan-M] - 2014"
+    },
+    {
+      "platform_id": "pl-877-kilo-paltus-1992",
+      "domain": "subsurface",
+      "nationality": "Russia",
+      "display_name": "PL-877 Kilo [Paltus] - 1992"
+    },
+    {
+      "platform_id": "s-185-u-35-type-212a",
+      "domain": "subsurface",
+      "nationality": "Germany",
+      "display_name": "S 185 U 35 [Type 212A, Batch 2] - 2015, 2x, DDS"
+    },
+    {
+      "platform_id": "su-27sm-sm3-flanker-j-2013",
+      "domain": "air",
+      "nationality": "Russia",
+      "display_name": "Su-27SM/SM3 Flanker J - 2013, 12x by 2015, Upgr Su-27S/P"
+    },
+    {
+      "platform_id": "d-32-daring-type-45-batch-1",
+      "domain": "surface",
+      "nationality": "United Kingdom",
+      "display_name": "D 32 Daring [Type 45 Batch 1]"
+    },
+    {
+      "platform_id": "eurofighter-typhoon",
+      "domain": "air",
+      "nationality": "Austria",
+      "display_name": "Eurofighter Typhoon"
+    },
+    {
+      "platform_id": "f-230-norfolk-type-23-duke",
+      "domain": "surface",
+      "nationality": "United Kingdom",
+      "display_name": "F 230 Norfolk [Type 23 Duke]"
+    },
+    {
+      "platform_id": "f-310-fridtjof-nansen",
+      "domain": "surface",
+      "nationality": "Norway",
+      "display_name": "F 310 Fridtjof Nansen"
+    },
+    {
+      "platform_id": "f-35a-lightning-ii",
+      "domain": "air",
+      "nationality": "Denmark",
+      "display_name": "F-35A Lightning II"
+    },
+    {
+      "platform_id": "f-a-18c-hornet-f-18c",
+      "domain": "air",
+      "nationality": "Finland",
+      "display_name": "F/A-18C Hornet [F-18C]"
+    },
+    {
+      "platform_id": "nh90-nfh-caiman-marine",
+      "domain": "air",
+      "nationality": "France",
+      "display_name": "NH90 NFH [Caiman Marine]"
+    },
+    {
+      "platform_id": "p-840-holland",
+      "domain": "surface",
+      "nationality": "Netherlands",
+      "display_name": "P 840 Holland"
+    },
+    {
+      "platform_id": "p-960-skjold",
+      "domain": "surface",
+      "nationality": "Norway",
+      "display_name": "P 960 Skjold"
+    },
+    {
+      "platform_id": "s-120-papanikolis-type-214hn",
+      "domain": "subsurface",
+      "nationality": "Greece",
+      "display_name": "S 120 Papanikolis [Type 214HN]"
+    },
+    {
+      "platform_id": "ssn-774-virginia-blk-i-ii",
+      "domain": "subsurface",
+      "nationality": "United States",
+      "display_name": "SSN 774 Virginia [Blk I/II]"
+    },
+    {
+      "platform_id": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "domain": "surface",
+      "nationality": "Russia",
+      "display_name": "BPK Marshal Shaposhnikov Udaloy I [Pr.1155 Fregat]"
+    },
+    {
+      "platform_id": "em-sovremenny-i-pr-956-sarych",
+      "domain": "surface",
+      "nationality": "Russia",
+      "display_name": "EM Sovremenny I [Pr.956 Sarych]"
+    },
+    {
+      "platform_id": "pk-368-vasily-bykov-pr-22160",
+      "domain": "surface",
+      "nationality": "Russia",
+      "display_name": "PK 368 Vasily Bykov [Pr.22160]"
+    },
+    {
+      "platform_id": "pla-885-severodvinsk-yasen",
+      "domain": "subsurface",
+      "nationality": "Russia",
+      "display_name": "PLA-885 Severodvinsk [Yasen]"
+    },
+    {
+      "platform_id": "skr-admiral-grigorovich-pr-1135-6m",
+      "domain": "surface",
+      "nationality": "Russia",
+      "display_name": "SKR Admiral Grigorovich [Pr.1135.6M]"
+    },
+    {
+      "platform_id": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "domain": "surface",
+      "nationality": "Russia",
+      "display_name": "SKR Admiral Sergey Gorshkov [Pr.2235.0]"
+    },
+    {
+      "platform_id": "su-33-flanker-d",
+      "domain": "air",
+      "nationality": "Russia",
+      "display_name": "Su-33 Flanker D"
+    },
+    {
+      "platform_id": "su-57-felon",
+      "domain": "air",
+      "nationality": "Russia",
+      "display_name": "Su-57 Felon"
+    },
+    {
+      "platform_id": "tu-160-blackjack",
+      "domain": "air",
+      "nationality": "Russia",
+      "display_name": "Tu-160 Blackjack"
+    },
+    {
+      "platform_id": "hkp-14f-nh90-ttt",
+      "domain": "air",
+      "nationality": "Sweden",
+      "display_name": "HKp 14F [NH90 TTT]"
+    },
+    {
+      "platform_id": "k-21-goteborg",
+      "domain": "surface",
+      "nationality": "Sweden",
+      "display_name": "K 21 Goteborg"
+    },
+    {
+      "platform_id": "k-22-gavle-ex-goteborg-class",
+      "domain": "surface",
+      "nationality": "Sweden",
+      "display_name": "K 22 Gavle [ex-Goteborg Class]"
+    },
+    {
+      "platform_id": "m-04-carlskrona",
+      "domain": "surface",
+      "nationality": "Sweden",
+      "display_name": "M 04 Carlskrona"
+    },
+    {
+      "platform_id": "m-73-koster-upgraded-landsort-class",
+      "domain": "surface",
+      "nationality": "Sweden",
+      "display_name": "M 73 Koster [Upgraded Landsort Class]"
+    },
+    {
+      "platform_id": "p-151-hugin",
+      "domain": "surface",
+      "nationality": "Sweden",
+      "display_name": "P 151 Hugin"
+    }
+  ],
+  "count": 56
+}

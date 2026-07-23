@@ -1,42 +1,24 @@
 {
-  "friendlyRoe": "WeaponsTight",
+  "friendlyRoe": "WeaponsFree",
   "opposingRoe": "WeaponsFree",
   "engage": {
     "rangeMeters": 45000,
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
-    "defaultMagazineRounds": 6,
+    "defaultMagazineRounds": 4,
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
-    "pkBase": 0.85,
+    "pkBase": 0.75,
     "pkIntercept": 0.0,
     "pkKill": 0.2,
     "salvoSize": 2
   },
   "detection": [
     {
-      "observerId": "k-21-goteborg",
-      "sensorId": "radar-1",
-      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
-      "contactId": "c-6096-1",
-      "basePd": 1.0,
-      "envMask": 1.0,
-      "jamStrength": 0
-    },
-    {
-      "observerId": "k-11-stockholm-spica-iii-1986",
-      "sensorId": "radar-1",
-      "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
-      "contactId": "c-6096-2",
-      "basePd": 1.0,
-      "envMask": 1.0,
-      "jamStrength": 0
-    },
-    {
       "observerId": "f-219-sachsen-type-f124-2006",
       "sensorId": "radar-1",
       "targetId": "624-pr-205p-tarantul-1992",
-      "contactId": "c-6096-3",
+      "contactId": "c-2252-1",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -45,25 +27,16 @@
       "observerId": "f-310-fridtjof-nansen",
       "sensorId": "radar-1",
       "targetId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
-      "contactId": "c-6096-4",
+      "contactId": "c-2252-2",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "jas-39a-gripen-1997",
+      "observerId": "f-341-absalon-2020",
       "sensorId": "radar-1",
-      "targetId": "mig-29-fulcrum-c-1999",
-      "contactId": "c-6096-5",
-      "basePd": 1.0,
-      "envMask": 1.0,
-      "jamStrength": 0
-    },
-    {
-      "observerId": "f-35a-lightning-ii",
-      "sensorId": "radar-1",
-      "targetId": "su-27sm-sm3-flanker-j-2013",
-      "contactId": "c-6096-6",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-2252-3",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -71,27 +44,36 @@
     {
       "observerId": "f-a-18c-hornet-f-18c",
       "sensorId": "radar-1",
-      "targetId": "mig-29-fulcrum-c-1999",
-      "contactId": "c-6096-7",
+      "targetId": "su-33-flanker-d",
+      "contactId": "c-2252-4",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "a-17-vastergotland-1999",
+      "observerId": "hkp-14f-nh90-ttt",
+      "sensorId": "radar-1",
+      "targetId": "su-57-felon",
+      "contactId": "c-2252-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "s-181-u-31-type-212a",
       "sensorId": "sonar-1",
-      "targetId": "pl-677-lada-b-585-sankt-peterburg-2011",
-      "contactId": "c-6096-8",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-2252-6",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0,
       "requiresActiveRadar": false
     },
     {
-      "observerId": "a-19-gotland-2020",
+      "observerId": "s-185-u-35-type-212a",
       "sensorId": "sonar-1",
-      "targetId": "pl-677-lada-b-585-sankt-peterburg-2011",
-      "contactId": "c-6096-9",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-2252-7",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0,
@@ -99,17 +81,14 @@
     }
   ],
   "gauntlet": {
-    "intent": "Mid-mission ROE change stand-in (tight then free sensor lanes) [catalog red: Sovremenny] [WeaponsTight start; contact trigger\u2192WeaponsFree PolicyUpdate; mid-run comms degrade] [expanded ORBAT 16 units / 42 catalogRefs]",
-    "oracle": "Mixed ROE/EMCON lanes stable CommsStateChange/PolicyUpdate required.",
+    "intent": "Seeded random inject stand-in (jam variance) [catalog red: Sovremenny] [real mid-run comms Degraded@2 + contact ROE trigger] [expanded ORBAT 14 units / 40 catalogRefs]",
+    "oracle": "Inject trials complete without exception CommsStateChange/PolicyUpdate required.",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
       "624-pr-205p-tarantul-1992",
       "70-rauma-helsinki-ii-1990",
       "80-hamina-rauma-2-2006",
-      "a-17-vastergotland-1999",
-      "a-19-gotland-1996",
-      "a-19-gotland-2020",
       "a-19-gotland-2022",
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
       "d-32-daring-type-45-batch-1",
@@ -120,13 +99,13 @@
       "f-310-fridtjof-nansen",
       "f-341-absalon-2020",
       "f-35a-lightning-ii",
-      "f-361-iver-huitfeldt-2012",
       "f-450-elli-kortenaer-batch-ii-0",
       "f-a-18c-hornet-f-18c",
       "hkp-14f-nh90-ttt",
       "jas-39a-gripen-1997",
       "jas-39b-gripen-1997",
       "jas-39c-gripen-2005",
+      "jas-39d-gripen-2005",
       "jas-39e-gripen-ng-2021",
       "k-11-stockholm-spica-iii-1986",
       "k-21-goteborg",
@@ -134,47 +113,35 @@
       "k-31-visby-2009",
       "m-04-carlskrona",
       "m-73-koster-upgraded-landsort-class",
-      "mig-29-fulcrum-c-1999",
       "mpk-steregushchiy-pr-20380-2018",
       "mrk-buyan-mod-pr-21631-buyan-m-2014",
       "p-151-hugin",
       "p-840-holland",
       "p-960-skjold",
-      "pl-677-lada-b-585-sankt-peterburg-2011",
-      "skr-admiral-grigorovich-pr-1135-6m",
-      "skr-admiral-sergey-gorshkov-pr-2235-0",
-      "su-27sm-sm3-flanker-j-2013"
+      "pk-368-vasily-bykov-pr-22160",
+      "pl-877-kilo-paltus-1992",
+      "s-181-u-31-type-212a",
+      "s-185-u-35-type-212a",
+      "su-33-flanker-d",
+      "su-57-felon"
     ],
-    "emcon": "contested",
     "runId": "gauntlet-t3t5-catalog-red",
-    "tier": 5,
+    "tier": 4,
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
       "requireFingerprintSubstrings": [
         "CommsStateChange",
-        "Degraded"
+        "Degraded",
+        "seeded_inject_jamming"
       ],
-      "minKills": 0,
-      "maxMissilesFired": 20,
-      "maxDenials": 420,
-      "minScore": -1900,
-      "maxScore": 50,
-      "minDenials": 70
+      "minKills": 4,
+      "maxMissilesFired": 52,
+      "maxDenials": 20,
+      "minScore": -50,
+      "maxScore": 620.0
     },
     "units": [
-      {
-        "unitId": "k-21-goteborg",
-        "platformId": "k-21-goteborg",
-        "domain": "surface",
-        "side": "blue"
-      },
-      {
-        "unitId": "k-11-stockholm-spica-iii-1986",
-        "platformId": "k-11-stockholm-spica-iii-1986",
-        "domain": "surface",
-        "side": "blue"
-      },
       {
         "unitId": "f-219-sachsen-type-f124-2006",
         "platformId": "f-219-sachsen-type-f124-2006",
@@ -188,15 +155,9 @@
         "side": "blue"
       },
       {
-        "unitId": "jas-39a-gripen-1997",
-        "platformId": "jas-39a-gripen-1997",
-        "domain": "air",
-        "side": "blue"
-      },
-      {
-        "unitId": "f-35a-lightning-ii",
-        "platformId": "f-35a-lightning-ii",
-        "domain": "air",
+        "unitId": "f-341-absalon-2020",
+        "platformId": "f-341-absalon-2020",
+        "domain": "surface",
         "side": "blue"
       },
       {
@@ -206,28 +167,22 @@
         "side": "blue"
       },
       {
-        "unitId": "a-17-vastergotland-1999",
-        "platformId": "a-17-vastergotland-1999",
+        "unitId": "hkp-14f-nh90-ttt",
+        "platformId": "hkp-14f-nh90-ttt",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-181-u-31-type-212a",
+        "platformId": "s-181-u-31-type-212a",
         "domain": "subsurface",
         "side": "blue"
       },
       {
-        "unitId": "a-19-gotland-2020",
-        "platformId": "a-19-gotland-2020",
+        "unitId": "s-185-u-35-type-212a",
+        "platformId": "s-185-u-35-type-212a",
         "domain": "subsurface",
         "side": "blue"
-      },
-      {
-        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
-        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
-        "domain": "surface",
-        "side": "red"
-      },
-      {
-        "unitId": "skr-admiral-sergey-gorshkov-pr-2235-0",
-        "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0",
-        "domain": "surface",
-        "side": "red"
       },
       {
         "unitId": "624-pr-205p-tarantul-1992",
@@ -242,26 +197,38 @@
         "side": "red"
       },
       {
-        "unitId": "mig-29-fulcrum-c-1999",
-        "platformId": "mig-29-fulcrum-c-1999",
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-33-flanker-d",
+        "platformId": "su-33-flanker-d",
         "domain": "air",
         "side": "red"
       },
       {
-        "unitId": "su-27sm-sm3-flanker-j-2013",
-        "platformId": "su-27sm-sm3-flanker-j-2013",
+        "unitId": "su-57-felon",
+        "platformId": "su-57-felon",
         "domain": "air",
         "side": "red"
       },
       {
-        "unitId": "pl-677-lada-b-585-sankt-peterburg-2011",
-        "platformId": "pl-677-lada-b-585-sankt-peterburg-2011",
+        "unitId": "pl-877-kilo-paltus-1992",
+        "platformId": "pl-877-kilo-paltus-1992",
         "domain": "subsurface",
         "side": "red"
       }
     ]
   },
-  "id": "gauntlet-t5-roe-change",
+  "id": "gauntlet-t4-random-inject",
   "commsDisplay": {
     "degradedLagTicks": 2,
     "ghostOffsetX": 0.06,
@@ -271,16 +238,22 @@
   },
   "comms": [
     {
-      "atTick": 3,
+      "atTick": 2,
       "newState": "Degraded",
-      "nodeId": "ladder-t5-roe-net",
-      "reason": "roe_change_ew_pressure"
+      "nodeId": "ladder-t4-net",
+      "reason": "seeded_inject_jamming"
+    },
+    {
+      "atTick": 5,
+      "newState": "Nominal",
+      "nodeId": "ladder-t4-net",
+      "reason": "inject_recover"
     }
   ],
   "mission": {
     "fireOrder": [
       "start-exec",
-      "roe-window"
+      "inject-marker"
     ],
     "events": [
       {
@@ -290,10 +263,10 @@
         "code": "Execution"
       },
       {
-        "id": "roe-window",
-        "fireAtTick": 1,
+        "id": "inject-marker",
+        "fireAtTick": 2,
         "kind": "EventFired",
-        "code": "roe_escalation_window"
+        "code": "ladder_seeded_inject"
       }
     ],
     "triggers": [

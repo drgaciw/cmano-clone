@@ -5,7 +5,7 @@
     "rangeMeters": 45000,
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
-    "defaultMagazineRounds": 3,
+    "defaultMagazineRounds": 4,
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
     "pkBase": 0.85,
@@ -15,36 +15,45 @@
   },
   "detection": [
     {
-      "observerId": "k-31-visby-2009",
+      "observerId": "f-450-elli-kortenaer-batch-ii-0",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-5222-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "m-04-carlskrona",
       "sensorId": "radar-1",
       "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-t1-1",
+      "contactId": "c-5222-2",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "f-219-sachsen-type-f124-2006",
+      "observerId": "m-73-koster-upgraded-landsort-class",
       "sensorId": "radar-1",
-      "targetId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
-      "contactId": "c-t1-2",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c-5222-3",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "80-hamina-rauma-2-2006",
+      "observerId": "hkp-14f-nh90-ttt",
       "sensorId": "radar-1",
-      "targetId": "mrk-shkval-pr-22800-karakurt",
-      "contactId": "c-t1-3",
+      "targetId": "su-57-felon",
+      "contactId": "c-5222-4",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     }
   ],
   "gauntlet": {
-    "intent": "Patrol duel weapons free both sides [catalog ORBAT: Visby vs Sovremenny] [expanded ORBAT 6 units / 26 catalogRefs]",
-    "oracle": "Stability; score finite",
+    "intent": "Escort HVU: multi-contact surface screen [catalog ORBAT: Visby vs Sovremenny] [expanded ORBAT 8 units / 31 catalogRefs]",
+    "oracle": "Dual contact stable",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
@@ -59,8 +68,14 @@
       "f-230-norfolk-type-23-duke",
       "f-310-fridtjof-nansen",
       "f-341-absalon-2020",
+      "f-35a-lightning-ii",
       "f-361-iver-huitfeldt-2012",
       "f-450-elli-kortenaer-batch-ii-0",
+      "f-a-18c-hornet-f-18c",
+      "hkp-14f-nh90-ttt",
+      "jas-39a-gripen-1997",
+      "jas-39b-gripen-1997",
+      "jas-39c-gripen-2005",
       "k-11-stockholm-spica-iii-1986",
       "k-21-goteborg",
       "k-22-gavle-ex-goteborg-class",
@@ -68,41 +83,51 @@
       "m-04-carlskrona",
       "m-73-koster-upgraded-landsort-class",
       "mpk-steregushchiy-pr-20380-2018",
-      "mrk-buyan-pr-21630-buyan-2007",
-      "mrk-shkval-pr-22800-karakurt",
-      "p-151-hugin",
-      "p-840-holland",
-      "p-960-skjold"
+      "p-960-skjold",
+      "pk-368-vasily-bykov-pr-22160",
+      "su-57-felon"
     ],
     "runId": "gauntlet-t12-catalog-db-driven",
-    "tier": 1,
+    "tier": 2,
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
       "minKills": 1,
-      "maxMissilesFired": 20,
-      "maxDenials": 20,
-      "minScore": -50,
-      "maxScore": 520
+      "maxMissilesFired": 24,
+      "maxDenials": 40,
+      "minScore": -100.0,
+      "maxScore": 500.0
     },
     "units": [
       {
-        "unitId": "k-31-visby-2009",
-        "platformId": "k-31-visby-2009",
+        "unitId": "f-450-elli-kortenaer-batch-ii-0",
+        "platformId": "f-450-elli-kortenaer-batch-ii-0",
         "domain": "surface",
         "side": "blue"
       },
       {
-        "unitId": "f-219-sachsen-type-f124-2006",
-        "platformId": "f-219-sachsen-type-f124-2006",
+        "unitId": "m-04-carlskrona",
+        "platformId": "m-04-carlskrona",
         "domain": "surface",
         "side": "blue"
       },
       {
-        "unitId": "80-hamina-rauma-2-2006",
-        "platformId": "80-hamina-rauma-2-2006",
+        "unitId": "m-73-koster-upgraded-landsort-class",
+        "platformId": "m-73-koster-upgraded-landsort-class",
         "domain": "surface",
         "side": "blue"
+      },
+      {
+        "unitId": "hkp-14f-nh90-ttt",
+        "platformId": "hkp-14f-nh90-ttt",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
       },
       {
         "unitId": "em-sovremenny-i-pr-956-sarych",
@@ -111,18 +136,18 @@
         "side": "red"
       },
       {
-        "unitId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
-        "platformId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
         "domain": "surface",
         "side": "red"
       },
       {
-        "unitId": "mrk-shkval-pr-22800-karakurt",
-        "platformId": "mrk-shkval-pr-22800-karakurt",
-        "domain": "surface",
+        "unitId": "su-57-felon",
+        "platformId": "su-57-felon",
+        "domain": "air",
         "side": "red"
       }
     ]
   },
-  "id": "gauntlet-t1-patrol-b"
+  "id": "gauntlet-t2-escort-a"
 }

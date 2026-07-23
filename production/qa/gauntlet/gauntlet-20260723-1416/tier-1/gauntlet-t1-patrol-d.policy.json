@@ -1,14 +1,14 @@
 {
   "friendlyRoe": "WeaponsFree",
-  "opposingRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
   "engage": {
     "rangeMeters": 45000,
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
-    "defaultMagazineRounds": 3,
+    "defaultMagazineRounds": 4,
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
-    "pkBase": 0.85,
+    "pkBase": 0.7,
     "pkIntercept": 0.0,
     "pkKill": 0.2,
     "salvoSize": 1
@@ -17,34 +17,34 @@
     {
       "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
-      "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-t1-1",
-      "basePd": 1.0,
-      "envMask": 1.0,
-      "jamStrength": 0
-    },
-    {
-      "observerId": "f-219-sachsen-type-f124-2006",
-      "sensorId": "radar-1",
       "targetId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
-      "contactId": "c-t1-2",
+      "contactId": "c-4888-1",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "80-hamina-rauma-2-2006",
+      "observerId": "k-22-gavle-ex-goteborg-class",
       "sensorId": "radar-1",
       "targetId": "mrk-shkval-pr-22800-karakurt",
-      "contactId": "c-t1-3",
+      "contactId": "c-4888-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "k-21-goteborg",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-4888-3",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     }
   ],
   "gauntlet": {
-    "intent": "Patrol duel weapons free both sides [catalog ORBAT: Visby vs Sovremenny] [expanded ORBAT 6 units / 26 catalogRefs]",
-    "oracle": "Stability; score finite",
+    "intent": "Long-range patrol contact on hostile-far [catalog ORBAT: Visby vs Sovremenny] [expanded ORBAT 6 units / 25 catalogRefs]",
+    "oracle": "Stable fingerprint; may not kill",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
@@ -55,35 +55,33 @@
       "d-32-daring-type-45-batch-1",
       "em-sovremenny-i-pr-956-sarych",
       "f-207-bremen-type-f122-1982",
-      "f-219-sachsen-type-f124-2006",
       "f-230-norfolk-type-23-duke",
       "f-310-fridtjof-nansen",
       "f-341-absalon-2020",
       "f-361-iver-huitfeldt-2012",
       "f-450-elli-kortenaer-batch-ii-0",
-      "k-11-stockholm-spica-iii-1986",
       "k-21-goteborg",
       "k-22-gavle-ex-goteborg-class",
       "k-31-visby-2009",
       "m-04-carlskrona",
       "m-73-koster-upgraded-landsort-class",
       "mpk-steregushchiy-pr-20380-2018",
-      "mrk-buyan-pr-21630-buyan-2007",
       "mrk-shkval-pr-22800-karakurt",
       "p-151-hugin",
       "p-840-holland",
-      "p-960-skjold"
+      "p-960-skjold",
+      "skr-admiral-grigorovich-pr-1135-6m"
     ],
     "runId": "gauntlet-t12-catalog-db-driven",
     "tier": 1,
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minKills": 1,
-      "maxMissilesFired": 20,
-      "maxDenials": 20,
-      "minScore": -50,
-      "maxScore": 520
+      "minScore": -100.0,
+      "maxScore": 500.0,
+      "maxMissilesFired": 18,
+      "maxDenials": 30,
+      "minDenials": 2
     },
     "units": [
       {
@@ -93,22 +91,16 @@
         "side": "blue"
       },
       {
-        "unitId": "f-219-sachsen-type-f124-2006",
-        "platformId": "f-219-sachsen-type-f124-2006",
+        "unitId": "k-22-gavle-ex-goteborg-class",
+        "platformId": "k-22-gavle-ex-goteborg-class",
         "domain": "surface",
         "side": "blue"
       },
       {
-        "unitId": "80-hamina-rauma-2-2006",
-        "platformId": "80-hamina-rauma-2-2006",
+        "unitId": "k-21-goteborg",
+        "platformId": "k-21-goteborg",
         "domain": "surface",
         "side": "blue"
-      },
-      {
-        "unitId": "em-sovremenny-i-pr-956-sarych",
-        "platformId": "em-sovremenny-i-pr-956-sarych",
-        "domain": "surface",
-        "side": "red"
       },
       {
         "unitId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
@@ -121,8 +113,14 @@
         "platformId": "mrk-shkval-pr-22800-karakurt",
         "domain": "surface",
         "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
       }
     ]
   },
-  "id": "gauntlet-t1-patrol-b"
+  "id": "gauntlet-t1-patrol-d"
 }

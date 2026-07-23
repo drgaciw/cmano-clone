@@ -1,11 +1,11 @@
 {
   "friendlyRoe": "WeaponsFree",
-  "opposingRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
   "engage": {
     "rangeMeters": 45000,
     "envelopeMinMeters": 5000,
     "envelopeMaxMeters": 120000,
-    "defaultMagazineRounds": 4,
+    "defaultMagazineRounds": 6,
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
     "pkBase": 0.85,
@@ -15,55 +15,55 @@
   },
   "detection": [
     {
-      "observerId": "p-960-skjold",
+      "observerId": "k-22-gavle-ex-goteborg-class",
       "sensorId": "radar-1",
-      "targetId": "624-pr-205p-tarantul-1992",
-      "contactId": "c-3330-1",
+      "targetId": "mrk-shkval-pr-22800-karakurt",
+      "contactId": "c-7503-1",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "f-230-norfolk-type-23-duke",
+      "observerId": "k-21-goteborg",
       "sensorId": "radar-1",
-      "targetId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
-      "contactId": "c-3330-2",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-7503-2",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "f-450-elli-kortenaer-batch-ii-0",
+      "observerId": "k-11-stockholm-spica-iii-1986",
       "sensorId": "radar-1",
-      "targetId": "pk-368-vasily-bykov-pr-22160",
-      "contactId": "c-3330-3",
+      "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "contactId": "c-7503-3",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "f-35a-lightning-ii",
+      "observerId": "jas-39e-gripen-ng-2021",
       "sensorId": "radar-1",
-      "targetId": "su-27sm-sm3-flanker-j-2013",
-      "contactId": "c-3330-4",
+      "targetId": "ka-27m-helix-a",
+      "contactId": "c-7503-4",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "f-a-18c-hornet-f-18c",
+      "observerId": "jas-39a-gripen-1997",
       "sensorId": "radar-1",
-      "targetId": "su-33-flanker-d",
-      "contactId": "c-3330-5",
+      "targetId": "mig-29-fulcrum-c-1999",
+      "contactId": "c-7503-5",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "a-17-vastergotland-1999",
+      "observerId": "a-26-blekinge",
       "sensorId": "sonar-1",
-      "targetId": "pla-885m-severodvinsk-yasen-m",
-      "contactId": "c-3330-6",
+      "targetId": "plarb-955-borei-borey",
+      "contactId": "c-7503-6",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0,
@@ -71,8 +71,8 @@
     }
   ],
   "gauntlet": {
-    "intent": "Timed event chain stand-in (escalating jam) [catalog red: Sovremenny] [expanded ORBAT 12 units / 38 catalogRefs]",
-    "oracle": "Multi-jam trials complete",
+    "intent": "Escort+strike combined; multi-domain catalog (air+sub) [catalog red: Sovremenny] [expanded ORBAT 12 units / 41 catalogRefs]",
+    "oracle": "Dual contact; salvo 2 stable",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
       "421-orkan-pr-660-2015",
@@ -83,13 +83,12 @@
       "a-17-vastergotland-1999",
       "a-19-gotland-1996",
       "a-19-gotland-2022",
+      "a-26-blekinge",
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
       "d-32-daring-type-45-batch-1",
       "em-sovremenny-i-pr-956-sarych",
       "f-207-bremen-type-f122-1982",
-      "f-219-sachsen-type-f124-2006",
       "f-230-norfolk-type-23-duke",
-      "f-310-fridtjof-nansen",
       "f-341-absalon-2020",
       "f-35a-lightning-ii",
       "f-361-iver-huitfeldt-2012",
@@ -99,105 +98,118 @@
       "jas-39a-gripen-1997",
       "jas-39b-gripen-1997",
       "jas-39c-gripen-2005",
+      "jas-39e-gripen-ng-2021",
       "k-11-stockholm-spica-iii-1986",
       "k-21-goteborg",
       "k-22-gavle-ex-goteborg-class",
       "k-31-visby-2009",
+      "ka-27m-helix-a",
+      "m-04-carlskrona",
+      "m-73-koster-upgraded-landsort-class",
+      "mig-29-fulcrum-c-1999",
       "mpk-steregushchiy-pr-20380-2018",
-      "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "mrk-shkval-pr-22800-karakurt",
       "p-151-hugin",
       "p-840-holland",
       "p-960-skjold",
-      "pk-368-vasily-bykov-pr-22160",
-      "pla-885m-severodvinsk-yasen-m",
-      "su-27sm-sm3-flanker-j-2013",
-      "su-33-flanker-d"
+      "plarb-955-borei-borey",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "skr-admiral-sergey-gorshkov-pr-2235-0"
+    ],
+    "subPool": [
+      "a-19-gotland-1996",
+      "021-messali-el-hadj-pl-636m-kilo-2011"
+    ],
+    "airPool": [
+      "jas-39c-gripen-2005",
+      "f-16c-blk-52iq-falcon-2015"
     ],
     "runId": "gauntlet-t3t5-catalog-red",
     "tier": 3,
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minScore": -100,
-      "maxScore": 720,
-      "maxMissilesFired": 40,
+      "minKills": 1,
+      "maxMissilesFired": 36,
       "maxDenials": 60,
-      "minKills": 1
+      "minScore": -100.0,
+      "maxScore": 500.0,
+      "minDenials": 4
     },
     "units": [
       {
-        "unitId": "p-960-skjold",
-        "platformId": "p-960-skjold",
+        "unitId": "k-22-gavle-ex-goteborg-class",
+        "platformId": "k-22-gavle-ex-goteborg-class",
         "domain": "surface",
         "side": "blue"
       },
       {
-        "unitId": "f-230-norfolk-type-23-duke",
-        "platformId": "f-230-norfolk-type-23-duke",
+        "unitId": "k-21-goteborg",
+        "platformId": "k-21-goteborg",
         "domain": "surface",
         "side": "blue"
       },
       {
-        "unitId": "f-450-elli-kortenaer-batch-ii-0",
-        "platformId": "f-450-elli-kortenaer-batch-ii-0",
+        "unitId": "k-11-stockholm-spica-iii-1986",
+        "platformId": "k-11-stockholm-spica-iii-1986",
         "domain": "surface",
         "side": "blue"
       },
       {
-        "unitId": "f-35a-lightning-ii",
-        "platformId": "f-35a-lightning-ii",
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
         "domain": "air",
         "side": "blue"
       },
       {
-        "unitId": "f-a-18c-hornet-f-18c",
-        "platformId": "f-a-18c-hornet-f-18c",
+        "unitId": "jas-39a-gripen-1997",
+        "platformId": "jas-39a-gripen-1997",
         "domain": "air",
         "side": "blue"
       },
       {
-        "unitId": "a-17-vastergotland-1999",
-        "platformId": "a-17-vastergotland-1999",
+        "unitId": "a-26-blekinge",
+        "platformId": "a-26-blekinge",
         "domain": "subsurface",
         "side": "blue"
       },
       {
-        "unitId": "624-pr-205p-tarantul-1992",
-        "platformId": "624-pr-205p-tarantul-1992",
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
         "domain": "surface",
         "side": "red"
       },
       {
-        "unitId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
-        "platformId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
         "domain": "surface",
         "side": "red"
       },
       {
-        "unitId": "pk-368-vasily-bykov-pr-22160",
-        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "unitId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0",
         "domain": "surface",
         "side": "red"
       },
       {
-        "unitId": "su-27sm-sm3-flanker-j-2013",
-        "platformId": "su-27sm-sm3-flanker-j-2013",
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
         "domain": "air",
         "side": "red"
       },
       {
-        "unitId": "su-33-flanker-d",
-        "platformId": "su-33-flanker-d",
+        "unitId": "mig-29-fulcrum-c-1999",
+        "platformId": "mig-29-fulcrum-c-1999",
         "domain": "air",
         "side": "red"
       },
       {
-        "unitId": "pla-885m-severodvinsk-yasen-m",
-        "platformId": "pla-885m-severodvinsk-yasen-m",
+        "unitId": "plarb-955-borei-borey",
+        "platformId": "plarb-955-borei-borey",
         "domain": "subsurface",
         "side": "red"
       }
     ]
   },
-  "id": "gauntlet-t3-event-chain"
+  "id": "gauntlet-t3-escort-strike"
 }
