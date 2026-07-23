@@ -89,6 +89,8 @@ worktrees/
 
 # Transient skill/agent tooling caches (not source)
 .atl/
+.pytest_cache/
+tools/qa-gauntlet/__pycache__/
 
 # Gauntlet forge ephemeral candidates (promote winners only)
 production/qa/gauntlet/*/forge/candidates/
