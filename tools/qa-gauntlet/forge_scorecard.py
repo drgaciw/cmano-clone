@@ -135,14 +135,24 @@ def read_oracle_passed(tier_dir: Path) -> dict[str, bool]:
             if passed is not None:
                 out[str(sid).replace(".policy.json", "")] = bool(passed)
     scenarios = data.get("scenarios")
-    if isinstance(scenarios, dict):
+    if isinstance(scenarios, list):
+        for row in scenarios:
+            if not isinstance(row, dict):
+                continue
+            sid = row.get("scenario") or row.get("scenarioId") or row.get("policyId") or row.get("id")
+            if sid is None:
+                continue
+            passed = row.get("passed", row.get("Passed"))
+            if passed is not None:
+                out[str(sid).replace(".policy.json", "")] = bool(passed)
+    elif isinstance(scenarios, dict):
         for sid, row in scenarios.items():
             if isinstance(row, dict):
                 passed = row.get("passed", row.get("Passed"))
                 if passed is not None:
                     out[str(sid).replace(".policy.json", "")] = bool(passed)
     if "allPassed" in data and not out:
-        # Single-policy eval files sometimes only have allPassed
+        # Single-policy eval files sometimes only have allPassed (no per-scenario rows)
         out["*"] = bool(data["allPassed"])
     return out
 

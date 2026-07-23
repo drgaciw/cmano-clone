@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / "tools" / "qa-gauntlet"))
 
 from forge_scorecard import (  # noqa: E402
     infer_cell,
+    read_oracle_passed,
     score_candidate,
 )
 
@@ -51,6 +52,29 @@ def _write_policy(tmp_path: Path, name: str, policy: dict) -> Path:
 
 def _empty_coverage() -> dict:
     return {"cellCount": 0, "cells": [], "counts": {"platformId": {}}}
+
+
+def test_read_oracle_passed_list_scenarios_no_wildcard(tmp_path: Path) -> None:
+    tier_dir = tmp_path / "tier-1"
+    tier_dir.mkdir()
+    (tier_dir / "oracle-eval.json").write_text(
+        json.dumps(
+            {
+                "ok": True,
+                "allPassed": True,
+                "scenarios": [
+                    {"scenario": "gauntlet-t1-patrol-a", "passed": True, "rows": 3},
+                    {"scenario": "gauntlet-t1-patrol-b", "passed": True, "rows": 3},
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    oracle_map = read_oracle_passed(tier_dir)
+    assert oracle_map.get("gauntlet-t1-patrol-a") is True
+    assert oracle_map.get("gauntlet-t1-patrol-b") is True
+    assert "*" not in oracle_map
+    assert oracle_map.get("gauntlet-t1-patrol-b-candidate-underused") is None
 
 
 def test_oracle_none_blocks_promotion(tmp_path: Path) -> None:
