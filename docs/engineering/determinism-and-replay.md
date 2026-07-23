@@ -107,7 +107,8 @@ and pin `WORLD_HASH`, `DETECTION_WORLD_HASH`, and (optionally) `FINGERPRINT_SHA2
 headless runner is
 [`BalticReplayHarness.Run(seed, scenarioPolicyId, ticks, ...)`](../../src/ProjectAegis.Delegation.UnityAdapter/Baltic/BalticReplayHarness.cs),
 which returns a `Result` carrying the fingerprint, both hashes, checkpoints, and the decision
-log.
+log. Its full `Run`/`Result` API and composition pipeline (ORBAT build, detection wiring, tick
+order) are documented in [`baltic-replay-harness.md`](baltic-replay-harness.md).
 
 **CI gate — [`ReplayGoldenSuiteTests`](../../src/ProjectAegis.Delegation.UnityAdapter.Tests/Baltic/ReplayGoldenSuiteTests.cs)**
 runs every case in
@@ -199,6 +200,7 @@ grep -rn "DateTime.UtcNow\|DateTime.Now\|Random.Shared\|Guid.NewGuid" src --incl
 
 | Topic | Doc |
 |-------|-----|
+| Headless runner API + composition pipeline | [`baltic-replay-harness.md`](baltic-replay-harness.md) |
 | Deterministic sim core (hashes, seeded RNG, tick) | [`ProjectAegis.Sim/README.md`](../../src/ProjectAegis.Sim/README.md) |
 | Replay harness / golden regeneration (console) | [`ProjectAegis.Delegation.Demo/README.md`](../../src/ProjectAegis.Delegation.Demo/README.md) |
 | Tick pipeline order + world-hash layers | [`adr-004-tick-pipeline-order.md`](../architecture/adr-004-tick-pipeline-order.md) |

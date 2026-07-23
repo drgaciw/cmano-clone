@@ -119,13 +119,32 @@ Holds presentation-only selection (`SelectedUnitId`, `SelectedContactId`,
 per ADR-010). Selecting a different unit/contact clears stale graph highlights so a bound panel
 never shows highlights for a unit that is no longer selected.
 
+**Multi-select (req 20 rev-2, TR-c2-005).** Friendly-unit selection is backed by an ordered,
+de-duplicated [`SelectionSet`](Presentation/SelectionSet.cs), exposed read-only as
+`Selection` (`IReadOnlySelectionSet`: `OrderedTargetIds`, `Count`, `IsEmpty`, `PrimaryUnitId`,
+`Contains`). `SelectedUnitId` is preserved as the **anchor** (`Selection.PrimaryUnitId`), so
+pre-rev-2 single-select consumers are unchanged. The mutable set is private — callers must go
+through the controller's `SelectFriendlyUnit` / `SelectHostileContact` / `ApplyDefaultSelection`
+methods so the coordinated side effects (clearing hostile-contact state and stale graph
+highlights) cannot be bypassed. `SelectFriendlyUnit` currently replaces the set (single-select);
+drag-box marquee, shift/ctrl toggle, and group-order fan-out build on the set's
+`Add`/`Remove`/`Toggle`/`ReplaceWith` in Track T1.
+
 ```csharp
 var c2 = new C2PresentationController();
 c2.ApplyDefaultSelection(oobTree);              // pick a default friendly unit if none selected
 c2.SelectFriendlyUnit("friendly-1");
 c2.ApplyGraphSurfacing(catalogReader);          // read-only sensor/weapon/link chain highlights
 var detail = c2.ResolveUnitDetail(snapshot, bridge.Registry, bridge);
+
+// inspect multi-select state (read-only)
+var anchor = c2.Selection.PrimaryUnitId;        // == c2.SelectedUnitId
+bool isSelected = c2.Selection.Contains("friendly-1");
 ```
+
+Alert tiers, order-lifecycle states, and remappable keyboard-action IDs that this presentation
+layer consumes are defined in the core assembly — see
+[`ProjectAegis.Delegation/README.md` → C2 rev-2 presentation contracts](../ProjectAegis.Delegation/README.md#c2-rev-2-presentation-contracts).
 
 ### Host seam — `IC2PresentationFeed`
 
@@ -142,8 +161,11 @@ Two static runners drive the delegation + engage pipeline end-to-end with no Uni
 
 - **`BalticReplayHarness.Run(seed, scenarioPolicyId, ticks, ...)`** → `Result` (fingerprint, both
   world hashes, checkpoints, message log, sensor C2, scoring CSV row, decision log, fire order).
-  This is the runner behind the replay-golden CI gate and the console demo. Golden workflow,
-  hashing model, and regeneration steps are documented in
+  This is the runner behind the replay-golden CI gate, the QA Gauntlet, the CLI, and the console
+  demo. Its `Run`/`Result` API, the composition pipeline (ORBAT build, detection wiring, tick
+  order), and how to extend it are documented in
+  [`baltic-replay-harness.md`](../../docs/engineering/baltic-replay-harness.md); the golden
+  workflow and hashing model are in
   [`determinism-and-replay.md`](../../docs/engineering/determinism-and-replay.md).
 - **`BalticBatchRunner.Run(request)` / `.ExportCsv(rows)` / `.DiscoverScenarioIds()`** →
   multi-seed / multi-scenario agent-vs-agent CSV export (GDD `agentic-infrastructure.md`). Driven
@@ -187,6 +209,7 @@ expose `IC2PresentationFeed` to UI Toolkit panels.
 |-------|-----|
 | Delegation core (orchestrator, decision pipeline, traits) | [`ProjectAegis.Delegation/README.md`](../ProjectAegis.Delegation/README.md) |
 | Deterministic sim core + world hashes | [`ProjectAegis.Sim/README.md`](../ProjectAegis.Sim/README.md) |
+| Baltic replay harness (Run/Result API, composition) | [`docs/engineering/baltic-replay-harness.md`](../../docs/engineering/baltic-replay-harness.md) |
 | Determinism & replay golden workflow | [`docs/engineering/determinism-and-replay.md`](../../docs/engineering/determinism-and-replay.md) |
 | Console demo / golden regeneration | [`ProjectAegis.Delegation.Demo/README.md`](../ProjectAegis.Delegation.Demo/README.md) |
 | Batch replay CSV | [`tools/batch-replay/README.md`](../../tools/batch-replay/README.md) |

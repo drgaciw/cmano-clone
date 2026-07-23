@@ -232,6 +232,64 @@ It reads each `<entity>-propose.json`, calls `catalog_write_approve` per batch i
 
 ---
 
+## One-shot QA-slice import (`import-qa-slice`)
+
+For building the **committed QA catalog** — the multi-domain `assets/data/catalog/baltic_patrol.db`
+that the [QA Gauntlet](qa-gauntlet.md) and adapter tests read — the two-step nightly split is
+overkill. [`tools/cmano-db-crawler/import-qa-slice/`](../../tools/cmano-db-crawler/import-qa-slice/Program.cs)
+is a small standalone tool that **proposes *and* approves in a single run** against one DB.
+
+> **This tool approves directly.** Unlike the nightly propose→approve pair (which stops at
+> staging so a curator commits), `import-qa-slice` calls `CatalogWriteGate.ApproveBatch(...,
+> "human", "qa-cmo-import")` on every batch it stages. Use it to (re)build the curated QA
+> fixture DB from the checked-in `baltic-multidomain-*` slices — **not** to ingest the full
+> untrusted corpus (that is the gated nightly path above).
+
+It is a standalone `net8.0` exe (`ProjectAegis.Tools.ImportQaSlice`) that references
+`ProjectAegis.Data` but is **not** part of `ProjectAegis.sln`, so run it by project path:
+
+```bash
+# Defaults: db=assets/data/catalog/baltic_patrol.db,
+#           platforms=fixtures/baltic-multidomain-live.md,
+#           weapons=fixtures/baltic-multidomain-weapons-live.md, sensors omitted
+dotnet run --project tools/cmano-db-crawler/import-qa-slice
+
+# Explicit args: <db> <platform.md> <weapon.md> [sensor.md]
+dotnet run --project tools/cmano-db-crawler/import-qa-slice -- \
+  assets/data/catalog/baltic_patrol.db \
+  tools/cmano-db-crawler/fixtures/baltic-multidomain-live.md \
+  tools/cmano-db-crawler/fixtures/baltic-multidomain-weapons-live.md \
+  tools/cmano-db-crawler/fixtures/baltic-multidomain-sensors-live.md
+```
+
+What it does, in order:
+
+1. Opens a throwaway `SqliteCatalogReader` so the DB's schema/migrations exist (auto-seeds the
+   Baltic patrol base into a **missing** DB, like the proposer does).
+2. Stages three propose passes with a `FixedCatalogClock` (deterministic ids): weapons
+   (`ProposeWeaponsFromMarkdown`), platforms + derived mounts/loadouts/magazines
+   (`ProposePlatformWeaponMounts`, `mapBalticPlatformIds: false`), and — only if a sensor path
+   is given and exists — sensors (`ProposeFromMarkdown`).
+3. Approves every collected batch id (deduped) through one `CatalogWriteGate`.
+4. Prints an indented JSON report to **stdout** and returns exit `0` when every batch committed,
+   or `2` if any `ApproveBatch` returned `Committed: false` (the failed ids + their `Errors[]`
+   are in the report).
+
+Report fields worth reading: `weaponPropose` / `platformPropose` / `sensorPropose` (parsed and
+batch counts, plus `FittingQuarantinedCount` and a truncated `Quarantine[]` of unresolved
+weapon fittings), `approvedCount` / `failedCount`, and `batchIds[]`.
+
+> **Quirk.** The tool also writes a copy of the same report to a fixed
+> `/tmp/grok-goal-539a46171f2e/implementer/catalog-import.log` path (a leftover build-time
+> artifact). Treat **stdout** (or your own redirect) as the record; the temp copy is incidental.
+
+The `baltic-multidomain-*` fixture families (`-live`, `-expand`, `-wave3`, and the country
+waves `baltic-{russia,sweden}-1990-*`) under
+[`tools/cmano-db-crawler/fixtures/`](../../tools/cmano-db-crawler/fixtures/) are the curated
+inputs; their sensor files' headers note they "map platform titles for ImportQaSlice".
+
+---
+
 ## Common pitfalls
 
 - **Import stages, it does not commit.** If catalog reads look unchanged after an import, you
@@ -242,6 +300,9 @@ It reads each `<entity>-propose.json`, calls `catalog_write_approve` per batch i
   `orphan_weapon_id` fitting entry means the weapon corpus was imported before/without the
   platform, or a name did not prefix-match — re-import weapons first.
 - **`ground-unit` approve** uses the generic `catalog_write_approve` verb (see the Known gap).
+- **`import-qa-slice` commits immediately.** It is the one-shot QA-fixture builder and approves
+  as it goes — do **not** point it at an untrusted/full corpus expecting a review step. Curator
+  review belongs to the gated nightly propose→approve path.
 - **Chunk size affects batch count, not row identity.** Rows are stable-sorted before chunking,
   so batch boundaries are deterministic for a given corpus + chunk size.
 

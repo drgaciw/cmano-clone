@@ -18,12 +18,13 @@ subsystem is exercised headless with `dotnet test`.
 | Folder | Purpose | Key types |
 |--------|---------|-----------|
 | `Core/` | Tick pipeline, seeded RNG, world-state hashing, clock seed | `SimTickPipeline`, `SimTickRunner`, `ISimTickRunner`, `SimSeed`, `SeededRng`, `RngDomain`, `SimWorldHash` |
-| `Sensors/` | Tick-4 deterministic detection loop + detection sub-hash | `DeterministicDetectionLoop`, `DetectionWorldHash`, `PdDetectionContactSimulator`, `ContactLifecycleState`, `DatalinkSidePictureMerger` |
+| `Sensors/` | Tick-4 deterministic detection loop + detection sub-hash + hostile classification | `DeterministicDetectionLoop`, `DetectionWorldHash`, `PdDetectionContactSimulator`, `ContactLifecycleState`, `DatalinkSidePictureMerger`, `HostileContactFilter` |
 | `Engage/` | Tick-8 engagement pipeline: policy → track → envelope/DLZ → magazine → combat outcome | `IEngagementResolver`, `MvpEngagementResolver`, `EngageRequest`/`EngageResult`, `DlzEvaluator`, `MagazineLedger`, `CombatOutcomeResolver`, `DomainValidatorRegistry` |
 | `Policy/` | Per-unit policy evaluation at the orchestrator boundary (ADR-002) | `IPolicyEvaluator`, `PolicyEvaluator`, `EffectivePolicy`, `PolicyContext`, `RoeLevel`, `EmconState` |
-| `Scenario/` | Scenario/policy profiles + JSON repository, comms/EMCON/mission triggers | `ScenarioPolicyProfile`, `ScenarioPolicyRepository`, `ScenarioMissionContactTrigger`, `DetectionTrialResolver` |
+| `Scenario/` | Scenario/policy profiles + JSON repository, comms/EMCON/mission triggers, blue/red side registry | `ScenarioPolicyProfile`, `ScenarioPolicyRepository`, `ScenarioMissionContactTrigger`, `DetectionTrialResolver`, `BalticV3SideRegistry` |
 | `Catalog/` | Hot-tick appliers bridging `ProjectAegis.Data` catalog values into sim state | `CatalogDamageHotTickApplier`, `CatalogMagazineResolver`, `CatalogRadarEmconResolver`, `PlatformHpLedger` |
 | `Logistics/` | Fuel accounting | `FuelLedger` |
+| `Telemetry/` | Advisory-only balance-drift consumer fed by engagement outcomes ([guide](../../docs/engineering/balance-drift-telemetry.md)) | `BalanceDriftAdvisoryConsumer` |
 | `Time/` | Fixed-timestep clock + time-compression | `SimClock`, `TimeCompressionMode` |
 | `Glossary/` | Generated abort-reason catalog/manifest ([guide](../../docs/engineering/abort-reason-catalog.md)) | `AbortReasonManifest`, `AbortReasonCatalog` |
 
@@ -92,7 +93,10 @@ monotonic `EngagementId`, an `OutcomeCode`, or an `EngagementAbortReason` — th
 is turned into a stable order-log/message-log code via the manifest-driven
 [abort-reason catalog](../../docs/engineering/abort-reason-catalog.md). Test/fixture
 resolvers (`StubEngagementResolver`, `RecordingEngagementResolver`) implement the same
-interface for isolation.
+interface for isolation. The **exact ordered gate chain**, the `EngageContext` input surface,
+the DLZ personality table, the three-draw combat-outcome fold, and how to add a gate/validator
+without breaking combat goldens are documented in the
+[engagement / kill-chain pipeline guide](../../docs/engineering/engagement-pipeline.md).
 
 ## Policy evaluation
 
@@ -102,6 +106,17 @@ orchestrator boundary. It resolves an `EffectivePolicy` `(RoeLevel, MaxSalvo)` p
 from `data/scenarios/*.policy.json` via
 [`ScenarioPolicyRepository`](Scenario/ScenarioPolicyRepository.cs) — gameplay numbers live in
 data, not in C# constants.
+
+## Blue/red side resolution
+
+Headless Baltic runs decide "friend or foe" through
+[`BalticV3SideRegistry`](Scenario/BalticV3SideRegistry.cs) — a thread-safe static that layers
+**scenario-scoped registrations** (added per run for catalog/joint ORBAT units) over a
+**legacy default map** (`u1`/`ucav-blue` → blue, `hostile-1`/`ucav-red` → red; unknown ids →
+no side). [`HostileContactFilter`](Sensors/HostileContactFilter.cs) and the engage-target
+fallback both read it instead of guessing from id prefixes. The full lifecycle (how the batch
+harness registers `gauntlet.units[]` and clears state after every run) is documented in the
+[QA Gauntlet runbook → *Side resolution (joint ORBAT)*](../../docs/engineering/qa-gauntlet.md#side-resolution--joint-orbat).
 
 ---
 
@@ -113,7 +128,7 @@ dotnet test  src/ProjectAegis.Sim.Tests/ProjectAegis.Sim.Tests.csproj -v minimal
 ```
 
 `ProjectAegis.Sim.Tests` mirrors this folder layout (`Core/`, `Sensors/`, `Engage/`,
-`Policy/`, `Scenario/`, …) and is part of the ≥1232-test solution baseline. The replay
+`Policy/`, `Scenario/`, …) and is part of the ≥1638-test solution baseline. The replay
 goldens that assert reproducibility of this core live in
 [`tests/regression/`](../../tests/regression/) and are driven by the
 [`ProjectAegis.Delegation.Demo`](../ProjectAegis.Delegation.Demo/README.md) harness.
@@ -123,7 +138,9 @@ goldens that assert reproducibility of this core live in
 | Topic | Doc |
 |-------|-----|
 | Determinism rules, hashing, golden workflow | [`docs/engineering/determinism-and-replay.md`](../../docs/engineering/determinism-and-replay.md) |
+| Engage/kill-chain gate chain + combat outcome | [`docs/engineering/engagement-pipeline.md`](../../docs/engineering/engagement-pipeline.md) |
 | Abort-reason codes (manifest → codegen → order log) | [`docs/engineering/abort-reason-catalog.md`](../../docs/engineering/abort-reason-catalog.md) |
+| Balance-drift telemetry (`Telemetry/`; advisory win-rate drift) | [`docs/engineering/balance-drift-telemetry.md`](../../docs/engineering/balance-drift-telemetry.md) |
 | Tick pipeline order + world-hash layers | [`adr-004-tick-pipeline-order.md`](../../docs/architecture/adr-004-tick-pipeline-order.md) |
 | Policy evaluator boundary | [`adr-002-policy-evaluator.md`](../../docs/architecture/adr-002-policy-evaluator.md) |
 | Sim assembly boundary (no Unity) | [`adr-001-sim-assembly-boundary.md`](../../docs/architecture/adr-001-sim-assembly-boundary.md) |

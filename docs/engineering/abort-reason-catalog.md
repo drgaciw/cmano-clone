@@ -25,7 +25,7 @@ All abort codes are declared once in
 | Family | Kind | Backing enum | Where it fires |
 |--------|------|--------------|----------------|
 | `Doctrine` | enum-mapped | [`FireAbortReason`](../../src/ProjectAegis.Sim/Policy/FireAbortReason.cs) | Policy/ROE layer denials (`IPolicyEvaluator`, ADR-002) — `ROE_HOLD_FIRE`, `ROE_WEAPONS_TIGHT`, `WRA_RANGE`, `WRA_SALVO`, aspect blocks, `COMMS_DENIED` |
-| `Engage` | enum-mapped | [`EngagementAbortReason`](../../src/ProjectAegis.Sim/Engage/EngagementAbortReason.cs) | Engagement pipeline (`MvpEngagementResolver`) — `OUT_OF_ENVELOPE`, `DLZ_OUT`, `NO_AMMO`, `AIR_NOT_READY`, `CYBER_SPOOF_TRACK`, `DAMAGE_WITHDRAW_RECOMMENDED`, … |
+| `Engage` | enum-mapped | [`EngagementAbortReason`](../../src/ProjectAegis.Sim/Engage/EngagementAbortReason.cs) | Engagement pipeline (`MvpEngagementResolver`) — `OUT_OF_ENVELOPE`, `DLZ_OUT`, `NO_AMMO`, `AIR_NOT_READY`, `CYBER_SPOOF_TRACK`, `DAMAGE_WITHDRAW_RECOMMENDED`, … (the exact order each fires is in the [engagement-pipeline gate chain](engagement-pipeline.md#the-gate-chain-exact-order)) |
 | `Logistics` | string codes | — | Strike/ferry reachability & basing (`STRIKE_UNREACHABLE`, `FERRY_UNREACHABLE_FUEL`, …) |
 | `Sensor` | string codes | — | Detection/datalink health (`SENSOR_OFFLINE`, `DATALINK_STALE`, `TRACK_STALE`) |
 | `Cyber` | string codes | — | Cyber/EW effects (`CYBER_LINK_DOWN`, `CYBER_ORDER_DELAY`, `CYBER_SPOOF_TRACK`) |

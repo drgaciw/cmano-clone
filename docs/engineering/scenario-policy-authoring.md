@@ -80,15 +80,16 @@ these map 1:1 onto `ScenarioPolicyProfile` via the loader's `To*` parsers.
 | `mission` | object | — | `fireOrder`, `events`, `triggers` (see Mission triggers). |
 | `missionPolicy` | object | — | Mission-tier ROE override (`roe`, `unitIds`, `maxSalvo`); req 13 inheritance. |
 | `delegation` | object | defaults | `usePatrolCandidates`. |
-| `comms` | array | — | Timed comms-state transitions (`atTick`, `newState`, `nodeId`, `reason`). |
+| `comms` | array | — | Timed comms-state transitions (`atTick`, `newState`, `nodeId`, `reason`). Runtime effects: [comms-degradation-runtime.md](comms-degradation-runtime.md). |
 | `logistics` | object | defaults | Fuel/joker/bingo model. |
 | `commsDisplay` | object | defaults | Degraded-comms presentation (lag, ghost offset). |
 | `speculative` | object | campaign default | `blackProjectMode`, `maxTechnologyLevel`. |
 | `unitReadiness` | map `unitId → {readyForLaunch}` | — | Per-unit launch readiness. |
-| `spoofTracks` | array | — | Timed spoof events (`atTick`, `contactId`, `reason`). |
+| `spoofTracks` | array | — | Timed spoof events (`atTick`, `contactId`, `reason`). Runtime: [comms-degradation-runtime.md](comms-degradation-runtime.md). |
 | `telemetry` | object | disabled | Balance-drift detection + per-entity balance trials. |
 | `datalink` | object | defaults | `organicOnly` (default `true`), `unitSides`, `shareLagTicks` (≥0). |
 | `mineHazard` | object | — | Mine zone + transit schedule (see validation below). |
+| `gauntlet` | object | — | **QA Gauntlet metadata** — *not* mapped into `ScenarioPolicyProfile`; consumed only by the batch harness + oracle (see [The `gauntlet` block](#the-gauntlet-block-qa-gauntlet-metadata)). |
 
 ### `engage` sub-fields
 
@@ -134,7 +135,9 @@ the bad value — a fast way to catch typos in CI.
 
 Baltic v3 uses `mission.triggers` to escalate ROE on first recon detection (e.g. ASuW/AAA →
 `WeaponsFree` when a recon unit first detects a contact). Runtime:
-[`MissionContactTriggerRuntime`](../../src/ProjectAegis.Delegation/Mission/MissionContactTriggerRuntime.cs).
+[`MissionContactTriggerRuntime`](../../src/ProjectAegis.Delegation/Mission/MissionContactTriggerRuntime.cs)
+— see [mission-timeline-runtime.md](mission-timeline-runtime.md) for the full runtime behaviour
+(tick ordering, order-log output, `ApplyRoeToUnits`, determinism).
 
 Semantics (verified against the runtime):
 
@@ -168,6 +171,62 @@ Semantics (verified against the runtime):
 
 > **Baltic v3 isolation.** `baltic-v3-*` policies and their replay goldens are independent from
 > v2. Never edit v2 goldens or the production hash while authoring v3 content.
+
+---
+
+## The `gauntlet` block (QA Gauntlet metadata)
+
+`gauntlet-*` policies carry an optional top-level `gauntlet` block that declares the joint
+catalog ORBAT and the fail-closed oracle bounds for the [QA Gauntlet](qa-gauntlet.md). It is
+deserialized onto
+[`ScenarioPolicyJsonDto.Gauntlet`](../../src/ProjectAegis.Data/Scenario/Policy/ScenarioPolicyJsonDto.cs)
+(`ScenarioGauntletJsonDto`), but — unlike every other field above — the loader's `ToProfile`
+does **not** map it into `ScenarioPolicyProfile`. It is inert for the deterministic sim path:
+authoring it on a non-gauntlet policy is harmless (the sim ignores it), and it never affects
+the replay hash.
+
+Instead, three separate consumers read the block **directly from the policy JSON**, each using
+its own subset:
+
+| Sub-field | Type | Read by | Purpose |
+|-----------|------|---------|---------|
+| `intent` | string | — (documentation) | Human-readable description of the expected play. Not consumed by code. |
+| `oracle` | string | — (documentation) | Free-text note on the oracle rationale. Not consumed by code. |
+| `catalogRefs` | string[] | [`GauntletRosterValidator`](../../src/ProjectAegis.Data/Catalog/GauntletRosterValidator.cs) (oracle-0) | Each id must resolve against the tier `roster.json` (`platforms[].platformId`), else `catalogRefs '<id>' not in roster`. |
+| `units` | object[] | [`BalticReplayHarness`](../../src/ProjectAegis.Delegation.UnityAdapter/Baltic/BalticReplayHarness.cs) | The multi-domain catalog ORBAT registered on the replay path (`RegisterGauntletCatalogUnits`). |
+| `expect` | object | [`GauntletOracleEvaluator`](../../src/ProjectAegis.Data/Catalog/GauntletOracleEvaluator.cs) | The fail-closed numeric + fingerprint bounds. **Full schema in [qa-gauntlet.md](qa-gauntlet.md#the-gauntletexpect-oracle).** |
+
+Each `units[]` entry maps to `ScenarioGauntletUnitJsonDto`:
+
+| Field | Default | Meaning |
+|-------|---------|---------|
+| `unitId` | *(falls back to `platformId`)* | Entity id registered on the bridge. |
+| `platformId` | `""` | Catalog `platform_id` to instantiate. |
+| `domain` | `surface` | `surface` / `air` / `subsurface` — drives engage-agent assignment. |
+| `side` | `blue` | Friend-or-foe. **Only the literal `"red"` (case-insensitive) is red; anything else registers blue** — see [side resolution](qa-gauntlet.md#side-resolution--joint-orbat). |
+
+```jsonc
+{
+  "id": "gauntlet-multidomain-shooters",
+  "friendlyRoe": "WeaponsFree",
+  "gauntlet": {
+    "intent": "surface + air + sub blue all launch at distinct reds",
+    "catalogRefs": [ "jas-39c-gripen-2005", "a-19-gotland-2022" ],
+    "units": [
+      { "unitId": "jas-39c-gripen-2005", "platformId": "jas-39c-gripen-2005", "domain": "air", "side": "blue" },
+      { "unitId": "a-19-gotland-2022",   "platformId": "a-19-gotland-2022",   "domain": "subsurface", "side": "blue" }
+    ],
+    "expect": {
+      "minKills": 1,
+      "requireTrueLaunchedShooters": [ "jas-39c-gripen-2005", "a-19-gotland-2022" ]
+    }
+  }
+}
+```
+
+> The `gauntlet` block is not schema-validated by the policy loader (it is ignored there). Its
+> only enforcement is the oracle + roster validator at gauntlet-run time — a malformed `expect`
+> is caught by [`gauntlet_oracle_eval`](qa-gauntlet.md#commands), not by loading the policy.
 
 ---
 
@@ -209,6 +268,7 @@ Validate a scenario end-to-end (id resolution, catalog references, determinism) 
 | Where | What |
 |-------|------|
 | [`data/scenarios/scenario-policy-ids.md`](../../data/scenarios/scenario-policy-ids.md) | Template-ID matrix + per-sprint content notes. |
+| [qa-gauntlet.md](qa-gauntlet.md) | The `gauntlet` block deep-dive: `expect` oracle schema, joint-ORBAT side resolution, the tier ladder, and `gauntlet_oracle_eval`. |
 | [scenario-document-authoring.md](scenario-document-authoring.md) | The sibling `*.scenario.json` authoring-document format (`ScenarioDocumentDto`). |
 | [determinism-and-replay.md](determinism-and-replay.md) | Replay hashing, golden-fixture workflow, the hash invariant. |
 | [mission-editor-cli.md](mission-editor-cli.md) | Headless CLI/MCP verbs to author, validate, and simulate scenarios. |

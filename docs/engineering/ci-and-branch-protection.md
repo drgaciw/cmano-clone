@@ -1,6 +1,6 @@
 # CI and branch protection
 
-> **Last updated:** 2026-07-13 (#37 closed)  
+> **Last updated:** 2026-07-17 (added QA Gauntlet oracle GitHub Actions row; #37 closed)  
 > **Cites:** production/release-train-scope-boundary-2026-06-24.md (S67 row: Buildkite preflight ∥ Regression baseline lock ∥ Branch-protection; .buildkite/ alignment with §7 gates; ci-and-branch-protection update) + future-sprint-roadpmap-062426.md §7 (standing invariants) + roadmap-execute-plan-062426.md §S67  
 > **Graphite-first workflow:** [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md) — use `gt submit`, not `gh pr create`, for stack work.  
 > **Buildkite setup:** [buildkite-ci.md](./buildkite-ci.md)
@@ -34,6 +34,7 @@ Baltic replay (main parity): `bash tools/buildkite/baltic-replay.sh`
 |----------|---------|---------|
 | [Dismiss Stale Approvals (Graphite)](../../.github/workflows/graphite-dismiss-stale-approvals.yml) | PR `synchronize` | Graphite-compatible approval dismissal |
 | [GitNexus Security Checks](../../.github/workflows/gitnexus-security.yml) | PR + `main` + weekly | CodeQL (C# + JS/TS), dependency review |
+| [QA Gauntlet oracle](../../.github/workflows/gauntlet-oracle.yml) | PR + `workflow_dispatch` | Shipped-CLI fail-closed gate: real Demo `--batch` → `gauntlet_oracle_eval` (must pass) → strip-evidence smoke (must fail). Deep-dive: [qa-gauntlet.md → CI gate](./qa-gauntlet.md#ci-gate). Uses the same account-billing caveat as the rows above. |
 | ~~GitNexus Auto-Reindex~~ | **Disabled** — [Buildkite](../../.buildkite/pipeline.yml) `gitnexus-reindex` step | Was: knowledge graph reindex on `main` |
 | ~~GitNexus Wiki~~ | **Disabled** — manual [Buildkite wiki job](./buildkite-ci.md) | Was: release-triggered wiki commit |
 | ~~GitNexus PR Analysis~~ | **Disabled** — [Buildkite](../../.buildkite/pipeline.yml) `gitnexus-pr` step | Was: PR blast-radius comment |
