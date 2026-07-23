@@ -1,0 +1,59 @@
+{
+  "metadata": {
+    "title": "Enterprise public corpus smoke",
+    "description": "Minimal dbRef smoke for aegis_public_corpus. OOB uses two corpus platform_ids; binding is for CatalogReaderFactory / ScenarioPackage resolution, not ReplayGolden.",
+    "dbRef": "aegis_public_corpus",
+    "dbSnapshotId": null,
+    "editVersion": 1,
+    "seed": 1,
+    "policyId": "enterprise-public-corpus-smoke",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 2
+  },
+  "sides": [
+    {
+      "id": "blue",
+      "name": "Blue",
+      "defaultRoe": "WeaponsFree"
+    },
+    {
+      "id": "red",
+      "name": "Red",
+      "defaultRoe": "WeaponsFree"
+    }
+  ],
+  "orbat": {
+    "units": [
+      {
+        "id": "smoke-blue-1",
+        "sideId": "blue",
+        "platformId": "type-082ii-wozang-818-kunshan-2012",
+        "lat": 57.0,
+        "lon": 20.0
+      },
+      {
+        "id": "smoke-red-1",
+        "sideId": "red",
+        "platformId": "type-203-huxin-haijing-44072-1988",
+        "lat": 57.2,
+        "lon": 20.3
+      }
+    ],
+    "bases": []
+  },
+  "missions": [
+    {
+      "id": "smoke-patrol-1",
+      "type": "Patrol",
+      "assignedUnitIds": [
+        "smoke-blue-1"
+      ],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 57.0, "lon": 20.0 },
+        { "lat": 57.1, "lon": 20.1 },
+        { "lat": 57.2, "lon": 20.2 }
+      ]
+    }
+  ]
+}
