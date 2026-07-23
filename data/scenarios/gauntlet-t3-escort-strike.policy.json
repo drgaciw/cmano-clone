@@ -15,28 +15,55 @@
   },
   "detection": [
     {
-      "observerId": "k-31-visby-2009",
+      "observerId": "k-22-gavle-ex-goteborg-class",
       "sensorId": "radar-1",
-      "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-visby",
+      "targetId": "mrk-shkval-pr-22800-karakurt",
+      "contactId": "c-7503-1",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "jas-39c-gripen-2005",
+      "observerId": "k-21-goteborg",
       "sensorId": "radar-1",
-      "targetId": "mpk-steregushchiy-pr-20380-2018",
-      "contactId": "c-gripen",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-7503-2",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "a-19-gotland-2022",
+      "observerId": "k-11-stockholm-spica-iii-1986",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "contactId": "c-7503-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "ka-27m-helix-a",
+      "contactId": "c-7503-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39a-gripen-1997",
+      "sensorId": "radar-1",
+      "targetId": "mig-29-fulcrum-c-1999",
+      "contactId": "c-7503-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-26-blekinge",
       "sensorId": "sonar-1",
-      "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-gotland",
+      "targetId": "plarb-955-borei-borey",
+      "contactId": "c-7503-6",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0,
@@ -44,7 +71,7 @@
     }
   ],
   "gauntlet": {
-    "intent": "Escort+strike combined; multi-domain catalog (air+sub) [catalog red: Sovremenny]",
+    "intent": "Escort+strike combined; multi-domain catalog (air+sub) [catalog red: Sovremenny] [expanded ORBAT 12 units / 41 catalogRefs]",
     "oracle": "Dual contact; salvo 2 stable",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -56,17 +83,38 @@
       "a-17-vastergotland-1999",
       "a-19-gotland-1996",
       "a-19-gotland-2022",
+      "a-26-blekinge",
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "d-32-daring-type-45-batch-1",
       "em-sovremenny-i-pr-956-sarych",
       "f-207-bremen-type-f122-1982",
+      "f-230-norfolk-type-23-duke",
+      "f-341-absalon-2020",
       "f-35a-lightning-ii",
+      "f-361-iver-huitfeldt-2012",
+      "f-450-elli-kortenaer-batch-ii-0",
       "f-a-18c-hornet-f-18c",
       "hkp-14f-nh90-ttt",
       "jas-39a-gripen-1997",
       "jas-39b-gripen-1997",
       "jas-39c-gripen-2005",
+      "jas-39e-gripen-ng-2021",
+      "k-11-stockholm-spica-iii-1986",
+      "k-21-goteborg",
+      "k-22-gavle-ex-goteborg-class",
       "k-31-visby-2009",
-      "mpk-steregushchiy-pr-20380-2018"
+      "ka-27m-helix-a",
+      "m-04-carlskrona",
+      "m-73-koster-upgraded-landsort-class",
+      "mig-29-fulcrum-c-1999",
+      "mpk-steregushchiy-pr-20380-2018",
+      "mrk-shkval-pr-22800-karakurt",
+      "p-151-hugin",
+      "p-840-holland",
+      "p-960-skjold",
+      "plarb-955-borei-borey",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "skr-admiral-sergey-gorshkov-pr-2235-0"
     ],
     "subPool": [
       "a-19-gotland-1996",
@@ -82,41 +130,83 @@
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
       "minKills": 1,
-      "maxMissilesFired": 12,
-      "maxDenials": 18,
-      "minScore": -30,
-      "maxScore": 170,
-      "minDenials": 14
+      "maxMissilesFired": 36,
+      "maxDenials": 60,
+      "minScore": -100.0,
+      "maxScore": 500.0,
+      "minDenials": 4
     },
     "units": [
       {
-        "unitId": "k-31-visby-2009",
-        "platformId": "k-31-visby-2009",
+        "unitId": "k-22-gavle-ex-goteborg-class",
+        "platformId": "k-22-gavle-ex-goteborg-class",
         "domain": "surface",
         "side": "blue"
       },
       {
-        "unitId": "jas-39c-gripen-2005",
-        "platformId": "jas-39c-gripen-2005",
+        "unitId": "k-21-goteborg",
+        "platformId": "k-21-goteborg",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "k-11-stockholm-spica-iii-1986",
+        "platformId": "k-11-stockholm-spica-iii-1986",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
         "domain": "air",
         "side": "blue"
       },
       {
-        "unitId": "a-19-gotland-2022",
-        "platformId": "a-19-gotland-2022",
+        "unitId": "jas-39a-gripen-1997",
+        "platformId": "jas-39a-gripen-1997",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-26-blekinge",
+        "platformId": "a-26-blekinge",
         "domain": "subsurface",
         "side": "blue"
       },
       {
-        "unitId": "em-sovremenny-i-pr-956-sarych",
-        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
         "domain": "surface",
         "side": "red"
       },
       {
-        "unitId": "mpk-steregushchiy-pr-20380-2018",
-        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
         "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-29-fulcrum-c-1999",
+        "platformId": "mig-29-fulcrum-c-1999",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "plarb-955-borei-borey",
+        "platformId": "plarb-955-borei-borey",
+        "domain": "subsurface",
         "side": "red"
       }
     ]

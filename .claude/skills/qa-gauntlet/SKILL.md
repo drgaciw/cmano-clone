@@ -79,7 +79,7 @@ per this matrix — combine dimensions within a tier, don't cherry-pick one:
 | Dim | Tier 1 | Tier 2 | Tier 3 | Tier 4 | Tier 5 |
 |---|---|---|---|---|---|
 | **Mission type** | Single patrol | Strike OR escort | Escort + strike combined | ASW/AAW multi-mission | Multi-domain theater op (patrol+strike+escort+ASW concurrent) |
-| **Platform mix** | 1–2 surface units/side | + fixed-wing air | + submarines | + UAV/drone elements | Joint mix incl. drone swarms, both sides asymmetric |
+| **Platform mix** | 3 surface units/side (~6) | 3 surface + 1 air / side (~8) | 3 surface + 2 air + 1 sub / side (~12) | 3–4 surface + 2 air + 1–2 sub / side (~14) | 4 surface + 3 air + 2 sub blue vs dense red (~16); asymmetric joint mix |
 | **Victory conditions** | Survive N ticks | Destroy designated target | Protect HVU + destroy target | Weighted multi-objective scoring | Conditional/dynamic objectives that change on trigger |
 | **Events** | None | 1 scripted timed event | Timed event chain | Random injects (seeded) | Cascading adversarial injects (comms loss, sensor degradation, reinforcements) |
 | **ROE** | Weapons free, both sides | Weapons tight one side | ID-required engagement criteria | Asymmetric per-side ROE + escalation rules | Mid-mission ROE changes via event |

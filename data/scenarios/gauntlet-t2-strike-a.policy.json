@@ -15,17 +15,44 @@
   },
   "detection": [
     {
-      "observerId": "k-31-visby-2009",
+      "observerId": "f-361-iver-huitfeldt-2012",
       "sensorId": "radar-1",
       "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c1",
+      "contactId": "c-9088-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "80-hamina-rauma-2-2006",
+      "sensorId": "radar-1",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c-9088-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "70-rauma-helsinki-ii-1990",
+      "sensorId": "radar-1",
+      "targetId": "mrk-buyan-pr-21630-buyan-2007",
+      "contactId": "c-9088-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "nh90-nfh-caiman-marine",
+      "sensorId": "radar-1",
+      "targetId": "tu-160-blackjack",
+      "contactId": "c-9088-4",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     }
   ],
   "gauntlet": {
-    "intent": "Strike: destroy designated surface target; catalog air available for mix metadata [catalog ORBAT: Visby vs Sovremenny]",
+    "intent": "Strike: destroy designated surface target; catalog air available for mix metadata [catalog ORBAT: Visby vs Sovremenny] [expanded ORBAT 8 units / 34 catalogRefs]",
     "oracle": "Engagement path stable; Blue score finite",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -34,15 +61,34 @@
       "70-rauma-helsinki-ii-1990",
       "80-hamina-rauma-2-2006",
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "d-32-daring-type-45-batch-1",
       "em-sovremenny-i-pr-956-sarych",
       "f-207-bremen-type-f122-1982",
+      "f-219-sachsen-type-f124-2006",
+      "f-230-norfolk-type-23-duke",
+      "f-310-fridtjof-nansen",
+      "f-341-absalon-2020",
       "f-35a-lightning-ii",
+      "f-361-iver-huitfeldt-2012",
+      "f-450-elli-kortenaer-batch-ii-0",
       "f-a-18c-hornet-f-18c",
       "hkp-14f-nh90-ttt",
       "jas-39a-gripen-1997",
       "jas-39b-gripen-1997",
       "jas-39c-gripen-2005",
-      "k-31-visby-2009"
+      "k-11-stockholm-spica-iii-1986",
+      "k-21-goteborg",
+      "k-22-gavle-ex-goteborg-class",
+      "k-31-visby-2009",
+      "m-04-carlskrona",
+      "m-73-koster-upgraded-landsort-class",
+      "mpk-steregushchiy-pr-20380-2018",
+      "mrk-buyan-pr-21630-buyan-2007",
+      "nh90-nfh-caiman-marine",
+      "p-151-hugin",
+      "p-840-holland",
+      "p-960-skjold",
+      "tu-160-blackjack"
     ],
     "airPool": [
       "jas-39c-gripen-2005",
@@ -53,24 +99,60 @@
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minScore": 30.0,
-      "maxScore": 70.0,
-      "maxMissilesFired": 5,
-      "maxDenials": 14,
+      "minScore": -100.0,
+      "maxScore": 500.0,
+      "maxMissilesFired": 24,
+      "maxDenials": 40,
       "minKills": 1,
-      "minDenials": 6
+      "minDenials": 4
     },
     "units": [
       {
-        "unitId": "k-31-visby-2009",
-        "platformId": "k-31-visby-2009",
+        "unitId": "f-361-iver-huitfeldt-2012",
+        "platformId": "f-361-iver-huitfeldt-2012",
         "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "80-hamina-rauma-2-2006",
+        "platformId": "80-hamina-rauma-2-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "70-rauma-helsinki-ii-1990",
+        "platformId": "70-rauma-helsinki-ii-1990",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "nh90-nfh-caiman-marine",
+        "platformId": "nh90-nfh-caiman-marine",
+        "domain": "air",
         "side": "blue"
       },
       {
         "unitId": "em-sovremenny-i-pr-956-sarych",
         "platformId": "em-sovremenny-i-pr-956-sarych",
         "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-buyan-pr-21630-buyan-2007",
+        "platformId": "mrk-buyan-pr-21630-buyan-2007",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "tu-160-blackjack",
+        "platformId": "tu-160-blackjack",
+        "domain": "air",
         "side": "red"
       }
     ]

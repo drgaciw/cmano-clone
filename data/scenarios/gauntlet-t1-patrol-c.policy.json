@@ -15,17 +15,35 @@
   },
   "detection": [
     {
-      "observerId": "k-31-visby-2009",
-      "sensorId": "radar-2",
-      "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c1",
-      "basePd": 0.75,
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "624-pr-205p-tarantul-1992",
+      "contactId": "c-0248-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-310-fridtjof-nansen",
+      "sensorId": "radar-1",
+      "targetId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "contactId": "c-0248-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-341-absalon-2020",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-0248-3",
+      "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     }
   ],
   "gauntlet": {
-    "intent": "Patrol with tight Blue ROE [catalog ORBAT: Visby vs Sovremenny]",
+    "intent": "Patrol with tight Blue ROE [catalog ORBAT: Visby vs Sovremenny] [expanded ORBAT 6 units / 25 catalogRefs]",
     "oracle": "Completes without crash under tight ROE",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -34,32 +52,72 @@
       "70-rauma-helsinki-ii-1990",
       "80-hamina-rauma-2-2006",
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "d-32-daring-type-45-batch-1",
       "em-sovremenny-i-pr-956-sarych",
       "f-207-bremen-type-f122-1982",
-      "k-31-visby-2009"
+      "f-219-sachsen-type-f124-2006",
+      "f-230-norfolk-type-23-duke",
+      "f-310-fridtjof-nansen",
+      "f-341-absalon-2020",
+      "f-450-elli-kortenaer-batch-ii-0",
+      "k-11-stockholm-spica-iii-1986",
+      "k-21-goteborg",
+      "k-22-gavle-ex-goteborg-class",
+      "k-31-visby-2009",
+      "m-04-carlskrona",
+      "m-73-koster-upgraded-landsort-class",
+      "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "p-151-hugin",
+      "p-840-holland",
+      "p-960-skjold",
+      "pk-368-vasily-bykov-pr-22160"
     ],
     "runId": "gauntlet-t12-catalog-db-driven",
     "tier": 1,
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minScore": 50.0,
-      "maxScore": 90.0,
-      "maxMissilesFired": 5,
-      "maxDenials": 10,
+      "minScore": -100.0,
+      "maxScore": 500.0,
+      "maxMissilesFired": 18,
+      "maxDenials": 30,
       "minKills": 1,
       "minDenials": 2
     },
     "units": [
       {
-        "unitId": "k-31-visby-2009",
-        "platformId": "k-31-visby-2009",
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
         "domain": "surface",
         "side": "blue"
       },
       {
-        "unitId": "em-sovremenny-i-pr-956-sarych",
-        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-341-absalon-2020",
+        "platformId": "f-341-absalon-2020",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "624-pr-205p-tarantul-1992",
+        "platformId": "624-pr-205p-tarantul-1992",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+        "platformId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
         "domain": "surface",
         "side": "red"
       }

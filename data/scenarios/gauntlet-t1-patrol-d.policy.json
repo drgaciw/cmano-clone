@@ -17,15 +17,33 @@
     {
       "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
-      "targetId": "mpk-steregushchiy-pr-20380-2018",
-      "contactId": "c-far",
-      "basePd": 0.5,
-      "envMask": 0.9,
+      "targetId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "contactId": "c-4888-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "k-22-gavle-ex-goteborg-class",
+      "sensorId": "radar-1",
+      "targetId": "mrk-shkval-pr-22800-karakurt",
+      "contactId": "c-4888-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "k-21-goteborg",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-4888-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
       "jamStrength": 0
     }
   ],
   "gauntlet": {
-    "intent": "Long-range patrol contact on hostile-far [catalog ORBAT: Visby vs Sovremenny]",
+    "intent": "Long-range patrol contact on hostile-far [catalog ORBAT: Visby vs Sovremenny] [expanded ORBAT 6 units / 25 catalogRefs]",
     "oracle": "Stable fingerprint; may not kill",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -34,20 +52,35 @@
       "70-rauma-helsinki-ii-1990",
       "80-hamina-rauma-2-2006",
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "d-32-daring-type-45-batch-1",
       "em-sovremenny-i-pr-956-sarych",
       "f-207-bremen-type-f122-1982",
+      "f-230-norfolk-type-23-duke",
+      "f-310-fridtjof-nansen",
+      "f-341-absalon-2020",
+      "f-361-iver-huitfeldt-2012",
+      "f-450-elli-kortenaer-batch-ii-0",
+      "k-21-goteborg",
+      "k-22-gavle-ex-goteborg-class",
       "k-31-visby-2009",
-      "mpk-steregushchiy-pr-20380-2018"
+      "m-04-carlskrona",
+      "m-73-koster-upgraded-landsort-class",
+      "mpk-steregushchiy-pr-20380-2018",
+      "mrk-shkval-pr-22800-karakurt",
+      "p-151-hugin",
+      "p-840-holland",
+      "p-960-skjold",
+      "skr-admiral-grigorovich-pr-1135-6m"
     ],
     "runId": "gauntlet-t12-catalog-db-driven",
     "tier": 1,
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minScore": -50.0,
-      "maxScore": 90.0,
-      "maxMissilesFired": 6,
-      "maxDenials": 10,
+      "minScore": -100.0,
+      "maxScore": 500.0,
+      "maxMissilesFired": 18,
+      "maxDenials": 30,
       "minDenials": 2
     },
     "units": [
@@ -58,14 +91,32 @@
         "side": "blue"
       },
       {
-        "unitId": "em-sovremenny-i-pr-956-sarych",
-        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "unitId": "k-22-gavle-ex-goteborg-class",
+        "platformId": "k-22-gavle-ex-goteborg-class",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "k-21-goteborg",
+        "platformId": "k-21-goteborg",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "platformId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
         "domain": "surface",
         "side": "red"
       },
       {
-        "unitId": "mpk-steregushchiy-pr-20380-2018",
-        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
         "domain": "surface",
         "side": "red"
       }

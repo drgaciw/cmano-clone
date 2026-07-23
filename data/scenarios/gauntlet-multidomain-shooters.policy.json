@@ -19,7 +19,7 @@
       "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
       "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-surface",
+      "contactId": "c-md-1",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -28,7 +28,7 @@
       "observerId": "jas-39c-gripen-2005",
       "sensorId": "radar-1",
       "targetId": "mpk-steregushchiy-pr-20380-2018",
-      "contactId": "c-air",
+      "contactId": "c-md-2",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -37,7 +37,44 @@
       "observerId": "a-19-gotland-2022",
       "sensorId": "sonar-1",
       "targetId": "mrk-buyan-pr-21630-buyan-2007",
-      "contactId": "c-sub",
+      "contactId": "c-md-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "su-27sm-sm3-flanker-j-2013",
+      "contactId": "c-md-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-230-norfolk-type-23-duke",
+      "sensorId": "radar-1",
+      "targetId": "su-33-flanker-d",
+      "contactId": "c-md-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-35a-lightning-ii",
+      "sensorId": "radar-1",
+      "targetId": "su-27sm-sm3-flanker-j-2013",
+      "contactId": "c-md-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-17-vastergotland-1999",
+      "sensorId": "sonar-1",
+      "targetId": "pla-885m-severodvinsk-yasen-m",
+      "contactId": "c-md-7",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0,
@@ -45,24 +82,50 @@
     }
   ],
   "gauntlet": {
-    "intent": "True multi-domain engage: surface\u2192Sovremenny, air\u2192Steregushchiy, sub\u2192Buyan (distinct reds so concurrent launch)",
+    "intent": "True multi-domain engage: surface\u2192Sovremenny, air\u2192Steregushchiy, sub\u2192Buyan (distinct reds so concurrent launch) [expanded ORBAT 13 units / 31 catalogRefs]",
     "oracle": "True|Launched from Visby, Gripen, and Gotland against their paired catalog reds",
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minScore": 0.0,
-      "maxScore": 280.0,
-      "maxMissilesFired": 13,
-      "maxDenials": 20,
-      "minKills": 1
+      "minKills": 3,
+      "maxMissilesFired": 26,
+      "maxDenials": 22,
+      "minScore": -50,
+      "maxScore": 470.0,
+      "minDenials": 4
     },
     "catalogRefs": [
-      "k-31-visby-2009",
-      "jas-39c-gripen-2005",
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "624-pr-205p-tarantul-1992",
+      "70-rauma-helsinki-ii-1990",
+      "80-hamina-rauma-2-2006",
+      "a-17-vastergotland-1999",
       "a-19-gotland-2022",
+      "d-32-daring-type-45-batch-1",
       "em-sovremenny-i-pr-956-sarych",
+      "f-207-bremen-type-f122-1982",
+      "f-219-sachsen-type-f124-2006",
+      "f-230-norfolk-type-23-duke",
+      "f-310-fridtjof-nansen",
+      "f-341-absalon-2020",
+      "f-35a-lightning-ii",
+      "f-361-iver-huitfeldt-2012",
+      "f-450-elli-kortenaer-batch-ii-0",
+      "jas-39c-gripen-2005",
+      "k-11-stockholm-spica-iii-1986",
+      "k-21-goteborg",
+      "k-22-gavle-ex-goteborg-class",
+      "k-31-visby-2009",
       "mpk-steregushchiy-pr-20380-2018",
-      "mrk-buyan-pr-21630-buyan-2007"
+      "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "mrk-buyan-pr-21630-buyan-2007",
+      "p-151-hugin",
+      "p-840-holland",
+      "p-960-skjold",
+      "pla-885m-severodvinsk-yasen-m",
+      "su-27sm-sm3-flanker-j-2013",
+      "su-33-flanker-d"
     ],
     "units": [
       {
@@ -90,6 +153,30 @@
         "side": "red"
       },
       {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-230-norfolk-type-23-duke",
+        "platformId": "f-230-norfolk-type-23-duke",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-35a-lightning-ii",
+        "platformId": "f-35a-lightning-ii",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-17-vastergotland-1999",
+        "platformId": "a-17-vastergotland-1999",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
         "unitId": "mpk-steregushchiy-pr-20380-2018",
         "platformId": "mpk-steregushchiy-pr-20380-2018",
         "domain": "surface",
@@ -99,6 +186,24 @@
         "unitId": "mrk-buyan-pr-21630-buyan-2007",
         "platformId": "mrk-buyan-pr-21630-buyan-2007",
         "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-27sm-sm3-flanker-j-2013",
+        "platformId": "su-27sm-sm3-flanker-j-2013",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-33-flanker-d",
+        "platformId": "su-33-flanker-d",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885m-severodvinsk-yasen-m",
+        "platformId": "pla-885m-severodvinsk-yasen-m",
+        "domain": "subsurface",
         "side": "red"
       }
     ],

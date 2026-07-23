@@ -19,7 +19,7 @@
       "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
       "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-surface",
+      "contactId": "c-md-1",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -28,7 +28,7 @@
       "observerId": "jas-39c-gripen-2005",
       "sensorId": "radar-1",
       "targetId": "mpk-steregushchiy-pr-20380-2018",
-      "contactId": "c-air",
+      "contactId": "c-md-2",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -37,7 +37,44 @@
       "observerId": "a-19-gotland-2022",
       "sensorId": "sonar-1",
       "targetId": "mrk-buyan-pr-21630-buyan-2007",
-      "contactId": "c-sub",
+      "contactId": "c-md-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "241-slazak-meko-100-mod-2019",
+      "sensorId": "radar-1",
+      "targetId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "contactId": "c-md-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "421-orkan-pr-660-2015",
+      "sensorId": "radar-1",
+      "targetId": "mig-31-foxhound",
+      "contactId": "c-md-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39d-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "su-34-fullback-2014",
+      "contactId": "c-md-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-19-gotland-2002",
+      "sensorId": "sonar-1",
+      "targetId": "plarb-955a-borei-ii-borey-a",
+      "contactId": "c-md-7",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0,
@@ -45,29 +82,53 @@
     }
   ],
   "gauntlet": {
-    "intent": "Multi-domain engage default: Visby\u2192Sovremenny, Gripen\u2192Steregushchiy, Gotland\u2192Buyan (distinct reds; concurrent True|Launched)",
+    "intent": "Multi-domain engage default: Visby\u2192Sovremenny, Gripen\u2192Steregushchiy, Gotland\u2192Buyan (distinct reds; concurrent True|Launched) [expanded ORBAT 14 units / 30 catalogRefs]",
     "oracle": "Air and sub catalog blues True|Launched at paired catalog reds; CATALOG_UNIT+MAGAZINE_SEED all domains",
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minKills": 1,
-      "maxMissilesFired": 11,
-      "maxDenials": 12,
-      "minScore": 0,
-      "maxScore": 300,
-      "minDenials": 8,
       "requireTrueLaunchedShooters": [
         "jas-39c-gripen-2005",
         "a-19-gotland-2022"
-      ]
+      ],
+      "minKills": 5,
+      "maxMissilesFired": 24,
+      "maxDenials": 22,
+      "minScore": -50,
+      "maxScore": 670.0,
+      "minDenials": 4
     },
     "catalogRefs": [
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "70-rauma-helsinki-ii-1990",
+      "80-hamina-rauma-2-2006",
+      "a-19-gotland-2002",
       "a-19-gotland-2022",
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
       "em-sovremenny-i-pr-956-sarych",
+      "f-207-bremen-type-f122-1982",
+      "f-219-sachsen-type-f124-2006",
+      "f-230-norfolk-type-23-duke",
+      "f-310-fridtjof-nansen",
+      "f-341-absalon-2020",
+      "f-361-iver-huitfeldt-2012",
+      "f-450-elli-kortenaer-batch-ii-0",
       "jas-39c-gripen-2005",
+      "jas-39d-gripen-2005",
+      "k-11-stockholm-spica-iii-1986",
+      "k-21-goteborg",
+      "k-22-gavle-ex-goteborg-class",
       "k-31-visby-2009",
+      "m-04-carlskrona",
+      "m-73-koster-upgraded-landsort-class",
+      "mig-31-foxhound",
       "mpk-steregushchiy-pr-20380-2018",
-      "mrk-buyan-pr-21630-buyan-2007"
+      "mrk-buyan-pr-21630-buyan-2007",
+      "p-151-hugin",
+      "p-840-holland",
+      "plarb-955a-borei-ii-borey-a",
+      "su-34-fullback-2014"
     ],
     "units": [
       {
@@ -104,6 +165,54 @@
         "unitId": "mrk-buyan-pr-21630-buyan-2007",
         "platformId": "mrk-buyan-pr-21630-buyan-2007",
         "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "241-slazak-meko-100-mod-2019",
+        "platformId": "241-slazak-meko-100-mod-2019",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "421-orkan-pr-660-2015",
+        "platformId": "421-orkan-pr-660-2015",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39d-gripen-2005",
+        "platformId": "jas-39d-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-19-gotland-2002",
+        "platformId": "a-19-gotland-2002",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "platformId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-31-foxhound",
+        "platformId": "mig-31-foxhound",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-34-fullback-2014",
+        "platformId": "su-34-fullback-2014",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "plarb-955a-borei-ii-borey-a",
+        "platformId": "plarb-955a-borei-ii-borey-a",
+        "domain": "subsurface",
         "side": "red"
       }
     ],

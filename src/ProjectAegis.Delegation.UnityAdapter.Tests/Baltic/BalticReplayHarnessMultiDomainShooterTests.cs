@@ -58,13 +58,7 @@ public sealed class BalticReplayHarnessMultiDomainShooterTests
             var shooter = e.Split('|')[4];
             var victim = FindNextOutcomeVictim(tokens, i + 1);
             Assert.That(victim, Is.Not.Null, e);
-            var reds = new HashSet<string>(StringComparer.Ordinal)
-            {
-                RedId,
-                "mpk-steregushchiy-pr-20380-2018",
-                "mrk-buyan-pr-21630-buyan-2007",
-            };
-            Assert.That(reds.Contains(victim!), Is.True,
+            Assert.That(GauntletCatalogSides.IsRed(victim!), Is.True,
                 $"blue launch must hit catalog red: {shooter}->{victim}");
 
             if (shooter == AirId)

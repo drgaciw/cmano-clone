@@ -15,28 +15,55 @@
   },
   "detection": [
     {
-      "observerId": "k-31-visby-2009",
-      "sensorId": "radar-1",
-      "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-visby",
-      "basePd": 1.0,
-      "envMask": 1.0,
-      "jamStrength": 0
-    },
-    {
-      "observerId": "jas-39c-gripen-2005",
+      "observerId": "80-hamina-rauma-2-2006",
       "sensorId": "radar-1",
       "targetId": "mpk-steregushchiy-pr-20380-2018",
-      "contactId": "c-gripen",
+      "contactId": "c-6151-1",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "a-19-gotland-2022",
+      "observerId": "70-rauma-helsinki-ii-1990",
+      "sensorId": "radar-1",
+      "targetId": "mrk-buyan-pr-21630-buyan-2007",
+      "contactId": "c-6151-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "241-slazak-meko-100-mod-2019",
+      "sensorId": "radar-1",
+      "targetId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "contactId": "c-6151-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "nh90-tth-mrh90-taipan-2007",
+      "sensorId": "radar-1",
+      "targetId": "su-30sm-flanker-g-2019",
+      "contactId": "c-6151-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39b-gripen-1997",
+      "sensorId": "radar-1",
+      "targetId": "su-35s-flanker-m-2023",
+      "contactId": "c-6151-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-17-s\u00f6dermanland-vastergotland-mod",
       "sensorId": "sonar-1",
-      "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-gotland",
+      "targetId": "plarb-955-borei-borey",
+      "contactId": "c-6151-6",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0,
@@ -44,7 +71,7 @@
     }
   ],
   "gauntlet": {
-    "intent": "ID-required ROE both sides tight [catalog red: Sovremenny]",
+    "intent": "ID-required ROE both sides tight [catalog red: Sovremenny] [expanded ORBAT 12 units / 40 catalogRefs]",
     "oracle": "No crash under dual tight ROE",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -57,16 +84,36 @@
       "a-19-gotland-1996",
       "a-19-gotland-2022",
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "d-32-daring-type-45-batch-1",
       "em-sovremenny-i-pr-956-sarych",
       "f-207-bremen-type-f122-1982",
+      "f-219-sachsen-type-f124-2006",
+      "f-230-norfolk-type-23-duke",
+      "f-310-fridtjof-nansen",
+      "f-341-absalon-2020",
       "f-35a-lightning-ii",
+      "f-361-iver-huitfeldt-2012",
+      "f-450-elli-kortenaer-batch-ii-0",
       "f-a-18c-hornet-f-18c",
       "hkp-14f-nh90-ttt",
       "jas-39a-gripen-1997",
       "jas-39b-gripen-1997",
       "jas-39c-gripen-2005",
+      "k-11-stockholm-spica-iii-1986",
+      "k-21-goteborg",
+      "k-22-gavle-ex-goteborg-class",
       "k-31-visby-2009",
-      "mpk-steregushchiy-pr-20380-2018"
+      "m-04-carlskrona",
+      "m-73-koster-upgraded-landsort-class",
+      "mpk-steregushchiy-pr-20380-2018",
+      "mrk-buyan-pr-21630-buyan-2007",
+      "nh90-tth-mrh90-taipan-2007",
+      "p-151-hugin",
+      "p-840-holland",
+      "p-960-skjold",
+      "plarb-955-borei-borey",
+      "su-30sm-flanker-g-2019",
+      "su-35s-flanker-m-2023"
     ],
     "runId": "gauntlet-t3t5-catalog-red",
     "tier": 3,
@@ -74,41 +121,83 @@
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
       "minKills": 0,
-      "maxMissilesFired": 2,
+      "maxMissilesFired": 36,
       "maxDenials": 66,
-      "minScore": -370,
-      "maxScore": -270,
-      "minDenials": 62
+      "minScore": -370.0,
+      "maxScore": 500.0,
+      "minDenials": 4
     },
     "units": [
       {
-        "unitId": "k-31-visby-2009",
-        "platformId": "k-31-visby-2009",
+        "unitId": "80-hamina-rauma-2-2006",
+        "platformId": "80-hamina-rauma-2-2006",
         "domain": "surface",
         "side": "blue"
       },
       {
-        "unitId": "jas-39c-gripen-2005",
-        "platformId": "jas-39c-gripen-2005",
+        "unitId": "70-rauma-helsinki-ii-1990",
+        "platformId": "70-rauma-helsinki-ii-1990",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "241-slazak-meko-100-mod-2019",
+        "platformId": "241-slazak-meko-100-mod-2019",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "nh90-tth-mrh90-taipan-2007",
+        "platformId": "nh90-tth-mrh90-taipan-2007",
         "domain": "air",
         "side": "blue"
       },
       {
-        "unitId": "a-19-gotland-2022",
-        "platformId": "a-19-gotland-2022",
-        "domain": "subsurface",
+        "unitId": "jas-39b-gripen-1997",
+        "platformId": "jas-39b-gripen-1997",
+        "domain": "air",
         "side": "blue"
       },
       {
-        "unitId": "em-sovremenny-i-pr-956-sarych",
-        "platformId": "em-sovremenny-i-pr-956-sarych",
-        "domain": "surface",
-        "side": "red"
+        "unitId": "a-17-s\u00f6dermanland-vastergotland-mod",
+        "platformId": "a-17-s\u00f6dermanland-vastergotland-mod",
+        "domain": "subsurface",
+        "side": "blue"
       },
       {
         "unitId": "mpk-steregushchiy-pr-20380-2018",
         "platformId": "mpk-steregushchiy-pr-20380-2018",
         "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-buyan-pr-21630-buyan-2007",
+        "platformId": "mrk-buyan-pr-21630-buyan-2007",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "platformId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-30sm-flanker-g-2019",
+        "platformId": "su-30sm-flanker-g-2019",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-35s-flanker-m-2023",
+        "platformId": "su-35s-flanker-m-2023",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "plarb-955-borei-borey",
+        "platformId": "plarb-955-borei-borey",
+        "domain": "subsurface",
         "side": "red"
       }
     ]

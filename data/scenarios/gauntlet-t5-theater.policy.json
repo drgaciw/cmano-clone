@@ -15,28 +15,83 @@
   },
   "detection": [
     {
-      "observerId": "k-31-visby-2009",
-      "sensorId": "radar-1",
-      "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-visby",
-      "basePd": 1.0,
-      "envMask": 1.0,
-      "jamStrength": 0
-    },
-    {
-      "observerId": "jas-39c-gripen-2005",
+      "observerId": "80-hamina-rauma-2-2006",
       "sensorId": "radar-1",
       "targetId": "mpk-steregushchiy-pr-20380-2018",
-      "contactId": "c-gripen",
+      "contactId": "c-9964-1",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "a-19-gotland-2022",
+      "observerId": "70-rauma-helsinki-ii-1990",
+      "sensorId": "radar-1",
+      "targetId": "mrk-buyan-pr-21630-buyan-2007",
+      "contactId": "c-9964-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "241-slazak-meko-100-mod-2019",
+      "sensorId": "radar-1",
+      "targetId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "contactId": "c-9964-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "421-orkan-pr-660-2015",
+      "sensorId": "radar-1",
+      "targetId": "mrk-shkval-pr-22800-karakurt",
+      "contactId": "c-9964-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "nh90-tth-mrh90-taipan-2007",
+      "sensorId": "radar-1",
+      "targetId": "su-30sm-flanker-g-2019",
+      "contactId": "c-9964-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39b-gripen-1997",
+      "sensorId": "radar-1",
+      "targetId": "su-35s-flanker-m-2023",
+      "contactId": "c-9964-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39d-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "su-30sm-flanker-g-2019",
+      "contactId": "c-9964-7",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-17-s\u00f6dermanland-vastergotland-mod",
       "sensorId": "sonar-1",
-      "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-gotland",
+      "targetId": "plarb-955-borei-borey",
+      "contactId": "c-9964-8",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "a-19-gotland-1996",
+      "sensorId": "sonar-1",
+      "targetId": "plarb-955-borei-borey",
+      "contactId": "c-9964-9",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0,
@@ -44,7 +99,7 @@
     }
   ],
   "gauntlet": {
-    "intent": "Multi-domain theater op metadata (joint catalog ORBAT) [catalog red: Sovremenny]",
+    "intent": "Multi-domain theater op metadata (joint catalog ORBAT) [catalog red: Sovremenny] [expanded ORBAT 16 units / 43 catalogRefs]",
     "oracle": "Longer run stable; multi-sensor jam",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -52,25 +107,44 @@
       "624-pr-205p-tarantul-1992",
       "70-rauma-helsinki-ii-1990",
       "80-hamina-rauma-2-2006",
+      "a-17-s\u00f6dermanland-vastergotland-mod",
       "a-17-vastergotland-1999",
       "a-19-gotland-1996",
       "a-19-gotland-2022",
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "d-32-daring-type-45-batch-1",
       "em-sovremenny-i-pr-956-sarych",
       "f-207-bremen-type-f122-1982",
       "f-219-sachsen-type-f124-2006",
+      "f-230-norfolk-type-23-duke",
       "f-310-fridtjof-nansen",
       "f-341-absalon-2020",
       "f-35a-lightning-ii",
       "f-361-iver-huitfeldt-2012",
+      "f-450-elli-kortenaer-batch-ii-0",
       "f-a-18c-hornet-f-18c",
       "hkp-14f-nh90-ttt",
       "jas-39a-gripen-1997",
       "jas-39b-gripen-1997",
       "jas-39c-gripen-2005",
+      "jas-39d-gripen-2005",
       "jas-39e-gripen-ng-2021",
+      "k-11-stockholm-spica-iii-1986",
+      "k-21-goteborg",
+      "k-22-gavle-ex-goteborg-class",
       "k-31-visby-2009",
-      "mpk-steregushchiy-pr-20380-2018"
+      "m-04-carlskrona",
+      "m-73-koster-upgraded-landsort-class",
+      "mpk-steregushchiy-pr-20380-2018",
+      "mrk-buyan-pr-21630-buyan-2007",
+      "mrk-shkval-pr-22800-karakurt",
+      "nh90-tth-mrh90-taipan-2007",
+      "p-151-hugin",
+      "p-840-holland",
+      "p-960-skjold",
+      "plarb-955-borei-borey",
+      "su-30sm-flanker-g-2019",
+      "su-35s-flanker-m-2023"
     ],
     "domains": [
       "surface",
@@ -83,41 +157,107 @@
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
       "minKills": 1,
-      "maxMissilesFired": 12,
-      "maxDenials": 42,
-      "minScore": -150,
-      "maxScore": 50,
-      "minDenials": 38
+      "maxMissilesFired": 48,
+      "maxDenials": 80,
+      "minScore": -150.0,
+      "maxScore": 500.0,
+      "minDenials": 4
     },
     "units": [
       {
-        "unitId": "k-31-visby-2009",
-        "platformId": "k-31-visby-2009",
+        "unitId": "80-hamina-rauma-2-2006",
+        "platformId": "80-hamina-rauma-2-2006",
         "domain": "surface",
         "side": "blue"
       },
       {
-        "unitId": "jas-39c-gripen-2005",
-        "platformId": "jas-39c-gripen-2005",
+        "unitId": "70-rauma-helsinki-ii-1990",
+        "platformId": "70-rauma-helsinki-ii-1990",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "241-slazak-meko-100-mod-2019",
+        "platformId": "241-slazak-meko-100-mod-2019",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "421-orkan-pr-660-2015",
+        "platformId": "421-orkan-pr-660-2015",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "nh90-tth-mrh90-taipan-2007",
+        "platformId": "nh90-tth-mrh90-taipan-2007",
         "domain": "air",
         "side": "blue"
       },
       {
-        "unitId": "a-19-gotland-2022",
-        "platformId": "a-19-gotland-2022",
+        "unitId": "jas-39b-gripen-1997",
+        "platformId": "jas-39b-gripen-1997",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39d-gripen-2005",
+        "platformId": "jas-39d-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-17-s\u00f6dermanland-vastergotland-mod",
+        "platformId": "a-17-s\u00f6dermanland-vastergotland-mod",
         "domain": "subsurface",
         "side": "blue"
       },
       {
-        "unitId": "em-sovremenny-i-pr-956-sarych",
-        "platformId": "em-sovremenny-i-pr-956-sarych",
-        "domain": "surface",
-        "side": "red"
+        "unitId": "a-19-gotland-1996",
+        "platformId": "a-19-gotland-1996",
+        "domain": "subsurface",
+        "side": "blue"
       },
       {
         "unitId": "mpk-steregushchiy-pr-20380-2018",
         "platformId": "mpk-steregushchiy-pr-20380-2018",
         "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-buyan-pr-21630-buyan-2007",
+        "platformId": "mrk-buyan-pr-21630-buyan-2007",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "platformId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-30sm-flanker-g-2019",
+        "platformId": "su-30sm-flanker-g-2019",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-35s-flanker-m-2023",
+        "platformId": "su-35s-flanker-m-2023",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "plarb-955-borei-borey",
+        "platformId": "plarb-955-borei-borey",
+        "domain": "subsurface",
         "side": "red"
       }
     ]

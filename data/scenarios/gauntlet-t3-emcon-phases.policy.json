@@ -18,7 +18,7 @@
       "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
       "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-surface",
+      "contactId": "c-md-1",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -27,7 +27,7 @@
       "observerId": "jas-39c-gripen-2005",
       "sensorId": "radar-1",
       "targetId": "mpk-steregushchiy-pr-20380-2018",
-      "contactId": "c-air",
+      "contactId": "c-md-2",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -36,7 +36,44 @@
       "observerId": "a-19-gotland-2022",
       "sensorId": "sonar-1",
       "targetId": "mrk-buyan-pr-21630-buyan-2007",
-      "contactId": "c-sub",
+      "contactId": "c-md-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "f-230-norfolk-type-23-duke",
+      "sensorId": "radar-1",
+      "targetId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "contactId": "c-md-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-450-elli-kortenaer-batch-ii-0",
+      "sensorId": "radar-1",
+      "targetId": "su-33-flanker-d",
+      "contactId": "c-md-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-a-18c-hornet-f-18c",
+      "sensorId": "radar-1",
+      "targetId": "su-57-felon",
+      "contactId": "c-md-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-19-gotland-2020",
+      "sensorId": "sonar-1",
+      "targetId": "plarb-955-borei-borey",
+      "contactId": "c-md-7",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0,
@@ -44,7 +81,7 @@
     }
   ],
   "gauntlet": {
-    "intent": "Multi-domain engage default: Visby\u2192Sovremenny, Gripen\u2192Steregushchiy, Gotland\u2192Buyan (distinct reds; concurrent True|Launched)",
+    "intent": "Multi-domain engage default: Visby\u2192Sovremenny, Gripen\u2192Steregushchiy, Gotland\u2192Buyan (distinct reds; concurrent True|Launched) [expanded ORBAT 14 units / 39 catalogRefs]",
     "oracle": "Air and sub catalog blues True|Launched at paired catalog reds; CATALOG_UNIT+MAGAZINE_SEED all domains",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -55,19 +92,37 @@
       "a-17-s\u00f6dermanland-vastergotland-mod",
       "a-17-vastergotland-1999",
       "a-19-gotland-1996",
+      "a-19-gotland-2020",
       "a-19-gotland-2022",
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "d-32-daring-type-45-batch-1",
       "em-sovremenny-i-pr-956-sarych",
       "f-207-bremen-type-f122-1982",
+      "f-219-sachsen-type-f124-2006",
+      "f-230-norfolk-type-23-duke",
+      "f-310-fridtjof-nansen",
+      "f-341-absalon-2020",
       "f-35a-lightning-ii",
+      "f-361-iver-huitfeldt-2012",
+      "f-450-elli-kortenaer-batch-ii-0",
       "f-a-18c-hornet-f-18c",
       "hkp-14f-nh90-ttt",
       "jas-39a-gripen-1997",
       "jas-39b-gripen-1997",
       "jas-39c-gripen-2005",
+      "k-11-stockholm-spica-iii-1986",
+      "k-21-goteborg",
+      "k-22-gavle-ex-goteborg-class",
       "k-31-visby-2009",
+      "m-04-carlskrona",
       "mpk-steregushchiy-pr-20380-2018",
-      "mrk-buyan-pr-21630-buyan-2007"
+      "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "mrk-buyan-pr-21630-buyan-2007",
+      "p-840-holland",
+      "p-960-skjold",
+      "plarb-955-borei-borey",
+      "su-33-flanker-d",
+      "su-57-felon"
     ],
     "emcon": "phased",
     "runId": "gauntlet-t3t5-catalog-red",
@@ -75,16 +130,16 @@
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minKills": 1,
-      "maxMissilesFired": 11,
-      "maxDenials": 18,
-      "minScore": 0,
-      "maxScore": 300,
-      "minDenials": 8,
       "requireTrueLaunchedShooters": [
         "jas-39c-gripen-2005",
         "a-19-gotland-2022"
-      ]
+      ],
+      "minKills": 5,
+      "maxMissilesFired": 24,
+      "maxDenials": 22,
+      "minScore": -50,
+      "maxScore": 670.0,
+      "minDenials": 4
     },
     "units": [
       {
@@ -121,6 +176,54 @@
         "unitId": "mrk-buyan-pr-21630-buyan-2007",
         "platformId": "mrk-buyan-pr-21630-buyan-2007",
         "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "f-230-norfolk-type-23-duke",
+        "platformId": "f-230-norfolk-type-23-duke",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-450-elli-kortenaer-batch-ii-0",
+        "platformId": "f-450-elli-kortenaer-batch-ii-0",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-a-18c-hornet-f-18c",
+        "platformId": "f-a-18c-hornet-f-18c",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-19-gotland-2020",
+        "platformId": "a-19-gotland-2020",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+        "platformId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-33-flanker-d",
+        "platformId": "su-33-flanker-d",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-57-felon",
+        "platformId": "su-57-felon",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "plarb-955-borei-borey",
+        "platformId": "plarb-955-borei-borey",
+        "domain": "subsurface",
         "side": "red"
       }
     ]
