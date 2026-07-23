@@ -19,16 +19,34 @@
       "observerId": "k-31-visby-2009",
       "sensorId": "radar-1",
       "targetId": "em-sovremenny-i-pr-956-sarych",
-      "contactId": "c-near",
+      "contactId": "c--victory-1",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
     },
     {
-      "observerId": "k-22-gavle-ex-goteborg-class",
+      "observerId": "f-230-norfolk-type-23-duke",
       "sensorId": "radar-1",
-      "targetId": "mpk-steregushchiy-pr-20380-2018",
-      "contactId": "c-far",
+      "targetId": "624-pr-205p-tarantul-1992",
+      "contactId": "c--victory-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-450-elli-kortenaer-batch-ii-0",
+      "sensorId": "radar-1",
+      "targetId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "contactId": "c--victory-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "m-04-carlskrona",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c--victory-4",
       "basePd": 1.0,
       "envMask": 1.0,
       "jamStrength": 0
@@ -55,22 +73,44 @@
     ]
   },
   "gauntlet": {
-    "intent": "Phase-3 dynamic victory: Visby+G\u00e4vle vs two catalog reds; mid-run dynamic_victory_require_dual_kill; expect \u22652 kills",
+    "intent": "Phase-3 dynamic victory: Visby+G\u00e4vle vs two catalog reds; mid-run dynamic_victory_require_dual_kill; expect \u22652 kills [expanded ORBAT 8 units / 25 catalogRefs]",
     "oracle": "minKills\u22652; fingerprint includes dynamic_victory_require_dual_kill",
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minScore": 100.0,
-      "maxScore": 180.0,
-      "maxMissilesFired": 10,
-      "maxDenials": 20,
-      "minKills": 2
+      "minKills": 3,
+      "maxMissilesFired": 14,
+      "maxDenials": 22,
+      "minScore": -50,
+      "maxScore": 470.0,
+      "minDenials": 4
     },
     "catalogRefs": [
-      "k-31-visby-2009",
-      "k-22-gavle-ex-goteborg-class",
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "624-pr-205p-tarantul-1992",
+      "70-rauma-helsinki-ii-1990",
+      "80-hamina-rauma-2-2006",
+      "d-32-daring-type-45-batch-1",
       "em-sovremenny-i-pr-956-sarych",
-      "mpk-steregushchiy-pr-20380-2018"
+      "f-207-bremen-type-f122-1982",
+      "f-219-sachsen-type-f124-2006",
+      "f-230-norfolk-type-23-duke",
+      "f-310-fridtjof-nansen",
+      "f-341-absalon-2020",
+      "f-361-iver-huitfeldt-2012",
+      "f-450-elli-kortenaer-batch-ii-0",
+      "k-11-stockholm-spica-iii-1986",
+      "k-21-goteborg",
+      "k-22-gavle-ex-goteborg-class",
+      "k-31-visby-2009",
+      "m-04-carlskrona",
+      "mpk-steregushchiy-pr-20380-2018",
+      "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "p-151-hugin",
+      "p-840-holland",
+      "p-960-skjold",
+      "pk-368-vasily-bykov-pr-22160"
     ],
     "units": [
       {
@@ -80,20 +120,44 @@
         "side": "blue"
       },
       {
-        "unitId": "k-22-gavle-ex-goteborg-class",
-        "platformId": "k-22-gavle-ex-goteborg-class",
+        "unitId": "f-230-norfolk-type-23-duke",
+        "platformId": "f-230-norfolk-type-23-duke",
         "domain": "surface",
         "side": "blue"
       },
       {
-        "unitId": "em-sovremenny-i-pr-956-sarych",
-        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "unitId": "f-450-elli-kortenaer-batch-ii-0",
+        "platformId": "f-450-elli-kortenaer-batch-ii-0",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "m-04-carlskrona",
+        "platformId": "m-04-carlskrona",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "624-pr-205p-tarantul-1992",
+        "platformId": "624-pr-205p-tarantul-1992",
         "domain": "surface",
         "side": "red"
       },
       {
-        "unitId": "mpk-steregushchiy-pr-20380-2018",
-        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "unitId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+        "platformId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
         "domain": "surface",
         "side": "red"
       }

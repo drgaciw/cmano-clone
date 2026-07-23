@@ -13,12 +13,8 @@ public sealed class BalticReplayHarnessLadderMultiDomainTests
     private const string AirId = "jas-39c-gripen-2005";
     private const string SubId = "a-19-gotland-2022";
 
-    private static readonly HashSet<string> CatalogReds = new(StringComparer.Ordinal)
-    {
-        "em-sovremenny-i-pr-956-sarych",
-        "mpk-steregushchiy-pr-20380-2018",
-        "mrk-buyan-pr-21630-buyan-2007",
-    };
+    // Expanded gauntlet ORBATs may pair air/sub shooters at any catalog red (Russia nationality).
+    private static bool IsCatalogRed(string id) => GauntletCatalogSides.IsRed(id);
 
     [TestCase("gauntlet-joint-orbat-smoke")]
     [TestCase("gauntlet-t3-emcon-phases")]
@@ -53,7 +49,7 @@ public sealed class BalticReplayHarnessLadderMultiDomainTests
             var shooter = e.Split('|')[4];
             var victim = FindNextOutcomeVictim(tokens, i + 1);
             Assert.That(victim, Is.Not.Null, e);
-            Assert.That(CatalogReds.Contains(victim!), Is.True, $"{shooter}->{victim}");
+            Assert.That(IsCatalogRed(victim!), Is.True, $"{shooter}->{victim}");
 
             if (shooter == AirId)
             {

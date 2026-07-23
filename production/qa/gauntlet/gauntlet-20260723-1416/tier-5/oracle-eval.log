@@ -1,0 +1,37 @@
+{
+  "ok": false,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t5-cascade",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t5-dynamic-obj",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t5-roe-change",
+      "passed": false,
+      "failures": [
+        "row[0] scenario=gauntlet-t5-roe-change seed=42: denials 360 \u003E max 180",
+        "row[0] scenario=gauntlet-t5-roe-change seed=42: score -1700 \u003C min -430",
+        "row[1] scenario=gauntlet-t5-roe-change seed=7: denials 360 \u003E max 180",
+        "row[1] scenario=gauntlet-t5-roe-change seed=7: score -1700 \u003C min -430",
+        "row[2] scenario=gauntlet-t5-roe-change seed=123: denials 360 \u003E max 180",
+        "row[2] scenario=gauntlet-t5-roe-change seed=123: score -1700 \u003C min -430"
+      ],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t5-theater",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    }
+  ],
+  "allPassed": false
+}

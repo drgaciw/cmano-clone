@@ -89,9 +89,15 @@ worktrees/
 
 # Transient skill/agent tooling caches (not source)
 .atl/
+.pytest_cache/
+tools/qa-gauntlet/__pycache__/
+
+# Gauntlet forge ephemeral candidates (promote winners only)
+production/qa/gauntlet/*/forge/candidates/
 
 # Superpowers brainstorm visual companion sessions
 .superpowers/
 
 # NuGet packages folder when NUGET_PACKAGES=.nuget/packages (Buildkite cache volume)
 .nuget/
+.pytest_cache/

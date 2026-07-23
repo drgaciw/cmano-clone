@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "runDir": "production/qa/gauntlet/gauntlet-20260723-1543",
+  "tier": 1,
+  "recommendedTicks": 6,
+  "candidateCount": 1,
+  "promoteCount": 0,
+  "discardCount": 1,
+  "corpusCellCount": 20,
+  "results": [
+    {
+      "scenarioId": "gauntlet-t1-patrol-b-candidate-underused",
+      "path": "production/qa/gauntlet/gauntlet-20260723-1543/forge/candidates/gauntlet-t1-patrol-b-candidate-underused.policy.json",
+      "tier": 1,
+      "recommendedTicks": 6,
+      "cell": {
+        "key": "patrol|surface|WeaponsFree/WeaponsFree|unrestricted|none",
+        "missionClass": "patrol",
+        "domains": [
+          "surface"
+        ],
+        "roePair": "WeaponsFree/WeaponsFree",
+        "emconClass": "unrestricted",
+        "eventClass": "none",
+        "intentHash": "6c6768e759a67e8e"
+      },
+      "newCoverageCell": false,
+      "rarePlatformHits": [
+        "mig-31-foxhound"
+      ],
+      "duplicateIntent": false,
+      "oraclePassed": null,
+      "usefulFail": false,
+      "hardGates": {
+        "hasGauntletIntent": true,
+        "hasGauntletExpect": true,
+        "tierTicksKnown": true,
+        "notDuplicateIntent": true,
+        "oracleKnown": false,
+        "oraclePassedOrUsefulFail": false
+      },
+      "hardGatesPass": false,
+      "noveltyScore": 0.5,
+      "recommendPromote": false,
+      "recipesHint": [
+        "platform-swap-underused"
+      ]
+    }
+  ],
+  "promoteIds": [],
+  "discardIds": [
+    "gauntlet-t1-patrol-b-candidate-underused"
+  ]
+}

@@ -13,6 +13,7 @@
 | Baseline + CI + closeout | **Primary** | OK | Headless .NET 8 supported on Cloud VMs |
 | C2/Platform code + proxy tests | Primary | **Primary** | Headless proxy is the gate; Unity Editor optional |
 | Hygiene / docs / coordination | Primary | **Primary** | No Editor required |
+| QA skill-doc hygiene waves | Either | **Primary** | Markdown/skill-doc only; gauntlet sim-code worktrees follow existing parallel budgets |
 | Perf / replay / determinism | Either | **Primary** | `dotnet test` + `/replay-verify` |
 | Live Editor PNG evidence | **Local only** | Defer or proxy-only | Cloud VM lacks Unity Editor 6.3 |
 | Art bible / UX docs | Either | **Primary** | Markdown/design files |
