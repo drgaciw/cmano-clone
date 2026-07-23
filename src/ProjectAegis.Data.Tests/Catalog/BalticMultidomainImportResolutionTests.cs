@@ -236,6 +236,10 @@ public sealed class BalticMultidomainImportResolutionTests
     [InlineData("Submarine - Attack Submarine", "subsurface")]
     [InlineData("SSK - Hunter-Killer Submarine", "subsurface")]
     [InlineData("DDG - Guided Missile Destroyer", "surface")]
+    // Wave 2: surface auxiliaries with "submarine" in Type must not map to subsurface.
+    [InlineData("ASR - Submarine Rescue Ship", "surface")]
+    [InlineData("AS - Submarine Tender", "surface")]
+    [InlineData("PC - Submarine Chaser", "surface")]
     public void InferDomain_maps_cmo_db_type_labels(string platformClass, string expectedDomain)
     {
         Assert.Equal(expectedDomain, CmoMarkdownImporter.InferDomain(platformClass));

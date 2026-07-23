@@ -921,7 +921,7 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_entity_map");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_propose --db <catalog.db> --platform P --sensor S --base-pd 0.7");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_approve --db <catalog.db> --batch <batchId> [--enable-balance-drift]");
-    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <path.md> [--entity sensor|weapon|platform|aircraft|submarine|facility] [--map-baltic-platform-ids] [--max-records N] [--chunk-size 500] [--report-out report.json]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <path.md> [--entity sensor|weapon|platform|aircraft|submarine|facility|ground-unit] [--weapon <weapon.md>] [--map-baltic-platform-ids] [--max-records N] [--chunk-size 500] [--report-out report.json]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_export_xlsx [--db <catalog.db>] --out <path> [--snapshot <id>] [--tl-tier TL-0..TL-5] [--io closedxml|canonical]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_import_xlsx --db <catalog.db> --in <workbook> [--io closedxml|canonical]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_diff_xlsx [--db <catalog.db>] [--base <path>] [--edited <path>] [--io closedxml|canonical]");
@@ -953,6 +953,7 @@ static int RunCatalogImportMarkdown(string[] args)
     var chunkSize = CliArgParser.GetIntFlag(args, "--chunk-size", CmoMarkdownImportProposer.DefaultChunkSize);
     var reportOut = CliArgParser.GetFlag(args, "--report-out");
     var entityRaw = CliArgParser.GetFlag(args, "--entity");
+    var weaponMarkdown = CliArgParser.GetFlag(args, "--weapon");
     var mapBaltic = args.Any(a => a.Equals("--map-baltic-platform-ids", StringComparison.Ordinal));
     try
     {
@@ -965,7 +966,8 @@ static int RunCatalogImportMarkdown(string[] args)
             Console.Out,
             reportOut,
             entity,
-            mapBaltic);
+            mapBaltic,
+            weaponMarkdown);
     }
     catch (ArgumentException ex)
     {

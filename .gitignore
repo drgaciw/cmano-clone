@@ -95,3 +95,7 @@ worktrees/
 
 # NuGet packages folder when NUGET_PACKAGES=.nuget/packages (Buildkite cache volume)
 .nuget/
+
+# Proprietary Command: Modern Operations product databases (never commit).
+# Aegis-owned catalogs use *.db under assets/data/catalog/ — do not confuse with *.db3.
+*.db3
