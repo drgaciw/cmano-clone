@@ -314,4 +314,49 @@ The 8 PR-shadow issues now carry `pr-mirror` and should be **excluded from roadm
 
 ---
 
-*Reconciliation performed 2026-07-24 against Linear project `7f6a00e4c1c9` and repo HEAD on `feat/s107-epic-a-panel-runtime-depth`. Roadmap layer added the same day.*
+---
+
+## 15. Requirement traceability (added 2026-07-24)
+
+### The missing edge
+
+Three systems each hold part of the picture, and none of them connected:
+
+| System | Holds | Missing |
+|---|---|---|
+| **Notion** | 22 requirements (REQ-01…REQ-21) + 25 specs | **No relational edges** — every requirement has `Specs: null`, every spec has `Requirements: null` |
+| **Repo** | `architecture-traceability-index.md` — 47 TR-IDs mapped GDD → System → ADR | Stale at 2026-07-08; nothing links it to Linear |
+| **Linear** | Delivery board, 7 forward milestones | **No requirement linkage at all** |
+
+Notion's databases are **inventory mirrors of repo files**, not live registers — all 22 requirements read `Status: Done` (meaning *inventoried*, not *delivered*), with no Priority or Owner set, all synced 2026-07-24. Reading them as a delivery signal would be a mistake.
+
+### H7 — Requirement Coverage Gaps
+
+The repo traceability index holds the coverage data Linear lacked: **15 Covered / 20 Partial / 12 Gap** across 47 TR-IDs. None of the Gap rows had any roadmap representation.
+
+`H7` now carries them, one issue per requirement cluster, each linking its Notion requirement page under **Resources** — which satisfies the linking convention in Notion's own *Architecture & Design Decisions* sync-hygiene page.
+
+| Issue | Requirement | Gap |
+|---|---|---|
+| DRG-43 | REQ-15 | `TR-sensor-004` side picture / datalink |
+| DRG-44 | REQ-16 | `TR-logistics-003` deterministic fuel burn |
+| DRG-45 | REQ-07 / REQ-17 | `TR-agentic-002/003` AAR infrastructure |
+| DRG-46 | REQ-14 | `TR-engage-003` swarm slot ordering |
+| DRG-47 | REQ-09 / REQ-10 | Near-Future + Speculative — **no GDD, no ADR** |
+| DRG-48 | REQ-02 | Mission runtime — shipped but undocumented |
+
+**Deliberately excluded:** the 20 Partial rows. They need the deferred re-assessment (DRG-41 item 4c) before they can become actionable — turning stale Partial statuses into issues would manufacture false precision.
+
+### Two findings worth carrying forward
+
+**DRG-47 is a product decision, not engineering work.** REQ-09 (Near-Future Technologies) and REQ-10 (Speculative Systems) are among the largest requirement documents in the corpus and carry the game's differentiating fiction — yet neither has a GDD or ADR, so neither can be scheduled. The corpus reads as 21 committed requirements; two of the biggest have no delivery path. **This should be settled before Launch**, because store copy draws on exactly that framing.
+
+**DRG-48 is the inverse gap.** The mission runtime ships and works, but has no GDD and no ADR. Undocumented shipped behaviour is the hardest kind to change safely — there is no stated contract to check a change against.
+
+### Notion write-back
+
+`MS-commercial-launch-execution-gate-TBD` was still `Planned` and pointed at `commercial-launch-execution-gate-TBD.md`, described as *"DRAFT/TBD: incomplete gate checklist."* Updated to `Active`, re-pointed at the real gate opened 2026-07-24, with the four exit-criteria states recorded.
+
+---
+
+*Reconciliation performed 2026-07-24 against Linear project `7f6a00e4c1c9` and repo HEAD on `feat/s107-epic-a-panel-runtime-depth`. Roadmap and requirement-traceability layers added the same day.*
