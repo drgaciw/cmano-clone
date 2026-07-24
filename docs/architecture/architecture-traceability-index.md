@@ -1,17 +1,20 @@
 # Architecture Traceability Index
 
-**Last Updated:** 2026-07-08
+**Last Updated:** 2026-07-24 (header + gate floors refreshed; requirement rows unchanged — see note)
 **Engine:** Unity 6.3 LTS (6000.3.14f1) + .NET 8  
-**Review:** [architecture-review-2026-06-02.md](architecture-review-2026-06-02.md)  
+**Authority:** [architecture-re-matrix-post-s93-s96-2026-07-15.md](architecture-re-matrix-post-s93-s96-2026-07-15.md) (layer verdicts) · [architecture-review-2026-06-02.md](architecture-review-2026-06-02.md) (historical)  
 **TR IDs:** [tr-registry.yaml](tr-registry.yaml)
+
+> **Refresh note (2026-07-24, DRG-41):** the gate floors below were stale — this index carried **≥1232** while the standing floor had risen to **≥1638**. Floors are now current. The **47 requirement rows below have NOT been re-assessed**; their Covered/Partial/Gap statuses date from 2026-07-08 and predate S94–S107. A full re-assessment is the deferred "full GDD→ADR re-matrix" item, formally accepted as deferred in [architecture-concerns-gate-2026-07-24.md](../../production/gate-checks/architecture-concerns-gate-2026-07-24.md). Do not cite the percentages below as current.
 
 ## Coverage Summary
 
 - **Total requirements:** 47
-- **Covered:** 15 (32%)
-- **Partial:** 20 (43%)
-- **Gaps:** 12 (25%)
-- **Current gates:** solution tests ≥1232; ReplayGolden 6/6; PlayModeSmoke 18/18; hash `17144800277401907079` — see [requirements-traceability.md](requirements-traceability.md) header. Historical Sprint 11–15 closeout (2026-06-08) cited `403/403` / PlayMode **7/7** only as program evidence, not live floors.
+- **Covered:** 15 (32%) — *as of 2026-07-08, not re-assessed*
+- **Partial:** 20 (43%) — *as of 2026-07-08, not re-assessed*
+- **Gaps:** 12 (25%) — *as of 2026-07-08, not re-assessed*
+- **Current gates (2026-07-24):** solution tests **≥1638/0f**; ReplayGolden **6/6**; C2 proxy **≥20/20**; PlayModeSmoke 18/18; hash `17144800277401907079` (18 paths) — see [requirements-traceability.md](requirements-traceability.md) header.
+- **ADR inventory (verified 2026-07-24):** 17 ADRs present — ADR-001…ADR-011, ADR-013…ADR-017, plus `adr-simulation-session-frozen-hub-spirit1`. **ADR-012 is absent — a numbering gap, not a missing decision.** Historical Sprint 11–15 closeout (2026-06-08) cited `403/403` / PlayMode **7/7** only as program evidence, not live floors.
 - **Sprint 11–15 program:** **CLOSED** @ 2026-06-08 — requirements maturity (docs 01–12) + Wave 5 on `main`; tracker rows **14/16/19/20** at **Partial+** with automated AC (**historical** `403/403` / **7/7**). See [requirements-traceability.md](requirements-traceability.md) Wave 5 overlap spine.
 - **Platform editor (FR-19 / req 21):** ADR-011 Partial — see [requirements-traceability.md](requirements-traceability.md) § Platform editor.
 
