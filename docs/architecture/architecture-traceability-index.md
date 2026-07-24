@@ -65,8 +65,8 @@
 | TR-cyber-003 | cyber-comms-degradation.md | Cyber | CommsDenied fire abort | ADR-002 | Partial |
 | TR-cyber-004 | cyber-comms-degradation.md | Cyber | C2 comms projection | ADR-007 | Partial |
 | TR-agentic-001 | agentic-infrastructure.md | Agentic | Batch runner + CSV/fingerprint | — | Partial |
-| TR-agentic-002 | agentic-infrastructure.md | Agentic | Hindsight hook (P1) | — | Gap |
-| TR-agentic-003 | agentic-infrastructure.md | Agentic | AAR read-only agents (P1) | — | Gap |
+| TR-agentic-002 | agentic-infrastructure.md | Agentic | Hindsight hook (P1) | **ADR-019** | **Covered** (hook shipped; boundary now recorded) |
+| TR-agentic-003 | agentic-infrastructure.md | Agentic | AAR read-only agents (P1) | **ADR-019** | **Covered** (`IReadOnlyOrderLog` — enforced by type, not convention) |
 | TR-editor-001 | agentic-mission-editor.md | Editor | Canonical scenario / intent compiler | ADR-006 | Partial |
 | TR-editor-002 | agentic-mission-editor.md | Editor | Deterministic Validation Engine | ADR-008 | Covered |
 | TR-editor-003 | agentic-mission-editor.md | Editor | fire_order + world-state hash | ADR-001, ADR-004 | Partial |
@@ -82,7 +82,7 @@
 | TR-combat-dom-001..003 | Combat | ADR-009 Proposed — implement `IDomainValidator` + damage order |
 | TR-editor-004 | Editor | editVersion persistence (guard only) |
 | TR-engage-003b | Engage | **Deferred 2026-07-24** (Linear DRG-46). P0 half is Covered as TR-engage-003a. Reopen trigger: a 50+-shooter scenario entering the corpus — not a date. No ADR required while deferred |
-| TR-agentic-002..003 | Agentic | P1 — `/architecture-decision agentic-aar-infrastructure` |
+| ~~TR-agentic-002..003~~ | Agentic | **Closed 2026-07-24 by [ADR-019](adr-019-agentic-aar-readonly-order-log.md)** (Linear DRG-45) |
 | Systems #9, #15, #19 | Systems index | GDD + ADR backlog |
 
 ## Systems Without GDD
