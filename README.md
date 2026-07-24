@@ -53,6 +53,8 @@ Full explanation, diagnostics, and other-editor notes: [docs/engineering/local-d
 
 **Engineering docs:** subsystem guides, CI/branch-protection, Graphite workflow, and local setup are indexed in [docs/engineering/README.md](docs/engineering/README.md).
 
+**Work tracking:** delivery work is tracked in **Linear** ([cmano-clone project](https://linear.app/drgamtd-workspace/project/cmano-clone-7f6a00e4c1c9)), design/specs in Notion, and files in Git. GitHub Issues remains open for inbound bug reports and security findings, but is not the planning board — see [production/agentic/linear-parallel-dispatch-playbook.md](production/agentic/linear-parallel-dispatch-playbook.md) for the tracking contract and the parallel-agent dispatch loop. Sprint history through S107 lives in `production/epics/` and `production/agentic/`.
+
 **Cursor Cloud agents:** see the [Cursor Cloud specific instructions](AGENTS.md#cursor-cloud-specific-instructions) section in `AGENTS.md` (headless build/test, Play Mode smoke harness, `.cursor/cloud-install.sh` bootstrap via `.cursor/environment.json`).
 
 Headless simulation and delegation spine are implemented (`ProjectAegis.Sim`, Baltic replay harness, sensor classify FSM, UI Toolkit C2/message log). Unity project lives under `unity/ProjectAegis/` (Editor optional; headless smoke in CI). Requirements live under `Game-Requirements/`.
