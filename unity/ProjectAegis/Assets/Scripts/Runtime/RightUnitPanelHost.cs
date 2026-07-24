@@ -147,6 +147,12 @@ namespace ProjectAegis.Unity.Runtime
         {
             _presentation = UnitDetailApplyState.Apply(state);
             ApplyPresentationToLabels();
+
+            // Mirror Refresh(): without this, direct-apply callers keep whatever
+            // fire/hold buttons the previous bridge Refresh() left displayed and
+            // enabled. A null/empty menu correctly hides them.
+            RefreshAttackMenuButtons(
+                state?.AttackMenu ?? System.Array.Empty<EngageAttackOptions.AttackOption>());
         }
 
         private void Refresh()

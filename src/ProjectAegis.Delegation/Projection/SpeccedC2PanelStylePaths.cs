@@ -62,7 +62,8 @@ public static class SpeccedC2PanelStylePaths
 
     private static bool ProductionUssHasMarkers(string repoRoot, string relativePath, params string[] markers)
     {
-        if (!TryResolveUnderRepoRoot(repoRoot, relativePath, out var path))
+        // Resolution only validates the path shape — the file may not exist on disk.
+        if (!TryResolveUnderRepoRoot(repoRoot, relativePath, out var path) || !File.Exists(path))
         {
             return false;
         }

@@ -58,8 +58,20 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Apply OOB panel state through the shipped apply-state path (S107).</summary>
         public void ApplyOobPanelState(OobTreePanelState? state)
         {
-            _oobState = state ?? new OobTreePanelState(Array.Empty<OobTreeDisplayRow>());
+            // A non-null state with null UnitRows would NRE in Refresh() at
+            // _oobState.UnitRows.ToList().
+            _oobState = (state == null || state.UnitRows == null)
+                ? new OobTreePanelState(Array.Empty<OobTreeDisplayRow>())
+                : state;
             _oobPresentation = LeftDrawerApplyState.Apply(_oobState);
+
+            // Direct-apply callers (tests / offline previews) never reach Refresh(),
+            // so the visible rows would stay stale. Rebind here when the list is wired.
+            if (_oobList != null)
+            {
+                _oobList.itemsSource = _oobState.UnitRows.ToList();
+                _oobList.Rebuild();
+            }
         }
 
         private void Reset()

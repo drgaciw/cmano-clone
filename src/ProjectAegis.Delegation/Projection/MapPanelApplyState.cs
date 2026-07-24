@@ -19,6 +19,13 @@ public static class MapPanelApplyState
         string? selectedId = null;
         foreach (var s in symbols)
         {
+            // Apply is public and takes host-supplied state; a null element would
+            // otherwise throw on s.IsSelected.
+            if (s is null)
+            {
+                continue;
+            }
+
             if (s.IsSelected)
             {
                 selected++;

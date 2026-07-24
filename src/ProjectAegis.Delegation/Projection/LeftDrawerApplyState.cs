@@ -17,6 +17,13 @@ public static class LeftDrawerApplyState
         string? selectedId = null;
         foreach (var row in oobState.UnitRows)
         {
+            // Apply is public and takes host-supplied state; a null element would
+            // otherwise throw on row.UnitId.
+            if (row is null)
+            {
+                continue;
+            }
+
             rows.Add(new LeftDrawerRowPresentation(
                 row.UnitId,
                 row.DisplayLine ?? string.Empty,
