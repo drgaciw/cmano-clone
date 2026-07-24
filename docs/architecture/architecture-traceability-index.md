@@ -5,6 +5,8 @@
 **Authority:** [architecture-re-matrix-post-s93-s96-2026-07-15.md](architecture-re-matrix-post-s93-s96-2026-07-15.md) (layer verdicts) · [architecture-review-2026-06-02.md](architecture-review-2026-06-02.md) (historical)  
 **TR IDs:** [tr-registry.yaml](tr-registry.yaml)
 
+> **Row split (2026-07-24, DRG-46):** `TR-engage-003` was one row covering two tiers, which hid a shipped P0 inside a `Gap` status. It is now split into **`TR-engage-003a`** (P0 first-claimant ordering — Covered, `SwarmSalvoDeconfliction`, golden-backed) and **`TR-engage-003b`** (P1 sector coordinator — Deferred). The registry id `TR-engage-003` in [`tr-registry.yaml`](tr-registry.yaml) is unchanged and now maps to both; renumbering it would ripple through 7 referencing documents for no benefit.
+
 > **Refresh note (2026-07-24, DRG-41):** the gate floors below were stale — this index carried **≥1232** while the standing floor had risen to **≥1638**. Floors are now current. The **47 requirement rows below have NOT been re-assessed**; their Covered/Partial/Gap statuses date from 2026-07-08 and predate S94–S107. A full re-assessment is the deferred "full GDD→ADR re-matrix" item, formally accepted as deferred in [architecture-concerns-gate-2026-07-24.md](../../production/gate-checks/architecture-concerns-gate-2026-07-24.md). Do not cite the percentages below as current.
 
 ## Coverage Summary
@@ -42,7 +44,8 @@
 | TR-sensor-004 | sensor-detection-ew.md | Sensors | Side picture / datalink | — | Gap |
 | TR-engage-001 | engagement-fire-control.md | Engage | Unified resolver | ADR-001, ADR-004 | Covered |
 | TR-engage-002 | engagement-fire-control.md | Engage | DLZ state + logging | — | Partial |
-| TR-engage-003 | engagement-fire-control.md | Engage | Swarm slot order (P1) | — | Gap |
+| TR-engage-003a | engagement-fire-control.md | Engage | Swarm slot order — P0 first-claimant per target, sorted by shooter | — | **Covered** (`SwarmSalvoDeconfliction`, golden-backed) |
+| TR-engage-003b | engagement-fire-control.md | Engage | Swarm **sector coordinator** — fire distribution across 50+ shooters (P1) | — | **Deferred** (signed off 2026-07-24) |
 | TR-logistics-001 | logistics-magazines.md | Logistics | Magazine ledger + empty abort | ADR-004 | Partial |
 | TR-logistics-002 | logistics-magazines.md | Logistics | MagazineChange in order log | ADR-003 | Covered |
 | TR-logistics-003 | logistics-magazines.md | Logistics | Deterministic fuel burn | — | Gap |
@@ -78,7 +81,7 @@
 | TR-logistics-003 | Logistics | `/architecture-decision logistics-fuel-model` |
 | TR-combat-dom-001..003 | Combat | ADR-009 Proposed — implement `IDomainValidator` + damage order |
 | TR-editor-004 | Editor | editVersion persistence (guard only) |
-| TR-engage-003 | Engage | P1 — defer or engage ADR amendment |
+| TR-engage-003b | Engage | **Deferred 2026-07-24** (Linear DRG-46). P0 half is Covered as TR-engage-003a. Reopen trigger: a 50+-shooter scenario entering the corpus — not a date. No ADR required while deferred |
 | TR-agentic-002..003 | Agentic | P1 — `/architecture-decision agentic-aar-infrastructure` |
 | Systems #9, #15, #19 | Systems index | GDD + ADR backlog |
 

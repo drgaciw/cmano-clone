@@ -1,6 +1,8 @@
 # Project Aegis
 
-Project Aegis is a working-title near-future hardcore military simulation inspired by Command: Modern Air Naval Operations. The project focuses on theater-level command, autonomous systems, drone swarms, advanced AI agents, and emerging military technologies set roughly 5-10 years in the future.
+Project Aegis is a working-title near-future hardcore military simulation inspired by Command: Modern Air Naval Operations. The project focuses on theater-level command, AI agent delegation, and a deterministic, replayable simulation core, set roughly 5-10 years in the future.
+
+Its near-future and speculative technology layer — drone swarms, hypersonics, directed energy, quantum sensing and the rest — is **design-stage roadmap, not shipped gameplay**. What exists today is the data spine for it: platform archetypes, swarm tiers, and tech-level gating. See [Near-future & speculative scope](#near-future--speculative-scope) below before assuming any specific system is playable.
 
 ## Vision
 
@@ -99,7 +101,23 @@ Content and systems:
 - AI agent delegation for units, groups, and task forces
 - Dynamic discovery and proposal of emerging military systems
 - Database intelligence agents for validation, normalization, and change tracking
-- Near-future systems including loyal wingman UAVs, drone swarms, hypersonic weapons, directed energy weapons, autonomous underwater vehicles, advanced electronic warfare, and quantum sensors
+- Near-future systems — loyal wingman UAVs, drone swarms, hypersonic weapons, directed energy weapons, autonomous underwater vehicles, advanced electronic warfare, quantum sensors — **as roadmap**; see [Near-future & speculative scope](#near-future--speculative-scope)
+
+## Near-future & speculative scope
+
+Requirements [09 — Near-Future Technologies](Game-Requirements/requirements/09-Near-Future-Technologies.md) and [10 — Speculative & Black Project Systems](Game-Requirements/requirements/10-Speculative-Systems.md) describe the project's long-term technology ambition. **Most of it is not implemented.** To avoid over-reading the requirements corpus as a delivery commitment:
+
+**Shipped today** — the data and gating spine only:
+
+- `NearFutureArchetypeCatalog` — platform archetype rows with tech-level gates
+- `SwarmTier` + `CatalogArchetypeGate` — swarm tier caps and archetype gating
+- `HypersonicEngageGate` — a boolean engagement gate (not intercept geometry)
+- `SpeculativeEngageGate` + tech-level / black-project scenario gates
+- General-purpose EW/jamming and salvo deconfliction, which predate this layer
+
+**Not implemented** — design text only, no runtime behaviour: loyal-wingman autonomy modes, swarm behaviour runtime, hypersonic intercept modelling, directed-energy thermal/power simulation, AUV simulation, quantum sensing, cognitive EW, orbital DEW, escalation ladders.
+
+This split is tracked in Linear under milestone **H7 — Requirement Coverage Gaps**. Nothing in the store page or launch material depends on the unimplemented set.
 
 ## Project Phase
 
