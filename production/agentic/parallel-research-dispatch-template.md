@@ -52,9 +52,22 @@ What is solid: the two failures were the two heaviest runs, and both died mid-lo
 ### R1 — Read-only means *repo*-read-only, never *write-nothing*
 
 > ❌ "Do NOT create or modify any file."
-> ✅ "Do not modify anything in the repository. Write your brief incrementally to `<scratchpad>/<issue>-brief.md` as you go — do not wait until the end."
+> ✅ "Do not modify anything in the repository. **Append** each finding to `<scratchpad>/<issue>-brief.md` as you discover it, using `cat >> <path>` via Bash."
 
 Verify the intent held with `git status --porcelain` after the wave. That is the actual guarantee; a blanket write ban is not.
+
+#### R1a — Append via Bash, never `Write` to a pre-created file
+
+**This was learned the hard way on the second wave.** An agent created its brief file as a stub, then later tried to `Write` the full version. The `Write` tool **refuses to overwrite a file it has not first `Read`** — the call errored, the agent didn't recover, and it returned nothing. The scratchpad held a 92-byte `Status: IN PROGRESS` stub and nothing else.
+
+So R1 alone is not enough. The persistence mechanism must be one that cannot fail this way:
+
+- ✅ `cat >> <path>` (Bash) — appends, no read-state requirement, safe to call repeatedly
+- ✅ A single `Write` at the end to a path the agent has **never** touched before
+- ❌ Pre-create a stub, then `Write` — **guaranteed failure**
+- ❌ "Status: IN PROGRESS" placeholders — they consume the filename without preserving anything
+
+Say **"append"**, not "write incrementally" — "incrementally" was read as "create now, fill in later," which is exactly the failing pattern.
 
 ### R2 — Give an explicit turn budget
 
@@ -102,8 +115,14 @@ Resume cost ~68k and ~116k tokens against originals of ~65k and ~139k. A re-disp
 READ-ONLY RESEARCH TASK. Repo: <abs repo path>
 
 Produce a decision brief. **Do not modify anything in the repository.**
-Write your brief incrementally to <scratchpad>/<id>-brief.md as you go —
-do not wait until the end. Partial output there is far better than nothing.
+
+Persist as you go: APPEND each finding to <scratchpad>/<id>-brief.md using
+  cat >> <scratchpad>/<id>-brief.md <<'EOF'
+  ...your finding...
+  EOF
+Append after each significant finding — do not wait until the end, and do NOT
+create a placeholder stub. (The `Write` tool refuses to overwrite a file it has
+not first Read, so a stub-then-Write pattern fails silently.)
 
 You have roughly 20 tool calls. If you approach that, stop investigating and
 write up what you have. A short honest brief beats a truncated perfect one.
@@ -155,4 +174,26 @@ If someone later wants to test it: raise it on **one** agent file, re-run a know
 
 ---
 
-*Derived from the 2026-07-24 H7 research wave. Transcript evidence: `~/.claude/projects/<project>/<session>/subagents/agent-*.jsonl`.*
+---
+
+## 8. Wave 2 results — the template working, and its first correction
+
+The DRG-44/DRG-48 closeout wave (2 agents) ran under these rules. Outcome: **1 clean success, 1 repeat failure — which diagnosed itself.**
+
+| Agent | Result |
+|---|---|
+| DRG-48 closeout (`qa-lead`) | ✅ Returned a summary **and** a 187-line scratchpad brief |
+| DRG-44 closeout (`determinism-engineer`) | ❌ Returned nothing; scratchpad held only a 92-byte stub |
+
+The failure produced the R1a rule above — the agent's own resume explained that its `Write` had errored against the pre-created stub. That is a mechanism, not a guess, and it is now fixed in the skeleton.
+
+**What the wave found once resumed (R5 again paid for itself):**
+
+- **DRG-50** — fuel drains **~60× too fast** in Play Mode. `SimplePlayModeSimHost` ticks at 1/60 s while `DelegationBridge.cs:378` drains a hardcoded `1.0` s per call, and `DelegationSmokeSceneBuilder` pairs that host with a fuel-burn scenario. **Live defect**, verified end-to-end. Escalated from "latent" on the strength of an exhaustive call-site audit
+- **DRG-49 corrected** — the original issue said the collision was latent because the golden fixture used different ticks. **Wrong.** Two golden-backed fixtures *do* schedule same-tick events; the bug is inert only because the buggy value is discarded by a defaulted factory parameter. The original text would have led a fixer to *activate* it
+
+Both corrections came from **spot-checking claims rather than relaying them** (post-wave protocol step 3). Neither would have surfaced from the first wave's briefs alone.
+
+---
+
+*Derived from the 2026-07-24 H7 research waves. Transcript evidence: `~/.claude/projects/<project>/<session>/subagents/agent-*.jsonl`.*
