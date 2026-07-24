@@ -41,7 +41,7 @@
 | TR-sensor-001 | sensor-detection-ew.md | Sensors | Contact FSM | ADR-004, ADR-005 | Covered |
 | TR-sensor-002 | sensor-detection-ew.md | Sensors | Deterministic detection loop | ADR-004, ADR-005 | Partial |
 | TR-sensor-003 | sensor-detection-ew.md | Sensors | EW noise jam MVP | — | Partial |
-| TR-sensor-004 | sensor-detection-ew.md | Sensors | Side picture / datalink | — | Gap |
+| TR-sensor-004 | sensor-detection-ew.md | Sensors | Side picture / datalink | **ADR-018** | **Covered** (mechanism shipped + 18 tests; harness-scoped, outside pinned goldens) |
 | TR-engage-001 | engagement-fire-control.md | Engage | Unified resolver | ADR-001, ADR-004 | Covered |
 | TR-engage-002 | engagement-fire-control.md | Engage | DLZ state + logging | — | Partial |
 | TR-engage-003a | engagement-fire-control.md | Engage | Swarm slot order — P0 first-claimant per target, sorted by shooter | — | **Covered** (`SwarmSalvoDeconfliction`, golden-backed) |
@@ -77,7 +77,7 @@
 
 | TR-ID | Domain | Suggested action |
 |-------|--------|------------------|
-| TR-sensor-004 | Sensors | `/architecture-decision sensor-side-picture` |
+| ~~TR-sensor-004~~ | Sensors | **Closed 2026-07-24 by [ADR-018](adr-018-sensor-side-picture-datalink.md)** (Linear DRG-43). One open validation item: a test asserting the world hash is unchanged whether or not the datalink merger fires |
 | TR-logistics-003 | Logistics | `/architecture-decision logistics-fuel-model` |
 | TR-combat-dom-001..003 | Combat | ADR-009 Proposed — implement `IDomainValidator` + damage order |
 | TR-editor-004 | Editor | editVersion persistence (guard only) |
