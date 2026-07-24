@@ -12,7 +12,7 @@
 
 **Arch-docs layer: CONCERNS → PASS (with one formally deferred item).**
 
-Criterion 4 is **recommended MET**, pending owner sign-off per the repo's gate protocol.
+Criterion 4 is **MET** — owner sign-off received 2026-07-24 (§9).
 
 This does **not** clear Launch. Criteria 2 (store package) and 3 (assets, 34/42 outstanding) remain unmet.
 
@@ -174,7 +174,7 @@ The stranding was invisible because **completion was recorded in documents that 
 | **Criterion 4 verdict** | **PASS recommended** (CONCERNS resolved; 4c formally deferred) |
 | **Launch cleared?** | **No** — criteria 2 and 3 outstanding |
 | **Stage change?** | **None** — remains Release |
-| **Owner sign-off** | ☐ Pending |
+| **Owner sign-off** | ☑ **RECEIVED 2026-07-24** — user: *"i sign off on all these decisions"* |
 
 Per repo gate protocol, the verdict change takes effect on human acknowledgement.
 

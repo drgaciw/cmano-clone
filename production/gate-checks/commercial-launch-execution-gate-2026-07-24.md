@@ -25,9 +25,9 @@ That satisfies **blocker 1 (authorization)** and **exit criterion 1**. This gate
 | 1 | Human Launch ack | ✅ **MET** | This document, 2026-07-24 |
 | 2 | Commercial / store package | ⚠️ **PARTIAL** | Drafts exist; submission never in scope — see §3 |
 | 3 | Asset completion / approval | ❌ **NOT MET** | 34 of 42 outstanding — see §4 |
-| 4 | Architecture CONCERNS cleared | ❌ **NOT MET** | `architecture.md` = "Launch not cleared" — see §5 |
+| 4 | Architecture CONCERNS cleared | ✅ **MET** | Owner sign-off 2026-07-24 — [`architecture-concerns-gate-2026-07-24.md`](architecture-concerns-gate-2026-07-24.md) §9 |
 
-**Verdict: gate OPEN, Launch NOT ACHIEVED.** 1 of 4 criteria met.
+**Verdict: gate OPEN, Launch NOT ACHIEVED.** **2 of 4** criteria met (1 ack, 4 architecture). Criteria 2 (store package) and 3 (assets, 34/42 outstanding) remain outstanding — both require work, not sign-off.
 
 ---
 
