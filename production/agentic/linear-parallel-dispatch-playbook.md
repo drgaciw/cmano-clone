@@ -273,4 +273,45 @@ Consequence for tooling: `/create-stories` should no longer be run for new epics
 
 ---
 
-*Reconciliation performed 2026-07-24 against Linear project `7f6a00e4c1c9` and repo HEAD on `feat/s107-epic-a-panel-runtime-depth`.*
+---
+
+## 14. Roadmap layer (added 2026-07-24)
+
+### Why sprint-numbered roadmaps keep going stale
+
+`future-sprint-roadmap-07142026.md` (authored **2026-07-14**) proposed **S94–S97** as the next program. Kickoffs show **S94 through S107 all ran between 2026-07-14 and 2026-07-18** — execution passed the entire proposed program within four days.
+
+At roughly **three sprints per day**, a four-sprint plan is about a day of work. Any roadmap keyed to sprint numbers is obsolete before it is committed. This is the same drift that stranded story files at S36 and left a chain of 10 dated `future-sprint-roadpmap-*.md` snapshots.
+
+**Rule: roadmap milestones are keyed to outcomes and trigger conditions, never to sprint numbers.** Sprints are an execution detail; they move too fast to plan against.
+
+### Milestone structure
+
+`M1`–`M6` are the original foundations and are **retrospective** — all describe shipped work. They stay for history. Forward planning uses the `H`-series, each carrying an explicit trigger:
+
+| Milestone | State | Trigger |
+|---|---|---|
+| **H1 — C2 Runtime Depth** | In flight | Epic A panels bound to runtime state, suite floor held |
+| **H2 — Asset Approved Path** | In flight | Formal Approved criteria defined + applied to umbrella 001–003 |
+| **H3 — Launch / Commercial Execution** | **Gated** | Human Launch ack + open `commercial-launch-execution-gate-TBD.md` |
+| **H4 — Scenario Editor Phase 2 GUI** | Out of scope | Product prioritization + new scope boundary |
+| **H5 — Content Pipeline / Addressables** | Out of scope | Content pipeline ADR accepted |
+| **H6 — Multiplayer / Save-Load** | Out of scope | Product confirmation; needs ADR for the `DelegationBridge` ZERO-touch constraint |
+
+Every H-milestone cites the repo document it was derived from. None were invented.
+
+### What is deliberately NOT set
+
+**Target dates.** No milestone carries one, because no source document commits to a date. Adding invented dates would make the roadmap look authoritative while being fiction. Dates are the owner's call.
+
+**Cycles.** `list_cycles` returns `[]` — cycles are off, and enabling them is a team setting not reachable over MCP. Given the sprint cadence, cycles may be the wrong instrument anyway; milestone progress is the better signal here.
+
+**Priorities are a mechanical first pass:** live PRs High, in-progress engine work Medium, docs/cleanup Low. Re-rank as product judgment dictates.
+
+### `pr-mirror` label
+
+The 8 PR-shadow issues now carry `pr-mirror` and should be **excluded from roadmap views**. They are transient and close on merge; they do not represent product intent. Real feature issues should own the intent, with PRs attaching to them — Linear's GitHub integration already links PRs automatically.
+
+---
+
+*Reconciliation performed 2026-07-24 against Linear project `7f6a00e4c1c9` and repo HEAD on `feat/s107-epic-a-panel-runtime-depth`. Roadmap layer added the same day.*
