@@ -48,7 +48,7 @@
 | TR-engage-003b | engagement-fire-control.md | Engage | Swarm **sector coordinator** — fire distribution across 50+ shooters (P1) | — | **Deferred** (signed off 2026-07-24) |
 | TR-logistics-001 | logistics-magazines.md | Logistics | Magazine ledger + empty abort | ADR-004 | Partial |
 | TR-logistics-002 | logistics-magazines.md | Logistics | MagazineChange in order log | ADR-003 | Covered |
-| TR-logistics-003 | logistics-magazines.md | Logistics | Deterministic fuel burn | — | Gap |
+| TR-logistics-003 | logistics-magazines.md | Logistics | Deterministic fuel burn | **ADR-020** | **Covered** (constant-burn model shipped; tick↔wallclock contract recorded — live fix tracked as DRG-50) |
 | TR-logistics-004 | logistics-magazines.md | Logistics | Editor fuel validation | ADR-006 | Partial |
 | TR-combat-dom-001 | combat-domains-damage.md | Combat | Domain validator plug-in | ADR-009 | Partial |
 | TR-combat-dom-002 | combat-domains-damage.md | Combat | Deterministic damage order | ADR-009 | Partial |
@@ -78,7 +78,7 @@
 | TR-ID | Domain | Suggested action |
 |-------|--------|------------------|
 | ~~TR-sensor-004~~ | Sensors | **Closed 2026-07-24 by [ADR-018](adr-018-sensor-side-picture-datalink.md)** (Linear DRG-43). One open validation item: a test asserting the world hash is unchanged whether or not the datalink merger fires |
-| TR-logistics-003 | Logistics | `/architecture-decision logistics-fuel-model` |
+| ~~TR-logistics-003~~ | Logistics | **Closed 2026-07-24 by [ADR-020](adr-020-logistics-fuel-model.md)** (Linear DRG-44). Three OPEN validation items remain, incl. the live cadence defect **DRG-50** |
 | TR-combat-dom-001..003 | Combat | ADR-009 Proposed — implement `IDomainValidator` + damage order |
 | TR-editor-004 | Editor | editVersion persistence (guard only) |
 | TR-engage-003b | Engage | **Deferred 2026-07-24** (Linear DRG-46). P0 half is Covered as TR-engage-003a. Reopen trigger: a 50+-shooter scenario entering the corpus — not a date. No ADR required while deferred |
