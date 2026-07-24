@@ -175,6 +175,20 @@ Apply to every code issue so no dispatched agent can self-certify:
 
 ---
 
+## 7a. Research fan-out
+
+For **read-only research** waves (investigate N independent domains, coordinator synthesises), use [`parallel-research-dispatch-template.md`](parallel-research-dispatch-template.md) instead of the worktree flow below.
+
+It encodes five rules learned from a wave where 2 of 6 agents silently returned nothing:
+
+1. Read-only means *repo*-read-only — agents **must** write their brief to a scratchpad path, or a truncated run loses everything
+2. Give an explicit turn budget, with "stop and write what you have" as the fallback
+3. Require a verified/unverified split
+4. **Never trust `status: completed`** — verify the brief exists before synthesising
+5. **Resume before re-dispatching** — `SendMessage` keeps the agent's context and cost ~⅓ of a re-run
+
+---
+
 ## 8. Dispatch loop
 
 1. Query Linear: state = ready, no unresolved **blocked-by**.
