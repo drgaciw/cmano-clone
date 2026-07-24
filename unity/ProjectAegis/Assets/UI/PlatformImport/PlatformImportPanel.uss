@@ -55,7 +55,54 @@
 }
 
 .platform-import-diff-row {
+    color: var(--aegis-text-data);
+    -unity-font-style: normal;
+    white-space: normal;
+    border-left-width: 3px;
+    border-left-color: var(--aegis-diff-pending);
+    padding-left: 4px;
+}
+
+.platform-import-diff-row--changed {
+    color: var(--aegis-diff-changed);
+    border-left-color: var(--aegis-diff-changed);
+}
+
+.platform-import-diff-row--added {
+    color: var(--aegis-diff-added);
+    border-left-color: var(--aegis-diff-added);
+}
+
+.platform-import-diff-row--removed {
+    color: var(--aegis-diff-removed);
+    border-left-color: var(--aegis-diff-removed);
+}
+
+.platform-import-diff-row--blocked {
+    color: var(--aegis-diff-blocked);
+    border-left-color: var(--aegis-diff-blocked);
+    -unity-font-style: bold;
+}
+
+.platform-import-diff-row--info {
     color: var(--aegis-text-body);
+}
+
+.platform-import-section-filters {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.platform-import-section-filter {
+    margin-right: 4px;
+    margin-bottom: 2px;
+    min-width: 56px;
+}
+
+.platform-import-section-filter--active {
+    border-bottom-width: 2px;
+    border-bottom-color: var(--aegis-selected-ring);
 }
 
 .platform-import-acknowledge {

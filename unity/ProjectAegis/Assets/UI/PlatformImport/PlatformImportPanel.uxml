@@ -8,6 +8,13 @@
             <ui:Button name="platform-import-approve" text="Approve" class="platform-import-action-button platform-import-approve-button" />
         </ui:VisualElement>
         <ui:Label name="platform-import-status" text="STAGING: pick workbook and propose to preview entity-level diff" class="platform-import-status" />
+        <ui:VisualElement name="platform-import-section-filters" class="platform-import-section-filters">
+            <ui:Button name="platform-import-filter-all" text="ALL" class="platform-import-section-filter platform-import-section-filter--active" />
+            <ui:Button name="platform-import-filter-damage" text="DAMAGE" class="platform-import-section-filter" />
+            <ui:Button name="platform-import-filter-comms" text="COMMS" class="platform-import-section-filter" />
+            <ui:Button name="platform-import-filter-link" text="LINK" class="platform-import-section-filter" />
+            <ui:Button name="platform-import-filter-other" text="OTHER" class="platform-import-section-filter" />
+        </ui:VisualElement>
         <ui:Label text="ENTITY DIFF" class="platform-import-diff-title" />
         <ui:ListView name="platform-import-diff-list" class="platform-import-diff-list" selection-type="None" />
         <ui:Toggle name="platform-import-acknowledge" label="I reviewed the entity-level diff" class="platform-import-acknowledge" />

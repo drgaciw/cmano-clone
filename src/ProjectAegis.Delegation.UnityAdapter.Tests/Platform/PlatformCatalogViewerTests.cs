@@ -95,6 +95,11 @@ public sealed class PlatformCatalogViewerTests
         Assert.That("platform-catalog-detail-withdraw", Is.EqualTo("platform-catalog-detail-withdraw"));
         Assert.That("platform-catalog-detail-flags", Is.EqualTo("platform-catalog-detail-flags"));
         Assert.That("platform-catalog-detail-speed", Is.EqualTo("platform-catalog-detail-speed"));
+        Assert.That("platform-catalog-detail-id", Is.EqualTo("platform-catalog-detail-id"));
+        Assert.That("platform-catalog-detail-mounts", Is.EqualTo("platform-catalog-detail-mounts"));
+        Assert.That("platform-catalog-detail-sensors", Is.EqualTo("platform-catalog-detail-sensors"));
+        Assert.That("platform-catalog-graph-list", Is.EqualTo("platform-catalog-graph-list"));
+        Assert.That("platform-catalog-action-status", Is.EqualTo("platform-catalog-action-status"));
         Assert.That("platform-catalog-export", Is.EqualTo("platform-catalog-export"));
         Assert.That("platform-catalog-diff", Is.EqualTo("platform-catalog-diff"));
     }
@@ -122,6 +127,7 @@ public sealed class PlatformCatalogViewerTests
                      "platform-catalog-search",
                      "platform-catalog-list",
                      "platform-catalog-detail",
+                     "platform-catalog-detail-id",
                      "platform-catalog-detail-lat",
                      "platform-catalog-detail-lon",
                      "platform-catalog-detail-radius",
@@ -130,6 +136,11 @@ public sealed class PlatformCatalogViewerTests
                      "platform-catalog-detail-withdraw",
                      "platform-catalog-detail-flags",
                      "platform-catalog-detail-speed",
+                     "platform-catalog-detail-mounts",
+                     "platform-catalog-detail-sensors",
+                     "platform-catalog-graph-list",
+                     "platform-catalog-action-status",
+                     "platform-catalog-section-identity",
                      "platform-catalog-export",
                      "platform-catalog-diff",
                  })
