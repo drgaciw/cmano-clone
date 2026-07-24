@@ -90,7 +90,7 @@
 | System # | Name | ADR | Notes |
 |----------|------|-----|-------|
 | 4 | Platform Database | ADR-006 Accepted | Implement DATA-2..5 per migration plan |
-| 9 | Mission Runtime | — | Needs GDD + ADR |
+| 9 | Mission Runtime | **ADR-021** | **GDD + ADR present** (2026-07-24) — [`mission-runtime.md`](../../design/gdd/mission-runtime.md). Headless/CI-scoped by decision; does **not** run in interactive play |
 | 10 | Agent Delegation | ADR-001 | Boundary only |
 | 15 | Near-Future Systems | — | Vertical slice |
 | 19 | Speculative Systems | — | Full vision |
