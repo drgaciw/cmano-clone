@@ -126,8 +126,9 @@ Running the Editor or a script on another OS locally does not add that OS to the
 - [x] Product NFR platform text matches this matrix — `01-Project-Overview.md:166`
 - [x] Authoritative CI host is Linux x64 — `.buildkite/pipeline.yml`, `docs/engineering/buildkite-ci.md`
 - [x] Cited ADR dependencies all resolve — ADR-001, 006, 008, 010, 011 verified present
-- [ ] **OPEN:** packaging checklist cites ADR-022 + StandaloneWindows64 when the store epic runs
-- [ ] **OPEN:** spot-check `Data` / `Sim` / `Delegation` for OS-gated sim outcomes (`#if WINDOWS`, `RuntimeInformation.IsOSPlatform` in rule paths)
+- [x] **Decision 2 verified clean** — spot-check run 2026-07-26 across all **489** `.cs` files in `Data`, `Sim`, and `Delegation`: **zero** OS preprocessor directives (`#if WINDOWS|LINUX|OSX|…`), **zero** runtime OS checks (`RuntimeInformation.IsOSPlatform`, `OperatingSystem.Is*`, `Environment.OSVersion`). Wall-clock reads and unseeded RNG also zero. Hardcoded separators: none harmful — repo-relative `/` constants resolved through BCL path APIs
+- [ ] **OPEN:** packaging checklist cites ADR-022 + StandaloneWindows64 when the store epic runs (Linear DRG-39)
+- [ ] **OPEN (Linear DRG-54):** one **Decision 3** exception found by the same spot-check — `ScenarioPolicyJsonIndex.cs:26` and `ScenarioPolicyJsonLoader.cs:32` call `Directory.EnumerateFiles` unordered and then `map[dto.Id] = dto`, so a duplicate `Id` resolves last-writer-wins and **the survivor differs between Windows and Linux**. Latent today (76 policy files, zero duplicate ids), but neither site guards the overwrite
 
 ## Migration Plan
 
