@@ -21,7 +21,7 @@
 .c2-topbar__clock {
     color: var(--text-topbar);
     font-size: 12px;
-    -unity-font: resource("Fonts/RobotoMono-Regular");
+    /* -unity-font: resource("Fonts/RobotoMono-Regular"); removed — use default UI font (no Resources glyph errors) */
 }
 
 .c2-topbar__comms--nominal {

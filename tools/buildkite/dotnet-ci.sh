@@ -25,6 +25,16 @@ fi
 dotnet restore ProjectAegis.sln
 dotnet build ProjectAegis.sln -c Release --no-restore
 # READ build 0e/0w expected
+
+# Stage the netstandard2.1 Unity plugin DLLs before tests.
+# UnityPluginEpicATypesTests (added in 30a274d) asserts these exist, but
+# unity/ProjectAegis/Assets/Plugins/**/*.dll is gitignored (.gitignore:33) — only the
+# .meta files are tracked. A clean CI checkout therefore has no DLLs and the test fails
+# with "Missing plugin DLL — run tools/copy-delegation-assemblies.ps1", while the same
+# test passes on any developer machine that has run the copy locally. Wiring the copy
+# into the gate removes that local-vs-CI divergence.
+bash "$repo_root/tools/copy-delegation-assemblies.sh"
+
 set +e
 dotnet test ProjectAegis.sln -c Release --no-build -v minimal
 test_exit=$?

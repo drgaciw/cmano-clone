@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using ProjectAegis.Delegation.UnityAdapter.Console;
 using ProjectAegis.Unity.Runtime;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -227,33 +228,7 @@ namespace ProjectAegis.Unity.Editor
         }
 
         private static bool IsIgnorableBatchNoise(string condition, string stackTrace)
-        {
-            if (string.IsNullOrWhiteSpace(condition))
-            {
-                return true;
-            }
-
-            if (condition.Contains("Mesh Deformation Systems disabled", StringComparison.Ordinal)
-                || condition.Contains("No SRP present", StringComparison.Ordinal)
-                || condition.Contains("McpManagerClientHub", StringComparison.Ordinal)
-                || condition.Contains("Connection not available and auto-reconnect disabled", StringComparison.Ordinal)
-                || condition.Contains("Start Indexing on Editor startup", StringComparison.Ordinal))
-            {
-                return true;
-            }
-
-            if (!string.IsNullOrWhiteSpace(stackTrace))
-            {
-                if (stackTrace.Contains("UnityEditor.Search", StringComparison.Ordinal)
-                    || stackTrace.Contains("com.IvanMurzak.Unity.MCP", StringComparison.Ordinal)
-                    || stackTrace.Contains("UnityEditor.Search.SearchInit", StringComparison.Ordinal))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+            => ConsoleNoiseClassifier.IsIgnorableForConsoleGate(condition, stackTrace);
 
         private static void RecordError(string message)
         {

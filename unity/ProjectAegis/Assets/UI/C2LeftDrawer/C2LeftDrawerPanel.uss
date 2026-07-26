@@ -1,8 +1,17 @@
+/* Left drawer chrome — OOB / Missions / Contacts under the top bar. */
+
 .c2-drawer-panel {
-    flex-grow: 1;
+    position: absolute;
+    left: 0;
+    top: 56px;
+    bottom: 0;
+    width: 260px;
     min-width: 240px;
-    padding: 4px;
-    background-color: rgba(12, 18, 28, 0.92);
+    flex-direction: column;
+    padding: 6px 8px;
+    background-color: rgba(12, 18, 28, 0.94);
+    border-right-width: 1px;
+    border-right-color: rgb(50, 65, 80);
 }
 
 .c2-drawer-panel--planning-readonly {
@@ -16,11 +25,32 @@
 }
 
 .c2-drawer-tabs {
-    margin-bottom: 4px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+}
+
+/* Keep tabs as compact chips (default Toggle stretches full drawer width). */
+.c2-drawer-tabs Toggle {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: auto;
+    max-width: 96px;
+    margin-right: 4px;
+    margin-bottom: 2px;
+    color: rgb(180, 190, 200);
+    font-size: 11px;
+}
+
+.c2-drawer-tabs Toggle > .unity-toggle__input {
+    margin-right: 2px;
 }
 
 .c2-drawer-list {
     flex-grow: 1;
+    min-height: 120px;
 }
 
 .c2-drawer-list--hidden {
@@ -29,6 +59,7 @@
 
 .oob-row {
     padding: 2px 4px;
+    color: rgb(180, 190, 200);
 }
 
 .oob-row--selected {
