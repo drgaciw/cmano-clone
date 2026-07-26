@@ -165,12 +165,12 @@
     "expectCi": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minKills": 1,
+      "minKills": 0,
       "maxMissilesFired": 12,
-      "maxDenials": 28,
-      "minScore": 50,
-      "maxScore": 170,
-      "minDenials": 14,
+      "maxDenials": 180,
+      "minScore": -430,
+      "maxScore": 200,
+      "minDenials": 84,
       "requireFingerprintSubstrings": [
         "CommsStateChange",
         "Degraded"

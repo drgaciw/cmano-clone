@@ -77,6 +77,22 @@ public sealed class GauntletLadderOracleExpectCalibrationTests
         Assert.True(result.Passed, string.Join("; ", result.Failures));
     }
 
+    [Fact]
+    public void T5_roe_change_ci_profile_uses_denser_orbat_expectCi()
+    {
+        // CI smoke ticks=10 seed=42 after denser ORBAT: denials=90 score=-350.
+        // Sparse-ORBAT expectCi (denials 14..28 / score 50..170) must not apply.
+        var policy = File.ReadAllText(PolicyPath("gauntlet-t5-roe-change"));
+        var csv =
+            """
+            scenarioId,seed,side,score,kills,missilesFired,denials,fingerprint
+            gauntlet-t5-roe-change,42,BLUE,-350,1,2,90,CommsStateChange|1|3|3|net|Nominal|Degraded|roe
+            """;
+
+        var ci = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv, profile: "ci");
+        Assert.True(ci.Passed, string.Join("; ", ci.Failures));
+    }
+
     private static string PolicyPath(string scenarioId)
     {
         var repo = FindRepoRoot();
