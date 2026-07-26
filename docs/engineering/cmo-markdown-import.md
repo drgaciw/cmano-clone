@@ -65,11 +65,9 @@ can never silently corrupt catalog data.
 subset of `facility.md` (records whose `| Type |` is `Mobile Vehicle(s)`, `… - Wheeled`,
 `… - Tracked`, or `Mobile Personnel`). `facility.md` remains the complete superset.
 
-> **Known gap.** The import script accepts `--entity ground-unit`, but the *approve* companion
-> ([`cmo-nightly-approve.sh`](../../tools/cmo-nightly-approve.sh)) does not yet list `ground-unit`
-> in its entity switch (`sensor|weapon|platform|aircraft|submarine|facility|all`). Approve staged
-> ground-unit batches with the generic verb —
-> `catalog_write_approve --db <scratch.db> --batch <batchId>` — until the script is extended.
+> **Note.** Both [`cmo-nightly-import.sh`](../../tools/cmo-nightly-import.sh) and
+> [`cmo-nightly-approve.sh`](../../tools/cmo-nightly-approve.sh) accept `--entity ground-unit`
+> (same entity switch as import: `sensor|weapon|platform|aircraft|submarine|facility|ground-unit|all`).
 
 ---
 
@@ -176,6 +174,7 @@ dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdo
   --db <catalog.db> \
   --markdown <path.md> \
   [--entity sensor|weapon|platform|aircraft|submarine|facility|ground-unit] \
+  [--weapon <weapon.md>] \
   [--map-baltic-platform-ids] \
   [--max-records N] \
   [--chunk-size 500] \
@@ -187,6 +186,7 @@ dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdo
 | `--db` (required) | — | Target scratch/catalog DB. Auto-seeded with the Baltic default if it does not exist. |
 | `--markdown` (required) | — | Path to the cmano-db export to parse. |
 | `--entity` | `sensor` | Parse path (see the seven categories above). |
+| `--weapon` | auto (`docs/reference/cmano-db/weapon.md` for platform-family) | Weapon corpus for mount/magazine name resolution on platform imports. |
 | `--map-baltic-platform-ids` | off | Remap known Baltic hulls to canonical scenario ids (`u1`, `hostile-1`, `ucav-blue`, …). Use only for the Baltic mini-fixtures, not the full corpus. |
 | `--max-records N` | all | Cap parsed records (CI smoke slices). |
 | `--chunk-size N` | 500 | Records per proposed batch. |
@@ -299,7 +299,7 @@ inputs; their sensor files' headers note they "map platform titles for ImportQaS
 - **Unresolved weapon references are quarantined, not dropped.** A non-zero `quarantinedCount` /
   `orphan_weapon_id` fitting entry means the weapon corpus was imported before/without the
   platform, or a name did not prefix-match — re-import weapons first.
-- **`ground-unit` approve** uses the generic `catalog_write_approve` verb (see the Known gap).
+- **`ground-unit` approve** uses `./tools/cmo-nightly-approve.sh --entity ground-unit` like other entities.
 - **`import-qa-slice` commits immediately.** It is the one-shot QA-fixture builder and approves
   as it goes — do **not** point it at an untrusted/full corpus expecting a review step. Curator
   review belongs to the gated nightly propose→approve path.

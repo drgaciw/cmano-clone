@@ -36,6 +36,7 @@
     /* Selection & focus */
     --selected-ring: #FFC850;
     --selected-row-bg: rgba(74, 158, 255, 0.25);
+    --selected-row-bar: #4A9EFF;
     --score-accent: #F0C040;
 
     /* Comms */
@@ -51,10 +52,27 @@
     --log-contact: #8CC8FF;
     --log-mission: #A0DCB4;
 
+    /* Diff / import review */
+    --diff-pending: #E6C850;
+    --diff-pending-opacity: 0.45;
+    --diff-blocked: #E85D5D;
+
     /* Spacing (art bible §6) */
     --space-xs: 4px;
     --space-sm: 8px;
     --space-md: 12px;
     --space-lg: 16px;
     --space-xl: 24px;
+
+    /* Legacy --aegis-* aliases used by Platform Catalog / Import USS */
+    --aegis-surface-panel: var(--surface-panel);
+    --aegis-text-heading: var(--text-heading);
+    --aegis-text-body: var(--text-body);
+    --aegis-text-muted: var(--text-muted);
+    --aegis-border-section: var(--border-section);
+    --aegis-selected-row-bg: var(--selected-row-bg);
+    --aegis-selected-row-bar: var(--selected-row-bar);
+    --aegis-diff-pending: var(--diff-pending);
+    --aegis-diff-pending-opacity: var(--diff-pending-opacity);
+    --aegis-diff-blocked: var(--diff-blocked);
 }

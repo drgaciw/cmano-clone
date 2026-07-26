@@ -1,0 +1,8 @@
+catalog: assets/data/catalog/baltic_patrol.db
+platforms: 79
+magazines: 423
+mounts: 459
+loadouts: 76
+sha: 7caae00bd94ace8fed530b76c3088532158179dd
+branch: feat/s107-epic-a-panel-runtime-depth
+utc: 2026-07-21T01:03:37Z

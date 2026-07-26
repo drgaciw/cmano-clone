@@ -162,6 +162,20 @@
       "maxScore": 50,
       "minDenials": 70
     },
+    "expectCi": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 1,
+      "maxMissilesFired": 12,
+      "maxDenials": 28,
+      "minScore": 50,
+      "maxScore": 170,
+      "minDenials": 14,
+      "requireFingerprintSubstrings": [
+        "CommsStateChange",
+        "Degraded"
+      ]
+    },
     "units": [
       {
         "unitId": "k-21-goteborg",

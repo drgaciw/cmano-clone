@@ -148,7 +148,9 @@ public static class CmoMarkdownImporter
                 return;
             }
 
-            var platformId = SlugPlatformId(title);
+            var platformId = IsPublicCorpusImport()
+                ? CatalogValidationDefaults.PublicCorpusSensorCatalogPlatformId
+                : SlugPlatformId(title);
             var sensorId = $"cmo-sensor-{sensorNumericId.Value}";
             var basePd = InferBasePd(rangeMax.Value, rangeUnit);
             bindings.Add(new CatalogSensorBinding(
@@ -621,6 +623,12 @@ public static class CmoMarkdownImporter
         };
     }
 
+    internal static bool IsPublicCorpusImport() =>
+        string.Equals(
+            Environment.GetEnvironmentVariable("AEGIS_PUBLIC_CORPUS"),
+            "1",
+            StringComparison.Ordinal);
+
     public static string SlugPlatformId(string title)
     {
         var head = title.Split(',')[0].Trim();
@@ -639,7 +647,13 @@ public static class CmoMarkdownImporter
         // Hull-type override: aircraft/helicopter carriers and cruisers are surface combatants
         // that operate aircraft, not airborne platforms themselves — must win over the
         // "helicopter" keyword hit below (S31-11: was misclassifying ~250 ship.md carriers as air).
-        if (Regex.IsMatch(platformClass, @"\b(carrier|cruiser|destroyer)\b", RegexOptions.IgnoreCase))
+        //
+        // Surface auxiliaries that mention "submarine" (rescue/tender/chaser) must also win
+        // before the subsurface "submarine" substring match — Wave 2 corpus audit found
+        // ASR/AS/PC ship.md rows mis-tagged subsurface (~44) for this reason. Aligns with
+        // tools/cmo_verify_corpus_coverage.py _SUBSURFACE_FALSE_POSITIVE_RE.
+        if (Regex.IsMatch(platformClass, @"\b(carrier|cruiser|destroyer)\b", RegexOptions.IgnoreCase) ||
+            Regex.IsMatch(platformClass, @"\b(rescue ship|tender|chaser)\b", RegexOptions.IgnoreCase))
         {
             return "surface";
         }

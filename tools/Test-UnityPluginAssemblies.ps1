@@ -41,5 +41,6 @@ if ($missing.Count -gt 0) {
 $count = (Get-ChildItem $plugins -Filter *.dll).Count
 if (-not $Quiet) {
     Write-Host "Unity plugin assemblies OK ($count DLLs in $plugins)"
+    Write-Host "Type-export guard: run 'dotnet test --filter UnityPluginEpicATypesTests' after Epic A host work."
 }
 exit 0

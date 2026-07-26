@@ -48,11 +48,13 @@ public static class MissionUpdateSupportCommand
             editor.PersistUndoSnapshot(scenarioPath, undoSnapshot);
             editor.CommitMutation();
             editor.Save(scenarioPath);
+            // Echo supportRole when provided so clients see the applied role (UAT parity with mission_add_support).
             return McpToolResult.WriteOk(output, new
             {
                 ok = true,
                 missionId,
                 type = "Support",
+                supportRole = string.IsNullOrWhiteSpace(supportRole) ? null : supportRole,
                 editVersion = editor.Metadata.EditVersion,
                 fileHash = editor.ComputeFileHash(),
             });

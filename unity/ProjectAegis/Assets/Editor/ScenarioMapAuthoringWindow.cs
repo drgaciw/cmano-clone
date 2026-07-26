@@ -6,18 +6,28 @@ using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Delegation.UnityAdapter.Authoring;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace ProjectAegis.Unity.Editor
 {
     /// <summary>
     /// Thin Edit Mode host for Phase 2.1 scenario map authoring (Task 9 / ME-W0).
-    /// Binds IMGUI only to headless APIs:
+    /// UI Toolkit chrome from <c>Assets/UI/ScenarioEditor/ScenarioMapAuthoringPanel.uxml</c>
+    /// (UI Builder editable). Binds only to headless APIs:
     /// <see cref="ScenarioAuthoringSession"/>, <see cref="ScenarioEditCommandBus"/>,
     /// <see cref="MapAuthoringSurface"/>, <see cref="LiveFindingsPresenter"/>.
     /// No Validation Engine rules, no <c>DelegationBridge</c>, no business logic.
     /// </summary>
     public sealed class ScenarioMapAuthoringWindow : EditorWindow
     {
+        /// <summary>Project-relative path for the UI Builder UXML asset.</summary>
+        public const string PanelUxmlAssetPath =
+            "Assets/UI/ScenarioEditor/ScenarioMapAuthoringPanel.uxml";
+
+        /// <summary>Project-relative path for the companion USS stylesheet.</summary>
+        public const string PanelUssAssetPath =
+            "Assets/UI/ScenarioEditor/ScenarioMapAuthoringPanel.uss";
+
         private string _scenarioPath = string.Empty;
         private string _status = "No scenario open.";
 
@@ -25,34 +35,107 @@ namespace ProjectAegis.Unity.Editor
         private MapAuthoringSurface? _surface;
         private LiveFindingsPresenter? _findings;
 
-        private Vector2 _unitsScroll;
-        private Vector2 _rpsScroll;
-        private Vector2 _findingsScroll;
+        private TextField? _pathField;
+        private Label? _sessionPathLabel;
+        private Label? _sessionEditVersionLabel;
+        private Label? _sessionDirtyLabel;
+        private Label? _statusLabel;
+        private VisualElement? _sessionBody;
+        private VisualElement? _unitsList;
+        private VisualElement? _rpsList;
+        private VisualElement? _findingsList;
+        private TextField? _placeUnitId;
+        private TextField? _placeSideId;
+        private TextField? _placePlatformId;
+        private TextField? _placeLat;
+        private TextField? _placeLon;
+        private VisualElement? _platformList;
+        private Label? _platformDomainLabel;
+        private Button? _domainAircraftButton;
+        private Button? _domainShipsButton;
+        private Button? _domainSubsButton;
+        private Button? _domainGroundButton;
+        private TextField? _rpId;
+        private TextField? _rpLat0;
+        private TextField? _rpLon0;
+        private TextField? _rpLat1;
+        private TextField? _rpLon1;
+        private TextField? _rpLat2;
+        private TextField? _rpLon2;
+        private Button? _saveButton;
+        private Button? _rebuildButton;
+        private Button? _refreshFindingsButton;
 
-        // Place-unit form (gesture input only — commit goes through MapAuthoringSurface).
-        private string _placeUnitId = "u-new";
-        private string _placeSideId = "blue";
-        private string _placePlatformId = "ffg";
-        private string _placeLat = "57.0";
-        private string _placeLon = "20.0";
-
-        // Optional 3-vertex polygon RP form.
-        private string _rpId = "rp-zone";
-        private string _rpLat0 = "57.0";
-        private string _rpLon0 = "20.0";
-        private string _rpLat1 = "57.1";
-        private string _rpLon1 = "20.1";
-        private string _rpLat2 = "57.0";
-        private string _rpLon2 = "20.2";
+        private string _activeDomainId = ScenarioPlatformDomainCatalog.DomainShips;
+        private string? _selectedPlatformId;
+        private int _unitIdSequence = 1;
 
         /// <summary>Opens the Scenario Map Authoring window from the menu.</summary>
         [MenuItem("Project Aegis/Scenario Map Authoring")]
-        public static void OpenWindow()
+        public static void OpenWindow() => OpenWindowForDomain(ScenarioPlatformDomainCatalog.DomainShips);
+
+        [MenuItem("Project Aegis/Scenario Editor/Add Aircraft…")]
+        public static void OpenAddAircraft() => OpenWindowForDomain(ScenarioPlatformDomainCatalog.DomainAircraft);
+
+        [MenuItem("Project Aegis/Scenario Editor/Add Ships…")]
+        public static void OpenAddShips() => OpenWindowForDomain(ScenarioPlatformDomainCatalog.DomainShips);
+
+        [MenuItem("Project Aegis/Scenario Editor/Add Subs…")]
+        public static void OpenAddSubs() => OpenWindowForDomain(ScenarioPlatformDomainCatalog.DomainSubs);
+
+        [MenuItem("Project Aegis/Scenario Editor/Add Ground Units…")]
+        public static void OpenAddGround() => OpenWindowForDomain(ScenarioPlatformDomainCatalog.DomainGround);
+
+        /// <summary>Opens the authoring host focused on a platform domain catalog.</summary>
+        public static void OpenWindowForDomain(string domainId)
         {
             var window = GetWindow<ScenarioMapAuthoringWindow>();
             window.titleContent = new GUIContent("Scenario Map Authoring");
-            window.minSize = new Vector2(420f, 520f);
+            window.minSize = new Vector2(480f, 760f);
+            // Ensure enough room for stacked UI Toolkit chrome after IMGUI → UITK migration.
+            if (window.position.height < 700f || window.position.width < 480f)
+            {
+                window.position = new Rect(window.position.x, window.position.y, 520f, 800f);
+            }
+
+            window._activeDomainId = string.IsNullOrWhiteSpace(domainId)
+                ? ScenarioPlatformDomainCatalog.DomainShips
+                : domainId.Trim().ToLowerInvariant();
             window.Show();
+            // Rebuild every open so UXML/USS edits (UI Builder) apply without domain reload.
+            window.RebuildUi();
+            window.Focus();
+            window.Repaint();
+        }
+
+        /// <summary>
+        /// Headless/agent open: write empty <c>Temp/aegis-open-scenario-map-authoring.flag</c>
+        /// then refresh assets; flag is consumed once on the next editor update.
+        /// </summary>
+        [InitializeOnLoadMethod]
+        private static void OpenWindowIfAgentFlagPresent()
+        {
+            EditorApplication.delayCall += () =>
+            {
+                try
+                {
+                    var flagPath = Path.Combine(Application.dataPath, "..", "Temp",
+                        "aegis-open-scenario-map-authoring.flag");
+                    flagPath = Path.GetFullPath(flagPath);
+                    if (!File.Exists(flagPath))
+                    {
+                        return;
+                    }
+
+                    File.Delete(flagPath);
+                    OpenWindow();
+                    Debug.Log("ScenarioMapAuthoringWindow: opened via agent flag.");
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"ScenarioMapAuthoringWindow agent open failed: {ex.Message}");
+                }
+            };
         }
 
         private void OnDisable()
@@ -60,213 +143,321 @@ namespace ProjectAegis.Unity.Editor
             DisposeSession();
         }
 
-        private void OnGUI()
+        private void CreateGUI()
         {
-            EditorGUILayout.LabelField("Scenario Map Authoring (thin host)", EditorStyles.boldLabel);
-            EditorGUILayout.HelpBox(
-                "Binds UI to ScenarioAuthoringSession / Bus / MapAuthoringSurface / LiveFindingsPresenter only. " +
-                "No Validation Engine rules and no DelegationBridge.",
-                MessageType.Info);
-
-            DrawPathAndSessionBar();
-            EditorGUILayout.Space(6f);
-
-            using (new EditorGUI.DisabledScope(_session == null))
-            {
-                DrawSessionStatus();
-                EditorGUILayout.Space(4f);
-                DrawLists();
-                EditorGUILayout.Space(6f);
-                DrawPlaceUnitSection();
-                EditorGUILayout.Space(6f);
-                DrawReferencePointSection();
-            }
-
-            if (!string.IsNullOrEmpty(_status))
-            {
-                EditorGUILayout.Space(8f);
-                EditorGUILayout.HelpBox(_status, MessageType.None);
-            }
+            RebuildUi();
         }
 
-        private void DrawPathAndSessionBar()
+        /// <summary>Clone shipped UXML/USS and rebind named controls (UI Builder–compatible assets).</summary>
+        private void RebuildUi()
         {
-            EditorGUILayout.BeginHorizontal();
-            _scenarioPath = EditorGUILayout.TextField("Scenario path", _scenarioPath);
-            if (GUILayout.Button("Browse…", GUILayout.Width(72f)))
+            // UXML reclones form defaults; drop staged gestures so Commit cannot upsert stale TentativeUnit.
+            ScenarioMapAuthoringHostPolicy.InvalidateStagedGesturesForChromeRebuild(_surface);
+
+            rootVisualElement.Clear();
+
+            var tree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(PanelUxmlAssetPath);
+            if (tree == null)
             {
-                var picked = EditorUtility.OpenFilePanel(
-                    "Open scenario.json",
-                    string.IsNullOrEmpty(_scenarioPath)
-                        ? Application.dataPath
-                        : Path.GetDirectoryName(_scenarioPath) ?? Application.dataPath,
-                    "json");
-                if (!string.IsNullOrEmpty(picked))
-                {
-                    _scenarioPath = picked;
-                }
+                rootVisualElement.Add(new Label(
+                    $"Missing UXML at {PanelUxmlAssetPath}. Refresh Assets or open UI Builder."));
+                return;
             }
 
-            EditorGUILayout.EndHorizontal();
+            tree.CloneTree(rootVisualElement);
 
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Open"))
+            var style = AssetDatabase.LoadAssetAtPath<StyleSheet>(PanelUssAssetPath);
+            if (style != null && !rootVisualElement.styleSheets.Contains(style))
             {
+                rootVisualElement.styleSheets.Add(style);
+            }
+
+            CacheControls(rootVisualElement);
+            WireCallbacks();
+            ApplyPathToField();
+            RefreshSessionChrome();
+            RefreshLists();
+            SelectDomain(_activeDomainId, preserveSelection: true);
+            SetStatus(_status);
+        }
+
+        private void CacheControls(VisualElement root)
+        {
+            _pathField = root.Q<TextField>("scenario-path-field");
+            _sessionPathLabel = root.Q<Label>("scenario-session-path");
+            _sessionEditVersionLabel = root.Q<Label>("scenario-session-edit-version");
+            _sessionDirtyLabel = root.Q<Label>("scenario-session-dirty");
+            _statusLabel = root.Q<Label>("scenario-status");
+            _sessionBody = root.Q<VisualElement>("scenario-session-body");
+            _unitsList = root.Q<VisualElement>("scenario-units-list");
+            _rpsList = root.Q<VisualElement>("scenario-rps-list");
+            _findingsList = root.Q<VisualElement>("scenario-findings-list");
+            _placeUnitId = root.Q<TextField>("scenario-place-unit-id");
+            _placeSideId = root.Q<TextField>("scenario-place-side-id");
+            _placePlatformId = root.Q<TextField>("scenario-place-platform-id");
+            _placeLat = root.Q<TextField>("scenario-place-lat");
+            _placeLon = root.Q<TextField>("scenario-place-lon");
+            _platformList = root.Q<VisualElement>("scenario-platform-list");
+            _platformDomainLabel = root.Q<Label>("scenario-platform-domain-label");
+            _domainAircraftButton = root.Q<Button>("scenario-domain-aircraft");
+            _domainShipsButton = root.Q<Button>("scenario-domain-ships");
+            _domainSubsButton = root.Q<Button>("scenario-domain-subs");
+            _domainGroundButton = root.Q<Button>("scenario-domain-ground");
+            _rpId = root.Q<TextField>("scenario-rp-id");
+            _rpLat0 = root.Q<TextField>("scenario-rp-lat0");
+            _rpLon0 = root.Q<TextField>("scenario-rp-lon0");
+            _rpLat1 = root.Q<TextField>("scenario-rp-lat1");
+            _rpLon1 = root.Q<TextField>("scenario-rp-lon1");
+            _rpLat2 = root.Q<TextField>("scenario-rp-lat2");
+            _rpLon2 = root.Q<TextField>("scenario-rp-lon2");
+            _saveButton = root.Q<Button>("scenario-save-button");
+            _rebuildButton = root.Q<Button>("scenario-rebuild-button");
+            _refreshFindingsButton = root.Q<Button>("scenario-refresh-findings-button");
+        }
+
+        private void WireCallbacks()
+        {
+            rootVisualElement.Q<Button>("scenario-browse-button")?.RegisterCallback<ClickEvent>(_ => BrowsePath());
+            rootVisualElement.Q<Button>("scenario-open-button")?.RegisterCallback<ClickEvent>(_ =>
+            {
+                SyncPathFromField();
                 TryOpen();
-            }
+            });
+            _saveButton?.RegisterCallback<ClickEvent>(_ => TrySave());
+            _rebuildButton?.RegisterCallback<ClickEvent>(_ => TryRebuild());
+            _refreshFindingsButton?.RegisterCallback<ClickEvent>(_ => TryRefreshFindings());
+            rootVisualElement.Q<Button>("scenario-begin-place-unit")
+                ?.RegisterCallback<ClickEvent>(_ => TryBeginPlaceUnit());
+            rootVisualElement.Q<Button>("scenario-commit-place-unit")
+                ?.RegisterCallback<ClickEvent>(_ => TryCommitPlaceUnit());
+            rootVisualElement.Q<Button>("scenario-place-and-commit")
+                ?.RegisterCallback<ClickEvent>(_ => TryPlaceAndCommit());
+            rootVisualElement.Q<Button>("scenario-cancel-gesture")
+                ?.RegisterCallback<ClickEvent>(_ => TryCancelGesture());
+            rootVisualElement.Q<Button>("scenario-upsert-rp")
+                ?.RegisterCallback<ClickEvent>(_ => TryUpsertRpPolygon());
 
-            using (new EditorGUI.DisabledScope(_session == null))
-            {
-                if (GUILayout.Button("Save"))
-                {
-                    TrySave();
-                }
+            _domainAircraftButton?.RegisterCallback<ClickEvent>(_ =>
+                SelectDomain(ScenarioPlatformDomainCatalog.DomainAircraft));
+            _domainShipsButton?.RegisterCallback<ClickEvent>(_ =>
+                SelectDomain(ScenarioPlatformDomainCatalog.DomainShips));
+            _domainSubsButton?.RegisterCallback<ClickEvent>(_ =>
+                SelectDomain(ScenarioPlatformDomainCatalog.DomainSubs));
+            _domainGroundButton?.RegisterCallback<ClickEvent>(_ =>
+                SelectDomain(ScenarioPlatformDomainCatalog.DomainGround));
 
-                if (GUILayout.Button("Rebuild"))
-                {
-                    TryRebuild();
-                }
-
-                if (GUILayout.Button("Refresh Findings"))
-                {
-                    TryRefreshFindings();
-                }
-            }
-
-            EditorGUILayout.EndHorizontal();
+            _pathField?.RegisterValueChangedCallback(evt => _scenarioPath = evt.newValue ?? string.Empty);
         }
 
-        private void DrawSessionStatus()
+        private void BrowsePath()
         {
+            SyncPathFromField();
+            var picked = EditorUtility.OpenFilePanel(
+                "Open scenario.json",
+                string.IsNullOrEmpty(_scenarioPath)
+                    ? Application.dataPath
+                    : Path.GetDirectoryName(_scenarioPath) ?? Application.dataPath,
+                "json");
+            if (!string.IsNullOrEmpty(picked))
+            {
+                _scenarioPath = picked;
+                ApplyPathToField();
+            }
+        }
+
+        private void SyncPathFromField()
+        {
+            if (_pathField != null)
+            {
+                _scenarioPath = _pathField.value ?? string.Empty;
+            }
+        }
+
+        private void ApplyPathToField()
+        {
+            if (_pathField != null)
+            {
+                _pathField.SetValueWithoutNotify(_scenarioPath ?? string.Empty);
+            }
+        }
+
+        private void SetStatus(string message)
+        {
+            _status = message ?? string.Empty;
+            if (_statusLabel != null)
+            {
+                _statusLabel.text = _status;
+            }
+        }
+
+        private void RefreshSessionChrome()
+        {
+            var hasSession = _session != null;
+            if (_sessionBody != null)
+            {
+                _sessionBody.SetEnabled(hasSession);
+            }
+
+            if (_saveButton != null)
+            {
+                _saveButton.SetEnabled(hasSession);
+            }
+
+            if (_rebuildButton != null)
+            {
+                _rebuildButton.SetEnabled(hasSession);
+            }
+
+            if (_refreshFindingsButton != null)
+            {
+                _refreshFindingsButton.SetEnabled(hasSession);
+            }
+
             if (_session == null)
+            {
+                if (_sessionPathLabel != null)
+                {
+                    _sessionPathLabel.text = "Path: —";
+                }
+
+                if (_sessionEditVersionLabel != null)
+                {
+                    _sessionEditVersionLabel.text = "Edit version: —";
+                }
+
+                if (_sessionDirtyLabel != null)
+                {
+                    _sessionDirtyLabel.text = "Dirty: —";
+                }
+
+                return;
+            }
+
+            if (_sessionPathLabel != null)
+            {
+                _sessionPathLabel.text = $"Path: {_session.Path}";
+            }
+
+            if (_sessionEditVersionLabel != null)
+            {
+                _sessionEditVersionLabel.text = $"Edit version: {_session.EditVersion}";
+            }
+
+            if (_sessionDirtyLabel != null)
+            {
+                _sessionDirtyLabel.text = $"Dirty: {(_session.IsDirty ? "yes" : "no")}";
+            }
+        }
+
+        private void RefreshLists()
+        {
+            FillScroll(_unitsList, BuildUnitLines());
+            FillScroll(_rpsList, BuildRpLines());
+            FillScroll(_findingsList, BuildFindingsLines());
+        }
+
+        private IReadOnlyList<string> BuildUnitLines()
+        {
+            if (_surface == null || _surface.Units.Count == 0)
+            {
+                return Array.Empty<string>();
+            }
+
+            var lines = new List<string>(_surface.Units.Count);
+            for (var i = 0; i < _surface.Units.Count; i++)
+            {
+                var u = _surface.Units[i];
+                lines.Add($"{u.UnitId}  side={u.SideId}  platform={u.PlatformId}  ({u.Lat:F4},{u.Lon:F4})");
+            }
+
+            return lines;
+        }
+
+        private IReadOnlyList<string> BuildRpLines()
+        {
+            if (_surface == null || _surface.ReferencePoints.Count == 0)
+            {
+                return Array.Empty<string>();
+            }
+
+            var lines = new List<string>(_surface.ReferencePoints.Count);
+            for (var i = 0; i < _surface.ReferencePoints.Count; i++)
+            {
+                var rp = _surface.ReferencePoints[i];
+                var valid = rp.IsGeometryValid ? "valid" : $"invalid:{rp.InvalidReason}";
+                lines.Add($"{rp.Id}  type={rp.Type}  {valid}");
+            }
+
+            return lines;
+        }
+
+        private IReadOnlyList<string> BuildFindingsLines()
+        {
+            if (_findings == null || _findings.LastCodes.Count == 0)
+            {
+                return Array.Empty<string>();
+            }
+
+            var lines = new List<string>(_findings.LastCodes.Count);
+            for (var i = 0; i < _findings.LastCodes.Count; i++)
+            {
+                lines.Add(_findings.LastCodes[i]);
+            }
+
+            return lines;
+        }
+
+        private static void FillScroll(VisualElement? list, IReadOnlyList<string> lines)
+        {
+            if (list == null)
             {
                 return;
             }
 
-            EditorGUILayout.LabelField("Path", _session.Path);
-            EditorGUILayout.LabelField("Edit version", _session.EditVersion.ToString());
-            EditorGUILayout.LabelField("Dirty", _session.IsDirty ? "yes" : "no");
-        }
-
-        private void DrawLists()
-        {
-            EditorGUILayout.LabelField("ORBAT unit ids", EditorStyles.boldLabel);
-            _unitsScroll = EditorGUILayout.BeginScrollView(_unitsScroll, GUILayout.Height(90f));
-            if (_surface == null || _surface.Units.Count == 0)
+            list.Clear();
+            if (lines.Count == 0)
             {
-                EditorGUILayout.LabelField("(none)");
-            }
-            else
-            {
-                for (var i = 0; i < _surface.Units.Count; i++)
-                {
-                    var u = _surface.Units[i];
-                    EditorGUILayout.LabelField(
-                        $"{u.UnitId}  side={u.SideId}  platform={u.PlatformId}  ({u.Lat:F4},{u.Lon:F4})");
-                }
+                var empty = new Label("(none)") { name = "list-empty", pickingMode = PickingMode.Ignore };
+                empty.AddToClassList("scenario-map-list-empty");
+                list.Add(empty);
+                return;
             }
 
-            EditorGUILayout.EndScrollView();
-
-            EditorGUILayout.LabelField("Reference point ids", EditorStyles.boldLabel);
-            _rpsScroll = EditorGUILayout.BeginScrollView(_rpsScroll, GUILayout.Height(90f));
-            if (_surface == null || _surface.ReferencePoints.Count == 0)
+            for (var i = 0; i < lines.Count; i++)
             {
-                EditorGUILayout.LabelField("(none)");
-            }
-            else
-            {
-                for (var i = 0; i < _surface.ReferencePoints.Count; i++)
-                {
-                    var rp = _surface.ReferencePoints[i];
-                    var valid = rp.IsGeometryValid ? "valid" : $"invalid:{rp.InvalidReason}";
-                    EditorGUILayout.LabelField($"{rp.Id}  type={rp.Type}  {valid}");
-                }
-            }
-
-            EditorGUILayout.EndScrollView();
-
-            EditorGUILayout.LabelField("Findings codes", EditorStyles.boldLabel);
-            _findingsScroll = EditorGUILayout.BeginScrollView(_findingsScroll, GUILayout.Height(90f));
-            if (_findings == null || _findings.LastCodes.Count == 0)
-            {
-                EditorGUILayout.LabelField("(none — use Refresh Findings)");
-            }
-            else
-            {
-                for (var i = 0; i < _findings.LastCodes.Count; i++)
-                {
-                    EditorGUILayout.LabelField(_findings.LastCodes[i]);
-                }
-            }
-
-            EditorGUILayout.EndScrollView();
-        }
-
-        private void DrawPlaceUnitSection()
-        {
-            EditorGUILayout.LabelField("Place unit", EditorStyles.boldLabel);
-            _placeUnitId = EditorGUILayout.TextField("Id", _placeUnitId);
-            _placeSideId = EditorGUILayout.TextField("Side", _placeSideId);
-            _placePlatformId = EditorGUILayout.TextField("Platform", _placePlatformId);
-            _placeLat = EditorGUILayout.TextField("Lat", _placeLat);
-            _placeLon = EditorGUILayout.TextField("Lon", _placeLon);
-
-            EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("Begin Place Unit"))
-            {
-                TryBeginPlaceUnit();
-            }
-
-            if (GUILayout.Button("Commit Place Unit"))
-            {
-                TryCommitPlaceUnit();
-            }
-
-            if (GUILayout.Button("Cancel Gesture"))
-            {
-                TryCancelGesture();
-            }
-
-            EditorGUILayout.EndHorizontal();
-        }
-
-        private void DrawReferencePointSection()
-        {
-            EditorGUILayout.LabelField("Upsert RP polygon (3 vertices)", EditorStyles.boldLabel);
-            _rpId = EditorGUILayout.TextField("RP id", _rpId);
-            DrawLatLonRow("V0", ref _rpLat0, ref _rpLon0);
-            DrawLatLonRow("V1", ref _rpLat1, ref _rpLon1);
-            DrawLatLonRow("V2", ref _rpLat2, ref _rpLon2);
-
-            if (GUILayout.Button("Begin + Commit RP Polygon"))
-            {
-                TryUpsertRpPolygon();
+                var label = new Label(lines[i]) { pickingMode = PickingMode.Ignore };
+                label.AddToClassList("scenario-map-list-item");
+                list.Add(label);
             }
         }
 
-        private static void DrawLatLonRow(string label, ref string lat, ref string lon)
+        private void RefreshAllUi()
         {
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.PrefixLabel(label);
-            lat = EditorGUILayout.TextField(lat);
-            lon = EditorGUILayout.TextField(lon);
-            EditorGUILayout.EndHorizontal();
+            RefreshSessionChrome();
+            RefreshLists();
+            SetStatus(_status);
+            rootVisualElement.MarkDirtyRepaint();
+        }
+
+        private string FieldValue(TextField? field, string fallback = "")
+        {
+            return field?.value ?? fallback;
         }
 
         private void TryOpen()
         {
             try
             {
+                SyncPathFromField();
                 if (string.IsNullOrWhiteSpace(_scenarioPath))
                 {
-                    _status = "Enter a scenario.json path.";
+                    SetStatus("Enter a scenario.json path.");
                     return;
                 }
 
                 if (!File.Exists(_scenarioPath))
                 {
-                    _status = $"File not found: {_scenarioPath}";
+                    SetStatus($"File not found: {_scenarioPath}");
                     return;
                 }
 
@@ -276,13 +467,14 @@ namespace ProjectAegis.Unity.Editor
                 _findings = new LiveFindingsPresenter(_session, debounceMs: 0);
                 _surface.RebuildFromDocument();
                 _findings.RefreshImmediate();
-                _status = $"Opened {_session.Path} (editVersion={_session.EditVersion}).";
-                Repaint();
+                SetStatus($"Opened {_session.Path} (editVersion={_session.EditVersion}).");
+                RefreshAllUi();
             }
             catch (Exception ex)
             {
                 DisposeSession();
-                _status = $"Open failed: {ex.Message}";
+                SetStatus($"Open failed: {ex.Message}");
+                RefreshAllUi();
             }
         }
 
@@ -296,12 +488,12 @@ namespace ProjectAegis.Unity.Editor
             try
             {
                 _session.Save();
-                _status = $"Saved {_session.Path} (editVersion={_session.EditVersion}).";
-                Repaint();
+                SetStatus($"Saved {_session.Path} (editVersion={_session.EditVersion}).");
+                RefreshAllUi();
             }
             catch (Exception ex)
             {
-                _status = $"Save failed: {ex.Message}";
+                SetStatus($"Save failed: {ex.Message}");
             }
         }
 
@@ -315,12 +507,12 @@ namespace ProjectAegis.Unity.Editor
             try
             {
                 _surface.RebuildFromDocument();
-                _status = $"Rebuilt surface: {_surface.Units.Count} units, {_surface.ReferencePoints.Count} RPs.";
-                Repaint();
+                SetStatus($"Rebuilt surface: {_surface.Units.Count} units, {_surface.ReferencePoints.Count} RPs.");
+                RefreshAllUi();
             }
             catch (Exception ex)
             {
-                _status = $"Rebuild failed: {ex.Message}";
+                SetStatus($"Rebuild failed: {ex.Message}");
             }
         }
 
@@ -334,13 +526,143 @@ namespace ProjectAegis.Unity.Editor
             try
             {
                 _findings.RefreshImmediate();
-                _status = $"Findings: {_findings.LastCodes.Count} code(s).";
-                Repaint();
+                SetStatus($"Findings: {_findings.LastCodes.Count} code(s).");
+                RefreshAllUi();
             }
             catch (Exception ex)
             {
-                _status = $"Refresh findings failed: {ex.Message}";
+                SetStatus($"Refresh findings failed: {ex.Message}");
             }
+        }
+
+        private void SelectDomain(string domainId, bool preserveSelection = false)
+        {
+            var nextDomain = string.IsNullOrWhiteSpace(domainId)
+                ? ScenarioPlatformDomainCatalog.DomainShips
+                : domainId.Trim().ToLowerInvariant();
+            // Domain switch rewrites the place form / catalog; drop staged unit so Commit cannot
+            // upsert the pre-switch TentativeUnit (UAT stale-gesture class).
+            if (!string.Equals(_activeDomainId, nextDomain, StringComparison.Ordinal)
+                && !preserveSelection)
+            {
+                ScenarioMapAuthoringHostPolicy.InvalidateStagedGesturesForFormOrDomainChange(_surface);
+            }
+
+            _activeDomainId = nextDomain;
+
+            SetDomainButtonActive(_domainAircraftButton, _activeDomainId == ScenarioPlatformDomainCatalog.DomainAircraft);
+            SetDomainButtonActive(_domainShipsButton, _activeDomainId == ScenarioPlatformDomainCatalog.DomainShips);
+            SetDomainButtonActive(_domainSubsButton, _activeDomainId == ScenarioPlatformDomainCatalog.DomainSubs);
+            SetDomainButtonActive(_domainGroundButton, _activeDomainId == ScenarioPlatformDomainCatalog.DomainGround);
+
+            if (_platformDomainLabel != null)
+            {
+                _platformDomainLabel.text =
+                    $"Domain: {ScenarioPlatformDomainCatalog.DomainLabel(_activeDomainId)}";
+            }
+
+            FillPlatformCatalog(preserveSelection);
+        }
+
+        private static void SetDomainButtonActive(Button? button, bool active)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            button.EnableInClassList("scenario-map-domain-button--active", active);
+        }
+
+        private void FillPlatformCatalog(bool preserveSelection)
+        {
+            if (_platformList == null)
+            {
+                return;
+            }
+
+            _platformList.Clear();
+            var presets = ScenarioPlatformDomainCatalog.GetPresets(_activeDomainId);
+            if (presets.Count == 0)
+            {
+                var empty = new Label("(no platforms in domain)")
+                {
+                    name = "platform-list-empty",
+                    pickingMode = PickingMode.Ignore,
+                };
+                empty.AddToClassList("scenario-map-list-empty");
+                _platformList.Add(empty);
+                return;
+            }
+
+            var stillSelected = false;
+            for (var i = 0; i < presets.Count; i++)
+            {
+                var preset = presets[i];
+                var row = new Button { text = preset.ListLine, userData = preset };
+                row.AddToClassList("scenario-map-platform-row");
+                if (preserveSelection
+                    && !string.IsNullOrEmpty(_selectedPlatformId)
+                    && string.Equals(_selectedPlatformId, preset.PlatformId, StringComparison.OrdinalIgnoreCase))
+                {
+                    row.AddToClassList("scenario-map-platform-row--selected");
+                    stillSelected = true;
+                }
+
+                var captured = preset;
+                row.clicked += () => ApplyPlatformPreset(captured);
+                _platformList.Add(row);
+            }
+
+            if (!preserveSelection || !stillSelected)
+            {
+                // Auto-select first preset when domain changes so place form is never blank.
+                ApplyPlatformPreset(presets[0]);
+            }
+        }
+
+        private void ApplyPlatformPreset(ScenarioPlatformPreset preset)
+        {
+            // Catalog click rewrites platform/side/id fields — invalidate any staged place gesture.
+            if (_surface?.TentativeUnit != null
+                && !string.Equals(_selectedPlatformId, preset.PlatformId, StringComparison.OrdinalIgnoreCase))
+            {
+                ScenarioMapAuthoringHostPolicy.InvalidateStagedGesturesForFormOrDomainChange(_surface);
+            }
+
+            _selectedPlatformId = preset.PlatformId;
+            if (_placePlatformId != null)
+            {
+                _placePlatformId.SetValueWithoutNotify(preset.PlatformId);
+            }
+
+            if (_placeSideId != null)
+            {
+                _placeSideId.SetValueWithoutNotify(preset.DefaultSideId);
+            }
+
+            if (_placeUnitId != null)
+            {
+                _placeUnitId.SetValueWithoutNotify(
+                    ScenarioPlatformDomainCatalog.SuggestUnitId(preset.PlatformId, _unitIdSequence));
+            }
+
+            if (_platformList != null)
+            {
+                foreach (var child in _platformList.Children())
+                {
+                    if (child is Button button)
+                    {
+                        var selected = button.userData is ScenarioPlatformPreset p
+                            && string.Equals(p.PlatformId, preset.PlatformId, StringComparison.OrdinalIgnoreCase);
+                        button.EnableInClassList("scenario-map-platform-row--selected", selected);
+                    }
+                }
+            }
+
+            SetStatus(
+                $"Selected {ScenarioPlatformDomainCatalog.DomainLabel(preset.DomainId)} platform " +
+                $"'{preset.DisplayName}' ({preset.PlatformId}). Begin Place or Place + Commit.");
         }
 
         private void TryBeginPlaceUnit()
@@ -350,28 +672,32 @@ namespace ProjectAegis.Unity.Editor
                 return;
             }
 
-            if (!TryParseLatLon(_placeLat, _placeLon, out var lat, out var lon, out var err))
+            var latText = FieldValue(_placeLat, "57.0");
+            var lonText = FieldValue(_placeLon, "20.0");
+            if (!TryParseLatLon(latText, lonText, out var lat, out var lon, out var err))
             {
-                _status = err;
+                SetStatus(err);
                 return;
             }
 
             try
             {
+                var unitId = FieldValue(_placeUnitId, "u-new").Trim();
+                var platformId = FieldValue(_placePlatformId, "ffg").Trim();
                 _surface.BeginPlaceUnit(new ScenarioOrbatUnitDto
                 {
-                    Id = _placeUnitId.Trim(),
-                    SideId = _placeSideId.Trim(),
-                    PlatformId = _placePlatformId.Trim(),
+                    Id = unitId,
+                    SideId = FieldValue(_placeSideId, "blue").Trim(),
+                    PlatformId = platformId,
                     Lat = lat,
                     Lon = lon,
                 });
-                _status = $"Place-unit gesture staged for '{_placeUnitId.Trim()}'. Commit to apply via bus.";
-                Repaint();
+                SetStatus($"Place-unit gesture staged for '{unitId}' platform={platformId}. Commit to apply via bus.");
+                RefreshAllUi();
             }
             catch (Exception ex)
             {
-                _status = $"Begin place unit failed: {ex.Message}";
+                SetStatus($"Begin place unit failed: {ex.Message}");
             }
         }
 
@@ -387,25 +713,42 @@ namespace ProjectAegis.Unity.Editor
                 var result = _surface.CommitPlaceUnit(save: true);
                 if (result == null)
                 {
-                    _status = "No tentative unit staged. Use Begin Place Unit first.";
+                    SetStatus("No tentative unit staged. Use Begin Place Unit first.");
                     return;
                 }
 
                 _findings.RefreshImmediate();
                 if (result.Ok)
                 {
-                    _status = $"Place unit committed (editVersion={result.EditVersion}).";
+                    _unitIdSequence++;
+                    SetStatus($"Place unit committed (editVersion={result.EditVersion}).");
+                    // Bump suggested unit id for next placement in this domain.
+                    var platformId = FieldValue(_placePlatformId, "ffg").Trim();
+                    if (_placeUnitId != null)
+                    {
+                        _placeUnitId.SetValueWithoutNotify(
+                            ScenarioPlatformDomainCatalog.SuggestUnitId(platformId, _unitIdSequence));
+                    }
                 }
                 else
                 {
-                    _status = $"Place unit failed: {result.ErrorCode} — {result.ErrorMessage}";
+                    SetStatus($"Place unit failed: {result.ErrorCode} — {result.ErrorMessage}");
                 }
 
-                Repaint();
+                RefreshAllUi();
             }
             catch (Exception ex)
             {
-                _status = $"Commit place unit failed: {ex.Message}";
+                SetStatus($"Commit place unit failed: {ex.Message}");
+            }
+        }
+
+        private void TryPlaceAndCommit()
+        {
+            TryBeginPlaceUnit();
+            if (_surface?.TentativeUnit != null)
+            {
+                TryCommitPlaceUnit();
             }
         }
 
@@ -417,8 +760,8 @@ namespace ProjectAegis.Unity.Editor
             }
 
             _surface.CancelGesture();
-            _status = "Gesture cancelled.";
-            Repaint();
+            SetStatus("Gesture cancelled.");
+            RefreshAllUi();
         }
 
         private void TryUpsertRpPolygon()
@@ -428,21 +771,21 @@ namespace ProjectAegis.Unity.Editor
                 return;
             }
 
-            if (!TryParseLatLon(_rpLat0, _rpLon0, out var lat0, out var lon0, out var err0))
+            if (!TryParseLatLon(FieldValue(_rpLat0), FieldValue(_rpLon0), out var lat0, out var lon0, out var err0))
             {
-                _status = "V0: " + err0;
+                SetStatus("V0: " + err0);
                 return;
             }
 
-            if (!TryParseLatLon(_rpLat1, _rpLon1, out var lat1, out var lon1, out var err1))
+            if (!TryParseLatLon(FieldValue(_rpLat1), FieldValue(_rpLon1), out var lat1, out var lon1, out var err1))
             {
-                _status = "V1: " + err1;
+                SetStatus("V1: " + err1);
                 return;
             }
 
-            if (!TryParseLatLon(_rpLat2, _rpLon2, out var lat2, out var lon2, out var err2))
+            if (!TryParseLatLon(FieldValue(_rpLat2), FieldValue(_rpLon2), out var lat2, out var lon2, out var err2))
             {
-                _status = "V2: " + err2;
+                SetStatus("V2: " + err2);
                 return;
             }
 
@@ -455,9 +798,10 @@ namespace ProjectAegis.Unity.Editor
                     new() { Lat = lat2, Lon = lon2 },
                 };
 
+                var rpId = FieldValue(_rpId, "rp-zone").Trim();
                 _surface.BeginDrawReferencePoint(new ScenarioReferencePointDto
                 {
-                    Id = _rpId.Trim(),
+                    Id = rpId,
                     Type = "polygon",
                     Geometry = geometry,
                 });
@@ -465,25 +809,25 @@ namespace ProjectAegis.Unity.Editor
                 var result = _surface.CommitReferencePoint(save: true);
                 if (result == null)
                 {
-                    _status = "RP commit returned null (no tentative RP).";
+                    SetStatus("RP commit returned null (no tentative RP).");
                     return;
                 }
 
                 _findings.RefreshImmediate();
                 if (result.Ok)
                 {
-                    _status = $"RP polygon '{_rpId.Trim()}' committed (editVersion={result.EditVersion}).";
+                    SetStatus($"RP polygon '{rpId}' committed (editVersion={result.EditVersion}).");
                 }
                 else
                 {
-                    _status = $"RP commit failed: {result.ErrorCode} — {result.ErrorMessage}";
+                    SetStatus($"RP commit failed: {result.ErrorCode} — {result.ErrorMessage}");
                 }
 
-                Repaint();
+                RefreshAllUi();
             }
             catch (Exception ex)
             {
-                _status = $"RP upsert failed: {ex.Message}";
+                SetStatus($"RP upsert failed: {ex.Message}");
             }
         }
 

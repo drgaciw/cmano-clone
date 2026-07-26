@@ -30,7 +30,10 @@ public static class PlatformExportXlsxCommand
     {
         var clock = new FixedCatalogClock(0);
         var exporter = new PlatformWorkbookExporter();
-        var effectiveSnapshot = string.IsNullOrWhiteSpace(snapshotId) ? "cli-s22-export" : snapshotId;
+        // Default to Baltic snapshot when --snapshot omitted (was cli-s22-export → silent empty).
+        var effectiveSnapshot = string.IsNullOrWhiteSpace(snapshotId)
+            ? CatalogValidationDefaults.BalticSnapshotId
+            : snapshotId.Trim();
         var filterActive = !string.IsNullOrWhiteSpace(tlTierFilter) && CatalogTlTier.IsValid(tlTierFilter);
         var resolvedTlTier = filterActive ? CatalogTlTier.Normalize(tlTierFilter) : null;
         var snapshotResolved = PlatformCatalogExportResolver.TryResolve(
@@ -64,11 +67,12 @@ public static class PlatformExportXlsxCommand
 
         var payload = new
         {
-            ok = true,
+            ok = snapshotResolved,
             verb = "platform_export_xlsx",
             snapshotId = effectiveSnapshot,
             snapshotResolved,
             tlTierFilter = filterActive ? resolvedTlTier : null,
+            platformCount = data.Platforms?.Count ?? 0,
             manifest = new
             {
                 dbVersion = manifest.DbVersion,
@@ -82,10 +86,18 @@ public static class PlatformExportXlsxCommand
             phaseBEmconRows = data.Emcon?.Count ?? 0,
             outPath = effectiveOut,
             io = io.GetType().Name,
-            note = "exported via PlatformWorkbookExporter + IPlatformWorkbookIo (ClosedXML default for .xlsx; canonical fallback via --io canonical)",
+            note = snapshotResolved
+                ? "exported via PlatformWorkbookExporter + IPlatformWorkbookIo (ClosedXML default for .xlsx; canonical fallback via --io canonical)"
+                : "snapshot not resolved — empty workbook written; pass --snapshot baltic_patrol or a valid release id",
         };
 
         output.WriteLine(JsonSerializer.Serialize(payload, JsonOptions));
+        // Non-zero when DB was given but snapshot did not resolve (silent-empty was UAT P0).
+        if (!string.IsNullOrWhiteSpace(dbPath) && File.Exists(dbPath) && !snapshotResolved)
+        {
+            return 1;
+        }
+
         return 0;
     }
 }

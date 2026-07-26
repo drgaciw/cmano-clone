@@ -20,7 +20,11 @@ public static class PlatformCatalogExportResolver
             return false;
         }
 
-        var sid = snapshotId ?? string.Empty;
+        // Null/empty snapshot: default to Baltic harness id so CLI browse/export
+        // against baltic_patrol.db works without requiring --snapshot every call.
+        var sid = string.IsNullOrWhiteSpace(snapshotId)
+            ? CatalogValidationDefaults.BalticSnapshotId
+            : snapshotId.Trim();
         using var reader = new SqliteCatalogReader(dbPath, "cli-export-resolver");
         if (!reader.TryResolveDbRef(sid, out _))
         {
