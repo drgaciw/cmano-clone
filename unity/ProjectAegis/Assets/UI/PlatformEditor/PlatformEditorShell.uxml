@@ -1,0 +1,17 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="platform-editor-shell-root" class="platform-editor-shell platform-editor-shell--browse">
+        <ui:VisualElement name="platform-editor-shell-header" class="platform-editor-shell-header">
+            <ui:Label name="platform-editor-shell-mode-title" text="BROWSE CATALOG" class="platform-editor-shell-mode-title" />
+            <ui:Label name="platform-editor-shell-status" text="" class="platform-editor-shell-status" />
+        </ui:VisualElement>
+        <ui:VisualElement name="platform-editor-shell-tabs" class="platform-editor-shell-tabs" focusable="true">
+            <ui:Button name="platform-editor-shell-tab-catalog" text="Catalog" class="platform-editor-shell-tab platform-editor-shell-tab--active" />
+            <ui:Button name="platform-editor-shell-tab-import" text="Import" class="platform-editor-shell-tab" />
+        </ui:VisualElement>
+        <ui:Label name="platform-editor-shell-health" text="Health: —" class="platform-editor-shell-health" />
+        <ui:VisualElement name="platform-editor-shell-content" class="platform-editor-shell-content">
+            <ui:VisualElement name="platform-editor-shell-catalog-slot" class="platform-editor-shell-slot" />
+            <ui:VisualElement name="platform-editor-shell-import-slot" class="platform-editor-shell-slot platform-editor-shell-slot--hidden" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
