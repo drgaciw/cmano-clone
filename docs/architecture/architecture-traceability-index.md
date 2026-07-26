@@ -16,7 +16,7 @@
 - **Partial:** 20 (43%) — *as of 2026-07-08, not re-assessed*
 - **Gaps:** 12 (25%) — *as of 2026-07-08, not re-assessed*
 - **Current gates (2026-07-24):** solution tests **≥1638/0f**; ReplayGolden **6/6**; C2 proxy **≥20/20**; PlayModeSmoke 18/18; hash `17144800277401907079` (18 paths) — see [requirements-traceability.md](requirements-traceability.md) header.
-- **ADR inventory (verified 2026-07-24):** 17 ADRs present — ADR-001…ADR-011, ADR-013…ADR-017, plus `adr-simulation-session-frozen-hub-spirit1`. **ADR-012 is absent — a numbering gap, not a missing decision.** Historical Sprint 11–15 closeout (2026-06-08) cited `403/403` / PlayMode **7/7** only as program evidence, not live floors.
+- **ADR inventory (updated 2026-07-26):** **22 ADRs present** — ADR-001…ADR-011, ADR-013…ADR-022, plus `adr-simulation-session-frozen-hub-spirit1`. **ADR-012 is absent — a numbering gap, not a missing decision.** New this cycle: **018** sensor side picture / datalink · **019** agentic AAR read-only order log · **020** logistics fuel model · **021** mission timeline runtime · **022** target OS and CPU architectures (renumbered from a duplicate 018; see that ADR's Status note). Historical Sprint 11–15 closeout (2026-06-08) cited `403/403` / PlayMode **7/7** only as program evidence, not live floors.
 - **Sprint 11–15 program:** **CLOSED** @ 2026-06-08 — requirements maturity (docs 01–12) + Wave 5 on `main`; tracker rows **14/16/19/20** at **Partial+** with automated AC (**historical** `403/403` / **7/7**). See [requirements-traceability.md](requirements-traceability.md) Wave 5 overlap spine.
 - **Platform editor (FR-19 / req 21):** ADR-011 Partial — see [requirements-traceability.md](requirements-traceability.md) § Platform editor.
 
