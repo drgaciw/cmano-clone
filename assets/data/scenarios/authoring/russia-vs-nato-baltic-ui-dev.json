@@ -1,0 +1,680 @@
+{
+  "metadata": {
+    "title": "Russia vs NATO \u2014 Baltic Sea (UI Dev, seed 109996)",
+    "description": "Synthetic randomized Russia-versus-NATO Baltic confrontation for Scenario Map Authoring UI development. Theater focus: riga. NATO/Sweden (blue) multi-domain package vs Russian (red) Baltic Fleet / Kaliningrad A2AD. Includes Swedish M901 Patriot [PAC-3 ERINT/MSE]. Platform ids match ScenarioPlatformDomainCatalog. Not historical.",
+    "author": "scenario-generator/ui-dev",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "dbSnapshotId": null,
+    "editVersion": 1,
+    "seed": 109996,
+    "policyId": "baltic-patrol-catalog",
+    "tlBranch": "TL-0",
+    "unitReadiness": null,
+    "maxTechnologyLevel": 2,
+    "nearFutureUnits": null,
+    "sideRoe": "WeaponsFree"
+  },
+  "features": {
+    "realismMagazines": true,
+    "maxTimeCompression": 256
+  },
+  "sides": [
+    {
+      "id": "blue",
+      "name": "NATO / Sweden / Allied Baltic",
+      "defaultRoe": "WeaponsTight",
+      "defaultEmcon": "EmconB",
+      "postures": [
+        "defensive",
+        "deterrence"
+      ]
+    },
+    {
+      "id": "red",
+      "name": "Russian Federation \u2014 Baltic Fleet",
+      "defaultRoe": "WeaponsFree",
+      "defaultEmcon": "EmconA",
+      "postures": [
+        "offensive",
+        "a2ad"
+      ]
+    }
+  ],
+  "orbat": {
+    "units": [
+      {
+        "id": "swe-m901-patriot-1",
+        "sideId": "blue",
+        "platformId": "m901-patriot-pac3-erint-mse",
+        "lat": 56.198,
+        "lon": 15.628,
+        "parentUnitId": null,
+        "roeOverride": "WeaponsTight",
+        "emconOverride": "EmconA"
+      },
+      {
+        "id": "nato-visby-1",
+        "sideId": "blue",
+        "platformId": "k-31-visby-2009",
+        "lat": 57.426,
+        "lon": 18.804,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": "EmconB"
+      },
+      {
+        "id": "nato-gavle-2",
+        "sideId": "blue",
+        "platformId": "k-22-gavle-ex-goteborg-class",
+        "lat": 59.103,
+        "lon": 18.733,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "nato-ffg-3",
+        "sideId": "blue",
+        "platformId": "ffg",
+        "lat": 57.013,
+        "lon": 19.458,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "nato-ffg-4",
+        "sideId": "blue",
+        "platformId": "ffg",
+        "lat": 57.241,
+        "lon": 20.685,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "nato-gotland-1",
+        "sideId": "blue",
+        "platformId": "a-19-gotland-2022",
+        "lat": 57.156,
+        "lon": 18.4,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": "EmconC"
+      },
+      {
+        "id": "nato-ssk-2",
+        "sideId": "blue",
+        "platformId": "ssk",
+        "lat": 56.337,
+        "lon": 18.978,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": "EmconC"
+      },
+      {
+        "id": "nato-gripen-1",
+        "sideId": "blue",
+        "platformId": "jas-39c-gripen-2005",
+        "lat": 57.824,
+        "lon": 18.152,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "nato-gripen-2",
+        "sideId": "blue",
+        "platformId": "jas-39c-gripen-2005",
+        "lat": 58.097,
+        "lon": 18.447,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "nato-f16-1",
+        "sideId": "blue",
+        "platformId": "f-16c-block-50",
+        "lat": 57.029,
+        "lon": 23.595,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "nato-e3-1",
+        "sideId": "blue",
+        "platformId": "e-3a-sentry",
+        "lat": 56.006,
+        "lon": 16.67,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": "EmconA"
+      },
+      {
+        "id": "nato-patriot-riga",
+        "sideId": "blue",
+        "platformId": "sam-patriot-pac3",
+        "lat": 56.887,
+        "lon": 24.142,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "nato-rbs15-gotland",
+        "sideId": "blue",
+        "platformId": "coastal-rbs15",
+        "lat": 57.519,
+        "lon": 18.492,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "nato-airbase-visby",
+        "sideId": "blue",
+        "platformId": "facility-airbase",
+        "lat": 57.633,
+        "lon": 18.316,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "ru-sovremenny-1",
+        "sideId": "red",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "lat": 54.967,
+        "lon": 20.001,
+        "parentUnitId": null,
+        "roeOverride": "WeaponsFree",
+        "emconOverride": null
+      },
+      {
+        "id": "ru-steregushchiy-1",
+        "sideId": "red",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "lat": 55.391,
+        "lon": 20.121,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "ru-ddg-1",
+        "sideId": "red",
+        "platformId": "ddg",
+        "lat": 59.607,
+        "lon": 26.243,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "ru-ddg-2",
+        "sideId": "red",
+        "platformId": "ddg",
+        "lat": 54.947,
+        "lon": 19.572,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "ru-steregushchiy-2",
+        "sideId": "red",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "lat": 55.233,
+        "lon": 20.445,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "ru-kilo-1",
+        "sideId": "red",
+        "platformId": "kilo-pr-636",
+        "lat": 55.936,
+        "lon": 19.463,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": "EmconC"
+      },
+      {
+        "id": "ru-ssn-2",
+        "sideId": "red",
+        "platformId": "ssn",
+        "lat": 58.14,
+        "lon": 20.638,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "ru-su27-1",
+        "sideId": "red",
+        "platformId": "su-27sm-flanker",
+        "lat": 54.985,
+        "lon": 20.78,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "ru-su30-1",
+        "sideId": "red",
+        "platformId": "su-30sm",
+        "lat": 59.687,
+        "lon": 28.385,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "ru-su30-2",
+        "sideId": "red",
+        "platformId": "su-30sm",
+        "lat": 55.215,
+        "lon": 21.041,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "ru-s400-kaliningrad",
+        "sideId": "red",
+        "platformId": "sam-s-400",
+        "lat": 54.721,
+        "lon": 20.574,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "ru-port-baltiysk",
+        "sideId": "red",
+        "platformId": "facility-port",
+        "lat": 54.608,
+        "lon": 19.966,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      },
+      {
+        "id": "ru-s400-kronstadt",
+        "sideId": "red",
+        "platformId": "sam-s-400",
+        "lat": 59.961,
+        "lon": 29.719,
+        "parentUnitId": null,
+        "roeOverride": null,
+        "emconOverride": null
+      }
+    ],
+    "bases": [
+      {
+        "id": "base-visby",
+        "sideId": "blue",
+        "lat": 57.66,
+        "lon": 18.35
+      },
+      {
+        "id": "base-riga",
+        "sideId": "blue",
+        "lat": 56.92,
+        "lon": 23.97
+      },
+      {
+        "id": "base-karlskrona",
+        "sideId": "blue",
+        "lat": 56.16,
+        "lon": 15.59
+      },
+      {
+        "id": "base-baltiysk",
+        "sideId": "red",
+        "lat": 54.64,
+        "lon": 19.91
+      },
+      {
+        "id": "base-kronstadt",
+        "sideId": "red",
+        "lat": 59.99,
+        "lon": 29.77
+      }
+    ]
+  },
+  "referencePoints": [
+    {
+      "id": "rp-nato-central-patrol",
+      "type": "polygon",
+      "geometry": [
+        {
+          "lat": 56.386,
+          "lon": 22.567
+        },
+        {
+          "lat": 57.586,
+          "lon": 22.567
+        },
+        {
+          "lat": 57.586,
+          "lon": 24.567
+        },
+        {
+          "lat": 56.386,
+          "lon": 24.567
+        }
+      ],
+      "radiusNm": null
+    },
+    {
+      "id": "rp-gotland-defensive-box",
+      "type": "polygon",
+      "geometry": [
+        {
+          "lat": 57.14,
+          "lon": 17.805
+        },
+        {
+          "lat": 57.84,
+          "lon": 17.805
+        },
+        {
+          "lat": 57.84,
+          "lon": 19.005
+        }
+      ],
+      "radiusNm": null
+    },
+    {
+      "id": "rp-kaliningrad-a2ad",
+      "type": "polygon",
+      "geometry": [
+        {
+          "lat": 54.407,
+          "lon": 19.543
+        },
+        {
+          "lat": 55.407,
+          "lon": 19.543
+        },
+        {
+          "lat": 55.407,
+          "lon": 21.343
+        },
+        {
+          "lat": 54.407,
+          "lon": 21.343
+        }
+      ],
+      "radiusNm": null
+    },
+    {
+      "id": "rp-gulf-of-finland-gate",
+      "type": "polygon",
+      "geometry": [
+        {
+          "lat": 59.425,
+          "lon": 23.936
+        },
+        {
+          "lat": 60.225,
+          "lon": 23.936
+        },
+        {
+          "lat": 60.225,
+          "lon": 28.436
+        }
+      ],
+      "radiusNm": null
+    },
+    {
+      "id": "rp-contact-datum",
+      "type": "point",
+      "geometry": [
+        {
+          "lat": 57.22,
+          "lon": 23.856
+        }
+      ],
+      "radiusNm": 21.1
+    }
+  ],
+  "missions": [
+    {
+      "id": "m-nato-surface-patrol",
+      "type": "Patrol",
+      "assignedUnitIds": [
+        "nato-visby-1",
+        "nato-gavle-2",
+        "nato-ffg-3"
+      ],
+      "targetIds": [],
+      "ferryDestinationBaseId": null,
+      "patrolZone": [
+        {
+          "lat": 56.386,
+          "lon": 22.567
+        },
+        {
+          "lat": 57.586,
+          "lon": 22.567
+        },
+        {
+          "lat": 57.586,
+          "lon": 24.567
+        },
+        {
+          "lat": 56.386,
+          "lon": 24.567
+        }
+      ],
+      "stationGeometry": null,
+      "roeOverride": "WeaponsTight",
+      "supportRole": null,
+      "emconOverride": "EmconB"
+    },
+    {
+      "id": "m-nato-gotland-cap",
+      "type": "Patrol",
+      "assignedUnitIds": [
+        "nato-gripen-1",
+        "nato-gripen-2"
+      ],
+      "targetIds": [],
+      "ferryDestinationBaseId": null,
+      "patrolZone": [
+        {
+          "lat": 57.14,
+          "lon": 17.805
+        },
+        {
+          "lat": 57.84,
+          "lon": 17.805
+        },
+        {
+          "lat": 57.84,
+          "lon": 19.005
+        }
+      ],
+      "stationGeometry": null,
+      "roeOverride": null,
+      "supportRole": null,
+      "emconOverride": null
+    },
+    {
+      "id": "m-nato-aew-support",
+      "type": "Support",
+      "assignedUnitIds": [
+        "nato-e3-1"
+      ],
+      "targetIds": [],
+      "ferryDestinationBaseId": null,
+      "patrolZone": [],
+      "stationGeometry": [
+        {
+          "lat": 56.0,
+          "lon": 16.6
+        },
+        {
+          "lat": 56.4,
+          "lon": 16.6
+        },
+        {
+          "lat": 56.4,
+          "lon": 17.2
+        }
+      ],
+      "roeOverride": null,
+      "supportRole": "AEW",
+      "emconOverride": "EmconA"
+    },
+    {
+      "id": "m-ru-surface-screen",
+      "type": "Patrol",
+      "assignedUnitIds": [
+        "ru-sovremenny-1",
+        "ru-steregushchiy-1",
+        "ru-ddg-2"
+      ],
+      "targetIds": [],
+      "ferryDestinationBaseId": null,
+      "patrolZone": [
+        {
+          "lat": 54.407,
+          "lon": 19.543
+        },
+        {
+          "lat": 55.407,
+          "lon": 19.543
+        },
+        {
+          "lat": 55.407,
+          "lon": 21.343
+        },
+        {
+          "lat": 54.407,
+          "lon": 21.343
+        }
+      ],
+      "stationGeometry": null,
+      "roeOverride": "WeaponsFree",
+      "supportRole": null,
+      "emconOverride": null
+    },
+    {
+      "id": "m-ru-strike-central",
+      "type": "Strike",
+      "assignedUnitIds": [
+        "ru-su27-1",
+        "ru-su30-1"
+      ],
+      "targetIds": [
+        "nato-visby-1",
+        "nato-gavle-2"
+      ],
+      "ferryDestinationBaseId": null,
+      "patrolZone": [],
+      "stationGeometry": null,
+      "roeOverride": "WeaponsFree",
+      "supportRole": null,
+      "emconOverride": null
+    },
+    {
+      "id": "m-ru-gulf-push",
+      "type": "Patrol",
+      "assignedUnitIds": [
+        "ru-ddg-1",
+        "ru-su30-1"
+      ],
+      "targetIds": [],
+      "ferryDestinationBaseId": null,
+      "patrolZone": [
+        {
+          "lat": 59.425,
+          "lon": 23.936
+        },
+        {
+          "lat": 60.225,
+          "lon": 23.936
+        },
+        {
+          "lat": 60.225,
+          "lon": 28.436
+        }
+      ],
+      "stationGeometry": null,
+      "roeOverride": null,
+      "supportRole": null,
+      "emconOverride": null
+    }
+  ],
+  "operationsTimeline": [
+    {
+      "missionId": "m-nato-surface-patrol",
+      "activateAtTick": 0
+    },
+    {
+      "missionId": "m-nato-gotland-cap",
+      "activateAtTick": 30
+    },
+    {
+      "missionId": "m-nato-aew-support",
+      "activateAtTick": 0
+    },
+    {
+      "missionId": "m-ru-surface-screen",
+      "activateAtTick": 0
+    },
+    {
+      "missionId": "m-ru-gulf-push",
+      "activateAtTick": 45
+    },
+    {
+      "missionId": "m-ru-strike-central",
+      "activateAtTick": 90
+    }
+  ],
+  "events": [
+    {
+      "id": "evt-first-contact",
+      "triggerType": "UnitEntersZone",
+      "conditions": [
+        {
+          "type": "UnitInZone",
+          "unitId": "ru-sovremenny-1",
+          "zoneId": "rp-nato-central-patrol",
+          "result": true
+        }
+      ],
+      "actions": [
+        {
+          "type": "SetRoe",
+          "unitId": "nato-visby-1",
+          "lat": null,
+          "lon": null
+        }
+      ]
+    }
+  ],
+  "variables": {
+    "theater": "baltic-sea",
+    "conflict": "russia-vs-nato",
+    "purpose": "scenario-map-authoring-ui-dev",
+    "seed": "109996",
+    "focus": "riga"
+  },
+  "editorState": {
+    "camera": {
+      "lat": 56.99,
+      "lon": 23.57,
+      "zoom": 2.6
+    },
+    "layersVisible": true,
+    "notes": "Load in Project Aegis \u2192 Scenario Map Authoring. Place/move units and RP polygons to exercise UI."
+  }
+}

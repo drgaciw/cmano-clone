@@ -15,10 +15,12 @@ public sealed class ScenarioMapAuthoringPanelUiTests
         "scenario-map-scroll-root",
         "scenario-map-title",
         "scenario-map-help",
+        "scenario-map-sticky-header",
         "scenario-session-bar",
         "scenario-path-field",
         "scenario-browse-button",
         "scenario-open-button",
+        "scenario-load-ui-dev-button",
         "scenario-save-button",
         "scenario-rebuild-button",
         "scenario-refresh-findings-button",
@@ -105,10 +107,13 @@ public sealed class ScenarioMapAuthoringPanelUiTests
         var uss = File.ReadAllText(ussPath);
         Assert.That(uss, Does.Contain("@import url(\"../AegisTokens.uss\")"));
         Assert.That(uss, Does.Contain(".scenario-map-panel"));
+        Assert.That(uss, Does.Contain(".scenario-map-sticky-header"));
         Assert.That(uss, Does.Contain(".scenario-map-title"));
         Assert.That(uss, Does.Contain(".scenario-map-status"));
         Assert.That(uss, Does.Contain("var(--surface-panel)"));
         Assert.That(uss, Does.Contain("var(--text-heading)"));
+        // Body must not look dead when prep-browsing without a session.
+        Assert.That(uss, Does.Not.Contain(".scenario-map-session-body:disabled"));
     }
 
     [Test]
@@ -161,6 +166,20 @@ public sealed class ScenarioMapAuthoringPanelUiTests
         Assert.That(host, Does.Not.Contain("DelegationBridge."));
         // Host must invalidate staged place-unit before UXML reclones form defaults.
         Assert.That(host, Does.Contain("ScenarioMapAuthoringHostPolicy.InvalidateStagedGesturesForChromeRebuild"));
+        // Dead-button fix: catalog/form stay enabled without session; write chrome gated; clicks via Button.clicked.
+        Assert.That(host, Does.Contain("ShouldEnableCatalogAndFormChrome"));
+        Assert.That(host, Does.Contain("ShouldEnableSessionWriteActions"));
+        Assert.That(host, Does.Contain("NoSessionMessage"));
+        Assert.That(host, Does.Contain("WireButton"));
+        Assert.That(host, Does.Contain("button.clicked"));
+        Assert.That(host, Does.Contain("TryAutoOpenSeededScenario"));
+        Assert.That(host, Does.Contain("TryLoadUiDevScenario"));
+        Assert.That(host, Does.Contain("scenario-load-ui-dev-button"));
+        Assert.That(host, Does.Contain("ResolveDefaultScenarioPath"));
+        Assert.That(host, Does.Contain("Open Baltic UI Dev Scenario"));
+        Assert.That(host, Does.Contain("russia-vs-nato-baltic-ui-dev.json"));
+        // Host still uses plugin Invalidate* APIs (present on older DLLs too).
+        Assert.That(host, Does.Contain("InvalidateStagedGesturesForFormOrDomainChange"));
     }
 
     [Test]
