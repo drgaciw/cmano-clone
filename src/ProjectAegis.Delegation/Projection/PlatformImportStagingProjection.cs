@@ -52,11 +52,21 @@ public static class PlatformImportStagingProjection
         "CriticalFlags",
     ];
 
+    /// <summary>
+    /// Supported Comms sheet columns for cell-change classification. Includes governance
+    /// columns (ReviewState/TrlLevel/ValueTier/CitationRef) and PlatformId so COMMS filter
+    /// chips never hide curator edits under OTHER.
+    /// </summary>
     private static readonly string[] CommsWorkbookColumns =
     [
+        "PlatformId",
         "LinkId",
         "Role",
         "SatcomCapable",
+        "ReviewState",
+        "TrlLevel",
+        "ValueTier",
+        "CitationRef",
     ];
 
     private static readonly string[] LinkCatalogWorkbookColumns =

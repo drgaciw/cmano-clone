@@ -43,6 +43,27 @@ public sealed class PlatformImportStagingProjectionTests
         Assert.That(rows[0].UssClass, Is.EqualTo("platform-import-diff-row--added"));
     }
 
+    [TestCase("ReviewState: 'Provisional' -> 'Approved'")]
+    [TestCase("TrlLevel: '7' -> '9'")]
+    [TestCase("ValueTier: 'GameplayAbstraction' -> 'InterpretedValue'")]
+    [TestCase("CitationRef: '' -> 'SRC-1'")]
+    [TestCase("PlatformId: 'u1' -> 'u2'")]
+    public void BuildDiffRows_comms_supported_cell_edits_classify_under_comms(string detail)
+    {
+        var changes = new[]
+        {
+            new PlatformWorkbookChange("Comms", PlatformWorkbookChangeKind.CellChanged, 0, detail),
+        };
+
+        var rows = PlatformImportStagingProjection.BuildDiffRows(changes);
+        var commsOnly = PlatformImportStagingProjection.FilterBySection(rows, PlatformImportStagingSection.Comms);
+
+        Assert.That(rows, Has.Count.EqualTo(1));
+        Assert.That(rows[0].Section, Is.EqualTo(PlatformImportStagingSection.Comms));
+        Assert.That(commsOnly, Has.Count.EqualTo(1));
+        Assert.That(rows[0].SummaryLine, Does.Contain("COMMS"));
+    }
+
     [Test]
     public void BuildDiffRows_link_row_removed_sets_removed_kind()
     {
