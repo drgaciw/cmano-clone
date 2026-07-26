@@ -5,7 +5,7 @@
 > **Stage:** **Release** (`production/stage.txt`) — Launch not advanced  
 > **Closed through:** S81–S88 SE + ME P2 + PE complete; S89–S95 Release continuity through gauntlet productization  
 > **Verification floor:** suite **≥1638/0f**; Baltic hash **`17144800277401907079`** (immutable unless golden ADR)  
-> **Architecture authority:** [architecture-review-post-s93-2026-07-14.md](architecture-review-post-s93-2026-07-14.md) (verdict **CONCERNS** for Launch only); re-matrix [architecture-re-matrix-post-s93-s96-2026-07-15.md](architecture-re-matrix-post-s93-s96-2026-07-15.md)  
+> **Architecture authority:** `architecture-review-post-s93-2026-07-14.md` — ⚠️ **not resolvable from `main`**: it exists only on the unmerged draft branch `stack/post-editor/s93-asset-production` (PR #324, commit `805070e`). Until that PR merges, the operative authority is [architecture-re-matrix-post-s93-s96-2026-07-15.md](architecture-re-matrix-post-s93-s96-2026-07-15.md). See [DRG-41 gate](../../production/gate-checks/architecture-concerns-gate-2026-07-24.md).  
 > **Engine:** Unity 6.3 LTS (6000.3.14f1) + C# / .NET 8 + DOTS/ECS — [Unity VERSION](../engine-reference/unity/VERSION.md), [.NET / Learn](../engine-reference/dotnet/README.md)  
 > **GitNexus repo:** `cmano-clone` (~**25,311** symbols / **48,462** edges @ recent index `257d9e9`; re-analyze @ HEAD if stale)
 
@@ -20,8 +20,9 @@ Translate approved requirements and GDDs into a **modular, deterministic, agent-
 | Editors (SE / ME P2 / PE) | **Complete** (headless-first; PNG/Unity Editor pack deferred) |
 | Gauntlet / oracle QA | **Oracle fail-closed landed** (Track A); suite floor **≥1638/0f** |
 | Release hold | **Cleared for Release engineering** — do **not** claim Launch readiness |
-| Post-S93 review | [architecture-review-post-s93-2026-07-14.md](architecture-review-post-s93-2026-07-14.md) — verdict **CONCERNS** for **Launch only** |
-| Layer re-matrix (S96) | [architecture-re-matrix-post-s93-s96-2026-07-15.md](architecture-re-matrix-post-s93-s96-2026-07-15.md) |
+| Post-S93 review | ⚠️ **Stranded on unmerged PR #324** (`stack/post-editor/s93-asset-production` @ `805070e`) — verdict **CONCERNS** for **Launch only**. Not resolvable from `main` until that PR merges. |
+| Layer re-matrix (S96) | [architecture-re-matrix-post-s93-s96-2026-07-15.md](architecture-re-matrix-post-s93-s96-2026-07-15.md) — **operative authority on `main`** |
+| Arch-docs CONCERNS | Remediated 2026-07-24 — [architecture-concerns-gate-2026-07-24.md](../../production/gate-checks/architecture-concerns-gate-2026-07-24.md) |
 | CRITICAL hub playbook | [`production/agentic/critical-hub-merge-playbook-2026-07-14.md`](../../production/agentic/critical-hub-merge-playbook-2026-07-14.md) |
 
 **CRITICAL hubs (upstream, GitNexus impact summary):**

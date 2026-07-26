@@ -9,11 +9,14 @@ updates:
       day: monday
     open-pull-requests-limit: 5
     groups:
-      dotnet-patch:
+      # Single batched PR for all non-major NuGet updates. Keeps dependency
+      # noise off the PR list so live feature PRs stay visible during
+      # parallel-agent waves (see production/agentic/linear-parallel-dispatch-playbook.md §9).
+      dotnet-all:
         patterns:
-          - Microsoft.*
-          - System.*
+          - "*"
         update-types:
+          - minor
           - patch
 
   - package-ecosystem: github-actions
@@ -22,3 +25,13 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 10
+    groups:
+      # Single batched PR for all Actions bumps, including majors — Actions
+      # majors are routine here and were producing 4 separate PRs.
+      actions-all:
+        patterns:
+          - "*"
+        update-types:
+          - major
+          - minor
+          - patch

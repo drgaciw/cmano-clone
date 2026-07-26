@@ -217,6 +217,9 @@ This project is indexed by GitNexus as **cmano-clone** (27414 symbols, 52161 rel
 - NEVER rename symbols with find-and-replace — use `rename` which understands the call graph.
 - NEVER commit changes without running `detect_changes()` to check affected scope.
 
+> **Two `cmano-clone` checkouts are indexed** (`/home/username01/projects/active/cmano-clone/cmano-clone` and `/home/username01/cmano-clone`). GitNexus cannot disambiguate them, so **every call must pass an explicit absolute `repo`** — e.g. `impact({target: "Foo", direction: "upstream", repo: "/home/username01/projects/active/cmano-clone/cmano-clone"})`. Without it the call fails with *"Multiple repositories indexed"*. Same for `detect_changes` and `context`.
+
+
 ## Resources
 
 | Resource | Use for |
