@@ -115,24 +115,86 @@ Verified directly:
 
 ### Root-cause diagnosis (2026-07-26)
 
-**Verdict: the Buildkite failure is infrastructure-side. No repo change can fix it.**
+**Root cause: `tools/buildkite/agent-bootstrap-dotnet.sh` cannot pass its own verification on any agent that has .NET 10 installed.**
 
-Evidence:
+Reproduced on GitHub Actions `ubuntu-latest` (run `30216238945`), which now ships .NET 10:
+
+```
+=== Installing .NET SDK 8.0.400 (agent dotnet missing or major=10) ===
+dotnet-install: Installation finished successfully.
+ERROR: .NET 8 SDK required after bootstrap; got 10.0.302
+```
+
+The mechanism: `global.json` pins `8.0.400` with **`"rollForward": "latestMajor"`**. On an agent that also has a newer SDK, the muxer resolves `dotnet --version` to that newer SDK (10.0.302) *even when 8.0.400 is present*. The bootstrap's guard was `dotnet --version | grep -q '^8\.'`, so it installed 8.0.400 successfully and then rejected its own install. The pre-check at line 25 had the same defect (`[[ major -ge 8 ]] && grep '^8\.'` — satisfiable only by exactly 8.x).
+
+This also contradicts the project's stated policy in `docs/engine-reference/dotnet/README.md`: *"Roll-forward: latestMajor (SDK 10.x may build locally)"*. Building `net8.0` with a newer SDK is sanctioned; the guard was stricter than the policy.
 
 | Fact | Value |
 |---|---|
 | Last passing build | **#880, 2026-07-17 — passed in 1m39s** on `a73f722` |
 | First failing build | **#885, 2026-07-18T22:43** |
-| Every build since | Fails with `created_at == updated_at` — **0 seconds, nothing executed**, on every branch including `main` (#929) |
 | `.buildkite/pipeline.yml` last changed | **2026-07-09** (`cbe3f0d`) — nine days *before* the break |
-| GitHub Actions `gauntlet-oracle` | **Passing on the same commits**, including 2026-07-26 |
-| The gate script run locally on current HEAD | **PASS** — 1792 tests / 0 failures, ReplayGolden 6/6, PlayModeSmoke 21/21 |
+| GitHub Actions `gauntlet-oracle` | Passing throughout — it uses `actions/setup-dotnet` and **never calls the bootstrap script** |
+| The gate script run locally | **PASS** — 1792 tests / 0 failures, ReplayGolden 6/6, PlayModeSmoke 21/21 (this machine has no .NET 10, so the guard passes here) |
 
-A build that fails in zero seconds ran no command, so neither the pipeline YAML nor `tools/buildkite/*.sh` can be the cause — and the same commit that now fails passed eight days earlier under the same config.
+Nothing in the repo changed on 07-18; the *agent images* did. That is consistent with Buildkite hosted images picking up .NET 10 in that window, and it explains why `gauntlet-oracle` kept passing while the Buildkite gate died — only the latter runs the bootstrap.
 
-**Leading hypothesis (unverified — needs Buildkite access):** plan/quota exhaustion or a cluster/agent configuration change on the Buildkite side. This fits the timeline: week 2026-W29 saw a burst of **117 merged PRs**, and builds began failing instantly on 07-18. A related precedent is already documented in this repo — five GitHub Actions workflows were disabled on 2026-06-20 with the note "Actions billing blocked", and work was migrated *to* Buildkite. Actions is demonstrably working again now, so the constraint appears to have moved.
+**Correction to an earlier draft of this report:** it stated the builds failed "in 0 seconds, nothing executed," inferred from `created_at == updated_at` on the GitHub commit status. **That inference was wrong** — every status object has those fields equal at creation, so they say nothing about build duration. The visible tell was Buildkite's description format: successes read `"Build #880 passed (1 minute, 39 seconds)"` while failures read `"Build #924 failed"` with no duration. No 0-second conclusion was supportable, and the "plan/quota exhaustion" hypothesis built on it is withdrawn.
 
-**Could not verify:** `buildkite.com/drgaciw/cmano-clone/builds/*` returns **HTTP 403** (private) and no Buildkite API token is available in this environment; `bk` CLI is not installed. Confirming the hypothesis requires signing in to Buildkite and checking **billing/usage** and **Agents → cluster**.
+### Second, independent bug — Unity plugin DLLs never staged in CI
+
+With the bootstrap fixed, the gate got as far as the test suite and failed on exactly one test:
+
+```
+Failed Unity_plugin_Delegation_dll_exports_Epic_A_types_used_by_Runtime_hosts
+  Missing plugin DLL — run tools/copy-delegation-assemblies.ps1
+  Path: unity/ProjectAegis/Assets/Plugins/ProjectAegis/ProjectAegis.Delegation.dll
+```
+
+`unity/ProjectAegis/Assets/Plugins/**/*.dll` is **gitignored** (`.gitignore:33`) — only `.meta` files are tracked. A clean CI checkout therefore has no DLLs. Commit `30a274d` added both this test *and* `tools/copy-delegation-assemblies.sh`, but never wired the copy into `tools/buildkite/dotnet-ci.sh`. The test consequently passes on any developer machine that has run the copy once, and fails on every clean checkout — a textbook local-vs-CI divergence.
+
+This bug is **branch-scoped** (`30a274d` is on the S107 branch, not `main`), whereas the bootstrap bug is repo-wide.
+
+### Fixes applied — both confirmed green
+
+| Commit | Fix |
+|---|---|
+| `39ff4dd` | `agent-bootstrap-dotnet.sh` accepts **SDK >= 8** instead of exactly 8.x, matching the documented roll-forward policy; installs 8.0.400 only when nothing >= 8 is present. Both the pre-check and post-check were defective. |
+| `deb6677` | `dotnet-ci.sh` calls `tools/copy-delegation-assemblies.sh` after the Release build, before tests. |
+| `b2ce564` | New `.github/workflows/dotnet-ci.yml` running the same script, so a single provider outage can no longer freeze the repo. |
+
+Because Buildkite and the new GitHub workflow invoke the *same* script, both fixes apply to both providers.
+
+**Verified on `deb6677`:**
+
+```
+buildkite/cmano-clone: success — Build #937 passed (1 minute, 29 seconds)
+dotnet-ci / Build and test:     success
+overall commit status:          success
+```
+
+**Build #937 is the first green Buildkite build since #880 on 2026-07-17** — a nine-day outage. PR #323 is now `MERGEABLE` (state `BEHIND` only because branch protection requires being up to date with `main`).
+
+### Landed
+
+PR #323 merged to `main` as `55160c3` on 2026-07-26 (merge commit, 717 files, 16 commits — S106/S107 Epic A UI work plus the three CI commits). All four checks green at merge: `buildkite/cmano-clone`, `Build and test`, `oracle`, `Lint workflows`.
+
+`dotnet-ci.yml` is now on `main`, so every open PR picks the workflow up automatically on its next run.
+
+**Branch protection updated** — `Build and test` added alongside `buildkite/cmano-clone` in **both** enforcement layers (they had to be changed separately):
+
+| Layer | Required checks |
+|---|---|
+| Classic branch protection (`strict: true`) | `buildkite/cmano-clone`, `Build and test` |
+| Repository ruleset `17086544` "Protect main branch" | `buildkite/cmano-clone`, `Build and test` |
+
+Open PRs moved from `BLOCKED` (failing required check) to `BEHIND` / `UNKNOWN` — i.e. they now just need updating from `main` rather than being unmergeable. One exception: **#332 is `DIRTY`** (merge conflict) and needs manual resolution.
+
+Ruleset backup before the change: `ruleset-before.json` in the session scratchpad.
+
+**Still outstanding:** `required_approving_review_count` remains **0** in both layers, so CI is still the entire gate — no human review is required to merge to `main`.
+
+**Note on the earlier reasoning:** this report first claimed the builds failed "in 0 seconds," then retracted that. Both statements were over-confident. What is now established empirically is that Buildkite *does* execute builds and the failures were caused by the two bugs above. Why the pre-fix statuses (`"Build #924 failed"`) omitted a duration while post-fix ones include it (`"Build #936 failed (2 minutes, 4 seconds)"`) was never determined, and no conclusion should be drawn from it.
 
 ### Mitigation applied
 
