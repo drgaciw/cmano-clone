@@ -75,6 +75,17 @@ public static class CombatDomainsHotTickPanelBinder
         return BindFromDomainActivity(map);
     }
 
+    /// <summary>Bind from a <see cref="CombatDomainsHotTickTracker"/> snapshot (S105 A1).</summary>
+    public static CombatDomainsHotTickPanelState BindFromTracker(CombatDomainsHotTickTracker tracker)
+    {
+        if (tracker is null)
+        {
+            throw new ArgumentNullException(nameof(tracker));
+        }
+
+        return BindFromDomainActivity(tracker.SnapshotEngagements());
+    }
+
     private static CombatDomainDisplayRow ToRow(string domainKey, CombatDomainHudEngagement engagement)
     {
         var (label, css) = engagement switch
