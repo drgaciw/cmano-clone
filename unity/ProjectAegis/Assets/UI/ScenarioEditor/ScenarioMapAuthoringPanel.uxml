@@ -16,6 +16,8 @@
                     <ui:Button name="scenario-refresh-findings-button" text="Refresh Findings" class="scenario-map-action-button" />
                 </ui:VisualElement>
             </ui:VisualElement>
+            <!-- Export gate (ADR-008): save is never gated; export/publish/sample are. -->
+            <ui:Label name="scenario-export-gate" text="Export gate: not validated yet." class="scenario-map-export-gate" />
             <ui:Label name="scenario-status" text="Browse… a scenario.json then Open — or Load UI Dev Baltic." class="scenario-map-status" />
         </ui:VisualElement>
 

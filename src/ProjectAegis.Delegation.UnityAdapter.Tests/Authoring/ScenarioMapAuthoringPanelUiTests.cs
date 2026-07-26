@@ -60,6 +60,8 @@ public sealed class ScenarioMapAuthoringPanelUiTests
         "scenario-rp-lon2",
         "scenario-upsert-rp",
         "scenario-status",
+        // DRG-56: the export gate must be expressible in the panel chrome.
+        "scenario-export-gate",
     };
 
     [Test]
@@ -114,6 +116,11 @@ public sealed class ScenarioMapAuthoringPanelUiTests
         Assert.That(uss, Does.Contain("var(--text-heading)"));
         // Body must not look dead when prep-browsing without a session.
         Assert.That(uss, Does.Not.Contain(".scenario-map-session-body:disabled"));
+        // DRG-56: blocked/ready gate states are styled, and severity is never colour-only —
+        // the label always carries text, so the modifier classes are reinforcement.
+        Assert.That(uss, Does.Contain(".scenario-map-export-gate"));
+        Assert.That(uss, Does.Contain(".scenario-map-export-gate--blocked"));
+        Assert.That(uss, Does.Contain(".scenario-map-export-gate--ready"));
     }
 
     [Test]
@@ -180,6 +187,18 @@ public sealed class ScenarioMapAuthoringPanelUiTests
         Assert.That(host, Does.Contain("russia-vs-nato-baltic-ui-dev.json"));
         // Host still uses plugin Invalidate* APIs (present on older DLLs too).
         Assert.That(host, Does.Contain("InvalidateStagedGesturesForFormOrDomainChange"));
+        // DRG-56: the export gate reaches the chrome. The host renders presenter-owned gate
+        // state and never re-derives the policy itself.
+        Assert.That(host, Does.Contain("Q<Label>(\"scenario-export-gate\")"));
+        Assert.That(host, Does.Contain("RefreshExportGateChrome"));
+        Assert.That(host, Does.Contain(".Gate"));
+        Assert.That(host, Does.Contain("BlockingReason"));
+        Assert.That(host, Does.Contain("scenario-map-export-gate--blocked"));
+        Assert.That(host, Does.Contain("scenario-map-export-gate--ready"));
+        // Gate decision is the presenter's; the view must not recompute it from raw severities.
+        Assert.That(host, Does.Not.Contain("ValidationSeverity.Error"));
+        // Save is never gated by validation (ADR-008 / AME-6.5).
+        Assert.That(host, Does.Not.Contain("saveButton.SetEnabled(gate"));
     }
 
     [Test]

@@ -40,6 +40,7 @@ namespace ProjectAegis.Unity.Editor
         private Label? _sessionEditVersionLabel;
         private Label? _sessionDirtyLabel;
         private Label? _statusLabel;
+        private Label? _exportGateLabel;
         private VisualElement? _sessionBody;
         private VisualElement? _unitsList;
         private VisualElement? _rpsList;
@@ -76,6 +77,10 @@ namespace ProjectAegis.Unity.Editor
         /// <see cref="ScenarioMapAuthoringHostPolicy"/> as the source of truth.
         /// </summary>
         private const string NoSessionMessage = "Open a scenario.json first (Browse… then Open).";
+
+        // Export gate modifier classes (see ScenarioMapAuthoringPanel.uss).
+        private const string ExportGateBlockedClass = "scenario-map-export-gate--blocked";
+        private const string ExportGateReadyClass = "scenario-map-export-gate--ready";
 
         private static readonly string[] DefaultScenarioRelativeCandidates =
         {
@@ -277,6 +282,7 @@ namespace ProjectAegis.Unity.Editor
             _sessionEditVersionLabel = root.Q<Label>("scenario-session-edit-version");
             _sessionDirtyLabel = root.Q<Label>("scenario-session-dirty");
             _statusLabel = root.Q<Label>("scenario-status");
+            _exportGateLabel = root.Q<Label>("scenario-export-gate");
             _sessionBody = root.Q<VisualElement>("scenario-session-body");
             _unitsList = root.Q<VisualElement>("scenario-units-list");
             _rpsList = root.Q<VisualElement>("scenario-rps-list");
@@ -565,6 +571,56 @@ namespace ProjectAegis.Unity.Editor
             FillScroll(_unitsList, BuildUnitLines());
             FillScroll(_rpsList, BuildRpLines());
             FillScroll(_findingsList, BuildFindingsLines());
+            RefreshExportGateChrome();
+        }
+
+        /// <summary>
+        /// Renders the validation export gate (ADR-008 / DRG-56).
+        ///
+        /// The decision and its wording are owned by <see cref="LiveFindingsPresenter"/>; this
+        /// method only paints them. It must never re-derive the gate from raw severities, and it
+        /// must never disable Save — save is deliberately ungated so work-in-progress with
+        /// blocking findings can still be persisted (AME-6.5).
+        /// </summary>
+        private void RefreshExportGateChrome()
+        {
+            if (_exportGateLabel == null)
+            {
+                return;
+            }
+
+            _exportGateLabel.RemoveFromClassList(ExportGateBlockedClass);
+            _exportGateLabel.RemoveFromClassList(ExportGateReadyClass);
+
+            if (_findings?.LastReport == null)
+            {
+                _exportGateLabel.text = "Export gate: not validated yet.";
+                _exportGateLabel.tooltip = "Open a scenario and Refresh Findings to evaluate the export gate.";
+                return;
+            }
+
+            var gate = _findings.Gate;
+            var counts = DescribeGateCounts(gate);
+
+            if (gate.CanExport)
+            {
+                _exportGateLabel.text = $"READY TO EXPORT — {counts}";
+                _exportGateLabel.tooltip =
+                    "No blocking findings. Export, publish, brief and simulate-sample are permitted.";
+                _exportGateLabel.AddToClassList(ExportGateReadyClass);
+                return;
+            }
+
+            _exportGateLabel.text = $"EXPORT BLOCKED — {counts}";
+            _exportGateLabel.tooltip = gate.BlockingReason;
+            _exportGateLabel.AddToClassList(ExportGateBlockedClass);
+        }
+
+        private static string DescribeGateCounts(ScenarioExportGateState gate)
+        {
+            var errors = gate.ErrorCount == 1 ? "1 error" : $"{gate.ErrorCount} errors";
+            var warnings = gate.WarningCount == 1 ? "1 warning" : $"{gate.WarningCount} warnings";
+            return $"{errors}, {warnings}";
         }
 
         private IReadOnlyList<string> BuildUnitLines()

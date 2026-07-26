@@ -314,6 +314,33 @@
     min-height: 22px;
 }
 
+/* Export gate (ADR-008): save is never gated; export/publish/sample are.
+   The label always states the gate in words — the modifier colours reinforce, never carry. */
+.scenario-map-export-gate {
+    flex-shrink: 0;
+    margin-top: var(--space-xs);
+    padding: var(--space-sm);
+    background-color: var(--surface-map);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    border-radius: 2px;
+    color: var(--text-muted);
+    font-size: 11px;
+    -unity-font-style: bold;
+    white-space: normal;
+    min-height: 24px;
+}
+
+.scenario-map-export-gate--blocked {
+    color: var(--gate-blocked);
+    border-color: var(--gate-blocked);
+}
+
+.scenario-map-export-gate--ready {
+    color: var(--gate-ready);
+    border-color: var(--gate-ready);
+}
+
 /* Sticky status: always visible under path/actions */
 .scenario-map-status {
     flex-shrink: 0;
