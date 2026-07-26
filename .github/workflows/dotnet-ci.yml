@@ -28,6 +28,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # actions/checkout does NOT fetch Git LFS objects by default — without this,
+          # LFS-tracked files arrive as ~133-byte pointer stubs. assets/data/catalog/
+          # aegis_public_corpus.db (~65 MB, LFS-tracked) then fails to open with
+          # "SQLite Error 26: 'file is not a database'", failing CatalogPublicCorpusTests.
+          # Buildkite's checkout does fetch LFS, so omitting this made the two providers
+          # disagree on the same commit (seen on PR #336).
+          lfs: true
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
