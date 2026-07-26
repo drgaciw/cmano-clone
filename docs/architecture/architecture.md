@@ -86,23 +86,40 @@ flowchart TB
 
 ## Fixed Timestep Tick Pipeline
 
-Deterministic order for interactive and headless modes (same code path):
+Intended deterministic order. **This is the target pipeline, not a description of one unified code path** — two steps are implemented only in the headless replay harness today (marked ⚠️).
 
-| Step | System | Output |
-|------|--------|--------|
-| 1 | Ingest player/MCP commands | Command queue |
-| 2 | Apply mission timeline / events | Mission state |
-| 3 | Movement & kinematics (coarse) | Positions |
-| 4 | **Detection tick** (sorted emitter-target pairs) | Contact changes |
-| 5 | Build `ObservedState` / `ISimWorldSnapshot` | Per-side picture |
-| 6 | **Delegation tick** (`DelegationOrchestrator.Tick`) | `Order` list |
-| 7 | **Policy evaluate** each order/intent | Allow / FireAbortReason |
-| 8 | **Engagement resolve** legal fires | Launches, damage |
-| 9 | Logistics (fuel, magazine) | Readiness |
-| 10 | **Append order log** | Immutable entries |
-| 11 | Optional UI snapshot | View models |
+| Step | System | Output | Scope |
+|------|--------|--------|-------|
+| 1 | Ingest player/MCP commands | Command queue | both |
+| 2 | ⚠️ Apply mission timeline / events | Mission state | **harness only** |
+| 3 | Movement & kinematics (coarse) | Positions | both |
+| 4 | **Detection tick** (sorted emitter-target pairs) | Contact changes | both |
+| 4b | ⚠️ Datalink side-picture merge | Shared contacts | **harness only** |
+| 5 | Build `ObservedState` / `ISimWorldSnapshot` | Per-side picture | both |
+| 6 | **Delegation tick** (`DelegationOrchestrator.Tick`) | `Order` list | both |
+| 7 | **Policy evaluate** each order/intent | Allow / FireAbortReason | both |
+| 8 | **Engagement resolve** legal fires | Launches, damage | both |
+| 9 | Logistics (fuel, magazine) | Readiness | both |
+| 10 | **Append order log** | Immutable entries | both |
+| 11 | Optional UI snapshot | View models | both |
 
 Steps 6–7 today are collapsed in Delegation; **split policy into Sim** when `ProjectAegis.Sim` lands (see ADR-002).
+
+### ⚠️ Harness-scoped steps (verified 2026-07-26 against `main`)
+
+Steps **2** and **4b** run **only** inside `BalticReplayHarness.RunCore` — the headless CLI / replay-verify / gauntlet runner. They do **not** execute during interactive Unity play:
+
+| Evidence | Result |
+|---|---|
+| `SimTickPipeline` mission references | **0** — no mission step exists |
+| `SimTickPipeline` datalink references | **0** |
+| Sole production caller of `MissionRuntime.Tick` | `BalticReplayHarness.cs:347` |
+| Sole production caller of `DatalinkSidePictureMerger.Merge` | `BalticReplayHarness.cs:386` |
+| Unity interactive host (`DelegationBridgeHost`) | calls only `MissionListBridge.ProjectFrom` — a **read-only display projection**, not execution |
+
+Governing decisions: [ADR-021](adr-021-mission-timeline-runtime.md) §Decision 1 (mission timeline is headless/CI-scoped, accepted as current scope) and [ADR-018](adr-018-sensor-side-picture-datalink.md) §Decision A1 (datalink merge stays harness-local).
+
+Do not read this table as a guarantee that a step observed in a replay run also fires in the player. If either step is ever promoted into `SimTickPipeline`, update this section and the governing ADR together.
 
 ## Key Interfaces
 

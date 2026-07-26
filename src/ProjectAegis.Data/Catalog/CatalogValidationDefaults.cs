@@ -5,6 +5,17 @@ public static class CatalogValidationDefaults
 {
     public const string BalticSnapshotId = "baltic_patrol";
 
+    /// <summary>Enterprise public-corpus catalog (docs/reference/cmano-db → write gate).</summary>
+    public const string PublicCorpusSnapshotId = "aegis_public_corpus";
+
+    public const string PublicCorpusDatabaseFileName = "aegis_public_corpus.db";
+
+    /// <summary>
+    /// Placeholder platform for standalone CMO sensor catalog rows (sensor.md import).
+    /// Keeps kill-chain PlatformToSensor edges resolvable before ship/aircraft fittings load.
+    /// </summary>
+    public const string PublicCorpusSensorCatalogPlatformId = "cmo-sensor-catalog";
+
     public static IReadOnlyList<CatalogPlatformEntry> BalticPlatforms() =>
     [
         new CatalogPlatformEntry("u1", 57.0, 20.0, 400.0),
@@ -33,11 +44,37 @@ public static class CatalogValidationDefaults
         new CatalogLinkEntry("SATCOM_B", "SATCOM Wideband", CatalogLinkTypes.Satcom, LatencyMsNominal: 250),
     ];
 
+    public static bool TryResolvePublicCorpusDbRef(string dbRef, out string snapshotId)
+    {
+        if (string.IsNullOrWhiteSpace(dbRef))
+        {
+            snapshotId = "";
+            return false;
+        }
+
+        if (string.Equals(dbRef, PublicCorpusSnapshotId, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(dbRef, "public-corpus", StringComparison.OrdinalIgnoreCase) ||
+            dbRef.Contains("public-corpus", StringComparison.OrdinalIgnoreCase) ||
+            dbRef.Contains("aegis_public_corpus", StringComparison.OrdinalIgnoreCase))
+        {
+            snapshotId = PublicCorpusSnapshotId;
+            return true;
+        }
+
+        snapshotId = "";
+        return false;
+    }
+
     public static bool TryResolveBalticDbRef(string dbRef, out string snapshotId)
     {
         if (string.IsNullOrWhiteSpace(dbRef))
         {
             snapshotId = "";
+            return false;
+        }
+
+        if (TryResolvePublicCorpusDbRef(dbRef, out snapshotId))
+        {
             return false;
         }
 

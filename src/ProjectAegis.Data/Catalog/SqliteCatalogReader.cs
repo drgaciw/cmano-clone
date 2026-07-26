@@ -80,7 +80,8 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             }
         }
 
-        return CatalogValidationDefaults.TryResolveBalticDbRef(dbRef, out resolvedSnapshotId);
+        return CatalogValidationDefaults.TryResolvePublicCorpusDbRef(dbRef, out resolvedSnapshotId)
+            || CatalogValidationDefaults.TryResolveBalticDbRef(dbRef, out resolvedSnapshotId);
     }
 
     public bool TryGetSnapshotBranch(string snapshotId, out string branch)

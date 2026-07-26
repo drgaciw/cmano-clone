@@ -18,7 +18,7 @@ Reads *-propose.json artifacts, approves each staged batch through CatalogWriteG
 and records snapshot hash + release metadata via catalog_write_approve.
 
 Options:
-  --entity <sensor|weapon|platform|aircraft|submarine|facility|all>  Entities to approve (default: all)
+  --entity <sensor|weapon|platform|aircraft|submarine|facility|ground-unit|all>  Entities to approve (default: all)
   --run-date <YYYYMMDD>                  Scratch dir date (default: today UTC)
   --scratch-dir <path>                   Override scratch directory
   --snapshot-id <id>                     Snapshot id for RecordRelease (optional)
@@ -49,7 +49,7 @@ ENABLE_BALANCE_DRIFT="${ENABLE_BALANCE_DRIFT:-0}"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --entity)
-      ENTITY="${2:?--entity requires sensor|weapon|platform|aircraft|submarine|facility|all}"
+      ENTITY="${2:?--entity requires sensor|weapon|platform|aircraft|submarine|facility|ground-unit|all}"
       shift 2
       ;;
     --run-date)
@@ -90,9 +90,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 case "${ENTITY}" in
-  sensor|weapon|platform|aircraft|submarine|facility|all) ;;
+  sensor|weapon|platform|aircraft|submarine|facility|ground-unit|all) ;;
   *)
-    echo "Invalid --entity '${ENTITY}'. Use sensor, weapon, platform, aircraft, submarine, facility, or all." >&2
+    echo "Invalid --entity '${ENTITY}'. Use sensor, weapon, platform, aircraft, submarine, facility, ground-unit, or all." >&2
     exit 1
     ;;
 esac
@@ -108,21 +108,44 @@ entity_selected() {
 
 extract_batch_ids() {
   local propose_json="$1"
-  python3 - "${propose_json}" <<'PY'
+  local entity="$2"
+  python3 - "${propose_json}" "${entity}" <<'PY'
 import json
 import sys
 
-path = sys.argv[1]
+path, entity = sys.argv[1:3]
 with open(path, encoding="utf-8") as handle:
     doc = json.load(handle)
 
 if not doc.get("ok", False):
     raise SystemExit(f"propose artifact not ok: {path}")
 
+batch_ids = []
+seen = set()
 for batch in doc.get("batches", []):
     batch_id = batch.get("batchId")
-    if batch_id:
-        print(batch_id)
+    if batch_id and batch_id not in seen:
+        seen.add(batch_id)
+        batch_ids.append(batch_id)
+
+if entity in {"platform", "aircraft", "submarine", "facility", "ground-unit"}:
+    prefix_order = (
+        "batch-platform-",
+        "batch-mount-",
+        "batch-loadout-",
+        "batch-magazine-",
+    )
+
+    def sort_key(batch_id: str):
+        for idx, prefix in enumerate(prefix_order):
+            if batch_id.startswith(prefix):
+                return (idx, batch_id)
+        return (99, batch_id)
+
+    batch_ids.sort(key=sort_key)
+
+for batch_id in batch_ids:
+    print(batch_id)
 PY
 }
 
@@ -226,7 +249,7 @@ approve_entity() {
   echo "==> Approve ${entity}"
   echo "    Propose: ${propose_json}"
 
-  mapfile -t batch_ids < <(extract_batch_ids "${propose_json}")
+  mapfile -t batch_ids < <(extract_batch_ids "${propose_json}" "${entity}")
   if [[ "${#batch_ids[@]}" -eq 0 ]]; then
     echo "No batch IDs found in ${propose_json}" >&2
     return 1
@@ -421,6 +444,14 @@ fi
 if entity_selected facility; then
   if approve_entity facility; then
     approved_entities+=("facility")
+  else
+    failures=$((failures + 1))
+  fi
+fi
+
+if entity_selected ground-unit; then
+  if approve_entity ground-unit; then
+    approved_entities+=("ground-unit")
   else
     failures=$((failures + 1))
   fi

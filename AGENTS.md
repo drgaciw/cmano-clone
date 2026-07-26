@@ -117,10 +117,30 @@ IOrderSink.ApplyOrder(entityKey, order)  →  movement / weapons / EW systems
 | **PlayModeSmokeHarness** | ≥20/20 (C2 proxy tests) |
 | **DelegationBridge.cs** | Zero-touch through Release v1 — no hotpath changes |
 | **CatalogWriteGate** | Extend-only (add new `Propose*` / `Approve*` overloads; never alter existing write paths) |
+| **No proprietary CMO `.db3`** | Never commit or mount Command: Modern Operations product `*.db3` files; feed catalog via markdown/fixtures/workbook/OSINT only ([dual-track doc](docs/engineering/dual-track-cmo-analysis-and-catalog.md), [ADR-013](docs/architecture/adr-013-cmo-scenario-import-policy.md)) |
 | **DelegationBridge hotpath** | ZERO — grep `DelegationBridge` in `src/` hotpath methods must stay 0 new |
 | **Baltic v3 isolation** | `baltic-v3-*` policies/goldens are independent; never touch v2 goldens |
 
 Before any `gt submit`, run the full verification block above AND grep the hash AND confirm ZERO DelegationBridge hotpath changes.
+
+---
+
+## Catalog migration SDLC (dual-track)
+
+Catalog population follows the **dual-track firewall**: Track A (`cmo_db_inspector`, local licensed `*.db3` analysis only) → public citations → Track B (this repo, fixtures/workbook → write gate). Never commit proprietary CMO `.db3` files. Full policy: [dual-track-cmo-analysis-and-catalog.md](docs/engineering/dual-track-cmo-analysis-and-catalog.md).
+
+**Parent orchestration:** For multi-entity fixture waves, use the global **`dispatching-parallel-agents`** skill to fan out independent **Importer** tasks (one fixture/entity per subagent). After propose, dispatch **Curator** + **Quality** in parallel (review `*-propose.json` vs run `verify-catalog-import.ps1`). **Importer** changes use **two-stage review**: (1) fixture diff, (2) re-propose + quality gate before approve. **Write Gate** approve stays human-gated for production DBs.
+
+| Role | Task prompt template |
+|------|----------------------|
+| Curator | [`.cursor/agents/catalog-curator-agent.md`](.cursor/agents/catalog-curator-agent.md) |
+| Importer | [`.cursor/agents/catalog-importer-agent.md`](.cursor/agents/catalog-importer-agent.md) |
+| Write Gate | [`.cursor/agents/catalog-write-gate-agent.md`](.cursor/agents/catalog-write-gate-agent.md) |
+| Quality | [`.cursor/agents/catalog-quality-agent.md`](.cursor/agents/catalog-quality-agent.md) |
+| Workbook | [`.cursor/agents/catalog-workbook-agent.md`](.cursor/agents/catalog-workbook-agent.md) |
+| Inspector (Track A) | [`.cursor/agents/cmo-inspector-analysis-agent.md`](.cursor/agents/cmo-inspector-analysis-agent.md) → runs in `cmo_db_inspector` |
+
+Local skills: `.cursor/skills/aegis-catalog-curator`, `aegis-markdown-fixture-author`, `aegis-write-gate-approve`, `aegis-catalog-quality-gate`. Orchestration map: [aegis-catalog-sdlc-orchestration.md](docs/engineering/aegis-catalog-sdlc-orchestration.md).
 
 ---
 
