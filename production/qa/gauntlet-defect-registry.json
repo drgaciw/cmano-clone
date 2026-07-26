@@ -29,6 +29,19 @@
       "priorFailureMode": "CATALOG_UNIT:u1:",
       "fixSummary": "Catalog Visby/Sovremenny units + side registry",
       "closedUtc": "2026-07-13T20:00:00Z"
+    },
+    {
+      "id": "GAUNTLET-ORACLE-T5-ROE-001",
+      "status": "closed",
+      "class": "oracle",
+      "title": "t5-roe-change ladder vs CI expect dual-profile",
+      "scenarioId": "gauntlet-t5-roe-change",
+      "seed": 42,
+      "ticks": 40,
+      "policyPath": "data/scenarios/gauntlet-t5-roe-change.policy.json",
+      "priorFailureMode": "denials 80 > max 28",
+      "fixSummary": "Restored ladder expect (T5@40); added expectCi + CLI --profile ci; dual-profile evaluator tests",
+      "closedUtc": "2026-07-21T01:14:05Z"
     }
   ],
   "residuals": [
@@ -37,8 +50,8 @@
       "status": "watched",
       "class": "oracle-expect",
       "title": "Expect recalibration drift",
-      "notes": "Gauntlet oracle expects can drift after sim/policy changes; tier-tick expect regen must stay fail-closed and audited. Do not treat allPassed after silent expect rewrites as a free pass.",
-      "lastReviewedUtc": "2026-07-17T16:46:00Z"
+      "notes": "Gauntlet oracle expects can drift after sim/policy changes; tier-tick expect regen must stay fail-closed and audited. Do not treat allPassed after silent expect rewrites as a free pass. Mitigated 2026-07-20: dual-profile expect/expectCi + --profile ci for CI smoke; ladder expect remains tier-tick authority.",
+      "lastReviewedUtc": "2026-07-21T01:14:05Z"
     },
     {
       "id": "GAUNTLET-RES-T5-001",

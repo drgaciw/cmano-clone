@@ -1,15 +1,24 @@
 @import url("../AegisTokens.uss");
 
+/* Docked tooling panel (hidden by default in DelegationSmoke showPanel=0). */
 .platform-import-panel {
-    flex-grow: 1;
+    position: absolute;
+    left: 268px;
+    top: 64px;
+    width: 320px;
+    max-height: 70%;
     min-width: 280px;
+    flex-direction: column;
     padding: 6px;
-    background-color: var(--aegis-surface-panel);
+    background-color: var(--surface-panel);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    border-radius: 4px;
 }
 
 .platform-import-title {
     -unity-font-style: bold;
-    color: var(--aegis-text-heading);
+    color: var(--text-heading);
     margin-bottom: 4px;
 }
 
@@ -28,23 +37,23 @@
 }
 
 .platform-import-approve-button:disabled {
-    opacity: var(--aegis-diff-pending-opacity);
+    opacity: var(--diff-pending-opacity);
 }
 
 .platform-import-status {
-    color: var(--aegis-text-muted);
+    color: var(--text-muted);
     margin-bottom: 4px;
     white-space: normal;
 }
 
 .platform-import-status--blocked {
-    color: var(--aegis-diff-blocked);
+    color: var(--diff-blocked);
     -unity-font-style: bold;
 }
 
 .platform-import-diff-title {
     -unity-font-style: bold;
-    color: var(--aegis-text-body);
+    color: var(--text-body);
     margin-bottom: 2px;
 }
 
@@ -106,5 +115,5 @@
 }
 
 .platform-import-acknowledge {
-    color: var(--aegis-diff-pending);
+    color: var(--diff-pending);
 }

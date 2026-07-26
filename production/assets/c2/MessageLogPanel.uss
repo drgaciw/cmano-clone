@@ -29,7 +29,7 @@
     min-height: 14px;
     font-size: 10px;
     color: var(--text-data);
-    -unity-font: resource("Fonts/RobotoMono-Regular");
+    /* -unity-font: resource("Fonts/RobotoMono-Regular"); removed — use default UI font (no Resources glyph errors) */
     padding-left: var(--space-xs);
     padding-right: var(--space-xs);
 }
@@ -52,6 +52,15 @@
 
 .message-log-row--mission {
     color: var(--log-mission);
+}
+
+.message-log-row--policy {
+    color: var(--log-kill);
+    -unity-font-style: bold;
+}
+
+.message-log-row--weapon {
+    color: var(--log-magazine);
 }
 
 .message-log-row--selectable:focus {

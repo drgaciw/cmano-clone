@@ -60,6 +60,12 @@
     --diff-pending: #8C9BAA;
     --diff-pending-opacity: 0.45;
 
+    /* Validation export gate (ADR-008). Semantic, not affiliation — do not substitute
+       --affil-hostile / --affil-neutral here. Always paired with a text label; never
+       the sole carrier of the blocked/ready distinction. */
+    --gate-blocked: #E85D5D;
+    --gate-ready: #78C878;
+
     /* Spacing (art bible §6) */
     --space-xs: 4px;
     --space-sm: 8px;
@@ -90,4 +96,6 @@
     --aegis-diff-blocked: var(--diff-blocked);
     --aegis-diff-pending: var(--diff-pending);
     --aegis-diff-pending-opacity: var(--diff-pending-opacity);
+    --aegis-gate-blocked: var(--gate-blocked);
+    --aegis-gate-ready: var(--gate-ready);
 }

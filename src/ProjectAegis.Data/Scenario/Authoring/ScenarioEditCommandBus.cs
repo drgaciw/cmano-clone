@@ -19,8 +19,15 @@ public sealed class ScenarioEditCommandBus
     /// <summary>Most recent live validation report from a successful mutation or <see cref="RefreshFindings"/>.</summary>
     public ValidationReport? LastReport { get; private set; }
 
-    /// <summary>Places or replaces an ORBAT unit (map place / inspector apply).</summary>
+    /// <summary>Places a new ORBAT unit (map place). Rejects duplicate ids — use upsert/CLI for replace.</summary>
     public ScenarioMutationResult PlaceUnit(int expectedEditVersion, ScenarioOrbatUnitDto unit, bool save)
+        => Mutate(expectedEditVersion, save, e => e.PlaceOrbatUnit(unit));
+
+    /// <summary>
+    /// Inserts or replaces an ORBAT unit (inspector / platform-change path).
+    /// Same unit id with a new <see cref="ScenarioOrbatUnitDto.PlatformId"/> is the supported way to change platforms.
+    /// </summary>
+    public ScenarioMutationResult UpsertUnit(int expectedEditVersion, ScenarioOrbatUnitDto unit, bool save)
         => Mutate(expectedEditVersion, save, e => e.UpsertOrbatUnit(unit));
 
     /// <summary>Moves an existing ORBAT unit to a new lat/lon.</summary>

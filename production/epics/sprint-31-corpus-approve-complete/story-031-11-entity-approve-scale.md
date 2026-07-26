@@ -1,6 +1,6 @@
 ---
 id: S31-11
-status: complete
+status: Complete
 type: Integration
 priority: nice-to-have
 graphite_branch: stack/sprint31/entity-approve-scale

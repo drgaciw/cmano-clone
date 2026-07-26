@@ -11,3 +11,13 @@ public sealed class FixedCatalogClock : ICatalogClock
 
     public long UtcTicks { get; }
 }
+
+/// <summary>Monotonic clock for deterministic unique write-gate batch ids per propose call.</summary>
+public sealed class IncrementingCatalogClock : ICatalogClock
+{
+    private long _next;
+
+    public IncrementingCatalogClock(long start = 0) => _next = start;
+
+    public long UtcTicks => _next++;
+}

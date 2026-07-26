@@ -23,8 +23,34 @@ if command -v node >/dev/null 2>&1; then
 fi
 
 dotnet restore ProjectAegis.sln
+
+# Catalog policy gate: no tracked *.db3 + CmoMarkdown import tests (bash parity with scripts/verify-catalog-import.ps1)
+echo "=== verify-catalog-import ==="
+tracked_db3="$(git ls-files '*.db3' || true)"
+if [[ -n "$tracked_db3" ]]; then
+  echo "FAIL: tracked *.db3 files (CMO game DB policy violation):"
+  echo "$tracked_db3" | sed 's/^/  /'
+  exit 1
+fi
+echo "OK: no *.db3 in git ls-files"
+echo "Running CmoMarkdown Import tests..."
+dotnet test \
+  src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj \
+  -v minimal \
+  --filter 'FullyQualifiedName~CmoMarkdown'
+
 dotnet build ProjectAegis.sln -c Release --no-restore
 # READ build 0e/0w expected
+
+# Stage the netstandard2.1 Unity plugin DLLs before tests.
+# UnityPluginEpicATypesTests (added in 30a274d) asserts these exist, but
+# unity/ProjectAegis/Assets/Plugins/**/*.dll is gitignored (.gitignore:33) — only the
+# .meta files are tracked. A clean CI checkout therefore has no DLLs and the test fails
+# with "Missing plugin DLL — run tools/copy-delegation-assemblies.ps1", while the same
+# test passes on any developer machine that has run the copy locally. Wiring the copy
+# into the gate removes that local-vs-CI divergence.
+bash "$repo_root/tools/copy-delegation-assemblies.sh"
+
 set +e
 dotnet test ProjectAegis.sln -c Release --no-build -v minimal
 test_exit=$?

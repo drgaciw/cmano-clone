@@ -1,0 +1,25 @@
+Permissions Size User       Date Modified Name
+.rw-rw-r--  3.0k username01 13 Jul 17:27  data/scenarios/gauntlet-joint-orbat-smoke.policy.json
+.rw-rw-r--  2.9k username01 13 Jul 17:06  data/scenarios/gauntlet-multidomain-shooters.policy.json
+.rw-rw-r--  1.8k username01 13 Jul 16:42  data/scenarios/gauntlet-t1-patrol-a.policy.json
+.rw-rw-r--  1.8k username01 13 Jul 16:42  data/scenarios/gauntlet-t1-patrol-b.policy.json
+.rw-rw-r--  1.8k username01 13 Jul 16:42  data/scenarios/gauntlet-t1-patrol-c.policy.json
+.rw-rw-r--  2.0k username01 13 Jul 16:42  data/scenarios/gauntlet-t1-patrol-d.policy.json
+.rw-rw-r--  2.6k username01 13 Jul 17:41  data/scenarios/gauntlet-t2-escort-a.policy.json
+.rw-rw-r--  2.0k username01 13 Jul 16:42  data/scenarios/gauntlet-t2-escort-passive.policy.json
+.rw-rw-r--  2.1k username01 13 Jul 16:42  data/scenarios/gauntlet-t2-strike-a.policy.json
+.rw-rw-r--  2.0k username01 13 Jul 16:42  data/scenarios/gauntlet-t2-strike-event.policy.json
+.rw-rw-r--  3.6k username01 17 Jul 11:40  data/scenarios/gauntlet-t3-emcon-phases.policy.json
+.rw-rw-r--  3.3k username01 13 Jul 17:41  data/scenarios/gauntlet-t3-escort-strike.policy.json
+.rw-rw-r--  3.1k username01 13 Jul 16:52  data/scenarios/gauntlet-t3-event-chain.policy.json
+.rw-rw-r--  3.1k username01 13 Jul 17:41  data/scenarios/gauntlet-t3-id-roe.policy.json
+.rw-rw-r--  3.1k username01 13 Jul 17:41  data/scenarios/gauntlet-t4-asymm-roe.policy.json
+.rw-rw-r--  3.2k username01 13 Jul 17:41  data/scenarios/gauntlet-t4-multi-mission.policy.json
+.rw-rw-r--  4.5k username01 13 Jul 17:27  data/scenarios/gauntlet-t4-random-inject.policy.json
+.rw-rw-r--  3.2k username01 13 Jul 17:41  data/scenarios/gauntlet-t4-weighted.policy.json
+.rw-rw-r--  4.9k username01 13 Jul 17:27  data/scenarios/gauntlet-t5-cascade.policy.json
+.rw-rw-r--  3.3k username01 13 Jul 16:52  data/scenarios/gauntlet-t5-dynamic-obj.policy.json
+.rw-rw-r--  4.5k username01 17 Jul 11:40  data/scenarios/gauntlet-t5-roe-change.policy.json
+.rw-rw-r--  3.3k username01 13 Jul 17:41  data/scenarios/gauntlet-t5-theater.policy.json
+.rw-rw-r--  2.7k username01 13 Jul 17:06  data/scenarios/gauntlet-theater-dynamic-victory.policy.json
+.rw-rw-r--  3.0k username01 13 Jul 17:06  data/scenarios/gauntlet-theater-inject.policy.json

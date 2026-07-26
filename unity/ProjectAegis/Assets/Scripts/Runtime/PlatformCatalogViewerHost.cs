@@ -121,6 +121,7 @@ namespace ProjectAegis.Unity.Runtime
         private void Awake()
         {
             _document = GetComponent<UIDocument>();
+            UiDocumentPanelSettingsBootstrap.EnsureDocument(_document);
             if (panelAsset != null)
             {
                 _document.visualTreeAsset = panelAsset;

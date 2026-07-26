@@ -29,9 +29,24 @@ public static class ScenarioPolicyJsonLoader
             return map;
         }
 
-        foreach (var file in Directory.EnumerateFiles(directoryPath, "*.policy.json"))
+        // ADR-022 Decision 3: EnumerateFiles returns filesystem order — roughly
+        // alphabetical on NTFS, inode order on ext4 — so without an explicit sort
+        // the host OS would decide which of two files sharing an Id survives.
+        var files = Directory.EnumerateFiles(directoryPath, "*.policy.json")
+            .OrderBy(f => f, StringComparer.Ordinal);
+
+        // Same comparer as the map: ids differing only by case collide there too.
+        var sourceById = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var file in files)
         {
             var profile = LoadFromFile(file);
+            if (sourceById.TryGetValue(profile.Id, out var firstFile))
+            {
+                throw new InvalidDataException(
+                    $"Duplicate scenario policy id '{profile.Id}' declared in '{firstFile}' and '{file}'.");
+            }
+
+            sourceById[profile.Id] = file;
             map[profile.Id] = profile;
         }
 

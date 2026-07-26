@@ -54,6 +54,57 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(harness.SimTime, Is.EqualTo(30.0 / 60.0).Within(1e-6));
     }
 
+    /// <summary>
+    /// Headless contract for shipped <see cref="PlayModeSmokeOrbatSeeder"/>
+    /// (same entry Unity <c>SimplePlayModeSimHost</c> calls on Start):
+    /// OOB has u1+hostile-1, Unit Detail filled for u1, Message Log CONTACT+MAGAZINE+MODE.
+    /// </summary>
+    [Test]
+    public void Smoke_orbat_seed_populates_oob_unit_detail_and_message_log()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: true, scenarioPolicyId: "baltic-patrol");
+
+        Assert.That(PlayModeSmokeOrbatSeeder.TrySeed(bridge), Is.True);
+        bridge.BeginExecution();
+
+        var harness = new PlayModeHarness(contactCount: 2, hasFireControlTrack: true);
+        harness.AdvanceTime(1.0 / 60.0);
+        bridge.Tick(harness, harness);
+
+        var oob = OobTreeBridge.Build(harness, bridge.Registry);
+        var oobIds = oob.Select(e => e.UnitId).ToArray();
+        Assert.That(oobIds, Does.Contain(PlayModeSmokeOrbatSeeder.FriendlyUnitId));
+        Assert.That(oobIds, Does.Contain(PlayModeSmokeOrbatSeeder.HostileUnitId));
+
+        var detail = UnitDetailBridge.BuildSelected(
+            new TargetId(PlayModeSmokeOrbatSeeder.FriendlyUnitId),
+            harness,
+            bridge);
+        Assert.That(detail, Is.Not.Null);
+        Assert.That(detail!.UnitId, Is.EqualTo(PlayModeSmokeOrbatSeeder.FriendlyUnitId));
+        Assert.That(detail.IsAlive, Is.True);
+        Assert.That(detail.StatusLabel, Is.EqualTo("OPERATIONAL"));
+        Assert.That(detail.MagazineLabel, Does.Contain("Δ-1"));
+        Assert.That(detail.DoctrineLabel, Is.Not.Null.And.Not.Empty);
+        Assert.That(detail.DoctrineLabel, Does.Not.Contain("—"));
+
+        var messages = MessageLogBridge.ProjectFrom(bridge.Orchestrator.DecisionLog);
+        Assert.That(messages.Any(m => m.Category == "CONTACT"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "MAGAZINE"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "MODE"), Is.True);
+
+        var panel = UnitDetailPanelBinder.Bind(detail);
+        Assert.That(panel.UnitIdLine, Is.EqualTo($"UNIT: {PlayModeSmokeOrbatSeeder.FriendlyUnitId}"));
+        Assert.That(panel.UnitIdLine, Does.Not.Contain("UNIT: —"));
+        Assert.That(panel.StatusLine, Does.Not.Contain("STATUS: —"));
+        Assert.That(panel.MagazineLine, Does.Contain("Δ-1"));
+        Assert.That(panel.DoctrineLine, Does.Not.Contain("DOCTRINE: —"));
+
+        // Idempotent re-seed must not throw or duplicate members.
+        Assert.That(PlayModeSmokeOrbatSeeder.TrySeed(bridge), Is.True);
+        Assert.That(bridge.Registry.CollectMemberIds().Count, Is.EqualTo(2));
+    }
+
     [Test]
     public void Engage_scenario_multi_tick_writes_stable_engagement_log()
     {
