@@ -355,17 +355,40 @@ namespace ProjectAegis.Unity.Editor
             button.focusable = true;
 
             // Guard against double-fire when both clicked and ClickEvent raise for one press.
-            var lastTicks = 0L;
+            //
+            // The window is measured from when the handler FINISHES, not when it starts, and a
+            // re-entrancy flag blocks nested dispatch. Stamping before the handler was unsound:
+            // any handler slower than the window (BrowsePath blocks on a modal file dialog; open/
+            // save/validate can also exceed it) let the second callback through afterwards and ran
+            // the handler twice — reopening the dialog, reloading the scenario, or committing a
+            // second unit.
+            var handling = false;
+            var lastCompletedTicks = 0L;
             void Invoke()
             {
-                var now = DateTime.UtcNow.Ticks;
-                if (now - lastTicks < TimeSpan.TicksPerMillisecond * 120)
+                // Nested dispatch while the handler is still on the stack (e.g. a modal pumping
+                // events) must never re-enter the handler.
+                if (handling)
                 {
                     return;
                 }
 
-                lastTicks = now;
-                handler();
+                if (lastCompletedTicks != 0L
+                    && DateTime.UtcNow.Ticks - lastCompletedTicks < TimeSpan.TicksPerMillisecond * 120)
+                {
+                    return;
+                }
+
+                handling = true;
+                try
+                {
+                    handler();
+                }
+                finally
+                {
+                    lastCompletedTicks = DateTime.UtcNow.Ticks;
+                    handling = false;
+                }
             }
 
             button.clicked += Invoke;
