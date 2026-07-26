@@ -189,6 +189,14 @@ It encodes five rules learned from a wave where 2 of 6 agents silently returned 
 
 ---
 
+## 7b. Record-keeping contract
+
+How Linear is kept *truthful* — states, automation, priority hygiene, and what not to adopt — lives in [`linear-usage-contract.md`](linear-usage-contract.md).
+
+Its one rule: **an issue is a pointer plus a state, never the content.** Git holds files, Notion holds design, Linear holds delivery state. Every case where content was embedded in Linear drifted within days.
+
+---
+
 ## 8. Dispatch loop
 
 1. Query Linear: state = ready, no unresolved **blocked-by**.
