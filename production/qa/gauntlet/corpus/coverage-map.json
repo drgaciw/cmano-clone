@@ -1,0 +1,505 @@
+{
+  "version": 1,
+  "generatedAt": "2026-07-23",
+  "source": "bootstrap via tools/qa-gauntlet/forge_scorecard.infer_cell from data/scenarios/gauntlet-*.policy.json",
+  "cellCount": 20,
+  "scenarioCount": 24,
+  "cells": [
+    {
+      "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "scenarioId": "gauntlet-joint-orbat-smoke",
+      "tier": null,
+      "missionClass": "multi",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 30,
+      "intentHash": "2530489762d3eb2b"
+    },
+    {
+      "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "scenarioId": "gauntlet-multidomain-shooters",
+      "tier": 3,
+      "missionClass": "multi",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 31,
+      "intentHash": "b057dcce8607a843"
+    },
+    {
+      "key": "patrol|surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "scenarioId": "gauntlet-t1-patrol-a",
+      "tier": 1,
+      "missionClass": "patrol",
+      "domains": [
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 26,
+      "intentHash": "4e62893e6da08397"
+    },
+    {
+      "key": "patrol|surface|WeaponsFree/WeaponsFree|unrestricted|none",
+      "scenarioId": "gauntlet-t1-patrol-b",
+      "tier": 1,
+      "missionClass": "patrol",
+      "domains": [
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsFree",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 27,
+      "intentHash": "acf5c6098219ccbe"
+    },
+    {
+      "key": "patrol|surface|WeaponsTight/WeaponsFree|unrestricted|none",
+      "scenarioId": "gauntlet-t1-patrol-c",
+      "tier": 1,
+      "missionClass": "patrol",
+      "domains": [
+        "surface"
+      ],
+      "roePair": "WeaponsTight/WeaponsFree",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 25,
+      "intentHash": "661f4a308d704474"
+    },
+    {
+      "key": "patrol|surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "scenarioId": "gauntlet-t1-patrol-d",
+      "tier": 1,
+      "missionClass": "patrol",
+      "domains": [
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 25,
+      "intentHash": "34b156bb45d8762a"
+    },
+    {
+      "key": "escort|air,surface|WeaponsFree/WeaponsFree|unrestricted|none",
+      "scenarioId": "gauntlet-t2-escort-a",
+      "tier": 2,
+      "missionClass": "escort",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsFree",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 31,
+      "intentHash": "187f2ef634d4bd51"
+    },
+    {
+      "key": "escort|air,surface|WeaponsTight/WeaponsFree|emcon-phases|none",
+      "scenarioId": "gauntlet-t2-escort-passive",
+      "tier": 2,
+      "missionClass": "escort",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsTight/WeaponsFree",
+      "emconClass": "emcon-phases",
+      "eventClass": "none",
+      "catalogRefCount": 33,
+      "intentHash": "ed18718c398e587a"
+    },
+    {
+      "key": "strike|air,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "scenarioId": "gauntlet-t2-strike-a",
+      "tier": 2,
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 34,
+      "intentHash": "5661bbafab44d3fe"
+    },
+    {
+      "key": "strike|air,surface|WeaponsFree/WeaponsTight|unrestricted|inject",
+      "scenarioId": "gauntlet-t2-strike-event",
+      "tier": 2,
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "inject",
+      "catalogRefCount": 31,
+      "intentHash": "ea48d5e919cd041e"
+    },
+    {
+      "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|emcon-phases|none",
+      "scenarioId": "gauntlet-t3-emcon-phases",
+      "tier": 3,
+      "missionClass": "multi",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "emcon-phases",
+      "eventClass": "none",
+      "catalogRefCount": 39,
+      "intentHash": "99b4b8b07bc6534e"
+    },
+    {
+      "key": "strike|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "scenarioId": "gauntlet-t3-escort-strike",
+      "tier": 3,
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 41,
+      "intentHash": "5380764280b7313c"
+    },
+    {
+      "key": "event-chain|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|event-chain",
+      "scenarioId": "gauntlet-t3-event-chain",
+      "tier": 3,
+      "missionClass": "event-chain",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsFree",
+      "emconClass": "unrestricted",
+      "eventClass": "event-chain",
+      "catalogRefCount": 38,
+      "intentHash": "ccc097fd18a6ff2f"
+    },
+    {
+      "key": "id-roe|air,subsurface,surface|WeaponsTight/WeaponsTight|unrestricted|none",
+      "scenarioId": "gauntlet-t3-id-roe",
+      "tier": 3,
+      "missionClass": "id-roe",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsTight/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 40,
+      "intentHash": "e911eebfe3452930"
+    },
+    {
+      "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "scenarioId": "gauntlet-t4-asymm-roe",
+      "tier": 4,
+      "missionClass": "multi",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 43,
+      "intentHash": "78fd6f9758d87311"
+    },
+    {
+      "key": "asw|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "scenarioId": "gauntlet-t4-multi-mission",
+      "tier": 4,
+      "missionClass": "asw",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 41,
+      "intentHash": "8bfb44732c093bc2"
+    },
+    {
+      "key": "inject|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|inject",
+      "scenarioId": "gauntlet-t4-random-inject",
+      "tier": 4,
+      "missionClass": "inject",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsFree",
+      "emconClass": "unrestricted",
+      "eventClass": "inject",
+      "catalogRefCount": 40,
+      "intentHash": "79bdb0ba287dfda0"
+    },
+    {
+      "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "scenarioId": "gauntlet-t4-weighted",
+      "tier": 4,
+      "missionClass": "multi",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 43,
+      "intentHash": "0af65022415cf685"
+    },
+    {
+      "key": "cascade|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|cascade",
+      "scenarioId": "gauntlet-t5-cascade",
+      "tier": 5,
+      "missionClass": "cascade",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsFree",
+      "emconClass": "unrestricted",
+      "eventClass": "cascade",
+      "catalogRefCount": 41,
+      "intentHash": "d473d139baefc177"
+    },
+    {
+      "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|dynamic-obj",
+      "scenarioId": "gauntlet-t5-dynamic-obj",
+      "tier": 5,
+      "missionClass": "multi",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "dynamic-obj",
+      "catalogRefCount": 42,
+      "intentHash": "b4c8fa21bbe9c2e6"
+    },
+    {
+      "key": "roe-change|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|roe-change",
+      "scenarioId": "gauntlet-t5-roe-change",
+      "tier": 5,
+      "missionClass": "roe-change",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsTight/WeaponsFree",
+      "emconClass": "unrestricted",
+      "eventClass": "roe-change",
+      "catalogRefCount": 42,
+      "intentHash": "d76e156a2024a1c4"
+    },
+    {
+      "key": "theater|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "scenarioId": "gauntlet-t5-theater",
+      "tier": 5,
+      "missionClass": "theater",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 43,
+      "intentHash": "c8a47fe17e70ad0c"
+    },
+    {
+      "key": "theater|surface|WeaponsFree/WeaponsTight|unrestricted|dynamic-obj",
+      "scenarioId": "gauntlet-theater-dynamic-victory",
+      "tier": 5,
+      "missionClass": "theater",
+      "domains": [
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "dynamic-obj",
+      "catalogRefCount": 25,
+      "intentHash": "9be44983c7c51059"
+    },
+    {
+      "key": "theater|surface|WeaponsFree/WeaponsTight|unrestricted|inject",
+      "scenarioId": "gauntlet-theater-inject",
+      "tier": 4,
+      "missionClass": "theater",
+      "domains": [
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "inject",
+      "catalogRefCount": 23,
+      "intentHash": "2f94cabee44ca9da"
+    }
+  ],
+  "counts": {
+    "missionClass": {
+      "multi": 6,
+      "patrol": 4,
+      "escort": 2,
+      "strike": 3,
+      "event-chain": 1,
+      "id-roe": 1,
+      "asw": 1,
+      "inject": 1,
+      "cascade": 1,
+      "roe-change": 1,
+      "theater": 3
+    },
+    "eventClass": {
+      "none": 16,
+      "inject": 3,
+      "event-chain": 1,
+      "cascade": 1,
+      "dynamic-obj": 2,
+      "roe-change": 1
+    },
+    "roePair": {
+      "WeaponsFree/WeaponsTight": 15,
+      "WeaponsFree/WeaponsFree": 5,
+      "WeaponsTight/WeaponsFree": 3,
+      "WeaponsTight/WeaponsTight": 1
+    },
+    "emconClass": {
+      "unrestricted": 22,
+      "emcon-phases": 2
+    },
+    "domain": {
+      "air": 18,
+      "subsurface": 14,
+      "surface": 24
+    },
+    "platformId": {
+      "421-orkan-pr-660-2015": 24,
+      "70-rauma-helsinki-ii-1990": 24,
+      "k-22-gavle-ex-goteborg-class": 24,
+      "k-31-visby-2009": 24,
+      "k-21-goteborg": 24,
+      "f-207-bremen-type-f122-1982": 24,
+      "241-slazak-meko-100-mod-2019": 24,
+      "em-sovremenny-i-pr-956-sarych": 24,
+      "f-230-norfolk-type-23-duke": 24,
+      "80-hamina-rauma-2-2006": 24,
+      "p-840-holland": 23,
+      "f-341-absalon-2020": 23,
+      "d-32-daring-type-45-batch-1": 23,
+      "p-960-skjold": 23,
+      "f-450-elli-kortenaer-batch-ii-0": 22,
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat": 22,
+      "p-151-hugin": 22,
+      "k-11-stockholm-spica-iii-1986": 22,
+      "f-310-fridtjof-nansen": 22,
+      "f-361-iver-huitfeldt-2012": 22,
+      "624-pr-205p-tarantul-1992": 22,
+      "f-219-sachsen-type-f124-2006": 20,
+      "m-04-carlskrona": 20,
+      "mpk-steregushchiy-pr-20380-2018": 20,
+      "m-73-koster-upgraded-landsort-class": 19,
+      "jas-39c-gripen-2005": 18,
+      "f-35a-lightning-ii": 17,
+      "hkp-14f-nh90-ttt": 16,
+      "f-a-18c-hornet-f-18c": 16,
+      "jas-39b-gripen-1997": 16,
+      "jas-39a-gripen-1997": 16,
+      "a-19-gotland-2022": 14,
+      "mrk-buyan-mod-pr-21631-buyan-m-2014": 11,
+      "mrk-buyan-pr-21630-buyan-2007": 10,
+      "a-17-vastergotland-1999": 10,
+      "jas-39e-gripen-ng-2021": 10,
+      "pk-368-vasily-bykov-pr-22160": 8,
+      "skr-admiral-grigorovich-pr-1135-6m": 8,
+      "a-19-gotland-1996": 8,
+      "mrk-shkval-pr-22800-karakurt": 7,
+      "skr-admiral-sergey-gorshkov-pr-2235-0": 7,
+      "jas-39d-gripen-2005": 6,
+      "mig-29-fulcrum-c-1999": 5,
+      "a-17-s\u00f6dermanland-vastergotland-mod": 5,
+      "su-33-flanker-d": 4,
+      "su-27sm-sm3-flanker-j-2013": 4,
+      "ka-27m-helix-a": 4,
+      "plarb-955-borei-borey": 4,
+      "pla-885m-severodvinsk-yasen-m": 3,
+      "su-57-felon": 3,
+      "nh90-nfh-caiman-marine": 3,
+      "tu-160-blackjack": 3,
+      "a-19-gotland-2020": 3,
+      "a-26-blekinge": 3,
+      "su-34-fullback-2014": 2,
+      "su-35s-flanker-m-2023": 2,
+      "nh90-tth-mrh90-taipan-2007": 2,
+      "su-30sm-flanker-g-2019": 2,
+      "su-24m-fencer-d-1992": 2,
+      "eurofighter-typhoon": 2,
+      "pla-885-severodvinsk-yasen": 2,
+      "s-120-papanikolis-type-214hn": 2,
+      "ssn-774-virginia-blk-i-ii": 2,
+      "pl-677-lada-b-585-sankt-peterburg-2011": 2,
+      "mig-31-foxhound": 1,
+      "plarb-955a-borei-ii-borey-a": 1,
+      "a-19-gotland-2002": 1,
+      "pl-877-kilo-paltus-1992": 1,
+      "s-181-u-31-type-212a": 1,
+      "s-185-u-35-type-212a": 1,
+      "pla-971-akula-i-improved-shchuka-b": 1
+    }
+  },
+  "underusedPlatformHint": [
+    "a-19-gotland-2002",
+    "mig-31-foxhound",
+    "pl-877-kilo-paltus-1992",
+    "pla-971-akula-i-improved-shchuka-b",
+    "plarb-955a-borei-ii-borey-a",
+    "s-181-u-31-type-212a",
+    "s-185-u-35-type-212a",
+    "eurofighter-typhoon",
+    "nh90-tth-mrh90-taipan-2007",
+    "pl-677-lada-b-585-sankt-peterburg-2011",
+    "pla-885-severodvinsk-yasen",
+    "s-120-papanikolis-type-214hn",
+    "ssn-774-virginia-blk-i-ii",
+    "su-24m-fencer-d-1992",
+    "su-30sm-flanker-g-2019"
+  ]
+}

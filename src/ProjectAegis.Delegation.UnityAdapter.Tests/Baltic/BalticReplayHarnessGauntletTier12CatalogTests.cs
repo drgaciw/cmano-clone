@@ -201,11 +201,9 @@ public sealed class BalticReplayHarnessGauntletTier12CatalogTests
         return null;
     }
 
-    private static bool IsCatalogBlue(string id) =>
-        id is "k-31-visby-2009" or "k-22-gavle-ex-goteborg-class" or "jas-39c-gripen-2005" or "a-19-gotland-2022";
+    private static bool IsCatalogBlue(string id) => GauntletCatalogSides.IsBlue(id);
 
-    private static bool IsCatalogRed(string id) =>
-        id is "em-sovremenny-i-pr-956-sarych" or "mpk-steregushchiy-pr-20380-2018";
+    private static bool IsCatalogRed(string id) => GauntletCatalogSides.IsRed(id);
 
     [Test]
     public void All_tier12_policies_declare_gauntlet_units_with_catalog_platform_ids_only()
