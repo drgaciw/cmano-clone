@@ -144,3 +144,11 @@
 .platform-catalog-graph-list {
     min-height: 48px;
 }
+
+/* Keyboard focus (REQ-20 CMD-12 / CMD-28.9) — distinct from --aegis-selected-ring,
+   which this panel already uses for the active section underline. */
+.platform-catalog-action-button:focus,
+.platform-catalog-section-button:focus {
+    border-width: var(--aegis-focus-ring-width);
+    border-color: var(--aegis-focus-ring);
+}

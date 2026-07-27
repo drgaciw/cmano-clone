@@ -121,6 +121,10 @@ public sealed class ScenarioMapAuthoringPanelUiTests
         Assert.That(uss, Does.Contain(".scenario-map-export-gate"));
         Assert.That(uss, Does.Contain(".scenario-map-export-gate--blocked"));
         Assert.That(uss, Does.Contain(".scenario-map-export-gate--ready"));
+        // REQ-20 CMD-12 / CMD-28.9: interactive elements carry a keyboard focus ring, and it
+        // must use --focus-ring rather than --selected-ring so focus and selection stay distinct.
+        Assert.That(uss, Does.Contain(":focus"), "panel declares no keyboard focus styling");
+        Assert.That(uss, Does.Contain("var(--focus-ring)"));
     }
 
     [Test]

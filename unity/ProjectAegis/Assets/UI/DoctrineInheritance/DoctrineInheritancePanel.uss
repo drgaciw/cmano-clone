@@ -68,3 +68,10 @@
     margin-right: 8px;
     margin-bottom: 4px;
 }
+
+/* Keyboard focus (REQ-20 CMD-12 / CMD-28.9). */
+.doctrine-apply-button:focus,
+.doctrine-dropdown:focus {
+    border-width: var(--focus-ring-width);
+    border-color: var(--focus-ring);
+}

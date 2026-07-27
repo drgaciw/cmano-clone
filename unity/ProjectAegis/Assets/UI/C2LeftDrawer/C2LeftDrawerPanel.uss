@@ -67,3 +67,10 @@
     border-left-width: 3px;
     border-left-color: rgb(74, 158, 255);
 }
+
+/* Keyboard focus (REQ-20 CMD-12 / CMD-28.9) — OOB rows are the primary keyboard
+   navigation surface named in REQ-20 ("keyboard focus order for OOB and message log"). */
+.oob-row:focus {
+    border-left-width: var(--focus-ring-width);
+    border-left-color: var(--focus-ring);
+}
