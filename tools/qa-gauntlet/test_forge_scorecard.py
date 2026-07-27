@@ -161,6 +161,54 @@ def test_duplicate_intent_no_promote(tmp_path: Path) -> None:
     assert result["recommendPromote"] is False
 
 
+def test_oracle_lookup_uses_policy_id_when_filename_differs(tmp_path: Path) -> None:
+    """Regression: BUG-forge-scorecard-filename-vs-policy-id.
+
+    The qa-gauntlet-forge skill writes candidates as candidate-1.policy.json
+    etc. with an internal `id` like gauntlet-forge-<RUN_ID>-t2-c1. oracle-eval.json
+    is keyed by that `id` (what gauntlet_oracle_eval emits), not by the filename
+    stem. score_candidate must resolve the oracle result via policy id, falling
+    back to the filename stem only when no id is present.
+    """
+    policy_id = "gauntlet-forge-run123-t2-c1"
+    policy = _minimal_policy(intent="Filename vs policy id mismatch regression")
+    policy["id"] = policy_id
+    path = _write_policy(tmp_path, "candidate-1", policy)  # filename stem != policy_id
+    result = score_candidate(
+        path,
+        _empty_coverage(),
+        index_hashes=set(),
+        oracle_map={policy_id: True},  # keyed by policy id, as gauntlet_oracle_eval emits
+        tier=1,
+        useful_fail_ids=set(),
+    )
+    assert result["scenarioId"] == policy_id
+    assert result["oraclePassed"] is True
+    assert result["oracleLookupMissed"] is False
+    assert result["hardGatesPass"] is True
+    assert result["recommendPromote"] is True
+
+
+def test_oracle_lookup_missed_flag_when_never_evaluated(tmp_path: Path) -> None:
+    """Missing oracle entry must be visibly flagged, distinct from a failed
+    oracle result, while still blocking promotion (locked-eval contract)."""
+    policy = _minimal_policy(intent="Never evaluated oracle lookup missed flag")
+    sid = "gauntlet-forge-never-evaluated"
+    path = _write_policy(tmp_path, sid, policy)
+    result = score_candidate(
+        path,
+        _empty_coverage(),
+        index_hashes=set(),
+        oracle_map={},
+        tier=1,
+        useful_fail_ids=set(),
+    )
+    assert result["oraclePassed"] is None
+    assert result["oracleLookupMissed"] is True
+    assert result["hardGatesPass"] is False
+    assert result["recommendPromote"] is False
+
+
 def test_duplicate_scenario_id_no_promote(tmp_path: Path) -> None:
     policy = _minimal_policy(intent="Already promoted by id DDD")
     sid = "gauntlet-t1-patrol-a"

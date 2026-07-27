@@ -167,7 +167,11 @@ def score_candidate(
     index_scenario_ids: set[str] | None = None,
 ) -> dict[str, Any]:
     policy = load_json(policy_path)
-    sid = policy_path.name.replace(".policy.json", "")
+    # Prefer the policy's own id (what gauntlet_oracle_eval keys oracle-eval.json
+    # by) over the filename stem, which the qa-gauntlet-forge skill's candidate
+    # naming convention (candidate-1.policy.json, ...) never matches.
+    # See BUG-forge-scorecard-filename-vs-policy-id.
+    sid = policy.get("id") or policy_path.name.replace(".policy.json", "")
     cell = infer_cell(policy, sid)
     known_keys = {c["key"] for c in coverage.get("cells") or []}
     new_cell = cell["key"] not in known_keys
@@ -180,6 +184,19 @@ def score_candidate(
     if oracle_ok is None and "*" in oracle_map:
         oracle_ok = oracle_map["*"]
     useful_fail = sid in useful_fail_ids
+
+    # Distinguish "never evaluated" (no oracle entry at all) from "evaluated and
+    # failed" (oracle_ok is False). Both still block promotion unless usefulFail
+    # applies — this flag is a visible diagnostic signal only, it does not
+    # change hard-gate semantics.
+    oracle_lookup_missed = oracle_ok is None and not useful_fail
+    if oracle_lookup_missed:
+        print(
+            f"warn: forge-scorecard: no oracle result for candidate '{sid}' "
+            f"(path={policy_path}); treating as never-evaluated (hard gate blocks "
+            "promotion) — distinct from an evaluated-and-failed oracle result",
+            file=sys.stderr,
+        )
 
     # Oracle must be known: Passed=true OR usefulFail (sim-code / scenario-data).
     # oracle_ok is None (never evaluated) must NOT promote — locked-eval contract.
@@ -226,6 +243,7 @@ def score_candidate(
         "rarePlatformHits": rare_hits,
         "duplicateIntent": duplicate,
         "oraclePassed": oracle_ok,
+        "oracleLookupMissed": oracle_lookup_missed,
         "usefulFail": useful_fail,
         "hardGates": hard,
         "hardGatesPass": hard_pass,
