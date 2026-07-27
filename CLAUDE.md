@@ -65,7 +65,7 @@ Repo is Graphite-initialized. For branch/PR/stack work use **`gt`** (`gt create`
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (27414 symbols, 52161 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (29391 symbols, 55622 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -84,9 +84,6 @@ This project is indexed by GitNexus as **cmano-clone** (27414 symbols, 52161 rel
 - NEVER ignore HIGH or CRITICAL risk warnings from impact analysis.
 - NEVER rename symbols with find-and-replace — use `rename` which understands the call graph.
 - NEVER commit changes without running `detect_changes()` to check affected scope.
-
-> **Two `cmano-clone` checkouts are indexed** (`/home/username01/projects/active/cmano-clone/cmano-clone` and `/home/username01/cmano-clone`). GitNexus cannot disambiguate them, so **every call must pass an explicit absolute `repo`** — e.g. `impact({target: "Foo", direction: "upstream", repo: "/home/username01/projects/active/cmano-clone/cmano-clone"})`. Without it the call fails with *"Multiple repositories indexed"*. Same for `detect_changes` and `context`.
-
 
 ## Resources
 

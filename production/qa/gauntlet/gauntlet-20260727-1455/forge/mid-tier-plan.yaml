@@ -1,0 +1,37 @@
+run_id: gauntlet-20260727-1455
+tier: 1
+phase: pre
+generated: "2026-07-27T14:55Z"
+
+hindsight_recall:
+  status: SKIPPED — server unreachable (curl http://localhost:8888 -> HTTP 000)
+  action: proceeding with on-disk corpus only, per forge contract
+
+corpus_snapshot:
+  coverage_map_cells: 20
+  coverage_map_scenarios: 24
+  hard_cases_pool: 0 (empty — only README.md placeholder present)
+  recipe_weights_top:
+    - {id: platform-swap-underused, weight: 1.2, tierMin: 1}
+    - {id: roe-asymmetric-per-side, weight: 1.1, tierMin: "unknown (see catalog, likely >=4)"}
+    - {id: roe-mid-mission-change, weight: 1.1, tierMin: "unknown (likely 5)"}
+    - {id: emcon-timed-phases, weight: 1.1, tierMin: "unknown (likely 3)"}
+    - {id: hard-case-replay, weight: 1.3, tierMin: "n/a — no hard-cases available yet"}
+
+ranked_recipes_tier1:
+  # tierMin <= 1 filter per recipe-catalog.yaml; bootstrap-seed excluded (provenance-only, not a live operator)
+  - id: platform-swap-underused
+    tierMin: 1
+    weight: 1.2
+    rationale: only live tier-1-eligible recipe; already highest-weighted — apply to swap in catalog platforms not yet represented in coverage-map cells
+
+hard_case_replays_injected: []  # none available (empty pool)
+
+underused_platform_hint:
+  note: >
+    coverage-map cells so far are dominated by gauntlet-t1-patrol-a/b, gauntlet-multidomain-shooters,
+    gauntlet-joint-orbat-smoke (all surface-heavy or pre-existing multi-domain). Tier 1 roster (A0)
+    should prefer surface platformIds from baltic_patrol.db NOT already referenced by those promoted
+    policies, to grow coverage-map cell diversity rather than duplicate an existing cell.
+
+max_candidates_this_wave: 4

@@ -1,0 +1,112 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 50000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "f-341-absalon-2020",
+      "sensorId": "radar-1",
+      "targetId": "70-rauma-helsinki-ii-1990",
+      "contactId": "c-t1-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "421-orkan-pr-660-2015",
+      "sensorId": "radar-1",
+      "targetId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "contactId": "c-t1-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-207-bremen-type-f122-1982",
+      "sensorId": "radar-1",
+      "targetId": "d-32-daring-type-45-batch-1",
+      "contactId": "c-t1-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "Single patrol: Blue (FFG Absalon + PCFG Orkan + FFG Bremen) survives 6 ticks vs Red (PCFG Rauma + PCFG Buyan-M + DDG Daring) under weapons-free ROE both sides, unrestricted EMCON.",
+    "oracle": "Blue survives full 6-tick patrol window; finite non-zero fingerprint; no crash.",
+    "catalogRefs": [
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "70-rauma-helsinki-ii-1990",
+      "d-32-daring-type-45-batch-1",
+      "f-207-bremen-type-f122-1982",
+      "f-341-absalon-2020",
+      "f-361-iver-huitfeldt-2012",
+      "f-450-elli-kortenaer-batch-ii-0",
+      "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "p-151-hugin"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 1,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -35.0,
+      "maxScore": 300.0,
+      "maxMissilesFired": 15,
+      "maxDenials": 12,
+      "minKills": 0,
+      "minDenials": 0
+    },
+    "units": [
+      {
+        "unitId": "f-341-absalon-2020",
+        "platformId": "f-341-absalon-2020",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "421-orkan-pr-660-2015",
+        "platformId": "421-orkan-pr-660-2015",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-207-bremen-type-f122-1982",
+        "platformId": "f-207-bremen-type-f122-1982",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "70-rauma-helsinki-ii-1990",
+        "platformId": "70-rauma-helsinki-ii-1990",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+        "platformId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "d-32-daring-type-45-batch-1",
+        "platformId": "d-32-daring-type-45-batch-1",
+        "domain": "surface",
+        "side": "red"
+      }
+    ]
+  },
+  "id": "gauntlet-20260727-1455-t1-s4"
+}
