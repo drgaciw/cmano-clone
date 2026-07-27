@@ -41,6 +41,7 @@ The UI is a **command post**, not a game HUD. It must support long sessions, den
 | Aircraft Operations window | §3.3.7 | **P1** | **Partial / Phase N** — CMD-24; gated by doc 16 LOG-08 |
 | Boat Operations window | §3.3.8 | **P2** | **Phase N** — CMD-25; gated by doc 16 LOG-09…11 |
 | Ground formations (brigade+) | §9.2.5 | **P2** | **Open (partial scope)** — CMD-26; battalion depth excluded by doc 01 |
+| Scenario library / load | §2.1 | **P0** | **Open** — CMD-27; Phase 1 of the doc 02 loop |
 
 ## Layout Zones (Information Architecture)
 
@@ -87,6 +88,7 @@ The UI is a **command post**, not a game HUD. It must support long sessions, den
 | **CMD-24** | Air Operations window (readiness, loadout feasibility, tasking) | **P1** — **Partial / Phase N**, gated by doc 16 **LOG-08** |
 | **CMD-25** | Boat Operations window (embarked craft, launch/recovery, tasking) | **P2** — **Phase N**, gated by doc 16 **LOG-09…11** |
 | **CMD-26** | Ground Operations window, **brigade+ formations only** | **P2** — **Open (partial scope)**; battalion depth **out of charter** per doc 01 |
+| **CMD-27** | Scenario library: browse, preview, pre-load feasibility, campaigns | **P0** — **Open** (Phase 1 of the doc 02 loop; specified nowhere) |
 
 ## Map and Symbology
 
@@ -177,6 +179,71 @@ hierarchy the sim will never populate.
 - **Open (CMD-22):** Top bar shows scenario date, **Zulu**, **local**, and remaining scenario duration. Zulu-vs-local is doctrinal in coalition operations and drives day/night reasoning; remaining duration frames session pacing. Cheap now, awkward to retrofit once the top bar is dense.
 - **Open (CMD-23):** Message log and left drawer collapsible to a title affordance with persisted state. Over multi-hour sessions the map is the scarce resource, and the log matters intensely but intermittently.
 
+## Scenario Library and Load Operations (CMD-27)
+
+**Open.** The first screen of the product, and specified nowhere until now: doc 02 names it
+*"Phase 1: Scenario Selection & Force Composition"* — the core loop **begins** here — and
+`design/ux/c2-command-post.md:45` carries it in the navigation flow
+(`Main Menu → Scenario Select → Mission Planning → C2 Command Post → AAR`). REQ-20 previously had no
+mention of load, main menu, or scenario select, and `design/ux/` has no main-menu spec.
+
+### Pre-load feasibility — the part that is not CMO parity
+
+Aegis scenarios are not just files. They are validated, catalog-bound, deterministic artifacts that
+can fail to load for reasons knowable **before** the load:
+
+- **Catalog binding** — `dbRef` / `dbSnapshotId` may not resolve (`DB_MISMATCH`); `ref:` ids may dangle (`BROKEN_REF`)
+- **Validation state** — ADR-008 findings with severity; a scenario can carry blocking errors
+- **Schema / version** — `scenario-document.schema.json` compatibility and `editVersion`
+
+**CMD-27.1** The library shall state, per entry, whether the scenario resolves against the installed
+catalog and passes validation, before the user commits to loading it.
+
+This is the **load-time analogue of the export gate**: a constraint the system already enforces
+should be visible before the user hits it, not as a failure afterwards.
+
+### Sub-requirements
+
+- **CMD-27.2 Provenance and trust** — authored / AI-scaffolded / imported
+  (`ManifestBuilder.ProvenanceTag`, `Source ∈ {user, ai, import}`) and bundled / user-saved /
+  third-party. **ADR-015** (Proposed, due 2026-09-01) would derive an agent-authored label from
+  provenance; this library is where it becomes visible to a player.
+- **CMD-27.3 Determinism metadata** — `metadata.seed`, `metadata.tlBranch`, bound policy, and
+  whether a published manifest with `ReportHash` exists. Where replay parity is a release gate,
+  *"will this reproduce"* is worth seeing before opening.
+- **CMD-27.4 Separate artifact lifecycles** — autosaves, manual saves, and authored scenarios have
+  different retention and trust and shall not share one flat list.
+- **CMD-27.5 Search and filter**, not only sort — by side, region, duration, validation state, TL branch.
+- **CMD-27.6 Preview pane with a real zero-state** — licence prefix + title, Difficulty and
+  Complexity meters, `Location — Year`, briefing, and map preview on selection; instruction rather
+  than void when nothing is selected.
+- **CMD-27.7 Unavailable entries state their reason on the row**, not only after selection.
+- **CMD-27.8 Difficulty and Complexity as separate rated axes** — orthogonal: difficulty is how hard
+  it is to win, complexity is how much there is to manage. **Agent delegation is the mitigation for
+  complexity, not for difficulty**, so this is where that value proposition first becomes legible.
+  Pair the meter with a value or label — do not encode level by colour alone (CMD-12).
+- **CMD-27.9 Setting metadata** — `Location` and `Year`; also the natural filter axes for CMD-27.5.
+- **CMD-27.10 Briefing rendered from `scenario_export_brief`** — a shipped CLI verb. One brief, two
+  surfaces; CLI/MCP parity applied to the library rather than a separately authored summary.
+- **CMD-27.11 Map preview showing force disposition** — terrain, symbols, and place labels, so the
+  shape of the fight reads before load. **Reuses shipped `MapPictureProjection` /
+  `MapPlaceholderPanelHost`** (CMD-06, ADR-007 Phase A) over an unopened document rather than live
+  sim state — reuse, not new rendering work.
+- **CMD-27.12 Campaigns are an artifact class, not a folder** — an ordered chain with narrative
+  progression. The library must model campaign membership, sequence, and completion state.
+
+### Do not inherit
+
+- **File extensions in the UI** — show scenario titles; `*.scenario.json` paths secondary.
+- **Mixed hierarchy** — expandable folders and flat files as siblings at the same level.
+- **Ordering encoded in filenames** — sequence and in-fiction date are **metadata**, not naming
+  convention. Encoding them makes reordering a rename and breaks sorting on a missing leading zero.
+
+**Dependency:** there is **no scenario list/browse verb or projection** — `scenario_*` has create /
+validate / export / publish / simulate / undo / diff / trace, but no list. Under ADR-010 this needs a
+read-only projection, and under CLI/MCP parity a headless equivalent (likely `scenario_list`).
+**Not view-only work.**
+
 ## Mission and Editor Entry
 
 - **Partial:** In play: mission list + activate/deactivate (runtime doc 11)
@@ -238,6 +305,8 @@ Per genre conventions (`docs/military-simulation/genre-conventions-reference.md`
 | 9 | Selected unit shows envelope rings; map shows nm scale at every zoom | **Open** — CMD-20/21 |
 | 10 | Each commandable axis shows its own manual/auto mode without opening a menu | **Open** — CMD-19 |
 | 11 | Platform ops windows render no column their doc 16 model cannot populate | **Open** — CMD-24/25/26 |
+| 12 | Library flags a scenario whose `dbRef` does not resolve **before** load, not as a load failure | **Open** — CMD-27.1 |
+| 13 | Campaign membership, sequence and completion survive without filename encoding | **Open** — CMD-27.12 |
 
 ## Phased Delivery
 
@@ -270,6 +339,8 @@ Per genre conventions (`docs/military-simulation/genre-conventions-reference.md`
 | [18](18-Combat-Domains.md) | Land combat scope for CMD-26 (`LandAspectDomainValidator`; battalion tactics excluded) |
 | [19](19-Cyber-And-Comms.md) | COMMS legend / degrade affordances on C2 chrome; **CMD-17** unknown-due-to-comms |
 | [01](01-Project-Overview.md) | **Charter scope for CMD-26** — brigade+ in scope (line 82); battalion and below excluded (line 90) |
+| [02](02-Core-Gameplay-Loop.md) | **Phase 1 Scenario Selection** is the entry point CMD-27 specifies |
+| ADR-008 / ADR-015 | Validation findings and provenance surfaced pre-load (CMD-27.1 / CMD-27.2) |
 | [ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md) | **Normative** headless-first command-driven UI |
 | [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md) | Map presentation phases |
 | `cmo-manual-traceability.md` | Ch 3–4, §6 |
