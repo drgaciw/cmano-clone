@@ -239,3 +239,12 @@ beyond the scope of this defect. Follow-up: give the C2 top bar a side source.
 | `48c648e1` | Bug 2 — side-aware scoring via narrow `scoredSide` filter |
 | `7ebda974` | Tier-1 expect regen from post-fix batch |
 | `c6e0c61a` | Corpus expect regen (4 scenarios) + new design-question bug report |
+
+### Final `detect_changes` vs `main` (post-remediation)
+
+`detect_changes({scope: "compare", base_ref: "main"})`: **risk_level LOW**, 86 changed
+symbols across 41 files, **0 affected execution processes**. The code symbols changed are
+exactly the intended six — `MvpEngagementResolver` / `Resolve` / `EngagementAbortReason`
+(Bug 1) and `LossesScoringProjection.Project` / `ShooterCountsFor` /
+`LossesScoringCsvExporter.FormatRow` (Bug 2) — plus their tests. Everything else in the
+diff is documentation, QA artifacts, and regenerated policy envelopes.
