@@ -24,3 +24,15 @@ Hindsight retain (server unreachable this run, same as `pre` phase — logged he
 [OUTCOME: hard-case] defect=BUG-engagement-resolver-shooter-liveness scenario=gauntlet-20260727-1455-t1-s1 signature=dead-shooter-fires-next-tick
 [OUTCOME: hard-case] defect=BUG-losses-scoring-side-unaware scenario=gauntlet-20260727-1455-t1-s1 signature=enemy-kill-credited-to-own-side
 ```
+
+## Phase `final` — 2026-07-27T15:50Z
+
+**Run halted after Tier 1** (human decision) — no Tier 2-5 forge activity occurred.
+
+- **Promotes this run**: 0. Coverage-map cell count: unchanged at 20 (24 scenarios) — no new cells added, no regression either.
+- **Weight deltas**: none. `platform-swap-underused` (the only tier-1-eligible recipe used) was NOT down-weighted despite 4/4 candidate discards, since the failure cause was an engine defect common to all 8 Tier 1 policies (main + candidates), not a recipe-quality problem. Down-weighting it would have been a false signal against the only viable tier-1 recipe.
+- **Stuck families**: none flagged — a single round of discards for one recipe, with a known non-recipe cause, does not meet the ≥5-consecutive-discard stuck threshold, and the cause is understood (not a mystery requiring escalation via this mechanism specifically — though the underlying engine defects ARE escalated to the human via the two filed bug reports).
+- **Hard-case pool**: 2 new signatures added to this run's findings (see `post-oracle` section above) — `dead-shooter-fires-next-tick` and `enemy-kill-credited-to-own-side`. These are NOT copied into the committed `corpus/hard-cases/` pool yet, since that pool is meant for scenario-level replay signatures tied to promotable content, and these signatures are engine-defect-level, already fully captured in the two bug reports instead. Recommend the human decide whether to also mirror them into `corpus/hard-cases/` once the defects are fixed and a regression scenario can be promoted.
+- **Corpus commits**: none this run — no promotes, no weight changes, nothing to commit under `production/qa/gauntlet/corpus/`.
+- **Hindsight retain**: skipped for the whole run (server unreachable at `pre`, confirmed still down at `final` — not re-checked, assumed same outage). On-disk promote-log is the complete record.
+- **Graphite**: not submitting a separate forge-only PR — no forge changes were made to `corpus/` this run. The two quarantined bug reports (real gauntlet-orchestrator output, not forge output) ride along in the main qa-gauntlet PR submission.
