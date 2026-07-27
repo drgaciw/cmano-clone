@@ -18,7 +18,7 @@ the current catalog-backed multi-domain ORBAT:
 | Policy | CI observation (seed 42, ticks 10) | Current relevant envelope |
 |---|---:|---:|
 | `gauntlet-t3-emcon-phases` | denials `10` | denials `8..18`, score `0..300` |
-| `gauntlet-t5-roe-change` | denials `20`, score `100` | **CI** `expectCi`: denials `14..28`, score `50..170`; **ladder** `expect` (T5@40): denials `78..82`, score `-350..-150` |
+| `gauntlet-t5-roe-change` | denser ORBAT: denials `90`, score `-350` | **CI** `expectCi`: denials `84..180`, score `-430..200`; **ladder** `expect` (T5@40 denser): denials `70..420`, score `-1900..50` |
 
 The ranges retain fail-closed behavioral gates: T3 still requires the air and subsurface
 shooters to emit `True|Launched`; T5 still requires the `CommsStateChange` and `Degraded`
@@ -64,5 +64,6 @@ CI smoke uses **`--ticks 10`** and must not overwrite ladder envelopes.
 | ladder (default) | `gauntlet.expect` | `--profile ladder` or omit | Full ladder / max-variance |
 | ci | `gauntlet.expectCi` (optional; falls back to `expect`) | `--profile ci` | `gauntlet-oracle.yml` smoke |
 
-`gauntlet-t5-roe-change` carries both: ladder denials 78–82 / scores −350…−150 at T5@40;
-CI denials 14–28 / scores 50–170 at ticks=10 seed 42. Fingerprint inject gates remain on both.
+`gauntlet-t5-roe-change` carries both after denser catalog ORBATs: ladder denials 70–420 /
+scores −1900…50 at T5@40; CI denials 84–180 / scores −430…200 at ticks=10 seed 42
+(observed denials 90 / score −350). Fingerprint inject gates remain on both.
