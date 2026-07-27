@@ -129,11 +129,15 @@ Shape is primary; color reinforces. Never encode affiliation by color alone.
 
 ### Semantic — selection & focus
 
-| Token | Hex | Role |
-|-------|-----|------|
+| Token | Hex / value | Role |
+|-------|-------------|------|
 | `selected-ring` | `#FFC850` | Map symbol selection ring (1px border + 15% fill) |
 | `selected-row` | `#4A9EFF` @ 25% bg + 3px left bar | OOB / list row selection |
+| `focus-ring` | `#00E5FF` | Keyboard focus indicator (`:focus` states; distinct from `selected-ring`) |
+| `focus-ring-width` | `2px` | Focus ring stroke width |
 | `score-accent` | `#F0C040` | Top bar score / priority numeric (bold, right-aligned) |
+
+**Focus vs selection:** `focus-ring` and `selected-ring` are independent — a row can be selected without keyboard focus, or focused without selection. Cyan `focus-ring` is unclaimed by affiliation, comms, log, gate, and diff tokens; it separates from amber `selected-ring` on the blue–yellow axis (red–green colour-blind safe). USS alias: `--aegis-focus-ring` / `--aegis-focus-ring-width` (PE-UX-W0). Contrast ratios: [accessibility-requirements.md §2.4](../accessibility-requirements.md#24-non-text-ui-focus-selection).
 
 ### Semantic — comms & degraded picture
 
@@ -172,6 +176,7 @@ Diff rows use **prefix token color**; entity key remains `text-data`.
 - Comms degradation: **opacity step** (100% → 55% → 35%) + ghost duplicate + italic suffix — not hue shift alone.
 - Staging diff: **text prefix** (`LINK`, `COMMS`, `DAMAGE`) + change-kind color — never color-only rows.
 - Selection: **left border bar** on lists, not fill alone.
+- Keyboard focus: **`focus-ring` cyan outline** (`2px`) — distinct from amber `selected-ring`; never reuse selection colour for `:focus`.
 
 ---
 
