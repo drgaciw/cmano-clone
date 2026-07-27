@@ -48,3 +48,38 @@ Worth a sweep of the other EMCON-flavoured corpus scenarios for the same gap —
 ## Related Issues
 - `production/qa/bugs/BUG-catalog-emcon-tables-empty.md` — the underlying data gap
 - `production/qa/bugs/BUG-scoring-penalises-roe-correct-refusals.md` — separate design question from the same run
+
+---
+
+## Scope correction (2026-07-27, later same day)
+
+**This defect affects three scenarios, not one.** The original report named only
+`gauntlet-t2-escort-passive`. A systematic sweep during implementation planning found the
+same pattern in two more:
+
+| Scenario | `gauntlet.emcon` value | Real top-level `emcon` block? |
+|---|---|---|
+| `gauntlet-t2-escort-passive` | `"passive-blue-standin"` | absent |
+| `gauntlet-t3-emcon-phases` | `"phased"` | absent |
+| `gauntlet-t5-roe-change` | `"contested"` | absent |
+
+**The precise mechanism is narrower and worse than first described.** These scenarios declare
+EMCON as a **prose string at `gauntlet.emcon`** — a location the engine never reads. The real,
+engine-consumed block is **top-level** `emcon` with a `units` map
+(`{"units": {"<unitId>": {"radar": "Active|Passive"}}}`, per `ScenarioEmconJsonDto`), as used by
+7 non-gauntlet scenarios such as `baltic-v3-patrol`.
+
+So it is not merely that the detection values were left at 1.0: the EMCON declaration is in a
+field the deserializer ignores entirely. `ScenarioGauntletJsonDto` has no `Emcon` property —
+only `Intent`, `Oracle`, `CatalogRefs`, and `Units` — so `gauntlet.emcon` is silently dropped at
+load.
+
+**Note on verification method:** an initial check for this scope expansion scanned only
+*top-level* `emcon` and found nothing, appearing to contradict the finding. The prose values are
+nested under `gauntlet`, so the top-level scan was looking in the wrong place. Recorded because
+the same mistake would hide the defect from any future audit that greps only the top level.
+
+**Remediation** is unchanged in kind but now applies to all three: move EMCON to the real
+top-level `emcon.units` block, then regenerate each `gauntlet.expect` at its tier tick budget per
+`tools/qa-gauntlet/README-expect-regen.md`, since real EMCON will legitimately move detection
+and therefore kills/score.
