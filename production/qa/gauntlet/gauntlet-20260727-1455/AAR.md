@@ -248,3 +248,5 @@ exactly the intended six — `MvpEngagementResolver` / `Resolve` / `EngagementAb
 (Bug 1) and `LossesScoringProjection.Project` / `ShooterCountsFor` /
 `LossesScoringCsvExporter.FormatRow` (Bug 2) — plus their tests. Everything else in the
 diff is documentation, QA artifacts, and regenerated policy envelopes.
+
+> **CORRECTION (2026-07-27, tier 2):** an earlier statement in this document attributed the corpus-wide denial rise to dead shooters' blocked attempts being "recorded as denials instead of launches". **That mechanism is wrong.** `SHOOTER_DESTROYED` is an `EngagementAbortReason` written to the OrderLog; `DecisionLog.PolicyDenials` is appended only in the pre-resolver guard path (`SimulationSession.cs:170` — comms/ROE gates). Verified empirically in tier 2: forge candidate `gauntlet-forge-20260727-1455-t2-c1` shows **9 `SHOOTER_DESTROYED` events with 0 denials**. The actual cause is second-order: with dead shooters no longer killing, more units survive more ticks and so generate more ROE-gate denials. The fix itself is unaffected — only this explanation was wrong.

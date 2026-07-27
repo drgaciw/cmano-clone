@@ -1,0 +1,165 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "mrk-shkval-pr-22800-karakurt",
+      "contactId": "c-forge-t2c4-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-310-fridtjof-nansen",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-forge-t2c4-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-forge-t2c4-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "mig-29-fulcrum-c-1999",
+      "sensorId": "radar-1",
+      "targetId": "eurofighter-typhoon",
+      "contactId": "c-forge-t2c4-4",
+      "basePd": 0.3,
+      "envMask": 0.4,
+      "jamStrength": 0
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "escort-to-strike-tasking"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "escort-to-strike-tasking",
+        "fireAtTick": 4,
+        "kind": "EventFired",
+        "code": "escort_to_strike_tasking_designated"
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "mission-combo-escort-strike: BLUE begins in an escort-screen posture over its FFG/corvette formation, then at tick 4 a scripted timed event (escort_to_strike_tasking_designated) marks the mission-level transition to an active strike tasking against RED's designated target (mrk-shkval-pr-22800-karakurt, the AShM/Kalibr-armed corvette) -- combining escort and strike objectives in one policy intent, as newly eligible at this tier. RED is held WeaponsTight (a shadowed/observation posture consistent with being the strike-designated group) AND carries a passive-EMCON stand-in on its sole detection entry (basePd 0.3 / envMask 0.4 vs the 1.0/1.0 used for BLUE's three active-EMCON detections) -- per the established corpus convention (gauntlet-t2-escort-passive.policy.json), since platform_emcon/catalog_staging_emcon have zero rows and there is no per-platform EMCON field to set. This candidate deliberately carries the tier's ROE-tight + passive-EMCON asymmetry that candidates 1-2 set aside, so the wave's four candidates jointly cover both hard-case regressions and the tier's base asymmetric-ROE/EMCON requirement.",
+    "oracle": "Mission event escort_to_strike_tasking_designated fires at tick 4 (single scripted timed event, in addition to the boilerplate tick-0 Execution transition); BLUE (WeaponsFree, active EMCON) engages and destroys the designated RED target mrk-shkval-pr-22800-karakurt; RED (WeaponsTight) generates ROE_WEAPONS_TIGHT-coded denials rather than launches; RED's passively-modelled contact on eurofighter-typhoon reflects reduced basePd/envMask rather than a hard miss.",
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "p-960-skjold",
+      "eurofighter-typhoon",
+      "mrk-shkval-pr-22800-karakurt",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "pk-368-vasily-bykov-pr-22160",
+      "mig-29-fulcrum-c-1999"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 2,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -50.0,
+      "maxScore": 350.0,
+      "maxMissilesFired": 16,
+      "maxDenials": 18,
+      "minKills": 1,
+      "minDenials": 5
+    },
+    "units": [
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "eurofighter-typhoon",
+        "platformId": "eurofighter-typhoon",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-29-fulcrum-c-1999",
+        "platformId": "mig-29-fulcrum-c-1999",
+        "domain": "air",
+        "side": "red"
+      }
+    ],
+    "forge": {
+      "recipes": [
+        "mission-combo-escort-strike"
+      ],
+      "candidateId": "gauntlet-forge-20260727-1455-t2-c4",
+      "noveltyTags": [
+        "escort-strike-combo",
+        "scripted-timed-event",
+        "passive-emcon-standin-red",
+        "asymmetric-roe-red-tight"
+      ],
+      "note": "expect provisional pending regen"
+    },
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T2 tick budget 10, seeds 42,7,123. NOTE minDenials may legitimately be 0: EngagementAbortReason aborts (e.g. SHOOTER_DESTROYED) are written to the OrderLog, NOT to DecisionLog.PolicyDenials, so an abort-heavy scenario can still show denials=0. Verified empirically: candidate-1 shows 9 SHOOTER_DESTROYED with 0 denials. Per tools/qa-gauntlet/README-expect-regen.md - derived, not invented."
+  },
+  "id": "gauntlet-forge-20260727-1455-t2-c4"
+}

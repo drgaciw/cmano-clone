@@ -36,3 +36,60 @@ Hindsight retain (server unreachable this run, same as `pre` phase — logged he
 - **Corpus commits**: none this run — no promotes, no weight changes, nothing to commit under `production/qa/gauntlet/corpus/`.
 - **Hindsight retain**: skipped for the whole run (server unreachable at `pre`, confirmed still down at `final` — not re-checked, assumed same outage). On-disk promote-log is the complete record.
 - **Graphite**: not submitting a separate forge-only PR — no forge changes were made to `corpus/` this run. The two quarantined bug reports (real gauntlet-orchestrator output, not forge output) ride along in the main qa-gauntlet PR submission.
+
+---
+
+## Phase `pre` (tier 2) — 2026-07-27T16:20Z — RUN RESUMED
+
+Run resumed at tier 2 after both tier-1 CRITICAL defects were fixed (PR #361) and the
+corpus re-baselined to 24/24. Oracle output is now trustworthy, which is what makes
+tier 2+ worth running at all — pre-fix, every tier would have re-surfaced the same two
+engine defects rather than new signal.
+
+- Hindsight recall: **SKIPPED** again — server still unreachable. On-disk corpus only.
+- Tier-2-eligible recipes grew from 1 to **5** (`tierMin <= 2`): `hard-case-replay` (1.3),
+  `platform-swap-underused` (1.2), `orbat-asymmetric-ratio` (1.0),
+  `mission-combo-escort-strike` (1.0), `geometry-detection-lane-shift` (1.0).
+- `hard-case-replay` is newly **actionable**: the two tier-1 signatures
+  (`dead-shooter-fires-next-tick`, `enemy-kill-credited-to-own-side`) are now fixed, so
+  reproducing those conditions is regression coverage rather than re-finding a known break.
+  Both injected into this tier's plan.
+- New coverage this tier: **air domain** (first time this run), **passive-only EMCON one
+  side**, **asymmetric ROE**, and **a scripted timed event** — tier 1 had none of these.
+- Plan written: `forge/mid-tier-plan.yaml` (tier-1 plan superseded in place; its summary
+  is preserved in the tier-1 `pre` entry above).
+
+## Phase `post-oracle` + `e` (tier 2) — 2026-07-27T16:40Z
+
+**4 promotes, 0 discards** — the first promotions of this run.
+
+| candidate | recipe | cell | novelty | oracle |
+|---|---|---|---|---|
+| `…-t2-c1` | `hard-case-replay` | `emcon\|air,surface\|WeaponsFree/WeaponsFree\|emcon-phases\|none` | 4.5 | PASS |
+| `…-t2-c2` | `hard-case-replay` | (same cell) | 4.0 | PASS |
+| `…-t2-c3` | `orbat-asymmetric-ratio` | `unknown\|air,surface\|WeaponsTight/WeaponsFree\|unrestricted\|none` | 4.5 | PASS |
+| `…-t2-c4` | `mission-combo-escort-strike` | `strike\|air,surface\|WeaponsFree/WeaponsTight\|emcon-phases\|event-chain` | 4.0 | PASS |
+
+**c1 is the standout**: purpose-built to reproduce the `dead-shooter-fires-next-tick` signature, it now emits **9 `SHOOTER_DESTROYED` denials per seed** — live proof the Bug-1 fix holds. It is now a permanent regression test for that defect rather than a record of it.
+
+### Tooling defect found and worked around
+
+The first three scorecard runs reported `promote=0 discard=4` with `oracleKnown=false` on every candidate. Cause: `forge_scorecard.py:170` derives the scenario id from the **filename** (`sid = policy_path.name.replace(".policy.json","")`) but `oracle-eval.json` is keyed by the policy's **`id` field**. The forge skill's own convention (`candidate-N.policy.json` + `gauntlet-forge-…-cN` id) guarantees a mismatch, so **following the documented convention silently blocks all promotion**. Renaming the candidate files to `<policy id>.policy.json` — changing nothing else — flipped the result to `promote=4 discard=0`.
+
+Filed as `production/qa/bugs/BUG-forge-scorecard-filename-vs-policy-id.md`. Recipe weights were **not** down-weighted for those spurious discards.
+
+### Weight + coverage deltas
+
+- `hard-case-replay` 1.3 → **1.7192** (2 promotes)
+- `orbat-asymmetric-ratio` 1.0 → **1.15**
+- `mission-combo-escort-strike` 1.0 → **1.15**
+- coverage-map: **20 → 23 cells**, scenarioCount 24 → 28
+- `corpus/index.yaml`: 4 entries appended
+
+### Corrected finding (supersedes a claim in the tier-1 AAR)
+
+Tier 1 documentation asserted that denial counts rose corpus-wide "because dead shooters' blocked attempts are now recorded as denials instead of launches". **That mechanism is wrong.** `SHOOTER_DESTROYED` is an `EngagementAbortReason` written to the **OrderLog**; `DecisionLog.PolicyDenials` is appended only in the pre-resolver guard path (`SimulationSession.cs:170`, comms/ROE gates). Candidate c1 proves it: **9 `SHOOTER_DESTROYED`, 0 denials**. The real cause of the corpus denial rise is second-order — with dead shooters no longer killing, more units survive more ticks and generate more ROE-gate denials. Corrected in the bug report and AAR.
+
+### Stuck families
+
+None. No recipe family has consecutive discards this run (the 4 apparent discards were the tooling defect above, and have been zeroed rather than counted).

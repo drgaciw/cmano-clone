@@ -194,3 +194,35 @@ promoted:
     promotedAt: bootstrap-2026-07-23
     recipes: [bootstrap-seed]
     noveltyScore: null
+  - scenarioId: gauntlet-forge-20260727-1455-t2-c1
+    path: data/scenarios/gauntlet-forge-20260727-1455-t2-c1.policy.json
+    tier: 2
+    cellKey: "emcon|air,surface|WeaponsFree/WeaponsFree|emcon-phases|none"
+    intentHash: a11b23d55e0d307c
+    promotedAt: gauntlet-20260727-1455-t2
+    recipes: [hard-case-replay]
+    noveltyScore: 4.5
+  - scenarioId: gauntlet-forge-20260727-1455-t2-c2
+    path: data/scenarios/gauntlet-forge-20260727-1455-t2-c2.policy.json
+    tier: 2
+    cellKey: "emcon|air,surface|WeaponsFree/WeaponsFree|emcon-phases|none"
+    intentHash: cd82909def75dc9f
+    promotedAt: gauntlet-20260727-1455-t2
+    recipes: [hard-case-replay]
+    noveltyScore: 4.0
+  - scenarioId: gauntlet-forge-20260727-1455-t2-c3
+    path: data/scenarios/gauntlet-forge-20260727-1455-t2-c3.policy.json
+    tier: 2
+    cellKey: "unknown|air,surface|WeaponsTight/WeaponsFree|unrestricted|none"
+    intentHash: 3cd7e879041977b0
+    promotedAt: gauntlet-20260727-1455-t2
+    recipes: [orbat-asymmetric-ratio]
+    noveltyScore: 4.5
+  - scenarioId: gauntlet-forge-20260727-1455-t2-c4
+    path: data/scenarios/gauntlet-forge-20260727-1455-t2-c4.policy.json
+    tier: 2
+    cellKey: "strike|air,surface|WeaponsFree/WeaponsTight|emcon-phases|event-chain"
+    intentHash: adff4ef227754d10
+    promotedAt: gauntlet-20260727-1455-t2
+    recipes: [mission-combo-escort-strike]
+    noveltyScore: 4.0
