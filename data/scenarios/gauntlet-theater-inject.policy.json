@@ -110,12 +110,12 @@
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minKills": 2,
-      "maxMissilesFired": 14,
-      "maxDenials": 50,
-      "minScore": -50,
-      "maxScore": 295.0,
-      "minDenials": 19
+      "minKills": 1,
+      "maxMissilesFired": 16,
+      "maxDenials": 107,
+      "minScore": -405.0,
+      "maxScore": -5.0,
+      "minDenials": 40
     },
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -181,6 +181,7 @@
       }
     ],
     "tier": 4,
-    "runId": "gauntlet-theater-phase3"
+    "runId": "gauntlet-theater-phase3",
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T4 tick budget 24, seeds 42,7,123, after BUG-engagement-resolver-shooter-liveness + BUG-losses-scoring-side-unaware fixes. Prior envelope was calibrated against the buggy behaviour (enemy kills miscredited to own side; dead shooters still firing). minDenials kept as a real floor so ROE/EMCON restriction is still asserted, not relaxed away. Derived from observed rows per tools/qa-gauntlet/README-expect-regen.md \u2014 not invented."
   }
 }
