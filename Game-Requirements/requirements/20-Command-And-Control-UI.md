@@ -217,6 +217,19 @@ fullscreen, zoom, measurement, a coordinate grid, a 3D toggle, or basemap layers
 - **CMD-28.7 — Menu organisation.** Adopt the coverage, not the layout: the reference mixes window
   management, camera, selection, tools, panel spawning, overlays, layers and render mode in one flat
   list of nineteen items.
+- **CMD-28.8 — Camera and window controls as first-class menu entries.** Zoom in/out, pan, and
+  fullscreen/windowed toggle. Trivial individually, but they are the actions a new player looks for
+  first, and they must exist somewhere other than an undiscoverable gesture.
+- **CMD-28.9 — Primary view actions carry both a keyboard and a pointer binding.** The reference
+  advertises `Zoom In — Z / Mouse Scroll` and `Zoom Out — X / Mouse Scroll`: one action, two input
+  paths, both stated. This is an **accessibility requirement, not a convenience** — it guarantees a
+  keyboard-only route to every camera action and directly supports CMD-12's keyboard commitment
+  (against which the shipped USS currently has **zero `:focus` rules**). Where an action has both
+  paths, the menu shall state both.
+- **CMD-28.10 — 2D / 3D view toggle.** ADR-007 Phase B (Cesium / WGS84 globe) implies 3D capability;
+  this is its control surface. **Open question:** is 2D-versus-3D a discrete mode, or a continuum of
+  camera pitch on one globe? The answer changes whether this is a toggle, a camera control, or both,
+  and it should be settled with ADR-007 Phase B rather than at UI time.
 
 ## Tactical Overlay Control (CMD-30)
 
