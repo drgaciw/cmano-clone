@@ -1,8 +1,8 @@
 # 20 - Command and Control User Interface
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-27  
 **Status:** Draft — Template B (Wave 2 re-honesty)  
-**CMO basis:** Manual Ch 3–4, §6.2–7, §6.9, §1.3 multitaskers, §10.1 keyboard  
+**CMO basis:** Manual Ch 3–4, §6.2–7, §6.9, §1.3 multitaskers, §10.1 keyboard; map/layer/view instructional parity (clean-room)  
 **Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md), [03](03-Simulation-Modes.md), [04](04-Agent-Delegation.md), [11](11-Agentic-Mission-Editor.md), [12](12-Terms-Glossary.md), [13](13-Doctrine-ROE-EMCON-WRA.md)–[17](17-Replay-AAR-And-Order-Log.md), [19](19-Cyber-And-Comms.md) · [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md)  
 **Architecture (normative):** [ADR-010 Headless-First / Command-Driven UI](../../docs/architecture/adr-010-headless-first-command-driven-ui.md) · [ADR-007 C2 Map Presentation](../../docs/architecture/adr-007-c2-map-presentation.md)
 
@@ -72,6 +72,60 @@ The UI is a **command post**, not a game HUD. It must support long sessions, den
 | **CMD-14** | Multitasker bookmarks / multi-monitor detachable chrome | **Phase N / Deferred** |
 | **CMD-15** | 5,000 symbols @ 60 FPS interactive map performance | **Phase N / Deferred** (hub **OV-SC-N1** — north-star, not CI gate) |
 
+### Operator interface modules (CUI-*)
+
+CMO unit/navigation/combat UI instructional parity (clean-room). Full Obsidian note: vault `Projects/cmano-clone/requirements/CMO Interface Modules.md`.
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **CUI-01** | Right **unit status panel**: proficiency, DB/catalog link, identifiers | **P0** — **Partial / Shipped** |
+| **CUI-02** | Live **course, speed, altitude/depth, fuel** binding | **P0** — **Partial / Shipped** |
+| **CUI-03** | **Loadout** inspect/manage (munitions, pods) | **P0** — **Partial** |
+| **CUI-04** | Contact **detect / classify / rename** | **P0** — classify **Shipped** headless; rename UI **Phase N** |
+| **CUI-05** | **Meta-grouping** for collective move/formation, keep unit data | **P0** — **Partial+** groups |
+| **CUI-06** | **F3** course plot with distance/bearing feedback | **P0** — **Phase N** chrome |
+| **CUI-07** | Waypoint **drag** and **insert** | **P0** — **Phase N** |
+| **CUI-08** | Throttle presets (Loiter/Cruise/Military/Afterburner) + alt/depth MSL/AGL | **P0** — **Phase N** |
+| **CUI-09** | Terrain/obstacle **avoidance** | **P1** — **Phase N** |
+| **CUI-10** | **Automatic** engagement (threat + resources + ROE) | **P0** — **Partial+** |
+| **CUI-11** | **Manual** weapon/quantity engagement | **P0** — **Partial / Shipped** |
+| **CUI-12** | **Bearing-only** launch | **P1** — **Phase N** |
+| **CUI-13** | Per-sensor **toggle** (stealth/EMCON) | **P0** — EMCON Partial; per-sensor chrome **Phase N** |
+| **CUI-14** | **Chaff** and **decoys** | **P1** — **Phase N** |
+| **CUI-15** | **Ctrl-hover** weapon/sensor summary cards | **P1** — **Phase N** |
+| **CUI-16** | Hotkeys **F1** Attack, **F3** Move/plot | **P0** — **Phase N** full |
+| **CUI-17** | Overlays: fuel/weapon **range rings**, **cloud** layer | **P0/P1** — **Phase N** (see MAP-*) |
+
+### Keyboard command map (KEY-*) — CMO §10.1 parity
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **KEY-01** | Capability-class keyboard map (not proprietary key ownership) | **P0** — **Phase N** |
+| **KEY-02** | Remap + CMO instructional vs Aegis default parity table | **P0** — **Phase N** |
+| **KEY-03** | Engage/Attack class (F1 instructional; **CUI-16**) | **P0** — **Phase N** full; command path **Partial** |
+| **KEY-04** | Plot/Move class (F3 instructional) | **P0** — **Phase N** |
+| **KEY-05** | Group operations class | **P1** — **Phase N** |
+| **KEY-06** | Doctrine access class | **P0** — panel **Partial**; hotkey **Phase N** |
+| **KEY-07** | Air ops class (F6; LOG-14) | **P0** — **Phase N** |
+| **KEY-08** | Boat ops class (F7; LOG-11) | **P1** — **Phase N** |
+| **KEY-09** | Bearing-only launch class | **P1** — **Phase N** |
+| **KEY-10** | Map measure range/bearing (**MAP-23**) | **P1** — **Phase N** |
+| **KEY-11** | Insert/place unit + RP place | **P0** edit / **P1** play — chrome **Phase N** |
+| **KEY-12** | Mode-aware bindings, cancel, focus, time/pause | **P0** — **Partial** |
+
+### Special Actions play surface (SPA-*)
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **SPA-01** | First-class `specialActions[]` scenario objects | **P0** — **Phase N** (authoring req 11) |
+| **SPA-02** | Side-scoped SPA list (Game menu parity) | **P0** — **Phase N** |
+| **SPA-03** | Unit-scoped SPA on context/unit chrome | **P0** — **Phase N** |
+| **SPA-04** | Invoke UI + optional keyboard palette | **P0** — **Phase N** |
+| **SPA-05** | Lock/Available/Exhausted states | **P0** — **Phase N** |
+| **SPA-06** | Invoke → order log (req 17) | **P0** — **Phase N** |
+| **SPA-07** | Optional event linkage (typed DSL; no Lua v1) | **P0** — **Phase N** |
+| **SPA-08** | Editor CRUD + validation + semantic diff | **P0** — **Phase N** |
+
 ## Map and Symbology
 
 - **Partial / Shipped:** Phase A tactical map placeholder — normalized symbols from `MapPictureProjection` via `MapPlaceholderPanelHost` ([ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md))
@@ -79,6 +133,49 @@ The UI is a **command post**, not a game HUD. It must support long sessions, den
 - **Partial:** Mission areas / reference points as projection data permits
 - **Phase N / Deferred:** Full WGS84 Cesium globe product (pan, zoom, rotate, theater quick-jump); APP-6 / NATO icon atlas; LOD clustering for thousands of icons
 - **Phase N / Deferred:** Full EW overlay product layers
+
+### Map, layer & view system (MAP-*)
+
+CMO map/layer/view instructional parity (clean-room). Brand names (Sentinel-2, BMG, Stamen, etc.) denote **capability classes**, not mandatory third-party embeds. Obsidian working note: vault `Projects/cmano-clone/requirements/Map and View System.md`.
+
+#### Layer management (toggleable)
+
+| ID | Capability | Priority / maturity |
+|----|------------|---------------------|
+| **MAP-01** | HD **satellite basemap** | **P1** — **Phase N** |
+| **MAP-02** | Political/geographic **boundaries** | **P1** — **Phase N** |
+| **MAP-03** | **Relief** elevation (color-coded) supporting LOS | **P0 intent** — **Phase N** |
+| **MAP-04** | Infrastructure / OSM-class basemap | **P1** — **Phase N** |
+| **MAP-05** | **Roads and cities** overlay | **P1** — **Phase N** |
+| **MAP-06** | **Land cover** (desert, built-up, crop, …) affecting move/damage/detect | **P0 intent** — **Phase N** |
+| **MAP-07** | **Custom layers** (PNG + world-file georef) | **P1** — **Phase N** |
+| **MAP-08** | Toggleable **place names** | **P1** — **Phase N** |
+| **MAP-09** | **Day/night lighting** → visual/IR sensor effectiveness | **P1** — **Phase N** |
+
+#### Selection, ranges, tactical overlays
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **MAP-10** | Left-click selection | **P0** — **Partial / Shipped** |
+| **MAP-11** | Drag-box multi-selection | **P0** — **Phase N** |
+| **MAP-12** | **Group View** for nested units | **P0** — **Partial** |
+| **MAP-13** | Toggle sensor / weapon **range** rings | **P0** — **Phase N** |
+| **MAP-14** | **Aircraft range** from fuel, speed, consumption | **P1** — **Phase N** |
+| **MAP-15** | **Merged sensor** coverage (clutter reduction) | **P1** — **Phase N** |
+| **MAP-16** | **Illumination channels** (FC radar lock) | **P1** — **Phase N** |
+| **MAP-17** | **Targeting vectors** attacker→target | **P1** — **Phase N** / intent ghost Partial |
+| **MAP-18** | **Contact emissions** passive/active cues | **P1** — **Phase N** |
+| **MAP-19** | **LOS tool** altitude-aware visibility | **P0 intent** — **Phase N** |
+
+#### Mission geometry & navigation tools
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **MAP-20** | **No-fly zones** geofence pathfinding / auto-move | **P1** — **Phase N** |
+| **MAP-21** | **Reference points** (Ctrl+Insert parity) | **P0** — **Partial+** headless |
+| **MAP-22** | **Plotted courses** path visualization | **P0** — **Partial** |
+| **MAP-23** | **Range and bearing** measure (Ctrl+D parity) | **P1** — **Phase N** |
+| **MAP-24** | **Mini-maps** supplemental viewports | **P1** — **Phase N** |
 
 ## Delegation Overlays (Aegis unique)
 

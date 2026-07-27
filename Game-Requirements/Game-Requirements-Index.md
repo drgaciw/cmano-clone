@@ -59,7 +59,7 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 
 ## Authoring & Design Tools
 
-- [11-Agentic-Mission-Editor.md](requirements/11-Agentic-Mission-Editor.md) — Agentic mission/scenario editor (CMO parity + NL/MCP authoring, deterministic Validation Engine, operations timeline); *Revised 2026-07-01, implementation-aligned (AME-* IDs)*; see [ADR-008](../docs/architecture/adr-008-mission-editor-validation-engine.md), [ADR-013…017](../docs/architecture/adr-013-cmo-scenario-import-policy.md)
+- [11-Agentic-Mission-Editor.md](requirements/11-Agentic-Mission-Editor.md) — Agentic mission/scenario editor (CMO parity + NL/MCP authoring, deterministic Validation Engine, operations timeline); *Revised 2026-07-01, implementation-aligned (AME-* IDs)*; **SCE-01–23** CMO Scenario Editor tutorial parity (2026-07-27); see [ADR-008](../docs/architecture/adr-008-mission-editor-validation-engine.md), [ADR-013…017](../docs/architecture/adr-013-cmo-scenario-import-policy.md)
 - [21-Platform-Editor.md](requirements/21-Platform-Editor.md) — Platform/catalog editor (ships, subs, aircraft, loadouts, comms, sensor suites) with Microsoft Excel round-trip on the write gate; see [ADR-011](../docs/architecture/adr-011-platform-editor-excel-roundtrip.md)
 
 ## Reference
@@ -73,11 +73,11 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 | [13](requirements/13-Doctrine-ROE-EMCON-WRA.md) | Doctrine, ROE, EMCON, WRA | Draft |
 | [14](requirements/14-Engagement-And-Fire-Control.md) | Engagement & fire control | Draft |
 | [15](requirements/15-Sensor-Detection-And-EW.md) | Sensors, detection, EW | Draft |
-| [16](requirements/16-Logistics-And-Magazines.md) | Logistics & magazines | Draft |
+| [16](requirements/16-Logistics-And-Magazines.md) | Logistics & magazines (incl. parasite air/boat ops LOG-09–21) | Draft |
 | [17](requirements/17-Replay-AAR-And-Order-Log.md) | Replay, AAR, order log | Draft |
 | [18](requirements/18-Combat-Domains.md) | Combat domains & damage | Draft |
 | [19](requirements/19-Cyber-And-Comms.md) | Cyber & communications | Draft |
-| [20](requirements/20-Command-And-Control-UI.md) | Command & control UI | Draft |
+| [20](requirements/20-Command-And-Control-UI.md) | Command & control UI (incl. map/layer/view MAP-01–24) | Draft |
 
 ## Reading order (for design review)
 

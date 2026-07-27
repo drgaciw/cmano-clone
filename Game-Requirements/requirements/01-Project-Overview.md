@@ -146,12 +146,31 @@ High-level capabilities delivered across the requirements corpus (details in lin
 | FR-11 | Doctrine, ROE, EMCON, WRA | [13](13-Doctrine-ROE-EMCON-WRA.md) |
 | FR-12 | Engagement and fire control | [14](14-Engagement-And-Fire-Control.md) |
 | FR-13 | Sensors, detection, EW | [15](15-Sensor-Detection-And-EW.md) |
-| FR-14 | Logistics and magazines | [16](16-Logistics-And-Magazines.md) |
+| FR-14 | Logistics, magazines, and parasite (air/boat) operations | [16](16-Logistics-And-Magazines.md) |
 | FR-15 | Replay, order log, AAR | [17](17-Replay-AAR-And-Order-Log.md) |
 | FR-16 | Multi-domain combat | [18](18-Combat-Domains.md) |
 | FR-17 | Cyber and comms degradation | [19](19-Cyber-And-Comms.md) |
 | FR-18 | Command-and-control UI | [20](20-Command-And-Control-UI.md) |
 | FR-19 | Platform/catalog editor (Excel write-gate round-trip) | [21](21-Platform-Editor.md) |
+
+### Framework index (MSF-*) — CMO tutorial parity
+
+High-level simulation/strategy framework requirements (clean-room). Detail remains in specialist docs. Obsidian working note: vault `Projects/cmano-clone/requirements/Military Simulation Strategy Framework.md`.
+
+| ID | Requirement | Maps primarily to |
+|----|-------------|-------------------|
+| **MSF-01** | Environment / map editor (place assets, zones, scenario params) | FR-09 · [11](11-Agentic-Mission-Editor.md) |
+| **MSF-02** | Logistics: ammo, fuel, maintenance → readiness | FR-14 · [16](16-Logistics-And-Magazines.md) |
+| **MSF-03** | Weather & terrain affect weapons, flight, detection | FR-13/16 · [15](15-Sensor-Detection-And-EW.md), [18](18-Combat-Domains.md) |
+| **MSF-04** | Mission types incl. Ferry, Recon, CAS | FR-09 · [11](11-Agentic-Mission-Editor.md) |
+| **MSF-05** | Patrol / prosecution zones | FR-09 · [11](11-Agentic-Mission-Editor.md) |
+| **MSF-06** | Automation: keep fraction of assets on station | FR-03/11 · [04](04-Agent-Delegation.md), [13](13-Doctrine-ROE-EMCON-WRA.md) |
+| **MSF-07** | Automation: auto-engage hostiles under ROE | FR-11/12 · [13](13-Doctrine-ROE-EMCON-WRA.md), [14](14-Engagement-And-Fire-Control.md) |
+| **MSF-08** | Time acceleration + discrete time-skip | FR-02 · [03](03-Simulation-Modes.md) |
+| **MSF-09** | Intel UI: contacts, combat/message log, unit detail | FR-15/18 · [17](17-Replay-AAR-And-Order-Log.md), [20](20-Command-And-Control-UI.md) |
+| **MSF-10** | UI responsive under mass simultaneous events | FR-18 NFR · [20](20-Command-And-Control-UI.md) |
+| **MSF-11** | Scalability strike → campaign scale | Hub performance NFR |
+| **MSF-12** | Seeded scenario randomization / replayability | FR-02/09 · seed + [17](17-Replay-AAR-And-Order-Log.md) |
 
 ## Non-Functional Requirements
 
@@ -163,7 +182,7 @@ High-level capabilities delivered across the requirements corpus (details in lin
   - *Minimum (PC):* 6-core CPU (Ryzen 5 5600 / Core i5-12400 class), 16 GB RAM, GTX 1660 / RX 5600-class GPU, SSD — reference Baltic scenario at 30+ FPS
   - *Recommended (PC):* 8-core CPU (Ryzen 7 7700 / Core i7-13700 class), 32 GB RAM, RTX 3060-class GPU — 5,000+ entities at 60+ FPS
   - *Headless AvA node:* 8 vCPU / 16 GB Linux container — ≥256× effective speed on the reference Baltic scenario
-- **Platforms:** Windows 10/11 x64 (primary, Steam); Linux x64 for the headless server/batch farm only. No macOS, console, or Steam Deck support in v1.
+- **Platforms:** Windows 10/11 x64 (primary, Steam); Linux x64 for the headless server/batch farm only. No macOS, console, or Steam Deck support in v1. Architecture enforcement: [ADR-018](../../docs/architecture/adr-018-target-os-and-cpu-architectures.md).
 - **Moddability:** database and scenario modding supported at v1 — published SQLite schema and scenario format, consistent with the clean-room community-evidence intake ([06](06-Database-Intelligence.md)). Code/plugin modding out of scope for v1.
 - **Localization:** English-only at v1. All UI strings externalized from day one (no hardcoded text) so later localization is a data task, not a refactor ([20](20-Command-And-Control-UI.md)).
 - **Accessibility (v1 commitments):** colorblind-safe map symbology — shape-coded per MIL-STD-2525 conventions, never color-alone; scalable UI text; full keyboard operability of all command functions (follows from the command-driven UI, [ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md)); no gameplay-critical information conveyed by audio alone. Screen-reader support out of scope for v1.
@@ -214,7 +233,7 @@ These are load-bearing production constraints (see AGENTS.md). Charter-level; do
 | Commercial product name | **Open** | Working title *Project Aegis* |
 | Future Combat Mode default | **Deferred** | Optional scenario flag per [10](10-Speculative-Systems.md) |
 | Charter items in docs 02–03 | **Locked** | See Resolved Design Decisions in [02](02-Core-Gameplay-Loop.md), [03](03-Simulation-Modes.md) |
-| Reference hardware & platforms | **Decided 2026-06-09** | Windows primary + Linux headless; specs in Non-Functional Requirements |
+| Reference hardware & platforms | **Decided 2026-06-09** | Windows primary + Linux headless; specs in Non-Functional Requirements; architecture: [ADR-018](../../docs/architecture/adr-018-target-os-and-cpu-architectures.md) |
 | Modding / localization / accessibility scope | **Decided 2026-06-09** | Data modding yes, code modding no; English-only with externalized strings; targeted accessibility commitments — see Non-Functional Requirements |
 
 ## Related Requirements Index

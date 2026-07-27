@@ -1,10 +1,10 @@
 # 15 - Sensor, Detection, and Electronic Warfare
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-27  
 **Status:** Draft — ready for design review  
 **FR reverse-ref:** [FR-13](01-Project-Overview.md) — Sensors, detection, EW  
 **CMO basis:** Manual §3.3.10, §4.5.2, §6.3.8–9, §9.1.1, §9.2.6; appendix §10.7 (comms/EW overlap → doc 19)  
-**Related:** 13 Doctrine/EMCON, 14 Engagement, 18 Combat Domains, 06 Database Intelligence, 17 Order Log  
+**Related:** 13 Doctrine/EMCON, 14 Engagement, 18 Combat Domains, 06 Database Intelligence, 17 Order Log, 20 C2 UI  
 **Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 15 — **Partial (MVP COVERED)**  
 **GDD:** [sensor-detection-ew.md](../../design/gdd/sensor-detection-ew.md)
 
@@ -73,6 +73,24 @@ Unknown → Detected → Classified → Identified → Lost
 - **P0** Mount-bound sensors respect damage, EMCON, and crew readiness
 - **P0** Parameters from DB (doc 06): frequency band, power, aperture, processing gain, environment modifiers
 
+### Stealth / multi-band detectability (STD-*)
+
+CMO-parity LO/radar modeling (clean-room). Avoid a **monolithic detectability** scalar as the sole model. Obsidian working note: vault `Projects/cmano-clone/requirements/Stealth Aircraft Detection Modeling.md`.
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **STD-01** | Multi-factor signature (aspect × band × config), not sole global detectability | **P0** — **Phase N** |
+| **STD-02** | **Aspect-based** signatures (front / side / rear minimum) | **P0** — **Phase N** |
+| **STD-03** | **Frequency-specific** RCS/detect coefficients (long-wave vs short-wave bands) | **P0** — **Phase N** |
+| **STD-04** | **External payload** RCS overhead (pods/munitions dirty config) | **P0** — **Phase N** |
+| **STD-05** | Long-wave **detection**: long range, spatial ambiguity | **P0** — **Phase N** |
+| **STD-06** | Short-wave **engagement**: precision track, shorter LO range | **P0** — **Phase N** |
+| **STD-07** | **Processing power** to refine ambiguous detections → engageable tracks | **P0** — **Phase N** |
+| **STD-08** | **Jamming overlap** on detection path (with EW geometry) | **P0** — jam spine **Shipped**; overlap **Phase N** |
+| **STD-09** | **SNR / dynamic range contraction** under active jamming | **P0** — Pd jam **Partial**; full SNR **Phase N** |
+| **STD-10** | Geometric/structural **band×airframe** modifiers | **P1** — **Phase N** |
+| **STD-11** | **Sensor fusion** (Radar + IR/EO) against single-spectrum LO | **P0** — merge **Partial**; LO fusion **Phase N** |
+
 ### Detection tick (deterministic)
 
 Fixed evaluation order per tick:
@@ -94,21 +112,66 @@ Fixed evaluation order per tick:
 
 ## Electronic Warfare
 
-### Offense
+EW is two categories with shared signal processing, frequency management, and probability-based outcomes: **OEA** (offensive electronic attack / noise jam) and **DECM** (defensive electronic countermeasures). Detailed Obsidian working note: vault `Projects/cmano-clone/requirements/Electronic Warfare Module.md`.
 
-- **P0** Noise jamming reduces detection probability / range
+### Offense (OEA)
+
+- **P0** Noise jamming reduces detection probability / range — **Shipped spine** (**SEN-04** / **EW-01**)
 - **P0** Deception / false targets (P1 full; MVP: range gate noise)
 - **P1** Coherent jamming vs specific radars (DB-tagged)
+- **P0** Tech-gap intensity: jam effectiveness vs **radar generation / technology gap** (**EW-02**) — **Phase N**
+- **P0** Jamming **corridor / sector** geometry: only victims on the jam path are degraded; outside remains visible (**EW-03**, **EW-10**) — **Phase N** full geometry
+- **P0** Friendly **actively jammed** status UI (**EW-04**) — **Partial** SensorC2; full badge **Phase N**
 
-### Defense
+### Defense (DECM / ECCM)
 
 - **P0** ESM detects emitters; links to contacts without active own-ship radar
 - **P1** Onboard ECCM flags from DB reduce jam effectiveness
+- **P1** **Always-on DECM** when a radar-guided missile locks a friendly unit (**EW-05**) — **Phase N**
+- **P1** Seeded stochastic roll vs unit **countermeasure %** → spoof/break guidance / reduce Pk (**EW-06**) — **Phase N**
+
+### Frequency & bandwidth
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **EW-07** | Jammers mapped to bands (E, F, G, H, I, J, …); ineffective if band unsupported by jammer | **P0** — **Phase N** |
+| **EW-08** | **Channel capacity** limit: max simultaneous frequency channels a unit can suppress | **P0** — **Phase N** |
+
+### Environmental / tactical
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **EW-09** | **Chaff corridors** — noise corridors reducing visibility to older-generation radars | **P1** — **Phase N** |
+| **EW-10** | **LOS / geometry** — jam only effective given jammer–package–victim-sensor positioning | **P0** — **Partial** intent; full LOS **Phase N** |
+
+### UI (sensor / DB)
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **EW-11** | Sensor display: **jammed** vs **burn-through** feedback | **P0** — **Phase N** |
+| **EW-12** | Jammer inspection window: **power**, **gain**, **bandwidth**, **supported channels** (catalog) | **P0** — **Phase N** |
 
 ### Agent integration
 
 - **Electronic Warfare Specialist** personality weights jamming vs kinetic fires
 - **P0** Agents cite EW state in intent rationale (“hold fire — no fire control track”)
+
+### Major IDs (EW-*)
+
+| ID | Summary | Priority / maturity |
+|----|---------|---------------------|
+| **EW-01** | Noise jam deny/degrade acquire/track in sector | **P0** — **Partial/Shipped** (SEN-04 spine) |
+| **EW-02** | Jam intensity vs radar generation gap | **P0** — **Phase N** |
+| **EW-03** | Jamming corridor visualization | **P0** — **Phase N** |
+| **EW-04** | Friendly unit actively-jammed status UI | **P0** — **Partial** / Phase N badge |
+| **EW-05** | Always-on DECM on radar-guided missile lock | **P1** — **Phase N** |
+| **EW-06** | Seeded CM% roll → spoof/break guidance (Pk) | **P1** — **Phase N** |
+| **EW-07** | Frequency band match required for jam | **P0** — **Phase N** |
+| **EW-08** | Simultaneous channel capacity limit | **P0** — **Phase N** |
+| **EW-09** | Chaff noise corridors vs older radars | **P1** — **Phase N** |
+| **EW-10** | LOS / geometry relative to victim sensor | **P0** — **Partial** / Phase N |
+| **EW-11** | Sensor jammed vs burn-through feedback | **P0** — **Phase N** |
+| **EW-12** | Jammer inspect: power, gain, bandwidth, channels | **P0** — **Phase N** |
 
 ## Fog of War
 
@@ -153,6 +216,7 @@ Fixed evaluation order per tick:
 | **SEN-06** | Sensor C2 projection / panel / bridge | **P0** — **Partial** (`SensorC2Projection`, `SensorC2PanelBinder`, `SensorC2Bridge`) |
 | **SEN-07** | EMCON-gated active detection (radar off → no active returns) | **P0** — **Shipped spine** (EMCON on Pd sim path; policy doc 13) |
 | **SEN-08** | MCP `contact_*` / `sensor_set_emcon` product tools | **P0 intent** — **Gap** (Phase N / residual) |
+| **STD-01…11** | Stealth multi-band / aspect / SNR / fusion (see §Stealth) | **P0/P1** — **Phase N** (jam spine Partial via SEN-04) |
 
 ## Non-Functional Requirements
 
@@ -177,7 +241,7 @@ Fixed evaluation order per tick:
 |-------|--------|
 | **MVP (COVERED)** | Core sensors path, contact FSM, Pd classify, side-picture merge spine, EMCON gate, basic noise jamming, Baltic/v3 classify + jam policies |
 | **Phase 2** | Datalink delay polish, delegation blind, ECCM, decoys, SensorC2 UI completeness |
-| **Phase 3 / Phase N** | Near-future EW profiles, swarm mesh, full multi-band physics, **5k×10k broadphase**, MCP contact tools |
+| **Phase 3 / Phase N** | Near-future EW profiles, swarm mesh, full multi-band physics, **stealth STD-*** (aspect/band/payload RCS, SNR, fusion), **5k×10k broadphase**, MCP contact tools |
 
 ## Implementation Mapping (headless)
 
@@ -200,6 +264,8 @@ Fixed evaluation order per tick:
 1. Contact merge when two sensors disagree on position — weighted average vs primary sensor?
 2. Classification degradation over time without re-detect?
 3. Satellite pass modeling depth for v1 (doc 11 satellites)?
+4. Stealth aspect model: 3 sectors vs continuous azimuth table (**STD-02**)?
+5. External stores RCS: per-weapon delta vs single dirty-config multiplier (**STD-04**)?
 
 ## Traceability
 
