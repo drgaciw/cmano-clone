@@ -87,7 +87,15 @@ complexity_ladder:
     ticks: 40
 
 tiers:
-  - {n: 1, status: pending}
+  - n: 1
+    status: quarantined
+    note: >
+      All 4 main scenarios failed gauntlet_oracle_eval (score exceeds maxScore).
+      Root cause: two compounding, long-standing engine defects (not a Tier-1-specific
+      issue) — both real fixes hit GitNexus CRITICAL impact and are quarantined for
+      human-supervised remediation, not fixed in this run. Corpus-wide implication:
+      several of the 24 already-promoted scenarios appear calibrated around the same
+      bugs. See defects below.
   - {n: 2, status: pending}
   - {n: 3, status: pending}
   - {n: 4, status: pending}
@@ -97,4 +105,18 @@ forge_wiring:
   required_hooks: [pre, a0, post_oracle_per_tier, e_per_tier, final]
   hindsight_bank: qa-gauntlet-forge
 
-defects: []
+defects:
+  - id: BUG-engagement-resolver-shooter-liveness
+    class: sim-code
+    status: QUARANTINED-CRITICAL
+    report: production/qa/bugs/BUG-engagement-resolver-shooter-liveness.md
+    symbol: "MvpEngagementResolver.Resolve (src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs:59)"
+    impact: "CRITICAL — 42 impacted symbols, reaches unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs RunTick (live Unity runtime)"
+    regression_test: "src/ProjectAegis.Sim.Tests/Engage/MvpEngagementResolverTests.cs Killed_shooter_aborts_before_launch (RED, marked Skip pending human-supervised fix)"
+  - id: BUG-losses-scoring-side-unaware
+    class: sim-code
+    status: QUARANTINED-CRITICAL
+    report: production/qa/bugs/BUG-losses-scoring-side-unaware.md
+    symbol: "LossesScoringProjection.Project (src/ProjectAegis.Delegation/Projection/LossesScoringProjection.cs:12)"
+    impact: "CRITICAL — 381 impacted symbols on the real fix surface (EngagementOutcomeRecord constructor)"
+    regression_test: null
