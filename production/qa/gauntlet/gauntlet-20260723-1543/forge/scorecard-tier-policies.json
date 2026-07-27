@@ -1,0 +1,155 @@
+{
+  "version": 1,
+  "runDir": "production/qa/gauntlet/gauntlet-20260723-1543",
+  "tier": 1,
+  "recommendedTicks": 6,
+  "candidateCount": 4,
+  "promoteCount": 0,
+  "discardCount": 4,
+  "corpusCellCount": 20,
+  "results": [
+    {
+      "scenarioId": "gauntlet-t1-patrol-a",
+      "path": "production/qa/gauntlet/gauntlet-20260723-1543/tier-1/policies/gauntlet-t1-patrol-a.policy.json",
+      "tier": 1,
+      "recommendedTicks": 6,
+      "cell": {
+        "key": "patrol|surface|WeaponsFree/WeaponsTight|unrestricted|none",
+        "missionClass": "patrol",
+        "domains": [
+          "surface"
+        ],
+        "roePair": "WeaponsFree/WeaponsTight",
+        "emconClass": "unrestricted",
+        "eventClass": "none",
+        "intentHash": "4e62893e6da08397"
+      },
+      "newCoverageCell": false,
+      "rarePlatformHits": [],
+      "duplicateIntent": true,
+      "oraclePassed": true,
+      "usefulFail": false,
+      "hardGates": {
+        "hasGauntletIntent": true,
+        "hasGauntletExpect": true,
+        "tierTicksKnown": true,
+        "notDuplicateIntent": false,
+        "oracleKnown": true,
+        "oraclePassedOrUsefulFail": true
+      },
+      "hardGatesPass": false,
+      "noveltyScore": -5.0,
+      "recommendPromote": false,
+      "recipesHint": []
+    },
+    {
+      "scenarioId": "gauntlet-t1-patrol-b",
+      "path": "production/qa/gauntlet/gauntlet-20260723-1543/tier-1/policies/gauntlet-t1-patrol-b.policy.json",
+      "tier": 1,
+      "recommendedTicks": 6,
+      "cell": {
+        "key": "patrol|surface|WeaponsFree/WeaponsFree|unrestricted|none",
+        "missionClass": "patrol",
+        "domains": [
+          "surface"
+        ],
+        "roePair": "WeaponsFree/WeaponsFree",
+        "emconClass": "unrestricted",
+        "eventClass": "none",
+        "intentHash": "acf5c6098219ccbe"
+      },
+      "newCoverageCell": false,
+      "rarePlatformHits": [],
+      "duplicateIntent": true,
+      "oraclePassed": true,
+      "usefulFail": false,
+      "hardGates": {
+        "hasGauntletIntent": true,
+        "hasGauntletExpect": true,
+        "tierTicksKnown": true,
+        "notDuplicateIntent": false,
+        "oracleKnown": true,
+        "oraclePassedOrUsefulFail": true
+      },
+      "hardGatesPass": false,
+      "noveltyScore": -5.0,
+      "recommendPromote": false,
+      "recipesHint": []
+    },
+    {
+      "scenarioId": "gauntlet-t1-patrol-c",
+      "path": "production/qa/gauntlet/gauntlet-20260723-1543/tier-1/policies/gauntlet-t1-patrol-c.policy.json",
+      "tier": 1,
+      "recommendedTicks": 6,
+      "cell": {
+        "key": "patrol|surface|WeaponsTight/WeaponsFree|unrestricted|none",
+        "missionClass": "patrol",
+        "domains": [
+          "surface"
+        ],
+        "roePair": "WeaponsTight/WeaponsFree",
+        "emconClass": "unrestricted",
+        "eventClass": "none",
+        "intentHash": "661f4a308d704474"
+      },
+      "newCoverageCell": false,
+      "rarePlatformHits": [],
+      "duplicateIntent": true,
+      "oraclePassed": true,
+      "usefulFail": false,
+      "hardGates": {
+        "hasGauntletIntent": true,
+        "hasGauntletExpect": true,
+        "tierTicksKnown": true,
+        "notDuplicateIntent": false,
+        "oracleKnown": true,
+        "oraclePassedOrUsefulFail": true
+      },
+      "hardGatesPass": false,
+      "noveltyScore": -5.0,
+      "recommendPromote": false,
+      "recipesHint": []
+    },
+    {
+      "scenarioId": "gauntlet-t1-patrol-d",
+      "path": "production/qa/gauntlet/gauntlet-20260723-1543/tier-1/policies/gauntlet-t1-patrol-d.policy.json",
+      "tier": 1,
+      "recommendedTicks": 6,
+      "cell": {
+        "key": "patrol|surface|WeaponsFree/WeaponsTight|unrestricted|none",
+        "missionClass": "patrol",
+        "domains": [
+          "surface"
+        ],
+        "roePair": "WeaponsFree/WeaponsTight",
+        "emconClass": "unrestricted",
+        "eventClass": "none",
+        "intentHash": "34b156bb45d8762a"
+      },
+      "newCoverageCell": false,
+      "rarePlatformHits": [],
+      "duplicateIntent": true,
+      "oraclePassed": true,
+      "usefulFail": false,
+      "hardGates": {
+        "hasGauntletIntent": true,
+        "hasGauntletExpect": true,
+        "tierTicksKnown": true,
+        "notDuplicateIntent": false,
+        "oracleKnown": true,
+        "oraclePassedOrUsefulFail": true
+      },
+      "hardGatesPass": false,
+      "noveltyScore": -5.0,
+      "recommendPromote": false,
+      "recipesHint": []
+    }
+  ],
+  "promoteIds": [],
+  "discardIds": [
+    "gauntlet-t1-patrol-a",
+    "gauntlet-t1-patrol-b",
+    "gauntlet-t1-patrol-c",
+    "gauntlet-t1-patrol-d"
+  ]
+}

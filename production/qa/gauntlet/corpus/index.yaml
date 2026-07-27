@@ -1,0 +1,196 @@
+# Gauntlet forge corpus index — promoted scenarios
+version: 1
+baselineNovelty: 0
+promoted:
+  - scenarioId: gauntlet-joint-orbat-smoke
+    path: data/scenarios/gauntlet-joint-orbat-smoke.policy.json
+    tier: null
+    cellKey: "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none"
+    intentHash: 2530489762d3eb2b
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-multidomain-shooters
+    path: data/scenarios/gauntlet-multidomain-shooters.policy.json
+    tier: 3
+    cellKey: "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none"
+    intentHash: b057dcce8607a843
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t1-patrol-a
+    path: data/scenarios/gauntlet-t1-patrol-a.policy.json
+    tier: 1
+    cellKey: "patrol|surface|WeaponsFree/WeaponsTight|unrestricted|none"
+    intentHash: 4e62893e6da08397
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t1-patrol-b
+    path: data/scenarios/gauntlet-t1-patrol-b.policy.json
+    tier: 1
+    cellKey: "patrol|surface|WeaponsFree/WeaponsFree|unrestricted|none"
+    intentHash: acf5c6098219ccbe
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t1-patrol-c
+    path: data/scenarios/gauntlet-t1-patrol-c.policy.json
+    tier: 1
+    cellKey: "patrol|surface|WeaponsTight/WeaponsFree|unrestricted|none"
+    intentHash: 661f4a308d704474
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t1-patrol-d
+    path: data/scenarios/gauntlet-t1-patrol-d.policy.json
+    tier: 1
+    cellKey: "patrol|surface|WeaponsFree/WeaponsTight|unrestricted|none"
+    intentHash: 34b156bb45d8762a
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t2-escort-a
+    path: data/scenarios/gauntlet-t2-escort-a.policy.json
+    tier: 2
+    cellKey: "escort|air,surface|WeaponsFree/WeaponsFree|unrestricted|none"
+    intentHash: 187f2ef634d4bd51
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t2-escort-passive
+    path: data/scenarios/gauntlet-t2-escort-passive.policy.json
+    tier: 2
+    cellKey: "escort|air,surface|WeaponsTight/WeaponsFree|emcon-phases|none"
+    intentHash: ed18718c398e587a
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t2-strike-a
+    path: data/scenarios/gauntlet-t2-strike-a.policy.json
+    tier: 2
+    cellKey: "strike|air,surface|WeaponsFree/WeaponsTight|unrestricted|none"
+    intentHash: 5661bbafab44d3fe
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t2-strike-event
+    path: data/scenarios/gauntlet-t2-strike-event.policy.json
+    tier: 2
+    cellKey: "strike|air,surface|WeaponsFree/WeaponsTight|unrestricted|inject"
+    intentHash: ea48d5e919cd041e
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t3-emcon-phases
+    path: data/scenarios/gauntlet-t3-emcon-phases.policy.json
+    tier: 3
+    cellKey: "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|emcon-phases|none"
+    intentHash: 99b4b8b07bc6534e
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t3-escort-strike
+    path: data/scenarios/gauntlet-t3-escort-strike.policy.json
+    tier: 3
+    cellKey: "strike|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none"
+    intentHash: 5380764280b7313c
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t3-event-chain
+    path: data/scenarios/gauntlet-t3-event-chain.policy.json
+    tier: 3
+    cellKey: "event-chain|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|event-chain"
+    intentHash: ccc097fd18a6ff2f
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t3-id-roe
+    path: data/scenarios/gauntlet-t3-id-roe.policy.json
+    tier: 3
+    cellKey: "id-roe|air,subsurface,surface|WeaponsTight/WeaponsTight|unrestricted|none"
+    intentHash: e911eebfe3452930
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t4-asymm-roe
+    path: data/scenarios/gauntlet-t4-asymm-roe.policy.json
+    tier: 4
+    cellKey: "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none"
+    intentHash: 78fd6f9758d87311
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t4-multi-mission
+    path: data/scenarios/gauntlet-t4-multi-mission.policy.json
+    tier: 4
+    cellKey: "asw|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none"
+    intentHash: 8bfb44732c093bc2
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t4-random-inject
+    path: data/scenarios/gauntlet-t4-random-inject.policy.json
+    tier: 4
+    cellKey: "inject|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|inject"
+    intentHash: 79bdb0ba287dfda0
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t4-weighted
+    path: data/scenarios/gauntlet-t4-weighted.policy.json
+    tier: 4
+    cellKey: "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none"
+    intentHash: 0af65022415cf685
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t5-cascade
+    path: data/scenarios/gauntlet-t5-cascade.policy.json
+    tier: 5
+    cellKey: "cascade|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|cascade"
+    intentHash: d473d139baefc177
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t5-dynamic-obj
+    path: data/scenarios/gauntlet-t5-dynamic-obj.policy.json
+    tier: 5
+    cellKey: "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|dynamic-obj"
+    intentHash: b4c8fa21bbe9c2e6
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t5-roe-change
+    path: data/scenarios/gauntlet-t5-roe-change.policy.json
+    tier: 5
+    cellKey: "roe-change|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|roe-change"
+    intentHash: d76e156a2024a1c4
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-t5-theater
+    path: data/scenarios/gauntlet-t5-theater.policy.json
+    tier: 5
+    cellKey: "theater|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none"
+    intentHash: c8a47fe17e70ad0c
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-theater-dynamic-victory
+    path: data/scenarios/gauntlet-theater-dynamic-victory.policy.json
+    tier: 5
+    cellKey: "theater|surface|WeaponsFree/WeaponsTight|unrestricted|dynamic-obj"
+    intentHash: 9be44983c7c51059
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
+  - scenarioId: gauntlet-theater-inject
+    path: data/scenarios/gauntlet-theater-inject.policy.json
+    tier: 4
+    cellKey: "theater|surface|WeaponsFree/WeaponsTight|unrestricted|inject"
+    intentHash: 2f94cabee44ca9da
+    promotedAt: bootstrap-2026-07-23
+    recipes: [bootstrap-seed]
+    noveltyScore: null
