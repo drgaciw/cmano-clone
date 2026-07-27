@@ -1,0 +1,41 @@
+{
+  "generated_at": "2026-07-24T16:40:21.549975+00:00",
+  "schemas": {
+    "requirements": {
+      "db_id": "cbdc1d28057147c8a66bff9495946913",
+      "collection": "collection://1229c01a-f387-450f-a87c-4d8fa3286e41",
+      "props_sample": [],
+      "raw_len": 8045
+    },
+    "specs": {
+      "db_id": "8050c95c5dc54fecbf70d44d9ecd8f8a",
+      "collection": "collection://bfaffd41-1bf8-418c-88c0-33ab92442c85",
+      "props_sample": [],
+      "raw_len": 6951
+    },
+    "adrs": {
+      "db_id": "16f16964138245b99f2c58526a029ff7",
+      "collection": "collection://7824fb13-c1f5-4197-99f4-7dafa5aad1a4",
+      "props_sample": [],
+      "raw_len": 5448
+    },
+    "milestones": {
+      "db_id": "1dc99c0ef1bc4a5e8bd9d9d849db07d5",
+      "collection": "collection://b710f964-ecff-4a2c-85e5-ae6925521091",
+      "props_sample": [],
+      "raw_len": 4637
+    },
+    "replays": {
+      "db_id": "9bc84746d02a41ef97c6a9221cf5962b",
+      "collection": "collection://763f01a3-c8b7-446f-a248-87506b8b8fe2",
+      "props_sample": [],
+      "raw_len": 6177
+    },
+    "runbooks": {
+      "db_id": "38717d7993a0468dbea65655d39579aa",
+      "collection": "collection://91e8149d-2c05-4991-8a69-c60b0dc15fd7",
+      "props_sample": [],
+      "raw_len": 5652
+    }
+  }
+}

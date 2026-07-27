@@ -29,7 +29,7 @@ namespace ProjectAegis.Unity.Editor
             "Assets/UI/ScenarioEditor/ScenarioMapAuthoringPanel.uss";
 
         private string _scenarioPath = string.Empty;
-        private string _status = "No scenario open.";
+        private string _status = "Browse… a scenario.json then Open.";
 
         private ScenarioAuthoringSession? _session;
         private MapAuthoringSurface? _surface;
@@ -40,6 +40,7 @@ namespace ProjectAegis.Unity.Editor
         private Label? _sessionEditVersionLabel;
         private Label? _sessionDirtyLabel;
         private Label? _statusLabel;
+        private Label? _exportGateLabel;
         private VisualElement? _sessionBody;
         private VisualElement? _unitsList;
         private VisualElement? _rpsList;
@@ -69,6 +70,46 @@ namespace ProjectAegis.Unity.Editor
         private string _activeDomainId = ScenarioPlatformDomainCatalog.DomainShips;
         private string? _selectedPlatformId;
         private int _unitIdSequence = 1;
+
+        /// <summary>
+        /// Local chrome policy mirrors (keep Editor compiling even if plugin DLL is stale
+        /// until <c>./tools/copy-delegation-assemblies.sh</c> is run). Headless tests cover
+        /// <see cref="ScenarioMapAuthoringHostPolicy"/> as the source of truth.
+        /// </summary>
+        private const string NoSessionMessage = "Open a scenario.json first (Browse… then Open).";
+
+        // Export gate modifier classes (see ScenarioMapAuthoringPanel.uss).
+        private const string ExportGateBlockedClass = "scenario-map-export-gate--blocked";
+        private const string ExportGateReadyClass = "scenario-map-export-gate--ready";
+
+        private static readonly string[] DefaultScenarioRelativeCandidates =
+        {
+            "assets/data/scenarios/authoring/russia-vs-nato-baltic-ui-dev.json",
+            "assets/data/scenarios/validation/golden_clean.json",
+        };
+
+        private static bool ShouldEnableCatalogAndFormChrome(bool hasSession) => true;
+
+        private static bool ShouldEnableSessionWriteActions(bool hasSession) => hasSession;
+
+        private static string? ResolveDefaultScenarioPath(string? repoRoot)
+        {
+            if (string.IsNullOrWhiteSpace(repoRoot) || !Directory.Exists(repoRoot))
+            {
+                return null;
+            }
+
+            foreach (var rel in DefaultScenarioRelativeCandidates)
+            {
+                var full = Path.GetFullPath(Path.Combine(repoRoot, rel));
+                if (File.Exists(full))
+                {
+                    return full;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>Opens the Scenario Map Authoring window from the menu.</summary>
         [MenuItem("Project Aegis/Scenario Map Authoring")]
@@ -104,13 +145,35 @@ namespace ProjectAegis.Unity.Editor
             window.Show();
             // Rebuild every open so UXML/USS edits (UI Builder) apply without domain reload.
             window.RebuildUi();
+            // Seed + open UI-dev Baltic scenario so Save/Place/RP buttons are live immediately.
+            window.TryAutoOpenSeededScenario();
+            window.Focus();
+            window.Repaint();
+        }
+
+        /// <summary>Menu: open window and force-load the Baltic UI-dev scenario.</summary>
+        [MenuItem("Project Aegis/Scenario Editor/Open Baltic UI Dev Scenario")]
+        public static void OpenBalticUiDevScenario()
+        {
+            var window = GetWindow<ScenarioMapAuthoringWindow>();
+            window.titleContent = new GUIContent("Scenario Map Authoring");
+            window.minSize = new Vector2(480f, 760f);
+            window._activeDomainId = ScenarioPlatformDomainCatalog.DomainShips;
+            window.Show();
+            window.RebuildUi();
+            window.TryLoadUiDevScenario(force: true);
             window.Focus();
             window.Repaint();
         }
 
         /// <summary>
-        /// Headless/agent open: write empty <c>Temp/aegis-open-scenario-map-authoring.flag</c>
+        /// Headless/agent open: write <c>Temp/aegis-open-scenario-map-authoring.flag</c>
         /// then refresh assets; flag is consumed once on the next editor update.
+        /// Optional flag body:
+        /// <list type="bullet">
+        /// <item><c>ui-dev</c> / <c>baltic</c> / empty → open + auto-load Baltic UI-dev scenario</item>
+        /// <item>absolute path to a <c>.json</c> scenario → open that file</item>
+        /// </list>
         /// </summary>
         [InitializeOnLoadMethod]
         private static void OpenWindowIfAgentFlagPresent()
@@ -127,9 +190,39 @@ namespace ProjectAegis.Unity.Editor
                         return;
                     }
 
+                    var body = (File.ReadAllText(flagPath) ?? string.Empty).Trim();
                     File.Delete(flagPath);
+
+                    // Prefer Baltic UI-dev load so Save/Place/RP chrome is live for agent UAT.
+                    if (string.IsNullOrEmpty(body)
+                        || body.Equals("ui-dev", StringComparison.OrdinalIgnoreCase)
+                        || body.Equals("baltic", StringComparison.OrdinalIgnoreCase)
+                        || body.Equals("load-ui-dev", StringComparison.OrdinalIgnoreCase))
+                    {
+                        OpenBalticUiDevScenario();
+                        Debug.Log("ScenarioMapAuthoringWindow: opened Baltic UI-dev scenario via agent flag.");
+                        return;
+                    }
+
+                    if (File.Exists(body) && body.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var window = GetWindow<ScenarioMapAuthoringWindow>();
+                        window.titleContent = new GUIContent("Scenario Map Authoring");
+                        window.minSize = new Vector2(480f, 760f);
+                        window._activeDomainId = ScenarioPlatformDomainCatalog.DomainShips;
+                        window.Show();
+                        window.RebuildUi();
+                        window._scenarioPath = Path.GetFullPath(body);
+                        window.ApplyPathToField();
+                        window.TryOpen();
+                        window.Focus();
+                        window.Repaint();
+                        Debug.Log($"ScenarioMapAuthoringWindow: opened scenario via agent flag path: {body}");
+                        return;
+                    }
+
                     OpenWindow();
-                    Debug.Log("ScenarioMapAuthoringWindow: opened via agent flag.");
+                    Debug.Log($"ScenarioMapAuthoringWindow: opened via agent flag (unrecognized body '{body}').");
                 }
                 catch (Exception ex)
                 {
@@ -174,6 +267,7 @@ namespace ProjectAegis.Unity.Editor
 
             CacheControls(rootVisualElement);
             WireCallbacks();
+            TrySeedDefaultScenarioPath();
             ApplyPathToField();
             RefreshSessionChrome();
             RefreshLists();
@@ -188,6 +282,7 @@ namespace ProjectAegis.Unity.Editor
             _sessionEditVersionLabel = root.Q<Label>("scenario-session-edit-version");
             _sessionDirtyLabel = root.Q<Label>("scenario-session-dirty");
             _statusLabel = root.Q<Label>("scenario-status");
+            _exportGateLabel = root.Q<Label>("scenario-export-gate");
             _sessionBody = root.Q<VisualElement>("scenario-session-body");
             _unitsList = root.Q<VisualElement>("scenario-units-list");
             _rpsList = root.Q<VisualElement>("scenario-rps-list");
@@ -217,36 +312,160 @@ namespace ProjectAegis.Unity.Editor
 
         private void WireCallbacks()
         {
-            rootVisualElement.Q<Button>("scenario-browse-button")?.RegisterCallback<ClickEvent>(_ => BrowsePath());
-            rootVisualElement.Q<Button>("scenario-open-button")?.RegisterCallback<ClickEvent>(_ =>
+            // Dual-wire: Button.clicked (PlatformImportPanelHost pattern) + ClickEvent so
+            // Editor UITK never drops presses when one path is blocked by focus/scroll.
+            WireButton(rootVisualElement.Q<Button>("scenario-browse-button"), BrowsePath);
+            WireButton(rootVisualElement.Q<Button>("scenario-open-button"), () =>
             {
                 SyncPathFromField();
                 TryOpen();
             });
-            _saveButton?.RegisterCallback<ClickEvent>(_ => TrySave());
-            _rebuildButton?.RegisterCallback<ClickEvent>(_ => TryRebuild());
-            _refreshFindingsButton?.RegisterCallback<ClickEvent>(_ => TryRefreshFindings());
-            rootVisualElement.Q<Button>("scenario-begin-place-unit")
-                ?.RegisterCallback<ClickEvent>(_ => TryBeginPlaceUnit());
-            rootVisualElement.Q<Button>("scenario-commit-place-unit")
-                ?.RegisterCallback<ClickEvent>(_ => TryCommitPlaceUnit());
-            rootVisualElement.Q<Button>("scenario-place-and-commit")
-                ?.RegisterCallback<ClickEvent>(_ => TryPlaceAndCommit());
-            rootVisualElement.Q<Button>("scenario-cancel-gesture")
-                ?.RegisterCallback<ClickEvent>(_ => TryCancelGesture());
-            rootVisualElement.Q<Button>("scenario-upsert-rp")
-                ?.RegisterCallback<ClickEvent>(_ => TryUpsertRpPolygon());
+            WireButton(rootVisualElement.Q<Button>("scenario-load-ui-dev-button"), () =>
+                TryLoadUiDevScenario(force: true));
+            WireButton(_saveButton, TrySave);
+            WireButton(_rebuildButton, TryRebuild);
+            WireButton(_refreshFindingsButton, TryRefreshFindings);
+            WireButton(rootVisualElement.Q<Button>("scenario-begin-place-unit"), TryBeginPlaceUnit);
+            WireButton(rootVisualElement.Q<Button>("scenario-commit-place-unit"), TryCommitPlaceUnit);
+            WireButton(rootVisualElement.Q<Button>("scenario-place-and-commit"), TryPlaceAndCommit);
+            WireButton(rootVisualElement.Q<Button>("scenario-cancel-gesture"), TryCancelGesture);
+            WireButton(rootVisualElement.Q<Button>("scenario-upsert-rp"), TryUpsertRpPolygon);
 
-            _domainAircraftButton?.RegisterCallback<ClickEvent>(_ =>
+            WireButton(_domainAircraftButton, () =>
                 SelectDomain(ScenarioPlatformDomainCatalog.DomainAircraft));
-            _domainShipsButton?.RegisterCallback<ClickEvent>(_ =>
+            WireButton(_domainShipsButton, () =>
                 SelectDomain(ScenarioPlatformDomainCatalog.DomainShips));
-            _domainSubsButton?.RegisterCallback<ClickEvent>(_ =>
+            WireButton(_domainSubsButton, () =>
                 SelectDomain(ScenarioPlatformDomainCatalog.DomainSubs));
-            _domainGroundButton?.RegisterCallback<ClickEvent>(_ =>
+            WireButton(_domainGroundButton, () =>
                 SelectDomain(ScenarioPlatformDomainCatalog.DomainGround));
 
             _pathField?.RegisterValueChangedCallback(evt => _scenarioPath = evt.newValue ?? string.Empty);
+        }
+
+        private static void WireButton(Button? button, Action handler)
+        {
+            if (button == null)
+            {
+                return;
+            }
+
+            // Always pickable/enabled for primary chrome (session write gates re-applied in RefreshSessionChrome).
+            button.pickingMode = PickingMode.Position;
+            button.focusable = true;
+
+            // Guard against double-fire when both clicked and ClickEvent raise for one press.
+            var lastTicks = 0L;
+            void Invoke()
+            {
+                var now = DateTime.UtcNow.Ticks;
+                if (now - lastTicks < TimeSpan.TicksPerMillisecond * 120)
+                {
+                    return;
+                }
+
+                lastTicks = now;
+                handler();
+            }
+
+            button.clicked += Invoke;
+            button.RegisterCallback<ClickEvent>(evt =>
+            {
+                Invoke();
+                evt.StopPropagation();
+            });
+        }
+
+        /// <summary>
+        /// When the path field is empty, seed the Baltic UI-dev scenario (then golden_clean).
+        /// </summary>
+        private void TrySeedDefaultScenarioPath()
+        {
+            if (!string.IsNullOrWhiteSpace(_scenarioPath))
+            {
+                return;
+            }
+
+            var repoRoot = ResolveRepoRootFromDataPath();
+            var candidate = ResolveDefaultScenarioPath(repoRoot);
+            if (!string.IsNullOrEmpty(candidate))
+            {
+                _scenarioPath = candidate;
+            }
+        }
+
+        /// <summary>Application.dataPath → …/ProjectAegis/Assets; repo root is three levels up.</summary>
+        private static string? ResolveRepoRootFromDataPath()
+        {
+            try
+            {
+                return Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", ".."));
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// After chrome rebuild: seed path and open session so domain/place/save are live.
+        /// No-ops when a session is already open (avoids clobbering dirty edits).
+        /// </summary>
+        private void TryAutoOpenSeededScenario()
+        {
+            if (_session != null)
+            {
+                return;
+            }
+
+            TrySeedDefaultScenarioPath();
+            ApplyPathToField();
+            if (string.IsNullOrWhiteSpace(_scenarioPath) || !File.Exists(_scenarioPath))
+            {
+                SetStatus("Browse… a scenario.json then Open. (No default UI-dev path found.)");
+                return;
+            }
+
+            TryOpen();
+        }
+
+        /// <summary>Force path to UI-dev Baltic scenario and open (menu / Load UI Dev button).</summary>
+        private void TryLoadUiDevScenario(bool force)
+        {
+            var repoRoot = ResolveRepoRootFromDataPath();
+            var uiDev = ResolveDefaultScenarioPath(repoRoot);
+            if (string.IsNullOrEmpty(uiDev) || !uiDev.Contains("russia-vs-nato-baltic-ui-dev", StringComparison.OrdinalIgnoreCase))
+            {
+                // Prefer explicit UI-dev even if golden was first-hit after delete; re-resolve candidates.
+                if (!string.IsNullOrEmpty(repoRoot))
+                {
+                    var explicitPath = Path.GetFullPath(Path.Combine(
+                        repoRoot,
+                        "assets", "data", "scenarios", "authoring",
+                        "russia-vs-nato-baltic-ui-dev.json"));
+                    if (File.Exists(explicitPath))
+                    {
+                        uiDev = explicitPath;
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(uiDev) || !File.Exists(uiDev))
+            {
+                SetStatus("UI-dev scenario not found: assets/data/scenarios/authoring/russia-vs-nato-baltic-ui-dev.json");
+                return;
+            }
+
+            if (!force && _session != null && string.Equals(_session.Path, uiDev, StringComparison.OrdinalIgnoreCase))
+            {
+                SetStatus($"Already open: {_session.Path}");
+                RefreshAllUi();
+                return;
+            }
+
+            _scenarioPath = uiDev;
+            ApplyPathToField();
+            TryOpen();
         }
 
         private void BrowsePath()
@@ -293,25 +512,23 @@ namespace ProjectAegis.Unity.Editor
         private void RefreshSessionChrome()
         {
             var hasSession = _session != null;
+            // Keep catalog/form/domain chrome enabled without a session so place/RP buttons
+            // still respond and can surface NoSessionMessage (instead of looking dead).
+            // Belt-and-suspenders: never leave the body disabled even if policy changes.
             if (_sessionBody != null)
             {
-                _sessionBody.SetEnabled(hasSession);
+                _sessionBody.SetEnabled(ShouldEnableCatalogAndFormChrome(hasSession));
+                _sessionBody.pickingMode = PickingMode.Position;
             }
 
-            if (_saveButton != null)
-            {
-                _saveButton.SetEnabled(hasSession);
-            }
-
-            if (_rebuildButton != null)
-            {
-                _rebuildButton.SetEnabled(hasSession);
-            }
-
-            if (_refreshFindingsButton != null)
-            {
-                _refreshFindingsButton.SetEnabled(hasSession);
-            }
+            var writeEnabled = ShouldEnableSessionWriteActions(hasSession);
+            _saveButton?.SetEnabled(writeEnabled);
+            _rebuildButton?.SetEnabled(writeEnabled);
+            _refreshFindingsButton?.SetEnabled(writeEnabled);
+            // Open / Browse / Load UI Dev always remain enabled.
+            rootVisualElement.Q<Button>("scenario-open-button")?.SetEnabled(true);
+            rootVisualElement.Q<Button>("scenario-browse-button")?.SetEnabled(true);
+            rootVisualElement.Q<Button>("scenario-load-ui-dev-button")?.SetEnabled(true);
 
             if (_session == null)
             {
@@ -354,6 +571,56 @@ namespace ProjectAegis.Unity.Editor
             FillScroll(_unitsList, BuildUnitLines());
             FillScroll(_rpsList, BuildRpLines());
             FillScroll(_findingsList, BuildFindingsLines());
+            RefreshExportGateChrome();
+        }
+
+        /// <summary>
+        /// Renders the validation export gate (ADR-008 / DRG-56).
+        ///
+        /// The decision and its wording are owned by <see cref="LiveFindingsPresenter"/>; this
+        /// method only paints them. It must never re-derive the gate from raw severities, and it
+        /// must never disable Save — save is deliberately ungated so work-in-progress with
+        /// blocking findings can still be persisted (AME-6.5).
+        /// </summary>
+        private void RefreshExportGateChrome()
+        {
+            if (_exportGateLabel == null)
+            {
+                return;
+            }
+
+            _exportGateLabel.RemoveFromClassList(ExportGateBlockedClass);
+            _exportGateLabel.RemoveFromClassList(ExportGateReadyClass);
+
+            if (_findings?.LastReport == null)
+            {
+                _exportGateLabel.text = "Export gate: not validated yet.";
+                _exportGateLabel.tooltip = "Open a scenario and Refresh Findings to evaluate the export gate.";
+                return;
+            }
+
+            var gate = _findings.Gate;
+            var counts = DescribeGateCounts(gate);
+
+            if (gate.CanExport)
+            {
+                _exportGateLabel.text = $"READY TO EXPORT — {counts}";
+                _exportGateLabel.tooltip =
+                    "No blocking findings. Export, publish, brief and simulate-sample are permitted.";
+                _exportGateLabel.AddToClassList(ExportGateReadyClass);
+                return;
+            }
+
+            _exportGateLabel.text = $"EXPORT BLOCKED — {counts}";
+            _exportGateLabel.tooltip = gate.BlockingReason;
+            _exportGateLabel.AddToClassList(ExportGateBlockedClass);
+        }
+
+        private static string DescribeGateCounts(ScenarioExportGateState gate)
+        {
+            var errors = gate.ErrorCount == 1 ? "1 error" : $"{gate.ErrorCount} errors";
+            var warnings = gate.WarningCount == 1 ? "1 warning" : $"{gate.WarningCount} warnings";
+            return $"{errors}, {warnings}";
         }
 
         private IReadOnlyList<string> BuildUnitLines()
@@ -451,8 +718,14 @@ namespace ProjectAegis.Unity.Editor
                 SyncPathFromField();
                 if (string.IsNullOrWhiteSpace(_scenarioPath))
                 {
-                    SetStatus("Enter a scenario.json path.");
-                    return;
+                    // Empty path → open file dialog once; if still empty, guide the user.
+                    BrowsePath();
+                    SyncPathFromField();
+                    if (string.IsNullOrWhiteSpace(_scenarioPath))
+                    {
+                        SetStatus("Browse… a scenario.json then Open.");
+                        return;
+                    }
                 }
 
                 if (!File.Exists(_scenarioPath))
@@ -482,6 +755,7 @@ namespace ProjectAegis.Unity.Editor
         {
             if (_session == null)
             {
+                SetStatus(NoSessionMessage);
                 return;
             }
 
@@ -501,6 +775,7 @@ namespace ProjectAegis.Unity.Editor
         {
             if (_surface == null)
             {
+                SetStatus(NoSessionMessage);
                 return;
             }
 
@@ -520,6 +795,7 @@ namespace ProjectAegis.Unity.Editor
         {
             if (_findings == null)
             {
+                SetStatus(NoSessionMessage);
                 return;
             }
 
@@ -669,6 +945,7 @@ namespace ProjectAegis.Unity.Editor
         {
             if (_surface == null)
             {
+                SetStatus(NoSessionMessage);
                 return;
             }
 
@@ -705,6 +982,7 @@ namespace ProjectAegis.Unity.Editor
         {
             if (_surface == null || _findings == null)
             {
+                SetStatus(NoSessionMessage);
                 return;
             }
 
@@ -745,6 +1023,12 @@ namespace ProjectAegis.Unity.Editor
 
         private void TryPlaceAndCommit()
         {
+            if (_surface == null)
+            {
+                SetStatus(NoSessionMessage);
+                return;
+            }
+
             TryBeginPlaceUnit();
             if (_surface?.TentativeUnit != null)
             {
@@ -756,6 +1040,7 @@ namespace ProjectAegis.Unity.Editor
         {
             if (_surface == null)
             {
+                SetStatus(NoSessionMessage);
                 return;
             }
 
@@ -768,6 +1053,7 @@ namespace ProjectAegis.Unity.Editor
         {
             if (_surface == null || _findings == null)
             {
+                SetStatus(NoSessionMessage);
                 return;
             }
 

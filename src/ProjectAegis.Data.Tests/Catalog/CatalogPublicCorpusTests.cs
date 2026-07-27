@@ -127,8 +127,9 @@ public sealed class CatalogPublicCorpusTests
             dbPath,
             StringComparison.OrdinalIgnoreCase);
 
-        // When the promoted enterprise DB is present, OOB platform_ids should resolve.
-        if (File.Exists(dbPath))
+        // When the promoted enterprise DB is present (not a Git LFS pointer stub),
+        // OOB platform_ids should resolve. Pointer stubs arrive when checkout omits LFS.
+        if (File.Exists(dbPath) && LooksLikeSqliteDatabase(dbPath))
         {
             using var reader = new SqliteCatalogReader(dbPath, "enterprise-smoke");
             Assert.True(reader.TryResolveDbRef("aegis_public_corpus", out var snap));
@@ -141,6 +142,23 @@ public sealed class CatalogPublicCorpusTests
                     reader.TryGetCombatRadiusNm(unit.PlatformId, out _),
                     $"Corpus missing platform_id used by smoke OOB: {unit.PlatformId}");
             }
+        }
+    }
+
+    private static bool LooksLikeSqliteDatabase(string path)
+    {
+        try
+        {
+            using var stream = File.OpenRead(path);
+            Span<byte> header = stackalloc byte[16];
+            var read = stream.Read(header);
+            // SQLite magic prefix: "SQLite format 3"
+            ReadOnlySpan<byte> magic = "SQLite format 3"u8;
+            return read >= magic.Length && header[..magic.Length].SequenceEqual(magic);
+        }
+        catch (IOException)
+        {
+            return false;
         }
     }
 }

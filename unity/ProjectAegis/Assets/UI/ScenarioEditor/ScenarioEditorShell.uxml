@@ -1,0 +1,68 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="scenario-editor-shell-root" class="scenario-editor-shell scenario-editor-shell--map">
+        <!-- Top bar 48px: title · EDIT · dirty · editVersion · actions -->
+        <ui:VisualElement name="scenario-editor-shell-topbar" class="scenario-editor-shell-topbar">
+            <ui:VisualElement class="scenario-editor-shell-topbar-left">
+                <ui:Label name="scenario-editor-shell-scenario-title" text="Untitled Scenario" class="scenario-editor-shell-scenario-title" />
+                <ui:Label name="scenario-editor-shell-edit-badge" text="EDIT" class="scenario-editor-shell-edit-badge" />
+                <ui:Label name="scenario-editor-shell-dirty" text="saved" class="scenario-editor-shell-dirty" />
+                <ui:Label name="scenario-editor-shell-edit-version" text="v0" class="scenario-editor-shell-edit-version" />
+            </ui:VisualElement>
+            <ui:VisualElement name="scenario-editor-shell-topbar-actions" class="scenario-editor-shell-topbar-actions">
+                <ui:Button name="scenario-editor-shell-btn-load" text="Load" class="scenario-editor-shell-action" />
+                <ui:Button name="scenario-editor-shell-btn-save" text="Save" class="scenario-editor-shell-action" />
+                <ui:Button name="scenario-editor-shell-btn-undo" text="Undo" class="scenario-editor-shell-action" />
+                <ui:Button name="scenario-editor-shell-btn-redo" text="Redo" class="scenario-editor-shell-action" />
+                <ui:Button name="scenario-editor-shell-btn-play" text="Play" class="scenario-editor-shell-action scenario-editor-shell-action--play" />
+                <ui:Button name="scenario-editor-shell-btn-sample" text="Sample" class="scenario-editor-shell-action scenario-editor-shell-action--play" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <ui:VisualElement name="scenario-editor-shell-header" class="scenario-editor-shell-header">
+            <ui:Label name="scenario-editor-shell-mode-title" text="MAP AUTHORING" class="scenario-editor-shell-mode-title" />
+            <ui:Label name="scenario-editor-shell-status" text="" class="scenario-editor-shell-status" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="scenario-editor-shell-tabs" class="scenario-editor-shell-tabs" focusable="true">
+            <ui:Button name="scenario-editor-shell-tab-map" text="Map" class="scenario-editor-shell-tab scenario-editor-shell-tab--active" />
+            <ui:Button name="scenario-editor-shell-tab-missions" text="Missions" class="scenario-editor-shell-tab" />
+            <ui:Button name="scenario-editor-shell-tab-events" text="Events" class="scenario-editor-shell-tab scenario-editor-shell-tab--disabled" enabled="false" tooltip="P2.3 — Event graph deferred" />
+            <ui:Label name="scenario-editor-shell-play-gate" text="" class="scenario-editor-shell-play-gate" />
+        </ui:VisualElement>
+
+        <!-- Body: drawer | center | inspector -->
+        <ui:VisualElement name="scenario-editor-shell-body" class="scenario-editor-shell-body">
+            <ui:VisualElement name="scenario-editor-shell-drawer" class="scenario-editor-shell-drawer">
+                <ui:Label name="scenario-editor-shell-drawer-title" text="ORBAT / Zones" class="scenario-editor-shell-panel-title" />
+                <ui:Label name="scenario-editor-shell-drawer-placeholder" text="Drawer slot — bind ORBAT / zone filters in a later wave." class="scenario-editor-shell-placeholder" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="scenario-editor-shell-content" class="scenario-editor-shell-content">
+                <ui:VisualElement name="scenario-editor-shell-map-slot" class="scenario-editor-shell-slot">
+                    <ui:Label text="Map Authoring surface slot" class="scenario-editor-shell-placeholder" />
+                </ui:VisualElement>
+                <ui:VisualElement name="scenario-editor-shell-mission-board-slot" class="scenario-editor-shell-slot scenario-editor-shell-slot--hidden">
+                    <ui:Label text="Mission Board surface slot" class="scenario-editor-shell-placeholder" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+
+            <ui:VisualElement name="scenario-editor-shell-inspector" class="scenario-editor-shell-inspector">
+                <ui:Label name="scenario-editor-shell-inspector-title" text="Selection" class="scenario-editor-shell-panel-title" />
+                <ui:Label name="scenario-editor-shell-inspector-body" text="No selection" class="scenario-editor-shell-inspector-body" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Live Findings dock -->
+        <ui:VisualElement name="scenario-editor-shell-findings-dock" class="scenario-editor-shell-findings-dock">
+            <ui:VisualElement class="scenario-editor-shell-findings-header">
+                <ui:Label name="scenario-editor-shell-findings-summary" text="Findings: 0 errors · 0 warnings" class="scenario-editor-shell-findings-summary" />
+                <ui:VisualElement name="scenario-editor-shell-findings-filters" class="scenario-editor-shell-findings-filters">
+                    <ui:Button name="scenario-editor-shell-filter-all" text="All" class="scenario-editor-shell-findings-filter scenario-editor-shell-findings-filter--active" />
+                    <ui:Button name="scenario-editor-shell-filter-errors" text="Errors" class="scenario-editor-shell-findings-filter" />
+                    <ui:Button name="scenario-editor-shell-filter-warnings" text="Warnings" class="scenario-editor-shell-findings-filter" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:ScrollView name="scenario-editor-shell-findings-list" class="scenario-editor-shell-findings-list" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -213,6 +213,12 @@ public sealed class PlatformImportPanelTests
                      "platform-import-acknowledge",
                      "platform-import-approve",
                      "platform-import-reject",
+                     "platform-import-section-filters",
+                     "platform-import-filter-all",
+                     "platform-import-filter-damage",
+                     "platform-import-filter-comms",
+                     "platform-import-filter-link",
+                     "platform-import-filter-other",
                  })
         {
             Assert.That(name, Does.StartWith("platform-import-"));

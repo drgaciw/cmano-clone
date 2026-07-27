@@ -1,0 +1,336 @@
+@import url("../AegisTokens.uss");
+
+.scenario-editor-shell {
+    flex-grow: 1;
+    flex-direction: column;
+    background-color: var(--aegis-surface-panel);
+    padding: 0;
+    min-height: 480px;
+}
+
+/* —— Top bar —— */
+.scenario-editor-shell-topbar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 48px;
+    min-height: 48px;
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+    background-color: var(--aegis-surface-deep);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--aegis-border-panel);
+}
+
+.scenario-editor-shell-topbar-left {
+    flex-direction: row;
+    align-items: center;
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.scenario-editor-shell-scenario-title {
+    -unity-font-style: bold;
+    color: var(--aegis-text-heading);
+    font-size: 13px;
+    margin-right: var(--space-sm);
+}
+
+.scenario-editor-shell-edit-badge {
+    color: var(--aegis-selected-ring);
+    font-size: 10px;
+    -unity-font-style: bold;
+    margin-right: var(--space-sm);
+    border-width: 1px;
+    border-color: var(--aegis-selected-ring);
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+.scenario-editor-shell-dirty {
+    color: var(--aegis-text-muted);
+    font-size: 11px;
+    margin-right: var(--space-sm);
+}
+
+.scenario-editor-shell-dirty--unsaved {
+    color: var(--aegis-diff-changed);
+    -unity-font-style: bold;
+}
+
+.scenario-editor-shell-edit-version {
+    color: var(--aegis-text-muted);
+    font-size: 11px;
+    margin-right: var(--space-sm);
+}
+
+.scenario-editor-shell-topbar-actions {
+    flex-direction: row;
+    align-items: center;
+}
+
+.scenario-editor-shell-action {
+    margin-left: var(--space-xs);
+    min-width: 64px;
+    font-size: 11px;
+}
+
+.scenario-editor-shell-action--disabled {
+    opacity: 0.45;
+}
+
+.scenario-editor-shell-action--play {
+    min-width: 72px;
+}
+
+/* —— Mode header + tabs —— */
+.scenario-editor-shell-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-xs);
+    margin-bottom: var(--space-xs);
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+}
+
+.scenario-editor-shell-mode-title {
+    -unity-font-style: bold;
+    color: var(--aegis-text-heading);
+    font-size: 14px;
+}
+
+.scenario-editor-shell-status {
+    color: var(--aegis-text-muted);
+    font-size: 11px;
+    white-space: normal;
+    flex-shrink: 1;
+}
+
+.scenario-editor-shell-tabs {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: var(--space-xs);
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+}
+
+.scenario-editor-shell-tab {
+    margin-right: var(--space-xs);
+    min-width: 88px;
+}
+
+.scenario-editor-shell-tab--active {
+    border-bottom-width: 2px;
+    border-bottom-color: var(--aegis-selected-ring);
+    -unity-font-style: bold;
+}
+
+.scenario-editor-shell-tab--disabled {
+    opacity: 0.45;
+}
+
+.scenario-editor-shell-tab:focus {
+    border-width: 1px;
+    border-color: var(--aegis-selected-ring);
+}
+
+.scenario-editor-shell-play-gate {
+    color: var(--aegis-diff-blocked);
+    font-size: 11px;
+    margin-left: var(--space-sm);
+    white-space: normal;
+    -unity-font-style: bold;
+    flex-grow: 1;
+}
+
+/* —— Body grid: drawer | center | inspector —— */
+.scenario-editor-shell-body {
+    flex-direction: row;
+    flex-grow: 1;
+    min-height: 200px;
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+    margin-bottom: var(--space-xs);
+}
+
+.scenario-editor-shell-drawer {
+    width: 240px;
+    min-width: 200px;
+    flex-shrink: 0;
+    background-color: var(--aegis-surface-deep);
+    border-width: 1px;
+    border-color: var(--aegis-border-panel);
+    padding: var(--space-xs);
+    margin-right: var(--space-xs);
+}
+
+.scenario-editor-shell-content {
+    flex-grow: 1;
+    flex-shrink: 1;
+    background-color: var(--aegis-surface-deep);
+    border-width: 1px;
+    border-color: var(--aegis-border-panel);
+    padding: var(--space-xs);
+}
+
+.scenario-editor-shell-inspector {
+    width: 320px;
+    min-width: 240px;
+    flex-shrink: 0;
+    background-color: var(--aegis-surface-deep);
+    border-width: 1px;
+    border-color: var(--aegis-border-panel);
+    padding: var(--space-xs);
+    margin-left: var(--space-xs);
+}
+
+.scenario-editor-shell-panel-title {
+    -unity-font-style: bold;
+    color: var(--aegis-text-heading);
+    font-size: 12px;
+    margin-bottom: var(--space-xs);
+}
+
+.scenario-editor-shell-placeholder {
+    color: var(--aegis-text-muted);
+    font-size: 11px;
+    white-space: normal;
+}
+
+.scenario-editor-shell-inspector-body {
+    color: var(--aegis-text-body);
+    font-size: 12px;
+    white-space: normal;
+}
+
+.scenario-editor-shell-slot {
+    flex-grow: 1;
+}
+
+.scenario-editor-shell-slot--hidden {
+    display: none;
+}
+
+/* —— Findings dock —— */
+.scenario-editor-shell-findings-dock {
+    height: 160px;
+    min-height: 140px;
+    max-height: 200px;
+    flex-direction: column;
+    border-top-width: 1px;
+    border-top-color: var(--aegis-border-panel);
+    background-color: var(--aegis-surface-deep);
+    padding: var(--space-xs) var(--space-sm);
+}
+
+.scenario-editor-shell-findings-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-xs);
+}
+
+.scenario-editor-shell-findings-summary {
+    color: var(--aegis-text-body);
+    font-size: 11px;
+    white-space: normal;
+}
+
+.scenario-editor-shell-findings-filters {
+    flex-direction: row;
+}
+
+.scenario-editor-shell-findings-filter {
+    margin-left: var(--space-xs);
+    min-width: 72px;
+    font-size: 11px;
+}
+
+.scenario-editor-shell-findings-filter--active {
+    border-bottom-width: 2px;
+    border-bottom-color: var(--aegis-selected-ring);
+    -unity-font-style: bold;
+}
+
+.scenario-editor-shell-findings-list {
+    flex-grow: 1;
+}
+
+.scenario-editor-shell-finding-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 6px;
+    margin-bottom: 2px;
+    border-left-width: 3px;
+    border-left-color: var(--aegis-border-subtle);
+    background-color: rgba(12, 18, 28, 0.6);
+}
+
+.scenario-editor-shell-finding-row:hover {
+    background-color: var(--aegis-selected-row-bg);
+}
+
+.scenario-editor-shell-finding-row:focus {
+    border-width: 1px;
+    border-color: var(--aegis-selected-ring);
+}
+
+.scenario-editor-shell-finding-row--error {
+    border-left-color: var(--aegis-diff-blocked);
+}
+
+.scenario-editor-shell-finding-row--warning {
+    border-left-color: var(--aegis-diff-warn);
+}
+
+.scenario-editor-shell-finding-row--info {
+    border-left-color: var(--aegis-text-muted);
+}
+
+.scenario-editor-shell-finding-tag {
+    -unity-font-style: bold;
+    font-size: 10px;
+    margin-right: var(--space-xs);
+    min-width: 48px;
+}
+
+.scenario-editor-shell-finding-tag--error {
+    color: var(--aegis-diff-blocked);
+}
+
+.scenario-editor-shell-finding-tag--warning {
+    color: var(--aegis-diff-warn);
+}
+
+.scenario-editor-shell-finding-tag--info {
+    color: var(--aegis-text-muted);
+}
+
+.scenario-editor-shell-finding-label {
+    color: var(--aegis-text-data);
+    font-size: 11px;
+    white-space: normal;
+    flex-grow: 1;
+}
+
+.scenario-editor-shell--map .scenario-editor-shell-mode-title {
+    color: var(--aegis-text-heading);
+}
+
+.scenario-editor-shell--mission-board .scenario-editor-shell-mode-title {
+    color: var(--aegis-diff-changed);
+}
+
+/* a11y scale hooks (shared with Platform Editor / C2) */
+.aegis-scale-125 {
+    font-size: 125%;
+}
+
+.aegis-scale-150 {
+    font-size: 150%;
+}
+
+.reduced-motion {
+    transition-duration: 0s;
+}
