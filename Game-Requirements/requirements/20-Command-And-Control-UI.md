@@ -235,6 +235,16 @@ fullscreen, zoom, measurement, a coordinate grid, a 3D toggle, or basemap layers
   this is its control surface. **Open question:** is 2D-versus-3D a discrete mode, or a continuum of
   camera pitch on one globe? The answer changes whether this is a toggle, a camera control, or both,
   and it should be settled with ADR-007 Phase B rather than at UI time.
+- **CMD-28.11 — Camera bookmarks ("quick jump").** Numbered slots storing camera position and zoom
+  altitude, saved and recalled by hotkey and listed in a menu for pointer access. At theater scale
+  the operator repeatedly returns to the same few areas, and re-navigating by pan and zoom each time
+  is the dominant navigation cost.
+
+  **This is also the clearest case for the disabled-with-reason rule.** In the reference product the
+  bookmark menu renders greyed with no explanation, which reads as broken or unavailable; it is
+  simply *empty*, because no slot has been saved yet. The correct label always existed — "no saved
+  views — press Ctrl+1 to save one" — and omitting it made a working feature look like a defect.
+  An empty state is not a disabled state, and the two must not share a rendering.
 
 ## Tactical Overlay Control (CMD-30)
 
@@ -320,6 +330,28 @@ makes this cheaper than its P0 suggests.
 - **CMD-29.6 — Staleness.** A contact not currently held is a last-known position *with an age*.
   Answer together with CMD-17's last-known-value question — the same design decision on own units
   and on hostiles.
+- **CMD-29.7 — Operator override of inference.** The player shall be able to manually reclassify a
+  contact — friendly, neutral, hostile — and to drop a contact from tracking, overriding the
+  automatic classification.
+
+  This is a different act from everything else on the panel. CMD-29.1–29.6 present what the *system*
+  believes; this lets the operator assert what *they* believe, on knowledge the sim does not model
+  (a radio call, a known deployment, an out-of-band recognition). It is the human staying in command
+  of the picture rather than reading it.
+
+  Three consequences:
+
+  1. **An overridden classification must remain visibly an override**, not silently become fact.
+     Otherwise the panel loses the distinction between what was sensed and what was asserted — which
+     is the whole point of separating the contact panel from the unit panel.
+  2. **It must be reversible**, and the original inferred classification must survive the override so
+     it can be restored.
+  3. **It is a command, not view state**, so it produces a logged intent (doc 17, `ContactChangeRecord`)
+     and keeps CLI/MCP parity per CMD-28.3 — unlike the view toggles in CMD-28, this changes shared
+     state and must replay.
+
+  Overrides also feed engagement: a contact marked friendly must not then be engageable without an
+  explicit confirmation path (doc 13 / CMD-11), or the override becomes a fratricide vector.
 
 ## Scenario Library and Load Operations (CMD-27)
 
@@ -449,6 +481,8 @@ Per genre conventions (`docs/military-simulation/genre-conventions-reference.md`
 | 11 | Platform ops windows render no column their doc 16 model cannot populate | **Open** — CMD-24/25/26 |
 | 12 | Library flags a scenario whose `dbRef` does not resolve **before** load, not as a load failure | **Open** — CMD-27.1 |
 | 13 | Campaign membership, sequence and completion survive without filename encoding | **Open** — CMD-27.12 |
+| 14 | A manually reclassified contact still reads as an override, is reversible, and logs an intent | **Open** — CMD-29.7 |
+| 15 | An empty bookmark list states that it is empty; it is not rendered as disabled | **Open** — CMD-28.11 |
 
 ## Phased Delivery
 
