@@ -14,5 +14,6 @@ It is **not** the [obra/superpowers](https://github.com/obra/superpowers) plugin
 | `specs/` | Locked design decisions (delegation, DATA P0, sim modes, …) |
 | `plans/` | Checkbox implementation plans referencing specs |
 | `brainstorms/` | Early ideation notes |
+| `reviews/` | Hand-authored HTML UX preview mocks — authoring rules in [`reviews/README.md`](reviews/README.md) |
 
 When a plan says “REQUIRED SUB-SKILL: superpowers:subagent-driven-development”, load that skill from your global install (`~/.cursor/skills/subagent-driven-development/SKILL.md`).
