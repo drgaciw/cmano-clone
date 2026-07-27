@@ -1,0 +1,100 @@
+run_id: gauntlet-20260727-1455
+started_utc: "2026-07-27T14:55:00Z"
+branch: 07-27-qa_gauntlet_gauntlet-20260727-1455
+trunk_base_sha: fa4db95c2aafd914b03e4ba938d8519c56011561
+trunk_base: main
+
+args:
+  tiers: 5
+  scenarios_per_tier: 4
+  seeds: [42, 7, 123]
+  max_fix_attempts: 3
+  resume: null
+
+preflight:
+  gitnexus:
+    status: "recovered — FTS index corruption on incremental analyze required clean + full rebuild"
+    result: "29338 nodes | 55559 edges | 516 clusters | 300 flows"
+    note: "two checkouts registered in GitNexus global registry — every impact/detect_changes/context call in this run passes explicit repo=/home/username01/cmano-clone"
+  dotnet_test_baseline:
+    status: PASS
+    total: 1924
+    passed: 1924
+    failed: 0
+    by_project:
+      ProjectAegis.Sim.Tests: 326
+      ProjectAegis.Delegation.Tests: 388
+      ProjectAegis.Delegation.UnityAdapter.Tests: 391
+      ProjectAegis.Data.Excel.Tests: 24
+      ProjectAegis.Data.Tests: 682
+      ProjectAegis.MissionEditor.Cli.Tests: 113
+    monotonic_floor: 1924
+  replay_verify:
+    status: PASS
+    report: production/determinism/replay-2026-07-27.md
+    replay_golden_tests: "17/17"
+  smoke_check:
+    status: PASS
+    report: production/qa/smoke-2026-07-27.md
+    playmode_smoke_tests: "21/21"
+  catalog_gate:
+    status: PASS
+    db: assets/data/catalog/baltic_patrol.db
+    release_version: catalog-p0-2026-06-04
+    schema_version: "005"
+    platform_rows: 79
+
+complexity_ladder:
+  tier_1:
+    mission_type: "Single patrol"
+    platform_mix: "3 surface units/side (~6)"
+    victory_conditions: "Survive N ticks"
+    events: "None"
+    roe: "Weapons free, both sides"
+    emcon: "Unrestricted emissions"
+    ticks: 6
+  tier_2:
+    mission_type: "Strike OR escort"
+    platform_mix: "3 surface + 1 air/side (~8)"
+    victory_conditions: "Destroy designated target"
+    events: "1 scripted timed event"
+    roe: "Weapons tight one side"
+    emcon: "Passive-only one side"
+    ticks: 10
+  tier_3:
+    mission_type: "Escort + strike combined"
+    platform_mix: "3 surface + 2 air + 1 sub/side (~12)"
+    victory_conditions: "Protect HVU + destroy target"
+    events: "Timed event chain"
+    roe: "ID-required engagement criteria"
+    emcon: "Timed EMCON phases"
+    ticks: 16
+  tier_4:
+    mission_type: "ASW/AAW multi-mission"
+    platform_mix: "3-4 surface + 2 air + 1-2 sub/side (~14)"
+    victory_conditions: "Weighted multi-objective scoring"
+    events: "Random injects (seeded)"
+    roe: "Asymmetric per-side ROE + escalation rules"
+    emcon: "Dynamic EMCON change on detection"
+    ticks: 24
+  tier_5:
+    mission_type: "Multi-domain theater op (patrol+strike+escort+ASW concurrent)"
+    platform_mix: "4 surface + 3 air + 2 sub blue vs dense red (~16); asymmetric joint mix"
+    victory_conditions: "Conditional/dynamic objectives that change on trigger"
+    events: "Cascading adversarial injects (comms loss, sensor degradation, reinforcements)"
+    roe: "Mid-mission ROE changes via event"
+    emcon: "Contested EM: deception emitters + EMCON discipline scored"
+    ticks: 40
+
+tiers:
+  - {n: 1, status: pending}
+  - {n: 2, status: pending}
+  - {n: 3, status: pending}
+  - {n: 4, status: pending}
+  - {n: 5, status: pending}
+
+forge_wiring:
+  required_hooks: [pre, a0, post_oracle_per_tier, e_per_tier, final]
+  hindsight_bank: qa-gauntlet-forge
+
+defects: []
