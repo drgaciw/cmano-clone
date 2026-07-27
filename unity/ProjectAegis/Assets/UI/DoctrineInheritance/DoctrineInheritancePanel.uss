@@ -1,5 +1,7 @@
 /* Doctrine panel — docks under the right unit column when enabled. */
 
+@import url("../AegisTokens.uss");
+
 .doctrine-panel {
     position: absolute;
     right: 8px;

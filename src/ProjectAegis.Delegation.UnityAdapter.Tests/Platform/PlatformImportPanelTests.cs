@@ -280,6 +280,7 @@ public sealed class PlatformImportPanelTests
         Assert.That(source, Does.Contain("platform-import-acknowledge"));
         Assert.That(source, Does.Contain("platform-import-approve"));
         Assert.That(source, Does.Contain("SetEnabled(panelState.ApproveEnabled)"));
+        Assert.That(source, Does.Contain("label.focusable = true"));
     }
 
     [Test]

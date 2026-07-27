@@ -1,5 +1,7 @@
 /* Left drawer chrome — OOB / Missions / Contacts under the top bar. */
 
+@import url("../AegisTokens.uss");
+
 .c2-drawer-panel {
     position: absolute;
     left: 0;

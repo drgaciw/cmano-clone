@@ -171,7 +171,17 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            listView.makeItem = () => new Label();
+            listView.makeItem = () =>
+            {
+                var label = new Label();
+                label.focusable = listView == _oobList;
+                if (listView == _oobList)
+                {
+                    label.RegisterCallback<KeyDownEvent>(OnOobRowKeyDown);
+                }
+
+                return label;
+            };
             listView.bindItem = (element, index) =>
             {
                 if (element is not Label label)
@@ -206,6 +216,20 @@ namespace ProjectAegis.Unity.Runtime
             if (evt.currentTarget is Label { userData: string unitId } && bridgeHost != null)
             {
                 bridgeHost.SelectUnit(unitId);
+            }
+        }
+
+        private void OnOobRowKeyDown(KeyDownEvent evt)
+        {
+            if (evt.keyCode is not (KeyCode.Return or KeyCode.KeypadEnter or KeyCode.Space))
+            {
+                return;
+            }
+
+            if (evt.currentTarget is Label { userData: string unitId } && bridgeHost != null)
+            {
+                bridgeHost.SelectUnit(unitId);
+                evt.StopPropagation();
             }
         }
 

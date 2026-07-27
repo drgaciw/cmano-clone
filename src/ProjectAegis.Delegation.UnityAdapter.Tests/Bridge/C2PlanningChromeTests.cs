@@ -126,7 +126,10 @@ public sealed class C2PlanningChromeTests
         Assert.That(host, Does.Contain("c2-drawer-panel--planning-readonly"));
         Assert.That(host, Does.Contain("OnTabChanged"));
         Assert.That(host, Does.Contain("bridgeHost.SelectUnit"));
+        Assert.That(host, Does.Contain("label.focusable = listView == _oobList"));
+        Assert.That(uss, Does.Contain("@import url(\"../AegisTokens.uss\")"));
         Assert.That(uss, Does.Contain(".c2-drawer-panel--planning-readonly"));
+        Assert.That(uss, Does.Contain("var(--focus-ring)"));
     }
 
     [Test]
