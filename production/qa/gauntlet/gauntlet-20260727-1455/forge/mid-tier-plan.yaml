@@ -1,37 +1,70 @@
 run_id: gauntlet-20260727-1455
-tier: 1
+tier: 2
 phase: pre
-generated: "2026-07-27T14:55Z"
+generated: "2026-07-27T16:20Z"
+supersedes: "tier-1 plan (same file, rewritten per forge lifecycle — tier-1 plan summary preserved in promote-log)"
+
+context:
+  resumed_after: >
+    Tier 1 completed GREEN after both quarantined CRITICAL defects were fixed
+    (BUG-engagement-resolver-shooter-liveness, BUG-losses-scoring-side-unaware).
+    Oracle results are now trustworthy, so tier 2 signal is meaningful — unlike the
+    pre-fix state where every tier would have reproduced the same two engine defects.
 
 hindsight_recall:
-  status: SKIPPED — server unreachable (curl http://localhost:8888 -> HTTP 000)
-  action: proceeding with on-disk corpus only, per forge contract
+  status: SKIPPED — server still unreachable (HTTP 000 at tier-1 pre and final)
+  action: on-disk corpus only, per forge contract
 
 corpus_snapshot:
   coverage_map_cells: 20
   coverage_map_scenarios: 24
-  hard_cases_pool: 0 (empty — only README.md placeholder present)
-  recipe_weights_top:
-    - {id: platform-swap-underused, weight: 1.2, tierMin: 1}
-    - {id: roe-asymmetric-per-side, weight: 1.1, tierMin: "unknown (see catalog, likely >=4)"}
-    - {id: roe-mid-mission-change, weight: 1.1, tierMin: "unknown (likely 5)"}
-    - {id: emcon-timed-phases, weight: 1.1, tierMin: "unknown (likely 3)"}
-    - {id: hard-case-replay, weight: 1.3, tierMin: "n/a — no hard-cases available yet"}
+  corpus_health: "24/24 passing at correct per-tier tick budgets after the tier-1 fixes + expect regen"
+  hard_cases_pool_files: 0
+  hard_case_signatures_known: 2   # recorded in promote-log at tier-1 post-oracle, not yet materialised as replay policies
 
-ranked_recipes_tier1:
-  # tierMin <= 1 filter per recipe-catalog.yaml; bootstrap-seed excluded (provenance-only, not a live operator)
+ranked_recipes_tier2:
+  # tierMin <= 2, bootstrap-seed excluded (provenance-only)
+  - id: hard-case-replay
+    weight: 1.3
+    rationale: >
+      Highest weight AND newly actionable. The two tier-1 signatures
+      (dead-shooter-fires-next-tick, enemy-kill-credited-to-own-side) are now FIXED,
+      so a candidate that deliberately reproduces those conditions is genuine
+      regression coverage rather than a re-discovery of a known-broken path.
   - id: platform-swap-underused
-    tierMin: 1
     weight: 1.2
-    rationale: only live tier-1-eligible recipe; already highest-weighted — apply to swap in catalog platforms not yet represented in coverage-map cells
+    rationale: >
+      Still the workhorse; tier 2 adds an air slot per side, which is entirely new
+      coverage surface (no air platform appears in any tier-1 cell from this run).
+  - id: orbat-asymmetric-ratio
+    weight: 1.0
+    rationale: Newly eligible at tier 2. Pairs naturally with this tier's asymmetric ROE (tight one side).
+  - id: mission-combo-escort-strike
+    weight: 1.0
+    rationale: Newly eligible at tier 2 and directly on-theme — tier 2's mission row is "strike OR escort".
+  - id: geometry-detection-lane-shift
+    weight: 1.0
+    rationale: >
+      Interacts well with this tier's passive-only EMCON side — detection geometry
+      matters more when one side is emissions-restricted.
 
-hard_case_replays_injected: []  # none available (empty pool)
+hard_case_replays_injected:
+  - signature: dead-shooter-fires-next-tick
+    intent: >
+      Construct an ORBAT/geometry where a unit is reliably killed early and would
+      historically have fired again. Post-fix the expected observable is a
+      SHOOTER_DESTROYED denial rather than a launch.
+  - signature: enemy-kill-credited-to-own-side
+    intent: >
+      Ensure both sides land kills, so a side-unaware scorer would inflate the scored
+      side's tally. Post-fix, blue's kills must exclude red-fired kills.
 
-underused_platform_hint:
-  note: >
-    coverage-map cells so far are dominated by gauntlet-t1-patrol-a/b, gauntlet-multidomain-shooters,
-    gauntlet-joint-orbat-smoke (all surface-heavy or pre-existing multi-domain). Tier 1 roster (A0)
-    should prefer surface platformIds from baltic_patrol.db NOT already referenced by those promoted
-    policies, to grow coverage-map cell diversity rather than duplicate an existing cell.
+new_coverage_this_tier:
+  domains: "air introduced for the first time this run (all tier-1 cells were surface-only)"
+  emcon: "passive-only one side — first EMCON-restricted cell from this run"
+  roe: "asymmetric (tight one side) — tier 1 was WeaponsFree/WeaponsFree throughout"
+  events: "1 scripted timed event — tier 1 had none"
 
 max_candidates_this_wave: 4
+tick_budget: 10
+seeds: [42, 7, 123]
