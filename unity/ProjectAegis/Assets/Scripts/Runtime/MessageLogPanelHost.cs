@@ -101,7 +101,9 @@ namespace ProjectAegis.Unity.Runtime
                 _messageList.makeItem = () =>
                 {
                     var label = new Label();
+                    label.focusable = true;
                     label.AddToClassList(MessageLogCategoryClassMap.BaseRowClass);
+                    label.RegisterCallback<KeyDownEvent>(OnMessageRowKeyDown);
                     return label;
                 };
                 _messageList.bindItem = (element, index) =>
@@ -113,6 +115,7 @@ namespace ProjectAegis.Unity.Runtime
 
                     var row = _panelState.Rows[index];
                     label.text = row.DisplayLine;
+                    label.userData = index;
                     label.ClearClassList();
                     label.AddToClassList(MessageLogCategoryClassMap.BaseRowClass);
                     label.AddToClassList(MessageLogCategoryClassMap.SelectableRowClass);
@@ -142,6 +145,25 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             ApplySelectionIndex(_messageList.selectedIndex);
+        }
+
+        private void OnMessageRowKeyDown(KeyDownEvent evt)
+        {
+            if (evt.keyCode is not (KeyCode.Return or KeyCode.KeypadEnter or KeyCode.Space))
+            {
+                return;
+            }
+
+            if (evt.currentTarget is Label { userData: int index })
+            {
+                if (_messageList != null)
+                {
+                    _messageList.SetSelection(index);
+                }
+
+                TrySelectRow(index);
+                evt.StopPropagation();
+            }
         }
 
         /// <summary>Headless-friendly selection entry (also used by host selection callback).</summary>

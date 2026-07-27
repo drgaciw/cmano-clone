@@ -355,3 +355,20 @@
     white-space: normal;
     min-height: 28px;
 }
+
+/* Keyboard focus (REQ-20 CMD-12 / CMD-28.9).
+   Distinct from --selected-ring so focus and selection never read as the same state.
+   These elements already declare border-width: 1px, so only the colour changes and
+   focus causes no layout shift. */
+.scenario-map-action-button:focus,
+.scenario-map-domain-button:focus,
+.scenario-map-path-field:focus,
+.scenario-map-coord-field:focus {
+    border-color: var(--focus-ring);
+}
+
+/* Rows carry no border; use the shipped left-bar pattern (cf. MessageLogPanel). */
+.scenario-map-platform-row:focus {
+    border-left-width: var(--focus-ring-width);
+    border-left-color: var(--focus-ring);
+}

@@ -353,6 +353,10 @@ public sealed class PlayModeSmokeHarnessTests
             uxml,
             Does.Contain("unit → embarked → mission → group → side → scenario"),
             "Inheritance order hint should be visible in panel layout");
+
+        var uss = File.ReadAllText(ussPath);
+        Assert.That(uss, Does.Contain("@import url(\"../AegisTokens.uss\")"));
+        Assert.That(uss, Does.Contain("var(--focus-ring)"));
     }
 
     [Test]
