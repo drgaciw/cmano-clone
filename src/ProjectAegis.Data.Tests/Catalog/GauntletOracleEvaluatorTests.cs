@@ -243,7 +243,7 @@ public sealed class GauntletOracleEvaluatorTests
     }
 
     [Fact]
-    public void EvaluateFromPolicyAndCsv_ci_profile_falls_back_to_expect_when_expectCi_absent()
+    public void EvaluateFromPolicyAndCsv_ci_profile_fails_closed_when_expectCi_absent()
     {
         var policy = """
             {
@@ -261,6 +261,7 @@ public sealed class GauntletOracleEvaluatorTests
             x,42,BLUE,0,1,0,0,fp
             """;
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv, profile: "ci");
-        Assert.True(result.Passed, string.Join("; ", result.Failures));
+        Assert.False(result.Passed);
+        Assert.Contains(result.Failures, f => f.Contains("missing gauntlet.expectCi", StringComparison.Ordinal));
     }
 }
