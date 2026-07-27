@@ -1,6 +1,6 @@
 # 14 - Engagement and Fire Control
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-27
 **Status:** Draft — ready for design review  
 **FR reverse-ref:** [FR-12](01-Project-Overview.md) — Engagement and fire control  
 **CMO basis:** Manual §3.3.1–2, §3.3.9, §4.1.1, §9.1–2, §9.2.8–9 (DLZ)  
@@ -108,6 +108,17 @@ Intent (player | agent | mission auto)
 | **ENG-06** | Swarm salvo slot deconfliction (deterministic per-tick target claim) | **P0** — **Shipped** (`SwarmSalvoDeconfliction`); sector coordinator P1 |
 | **ENG-07** | Dual abort taxonomy + stable log codes | **P0** — Shipped (`FireAbortReason` + `EngagementAbortReason` + `abort_reason_manifest.json`) |
 | **ENG-08** | Mount/magazine/readiness gates before launch | **P0** — Shipped (magazine, air-readiness, damage-withdraw gates) |
+| **ENG-10** | DLZ product model (Out/Approaching/In/**Closing**/Unknown); envelope vs DLZ abort split | **P0** Partial — Closing UI **Phase N** |
+| **ENG-11** | NEZ first-class (not aliased to DLZ InZone) | **P1** Not started |
+| **ENG-12** | DLZ+NEZ dual presentation (preview + C2) | **P0** headless / **P1** C2 / Closing **Phase N** |
+| **ENG-13** | Weapon-won't-fire structured explain packet | **P0** Partial |
+| **ENG-14** | Common deny catalog expansion (DLZ, mount, ammo, ROE, track, BOL, …) | **P0** Partial+ |
+| **ENG-15** | Graded track-quality fire-control gate | **P1** (binary FC **Shipped**) |
+| **ENG-16** | Bearing-only launch (BOL) on single resolver | **P1** Not started |
+| **ENG-17** | BOL constraints + stable deny codes + preview parity | **P1** Not started |
+| **ENG-18** | Auto engagement mode product requirements | **P0** Partial+ |
+| **ENG-19** | Manual engagement mode product requirements | **P0** headless Shipped; C2 Partial |
+| **ENG-20** | Cross-mode explainability parity (auto/manual/agent/mission) | **P0** Partial |
 
 ## FireAbortReason Catalog (initial)
 
@@ -187,7 +198,8 @@ Intent (player | agent | mission auto)
 | 15 | Contacts and tracks |
 | 17 | Order log entries |
 | 11 | Mission auto-engage parameters |
-| `cmo-manual-traceability.md` | §3.3.1–2, §9.2.8–9 |
+| `cmo-manual-traceability.md` | §3.3.1–2, §9.2.8–9 |  
+| Vault ENG gap note | **ENG-10–20** DLZ/NEZ/BOL/explain (2026-07-27) |
 
 ---
 

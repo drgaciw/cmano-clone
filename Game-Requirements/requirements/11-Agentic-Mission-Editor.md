@@ -1,10 +1,10 @@
 # 11 - Agentic Mission & Scenario Editor
 
-**Last Updated:** 2026-07-09
+**Last Updated:** 2026-07-27
 **Status:** Revised — implementation-aligned (was Draft; realigned to approved GDD + shipped headless stack)
 **FR reverse-ref:** [FR-09](01-Project-Overview.md) — Scenario/mission editor
-**Author basis:** Approved GDD [`design/gdd/agentic-mission-editor.md`](../../design/gdd/agentic-mission-editor.md) (terminology, determinism contract, AC-1…AC-12); codebase review of `ProjectAegis.Data/Scenario/Authoring` + `ProjectAegis.Data/Validation` + `ProjectAegis.MissionEditor.Cli`; [scenario-editor research](../../docs/research/scenario-editor-research.md); [CMO Official Manual](https://www.matrixgames.com/amazon/PDF/CMO/CMO_manual_EBOOK.pdf) (Mission Editor §3.3.17/§7.1, Scenario Editor §4.1.5, ScenEdit §5, clean-room observable behavior only); requirements 01–10, 13, 14, 17.
-**Related:** [06-Database-Intelligence.md](06-Database-Intelligence.md) · [21-Platform-Editor.md](21-Platform-Editor.md) · [04-Agent-Delegation.md](04-Agent-Delegation.md) · [07-Agentic-Infrastructure.md](07-Agentic-Infrastructure.md) · [08-Agentic-Architecture.md](08-Agentic-Architecture.md) · [13-Doctrine-ROE-EMCON-WRA.md](13-Doctrine-ROE-EMCON-WRA.md) · [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md)
+**Author basis:** Approved GDD [`design/gdd/agentic-mission-editor.md`](../../design/gdd/agentic-mission-editor.md) (terminology, determinism contract, AC-1…AC-12); codebase review of `ProjectAegis.Data/Scenario/Authoring` + `ProjectAegis.Data/Validation` + `ProjectAegis.MissionEditor.Cli`; [scenario-editor research](../../docs/research/scenario-editor-research.md); [CMO Official Manual](https://www.matrixgames.com/amazon/PDF/CMO/CMO_manual_EBOOK.pdf) (Mission Editor §3.3.17/§7.1, Scenario Editor §4.1.5, ScenEdit §5, clean-room observable behavior only); CMO Scenario Editor tutorial workflow (P Gatcomb — clean-room observable authoring steps only); requirements 01–10, 13, 14, 16, 17, 20.
+**Related:** [06-Database-Intelligence.md](06-Database-Intelligence.md) · [21-Platform-Editor.md](21-Platform-Editor.md) · [04-Agent-Delegation.md](04-Agent-Delegation.md) · [07-Agentic-Infrastructure.md](07-Agentic-Infrastructure.md) · [08-Agentic-Architecture.md](08-Agentic-Architecture.md) · [13-Doctrine-ROE-EMCON-WRA.md](13-Doctrine-ROE-EMCON-WRA.md) · [16-Logistics-And-Magazines.md](16-Logistics-And-Magazines.md) · [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md) · [20-Command-And-Control-UI.md](20-Command-And-Control-UI.md)
 **Decision record:** [ADR-008 Mission-Editor Validation Engine (Accepted)](../../docs/architecture/adr-008-mission-editor-validation-engine.md) · [ADR-013 CMO Scenario Import Policy (Proposed)](../../docs/architecture/adr-013-cmo-scenario-import-policy.md) · [ADR-014 Lua Compatibility Scope (Accepted)](../../docs/architecture/adr-014-lua-compatibility-scope.md) · [ADR-015 Agent-Authored Scenario Transparency (Proposed)](../../docs/architecture/adr-015-agent-authored-scenario-transparency.md) · [ADR-016 Event-Graph Complexity Caps (Accepted)](../../docs/architecture/adr-016-event-graph-complexity-caps.md) · [ADR-017 Editor Topology: Client vs Scenario Lab (Proposed)](../../docs/architecture/adr-017-editor-topology-client-vs-scenario-lab.md)
 
 ## Purpose
@@ -348,6 +348,96 @@ Each former open question now points to its ADR.
 | Q4 | Maximum **event-graph complexity** before warnings (soft cap) | ADR-016 | **Accepted** — soft complexity + tick-density warnings; hard cap 32 conditions/event; never blocks export; finalize thresholds at perf budgeting |
 | Q5 | Editor **inside game client** only, or standalone **Scenario Lab** sharing the core library | ADR-017 | **Proposed** — v1 is headless/file-based; topology decision pending |
 
+## Fleet coordination — marshalling & large formations (FLT-*)
+
+CMO-parity requirements for **aerial marshalling** and large formation packages (clean-room). Obsidian working note: vault `Projects/cmano-clone/requirements/Fleet Coordination Module.md`. Complements Support missions (AME-3.1), timeline TOS (AME-3.5), groups (req 04/20), LOG-19 large air launch (req 16).
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **FLT-01** | Geographic **marshalling points** as aggregation zones | **P0** — **Phase N** |
+| **FLT-02** | **Marshall Planes** mission: collect to zone, no combat | **P1** — **Phase N** |
+| **FLT-03** | **Time on Station** / sync transition marshall → target | **P0** — timeline Partial+; air TOS **Phase N** |
+| **FLT-04** | Split large packages (~100) into flights of N (e.g. 12) | **P0** — **Phase N** |
+| **FLT-05** | Formation editor: wedge/echelon + wing-tip spacing | **P1** — **Phase N** |
+| **FLT-06** | **Sprint and drift** formation keep | **P1** — **Phase N** |
+| **FLT-07** | One-click snap units into formation (designer) | **P1** — **Phase N** |
+| **FLT-08** | Dog-leg intermediate waypoints for ETA shaping | **P0** — plot Partial; chrome **Phase N** |
+| **FLT-09** | Loiter/cruise/sprint for synchronized arrival | **P0** — **Phase N** |
+| **FLT-10** | Preserve user altitude on mission param update (no silent high-alt reset) | **P1** — **Phase N** |
+| **FLT-11** | Mixed-type flight group **ETA indicators** | **P1** — **Phase N** |
+
+## CMO Scenario Editor Tutorial Parity (SCE-*)
+
+Expanded functional requirements from the CMO Scenario Editor tutorial authoring workflow (P Gatcomb). These are **product-parity intents** mapped onto the AME spine; they do **not** supersede AME IDs. Full Obsidian working note: vault `Projects/cmano-clone/requirements/CMO Scenario Editor Requirements.md`. *(Tutorial timestamps stripped; clean-room observable behavior only.)*
+
+### Environment & initialization
+
+| ID | Requirement | Priority / maturity | AME / related |
+|----|-------------|---------------------|---------------|
+| **SCE-01** | Select specific **database version** (`dbRef` / catalog snapshot / TL branch) **before** scenario creation for accurate, period-appropriate unit modeling | **P0** — **Partial+** | AME-2.2; req 06 |
+| **SCE-02** | Global map with mouse **zoom/pan** for precise geographic setup in any region | **P0 intent** — **Phase N** product map GUI; headless lat/lon **Partial+** | AME-4.2–4.4; ADR-007 |
+
+### Side configuration & doctrine
+
+| ID | Requirement | Priority / maturity | AME / related |
+|----|-------------|---------------------|---------------|
+| **SCE-03** | Add, rename, remove **sides** with independent config | **P0/P1** — **Partial+** headless | AME-4.5 |
+| **SCE-04** | Per-side **briefings**: HTML editing, image embedding, **copy-paste** (or structured equivalent) | **P1** — **Phase N** full HTML chrome | CMO baseline briefing |
+| **SCE-05** | Diplomatic **posture** between sides: Friendly, Neutral, Unfriendly, Hostile | **P0** — **Partial+** | AME-4.5; req 13 |
+| **SCE-06** | **Doctrine & ROE**: weapon use, engagement logic, and **tanker operations** | **P0** — **Partial** | AME-3.2; req 13; Support missions |
+| **SCE-07** | **Creator locks** — mandatory UI toggle so end-users cannot modify mission-critical doctrine constraints in play | **P0** — **Phase N** | AME-1.1; `features` |
+| **SCE-08** | Side **proficiency** Novice→Ace with per-unit overrides | **P1** — **Phase N** | Side/unit metadata |
+
+### Scenario environment & realism
+
+| ID | Requirement | Priority / maturity | AME / related |
+|----|-------------|---------------------|---------------|
+| **SCE-09** | Independent **Scenario Time** vs **Scenario Start Time**, synchronized under explicit rules | **P0** — **Partial** | Metadata time; create API |
+| **SCE-10** | **Weather**: temperature, rainfall, cloud cover/thickness affecting **sensor and weapon** performance | **P1** — **Phase N** | AME-5.4 `SetWeather`; req 14/15 |
+| **SCE-11** | **Sea state** / wind scale 0–6+ affecting maritime navigation and survivability | **P1** — **Phase N** | Environment; req 18 |
+| **SCE-12** | **Realism toggles** including: realistic **submarine communications**, **unlimited ammunition at airbases** (LOG-21), **terrain-based movement** effects | **P0/P1** — **Partial** features model; named toggles **Phase N** | `features`; req 16/18/19; LOG-21 |
+
+### Unit & asset management
+
+| ID | Requirement | Priority / maturity | AME / related |
+|----|-------------|---------------------|---------------|
+| **SCE-13** | **Insert**-key parity placement of Aircraft, Ships, Submarines, Facilities | **P0/P1** — **Partial+** headless | AME-4.2 |
+| **SCE-14** | Relocate units (**M**-key parity) | **P1** — **Partial+** headless | AME-4.2 |
+| **SCE-15** | Standard clone vs **cargo/loadout-preserving** clone (**Shift+C** parity) | **P1** — basic clone **Partial+**; cargo-preserving **Phase N** | AME-4.2; req 16/21 |
+| **SCE-16** | Manual **heading** 0–360° (formation / airfield approach) | **P1** — **Phase N** | ORBAT unit field |
+| **SCE-17** | Group (**G**-key) + **Formation Editor** (lead + relative bearings for subordinates) | **P1** — **Phase N** product chrome | Groups; map |
+
+### Logistics & airfield infrastructure
+
+| ID | Requirement | Priority / maturity | AME / related |
+|----|-------------|---------------------|---------------|
+| **SCE-18** | **Single-unit airfields** — simplified, non-attackable, rapid setup | **P1** — **Phase N** | Facilities; req 16/18 |
+| **SCE-19** | **Multi-piece installations** — manual components (runways, hangars, etc.), attackable | **P1** — **Phase N** | Facilities; req 18 |
+| **SCE-20** | Hosted **air operations**: callsign, ready-arm status, maintenance cycling | **P0 intent** — **Phase N** | LOG-14–18 (req 16) |
+| **SCE-21** | Base **magazine** inventory customization; magazine association required for rearm | **P0** — ledger **Partial**; authoring UI **Phase N** | req 16; LOG-21 |
+
+### AI & mission automation
+
+| ID | Requirement | Priority / maturity | AME / related |
+|----|-------------|---------------------|---------------|
+| **SCE-22** | AI mission tools (e.g. Barrier CAP, patrol zones) via reference points and repeating flight patterns | **P0/P1** — typed missions **Partial+**; CAP templates **Phase N** | AME-3.x, AME-4.1–4.3 |
+| **SCE-23** | **Import/export installation packs** for common airfield layouts (not full proprietary `.scen` import) | **P1** — **Phase N** | Package format; ADR-013 scope boundary |
+
+### SCE acceptance criteria (tutorial path)
+
+1. Explicit `dbRef` selected before create; clear validation on missing/mismatch (**SCE-01**).
+2. Place unit at chosen location via map or headless lat/lon (**SCE-02**, **SCE-13**).
+3. Two sides, Hostile posture, creator-locked doctrine field not player-editable in play (**SCE-03**, **SCE-05**, **SCE-07**).
+4. Briefing supports HTML/image/copy-paste path or structured equivalent; proficiency defaults + unit override (**SCE-04**, **SCE-08**).
+5. Scenario Time ≠ Scenario Start Time fields round-trip (**SCE-09**).
+6. Weather / sea state / realism flags (sub comms, unlimited airbase ammo, terrain movement) serializable (**SCE-10**–**12**).
+7. Doctrine includes tanker-ops related settings (**SCE-06**).
+8. Move, clone, cargo-preserving clone, heading produce deterministic ORBAT diffs (**SCE-14**–**16**).
+9. Formation lead + relative bearings (**SCE-17**).
+10. Hosted air ready/arm + base magazines gate rearm when unlimited airbase ammo off (**SCE-20**–**21**).
+11. Barrier CAP / patrol from reference points without hand-only raw JSON (**SCE-22**).
+12. Installation pack import into ORBAT with validation (**SCE-23**).
+
 ## Traceability
 
 | Related doc / artifact | Relationship |
@@ -358,9 +448,11 @@ Each former open question now points to its ADR.
 | 06 Database Intelligence | Unit data, validation, DB version binding (`dbRef`/`tlBranch`); migration preview |
 | 07 Agentic Infrastructure | Scenario Generation, authoring agents, provenance |
 | 08 Agentic Architecture | Deterministic sim, MCP, headless execution |
-| 13 Doctrine/ROE/EMCON/WRA | Runtime policy inheritance (AME-3.2) |
+| 13 Doctrine/ROE/EMCON/WRA | Runtime policy inheritance (AME-3.2); SCE-05–07 posture / doctrine / creator locks |
 | 14 Engagement & Fire Control | Mission auto-engage and fire pipeline |
+| 16 Logistics & Magazines | SCE-18–21 airfields, magazines, hosted air ops (LOG-*) |
 | 17 Replay & Order Log | Deterministic replay, event debugger projection (AME-5.5), quick-run evidence |
+| 20 Command & Control UI | Map chrome residual for SCE-02 placement UX |
 | 21 Platform Editor | Platform classes edited there; scenario placement stays here |
 | ADR-008 | Validation Engine + determinism (authority) |
 | ADR-013…017 | Import policy, Lua scope, agent labeling, event-graph caps, editor topology |

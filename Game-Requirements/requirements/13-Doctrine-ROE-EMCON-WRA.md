@@ -92,6 +92,7 @@ capturedAtSimTime: "T+00:15:00"
 
 - **P0** Mission-level behaviors: ignore plotted course, engage opportunity targets, refuel/unrep rules, withdraw when damaged, use nuclear weapons (scenario-gated).
 - **P0** Withdraw/redeploy: conditions (damage %, magazine %, fuel bingo) and destinations.
+- **P0** Toggleable **Withdraw and Redeploy** for **in-port / docked** behavior of hosted units (parasite ops **LOG-20** in [16](16-Logistics-And-Magazines.md)); also gates auto refuel/rearm of docked hosts (**LOG-13**).
 
 ### Explainability (“Weapon Won’t Fire”)
 

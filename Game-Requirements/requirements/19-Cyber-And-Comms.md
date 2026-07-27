@@ -1,6 +1,6 @@
 # 19 - Cyber Warfare and Communications
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-27
 **Status:** Draft — ready for design review  
 **FR reverse-ref:** [FR-17](01-Project-Overview.md) — Cyber and comms degradation  
 **CMO basis:** Manual §10.7 Comms Disruption & Cyber Attacks; links §9.2.6 EW  
@@ -125,6 +125,17 @@ Scenario-defined **cyber actions** (events doc 11 or special actions / policy ti
 | **CYB-03** | Full cyber action library (`DenyFireControl`, free-form exploit packs, JADC2 node damage) | **Phase N** |
 | **CYB-04** | Cognitive EW / AI-on-AI cyber duels | **Phase N** |
 | **CYB-05** | Attention-budget reduction under degraded comms | **Phase N / P1** |
+| **CYB-10** | Comms disruption mode taxonomy (Nominal/Degraded/Denied matrix) | **P0** — **Partial+** |
+| **CYB-11** | Degraded/denied link modes; Denied → `CommsDenied` on new engage | **P0** — **Partial+** |
+| **CYB-12** | Delayed orders under Degraded (deterministic queue) | **P0** — **Shipped** spine; mission-patch delay **Phase N** |
+| **CYB-13** | Stale tracks under degrade (divisor + datalink lag) | **P0** — **Partial+** |
+| **CYB-14** | Scenario/event-driven cyber only (no freeform mid-run hacks) | **P0** — **Shipped invariant** |
+| **CYB-15** | C2/comms cyber effect catalog | **P1** — **Partial** / full library **Phase N** |
+| **CYB-16** | Submarine intermittent comms (burst windows) | **P1** — **Phase N** |
+| **CYB-17** | Satellite/SATCOM intermittent lag/dropout | **P1** — **Phase N** |
+| **CYB-18** | Spoofed-track engage-gate multi-path contract (`CYBER_SPOOF_TRACK`) | **P0** — **Shipped** (locks CYB-01) |
+| **CYB-19** | False-contact/spoof UX vs engage gates | **P1** — **Partial** |
+| **CYB-20** | Player-visible COMMS on C2 chrome | **P0** — **Partial** |
 
 ## MCP / CLI Tools (honest shipped surface)
 

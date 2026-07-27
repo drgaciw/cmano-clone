@@ -1,6 +1,6 @@
 # 18 - Combat Domains and Damage
 
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-07-27
 **Status:** Draft — ready for design review  
 **FR reverse-ref:** [FR-16](01-Project-Overview.md) — Multi-domain combat  
 **CMO basis:** Manual §4.1.1–2, §9.2.1–7, §9.3; systems/damage §3.3.11  
@@ -138,6 +138,21 @@ Per doc 01 scope: **strategic facilities and IADS**, not battalion tactics.
 | **DOM-08** | Mine-laying / mine-clearing missions + map danger layer | **Phase N** |
 | **DOM-09** | Facility build/destroy event library + repair loop | **Phase N / Partial** hot-tick only |
 | **DOM-10** | Near-future domain validators (hypersonic, DEW) | **Phase N** |
+| **DOM-11** | ASW action surface (prosecute, buoy drop, depth-band intents) + `ASW_*` aborts | **Phase N** |
+| **DOM-12** | Submarine combat patterns (depth/speed posture, tube/WRA, envelope) | **Phase N** |
+| **DOM-13** | ASW sensor→fire chain (track quality gates; req 15) | **Phase N** (spine Partial) |
+| **DOM-14** | Mutual sub/ASW geometry via same resolver + validators | **Phase N** |
+| **DOM-15** | Minefield entity model beyond transit hazard | **Phase N** |
+| **DOM-16** | Mine-lay runtime + stores (depends AME-3.6) | **Phase N** |
+| **DOM-17** | Mine-clear/MCM + map danger layer | **Phase N** |
+| **DOM-18** | Theater land scope: fixed SAM/IADS/facility only | **Partial** / effects **Phase N** |
+| **DOM-19** | Land/fixed-site capacity & degrade effects | **Phase N** |
+| **DOM-20** | Mount/component offline without full kill | **Phase N** |
+| **DOM-21** | Crew damage-control timeline (seeded) | **Phase N** |
+| **DOM-22** | Repair at base/tender vs limited at-sea DC (req 16) | **Phase N** |
+| **DOM-23** | Multi-piece air/naval base graph | **Phase N** |
+| **DOM-24** | Piece damage → sortie/berth/sensor capacity | **Partial** hooks / **Phase N** |
+| **DOM-25** | Construct/destroy/repair event library for pieces | **Phase N** |
 
 ## Non-Functional Requirements
 
@@ -182,7 +197,7 @@ Evidence policy: check only with named types/tests/fixtures; unbuilt fidelity st
 | Full air/naval/sub fidelity | — | **Phase N** | Not claimed Shipped; PK tables / horizon / full ASW depth deferred |
 | Mine-laying / clearing missions | — | **Phase N** | Tracker residual row 18 |
 
-**Honesty note:** Design Status remains **Draft** (Template B). Tracker **Partial+** reflects shipped validator/damage/BDA spine + Baltic theater content — not full multi-domain CMO combat parity.
+**Honesty note:** Design Status remains **Draft** (Template B). Tracker **Partial+** reflects shipped validator/damage/BDA spine + Baltic theater content — not full multi-domain CMO combat parity. **DOM-11–25** (2026-07-27 manual gap fill): ASW/mine/land/DC/bases product intent — see vault `Combat Domain Gaps.md`.
 
 ## Open Questions
 

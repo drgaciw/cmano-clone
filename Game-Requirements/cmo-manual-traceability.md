@@ -1,6 +1,6 @@
 # CMO Manual → Project Aegis Requirements Traceability
 
-**Last Updated:** May 29, 2026  
+**Last Updated:** 2026-07-27 (gap inventory + P0 packages; was May 29, 2026)  
 **Manual source:** `docs/manual/index.html` (COMMAND: Modern Operations HTML edition; page bodies are scanned images)  
 **PDF reference:** [CMO Manual (PDF)](https://www.matrixgames.com/amazon/PDF/CMO/CMO_manual_EBOOK.pdf)
 
@@ -58,7 +58,7 @@ Map every major manual section to Project Aegis requirement documents so gaps ar
 | 3.3.8 | Boat Operations | **16**, **18** Combat | Draft |
 | 3.3.9 | Mounts and Weapons | **14**, **18** | Draft |
 | 3.3.10 | Sensors | **15** Sensor/EW | Draft |
-| 3.3.11 | Systems and Damage | **18** Combat | Draft |
+| 3.3.11 | Systems and Damage | **18** Combat | Partial+ (DOM-20–22 2026-07-27) |
 | 3.3.12 | Doctrine | **13** Doctrine | Draft |
 | 3.3.13 | General / Strategic | **13**, 04 Delegation | Draft |
 | 3.3.14 | EMCON Tab | **13** Doctrine | Draft |
@@ -71,7 +71,7 @@ Map every major manual section to Project Aegis requirement documents so gaps ar
 | Manual § | Title | Aegis doc(s) | Coverage |
 |----------|-------|--------------|----------|
 | 4.1.1 | Attack Options | **14** Engagement | Draft |
-| 4.1.2 | ASW-specific Actions | **18** Combat | Draft |
+| 4.1.2 | ASW-specific Actions | **18** Combat | Partial (DOM-11–14 2026-07-27) |
 | 4.1.3 | Context Menu, Cont. | **20** Command UI | Draft |
 | 4.1.4 | Group Operations | **20**, 04 | Draft |
 | 4.1.5 | Scenario Editor | 11 Mission Editor | Full |
@@ -90,7 +90,7 @@ Map every major manual section to Project Aegis requirement documents so gaps ar
 | 5.4.2 | Database | 06 DB Intelligence, 11 | Partial |
 | 5.4.3 | Campaigns | — | Deferred (doc 01) |
 | 5.4.4–5.4.10 | Sides, Briefing, Scoring, Weather, Merge | 11 | Partial–Full |
-| 5.5 | Events (TCA) | 11 | Full |
+| 5.5 | Events (TCA) + Special Actions | 11, **20** SPA-* | Full events; SPA Partial+ (2026-07-27) |
 | 5.6 | Scenario Batch-Rebuilder | 06, 11 | Partial |
 | 5.7–5.8 | Unit Actions, Import/Export | 11, 06 | Partial |
 
@@ -104,7 +104,7 @@ Map every major manual section to Project Aegis requirement documents so gaps ar
 | 6.3.4–6.3.5 | Database Viewer, Browse Platforms | 06 | Partial |
 | 6.3.6–6.3.7 | Scenario Description, Side Briefing | 11 | Full |
 | 6.3.8–6.3.9 | Side Doctrine/ROE/WRA/EMCON | **13** | Draft |
-| 6.3.10 | Special Actions | 11, **13** | Partial |
+| 6.3.10 | Special Actions | 11, **13**, **20** SPA-* | Partial+ (SPA play surface 2026-07-27) |
 | 6.3.11 | Recorder | **17** Replay | Draft |
 | 6.3.12 | Message Log | **20**, **17** | Draft |
 | 6.3.13 | Losses and Expenditures | **17**, **16** | Draft |
@@ -131,22 +131,22 @@ Map every major manual section to Project Aegis requirement documents so gaps ar
 | Manual § | Title | Aegis doc(s) | Coverage |
 |----------|-------|--------------|----------|
 | 9.1.1–9.1.2 | Sensors and Weapons | **15**, **14** | Draft |
-| 9.2.1–9.2.6 | Domain combat + EW | **18**, **15** | Draft |
-| 9.2.7 | Damage and Repairs | **18** | Draft |
-| 9.2.8 | My Weapon Won't Fire!!! | **13**, **14** | Draft |
-| 9.2.9 | DLZ | **14** | Draft |
+| 9.2.1–9.2.6 | Domain combat + EW | **18**, **15** | Partial+ (DOM-11–19; EW vault 2026-07-27) |
+| 9.2.7 | Damage and Repairs | **18** | Partial (DOM-20–22 2026-07-27) |
+| 9.2.8 | My Weapon Won't Fire!!! | **13**, **14** ENG-13–14 | Partial+ (2026-07-27) |
+| 9.2.9 | DLZ | **14** ENG-10–12 | Partial+ (ENG-05 shipped; ENG-10–12 2026-07-27) |
 | 9.2.10 | Note On Losses | **17** | Draft |
-| 9.3 | Construction/Destruction of bases | **18** | P1 (draft) |
+| 9.3 | Construction/Destruction of bases | **18** DOM-23–25 | Partial (2026-07-27) |
 
 ## Chapter 10 — Appendices
 
 | Manual § | Title | Aegis doc(s) | Coverage |
 |----------|-------|--------------|----------|
-| 10.1 | Keyboard Commands | **20** | P1 (draft) |
+| 10.1 | Keyboard Commands | **20** KEY-01–12 | Partial+ (2026-07-27) |
 | 10.2 | Custom Overlays | **20** | P2 |
 | 10.3 | DB Edit in Scenario Editor | 06, 11 | Partial |
 | 10.4–10.6 | Common units/tactics | 06, genre docs | Reference |
-| 10.7 | Comms Disruption & Cyber | **19** Cyber | Draft |
+| 10.7 | Comms Disruption & Cyber | **19** CYB-10–20 | Partial+ (spine shipped; expand 2026-07-27) |
 | 10.8 | Tacview | **17** | P2 export |
 
 ## Chapters 11–13
@@ -181,6 +181,11 @@ Map every major manual section to Project Aegis requirement documents so gaps ar
 | NL / MCP authoring | 07, 08, 11 |
 | Near-future / speculative | 09, 10 |
 | Explainability (“why no fire”) | **13**, **14** |
+
+## Gap inventory (2026-07-27)
+
+- [cmo-manual-gap-inventory-2026-07-27.md](cmo-manual-gap-inventory-2026-07-27.md) — PDF TOC reconciliation + P0 packages (DOM/ENG/KEY/SPA/CYB)
+- Vault notes under `Projects/cmano-clone/requirements/`: Combat Domain Gaps, Engagement DLZ and BOL, Keyboard and Special Actions, Comms and Cyber Disruption (+ prior LOG/SCE/EW/MAP/CUI/STD/MSF/FLT)
 
 ## Maintenance
 
