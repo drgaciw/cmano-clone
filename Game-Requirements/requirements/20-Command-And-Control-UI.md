@@ -89,6 +89,9 @@ The UI is a **command post**, not a game HUD. It must support long sessions, den
 | **CMD-25** | Boat Operations window (embarked craft, launch/recovery, tasking) | **P2** — **Phase N**, gated by doc 16 **LOG-09…11** |
 | **CMD-26** | Ground Operations window, **brigade+ formations only** | **P2** — **Open (partial scope)**; battalion depth **out of charter** per doc 01 |
 | **CMD-27** | Scenario library: browse, preview, pre-load feasibility, campaigns | **P0** — **Open** (Phase 1 of the doc 02 loop; specified nowhere) |
+| **CMD-28** | Menu system, basemap layer stack, view tools, shortcut discovery | **P1** — **Open** (no menu bar specified; no layer model exists) |
+| **CMD-29** | Contact detail panel, distinct from the own-unit panel | **P0** — **Open** (projections shipped; specification absent) |
+| **CMD-30** | Tactical overlay control (range symbology, vectors, datalinks, legends) | **P1** — **Open**; distinct stack from CMD-28.2 basemap layers |
 
 ## Map and Symbology
 
@@ -178,6 +181,127 @@ hierarchy the sim will never populate.
 - **Partial:** Mode indicator: Human / Mixed / Agent-vs-Agent (doc 03)
 - **Open (CMD-22):** Top bar shows scenario date, **Zulu**, **local**, and remaining scenario duration. Zulu-vs-local is doctrinal in coalition operations and drives day/night reasoning; remaining duration frames session pacing. Cheap now, awkward to retrofit once the top bar is dense.
 - **Open (CMD-23):** Message log and left drawer collapsible to a title affordance with persisted state. Over multi-hour sessions the map is the scarce resource, and the log matters intensely but intermittently.
+
+## Menu System, Map Layers, and View Tools (CMD-28)
+
+**Open.** REQ-20 previously specified **no menu bar**. Keyboard shortcuts appear once in the parity
+table (§10.1, **P1 — Open**) and custom overlays once (§10.2, **P2 — Phase N**); nothing covers
+fullscreen, zoom, measurement, a coordinate grid, a 3D toggle, or basemap layers.
+
+- **CMD-28.1 — The menu is how shortcuts become discoverable.** Every menu item displays its binding
+  inline. A shortcut nobody can find is not a feature; specifying shortcuts (§10.1) without
+  specifying where they are advertised leaves them unusable. Pairs with the `?` shortcut sheet.
+- **CMD-28.2 — Basemap layer stack.** Independently toggleable layers with persisted checked state
+  (satellite, relief, borders/coastlines, terrain, roads/cities, land cover, placenames,
+  day+night lighting, custom). **Aegis has no layer model** — ADR-007 phases map *presentation*
+  but never mentions a layer stack, and `src/` has no `MapLayer` / `Basemap` type. Requires a
+  decision on which layers exist, whether the set is extensible, and **who owns visibility state**.
+  Layer visibility is pure presentation with no sim meaning, so it should be **UI-local** — an
+  explicit exception to ADR-010's projection rule, worth stating rather than discovering.
+- **CMD-28.3 — View-state actions are exempt from CLI/MCP parity; command actions are not.**
+  Zoom, pan, layers, grid, fullscreen and 3D change only what *this operator sees*: no headless
+  meaning, no CLI verb, no order-log row, no determinism guarantee. Anything that mutates the
+  scenario or issues orders keeps parity and produces logged intents (ADR-010). Stating the line
+  prevents both plumbing view toggles through the command bus and letting a mutating menu item
+  bypass the order log.
+- **CMD-28.4 — Spatial tools.** Range/bearing measurement with a binding — REQ-20 lists "measure"
+  only as a map context-menu item (§4.2, *Partial*), but in a genre where range is the primary
+  spatial judgement (same reasoning as **CMD-20**) it deserves to be a tool. Plus a Lat/Lon grid
+  overlay as a coordinate reference alongside CMD-20's distance scale.
+- **CMD-28.5 — Keyboard unit cycling** (next/previous). Complements CMD-07 selection sync by making
+  selection reachable without pointing.
+- **CMD-28.6 — Single-panel detachment is much cheaper than the multitasker.** Detaching one panel
+  (e.g. the message log) to one window is a fraction of **CMD-14**'s multi-monitor bookmark product
+  and delivers most of the value for a log wanted continuously visible. Split from CMD-14 rather
+  than inheriting its Phase N deferral.
+- **CMD-28.7 — Menu organisation.** Adopt the coverage, not the layout: the reference mixes window
+  management, camera, selection, tools, panel spawning, overlays, layers and render mode in one flat
+  list of nineteen items.
+
+## Tactical Overlay Control (CMD-30)
+
+**Open.** Distinct from **CMD-28.2** and the distinction is architectural, not cosmetic:
+
+| Stack | Content | Ownership under ADR-010 |
+|-------|---------|--------------------------|
+| **Basemap layers** (CMD-28.2) | Imagery, relief, borders, land cover — *what the world looks like* | **UI-local**; no sim meaning |
+| **Tactical overlays** (CMD-30) | Range envelopes, vectors, datalinks, courses — *what the sim state looks like* | **Projections** from the headless core |
+
+Two menus in the reference, two different owners. Conflating them would either plumb basemap
+toggles through the command bus or let sim-derived overlays become UI-local state that replay
+cannot reproduce.
+
+- **CMD-30.1 — Range symbology is a taxonomy, not a toggle.** Eight independent controls across
+  {Air, Surface, Underwater} × {Sensors, Weapons}, plus Land Weapons and Aircraft Range, each with
+  its own colour. **CMD-21** (selected-unit envelope rings) is a *subset* of this surface, not a
+  synonym — CMD-21 is the Phase A baseline for one unit; CMD-30.1 is the full picture-wide taxonomy.
+- **CMD-30.2 — Non-friendly range symbols are beliefs.** Showing estimated hostile envelopes is a
+  major tactical affordance, but those rings are inference (**CMD-29** epistemics) and must not
+  render identically to own-force envelopes, which are known.
+- **CMD-30.3 — Merged range symbols are a Phase A decluttering technique, not Phase N LOD.**
+  REQ-20 currently discusses decluttering only under APP-6 LOD and the 5k@60 north-star
+  (**CMD-13/15**, Phase N). Merging overlapping envelopes into a hull is cheap, needs no LOD
+  product, and becomes necessary long before 5,000 symbols. Same baseline-versus-Phase-N split as
+  CMD-21; do not let it be deferred with the LOD work.
+- **CMD-30.4 — State in text, not colour alone.** The reference writes `(Current: ON)` on every
+  toggle *beside* its colour chip. Adopt this: it satisfies **CMD-12** by construction and makes the
+  menu readable without relying on the swatch.
+- **CMD-30.5 — Engagement geometry overlays.** Illumination and targeting vectors — who is
+  illuminating or targeting whom (doc 14). Pairs with **CMD-11** intent preview; these make the
+  engagement picture legible before commitment.
+- **CMD-30.6 — Connectivity and emissions overlays.** Datalinks (**modelled** — 9 datalink types in
+  `src/`) and contact emissions (EMCON **modelled** via `EmconState` / `CatalogEmcon` /
+  `CatalogRadarEmconResolver`; emissions as a distinct concept are not). Links docs 15 and 19 to the
+  map.
+- **CMD-30.7 — Route and mission-area overlays.** Plotted courses and mission areas/courses.
+- **CMD-30.8 — Datablocks.** Configurable text labels attached to symbols; the density knob that
+  makes a dense picture readable or unreadable. **Not modelled.**
+- **CMD-30.9 — Camera and analysis tools.** Track-selected-unit (camera follow), LOS tool, minimaps.
+  **None modelled** — sonobuoy visibility, LOS, and minimaps have no type in `src/`.
+- **CMD-30.10 — Legends for data-driven colouring.** The reference pairs its land-cover layer with a
+  17-class Terrain Type Legend. **Any layer whose colour encodes a taxonomy requires a legend** —
+  without one the colouring is decoration the player cannot decode.
+- **CMD-30.11 — Group / Unit view toggle**, complementing CMD-07 selection sync (§4.4).
+
+> **Colour budget — worth an explicit audit.** Between eight range-symbol colours, affiliation
+> colours (**CMD-12**, which must stay colourblind-safe), seventeen land-cover classes, severity
+> colours, and diff colours, the colour channel is heavily oversubscribed. Adding overlays without a
+> palette audit will collide with the accessibility commitment already made in CMD-12.
+
+## Contact Detail Panel (CMD-29)
+
+**Open.** REQ-20's Right-panel row specifies *"Selected unit/group: status, sensors, weapons, fuel,
+doctrine"* — own-unit data. Contacts appear in the left drawer and in map styling, but **selecting a
+contact has no specified panel**.
+
+**The framing:** the unit panel shows what *is*; the contact panel shows what we *believe*. Every
+contact attribute is inference from sensor returns and may be wrong. Collapsing both into one
+"selected object" panel silently asserts that hostile data is as trustworthy as own-force data.
+
+This is **CMD-17's epistemics from the other side** — CMD-17 is *"I own this unit but cannot reach
+it"*; CMD-29 is *"I can see this thing but do not own it."* Both concern the gap between world and
+picture, and should be answered consistently.
+
+**Unusually, the data mostly exists** — `ContactSummaryProjection`, `ContactPictureProjection`,
+`ContactPictureEntry`, `BdaContactDamageStates` are shipped in
+`src/ProjectAegis.Delegation/Projection/`; `ContactChangeRecord` carries contact lifecycle into the
+order log (doc 17); WRA appears in the engage path. **The gap is specification, not model**, which
+makes this cheaper than its P0 suggests.
+
+- **CMD-29.1 — Identification with its confidence.** Classification specificity increases as sensor
+  data accumulates; the panel must show *how well* a contact is identified rather than asserting a
+  name. An overconfident label on a poorly-resolved contact is how players engage the wrong thing.
+- **CMD-29.2 — Detection provenance.** Which sensor, on which platform, and when. Answers *why do I
+  think this exists*, links doc 15 to CMD-11's "why can't I fire?" surface, and makes single-source
+  or stale tracks visible rather than implicit.
+- **CMD-29.3 — WRA classification** on the panel where the engagement decision is made (doc 13), not
+  only inside an abort reason after refusal.
+- **CMD-29.4 — BDA as belief, not truth.** Battle damage *assessment* is an estimate from
+  observation; rendering it identically to own-unit damage asserts knowledge the player lacks.
+- **CMD-29.5 — Contact report action** producing the fuller intelligence picture for the track.
+- **CMD-29.6 — Staleness.** A contact not currently held is a last-known position *with an age*.
+  Answer together with CMD-17's last-known-value question — the same design decision on own units
+  and on hostiles.
 
 ## Scenario Library and Load Operations (CMD-27)
 
