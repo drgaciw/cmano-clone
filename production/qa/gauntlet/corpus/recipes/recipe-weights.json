@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "updated": "2026-07-23",
+  "learningRate": 1.15,
+  "downWeightRate": 0.85,
+  "stuckDiscardThreshold": 5,
+  "baselineScore": 0,
+  "weights": {
+    "platform-swap-underused": 1.2,
+    "orbat-asymmetric-ratio": 1.0,
+    "mission-combo-escort-strike": 1.0,
+    "mission-concurrent-asw-aaw": 1.0,
+    "victory-weighted-multi": 1.0,
+    "victory-trigger-conditional": 1.0,
+    "event-timed-chain": 1.0,
+    "event-seeded-random-inject": 1.0,
+    "event-cascading-adversarial": 1.0,
+    "roe-asymmetric-per-side": 1.1,
+    "roe-mid-mission-change": 1.1,
+    "emcon-timed-phases": 1.1,
+    "emcon-contested-deception": 1.0,
+    "geometry-detection-lane-shift": 1.0,
+    "trait-attention-overload": 1.0,
+    "hard-case-replay": 1.3,
+    "bootstrap-seed": 0.5
+  },
+  "consecutiveDiscards": {}
+}
