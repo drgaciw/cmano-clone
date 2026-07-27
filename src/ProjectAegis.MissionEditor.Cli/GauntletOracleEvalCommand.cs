@@ -148,7 +148,7 @@ public static class GauntletOracleEvalCommand
         output.WriteLine("Notes:");
         output.WriteLine("  Filters CSV rows to the policy id (scenarioId column) before evaluation.");
         output.WriteLine("  --profile ladder (default): gauntlet.expect (tier-tick authority).");
-        output.WriteLine("  --profile ci: gauntlet.expectCi when present, else expect (CI ticks=10 smoke).");
+        output.WriteLine("  --profile ci: requires gauntlet.expectCi (CI ticks=10 smoke; no ladder fallback).");
         output.WriteLine("  Exit 0 when all scenarios Passed; exit 1 otherwise.");
         output.WriteLine("  Always prints JSON summary to stdout; --out also writes the same JSON.");
     }
