@@ -131,8 +131,8 @@
 }
 
 .scenario-editor-shell-tab:focus {
-    border-width: 1px;
-    border-color: var(--aegis-selected-ring);
+    border-width: var(--aegis-focus-ring-width);
+    border-color: var(--aegis-focus-ring);
 }
 
 .scenario-editor-shell-play-gate {
@@ -272,8 +272,8 @@
 }
 
 .scenario-editor-shell-finding-row:focus {
-    border-width: 1px;
-    border-color: var(--aegis-selected-ring);
+    border-width: var(--aegis-focus-ring-width);
+    border-color: var(--aegis-focus-ring);
 }
 
 .scenario-editor-shell-finding-row--error {

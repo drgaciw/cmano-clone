@@ -117,3 +117,16 @@
 .platform-import-acknowledge {
     color: var(--diff-pending);
 }
+
+/* Keyboard focus (REQ-20 CMD-12 / CMD-28.9) — distinct from --aegis-selected-ring. */
+.platform-import-action-button:focus,
+.platform-import-approve-button:focus,
+.platform-import-section-filter:focus {
+    border-width: var(--aegis-focus-ring-width);
+    border-color: var(--aegis-focus-ring);
+}
+
+.platform-import-diff-row:focus {
+    border-left-width: var(--aegis-focus-ring-width);
+    border-left-color: var(--aegis-focus-ring);
+}

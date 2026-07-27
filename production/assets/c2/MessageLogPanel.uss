@@ -64,7 +64,6 @@
 }
 
 .message-log-row--selectable:focus {
-    background-color: var(--selected-row-bg);
-    border-left-width: 2px;
-    border-left-color: var(--selected-ring);
+    border-left-width: var(--focus-ring-width);
+    border-left-color: var(--focus-ring);
 }

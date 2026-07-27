@@ -83,3 +83,11 @@
     /* Instant transitions — no decorative motion on Platform Editor */
     transition-duration: 0s;
 }
+
+/* Keyboard focus (REQ-20 CMD-12 / CMD-28.9). The active tab already uses
+   --aegis-selected-ring on border-bottom; focus uses a full ring in --aegis-focus-ring
+   so an active-but-unfocused tab and a focused-but-inactive tab stay distinguishable. */
+.platform-editor-shell-tab:focus {
+    border-width: var(--aegis-focus-ring-width);
+    border-color: var(--aegis-focus-ring);
+}

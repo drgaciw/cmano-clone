@@ -42,7 +42,7 @@
     /* Keyboard focus (REQ-20 CMD-12 / CMD-28.9).
        Deliberately NOT --selected-ring: focus and selection are independent states
        (a row can be selected without focus, or focused without selection), and the
-       existing :focus rules reuse --selected-ring, which makes them indistinguishable.
+       :focus rules use this token, never --selected-ring, so the two states stay distinct.
        Cyan is unclaimed by the semantic palette (affiliation, comms, log, gate, diff)
        and separates from amber --selected-ring on the blue-yellow axis, which survives
        red-green colour blindness. Measured WCAG contrast:

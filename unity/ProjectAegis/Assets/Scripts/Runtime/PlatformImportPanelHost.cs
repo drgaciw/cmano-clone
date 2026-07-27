@@ -149,6 +149,7 @@ namespace ProjectAegis.Unity.Runtime
                     _diffList.makeItem = () =>
                     {
                         var label = new Label();
+                        label.focusable = true;
                         label.AddToClassList(DiffRowBaseClass);
                         return label;
                     };
