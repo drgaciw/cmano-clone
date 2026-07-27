@@ -4,8 +4,8 @@
 **Title**: Engagement resolver allows dead units to keep firing (shooter-liveness not checked)
 **ID**: BUG-engagement-resolver-shooter-liveness
 **Severity**: S2-Major (combat resolution produces physically incorrect outcomes; sim does not crash, still runs)
-**Priority**: P2 — needs human-supervised fix given CRITICAL blast radius (see below); not safe for unsupervised autonomous remediation
-**Status**: Open — QUARANTINED-CRITICAL
+**Priority**: P2 — CRITICAL blast radius; fixed under explicit human authorization to override the autonomy rail
+**Status**: **FIXED** (2026-07-27) — was QUARANTINED-CRITICAL
 **Reported**: 2026-07-27
 **Reporter**: QA Gauntlet run `gauntlet-20260727-1455` (Tier 1), root-caused by c-sharp-architect investigation
 
@@ -57,3 +57,16 @@
 2. Add the missing shooter-liveness check (mirroring the existing target-liveness check).
 3. Re-run the full test suite, `replay-verify`, and the entire 24-scenario gauntlet corpus (not just Tier 1) — fixing this will very likely flip some currently-"passing" scenarios' actual kill counts, requiring `gauntlet.expect` recalibration across the corpus per the expect-regen runbook (`tools/qa-gauntlet/README-expect-regen.md`), not just at the two Tier 1 scenarios that surfaced it.
 4. Confirm no behavior change to the Unity runtime bridge's live gameplay balance beyond "dead units correctly stop fighting" (i.e., rule out any hidden dependency on the current — buggy — behavior).
+
+---
+
+## Resolution (2026-07-27)
+
+**Fixed** under explicit human authorization overriding the `/qa-gauntlet` CRITICAL autonomy rail (the rail is a skill-level default; the human may override it, and did, with the risk stated).
+
+- **Change**: `MvpEngagementResolver.Resolve` now gates on `_killedTargets.IsKilled(request.ShooterUnitId)`, mirroring the existing target gate and placed ahead of magazine consumption so a dead shooter never burns rounds. New `EngagementAbortReason.ShooterDestroyed` (23) registered in `data/glossary/abort_reason_manifest.json` as `SHOOTER_DESTROYED`.
+- **CRITICAL concern discharged**: all 3 `IEngagementResolver` implementations were reviewed individually as required. `RecordingEngagementResolver` and `StubEngagementResolver` are deliberate test doubles with no killed-target logic at all; `MvpEngagementResolver` is the only real gate. The "3 implementations, epistemic lower-bound" warning did not translate into 3 places needing the fix.
+- **Regression test**: `MvpEngagementResolverTests.Killed_shooter_aborts_before_launch` — un-skipped, now passing, and strengthened to also assert the abort reason and that no rounds are consumed.
+- **Verification**: full solution 1928 passed / 0 failed / 0 skipped (baseline was 1924 + 1 skipped — monotonic growth). All 17 `ReplayGolden` fixtures still pass, so **no golden hash moved and the Baltic v2 hash `17144800277401907079` is untouched**. Determinism re-verified: 12/12 identical fingerprints across two independent batch runs.
+- **Empirical effect**: on the tier-1 batch that surfaced this, seed-42 missiles fell (s1: 6 → 4) as dead shooters stopped firing, and denial counts rose corpus-wide because those blocked attempts are now recorded as denials instead of launches.
+- **Commit**: `94e615d1`

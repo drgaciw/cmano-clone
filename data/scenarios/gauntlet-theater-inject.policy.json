@@ -10,7 +10,7 @@
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
     "pkBase": 0.85,
-    "pkIntercept": 0.0,
+    "pkIntercept": 0,
     "pkKill": 0.2,
     "salvoSize": 1
   },
@@ -20,8 +20,8 @@
       "sensorId": "radar-1",
       "targetId": "em-sovremenny-i-pr-956-sarych",
       "contactId": "c-r-inject-1",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -29,8 +29,8 @@
       "sensorId": "radar-1",
       "targetId": "mrk-shkval-pr-22800-karakurt",
       "contactId": "c-r-inject-2",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -38,8 +38,8 @@
       "sensorId": "radar-1",
       "targetId": "skr-admiral-grigorovich-pr-1135-6m",
       "contactId": "c-r-inject-3",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     }
   ],
@@ -106,16 +106,16 @@
   },
   "gauntlet": {
     "intent": "Phase-3 theater: mid-run comms[] inject (Degraded@3, Denied@6) + mission events; catalog Visby vs Sovremenny [expanded ORBAT 6 units / 23 catalogRefs]",
-    "oracle": "CommsStateChange Nominal\u2192Degraded (inject_jamming) then \u2192Denied; PolicyUpdate ROE on contact trigger; blue kills catalog red",
+    "oracle": "CommsStateChange Nominal→Degraded (inject_jamming) then →Denied; PolicyUpdate ROE on contact trigger; blue kills catalog red",
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minKills": 2,
-      "maxMissilesFired": 14,
-      "maxDenials": 50,
-      "minScore": -50,
-      "maxScore": 295.0,
-      "minDenials": 19
+      "minKills": 1,
+      "maxMissilesFired": 16,
+      "maxDenials": 107,
+      "minScore": -405,
+      "maxScore": -5,
+      "minDenials": 40
     },
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -181,6 +181,18 @@
       }
     ],
     "tier": 4,
-    "runId": "gauntlet-theater-phase3"
+    "runId": "gauntlet-theater-phase3",
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T4 tick budget 24, seeds 42,7,123, after BUG-engagement-resolver-shooter-liveness + BUG-losses-scoring-side-unaware fixes. Prior envelope was calibrated against the buggy behaviour (enemy kills miscredited to own side; dead shooters still firing). minDenials kept as a real floor so ROE/EMCON restriction is still asserted, not relaxed away. Derived from observed rows per tools/qa-gauntlet/README-expect-regen.md — not invented.",
+    "expectCi": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 2,
+      "maxMissilesFired": 12,
+      "maxDenials": 35,
+      "minScore": 75,
+      "maxScore": 275,
+      "minDenials": 15
+    },
+    "expectCiProvenance": "calibrated 2026-07-27 from deterministic GitHub Actions smoke profile seed 42, ticks 10 after shooter-liveness and side-aware scoring fixes; observed score=175, kills=3, missiles=6, denials=25. CI-only margin retained around the observed row; full-budget gauntlet.expect remains unchanged."
   }
 }

@@ -99,7 +99,7 @@ jobs:
 
       - name: gauntlet_oracle_eval (shipped CLI — must pass)
         run: |
-          # --profile ci: prefer gauntlet.expectCi when present (ticks=10 smoke budget).
+          # --profile ci: require gauntlet.expectCi (ticks=10 smoke budget; no ladder fallback).
           # Ladder authority remains gauntlet.expect at tier ticks (default profile).
           dotnet run -c Release --no-build --project src/ProjectAegis.MissionEditor.Cli -- \
             gauntlet_oracle_eval \

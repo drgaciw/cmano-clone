@@ -4,8 +4,8 @@
 **Title**: Kill scoring is side-unaware — enemy kills against your own units are credited to your own kill tally
 **ID**: BUG-losses-scoring-side-unaware
 **Severity**: S2-Major (scoring/oracle correctness broken; sim does not crash)
-**Priority**: P2 — needs human-supervised fix given CRITICAL blast radius on the real fix; not safe for unsupervised autonomous remediation
-**Status**: Open — QUARANTINED-CRITICAL
+**Priority**: P2 — CRITICAL blast radius on the naive fix surface; fixed via a narrow route that avoided it entirely
+**Status**: **FIXED** (2026-07-27) — was QUARANTINED-CRITICAL
 **Reported**: 2026-07-27
 **Reporter**: QA Gauntlet run `gauntlet-20260727-1455` (Tier 1), root-caused by c-sharp-architect investigation
 
@@ -50,3 +50,18 @@
 1. Design the side-threading change deliberately (it touches a widely-shared record type — 381 impacted symbols is large enough that a naive constructor-parameter addition could break many call sites; consider whether a narrower approach exists, e.g. a side lookup keyed by unit id rather than a new record field).
 2. Fix in tandem with BUG-engagement-resolver-shooter-liveness — both should be verified together since correct scoring depends on correct engagement/kill semantics first.
 3. Re-run the full test suite, `replay-verify`, and the entire 24-scenario gauntlet corpus, recalibrating `gauntlet.expect` per the expect-regen runbook (`tools/qa-gauntlet/README-expect-regen.md`) since corpus-wide expected kill/score values will shift once both bugs are fixed.
+
+---
+
+## Resolution (2026-07-27)
+
+**Fixed** — and notably **without** touching the 381-symbol CRITICAL surface the original triage feared.
+
+- **Key realisation**: `EngagementOutcomeRecord` already carries `ShooterTargetId`, and `TargetId` is `readonly record struct TargetId(string Value)` — a *string* unit id, which is exactly the key `BalticV3SideRegistry.GetSideForUnit(string)` takes. No new record field, no constructor change, so the 381-symbol blast radius was never incurred. The real fix surface was 3 callers, not 381 symbols.
+- **Change**: `LossesScoringProjection.Project` takes an optional `scoredSide` and filters kills by shooter side; `LossesScoringCsvExporter` passes the `side` it already received.
+- **Deliberate rule**: a kill counts unless the shooter is *positively known* to be on a different side. Unknown/unregistered shooters still count, so legacy synthetic scenarios that never call `RegisterScenarioSide` do not silently score zero.
+- **Known gap (intentional)**: `C2TopBarProjection` still calls the null (count-all) path — it has no side context, and guessing the player's side would be a behaviour change beyond this defect. Follow-up: give the C2 top bar a side source.
+- **Regression tests**: 3 new in `LossesScoringProjectionTests` — opposing-side exclusion, mirrored red-side scoring, and unregistered-unit preservation.
+- **Verification**: full solution 1928 passed / 0 failed / 0 skipped. Tier-1 oracle `allPassed: true` (was 0/4). Seed-42 kills dropped from an impossible **4** (only 3 enemy units existed) to 2–3, and per-scenario results now genuinely differ instead of being identical across all 4 ORBATs — the original tell that outcomes were scenario-independent.
+- **Corpus**: all 24 pre-existing scenarios re-baselined and passing at correct per-tier tick budgets (see `BUG-scoring-penalises-roe-correct-refusals.md` for a design question this surfaced).
+- **Commit**: `48c648e1`

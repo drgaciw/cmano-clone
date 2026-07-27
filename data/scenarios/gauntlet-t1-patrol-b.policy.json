@@ -9,7 +9,7 @@
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
     "pkBase": 0.85,
-    "pkIntercept": 0.0,
+    "pkIntercept": 0,
     "pkKill": 0.2,
     "salvoSize": 1
   },
@@ -19,8 +19,8 @@
       "sensorId": "radar-1",
       "targetId": "em-sovremenny-i-pr-956-sarych",
       "contactId": "c-t1-1",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -28,8 +28,8 @@
       "sensorId": "radar-1",
       "targetId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
       "contactId": "c-t1-2",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -37,8 +37,8 @@
       "sensorId": "radar-1",
       "targetId": "mrk-shkval-pr-22800-karakurt",
       "contactId": "c-t1-3",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     }
   ],
@@ -122,7 +122,17 @@
         "domain": "surface",
         "side": "red"
       }
-    ]
+    ],
+    "expectCi": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 1,
+      "maxMissilesFired": 10,
+      "maxDenials": 10,
+      "minScore": 100,
+      "maxScore": 300
+    },
+    "expectCiProvenance": "calibrated 2026-07-27 from deterministic GitHub Actions smoke profile seed 42, ticks 10 after shooter-liveness and side-aware scoring fixes; observed score=200, kills=2, missiles=4, denials=0. CI-only margin retained around the observed row; full-budget gauntlet.expect remains unchanged."
   },
   "id": "gauntlet-t1-patrol-b"
 }
