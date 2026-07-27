@@ -1,0 +1,41 @@
+version: 1
+runId: gauntlet-20260723-1543
+tier: 1
+generatedAt: 2026-07-23T15:43:00Z
+phase: pre
+
+rankedRecipes:
+  - id: hard-case-replay
+    weight: 1.3
+    rationale: Highest T1-eligible weight; re-sample hard cases if pool non-empty
+  - id: platform-swap-underused
+    weight: 1.2
+    rationale: Address count=1 platforms (mig-31, borei-ii, kilo, type-212a, akula)
+  - id: geometry-detection-lane-shift
+    weight: 1.0
+    rationale: Structural variation without mission-class mutation
+
+underusedPlatformHints:
+  - mig-31-foxhound
+  - plarb-955a-borei-ii-borey-a
+  - a-19-gotland-2002
+  - pl-877-kilo-paltus-1992
+  - s-181-u-31-type-212a
+
+coverageGaps:
+  - missionClass: asw
+    note: Only one T4 cell; no T1-T3 ASW representation
+  - missionClass: event-chain
+    note: Absent below T3
+  - missionClass: id-roe
+    note: Single T3 cell only
+
+hardCaseReplays: []
+
+tier1Scenarios:
+  - gauntlet-t1-patrol-a
+  - gauntlet-t1-patrol-b
+  - gauntlet-t1-patrol-c
+  - gauntlet-t1-patrol-d
+
+maxCandidates: 1

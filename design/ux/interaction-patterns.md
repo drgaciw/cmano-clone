@@ -48,7 +48,7 @@ This library documents **interaction patterns already implemented** in code so n
 | Input | Result | Feedback |
 |-------|--------|----------|
 | Click tab `OOB` / `MISSIONS` / `CONTACTS` | Activates tab; swaps ListView content | Instant tab highlight; no slide animation ([accessibility-requirements.md §4](../accessibility-requirements.md#4-reduced-motion)) |
-| Keyboard focus on tab toolbar | Arrow keys move between tabs; Enter activates | Unity 6 default focus ring |
+| Keyboard focus on tab toolbar | Arrow keys move between tabs; Enter activates | `focus-ring` `#00E5FF` at `2px` ([art-bible.md §3](art/art-bible.md#semantic--selection--focus)) |
 | Planning phase (pre–Begin Execution) | Drawer read-only styling | `c2-drawer-panel--planning-readonly` — border `#465260`, tabs 65% opacity ([art-bible.md §2 Planning](art/art-bible.md#planning-rtwp--before-begin-execution)) |
 
 ### Data binding
@@ -88,8 +88,9 @@ Selection projection (unitId / contactId)
 
 | Target | Token | Spec |
 |--------|-------|------|
-| Map symbol | `selected-ring` `#FFC850` | 1px border + 15% fill ([art-bible.md §3](art/art-bible.md#semantic--selection--focus)) |
+| Map symbol | `selected-ring` `#FFC850` | 1px border + 15% fill ([art-bible.md §3](../art/art-bible.md#semantic--selection--focus)) |
 | OOB row | `selected-row` | 3px left bar `#4A9EFF` + 25% background |
+| Keyboard focus (`:focus`) | `focus-ring` `#00E5FF` | `focus-ring-width` `2px`; distinct from `selected-ring` ([accessibility-requirements.md §2.4](../accessibility-requirements.md#24-non-text-ui-focus-selection)) |
 | Right panel | Populated lines | Unit id, alive/destroyed, magazine, EMCON, sensors summary |
 | No selection | Placeholder copy | "Select a unit on map or OOB" ([c2-command-post.md §5](c2-command-post.md#5-states--variants)) |
 
