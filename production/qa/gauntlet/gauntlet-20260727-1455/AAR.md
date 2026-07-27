@@ -1,6 +1,12 @@
 # After-Action Report — QA Gauntlet `gauntlet-20260727-1455`
 
 **Run**: `gauntlet-20260727-1455` | **Started**: 2026-07-27T14:55Z | **Trunk base**: `fa4db95c` (main) | **Branch**: `07-27-qa_gauntlet_gauntlet-20260727-1455`
+> **SUPERSEDED IN PART — 2026-07-27, later same day.** Both defects below were
+> subsequently **FIXED** in a follow-up session under explicit human authorization
+> to override the CRITICAL autonomy rail. See §10 "Post-AAR Remediation" at the
+> end of this document. The quarantine narrative below is preserved as the
+> accurate record of the original run.
+
 **Outcome**: **HALTED after Tier 1 by explicit human decision.** Tiers 2-5 were never run. Tier 1 surfaced two long-standing, compounding engine defects in combat resolution and scoring that would recur identically at every subsequent tier (they are not tier-specific) — continuing the ladder without new information would only burn budget re-discovering the same root cause at higher platform counts and mission complexity.
 
 ---
@@ -151,3 +157,85 @@ None observed this run. Both defects are deterministic (100% reproduction rate a
 ### QA Lead Sign-off
 
 **READY FOR HUMAN REVIEW.** Independent re-verification (not trusting the orchestrator's self-report) confirmed: full suite 1924/1925/0-failed/1-skipped exactly matches Phase 0 baseline plus the one intentional quarantine skip; ReplayGolden 17/17 unaffected by the test-file edit. One documentation inconsistency was found and has since been corrected: `BUG-engagement-resolver-shooter-liveness.md` originally described its companion defect as "not yet filed" when `BUG-losses-scoring-side-unaware.md` was in fact already filed — both reports now cross-reference each other correctly. Both reports' severity labels were also corrected from the non-standard "S2-High" to this project's actual taxonomy label, "S2-Major." No test/build blockers.
+
+
+---
+
+## 10. Post-AAR Remediation (2026-07-27, follow-up session)
+
+The human explicitly authorized overriding the `/qa-gauntlet` CRITICAL autonomy
+rail. Both quarantined defects were then fixed with full TDD discipline. This
+section supersedes the "quarantined, not fixed" disposition recorded above.
+
+### Outcome
+
+| Metric | At AAR time | After remediation |
+|---|---|---|
+| Defects quarantined | 2 | **0** |
+| `sim-code` fixed | 0 | **2** |
+| Tier 1 oracle | 0/4 scenarios pass | **4/4, `allPassed: true`** |
+| Corpus (24 pre-existing) | not assessed | **24/24 pass** at correct per-tier tick budgets |
+| Test suite | 1924 passed, 1 skipped | **1928 passed, 0 failed, 0 skipped** |
+| ReplayGolden | 17/17 | **17/17 — no golden hash moved; Baltic v2 hash untouched** |
+| Determinism | n/a | **12/12 identical fingerprints across two independent runs** |
+
+### What the CRITICAL warnings actually turned out to mean
+
+Both blast-radius figures that drove the original quarantine proved to be
+**upper bounds on where to look, not on what to change** — which is worth
+recording for future triage:
+
+- **Bug 1 (42 symbols, 3 interface implementations):** all 3 implementations were
+  reviewed individually as the quarantine required. `RecordingEngagementResolver`
+  and `StubEngagementResolver` are deliberate test doubles with no killed-target
+  logic; `MvpEngagementResolver` was the only real gate. One file changed.
+- **Bug 2 (381 symbols):** that figure was for adding a `side` field to
+  `EngagementOutcomeRecord`'s constructor. It was never necessary — the record
+  already carries `ShooterTargetId`, and `TargetId` wraps a *string* unit id,
+  which is exactly the key `BalticV3SideRegistry` takes. The actual fix surface
+  was 3 callers.
+
+The quarantine was still the right call at the time: that analysis had not been
+done, and the rail exists precisely to force it to happen under human oversight
+rather than mid-run.
+
+### Corpus re-baseline, and a methodology correction
+
+An initial corpus sweep ran all 24 scenarios at 10 ticks and reported 9
+failures. That was **invalid** — the expect-regen runbook explicitly forbids
+calibrating from CI's 10-tick smoke. Re-run at correct per-tier budgets
+(T1=6, T2=10, T3=16, T4=24, T5=40) the true figure was **4**, and the corrected
+number is what the regen was based on.
+
+Of those 4: two were denial-ceiling drift (dead shooters' blocked attempts are
+now logged as denials rather than launches), and two — `gauntlet-t1-patrol-c`
+and `gauntlet-t2-escort-passive` — had `minKills: 1` assertions that were only
+ever satisfiable *because of* Bug 2. Both scenarios' own stated intents are
+restrictive postures ("tight Blue ROE", "passive-EMCON, low Pd"), so blue
+scoring zero kills is correct behaviour. Their envelopes were corrected to
+`minKills: 0` while **preserving meaningful `minDenials` floors**, so they still
+assert that ROE/EMCON gating actually fires rather than becoming no-ops.
+
+### New issue surfaced (not fixed — design question)
+
+`production/qa/bugs/BUG-scoring-penalises-roe-correct-refusals.md`: score
+deducts 5 per denial without distinguishing a *correct* ROE refusal from a
+genuine failure. Scenarios designed around restraint therefore score deeply
+negative for behaving exactly as intended (`gauntlet-t2-escort-passive`: −200
+for staying passive). Filed with four defensible options and no code change
+proposed — it is a game-design call, not a QA call.
+
+### Remaining known gap
+
+`C2TopBarProjection` still uses the unfiltered (count-all) scoring path. It has
+no side context, and guessing the player's side would be a behaviour change
+beyond the scope of this defect. Follow-up: give the C2 top bar a side source.
+
+### Commits
+
+| Commit | Change |
+|---|---|
+| `94e615d1` | Bug 1 — shooter-liveness gate + `ShooterDestroyed` abort reason + manifest entry |
+| `48c648e1` | Bug 2 — side-aware scoring via narrow `scoredSide` filter |
+| `7ebda974` | Tier-1 expect regen from post-fix batch |
+| `c6e0c61a` | Corpus expect regen (4 scenarios) + new design-question bug report |
