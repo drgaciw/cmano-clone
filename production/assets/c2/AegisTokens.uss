@@ -39,6 +39,22 @@
     --selected-row-bar: #FFC850;
     --score-accent: #F0C040;
 
+    /* Keyboard focus (REQ-20 CMD-12 / CMD-28.9).
+       Deliberately NOT --selected-ring: focus and selection are independent states
+       (a row can be selected without focus, or focused without selection), and the
+       existing :focus rules reuse --selected-ring, which makes them indistinguishable.
+       Cyan is unclaimed by the semantic palette (affiliation, comms, log, gate, diff)
+       and separates from amber --selected-ring on the blue-yellow axis, which survives
+       red-green colour blindness. Measured WCAG contrast:
+         vs --surface-deep #080E16      12.59:1
+         vs --surface-map #101824       11.59:1
+         vs --surface-panel             12.20:1
+         vs --selected-row-bg composite  7.54:1   (focused AND selected)
+       All well above the 3:1 non-text minimum. Verify with a colour-blind simulation
+       pass before the accessibility gate. */
+    --focus-ring: #00E5FF;
+    --focus-ring-width: 2px;
+
     /* Comms */
     --comms-nominal: #64C88C;
     --comms-degraded: #F0B450;
@@ -88,6 +104,8 @@
     --aegis-text-data: var(--text-data);
     --aegis-text-topbar: var(--text-topbar);
     --aegis-selected-ring: var(--selected-ring);
+    --aegis-focus-ring: var(--focus-ring);
+    --aegis-focus-ring-width: var(--focus-ring-width);
     --aegis-selected-row-bg: var(--selected-row-bg);
     --aegis-selected-row-bar: var(--selected-row-bar);
     --aegis-diff-changed: var(--diff-changed);
