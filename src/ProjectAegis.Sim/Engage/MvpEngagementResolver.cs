@@ -56,6 +56,15 @@ public sealed class MvpEngagementResolver : IEngagementResolver
 
     public EngageResult Resolve(in EngageRequest request)
     {
+        // A destroyed unit cannot shoot. This mirrors the TargetDestroyed gate below and must
+        // stay ahead of every other check — most importantly ahead of magazine consumption, so
+        // a dead shooter never burns rounds. Without it, a unit killed at tick N kept launching
+        // engagements at tick N+1 (BUG-engagement-resolver-shooter-liveness).
+        if (request.ShooterUnitId != 0 && _killedTargets.IsKilled(request.ShooterUnitId))
+        {
+            return EngageResult.Aborted(EngagementAbortReason.ShooterDestroyed);
+        }
+
         if (request.TargetId != 0 && _killedTargets.IsKilled(request.TargetId))
         {
             return EngageResult.Aborted(EngagementAbortReason.TargetDestroyed);

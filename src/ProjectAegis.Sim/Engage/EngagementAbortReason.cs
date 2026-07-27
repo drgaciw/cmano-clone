@@ -25,4 +25,11 @@ public enum EngagementAbortReason
     DamageWithdrawRecommended = 20,
     MineAspectBlock = 21,
     FacilityAspectBlock = 22,
+
+    /// <summary>
+    /// The shooter itself was destroyed earlier in the run. Distinct from
+    /// <see cref="TargetDestroyed"/>: that gate stops shots *at* a dead unit, this one stops
+    /// shots *from* one. See BUG-engagement-resolver-shooter-liveness.
+    /// </summary>
+    ShooterDestroyed = 23,
 }

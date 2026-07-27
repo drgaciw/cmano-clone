@@ -235,7 +235,7 @@ public sealed class MvpEngagementResolverTests
     /// launches, because the only IsKilled check in Resolve is keyed off TargetId, not
     /// ShooterUnitId.
     /// </summary>
-    [Fact(Skip = "QUARANTINED-CRITICAL: see production/qa/bugs/BUG-engagement-resolver-shooter-liveness.md — fix touches Resolve, a CRITICAL-risk interface (3 implementations, reaches the live Unity DelegationBridgeHost.RunTick); needs human-supervised remediation, not unsupervised autonomous fix. Un-skip once BUG-engagement-resolver-shooter-liveness is fixed.")]
+    [Fact]
     public void Killed_shooter_aborts_before_launch()
     {
         var world = new DictionaryEngageWorldQuery();
@@ -250,5 +250,7 @@ public sealed class MvpEngagementResolverTests
         var result = resolver.Resolve(request);
 
         Assert.False(result.Launched, "a shooter already marked killed must not be allowed to launch a new engagement");
+        Assert.Equal(EngagementAbortReason.ShooterDestroyed, result.AbortReason);
+        Assert.Equal(2, magazines.GetRounds(1, 0)); // dead shooter must not burn rounds
     }
 }
