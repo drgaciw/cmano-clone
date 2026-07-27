@@ -3,7 +3,7 @@
 ## Summary
 **Title**: Kill scoring is side-unaware — enemy kills against your own units are credited to your own kill tally
 **ID**: BUG-losses-scoring-side-unaware
-**Severity**: S2-High (scoring/oracle correctness broken; sim does not crash)
+**Severity**: S2-Major (scoring/oracle correctness broken; sim does not crash)
 **Priority**: P2 — needs human-supervised fix given CRITICAL blast radius on the real fix; not safe for unsupervised autonomous remediation
 **Status**: Open — QUARANTINED-CRITICAL
 **Reported**: 2026-07-27

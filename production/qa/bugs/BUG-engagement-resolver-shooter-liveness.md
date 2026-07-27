@@ -3,7 +3,7 @@
 ## Summary
 **Title**: Engagement resolver allows dead units to keep firing (shooter-liveness not checked)
 **ID**: BUG-engagement-resolver-shooter-liveness
-**Severity**: S2-High (combat resolution produces physically incorrect outcomes; sim does not crash, still runs)
+**Severity**: S2-Major (combat resolution produces physically incorrect outcomes; sim does not crash, still runs)
 **Priority**: P2 — needs human-supervised fix given CRITICAL blast radius (see below); not safe for unsupervised autonomous remediation
 **Status**: Open — QUARANTINED-CRITICAL
 **Reported**: 2026-07-27
@@ -47,7 +47,7 @@
   - `Resolve` is an interface with **3 implementations**; GitNexus flags `epistemic: lower-bound` — actual impact may exceed what's traced, since callers binding via the interface (DI/dynamic dispatch) aren't followed to the concrete symbol.
 
 ## Related Issues
-- Companion defect: side-unaware scoring in `LossesScoringProjection.Project` (`src/ProjectAegis.Delegation/Projection/LossesScoringProjection.cs:12`) — counts every `Kill`-coded outcome regardless of which side scored it, so an enemy kill against your own unit gets credited to your own kill tally. Confirmed by the same root-cause investigation. Tracked as a separate defect (not yet filed as its own bug report) since its fix is independent (side-threading into `DecisionLog`/`EngagementOutcomeRecord`, likely via `BalticV3SideRegistry`) and has a different (still-unassessed) blast radius.
+- Companion defect: `production/qa/bugs/BUG-losses-scoring-side-unaware.md` — side-unaware scoring in `LossesScoringProjection.Project` (`src/ProjectAegis.Delegation/Projection/LossesScoringProjection.cs:12`) counts every `Kill`-coded outcome regardless of which side scored it, so an enemy kill against your own unit gets credited to your own kill tally. Confirmed by the same root-cause investigation. Filed as its own bug report since its fix is independent (side-threading into `DecisionLog`/`EngagementOutcomeRecord`, likely via `BalticV3SideRegistry`) and has its own blast radius (CRITICAL, 381 impacted symbols).
 - Full investigation notes: this session's QA Gauntlet run `gauntlet-20260727-1455`.
 
 ## Notes
