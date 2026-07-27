@@ -97,7 +97,7 @@ tiers:
       several of the 24 already-promoted scenarios appear calibrated around the same
       bugs. See defects below.
   - {n: 2, status: pending}
-  - {n: 3, status: pending}
+  - {n: 3, status: in_progress}
   - {n: 4, status: pending}
   - {n: 5, status: pending}
 
@@ -108,14 +108,14 @@ forge_wiring:
 defects:
   - id: BUG-engagement-resolver-shooter-liveness
     class: sim-code
-    status: QUARANTINED-CRITICAL
+    status: FIXED (2026-07-27, PR #361) — was QUARANTINED-CRITICAL
     report: production/qa/bugs/BUG-engagement-resolver-shooter-liveness.md
     symbol: "MvpEngagementResolver.Resolve (src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs:59)"
     impact: "CRITICAL — 42 impacted symbols, reaches unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs RunTick (live Unity runtime)"
-    regression_test: "src/ProjectAegis.Sim.Tests/Engage/MvpEngagementResolverTests.cs Killed_shooter_aborts_before_launch (RED, marked Skip pending human-supervised fix)"
+    regression_test: "src/ProjectAegis.Sim.Tests/Engage/MvpEngagementResolverTests.cs Killed_shooter_aborts_before_launch (un-skipped, passing)"
   - id: BUG-losses-scoring-side-unaware
     class: sim-code
-    status: QUARANTINED-CRITICAL
+    status: FIXED (2026-07-27, PR #361) — was QUARANTINED-CRITICAL
     report: production/qa/bugs/BUG-losses-scoring-side-unaware.md
     symbol: "LossesScoringProjection.Project (src/ProjectAegis.Delegation/Projection/LossesScoringProjection.cs:12)"
     impact: "CRITICAL — 381 impacted symbols on the real fix surface (EngagementOutcomeRecord constructor)"

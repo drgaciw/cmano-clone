@@ -1,0 +1,223 @@
+{
+  "id": "gauntlet-20260727-1455-t3-s2",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 6,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "contactLifecycle": {
+    "staleThresholdTicks": 30,
+    "classifyAfterTicks": 3,
+    "identifyAfterTicks": 6
+  },
+  "detection": [
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-s2-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-230-norfolk-type-23-duke",
+      "sensorId": "radar-1",
+      "targetId": "mrk-shkval-pr-22800-karakurt",
+      "contactId": "c-s2-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "su-35s-flanker-m-2023",
+      "contactId": "c-s2-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "s-120-papanikolis-type-214hn",
+      "sensorId": "passive-sonar-1",
+      "targetId": "s-71-chakra-pla-971i-akula-ii",
+      "contactId": "c-s2-4",
+      "basePd": 0.8,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "p-3c-orion-update-iii-2023",
+      "sensorId": "sonar-buoy-1",
+      "targetId": "s-71-chakra-pla-971i-akula-ii",
+      "contactId": "c-s2-5",
+      "basePd": 0.7,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start",
+      "classify-window",
+      "identify-window"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "classify-window",
+        "fireAtTick": 3,
+        "kind": "EventFired",
+        "code": "contact_classify_expected"
+      },
+      {
+        "id": "identify-window",
+        "fireAtTick": 6,
+        "kind": "EventFired",
+        "code": "contact_identify_expected"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "escort-strike-roe",
+        "observerId": "p-960-skjold",
+        "targetClass": "Surface",
+        "side": "friendly",
+        "missionCode": "ASuW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "p-960-skjold",
+          "f-230-norfolk-type-23-duke",
+          "p-840-holland"
+        ]
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T3 escort+strike: blue screens HVU f-230-norfolk-type-23-duke while tasked to destroy designated red target pk-368-vasily-bykov-pr-22160. classifyAfterTicks=3 / identifyAfterTicks=6 are tuned to resolve inside the 16-tick budget so the contact lifecycle gate (Detected -> Classified -> Identified) is exercised before the escort-strike ROE window closes, pairing the ID-required ROE theme with lifecycle gating.",
+    "oracle": "ContactChange fingerprint entries must contain the literal ContactLifecycleState tokens Classified and Identified for at least one tracked contact by tick 6.",
+    "catalogRefs": [
+      "f-230-norfolk-type-23-duke",
+      "p-960-skjold",
+      "p-840-holland",
+      "jas-39e-gripen-ng-2021",
+      "p-3c-orion-update-iii-2023",
+      "s-120-papanikolis-type-214hn",
+      "pk-368-vasily-bykov-pr-22160",
+      "mrk-shkval-pr-22800-karakurt",
+      "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+      "su-35s-flanker-m-2023",
+      "mig-29-fulcrum-c-1999",
+      "s-71-chakra-pla-971i-akula-ii"
+    ],
+    "dimensionsClaimed": [
+      "contact-lifecycle-classify",
+      "contact-lifecycle-identify",
+      "roe-id-required",
+      "escort-strike-combined",
+      "timed-event-chain"
+    ],
+    "units": [
+      {
+        "unitId": "f-230-norfolk-type-23-duke",
+        "platformId": "f-230-norfolk-type-23-duke",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-840-holland",
+        "platformId": "p-840-holland",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-3c-orion-update-iii-2023",
+        "platformId": "p-3c-orion-update-iii-2023",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-120-papanikolis-type-214hn",
+        "platformId": "s-120-papanikolis-type-214hn",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+        "platformId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-35s-flanker-m-2023",
+        "platformId": "su-35s-flanker-m-2023",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-29-fulcrum-c-1999",
+        "platformId": "mig-29-fulcrum-c-1999",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "s-71-chakra-pla-971i-akula-ii",
+        "platformId": "s-71-chakra-pla-971i-akula-ii",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "expect": {
+      "side": "BLUE",
+      "minKills": 0,
+      "maxMissilesFired": 23,
+      "minDenials": 24,
+      "maxDenials": 65,
+      "minScore": -340.0,
+      "maxScore": 160.0,
+      "requireNonEmptyFingerprint": true
+    },
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T3 tick budget 16, seeds 42,7,123, after the s5/control activeFromTick fix. Per tools/qa-gauntlet/README-expect-regen.md \u2014 derived, not invented."
+  }
+}
