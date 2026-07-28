@@ -71,10 +71,15 @@ def estimate_runs(configs: list[dict[str, str]], axes: dict[str, Axis], seeds: i
     total = 0
     for config in configs:
         total += seeds
+        # This function guards a budget gate (a downstream runbook refuses to run
+        # matrices above a threshold), so over-estimating cost is safe but
+        # under-estimating is not. Each control-sibling axis needs its own twin
+        # scenario to isolate that axis's effect, so every axis that both
+        # requires a sibling and is elevated in this config adds its own block
+        # of seed runs — no break, so multiple qualifying axes each count.
         for axis_id, axis in axes.items():
             if axis.requires_control_sibling and config.get(axis_id, "off") != "off":
                 total += seeds
-                break
     return total
 
 

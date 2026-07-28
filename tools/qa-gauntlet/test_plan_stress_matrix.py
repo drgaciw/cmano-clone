@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "qa-gauntlet"))
 
 from plan_stress_matrix import estimate_runs, pairwise, plan_matrix  # noqa: E402
-from stress_axes import load_axes  # noqa: E402
+from stress_axes import Axis, load_axes  # noqa: E402
 
 CATALOG = ROOT / "production" / "qa" / "gauntlet" / "corpus" / "stress-axes.yaml"
 FACTORS = {
@@ -62,6 +62,32 @@ def test_estimate_runs_counts_seeds_and_ew_control_twins():
     ]
 
     # 2 configs x 3 seeds = 6, plus a control twin for the one EW-on config x 3 seeds = 3.
+    assert estimate_runs(configs, axes, seeds=3) == 9
+
+
+def test_estimate_runs_counts_a_control_sibling_per_qualifying_axis():
+    # Synthetic catalog with two independent control-sibling axes, to cover the
+    # multi-axis case the real catalog (only `ew` requires a sibling) can't
+    # exercise. A config that elevates both axes must count two sibling blocks,
+    # not one.
+    axes = {
+        "alpha": Axis(
+            id="alpha",
+            proof="differential-aggregate",
+            levels={"off": {}, "extreme": {}},
+            requires_control_sibling=True,
+        ),
+        "bravo": Axis(
+            id="bravo",
+            proof="differential-aggregate",
+            levels={"off": {}, "extreme": {}},
+            requires_control_sibling=True,
+        ),
+    }
+    configs = [{"tier": "3", "alpha": "extreme", "bravo": "extreme"}]
+
+    # 1 config x 3 seeds = 3, plus a control twin for `alpha` x 3, plus a
+    # control twin for `bravo` x 3 = 9.
     assert estimate_runs(configs, axes, seeds=3) == 9
 
 
