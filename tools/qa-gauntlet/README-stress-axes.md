@@ -74,15 +74,19 @@ the same number and were previously conflated:
 | Reference | Scenarios | Runs (3 seeds) |
 |---|---|---|
 | Default ladder run (`--scenarios-per-tier 4` x 5 tiers) | 20 | **60** |
-| Accumulated-corpus regression | 43 | **129** |
+| Accumulated-corpus regression (tiered scenarios only) | 39 | **117** |
+
+43 gauntlet policies sit on disk, but only the **39** carrying a
+`gauntlet.tier` are executed by the per-tier corpus regression — the other 4
+have no tier and are skipped. Count tiered scenarios, not files.
 
 At `configs=15, seeds=3` the matrix costs **105 runs**. Stated honestly, that
-is **~1.75x a default ladder run** and about **0.81x** a full-corpus
+is **~1.75x a default ladder run** and about **0.90x** a full-corpus
 regression: the matrix is *not* cheaper than running the ladder, and must not
 be sold as if it were. It is cheaper than the 135-scenario full cross-product
-it replaces, and cheaper than a corpus regression.
+it replaces, and only marginally cheaper than a corpus regression.
 
-Treat the corpus-regression cost (129) as the ceiling. If `estimatedRuns`
+Treat the corpus-regression cost (117) as the ceiling. If `estimatedRuns`
 exceeds it, lower `max_configs` rather than letting the run expand. Truncation
 is always reported via `dropped`; a stress run must never silently narrow its
 own coverage.

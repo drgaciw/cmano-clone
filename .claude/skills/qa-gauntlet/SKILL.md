@@ -134,11 +134,13 @@ a cross-product: `ew`, `logistics`, `weapons` (see
   max_configs=24` this is `configs=15, estimatedRuns=105, dropped=0`.
 - **Budget anchors — do not conflate them.** A default ladder run is
   4 scenarios/tier x 5 tiers x 3 seeds = **60 runs**. The accumulated-corpus
-  regression is 43 x 3 = **129 runs**. (The previously documented "117" was the
-  corpus-regression figure, not a ladder run.) At 105 runs the matrix is
-  **~1.75x a default ladder** and ~0.81x a corpus regression — it is *not*
-  cheaper than running the ladder; do not present it as such. Treat 129 as the
-  ceiling and lower `max_configs` if `estimatedRuns` exceeds it.
+  regression covers the **39** scenarios carrying a `gauntlet.tier` (43 policies
+  exist on disk; 4 have no tier and are skipped), so 39 x 3 = **117 runs**. The
+  "117" figure is correct for the corpus regression — the error to avoid is
+  calling it a ladder run. At 105 runs the matrix is **~1.75x a default ladder**
+  and ~0.90x a corpus regression — it is *not* cheaper than running the ladder;
+  do not present it as such. Treat 117 as the ceiling and lower `max_configs` if
+  `estimatedRuns` exceeds it.
 - Verify with `verify_stress_axes.verify_axis(...)` using each axis's declared
   proof mode. `logistics` is `config-only` (GAP-13) and is **never** reported as
   proven — do not add a fuel assertion to make it look green.
