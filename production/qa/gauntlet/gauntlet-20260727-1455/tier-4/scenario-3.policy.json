@@ -1,0 +1,198 @@
+{
+  "id": "gauntlet-20260727-1455-t4-s3",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 48000,
+    "envelopeMinMeters": 4000,
+    "envelopeMaxMeters": 125000,
+    "defaultMagazineRounds": 5,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.8,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "emcon": {
+    "units": {
+      "f-219-sachsen-type-f124-2006": { "radar": "Passive" },
+      "ssn-774-virginia-blk-i-ii": { "radar": "Passive" }
+    }
+  },
+  "detection": [
+    {
+      "observerId": "ka-27m-helix-a",
+      "sensorId": "sonar-dipping-1",
+      "targetId": "pla-885-severodvinsk-yasen",
+      "contactId": "c-s3-1",
+      "basePd": 0.7,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "f-16c-blk-52iq-falcon-2015",
+      "sensorId": "radar-1",
+      "targetId": "mig-29-fulcrum-c-1999",
+      "contactId": "c-s3-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "nh90-tth-mrh90-taipan-2007",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-s3-3",
+      "basePd": 0.85,
+      "envMask": 0.9,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-310-fridtjof-nansen",
+      "sensorId": "radar-1",
+      "targetId": "su-24m-fencer-d-1992",
+      "contactId": "c-s3-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-grigorovich-pr-1135-6m",
+      "sensorId": "radar-1",
+      "targetId": "f-219-sachsen-type-f124-2006",
+      "contactId": "c-s3-5",
+      "basePd": 0.4,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "mig-29-fulcrum-c-1999",
+      "sensorId": "radar-1",
+      "targetId": "f-16c-blk-52iq-falcon-2015",
+      "contactId": "c-s3-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "contacts": [
+    {
+      "observerId": "ssn-774-virginia-blk-i-ii",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-s3-reinforce-1",
+      "appearAtTick": 10,
+      "hasFireControlTrack": false
+    }
+  ],
+  "jammers": [
+    {
+      "targetId": "mig-29-fulcrum-c-1999",
+      "jamStrength": 0.6,
+      "activeFromTick": 14,
+      "observerId": "f-16c-blk-52iq-falcon-2015"
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start",
+      "reinforcement-inject",
+      "degradation-inject"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "reinforcement-inject",
+        "fireAtTick": 10,
+        "kind": "EventFired",
+        "code": "reinforcement_sub_inject_designated"
+      },
+      {
+        "id": "degradation-inject",
+        "fireAtTick": 14,
+        "kind": "EventFired",
+        "code": "sensor_degradation_inject_designated"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "asw-reinforcement-detect-roe",
+        "observerId": "ssn-774-virginia-blk-i-ii",
+        "targetClass": "Subsurface",
+        "side": "friendly",
+        "missionCode": "ASW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "ssn-774-virginia-blk-i-ii",
+          "ka-27m-helix-a",
+          "s-185-u-35-type-212a"
+        ]
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T4 main-ladder baseline #3: SEEDED RANDOM INJECTS (deterministic/scripted, per tier spec -- the sim's event mechanism is fixed scripted events, not runtime Random.Shared/wall-clock, so 'seeded' here means fixed-tick-scheduled and reproducible across seeds 42/7/123, not stochastically timed) plus DYNAMIC EMCON CHANGE ON DETECTION. Two genuinely mechanical injects, both real engine-consumed fields (not narrative-only): (1) reinforcement_sub_inject_designated @ tick 10 -- pl-877-kilo-paltus-1992 is authored as a top-level `contacts` entry with appearAtTick=10 (ScenarioContactSimulator.Tick fires a real Unknown->Detected transition at that exact tick, confirmed at src/ProjectAegis.Sim/Sensors/ScenarioContactSimulator.cs:43), modeling a RED submarine reinforcement joining the fight mid-run; (2) sensor_degradation_inject_designated @ tick 14 -- a `jammers` entry with activeFromTick=14 (ScenarioJamResolver.ResolveJam gates on simTick < ActiveFromTick, confirmed at src/ProjectAegis.Sim/Sensors/ScenarioJamResolver.cs:22) degrades BLUE's f-16c-blk-52iq-falcon-2015 radar Pd against mig-29-fulcrum-c-1999 from that tick onward, modeling a RED EW/self-protection jamming inject. SCHEMA CONSTRAINT DISCLOSED for the EMCON dimension: ScenarioEmconResolver/CatalogRadarEmconResolver resolve EmconState once from the static emcon.units dictionary at scenario load (src/ProjectAegis.Sim/Scenario/ScenarioEmconResolver.cs) -- there is no engine-consumed field or event kind (MissionEventKind is only MissionTransition|EventFired, both pure OrderLog/fingerprint markers with no mechanical side effect) that mutates a unit's EmconState mid-run. This scenario expresses 'dynamic EMCON change on detection' honestly, not by inventing a new field: (a) f-219-sachsen-type-f124-2006 and ssn-774-virginia-blk-i-ii start radar Passive in emcon.units, modeling pre-detection emissions discipline; (b) the tick-10 reinforcement contact's Unknown->Detected transition is wired directly into the ONE real mission.triggers mechanic the engine actually runs on that transition (asw-reinforcement-detect-roe, escalating ssn-774-virginia-blk-i-ii/ka-27m-helix-a/s-185-u-35-type-212a from WeaponsTight to WeaponsFree) as the closest available, engine-consumed substitute for a detection-triggered posture change. This is the same disclosure pattern gauntlet-forge-20260727-1455-t4-c4 used for its single-ROE-flag domain-split gap -- a documented simulation-vs-schema limitation, not a hidden assumption.",
+    "oracle": "Both EventFired codes (reinforcement_sub_inject_designated @10, sensor_degradation_inject_designated @14) must appear in the fingerprint regardless of engagement outcome. Before tick 10, BLUE's ASW group (ssn-774-virginia-blk-i-ii, ka-27m-helix-a, s-185-u-35-type-212a) stays WeaponsTight-denied on the c-s3-1 dipping-sonar contact on pla-885-severodvinsk-yasen; at/after tick 10 the pl-877-kilo-paltus-1992 reinforcement's Detected transition fires asw-reinforcement-detect-roe and the group may register ASW kills against either RED submarine for the remaining 14 ticks. BLUE's AAW/surface units (f-16c-blk-52iq-falcon-2015, f-310-fridtjof-nansen, nh90-tth-mrh90-taipan-2007) are never covered by a trigger in this scenario and are expected to stay WeaponsTight-denied for the full 24-tick run, contributing the denial floor. From tick 14 onward, f-16c-blk-52iq-falcon-2015's detection Pd against mig-29-fulcrum-c-1999 (c-s3-2) is expected to degrade per the activated jammer, illustrated as reduced/absent detection continuity rather than a fingerprint token (ScenarioJamResolver has no dedicated log entry of its own). RED (WeaponsFree) is expected to convert some of its own detections (c-s3-5, c-s3-6) into kills against BLUE.",
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "f-16c-blk-52iq-falcon-2015",
+      "nh90-tth-mrh90-taipan-2007",
+      "ka-27m-helix-a",
+      "ssn-774-virginia-blk-i-ii",
+      "s-185-u-35-type-212a",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "su-24m-fencer-d-1992",
+      "mig-29-fulcrum-c-1999",
+      "pl-877-kilo-paltus-1992",
+      "pla-885-severodvinsk-yasen",
+      "pla-971-akula-i-improved-shchuka-b"
+    ],
+    "dimensionsClaimed": [
+      "seeded-random-inject-reinforcement",
+      "seeded-random-inject-sensor-degradation",
+      "emcon-dynamic-change-on-detection-disclosed-constraint",
+      "roe-contact-escalation",
+      "combat-domain-subsurface",
+      "combat-domain-air",
+      "combat-domain-surface"
+    ],
+    "units": [
+      { "unitId": "f-219-sachsen-type-f124-2006", "platformId": "f-219-sachsen-type-f124-2006", "domain": "surface", "side": "blue" },
+      { "unitId": "f-310-fridtjof-nansen", "platformId": "f-310-fridtjof-nansen", "domain": "surface", "side": "blue" },
+      { "unitId": "f-16c-blk-52iq-falcon-2015", "platformId": "f-16c-blk-52iq-falcon-2015", "domain": "air", "side": "blue" },
+      { "unitId": "nh90-tth-mrh90-taipan-2007", "platformId": "nh90-tth-mrh90-taipan-2007", "domain": "air", "side": "blue" },
+      { "unitId": "ka-27m-helix-a", "platformId": "ka-27m-helix-a", "domain": "air", "side": "blue" },
+      { "unitId": "ssn-774-virginia-blk-i-ii", "platformId": "ssn-774-virginia-blk-i-ii", "domain": "subsurface", "side": "blue" },
+      { "unitId": "s-185-u-35-type-212a", "platformId": "s-185-u-35-type-212a", "domain": "subsurface", "side": "blue" },
+      { "unitId": "skr-admiral-grigorovich-pr-1135-6m", "platformId": "skr-admiral-grigorovich-pr-1135-6m", "domain": "surface", "side": "red" },
+      { "unitId": "pk-368-vasily-bykov-pr-22160", "platformId": "pk-368-vasily-bykov-pr-22160", "domain": "surface", "side": "red" },
+      { "unitId": "su-24m-fencer-d-1992", "platformId": "su-24m-fencer-d-1992", "domain": "air", "side": "red" },
+      { "unitId": "mig-29-fulcrum-c-1999", "platformId": "mig-29-fulcrum-c-1999", "domain": "air", "side": "red" },
+      { "unitId": "pl-877-kilo-paltus-1992", "platformId": "pl-877-kilo-paltus-1992", "domain": "subsurface", "side": "red" },
+      { "unitId": "pla-885-severodvinsk-yasen", "platformId": "pla-885-severodvinsk-yasen", "domain": "subsurface", "side": "red" },
+      { "unitId": "pla-971-akula-i-improved-shchuka-b", "platformId": "pla-971-akula-i-improved-shchuka-b", "domain": "subsurface", "side": "red" }
+    ],
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "reinforcement_sub_inject_designated",
+        "sensor_degradation_inject_designated"
+      ],
+      "minKills": 0,
+      "maxMissilesFired": 16,
+      "minDenials": 10,
+      "maxDenials": 70,
+      "minScore": -350.0,
+      "maxScore": 50.0
+    },
+    "expectProvenance": "NOT REGENERATED. No Demo batch/CSV run has been executed for this scenario at any seed. The bounds above are structurally-reasoned placeholders (minKills held at 0 because only 3 of 7 BLUE units ever escalate off WeaponsTight, and only from tick 10 onward; minDenials kept high because the un-triggered majority of the BLUE ORBAT is WeaponsTight-denied for the full 24-tick budget) -- not empirical output. Per tools/qa-gauntlet/README-expect-regen.md, this expect block must be regenerated from a real Demo batch CSV at the T4 tick budget (24), seeds 42/7/123, before this scenario can be promoted or scored for pass/fail. Note: pk-368-vasily-bykov-pr-22160 is listed in gauntlet.units/catalogRefs as part of the RED surface screen but has no dedicated detection entry in this draft (it is covered narratively as an escort, consistent with skr-admiral-grigorovich-pr-1135-6m's own detection of BLUE's flagship at c-s3-5); wire a direct detection entry for it at regen time if empirical coverage requires it."
+  }
+}

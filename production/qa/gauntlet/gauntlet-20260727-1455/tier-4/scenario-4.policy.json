@@ -1,0 +1,212 @@
+{
+  "id": "gauntlet-20260727-1455-t4-s4",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 52000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 135000,
+    "defaultMagazineRounds": 6,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "contactLifecycle": {
+    "staleThresholdTicks": 30,
+    "classifyAfterTicks": 4,
+    "identifyAfterTicks": 8
+  },
+  "detection": [
+    {
+      "observerId": "p-3c-orion-update-iii-2023",
+      "sensorId": "sonar-buoy-1",
+      "targetId": "pl-677-lada-b-585-sankt-peterburg-2011",
+      "contactId": "c-s4-1",
+      "basePd": 0.65,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "a-19-gotland-2002",
+      "sensorId": "passive-sonar-1",
+      "targetId": "pla-971-akula-i-improved-shchuka-b",
+      "contactId": "c-s4-2",
+      "basePd": 0.6,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "s-120-papanikolis-type-214hn",
+      "sensorId": "passive-sonar-1",
+      "targetId": "plarb-955a-borei-ii-borey-a",
+      "contactId": "c-s4-3",
+      "basePd": 0.55,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "contactId": "c-s4-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "k-11-stockholm-spica-iii-1986",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-s4-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "su-30sm-flanker-g-2019",
+      "contactId": "c-s4-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "eurofighter-typhoon",
+      "sensorId": "radar-1",
+      "targetId": "su-27sm-sm3-flanker-j-2013",
+      "contactId": "c-s4-7",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "sensorId": "radar-1",
+      "targetId": "f-219-sachsen-type-f124-2006",
+      "contactId": "c-s4-8",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "su-30sm-flanker-g-2019",
+      "sensorId": "radar-1",
+      "targetId": "jas-39e-gripen-ng-2021",
+      "contactId": "c-s4-9",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "contacts": [
+    {
+      "observerId": "eurofighter-typhoon",
+      "targetId": "su-27sm-sm3-flanker-j-2013",
+      "contactId": "c-s4-reinforce-1",
+      "appearAtTick": 12,
+      "hasFireControlTrack": true
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start",
+      "asw-tasking-open",
+      "aaw-tasking-open",
+      "reinforcement-inject-2"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "asw-tasking-open",
+        "fireAtTick": 2,
+        "kind": "EventFired",
+        "code": "asw_multi_objective_tasking_open"
+      },
+      {
+        "id": "aaw-tasking-open",
+        "fireAtTick": 6,
+        "kind": "EventFired",
+        "code": "aaw_multi_objective_tasking_open"
+      },
+      {
+        "id": "reinforcement-inject-2",
+        "fireAtTick": 12,
+        "kind": "EventFired",
+        "code": "reinforcement_air_inject_designated"
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T4 main-ladder baseline #4: the tier's WEIGHTED MULTI-OBJECTIVE SCORING primary exercise, reinforcing (not duplicating) scenario-1's concurrent-domain claim and scenario-3's seeded-inject claim as secondary coverage for corpus redundancy. Both sides run WeaponsFree from tick 0 (friendlyRoe=WeaponsFree, opposingRoe=WeaponsFree) -- unlike scenario-1, the denial term here comes from a differently-tuned ScenarioContactLifecycle gate (classifyAfterTicks=4/identifyAfterTicks=8, vs scenario-1's 3/6) so the corpus samples two distinct ID-gate denial envelopes at the same T4 tick budget. BLUE's combined ASW group (p-3c-orion-update-iii-2023 sonobuoy MPA, a-19-gotland-2002 and s-120-papanikolis-type-214hn SSKs) prosecutes RED's SSN/SSK/SSBN trio (pla-971-akula-i-improved-shchuka-b, pl-677-lada-b-585-sankt-peterburg-2011, plarb-955a-borei-ii-borey-a -- the roster's flagged high-value ASW target) from the asw_multi_objective_tasking_open marker at tick 2; BLUE's AAW group (f-219-sachsen-type-f124-2006 FFG + k-11-stockholm-spica-iii-1986 corvette radar cross-cue, jas-39e-gripen-ng-2021 + eurofighter-typhoon fighters) intercepts RED's two-frigate/two-fighter package from the aaw_multi_objective_tasking_open marker at tick 6. A second seeded reinforcement inject (reinforcement_air_inject_designated) lands mid-tier at tick 12: a real `contacts` entry with appearAtTick=12 brings su-27sm-sm3-flanker-j-2013 onto eurofighter-typhoon's scope as a fresh Unknown->Detected contact (independent of its earlier ongoing radar-Pd cross-cue at c-s4-7), reinforcing RED's air raid mid-fight. With both sides free and both domains active, this scenario is designed to produce simultaneously non-trivial kills, denials (from the ID-gate, not ROE), and missilesFired -- score = baseScore + kills*100 - denials*5 per LossesScoringProjection.Project, with missilesFired tracked as the separate, unweighted resource term in the same snapshot -- matching the corpus's existing gauntlet-t4-multi-mission wide envelope referenced in gauntlet-forge-20260727-1455-t4-c2's provenance note.",
+    "oracle": "All three EventFired codes (asw_multi_objective_tasking_open @2, aaw_multi_objective_tasking_open @6, reinforcement_air_inject_designated @12) must appear in the fingerprint. BLUE (WeaponsFree throughout) is expected to register kills in both the ASW thread (pla-971-akula-i-improved-shchuka-b / pl-677-lada-b-585-sankt-peterburg-2011 / plarb-955a-borei-ii-borey-a) and the AAW thread (skr-admiral-sergey-gorshkov-pr-2235-0 / pk-368-vasily-bykov-pr-22160 / su-30sm-flanker-g-2019 / su-27sm-sm3-flanker-j-2013), i.e. minKills reflects both domains converting concurrently, consistent with scenario-1's concurrency claim. Denials accrue from the Detected->Classified->Identified gate (pre-tick-4 engagement attempts), tuned to a wider window (classifyAfterTicks=4/identifyAfterTicks=8) than scenario-1's (3/6) so the two scenarios sample materially different denial envelopes at the same tick budget rather than duplicating one. RED (also WeaponsFree) is expected to convert some of its own detections (c-s4-8, c-s4-9) into kills against BLUE, but only BLUE is scored (expect.side=BLUE).",
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "k-11-stockholm-spica-iii-1986",
+      "jas-39e-gripen-ng-2021",
+      "eurofighter-typhoon",
+      "p-3c-orion-update-iii-2023",
+      "s-120-papanikolis-type-214hn",
+      "a-19-gotland-2002",
+      "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "pk-368-vasily-bykov-pr-22160",
+      "su-30sm-flanker-g-2019",
+      "su-27sm-sm3-flanker-j-2013",
+      "pla-971-akula-i-improved-shchuka-b",
+      "pl-677-lada-b-585-sankt-peterburg-2011",
+      "plarb-955a-borei-ii-borey-a"
+    ],
+    "dimensionsClaimed": [
+      "weighted-multi-objective-scoring",
+      "asw-aaw-concurrent-mission",
+      "seeded-random-inject-reinforcement",
+      "contact-lifecycle-id-gated-denials",
+      "combat-domain-subsurface",
+      "combat-domain-air",
+      "combat-domain-surface"
+    ],
+    "units": [
+      { "unitId": "f-219-sachsen-type-f124-2006", "platformId": "f-219-sachsen-type-f124-2006", "domain": "surface", "side": "blue" },
+      { "unitId": "k-11-stockholm-spica-iii-1986", "platformId": "k-11-stockholm-spica-iii-1986", "domain": "surface", "side": "blue" },
+      { "unitId": "jas-39e-gripen-ng-2021", "platformId": "jas-39e-gripen-ng-2021", "domain": "air", "side": "blue" },
+      { "unitId": "eurofighter-typhoon", "platformId": "eurofighter-typhoon", "domain": "air", "side": "blue" },
+      { "unitId": "p-3c-orion-update-iii-2023", "platformId": "p-3c-orion-update-iii-2023", "domain": "air", "side": "blue" },
+      { "unitId": "s-120-papanikolis-type-214hn", "platformId": "s-120-papanikolis-type-214hn", "domain": "subsurface", "side": "blue" },
+      { "unitId": "a-19-gotland-2002", "platformId": "a-19-gotland-2002", "domain": "subsurface", "side": "blue" },
+      { "unitId": "skr-admiral-sergey-gorshkov-pr-2235-0", "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0", "domain": "surface", "side": "red" },
+      { "unitId": "pk-368-vasily-bykov-pr-22160", "platformId": "pk-368-vasily-bykov-pr-22160", "domain": "surface", "side": "red" },
+      { "unitId": "su-30sm-flanker-g-2019", "platformId": "su-30sm-flanker-g-2019", "domain": "air", "side": "red" },
+      { "unitId": "su-27sm-sm3-flanker-j-2013", "platformId": "su-27sm-sm3-flanker-j-2013", "domain": "air", "side": "red" },
+      { "unitId": "pla-971-akula-i-improved-shchuka-b", "platformId": "pla-971-akula-i-improved-shchuka-b", "domain": "subsurface", "side": "red" },
+      { "unitId": "pl-677-lada-b-585-sankt-peterburg-2011", "platformId": "pl-677-lada-b-585-sankt-peterburg-2011", "domain": "subsurface", "side": "red" },
+      { "unitId": "plarb-955a-borei-ii-borey-a", "platformId": "plarb-955a-borei-ii-borey-a", "domain": "subsurface", "side": "red" }
+    ],
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "asw_multi_objective_tasking_open",
+        "aaw_multi_objective_tasking_open",
+        "reinforcement_air_inject_designated"
+      ],
+      "minKills": 2,
+      "maxMissilesFired": 46,
+      "minDenials": 6,
+      "maxDenials": 30,
+      "minScore": -50.0,
+      "maxScore": 500.0
+    },
+    "expectProvenance": "NOT REGENERATED. No Demo batch/CSV run has been executed for this scenario at any seed. The bounds above are structurally-reasoned placeholders, aligned to the corpus's existing gauntlet-t4-multi-mission 14-unit/T4 envelope referenced in gauntlet-forge-20260727-1455-t4-c2's expectProvenance (minScore -100/maxScore 500, maxMissilesFired 42, maxDenials 70, minDenials 4) and adjusted for this scenario's both-sides-WeaponsFree + wider ID-gate (4/8 vs 3/6) design -- not empirical output. Per tools/qa-gauntlet/README-expect-regen.md, this expect block must be regenerated from a real Demo batch CSV at the T4 tick budget (24), seeds 42/7/123, before this scenario can be promoted or scored for pass/fail."
+  }
+}

@@ -1,0 +1,220 @@
+{
+  "id": "gauntlet-20260727-1455-t4-s2",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 5,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "detection": [
+    {
+      "observerId": "p-3c-orion-update-iii-2023",
+      "sensorId": "sonar-buoy-1",
+      "targetId": "pla-971-akula-i-improved-shchuka-b",
+      "contactId": "c-s2-1",
+      "basePd": 0.65,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "s-120-papanikolis-type-214hn",
+      "sensorId": "passive-sonar-1",
+      "targetId": "pl-677-lada-b-585-sankt-peterburg-2011",
+      "contactId": "c-s2-2",
+      "basePd": 0.6,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "a-19-gotland-2002",
+      "sensorId": "passive-sonar-1",
+      "targetId": "plarb-955a-borei-ii-borey-a",
+      "contactId": "c-s2-3",
+      "basePd": 0.55,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "s-181-u-31-type-212a",
+      "sensorId": "passive-sonar-1",
+      "targetId": "pla-971-akula-i-improved-shchuka-b",
+      "contactId": "c-s2-3b",
+      "basePd": 0.5,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "f-230-norfolk-type-23-duke",
+      "sensorId": "radar-1",
+      "targetId": "mig-31-foxhound",
+      "contactId": "c-s2-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "k-11-stockholm-spica-iii-1986",
+      "sensorId": "radar-1",
+      "targetId": "su-30sm-flanker-g-2019",
+      "contactId": "c-s2-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "eurofighter-typhoon",
+      "sensorId": "radar-1",
+      "targetId": "mig-31-foxhound",
+      "contactId": "c-s2-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "k-11-stockholm-spica-iii-1986",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-s2-7",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "sensorId": "radar-1",
+      "targetId": "f-230-norfolk-type-23-duke",
+      "contactId": "c-s2-8",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "pk-368-vasily-bykov-pr-22160",
+      "sensorId": "radar-1",
+      "targetId": "k-11-stockholm-spica-iii-1986",
+      "contactId": "c-s2-9",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "mig-31-foxhound",
+      "sensorId": "radar-1",
+      "targetId": "eurofighter-typhoon",
+      "contactId": "c-s2-10",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "asw-hunt-roe",
+        "observerId": "p-3c-orion-update-iii-2023",
+        "targetClass": "Subsurface",
+        "side": "friendly",
+        "missionCode": "ASW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "p-3c-orion-update-iii-2023",
+          "s-120-papanikolis-type-214hn",
+          "a-19-gotland-2002",
+          "s-181-u-31-type-212a"
+        ]
+      },
+      {
+        "id": "aaw-intercept-roe",
+        "observerId": "f-230-norfolk-type-23-duke",
+        "targetClass": "Air",
+        "side": "friendly",
+        "missionCode": "AAW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "f-230-norfolk-type-23-duke",
+          "k-11-stockholm-spica-iii-1986",
+          "eurofighter-typhoon"
+        ]
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T4 main-ladder baseline #2: genuinely ASYMMETRIC per-side ROE with an escalation rule, per the tier spec's example pairing verbatim -- BLUE starts friendlyRoe=WeaponsTight fleet-wide and only earns WeaponsFree per-domain via mission.triggers firing on first contact (asw-hunt-roe frees p-3c-orion-update-iii-2023/s-120-papanikolis-type-214hn/a-19-gotland-2002 on first Subsurface detection; aaw-intercept-roe frees f-230-norfolk-type-23-duke/k-11-stockholm-spica-iii-1986/eurofighter-typhoon on first Air detection), while RED runs opposingRoe=WeaponsFree from tick 0 with no trigger and no escalation of its own -- it never needed one. This differs from gauntlet-forge-20260727-1455-t4-c3 (both sides WeaponsTight baseline, BLUE dual-trigger escalation only) and from gauntlet-forge-20260727-1455-t4-c4 (a single-side domain split narrated around one static ROE flag, explicitly not using the trigger mechanic) -- this scenario is the tier's clean side-vs-side asymmetric-ROE-plus-escalation baseline. Deliberately, no ASuW trigger exists for BLUE's surface-domain radar contact on pk-368-vasily-bykov-pr-22160 (c-s2-7): any BLUE attempt to fire on RED's surface units before/outside the ASW or AAW windows stays WeaponsTight-denied per PolicyEvaluator.EvaluateRoe, giving a real, persistent denial floor across the full 24-tick budget independent of the two escalation windows. Blue ASW group is subsurface-heavy (P-3C Orion sonobuoy MPA + two SSKs) hunting RED's SSN/SSK/SSBN trio (pla-971-akula-i-improved-shchuka-b, pl-677-lada-b-585-sankt-peterburg-2011, plarb-955a-borei-ii-borey-a -- the roster's flagged high-value ASW target); BLUE AAW group (FFG + corvette radar cross-cue + Eurofighter CAP) intercepts RED's two-ship raid (mig-31-foxhound, su-30sm-flanker-g-2019).",
+    "oracle": "BLUE's ASW group is expected to remain WeaponsTight-denied until its first Subsurface Unknown->Detected transition fires asw-hunt-roe, after which it may register ASW kills against pla-971-akula-i-improved-shchuka-b / pl-677-lada-b-585-sankt-peterburg-2011 / plarb-955a-borei-ii-borey-a. BLUE's AAW group is likewise denied until its first Air Unknown->Detected transition fires aaw-intercept-roe, after which it may kill mig-31-foxhound and/or su-30sm-flanker-g-2019. BLUE's surface-domain contact on pk-368-vasily-bykov-pr-22160 has no covering trigger and is expected to generate WeaponsTight denials for the entire run. RED (WeaponsFree, unrestrained throughout) is expected to convert some of its own high-Pd radar detections (c-s2-8, c-s2-9, c-s2-10) into kills against BLUE, but only BLUE is scored here (expect.side=BLUE), consistent with every other scenario/candidate in this run.",
+    "catalogRefs": [
+      "f-230-norfolk-type-23-duke",
+      "k-11-stockholm-spica-iii-1986",
+      "eurofighter-typhoon",
+      "p-3c-orion-update-iii-2023",
+      "s-120-papanikolis-type-214hn",
+      "a-19-gotland-2002",
+      "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "pk-368-vasily-bykov-pr-22160",
+      "mig-31-foxhound",
+      "su-30sm-flanker-g-2019",
+      "pla-971-akula-i-improved-shchuka-b",
+      "pl-677-lada-b-585-sankt-peterburg-2011",
+      "plarb-955a-borei-ii-borey-a",
+      "s-181-u-31-type-212a"
+    ],
+    "dimensionsClaimed": [
+      "roe-asymmetric-per-side",
+      "roe-contact-escalation",
+      "asw-aaw-multi-mission",
+      "roe-id-required",
+      "combat-domain-subsurface",
+      "combat-domain-air",
+      "combat-domain-surface"
+    ],
+    "units": [
+      { "unitId": "f-230-norfolk-type-23-duke", "platformId": "f-230-norfolk-type-23-duke", "domain": "surface", "side": "blue" },
+      { "unitId": "k-11-stockholm-spica-iii-1986", "platformId": "k-11-stockholm-spica-iii-1986", "domain": "surface", "side": "blue" },
+      { "unitId": "eurofighter-typhoon", "platformId": "eurofighter-typhoon", "domain": "air", "side": "blue" },
+      { "unitId": "p-3c-orion-update-iii-2023", "platformId": "p-3c-orion-update-iii-2023", "domain": "air", "side": "blue" },
+      { "unitId": "s-120-papanikolis-type-214hn", "platformId": "s-120-papanikolis-type-214hn", "domain": "subsurface", "side": "blue" },
+      { "unitId": "a-19-gotland-2002", "platformId": "a-19-gotland-2002", "domain": "subsurface", "side": "blue" },
+      { "unitId": "s-181-u-31-type-212a", "platformId": "s-181-u-31-type-212a", "domain": "subsurface", "side": "blue" },
+      { "unitId": "skr-admiral-sergey-gorshkov-pr-2235-0", "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0", "domain": "surface", "side": "red" },
+      { "unitId": "pk-368-vasily-bykov-pr-22160", "platformId": "pk-368-vasily-bykov-pr-22160", "domain": "surface", "side": "red" },
+      { "unitId": "mig-31-foxhound", "platformId": "mig-31-foxhound", "domain": "air", "side": "red" },
+      { "unitId": "su-30sm-flanker-g-2019", "platformId": "su-30sm-flanker-g-2019", "domain": "air", "side": "red" },
+      { "unitId": "pla-971-akula-i-improved-shchuka-b", "platformId": "pla-971-akula-i-improved-shchuka-b", "domain": "subsurface", "side": "red" },
+      { "unitId": "pl-677-lada-b-585-sankt-peterburg-2011", "platformId": "pl-677-lada-b-585-sankt-peterburg-2011", "domain": "subsurface", "side": "red" },
+      { "unitId": "plarb-955a-borei-ii-borey-a", "platformId": "plarb-955a-borei-ii-borey-a", "domain": "subsurface", "side": "red" }
+    ],
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 1,
+      "maxMissilesFired": 20,
+      "minDenials": 8,
+      "maxDenials": 60,
+      "minScore": -250.0,
+      "maxScore": 150.0
+    },
+    "expectProvenance": "NOT REGENERATED. No Demo batch/CSV run has been executed for this scenario at any seed. The bounds above are structurally-reasoned placeholders (BLUE minKills kept low because most of the run is pre-escalation WeaponsTight; minDenials kept high because the un-triggered surface domain contributes a persistent denial floor for the full 24-tick budget, the same EngagementAbortReason vs DecisionLog.PolicyDenials accounting already documented on gauntlet-forge-20260727-1455-t2-c3/t4-c1) -- not empirical output. Per tools/qa-gauntlet/README-expect-regen.md, this expect block must be regenerated from a real Demo batch CSV at the T4 tick budget (24), seeds 42/7/123, before this scenario can be promoted or scored for pass/fail."
+  }
+}
