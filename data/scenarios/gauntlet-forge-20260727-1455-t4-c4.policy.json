@@ -1,0 +1,200 @@
+{
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 60000,
+    "envelopeMinMeters": 3000,
+    "envelopeMaxMeters": 150000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.75,
+    "pkIntercept": 0.0,
+    "pkKill": 0.25,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "ka-27m-helix-a",
+      "sensorId": "sonar-dipping-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-forge-t4c4-1",
+      "basePd": 0.35,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-3c-orion-update-iii-2023",
+      "sensorId": "sonar-buoy-1",
+      "targetId": "pla-885-severodvinsk-yasen",
+      "contactId": "c-forge-t4c4-2",
+      "basePd": 0.3,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "eurofighter-typhoon",
+      "sensorId": "radar-1",
+      "targetId": "su-27sm-sm3-flanker-j-2013",
+      "contactId": "c-forge-t4c4-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "mig-29-fulcrum-c-1999",
+      "contactId": "c-forge-t4c4-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "pl-877-kilo-paltus-1992",
+      "sensorId": "passive-sonar-1",
+      "targetId": "f-310-fridtjof-nansen",
+      "contactId": "c-forge-t4c4-5",
+      "basePd": 0.6,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "su-27sm-sm3-flanker-j-2013",
+      "sensorId": "radar-1",
+      "targetId": "eurofighter-typhoon",
+      "contactId": "c-forge-t4c4-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "mrk-shkval-pr-22800-karakurt",
+      "sensorId": "radar-1",
+      "targetId": "f-219-sachsen-type-f124-2006",
+      "contactId": "c-forge-t4c4-7",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "roe-asymmetric-per-side (T4 domain-split variant): BLUE runs an ASW/AAW multi-mission screen under a single fleet-wide WeaponsTight flag, but the underlying doctrinal posture is intentionally asymmetric BY DOMAIN within the same side, not just by side as in gauntlet-forge-20260727-1455-t2-c3's flat BLUE-tight/RED-free split. BLUE's ASW thread (ka-27m-helix-a dipping-sonar helo + p-3c-orion-update-iii-2023 sonobuoy MPA screening for RED's pl-877-kilo-paltus-1992 SSK and pla-885-severodvinsk-yasen SSGN) is genuinely ID-required: submarine contacts are held at low basePd (0.30-0.35) representing unconfirmed/unclassified tracks that must be positively identified before becoming engageable, consistent with real-world submarine engagement caution against friendly-fire and collateral risk in a contested undersea environment. BLUE's AAW thread (eurofighter-typhoon + jas-39e-gripen-ng-2021 intercepting su-27sm-sm3-flanker-j-2013 + mig-29-fulcrum-c-1999) is modeled as confidently-tracked (basePd 1.0, full fire-control lock, no ID ambiguity) -- i.e. doctrinally BLUE intends a freer AAW posture even while running tight ASW caution. RED (opposingRoe WeaponsFree, corvettes mrk-shkval-pr-22800-karakurt + pk-368-vasily-bykov-pr-22160 escorting the sub threats) has no such restraint on either domain. SCHEMA CONSTRAINT NOTE: the policy schema exposes only one friendlyRoe/opposingRoe pair per scenario (verified against gauntlet-forge-20260727-1455-t2-c3 and the top-level fields available) -- there is no per-domain ROE field. This candidate therefore sets friendlyRoe=WeaponsTight fleet-wide for BLUE (the more conservative of the two intended domain postures) and expresses the intended ASW-tight/AAW-free domain split NARRATIVELY via this intent/oracle text and via the basePd asymmetry between the ASW detection entries (0.30-0.35, unconfirmed/held-for-ID) and the AAW detection entries (1.0, confident lock). In actual sim execution the single WeaponsTight flag will uniformly gate BLUE's AAW engagements too, even though doctrine intends them free -- this is a known, honestly-flagged simulation-vs-schema gap for this candidate, not a hidden assumption.",
+    "oracle": "BLUE's ASW contacts never convert to genuine engageable tracks regardless of ROE, because basePd 0.30-0.35 keeps them below the threshold the detection pipeline typically needs for a firm fire-control track -- these are intentionally-unconfirmed contacts consistent with ID-required submarine engagement caution, expected to show as low-Pd non-detections or, if a track does form, as WeaponsTight denials. BLUE's AAW contacts (basePd 1.0, full lock) will still be blocked from firing by the fleet-wide WeaponsTight gate (RoeLevel.WeaponsTight always denies) despite the doctrinal intent to run AAW free -- expect these to register as denied engagements (ROE_WEAPONS_TIGHT) rather than the freely-converting kills an AAW-only-free narrative would otherwise predict, empirically illustrating the schema's single-ROE-per-side limitation. RED, WeaponsFree throughout with no domain restriction, is expected to convert some of its high-Pd air-domain and passive-sonar detections of BLUE into real kills across the tier-4 24-tick budget, while BLUE accumulates a real minDenials floor primarily from its AAW thread (the ASW thread more likely surfaces as absent/unconfirmed tracks than logged denials -- see t2-c3's expectProvenance note on EngagementAbortReason vs DecisionLog.PolicyDenials for the same accounting caveat, which applies here too).",
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "ka-27m-helix-a",
+      "p-3c-orion-update-iii-2023",
+      "eurofighter-typhoon",
+      "jas-39e-gripen-ng-2021",
+      "pl-877-kilo-paltus-1992",
+      "pla-885-severodvinsk-yasen",
+      "su-27sm-sm3-flanker-j-2013",
+      "mig-29-fulcrum-c-1999",
+      "mrk-shkval-pr-22800-karakurt",
+      "pk-368-vasily-bykov-pr-22160"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 4,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -740.0,
+      "maxScore": -700.0,
+      "maxMissilesFired": 6,
+      "maxDenials": 149,
+      "minKills": 0,
+      "minDenials": 139
+    },
+    "units": [
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-3c-orion-update-iii-2023",
+        "platformId": "p-3c-orion-update-iii-2023",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "eurofighter-typhoon",
+        "platformId": "eurofighter-typhoon",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "pl-877-kilo-paltus-1992",
+        "platformId": "pl-877-kilo-paltus-1992",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885-severodvinsk-yasen",
+        "platformId": "pla-885-severodvinsk-yasen",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-27sm-sm3-flanker-j-2013",
+        "platformId": "su-27sm-sm3-flanker-j-2013",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-29-fulcrum-c-1999",
+        "platformId": "mig-29-fulcrum-c-1999",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      }
+    ],
+    "forge": {
+      "recipes": [
+        "roe-asymmetric-per-side"
+      ],
+      "candidateId": "gauntlet-forge-20260727-1455-t4-c4",
+      "noveltyTags": [
+        "asw-id-required-caution",
+        "aaw-confident-lock-same-side",
+        "domain-split-roe-within-side",
+        "single-roe-flag-schema-workaround"
+      ],
+      "note": "expect provisional pending regen"
+    },
+    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T4 tick budget 24, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-4/results.csv). Observed: score=[-720.0, -720.0, -720.0] kills=[0, 0, 0] missilesFired=[4, 4, 4] denials=[144, 144, 144]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented)."
+  },
+  "id": "gauntlet-forge-20260727-1455-t4-c4"
+}

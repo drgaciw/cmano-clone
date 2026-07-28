@@ -226,3 +226,35 @@ promoted:
     promotedAt: gauntlet-20260727-1455-t2
     recipes: [mission-combo-escort-strike]
     noveltyScore: 4.0
+  - scenarioId: gauntlet-forge-20260727-1455-t4-c1
+    path: data/scenarios/gauntlet-forge-20260727-1455-t4-c1.policy.json
+    tier: 4
+    cellKey: "asw|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|none"
+    intentHash: 0e19fa5f47afbc01
+    promotedAt: gauntlet-20260727-1455-t4
+    recipes: [platform-swap-underused]
+    noveltyScore: 6.0
+  - scenarioId: gauntlet-forge-20260727-1455-t4-c2
+    path: data/scenarios/gauntlet-forge-20260727-1455-t4-c2.policy.json
+    tier: 4
+    cellKey: "asw|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|event-chain"
+    intentHash: 7a2a873d54b47cb8
+    promotedAt: gauntlet-20260727-1455-t4
+    recipes: [mission-concurrent-asw-aaw]
+    noveltyScore: 5.5
+  - scenarioId: gauntlet-forge-20260727-1455-t4-c3
+    path: data/scenarios/gauntlet-forge-20260727-1455-t4-c3.policy.json
+    tier: 4
+    cellKey: "escort|air,subsurface,surface|WeaponsTight/WeaponsTight|emcon-phases|none"
+    intentHash: 72ce811cbd895e51
+    promotedAt: gauntlet-20260727-1455-t4
+    recipes: [victory-weighted-multi]
+    noveltyScore: 6.0
+  - scenarioId: gauntlet-forge-20260727-1455-t4-c4
+    path: data/scenarios/gauntlet-forge-20260727-1455-t4-c4.policy.json
+    tier: 4
+    cellKey: "escort|air,subsurface,surface|WeaponsTight/WeaponsFree|contested-em|none"
+    intentHash: 6d9201141174fd48
+    promotedAt: gauntlet-20260727-1455-t4
+    recipes: [roe-asymmetric-per-side]
+    noveltyScore: 5.0

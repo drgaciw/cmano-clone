@@ -88,17 +88,38 @@ complexity_ladder:
 
 tiers:
   - n: 1
-    status: quarantined
+    status: green
     note: >
-      All 4 main scenarios failed gauntlet_oracle_eval (score exceeds maxScore).
-      Root cause: two compounding, long-standing engine defects (not a Tier-1-specific
-      issue) — both real fixes hit GitNexus CRITICAL impact and are quarantined for
-      human-supervised remediation, not fixed in this run. Corpus-wide implication:
-      several of the 24 already-promoted scenarios appear calibrated around the same
-      bugs. See defects below.
-  - {n: 2, status: pending}
-  - {n: 3, status: in_progress}
-  - {n: 4, status: pending}
+      Originally quarantined (see defects below for the two CRITICAL-impact engine
+      defects found). Both were fixed under explicit human authorization the same
+      day (PR #361): BUG-engagement-resolver-shooter-liveness and
+      BUG-losses-scoring-side-unaware. Post-fix: 4/4 main scenarios pass, corpus
+      re-baselined 24/24. This status corrects a stale `quarantined` entry that
+      was never updated after the fix landed.
+  - n: 2
+    status: green
+    note: "4/4 main scenarios pass. Forge: 4 promotes (hard-case-replay x2, orbat-asymmetric-ratio, mission-combo-escort-strike)."
+  - n: 3
+    status: green
+    note: >
+      6/6 main scenarios (incl. scenario-5-control sibling) pass gauntlet_oracle_eval
+      (allPassed: true). No forge candidates were drafted for this tier — a process
+      gap accepted as missed per human direction on 2026-07-28, not backfilled
+      retroactively. Corrects a stale `in_progress` entry.
+  - n: 4
+    status: green
+    note: >
+      8/8 policies (4 main + 4 forge candidates) pass gauntlet_oracle_eval
+      (allPassed: true) after gauntlet.expect regen from the real 24-tick/seeds
+      42,7,123 batch CSV. Forge: 4 promotes (platform-swap-underused,
+      mission-concurrent-asw-aaw, victory-weighted-multi, roe-asymmetric-per-side).
+      One real sim-code defect found and quarantined (not fixed — GitNexus
+      unavailable this session):
+      production/qa/bugs/BUG-scenario-contacts-shadowed-by-detection.md
+      (contacts[]-scripted mid-run appearances are silently unreachable whenever
+      detection[] is also populated). Regression anchors for tiers 1-3 re-verified
+      clean at their own tick budgets. Full solution baseline 1928/1928,
+      replay-verify 17/17, smoke 21/21.
   - {n: 5, status: pending}
 
 forge_wiring:

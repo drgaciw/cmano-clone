@@ -1,0 +1,263 @@
+{
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 5,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "su-27sm-sm3-flanker-j-2013",
+      "contactId": "c-forge-t4c3-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "su-30sm-flanker-g-2019",
+      "contactId": "c-forge-t4c3-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "ka-27m-helix-a",
+      "sensorId": "sonar-dipping-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-forge-t4c3-3",
+      "basePd": 0.75,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "p-3c-orion-update-iii-2023",
+      "sensorId": "sonar-buoy-1",
+      "targetId": "plarb-955a-borei-ii-borey-a",
+      "contactId": "c-forge-t4c3-4",
+      "basePd": 0.7,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "s-181-u-31-type-212a",
+      "sensorId": "passive-sonar-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-forge-t4c3-5",
+      "basePd": 0.65,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "f-310-fridtjof-nansen",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-forge-t4c3-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-grigorovich-pr-1135-6m",
+      "sensorId": "radar-1",
+      "targetId": "f-310-fridtjof-nansen",
+      "contactId": "c-forge-t4c3-7",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "asw-prosecution-open",
+      "aaw-intercept-open"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "asw-prosecution-open",
+        "fireAtTick": 4,
+        "kind": "EventFired",
+        "code": "asw_prosecution_tasking_open"
+      },
+      {
+        "id": "aaw-intercept-open",
+        "fireAtTick": 8,
+        "kind": "EventFired",
+        "code": "aaw_intercept_tasking_open"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "asw-prosecution-roe",
+        "observerId": "ka-27m-helix-a",
+        "targetClass": "Subsurface",
+        "side": "friendly",
+        "missionCode": "ASW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "ka-27m-helix-a",
+          "p-3c-orion-update-iii-2023",
+          "s-181-u-31-type-212a"
+        ]
+      },
+      {
+        "id": "aaw-intercept-roe",
+        "observerId": "f-219-sachsen-type-f124-2006",
+        "targetClass": "Air",
+        "side": "friendly",
+        "missionCode": "AAW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "f-219-sachsen-type-f124-2006",
+          "f-310-fridtjof-nansen",
+          "jas-39e-gripen-ng-2021"
+        ]
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "victory-weighted-multi: first exercise of the victory/scoring mutation dimension in this run (recipe tierMin 4, newly eligible) -- every forge candidate drafted in tiers 1-2 (and t4-c2) mutated platform/orbat/mission-mix/roe/emcon dims, never the scoring-structure dim itself. BLUE fields a combined ASW+AAW multi-mission task group (AAW-capable FFGs f-219-sachsen-type-f124-2006 + f-310-fridtjof-nansen, AAW fighter jas-39e-gripen-ng-2021, ASW dipping-sonar helo ka-27m-helix-a, ASW sonobuoy MPA p-3c-orion-update-iii-2023, friendly hunter-killer screening sub s-181-u-31-type-212a) against a RED SSBN-screening group built around plarb-955a-borei-ii-borey-a (the tier-4 roster's deliberately-flagged high-value ASW target, per tier-4-roster.json's own notes) escorted by pl-877-kilo-paltus-1992 (SSK), skr-admiral-grigorovich-pr-1135-6m (FFG), mrk-shkval-pr-22800-karakurt (corvette), and CAP fighters su-27sm-sm3-flanker-j-2013 / su-30sm-flanker-g-2019. Rather than a single win/lose kill-count condition, this candidate frames BLUE's outcome as several simultaneously-weighted terms drawn directly from the sim's real scoring code (ProjectAegis.Delegation.Projection.LossesScoringProjection: score = baseScore + kills*DefaultPointsPerKill(100) - denials*DefaultPenaltyDenial(5), with missilesFired tracked in the same LossesScoringSnapshot as an independent, unweighted resource/efficiency term) plus two independently-gated mission-objective completions (asw_prosecution_tasking_open at tick 4, aaw_intercept_tasking_open at tick 8) expressed via gauntlet.expect.requireFingerprintSubstrings, since GauntletOracleExpect.cs has no dedicated victory/objective-weight field to invent one against. BLUE's baseline ROE is WeaponsTight; the mission.triggers contact-escalation mechanic (the same real, code-consumed ScenarioMissionContactTrigger/MissionContactTriggerRuntime already exercised by the promoted ladder scenario data/scenarios/gauntlet-20260727-1455-t3-s1.policy.json, wired through BalticReplayHarness in the actual Demo --batch path -- not invented for this candidate) escalates specific unit groups to WeaponsFree only once their domain-specific contact is first classified Unknown->Detected: the ASW trigger (ka-27m-helix-a observing Subsurface) frees ka-27m-helix-a/p-3c-orion-update-iii-2023/s-181-u-31-type-212a; the AAW trigger (f-219-sachsen-type-f124-2006 observing Air) frees f-219-sachsen-type-f124-2006/f-310-fridtjof-nansen/jas-39e-gripen-ng-2021. Deliberately, no ASuW trigger exists, so any BLUE attempt to fire on RED's surface escorts (skr-admiral-grigorovich-pr-1135-6m, mrk-shkval-pr-22800-karakurt) before or outside the ASW/AAW windows stays WeaponsTight-denied per PolicyEvaluator.EvaluateRoe -- this keeps the scoring picture honestly multi-term (kills from two authorized domains, denials from the one un-authorized domain plus any pre-trigger attempts, missiles as a bounded-but-unweighted resource draw, plus the two gated objective-completion tokens) instead of collapsing to a single aggregate count. RED stays WeaponsTight throughout (a defensive screening posture consistent with protecting its SSBN), so only BLUE is scored here, matching every other candidate's expect.side convention in this run.",
+    "oracle": "Both EventFired mission-objective codes (asw_prosecution_tasking_open at tick 4, aaw_intercept_tasking_open at tick 8) must appear in the fingerprint regardless of engagement outcome -- this is the structural stand-in for 'multi-objective completion' since the schema (GauntletOracleExpect.cs) and every existing data/scenarios/*.json were grepped and confirmed to carry no dedicated victory/scoreWeights field. BLUE's ASW-triggered units (ka-27m-helix-a, p-3c-orion-update-iii-2023, s-181-u-31-type-212a) escalate to WeaponsFree on first Subsurface contact and may kill pl-877-kilo-paltus-1992 and/or plarb-955a-borei-ii-borey-a; BLUE's AAW-triggered units (f-219-sachsen-type-f124-2006, f-310-fridtjof-nansen, jas-39e-gripen-ng-2021) escalate on first Air contact and may kill su-27sm-sm3-flanker-j-2013 and/or su-30sm-flanker-g-2019. Any BLUE fire attempt against RED's surface units, or any attempt before a unit's covering trigger has fired, stays WeaponsTight-denied and adds to PolicyDenials. The composite score is exactly kills*100 - denials*5 per LossesScoringProjection.Project -- this candidate introduces no new scoring mechanism, it exercises the existing weighted formula against an ORBAT/ROE structure deliberately built so kills, denials, missilesFired, and the dual objective-completion tokens all stay simultaneously non-trivial and independently bounded in gauntlet.expect, rather than collapsing to one win/lose metric.",
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "jas-39e-gripen-ng-2021",
+      "ka-27m-helix-a",
+      "p-3c-orion-update-iii-2023",
+      "s-181-u-31-type-212a",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "mrk-shkval-pr-22800-karakurt",
+      "su-27sm-sm3-flanker-j-2013",
+      "su-30sm-flanker-g-2019",
+      "pl-877-kilo-paltus-1992",
+      "plarb-955a-borei-ii-borey-a"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 4,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "asw_prosecution_tasking_open",
+        "aaw_intercept_tasking_open"
+      ],
+      "minKills": 1,
+      "maxMissilesFired": 9,
+      "minDenials": 91,
+      "maxDenials": 101,
+      "minScore": -400.0,
+      "maxScore": -260.0
+    },
+    "units": [
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-3c-orion-update-iii-2023",
+        "platformId": "p-3c-orion-update-iii-2023",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-181-u-31-type-212a",
+        "platformId": "s-181-u-31-type-212a",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-27sm-sm3-flanker-j-2013",
+        "platformId": "su-27sm-sm3-flanker-j-2013",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-30sm-flanker-g-2019",
+        "platformId": "su-30sm-flanker-g-2019",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "pl-877-kilo-paltus-1992",
+        "platformId": "pl-877-kilo-paltus-1992",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "plarb-955a-borei-ii-borey-a",
+        "platformId": "plarb-955a-borei-ii-borey-a",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "forge": {
+      "recipes": [
+        "victory-weighted-multi"
+      ],
+      "candidateId": "gauntlet-forge-20260727-1455-t4-c3",
+      "noveltyTags": [
+        "weighted-scoring",
+        "multi-objective-victory",
+        "asw-aaw-combined-mission",
+        "contact-triggered-roe-escalation",
+        "dual-objective-fingerprint-gate"
+      ],
+      "note": "expect provisional pending regen"
+    },
+    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T4 tick budget 24, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-4/results.csv). Observed: score=[-280.0, -380.0, -280.0] kills=[2, 1, 2] missilesFired=[2, 7, 6] denials=[96, 96, 96]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented)."
+  },
+  "id": "gauntlet-forge-20260727-1455-t4-c3"
+}

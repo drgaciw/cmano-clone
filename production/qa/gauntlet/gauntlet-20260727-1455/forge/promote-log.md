@@ -172,3 +172,78 @@ the `post-oracle` scorecard/promote decision are **not done here** — that is
 sit in the gitignored `forge/candidates/` directory, ready for the next
 `/qa-gauntlet` tier-4 run to batch-execute alongside the main ladder
 scenarios and hand back to this skill's `post-oracle` phase for scoring.
+
+## Phase `post-oracle` (tier 4) — 2026-07-28T04:15Z — RESUMED under full `/qa-gauntlet` run
+
+The human explicitly requested `/qa-gauntlet` run Tier 4 for real (`--resume
+gauntlet-20260727-1455 --tier 4`), superseding the standalone-forge scope
+boundary noted above. Full Phase 0-C executed: preflight green (baseline
+1928/1928, replay-verify 17/17, smoke 21/21, catalog gate), tier-4 main-ladder
+roster + 4 scenarios drafted (Phase A0/A1), all 8 tier-4 policies (4 main + 4
+forge candidates) validated (Phase A2, `production/qa/scenario-audit-2026-07-28-gauntlet-t4.md`,
+0 BLOCKERs), batch-executed together (`Delegation.Demo --batch`, 24 ticks,
+seeds 42/7/123, `tier-4/results.csv`), `gauntlet.expect` regenerated from the
+real CSV per `tools/qa-gauntlet/README-expect-regen.md`, `gauntlet_oracle_eval`
+→ `allPassed: true` for all 8 (`tier-4/oracle-eval.json`).
+
+**4 promotes, 0 discards.**
+
+| candidate | recipe | cell | novelty | oracle |
+|---|---|---|---|---|
+| `…-t4-c1` | `platform-swap-underused` | `asw\|air,subsurface,surface\|WeaponsTight/WeaponsFree\|unrestricted\|none` | 6.0 | PASS |
+| `…-t4-c2` | `mission-concurrent-asw-aaw` | `asw\|air,subsurface,surface\|WeaponsFree/WeaponsTight\|unrestricted\|event-chain` | 5.5 | PASS |
+| `…-t4-c3` | `victory-weighted-multi` | `escort\|air,subsurface,surface\|WeaponsTight/WeaponsTight\|emcon-phases\|none` | 6.0 | PASS |
+| `…-t4-c4` | `roe-asymmetric-per-side` | `escort\|air,subsurface,surface\|WeaponsTight/WeaponsFree\|contested-em\|none` | 5.0 | PASS |
+
+All 4 scored via `python3 tools/qa-gauntlet/forge_scorecard.py --run-dir
+production/qa/gauntlet/gauntlet-20260727-1455 --tier 4` — `hardGatesPass: true`
+for all 4, all 4 landed in genuinely new coverage cells (confirmed non-duplicate
+against the pre-tier-4 29-cell corpus). Promoted to `data/scenarios/` under
+their forge candidate ids. The 4 tier-4 main-ladder scenarios were also added
+to `data/scenarios/` under their real ids (`gauntlet-20260727-1455-t4-s{1..4}`),
+matching the precedent set by tiers 1-3's main scenarios already living there.
+
+### Real defect found during Phase C investigation (not a forge-candidate issue)
+
+While diagnosing why `gauntlet-20260727-1455-t4-s3` (a **main-ladder** scenario,
+not a forge candidate) and `…-t4-c1` produced byte-identical results across all
+3 seeds, confirmed a real, scoped `sim-code` gap: `BalticReplayHarness.RunCore`
+only constructs `ScenarioContactSimulator` (the component that fires scripted
+`contacts[].appearAtTick` mid-run contact appearances) in an `else if` branch
+that is unreachable whenever a policy's `detection[]` array is non-empty — which
+is true of nearly every scenario in this corpus. `s3`'s scripted reinforcement
+contact and its dependent ROE-escalation trigger silently never fire as a
+result. Filed as `production/qa/bugs/BUG-scenario-contacts-shadowed-by-detection.md`
+and quarantined (not fixed — GitNexus MCP tools were unavailable this session,
+so no `src/` symbol was edited per the project's impact-analysis-first rule).
+`s3`'s `gauntlet.intent`/`gauntlet.oracle` text was corrected in place to match
+confirmed real behavior instead of the originally-intended-but-nonfunctional
+mechanic; its already-regenerated `expect` envelope needed no numeric change
+(it was derived from the real, non-escalated observed data either way). This is
+not a forge-recipe defect and does not affect any promote/discard decision
+above — flagged here because it surfaced during this tier's Phase C, and
+because it is corpus-wide relevant (any future scenario combining `contacts[]`
+with `detection[]` will hit the same silent gap).
+
+### Weight + coverage deltas
+
+- `platform-swap-underused` 1.2 → **1.38**
+- `mission-concurrent-asw-aaw` 1.0 → **1.15**
+- `victory-weighted-multi` 1.0 → **1.15**
+- `roe-asymmetric-per-side` 1.1 → **1.265**
+- coverage-map: **29 → 36 cells**, scenarioCount 43 → 51 (8 new scenarios: 4 main + 4 forge)
+- `corpus/index.yaml`: 4 forge-candidate entries appended
+- `underusedPlatformHint` recomputed from updated platform counts
+
+### Stuck families
+
+None. No recipe reached the 5-consecutive-discard threshold.
+
+### Regression anchors (Phase C)
+
+Re-ran one anchor scenario per prior tier at each tier's own tick budget
+(seeds 42/7/123): `gauntlet-20260727-1455-t1-s1` (6 ticks), `-t2-s1` (10
+ticks), `-t3-s1` (16 ticks) — all three matched their previously-recorded
+seed-42 baselines exactly (score/kills/missilesFired/denials). No regression
+from this session's SDK-substitute/compiler-compat workaround or from any
+change made this tier.
