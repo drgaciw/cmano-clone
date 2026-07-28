@@ -152,6 +152,9 @@ Create `production/qa/gauntlet/corpus/stress-axes.yaml`:
 #   differential-aggregate — compare against a control sibling, summed across seeds
 #   config-only            — configuration varies but the sim cannot demonstrate it;
 #                            MUST NOT be reported as proven
+#
+# NOTE: level key "off" MUST stay quoted. PyYAML follows YAML 1.1, where bare
+# off/on/yes/no parse as booleans — an unquoted off: becomes False, not "off".
 version: 1
 updated: 2026-07-27
 
@@ -161,7 +164,7 @@ axes:
     # Magazine exhaustion emits NO_AMMO; verified live in tier 3 (28 occurrences).
     signal: "NO_AMMO"
     levels:
-      off: {}
+      "off": {}
       moderate:
         engage.defaultMagazineRounds: 2
         engage.salvoSize: 2
@@ -178,7 +181,7 @@ axes:
     signal: "Detected"
     requires_control_sibling: true
     levels:
-      off: {}
+      "off": {}
       moderate:
         jammers:
           - jamStrength: 0.5
@@ -194,7 +197,7 @@ axes:
     # emission. Config varies and schema is validated; runtime pressure is NOT proven.
     gap: "GAP-13"
     levels:
-      off: {}
+      "off": {}
       moderate:
         logistics.fuelCapacityKg: 4000
         logistics.burnRateKgPerSecond: 8
