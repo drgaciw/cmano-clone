@@ -15,7 +15,20 @@ from typing import Any
 
 import yaml
 
-PROOF_MODES = {"fingerprint-token", "differential-aggregate", "config-only"}
+# WARNING on "fingerprint-token": it asserts only that a token is PRESENT, so it
+# is valid exclusively for a token that does NOT occur in unstressed baseline
+# runs. "NO_AMMO" is not such a token — it appears 106 times in the unstressed
+# tier-1 baseline of gauntlet-20260727-1455, so a presence assertion on it is
+# satisfied by an axis level of "off" and proves nothing. Any token that the
+# baseline can emit belongs in "differential-token", which compares stressed
+# against a control sibling. The mode is kept in the vocabulary for a genuinely
+# stress-exclusive token; confirm absence from a baseline before using it.
+PROOF_MODES = {
+    "fingerprint-token",
+    "differential-token",
+    "differential-aggregate",
+    "config-only",
+}
 
 
 @dataclass
@@ -58,4 +71,9 @@ def validate_axes(axes: dict[str, Axis]) -> list[str]:
             errors.append(f"{name}: differential-aggregate proof requires a control sibling")
         if axis.proof == "fingerprint-token" and not axis.signal:
             errors.append(f"{name}: fingerprint-token proof requires a signal token")
+        if axis.proof == "differential-token":
+            if not axis.signal:
+                errors.append(f"{name}: differential-token proof requires a signal token")
+            if not axis.requires_control_sibling:
+                errors.append(f"{name}: differential-token proof requires a control sibling")
     return errors

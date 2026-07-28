@@ -21,6 +21,30 @@ def verify_fingerprint_token(fingerprints: list[str], token: str) -> tuple[bool,
     return False, f"token {token} absent from all {len(fingerprints)} fingerprints"
 
 
+def verify_differential_token(
+    stressed: list[str], control: list[str], token: str
+) -> tuple[bool, str]:
+    """Proven when the token occurs strictly more often under stress than in control.
+
+    Presence alone is not evidence for any token the unstressed ladder can also
+    emit — NO_AMMO occurs 106 times in the unstressed tier-1 baseline, so a
+    presence check would pass for a weapons axis set to "off". Counting total
+    occurrences across each group and demanding a strict increase is what makes
+    the axis's own contribution visible.
+    """
+    s = sum(f.count(token) for f in stressed)
+    c = sum(f.count(token) for f in control)
+    if s > c:
+        return True, (
+            f"token {token} occurs {s}x stressed vs {c}x control "
+            f"({len(stressed)} stressed / {len(control)} control fingerprints)"
+        )
+    return False, (
+        f"no increase in {token}: {s}x stressed vs {c}x control "
+        f"({len(stressed)} stressed / {len(control)} control fingerprints)"
+    )
+
+
 def verify_differential_aggregate(stressed: list[int], control: list[int]) -> tuple[bool, str]:
     """Proven when the aggregate stressed total is strictly below the control total.
 
@@ -38,6 +62,10 @@ def verify_axis(axis: Axis, evidence: dict[str, Any]) -> dict[str, Any]:
     if axis.proof == "fingerprint-token":
         proven, detail = verify_fingerprint_token(
             evidence.get("fingerprints", []), axis.signal or ""
+        )
+    elif axis.proof == "differential-token":
+        proven, detail = verify_differential_token(
+            evidence.get("stressed", []), evidence.get("control", []), axis.signal or ""
         )
     elif axis.proof == "differential-aggregate":
         proven, detail = verify_differential_aggregate(

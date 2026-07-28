@@ -123,14 +123,35 @@ layer pressure onto any tier and are selected by a bounded pairwise matrix, not
 a cross-product: `ew`, `logistics`, `weapons` (see
 [`tools/qa-gauntlet/README-stress-axes.md`](../../../tools/qa-gauntlet/README-stress-axes.md)).
 
+| Axis | Proof mode | Control sibling |
+|---|---|---|
+| `weapons` | `differential-token` (`NO_AMMO`) | **Required** |
+| `ew` | `differential-aggregate` (`Detected`) | **Required** |
+| `logistics` | `config-only` (GAP-13) | — |
+
 - Plan with `plan_stress_matrix.plan_matrix(...)`; report `estimatedRuns` and
-  `dropped` before executing. A run that exceeds the base ladder cost (117 runs)
-  must lower `max_configs`, not expand.
+  `dropped` before executing. On the shipped catalog at `tiers=[1..5], seeds=3,
+  max_configs=24` this is `configs=15, estimatedRuns=105, dropped=0`.
+- **Budget anchors — do not conflate them.** A default ladder run is
+  4 scenarios/tier x 5 tiers x 3 seeds = **60 runs**. The accumulated-corpus
+  regression is 43 x 3 = **129 runs**. (The previously documented "117" was the
+  corpus-regression figure, not a ladder run.) At 105 runs the matrix is
+  **~1.75x a default ladder** and ~0.81x a corpus regression — it is *not*
+  cheaper than running the ladder; do not present it as such. Treat 129 as the
+  ceiling and lower `max_configs` if `estimatedRuns` exceeds it.
 - Verify with `verify_stress_axes.verify_axis(...)` using each axis's declared
   proof mode. `logistics` is `config-only` (GAP-13) and is **never** reported as
   proven — do not add a fuel assertion to make it look green.
-- An EW axis level requires a control sibling identical apart from `jamStrength`
-  and `id`, compared on aggregate `Detected` counts across all seeds.
+- Both `ew` and `weapons` require a control sibling identical apart from the
+  stressed key and `id`: `ew` compares aggregate `Detected` counts across all
+  seeds; `weapons` compares total `NO_AMMO` occurrences and is proven only on a
+  **strict increase**. `NO_AMMO` occurs 106 times in the unstressed tier-1
+  baseline, so asserting its mere presence proves nothing — never downgrade
+  `weapons` to a presence check.
+- EW jammers are emitted without a `targetId`; `apply_stress_axes` resolves one
+  from the base policy's `jammers` or `detection` block. A scenario with no
+  detection targets cannot carry the EW axis and raises rather than deriving an
+  inert scenario.
 
 ## Per-tier loop
 

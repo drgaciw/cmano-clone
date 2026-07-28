@@ -15,6 +15,7 @@ from stress_axes import load_axes  # noqa: E402
 from verify_stress_axes import (  # noqa: E402
     verify_axis,
     verify_differential_aggregate,
+    verify_differential_token,
     verify_fingerprint_token,
 )
 
@@ -50,11 +51,14 @@ def test_differential_aggregate_rejects_wrong_direction():
     assert proven is False
 
 
-def test_verify_axis_weapons_uses_fingerprint_mode():
+def test_verify_axis_weapons_uses_differential_token_mode():
     axes = load_axes(CATALOG)
-    result = verify_axis(axes["weapons"], {"fingerprints": ["x NO_AMMO y"]})
+    result = verify_axis(
+        axes["weapons"],
+        {"stressed": ["NO_AMMO NO_AMMO NO_AMMO"], "control": ["NO_AMMO"]},
+    )
 
-    assert result["mode"] == "fingerprint-token"
+    assert result["mode"] == "differential-token"
     assert result["proven"] is True
 
 
@@ -64,6 +68,47 @@ def test_verify_axis_ew_uses_differential_mode():
 
     assert result["mode"] == "differential-aggregate"
     assert result["proven"] is True
+
+
+def test_regression_baseline_abundant_token_at_parity_is_not_proven():
+    """Critical-2 regression: presence of NO_AMMO is not evidence of stress.
+
+    NO_AMMO occurs 106 times in the unstressed tier-1 baseline. Under the old
+    presence check a weapons-`off` run verified as proven — the exact failure
+    the proof-mode design exists to prevent. Equal counts must never prove.
+    """
+    baseline_like = ["NO_AMMO " * 10, "NO_AMMO " * 8]
+    proven, detail = verify_differential_token(
+        stressed=baseline_like, control=list(baseline_like), token="NO_AMMO"
+    )
+
+    assert proven is False
+    assert "18" in detail  # both counts reported, stressed and control alike
+
+
+def test_differential_token_strict_increase_is_proven():
+    proven, detail = verify_differential_token(
+        stressed=["NO_AMMO NO_AMMO", "NO_AMMO NO_AMMO NO_AMMO"],
+        control=["NO_AMMO", "NO_AMMO"],
+        token="NO_AMMO",
+    )
+
+    assert proven is True
+    assert "5" in detail and "2" in detail
+
+
+def test_differential_token_fewer_under_stress_is_not_proven():
+    proven, _ = verify_differential_token(
+        stressed=["NO_AMMO"], control=["NO_AMMO NO_AMMO NO_AMMO"], token="NO_AMMO"
+    )
+
+    assert proven is False
+
+
+def test_differential_token_empty_inputs_are_not_proven():
+    proven, _ = verify_differential_token(stressed=[], control=[], token="NO_AMMO")
+
+    assert proven is False
 
 
 def test_verify_axis_logistics_is_never_reported_as_proven():

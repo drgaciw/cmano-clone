@@ -41,7 +41,11 @@ def test_proof_modes_are_recognised_and_correctly_assigned():
     for axis in axes.values():
         assert axis.proof in PROOF_MODES
 
-    assert axes["weapons"].proof == "fingerprint-token"
+    # NO_AMMO occurs 106x in the UNSTRESSED tier-1 baseline, so mere presence
+    # cannot distinguish a weapons-extreme run from a weapons-off run. The axis
+    # is differential against a control sibling.
+    assert axes["weapons"].proof == "differential-token"
+    assert axes["weapons"].requires_control_sibling is True
     assert axes["ew"].proof == "differential-aggregate"
     # GAP-13: FuelStateProjection is UI-only, so logistics cannot be runtime-proven.
     assert axes["logistics"].proof == "config-only"
@@ -61,3 +65,33 @@ def test_validate_rejects_axis_without_off_level():
     bad = {"ew": Axis(id="ew", proof="config-only", levels={"extreme": {}})}
     errors = validate_axes(bad)
     assert any("off" in e for e in errors)
+
+
+def test_differential_token_is_a_recognised_proof_mode():
+    assert "differential-token" in PROOF_MODES
+
+
+def test_validate_rejects_differential_token_without_a_signal():
+    bad = {
+        "weapons": Axis(
+            id="weapons",
+            proof="differential-token",
+            levels={"off": {}},
+            requires_control_sibling=True,
+        )
+    }
+    errors = validate_axes(bad)
+    assert any("signal" in e for e in errors)
+
+
+def test_validate_rejects_differential_token_without_a_control_sibling():
+    bad = {
+        "weapons": Axis(
+            id="weapons",
+            proof="differential-token",
+            levels={"off": {}},
+            signal="NO_AMMO",
+        )
+    }
+    errors = validate_axes(bad)
+    assert any("control sibling" in e for e in errors)
