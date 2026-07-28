@@ -1,70 +1,120 @@
 run_id: gauntlet-20260727-1455
-tier: 2
+tier: 4
 phase: pre
-generated: "2026-07-27T16:20Z"
-supersedes: "tier-1 plan (same file, rewritten per forge lifecycle — tier-1 plan summary preserved in promote-log)"
+generated: "2026-07-28T02:15Z"
+supersedes: "tier-2 plan (same file, rewritten per forge lifecycle — tier-1/tier-2 plan summaries preserved in promote-log)"
 
 context:
   resumed_after: >
-    Tier 1 completed GREEN after both quarantined CRITICAL defects were fixed
-    (BUG-engagement-resolver-shooter-liveness, BUG-losses-scoring-side-unaware).
-    Oracle results are now trustworthy, so tier 2 signal is meaningful — unlike the
-    pre-fix state where every tier would have reproduced the same two engine defects.
+    Standalone /qa-gauntlet-forge invocation (not chained from a live /qa-gauntlet
+    run). Tier 3's MAIN scenarios already executed and passed oracle (allPassed:
+    true, 6/6 including the s5-control sibling) under this run-id, but no forge
+    candidates were drafted alongside Tier 3 — forge/mid-tier-plan.yaml and
+    forge/scorecard.json were still frozen at the tier-2 state (a process gap, not
+    a forge decision). Per human direction this session: Tier 3's forge gap is
+    accepted as missed (no retroactive backfill) and this plan moves straight to
+    Tier 4 with a Phase E close-out folded in below, rather than drafting
+    out-of-context Tier 3 candidates after the fact.
+
+phase_e_closeout_tier3:
+  weight_deltas: none
+  reason: >
+    No forge candidates ran in Tier 3, so there is no candidate-level pressure
+    signal to bump or down-weight recipes on. This is distinct from a discard —
+    nothing was attempted, so nothing is scored. Recipe weights carried forward
+    unchanged from the tier-2 post-oracle state (see corpus/recipes/recipe-weights.json).
+  stuck_families: >
+    none — consecutiveDiscards unchanged (hard-case-replay 0, orbat-asymmetric-ratio
+    0, mission-combo-escort-strike 0); no family has reached the 5-consecutive-discard
+    threshold.
+  hard_case_pool: >
+    Still empty on disk (corpus/hard-cases/ has only .gitkeep + README). The two
+    tier-1 signatures (dead-shooter-fires-next-tick, enemy-kill-credited-to-own-side)
+    were captured in promote-log only, never materialised as replay policies —
+    hard-case-replay (recipe weight 1.7192, highest in the catalog) remains
+    ineligible this tier on the "hard-cases-nonempty" precondition. Flagged again
+    as a standing recommendation for a human/agent to materialise those two
+    signatures into corpus/hard-cases/ so the highest-weighted recipe becomes
+    selectable.
 
 hindsight_recall:
-  status: SKIPPED — server still unreachable (HTTP 000 at tier-1 pre and final)
+  status: "SKIPPED — server unreachable (curl http://localhost:8888 -> exit 000), same outage as every prior phase this run"
   action: on-disk corpus only, per forge contract
 
 corpus_snapshot:
-  coverage_map_cells: 20
-  coverage_map_scenarios: 24
-  corpus_health: "24/24 passing at correct per-tier tick budgets after the tier-1 fixes + expect regen"
+  coverage_map_cells: 29
+  coverage_map_scenarios: 43
+  note: >
+    Grew from the tier-2 forge state (23 cells / 28 scenarios) via unrelated,
+    already-merged stress-axis work (PR #365, see git log) — not forge activity
+    from this run. Recorded here for an accurate tier-4 baseline, not claimed as
+    a forge contribution.
   hard_cases_pool_files: 0
-  hard_case_signatures_known: 2   # recorded in promote-log at tier-1 post-oracle, not yet materialised as replay policies
+  underused_platform_hint_count: 15
+  underused_platform_hint_domain_split: "10 subsurface (SSK/SSN/SSGN/SSBN attack + ballistic-missile boats), 5 air (fighter/attack/transport) — strongly ASW/AAW-shaped, matching this tier's theme"
 
-ranked_recipes_tier2:
-  # tierMin <= 2, bootstrap-seed excluded (provenance-only)
-  - id: hard-case-replay
-    weight: 1.3
-    rationale: >
-      Highest weight AND newly actionable. The two tier-1 signatures
-      (dead-shooter-fires-next-tick, enemy-kill-credited-to-own-side) are now FIXED,
-      so a candidate that deliberately reproduces those conditions is genuine
-      regression coverage rather than a re-discovery of a known-broken path.
+ranked_recipes_tier4:
+  # tierMin <= 4, bootstrap-seed excluded (provenance-only), hard-case-replay
+  # excluded this tier (precondition "hard-cases-nonempty" unmet — see above)
   - id: platform-swap-underused
     weight: 1.2
+    tierMin: 1
     rationale: >
-      Still the workhorse; tier 2 adds an air slot per side, which is entirely new
-      coverage surface (no air platform appears in any tier-1 cell from this run).
-  - id: orbat-asymmetric-ratio
+      Highest-weight eligible recipe. Coverage-map underusedPlatformHint is
+      dominated by submarines (SSK/SSN/SSGN/SSBN) and combat air — a near-perfect
+      match for tier 4's ASW/AAW multi-mission theme. Still under-used from
+      tier 1/2 (0 candidates drawn on this recipe so far this run despite tier-2
+      eligibility).
+  - id: mission-concurrent-asw-aaw
     weight: 1.0
-    rationale: Newly eligible at tier 2. Pairs naturally with this tier's asymmetric ROE (tight one side).
-  - id: mission-combo-escort-strike
-    weight: 1.0
-    rationale: Newly eligible at tier 2 and directly on-theme — tier 2's mission row is "strike OR escort".
-  - id: geometry-detection-lane-shift
-    weight: 1.0
+    tierMin: 4
+    preconditions: ["multi-domain-units"]
     rationale: >
-      Interacts well with this tier's passive-only EMCON side — detection geometry
-      matters more when one side is emissions-restricted.
+      Newly eligible at tier 4 and directly on-theme (tier 4's own ladder
+      description is "ASW/AAW multi-mission"), exactly as
+      mission-combo-escort-strike was the tier-2 theme recipe. Precondition
+      satisfied — tier 4 roster spans air + surface + subsurface.
+  - id: victory-weighted-multi
+    weight: 1.0
+    tierMin: 4
+    rationale: >
+      Newly eligible at tier 4; the victory/scoring dimension has not been
+      exercised by any forge candidate in this run yet (tier-1/2 candidates all
+      used platform/orbat/mission/roe dims). Weighted multi-objective scoring is
+      a genuinely new coverage cell, not incremental pressure on an
+      already-covered dim.
+  - id: roe-asymmetric-per-side
+    weight: 1.1
+    tierMin: 3
+    rationale: >
+      Second-highest weight among eligible recipes after platform-swap-underused.
+      Continues the ROE-asymmetry pressure line established at tier 2
+      (orbat-asymmetric-ratio) into a tier where ASW/AAW roster complexity makes
+      per-side ROE splits (e.g. tight-ROE ASW screen vs free-ROE AAW intercept)
+      meaningfully harder to get right than tier 2's simpler 4-unit/side mix.
 
-hard_case_replays_injected:
-  - signature: dead-shooter-fires-next-tick
-    intent: >
-      Construct an ORBAT/geometry where a unit is reliably killed early and would
-      historically have fired again. Post-fix the expected observable is a
-      SHOOTER_DESTROYED denial rather than a launch.
-  - signature: enemy-kill-credited-to-own-side
-    intent: >
-      Ensure both sides land kills, so a side-unaware scorer would inflate the scored
-      side's tally. Post-fix, blue's kills must exclude red-fired kills.
+not_selected_this_wave:
+  - "emcon-timed-phases (weight 1.1, tierMin 3) — already exercised at tier 2 (candidate c2, emcon-phases cell); this wave prioritizes dims not yet touched (victory) or on-theme for this tier (mission-concurrent-asw-aaw)."
+  - "event-timed-chain (weight 1.0, tierMin 3) — tier 3 main scenarios already exercise this dim per the ladder table; deprioritized this wave."
+  - "event-seeded-random-inject (weight 1.0, tierMin 4) — newly eligible but lower priority than victory-weighted-multi for a first wave-4 slot; a natural pick for a second tier-4 wave if one is drafted."
+  - "geometry-detection-lane-shift (weight 1.0, tierMin 1) — still unused since tier 1; carried forward as a standing gap, not urgent enough to bump a tier-4-native recipe out of this wave's 4-candidate cap."
+  - "trait-attention-overload (weight 1.0, tierMin 3, precondition multi-unit-blue) — eligible, deprioritized this wave in favor of the victory dim and the tier's own theme recipe."
+
+hard_case_replays_injected: []
+# hard-case-replay is ineligible this tier (see phase_e_closeout_tier3 /
+# hard_case_pool above) — nothing to inject.
 
 new_coverage_this_tier:
-  domains: "air introduced for the first time this run (all tier-1 cells were surface-only)"
-  emcon: "passive-only one side — first EMCON-restricted cell from this run"
-  roe: "asymmetric (tight one side) — tier 1 was WeaponsFree/WeaponsFree throughout"
-  events: "1 scripted timed event — tier 1 had none"
+  domains: "no new domain (air/surface/subsurface all already appeared by tier 3)"
+  mission: "mission-concurrent-asw-aaw is a genuinely new mission class for this run's forge candidates"
+  victory: "victory-weighted-multi is a genuinely new dimension — no prior candidate this run has touched scoring/victory-condition structure"
+  platforms: "submarine-heavy roster (SSK/SSN/SSGN) is new platform-domain depth vs tier 1-3's lighter subsurface presence (tier 3 had exactly 1 subsurface unit per side)"
 
 max_candidates_this_wave: 4
-tick_budget: 10
+tick_budget: 24
 seeds: [42, 7, 123]
+
+next_steps:
+  - "Phase a0: spawn sim-data-specialist for a tier-4 roster (~14/side per ladder table) favoring the 15 underused-platform-hint IDs, querying assets/data/catalog/baltic_patrol.db directly for real sensor/weapon/domain data (no invented catalog rows)."
+  - "Phase a0: hand roster + these 4 recipes to military-simulation-architect, one candidate per recipe, written to forge/candidates/ (gitignored, NOT data/scenarios/ yet) with schema-complete gauntlet.intent + gauntlet.expect placeholders (marked 'provisional pending regen' — no invented expect envelopes)."
+  - "Validate each candidate (gauntlet policy schema shape, catalogRefs resolve against baltic_patrol.db) before handing off to /qa-gauntlet's own Phase B/C batch run — running the actual batch harness / oracle eval for tier 4 is out of scope for this standalone forge invocation."

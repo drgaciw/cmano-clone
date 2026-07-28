@@ -93,3 +93,50 @@ Tier 1 documentation asserted that denial counts rose corpus-wide "because dead 
 ### Stuck families
 
 None. No recipe family has consecutive discards this run (the 4 apparent discards were the tooling defect above, and have been zeroed rather than counted).
+
+---
+
+## Phase E (tier 3 close-out) + Phase `pre` (tier 4) — 2026-07-28T02:15Z — standalone invocation
+
+Invoked directly (not chained from a live `/qa-gauntlet` run). Reconstructed run
+state from disk: Tier 3's **main** scenarios had already executed and passed
+oracle (`allPassed: true`, 6/6), but no forge candidates were drafted for
+Tier 3 — `mid-tier-plan.yaml` and `scorecard.json` were still frozen at the
+tier-2 state. Per explicit human direction this session, the Tier 3 forge gap
+is accepted as missed (no retroactive backfill); this phase closes out Tier 3
+adaptively and moves straight to Tier 4.
+
+**Phase E (tier 3):**
+- Weight deltas: **none** — no forge candidates ran in tier 3, so there is no
+  candidate-level signal to bump or down-weight on. Not a discard; nothing was
+  attempted.
+- Stuck families: none — `consecutiveDiscards` unchanged (0 for
+  `hard-case-replay`, `orbat-asymmetric-ratio`, `mission-combo-escort-strike`).
+- Hard-case pool: still empty on disk (`corpus/hard-cases/` = `.gitkeep` +
+  `README.md` only). The two tier-1 signatures remain un-materialised, keeping
+  `hard-case-replay` (weight 1.7192, highest in the catalog) ineligible again
+  this tier on its `hard-cases-nonempty` precondition.
+
+**Phase `pre` (tier 4):**
+- Hindsight recall: **SKIPPED** — server unreachable (`curl http://localhost:8888` → exit 000), consistent with every prior phase this run.
+- Corpus loaded: `coverage-map.json` now 29 cells / 43 scenarios (grew from the
+  tier-2 forge state of 23/28 via unrelated, already-merged stress-axis work —
+  PR #365 — not forge activity from this run), `recipe-weights.json` (17
+  recipes, unchanged from tier-2 post-oracle), `hard-cases/` (still empty),
+  `index.yaml` (43 promoted policies).
+- Tier-4-eligible recipes (`tierMin <= 4`, `hard-case-replay` excluded on
+  precondition): ranked `platform-swap-underused` (1.2) >
+  `roe-asymmetric-per-side` (1.1) > `mission-concurrent-asw-aaw` (1.0, newly
+  eligible, on-theme) > `victory-weighted-multi` (1.0, newly eligible, new
+  dim) > `emcon-timed-phases` (1.1, already exercised at tier 2, deprioritized)
+  > others.
+- Selected 4 for this wave: `platform-swap-underused`,
+  `mission-concurrent-asw-aaw`, `victory-weighted-multi`,
+  `roe-asymmetric-per-side` — prioritizing the tier's own theme
+  (ASW/AAW mission) and an entirely untouched dimension (victory) over
+  repeating an already-covered dim (EMCON phases).
+- `underusedPlatformHint` (15 IDs) queried directly against
+  `assets/data/catalog/baltic_patrol.db`: 10 subsurface (SSK/SSN/SSGN/SSBN) + 5
+  air — strongly ASW/AAW-shaped, feeding directly into the tier-4 roster ask.
+- Plan written: `forge/mid-tier-plan.yaml` (tier-2 plan superseded in place;
+  its summary is preserved in the tier-2 entries above).
