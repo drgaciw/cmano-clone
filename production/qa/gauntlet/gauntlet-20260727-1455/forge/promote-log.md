@@ -140,3 +140,35 @@ adaptively and moves straight to Tier 4.
   air — strongly ASW/AAW-shaped, feeding directly into the tier-4 roster ask.
 - Plan written: `forge/mid-tier-plan.yaml` (tier-2 plan superseded in place;
   its summary is preserved in the tier-2 entries above).
+
+## Phase `a0` (tier 4) — 2026-07-28T02:35Z
+
+Roster built (`forge/tier-4-roster.json`, 29 platforms, queried directly
+against `assets/data/catalog/baltic_patrol.db` — no invented catalog rows,
+sensor category labels follow the domain+class heuristic already established
+by tier-3's roster since the DB itself has no descriptive sensor-category
+column). Four `military-simulation-architect` candidates drafted in parallel
+(one per selected recipe, independent write paths under `forge/candidates/`),
+each validated against the repo's real `infer_cell()`
+(`tools/qa-gauntlet/forge_scorecard.py`) before acceptance:
+
+| candidate | recipe | cell key | units | notes |
+|---|---|---|---|---|
+| `…-t4-c1` | `platform-swap-underused` | `asw\|air,subsurface,surface\|WeaponsTight/WeaponsFree\|unrestricted\|none` | 14 (7v7) | uses all 5 flagged underused submarines + all 4 flagged underused fighter/attack air; SSBN correctly excluded as a non-combatant |
+| `…-t4-c2` | `mission-concurrent-asw-aaw` | `asw\|air,subsurface,surface\|WeaponsFree/WeaponsTight\|unrestricted\|event-chain` | 12 (7v5) | genuinely concurrent ASW hunt (tick 0) + AAW intercept (tick 6) in the same 24-tick window, not sequential |
+| `…-t4-c3` | `victory-weighted-multi` | `escort\|air,subsurface,surface\|WeaponsTight/WeaponsTight\|emcon-phases\|none` | 12 (6v6) | no dedicated victory/weighted-score schema field exists (`GauntletOracleExpect.cs` confirmed) — expressed via the sim's real weighted score formula (kills×100, denials×−5) kept simultaneously non-trivial via two real `mission.triggers` ROE-escalation gates, plus the real (not invented) `RequireFingerprintSubstrings` expect field standing in for objective completion |
+| `…-t4-c4` | `roe-asymmetric-per-side` | `escort\|air,subsurface,surface\|WeaponsTight/WeaponsFree\|contested-em\|none` | 12 (6v6) | domain-specific ROE/ID nuance (ASW held-pending-ID vs AAW confident-lock) expressed via detection `basePd` contrast + explicit intent narrative, since the schema has only one fleet-wide `friendlyRoe`/`opposingRoe` pair — the constraint is disclosed in-policy, not silently worked around |
+
+All 4 cell keys confirmed **non-duplicate** against both the existing 29-cell
+corpus and each other. All 4 `gauntlet.expect` blocks are honestly marked
+`"note": "expect provisional pending regen"` — none claim a real empirical
+regen, since none have been batch-run yet.
+
+**Scope boundary for this standalone invocation**: batch-executing these 4
+candidates (`Delegation.Demo --batch`), running `gauntlet_oracle_eval`, and
+the `post-oracle` scorecard/promote decision are **not done here** — that is
+`/qa-gauntlet`'s own Phase B/C, out of scope for this session per the human's
+"draft the Tier 4 mid-tier-plan and candidates" direction. The 4 candidates
+sit in the gitignored `forge/candidates/` directory, ready for the next
+`/qa-gauntlet` tier-4 run to batch-execute alongside the main ladder
+scenarios and hand back to this skill's `post-oracle` phase for scoring.
