@@ -116,6 +116,45 @@ per this matrix — combine dimensions within a tier, don't cherry-pick one:
 Tier N+1 may not start until tier N is green (all scenarios pass all oracles,
 after remediation) or explicitly quarantined.
 
+## Orthogonal stress axes
+
+The 5 tiers escalate mission/platform complexity. Three **independent** axes
+layer pressure onto any tier and are selected by a bounded pairwise matrix, not
+a cross-product: `ew`, `logistics`, `weapons` (see
+[`tools/qa-gauntlet/README-stress-axes.md`](../../../tools/qa-gauntlet/README-stress-axes.md)).
+
+| Axis | Proof mode | Control sibling |
+|---|---|---|
+| `weapons` | `differential-token` (`NO_AMMO`) | **Required** |
+| `ew` | `differential-aggregate` (`Detected`) | **Required** |
+| `logistics` | `config-only` (GAP-13) | — |
+
+- Plan with `plan_stress_matrix.plan_matrix(...)`; report `estimatedRuns` and
+  `dropped` before executing. On the shipped catalog at `tiers=[1..5], seeds=3,
+  max_configs=24` this is `configs=15, estimatedRuns=105, dropped=0`.
+- **Budget anchors — do not conflate them.** A default ladder run is
+  4 scenarios/tier x 5 tiers x 3 seeds = **60 runs**. The accumulated-corpus
+  regression covers the **39** scenarios carrying a `gauntlet.tier` (43 policies
+  exist on disk; 4 have no tier and are skipped), so 39 x 3 = **117 runs**. The
+  "117" figure is correct for the corpus regression — the error to avoid is
+  calling it a ladder run. At 105 runs the matrix is **~1.75x a default ladder**
+  and ~0.90x a corpus regression — it is *not* cheaper than running the ladder;
+  do not present it as such. Treat 117 as the ceiling and lower `max_configs` if
+  `estimatedRuns` exceeds it.
+- Verify with `verify_stress_axes.verify_axis(...)` using each axis's declared
+  proof mode. `logistics` is `config-only` (GAP-13) and is **never** reported as
+  proven — do not add a fuel assertion to make it look green.
+- Both `ew` and `weapons` require a control sibling identical apart from the
+  stressed key and `id`: `ew` compares aggregate `Detected` counts across all
+  seeds; `weapons` compares total `NO_AMMO` occurrences and is proven only on a
+  **strict increase**. `NO_AMMO` occurs 106 times in the unstressed tier-1
+  baseline, so asserting its mere presence proves nothing — never downgrade
+  `weapons` to a presence check.
+- EW jammers are emitted without a `targetId`; `apply_stress_axes` resolves one
+  from the base policy's `jammers` or `detection` block. A scenario with no
+  detection targets cannot carry the EW axis and raises rather than deriving an
+  inert scenario.
+
 ## Per-tier loop
 
 ### Phase A — Scenario generation (parallelizable with tier N execution)
