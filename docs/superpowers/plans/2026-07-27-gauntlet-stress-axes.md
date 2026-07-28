@@ -1042,13 +1042,18 @@ def _infer_stress_axes(policy: dict[str, Any]) -> str:
     return f"ew:{ew}|logistics:{logistics}|weapons:{weapons}"
 ```
 
-Then, immediately before `infer_cell` returns its cell dict, add the key:
+`infer_cell` ends by returning a **dict literal** built from `cell_key` — there is no intermediate `cell` variable. Add `stressAxes` as a new key inside that returned literal, alongside the existing `"key": cell_key,` entry:
 
 ```python
-    cell["stressAxes"] = _infer_stress_axes(policy)
+    cell_key = f"{mission}|{','.join(sorted(domains))}|{roe}|{emcon}|{event}"
+    return {
+        "key": cell_key,
+        "stressAxes": _infer_stress_axes(policy),
+        # ... every existing key unchanged ...
+    }
 ```
 
-Do **not** add `stressAxes` to the `key` string — the 5-part key must stay stable so historical cells remain comparable.
+Do **not** add `stressAxes` to the `cell_key` f-string — the 5-part key must stay stable so historical cells remain comparable. Leave every existing key in the literal exactly as it is.
 
 - [ ] **Step 4: Run test to verify it passes**
 
