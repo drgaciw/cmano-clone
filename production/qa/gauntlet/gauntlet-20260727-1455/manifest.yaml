@@ -120,7 +120,23 @@ tiers:
       detection[] is also populated). Regression anchors for tiers 1-3 re-verified
       clean at their own tick budgets. Full solution baseline 1928/1928,
       replay-verify 17/17, smoke 21/21.
-  - {n: 5, status: pending}
+  - n: 5
+    status: green
+    note: >
+      Final tier. 8/8 policies (4 main + 4 forge candidates) pass
+      gauntlet_oracle_eval (allPassed: true) after gauntlet.expect regen from
+      the real 40-tick/seeds 42,7,123 batch CSV. Forge: 4 promotes
+      (platform-swap-underused, event-cascading-adversarial,
+      roe-mid-mission-change, victory-trigger-conditional). One authoring
+      mistake caught and fixed before finalizing (not a defect that shipped):
+      a forge candidate's own mission.triggers used targetClass "Air" against
+      a real platform id, which — per the defect below — can never actually
+      match; corrected to "Any" before promotion. One new sim-code defect
+      found and quarantined (not fixed — GitNexus unavailable this session):
+      production/qa/bugs/BUG-missioncontacttargetclass-domain-filter-broken.md.
+      Regression anchors for all 4 prior tiers re-verified clean at their own
+      tick budgets (exact match, seed 42). Full solution baseline 1928/1928,
+      replay-verify 17/17, smoke 21/21. Ladder complete — 5/5 tiers green.
 
 forge_wiring:
   required_hooks: [pre, a0, post_oracle_per_tier, e_per_tier, final]
@@ -140,4 +156,18 @@ defects:
     report: production/qa/bugs/BUG-losses-scoring-side-unaware.md
     symbol: "LossesScoringProjection.Project (src/ProjectAegis.Delegation/Projection/LossesScoringProjection.cs:12)"
     impact: "CRITICAL — 381 impacted symbols on the real fix surface (EngagementOutcomeRecord constructor)"
+    regression_test: null
+  - id: BUG-scenario-contacts-shadowed-by-detection
+    class: sim-code
+    status: QUARANTINED — not fixed (GitNexus MCP unavailable this session, tier 4)
+    report: production/qa/bugs/BUG-scenario-contacts-shadowed-by-detection.md
+    symbol: "BalticReplayHarness.RunCore (src/ProjectAegis.Delegation.UnityAdapter/Baltic/BalticReplayHarness.cs:139-164)"
+    impact: "not GitNexus-assessed (tool unavailable) — scoped: only affects scenarios combining non-empty contacts[] with non-empty detection[]"
+    regression_test: null
+  - id: BUG-missioncontacttargetclass-domain-filter-broken
+    class: sim-code
+    status: QUARANTINED — not fixed (GitNexus MCP unavailable this session, tier 5)
+    report: production/qa/bugs/BUG-missioncontacttargetclass-domain-filter-broken.md
+    symbol: "MissionContactTargetClassifier.Classify/Matches (src/ProjectAegis.Sim/Scenario/MissionContactTargetClass.cs)"
+    impact: "not GitNexus-assessed (tool unavailable) — scoped: mission.triggers[].targetClass 'Subsurface' silently degrades to 'Any' (found harmless everywhere it's used so far); 'Air' silently never matches any real platform id (found and fixed pre-promotion in one tier-5 forge candidate before it shipped)"
     regression_test: null

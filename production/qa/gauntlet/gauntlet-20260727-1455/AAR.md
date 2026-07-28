@@ -250,3 +250,130 @@ exactly the intended six — `MvpEngagementResolver` / `Resolve` / `EngagementAb
 diff is documentation, QA artifacts, and regenerated policy envelopes.
 
 > **CORRECTION (2026-07-27, tier 2):** an earlier statement in this document attributed the corpus-wide denial rise to dead shooters' blocked attempts being "recorded as denials instead of launches". **That mechanism is wrong.** `SHOOTER_DESTROYED` is an `EngagementAbortReason` written to the OrderLog; `DecisionLog.PolicyDenials` is appended only in the pre-resolver guard path (`SimulationSession.cs:170` — comms/ROE gates). Verified empirically in tier 2: forge candidate `gauntlet-forge-20260727-1455-t2-c1` shows **9 `SHOOTER_DESTROYED` events with 0 denials**. The actual cause is second-order: with dead shooters no longer killing, more units survive more ticks and so generate more ROE-gate denials. The fix itself is unaffected — only this explanation was wrong.
+
+---
+
+## 11. Final Ladder Summary — Tiers 2-5 (2026-07-28, resumed session)
+
+Resumed via `/qa-gauntlet --resume gauntlet-20260727-1455 --tier 4`, then
+continued to tier 5. This section closes out the run: **5/5 tiers green.**
+
+### Environment note (this session only, never committed)
+
+The pinned .NET SDK (8.0.400) was not obtainable in this sandbox — the
+official installer is blocked by network policy, and apt/Microsoft apt feeds
+cap at 8.0.129 (a lower SDK feature band). With explicit human approval, this
+session ran on a substitute 8.0.129 SDK plus a small, session-local
+compiler-compatibility patch to 5 test files (a C# 12 collection-expression
+overload ambiguity that resolves differently across Roslyn feature bands —
+confirmed as a toolchain artifact, not a logic bug). **Neither the
+`global.json` edit nor the 5-file patch was ever committed** — every commit
+this session excludes them explicitly. See
+`production/determinism/replay-2026-07-28.md` for detail.
+
+### Ladder results (tiers 2-5)
+
+| Tier | Ticks | Main scenarios | Forge candidates | Oracle | Result |
+|---|---|---|---|---|---|
+| 2 | 10 | 4/4 | 4/4 promoted | allPassed | GREEN |
+| 3 | 16 | 6/6 (incl. control sibling) | 0 drafted (process gap, accepted as missed, not backfilled) | allPassed | GREEN |
+| 4 | 24 | 4/4 | 4/4 promoted | allPassed | GREEN |
+| 5 | 40 | 4/4 | 4/4 promoted | allPassed | GREEN |
+
+Tier 3's forge gap (main scenarios ran without forge candidates alongside)
+was a pre-existing process gap discovered when this session resumed, not a
+new defect — the human explicitly directed accepting it as missed rather
+than backfilling out-of-context candidates after the fact.
+
+### New defects found this session (both quarantined, neither fixed)
+
+GitNexus MCP tools were unavailable for the entire resumed session — per
+CLAUDE.md's "never edit a function/class without impact analysis first,"
+neither defect below had any `src/` symbol touched.
+
+1. **`BUG-scenario-contacts-shadowed-by-detection`** (tier 4) —
+   `BalticReplayHarness.RunCore` only constructs `ScenarioContactSimulator`
+   (the component that fires scripted `contacts[].appearAtTick` mid-run
+   appearances) in an `else if` branch that is unreachable whenever a
+   policy's `detection[]` array is non-empty — true of nearly every scenario
+   in this corpus. Found while investigating why `gauntlet-20260727-1455-t4-s3`
+   and a sibling forge candidate produced byte-identical results across all
+   3 seeds; confirmed via direct fingerprint inspection (the scripted
+   reinforcement contact and its dependent ROE-escalation trigger never
+   appear in the order log). `t4-s3`'s `gauntlet.intent`/`gauntlet.oracle`
+   text was corrected in place to match confirmed real behavior.
+
+2. **`BUG-missioncontacttargetclass-domain-filter-broken`** (tier 5) —
+   `MissionContactTargetClass` has no `Subsurface` enum member (silently
+   falls back to `Any` via `Enum.TryParse` — harmless everywhere it's used
+   in this corpus so far, since every affected observer happens to have
+   exactly one relevant detection entry) and `Classify()` never returns `Air`
+   for any real catalog platform id (only for ids starting with `"ucav"`,
+   which none of this corpus's ~110 platforms do) — meaning
+   `targetClass: "Air"` can **never** match anything, a fail-closed trap.
+   Independently found and confirmed by three separate drafting agents in
+   parallel; caught and fixed pre-promotion in the one tier-5 forge candidate
+   that had authored it (`targetClass` corrected from `"Air"` to `"Any"`
+   before the candidate was finalized — it never shipped broken).
+
+Both defects are silent-gap findings in scenario-authoring mechanics — no
+crash, no exception, no validation error from the existing tooling. Neither
+affects the sim's core combat resolution or scoring correctness (both
+previously-fixed CRITICAL defects from tier 1 remain fixed and unaffected).
+
+### Regression (full ladder, final gate)
+
+Re-ran one anchor scenario per **every** prior tier at each tier's own tick
+budget, seed 42 (exact match required, not just within-tolerance):
+
+| Anchor | Ticks | Score | Kills | MissilesFired | Denials | Match |
+|---|---|---|---|---|---|---|
+| `-t1-s1` | 6 | 200 | 2 | 4 | 0 | ✅ exact |
+| `-t2-s1` | 10 | -200 | 0 | 3 | 40 | ✅ exact |
+| `-t3-s1` | 16 | 140 | 3 | 12 | 32 | ✅ exact |
+| `-t4-s1` | 24 | 600 | 6 | 28 | 0 | ✅ exact |
+
+No regression anywhere in the ladder from this session's SDK-substitute
+workaround, from any forge candidate promotion, or from the corpus/index
+bookkeeping changes.
+
+### Forge corpus growth (whole run)
+
+| Metric | Start of session | End of run |
+|---|---|---|
+| Coverage-map cells | 29 | **43** |
+| Promoted scenarios | 43 | **59** |
+| Recipe weights bumped | — | `platform-swap-underused` 1.2→1.587, `roe-asymmetric-per-side` 1.1→1.265, `mission-concurrent-asw-aaw`/`victory-weighted-multi`/`event-cascading-adversarial`/`victory-trigger-conditional` 1.0→1.15, `roe-mid-mission-change` 1.1→1.265 |
+| Hard-case pool | empty | **still empty** (standing gap, 4 tiers running) |
+
+**Standing recommendation, unaddressed across this entire run:** the two
+tier-1 hard-case signatures (`dead-shooter-fires-next-tick`,
+`enemy-kill-credited-to-own-side`) were captured in `forge/promote-log.md`
+at tier 1 but never materialised into `corpus/hard-cases/`. `hard-case-replay`
+(weight 1.7192 — the single highest-weighted recipe in the entire catalog)
+has been ineligible on its `hard-cases-nonempty` precondition for all of
+tiers 2 through 5. This is the most valuable unclaimed action item from the
+whole run and should be the first thing a future session does before the
+next gauntlet.
+
+### Sign-off
+
+| Metric | Value |
+|---|---|
+| Full solution baseline | 1928 passed / 1928 total, 0 failed (re-verified at tier-5 close, matches tier-1 post-fix floor plus no drift) |
+| ReplayGolden | 17/17 PASS |
+| PlayModeSmokeHarnessTests | 21/21 PASS (≥20/20 floor) |
+| Catalog gate | PASS (schema 005, 79 platform rows) |
+| Regression anchors (all 4 prior tiers) | 4/4 exact match |
+| Tiers green | **5/5** |
+| Forge promotes this session | 12 (4 tier-2 carried in from before resume, 4 tier-4, 4 tier-5) |
+| New defects found | 2 (both quarantined, neither fixed — GitNexus unavailable) |
+| `detect_changes()` | NOT RUN — GitNexus MCP tools unavailable for the entire resumed session; substituted with the full local test-suite re-run + oracle re-eval + regression-anchor re-run above as the closest available correctness signal. This is a real gap versus the skill's normal gate and should be confirmed with a working GitNexus index before merge. |
+| Environment workaround | Substitute .NET SDK (8.0.129) + 5-file compiler-compat patch, both session-local and never committed |
+
+**READY FOR HUMAN REVIEW.** The ladder is complete. Two real, silent-gap
+defects were found and documented (not fixed, per this project's own
+autonomy/impact-analysis rules with GitNexus unavailable) — both are scoped,
+reproducible, and have suggested fixes in their respective bug reports. The
+single highest-priority follow-up is materialising the two tier-1 hard-case
+signatures so `hard-case-replay` becomes selectable in any future run.
