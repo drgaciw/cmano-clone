@@ -283,3 +283,45 @@ def test_novelty_score_floor_existing_cell(tmp_path: Path) -> None:
     # With no new cell / rare / useful fail, novelty should be 0 → no promote
     assert result["noveltyScore"] == 0.0
     assert result["recommendPromote"] is False
+
+
+def test_infer_cell_reports_stress_axes_from_policy():
+    policy = {
+        "id": "gauntlet-t3-escort-strike-weapons-extreme",
+        "engage": {"defaultMagazineRounds": 1, "salvoSize": 4},
+        "gauntlet": {"tier": 3, "intent": "escort + strike under weapons-extremes"},
+    }
+
+    cell = infer_cell(policy, policy["id"])
+
+    assert cell["stressAxes"] == "ew:off|logistics:off|weapons:extreme"
+
+
+def test_infer_cell_detects_ew_axis_from_jammers_block():
+    policy = {
+        "id": "gauntlet-t3-s5",
+        "jammers": [{"targetId": "x", "jamStrength": 0.9, "activeFromTick": 0}],
+        "gauntlet": {"tier": 3, "intent": "escort"},
+    }
+
+    cell = infer_cell(policy, policy["id"])
+
+    assert cell["stressAxes"].startswith("ew:extreme")
+
+
+def test_infer_cell_stress_axes_default_to_off():
+    policy = {"id": "gauntlet-t1-patrol-a", "gauntlet": {"tier": 1, "intent": "patrol"}}
+
+    cell = infer_cell(policy, policy["id"])
+
+    assert cell["stressAxes"] == "ew:off|logistics:off|weapons:off"
+
+
+def test_infer_cell_key_is_unchanged_by_the_axis_extension():
+    policy = {"id": "gauntlet-t1-patrol-a", "gauntlet": {"tier": 1, "intent": "patrol"}}
+
+    cell = infer_cell(policy, policy["id"])
+
+    # The historical 5-part key must stay intact so existing cells remain comparable.
+    assert cell["key"].count("|") == 4
+    assert "stressAxes" not in cell["key"]

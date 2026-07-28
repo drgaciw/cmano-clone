@@ -37,6 +37,43 @@ def intent_hash(intent: str, cell_key: str) -> str:
     return hashlib.sha256(f"{intent}|{cell_key}".encode()).hexdigest()[:16]
 
 
+def _infer_stress_axes(policy: dict[str, Any]) -> str:
+    """Derives the stress-axis signature from policy content.
+
+    Reads the policy itself rather than the scenario id, so a hand-authored
+    scenario that applies pressure without the derived naming is still counted.
+    """
+    engage = policy.get("engage") or {}
+    rounds = engage.get("defaultMagazineRounds")
+    salvo = engage.get("salvoSize")
+    if rounds is not None and rounds <= 1:
+        weapons = "extreme"
+    elif (rounds is not None and rounds <= 2) or (salvo is not None and salvo >= 2):
+        weapons = "moderate"
+    else:
+        weapons = "off"
+
+    jammers = policy.get("jammers") or []
+    strength = max((j.get("jamStrength", 0) for j in jammers), default=0)
+    if strength >= 0.8:
+        ew = "extreme"
+    elif strength > 0:
+        ew = "moderate"
+    else:
+        ew = "off"
+
+    logistics_block = policy.get("logistics") or {}
+    burn = logistics_block.get("burnRateKgPerSecond", 0)
+    if burn >= 14:
+        logistics = "extreme"
+    elif burn > 0:
+        logistics = "moderate"
+    else:
+        logistics = "off"
+
+    return f"ew:{ew}|logistics:{logistics}|weapons:{weapons}"
+
+
 def infer_cell(policy: dict[str, Any], scenario_id: str) -> dict[str, Any]:
     g = policy.get("gauntlet") or {}
     intent = (g.get("intent") or "") + " " + scenario_id
@@ -94,6 +131,7 @@ def infer_cell(policy: dict[str, Any], scenario_id: str) -> dict[str, Any]:
     cell_key = f"{mission}|{','.join(sorted(domains))}|{roe}|{emcon}|{event}"
     return {
         "key": cell_key,
+        "stressAxes": _infer_stress_axes(policy),
         "missionClass": mission,
         "domains": sorted(domains),
         "roePair": roe,
