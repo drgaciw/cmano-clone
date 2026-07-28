@@ -118,3 +118,64 @@ def test_verify_axis_logistics_is_never_reported_as_proven():
     assert result["mode"] == "config-only"
     assert result["proven"] is False
     assert "GAP-13" in result["detail"]
+
+
+def test_differential_token_nonempty_stressed_empty_control_is_not_proven():
+    """Critical: missing 'control' evidence must never default to proven."""
+    proven, detail = verify_differential_token(
+        stressed=["NO_AMMO NO_AMMO"], control=[], token="NO_AMMO"
+    )
+
+    assert proven is False
+    assert "insufficient evidence" in detail
+
+
+def test_differential_token_empty_stressed_nonempty_control_is_not_proven():
+    """Critical: missing 'stressed' evidence must never default to proven."""
+    proven, detail = verify_differential_token(
+        stressed=[], control=["NO_AMMO NO_AMMO"], token="NO_AMMO"
+    )
+
+    assert proven is False
+    assert "insufficient evidence" in detail
+
+
+def test_differential_aggregate_empty_stressed_nonempty_control_is_not_proven():
+    """Critical: a stressed run that produced no data at all must not 'prove' a reduction."""
+    proven, detail = verify_differential_aggregate(stressed=[], control=[10, 10, 10])
+
+    assert proven is False
+    assert "insufficient evidence" in detail
+
+
+def test_differential_aggregate_nonempty_stressed_empty_control_is_not_proven():
+    """Critical: missing control evidence must never default to proven."""
+    proven, detail = verify_differential_aggregate(stressed=[10, 10, 10], control=[])
+
+    assert proven is False
+    assert "insufficient evidence" in detail
+
+
+def test_verify_axis_weapons_stressed_only_evidence_is_not_proven():
+    """End-to-end regression: a missing 'control' key must not prove the weapons axis.
+
+    Reproduces the exact Critical finding: verify_axis(weapons, {"stressed": [...]})
+    with no "control" key at all previously returned proven=True.
+    """
+    axes = load_axes(CATALOG)
+    result = verify_axis(axes["weapons"], {"stressed": ["NO_AMMO " * 106]})
+
+    assert result["proven"] is False
+
+
+def test_verify_axis_ew_control_only_evidence_is_not_proven():
+    """End-to-end regression: a stressed run with no data must not prove the EW axis.
+
+    Reproduces the exact Critical finding: verify_axis(ew, {"control": [10, 10, 10]})
+    with no "stressed" key at all previously returned proven=True — a run that
+    produced no data "proving" that jamming works.
+    """
+    axes = load_axes(CATALOG)
+    result = verify_axis(axes["ew"], {"control": [10, 10, 10]})
+
+    assert result["proven"] is False

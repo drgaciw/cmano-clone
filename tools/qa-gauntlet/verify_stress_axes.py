@@ -32,6 +32,15 @@ def verify_differential_token(
     occurrences across each group and demanding a strict increase is what makes
     the axis's own contribution visible.
     """
+    # A differential proof is meaningless without both sides: if either group
+    # is empty there is nothing to compare against, and the safe default for
+    # a verifier that exists to refuse unevidenced claims is not-proven.
+    if not stressed or not control:
+        return False, (
+            f"insufficient evidence: {len(stressed)} stressed / {len(control)} control "
+            f"samples — a differential proof requires both"
+        )
+
     s = sum(f.count(token) for f in stressed)
     c = sum(f.count(token) for f in control)
     if s > c:
@@ -51,6 +60,15 @@ def verify_differential_aggregate(stressed: list[int], control: list[int]) -> tu
     Aggregate, never per-seed: jamming is probabilistic, and at least one seed
     routinely shows a zero delta while the totals are unambiguous.
     """
+    # As above: a differential proof is meaningless without both sides, and a
+    # run that produced no data at all must never "prove" a reduction — the
+    # safe default when either group is empty is not-proven.
+    if not stressed or not control:
+        return False, (
+            f"insufficient evidence: {len(stressed)} stressed / {len(control)} control "
+            f"samples — a differential proof requires both"
+        )
+
     s, c = sum(stressed), sum(control)
     if s < c:
         return True, f"aggregate {s} vs control {c} across {len(stressed)} seeds"
