@@ -116,6 +116,22 @@ per this matrix — combine dimensions within a tier, don't cherry-pick one:
 Tier N+1 may not start until tier N is green (all scenarios pass all oracles,
 after remediation) or explicitly quarantined.
 
+## Orthogonal stress axes
+
+The 5 tiers escalate mission/platform complexity. Three **independent** axes
+layer pressure onto any tier and are selected by a bounded pairwise matrix, not
+a cross-product: `ew`, `logistics`, `weapons` (see
+[`tools/qa-gauntlet/README-stress-axes.md`](../../../tools/qa-gauntlet/README-stress-axes.md)).
+
+- Plan with `plan_stress_matrix.plan_matrix(...)`; report `estimatedRuns` and
+  `dropped` before executing. A run that exceeds the base ladder cost (117 runs)
+  must lower `max_configs`, not expand.
+- Verify with `verify_stress_axes.verify_axis(...)` using each axis's declared
+  proof mode. `logistics` is `config-only` (GAP-13) and is **never** reported as
+  proven — do not add a fuel assertion to make it look green.
+- An EW axis level requires a control sibling identical apart from `jamStrength`
+  and `id`, compared on aggregate `Detected` counts across all seeds.
+
 ## Per-tier loop
 
 ### Phase A — Scenario generation (parallelizable with tier N execution)
