@@ -132,6 +132,54 @@ def oracle_victory(tier_dir: Path) -> dict:
     return _oracle("victory_roe", failures, warnings)
 
 
+def _load_goldens(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def oracle_goldens(rows: list[Row], goldens_path: Path, anchor_seeds: list[str]) -> dict:
+    if not goldens_path or not goldens_path.exists():
+        return _oracle("goldens", [f"goldens file missing: {goldens_path}"])
+    anchors = _load_goldens(goldens_path).get("anchors", {})
+    failures: list[str] = []
+    anchor_set = set(anchor_seeds)
+    for r in rows:
+        if r.seed not in anchor_set:
+            continue  # roving rows have no stored baseline
+        key = f"{r.scenario_id}|{r.seed}"
+        want = anchors.get(key)
+        got = hashlib.sha256(r.fingerprint.encode("utf-8")).hexdigest()
+        if want is None:
+            failures.append(f"no golden for {key} (bless required after adding scenarios)")
+        elif want != got:
+            failures.append(f"golden mismatch {key}: expected {want[:12]}… got {got[:12]}… "
+                            f"(legit change? re-bless per goldens/README.md)")
+    return _oracle("goldens", failures)
+
+
+def bless(run_dir: Path, goldens_path: Path, run_id: str, tier_names: list[str]) -> int:
+    anchors: dict[str, str] = {}
+    for tier in tier_names:
+        verdict_path = run_dir / tier / "verdict.json"
+        if verdict_path.exists():
+            verdict = json.loads(verdict_path.read_text(encoding="utf-8"))
+            if not verdict.get("pass", False):
+                print(f"bless refused: {tier} verdict is red", file=sys.stderr)
+                return 2
+        csv_path = run_dir / tier / "results.csv"
+        if not csv_path.exists():
+            print(f"bless: missing {csv_path}", file=sys.stderr)
+            return 2
+        for r in parse_results_csv(csv_path):
+            anchors[f"{r.scenario_id}|{r.seed}"] = hashlib.sha256(
+                r.fingerprint.encode("utf-8")).hexdigest()
+    goldens_path.parent.mkdir(parents=True, exist_ok=True)
+    goldens_path.write_text(json.dumps(
+        {"version": 1, "blessedFrom": run_id, "anchors": dict(sorted(anchors.items()))},
+        indent=2) + "\n", encoding="utf-8")
+    print(f"bless: wrote {len(anchors)} anchors from {run_id} -> {goldens_path}")
+    return 0
+
+
 def write_verdict(path: Path, tier: str, oracles: list[dict]) -> bool:
     overall = all(o["status"] != "fail" for o in oracles)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -152,7 +200,16 @@ def main(argv: list[str]) -> int:  # extended in later tasks
     tier_p.add_argument("--roving-seeds", default="")
     tier_p.add_argument("--goldens", type=Path)
     tier_p.add_argument("--out", type=Path)
+    bless_p = sub.add_parser("bless")
+    bless_p.add_argument("--run-dir", required=True, type=Path)
+    bless_p.add_argument("--run-id", required=True)
+    bless_p.add_argument("--goldens", required=True, type=Path)
+    bless_p.add_argument("--tiers", default="tier-1,tier-2,tier-3,tier-4,tier-5,tier-extra")
     args = parser.parse_args(argv)
+
+    if args.mode == "bless":
+        return bless(args.run_dir, args.goldens, args.run_id,
+                     [t for t in args.tiers.split(",") if t])
 
     if args.mode == "tier":
         tier_dir = args.tier_dir
@@ -160,12 +217,15 @@ def main(argv: list[str]) -> int:  # extended in later tasks
         seeds = [s for s in args.anchor_seeds.split(",") if s] + \
                 [s for s in args.roving_seeds.split(",") if s]
         rows = parse_results_csv(tier_dir / "results.csv")
+        anchor_seeds = [s for s in args.anchor_seeds.split(",") if s]
         oracles = [
             oracle_stability(tier_dir, rows, scenarios, seeds),
             oracle_determinism(tier_dir),
             oracle_victory(tier_dir),
             oracle_sanity(rows, seeds),
         ]
+        if args.goldens:
+            oracles.append(oracle_goldens(rows, args.goldens, anchor_seeds))
         out = args.out or (tier_dir / "verdict.json")
         ok = write_verdict(out, tier_dir.name, oracles)
         print(json.dumps({"tier": tier_dir.name, "pass": ok}))

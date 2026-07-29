@@ -118,6 +118,60 @@ def test_victory_fails_on_allpassed_false_or_missing(tmp_path):
     assert oracle_victory(tmp_path / "nowhere")["status"] == "fail"
 
 
+def _golden_file(tmp_path, fp="CATALOG_UNIT:x:surface T|1,extra", sid="s1", seed="42"):
+    import hashlib
+    g = {"version": 1, "blessedFrom": "test",
+         "anchors": {f"{sid}|{seed}": hashlib.sha256(fp.encode()).hexdigest()}}
+    p = tmp_path / "anchors.json"
+    p.write_text(json.dumps(g))
+    return p
+
+
+def test_goldens_pass_on_matching_hash(tmp_path):
+    from evaluate_run import oracle_goldens
+    p = make_csv(tmp_path, [row_line()])
+    g = _golden_file(tmp_path)
+    assert oracle_goldens(parse_results_csv(p), g, ["42"])["status"] == "pass"
+
+
+def test_goldens_fail_on_mismatch_and_missing_anchor(tmp_path):
+    from evaluate_run import oracle_goldens
+    p = make_csv(tmp_path, [row_line(fp="DIFFERENT"), row_line(seed="7")])
+    g = _golden_file(tmp_path)
+    o = oracle_goldens(parse_results_csv(p), g, ["42", "7"])
+    assert o["status"] == "fail"
+    assert any("mismatch" in e for e in o["evidence"])
+    assert any("no golden" in e for e in o["evidence"])
+
+
+def test_goldens_ignore_roving_rows(tmp_path):
+    from evaluate_run import oracle_goldens
+    p = make_csv(tmp_path, [row_line(), row_line(seed="99991", fp="ROVING")])
+    g = _golden_file(tmp_path)
+    assert oracle_goldens(parse_results_csv(p), g, ["42"])["status"] == "pass"
+
+
+def test_bless_writes_all_anchor_hashes(tmp_path):
+    from evaluate_run import bless
+    run = tmp_path / "run"
+    (run / "tier-1").mkdir(parents=True)
+    make_csv(run / "tier-1", [row_line(), row_line(seed="7", fp="FP7")])
+    out = tmp_path / "anchors.json"
+    rc = bless(run, out, "run-x", ["tier-1"])
+    assert rc == 0
+    g = json.loads(out.read_text())
+    assert g["blessedFrom"] == "run-x" and len(g["anchors"]) == 2
+
+
+def test_bless_refuses_red_verdict(tmp_path):
+    from evaluate_run import bless
+    run = tmp_path / "run"
+    (run / "tier-1").mkdir(parents=True)
+    make_csv(run / "tier-1", [row_line()])
+    (run / "tier-1" / "verdict.json").write_text(json.dumps({"tier": "tier-1", "pass": False, "oracles": {}}))
+    assert bless(run, tmp_path / "anchors.json", "run-x", ["tier-1"]) == 2
+
+
 def test_write_verdict_overall(tmp_path):
     ok = write_verdict(tmp_path / "verdict.json", "tier-1",
                        [{"name": "stability", "status": "pass", "evidence": []},
