@@ -126,11 +126,6 @@
       "skr-admiral-sergey-gorshkov-pr-2235-0",
       "su-27sm-sm3-flanker-j-2013"
     ],
-    "domains": [
-      "surface",
-      "air",
-      "subsurface"
-    ],
     "runId": "gauntlet-t3t5-catalog-red",
     "tier": 4,
     "expect": {

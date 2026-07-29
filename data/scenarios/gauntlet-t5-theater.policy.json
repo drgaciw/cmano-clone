@@ -146,11 +146,6 @@
       "su-30sm-flanker-g-2019",
       "su-35s-flanker-m-2023"
     ],
-    "domains": [
-      "surface",
-      "air",
-      "subsurface"
-    ],
     "runId": "gauntlet-t3t5-catalog-red",
     "tier": 5,
     "expect": {
