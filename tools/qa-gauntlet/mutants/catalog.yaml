@@ -1,0 +1,11 @@
+# Saboteur mutant catalog — oracle-sensitivity calibration.
+# Rules: never target locked-eval files; every entry records a one-time GitNexus
+# impact() result; patches are committed but only ever applied in throwaway worktrees.
+# Control mutants (id prefix 00-) are behavior-neutral and MUST survive.
+mutants:
+  - id: "00-noop-comment"
+    patch: "00-noop-comment.patch"
+    target: "src/ProjectAegis.Sim/Sensors/ContactLifecycleState.cs"
+    description: "Comment-only no-op — pipeline control; MUST survive (proves we don't flag noise)"
+    expectedOracles: []
+    impactRecorded: "n/a (comment only)"
