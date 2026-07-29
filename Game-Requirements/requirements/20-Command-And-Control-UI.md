@@ -1,7 +1,7 @@
 # 20 - Command and Control User Interface
 
-**Last Updated:** 2026-07-27  
-**Status:** Draft — Template B (Wave 2 re-honesty)  
+**Last Updated:** 2026-07-28  
+**Status:** Draft — Template B (Wave 3: command lifecycle, contention, degraded states, testable ACs)  
 **CMO basis:** Manual Ch 3–4, §6.2–7, §6.9, §1.3 multitaskers, §10.1 keyboard; map/layer/view instructional parity (clean-room)  
 **Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md), [03](03-Simulation-Modes.md), [04](04-Agent-Delegation.md), [11](11-Agentic-Mission-Editor.md), [12](12-Terms-Glossary.md), [13](13-Doctrine-ROE-EMCON-WRA.md)–[17](17-Replay-AAR-And-Order-Log.md), [19](19-Cyber-And-Comms.md) · [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md)  
 **Architecture (normative):** [ADR-010 Headless-First / Command-Driven UI](../../docs/architecture/adr-010-headless-first-command-driven-ui.md) · [ADR-007 C2 Map Presentation](../../docs/architecture/adr-007-c2-map-presentation.md)
@@ -13,6 +13,38 @@ Define the **theater command UI**: map, symbology, panels, context menus, delega
 Implements hub **FR-18** ([01](01-Project-Overview.md)).
 
 > **Normative architecture.** [ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md) is **normative** for this document: Unity presentation is a **command-driven client** over headless .NET core (`ProjectAegis.Data` / `Sim` / `Delegation`). UI binds **read-only projections** and submits **validated commands** only — never authoritative sim state. Map presentation phasing is governed by [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md) (Phase A placeholder → Phase B Cesium / WGS84 → Phase C APP-6 LOD).
+
+## Conventions (normative for this document)
+
+### Status vocabulary
+
+Prior waves used these labels inconsistently (`Partial+`, `P0 intent` were undefined). Fixed meanings:
+
+| Label | Meaning |
+|-------|---------|
+| **Shipped** | Built, exercised by a named test, and listed in Implementation Mapping with evidence |
+| **Partial / Shipped** | Host or contract exists and is smoke-covered; product behaviour incomplete |
+| **Partial** | Some mechanism exists; not smoke-covered end to end, or covers a subset of the stated requirement |
+| **Open** | Specified here, not started, not blocked by another phase |
+| **Phase N / Deferred** | Deliberately out of the current product gate; requires a phase decision to start |
+| **P0 intent** | Product intent is P0, but the *simulation* capability it depends on is not modelled yet (see [`docs/engineering/sim-capability-gap-backlog.md`](../../docs/engineering/sim-capability-gap-backlog.md)) — a UI requirement here cannot be satisfied before that gap closes |
+
+A requirement marked **P0** with maturity **Phase N** is a scheduling risk, not an achievement. The KEY-\* block is currently entirely in that state; see [Risk Register](#risk-register).
+
+### ID ownership (resolves cross-namespace duplication)
+
+Several capabilities were previously specified twice under different IDs. Each capability now has exactly one **owning** ID; the others are cross-references only and must not carry independent acceptance criteria.
+
+| Capability | Owner | Cross-references (non-normative) |
+|---|---|---|
+| Attack/engage hotkey | **KEY-03** | CUI-16 |
+| Move/plot hotkey | **KEY-04** | CUI-16, CUI-06 |
+| Range/bearing measure | **MAP-23** | KEY-10 |
+| Sensor/weapon range rings | **MAP-13** | CUI-17 |
+| Aircraft fuel-range overlay | **MAP-14** | CUI-17 |
+| Reference-point placement | **MAP-21** | KEY-11 |
+
+**Rule:** a capability's status is authoritative at its owning ID. When statuses disagree, the owner wins and the cross-reference is stale.
 
 ## Vision
 
@@ -58,7 +90,7 @@ The UI is a **command post**, not a game HUD. It must support long sessions, den
 |----|-------------|--------|
 | **CMD-01** | Persistent layout zones (map, top bar, right detail, message log, left drawer) | **Partial / Shipped** |
 | **CMD-02** | UI Toolkit presentation stack (not UGUI) for C2 hosts | **Shipped** |
-| **CMD-03** | Headless-first command-driven binding per ADR-010 (projections in; commands out) | **Shipped** (contract); panel polish open |
+| **CMD-03** | Headless-first command-driven binding per ADR-010 (projections in; commands out) | **Partial** — *inbound* projection half **Shipped**; *outbound* command half has *no result channel* (see **CMD-16**) |
 | **CMD-04** | Top bar: time, compression, pause, mode, Begin Execution | **Partial / Shipped** |
 | **CMD-05** | Message log projection + row selection / sequence deep-link | **Partial / Shipped** |
 | **CMD-06** | Map symbol picture (placeholder Phase A; product globe Phase N) | **Partial** (placeholder **Shipped**; Cesium **Partial**) |
@@ -71,6 +103,65 @@ The UI is a **command post**, not a game HUD. It must support long sessions, den
 | **CMD-13** | Product WGS84 globe + APP-6 LOD at theater scale | **Phase N / Deferred** (ADR-007 B/C; hub **OV-SC-N1**) |
 | **CMD-14** | Multitasker bookmarks / multi-monitor detachable chrome | **Phase N / Deferred** |
 | **CMD-15** | 5,000 symbols @ 60 FPS interactive map performance | **Phase N / Deferred** (hub **OV-SC-N1** — north-star, not CI gate) |
+
+### Command lifecycle and failure (CMD-16 – CMD-22)
+
+**Gap this closes.** ADR-010 requires the UI to "submit user intent as commands", but specifies nothing about what comes *back*. Verified against shipped code (2026-07-28): `C2PresentationController`'s public surface is selection-only, and the **player-order** path terminates in `DecisionLog.AppendPlayerOrder(...)` → `void`; `PlayerOrderExecutionQueue.Enqueue` likewise returns `void`. The player-order submission path is fire-and-forget, so the UI cannot tell an operator whether an order was accepted, or why one was refused — even though the sim models **23 distinct engagement abort reasons** (`EngagementAbortReason`), already exposed through `EngagePreviewProjection` and `MessageLogProjection`.
+
+**The shape already exists and should be reused, not invented.** The *agent* order path is already gated by `AutonomyGate.Evaluate(...)`, which returns `GateResult(ExecuteNow, QueueForApproval, Rejected, PolicyDenialReason)` — precisely the `Accepted` / `Queued` / `Rejected`-with-reason triple **CMD-16** requires. The defect is that the human command path does not return it. This narrows the work from "design a result protocol" to "return the existing one".
+
+For a ROE-gated wargame, *"why can't I fire?"* is the central operator question. The data and the result type both exist; the return path to the operator does not.
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **CMD-16** | **Command result channel.** Every authoritative UI command returns a typed outcome — `Accepted` (with the assigned `sequenceId`), `Rejected` (with a machine code + operator-readable reason), or `Queued` (with the tick it will execute on). Fire-and-forget submission is not acceptable for any command that can fail. | **P0** — **Open** |
+| **CMD-17** | **Rejection is explained, never silent.** A rejected command surfaces its reason at the point of interaction (context menu, panel, or map), not only in the message log. Reason text is drawn from the shared abort/deny vocabulary so UI and log agree verbatim. | **P0** — **Open** |
+| **CMD-18** | **No raw enum leakage.** All 23 `EngagementAbortReason` members — and every deny code added later — have an operator-facing string. A missing mapping is a build-time failure, not a runtime fallback to the symbol name. | **P0** — **Open** |
+| **CMD-19** | **Queued-order visibility and cancel.** Orders awaiting a future tick are listed, attributed to their unit, and cancellable before execution. Cancelling is itself a logged command (doc 17). | **P0** — **Open** |
+| **CMD-20** | **Confirmation for irreversible actions.** Weapons release, mission deletion, and delegation handover require explicit confirmation, with a per-action "don't ask again" that persists per side and is disclosed in settings. Confirmation must never be the *only* guard against a rejected command (that is **CMD-16**'s job). | **P0** — **Open** |
+| **CMD-21** | **Commanding under time compression.** Issuing a command at compression > 1× either (a) auto-pauses to a decision point, or (b) targets an explicit future tick — chosen by the operator, never silently. The doc-03 compression state at submission is recorded on the order. | **P0** — **Open** |
+| **CMD-22** | **Multi-unit application semantics.** A command issued against a multi-unit selection reports per-unit outcomes; partial success is rendered as partial, never as blanket success or blanket failure. | **P1** — **Open** |
+
+### Authority and contention (AUT-*)
+
+**Gap this closes — corrected 2026-07-28.** An earlier draft of this section asserted that no human-vs-agent conflict rule existed. **That was wrong**, and the error came from grepping only `Delegation/Decision/`. The rule is locked in [doc 04 §2](04-Agent-Delegation.md#2-conflicting-orders-on-group-override) — **detach-and-rejoin**, *"exactly one active controller per target — order conflicts are structurally impossible"* — and it is **shipped**: `OverrideService.TakeDirectControl` swaps the controller slot agent→human, and `DetachRejoinService` handles the group case, emitting `GroupMemberDetach` / `GroupMemberRejoin` / `ControllerChange`.
+
+The real gap is narrower and is a **UI** gap: the semantics are decided and implemented headlessly, but the operator-facing surface that *communicates* them is UI debt (doc 04 Implementation Mapping: "full drag-drop assignment + polish badges remain UI debt"). AUT-\* therefore specifies how the shipped rule is **surfaced**, not what the rule should be.
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **AUT-01** | **The locked contention rule is legible in the UI.** Overriding an agent-controlled unit shows, before commit, that control transfers to the operator (and, for a group member, that the unit **detaches** and the group replans next cycle). No silent transfer. Surfaces the doc 04 §2 rule; does not redefine it. | **P0** — **Open** (rule shipped; UI absent) |
+| **AUT-02** | **Takeover is an explicit, logged, acknowledged act.** Assuming manual control is a command with a result (**CMD-16**) and produces an order-log entry naming prior and new controller — mirroring the `ControllerChange` event already emitted headlessly. | **P0** — **Open** (event shipped; UI ack absent) |
+| **AUT-03** | **Badge reflects contention state**, not just ownership: `human`, `agent`, `mixed`, **`contested`** (both issued orders this tick), **`stale`** (agent paused with orders outstanding). | **P0** — **Open** |
+| **AUT-04** | **Agent action while a menu is open** does not silently invalidate the operator's pending choice; the affordance updates or disables with a reason rather than executing against changed state. | **P0** — **Open** |
+| **AUT-05** | **Autonomy changes are reversible and visible** — raising or lowering a unit's autonomy shows what it changes *before* commit (which orders the agent may then issue unprompted). | **P1** — **Open** |
+| **AUT-06** | **Side-level agent commander surfaces its intent** before acting, at Assisted autonomy, consistent with the unit-level ghost intent (**CMD-11**). | **P1** — **Phase N** |
+
+### Degraded and edge states (DEG-*)
+
+**Gap this closes.** The document specifies the happy path. A command post is judged on contested and degraded states — and doc 19 already models comms degradation without stating what the UI does about it.
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **DEG-01** | **Stale projection is visibly stale.** When the UI is rendering data older than a stated threshold, affected panels are marked; they must not present stale values as current. | **P0** — **Open** |
+| **DEG-02** | **Comms degradation changes displayed truth, honestly** (doc 19). Contact data degraded by comms loss is rendered as *last known*, with its age — never as live. | **P0** — **Open** |
+| **DEG-03** | **Selected unit destroyed** transitions the panel to a terminal state naming the cause and time; it does not blank, and does not silently reselect another unit. | **P0** — **Open** |
+| **DEG-04** | **Commands against dead or departed units** are refused with a specific reason (**CMD-17**), distinct from an ROE refusal. | **P0** — **Open** |
+| **DEG-05** | **Scenario end** freezes the command surface into a read-only state with AAR entry (doc 17); late commands are refused, not queued into a finished sim. | **P0** — **Open** |
+| **DEG-06** | **Projection/host failure degrades locally.** One failed panel does not take down the command post; the failed zone reports its own failure. | **P1** — **Open** |
+| **DEG-07** | **Empty states are explicit** — "no contacts" reads as *no contacts*, distinguishable from *not loaded* and from *sensors down*. | **P1** — **Open** |
+
+### Operator attention and alerting (ALR-*)
+
+**Gap this closes.** At theater scale with agents acting autonomously, what interrupts the operator is a first-order design concern, and is currently unspecified.
+
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **ALR-01** | **Alert priority classes** are defined (e.g. weapons-release-imminent > new hostile contact > mission complete > informational) and drive ordering and persistence. | **P0** — **Open** |
+| **ALR-02** | **Nothing blocks the map.** Alerts never occlude the primary map or steal focus mid-interaction; the operator dismisses on their own schedule. | **P0** — **Open** |
+| **ALR-03** | **Every alert is navigable** — selecting it selects the subject unit/contact and opens the relevant explain surface (parity with the message-log deep-link, **CMD-05**). | **P0** — **Open** |
+| **ALR-04** | **Rate limiting and coalescing.** Repeated same-class alerts coalesce with a count rather than flooding; the log retains every instance (doc 17). | **P1** — **Open** |
+| **ALR-05** | **Agent-initiated actions are attributable** in the alert stream — the operator can always answer "did I do that, or did the agent?" | **P0** — **Open** |
 
 ### Operator interface modules (CUI-*)
 
@@ -210,15 +301,35 @@ CMO map/layer/view instructional parity (clean-room). Brand names (Sentinel-2, B
 - **Partial:** In play: mission list + activate/deactivate (runtime doc 11)
 - **Phase N:** Full edit-mode Mission Board GUI without separate app (unless Scenario Lab split — doc 11 / ADR-017)
 
-## Accessibility and Density
+## Accessibility and Density (ACC-*)
 
-Per genre conventions (`docs/military-simulation/genre-conventions-reference.md`) and hub NFRs:
+Per genre conventions (`docs/military-simulation/genre-conventions-reference.md`) and hub NFRs. The previous wave stated these as adjectives ("colorblind-safe", "font scaling") with no pass condition, so none were testable. Restated with thresholds:
 
-- **Partial / v1 commitment:** Colorblind-safe affiliation palettes (shape + color)
-- **Partial:** Keyboard focus order for OOB and message log
-- **Phase N:** Screen reader labels for critical controls (hub: out of scope for v1 product gate)
-- **Partial:** Font scaling for message log and panels
-- **Partial:** Minimum 1920×1080 usable; no single-screen 4K requirement
+| ID | Requirement | Priority / maturity |
+|----|-------------|---------------------|
+| **ACC-01** | **Affiliation is never encoded by colour alone** — shape or fill pattern also distinguishes friendly / hostile / neutral / unknown, verifiable with colour stripped. | **P0** — **Partial** (palette exists; shape redundancy unverified) |
+| **ACC-02** | **Contrast:** text and meaningful UI glyphs meet **WCAG 2.2 AA** (4.5:1 body, 3:1 large text and graphical objects) against their own background, including on the map. | **P0** — **Open** |
+| **ACC-03** | **Font scaling to 200%** without loss of function or clipping in panels and message log. | **P0** — **Partial** |
+| **ACC-04** | **Every command reachable by keyboard**, with a visible focus indicator meeting **ACC-02** contrast. Mouse-only paths are defects. | **P0** — **Partial** (OOB + log focus order only) |
+| **ACC-05** | **Pointer targets ≥ 24×24 px** for controls in chrome (map symbols exempt; see **ACC-06**). | **P1** — **Open** |
+| **ACC-06** | **Map symbol selection tolerance** is independent of icon size, so dense theaters stay selectable at low zoom. | **P0** — **Open** |
+| **ACC-07** | **Screen-reader labels** for critical controls and alerts. | **Phase N** — out of scope for v1 product gate (hub) |
+| **ACC-08** | **Minimum usable resolution 1920×1080**; no single-screen 4K requirement. | **P0** — **Partial** |
+
+### Latency budgets by interaction class
+
+The prior wave specified one budget (panel update < 100 ms). Interaction classes have materially different tolerances; a command post that acknowledges a weapons order as slowly as it redraws a list is unusable.
+
+| Class | Budget (p95, target hardware) | Maturity |
+|-------|-------------------------------|----------|
+| Selection → panel bind | **< 100 ms** | **Partial** — projection bind timing tested |
+| Command submit → **acknowledgement** (**CMD-16**) | **< 150 ms** | **Open** — no result channel exists |
+| Command submit → order-log entry visible | **< 250 ms** | **Open** |
+| Context menu open (populated, ROE-evaluated) | **< 150 ms** | **Open** |
+| Map pan/zoom frame time | **≥ 30 FPS** interactive at current scale | **Partial** |
+| Alert raised → visible (**ALR-01**) | **< 500 ms** | **Open** |
+
+Budgets are **p95, measured under the scenario scale in force at the time** — not the deferred 5k-symbol north-star (**CMD-15**, hub **OV-SC-N1**).
 
 ## Agentic / MCP
 
@@ -253,14 +364,57 @@ Per genre conventions (`docs/military-simulation/genre-conventions-reference.md`
 
 ## Acceptance Criteria
 
+The prior wave carried **6 criteria against 76+ requirement IDs**, and most requirements were stated as capability names ("Left-click selection", "Throttle presets") with no pass condition — untestable as written, and in conflict with the project's own coding standard that acceptance criteria be *testable success conditions*. Criteria below are stated so that each can be mechanically checked; **AC-07 onward are new**.
+
+Where a criterion depends on an unbuilt mechanism, the evidence column says so rather than implying coverage.
+
 | # | Criterion | Evidence policy |
 |---|-----------|-----------------|
-| 1 | Select unit → panel shows effective doctrine and magazine % within panel budget | Smoke + projection tests; full frame budget **Partial** |
+| 1 | Select unit → panel shows effective doctrine and magazine % within the selection budget (< 100 ms p95) | Smoke + projection tests; full frame budget **Partial** |
 | 2 | Delegate unit to agent → badge visible; pause agent stops intents | **Partial** — delegation hosts + doc 04 paths |
 | 3 | Assisted mode shows ghost intent before engage; deny shows FireAbort tooltip | **Partial** — engage preview projections |
 | 4 | 5000 symbols on map with LOD: pan stays above 30 FPS on target hardware | **Deferred** — **OV-SC-N1**; not CI gate |
 | 5 | Message log click selects unit and opens explain for referenced `sequenceId` | **Partial / Shipped** path in smoke proxies |
 | 6 | Core §4.1 actions available without hidden modals-only paths | **Partial** — command-driven hosts |
+| **7** | **Every** authoritative command returns `Accepted` / `Rejected` / `Queued`; a submission that returns nothing fails the test (**CMD-16**) | **Open** — headless contract test over the command surface; no Unity needed |
+| **8** | A command refused by ROE surfaces its reason **at the interaction point**, and that string is byte-identical to the order-log entry for the same event (**CMD-17**) | **Open** — headless: assert UI reason string == log reason string |
+| **9** | Enumerating all `EngagementAbortReason` members yields an operator-facing string for each; a missing mapping fails the build (**CMD-18**) | **Open** — exhaustive enum test, same pattern as the existing abort-reason manifest gate |
+| **10** | A queued order is listed before execution, and cancelling it prevents execution and appends a cancellation entry (**CMD-19**) | **Open** — headless queue test at a fixed tick |
+| **11** | Human order to an agent-controlled unit resolves per the stated **AUT-01** rule, with the outcome logged and attributable | **Open** — deterministic two-controller test, fixed seed |
+| **12** | With comms degraded, contact panels render *last known + age*; no degraded value is presented as live (**DEG-02**) | **Open** — projection test with degraded comms state (doc 19) |
+| **13** | Destroying the selected unit leaves the panel in a terminal state naming cause and time; no blanking, no silent reselect (**DEG-03**) | **Open** — smoke: kill selected unit mid-run |
+| **14** | Commands submitted after scenario end are refused with an end-of-scenario reason, not queued (**DEG-05**) | **Open** — headless |
+| **15** | Affiliation remains distinguishable with colour removed (**ACC-01**) | **Open** — render symbols to greyscale, assert shape/pattern distinctness |
+| **16** | Every command in the context menu is reachable by keyboard with a visible focus indicator (**ACC-04**) | **Open** — focus-traversal test over the menu model |
+| **17** | Text and meaningful glyphs meet WCAG 2.2 AA contrast, including over the map (**ACC-02**) | **Open** — computed contrast over the palette + map background samples |
+| **18** | Alerts never occlude the map or steal focus; each alert navigates to its subject (**ALR-02**, **ALR-03**) | **Open** — layout assertion + navigation test |
+| **19** | Every alert and order-log entry is attributable to human or agent (**ALR-05**) | **Open** — headless over a mixed-autonomy run |
+| **20** | Issuing a command at compression > 1× either auto-pauses or targets an explicit future tick, and records the compression state (**CMD-21**) | **Open** — headless at 1×/4×/60× |
+
+**Coverage note.** AC 7–20 are deliberately weighted toward the *command return path, contention, and degraded states* — the three areas the prior wave did not specify at all. Most are checkable headlessly, consistent with ADR-010's requirement that authoritative actions be drivable without the Unity Editor.
+
+## Non-Goals (v1)
+
+Stated so that "not present" is not repeatedly re-litigated as "missing". These are distinct from **Phase N / Deferred**, which *are* intended, later.
+
+| Not doing | Why |
+|-----------|-----|
+| Reproducing CMO's exact key bindings or menu wording | Clean-room posture (see CMO parity note); Aegis specifies **capability classes**, not proprietary key ownership (**KEY-01**) |
+| Embedding named third-party basemaps (Sentinel-2, Stamen, BMNG) as a shipping dependency | MAP-\* brand names denote capability classes; licensing and offline determinism are unresolved |
+| Touch / mobile / controller input | Command post targets keyboard + mouse at desk scale (**ACC-08**) |
+| In-UI scenario authoring beyond mission activate/deactivate | Owned by doc 11 / ADR-017 editor topology |
+| Real-time multiplayer command deconfliction | Single-operator + agents; no concurrent human operators in v1 |
+| Localization of operator-facing strings | English-only v1; **CMD-18** requires the string *table* to exist, which makes localization tractable later |
+
+## Risk Register
+
+| # | Risk | Evidence | Consequence if unaddressed |
+|---|------|----------|----------------------------|
+| **R1** | **The entire KEY-\* block is P0 at maturity Phase N** — 12 requirements, none started | This document | A P0 surface with no started work and no acceptance criteria will surface late as scope, not as polish |
+| **R2** | **No command result channel** (**CMD-16**) | `AppendPlayerOrder` → `void`; `PlayerOrderExecutionQueue.Enqueue` → `void`; `C2PresentationController` exposes selection only | The operator cannot distinguish "order accepted" from "order silently dropped" — the failure mode is invisible, and every explain requirement (CMD-11, CMD-17) is unbuildable until it exists |
+| **R3** | **Contention semantics are shipped but invisible** (**AUT-01/02**) — *corrected: an earlier draft wrongly claimed no rule existed* | Rule locked in doc 04 §2 and implemented (`OverrideService`, `DetachRejoinService`, `ControllerChange`); doc 04 lists the C2 badge/drag-drop surface as **Partial / Phase N** UI debt | The operator cannot see who holds a unit, or that overriding a group member detaches it — correct behaviour that reads as a bug because nothing communicates it |
+| **R4** | **`P0 intent` requirements depend on unmodelled sim capability** — MAP-03 relief/LOS, MAP-06 land cover, MAP-19 LOS tool | [`sim-capability-gap-backlog.md`](../../docs/engineering/sim-capability-gap-backlog.md) (terrain, weather absent) | UI work would build affordances over data the simulation cannot supply — the vocabulary-only defect class this project has hit repeatedly |
+| **R5** | **Acceptance criteria still trail requirement count** — this wave raised criteria 6 → 20, but also raised IDs 76 → **109** (CMD 22, CUI 17, KEY 12, SPA 8, MAP 24, AUT 6, DEG 7, ALR 5, ACC 8), so coverage went from ~8% to ~18% and most CUI/KEY/SPA/MAP entries remain capability names with no pass condition | This document | Requirements without pass conditions get marked done by assertion. Next wave should add criteria for the CUI/MAP blocks rather than more requirements |
 
 ## Phased Delivery
 
@@ -297,3 +451,14 @@ Per genre conventions (`docs/military-simulation/genre-conventions-reference.md`
 **References:** CMO Manual Ch 3–4; `docs/military-simulation/genre-conventions-reference.md`; `docs/manual/index.html`; [ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md); [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md)
 
 **Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 20. Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.
+
+**Wave 3 (2026-07-28) — review, corrections and additions.**
+
+*Corrected:*
+- **CMD-03** was labelled **Shipped (contract)**. Verified against shipped code: the inbound projection half is real, the outbound command half has no result channel. Re-labelled **Partial** with the gap named. This is the one status in the document that was overstated.
+- Status vocabulary had undefined labels (`Partial+`, `P0 intent`) — now defined in [Conventions](#conventions-normative-for-this-document).
+- Six capabilities were specified twice under different IDs (CUI-16 ↔ KEY-03/04, CUI-06 ↔ KEY-04, MAP-23 ↔ KEY-10, CUI-17 ↔ MAP-13/14, MAP-21 ↔ KEY-11). Ownership assigned; cross-references made non-normative.
+
+*Added:* **CMD-16 – CMD-22** (command lifecycle and failure), **AUT-\*** (authority and contention), **DEG-\*** (degraded and edge states), **ALR-\*** (operator attention), **ACC-\*** (accessibility restated with thresholds), per-interaction latency budgets, AC 7–20, [Non-Goals](#non-goals-v1), [Risk Register](#risk-register).
+
+*Method:* claims about existing behaviour were checked against `src/` at `main` rather than inferred from prior documentation. All added requirements are marked **Open** — none assert work that has not been done.
