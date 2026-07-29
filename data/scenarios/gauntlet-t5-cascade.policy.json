@@ -9,7 +9,7 @@
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
     "pkBase": 0.7,
-    "pkIntercept": 0.0,
+    "pkIntercept": 0,
     "pkKill": 0.2,
     "salvoSize": 2
   },
@@ -19,8 +19,8 @@
       "sensorId": "radar-1",
       "targetId": "skr-admiral-grigorovich-pr-1135-6m",
       "contactId": "c-2484-1",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -28,8 +28,8 @@
       "sensorId": "radar-1",
       "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
       "contactId": "c-2484-2",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -37,8 +37,8 @@
       "sensorId": "radar-1",
       "targetId": "624-pr-205p-tarantul-1992",
       "contactId": "c-2484-3",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -46,8 +46,8 @@
       "sensorId": "radar-1",
       "targetId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
       "contactId": "c-2484-4",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -55,8 +55,8 @@
       "sensorId": "radar-1",
       "targetId": "ka-27m-helix-a",
       "contactId": "c-2484-5",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -64,8 +64,8 @@
       "sensorId": "radar-1",
       "targetId": "mig-29-fulcrum-c-1999",
       "contactId": "c-2484-6",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -73,8 +73,8 @@
       "sensorId": "radar-1",
       "targetId": "ka-27m-helix-a",
       "contactId": "c-2484-7",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -82,8 +82,8 @@
       "sensorId": "sonar-1",
       "targetId": "pla-971-akula-i-improved-shchuka-b",
       "contactId": "c-2484-8",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0,
       "requiresActiveRadar": false
     },
@@ -92,14 +92,14 @@
       "sensorId": "sonar-1",
       "targetId": "pla-971-akula-i-improved-shchuka-b",
       "contactId": "c-2484-9",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0,
       "requiresActiveRadar": false
     }
   ],
   "gauntlet": {
-    "intent": "Cascading adversarial injects (comms/sensor degrade stand-in via jam) [catalog red: Sovremenny] [real cascading comms Degraded\u2192Denied\u2192Degraded] [expanded ORBAT 16 units / 41 catalogRefs]",
+    "intent": "Cascading adversarial injects (comms/sensor degrade stand-in via jam) [catalog red: Sovremenny] [real cascading comms Degraded→Denied→Degraded] [expanded ORBAT 16 units / 41 catalogRefs]",
     "oracle": "High jam multi-contact stable CommsStateChange/PolicyUpdate required.",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -158,7 +158,7 @@
       "maxMissilesFired": 52,
       "maxDenials": 80,
       "minScore": -50,
-      "maxScore": 420.0,
+      "maxScore": 420,
       "minDenials": 34
     },
     "units": [
@@ -258,7 +258,23 @@
         "domain": "subsurface",
         "side": "red"
       }
-    ]
+    ],
+    "expectCi": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "CommsStateChange",
+        "Denied",
+        "cascade_link_down"
+      ],
+      "minKills": 4,
+      "maxMissilesFired": 36,
+      "maxDenials": 50,
+      "minScore": 200,
+      "maxScore": 400,
+      "minDenials": 30
+    },
+    "expectCiProvenance": "calibrated 2026-07-27 from deterministic GitHub Actions smoke profile seed 42, ticks 10 after shooter-liveness and side-aware scoring fixes; observed score=300, kills=5, missiles=24, denials=40. CI-only margin retained around the observed row; full-budget gauntlet.expect remains unchanged."
   },
   "id": "gauntlet-t5-cascade",
   "commsDisplay": {

@@ -1,10 +1,55 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-23",
+  "generatedAt": "2026-07-27",
   "source": "bootstrap via tools/qa-gauntlet/forge_scorecard.infer_cell from data/scenarios/gauntlet-*.policy.json",
-  "cellCount": 20,
-  "scenarioCount": 24,
+  "cellCount": 29,
+  "scenarioCount": 43,
   "cells": [
+    {
+      "key": "strike|air,subsurface,surface|WeaponsTight/WeaponsFree|emcon-phases|none",
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsTight/WeaponsFree",
+      "emconClass": "emcon-phases",
+      "eventClass": "none",
+      "intentHash": "ee6d2a756edea289",
+      "scenarioId": "gauntlet-20260727-1455-t3-s1",
+      "tier": null
+    },
+    {
+      "key": "strike|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|none",
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsTight/WeaponsFree",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "intentHash": "84bedabfa5d81570",
+      "scenarioId": "gauntlet-20260727-1455-t3-s2",
+      "tier": null
+    },
+    {
+      "key": "strike|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|event-chain",
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsTight/WeaponsFree",
+      "emconClass": "unrestricted",
+      "eventClass": "event-chain",
+      "intentHash": "fd15ce2d4a04f265",
+      "scenarioId": "gauntlet-20260727-1455-t3-s3",
+      "tier": null
+    },
     {
       "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
       "scenarioId": "gauntlet-joint-orbat-smoke",
@@ -22,20 +67,56 @@
       "intentHash": "2530489762d3eb2b"
     },
     {
-      "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
-      "scenarioId": "gauntlet-multidomain-shooters",
-      "tier": 3,
-      "missionClass": "multi",
+      "key": "patrol|surface|WeaponsFree/WeaponsFree|emcon-phases|none",
+      "missionClass": "patrol",
       "domains": [
-        "air",
-        "subsurface",
         "surface"
       ],
-      "roePair": "WeaponsFree/WeaponsTight",
-      "emconClass": "unrestricted",
+      "roePair": "WeaponsFree/WeaponsFree",
+      "emconClass": "emcon-phases",
       "eventClass": "none",
-      "catalogRefCount": 31,
-      "intentHash": "b057dcce8607a843"
+      "intentHash": "f48f35097f509a54",
+      "scenarioId": "gauntlet-20260727-1455-t1-s1",
+      "tier": 1
+    },
+    {
+      "key": "patrol|surface|WeaponsFree/WeaponsFree|emcon-phases|none",
+      "missionClass": "patrol",
+      "domains": [
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsFree",
+      "emconClass": "emcon-phases",
+      "eventClass": "none",
+      "intentHash": "75905438a3cb99d7",
+      "scenarioId": "gauntlet-20260727-1455-t1-s2",
+      "tier": 1
+    },
+    {
+      "key": "patrol|surface|WeaponsFree/WeaponsFree|emcon-phases|none",
+      "missionClass": "patrol",
+      "domains": [
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsFree",
+      "emconClass": "emcon-phases",
+      "eventClass": "none",
+      "intentHash": "e18093e63742642d",
+      "scenarioId": "gauntlet-20260727-1455-t1-s3",
+      "tier": 1
+    },
+    {
+      "key": "patrol|surface|WeaponsFree/WeaponsFree|emcon-phases|none",
+      "missionClass": "patrol",
+      "domains": [
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsFree",
+      "emconClass": "emcon-phases",
+      "eventClass": "none",
+      "intentHash": "081d0b4bd2d2c0e7",
+      "scenarioId": "gauntlet-20260727-1455-t1-s4",
+      "tier": 1
     },
     {
       "key": "patrol|surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -92,6 +173,118 @@
       "eventClass": "none",
       "catalogRefCount": 25,
       "intentHash": "34b156bb45d8762a"
+    },
+    {
+      "key": "strike|air,surface|WeaponsTight/WeaponsFree|emcon-phases|event-chain",
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsTight/WeaponsFree",
+      "emconClass": "emcon-phases",
+      "eventClass": "event-chain",
+      "intentHash": "d553fffff312dd39",
+      "scenarioId": "gauntlet-20260727-1455-t2-s1",
+      "tier": 2
+    },
+    {
+      "key": "escort|air,surface|WeaponsFree/WeaponsTight|emcon-phases|event-chain",
+      "missionClass": "escort",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "emcon-phases",
+      "eventClass": "event-chain",
+      "intentHash": "e746662632fb3b1b",
+      "scenarioId": "gauntlet-20260727-1455-t2-s2",
+      "tier": 2
+    },
+    {
+      "key": "strike|air,surface|WeaponsTight/WeaponsFree|emcon-phases|event-chain",
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsTight/WeaponsFree",
+      "emconClass": "emcon-phases",
+      "eventClass": "event-chain",
+      "intentHash": "381d969842d274c2",
+      "scenarioId": "gauntlet-20260727-1455-t2-s3",
+      "tier": 2
+    },
+    {
+      "key": "escort|air,surface|WeaponsFree/WeaponsTight|emcon-phases|event-chain",
+      "missionClass": "escort",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "emcon-phases",
+      "eventClass": "event-chain",
+      "intentHash": "c39057f3c8eedd3d",
+      "scenarioId": "gauntlet-20260727-1455-t2-s4",
+      "tier": 2
+    },
+    {
+      "key": "emcon|air,surface|WeaponsFree/WeaponsFree|emcon-phases|none",
+      "missionClass": "emcon",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsFree",
+      "emconClass": "emcon-phases",
+      "eventClass": "none",
+      "intentHash": "a11b23d55e0d307c",
+      "scenarioId": "gauntlet-forge-20260727-1455-t2-c1",
+      "tier": 2
+    },
+    {
+      "key": "emcon|air,surface|WeaponsFree/WeaponsFree|emcon-phases|none",
+      "missionClass": "emcon",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsFree",
+      "emconClass": "emcon-phases",
+      "eventClass": "none",
+      "intentHash": "cd82909def75dc9f",
+      "scenarioId": "gauntlet-forge-20260727-1455-t2-c2",
+      "tier": 2
+    },
+    {
+      "key": "unknown|air,surface|WeaponsTight/WeaponsFree|unrestricted|none",
+      "missionClass": "unknown",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsTight/WeaponsFree",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "intentHash": "3cd7e879041977b0",
+      "scenarioId": "gauntlet-forge-20260727-1455-t2-c3",
+      "tier": 2
+    },
+    {
+      "key": "strike|air,surface|WeaponsFree/WeaponsTight|emcon-phases|event-chain",
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "emcon-phases",
+      "eventClass": "event-chain",
+      "intentHash": "adff4ef227754d10",
+      "scenarioId": "gauntlet-forge-20260727-1455-t2-c4",
+      "tier": 2
     },
     {
       "key": "escort|air,surface|WeaponsFree/WeaponsFree|unrestricted|none",
@@ -152,6 +345,82 @@
       "eventClass": "inject",
       "catalogRefCount": 31,
       "intentHash": "ea48d5e919cd041e"
+    },
+    {
+      "key": "strike|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "intentHash": "c5d595323c69ca0c",
+      "scenarioId": "gauntlet-20260727-1455-t3-s4",
+      "tier": 3
+    },
+    {
+      "key": "strike|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "intentHash": "478effd62b4319eb",
+      "scenarioId": "gauntlet-20260727-1455-t3-s5",
+      "tier": 3
+    },
+    {
+      "key": "strike|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "intentHash": "478effd62b4319eb",
+      "scenarioId": "gauntlet-20260727-1455-t3-s5-control",
+      "tier": 3
+    },
+    {
+      "key": "strike|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "intentHash": "a39b1ea7fe92a49a",
+      "scenarioId": "gauntlet-20260727-1455-t3-s6",
+      "tier": 3
+    },
+    {
+      "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "scenarioId": "gauntlet-multidomain-shooters",
+      "tier": 3,
+      "missionClass": "multi",
+      "domains": [
+        "air",
+        "subsurface",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "catalogRefCount": 31,
+      "intentHash": "b057dcce8607a843"
     },
     {
       "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|emcon-phases|none",
@@ -282,6 +551,20 @@
       "intentHash": "0af65022415cf685"
     },
     {
+      "key": "theater|surface|WeaponsFree/WeaponsTight|unrestricted|inject",
+      "scenarioId": "gauntlet-theater-inject",
+      "tier": 4,
+      "missionClass": "theater",
+      "domains": [
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "inject",
+      "catalogRefCount": 23,
+      "intentHash": "2f94cabee44ca9da"
+    },
+    {
       "key": "cascade|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|cascade",
       "scenarioId": "gauntlet-t5-cascade",
       "tier": 5,
@@ -358,20 +641,6 @@
       "eventClass": "dynamic-obj",
       "catalogRefCount": 25,
       "intentHash": "9be44983c7c51059"
-    },
-    {
-      "key": "theater|surface|WeaponsFree/WeaponsTight|unrestricted|inject",
-      "scenarioId": "gauntlet-theater-inject",
-      "tier": 4,
-      "missionClass": "theater",
-      "domains": [
-        "surface"
-      ],
-      "roePair": "WeaponsFree/WeaponsTight",
-      "emconClass": "unrestricted",
-      "eventClass": "inject",
-      "catalogRefCount": 23,
-      "intentHash": "2f94cabee44ca9da"
     }
   ],
   "counts": {

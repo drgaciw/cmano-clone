@@ -1,0 +1,316 @@
+{
+  "tier": 2,
+  "platformMix": "3 surface + 1 air per side (~8 platforms per scenario)",
+  "platforms": [
+    {
+      "platformId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+      "name": "801 Rais Hamidou [Pr.1234E Nanuchka II] - 1981",
+      "domain": "surface",
+      "platformClass": "PCFG - Fast Guided Missile Patrol Craft",
+      "nationality": "Algeria",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "ak-725-57mm-80-twin-frag-burst-6-rnds",
+        "ak-725-57mm-80-twin-he-burst-6-rnds",
+        "generic-gmtr-guided-missile-training-round"
+      ],
+      "weapons": [
+        "ak-725-57mm-80-twin-frag-burst-6-rnds",
+        "ak-725-57mm-80-twin-he-burst-6-rnds",
+        "generic-gmtr-guided-missile-training-round",
+        "sa-n-4b-gecko-9m33m3",
+        "ss-n-2c-improved-styx-p-20"
+      ]
+    },
+    {
+      "platformId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "name": "BPK Marshal Shaposhnikov Udaloy I [Pr.1155 Fregat]",
+      "domain": "surface",
+      "platformClass": "DDG - Guided Missile Destroyer",
+      "nationality": "Russia",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "3m54-kalibr-ss-n-27",
+        "ak-100-100mm",
+        "rastrub-b"
+      ],
+      "weapons": [
+        "3m54-kalibr-ss-n-27",
+        "ak-100-100mm",
+        "rastrub-b"
+      ]
+    },
+    {
+      "platformId": "f-219-sachsen-type-f124-2006",
+      "name": "F 219 Sachsen [Type F124] - 2006",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "Germany",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "27mm-mlg",
+        "27mm-mlg-27-burst-20-rnds",
+        "76mm-62-super-rapido-he-burst-2-rnds"
+      ],
+      "weapons": [
+        "27mm-mlg",
+        "27mm-mlg-27-burst-20-rnds",
+        "76mm-62-super-rapido-he-burst-2-rnds",
+        "an-slq",
+        "an-slq-25-nixie"
+      ]
+    },
+    {
+      "platformId": "f-310-fridtjof-nansen",
+      "name": "F 310 Fridtjof Nansen",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "Norway",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "114mm-55-mk8-mod-1",
+        "1986-stingray-mod-0-type-23-improved-reloading",
+        "2013"
+      ],
+      "weapons": [
+        "114mm-55-mk8-mod-1",
+        "1986-stingray-mod-0-type-23-improved-reloading",
+        "2013",
+        "76mm-62-oto-melara-super-rapido",
+        "aster-30"
+      ]
+    },
+    {
+      "platformId": "k-31-visby-2009",
+      "name": "K 31 Visby - 2009, Version 4",
+      "domain": "surface",
+      "platformClass": "FFL - Corvette",
+      "nationality": "Sweden",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "57mm-70-bofors-mk3-gp-burst-4-rnds",
+        "dual-trap-chaff-flare"
+      ],
+      "weapons": [
+        "57mm-70-bofors-mk3-gp-burst-4-rnds"
+      ]
+    },
+    {
+      "platformId": "mrk-shkval-pr-22800-karakurt",
+      "name": "MRK Shkval [Pr.22800 Karakurt]",
+      "domain": "surface",
+      "platformClass": "FFL - Corvette",
+      "nationality": "Russia",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "pantsir-m"
+      ],
+      "weapons": [
+        "3m54-kalibr-ss-n-27",
+        "ak-176ma-76mm"
+      ]
+    },
+    {
+      "platformId": "p-840-holland",
+      "name": "P 840 Holland",
+      "domain": "surface",
+      "platformClass": "Ship - OPV - Offshore Patrol Vessel",
+      "nationality": "Netherlands",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "114mm-55-mk8-mod-1",
+        "30mm-70-oto-marlin-ws",
+        "76mm-62-oto-melara-super-rapido"
+      ],
+      "weapons": [
+        "114mm-55-mk8-mod-1",
+        "30mm-70-oto-marlin-ws",
+        "76mm-62-oto-melara-super-rapido",
+        "aster-30",
+        "rgm-84d-harpoon-ic"
+      ]
+    },
+    {
+      "platformId": "p-960-skjold",
+      "name": "P 960 Skjold",
+      "domain": "surface",
+      "platformClass": "Ship - FFL - Corvette",
+      "nationality": "Norway",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "114mm-55-mk8-mod-1",
+        "2013",
+        "76mm-62-oto-melara-super-rapido"
+      ],
+      "weapons": [
+        "114mm-55-mk8-mod-1",
+        "2013",
+        "76mm-62-oto-melara-super-rapido",
+        "aster-30",
+        "rgm-84d-harpoon-ic"
+      ]
+    },
+    {
+      "platformId": "pk-368-vasily-bykov-pr-22160",
+      "name": "PK 368 Vasily Bykov [Pr.22160]",
+      "domain": "surface",
+      "platformClass": "FFL - Corvette",
+      "nationality": "Russia",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "ak-176-76mm",
+        "igla-s",
+        "kh-35-uran-ss-n-25"
+      ],
+      "weapons": [
+        "ak-176-76mm",
+        "igla-s",
+        "kh-35-uran-ss-n-25"
+      ]
+    },
+    {
+      "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+      "name": "SKR Admiral Grigorovich [Pr.1135.6M]",
+      "domain": "surface",
+      "platformClass": "FFG - Guided Missile Frigate",
+      "nationality": "Russia",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "3m54-kalibr-ss-n-27",
+        "9m317-shtil-sa-n-12",
+        "a-190-100mm"
+      ],
+      "weapons": [
+        "3m54-kalibr-ss-n-27",
+        "9m317-shtil-sa-n-12",
+        "a-190-100mm"
+      ]
+    },
+    {
+      "platformId": "eurofighter-typhoon",
+      "name": "Eurofighter Typhoon",
+      "domain": "air",
+      "platformClass": "Aircraft - Multirole (Fighter/Attack)",
+      "nationality": "Austria",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "aim-2000a-iris-t",
+        "aim-9x-2-sidewinder-blk-ii",
+        "gbu-12d-b-paveway-ii-lgb-mk82"
+      ],
+      "weapons": [
+        "aim-120c-7-amraam-p3i-3"
+      ]
+    },
+    {
+      "platformId": "jas-39d-gripen-2005",
+      "name": "JAS 39D Gripen - 2005, Batch 3, MS18.5, Gun & AIM-9L Only",
+      "domain": "air",
+      "platformClass": "Aircraft - Multirole (Fighter/Attack)",
+      "nationality": "Sweden",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "aim-9l-sidewinder"
+      ],
+      "weapons": []
+    },
+    {
+      "platformId": "jas-39e-gripen-ng-2021",
+      "name": "JAS 39E Gripen NG - 2021, 28x",
+      "domain": "air",
+      "platformClass": "Aircraft - Multirole (Fighter/Attack)",
+      "nationality": "Sweden",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "gbu-12d-b-paveway-ii-lgb-mk82",
+        "litening-iii-pod-flir-lrmts-40k-ft",
+        "rb-98-aim-2000a-iris-t"
+      ],
+      "weapons": [
+        "bk-90-mjolner-mk1-72-x-mj1-anti",
+        "bk-90-mjolner-mk1-72-x-mj1-anti-personnel",
+        "bk-90-mjolner-mk2-24-x-mj2-anti",
+        "gbu",
+        "m-70-135mm-rocket"
+      ]
+    },
+    {
+      "platformId": "mig-29-fulcrum-c-1999",
+      "name": "MiG-29 Fulcrum C - 1999, 9.13",
+      "domain": "air",
+      "platformClass": "Aircraft - Multirole (Fighter/Attack)",
+      "nationality": "Russia",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "1500-liter-drop-tank",
+        "aa-10-alamo-a-r-27r-mr-tsarh",
+        "aa-11-archer-r-73"
+      ],
+      "weapons": [
+        "aa-10-alamo-a-r-27r-mr-tsarh",
+        "aa-11-archer-r-73",
+        "fab-250m-54-gpb",
+        "fab-500m-54-gpb",
+        "ofab-100-120-frag"
+      ]
+    },
+    {
+      "platformId": "su-27sm-sm3-flanker-j-2013",
+      "name": "Su-27SM/SM3 Flanker J - 2013, 12x by 2015, Upgr Su-27S/P",
+      "domain": "air",
+      "platformClass": "Aircraft - Fighter",
+      "nationality": "Russia",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "aa-10-alamo-b-r-27t-mr-ir",
+        "aa-10-alamo-d-r-27et-lr-ir"
+      ],
+      "weapons": [
+        "aa-10-alamo-a-r-27r-mr-tsarh",
+        "aa-10-alamo-c-r-27er-lr-tsarh",
+        "aa-11-archer-r-73m"
+      ]
+    },
+    {
+      "platformId": "su-34-fullback-2014",
+      "name": "Su-34 Fullback - 2014, Su-27IB",
+      "domain": "air",
+      "platformClass": "Aircraft - Attack",
+      "nationality": "Russia",
+      "emcon": "NO PROFILE DATA IN CATALOG — architect must assign",
+      "sensors": [
+        "3000-liter-drop-tank",
+        "aa-10-alamo-a-r-27r-mr-tsarh",
+        "aa-10-alamo-c-r-27er-lr-tsarh"
+      ],
+      "weapons": [
+        "aa-10-alamo-a-r-27r-mr-tsarh",
+        "aa-10-alamo-c-r-27er-lr-tsarh",
+        "aa-11-archer-r-73",
+        "apk-9-datalink-pod",
+        "as-13-kingbolt-kh-59"
+      ]
+    }
+  ],
+  "excludedForCoverage": [
+    "f-361-iver-huitfeldt-2012 (Tier 1 + T2 corpus)",
+    "f-450-elli-kortenaer-batch-ii-0 (Tier 1)",
+    "f-341-absalon-2020 (Tier 1)",
+    "421-orkan-pr-660-2015 (Tier 1 + T2 corpus)",
+    "70-rauma-helsinki-ii-1990 (Tier 1 + T2 corpus)",
+    "mrk-buyan-mod-pr-21631-buyan-m-2014 (Tier 1)",
+    "d-32-daring-type-45-batch-1 (Tier 1)",
+    "f-207-bremen-type-f122-1982 (Tier 1)",
+    "241-slazak-meko-100-mod-2019 (Tier 1 + T2 corpus)",
+    "p-151-hugin (Tier 1)",
+    "nh90-nfh-caiman-marine (T2 corpus)",
+    "tu-160-blackjack (T2 corpus)",
+    "jas-39c-gripen-2005 (T2 corpus)",
+    "f-16c-blk-52iq-falcon-2015 (T2 corpus)",
+    "f-35a-lightning-ii (T2 corpus)",
+    "f-a-18c-hornet-f-18c (T2 corpus)",
+    "jas-39a-gripen-1997 (T2 corpus)",
+    "jas-39b-gripen-1997 (T2 corpus)"
+  ],
+  "notes": "CRITICAL: platform_emcon table in catalog is EMPTY — architect must assign EMCON profiles when building scenarios. Passive-only constraint on one side requires per-platform profile selection. All selected platforms are new to Tier 2, providing coverage expansion beyond Tier 1 and existing 4-scenario corpus. Surface class diversity: 1 DDG, 2 FFG, 5 corvettes/patrol craft, 2 misc ships. Air: 2 Russian attack/multirole, 1 Russian fighter, 1 NATO multirole (Eurofighter), 2 Swedish advanced fighters. Mount counts range 2-18, sufficient for scenario loadout variation."
+}

@@ -77,12 +77,12 @@
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minScore": -100.0,
-      "maxScore": 500.0,
-      "maxMissilesFired": 18,
-      "maxDenials": 30,
-      "minKills": 1,
-      "minDenials": 2
+      "minScore": -190.0,
+      "maxScore": 10.0,
+      "maxMissilesFired": 7,
+      "maxDenials": 28,
+      "minKills": 0,
+      "minDenials": 9
     },
     "units": [
       {
@@ -121,7 +121,8 @@
         "domain": "surface",
         "side": "red"
       }
-    ]
+    ],
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T1 tick budget 6, seeds 42,7,123, after BUG-engagement-resolver-shooter-liveness + BUG-losses-scoring-side-unaware fixes. Prior envelope was calibrated against the buggy behaviour (enemy kills miscredited to own side; dead shooters still firing). minDenials kept as a real floor so ROE/EMCON restriction is still asserted, not relaxed away. Derived from observed rows per tools/qa-gauntlet/README-expect-regen.md \u2014 not invented."
   },
   "id": "gauntlet-t1-patrol-c"
 }

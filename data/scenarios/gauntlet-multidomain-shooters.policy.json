@@ -10,7 +10,7 @@
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
     "pkBase": 0.85,
-    "pkIntercept": 0.0,
+    "pkIntercept": 0,
     "pkKill": 0.2,
     "salvoSize": 1
   },
@@ -20,8 +20,8 @@
       "sensorId": "radar-1",
       "targetId": "em-sovremenny-i-pr-956-sarych",
       "contactId": "c-md-1",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -29,8 +29,8 @@
       "sensorId": "radar-1",
       "targetId": "mpk-steregushchiy-pr-20380-2018",
       "contactId": "c-md-2",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -38,8 +38,8 @@
       "sensorId": "sonar-1",
       "targetId": "mrk-buyan-pr-21630-buyan-2007",
       "contactId": "c-md-3",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0,
       "requiresActiveRadar": false
     },
@@ -48,8 +48,8 @@
       "sensorId": "radar-1",
       "targetId": "su-27sm-sm3-flanker-j-2013",
       "contactId": "c-md-4",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -57,8 +57,8 @@
       "sensorId": "radar-1",
       "targetId": "su-33-flanker-d",
       "contactId": "c-md-5",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -66,8 +66,8 @@
       "sensorId": "radar-1",
       "targetId": "su-27sm-sm3-flanker-j-2013",
       "contactId": "c-md-6",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -75,14 +75,14 @@
       "sensorId": "sonar-1",
       "targetId": "pla-885m-severodvinsk-yasen-m",
       "contactId": "c-md-7",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0,
       "requiresActiveRadar": false
     }
   ],
   "gauntlet": {
-    "intent": "True multi-domain engage: surface\u2192Sovremenny, air\u2192Steregushchiy, sub\u2192Buyan (distinct reds so concurrent launch) [expanded ORBAT 13 units / 31 catalogRefs]",
+    "intent": "True multi-domain engage: surface→Sovremenny, air→Steregushchiy, sub→Buyan (distinct reds so concurrent launch) [expanded ORBAT 13 units / 31 catalogRefs]",
     "oracle": "True|Launched from Visby, Gripen, and Gotland against their paired catalog reds",
     "expect": {
       "side": "BLUE",
@@ -91,7 +91,7 @@
       "maxMissilesFired": 26,
       "maxDenials": 22,
       "minScore": -50,
-      "maxScore": 470.0,
+      "maxScore": 470,
       "minDenials": 4
     },
     "catalogRefs": [
@@ -208,6 +208,17 @@
       }
     ],
     "tier": 3,
-    "runId": "gauntlet-multidomain-shooters"
+    "runId": "gauntlet-multidomain-shooters",
+    "expectCi": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 3,
+      "maxMissilesFired": 20,
+      "maxDenials": 20,
+      "minScore": 250,
+      "maxScore": 450,
+      "minDenials": 4
+    },
+    "expectCiProvenance": "calibrated 2026-07-27 from deterministic GitHub Actions smoke profile seed 42, ticks 10 after shooter-liveness and side-aware scoring fixes; observed score=350, kills=4, missiles=13, denials=10. CI-only margin retained around the observed row; full-budget gauntlet.expect remains unchanged."
   }
 }

@@ -37,6 +37,43 @@ def intent_hash(intent: str, cell_key: str) -> str:
     return hashlib.sha256(f"{intent}|{cell_key}".encode()).hexdigest()[:16]
 
 
+def _infer_stress_axes(policy: dict[str, Any]) -> str:
+    """Derives the stress-axis signature from policy content.
+
+    Reads the policy itself rather than the scenario id, so a hand-authored
+    scenario that applies pressure without the derived naming is still counted.
+    """
+    engage = policy.get("engage") or {}
+    rounds = engage.get("defaultMagazineRounds")
+    salvo = engage.get("salvoSize")
+    if rounds is not None and rounds <= 1:
+        weapons = "extreme"
+    elif (rounds is not None and rounds <= 2) or (salvo is not None and salvo >= 2):
+        weapons = "moderate"
+    else:
+        weapons = "off"
+
+    jammers = policy.get("jammers") or []
+    strength = max((j.get("jamStrength", 0) for j in jammers), default=0)
+    if strength >= 0.8:
+        ew = "extreme"
+    elif strength > 0:
+        ew = "moderate"
+    else:
+        ew = "off"
+
+    logistics_block = policy.get("logistics") or {}
+    burn = logistics_block.get("burnRateKgPerSecond", 0)
+    if burn >= 14:
+        logistics = "extreme"
+    elif burn > 0:
+        logistics = "moderate"
+    else:
+        logistics = "off"
+
+    return f"ew:{ew}|logistics:{logistics}|weapons:{weapons}"
+
+
 def infer_cell(policy: dict[str, Any], scenario_id: str) -> dict[str, Any]:
     g = policy.get("gauntlet") or {}
     intent = (g.get("intent") or "") + " " + scenario_id
@@ -94,6 +131,7 @@ def infer_cell(policy: dict[str, Any], scenario_id: str) -> dict[str, Any]:
     cell_key = f"{mission}|{','.join(sorted(domains))}|{roe}|{emcon}|{event}"
     return {
         "key": cell_key,
+        "stressAxes": _infer_stress_axes(policy),
         "missionClass": mission,
         "domains": sorted(domains),
         "roePair": roe,
@@ -167,7 +205,11 @@ def score_candidate(
     index_scenario_ids: set[str] | None = None,
 ) -> dict[str, Any]:
     policy = load_json(policy_path)
-    sid = policy_path.name.replace(".policy.json", "")
+    # Prefer the policy's own id (what gauntlet_oracle_eval keys oracle-eval.json
+    # by) over the filename stem, which the qa-gauntlet-forge skill's candidate
+    # naming convention (candidate-1.policy.json, ...) never matches.
+    # See BUG-forge-scorecard-filename-vs-policy-id.
+    sid = policy.get("id") or policy_path.name.replace(".policy.json", "")
     cell = infer_cell(policy, sid)
     known_keys = {c["key"] for c in coverage.get("cells") or []}
     new_cell = cell["key"] not in known_keys
@@ -180,6 +222,19 @@ def score_candidate(
     if oracle_ok is None and "*" in oracle_map:
         oracle_ok = oracle_map["*"]
     useful_fail = sid in useful_fail_ids
+
+    # Distinguish "never evaluated" (no oracle entry at all) from "evaluated and
+    # failed" (oracle_ok is False). Both still block promotion unless usefulFail
+    # applies — this flag is a visible diagnostic signal only, it does not
+    # change hard-gate semantics.
+    oracle_lookup_missed = oracle_ok is None and not useful_fail
+    if oracle_lookup_missed:
+        print(
+            f"warn: forge-scorecard: no oracle result for candidate '{sid}' "
+            f"(path={policy_path}); treating as never-evaluated (hard gate blocks "
+            "promotion) — distinct from an evaluated-and-failed oracle result",
+            file=sys.stderr,
+        )
 
     # Oracle must be known: Passed=true OR usefulFail (sim-code / scenario-data).
     # oracle_ok is None (never evaluated) must NOT promote — locked-eval contract.
@@ -226,6 +281,7 @@ def score_candidate(
         "rarePlatformHits": rare_hits,
         "duplicateIntent": duplicate,
         "oraclePassed": oracle_ok,
+        "oracleLookupMissed": oracle_lookup_missed,
         "usefulFail": useful_fail,
         "hardGates": hard,
         "hardGatesPass": hard_pass,

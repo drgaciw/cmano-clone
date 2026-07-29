@@ -9,7 +9,7 @@
     "hasFireControlTrack": true,
     "combatDomainsEnabled": true,
     "pkBase": 0.85,
-    "pkIntercept": 0.0,
+    "pkIntercept": 0,
     "pkKill": 0.2,
     "salvoSize": 2
   },
@@ -19,8 +19,8 @@
       "sensorId": "radar-1",
       "targetId": "skr-admiral-grigorovich-pr-1135-6m",
       "contactId": "c-6096-1",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -28,8 +28,8 @@
       "sensorId": "radar-1",
       "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
       "contactId": "c-6096-2",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -37,8 +37,8 @@
       "sensorId": "radar-1",
       "targetId": "624-pr-205p-tarantul-1992",
       "contactId": "c-6096-3",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -46,8 +46,8 @@
       "sensorId": "radar-1",
       "targetId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
       "contactId": "c-6096-4",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -55,8 +55,8 @@
       "sensorId": "radar-1",
       "targetId": "mig-29-fulcrum-c-1999",
       "contactId": "c-6096-5",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -64,8 +64,8 @@
       "sensorId": "radar-1",
       "targetId": "su-27sm-sm3-flanker-j-2013",
       "contactId": "c-6096-6",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -73,8 +73,8 @@
       "sensorId": "radar-1",
       "targetId": "mig-29-fulcrum-c-1999",
       "contactId": "c-6096-7",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0
     },
     {
@@ -82,8 +82,8 @@
       "sensorId": "sonar-1",
       "targetId": "pl-677-lada-b-585-sankt-peterburg-2011",
       "contactId": "c-6096-8",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0,
       "requiresActiveRadar": false
     },
@@ -92,14 +92,14 @@
       "sensorId": "sonar-1",
       "targetId": "pl-677-lada-b-585-sankt-peterburg-2011",
       "contactId": "c-6096-9",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 1,
+      "envMask": 1,
       "jamStrength": 0,
       "requiresActiveRadar": false
     }
   ],
   "gauntlet": {
-    "intent": "Mid-mission ROE change stand-in (tight then free sensor lanes) [catalog red: Sovremenny] [WeaponsTight start; contact trigger\u2192WeaponsFree PolicyUpdate; mid-run comms degrade] [expanded ORBAT 16 units / 42 catalogRefs]",
+    "intent": "Mid-mission ROE change stand-in (tight then free sensor lanes) [catalog red: Sovremenny] [WeaponsTight start; contact trigger→WeaponsFree PolicyUpdate; mid-run comms degrade] [expanded ORBAT 16 units / 42 catalogRefs]",
     "oracle": "Mixed ROE/EMCON lanes stable CommsStateChange/PolicyUpdate required.",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -166,11 +166,11 @@
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
       "minKills": 0,
-      "maxMissilesFired": 12,
-      "maxDenials": 180,
-      "minScore": -430,
-      "maxScore": 200,
-      "minDenials": 84,
+      "maxMissilesFired": 8,
+      "maxDenials": 100,
+      "minScore": -550,
+      "maxScore": -350,
+      "minDenials": 80,
       "requireFingerprintSubstrings": [
         "CommsStateChange",
         "Degraded"
@@ -273,7 +273,8 @@
         "domain": "subsurface",
         "side": "red"
       }
-    ]
+    ],
+    "expectCiProvenance": "calibrated 2026-07-27 from deterministic GitHub Actions smoke profile seed 42, ticks 10 after shooter-liveness and side-aware scoring fixes; observed score=-450, kills=0, missiles=2, denials=90. CI-only margin retained around the observed row; full-budget gauntlet.expect remains unchanged."
   },
   "id": "gauntlet-t5-roe-change",
   "commsDisplay": {

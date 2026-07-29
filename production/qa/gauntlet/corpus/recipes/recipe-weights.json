@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "updated": "2026-07-23",
+  "updated": "2026-07-27",
   "learningRate": 1.15,
   "downWeightRate": 0.85,
   "stuckDiscardThreshold": 5,
   "baselineScore": 0,
   "weights": {
     "platform-swap-underused": 1.2,
-    "orbat-asymmetric-ratio": 1.0,
-    "mission-combo-escort-strike": 1.0,
+    "orbat-asymmetric-ratio": 1.15,
+    "mission-combo-escort-strike": 1.15,
     "mission-concurrent-asw-aaw": 1.0,
     "victory-weighted-multi": 1.0,
     "victory-trigger-conditional": 1.0,
@@ -21,8 +21,12 @@
     "emcon-contested-deception": 1.0,
     "geometry-detection-lane-shift": 1.0,
     "trait-attention-overload": 1.0,
-    "hard-case-replay": 1.3,
+    "hard-case-replay": 1.7192,
     "bootstrap-seed": 0.5
   },
-  "consecutiveDiscards": {}
+  "consecutiveDiscards": {
+    "hard-case-replay": 0,
+    "orbat-asymmetric-ratio": 0,
+    "mission-combo-escort-strike": 0
+  }
 }

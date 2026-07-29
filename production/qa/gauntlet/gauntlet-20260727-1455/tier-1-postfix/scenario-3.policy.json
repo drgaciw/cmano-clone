@@ -1,0 +1,113 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 35000,
+    "envelopeMinMeters": 3000,
+    "envelopeMaxMeters": 90000,
+    "defaultMagazineRounds": 3,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "f-361-iver-huitfeldt-2012",
+      "sensorId": "radar-1",
+      "targetId": "f-450-elli-kortenaer-batch-ii-0",
+      "contactId": "c-t1-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "70-rauma-helsinki-ii-1990",
+      "sensorId": "radar-1",
+      "targetId": "d-32-daring-type-45-batch-1",
+      "contactId": "c-t1-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-151-hugin",
+      "sensorId": "radar-1",
+      "targetId": "241-slazak-meko-100-mod-2019",
+      "contactId": "c-t1-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "Single patrol: Blue (FFG Iver Huitfeldt + PCFG Rauma + PCFG Hugin) survives 6 ticks vs Red (FFG Elli + DDG Daring + OPV Slazak) under weapons-free ROE both sides, unrestricted EMCON.",
+    "oracle": "Blue survives full 6-tick patrol window; finite non-zero fingerprint; no crash.",
+    "catalogRefs": [
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "70-rauma-helsinki-ii-1990",
+      "d-32-daring-type-45-batch-1",
+      "f-207-bremen-type-f122-1982",
+      "f-341-absalon-2020",
+      "f-361-iver-huitfeldt-2012",
+      "f-450-elli-kortenaer-batch-ii-0",
+      "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "p-151-hugin"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 1,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 0.0,
+      "maxScore": 400.0,
+      "maxMissilesFired": 14,
+      "maxDenials": 10,
+      "minKills": 0,
+      "minDenials": 0
+    },
+    "units": [
+      {
+        "unitId": "f-361-iver-huitfeldt-2012",
+        "platformId": "f-361-iver-huitfeldt-2012",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "70-rauma-helsinki-ii-1990",
+        "platformId": "70-rauma-helsinki-ii-1990",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-151-hugin",
+        "platformId": "p-151-hugin",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-450-elli-kortenaer-batch-ii-0",
+        "platformId": "f-450-elli-kortenaer-batch-ii-0",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "d-32-daring-type-45-batch-1",
+        "platformId": "d-32-daring-type-45-batch-1",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "241-slazak-meko-100-mod-2019",
+        "platformId": "241-slazak-meko-100-mod-2019",
+        "domain": "surface",
+        "side": "red"
+      }
+    ],
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T1 tick budget 6, seeds 42,7,123, after BUG-engagement-resolver-shooter-liveness + BUG-losses-scoring-side-unaware fixes (tier-1-postfix/results.csv). Margin: +/-100 score (one kill), missiles ceil(1.5x)+2, denials +10. Derived from observed rows per tools/qa-gauntlet/README-expect-regen.md - not invented."
+  },
+  "id": "gauntlet-20260727-1455-t1-s3"
+}

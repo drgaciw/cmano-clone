@@ -161,6 +161,54 @@ def test_duplicate_intent_no_promote(tmp_path: Path) -> None:
     assert result["recommendPromote"] is False
 
 
+def test_oracle_lookup_uses_policy_id_when_filename_differs(tmp_path: Path) -> None:
+    """Regression: BUG-forge-scorecard-filename-vs-policy-id.
+
+    The qa-gauntlet-forge skill writes candidates as candidate-1.policy.json
+    etc. with an internal `id` like gauntlet-forge-<RUN_ID>-t2-c1. oracle-eval.json
+    is keyed by that `id` (what gauntlet_oracle_eval emits), not by the filename
+    stem. score_candidate must resolve the oracle result via policy id, falling
+    back to the filename stem only when no id is present.
+    """
+    policy_id = "gauntlet-forge-run123-t2-c1"
+    policy = _minimal_policy(intent="Filename vs policy id mismatch regression")
+    policy["id"] = policy_id
+    path = _write_policy(tmp_path, "candidate-1", policy)  # filename stem != policy_id
+    result = score_candidate(
+        path,
+        _empty_coverage(),
+        index_hashes=set(),
+        oracle_map={policy_id: True},  # keyed by policy id, as gauntlet_oracle_eval emits
+        tier=1,
+        useful_fail_ids=set(),
+    )
+    assert result["scenarioId"] == policy_id
+    assert result["oraclePassed"] is True
+    assert result["oracleLookupMissed"] is False
+    assert result["hardGatesPass"] is True
+    assert result["recommendPromote"] is True
+
+
+def test_oracle_lookup_missed_flag_when_never_evaluated(tmp_path: Path) -> None:
+    """Missing oracle entry must be visibly flagged, distinct from a failed
+    oracle result, while still blocking promotion (locked-eval contract)."""
+    policy = _minimal_policy(intent="Never evaluated oracle lookup missed flag")
+    sid = "gauntlet-forge-never-evaluated"
+    path = _write_policy(tmp_path, sid, policy)
+    result = score_candidate(
+        path,
+        _empty_coverage(),
+        index_hashes=set(),
+        oracle_map={},
+        tier=1,
+        useful_fail_ids=set(),
+    )
+    assert result["oraclePassed"] is None
+    assert result["oracleLookupMissed"] is True
+    assert result["hardGatesPass"] is False
+    assert result["recommendPromote"] is False
+
+
 def test_duplicate_scenario_id_no_promote(tmp_path: Path) -> None:
     policy = _minimal_policy(intent="Already promoted by id DDD")
     sid = "gauntlet-t1-patrol-a"
@@ -235,3 +283,45 @@ def test_novelty_score_floor_existing_cell(tmp_path: Path) -> None:
     # With no new cell / rare / useful fail, novelty should be 0 → no promote
     assert result["noveltyScore"] == 0.0
     assert result["recommendPromote"] is False
+
+
+def test_infer_cell_reports_stress_axes_from_policy():
+    policy = {
+        "id": "gauntlet-t3-escort-strike-weapons-extreme",
+        "engage": {"defaultMagazineRounds": 1, "salvoSize": 4},
+        "gauntlet": {"tier": 3, "intent": "escort + strike under weapons-extremes"},
+    }
+
+    cell = infer_cell(policy, policy["id"])
+
+    assert cell["stressAxes"] == "ew:off|logistics:off|weapons:extreme"
+
+
+def test_infer_cell_detects_ew_axis_from_jammers_block():
+    policy = {
+        "id": "gauntlet-t3-s5",
+        "jammers": [{"targetId": "x", "jamStrength": 0.9, "activeFromTick": 0}],
+        "gauntlet": {"tier": 3, "intent": "escort"},
+    }
+
+    cell = infer_cell(policy, policy["id"])
+
+    assert cell["stressAxes"].startswith("ew:extreme")
+
+
+def test_infer_cell_stress_axes_default_to_off():
+    policy = {"id": "gauntlet-t1-patrol-a", "gauntlet": {"tier": 1, "intent": "patrol"}}
+
+    cell = infer_cell(policy, policy["id"])
+
+    assert cell["stressAxes"] == "ew:off|logistics:off|weapons:off"
+
+
+def test_infer_cell_key_is_unchanged_by_the_axis_extension():
+    policy = {"id": "gauntlet-t1-patrol-a", "gauntlet": {"tier": 1, "intent": "patrol"}}
+
+    cell = infer_cell(policy, policy["id"])
+
+    # The historical 5-part key must stay intact so existing cells remain comparable.
+    assert cell["key"].count("|") == 4
+    assert "stressAxes" not in cell["key"]
