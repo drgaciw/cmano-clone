@@ -77,6 +77,47 @@ def test_sanity_fails_on_seed_insensitive_scenario(tmp_path):
     assert any("seed-insensitive" in e for e in o["evidence"])
 
 
+def test_determinism_pass_ignores_row_order(tmp_path):
+    from evaluate_run import oracle_determinism
+    make_csv(tmp_path, [row_line(seed="42"), row_line(seed="7")])
+    make_csv(tmp_path, [row_line(seed="7"), row_line(seed="42")], name="results-repeat.csv")
+    assert oracle_determinism(tmp_path)["status"] == "pass"
+
+
+def test_determinism_fails_on_fingerprint_drift(tmp_path):
+    from evaluate_run import oracle_determinism
+    make_csv(tmp_path, [row_line(fp="A")])
+    make_csv(tmp_path, [row_line(fp="B")], name="results-repeat.csv")
+    o = oracle_determinism(tmp_path)
+    assert o["status"] == "fail"
+    assert (tmp_path / "determinism-diff.txt").exists()
+
+
+def test_determinism_fails_when_repeat_missing(tmp_path):
+    from evaluate_run import oracle_determinism
+    make_csv(tmp_path, [row_line()])
+    assert oracle_determinism(tmp_path)["status"] == "fail"
+
+
+def test_victory_reads_oracle_eval_json(tmp_path):
+    from evaluate_run import oracle_victory
+    (tmp_path / "oracle-eval.json").write_text(json.dumps(
+        {"ok": True, "allPassed": True,
+         "scenarios": [{"scenario": "s1", "passed": True, "failures": [], "warnings": ["legacy emcon"]}]}))
+    o = oracle_victory(tmp_path)
+    assert o["status"] == "warn"
+    assert any("legacy emcon" in e for e in o["evidence"])
+
+
+def test_victory_fails_on_allpassed_false_or_missing(tmp_path):
+    from evaluate_run import oracle_victory
+    (tmp_path / "oracle-eval.json").write_text(json.dumps(
+        {"ok": False, "allPassed": False,
+         "scenarios": [{"scenario": "s1", "passed": False, "failures": ["score out of bounds"]}]}))
+    assert oracle_victory(tmp_path)["status"] == "fail"
+    assert oracle_victory(tmp_path / "nowhere")["status"] == "fail"
+
+
 def test_write_verdict_overall(tmp_path):
     ok = write_verdict(tmp_path / "verdict.json", "tier-1",
                        [{"name": "stability", "status": "pass", "evidence": []},

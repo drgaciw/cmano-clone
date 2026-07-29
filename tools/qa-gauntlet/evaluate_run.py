@@ -96,6 +96,42 @@ def oracle_sanity(rows: list[Row], seeds: list[str]) -> dict:
     return _oracle("sanity", failures)
 
 
+def oracle_determinism(tier_dir: Path) -> dict:
+    first, repeat = tier_dir / "results.csv", tier_dir / "results-repeat.csv"
+    if not first.exists() or not repeat.exists():
+        missing = first.name if not first.exists() else repeat.name
+        return _oracle("determinism", [f"missing CSV for repeat diff: {missing}"])
+    a = sorted(first.read_text(encoding="utf-8").splitlines())
+    b = sorted(repeat.read_text(encoding="utf-8").splitlines())
+    if a == b:
+        return _oracle("determinism", [])
+    diff_path = tier_dir / "determinism-diff.txt"
+    only_a = [l for l in a if l not in set(b)][:20]
+    only_b = [l for l in b if l not in set(a)][:20]
+    diff_path.write_text("--- results.csv only\n" + "\n".join(only_a)
+                         + "\n+++ results-repeat.csv only\n" + "\n".join(only_b) + "\n",
+                         encoding="utf-8")
+    return _oracle("determinism", [f"repeat batch diverged; see {diff_path.name} "
+                                   f"({len(only_a)}+{len(only_b)} differing lines shown)"])
+
+
+def oracle_victory(tier_dir: Path) -> dict:
+    path = tier_dir / "oracle-eval.json"
+    if not path.exists():
+        return _oracle("victory_roe", [f"missing {path.name} (run gauntlet_oracle_eval first)"])
+    data = json.loads(path.read_text(encoding="utf-8"))
+    failures: list[str] = []
+    warnings: list[str] = []
+    for s in data.get("scenarios", []):
+        for f in s.get("failures", []):
+            failures.append(f"{s.get('scenario')}: {f}")
+        for w in s.get("warnings", []):
+            warnings.append(f"{s.get('scenario')}: {w}")
+    if not data.get("allPassed", False) and not failures:
+        failures.append("allPassed=false")
+    return _oracle("victory_roe", failures, warnings)
+
+
 def write_verdict(path: Path, tier: str, oracles: list[dict]) -> bool:
     overall = all(o["status"] != "fail" for o in oracles)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -126,6 +162,8 @@ def main(argv: list[str]) -> int:  # extended in later tasks
         rows = parse_results_csv(tier_dir / "results.csv")
         oracles = [
             oracle_stability(tier_dir, rows, scenarios, seeds),
+            oracle_determinism(tier_dir),
+            oracle_victory(tier_dir),
             oracle_sanity(rows, seeds),
         ]
         out = args.out or (tier_dir / "verdict.json")
