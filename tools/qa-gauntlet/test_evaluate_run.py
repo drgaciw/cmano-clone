@@ -207,6 +207,23 @@ def test_token_coverage_warn_list_never_fails(tmp_path):
     assert any("EMCON_OFF" in e for e in o["evidence"])
 
 
+def test_roving_observe_warns_never_fails(tmp_path):
+    from evaluate_run import oracle_roving_observe
+    (tmp_path / "oracle-eval-roving.json").write_text(json.dumps(
+        {"ok": False, "allPassed": False,
+         "scenarios": [{"scenario": "s1", "passed": False,
+                        "failures": ["seed=99948: kills 0 < min 1"]}]}))
+    o = oracle_roving_observe(tmp_path, ["99948"])
+    assert o["status"] == "warn"
+    assert any("99948" in e for e in o["evidence"])
+
+
+def test_roving_observe_pass_when_no_roving_or_absent(tmp_path):
+    from evaluate_run import oracle_roving_observe
+    assert oracle_roving_observe(tmp_path, [])["status"] == "pass"
+    assert oracle_roving_observe(tmp_path, ["99948"])["status"] == "warn"  # file absent -> warn, not fail
+
+
 def test_write_verdict_overall(tmp_path):
     ok = write_verdict(tmp_path / "verdict.json", "tier-1",
                        [{"name": "stability", "status": "pass", "evidence": []},

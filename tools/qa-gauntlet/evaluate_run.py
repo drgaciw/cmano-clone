@@ -180,6 +180,25 @@ def bless(run_dir: Path, goldens_path: Path, run_id: str, tier_names: list[str])
     return 0
 
 
+def oracle_roving_observe(tier_dir: Path, roving_seeds: list[str]) -> dict:
+    """Roving rows are exploration, not gate: envelope anomalies surface as warnings.
+
+    Envelope bounds are calibrated on anchor seeds only (README-expect-regen), so
+    enforcing them on arbitrary seeds would red every run; observing keeps the signal.
+    """
+    if not roving_seeds:
+        return _oracle("roving_observe", [])
+    path = tier_dir / "oracle-eval-roving.json"
+    if not path.exists():
+        return _oracle("roving_observe", [], [f"missing {path.name} (driver did not run roving eval)"])
+    data = json.loads(path.read_text(encoding="utf-8"))
+    warnings: list[str] = []
+    for s in data.get("scenarios", []):
+        for f in s.get("failures", []):
+            warnings.append(f"roving {s.get('scenario')}: {f}")
+    return _oracle("roving_observe", [], warnings)
+
+
 def oracle_token_coverage(all_rows: list[Row], expected_path: Path, manifest_path: Path) -> dict:
     if not expected_path.exists():
         return _oracle("token_coverage", [f"missing expected-tokens file: {expected_path}"])
@@ -273,10 +292,12 @@ def main(argv: list[str]) -> int:  # extended in later tasks
                 [s for s in args.roving_seeds.split(",") if s]
         rows = parse_results_csv(tier_dir / "results.csv")
         anchor_seeds = [s for s in args.anchor_seeds.split(",") if s]
+        roving_seeds = [s for s in args.roving_seeds.split(",") if s]
         oracles = [
             oracle_stability(tier_dir, rows, scenarios, seeds),
             oracle_determinism(tier_dir),
             oracle_victory(tier_dir),
+            oracle_roving_observe(tier_dir, roving_seeds),
             oracle_sanity(rows, seeds),
         ]
         if args.goldens:

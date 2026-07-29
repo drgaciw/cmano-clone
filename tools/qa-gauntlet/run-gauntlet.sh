@@ -74,10 +74,25 @@ for t in $TIERS; do
     --csv-out "$TDIR/results-repeat.csv" > "$TDIR/run-repeat.log" 2>&1 \
     || { echo "REPEAT_FAIL $TIER"; OVERALL=1; continue; }
 
+  # Strict gate: anchor rows only. Envelope bounds are calibrated on anchor seeds
+  # (tools/qa-gauntlet/README-expect-regen.md), so roving rows are evaluated
+  # separately below and surfaced as warnings (roving_observe), never as the gate.
+  python3 - "$TDIR/results.csv" "$TDIR/results-anchors.csv" "$ANCHOR_SEEDS" <<'PY'
+import sys
+src, dst, anchors = sys.argv[1], sys.argv[2], set(sys.argv[3].split(","))
+lines = open(src, encoding="utf-8").read().splitlines()
+keep = [lines[0]] + [l for l in lines[1:] if l.strip() and l.split(",", 2)[1] in anchors]
+open(dst, "w", encoding="utf-8").write("\n".join(keep) + "\n")
+PY
   "$DOTNET" run --project src/ProjectAegis.MissionEditor.Cli --no-build -- gauntlet_oracle_eval \
-    --policy-dir "$TDIR" --csv "$TDIR/results.csv" \
+    --policy-dir "$TDIR" --csv "$TDIR/results-anchors.csv" \
     --out "$TDIR/oracle-eval.json" > "$TDIR/oracle.log" 2>&1
   # exit code intentionally not consumed here — evaluate_run.py reads oracle-eval.json (fail-closed)
+  if [ -n "$ROVING_SEEDS" ]; then
+    "$DOTNET" run --project src/ProjectAegis.MissionEditor.Cli --no-build -- gauntlet_oracle_eval \
+      --policy-dir "$TDIR" --csv "$TDIR/results.csv" \
+      --out "$TDIR/oracle-eval-roving.json" > "$TDIR/oracle-roving.log" 2>&1 || true
+  fi
 
   python3 tools/qa-gauntlet/evaluate_run.py tier \
     --tier-dir "$TDIR" --scenarios "$SCEN" \
