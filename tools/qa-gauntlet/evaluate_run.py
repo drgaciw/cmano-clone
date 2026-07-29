@@ -180,6 +180,29 @@ def bless(run_dir: Path, goldens_path: Path, run_id: str, tier_names: list[str])
     return 0
 
 
+def oracle_token_coverage(all_rows: list[Row], expected_path: Path, manifest_path: Path) -> dict:
+    if not expected_path.exists():
+        return _oracle("token_coverage", [f"missing expected-tokens file: {expected_path}"])
+    cfg = json.loads(expected_path.read_text(encoding="utf-8"))
+    blob = "\n".join(r.fingerprint for r in all_rows)
+    failures: list[str] = []
+    warnings: list[str] = []
+    for token in cfg.get("requiredRunWide", []):
+        n = blob.count(token)
+        if n == 0:
+            failures.append(f"required token '{token}' seen 0 times run-wide (vacuous dimension?)")
+    for item in cfg.get("warnIfAbsent", []):
+        if blob.count(item["token"]) == 0:
+            warnings.append(f"token '{item['token']}' absent (known: {item.get('reason', '')})")
+    if cfg.get("reportManifestCounts") and manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        for family in manifest.get("families", []):
+            for entry in family.get("entries", []):
+                code = entry["logCode"]
+                warnings.append(f"manifest {family['name']}.{code}: {blob.count(code)} occurrence(s)")
+    return _oracle("token_coverage", failures, warnings)
+
+
 def write_verdict(path: Path, tier: str, oracles: list[dict]) -> bool:
     overall = all(o["status"] != "fail" for o in oracles)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -200,6 +223,14 @@ def main(argv: list[str]) -> int:  # extended in later tasks
     tier_p.add_argument("--roving-seeds", default="")
     tier_p.add_argument("--goldens", type=Path)
     tier_p.add_argument("--out", type=Path)
+    run_p = sub.add_parser("run")
+    run_p.add_argument("--run-dir", required=True, type=Path)
+    run_p.add_argument("--tiers", required=True)
+    run_p.add_argument("--expected-tokens", required=True, type=Path)
+    run_p.add_argument("--manifest", type=Path,
+                       default=Path("data/glossary/abort_reason_manifest.json"))
+    run_p.add_argument("--anchor-seeds", default="42,7,123")
+    run_p.add_argument("--out", type=Path)
     bless_p = sub.add_parser("bless")
     bless_p.add_argument("--run-dir", required=True, type=Path)
     bless_p.add_argument("--run-id", required=True)
@@ -210,6 +241,30 @@ def main(argv: list[str]) -> int:  # extended in later tasks
     if args.mode == "bless":
         return bless(args.run_dir, args.goldens, args.run_id,
                      [t for t in args.tiers.split(",") if t])
+
+    if args.mode == "run":
+        tier_names = [t for t in args.tiers.split(",") if t]
+        all_rows: list[Row] = []
+        tier_failures: list[str] = []
+        for tier in tier_names:
+            csv_path = args.run_dir / tier / "results.csv"
+            if csv_path.exists():
+                all_rows.extend(parse_results_csv(csv_path))
+            else:
+                tier_failures.append(f"{tier}: results.csv missing")
+            verdict_path = args.run_dir / tier / "verdict.json"
+            if not verdict_path.exists():
+                tier_failures.append(f"{tier}: verdict.json missing")
+            elif not json.loads(verdict_path.read_text(encoding="utf-8")).get("pass", False):
+                tier_failures.append(f"{tier}: verdict red")
+        oracles = [
+            _oracle("tiers", tier_failures),
+            oracle_token_coverage(all_rows, args.expected_tokens, args.manifest),
+        ]
+        out = args.out or (args.run_dir / "verdict.json")
+        ok = write_verdict(out, "run", oracles)
+        print(json.dumps({"run": str(args.run_dir), "pass": ok}))
+        return 0 if ok else 1
 
     if args.mode == "tier":
         tier_dir = args.tier_dir

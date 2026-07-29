@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "seededFrom": "gauntlet-20260728-2016 (22 scenarios x 3 seeds; counts recorded in commit body)",
+  "requiredRunWide": [
+    "CATALOG_UNIT:",
+    "MAGAZINE_SEED:",
+    "ContactChange|",
+    "EventFired|",
+    "ROE_WEAPONS_TIGHT",
+    "NO_FIRE_CONTROL_TRACK",
+    "NO_AMMO",
+    "TARGET_DESTROYED"
+  ],
+  "warnIfAbsent": [
+    {
+      "token": "EMCON_OFF",
+      "reason": "BUG-gauntlet-emcon-dimension-not-exercised — flip to required when the 2026-07-27 variability-plan EMCON retrofit lands"
+    }
+  ],
+  "reportManifestCounts": true
+}

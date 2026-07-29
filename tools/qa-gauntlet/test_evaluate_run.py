@@ -172,6 +172,41 @@ def test_bless_refuses_red_verdict(tmp_path):
     assert bless(run, tmp_path / "anchors.json", "run-x", ["tier-1"]) == 2
 
 
+def _expected(tmp_path, required, warn=()):
+    p = tmp_path / "expected-tokens.json"
+    p.write_text(json.dumps({
+        "version": 1, "requiredRunWide": list(required),
+        "warnIfAbsent": [{"token": t, "reason": "pending"} for t in warn],
+        "reportManifestCounts": False}))
+    return p
+
+
+def _manifest(tmp_path):
+    p = tmp_path / "abort_reason_manifest.json"
+    p.write_text(json.dumps({"version": 1, "families": [
+        {"name": "Doctrine", "enum": "X", "entries": [{"logCode": "EMCON_OFF", "member": "EmconOff"}]}]}))
+    return p
+
+
+def test_token_coverage_pass_and_vacuity_fail(tmp_path):
+    from evaluate_run import oracle_token_coverage
+    rows = parse_results_csv(make_csv(tmp_path, [row_line(fp="CATALOG_UNIT:a:surface MAGAZINE_SEED:a:1:2")]))
+    ok = oracle_token_coverage(rows, _expected(tmp_path, ["CATALOG_UNIT:", "MAGAZINE_SEED:"]), _manifest(tmp_path))
+    assert ok["status"] == "pass"
+    bad = oracle_token_coverage(rows, _expected(tmp_path, ["CATALOG_UNIT:", "ContactChange|"]), _manifest(tmp_path))
+    assert bad["status"] == "fail"
+    assert any("ContactChange|" in e and "0" in e for e in bad["evidence"])
+
+
+def test_token_coverage_warn_list_never_fails(tmp_path):
+    from evaluate_run import oracle_token_coverage
+    rows = parse_results_csv(make_csv(tmp_path, [row_line(fp="CATALOG_UNIT:a:surface")]))
+    o = oracle_token_coverage(rows, _expected(tmp_path, ["CATALOG_UNIT:"], warn=["EMCON_OFF"]),
+                              _manifest(tmp_path))
+    assert o["status"] == "warn"
+    assert any("EMCON_OFF" in e for e in o["evidence"])
+
+
 def test_write_verdict_overall(tmp_path):
     ok = write_verdict(tmp_path / "verdict.json", "tier-1",
                        [{"name": "stability", "status": "pass", "evidence": []},
