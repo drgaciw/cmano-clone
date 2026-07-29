@@ -163,13 +163,43 @@ def test_bless_writes_all_anchor_hashes(tmp_path):
     assert g["blessedFrom"] == "run-x" and len(g["anchors"]) == 2
 
 
+def test_bless_excludes_roving_rows(tmp_path):
+    # Roving seeds are run-specific; blessing them would bloat anchors.json with
+    # entries no future run can match.
+    from evaluate_run import bless
+    run = tmp_path / "run"
+    (run / "tier-1").mkdir(parents=True)
+    make_csv(run / "tier-1", [row_line(), row_line(seed="7", fp="FP7"),
+                              row_line(seed="55555", fp="ROVING")])
+    out = tmp_path / "anchors.json"
+    assert bless(run, out, "run-x", ["tier-1"], anchor_seeds=["42", "7", "123"]) == 0
+    g = json.loads(out.read_text())
+    assert len(g["anchors"]) == 2
+    assert not any("55555" in k for k in g["anchors"])
+
+
 def test_bless_refuses_red_verdict(tmp_path):
     from evaluate_run import bless
     run = tmp_path / "run"
     (run / "tier-1").mkdir(parents=True)
     make_csv(run / "tier-1", [row_line()])
-    (run / "tier-1" / "verdict.json").write_text(json.dumps({"tier": "tier-1", "pass": False, "oracles": {}}))
+    (run / "tier-1" / "verdict.json").write_text(json.dumps(
+        {"tier": "tier-1", "pass": False,
+         "oracles": {"stability": {"status": "fail", "evidence": ["boom"]}}}))
     assert bless(run, tmp_path / "anchors.json", "run-x", ["tier-1"]) == 2
+
+
+def test_bless_allows_goldens_only_red(tmp_path):
+    # A red goldens oracle is exactly the state you re-bless FROM; it must not block.
+    from evaluate_run import bless
+    run = tmp_path / "run"
+    (run / "tier-1").mkdir(parents=True)
+    make_csv(run / "tier-1", [row_line()])
+    (run / "tier-1" / "verdict.json").write_text(json.dumps(
+        {"tier": "tier-1", "pass": False,
+         "oracles": {"stability": {"status": "pass", "evidence": []},
+                     "goldens": {"status": "fail", "evidence": ["mismatch"]}}}))
+    assert bless(run, tmp_path / "anchors.json", "run-x", ["tier-1"]) == 0
 
 
 def _expected(tmp_path, required, warn=()):

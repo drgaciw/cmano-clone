@@ -13,7 +13,12 @@ using System.Text.Json;
 public static class GauntletPolicyStrictKeys
 {
     private static readonly HashSet<string> GauntletKeys = new(StringComparer.Ordinal)
-    { "intent", "oracle", "catalogRefs", "units", "expect", "expectCi", "runId", "tier" };
+    {
+        "intent", "oracle", "catalogRefs", "units", "expect", "expectCi", "runId", "tier",
+        // QA metadata landed on main 2026-07-27/28: expect-regen provenance, the
+        // variability plan's dimension claims, and forge candidate metadata.
+        "expectProvenance", "expectCiProvenance", "dimensionsClaimed", "forge",
+    };
 
     private static readonly HashSet<string> ExpectKeys = new(StringComparer.Ordinal)
     {

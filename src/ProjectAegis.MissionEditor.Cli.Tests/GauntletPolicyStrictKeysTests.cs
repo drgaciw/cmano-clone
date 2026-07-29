@@ -73,6 +73,21 @@ public class GauntletPolicyStrictKeysTests
     }
 
     [Fact]
+    public void Qa_metadata_keys_landed_on_main_are_allowed()
+    {
+        // expectProvenance/expectCiProvenance (expect-regen discipline), dimensionsClaimed
+        // (variability plan), forge (forge candidates) — all legitimate QA metadata.
+        var report = GauntletPolicyStrictKeys.Check(Policy(ValidCore + """
+            , "expectProvenance": { "csv": "x.csv" }
+            , "expectCiProvenance": { "csv": "y.csv" }
+            , "dimensionsClaimed": ["emcon"]
+            , "forge": { "recipe": "r1" }
+            """));
+        Assert.Empty(report.Errors);
+        Assert.Empty(report.Warnings);
+    }
+
+    [Fact]
     public void Missing_or_invalid_gauntlet_block_yields_no_report_entries()
     {
         // Absence is handled by the evaluator ("missing gauntlet.expect"), not strict keys.

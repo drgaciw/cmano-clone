@@ -156,20 +156,30 @@ def oracle_goldens(rows: list[Row], goldens_path: Path, anchor_seeds: list[str])
     return _oracle("goldens", failures)
 
 
-def bless(run_dir: Path, goldens_path: Path, run_id: str, tier_names: list[str]) -> int:
+def bless(run_dir: Path, goldens_path: Path, run_id: str, tier_names: list[str],
+          anchor_seeds: list[str] | None = None) -> int:
+    anchor_seeds = anchor_seeds or ["42", "7", "123"]
+    anchor_set = set(anchor_seeds)
     anchors: dict[str, str] = {}
     for tier in tier_names:
         verdict_path = run_dir / tier / "verdict.json"
         if verdict_path.exists():
             verdict = json.loads(verdict_path.read_text(encoding="utf-8"))
-            if not verdict.get("pass", False):
-                print(f"bless refused: {tier} verdict is red", file=sys.stderr)
+            # A red goldens oracle is the state you re-bless FROM; only non-golden
+            # reds (stability, determinism, victory, sanity) block a bless.
+            non_golden_red = [name for name, o in verdict.get("oracles", {}).items()
+                              if name != "goldens" and o.get("status") == "fail"]
+            if non_golden_red:
+                print(f"bless refused: {tier} has non-golden red oracles: {non_golden_red}",
+                      file=sys.stderr)
                 return 2
         csv_path = run_dir / tier / "results.csv"
         if not csv_path.exists():
             print(f"bless: missing {csv_path}", file=sys.stderr)
             return 2
         for r in parse_results_csv(csv_path):
+            if r.seed not in anchor_set:
+                continue  # roving rows are run-specific; never golden material
             anchors[f"{r.scenario_id}|{r.seed}"] = hashlib.sha256(
                 r.fingerprint.encode("utf-8")).hexdigest()
     goldens_path.parent.mkdir(parents=True, exist_ok=True)
@@ -255,11 +265,13 @@ def main(argv: list[str]) -> int:  # extended in later tasks
     bless_p.add_argument("--run-id", required=True)
     bless_p.add_argument("--goldens", required=True, type=Path)
     bless_p.add_argument("--tiers", default="tier-1,tier-2,tier-3,tier-4,tier-5,tier-extra")
+    bless_p.add_argument("--anchor-seeds", default="42,7,123")
     args = parser.parse_args(argv)
 
     if args.mode == "bless":
         return bless(args.run_dir, args.goldens, args.run_id,
-                     [t for t in args.tiers.split(",") if t])
+                     [t for t in args.tiers.split(",") if t],
+                     anchor_seeds=[s for s in args.anchor_seeds.split(",") if s])
 
     if args.mode == "run":
         tier_names = [t for t in args.tiers.split(",") if t]
