@@ -115,21 +115,27 @@ public static class GauntletOracleEvalCommand
                 continue;
             }
 
+            var strict = GauntletPolicyStrictKeys.Check(policyJson);
+
             var filteredRows = GauntletOracleEvaluator.ParseCsvRows(resultsCsv)
                 .Where(r => string.Equals(r.ScenarioId, scenarioId, StringComparison.Ordinal))
                 .ToList();
             var filteredCsv = BuildCsv(filteredRows);
             var eval = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policyJson, filteredCsv, profile);
 
+            var failures = eval.Failures.Concat(strict.Errors).ToArray();
+            var passed = eval.Passed && strict.Errors.Count == 0;
+
             scenarioResults.Add(new
             {
                 scenario = scenarioId,
-                passed = eval.Passed,
-                failures = eval.Failures,
+                passed,
+                failures,
+                warnings = strict.Warnings,
                 rows = filteredRows.Count,
             });
 
-            if (!eval.Passed)
+            if (!passed)
             {
                 allPassed = false;
             }
