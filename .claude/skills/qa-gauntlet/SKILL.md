@@ -218,18 +218,26 @@ feasible, not optional. Rules:
 - **One-turn dispatch:** issue all independent Task calls in a single orchestrator turn before waiting on any result.
 - Surface **BLOCKED** immediately; always produce a partial report.
 
-### Phase B — Execution
+### Phase B — Execution (canonical driver)
 
-Run the batch harness per scenario × seed:
+Run the shipped driver — do NOT hand-roll batch loops or oracle checks:
 
 ```bash
-dotnet run --project src/ProjectAegis.Delegation.Demo -- --batch \
-  --scenarios <tier scenario ids> --seeds <seeds> --ticks <tier-appropriate> \
-  --csv-out production/qa/gauntlet/<RUN_ID>/tier-N/results.csv
+tools/qa-gauntlet/run-gauntlet.sh --run-id <RUN_ID> [--tiers "1 2 3 4 5 extra"] \
+  [--seeds 42,7,123] [--roving 2]
 ```
 
-Capture stdout/stderr to `tier-N/run.log`. Tick budget scales with tier
-(suggest 6 / 10 / 16 / 24 / 40 unless the scenario intent dictates otherwise).
+The driver resolves dotnet itself (PATH, then `~/.dotnet/dotnet`), runs each tier's
+batch plus an identical repeat batch, runs `gauntlet_oracle_eval` on the anchor-seed
+rows (strict gate; the CLI also enforces strict `gauntlet.*` keys — unknown keys fail,
+legacy `emcon` warns), evaluates roving rows separately in observe mode, and invokes
+`tools/qa-gauntlet/evaluate_run.py` for tier and run verdicts. Roving seeds are derived
+from the run id and recorded in `roving-seeds.txt` (reproducible). Tick budgets are
+encoded in the driver (6 / 10 / 16 / 24 / 40, extra=12).
+
+For generated (Phase A) scenarios not in the shipped ladder, stage them into
+`data/scenarios/` first or run the Demo batch directly, then call
+`evaluate_run.py tier` on the tier dir — the oracle set is identical either way.
 
 ## Script-first mechanical gates
 
@@ -276,21 +284,25 @@ tools/qa-gauntlet/retest-defect.sh <defect-id> --out-dir <scratch>
 every blue unit; detection observer→target pairs feed preferred victims so concurrent
 domain launches are not collapsed by salvo deconfliction.
 
-Spawn `qa-lead` to evaluate `results.csv` + `run.log` + evaluator output against:
+**Oracles are code:** read `tier-N/verdict.json` and the run-level `verdict.json`
+written by the driver (`evaluate_run.py`). Fields per tier: `stability`, `determinism`,
+`victory_roe`, `roving_observe`, `sanity`, `goldens`; run level: `tiers`,
+`token_coverage`. Any `"status": "fail"` fails the tier — the driver's exit code IS
+the Phase E tier gate. Spawn `qa-lead` only to *triage* failures, not to re-derive them:
 
-1. **Stability** — zero unhandled exceptions, zero crashes, run completed all ticks.
-2. **Determinism** — identical `fingerprint` for identical (scenario, seed) across a
-   repeat run; different seeds may differ. Any mismatch → also run the
-   `determinism-audit` skill and treat as a defect owned by `determinism-engineer`.
-3. **Victory-condition correctness** — winner/score matches `gauntlet.expect` bounds
-   (enforced by `GauntletOracleEvaluator`).
-4. **ROE compliance** — no engagements violating ROE; denials/missiles vs expect
-   (enforced where expect bounds apply).
-5. **EMCON plausibility** — detection/denial patterns consistent with emissions
-   posture *as defined by each platform's catalog `CatalogEmcon` profile*.
-6. **Regression** — tier ≤ N-1 anchor scenarios (re-run 1 per prior tier) still pass;
-   scores within tolerance of their previous CSVs.
-7. **Sanity** — scores finite; fingerprint non-empty when required; CSV schema intact.
+- `determinism` red → also run the `determinism-audit` skill; defect owned by
+  `determinism-engineer`.
+- `goldens` red → `sim-code` unless a deliberate, documented behavior change — then
+  re-bless per `tools/qa-gauntlet/goldens/README.md` (never bless to silence an
+  unexplained diff).
+- `token_coverage` red → a claimed dimension produced zero observable effect
+  run-wide; treat as `scenario-data` against the claiming scenarios (this is the
+  vacuity guard that would have caught the inert EMCON dimension).
+- `victory_roe` red → classify `sim-code` vs `oracle` (envelope) per
+  `tools/qa-gauntlet/README-expect-regen.md`.
+- `roving_observe` is warn-only exploration: envelope bounds are anchor-calibrated,
+  so roving anomalies are triage leads (reproducible via `roving-seeds.txt`), not
+  gate failures.
 
 **Joint ORBAT (tier ≥3 when available):** policies SHOULD set `gauntlet.units` with
 surface + air + subsurface catalog `platformId`s. The harness registers them and
@@ -388,6 +400,9 @@ without it.
    defect (root cause, fix commit, or quarantine reason), determinism findings,
    balance/score trends across tiers, flaky-test notes, forge promote summary,
    recommended follow-ups.
+   Include the line: "Last oracle calibration: <date>, kill rate <N/M>
+   (production/qa/gauntlet/calibration-<date>/report.md)" — run
+   `/qa-gauntlet-calibrate` if none exists or oracles/goldens changed since.
 
    **Required defect class counts table in AAR:**
 
