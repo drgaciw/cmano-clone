@@ -124,7 +124,7 @@
       {
         "id": "aaw-intercept-roe",
         "observerId": "f-219-sachsen-type-f124-2006",
-        "targetClass": "Air",
+        "targetClass": "Any",
         "side": "friendly",
         "missionCode": "AAW",
         "roe": "WeaponsFree",
@@ -162,12 +162,12 @@
         "asw_prosecution_tasking_open",
         "aaw_intercept_tasking_open"
       ],
-      "minKills": 1,
-      "maxMissilesFired": 9,
-      "minDenials": 91,
-      "maxDenials": 101,
-      "minScore": -400.0,
-      "maxScore": -260.0
+      "minKills": 2,
+      "maxMissilesFired": 21,
+      "minDenials": 19,
+      "maxDenials": 29,
+      "minScore": 40.0,
+      "maxScore": 320.0
     },
     "units": [
       {
@@ -257,7 +257,7 @@
       ],
       "note": "expect provisional pending regen"
     },
-    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T4 tick budget 24, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-4/results.csv). Observed: score=[-280.0, -380.0, -280.0] kills=[2, 1, 2] missilesFired=[2, 7, 6] denials=[96, 96, 96]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented)."
+    "expectProvenance": "RE-regenerated 2026-07-28 (post-review fix) from real Demo batch CSV at T4 tick budget 24, seeds 42,7,123, AFTER correcting the aaw-intercept-roe trigger's targetClass from the broken 'Air' value to 'Any' -- see production/qa/bugs/BUG-missioncontacttargetclass-domain-filter-broken.md and PR #367 review (chatgpt-codex-connector). Observed post-fix: score=[280.0, 180.0, 80.0] kills=[4, 3, 2] missilesFired=[12, 15, 17] denials=[24, 24, 24]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented). Prior envelope (pre-fix, now stale) was: minScore=-400.0 maxScore=-260.0 maxMissilesFired=9 minDenials=91 maxDenials=101."
   },
   "id": "gauntlet-forge-20260727-1455-t4-c3"
 }

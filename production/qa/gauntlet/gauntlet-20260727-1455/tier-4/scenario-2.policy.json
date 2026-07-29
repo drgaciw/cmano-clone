@@ -149,7 +149,7 @@
       {
         "id": "aaw-intercept-roe",
         "observerId": "f-230-norfolk-type-23-duke",
-        "targetClass": "Air",
+        "targetClass": "Any",
         "side": "friendly",
         "missionCode": "AAW",
         "roe": "WeaponsFree",
@@ -278,13 +278,13 @@
     "expect": {
       "side": "BLUE",
       "requireNonEmptyFingerprint": true,
-      "minKills": 0,
-      "maxMissilesFired": 20,
-      "minDenials": 71,
-      "maxDenials": 89,
-      "minScore": -420.0,
-      "maxScore": -180.0
+      "minKills": 1,
+      "maxMissilesFired": 27,
+      "minDenials": 0,
+      "maxDenials": 9,
+      "minScore": 60.0,
+      "maxScore": 200.0
     },
-    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T4 tick budget 24, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-4/results.csv). Observed: score=[-280.0, -220.0, -380.0] kills=[1, 2, 0] missilesFired=[16, 16, 16] denials=[76, 84, 76]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented)."
+    "expectProvenance": "RE-regenerated 2026-07-28 (post-review fix) from real Demo batch CSV at T4 tick budget 24, seeds 42,7,123, AFTER correcting the aaw-intercept-roe trigger's targetClass from the broken 'Air' value to 'Any' -- see production/qa/bugs/BUG-missioncontacttargetclass-domain-filter-broken.md and PR #367 review (chatgpt-codex-connector). Observed post-fix: score=[180.0, 80.0, 80.0] kills=[2, 1, 1] missilesFired=[20, 20, 22] denials=[4, 4, 4]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented). Prior envelope (pre-fix, now stale) was: minScore=-420.0 maxScore=-180.0 maxMissilesFired=20 minDenials=71 maxDenials=89."
   }
 }

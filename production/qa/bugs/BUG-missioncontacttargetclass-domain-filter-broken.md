@@ -63,15 +63,32 @@ These are qualitatively different failure modes — `Subsurface` degrades gracef
 
 with the observer holding a `detection[]` entry against `tu-160-blackjack` at `basePd: 1.0` (deterministic hit every run). Despite the detection resolving with certainty, `Matches(Air, "tu-160-blackjack")` is always `false` (`tu-160-blackjack` doesn't start with `"ucav"`), so this trigger, as originally authored, would have **never fired** — contradicting its own name ("baseline", implying always-on) and the candidate author's belief that using a real enum member made it safe. **This was caught and fixed before the candidate was finalized this session** (`targetClass` corrected to `"Any"`, which is safe here since the observer has exactly one detection entry) — logged here as the reproduction case, not as an open instance.
 
-## Known-affected existing corpus entries (not fixed — flagging for audit)
+## Known-affected existing corpus entries
 
-All of the following use `"targetClass": "Subsurface"` and, per the code above, silently run as `Any` instead:
+**Correction (2026-07-29, PR #367 review):** the original version of this report claimed "no `targetClass: Air` was found anywhere in the pre-existing (tier 1-4) corpus." **That was wrong** — this session's own tier-4 drafting had already shipped two `"targetClass": "Air"` triggers (both named `aaw-intercept-roe`), missed during the tier-4/tier-5 review passes and only caught by an external automated PR reviewer (`chatgpt-codex-connector[bot]`) after the PR was marked ready for review. Both are **now fixed** (see below) — logged here so the miss is part of the record, not just the fix.
+
+**Fixed this pass** (`targetClass: "Air"` → `"Any"`, both observers have exactly one relevant `detection[]` entry so the fix is behavior-safe; both scenarios re-batched at their tier-4 24-tick budget/seeds 42,7,123 and `gauntlet.expect` regenerated from the corrected real behavior; `gauntlet_oracle_eval` re-confirmed `allPassed: true` for the full 8-policy tier-4 set after the fix):
+
+- `data/scenarios/gauntlet-20260727-1455-t4-s2.policy.json` — trigger `aaw-intercept-roe` (observer `f-230-norfolk-type-23-duke` vs `mig-31-foxhound`). Pre-fix the AAW group never escalated off `WeaponsTight`, so the scenario's own stated intent ("BLUE AAW group ... intercepts RED's two-ship raid") never actually happened — denials dropped from a flat 76-84 to 4 post-fix, kills became achievable for that group as the scenario always claimed.
+- `data/scenarios/gauntlet-forge-20260727-1455-t4-c3.policy.json` — trigger `aaw-intercept-roe` (observer `f-219-sachsen-type-f124-2006` vs `su-27sm-sm3-flanker-j-2013`). Same pattern; denials dropped from a flat 96 to 24 post-fix.
+
+**Still open — `"targetClass": "Subsurface"` instances (harmless coincidence, not fixed):**
 
 - `data/scenarios/gauntlet-20260727-1455-t3-s1.policy.json` — trigger `asw-contact-roe`
-- `data/scenarios/gauntlet-forge-20260727-1455-t4-c3.policy.json` — trigger `asw-prosecution-roe`
-- `data/scenarios/gauntlet-20260727-1455-t4-s2.policy.json` and `gauntlet-20260727-1455-t4-s3.policy.json` (per this session's own tier-4 drafting)
+- `data/scenarios/gauntlet-forge-20260727-1455-t4-c3.policy.json` — trigger `asw-prosecution-roe` (the sibling ASW trigger in the same file whose `Air` trigger was just fixed above)
+- `data/scenarios/gauntlet-20260727-1455-t4-s2.policy.json` and `gauntlet-20260727-1455-t4-s3.policy.json`
 
-In every one of these, the affected observer happens to have exactly one relevant `detection[]` entry, so "match anything" and "match only subsurface contacts" produce identical practical behavior — these are **not currently misbehaving**, but they are relying on a coincidence, not a correct domain filter. No `"targetClass": "Air"` was found anywhere in the pre-existing (tier 1-4) corpus, so the fail-closed variant of this bug is believed to be novel to this session's tier-5 drafting (and was caught before landing).
+In every one of these, the affected observer happens to have exactly one relevant `detection[]` entry, so "match anything" (the actual `Any` fallback) and "match only subsurface contacts" (the intended filter) produce identical practical behavior. These were left as-is rather than "fixed" to `Any` explicitly, since they aren't currently misbehaving and changing them is cosmetic-only (no behavior change) — flagged here for a future audit pass, not urgent.
+
+**Process note:** this miss is exactly why an external, independent review pass caught something this session's own multi-agent review didn't — three drafting agents found the general defect class, but none happened to check the two already-shipped tier-4 files for the same pattern. Worth remembering for future gauntlet runs: a defect class found in new content should always trigger a grep-style sweep of the existing corpus for the same pattern, not just a narrative note that "no other cases were found" without actually searching.
+
+## Corpus-wide sweep (2026-07-29, prompted by the process note above)
+
+Grepped every `data/scenarios/*.policy.json` for `mission.triggers[].targetClass` in `{Air, Subsurface}`. Beyond the gauntlet-corpus instances above, this also surfaced 6 golden-backed fixtures (`baltic-v3-classify`, `baltic-v3-comms-challenged`, `baltic-v3-mission-band-b`, `baltic-v3-mission-roe-band-c`, `baltic-v3-patrol-comms`, `baltic-v3-patrol`), each with two `"targetClass": "Air"` triggers (`blue-aaa-air`, `red-aaa-air`).
+
+**These are NOT further instances of the bug — they are the correct, working reference usage**, and initially flagging them as suspect without checking would have been its own false-alarm mistake. Their observers (`ucav-blue`, `ucav-red`) hold detection entries against **both** a non-`ucav`-prefixed target (`hostile-1`/`u1`, correctly classified `Surface`) **and** a `ucav`-prefixed target (`ucav-red`/`ucav-blue`, correctly classified `Air`) — confirmed via `data/scenarios/baltic-v3-patrol.policy.json` and cross-referenced against `src/ProjectAegis.Delegation.UnityAdapter.Tests/Baltic/BalticReplayHarnessV3UcavTests.cs`, whose own assertions (`Does.Contain("blue-aaa-air|AAA")`) depend on the `Air` filter genuinely discriminating between the two. `MissionContactTargetClassifier.Classify` works exactly as designed here, because these fixtures follow the one narrow naming convention (`ucav-` prefix) it recognizes. **Not touched, and correctly so** — golden-backed fixtures are off-limits regardless, and in this case there is nothing to fix.
+
+This sharpens the actual defect: `Classify()` isn't malfunctioning in the abstract — it implements a real, working, but extremely narrow and undocumented convention (`ucav-` prefix) that these 6 hand-authored fixtures happen to follow and the entire catalog-driven gauntlet corpus (~110 real platform ids, none prefixed `ucav-`) does not and structurally cannot. Any future scenario built from real catalog platforms will hit the same silent trap these two gauntlet files did, unless the classifier is generalized to use actual catalog domain data (see Suggested Fix) rather than an id-prefix convention invented for one early test suite.
 
 ## Why it matters
 

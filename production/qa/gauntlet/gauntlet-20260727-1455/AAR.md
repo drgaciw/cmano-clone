@@ -377,3 +377,42 @@ autonomy/impact-analysis rules with GitNexus unavailable) — both are scoped,
 reproducible, and have suggested fixes in their respective bug reports. The
 single highest-priority follow-up is materialising the two tier-1 hard-case
 signatures so `hard-case-replay` becomes selectable in any future run.
+
+---
+
+## 12. Post-Review Remediation (2026-07-29)
+
+After PR #367 left draft, an external automated reviewer (`chatgpt-codex-connector[bot]`)
+flagged that `data/scenarios/gauntlet-20260727-1455-t4-s2.policy.json`'s
+`aaw-intercept-roe` trigger (`targetClass: "Air"` against `mig-31-foxhound`)
+could never fire — the same defect class as
+`BUG-missioncontacttargetclass-domain-filter-broken.md` (filed at tier 5),
+but in an **already-shipped tier-4 scenario this session's own review missed**.
+
+Verified directly, then found the same pattern in a second already-shipped
+file, `gauntlet-forge-20260727-1455-t4-c3.policy.json` (also an
+`aaw-intercept-roe` trigger). Both fixed at the content level (`targetClass`
+corrected to `"Any"`, safe since each observer has exactly one relevant
+`detection[]` entry), re-batched at the tier-4 24-tick budget/seeds 42,7,123,
+`gauntlet.expect` regenerated from the corrected real behavior (denials
+dropped from a flat 76-84/96 to 4/24 for the two files respectively, now that
+the AAW group actually escalates as each scenario's own `gauntlet.intent`
+always claimed), and `gauntlet_oracle_eval` re-confirmed `allPassed: true`
+for the full tier-4 8-policy set.
+
+A follow-up corpus-wide sweep (prompted by this miss) found the same
+`"targetClass": "Air"` pattern in 6 pre-existing golden-backed fixtures
+(`baltic-v3-*`) — but those turned out to be the **correct, working**
+reference usage (their `ucav-`-prefixed platform ids genuinely satisfy the
+classifier's one recognized convention), not further bugs. Not touched, and
+correctly so — golden-backed fixtures are off-limits regardless.
+
+Full solution baseline and ReplayGolden re-confirmed unaffected (1928/1928,
+17/17) after these two content-level fixes — no `src/` code was touched, so
+no regression risk beyond the two edited JSON files themselves.
+
+**Process lesson, recorded for future gauntlet runs:** when a defect class is
+found in new content, sweep the *existing* corpus for the same pattern before
+declaring "no other instances found" — three agents independently found the
+general defect this session, but none checked whether already-shipped files
+had it too. An external reviewer caught it instead.

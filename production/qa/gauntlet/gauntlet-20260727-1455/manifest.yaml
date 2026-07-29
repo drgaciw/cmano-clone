@@ -166,8 +166,18 @@ defects:
     regression_test: null
   - id: BUG-missioncontacttargetclass-domain-filter-broken
     class: sim-code
-    status: QUARANTINED — not fixed (GitNexus MCP unavailable this session, tier 5)
+    status: >
+      QUARANTINED (the underlying src/ classifier) — not fixed, GitNexus MCP
+      unavailable this session. PARTIALLY REMEDIATED AT CONTENT LEVEL
+      (2026-07-29, PR #367 review): two already-shipped tier-4 scenarios
+      (gauntlet-20260727-1455-t4-s2, gauntlet-forge-20260727-1455-t4-c3) each
+      had an `"targetClass": "Air"` trigger that could never fire — missed by
+      this session's own review, caught by an external automated PR reviewer
+      (chatgpt-codex-connector) after the PR left draft. Both fixed
+      (targetClass -> "Any"), re-batched, gauntlet.expect regenerated from
+      corrected real behavior, oracle re-confirmed allPassed:true for the
+      full tier-4 8-policy set.
     report: production/qa/bugs/BUG-missioncontacttargetclass-domain-filter-broken.md
     symbol: "MissionContactTargetClassifier.Classify/Matches (src/ProjectAegis.Sim/Scenario/MissionContactTargetClass.cs)"
-    impact: "not GitNexus-assessed (tool unavailable) — scoped: mission.triggers[].targetClass 'Subsurface' silently degrades to 'Any' (found harmless everywhere it's used so far); 'Air' silently never matches any real platform id (found and fixed pre-promotion in one tier-5 forge candidate before it shipped)"
+    impact: "not GitNexus-assessed (tool unavailable) — scoped: mission.triggers[].targetClass 'Subsurface' silently degrades to 'Any' (found harmless everywhere it's used so far); 'Air' silently never matches any real catalog platform id (only ids literally prefixed 'ucav-' classify as Air -- a narrow, undocumented convention that 6 pre-existing golden-backed baltic-v3-* fixtures correctly follow, but the entire catalog-driven gauntlet corpus does not). Two content-level instances fixed this pass; the underlying classifier itself remains unfixed and will trap any future scenario built from real catalog platforms."
     regression_test: null
