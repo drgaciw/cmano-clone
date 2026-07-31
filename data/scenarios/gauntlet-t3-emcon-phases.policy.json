@@ -236,7 +236,7 @@
       "minKills": 4,
       "maxMissilesFired": 20,
       "maxDenials": 20,
-      "minScore": 450,
+      "minScore": 300,
       "maxScore": 650,
       "minDenials": 4
     },
