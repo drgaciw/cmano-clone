@@ -1,40 +1,36 @@
-namespace ProjectAegis.MissionEditor.Cli;
+namespace ProjectAegis.Data.Catalog;
 
+using System.Reflection;
 using System.Text.Json;
+using ProjectAegis.Data.Scenario.Policy;
 
 /// <summary>
 /// Strict unknown-key validation for the qa-gauntlet policy block.
 /// Root-cause guard for BUG-gauntlet-emcon-dimension-not-exercised: unknown keys under
 /// <c>gauntlet.*</c> were silently dropped by System.Text.Json, letting an entire ladder
-/// dimension go inert unnoticed. Whitelist = union of ScenarioGauntletJsonDto properties
-/// and keys consumed by GauntletOracleEvaluator (expect/expectCi) — see spec 2026-07-28
-/// (docs/superpowers/specs/2026-07-28-qa-gauntlet-effectiveness-design.md).
+/// dimension go inert unnoticed.
+/// Allowed keys are derived from <see cref="ScenarioGauntletJsonDto"/> (and expect/unit DTOs)
+/// via System.Text.Json camelCase naming — not a hand-maintained string encyclopedia.
 /// </summary>
 public static class GauntletPolicyStrictKeys
 {
-    private static readonly HashSet<string> GauntletKeys = new(StringComparer.Ordinal)
-    {
-        "intent", "oracle", "catalogRefs", "units", "expect", "expectCi", "runId", "tier",
-        // QA metadata landed on main 2026-07-27/28: expect-regen provenance, the
-        // variability plan's dimension claims, and forge candidate metadata.
-        "expectProvenance", "expectCiProvenance", "dimensionsClaimed", "forge",
-    };
+    private static readonly HashSet<string> GauntletKeys = DeriveCamelCaseKeys(typeof(ScenarioGauntletJsonDto));
 
-    private static readonly HashSet<string> ExpectKeys = new(StringComparer.Ordinal)
-    {
-        "side", "minKills", "maxMissilesFired", "minDenials", "maxDenials",
-        "minScore", "maxScore", "requireNonEmptyFingerprint",
-        "requireFingerprintSubstrings", "requireTrueLaunchedShooters",
-    };
+    private static readonly HashSet<string> ExpectKeys = DeriveCamelCaseKeys(typeof(ScenarioGauntletExpectJsonDto));
 
-    private static readonly HashSet<string> UnitKeys = new(StringComparer.Ordinal)
-    { "unitId", "platformId", "domain", "side" };
+    private static readonly HashSet<string> UnitKeys = DeriveCamelCaseKeys(typeof(ScenarioGauntletUnitJsonDto));
 
-    // Grandfathered until the 2026-07-27 variability plan retrofits the three shipped
-    // EMCON policies; then move "emcon" from warn to error and add "dimensionsClaimed"
-    // to GauntletKeys (that plan owns both changes).
-    private static readonly HashSet<string> LegacyWarnKeys = new(StringComparer.Ordinal)
-    { "emcon" };
+    // Time-boxed grandfather only — remove when variability EMCON retrofit deletes gauntlet.emcon.
+    private static readonly HashSet<string> LegacyWarnKeys = new(StringComparer.Ordinal) { "emcon" };
+
+    /// <summary>CamelCase root keys derived from <see cref="ScenarioGauntletJsonDto"/>.</summary>
+    public static IReadOnlyCollection<string> AllowedGauntletKeys => GauntletKeys;
+
+    /// <summary>CamelCase expect keys derived from <see cref="ScenarioGauntletExpectJsonDto"/>.</summary>
+    public static IReadOnlyCollection<string> AllowedExpectKeys => ExpectKeys;
+
+    /// <summary>CamelCase unit keys derived from <see cref="ScenarioGauntletUnitJsonDto"/>.</summary>
+    public static IReadOnlyCollection<string> AllowedUnitKeys => UnitKeys;
 
     public static GauntletStrictKeyReport Check(string policyJson)
     {
@@ -98,6 +94,17 @@ public static class GauntletPolicyStrictKeys
         }
 
         return new GauntletStrictKeyReport(errors, warnings);
+    }
+
+    private static HashSet<string> DeriveCamelCaseKeys(Type dtoType)
+    {
+        var keys = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var prop in dtoType.GetProperties(BindingFlags.Instance | BindingFlags.Public))
+        {
+            keys.Add(JsonNamingPolicy.CamelCase.ConvertName(prop.Name));
+        }
+
+        return keys;
     }
 
     private static void CheckObjectKeys(

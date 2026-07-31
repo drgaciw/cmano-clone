@@ -3,6 +3,10 @@ namespace ProjectAegis.MissionEditor.Cli.Tests;
 using ProjectAegis.MissionEditor.Cli;
 using Xunit;
 
+/// <summary>
+/// Cli surface: unknown keys / legacy emcon warnings come from Data
+/// <c>GauntletOracleEvaluator.EvaluateFromPolicyAndCsv</c> (no Cli whitelist).
+/// </summary>
 public class GauntletOracleEvalStrictKeysTests
 {
     private const string Csv =

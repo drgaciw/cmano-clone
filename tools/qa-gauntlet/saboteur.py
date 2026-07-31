@@ -7,8 +7,11 @@ records which oracles fired. Nothing is ever committed from a worktree.
 
 Kill rule: caught = subset driver exit != 0 OR ReplayGolden filter fails.
 Build failure = invalid-mutant (fix or drop the patch; it proves nothing).
-Control mutants (id prefix "00-") are behavior-neutral no-ops: they MUST survive;
-a caught control is a false-positive pipeline bug and fails the run.
+
+Catalog `role` (required): control | expected-miss | defect.
+Kill rate = caught_defects / (caught_defects + survived_defects); control and
+expected-miss are excluded from numerator and denominator. Exit contracts are
+role-driven (see exit_code_for).
 
 Spec: docs/superpowers/specs/2026-07-28-qa-gauntlet-effectiveness-design.md
 Subset note: all three anchor seeds are used (not just 42) because some required
@@ -26,11 +29,13 @@ import sys
 from datetime import date
 from pathlib import Path
 
+import yaml
+
 ROOT = Path(__file__).resolve().parents[2]
 BUILD_TIMEOUT_S = 600
 RUN_TIMEOUT_S = 900
 SUBSET_TIERS = "1 3 5"
-CONTROL_PREFIX = "00-"
+VALID_ROLES = frozenset({"control", "expected-miss", "defect"})
 LOCKED = (
     "src/ProjectAegis.Data/Catalog/GauntletOracleEvaluator.cs",
     "src/ProjectAegis.Delegation.Demo/Program.cs",
@@ -51,13 +56,17 @@ def blocking_dirty_paths(porcelain: str) -> list[str]:
 
 
 def load_catalog(path: Path) -> list[dict]:
-    import yaml
     data = yaml.safe_load(path.read_text(encoding="utf-8"))
     mutants = data.get("mutants", [])
     for m in mutants:
-        for key in ("id", "patch", "target", "description", "expectedOracles", "impactRecorded"):
+        for key in ("id", "patch", "target", "description", "role",
+                    "expectedOracles", "impactRecorded"):
             if key not in m:
                 raise ValueError(f"catalog entry missing '{key}': {m}")
+        if m["role"] not in VALID_ROLES:
+            raise ValueError(
+                f"mutant {m['id']}: unknown role {m['role']!r} "
+                f"(expected one of {sorted(VALID_ROLES)})")
         if any(lock in m["target"] for lock in LOCKED):
             raise ValueError(f"mutant {m['id']} targets a locked-eval file: {m['target']}")
         if not (path.parent / m["patch"]).exists():
@@ -69,37 +78,74 @@ def summarize(results: list[dict]) -> dict:
     caught = sum(1 for r in results if r["outcome"] == "caught")
     survived = sum(1 for r in results if r["outcome"] == "survived")
     invalid = sum(1 for r in results if r["outcome"] == "invalid-mutant")
-    valid = caught + survived
-    return {"caught": caught, "survived": survived, "invalid": invalid,
-            "killRate": f"{caught}/{valid}"}
+    caught_defects = sum(
+        1 for r in results if r["outcome"] == "caught" and r.get("role") == "defect")
+    survived_defects = sum(
+        1 for r in results if r["outcome"] == "survived" and r.get("role") == "defect")
+    denom = caught_defects + survived_defects
+    return {
+        "caught": caught,
+        "survived": survived,
+        "invalid": invalid,
+        "caughtDefects": caught_defects,
+        "survivedDefects": survived_defects,
+        "killRate": f"{caught_defects}/{denom}",
+    }
 
 
 def exit_code_for(summary: dict, results: list[dict]) -> int:
-    """0 iff no invalid mutants, no non-control survivors, and no caught controls."""
+    """0 iff no invalid mutants and role exit matrix is clean.
+
+    | outcome         | control | expected-miss | defect |
+    |-----------------|---------|---------------|--------|
+    | survived        | OK      | OK            | FAIL   |
+    | caught          | FAIL    | FAIL          | OK     |
+    | invalid-mutant  | FAIL    | FAIL          | FAIL   |
+    """
     if summary["invalid"] > 0:
         return 1
     for r in results:
-        is_control = r["id"].startswith(CONTROL_PREFIX)
-        if is_control and r["outcome"] == "caught":
+        role = r.get("role")
+        outcome = r["outcome"]
+        if outcome == "invalid-mutant":
+            return 1
+        if role == "control" and outcome == "caught":
             return 1  # false positive: a no-op turned an oracle red
-        if not is_control and r["outcome"] == "survived":
+        if role == "expected-miss" and outcome == "caught":
+            return 1  # role still expected-miss; flip to defect when catchable
+        if role == "defect" and outcome == "survived":
             return 1  # oracle blind spot
     return 0
 
 
 def render_report(summary: dict, results: list[dict]) -> str:
-    lines = ["# Saboteur calibration report", "",
-             f"**Kill rate: {summary['killRate']}** "
-             f"(caught {summary['caught']}, survived {summary['survived']}, "
-             f"invalid {summary['invalid']}; controls excluded from pass/fail by id prefix 00-)",
-             "",
-             "| Mutant | Outcome | Fired oracles | Expected |", "|---|---|---|---|"]
+    lines = [
+        "# Saboteur calibration report",
+        "",
+        f"**Kill rate: {summary['killRate']}** "
+        f"(caught_defects / (caught_defects + survived_defects); "
+        f"control and expected-miss excluded from num/denom). "
+        f"Totals: caught {summary['caught']}, survived {summary['survived']}, "
+        f"invalid {summary['invalid']}; "
+        f"defects caught {summary['caughtDefects']}, "
+        f"defects survived {summary['survivedDefects']}.",
+        "",
+        "| Mutant | Role | Outcome | Fired oracles | Expected |",
+        "|---|---|---|---|---|",
+    ]
     for r in results:
         outcome = r["outcome"].upper() if r["outcome"] != "caught" else "caught"
-        lines.append(f"| {r['id']} | {outcome} | {', '.join(r['firedOracles']) or '—'} "
-                     f"| {', '.join(r['expectedOracles']) or '—'} |")
+        role = r.get("role", "?")
+        lines.append(
+            f"| {r['id']} | {role} | {outcome} | "
+            f"{', '.join(r['firedOracles']) or '—'} "
+            f"| {', '.join(r['expectedOracles']) or '—'} |")
     lines.append("")
-    lines.append("Every non-control SURVIVED row is a named oracle blind spot — file a bug per row.")
+    lines.append(
+        "Every SURVIVED `defect` row is a named oracle blind spot — file a bug per row. "
+        "`expected-miss` survivors are tracked (not fail); flip role to `defect` when "
+        "the miss becomes catchable. A caught `control` or caught `expected-miss` fails "
+        "the run.")
     return "\n".join(lines) + "\n"
 
 
@@ -129,8 +175,13 @@ def run_mutant(m: dict, catalog_dir: Path, out_dir: Path, dotnet: str, keep: boo
     wt = ROOT / ".worktrees" / f"saboteur-{m['id']}"
     mdir = out_dir / m["id"]
     mdir.mkdir(parents=True, exist_ok=True)
-    result = {"id": m["id"], "expectedOracles": m["expectedOracles"],
-              "firedOracles": [], "outcome": "invalid-mutant"}
+    result = {
+        "id": m["id"],
+        "role": m["role"],
+        "expectedOracles": m["expectedOracles"],
+        "firedOracles": [],
+        "outcome": "invalid-mutant",
+    }
     try:
         subprocess.run(["git", "worktree", "add", "--detach", str(wt)],
                        cwd=ROOT, check=True, capture_output=True)
