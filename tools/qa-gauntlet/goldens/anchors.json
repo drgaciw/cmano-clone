@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "blessedFrom": "gauntlet-shotgun-bingo-rebless2",
+  "blessedFrom": "gauntlet-bingo-lb-full",
   "anchors": {
     "gauntlet-joint-orbat-smoke|123": "f92a49b61a4b27f1ad38ef957179658465ce3f9f0dbe3dabfc8fa5e99ef00756",
     "gauntlet-joint-orbat-smoke|42": "60da909b1c44950a180b92e9ffb8dec2edadad92f712f93cbda208c7d1086ffd",
@@ -59,9 +59,9 @@
     "gauntlet-t3-logistics-contact-lifecycle|123": "0ddf4e5b399cd00df2b79003ba69bcaf08384ca2b6546a716fcae74d309d9079",
     "gauntlet-t3-logistics-contact-lifecycle|42": "65782d83b5909dc040d957538b331c6bf7635238a6a68203a817e555259ea180",
     "gauntlet-t3-logistics-contact-lifecycle|7": "719f07d97e65519c9c3b9a1788cca6c1541bfc49138e7891817b86b3c6a76a88",
-    "gauntlet-t3-logistics-joker-bingo|123": "d53d56e8aaaa3db2dd8062292647655973c8e6ca04fbcf5f66bc77f1678022c1",
-    "gauntlet-t3-logistics-joker-bingo|42": "e2d494b02df21b60c1899c78fed93a795beca76c6942323eb19f72abb3c061de",
-    "gauntlet-t3-logistics-joker-bingo|7": "2402ac4f4d1b63e7ea39cc7fd96701e30607933552614a5ce1e47831905aa5e2",
+    "gauntlet-t3-logistics-joker-bingo|123": "27577132c06769b5c376d184e96223d693c8dee55cef34773cbbc6cd21d46e9e",
+    "gauntlet-t3-logistics-joker-bingo|42": "24c76d81d8dc229a7f9c72242e78fde8602d1762476313a8ab3a9110676a6791",
+    "gauntlet-t3-logistics-joker-bingo|7": "808fc53aeb31b118c5df074c3041e2f4a92ed109dabe9fbf25dda9f3aca2fb6d",
     "gauntlet-t3-strike-salvo-boundary|123": "2c02913f5deab6a36a8b480659b3bd91c548459a70d292e6aa678bc1b5d8e86b",
     "gauntlet-t3-strike-salvo-boundary|42": "178a2a344e5f7574c135711986441f7fe3e24bd8f0ec85d324946bebaeaad923",
     "gauntlet-t3-strike-salvo-boundary|7": "74bb44bbe7d8ac61814b4a056d9cb283c4bc62b7a6451776c748980e514c8a6f",

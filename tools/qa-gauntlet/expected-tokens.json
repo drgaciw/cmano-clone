@@ -15,7 +15,8 @@
     "BINGO",
     "SHOTGUN",
     "WINCHESTER",
-    "SHOTGUN_ORDNANCE"
+    "SHOTGUN_ORDNANCE",
+    "BINGO_FUEL"
   ],
   "warnIfAbsent": [],
   "reportManifestCounts": true,
@@ -25,6 +26,6 @@
     "SHOTGUN": "Pre-briefed min remaining/defensive ordnance (OrdnanceStateChange)",
     "WINCHESTER": "Out of weapons \u2014 magazine empty (OrdnanceStateChange; often with NO_AMMO)",
     "SHOTGUN_ORDNANCE": "Multi-salvo denied while remaining in Shotgun band (LogisticsShotgunEngageGate)",
-    "BINGO_FUEL": "Engage hard-denied at Bingo fuel band (LogisticsBingoEngageGate)"
+    "BINGO_FUEL": "Bingo fuel hard-denies engage (LogisticsBingoEngageGate); load-bearing for mutant 08"
   }
 }
