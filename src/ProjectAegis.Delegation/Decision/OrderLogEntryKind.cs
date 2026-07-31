@@ -20,4 +20,5 @@ public enum OrderLogEntryKind
     FuelStateChange = 15,
     FuelBurn = 16,
     PlatformDamageChange = 17,
+    OrdnanceStateChange = 18,
 }

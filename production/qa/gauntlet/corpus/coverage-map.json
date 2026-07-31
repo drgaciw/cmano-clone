@@ -2,8 +2,8 @@
   "version": 1,
   "generatedAt": "2026-07-31",
   "source": "bootstrap + blindspot-close scenarios 2026-07-31",
-  "cellCount": 47,
-  "scenarioCount": 47,
+  "cellCount": 49,
+  "scenarioCount": 49,
   "cells": [
     {
       "key": "strike|air,subsurface,surface|WeaponsTight/WeaponsFree|emcon-phases|none",
@@ -701,6 +701,35 @@
       "intentHash": "95da6233481a7b85",
       "tier": 3,
       "scenarioId": "gauntlet-t3-emcon-engage-block"
+    },
+    {
+      "key": "unknown|air,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "stressAxes": "ew:off|logistics:extreme|weapons:off",
+      "missionClass": "unknown",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "intentHash": "f9826c45da00f970",
+      "scenarioId": "gauntlet-t3-logistics-joker-bingo",
+      "tier": 3
+    },
+    {
+      "key": "unknown|surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "missionClass": "unknown",
+      "domains": [
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "intentHash": "7c85a9f248986561",
+      "scenarioId": "gauntlet-t2-ordnance-shotgun-winchester",
+      "tier": 2
     }
   ],
   "counts": {

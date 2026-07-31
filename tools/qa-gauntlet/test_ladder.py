@@ -32,6 +32,7 @@ EXPECTED_SCENARIOS = {
         "gauntlet-t2-strike-a",
         "gauntlet-t2-strike-event",
         "gauntlet-t2-strike-salvo-boundary",
+        "gauntlet-t2-ordnance-shotgun-winchester",
     ],
     "3": [
         "gauntlet-t3-escort-strike",
@@ -41,6 +42,7 @@ EXPECTED_SCENARIOS = {
         "gauntlet-t3-strike-salvo-boundary",
         "gauntlet-t3-logistics-contact-lifecycle",
         "gauntlet-t3-emcon-engage-block",
+        "gauntlet-t3-logistics-joker-bingo",
     ],
     "4": [
         "gauntlet-t4-multi-mission",

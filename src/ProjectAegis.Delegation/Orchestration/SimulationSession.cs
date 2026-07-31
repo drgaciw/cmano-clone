@@ -11,6 +11,7 @@ using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Logistics;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Telemetry;
 using ProjectAegis.Sim.Time;
@@ -358,6 +359,8 @@ public sealed class SimulationSession
                         Delta: -salvoSize,
                         MagazineChangeReasonCodes.Fire)));
 
+                    MaybeEmitOrdnanceStateChange(state, simTick, order.Target, mountId: 0);
+
                     if (result.OutcomeCode != null)
                     {
                         Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromEngagementOutcome(new EngagementOutcomeRecord(
@@ -420,6 +423,8 @@ public sealed class SimulationSession
     public DictionaryEngageWorldQuery? EngageWorld { get; init; }
 
     public MagazineLedger? Magazines { get; init; }
+
+    private readonly Dictionary<string, string> _lastOrdnanceBand = new(StringComparer.Ordinal);
 
     public KilledTargetRegistry? KilledTargets { get; init; }
 
@@ -532,6 +537,45 @@ public sealed class SimulationSession
                 }
             }
         }
+    }
+
+
+    private void MaybeEmitOrdnanceStateChange(ObservedState state, ulong simTick, TargetId shooter, ulong mountId)
+    {
+        if (Magazines == null)
+        {
+            return;
+        }
+
+        var shooterUlong = OrderActionMapper.TargetIdToUlong(shooter);
+        var remaining = Magazines.GetRounds(shooterUlong, mountId);
+        var threshold = Orchestrator.ScenarioPolicy?.EngageDefaults?.ShotgunRoundsThreshold ?? 1;
+        var band = OrdnanceStateBands.Resolve(remaining, threshold);
+        var unitKey = shooter.Value;
+        if (!_lastOrdnanceBand.TryGetValue(unitKey, out var previous))
+        {
+            previous = OrdnanceStateBands.Nominal;
+            if (band == OrdnanceStateBands.Nominal)
+            {
+                _lastOrdnanceBand[unitKey] = band;
+                return;
+            }
+        }
+
+        if (previous == band)
+        {
+            return;
+        }
+
+        _lastOrdnanceBand[unitKey] = band;
+        Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromOrdnanceStateChange(new OrdnanceStateChangeRecord(
+            SequenceId: 0,
+            state.SimTime,
+            simTick,
+            shooter,
+            previous,
+            band,
+            remaining)));
     }
 
     private static TargetId ResolveEngageVictim(Order order, ObservedState state)
