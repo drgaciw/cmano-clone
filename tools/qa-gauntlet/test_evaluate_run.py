@@ -63,6 +63,33 @@ def test_stability_fails_on_exception_in_log(tmp_path):
     assert o["status"] == "fail"
 
 
+def test_stability_fails_on_duplicate_row(tmp_path):
+    make_csv(tmp_path, [row_line(seed="42"), row_line(seed="42", fp="DUP")])
+    (tmp_path / "run.log").write_text("ok\n", encoding="utf-8")
+    o = oracle_stability(tmp_path, parse_results_csv(tmp_path / "results.csv"), ["s1"], ["42"])
+    assert o["status"] == "fail"
+    assert any("duplicate" in e for e in o["evidence"])
+
+
+def test_stability_fails_on_unexpected_scenario_or_seed(tmp_path):
+    make_csv(tmp_path, [row_line(seed="42"), row_line(sid="other", seed="42"),
+                       row_line(seed="99")])
+    (tmp_path / "run.log").write_text("ok\n", encoding="utf-8")
+    o = oracle_stability(tmp_path, parse_results_csv(tmp_path / "results.csv"), ["s1"], ["42"])
+    assert o["status"] == "fail"
+    assert any("unexpected" in e for e in o["evidence"])
+
+
+def test_stability_fails_on_duplicate_in_repeat_csv(tmp_path):
+    make_csv(tmp_path, [row_line(seed="42")])
+    make_csv(tmp_path, [row_line(seed="42"), row_line(seed="42", fp="DUP")],
+             name="results-repeat.csv")
+    (tmp_path / "run.log").write_text("ok\n", encoding="utf-8")
+    o = oracle_stability(tmp_path, parse_results_csv(tmp_path / "results.csv"), ["s1"], ["42"])
+    assert o["status"] == "fail"
+    assert any("repeat" in e and "duplicate" in e for e in o["evidence"])
+
+
 def test_sanity_fails_on_empty_fingerprint_and_nonfinite_score(tmp_path):
     p = make_csv(tmp_path, [row_line(fp=""), row_line(seed="7", score="NaN")])
     o = oracle_sanity(parse_results_csv(p), ["42", "7"])
@@ -189,11 +216,21 @@ def test_goldens_ignore_roving_rows(tmp_path):
     assert oracle_goldens(parse_results_csv(p), g, ["42"])["status"] == "pass"
 
 
+def _green_verdict(path: Path, tier: str = "tier-1") -> None:
+    path.write_text(json.dumps({
+        "tier": tier, "pass": True,
+        "oracles": {"stability": {"status": "pass", "evidence": []},
+                    "determinism": {"status": "pass", "evidence": []},
+                    "victory_roe": {"status": "pass", "evidence": []},
+                    "sanity": {"status": "pass", "evidence": []}}}))
+
+
 def test_bless_writes_all_anchor_hashes(tmp_path):
     from evaluate_run import bless
     run = tmp_path / "run"
     (run / "tier-1").mkdir(parents=True)
     make_csv(run / "tier-1", [row_line(), row_line(seed="7", fp="FP7")])
+    _green_verdict(run / "tier-1" / "verdict.json")
     out = tmp_path / "anchors.json"
     rc = bless(run, out, "run-x", ["tier-1"])
     assert rc == 0
@@ -209,11 +246,54 @@ def test_bless_excludes_roving_rows(tmp_path):
     (run / "tier-1").mkdir(parents=True)
     make_csv(run / "tier-1", [row_line(), row_line(seed="7", fp="FP7"),
                               row_line(seed="55555", fp="ROVING")])
+    _green_verdict(run / "tier-1" / "verdict.json")
     out = tmp_path / "anchors.json"
     assert bless(run, out, "run-x", ["tier-1"], anchor_seeds=["42", "7", "123"]) == 0
     g = json.loads(out.read_text())
     assert len(g["anchors"]) == 2
     assert not any("55555" in k for k in g["anchors"])
+
+
+def test_bless_refuses_missing_verdict(tmp_path):
+    from evaluate_run import bless
+    run = tmp_path / "run"
+    (run / "tier-1").mkdir(parents=True)
+    make_csv(run / "tier-1", [row_line()])
+    # No verdict.json — must not bless unevaluated CSVs
+    assert bless(run, tmp_path / "anchors.json", "run-x", ["tier-1"]) == 2
+
+
+def test_bless_refuses_missing_run_verdict_when_required(tmp_path):
+    from evaluate_run import bless
+    run = tmp_path / "run"
+    (run / "tier-1").mkdir(parents=True)
+    make_csv(run / "tier-1", [row_line()])
+    _green_verdict(run / "tier-1" / "verdict.json")
+    # require_run_verdict=True (default when multi-tier or explicit)
+    assert bless(run, tmp_path / "anchors.json", "run-x", ["tier-1"],
+                 require_run_verdict=True) == 2
+    (run / "verdict.json").write_text(json.dumps({
+        "tier": "run", "pass": True,
+        "oracles": {"tiers": {"status": "pass", "evidence": []},
+                    "token_coverage": {"status": "pass", "evidence": []}}}))
+    assert bless(run, tmp_path / "anchors.json", "run-x", ["tier-1"],
+                 require_run_verdict=True) == 0
+
+
+def test_bless_multi_tier_requires_run_verdict_by_default(tmp_path):
+    from evaluate_run import bless
+    run = tmp_path / "run"
+    for tier in ("tier-1", "tier-2"):
+        (run / tier).mkdir(parents=True)
+        make_csv(run / tier, [row_line()])
+        _green_verdict(run / tier / "verdict.json", tier=tier)
+    # Multi-tier: missing run verdict refuses even without explicit flag
+    assert bless(run, tmp_path / "anchors.json", "run-x", ["tier-1", "tier-2"]) == 2
+    (run / "verdict.json").write_text(json.dumps({
+        "tier": "run", "pass": True,
+        "oracles": {"tiers": {"status": "pass", "evidence": []},
+                    "token_coverage": {"status": "pass", "evidence": []}}}))
+    assert bless(run, tmp_path / "anchors.json", "run-x", ["tier-1", "tier-2"]) == 0
 
 
 def test_bless_refuses_red_verdict(tmp_path):

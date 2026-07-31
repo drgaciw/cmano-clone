@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "qa-gauntlet"))
 
 from saboteur import (  # noqa: E402
+    REPLAY_GOLDEN_PROJECT,
     VALID_ROLES,
     blocking_dirty_paths,
     exit_code_for,
@@ -193,3 +194,11 @@ def test_exit_code_role_matrix():
     s = summarize(todayish)
     assert s["killRate"] == "2/4"  # 2 caught defects / (2 caught + 2 survived defects)
     assert exit_code_for(s, todayish) == 1  # solely because defect survivors 03/05
+
+
+def test_replay_golden_project_is_unity_adapter_suite():
+    """Baltic ReplayGolden (AGENTS.md) lives in UnityAdapter.Tests, not Delegation.Tests."""
+    assert "UnityAdapter.Tests" in REPLAY_GOLDEN_PROJECT
+    assert "Delegation.Tests" not in REPLAY_GOLDEN_PROJECT or "UnityAdapter" in REPLAY_GOLDEN_PROJECT
+    assert Path(REPLAY_GOLDEN_PROJECT).as_posix().endswith(
+        "ProjectAegis.Delegation.UnityAdapter.Tests")
