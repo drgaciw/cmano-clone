@@ -4,7 +4,7 @@ using ProjectAegis.MissionEditor.Cli;
 using Xunit;
 
 /// <summary>
-/// Cli surface: unknown keys / legacy emcon warnings come from Data
+/// Cli surface: unknown keys / legacy emcon failures come from Data
 /// <c>GauntletOracleEvaluator.EvaluateFromPolicyAndCsv</c> (no Cli whitelist).
 /// </summary>
 public class GauntletOracleEvalStrictKeysTests
@@ -44,14 +44,13 @@ public class GauntletOracleEvalStrictKeysTests
     }
 
     [Fact]
-    public void Legacy_emcon_warns_but_still_passes()
+    public void Legacy_emcon_fails_eval_with_exit_1()
     {
         var policy = WriteTemp("p.policy.json", PolicyJson(", \"emcon\": \"phased\""));
         var csv = WriteTemp("r.csv", Csv);
         using var sw = new StringWriter();
         var exit = GauntletOracleEvalCommand.Run(policy, null, csv, null, sw);
-        Assert.Equal(0, exit);
-        Assert.Contains("warnings", sw.ToString());
+        Assert.Equal(1, exit);
         Assert.Contains("emcon", sw.ToString());
     }
 }
