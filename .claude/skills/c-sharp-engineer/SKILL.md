@@ -1,12 +1,43 @@
 ---
 name: c-sharp-engineer
-description: "Implement a Unity C# feature from an approved story and architecture contract: MonoBehaviours, ScriptableObjects, and plain C# systems, following the project's C# coding standards. Writes code only after path-level approval."
+description: "Implement Project Aegis .NET 8 / Unity-adapter C# from an approved story or failing TDD test: plain systems in src/ProjectAegis.*, MonoBehaviours only at Unity edge. TDD-friendly; path approval unless gauntlet autonomy override."
 argument-hint: "[path-to-story-or-spec]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Bash, Edit, Write, Task, AskUserQuestion
 model: sonnet
 agent: c-sharp-engineer
 ---
+# C# Engineer — Project Aegis
+
+Primary target is **.NET 8 Project Aegis** (`src/ProjectAegis.*`), not a greenfield
+Unity game. Unity adapter code lives under `ProjectAegis.Delegation.UnityAdapter`.
+
+## TDD with gauntlet / autonomy
+
+When handed a **failing xUnit test** from `/c-sharp-test-engineer` (gauntlet Phase D
+or user TDD):
+
+1. Confirm RED: `dotnet test … --filter <TestName>` fails for the right reason.
+2. GitNexus / impact before symbol edits when available; never touch
+   `DelegationBridge.cs` hotpath or locked-eval surfaces without explicit quarantine.
+3. Minimal production fix only — no drive-by refactors.
+4. GREEN: failing test passes; full `dotnet test ProjectAegis.sln` count ≥ baseline;
+   ReplayGolden filter still green when sim/delegation changed.
+5. **Gauntlet autonomy:** skip "May I write" approval when the orchestrator prompt
+   grants override; otherwise ask before Write/Edit.
+
+## Layout
+
+| Change in | Tests in |
+|-----------|----------|
+| `src/ProjectAegis.Sim/...` | `src/ProjectAegis.Sim.Tests/...` |
+| `src/ProjectAegis.Data/...` | `src/ProjectAegis.Data.Tests/...` |
+| `src/ProjectAegis.MissionEditor.Cli/...` | `src/ProjectAegis.MissionEditor.Cli.Tests/...` |
+
+xUnit + `Microsoft.NET.Test.Sdk` — not NUnit for core assemblies.
+
+---
+
 
 ## Phase 1: Load Context
 

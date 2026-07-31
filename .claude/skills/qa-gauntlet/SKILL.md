@@ -331,9 +331,9 @@ Every failed oracle becomes a defect entry via the `bug-triage` skill, classifie
 
 For each `sim-code` defect, run this strict cycle:
 
-1. **Red** — spawn `c-sharp-test-engineer` to write a minimal failing test in the
-   owning test assembly (`ProjectAegis.Sim.Tests`, `ProjectAegis.Delegation.Tests`, …)
-   that reproduces the defect deterministically (fixed seed). Confirm it fails.
+1. **Red** — spawn `c-sharp-test-engineer` with **gauntlet autonomy override** (skip per-file approval) to write a minimal **xUnit** failing test in the
+   owning co-located assembly (`src/ProjectAegis.Sim.Tests`, `src/ProjectAegis.Data.Tests`, … — **not** a top-level `tests/` tree) that
+   reproduces the defect deterministically (fixed seed). Confirm RED via `dotnet test … --filter …`.
 2. **Impact** — `impact({target: <symbol>, direction: "upstream"})` on every symbol
    to be edited. CRITICAL → quarantine (skip fix, tag defect `QUARANTINED-CRITICAL`,
    write bug report via `bug-report` skill, continue). HIGH → proceed but flag in AAR.

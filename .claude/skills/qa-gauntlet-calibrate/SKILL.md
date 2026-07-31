@@ -12,6 +12,7 @@ plus the ReplayGolden test filter, and reports which oracles fired.
 ## Run
 
 ```bash
+pip install -r tools/qa-gauntlet/requirements.txt              # once (PyYAML + pytest)
 python3 tools/qa-gauntlet/saboteur.py                          # full catalog
 python3 tools/qa-gauntlet/saboteur.py --mutants 01-pd-weakened # one mutant
 ```

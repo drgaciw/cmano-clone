@@ -110,12 +110,22 @@ def _oracle(name: str, failures: list[str], warnings: list[str] | None = None) -
 
 def oracle_stability(tier_dir: Path, rows: list[Row],
                      expected_scenarios: list[str], seeds: list[str]) -> dict:
+    """Exact scenario×seed grid: missing, duplicate, and unexpected rows fail."""
     failures: list[str] = []
-    have = {(r.scenario_id, r.seed) for r in rows}
-    for sid in expected_scenarios:
-        for seed in seeds:
-            if (sid, seed) not in have:
-                failures.append(f"missing row: scenario={sid} seed={seed}")
+    expected = {(sid, seed) for sid in expected_scenarios for seed in seeds}
+    counts: dict[tuple[str, str], int] = {}
+    for r in rows:
+        key = (r.scenario_id, r.seed)
+        counts[key] = counts.get(key, 0) + 1
+    for key in sorted(expected):
+        n = counts.get(key, 0)
+        if n == 0:
+            failures.append(f"missing row: scenario={key[0]} seed={key[1]}")
+        elif n > 1:
+            failures.append(f"duplicate row: scenario={key[0]} seed={key[1]} count={n}")
+    for key, n in sorted(counts.items()):
+        if key not in expected:
+            failures.append(f"unexpected row: scenario={key[0]} seed={key[1]} count={n}")
     for log_name in ("run.log", "run-repeat.log"):
         log = tier_dir / log_name
         if log.exists():
@@ -217,22 +227,32 @@ def oracle_goldens(rows: list[Row], goldens_path: Path, anchor_seeds: list[str])
 
 
 def bless(run_dir: Path, goldens_path: Path, run_id: str, tier_names: list[str],
-          anchor_seeds: list[str] | None = None) -> int:
+          anchor_seeds: list[str] | None = None,
+          require_run_verdict: bool = False) -> int:
+    """Bless golden anchors from evaluated tier CSVs.
+
+    Every requested tier must have a verdict.json. Non-golden oracle fails block.
+    Missing verdicts refuse (do not bless unevaluated CSVs). When
+    ``require_run_verdict`` is True, ``run_dir/verdict.json`` must exist and
+    pass all non-golden oracles (blocks blessing when token_coverage is red).
+    """
     anchor_seeds = anchor_seeds or ["42", "7", "123"]
     anchor_set = set(anchor_seeds)
     anchors: dict[str, str] = {}
     for tier in tier_names:
         verdict_path = run_dir / tier / "verdict.json"
-        if verdict_path.exists():
-            verdict = json.loads(verdict_path.read_text(encoding="utf-8"))
-            # A red goldens oracle is the state you re-bless FROM; only non-golden
-            # reds (stability, determinism, victory, sanity) block a bless.
-            non_golden_red = [name for name, o in verdict.get("oracles", {}).items()
-                              if name != "goldens" and o.get("status") == "fail"]
-            if non_golden_red:
-                print(f"bless refused: {tier} has non-golden red oracles: {non_golden_red}",
-                      file=sys.stderr)
-                return 2
+        if not verdict_path.exists():
+            print(f"bless refused: missing {verdict_path}", file=sys.stderr)
+            return 2
+        verdict = json.loads(verdict_path.read_text(encoding="utf-8"))
+        # A red goldens oracle is the state you re-bless FROM; only non-golden
+        # reds (stability, determinism, victory, sanity) block a bless.
+        non_golden_red = [name for name, o in verdict.get("oracles", {}).items()
+                          if name != "goldens" and o.get("status") == "fail"]
+        if non_golden_red:
+            print(f"bless refused: {tier} has non-golden red oracles: {non_golden_red}",
+                  file=sys.stderr)
+            return 2
         csv_path = run_dir / tier / "results.csv"
         if not csv_path.exists():
             print(f"bless: missing {csv_path}", file=sys.stderr)
@@ -242,6 +262,17 @@ def bless(run_dir: Path, goldens_path: Path, run_id: str, tier_names: list[str],
                 continue  # roving rows are run-specific; never golden material
             anchors[f"{r.scenario_id}|{r.seed}"] = hashlib.sha256(
                 r.fingerprint.encode("utf-8")).hexdigest()
+    if require_run_verdict:
+        run_verdict_path = run_dir / "verdict.json"
+        if not run_verdict_path.exists():
+            print(f"bless refused: missing run verdict {run_verdict_path}", file=sys.stderr)
+            return 2
+        run_verdict = json.loads(run_verdict_path.read_text(encoding="utf-8"))
+        run_red = [name for name, o in run_verdict.get("oracles", {}).items()
+                   if name != "goldens" and o.get("status") == "fail"]
+        if run_red:
+            print(f"bless refused: run verdict has red oracles: {run_red}", file=sys.stderr)
+            return 2
     goldens_path.parent.mkdir(parents=True, exist_ok=True)
     goldens_path.write_text(json.dumps(
         {"version": 1, "blessedFrom": run_id, "anchors": dict(sorted(anchors.items()))},
@@ -326,6 +357,8 @@ def main(argv: list[str]) -> int:  # extended in later tasks
     bless_p.add_argument("--goldens", required=True, type=Path)
     bless_p.add_argument("--tiers", default="tier-1,tier-2,tier-3,tier-4,tier-5,tier-extra")
     bless_p.add_argument("--anchor-seeds", default="42,7,123")
+    bless_p.add_argument("--require-run-verdict", action="store_true",
+                         help="require run-level verdict.json (token_coverage etc.)")
     filter_p = sub.add_parser("filter-seeds")
     filter_p.add_argument("--in", dest="src", required=True, type=Path)
     filter_p.add_argument("--out", dest="dst", required=True, type=Path)
@@ -358,7 +391,8 @@ def main(argv: list[str]) -> int:  # extended in later tasks
     if args.mode == "bless":
         return bless(args.run_dir, args.goldens, args.run_id,
                      [t for t in args.tiers.split(",") if t],
-                     anchor_seeds=[s for s in args.anchor_seeds.split(",") if s])
+                     anchor_seeds=[s for s in args.anchor_seeds.split(",") if s],
+                     require_run_verdict=args.require_run_verdict)
 
     if args.mode == "run":
         tier_names = [t for t in args.tiers.split(",") if t]

@@ -35,6 +35,10 @@ ROOT = Path(__file__).resolve().parents[2]
 BUILD_TIMEOUT_S = 600
 RUN_TIMEOUT_S = 900
 SUBSET_TIERS = "1 3 5"
+# AGENTS.md Baltic ReplayGolden suite (not Delegation.Tests decision unit tests)
+REPLAY_GOLDEN_PROJECT = (
+    "src/ProjectAegis.Delegation.UnityAdapter.Tests"
+)
 VALID_ROLES = frozenset({"control", "expected-miss", "defect"})
 LOCKED = (
     "src/ProjectAegis.Data/Catalog/GauntletOracleEvaluator.cs",
@@ -195,7 +199,7 @@ def run_mutant(m: dict, catalog_dir: Path, out_dir: Path, dotnet: str, keep: boo
                           "--roving", "0",
                           "--out-root", "production/qa/gauntlet/saboteur-tmp"],
                          wt, RUN_TIMEOUT_S, mdir / "subset.log")
-        replay_rc = _run([dotnet, "test", "src/ProjectAegis.Delegation.Tests",
+        replay_rc = _run([dotnet, "test", REPLAY_GOLDEN_PROJECT,
                           "-v", "minimal", "--filter", "ReplayGolden"],
                          wt, RUN_TIMEOUT_S, mdir / "replay.log")
         result["firedOracles"] = _fired_oracles(
