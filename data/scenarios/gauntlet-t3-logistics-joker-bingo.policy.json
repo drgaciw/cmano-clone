@@ -1,0 +1,80 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "logistics": {
+    "jokerSimSeconds": 90,
+    "bingoSimSeconds": 180,
+    "fuelCapacityKg": 1000,
+    "burnRateKgPerSecond": 100,
+    "jokerFuelFraction": 0.25,
+    "bingoFuelFraction": 0.1
+  },
+  "detection": [
+    {
+      "observerId": "jas-39c-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "T3 logistics fuel variables: burn model crosses JOKER then BINGO within 16 ticks (Joker = finish task soon; Bingo = RTB/tanker immediately) [catalog: Gripen vs Steregushchiy]",
+    "oracle": "Fingerprint contains FuelStateChange crossings NOMINAL\u2192JOKER and JOKER\u2192BINGO.",
+    "dimensionsClaimed": [
+      "logistics-joker",
+      "logistics-bingo",
+      "logistics-fuel-pressure"
+    ],
+    "catalogRefs": [
+      "jas-39c-gripen-2005",
+      "mpk-steregushchiy-pr-20380-2018"
+    ],
+    "runId": "gauntlet-logistics-variables-2026-07-31",
+    "tier": 3,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "JOKER",
+        "BINGO",
+        "FuelStateChange"
+      ],
+      "minKills": 1,
+      "maxMissilesFired": 5,
+      "minDenials": 14,
+      "maxDenials": 20,
+      "minScore": 0.0,
+      "maxScore": 40.0
+    },
+    "units": [
+      {
+        "unitId": "jas-39c-gripen-2005",
+        "platformId": "jas-39c-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "domain": "surface",
+        "side": "red"
+      }
+    ]
+  },
+  "id": "gauntlet-t3-logistics-joker-bingo"
+}

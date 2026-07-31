@@ -431,6 +431,12 @@ public sealed class ScenarioEngageJsonDto
     /// <summary>WRA cap: max rounds per engagement (policy GDD).</summary>
     public int? MaxSalvo { get; set; }
 
+    /// <summary>
+    /// Shotgun band: remaining rounds after a fire in (0, shotgunRoundsThreshold] ⇒ SHOTGUN.
+    /// Remaining 0 ⇒ WINCHESTER. 0 disables the shotgun band (only WINCHESTER at empty).
+    /// </summary>
+    public int ShotgunRoundsThreshold { get; set; } = 1;
+
     public int? WeaponTechnologyLevel { get; set; }
 
     public bool? WeaponRequiresBlackProject { get; set; }

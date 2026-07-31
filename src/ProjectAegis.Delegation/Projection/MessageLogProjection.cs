@@ -92,6 +92,13 @@ public static class MessageLogProjection
                     "FUEL",
                     $"Fuel {f.UnitId.Value}: {f.PreviousState} → {f.NewState} ({f.RemainingFuelKg:F0} kg)",
                     f.UnitId.Value),
+            OrderLogEntryKind.OrdnanceStateChange when entry.Payload is OrdnanceStateChangeRecord o =>
+                new MessageLogLine(
+                    entry.SequenceId,
+                    entry.SimTime,
+                    "ORDNANCE",
+                    $"Ordnance {o.UnitId.Value}: {o.PreviousState} → {o.NewState} (rem {o.RoundsRemaining})",
+                    o.UnitId.Value),
             OrderLogEntryKind.FuelBurn when entry.Payload is FuelBurnRecord b =>
                 new MessageLogLine(
                     entry.SequenceId,
