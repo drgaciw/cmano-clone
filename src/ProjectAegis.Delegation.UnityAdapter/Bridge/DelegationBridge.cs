@@ -52,6 +52,11 @@ public sealed class DelegationBridge
         _commsTimeline = CommsTimelineSimulator.TryCreate(Orchestrator.ScenarioPolicy);
         _spoofTimeline = SpoofTrackTimelineSimulator.TryCreate(Orchestrator.ScenarioPolicy);
         _fuelTimeline = FuelTimelineTracker.TryCreate(Orchestrator.ScenarioPolicy);
+        if (Session != null)
+        {
+            Session.FuelTimeline = _fuelTimeline;
+        }
+
         ApplyScenarioRuntimeBindings();
     }
 
@@ -79,6 +84,7 @@ public sealed class DelegationBridge
             Orchestrator,
             engage,
             defaultMagazineRounds);
+        Session.FuelTimeline = _fuelTimeline;
         ApplyScenarioRuntimeBindings();
         return this;
     }

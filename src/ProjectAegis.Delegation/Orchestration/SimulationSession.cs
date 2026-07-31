@@ -15,6 +15,7 @@ using ProjectAegis.Sim.Logistics;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Telemetry;
 using ProjectAegis.Sim.Time;
+using ProjectAegis.Delegation.Logistics;
 
 /// <summary>Headless/interactive session: delegation tick then sim engagement phase.</summary>
 public sealed class SimulationSession
@@ -422,6 +423,9 @@ public sealed class SimulationSession
 
     public DictionaryEngageWorldQuery? EngageWorld { get; init; }
 
+    /// <summary>Optional fuel burn tracker for Bingo engage gate (logistics v1).</summary>
+    public FuelTimelineTracker? FuelTimeline { get; set; }
+
     public MagazineLedger? Magazines { get; init; }
 
     private readonly Dictionary<string, string> _lastOrdnanceBand = new(StringComparer.Ordinal);
@@ -497,12 +501,14 @@ public sealed class SimulationSession
             var spoofed = IsContactSpoofed?.Invoke(victimId ?? "", simTick) ?? false;
             var salvo = NextEngageSalvoOverride ?? template.SalvoSize;
             NextEngageSalvoOverride = null;
+            var bingoBlocked = FuelTimeline?.IsBingo(shooterUnitId) ?? false;
             var primed = template with
             {
                 HasFireControlTrack = state.HasFireControlTrack,
                 RadarEmconActive = radarActive,
                 AirOperationsReady = airReady,
                 CatalogDamageWithdrawBlocked = damageWithdrawBlocked,
+                LogisticsBingoBlocked = bingoBlocked,
                 TrackSpoofed = spoofed,
                 SalvoSize = Math.Max(1, salvo),
             };

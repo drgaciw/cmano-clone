@@ -45,6 +45,7 @@ public static partial class AbortReasonCatalog
         public const string MINE_ASPECT_BLOCK = "MINE_ASPECT_BLOCK";
         public const string FACILITY_ASPECT_BLOCK = "FACILITY_ASPECT_BLOCK";
         public const string DAMAGE_WITHDRAW_RECOMMENDED = "DAMAGE_WITHDRAW_RECOMMENDED";
+        public const string BINGO_FUEL = "BINGO_FUEL";
     }
 
     public static class Logistics

@@ -32,4 +32,7 @@ public enum EngagementAbortReason
     /// shots *from* one. See BUG-engagement-resolver-shooter-liveness.
     /// </summary>
     ShooterDestroyed = 23,
+
+    /// <summary>Shooter fuel band is Bingo — offensive engage denied (logistics gate v1).</summary>
+    BingoFuel = 24,
 }
