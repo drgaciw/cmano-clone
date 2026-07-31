@@ -17,6 +17,7 @@ tiers:
       - gauntlet-t2-escort-passive
       - gauntlet-t2-strike-a
       - gauntlet-t2-strike-event
+      - gauntlet-t2-strike-salvo-boundary
   "3":
     ticks: 16
     scenarios:
@@ -24,6 +25,9 @@ tiers:
       - gauntlet-t3-emcon-phases
       - gauntlet-t3-id-roe
       - gauntlet-t3-event-chain
+      - gauntlet-t3-strike-salvo-boundary
+      - gauntlet-t3-logistics-contact-lifecycle
+      - gauntlet-t3-emcon-engage-block
   "4":
     ticks: 24
     scenarios:

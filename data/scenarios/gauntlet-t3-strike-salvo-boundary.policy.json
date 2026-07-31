@@ -1,0 +1,69 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 6,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.3,
+    "salvoSize": 2,
+    "maxSalvo": 2
+  },
+  "detection": [
+    {
+      "observerId": "jas-39c-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "T3 weapons-boundary pin: salvoSize == maxSalvo exactly (WRA off-by-one probe); healthy allows, mutant 03 (>=) denies [catalog: Gripen vs Steregushchiy]",
+    "oracle": "Launch at exactly the WRA cap succeeds (check is > not >=); fingerprints diverge if deny path wrongly fires WRA_SALVO.",
+    "dimensionsClaimed": [
+      "weapons-boundary-salvo-cap"
+    ],
+    "catalogRefs": [
+      "jas-39c-gripen-2005",
+      "mpk-steregushchiy-pr-20380-2018"
+    ],
+    "runId": "gauntlet-blindspot-close-2026-07-31",
+    "tier": 3,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "CATALOG_UNIT:jas-39c-gripen-2005:air"
+      ],
+      "minKills": 1,
+      "maxMissilesFired": 4,
+      "minDenials": 14,
+      "maxDenials": 20,
+      "minScore": 0.0,
+      "maxScore": 40.0
+    },
+    "units": [
+      {
+        "unitId": "jas-39c-gripen-2005",
+        "platformId": "jas-39c-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "domain": "surface",
+        "side": "red"
+      }
+    ]
+  },
+  "id": "gauntlet-t3-strike-salvo-boundary"
+}
