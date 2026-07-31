@@ -62,7 +62,7 @@ and no survived defects.
 
 ## Read the report
 
-Latest role-aware summary (post-#370 contracts): `production/qa/gauntlet/calibration-2026-07-31-role-refresh/` (kill rate **4/6**; see `PROVENANCE.md`). Historical measured runs remain under `calibration-2026-07-28*`.
+Latest **live** calibration (post-#372 UnityAdapter ReplayGolden): `production/qa/gauntlet/calibration-2026-07-31-live-unity-replay/` (kill rate **5/6**; see `PROVENANCE.md`). Prior role-refresh recompute: `calibration-2026-07-31-role-refresh/` (4/6). Historical measured runs: `calibration-2026-07-28*`.
 
 `production/qa/gauntlet/calibration-<date>/report.md` (+ `report.json`):
 
