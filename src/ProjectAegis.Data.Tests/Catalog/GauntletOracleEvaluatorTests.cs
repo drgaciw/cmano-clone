@@ -264,4 +264,54 @@ public sealed class GauntletOracleEvaluatorTests
         Assert.False(result.Passed);
         Assert.Contains(result.Failures, f => f.Contains("missing gauntlet.expectCi", StringComparison.Ordinal));
     }
+
+    [Fact]
+    public void EvaluateFromPolicyAndCsv_unknown_gauntlet_key_fails_closed_without_cli()
+    {
+        var policy = """
+            {
+              "id": "gauntlet-t1-patrol-a",
+              "gauntlet": {
+                "intent": "patrol",
+                "emconPhases": [],
+                "expect": {
+                  "side": "BLUE",
+                  "minKills": 1,
+                  "maxMissilesFired": 4,
+                  "minScore": 0,
+                  "maxScore": 100,
+                  "requireNonEmptyFingerprint": true
+                }
+              }
+            }
+            """;
+        var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, PassCsv);
+        Assert.False(result.Passed);
+        Assert.Contains(result.Failures, f => f.Contains("emconPhases", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void EvaluateFromPolicyAndCsv_legacy_emcon_warns_but_expect_eval_still_passes()
+    {
+        var policy = """
+            {
+              "id": "gauntlet-t1-patrol-a",
+              "gauntlet": {
+                "intent": "patrol",
+                "emcon": "phased",
+                "expect": {
+                  "side": "BLUE",
+                  "minKills": 1,
+                  "maxMissilesFired": 4,
+                  "minScore": 0,
+                  "maxScore": 100,
+                  "requireNonEmptyFingerprint": true
+                }
+              }
+            }
+            """;
+        var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, PassCsv);
+        Assert.True(result.Passed, string.Join("; ", result.Failures));
+        Assert.Contains(result.EffectiveWarnings, w => w.Contains("emcon", StringComparison.Ordinal));
+    }
 }
