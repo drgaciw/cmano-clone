@@ -52,7 +52,11 @@ Threshold `0` disables Shotgun (only Winchester at empty).
 |------|-------------|-------------|
 | Joker | `FuelStateChange` → JOKER | None (advisory) |
 | Bingo | `FuelStateChange` → BINGO | **Hard deny** engage — `EngagementAbortReason.BingoFuel` / log code `BINGO_FUEL` |
-| Shotgun | `OrdnanceStateChange` → SHOTGUN | None (v1) |
+| Shotgun | `OrdnanceStateChange` → SHOTGUN | **Soft deny** multi-salvo (`SalvoSize` > 1) — `ShotgunOrdnance` / `SHOTGUN_ORDNANCE` |
 | Winchester | `OrdnanceStateChange` → WINCHESTER | Existing magazine-empty path (`NO_AMMO`) |
 
-Gate wiring: `FuelTimelineTracker.IsBingo` → `EngageContext.LogisticsBingoBlocked` → `LogisticsBingoEngageGate` in `MvpEngagementResolver`.
+Gate wiring:
+- Bingo: `FuelTimelineTracker.IsBingo` → `EngageContext.LogisticsBingoBlocked` → `LogisticsBingoEngageGate`
+- Shotgun: live magazine rounds + `ShotgunRoundsThreshold` → `LogisticsShotgunEngageGate` (single-round residual still allowed)
+
+Saboteur: `08-bingo-gate-bypass` forces Bingo gate open (defect; should be caught by goldens/token_coverage).

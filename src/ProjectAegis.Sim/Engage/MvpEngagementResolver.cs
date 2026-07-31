@@ -134,6 +134,18 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(bingoAbort.Value);
         }
 
+        var liveRounds = _magazines.GetRounds(request.ShooterUnitId, request.MountId);
+        if (liveRounds <= 0)
+        {
+            liveRounds = ctx.RoundsRemaining;
+        }
+
+        var shotgunAbort = LogisticsShotgunEngageGate.Evaluate(in ctx, liveRounds);
+        if (shotgunAbort != null)
+        {
+            return EngageResult.Aborted(shotgunAbort.Value);
+        }
+
         if (ctx.TrackSpoofed)
         {
             return EngageResult.Aborted(EngagementAbortReason.TrackSpoofed);

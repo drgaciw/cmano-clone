@@ -35,4 +35,7 @@ public enum EngagementAbortReason
 
     /// <summary>Shooter fuel band is Bingo — offensive engage denied (logistics gate v1).</summary>
     BingoFuel = 24,
+
+    /// <summary>Shotgun band: multi-salvo engage denied (soft logistics gate).</summary>
+    ShotgunOrdnance = 25,
 }

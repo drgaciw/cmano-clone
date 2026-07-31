@@ -68,3 +68,12 @@ mutants:
     role: defect
     expectedOracles: ["token_coverage", "goldens", "victory_roe"]
     impactRecorded: "CRITICAL (2026-07-28; worktree-only mutant)"
+
+  - id: "08-bingo-gate-bypass"
+    patch: "08-bingo-gate-bypass.patch"
+    target: "src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs"
+    description: "Bingo fuel engage gate forced open (LogisticsBingoBlocked ignored)"
+    role: defect
+    expectedOracles: ["goldens", "token_coverage", "victory_roe"]
+    impactRecorded: "CRITICAL (2026-07-31; load-bearing logistics Bingo gate; worktree-only mutant)"
+

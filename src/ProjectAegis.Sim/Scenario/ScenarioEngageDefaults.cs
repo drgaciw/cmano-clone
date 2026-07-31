@@ -96,7 +96,8 @@ public sealed class ScenarioEngageDefaults
             DlzPersonality: DlzPersonality,
             CombatDomain: CombatDomain,
             MountOnline: MountOnline,
-            ContactIdentified: ContactIdentified);
+            ContactIdentified: ContactIdentified,
+            ShotgunRoundsThreshold: ShotgunRoundsThreshold);
 
     public static ScenarioEngageDefaults MvpFallback { get; } = new(
         50_000,
