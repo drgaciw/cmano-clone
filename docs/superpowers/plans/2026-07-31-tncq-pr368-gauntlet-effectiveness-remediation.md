@@ -3,6 +3,8 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `dispatching-parallel-agents` for Wave 1 (three independent domains in one turn), then a single integrator for Wave 2. Prefer `subagent-driven-development` / `executing-plans` per task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 > **Status (2026-07-31):** Wave 1 Agents A/B/C MERGED on `cursor/tncq-pr368-remediation-9b58` (PR #370). Gates: build 0/0; pytest 38/38; Gauntlet Data 30 + Cli 7; PlayModeSmoke 21/21; ReplayGolden filter green; hash preserved; ZERO DelegationBridge touches. Full suite 1941 passed; 1 env-only Unity plugin DLL miss cleared locally via gitignored copy (not committed).
+>
+> **Calibration refresh (2026-07-31):** role-aware summary at `production/qa/gauntlet/calibration-2026-07-31-role-refresh/` — kill rate **4/6** (outcomes from postrebase live run; summary via `summarize`/`exit_code_for`; see PROVENANCE.md).
 
 **Goal:** Clear the thermo-nuclear REQUEST CHANGES bar on [PR #368](https://github.com/drgaciw/cmano-clone/pull/368) (`qa/gauntlet-effectiveness`) without changing ladder oracle semantics, Baltic v2 replay hash, or DelegationBridge.
 
@@ -304,7 +306,7 @@ grep -r "17144800277401907079" tests/ data/
 
 - [ ] `.claude/skills/qa-gauntlet/SKILL.md` — point at `ladder.yaml`; mention Data-owned strict keys.
 - [ ] Calibrate skill kill-rate line matches `summarize` formula.
-- [ ] If refreshing calibration JSON/MD: rerun saboteur **or** hand-edit summary fields only when a full rerun is impossible — never invent kill matrices. Prefer rerun when CI time allows.
+- [x] If refreshing calibration JSON/MD: rerun saboteur **or** hand-edit summary fields only when a full rerun is impossible — never invent kill matrices. Prefer rerun when CI time allows. **Done:** `calibration-2026-07-31-role-refresh` (role-aware recompute of measured postrebase outcomes; full live re-run still optional).
 - [ ] Update PR #368 description with remediation checklist status.
 
 ### Task I4: Thermo-nuclear re-check (approval bar)
