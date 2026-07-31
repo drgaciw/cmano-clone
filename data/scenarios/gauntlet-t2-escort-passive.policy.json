@@ -52,7 +52,7 @@
     }
   ],
   "gauntlet": {
-    "intent": "Escort passive-EMCON stand-in (low Pd/env mask) [catalog ORBAT: Visby vs Sovremenny] [expanded ORBAT 8 units / 33 catalogRefs]",
+    "intent": "Escort with real Passive EMCON on blue surface (top-level emcon). Replaces inert gauntlet.emcon stand-in. Escort passive-EMCON stand-in (low Pd/env mask) [catalog ORBAT: Visby vs Sovremenny] [expanded ORBAT 8 units / 33 catalo",
     "oracle": "Stable under reduced detection",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -89,7 +89,6 @@
       "skr-admiral-grigorovich-pr-1135-6m",
       "skr-admiral-sergey-gorshkov-pr-2235-0"
     ],
-    "emcon": "passive-blue-standin",
     "runId": "gauntlet-t12-catalog-db-driven",
     "tier": 2,
     "expect": {
@@ -154,5 +153,15 @@
     ],
     "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T2 tick budget 10, seeds 42,7,123, after BUG-engagement-resolver-shooter-liveness + BUG-losses-scoring-side-unaware fixes. Prior envelope was calibrated against the buggy behaviour (enemy kills miscredited to own side; dead shooters still firing). minDenials kept as a real floor so ROE/EMCON restriction is still asserted, not relaxed away. Derived from observed rows per tools/qa-gauntlet/README-expect-regen.md \u2014 not invented."
   },
-  "id": "gauntlet-t2-escort-passive"
+  "id": "gauntlet-t2-escort-passive",
+  "emcon": {
+    "units": {
+      "k-22-gavle-ex-goteborg-class": {
+        "radar": "Passive"
+      },
+      "jas-39e-gripen-ng-2021": {
+        "radar": "Active"
+      }
+    }
+  }
 }

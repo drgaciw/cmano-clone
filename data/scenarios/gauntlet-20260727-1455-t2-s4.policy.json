@@ -74,7 +74,6 @@
   "gauntlet": {
     "intent": "Escort (split-asymmetric ROE/EMCON): Blue (WeaponsFree but holding passive-EMCON stand-in [low Pd/envMask on blue's own detection]) screens the convoy against Red (WeaponsTight, unrestricted sensors) and must destroy designated target bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat despite degraded own-side detection. New air domain this tier: blue jas-39e-gripen-ng-2021, red su-27sm-sm3-flanker-j-2013. Scripted timed event at tick 5 relays an external cueing track to blue's passive screen.",
     "oracle": "Blue's passive-EMCON stand-in suppresses detection quality and drives an elevated blue denial count even though blue is weapons-free; the tick-5 comms-relay event supplies the cue blue needs to close on the designated target; red's tight ROE limits red counter-fire; non-empty fingerprint.",
-    "emcon": "passive-blue-standin",
     "catalogRefs": [
       "pk-368-vasily-bykov-pr-22160",
       "skr-admiral-grigorovich-pr-1135-6m",

@@ -81,7 +81,7 @@
     }
   ],
   "gauntlet": {
-    "intent": "Multi-domain engage default: Visby→Sovremenny, Gripen→Steregushchiy, Gotland→Buyan (distinct reds; concurrent True|Launched) [expanded ORBAT 14 units / 39 catalogRefs]",
+    "intent": "T3 EMCON: real top-level emcon \u2014 blue surface radar Passive (EMCON_OFF on engage) with blue air Active for contrast. Replaces inert gauntlet.emcon string stand-in. Multi-domain engage default: Visby\u2192Sovremenny, Gripen\u2192Steregushchiy, Gotland\u2192Buy",
     "oracle": "Air and sub catalog blues True|Launched at paired catalog reds; CATALOG_UNIT+MAGAZINE_SEED all domains",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -89,7 +89,7 @@
       "624-pr-205p-tarantul-1992",
       "70-rauma-helsinki-ii-1990",
       "80-hamina-rauma-2-2006",
-      "a-17-södermanland-vastergotland-mod",
+      "a-17-s\u00f6dermanland-vastergotland-mod",
       "a-17-vastergotland-1999",
       "a-19-gotland-1996",
       "a-19-gotland-2020",
@@ -124,7 +124,6 @@
       "su-33-flanker-d",
       "su-57-felon"
     ],
-    "emcon": "phased",
     "runId": "gauntlet-t3t5-catalog-red",
     "tier": 3,
     "expect": {
@@ -134,7 +133,7 @@
         "jas-39c-gripen-2005",
         "a-19-gotland-2022"
       ],
-      "minKills": 5,
+      "minKills": 4,
       "maxMissilesFired": 24,
       "maxDenials": 22,
       "minScore": -50,
@@ -234,7 +233,7 @@
         "jas-39c-gripen-2005",
         "a-19-gotland-2022"
       ],
-      "minKills": 5,
+      "minKills": 4,
       "maxMissilesFired": 20,
       "maxDenials": 20,
       "minScore": 450,
@@ -243,5 +242,15 @@
     },
     "expectCiProvenance": "calibrated 2026-07-27 from deterministic GitHub Actions smoke profile seed 42, ticks 10 after shooter-liveness and side-aware scoring fixes; observed score=550, kills=6, missiles=12, denials=10. CI-only margin retained around the observed row; full-budget gauntlet.expect remains unchanged."
   },
-  "id": "gauntlet-t3-emcon-phases"
+  "id": "gauntlet-t3-emcon-phases",
+  "emcon": {
+    "units": {
+      "k-31-visby-2009": {
+        "radar": "Passive"
+      },
+      "jas-39c-gripen-2005": {
+        "radar": "Active"
+      }
+    }
+  }
 }

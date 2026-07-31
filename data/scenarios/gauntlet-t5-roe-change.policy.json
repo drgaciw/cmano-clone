@@ -99,7 +99,7 @@
     }
   ],
   "gauntlet": {
-    "intent": "Mid-mission ROE change stand-in (tight then free sensor lanes) [catalog red: Sovremenny] [WeaponsTight start; contact trigger→WeaponsFree PolicyUpdate; mid-run comms degrade] [expanded ORBAT 16 units / 42 catalogRefs]",
+    "intent": "Mid-mission ROE change ROE focus (nested EMCON stand-in removed) (WeaponsTight\u2192free ROE lanes) [catalog red: Sovremenny] [WeaponsTight start; contact trigger\u2192WeaponsFree PolicyUpdate; mid-run comms degrade] [expanded ORBAT 16 units / 42 catalogRefs]",
     "oracle": "Mixed ROE/EMCON lanes stable CommsStateChange/PolicyUpdate required.",
     "catalogRefs": [
       "241-slazak-meko-100-mod-2019",
@@ -145,7 +145,6 @@
       "skr-admiral-sergey-gorshkov-pr-2235-0",
       "su-27sm-sm3-flanker-j-2013"
     ],
-    "emcon": "contested",
     "runId": "gauntlet-t3t5-catalog-red",
     "tier": 5,
     "expect": {

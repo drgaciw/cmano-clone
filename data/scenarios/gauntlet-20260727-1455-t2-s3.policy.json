@@ -110,7 +110,6 @@
   "gauntlet": {
     "intent": "Strike (split-asymmetric ROE/EMCON): Blue (WeaponsTight, unrestricted sensors) must positively ID and destroy designated target mrk-shkval-pr-22800-karakurt, which holds passive-EMCON stand-in [low Pd/envMask on red's own detection] alongside the rest of Red (WeaponsFree). New air domain this tier: blue su-27sm-sm3-flanker-j-2013, red jas-39d-gripen-2005 (gun/Sidewinder-only picket per roster, no listed missile loadout \u2014 fits a quiet defensive posture). Scripted timed event at tick 6 breaks the target's EMCON discipline.",
     "oracle": "Blue converts the tick-6 EMCON-break event into the positive ID its tight ROE requires and lands the designated-target kill; both sides carry restriction-driven denials (blue from tight-ROE gating, red from passive-EMCON stand-in); non-empty fingerprint.",
-    "emcon": "passive-red-standin",
     "catalogRefs": [
       "f-219-sachsen-type-f124-2006",
       "f-310-fridtjof-nansen",
