@@ -56,12 +56,9 @@ mutants:
     patch: "06-emcon-engage-bypass.patch"
     target: "src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs"
     description: "Engage-side EMCON gate forced open (RadarEmconActive ignored)"
-    # Expected MISS today: no ladder scenario sets radar Off (BUG-gauntlet-emcon-dimension-
-    # not-exercised), so bypassing the gate is unobservable. Becomes catchable when the
-    # variability-plan EMCON retrofit lands — flip role to defect then. A survival here
-    # is documentation, not surprise (exit OK; excluded from kill-rate denom).
-    role: expected-miss
-    expectedOracles: []
+    # Catchable after gauntlet-t3-emcon-engage-block (real emcon.units radar Passive → EMCON_OFF).
+    role: defect
+    expectedOracles: ["token_coverage", "goldens", "victory_roe"]
     impactRecorded: "CRITICAL (2026-07-28; worktree-only mutant)"
 
   - id: "07-magazine-not-decremented"

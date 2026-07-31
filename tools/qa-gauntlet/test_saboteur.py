@@ -103,7 +103,7 @@ def test_load_catalog_real_catalog_roles():
     cat = load_catalog(ROOT / "tools/qa-gauntlet/mutants/catalog.yaml")
     by_id = {m["id"]: m["role"] for m in cat}
     assert by_id["00-noop-comment"] == "control"
-    assert by_id["06-emcon-engage-bypass"] == "expected-miss"
+    assert by_id["06-emcon-engage-bypass"] == "defect"
     for mid in (
         "01-pd-weakened",
         "02-roe-tight-inverted",

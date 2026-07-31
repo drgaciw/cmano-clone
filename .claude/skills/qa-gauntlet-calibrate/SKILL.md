@@ -62,7 +62,7 @@ and no survived defects.
 
 ## Read the report
 
-Latest **live** calibration (post-#372 UnityAdapter ReplayGolden): `production/qa/gauntlet/calibration-2026-07-31-live-unity-replay/` (kill rate **5/6**; see `PROVENANCE.md`). Prior role-refresh recompute: `calibration-2026-07-31-role-refresh/` (4/6). Historical measured runs: `calibration-2026-07-28*`.
+Latest **live** calibration (blind spots 03/05/06 closed): `production/qa/gauntlet/calibration-2026-07-31-full-after-blindspot-close/` (kill rate **7/7**; exit 0). Prior: live-unity-replay 5/6; role-refresh 4/6; `calibration-2026-07-28*`.
 
 `production/qa/gauntlet/calibration-<date>/report.md` (+ `report.json`):
 

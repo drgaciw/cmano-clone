@@ -31,12 +31,16 @@ EXPECTED_SCENARIOS = {
         "gauntlet-t2-escort-passive",
         "gauntlet-t2-strike-a",
         "gauntlet-t2-strike-event",
+        "gauntlet-t2-strike-salvo-boundary",
     ],
     "3": [
         "gauntlet-t3-escort-strike",
         "gauntlet-t3-emcon-phases",
         "gauntlet-t3-id-roe",
         "gauntlet-t3-event-chain",
+        "gauntlet-t3-strike-salvo-boundary",
+        "gauntlet-t3-logistics-contact-lifecycle",
+        "gauntlet-t3-emcon-engage-block",
     ],
     "4": [
         "gauntlet-t4-multi-mission",

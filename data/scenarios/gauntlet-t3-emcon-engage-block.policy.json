@@ -1,0 +1,111 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "emcon": {
+    "units": {
+      "k-31-visby-2009": {
+        "radar": "Passive"
+      },
+      "jas-39c-gripen-2005": {
+        "radar": "Active"
+      }
+    }
+  },
+  "detection": [
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "radar-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-visby",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "esm-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c-visby-esm",
+      "basePd": 0.9,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "jas-39c-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c-gripen",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "T3 EMCON engage gate: Visby radar Passive (real emcon block) must abort with EMCON_OFF while Gripen Active still engages [closes mutant 06 expected-miss]",
+    "oracle": "Fingerprint contains EMCON_OFF from Visby; Gripen still launches; mutant 06 opens gate \u2192 Visby launches / no EMCON_OFF.",
+    "dimensionsClaimed": [
+      "emcon-engage-block"
+    ],
+    "catalogRefs": [
+      "em-sovremenny-i-pr-956-sarych",
+      "jas-39c-gripen-2005",
+      "k-31-visby-2009",
+      "mpk-steregushchiy-pr-20380-2018"
+    ],
+    "runId": "gauntlet-blindspot-close-2026-07-31",
+    "tier": 3,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "EMCON_OFF"
+      ],
+      "minKills": 1,
+      "maxMissilesFired": 5,
+      "minDenials": 14,
+      "maxDenials": 20,
+      "minScore": 0.0,
+      "maxScore": 40.0
+    },
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39c-gripen-2005",
+        "platformId": "jas-39c-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "domain": "surface",
+        "side": "red"
+      }
+    ]
+  },
+  "id": "gauntlet-t3-emcon-engage-block"
+}

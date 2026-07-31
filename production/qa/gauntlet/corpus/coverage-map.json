@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-27",
-  "source": "bootstrap via tools/qa-gauntlet/forge_scorecard.infer_cell from data/scenarios/gauntlet-*.policy.json",
-  "cellCount": 29,
-  "scenarioCount": 43,
+  "generatedAt": "2026-07-31",
+  "source": "bootstrap + blindspot-close scenarios 2026-07-31",
+  "cellCount": 47,
+  "scenarioCount": 47,
   "cells": [
     {
       "key": "strike|air,subsurface,surface|WeaponsTight/WeaponsFree|emcon-phases|none",
@@ -641,6 +641,66 @@
       "eventClass": "dynamic-obj",
       "catalogRefCount": 25,
       "intentHash": "9be44983c7c51059"
+    },
+    {
+      "key": "strike|air,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "intentHash": "7e1c949408ca2878",
+      "tier": 2,
+      "scenarioId": "gauntlet-t2-strike-salvo-boundary"
+    },
+    {
+      "key": "strike|air,surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "missionClass": "strike",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "intentHash": "04d59d5d124b78be",
+      "tier": 3,
+      "scenarioId": "gauntlet-t3-strike-salvo-boundary"
+    },
+    {
+      "key": "unknown|air,surface|WeaponsTight/WeaponsFree|unrestricted|none",
+      "stressAxes": "ew:off|logistics:off|weapons:off",
+      "missionClass": "unknown",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsTight/WeaponsFree",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "intentHash": "c27f1148c1ab48d3",
+      "tier": 3,
+      "scenarioId": "gauntlet-t3-logistics-contact-lifecycle"
+    },
+    {
+      "key": "emcon|air,surface|WeaponsFree/WeaponsTight|emcon-phases|none",
+      "stressAxes": "ew:off|logistics:off|weapons:off",
+      "missionClass": "emcon",
+      "domains": [
+        "air",
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "emcon-phases",
+      "eventClass": "none",
+      "intentHash": "95da6233481a7b85",
+      "tier": 3,
+      "scenarioId": "gauntlet-t3-emcon-engage-block"
     }
   ],
   "counts": {

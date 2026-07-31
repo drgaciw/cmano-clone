@@ -5,26 +5,15 @@
 | **Found by** | `/qa-gauntlet-calibrate` first run (`production/qa/gauntlet/calibration-2026-07-28/report.md`) |
 | **Class** | oracle blind spot (ladder coverage gap) |
 | **Severity** | Medium |
-| **Status** | OPEN |
+| **Status** | **CLOSED** (2026-07-31) — ladder scenarios at `salvoSize == maxSalvo` |
 
-## What survived
+## Resolution
 
-Mutant `03-salvo-off-by-one` (`PolicyEvaluator` salvo WRA comparison `>` → `>=`)
-survived the full anchor ladder subset (tiers 1/3/5 × seeds 42,7,123) **and**
-ReplayGolden: no oracle fired, including goldens (fingerprints byte-identical).
+Added `gauntlet-t2-strike-salvo-boundary` and `gauntlet-t3-strike-salvo-boundary`
+with `engage.salvoSize: 2` and `engage.maxSalvo: 2`. Healthy evaluator allows
+(`salvo > max` is false); mutant 03 (`>=`) denies. Goldens / victory diverge on
+the subset ladder (tier 3 is in saboteur `SUBSET_TIERS`).
 
-## Root cause
+## Historical root cause
 
-The boundary is never approached. `EffectivePolicy.MaxSalvo` defaults to **8**
-(`src/ProjectAegis.Sim/Policy/EffectivePolicy.cs:6`), no ladder policy overrides it,
-and ladder scenarios fire `salvoSize: 1`. At salvo=1 vs limit=8, `>` and `>=` are
-indistinguishable — `WRA_SALVO` occurs **0 times** run-wide (see
-`tools/qa-gauntlet/expected-tokens.json` derivation counts).
-
-## Fix direction
-
-Add a ladder (or corpus) scenario that fires at `salvoSize == MaxSalvo` (boundary
-value), so the `WRA_SALVO` deny path executes and `WRA_SALVO` can move from
-"0 occurrences" to a required token. The 2026-07-27 variability plan's
-`gauntlet-t2-strike-salvo-boundary` scenario is exactly this — landing it closes
-this blind spot. Re-run `/qa-gauntlet-calibrate` after; mutant 03 must flip to caught.
+`MaxSalvo` defaulted to 8 with ladder `salvoSize: 1`, so `>` vs `>=` never diverged.

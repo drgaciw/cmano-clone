@@ -1,0 +1,56 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  ProjectAegis.Data -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Data/bin/Debug/net8.0/ProjectAegis.Data.dll
+  ProjectAegis.Sim -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Sim/bin/Debug/net8.0/ProjectAegis.Sim.dll
+  ProjectAegis.Delegation -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation/bin/Debug/net8.0/ProjectAegis.Delegation.dll
+  ProjectAegis.Delegation.UnityAdapter -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.UnityAdapter/bin/Debug/net8.0/ProjectAegis.Delegation.UnityAdapter.dll
+  ProjectAegis.Delegation.UnityAdapter.Tests -> /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.UnityAdapter.Tests/bin/Debug/net8.0/ProjectAegis.Delegation.UnityAdapter.Tests.dll
+Test run for /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.UnityAdapter.Tests/bin/Debug/net8.0/ProjectAegis.Delegation.UnityAdapter.Tests.dll (.NETCoreApp,Version=v8.0)
+VSTest version 17.11.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  Failed Classify_scenario_emits_classified_and_identified_without_engage [40 ms]
+  Error Message:
+     Assert.That(a.Fingerprint, Does.Contain("|Classified|Identified"))
+  Expected: String containing "|Classified|Identified"
+  But was:  "PolicyUpdate|1|0|0|1|roe|WeaponsFree|WeaponsFree
+ModeChange|2|0|0||Planning|Executing
+ContactChange|3|1|1|u1|c1|hostile-1|Unknown|Detected
+AgentDecision|4|1|1|a1|Engage|Engage:1:High|0.796304
+ContactChange|5|2|2|u1|c1|hostile-1|Detected|Identified
+AgentDecision|6|2|2|a1|Engage|Engage:1:High|0.235134
+AgentDecision|7|3|3|a1|Engage|Engage:1:High|0.974989
+AgentDecision|8|4|4|a1|Engage|Engage:1:High|0.207748
+"
+
+  Stack Trace:
+     at ProjectAegis.Delegation.UnityAdapter.Tests.Baltic.ReplayGoldenBalticClassifyTests.Classify_scenario_emits_classified_and_identified_without_engage() in /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.UnityAdapter.Tests/Baltic/ReplayGoldenBalticClassifyTests.cs:line 23
+
+1)    at ProjectAegis.Delegation.UnityAdapter.Tests.Baltic.ReplayGoldenBalticClassifyTests.Classify_scenario_emits_classified_and_identified_without_engage() in /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.UnityAdapter.Tests/Baltic/ReplayGoldenBalticClassifyTests.cs:line 23
+
+
+  Failed Pinned_regression_case_matches_golden_hashes(Case { GoldenFile = replay-golden-baltic-classify-2026-06-02.txt, Seed = 42, PolicyId = baltic-patrol-classify, Ticks = 4, MvpEngagement = False, FingerprintMustContain = System.String[] }) [3 ms]
+  Error Message:
+     Assert.That(a.Fingerprint, Does.Contain(fragment))
+  Expected: String containing "|Detected|Classified"
+  But was:  "PolicyUpdate|1|0|0|1|roe|WeaponsFree|WeaponsFree
+ModeChange|2|0|0||Planning|Executing
+ContactChange|3|1|1|u1|c1|hostile-1|Unknown|Detected
+AgentDecision|4|1|1|a1|Engage|Engage:1:High|0.796304
+ContactChange|5|2|2|u1|c1|hostile-1|Detected|Identified
+AgentDecision|6|2|2|a1|Engage|Engage:1:High|0.235134
+AgentDecision|7|3|3|a1|Engage|Engage:1:High|0.974989
+AgentDecision|8|4|4|a1|Engage|Engage:1:High|0.207748
+"
+
+  Stack Trace:
+     at ProjectAegis.Delegation.UnityAdapter.Tests.Baltic.ReplayGoldenSuiteTests.Pinned_regression_case_matches_golden_hashes(Case testCase) in /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.UnityAdapter.Tests/Baltic/ReplayGoldenSuiteTests.cs:line 37
+   at InvokeStub_ReplayGoldenSuiteTests.Pinned_regression_case_matches_golden_hashes(Object, Span`1)
+
+1)    at ProjectAegis.Delegation.UnityAdapter.Tests.Baltic.ReplayGoldenSuiteTests.Pinned_regression_case_matches_golden_hashes(Case testCase) in /tmp/cmano-clone/.worktrees/saboteur-05-contact-lifecycle-skip/src/ProjectAegis.Delegation.UnityAdapter.Tests/Baltic/ReplayGoldenSuiteTests.cs:line 37
+   at InvokeStub_ReplayGoldenSuiteTests.Pinned_regression_case_matches_golden_hashes(Object, Span`1)
+
+
+
+Failed!  - Failed:     2, Passed:    15, Skipped:     0, Total:    17, Duration: 678 ms - ProjectAegis.Delegation.UnityAdapter.Tests.dll (net8.0)

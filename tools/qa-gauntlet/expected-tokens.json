@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "seededFrom": "gauntlet-20260728-2016 (22 scenarios x 3 seeds; counts recorded in commit body)",
+  "seededFrom": "gauntlet-blindspot-close-2026-07-31 (added EMCON_OFF required after t3-emcon-engage-block)",
   "requiredRunWide": [
     "CATALOG_UNIT:",
     "MAGAZINE_SEED:",
@@ -9,13 +9,9 @@
     "ROE_WEAPONS_TIGHT",
     "NO_FIRE_CONTROL_TRACK",
     "NO_AMMO",
-    "TARGET_DESTROYED"
+    "TARGET_DESTROYED",
+    "EMCON_OFF"
   ],
-  "warnIfAbsent": [
-    {
-      "token": "EMCON_OFF",
-      "reason": "BUG-gauntlet-emcon-dimension-not-exercised — flip to required when the 2026-07-27 variability-plan EMCON retrofit lands"
-    }
-  ],
+  "warnIfAbsent": [],
   "reportManifestCounts": true
 }
