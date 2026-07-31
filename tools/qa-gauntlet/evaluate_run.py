@@ -7,6 +7,8 @@ Modes:
           oracle-eval.json, goldens, sanity) -> tier-N/verdict.json
   run   — aggregate tier verdicts + run-wide token coverage -> verdict.json
   bless — rewrite goldens/anchors.json from a green run's CSVs
+  filter-seeds — keep CSV rows whose seed is in the allow-list
+  ladder — print scenarios (csv) or ticks for a tier from ladder.yaml
 Exit 0 iff no oracle failed (warnings never fail).
 """
 
@@ -21,7 +23,10 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+import yaml
+
 CSV_HEADER = "scenarioId,seed,side,score,kills,missilesFired,denials,fingerprint"
+DEFAULT_LADDER_PATH = Path(__file__).resolve().parent / "ladder.yaml"
 ERROR_LOG_RE = re.compile(r"unhandled exception|fatal|stack trace", re.IGNORECASE)
 
 
@@ -40,7 +45,7 @@ class Row:
 def parse_results_csv(path: Path) -> list[Row]:
     rows: list[Row] = []
     lines = path.read_text(encoding="utf-8").splitlines()
-    if not lines or not lines[0].startswith("scenarioId,"):
+    if not lines or lines[0] != CSV_HEADER:
         raise ValueError(f"unexpected CSV header in {path}")
     for line in lines[1:]:
         if not line.strip():
@@ -51,6 +56,51 @@ def parse_results_csv(path: Path) -> list[Row]:
         rows.append(Row(parts[0], parts[1], parts[2], parts[3],
                         int(parts[4]), int(parts[5]), int(parts[6]), parts[7]))
     return rows
+
+
+def filter_csv_by_seeds(src: Path, dst: Path, seeds: set[str]) -> int:
+    """Write header + rows whose seed column is in seeds. Return row count kept.
+
+    Fingerprint may contain commas — split limit 7 (8 fields), matching parse_results_csv.
+    """
+    lines = src.read_text(encoding="utf-8").splitlines()
+    if not lines or lines[0] != CSV_HEADER:
+        raise ValueError(f"unexpected CSV header in {src}")
+    keep = [CSV_HEADER]
+    count = 0
+    for line in lines[1:]:
+        if not line.strip():
+            continue
+        parts = line.split(",", 7)
+        if len(parts) != 8:
+            raise ValueError(f"malformed CSV row in {src}: {line[:80]}")
+        if parts[1] in seeds:
+            keep.append(line)
+            count += 1
+    dst.write_text("\n".join(keep) + "\n", encoding="utf-8")
+    return count
+
+
+def load_ladder(path: Path | None = None) -> dict:
+    ladder_path = path or DEFAULT_LADDER_PATH
+    data = yaml.safe_load(ladder_path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict) or "tiers" not in data:
+        raise ValueError(f"invalid ladder manifest: {ladder_path}")
+    return data
+
+
+def ladder_ticks(ladder: dict, tier_id: str) -> int:
+    tiers = ladder["tiers"]
+    if tier_id not in tiers:
+        raise KeyError(tier_id)
+    return int(tiers[tier_id]["ticks"])
+
+
+def ladder_scenarios(ladder: dict, tier_id: str) -> list[str]:
+    tiers = ladder["tiers"]
+    if tier_id not in tiers:
+        raise KeyError(tier_id)
+    return list(tiers[tier_id]["scenarios"])
 
 
 def _oracle(name: str, failures: list[str], warnings: list[str] | None = None) -> dict:
@@ -96,23 +146,33 @@ def oracle_sanity(rows: list[Row], seeds: list[str]) -> dict:
     return _oracle("sanity", failures)
 
 
+def _row_key(r: Row) -> tuple[str, str]:
+    return (r.scenario_id, r.seed)
+
+
 def oracle_determinism(tier_dir: Path) -> dict:
     first, repeat = tier_dir / "results.csv", tier_dir / "results-repeat.csv"
     if not first.exists() or not repeat.exists():
         missing = first.name if not first.exists() else repeat.name
         return _oracle("determinism", [f"missing CSV for repeat diff: {missing}"])
-    a = sorted(first.read_text(encoding="utf-8").splitlines())
-    b = sorted(repeat.read_text(encoding="utf-8").splitlines())
-    if a == b:
+    # Structured compare keyed by (scenario_id, seed) — ignore header/blank noise.
+    a_by = {_row_key(r): r for r in parse_results_csv(first)}
+    b_by = {_row_key(r): r for r in parse_results_csv(repeat)}
+    if a_by == b_by:
         return _oracle("determinism", [])
     diff_path = tier_dir / "determinism-diff.txt"
-    only_a = [l for l in a if l not in set(b)][:20]
-    only_b = [l for l in b if l not in set(a)][:20]
-    diff_path.write_text("--- results.csv only\n" + "\n".join(only_a)
-                         + "\n+++ results-repeat.csv only\n" + "\n".join(only_b) + "\n",
+    only_a = sorted(k for k in a_by if k not in b_by or a_by[k] != b_by.get(k))[:20]
+    only_b = sorted(k for k in b_by if k not in a_by or b_by[k] != a_by.get(k))[:20]
+
+    def fmt(keys: list[tuple[str, str]], by: dict) -> list[str]:
+        return [f"{sid}|{seed}: {by[(sid, seed)].fingerprint[:80]}"
+                for sid, seed in keys if (sid, seed) in by]
+
+    diff_path.write_text("--- results.csv only/diff\n" + "\n".join(fmt(only_a, a_by))
+                         + "\n+++ results-repeat.csv only/diff\n" + "\n".join(fmt(only_b, b_by)) + "\n",
                          encoding="utf-8")
     return _oracle("determinism", [f"repeat batch diverged; see {diff_path.name} "
-                                   f"({len(only_a)}+{len(only_b)} differing lines shown)"])
+                                   f"({len(only_a)}+{len(only_b)} differing keys shown)"])
 
 
 def oracle_victory(tier_dir: Path) -> dict:
@@ -266,7 +326,34 @@ def main(argv: list[str]) -> int:  # extended in later tasks
     bless_p.add_argument("--goldens", required=True, type=Path)
     bless_p.add_argument("--tiers", default="tier-1,tier-2,tier-3,tier-4,tier-5,tier-extra")
     bless_p.add_argument("--anchor-seeds", default="42,7,123")
+    filter_p = sub.add_parser("filter-seeds")
+    filter_p.add_argument("--in", dest="src", required=True, type=Path)
+    filter_p.add_argument("--out", dest="dst", required=True, type=Path)
+    filter_p.add_argument("--seeds", required=True,
+                          help="comma-separated seed allow-list (anchor seeds)")
+    ladder_p = sub.add_parser("ladder")
+    ladder_p.add_argument("--tier", required=True, help="tier id: 1..5 or extra")
+    ladder_p.add_argument("--field", required=True, choices=("scenarios", "ticks"))
+    ladder_p.add_argument("--ladder", type=Path, default=DEFAULT_LADDER_PATH)
     args = parser.parse_args(argv)
+
+    if args.mode == "filter-seeds":
+        seeds = {s for s in args.seeds.split(",") if s}
+        n = filter_csv_by_seeds(args.src, args.dst, seeds)
+        print(json.dumps({"kept": n, "out": str(args.dst)}))
+        return 0
+
+    if args.mode == "ladder":
+        try:
+            ladder = load_ladder(args.ladder)
+            if args.field == "ticks":
+                print(ladder_ticks(ladder, args.tier))
+            else:
+                print(",".join(ladder_scenarios(ladder, args.tier)))
+        except KeyError:
+            print(f"unknown tier: {args.tier}", file=sys.stderr)
+            return 1
+        return 0
 
     if args.mode == "bless":
         return bless(args.run_dir, args.goldens, args.run_id,
