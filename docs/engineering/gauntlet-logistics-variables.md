@@ -44,3 +44,15 @@ Threshold `0` disables Shotgun (only Winchester at empty).
 ## Required run-wide tokens
 
 `tools/qa-gauntlet/expected-tokens.json` requires `JOKER`, `BINGO`, `SHOTGUN`, and `WINCHESTER` once the logistics ladder pins above are in the shipped set.
+
+
+## Doctrine gates (v1)
+
+| Band | Fingerprint | Engage gate |
+|------|-------------|-------------|
+| Joker | `FuelStateChange` → JOKER | None (advisory) |
+| Bingo | `FuelStateChange` → BINGO | **Hard deny** engage — `EngagementAbortReason.BingoFuel` / log code `BINGO_FUEL` |
+| Shotgun | `OrdnanceStateChange` → SHOTGUN | None (v1) |
+| Winchester | `OrdnanceStateChange` → WINCHESTER | Existing magazine-empty path (`NO_AMMO`) |
+
+Gate wiring: `FuelTimelineTracker.IsBingo` → `EngageContext.LogisticsBingoBlocked` → `LogisticsBingoEngageGate` in `MvpEngagementResolver`.

@@ -128,6 +128,12 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(damageWithdrawAbort.Value);
         }
 
+        var bingoAbort = LogisticsBingoEngageGate.Evaluate(in ctx);
+        if (bingoAbort != null)
+        {
+            return EngageResult.Aborted(bingoAbort.Value);
+        }
+
         if (ctx.TrackSpoofed)
         {
             return EngageResult.Aborted(EngagementAbortReason.TrackSpoofed);
