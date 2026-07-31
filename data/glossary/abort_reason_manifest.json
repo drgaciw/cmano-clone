@@ -158,6 +158,10 @@
         {
           "logCode": "BINGO_FUEL",
           "member": "BingoFuel"
+        },
+        {
+          "logCode": "SHOTGUN_ORDNANCE",
+          "member": "ShotgunOrdnance"
         }
       ]
     },

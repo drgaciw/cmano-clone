@@ -502,6 +502,8 @@ public sealed class SimulationSession
             var salvo = NextEngageSalvoOverride ?? template.SalvoSize;
             NextEngageSalvoOverride = null;
             var bingoBlocked = FuelTimeline?.IsBingo(shooterUnitId) ?? false;
+            var shotgunThreshold = Orchestrator.ScenarioPolicy?.EngageDefaults?.ShotgunRoundsThreshold
+                ?? template.ShotgunRoundsThreshold;
             var primed = template with
             {
                 HasFireControlTrack = state.HasFireControlTrack,
@@ -511,6 +513,7 @@ public sealed class SimulationSession
                 LogisticsBingoBlocked = bingoBlocked,
                 TrackSpoofed = spoofed,
                 SalvoSize = Math.Max(1, salvo),
+                ShotgunRoundsThreshold = Math.Max(0, shotgunThreshold),
             };
             EngageWorld.Set(request, primed);
         }

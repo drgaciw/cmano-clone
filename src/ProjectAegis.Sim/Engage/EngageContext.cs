@@ -27,4 +27,5 @@ public readonly record struct EngageContext(
     bool MineAspectInEnvelope = true,
     bool FacilityAspectInEnvelope = true,
     bool CatalogDamageWithdrawBlocked = false,
-    bool LogisticsBingoBlocked = false);
+    bool LogisticsBingoBlocked = false,
+    int ShotgunRoundsThreshold = 0);
