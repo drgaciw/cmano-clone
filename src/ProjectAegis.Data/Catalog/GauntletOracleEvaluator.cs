@@ -25,18 +25,26 @@ public static class GauntletOracleEvaluator
             return new GauntletOracleEvaluationResult(false, ["missing policy json"]);
         }
 
+        // Fail closed on unknown gauntlet.* keys before expect-bound evaluation.
+        var strict = GauntletPolicyStrictKeys.Check(policyJson);
+        if (strict.Errors.Count > 0)
+        {
+            return new GauntletOracleEvaluationResult(false, strict.Errors, strict.Warnings);
+        }
+
         if (!TryParseExpect(policyJson, out var expect, out var parseFailures, profile))
         {
-            return new GauntletOracleEvaluationResult(false, parseFailures);
+            return new GauntletOracleEvaluationResult(false, parseFailures, strict.Warnings);
         }
 
         var rows = ParseCsvRows(resultsCsv);
         if (rows.Count == 0)
         {
-            return new GauntletOracleEvaluationResult(false, ["no results rows"]);
+            return new GauntletOracleEvaluationResult(false, ["no results rows"], strict.Warnings);
         }
 
-        return Evaluate(rows, expect!);
+        var eval = Evaluate(rows, expect!);
+        return eval with { Warnings = strict.Warnings };
     }
 
     public static GauntletOracleEvaluationResult Evaluate(

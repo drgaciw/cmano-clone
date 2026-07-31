@@ -1,0 +1,13 @@
+diff --git a/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs b/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
+index 81e57864..dde5fec3 100644
+--- a/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
++++ b/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
+@@ -161,7 +161,7 @@ public sealed class MvpEngagementResolver : IEngagementResolver
+             return EngageResult.Aborted(EngagementAbortReason.DlzOut);
+         }
+ 
+-        if (!_magazines.TryConsumeSalvo(request.ShooterUnitId, request.MountId, Math.Max(1, ctx.SalvoSize)))
++        if (_magazines.GetRounds(request.ShooterUnitId, request.MountId) < 0)
+         {
+             return EngageResult.Aborted(EngagementAbortReason.MagazineEmpty);
+         }

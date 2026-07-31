@@ -1,5 +1,7 @@
 namespace ProjectAegis.Data.Scenario.Policy;
 
+using System.Text.Json;
+
 public sealed class ScenarioPolicyJsonDto
 {
     public string Id { get; set; } = "";
@@ -62,7 +64,10 @@ public sealed class ScenarioPolicyJsonDto
     public ScenarioGauntletJsonDto? Gauntlet { get; set; }
 }
 
-/// <summary>qa-gauntlet metadata + joint catalog unit plan.</summary>
+/// <summary>
+/// qa-gauntlet metadata + joint catalog unit plan.
+/// Canonical owner of <c>gauntlet.*</c> keys (strict validation derives from these properties).
+/// </summary>
 public sealed class ScenarioGauntletJsonDto
 {
     public string? Intent { get; set; }
@@ -72,6 +77,54 @@ public sealed class ScenarioGauntletJsonDto
     public List<string>? CatalogRefs { get; set; }
 
     public List<ScenarioGauntletUnitJsonDto>? Units { get; set; }
+
+    /// <summary>Ladder / default oracle bounds (<c>gauntlet.expect</c>).</summary>
+    public ScenarioGauntletExpectJsonDto? Expect { get; set; }
+
+    /// <summary>CI smoke oracle bounds (<c>gauntlet.expectCi</c>).</summary>
+    public ScenarioGauntletExpectJsonDto? ExpectCi { get; set; }
+
+    public string? RunId { get; set; }
+
+    public int? Tier { get; set; }
+
+    /// <summary>QA provenance blob (string or object) — key ownership only.</summary>
+    public JsonElement? ExpectProvenance { get; set; }
+
+    /// <summary>CI provenance blob (string or object) — key ownership only.</summary>
+    public JsonElement? ExpectCiProvenance { get; set; }
+
+    public List<string>? DimensionsClaimed { get; set; }
+
+    /// <summary>Forge candidate metadata blob — key ownership only.</summary>
+    public JsonElement? Forge { get; set; }
+}
+
+/// <summary>
+/// Machine-checkable expect fields aligned with <c>GauntletOracleExpect</c>
+/// (<c>gauntlet.expect</c> / <c>gauntlet.expectCi</c>).
+/// </summary>
+public sealed class ScenarioGauntletExpectJsonDto
+{
+    public string? Side { get; set; }
+
+    public int? MinKills { get; set; }
+
+    public int? MaxMissilesFired { get; set; }
+
+    public int? MinDenials { get; set; }
+
+    public int? MaxDenials { get; set; }
+
+    public double? MinScore { get; set; }
+
+    public double? MaxScore { get; set; }
+
+    public bool? RequireNonEmptyFingerprint { get; set; }
+
+    public List<string>? RequireFingerprintSubstrings { get; set; }
+
+    public List<string>? RequireTrueLaunchedShooters { get; set; }
 }
 
 /// <summary>One catalog-backed unit to register on the Baltic replay path.</summary>

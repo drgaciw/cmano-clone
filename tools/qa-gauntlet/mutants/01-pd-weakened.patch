@@ -1,0 +1,13 @@
+diff --git a/src/ProjectAegis.Sim/Sensors/DetectionProbability.cs b/src/ProjectAegis.Sim/Sensors/DetectionProbability.cs
+index e3c0d760..65fde466 100644
+--- a/src/ProjectAegis.Sim/Sensors/DetectionProbability.cs
++++ b/src/ProjectAegis.Sim/Sensors/DetectionProbability.cs
+@@ -10,6 +10,6 @@ public static class DetectionProbability
+         double jamStrength = 0.0)
+     {
+         var jam = Math.Clamp(jamStrength, 0, 1);
+-        return Math.Clamp(basePd * envMask * eccmFactor * (1.0 - jam), 0, 1);
++        return Math.Clamp(basePd * envMask * eccmFactor * (1.0 - jam) * 0.5, 0, 1);
+     }
+ }
+\ No newline at end of file

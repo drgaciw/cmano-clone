@@ -1,0 +1,12 @@
+diff --git a/src/ProjectAegis.Sim/Sensors/ContactLifecycleState.cs b/src/ProjectAegis.Sim/Sensors/ContactLifecycleState.cs
+index 79981cbf..1c78fc9d 100644
+--- a/src/ProjectAegis.Sim/Sensors/ContactLifecycleState.cs
++++ b/src/ProjectAegis.Sim/Sensors/ContactLifecycleState.cs
+@@ -8,4 +8,5 @@ public enum ContactLifecycleState
+     Classified = 2,
+     Identified = 3,
+     Lost = 4,
+-}
+\ No newline at end of file
++}
++// saboteur no-op calibration marker

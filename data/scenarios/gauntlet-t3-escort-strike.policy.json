@@ -116,14 +116,6 @@
       "skr-admiral-grigorovich-pr-1135-6m",
       "skr-admiral-sergey-gorshkov-pr-2235-0"
     ],
-    "subPool": [
-      "a-19-gotland-1996",
-      "021-messali-el-hadj-pl-636m-kilo-2011"
-    ],
-    "airPool": [
-      "jas-39c-gripen-2005",
-      "f-16c-blk-52iq-falcon-2015"
-    ],
     "runId": "gauntlet-t3t5-catalog-red",
     "tier": 3,
     "expect": {
