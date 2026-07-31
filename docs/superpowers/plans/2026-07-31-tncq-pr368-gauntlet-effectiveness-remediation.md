@@ -4,7 +4,7 @@
 
 > **Status (2026-07-31):** Wave 1 Agents A/B/C MERGED on `cursor/tncq-pr368-remediation-9b58` (PR #370). Gates: build 0/0; pytest 38/38; Gauntlet Data 30 + Cli 7; PlayModeSmoke 21/21; ReplayGolden filter green; hash preserved; ZERO DelegationBridge touches. Full suite 1941 passed; 1 env-only Unity plugin DLL miss cleared locally via gitignored copy (not committed).
 >
-> **Calibration refresh (2026-07-31):** role-aware summary at `production/qa/gauntlet/calibration-2026-07-31-role-refresh/` — kill rate **4/6** (outcomes from postrebase live run; summary via `summarize`/`exit_code_for`; see PROVENANCE.md).
+> **Calibration refresh (2026-07-31):** role-aware summary at `production/qa/gauntlet/calibration-2026-07-31-role-refresh/` — kill rate **4/6** (recompute). **Live re-run post-#372:** `calibration-2026-07-31-live-unity-replay/` — kill rate **5/6** (05 caught via UnityAdapter ReplayGolden; 03 still survives).
 
 **Goal:** Clear the thermo-nuclear REQUEST CHANGES bar on [PR #368](https://github.com/drgaciw/cmano-clone/pull/368) (`qa/gauntlet-effectiveness`) without changing ladder oracle semantics, Baltic v2 replay hash, or DelegationBridge.
 

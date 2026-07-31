@@ -36,8 +36,8 @@
 
 ## Calibration
 
-Last oracle calibration: **2026-07-31**, kill rate **4/6**  
-(`production/qa/gauntlet/calibration-2026-07-31-role-refresh/report.md`)
+Last oracle calibration: **2026-07-31 live**, kill rate **5/6**  
+(`production/qa/gauntlet/calibration-2026-07-31-live-unity-replay/report.md`)
 
 ## Follow-ups (not red this run)
 
