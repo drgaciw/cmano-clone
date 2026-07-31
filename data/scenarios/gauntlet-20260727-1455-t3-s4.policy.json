@@ -116,7 +116,6 @@
   "gauntlet": {
     "intent": "T3 escort+strike combined: BLUE screens HVU f-310-fridtjof-nansen while a strike element destroys designated target skr-admiral-grigorovich-pr-1135-6m; RED holds WeaponsTight (ID-required-engagement stand-in -- may not fire without a positively identified track, the only ROE lever this engine implements for that doctrine). Weapons-boundary proof: engage.defaultMagazineRounds=2 is scenario-wide (the engine keys one shared magazine per shooter+mount, not per-unit), so every shooter in this file is magazine-limited to 2 rounds. f-219-sachsen-type-f124-2006 is the instrumented shooter: it holds two concurrent, persistently-detected (basePd 1.0) live targets (skr-admiral-grigorovich-pr-1135-6m and mrk-buyan-pr-21630-buyan-2007) across all 16 ticks under friendly WeaponsFree, guaranteeing it keeps attempting to engage well past tick 2 when its shared 2-round magazine is spent -- tripping EngagementAbortReason.MagazineEmpty (log code NO_AMMO) repeatedly through tick 15, with live targets still present so it never simply stops for lack of contacts.",
     "oracle": "Fingerprint must contain NO_AMMO from f-219-sachsen-type-f124-2006's post-exhaustion engagement attempts; non-empty fingerprint required; some kills against the designated target are plausible but not required (pkBase 0.85 x pkKill 0.25 per launch, only 2 launches per shooter).",
-    "emcon": "unrestricted",
     "runId": "gauntlet-20260727-1455",
     "tier": 3,
     "dimensionsClaimed": [

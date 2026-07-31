@@ -291,7 +291,7 @@ public sealed class GauntletOracleEvaluatorTests
     }
 
     [Fact]
-    public void EvaluateFromPolicyAndCsv_legacy_emcon_warns_but_expect_eval_still_passes()
+    public void EvaluateFromPolicyAndCsv_legacy_emcon_fails_oracle()
     {
         var policy = """
             {
@@ -311,7 +311,7 @@ public sealed class GauntletOracleEvaluatorTests
             }
             """;
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, PassCsv);
-        Assert.True(result.Passed, string.Join("; ", result.Failures));
-        Assert.Contains(result.EffectiveWarnings, w => w.Contains("emcon", StringComparison.Ordinal));
+        Assert.False(result.Passed);
+        Assert.Contains(result.Failures, f => f.Contains("emcon", StringComparison.Ordinal));
     }
 }

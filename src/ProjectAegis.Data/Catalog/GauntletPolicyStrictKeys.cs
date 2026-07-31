@@ -20,8 +20,6 @@ public static class GauntletPolicyStrictKeys
 
     private static readonly HashSet<string> UnitKeys = DeriveCamelCaseKeys(typeof(ScenarioGauntletUnitJsonDto));
 
-    // Time-boxed grandfather only — remove when variability EMCON retrofit deletes gauntlet.emcon.
-    private static readonly HashSet<string> LegacyWarnKeys = new(StringComparer.Ordinal) { "emcon" };
 
     /// <summary>CamelCase root keys derived from <see cref="ScenarioGauntletJsonDto"/>.</summary>
     public static IReadOnlyCollection<string> AllowedGauntletKeys => GauntletKeys;
@@ -53,10 +51,10 @@ public static class GauntletPolicyStrictKeys
                     continue;
                 }
 
-                if (LegacyWarnKeys.Contains(prop.Name))
+                if (string.Equals(prop.Name, "emcon", StringComparison.Ordinal))
                 {
-                    warnings.Add(
-                        $"gauntlet.{prop.Name}: legacy stand-in key ignored by the engine — real EMCON is the top-level \"emcon\" block (BUG-gauntlet-emcon-dimension-not-exercised)");
+                    errors.Add(
+                        $"gauntlet.emcon: legacy stand-in key rejected — real EMCON is the top-level \"emcon\" block (BUG-gauntlet-emcon-dimension-not-exercised)");
                     continue;
                 }
 

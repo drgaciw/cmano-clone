@@ -30,13 +30,14 @@ public sealed class GauntletPolicyStrictKeysTests
     }
 
     [Fact]
-    public void Legacy_gauntlet_emcon_is_warning_not_error()
+    public void Legacy_gauntlet_emcon_is_error_not_warning()
     {
         var report = GauntletPolicyStrictKeys.Check(Policy(ValidCore + """, "emcon": "phased" """));
-        Assert.Empty(report.Errors);
-        var w = Assert.Single(report.Warnings);
-        Assert.Contains("emcon", w);
-        Assert.Contains("top-level", w);
+        Assert.Empty(report.Warnings);
+        var e = Assert.Single(report.Errors);
+        Assert.Contains("emcon", e);
+        Assert.Contains("top-level", e);
+        Assert.Contains("BUG-gauntlet-emcon-dimension-not-exercised", e);
     }
 
     [Fact]

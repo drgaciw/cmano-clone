@@ -110,7 +110,6 @@
   "gauntlet": {
     "intent": "Escort: Blue (WeaponsFree, unrestricted sensors) screens the HVU and must destroy designated target 801-rais-hamidou-pr-1234e-nanuchka-ii-1981, while Red (WeaponsTight + passive-EMCON stand-in [low Pd/envMask on red's own detection]) probes cautiously. New air domain this tier: blue eurofighter-typhoon, red mig-29-fulcrum-c-1999. Scripted timed event at tick 3 hands off the contact track to the escort screen.",
     "oracle": "Blue's unrestricted posture converts the tick-3 track-handoff event into the designated-target kill readily; red's tight+passive posture suppresses red counter-fire and inflates red's own denial count (not the scored side); non-empty fingerprint.",
-    "emcon": "passive-red-standin",
     "catalogRefs": [
       "f-310-fridtjof-nansen",
       "p-840-holland",
