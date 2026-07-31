@@ -1,0 +1,63 @@
+# Saboteur mutant catalog — oracle-sensitivity calibration.
+# Rules: never target locked-eval files; every entry records a one-time GitNexus
+# impact() result; patches are committed but only ever applied in throwaway worktrees.
+# Control mutants (id prefix 00-) are behavior-neutral and MUST survive.
+mutants:
+  - id: "00-noop-comment"
+    patch: "00-noop-comment.patch"
+    target: "src/ProjectAegis.Sim/Sensors/ContactLifecycleState.cs"
+    description: "Comment-only no-op — pipeline control; MUST survive (proves we don't flag noise)"
+    expectedOracles: []
+    impactRecorded: "n/a (comment only)"
+
+  - id: "01-pd-weakened"
+    patch: "01-pd-weakened.patch"
+    target: "src/ProjectAegis.Sim/Sensors/DetectionProbability.cs"
+    description: "Final Pd multiplied by 0.5 — detection silently weakened"
+    expectedOracles: ["goldens", "victory_roe"]
+    impactRecorded: "LOW (2026-07-28; 1 direct caller, 0 processes; worktree-only mutant)"
+
+  - id: "02-roe-tight-inverted"
+    patch: "02-roe-tight-inverted.patch"
+    target: "src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs"
+    description: "WeaponsTight ROE gate inverted — tight side fires freely"
+    expectedOracles: ["victory_roe", "goldens", "token_coverage"]
+    impactRecorded: "CRITICAL (2026-07-28; 62 processes — load-bearing is the point; worktree-only mutant)"
+
+  - id: "03-salvo-off-by-one"
+    patch: "03-salvo-off-by-one.patch"
+    target: "src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs"
+    description: "Salvo WRA comparison > become >= (off-by-one deny)"
+    expectedOracles: ["goldens", "victory_roe"]
+    impactRecorded: "CRITICAL (2026-07-28; same class as 02; worktree-only mutant)"
+
+  - id: "04-rng-seed-ignored"
+    patch: "04-rng-seed-ignored.patch"
+    target: "src/ProjectAegis.Sim/Core/SeededRng.cs"
+    description: "SimSeed ignored in RNG mix — all seeds produce identical rolls"
+    expectedOracles: ["sanity", "goldens", "replay_golden"]
+    impactRecorded: "CRITICAL (2026-07-28; core RNG; worktree-only mutant)"
+
+  - id: "05-contact-lifecycle-skip"
+    patch: "05-contact-lifecycle-skip.patch"
+    target: "src/ProjectAegis.Sim/Sensors/PdDetectionContactSimulator.cs"
+    description: "Detected->Classified transition jumps straight to Identified"
+    expectedOracles: ["goldens"]
+    impactRecorded: "CRITICAL (2026-07-28; 62 processes; worktree-only mutant)"
+
+  - id: "06-emcon-engage-bypass"
+    patch: "06-emcon-engage-bypass.patch"
+    target: "src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs"
+    description: "Engage-side EMCON gate forced open (RadarEmconActive ignored)"
+    # Expected MISS today: no ladder scenario sets radar Off (BUG-gauntlet-emcon-dimension-
+    # not-exercised), so bypassing the gate is unobservable. Becomes catchable when the
+    # variability-plan EMCON retrofit lands. A survival here is documentation, not surprise.
+    expectedOracles: []
+    impactRecorded: "CRITICAL (2026-07-28; worktree-only mutant)"
+
+  - id: "07-magazine-not-decremented"
+    patch: "07-magazine-not-decremented.patch"
+    target: "src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs"
+    description: "Magazine salvo consumption neutralized — infinite ammo"
+    expectedOracles: ["token_coverage", "goldens", "victory_roe"]
+    impactRecorded: "CRITICAL (2026-07-28; worktree-only mutant)"

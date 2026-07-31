@@ -1,0 +1,13 @@
+diff --git a/src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs b/src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs
+index 02a6cc53..1b78da09 100644
+--- a/src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs
++++ b/src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs
+@@ -28,7 +28,7 @@ public sealed class PolicyEvaluator : IPolicyEvaluator
+         }
+
+         var salvo = Math.Max(1, ctx.SalvoSize);
+-        if (salvo > policy.MaxSalvo)
++        if (salvo >= policy.MaxSalvo)
+         {
+             return PolicyVerdict.Deny(FireAbortReason.WraSalvo);
+         }

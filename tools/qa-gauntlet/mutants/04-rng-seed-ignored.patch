@@ -1,0 +1,12 @@
+diff --git a/src/ProjectAegis.Sim/Core/SeededRng.cs b/src/ProjectAegis.Sim/Core/SeededRng.cs
+index cbc071bb..82c03746 100644
+--- a/src/ProjectAegis.Sim/Core/SeededRng.cs
++++ b/src/ProjectAegis.Sim/Core/SeededRng.cs
+@@ -10,7 +10,7 @@ public static class SeededRng
+         ulong simTick,
+         int drawIndex)
+     {
+-        ulong hash = Mix(seed.Value, (ulong)domain, entityId, simTick, (ulong)(uint)drawIndex);
++        ulong hash = Mix(12345UL, (ulong)domain, entityId, simTick, (ulong)(uint)drawIndex);
+         return (hash & 0xFFFF_FFFF) / (double)uint.MaxValue;
+     }
