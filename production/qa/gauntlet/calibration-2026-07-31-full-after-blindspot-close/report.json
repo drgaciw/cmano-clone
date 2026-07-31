@@ -1,0 +1,126 @@
+{
+  "summary": {
+    "caught": 7,
+    "survived": 1,
+    "invalid": 0,
+    "caughtDefects": 7,
+    "survivedDefects": 0,
+    "killRate": "7/7"
+  },
+  "results": [
+    {
+      "id": "00-noop-comment",
+      "role": "control",
+      "expectedOracles": [],
+      "firedOracles": [],
+      "outcome": "survived"
+    },
+    {
+      "id": "01-pd-weakened",
+      "role": "defect",
+      "expectedOracles": [
+        "goldens",
+        "victory_roe"
+      ],
+      "firedOracles": [
+        "goldens",
+        "replay_golden",
+        "tiers"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "02-roe-tight-inverted",
+      "role": "defect",
+      "expectedOracles": [
+        "victory_roe",
+        "goldens",
+        "token_coverage"
+      ],
+      "firedOracles": [
+        "goldens",
+        "tiers",
+        "token_coverage",
+        "victory_roe"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "03-salvo-off-by-one",
+      "role": "defect",
+      "expectedOracles": [
+        "goldens",
+        "victory_roe"
+      ],
+      "firedOracles": [
+        "goldens",
+        "tiers",
+        "victory_roe"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "04-rng-seed-ignored",
+      "role": "defect",
+      "expectedOracles": [
+        "sanity",
+        "goldens",
+        "replay_golden"
+      ],
+      "firedOracles": [
+        "goldens",
+        "replay_golden",
+        "tiers"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "05-contact-lifecycle-skip",
+      "role": "defect",
+      "expectedOracles": [
+        "goldens"
+      ],
+      "firedOracles": [
+        "goldens",
+        "replay_golden",
+        "tiers",
+        "victory_roe"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "06-emcon-engage-bypass",
+      "role": "defect",
+      "expectedOracles": [
+        "token_coverage",
+        "goldens",
+        "victory_roe"
+      ],
+      "firedOracles": [
+        "goldens",
+        "replay_golden",
+        "tiers",
+        "token_coverage",
+        "victory_roe"
+      ],
+      "outcome": "caught"
+    },
+    {
+      "id": "07-magazine-not-decremented",
+      "role": "defect",
+      "expectedOracles": [
+        "token_coverage",
+        "goldens",
+        "victory_roe"
+      ],
+      "firedOracles": [
+        "goldens",
+        "replay_golden",
+        "tiers",
+        "token_coverage",
+        "victory_roe"
+      ],
+      "outcome": "caught"
+    }
+  ]
+}
