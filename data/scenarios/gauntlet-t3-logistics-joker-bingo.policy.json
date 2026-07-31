@@ -10,7 +10,7 @@
     "combatDomainsEnabled": true,
     "pkBase": 0.85,
     "pkIntercept": 0.0,
-    "pkKill": 0.2,
+    "pkKill": 0.0,
     "salvoSize": 1
   },
   "logistics": {
@@ -33,8 +33,8 @@
     }
   ],
   "gauntlet": {
-    "intent": "T3 logistics fuel variables: burn model crosses JOKER then BINGO within 16 ticks (Joker = finish task soon; Bingo = RTB/tanker immediately) [catalog: Gripen vs Steregushchiy]",
-    "oracle": "Fingerprint contains FuelStateChange crossings NOMINAL\u2192JOKER and JOKER\u2192BINGO.",
+    "intent": "T3 logistics fuel: burn model crosses JOKER then BINGO; post-Bingo engages hard-denied (BINGO_FUEL). pkKill=0 so TARGET_DESTROYED does not mask the Bingo gate [catalog: Gripen vs Steregushchiy]",
+    "oracle": "Fingerprint: FuelStateChange NOMINAL\u2192JOKER and JOKER\u2192BINGO; post-Bingo Engagement aborts include BINGO_FUEL (load-bearing for saboteur 08).",
     "dimensionsClaimed": [
       "logistics-joker",
       "logistics-bingo",
@@ -52,14 +52,15 @@
       "requireFingerprintSubstrings": [
         "JOKER",
         "BINGO",
-        "FuelStateChange"
+        "FuelStateChange",
+        "BINGO_FUEL"
       ],
-      "minKills": 1,
-      "maxMissilesFired": 5,
+      "minKills": 0,
+      "maxMissilesFired": 8,
       "minDenials": 14,
-      "maxDenials": 20,
-      "minScore": 0.0,
-      "maxScore": 40.0
+      "maxDenials": 30,
+      "minScore": -100.0,
+      "maxScore": 20.0
     },
     "units": [
       {

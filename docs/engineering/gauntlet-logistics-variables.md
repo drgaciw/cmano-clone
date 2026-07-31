@@ -55,6 +55,8 @@ Threshold `0` disables Shotgun (only Winchester at empty).
 | Shotgun | `OrdnanceStateChange` → SHOTGUN | **Soft deny** multi-salvo (`SalvoSize` > 1) — `ShotgunOrdnance` / `SHOTGUN_ORDNANCE` |
 | Winchester | `OrdnanceStateChange` → WINCHESTER | Existing magazine-empty path (`NO_AMMO`) |
 
+Bingo pin (`gauntlet-t3-logistics-joker-bingo`) uses `pkKill=0` so post-Bingo engages are not masked by `TARGET_DESTROYED` (saboteur `08-bingo-gate-bypass` requires load-bearing `BINGO_FUEL`).
+
 Gate wiring:
 - Bingo: `FuelTimelineTracker.IsBingo` → `EngageContext.LogisticsBingoBlocked` → `LogisticsBingoEngageGate`
 - Shotgun: live magazine rounds + `ShotgunRoundsThreshold` → `LogisticsShotgunEngageGate` (single-round residual still allowed)
