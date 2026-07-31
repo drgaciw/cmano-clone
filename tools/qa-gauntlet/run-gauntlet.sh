@@ -44,23 +44,18 @@ PY
 fi
 ALL_SEEDS="$ANCHOR_SEEDS${ROVING_SEEDS:+,$ROVING_SEEDS}"
 
-scenarios_for() { case "$1" in
-  1) echo "gauntlet-t1-patrol-a,gauntlet-t1-patrol-b,gauntlet-t1-patrol-c,gauntlet-t1-patrol-d";;
-  2) echo "gauntlet-t2-escort-a,gauntlet-t2-escort-passive,gauntlet-t2-strike-a,gauntlet-t2-strike-event";;
-  3) echo "gauntlet-t3-escort-strike,gauntlet-t3-emcon-phases,gauntlet-t3-id-roe,gauntlet-t3-event-chain";;
-  4) echo "gauntlet-t4-multi-mission,gauntlet-t4-weighted,gauntlet-t4-asymm-roe,gauntlet-t4-random-inject";;
-  5) echo "gauntlet-t5-cascade,gauntlet-t5-theater,gauntlet-t5-dynamic-obj,gauntlet-t5-roe-change";;
-  extra) echo "gauntlet-joint-orbat-smoke,gauntlet-multidomain-shooters";;
-  *) return 1;; esac; }
-ticks_for() { case "$1" in 1) echo 6;; 2) echo 10;; 3) echo 16;; 4) echo 24;; 5) echo 40;; extra) echo 12;; esac; }
+EVAL_PY="tools/qa-gauntlet/evaluate_run.py"
+LADDER_YAML="tools/qa-gauntlet/ladder.yaml"
 
 OVERALL=0
 TIER_NAMES=""
 for t in $TIERS; do
   TIER="tier-$t"; TDIR="$RUN_DIR/$TIER"; mkdir -p "$TDIR"
   TIER_NAMES="${TIER_NAMES:+$TIER_NAMES,}$TIER"
-  SCEN=$(scenarios_for "$t") || { echo "FATAL: unknown tier $t" >&2; exit 3; }
-  TICKS=$(ticks_for "$t")
+  SCEN=$(python3 "$EVAL_PY" ladder --ladder "$LADDER_YAML" --tier "$t" --field scenarios) \
+    || { echo "FATAL: unknown tier $t" >&2; exit 3; }
+  TICKS=$(python3 "$EVAL_PY" ladder --ladder "$LADDER_YAML" --tier "$t" --field ticks) \
+    || { echo "FATAL: unknown tier $t" >&2; exit 3; }
   echo "=== $TIER ticks=$TICKS seeds=$ALL_SEEDS ==="
   IFS=',' read -ra IDS <<< "$SCEN"
   for id in "${IDS[@]}"; do cp "data/scenarios/$id.policy.json" "$TDIR/"; done
@@ -77,13 +72,9 @@ for t in $TIERS; do
   # Strict gate: anchor rows only. Envelope bounds are calibrated on anchor seeds
   # (tools/qa-gauntlet/README-expect-regen.md), so roving rows are evaluated
   # separately below and surfaced as warnings (roving_observe), never as the gate.
-  python3 - "$TDIR/results.csv" "$TDIR/results-anchors.csv" "$ANCHOR_SEEDS" <<'PY'
-import sys
-src, dst, anchors = sys.argv[1], sys.argv[2], set(sys.argv[3].split(","))
-lines = open(src, encoding="utf-8").read().splitlines()
-keep = [lines[0]] + [l for l in lines[1:] if l.strip() and l.split(",", 2)[1] in anchors]
-open(dst, "w", encoding="utf-8").write("\n".join(keep) + "\n")
-PY
+  python3 "$EVAL_PY" filter-seeds \
+    --in "$TDIR/results.csv" --out "$TDIR/results-anchors.csv" \
+    --seeds "$ANCHOR_SEEDS"
   "$DOTNET" run --project src/ProjectAegis.MissionEditor.Cli --no-build -- gauntlet_oracle_eval \
     --policy-dir "$TDIR" --csv "$TDIR/results-anchors.csv" \
     --out "$TDIR/oracle-eval.json" > "$TDIR/oracle.log" 2>&1

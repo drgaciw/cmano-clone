@@ -84,6 +84,16 @@ def test_determinism_pass_ignores_row_order(tmp_path):
     assert oracle_determinism(tmp_path)["status"] == "pass"
 
 
+def test_determinism_ignores_header_and_blank_noise(tmp_path):
+    """Structured Row compare must not false-fail on blank/header line noise."""
+    from evaluate_run import oracle_determinism
+    a = tmp_path / "results.csv"
+    b = tmp_path / "results-repeat.csv"
+    a.write_text(HEADER + row_line(seed="42") + "\n" + row_line(seed="7"), encoding="utf-8")
+    b.write_text(HEADER + row_line(seed="42") + row_line(seed="7"), encoding="utf-8")
+    assert oracle_determinism(tmp_path)["status"] == "pass"
+
+
 def test_determinism_fails_on_fingerprint_drift(tmp_path):
     from evaluate_run import oracle_determinism
     make_csv(tmp_path, [row_line(fp="A")])
@@ -97,6 +107,34 @@ def test_determinism_fails_when_repeat_missing(tmp_path):
     from evaluate_run import oracle_determinism
     make_csv(tmp_path, [row_line()])
     assert oracle_determinism(tmp_path)["status"] == "fail"
+
+
+def test_filter_csv_by_seeds_preserves_fingerprint_commas(tmp_path):
+    from evaluate_run import filter_csv_by_seeds, parse_results_csv
+    src = make_csv(tmp_path, [
+        row_line(seed="42", fp="A|1,2 B,C"),
+        row_line(seed="99991", fp="ROVING,x"),
+        row_line(seed="7", fp="D|3,4"),
+    ])
+    dst = tmp_path / "anchors.csv"
+    kept = filter_csv_by_seeds(src, dst, {"42", "7", "123"})
+    assert kept == 2
+    rows = parse_results_csv(dst)
+    assert [r.seed for r in rows] == ["42", "7"]
+    assert rows[0].fingerprint == "A|1,2 B,C"
+    assert rows[1].fingerprint == "D|3,4"
+
+
+def test_filter_seeds_cli_subcommand(tmp_path):
+    from evaluate_run import main
+    src = make_csv(tmp_path, [row_line(seed="42"), row_line(seed="99"), row_line(seed="7")])
+    dst = tmp_path / "out.csv"
+    rc = main(["filter-seeds", "--in", str(src), "--out", str(dst), "--seeds", "42,7,123"])
+    assert rc == 0
+    text = dst.read_text(encoding="utf-8")
+    assert text.startswith("scenarioId,")
+    assert ",99," not in text
+    assert text.count("\n") >= 3  # header + 2 rows + trailing newline
 
 
 def test_victory_reads_oracle_eval_json(tmp_path):
