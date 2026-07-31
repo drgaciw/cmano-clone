@@ -61,6 +61,8 @@ and no survived defects.
 
 ## Read the report
 
+Latest role-aware summary (post-#370 contracts): `production/qa/gauntlet/calibration-2026-07-31-role-refresh/` (kill rate **4/6**; see `PROVENANCE.md`). Historical measured runs remain under `calibration-2026-07-28*`.
+
 `production/qa/gauntlet/calibration-<date>/report.md` (+ `report.json`):
 
 - `00-noop-comment` (`role: control`) must SURVIVE. A *caught* control is a
