@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `dispatching-parallel-agents` for Wave 1 (three independent domains in one turn), then a single integrator for Wave 2. Prefer `subagent-driven-development` / `executing-plans` per task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **Status (2026-07-31):** Wave 1 Agents A/B/C MERGED on `cursor/tncq-pr368-remediation-9b58` (PR #370). Gates: build 0/0; pytest 38/38; Gauntlet Data 30 + Cli 7; PlayModeSmoke 21/21; ReplayGolden filter green; hash preserved; ZERO DelegationBridge touches. Full suite 1941 passed; 1 env-only Unity plugin DLL miss cleared locally via gitignored copy (not committed).
+
 **Goal:** Clear the thermo-nuclear REQUEST CHANGES bar on [PR #368](https://github.com/drgaciw/cmano-clone/pull/368) (`qa/gauntlet-effectiveness`) without changing ladder oracle semantics, Baltic v2 replay hash, or DelegationBridge.
 
 **Architecture:** Three independent ownership fixes land in parallel: (A) make `gauntlet.*` schema canonical in `ProjectAegis.Data` and derive strict-key validation from it; (B) make saboteur kill-rate / exit contracts catalog-driven; (C) data-drive the ladder driver and collapse the third CSV parser. A short integrator wave merges, re-verifies, and aligns skill/report prose.

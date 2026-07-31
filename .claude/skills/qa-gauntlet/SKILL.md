@@ -227,13 +227,15 @@ tools/qa-gauntlet/run-gauntlet.sh --run-id <RUN_ID> [--tiers "1 2 3 4 5 extra"] 
   [--seeds 42,7,123] [--roving 2]
 ```
 
-The driver resolves dotnet itself (PATH, then `~/.dotnet/dotnet`), runs each tier's
-batch plus an identical repeat batch, runs `gauntlet_oracle_eval` on the anchor-seed
-rows (strict gate; the CLI also enforces strict `gauntlet.*` keys — unknown keys fail,
-legacy `emcon` warns), evaluates roving rows separately in observe mode, and invokes
-`tools/qa-gauntlet/evaluate_run.py` for tier and run verdicts. Roving seeds are derived
-from the run id and recorded in `roving-seeds.txt` (reproducible). Tick budgets are
-encoded in the driver (6 / 10 / 16 / 24 / 40, extra=12).
+The driver resolves dotnet itself (PATH, then `~/.dotnet/dotnet`), loads the ladder
+contract from `tools/qa-gauntlet/ladder.yaml` (tier → scenarios + ticks), runs each
+tier's batch plus an identical repeat batch, filters anchor seeds via
+`evaluate_run.py filter-seeds`, runs `gauntlet_oracle_eval` on those rows (strict
+gate: `GauntletPolicyStrictKeys` in `ProjectAegis.Data` — unknown `gauntlet.*` keys
+fail closed inside `GauntletOracleEvaluator`; legacy `gauntlet.emcon` warns),
+evaluates roving rows separately in observe mode, and invokes
+`tools/qa-gauntlet/evaluate_run.py` for tier and run verdicts. Roving seeds are
+derived from the run id and recorded in `roving-seeds.txt` (reproducible).
 
 For generated (Phase A) scenarios not in the shipped ladder, stage them into
 `data/scenarios/` first or run the Demo batch directly, then call
