@@ -80,6 +80,16 @@ def test_stability_fails_on_unexpected_scenario_or_seed(tmp_path):
     assert any("unexpected" in e for e in o["evidence"])
 
 
+def test_stability_fails_on_duplicate_in_repeat_csv(tmp_path):
+    make_csv(tmp_path, [row_line(seed="42")])
+    make_csv(tmp_path, [row_line(seed="42"), row_line(seed="42", fp="DUP")],
+             name="results-repeat.csv")
+    (tmp_path / "run.log").write_text("ok\n", encoding="utf-8")
+    o = oracle_stability(tmp_path, parse_results_csv(tmp_path / "results.csv"), ["s1"], ["42"])
+    assert o["status"] == "fail"
+    assert any("repeat" in e and "duplicate" in e for e in o["evidence"])
+
+
 def test_sanity_fails_on_empty_fingerprint_and_nonfinite_score(tmp_path):
     p = make_csv(tmp_path, [row_line(fp=""), row_line(seed="7", score="NaN")])
     o = oracle_sanity(parse_results_csv(p), ["42", "7"])
@@ -268,6 +278,22 @@ def test_bless_refuses_missing_run_verdict_when_required(tmp_path):
                     "token_coverage": {"status": "pass", "evidence": []}}}))
     assert bless(run, tmp_path / "anchors.json", "run-x", ["tier-1"],
                  require_run_verdict=True) == 0
+
+
+def test_bless_multi_tier_requires_run_verdict_by_default(tmp_path):
+    from evaluate_run import bless
+    run = tmp_path / "run"
+    for tier in ("tier-1", "tier-2"):
+        (run / tier).mkdir(parents=True)
+        make_csv(run / tier, [row_line()])
+        _green_verdict(run / tier / "verdict.json", tier=tier)
+    # Multi-tier: missing run verdict refuses even without explicit flag
+    assert bless(run, tmp_path / "anchors.json", "run-x", ["tier-1", "tier-2"]) == 2
+    (run / "verdict.json").write_text(json.dumps({
+        "tier": "run", "pass": True,
+        "oracles": {"tiers": {"status": "pass", "evidence": []},
+                    "token_coverage": {"status": "pass", "evidence": []}}}))
+    assert bless(run, tmp_path / "anchors.json", "run-x", ["tier-1", "tier-2"]) == 0
 
 
 def test_bless_refuses_red_verdict(tmp_path):

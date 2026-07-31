@@ -15,4 +15,5 @@ change, bug fix that moves outcomes). Same discipline as ReplayGolden and
 1. Confirm the diff is explained (link the PR/story/defect in the commit message).
 2. Run a full green ladder (all non-golden oracles pass).
 3. `python3 tools/qa-gauntlet/evaluate_run.py bless --run-dir production/qa/gauntlet/<RUN_ID> --run-id <RUN_ID> --goldens tools/qa-gauntlet/goldens/anchors.json`
+   (multi-tier default requires run-level `verdict.json` with non-golden oracles green, including `token_coverage`)
 4. Commit `anchors.json` with message `qa(gauntlet): re-bless goldens — <why>`.
