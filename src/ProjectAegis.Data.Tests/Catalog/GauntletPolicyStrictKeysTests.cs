@@ -1,9 +1,12 @@
-namespace ProjectAegis.MissionEditor.Cli.Tests;
-
-using ProjectAegis.MissionEditor.Cli;
+using System.Reflection;
+using System.Text.Json;
+using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Scenario.Policy;
 using Xunit;
 
-public class GauntletPolicyStrictKeysTests
+namespace ProjectAegis.Data.Tests.Catalog;
+
+public sealed class GauntletPolicyStrictKeysTests
 {
     private static string Policy(string gauntletBody) =>
         $$"""{ "friendlyRoe": "WeaponsFree", "id": "p1", "gauntlet": { {{gauntletBody}} } }""";
@@ -33,7 +36,7 @@ public class GauntletPolicyStrictKeysTests
         Assert.Empty(report.Errors);
         var w = Assert.Single(report.Warnings);
         Assert.Contains("emcon", w);
-        Assert.Contains("top-level", w); // suggests the real engine-bound block
+        Assert.Contains("top-level", w);
     }
 
     [Fact]
@@ -42,7 +45,8 @@ public class GauntletPolicyStrictKeysTests
         var report = GauntletPolicyStrictKeys.Check(Policy(ValidCore + """, "emconPhases": [] """));
         var e = Assert.Single(report.Errors);
         Assert.Contains("emconPhases", e);
-        Assert.Contains("expect", e); // allowed-keys listing present
+        Assert.Contains("expect", e);
+        Assert.Contains("dimensionsClaimed", e);
     }
 
     [Fact]
@@ -73,10 +77,8 @@ public class GauntletPolicyStrictKeysTests
     }
 
     [Fact]
-    public void Qa_metadata_keys_landed_on_main_are_allowed()
+    public void Qa_metadata_keys_are_allowed()
     {
-        // expectProvenance/expectCiProvenance (expect-regen discipline), dimensionsClaimed
-        // (variability plan), forge (forge candidates) — all legitimate QA metadata.
         var report = GauntletPolicyStrictKeys.Check(Policy(ValidCore + """
             , "expectProvenance": { "csv": "x.csv" }
             , "expectCiProvenance": { "csv": "y.csv" }
@@ -90,8 +92,30 @@ public class GauntletPolicyStrictKeysTests
     [Fact]
     public void Missing_or_invalid_gauntlet_block_yields_no_report_entries()
     {
-        // Absence is handled by the evaluator ("missing gauntlet.expect"), not strict keys.
         Assert.Empty(GauntletPolicyStrictKeys.Check("""{ "id": "p1" }""").Errors);
         Assert.Empty(GauntletPolicyStrictKeys.Check("not json").Errors);
     }
+
+    [Fact]
+    public void Allowed_keys_are_derived_from_dto_property_names_not_hand_list()
+    {
+        // Derivation proof: whitelist == camelCase of ScenarioGauntletJsonDto / expect / unit props.
+        // Adding a DTO property automatically widens Check without editing a string encyclopedia.
+        var gauntletKeys = CamelCaseProps(typeof(ScenarioGauntletJsonDto));
+        var expectKeys = CamelCaseProps(typeof(ScenarioGauntletExpectJsonDto));
+        var unitKeys = CamelCaseProps(typeof(ScenarioGauntletUnitJsonDto));
+
+        Assert.Equal(gauntletKeys, GauntletPolicyStrictKeys.AllowedGauntletKeys.OrderBy(k => k, StringComparer.Ordinal));
+        Assert.Equal(expectKeys, GauntletPolicyStrictKeys.AllowedExpectKeys.OrderBy(k => k, StringComparer.Ordinal));
+        Assert.Equal(unitKeys, GauntletPolicyStrictKeys.AllowedUnitKeys.OrderBy(k => k, StringComparer.Ordinal));
+
+        Assert.Contains("dimensionsClaimed", GauntletPolicyStrictKeys.AllowedGauntletKeys);
+        Assert.Contains("forge", GauntletPolicyStrictKeys.AllowedGauntletKeys);
+        Assert.DoesNotContain("emcon", GauntletPolicyStrictKeys.AllowedGauntletKeys);
+    }
+
+    private static IEnumerable<string> CamelCaseProps(Type type) =>
+        type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Select(p => JsonNamingPolicy.CamelCase.ConvertName(p.Name))
+            .OrderBy(k => k, StringComparer.Ordinal);
 }
