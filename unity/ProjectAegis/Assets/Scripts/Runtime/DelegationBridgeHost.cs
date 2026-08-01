@@ -134,6 +134,29 @@ namespace ProjectAegis.Unity.Runtime
             return Bridge.TryEnqueueAttackOption(entityKey, optionId, _lastSnapshot, out failureReason);
         }
 
+        /// <summary>
+        /// CMD-31: issue a player command for the currently selected unit (unit-order toolbar).
+        /// Does not rewrite RunTick; returns structured failure reasons for disabled UI chrome.
+        /// </summary>
+        public bool TryIssueSelectedCommand(string commandId, out string? reason)
+        {
+            reason = null;
+            if (string.IsNullOrEmpty(SelectedUnitId))
+            {
+                reason = ProjectAegis.Delegation.Input.C2CommandIssuance.ReasonNoSelection;
+                return false;
+            }
+
+            if (!TryResolveEntityKey(SelectedUnitId, out var entityKey))
+            {
+                reason = ProjectAegis.Delegation.UnityAdapter.Bridge.C2PlayerCommandBridge.ReasonUnknownUnit;
+                return false;
+            }
+
+            var simTime = _lastSnapshot?.SimTime ?? 0;
+            return Bridge.TryIssuePlayerCommand(entityKey, commandId, simTime, out reason);
+        }
+
         public void SelectUnit(string unitId)
         {
             Presentation.SelectFriendlyUnit(unitId);
