@@ -72,9 +72,10 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Tactical map symbols (placeholder layout).</summary>
         public IReadOnlyList<MapSymbolEntry> LastMapSymbols { get; private set; } = Array.Empty<MapSymbolEntry>();
 
-        /// <summary>Top bar labels (time, phase, score).</summary>
+        /// <summary>Top bar labels (time, phase, score, CMD-22 Zulu/local/remain).</summary>
         public C2TopBarState LastTopBar { get; private set; } =
-            new("SIM 00:00:00", "PHASE: Planning", "TIME: 1x", "MODE: —", "COMMS: NOMINAL", "SCORE: 0");
+            new("SIM 00:00:00", "PHASE: Planning", "TIME: 1x", "MODE: —", "COMMS: NOMINAL", "SCORE: 0",
+                "ZULU 00:00:00", "LOCAL 00:00:00", "REMAIN —");
 
         /// <summary>Sensor C2 contact list + EMCON / track indicators for HUD binding.</summary>
         public SensorC2Snapshot LastSensorC2 { get; private set; } =
