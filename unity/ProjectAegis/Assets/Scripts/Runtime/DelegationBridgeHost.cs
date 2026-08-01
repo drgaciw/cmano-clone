@@ -96,6 +96,18 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>True when Session.UnitReadiness is present (false → honest NO READINESS DATA).</summary>
         public bool HasAirOpsReadinessData { get; private set; }
 
+        /// <summary>CMD-24 magazine loadout rows (from Session.Magazines snapshot when present).</summary>
+        public IReadOnlyList<MagazineLoadoutEntry> LastMagazineLoadout { get; private set; } = Array.Empty<MagazineLoadoutEntry>();
+
+        /// <summary>True when Session.Magazines is present (false → honest NO MAGAZINE DATA).</summary>
+        public bool HasMagazineLoadoutData { get; private set; }
+
+        /// <summary>CMD-24 deck/hangar capacity rows (inject via SetDeckHangarFeed; no session source yet).</summary>
+        public IReadOnlyList<DeckHangarCapacityEntry> LastDeckHangar { get; private set; } = Array.Empty<DeckHangarCapacityEntry>();
+
+        /// <summary>True when a deck/hangar capacity feed has been bound (false → honest NO CAPACITY DATA).</summary>
+        public bool HasDeckHangarData { get; private set; }
+
         private ISimWorldSnapshot? _lastSnapshot;
 
         /// <summary>Latest live simulation tick for presentation staleness calculations.</summary>
@@ -234,6 +246,9 @@ namespace ProjectAegis.Unity.Runtime
             LastAgentRoster = BuildAgentRosterFromRegistry();
             // CMD-24 Phase A: additive air-ops readiness projection
             RefreshAirOps();
+            // CMD-24 Wave4: magazine + deck/hangar feeds (no Tick body rewrite)
+            RefreshMagazineLoadout();
+            RefreshDeckHangar();
             return result;
         }
 
@@ -282,6 +297,75 @@ namespace ProjectAegis.Unity.Runtime
                 unitIds,
                 readyForLaunch: id => readiness!.IsReadyForLaunch(id));
         }
+
+        /// <summary>
+        /// Rebuild magazine loadout rows from Session.Magazines snapshot (safe from LateUpdate).
+        /// Honest empty when no magazine ledger is bound. Weapon labels use missing marker.
+        /// </summary>
+        public void RefreshMagazineLoadout()
+        {
+            if (Bridge?.Session?.Magazines == null)
+            {
+                HasMagazineLoadoutData = false;
+                LastMagazineLoadout = Array.Empty<MagazineLoadoutEntry>();
+                return;
+            }
+
+            HasMagazineLoadoutData = true;
+            var snap = Bridge.Session.Magazines.Snapshot();
+            if (snap.Count == 0)
+            {
+                LastMagazineLoadout = Array.Empty<MagazineLoadoutEntry>();
+                return;
+            }
+
+            var rows = new List<(string, string, string, string, string?, int, int)>(snap.Count);
+            for (var i = 0; i < snap.Count; i++)
+            {
+                var e = snap[i];
+                rows.Add((
+                    e.ShooterUnitId.ToString(),
+                    string.Empty,
+                    e.MountId.ToString(),
+                    string.Empty,
+                    null,
+                    e.Remaining,
+                    e.Capacity));
+            }
+
+            LastMagazineLoadout = MagazineLoadoutProjection.Project(rows);
+        }
+
+        /// <summary>
+        /// Inject deck/hangar capacity states for presentation (no Session source yet).
+        /// Null clears to honest NO CAPACITY DATA.
+        /// </summary>
+        public void SetDeckHangarFeed(IReadOnlyList<DeckHangarCapacityState>? states)
+        {
+            if (states is null)
+            {
+                HasDeckHangarData = false;
+                LastDeckHangar = Array.Empty<DeckHangarCapacityEntry>();
+                return;
+            }
+
+            HasDeckHangarData = true;
+            LastDeckHangar = DeckHangarCapacityProjection.Project(states);
+        }
+
+        /// <summary>
+        /// Rebuild deck/hangar rows from last injected feed (safe from LateUpdate).
+        /// Without a feed, leaves honest empty (HasDeckHangarData false).
+        /// </summary>
+        public void RefreshDeckHangar()
+        {
+            if (!HasDeckHangarData)
+            {
+                LastDeckHangar = Array.Empty<DeckHangarCapacityEntry>();
+            }
+            // Injected rows already projected in SetDeckHangarFeed; nothing else to recompute.
+        }
+
 
         /// <summary>CMD-37: take direct control of the currently selected unit.</summary>
         public bool TryTakeControlOfSelected(out string? reason)
