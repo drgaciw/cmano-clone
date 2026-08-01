@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="agent-roster-root" class="agent-roster-panel">
+        <ui:Label text="AGENT ROSTER" class="agent-roster-title" />
+        <ui:ListView name="agent-roster-list" class="agent-roster-list" selection-type="Single" />
+        <ui:VisualElement name="agent-directive-buttons" class="agent-directive-buttons">
+            <ui:Button name="directive-take-control" text="Take Control" class="agent-directive-btn" />
+            <ui:Button name="directive-return-to-agent" text="Return to Agent" class="agent-directive-btn" />
+            <ui:Button name="directive-hold" text="Hold" class="agent-directive-btn" />
+            <ui:Button name="directive-rtb" text="RTB" class="agent-directive-btn" />
+        </ui:VisualElement>
+        <ui:Label name="agent-directive-status" text="" class="agent-directive-status" />
+    </ui:VisualElement>
+</ui:UXML>
