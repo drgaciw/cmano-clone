@@ -146,6 +146,12 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(shotgunAbort.Value);
         }
 
+        var winchesterAbort = LogisticsWinchesterEngageGate.Evaluate(liveRounds);
+        if (winchesterAbort != null)
+        {
+            return EngageResult.Aborted(winchesterAbort.Value);
+        }
+
         if (ctx.TrackSpoofed)
         {
             return EngageResult.Aborted(EngagementAbortReason.TrackSpoofed);
