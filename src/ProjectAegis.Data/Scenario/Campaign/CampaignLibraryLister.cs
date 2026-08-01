@@ -27,7 +27,7 @@ public static class CampaignLibraryLister
         scenariosDir ??= TryResolveSiblingScenariosDirectory(campaignsDir)
                          ?? ScenarioDataPaths.TryResolveScenariosDirectory();
 
-        IReadOnlySet<string>? scenarioIds = scenariosDir is not null && Directory.Exists(scenariosDir)
+        HashSet<string>? scenarioIds = scenariosDir is not null && Directory.Exists(scenariosDir)
             ? IndexScenarioIds(scenariosDir)
             : null;
 

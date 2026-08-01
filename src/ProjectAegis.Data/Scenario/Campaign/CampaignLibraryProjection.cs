@@ -12,7 +12,7 @@ public static class CampaignLibraryProjection
     public static CampaignLibraryEntry Project(
         CampaignDocument document,
         string sourcePath,
-        IReadOnlySet<string>? availableScenarioIds = null)
+        HashSet<string>? availableScenarioIds = null)
     {
         if (document is null)
         {
@@ -54,7 +54,7 @@ public static class CampaignLibraryProjection
     /// <summary>Load from disk and project. Catches IO / parse failures as unavailable rows.</summary>
     public static CampaignLibraryEntry ProjectFromPath(
         string path,
-        IReadOnlySet<string>? availableScenarioIds = null)
+        HashSet<string>? availableScenarioIds = null)
     {
         var campaignId = CampaignIdFromPath(path);
         try
@@ -137,7 +137,7 @@ public static class CampaignLibraryProjection
     /// </summary>
     public static string? EvaluateFeasibility(
         CampaignDocument document,
-        IReadOnlySet<string>? availableScenarioIds)
+        HashSet<string>? availableScenarioIds)
     {
         if (document is null)
         {
@@ -171,7 +171,7 @@ public static class CampaignLibraryProjection
     /// Match campaign member scenario ids against library-derived ids
     /// (<c>baltic-patrol.scenario</c>) and bare basenames (<c>baltic-patrol</c>).
     /// </summary>
-    public static bool ScenarioIdPresent(IReadOnlySet<string> availableScenarioIds, string scenarioId)
+    public static bool ScenarioIdPresent(HashSet<string> availableScenarioIds, string scenarioId)
     {
         if (availableScenarioIds.Contains(scenarioId))
         {
