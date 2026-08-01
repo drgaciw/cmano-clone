@@ -104,19 +104,12 @@ pre code { background: transparent; padding: 0; color: inherit; }
 .sev-med { background: var(--med-bg); color: var(--med); }
 .sev-low { background: var(--low-bg); color: var(--low); }
 .matrix {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 0;
-  border: 1px solid var(--border);
-  margin: 1rem 0 1.5rem;
   font-size: 0.88rem;
 }
-.matrix div {
+.matrix th,
+.matrix td {
   padding: 0.55rem 0.65rem;
-  border-bottom: 1px solid var(--border);
-  border-right: 1px solid var(--border);
 }
-.matrix .h { background: var(--th-bg); font-weight: 600; }
 .matrix .row-label { font-weight: 600; background: #f0ebe3; }
 .toc { background: #f0ebe3; padding: 0.9rem 1.1rem; border-radius: 6px; }
 .toc ol { margin: 0.4rem 0 0; padding-left: 1.25rem; }
@@ -129,10 +122,7 @@ footer {
   color: var(--muted);
   font-size: 0.88rem;
 }
-@media (max-width: 720px) {
-  .matrix { grid-template-columns: 1fr; }
-  .matrix div { border-right: none; }
-}
+
 </style>
 </head>
 <body>
@@ -169,24 +159,18 @@ footer {
     <p><strong>Core sim C# has no OS platform branching</strong> — gaps are tooling, Editor host, and player packaging.</p>
   </div>
 
-  <div class="matrix" role="table" aria-label="OS capability matrix">
-    <div class="h">Surface</div><div class="h">Linux</div><div class="h">Windows</div>
-    <div class="row-label">Headless .NET</div>
-    <div>Buildkite (authoritative) · Cloud agents</div>
-    <div><code>verify-ci-local.ps1</code> (partial mirror)</div>
-    <div class="row-label">Unity Editor UTF</div>
-    <div>Manual GHA ubuntu + license</div>
-    <div>Hardcoded <code>Unity.exe</code> batch scripts</div>
-    <div class="row-label">Unity Player</div>
-    <div><code>BuildPlayer</code> API + Linux menu — <em>not in CI</em></div>
-    <div>Same API — <em>not in CI</em></div>
-    <div class="row-label">Plugin DLL copy</div>
-    <div>Needs <code>pwsh</code> today</div>
-    <div>Native PowerShell</div>
-    <div class="row-label">Core sim source</div>
-    <div>Portable (no OS #ifs)</div>
-    <div>Same under <code>dotnet</code></div>
-  </div>
+  <table class="matrix" aria-label="OS capability matrix">
+    <thead>
+      <tr><th>Surface</th><th>Linux</th><th>Windows</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="row-label">Headless .NET</td><td>Buildkite (authoritative) · Cloud agents</td><td><code>verify-ci-local.ps1</code> (partial mirror)</td></tr>
+      <tr><td class="row-label">Unity Editor UTF</td><td>Manual GHA ubuntu + license</td><td>Hardcoded <code>Unity.exe</code> batch scripts</td></tr>
+      <tr><td class="row-label">Unity Player</td><td><code>BuildPlayer</code> API + Linux menu — <em>not in CI</em></td><td>Same API — <em>not in CI</em></td></tr>
+      <tr><td class="row-label">Plugin DLL copy</td><td>Needs <code>pwsh</code> today</td><td>Native PowerShell</td></tr>
+      <tr><td class="row-label">Core sim source</td><td>Portable (no OS #ifs)</td><td>Same under <code>dotnet</code></td></tr>
+    </tbody>
+  </table>
 </section>
 
 <section id="method">
