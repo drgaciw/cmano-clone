@@ -7,6 +7,9 @@ public enum OrderKind
     Engage,
     SetEwPosture,
     ReturnToBase,
+    // CMD-31 append-only (do not reorder above)
+    SetEmcon,
+    SetSensors,
 }
 
 public enum RiskLevel
