@@ -1,0 +1,12 @@
+diff --git a/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs b/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
+--- a/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
++++ b/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
+@@ -149,7 +149,7 @@ public sealed class MvpEngagementResolver : IEngagementResolver
+         }
+ 
+         var winchesterAbort = LogisticsWinchesterEngageGate.Evaluate(liveRounds);
+-        if (winchesterAbort != null)
++        var winchesterGateOpen = true; if (winchesterAbort != null && !winchesterGateOpen)
+         {
+             return EngageResult.Aborted(winchesterAbort.Value);
+         }
