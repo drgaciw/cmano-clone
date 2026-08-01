@@ -267,8 +267,9 @@ namespace ProjectAegis.Unity.Runtime
         }
 
         /// <summary>
-        /// Rebuild CMD-24 Air Ops rows from Session.UnitReadiness + OOB (safe from LateUpdate).
-        /// Honest empty when no readiness map is bound.
+        /// Rebuild CMD-24 Air Ops rows from Session.AirOps lifecycle when present,
+        /// else Session.UnitReadiness + OOB (safe from LateUpdate).
+        /// Honest empty when neither lifecycle ledger nor readiness map has data.
         /// </summary>
         public void RefreshAirOps()
         {
@@ -276,6 +277,15 @@ namespace ProjectAegis.Unity.Runtime
             {
                 HasAirOpsReadinessData = false;
                 LastAirOps = Array.Empty<AirOpsEntry>();
+                return;
+            }
+
+            // LOG-08 Phase N: prefer session air-ops FSM snapshot when units are tracked.
+            var airOps = Bridge.Session.AirOps;
+            if (airOps != null && airOps.Count > 0)
+            {
+                HasAirOpsReadinessData = true;
+                LastAirOps = AirOpsProjection.ProjectLifecycle(airOps.Snapshot());
                 return;
             }
 
