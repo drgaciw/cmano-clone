@@ -2,12 +2,12 @@ namespace ProjectAegis.Delegation.Projection;
 
 /// <summary>
 /// Headless apply path for map placeholder panel state (ASSET-009 / S107).
-/// Surfaces theater label, symbol counts, selection, and optional overlay counts (CMD-21/32/34).
+/// Surfaces theater label, symbol counts, selection, and optional overlay counts (CMD-21/32/33/34).
 /// </summary>
 public static class MapPanelApplyState
 {
     public static MapPanelPresentation Apply(MapPanelState? state) =>
-        Apply(state, envelopeRings: null, datalinkEdges: null);
+        Apply(state, envelopeRings: null, datalinkEdges: null, doctrineOverlay: null);
 
     /// <summary>
     /// Apply map state with optional envelope ring / datalink edge overlays (CMD-21/32/34).
@@ -16,7 +16,17 @@ public static class MapPanelApplyState
     public static MapPanelPresentation Apply(
         MapPanelState? state,
         IReadOnlyList<EnvelopeRingEntry>? envelopeRings,
-        IReadOnlyList<DatalinkEdgeEntry>? datalinkEdges = null)
+        IReadOnlyList<DatalinkEdgeEntry>? datalinkEdges = null) =>
+        Apply(state, envelopeRings, datalinkEdges, doctrineOverlay: null);
+
+    /// <summary>
+    /// Apply map state with optional envelope / datalink / doctrine overlays (CMD-21/32/33/34).
+    /// </summary>
+    public static MapPanelPresentation Apply(
+        MapPanelState? state,
+        IReadOnlyList<EnvelopeRingEntry>? envelopeRings,
+        IReadOnlyList<DatalinkEdgeEntry>? datalinkEdges,
+        IReadOnlyList<DoctrineMapOverlayEntry>? doctrineOverlay)
     {
         if (state is null)
         {
@@ -24,6 +34,7 @@ public static class MapPanelApplyState
             {
                 EnvelopeRingCount = CountNonNull(envelopeRings),
                 DatalinkEdgeCount = CountNonNull(datalinkEdges),
+                DoctrineOverlayCount = CountNonNull(doctrineOverlay),
             };
         }
 
@@ -59,7 +70,8 @@ public static class MapPanelApplyState
             GhostCount: ghost,
             SelectedSymbolId: selectedId,
             EnvelopeRingCount: CountNonNull(envelopeRings),
-            DatalinkEdgeCount: CountNonNull(datalinkEdges));
+            DatalinkEdgeCount: CountNonNull(datalinkEdges),
+            DoctrineOverlayCount: CountNonNull(doctrineOverlay));
     }
 
     public static MapPanelPresentation BindAndApply(
@@ -67,7 +79,7 @@ public static class MapPanelApplyState
         string theaterLabel,
         string? selectedUnitId = null,
         string? selectedContactId = null) =>
-        BindAndApply(symbols, theaterLabel, selectedUnitId, selectedContactId, null, null);
+        BindAndApply(symbols, theaterLabel, selectedUnitId, selectedContactId, null, null, null);
 
     /// <summary>
     /// Bind symbols then apply with optional overlay lists (CMD-21/32/34).
@@ -79,7 +91,20 @@ public static class MapPanelApplyState
         string? selectedUnitId,
         string? selectedContactId,
         IReadOnlyList<EnvelopeRingEntry>? envelopeRings,
-        IReadOnlyList<DatalinkEdgeEntry>? datalinkEdges = null)
+        IReadOnlyList<DatalinkEdgeEntry>? datalinkEdges = null) =>
+        BindAndApply(symbols, theaterLabel, selectedUnitId, selectedContactId, envelopeRings, datalinkEdges, null);
+
+    /// <summary>
+    /// Bind symbols then apply with optional envelope / datalink / doctrine overlays (CMD-21/32/33/34).
+    /// </summary>
+    public static MapPanelPresentation BindAndApply(
+        IReadOnlyList<MapSymbolEntry> symbols,
+        string theaterLabel,
+        string? selectedUnitId,
+        string? selectedContactId,
+        IReadOnlyList<EnvelopeRingEntry>? envelopeRings,
+        IReadOnlyList<DatalinkEdgeEntry>? datalinkEdges,
+        IReadOnlyList<DoctrineMapOverlayEntry>? doctrineOverlay)
     {
         if (symbols is null)
         {
@@ -87,7 +112,7 @@ public static class MapPanelApplyState
         }
 
         var bound = MapPanelBinder.Bind(symbols, theaterLabel, selectedUnitId, selectedContactId);
-        return Apply(bound, envelopeRings, datalinkEdges);
+        return Apply(bound, envelopeRings, datalinkEdges, doctrineOverlay);
     }
 
     private static int CountNonNull<T>(IReadOnlyList<T>? items)
@@ -117,7 +142,8 @@ public sealed record MapPanelPresentation(
     int GhostCount,
     string? SelectedSymbolId,
     int EnvelopeRingCount = 0,
-    int DatalinkEdgeCount = 0)
+    int DatalinkEdgeCount = 0,
+    int DoctrineOverlayCount = 0)
 {
     public static MapPanelPresentation Empty { get; } = new(string.Empty, 0, 0, 0, null);
 }
