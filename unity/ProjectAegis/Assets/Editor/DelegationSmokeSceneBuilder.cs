@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using ProjectAegis.Unity.Runtime;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -9,10 +10,14 @@ namespace ProjectAegis.Unity.Editor
 {
     /// <summary>
     /// Builds the Play Mode smoke scene per PLAYMODE-SMOKE.md (batchmode or menu).
+    /// Also builds optional CesiumSpike scene (useGlobeMap) — separate path; never forced into smoke CI.
     /// </summary>
     public static class DelegationSmokeSceneBuilder
     {
         public const string ScenePath = "Assets/Scenes/DelegationSmoke.unity";
+
+        /// <summary>Optional product globe spike scene (ADR-007 Phase B). Not used by default CI smoke.</summary>
+        public const string CesiumSpikeScenePath = "Assets/Scenes/CesiumSpike.unity";
 
         [MenuItem("Project Aegis/Build DelegationSmoke Scene (comms QA)")]
         public static void BuildFromMenuComms() => Build("baltic-patrol-comms");
@@ -37,6 +42,8 @@ namespace ProjectAegis.Unity.Editor
             SetInt(bridge, "globalSeed", 42);
             SetBool(bridge, "enableMvpEngagement", true);
             SetString(bridge, "scenarioPolicyId", scenarioPolicyId);
+            // CI-safe default: placeholder map, not Cesium product globe.
+            SetBool(bridge, "useGlobeMap", false);
             SetObjectReference(sim, "bridgeHost", bridge);
 
             CreatePanelHost<C2TopBarPanelHost>(
@@ -129,6 +136,107 @@ namespace ProjectAegis.Unity.Editor
 
             AssetDatabase.SaveAssets();
             Debug.Log($"DelegationSmoke scene saved: {ScenePath} scenario={scenarioPolicyId}");
+            if (Application.isBatchMode && exitBatchModeWhenDone)
+            {
+                EditorApplication.Exit(0);
+            }
+        }
+
+        /// <summary>
+        /// Builds <see cref="CesiumSpikeScenePath"/> with useGlobeMap=true + product globe hosts.
+        /// Separate from DelegationSmoke — does not break CI smoke (useGlobeMap stays false there).
+        /// Cesium package components are added via reflection when ProjectAegis.Unity.Runtime.Cesium is present.
+        /// Ion tokens must never be written into the scene by this builder.
+        /// </summary>
+        [MenuItem("Project Aegis/Build CesiumSpike Scene")]
+        public static void BuildCesiumSpikeSceneFromMenu() => BuildCesiumSpikeScene(exitBatchModeWhenDone: false);
+
+        /// <summary>
+        /// Batch: -executeMethod ProjectAegis.Unity.Editor.DelegationSmokeSceneBuilder.BuildCesiumSpikeSceneBatch
+        /// </summary>
+        public static void BuildCesiumSpikeSceneBatch() => BuildCesiumSpikeScene(exitBatchModeWhenDone: true);
+
+        public static void BuildCesiumSpikeScene(bool exitBatchModeWhenDone = true)
+        {
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+            StripAudioListenersFromOpenScene();
+
+            var root = new GameObject("CesiumSpike");
+            var bridge = root.AddComponent<DelegationBridgeHost>();
+            var sim = root.AddComponent<SimplePlayModeSimHost>();
+
+            SetInt(bridge, "globalSeed", 42);
+            SetBool(bridge, "enableMvpEngagement", true);
+            SetString(bridge, "scenarioPolicyId", "baltic-patrol-comms");
+            // Product globe flag ON for this scene only (not DelegationSmoke).
+            SetBool(bridge, "useGlobeMap", true);
+            SetObjectReference(sim, "bridgeHost", bridge);
+
+            // Placeholder map still present so CesiumGlobeBridge can feed symbols when package active.
+            var mapHost = CreatePanelHost<MapPlaceholderPanelHost>(
+                "MapPlaceholder",
+                bridge,
+                "Assets/UI/MapPlaceholder/MapPlaceholderPanel.uxml",
+                "Assets/UI/MapPlaceholder/MapPlaceholderPanel.uss");
+
+            // Product globe status chrome — pure Toolkit, no Cesium package required (CI-safe type).
+            var productGo = new GameObject("GlobeMapProduct");
+            var productDoc = productGo.AddComponent<UIDocument>();
+            productDoc.panelSettings = EnsurePanelSettingsAsset();
+            var productHost = productGo.AddComponent<GlobeMapProductHost>();
+            SetObjectReference(productHost, "bridgeHost", bridge);
+
+            // Cesium types live in ProjectAegis.Unity.Runtime.Cesium (CESIUM_FOR_UNITY gated).
+            // Add via reflection so this Editor assembly never hard-depends on the Cesium package.
+            var cesiumBridgeGo = new GameObject("CesiumGlobeBridge");
+            var cesiumBridge = TryAddComponentByTypeName(
+                cesiumBridgeGo,
+                "ProjectAegis.Unity.Runtime.CesiumGlobeBridge");
+            if (cesiumBridge != null && mapHost != null)
+            {
+                SetObjectReference(cesiumBridge, "mapHost", mapHost);
+            }
+            else if (cesiumBridge == null)
+            {
+                Debug.Log(
+                    "DelegationSmokeSceneBuilder.BuildCesiumSpikeScene: CesiumGlobeBridge type not found " +
+                    "(com.cesium.unity / CESIUM_FOR_UNITY inactive). GO left as slot.");
+            }
+
+            var hostGo = new GameObject("CesiumGlobeHost");
+            var cesiumHost = TryAddComponentByTypeName(
+                hostGo,
+                "ProjectAegis.Unity.Runtime.CesiumGlobeHost");
+            if (cesiumHost == null)
+            {
+                hostGo.name = "CesiumGlobeHost (requires com.cesium.unity)";
+                Debug.Log(
+                    "DelegationSmokeSceneBuilder.BuildCesiumSpikeScene: CesiumGlobeHost type not found; " +
+                    "GlobeMapProductHost + useGlobeMap=true still wired. Ion token never written.");
+            }
+            // Intentionally do NOT set ionAccessToken — user secret via Inspector only (NEVER commit).
+
+            var scenesDir = "Assets/Scenes";
+            if (!AssetDatabase.IsValidFolder(scenesDir))
+            {
+                AssetDatabase.CreateFolder("Assets", "Scenes");
+            }
+
+            if (!EditorSceneManager.SaveScene(scene, CesiumSpikeScenePath))
+            {
+                Debug.LogError($"Failed to save scene at {CesiumSpikeScenePath}");
+                if (Application.isBatchMode)
+                {
+                    EditorApplication.Exit(1);
+                }
+
+                return;
+            }
+
+            AssetDatabase.SaveAssets();
+            Debug.Log(
+                $"CesiumSpike scene saved: {CesiumSpikeScenePath} useGlobeMap=true " +
+                "(ion token not written; set via Inspector only).");
             if (Application.isBatchMode && exitBatchModeWhenDone)
             {
                 EditorApplication.Exit(0);
@@ -303,7 +411,7 @@ namespace ProjectAegis.Unity.Editor
             StripAudioListenersFromOpenScene();
             EditorSceneManager.MarkAllScenesDirty();
             EditorSceneManager.SaveOpenScenes();
-            Debug.Log("DelegationSmokeSceneBuilder: stripped AudioListener components from open scene.");
+            Debug.Log("DelegationSmokeSceneBuilder: stripped AudioListeners from open scene.");
         }
 
         public static void StripAudioListenersBatch()
@@ -347,6 +455,30 @@ namespace ProjectAegis.Unity.Editor
             AssetDatabase.SaveAssets();
             Debug.Log($"Created PanelSettings asset at {path}");
             return created;
+        }
+
+        /// <summary>
+        /// Add a MonoBehaviour by full type name without a compile-time reference
+        /// (Cesium assembly is CESIUM_FOR_UNITY-gated and not referenced by this Editor asmdef).
+        /// </summary>
+        private static Component? TryAddComponentByTypeName(GameObject go, string fullTypeName)
+        {
+            Type? type = null;
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                type = assembly.GetType(fullTypeName, throwOnError: false);
+                if (type != null)
+                {
+                    break;
+                }
+            }
+
+            if (type == null || !typeof(Component).IsAssignableFrom(type))
+            {
+                return null;
+            }
+
+            return go.AddComponent(type);
         }
 
         private static void SetString(Object target, string propertyName, string value)
