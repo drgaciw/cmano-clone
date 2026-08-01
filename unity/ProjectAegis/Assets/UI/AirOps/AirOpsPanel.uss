@@ -1,0 +1,31 @@
+/* Air Operations readiness panel (CMD-24 Phase A). */
+
+.air-ops-panel {
+    flex-grow: 1;
+    min-width: 260px;
+    max-width: 380px;
+    padding: 6px;
+    background-color: rgba(12, 20, 28, 0.92);
+    border-width: 1px;
+    border-color: rgb(55, 80, 100);
+}
+
+.air-ops-title {
+    -unity-font-style: bold;
+    color: rgb(180, 210, 230);
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.air-ops-empty {
+    color: rgb(240, 180, 80);
+    font-size: 11px;
+    min-height: 14px;
+    margin-bottom: 4px;
+}
+
+.air-ops-list {
+    flex-grow: 1;
+    min-height: 80px;
+    max-height: 240px;
+}
