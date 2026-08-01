@@ -21,6 +21,13 @@ public sealed class MagazineLedger
     public int GetRounds(ulong shooterUnitId, ulong mountId) =>
         _rounds.TryGetValue((shooterUnitId, mountId), out var n) ? n : 0;
 
+    /// <summary>
+    /// True when this shooter+mount has been seeded or consumed (ledger is authoritative).
+    /// Distinguishes tracked-empty (0) from never-seeded (also GetRounds==0).
+    /// </summary>
+    public bool TryGetRounds(ulong shooterUnitId, ulong mountId, out int rounds) =>
+        _rounds.TryGetValue((shooterUnitId, mountId), out rounds);
+
     public bool TryConsume(ulong shooterUnitId, ulong mountId) =>
         TryConsumeSalvo(shooterUnitId, mountId, 1);
 

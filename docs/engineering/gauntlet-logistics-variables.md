@@ -62,7 +62,7 @@ Winchester pin (`gauntlet-t2-ordnance-shotgun-winchester`) uses `pkKill=0` so po
 Gate wiring:
 - Bingo: `FuelTimelineTracker.IsBingo` → `EngageContext.LogisticsBingoBlocked` → `LogisticsBingoEngageGate`
 - Shotgun: live magazine rounds + `ShotgunRoundsThreshold` → `LogisticsShotgunEngageGate` (single-round residual still allowed)
-- Winchester: live magazine rounds ≤ 0 → `LogisticsWinchesterEngageGate` → `WinchesterOrdnance` / `WINCHESTER_ORDNANCE` (hard deny; precedes legacy magazine-empty path)
+- Winchester: tracked ledger rounds ≤ 0 → `LogisticsWinchesterEngageGate` → `WinchesterOrdnance` / `WINCHESTER_ORDNANCE` (hard deny after EMCON/FC; `MagazineLedger.TryGetRounds` is authoritative when seeded; unseeded mounts fall back to context rounds)
 
 Saboteur: `08-bingo-gate-bypass` forces Bingo gate open (defect; should be caught by goldens/token_coverage).
 Saboteur: `09-winchester-gate-bypass` forces Winchester gate open (defect; should be caught by goldens/token_coverage/victory_roe).
