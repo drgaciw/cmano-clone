@@ -53,6 +53,15 @@ public static class C2CommandIssuance
             case "set_sensors":
                 kind = OrderKind.SetSensors;
                 return true;
+            case "launch":
+            case "launch_aircraft":
+                // LOG-08 / CMD-24 Phase N — individual / selected airframe launch
+                kind = OrderKind.LaunchAircraft;
+                return true;
+            case "abort_launch":
+            case "abort_launch_aircraft":
+                kind = OrderKind.AbortLaunchAircraft;
+                return true;
             default:
                 reason = ReasonUnknownCommand;
                 return false;

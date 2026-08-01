@@ -1,4 +1,4 @@
-/* Air Operations readiness panel (CMD-24 Phase A). */
+/* Air Operations readiness panel (CMD-24 Phase A + Phase N launch/abort). */
 
 .air-ops-panel {
     flex-grow: 1;
@@ -28,4 +28,23 @@
     flex-grow: 1;
     min-height: 80px;
     max-height: 240px;
+}
+
+.air-ops-actions {
+    flex-direction: row;
+    margin-top: 6px;
+}
+
+.air-ops-btn {
+    flex-grow: 1;
+    margin-right: 4px;
+    font-size: 11px;
+    min-height: 22px;
+}
+
+.air-ops-status {
+    color: rgb(200, 160, 90);
+    font-size: 10px;
+    min-height: 12px;
+    margin-top: 4px;
 }

@@ -10,6 +10,9 @@ public enum OrderKind
     // CMD-31 append-only (do not reorder above)
     SetEmcon,
     SetSensors,
+    // LOG-08 / CMD-24 Phase N append-only (do not reorder above)
+    LaunchAircraft,
+    AbortLaunchAircraft,
 }
 
 public enum RiskLevel

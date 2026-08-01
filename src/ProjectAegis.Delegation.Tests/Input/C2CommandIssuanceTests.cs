@@ -14,6 +14,10 @@ public sealed class C2CommandIssuanceTests
     [TestCase("engage", OrderKind.Engage)]
     [TestCase("set_emcon", OrderKind.SetEmcon)]
     [TestCase("set_sensors", OrderKind.SetSensors)]
+    [TestCase("launch", OrderKind.LaunchAircraft)]
+    [TestCase("launch_aircraft", OrderKind.LaunchAircraft)]
+    [TestCase("abort_launch", OrderKind.AbortLaunchAircraft)]
+    [TestCase("abort_launch_aircraft", OrderKind.AbortLaunchAircraft)]
     public void TryResolve_maps_known_command_ids(string commandId, OrderKind expected)
     {
         Assert.That(C2CommandIssuance.TryResolve(commandId, out var kind, out var reason), Is.True);
@@ -78,5 +82,31 @@ public sealed class C2CommandIssuanceTests
         Assert.That((int)OrderKind.ReturnToBase, Is.EqualTo(4));
         Assert.That((int)OrderKind.SetEmcon, Is.EqualTo(5));
         Assert.That((int)OrderKind.SetSensors, Is.EqualTo(6));
+        Assert.That((int)OrderKind.LaunchAircraft, Is.EqualTo(7));
+        Assert.That((int)OrderKind.AbortLaunchAircraft, Is.EqualTo(8));
+    }
+
+    [TestCase("LAUNCH", OrderKind.LaunchAircraft)]
+    [TestCase(" Abort_Launch ", OrderKind.AbortLaunchAircraft)]
+    public void TryResolve_launch_abort_case_insensitive(string commandId, OrderKind expected)
+    {
+        Assert.That(C2CommandIssuance.TryResolve(commandId, out var kind, out _), Is.True);
+        Assert.That(kind, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void Validate_ok_returns_LaunchAircraft_for_launch()
+    {
+        var result = C2CommandIssuance.Validate("launch", hasSelection: true);
+        Assert.That(result.Ok, Is.True);
+        Assert.That(result.Kind, Is.EqualTo(OrderKind.LaunchAircraft));
+    }
+
+    [Test]
+    public void Validate_ok_returns_AbortLaunchAircraft_for_abort_launch()
+    {
+        var result = C2CommandIssuance.Validate("abort_launch", hasSelection: true);
+        Assert.That(result.Ok, Is.True);
+        Assert.That(result.Kind, Is.EqualTo(OrderKind.AbortLaunchAircraft));
     }
 }

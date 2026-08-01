@@ -3,5 +3,10 @@
         <ui:Label name="air-ops-header" text="AIR OPS  ·  READY 0/0" class="air-ops-title" />
         <ui:Label name="air-ops-empty" text="" class="air-ops-empty" />
         <ui:ListView name="air-ops-list" class="air-ops-list" selection-type="Single" />
+        <ui:VisualElement name="air-ops-actions" class="air-ops-actions">
+            <ui:Button name="air-ops-launch" text="Launch" class="air-ops-btn" />
+            <ui:Button name="air-ops-abort" text="Abort" class="air-ops-btn" />
+        </ui:VisualElement>
+        <ui:Label name="air-ops-status" text="" class="air-ops-status" />
     </ui:VisualElement>
 </ui:UXML>
