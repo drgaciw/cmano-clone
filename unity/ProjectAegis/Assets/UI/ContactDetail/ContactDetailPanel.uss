@@ -1,0 +1,30 @@
+/* Contact detail chrome — belief/inference panel, distinct from own-unit detail (CMD-29). */
+
+.contact-detail-panel {
+    position: absolute;
+    right: 0;
+    top: 56px;
+    bottom: 0;
+    width: 300px;
+    min-width: 280px;
+    flex-direction: column;
+    padding: 8px;
+    background-color: rgba(18, 14, 22, 0.94);
+    border-left-width: 1px;
+    border-left-color: rgb(90, 55, 70);
+}
+
+.contact-detail-title {
+    -unity-font-style: bold;
+    color: rgb(220, 180, 190);
+    margin-bottom: 6px;
+}
+
+.contact-detail-line {
+    color: rgb(190, 175, 185);
+    margin-bottom: 2px;
+}
+
+.contact-detail-line--stale {
+    color: rgb(200, 160, 120);
+}
