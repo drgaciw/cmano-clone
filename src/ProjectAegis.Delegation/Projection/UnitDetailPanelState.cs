@@ -10,4 +10,5 @@ public sealed record UnitDetailPanelState(
     string EngagePreviewLine,
     string AttackOptionsLine,
     string ContactLine,
-    IReadOnlyList<EngageAttackOptions.AttackOption> AttackMenu);
+    IReadOnlyList<EngageAttackOptions.AttackOption> AttackMenu,
+    string CommsLine = "COMMS: —");
