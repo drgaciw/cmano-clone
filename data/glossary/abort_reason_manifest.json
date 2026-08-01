@@ -162,6 +162,10 @@
         {
           "logCode": "SHOTGUN_ORDNANCE",
           "member": "ShotgunOrdnance"
+        },
+        {
+          "logCode": "WINCHESTER_ORDNANCE",
+          "member": "WinchesterOrdnance"
         }
       ]
     },

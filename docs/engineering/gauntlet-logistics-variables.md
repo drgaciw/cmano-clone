@@ -7,7 +7,7 @@ Aviation doctrine labels used as **gauntlet testing variables** (fingerprint-pro
 | **Joker** | Fuel warning above Bingo — finish the task soon and prepare to leave | `FuelStateChange` …`\|JOKER\|` (burn model) | `gauntlet-t3-logistics-joker-bingo` |
 | **Bingo** | Low-fuel deadline — RTB or tanker **immediately** | `FuelStateChange` …`\|BINGO\|` | same |
 | **Shotgun** | Pre-briefed minimum remaining / defensive ordnance | `OrdnanceStateChange` …`\|SHOTGUN\|` | `gauntlet-t2-ordnance-shotgun-winchester` |
-| **Winchester** | Out of weapons (all bombs/missiles/rounds expended) | `OrdnanceStateChange` …`\|WINCHESTER\|` (+ often `NO_AMMO`) | same |
+| **Winchester** | Out of weapons (all bombs/missiles/rounds expended) | `OrdnanceStateChange` …`\|WINCHESTER\|` + hard deny `WINCHESTER_ORDNANCE` | same |
 
 ## Policy knobs
 
@@ -53,12 +53,16 @@ Threshold `0` disables Shotgun (only Winchester at empty).
 | Joker | `FuelStateChange` → JOKER | None (advisory) |
 | Bingo | `FuelStateChange` → BINGO | **Hard deny** engage — `EngagementAbortReason.BingoFuel` / log code `BINGO_FUEL` |
 | Shotgun | `OrdnanceStateChange` → SHOTGUN | **Soft deny** multi-salvo (`SalvoSize` > 1) — `ShotgunOrdnance` / `SHOTGUN_ORDNANCE` |
-| Winchester | `OrdnanceStateChange` → WINCHESTER | Existing magazine-empty path (`NO_AMMO`) |
+| Winchester | `OrdnanceStateChange` → WINCHESTER | **Hard deny** engage — `EngagementAbortReason.WinchesterOrdnance` / log code `WINCHESTER_ORDNANCE` |
 
 Bingo pin (`gauntlet-t3-logistics-joker-bingo`) uses `pkKill=0` so post-Bingo engages are not masked by `TARGET_DESTROYED` (saboteur `08-bingo-gate-bypass` requires load-bearing `BINGO_FUEL`).
+
+Winchester pin (`gauntlet-t2-ordnance-shotgun-winchester`) uses `pkKill=0` so post-empty engages hit the hard gate (`WINCHESTER_ORDNANCE`) rather than only pre-launch `NO_AMMO` / `TARGET_DESTROYED` (saboteur `09-winchester-gate-bypass` requires load-bearing `WINCHESTER_ORDNANCE`).
 
 Gate wiring:
 - Bingo: `FuelTimelineTracker.IsBingo` → `EngageContext.LogisticsBingoBlocked` → `LogisticsBingoEngageGate`
 - Shotgun: live magazine rounds + `ShotgunRoundsThreshold` → `LogisticsShotgunEngageGate` (single-round residual still allowed)
+- Winchester: tracked ledger rounds ≤ 0 → `LogisticsWinchesterEngageGate` → `WinchesterOrdnance` / `WINCHESTER_ORDNANCE` (hard deny after EMCON/FC; `MagazineLedger.TryGetRounds` is authoritative when seeded; unseeded mounts fall back to context rounds)
 
 Saboteur: `08-bingo-gate-bypass` forces Bingo gate open (defect; should be caught by goldens/token_coverage).
+Saboteur: `09-winchester-gate-bypass` forces Winchester gate open (defect; should be caught by goldens/token_coverage/victory_roe).

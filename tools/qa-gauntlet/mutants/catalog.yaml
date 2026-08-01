@@ -77,3 +77,10 @@ mutants:
     expectedOracles: ["goldens", "token_coverage", "victory_roe"]
     impactRecorded: "CRITICAL (2026-07-31; load-bearing logistics Bingo gate; worktree-only mutant)"
 
+  - id: "09-winchester-gate-bypass"
+    patch: "09-winchester-gate-bypass.patch"
+    target: "src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs"
+    description: "Winchester ordnance engage gate forced open (empty-mag hard deny ignored)"
+    role: defect
+    expectedOracles: ["goldens", "token_coverage", "victory_roe"]
+    impactRecorded: "CRITICAL (2026-08-01; load-bearing logistics Winchester gate; worktree-only mutant)"

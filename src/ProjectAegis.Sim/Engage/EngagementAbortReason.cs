@@ -38,4 +38,7 @@ public enum EngagementAbortReason
 
     /// <summary>Shotgun band: multi-salvo engage denied (soft logistics gate).</summary>
     ShotgunOrdnance = 25,
+
+    /// <summary>Winchester band: out of weapons — offensive engage denied (logistics hard gate).</summary>
+    WinchesterOrdnance = 26,
 }

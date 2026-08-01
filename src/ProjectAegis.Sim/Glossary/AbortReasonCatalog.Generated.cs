@@ -47,6 +47,7 @@ public static partial class AbortReasonCatalog
         public const string DAMAGE_WITHDRAW_RECOMMENDED = "DAMAGE_WITHDRAW_RECOMMENDED";
         public const string BINGO_FUEL = "BINGO_FUEL";
         public const string SHOTGUN_ORDNANCE = "SHOTGUN_ORDNANCE";
+        public const string WINCHESTER_ORDNANCE = "WINCHESTER_ORDNANCE";
     }
 
     public static class Logistics
@@ -75,4 +76,3 @@ public static partial class AbortReasonCatalog
     }
 
 }
-
