@@ -97,6 +97,23 @@ namespace ProjectAegis.Unity.Editor
                 "Assets/UI/AgentRoster/AgentRosterPanel.uxml",
                 "Assets/UI/AgentRoster/AgentRosterPanel.uss");
 
+            // UI maturity Wave2 hosts (CMD-24 / CMD-27 / CMD-35)
+            CreatePanelHost<AirOpsPanelHost>(
+                "AirOps",
+                bridge,
+                "Assets/UI/AirOps/AirOpsPanel.uxml",
+                "Assets/UI/AirOps/AirOpsPanel.uss");
+            CreatePanelHost<ScenarioLibraryPanelHost>(
+                "ScenarioLibrary",
+                bridge,
+                "Assets/UI/ScenarioLibrary/ScenarioLibraryPanel.uxml",
+                "Assets/UI/ScenarioLibrary/ScenarioLibraryPanel.uss");
+            CreatePanelHost<LiveEditPanelHost>(
+                "LiveEdit",
+                bridge,
+                "Assets/UI/LiveEdit/LiveEditPanel.uxml",
+                "Assets/UI/LiveEdit/LiveEditPanel.uss");
+
             var scenesDir = "Assets/Scenes";
             if (!AssetDatabase.IsValidFolder(scenesDir))
             {
@@ -149,6 +166,21 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/AgentRoster/AgentRosterPanel.uxml",
                 "Assets/UI/AgentRoster/AgentRosterPanel.uss");
+            added += EnsurePanelHostIfMissing<AirOpsPanelHost>(
+                "AirOps",
+                bridge,
+                "Assets/UI/AirOps/AirOpsPanel.uxml",
+                "Assets/UI/AirOps/AirOpsPanel.uss");
+            added += EnsurePanelHostIfMissing<ScenarioLibraryPanelHost>(
+                "ScenarioLibrary",
+                bridge,
+                "Assets/UI/ScenarioLibrary/ScenarioLibraryPanel.uxml",
+                "Assets/UI/ScenarioLibrary/ScenarioLibraryPanel.uss");
+            added += EnsurePanelHostIfMissing<LiveEditPanelHost>(
+                "LiveEdit",
+                bridge,
+                "Assets/UI/LiveEdit/LiveEditPanel.uxml",
+                "Assets/UI/LiveEdit/LiveEditPanel.uss");
 
             if (added > 0)
             {
