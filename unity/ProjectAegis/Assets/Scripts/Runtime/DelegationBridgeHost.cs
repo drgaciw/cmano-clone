@@ -109,6 +109,13 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>True when a deck/hangar capacity feed has been bound (false → honest NO CAPACITY DATA).</summary>
         public bool HasDeckHangarData { get; private set; }
 
+        /// <summary>
+        /// CMD-23 UI-local chrome collapse flags (message log + left drawer).
+        /// Not DecisionLog; persisted only via in-memory <see cref="C2ChromePrefsStore"/>.
+        /// </summary>
+        public C2ChromeCollapseState ChromeCollapse { get; private set; } = C2ChromeCollapseState.Expanded;
+
+        private readonly C2ChromePrefsStore _chromePrefs = new();
         private ISimWorldSnapshot? _lastSnapshot;
 
         /// <summary>Latest live simulation tick for presentation staleness calculations.</summary>
@@ -121,7 +128,39 @@ namespace ProjectAegis.Unity.Runtime
                 mvpEngagement: enableMvpEngagement,
                 scenarioPolicyId: scenarioPolicyId);
             LastMissionList = MissionListBridge.ProjectFrom(Bridge.Orchestrator.ScenarioPolicy?.MissionTimeline);
+            // Restore UI-local chrome collapse bag (in-memory; no DecisionLog / file I/O).
+            ChromeCollapse = _chromePrefs.Restore(C2ChromeCollapseState.Expanded);
         }
+
+        /// <summary>
+        /// CMD-23: toggle message-log body collapse and capture into the in-memory prefs bag.
+        /// </summary>
+        public void ToggleMessageLogCollapsed()
+        {
+            ChromeCollapse = ChromeCollapse.ToggleMessageLog();
+            _chromePrefs.Capture(ChromeCollapse);
+        }
+
+        /// <summary>
+        /// CMD-23: toggle left-drawer body collapse and capture into the in-memory prefs bag.
+        /// </summary>
+        public void ToggleLeftDrawerCollapsed()
+        {
+            ChromeCollapse = ChromeCollapse.ToggleLeftDrawer();
+            _chromePrefs.Capture(ChromeCollapse);
+        }
+
+        /// <summary>
+        /// CMD-23: replace chrome collapse state (tests / prefs restore) and capture.
+        /// </summary>
+        public void SetChromeCollapse(C2ChromeCollapseState state)
+        {
+            ChromeCollapse = state ?? C2ChromeCollapseState.Expanded;
+            _chromePrefs.Capture(ChromeCollapse);
+        }
+
+        /// <summary>CMD-23: copy of the current chrome prefs bag (host-free tests / tooling).</summary>
+        public IReadOnlyDictionary<string, bool> GetChromePrefsSnapshot() => _chromePrefs.GetSnapshot();
 
         public void BeginExecution() => Bridge.BeginExecution();
 
