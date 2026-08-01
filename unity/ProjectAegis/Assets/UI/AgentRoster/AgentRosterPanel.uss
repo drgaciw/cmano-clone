@@ -1,0 +1,58 @@
+/* Agent roster + directive issuance surface (CMD-37). */
+
+.agent-roster-panel {
+    flex-grow: 1;
+    min-width: 240px;
+    max-width: 360px;
+    padding: 6px;
+    background-color: rgba(12, 18, 28, 0.92);
+    border-width: 1px;
+    border-color: rgb(50, 65, 80);
+}
+
+.agent-roster-title {
+    -unity-font-style: bold;
+    color: rgb(200, 210, 220);
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.agent-roster-list {
+    flex-grow: 1;
+    min-height: 80px;
+    max-height: 220px;
+    margin-bottom: 6px;
+}
+
+.agent-directive-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.agent-directive-btn {
+    margin-right: 6px;
+    margin-bottom: 4px;
+    padding: 4px 10px;
+    background-color: rgb(32, 48, 68);
+    border-width: 1px;
+    border-color: rgb(70, 95, 120);
+    color: rgb(210, 220, 230);
+    font-size: 11px;
+}
+
+.agent-directive-btn:hover {
+    background-color: rgb(42, 62, 88);
+}
+
+.agent-directive-btn:disabled {
+    opacity: 0.45;
+}
+
+.agent-directive-status {
+    margin-top: 2px;
+    color: rgb(240, 180, 80);
+    font-size: 11px;
+    min-height: 14px;
+}
