@@ -121,6 +121,23 @@ namespace ProjectAegis.Unity.Editor
                 "Assets/UI/LiveEdit/LiveEditPanel.uxml",
                 "Assets/UI/LiveEdit/LiveEditPanel.uss");
 
+            // UI maturity Wave4 residual hosts (CMD-25 / magazine / deck)
+            CreatePanelHost<BoatOpsPanelHost>(
+                "BoatOps",
+                bridge,
+                "Assets/UI/BoatOps/BoatOpsPanel.uxml",
+                "Assets/UI/BoatOps/BoatOpsPanel.uss");
+            CreatePanelHost<MagazineLoadoutPanelHost>(
+                "MagazineLoadout",
+                bridge,
+                "Assets/UI/MagazineLoadout/MagazineLoadoutPanel.uxml",
+                "Assets/UI/MagazineLoadout/MagazineLoadoutPanel.uss");
+            CreatePanelHost<DeckHangarPanelHost>(
+                "DeckHangar",
+                bridge,
+                "Assets/UI/DeckHangar/DeckHangarPanel.uxml",
+                "Assets/UI/DeckHangar/DeckHangarPanel.uss");
+
             var scenesDir = "Assets/Scenes";
             if (!AssetDatabase.IsValidFolder(scenesDir))
             {
@@ -297,6 +314,21 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/LiveEdit/LiveEditPanel.uxml",
                 "Assets/UI/LiveEdit/LiveEditPanel.uss");
+            added += EnsurePanelHostIfMissing<BoatOpsPanelHost>(
+                "BoatOps",
+                bridge,
+                "Assets/UI/BoatOps/BoatOpsPanel.uxml",
+                "Assets/UI/BoatOps/BoatOpsPanel.uss");
+            added += EnsurePanelHostIfMissing<MagazineLoadoutPanelHost>(
+                "MagazineLoadout",
+                bridge,
+                "Assets/UI/MagazineLoadout/MagazineLoadoutPanel.uxml",
+                "Assets/UI/MagazineLoadout/MagazineLoadoutPanel.uss");
+            added += EnsurePanelHostIfMissing<DeckHangarPanelHost>(
+                "DeckHangar",
+                bridge,
+                "Assets/UI/DeckHangar/DeckHangarPanel.uxml",
+                "Assets/UI/DeckHangar/DeckHangarPanel.uss");
 
             if (added > 0)
             {
