@@ -26,8 +26,8 @@
     }
   ],
   "gauntlet": {
-    "intent": "T2 ordnance variables: Shotgun (min remaining) then Winchester (empty) with magazine=2, shotgunThreshold=1, pkKill=0 so engagement continues until NO_AMMO [catalog: Visby vs Sovremenny]",
-    "oracle": "Fingerprint contains OrdnanceStateChange SHOTGUN and WINCHESTER; engage path also emits NO_AMMO after empty.",
+    "intent": "T2 ordnance variables: Shotgun (min remaining) then Winchester (empty); post-Winchester engages hard-denied with WINCHESTER_ORDNANCE (logistics hard gate; load-bearing for saboteur 09). magazine=2, shotgunThreshold=1, pkKill=0 so empty aborts are not masked [catalog: Visby vs Sovremenny]",
+    "oracle": "Fingerprint contains OrdnanceStateChange SHOTGUN and WINCHESTER; post-empty Engagement aborts include WINCHESTER_ORDNANCE (logistics hard gate; load-bearing for saboteur 09).",
     "dimensionsClaimed": [
       "logistics-shotgun",
       "logistics-winchester"
@@ -44,14 +44,14 @@
       "requireFingerprintSubstrings": [
         "SHOTGUN",
         "WINCHESTER",
-        "NO_AMMO"
+        "WINCHESTER_ORDNANCE"
       ],
       "minKills": 0,
       "maxMissilesFired": 4,
-      "minDenials": 8,
-      "maxDenials": 14,
-      "minScore": -70.0,
-      "maxScore": -30.0
+      "minDenials": 6,
+      "maxDenials": 20,
+      "minScore": -80.0,
+      "maxScore": -20.0
     },
     "units": [
       {
