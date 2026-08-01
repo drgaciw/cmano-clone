@@ -19,8 +19,16 @@ namespace ProjectAegis.Unity.Runtime
         private const string TheaterName = "theater-label";
         private const string CanvasName = "map-canvas";
         private const string PlanningDimOverlayName = "planning-dim-overlay";
+        private const string EnvelopeRingCountName = "envelope-ring-count";
+        private const string DatalinkEdgeCountName = "datalink-edge-count";
         private const string PlanningDimmedClass = "map-placeholder-panel--planning-dimmed";
         private const string PlanningDimOverlayHiddenClass = "map-planning-dim-overlay--hidden";
+
+        /// <summary>Default sensor envelope nm when catalog/engage ranges are not yet wired (CMD-21).</summary>
+        private const double DefaultSensorRangeNm = 40.0;
+
+        /// <summary>Default weapon envelope nm when catalog/engage ranges are not yet wired (CMD-21/34).</summary>
+        private const double DefaultWeaponRangeNm = 20.0;
 
         /// <summary>Repo-relative Specced production USS for ASSET-009 (not Approved).</summary>
         public const string SpeccedProductionUssRelativePath =
@@ -45,6 +53,8 @@ namespace ProjectAegis.Unity.Runtime
         private UIDocument _document = null!;
         private VisualElement? _rootPanel;
         private Label? _theaterLabel;
+        private Label? _envelopeRingCountLabel;
+        private Label? _datalinkEdgeCountLabel;
         private VisualElement? _canvas;
         private VisualElement? _planningDimOverlay;
         private MapPanelState _panelState = new("—", Array.Empty<MapSymbolDisplayRow>());
@@ -67,6 +77,12 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Read-only map symbols from presentation feed (Cesium APP-6 billboard wiring, ADR-010).</summary>
         public IReadOnlyList<MapSymbolEntry> CurrentMapSymbols =>
             PresentationFeed?.LastMapSymbols ?? Array.Empty<MapSymbolEntry>();
+
+        /// <summary>Last projected selected-unit envelope ring count (CMD-21/34).</summary>
+        public int LastEnvelopeRingCount { get; private set; }
+
+        /// <summary>Last projected datalink edge count (CMD-32).</summary>
+        public int LastDatalinkEdgeCount { get; private set; }
 
         private void Awake()
         {
@@ -109,6 +125,9 @@ namespace ProjectAegis.Unity.Runtime
 
             _rootPanel = root.Q<VisualElement>(RootName) ?? root;
             _theaterLabel = _rootPanel.Q<Label>(TheaterName);
+            // Optional overlay count labels (CMD-21/32/34) — null-safe; scene rebuild not required.
+            _envelopeRingCountLabel = _rootPanel.Q<Label>(EnvelopeRingCountName);
+            _datalinkEdgeCountLabel = _rootPanel.Q<Label>(DatalinkEdgeCountName);
             var canvas = _rootPanel.Q<VisualElement>(CanvasName);
             if (!ReferenceEquals(canvas, _canvas))
             {
@@ -153,9 +172,36 @@ namespace ProjectAegis.Unity.Runtime
                 atlas);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
             _symbolPool!.Sync(_panelState.Symbols, OnSymbolClicked);
+            ApplyOverlayCounts();
             ApplyPlanningChrome();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
             CaptureDirtyState();
+        }
+
+        /// <summary>
+        /// Projects selected-unit envelope rings (CMD-21/34) and surfaces overlay counts.
+        /// Datalink edges stay at zero until a unit-link feed is wired to the host.
+        /// </summary>
+        private void ApplyOverlayCounts()
+        {
+            var rings = TacticalOverlayProjection.ProjectSelectedUnitEnvelopes(
+                PresentationFeed?.SelectedUnitId,
+                DefaultSensorRangeNm,
+                DefaultWeaponRangeNm);
+            IReadOnlyList<DatalinkEdgeEntry> edges = Array.Empty<DatalinkEdgeEntry>();
+            var presentation = MapPanelApplyState.Apply(_panelState, rings, edges);
+            LastEnvelopeRingCount = presentation.EnvelopeRingCount;
+            LastDatalinkEdgeCount = presentation.DatalinkEdgeCount;
+
+            if (_envelopeRingCountLabel != null)
+            {
+                _envelopeRingCountLabel.text = $"ENVELOPES: {LastEnvelopeRingCount}";
+            }
+
+            if (_datalinkEdgeCountLabel != null)
+            {
+                _datalinkEdgeCountLabel.text = $"DATALINKS: {LastDatalinkEdgeCount}";
+            }
         }
 
         private bool IsDirty()
