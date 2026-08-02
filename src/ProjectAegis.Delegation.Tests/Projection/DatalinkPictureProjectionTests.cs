@@ -124,4 +124,33 @@ public sealed class DatalinkPictureProjectionTests
             Assert.That(ex.ParamName, Is.EqualTo("catalogLinks"));
         }
     }
+
+    [TestCase("   ")]
+    [TestCase("\t")]
+    [TestCase("  \r\n  ")]
+    public void NormalizeStatus_whitespace_defaults_to_Up(string whitespace)
+    {
+        var edges = DatalinkPictureProjection.Project(
+        [
+            ("a", "b", CatalogLinkTypes.Tactical, whitespace),
+        ]);
+
+        Assert.That(edges, Has.Count.EqualTo(1));
+        Assert.That(edges[0].Status, Is.EqualTo(DatalinkPictureProjection.StatusUp));
+    }
+
+    [TestCase("  Up  ", DatalinkPictureProjection.StatusUp)]
+    [TestCase("  Degraded  ", DatalinkPictureProjection.StatusDegraded)]
+    [TestCase("  Down  ", DatalinkPictureProjection.StatusDown)]
+    [TestCase("  Custom  ", "Custom")]
+    public void NormalizeStatus_trims_surrounding_whitespace(string padded, string expected)
+    {
+        var edges = DatalinkPictureProjection.Project(
+        [
+            ("a", "b", CatalogLinkTypes.Tactical, padded),
+        ]);
+
+        Assert.That(edges, Has.Count.EqualTo(1));
+        Assert.That(edges[0].Status, Is.EqualTo(expected));
+    }
 }

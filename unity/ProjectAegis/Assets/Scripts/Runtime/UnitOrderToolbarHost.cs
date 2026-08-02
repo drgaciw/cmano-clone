@@ -126,7 +126,13 @@ namespace ProjectAegis.Unity.Runtime
                 button.clicked += () => OnOrderClicked(captured);
             }
 
-            _handlersRegistered = true;
+            // Only mark registered when at least one button was wired.
+            // If _orderButtons is empty (UXML not ready), leave false so the next
+            // TryWireElements call can retry once buttons are available.
+            if (_orderButtons.Count > 0)
+            {
+                _handlersRegistered = true;
+            }
         }
 
         private void OnOrderClicked(string commandId)
