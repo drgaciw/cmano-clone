@@ -60,9 +60,11 @@ Used the global Superpowers process skill (`using-superpowers`) to structure the
 | Buildkite blocking gate | `.buildkite/pipeline.yml` → `bash tools/buildkite/agent-dotnet-ci.sh` |
 | Release restore/build/test | `tools/buildkite/dotnet-ci.sh` |
 | ReplayGolden + PlayModeSmoke filters | Same script |
-| Baltic v2 hash + DelegationBridge ref grep | `dotnet-ci.sh` lines 49–54 |
+| Baltic v2 hash + DelegationBridge ref grep (†) | `dotnet-ci.sh` verification-before block |
 | Gitleaks | `agent-gitleaks.sh` (Linux binary archive) |
 | Cursor Cloud | `.cursor/cloud-install.sh` + Linux `dotnet-install.sh` |
+
+(†) **Present but non-enforcing — see G14.** Both checks run and print output, but neither can fail the build: confirmed by reading `tools/buildkite/dotnet-ci.sh` directly.
 
 Docs: *"Primary blocking CI runs on **Buildkite hosted Linux agents**"* — [`docs/engineering/buildkite-ci.md`](../engineering/buildkite-ci.md).
 
@@ -80,12 +82,12 @@ Docs: *"Primary blocking CI runs on **Buildkite hosted Linux agents**"* — [`do
 | Restore / build / test Release | Yes | Yes |
 | ReplayGolden filter | Yes | Yes |
 | PlayModeSmokeHarness filter | Yes | Yes |
-| Hash grep `17144800277401907079` | Yes | **Missing** |
-| DelegationBridge ref count | Yes | **Missing** |
+| Hash grep `17144800277401907079` | **Runs, but non-enforcing** — the check is piped through a fallback that always exits 0, so a missing/changed hash cannot fail the build (G14) | **Missing** |
+| DelegationBridge ref count | **Runs, but non-enforcing** — prints an unconstrained line count with no comparison or threshold, so it can never fail the build (G14) | **Missing** |
 | Gitleaks | Separate pipeline step | **Missing** |
 | SDK bootstrap | `agent-bootstrap-dotnet.sh` | Assumes `dotnet` on PATH |
 
-**Gap:** docs describe `verify-ci-local.ps1` as the Windows local gate that mirrors Buildkite, but the mirror omits S67 verification-before greps that Linux CI always runs.
+**Gap:** docs describe `verify-ci-local.ps1` as the Windows local gate that mirrors Buildkite, but the mirror omits the S67 verification-before greps entirely. Higher-priority (**G14**): on the Linux side itself, neither grep actually fails the gate today — the hash check's fallback always exits 0, and the DelegationBridge check has no assertion at all — so a deleted golden hash or an unreviewed `DelegationBridge` change can currently leave Buildkite green on **both** OSes. Closing G14 must come before G3 (porting the same, currently-toothless, checks to Windows would just replicate the gap).
 
 ---
 
@@ -162,7 +164,7 @@ Searched `src/` for `RuntimeInformation`, `OSPlatform`, `IsLinux`/`IsWindows`, `
 |----|-----|----------|----------|-------------|
 | G1 | No automated Unity **player** build (Linux or Windows) in CI | **High** | No Buildkite/`unity-builder` step; `BuildPlayer.PerformBuild` unused by CI | Add licensed Linux Editor (or game-ci) step for `StandaloneLinux64`; optional `StandaloneWindows64` artifact job |
 | G2 | Editor batch scripts hardcode Windows `Unity.exe` | **High** | `tools/unity/Invoke-*.ps1` | Resolve via `UNITY_EDITOR` env / Hub / Linux `/opt` / macOS `.app` |
-| G3 | Windows local CI mirror incomplete vs Linux gate | **Medium** | `verify-ci-local.ps1` vs `dotnet-ci.sh` | Add hash + bridge greps (and document gitleaks as optional), or declare bash `dotnet-ci.sh` canonical on all OSes |
+| G3 | Windows local CI mirror incomplete vs Linux gate | **Medium** | `verify-ci-local.ps1` vs `dotnet-ci.sh` | Add hash + bridge greps (and document gitleaks as optional), or declare bash `dotnet-ci.sh` canonical on all OSes — **do this only after G14 makes the checks enforcing** |
 | G4 | Plugin / Unity scaffold PowerShell-only | **Medium** | `copy-delegation-assemblies.ps1`, `init-unity-project.ps1`; GHA uses `pwsh` on Ubuntu | Add `.sh` twins or a `dotnet` MSBuild target so Linux clones boot without PowerShell |
 | G5 | No Windows Buildkite agent / no OS build matrix | **Medium** | Single Linux hosted pipeline | Document intentional Linux-only headless authority, **or** add scheduled `win-x64` smoke if Windows shipping is required |
 | G6 | Player menu / backend defaults asymmetric | **Low** | Menu = Linux Mono only; docs default IL2CPP | Add Win64/OSX menu items; pin release backend in docs/ProjectSettings |
@@ -173,22 +175,23 @@ Searched `src/` for `RuntimeInformation`, `OSPlatform`, `IsLinux`/`IsWindows`, `
 | G11 | Unity Editor CI never builds player; license-gated | **Medium** | `unity-ci.yml` | Fund license + builder, or keep Editor non-blocking and state ship-build policy explicitly |
 | G12 | Gitleaks Linux-only binary fetch | **Low** | `agent-gitleaks.sh` | Fine for Buildkite; need Windows artifact if Win CI added |
 | G13 | Absolute path folklore in plans/QA | **Low** | `/home/username01/…`, `D:\…`, `C:\Program Files\Unity\…` | Prefer `$REPO_ROOT` / env-resolved Unity |
+| G14 | **Linux hash/bridge invariant greps are non-enforcing** — the hash check's failure path always exits 0, and the DelegationBridge check only prints a count with no comparison or threshold | **High** | `tools/buildkite/dotnet-ci.sh` verification-before block, read directly | Make both checks fail the build on a missing/changed hash and on an unreviewed `DelegationBridge` ref-count delta; only then port them to `verify-ci-local.ps1` (G3) |
 
 ---
 
 ## 7. Priority recommendations
 
 1. **Keep Linux Buildkite as headless authority** — aligns with GitNexus CRITICAL risk on `DelegationBridge` and portable `src/`.
-2. **Close G3** — make `verify-ci-local.ps1` call the same hash/bridge checks as `dotnet-ci.sh` (cheap, high clarity).
+2. **Close G14 first, then G3** — the Linux hash/bridge checks in `dotnet-ci.sh` don't actually fail the build today; make them enforcing, then bring `verify-ci-local.ps1` to the same (now-real) standard.
 3. **Close G2** — unblock Linux (and non-default Windows) Editor automation without path edits.
-4. **Decide ship policy for G1/G5/G11** — either (a) document “headless Linux = merge; player builds are manual/release-train only,” or (b) add a Linux64 IL2CPP player job as a soft then hard gate.
+4. **Decide ship policy for G1/G5/G11** — either (a) document "headless Linux = merge; player builds are manual/release-train only," or (b) add a Linux64 IL2CPP player job as a soft then hard gate.
 5. **Close G4/G9** before treating either OS player as release-ready.
 
 ---
 
 ## 8. What is *not* a gap
 
-- Determinism / Baltic v2 replay hash path — identical under Linux CI and Windows `dotnet test` when the same filters run.
+- Determinism / Baltic v2 replay hash path — identical under Linux CI and Windows `dotnet test` when the same filters run (the golden fixtures themselves are correct; G14 is about the CI grep not enforcing, not about the hash values).
 - Core ROE/delegation/sim logic OS forks — none found in source or GitNexus.
 - Built-in RP + legacy Input Manager — shared project policy, not an OS split.
 - Cursor Cloud / agentic headless path — intentionally Linux `dotnet`-centric and documented.
@@ -210,4 +213,4 @@ Searched `src/` for `RuntimeInformation`, `OSPlatform`, `IsLinux`/`IsWindows`, `
 
 ---
 
-*Generated 2026-07-20 via Superpowers-structured evaluation and GitNexus analyze/query/context/impact on commit `adf3748`.*
+*Generated 2026-07-20 via Superpowers-structured evaluation and GitNexus analyze/query/context/impact on commit `adf3748`. Amended 2026-08-02: G14 added after PR review confirmed the Linux hash/bridge invariant greps are non-enforcing (verified against `tools/buildkite/dotnet-ci.sh`).*
