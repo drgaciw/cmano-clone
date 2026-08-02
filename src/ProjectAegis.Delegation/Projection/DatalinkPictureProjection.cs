@@ -98,15 +98,22 @@ public static class DatalinkPictureProjection
         return SortEdges(edges);
     }
 
-    private static string NormalizeStatus(string? status) =>
-        status switch
+    private static string NormalizeStatus(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+        {
+            return StatusUp;
+        }
+
+        var trimmed = status.Trim();
+        return trimmed switch
         {
             StatusDegraded => StatusDegraded,
             StatusDown => StatusDown,
             StatusUp => StatusUp,
-            null or "" => StatusUp,
-            _ => status,
+            _ => trimmed,
         };
+    }
 
     private static IReadOnlyList<DatalinkEdgeEntry> SortEdges(List<DatalinkEdgeEntry> edges) =>
         edges

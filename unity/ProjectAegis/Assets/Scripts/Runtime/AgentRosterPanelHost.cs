@@ -154,7 +154,13 @@ namespace ProjectAegis.Unity.Runtime
                 button.clicked += () => OnDirectiveClicked(captured);
             }
 
-            _handlersRegistered = true;
+            // Only mark registered when at least one button was wired.
+            // If _directiveButtons is empty (UXML not ready), leave false so the next
+            // TryWireElements call can retry once buttons are available.
+            if (_directiveButtons.Count > 0)
+            {
+                _handlersRegistered = true;
+            }
         }
 
         private void OnRosterSelectionChanged(IEnumerable<object> _)
