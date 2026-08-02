@@ -186,6 +186,21 @@ namespace ProjectAegis.Unity.Runtime
             }
         }
 
+        /// <summary>
+        /// CMD-11 live feed: project engage-explain for the currently selected unit.
+        /// Returns <see cref="EngageExplain.Empty"/> when no selection or snapshot is available.
+        /// </summary>
+        public EngageExplain ProjectSelectedEngageExplain()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedUnitId))
+            {
+                return EngageExplain.Empty;
+            }
+
+            var preview = Bridge.GetEngagePreviewForUnit(SelectedUnitId, _lastSnapshot);
+            return EngageExplainProjection.Project(preview);
+        }
+
         /// <summary>Interactive attack menu selection (req 14).</summary>
         public bool TrySelectAttackOption(string optionId, out string? failureReason)
         {

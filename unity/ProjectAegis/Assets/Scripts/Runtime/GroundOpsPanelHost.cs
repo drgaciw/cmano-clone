@@ -28,6 +28,8 @@ namespace ProjectAegis.Unity.Runtime
         private IReadOnlyList<GroundFormationEntry> _entries = System.Array.Empty<GroundFormationEntry>();
         private bool _wired;
 
+        private bool _externalFormationsApplied;
+
         /// <summary>Last projected ground formation entries (DRG-67).</summary>
         public IReadOnlyList<GroundFormationEntry> Entries => _entries;
 
@@ -113,6 +115,32 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
+            // Thin OOB feed: when no external formations have been applied via Apply(),
+            // derive entries from the live OOB tree (CMD-26 Phase A thin feed).
+            if (!_externalFormationsApplied
+                && bridgeHost != null
+                && bridgeHost.LastOobTree.Count > 0)
+            {
+                var oob = bridgeHost.LastOobTree;
+                var inputs = new System.Collections.Generic.List<GroundFormationInput>(oob.Count);
+                foreach (var entry in oob)
+                {
+                    inputs.Add(new GroundFormationInput(
+                        FormationId: entry.UnitId,
+                        DisplayName: entry.UnitId,
+                        SideLabel: "BLUE",
+                        EchelonLabel: "Brigade+",
+                        LocationLabel: null,
+                        StrengthFraction: entry.IsAlive ? 1.0 : 0.0,
+                        AdaAssetCount: 0,
+                        AdaOnlineCount: 0,
+                        FacilityKind: null,
+                        FacilityDamageFraction: 0.0));
+                }
+
+                _entries = GroundOpsProjection.Project(inputs);
+            }
+
             var agg = GroundOpsProjection.Aggregate(_entries);
 
             if (_headerLine != null)
@@ -142,6 +170,7 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Apply formation entries directly (headless / test path).</summary>
         public void Apply(IReadOnlyList<GroundFormationEntry> entries)
         {
+            _externalFormationsApplied = true;
             _entries = entries ?? System.Array.Empty<GroundFormationEntry>();
             if (_wired)
             {
