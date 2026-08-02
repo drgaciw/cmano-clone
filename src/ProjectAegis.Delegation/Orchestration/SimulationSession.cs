@@ -11,9 +11,11 @@ using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Logistics;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Telemetry;
 using ProjectAegis.Sim.Time;
+using ProjectAegis.Delegation.Logistics;
 
 /// <summary>Headless/interactive session: delegation tick then sim engagement phase.</summary>
 public sealed class SimulationSession
@@ -358,6 +360,8 @@ public sealed class SimulationSession
                         Delta: -salvoSize,
                         MagazineChangeReasonCodes.Fire)));
 
+                    MaybeEmitOrdnanceStateChange(state, simTick, order.Target, mountId: 0);
+
                     if (result.OutcomeCode != null)
                     {
                         Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromEngagementOutcome(new EngagementOutcomeRecord(
@@ -419,7 +423,12 @@ public sealed class SimulationSession
 
     public DictionaryEngageWorldQuery? EngageWorld { get; init; }
 
+    /// <summary>Optional fuel burn tracker for Bingo engage gate (logistics v1).</summary>
+    public FuelTimelineTracker? FuelTimeline { get; set; }
+
     public MagazineLedger? Magazines { get; init; }
+
+    private readonly Dictionary<string, string> _lastOrdnanceBand = new(StringComparer.Ordinal);
 
     public KilledTargetRegistry? KilledTargets { get; init; }
 
@@ -492,14 +501,19 @@ public sealed class SimulationSession
             var spoofed = IsContactSpoofed?.Invoke(victimId ?? "", simTick) ?? false;
             var salvo = NextEngageSalvoOverride ?? template.SalvoSize;
             NextEngageSalvoOverride = null;
+            var bingoBlocked = FuelTimeline?.IsBingo(shooterUnitId) ?? false;
+            var shotgunThreshold = Orchestrator.ScenarioPolicy?.EngageDefaults?.ShotgunRoundsThreshold
+                ?? template.ShotgunRoundsThreshold;
             var primed = template with
             {
                 HasFireControlTrack = state.HasFireControlTrack,
                 RadarEmconActive = radarActive,
                 AirOperationsReady = airReady,
                 CatalogDamageWithdrawBlocked = damageWithdrawBlocked,
+                LogisticsBingoBlocked = bingoBlocked,
                 TrackSpoofed = spoofed,
                 SalvoSize = Math.Max(1, salvo),
+                ShotgunRoundsThreshold = Math.Max(0, shotgunThreshold),
             };
             EngageWorld.Set(request, primed);
         }
@@ -532,6 +546,45 @@ public sealed class SimulationSession
                 }
             }
         }
+    }
+
+
+    private void MaybeEmitOrdnanceStateChange(ObservedState state, ulong simTick, TargetId shooter, ulong mountId)
+    {
+        if (Magazines == null)
+        {
+            return;
+        }
+
+        var shooterUlong = OrderActionMapper.TargetIdToUlong(shooter);
+        var remaining = Magazines.GetRounds(shooterUlong, mountId);
+        var threshold = Orchestrator.ScenarioPolicy?.EngageDefaults?.ShotgunRoundsThreshold ?? 1;
+        var band = OrdnanceStateBands.Resolve(remaining, threshold);
+        var unitKey = shooter.Value;
+        if (!_lastOrdnanceBand.TryGetValue(unitKey, out var previous))
+        {
+            previous = OrdnanceStateBands.Nominal;
+            if (band == OrdnanceStateBands.Nominal)
+            {
+                _lastOrdnanceBand[unitKey] = band;
+                return;
+            }
+        }
+
+        if (previous == band)
+        {
+            return;
+        }
+
+        _lastOrdnanceBand[unitKey] = band;
+        Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromOrdnanceStateChange(new OrdnanceStateChangeRecord(
+            SequenceId: 0,
+            state.SimTime,
+            simTick,
+            shooter,
+            previous,
+            band,
+            remaining)));
     }
 
     private static TargetId ResolveEngageVictim(Order order, ObservedState state)

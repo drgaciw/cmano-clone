@@ -5,6 +5,47 @@ using Microsoft.Data.Sqlite;
 /// <summary>Writes deterministic Baltic fixture rows into a SQLite catalog file.</summary>
 public static class CatalogSeedBootstrap
 {
+    /// <summary>Schema + migrations only — no Baltic OOB rows (enterprise public-corpus bootstrap).</summary>
+    public static void EnsureSchemaOnly(string databasePath, bool overwrite = true)
+    {
+        if (overwrite && File.Exists(databasePath))
+        {
+            File.Delete(databasePath);
+        }
+
+        using (var _ = new SqliteCatalogReader(databasePath, "enterprise-corpus-schema"))
+        {
+        }
+
+        using var connection = new SqliteConnection($"Data Source={databasePath};Pooling=false");
+        connection.Open();
+        SeedPublicCorpusCatalogPlatform(connection);
+    }
+
+    private static void SeedPublicCorpusCatalogPlatform(SqliteConnection connection)
+    {
+        if (!TableExists(connection, "platform"))
+        {
+            return;
+        }
+
+        using (var snap = connection.CreateCommand())
+        {
+            snap.CommandText = "INSERT OR IGNORE INTO catalog_snapshot (snapshot_id) VALUES ($id)";
+            snap.Parameters.AddWithValue("$id", CatalogValidationDefaults.PublicCorpusSnapshotId);
+            snap.ExecuteNonQuery();
+        }
+
+        InsertPlatformRow(
+            connection,
+            new CatalogPlatformEntry(
+                CatalogValidationDefaults.PublicCorpusSensorCatalogPlatformId,
+                LatDeg: 0.0,
+                LonDeg: 0.0,
+                CombatRadiusNm: 1.0),
+            CatalogValidationDefaults.PublicCorpusSnapshotId);
+    }
+
     public static void SeedBalticPatrol(string databasePath, bool overwrite = true)
     {
         var jsonPath = CatalogJsonImporter.ResolveBalticSensorsJsonPath();
@@ -130,7 +171,10 @@ public static class CatalogSeedBootstrap
         }
     }
 
-    private static void InsertPlatformRow(SqliteConnection connection, CatalogPlatformEntry platform)
+    private static void InsertPlatformRow(
+        SqliteConnection connection,
+        CatalogPlatformEntry platform,
+        string? snapshotId = null)
     {
         using var cmd = connection.CreateCommand();
         cmd.CommandText =
@@ -139,7 +183,7 @@ public static class CatalogSeedBootstrap
             VALUES ($id, $snapshot, $lat, $lon, $radius)
             """;
         cmd.Parameters.AddWithValue("$id", platform.PlatformId);
-        cmd.Parameters.AddWithValue("$snapshot", CatalogValidationDefaults.BalticSnapshotId);
+        cmd.Parameters.AddWithValue("$snapshot", snapshotId ?? CatalogValidationDefaults.BalticSnapshotId);
         cmd.Parameters.AddWithValue("$lat", platform.LatDeg);
         cmd.Parameters.AddWithValue("$lon", platform.LonDeg);
         cmd.Parameters.AddWithValue("$radius", platform.CombatRadiusNm);

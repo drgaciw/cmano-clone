@@ -28,6 +28,7 @@ public sealed class DecisionLog : IOrderLog
     private readonly List<FuelStateChangeRecord> _fuelStateChanges = new();
     private readonly List<FuelBurnRecord> _fuelBurns = new();
     private readonly List<PlatformDamageChangeRecord> _platformDamageChanges = new();
+    private readonly List<OrdnanceStateChangeRecord> _ordnanceStateChanges = new();
     private readonly List<OrderLogEntry> _chronological = new();
 
     public IReadOnlyList<DecisionRecord> Records =>
@@ -66,6 +67,8 @@ public sealed class DecisionLog : IOrderLog
     public IReadOnlyList<FuelBurnRecord> FuelBurns => _fuelBurns;
 
     public IReadOnlyList<PlatformDamageChangeRecord> PlatformDamageChanges => _platformDamageChanges;
+
+    public IReadOnlyList<OrdnanceStateChangeRecord> OrdnanceStateChanges => _ordnanceStateChanges;
 
     public void Append(OrderLogEntry entry)
     {
@@ -168,6 +171,11 @@ public sealed class DecisionLog : IOrderLog
                 _platformDamageChanges.Add(damageChangeRecord);
                 AppendChronologicalEntry(sequenceId, OrderLogEntryKind.PlatformDamageChange, damageChangeRecord.SimTime, damageChangeRecord);
                 break;
+            case OrderLogEntryKind.OrdnanceStateChange when entry.Payload is OrdnanceStateChangeRecord ordnanceChange:
+                var ordnanceChangeRecord = ordnanceChange with { SequenceId = sequenceId };
+                _ordnanceStateChanges.Add(ordnanceChangeRecord);
+                AppendChronologicalEntry(sequenceId, OrderLogEntryKind.OrdnanceStateChange, ordnanceChangeRecord.SimTime, ordnanceChangeRecord);
+                break;
             default:
                 throw new ArgumentException($"Unsupported order log entry kind: {entry.Kind}", nameof(entry));
         }
@@ -235,6 +243,9 @@ public sealed class DecisionLog : IOrderLog
 
     public void AppendFuelStateChange(FuelStateChangeRecord change) =>
         Append(OrderLogEntryFactories.FromFuelStateChange(change));
+
+    public void AppendOrdnanceStateChange(OrdnanceStateChangeRecord change) =>
+        Append(OrderLogEntryFactories.FromOrdnanceStateChange(change));
 
     public void AppendFuelBurn(FuelBurnRecord burn) =>
         Append(OrderLogEntryFactories.FromFuelBurn(burn));
@@ -305,6 +316,8 @@ public sealed class DecisionLog : IOrderLog
                 $"{b.SimTick}|{b.UnitId.Value}|{FingerprintFloat.Format(b.DeltaKg)}|{FingerprintFloat.Format(b.RemainingFuelKg)}",
             OrderLogEntryKind.PlatformDamageChange when entry.Payload is PlatformDamageChangeRecord d =>
                 $"{d.SimTick}|{d.UnitId.Value}|{FingerprintFloat.Format(d.PreviousHpPct)}|{FingerprintFloat.Format(d.NewHpPct)}|{d.ReasonCode}|{d.DamageLevel}",
+            OrderLogEntryKind.OrdnanceStateChange when entry.Payload is OrdnanceStateChangeRecord o =>
+                $"{o.SimTick}|{o.UnitId.Value}|{o.PreviousState}|{o.NewState}|{o.RoundsRemaining}",
             _ => "?",
         };
 

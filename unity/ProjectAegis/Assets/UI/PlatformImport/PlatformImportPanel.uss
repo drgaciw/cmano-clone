@@ -1,15 +1,24 @@
 @import url("../AegisTokens.uss");
 
+/* Docked tooling panel (hidden by default in DelegationSmoke showPanel=0). */
 .platform-import-panel {
-    flex-grow: 1;
+    position: absolute;
+    left: 268px;
+    top: 64px;
+    width: 320px;
+    max-height: 70%;
     min-width: 280px;
+    flex-direction: column;
     padding: 6px;
-    background-color: var(--aegis-surface-panel);
+    background-color: var(--surface-panel);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    border-radius: 4px;
 }
 
 .platform-import-title {
     -unity-font-style: bold;
-    color: var(--aegis-text-heading);
+    color: var(--text-heading);
     margin-bottom: 4px;
 }
 
@@ -28,23 +37,23 @@
 }
 
 .platform-import-approve-button:disabled {
-    opacity: var(--aegis-diff-pending-opacity);
+    opacity: var(--diff-pending-opacity);
 }
 
 .platform-import-status {
-    color: var(--aegis-text-muted);
+    color: var(--text-muted);
     margin-bottom: 4px;
     white-space: normal;
 }
 
 .platform-import-status--blocked {
-    color: var(--aegis-diff-blocked);
+    color: var(--diff-blocked);
     -unity-font-style: bold;
 }
 
 .platform-import-diff-title {
     -unity-font-style: bold;
-    color: var(--aegis-text-body);
+    color: var(--text-body);
     margin-bottom: 2px;
 }
 
@@ -55,9 +64,69 @@
 }
 
 .platform-import-diff-row {
+    color: var(--aegis-text-data);
+    -unity-font-style: normal;
+    white-space: normal;
+    border-left-width: 3px;
+    border-left-color: var(--aegis-diff-pending);
+    padding-left: 4px;
+}
+
+.platform-import-diff-row--changed {
+    color: var(--aegis-diff-changed);
+    border-left-color: var(--aegis-diff-changed);
+}
+
+.platform-import-diff-row--added {
+    color: var(--aegis-diff-added);
+    border-left-color: var(--aegis-diff-added);
+}
+
+.platform-import-diff-row--removed {
+    color: var(--aegis-diff-removed);
+    border-left-color: var(--aegis-diff-removed);
+}
+
+.platform-import-diff-row--blocked {
+    color: var(--aegis-diff-blocked);
+    border-left-color: var(--aegis-diff-blocked);
+    -unity-font-style: bold;
+}
+
+.platform-import-diff-row--info {
     color: var(--aegis-text-body);
 }
 
+.platform-import-section-filters {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 4px;
+}
+
+.platform-import-section-filter {
+    margin-right: 4px;
+    margin-bottom: 2px;
+    min-width: 56px;
+}
+
+.platform-import-section-filter--active {
+    border-bottom-width: 2px;
+    border-bottom-color: var(--aegis-selected-ring);
+}
+
 .platform-import-acknowledge {
-    color: var(--aegis-diff-pending);
+    color: var(--diff-pending);
+}
+
+/* Keyboard focus (REQ-20 CMD-12 / CMD-28.9) — distinct from --aegis-selected-ring. */
+.platform-import-action-button:focus,
+.platform-import-approve-button:focus,
+.platform-import-section-filter:focus {
+    border-width: var(--aegis-focus-ring-width);
+    border-color: var(--aegis-focus-ring);
+}
+
+.platform-import-diff-row:focus {
+    border-left-width: var(--aegis-focus-ring-width);
+    border-left-color: var(--aegis-focus-ring);
 }

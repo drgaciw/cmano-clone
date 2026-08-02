@@ -1,4 +1,5 @@
 // Combat message log strip — UI Toolkit panel bound to DelegationBridgeHost.
+// S104-02 / S105 A2: row selection by index, sequenceId, unit focus + category class map.
 #if UNITY_5_3_OR_NEWER
 using System.Linq;
 using ProjectAegis.Delegation.Projection;
@@ -22,8 +23,20 @@ namespace ProjectAegis.Unity.Runtime
 
         private UIDocument _document = null!;
         private ListView? _messageList;
-        private MessageLogPanelState _panelState = new(Array.Empty<MessageLogDisplayRow>());
+        private MessageLogPanelState _panelState = new(System.Array.Empty<MessageLogDisplayRow>());
         private bool _wired;
+
+        /// <summary>Last selected order-log sequence id (null if none).</summary>
+        public ulong? SelectedSequenceId { get; private set; }
+
+        /// <summary>Last selected unit id from message log row (null if none).</summary>
+        public string? SelectedUnitId { get; private set; }
+
+        /// <summary>Last selected row index in the current panel (null if none).</summary>
+        public int? SelectedRowIndex { get; private set; }
+
+        /// <summary>Current bound panel rows (for tests).</summary>
+        public MessageLogPanelState PanelState => _panelState;
 
         private void Reset()
         {
@@ -33,6 +46,7 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _document = GetComponent<UIDocument>();
+            UiDocumentPanelSettingsBootstrap.EnsureDocument(_document);
         }
 
         private void Awake()
@@ -87,7 +101,9 @@ namespace ProjectAegis.Unity.Runtime
                 _messageList.makeItem = () =>
                 {
                     var label = new Label();
-                    label.AddToClassList("message-log-row");
+                    label.focusable = true;
+                    label.AddToClassList(MessageLogCategoryClassMap.BaseRowClass);
+                    label.RegisterCallback<KeyDownEvent>(OnMessageRowKeyDown);
                     return label;
                 };
                 _messageList.bindItem = (element, index) =>
@@ -99,11 +115,18 @@ namespace ProjectAegis.Unity.Runtime
 
                     var row = _panelState.Rows[index];
                     label.text = row.DisplayLine;
+                    label.userData = index;
                     label.ClearClassList();
-                    label.AddToClassList("message-log-row");
-                    AddCategoryClass(label, row.Category);
+                    label.AddToClassList(MessageLogCategoryClassMap.BaseRowClass);
+                    label.AddToClassList(MessageLogCategoryClassMap.SelectableRowClass);
+                    if (!string.IsNullOrEmpty(row.CategoryCssClass))
+                    {
+                        label.AddToClassList(row.CategoryCssClass);
+                    }
                 };
-                _messageList.selectionType = SelectionType.None;
+                _messageList.selectionType = SelectionType.Single;
+                _messageList.selectionChanged -= OnMessageSelectionChanged;
+                _messageList.selectionChanged += OnMessageSelectionChanged;
             }
 
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
@@ -112,6 +135,80 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             panel.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+        }
+
+        private void OnMessageSelectionChanged(System.Collections.Generic.IEnumerable<object> _)
+        {
+            if (_messageList == null)
+            {
+                return;
+            }
+
+            ApplySelectionIndex(_messageList.selectedIndex);
+        }
+
+        private void OnMessageRowKeyDown(KeyDownEvent evt)
+        {
+            if (evt.keyCode is not (KeyCode.Return or KeyCode.KeypadEnter or KeyCode.Space))
+            {
+                return;
+            }
+
+            if (evt.currentTarget is Label { userData: int index })
+            {
+                if (_messageList != null)
+                {
+                    _messageList.SetSelection(index);
+                }
+
+                TrySelectRow(index);
+                evt.StopPropagation();
+            }
+        }
+
+        /// <summary>Headless-friendly selection entry (also used by host selection callback).</summary>
+        public bool TrySelectRow(int index)
+        {
+            return ApplySelection(MessageLogPanelSelection.SelectRow(_panelState, index));
+        }
+
+        /// <summary>Select by order-log sequence id (CMD-05 deep-link).</summary>
+        public bool TrySelectBySequenceId(ulong sequenceId)
+        {
+            return ApplySelection(MessageLogPanelSelection.SelectBySequenceId(_panelState, sequenceId));
+        }
+
+        /// <summary>Unit focus: latest message-log row for unitId, then bridge SelectUnit.</summary>
+        public bool TrySelectByUnitId(string unitId)
+        {
+            return ApplySelection(MessageLogPanelSelection.SelectByUnitId(_panelState, unitId));
+        }
+
+        private bool ApplySelection(MessageLogSelection? selection)
+        {
+            if (selection == null)
+            {
+                SelectedSequenceId = null;
+                SelectedUnitId = null;
+                SelectedRowIndex = null;
+                return false;
+            }
+
+            SelectedSequenceId = selection.SequenceId;
+            SelectedUnitId = selection.UnitId;
+            SelectedRowIndex = selection.RowIndex;
+
+            if (bridgeHost != null && !string.IsNullOrEmpty(selection.UnitId))
+            {
+                bridgeHost.SelectUnit(selection.UnitId);
+            }
+
+            return true;
+        }
+
+        private void ApplySelectionIndex(int index)
+        {
+            TrySelectRow(index);
         }
 
         private void Refresh()
@@ -130,31 +227,6 @@ namespace ProjectAegis.Unity.Runtime
             _panelState = MessageLogPanelBinder.Bind(lines);
             _messageList.itemsSource = _panelState.Rows.ToList();
             _messageList.Rebuild();
-        }
-
-        private static void AddCategoryClass(VisualElement element, string category)
-        {
-            switch (category)
-            {
-                case "KILL_CONFIRMED":
-                case "HIT":
-                    element.AddToClassList("message-log-row--kill");
-                    break;
-                case "MAGAZINE":
-                    element.AddToClassList("message-log-row--magazine");
-                    break;
-                case "COMMS":
-                    element.AddToClassList("message-log-row--comms");
-                    break;
-                case "CONTACT":
-                case "CONTACT_CHANGE":
-                    element.AddToClassList("message-log-row--contact");
-                    break;
-                case "MISSION":
-                case "MISSION_TRANSITION":
-                    element.AddToClassList("message-log-row--mission");
-                    break;
-            }
         }
     }
 }

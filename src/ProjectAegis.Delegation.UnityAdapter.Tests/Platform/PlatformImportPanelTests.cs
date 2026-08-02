@@ -213,6 +213,12 @@ public sealed class PlatformImportPanelTests
                      "platform-import-acknowledge",
                      "platform-import-approve",
                      "platform-import-reject",
+                     "platform-import-section-filters",
+                     "platform-import-filter-all",
+                     "platform-import-filter-damage",
+                     "platform-import-filter-comms",
+                     "platform-import-filter-link",
+                     "platform-import-filter-other",
                  })
         {
             Assert.That(name, Does.StartWith("platform-import-"));
@@ -274,6 +280,7 @@ public sealed class PlatformImportPanelTests
         Assert.That(source, Does.Contain("platform-import-acknowledge"));
         Assert.That(source, Does.Contain("platform-import-approve"));
         Assert.That(source, Does.Contain("SetEnabled(panelState.ApproveEnabled)"));
+        Assert.That(source, Does.Contain("label.focusable = true"));
     }
 
     [Test]

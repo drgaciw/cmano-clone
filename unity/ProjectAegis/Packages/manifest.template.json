@@ -1,8 +1,8 @@
 {
   "dependencies": {
-    "com.unity.entities": "1.4.6",
+    "com.unity.addressables": "2.3.16",
     "com.unity.burst": "1.8.29",
-    "com.unity.entities.graphics": "1.4.20",
     "com.unity.ui": "2.0.0"
-  }
+  },
+  "_comment": "Minimal template aligned with live Packages/manifest.json after Entities drop (2026-07-07). Do not re-add com.unity.entities without human package approval. Burst stays for Sentis/ai.inference."
 }

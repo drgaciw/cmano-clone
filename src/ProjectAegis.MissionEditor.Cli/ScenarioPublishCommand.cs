@@ -20,6 +20,18 @@ public static class ScenarioPublishCommand
         var catalog = ScenarioValidateCommand.ResolveCatalogPublic(document); // reuse resolve, low risk
         var config = new ValidationConfig();
         var exportPackage = ScenarioExportCommand.Prepare(document, catalog, config);
+        if (!exportPackage.Allowed)
+        {
+            return McpToolResult.WriteError(
+                output,
+                "VALIDATION_BLOCKED",
+                "scenario_publish blocked: validation failed (export not allowed).",
+                new
+                {
+                    validationReportHash = exportPackage.ValidationReport?.ReportHash,
+                    findings = exportPackage.ValidationReport?.Findings,
+                });
+        }
 
         var id = Path.GetFileNameWithoutExtension(scenarioPath);
         var manifest = ManifestBuilder.Build(

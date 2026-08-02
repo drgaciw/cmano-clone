@@ -1,0 +1,49 @@
+# Provider-independent .NET gate — mirrors the Buildkite blocking gate exactly.
+#
+# Why this exists: from 2026-07-18 to at least 2026-07-26 the sole required check
+# (`buildkite/cmano-clone`) failed at 0 seconds on every branch including main, with a
+# pipeline unchanged since 2026-07-09 and commits that had passed in ~1m39s days earlier.
+# Nothing executed, so no repo change could fix it, and every PR was unmergeable.
+# See docs/reports/notion-workspace-validation-2026-07-24.md §5.
+#
+# This job deliberately invokes tools/buildkite/dotnet-ci.sh rather than re-implementing
+# the steps, so GitHub and Buildkite can never disagree about what "the gate" means.
+name: dotnet-ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: dotnet-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          # actions/checkout does NOT fetch Git LFS objects by default — without this,
+          # LFS-tracked files arrive as ~133-byte pointer stubs. assets/data/catalog/
+          # aegis_public_corpus.db (~65 MB, LFS-tracked) then fails to open with
+          # "SQLite Error 26: 'file is not a database'", failing CatalogPublicCorpusTests.
+          # Buildkite's checkout does fetch LFS, so omitting this made the two providers
+          # disagree on the same commit (seen on PR #336).
+          lfs: true
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "8.0.x"
+
+      # Same script Buildkite runs: Release restore/build/test + ReplayGolden + PlayModeSmoke
+      # gates. Verified locally 2026-07-26 on feat/s107-epic-a-panel-runtime-depth:
+      # 1792 tests / 0 failures, ReplayGolden 6/6, PlayModeSmoke 21/21.
+      - name: Run the blocking gate
+        run: bash tools/buildkite/dotnet-ci.sh

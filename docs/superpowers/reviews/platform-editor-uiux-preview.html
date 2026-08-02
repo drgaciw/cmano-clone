@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Aegis — Platform Editor UI/UX Preview</title>
+  <style>
+    :root {
+      --surface-deep: #080E16;
+      --surface-map: #101824;
+      --surface-panel: rgba(12, 18, 28, 0.92);
+      --surface-topbar: rgba(10, 16, 26, 0.95);
+      --border-subtle: #324150;
+      --border-panel: #384860;
+      --border-section: rgba(80, 100, 130, 0.6);
+      --text-heading: #C8D2DC;
+      --text-body: #B4BEC8;
+      --text-muted: #8C9BAA;
+      --text-data: #D2DCE6;
+      --selected-ring: #FFC850;
+      --selected-row-bg: rgba(74, 158, 255, 0.25);
+      --selected-row-bar: #FFC850;
+      --diff-changed: #E6C850;
+      --diff-added: #64C88C;
+      --diff-removed: #E85D5D;
+      --diff-blocked: #E65A5A;
+      --diff-pending: #8C9BAA;
+      --diff-pending-opacity: 0.45;
+      --aegis-surface-deep: var(--surface-deep);
+      --aegis-surface-map: var(--surface-map);
+      --aegis-surface-panel: var(--surface-panel);
+      --aegis-surface-topbar: var(--surface-topbar);
+      --aegis-border-subtle: var(--border-subtle);
+      --aegis-border-panel: var(--border-panel);
+      --aegis-border-section: var(--border-section);
+      --aegis-text-heading: var(--text-heading);
+      --aegis-text-body: var(--text-body);
+      --aegis-text-muted: var(--text-muted);
+      --aegis-text-data: var(--text-data);
+      --aegis-selected-ring: var(--selected-ring);
+      --aegis-selected-row-bg: var(--selected-row-bg);
+      --aegis-selected-row-bar: var(--selected-row-bar);
+      --aegis-diff-changed: var(--diff-changed);
+      --aegis-diff-added: var(--diff-added);
+      --aegis-diff-removed: var(--diff-removed);
+      --aegis-diff-blocked: var(--diff-blocked);
+      --aegis-diff-pending: var(--diff-pending);
+      --aegis-diff-pending-opacity: var(--diff-pending-opacity);
+      --font-ui: "IBM Plex Sans", "Segoe UI", sans-serif;
+      --font-mono: "IBM Plex Mono", "Consolas", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-ui);
+      color: var(--aegis-text-body);
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 0%, rgba(74, 158, 255, 0.08), transparent 55%),
+        radial-gradient(ellipse 60% 40% at 90% 100%, rgba(230, 200, 80, 0.05), transparent 50%),
+        linear-gradient(160deg, var(--aegis-surface-deep), var(--aegis-surface-map));
+    }
+
+    .shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 20px 24px 40px;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      background: var(--aegis-surface-topbar);
+      border: 1px solid var(--aegis-border-panel);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 15px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--aegis-text-heading);
+      font-weight: 600;
+    }
+
+    .topbar p {
+      margin: 0;
+      font-size: 12px;
+      color: var(--aegis-text-muted);
+      max-width: 52ch;
+    }
+
+    .badge {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--aegis-selected-ring);
+      border: 1px solid var(--aegis-selected-ring);
+      padding: 2px 8px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--aegis-surface-panel);
+      border: 1px solid var(--aegis-border-panel);
+      padding: 10px 12px 14px;
+      min-height: 560px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--aegis-text-heading);
+      margin: 0 0 8px;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .field label {
+      font-size: 11px;
+      color: var(--aegis-text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    input[type="text"] {
+      background: rgba(8, 14, 22, 0.75);
+      border: 1px solid var(--aegis-border-subtle);
+      color: var(--aegis-text-data);
+      padding: 6px 8px;
+      font: 12px/1.3 var(--font-mono);
+      outline: none;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--aegis-selected-ring);
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--aegis-border-subtle);
+      background: rgba(16, 24, 36, 0.9);
+      color: var(--aegis-text-body);
+      font: 11px/1 var(--font-ui);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 7px 10px;
+      min-width: 64px;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) {
+      border-color: var(--aegis-text-muted);
+      color: var(--aegis-text-heading);
+    }
+
+    button:disabled {
+      opacity: var(--aegis-diff-pending-opacity);
+      cursor: not-allowed;
+    }
+
+    button.active {
+      border-bottom: 2px solid var(--aegis-selected-ring);
+      color: var(--aegis-text-heading);
+    }
+
+    .status {
+      font-size: 11px;
+      color: var(--aegis-text-muted);
+      margin-bottom: 8px;
+      min-height: 1.4em;
+    }
+
+    .status.blocked {
+      color: var(--aegis-diff-blocked);
+      font-weight: 700;
+    }
+
+    .list {
+      border: 1px solid var(--aegis-border-section);
+      background: rgba(8, 14, 22, 0.55);
+      flex: 1;
+      min-height: 140px;
+      overflow: auto;
+      margin-bottom: 8px;
+    }
+
+    .list-item {
+      padding: 7px 10px;
+      font: 12px/1.35 var(--font-mono);
+      color: var(--aegis-text-data);
+      border-left: 3px solid transparent;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(50, 65, 80, 0.45);
+    }
+
+    .list-item:hover { background: rgba(74, 158, 255, 0.08); }
+
+    .list-item.selected {
+      background: var(--aegis-selected-row-bg);
+      border-left-color: var(--aegis-selected-row-bar);
+    }
+
+    .list-item .meta {
+      display: block;
+      font-size: 10px;
+      color: var(--aegis-text-muted);
+      margin-top: 2px;
+    }
+
+    .section-bar { margin: 4px 0 8px; }
+
+    .detail-block {
+      border-top: 1px solid var(--aegis-border-section);
+      padding-top: 8px;
+      margin-top: 4px;
+    }
+
+    .detail-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--aegis-text-body);
+      margin: 0 0 6px;
+    }
+
+    .detail-line {
+      font: 12px/1.45 var(--font-mono);
+      color: var(--aegis-text-muted);
+      margin: 0 0 2px;
+    }
+
+    .detail-line.muted { opacity: 0.85; }
+
+    .helper {
+      font-size: 10px;
+      color: var(--aegis-text-muted);
+      margin-top: 6px;
+    }
+
+    .diff-row {
+      padding: 6px 10px;
+      font: 12px/1.4 var(--font-mono);
+      border-bottom: 1px solid rgba(50, 65, 80, 0.4);
+      white-space: pre-wrap;
+    }
+
+    .diff-row--added { color: var(--aegis-diff-added); }
+    .diff-row--changed { color: var(--aegis-diff-changed); }
+    .diff-row--removed { color: var(--aegis-diff-removed); }
+    .diff-row--blocked { color: var(--aegis-diff-blocked); font-weight: 700; }
+    .diff-row--info { color: var(--aegis-text-body); }
+
+    .ack {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--aegis-diff-pending);
+      margin-top: auto;
+    }
+
+    .ack input { accent-color: var(--aegis-selected-ring); }
+
+    .footnote {
+      margin-top: 16px;
+      font-size: 11px;
+      color: var(--aegis-text-muted);
+      border-top: 1px solid var(--aegis-border-subtle);
+      padding-top: 12px;
+    }
+
+    .footnote code {
+      font-family: var(--font-mono);
+      color: var(--aegis-text-data);
+    }
+
+    .swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .swatch {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font: 10px/1 var(--font-mono);
+      color: var(--aegis-text-muted);
+    }
+
+    .swatch i {
+      width: 12px;
+      height: 12px;
+      display: inline-block;
+      border: 1px solid var(--aegis-border-subtle);
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div>
+        <h1>Platform Editor — Unified UX Preview</h1>
+        <p>HTML stand-in for Unity UI Toolkit Catalog + Import (PE-UX W0–W2). Excel remains the write workbench (ADR-011).</p>
+      </div>
+      <span class="badge">Review mock · read-only chrome</span>
+    </header>
+
+    <div class="layout">
+      <!-- CATALOG -->
+      <section class="panel" aria-label="Platform Catalog">
+        <h2 class="panel-title">Platform Catalog</h2>
+        <div class="row">
+          <button type="button" id="btn-export">Export</button>
+          <button type="button" id="btn-diff">Diff</button>
+        </div>
+        <div class="status" id="catalog-action-status"></div>
+        <div class="field">
+          <label for="catalog-filter">Filter</label>
+          <input id="catalog-filter" type="text" placeholder="name / domain / id…" value="" />
+        </div>
+        <div class="list" id="catalog-list" role="listbox" aria-label="Platform browse list"></div>
+        <div class="row section-bar" id="catalog-sections" role="tablist">
+          <button type="button" data-section="identity" class="active">Identity</button>
+          <button type="button" data-section="damage">Damage</button>
+          <button type="button" data-section="fits">Fits</button>
+          <button type="button" data-section="comms">Comms</button>
+          <button type="button" data-section="links">Links</button>
+          <button type="button" data-section="graph">Graph</button>
+        </div>
+        <div class="detail-block" id="catalog-detail"></div>
+      </section>
+
+      <!-- IMPORT -->
+      <section class="panel" aria-label="Platform Import">
+        <h2 class="panel-title">Platform Import</h2>
+        <div class="field">
+          <label for="workbook">Workbook</label>
+          <input id="workbook" type="text" value="data/workbook/PlatformEditor-Baltic.xlsx" />
+        </div>
+        <div class="row">
+          <button type="button" id="btn-propose">Propose</button>
+          <button type="button" id="btn-reject">Reject</button>
+          <button type="button" id="btn-approve" disabled>Approve</button>
+        </div>
+        <div class="status" id="import-status">STAGING: pick workbook and propose to preview entity-level diff</div>
+        <div class="row section-bar" id="import-filters">
+          <button type="button" data-filter="ALL" class="active">ALL</button>
+          <button type="button" data-filter="DAMAGE">DAMAGE</button>
+          <button type="button" data-filter="COMMS">COMMS</button>
+          <button type="button" data-filter="LINK">LINK</button>
+          <button type="button" data-filter="OTHER">OTHER</button>
+        </div>
+        <div class="detail-title">Entity Diff</div>
+        <div class="list" id="diff-list" style="min-height: 220px;"></div>
+        <label class="ack">
+          <input type="checkbox" id="ack" />
+          I reviewed the entity-level diff
+        </label>
+      </section>
+    </div>
+
+    <footer class="footnote">
+      Tokens from <code>AegisTokens.uss</code> (--aegis-* aliases). Diff colors: added / changed / removed / blocked.
+      <div class="swatches">
+        <span class="swatch"><i style="background:#64C88C"></i> added</span>
+        <span class="swatch"><i style="background:#E6C850"></i> changed</span>
+        <span class="swatch"><i style="background:#E85D5D"></i> removed</span>
+        <span class="swatch"><i style="background:#E65A5A"></i> blocked</span>
+        <span class="swatch"><i style="background:#8C9BAA"></i> pending / ack</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const platforms = [
+      {
+        id: "plt-ffg-baltic-01",
+        name: "FFG Baltic Patrol",
+        domain: "Surface",
+        mounts: 4,
+        sensors: 6,
+        identity: {
+          id: "plt-ffg-baltic-01",
+          radius: "0.42 nm",
+          speed: "28 kn",
+          flags: "Surface · Blue",
+          lat: "SCENARIO LAT: 57.412 (doc 11)",
+          lon: "SCENARIO LON: 20.118 (doc 11)",
+        },
+        damage: {
+          hp: "2400 / 2400",
+          resilience: "0.72",
+          withdraw: "0.35",
+        },
+        fits: { mounts: "4", sensors: "6" },
+        comms: [
+          "Link-16 · LatencyMsNominal 80 · share-lag ticks (S34-07)",
+          "UHF LOS · LatencyMsNominal 40",
+        ],
+        links: [
+          "weapon:harpoon-blk2 → mount:asm-fwd",
+          "sensor:sps-49 → fit:air-search",
+        ],
+        graph: [
+          "FFG → Mounts(4) → Weapons(ASM, SAM, Gun, CIWS)",
+          "FFG → Sensors(6) → Air/Surface/ESM",
+          "FFG → Comms(Link-16, UHF)",
+        ],
+      },
+      {
+        id: "plt-ucav-blue-01",
+        name: "UCAV Blue Recon",
+        domain: "Air",
+        mounts: 2,
+        sensors: 3,
+        identity: {
+          id: "plt-ucav-blue-01",
+          radius: "0.08 nm",
+          speed: "180 kn",
+          flags: "Air · Blue · UCAV",
+          lat: "SCENARIO LAT: — (doc 11)",
+          lon: "SCENARIO LON: — (doc 11)",
+        },
+        damage: {
+          hp: "120 / 120",
+          resilience: "0.40",
+          withdraw: "0.55",
+        },
+        fits: { mounts: "2", sensors: "3" },
+        comms: ["SATCOM · LatencyMsNominal 240"],
+        links: ["sensor:eo-ir → fit:recon"],
+        graph: ["UCAV → Sensors(EO/IR, ESM) → Comms(SATCOM)"],
+      },
+      {
+        id: "plt-hostile-skiff",
+        name: "Hostile Fast Skiff",
+        domain: "Surface",
+        mounts: 1,
+        sensors: 1,
+        identity: {
+          id: "plt-hostile-skiff",
+          radius: "0.12 nm",
+          speed: "36 kn",
+          flags: "Surface · Red",
+          lat: "SCENARIO LAT: 57.501 (doc 11)",
+          lon: "SCENARIO LON: 20.240 (doc 11)",
+        },
+        damage: {
+          hp: "180 / 180",
+          resilience: "0.20",
+          withdraw: "0.70",
+        },
+        fits: { mounts: "1", sensors: "1" },
+        comms: ["VHF · LatencyMsNominal 20"],
+        links: ["weapon:hmg → mount:fwd"],
+        graph: ["Skiff → Mount(HMG) → Sensor(Nav radar)"],
+      },
+    ];
+
+    const diffs = [
+      { section: "DAMAGE", kind: "changed", text: "[DAMAGE][CHANGED] FFG Baltic Patrol HP 2200 → 2400" },
+      { section: "DAMAGE", kind: "changed", text: "[DAMAGE][CHANGED] FFG Baltic Patrol Resilience 0.65 → 0.72" },
+      { section: "COMMS", kind: "added", text: "[COMMS][ADDED] UCAV Blue Recon SATCOM LatencyMsNominal=240" },
+      { section: "COMMS", kind: "changed", text: "[COMMS][CHANGED] FFG Link-16 LatencyMsNominal 120 → 80" },
+      { section: "LINK", kind: "removed", text: "[LINK][REMOVED] FFG weapon:harpoon-legacy → mount:asm-fwd" },
+      { section: "LINK", kind: "added", text: "[LINK][ADDED] FFG weapon:harpoon-blk2 → mount:asm-fwd" },
+      { section: "OTHER", kind: "info", text: "[OTHER][INFO] Workbook schema v3 — entity-level staging only" },
+      { section: "OTHER", kind: "blocked", text: "[OTHER][BLOCKED] Hostile Fast Skiff — catalog id collision (gate deny)" },
+    ];
+
+    let selectedId = platforms[0].id;
+    let catalogSection = "identity";
+    let importFilter = "ALL";
+    let proposed = false;
+
+    const catalogList = document.getElementById("catalog-list");
+    const catalogDetail = document.getElementById("catalog-detail");
+    const catalogFilter = document.getElementById("catalog-filter");
+    const catalogStatus = document.getElementById("catalog-action-status");
+    const diffList = document.getElementById("diff-list");
+    const importStatus = document.getElementById("import-status");
+    const approveBtn = document.getElementById("btn-approve");
+    const ack = document.getElementById("ack");
+
+    function renderCatalogList() {
+      const q = catalogFilter.value.trim().toLowerCase();
+      catalogList.innerHTML = "";
+      platforms
+        .filter((p) => !q || `${p.name} ${p.domain} ${p.id}`.toLowerCase().includes(q))
+        .forEach((p) => {
+          const el = document.createElement("div");
+          el.className = "list-item" + (p.id === selectedId ? " selected" : "");
+          el.setAttribute("role", "option");
+          el.setAttribute("aria-selected", p.id === selectedId ? "true" : "false");
+          el.innerHTML = `${p.name}<span class="meta">${p.domain} · mounts ${p.mounts} · sensors ${p.sensors}</span>`;
+          el.addEventListener("click", () => {
+            selectedId = p.id;
+            renderCatalogList();
+            renderCatalogDetail();
+          });
+          catalogList.appendChild(el);
+        });
+    }
+
+    function renderCatalogDetail() {
+      const p = platforms.find((x) => x.id === selectedId) || platforms[0];
+      let html = "";
+      if (catalogSection === "identity") {
+        html = `
+          <h3 class="detail-title">Detail · Identity</h3>
+          <p class="detail-line">ID: ${p.identity.id}</p>
+          <p class="detail-line">RADIUS: ${p.identity.radius}</p>
+          <p class="detail-line">SPEED: ${p.identity.speed}</p>
+          <p class="detail-line">FLAGS: ${p.identity.flags}</p>
+          <p class="detail-line muted">${p.identity.lat}</p>
+          <p class="detail-line muted">${p.identity.lon}</p>`;
+      } else if (catalogSection === "damage") {
+        html = `
+          <h3 class="detail-title">Detail · Damage</h3>
+          <p class="detail-line">HP: ${p.damage.hp}</p>
+          <p class="detail-line">RESILIENCE: ${p.damage.resilience}</p>
+          <p class="detail-line">WITHDRAW: ${p.damage.withdraw}</p>`;
+      } else if (catalogSection === "fits") {
+        html = `
+          <h3 class="detail-title">Detail · Fits</h3>
+          <p class="detail-line">MOUNTS: ${p.fits.mounts}</p>
+          <p class="detail-line">SENSORS: ${p.fits.sensors}</p>`;
+      } else if (catalogSection === "comms") {
+        html = `<h3 class="detail-title">Comms</h3>` +
+          p.comms.map((c) => `<p class="detail-line">${c}</p>`).join("") +
+          `<p class="helper">LatencyMsNominal (catalog) drives share-lag ticks in sim (S34-07)</p>`;
+      } else if (catalogSection === "links") {
+        html = `<h3 class="detail-title">Link Catalog</h3>` +
+          p.links.map((c) => `<p class="detail-line">${c}</p>`).join("");
+      } else {
+        html = `<h3 class="detail-title">Dependency Graph</h3>` +
+          p.graph.map((c) => `<p class="detail-line">${c}</p>`).join("");
+      }
+      catalogDetail.innerHTML = html;
+    }
+
+    function renderDiffs() {
+      diffList.innerHTML = "";
+      if (!proposed) {
+        const empty = document.createElement("div");
+        empty.className = "diff-row diff-row--info";
+        empty.textContent = "No staged rows — Propose to load entity-level diff.";
+        diffList.appendChild(empty);
+        return;
+      }
+      const rows = diffs.filter((d) => importFilter === "ALL" || d.section === importFilter);
+      const blocked = rows.some((d) => d.kind === "blocked");
+      rows.forEach((d) => {
+        const el = document.createElement("div");
+        el.className = `diff-row diff-row--${d.kind}`;
+        el.textContent = d.text;
+        diffList.appendChild(el);
+      });
+      if (blocked) {
+        importStatus.textContent = "STAGING BLOCKED: resolve gate deny before Approve";
+        importStatus.classList.add("blocked");
+      } else {
+        importStatus.textContent = `STAGING: ${rows.length} row(s) · filter ${importFilter}`;
+        importStatus.classList.remove("blocked");
+      }
+      updateApprove();
+    }
+
+    function updateApprove() {
+      const blocked = proposed && diffs.some((d) => d.kind === "blocked" && (importFilter === "ALL" || d.section === importFilter));
+      approveBtn.disabled = !(proposed && ack.checked && !blocked);
+    }
+
+    document.querySelectorAll("#catalog-sections button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        catalogSection = btn.dataset.section;
+        document.querySelectorAll("#catalog-sections button").forEach((b) => b.classList.toggle("active", b === btn));
+        renderCatalogDetail();
+      });
+    });
+
+    document.querySelectorAll("#import-filters button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        importFilter = btn.dataset.filter;
+        document.querySelectorAll("#import-filters button").forEach((b) => b.classList.toggle("active", b === btn));
+        renderDiffs();
+      });
+    });
+
+    catalogFilter.addEventListener("input", renderCatalogList);
+    document.getElementById("btn-export").addEventListener("click", () => {
+      catalogStatus.textContent = "EXPORT: workbook draft path ready (preview)";
+    });
+    document.getElementById("btn-diff").addEventListener("click", () => {
+      catalogStatus.textContent = "DIFF: open Import panel staging for entity-level review";
+    });
+    document.getElementById("btn-propose").addEventListener("click", () => {
+      proposed = true;
+      ack.checked = false;
+      importStatus.textContent = "STAGING: entity-level diff ready — review sections then acknowledge";
+      importStatus.classList.remove("blocked");
+      renderDiffs();
+    });
+    document.getElementById("btn-reject").addEventListener("click", () => {
+      proposed = false;
+      ack.checked = false;
+      importStatus.textContent = "STAGING: rejected — pick workbook and propose to preview entity-level diff";
+      importStatus.classList.remove("blocked");
+      renderDiffs();
+    });
+    document.getElementById("btn-approve").addEventListener("click", () => {
+      catalogStatus.textContent = "APPROVE blocked in preview — CatalogWriteGate path unchanged (ADR-011)";
+      importStatus.textContent = "PREVIEW ONLY: Approve would call CatalogWriteGate.ApproveBatch in Editor";
+    });
+    ack.addEventListener("change", updateApprove);
+
+    renderCatalogList();
+    renderCatalogDetail();
+    renderDiffs();
+  </script>
+</body>
+</html>

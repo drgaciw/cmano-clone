@@ -1,0 +1,13 @@
+=== tier-1 ticks=6 scenarios=gauntlet-t1-patrol-a,gauntlet-t1-patrol-b,gauntlet-t1-patrol-c,gauntlet-t1-patrol-d ===
+RESULT tier-1 allPassed=True elapsed=2s
+=== tier-2 ticks=10 scenarios=gauntlet-t2-escort-a,gauntlet-t2-escort-passive,gauntlet-t2-strike-a,gauntlet-t2-strike-event ===
+RESULT tier-2 allPassed=True elapsed=2s
+=== tier-3 ticks=16 scenarios=gauntlet-t3-escort-strike,gauntlet-t3-emcon-phases,gauntlet-t3-id-roe,gauntlet-t3-event-chain ===
+RESULT tier-3 allPassed=True elapsed=3s
+=== tier-4 ticks=24 scenarios=gauntlet-t4-multi-mission,gauntlet-t4-weighted,gauntlet-t4-asymm-roe,gauntlet-t4-random-inject ===
+RESULT tier-4 allPassed=True elapsed=2s
+=== tier-5 ticks=40 scenarios=gauntlet-t5-cascade,gauntlet-t5-theater,gauntlet-t5-dynamic-obj,gauntlet-t5-roe-change ===
+ORACLE_FAIL tier-5 exit=0
+=== tier-extra ticks=12 scenarios=gauntlet-joint-orbat-smoke,gauntlet-multidomain-shooters ===
+RESULT tier-extra allPassed=True elapsed=3s
+LADDER_EXITS t1=0 t2=0 t3=0 t4=0 t5=2 extra=0

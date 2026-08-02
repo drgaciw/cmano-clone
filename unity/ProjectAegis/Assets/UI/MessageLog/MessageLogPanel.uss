@@ -48,7 +48,7 @@
     min-height: 14px;
     font-size: 10px;
     color: var(--text-data);
-    -unity-font: resource("Fonts/RobotoMono-Regular");
+    /* Use PanelSettings/default UI font — RobotoMono asset is not in Resources (Console: Font not found). */
     padding-left: var(--space-xs);
     padding-right: var(--space-xs);
     padding-top: 1px;
@@ -77,8 +77,16 @@
     color: var(--log-mission);
 }
 
+.message-log-row--policy {
+    color: var(--log-kill);
+    -unity-font-style: bold;
+}
+
+.message-log-row--weapon {
+    color: var(--log-magazine);
+}
+
 .message-log-row--selectable:focus {
-    background-color: var(--selected-row-bg);
-    border-left-width: 2px;
-    border-left-color: var(--selected-ring);
+    border-left-width: var(--focus-ring-width);
+    border-left-color: var(--focus-ring);
 }

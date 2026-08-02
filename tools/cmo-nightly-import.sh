@@ -21,6 +21,7 @@ Options:
   --chunk-size <N>                       Records per batch (default: 500)
   --max-records <N>                      Cap parsed records per entity (smoke/CI gate)
   --propose-only                         Propose-only mode (default; no auto-approve)
+  --enterprise-corpus                    Schema-only scratch DB (no Baltic seed); set AEGIS_PUBLIC_CORPUS=1
   --dry-run                              Validate paths and print planned runs only
   -h, --help                             Show this help
 
@@ -41,6 +42,7 @@ CHUNK_SIZE="${CHUNK_SIZE:-500}"
 MAX_RECORDS="${MAX_RECORDS:-}"
 PROPOSE_ONLY=1
 DRY_RUN=0
+ENTERPRISE_CORPUS=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -58,6 +60,11 @@ while [[ $# -gt 0 ]]; do
       ;;
     --propose-only)
       PROPOSE_ONLY=1
+      shift
+      ;;
+    --enterprise-corpus)
+      ENTERPRISE_CORPUS=1
+      export AEGIS_PUBLIC_CORPUS=1
       shift
       ;;
     --dry-run)
@@ -113,14 +120,24 @@ entity_selected() {
 import_entity() {
   local entity="$1"
   local markdown="$2"
-  local report_out="${SCRATCH_DIR}/${entity}-quarantine.json"
+  local quarantine_out="${SCRATCH_DIR}/${entity}-quarantine.json"
   local propose_out="${SCRATCH_DIR}/${entity}-propose.json"
+  local weapon_flag=()
+
+  case "${entity}" in
+    platform|aircraft|submarine|facility|ground-unit)
+      weapon_flag=(--weapon "${WEAPON_MD}")
+      ;;
+  esac
 
   echo "==> Import ${entity}"
   echo "    Markdown: ${markdown}"
-  echo "    Report:   ${report_out}"
+  echo "    Report:   ${quarantine_out}"
 
   if [[ "${DRY_RUN}" -eq 1 ]]; then
+    if ((${#weapon_flag[@]} > 0)); then
+      echo "    Weapon:   ${WEAPON_MD}"
+    fi
     return 0
   fi
 
@@ -131,7 +148,8 @@ import_entity() {
     --entity "${entity}" \
     --chunk-size "${CHUNK_SIZE}" \
     "${MAX_RECORDS_FLAG[@]}" \
-    --report-out "${report_out}" \
+    "${weapon_flag[@]}" \
+    --report-out "${quarantine_out}" \
     > "${propose_out}"
 }
 
@@ -207,6 +225,7 @@ echo "    DB: ${DB_PATH}"
 echo "    Entity: ${ENTITY}"
 echo "    Chunk: ${CHUNK_SIZE}"
 echo "    Propose-only: ${PROPOSE_ONLY}"
+echo "    Enterprise corpus: ${ENTERPRISE_CORPUS}"
 if [[ -n "${MAX_RECORDS}" ]]; then
   echo "    Max records: ${MAX_RECORDS}"
 fi

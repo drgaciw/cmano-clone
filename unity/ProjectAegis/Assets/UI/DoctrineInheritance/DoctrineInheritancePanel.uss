@@ -1,10 +1,20 @@
+/* Doctrine panel — docks under the right unit column when enabled. */
+
+@import url("../AegisTokens.uss");
+
 .doctrine-panel {
-    flex-grow: 1;
-    min-width: 300px;
+    position: absolute;
+    right: 8px;
+    bottom: 236px;
+    width: 284px;
+    min-width: 260px;
+    max-height: 40%;
+    flex-direction: column;
     padding: 8px;
-    background-color: rgba(12, 18, 28, 0.92);
-    border-left-width: 1px;
-    border-left-color: rgb(50, 65, 80);
+    background-color: rgba(12, 18, 28, 0.94);
+    border-width: 1px;
+    border-color: rgb(50, 65, 80);
+    border-radius: 4px;
 }
 
 .doctrine-title {
@@ -38,27 +48,32 @@
 }
 
 .doctrine-line--override {
-    margin-bottom: 6px;
+    color: rgb(240, 180, 80);
 }
 
 .doctrine-override-row {
     flex-direction: row;
-    align-items: flex-end;
     flex-wrap: wrap;
+    align-items: center;
     margin-top: 4px;
+    margin-bottom: 4px;
 }
 
 .doctrine-dropdown {
-    flex-grow: 1;
     min-width: 160px;
     margin-right: 8px;
     margin-bottom: 4px;
 }
 
 .doctrine-apply-button {
+    min-width: 80px;
+    margin-right: 8px;
     margin-bottom: 4px;
 }
 
-.doctrine-apply-button:disabled {
-    opacity: 0.45;
+/* Keyboard focus (REQ-20 CMD-12 / CMD-28.9). */
+.doctrine-apply-button:focus,
+.doctrine-dropdown:focus {
+    border-width: var(--focus-ring-width);
+    border-color: var(--focus-ring);
 }

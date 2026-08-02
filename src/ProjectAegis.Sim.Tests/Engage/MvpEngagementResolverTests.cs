@@ -220,4 +220,37 @@ public sealed class MvpEngagementResolverTests
         var result = resolver.Resolve(request);
         Assert.Equal(EngagementAbortReason.TargetDestroyed, result.AbortReason);
     }
+
+    /// <summary>
+    /// BUG-001 (QA Gauntlet, root-caused by c-sharp-architect): Resolve only checks
+    /// _killedTargets.IsKilled(request.TargetId) and never checks the SHOOTER
+    /// (request.ShooterUnitId). A unit already marked killed in the registry — e.g. because
+    /// it was destroyed as someone else's target in an earlier tick, per the real
+    /// SimulationSession/CombatOutcomeResolver kill-marking flow — must not be able to launch
+    /// a brand-new engagement as a shooter in a later tick. This test drives the registry the
+    /// same way "Killed_target_aborts_before_launch" above does (direct MarkKilled on the
+    /// shooter's own unit id), then issues a fresh, otherwise-fully-valid engagement request
+    /// from that dead shooter. EXPECTED (currently FAILING): Resolve denies the engagement
+    /// (Launched == false). ACTUAL (buggy code): Resolve ignores shooter death entirely and
+    /// launches, because the only IsKilled check in Resolve is keyed off TargetId, not
+    /// ShooterUnitId.
+    /// </summary>
+    [Fact]
+    public void Killed_shooter_aborts_before_launch()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var killed = new KilledTargetRegistry();
+        killed.MarkKilled(1, "shooter-1"); // shooter (unit 1) was already destroyed this run.
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 2);
+        var resolver = new MvpEngagementResolver(world, magazines, killedTargets: killed);
+        var request = new EngageRequest(1, 2, 0, 0); // dead shooter (1) attempts to fire at target 2.
+        world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true));
+
+        var result = resolver.Resolve(request);
+
+        Assert.False(result.Launched, "a shooter already marked killed must not be allowed to launch a new engagement");
+        Assert.Equal(EngagementAbortReason.ShooterDestroyed, result.AbortReason);
+        Assert.Equal(2, magazines.GetRounds(1, 0)); // dead shooter must not burn rounds
+    }
 }

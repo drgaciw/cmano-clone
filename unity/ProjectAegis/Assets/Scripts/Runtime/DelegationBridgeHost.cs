@@ -52,6 +52,12 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Full AAR message log (all projected categories) for doc-20 bottom strip.</summary>
         public IReadOnlyList<MessageLogLine> LastMessageLog { get; private set; } = Array.Empty<MessageLogLine>();
 
+        /// <summary>
+        /// Domain keys with recent combat activity for ASSET-021 hot-tick HUD (headless binder input).
+        /// Derived from message-log combat categories — no sim hot-path coupling.
+        /// </summary>
+        public IReadOnlyList<string> LastCombatDomainActivityTags { get; private set; } = Array.Empty<string>();
+
         /// <summary>OOB unit rows for doc-20 left drawer.</summary>
         public IReadOnlyList<OobTreeEntry> LastOobTree { get; private set; } = Array.Empty<OobTreeEntry>();
 
@@ -151,6 +157,7 @@ namespace ProjectAegis.Unity.Runtime
             _lastSnapshot = snapshot;
             var result = Bridge.Tick(snapshot, sink);
             LastMessageLog = MessageLogBridge.ProjectFrom(Bridge.Orchestrator.DecisionLog);
+            LastCombatDomainActivityTags = CombatDomainActivityTags.FromMessageLog(LastMessageLog);
             LastOobTree = OobTreeBridge.Build(snapshot, Bridge.Registry);
             Presentation.ApplyDefaultSelection(LastOobTree);
             ApplyGraphSurfacingForSelection(); // S37-04 ensure graph after default select
@@ -244,6 +251,7 @@ namespace ProjectAegis.Unity.Runtime
             var policy = Bridge.Orchestrator.ScenarioPolicy;
             LastDoctrineInheritance = DoctrineInheritanceProjection.ProjectUnit(unitId, policy, isFriendly: true);
         }
+
     }
 }
 #endif
