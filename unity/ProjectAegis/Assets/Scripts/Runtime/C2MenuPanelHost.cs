@@ -1,4 +1,4 @@
-// CMD-28 C2 menu / basemap layer checklist host — thin UI Toolkit over C2MenuProjection.
+# CMD-28 C2 menu / basemap layer checklist host — thin UI Toolkit over C2MenuProjection.
 #if UNITY_5_3_OR_NEWER
 using System;
 using System.Collections.Generic;
@@ -12,6 +12,10 @@ namespace ProjectAegis.Unity.Runtime
     /// Thin host for the CMD-28 C2 menu catalogue.
     /// Binds <see cref="C2MenuProjection.ProjectDefault"/> with the map host layer stack when present.
     /// Layer rows call <see cref="MapPlaceholderPanelHost.ToggleLayer"/> (UI-local; not DecisionLog).
+    /// Next/Previous Unit rows cycle the C2 unit selection via <see cref="DelegationBridgeHost.SelectUnit"/>
+    /// (also UI-local; ADR-010 exempt per CMD-28.3). Zoom/2D-3D-toggle/Measure remain enabled per the
+    /// C2MenuProjection contract but have no backing subsystem yet (no camera/measure state exists) —
+    /// intentionally left unwired here pending that subsystem work.
     /// Shortcut labels are shown inline for discovery (CMD-28.1).
     /// </summary>
     [DisallowMultipleComponent]
@@ -23,11 +27,14 @@ namespace ProjectAegis.Unity.Runtime
         private const string SummaryName = "c2-menu-summary";
         private const string StatusName = "c2-menu-status";
         private const string LayerIdPrefix = "layer-";
+        private const string NextUnitId = "view-next-unit";
+        private const string PrevUnitId = "view-prev-unit";
 
         [SerializeField] private VisualTreeAsset? panelAsset;
         [SerializeField] private StyleSheet? panelStyles;
         [SerializeField] private bool showPanel = true;
         [SerializeField] private MapPlaceholderPanelHost? mapHost;
+        [SerializeField] private DelegationBridgeHost? bridgeHost;
 
         private UIDocument _document = null!;
         private VisualElement? _menuList;
@@ -258,6 +265,11 @@ namespace ProjectAegis.Unity.Runtime
                     var capturedId = item.Id;
                     row.RegisterCallback<ClickEvent>(_ => OnLayerRowClicked(capturedId));
                 }
+                else if (item.IsEnabled && (item.Id == NextUnitId || item.Id == PrevUnitId))
+                {
+                    var forward = item.Id == NextUnitId;
+                    row.RegisterCallback<ClickEvent>(_ => OnCycleUnitClicked(forward));
+                }
 
                 _menuList.Add(row);
             }
@@ -283,6 +295,46 @@ namespace ProjectAegis.Unity.Runtime
             mapHost.ToggleLayer(layerId);
             // Rebuild so On/Off labels and summary refresh immediately.
             Refresh(force: true);
+            SetStatus(null);
+        }
+
+        /// <summary>
+        /// CMD-28.8/.10: cycle the C2 unit selection forward/backward through alive OOB units.
+        /// UI-local navigation — reuses <see cref="DelegationBridgeHost.SelectUnit"/>, the same
+        /// friendly-unit selection path map symbol clicks and OOB tree rows already use.
+        /// </summary>
+        private void OnCycleUnitClicked(bool forward)
+        {
+            if (bridgeHost == null)
+            {
+                SetStatus("NO_BRIDGE");
+                return;
+            }
+
+            var aliveUnitIds = new List<string>();
+            foreach (var entry in bridgeHost.LastOobTree)
+            {
+                if (entry != null && entry.IsAlive && !string.IsNullOrWhiteSpace(entry.UnitId))
+                {
+                    aliveUnitIds.Add(entry.UnitId);
+                }
+            }
+
+            if (aliveUnitIds.Count == 0)
+            {
+                SetStatus("NO_UNITS");
+                return;
+            }
+
+            var currentIndex = bridgeHost.SelectedUnitId != null
+                ? aliveUnitIds.IndexOf(bridgeHost.SelectedUnitId)
+                : -1;
+            var step = forward ? 1 : -1;
+            var nextIndex = currentIndex < 0
+                ? 0
+                : (currentIndex + step + aliveUnitIds.Count) % aliveUnitIds.Count;
+
+            bridgeHost.SelectUnit(aliveUnitIds[nextIndex]);
             SetStatus(null);
         }
 
