@@ -207,11 +207,16 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             var hasSelection = !string.IsNullOrEmpty(bridgeHost.SelectedUnitId);
-            var hasAgent = bridgeHost.SelectedUnitHasAgent();
+            var hasActiveAgent = bridgeHost.SelectedUnitHasActiveAgent();
+            var hasSuspendedAgent = bridgeHost.SelectedUnitHasSuspendedAgent();
 
             foreach (var (directiveId, button) in _directiveButtons)
             {
-                var validation = AgentDirectiveIssuance.Validate(directiveId, hasSelection, hasAgent);
+                var validation = AgentDirectiveIssuance.Validate(
+                    directiveId,
+                    hasSelection,
+                    hasActiveAgent,
+                    hasSuspendedAgent);
                 button.SetEnabled(validation.Ok);
                 button.tooltip = validation.Ok
                     ? directiveId

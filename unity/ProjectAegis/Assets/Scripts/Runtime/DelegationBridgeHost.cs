@@ -92,6 +92,9 @@ namespace ProjectAegis.Unity.Runtime
 
         private ISimWorldSnapshot? _lastSnapshot;
 
+        /// <summary>Latest live simulation tick for presentation staleness calculations.</summary>
+        public ulong CurrentSimTick => (ulong)Math.Max(0, (long)(_lastSnapshot?.SimTime ?? 0));
+
         private void Awake()
         {
             Bridge = new DelegationBridge(
@@ -158,8 +161,14 @@ namespace ProjectAegis.Unity.Runtime
                 return false;
             }
 
+            if (!IsPlayerControlledUnit(entityKey))
+            {
+                reason = "NOT_PLAYER_CONTROLLED";
+                return false;
+            }
+
             var simTime = _lastSnapshot?.SimTime ?? 0;
-            return Bridge.TryIssuePlayerCommand(entityKey, commandId, simTime, out reason);
+            return C2PlayerCommandBridge.TryIssue(Bridge, entityKey, commandId, simTime, out reason);
         }
 
         public void SelectUnit(string unitId)
@@ -231,7 +240,7 @@ namespace ProjectAegis.Unity.Runtime
                 return false;
             }
 
-            if (!SelectedUnitHasAgent())
+            if (!SelectedUnitHasActiveAgent())
             {
                 reason = AgentDirectiveIssuance.ReasonNoAgent;
                 return false;
@@ -240,6 +249,12 @@ namespace ProjectAegis.Unity.Runtime
             if (!TryResolveEntityKey(SelectedUnitId, out var entityKey))
             {
                 reason = "UNKNOWN_UNIT";
+                return false;
+            }
+
+            if (!IsPlayerControlledUnit(entityKey))
+            {
+                reason = "NOT_PLAYER_CONTROLLED";
                 return false;
             }
 
@@ -264,7 +279,7 @@ namespace ProjectAegis.Unity.Runtime
                 return false;
             }
 
-            if (!SelectedUnitHasAgent())
+            if (!SelectedUnitHasSuspendedAgent())
             {
                 reason = AgentDirectiveIssuance.ReasonNoAgent;
                 return false;
@@ -273,6 +288,12 @@ namespace ProjectAegis.Unity.Runtime
             if (!TryResolveEntityKey(SelectedUnitId, out var entityKey))
             {
                 reason = "UNKNOWN_UNIT";
+                return false;
+            }
+
+            if (!IsPlayerControlledUnit(entityKey))
+            {
+                reason = "NOT_PLAYER_CONTROLLED";
                 return false;
             }
 
@@ -295,8 +316,11 @@ namespace ProjectAegis.Unity.Runtime
         {
             reason = null;
             var hasSelection = !string.IsNullOrEmpty(SelectedUnitId);
-            var hasAgent = SelectedUnitHasAgent();
-            var validation = AgentDirectiveIssuance.Validate(directiveId, hasSelection, hasAgent);
+            var validation = AgentDirectiveIssuance.Validate(
+                directiveId,
+                hasSelection,
+                SelectedUnitHasActiveAgent(),
+                SelectedUnitHasSuspendedAgent());
             if (!validation.Ok || validation.Request is null)
             {
                 reason = validation.FailureReason ?? AgentDirectiveIssuance.ReasonUnknownDirective;
@@ -326,6 +350,12 @@ namespace ProjectAegis.Unity.Runtime
                 return false;
             }
 
+            if (!IsPlayerControlledUnit(entityKey))
+            {
+                reason = "NOT_PLAYER_CONTROLLED";
+                return false;
+            }
+
             // hold/rtb require human controller — take control first if agent is active
             if (Bridge.Registry.TryGetBinding(entityKey, out var binding)
                 && binding.Target.Slot.Active is not HumanController)
@@ -334,7 +364,8 @@ namespace ProjectAegis.Unity.Runtime
                 if (!Bridge.TryTakeDirectControl(entityKey, simTimeForControl)
                     && binding.Target.Slot.Active is not HumanController)
                 {
-                    EnsureHumanControl(entityKey);
+                    reason = "TAKE_CONTROL_FAILED";
+                    return false;
                 }
             }
 
@@ -376,6 +407,12 @@ namespace ProjectAegis.Unity.Runtime
             return slot.Active is AgentController || slot.SuspendedAgent is not null;
         }
 
+        /// <summary>True when the selected unit currently has an active agent controller.</summary>
+        public bool SelectedUnitHasActiveAgent() => TryGetSelectedSlot(out var slot) && slot.Active is AgentController;
+
+        /// <summary>True when the selected unit has an agent suspended by direct player control.</summary>
+        public bool SelectedUnitHasSuspendedAgent() => TryGetSelectedSlot(out var slot) && slot.SuspendedAgent is not null;
+
         private IReadOnlyList<AgentRosterEntry> BuildAgentRosterFromRegistry()
         {
             if (Bridge?.Registry == null)
@@ -386,12 +423,40 @@ namespace ProjectAegis.Unity.Runtime
             var inputs = new List<(string unitId, string controllerKind, string? agentId, string autonomy)>();
             foreach (var binding in Bridge.Registry.Bindings.OrderBy(b => b.TargetId.Value, StringComparer.Ordinal))
             {
+                if (!IsPlayerControlledUnit(binding.Entity))
+                {
+                    continue;
+                }
+
                 var slot = binding.Target.Slot;
                 var (kind, agentId, autonomy) = DescribeSlot(slot);
                 inputs.Add((binding.TargetId.Value, kind, agentId, autonomy));
             }
 
             return AgentRosterProjection.Project(inputs);
+        }
+
+        private bool TryGetSelectedSlot(out ControllerSlot slot)
+        {
+            slot = null!;
+            return !string.IsNullOrEmpty(SelectedUnitId)
+                && TryResolveEntityKey(SelectedUnitId, out var entityKey)
+                && Bridge.Registry.TryGetBinding(entityKey, out var binding)
+                && (slot = binding.Target.Slot) is not null;
+        }
+
+        private bool IsPlayerControlledUnit(EntityKey entityKey)
+        {
+            if (!Bridge.Registry.TryGetBinding(entityKey, out var binding))
+            {
+                return false;
+            }
+
+            var slot = binding.Target.Slot;
+            return slot.Active is HumanController
+                || slot.SuspendedAgent is not null
+                || slot.Active is AgentController { Id.Value: var id }
+                    && id.StartsWith("friendly-", StringComparison.Ordinal);
         }
 
         private static (string controllerKind, string? agentId, string autonomy) DescribeSlot(ControllerSlot slot)

@@ -42,6 +42,8 @@ public static class AgentDirectiveIssuance
 {
     public const string ReasonNoSelection = "NO_SELECTION";
     public const string ReasonNoAgent = "NO_AGENT";
+    public const string ReasonNoActiveAgent = "NO_ACTIVE_AGENT";
+    public const string ReasonNoSuspendedAgent = "NO_SUSPENDED_AGENT";
     public const string ReasonUnknownDirective = "UNKNOWN_DIRECTIVE";
 
     public const string TakeControlId = "take_control";
@@ -106,9 +108,39 @@ public static class AgentDirectiveIssuance
             return new AgentDirectiveResult(false, reason ?? ReasonUnknownDirective, null);
         }
 
-        if (request.IsModeChange && !hasAgent)
+        return request.IsModeChange && !hasAgent
+            ? new AgentDirectiveResult(false, ReasonNoAgent, null)
+            : new AgentDirectiveResult(true, null, request);
+    }
+
+    /// <summary>
+    /// Full pre-issue validation with controller-state semantics for mode changes.
+    /// Taking control requires an active agent; returning control requires a suspended agent.
+    /// </summary>
+    public static AgentDirectiveResult Validate(
+        string? directiveId,
+        bool hasSelection,
+        bool hasActiveAgent,
+        bool hasSuspendedAgent)
+    {
+        if (!hasSelection)
         {
-            return new AgentDirectiveResult(false, ReasonNoAgent, null);
+            return new AgentDirectiveResult(false, ReasonNoSelection, null);
+        }
+
+        if (!TryResolve(directiveId, out var request, out var reason))
+        {
+            return new AgentDirectiveResult(false, reason ?? ReasonUnknownDirective, null);
+        }
+
+        if (request.Action == AgentDirectiveAction.TakeControl && !hasActiveAgent)
+        {
+            return new AgentDirectiveResult(false, ReasonNoActiveAgent, null);
+        }
+
+        if (request.Action == AgentDirectiveAction.ReturnToAgent && !hasSuspendedAgent)
+        {
+            return new AgentDirectiveResult(false, ReasonNoSuspendedAgent, null);
         }
 
         return new AgentDirectiveResult(true, null, request);
