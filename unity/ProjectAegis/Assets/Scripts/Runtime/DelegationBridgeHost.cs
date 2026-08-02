@@ -337,11 +337,15 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            IEnumerable<string> unitIds = LastOobTree.Count > 0
+            // Only surface units the readiness map actually tracks (real airframes) —
+            // UnitReadinessMap.IsReadyForLaunch defaults unknown ids to ready, so an
+            // unfiltered OOB/registry sweep would show surface ships as launchable.
+            IEnumerable<string> unitIds = (LastOobTree.Count > 0
                 ? LastOobTree.Select(e => e.UnitId)
                 : Bridge.Registry != null
                     ? Bridge.Registry.Bindings.Select(b => b.TargetId.Value)
-                    : Array.Empty<string>();
+                    : Array.Empty<string>())
+                .Where(id => readiness!.IsTracked(id));
 
             LastAirOps = AirOpsProjection.Project(
                 unitIds,
