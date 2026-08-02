@@ -73,9 +73,9 @@ Saboteur: `09-winchester-gate-bypass` forces Winchester gate open (defect; shoul
 
 | Assertion | Status |
 |-----------|--------|
-| `FuelStateChange` emits `JOKER` between NOMINAL and BINGO | Required (ladder pin) |
-| Engage continues while Joker (pre-Bingo) | Required |
-| No `JOKER_FUEL` / `EngagementAbortReason` for Joker | Required — do not invent without product ack |
-| Saboteur anti-regression for spurious hard deny | Deferred until a Joker gate is product-approved |
+| `FuelStateChange` emits `JOKER` between NOMINAL and BINGO | **Required** (ladder pin / `requiredRunWide`) |
+| Engage continues while Joker (pre-Bingo) | **Intended** — not load-bearing yet; pin oracle can be masked by Winchester/denials |
+| No `JOKER_FUEL` / `EngagementAbortReason` for Joker | **Required** — do not invent without product ack |
+| Saboteur anti-regression for spurious hard deny | **Deferred** until product wants a positive post-Joker engagement pin or mutant |
 
-Rationale: aviation doctrine treats Joker as “finish the task soon,” not Bingo (“leave now”). Wave 7 keeps that honesty; Bingo/Winchester remain the load-bearing hard denies.
+Rationale: aviation doctrine treats Joker as “finish the task soon,” not Bingo (“leave now”). Wave 7 keeps that honesty; Bingo/Winchester remain the load-bearing hard denies. A dedicated post-Joker/pre-Bingo successful-engage assertion is a follow-up residual (Codex P2 on #393), not a gate invent.
