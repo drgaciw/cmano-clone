@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System;
+using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Unity.Runtime;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -122,11 +123,12 @@ namespace ProjectAegis.Unity.Editor
                 "Assets/UI/LiveEdit/LiveEditPanel.uss");
 
             // UI maturity Wave4 residual hosts (CMD-25 / magazine / deck)
-            CreatePanelHost<BoatOpsPanelHost>(
+            var boatOpsHost = CreatePanelHost<BoatOpsPanelHost>(
                 "BoatOps",
                 bridge,
                 "Assets/UI/BoatOps/BoatOpsPanel.uxml",
                 "Assets/UI/BoatOps/BoatOpsPanel.uss");
+            WireBoatOpsHost(boatOpsHost, bridge);
             CreatePanelHost<MagazineLoadoutPanelHost>(
                 "MagazineLoadout",
                 bridge,
@@ -168,6 +170,20 @@ namespace ProjectAegis.Unity.Editor
             {
                 EditorApplication.Exit(0);
             }
+        }
+
+        /// <summary>
+        /// Wire Boat Ops presentation + launch/recover/abort handlers to the bridge (CMD-25 / LOG-09…11).
+        /// BoatOpsPanelHost has no bridgeHost SerializeField (Func-injection API instead of the
+        /// direct-reference pattern used by AirOpsPanelHost), so this must be wired in code rather
+        /// than via CreatePanelHost's generic SerializedObject property assignment.
+        /// </summary>
+        private static void WireBoatOpsHost(BoatOpsPanelHost host, DelegationBridgeHost bridge)
+        {
+            host.PresentationSource = () => BoatOpsApplyState.Apply(bridge.LastBoatOps, bridge.HasBoatOpsData);
+            host.OnLaunch = craftId => (bridge.TryLaunchBoat(craftId, out var reason), reason);
+            host.OnRecover = craftId => (bridge.TryRecoverBoat(craftId, out var reason), reason);
+            host.OnAbort = craftId => (bridge.TryAbortBoatLaunch(craftId, out var reason), reason);
         }
 
         /// <summary>
@@ -327,11 +343,21 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/LiveEdit/LiveEditPanel.uxml",
                 "Assets/UI/LiveEdit/LiveEditPanel.uss");
-            added += EnsurePanelHostIfMissing<BoatOpsPanelHost>(
+            var boatOpsAdded = EnsurePanelHostIfMissing<BoatOpsPanelHost>(
                 "BoatOps",
                 bridge,
                 "Assets/UI/BoatOps/BoatOpsPanel.uxml",
                 "Assets/UI/BoatOps/BoatOpsPanel.uss");
+            added += boatOpsAdded;
+            if (boatOpsAdded > 0)
+            {
+                var boatOpsHost = Object.FindFirstObjectByType<BoatOpsPanelHost>();
+                if (boatOpsHost != null)
+                {
+                    WireBoatOpsHost(boatOpsHost, bridge);
+                }
+            }
+
             added += EnsurePanelHostIfMissing<MagazineLoadoutPanelHost>(
                 "MagazineLoadout",
                 bridge,
