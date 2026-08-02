@@ -66,3 +66,16 @@ Gate wiring:
 
 Saboteur: `08-bingo-gate-bypass` forces Bingo gate open (defect; should be caught by goldens/token_coverage).
 Saboteur: `09-winchester-gate-bypass` forces Winchester gate open (defect; should be caught by goldens/token_coverage/victory_roe).
+
+## Joker residual (Wave 7 — advisory by design)
+
+**Contract:** Joker is **fingerprint + doctrine label only**. There is **no** engage hard deny and **no** soft multi-salvo gate for Joker.
+
+| Assertion | Status |
+|-----------|--------|
+| `FuelStateChange` emits `JOKER` between NOMINAL and BINGO | Required (ladder pin) |
+| Engage continues while Joker (pre-Bingo) | Required |
+| No `JOKER_FUEL` / `EngagementAbortReason` for Joker | Required — do not invent without product ack |
+| Saboteur anti-regression for spurious hard deny | Deferred until a Joker gate is product-approved |
+
+Rationale: aviation doctrine treats Joker as “finish the task soon,” not Bingo (“leave now”). Wave 7 keeps that honesty; Bingo/Winchester remain the load-bearing hard denies.
