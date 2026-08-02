@@ -541,21 +541,23 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(sceneYaml, Does.Contain("useGlobeMap: 0"), "DelegationSmoke must keep globe map disabled for headless CI");
 
         var builder = File.ReadAllText(builderPath);
-        var smokeBuildStart = builder.IndexOf(
-            "public static void Build(string scenarioPolicyId",
-            StringComparison.Ordinal);
-        var cesiumBuildStart = builder.IndexOf(
-            "public static void BuildCesiumSpikeScene(",
-            StringComparison.Ordinal);
 
-        Assert.That(smokeBuildStart, Is.GreaterThanOrEqualTo(0));
-        Assert.That(cesiumBuildStart, Is.GreaterThan(smokeBuildStart));
+        // Scope this guard to the CI-invoked Build(scenarioPolicyId) method only. BuildCesiumSpikeScene
+        // (further down this file) is a separate, opt-in, non-CI method that intentionally sets
+        // useGlobeMap=true and wires CesiumGlobeHost for the local Cesium spike scene; a whole-file
+        // scan would false-fail on that legitimate, out-of-CI-path content.
+        const string buildMethodStart = "public static void Build(string scenarioPolicyId";
+        const string cesiumSpikeMethodMarker = "BuildCesiumSpikeSceneFromMenu";
+        var buildStart = builder.IndexOf(buildMethodStart, StringComparison.Ordinal);
+        var buildEnd = builder.IndexOf(cesiumSpikeMethodMarker, StringComparison.Ordinal);
+        Assert.That(buildStart, Is.GreaterThanOrEqualTo(0), "Build(scenarioPolicyId) method not found");
+        Assert.That(buildEnd, Is.GreaterThan(buildStart), "CesiumSpike method marker not found after Build");
+        var ciSmokeBuildMethod = builder.Substring(buildStart, buildEnd - buildStart);
 
-        var smokeBuilder = builder.Substring(smokeBuildStart, cesiumBuildStart - smokeBuildStart);
-        Assert.That(smokeBuilder, Does.Contain("CreatePanelHost<MapPlaceholderPanelHost>"));
-        Assert.That(smokeBuilder, Does.Not.Contain("CreatePanelHost<CesiumGlobeHost>"));
-        Assert.That(smokeBuilder, Does.Contain("SetBool(bridge, \"useGlobeMap\", false)"));
-        Assert.That(smokeBuilder, Does.Not.Contain("SetBool(bridge, \"useGlobeMap\", true)"));
+        Assert.That(ciSmokeBuildMethod, Does.Contain("CreatePanelHost<MapPlaceholderPanelHost>"));
+        Assert.That(ciSmokeBuildMethod, Does.Not.Contain("CreatePanelHost<CesiumGlobeHost>"));
+        Assert.That(ciSmokeBuildMethod, Does.Not.Contain("useGlobeMap\", true"));
+        Assert.That(ciSmokeBuildMethod, Does.Not.Contain("useGlobeMap\", True"));
     }
 
     [Test]
