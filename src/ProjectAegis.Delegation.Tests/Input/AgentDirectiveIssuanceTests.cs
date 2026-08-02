@@ -103,6 +103,20 @@ public sealed class AgentDirectiveIssuanceTests
     }
 
     [Test]
+    public void Validate_distinguishes_active_and_suspended_agent_mode_changes()
+    {
+        var take = AgentDirectiveIssuance.Validate(
+            "take_control", hasSelection: true, hasActiveAgent: false, hasSuspendedAgent: true);
+        Assert.That(take.Ok, Is.False);
+        Assert.That(take.FailureReason, Is.EqualTo(AgentDirectiveIssuance.ReasonNoActiveAgent));
+
+        var ret = AgentDirectiveIssuance.Validate(
+            "return_to_agent", hasSelection: true, hasActiveAgent: true, hasSuspendedAgent: false);
+        Assert.That(ret.Ok, Is.False);
+        Assert.That(ret.FailureReason, Is.EqualTo(AgentDirectiveIssuance.ReasonNoSuspendedAgent));
+    }
+
+    [Test]
     public void hold_and_rtb_reuse_existing_OrderKinds_without_new_enums()
     {
         Assert.That(AgentDirectiveIssuance.TryResolve("hold", out var hold, out _), Is.True);

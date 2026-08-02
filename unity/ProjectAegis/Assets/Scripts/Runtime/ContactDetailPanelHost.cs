@@ -136,14 +136,9 @@ namespace ProjectAegis.Unity.Runtime
             }
             else
             {
-                var contacts = bridgeHost.LastSensorC2.Contacts;
-                if (contacts == null || contacts.Count == 0)
-                {
-                    contacts = ContactPictureProjection.Project(
-                        bridgeHost.Bridge.Orchestrator.DecisionLog);
-                }
-
-                var currentSimTick = ResolveCurrentSimTick(contacts);
+                var contacts = ContactPictureProjection.ProjectWithBda(
+                    bridgeHost.Bridge.Orchestrator.DecisionLog);
+                var currentSimTick = bridgeHost.CurrentSimTick;
                 _presentation = ContactDetailApplyState.ProjectAndApply(
                     contactId,
                     contacts,
@@ -159,17 +154,6 @@ namespace ProjectAegis.Unity.Runtime
                 var hasContact = !string.IsNullOrEmpty(bridgeHost.SelectedContactId);
                 root.style.display = showPanel && hasContact ? DisplayStyle.Flex : DisplayStyle.None;
             }
-        }
-
-        private static ulong ResolveCurrentSimTick(System.Collections.Generic.IReadOnlyList<ContactPictureEntry> contacts)
-        {
-            if (contacts == null || contacts.Count == 0)
-            {
-                return 0UL;
-            }
-
-            // Prefer freshest picture tick as "now" when host has no live snapshot clock.
-            return contacts.Max(c => c.LastSimTick);
         }
 
         private void ApplyPresentationToLabels()

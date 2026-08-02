@@ -17,7 +17,7 @@ public sealed class C2PlayerCommandBridgeTests
         unit.Target.Slot.SetActive(new HumanController());
 
         Assert.That(
-            bridge.TryIssuePlayerCommand(new EntityKey(1), "hold", simTime: 3, out var reason),
+            C2PlayerCommandBridge.TryIssue(bridge, new EntityKey(1), "hold", simTime: 3, out var reason),
             Is.True);
         Assert.That(reason, Is.Null);
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Has.Count.EqualTo(1));
@@ -31,8 +31,8 @@ public sealed class C2PlayerCommandBridgeTests
         var unit = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
         unit.Target.Slot.SetActive(new HumanController());
 
-        Assert.That(bridge.TryIssuePlayerCommand(new EntityKey(1), "set_emcon", 1, out _), Is.True);
-        Assert.That(bridge.TryIssuePlayerCommand(new EntityKey(1), "set_sensors", 2, out _), Is.True);
+        Assert.That(C2PlayerCommandBridge.TryIssue(bridge, new EntityKey(1), "set_emcon", 1, out _), Is.True);
+        Assert.That(C2PlayerCommandBridge.TryIssue(bridge, new EntityKey(1), "set_sensors", 2, out _), Is.True);
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders[0].Kind, Is.EqualTo(OrderKind.SetEmcon));
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders[1].Kind, Is.EqualTo(OrderKind.SetSensors));
     }
@@ -44,7 +44,7 @@ public sealed class C2PlayerCommandBridgeTests
         var unit = bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
         unit.Target.Slot.SetActive(new HumanController());
 
-        Assert.That(bridge.TryIssuePlayerCommand(new EntityKey(1), "plot_course", 1, out _), Is.True);
+        Assert.That(C2PlayerCommandBridge.TryIssue(bridge, new EntityKey(1), "plot_course", 1, out _), Is.True);
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders[0].Kind, Is.EqualTo(OrderKind.Move));
     }
 
@@ -56,7 +56,7 @@ public sealed class C2PlayerCommandBridgeTests
         unit.Target.Slot.SetActive(new HumanController());
 
         Assert.That(
-            bridge.TryIssuePlayerCommand(new EntityKey(1), "warp", 1, out var reason),
+            C2PlayerCommandBridge.TryIssue(bridge, new EntityKey(1), "warp", 1, out var reason),
             Is.False);
         Assert.That(reason, Is.EqualTo(C2CommandIssuance.ReasonUnknownCommand));
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Is.Empty);
@@ -68,7 +68,7 @@ public sealed class C2PlayerCommandBridgeTests
         var bridge = new DelegationBridge(42, mvpEngagement: false);
 
         Assert.That(
-            bridge.TryIssuePlayerCommand(new EntityKey(99), "hold", 1, out var reason),
+            C2PlayerCommandBridge.TryIssue(bridge, new EntityKey(99), "hold", 1, out var reason),
             Is.False);
         Assert.That(reason, Is.EqualTo(C2PlayerCommandBridge.ReasonUnknownUnit));
     }
@@ -81,7 +81,7 @@ public sealed class C2PlayerCommandBridgeTests
         // default slot is not HumanController
 
         Assert.That(
-            bridge.TryIssuePlayerCommand(new EntityKey(1), "hold", 1, out var reason),
+            C2PlayerCommandBridge.TryIssue(bridge, new EntityKey(1), "hold", 1, out var reason),
             Is.False);
         Assert.That(reason, Is.EqualTo(C2PlayerCommandBridge.ReasonNotHumanControl));
     }
@@ -95,7 +95,7 @@ public sealed class C2PlayerCommandBridgeTests
         bridge.AttachReplayViewer = true;
 
         Assert.That(
-            bridge.TryIssuePlayerCommand(new EntityKey(1), "hold", 1, out var reason),
+            C2PlayerCommandBridge.TryIssue(bridge, new EntityKey(1), "hold", 1, out var reason),
             Is.False);
         Assert.That(reason, Is.EqualTo(C2PlayerCommandBridge.ReasonReplayAttached));
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Is.Empty);
