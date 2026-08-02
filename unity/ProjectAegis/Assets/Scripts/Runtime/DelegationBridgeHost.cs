@@ -97,6 +97,12 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>True when Session.UnitReadiness is present (false → honest NO READINESS DATA).</summary>
         public bool HasAirOpsReadinessData { get; private set; }
 
+        /// <summary>CMD-25 Boat Ops rows (from Session.BoatOps FSM ledger when present).</summary>
+        public IReadOnlyList<BoatOpsEntry> LastBoatOps { get; private set; } = Array.Empty<BoatOpsEntry>();
+
+        /// <summary>True when Session.BoatOps is present (false → honest NO BOAT OPS DATA).</summary>
+        public bool HasBoatOpsData { get; private set; }
+
         /// <summary>CMD-24 magazine loadout rows (from Session.Magazines snapshot when present).</summary>
         public IReadOnlyList<MagazineLoadoutEntry> LastMagazineLoadout { get; private set; } = Array.Empty<MagazineLoadoutEntry>();
 
@@ -242,6 +248,42 @@ namespace ProjectAegis.Unity.Runtime
         public bool TryAbortLaunchSelected(out string? reason) =>
             TryIssueSelectedCommand("abort_launch", out reason);
 
+        /// <summary>
+        /// CMD-25: issue a launch/recover/abort command for an explicit craft id. Boat Ops manages
+        /// its own row selection independent of the C2 unit-selection system (<see cref="SelectUnit"/>),
+        /// so this resolves the target entity directly rather than via <see cref="SelectedUnitId"/>.
+        /// </summary>
+        public bool TryIssueBoatCommand(string craftId, string commandId, out string? reason)
+        {
+            reason = null;
+            if (string.IsNullOrEmpty(craftId))
+            {
+                reason = ProjectAegis.Delegation.Input.C2CommandIssuance.ReasonNoSelection;
+                return false;
+            }
+
+            if (!TryResolveEntityKey(craftId, out var entityKey))
+            {
+                reason = ProjectAegis.Delegation.UnityAdapter.Bridge.C2PlayerCommandBridge.ReasonUnknownUnit;
+                return false;
+            }
+
+            var simTime = _lastSnapshot?.SimTime ?? 0;
+            return Bridge.TryIssuePlayerCommand(entityKey, commandId, simTime, out reason);
+        }
+
+        /// <summary>CMD-25 / LOG-09: launch the given craft (order-log path; FSM advances on next session tick).</summary>
+        public bool TryLaunchBoat(string craftId, out string? reason) =>
+            TryIssueBoatCommand(craftId, "launch_boat", out reason);
+
+        /// <summary>CMD-25 / LOG-10: recover the given craft (order-log path).</summary>
+        public bool TryRecoverBoat(string craftId, out string? reason) =>
+            TryIssueBoatCommand(craftId, "recover_boat", out reason);
+
+        /// <summary>CMD-25 / LOG-11: abort launch for the given craft (order-log path).</summary>
+        public bool TryAbortBoatLaunch(string craftId, out string? reason) =>
+            TryIssueBoatCommand(craftId, "abort_boat_launch", out reason);
+
         public void SelectUnit(string unitId)
         {
             Presentation.SelectFriendlyUnit(unitId);
@@ -286,6 +328,8 @@ namespace ProjectAegis.Unity.Runtime
             LastAgentRoster = BuildAgentRosterFromRegistry();
             // CMD-24 Phase A: additive air-ops readiness projection
             RefreshAirOps();
+            // CMD-25: additive boat-ops projection (no Tick body rewrite)
+            RefreshBoatOps();
             // CMD-24 Wave4: magazine + deck/hangar feeds (no Tick body rewrite)
             RefreshMagazineLoadout();
             RefreshDeckHangar();
@@ -350,6 +394,25 @@ namespace ProjectAegis.Unity.Runtime
             LastAirOps = AirOpsProjection.Project(
                 unitIds,
                 readyForLaunch: id => readiness!.IsReadyForLaunch(id));
+        }
+
+        /// <summary>
+        /// Rebuild CMD-25 Boat Ops rows from Session.BoatOps FSM ledger (safe from LateUpdate).
+        /// Honest empty when no boat-ops map is bound yet (feature only activates once a
+        /// LaunchBoat/RecoverBoat/AbortBoatLaunch order has been processed at least once).
+        /// </summary>
+        public void RefreshBoatOps()
+        {
+            var boatOps = Bridge?.Session?.BoatOps;
+            if (boatOps == null)
+            {
+                HasBoatOpsData = false;
+                LastBoatOps = Array.Empty<BoatOpsEntry>();
+                return;
+            }
+
+            HasBoatOpsData = true;
+            LastBoatOps = BoatOpsProjection.Project(boatOps.Snapshot(), boatOps.SeaStateDouglas);
         }
 
         /// <summary>
