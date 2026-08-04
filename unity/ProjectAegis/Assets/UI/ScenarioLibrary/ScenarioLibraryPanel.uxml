@@ -2,9 +2,15 @@
     <ui:VisualElement name="scenario-library-root" class="scenario-library-panel">
         <ui:Label text="SCENARIO LIBRARY" class="scenario-library-title" />
         <ui:VisualElement name="scenario-library-body" class="scenario-library-body">
-            <ui:ListView name="scenario-library-list" class="scenario-library-list" selection-type="Single" />
+            <ui:VisualElement name="library-lists" class="library-lists">
+                <ui:Label text="CAMPAIGNS" class="library-section-label" />
+                <ui:ListView name="campaign-library-list" class="campaign-library-list" selection-type="Single" />
+                <ui:Label text="SCENARIOS" class="library-section-label" />
+                <ui:ListView name="scenario-library-list" class="scenario-library-list" selection-type="Single" />
+            </ui:VisualElement>
             <ui:VisualElement name="scenario-library-preview" class="scenario-library-preview">
                 <ui:Label name="preview-zero-state" text="Select a scenario to preview title, determinism metadata, and pre-load feasibility." class="scenario-library-zero-state" />
+                <ui:Label name="campaign-preview-zero-state" text="Select a campaign" class="scenario-library-zero-state" />
                 <ui:VisualElement name="preview-fields" class="scenario-library-preview-fields">
                     <ui:Label name="preview-title" text="" class="scenario-library-preview-title" />
                     <ui:Label name="preview-id" text="" class="scenario-library-line" />
@@ -17,6 +23,14 @@
                     <ui:Label name="preview-difficulty" text="" class="scenario-library-line" />
                     <ui:Label name="preview-complexity" text="" class="scenario-library-line" />
                     <ui:Label name="preview-source" text="" class="scenario-library-source" />
+                </ui:VisualElement>
+                <ui:VisualElement name="campaign-preview-fields" class="scenario-library-preview-fields">
+                    <ui:Label name="campaign-preview-title" text="" class="scenario-library-preview-title" />
+                    <ui:Label name="campaign-preview-id" text="" class="scenario-library-line" />
+                    <ui:Label name="campaign-preview-availability" text="" class="scenario-library-line" />
+                    <ui:Label name="campaign-preview-progress" text="" class="scenario-library-line" />
+                    <ui:Label name="campaign-preview-next" text="" class="scenario-library-line" />
+                    <ui:Label name="campaign-preview-source" text="" class="scenario-library-source" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

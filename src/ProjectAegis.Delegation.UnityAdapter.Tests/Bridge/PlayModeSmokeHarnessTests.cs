@@ -541,10 +541,21 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(sceneYaml, Does.Contain("useGlobeMap: 0"), "DelegationSmoke must keep globe map disabled for headless CI");
 
         var builder = File.ReadAllText(builderPath);
-        Assert.That(builder, Does.Contain("CreatePanelHost<MapPlaceholderPanelHost>"));
-        Assert.That(builder, Does.Not.Contain("CreatePanelHost<CesiumGlobeHost>"));
-        Assert.That(builder, Does.Not.Contain("useGlobeMap\", true"));
-        Assert.That(builder, Does.Not.Contain("useGlobeMap\", True"));
+        var smokeBuildStart = builder.IndexOf(
+            "public static void Build(string scenarioPolicyId",
+            StringComparison.Ordinal);
+        var cesiumBuildStart = builder.IndexOf(
+            "public static void BuildCesiumSpikeScene(",
+            StringComparison.Ordinal);
+
+        Assert.That(smokeBuildStart, Is.GreaterThanOrEqualTo(0));
+        Assert.That(cesiumBuildStart, Is.GreaterThan(smokeBuildStart));
+
+        var smokeBuilder = builder.Substring(smokeBuildStart, cesiumBuildStart - smokeBuildStart);
+        Assert.That(smokeBuilder, Does.Contain("CreatePanelHost<MapPlaceholderPanelHost>"));
+        Assert.That(smokeBuilder, Does.Not.Contain("CreatePanelHost<CesiumGlobeHost>"));
+        Assert.That(smokeBuilder, Does.Contain("SetBool(bridge, \"useGlobeMap\", false)"));
+        Assert.That(smokeBuilder, Does.Not.Contain("SetBool(bridge, \"useGlobeMap\", true)"));
     }
 
     [Test]

@@ -1,5 +1,4 @@
-// CMD-24 Phase A Air Operations readiness panel — UI Toolkit bound to DelegationBridgeHost.
-// Phase N (LOG-08 timers / launch / abort FSM) is intentionally out of scope.
+// CMD-24 Air Operations panel — Phase A readiness + Phase N launch/abort UI (LOG-08).
 #if UNITY_5_3_OR_NEWER
 using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
@@ -16,6 +15,9 @@ namespace ProjectAegis.Unity.Runtime
         private const string HeaderName = "air-ops-header";
         private const string EmptyName = "air-ops-empty";
         private const string ListName = "air-ops-list";
+        private const string LaunchButtonName = "air-ops-launch";
+        private const string AbortButtonName = "air-ops-abort";
+        private const string StatusName = "air-ops-status";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -25,12 +27,20 @@ namespace ProjectAegis.Unity.Runtime
         private UIDocument _document = null!;
         private Label? _headerLine;
         private Label? _emptyLine;
+        private Label? _statusLine;
         private ListView? _assetList;
+        private Button? _launchButton;
+        private Button? _abortButton;
         private AirOpsPresentation _presentation = AirOpsPresentation.Empty;
         private bool _wired;
+        private bool _handlersRegistered;
+        private string? _lastStatus;
 
-        /// <summary>Last applied Air Ops presentation (CMD-24 Phase A).</summary>
+        /// <summary>Last applied Air Ops presentation (CMD-24).</summary>
         public AirOpsPresentation LastPresentation => _presentation;
+
+        /// <summary>Last launch/abort status reason shown on the panel.</summary>
+        public string? LastStatus => _lastStatus;
 
         private void Reset()
         {
@@ -91,7 +101,10 @@ namespace ProjectAegis.Unity.Runtime
             var panel = root.Q<VisualElement>(RootName) ?? root;
             _headerLine = panel.Q<Label>(HeaderName);
             _emptyLine = panel.Q<Label>(EmptyName);
+            _statusLine = panel.Q<Label>(StatusName);
             _assetList = panel.Q<ListView>(ListName);
+            _launchButton = panel.Q<Button>(LaunchButtonName);
+            _abortButton = panel.Q<Button>(AbortButtonName);
 
             if (_assetList != null)
             {
@@ -113,7 +126,29 @@ namespace ProjectAegis.Unity.Runtime
                 panel.styleSheets.Add(panelStyles);
             }
 
-            _wired = _headerLine != null || _assetList != null;
+            WireClickHandlers();
+            _wired = _headerLine != null || _assetList != null
+                || _launchButton != null || _abortButton != null;
+        }
+
+        private void WireClickHandlers()
+        {
+            if (_handlersRegistered)
+            {
+                return;
+            }
+
+            if (_launchButton != null)
+            {
+                _launchButton.clicked += OnLaunchClicked;
+            }
+
+            if (_abortButton != null)
+            {
+                _abortButton.clicked += OnAbortClicked;
+            }
+
+            _handlersRegistered = true;
         }
 
         private void OnAssetSelectionChanged(IEnumerable<object> _)
@@ -130,6 +165,45 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             bridgeHost.SelectUnit(_presentation.Rows[index].UnitId);
+            UpdateActionButtons();
+        }
+
+        private void OnLaunchClicked()
+        {
+            if (bridgeHost == null)
+            {
+                SetStatus("NO_BRIDGE");
+                return;
+            }
+
+            if (bridgeHost.TryLaunchSelectedAircraft(out var reason))
+            {
+                SetStatus(null);
+                bridgeHost.RefreshAirOps();
+                Refresh();
+                return;
+            }
+
+            SetStatus(reason ?? "LAUNCH_FAILED");
+        }
+
+        private void OnAbortClicked()
+        {
+            if (bridgeHost == null)
+            {
+                SetStatus("NO_BRIDGE");
+                return;
+            }
+
+            if (bridgeHost.TryAbortLaunchSelected(out var reason))
+            {
+                SetStatus(null);
+                bridgeHost.RefreshAirOps();
+                Refresh();
+                return;
+            }
+
+            SetStatus(reason ?? "ABORT_FAILED");
         }
 
         /// <summary>Apply presentation via headless apply-state (tests / direct bind).</summary>
@@ -179,6 +253,67 @@ namespace ProjectAegis.Unity.Runtime
                 _assetList.itemsSource = _presentation.Lines as System.Collections.IList
                     ?? new List<string>(_presentation.Lines);
                 _assetList.Rebuild();
+            }
+
+            UpdateActionButtons();
+        }
+
+        private void UpdateActionButtons()
+        {
+            var row = ResolveSelectedRow();
+            var canLaunch = row?.CanLaunch == true;
+            var canAbort = row?.CanAbort == true;
+
+            if (_launchButton != null)
+            {
+                _launchButton.SetEnabled(canLaunch);
+                _launchButton.tooltip = canLaunch
+                    ? "Launch aircraft"
+                    : row?.LaunchDisabledReason ?? "Launch unavailable";
+            }
+
+            if (_abortButton != null)
+            {
+                _abortButton.SetEnabled(canAbort);
+                _abortButton.tooltip = canAbort
+                    ? "Abort launch"
+                    : "Abort unavailable";
+            }
+        }
+
+        private AirOpsDisplayRow? ResolveSelectedRow()
+        {
+            if (_presentation.Rows.Count == 0)
+            {
+                return null;
+            }
+
+            if (_assetList != null && _assetList.selectedIndex >= 0
+                && _assetList.selectedIndex < _presentation.Rows.Count)
+            {
+                return _presentation.Rows[_assetList.selectedIndex];
+            }
+
+            if (bridgeHost != null && !string.IsNullOrEmpty(bridgeHost.SelectedUnitId))
+            {
+                foreach (var r in _presentation.Rows)
+                {
+                    if (r.UnitId == bridgeHost.SelectedUnitId)
+                    {
+                        return r;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private void SetStatus(string? status)
+        {
+            _lastStatus = status;
+            if (_statusLine != null)
+            {
+                _statusLine.text = status ?? string.Empty;
             }
         }
     }

@@ -1,5 +1,6 @@
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Sim.Glossary;
+using ProjectAegis.Sim.Logistics;
 using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.Tests.Projection;
@@ -178,5 +179,79 @@ public sealed class AirOpsProjectionTests
 
         Assert.That(presentation.HasReadinessData, Is.True);
         Assert.That(presentation.Lines[0], Does.Contain("AIR_NOT_READY"));
+    }
+
+    [Test]
+    public void ProjectLifecycle_maps_phase_timer_and_launch_abort_flags()
+    {
+        var states = new[]
+        {
+            AirOpsUnitState.OnGround("ready-1", readyForLaunch: true, hostId: "CVN-1"),
+            AirOpsUnitState.OnGround("not-ready", readyForLaunch: false, hostId: "CVN-1"),
+            AirOpsFsm.RequestLaunch(AirOpsUnitState.OnGround("prepping")).State,
+            AirOpsUnitState.Airborne("air-1"),
+            AirOpsUnitState.InMaintenance("maint-1"),
+        };
+
+        var entries = AirOpsProjection.ProjectLifecycle(states);
+
+        Assert.That(entries.Select(e => e.UnitId), Is.EqualTo(new[]
+        {
+            "air-1", "maint-1", "not-ready", "prepping", "ready-1",
+        }));
+
+        var ready = entries.Single(e => e.UnitId == "ready-1");
+        Assert.That(ready.PhaseLabel, Is.EqualTo("OnGround"));
+        Assert.That(ready.TimeToReadyTicks, Is.EqualTo(0));
+        Assert.That(ready.CanLaunch, Is.True);
+        Assert.That(ready.CanAbort, Is.False);
+        Assert.That(ready.LaunchDisabledReason, Is.Null);
+        Assert.That(ready.HostLabel, Is.EqualTo("CVN-1"));
+
+        var notReady = entries.Single(e => e.UnitId == "not-ready");
+        Assert.That(notReady.CanLaunch, Is.False);
+        Assert.That(notReady.LaunchDisabledReason, Is.EqualTo(AirOpsFsm.ReasonAirNotReady));
+
+        var prepping = entries.Single(e => e.UnitId == "prepping");
+        Assert.That(prepping.PhaseLabel, Is.EqualTo("Prepping"));
+        Assert.That(prepping.TimeToReadyTicks, Is.EqualTo(AirOpsFsm.DefaultPrepTicks));
+        Assert.That(prepping.CanLaunch, Is.False);
+        Assert.That(prepping.CanAbort, Is.True);
+        Assert.That(prepping.StatusLine, Does.Contain("PREPPING"));
+
+        var airborne = entries.Single(e => e.UnitId == "air-1");
+        Assert.That(airborne.PhaseLabel, Is.EqualTo("Airborne"));
+        Assert.That(airborne.CanLaunch, Is.False);
+        Assert.That(airborne.CanAbort, Is.False);
+        Assert.That(airborne.LaunchDisabledReason, Is.EqualTo(AirOpsFsm.ReasonAlreadyAirborne));
+
+        var maint = entries.Single(e => e.UnitId == "maint-1");
+        Assert.That(maint.LaunchDisabledReason, Is.EqualTo(AirOpsFsm.ReasonInMaintenance));
+    }
+
+    [Test]
+    public void ProjectLifecycle_empty_or_null_returns_empty()
+    {
+        Assert.That(AirOpsProjection.ProjectLifecycle(null), Is.Empty);
+        Assert.That(AirOpsProjection.ProjectLifecycle(Array.Empty<AirOpsUnitState>()), Is.Empty);
+    }
+
+    [Test]
+    public void ApplyState_lifecycle_rows_expose_timer_and_button_flags()
+    {
+        var states = new[]
+        {
+            AirOpsFsm.RequestLaunch(AirOpsUnitState.OnGround("p1", hostId: "H")).State,
+        };
+        var entries = AirOpsProjection.ProjectLifecycle(states);
+        var presentation = AirOpsApplyState.Apply(entries);
+
+        Assert.That(presentation.Rows, Has.Count.EqualTo(1));
+        Assert.That(presentation.Rows[0].PhaseLabel, Is.EqualTo("Prepping"));
+        Assert.That(presentation.Rows[0].TimeToReadyTicks, Is.EqualTo(AirOpsFsm.DefaultPrepTicks));
+        Assert.That(presentation.Rows[0].CanLaunch, Is.False);
+        Assert.That(presentation.Rows[0].CanAbort, Is.True);
+        Assert.That(presentation.Lines[0], Does.Contain("phase=Prepping"));
+        Assert.That(presentation.Lines[0], Does.Contain("eta="));
     }
 }

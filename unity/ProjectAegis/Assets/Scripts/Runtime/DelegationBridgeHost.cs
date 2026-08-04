@@ -177,6 +177,19 @@ namespace ProjectAegis.Unity.Runtime
             return C2PlayerCommandBridge.TryIssue(Bridge, entityKey, commandId, simTime, out reason);
         }
 
+        /// <summary>
+        /// LOG-08 / CMD-24 Phase N: launch the selected aircraft (order-log path).
+        /// Thin wrapper over C2CommandIssuance + human enqueue; no Tick rewrite.
+        /// </summary>
+        public bool TryLaunchSelectedAircraft(out string? reason) =>
+            TryIssueSelectedCommand("launch", out reason);
+
+        /// <summary>
+        /// LOG-08 / CMD-24 Phase N: abort launch for the selected aircraft (order-log path).
+        /// </summary>
+        public bool TryAbortLaunchSelected(out string? reason) =>
+            TryIssueSelectedCommand("abort_launch", out reason);
+
         public void SelectUnit(string unitId)
         {
             Presentation.SelectFriendlyUnit(unitId);

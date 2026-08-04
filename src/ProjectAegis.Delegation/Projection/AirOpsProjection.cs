@@ -1,11 +1,12 @@
 namespace ProjectAegis.Delegation.Projection;
 
 using ProjectAegis.Sim.Glossary;
+using ProjectAegis.Sim.Logistics;
 
 /// <summary>
-/// Pure projection of unit readiness into Air Ops rows (CMD-24 Phase A).
-/// No Unity / orchestrator dependency — callers supply simple tuples.
-/// Phase N (LOG-08 timers/launch/abort FSM) is intentionally out of scope.
+/// Pure projection of unit readiness / air-ops FSM into Air Ops rows (CMD-24).
+/// Phase A: readiness tuples. Phase N: <see cref="ProjectLifecycle"/> from LOG-08 states.
+/// No Unity / orchestrator dependency — callers supply simple tuples or domain states.
 /// </summary>
 public static class AirOpsProjection
 {
@@ -80,6 +81,29 @@ public static class AirOpsProjection
         return result;
     }
 
+    /// <summary>
+    /// Phase N: project LOG-08 <see cref="AirOpsUnitState"/> rows with phase / timer / launch-abort flags.
+    /// </summary>
+    public static IReadOnlyList<AirOpsEntry> ProjectLifecycle(
+        IReadOnlyList<AirOpsUnitState>? states,
+        Func<string, string?>? platformType = null)
+    {
+        if (states is null || states.Count == 0)
+        {
+            return Array.Empty<AirOpsEntry>();
+        }
+
+        var result = new List<AirOpsEntry>(states.Count);
+        foreach (var state in states
+                     .Where(s => s is not null && !string.IsNullOrWhiteSpace(s.UnitId))
+                     .OrderBy(s => s.UnitId, StringComparer.Ordinal))
+        {
+            result.Add(ToLifecycleEntry(state, platformType?.Invoke(state.UnitId)));
+        }
+
+        return result;
+    }
+
     /// <summary>Aggregate ready count + summary line for group / header status.</summary>
     public static AirOpsAggregate Aggregate(IReadOnlyList<AirOpsEntry>? entries)
     {
@@ -104,6 +128,30 @@ public static class AirOpsProjection
     public static string FormatSummaryLine(int readyCount, int totalCount) =>
         $"READY {readyCount}/{totalCount}";
 
+    /// <summary>Phase label for a domain phase (stable string for UI / tests).</summary>
+    public static string FormatPhaseLabel(AirOpsPhase phase) => phase.ToString();
+
+    /// <summary>
+    /// Resolve launch-disabled reason from FSM phase + readiness (null when launchable).
+    /// </summary>
+    public static string? ResolveLaunchDisabledReason(AirOpsUnitState state)
+    {
+        if (state.Phase == AirOpsPhase.OnGround && state.ReadyForLaunch)
+        {
+            return null;
+        }
+
+        return state.Phase switch
+        {
+            AirOpsPhase.Maintenance => AirOpsFsm.ReasonInMaintenance,
+            AirOpsPhase.Airborne or AirOpsPhase.Landing => AirOpsFsm.ReasonAlreadyAirborne,
+            AirOpsPhase.Prepping or AirOpsPhase.Taxiing or AirOpsPhase.TakingOff =>
+                AirOpsFsm.ReasonLaunchInProgress,
+            AirOpsPhase.OnGround when !state.ReadyForLaunch => AirOpsFsm.ReasonAirNotReady,
+            _ => AirOpsFsm.ReasonAirNotReady,
+        };
+    }
+
     private static AirOpsEntry ToEntry(
         string unitId,
         bool ready,
@@ -120,7 +168,69 @@ public static class AirOpsProjection
             HostLabel: hostLabel,
             ReadyForLaunch: ready,
             StatusLine: status,
-            RefusalCode: refusal);
+            RefusalCode: refusal,
+            PhaseLabel: FormatPhaseLabel(AirOpsPhase.OnGround),
+            TimeToReadyTicks: 0,
+            CanLaunch: ready,
+            CanAbort: false,
+            LaunchDisabledReason: ready ? null : AirNotReadyCode);
+    }
+
+    private static AirOpsEntry ToLifecycleEntry(AirOpsUnitState state, string? platformType)
+    {
+        var platform = string.IsNullOrWhiteSpace(platformType) ? MissingLabel : platformType!.Trim();
+        var hostLabel = string.IsNullOrWhiteSpace(state.HostId) ? MissingLabel : state.HostId!.Trim();
+        var phaseLabel = FormatPhaseLabel(state.Phase);
+        var canLaunch = state.Phase == AirOpsPhase.OnGround && state.ReadyForLaunch;
+        var canAbort = state.CanAbortLaunch
+            || state.Phase is AirOpsPhase.Prepping or AirOpsPhase.Taxiing or AirOpsPhase.TakingOff;
+        var launchDisabled = canLaunch ? null : ResolveLaunchDisabledReason(state);
+
+        // Status: prefer lifecycle phase label; keep READY / NOT READY for ground readiness.
+        string status;
+        string? refusal;
+        if (state.Phase == AirOpsPhase.OnGround)
+        {
+            status = state.ReadyForLaunch ? StatusReady : StatusNotReady;
+            refusal = state.ReadyForLaunch ? null : AirNotReadyCode;
+        }
+        else if (state.Phase == AirOpsPhase.Maintenance)
+        {
+            status = $"MAINT · {AirOpsFsm.ReasonInMaintenance}";
+            refusal = AirOpsFsm.ReasonInMaintenance;
+        }
+        else if (state.Phase == AirOpsPhase.Airborne)
+        {
+            status = "AIRBORNE";
+            refusal = null;
+        }
+        else if (state.Phase == AirOpsPhase.Landing)
+        {
+            status = "LANDING";
+            refusal = null;
+        }
+        else
+        {
+            // Launch pipeline — show phase + remaining ticks
+            status = $"{phaseLabel.ToUpperInvariant()} · eta={state.TimeToReadyTicks}";
+            refusal = null;
+        }
+
+        // ReadyForLaunch presentation: true only when on ground and ready (engage gate aligned).
+        var readyForLaunch = state.Phase == AirOpsPhase.OnGround && state.ReadyForLaunch;
+
+        return new AirOpsEntry(
+            UnitId: state.UnitId.Trim(),
+            PlatformTypeLabel: platform,
+            HostLabel: hostLabel,
+            ReadyForLaunch: readyForLaunch,
+            StatusLine: status,
+            RefusalCode: refusal,
+            PhaseLabel: phaseLabel,
+            TimeToReadyTicks: state.TimeToReadyTicks,
+            CanLaunch: canLaunch,
+            CanAbort: canAbort,
+            LaunchDisabledReason: launchDisabled);
     }
 }
 

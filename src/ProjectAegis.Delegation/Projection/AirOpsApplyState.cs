@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
 /// <summary>
-/// Headless apply path for Air Ops presentation (CMD-24 Phase A).
+/// Headless apply path for Air Ops presentation (CMD-24 Phase A + Phase N lifecycle).
 /// Unity hosts bind <see cref="AirOpsPresentation.Lines"/> onto Labels without re-formatting.
 /// </summary>
 public static class AirOpsApplyState
@@ -30,7 +30,12 @@ public static class AirOpsApplyState
                 entry.ReadyForLaunch,
                 entry.StatusLine,
                 entry.RefusalCode,
-                line));
+                line,
+                entry.PhaseLabel,
+                entry.TimeToReadyTicks,
+                entry.CanLaunch,
+                entry.CanAbort,
+                entry.LaunchDisabledReason));
         }
 
         return new AirOpsPresentation(
@@ -66,11 +71,15 @@ public static class AirOpsApplyState
         var host = string.IsNullOrWhiteSpace(entry.HostLabel)
             ? AirOpsProjection.MissingLabel
             : entry.HostLabel;
-        return $"{entry.UnitId}  type={platform}  host={host}  [{entry.StatusLine}]";
+        var phase = string.IsNullOrWhiteSpace(entry.PhaseLabel)
+            ? AirOpsProjection.MissingLabel
+            : entry.PhaseLabel;
+        return
+            $"{entry.UnitId}  type={platform}  host={host}  phase={phase}  eta={entry.TimeToReadyTicks}  [{entry.StatusLine}]";
     }
 }
 
-/// <summary>One bound list row for the Air Ops ListView.</summary>
+/// <summary>One bound list row for the Air Ops ListView (Phase A + Phase N flags).</summary>
 public sealed record AirOpsDisplayRow(
     string UnitId,
     string PlatformTypeLabel,
@@ -78,7 +87,12 @@ public sealed record AirOpsDisplayRow(
     bool ReadyForLaunch,
     string StatusLine,
     string? RefusalCode,
-    string DisplayLine);
+    string DisplayLine,
+    string PhaseLabel = "OnGround",
+    int TimeToReadyTicks = 0,
+    bool CanLaunch = false,
+    bool CanAbort = false,
+    string? LaunchDisabledReason = null);
 
 /// <summary>Presentation bundle for hosts / tests.</summary>
 public sealed record AirOpsPresentation(
