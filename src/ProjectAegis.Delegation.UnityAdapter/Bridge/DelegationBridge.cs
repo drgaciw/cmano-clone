@@ -196,6 +196,31 @@ public sealed class DelegationBridge
         return true;
     }
 
+    /// <summary>
+    /// CMD-31: resolve a player command id and enqueue a human order with structured failure reasons.
+    /// Thin wrapper — does not touch the Tick hot path.
+    /// </summary>
+    public bool TryIssuePlayerCommand(
+        EntityKey entity,
+        string commandId,
+        double simTime,
+        out string? failureReason) =>
+        C2PlayerCommandBridge.TryIssue(this, entity, commandId, simTime, out failureReason);
+
+    /// <summary>CMD-11 live feed: engage preview for a unit (same path as GetAttackMenuOptions).</summary>
+    public EngagePreview? GetEngagePreviewForUnit(string unitId, ISimWorldSnapshot snapshot)
+    {
+        if (!TryResolveEntityKey(unitId, out _))
+        {
+            return null;
+        }
+
+        var engageDefaults = Orchestrator.ScenarioPolicy?.EngageDefaults
+            ?? ScenarioEngageDefaults.MvpFallback;
+        var ctx = BuildLiveEngageContext(snapshot, unitId, engageDefaults);
+        return EngagePreviewProjection.Project(in ctx, engageDefaults.DlzPersonality);
+    }
+
     /// <summary>Attack menu entries for UI binding (live engage context).</summary>
     public IReadOnlyList<EngageAttackOptions.AttackOption> GetAttackMenuOptions(
         string unitId,

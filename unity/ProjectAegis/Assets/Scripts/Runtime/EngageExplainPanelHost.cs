@@ -96,6 +96,10 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
+            _last = bridgeHost != null
+                ? bridgeHost.ProjectSelectedEngageExplain()
+                : EngageExplain.Empty;
+
             if (_statusLabel != null)
             {
                 _statusLabel.text = _last.StatusLine;
