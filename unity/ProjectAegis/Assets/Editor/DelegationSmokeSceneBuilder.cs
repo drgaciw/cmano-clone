@@ -151,6 +151,33 @@ namespace ProjectAegis.Unity.Editor
                 SetObjectReference(menuHost, "mapHost", mapHost);
             }
 
+            // UI maturity Wave6 hosts (DRG-66: PendingApproval / DRG-67: EngageExplain, AxisControl, MapScaleHud, GroundOps)
+            CreatePanelHost<PendingApprovalPanelHost>(
+                "PendingApproval",
+                bridge,
+                "Assets/UI/PendingApproval/PendingApprovalPanel.uxml",
+                "Assets/UI/PendingApproval/PendingApprovalPanel.uss");
+            CreatePanelHost<EngageExplainPanelHost>(
+                "EngageExplain",
+                bridge,
+                "Assets/UI/EngageExplain/EngageExplainPanel.uxml",
+                "Assets/UI/EngageExplain/EngageExplainPanel.uss");
+            CreatePanelHost<AxisControlPanelHost>(
+                "AxisControl",
+                bridge,
+                "Assets/UI/AxisControl/AxisControlPanel.uxml",
+                "Assets/UI/AxisControl/AxisControlPanel.uss");
+            CreatePanelHost<MapScaleHudPanelHost>(
+                "MapScaleHud",
+                bridge,
+                "Assets/UI/MapScaleHud/MapScaleHudPanel.uxml",
+                "Assets/UI/MapScaleHud/MapScaleHudPanel.uss");
+            CreatePanelHost<GroundOpsPanelHost>(
+                "GroundOps",
+                bridge,
+                "Assets/UI/GroundOps/GroundOpsPanel.uxml",
+                "Assets/UI/GroundOps/GroundOpsPanel.uss");
+
             var scenesDir = "Assets/Scenes";
             if (!AssetDatabase.IsValidFolder(scenesDir))
             {
@@ -373,6 +400,33 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/C2Menu/C2MenuPanel.uxml",
                 "Assets/UI/C2Menu/C2MenuPanel.uss");
+
+            // Wave6 hosts (DRG-66 / DRG-67)
+            added += EnsurePanelHostIfMissing<PendingApprovalPanelHost>(
+                "PendingApproval",
+                bridge,
+                "Assets/UI/PendingApproval/PendingApprovalPanel.uxml",
+                "Assets/UI/PendingApproval/PendingApprovalPanel.uss");
+            added += EnsurePanelHostIfMissing<EngageExplainPanelHost>(
+                "EngageExplain",
+                bridge,
+                "Assets/UI/EngageExplain/EngageExplainPanel.uxml",
+                "Assets/UI/EngageExplain/EngageExplainPanel.uss");
+            added += EnsurePanelHostIfMissing<AxisControlPanelHost>(
+                "AxisControl",
+                bridge,
+                "Assets/UI/AxisControl/AxisControlPanel.uxml",
+                "Assets/UI/AxisControl/AxisControlPanel.uss");
+            added += EnsurePanelHostIfMissing<MapScaleHudPanelHost>(
+                "MapScaleHud",
+                bridge,
+                "Assets/UI/MapScaleHud/MapScaleHudPanel.uxml",
+                "Assets/UI/MapScaleHud/MapScaleHudPanel.uss");
+            added += EnsurePanelHostIfMissing<GroundOpsPanelHost>(
+                "GroundOps",
+                bridge,
+                "Assets/UI/GroundOps/GroundOpsPanel.uxml",
+                "Assets/UI/GroundOps/GroundOpsPanel.uss");
 
             // Wire C2Menu → MapPlaceholder when both exist (layer toggle path).
             WireC2MenuToMapHost();

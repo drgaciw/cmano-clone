@@ -24,6 +24,7 @@ public sealed class DelegationOrchestrator
     private readonly OverrideService _overrideService = new();
     private readonly DetachRejoinService _detachRejoinService;
     private readonly List<TrustSignal> _trustSignals = new();
+    private readonly PendingApprovalQueue _pendingApprovalQueue = new();
     private long _orderIdSequence = 1;
 
     public DelegationOrchestrator(int globalSeed, SimPolicy.IPolicyEvaluator? policyEvaluator = null)
@@ -78,6 +79,28 @@ public sealed class DelegationOrchestrator
     public IOrderLog OrderLog => DecisionLog;
 
     public IReadOnlyList<Order> ExecutedOrders { get; private set; } = Array.Empty<Order>();
+
+    /// <summary>
+    /// DRG-66: orders queued for player approval that have not yet been approved or rejected.
+    /// Populated by <see cref="AgentController.TryDecide"/> when the autonomy gate returns
+    /// <see cref="GateResult.QueueForApproval"/>.
+    /// </summary>
+    public IReadOnlyList<PendingApprovalEntry> PendingApprovals => _pendingApprovalQueue.Pending;
+
+    /// <summary>
+    /// DRG-66: approve a pending order by id.
+    /// The approved order is injected into <see cref="ExecutedOrders"/> on the next <see cref="Tick"/>.
+    /// Returns <c>true</c> when found; <c>false</c> when no matching entry exists.
+    /// </summary>
+    public bool TryApprovePendingOrder(OrderId orderId) =>
+        _pendingApprovalQueue.TryApprove(orderId);
+
+    /// <summary>
+    /// DRG-66: reject and discard a pending order by id.
+    /// Returns <c>true</c> when found; <c>false</c> when no matching entry exists.
+    /// </summary>
+    public bool TryRejectPendingOrder(OrderId orderId) =>
+        _pendingApprovalQueue.TryReject(orderId);
 
     public IReadOnlyList<TrustSignal> TrustSignals => _trustSignals;
 
@@ -335,6 +358,9 @@ public sealed class DelegationOrchestrator
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
         var executed = new List<Order>();
 
+        // Drain any orders previously approved by the player (DRG-66).
+        executed.AddRange(_pendingApprovalQueue.DrainApproved());
+
         foreach (var target in _targets)
         {
             if (target is GroupTarget group && group.PendingReplan)
@@ -353,7 +379,8 @@ public sealed class DelegationOrchestrator
                         memberCount,
                         ref _orderIdSequence,
                         _autonomyGate,
-                        DecisionLog);
+                        DecisionLog,
+                        _pendingApprovalQueue);
                     executed.AddRange(agent.DrainIssuedOrders(simTick));
                     break;
                 case HumanController human:

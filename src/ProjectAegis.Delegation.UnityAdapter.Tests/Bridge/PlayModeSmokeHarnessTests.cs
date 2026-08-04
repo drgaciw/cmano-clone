@@ -702,6 +702,111 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(File.ReadAllText(scenarioPath), Does.Not.Contain("editorState"));
     }
 
+    /// <summary>
+    /// DRG-66 / DRG-67: Wave 6 hosts (PendingApproval, EngageExplain, AxisControl,
+    /// MapScaleHud, GroundOps) must be registered in the Build() path of
+    /// DelegationSmokeSceneBuilder.
+    /// </summary>
+    [Test]
+    public void Delegation_smoke_scene_builder_includes_wave6_hosts()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+        var builder = File.ReadAllText(builderPath);
+
+        // Extract only the Build() function body (before BuildCesiumSpikeScene to stay in the
+        // correct section, same pattern as Delegation_smoke_keeps_useGlobeMap_false_for_ci_safe_default).
+        var smokeBuildStart = builder.IndexOf(
+            "public static void Build(string scenarioPolicyId",
+            StringComparison.Ordinal);
+        var cesiumBuildStart = builder.IndexOf(
+            "public static void BuildCesiumSpikeScene(",
+            StringComparison.Ordinal);
+        Assert.That(smokeBuildStart, Is.GreaterThanOrEqualTo(0));
+        Assert.That(cesiumBuildStart, Is.GreaterThan(smokeBuildStart));
+
+        var smokeSection = builder.Substring(smokeBuildStart, cesiumBuildStart - smokeBuildStart);
+
+        // PendingApproval host
+        Assert.That(smokeSection, Does.Contain("PendingApprovalPanelHost"),
+            "Wave6: PendingApprovalPanelHost must be wired in Build()");
+        Assert.That(smokeSection, Does.Contain("\"PendingApproval\""),
+            "Wave6: PendingApproval GameObject name must be registered");
+        Assert.That(smokeSection, Does.Contain("Assets/UI/PendingApproval/PendingApprovalPanel.uxml"),
+            "Wave6: PendingApproval UXML asset path must be set");
+
+        // EngageExplain host
+        Assert.That(smokeSection, Does.Contain("EngageExplainPanelHost"),
+            "Wave6: EngageExplainPanelHost must be wired in Build()");
+        Assert.That(smokeSection, Does.Contain("\"EngageExplain\""),
+            "Wave6: EngageExplain GameObject name must be registered");
+
+        // AxisControl host
+        Assert.That(smokeSection, Does.Contain("AxisControlPanelHost"),
+            "Wave6: AxisControlPanelHost must be wired in Build()");
+        Assert.That(smokeSection, Does.Contain("\"AxisControl\""),
+            "Wave6: AxisControl GameObject name must be registered");
+
+        // MapScaleHud host
+        Assert.That(smokeSection, Does.Contain("MapScaleHudPanelHost"),
+            "Wave6: MapScaleHudPanelHost must be wired in Build()");
+        Assert.That(smokeSection, Does.Contain("\"MapScaleHud\""),
+            "Wave6: MapScaleHud GameObject name must be registered");
+
+        // GroundOps host
+        Assert.That(smokeSection, Does.Contain("GroundOpsPanelHost"),
+            "Wave6: GroundOpsPanelHost must be wired in Build()");
+        Assert.That(smokeSection, Does.Contain("\"GroundOps\""),
+            "Wave6: GroundOps GameObject name must be registered");
+    }
+
+    /// <summary>
+    /// DRG-66 / DRG-67: EnsureUiMaturityHosts must include all Wave 6 hosts so they
+    /// can be retroactively added to an open scene without a full rebuild.
+    /// </summary>
+    [Test]
+    public void Delegation_smoke_ensure_hosts_includes_wave6_hosts()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+        var builder = File.ReadAllText(builderPath);
+
+        // Check EnsureUiMaturityHostsOnOpenScene contains all Wave 6 host types.
+        var ensureStart = builder.IndexOf(
+            "public static void EnsureUiMaturityHostsOnOpenScene()",
+            StringComparison.Ordinal);
+        Assert.That(ensureStart, Is.GreaterThanOrEqualTo(0));
+
+        var ensureSection = builder.Substring(ensureStart);
+
+        Assert.That(ensureSection, Does.Contain("PendingApprovalPanelHost"),
+            "EnsureUiMaturityHosts must include PendingApprovalPanelHost");
+        Assert.That(ensureSection, Does.Contain("EngageExplainPanelHost"),
+            "EnsureUiMaturityHosts must include EngageExplainPanelHost");
+        Assert.That(ensureSection, Does.Contain("AxisControlPanelHost"),
+            "EnsureUiMaturityHosts must include AxisControlPanelHost");
+        Assert.That(ensureSection, Does.Contain("MapScaleHudPanelHost"),
+            "EnsureUiMaturityHosts must include MapScaleHudPanelHost");
+        Assert.That(ensureSection, Does.Contain("GroundOpsPanelHost"),
+            "EnsureUiMaturityHosts must include GroundOpsPanelHost");
+    }
+
     private sealed class PlayModeHarness : ISimWorldSnapshot, IOrderSink
     {
         private readonly int _contactCount;
