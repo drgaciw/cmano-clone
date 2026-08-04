@@ -1,3 +1,4 @@
+using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
@@ -61,5 +62,59 @@ public sealed class UnitDetailProjectionTests
             null,
             simTimeSeconds: 0);
         Assert.That(detail!.UnitId, Is.EqualTo("u1"));
+    }
+
+    [Test]
+    public void ProjectSelected_denied_comms_sets_unknown_out_of_comms_status()
+    {
+        var log = new DecisionLog();
+        log.AppendCommsStateChange(new CommsStateChangeRecord(
+            0, 1, 1, "net", CommsState.Nominal, CommsState.Denied, "jam"));
+
+        var detail = UnitDetailProjection.ProjectSelected(
+            new TargetId("u1"),
+            _ => true,
+            log,
+            null,
+            simTimeSeconds: 0);
+
+        Assert.That(detail!.StatusLabel, Is.EqualTo(UnitCommsDisplay.UnknownOutOfComms));
+        Assert.That(detail.CommsLabel, Is.EqualTo("COMMS: DENIED"));
+    }
+
+    [Test]
+    public void ProjectSelected_degraded_comms_sets_operational_comms_degraded()
+    {
+        var log = new DecisionLog();
+        log.AppendCommsStateChange(new CommsStateChangeRecord(
+            0, 1, 1, "net", CommsState.Nominal, CommsState.Degraded, "jam"));
+
+        var detail = UnitDetailProjection.ProjectSelected(
+            new TargetId("u1"),
+            _ => true,
+            log,
+            null,
+            simTimeSeconds: 0);
+
+        Assert.That(detail!.StatusLabel, Is.EqualTo(UnitCommsDisplay.OperationalCommsDegraded));
+        Assert.That(detail.CommsLabel, Is.EqualTo("COMMS: DEGRADED"));
+    }
+
+    [Test]
+    public void ProjectSelected_destroyed_ignores_comms_for_status()
+    {
+        var log = new DecisionLog();
+        log.AppendCommsStateChange(new CommsStateChangeRecord(
+            0, 1, 1, "net", CommsState.Nominal, CommsState.Denied, "jam"));
+
+        var detail = UnitDetailProjection.ProjectSelected(
+            new TargetId("u1"),
+            _ => false,
+            log,
+            null,
+            simTimeSeconds: 0);
+
+        Assert.That(detail!.StatusLabel, Is.EqualTo(UnitCommsDisplay.Destroyed));
+        Assert.That(detail.CommsLabel, Is.EqualTo("COMMS: DENIED"));
     }
 }

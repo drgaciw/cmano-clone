@@ -3,6 +3,7 @@ namespace ProjectAegis.Delegation.Projection;
 /// <summary>
 /// Headless apply path for <see cref="UnitDetailPanelState"/> (ASSET-008 / S107).
 /// Unity hosts map presentation fields onto labels without re-formatting.
+/// CMD-17: additive <see cref="UnitDetailPresentation.CommsLine"/>.
 /// </summary>
 public static class UnitDetailApplyState
 {
@@ -23,7 +24,8 @@ public static class UnitDetailApplyState
             EngagePreviewLine: state.EngagePreviewLine ?? string.Empty,
             AttackOptionsLine: state.AttackOptionsLine ?? string.Empty,
             ContactLine: state.ContactLine ?? string.Empty,
-            AttackOptionCount: state.AttackMenu?.Count ?? 0);
+            AttackOptionCount: state.AttackMenu?.Count ?? 0,
+            CommsLine: state.CommsLine ?? "COMMS: —");
     }
 
     public static UnitDetailPresentation BindAndApply(UnitDetailEntry? entry, string? contactLine = null)
@@ -40,7 +42,8 @@ public sealed record UnitDetailPresentation(
     string EngagePreviewLine,
     string AttackOptionsLine,
     string ContactLine,
-    int AttackOptionCount)
+    int AttackOptionCount,
+    string CommsLine = "COMMS: —")
 {
     public static UnitDetailPresentation Empty { get; } = new(
         "UNIT: —",
@@ -52,5 +55,6 @@ public sealed record UnitDetailPresentation(
         "ENGAGE: —",
         "ATTACK: —",
         "CONTACT: —",
-        0);
+        0,
+        "COMMS: —");
 }
