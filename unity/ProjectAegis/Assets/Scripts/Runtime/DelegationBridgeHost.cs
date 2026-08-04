@@ -90,6 +90,12 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>CMD-37 agent roster rows (presentation projection from registry controllers).</summary>
         public IReadOnlyList<AgentRosterEntry> LastAgentRoster { get; private set; } = Array.Empty<AgentRosterEntry>();
 
+        /// <summary>CMD-24 Phase A air-ops readiness rows (from Session.UnitReadiness + OOB).</summary>
+        public IReadOnlyList<AirOpsEntry> LastAirOps { get; private set; } = Array.Empty<AirOpsEntry>();
+
+        /// <summary>True when Session.UnitReadiness is present (false → honest NO READINESS DATA).</summary>
+        public bool HasAirOpsReadinessData { get; private set; }
+
         private ISimWorldSnapshot? _lastSnapshot;
 
         /// <summary>Latest live simulation tick for presentation staleness calculations.</summary>
@@ -213,6 +219,8 @@ namespace ProjectAegis.Unity.Runtime
                 Bridge.Orchestrator.DecisionLog);
             // CMD-37: additive roster projection (no Tick body rewrite)
             LastAgentRoster = BuildAgentRosterFromRegistry();
+            // CMD-24 Phase A: additive air-ops readiness projection
+            RefreshAirOps();
             return result;
         }
 
@@ -228,6 +236,38 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             LastAgentRoster = BuildAgentRosterFromRegistry();
+        }
+
+        /// <summary>
+        /// Rebuild CMD-24 Air Ops rows from Session.UnitReadiness + OOB (safe from LateUpdate).
+        /// Honest empty when no readiness map is bound.
+        /// </summary>
+        public void RefreshAirOps()
+        {
+            if (Bridge?.Session == null)
+            {
+                HasAirOpsReadinessData = false;
+                LastAirOps = Array.Empty<AirOpsEntry>();
+                return;
+            }
+
+            var readiness = Bridge.Session.UnitReadiness;
+            HasAirOpsReadinessData = readiness != null;
+            if (!HasAirOpsReadinessData)
+            {
+                LastAirOps = Array.Empty<AirOpsEntry>();
+                return;
+            }
+
+            IEnumerable<string> unitIds = LastOobTree.Count > 0
+                ? LastOobTree.Select(e => e.UnitId)
+                : Bridge.Registry != null
+                    ? Bridge.Registry.Bindings.Select(b => b.TargetId.Value)
+                    : Array.Empty<string>();
+
+            LastAirOps = AirOpsProjection.Project(
+                unitIds,
+                readyForLaunch: id => readiness!.IsReadyForLaunch(id));
         }
 
         /// <summary>CMD-37: take direct control of the currently selected unit.</summary>

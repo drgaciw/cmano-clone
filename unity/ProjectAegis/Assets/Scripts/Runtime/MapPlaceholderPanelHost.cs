@@ -2,7 +2,8 @@
 #if UNITY_5_3_OR_NEWER
 using System;
 using System.Collections.Generic;
-using ProjectAegis.Delegation.Orchestration;
+using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Scenario;
@@ -21,14 +22,9 @@ namespace ProjectAegis.Unity.Runtime
         private const string PlanningDimOverlayName = "planning-dim-overlay";
         private const string EnvelopeRingCountName = "envelope-ring-count";
         private const string DatalinkEdgeCountName = "datalink-edge-count";
+        private const string DoctrineOverlayCountName = "doctrine-overlay-count";
         private const string PlanningDimmedClass = "map-placeholder-panel--planning-dimmed";
         private const string PlanningDimOverlayHiddenClass = "map-planning-dim-overlay--hidden";
-
-        /// <summary>Default sensor envelope nm when catalog/engage ranges are not yet wired (CMD-21).</summary>
-        private const double DefaultSensorRangeNm = 40.0;
-
-        /// <summary>Default weapon envelope nm when catalog/engage ranges are not yet wired (CMD-21/34).</summary>
-        private const double DefaultWeaponRangeNm = 20.0;
 
         /// <summary>Repo-relative Specced production USS for ASSET-009 (not Approved).</summary>
         public const string SpeccedProductionUssRelativePath =
@@ -55,6 +51,7 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _theaterLabel;
         private Label? _envelopeRingCountLabel;
         private Label? _datalinkEdgeCountLabel;
+        private Label? _doctrineOverlayCountLabel;
         private VisualElement? _canvas;
         private VisualElement? _planningDimOverlay;
         private MapPanelState _panelState = new("—", Array.Empty<MapSymbolDisplayRow>());
@@ -83,6 +80,9 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Last projected datalink edge count (CMD-32).</summary>
         public int LastDatalinkEdgeCount { get; private set; }
+
+        /// <summary>Last projected doctrine map overlay row count (CMD-33).</summary>
+        public int LastDoctrineOverlayCount { get; private set; }
 
         private void Awake()
         {
@@ -125,9 +125,10 @@ namespace ProjectAegis.Unity.Runtime
 
             _rootPanel = root.Q<VisualElement>(RootName) ?? root;
             _theaterLabel = _rootPanel.Q<Label>(TheaterName);
-            // Optional overlay count labels (CMD-21/32/34) — null-safe; scene rebuild not required.
+            // Optional overlay count labels (CMD-21/32/33/34) — null-safe; scene rebuild not required.
             _envelopeRingCountLabel = _rootPanel.Q<Label>(EnvelopeRingCountName);
             _datalinkEdgeCountLabel = _rootPanel.Q<Label>(DatalinkEdgeCountName);
+            _doctrineOverlayCountLabel = _rootPanel.Q<Label>(DoctrineOverlayCountName);
             var canvas = _rootPanel.Q<VisualElement>(CanvasName);
             if (!ReferenceEquals(canvas, _canvas))
             {
@@ -179,19 +180,36 @@ namespace ProjectAegis.Unity.Runtime
         }
 
         /// <summary>
-        /// Projects selected-unit envelope rings (CMD-21/34) and surfaces overlay counts.
-        /// Datalink edges stay at zero until a unit-link feed is wired to the host.
+        /// Projects selected-unit envelope rings (catalog ranges), datalink unit-pair edges,
+        /// and doctrine map overlay rows; surfaces overlay counts (CMD-21/32/33/34).
         /// </summary>
         private void ApplyOverlayCounts()
         {
+            var catalog = bridgeHost != null ? bridgeHost.CatalogReader : null;
+            var selectedUnitId = PresentationFeed?.SelectedUnitId;
+            var (sensorNm, weaponNm) = CatalogEnvelopeRangeResolver.ResolveSelectedUnitRanges(
+                catalog,
+                selectedUnitId,
+                CatalogWeaponIds.MvpDefault);
+
             var rings = TacticalOverlayProjection.ProjectSelectedUnitEnvelopes(
-                PresentationFeed?.SelectedUnitId,
-                DefaultSensorRangeNm,
-                DefaultWeaponRangeNm);
+                selectedUnitId,
+                sensorNm,
+                weaponNm);
+
             IReadOnlyList<DatalinkEdgeEntry> edges = Array.Empty<DatalinkEdgeEntry>();
-            var presentation = MapPanelApplyState.Apply(_panelState, rings, edges);
+            if (catalog is not null)
+            {
+                var friendlyIds = CollectAliveFriendlyUnitIds(PresentationFeed?.LastOobTree);
+                var links = catalog.GetSortedLinks() ?? Array.Empty<CatalogLinkEntry>();
+                edges = DatalinkUnitPairFeed.ProjectEdges(friendlyIds, links);
+            }
+
+            var doctrineOverlay = ProjectDoctrineOverlay();
+            var presentation = MapPanelApplyState.Apply(_panelState, rings, edges, doctrineOverlay);
             LastEnvelopeRingCount = presentation.EnvelopeRingCount;
             LastDatalinkEdgeCount = presentation.DatalinkEdgeCount;
+            LastDoctrineOverlayCount = presentation.DoctrineOverlayCount;
 
             if (_envelopeRingCountLabel != null)
             {
@@ -202,6 +220,61 @@ namespace ProjectAegis.Unity.Runtime
             {
                 _datalinkEdgeCountLabel.text = $"DATALINKS: {LastDatalinkEdgeCount}";
             }
+
+            if (_doctrineOverlayCountLabel != null)
+            {
+                _doctrineOverlayCountLabel.text = $"DOCTRINE: {LastDoctrineOverlayCount}";
+            }
+        }
+
+        private IReadOnlyList<DoctrineMapOverlayEntry> ProjectDoctrineOverlay()
+        {
+            var oob = PresentationFeed?.LastOobTree;
+            if (oob is null || oob.Count == 0)
+            {
+                return Array.Empty<DoctrineMapOverlayEntry>();
+            }
+
+            var unitIds = new List<TargetId>();
+            foreach (var entry in oob)
+            {
+                if (entry is null || !entry.IsAlive || string.IsNullOrWhiteSpace(entry.UnitId))
+                {
+                    continue;
+                }
+
+                unitIds.Add(new TargetId(entry.UnitId));
+            }
+
+            if (unitIds.Count == 0)
+            {
+                return Array.Empty<DoctrineMapOverlayEntry>();
+            }
+
+            var policy = bridgeHost?.Bridge?.Orchestrator?.ScenarioPolicy;
+            var inheritance = DoctrineInheritanceProjection.ProjectAllUnits(unitIds, policy, isFriendly: true);
+            return DoctrineMapOverlayProjection.Project(inheritance, PresentationFeed?.LastMapSymbols);
+        }
+
+        private static IReadOnlyList<string> CollectAliveFriendlyUnitIds(IReadOnlyList<OobTreeEntry>? oob)
+        {
+            if (oob is null || oob.Count == 0)
+            {
+                return Array.Empty<string>();
+            }
+
+            var ids = new List<string>(oob.Count);
+            foreach (var entry in oob)
+            {
+                if (entry is null || !entry.IsAlive || string.IsNullOrWhiteSpace(entry.UnitId))
+                {
+                    continue;
+                }
+
+                ids.Add(entry.UnitId);
+            }
+
+            return ids;
         }
 
         private bool IsDirty()

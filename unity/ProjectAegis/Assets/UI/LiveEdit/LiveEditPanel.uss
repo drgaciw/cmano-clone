@@ -1,0 +1,91 @@
+/* Live-edit findings contract panel (CMD-35). */
+
+.live-edit-panel {
+    flex-grow: 1;
+    min-width: 240px;
+    max-width: 380px;
+    padding: 6px;
+    background-color: rgba(12, 18, 28, 0.92);
+    border-width: 1px;
+    border-color: rgb(50, 65, 80);
+}
+
+.live-edit-title {
+    -unity-font-style: bold;
+    color: rgb(200, 210, 220);
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.live-edit-status {
+    color: rgb(180, 210, 230);
+    font-size: 11px;
+    margin-bottom: 6px;
+    white-space: normal;
+}
+
+.live-edit-status--blocked {
+    color: rgb(240, 120, 100);
+    -unity-font-style: bold;
+}
+
+.live-edit-findings {
+    flex-grow: 1;
+    min-height: 80px;
+    max-height: 220px;
+    margin-bottom: 6px;
+}
+
+.live-edit-findings-list {
+    flex-direction: column;
+}
+
+.live-edit-finding-row {
+    color: rgb(200, 210, 220);
+    font-size: 11px;
+    margin-bottom: 2px;
+    padding: 2px 4px;
+    background-color: rgba(24, 32, 44, 0.8);
+}
+
+.live-edit-finding-row--error {
+    border-left-width: 3px;
+    border-left-color: rgb(220, 80, 70);
+}
+
+.live-edit-finding-row--warning {
+    border-left-width: 3px;
+    border-left-color: rgb(220, 180, 60);
+}
+
+.live-edit-finding-row--info {
+    border-left-width: 3px;
+    border-left-color: rgb(90, 140, 180);
+}
+
+.live-edit-commit {
+    margin-top: 2px;
+    padding: 4px 12px;
+    background-color: rgb(32, 48, 68);
+    border-width: 1px;
+    border-color: rgb(70, 95, 120);
+    color: rgb(210, 220, 230);
+    font-size: 11px;
+    align-self: flex-start;
+}
+
+.live-edit-commit:hover {
+    background-color: rgb(42, 62, 88);
+}
+
+.live-edit-commit:disabled {
+    opacity: 0.45;
+}
+
+.live-edit-commit-reason {
+    margin-top: 2px;
+    color: rgb(240, 180, 80);
+    font-size: 10px;
+    min-height: 12px;
+    white-space: normal;
+}

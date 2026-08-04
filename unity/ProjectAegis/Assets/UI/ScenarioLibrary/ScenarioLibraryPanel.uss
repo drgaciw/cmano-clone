@@ -1,0 +1,74 @@
+/* Scenario library browse + pre-load feasibility (CMD-27 Phase 1). */
+
+.scenario-library-panel {
+    flex-grow: 1;
+    min-width: 420px;
+    max-width: 720px;
+    padding: 6px;
+    background-color: rgba(12, 18, 28, 0.92);
+    border-width: 1px;
+    border-color: rgb(50, 65, 80);
+}
+
+.scenario-library-title {
+    -unity-font-style: bold;
+    color: rgb(200, 210, 220);
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+.scenario-library-body {
+    flex-direction: row;
+    flex-grow: 1;
+    min-height: 180px;
+}
+
+.scenario-library-list {
+    flex-grow: 1;
+    flex-basis: 50%;
+    min-width: 180px;
+    min-height: 120px;
+    max-height: 320px;
+    margin-right: 8px;
+}
+
+.scenario-library-preview {
+    flex-grow: 1;
+    flex-basis: 50%;
+    min-width: 180px;
+    padding: 4px 6px;
+    background-color: rgba(18, 26, 38, 0.85);
+    border-width: 1px;
+    border-color: rgb(40, 55, 70);
+}
+
+.scenario-library-zero-state {
+    color: rgb(160, 175, 190);
+    font-size: 11px;
+    white-space: normal;
+    margin-top: 8px;
+}
+
+.scenario-library-preview-fields {
+    flex-direction: column;
+}
+
+.scenario-library-preview-title {
+    -unity-font-style: bold;
+    color: rgb(220, 230, 240);
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.scenario-library-line {
+    color: rgb(190, 200, 210);
+    font-size: 11px;
+    margin-bottom: 2px;
+}
+
+.scenario-library-source {
+    color: rgb(120, 135, 150);
+    font-size: 10px;
+    margin-top: 6px;
+    white-space: normal;
+}

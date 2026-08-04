@@ -1,0 +1,24 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="scenario-library-root" class="scenario-library-panel">
+        <ui:Label text="SCENARIO LIBRARY" class="scenario-library-title" />
+        <ui:VisualElement name="scenario-library-body" class="scenario-library-body">
+            <ui:ListView name="scenario-library-list" class="scenario-library-list" selection-type="Single" />
+            <ui:VisualElement name="scenario-library-preview" class="scenario-library-preview">
+                <ui:Label name="preview-zero-state" text="Select a scenario to preview title, determinism metadata, and pre-load feasibility." class="scenario-library-zero-state" />
+                <ui:VisualElement name="preview-fields" class="scenario-library-preview-fields">
+                    <ui:Label name="preview-title" text="" class="scenario-library-preview-title" />
+                    <ui:Label name="preview-id" text="" class="scenario-library-line" />
+                    <ui:Label name="preview-availability" text="" class="scenario-library-line" />
+                    <ui:Label name="preview-policy" text="" class="scenario-library-line" />
+                    <ui:Label name="preview-tl" text="" class="scenario-library-line" />
+                    <ui:Label name="preview-seed" text="" class="scenario-library-line" />
+                    <ui:Label name="preview-location-year" text="" class="scenario-library-line" />
+                    <ui:Label name="preview-provenance" text="" class="scenario-library-line" />
+                    <ui:Label name="preview-difficulty" text="" class="scenario-library-line" />
+                    <ui:Label name="preview-complexity" text="" class="scenario-library-line" />
+                    <ui:Label name="preview-source" text="" class="scenario-library-source" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

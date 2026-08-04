@@ -80,6 +80,40 @@ namespace ProjectAegis.Unity.Editor
                 "Assets/UI/PlatformImport/PlatformImportPanel.uxml",
                 "Assets/UI/PlatformImport/PlatformImportPanel.uss");
 
+            // UI maturity Wave1 hosts (CMD-16 / CMD-29 / CMD-37)
+            CreatePanelHost<UnitOrderToolbarHost>(
+                "UnitOrderToolbar",
+                bridge,
+                "Assets/UI/UnitOrderToolbar/UnitOrderToolbarPanel.uxml",
+                "Assets/UI/UnitOrderToolbar/UnitOrderToolbarPanel.uss");
+            CreatePanelHost<ContactDetailPanelHost>(
+                "ContactDetail",
+                bridge,
+                "Assets/UI/ContactDetail/ContactDetailPanel.uxml",
+                "Assets/UI/ContactDetail/ContactDetailPanel.uss");
+            CreatePanelHost<AgentRosterPanelHost>(
+                "AgentRoster",
+                bridge,
+                "Assets/UI/AgentRoster/AgentRosterPanel.uxml",
+                "Assets/UI/AgentRoster/AgentRosterPanel.uss");
+
+            // UI maturity Wave2 hosts (CMD-24 / CMD-27 / CMD-35)
+            CreatePanelHost<AirOpsPanelHost>(
+                "AirOps",
+                bridge,
+                "Assets/UI/AirOps/AirOpsPanel.uxml",
+                "Assets/UI/AirOps/AirOpsPanel.uss");
+            CreatePanelHost<ScenarioLibraryPanelHost>(
+                "ScenarioLibrary",
+                bridge,
+                "Assets/UI/ScenarioLibrary/ScenarioLibraryPanel.uxml",
+                "Assets/UI/ScenarioLibrary/ScenarioLibraryPanel.uss");
+            CreatePanelHost<LiveEditPanelHost>(
+                "LiveEdit",
+                bridge,
+                "Assets/UI/LiveEdit/LiveEditPanel.uxml",
+                "Assets/UI/LiveEdit/LiveEditPanel.uss");
+
             var scenesDir = "Assets/Scenes";
             if (!AssetDatabase.IsValidFolder(scenesDir))
             {
@@ -99,6 +133,80 @@ namespace ProjectAegis.Unity.Editor
             {
                 EditorApplication.Exit(0);
             }
+        }
+
+        /// <summary>
+        /// Adds missing UI maturity hosts to the open scene without a full rebuild.
+        /// Skips any GameObject whose name already exists.
+        /// </summary>
+        [MenuItem("Project Aegis/Ensure UI Maturity Hosts (open scene)")]
+        public static void EnsureUiMaturityHostsOnOpenScene()
+        {
+            var bridge = Object.FindFirstObjectByType<DelegationBridgeHost>();
+            if (bridge == null)
+            {
+                Debug.LogError(
+                    "DelegationSmokeSceneBuilder.EnsureUiMaturityHosts: no DelegationBridgeHost in open scene.");
+                return;
+            }
+
+            var added = 0;
+            added += EnsurePanelHostIfMissing<UnitOrderToolbarHost>(
+                "UnitOrderToolbar",
+                bridge,
+                "Assets/UI/UnitOrderToolbar/UnitOrderToolbarPanel.uxml",
+                "Assets/UI/UnitOrderToolbar/UnitOrderToolbarPanel.uss");
+            added += EnsurePanelHostIfMissing<ContactDetailPanelHost>(
+                "ContactDetail",
+                bridge,
+                "Assets/UI/ContactDetail/ContactDetailPanel.uxml",
+                "Assets/UI/ContactDetail/ContactDetailPanel.uss");
+            added += EnsurePanelHostIfMissing<AgentRosterPanelHost>(
+                "AgentRoster",
+                bridge,
+                "Assets/UI/AgentRoster/AgentRosterPanel.uxml",
+                "Assets/UI/AgentRoster/AgentRosterPanel.uss");
+            added += EnsurePanelHostIfMissing<AirOpsPanelHost>(
+                "AirOps",
+                bridge,
+                "Assets/UI/AirOps/AirOpsPanel.uxml",
+                "Assets/UI/AirOps/AirOpsPanel.uss");
+            added += EnsurePanelHostIfMissing<ScenarioLibraryPanelHost>(
+                "ScenarioLibrary",
+                bridge,
+                "Assets/UI/ScenarioLibrary/ScenarioLibraryPanel.uxml",
+                "Assets/UI/ScenarioLibrary/ScenarioLibraryPanel.uss");
+            added += EnsurePanelHostIfMissing<LiveEditPanelHost>(
+                "LiveEdit",
+                bridge,
+                "Assets/UI/LiveEdit/LiveEditPanel.uxml",
+                "Assets/UI/LiveEdit/LiveEditPanel.uss");
+
+            if (added > 0)
+            {
+                EditorSceneManager.MarkAllScenesDirty();
+                EditorSceneManager.SaveOpenScenes();
+            }
+
+            Debug.Log(
+                $"DelegationSmokeSceneBuilder: Ensure UI Maturity Hosts added {added} host(s) to open scene.");
+        }
+
+        private static int EnsurePanelHostIfMissing<T>(
+            string objectName,
+            DelegationBridgeHost bridge,
+            string uxmlPath,
+            string ussPath)
+            where T : MonoBehaviour
+        {
+            var existing = GameObject.Find(objectName);
+            if (existing != null)
+            {
+                return 0;
+            }
+
+            CreatePanelHost<T>(objectName, bridge, uxmlPath, ussPath);
+            return 1;
         }
 
         private static T CreatePanelHost<T>(
