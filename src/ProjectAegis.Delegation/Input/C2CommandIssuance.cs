@@ -62,6 +62,16 @@ public static class C2CommandIssuance
             case "abort_launch_aircraft":
                 kind = OrderKind.AbortLaunchAircraft;
                 return true;
+            case "launch_boat":
+                // LOG-09…11 / CMD-25 — embarked craft launch
+                kind = OrderKind.LaunchBoat;
+                return true;
+            case "recover_boat":
+                kind = OrderKind.RecoverBoat;
+                return true;
+            case "abort_boat_launch":
+                kind = OrderKind.AbortBoatLaunch;
+                return true;
             default:
                 reason = ReasonUnknownCommand;
                 return false;

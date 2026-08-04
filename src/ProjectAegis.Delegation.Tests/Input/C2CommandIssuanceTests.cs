@@ -18,6 +18,9 @@ public sealed class C2CommandIssuanceTests
     [TestCase("launch_aircraft", OrderKind.LaunchAircraft)]
     [TestCase("abort_launch", OrderKind.AbortLaunchAircraft)]
     [TestCase("abort_launch_aircraft", OrderKind.AbortLaunchAircraft)]
+    [TestCase("launch_boat", OrderKind.LaunchBoat)]
+    [TestCase("recover_boat", OrderKind.RecoverBoat)]
+    [TestCase("abort_boat_launch", OrderKind.AbortBoatLaunch)]
     public void TryResolve_maps_known_command_ids(string commandId, OrderKind expected)
     {
         Assert.That(C2CommandIssuance.TryResolve(commandId, out var kind, out var reason), Is.True);
@@ -84,6 +87,9 @@ public sealed class C2CommandIssuanceTests
         Assert.That((int)OrderKind.SetSensors, Is.EqualTo(6));
         Assert.That((int)OrderKind.LaunchAircraft, Is.EqualTo(7));
         Assert.That((int)OrderKind.AbortLaunchAircraft, Is.EqualTo(8));
+        Assert.That((int)OrderKind.LaunchBoat, Is.EqualTo(9));
+        Assert.That((int)OrderKind.RecoverBoat, Is.EqualTo(10));
+        Assert.That((int)OrderKind.AbortBoatLaunch, Is.EqualTo(11));
     }
 
     [TestCase("LAUNCH", OrderKind.LaunchAircraft)]
@@ -108,5 +114,22 @@ public sealed class C2CommandIssuanceTests
         var result = C2CommandIssuance.Validate("abort_launch", hasSelection: true);
         Assert.That(result.Ok, Is.True);
         Assert.That(result.Kind, Is.EqualTo(OrderKind.AbortLaunchAircraft));
+    }
+
+    [TestCase("LAUNCH_BOAT", OrderKind.LaunchBoat)]
+    [TestCase(" Recover_Boat ", OrderKind.RecoverBoat)]
+    [TestCase("ABORT_BOAT_LAUNCH", OrderKind.AbortBoatLaunch)]
+    public void TryResolve_boat_commands_case_insensitive(string commandId, OrderKind expected)
+    {
+        Assert.That(C2CommandIssuance.TryResolve(commandId, out var kind, out _), Is.True);
+        Assert.That(kind, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void Validate_ok_returns_LaunchBoat_for_launch_boat()
+    {
+        var result = C2CommandIssuance.Validate("launch_boat", hasSelection: true);
+        Assert.That(result.Ok, Is.True);
+        Assert.That(result.Kind, Is.EqualTo(OrderKind.LaunchBoat));
     }
 }

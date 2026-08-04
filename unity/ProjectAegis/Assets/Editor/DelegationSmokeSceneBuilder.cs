@@ -121,6 +121,23 @@ namespace ProjectAegis.Unity.Editor
                 "Assets/UI/LiveEdit/LiveEditPanel.uxml",
                 "Assets/UI/LiveEdit/LiveEditPanel.uss");
 
+            // UI maturity Wave4 residual hosts (CMD-25 / magazine / deck)
+            CreatePanelHost<BoatOpsPanelHost>(
+                "BoatOps",
+                bridge,
+                "Assets/UI/BoatOps/BoatOpsPanel.uxml",
+                "Assets/UI/BoatOps/BoatOpsPanel.uss");
+            CreatePanelHost<MagazineLoadoutPanelHost>(
+                "MagazineLoadout",
+                bridge,
+                "Assets/UI/MagazineLoadout/MagazineLoadoutPanel.uxml",
+                "Assets/UI/MagazineLoadout/MagazineLoadoutPanel.uss");
+            CreatePanelHost<DeckHangarPanelHost>(
+                "DeckHangar",
+                bridge,
+                "Assets/UI/DeckHangar/DeckHangarPanel.uxml",
+                "Assets/UI/DeckHangar/DeckHangarPanel.uss");
+
             var scenesDir = "Assets/Scenes";
             if (!AssetDatabase.IsValidFolder(scenesDir))
             {
@@ -186,6 +203,13 @@ namespace ProjectAegis.Unity.Editor
             var productHost = productGo.AddComponent<GlobeMapProductHost>();
             SetObjectReference(productHost, "bridgeHost", bridge);
 
+            // Wave4 tile streaming gate status — pure Toolkit; works without com.cesium.unity.
+            // Never writes ion tokens; host reports NO_ION_TOKEN / PACKAGE_MISSING honestly.
+            var tileGo = new GameObject("GlobeTileStreaming");
+            var tileDoc = tileGo.AddComponent<UIDocument>();
+            tileDoc.panelSettings = EnsurePanelSettingsAsset();
+            tileGo.AddComponent<GlobeTileStreamingHost>();
+
             // Cesium types live in ProjectAegis.Unity.Runtime.Cesium (CESIUM_FOR_UNITY gated).
             // Add via reflection so this Editor assembly never hard-depends on the Cesium package.
             var cesiumBridgeGo = new GameObject("CesiumGlobeBridge");
@@ -214,7 +238,8 @@ namespace ProjectAegis.Unity.Editor
                     "DelegationSmokeSceneBuilder.BuildCesiumSpikeScene: CesiumGlobeHost type not found; " +
                     "GlobeMapProductHost + useGlobeMap=true still wired. Ion token never written.");
             }
-            // Intentionally do NOT set ionAccessToken — user secret via Inspector only (NEVER commit).
+            // Intentionally do NOT set ionAccessToken — user secret via Inspector or env
+            // CESIUM_ION_TOKEN / ProjectAegis_CesiumIonToken only (NEVER commit tokens).
 
             var scenesDir = "Assets/Scenes";
             if (!AssetDatabase.IsValidFolder(scenesDir))
@@ -236,7 +261,7 @@ namespace ProjectAegis.Unity.Editor
             AssetDatabase.SaveAssets();
             Debug.Log(
                 $"CesiumSpike scene saved: {CesiumSpikeScenePath} useGlobeMap=true " +
-                "(ion token not written; set via Inspector only).");
+                "(ion token not written; set via Inspector or CESIUM_ION_TOKEN env only).");
             if (Application.isBatchMode && exitBatchModeWhenDone)
             {
                 EditorApplication.Exit(0);
@@ -289,6 +314,21 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/LiveEdit/LiveEditPanel.uxml",
                 "Assets/UI/LiveEdit/LiveEditPanel.uss");
+            added += EnsurePanelHostIfMissing<BoatOpsPanelHost>(
+                "BoatOps",
+                bridge,
+                "Assets/UI/BoatOps/BoatOpsPanel.uxml",
+                "Assets/UI/BoatOps/BoatOpsPanel.uss");
+            added += EnsurePanelHostIfMissing<MagazineLoadoutPanelHost>(
+                "MagazineLoadout",
+                bridge,
+                "Assets/UI/MagazineLoadout/MagazineLoadoutPanel.uxml",
+                "Assets/UI/MagazineLoadout/MagazineLoadoutPanel.uss");
+            added += EnsurePanelHostIfMissing<DeckHangarPanelHost>(
+                "DeckHangar",
+                bridge,
+                "Assets/UI/DeckHangar/DeckHangarPanel.uxml",
+                "Assets/UI/DeckHangar/DeckHangarPanel.uss");
 
             if (added > 0)
             {
