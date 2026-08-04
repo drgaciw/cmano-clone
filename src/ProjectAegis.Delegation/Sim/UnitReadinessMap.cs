@@ -12,4 +12,7 @@ public sealed class UnitReadinessMap
 
     public bool IsReadyForLaunch(string unitId) =>
         !_readyByUnitId.TryGetValue(unitId, out var ready) || ready;
+
+    /// <summary>True when this unit id has an explicit readiness entry (i.e. is a tracked airframe).</summary>
+    public bool IsTracked(string unitId) => _readyByUnitId.ContainsKey(unitId);
 }

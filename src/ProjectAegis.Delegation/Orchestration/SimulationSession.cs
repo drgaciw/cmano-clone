@@ -203,6 +203,89 @@ public sealed class SimulationSession
         LogEngagementResults(state, queued);
         SurfaceRoePolicyDeniedEngagements(state, simTick);
         ApplyCatalogDamageHotTick(state, queued);
+        AdvanceLogisticsFsms(state);
+    }
+
+    /// <summary>
+    /// LOG-08 / LOG-09: apply executed air/boat logistics orders then advance FSM timers once per session tick.
+    /// Maps are optional — only ticked when non-null; auto-created on first logistics order.
+    /// </summary>
+    private void AdvanceLogisticsFsms(ObservedState state)
+    {
+        ProcessLogisticsOrders(Orchestrator.ExecutedOrders, state);
+        AirOps?.TickAll(1);
+        BoatOps?.TickAll(1);
+    }
+
+    /// <summary>
+    /// Apply Launch/Abort air and Launch/Recover/Abort boat orders from this tick's executed list.
+    /// Missing unit/craft rows are upserted from readiness (air) or stowed defaults (boat).
+    /// </summary>
+    private void ProcessLogisticsOrders(IReadOnlyList<Order> executed, ObservedState state)
+    {
+        _ = state;
+        if (executed.Count == 0)
+        {
+            return;
+        }
+
+        for (var i = 0; i < executed.Count; i++)
+        {
+            var order = executed[i];
+            switch (order.Kind)
+            {
+                case OrderKind.LaunchAircraft:
+                    EnsureAirOpsMap();
+                    EnsureAirUnit(order.Target.Value);
+                    AirOps!.TryLaunch(order.Target.Value);
+                    break;
+                case OrderKind.AbortLaunchAircraft:
+                    EnsureAirOpsMap();
+                    EnsureAirUnit(order.Target.Value);
+                    AirOps!.TryAbort(order.Target.Value);
+                    break;
+                case OrderKind.LaunchBoat:
+                    EnsureBoatOpsMap();
+                    EnsureBoatCraft(order.Target.Value);
+                    BoatOps!.TryLaunch(order.Target.Value);
+                    break;
+                case OrderKind.RecoverBoat:
+                    EnsureBoatOpsMap();
+                    EnsureBoatCraft(order.Target.Value);
+                    BoatOps!.TryRecover(order.Target.Value);
+                    break;
+                case OrderKind.AbortBoatLaunch:
+                    EnsureBoatOpsMap();
+                    EnsureBoatCraft(order.Target.Value);
+                    BoatOps!.TryAbort(order.Target.Value);
+                    break;
+            }
+        }
+    }
+
+    private void EnsureAirOpsMap() => AirOps ??= new AirOpsStateMap();
+
+    private void EnsureBoatOpsMap() => BoatOps ??= new BoatOpsStateMap();
+
+    private void EnsureAirUnit(string unitId)
+    {
+        if (AirOps!.TryGet(unitId, out _))
+        {
+            return;
+        }
+
+        var ready = UnitReadiness?.IsReadyForLaunch(unitId) ?? true;
+        AirOps.Upsert(AirOpsUnitState.OnGround(unitId, readyForLaunch: ready));
+    }
+
+    private void EnsureBoatCraft(string craftId)
+    {
+        if (BoatOps!.TryGet(craftId, out _))
+        {
+            return;
+        }
+
+        BoatOps.Upsert(BoatOpsUnitState.Stowed(craftId));
     }
 
     /// <summary>
@@ -442,6 +525,12 @@ public sealed class SimulationSession
     public ICatalogReader? CatalogReader { get; init; }
 
     public UnitReadinessMap? UnitReadiness { get; set; }
+
+    /// <summary>LOG-08 air-ops FSM ledger (optional; advanced on session tick).</summary>
+    public AirOpsStateMap? AirOps { get; set; }
+
+    /// <summary>LOG-09…11 boat-ops FSM ledger (optional; advanced on session tick).</summary>
+    public BoatOpsStateMap? BoatOps { get; set; }
 
     /// <summary>Catalog-resolved withdraw/readiness trials (refreshed by hot-tick applier when enabled).</summary>
     public IReadOnlyList<ScenarioWithdrawReadinessTrial> CatalogWithdrawTrials { get; private set; } =

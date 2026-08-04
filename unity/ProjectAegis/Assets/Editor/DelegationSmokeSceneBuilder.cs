@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 using System;
+using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Unity.Runtime;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -56,7 +57,7 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/C2LeftDrawer/C2LeftDrawerPanel.uxml",
                 "Assets/UI/C2LeftDrawer/C2LeftDrawerPanel.uss");
-            CreatePanelHost<MapPlaceholderPanelHost>(
+            var mapHost = CreatePanelHost<MapPlaceholderPanelHost>(
                 "MapPlaceholder",
                 bridge,
                 "Assets/UI/MapPlaceholder/MapPlaceholderPanel.uxml",
@@ -122,11 +123,12 @@ namespace ProjectAegis.Unity.Editor
                 "Assets/UI/LiveEdit/LiveEditPanel.uss");
 
             // UI maturity Wave4 residual hosts (CMD-25 / magazine / deck)
-            CreatePanelHost<BoatOpsPanelHost>(
+            var boatOpsHost = CreatePanelHost<BoatOpsPanelHost>(
                 "BoatOps",
                 bridge,
                 "Assets/UI/BoatOps/BoatOpsPanel.uxml",
                 "Assets/UI/BoatOps/BoatOpsPanel.uss");
+            WireBoatOpsHost(boatOpsHost, bridge);
             CreatePanelHost<MagazineLoadoutPanelHost>(
                 "MagazineLoadout",
                 bridge,
@@ -137,6 +139,17 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/DeckHangar/DeckHangarPanel.uxml",
                 "Assets/UI/DeckHangar/DeckHangarPanel.uss");
+
+            // UI maturity Wave5 host (CMD-28 menu / layers)
+            var menuHost = CreatePanelHost<C2MenuPanelHost>(
+                "C2Menu",
+                bridge,
+                "Assets/UI/C2Menu/C2MenuPanel.uxml",
+                "Assets/UI/C2Menu/C2MenuPanel.uss");
+            if (menuHost != null && mapHost != null)
+            {
+                SetObjectReference(menuHost, "mapHost", mapHost);
+            }
 
             var scenesDir = "Assets/Scenes";
             if (!AssetDatabase.IsValidFolder(scenesDir))
@@ -157,6 +170,20 @@ namespace ProjectAegis.Unity.Editor
             {
                 EditorApplication.Exit(0);
             }
+        }
+
+        /// <summary>
+        /// Wire Boat Ops presentation + launch/recover/abort handlers to the bridge (CMD-25 / LOG-09…11).
+        /// BoatOpsPanelHost has no bridgeHost SerializeField (Func-injection API instead of the
+        /// direct-reference pattern used by AirOpsPanelHost), so this must be wired in code rather
+        /// than via CreatePanelHost's generic SerializedObject property assignment.
+        /// </summary>
+        private static void WireBoatOpsHost(BoatOpsPanelHost host, DelegationBridgeHost bridge)
+        {
+            host.PresentationSource = () => BoatOpsApplyState.Apply(bridge.LastBoatOps, bridge.HasBoatOpsData);
+            host.OnLaunch = craftId => (bridge.TryLaunchBoat(craftId, out var reason), reason);
+            host.OnRecover = craftId => (bridge.TryRecoverBoat(craftId, out var reason), reason);
+            host.OnAbort = craftId => (bridge.TryAbortBoatLaunch(craftId, out var reason), reason);
         }
 
         /// <summary>
@@ -271,6 +298,8 @@ namespace ProjectAegis.Unity.Editor
         /// <summary>
         /// Adds missing UI maturity hosts to the open scene without a full rebuild.
         /// Skips any GameObject whose name already exists.
+        /// Wave4 hosts (BoatOps, MagazineLoadout, DeckHangar) + Wave5 C2Menu always attempted.
+        /// GlobeMapProduct is ensured when the type is present (CesiumSpike / product path).
         /// </summary>
         [MenuItem("Project Aegis/Ensure UI Maturity Hosts (open scene)")]
         public static void EnsureUiMaturityHostsOnOpenScene()
@@ -314,11 +343,21 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/LiveEdit/LiveEditPanel.uxml",
                 "Assets/UI/LiveEdit/LiveEditPanel.uss");
-            added += EnsurePanelHostIfMissing<BoatOpsPanelHost>(
+            var boatOpsAdded = EnsurePanelHostIfMissing<BoatOpsPanelHost>(
                 "BoatOps",
                 bridge,
                 "Assets/UI/BoatOps/BoatOpsPanel.uxml",
                 "Assets/UI/BoatOps/BoatOpsPanel.uss");
+            added += boatOpsAdded;
+            if (boatOpsAdded > 0)
+            {
+                var boatOpsHost = Object.FindFirstObjectByType<BoatOpsPanelHost>();
+                if (boatOpsHost != null)
+                {
+                    WireBoatOpsHost(boatOpsHost, bridge);
+                }
+            }
+
             added += EnsurePanelHostIfMissing<MagazineLoadoutPanelHost>(
                 "MagazineLoadout",
                 bridge,
@@ -329,6 +368,17 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/DeckHangar/DeckHangarPanel.uxml",
                 "Assets/UI/DeckHangar/DeckHangarPanel.uss");
+            added += EnsurePanelHostIfMissing<C2MenuPanelHost>(
+                "C2Menu",
+                bridge,
+                "Assets/UI/C2Menu/C2MenuPanel.uxml",
+                "Assets/UI/C2Menu/C2MenuPanel.uss");
+
+            // Wire C2Menu → MapPlaceholder when both exist (layer toggle path).
+            WireC2MenuToMapHost();
+
+            // Product globe chrome (type always present on this branch; no UXML required).
+            added += EnsureGlobeMapProductIfMissing(bridge);
 
             if (added > 0)
             {
@@ -338,6 +388,48 @@ namespace ProjectAegis.Unity.Editor
 
             Debug.Log(
                 $"DelegationSmokeSceneBuilder: Ensure UI Maturity Hosts added {added} host(s) to open scene.");
+        }
+
+        private static void WireC2MenuToMapHost()
+        {
+            var menu = Object.FindFirstObjectByType<C2MenuPanelHost>();
+            var map = Object.FindFirstObjectByType<MapPlaceholderPanelHost>();
+            if (menu == null || map == null)
+            {
+                return;
+            }
+
+            SetObjectReference(menu, "mapHost", map);
+        }
+
+        private static int EnsureGlobeMapProductIfMissing(DelegationBridgeHost bridge)
+        {
+            // Type is present on wave4+ branches; keep name-based skip for open scenes.
+            if (GameObject.Find("GlobeMapProduct") != null)
+            {
+                return 0;
+            }
+
+            // Only auto-add on CesiumSpike / useGlobeMap scenes to avoid cluttering DelegationSmoke.
+            var useGlobe = false;
+            var so = new SerializedObject(bridge);
+            var prop = so.FindProperty("useGlobeMap");
+            if (prop != null)
+            {
+                useGlobe = prop.boolValue;
+            }
+
+            if (!useGlobe)
+            {
+                return 0;
+            }
+
+            var productGo = new GameObject("GlobeMapProduct");
+            var productDoc = productGo.AddComponent<UIDocument>();
+            productDoc.panelSettings = EnsurePanelSettingsAsset();
+            var productHost = productGo.AddComponent<GlobeMapProductHost>();
+            SetObjectReference(productHost, "bridgeHost", bridge);
+            return 1;
         }
 
         private static int EnsurePanelHostIfMissing<T>(
@@ -430,7 +522,7 @@ namespace ProjectAegis.Unity.Editor
 
         private static void StripAudioListenersFromOpenScene()
         {
-            // Use type name so editor scripts still compile when the audio built-in module is disabled.
+            // Use type name so editor scripts still compile when the audio module is disabled.
             foreach (var component in Object.FindObjectsByType<Component>(
                          FindObjectsInactive.Include,
                          FindObjectsSortMode.None))

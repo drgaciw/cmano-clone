@@ -72,9 +72,10 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Tactical map symbols (placeholder layout).</summary>
         public IReadOnlyList<MapSymbolEntry> LastMapSymbols { get; private set; } = Array.Empty<MapSymbolEntry>();
 
-        /// <summary>Top bar labels (time, phase, score).</summary>
+        /// <summary>Top bar labels (time, phase, score, CMD-22 Zulu/local/remain).</summary>
         public C2TopBarState LastTopBar { get; private set; } =
-            new("SIM 00:00:00", "PHASE: Planning", "TIME: 1x", "MODE: —", "COMMS: NOMINAL", "SCORE: 0");
+            new("SIM 00:00:00", "PHASE: Planning", "TIME: 1x", "MODE: —", "COMMS: NOMINAL", "SCORE: 0",
+                "ZULU 00:00:00", "LOCAL 00:00:00", "REMAIN —");
 
         /// <summary>Sensor C2 contact list + EMCON / track indicators for HUD binding.</summary>
         public SensorC2Snapshot LastSensorC2 { get; private set; } =
@@ -96,6 +97,12 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>True when Session.UnitReadiness is present (false → honest NO READINESS DATA).</summary>
         public bool HasAirOpsReadinessData { get; private set; }
 
+        /// <summary>CMD-25 Boat Ops rows (from Session.BoatOps FSM ledger when present).</summary>
+        public IReadOnlyList<BoatOpsEntry> LastBoatOps { get; private set; } = Array.Empty<BoatOpsEntry>();
+
+        /// <summary>True when Session.BoatOps is present (false → honest NO BOAT OPS DATA).</summary>
+        public bool HasBoatOpsData { get; private set; }
+
         /// <summary>CMD-24 magazine loadout rows (from Session.Magazines snapshot when present).</summary>
         public IReadOnlyList<MagazineLoadoutEntry> LastMagazineLoadout { get; private set; } = Array.Empty<MagazineLoadoutEntry>();
 
@@ -108,6 +115,13 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>True when a deck/hangar capacity feed has been bound (false → honest NO CAPACITY DATA).</summary>
         public bool HasDeckHangarData { get; private set; }
 
+        /// <summary>
+        /// CMD-23 UI-local chrome collapse flags (message log + left drawer).
+        /// Not DecisionLog; persisted only via in-memory <see cref="C2ChromePrefsStore"/>.
+        /// </summary>
+        public C2ChromeCollapseState ChromeCollapse { get; private set; } = C2ChromeCollapseState.Expanded;
+
+        private readonly C2ChromePrefsStore _chromePrefs = new();
         private ISimWorldSnapshot? _lastSnapshot;
 
         /// <summary>Latest live simulation tick for presentation staleness calculations.</summary>
@@ -120,7 +134,39 @@ namespace ProjectAegis.Unity.Runtime
                 mvpEngagement: enableMvpEngagement,
                 scenarioPolicyId: scenarioPolicyId);
             LastMissionList = MissionListBridge.ProjectFrom(Bridge.Orchestrator.ScenarioPolicy?.MissionTimeline);
+            // Restore UI-local chrome collapse bag (in-memory; no DecisionLog / file I/O).
+            ChromeCollapse = _chromePrefs.Restore(C2ChromeCollapseState.Expanded);
         }
+
+        /// <summary>
+        /// CMD-23: toggle message-log body collapse and capture into the in-memory prefs bag.
+        /// </summary>
+        public void ToggleMessageLogCollapsed()
+        {
+            ChromeCollapse = ChromeCollapse.ToggleMessageLog();
+            _chromePrefs.Capture(ChromeCollapse);
+        }
+
+        /// <summary>
+        /// CMD-23: toggle left-drawer body collapse and capture into the in-memory prefs bag.
+        /// </summary>
+        public void ToggleLeftDrawerCollapsed()
+        {
+            ChromeCollapse = ChromeCollapse.ToggleLeftDrawer();
+            _chromePrefs.Capture(ChromeCollapse);
+        }
+
+        /// <summary>
+        /// CMD-23: replace chrome collapse state (tests / prefs restore) and capture.
+        /// </summary>
+        public void SetChromeCollapse(C2ChromeCollapseState state)
+        {
+            ChromeCollapse = state ?? C2ChromeCollapseState.Expanded;
+            _chromePrefs.Capture(ChromeCollapse);
+        }
+
+        /// <summary>CMD-23: copy of the current chrome prefs bag (host-free tests / tooling).</summary>
+        public IReadOnlyDictionary<string, bool> GetChromePrefsSnapshot() => _chromePrefs.GetSnapshot();
 
         public void BeginExecution() => Bridge.BeginExecution();
 
@@ -202,6 +248,42 @@ namespace ProjectAegis.Unity.Runtime
         public bool TryAbortLaunchSelected(out string? reason) =>
             TryIssueSelectedCommand("abort_launch", out reason);
 
+        /// <summary>
+        /// CMD-25: issue a launch/recover/abort command for an explicit craft id. Boat Ops manages
+        /// its own row selection independent of the C2 unit-selection system (<see cref="SelectUnit"/>),
+        /// so this resolves the target entity directly rather than via <see cref="SelectedUnitId"/>.
+        /// </summary>
+        public bool TryIssueBoatCommand(string craftId, string commandId, out string? reason)
+        {
+            reason = null;
+            if (string.IsNullOrEmpty(craftId))
+            {
+                reason = ProjectAegis.Delegation.Input.C2CommandIssuance.ReasonNoSelection;
+                return false;
+            }
+
+            if (!TryResolveEntityKey(craftId, out var entityKey))
+            {
+                reason = ProjectAegis.Delegation.UnityAdapter.Bridge.C2PlayerCommandBridge.ReasonUnknownUnit;
+                return false;
+            }
+
+            var simTime = _lastSnapshot?.SimTime ?? 0;
+            return Bridge.TryIssuePlayerCommand(entityKey, commandId, simTime, out reason);
+        }
+
+        /// <summary>CMD-25 / LOG-09: launch the given craft (order-log path; FSM advances on next session tick).</summary>
+        public bool TryLaunchBoat(string craftId, out string? reason) =>
+            TryIssueBoatCommand(craftId, "launch_boat", out reason);
+
+        /// <summary>CMD-25 / LOG-10: recover the given craft (order-log path).</summary>
+        public bool TryRecoverBoat(string craftId, out string? reason) =>
+            TryIssueBoatCommand(craftId, "recover_boat", out reason);
+
+        /// <summary>CMD-25 / LOG-11: abort launch for the given craft (order-log path).</summary>
+        public bool TryAbortBoatLaunch(string craftId, out string? reason) =>
+            TryIssueBoatCommand(craftId, "abort_boat_launch", out reason);
+
         public void SelectUnit(string unitId)
         {
             Presentation.SelectFriendlyUnit(unitId);
@@ -246,6 +328,8 @@ namespace ProjectAegis.Unity.Runtime
             LastAgentRoster = BuildAgentRosterFromRegistry();
             // CMD-24 Phase A: additive air-ops readiness projection
             RefreshAirOps();
+            // CMD-25: additive boat-ops projection (no Tick body rewrite)
+            RefreshBoatOps();
             // CMD-24 Wave4: magazine + deck/hangar feeds (no Tick body rewrite)
             RefreshMagazineLoadout();
             RefreshDeckHangar();
@@ -267,8 +351,9 @@ namespace ProjectAegis.Unity.Runtime
         }
 
         /// <summary>
-        /// Rebuild CMD-24 Air Ops rows from Session.UnitReadiness + OOB (safe from LateUpdate).
-        /// Honest empty when no readiness map is bound.
+        /// Rebuild CMD-24 Air Ops rows from Session.AirOps lifecycle when present,
+        /// else Session.UnitReadiness + OOB (safe from LateUpdate).
+        /// Honest empty when neither lifecycle ledger nor readiness map has data.
         /// </summary>
         public void RefreshAirOps()
         {
@@ -276,6 +361,15 @@ namespace ProjectAegis.Unity.Runtime
             {
                 HasAirOpsReadinessData = false;
                 LastAirOps = Array.Empty<AirOpsEntry>();
+                return;
+            }
+
+            // LOG-08 Phase N: prefer session air-ops FSM snapshot when units are tracked.
+            var airOps = Bridge.Session.AirOps;
+            if (airOps != null && airOps.Count > 0)
+            {
+                HasAirOpsReadinessData = true;
+                LastAirOps = AirOpsProjection.ProjectLifecycle(airOps.Snapshot());
                 return;
             }
 
@@ -287,15 +381,38 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            IEnumerable<string> unitIds = LastOobTree.Count > 0
+            // Only surface units the readiness map actually tracks (real airframes) —
+            // UnitReadinessMap.IsReadyForLaunch defaults unknown ids to ready, so an
+            // unfiltered OOB/registry sweep would show surface ships as launchable.
+            IEnumerable<string> unitIds = (LastOobTree.Count > 0
                 ? LastOobTree.Select(e => e.UnitId)
                 : Bridge.Registry != null
                     ? Bridge.Registry.Bindings.Select(b => b.TargetId.Value)
-                    : Array.Empty<string>();
+                    : Array.Empty<string>())
+                .Where(id => readiness!.IsTracked(id));
 
             LastAirOps = AirOpsProjection.Project(
                 unitIds,
                 readyForLaunch: id => readiness!.IsReadyForLaunch(id));
+        }
+
+        /// <summary>
+        /// Rebuild CMD-25 Boat Ops rows from Session.BoatOps FSM ledger (safe from LateUpdate).
+        /// Honest empty when no boat-ops map is bound yet (feature only activates once a
+        /// LaunchBoat/RecoverBoat/AbortBoatLaunch order has been processed at least once).
+        /// </summary>
+        public void RefreshBoatOps()
+        {
+            var boatOps = Bridge?.Session?.BoatOps;
+            if (boatOps == null)
+            {
+                HasBoatOpsData = false;
+                LastBoatOps = Array.Empty<BoatOpsEntry>();
+                return;
+            }
+
+            HasBoatOpsData = true;
+            LastBoatOps = BoatOpsProjection.Project(boatOps.Snapshot(), boatOps.SeaStateDouglas);
         }
 
         /// <summary>
