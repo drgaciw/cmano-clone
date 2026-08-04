@@ -125,6 +125,11 @@ namespace ProjectAegis.Unity.Runtime
                     if (element is Label label && index >= 0 && index < _presentation.Lines.Count)
                     {
                         label.text = _presentation.Lines[index];
+                        // S109-02: accessible attention label (not color-only).
+                        if (index < _presentation.Rows.Count)
+                        {
+                            label.tooltip = _presentation.Rows[index].AccessibleAttentionLabel;
+                        }
                     }
                 };
                 _rosterList.selectionType = SelectionType.Single;
