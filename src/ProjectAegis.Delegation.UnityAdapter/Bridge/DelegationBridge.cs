@@ -408,24 +408,21 @@ public sealed class DelegationBridge
             return;
         }
 
-        double deltaSeconds;
-        if (_lastFuelSimTime is double previous)
-        {
-            deltaSeconds = snapshot.SimTime - previous;
-            if (deltaSeconds <= 0)
-            {
-                return;
-            }
-        }
-        else if (snapshot.SimTime > 0 && snapshot.SimTime < 1.0)
-        {
-            deltaSeconds = snapshot.SimTime;
-        }
-        else
-        {
-            deltaSeconds = 1.0;
-        }
+        // Measure from simulation epoch on the first fuel-bearing snapshot, then
+        // from the preceding sample. This supports both sub-second Play Mode and
+        // one-second replay cadence without assuming a tick rate.
+        var deltaSeconds = _lastFuelSimTime is double previous
+            ? snapshot.SimTime - previous
+            : snapshot.SimTime;
+
+        // Advance the baseline even for pause/rewind samples, preventing a later
+        // forward sample from being charged against a stale timestamp.
         _lastFuelSimTime = snapshot.SimTime;
+        if (deltaSeconds <= 0)
+        {
+            return;
+        }
+
         var drain = _fuelTimeline.Drain(simTick, snapshot.SimTime, deltaSeconds, unitIds);
         foreach (var burn in drain.Burns)
         {
