@@ -16,27 +16,21 @@
 -        var drain = _fuelTimeline.Drain(simTick, snapshot.SimTime, 1.0, unitIds);
 +        // ADR-020 Decision 1 / DRG-50: derive deltaSeconds from real elapsed sim time.
 +        // Hardcoding 1.0 over-drains ~60× under SimplePlayModeSimHost (1/60 s cadence).
-+        double deltaSeconds;
-+        if (_lastFuelSimTime is double previous)
++        // The first interval is measured from simulation epoch zero; later intervals
++        // are measured from the prior fuel snapshot. This preserves sum(deltaSeconds)
++        // == SimTime for both 1/60 Play Mode and 1 s replay cadence.
++        var deltaSeconds = _lastFuelSimTime is double previous
++            ? snapshot.SimTime - previous
++            : snapshot.SimTime;
++
++        // Always advance the baseline, including pause/rewind samples, so a later
++        // forward sample is never charged from a stale timestamp.
++        _lastFuelSimTime = snapshot.SimTime;
++        if (deltaSeconds <= 0)
 +        {
-+            deltaSeconds = snapshot.SimTime - previous;
-+            if (deltaSeconds <= 0)
-+            {
-+                return;
-+            }
-+        }
-+        else if (snapshot.SimTime > 0 && snapshot.SimTime < 1.0)
-+        {
-+            // First frame under sub-second host cadence (Play Mode).
-+            deltaSeconds = snapshot.SimTime;
-+        }
-+        else
-+        {
-+            // First tick under 1 s/call harness (BalticReplayHarness) or integer start.
-+            deltaSeconds = 1.0;
++            return;
 +        }
 +
-+        _lastFuelSimTime = snapshot.SimTime;
 +        var drain = _fuelTimeline.Drain(simTick, snapshot.SimTime, deltaSeconds, unitIds);
          foreach (var burn in drain.Burns)
          {
