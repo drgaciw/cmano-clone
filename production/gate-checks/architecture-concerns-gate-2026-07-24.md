@@ -24,18 +24,20 @@ This does **not** clear Launch. Criteria 2 (store package) and 3 (assets, 34/42 
 
 It is **not lost**. It exists on the unmerged draft branch **`stack/post-editor/s93-asset-production`** (commit `805070e`, 2026-07-14) — the branch behind **draft PR #324**, open since 2026-07-19 and tracked in Linear as **DRG-35**.
 
-### The full stranded cohort
+### The full stranded cohort (as of 2026-07-24)
 
 Every artifact dated **2026-07-14** that is cited but unresolvable traces to this same unmerged branch. Every **2026-07-15** artifact resolves fine.
 
-| Artifact | Where it actually is |
+| Artifact | Where it was on 2026-07-24 |
 |---|---|
 | `architecture-review-post-s93-2026-07-14.md` | PR #324 @ `805070e` |
 | `post-s93-concerns-remediation-closeout-2026-07-14.md` | PR #324 @ `805070e` |
-| `critical-hub-merge-playbook-2026-07-14.md` | PR #324 @ `d53da70` |
+| `critical-hub-merge-playbook-2026-07-14.md` | PR #324 @ `d53da70` (also present on `main` under `production/agentic/`) |
 | `gauntlet-stack-land-plan-2026-07-14.md` | PR #324 @ `d53da70` |
-| `release-continuity-scope-boundary-2026-07-14.md` | **Never committed anywhere** |
-| `post-s93-track-a-closeout-2026-07-14.md` | **Never committed anywhere** |
+| `release-continuity-scope-boundary-2026-07-14.md` | **Never committed anywhere** *(as of 2026-07-24)* |
+| `post-s93-track-a-closeout-2026-07-14.md` | **Never committed anywhere** *(as of 2026-07-24)* |
+
+> **Post-gate resolution (DRG-42, 2026-08-06):** The two never-committed artifacts were restored on branch `docs/drg-42-governance-artifacts` (PR #405) as rewritten reconstructions from surviving evidence. See §10.
 
 ### Why this matters beyond criterion 4
 
@@ -43,17 +45,17 @@ These are not incidental files:
 
 - **`post-s93-concerns-remediation-closeout`** is named by `future-sprint-roadmap-07142026.md` as a **primary authority for the S94+ program**.
 - **`critical-hub-merge-playbook`** is the stated **enforcement mechanism** for the CRITICAL hub constraints (`ScenarioDocumentEditor` 233, `CatalogWriteGate` 186, `DelegationBridge` 142). It is cited by 8 documents including three sprint plans. The *constraints* are independently documented in `architecture.md` and the re-matrix, so the rules survive — but the playbook that operationalizes them does not resolve on `main`.
-- **`release-continuity-scope-boundary-2026-07-14.md`** is a **scope boundary** — this repo's core governance instrument — and was never committed at all.
+- **`release-continuity-scope-boundary-2026-07-14.md`** is a **scope boundary** — this repo's core governance instrument — and was never committed at all *(as of 2026-07-24)*.
 
 A verdict whose authority cannot be resolved from `main` is unauditable by anyone working from `main`. That is the root cause of criterion 4 sitting open, and it is a **process defect, not a documentation defect**: work was declared complete while its artifacts stayed on an unmerged draft.
 
-### Resolution
+### Resolution (2026-07-24 plan)
 
 1. **Immediate:** `architecture-re-matrix-post-s93-s96-2026-07-15.md` is the operative authority on `main`. Its layer verdicts were checked against the stranded review (§3) and **match**.
 2. **Proper fix:** merge **PR #324 / DRG-35**, which restores four of the six artifacts.
 3. **Remaining:** the two never-committed artifacts must be rewritten or their citations retired.
 
-Dated snapshots and historical plans were deliberately **not** modified — rewriting them would falsify the record of what was believed at the time.
+Dated snapshots and historical plans were deliberately **not** modified at gate time — rewriting them would falsify the record of what was believed at the time.
 
 ---
 
@@ -153,10 +155,10 @@ No source files, tests, or scenario data touched. Standing invariants unaffected
 
 ---
 
-## 8. Residual risk
+## 8. Residual risk (2026-07-24)
 
 - **PR #324 remains unmerged.** Until it lands, four cited governance artifacts — including the S94+ primary authority and the CRITICAL-hub merge playbook — do not resolve from `main`. Tracked as **DRG-35**. This is the highest-value follow-up from this gate.
-- **Two artifacts were never committed** (`release-continuity-scope-boundary-2026-07-14.md`, `post-s93-track-a-closeout-2026-07-14.md`). A scope boundary that does not exist cannot bound anything; either write them or retire the citations.
+- **Two artifacts were never committed** *(as of 2026-07-24)* (`release-continuity-scope-boundary-2026-07-14.md`, `post-s93-track-a-closeout-2026-07-14.md`). A scope boundary that does not exist cannot bound anything; either write them or retire the citations. **→ Resolved by DRG-42 / PR #405 — see §10.**
 - **The 47 requirement-coverage rows are stale** and now marked as such. Anyone citing coverage percentages must re-assess first.
 - **Systems-index is ~12/20 GDD-linked** per the recovered review — folded into the deferred item 4c.
 - **GitNexus remains non-functional** (MCP connection closed; CLI Node version mismatch; index stale at `c2b1611`). Not blocking for this docs-only gate, but blocking for any Launch-program code work.
@@ -180,4 +182,20 @@ Per repo gate protocol, the verdict change takes effect on human acknowledgement
 
 ---
 
+## 10. Post-gate resolution — DRG-42 (2026-08-06)
+
+Linear **DRG-42** restored the two never-committed 2026-07-14 artifacts as reconstructed files on `main` via PR **#405**:
+
+| Artifact | Path on tip |
+|---|---|
+| Release Continuity scope boundary | `production/release-continuity-scope-boundary-2026-07-14.md` |
+| Track A (gauntlet land) closeout | `production/gate-checks/post-s93-track-a-closeout-2026-07-14.md` |
+
+Content was rewritten from surviving evidence (`post-s93-concerns-remediation-closeout`, roadmap 0714, land narratives). Dedicated binary evidence logs remain an **open honesty gap** (called out in the Track A closeout); the parent closeout is the authoritative narrative for measured suite results.
+
+**Audit invariant:** this gate document must not claim those two paths are still "never committed" after #405 lands. Historical §2/§8 wording is preserved with *as-of* qualifiers; this section is the current disposition.
+
+---
+
 *DRG-41 remediation, 2026-07-24. Docs only; stage remains Release.*
+*DRG-42 audit-loop closeout addendum, 2026-08-06.*
