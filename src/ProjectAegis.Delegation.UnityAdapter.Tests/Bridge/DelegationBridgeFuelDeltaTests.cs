@@ -68,6 +68,67 @@ public sealed class DelegationBridgeFuelDeltaTests
         Assert.That(first.NewState, Is.EqualTo("JOKER"));
     }
 
+    // Positive counterpart to the sub-second test above: a fix that simply stopped
+    // draining fuel would satisfy an "Is.Empty" assertion, so pin the sim-time at
+    // which the band actually flips. Analytic threshold is 7500 kg / 80 kg/s = 93.75 s,
+    // and at 1/60 cadence the first qualifying sample lands within one tick of it.
+    [Test]
+    public void Band_transition_fires_at_the_same_simTime_under_subSecond_cadence()
+    {
+        const double cadence = 1.0 / 60.0;
+        const int ticks = 5700; // 95 sim-seconds
+
+        var bridge = new DelegationBridge(7, mvpEngagement: false, scenarioPolicyId: "baltic-patrol-comms");
+        bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
+        bridge.BeginExecution();
+
+        var sink = new NullOrderSink();
+        for (int i = 1; i <= ticks; i++)
+        {
+            bridge.Tick(new SimWorldSnapshotStub(simTime: i * cadence), sink);
+        }
+
+        var changes = bridge.Orchestrator.DecisionLog.FuelStateChanges;
+        Assert.That(changes, Has.Count.GreaterThanOrEqualTo(1), "JOKER must fire within 95 sim-seconds");
+        Assert.That(changes[0].NewState, Is.EqualTo("JOKER"));
+        Assert.That(
+            changes[0].SimTime,
+            Is.EqualTo(93.75).Within(2.0 * cadence),
+            "Band transition sim-time must be cadence-independent, not call-count driven");
+    }
+
+    // Guards the epoch fallback: units that register after the sim has been running
+    // must be charged only from the moment they exist, never for the whole [0, N] gap.
+    [Test]
+    public void Unit_registered_after_sim_start_is_not_retro_charged_from_epoch()
+    {
+        const double cadence = 1.0;
+
+        var bridge = new DelegationBridge(7, mvpEngagement: false, scenarioPolicyId: "baltic-patrol-comms");
+        bridge.BeginExecution();
+
+        var sink = new NullOrderSink();
+
+        // 200 sim-seconds with an empty registry. Retro-charging this gap would burn
+        // 16 000 kg against a 10 000 kg tank and flip straight to BINGO.
+        for (int i = 1; i <= 200; i++)
+        {
+            bridge.Tick(new SimWorldSnapshotStub(simTime: i * cadence), sink);
+        }
+
+        bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
+
+        for (int i = 201; i <= 210; i++)
+        {
+            bridge.Tick(new SimWorldSnapshotStub(simTime: i * cadence), sink);
+        }
+
+        Assert.That(
+            bridge.Orchestrator.DecisionLog.FuelStateChanges,
+            Is.Empty,
+            "Only 10 sim-seconds of burn have elapsed for this unit; no band transition is due");
+    }
+
     private sealed class NullOrderSink : IOrderSink
     {
         public void ApplyOrder(EntityKey entity, in Order order) { }
