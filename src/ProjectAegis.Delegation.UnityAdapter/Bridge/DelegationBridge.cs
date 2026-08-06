@@ -401,13 +401,6 @@ public sealed class DelegationBridge
             return;
         }
 
-        var simTick = (ulong)Math.Max(0, (long)snapshot.SimTime);
-        var unitIds = Registry.CollectMemberIds();
-        if (unitIds.Count == 0)
-        {
-            return;
-        }
-
         // Measure from simulation epoch on the first fuel-bearing snapshot, then
         // from the preceding sample. This supports both sub-second Play Mode and
         // one-second replay cadence without assuming a tick rate.
@@ -415,14 +408,24 @@ public sealed class DelegationBridge
             ? snapshot.SimTime - previous
             : snapshot.SimTime;
 
-        // Advance the baseline even for pause/rewind samples, preventing a later
-        // forward sample from being charged against a stale timestamp.
+        // Advance the baseline on EVERY snapshot the tracker sees — including
+        // pause/rewind samples and ticks with an empty registry — so that a later
+        // forward sample is never charged against a stale timestamp. Advancing this
+        // before the empty-registry guard is what prevents a unit registered at
+        // t = N from being retro-charged for the whole [0, N] interval it did not exist.
         _lastFuelSimTime = snapshot.SimTime;
         if (deltaSeconds <= 0)
         {
             return;
         }
 
+        var unitIds = Registry.CollectMemberIds();
+        if (unitIds.Count == 0)
+        {
+            return;
+        }
+
+        var simTick = (ulong)Math.Max(0, (long)snapshot.SimTime);
         var drain = _fuelTimeline.Drain(simTick, snapshot.SimTime, deltaSeconds, unitIds);
         foreach (var burn in drain.Burns)
         {
