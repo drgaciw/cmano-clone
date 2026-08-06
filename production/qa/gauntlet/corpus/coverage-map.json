@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-31",
-  "source": "bootstrap + blindspot-close scenarios 2026-07-31",
-  "cellCount": 49,
-  "scenarioCount": 49,
+  "generatedAt": "2026-08-06",
+  "source": "bootstrap + blindspot-close scenarios 2026-07-31 + gauntlet-t2-shotgun-salvo-deny (DRG-59 CI green)",
+  "cellCount": 50,
+  "scenarioCount": 50,
   "cells": [
     {
       "key": "strike|air,subsurface,surface|WeaponsTight/WeaponsFree|emcon-phases|none",
@@ -730,6 +730,20 @@
       "intentHash": "7c85a9f248986561",
       "scenarioId": "gauntlet-t2-ordnance-shotgun-winchester",
       "tier": 2
+    },
+    {
+      "key": "multi|surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "missionClass": "multi",
+      "domains": [
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "intentHash": "618506b2e42a9f80",
+      "scenarioId": "gauntlet-t2-shotgun-salvo-deny",
+      "tier": 2
     }
   ],
   "counts": {
@@ -813,7 +827,7 @@
       "skr-admiral-sergey-gorshkov-pr-2235-0": 7,
       "jas-39d-gripen-2005": 6,
       "mig-29-fulcrum-c-1999": 5,
-      "a-17-s\u00f6dermanland-vastergotland-mod": 5,
+      "a-17-södermanland-vastergotland-mod": 5,
       "su-33-flanker-d": 4,
       "su-27sm-sm3-flanker-j-2013": 4,
       "ka-27m-helix-a": 4,
