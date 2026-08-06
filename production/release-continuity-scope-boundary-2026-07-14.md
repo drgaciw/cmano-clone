@@ -23,8 +23,10 @@
 - ReplayGolden **6/6**
 - Play Mode / C2 smoke ≥ **20/20**
 - Baltic production hash **`17144800277401907079`** unless ADR authorizes change
-- **ZERO** `DelegationBridge` hotpath edits except ADR-gated, impact-analyzed exceptions (e.g. ADR-020 / DRG-50)
+- **ZERO** `DelegationBridge` hotpath edits (hard invariant — see AGENTS.md and critical-hub merge playbook)
 - `CatalogWriteGate` **extend-only**
+
+> **Note on ADR-020 / DRG-50:** The fuel cadence contract is recorded in ADR-020. Any `DelegationBridge` change remains a **separate, impact-analyzed exception** under the critical-hub playbook — this boundary does **not** waive the ZERO-hotpath rule.
 
 ---
 
@@ -37,6 +39,7 @@
 - Hash change without ADR
 - Addressables bulk import (design spike only if explicitly scoped)
 - Editor PNG pack (requires Unity Editor host)
+- Unreviewed `DelegationBridge` hotpath edits
 
 ---
 
@@ -51,4 +54,4 @@
 
 ---
 
-*Restored under Linear DRG-42 — 2026-08-06.*
+*Restored under Linear DRG-42 — 2026-08-06; review amendments 2026-08-06.*
