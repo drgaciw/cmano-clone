@@ -27,6 +27,8 @@ public sealed class DelegationBridge
     private readonly CommsTimelineSimulator? _commsTimeline;
     private readonly SpoofTrackTimelineSimulator? _spoofTimeline;
     private readonly FuelTimelineTracker? _fuelTimeline;
+    /// <summary>Prior tick SimTime for ADR-020 / DRG-50 fuel deltaSeconds (never assume 1.0 cadence).</summary>
+    private double? _lastFuelSimTime;
 
     public DelegationBridge(
         int globalSeed,
@@ -406,7 +408,25 @@ public sealed class DelegationBridge
             return;
         }
 
-        var drain = _fuelTimeline.Drain(simTick, snapshot.SimTime, 1.0, unitIds);
+        double deltaSeconds;
+        if (_lastFuelSimTime is double previous)
+        {
+            deltaSeconds = snapshot.SimTime - previous;
+            if (deltaSeconds <= 0)
+            {
+                return;
+            }
+        }
+        else if (snapshot.SimTime > 0 && snapshot.SimTime < 1.0)
+        {
+            deltaSeconds = snapshot.SimTime;
+        }
+        else
+        {
+            deltaSeconds = 1.0;
+        }
+        _lastFuelSimTime = snapshot.SimTime;
+        var drain = _fuelTimeline.Drain(simTick, snapshot.SimTime, deltaSeconds, unitIds);
         foreach (var burn in drain.Burns)
         {
             Orchestrator.DecisionLog.AppendFuelBurn(burn);
