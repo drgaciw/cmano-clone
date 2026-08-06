@@ -19,7 +19,7 @@
 
 **Standing floors (carry from post-S93 land):**
 
-- Solution tests ≥ measured floor / 0 failed (floor raised post-gauntlet; verify current tip)
+- Solution tests **≥1638 / 0 failed** (post-S95 gauntlet-land floor; prior ≥1599 — canonical source is `AGENTS.md` §Test baseline, monotonic, never regress)
 - ReplayGolden **6/6**
 - Play Mode / C2 smoke ≥ **20/20**
 - Baltic production hash **`17144800277401907079`** unless ADR authorizes change
