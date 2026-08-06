@@ -5,6 +5,7 @@
 **Parent gate:** [`commercial-launch-execution-gate-2026-07-24.md`](commercial-launch-execution-gate-2026-07-24.md) §5
 **Scope:** documentation only — no source files changed
 **Stage:** **Release** — unchanged by this gate
+**Amended:** 2026-08-06 (DRG-42) — §Where-they-are table and §8 residual risk updated to reflect the two restored artifacts. Original findings preserved; no verdict changed.
 
 ---
 
@@ -34,8 +35,8 @@ Every artifact dated **2026-07-14** that is cited but unresolvable traces to thi
 | `post-s93-concerns-remediation-closeout-2026-07-14.md` | PR #324 @ `805070e` |
 | `critical-hub-merge-playbook-2026-07-14.md` | PR #324 @ `d53da70` (also present on `main` under `production/agentic/`) |
 | `gauntlet-stack-land-plan-2026-07-14.md` | PR #324 @ `d53da70` |
-| `release-continuity-scope-boundary-2026-07-14.md` | **Never committed anywhere** *(as of 2026-07-24)* |
-| `post-s93-track-a-closeout-2026-07-14.md` | **Never committed anywhere** *(as of 2026-07-24)* |
+| `release-continuity-scope-boundary-2026-07-14.md` | Never committed anywhere — **restored 2026-08-06 under DRG-42** at `production/release-continuity-scope-boundary-2026-07-14.md` |
+| `post-s93-track-a-closeout-2026-07-14.md` | Never committed anywhere — **restored 2026-08-06 under DRG-42** at `production/gate-checks/post-s93-track-a-closeout-2026-07-14.md` |
 
 > **Post-gate resolution (DRG-42, 2026-08-06):** The two never-committed artifacts were restored on branch `docs/drg-42-governance-artifacts` (PR #405) as rewritten reconstructions from surviving evidence. See §10.
 
@@ -45,7 +46,7 @@ These are not incidental files:
 
 - **`post-s93-concerns-remediation-closeout`** is named by `future-sprint-roadmap-07142026.md` as a **primary authority for the S94+ program**.
 - **`critical-hub-merge-playbook`** is the stated **enforcement mechanism** for the CRITICAL hub constraints (`ScenarioDocumentEditor` 233, `CatalogWriteGate` 186, `DelegationBridge` 142). It is cited by 8 documents including three sprint plans. The *constraints* are independently documented in `architecture.md` and the re-matrix, so the rules survive — but the playbook that operationalizes them does not resolve on `main`.
-- **`release-continuity-scope-boundary-2026-07-14.md`** is a **scope boundary** — this repo's core governance instrument — and was never committed at all *(as of 2026-07-24)*.
+- **`release-continuity-scope-boundary-2026-07-14.md`** is a **scope boundary** — this repo's core governance instrument — and was never committed at all. *(DRG-42, 2026-08-06: rewritten from surviving evidence and committed; it now bounds S94–S97 as intended.)*
 
 A verdict whose authority cannot be resolved from `main` is unauditable by anyone working from `main`. That is the root cause of criterion 4 sitting open, and it is a **process defect, not a documentation defect**: work was declared complete while its artifacts stayed on an unmerged draft.
 
@@ -158,7 +159,7 @@ No source files, tests, or scenario data touched. Standing invariants unaffected
 ## 8. Residual risk (2026-07-24)
 
 - **PR #324 remains unmerged.** Until it lands, four cited governance artifacts — including the S94+ primary authority and the CRITICAL-hub merge playbook — do not resolve from `main`. Tracked as **DRG-35**. This is the highest-value follow-up from this gate.
-- **Two artifacts were never committed** *(as of 2026-07-24)* (`release-continuity-scope-boundary-2026-07-14.md`, `post-s93-track-a-closeout-2026-07-14.md`). A scope boundary that does not exist cannot bound anything; either write them or retire the citations. **→ Resolved by DRG-42 / PR #405 — see §10.**
+- ~~**Two artifacts were never committed** (`release-continuity-scope-boundary-2026-07-14.md`, `post-s93-track-a-closeout-2026-07-14.md`). A scope boundary that does not exist cannot bound anything; either write them or retire the citations.~~ **Closed 2026-08-06 (DRG-42)** — both rewritten from surviving evidence and committed. The Track A closeout carries one honest open gap: the dedicated evidence logs (`production/qa/evidence/gitnexus-gauntlet-land-pre-2026-07-14.log`, `…/gates-gauntlet-land-post-2026-07-14.log`) were never committed and are not reconstructable; the parent closeout remains the authoritative narrative. See also §10.
 - **The 47 requirement-coverage rows are stale** and now marked as such. Anyone citing coverage percentages must re-assess first.
 - **Systems-index is ~12/20 GDD-linked** per the recovered review — folded into the deferred item 4c.
 - **GitNexus remains non-functional** (MCP connection closed; CLI Node version mismatch; index stale at `c2b1611`). Not blocking for this docs-only gate, but blocking for any Launch-program code work.
