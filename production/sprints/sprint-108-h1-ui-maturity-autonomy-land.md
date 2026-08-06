@@ -21,7 +21,7 @@ Land the open **C2 / UI Maturity / autonomy** stack onto `main` with serial merg
 | S108-02 | Land DRG-66 (#388) | CI green; human merge; QueueForApproval no longer drops |
 | S108-03 | Land UI Maturity base (#382 + #390) | CMD-31…37 on main; suite floor held |
 | S108-04 | Land Waves 2→6 | #383 → #384 → #385 → #386 → #387 serial |
-| S108-05 | Suite floor | ≥1638/0f; Replay 6/6; ZERO DelegationBridge Tick rewrite |
+| S108-05 | Suite floor | ≥1638/0f; Replay 6/6; preserve Baltic production hash `17144800277401907079`; ZERO DelegationBridge Tick rewrite |
 | S108-06 | Closeout | smoke-sprint-108 + Linear H1 / DRG-66 update |
 
 ## Should Have
