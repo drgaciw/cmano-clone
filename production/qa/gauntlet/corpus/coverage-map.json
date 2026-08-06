@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "generatedAt": "2026-07-31",
-  "source": "bootstrap + blindspot-close scenarios 2026-07-31",
-  "cellCount": 49,
-  "scenarioCount": 49,
+  "generatedAt": "2026-08-06",
+  "source": "regenerated keys/intentHash from data/scenarios/gauntlet-*.policy.json via forge_scorecard.infer_cell (DRG-59)",
+  "cellCount": 50,
+  "scenarioCount": 50,
   "cells": [
     {
       "key": "strike|air,subsurface,surface|WeaponsTight/WeaponsFree|emcon-phases|none",
@@ -18,7 +18,8 @@
       "eventClass": "none",
       "intentHash": "ee6d2a756edea289",
       "scenarioId": "gauntlet-20260727-1455-t3-s1",
-      "tier": null
+      "tier": null,
+      "stressAxes": "ew:off|logistics:off|weapons:moderate"
     },
     {
       "key": "strike|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|none",
@@ -33,7 +34,8 @@
       "eventClass": "none",
       "intentHash": "84bedabfa5d81570",
       "scenarioId": "gauntlet-20260727-1455-t3-s2",
-      "tier": null
+      "tier": null,
+      "stressAxes": "ew:off|logistics:off|weapons:moderate"
     },
     {
       "key": "strike|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|event-chain",
@@ -48,7 +50,8 @@
       "eventClass": "event-chain",
       "intentHash": "fd15ce2d4a04f265",
       "scenarioId": "gauntlet-20260727-1455-t3-s3",
-      "tier": null
+      "tier": null,
+      "stressAxes": "ew:off|logistics:off|weapons:moderate"
     },
     {
       "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -64,7 +67,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 30,
-      "intentHash": "2530489762d3eb2b"
+      "intentHash": "2530489762d3eb2b",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "patrol|surface|WeaponsFree/WeaponsFree|emcon-phases|none",
@@ -77,7 +81,8 @@
       "eventClass": "none",
       "intentHash": "f48f35097f509a54",
       "scenarioId": "gauntlet-20260727-1455-t1-s1",
-      "tier": 1
+      "tier": 1,
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "patrol|surface|WeaponsFree/WeaponsFree|emcon-phases|none",
@@ -90,7 +95,8 @@
       "eventClass": "none",
       "intentHash": "75905438a3cb99d7",
       "scenarioId": "gauntlet-20260727-1455-t1-s2",
-      "tier": 1
+      "tier": 1,
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "patrol|surface|WeaponsFree/WeaponsFree|emcon-phases|none",
@@ -103,7 +109,8 @@
       "eventClass": "none",
       "intentHash": "e18093e63742642d",
       "scenarioId": "gauntlet-20260727-1455-t1-s3",
-      "tier": 1
+      "tier": 1,
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "patrol|surface|WeaponsFree/WeaponsFree|emcon-phases|none",
@@ -116,7 +123,8 @@
       "eventClass": "none",
       "intentHash": "081d0b4bd2d2c0e7",
       "scenarioId": "gauntlet-20260727-1455-t1-s4",
-      "tier": 1
+      "tier": 1,
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "patrol|surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -130,7 +138,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 26,
-      "intentHash": "4e62893e6da08397"
+      "intentHash": "4e62893e6da08397",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "patrol|surface|WeaponsFree/WeaponsFree|unrestricted|none",
@@ -144,7 +153,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 27,
-      "intentHash": "acf5c6098219ccbe"
+      "intentHash": "acf5c6098219ccbe",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "patrol|surface|WeaponsTight/WeaponsFree|unrestricted|none",
@@ -158,7 +168,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 25,
-      "intentHash": "661f4a308d704474"
+      "intentHash": "661f4a308d704474",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "patrol|surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -172,7 +183,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 25,
-      "intentHash": "34b156bb45d8762a"
+      "intentHash": "34b156bb45d8762a",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "strike|air,surface|WeaponsTight/WeaponsFree|emcon-phases|event-chain",
@@ -186,7 +198,8 @@
       "eventClass": "event-chain",
       "intentHash": "d553fffff312dd39",
       "scenarioId": "gauntlet-20260727-1455-t2-s1",
-      "tier": 2
+      "tier": 2,
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "escort|air,surface|WeaponsFree/WeaponsTight|emcon-phases|event-chain",
@@ -200,7 +213,8 @@
       "eventClass": "event-chain",
       "intentHash": "e746662632fb3b1b",
       "scenarioId": "gauntlet-20260727-1455-t2-s2",
-      "tier": 2
+      "tier": 2,
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "strike|air,surface|WeaponsTight/WeaponsFree|emcon-phases|event-chain",
@@ -214,7 +228,8 @@
       "eventClass": "event-chain",
       "intentHash": "381d969842d274c2",
       "scenarioId": "gauntlet-20260727-1455-t2-s3",
-      "tier": 2
+      "tier": 2,
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "escort|air,surface|WeaponsFree/WeaponsTight|emcon-phases|event-chain",
@@ -228,7 +243,8 @@
       "eventClass": "event-chain",
       "intentHash": "c39057f3c8eedd3d",
       "scenarioId": "gauntlet-20260727-1455-t2-s4",
-      "tier": 2
+      "tier": 2,
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "emcon|air,surface|WeaponsFree/WeaponsFree|emcon-phases|none",
@@ -242,7 +258,8 @@
       "eventClass": "none",
       "intentHash": "a11b23d55e0d307c",
       "scenarioId": "gauntlet-forge-20260727-1455-t2-c1",
-      "tier": 2
+      "tier": 2,
+      "stressAxes": "ew:off|logistics:off|weapons:moderate"
     },
     {
       "key": "emcon|air,surface|WeaponsFree/WeaponsFree|emcon-phases|none",
@@ -256,7 +273,8 @@
       "eventClass": "none",
       "intentHash": "cd82909def75dc9f",
       "scenarioId": "gauntlet-forge-20260727-1455-t2-c2",
-      "tier": 2
+      "tier": 2,
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "unknown|air,surface|WeaponsTight/WeaponsFree|unrestricted|none",
@@ -270,7 +288,8 @@
       "eventClass": "none",
       "intentHash": "3cd7e879041977b0",
       "scenarioId": "gauntlet-forge-20260727-1455-t2-c3",
-      "tier": 2
+      "tier": 2,
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "strike|air,surface|WeaponsFree/WeaponsTight|emcon-phases|event-chain",
@@ -284,7 +303,8 @@
       "eventClass": "event-chain",
       "intentHash": "adff4ef227754d10",
       "scenarioId": "gauntlet-forge-20260727-1455-t2-c4",
-      "tier": 2
+      "tier": 2,
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "escort|air,surface|WeaponsFree/WeaponsFree|unrestricted|none",
@@ -299,7 +319,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 31,
-      "intentHash": "187f2ef634d4bd51"
+      "intentHash": "187f2ef634d4bd51",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "escort|air,surface|WeaponsTight/WeaponsFree|emcon-phases|none",
@@ -314,7 +335,8 @@
       "emconClass": "emcon-phases",
       "eventClass": "none",
       "catalogRefCount": 33,
-      "intentHash": "ed18718c398e587a"
+      "intentHash": "58df2deafc62de60",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "strike|air,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -329,7 +351,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 34,
-      "intentHash": "5661bbafab44d3fe"
+      "intentHash": "5661bbafab44d3fe",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "strike|air,surface|WeaponsFree/WeaponsTight|unrestricted|inject",
@@ -344,7 +367,8 @@
       "emconClass": "unrestricted",
       "eventClass": "inject",
       "catalogRefCount": 31,
-      "intentHash": "ea48d5e919cd041e"
+      "intentHash": "ea48d5e919cd041e",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "strike|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -359,7 +383,8 @@
       "eventClass": "none",
       "intentHash": "c5d595323c69ca0c",
       "scenarioId": "gauntlet-20260727-1455-t3-s4",
-      "tier": 3
+      "tier": 3,
+      "stressAxes": "ew:off|logistics:off|weapons:moderate"
     },
     {
       "key": "strike|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -374,7 +399,8 @@
       "eventClass": "none",
       "intentHash": "478effd62b4319eb",
       "scenarioId": "gauntlet-20260727-1455-t3-s5",
-      "tier": 3
+      "tier": 3,
+      "stressAxes": "ew:extreme|logistics:off|weapons:off"
     },
     {
       "key": "strike|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -389,7 +415,8 @@
       "eventClass": "none",
       "intentHash": "478effd62b4319eb",
       "scenarioId": "gauntlet-20260727-1455-t3-s5-control",
-      "tier": 3
+      "tier": 3,
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "strike|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -404,7 +431,8 @@
       "eventClass": "none",
       "intentHash": "a39b1ea7fe92a49a",
       "scenarioId": "gauntlet-20260727-1455-t3-s6",
-      "tier": 3
+      "tier": 3,
+      "stressAxes": "ew:off|logistics:moderate|weapons:off"
     },
     {
       "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -420,7 +448,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 31,
-      "intentHash": "b057dcce8607a843"
+      "intentHash": "b057dcce8607a843",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|emcon-phases|none",
@@ -436,7 +465,8 @@
       "emconClass": "emcon-phases",
       "eventClass": "none",
       "catalogRefCount": 39,
-      "intentHash": "99b4b8b07bc6534e"
+      "intentHash": "87f9d39c26fb623f",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "strike|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -452,7 +482,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 41,
-      "intentHash": "5380764280b7313c"
+      "intentHash": "5380764280b7313c",
+      "stressAxes": "ew:off|logistics:off|weapons:moderate"
     },
     {
       "key": "event-chain|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|event-chain",
@@ -468,7 +499,8 @@
       "emconClass": "unrestricted",
       "eventClass": "event-chain",
       "catalogRefCount": 38,
-      "intentHash": "ccc097fd18a6ff2f"
+      "intentHash": "ccc097fd18a6ff2f",
+      "stressAxes": "ew:off|logistics:off|weapons:moderate"
     },
     {
       "key": "id-roe|air,subsurface,surface|WeaponsTight/WeaponsTight|unrestricted|none",
@@ -484,7 +516,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 40,
-      "intentHash": "e911eebfe3452930"
+      "intentHash": "e911eebfe3452930",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -500,7 +533,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 43,
-      "intentHash": "78fd6f9758d87311"
+      "intentHash": "78fd6f9758d87311",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "asw|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -516,7 +550,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 41,
-      "intentHash": "8bfb44732c093bc2"
+      "intentHash": "8bfb44732c093bc2",
+      "stressAxes": "ew:off|logistics:off|weapons:moderate"
     },
     {
       "key": "inject|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|inject",
@@ -532,7 +567,8 @@
       "emconClass": "unrestricted",
       "eventClass": "inject",
       "catalogRefCount": 40,
-      "intentHash": "79bdb0ba287dfda0"
+      "intentHash": "79bdb0ba287dfda0",
+      "stressAxes": "ew:off|logistics:off|weapons:moderate"
     },
     {
       "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -548,7 +584,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 43,
-      "intentHash": "0af65022415cf685"
+      "intentHash": "0af65022415cf685",
+      "stressAxes": "ew:off|logistics:off|weapons:moderate"
     },
     {
       "key": "theater|surface|WeaponsFree/WeaponsTight|unrestricted|inject",
@@ -562,7 +599,8 @@
       "emconClass": "unrestricted",
       "eventClass": "inject",
       "catalogRefCount": 23,
-      "intentHash": "2f94cabee44ca9da"
+      "intentHash": "2f94cabee44ca9da",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "cascade|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|cascade",
@@ -578,7 +616,8 @@
       "emconClass": "unrestricted",
       "eventClass": "cascade",
       "catalogRefCount": 41,
-      "intentHash": "d473d139baefc177"
+      "intentHash": "d473d139baefc177",
+      "stressAxes": "ew:off|logistics:off|weapons:moderate"
     },
     {
       "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|dynamic-obj",
@@ -594,10 +633,11 @@
       "emconClass": "unrestricted",
       "eventClass": "dynamic-obj",
       "catalogRefCount": 42,
-      "intentHash": "b4c8fa21bbe9c2e6"
+      "intentHash": "b4c8fa21bbe9c2e6",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
-      "key": "roe-change|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|roe-change",
+      "key": "roe-change|air,subsurface,surface|WeaponsTight/WeaponsFree|emcon-phases|roe-change",
       "scenarioId": "gauntlet-t5-roe-change",
       "tier": 5,
       "missionClass": "roe-change",
@@ -607,10 +647,11 @@
         "surface"
       ],
       "roePair": "WeaponsTight/WeaponsFree",
-      "emconClass": "unrestricted",
+      "emconClass": "emcon-phases",
       "eventClass": "roe-change",
       "catalogRefCount": 42,
-      "intentHash": "d76e156a2024a1c4"
+      "intentHash": "7d279afb9ccfe6d3",
+      "stressAxes": "ew:off|logistics:off|weapons:moderate"
     },
     {
       "key": "theater|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -626,7 +667,8 @@
       "emconClass": "unrestricted",
       "eventClass": "none",
       "catalogRefCount": 43,
-      "intentHash": "c8a47fe17e70ad0c"
+      "intentHash": "c8a47fe17e70ad0c",
+      "stressAxes": "ew:off|logistics:off|weapons:moderate"
     },
     {
       "key": "theater|surface|WeaponsFree/WeaponsTight|unrestricted|dynamic-obj",
@@ -640,7 +682,8 @@
       "emconClass": "unrestricted",
       "eventClass": "dynamic-obj",
       "catalogRefCount": 25,
-      "intentHash": "9be44983c7c51059"
+      "intentHash": "9be44983c7c51059",
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "strike|air,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -713,7 +756,7 @@
       "roePair": "WeaponsFree/WeaponsTight",
       "emconClass": "unrestricted",
       "eventClass": "none",
-      "intentHash": "f9826c45da00f970",
+      "intentHash": "7ccb31dd700b2ec1",
       "scenarioId": "gauntlet-t3-logistics-joker-bingo",
       "tier": 3
     },
@@ -727,8 +770,22 @@
       "roePair": "WeaponsFree/WeaponsTight",
       "emconClass": "unrestricted",
       "eventClass": "none",
-      "intentHash": "7c85a9f248986561",
+      "intentHash": "885a5941b9fd3c8f",
       "scenarioId": "gauntlet-t2-ordnance-shotgun-winchester",
+      "tier": 2
+    },
+    {
+      "key": "multi|surface|WeaponsFree/WeaponsTight|unrestricted|none",
+      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "missionClass": "multi",
+      "domains": [
+        "surface"
+      ],
+      "roePair": "WeaponsFree/WeaponsTight",
+      "emconClass": "unrestricted",
+      "eventClass": "none",
+      "intentHash": "618506b2e42a9f80",
+      "scenarioId": "gauntlet-t2-shotgun-salvo-deny",
       "tier": 2
     }
   ],
@@ -813,7 +870,7 @@
       "skr-admiral-sergey-gorshkov-pr-2235-0": 7,
       "jas-39d-gripen-2005": 6,
       "mig-29-fulcrum-c-1999": 5,
-      "a-17-s\u00f6dermanland-vastergotland-mod": 5,
+      "a-17-södermanland-vastergotland-mod": 5,
       "su-33-flanker-d": 4,
       "su-27sm-sm3-flanker-j-2013": 4,
       "ka-27m-helix-a": 4,
