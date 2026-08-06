@@ -1,0 +1,43 @@
+--- a/src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs
++++ b/src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs
+@@ -27,6 +27,8 @@
+     private readonly CommsTimelineSimulator? _commsTimeline;
+     private readonly SpoofTrackTimelineSimulator? _spoofTimeline;
+     private readonly FuelTimelineTracker? _fuelTimeline;
++    /// <summary>Prior tick SimTime for ADR-020 / DRG-50 fuel deltaSeconds (never assume 1.0 cadence).</summary>
++    private double? _lastFuelSimTime;
+ 
+     public DelegationBridge(
+         int globalSeed,
+@@ -406,7 +408,30 @@
+             return;
+         }
+ 
+-        var drain = _fuelTimeline.Drain(simTick, snapshot.SimTime, 1.0, unitIds);
++        // ADR-020 Decision 1 / DRG-50: derive deltaSeconds from real elapsed sim time.
++        // Hardcoding 1.0 over-drains ~60× under SimplePlayModeSimHost (1/60 s cadence).
++        double deltaSeconds;
++        if (_lastFuelSimTime is double previous)
++        {
++            deltaSeconds = snapshot.SimTime - previous;
++            if (deltaSeconds <= 0)
++            {
++                return;
++            }
++        }
++        else if (snapshot.SimTime > 0 && snapshot.SimTime < 1.0)
++        {
++            // First frame under sub-second host cadence (Play Mode).
++            deltaSeconds = snapshot.SimTime;
++        }
++        else
++        {
++            // First tick under 1 s/call harness (BalticReplayHarness) or integer start.
++            deltaSeconds = 1.0;
++        }
++
++        _lastFuelSimTime = snapshot.SimTime;
++        var drain = _fuelTimeline.Drain(simTick, snapshot.SimTime, deltaSeconds, unitIds);
+         foreach (var burn in drain.Burns)
+         {
+             Orchestrator.DecisionLog.AppendFuelBurn(burn);
