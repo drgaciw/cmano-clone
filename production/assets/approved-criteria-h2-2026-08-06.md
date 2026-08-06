@@ -2,13 +2,13 @@
 
 **Status:** Proposed 2026-08-06 (unblocks Linear **DRG-40** Launch criterion 3)
 **Stage:** Release (does not advance Launch)
-**Authority:** `production/release-continuity-scope-boundary-2026-07-14.md` (S94 asset wave), `design/assets/asset-manifest.md`
+**Authority:** `design/assets/approved-criteria-2026-07-14.md`, `design/assets/asset-manifest.md`
 
 ---
 
 ## Why this exists
 
-Launch criterion 3 (DRG-40) cannot be assessed while **Approved = 0** and "Approved" is undefined. This document defines **Approved** so production can move Specced / In Production / Done → Approved without inventing store-submission claims.
+Launch criterion 3 (DRG-40) needs an explicit, auditable approval definition. This document aligns the status gate with the existing asset-approval policy so production can move Specced / In Production / Done → Approved without inventing store-submission claims.
 
 ---
 
@@ -31,7 +31,7 @@ Launch criterion 3 (DRG-40) cannot be assessed while **Approved = 0** and "Appro
 3. **Import path** — Unity import / Addressables load path verified **or** marked N/A for pure docs/audio stubs with host unavailable.
 4. **No blocking defect** — No open High/Urgent Linear bug linked to this asset ID.
 5. **License / provenance** — Source noted (original, CC0, purchased, generated) in manifest or sibling `PROVENANCE.md`.
-6. **Human sign-off** — Product owner records `Approved by <name> on <date>` on the manifest row or in a closeout note.
+6. **Human sign-off** — Product owner records the exact phrase `asset approved: ASSET-XXX` (with the matching asset ID) on the manifest row or in a closeout note, plus name and date.
 
 **Not required for Approved:** Steam upload, marketing spend, or Launch stage change.
 
@@ -50,8 +50,9 @@ Launch criterion 3 (DRG-40) cannot be assessed while **Approved = 0** and "Appro
 
 | Blocker (DRG-40) | Disposition |
 |------------------|-----------|
-| 4 Needed | Spec first → Specced |
-| 27 Specced | Produce → Done |
+| 0 Needed (manifest snapshot, 2026-08-06) | No unmet-spec rows; refresh from the manifest before each review |
+| 24 Specced (manifest snapshot, 2026-08-06) | Produce → Done |
+| 11 Done / 4 Approved (manifest snapshot, 2026-08-06) | Verify remaining gate criteria and authorization evidence |
 | Umbrella incomplete | Child completion |
 | Addressables unresolved | Design spike under H5; Approved may use N/A import path until host exists |
 | Editor PNG deferred | Explicit N/A until Unity Editor host |
