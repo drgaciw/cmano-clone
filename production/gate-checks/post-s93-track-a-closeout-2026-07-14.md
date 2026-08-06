@@ -2,7 +2,7 @@
 
 **Status:** Restored 2026-08-06 (DRG-42). Original filename was cited but never committed; content reconstructed from the surviving program closeout.
 
-**Parent closeout:** `post-s93-concerns-remediation-closeout-2026-07-14.md`  
+**Parent closeout:** `production/gate-checks/post-s93-concerns-remediation-closeout-2026-07-14.md`  
 **Plan:** `docs/superpowers/plans/2026-07-14-post-s93-gate-concerns-remediation.md`  
 **Stage:** Release (unchanged)
 
@@ -35,7 +35,7 @@ Land the gauntlet hard-gate (oracle fail-closed, ladder injects, multi-domain / 
 - [x] Suite floor held at measured post-land baseline (per parent closeout narrative)
 - [ ] Dedicated evidence log files on `main` — **open gap** (logs never committed; parent closeout remains the authoritative narrative)
 
-**Canonical narrative:** full matrix lives in `post-s93-concerns-remediation-closeout-2026-07-14.md` §Track A. This file exists so roadmap and gate-check **citations resolve**, without inventing missing binary evidence.
+**Canonical narrative:** full matrix lives in `production/gate-checks/post-s93-concerns-remediation-closeout-2026-07-14.md` §Track A. This file exists so roadmap and gate-check **citations resolve**, without inventing missing binary evidence.
 
 ---
 
