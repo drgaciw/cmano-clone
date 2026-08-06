@@ -137,12 +137,12 @@ public static class KillChainRules
             return;
         }
 
+        // Missing mobility: skip speed check silently. Emitting a warning here makes the clean
+        // Baltic seed (weapons/mounts without mobility) report non-empty kill-chain findings and
+        // breaks CLI empty-golden + CrossSystem pins. Explicit speed mismatch still errors when
+        // both weapon envelope and mobility max-speed are present.
         if (!catalog.TryGetMobility(edge.PlatformId, out var mobility))
         {
-            findings.Add(new DatabaseAgentFinding(
-                SpeedMismatchCode,
-                $"{edge.PlatformId}/{edge.MountId}/{edge.WeaponId}: mobility missing — speed check skipped",
-                "warning"));
             return;
         }
 

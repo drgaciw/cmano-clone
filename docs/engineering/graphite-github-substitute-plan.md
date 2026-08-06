@@ -212,7 +212,7 @@ Summary:
 - **`main` push** runs dotnet gate + Baltic replay golden in the same pipeline
 - **Do not** enable GitHub “Dismiss stale approvals on push” — use [graphite-dismiss-stale-approvals.yml](../../.github/workflows/graphite-dismiss-stale-approvals.yml)
 
-Private-repo branch protection API may return 403 — track [issue #37](https://github.com/drgaciw/cmano-clone/issues/37).
+Branch protection on `main` is **enabled** (2026-07-13; [#37](https://github.com/drgaciw/cmano-clone/issues/37) closed) — required check `buildkite/cmano-clone`, strict up-to-date. See [ci-and-branch-protection.md](./ci-and-branch-protection.md).
 
 ---
 
@@ -275,7 +275,7 @@ If stack metadata is corrupt, capture `gt log short` / `gt log long` and escalat
 | `gt submit` validation fails | `gt log short`; fix stack shape; see Recovery |
 | Buildkite Graphite optimizer fails | Check `GRAPHITE_CI_OPTIMIZER_TOKEN` in Buildkite env; optimizer fails open (full CI still runs) |
 | Graphite org billing / 403 on dismiss workflow | See [pr-69-ci-triage](../production/qa/pr-69-ci-triage-2026-06-04.md) |
-| Branch protection API 403 | Manual UI setup; [issue #37](https://github.com/drgaciw/cmano-clone/issues/37) |
+| Branch protection | Live on `main` (`buildkite/cmano-clone`); re-apply via `tools/apply-branch-protection.ps1` if drifted ([#37](https://github.com/drgaciw/cmano-clone/issues/37) closed) |
 | Stale local stack re-submitted | See backlog “Do not gt submit”; delete stale branches |
 
 ---

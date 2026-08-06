@@ -1,6 +1,6 @@
 # Asset Manifest
 
-> **Last updated:** 2026-07-09 (S93 asset production wave)  
+> **Last updated:** 2026-07-17 (Path A — ASSET-005 **Approved** via human `asset approved: ASSET-005`; prior 006/021/004)
 > **Authority:** [`s93-asset-production-scope-boundary-2026-07-09.md`](../../production/s93-asset-production-scope-boundary-2026-07-09.md), S91 closeout, S93 closeout  
 > **Inventory:** `design/assets/entity-inventory.md` (Phase 0b; user review pending)  
 > **Art bible:** `design/art/art-bible.md` (lean B2 — C2 + Platform Editor)  
@@ -12,9 +12,9 @@
 
 | Total | Needed | Specced | In Production | Done | Approved |
 |-------|--------|---------|---------------|------|----------|
-| 42 | **0** | **27** | **3** | **12** | 0 |
+| 42 | **0** | **24** | **3** | **11** | **4** |
 
-*S93 @ 2026-07-09: First binary wave — **8 Done**. Post-S93 Track B (2026-07-14): residual **036/037/040/041 → Done** (stubs under `production/assets/ui|audio`). Umbrellas **001–003 In Production**. **Needed: 0**.*
+*S93 @ 2026-07-09: First binary wave — **8 Done**. Post-S93 Track B (2026-07-14): residual **036/037/040/041 → Done** (stubs under `production/assets/ui|audio`). Umbrellas **001–003 In Production**. **Needed: 0**. S94 wave 2 (2026-07-14): **ASSET-006 → Done** (`MessageLogPanel.uss`); **ASSET-021 → Done** (`production/assets/baltic/CombatDomainsHotTick.uss`); **ASSET-026 → Done** (`production/assets/store/PressKit_LogoPack_README.md` placeholder). **S101-05 Path A (2026-07-17):** human `asset approved: ASSET-006` + `asset approved: ASSET-021` → both **Approved** (first Approved promotions; Done 15→13; Approved 0→2). Evidence: `production/qa/s101-05-human-asset-approval-2026-07-17.md`. **S102 Path A (2026-07-17):** human `asset approved: ASSET-004` → **Approved** (Done 13→12; Approved 2→3). Evidence: `production/qa/s102-02-human-asset-approval-004-2026-07-17.md`. **Path A (2026-07-17):** human `asset approved: ASSET-005` → **Approved** (Done→Approved). Evidence: `production/qa/s103-05-human-asset-approval-005-2026-07-17.md`.*
 
 ---
 
@@ -32,9 +32,9 @@
 
 | Asset ID | Name | Category | Status | Spec File |
 |----------|------|----------|--------|-----------|
-| ASSET-004 | APP-6 Frame Atlas | Sprite / 2D | **Done** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/App6FrameAtlas.png` |
-| ASSET-005 | C2 Top Bar Panel | UI | **Done** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/C2TopBarPanel.uss` |
-| ASSET-006 | Message Log Panel | UI | Specced | design/assets/specs/c2-ui-assets.md |
+| ASSET-004 | APP-6 Frame Atlas | Sprite / 2D | **Approved** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/App6FrameAtlas.png` |
+| ASSET-005 | C2 Top Bar Panel | UI | **Approved** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/C2TopBarPanel.uss` |
+| ASSET-006 | Message Log Panel | UI | **Approved** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/MessageLogPanel.uss` |
 | ASSET-007 | Left Drawer (OOB / missions / contacts) | UI | Specced | design/assets/specs/c2-ui-assets.md |
 | ASSET-008 | Right Unit Detail Panel | UI | Specced | design/assets/specs/c2-ui-assets.md |
 | ASSET-009 | Map Placeholder Canvas + symbols | UI / Environment | Specced | design/assets/specs/c2-ui-assets.md |
@@ -59,7 +59,7 @@
 | ASSET-018 | Baltic patrol map framing | Environment | **Done** | design/assets/specs/baltic-patrol-assets.md → `production/assets/baltic/baltic-theater-framing-v1.png` |
 | ASSET-019 | Band B datalink contact presentation | UI / Map | **Done** | design/assets/specs/baltic-patrol-assets.md → `production/assets/baltic/ASSET-019-band-b-contact-overlay-spec.md` |
 | ASSET-020 | Comms-challenged / jammed capture set | UI / Map | Specced | design/assets/specs/baltic-patrol-assets.md |
-| ASSET-021 | Combat domains hot-tick overlay | HUD | Specced | design/assets/specs/baltic-patrol-assets.md |
+| ASSET-021 | Combat domains hot-tick overlay | HUD | **Approved** | design/assets/specs/baltic-patrol-assets.md → `production/assets/baltic/CombatDomainsHotTick.uss` |
 | ASSET-022 | Band C intercept / spoof stress layout | UI / Map | Specced | design/assets/specs/baltic-patrol-assets.md |
 
 ### Store / E7 prep (S70 asset-checklist)
@@ -69,7 +69,7 @@
 | ASSET-023 | Main capsule (616×353) | Marketing | **Done** | design/assets/specs/store-capsule-assets.md → `production/assets/store/ProjectAegis_BalticMainCapsule_v1.png` |
 | ASSET-024 | Small capsule (231×87) | Marketing | **Done** | design/assets/specs/store-capsule-assets.md → `production/assets/store/ProjectAegis_SmallCapsule.png` |
 | ASSET-025 | Logo / header variants | Marketing | **Done** | design/assets/specs/store-capsule-assets.md → `production/assets/store/ProjectAegis_Logo_Dark_v1.png`, `ProjectAegis_Icon_v1.png` |
-| ASSET-026 | Press kit logo pack | Marketing | Specced | design/assets/specs/store-capsule-assets.md |
+| ASSET-026 | Press kit logo pack | Marketing | **Done** | design/assets/specs/store-capsule-assets.md → `production/assets/store/PressKit_LogoPack_README.md` |
 | ASSET-027 | Store screenshot 01 — C2 map patrol | Capture | Specced | design/assets/specs/store-capsule-assets.md |
 | ASSET-028 | Store screenshot 02 — policy panel | Capture | Specced | design/assets/specs/store-capsule-assets.md |
 | ASSET-029 | Store screenshot 03 — order log + replay | Capture | Specced | design/assets/specs/store-capsule-assets.md |

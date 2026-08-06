@@ -1,0 +1,95 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="True">
+    <Style src="ScenarioMapAuthoringPanel.uss" />
+    <ui:VisualElement name="scenario-map-root" class="scenario-map-panel">
+        <!-- Sticky chrome: path/actions/status always visible (not inside ScrollView). -->
+        <ui:VisualElement name="scenario-map-sticky-header" class="scenario-map-sticky-header">
+            <ui:VisualElement name="scenario-session-bar" class="scenario-map-section scenario-map-session-bar">
+                <ui:VisualElement class="scenario-map-row">
+                    <ui:TextField name="scenario-path-field" label="Scenario path" class="scenario-map-path-field" />
+                    <ui:Button name="scenario-browse-button" text="Browse…" class="scenario-map-action-button" />
+                </ui:VisualElement>
+                <ui:VisualElement class="scenario-map-row scenario-map-actions">
+                    <ui:Button name="scenario-open-button" text="Open" class="scenario-map-action-button" />
+                    <ui:Button name="scenario-load-ui-dev-button" text="Load UI Dev Baltic" class="scenario-map-action-button scenario-map-action-button--accent" />
+                    <ui:Button name="scenario-save-button" text="Save" class="scenario-map-action-button" />
+                    <ui:Button name="scenario-rebuild-button" text="Rebuild" class="scenario-map-action-button" />
+                    <ui:Button name="scenario-refresh-findings-button" text="Refresh Findings" class="scenario-map-action-button" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <!-- Export gate (ADR-008): save is never gated; export/publish/sample are. -->
+            <ui:Label name="scenario-export-gate" text="Export gate: not validated yet." class="scenario-map-export-gate" />
+            <ui:Label name="scenario-status" text="Browse… a scenario.json then Open — or Load UI Dev Baltic." class="scenario-map-status" />
+        </ui:VisualElement>
+
+        <ui:ScrollView name="scenario-map-scroll-root" class="scenario-map-root-scroll" mode="Vertical">
+            <ui:Label name="scenario-map-title" text="SCENARIO MAP AUTHORING" class="scenario-map-title" />
+            <ui:Label name="scenario-map-help" text="Binds UI to ScenarioAuthoringSession / Bus / MapAuthoringSurface / LiveFindingsPresenter only. No Validation Engine rules and no DelegationBridge." class="scenario-map-help" />
+
+            <ui:VisualElement name="scenario-session-body" class="scenario-map-session-body">
+                <ui:VisualElement name="scenario-session-status" class="scenario-map-section">
+                    <ui:Label text="SESSION" class="scenario-map-section-title" />
+                    <ui:Label name="scenario-session-path" text="Path: —" class="scenario-map-status-line" />
+                    <ui:Label name="scenario-session-edit-version" text="Edit version: —" class="scenario-map-status-line" />
+                    <ui:Label name="scenario-session-dirty" text="Dirty: —" class="scenario-map-status-line" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="scenario-lists" class="scenario-map-section scenario-map-lists">
+                    <ui:Label text="ORBAT UNIT IDS" class="scenario-map-section-title" />
+                    <ui:VisualElement name="scenario-units-list" class="scenario-map-list-box" />
+                    <ui:Label text="REFERENCE POINT IDS" class="scenario-map-section-title" />
+                    <ui:VisualElement name="scenario-rps-list" class="scenario-map-list-box" />
+                    <ui:Label text="FINDINGS CODES" class="scenario-map-section-title" />
+                    <ui:VisualElement name="scenario-findings-list" class="scenario-map-list-box" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="scenario-place-unit" class="scenario-map-section">
+                    <ui:Label text="PLACE UNIT" class="scenario-map-section-title" />
+                    <ui:Label text="PLATFORM DOMAIN" class="scenario-map-subsection-title" />
+                    <ui:VisualElement name="scenario-platform-domain-nav" class="scenario-map-domain-nav">
+                        <ui:Button name="scenario-domain-aircraft" text="Aircraft" class="scenario-map-domain-button" />
+                        <ui:Button name="scenario-domain-ships" text="Ships" class="scenario-map-domain-button" />
+                        <ui:Button name="scenario-domain-subs" text="Subs" class="scenario-map-domain-button" />
+                        <ui:Button name="scenario-domain-ground" text="Ground" class="scenario-map-domain-button" />
+                    </ui:VisualElement>
+                    <ui:Label name="scenario-platform-domain-label" text="Domain: ships" class="scenario-map-status-line" />
+                    <ui:Label text="CATALOG (click to fill place form)" class="scenario-map-subsection-title" />
+                    <ui:ScrollView name="scenario-platform-list-scroll" class="scenario-map-platform-list-scroll" mode="Vertical">
+                        <ui:VisualElement name="scenario-platform-list" class="scenario-map-list-box scenario-map-platform-list" />
+                    </ui:ScrollView>
+                    <ui:TextField name="scenario-place-unit-id" label="Id" value="u-new" />
+                    <ui:TextField name="scenario-place-side-id" label="Side" value="blue" />
+                    <ui:TextField name="scenario-place-platform-id" label="Platform" value="ffg" />
+                    <ui:TextField name="scenario-place-lat" label="Lat" value="57.0" />
+                    <ui:TextField name="scenario-place-lon" label="Lon" value="20.0" />
+                    <ui:VisualElement class="scenario-map-row scenario-map-actions">
+                        <ui:Button name="scenario-begin-place-unit" text="Begin Place Unit" class="scenario-map-action-button" />
+                        <ui:Button name="scenario-commit-place-unit" text="Commit Place Unit" class="scenario-map-action-button" />
+                        <ui:Button name="scenario-place-and-commit" text="Place + Commit" class="scenario-map-action-button" />
+                        <ui:Button name="scenario-cancel-gesture" text="Cancel Gesture" class="scenario-map-action-button" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+
+                <ui:VisualElement name="scenario-reference-point" class="scenario-map-section">
+                    <ui:Label text="UPSERT RP POLYGON (3 VERTICES)" class="scenario-map-section-title" />
+                    <ui:TextField name="scenario-rp-id" label="RP id" value="rp-zone" />
+                    <ui:VisualElement class="scenario-map-row">
+                        <ui:Label text="V0" class="scenario-map-vertex-label" />
+                        <ui:TextField name="scenario-rp-lat0" value="57.0" class="scenario-map-coord-field" />
+                        <ui:TextField name="scenario-rp-lon0" value="20.0" class="scenario-map-coord-field" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="scenario-map-row">
+                        <ui:Label text="V1" class="scenario-map-vertex-label" />
+                        <ui:TextField name="scenario-rp-lat1" value="57.1" class="scenario-map-coord-field" />
+                        <ui:TextField name="scenario-rp-lon1" value="20.1" class="scenario-map-coord-field" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="scenario-map-row">
+                        <ui:Label text="V2" class="scenario-map-vertex-label" />
+                        <ui:TextField name="scenario-rp-lat2" value="57.0" class="scenario-map-coord-field" />
+                        <ui:TextField name="scenario-rp-lon2" value="20.2" class="scenario-map-coord-field" />
+                    </ui:VisualElement>
+                    <ui:Button name="scenario-upsert-rp" text="Begin + Commit RP Polygon" class="scenario-map-action-button scenario-map-action-button--wide" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:ScrollView>
+    </ui:VisualElement>
+</ui:UXML>

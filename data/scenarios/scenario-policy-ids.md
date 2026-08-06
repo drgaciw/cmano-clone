@@ -1,5 +1,10 @@
 # Scenario policy template IDs
 
+> **Full authoring reference:** for the complete `*.policy.json` field/loader reference (all
+> top-level + `engage` fields, enum values, mission triggers, validation errors, replay
+> constraints), see [`docs/engineering/scenario-policy-authoring.md`](../../docs/engineering/scenario-policy-authoring.md).
+> This page is the template-ID matrix and per-sprint content log.
+
 Used by `SimulationModeConfigurator.Apply(..., scenarioPolicyId: "...")` and `ScenarioPolicyCatalog`.
 
 | ID | Friendly ROE | Opposing ROE | Loop policy overrides | Use |

@@ -6,9 +6,10 @@ using NUnit.Framework;
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 /// <summary>
-/// Headless wall-clock proxy for Unity C2 panel selection bind latency (Req 20: &lt; 100 ms).
+/// Headless wall-clock proxy for Unity C2 panel selection bind latency (Req 20: < 100 ms).
 /// Unity Profiler frame capture is deferred to Editor host — see
-/// <c>production/perf/unity-c2-frame-baseline-s35-2026-06-19.md</c>.
+/// <c>production/perf/unity-c2-frame-baseline-s35-2026-06-19.md</c> and
+/// <c>production/perf/c2-panel-bind-bench-wave2-2026-08-01.md</c> (CMD-36 rich path).
 /// </summary>
 [TestFixture]
 public sealed class C2PanelBindTimingTests
@@ -39,23 +40,17 @@ public sealed class C2PanelBindTimingTests
             samplesMs[i] = stopwatch.Elapsed.TotalMilliseconds;
         }
 
-        Array.Sort(samplesMs);
-        var meanMs = samplesMs.Average();
-        var p95Index = (int)Math.Ceiling(MeasuredIterations * 0.95) - 1;
-        var p95Ms = samplesMs[p95Index];
-        var maxMs = samplesMs[^1];
-
-        TestContext.WriteLine(
-            $"C2 panel selection bind: mean={meanMs:F3} ms p95={p95Ms:F3} ms max={maxMs:F3} ms (n={MeasuredIterations})");
+        var sample = new C2PanelPerfSample(samplesMs);
+        TestContext.WriteLine(sample.FormatReport("C2 panel selection bind"));
 
         Assert.That(
-            p95Ms,
+            sample.P95Ms,
             Is.LessThan(Req20PanelBindBudgetMs),
-            $"Req 20 panel-bind budget is {Req20PanelBindBudgetMs} ms; headless p95 was {p95Ms:F3} ms.");
+            $"Req 20 panel-bind budget is {Req20PanelBindBudgetMs} ms; headless p95 was {sample.P95Ms:F3} ms.");
         Assert.That(
-            maxMs,
+            sample.MaxMs,
             Is.LessThan(Req20PanelBindBudgetMs),
-            $"Worst-case headless bind sample must stay under {Req20PanelBindBudgetMs} ms (max={maxMs:F3} ms).");
+            $"Worst-case headless bind sample must stay under {Req20PanelBindBudgetMs} ms (max={sample.MaxMs:F3} ms).");
     }
 
     private static SelectionBindOutcome RunSelectionBindPath(

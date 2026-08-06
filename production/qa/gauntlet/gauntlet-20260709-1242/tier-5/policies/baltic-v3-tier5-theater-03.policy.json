@@ -1,0 +1,78 @@
+{
+  "id": "baltic-v3-tier5-theater-03",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true
+  },
+  "emcon": {
+    "units": {
+      "u1": { "radar": "Active" },
+      "ucav-blue": { "radar": "Active" },
+      "usub-blue": { "radar": "Active" },
+      "hostile-1": { "radar": "Passive" },
+      "usub-red": { "radar": "Active" }
+    }
+  },
+  "catalogDetection": [
+    {
+      "observerId": "u1",
+      "sensorId": "radar-1",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "ucav-blue",
+      "sensorId": "recon-radar",
+      "targetId": "hostile-1",
+      "contactId": "c2",
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "usub-blue",
+      "sensorId": "hull-sonar",
+      "targetId": "usub-red",
+      "contactId": "c3",
+      "envMask": 1.0,
+      "jamStrength": 0.25
+    },
+    {
+      "observerId": "usub-red",
+      "sensorId": "hull-sonar",
+      "targetId": "usub-blue",
+      "contactId": "c4",
+      "envMask": 1.0,
+      "jamStrength": 0.25
+    }
+  ],
+  "mission": {
+    "fireOrder": [],
+    "events": [
+      {
+        "id": "sensor-degradation",
+        "fireAtTick": 9,
+        "kind": "MissionTransition",
+        "code": "SENSOR_DEGRADATION"
+      },
+      {
+        "id": "reinforcement-arrival",
+        "fireAtTick": 20,
+        "kind": "MissionTransition",
+        "code": "REINFORCEMENT_ARRIVAL"
+      },
+      {
+        "id": "roe-change",
+        "fireAtTick": 31,
+        "kind": "MissionTransition",
+        "code": "MID_MISSION_ROE_CHANGE"
+      }
+    ]
+  }
+}

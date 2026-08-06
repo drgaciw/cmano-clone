@@ -1,0 +1,23 @@
+{
+    "name": "ProjectAegis.Unity.Tests",
+    "rootNamespace": "",
+    "references": [
+        "ProjectAegis.Unity.Runtime",
+        "UnityEngine.TestRunner"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "ProjectAegis.Delegation.dll",
+        "ProjectAegis.Delegation.UnityAdapter.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

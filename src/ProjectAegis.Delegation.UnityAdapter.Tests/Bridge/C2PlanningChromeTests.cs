@@ -126,7 +126,43 @@ public sealed class C2PlanningChromeTests
         Assert.That(host, Does.Contain("c2-drawer-panel--planning-readonly"));
         Assert.That(host, Does.Contain("OnTabChanged"));
         Assert.That(host, Does.Contain("bridgeHost.SelectUnit"));
+        Assert.That(host, Does.Contain("label.focusable = listView == _oobList"));
+        Assert.That(uss, Does.Contain("@import url(\"../AegisTokens.uss\")"));
         Assert.That(uss, Does.Contain(".c2-drawer-panel--planning-readonly"));
+        Assert.That(uss, Does.Contain("var(--focus-ring)"));
+    }
+
+    [Test]
+    public void C2_chrome_panels_use_absolute_game_view_layout()
+    {
+        // Prevents regression of collapsed top-left fragment chrome (all UIDocuments
+        // stacking without docked regions). MessageLog already had absolute layout;
+        // top bar / left drawer / map / unit detail must match.
+        var repoRoot = RequireRepoRoot();
+        var uiRoot = Path.Combine(repoRoot, "unity", "ProjectAegis", "Assets", "UI");
+
+        var topBar = File.ReadAllText(Path.Combine(uiRoot, "TopBar", "C2TopBarPanel.uss"));
+        Assert.That(topBar, Does.Contain("position: absolute"));
+        Assert.That(topBar, Does.Contain("top: 0"));
+
+        var drawer = File.ReadAllText(Path.Combine(uiRoot, "C2LeftDrawer", "C2LeftDrawerPanel.uss"));
+        Assert.That(drawer, Does.Contain("position: absolute"));
+        Assert.That(drawer, Does.Contain("width: 260px"));
+        Assert.That(drawer, Does.Contain("top: 56px"));
+
+        var map = File.ReadAllText(Path.Combine(uiRoot, "MapPlaceholder", "MapPlaceholderPanel.uss"));
+        Assert.That(map, Does.Contain("position: absolute"));
+        Assert.That(map, Does.Contain("left: 260px"));
+        Assert.That(map, Does.Contain("right: 300px"));
+
+        var unit = File.ReadAllText(Path.Combine(uiRoot, "UnitDetail", "UnitDetailPanel.uss"));
+        Assert.That(unit, Does.Contain("position: absolute"));
+        Assert.That(unit, Does.Contain("right: 0"));
+        Assert.That(unit, Does.Contain("width: 300px"));
+
+        var tokens = File.ReadAllText(Path.Combine(uiRoot, "AegisTokens.uss"));
+        Assert.That(tokens, Does.Contain("--aegis-surface-panel"));
+        Assert.That(tokens, Does.Contain("--surface-panel"));
     }
 
     [Test]

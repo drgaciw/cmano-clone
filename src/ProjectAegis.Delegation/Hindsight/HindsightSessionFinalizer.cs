@@ -16,8 +16,12 @@ public sealed class HindsightSessionFinalizer
         _options = options;
     }
 
+    /// <summary>
+    /// ADR-019: takes <see cref="IReadOnlyOrderLog"/>, not the concrete log — the
+    /// read-only guarantee for AAR is enforced by the type, not by convention.
+    /// </summary>
     public void OnScenarioFinalized(
-        DecisionLog log,
+        IReadOnlyOrderLog log,
         IReadOnlyList<TrustSignal> trustSignals,
         bool missionSucceeded,
         double objectivesMetRatio)
@@ -65,7 +69,7 @@ public sealed class HindsightSessionFinalizer
     }
 
     private static string BuildAarSummary(
-        DecisionLog log,
+        IReadOnlyOrderLog log,
         bool missionSucceeded,
         double objectivesMetRatio)
     {

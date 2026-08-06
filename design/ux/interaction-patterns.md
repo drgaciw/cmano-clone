@@ -29,6 +29,11 @@ This library documents **interaction patterns already implemented** in code so n
 | P-PE-01 | Import staging workflow | Platform Editor | Check 14 |
 | P-PE-02 | Staging diff feedback | Platform Editor | Checks 14, 17, 18 |
 | P-PE-03 | Validation error surfacing | Platform Editor | Check 14 |
+| P-PE-04 | Unified Platform Editor shell | Platform Editor | PE-UX-W4 |
+| P-SE-01 | Scenario shell Map \| Missions mode swap | Scenario Editor | SE-UX P2.1/P2.2 |
+| P-SE-02 | Live findings jump-to-entity | Scenario Editor | SE-UX P2.1 |
+| P-SE-03 | Mission Board filter + inline add type strip | Scenario Editor | SE-UX P2.2 |
+| P-SE-04 | Play/Sample gate on error findings | Scenario Editor | SE-UX / AC-12 |
 
 ---
 
@@ -43,7 +48,7 @@ This library documents **interaction patterns already implemented** in code so n
 | Input | Result | Feedback |
 |-------|--------|----------|
 | Click tab `OOB` / `MISSIONS` / `CONTACTS` | Activates tab; swaps ListView content | Instant tab highlight; no slide animation ([accessibility-requirements.md §4](../accessibility-requirements.md#4-reduced-motion)) |
-| Keyboard focus on tab toolbar | Arrow keys move between tabs; Enter activates | Unity 6 default focus ring |
+| Keyboard focus on tab toolbar | Arrow keys move between tabs; Enter activates | `focus-ring` `#00E5FF` at `2px` ([art-bible.md §3](art/art-bible.md#semantic--selection--focus)) |
 | Planning phase (pre–Begin Execution) | Drawer read-only styling | `c2-drawer-panel--planning-readonly` — border `#465260`, tabs 65% opacity ([art-bible.md §2 Planning](art/art-bible.md#planning-rtwp--before-begin-execution)) |
 
 ### Data binding
@@ -83,8 +88,9 @@ Selection projection (unitId / contactId)
 
 | Target | Token | Spec |
 |--------|-------|------|
-| Map symbol | `selected-ring` `#FFC850` | 1px border + 15% fill ([art-bible.md §3](art/art-bible.md#semantic--selection--focus)) |
+| Map symbol | `selected-ring` `#FFC850` | 1px border + 15% fill ([art-bible.md §3](../art/art-bible.md#semantic--selection--focus)) |
 | OOB row | `selected-row` | 3px left bar `#4A9EFF` + 25% background |
+| Keyboard focus (`:focus`) | `focus-ring` `#00E5FF` | `focus-ring-width` `2px`; distinct from `selected-ring` ([accessibility-requirements.md §2.4](../accessibility-requirements.md#24-non-text-ui-focus-selection)) |
 | Right panel | Populated lines | Unit id, alive/destroyed, magazine, EMCON, sensors summary |
 | No selection | Placeholder copy | "Select a unit on map or OOB" ([c2-command-post.md §5](c2-command-post.md#5-states--variants)) |
 
@@ -263,7 +269,91 @@ Propose → see blocked status
 
 ---
 
-## 10. Related Patterns (reference only)
+## 9b. Unified Platform Editor Shell (P-PE-04)
+
+**Screen:** Platform Catalog + Platform Import (same curator session)  
+**Purpose:** Reduce cognitive load across damage / comms / link (and other) workbook domains without in-engine WYSIWYG editing (ADR-011).  
+**Evidence driver:** [playtest-2026-06-19-midgame-delegation-catalog-thinkaloud.md](../../production/playtests/human/playtest-2026-06-19-midgame-delegation-catalog-thinkaloud.md) — “Unified Platform Editor UX spec”.
+
+### Shell layout
+
+| Pane | Role |
+|------|------|
+| **Shell chrome** (`PlatformEditorShellHost`) | Catalog \| Import tabs; mode title; shared status; health strip; `.platform-editor-shell--browse\|--import` |
+| **Catalog** (`PlatformCatalogViewerHost`) | Read-only browse; section bar Identity / Damage / Fits / Comms / Links / Graph; Export/Diff with in-panel status; graph search |
+| **Import** (`PlatformImportPanelHost`) | Propose → section-filtered diff review → Acknowledge → Approve; staging state survives Catalog tab visits |
+
+### Acceptance (PE-UX-W4)
+
+1. Tab strip switches Catalog ↔ Import without clearing Import staging (propose result retained while host stays enabled).
+2. Mode title reads `BROWSE CATALOG` or `IMPORT STAGING`; root USS class matches mode.
+3. Health strip shows `Health: OK|ATTENTION · edges N · pending N · blocked N` (read-only).
+4. Keyboard: Left/Right on shell tabs cycles mode; Ctrl+Tab also cycles.
+5. Comms list selection navigates to Links for the selected platform (curator jump).
+6. Diff rows show `[ADDED|CHANGED|REMOVED|BLOCKED|INFO]` text tag + left border + color class.
+
+### Section filter (Import)
+
+| Chip | Shows |
+|------|-------|
+| ALL | Every staging row |
+| DAMAGE | MaxHp / withdraw / flags deltas |
+| COMMS | Comms fitting deltas |
+| LINK | LinkCatalog deltas |
+| OTHER | Remaining sheets (Sensors, Mounts, …) |
+
+Global Acknowledge still gates Approve (P-PE-01). Filters only change which rows are visible for review.
+
+### Diff row styling
+
+Apply USS classes from projection `DiffKind` (P-PE-02 colors): `platform-import-diff-row--added|changed|removed|blocked|info`. Status uses `platform-import-status--blocked` when validation blocks.
+
+### Tokens
+
+Panels consume `--aegis-*` aliases from [AegisTokens.uss](../../unity/ProjectAegis/Assets/UI/AegisTokens.uss) (PE-UX-W0). Diff hex values match art bible §3.
+
+---
+
+## 10. Scenario Editor Shell (P-SE-01 … P-SE-04)
+
+**Screen:** [scenario-editor.md](scenario-editor.md)  
+**Hosts / projections:** `ScenarioEditorShellHost`, `ScenarioEditorShellProjection`; presenters `MapAuthoringSurface`, `MissionBoardPresenter`, `LiveFindingsPresenter`  
+**HTML mock:** `docs/superpowers/reviews/scenario-editor-uiux-preview.html`
+
+### P-SE-01 — Map | Missions shell swap
+
+| Input | Result |
+|-------|--------|
+| Click Map / Missions tab | Center slot swaps; selection + findings persist; Events tab stays disabled (P2.3) |
+| Ctrl+Tab / ←→ on shell tabs | Cycles Map ↔ Missions |
+
+### P-SE-02 — Live findings jump-to-entity
+
+| Input | Result |
+|-------|--------|
+| Click finding row | Selects entity; mission codes prefer Missions mode; zone codes prefer Map + zone highlight |
+| Severity chips All / Errors / Warnings | Filter list only — does not clear selection |
+
+### P-SE-03 — Mission Board filter + inline add
+
+| Input | Result |
+|-------|--------|
+| Type / Side / Status filters | Rebuild board rows (same semantics as `MissionBoardPresenter`) |
+| Add Mission | Inline type strip (Strike\|Patrol\|Support\|Ferry) — no modal wizard |
+| Clone / From Template | Enabled when a row is selected; commits via bus |
+
+### P-SE-04 — Play/Sample gate
+
+| Condition | Chrome |
+|-----------|--------|
+| `errorFindingCount > 0` | Play + Sample disabled @ 45% opacity; gate chip shows count |
+| Errors == 0 | Play/Sample enabled; Save always available when session open |
+
+**Invariant:** UI does not own scenario state — mutations only through `ScenarioEditCommandBus`.
+
+---
+
+## 11. Related Patterns (reference only)
 
 These screens have UX specs but are **not expanded** in S35-03 — see linked docs:
 
@@ -278,7 +368,7 @@ These screens have UX specs but are **not expanded** in S35-03 — see linked do
 
 ---
 
-## 11. Acceptance Criteria (S35-03)
+## 12. Acceptance Criteria (S35-03)
 
 1. Every implemented C2 interaction in checks 1–13 has a pattern ID in this library.
 2. Platform import staging (check 14) documents propose → acknowledge → approve + diff + validation.
@@ -292,3 +382,5 @@ These screens have UX specs but are **not expanded** in S35-03 — see linked do
 | Date | Change |
 |------|--------|
 | 2026-06-19 | Initial library — S35-03 gate r2 "interaction pattern library current" gap closed |
+| 2026-07-23 | P-PE-04 unified Platform Editor shell (PE-UX productization) |
+| 2026-07-23 | P-SE-01…04 Scenario Editor Map + Mission Board shell |

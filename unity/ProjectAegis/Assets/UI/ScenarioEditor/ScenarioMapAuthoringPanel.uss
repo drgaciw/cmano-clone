@@ -1,0 +1,374 @@
+/* ScenarioMapAuthoringPanel.uss — Edit Mode scenario map authoring host (UI Toolkit / UI Builder)
+ * Style authority: Assets/UI/AegisTokens.uss (+ sibling panel conventions)
+ */
+
+@import url("../AegisTokens.uss");
+
+.scenario-map-panel {
+    flex-grow: 1;
+    flex-direction: column;
+    background-color: var(--surface-panel);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    min-width: 420px;
+    min-height: 520px;
+}
+
+/* Sticky header: path, actions, status always visible outside ScrollView */
+.scenario-map-sticky-header {
+    flex-direction: column;
+    flex-shrink: 0;
+    flex-grow: 0;
+    padding: var(--space-md);
+    padding-bottom: var(--space-sm);
+    background-color: var(--surface-panel);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--border-panel);
+}
+
+.scenario-map-root-scroll {
+    flex-grow: 1;
+    flex-shrink: 1;
+    padding: var(--space-md);
+    min-height: 0;
+}
+
+.scenario-map-root-scroll > .unity-scroll-view__content-container {
+    flex-direction: column;
+}
+
+.scenario-map-title {
+    flex-shrink: 0;
+    -unity-font-style: bold;
+    font-size: 13px;
+    color: var(--text-heading);
+    margin-bottom: var(--space-xs);
+    letter-spacing: 0.5px;
+}
+
+.scenario-map-help {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    white-space: normal;
+    margin-bottom: var(--space-md);
+    padding: var(--space-sm);
+    background-color: var(--surface-map);
+    border-left-width: 3px;
+    border-left-color: var(--affil-friendly);
+    border-radius: 2px;
+}
+
+.scenario-map-session-body {
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 0;
+}
+
+/*
+ * Host should keep session body enabled so place-unit / catalog stay interactive.
+ * Do not grey the whole body when a parent is briefly disabled — feedback lives in
+ * sticky header status instead of opacity wash on forms.
+ */
+
+.scenario-map-section {
+    flex-direction: column;
+    flex-shrink: 0;
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--border-section);
+}
+
+.scenario-map-section-title {
+    flex-shrink: 0;
+    -unity-font-style: bold;
+    font-size: 11px;
+    color: var(--text-heading);
+    margin-top: var(--space-xs);
+    margin-bottom: var(--space-xs);
+    letter-spacing: 0.4px;
+}
+
+.scenario-map-subsection-title {
+    flex-shrink: 0;
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: var(--space-xs);
+    margin-bottom: 2px;
+    letter-spacing: 0.3px;
+}
+
+.scenario-map-domain-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    margin-bottom: var(--space-xs);
+}
+
+.scenario-map-domain-button {
+    margin-right: 4px;
+    margin-bottom: 4px;
+    min-width: 72px;
+    padding: 3px 8px;
+    background-color: var(--surface-map);
+    border-width: 1px;
+    border-color: var(--border-subtle);
+    color: var(--text-body);
+    font-size: 11px;
+}
+
+.scenario-map-domain-button--active {
+    background-color: rgba(74, 158, 255, 0.22);
+    border-color: var(--affil-friendly);
+    color: var(--text-heading);
+    -unity-font-style: bold;
+}
+
+.scenario-map-platform-list-scroll {
+    flex-shrink: 0;
+    height: 140px;
+    margin-bottom: var(--space-sm);
+    border-width: 1px;
+    border-color: var(--border-section);
+    background-color: var(--surface-map);
+}
+
+.scenario-map-platform-list {
+    flex-direction: column;
+    min-height: 120px;
+}
+
+.scenario-map-platform-row {
+    flex-direction: row;
+    align-items: center;
+    padding: 3px 6px;
+    margin-bottom: 1px;
+    color: var(--text-body);
+    font-size: 11px;
+    background-color: rgba(16, 24, 36, 0.4);
+}
+
+.scenario-map-platform-row:hover {
+    background-color: var(--selected-row-bg);
+}
+
+.scenario-map-platform-row--selected {
+    background-color: var(--selected-row-bg);
+    border-left-width: 3px;
+    border-left-color: var(--affil-friendly);
+    color: var(--text-heading);
+}
+
+.scenario-map-session-bar {
+    flex-direction: column;
+    flex-shrink: 0;
+    border-bottom-width: 0;
+    margin-bottom: var(--space-xs);
+    padding-bottom: 0;
+}
+
+.scenario-map-row {
+    flex-direction: row;
+    align-items: center;
+    flex-shrink: 0;
+    margin-bottom: var(--space-xs);
+}
+
+.scenario-map-path-field {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: var(--space-xs);
+    min-width: 200px;
+    min-height: 28px;
+}
+
+/* Keep path label + input clearly readable in sticky chrome */
+.scenario-map-path-field > .unity-base-field__label {
+    min-width: 100px;
+    color: var(--text-heading);
+    -unity-font-style: bold;
+    font-size: 11px;
+}
+
+.scenario-map-path-field > .unity-base-field__input {
+    min-height: 22px;
+    background-color: var(--surface-deep);
+    border-width: 1px;
+    border-color: var(--border-subtle);
+}
+
+.scenario-map-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.scenario-map-action-button {
+    flex-shrink: 0;
+    margin-right: var(--space-xs);
+    margin-bottom: var(--space-xs);
+    min-width: 72px;
+    height: 24px;
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+    background-color: var(--surface-map);
+    border-width: 1px;
+    border-color: var(--border-subtle);
+    color: var(--text-body);
+    border-radius: 2px;
+}
+
+.scenario-map-action-button:hover {
+    border-color: var(--affil-friendly);
+    color: var(--text-data);
+}
+
+.scenario-map-action-button:disabled {
+    opacity: 0.45;
+}
+
+.scenario-map-action-button--accent {
+    background-color: rgba(74, 158, 255, 0.28);
+    border-color: var(--affil-friendly);
+    color: var(--text-heading);
+    -unity-font-style: bold;
+    min-width: 120px;
+}
+
+.scenario-map-action-button--wide {
+    min-width: 180px;
+    margin-top: var(--space-xs);
+}
+
+.scenario-map-status-line {
+    flex-shrink: 0;
+    color: var(--text-body);
+    font-size: 11px;
+    margin-bottom: 2px;
+    height: 16px;
+}
+
+.scenario-map-lists {
+    flex-direction: column;
+}
+
+.scenario-map-list-box {
+    flex-direction: column;
+    flex-shrink: 0;
+    min-height: 48px;
+    margin-bottom: var(--space-sm);
+    padding: var(--space-xs);
+    background-color: var(--surface-deep);
+    border-width: 1px;
+    border-color: var(--border-subtle);
+    border-radius: 2px;
+}
+
+/* legacy class retained for UI Builder previews */
+.scenario-map-scroll {
+    flex-direction: column;
+    flex-shrink: 0;
+    min-height: 48px;
+    margin-bottom: var(--space-sm);
+    padding: var(--space-xs);
+    background-color: var(--surface-deep);
+    border-width: 1px;
+    border-color: var(--border-subtle);
+    border-radius: 2px;
+}
+
+.scenario-map-list-item {
+    color: var(--text-data);
+    font-size: 11px;
+    margin-bottom: 1px;
+    white-space: normal;
+}
+
+.scenario-map-list-empty {
+    color: var(--text-muted);
+    font-size: 11px;
+    -unity-font-style: italic;
+}
+
+.scenario-map-vertex-label {
+    width: 28px;
+    flex-shrink: 0;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.scenario-map-coord-field {
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: var(--space-xs);
+    min-width: 80px;
+}
+
+/* Form text fields: full width, stacked */
+#scenario-place-unit > TextField,
+#scenario-reference-point > TextField,
+#scenario-session-bar TextField {
+    flex-shrink: 0;
+    margin-bottom: var(--space-xs);
+    min-height: 22px;
+}
+
+/* Export gate (ADR-008): save is never gated; export/publish/sample are.
+   The label always states the gate in words — the modifier colours reinforce, never carry. */
+.scenario-map-export-gate {
+    flex-shrink: 0;
+    margin-top: var(--space-xs);
+    padding: var(--space-sm);
+    background-color: var(--surface-map);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    border-radius: 2px;
+    color: var(--text-muted);
+    font-size: 11px;
+    -unity-font-style: bold;
+    white-space: normal;
+    min-height: 24px;
+}
+
+.scenario-map-export-gate--blocked {
+    color: var(--gate-blocked);
+    border-color: var(--gate-blocked);
+}
+
+.scenario-map-export-gate--ready {
+    color: var(--gate-ready);
+    border-color: var(--gate-ready);
+}
+
+/* Sticky status: always visible under path/actions */
+.scenario-map-status {
+    flex-shrink: 0;
+    margin-top: var(--space-xs);
+    padding: var(--space-sm);
+    background-color: var(--surface-map);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    border-radius: 2px;
+    color: var(--text-body);
+    font-size: 11px;
+    white-space: normal;
+    min-height: 28px;
+}
+
+/* Keyboard focus (REQ-20 CMD-12 / CMD-28.9).
+   Distinct from --selected-ring so focus and selection never read as the same state.
+   These elements already declare border-width: 1px, so only the colour changes and
+   focus causes no layout shift. */
+.scenario-map-action-button:focus,
+.scenario-map-domain-button:focus,
+.scenario-map-path-field:focus,
+.scenario-map-coord-field:focus {
+    border-color: var(--focus-ring);
+}
+
+/* Rows carry no border; use the shipped left-bar pattern (cf. MessageLogPanel). */
+.scenario-map-platform-row:focus {
+    border-left-width: var(--focus-ring-width);
+    border-left-color: var(--focus-ring);
+}

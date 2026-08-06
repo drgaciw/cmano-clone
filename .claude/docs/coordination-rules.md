@@ -18,7 +18,7 @@ Skills and agents are assigned to model tiers based on task complexity:
 
 | Tier | Model | When to use |
 |------|-------|-------------|
-| **Haiku** | `claude-haiku-4-5-20251001` | Read-only status checks, formatting, simple lookups — no creative judgment needed |
+| **Haiku** | `claude-haiku-4-5-20251001` | Read-only status checks, formatting, simple lookups, digests, checklists, and bulk scaffolding — no creative judgment needed |
 | **Sonnet** | `claude-sonnet-4-6` | Implementation, design authoring, analysis of individual systems — default for most work |
 | **Opus** | `claude-opus-4-6` | Multi-document synthesis, high-stakes phase gate verdicts, cross-system holistic review |
 
@@ -29,7 +29,9 @@ Skills with `model: opus`: `/review-all-gdds`, `/architecture-review`, `/gate-ch
 
 All other skills default to Sonnet. When creating new skills, assign Haiku if the
 skill only reads and formats; assign Opus if it must synthesize 5+ documents with
-high-stakes output; otherwise leave unset (Sonnet).
+high-stakes output; otherwise leave unset (Sonnet). Orchestration skills may set
+**phase-static Task `model` aliases** (`haiku`/`sonnet`/`opus`) in their routing
+tables; do not embed dated model IDs in skill files — those belong here.
 
 ## Subagents vs Agent Teams
 

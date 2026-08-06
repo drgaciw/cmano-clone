@@ -9,27 +9,42 @@ namespace ProjectAegis.Data.Catalog;
 /// </summary>
 public static class GauntletOracleEvaluator
 {
+    /// <summary>Ladder / default profile key — uses <c>gauntlet.expect</c> (tier-tick authority).</summary>
+    public const string ProfileLadder = "ladder";
+
+    /// <summary>CI smoke profile key — requires <c>gauntlet.expectCi</c>.</summary>
+    public const string ProfileCi = "ci";
+
     public static GauntletOracleEvaluationResult EvaluateFromPolicyAndCsv(
         string policyJson,
-        string resultsCsv)
+        string resultsCsv,
+        string profile = ProfileLadder)
     {
         if (string.IsNullOrWhiteSpace(policyJson))
         {
             return new GauntletOracleEvaluationResult(false, ["missing policy json"]);
         }
 
-        if (!TryParseExpect(policyJson, out var expect, out var parseFailures))
+        // Fail closed on unknown gauntlet.* keys before expect-bound evaluation.
+        var strict = GauntletPolicyStrictKeys.Check(policyJson);
+        if (strict.Errors.Count > 0)
         {
-            return new GauntletOracleEvaluationResult(false, parseFailures);
+            return new GauntletOracleEvaluationResult(false, strict.Errors, strict.Warnings);
+        }
+
+        if (!TryParseExpect(policyJson, out var expect, out var parseFailures, profile))
+        {
+            return new GauntletOracleEvaluationResult(false, parseFailures, strict.Warnings);
         }
 
         var rows = ParseCsvRows(resultsCsv);
         if (rows.Count == 0)
         {
-            return new GauntletOracleEvaluationResult(false, ["no results rows"]);
+            return new GauntletOracleEvaluationResult(false, ["no results rows"], strict.Warnings);
         }
 
-        return Evaluate(rows, expect!);
+        var eval = Evaluate(rows, expect!);
+        return eval with { Warnings = strict.Warnings };
     }
 
     public static GauntletOracleEvaluationResult Evaluate(
@@ -167,7 +182,8 @@ public static class GauntletOracleEvaluator
     public static bool TryParseExpect(
         string policyJson,
         out GauntletOracleExpect? expect,
-        out IReadOnlyList<string> failures)
+        out IReadOnlyList<string> failures,
+        string profile = ProfileLadder)
     {
         expect = null;
         var fails = new List<string>();
@@ -182,8 +198,22 @@ public static class GauntletOracleEvaluator
                 return false;
             }
 
-            if (!gauntlet.TryGetProperty("expect", out var exp)
-                || exp.ValueKind != JsonValueKind.Object)
+            // CI smoke uses a different tick budget from the authoritative ladder run.
+            // Fail closed instead of silently applying a full-budget envelope to short-run data.
+            var useCi = string.Equals(profile, ProfileCi, StringComparison.OrdinalIgnoreCase);
+            JsonElement exp;
+            if (useCi)
+            {
+                if (!gauntlet.TryGetProperty("expectCi", out exp)
+                    || exp.ValueKind != JsonValueKind.Object)
+                {
+                    fails.Add("missing gauntlet.expectCi for CI profile");
+                    failures = fails;
+                    return false;
+                }
+            }
+            else if (!gauntlet.TryGetProperty("expect", out exp)
+                     || exp.ValueKind != JsonValueKind.Object)
             {
                 fails.Add("missing gauntlet.expect");
                 failures = fails;

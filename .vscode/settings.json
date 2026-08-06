@@ -1,0 +1,51 @@
+{
+  "//": "Workspace-shared VS Code settings. Primarily targets the Linux ENOSPC file-watcher issue (https://code.visualstudio.com/docs/setup/linux#_visual-studio-code-is-unable-to-watch-for-file-changes-in-this-large-workspace-error-enospc). Bump fs.inotify.max_user_watches to 524288 on the host as well.",
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/.git/index.lock": true,
+    "**/bin/**": true,
+    "**/obj/**": true,
+    "**/node_modules/**": true,
+    "**/.worktrees/**": true,
+    "**/worktrees/**": true,
+    "**/Library/**": true,
+    "**/Temp/**": true,
+    "**/Logs/**": true,
+    "**/UserSettings/**": true,
+    "**/MemoryCaptures/**": true,
+    "**/Recordings/**": true,
+    "**/mono_crash.mem.**": true,
+    "**/.hindsight-local/**": true,
+    "**/.forgeflow/run/**": true,
+    "**/.atl/**": true,
+    "**/.grok/**": true,
+    "**/agent-tools/**": true,
+    "**/mcps/**": true,
+    "**/terminals/**": true,
+    "**/tools/cmano-db-crawler/_raw/**": true,
+    "**/scratch/**": true,
+    "**/docs/manual/assets/images/**": true,
+    "**/production/session-state/**": true,
+    "**/production/session-logs/**": true
+  },
+  "files.exclude": {
+    "**/bin": true,
+    "**/obj": true,
+    "**/mono_crash.mem.*.blob": true
+  },
+  "search.exclude": {
+    "**/bin/**": true,
+    "**/obj/**": true,
+    "**/node_modules/**": true,
+    "**/.worktrees/**": true,
+    "**/worktrees/**": true,
+    "**/Library/**": true,
+    "**/Temp/**": true,
+    "**/Logs/**": true,
+    "**/mono_crash.mem.**": true,
+    "**/tools/cmano-db-crawler/_raw/**": true,
+    "**/scratch/**": true,
+    "**/docs/manual/assets/images/**": true
+  }
+}

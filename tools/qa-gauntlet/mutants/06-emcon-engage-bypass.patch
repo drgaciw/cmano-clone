@@ -1,0 +1,13 @@
+diff --git a/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs b/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
+index 81e57864..e53d9e99 100644
+--- a/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
++++ b/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
+@@ -124,7 +124,7 @@ public sealed class MvpEngagementResolver : IEngagementResolver
+             return EngageResult.Aborted(EngagementAbortReason.TrackSpoofed);
+         }
+ 
+-        if (!ctx.RadarEmconActive)
++        var emconGateOpen = true; if (!ctx.RadarEmconActive && !emconGateOpen)
+         {
+             return EngageResult.Aborted(EngagementAbortReason.EmconOff);
+         }

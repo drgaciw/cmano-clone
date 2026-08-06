@@ -1,0 +1,68 @@
+# Orthogonal stress axes, layerable onto any complexity tier.
+# Tiers own mission/platform complexity; axes own pressure. They compose.
+#
+# proof modes:
+#   fingerprint-token      — assert a discrete token appears in the run fingerprint.
+#                            ONLY valid for a token that never occurs in an
+#                            unstressed baseline run; otherwise the assertion is
+#                            satisfied by the baseline and proves nothing.
+#   differential-token     — count a token across stressed vs control fingerprints;
+#                            proven only when stressed is strictly greater
+#   differential-aggregate — compare against a control sibling, summed across seeds
+#   config-only            — configuration varies but the sim cannot demonstrate it;
+#                            MUST NOT be reported as proven
+version: 1
+updated: 2026-07-27
+
+axes:
+  - id: weapons
+    proof: differential-token
+    # Magazine exhaustion emits NO_AMMO — but so does the UNSTRESSED ladder: the
+    # tier-1 baseline of gauntlet-20260727-1455 contains 106 NO_AMMO occurrences.
+    # Mere presence of the token therefore proves nothing (a weapons-off run
+    # would verify as proven). The stressed run must emit strictly MORE NO_AMMO
+    # than a control sibling that is identical apart from the magazine config.
+    signal: "NO_AMMO"
+    requires_control_sibling: true
+    levels:
+      "off": {}
+      moderate:
+        engage.defaultMagazineRounds: 2
+        engage.salvoSize: 2
+      extreme:
+        engage.defaultMagazineRounds: 1
+        engage.salvoSize: 4
+        engage.pkKill: 0.1
+
+  - id: ew
+    proof: differential-aggregate
+    # Jamming changes ContactChange/Detected counts only. Kills/score/missiles/denials
+    # are identical because engagement is driven by explicit engage config, not by
+    # detection success. Requires a control sibling and seed aggregation.
+    signal: "Detected"
+    requires_control_sibling: true
+    levels:
+      "off": {}
+      moderate:
+        jammers:
+          - jamStrength: 0.5
+            activeFromTick: 0
+      extreme:
+        jammers:
+          - jamStrength: 0.9
+            activeFromTick: 0
+
+  - id: logistics
+    proof: config-only
+    # GAP-13: FuelStateProjection is UI-only — no engagement gating, no fingerprint
+    # emission. Config varies and schema is validated; runtime pressure is NOT proven.
+    gap: "GAP-13"
+    levels:
+      "off": {}
+      moderate:
+        logistics.fuelCapacityKg: 4000
+        logistics.burnRateKgPerSecond: 8
+      extreme:
+        logistics.fuelCapacityKg: 2000
+        logistics.burnRateKgPerSecond: 14
+        logistics.jokerFuelFraction: 0.6

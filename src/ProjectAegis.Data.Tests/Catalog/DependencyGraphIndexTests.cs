@@ -208,11 +208,14 @@ public sealed class DependencyGraphIndexTests
             using var reader = new SqliteCatalogReader(dbPath, "dep-graph-commit");
 
             var before = reader.GetSortedDependencyEdges();
-            Assert.DoesNotContain(before, e => e.Kind == CatalogDependencyEdgeKind.PlatformToMount);
+            // Seed already has vls-fwd/gun-76; assert a new mount id is absent pre-commit.
+            Assert.DoesNotContain(before, e =>
+                e.Kind == CatalogDependencyEdgeKind.PlatformToMount &&
+                e.MountId == "vls-aft");
 
             using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(33002)))
             {
-                var mount = new CatalogMount("u1", "vls-fwd", MountType: "vls", ReviewState: CatalogReviewStates.Approved);
+                var mount = new CatalogMount("u1", "vls-aft", MountType: "vls", ReviewState: CatalogReviewStates.Approved);
                 var batchId = gate.ProposeMountBatch([mount], "agent", "dep-graph-test");
                 var decision = gate.ApproveBatch(batchId, "human", "qa-reviewer");
                 Assert.True(decision.Committed);
@@ -223,7 +226,7 @@ public sealed class DependencyGraphIndexTests
             Assert.Contains(after, e =>
                 e.Kind == CatalogDependencyEdgeKind.PlatformToMount &&
                 e.PlatformId == "u1" &&
-                e.MountId == "vls-fwd");
+                e.MountId == "vls-aft");
         }
         finally
         {

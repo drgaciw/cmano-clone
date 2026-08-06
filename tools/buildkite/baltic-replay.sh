@@ -12,10 +12,15 @@ echo "=== verification-before RUN+READ replay 6/6 (release-train-scope-boundary-
 dotnet restore ProjectAegis.sln
 dotnet build ProjectAegis.sln -c Release --no-restore
 
+results_dir="test-results-replay"
+mkdir -p "$results_dir"
+
 dotnet test \
   src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj \
   -c Release --no-build -v minimal \
-  --filter 'FullyQualifiedName~ReplayGolden'
+  --filter 'FullyQualifiedName~ReplayGolden' \
+  --logger "trx;LogFileName=baltic-replay.trx" \
+  --results-directory "$results_dir"
 
 # hash verification in replay gate
 grep -l "17144800277401907079" tests/regression/replay-golden-*.txt 2>/dev/null | head -2 || true

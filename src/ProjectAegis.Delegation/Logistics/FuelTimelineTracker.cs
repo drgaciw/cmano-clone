@@ -23,6 +23,22 @@ public sealed class FuelTimelineTracker
             ? new FuelTimelineTracker(profile.Logistics)
             : null;
 
+
+    /// <summary>Current fuel band for unit (NOMINAL/JOKER/BINGO). Defaults NOMINAL if never drained.</summary>
+    public string CurrentBand(string unitId)
+    {
+        if (_lastStateByUnit.TryGetValue(unitId, out var band))
+        {
+            return band;
+        }
+
+        _ledger.EnsureUnit(unitId);
+        return _ledger.ResolveBand(unitId, _logistics.JokerFuelFraction, _logistics.BingoFuelFraction);
+    }
+
+    public bool IsBingo(string unitId) =>
+        string.Equals(CurrentBand(unitId), "BINGO", StringComparison.Ordinal);
+
     public FuelTickDrainResult Drain(
         ulong simTick,
         double simTime,

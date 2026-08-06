@@ -1,11 +1,11 @@
 # 08 - Agentic Architecture Layer
 
-**Last Updated:** 2026-07-18  
+**Last Updated:** 2026-07-20  
 **Related:** [01-Project-Overview.md](01-Project-Overview.md) · [03-Simulation-Modes.md](03-Simulation-Modes.md) · [04-Agent-Delegation.md](04-Agent-Delegation.md) · [06-Database-Intelligence.md](06-Database-Intelligence.md) · [07-Agentic-Infrastructure.md](07-Agentic-Infrastructure.md) · [20-Command-And-Control-UI.md](20-Command-And-Control-UI.md)  
 **Status:** Locked  
 **FR reverse-ref:** [FR-07](01-Project-Overview.md) — In-simulation agent architecture  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)  
-**Architecture:** [Master Architecture](../../docs/architecture/architecture.md) · ADR-001–008 (see [Resolved Design Decisions](#resolved-design-decisions); ADR-007 C2 map, ADR-008 mission-editor validation) · [ADR-017](../../docs/architecture/adr-017-editor-topology-client-vs-scenario-lab.md) editor topology — **Proposed**, target 2026-10-01
+**Architecture:** [Master Architecture](../../docs/architecture/architecture.md) · ADR-001–008 (see [Resolved Design Decisions](#resolved-design-decisions); ADR-007 C2 map, ADR-008 mission-editor validation)  
 **Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) §08 — **Partial** (Release stage)
 
 ## Purpose
@@ -14,9 +14,9 @@ Define the core software architecture that enables true agentic development, hig
 
 ## Vision
 
-A modern, modular, agent-aware architecture. **The pure C# simulation kernel (`ProjectAegis.Sim`) plus pluggable delegation layer (`ProjectAegis.Delegation`) is shipped** as the headless-first spine; catalog and scenario packages live in `ProjectAegis.Data`. **DOTS/ECS remains a post-P0 dual-track path** for scalable world-state hosting per [ADR-005](../../docs/architecture/adr-005-dots-sim-core.md) — sim rules stay pure C# today. The simulation core, scenario model, databases, UX, and automation evolve **semi-independently** — matching the CMO pattern of preserving the sim kernel while improving interface and tooling.
+A modern, modular, agent-aware architecture. **The pure C# simulation kernel (`ProjectAegis.Sim`) plus pluggable delegation layer (`ProjectAegis.Delegation`) is shipped** as the headless-first spine; catalog and scenario packages live in `ProjectAegis.Data`. **World state stays managed and headless-first** — [ADR-005](../../docs/architecture/adr-005-dots-sim-core.md) DOTS/ECS world-store was **superseded 2026-07-07** (see [unity integration review](../../docs/reports/unity-integration-review-2026-07-07.md) §3). The simulation core, scenario model, databases, UX, and automation evolve **semi-independently** — matching the CMO pattern of preserving the sim kernel while improving interface and tooling.
 
-**P0 spine (shipped):** deterministic tick + engage + detection sub-hash, policy evaluator in Sim, delegation orchestration + unified order log, headless Baltic harness, catalog/scenario binding. **Post-P0:** full DOTS entity store (ADR-005 dual-track), event priority queue, structured sim API for external RL agents, cloud batch farm.
+**P0 spine (shipped):** deterministic tick + engage + detection sub-hash, policy evaluator in Sim, delegation orchestration + unified order log, headless Baltic harness, catalog/scenario binding. **Post-P0:** managed entity-scale throughput (INF-5.1 / `ProjectAegis.Sim.Benchmark`), event priority queue, structured sim API for external RL agents, cloud batch farm — **not** a DOTS entity store.
 
 ## Five-Layer Clean-Room Architecture *(research-aligned)*
 
@@ -86,20 +86,20 @@ Deterministic world clock, fixed timestep, engagement phase, and headless batch 
 - [ ] **ARCH-1.4** `ReplayCheckpointStore` records `(SimTick, WorldHash, LastSequenceId)` at configured interval (`ScenarioReplaySettings`).
 - [ ] **ARCH-1.5** Post-P0: priority-queue event scheduler with deterministic tie-break (sorted event id).
 
-### 2. Entity Component System (ECS) Layer
+### 2. Entity management (managed registry)
 
-High-performance entity management and runtime archetypes.
+High-performance entity management and runtime archetypes — **managed C#**, not Unity DOTS.
 
 - **High-Performance Entity Management**
-  - Built on Unity DOTS (Entities, Components, Systems) per ADR-005 — **Unity layer**; sim rules stay pure C#
-  - Support for 10,000–50,000+ entities with low memory footprint (target; MVP dictionary/registry model)
-  - Burst-compiled systems for sensor, movement, and weapon logic (post-P0 hot paths; **next stack task: DOTS sensor hot path** — see ARCH-2.5)
+  - Battlespace entities live in managed registries / pure Sim types (headless-first); Unity is presentation only
+  - Support for 10,000–50,000+ entities with low memory footprint (target; dictionary/registry model today)
+  - Hot-path throughput via managed data-oriented patterns (SoA, order-stable reductions, optional SIMD) — measured by INF-5.1; **not** Burst/ECS (ADR-005 superseded)
 
 - **Dynamic Entity Archetypes**
   - Aircraft, ships, submarines, drones, missiles, ground units, sensors, EW emitters
   - Runtime entity creation and destruction (critical for drone swarms)
 
-**P0 note:** Battlespace entities are `TargetRegistry` + `UnitTarget` / `GroupTarget` (Delegation) with `SimEntityBinding` in UnityAdapter — not full DOTS archetypes yet. Catalog archetypes: `NearFutureArchetypeCatalog`, `CatalogArchetypeBinding`.
+**P0 note:** Battlespace entities are `TargetRegistry` + `UnitTarget` / `GroupTarget` (Delegation) with `SimEntityBinding` in UnityAdapter. Catalog archetypes: `NearFutureArchetypeCatalog`, `CatalogArchetypeBinding`.
 
 **Acceptance**
 
@@ -107,7 +107,7 @@ High-performance entity management and runtime archetypes.
 - [ ] **ARCH-2.2** `TargetRegistry` supports runtime register/unregister without invalidating deterministic tick order.
 - [ ] **ARCH-2.3** Swarm/deconflict path uses stable ordering (`SwarmSalvoDeconfliction`, sorted engage ids).
 - [ ] **ARCH-2.4** Catalog near-future archetypes resolve via `NearFutureArchetypeRuntime` without Unity references.
-- [ ] **ARCH-2.5** Post-P0: DOTS `Entity` store mirrors `ISimWorldSnapshot` with BlobAsset catalog bake (ADR-005).
+- [ ] **ARCH-2.5** Post-P0: managed entity-scale path meets INF-5.1 measurement bar (`ProjectAegis.Sim.Benchmark`); map-symbol rendering scale is a presentation problem (doc 20 / ADR-007), not an ECS world store.
 
 ### 3. Decision Engine Agent
 
@@ -213,12 +213,12 @@ Serialization, replay, and reproducibility.
 ## Technical Considerations
 
 - **Primary Technology Stack**
-  - **Unity 6.3 LTS** presentation layer; DOTS (Entities 1.3+, Burst, Jobs) for future world store (post-P0 dual-track, ADR-005)
+  - **Unity 6.3 LTS** presentation layer only (UI Toolkit, Addressables); `com.unity.entities` removed from manifest (2026-07-07); Burst retained only as Sentis/`com.unity.ai.inference` dependency
   - Optional Unity-MCP host for live AI control when editor is open
   - Pure C# tick pipeline (`SimTickPipeline`, `DelegationOrchestrator`) for headless parity (shipped)
 
 - **Future-Proofing**
-  - Custom deterministic lockstep first; Netcode for Entities when multiplayer is in scope
+  - Custom deterministic lockstep first; multiplayer netcode TBD when multiplayer is in scope (not Netcode for Entities by default)
   - Modular design allows swapping physics or sensor backends
 
 - **Integration with Other Layers**
@@ -248,8 +248,6 @@ Serialization, replay, and reproducibility.
 
 All charter questions for agentic architecture are **locked** for Sprint 15 design review. See [Resolved Design Decisions](#resolved-design-decisions) and ADR-001–008. No reopen without user approval.
 
-**Pending ADR (not blocking Release spine):** [ADR-017](../../docs/architecture/adr-017-editor-topology-client-vs-scenario-lab.md) — editor topology (in-client Unity vs standalone Scenario Lab sharing `ProjectAegis.Data` core). Status **Proposed**; resolution owner Technical Director; target decision 2026-10-01. Blocks any standalone Scenario Lab epic; does **not** block Release-v1 in-client editor or headless CLI/MCP automation layer.
-
 | Former open question | Resolution location |
 |---------------------|---------------------|
 | Netcode from day one? | [§1 Multiplayer sequencing](#1-multiplayer-sequencing) · ADR-001 |
@@ -266,7 +264,7 @@ All charter questions for agentic architecture are **locked** for Sprint 15 desi
 | **Sim kernel — time** | `ProjectAegis.Sim` · `Core/`, `Time/` | `ISimTickRunner`, `SimTickRunner`, `SimTickPipeline`, `SimClock`, `SimSeed`, `SeededRng`, `SimWorldHash`, `TimeCompressionMode` | Shipped (P0) |
 | **Sim kernel — policy** | `ProjectAegis.Sim` · `Policy/` | `IPolicyEvaluator`, `PolicyEvaluator`, `PassthroughPolicyEvaluator`, `PolicyContext`, `EffectivePolicy`, `ResolvedUnitPolicy`, `FireAbortReason`, `RoeLevel`, `EmconState` | Shipped (P0) |
 | **Sim kernel — engage** | `ProjectAegis.Sim` · `Engage/` | `IEngagementResolver`, `MvpEngagementResolver`, `EngageRequest`, `EngageContext`, `CombatDomainValidator`, `DlzEngageGate`, `MagazineLedger`, `KilledTargetRegistry`, `SwarmSalvoDeconfliction` | Shipped (P0) |
-| **Sim kernel — sensors** | `ProjectAegis.Sim` · `Sensors/` | `DeterministicDetectionLoop`, `PdDetectionContactSimulator`, `DetectionWorldHash`, `ContactLifecycleState`, `ScenarioContactSimulator` | Shipped (P0 partial; full DOTS post-P0) |
+| **Sim kernel — sensors** | `ProjectAegis.Sim` · `Sensors/` | `DeterministicDetectionLoop`, `PdDetectionContactSimulator`, `DetectionWorldHash`, `ContactLifecycleState`, `ScenarioContactSimulator` | Shipped (P0 partial; managed scale post-P0) |
 | **Sim kernel — logistics** | `ProjectAegis.Sim` · `Logistics/` | `FuelLedger` | Shipped (P0 partial) |
 | **Sim kernel — scenario policy** | `ProjectAegis.Sim` · `Scenario/` | `ScenarioPolicyRepository`, `ScenarioPolicyJsonLoader`, `ScenarioPolicyProfile`, `ScenarioMissionTimeline`, `ScenarioEngageDefaults` | Shipped (P0) |
 | **Delegation — orchestration** | `ProjectAegis.Delegation` · `Orchestration/` | `DelegationOrchestrator`, `SimulationSession`, `AutonomyGate`, `OverrideService`, `PolicySnapshotRegistry`, `SimulationModeConfigurator` | Shipped (P0) |
@@ -291,7 +289,7 @@ Decisions locked **2026-06-04** for Sprint 15 design review. Architecture ADRs *
 
 ### 1. Multiplayer sequencing
 
-**Decision:** **Custom deterministic lockstep first**; Netcode for Entities when multiplayer is in scope.
+**Decision:** **Custom deterministic lockstep first**; multiplayer transport TBD when multiplayer is in scope (not Netcode for Entities by default; ADR-005 superseded).
 
 | Concern | ADR | Implication |
 |---------|-----|-------------|
@@ -321,22 +319,28 @@ Decisions locked **2026-06-04** for Sprint 15 design review. Architecture ADRs *
 
 ### 4. Hot-path language split
 
-**Decision:** **Burst for hot paths** (sensors, movement, weapons); **managed C#** for policy, agents, I/O.
+**Decision (revised 2026-07-07):** **Managed data-oriented C# for all hot paths.** The original
+"Burst for hot paths" plan is **superseded** (ADR-005 reversed): the heaviest path (25k @ 1000×
+headless, §2) runs under `dotnet`, where Burst/Jobs do not exist, so hot-path throughput must come
+from managed parallelism (struct-of-arrays state, order-stable parallel reductions, optional
+`System.Numerics` SIMD), measured by the INF-5.1 benchmark. Policy, agents, and I/O stay managed.
+World state is **not** in DOTS/ECS. See
+[unity integration review](../../docs/reports/unity-integration-review-2026-07-07.md) §3.
 
 | Layer | Language | ADR |
 |-------|----------|-----|
-| Detection / engage math (future ECS systems) | Burst | [ADR-005](../../docs/architecture/adr-005-dots-sim-core.md) |
+| Detection / engage math | Managed data-oriented C# | [ADR-005](../../docs/architecture/adr-005-dots-sim-core.md) (superseded: no DOTS world store) |
 | Policy, delegation, order log | Managed pure C# | ADR-001, ADR-002 |
 | Catalog, validation | Managed pure C# | [ADR-006](../../docs/architecture/adr-006-data-layer-boundary.md) |
 
 ### 5. World-state hosting
 
-**Decision:** **Dual track** — pure C# sim rules and hashes today; DOTS entity store for scale per ADR-005.
+**Decision:** **Managed single track** — pure C# sim rules, hashes, and registries today and at scale (ADR-005 reversed). Unity hosts presentation only.
 
-| Now (P0) | Post-P0 |
-|----------|---------|
-| `TargetRegistry`, `ObservedState` / `PerceivedState` | Unity ECS components + BlobAssets from catalog |
-| `SimWorldHash` / `DetectionWorldHash` | Same hash contracts fed from ECS systems |
+| Now (P0) | Post-P0 scale |
+|----------|---------------|
+| `TargetRegistry`, `ObservedState` / `PerceivedState` | Same managed contracts; SoA / parallelism as needed |
+| `SimWorldHash` / `DetectionWorldHash` | Same hash contracts; INF-5.1 headless measurement |
 
 ### 6. Order log boundary
 
@@ -354,12 +358,12 @@ Decisions locked **2026-06-04** for Sprint 15 design review. Architecture ADRs *
 
 | In P0 (evidence in repo) | Deferred |
 |--------------------------|----------|
-| `ProjectAegis.Sim` tick + engage + detection hash | Full ECS entity store (ADR-005 implementation) |
+| `ProjectAegis.Sim` tick + engage + detection hash | Managed entity-scale workload mode beyond `core-tick` (INF-5.1) |
 | `SimTickPipeline` + `SimulationSession` headless | Priority-queue global event scheduler |
 | `IPolicyEvaluator` in Sim + `RoePolicyAdapter` | Full EMCON→sensor emission loop (partial) |
 | `DecisionLog` + replay goldens | Full world blob save/load |
 | Catalog/scenario binding via Data | External RL HTTP API (P2) |
-| C2 projections + Unity smoke | 10k entity performance proof |
+| C2 projections + Unity smoke | 10k-symbol interactive map proof (presentation, not ECS store) |
 | Baltic harness + batch runner | Cloud simulation farm |
 
 ---

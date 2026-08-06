@@ -1,0 +1,25 @@
+{
+    "name": "ProjectAegis.Unity.Runtime.Cesium",
+    "rootNamespace": "ProjectAegis.Unity.Runtime",
+    "references": [
+        "ProjectAegis.Unity.Runtime",
+        "CesiumForUnity"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "CESIUM_FOR_UNITY"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.cesium.unity",
+            "expression": "",
+            "define": "CESIUM_FOR_UNITY"
+        }
+    ],
+    "noEngineReferences": false
+}

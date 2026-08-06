@@ -1,8 +1,19 @@
+/* Left drawer chrome — OOB / Missions / Contacts under the top bar. */
+
+@import url("../AegisTokens.uss");
+
 .c2-drawer-panel {
-    flex-grow: 1;
+    position: absolute;
+    left: 0;
+    top: 56px;
+    bottom: 0;
+    width: 260px;
     min-width: 240px;
-    padding: 4px;
-    background-color: rgba(12, 18, 28, 0.92);
+    flex-direction: column;
+    padding: 6px 8px;
+    background-color: rgba(12, 18, 28, 0.94);
+    border-right-width: 1px;
+    border-right-color: rgb(50, 65, 80);
 }
 
 .c2-drawer-panel--planning-readonly {
@@ -16,11 +27,59 @@
 }
 
 .c2-drawer-tabs {
-    margin-bottom: 4px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 6px;
+    flex-shrink: 0;
+}
+
+.c2-drawer-collapse-toggle {
+    height: 20px;
+    min-height: 20px;
+    max-height: 20px;
+    margin-bottom: 6px;
+    padding-left: 6px;
+    padding-right: 6px;
+    font-size: 10px;
+    color: rgb(180, 190, 200);
+    background-color: rgba(30, 40, 54, 0.95);
+    border-width: 1px;
+    border-color: rgb(50, 65, 80);
+    border-radius: 2px;
+    align-self: stretch;
+    flex-shrink: 0;
+}
+
+.c2-drawer-panel--collapsed {
+    width: 260px;
+    min-width: 160px;
+}
+
+.c2-drawer-panel--collapsed .c2-drawer-tabs,
+.c2-drawer-panel--collapsed .c2-drawer-list {
+    display: none;
+}
+
+/* Keep tabs as compact chips (default Toggle stretches full drawer width). */
+.c2-drawer-tabs Toggle {
+    flex-grow: 0;
+    flex-shrink: 0;
+    width: auto;
+    max-width: 96px;
+    margin-right: 4px;
+    margin-bottom: 2px;
+    color: rgb(180, 190, 200);
+    font-size: 11px;
+}
+
+.c2-drawer-tabs Toggle > .unity-toggle__input {
+    margin-right: 2px;
 }
 
 .c2-drawer-list {
     flex-grow: 1;
+    min-height: 120px;
 }
 
 .c2-drawer-list--hidden {
@@ -29,10 +88,18 @@
 
 .oob-row {
     padding: 2px 4px;
+    color: rgb(180, 190, 200);
 }
 
 .oob-row--selected {
     background-color: rgba(74, 158, 255, 0.25);
     border-left-width: 3px;
     border-left-color: rgb(74, 158, 255);
+}
+
+/* Keyboard focus (REQ-20 CMD-12 / CMD-28.9) — OOB rows are the primary keyboard
+   navigation surface named in REQ-20 ("keyboard focus order for OOB and message log"). */
+.oob-row:focus {
+    border-left-width: var(--focus-ring-width);
+    border-left-color: var(--focus-ring);
 }

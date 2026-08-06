@@ -1,0 +1,97 @@
+run_id: gauntlet-20260709-1242
+skill: qa-gauntlet
+started: 2026-07-09
+base_branch: main
+base_sha_pre_gauntlet: 3a7af12de44e4f6bb173cec041b8b7516a8254d1
+qa_branch: qa-gauntlet-20260709-1242
+
+arguments:
+  tiers: 5
+  scenarios_per_tier: 4
+  seeds: [42, 7, 123]
+  max_fix_attempts: 3
+
+phase0_preflight:
+  gitnexus_index: fresh
+  baseline_tests:
+    total: 1739
+    passed: 1739
+    failed: 0
+    breakdown:
+      ProjectAegis.Sim.Tests: 302
+      ProjectAegis.Data.Excel.Tests: 5
+      ProjectAegis.Delegation.Tests: 412
+      ProjectAegis.Delegation.UnityAdapter.Tests: 467
+      ProjectAegis.Data.Tests: 478
+      ProjectAegis.MissionEditor.Cli.Tests: 75
+    monotonic_floor: 1739
+    note: "test count may only grow during this run"
+  replay_determinism:
+    verdict: PASS
+    tests: "21/21 ReplayGolden (4 Delegation.Tests + 17 Delegation.UnityAdapter.Tests)"
+    report: production/determinism/replay-2026-07-09.md
+  smoke_check:
+    verdict: PASS
+    note: "adapted for headless gauntlet run — automated tests authoritative, manual UI batches N/A"
+    report: production/qa/smoke-2026-07-09.md
+
+complexity_ladder:
+  tier_1:
+    mission_type: "Single patrol"
+    platform_mix: "1-2 surface units/side"
+    victory_conditions: "Survive N ticks"
+    events: "None"
+    roe: "Weapons free, both sides"
+    emcon: "Unrestricted emissions"
+    ticks: 6
+  tier_2:
+    mission_type: "Strike OR escort"
+    platform_mix: "+ fixed-wing air"
+    victory_conditions: "Destroy designated target"
+    events: "1 scripted timed event"
+    roe: "Weapons tight one side"
+    emcon: "Passive-only one side"
+    ticks: 10
+  tier_3:
+    mission_type: "Escort + strike combined"
+    platform_mix: "+ submarines"
+    victory_conditions: "Protect HVU + destroy target"
+    events: "Timed event chain"
+    roe: "ID-required engagement criteria"
+    emcon: "Timed EMCON phases"
+    ticks: 16
+  tier_4:
+    mission_type: "ASW/AAW multi-mission"
+    platform_mix: "+ UAV/drone elements"
+    victory_conditions: "Weighted multi-objective scoring"
+    events: "Random injects (seeded)"
+    roe: "Asymmetric per-side ROE + escalation rules"
+    emcon: "Dynamic EMCON change on detection"
+    ticks: 24
+  tier_5:
+    mission_type: "Multi-domain theater op (patrol+strike+escort+ASW concurrent)"
+    platform_mix: "Joint mix incl. drone swarms, both sides asymmetric"
+    victory_conditions: "Conditional/dynamic objectives that change on trigger"
+    events: "Cascading adversarial injects (comms loss, sensor degradation, reinforcements)"
+    roe: "Mid-mission ROE changes via event"
+    emcon: "Contested EM: deception emitters + EMCON discipline scored"
+    ticks: 40
+
+oracles:
+  - stability
+  - determinism
+  - victory_condition_correctness
+  - roe_compliance
+  - emcon_plausibility
+  - regression
+  - sanity
+
+tier_status:
+  tier_1: pending
+  tier_2: pending
+  tier_3: pending
+  tier_4: pending
+  tier_5: pending
+
+defects: []
+quarantined: []

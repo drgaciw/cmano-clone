@@ -11,8 +11,9 @@ using ProjectAegis.Data.Catalog;
 public static class CmoMarkdownImporter
 {
     private static readonly Regex SectionHeading = new(@"^###\s+(.+)$", RegexOptions.Compiled);
+    private static readonly Regex CountrySectionHeading = new(@"^##\s+(.+)$", RegexOptions.Compiled);
     private static readonly Regex SensorPath = new(@"/sensor/(\d+)/", RegexOptions.Compiled);
-    private static readonly Regex PlatformPath = new(@"/(?:ship|aircraft|submarine|facility)/(\d+)/", RegexOptions.Compiled);
+    private static readonly Regex PlatformPath = new(@"/(ship|aircraft|submarine|facility)/(\d+)/", RegexOptions.Compiled);
     private static readonly Regex WeaponPath = new(@"/weapon/(\d+)/", RegexOptions.Compiled);
     private static readonly Regex RangeMaxRow = new(
         @"\|\s*Range\s+Max\s*\|\s*([\d.]+)\s*(km|m|nm)\s*\|",
@@ -103,6 +104,11 @@ public static class CmoMarkdownImporter
         CatalogJsonImporter.ResolveRepoRelative(
             Path.Combine("docs", "reference", "cmano-db", "facility.md"));
 
+    /// <summary>Full ground-unit corpus (derived from facility.md mobile-unit subset; 3289 records).</summary>
+    public static string ResolveReferenceGroundUnitMarkdownPath() =>
+        CatalogJsonImporter.ResolveRepoRelative(
+            Path.Combine("docs", "reference", "cmano-db", "ground-units.md"));
+
     /// <summary>Full weapon corpus for off-CI nightly propose→approve (S31-10; 4403 records).</summary>
     public static string ResolveReferenceWeaponMarkdownPath() =>
         CatalogJsonImporter.ResolveRepoRelative(
@@ -142,7 +148,9 @@ public static class CmoMarkdownImporter
                 return;
             }
 
-            var platformId = SlugPlatformId(title);
+            var platformId = IsPublicCorpusImport()
+                ? CatalogValidationDefaults.PublicCorpusSensorCatalogPlatformId
+                : SlugPlatformId(title);
             var sensorId = $"cmo-sensor-{sensorNumericId.Value}";
             var basePd = InferBasePd(rangeMax.Value, rangeUnit);
             bindings.Add(new CatalogSensorBinding(
@@ -229,7 +237,8 @@ public static class CmoMarkdownImporter
     public static IReadOnlyList<CatalogPlatformBinding> ReadPlatformBindings(
         string markdownPath,
         int? maxRecords = null,
-        bool mapBalticIds = false)
+        bool mapBalticIds = false,
+        string defaultDomain = "surface")
     {
         if (!File.Exists(markdownPath))
         {
@@ -238,7 +247,7 @@ public static class CmoMarkdownImporter
 
         var text = File.ReadAllText(markdownPath);
         var batchId = Path.GetFileNameWithoutExtension(markdownPath);
-        return ReadPlatformBindingsFromText(text, Path.GetFileName(markdownPath), batchId, maxRecords, mapBalticIds);
+        return ReadPlatformBindingsFromText(text, Path.GetFileName(markdownPath), batchId, maxRecords, mapBalticIds, defaultDomain);
     }
 
     public static IReadOnlyList<CatalogPlatformBinding> ReadPlatformBindingsFromText(
@@ -246,14 +255,19 @@ public static class CmoMarkdownImporter
         string sourceFile,
         string importBatchId,
         int? maxRecords = null,
-        bool mapBalticIds = false)
+        bool mapBalticIds = false,
+        string defaultDomain = "surface")
     {
         var bindings = new List<CatalogPlatformBinding>();
+        var bindingNumericIds = new List<int>();
+        var bindingIsBalticMapped = new List<bool>();
         string? title = null;
         int? platformNumericId = null;
         string platformClass = "";
         string nationality = "";
-        string domain = "surface";
+        string domain = defaultDomain;
+        string currentCountrySection = "";
+        string? platformUrlSegment = null;
 
         void FlushSection()
         {
@@ -263,33 +277,62 @@ public static class CmoMarkdownImporter
             }
 
             var slug = SlugPlatformId(title);
-            var platformId = mapBalticIds && BalticPlatformIds.TryGetValue(slug, out var mapped)
-                ? mapped
-                : slug;
+            string platformId;
+            bool isBalticMapped;
+            if (mapBalticIds && BalticPlatformIds.TryGetValue(slug, out var mapped))
+            {
+                platformId = mapped;
+                isBalticMapped = true;
+            }
+            else
+            {
+                platformId = slug;
+                isBalticMapped = false;
+            }
+
+            // S31-11 completeness fix: CitationRef/SourceFactId were hardcoded to "ship" for
+            // every entity (aircraft/submarine/facility records pointed at a fabricated
+            // /ship/{id}/ URL). Use the actual matched cmano-db path segment.
+            var urlSegment = platformUrlSegment ?? "ship";
             bindings.Add(new CatalogPlatformBinding(
                 platformId,
                 DisplayName: title.Trim(),
                 Domain: domain,
                 PlatformClass: platformClass,
-                Nationality: nationality,
+                Nationality: string.IsNullOrEmpty(nationality) ? currentCountrySection : nationality,
                 ReviewState: CatalogReviewStates.Provisional,
                 TrlLevel: 9,
                 ValueTier: CatalogProvenanceTier.InterpretedValue,
-                CitationRef: $"/ship/{platformNumericId.Value}/",
-                SourceFactId: $"cmano-db:ship/{platformNumericId.Value}",
+                CitationRef: $"/{urlSegment}/{platformNumericId.Value}/",
+                SourceFactId: $"cmano-db:{urlSegment}/{platformNumericId.Value}",
                 ImportBatchId: importBatchId,
                 SourceFile: sourceFile));
+            bindingNumericIds.Add(platformNumericId.Value);
+            bindingIsBalticMapped.Add(isBalticMapped);
 
             title = null;
             platformNumericId = null;
             platformClass = "";
             nationality = "";
-            domain = "surface";
+            domain = defaultDomain;
+            platformUrlSegment = null;
         }
 
         foreach (var rawLine in markdown.Split('\n'))
         {
             var line = rawLine.TrimEnd('\r');
+
+            // S31-11 completeness fix: cmano-db markdown groups records under H2 "## <Country>"
+            // headers; per-record tables never carry an explicit Nationality row. Track the
+            // enclosing country section so it can be used as the Nationality fallback.
+            var countryHeading = CountrySectionHeading.Match(line);
+            if (countryHeading.Success)
+            {
+                FlushSection();
+                currentCountrySection = countryHeading.Groups[1].Value.Trim();
+                continue;
+            }
+
             var heading = SectionHeading.Match(line);
             if (heading.Success)
             {
@@ -313,7 +356,8 @@ public static class CmoMarkdownImporter
                 var pathMatch = PlatformPath.Match(line);
                 if (pathMatch.Success)
                 {
-                    platformNumericId = int.Parse(pathMatch.Groups[1].Value, CultureInfo.InvariantCulture);
+                    platformUrlSegment = pathMatch.Groups[1].Value;
+                    platformNumericId = int.Parse(pathMatch.Groups[2].Value, CultureInfo.InvariantCulture);
                 }
             }
 
@@ -321,7 +365,7 @@ public static class CmoMarkdownImporter
             if (typeMatch.Success)
             {
                 platformClass = typeMatch.Groups[1].Value.Trim();
-                domain = InferDomain(platformClass);
+                domain = InferDomain(platformClass, defaultDomain);
             }
 
             var nationalityMatch = NationalityRow.Match(line);
@@ -332,6 +376,30 @@ public static class CmoMarkdownImporter
         }
 
         FlushSection();
+
+        // S31-11 fix: SlugPlatformId derives platform_id from display name (+ optional year),
+        // not the unique cmano-db numeric id — different national operators of the same
+        // airframe/hull can share a slug. CatalogWriteGate stages rows keyed on
+        // (batch_id, platform_id) via INSERT OR REPLACE, so undetected slug collisions
+        // silently drop records. Disambiguate only the colliding subset by appending the
+        // numeric id, leaving all non-colliding (and Baltic-mapped) ids unchanged so
+        // existing mount/loadout/magazine references (which independently recompute the
+        // plain slug) keep matching for every platform that wasn't actually ambiguous.
+        var collisionCounts = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var binding in bindings)
+        {
+            collisionCounts[binding.PlatformId] = collisionCounts.GetValueOrDefault(binding.PlatformId) + 1;
+        }
+
+        for (var i = 0; i < bindings.Count; i++)
+        {
+            if (bindingIsBalticMapped[i] || collisionCounts[bindings[i].PlatformId] <= 1)
+            {
+                continue;
+            }
+
+            bindings[i] = bindings[i] with { PlatformId = $"{bindings[i].PlatformId}-{bindingNumericIds[i]}" };
+        }
 
         return bindings
             .OrderBy(b => b.PlatformId, StringComparer.Ordinal)
@@ -435,8 +503,11 @@ public static class CmoMarkdownImporter
 
             if (inWeaponsSection)
             {
-                var rangeMatch = RangeKm.Match(line);
-                if (rangeMatch.Success)
+                // S31-13 fix: a single "**Weapons**" bullet line can carry multiple
+                // domain-qualified range clauses (e.g. "Surface Max: 22.2 km. Land Max: 157.4 km.").
+                // Regex.Match only returns the first (leftmost) clause, silently discarding a
+                // higher range reported later on the same line. Scan all clauses and keep the max.
+                foreach (Match rangeMatch in RangeKm.Matches(line))
                 {
                     var km = double.Parse(rangeMatch.Groups[1].Value, CultureInfo.InvariantCulture);
                     maxRangeMeters = Math.Max(maxRangeMeters, km * 1000.0);
@@ -552,6 +623,12 @@ public static class CmoMarkdownImporter
         };
     }
 
+    internal static bool IsPublicCorpusImport() =>
+        string.Equals(
+            Environment.GetEnvironmentVariable("AEGIS_PUBLIC_CORPUS"),
+            "1",
+            StringComparison.Ordinal);
+
     public static string SlugPlatformId(string title)
     {
         var head = title.Split(',')[0].Trim();
@@ -565,26 +642,86 @@ public static class CmoMarkdownImporter
         return string.IsNullOrEmpty(slug) ? "unknown-mount" : slug[..Math.Min(slug.Length, 64)];
     }
 
-    public static string InferDomain(string platformClass)
+    public static string InferDomain(string platformClass, string defaultDomain = "surface")
     {
-        if (platformClass.Contains("aircraft", StringComparison.OrdinalIgnoreCase) ||
-            platformClass.Contains("helicopter", StringComparison.OrdinalIgnoreCase))
+        // Hull-type override: aircraft/helicopter carriers and cruisers are surface combatants
+        // that operate aircraft, not airborne platforms themselves — must win over the
+        // "helicopter" keyword hit below (S31-11: was misclassifying ~250 ship.md carriers as air).
+        //
+        // Surface auxiliaries that mention "submarine" (rescue/tender/chaser) must also win
+        // before the subsurface "submarine" substring match — Wave 2 corpus audit found
+        // ASR/AS/PC ship.md rows mis-tagged subsurface (~44) for this reason. Aligns with
+        // tools/cmo_verify_corpus_coverage.py _SUBSURFACE_FALSE_POSITIVE_RE.
+        if (Regex.IsMatch(platformClass, @"\b(carrier|cruiser|destroyer)\b", RegexOptions.IgnoreCase) ||
+            Regex.IsMatch(platformClass, @"\b(rescue ship|tender|chaser)\b", RegexOptions.IgnoreCase))
+        {
+            return "surface";
+        }
+
+        // Air before subsurface: "Anti-Submarine Warfare" must not match "submarine".
+        if (platformClass.Contains("anti-submarine", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("aircraft", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("helicopter", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("fixed wing", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("fighter", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("bomber", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("multirole", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("attack)", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("asw", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("nfh", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("tth", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("helix", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("maritime patrol", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("uav", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("ucav", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("unmanned aerial", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("trainer", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("tanker (air", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("airborne", StringComparison.OrdinalIgnoreCase) ||
+            (platformClass.Contains("aerostat", StringComparison.OrdinalIgnoreCase) &&
+                !platformClass.Contains("mooring", StringComparison.OrdinalIgnoreCase)) ||
+            platformClass.Contains("target drone", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("wild weasel", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("elint", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("area surveillance", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("search and rescue", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("electronic warfare", StringComparison.OrdinalIgnoreCase))
         {
             return "air";
         }
 
-        if (platformClass.Contains("submarine", StringComparison.OrdinalIgnoreCase))
+        // Subsurface: SSK/SSN/SSBN and true submarine classes, plus unmanned underwater vehicles.
+        if (platformClass.Contains("submarine", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains(" ssk", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("ssn", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("ssbn", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("hunter-killer", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("plarb", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("plark", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("rov", StringComparison.OrdinalIgnoreCase) ||
+            platformClass.Contains("uuv", StringComparison.OrdinalIgnoreCase) ||
+            Regex.IsMatch(platformClass, @"\bsdv\b", RegexOptions.IgnoreCase) ||
+            platformClass.Contains("underwater", StringComparison.OrdinalIgnoreCase) ||
+            Regex.IsMatch(platformClass, @"\bPLA-\d", RegexOptions.IgnoreCase))
         {
             return "subsurface";
         }
 
+        // Explicit water-surface facility types stay surface even when the corpus default is land.
+        if (platformClass.Contains("water (surface)", StringComparison.OrdinalIgnoreCase))
+        {
+            return "surface";
+        }
+
+        // Word-boundary match: "land" must not fire on "Landing" (amphibious ships/craft are
+        // surface vessels, not land vehicles — S31-11: was misclassifying ~350 ship.md entries).
         if (platformClass.Contains("facility", StringComparison.OrdinalIgnoreCase) ||
-            platformClass.Contains("land", StringComparison.OrdinalIgnoreCase))
+            Regex.IsMatch(platformClass, @"\bland\b", RegexOptions.IgnoreCase))
         {
             return "land";
         }
 
-        return "surface";
+        return defaultDomain;
     }
 
     public static string InferMountType(string weaponType)

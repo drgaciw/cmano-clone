@@ -1,0 +1,44 @@
+# DRG-59: run tools/qa-gauntlet pytest so catalog/coverage/diff guards are not local-only.
+# Lightweight Python-only job — separate from gauntlet-oracle.yml (.NET Demo + oracle eval).
+#
+# Why: test_coverage_map_bootstrap_consistency (and 66 other guards) passed only when
+# someone ran pytest locally; a red suite sat on main from #364 until #365 with no CI signal.
+#
+# Always runs on every PR (suite is ~15s). No path filter so this check can be required
+# without hanging PRs that do not touch gauntlet paths.
+name: gauntlet-pytest
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: gauntlet-pytest-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pytest:
+    name: tools/qa-gauntlet pytest
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: tools/qa-gauntlet/requirements.txt
+
+      - name: Install deps
+        run: pip install -r tools/qa-gauntlet/requirements.txt
+
+      - name: Run pytest
+        run: pytest tools/qa-gauntlet/ -q --tb=short

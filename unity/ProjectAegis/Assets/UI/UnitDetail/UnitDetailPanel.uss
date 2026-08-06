@@ -1,8 +1,17 @@
+/* Right unit detail chrome — fixed column under the top bar. */
+
 .unit-detail-panel {
-    flex-grow: 1;
+    position: absolute;
+    right: 0;
+    top: 56px;
+    bottom: 0;
+    width: 300px;
     min-width: 280px;
+    flex-direction: column;
     padding: 8px;
-    background-color: rgba(12, 18, 28, 0.92);
+    background-color: rgba(12, 18, 28, 0.94);
+    border-left-width: 1px;
+    border-left-color: rgb(50, 65, 80);
 }
 
 .unit-detail-title {

@@ -1,0 +1,13 @@
+diff --git a/src/ProjectAegis.Sim/Sensors/PdDetectionContactSimulator.cs b/src/ProjectAegis.Sim/Sensors/PdDetectionContactSimulator.cs
+index 31077f8d..0dce1c1d 100644
+--- a/src/ProjectAegis.Sim/Sensors/PdDetectionContactSimulator.cs
++++ b/src/ProjectAegis.Sim/Sensors/PdDetectionContactSimulator.cs
+@@ -157,7 +157,7 @@ public sealed class PdDetectionContactSimulator
+             age >= (ulong)_classifyAfterTicks)
+         {
+             var previous = track.State;
+-            track.State = ContactLifecycleState.Classified;
++            track.State = ContactLifecycleState.Identified;
+             transitions.Add(new ContactTransition(
+                 simTick,
+                 simTime,

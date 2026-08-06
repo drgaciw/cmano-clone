@@ -156,4 +156,162 @@ public sealed class GauntletOracleEvaluatorTests
         var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv);
         Assert.True(result.Passed, string.Join("; ", result.Failures));
     }
+
+    [Fact]
+    public void EvaluateFromPolicyAndCsv_default_profile_uses_ladder_expect_not_expectCi()
+    {
+        // Ladder authority: denials ~80 / negative score at T5@40 must pass expect,
+        // while the CI envelope (ticks=10) would reject those rows.
+        var policy = """
+            {
+              "id": "gauntlet-t5-roe-change",
+              "gauntlet": {
+                "expect": {
+                  "side": "BLUE",
+                  "minKills": 1,
+                  "maxMissilesFired": 12,
+                  "minDenials": 78,
+                  "maxDenials": 82,
+                  "minScore": -350,
+                  "maxScore": -150,
+                  "requireNonEmptyFingerprint": true,
+                  "requireFingerprintSubstrings": [ "CommsStateChange", "Degraded" ]
+                },
+                "expectCi": {
+                  "side": "BLUE",
+                  "minKills": 1,
+                  "maxMissilesFired": 12,
+                  "minDenials": 14,
+                  "maxDenials": 28,
+                  "minScore": 50,
+                  "maxScore": 170,
+                  "requireNonEmptyFingerprint": true,
+                  "requireFingerprintSubstrings": [ "CommsStateChange", "Degraded" ]
+                }
+              }
+            }
+            """;
+        var ladderCsv = """
+            scenarioId,seed,side,score,kills,missilesFired,denials,fingerprint
+            gauntlet-t5-roe-change,42,BLUE,-200,2,4,80,CommsStateChange|3|3|3|net|Nominal|Degraded|roe
+            """;
+        var ladder = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, ladderCsv);
+        Assert.True(ladder.Passed, string.Join("; ", ladder.Failures));
+
+        // Same rows against CI profile must fail (wrong tick budget)
+        var ciOnLadder = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, ladderCsv, profile: "ci");
+        Assert.False(ciOnLadder.Passed);
+    }
+
+    [Fact]
+    public void EvaluateFromPolicyAndCsv_ci_profile_uses_expectCi()
+    {
+        var policy = """
+            {
+              "id": "gauntlet-t5-roe-change",
+              "gauntlet": {
+                "expect": {
+                  "side": "BLUE",
+                  "minDenials": 78,
+                  "maxDenials": 82,
+                  "minScore": -350,
+                  "maxScore": -150,
+                  "requireNonEmptyFingerprint": true,
+                  "requireFingerprintSubstrings": [ "CommsStateChange", "Degraded" ]
+                },
+                "expectCi": {
+                  "side": "BLUE",
+                  "minDenials": 14,
+                  "maxDenials": 28,
+                  "minScore": 50,
+                  "maxScore": 170,
+                  "requireNonEmptyFingerprint": true,
+                  "requireFingerprintSubstrings": [ "CommsStateChange", "Degraded" ]
+                }
+              }
+            }
+            """;
+        var ciCsv = """
+            scenarioId,seed,side,score,kills,missilesFired,denials,fingerprint
+            gauntlet-t5-roe-change,42,BLUE,100,2,4,20,CommsStateChange|3|3|3|net|Nominal|Degraded|roe
+            """;
+        var defaultWouldFail = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, ciCsv);
+        Assert.False(defaultWouldFail.Passed, "ladder expect must reject CI-tick numerics");
+
+        var ci = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, ciCsv, profile: "ci");
+        Assert.True(ci.Passed, string.Join("; ", ci.Failures));
+    }
+
+    [Fact]
+    public void EvaluateFromPolicyAndCsv_ci_profile_fails_closed_when_expectCi_absent()
+    {
+        var policy = """
+            {
+              "id": "x",
+              "gauntlet": {
+                "expect": {
+                  "minKills": 1,
+                  "requireNonEmptyFingerprint": true
+                }
+              }
+            }
+            """;
+        var csv = """
+            scenarioId,seed,side,score,kills,missilesFired,denials,fingerprint
+            x,42,BLUE,0,1,0,0,fp
+            """;
+        var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, csv, profile: "ci");
+        Assert.False(result.Passed);
+        Assert.Contains(result.Failures, f => f.Contains("missing gauntlet.expectCi", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void EvaluateFromPolicyAndCsv_unknown_gauntlet_key_fails_closed_without_cli()
+    {
+        var policy = """
+            {
+              "id": "gauntlet-t1-patrol-a",
+              "gauntlet": {
+                "intent": "patrol",
+                "emconPhases": [],
+                "expect": {
+                  "side": "BLUE",
+                  "minKills": 1,
+                  "maxMissilesFired": 4,
+                  "minScore": 0,
+                  "maxScore": 100,
+                  "requireNonEmptyFingerprint": true
+                }
+              }
+            }
+            """;
+        var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, PassCsv);
+        Assert.False(result.Passed);
+        Assert.Contains(result.Failures, f => f.Contains("emconPhases", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void EvaluateFromPolicyAndCsv_legacy_emcon_fails_oracle()
+    {
+        var policy = """
+            {
+              "id": "gauntlet-t1-patrol-a",
+              "gauntlet": {
+                "intent": "patrol",
+                "emcon": "phased",
+                "expect": {
+                  "side": "BLUE",
+                  "minKills": 1,
+                  "maxMissilesFired": 4,
+                  "minScore": 0,
+                  "maxScore": 100,
+                  "requireNonEmptyFingerprint": true
+                }
+              }
+            }
+            """;
+        var result = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policy, PassCsv);
+        Assert.False(result.Passed);
+        Assert.Contains(result.Failures, f => f.Contains("emcon", StringComparison.Ordinal));
+    }
 }

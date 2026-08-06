@@ -33,12 +33,11 @@ public static class CmoMarkdownImportProposer
 
         if (!File.Exists(databasePath))
         {
-            CatalogSeedBootstrap.SeedBalticPatrol(databasePath, overwrite: false);
+            BootstrapMissingDatabase(databasePath);
         }
 
         var batches = new List<CmoMarkdownImportBatch>();
-        var catalogClock = clock ?? new FixedCatalogClock(0);
-        using var gate = new CatalogWriteGate(databasePath, catalogClock);
+        using var gate = new CatalogWriteGate(databasePath, CreateImportBatchClock(markdownPath, clock));
 
         var chunks = ChunkBindings(approved, Math.Max(1, chunkSize));
         foreach (var chunk in chunks)
@@ -92,11 +91,10 @@ public static class CmoMarkdownImportProposer
 
         if (!File.Exists(databasePath))
         {
-            CatalogSeedBootstrap.SeedBalticPatrol(databasePath, overwrite: false);
+            BootstrapMissingDatabase(databasePath);
         }
 
-        var catalogClock = clock ?? new FixedCatalogClock(0);
-        using var gate = new CatalogWriteGate(databasePath, catalogClock);
+        using var gate = new CatalogWriteGate(databasePath, CreateImportBatchClock(platformMarkdownPath, clock));
 
         string? platformBatchId = null;
         if (platforms.Count > 0)
@@ -194,8 +192,7 @@ public static class CmoMarkdownImportProposer
         EnsureDatabase(databasePath);
 
         var batches = new List<CmoMarkdownImportBatch>();
-        var catalogClock = clock ?? new FixedCatalogClock(0);
-        using var gate = new CatalogWriteGate(databasePath, catalogClock);
+        using var gate = new CatalogWriteGate(databasePath, CreateImportBatchClock(markdownPath, clock));
 
         foreach (var chunk in ChunkWeapons(weapons, Math.Max(1, chunkSize)))
         {
@@ -227,7 +224,8 @@ public static class CmoMarkdownImportProposer
         int? maxRecords = null,
         int chunkSize = DefaultChunkSize,
         ICatalogClock? clock = null,
-        CatalogBalanceDriftPipelineSettings? balanceDrift = null)
+        CatalogBalanceDriftPipelineSettings? balanceDrift = null,
+        string defaultDomain = "surface")
     {
         if (string.IsNullOrWhiteSpace(databasePath))
         {
@@ -239,7 +237,7 @@ public static class CmoMarkdownImportProposer
             throw new FileNotFoundException($"CMO markdown not found: {markdownPath}");
         }
 
-        var platforms = CmoMarkdownImporter.ReadPlatformBindings(markdownPath, mapBalticIds: mapBalticPlatformIds);
+        var platforms = CmoMarkdownImporter.ReadPlatformBindings(markdownPath, mapBalticIds: mapBalticPlatformIds, defaultDomain: defaultDomain);
         if (maxRecords.HasValue)
         {
             platforms = platforms.Take(maxRecords.Value).ToArray();
@@ -270,8 +268,7 @@ public static class CmoMarkdownImportProposer
         EnsureDatabase(databasePath);
 
         var batches = new List<CmoMarkdownImportBatch>();
-        var catalogClock = clock ?? new FixedCatalogClock(0);
-        using var gate = new CatalogWriteGate(databasePath, catalogClock);
+        using var gate = new CatalogWriteGate(databasePath, CreateImportBatchClock(markdownPath, clock));
 
         foreach (var platformChunk in ChunkPlatforms(platforms, Math.Max(1, chunkSize)))
         {
@@ -377,8 +374,35 @@ public static class CmoMarkdownImportProposer
     {
         if (!File.Exists(databasePath))
         {
-            CatalogSeedBootstrap.SeedBalticPatrol(databasePath, overwrite: false);
+            BootstrapMissingDatabase(databasePath);
         }
+    }
+
+    private static void BootstrapMissingDatabase(string databasePath)
+    {
+        if (string.Equals(
+                Environment.GetEnvironmentVariable("AEGIS_PUBLIC_CORPUS"),
+                "1",
+                StringComparison.Ordinal))
+        {
+            CatalogSeedBootstrap.EnsureSchemaOnly(databasePath, overwrite: false);
+            return;
+        }
+
+        CatalogSeedBootstrap.SeedBalticPatrol(databasePath, overwrite: false);
+    }
+
+    internal static ICatalogClock CreateImportBatchClock(string markdownPath, ICatalogClock? clock = null)
+    {
+        if (clock != null)
+        {
+            return clock;
+        }
+
+        var name = Path.GetFileNameWithoutExtension(markdownPath);
+        var hash = Math.Abs(StringComparer.Ordinal.GetHashCode(name));
+        var baseTick = (hash % 1_000_000L) * 10_000L;
+        return new IncrementingCatalogClock(baseTick);
     }
 
     private static T[][] ChunkArray<T>(IReadOnlyList<T> sorted, int chunkSize)

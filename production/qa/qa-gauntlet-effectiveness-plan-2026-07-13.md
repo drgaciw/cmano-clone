@@ -4,7 +4,7 @@
 **Status:** Planning deliverable (not implementation)  
 **Method:** Superpowers `brainstorming` + sequential-thinking MCP  
 **Skill under review:** `.grok/skills/qa-gauntlet/SKILL.md`  
-**Reference AAR:** `production/qa/gauntlet/gauntlet-20260710-1352/AAR.md`
+**Reference AAR:** archived externally from `gauntlet-20260710-1352`; bulky run artifacts are intentionally not committed
 
 ## 1. Purpose
 
@@ -103,7 +103,7 @@ Make `/qa-gauntlet` a more effective **game-playing** QA process: scenarios shou
 - Validator: `src/ProjectAegis.Data/Catalog/GauntletRosterValidator.cs`  
 - Catalog: `assets/data/catalog/baltic_patrol.db`  
 - Policies: `data/scenarios/gauntlet-*.policy.json`  
-- Artifacts: `production/qa/gauntlet/<RUN_ID>/`
+- Artifacts: `production/qa/gauntlet/<RUN_ID>/` or external run archive
 
 ## 8. Implementation order (next goal)
 

@@ -1,0 +1,34 @@
+=== TIER 2 ticks=10 ===
+Wrote 12 rows to production/qa/gauntlet/gauntlet-20260716-2346/tier-2/results.csv
+BATCH_EXIT=0
+{
+  "ok": true,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t2-escort-a",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t2-escort-passive",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t2-strike-a",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t2-strike-event",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    }
+  ],
+  "allPassed": true
+}
+ORACLE_EXIT=0

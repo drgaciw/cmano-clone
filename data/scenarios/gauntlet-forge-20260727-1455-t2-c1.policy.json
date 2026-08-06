@@ -1,0 +1,144 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 30000,
+    "envelopeMinMeters": 3000,
+    "envelopeMaxMeters": 90000,
+    "defaultMagazineRounds": 5,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.95,
+    "pkIntercept": 0.0,
+    "pkKill": 0.9,
+    "salvoSize": 2
+  },
+  "detection": [
+    {
+      "observerId": "mrk-shkval-pr-22800-karakurt",
+      "sensorId": "radar-1",
+      "targetId": "k-31-visby-2009",
+      "contactId": "c-forge-t2c1-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-grigorovich-pr-1135-6m",
+      "sensorId": "radar-1",
+      "targetId": "k-31-visby-2009",
+      "contactId": "c-forge-t2c1-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+      "sensorId": "radar-1",
+      "targetId": "k-31-visby-2009",
+      "contactId": "c-forge-t2c1-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "eurofighter-typhoon",
+      "sensorId": "radar-1",
+      "targetId": "su-27sm-sm3-flanker-j-2013",
+      "contactId": "c-forge-t2c1-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "Hard-case replay of FIXED defect BUG-engagement-resolver-shooter-liveness (signature: dead-shooter-fires-next-tick). Blue's weakest hull (k-31-visby-2009 - 57mm gun only, no SAM/SSM) is deliberately the sole detection target of all three red surface shooters simultaneously, at short envelope with elevated pkBase/pkKill/salvoSize (0.95/0.9/2) so it is reliably killed in an early tick while still carrying a full 5-round magazine it could historically have fired again with. Post-fix the expected observable is a SHOOTER_DESTROYED engagement abort (denial) for k-31-visby-2009 on every tick after its death, not a new launch. Deliberately WeaponsFree/WeaponsFree both sides and no passive-EMCON stand-in in THIS candidate -- the tier's ROE-tight/passive-EMCON asymmetry coverage is carried by candidates 3-4 instead, so this one isolates the shooter-liveness variable per the one-focused-mutation-family guidance.",
+    "oracle": "k-31-visby-2009 is killed in an early tick (ideally tick 1-2); zero engagements are recorded with k-31-visby-2009 as shooter after its death tick; any attempted post-death engagement resolves as EngagementAbortReason.ShooterDestroyed (SHOOTER_DESTROYED), never a launch/hit/miss.",
+    "catalogRefs": [
+      "k-31-visby-2009",
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "eurofighter-typhoon",
+      "mrk-shkval-pr-22800-karakurt",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+      "su-27sm-sm3-flanker-j-2013"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 2,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": 0.0,
+      "maxScore": 200.0,
+      "maxMissilesFired": 8,
+      "maxDenials": 5,
+      "minKills": 1,
+      "minDenials": 0
+    },
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "eurofighter-typhoon",
+        "platformId": "eurofighter-typhoon",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+        "platformId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-27sm-sm3-flanker-j-2013",
+        "platformId": "su-27sm-sm3-flanker-j-2013",
+        "domain": "air",
+        "side": "red"
+      }
+    ],
+    "forge": {
+      "recipes": [
+        "hard-case-replay"
+      ],
+      "candidateId": "gauntlet-forge-20260727-1455-t2-c1",
+      "noveltyTags": [
+        "dead-shooter-fires-next-tick",
+        "shooter-liveness-regression",
+        "concentrated-fire-early-kill"
+      ],
+      "note": "expect provisional pending regen"
+    },
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T2 tick budget 10, seeds 42,7,123. NOTE minDenials may legitimately be 0: EngagementAbortReason aborts (e.g. SHOOTER_DESTROYED) are written to the OrderLog, NOT to DecisionLog.PolicyDenials, so an abort-heavy scenario can still show denials=0. Verified empirically: candidate-1 shows 9 SHOOTER_DESTROYED with 0 denials. Per tools/qa-gauntlet/README-expect-regen.md - derived, not invented."
+  },
+  "id": "gauntlet-forge-20260727-1455-t2-c1"
+}

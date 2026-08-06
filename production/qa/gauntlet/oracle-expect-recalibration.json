@@ -1,0 +1,213 @@
+{
+  "gauntlet-joint-orbat-smoke": {
+    "old": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -1000,
+      "maxScore": 1000
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 1,
+      "maxMissilesFired": 11,
+      "maxDenials": 12,
+      "minScore": 0,
+      "maxScore": 300,
+      "minDenials": 8
+    },
+    "observed": {
+      "scores": [
+        250,
+        50,
+        50
+      ],
+      "kills": [
+        3,
+        1,
+        1
+      ],
+      "missiles": [
+        6,
+        9,
+        9
+      ],
+      "denials": [
+        10,
+        10,
+        10
+      ]
+    }
+  },
+  "gauntlet-t3-emcon-phases": {
+    "old": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -10.0,
+      "maxScore": 50.0,
+      "maxMissilesFired": 7,
+      "maxDenials": 22,
+      "minKills": 1,
+      "minDenials": 10
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 1,
+      "maxMissilesFired": 11,
+      "maxDenials": 12,
+      "minScore": 0,
+      "maxScore": 300,
+      "minDenials": 8
+    },
+    "observed": {
+      "scores": [
+        250,
+        50,
+        50
+      ],
+      "kills": [
+        3,
+        1,
+        1
+      ],
+      "missiles": [
+        6,
+        9,
+        9
+      ],
+      "denials": [
+        10,
+        10,
+        10
+      ]
+    }
+  },
+  "gauntlet-t4-random-inject": {
+    "old": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -30.0,
+      "maxScore": 230.0,
+      "maxMissilesFired": 11,
+      "maxDenials": 6
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 0,
+      "maxMissilesFired": 14,
+      "maxDenials": 2,
+      "minScore": -50,
+      "maxScore": 250
+    },
+    "observed": {
+      "scores": [
+        200,
+        100,
+        0
+      ],
+      "kills": [
+        2,
+        1,
+        0
+      ],
+      "missiles": [
+        6,
+        10,
+        12
+      ],
+      "denials": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "gauntlet-t5-cascade": {
+    "old": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -30.0,
+      "maxScore": 230.0,
+      "maxMissilesFired": 11,
+      "maxDenials": 6
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 0,
+      "maxMissilesFired": 14,
+      "maxDenials": 18,
+      "minScore": -130,
+      "maxScore": 170,
+      "minDenials": 14
+    },
+    "observed": {
+      "scores": [
+        120,
+        20,
+        -80
+      ],
+      "kills": [
+        2,
+        1,
+        0
+      ],
+      "missiles": [
+        6,
+        10,
+        12
+      ],
+      "denials": [
+        16,
+        16,
+        16
+      ]
+    }
+  },
+  "gauntlet-t5-roe-change": {
+    "old": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -130.0,
+      "maxScore": -70.0,
+      "maxMissilesFired": 9,
+      "maxDenials": 46,
+      "minKills": 1,
+      "minDenials": 34
+    },
+    "new": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 1,
+      "maxMissilesFired": 12,
+      "maxDenials": 22,
+      "minScore": -50,
+      "maxScore": 150,
+      "minDenials": 18
+    },
+    "observed": {
+      "scores": [
+        100,
+        0,
+        0
+      ],
+      "kills": [
+        2,
+        1,
+        1
+      ],
+      "missiles": [
+        4,
+        10,
+        8
+      ],
+      "denials": [
+        20,
+        20,
+        20
+      ]
+    }
+  }
+}

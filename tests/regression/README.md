@@ -2,6 +2,9 @@
 
 Pinned world/detection hashes and optional `FINGERPRINT_SHA256` for Baltic harness runs.
 
+> Determinism model, RNG/float-formatting rules, and pitfalls that break these goldens:
+> [`docs/engineering/determinism-and-replay.md`](../../docs/engineering/determinism-and-replay.md).
+
 ## CI gate
 
 `ReplayGoldenSuiteTests` runs on every PR via Buildkite ([`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml) / [`tools/buildkite/dotnet-ci.sh`](../../tools/buildkite/dotnet-ci.sh)).

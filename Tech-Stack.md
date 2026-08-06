@@ -20,17 +20,18 @@ Pinned packages in `unity/ProjectAegis/Packages/manifest.json` (do not invent ve
 
 | Package | Version | Role |
 |---------|---------|------|
-| `com.unity.entities` | 1.4.6 | DOTS/ECS |
-| `com.unity.burst` | 1.8.29 | Jobs / Burst |
-| `com.unity.entities.graphics` | 1.4.20 | Entities graphics |
-| `com.unity.ui` | 2.0.0 | UI Toolkit |
+| `com.unity.ui` | 2.0.0 | UI Toolkit (C2) |
 | `com.unity.addressables` | 2.3.16 | Addressables |
-| `com.unity.ai.assistant` | 2.13.0-pre.2 | Unity AI Assistant |
-| `com.unity.ai.inference` | 2.6.1 | Unity Inference |
+| `com.unity.burst` | 1.8.29 | Transitive (Sentis / Inference); not sim hot-path |
+| `com.unity.ai.assistant` | 2.13.0-pre.2 | Unity AI Assistant — present, not agent-owned |
+| `com.unity.ai.inference` | 2.6.1 | Unity Inference — present, not agent-owned |
+| `com.ivanmurzak.unity.mcp` | 0.82.4 | Unity-MCP editor bridge |
 
-Engine pin and DOTS notes: [docs/engine-reference/unity/VERSION.md](docs/engine-reference/unity/VERSION.md). Headless sim stays under `src/` (`net8.0`); Unity plugins target `netstandard2.1`.
+**Not in manifest (removed 2026-07-07):** `com.unity.entities`, `com.unity.entities.graphics` — world state is managed/headless-first (ADR-005 reversed). See [VERSION.md](docs/engine-reference/unity/VERSION.md) and [unity integration review](docs/reports/unity-integration-review-2026-07-07.md) §3.
 
-**Project Aegis Unity invariants** (Input Manager, Built-in RP, MCP pending, headless-vs-Editor): [`unity/ProjectAegis/.claude/README.md`](unity/ProjectAegis/.claude/README.md).
+Engine pin and managed-sim notes: [docs/engine-reference/unity/VERSION.md](docs/engine-reference/unity/VERSION.md). Headless sim stays under `src/` (`net8.0`); Unity plugins target `netstandard2.1`.
+
+**Project Aegis Unity invariants** (Input Manager, Built-in RP, MCP Editor session pending, headless-vs-Editor): [`unity/ProjectAegis/.claude/README.md`](unity/ProjectAegis/.claude/README.md).
 
 ### Unity / C2 agent routing
 
@@ -38,11 +39,11 @@ Use these Cursor/Claude agents from `.claude/agents/` (do not invent specialists
 
 | Concern | Agent |
 |---------|--------|
-| General Unity patterns / MonoBehaviour vs DOTS | `unity-specialist` |
-| DOTS/ECS, Jobs, Burst, Entities Graphics | `unity-dots-specialist` |
+| General Unity patterns / MonoBehaviour (presentation layer) | `unity-specialist` |
+| Historical DOTS notes / Jobs / Burst only if reintroduced | `unity-dots-specialist` |
 | UI Toolkit (UXML/USS), runtime UI perf | `unity-ui-specialist` |
 | Addressables / content loading | `unity-addressables-specialist` |
-| Shaders / VFX / URP-HDRP customization | `unity-shader-specialist` |
+| Shaders / VFX (Built-in RP; do not assume URP/HDRP) | `unity-shader-specialist` |
 | C2 presentation orchestration (UI Toolkit + mil-sim UX) | `ui-experience-lead` |
 | Mil-sim information density / cognitive load | `user-experience-military-analyst` |
 | UI framework code / screen flow (non-Editor-specialist) | `ui-programmer` |
@@ -61,10 +62,11 @@ Start Editor MCP setup with `unity-initial-setup` / `unity-tool-list` under the 
 > **Status: Configured** — client MCP + Unity project scaffold; **Editor session and `:8080` pending**.
 > See [Claude Agent Setup](Game-Requirements/Claude-Agent-Setup.md) for activation steps.
 
-**[Unity-MCP](https://github.com/IvanMurzak/Unity-MCP)** — *client configured; Editor plugin pending*
-- CLI: `npx unity-mcp-cli` (v0.77.0); optional global `npm install -g unity-mcp-cli`
+**[Unity-MCP](https://github.com/IvanMurzak/Unity-MCP)** — *manifest + client configured; Editor session / `:8080` still pending*
+- CLI: `npx unity-mcp-cli` (optional global `npm install -g unity-mcp-cli`)
 - MCP config: `.cursor/mcp.json`, `.mcp.json` → `http://localhost:8080` (`ai-game-developer`)
-- OpenUPM scopes for `com.ivanmurzak` are in `Packages/manifest.json`; **`com.ivanmurzak.unity.mcp` is not yet a direct dependency** — install via `npx unity-mcp-cli install-plugin ./unity/ProjectAegis`, then open Editor (`6000.3.14f1`), `login`, and verify `:8080`
+- Package: `com.ivanmurzak.unity.mcp` **0.82.4** is a direct dependency in `unity/ProjectAegis/Packages/manifest.json` (OpenUPM scopes present)
+- **Pending**: open Editor (`6000.3.14f1`), complete `login`, verify `:8080` responds
 - Generated Editor skills land under `unity/ProjectAegis/.claude/skills/` after `setup-skills` / `unity-skill-generate`
 
 **.NET:** SDK pin **8.0.400** (`global.json`); headless `net8.0` + Unity plugins `netstandard2.1` — [dotnet reference](docs/engine-reference/dotnet/README.md)

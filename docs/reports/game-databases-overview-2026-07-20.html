@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Aegis — Game Databases Overview</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --panel-2: #243044;
+      --text: #e7ecf3;
+      --muted: #9aabbf;
+      --accent: #3d8bfd;
+      --accent-2: #2dd4bf;
+      --warn: #fbbf24;
+      --border: #2f3b4f;
+      --chip: #1e3a5f;
+      --ok: #34d399;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, #1a2740 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    header {
+      padding: 2.5rem 1.5rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(61,139,253,0.12), transparent);
+    }
+    header .wrap, main, footer .wrap { max-width: 1080px; margin: 0 auto; }
+    h1 { margin: 0 0 0.4rem; font-size: 1.85rem; letter-spacing: 0.02em; }
+    .subtitle { color: var(--muted); margin: 0; }
+    .meta { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .chip {
+      background: var(--chip);
+      color: #cfe0ff;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.2rem 0.75rem;
+      font-size: 0.85rem;
+    }
+    main { padding: 1.5rem; }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.4rem;
+      margin-bottom: 1.25rem;
+    }
+    h2 {
+      margin: 0 0 0.85rem;
+      font-size: 1.25rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.45rem;
+    }
+    h3 { margin: 1.1rem 0 0.5rem; font-size: 1.05rem; color: var(--accent-2); }
+    p, li { color: var(--text); }
+    .muted { color: var(--muted); }
+    a { color: var(--accent); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      margin: 0.75rem 0 0.25rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.6rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: var(--panel-2); color: #dbe7ff; font-weight: 600; }
+    tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    code, .path {
+      font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+      font-size: 0.86em;
+      background: #0c1018;
+      padding: 0.1rem 0.35rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+    }
+    pre {
+      background: #0c1018;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .stat {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+    }
+    .stat .n {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent-2);
+      line-height: 1.1;
+    }
+    .stat .l { color: var(--muted); font-size: 0.85rem; margin-top: 0.25rem; }
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin: 0.75rem 0;
+    }
+    .box {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.88rem;
+    }
+    .arrow { color: var(--muted); font-weight: 700; }
+    .tag-live { color: var(--ok); }
+    .tag-stage { color: var(--warn); }
+    .tag-json { color: #c4b5fd; }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 800px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+    footer {
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    ul.compact { margin: 0.4rem 0; padding-left: 1.2rem; }
+    ul.compact li { margin: 0.2rem 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Project Aegis — Game Databases Overview</h1>
+      <p class="subtitle">Inventory of SQLite catalogs, JSON scenarios/policies, and in-memory fixtures used by the sim and tools.</p>
+      <div class="meta">
+        <span class="chip">2026-07-20</span>
+        <span class="chip">ADR-006 headless data layer</span>
+        <span class="chip">Primary DB: baltic_patrol.db</span>
+        <span class="chip"><a href="game-databases-overview-2026-07-20.md">Markdown source</a></span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>1. At a glance</h2>
+      <div class="grid">
+        <div class="stat"><div class="n">79</div><div class="l">Platforms in SQLite catalog</div></div>
+        <div class="stat"><div class="n">463</div><div class="l">Sensor rows</div></div>
+        <div class="stat"><div class="n">265</div><div class="l">Weapons in weapon_catalog</div></div>
+        <div class="stat"><div class="n">24+</div><div class="l">Tables (live + staging + audit)</div></div>
+      </div>
+      <table>
+        <thead>
+          <tr><th>Store</th><th>Type</th><th>Role</th><th>Location</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Platform catalog</strong></td>
+            <td class="tag-live">SQLite</td>
+            <td>Canonical platforms, sensors, weapons, loadouts, magazines, staging/audit</td>
+            <td><code>assets/data/catalog/baltic_patrol.db</code></td>
+          </tr>
+          <tr>
+            <td><strong>In-memory fixtures</strong></td>
+            <td class="tag-json">C#</td>
+            <td>Headless tests / Baltic v3 policy fallback</td>
+            <td><code>InMemoryCatalogReader</code></td>
+          </tr>
+          <tr>
+            <td><strong>Scenario documents</strong></td>
+            <td class="tag-json">JSON</td>
+            <td>ORBAT, missions, reference points, edit metadata</td>
+            <td><code>*.scenario.json</code> / session paths</td>
+          </tr>
+          <tr>
+            <td><strong>Scenario policies</strong></td>
+            <td class="tag-json">JSON</td>
+            <td>Detection, ROE, timelines, domain hooks</td>
+            <td><code>data/scenarios/*.policy.json</code></td>
+          </tr>
+          <tr>
+            <td><strong>JSON catalog sidecars</strong></td>
+            <td class="tag-json">JSON</td>
+            <td>Sensor seed samples, speculative platforms</td>
+            <td><code>assets/data/catalog/</code>, <code>data/catalog/</code></td>
+          </tr>
+          <tr>
+            <td><strong>Unity Library DBs</strong></td>
+            <td class="muted">SQLite (editor)</td>
+            <td>Search / shader cache — <em>not game content</em></td>
+            <td><code>unity/ProjectAegis/Library/*.db</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>2. Architecture</h2>
+      <p class="muted">ADR-006: Sim &amp; Delegation never open SQLite. They consume read-only <code>ICatalogReader</code>. Writes go through a staging / write gate.</p>
+      <div class="flow">
+        <div class="box">baltic_patrol.db<br/><span class="muted">SqliteCatalogReader</span></div>
+        <span class="arrow">→</span>
+        <div class="box"><strong>ICatalogReader</strong></div>
+        <span class="arrow">→</span>
+        <div class="box">Sim / Delegation<br/><span class="muted">engage · sensors · validation</span></div>
+      </div>
+      <div class="flow">
+        <div class="box">InMemory fixtures<br/><span class="muted">BalticPatrol · BalticV3</span></div>
+        <span class="arrow">→</span>
+        <div class="box"><strong>ICatalogReader</strong></div>
+        <span class="arrow">→</span>
+        <div class="box">Tests · baltic-v3-* policies</div>
+      </div>
+      <div class="flow">
+        <div class="box">Scenario JSON + policy</div>
+        <span class="arrow">→</span>
+        <div class="box">ScenarioDocumentEditor / Bus</div>
+        <span class="arrow">→</span>
+        <div class="box">ORBAT platform_id strings<br/><span class="muted">(reference catalog, not FK write)</span></div>
+      </div>
+      <pre>CatalogReaderFactory.ResolveForScenario(policyId)
+  ├─ baltic-v3-*          → InMemoryCatalogReader.BalticV3Fixture()
+  ├─ baltic_patrol.db OK  → SqliteCatalogReader (open in place)
+  ├─ DB missing           → SeedBalticPatrol then open
+  └─ fail-open            → InMemoryCatalogReader.BalticPatrolFixture()</pre>
+    </section>
+
+    <section>
+      <h2>3. Primary database — <code>baltic_patrol.db</code></h2>
+      <p><span class="path">assets/data/catalog/baltic_patrol.db</span> · ~2.7&nbsp;MB · snapshot <code>baltic_patrol</code> · schema via migrations <code>001</code>–<code>011</code></p>
+
+      <h3>Platform inventory</h3>
+      <div class="grid">
+        <div class="stat"><div class="n">35</div><div class="l">surface</div></div>
+        <div class="stat"><div class="n">24</div><div class="l">air</div></div>
+        <div class="stat"><div class="n">20</div><div class="l">subsurface</div></div>
+        <div class="stat"><div class="n">79</div><div class="l">total platforms</div></div>
+      </div>
+      <p class="muted">Top nationalities (approx.): Russia 28, Sweden 20, Germany 4, Nordics/others.</p>
+
+      <div class="two-col">
+        <div>
+          <h3 class="tag-live">Live tables (selected)</h3>
+          <table>
+            <thead><tr><th>Table</th><th>Rows ≈</th><th>Role</th></tr></thead>
+            <tbody>
+              <tr><td><code>platform</code></td><td>79</td><td>Hull / airframe identity &amp; domain</td></tr>
+              <tr><td><code>sensor</code></td><td>463</td><td>Sensors + base Pd / provenance</td></tr>
+              <tr><td><code>weapon_catalog</code></td><td>265</td><td>Weapon definitions</td></tr>
+              <tr><td><code>platform_mount</code></td><td>459</td><td>Mounts (VLS, rail, tube…)</td></tr>
+              <tr><td><code>platform_loadout</code></td><td>76</td><td>Named loadouts</td></tr>
+              <tr><td><code>platform_magazine</code></td><td>423</td><td>Ammo chain</td></tr>
+              <tr><td><code>catalog_snapshot</code></td><td>11</td><td>Snapshot registry</td></tr>
+              <tr><td><code>catalog_change_log</code></td><td>4232</td><td>Field-level audit</td></tr>
+              <tr><td><code>db_release</code></td><td>1</td><td>Release ↔ snapshot bind</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3 class="tag-stage">Staging / write-gate</h3>
+          <table>
+            <thead><tr><th>Table</th><th>Rows ≈</th></tr></thead>
+            <tbody>
+              <tr><td><code>catalog_staging_batch</code></td><td>91</td></tr>
+              <tr><td><code>catalog_staging_platform</code></td><td>196</td></tr>
+              <tr><td><code>catalog_staging_sensor</code></td><td>789</td></tr>
+              <tr><td><code>catalog_staging_mount</code></td><td>907</td></tr>
+              <tr><td><code>catalog_staging_loadout</code></td><td>195</td></tr>
+              <tr><td><code>catalog_staging_magazine</code></td><td>761</td></tr>
+              <tr><td><code>catalog_staging_weapon</code></td><td>1384</td></tr>
+            </tbody>
+          </table>
+          <p class="muted">Phase B columns exist for mobility / signature / EMCON / damage (mostly empty until populated).</p>
+        </div>
+      </div>
+
+      <h3>Weapon types (sample)</h3>
+      <table>
+        <thead><tr><th>Type</th><th>Count ≈</th></tr></thead>
+        <tbody>
+          <tr><td>Guided Weapon</td><td>146</td></tr>
+          <tr><td>Gun</td><td>43</td></tr>
+          <tr><td>Torpedo</td><td>29</td></tr>
+          <tr><td>Decoy / Bomb</td><td>20 each</td></tr>
+          <tr><td>Rocket</td><td>7</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Migrations</h3>
+      <ul class="compact">
+        <li><code>001–003</code> — sensors (Pd, review/TRL, quarantine)</li>
+        <li><code>004</code> — platform validation seed</li>
+        <li><code>005</code> — provenance / audit / staging (req 06)</li>
+        <li><code>006</code> — snapshot content hash</li>
+        <li><code>007–009</code> — platform editor Phase A/B (+ damage)</li>
+        <li><code>010</code> — TL snapshot branch</li>
+        <li><code>011</code> — link catalog staging</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>4. In-memory fixtures</h2>
+      <table>
+        <thead><tr><th>Fixture</th><th>Platform ids</th><th>When used</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>BalticPatrolFixture</td>
+            <td><code>u1</code>, <code>hostile-1</code>, <code>hostile-far</code> (+ optional legacy ship)</td>
+            <td>Default headless / LiveValidate fallback</td>
+          </tr>
+          <tr>
+            <td>BalticV3Fixture</td>
+            <td>+ <code>ucav-blue/red</code>, <code>usub-blue/red</code></td>
+            <td>Policies <code>baltic-v3-*</code></td>
+          </tr>
+          <tr>
+            <td>Phase B / magazine variants</td>
+            <td>Baltic hulls + mobility/EMCON/magazine rows</td>
+            <td>Specialized sim tests</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="muted">Fixtures are deterministic doubles — not the full 79-platform product catalog.</p>
+    </section>
+
+    <section>
+      <h2>5. Scenario data (JSON)</h2>
+      <p>Scenarios are <strong>documents</strong>, not SQLite rows. They <em>reference</em> catalog snapshot / platform ids.</p>
+      <table>
+        <thead><tr><th>Kind</th><th>Path pattern</th><th>Contents</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Scenario document</td>
+            <td><code>*.scenario.json</code>, examples under <code>data/scenarios/examples/</code></td>
+            <td>Metadata (<code>dbRef</code>, seed, policyId), ORBAT, missions, RPs</td>
+          </tr>
+          <tr>
+            <td>Scenario policy</td>
+            <td><code>data/scenarios/*.policy.json</code></td>
+            <td>Detection, ROE, timelines, combat-domain hooks</td>
+          </tr>
+          <tr>
+            <td>Validation goldens</td>
+            <td><code>assets/data/scenarios/validation/</code>, <code>data/scenarios/validation/</code></td>
+            <td>CI / regression packages</td>
+          </tr>
+        </tbody>
+      </table>
+      <p><strong>Map authoring place path:</strong> UI form → <code>MapAuthoringSurface</code> → <code>Bus.PlaceUnit</code> / <code>UpsertUnit</code> → scenario JSON ORBAT (string <code>PlatformId</code>).</p>
+    </section>
+
+    <section>
+      <h2>6. JSON sidecars &amp; non-game DBs</h2>
+      <div class="two-col">
+        <div>
+          <h3>Content sidecars</h3>
+          <ul class="compact">
+            <li><code>assets/data/catalog/sensors_baltic.json</code> — bootstrap sensor seed</li>
+            <li><code>data/catalog/near_future_archetypes.json</code></li>
+            <li><code>data/catalog/speculative_platforms.json</code></li>
+            <li><code>data/osint_facts.json</code></li>
+          </ul>
+        </div>
+        <div>
+          <h3>Not game content</h3>
+          <ul class="compact">
+            <li>Unity <code>Library/Search/*.db</code>, <code>ShaderCache.db</code></li>
+            <li><code>scratch/**/catalog-proposed.db</code> import sandboxes</li>
+            <li>Tooling metadata DBs under <code>.git</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>7. Write model</h2>
+      <ol>
+        <li><strong>Propose</strong> into <code>catalog_staging_*</code> (+ batch).</li>
+        <li><strong>Validate / review</strong> (TRL, quarantine, gates).</li>
+        <li><strong>Promote</strong> to live tables with <code>catalog_change_log</code> audit.</li>
+        <li>Optional <strong>snapshot / db_release</strong> bind for scenario compatibility.</li>
+      </ol>
+      <p class="muted">CLI: Mission Editor catalog commands · CMO markdown import · OSINT pipelines.</p>
+    </section>
+
+    <section>
+      <h2>8. Quick commands</h2>
+      <pre># Platform domains
+sqlite3 assets/data/catalog/baltic_patrol.db \
+  "SELECT domain, COUNT(*) FROM platform GROUP BY domain;"
+
+# Sample platforms
+sqlite3 -header -column assets/data/catalog/baltic_patrol.db \
+  "SELECT platform_id, display_name, domain, nationality FROM platform LIMIT 20;"
+
+# C# resolve
+var reader = CatalogReaderFactory.ResolveForScenario("baltic-patrol");</pre>
+    </section>
+
+    <section>
+      <h2>9. Related docs</h2>
+      <ul class="compact">
+        <li><a href="../architecture/adr-006-data-layer-boundary.md">ADR-006 Data layer boundary</a></li>
+        <li><a href="../engineering/catalog-seeding.md">Catalog seeding</a></li>
+        <li><a href="../engineering/catalog-write-gate.md">Catalog write gate</a></li>
+        <li><a href="../engineering/cmo-markdown-import.md">CMO markdown import</a></li>
+        <li><a href="game-data-state-assessment-2026-07-09.md">Game data state assessment (2026-07-09)</a></li>
+        <li><a href="scenario-editor-platform-combo-uat-2026-07-20.md">Scenario editor platform combo UAT</a></li>
+        <li><a href="game-databases-overview-2026-07-20.md">This overview (Markdown)</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      Project Aegis · Database overview generated 2026-07-20 · Counts from live
+      <code>assets/data/catalog/baltic_patrol.db</code> inspection.
+    </div>
+  </footer>
+</body>
+</html>

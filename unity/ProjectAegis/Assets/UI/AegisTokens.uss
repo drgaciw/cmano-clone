@@ -1,104 +1,119 @@
-/* Art Bible §3 — canonical color tokens for C2 + Platform Editor USS.
- * Import via @import from panel USS; reference with var(--aegis-*) or utility classes. */
+/* AegisTokens.uss — Project Aegis semantic design tokens (S93 production + PE-UX-W0)
+ * Authority: design/art/art-bible.md §3 Primary + Semantic palette
+ * Asset: ASSET-014 — production/assets/c2/AegisTokens.uss
+ * Sprint: S93 asset production wave (2026-07-09); PE-UX aliases 2026-07-23
+ */
 
 :root {
     /* Primary surfaces */
-    --aegis-surface-primary: rgb(8, 14, 22);              /* #080E16 surface-deep */
-    --aegis-surface-panel: rgba(12, 18, 28, 0.92);        /* #0C121C @ 92% */
+    --surface-deep: #080E16;
+    --surface-map: #101824;
+    --surface-panel: rgba(12, 18, 28, 0.92);
+    --surface-topbar: rgba(10, 16, 26, 0.95);
+
+    /* Borders */
+    --border-subtle: #324150;
+    --border-panel: #384860;
+    --border-section: rgba(80, 100, 130, 0.6);
+    --border-planning: #465260;
 
     /* Typography */
-    --aegis-text-heading: rgb(200, 210, 220);               /* #C8D2DC */
-    --aegis-text-body: rgb(180, 190, 200);                /* #B4BEC8 */
-    --aegis-text-muted: rgb(140, 155, 170);               /* #8C9BAA */
+    --text-heading: #C8D2DC;
+    --text-body: #B4BEC8;
+    --text-muted: #8C9BAA;
+    --text-data: #D2DCE6;
+    --text-topbar: #BEC8D2;
 
-    /* Comms semantic */
-    --aegis-comms-nominal: rgb(100, 200, 140);            /* #64C88C */
-    --aegis-comms-degraded: rgb(240, 180, 80);            /* #F0B450 */
-    --aegis-comms-denied: rgb(230, 90, 90);               /* #E65A5A */
+    /* Affiliation */
+    --affil-friendly: #4A9EFF;
+    --affil-hostile: #E85D5D;
+    --affil-neutral: #78C878;
+    --affil-suspect: #E6C850;
+    --affil-pending: #B4B4DC;
+    --affil-unknown: #8C9BAA;
+    --affil-friendly-dead: rgba(90, 110, 130, 0.5);
 
-    /* Platform Import staging diff */
-    --aegis-diff-changed: rgb(230, 200, 80);              /* #E6C850 */
-    --aegis-diff-added: rgb(100, 200, 140);               /* #64C88C */
-    --aegis-diff-removed: rgb(232, 93, 93);               /* #E85D5D */
-    --aegis-diff-blocked: rgb(230, 90, 90);               /* #E65A5A */
-    --aegis-diff-pending: rgb(140, 155, 170);            /* #8C9BAA */
-    --aegis-diff-pending-opacity: 0.45;
+    /* Selection & focus */
+    --selected-ring: #FFC850;
+    --selected-row-bg: rgba(74, 158, 255, 0.25);
+    --selected-row-bar: #FFC850;
+    --score-accent: #F0C040;
 
-    /* Section chrome */
-    --aegis-border-section: rgba(80, 100, 130, 0.6);      /* #506482 @ 60% */
+    /* Keyboard focus (REQ-20 CMD-12 / CMD-28.9).
+       Deliberately NOT --selected-ring: focus and selection are independent states
+       (a row can be selected without focus, or focused without selection), and the
+       :focus rules use this token, never --selected-ring, so the two states stay distinct.
+       Cyan is unclaimed by the semantic palette (affiliation, comms, log, gate, diff)
+       and separates from amber --selected-ring on the blue-yellow axis, which survives
+       red-green colour blindness. Measured WCAG contrast:
+         vs --surface-deep #080E16      12.59:1
+         vs --surface-map #101824       11.59:1
+         vs --surface-panel             12.20:1
+         vs --selected-row-bg composite  7.54:1   (focused AND selected)
+       All well above the 3:1 non-text minimum. Verify with a colour-blind simulation
+       pass before the accessibility gate. */
+    --focus-ring: #00E5FF;
+    --focus-ring-width: 2px;
 
-    /* Selection */
-    --aegis-selected-row-bg: rgba(74, 158, 255, 0.25);    /* #4A9EFF @ 25% */
-    --aegis-selected-row-bar: rgb(74, 158, 255);          /* #4A9EFF */
-}
+    /* Comms */
+    --comms-nominal: #64C88C;
+    --comms-degraded: #F0B450;
+    --comms-denied: #E65A5A;
+    --ghost-track: #B47878;
 
-/* Surface utilities */
-.aegis-surface-primary {
-    background-color: var(--aegis-surface-primary);
-}
+    /* Message log categories */
+    --log-kill: #FFB4A0;
+    --log-magazine: #B4C8FF;
+    --log-comms: #C8A0FF;
+    --log-contact: #8CC8FF;
+    --log-mission: #A0DCB4;
 
-.aegis-surface-panel {
-    background-color: var(--aegis-surface-panel);
-}
+    /* Platform Import staging diff (art bible §3) */
+    --diff-changed: #E6C850;
+    --diff-added: #64C88C;
+    --diff-removed: #E85D5D;
+    --diff-blocked: #E65A5A;
+    --diff-pending: #8C9BAA;
+    --diff-pending-opacity: 0.45;
 
-/* Typography utilities */
-.aegis-text-heading {
-    color: var(--aegis-text-heading);
-    -unity-font-style: bold;
-}
+    /* Validation export gate (ADR-008). Semantic, not affiliation — do not substitute
+       --affil-hostile / --affil-neutral here. Always paired with a text label; never
+       the sole carrier of the blocked/ready distinction. */
+    --gate-blocked: #E85D5D;
+    --gate-ready: #78C878;
 
-.aegis-text-body {
-    color: var(--aegis-text-body);
-}
+    /* Spacing (art bible §6) */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 24px;
 
-.aegis-text-muted {
-    color: var(--aegis-text-muted);
-}
-
-/* Comms utilities */
-.comms-nominal {
-    color: var(--aegis-comms-nominal);
-}
-
-.comms-degraded {
-    color: var(--aegis-comms-degraded);
-}
-
-.comms-denied {
-    color: var(--aegis-comms-denied);
-}
-
-/* Platform Import diff row utilities */
-.diff-changed {
-    color: var(--aegis-diff-changed);
-}
-
-.diff-added {
-    color: var(--aegis-diff-added);
-}
-
-.diff-removed {
-    color: var(--aegis-diff-removed);
-}
-
-.diff-blocked {
-    color: var(--aegis-diff-blocked);
-    -unity-font-style: bold;
-}
-
-.diff-pending {
-    color: var(--aegis-diff-pending);
-}
-
-/* Selection utility — OOB / list row focus */
-.selected-row {
-    background-color: var(--aegis-selected-row-bg);
-    border-left-width: 3px;
-    border-left-color: var(--aegis-selected-row-bar);
-}
-
-/* Section divider utility */
-.aegis-border-section {
-    border-top-width: 1px;
-    border-top-color: var(--aegis-border-section);
+    /* --aegis-* aliases consumed by Platform Catalog / Import USS (PE-UX-W0) */
+    --aegis-surface-deep: var(--surface-deep);
+    --aegis-surface-map: var(--surface-map);
+    --aegis-surface-panel: var(--surface-panel);
+    --aegis-surface-topbar: var(--surface-topbar);
+    --aegis-border-subtle: var(--border-subtle);
+    --aegis-border-panel: var(--border-panel);
+    --aegis-border-section: var(--border-section);
+    --aegis-border-planning: var(--border-planning);
+    --aegis-text-heading: var(--text-heading);
+    --aegis-text-body: var(--text-body);
+    --aegis-text-muted: var(--text-muted);
+    --aegis-text-data: var(--text-data);
+    --aegis-text-topbar: var(--text-topbar);
+    --aegis-selected-ring: var(--selected-ring);
+    --aegis-focus-ring: var(--focus-ring);
+    --aegis-focus-ring-width: var(--focus-ring-width);
+    --aegis-selected-row-bg: var(--selected-row-bg);
+    --aegis-selected-row-bar: var(--selected-row-bar);
+    --aegis-diff-changed: var(--diff-changed);
+    --aegis-diff-added: var(--diff-added);
+    --aegis-diff-removed: var(--diff-removed);
+    --aegis-diff-blocked: var(--diff-blocked);
+    --aegis-diff-pending: var(--diff-pending);
+    --aegis-diff-pending-opacity: var(--diff-pending-opacity);
+    --aegis-gate-blocked: var(--gate-blocked);
+    --aegis-gate-ready: var(--gate-ready);
 }

@@ -1,0 +1,89 @@
+{
+  "metadata": {
+    "title": "Tier 5 Theater 01 — Full Multi-Domain Joint Task Group",
+    "description": "Multi-domain theater op combining Patrol, Strike, Escort, and ASW concurrently: u1 (Strike vs hostile-1), ucav-blue (AAW/recon 'swarm representative' — see oracles.md for the single-unit-per-ID fixture limitation), usub-blue (ASW vs usub-red), forming one joint Blue task group against a defended Red position with its own air/sub assets. Contested EM: Red applies electronic countermeasures against Blue's primary Strike track (jamStrength on the u1-hostile-1 detection pairing). Cascading adversarial injects: comms degradation at tick 8, sensor degradation at tick 18, Blue reinforcement arrival at tick 28, mid-mission ROE tightening at tick 35. 40-tick theater-scale run.",
+    "author": "qa-gauntlet",
+    "schemaVersion": 1,
+    "dbRef": "baltic_patrol",
+    "seed": 42,
+    "policyId": "baltic-v3-tier5-theater-01",
+    "tlBranch": "TL-0",
+    "maxTechnologyLevel": 0,
+    "sideRoe": "WeaponsFree"
+  },
+  "missions": [
+    {
+      "id": "blue-strike-01",
+      "type": "Strike",
+      "assignedUnitIds": ["u1"],
+      "targetIds": ["hostile-1"],
+      "patrolZone": [
+        { "lat": 57.0, "lon": 19.5 },
+        { "lat": 57.3, "lon": 19.7 },
+        { "lat": 56.9, "lon": 20.0 }
+      ],
+      "roeOverride": "WeaponsFree"
+    },
+    {
+      "id": "blue-aaw-recon-01",
+      "type": "Support",
+      "assignedUnitIds": ["ucav-blue"],
+      "targetIds": ["hostile-1"],
+      "patrolZone": [
+        { "lat": 57.1, "lon": 19.6 },
+        { "lat": 57.4, "lon": 19.8 },
+        { "lat": 57.0, "lon": 20.1 }
+      ],
+      "roeOverride": "WeaponsFree",
+      "supportRole": "AEW"
+    },
+    {
+      "id": "blue-asw-escort-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["usub-blue"],
+      "targetIds": ["usub-red"],
+      "patrolZone": [
+        { "lat": 57.05, "lon": 19.55 },
+        { "lat": 57.35, "lon": 19.75 },
+        { "lat": 56.95, "lon": 20.05 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-defend-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["hostile-1"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 58.3, "lon": 21.2 },
+        { "lat": 58.5, "lon": 21.4 },
+        { "lat": 58.1, "lon": 21.6 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-air-scout-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["ucav-red"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 58.2, "lon": 21.1 },
+        { "lat": 58.4, "lon": 21.3 },
+        { "lat": 58.0, "lon": 21.5 }
+      ],
+      "roeOverride": "WeaponsTight"
+    },
+    {
+      "id": "red-sub-shadow-01",
+      "type": "Patrol",
+      "assignedUnitIds": ["usub-red"],
+      "targetIds": [],
+      "patrolZone": [
+        { "lat": 57.1, "lon": 19.65 },
+        { "lat": 57.4, "lon": 19.85 },
+        { "lat": 57.0, "lon": 20.15 }
+      ],
+      "roeOverride": "WeaponsTight"
+    }
+  ]
+}

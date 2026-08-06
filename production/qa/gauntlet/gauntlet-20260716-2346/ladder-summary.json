@@ -1,0 +1,77 @@
+{
+  "ladder": [
+    {
+      "tier": 1,
+      "allPassed": true,
+      "scenarios": [
+        "gauntlet-t1-patrol-a",
+        "gauntlet-t1-patrol-b",
+        "gauntlet-t1-patrol-c",
+        "gauntlet-t1-patrol-d"
+      ],
+      "rows": 12
+    },
+    {
+      "tier": 2,
+      "allPassed": true,
+      "scenarios": [
+        "gauntlet-t2-escort-a",
+        "gauntlet-t2-escort-passive",
+        "gauntlet-t2-strike-a",
+        "gauntlet-t2-strike-event"
+      ],
+      "rows": 12
+    },
+    {
+      "tier": 3,
+      "allPassed": true,
+      "scenarios": [
+        "gauntlet-t3-emcon-phases",
+        "gauntlet-t3-escort-strike",
+        "gauntlet-t3-event-chain",
+        "gauntlet-t3-id-roe"
+      ],
+      "rows": 12
+    },
+    {
+      "tier": 4,
+      "allPassed": true,
+      "scenarios": [
+        "gauntlet-t4-asymm-roe",
+        "gauntlet-t4-multi-mission",
+        "gauntlet-t4-random-inject",
+        "gauntlet-t4-weighted"
+      ],
+      "rows": 12
+    },
+    {
+      "tier": 5,
+      "allPassed": true,
+      "scenarios": [
+        "gauntlet-t5-cascade",
+        "gauntlet-t5-dynamic-obj",
+        "gauntlet-t5-roe-change",
+        "gauntlet-t5-theater"
+      ],
+      "rows": 12
+    }
+  ],
+  "extra": {
+    "ok": true,
+    "scenarios": [
+      {
+        "scenario": "gauntlet-joint-orbat-smoke",
+        "passed": true,
+        "failures": [],
+        "rows": 3
+      },
+      {
+        "scenario": "gauntlet-multidomain-shooters",
+        "passed": true,
+        "failures": [],
+        "rows": 3
+      }
+    ],
+    "allPassed": true
+  }
+}

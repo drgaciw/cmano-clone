@@ -1,6 +1,8 @@
 # Project Aegis
 
-Project Aegis is a working-title near-future hardcore military simulation inspired by Command: Modern Air Naval Operations. The project focuses on theater-level command, autonomous systems, drone swarms, advanced AI agents, and emerging military technologies set roughly 5-10 years in the future.
+Project Aegis is a working-title near-future hardcore military simulation inspired by Command: Modern Air Naval Operations. The project focuses on theater-level command, AI agent delegation, and a deterministic, replayable simulation core, set roughly 5-10 years in the future.
+
+Its near-future and speculative technology layer — drone swarms, hypersonics, directed energy, quantum sensing and the rest — is **design-stage roadmap, not shipped gameplay**. What exists today is the data spine for it: platform archetypes, swarm tiers, and tech-level gating. See [Near-future & speculative scope](#near-future--speculative-scope) below before assuming any specific system is playable.
 
 ## Vision
 
@@ -12,10 +14,13 @@ The repository contains requirements documentation and an initial **agent delega
 
 - **Design spec:** `docs/superpowers/specs/2026-05-28-agent-delegation-framework-design.md`
 - **Implementation plan:** `docs/superpowers/plans/2026-05-28-agent-delegation-framework.md`
-- **Library:** `src/ProjectAegis.Delegation/` (engine-agnostic .NET 8, NUnit tests)
-- **Unity bridge:** `src/ProjectAegis.Delegation.UnityAdapter/` (`ISimWorldSnapshot` in, `IOrderSink` out)
+- **Delegation framework:** `src/ProjectAegis.Delegation/` — engine-agnostic agent delegation core (tick → decision → autonomy/ROE gate → order log) ([README](src/ProjectAegis.Delegation/README.md))
+- **Simulation core:** `src/ProjectAegis.Sim/` — deterministic tick pipeline, sensors, engagement, policy ([README](src/ProjectAegis.Sim/README.md))
+- **Data / catalog layer:** `src/ProjectAegis.Data/` — SQLite catalog, staged write gate, immutable snapshots, scenario↔DB binding ([README](src/ProjectAegis.Data/README.md))
+- **Unity bridge:** `src/ProjectAegis.Delegation.UnityAdapter/` (`ISimWorldSnapshot` in, `IOrderSink` out) ([README](src/ProjectAegis.Delegation.UnityAdapter/README.md))
 - **Unity wiring:** `unity/ProjectAegis/` (DLL copy + optional `DelegationBridgeHost`)
-- **Console demo:** `src/ProjectAegis.Delegation.Demo/`
+- **Console demo:** `src/ProjectAegis.Delegation.Demo/` ([README](src/ProjectAegis.Delegation.Demo/README.md))
+- **Mission Editor CLI / MCP tools:** `src/ProjectAegis.MissionEditor.Cli/` — headless scenario authoring, validation, and catalog verbs ([README](src/ProjectAegis.MissionEditor.Cli/README.md), [full reference](docs/engineering/mission-editor-cli.md))
 
 **CI:** Buildkite primary pipeline — [buildkite-ci.md](docs/engineering/buildkite-ci.md)
 
@@ -32,7 +37,25 @@ dotnet run --project src/ProjectAegis.Delegation.Demo
 .\tools\verify-ci-local.ps1
 ```
 
+### VS Code on Linux — file watcher (ENOSPC)
+
+Opening this workspace in VS Code on Linux can trigger **"Visual Studio Code is unable to watch for file changes in this large workspace" (error ENOSPC)** because the kernel's `inotify` watch budget is exhausted by `obj/`, `.git/objects/`, Unity caches, and other generated trees. Workspace exclusions are already committed in [`.vscode/settings.json`](.vscode/settings.json); the one host-side step is to raise the kernel watch budget:
+
+```bash
+echo 'fs.inotify.max_user_watches=524288' | sudo tee /etc/sysctl.d/99-vscode-inotify.conf
+sudo sysctl --system
+cat /proc/sys/fs/inotify/max_user_watches   # should print 524288
+```
+
+Full explanation, diagnostics, and other-editor notes: [docs/engineering/local-dev-environment.md](docs/engineering/local-dev-environment.md).
+
 **CI / branch protection:** [docs/engineering/ci-and-branch-protection.md](docs/engineering/ci-and-branch-protection.md) — Buildkite blocking gate (`buildkite/cmano-clone`), Graphite optimizer, post-merge replay golden on `main`, GitHub Actions for CodeQL/GitNexus/Unity. Setup: [buildkite-ci.md](docs/engineering/buildkite-ci.md). Manual branch protection: [issue #37](https://github.com/drgaciw/cmano-clone/issues/37).
+
+**Determinism & replay:** the sim is bit-for-bit reproducible per `(scenario, seed)`. Rules, the world-state/order-log hashing model, the golden-fixture workflow, and common pitfalls: [docs/engineering/determinism-and-replay.md](docs/engineering/determinism-and-replay.md).
+
+**Engineering docs:** subsystem guides, CI/branch-protection, Graphite workflow, and local setup are indexed in [docs/engineering/README.md](docs/engineering/README.md).
+
+**Work tracking:** delivery work is tracked in **Linear** ([cmano-clone project](https://linear.app/drgamtd-workspace/project/cmano-clone-7f6a00e4c1c9)), design/specs in Notion, and files in Git. GitHub Issues remains open for inbound bug reports and security findings, but is not the planning board — see [production/agentic/linear-parallel-dispatch-playbook.md](production/agentic/linear-parallel-dispatch-playbook.md) for the tracking contract and the parallel-agent dispatch loop. Sprint history through S107 lives in `production/epics/` and `production/agentic/`.
 
 **Cursor Cloud agents:** see the [Cursor Cloud specific instructions](AGENTS.md#cursor-cloud-specific-instructions) section in `AGENTS.md` (headless build/test, Play Mode smoke harness, `.cursor/cloud-install.sh` bootstrap via `.cursor/environment.json`).
 
@@ -78,7 +101,23 @@ Content and systems:
 - AI agent delegation for units, groups, and task forces
 - Dynamic discovery and proposal of emerging military systems
 - Database intelligence agents for validation, normalization, and change tracking
-- Near-future systems including loyal wingman UAVs, drone swarms, hypersonic weapons, directed energy weapons, autonomous underwater vehicles, advanced electronic warfare, and quantum sensors
+- Near-future systems — loyal wingman UAVs, drone swarms, hypersonic weapons, directed energy weapons, autonomous underwater vehicles, advanced electronic warfare, quantum sensors — **as roadmap**; see [Near-future & speculative scope](#near-future--speculative-scope)
+
+## Near-future & speculative scope
+
+Requirements [09 — Near-Future Technologies](Game-Requirements/requirements/09-Near-Future-Technologies.md) and [10 — Speculative & Black Project Systems](Game-Requirements/requirements/10-Speculative-Systems.md) describe the project's long-term technology ambition. **Most of it is not implemented.** To avoid over-reading the requirements corpus as a delivery commitment:
+
+**Shipped today** — the data and gating spine only:
+
+- `NearFutureArchetypeCatalog` — platform archetype rows with tech-level gates
+- `SwarmTier` + `CatalogArchetypeGate` — swarm tier caps and archetype gating
+- `HypersonicEngageGate` — a boolean engagement gate (not intercept geometry)
+- `SpeculativeEngageGate` + tech-level / black-project scenario gates
+- General-purpose EW/jamming and salvo deconfliction, which predate this layer
+
+**Not implemented** — design text only, no runtime behaviour: loyal-wingman autonomy modes, swarm behaviour runtime, hypersonic intercept modelling, directed-energy thermal/power simulation, AUV simulation, quantum sensing, cognitive EW, orbital DEW, escalation ladders.
+
+This split is tracked in Linear under milestone **H7 — Requirement Coverage Gaps**. Nothing in the store page or launch material depends on the unimplemented set.
 
 ## Project Phase
 

@@ -1,117 +1,53 @@
 # GitNexus + filesystem snapshot for dashboard delta comparison.
-# Updated by /project-dashboard 2026-07-10 pm.
+# Updated by /project-dashboard 2026-07-13 pm (max-variance gauntlet + S93 assets).
 
 last_run:
-  timestamp: "2026-07-10T19:15:00Z"
+  timestamp: "2026-07-13T22:45:00Z"
   label: pm
   compared_to_baseline: docs/reports/dashboard-snapshots/2026-07-09-am.md
-  compared_to_prior: docs/reports/dashboard-snapshots/2026-07-09-am.md
-  archive: docs/reports/dashboard-snapshots/2026-07-10-pm.md
+  archive: docs/reports/dashboard-snapshots/2026-07-13-pm.md
+  archive_html: docs/reports/dashboard-snapshots/2026-07-13-pm.html
 
 gitnexus:
-  indexed_commit: "45035c6"
-  head_commit: "45035c6"
-  nodes: 24729
-  edges: 47512
-  clusters: 427
+  indexed_commit: "from AGENTS baseline — re-analyze recommended"
+  head_commit: "d927684"
+  nodes: 25390
+  edges: 48720
   flows: 300
-  files: 2925
-  index_status: fresh
-  commits_behind: 0
-  analyze_duration_s: 86.5
+  index_status: stale_relative_to_head
   changed_symbols_count: null
   affected_processes_count: null
-  watchlist_risks:
-    ScenarioDocumentEditor: CRITICAL_233
-    CatalogWriteGate: CRITICAL_186
-    DelegationBridge: CRITICAL_145
-    PatrolCandidateEngagePolicy: CRITICAL_113
-    BalticReplayHarness: CRITICAL_54
 
 gates:
-  evidence_log: production/qa/evidence/gates-sprint-93-closeout-2026-07-09.log
-  build: "0e/0w"
-  tests_total: 1599
-  tests_failed: 0
-  replay_golden: "6/6"
-  c2_proxy: "20/20"
+  gauntlet_max_variance: production/qa/gauntlet/gauntlet-20260713-1739
+  gauntlet_oracle_all_tiers: allPassed
+  tests_assembly_sum_approx: 1697
+  tests_cli_phase0_residual_fail: 1
+  replay_filter: green
   hash_paths: 18
-  ua_engage_filter: "3/3"
-  delegation_bridge_hotpath: ZERO
 
 filesystem:
-  sprint_plans: 136
-  sprint_status_yaml: true
-  stage_txt: true
-  milestones: 4
-  epics: 70
-  stories: 263
-  tests_total: 1599
-  test_breakdown:
-    Sim: 311
-    Delegation: 260
-    UnityAdapter: 286
-    Excel: 24
-    Data: 616
-    Cli: 102
+  sprint_plans: 135
+  epics_md: 336
   gdd_files: 18
-  gdd_systems_with_docs: 12
-  gdd_systems_total: 20
-  adrs: 18
-  test_files: 421
-  source_files: 624
-  requirements_files: 37
-  asset_manifest_exists: true
+  source_files: 643
+  test_files: 438
+  gauntlet_policies: 24
+  regression_goldens: 34
   asset_manifest_total: 42
   asset_manifest_needed: 4
   asset_manifest_specced: 27
   asset_manifest_in_production: 3
   asset_manifest_done: 8
-  vertical_slice_gate: PROCEED
-  implementation_tracker: Game-Requirements/implementation-tracker-2026-07-04.md
-  baltic_v2_policies: 11
-  baltic_v3_policies: 6
-  baltic_v3_goldens: 6
-  regression_goldens: 35
 
 forward_program:
-  name: post_s93_tbd
-  roadmap: docs/reports/future-sprint-roadpmap-07092026.md
-  execute_plan: docs/reports/roadmap-execute-plan-07092026.md
-  scope_boundary: production/s93-asset-production-scope-boundary-2026-07-09.md
-  status_truth: production/agentic/post-editor-status-truth-2026-07-09.md
-  status: s93_complete_forward_tbd
-  sprints:
-    s89: complete
-    s90: complete
-    s91: complete
-    s92: complete
-    s93: complete
+  name: S93_asset_production_plus_gauntlet_hard_gate
+  status: active
   stage: Release
-
-plans:
-  scenario_editor_s81_s88: complete
-  scenario_editor_completion: complete
-  mission_editor_phase2: complete
-  platform_editor_completion: complete
-  pe_adversarial_hardening: complete
-  post_editor_hygiene_s89_s92: complete
-  asset_production_s93: complete
+  sprints:
+    s89_s92_hygiene: complete
+    s93_assets: in_progress
+    qa_gauntlet_max_variance: complete
 
 sprint:
-  current: s93_complete_forward_tbd
-  sprints_documented: 136
-  sprints_complete_through: 93
-  s92_gate: production/gate-checks/s92-post-editor-hygiene-gate-2026-07-09.md
-  s93_closeout: production/qa/smoke-sprint-93-closeout-2026-07-09.md
-  sprint_status_done_entries: 307
-  qa_c2_proxy: pass_20_of_20
-  replay_golden: pass_6_of_6
-  solution_tests: 1599
-
-requirements:
-  docs_complete: 20
-  mvp_program_exit: 21
-  req_11_scenario_editor: complete
-  req_21_platform_editor: complete
-  stage: Release
+  current: s93_asset_production

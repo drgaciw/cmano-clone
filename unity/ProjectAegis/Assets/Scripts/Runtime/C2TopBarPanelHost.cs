@@ -1,4 +1,4 @@
-// Doc-20 top bar — sim time, phase, compression, score strip.
+// Doc-20 top bar — sim time, phase, compression, score strip; CMD-22 Zulu/local/remain.
 #if UNITY_5_3_OR_NEWER
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
@@ -19,6 +19,13 @@ namespace ProjectAegis.Unity.Runtime
         private const string ModeName = "mode-label";
         private const string CommsName = "comms-label";
         private const string ScoreName = "score-label";
+        private const string ZuluTimeName = "zulu-time-label";
+        private const string LocalTimeName = "local-time-label";
+        private const string RemainingDurationName = "remaining-duration-label";
+
+        /// <summary>Repo-relative Approved production USS for ASSET-005 (Path A graduate).</summary>
+        public const string ApprovedProductionUssRelativePath =
+            ProjectAegis.Delegation.Projection.ApprovedC2AssetPaths.Asset005TopBarUss;
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -33,14 +40,31 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _mode;
         private Label? _comms;
         private Label? _score;
+        private Label? _zuluTime;
+        private Label? _localTime;
+        private Label? _remainingDuration;
         private bool _wired;
+        private C2TopBarPresentation _presentation = C2TopBarPresentation.Empty;
+
+        /// <summary>True after panel stylesheet has been applied to the top-bar root.</summary>
+        public bool StylesApplied { get; private set; }
+
+        /// <summary>Last applied presentation fields (headless-readable after ApplyPanelState).</summary>
+        public C2TopBarPresentation LastPresentation => _presentation;
 
         private void Awake()
         {
             _document = GetComponent<UIDocument>();
+            UiDocumentPanelSettingsBootstrap.EnsureDocument(_document);
             if (panelAsset != null)
             {
                 _document.visualTreeAsset = panelAsset;
+            }
+
+            if (panelStyles != null && _document.rootVisualElement != null)
+            {
+                _document.rootVisualElement.styleSheets.Add(panelStyles);
+                StylesApplied = true;
             }
         }
 
@@ -81,9 +105,14 @@ namespace ProjectAegis.Unity.Runtime
             _mode = panel.Q<Label>(ModeName);
             _comms = panel.Q<Label>(CommsName);
             _score = panel.Q<Label>(ScoreName);
+            // CMD-22: null-safe Q — labels optional for older UXML trees.
+            _zuluTime = panel.Q<Label>(ZuluTimeName);
+            _localTime = panel.Q<Label>(LocalTimeName);
+            _remainingDuration = panel.Q<Label>(RemainingDurationName);
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
             {
                 panel.styleSheets.Add(panelStyles);
+                StylesApplied = true;
             }
 
             if (_beginExecution != null)
@@ -93,6 +122,27 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _wired = _simTime != null && _phase != null && _compression != null && _mode != null && _score != null;
+        }
+
+        /// <summary>
+        /// Ensures Approved-style stylesheet is on the panel root (ASSET-005 parity).
+        /// </summary>
+        public bool EnsurePanelStylesApplied()
+        {
+            var root = _document != null ? _document.rootVisualElement : null;
+            if (root == null || panelStyles == null)
+            {
+                return StylesApplied;
+            }
+
+            var panel = root.Q<VisualElement>(RootName) ?? root;
+            if (!panel.styleSheets.Contains(panelStyles))
+            {
+                panel.styleSheets.Add(panelStyles);
+            }
+
+            StylesApplied = true;
+            return true;
         }
 
         private void OnBeginExecutionClicked()
@@ -106,6 +156,16 @@ namespace ProjectAegis.Unity.Runtime
             Refresh();
         }
 
+        /// <summary>
+        /// Apply projected top-bar state via headless <see cref="C2TopBarApplyState"/> (S106).
+        /// Safe when UIDocument labels are not yet wired (presentation still recorded).
+        /// </summary>
+        public void ApplyPanelState(C2TopBarState? state)
+        {
+            _presentation = C2TopBarApplyState.Apply(state);
+            ApplyPresentationToLabels();
+        }
+
         private void Refresh()
         {
             if (!_wired || bridgeHost == null)
@@ -113,38 +173,73 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
+            // Prefer bridge-projected state through the shipped apply path so label fields
+            // match C2TopBarProjection output; live phase always wins on the host.
             var state = bridgeHost.LastTopBar;
-            _simTime!.text = state.SimTimeLabel;
-            _phase!.text = $"PHASE: {bridgeHost.Phase}";
-            _compression!.text = state.CompressionLabel;
-            _mode!.text = state.ModeLabel;
-            if (_comms != null)
+            _presentation = C2TopBarApplyState.Apply(state) with
             {
-                _comms.text = state.CommsLabel;
-                _comms.ClearClassList();
-                _comms.AddToClassList("c2-topbar-item");
-                _comms.AddToClassList("c2-topbar-item--comms");
-                if (state.CommsLabel.Contains("DEGRADED", System.StringComparison.Ordinal))
-                {
-                    _comms.AddToClassList("c2-topbar-item--comms-degraded");
-                }
-                else if (state.CommsLabel.Contains("DENIED", System.StringComparison.Ordinal))
-                {
-                    _comms.AddToClassList("c2-topbar-item--comms-denied");
-                }
-                else
-                {
-                    _comms.AddToClassList("c2-topbar-item--comms-nominal");
-                }
-            }
+                PhaseLabel = $"PHASE: {bridgeHost.Phase}",
+            };
 
-            _score!.text = state.ScoreLabel;
+            ApplyPresentationToLabels();
             RefreshBeginExecutionButton();
 
             var root = _document.rootVisualElement?.Q(RootName);
             if (root != null)
             {
                 root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
+        private void ApplyPresentationToLabels()
+        {
+            if (_simTime != null)
+            {
+                _simTime.text = _presentation.SimTimeLabel;
+            }
+
+            if (_phase != null)
+            {
+                _phase.text = _presentation.PhaseLabel;
+            }
+
+            if (_compression != null)
+            {
+                _compression.text = _presentation.CompressionLabel;
+            }
+
+            if (_mode != null)
+            {
+                _mode.text = _presentation.ModeLabel;
+            }
+
+            if (_score != null)
+            {
+                _score.text = _presentation.ScoreLabel;
+            }
+
+            if (_zuluTime != null)
+            {
+                _zuluTime.text = _presentation.ZuluTimeLabel;
+            }
+
+            if (_localTime != null)
+            {
+                _localTime.text = _presentation.LocalTimeLabel;
+            }
+
+            if (_remainingDuration != null)
+            {
+                _remainingDuration.text = _presentation.RemainingDurationLabel;
+            }
+
+            if (_comms != null)
+            {
+                _comms.text = _presentation.CommsLabel;
+                _comms.ClearClassList();
+                _comms.AddToClassList("c2-topbar-item");
+                _comms.AddToClassList("c2-topbar-item--comms");
+                _comms.AddToClassList(_presentation.CommsCssClass);
             }
         }
 

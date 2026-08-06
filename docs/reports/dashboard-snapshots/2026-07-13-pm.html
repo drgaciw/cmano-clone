@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Dashboard Snapshot — 2026-07-13 (pm)</title>
+<style>
+:root {
+  --bg: #f7f5f1;
+  --fg: #1a1a1a;
+  --muted: #5a5a5a;
+  --border: #d4cfc6;
+  --accent: #1f4b3a;
+  --th-bg: #e8e2d8;
+  --code-bg: #efeae2;
+  --pre-bg: #1e2430;
+  --pre-fg: #e8ecf1;
+  --link: #1a5f4a;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  line-height: 1.55;
+  color: var(--fg);
+  background: linear-gradient(180deg, #ebe6dc 0%, var(--bg) 180px);
+}
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+header.doc-meta {
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+h1, h2, h3 {
+  font-family: "IBM Plex Serif", Georgia, serif;
+  color: var(--accent);
+  line-height: 1.25;
+}
+h1 { font-size: 1.85rem; margin: 0 0 0.75rem; }
+h2 { font-size: 1.35rem; margin-top: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.35rem; }
+h3 { font-size: 1.1rem; margin-top: 1.5rem; }
+p, li { font-size: 0.98rem; }
+a { color: var(--link); }
+hr { border: 0; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+code {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 0.88em;
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--pre-bg);
+  color: var(--pre-fg);
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+pre code { background: transparent; color: inherit; padding: 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0 1.5rem;
+  font-size: 0.9rem;
+  display: block;
+  overflow-x: auto;
+}
+th, td {
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.65rem;
+  text-align: left;
+  vertical-align: top;
+}
+th { background: var(--th-bg); font-weight: 600; }
+tr:nth-child(even) td { background: rgba(255,255,255,0.45); }
+blockquote {
+  margin: 1rem 0;
+  padding: 0.25rem 0 0.25rem 1rem;
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+}
+.mermaid {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+footer {
+  margin-top: 2.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14181c;
+    --fg: #e8ebe8;
+    --muted: #9aa3a0;
+    --border: #2c3538;
+    --accent: #7dba9a;
+    --th-bg: #1e2629;
+    --code-bg: #243033;
+    --link: #8fd0b0;
+  }
+  body { background: var(--bg); }
+  tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+  .mermaid { background: #1a2024; }
+}
+
+.badge {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  margin-right: 0.35rem;
+}
+</style>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  mermaid.initialize({ startOnLoad: true, theme: "neutral" });
+</script>
+</head>
+<body>
+<main class="wrap">
+<header class="doc-meta">
+  <p><span class="badge">LATEST PM SNAPSHOT</span><span class="badge">Release</span></p>
+</header>
+<h1>Project Dashboard Snapshot — 2026-07-13 (pm)</h1>
+<p>Archived snapshot preserved from <code>docs/reports/project-dashboard.md</code> at generation time.</p>
+<p><strong>Note:</strong> Requested <code>2026-07-10-pm.md</code> was not present on disk (latest prior archive: <a href="2026-07-09-am.md">2026-07-09-am.md</a>). This file is the <strong>latest PM dashboard snapshot</strong> after post-editor hygiene (S89–S92), S93 asset wave, and max-variance <strong>QA gauntlet</strong> smoke.</p>
+<p><strong>Generated</strong>: 2026-07-13  </p>
+<p><strong>Last Updated</strong>: 2026-07-13T22:45:00Z  </p>
+<p><strong>Run Label</strong>: pm (post–S92 hygiene / S93 assets / qa-gauntlet max-variance <code>gauntlet-20260713-1739</code>)  </p>
+<p><strong>Stage</strong>: <strong>Release</strong> — RC1 cut (S48); editors complete; post-editor hygiene <strong>COMPLETE</strong>; first asset production wave started  </p>
+<p><strong>Analysis Scope</strong>: Full project  </p>
+<p><strong>Compared to</strong>: <a href="2026-07-09-am.md">2026-07-09-am.md</a> (prior dashboard)  </p>
+<p><strong>HTML</strong>: <a href="2026-07-13-pm.html">2026-07-13-pm.html</a></p>
+<hr>
+<h2>Executive Summary</h2>
+<p>In four days since the 2026-07-09 am dashboard, the program closed <strong>S89–S92 post-editor hygiene</strong> (human ack), started <strong>S93 asset production</strong> (first <strong>8 Done</strong> binaries + 3 umbrellas In Production), and ran a <strong>maximum-variance <code>/qa-gauntlet</code> inventory smoke</strong> covering all <strong>24</strong> shipped <code>gauntlet-*.policy.json</code> policies × seeds <strong>42,7,123</strong> (72 rows) with tier tick budgets 6/10/16/24/40 (+ extras @12). Hard-gate <code>gauntlet_oracle_eval</code> is <strong>allPassed</strong> on every tier after oracle-envelope recalibration; one <strong>sim-code</strong> multi-TF fix landed (<code>StringSplitOptions.TrimEntries</code> netstandard2.1).</p>
+<p>Git HEAD is <strong><code>d927684</code></strong>. AGENTS.md GitNexus baseline cites <strong>25,390 symbols / 48,720 relationships / 300 flows</strong> (index refresh still recommended vs live HEAD). Live solution tests (2026-07-13 preflight): <strong>~1,697+</strong> assembly pass counts (Data <strong>641</strong>, Sim <strong>321</strong>, Delegation <strong>281</strong>, UnityAdapter <strong>324</strong>, Excel <strong>24</strong>, Cli <strong>106</strong> pass); <strong>1</strong> pre-existing MissionEditor Phase0 smoke script fail (non-gauntlet). ReplayGolden-ish filter <strong>17</strong> passed in harness suite; golden files on disk <strong>34–35</strong>.</p>
+<p>Production tracking remains <strong>Release-scale</strong>: <strong>135</strong> sprint plan files, <strong>336</strong> epic markdown files under <code>production/epics</code>, stage <strong>Release</strong> — no Launch advance.</p>
+<p><strong>Current focus:</strong> Keep gauntlet oracles green at tier tick budgets; continue S93 asset production (4 Needed remaining); GitNexus re-index to HEAD; optional Launch stage decision (human gate).</p>
+<p><strong>Blocking / open gates:</strong></p>
+<table>
+<thead><tr>
+<th>Source</th>
+<th>Finding</th>
+</tr></thead>
+<tbody>
+<tr><td>Stage</td><td><strong>Release</strong> (not Launch) — explicit human gate for Launch</td></tr>
+<tr><td>Assets</td><td>Manifest active — <strong>8 Done / 3 In Production / 27 Specced / 4 Needed</strong> (was 0 Done on 07-09)</td></tr>
+<tr><td>QA gauntlet</td><td>Max-variance run <strong>green</strong> after expect recalibration — see <a href="../../../production/qa/gauntlet/gauntlet-20260713-1739/AAR.md">gauntlet-20260713-1739/AAR.md</a></td></tr>
+<tr><td>GitNexus</td><td>AGENTS stats refreshed to <strong>25,390 / 48,720</strong>; re-analyze still recommended after gauntlet commits</td></tr>
+<tr><td>Architecture</td><td><strong>CONCERNS</strong> overall — refresh recommended post–editor + PE + gauntlet seams</td></tr>
+<tr><td>Watchlist</td><td><code>ScenarioDocumentEditor</code>, <code>CatalogWriteGate</code>, <code>DelegationBridge</code>, <code>PatrolCandidateEngagePolicy</code>, <code>BalticReplayHarness</code> remain CRITICAL hubs</td></tr>
+<tr><td>Cli smoke</td><td>Phase0 script test intermittent/env fail — quarantine or fix outside gauntlet path</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>Since Last Update (vs 2026-07-09 am)</h2>
+<table>
+<thead><tr>
+<th>Signal</th>
+<th>2026-07-09 am</th>
+<th>2026-07-13 pm (this run)</th>
+<th>Delta</th>
+</tr></thead>
+<tbody>
+<tr><td>HEAD</td><td><code>223a5fe</code> (indexed <code>80001c2</code>)</td><td><strong><code>d927684</code></strong></td><td>Gauntlet dual-slice + max-variance smoke</td></tr>
+<tr><td>GitNexus symbols (AGENTS)</td><td>24,262</td><td><strong>25,390</strong></td><td><strong>+1,128</strong></td></tr>
+<tr><td>GitNexus relationships</td><td>46,367</td><td><strong>48,720</strong></td><td><strong>+2,353</strong></td></tr>
+<tr><td>Execution flows</td><td>300</td><td><strong>300</strong></td><td>Stable</td></tr>
+<tr><td>Stage</td><td>Release (post–editors)</td><td><strong>Release</strong> (post–hygiene + gauntlet)</td><td>No Launch advance</td></tr>
+<tr><td>Sprint plan files</td><td>131</td><td><strong>135</strong></td><td>+4</td></tr>
+<tr><td>Epic md files</td><td>70 (prior count)</td><td><strong>336</strong> (filesystem under <code>production/epics</code>)</td><td>Path/layout growth — treat as inventory count</td></tr>
+<tr><td>C# source (excl. tests)</td><td>609</td><td><strong>643</strong></td><td><strong>+34</strong></td></tr>
+<tr><td>C# test files</td><td>403</td><td><strong>438</strong></td><td><strong>+35</strong></td></tr>
+<tr><td>Solution tests (assembly sum)</td><td>1,599 / 0 fail</td><td><strong>~1,697 pass</strong> + 1 Cli Phase0 fail</td><td><strong>+~98</strong>; Phase0 residual</td></tr>
+<tr><td>Replay / golden</td><td>6/6 ReplayGolden</td><td>Goldens <strong>34–35</strong> on disk; Replay filter green</td><td>Held</td></tr>
+<tr><td>Gauntlet policies</td><td>(emerging)</td><td><strong>24</strong> catalog-driven policies</td><td>Full ladder + theater extras</td></tr>
+<tr><td>Gauntlet smoke</td><td>partial / phased</td><td><strong>72/72 rows</strong>, all tiers <strong>oracle allPassed</strong></td><td>Max-variance inventory closed</td></tr>
+<tr><td>Asset Done</td><td>0</td><td><strong>8 Done</strong> (+3 In Production)</td><td>S93 first binary wave</td></tr>
+<tr><td>Forward program</td><td>S89–S92 hygiene active</td><td><strong>S89–S92 complete</strong>; S93 assets in flight</td><td>Hygiene closed</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>GitNexus Code Intelligence</h2>
+<p><strong>Index status:</strong> AGENTS.md reports <strong>25,390 / 48,720 / 300</strong> — treat as <strong>stale-relative-to-HEAD</strong> until <code>node .gitnexus/run.cjs analyze</code> re-runs post-<code>d927684</code>.</p>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>Value</th>
+</tr></thead>
+<tbody>
+<tr><td>HEAD commit</td><td><strong><code>d927684</code></strong></td></tr>
+<tr><td>Symbols (AGENTS baseline)</td><td><strong>25,390</strong></td></tr>
+<tr><td>Relationships</td><td><strong>48,720</strong></td></tr>
+<tr><td>Execution flows</td><td><strong>300</strong></td></tr>
+<tr><td>detect-changes</td><td>Required before commits (repo skill)</td></tr>
+</tbody>
+</table>
+<h3>Watchlist (from prior dashboard-state; re-verify after analyze)</h3>
+<table>
+<thead><tr>
+<th>Symbol</th>
+<th>Risk</th>
+<th>Notes</th>
+</tr></thead>
+<tbody>
+<tr><td><code>ScenarioDocumentEditor</code></td><td><strong>CRITICAL</strong></td><td>Authoring hub</td></tr>
+<tr><td><code>CatalogWriteGate</code></td><td><strong>CRITICAL</strong></td><td>Extend-only write gate</td></tr>
+<tr><td><code>DelegationBridge</code></td><td><strong>CRITICAL</strong></td><td>ZERO hotpath touch</td></tr>
+<tr><td><code>PatrolCandidateEngagePolicy</code></td><td><strong>CRITICAL</strong></td><td>AAR/policy seam</td></tr>
+<tr><td><code>BalticReplayHarness</code></td><td><strong>CRITICAL</strong></td><td>Replay + gauntlet harness</td></tr>
+<tr><td><code>GauntletOracleEvaluator</code></td><td><strong>MEDIUM (new surface)</strong></td><td>Fingerprint substring / True\</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>Sprint / Program Status</h2>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>Value</th>
+</tr></thead>
+<tbody>
+<tr><td>Stage</td><td><strong>Release</strong></td></tr>
+<tr><td>Sprint plan files</td><td><strong>135</strong></td></tr>
+<tr><td>Epic markdown files</td><td><strong>336</strong> under <code>production/epics</code></td></tr>
+<tr><td>Solution tests (approx)</td><td><strong>~1,697</strong> pass (+1 Phase0 residual fail)</td></tr>
+<tr><td>Gauntlet policies</td><td><strong>24</strong></td></tr>
+<tr><td>Latest gauntlet run</td><td><strong><code>gauntlet-20260713-1739</code></strong> all tiers green</td></tr>
+<tr><td>Asset Done</td><td><strong>8 / 42</strong></td></tr>
+</tbody>
+</table>
+<h3>Programs since 2026-07-09</h3>
+<table>
+<thead><tr>
+<th>Program</th>
+<th>Status</th>
+</tr></thead>
+<tbody>
+<tr><td>S89–S92 post-editor hygiene</td><td><strong>Complete</strong> (ack 2026-07-09; dashboard-state)</td></tr>
+<tr><td>S93 asset production wave</td><td><strong>In progress</strong> — 8 Done, 3 In Production</td></tr>
+<tr><td>QA gauntlet dual-slice (ladder inject + multi-domain)</td><td><strong>Complete</strong> (<code>917e716</code>)</td></tr>
+<tr><td>Max-variance inventory smoke</td><td><strong>Complete</strong> (<code>d927684</code>, AAR on disk)</td></tr>
+<tr><td>Oracle fingerprint fail-closed</td><td><strong>Shipped</strong> (<code>requireFingerprintSubstrings</code>, <code>requireTrueLaunchedShooters</code>)</td></tr>
+</tbody>
+</table>
+<h3>Active backlog</h3>
+<table>
+<thead><tr>
+<th>ID</th>
+<th>Item</th>
+<th>Status</th>
+</tr></thead>
+<tbody>
+<tr><td>ASSET-02</td><td>Finish S93 remaining Needed (4) + umbrellas</td><td>In flight</td></tr>
+<tr><td>GN-01</td><td>GitNexus re-analyze to HEAD</td><td>Recommended</td></tr>
+<tr><td>GAU-01</td><td>Keep expects calibrated to tier tick budgets</td><td>Ongoing</td></tr>
+<tr><td>STG-01</td><td>Optional stage → Launch</td><td>Human decision</td></tr>
+<tr><td>CLI-01</td><td>Phase0 smoke script fail</td><td>Quarantine / fix</td></tr>
+<tr><td>ARCH-01</td><td>Architecture review refresh</td><td>Recommended</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>Milestone Tracking</h2>
+<table>
+<thead><tr>
+<th>Field</th>
+<th>Value</th>
+</tr></thead>
+<tbody>
+<tr><td>Vertical slice</td><td><strong>PROCEED</strong> (historical)</td></tr>
+<tr><td>RC1 / Release train</td><td>S48 / S68 gates held</td></tr>
+<tr><td>Editors</td><td>Scenario + Mission P2 + Platform <strong>COMPLETE</strong></td></tr>
+<tr><td>Hygiene</td><td>S89–S92 <strong>COMPLETE</strong></td></tr>
+<tr><td>Assets</td><td>S93 wave <strong>started</strong> (first Done binaries)</td></tr>
+<tr><td>QA gauntlet</td><td>Inventory smoke <strong>green</strong> @ 2026-07-13</td></tr>
+<tr><td>Stage</td><td><strong>Release</strong></td></tr>
+<tr><td>Outstanding for commercial ship</td><td>Store submission, full i18n, live Editor evidence pack, remaining assets, Launch ack</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>Completeness Overview</h2>
+<h3>Design</h3>
+<ul>
+<li>GDD files: <strong>18</strong> (~60% systems linked)</li>
+<li>Art bible: present  </li>
+<li>Asset manifest: <strong>present</strong> with production progress  </li>
+</ul>
+<h3>Architecture</h3>
+<ul>
+<li>ADRs: <strong>~17–18</strong> files  </li>
+<li>Overall review: <strong>CONCERNS</strong> (refresh due)  </li>
+</ul>
+<h3>Production</h3>
+<ul>
+<li>Release engineering track mature  </li>
+<li>Determinism / replay goldens held  </li>
+<li>Gauntlet hard-gate oracle CLI on PR workflow  </li>
+</ul>
+<h3>Source & tests</h3>
+<table>
+<thead><tr>
+<th>Metric</th>
+<th>2026-07-09</th>
+<th>2026-07-13</th>
+</tr></thead>
+<tbody>
+<tr><td>C# source (excl. tests)</td><td>609</td><td><strong>643</strong></td></tr>
+<tr><td>C# test files</td><td>403</td><td><strong>438</strong></td></tr>
+<tr><td>Assembly pass sum</td><td>1,599</td><td><strong>~1,697</strong></td></tr>
+</tbody>
+</table>
+<h3>MVP / systems (inferred)</h3>
+<div class="mermaid">
+flowchart LR
+  subgraph done [Release-grade]
+    SE[Scenario Editor headless]
+    ME[Mission Editor P2]
+    PE[Platform Editor]
+    HY[S89-S92 Hygiene]
+    GQ[Gauntlet oracle hard-gate]
+  end
+  subgraph active [Active]
+    S93[S93 Asset production]
+    GN[GitNexus reindex]
+  end
+  subgraph gate [Human gates]
+    Launch[Launch stage]
+    Store[Store submit]
+  end
+  done --&gt; active --&gt; gate
+</div>
+<hr>
+<h2>Asset Manifest</h2>
+<p><strong>Source:</strong> <code>design/assets/asset-manifest.md</code> (updated 2026-07-09 S93)</p>
+<table>
+<thead><tr>
+<th>Status</th>
+<th>Count</th>
+</tr></thead>
+<tbody>
+<tr><td>Total</td><td><strong>42</strong></td></tr>
+<tr><td>Needed</td><td><strong>4</strong></td></tr>
+<tr><td>Specced</td><td><strong>27</strong></td></tr>
+<tr><td>In Production</td><td><strong>3</strong></td></tr>
+<tr><td>Done</td><td><strong>8</strong></td></tr>
+<tr><td>Approved</td><td><strong>0</strong></td></tr>
+</tbody>
+</table>
+<p><strong>Overall asset progress:</strong> <strong>~30%</strong> engineering (specs + first binaries); <strong>0</strong> formally Approved.</p>
+<hr>
+<h2>Gaps Identified</h2>
+<h3>Critical</h3>
+<ol>
+<li><strong>Launch not declared</strong> — stage remains Release  </li>
+<li><strong>Asset production incomplete</strong> — 4 Needed + umbrellas still open  </li>
+<li><strong>GitNexus re-analyze</strong> after gauntlet commits  </li>
+</ol>
+<h3>Important</h3>
+<ol>
+<li><strong>Architecture review stale</strong> post–editor + gauntlet  </li>
+<li><strong>Phase0 Cli smoke residual</strong>  </li>
+<li><strong>CRITICAL symbol hubs</strong> — mandatory impact before edits  </li>
+<li><strong>Oracle expects</strong> must track tick-budget changes  </li>
+</ol>
+<h3>Resolved since 2026-07-09</h3>
+<ol>
+<li><s>0 assets Done</s> → <strong>8 Done</strong> (S93)  </li>
+<li><s>Gauntlet inventory unproven at tier ticks</s> → <strong>72-row smoke allPassed</strong>  </li>
+<li><s>S89–S92 open</s> → <strong>complete</strong>  </li>
+<li><s>Inject/multi-domain CI bar weak</s> → fingerprint fail-closed + expanded fixtures  </li>
+</ol>
+<hr>
+<h2>Recommended Next Steps</h2>
+<ol>
+<li><code>node .gitnexus/run.cjs analyze</code> → refresh AGENTS/dashboard GitNexus numbers to HEAD  </li>
+<li>Continue S93: clear 4 Needed assets; move umbrellas to Done  </li>
+<li>Fix or quarantine MissionEditor Phase0 smoke script  </li>
+<li>Run <code>/architecture-review</code> focused on Delegation/gauntlet seams  </li>
+<li>Human decision: stay Release vs declare Launch criteria  </li>
+</ol>
+<hr>
+<h2>Follow-Up Skills</h2>
+<table>
+<thead><tr>
+<th>Condition</th>
+<th>Skill</th>
+</tr></thead>
+<tbody>
+<tr><td>Asset production</td><td><code>/asset-spec</code>, <code>/asset-audit</code></td></tr>
+<tr><td>Stage gate</td><td><code>/gate-check</code></td></tr>
+<tr><td>Architecture</td><td><code>/architecture-review</code></td></tr>
+<tr><td>Pre-merge</td><td>GitNexus <code>detect_changes</code></td></tr>
+<tr><td>Gauntlet regression</td><td><code>/qa-gauntlet</code> or Demo batch + <code>gauntlet_oracle_eval</code></td></tr>
+</tbody>
+</table>
+<hr>
+<h2>Appendix: File / Run Counts</h2>
+<table>
+<thead><tr>
+<th>Area</th>
+<th>Count</th>
+</tr></thead>
+<tbody>
+<tr><td>Sprint plan md</td><td>135</td></tr>
+<tr><td>Epic md (<code>production/epics</code>)</td><td>336</td></tr>
+<tr><td>GDD md</td><td>18</td></tr>
+<tr><td>Gauntlet policies</td><td>24</td></tr>
+<tr><td>Regression goldens</td><td>34–35</td></tr>
+<tr><td>Source .cs (excl tests)</td><td>643</td></tr>
+<tr><td>Test .cs</td><td>438</td></tr>
+<tr><td>Latest gauntlet run</td><td><code>gauntlet-20260713-1739</code></td></tr>
+<tr><td>Commits (dashboard window)</td><td><code>917e716</code>, <code>d927684</code> (+ theater inject priors)</td></tr>
+</tbody>
+</table>
+<hr>
+<h2>Recent commits (dashboard window)</h2>
+<table>
+<thead><tr>
+<th>SHA</th>
+<th>Summary</th>
+</tr></thead>
+<tbody>
+<tr><td><code>d927684</code></td><td>qa(gauntlet): max-variance smoke gauntlet-20260713-1739</td></tr>
+<tr><td><code>917e716</code></td><td>feat(gauntlet): ladder inject + multi-domain with fingerprint fail-closed</td></tr>
+<tr><td><code>fbf23bc</code></td><td>fix(gauntlet): theater inject CommsStateChange + PolicyUpdate ROE</td></tr>
+<tr><td><code>d06e8a7</code></td><td>feat(qa-gauntlet): oracle fail-closed + joint catalog ORBAT</td></tr>
+</tbody>
+</table>
+<hr>
+<p>*Generated by producer agent — aggregated from production, design, architecture, GitNexus (AGENTS baseline), and audit/gauntlet artifacts*  </p>
+<p>*HTML companion: <a href="2026-07-13-pm.html">2026-07-13-pm.html</a>*</p>
+<footer>
+  <p>Generated by producer agent — aggregated from production, design, architecture, GitNexus (AGENTS baseline), and audit/gauntlet artifacts.</p>
+  <p>Source Markdown: <a href="2026-07-13-pm.md">2026-07-13-pm.md</a> · Living dashboard: <a href="../project-dashboard.md">project-dashboard.md</a> · Prior: <a href="2026-07-09-am.html">2026-07-09-am.html</a></p>
+</footer>
+</main>
+</body>
+</html>

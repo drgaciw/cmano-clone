@@ -16,7 +16,17 @@ Offline markdown reference of the Command: Modern Air/Naval Operations modern da
 | Facilities | 4511 | 119 | [facility.md](facility.md) |
 | Sensors | 7208 | 37 | [sensor.md](sensor.md) |
 | Weapons | 4403 | 42 | [weapon.md](weapon.md) |
-| **Total** | **29085** | | |
+| **Total (source corpora)** | **29085** | | |
+
+### Derived views
+
+Filtered subsets of a source corpus above — not independently scraped. Their records are **already counted** in the totals above, so do not add them to the total.
+
+| View | Records | Groups | Derived from | File |
+|---|---:|---:|---|---|
+| Ground Units | 3289 | 112 | Facilities with a mobile `Type` — Mobile Vehicle(s), Mobile Vehicle(s) - Wheeled/Tracked, Mobile Personnel | [ground-units.md](ground-units.md) |
+
+Ground Units is the CMO markdown importer's 7th `--entity` category (`--entity ground-unit`); `facility.md` remains the complete superset. See [`docs/engineering/cmo-markdown-import.md`](../../engineering/cmo-markdown-import.md).
 
 ## Source & terms
 

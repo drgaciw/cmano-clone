@@ -1,0 +1,32 @@
+name: Actionlint
+
+# Lints GitHub Actions workflow files to catch invalid YAML, bad if:
+# expressions, and shell issues (via shellcheck) before they merge.
+# Cheap and fast; only runs when workflow files change.
+#
+# Note: 'if: false' is used intentionally across several workflows to disable
+# them while GitHub Actions billing is blocked (see gitnexus-security.yml).
+# actionlint flags that as a "constant expression" error, so it is ignored
+# here via -ignore. The regex avoids literal spaces (which the action splits
+# on) by using '.' to match the space. Other checks remain active.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+
+jobs:
+  actionlint:
+    name: Lint workflows
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run actionlint
+        uses: raven-actions/actionlint@v2
+        with:
+          flags: -ignore constant.expression

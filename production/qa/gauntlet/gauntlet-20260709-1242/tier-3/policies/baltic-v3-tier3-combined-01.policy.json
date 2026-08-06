@@ -1,0 +1,56 @@
+{
+  "id": "baltic-v3-tier3-combined-01",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true
+  },
+  "emcon": {
+    "units": {
+      "usub-blue": { "radar": "Passive" },
+      "u1": { "radar": "Passive" },
+      "ucav-blue": { "radar": "Active" },
+      "hostile-1": { "radar": "Passive" },
+      "usub-red": { "radar": "Active" }
+    }
+  },
+  "catalogDetection": [
+    {
+      "observerId": "ucav-blue",
+      "sensorId": "recon-radar",
+      "targetId": "hostile-1",
+      "contactId": "c1",
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "usub-red",
+      "sensorId": "hull-sonar",
+      "targetId": "u1",
+      "contactId": "c2",
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "mission": {
+    "fireOrder": [],
+    "events": [
+      {
+        "id": "contact-classified",
+        "fireAtTick": 5,
+        "kind": "MissionTransition",
+        "code": "CONTACT_CLASSIFIED"
+      },
+      {
+        "id": "weapons-release-authorized",
+        "fireAtTick": 10,
+        "kind": "MissionTransition",
+        "code": "WEAPONS_RELEASE_AUTHORIZED"
+      }
+    ]
+  }
+}

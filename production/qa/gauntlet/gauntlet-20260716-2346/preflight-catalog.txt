@@ -1,0 +1,13 @@
+path assets/data/catalog/baltic_patrol.db exists True bytes 2732032
+tables 30
+  catalog_staging_platform=196
+  platform=79
+  platform_comms=0
+  platform_damage=0
+  platform_emcon=0
+  platform_loadout=76
+  platform_magazine=423
+  platform_mobility=0
+  platform_mount=459
+  platform_signature=0
+CATALOG_OK

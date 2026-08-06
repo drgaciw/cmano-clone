@@ -1,6 +1,14 @@
+/* C2 top bar chrome — absolute strip across the top of the Game view. */
+
 .c2-topbar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    min-height: 52px;
     flex-direction: column;
-    padding: 4px 8px;
+    flex-shrink: 0;
+    padding: 6px 12px;
     background-color: rgba(10, 16, 26, 0.95);
     border-bottom-width: 1px;
     border-bottom-color: rgb(50, 65, 80);
@@ -51,6 +59,15 @@
     margin-right: 16px;
     color: rgb(190, 200, 210);
     font-size: 12px;
+}
+
+/* CMD-22: compact Zulu / local / remaining clocks */
+.c2-topbar-item--time {
+    margin-right: 12px;
+    font-size: 11px;
+    color: rgb(160, 175, 190);
+    -unity-font-style: normal;
+    letter-spacing: 0.5px;
 }
 
 .c2-topbar-item--comms {

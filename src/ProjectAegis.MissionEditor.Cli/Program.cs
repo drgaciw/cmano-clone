@@ -76,6 +76,8 @@ switch (command)
         return RunScenarioNearFutureSpawn(args.Skip(1).ToArray());
     case "scenario_event_trace":
         return RunScenarioEventTrace(args.Skip(1).ToArray());
+    case "scenario_diff_summary":
+        return RunScenarioDiffSummary(args.Skip(1).ToArray());
     case "event_add":
     case "event_update": // alias: upsert same as event_add
         return RunEventAdd(args.Skip(1).ToArray());
@@ -234,6 +236,16 @@ static int RunScenarioExport(string[] args)
             allowed = pkg.Allowed,
             editVersion = pkg.ExportDocument?.Metadata?.EditVersion,
         };
+        // Always emit machine-readable JSON; non-zero exit when validation blocks export
+        // (parity with scenario_export_brief / scenario_simulate_sample).
+        if (!pkg.Allowed)
+        {
+            Console.Out.WriteLine(System.Text.Json.JsonSerializer.Serialize(
+                result,
+                new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+            return 1;
+        }
+
         return McpToolResult.WriteOk(Console.Out, result);
     }
     catch (Exception ex)
@@ -242,9 +254,17 @@ static int RunScenarioExport(string[] args)
     }
 }
 
+static int RunScenarioDiffSummary(string[] args)
+{
+    var before = CliArgParser.GetFlag(args, "--before");
+    var after = CliArgParser.GetFlag(args, "--after");
+    return ScenarioDiffSummaryCommand.Run(before ?? string.Empty, after ?? string.Empty, Console.Out);
+}
+
 static int RunSimulateSample(string[] args)
 {
     string? path = null;
+    string? policyDir = null;
     var ticks = 32;
     for (var i = 0; i < args.Length; i++)
     {
@@ -256,12 +276,21 @@ static int RunSimulateSample(string[] args)
         {
             ticks = Math.Max(1, t);
         }
+        else if (args[i] == "--policy-dir" && i + 1 < args.Length)
+        {
+            policyDir = args[++i];
+        }
     }
 
     if (string.IsNullOrWhiteSpace(path))
     {
         Console.Error.WriteLine("scenario_simulate_sample requires --path <scenario.json>");
         return 1;
+    }
+
+    if (policyDir != null)
+    {
+        ProjectAegis.Sim.Scenario.ScenarioPolicyRepository.LoadFromDirectory(policyDir);
     }
 
     return ScenarioSimulateSampleCommand.Run(path, ticks, quiet: false, Console.Out);
@@ -873,7 +902,7 @@ static void PrintUsage()
     Console.WriteLine("Project Aegis — Mission Editor headless MCP tools");
     Console.WriteLine("Usage:");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_create --out <scenario.json> [--db-ref R] [--policy-id P] [--seed N]");
-    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_patrol --path <scenario.json> --edit-version N --id <id> --unit U [--wp lat,lon]+");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_patrol --path <scenario.json> --edit-version N --id <id> --unit U --wp lat,lon --wp lat,lon --wp lat,lon  (patrol zone needs ≥3 waypoints)");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_add_strike --path <scenario.json> --edit-version N --id <id> --unit U --target T");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_patrol --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--wp lat,lon]+");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_update_strike --path <scenario.json> --edit-version N --id <id> [--unit U]+ [--target T]+");
@@ -901,6 +930,7 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_publish --path <scenario.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export --path <scenario.json>   // S83-01 polished (cites roadmap-execute-plan-07042026.md + boundary-2026-07-04.md + qa units)");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_export_brief --path <scenario.json> [--out brief.md]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_diff_summary --before <a.json> --after <b.json>");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_simulate_sample --path <scenario.json> [--ticks N]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- mission_plan_suggest --intent \"patrol and strike baltic\"");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- scenario_comms_status --policy baltic-patrol-comms");
@@ -911,7 +941,7 @@ static void PrintUsage()
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_entity_map");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_propose --db <catalog.db> --platform P --sensor S --base-pd 0.7");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_write_approve --db <catalog.db> --batch <batchId> [--enable-balance-drift]");
-    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <path.md> [--entity sensor|weapon|platform|aircraft|submarine|facility] [--map-baltic-platform-ids] [--max-records N] [--chunk-size 500] [--report-out report.json]");
+    Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- catalog_import_markdown --db <catalog.db> --markdown <path.md> [--entity sensor|weapon|platform|aircraft|submarine|facility|ground-unit] [--weapon <weapon.md>] [--map-baltic-platform-ids] [--max-records N] [--chunk-size 500] [--report-out report.json]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_export_xlsx [--db <catalog.db>] --out <path> [--snapshot <id>] [--tl-tier TL-0..TL-5] [--io closedxml|canonical]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_import_xlsx --db <catalog.db> --in <workbook> [--io closedxml|canonical]");
     Console.WriteLine("  dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_diff_xlsx [--db <catalog.db>] [--base <path>] [--edited <path>] [--io closedxml|canonical]");
@@ -943,6 +973,7 @@ static int RunCatalogImportMarkdown(string[] args)
     var chunkSize = CliArgParser.GetIntFlag(args, "--chunk-size", CmoMarkdownImportProposer.DefaultChunkSize);
     var reportOut = CliArgParser.GetFlag(args, "--report-out");
     var entityRaw = CliArgParser.GetFlag(args, "--entity");
+    var weaponMarkdown = CliArgParser.GetFlag(args, "--weapon");
     var mapBaltic = args.Any(a => a.Equals("--map-baltic-platform-ids", StringComparison.Ordinal));
     try
     {
@@ -955,7 +986,8 @@ static int RunCatalogImportMarkdown(string[] args)
             Console.Out,
             reportOut,
             entity,
-            mapBaltic);
+            mapBaltic,
+            weaponMarkdown);
     }
     catch (ArgumentException ex)
     {
@@ -1131,7 +1163,9 @@ static int RunGauntletOracleEval(string[] args)
     var policyDir = CliArgParser.GetFlag(args, "--policy-dir");
     var csv = CliArgParser.GetFlag(args, "--csv");
     var outPath = CliArgParser.GetFlag(args, "--out");
-    return GauntletOracleEvalCommand.Run(policy, policyDir, csv, outPath, Console.Out);
+    var profile = CliArgParser.GetFlag(args, "--profile")
+                  ?? ProjectAegis.Data.Catalog.GauntletOracleEvaluator.ProfileLadder;
+    return GauntletOracleEvalCommand.Run(policy, policyDir, csv, outPath, Console.Out, profile);
 }
 
 static int RunCatalogReleaseDiff(string[] args)

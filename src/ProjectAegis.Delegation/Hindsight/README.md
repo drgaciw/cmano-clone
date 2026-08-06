@@ -2,6 +2,8 @@
 
 Optional sidecar memory for agent decisions, AAR, and campaign trust. **Disabled by default** so CI and golden replays stay deterministic.
 
+> **Deep-dive:** [`docs/engineering/hindsight-session-memory-sidecar.md`](../../../docs/engineering/hindsight-session-memory-sidecar.md) — integration seams, `HindsightOptions`, bank / decision-memory / trust-signal model, HTTP transport, and the determinism guarantees. This file is the quick reference.
+
 ## Enable
 
 ```csharp

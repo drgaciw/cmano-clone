@@ -1,5 +1,12 @@
+/* Center map chrome — fills space between left drawer, right unit panel, and top bar. */
+
 .map-placeholder-panel {
-    flex-grow: 1;
+    position: absolute;
+    left: 260px;
+    right: 300px;
+    top: 56px;
+    bottom: 0;
+    flex-direction: column;
     background-color: rgb(8, 14, 22);
     border-color: rgb(40, 55, 70);
     border-width: 1px;
@@ -24,14 +31,19 @@
 
 .map-theater-label {
     color: rgb(140, 155, 170);
-    margin: 4px;
+    margin: 6px 8px 2px 8px;
     -unity-font-style: bold;
+    font-size: 12px;
 }
 
 .map-canvas {
     flex-grow: 1;
-    margin: 8px;
+    margin: 4px 8px 8px 8px;
     background-color: rgb(16, 24, 36);
+    border-width: 1px;
+    border-color: rgb(40, 55, 70);
+    min-height: 200px;
+    position: relative;
 }
 
 .map-symbol {

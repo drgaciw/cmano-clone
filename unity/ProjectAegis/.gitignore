@@ -27,3 +27,5 @@
 
 # Unity3D generated meta on imported plugins (keep Assets/**/*.meta in VCS)
 # Do not ignore *.meta under Assets/
+# Contains a bearer token for the ai-game.dev MCP relay — keep local, never commit (rotate the exposed token; still in history)
+.mcp.json

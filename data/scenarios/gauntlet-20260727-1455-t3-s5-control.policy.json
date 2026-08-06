@@ -1,0 +1,235 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.25,
+    "salvoSize": 1
+  },
+  "jammers": [
+    {
+      "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "jamStrength": 0,
+      "activeFromTick": 0
+    }
+  ],
+  "detection": [
+    {
+      "observerId": "f-230-norfolk-type-23-duke",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "contactId": "c-t3s5-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-840-holland",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "contactId": "c-t3s5-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "contactId": "c-t3s5-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+      "contactId": "c-t3s5-4",
+      "basePd": 0.7,
+      "envMask": 0.8,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-16c-blk-52iq-falcon-2015",
+      "sensorId": "radar-1",
+      "targetId": "su-35s-flanker-m-2023",
+      "contactId": "c-t3s5-5",
+      "basePd": 0.65,
+      "envMask": 0.75,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "ssn-774-virginia-blk-i-ii",
+      "sensorId": "sonar-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-t3s5-6",
+      "basePd": 0.6,
+      "envMask": 0.7,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "hvu-screen-established",
+      "ew-onset-window",
+      "strike-run-execute",
+      "egress-order"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "hvu-screen-established",
+        "fireAtTick": 2,
+        "kind": "EventFired",
+        "code": "hvu_screen_established"
+      },
+      {
+        "id": "ew-onset-window",
+        "fireAtTick": 5,
+        "kind": "EventFired",
+        "code": "ew_onset_window"
+      },
+      {
+        "id": "strike-run-execute",
+        "fireAtTick": 9,
+        "kind": "EventFired",
+        "code": "strike_run_execute"
+      },
+      {
+        "id": "egress-order",
+        "fireAtTick": 13,
+        "kind": "EventFired",
+        "code": "egress_order"
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T3 escort+strike combined: BLUE screens HVU f-230-norfolk-type-23-duke while a strike element pursues designated target skr-admiral-sergey-gorshkov-pr-2235-0; RED holds WeaponsTight (ID-required-engagement stand-in). Designated target skr-admiral-sergey-gorshkov-pr-2235-0 carries a top-level jammers entry active from tick 5, matched against it by three independent BLUE observers (f-230-norfolk-type-23-duke, p-840-holland, jas-39e-gripen-ng-2021). This scenario is one half of an EW-jamming differential pair: its jamStrength value is intentionally the only combat-relevant difference from its control sibling (jamStrength 0), isolating jamming's continuous effect on DetectionProbability.ComputePd, which has no discrete jammed abort token. Three additional unjammed detection pairings (p-960-skjold/801-rais-hamidou, f-16c/su-35s, ssn-774/pl-877) provide an internal unjammed baseline within the same file. [activeFromTick set to 0: jamming must precede contact establishment, otherwise already-Detected contacts make it a no-op \u2014 verified empirically]",
+    "oracle": "No discrete jammed fingerprint token exists (ComputePd folds jamStrength continuously via (1-jam) multiplier). Proof is external: a CSV diff of this scenario's batch output against its control-pair sibling (gauntlet-20260727-1455-t3-s5-control) must show measurably fewer detections/kills against skr-admiral-sergey-gorshkov-pr-2235-0 from tick 5 onward in this (jammed) variant. Non-empty fingerprint required regardless.",
+    "runId": "gauntlet-20260727-1455",
+    "tier": 3,
+    "dimensionsClaimed": [
+      "escort_strike_combined",
+      "hvu_protection_f-230-norfolk-type-23-duke",
+      "designated_target_destruction_skr-admiral-sergey-gorshkov-pr-2235-0",
+      "timed_event_chain",
+      "id_required_roe_weaponstight_standin",
+      "ew_jamming_differential_proof_via_csv_diff"
+    ],
+    "catalogRefs": [
+      "f-230-norfolk-type-23-duke",
+      "p-840-holland",
+      "p-960-skjold",
+      "f-16c-blk-52iq-falcon-2015",
+      "jas-39e-gripen-ng-2021",
+      "ssn-774-virginia-blk-i-ii",
+      "skr-admiral-sergey-gorshkov-pr-2235-0",
+      "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+      "mrk-shkval-pr-22800-karakurt",
+      "su-35s-flanker-m-2023",
+      "ka-27m-helix-a",
+      "pl-877-kilo-paltus-1992"
+    ],
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 2,
+      "maxMissilesFired": 22,
+      "minDenials": 8,
+      "maxDenials": 25,
+      "minScore": 20.0,
+      "maxScore": 420.0
+    },
+    "units": [
+      {
+        "unitId": "f-230-norfolk-type-23-duke",
+        "platformId": "f-230-norfolk-type-23-duke",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-840-holland",
+        "platformId": "p-840-holland",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-16c-blk-52iq-falcon-2015",
+        "platformId": "f-16c-blk-52iq-falcon-2015",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ssn-774-virginia-blk-i-ii",
+        "platformId": "ssn-774-virginia-blk-i-ii",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "platformId": "skr-admiral-sergey-gorshkov-pr-2235-0",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+        "platformId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-35s-flanker-m-2023",
+        "platformId": "su-35s-flanker-m-2023",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "pl-877-kilo-paltus-1992",
+        "platformId": "pl-877-kilo-paltus-1992",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T3 tick budget 16, seeds 42,7,123, after the s5/control activeFromTick fix. Per tools/qa-gauntlet/README-expect-regen.md \u2014 derived, not invented."
+  },
+  "id": "gauntlet-20260727-1455-t3-s5-control"
+}

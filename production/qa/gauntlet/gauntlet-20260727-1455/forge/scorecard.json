@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "runDir": "production/qa/gauntlet/gauntlet-20260727-1455",
+  "tier": 2,
+  "recommendedTicks": 10,
+  "candidateCount": 4,
+  "promoteCount": 4,
+  "discardCount": 0,
+  "corpusCellCount": 20,
+  "results": [
+    {
+      "scenarioId": "gauntlet-forge-20260727-1455-t2-c1",
+      "path": "production/qa/gauntlet/gauntlet-20260727-1455/forge/candidates/gauntlet-forge-20260727-1455-t2-c1.policy.json",
+      "tier": 2,
+      "recommendedTicks": 10,
+      "cell": {
+        "key": "emcon|air,surface|WeaponsFree/WeaponsFree|emcon-phases|none",
+        "missionClass": "emcon",
+        "domains": [
+          "air",
+          "surface"
+        ],
+        "roePair": "WeaponsFree/WeaponsFree",
+        "emconClass": "emcon-phases",
+        "eventClass": "none",
+        "intentHash": "a11b23d55e0d307c"
+      },
+      "newCoverageCell": true,
+      "rarePlatformHits": [
+        "801-rais-hamidou-pr-1234e-nanuchka-ii-1981"
+      ],
+      "duplicateIntent": false,
+      "oraclePassed": true,
+      "usefulFail": false,
+      "hardGates": {
+        "hasGauntletIntent": true,
+        "hasGauntletExpect": true,
+        "tierTicksKnown": true,
+        "notDuplicateIntent": true,
+        "oracleKnown": true,
+        "oraclePassedOrUsefulFail": true
+      },
+      "hardGatesPass": true,
+      "noveltyScore": 4.5,
+      "recommendPromote": true,
+      "recipesHint": []
+    },
+    {
+      "scenarioId": "gauntlet-forge-20260727-1455-t2-c2",
+      "path": "production/qa/gauntlet/gauntlet-20260727-1455/forge/candidates/gauntlet-forge-20260727-1455-t2-c2.policy.json",
+      "tier": 2,
+      "recommendedTicks": 10,
+      "cell": {
+        "key": "emcon|air,surface|WeaponsFree/WeaponsFree|emcon-phases|none",
+        "missionClass": "emcon",
+        "domains": [
+          "air",
+          "surface"
+        ],
+        "roePair": "WeaponsFree/WeaponsFree",
+        "emconClass": "emcon-phases",
+        "eventClass": "none",
+        "intentHash": "cd82909def75dc9f"
+      },
+      "newCoverageCell": true,
+      "rarePlatformHits": [],
+      "duplicateIntent": false,
+      "oraclePassed": true,
+      "usefulFail": false,
+      "hardGates": {
+        "hasGauntletIntent": true,
+        "hasGauntletExpect": true,
+        "tierTicksKnown": true,
+        "notDuplicateIntent": true,
+        "oracleKnown": true,
+        "oraclePassedOrUsefulFail": true
+      },
+      "hardGatesPass": true,
+      "noveltyScore": 4.0,
+      "recommendPromote": true,
+      "recipesHint": []
+    },
+    {
+      "scenarioId": "gauntlet-forge-20260727-1455-t2-c3",
+      "path": "production/qa/gauntlet/gauntlet-20260727-1455/forge/candidates/gauntlet-forge-20260727-1455-t2-c3.policy.json",
+      "tier": 2,
+      "recommendedTicks": 10,
+      "cell": {
+        "key": "unknown|air,surface|WeaponsTight/WeaponsFree|unrestricted|none",
+        "missionClass": "unknown",
+        "domains": [
+          "air",
+          "surface"
+        ],
+        "roePair": "WeaponsTight/WeaponsFree",
+        "emconClass": "unrestricted",
+        "eventClass": "none",
+        "intentHash": "3cd7e879041977b0"
+      },
+      "newCoverageCell": true,
+      "rarePlatformHits": [
+        "801-rais-hamidou-pr-1234e-nanuchka-ii-1981"
+      ],
+      "duplicateIntent": false,
+      "oraclePassed": true,
+      "usefulFail": false,
+      "hardGates": {
+        "hasGauntletIntent": true,
+        "hasGauntletExpect": true,
+        "tierTicksKnown": true,
+        "notDuplicateIntent": true,
+        "oracleKnown": true,
+        "oraclePassedOrUsefulFail": true
+      },
+      "hardGatesPass": true,
+      "noveltyScore": 4.5,
+      "recommendPromote": true,
+      "recipesHint": []
+    },
+    {
+      "scenarioId": "gauntlet-forge-20260727-1455-t2-c4",
+      "path": "production/qa/gauntlet/gauntlet-20260727-1455/forge/candidates/gauntlet-forge-20260727-1455-t2-c4.policy.json",
+      "tier": 2,
+      "recommendedTicks": 10,
+      "cell": {
+        "key": "strike|air,surface|WeaponsFree/WeaponsTight|emcon-phases|event-chain",
+        "missionClass": "strike",
+        "domains": [
+          "air",
+          "surface"
+        ],
+        "roePair": "WeaponsFree/WeaponsTight",
+        "emconClass": "emcon-phases",
+        "eventClass": "event-chain",
+        "intentHash": "adff4ef227754d10"
+      },
+      "newCoverageCell": true,
+      "rarePlatformHits": [],
+      "duplicateIntent": false,
+      "oraclePassed": true,
+      "usefulFail": false,
+      "hardGates": {
+        "hasGauntletIntent": true,
+        "hasGauntletExpect": true,
+        "tierTicksKnown": true,
+        "notDuplicateIntent": true,
+        "oracleKnown": true,
+        "oraclePassedOrUsefulFail": true
+      },
+      "hardGatesPass": true,
+      "noveltyScore": 4.0,
+      "recommendPromote": true,
+      "recipesHint": []
+    }
+  ],
+  "promoteIds": [
+    "gauntlet-forge-20260727-1455-t2-c1",
+    "gauntlet-forge-20260727-1455-t2-c2",
+    "gauntlet-forge-20260727-1455-t2-c3",
+    "gauntlet-forge-20260727-1455-t2-c4"
+  ],
+  "discardIds": []
+}

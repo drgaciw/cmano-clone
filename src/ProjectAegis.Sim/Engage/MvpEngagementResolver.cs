@@ -56,6 +56,15 @@ public sealed class MvpEngagementResolver : IEngagementResolver
 
     public EngageResult Resolve(in EngageRequest request)
     {
+        // A destroyed unit cannot shoot. This mirrors the TargetDestroyed gate below and must
+        // stay ahead of every other check — most importantly ahead of magazine consumption, so
+        // a dead shooter never burns rounds. Without it, a unit killed at tick N kept launching
+        // engagements at tick N+1 (BUG-engagement-resolver-shooter-liveness).
+        if (request.ShooterUnitId != 0 && _killedTargets.IsKilled(request.ShooterUnitId))
+        {
+            return EngageResult.Aborted(EngagementAbortReason.ShooterDestroyed);
+        }
+
         if (request.TargetId != 0 && _killedTargets.IsKilled(request.TargetId))
         {
             return EngageResult.Aborted(EngagementAbortReason.TargetDestroyed);
@@ -119,6 +128,25 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(damageWithdrawAbort.Value);
         }
 
+        var bingoAbort = LogisticsBingoEngageGate.Evaluate(in ctx);
+        if (bingoAbort != null)
+        {
+            return EngageResult.Aborted(bingoAbort.Value);
+        }
+
+        // Ledger is authoritative once seeded (including tracked-empty → 0 for Winchester).
+        // Unseeded mounts fall back to EngageContext.RoundsRemaining so Shotgun/Winchester
+        // do not treat never-seeded keys as empty.
+        var liveRounds = _magazines.TryGetRounds(request.ShooterUnitId, request.MountId, out var tracked)
+            ? tracked
+            : ctx.RoundsRemaining;
+
+        var shotgunAbort = LogisticsShotgunEngageGate.Evaluate(in ctx, liveRounds);
+        if (shotgunAbort != null)
+        {
+            return EngageResult.Aborted(shotgunAbort.Value);
+        }
+
         if (ctx.TrackSpoofed)
         {
             return EngageResult.Aborted(EngagementAbortReason.TrackSpoofed);
@@ -132,6 +160,14 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         if (!ctx.HasFireControlTrack)
         {
             return EngageResult.Aborted(EngagementAbortReason.NoFireControlTrack);
+        }
+
+        // Winchester hard-deny after doctrine sensors/EMCON/FC — replaces pre-launch MagazineEmpty
+        // when the ledger is tracked-empty (load-bearing WINCHESTER_ORDNANCE for saboteur 09).
+        var winchesterAbort = LogisticsWinchesterEngageGate.Evaluate(liveRounds);
+        if (winchesterAbort != null)
+        {
+            return EngageResult.Aborted(winchesterAbort.Value);
         }
 
         if (ctx.RoundsRemaining <= 0 && _magazines.GetRounds(request.ShooterUnitId, request.MountId) <= 0)

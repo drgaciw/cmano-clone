@@ -1,15 +1,24 @@
 @import url("../AegisTokens.uss");
 
+/* Docked tooling panel (hidden by default in DelegationSmoke showPanel=0). */
 .platform-catalog-panel {
-    flex-grow: 1;
+    position: absolute;
+    right: 308px;
+    top: 64px;
+    width: 300px;
+    max-height: 70%;
     min-width: 260px;
+    flex-direction: column;
     padding: 6px;
-    background-color: var(--aegis-surface-panel);
+    background-color: var(--surface-panel);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    border-radius: 4px;
 }
 
 .platform-catalog-title {
     -unity-font-style: bold;
-    color: var(--aegis-text-heading);
+    color: var(--text-heading);
     margin-bottom: 4px;
 }
 
@@ -33,26 +42,26 @@
 }
 
 .platform-catalog-list .unity-list-view__item--selected {
-    background-color: var(--aegis-selected-row-bg);
+    background-color: var(--selected-row-bg);
     border-left-width: 3px;
-    border-left-color: var(--aegis-selected-row-bar);
+    border-left-color: var(--selected-row-bar);
 }
 
 .platform-catalog-detail {
     margin-top: 6px;
     padding-top: 4px;
     border-top-width: 1px;
-    border-top-color: var(--aegis-border-section);
+    border-top-color: var(--border-section);
 }
 
 .platform-catalog-detail-title {
     -unity-font-style: bold;
-    color: var(--aegis-text-body);
+    color: var(--text-body);
     margin-bottom: 2px;
 }
 
 .platform-catalog-detail-line {
-    color: var(--aegis-text-muted);
+    color: var(--text-muted);
     margin-bottom: 1px;
 }
 
@@ -60,20 +69,86 @@
     margin-top: 6px;
     padding-top: 4px;
     border-top-width: 1px;
-    border-top-color: var(--aegis-border-section);
+    border-top-color: var(--border-section);
 }
 
 .platform-catalog-comms-list {
     min-height: 48px;
 }
 
+.platform-catalog-comms-helper {
+    color: var(--text-muted);
+    font-size: 10px;
+    white-space: normal;
+}
+
 .platform-catalog-links {
+    margin-top: 6px;
+    padding-top: 4px;
+    border-top-width: 1px;
+    border-top-color: var(--border-section);
+}
+
+.platform-catalog-links-list {
+    min-height: 48px;
+}
+
+.platform-catalog-action-status {
+    color: var(--aegis-text-muted);
+    margin-bottom: 4px;
+    white-space: normal;
+    min-height: 14px;
+}
+
+.platform-catalog-section-bar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 4px;
+    margin-bottom: 4px;
+}
+
+.platform-catalog-section-button {
+    margin-right: 4px;
+    margin-bottom: 2px;
+    min-width: 52px;
+}
+
+.platform-catalog-section-button--active {
+    border-bottom-width: 2px;
+    border-bottom-color: var(--aegis-selected-ring);
+}
+
+.platform-catalog-detail-line--muted {
+    color: var(--aegis-text-muted);
+    opacity: 0.85;
+}
+
+.platform-catalog-comms-helper {
+    color: var(--aegis-text-muted);
+    font-size: 10px;
+    margin-top: 2px;
+    white-space: normal;
+}
+
+.platform-catalog-graph {
     margin-top: 6px;
     padding-top: 4px;
     border-top-width: 1px;
     border-top-color: var(--aegis-border-section);
 }
 
-.platform-catalog-links-list {
+.platform-catalog-graph-search {
+    margin-bottom: 4px;
+}
+
+.platform-catalog-graph-list {
     min-height: 48px;
+}
+
+/* Keyboard focus (REQ-20 CMD-12 / CMD-28.9) — distinct from --aegis-selected-ring,
+   which this panel already uses for the active section underline. */
+.platform-catalog-action-button:focus,
+.platform-catalog-section-button:focus {
+    border-width: var(--aegis-focus-ring-width);
+    border-color: var(--aegis-focus-ring);
 }

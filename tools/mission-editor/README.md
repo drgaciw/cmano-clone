@@ -2,6 +2,11 @@
 
 ADR-008 headless tools for Unity-MCP and CI. No Unity required.
 
+> **Full reference:** this page is a quickstart for the most common verbs. The complete
+> verb list, the JSON/exit-code contract, the `--edit-version` optimistic-concurrency
+> workflow, and troubleshooting live in
+> [`docs/engineering/mission-editor-cli.md`](../../docs/engineering/mission-editor-cli.md).
+
 ## `scenario_validate`
 
 ```powershell

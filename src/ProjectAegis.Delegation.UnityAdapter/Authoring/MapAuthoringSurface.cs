@@ -144,9 +144,10 @@ public sealed class MapAuthoringSurface
         }
 
         var result = _session.Bus.PlaceUnit(_session.EditVersion, _tentativeUnit, save);
-        _tentativeUnit = null;
+        // Keep gesture on failure so the operator can fix fields and retry without re-Begin.
         if (result.Ok)
         {
+            _tentativeUnit = null;
             RebuildFromDocument();
         }
 
@@ -174,9 +175,9 @@ public sealed class MapAuthoringSurface
 
         // Invalid geometry still commits (visible + marked invalid) per design §10
         var result = _session.Bus.UpsertReferencePoint(_session.EditVersion, _tentativeRp, save);
-        _tentativeRp = null;
         if (result.Ok)
         {
+            _tentativeRp = null;
             RebuildFromDocument();
         }
 

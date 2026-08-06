@@ -124,6 +124,16 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 
 *Created following sprint-plan skill (Phase 0–6) + dispatching-parallel-agents for context gather. Lean review mode. PR-SPRINT skipped. QA plan required before implementation begins.*
 
+## Closeout (2026-06-14)
+All Must Have (S22-01/02/03) + Should Have (S22-04/05) completed and verified.
+- Parallel worktrees + Graphite stacks: sprint22-platform-editor-writegate (d206018 polish), sprint22-db-platform-import (9059bb9), sprint22-doctrine-panel (s22-05 polish), stack/sprint22/adr-011 etc.
+- Gates: dotnet build clean; 52/60/8 targeted (Data + PlayMode) + CLI smoke PASS; npx gitnexus detect_changes "No changes detected" (low/none risk) pre/post.
+- GitNexus: impacts CRITICAL on CatalogWriteGate (extend-only only, 18-40 impacted/7-11 procs re-ran before edits/commits); ZERO DelegationBridge (enforced).
+- Evidence: .worktrees/.../.agent-todo-s22-writegate.md + s22-04-todo.md full [OUTCOME]s (ACs met, determinism, DBI-1.4 guard, Baltic coverage); production/sprint-status.yaml (statuses done + closeout_note); production/retrospectives/retro-sprint-22-2026-06-14.md; ADR-011 Accepted.
+- gt submit --stack executed from worktrees + main (long-ref Windows warnings on verbose polish expected/non-blocking; feat PRs + dashboard review).
+- Nice-to-haves (22-6 balance-telemetry, 22-7 osint-tl-routing): backlog, stacks pre-created in gt ls for S23.
+- Subagent delegation loop + main verify closed sprint cleanly. All kickoff risks mitigated. 100% core ACs + DoD evidence.
+
 ## Pre-Work (Mandatory Before Any Implementation)
 
 1. `npx gitnexus analyze .` — refresh index after S21 merges

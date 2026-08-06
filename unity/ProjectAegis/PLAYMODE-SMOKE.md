@@ -23,8 +23,9 @@ Open `unity/ProjectAegis` in **Unity Hub 6.3 LTS** (6000.3.x).
 7. **Right:** `RightUnitPanelHost` — `Assets/UI/UnitDetail/UnitDetailPanel.uxml` / `.uss`
 8. **Bottom:** `MessageLogPanelHost` — `Assets/UI/MessageLog/MessageLogPanel.uxml` / `.uss`
 9. Wire each host's `bridgeHost` to the same **DelegationBridgeHost**.
-10. Optional scenarios on bridge: `baltic-patrol-mission`, `baltic-patrol-classify`, `baltic-patrol-comms` (COMMS top bar + denials), `baltic-patrol-mission-roe` (doctrine inheritance panel).
-11. Enter **Play Mode** — top bar shows sim time + score; map shows ■/◆ symbols; drawer tabs work; no bridge errors.
+10. **Panel Settings (required):** every `UIDocument` must reference a `PanelSettings` asset (shared `Assets/UI/C2RuntimePanelSettings.asset`). Without it, `rootVisualElement` stays null and Game view is empty sky only. Runtime fallback: `UiDocumentPanelSettingsBootstrap`. Editor fix: menu **Project Aegis → Fix UIDocument PanelSettings** or batch `-executeMethod ProjectAegis.Unity.Editor.DelegationSmokeSceneBuilder.FixPanelSettingsBatch`.
+11. Optional scenarios on bridge: `baltic-patrol-mission`, `baltic-patrol-classify`, `baltic-patrol-comms` (COMMS top bar + denials), `baltic-patrol-mission-roe` (doctrine inheritance panel).
+12. Enter **Play Mode** — top bar shows sim time + score; map shows ■/◆ symbols; drawer tabs work; no bridge errors.
 
 ## Sprint 7–9 — COMMS + fuel QA (manual)
 

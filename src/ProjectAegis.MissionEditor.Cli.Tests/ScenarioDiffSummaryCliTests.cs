@@ -123,6 +123,64 @@ public sealed class ScenarioDiffSummaryCliTests
         }
     }
 
+    /// <summary>
+    /// UAT 2026-07-19: command class was wired but Program.cs omitted the verb (exit 1 usage dump).
+    /// Spawns the real CLI DLL so dispatch stays covered.
+    /// </summary>
+    [Fact]
+    public void scenario_diff_summary_program_dispatch_returns_ok_json()
+    {
+        var path = WriteTempScenario("""
+            {
+              "metadata": { "tlBranch": "TL-0", "dbRef": "baltic_patrol", "seed": 1, "editVersion": 1 },
+              "missions": [ { "id": "patrol-1", "type": "Patrol", "assignedUnitIds": ["u1"] } ],
+              "sides": [ { "id": "blue", "name": "Blue" } ],
+              "orbat": { "units": [ { "id": "u1", "sideId": "blue", "platformId": "p1", "lat": 57.0, "lon": 20.0 } ] }
+            }
+            """);
+        try
+        {
+            var (exit, stdout, stderr) = RunCli("scenario_diff_summary", "--before", path, "--after", path);
+            Assert.True(string.IsNullOrEmpty(stderr) || !stderr.Contains("Unknown command", StringComparison.Ordinal),
+                $"Unexpected stderr: {stderr}");
+            Assert.Equal(0, exit);
+            Assert.DoesNotContain("Unknown command", stdout, StringComparison.OrdinalIgnoreCase);
+            using var doc = JsonDocument.Parse(stdout);
+            Assert.True(doc.RootElement.GetProperty("ok").GetBoolean());
+            Assert.Equal("no semantic changes", doc.RootElement.GetProperty("summary").GetString());
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    private static (int ExitCode, string Stdout, string Stderr) RunCli(params string[] args)
+    {
+        var cliDllPath = Path.Combine(AppContext.BaseDirectory, "ProjectAegis.MissionEditor.Cli.dll");
+        Assert.True(File.Exists(cliDllPath), $"Expected built CLI at {cliDllPath}");
+
+        var psi = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = "dotnet",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+        };
+        psi.ArgumentList.Add(cliDllPath);
+        foreach (var arg in args)
+        {
+            psi.ArgumentList.Add(arg);
+        }
+
+        using var proc = System.Diagnostics.Process.Start(psi)
+            ?? throw new InvalidOperationException("Failed to start dotnet");
+        var stdout = proc.StandardOutput.ReadToEnd();
+        var stderr = proc.StandardError.ReadToEnd();
+        proc.WaitForExit(60_000);
+        return (proc.ExitCode, stdout, stderr);
+    }
+
     private static string WriteTempScenario(string json)
     {
         var path = Path.Combine(Path.GetTempPath(), $"aegis-diff-{Guid.NewGuid():N}.json");
