@@ -3,23 +3,15 @@
 #
 # Why: test_coverage_map_bootstrap_consistency (and 66 other guards) passed only when
 # someone ran pytest locally; a red suite sat on main from #364 until #365 with no CI signal.
+#
+# Always runs on every PR (suite is ~15s). No path filter so this check can be required
+# without hanging PRs that do not touch gauntlet paths.
 name: gauntlet-pytest
 
 on:
   pull_request:
-    paths:
-      - 'tools/qa-gauntlet/**'
-      - 'production/qa/gauntlet/corpus/**'
-      # coverage-map bootstrap reads data/scenarios/gauntlet-*.policy.json
-      - 'data/scenarios/gauntlet-*.policy.json'
-      - '.github/workflows/gauntlet-pytest.yml'
   push:
     branches: [main]
-    paths:
-      - 'tools/qa-gauntlet/**'
-      - 'production/qa/gauntlet/corpus/**'
-      - 'data/scenarios/gauntlet-*.policy.json'
-      - '.github/workflows/gauntlet-pytest.yml'
   workflow_dispatch:
 
 concurrency:
