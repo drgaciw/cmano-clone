@@ -1,0 +1,318 @@
+{
+  "id": "gauntlet-20260727-1455-t5-s3",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 48000,
+    "envelopeMinMeters": 4000,
+    "envelopeMaxMeters": 128000,
+    "defaultMagazineRounds": 5,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.8,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "emcon": {
+    "units": {
+      "f-230-norfolk-type-23-duke": {
+        "radar": "Passive"
+      },
+      "p-960-skjold": {
+        "radar": "Passive"
+      }
+    }
+  },
+  "detection": [
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "tu-160-blackjack",
+      "contactId": "c-s3-1",
+      "basePd": 0.5,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-16c-blk-52iq-falcon-2015",
+      "sensorId": "radar-1",
+      "targetId": "su-34-fullback-2014",
+      "contactId": "c-s3-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "su-57-felon",
+      "sensorId": "radar-1",
+      "targetId": "f-230-norfolk-type-23-duke",
+      "contactId": "c-s3-3",
+      "basePd": 0.5,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "su-34-fullback-2014",
+      "sensorId": "radar-1",
+      "targetId": "jas-39e-gripen-ng-2021",
+      "contactId": "c-s3-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-grigorovich-pr-1135-6m",
+      "sensorId": "radar-1",
+      "targetId": "p-960-skjold",
+      "contactId": "c-s3-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "pk-368-vasily-bykov-pr-22160",
+      "sensorId": "radar-1",
+      "targetId": "f-230-norfolk-type-23-duke",
+      "contactId": "c-s3-6",
+      "basePd": 0.4,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "eurofighter-typhoon",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-s3-7",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "pla-885m-severodvinsk-yasen-m",
+      "sensorId": "passive-sonar-1",
+      "targetId": "ssn-774-virginia-blk-i-ii",
+      "contactId": "c-s3-8",
+      "basePd": 0.35,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "pl-877-kilo-paltus-1992",
+      "sensorId": "passive-sonar-1",
+      "targetId": "s-185-u-35-type-212a",
+      "contactId": "c-s3-9",
+      "basePd": 0.3,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    }
+  ],
+  "jammers": [
+    {
+      "targetId": "tu-160-blackjack",
+      "jamStrength": 0.3,
+      "activeFromTick": 8,
+      "observerId": "jas-39e-gripen-ng-2021"
+    },
+    {
+      "targetId": "f-230-norfolk-type-23-duke",
+      "jamStrength": 0.4,
+      "activeFromTick": 16,
+      "observerId": "su-57-felon"
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start",
+      "comms-degradation-inject",
+      "reinforcement-pressure-inject",
+      "mid-mission-roe-checkpoint"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "comms-degradation-inject",
+        "fireAtTick": 8,
+        "kind": "EventFired",
+        "code": "comms_degradation_inject_designated"
+      },
+      {
+        "id": "reinforcement-pressure-inject",
+        "fireAtTick": 16,
+        "kind": "EventFired",
+        "code": "reinforcement_pressure_inject_designated"
+      },
+      {
+        "id": "mid-mission-roe-checkpoint",
+        "fireAtTick": 30,
+        "kind": "EventFired",
+        "code": "mid_mission_roe_checkpoint"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "blue-strike-window",
+        "observerId": "jas-39e-gripen-ng-2021",
+        "targetClass": "Any",
+        "side": "friendly",
+        "missionCode": "STRIKE",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "jas-39e-gripen-ng-2021",
+          "f-16c-blk-52iq-falcon-2015"
+        ]
+      },
+      {
+        "id": "red-escalation-window",
+        "observerId": "su-57-felon",
+        "targetClass": "Any",
+        "side": "opposing",
+        "missionCode": "RED_ESCALATION",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "su-57-felon",
+          "su-34-fullback-2014"
+        ]
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T5 main-ladder #3: MID-MISSION ROE CHANGE VIA EVENT (primary dimension), and the first main-ladder scenario in this corpus to exercise mission.triggers' `side` field on BOTH values. Both sides start fully tight (friendlyRoe=WeaponsTight, opposingRoe=WeaponsTight) -- a new both-sides-tight baseline for this corpus (tier 4's asymmetric baselines, e.g. gauntlet-20260727-1455-t4-s2, always started one side WeaponsFree). Two mission.triggers escalate mid-run: blue-strike-window (side:'friendly') frees jas-39e-gripen-ng-2021 + f-16c-blk-52iq-falcon-2015 to WeaponsFree on jas-39e's own first detection of the HVU strike target tu-160-blackjack (c-s3-1, basePd=0.5, genuinely seed-dependent per PdDetectionContactSimulator's per-tick RNG). red-escalation-window (side:'opposing') frees su-57-felon + su-34-fullback-2014 to WeaponsFree on su-57's own first detection of f-230-norfolk-type-23-duke (c-s3-3, basePd=0.5) -- confirmed via BalticReplayHarness.RunCore (src/ProjectAegis.Delegation.UnityAdapter/Baltic/BalticReplayHarness.cs:404-425): `trigger.PolicySide == MissionContactPolicySide.Opposing` sets `isFriendly=false` and calls `bridge.Orchestrator.ApplyRoeToUnits(trigger.UnitIds, roePolicy, isFriendly:false, ...)`, a real, wired code path never exercised by any tier-3/4 main-ladder scenario (all of which only ever used side:'friendly'). All other units on both sides (BLUE: eurofighter-typhoon, f-230-norfolk-type-23-duke, p-960-skjold, ssn-774-virginia-blk-i-ii, s-185-u-35-type-212a; RED: skr-admiral-grigorovich-pr-1135-6m, pk-368-vasily-bykov-pr-22160, pla-885m-severodvinsk-yasen-m, pl-877-kilo-paltus-1992) have no covering trigger and remain WeaponsTight-denied for the full 40-tick run on both sides -- a genuine, persistent bilateral denial floor. DISCLOSED SCHEMA CONSTRAINT (targetClass): both triggers use 'Any', for the same reason disclosed in gauntlet-20260727-1455-t5-s2's intent -- MissionContactTargetClassifier.Classify only ever returns Air for targetId strings literally starting with 'ucav' (none in this corpus), so a literal 'Air' targetClass would silently never fire against real catalog platform ids, and 'Subsurface' is not a valid MissionContactTargetClass enum member (falls back to Any via ScenarioPolicyJsonLoader.ParseMissionContactTargetClass) -- 'Any' is declared explicitly and honestly instead of relying on an unparseable-string fallback. SECONDARY DIMENSION -- CONTESTED EM/EMCON DISCIPLINE (disclosed, static): f-230-norfolk-type-23-duke and p-960-skjold are declared radar=Passive. Per the same disclosure established in gauntlet-20260727-1455-t5-s1's intent, ScenarioEmconResolver resolves once at load (no mid-run mutation), and DeterministicDetectionLoop.RollTick gates specifically the OBSERVER side of a requiresActiveRadar:true trial -- neither declared-passive unit here holds an observer role in this policy's detection[] list at all (both only ever appear as targetId), so this declaration has zero mechanical effect on this run's fingerprint and is disclosed as a pure doctrinal/data-level posture flag, not a functioning stealth mechanic. Cascading adversarial injects (comms_degradation_inject_designated @8, reinforcement_pressure_inject_designated @16, both paired with a jammer at the same tick) and mid_mission_roe_checkpoint @30 are pure tick-scheduled mission.events plus jamStrength effects -- confirmed-working per BUG-scenario-contacts-shadowed-by-detection.md's control-check finding (the jammer mechanism is unaffected by the contacts[]/detection[] mutual-exclusion gap). contacts[] is not used anywhere in this policy.",
+    "oracle": "All four fireOrder events (mission-start, comms-degradation-inject @8, reinforcement-pressure-inject @16, mid-mission-roe-checkpoint @30) must appear in the fingerprint regardless of seed. Whether blue-strike-window and/or red-escalation-window actually fire inside the 40-tick run is seed-dependent (both gated on a single basePd=0.5 detection trial each); no requireFingerprintSubstrings assertion is made about trigger firing, only the deterministic tick-scheduled event markers. The five uncovered BLUE units and four uncovered RED units are expected to accumulate WeaponsTight denials for the full run on both sides regardless of seed. Because expect.side=BLUE, only BLUE's denials/kills/missilesFired/score are scored even though RED is symmetrically tight-by-default here too.",
+    "catalogRefs": [
+      "jas-39e-gripen-ng-2021",
+      "f-16c-blk-52iq-falcon-2015",
+      "eurofighter-typhoon",
+      "f-230-norfolk-type-23-duke",
+      "p-960-skjold",
+      "ssn-774-virginia-blk-i-ii",
+      "s-185-u-35-type-212a",
+      "su-57-felon",
+      "tu-160-blackjack",
+      "su-34-fullback-2014",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "pk-368-vasily-bykov-pr-22160",
+      "pla-885m-severodvinsk-yasen-m",
+      "pl-877-kilo-paltus-1992"
+    ],
+    "dimensionsClaimed": [
+      "roe-mid-mission-change-friendly-and-opposing",
+      "roe-both-sides-tight-baseline",
+      "roe-asymmetric-uncovered-denial-floor",
+      "emcon-static-disclosed-constraint",
+      "cascading-adversarial-injects-jammer-event",
+      "combat-domain-air",
+      "combat-domain-surface",
+      "combat-domain-subsurface"
+    ],
+    "units": [
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-16c-blk-52iq-falcon-2015",
+        "platformId": "f-16c-blk-52iq-falcon-2015",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "eurofighter-typhoon",
+        "platformId": "eurofighter-typhoon",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-230-norfolk-type-23-duke",
+        "platformId": "f-230-norfolk-type-23-duke",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "ssn-774-virginia-blk-i-ii",
+        "platformId": "ssn-774-virginia-blk-i-ii",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-185-u-35-type-212a",
+        "platformId": "s-185-u-35-type-212a",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "su-57-felon",
+        "platformId": "su-57-felon",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "tu-160-blackjack",
+        "platformId": "tu-160-blackjack",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-34-fullback-2014",
+        "platformId": "su-34-fullback-2014",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885m-severodvinsk-yasen-m",
+        "platformId": "pla-885m-severodvinsk-yasen-m",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "pl-877-kilo-paltus-1992",
+        "platformId": "pl-877-kilo-paltus-1992",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "comms_degradation_inject_designated",
+        "reinforcement_pressure_inject_designated",
+        "mid_mission_roe_checkpoint"
+      ],
+      "minKills": 1,
+      "maxMissilesFired": 8,
+      "minDenials": 235,
+      "maxDenials": 251,
+      "minScore": -1140.0,
+      "maxScore": -970.0
+    },
+    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T5 tick budget 40, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-5/results.csv). Observed: score=[-1000.0, -1030.0, -1110.0] kills=[2, 2, 1] missilesFired=[2, 3, 6] denials=[240, 246, 242]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented)."
+  }
+}
