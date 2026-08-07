@@ -1,11 +1,11 @@
 # Interaction Pattern Library — C2 & Platform Editor
 
-> **Status:** Committed — Sprint 35 (S35-03)  
-> **Version:** 1.0  
-> **Last Updated:** 2026-08-03  
+> **Status:** Committed — Sprint 35 (S35-03); polished Sprint 36 (S36-02)  
+> **Version:** 1.1  
+> **Last Updated:** 2026-08-01  
 > **Scope:** Implemented screens in Polish Phase 1 — no new gameplay systems  
-> **Related:** [c2-command-post.md](c2-command-post.md), [c2-map-placeholder.md](c2-map-placeholder.md), [art-bible.md](../art/art-bible.md), [accessibility-requirements.md](../accessibility-requirements.md)  
-> **Evidence:** `production/qa/c2-manual-signoff-2026-06-02.md` checks 1–18; `PlatformImportPanelTests` 10/10; human playtests `production/playtests/human/` @ 2026-06-19
+> **Related:** [c2-command-post.md](c2-command-post.md), [c2-map-placeholder.md](c2-map-placeholder.md), [command-and-control-ui.md](../gdd/command-and-control-ui.md), [difficulty-curve.md](../difficulty-curve.md), [art-bible.md](../art/art-bible.md), [accessibility-requirements.md](../accessibility-requirements.md)  
+> **Evidence:** `production/qa/c2-manual-signoff-2026-06-02.md` checks 1–18; `PlatformImportPanelTests` 10/10; `C2TopBarBeginExecutionTests` 5/5; human playtests `production/playtests/human/` @ 2026-06-19
 
 ---
 
@@ -26,6 +26,8 @@ This library documents **interaction patterns already implemented** in code so n
 | P-C2-03 | OOB row click | C2 left drawer | Check 4 |
 | P-C2-04 | Map symbol click | C2 map placeholder | Check 3 |
 | P-C2-05 | COMMS degrade affordance | C2 map + top bar | Checks 9–11 |
+| P-C2-06 | Top bar chrome + Planning → Execution transition | C2 top bar + drawer + map | Check 16 |
+| P-C2-07 | Message log row select + category tint | C2 message log | Check 8 |
 | P-PE-01 | Import staging workflow | Platform Editor | Check 14 |
 | P-PE-02 | Staging diff feedback | Platform Editor | Checks 14, 17, 18 |
 | P-PE-03 | Validation error surfacing | Platform Editor | Check 14 |
@@ -129,7 +131,7 @@ Human NPE session: OOB row click sync rated intuitive for grognard persona; live
 ## 6. Map Placeholder Symbol Click (P-C2-04)
 
 **Screen:** [c2-map-placeholder.md](c2-map-placeholder.md)  
-**Host:** `MapPanelHost` / `MapPictureProjection`
+**Host:** `MapPlaceholderPanelHost` / `MapPictureProjection`
 
 | Input | Action |
 |-------|--------|
@@ -149,6 +151,79 @@ Human NPE session: OOB row click sync rated intuitive for grognard persona; live
 **Top bar:** `COMMS: NOMINAL | DEGRADED | DENIED` with semantic colors ([art-bible.md §3 comms tokens](../art/art-bible.md#semantic--comms--degraded-picture)).
 
 **Reduced motion:** Selection ring appears instantly; no pan inertia on placeholder map.
+
+---
+
+## 6b. Top Bar Chrome & Planning → Execution Transition (P-C2-06)
+
+**Screen:** [c2-command-post.md §4.1 Wireframe](c2-command-post.md#41-wireframe) — top bar 100% × 48px; [§5 States](c2-command-post.md#5-states--variants) Planning / Running / Paused  
+**Host:** `C2TopBarPanelHost`  
+**Visual:** [art-bible.md §2 Mood — Planning / Executing / Paused](../art/art-bible.md#2-mood--atmosphere); [art-bible.md §8 C2 Top Bar Panel spec](../art/art-bible.md#lean-v1-asset-spec-sheets-b2-8-complete-c2--platform-editor-only)
+
+### Behavior
+
+| Input | Result | Feedback |
+|-------|--------|----------|
+| Planning phase — `Begin Execution` button visible | Click transitions `SimulationPhase.Planning` → `Executing` via `bridgeHost.BeginExecution()` | Button hides/disables once phase leaves Planning ([art-bible.md `#285A3C` CTA](../art/art-bible.md#planning-rtwp--before-begin-execution)) |
+| `Space` | Pause / resume | Top bar `PAUSE` label bold, no pulse ([accessibility-requirements.md §4](../accessibility-requirements.md#4-reduced-motion)) |
+| `1`–`4` | Time compression preset | `compression-label` text updates |
+| Per tick | Sim time / phase / score refresh | `sim-time-label`, `phase-label`, `score-label` bound via `C2TopBarApplyState.Apply` |
+| Comms projection change | `comms-label` text + `c2-topbar-item--comms-{nominal\|degraded\|denied}` class | Overlaps P-C2-05 |
+
+### Planning → Execution chrome (cross-panel)
+
+This is the "planning chrome" surface: three hosts change state together on Begin Execution, driven by one command.
+
+| Zone | Planning state | On Begin Execution |
+|------|-----------------|---------------------|
+| Top bar | `Begin Execution` CTA visible, green accent | CTA hides; phase label flips to `Executing` |
+| Left drawer (`C2LeftDrawerPanelHost`) | `c2-drawer-panel--planning-readonly` — 65% tab opacity, `#465260` border (P-C2-01) | Modifier cleared; full interaction |
+| Map (`MapPlaceholderPanelHost`) | `map-placeholder-panel--planning-dimmed` — 42% opacity + dim overlay ([art-bible.md §2 Planning](../art/art-bible.md#planning-rtwp--before-begin-execution)) | Full brightness |
+| Score / loss tallies | Frozen | Live ([difficulty-curve.md §3 Band B](../difficulty-curve.md#band-b--standard-mid-game-catalog--delegation-context) — "Begin Execution transition") |
+
+### Data binding
+
+| Field | Source |
+|-------|--------|
+| `SimTimeLabel`, `PhaseLabel`, `CompressionLabel`, `ModeLabel`, `ScoreLabel`, `CommsLabel` / `CommsCssClass` | `C2TopBarState` → `C2TopBarApplyState.Apply` |
+| Phase override | `bridgeHost.Phase` (live value always wins over stale projection) |
+
+### Acceptance
+
+- `Begin Execution` button visible and enabled only while `bridgeHost.Phase == SimulationPhase.Planning`; hides after click (`C2TopBarBeginExecutionTests` 5/5 — sign-off check 16).
+- Score/loss tallies frozen pre-Begin Execution ([difficulty-curve.md §3](../difficulty-curve.md#band-b--standard-mid-game-catalog--delegation-context)).
+- Comms readout matches P-C2-05 opacity ladder and never encodes state by color alone ([accessibility-requirements.md §5](../accessibility-requirements.md#5-colorblind-safe-affiliation--state)).
+
+---
+
+## 6c. Message Log Row Select & Category Tint (P-C2-07)
+
+**Screen:** [c2-command-post.md §4.1 Wireframe](c2-command-post.md#41-wireframe) — bottom log 100% × 120px; [§6 Interaction Map](c2-command-post.md#6-interaction-map-mvp)  
+**Host:** `MessageLogPanelHost`  
+**Visual:** [art-bible.md §3 Semantic — message log categories](../art/art-bible.md#semantic--message-log-categories); [art-bible.md §8 Message Log Panel spec](../art/art-bible.md#lean-v1-asset-spec-sheets-b2-8-complete-c2--platform-editor-only)
+
+### Behavior
+
+| Input | Result | Feedback |
+|-------|--------|----------|
+| Click / Enter / Space on row | `TrySelectRow(index)` publishes selection; if row carries `unitId`, `bridgeHost.SelectUnit(unitId)` fires | `ListView` row selection styling |
+| Up/Down (list focused) | Row navigation | Standard `ListView` keyboard nav ([accessibility-requirements.md §6.1](../accessibility-requirements.md#61-focus-order-c2--mvp)) |
+| Deep-link by `sequenceId` (P1, e.g. replay scrub) | `TrySelectBySequenceId(sequenceId)` | Same selection chain as click |
+| Deep-link by `unitId` (P1, e.g. OOB focus request) | `TrySelectByUnitId(unitId)` | Latest matching row selected |
+| Row category (`KILL` / `MAGAZINE` / `COMMS` / `CONTACT` / `MISSION`) | USS class applied per category | Color tint per [art-bible.md §3](../art/art-bible.md#semantic--message-log-categories) — text prefix always present, never color-only |
+
+### Data binding
+
+| Field | Source |
+|-------|--------|
+| Rows (`MessageLogDisplayRow`) | `MessageLogPanelBinder.Bind(bridgeHost.LastMessageLog)` — capped at `maxRows` (default 12) |
+| `SelectedSequenceId` / `SelectedUnitId` / `SelectedRowIndex` | `MessageLogPanelSelection` — headless-testable; exposed for PlayMode + selection-sync tests |
+
+### Acceptance
+
+- Non-combat categories (`CONTACT`, `POLICY_DENIAL`) surface in the log when a scenario produces them (sign-off check 8; [command-and-control-ui.md](../gdd/command-and-control-ui.md) zone table).
+- Row select does not mutate `DecisionLog` — read/select only; order intents route through bridge commands ([ADR-010 §2](../../docs/architecture/adr-010-headless-first-command-driven-ui.md#2-ui-is-a-client-not-an-authority)).
+- Row count and font scale respect [accessibility-requirements.md §3](../accessibility-requirements.md#3-text-scaling) (10px mono floor, ≥12 visible rows @ 100% scale).
 
 ---
 
@@ -355,13 +430,11 @@ Panels consume `--aegis-*` aliases from [AegisTokens.uss](../../unity/ProjectAeg
 
 ## 11. Related Patterns (reference only)
 
-These screens have UX specs but are **not expanded** in S35-03 — see linked docs:
+These screens have UX specs but are **not expanded** into a full pattern entry — see linked docs. (Begin Execution and Message log row select were promoted to full patterns P-C2-06 / P-C2-07 in S36-02 — see §6b / §6c above.)
 
 | Flow | Doc |
 |------|-----|
-| Begin Execution (Planning → Executing) | [c2-command-post.md §5–6](c2-command-post.md#5-states--variants); `C2TopBarBeginExecutionTests` |
 | Doctrine ROE override | Check 15; `DoctrineOverrideCommandTests` |
-| Message log row select | [c2-command-post.md §6](c2-command-post.md#6-interaction-map-mvp) P1 |
 | Catalog viewer (read-only) | [art-bible.md §6 Catalog panel](../art/art-bible.md#platform-catalog-vs-import-panels) |
 
 > S39-03 residual polish note (C2 + Platform Editor): tooltip/density improvements (PlatformCatalogViewerHost) + surfacing assertion; cross-ref [c2-command-post.md](c2-command-post.md). All per polish-scope-boundary-2026-06-19.md + sprint-39-deeper-polish-c2-platform-hygiene.md (extend-only; proxy maintained; evidence path ready). See also S38 carry.
@@ -375,6 +448,13 @@ These screens have UX specs but are **not expanded** in S35-03 — see linked do
 3. Cross-links to c2-command-post, c2-map-placeholder, and art-bible present.
 4. No new gameplay systems introduced — patterns describe existing bridges/projections only.
 
+### Acceptance Criteria (S36-02 addendum — polish pass)
+
+5. Top bar (P-C2-06), planning chrome cross-panel transition (P-C2-06), and message log (P-C2-07) each have a pattern ID with behavior + data-binding table — closing the last "designed in-code only" Phase 1 gaps.
+6. Cross-links verified/added to accessibility-requirements.md, art-bible.md, command-and-control-ui.md, and difficulty-curve.md.
+7. All host references in this document correspond to real classes under `unity/ProjectAegis/Assets/Scripts/Runtime/` (grep-verified 2026-08-01).
+8. No patterns added for out-of-scope surfaces (Cesium globe Phase B, delegation badges).
+
 ---
 
 ## Document History
@@ -384,3 +464,4 @@ These screens have UX specs but are **not expanded** in S35-03 — see linked do
 | 2026-06-19 | Initial library — S35-03 gate r2 "interaction pattern library current" gap closed |
 | 2026-07-23 | P-PE-04 unified Platform Editor shell (PE-UX productization) |
 | 2026-07-23 | P-SE-01…04 Scenario Editor Map + Mission Board shell |
+| 2026-08-01 | S36-02 polish pass — added P-C2-06 (top bar chrome + Planning→Execution/"planning chrome" transition) and P-C2-07 (message log row select + category tint); fixed P-C2-04 host reference (`MapPlaceholderPanelHost`, was incorrectly `MapPanelHost`); cross-linked [command-and-control-ui.md](../gdd/command-and-control-ui.md) and [difficulty-curve.md](../difficulty-curve.md); promoted Begin Execution and message log row select out of §11 "not expanded" table |

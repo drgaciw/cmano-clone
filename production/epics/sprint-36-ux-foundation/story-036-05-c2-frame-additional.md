@@ -1,6 +1,7 @@
 ---
 id: S36-05
 status: Ready
+Last Updated: 2026-08-01
 type: Integration
 priority: must-have
 graphite_branch: stack/s36/ux-foundation

@@ -16,7 +16,7 @@ Project Aegis adopts the **Standard** accessibility tier for all Polish Phase 1 
 
 | Surface | Host / scene | Tier |
 |---------|--------------|------|
-| C2 Command Post (Play Mode) | `C2LeftDrawerPanelHost`, `MapPanelHost`, `UnitDetailPanelHost`, `MessageLogHost`, `C2TopBarHost` | Standard |
+| C2 Command Post (Play Mode) | `C2LeftDrawerPanelHost`, `MapPlaceholderPanelHost`, `RightUnitPanelHost`, `MessageLogPanelHost`, `C2TopBarPanelHost` | Standard |
 | Platform Editor (Editor Mode) | `PlatformCatalogViewerHost`, `PlatformImportPanelHost` | Standard |
 
 **Standard tier means:** WCAG 2.1 Level AA contrast and scaling targets; keyboard-operable primary flows; reduced-motion alternatives for non-essential animation; colorblind-safe affiliation and comms affordances per [art-bible.md §3 Colorblind safety](art/art-bible.md#colorblind-safety). Full AAA, screen-reader certification, and gamepad-complete navigation are **deferred** post-Baltic slice.
@@ -201,7 +201,7 @@ Cross-reference [art-bible.md §6 Platform Catalog vs Import panels](art/art-bib
 
 - Text buttons only (`Export`, `Diff`, `Propose`, `Approve`) — no icon-only actions.
 - Approve disabled at 45% opacity until acknowledge — must remain readable (§2.4).
-- Staging diff monospace with prefix tokens — see [interaction-patterns.md §Platform Import](ux/interaction-patterns.md#platform-import-staging).
+- Staging diff monospace with prefix tokens — see [interaction-patterns.md §7 Platform Import Staging](ux/interaction-patterns.md#7-platform-import-staging-p-pe-01).
 
 ---
 
