@@ -31,7 +31,7 @@ Launch criterion 3 (DRG-40) needs an explicit, auditable approval definition. Th
 3. **Import path** — Unity import / Addressables load path verified **or** marked N/A for pure docs/audio stubs with host unavailable.
 4. **No blocking defect** — No open High/Urgent Linear bug linked to this asset ID.
 5. **License / provenance** — Source noted (original, CC0, purchased, generated) in manifest or sibling `PROVENANCE.md`.
-6. **Human sign-off** — Product owner records the exact phrase `asset approved: ASSET-XXX` (with the matching asset ID) on the manifest row or in a closeout note, plus name and date.
+6. **Human sign-off** — Named art director or producer records the exact phrase `asset approved: ASSET-XXX` (with the matching asset ID) in a closeout note or PR, plus approver name and date.
 
 **Not required for Approved:** Steam upload, marketing spend, or Launch stage change.
 
