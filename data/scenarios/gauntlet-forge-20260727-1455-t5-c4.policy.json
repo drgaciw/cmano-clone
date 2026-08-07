@@ -1,0 +1,322 @@
+{
+  "id": "gauntlet-forge-20260727-1455-t5-c4",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 6,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "detection": [
+    {
+      "observerId": "p-3c-orion-update-iii-2023",
+      "sensorId": "sonar-buoy-1",
+      "targetId": "plarb-955-borei-borey",
+      "contactId": "c-t5c4-hvu-detect",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "tu-160-blackjack",
+      "contactId": "c-t5c4-air-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "su-57-felon",
+      "contactId": "c-t5c4-air-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "eurofighter-typhoon",
+      "sensorId": "radar-1",
+      "targetId": "mig-31-foxhound",
+      "contactId": "c-t5c4-air-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-310-fridtjof-nansen",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-t5c4-surf-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "mrk-shkval-pr-22800-karakurt",
+      "contactId": "c-t5c4-surf-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-grigorovich-pr-1135-6m",
+      "sensorId": "radar-1",
+      "targetId": "f-310-fridtjof-nansen",
+      "contactId": "c-t5c4-surf-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "ssn-774-virginia-blk-i-ii",
+      "sensorId": "passive-sonar-1",
+      "targetId": "plarb-955-borei-borey",
+      "contactId": "c-t5c4-sub-1",
+      "basePd": 0.8,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "ka-27m-helix-a",
+      "sensorId": "sonar-dipping-1",
+      "targetId": "pla-885m-severodvinsk-yasen-m",
+      "contactId": "c-t5c4-sub-2",
+      "basePd": 0.75,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "s-120-papanikolis-type-214hn",
+      "sensorId": "passive-sonar-1",
+      "targetId": "pla-885m-severodvinsk-yasen-m",
+      "contactId": "c-t5c4-sub-3",
+      "basePd": 0.65,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "hvu-detected-objective-shift",
+        "observerId": "p-3c-orion-update-iii-2023",
+        "targetClass": "Any",
+        "side": "friendly",
+        "missionCode": "ASW_HVU_HUNT",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "p-3c-orion-update-iii-2023",
+          "ka-27m-helix-a",
+          "ssn-774-virginia-blk-i-ii",
+          "s-120-papanikolis-type-214hn"
+        ]
+      },
+      {
+        "id": "aaw-defensive-intercept-baseline",
+        "observerId": "f-219-sachsen-type-f124-2006",
+        "targetClass": "Any",
+        "side": "friendly",
+        "missionCode": "AAW_DEFENSIVE_INTERCEPT",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "f-219-sachsen-type-f124-2006",
+          "jas-39e-gripen-ng-2021",
+          "eurofighter-typhoon"
+        ]
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "victory-trigger-conditional (T5 theme recipe, tierMin 5, precondition mission.triggers-supported): first candidate in this run where the mission.triggers CONDITION ITSELF is the objective-selector, not just a static ROE/scoring tweak. Confirmed by reading src/ProjectAegis.Data/Catalog/GauntletOracleExpect.cs and src/ProjectAegis.Delegation/Projection/LossesScoringProjection.cs before drafting: there is still no dedicated victory-condition/objective field anywhere in the schema or scoring code (score = baseScore + kills*100 - denials*5, exactly as in the tier-4 victory-weighted-multi winner data/scenarios/gauntlet-forge-20260727-1455-t4-c3.policy.json) -- that candidate made SCORING multi-term but the weights were fixed for the whole run; this one makes which unit group is even doing anything meaningful DEPEND on a mid-run detection event. BLUE (9 units: surface f-219-sachsen-type-f124-2006/f-310-fridtjof-nansen/p-960-skjold, air jas-39e-gripen-ng-2021/eurofighter-typhoon/ka-27m-helix-a/p-3c-orion-update-iii-2023, subsurface ssn-774-virginia-blk-i-ii/s-120-papanikolis-type-214hn) starts entirely WeaponsTight -- a pure defensive-denial posture. The ASW hunter group (p-3c-orion-update-iii-2023, ka-27m-helix-a, ssn-774-virginia-blk-i-ii, s-120-papanikolis-type-214hn) is deliberately GATED with no tasking of its own: it only escalates to WeaponsFree via trigger 'hvu-detected-objective-shift', which fires on p-3c-orion-update-iii-2023's first Unknown->Detected classification of RED's flagship/HVU plarb-955-borei-borey (the tier-5-roster.json-flagged 'primary ASW high-value target'). If that detection had not happened, that whole 4-unit group would sit WeaponsTight/denied for all 40 ticks and the run's practical objective would just be the same denial posture enforced by the permanently-untriggered surface pair (f-310-fridtjof-nansen, p-960-skjold, deliberately given no ASuW trigger at all, same pattern as t4-c3's 'no ASuW trigger' surface group) plus the separate always-on 'aaw-defensive-intercept-baseline' trigger (f-219-sachsen-type-f124-2006 vs Air contacts, freeing f-219-sachsen-type-f124-2006/jas-39e-gripen-ng-2021/eurofighter-typhoon once any RED aircraft is classified Detected). Because this run needs a checkable oracle across seeds 42/7/123, the HVU detection entry (observerId p-3c-orion-update-iii-2023, contactId c-t5c4-hvu-detect) is deliberately set to basePd 1.0 so the 'detected -> objective becomes destroy-the-HVU' branch is the one deterministically taken here; the counterfactual 'never detected -> stays pure denial' branch is mechanically supported by the identical code path (MissionContactTriggerRuntime never fires the trigger if the Unknown->Detected transition never occurs) but is NOT exercised or fingerprint-gated by this specific candidate -- demonstrating it would need a sibling candidate with a sub-1.0 basePd or an omitted detection entry, out of scope for this single-file candidate. RED (9 units: subsurface plarb-955-borei-borey [SSBN flagship/HVU] + pla-885m-severodvinsk-yasen-m [SSGN escort], surface skr-admiral-grigorovich-pr-1135-6m/pk-368-vasily-bykov-pr-22160/mrk-shkval-pr-22800-karakurt, air su-35s-flanker-m-2023/su-57-felon/tu-160-blackjack/mig-31-foxhound) stays WeaponsTight throughout with no triggers of its own -- a defensive screen around its own SSBN, same convention as t4-c3, so only BLUE is scored (gauntlet.expect.side = BLUE). Genuine schema-gap finding made while drafting (not present in the task's reading list, found by reading the actual trigger runtime code before writing targetClass values): src/ProjectAegis.Sim/Scenario/MissionContactTargetClass.cs defines only Any/Surface/Air -- there is NO Subsurface enum member -- and ScenarioPolicyJsonLoader.ParseMissionContactTargetClass (src/ProjectAegis.Sim/Scenario/ScenarioPolicyJsonLoader.cs:362-365) silently falls back to Any via Enum.TryParse whenever it is given an unrecognized label. Both precedent candidates this task pointed to as reference (tier-3/scenario-1.policy.json's 'asw-contact-roe' trigger and tier-4's t4-c3 'asw-prosecution-roe' trigger) authored \\\"targetClass\\\": \\\"Subsurface\\\" and, per this code, silently got Any (i.e. their ASW triggers actually fire on ANY first-Detected contact from their observerId, not specifically a subsurface one) -- this almost certainly did not change their observed behavior in practice (each observer there had only one detection entry, so Any vs a notional Subsurface filter is a no-op), but it is a latent authoring mistake worth flagging back into the corpus/bug tracker rather than silently repeating. CORRECTION (post-draft review): the second trigger, aaw-defensive-intercept-baseline, was originally authored with \"targetClass\": \"Air\" on the mistaken assumption that a syntactically-valid enum member was automatically safe -- it was not. MissionContactTargetClassifier.Classify(targetId) only ever returns Air when targetId literally starts with \"ucav\" (src/ProjectAegis.Sim/Scenario/MissionContactTargetClass.cs:12-15); tu-160-blackjack does not, so Classify() returns Surface and Matches(Air, tu-160-blackjack) == (Surface == Air) is always false. Unlike the Subsurface case (which harmlessly falls back to Any), an explicit Air targetClass does NOT fall back -- it is evaluated literally, and since Classify() never actually returns Air for any real catalog platform id in this corpus, the trigger would have NEVER fired despite its own always-on intent and despite the underlying detection (basePd 1.0) resolving deterministically every run. Caught and fixed before finalizing: targetClass corrected to Any (same safe pattern as the hvu trigger -- correctness does not depend on the filter since f-219-sachsen-type-f124-2006 has exactly one detection entry, targeting only tu-160-blackjack). Both this Air-never-matches finding and the Subsurface-silently-becomes-Any finding are the same underlying targetClass parsing/matching gap and are filed together. This candidate's hvu trigger explicitly declares \\\"targetClass\\\": \\\"Any\\\" (matching its actual runtime behavior honestly) instead of copying the same 'Subsurface' typo forward; correctness here does not depend on the class filter at all since p-3c-orion-update-iii-2023 has exactly one detection entry (targeting only plarb-955-borei-borey) in this policy, so 'first Detected transition from this observer' is already flagship-specific by construction. contacts[] deliberately not used anywhere in this candidate (BUG-scenario-contacts-shadowed-by-detection: contacts[]/ScenarioContactSimulator is dead on arrival whenever detection[] is non-empty, per BalticReplayHarness.RunCore's if/else-if branch) -- all mid-run contact appearance is expressed through detection[] basePd rolls exclusively, the confirmed-working mechanism.",
+    "oracle": "The trigger IS the objective-selector: gauntlet.expect.requireFingerprintSubstrings checks for the two trigger IDs verbatim -- 'hvu-detected-objective-shift' and 'aaw-defensive-intercept-baseline' -- because MissionContactTriggerRuntime.Evaluate (src/ProjectAegis.Delegation/Mission/MissionContactTriggerRuntime.cs) firing is logged by BalticReplayHarness (src/ProjectAegis.Delegation.UnityAdapter/Baltic/BalticReplayHarness.cs:409-416) as a real MissionTransition order-log entry, EventId=trigger.TriggerId, PhaseCode=trigger.MissionCode; DecisionLog.ComputeFingerprint's FormatPayload (src/ProjectAegis.Delegation/Decision/DecisionLog.cs:288-289) renders that as the literal token '{SimTick}|{TriggerId}|{MissionCode}' inside the MissionTransition-kind fingerprint line. This is the real, code-native 'trigger fired' marker -- not an invented schema field. Requiring both trigger IDs present proves (a) the conditional HVU-detection branch was actually taken this run (the ASW hunter group's tasking really did shift to hunt-the-flagship) and (b) the always-on AAW defensive-denial baseline also engaged, regardless of the branch outcome. Each trigger's per-unit ROE rebind additionally leaves its own 'roe'-field PolicyUpdate entries in the log (DelegationOrchestrator.ApplyRoeToUnits, confirmed by src/ProjectAegis.Delegation.UnityAdapter.Tests/Baltic/BalticReplayHarnessTheaterPolicyTests.cs's own comment 'Contact-triggered ROE rebind leaves PolicyUpdate in the log') as a secondary, non-gated confirmation signal not asserted here to keep the oracle to the same 2-substring shape as t4-c3's precedent. Composite score is exactly kills*100 - denials*5 per LossesScoringProjection.Project, same formula as every other candidate this run -- no new scoring mechanism is introduced, only the objective/tasking structure that determines which units are even allowed to contribute kills changes mid-run.",
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "p-960-skjold",
+      "jas-39e-gripen-ng-2021",
+      "eurofighter-typhoon",
+      "ka-27m-helix-a",
+      "p-3c-orion-update-iii-2023",
+      "ssn-774-virginia-blk-i-ii",
+      "s-120-papanikolis-type-214hn",
+      "plarb-955-borei-borey",
+      "pla-885m-severodvinsk-yasen-m",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "pk-368-vasily-bykov-pr-22160",
+      "mrk-shkval-pr-22800-karakurt",
+      "su-35s-flanker-m-2023",
+      "su-57-felon",
+      "tu-160-blackjack",
+      "mig-31-foxhound"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 5,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "hvu-detected-objective-shift",
+        "aaw-defensive-intercept-baseline"
+      ],
+      "minKills": 2,
+      "maxMissilesFired": 27,
+      "minDenials": 115,
+      "maxDenials": 125,
+      "minScore": -420.0,
+      "maxScore": -280.0
+    },
+    "units": [
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "eurofighter-typhoon",
+        "platformId": "eurofighter-typhoon",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-3c-orion-update-iii-2023",
+        "platformId": "p-3c-orion-update-iii-2023",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ssn-774-virginia-blk-i-ii",
+        "platformId": "ssn-774-virginia-blk-i-ii",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-120-papanikolis-type-214hn",
+        "platformId": "s-120-papanikolis-type-214hn",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "plarb-955-borei-borey",
+        "platformId": "plarb-955-borei-borey",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885m-severodvinsk-yasen-m",
+        "platformId": "pla-885m-severodvinsk-yasen-m",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-35s-flanker-m-2023",
+        "platformId": "su-35s-flanker-m-2023",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-57-felon",
+        "platformId": "su-57-felon",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "tu-160-blackjack",
+        "platformId": "tu-160-blackjack",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-31-foxhound",
+        "platformId": "mig-31-foxhound",
+        "domain": "air",
+        "side": "red"
+      }
+    ],
+    "forge": {
+      "recipes": [
+        "victory-trigger-conditional"
+      ],
+      "candidateId": "gauntlet-forge-20260727-1455-t5-c4",
+      "noveltyTags": [
+        "dynamic-objective",
+        "conditional-objective-selector",
+        "trigger-as-branch-gate",
+        "hvu-detection-branch",
+        "asw-hunt-vs-defensive-denial-branch",
+        "multi-domain-theater-op",
+        "targetclass-subsurface-enum-gap-disclosed"
+      ],
+      "note": "expect provisional pending regen"
+    },
+    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T5 tick budget 40, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-5/results.csv). Observed: score=[-300.0, -300.0, -400.0] kills=[3, 3, 2] missilesFired=[18, 22, 22] denials=[120, 120, 120]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented)."
+  }
+}

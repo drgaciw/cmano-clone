@@ -1,71 +1,37 @@
 {
   "version": 1,
   "runDir": "production/qa/gauntlet/gauntlet-20260727-1455",
-  "tier": 2,
-  "recommendedTicks": 10,
+  "tier": 5,
+  "recommendedTicks": 40,
   "candidateCount": 4,
   "promoteCount": 4,
   "discardCount": 0,
-  "corpusCellCount": 20,
+  "corpusCellCount": 36,
   "results": [
     {
-      "scenarioId": "gauntlet-forge-20260727-1455-t2-c1",
-      "path": "production/qa/gauntlet/gauntlet-20260727-1455/forge/candidates/gauntlet-forge-20260727-1455-t2-c1.policy.json",
-      "tier": 2,
-      "recommendedTicks": 10,
+      "scenarioId": "gauntlet-forge-20260727-1455-t5-c1",
+      "path": "production/qa/gauntlet/gauntlet-20260727-1455/forge/candidates/gauntlet-forge-20260727-1455-t5-c1.policy.json",
+      "tier": 5,
+      "recommendedTicks": 40,
       "cell": {
-        "key": "emcon|air,surface|WeaponsFree/WeaponsFree|emcon-phases|none",
-        "missionClass": "emcon",
+        "key": "patrol|air,subsurface,surface|WeaponsTight/WeaponsFree|contested-em|inject",
+        "stressAxes": "ew:off|logistics:off|weapons:off",
+        "missionClass": "patrol",
         "domains": [
           "air",
+          "subsurface",
           "surface"
         ],
-        "roePair": "WeaponsFree/WeaponsFree",
-        "emconClass": "emcon-phases",
-        "eventClass": "none",
-        "intentHash": "a11b23d55e0d307c"
-      },
-      "newCoverageCell": true,
-      "rarePlatformHits": [
-        "801-rais-hamidou-pr-1234e-nanuchka-ii-1981"
-      ],
-      "duplicateIntent": false,
-      "oraclePassed": true,
-      "usefulFail": false,
-      "hardGates": {
-        "hasGauntletIntent": true,
-        "hasGauntletExpect": true,
-        "tierTicksKnown": true,
-        "notDuplicateIntent": true,
-        "oracleKnown": true,
-        "oraclePassedOrUsefulFail": true
-      },
-      "hardGatesPass": true,
-      "noveltyScore": 4.5,
-      "recommendPromote": true,
-      "recipesHint": []
-    },
-    {
-      "scenarioId": "gauntlet-forge-20260727-1455-t2-c2",
-      "path": "production/qa/gauntlet/gauntlet-20260727-1455/forge/candidates/gauntlet-forge-20260727-1455-t2-c2.policy.json",
-      "tier": 2,
-      "recommendedTicks": 10,
-      "cell": {
-        "key": "emcon|air,surface|WeaponsFree/WeaponsFree|emcon-phases|none",
-        "missionClass": "emcon",
-        "domains": [
-          "air",
-          "surface"
-        ],
-        "roePair": "WeaponsFree/WeaponsFree",
-        "emconClass": "emcon-phases",
-        "eventClass": "none",
-        "intentHash": "cd82909def75dc9f"
+        "roePair": "WeaponsTight/WeaponsFree",
+        "emconClass": "contested-em",
+        "eventClass": "inject",
+        "intentHash": "31afee65df0421de"
       },
       "newCoverageCell": true,
       "rarePlatformHits": [],
       "duplicateIntent": false,
       "oraclePassed": true,
+      "oracleLookupMissed": false,
       "usefulFail": false,
       "hardGates": {
         "hasGauntletIntent": true,
@@ -81,28 +47,31 @@
       "recipesHint": []
     },
     {
-      "scenarioId": "gauntlet-forge-20260727-1455-t2-c3",
-      "path": "production/qa/gauntlet/gauntlet-20260727-1455/forge/candidates/gauntlet-forge-20260727-1455-t2-c3.policy.json",
-      "tier": 2,
-      "recommendedTicks": 10,
+      "scenarioId": "gauntlet-forge-20260727-1455-t5-c2",
+      "path": "production/qa/gauntlet/gauntlet-20260727-1455/forge/candidates/gauntlet-forge-20260727-1455-t5-c2.policy.json",
+      "tier": 5,
+      "recommendedTicks": 40,
       "cell": {
-        "key": "unknown|air,surface|WeaponsTight/WeaponsFree|unrestricted|none",
-        "missionClass": "unknown",
+        "key": "asw|air,subsurface,surface|WeaponsTight/WeaponsFree|passive|cascade",
+        "stressAxes": "ew:moderate|logistics:off|weapons:moderate",
+        "missionClass": "asw",
         "domains": [
           "air",
+          "subsurface",
           "surface"
         ],
         "roePair": "WeaponsTight/WeaponsFree",
-        "emconClass": "unrestricted",
-        "eventClass": "none",
-        "intentHash": "3cd7e879041977b0"
+        "emconClass": "passive",
+        "eventClass": "cascade",
+        "intentHash": "62aea949cb487692"
       },
       "newCoverageCell": true,
       "rarePlatformHits": [
-        "801-rais-hamidou-pr-1234e-nanuchka-ii-1981"
+        "f-16c-blk-52iq-falcon-2015"
       ],
       "duplicateIntent": false,
       "oraclePassed": true,
+      "oracleLookupMissed": false,
       "usefulFail": false,
       "hardGates": {
         "hasGauntletIntent": true,
@@ -118,26 +87,69 @@
       "recipesHint": []
     },
     {
-      "scenarioId": "gauntlet-forge-20260727-1455-t2-c4",
-      "path": "production/qa/gauntlet/gauntlet-20260727-1455/forge/candidates/gauntlet-forge-20260727-1455-t2-c4.policy.json",
-      "tier": 2,
-      "recommendedTicks": 10,
+      "scenarioId": "gauntlet-forge-20260727-1455-t5-c3",
+      "path": "production/qa/gauntlet/gauntlet-20260727-1455/forge/candidates/gauntlet-forge-20260727-1455-t5-c3.policy.json",
+      "tier": 5,
+      "recommendedTicks": 40,
       "cell": {
-        "key": "strike|air,surface|WeaponsFree/WeaponsTight|emcon-phases|event-chain",
+        "key": "strike|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|event-chain",
+        "stressAxes": "ew:off|logistics:off|weapons:moderate",
         "missionClass": "strike",
         "domains": [
           "air",
+          "subsurface",
           "surface"
         ],
-        "roePair": "WeaponsFree/WeaponsTight",
-        "emconClass": "emcon-phases",
+        "roePair": "WeaponsTight/WeaponsFree",
+        "emconClass": "unrestricted",
         "eventClass": "event-chain",
-        "intentHash": "adff4ef227754d10"
+        "intentHash": "c70a630741fca6e1"
+      },
+      "newCoverageCell": false,
+      "rarePlatformHits": [
+        "f-16c-blk-52iq-falcon-2015"
+      ],
+      "duplicateIntent": false,
+      "oraclePassed": true,
+      "oracleLookupMissed": false,
+      "usefulFail": false,
+      "hardGates": {
+        "hasGauntletIntent": true,
+        "hasGauntletExpect": true,
+        "tierTicksKnown": true,
+        "notDuplicateIntent": true,
+        "oracleKnown": true,
+        "oraclePassedOrUsefulFail": true
+      },
+      "hardGatesPass": true,
+      "noveltyScore": 0.5,
+      "recommendPromote": true,
+      "recipesHint": []
+    },
+    {
+      "scenarioId": "gauntlet-forge-20260727-1455-t5-c4",
+      "path": "production/qa/gauntlet/gauntlet-20260727-1455/forge/candidates/gauntlet-forge-20260727-1455-t5-c4.policy.json",
+      "tier": 5,
+      "recommendedTicks": 40,
+      "cell": {
+        "key": "escort|air,subsurface,surface|WeaponsTight/WeaponsTight|unrestricted|event-chain",
+        "stressAxes": "ew:off|logistics:off|weapons:moderate",
+        "missionClass": "escort",
+        "domains": [
+          "air",
+          "subsurface",
+          "surface"
+        ],
+        "roePair": "WeaponsTight/WeaponsTight",
+        "emconClass": "unrestricted",
+        "eventClass": "event-chain",
+        "intentHash": "826597d9057eb021"
       },
       "newCoverageCell": true,
       "rarePlatformHits": [],
       "duplicateIntent": false,
       "oraclePassed": true,
+      "oracleLookupMissed": false,
       "usefulFail": false,
       "hardGates": {
         "hasGauntletIntent": true,
@@ -154,10 +166,10 @@
     }
   ],
   "promoteIds": [
-    "gauntlet-forge-20260727-1455-t2-c1",
-    "gauntlet-forge-20260727-1455-t2-c2",
-    "gauntlet-forge-20260727-1455-t2-c3",
-    "gauntlet-forge-20260727-1455-t2-c4"
+    "gauntlet-forge-20260727-1455-t5-c1",
+    "gauntlet-forge-20260727-1455-t5-c2",
+    "gauntlet-forge-20260727-1455-t5-c3",
+    "gauntlet-forge-20260727-1455-t5-c4"
   ],
   "discardIds": []
 }
