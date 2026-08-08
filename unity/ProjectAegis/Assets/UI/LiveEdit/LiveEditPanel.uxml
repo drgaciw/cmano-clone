@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="live-edit-root" class="live-edit-panel">
+        <ui:Label text="LIVE EDIT" class="live-edit-title" />
+        <ui:Label name="live-edit-status" text="LIVE EDIT v0 · 0 blocking · 0 warnings" class="live-edit-status" />
+        <ui:ScrollView name="live-edit-findings" class="live-edit-findings">
+            <ui:VisualElement name="live-edit-findings-list" class="live-edit-findings-list" />
+        </ui:ScrollView>
+        <ui:Button name="live-edit-commit" text="Commit" class="live-edit-commit" />
+        <ui:Label name="live-edit-commit-reason" text="" class="live-edit-commit-reason" />
+    </ui:VisualElement>
+</ui:UXML>

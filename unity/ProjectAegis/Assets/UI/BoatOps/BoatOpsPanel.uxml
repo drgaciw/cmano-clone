@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="boat-ops-root" class="boat-ops-panel">
+        <ui:Label name="boat-ops-header" text="BOAT OPS  ·  READY 0/0  ·  sea=0" class="boat-ops-title" />
+        <ui:Label name="boat-ops-empty" text="" class="boat-ops-empty" />
+        <ui:ListView name="boat-ops-list" class="boat-ops-list" selection-type="Single" />
+        <ui:VisualElement name="boat-ops-actions" class="boat-ops-actions">
+            <ui:Button name="boat-ops-launch" text="Launch" class="boat-ops-btn" />
+            <ui:Button name="boat-ops-recover" text="Recover" class="boat-ops-btn" />
+            <ui:Button name="boat-ops-abort" text="Abort" class="boat-ops-btn" />
+        </ui:VisualElement>
+        <ui:Label name="boat-ops-status" text="" class="boat-ops-status" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -7,6 +7,16 @@ public enum OrderKind
     Engage,
     SetEwPosture,
     ReturnToBase,
+    // CMD-31 append-only (do not reorder above)
+    SetEmcon,
+    SetSensors,
+    // LOG-08 / CMD-24 Phase N append-only (do not reorder above)
+    LaunchAircraft,
+    AbortLaunchAircraft,
+    // LOG-09…11 / CMD-25 append-only (do not reorder above)
+    LaunchBoat,
+    RecoverBoat,
+    AbortBoatLaunch,
 }
 
 public enum RiskLevel

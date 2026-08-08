@@ -34,6 +34,33 @@
     flex-shrink: 0;
 }
 
+.c2-drawer-collapse-toggle {
+    height: 20px;
+    min-height: 20px;
+    max-height: 20px;
+    margin-bottom: 6px;
+    padding-left: 6px;
+    padding-right: 6px;
+    font-size: 10px;
+    color: rgb(180, 190, 200);
+    background-color: rgba(30, 40, 54, 0.95);
+    border-width: 1px;
+    border-color: rgb(50, 65, 80);
+    border-radius: 2px;
+    align-self: stretch;
+    flex-shrink: 0;
+}
+
+.c2-drawer-panel--collapsed {
+    width: 260px;
+    min-width: 160px;
+}
+
+.c2-drawer-panel--collapsed .c2-drawer-tabs,
+.c2-drawer-panel--collapsed .c2-drawer-list {
+    display: none;
+}
+
 /* Keep tabs as compact chips (default Toggle stretches full drawer width). */
 .c2-drawer-tabs Toggle {
     flex-grow: 0;

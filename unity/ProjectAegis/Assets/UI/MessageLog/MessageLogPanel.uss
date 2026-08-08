@@ -28,6 +28,32 @@
     margin-bottom: var(--space-xs);
 }
 
+.message-log-collapse-toggle {
+    height: 18px;
+    min-height: 18px;
+    max-height: 18px;
+    margin-bottom: var(--space-xs);
+    padding-left: var(--space-xs);
+    padding-right: var(--space-xs);
+    font-size: 10px;
+    color: var(--text-data);
+    background-color: rgba(40, 52, 68, 0.9);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    border-radius: 2px;
+    align-self: flex-start;
+}
+
+.message-log-panel--collapsed {
+    min-height: 48px;
+    max-height: 72px;
+}
+
+.message-log-panel--collapsed .message-log-list,
+.message-log-panel--collapsed .message-log-onboarding-hint {
+    display: none;
+}
+
 .message-log-onboarding-hint {
     font-size: 10px;
     color: var(--log-mission);

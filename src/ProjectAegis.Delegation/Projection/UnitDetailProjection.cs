@@ -27,10 +27,13 @@ public static class UnitDetailProjection
         var attackMenu = EngageAttackOptions.Build(engageCtx, engagePreview);
         var attackLabel = FormatAttackOptions(attackMenu);
         var alive = isAlive(unitId);
+        var comms = CommsStateProjection.Project(log);
+        var statusLabel = UnitCommsDisplay.FormatStatus(alive, comms.State);
+        var commsLabel = CommsStateProjection.FormatTopBar(comms.State);
         return new UnitDetailEntry(
             unitId.Value,
             alive,
-            alive ? "OPERATIONAL" : "DESTROYED",
+            statusLabel,
             magazineLabel,
             emconLabel,
             doctrineLabel,
@@ -40,7 +43,8 @@ public static class UnitDetailProjection
                 policy?.Logistics ?? ScenarioLogisticsSettings.Default),
             engageLabel,
             attackLabel,
-            attackMenu);
+            attackMenu,
+            commsLabel);
     }
 
     public static UnitDetailEntry? ProjectPrimary(

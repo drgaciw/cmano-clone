@@ -1,0 +1,98 @@
+namespace ProjectAegis.Delegation.Input;
+
+using ProjectAegis.Delegation.Core;
+
+/// <summary>
+/// Pure validation + command-id → <see cref="OrderKind"/> mapping for player C2 issuance (CMD-31).
+/// No sim / bridge side effects — hosts call this then enqueue via the bridge.
+/// </summary>
+public readonly record struct C2CommandResult(bool Ok, string? FailureReason, OrderKind? Kind);
+
+/// <summary>
+/// Static pure helpers for resolving toolbar / hotkey command IDs to order kinds.
+/// </summary>
+public static class C2CommandIssuance
+{
+    public const string ReasonUnknownCommand = "UNKNOWN_COMMAND";
+    public const string ReasonNoSelection = "NO_SELECTION";
+
+    /// <summary>
+    /// Map a command id string to an <see cref="OrderKind"/>.
+    /// Unknown or empty ids fail with <see cref="ReasonUnknownCommand"/>.
+    /// </summary>
+    public static bool TryResolve(string? commandId, out OrderKind kind, out string? reason)
+    {
+        kind = default;
+        reason = null;
+
+        if (string.IsNullOrWhiteSpace(commandId))
+        {
+            reason = ReasonUnknownCommand;
+            return false;
+        }
+
+        switch (commandId.Trim().ToLowerInvariant())
+        {
+            case "hold":
+                kind = OrderKind.Hold;
+                return true;
+            case "rtb":
+                kind = OrderKind.ReturnToBase;
+                return true;
+            case "move":
+            case "plot_course":
+                // plot_course is a semantic alias for Move (course plotting)
+                kind = OrderKind.Move;
+                return true;
+            case "engage":
+                kind = OrderKind.Engage;
+                return true;
+            case "set_emcon":
+                kind = OrderKind.SetEmcon;
+                return true;
+            case "set_sensors":
+                kind = OrderKind.SetSensors;
+                return true;
+            case "launch":
+            case "launch_aircraft":
+                // LOG-08 / CMD-24 Phase N — individual / selected airframe launch
+                kind = OrderKind.LaunchAircraft;
+                return true;
+            case "abort_launch":
+            case "abort_launch_aircraft":
+                kind = OrderKind.AbortLaunchAircraft;
+                return true;
+            case "launch_boat":
+                // LOG-09…11 / CMD-25 — embarked craft launch
+                kind = OrderKind.LaunchBoat;
+                return true;
+            case "recover_boat":
+                kind = OrderKind.RecoverBoat;
+                return true;
+            case "abort_boat_launch":
+                kind = OrderKind.AbortBoatLaunch;
+                return true;
+            default:
+                reason = ReasonUnknownCommand;
+                return false;
+        }
+    }
+
+    /// <summary>
+    /// Full pre-issue validation: selection required, then command resolution.
+    /// </summary>
+    public static C2CommandResult Validate(string? commandId, bool hasSelection)
+    {
+        if (!hasSelection)
+        {
+            return new C2CommandResult(false, ReasonNoSelection, null);
+        }
+
+        if (!TryResolve(commandId, out var kind, out var reason))
+        {
+            return new C2CommandResult(false, reason ?? ReasonUnknownCommand, null);
+        }
+
+        return new C2CommandResult(true, null, kind);
+    }
+}

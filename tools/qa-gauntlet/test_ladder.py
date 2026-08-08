@@ -33,6 +33,7 @@ EXPECTED_SCENARIOS = {
         "gauntlet-t2-strike-event",
         "gauntlet-t2-strike-salvo-boundary",
         "gauntlet-t2-ordnance-shotgun-winchester",
+        "gauntlet-t2-shotgun-salvo-deny",
     ],
     "3": [
         "gauntlet-t3-escort-strike",

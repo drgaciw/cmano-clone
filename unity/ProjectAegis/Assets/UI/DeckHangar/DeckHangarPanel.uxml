@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="deck-hangar-root" class="deck-hangar-panel">
+        <ui:Label name="deck-hangar-header" text="DECK/HANGAR  ·  OPEN 0  CONGESTED 0  FULL 0  ·  ready 0" class="deck-hangar-title" />
+        <ui:Label name="deck-hangar-empty" text="" class="deck-hangar-empty" />
+        <ui:ListView name="deck-hangar-list" class="deck-hangar-list" selection-type="None" />
+    </ui:VisualElement>
+</ui:UXML>

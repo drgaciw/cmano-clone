@@ -1,5 +1,6 @@
 // Combat message log strip — UI Toolkit panel bound to DelegationBridgeHost.
 // S104-02 / S105 A2: row selection by index, sequenceId, unit focus + category class map.
+// CMD-23: collapsible body via C2ChromeCollapseState + prefs bag on bridge host.
 #if UNITY_5_3_OR_NEWER
 using System.Linq;
 using ProjectAegis.Delegation.Projection;
@@ -14,6 +15,11 @@ namespace ProjectAegis.Unity.Runtime
     {
         private const string RootName = "message-log-root";
         private const string ListName = "message-list";
+        private const string OnboardingHintName = "message-log-onboarding-hint";
+        private const string CollapseToggleName = "message-log-collapse-toggle";
+        private const string TitleClass = "message-log-title";
+        private const string CollapseToggleClass = "message-log-collapse-toggle";
+        private const string CollapsedClass = "message-log-panel--collapsed";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -22,7 +28,10 @@ namespace ProjectAegis.Unity.Runtime
         [SerializeField] private int maxRows = 12;
 
         private UIDocument _document = null!;
+        private VisualElement? _panelRoot;
         private ListView? _messageList;
+        private VisualElement? _onboardingHint;
+        private Button? _collapseToggle;
         private MessageLogPanelState _panelState = new(System.Array.Empty<MessageLogDisplayRow>());
         private bool _wired;
 
@@ -37,6 +46,10 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Current bound panel rows (for tests).</summary>
         public MessageLogPanelState PanelState => _panelState;
+
+        /// <summary>Last applied chrome collapse presentation (CMD-23).</summary>
+        public C2ChromeCollapsePresentation LastChromePresentation { get; private set; } =
+            C2ChromeCollapsePresentation.Empty;
 
         private void Reset()
         {
@@ -71,14 +84,23 @@ namespace ProjectAegis.Unity.Runtime
 
         private void LateUpdate()
         {
-            if (!showPanel || bridgeHost == null)
-            {
-                return;
-            }
-
             if (!_wired)
             {
                 TryWireElements();
+            }
+
+            if (!showPanel)
+            {
+                ApplyMasterVisibility();
+                return;
+            }
+
+            if (bridgeHost == null)
+            {
+                // Null-safe chrome: expanded defaults under showPanel master visibility.
+                ApplyMasterVisibility();
+                ApplyChromeCollapse();
+                return;
             }
 
             Refresh();
@@ -93,7 +115,10 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             var panel = root.Q<VisualElement>(RootName) ?? root;
+            _panelRoot = panel;
             _messageList = panel.Q<ListView>(ListName);
+            _onboardingHint = panel.Q(OnboardingHintName);
+            EnsureCollapseToggle(panel);
             _wired = _messageList != null;
 
             if (_messageList != null)
@@ -134,7 +159,57 @@ namespace ProjectAegis.Unity.Runtime
                 panel.styleSheets.Add(panelStyles);
             }
 
-            panel.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+            ApplyMasterVisibility();
+            ApplyChromeCollapse();
+        }
+
+        private void EnsureCollapseToggle(VisualElement panel)
+        {
+            _collapseToggle = panel.Q<Button>(CollapseToggleName);
+            if (_collapseToggle == null)
+            {
+                _collapseToggle = new Button
+                {
+                    name = CollapseToggleName,
+                    text = C2ChromeCollapseProjection.CollapseMessageLogLabel,
+                };
+                _collapseToggle.AddToClassList(CollapseToggleClass);
+                _collapseToggle.focusable = true;
+
+                // Prefer a title-row strip: insert after title label when present.
+                var title = panel.Q<Label>(className: TitleClass);
+                if (title != null)
+                {
+                    var titleIndex = panel.IndexOf(title);
+                    if (titleIndex >= 0)
+                    {
+                        panel.Insert(titleIndex + 1, _collapseToggle);
+                    }
+                    else
+                    {
+                        panel.Insert(0, _collapseToggle);
+                    }
+                }
+                else
+                {
+                    panel.Insert(0, _collapseToggle);
+                }
+            }
+
+            _collapseToggle.clicked -= OnCollapseToggleClicked;
+            _collapseToggle.clicked += OnCollapseToggleClicked;
+        }
+
+        private void OnCollapseToggleClicked()
+        {
+            // Null-safe: no bridge chrome API → no-op (showPanel remains master visibility).
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            bridgeHost.ToggleMessageLogCollapsed();
+            ApplyChromeCollapse();
         }
 
         private void OnMessageSelectionChanged(System.Collections.Generic.IEnumerable<object> _)
@@ -215,6 +290,8 @@ namespace ProjectAegis.Unity.Runtime
         {
             if (!_wired || bridgeHost == null || _messageList == null)
             {
+                ApplyMasterVisibility();
+                ApplyChromeCollapse();
                 return;
             }
 
@@ -225,8 +302,65 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _panelState = MessageLogPanelBinder.Bind(lines);
-            _messageList.itemsSource = _panelState.Rows.ToList();
-            _messageList.Rebuild();
+            // Skip list rebuild when collapsed (body hidden) to avoid work.
+            if (!bridgeHost.ChromeCollapse.MessageLogCollapsed)
+            {
+                _messageList.itemsSource = _panelState.Rows.ToList();
+                _messageList.Rebuild();
+            }
+
+            ApplyMasterVisibility();
+            ApplyChromeCollapse();
+        }
+
+        private void ApplyMasterVisibility()
+        {
+            if (_panelRoot != null)
+            {
+                _panelRoot.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
+        /// <summary>
+        /// CMD-23: collapse body to title strip; affordance labels from pure apply-state.
+        /// Null-safe when bridge has no chrome API — falls back to expanded body under showPanel.
+        /// </summary>
+        private void ApplyChromeCollapse()
+        {
+            var state = bridgeHost != null
+                ? bridgeHost.ChromeCollapse
+                : C2ChromeCollapseState.Expanded;
+            LastChromePresentation = C2ChromeCollapseApplyState.Apply(state);
+
+            var collapsed = showPanel && LastChromePresentation.MessageLogCollapsed;
+
+            if (_messageList != null)
+            {
+                _messageList.style.display = collapsed ? DisplayStyle.None : DisplayStyle.Flex;
+            }
+
+            if (_onboardingHint != null)
+            {
+                _onboardingHint.style.display = collapsed ? DisplayStyle.None : DisplayStyle.Flex;
+            }
+
+            if (_collapseToggle != null)
+            {
+                _collapseToggle.text = LastChromePresentation.MessageLogAffordanceLabel;
+                _collapseToggle.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+
+            if (_panelRoot != null)
+            {
+                if (collapsed)
+                {
+                    _panelRoot.AddToClassList(CollapsedClass);
+                }
+                else
+                {
+                    _panelRoot.RemoveFromClassList(CollapsedClass);
+                }
+            }
         }
     }
 }

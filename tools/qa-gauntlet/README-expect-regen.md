@@ -85,3 +85,10 @@ Program stage remains **Release**. Expect regen is QA discipline, not Launch wor
 ---
 
 *S95-01 companion — 2026-07-14; forge promote path — 2026-07-23*
+
+## Coverage-map counts (DRG-60)
+After promoting scenarios into the corpus, rebuild rarity counts so forge scorecard rare_hits stay honest:
+
+```bash
+python3 tools/qa-gauntlet/forge_scorecard.py --rebuild-counts
+```
