@@ -94,7 +94,7 @@ flowchart TD
 | S97 | `production/sprints/sprint-97-release-continuity-gate.md` |
 
 Optional scope boundary if program is named formally:  
-`production/release-continuity-scope-boundary-2026-07-14.md` (create at S94 kickoff if user wants a boundary file).
+`production/release-continuity-scope-boundary-2026-07-14.md` — **committed 2026-08-06 under DRG-42**; this is now the authoritative S94–S97 boundary.
 
 ---
 
