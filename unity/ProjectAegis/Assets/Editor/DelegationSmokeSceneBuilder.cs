@@ -1,4 +1,6 @@
 #if UNITY_EDITOR
+using System;
+using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Unity.Runtime;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -9,10 +11,14 @@ namespace ProjectAegis.Unity.Editor
 {
     /// <summary>
     /// Builds the Play Mode smoke scene per PLAYMODE-SMOKE.md (batchmode or menu).
+    /// Also builds optional CesiumSpike scene (useGlobeMap) — separate path; never forced into smoke CI.
     /// </summary>
     public static class DelegationSmokeSceneBuilder
     {
         public const string ScenePath = "Assets/Scenes/DelegationSmoke.unity";
+
+        /// <summary>Optional product globe spike scene (ADR-007 Phase B). Not used by default CI smoke.</summary>
+        public const string CesiumSpikeScenePath = "Assets/Scenes/CesiumSpike.unity";
 
         [MenuItem("Project Aegis/Build DelegationSmoke Scene (comms QA)")]
         public static void BuildFromMenuComms() => Build("baltic-patrol-comms");
@@ -37,6 +43,8 @@ namespace ProjectAegis.Unity.Editor
             SetInt(bridge, "globalSeed", 42);
             SetBool(bridge, "enableMvpEngagement", true);
             SetString(bridge, "scenarioPolicyId", scenarioPolicyId);
+            // CI-safe default: placeholder map, not Cesium product globe.
+            SetBool(bridge, "useGlobeMap", false);
             SetObjectReference(sim, "bridgeHost", bridge);
 
             CreatePanelHost<C2TopBarPanelHost>(
@@ -49,7 +57,7 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/C2LeftDrawer/C2LeftDrawerPanel.uxml",
                 "Assets/UI/C2LeftDrawer/C2LeftDrawerPanel.uss");
-            CreatePanelHost<MapPlaceholderPanelHost>(
+            var mapHost = CreatePanelHost<MapPlaceholderPanelHost>(
                 "MapPlaceholder",
                 bridge,
                 "Assets/UI/MapPlaceholder/MapPlaceholderPanel.uxml",
@@ -80,6 +88,96 @@ namespace ProjectAegis.Unity.Editor
                 "Assets/UI/PlatformImport/PlatformImportPanel.uxml",
                 "Assets/UI/PlatformImport/PlatformImportPanel.uss");
 
+            // UI maturity Wave1 hosts (CMD-16 / CMD-29 / CMD-37)
+            CreatePanelHost<UnitOrderToolbarHost>(
+                "UnitOrderToolbar",
+                bridge,
+                "Assets/UI/UnitOrderToolbar/UnitOrderToolbarPanel.uxml",
+                "Assets/UI/UnitOrderToolbar/UnitOrderToolbarPanel.uss");
+            CreatePanelHost<ContactDetailPanelHost>(
+                "ContactDetail",
+                bridge,
+                "Assets/UI/ContactDetail/ContactDetailPanel.uxml",
+                "Assets/UI/ContactDetail/ContactDetailPanel.uss");
+            CreatePanelHost<AgentRosterPanelHost>(
+                "AgentRoster",
+                bridge,
+                "Assets/UI/AgentRoster/AgentRosterPanel.uxml",
+                "Assets/UI/AgentRoster/AgentRosterPanel.uss");
+
+            // UI maturity Wave2 hosts (CMD-24 / CMD-27 / CMD-35)
+            CreatePanelHost<AirOpsPanelHost>(
+                "AirOps",
+                bridge,
+                "Assets/UI/AirOps/AirOpsPanel.uxml",
+                "Assets/UI/AirOps/AirOpsPanel.uss");
+            CreatePanelHost<ScenarioLibraryPanelHost>(
+                "ScenarioLibrary",
+                bridge,
+                "Assets/UI/ScenarioLibrary/ScenarioLibraryPanel.uxml",
+                "Assets/UI/ScenarioLibrary/ScenarioLibraryPanel.uss");
+            CreatePanelHost<LiveEditPanelHost>(
+                "LiveEdit",
+                bridge,
+                "Assets/UI/LiveEdit/LiveEditPanel.uxml",
+                "Assets/UI/LiveEdit/LiveEditPanel.uss");
+
+            // UI maturity Wave4 residual hosts (CMD-25 / magazine / deck)
+            var boatOpsHost = CreatePanelHost<BoatOpsPanelHost>(
+                "BoatOps",
+                bridge,
+                "Assets/UI/BoatOps/BoatOpsPanel.uxml",
+                "Assets/UI/BoatOps/BoatOpsPanel.uss");
+            WireBoatOpsHost(boatOpsHost, bridge);
+            CreatePanelHost<MagazineLoadoutPanelHost>(
+                "MagazineLoadout",
+                bridge,
+                "Assets/UI/MagazineLoadout/MagazineLoadoutPanel.uxml",
+                "Assets/UI/MagazineLoadout/MagazineLoadoutPanel.uss");
+            CreatePanelHost<DeckHangarPanelHost>(
+                "DeckHangar",
+                bridge,
+                "Assets/UI/DeckHangar/DeckHangarPanel.uxml",
+                "Assets/UI/DeckHangar/DeckHangarPanel.uss");
+
+            // UI maturity Wave5 host (CMD-28 menu / layers)
+            var menuHost = CreatePanelHost<C2MenuPanelHost>(
+                "C2Menu",
+                bridge,
+                "Assets/UI/C2Menu/C2MenuPanel.uxml",
+                "Assets/UI/C2Menu/C2MenuPanel.uss");
+            if (menuHost != null && mapHost != null)
+            {
+                SetObjectReference(menuHost, "mapHost", mapHost);
+            }
+
+            // UI maturity Wave6 hosts (DRG-66: PendingApproval / DRG-67: EngageExplain, AxisControl, MapScaleHud, GroundOps)
+            CreatePanelHost<PendingApprovalPanelHost>(
+                "PendingApproval",
+                bridge,
+                "Assets/UI/PendingApproval/PendingApprovalPanel.uxml",
+                "Assets/UI/PendingApproval/PendingApprovalPanel.uss");
+            CreatePanelHost<EngageExplainPanelHost>(
+                "EngageExplain",
+                bridge,
+                "Assets/UI/EngageExplain/EngageExplainPanel.uxml",
+                "Assets/UI/EngageExplain/EngageExplainPanel.uss");
+            CreatePanelHost<AxisControlPanelHost>(
+                "AxisControl",
+                bridge,
+                "Assets/UI/AxisControl/AxisControlPanel.uxml",
+                "Assets/UI/AxisControl/AxisControlPanel.uss");
+            CreatePanelHost<MapScaleHudPanelHost>(
+                "MapScaleHud",
+                bridge,
+                "Assets/UI/MapScaleHud/MapScaleHudPanel.uxml",
+                "Assets/UI/MapScaleHud/MapScaleHudPanel.uss");
+            CreatePanelHost<GroundOpsPanelHost>(
+                "GroundOps",
+                bridge,
+                "Assets/UI/GroundOps/GroundOpsPanel.uxml",
+                "Assets/UI/GroundOps/GroundOpsPanel.uss");
+
             var scenesDir = "Assets/Scenes";
             if (!AssetDatabase.IsValidFolder(scenesDir))
             {
@@ -99,6 +197,310 @@ namespace ProjectAegis.Unity.Editor
             {
                 EditorApplication.Exit(0);
             }
+        }
+
+        /// <summary>
+        /// Wire Boat Ops presentation + launch/recover/abort handlers to the bridge (CMD-25 / LOG-09…11).
+        /// BoatOpsPanelHost has no bridgeHost SerializeField (Func-injection API instead of the
+        /// direct-reference pattern used by AirOpsPanelHost), so this must be wired in code rather
+        /// than via CreatePanelHost's generic SerializedObject property assignment.
+        /// </summary>
+        private static void WireBoatOpsHost(BoatOpsPanelHost host, DelegationBridgeHost bridge)
+        {
+            host.PresentationSource = () => BoatOpsApplyState.Apply(bridge.LastBoatOps, bridge.HasBoatOpsData);
+            host.OnLaunch = craftId => (bridge.TryLaunchBoat(craftId, out var reason), reason);
+            host.OnRecover = craftId => (bridge.TryRecoverBoat(craftId, out var reason), reason);
+            host.OnAbort = craftId => (bridge.TryAbortBoatLaunch(craftId, out var reason), reason);
+        }
+
+        /// <summary>
+        /// Builds <see cref="CesiumSpikeScenePath"/> with useGlobeMap=true + product globe hosts.
+        /// Separate from DelegationSmoke — does not break CI smoke (useGlobeMap stays false there).
+        /// Cesium package components are added via reflection when ProjectAegis.Unity.Runtime.Cesium is present.
+        /// Ion tokens must never be written into the scene by this builder.
+        /// </summary>
+        [MenuItem("Project Aegis/Build CesiumSpike Scene")]
+        public static void BuildCesiumSpikeSceneFromMenu() => BuildCesiumSpikeScene(exitBatchModeWhenDone: false);
+
+        /// <summary>
+        /// Batch: -executeMethod ProjectAegis.Unity.Editor.DelegationSmokeSceneBuilder.BuildCesiumSpikeSceneBatch
+        /// </summary>
+        public static void BuildCesiumSpikeSceneBatch() => BuildCesiumSpikeScene(exitBatchModeWhenDone: true);
+
+        public static void BuildCesiumSpikeScene(bool exitBatchModeWhenDone = true)
+        {
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+            StripAudioListenersFromOpenScene();
+
+            var root = new GameObject("CesiumSpike");
+            var bridge = root.AddComponent<DelegationBridgeHost>();
+            var sim = root.AddComponent<SimplePlayModeSimHost>();
+
+            SetInt(bridge, "globalSeed", 42);
+            SetBool(bridge, "enableMvpEngagement", true);
+            SetString(bridge, "scenarioPolicyId", "baltic-patrol-comms");
+            // Product globe flag ON for this scene only (not DelegationSmoke).
+            SetBool(bridge, "useGlobeMap", true);
+            SetObjectReference(sim, "bridgeHost", bridge);
+
+            // Placeholder map still present so CesiumGlobeBridge can feed symbols when package active.
+            var mapHost = CreatePanelHost<MapPlaceholderPanelHost>(
+                "MapPlaceholder",
+                bridge,
+                "Assets/UI/MapPlaceholder/MapPlaceholderPanel.uxml",
+                "Assets/UI/MapPlaceholder/MapPlaceholderPanel.uss");
+
+            // Product globe status chrome — pure Toolkit, no Cesium package required (CI-safe type).
+            var productGo = new GameObject("GlobeMapProduct");
+            var productDoc = productGo.AddComponent<UIDocument>();
+            productDoc.panelSettings = EnsurePanelSettingsAsset();
+            var productHost = productGo.AddComponent<GlobeMapProductHost>();
+            SetObjectReference(productHost, "bridgeHost", bridge);
+
+            // Wave4 tile streaming gate status — pure Toolkit; works without com.cesium.unity.
+            // Never writes ion tokens; host reports NO_ION_TOKEN / PACKAGE_MISSING honestly.
+            var tileGo = new GameObject("GlobeTileStreaming");
+            var tileDoc = tileGo.AddComponent<UIDocument>();
+            tileDoc.panelSettings = EnsurePanelSettingsAsset();
+            tileGo.AddComponent<GlobeTileStreamingHost>();
+
+            // Cesium types live in ProjectAegis.Unity.Runtime.Cesium (CESIUM_FOR_UNITY gated).
+            // Add via reflection so this Editor assembly never hard-depends on the Cesium package.
+            var cesiumBridgeGo = new GameObject("CesiumGlobeBridge");
+            var cesiumBridge = TryAddComponentByTypeName(
+                cesiumBridgeGo,
+                "ProjectAegis.Unity.Runtime.CesiumGlobeBridge");
+            if (cesiumBridge != null && mapHost != null)
+            {
+                SetObjectReference(cesiumBridge, "mapHost", mapHost);
+            }
+            else if (cesiumBridge == null)
+            {
+                Debug.Log(
+                    "DelegationSmokeSceneBuilder.BuildCesiumSpikeScene: CesiumGlobeBridge type not found " +
+                    "(com.cesium.unity / CESIUM_FOR_UNITY inactive). GO left as slot.");
+            }
+
+            var hostGo = new GameObject("CesiumGlobeHost");
+            var cesiumHost = TryAddComponentByTypeName(
+                hostGo,
+                "ProjectAegis.Unity.Runtime.CesiumGlobeHost");
+            if (cesiumHost == null)
+            {
+                hostGo.name = "CesiumGlobeHost (requires com.cesium.unity)";
+                Debug.Log(
+                    "DelegationSmokeSceneBuilder.BuildCesiumSpikeScene: CesiumGlobeHost type not found; " +
+                    "GlobeMapProductHost + useGlobeMap=true still wired. Ion token never written.");
+            }
+            // Intentionally do NOT set ionAccessToken — user secret via Inspector or env
+            // CESIUM_ION_TOKEN / ProjectAegis_CesiumIonToken only (NEVER commit tokens).
+
+            var scenesDir = "Assets/Scenes";
+            if (!AssetDatabase.IsValidFolder(scenesDir))
+            {
+                AssetDatabase.CreateFolder("Assets", "Scenes");
+            }
+
+            if (!EditorSceneManager.SaveScene(scene, CesiumSpikeScenePath))
+            {
+                Debug.LogError($"Failed to save scene at {CesiumSpikeScenePath}");
+                if (Application.isBatchMode)
+                {
+                    EditorApplication.Exit(1);
+                }
+
+                return;
+            }
+
+            AssetDatabase.SaveAssets();
+            Debug.Log(
+                $"CesiumSpike scene saved: {CesiumSpikeScenePath} useGlobeMap=true " +
+                "(ion token not written; set via Inspector or CESIUM_ION_TOKEN env only).");
+            if (Application.isBatchMode && exitBatchModeWhenDone)
+            {
+                EditorApplication.Exit(0);
+            }
+        }
+
+        /// <summary>
+        /// Adds missing UI maturity hosts to the open scene without a full rebuild.
+        /// Skips any GameObject whose name already exists.
+        /// Wave4 hosts (BoatOps, MagazineLoadout, DeckHangar) + Wave5 C2Menu always attempted.
+        /// GlobeMapProduct is ensured when the type is present (CesiumSpike / product path).
+        /// </summary>
+        [MenuItem("Project Aegis/Ensure UI Maturity Hosts (open scene)")]
+        public static void EnsureUiMaturityHostsOnOpenScene()
+        {
+            var bridge = Object.FindFirstObjectByType<DelegationBridgeHost>();
+            if (bridge == null)
+            {
+                Debug.LogError(
+                    "DelegationSmokeSceneBuilder.EnsureUiMaturityHosts: no DelegationBridgeHost in open scene.");
+                return;
+            }
+
+            var added = 0;
+            added += EnsurePanelHostIfMissing<UnitOrderToolbarHost>(
+                "UnitOrderToolbar",
+                bridge,
+                "Assets/UI/UnitOrderToolbar/UnitOrderToolbarPanel.uxml",
+                "Assets/UI/UnitOrderToolbar/UnitOrderToolbarPanel.uss");
+            added += EnsurePanelHostIfMissing<ContactDetailPanelHost>(
+                "ContactDetail",
+                bridge,
+                "Assets/UI/ContactDetail/ContactDetailPanel.uxml",
+                "Assets/UI/ContactDetail/ContactDetailPanel.uss");
+            added += EnsurePanelHostIfMissing<AgentRosterPanelHost>(
+                "AgentRoster",
+                bridge,
+                "Assets/UI/AgentRoster/AgentRosterPanel.uxml",
+                "Assets/UI/AgentRoster/AgentRosterPanel.uss");
+            added += EnsurePanelHostIfMissing<AirOpsPanelHost>(
+                "AirOps",
+                bridge,
+                "Assets/UI/AirOps/AirOpsPanel.uxml",
+                "Assets/UI/AirOps/AirOpsPanel.uss");
+            added += EnsurePanelHostIfMissing<ScenarioLibraryPanelHost>(
+                "ScenarioLibrary",
+                bridge,
+                "Assets/UI/ScenarioLibrary/ScenarioLibraryPanel.uxml",
+                "Assets/UI/ScenarioLibrary/ScenarioLibraryPanel.uss");
+            added += EnsurePanelHostIfMissing<LiveEditPanelHost>(
+                "LiveEdit",
+                bridge,
+                "Assets/UI/LiveEdit/LiveEditPanel.uxml",
+                "Assets/UI/LiveEdit/LiveEditPanel.uss");
+            var boatOpsAdded = EnsurePanelHostIfMissing<BoatOpsPanelHost>(
+                "BoatOps",
+                bridge,
+                "Assets/UI/BoatOps/BoatOpsPanel.uxml",
+                "Assets/UI/BoatOps/BoatOpsPanel.uss");
+            added += boatOpsAdded;
+            if (boatOpsAdded > 0)
+            {
+                var boatOpsHost = Object.FindFirstObjectByType<BoatOpsPanelHost>();
+                if (boatOpsHost != null)
+                {
+                    WireBoatOpsHost(boatOpsHost, bridge);
+                }
+            }
+
+            added += EnsurePanelHostIfMissing<MagazineLoadoutPanelHost>(
+                "MagazineLoadout",
+                bridge,
+                "Assets/UI/MagazineLoadout/MagazineLoadoutPanel.uxml",
+                "Assets/UI/MagazineLoadout/MagazineLoadoutPanel.uss");
+            added += EnsurePanelHostIfMissing<DeckHangarPanelHost>(
+                "DeckHangar",
+                bridge,
+                "Assets/UI/DeckHangar/DeckHangarPanel.uxml",
+                "Assets/UI/DeckHangar/DeckHangarPanel.uss");
+            added += EnsurePanelHostIfMissing<C2MenuPanelHost>(
+                "C2Menu",
+                bridge,
+                "Assets/UI/C2Menu/C2MenuPanel.uxml",
+                "Assets/UI/C2Menu/C2MenuPanel.uss");
+
+            // Wave6 hosts (DRG-66 / DRG-67)
+            added += EnsurePanelHostIfMissing<PendingApprovalPanelHost>(
+                "PendingApproval",
+                bridge,
+                "Assets/UI/PendingApproval/PendingApprovalPanel.uxml",
+                "Assets/UI/PendingApproval/PendingApprovalPanel.uss");
+            added += EnsurePanelHostIfMissing<EngageExplainPanelHost>(
+                "EngageExplain",
+                bridge,
+                "Assets/UI/EngageExplain/EngageExplainPanel.uxml",
+                "Assets/UI/EngageExplain/EngageExplainPanel.uss");
+            added += EnsurePanelHostIfMissing<AxisControlPanelHost>(
+                "AxisControl",
+                bridge,
+                "Assets/UI/AxisControl/AxisControlPanel.uxml",
+                "Assets/UI/AxisControl/AxisControlPanel.uss");
+            added += EnsurePanelHostIfMissing<MapScaleHudPanelHost>(
+                "MapScaleHud",
+                bridge,
+                "Assets/UI/MapScaleHud/MapScaleHudPanel.uxml",
+                "Assets/UI/MapScaleHud/MapScaleHudPanel.uss");
+            added += EnsurePanelHostIfMissing<GroundOpsPanelHost>(
+                "GroundOps",
+                bridge,
+                "Assets/UI/GroundOps/GroundOpsPanel.uxml",
+                "Assets/UI/GroundOps/GroundOpsPanel.uss");
+
+            // Wire C2Menu → MapPlaceholder when both exist (layer toggle path).
+            WireC2MenuToMapHost();
+
+            // Product globe chrome (type always present on this branch; no UXML required).
+            added += EnsureGlobeMapProductIfMissing(bridge);
+
+            if (added > 0)
+            {
+                EditorSceneManager.MarkAllScenesDirty();
+                EditorSceneManager.SaveOpenScenes();
+            }
+
+            Debug.Log(
+                $"DelegationSmokeSceneBuilder: Ensure UI Maturity Hosts added {added} host(s) to open scene.");
+        }
+
+        private static void WireC2MenuToMapHost()
+        {
+            var menu = Object.FindFirstObjectByType<C2MenuPanelHost>();
+            var map = Object.FindFirstObjectByType<MapPlaceholderPanelHost>();
+            if (menu == null || map == null)
+            {
+                return;
+            }
+
+            SetObjectReference(menu, "mapHost", map);
+        }
+
+        private static int EnsureGlobeMapProductIfMissing(DelegationBridgeHost bridge)
+        {
+            // Type is present on wave4+ branches; keep name-based skip for open scenes.
+            if (GameObject.Find("GlobeMapProduct") != null)
+            {
+                return 0;
+            }
+
+            // Only auto-add on CesiumSpike / useGlobeMap scenes to avoid cluttering DelegationSmoke.
+            var useGlobe = false;
+            var so = new SerializedObject(bridge);
+            var prop = so.FindProperty("useGlobeMap");
+            if (prop != null)
+            {
+                useGlobe = prop.boolValue;
+            }
+
+            if (!useGlobe)
+            {
+                return 0;
+            }
+
+            var productGo = new GameObject("GlobeMapProduct");
+            var productDoc = productGo.AddComponent<UIDocument>();
+            productDoc.panelSettings = EnsurePanelSettingsAsset();
+            var productHost = productGo.AddComponent<GlobeMapProductHost>();
+            SetObjectReference(productHost, "bridgeHost", bridge);
+            return 1;
+        }
+
+        private static int EnsurePanelHostIfMissing<T>(
+            string objectName,
+            DelegationBridgeHost bridge,
+            string uxmlPath,
+            string ussPath)
+            where T : MonoBehaviour
+        {
+            var existing = GameObject.Find(objectName);
+            if (existing != null)
+            {
+                return 0;
+            }
+
+            CreatePanelHost<T>(objectName, bridge, uxmlPath, ussPath);
+            return 1;
         }
 
         private static T CreatePanelHost<T>(
@@ -174,7 +576,7 @@ namespace ProjectAegis.Unity.Editor
 
         private static void StripAudioListenersFromOpenScene()
         {
-            // Use type name so editor scripts still compile when the audio built-in module is disabled.
+            // Use type name so editor scripts still compile when the audio module is disabled.
             foreach (var component in Object.FindObjectsByType<Component>(
                          FindObjectsInactive.Include,
                          FindObjectsSortMode.None))
@@ -195,7 +597,7 @@ namespace ProjectAegis.Unity.Editor
             StripAudioListenersFromOpenScene();
             EditorSceneManager.MarkAllScenesDirty();
             EditorSceneManager.SaveOpenScenes();
-            Debug.Log("DelegationSmokeSceneBuilder: stripped AudioListener components from open scene.");
+            Debug.Log("DelegationSmokeSceneBuilder: stripped AudioListeners from open scene.");
         }
 
         public static void StripAudioListenersBatch()
@@ -239,6 +641,30 @@ namespace ProjectAegis.Unity.Editor
             AssetDatabase.SaveAssets();
             Debug.Log($"Created PanelSettings asset at {path}");
             return created;
+        }
+
+        /// <summary>
+        /// Add a MonoBehaviour by full type name without a compile-time reference
+        /// (Cesium assembly is CESIUM_FOR_UNITY-gated and not referenced by this Editor asmdef).
+        /// </summary>
+        private static Component? TryAddComponentByTypeName(GameObject go, string fullTypeName)
+        {
+            Type? type = null;
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                type = assembly.GetType(fullTypeName, throwOnError: false);
+                if (type != null)
+                {
+                    break;
+                }
+            }
+
+            if (type == null || !typeof(Component).IsAssignableFrom(type))
+            {
+                return null;
+            }
+
+            return go.AddComponent(type);
         }
 
         private static void SetString(Object target, string propertyName, string value)

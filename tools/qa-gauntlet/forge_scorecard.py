@@ -22,6 +22,7 @@ import json
 import hashlib
 import sys
 from pathlib import Path
+from collections import Counter
 from typing import Any
 
 
@@ -195,6 +196,123 @@ def read_oracle_passed(tier_dir: Path) -> dict[str, bool]:
     return out
 
 
+
+def rebuild_counts(
+    cells: list[dict[str, Any]],
+    *,
+    policies_by_sid: dict[str, dict[str, Any]] | None = None,
+    scenarios_dir: Path | None = None,
+    underused_threshold: int = 2,
+    underused_limit: int = 15,
+) -> dict[str, Any]:
+    """Rebuild coverage-map counts (+ underusedPlatformHint) from registered cells.
+
+    Single-valued cell dims (missionClass, eventClass, roePair, emconClass) must
+    each sum to len(cells). domain is multi-valued per cell. platformId counts
+    are occurrence counts across policies (catalogRefs + unit platformIds).
+    """
+    mission: Counter[str] = Counter()
+    event: Counter[str] = Counter()
+    roe: Counter[str] = Counter()
+    emcon: Counter[str] = Counter()
+    domain: Counter[str] = Counter()
+    platform: Counter[str] = Counter()
+
+    if policies_by_sid is None and scenarios_dir is not None:
+        policies_by_sid = {}
+        for cell in cells:
+            sid = cell.get("scenarioId")
+            if not sid:
+                continue
+            p = scenarios_dir / f"{sid}.policy.json"
+            if p.is_file():
+                policies_by_sid[str(sid)] = load_json(p)
+
+    policies_by_sid = policies_by_sid or {}
+
+    for cell in cells:
+        mission[str(cell.get("missionClass") or "unknown")] += 1
+        event[str(cell.get("eventClass") or "none")] += 1
+        roe[str(cell.get("roePair") or "?/?")] += 1
+        emcon[str(cell.get("emconClass") or "unrestricted")] += 1
+        for d in cell.get("domains") or []:
+            domain[str(d)] += 1
+        sid = cell.get("scenarioId")
+        if sid and sid in policies_by_sid:
+            for pid in platform_ids(policies_by_sid[str(sid)]):
+                platform[pid] += 1
+
+    counts = {
+        "missionClass": dict(sorted(mission.items(), key=lambda kv: (-kv[1], kv[0]))),
+        "eventClass": dict(sorted(event.items(), key=lambda kv: (-kv[1], kv[0]))),
+        "roePair": dict(sorted(roe.items(), key=lambda kv: (-kv[1], kv[0]))),
+        "emconClass": dict(sorted(emcon.items(), key=lambda kv: (-kv[1], kv[0]))),
+        "domain": dict(sorted(domain.items(), key=lambda kv: (-kv[1], kv[0]))),
+        "platformId": dict(sorted(platform.items(), key=lambda kv: (-kv[1], kv[0]))),
+    }
+
+    underused = sorted(
+        [pid for pid, n in platform.items() if n <= underused_threshold],
+        key=lambda pid: (platform[pid], pid),
+    )[:underused_limit]
+
+    return {"counts": counts, "underusedPlatformHint": underused}
+
+
+def assert_counts_consistent(
+    coverage: dict[str, Any],
+    *,
+    policies_by_sid: dict[str, dict[str, Any]] | None = None,
+    scenarios_dir: Path | None = None,
+) -> None:
+    """Raise AssertionError if coverage counts drift from registered cells."""
+    cells = coverage.get("cells") or []
+    cell_count = int(coverage.get("cellCount") or 0)
+    scenario_count = int(coverage.get("scenarioCount") or 0)
+    if cell_count != len(cells):
+        raise AssertionError(f"cellCount {cell_count} != len(cells) {len(cells)}")
+    if scenario_count != len(cells):
+        raise AssertionError(
+            f"scenarioCount {scenario_count} != len(cells) {len(cells)}"
+        )
+
+    rebuilt = rebuild_counts(
+        cells, policies_by_sid=policies_by_sid, scenarios_dir=scenarios_dir
+    )
+    stored = coverage.get("counts") or {}
+    for dim in (
+        "missionClass",
+        "eventClass",
+        "roePair",
+        "emconClass",
+        "domain",
+        "platformId",
+    ):
+        if (stored.get(dim) or {}) != rebuilt["counts"][dim]:
+            raise AssertionError(
+                f"counts.{dim} stale vs rebuild from cells/policies"
+            )
+    for dim in ("missionClass", "eventClass", "roePair", "emconClass"):
+        total = sum((stored.get(dim) or {}).values())
+        if total != len(cells):
+            raise AssertionError(
+                f"counts.{dim} sum {total} != cellCount {len(cells)}"
+            )
+    # Multi-valued dims: each value is a scenario occurrence count, so no entry
+    # may exceed scenarioCount.
+    for dim in ("domain", "platformId"):
+        for key, n in (stored.get(dim) or {}).items():
+            if int(n) > len(cells):
+                raise AssertionError(
+                    f"counts.{dim}[{key}]={n} exceeds scenarioCount {len(cells)}"
+                )
+    if (coverage.get("underusedPlatformHint") or []) != rebuilt[
+        "underusedPlatformHint"
+    ]:
+        raise AssertionError("underusedPlatformHint stale vs rebuild")
+
+
+
 def score_candidate(
     policy_path: Path,
     coverage: dict[str, Any],
@@ -310,8 +428,8 @@ def load_useful_fails(run_dir: Path) -> set[str]:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--run-dir", required=True, type=Path)
-    ap.add_argument("--tier", required=True, type=int)
+    ap.add_argument("--run-dir", type=Path, default=None)
+    ap.add_argument("--tier", type=int, default=None)
     ap.add_argument(
         "--corpus",
         type=Path,
@@ -324,8 +442,39 @@ def main() -> int:
         default=None,
         help="Override candidates path (default: <run-dir>/forge/candidates)",
     )
+    ap.add_argument(
+        "--rebuild-counts",
+        action="store_true",
+        help="Rewrite coverage-map.json counts (+ underusedPlatformHint) from cells/policies and exit",
+    )
     args = ap.parse_args()
 
+    if args.rebuild_counts:
+        coverage_path = args.corpus / "coverage-map.json"
+        if not coverage_path.is_file():
+            print(f"error: missing coverage map: {coverage_path}", file=sys.stderr)
+            return 2
+        coverage = load_json(coverage_path)
+        scenarios_dir = Path("data/scenarios")
+        rebuilt = rebuild_counts(
+            coverage.get("cells") or [],
+            scenarios_dir=scenarios_dir if scenarios_dir.is_dir() else None,
+        )
+        coverage["counts"] = rebuilt["counts"]
+        coverage["underusedPlatformHint"] = rebuilt["underusedPlatformHint"]
+        coverage["cellCount"] = len(coverage.get("cells") or [])
+        coverage["scenarioCount"] = len(coverage.get("cells") or [])
+        with coverage_path.open("w", encoding="utf-8") as f:
+            json.dump(coverage, f, indent=2, ensure_ascii=False)
+            f.write("\n")
+        print(
+            f"forge-scorecard: rebuilt counts for {coverage['cellCount']} cells -> {coverage_path}"
+        )
+        return 0
+
+    if args.run_dir is None or args.tier is None:
+        print("error: --run-dir and --tier required (unless --rebuild-counts)", file=sys.stderr)
+        return 2
     run_dir = args.run_dir
     if not run_dir.is_dir():
         print(f"error: run-dir not found: {run_dir}", file=sys.stderr)

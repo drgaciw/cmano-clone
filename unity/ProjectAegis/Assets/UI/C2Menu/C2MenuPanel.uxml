@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="c2-menu-root" class="c2-menu-panel">
+        <ui:Label text="C2 MENU" class="c2-menu-title" />
+        <ui:Label name="c2-menu-summary" text="LAYERS: —" class="c2-menu-summary" />
+        <ui:ScrollView name="c2-menu-scroll" class="c2-menu-scroll">
+            <ui:VisualElement name="c2-menu-list" class="c2-menu-list" />
+        </ui:ScrollView>
+        <ui:Label name="c2-menu-status" text="" class="c2-menu-status" />
+    </ui:VisualElement>
+</ui:UXML>

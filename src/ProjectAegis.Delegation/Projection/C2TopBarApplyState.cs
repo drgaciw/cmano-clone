@@ -24,7 +24,10 @@ public static class C2TopBarApplyState
             ModeLabel: state.ModeLabel ?? string.Empty,
             CommsLabel: state.CommsLabel ?? string.Empty,
             ScoreLabel: state.ScoreLabel ?? string.Empty,
-            CommsCssClass: ResolveCommsCssClass(state.CommsLabel));
+            CommsCssClass: ResolveCommsCssClass(state.CommsLabel),
+            ZuluTimeLabel: state.ZuluTimeLabel ?? string.Empty,
+            LocalTimeLabel: state.LocalTimeLabel ?? string.Empty,
+            RemainingDurationLabel: state.RemainingDurationLabel ?? string.Empty);
     }
 
     /// <summary>
@@ -36,7 +39,10 @@ public static class C2TopBarApplyState
         string compressionLabel,
         string simulationModeLabel,
         Decision.DecisionLog log,
-        int baseScore = 0)
+        int baseScore = 0,
+        DateTimeOffset? scenarioEpochUtc = null,
+        int localUtcOffsetHours = 0,
+        double? scenarioDurationSeconds = null)
     {
         if (log is null)
         {
@@ -49,7 +55,10 @@ public static class C2TopBarApplyState
             compressionLabel,
             simulationModeLabel,
             log,
-            baseScore);
+            baseScore,
+            scenarioEpochUtc,
+            localUtcOffsetHours,
+            scenarioDurationSeconds);
         return Apply(projected);
     }
 
@@ -82,7 +91,10 @@ public sealed record C2TopBarPresentation(
     string ModeLabel,
     string CommsLabel,
     string ScoreLabel,
-    string CommsCssClass)
+    string CommsCssClass,
+    string ZuluTimeLabel = "",
+    string LocalTimeLabel = "",
+    string RemainingDurationLabel = "")
 {
     public static C2TopBarPresentation Empty { get; } = new(
         string.Empty,
@@ -91,5 +103,8 @@ public sealed record C2TopBarPresentation(
         string.Empty,
         string.Empty,
         string.Empty,
-        "c2-topbar-item--comms-nominal");
+        "c2-topbar-item--comms-nominal",
+        string.Empty,
+        string.Empty,
+        string.Empty);
 }
