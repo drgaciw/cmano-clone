@@ -53,7 +53,7 @@ Players and agents task a **cloud**, not N micro-aircraft. Integrity is the fun 
 | SWARM-18 | EMP / jam soft-kill effects | P2 | C |
 | SWARM-19 | Expend / kamikaze pulse (authorized) | P2 | C |
 | SWARM-20 | Mission types for swarm tasking | P2 | C |
-| SWARM-21 | Catalog + Platform Editor authoring | P1 | B/C |
+| SWARM-21 | Catalog + Platform Editor authoring | P1 | A (schema+preset) / B (PE chrome) |
 | SWARM-22 | Scenario editor place/configure swarm | P1 | B |
 | SWARM-23 | Agent delegation compatibility | P1 | B |
 | SWARM-24 | Replay: orders + integrity deltas | P0 | A |
@@ -180,7 +180,9 @@ Players and agents task a **cloud**, not N micro-aircraft. Integrity is the fun 
 
 **Requirement.** Authors can define swarm catalog entries: `maxDrones`, sensors, weapons/munition class, speed/endurance bands, default mode, host constraints (doc 21).
 
-**Acceptance.** Platform Editor / PDA path can create a valid swarm db entry consumed by sim. **Phase A:** schema + ≥1 generic preset may ship via Data catalog before full PE chrome.
+**Acceptance.**
+- **Phase A (mandatory):** catalog schema fields + ≥1 abstract generic swarm preset loadable by Data / scenario refs (DRG-86). Without this, SWARM-01 cannot instantiate.
+- **Phase B:** Platform Editor / PDA full chrome round-trip for swarm rows (or documented PE gap filed). Full PE authoring may lag schema.
 
 ## SWARM-22 — Scenario editor **[P1]**
 

@@ -95,5 +95,5 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 - **H8 Drone Swarm Platforms (doc 22):** Phase A implementation Linear DRG-86…91 after this land (DRG-85)
 - **Corpus maturity program closed** (W0–W4 complete 2026-07-08); no further corpus waves
 - **Scenario editor completion** (req 11): SE-W1 doc honesty + residual tools; SE-W2 Unity AC-8 productionize; SE-W3 gate — plan [2026-07-08-scenario-editor-completion-plan.md](../docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md); roadmap [future-sprint-roadpmap-07042026.md](../docs/reports/future-sprint-roadpmap-07042026.md)
-- Run `/design-review` when mechanics change on **01, 04, 06–11, 13–21**
+- Run `/design-review` when mechanics change on **01, 04, 06–11, 13–22**
 - Run `/military-requirements-impact` before DB schema for JADC2, C-UAS, hypersonic defense

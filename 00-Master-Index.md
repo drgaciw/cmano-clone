@@ -47,6 +47,12 @@
 | [12](Game-Requirements/requirements/12-Terms-Glossary.md) | Terms glossary |
 | [21](Game-Requirements/requirements/21-Platform-Editor.md) | Platform editor (catalog / Excel round-trip) |
 
+## Platforms (22)
+
+| Doc | Title |
+|-----|--------|
+| [22](Game-Requirements/requirements/22-Drone-Swarm-Platforms.md) | Drone / UAS swarm platforms (FR-20 / H8) |
+
 ## Simulation, C2, combat (13–20)
 
 | Doc | Title |
@@ -59,7 +65,6 @@
 | [18](Game-Requirements/requirements/18-Combat-Domains.md) | Combat domains |
 | [19](Game-Requirements/requirements/19-Cyber-And-Comms.md) | Cyber & communications |
 | [20](Game-Requirements/requirements/20-Command-And-Control-UI.md) | Command & control UI |
-| [22](Game-Requirements/requirements/22-Drone-Swarm-Platforms.md) | Drone / UAS swarm platforms (FR-20 / H8) |
 
 ## Additional files
 
