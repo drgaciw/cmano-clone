@@ -41,7 +41,7 @@ Factors: `tier` (5 levels) × `ew` (3) × `logistics` (3) × `weapons` (3).
 |---|---|---|
 | Full factorial | 5 × 27 = **135** | ~500+ |
 | **Pairwise (2-way) covering array** | **~15–18** | **~75–85** |
-| Base ladder today (39 scenarios) | 39 | 117 |
+| Base ladder today (42 scenarios) | 42 | 126 |
 
 Pairwise guarantees every *pair* of factor levels appears together at least once; its size is bounded below by the largest pair product (5 × 3 = 15), not by the product of all factors. Empirically most defects are triggered by one or two interacting factors, which is what makes this the right trade. Task 3 enforces a hard config cap so the run can never silently explode.
 
@@ -1127,7 +1127,7 @@ PY
 ## Budget guard
 
 Report `estimatedRuns` before executing. If it exceeds the base ladder's own
-cost (39 scenarios x 3 seeds = 117 runs), lower `max_configs` rather than
+cost (42 scenarios x 3 seeds = 126 runs), lower `max_configs` rather than
 letting the run expand. Truncation is always reported via `dropped`; a stress
 run must never silently narrow its own coverage.
 
@@ -1154,7 +1154,7 @@ a cross-product: `ew`, `logistics`, `weapons` (see
 [`tools/qa-gauntlet/README-stress-axes.md`](../../../tools/qa-gauntlet/README-stress-axes.md)).
 
 - Plan with `plan_stress_matrix.plan_matrix(...)`; report `estimatedRuns` and
-  `dropped` before executing. A run that exceeds the base ladder cost (117 runs)
+  `dropped` before executing. A run that exceeds the base ladder cost (126 runs)
   must lower `max_configs`, not expand.
 - Verify with `verify_stress_axes.verify_axis(...)` using each axis's declared
   proof mode. `logistics` is `config-only` (GAP-13) and is **never** reported as

@@ -114,6 +114,7 @@
   },
   "gauntlet": {
     "intent": "T3 escort+strike: blue screens HVU mrk-buyan-pr-21630-buyan-2007 (escort) while su-27sm-sm3-flanker-j-2013 is tasked to destroy designated red target p-960-skjold (strike). Four mission.events fire on ascending ticks (0, 5, 9, 13) inside the 16-tick budget, chaining mission-start -> strike tasking -> escort screen -> weapons release; friendlyRoe starts WeaponsTight (ID-required) and mission.triggers escalate specific units to WeaponsFree on first contact.",
+    "tier": 3,
     "oracle": "Fingerprint must contain MissionTransition/EventFired entries for all four event ids/codes in ascending SimTick order, plus PolicyUpdate/EngagementRecord entries showing the ROE escalation from WeaponsTight to WeaponsFree for the triggered unitIds.",
     "catalogRefs": [
       "mrk-buyan-pr-21630-buyan-2007",
