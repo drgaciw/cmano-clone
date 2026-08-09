@@ -1,11 +1,23 @@
 # 09 - Near-Future Technologies
 
-**Last Updated:** 2026-07-08  
-**Status:** Research-integrated  
+**Last Updated:** 2026-08-09  
+**Status:** Research-integrated — **shipped spine = product-in-scope**; design matrix = **Phase N post-release** ([DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) owner decision 2026-08-09)  
 **FR reverse-ref:** [FR-08](01-Project-Overview.md) — Near-future and speculative platforms (near-future half)  
 **Research basis:** [Near-Future Tech Research Supplement](../../docs/research/near-future-tech-research.md)  
-**Related:** 06 Database Intelligence, 10 Speculative Systems, 11 Mission Editor, 14 Engagement  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 09 — **Partial**
+**Related:** 06 Database Intelligence, 10 Speculative Systems, 11 Mission Editor, 14 Engagement, 22 Drone Swarm Platforms  
+**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 09 — **Partial**  
+**Linear:** [DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) · decision note: [`production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md`](../../production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md)
+
+## Owner decision — Phase N scoping (2026-08-09) · DRG-47
+
+Owner-delegated decision (same pattern as DRG-84 owner triage). Authority: SWARM-00 triage + Release stage + Phase A–C complete. **Does not schedule Phase N work on the current Release train.**
+
+| Decision | Outcome |
+|----------|---------|
+| Product-in-scope **now** | **Shipped spine only** — archetype catalog (4), TL + swarm-tier gates, spawn **plan**, scenario `maxTechnologyLevel` / `nearFutureUnits`, CLI `scenario_near_future_spawn`, Baltic `NF_SPAWN` log/register, hypersonic engage **boolean** gate, `CatalogPlatformBinding.GameTechnologyLevel` |
+| Phase N design matrix | **Post-release / Phase N** — CCA/swarm advanced runtime beyond SWARM Phase C, full AUV, full DEW thermal, quantum sensing runtime, JADC2 node model, CEW, MASS tier runtime, full DOTS spawn, Baltic near-future content pack — **not scheduled for current Release train** |
+| SWARM-27…30 (doc 22) | **Phase N deferred** under DRG-47 — not building now (see [22](22-Drone-Swarm-Platforms.md) Phase N section) |
+| Full GDDs / ADRs for Phase N | **Not authored this turn** — stop reading design-matrix sections as pending implementation commitments until product re-opens Phase N |
 
 ## Purpose
 
@@ -21,10 +33,10 @@ A rich, believable technology base grounded in current open-source intelligence 
 
 | Layer | What it is | Claim level |
 |-------|------------|-------------|
-| **SHIPPED headless spine** | Archetype catalog (4), TL + swarm-tier gates (Medium max 500), spawn **plan** only, scenario `maxTechnologyLevel` / `nearFutureUnits`, CLI `scenario_near_future_spawn`, Baltic harness `NF_SPAWN` log/register, hypersonic engage **boolean** gate, platform field `CatalogPlatformBinding.GameTechnologyLevel` | **Shipped / Partial** — evidence in Implementation Mapping |
-| **Phase N design matrix** | CCA/swarm runtime behaviors, AUV full sim, full DEW thermal, quantum sensing runtime, JADC2 node model, CEW, MASS tier runtime, full DOTS spawn, Baltic near-future content pack | **Not shipped** — product intent below remains research-integrated design |
+| **SHIPPED headless spine** | Archetype catalog (4), TL + swarm-tier gates (Medium max 500), spawn **plan** only, scenario `maxTechnologyLevel` / `nearFutureUnits`, CLI `scenario_near_future_spawn`, Baltic harness `NF_SPAWN` log/register, hypersonic engage **boolean** gate, platform field `CatalogPlatformBinding.GameTechnologyLevel` | **Shipped / Partial** — evidence in Implementation Mapping; **product-in-scope** (DRG-47 2026-08-09) |
+| **Phase N design matrix** | CCA/swarm runtime behaviors, AUV full sim, full DEW thermal, quantum sensing runtime, JADC2 node model, CEW, MASS tier runtime, full DOTS spawn, Baltic near-future content pack | **Not shipped** — **post-release / Phase N** (DRG-47); product intent below remains research-integrated design only |
 
-**Rule of thumb:** Category sections below are the **design matrix** (research-integrated). Do not read “v1.0” wording in those sections as “full runtime on main” unless the Implementation Mapping row says **Shipped**.
+**Rule of thumb:** Category sections below are the **design matrix** (research-integrated). Do not read “v1.0” wording in those sections as “full runtime on main” unless the Implementation Mapping row says **Shipped**. **Do not treat Phase N design matrix as a Release commitment.**
 
 Cross-link: policy-level `ScenarioSpeculativeSettings` / speculative TL gates for TL-3–TL-5 content live in [10-Speculative-Systems.md](10-Speculative-Systems.md) — not re-specified here.
 
