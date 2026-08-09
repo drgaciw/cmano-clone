@@ -14,6 +14,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string RootName = "unit-detail-root";
         private const string UnitIdName = "unit-id-line";
         private const string StatusName = "status-line";
+        private const string CommsName = "comms-line";
         private const string MagazineName = "magazine-line";
         private const string EmconName = "emcon-line";
         private const string DoctrineName = "doctrine-line";
@@ -38,6 +39,7 @@ namespace ProjectAegis.Unity.Runtime
         private UIDocument _document = null!;
         private Label? _unitIdLine;
         private Label? _statusLine;
+        private Label? _commsLine;
         private Label? _magazineLine;
         private Label? _emconLine;
         private Label? _doctrineLine;
@@ -110,6 +112,7 @@ namespace ProjectAegis.Unity.Runtime
             var panel = root.Q<VisualElement>(RootName) ?? root;
             _unitIdLine = panel.Q<Label>(UnitIdName);
             _statusLine = panel.Q<Label>(StatusName);
+            _commsLine = panel.Q<Label>(CommsName);
             _magazineLine = panel.Q<Label>(MagazineName);
             _emconLine = panel.Q<Label>(EmconName);
             _doctrineLine = panel.Q<Label>(DoctrineName);
@@ -186,6 +189,12 @@ namespace ProjectAegis.Unity.Runtime
             if (_statusLine != null)
             {
                 _statusLine.text = _presentation.StatusLine;
+            }
+
+            // CMD-17: null-safe — older UXML without comms-line still wires.
+            if (_commsLine != null)
+            {
+                _commsLine.text = _presentation.CommsLine;
             }
 
             if (_magazineLine != null)

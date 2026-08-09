@@ -10,4 +10,9 @@ public sealed record ScenarioDetectionTrial(
     double EnvMask = 1.0,
     double JamStrength = 0.0,
     double EccmFactor = 1.0,
-    bool RequiresActiveRadar = true);
+    bool RequiresActiveRadar = true,
+    /// <summary>
+    /// SWARM-04: precomputed swarm integrity scale for the observer (1.0 = no swarm / full).
+    /// Scenarios or spawners set this from <see cref="ProjectAegis.Sim.Sensors.SwarmSensorScale"/>.
+    /// </summary>
+    double SwarmIntegrityScale = 1.0);

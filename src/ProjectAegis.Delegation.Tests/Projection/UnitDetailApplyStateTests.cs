@@ -18,7 +18,8 @@ public sealed class UnitDetailApplyStateTests
             FuelLabel: "FUEL: 80%",
             EngagePreviewLabel: "ENG: —",
             AttackOptionsLabel: "ATK: 0",
-            AttackMenu: Array.Empty<EngageAttackOptions.AttackOption>());
+            AttackMenu: Array.Empty<EngageAttackOptions.AttackOption>(),
+            CommsLabel: "COMMS: DENIED");
 
         var applied = UnitDetailApplyState.BindAndApply(entry, "CONTACT: red-9");
 
@@ -27,6 +28,7 @@ public sealed class UnitDetailApplyStateTests
         Assert.That(applied.MagazineLine, Is.EqualTo("MAG: 4/8"));
         Assert.That(applied.EmconLine, Is.EqualTo("EMCON: A"));
         Assert.That(applied.ContactLine, Is.EqualTo("CONTACT: red-9"));
+        Assert.That(applied.CommsLine, Is.EqualTo("COMMS: DENIED"));
         Assert.That(applied.AttackOptionCount, Is.EqualTo(0));
     }
 
@@ -35,6 +37,7 @@ public sealed class UnitDetailApplyStateTests
     {
         var applied = UnitDetailApplyState.Apply(null);
         Assert.That(applied.UnitIdLine, Is.EqualTo("UNIT: —"));
+        Assert.That(applied.CommsLine, Is.EqualTo("COMMS: —"));
         Assert.That(applied.AttackOptionCount, Is.EqualTo(0));
     }
 
@@ -45,5 +48,25 @@ public sealed class UnitDetailApplyStateTests
         var applied = UnitDetailApplyState.Apply(bound);
         Assert.That(applied.UnitIdLine, Is.EqualTo(bound.UnitIdLine));
         Assert.That(applied.StatusLine, Is.EqualTo(bound.StatusLine));
+        Assert.That(applied.CommsLine, Is.EqualTo(bound.CommsLine));
+    }
+
+    [Test]
+    public void BindAndApply_defaults_comms_label_when_omitted()
+    {
+        var entry = new UnitDetailEntry(
+            "blue-1",
+            IsAlive: true,
+            StatusLabel: "OPERATIONAL",
+            MagazineLabel: "MAGAZINE: —",
+            EmconLabel: "EMCON: —",
+            DoctrineLabel: "DOCTRINE: —",
+            FuelLabel: "FUEL: —",
+            EngagePreviewLabel: "ENGAGE: —",
+            AttackOptionsLabel: "ATTACK: —",
+            AttackMenu: Array.Empty<EngageAttackOptions.AttackOption>());
+
+        var applied = UnitDetailApplyState.BindAndApply(entry);
+        Assert.That(applied.CommsLine, Is.EqualTo("COMMS: —"));
     }
 }

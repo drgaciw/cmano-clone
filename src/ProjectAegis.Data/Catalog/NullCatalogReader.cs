@@ -34,6 +34,8 @@ public sealed class NullCatalogReader : ICatalogReader
 
     public IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamage() => [];
 
+    public IReadOnlyList<CatalogSwarmPlatform> GetSortedSwarmPlatforms() => [];
+
     public bool TryGetMobility(string platformId, out CatalogMobility mobility)
     {
         mobility = new CatalogMobility(platformId);
@@ -55,6 +57,12 @@ public sealed class NullCatalogReader : ICatalogReader
     public bool TryGetPlatformDamage(string platformId, out CatalogPlatformDamage damage)
     {
         damage = new CatalogPlatformDamage(platformId);
+        return false;
+    }
+
+    public bool TryGetSwarmPlatform(string platformId, out CatalogSwarmPlatform swarm)
+    {
+        swarm = new CatalogSwarmPlatform(platformId, MaxDrones: 1, IsSwarm: false);
         return false;
     }
 

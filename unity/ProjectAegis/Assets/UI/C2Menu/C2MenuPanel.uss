@@ -1,0 +1,102 @@
+/* C2 menu / basemap layers host (CMD-28.1 / CMD-28.2). */
+
+.c2-menu-panel {
+    flex-grow: 1;
+    min-width: 260px;
+    max-width: 400px;
+    padding: 6px;
+    background-color: rgba(12, 18, 28, 0.92);
+    border-width: 1px;
+    border-color: rgb(50, 65, 80);
+}
+
+.c2-menu-title {
+    -unity-font-style: bold;
+    color: rgb(200, 210, 220);
+    margin-bottom: 2px;
+    font-size: 12px;
+}
+
+.c2-menu-summary {
+    color: rgb(160, 190, 210);
+    font-size: 11px;
+    margin-bottom: 6px;
+}
+
+.c2-menu-scroll {
+    flex-grow: 1;
+    min-height: 120px;
+    max-height: 360px;
+    margin-bottom: 4px;
+}
+
+.c2-menu-list {
+    flex-direction: column;
+}
+
+.c2-menu-category {
+    -unity-font-style: bold;
+    color: rgb(140, 170, 200);
+    font-size: 10px;
+    margin-top: 6px;
+    margin-bottom: 2px;
+    padding-left: 2px;
+    letter-spacing: 0.5px;
+}
+
+.c2-menu-row {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+    padding: 3px 6px;
+    background-color: rgba(24, 32, 44, 0.85);
+    border-width: 1px;
+    border-color: rgb(40, 55, 70);
+}
+
+.c2-menu-row:hover {
+    background-color: rgba(36, 48, 66, 0.95);
+    border-color: rgb(70, 95, 120);
+}
+
+.c2-menu-row--layer {
+    border-left-width: 3px;
+    border-left-color: rgb(90, 140, 180);
+}
+
+.c2-menu-row--disabled {
+    opacity: 0.45;
+}
+
+.c2-menu-row-label {
+    flex-grow: 1;
+    color: rgb(210, 220, 230);
+    font-size: 11px;
+    -unity-text-align: middle-left;
+}
+
+.c2-menu-row-shortcut {
+    color: rgb(150, 180, 200);
+    font-size: 10px;
+    margin-left: 8px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+    min-width: 48px;
+}
+
+.c2-menu-row-note {
+    color: rgb(240, 180, 80);
+    font-size: 10px;
+    margin-left: 6px;
+    flex-shrink: 1;
+    white-space: normal;
+}
+
+.c2-menu-status {
+    margin-top: 2px;
+    color: rgb(240, 180, 80);
+    font-size: 10px;
+    min-height: 12px;
+    white-space: normal;
+}

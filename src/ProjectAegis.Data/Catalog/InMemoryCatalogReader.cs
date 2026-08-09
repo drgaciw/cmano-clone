@@ -12,6 +12,7 @@ public sealed class InMemoryCatalogReader : ICatalogReader
     private readonly CatalogSignature[] _signatures;
     private readonly CatalogEmcon[] _emcon;
     private readonly CatalogPlatformDamage[] _damage;
+    private readonly CatalogSwarmPlatform[] _swarm;
     private readonly CatalogMount[] _mounts;
     private readonly CatalogLoadout[] _loadouts;
     private readonly CatalogMagazineEntry[] _magazines;
@@ -34,7 +35,8 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         IEnumerable<CatalogMagazineEntry>? magazines = null,
         IEnumerable<CatalogCommsBinding>? comms = null,
         IEnumerable<CatalogLinkEntry>? links = null,
-        IEnumerable<string>? doctrinePlatforms = null)
+        IEnumerable<string>? doctrinePlatforms = null,
+        IEnumerable<CatalogSwarmPlatform>? swarmPlatforms = null)
     {
         LayerVersion = layerVersion;
         _bindings = bindings
@@ -59,6 +61,9 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             .ToArray();
         _damage = (damage ?? Array.Empty<CatalogPlatformDamage>())
             .OrderBy(d => d.PlatformId, StringComparer.Ordinal)
+            .ToArray();
+        _swarm = (swarmPlatforms ?? Array.Empty<CatalogSwarmPlatform>())
+            .OrderBy(s => s.PlatformId, StringComparer.Ordinal)
             .ToArray();
         _mounts = (mounts ?? Array.Empty<CatalogMount>())
             .OrderBy(m => m.PlatformId, StringComparer.Ordinal)
@@ -91,6 +96,16 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         [
             new CatalogSensorBinding("u1", "radar-1", 1.0, "baltic-fixture-radar1"),
             new CatalogSensorBinding("u1", "radar-2", 0.75, "baltic-fixture-radar2"),
+            new CatalogSensorBinding(
+                CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
+                CatalogSwarmPlatformDefaults.DefaultSensorId,
+                0.80,
+                "swarm-generic-eo-ir"),
+            new CatalogSensorBinding(
+                CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+                CatalogSwarmPlatformDefaults.UsnCecSensorId,
+                0.85,
+                "swarm-usn-cec-radar"),
         ],
         "p0-baltic-fixture",
         CatalogValidationDefaults.BalticPlatforms().Concat(new[] { new CatalogPlatformEntry("legacy-patrol-ship", 57.0, 20.0, 100.0) }).ToList(),
@@ -99,7 +114,12 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             new CatalogMount("legacy-patrol-ship", "main-gun", "Gun Mount"), // legacy for obsolete proof
         ],
         links: CatalogValidationDefaults.BalticLinks(),
-        doctrinePlatforms: new[] { "legacy-patrol-ship" });
+        doctrinePlatforms: new[] { "legacy-patrol-ship" },
+        swarmPlatforms:
+        [
+            CatalogValidationDefaults.GenericSwarmPlatform(),
+            CatalogValidationDefaults.UsnCecSwarmPlatform()
+        ]);
 
     /// <summary>Baltic v3: patrol ships + UCAV per side with Recon [Internal IR] loadout,
     /// plus one attack submarine per side (Virginia-class-derived hull sonar + towed array;
@@ -117,6 +137,16 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             new CatalogSensorBinding("usub-blue", "towed-array-sonar", 0.90, "baltic-v3-usub-blue-twa-sonar"),
             new CatalogSensorBinding("usub-red", "hull-sonar", 0.75, "baltic-v3-usub-red-hull-sonar"),
             new CatalogSensorBinding("usub-red", "towed-array-sonar", 0.85, "baltic-v3-usub-red-twa-sonar"),
+            new CatalogSensorBinding(
+                CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
+                CatalogSwarmPlatformDefaults.DefaultSensorId,
+                0.80,
+                "swarm-generic-eo-ir"),
+            new CatalogSensorBinding(
+                CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+                CatalogSwarmPlatformDefaults.UsnCecSensorId,
+                0.85,
+                "swarm-usn-cec-radar"),
         ],
         "p0-baltic-v3-fixture",
         CatalogValidationDefaults.BalticV3Platforms(),
@@ -128,7 +158,12 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             new CatalogLoadout("usub-red", "asw-strike", "ASW/Strike [Torpedo + VLS]", "asw", IsDefault: true),
         ],
         links: CatalogValidationDefaults.BalticLinks(),
-        doctrinePlatforms: Array.Empty<string>());
+        doctrinePlatforms: Array.Empty<string>(),
+        swarmPlatforms:
+        [
+            CatalogValidationDefaults.GenericSwarmPlatform(),
+            CatalogValidationDefaults.UsnCecSwarmPlatform()
+        ]);
 
     /// <summary>Baltic patrol + Phase B mobility/signature/EMCON rows for Req-21 sim consumption tests.</summary>
     public static InMemoryCatalogReader BalticPhaseBFixture(
@@ -149,6 +184,11 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         [
             new CatalogEmcon("u1", "free", "radar-1", emconPosture),
             new CatalogEmcon("u1", "silent", "radar-1", "off"),
+        ],
+        swarmPlatforms:
+        [
+            CatalogValidationDefaults.GenericSwarmPlatform(),
+            CatalogValidationDefaults.UsnCecSwarmPlatform()
         ]);
 
     /// <summary>Baltic patrol + default loadout/magazine rows for Req-16 engage readiness tests.</summary>
@@ -167,6 +207,11 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         magazines:
         [
             new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", CatalogWeaponIds.MvpDefault, magazineQuantity),
+        ],
+        swarmPlatforms:
+        [
+            CatalogValidationDefaults.GenericSwarmPlatform(),
+            CatalogValidationDefaults.UsnCecSwarmPlatform()
         ]);
 
     public IReadOnlyList<CatalogSensorBinding> GetSortedSensorBindings() => _bindings;
@@ -260,6 +305,8 @@ public sealed class InMemoryCatalogReader : ICatalogReader
 
     public IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamage() => _damage;
 
+    public IReadOnlyList<CatalogSwarmPlatform> GetSortedSwarmPlatforms() => _swarm;
+
     public IReadOnlyList<CatalogMount> GetSortedMounts() => _mounts;
 
     public IReadOnlyList<CatalogLoadout> GetSortedLoadouts() => _loadouts;
@@ -334,6 +381,21 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         }
 
         damage = new CatalogPlatformDamage(platformId);
+        return false;
+    }
+
+    public bool TryGetSwarmPlatform(string platformId, out CatalogSwarmPlatform swarm)
+    {
+        foreach (var row in _swarm)
+        {
+            if (string.Equals(row.PlatformId, platformId, StringComparison.Ordinal))
+            {
+                swarm = row;
+                return true;
+            }
+        }
+
+        swarm = new CatalogSwarmPlatform(platformId, MaxDrones: 1, IsSwarm: false);
         return false;
     }
 

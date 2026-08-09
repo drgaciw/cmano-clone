@@ -16,6 +16,8 @@ public sealed class MvpEngagementResolver : IEngagementResolver
     private readonly ScenarioSpeculativeSettings _speculative;
     private readonly bool _combatDomainsEnabled;
     private readonly DomainValidatorRegistry _domainValidators;
+    private readonly ISwarmIntegrityDamageSink? _swarmIntegritySink;
+    private readonly Func<ulong, string>? _resolveTargetUnitId;
     private ulong _nextEngagementId = 1;
 
     /// <summary>
@@ -37,7 +39,9 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         KilledTargetRegistry? killedTargets = null,
         ScenarioSpeculativeSettings? speculative = null,
         bool combatDomainsEnabled = false,
-        DomainValidatorRegistry? domainValidators = null)
+        DomainValidatorRegistry? domainValidators = null,
+        ISwarmIntegrityDamageSink? swarmIntegritySink = null,
+        Func<ulong, string>? resolveTargetUnitId = null)
     {
         _seed = seed ?? SimSeed.FromScenario(0);
         _world = world;
@@ -48,6 +52,8 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         _speculative = speculative ?? ScenarioSpeculativeSettings.CampaignDefault;
         _combatDomainsEnabled = combatDomainsEnabled;
         _domainValidators = domainValidators ?? DomainValidatorRegistry.MvpStubs;
+        _swarmIntegritySink = swarmIntegritySink;
+        _resolveTargetUnitId = resolveTargetUnitId;
     }
 
     public MagazineLedger Magazines => _magazines;
@@ -157,8 +163,31 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(EngagementAbortReason.EmconOff);
         }
 
-        if (!ctx.HasFireControlTrack)
+        // SWARM-31 / B6b: remote engage-on-remote-data (CEC composite) may satisfy FC
+        // when organic track is absent. Mesh loss aborts with explicit reason.
+        var remoteAbort = CecRemoteEngageGate.Evaluate(
+            ctx.HasFireControlTrack,
+            ctx.UsesRemoteCecTrack,
+            ctx.ShooterCecCapable,
+            ctx.CecRemoteFireControlEligible);
+        if (remoteAbort != null)
         {
+            return EngageResult.Aborted(remoteAbort.Value);
+        }
+
+        var hasFc = CecRemoteEngageGate.HasUsableFireControl(
+            ctx.HasFireControlTrack,
+            ctx.UsesRemoteCecTrack,
+            ctx.ShooterCecCapable,
+            ctx.CecRemoteFireControlEligible);
+        if (!hasFc)
+        {
+            // Prefer explicit remote abort when the shot was tagged as remote CEC.
+            if (ctx.UsesRemoteCecTrack)
+            {
+                return EngageResult.Aborted(EngagementAbortReason.CecRemoteTrackUnavailable);
+            }
+
             return EngageResult.Aborted(EngagementAbortReason.NoFireControlTrack);
         }
 
@@ -203,9 +232,33 @@ public sealed class MvpEngagementResolver : IEngagementResolver
         }
 
         var launch = EngageResult.Launch(_nextEngagementId++);
-        var afterHit = CombatOutcomeResolver.Apply(_seed, request, launch, ctx.PkBase);
+        // SWARM-04: scale offensive Pk by living shooter integrity when context marks a swarm shooter.
+        var pkBase = ctx.PkBase;
+        if (ctx.ShooterMaxDrones > 0)
+        {
+            pkBase = SwarmOffensiveEffect.Scale(pkBase, ctx.ShooterDroneCount, ctx.ShooterMaxDrones);
+        }
+
+        var afterHit = CombatOutcomeResolver.Apply(_seed, request, launch, pkBase);
         var afterIntercept = CombatOutcomeResolver.ApplyInterceptOnHit(_seed, request, afterHit, ctx.PkIntercept);
-        return CombatOutcomeResolver.ApplyKillOnHit(_seed, request, afterIntercept, ctx.PkKill);
+        var finalResult = CombatOutcomeResolver.ApplyKillOnHit(_seed, request, afterIntercept, ctx.PkKill);
+
+        // SWARM-08: on Hit/Kill against a swarm target, reduce aggregate integrity via authorized sink.
+        if (_swarmIntegritySink is not null &&
+            ctx.TargetMaxDrones > 0 &&
+            finalResult.OutcomeCode is EngagementOutcomeCodes.Hit or EngagementOutcomeCodes.Kill)
+        {
+            var targetKey = _resolveTargetUnitId?.Invoke(request.TargetId)
+                ?? request.TargetId.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            SwarmEngagementIntegrityApplier.TryApplyFromEngageContext(
+                _swarmIntegritySink,
+                targetKey,
+                in ctx,
+                request.SimTick,
+                simTime: request.SimTick);
+        }
+
+        return finalResult;
     }
 
     private static EngagementAbortReason MapPolicyDenial(FireAbortReason reason) =>

@@ -44,7 +44,8 @@ public sealed record PlatformImportResult(
     string? SignatureBatchId,
     string? EmconBatchId,
     string? DamageBatchId,
-    IReadOnlyList<string> Notes)
+    IReadOnlyList<string> Notes,
+    string? SwarmBatchId = null)
 {
     /// <summary>
     /// PLE-2.3 / PLE-4.4: plan-time FK quarantine plus stage-time TRL/orphan quarantine entries.

@@ -84,6 +84,13 @@ public interface IWriteGate
         string actorId,
         string rationale = "");
 
+    /// <summary>SWARM-21 PE: stage platform_swarm rows from Swarms workbook sheet.</summary>
+    string ProposeSwarmBatch(
+        IReadOnlyList<CatalogSwarmPlatform> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "");
+
     WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId);
 
     WriteGateDecision RejectBatch(string batchId, string actorType, string actorId, string rationale = "");

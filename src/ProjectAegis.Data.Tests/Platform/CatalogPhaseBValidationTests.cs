@@ -361,6 +361,9 @@ public sealed class CatalogPhaseBValidationTests
             return $"fake-batch-damage-{DamageProposals.Count}";
         }
 
+        public string ProposeSwarmBatch(IReadOnlyList<CatalogSwarmPlatform> proposed, string actorType, string actorId, string rationale = "")
+            => "fake-swarm";
+
         public string ProposePlatformBatch(IReadOnlyList<CatalogPlatformBinding> proposed, string actorType, string actorId, string rationale = "")
         {
             PlatformProposals.Add(proposed);
