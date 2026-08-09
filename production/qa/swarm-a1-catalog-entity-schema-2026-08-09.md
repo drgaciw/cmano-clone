@@ -65,3 +65,11 @@ dotnet build ProjectAegis.sln -v minimal
 - **DRG-87** SwarmController MVP (Graphite stack base = this PR after green)
 - Wave 3 surface-disjoint: DRG-88 ∥ 89 ∥ 90
 - Phase B PE columns / workbook (gap doc)
+
+## Review follow-up (2026-08-09)
+
+- Graphite: fixed tautological `GenericMaxDrones` assert → pin literal `40`.
+- Codex P1: `EnsureGenericSwarmPlatform` / seed path is **insert-if-absent only**
+  (`INSERT OR IGNORE` + platform_id existence check). Opening a catalog reader no longer
+  rewrites curated `platform_swarm` / sensor / weapon rows.
+- New pin: `EnsureGenericSwarmPlatform_does_not_overwrite_curated_max_drones`.

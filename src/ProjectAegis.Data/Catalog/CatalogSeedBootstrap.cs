@@ -221,7 +221,8 @@ public static class CatalogSeedBootstrap
 
     /// <summary>
     /// SWARM-21 Phase A: abstract generic swarm platform row + position + default sensor.
-    /// Idempotent INSERT OR REPLACE; safe for Baltic and public-corpus schema bootstrap.
+    /// Insert-if-absent only — never overwrites curated / write-gate-approved rows
+    /// (safe for EnsureGenericSwarmPlatform on every catalog-reader open).
     /// </summary>
     private static void SeedGenericSwarmPlatform(SqliteConnection connection)
     {
@@ -230,16 +231,19 @@ public static class CatalogSeedBootstrap
 
         if (TableExists(connection, "platform"))
         {
-            InsertPlatformRow(connection, entry);
-            // Best-effort metadata columns from migration 007 (ignored if absent).
-            TryUpdatePlatformMetadata(
-                connection,
-                entry.PlatformId,
-                CatalogSwarmPlatformDefaults.GenericDisplayName,
-                domain: "air",
-                platformClass: "uas-swarm",
-                nationality: "GENERIC",
-                gameTechnologyLevel: 0);
+            var inserted = InsertPlatformRowIfAbsent(connection, entry);
+            // Only stamp starter metadata when we just created the row — never clobber edits.
+            if (inserted)
+            {
+                TryUpdatePlatformMetadata(
+                    connection,
+                    entry.PlatformId,
+                    CatalogSwarmPlatformDefaults.GenericDisplayName,
+                    domain: "air",
+                    platformClass: "uas-swarm",
+                    nationality: "GENERIC",
+                    gameTechnologyLevel: 0);
+            }
         }
 
         if (TableExists(connection, "platform_swarm"))
@@ -247,7 +251,7 @@ public static class CatalogSeedBootstrap
             using var cmd = connection.CreateCommand();
             cmd.CommandText =
                 """
-                INSERT OR REPLACE INTO platform_swarm
+                INSERT OR IGNORE INTO platform_swarm
                     (platform_id, is_swarm, max_drones, armor_class, default_sensor_id, default_weapon_id,
                      review_state, trl_level, value_tier, citation_ref)
                 VALUES ($id, $isSwarm, $max, $armor, $sensor, $weapon, $review, $trl, $tier, $citation)
@@ -270,7 +274,7 @@ public static class CatalogSeedBootstrap
             using var cmd = connection.CreateCommand();
             cmd.CommandText =
                 """
-                INSERT OR REPLACE INTO sensor (platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                INSERT OR IGNORE INTO sensor (platform_id, sensor_id, base_pd, source_fact_id, confidence,
                     import_batch_id, source_file, review_state, trl_level)
                 VALUES ($platform, $sensor, $basePd, $source, $confidence, $batch, $file, $review, $trl)
                 """;
@@ -288,15 +292,56 @@ public static class CatalogSeedBootstrap
 
         if (TableExists(connection, "weapon_catalog"))
         {
-            InsertWeapon(
-                connection,
-                swarm.DefaultWeaponId,
-                "Swarm Light Munition (generic)",
-                minRangeMeters: 0,
-                maxRangeMeters: 8_000,
-                weaponType: "Attritable UAS",
-                guidance: "EO");
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText =
+                """
+                INSERT OR IGNORE INTO weapon_catalog
+                    (weapon_id, display_name, min_range_meters, max_range_meters, weapon_type, guidance)
+                VALUES ($id, $name, $min, $max, $type, $guidance)
+                """;
+            cmd.Parameters.AddWithValue("$id", swarm.DefaultWeaponId);
+            cmd.Parameters.AddWithValue("$name", "Swarm Light Munition (generic)");
+            cmd.Parameters.AddWithValue("$min", 0);
+            cmd.Parameters.AddWithValue("$max", 8_000);
+            cmd.Parameters.AddWithValue("$type", "Attritable UAS");
+            cmd.Parameters.AddWithValue("$guidance", "EO");
+            cmd.ExecuteNonQuery();
         }
+    }
+
+    /// <summary>
+    /// Inserts a platform row only when no row exists for <paramref name="platform"/>.PlatformId
+    /// (PK is composite with snapshot_id — existence is checked by platform_id alone).
+    /// Returns true when a new row was written.
+    /// </summary>
+    private static bool InsertPlatformRowIfAbsent(
+        SqliteConnection connection,
+        CatalogPlatformEntry platform,
+        string? snapshotId = null)
+    {
+        using (var exists = connection.CreateCommand())
+        {
+            exists.CommandText = "SELECT COUNT(*) FROM platform WHERE platform_id = $id";
+            exists.Parameters.AddWithValue("$id", platform.PlatformId);
+            if (Convert.ToInt32(exists.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0)
+            {
+                return false;
+            }
+        }
+
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            INSERT INTO platform (platform_id, snapshot_id, lat_deg, lon_deg, combat_radius_nm)
+            VALUES ($id, $snapshot, $lat, $lon, $radius)
+            """;
+        cmd.Parameters.AddWithValue("$id", platform.PlatformId);
+        cmd.Parameters.AddWithValue("$snapshot", snapshotId ?? CatalogValidationDefaults.BalticSnapshotId);
+        cmd.Parameters.AddWithValue("$lat", platform.LatDeg);
+        cmd.Parameters.AddWithValue("$lon", platform.LonDeg);
+        cmd.Parameters.AddWithValue("$radius", platform.CombatRadiusNm);
+        cmd.ExecuteNonQuery();
+        return true;
     }
 
     private static void TryUpdatePlatformMetadata(
@@ -342,8 +387,8 @@ public static class CatalogSeedBootstrap
     }
 
     /// <summary>
-    /// Ensures migrations + generic swarm preset rows exist without wiping the catalog.
-    /// Safe to call on every harness open (idempotent INSERT OR REPLACE).
+    /// Ensures migrations + missing generic swarm preset rows exist without rewriting the catalog.
+    /// Safe to call on every harness open (insert-if-absent only; curated rows are preserved).
     /// </summary>
     public static void EnsureGenericSwarmPlatform(string databasePath)
     {

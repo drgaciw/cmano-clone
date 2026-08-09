@@ -84,7 +84,8 @@ public static class CatalogReaderFactory
             }
             else
             {
-                // SWARM-A1: existing committed DBs may predate platform_swarm — ensure preset rows.
+                // SWARM-A1: existing committed DBs may predate platform_swarm —
+                // insert missing preset rows only (never rewrite curated data).
                 CatalogSeedBootstrap.EnsureGenericSwarmPlatform(dbPath);
             }
 

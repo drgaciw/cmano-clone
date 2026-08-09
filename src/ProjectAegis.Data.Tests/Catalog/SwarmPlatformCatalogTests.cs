@@ -168,7 +168,43 @@ public sealed class SwarmPlatformCatalogTests
         Assert.True(row.IsSwarm);
         Assert.Equal(CatalogSwarmPlatformDefaults.ArmorClassLightAir, row.ArmorClass);
         Assert.Equal(CatalogReviewStates.Provisional, row.ReviewState);
-        Assert.Equal(CatalogSwarmPlatformDefaults.GenericMaxDrones, CatalogSwarmPlatformDefaults.GenericMaxDrones);
+        Assert.Equal(40, CatalogSwarmPlatformDefaults.GenericMaxDrones);
+    }
+
+    [Fact]
+    public void EnsureGenericSwarmPlatform_does_not_overwrite_curated_max_drones()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-swarm-preserve-{Guid.NewGuid():N}.db");
+        try
+        {
+            CatalogSeedBootstrap.SeedBalticPatrol(dbPath);
+
+            using (var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false"))
+            {
+                connection.Open();
+                using var cmd = connection.CreateCommand();
+                cmd.CommandText =
+                    """
+                    UPDATE platform_swarm
+                    SET max_drones = 17
+                    WHERE platform_id = $id
+                    """;
+                cmd.Parameters.AddWithValue("$id", CatalogSwarmPlatformDefaults.GenericSwarmPlatformId);
+                Assert.Equal(1, cmd.ExecuteNonQuery());
+            }
+
+            CatalogSeedBootstrap.EnsureGenericSwarmPlatform(dbPath);
+
+            using var reader = new SqliteCatalogReader(dbPath, "swarm-preserve");
+            Assert.True(reader.TryGetSwarmPlatform(
+                CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
+                out var swarm));
+            Assert.Equal(17, swarm.MaxDrones);
+        }
+        finally
+        {
+            ClearDb(dbPath);
+        }
     }
 
     private static void AssertTableExists(string dbPath, string table)
