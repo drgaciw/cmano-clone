@@ -9,11 +9,15 @@ using ProjectAegis.Sim.Core;
 /// No per-drone physics outcomes (SWARM-07). Surface: Sim only (not Unity, not A3 weapons).
 /// SWARM-A6: integrity timeline replay + logical caps (DRG-91).
 /// SWARM-B1 / DRG-94: operational modes, host bind, linkState (C2 channel only).
+/// SWARM-B4 / DRG-97: regen near host with stores (SWARM-13).
 /// </summary>
 public sealed class SwarmController
 {
     /// <summary>Default centroid speed in degrees of lat/lon per sim-second (Phase A placeholder kinematics).</summary>
     public const double DefaultSpeedDegPerSecond = 0.05;
+
+    /// <summary>Integrity timeline reason for host-stores regeneration (SWARM-13).</summary>
+    public const string RegenReasonCode = "regen-host";
 
     private readonly SimSeed _seed;
     private readonly Dictionary<string, SwarmRuntimeUnit> _units = new(StringComparer.Ordinal);
@@ -242,7 +246,7 @@ public sealed class SwarmController
 
     /// <summary>
     /// Authorized integrity damage only (SWARM-02 / SWARM-07).
-    /// Integrity is not writable except through this method — no public field mutation.
+    /// Integrity is not writable except through authorized methods — no public field mutation.
     /// </summary>
     public bool TryApplyIntegrityDamage(
         string unitId,
@@ -278,6 +282,108 @@ public sealed class SwarmController
             string.IsNullOrWhiteSpace(reasonCode) ? "unspecified" : reasonCode.Trim());
         _integrityTimeline.Add(change);
         return true;
+    }
+
+    /// <summary>
+    /// Authorized integrity regen only (SWARM-13). Clamps to MaxDrones.
+    /// Logs timeline with <see cref="SwarmIntegrityChange.DronesLost"/> = 0 and New > Previous.
+    /// </summary>
+    public bool TryApplyIntegrityRegen(
+        string unitId,
+        int dronesGained,
+        ulong simTick,
+        double simTime,
+        string reasonCode,
+        out SwarmIntegrityChange change)
+    {
+        change = default!;
+        if (dronesGained <= 0)
+        {
+            return false;
+        }
+
+        if (!TryGetUnit(unitId, out var unit))
+        {
+            return false;
+        }
+
+        var previous = unit.DroneCount;
+        if (previous >= unit.MaxDrones)
+        {
+            return false;
+        }
+
+        var room = unit.MaxDrones - previous;
+        var gained = Math.Min(dronesGained, room);
+        if (gained <= 0)
+        {
+            return false;
+        }
+
+        unit.DroneCount = previous + gained;
+        var sequenceId = _integritySequence++;
+        change = new SwarmIntegrityChange(
+            sequenceId,
+            simTick,
+            simTime,
+            unit.UnitId,
+            previous,
+            unit.DroneCount,
+            DronesLost: 0,
+            string.IsNullOrWhiteSpace(reasonCode) ? RegenReasonCode : reasonCode.Trim());
+        _integrityTimeline.Add(change);
+        return true;
+    }
+
+    /// <summary>
+    /// SWARM-13: pulse regen when near a published alive host with stores and room under max.
+    /// Fails closed (false, no mutation) when any gate fails — does not throw.
+    /// </summary>
+    public bool TryRegenNearHost(
+        string unitId,
+        bool hostHasStores,
+        ulong simTick,
+        double simTime,
+        out SwarmIntegrityChange change,
+        double? maxRangeDeg = null,
+        int dronesPerPulse = SwarmRegenEvaluator.DefaultDronesPerPulse)
+    {
+        change = default!;
+        if (dronesPerPulse <= 0)
+        {
+            return false;
+        }
+
+        if (!TryGetUnit(unitId, out var unit))
+        {
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(unit.HostId) || !_hosts.TryGetValue(unit.HostId, out var host))
+        {
+            return false;
+        }
+
+        var range = SwarmLinkEvaluator.RangeDeg(unit.LatDeg, unit.LonDeg, host.Lat, host.Lon);
+        var maxRange = maxRangeDeg ?? SwarmRegenEvaluator.DefaultMaxRangeDeg;
+        if (!SwarmRegenEvaluator.CanRegen(
+                range,
+                host.Alive,
+                hostHasStores,
+                unit.DroneCount,
+                unit.MaxDrones,
+                maxRange))
+        {
+            return false;
+        }
+
+        return TryApplyIntegrityRegen(
+            unit.UnitId,
+            dronesPerPulse,
+            simTick,
+            simTime,
+            RegenReasonCode,
+            out change);
     }
 
     /// <summary>
@@ -377,8 +483,9 @@ public sealed class SwarmController
     }
 
     /// <summary>
-    /// Replays integrity-affecting events via the authorized damage API (SWARM-24).
+    /// Replays integrity-affecting events via authorized damage/regen APIs (SWARM-24 / SWARM-13).
     /// Sequence is by <see cref="SwarmIntegrityChange.SequenceId"/>; sequence ids on the target are reassigned.
+    /// Regen rows are those with New > Previous (DronesLost typically 0).
     /// </summary>
     public static void ReplayIntegrityTimeline(
         SwarmController target,
@@ -396,7 +503,21 @@ public sealed class SwarmController
 
         foreach (var change in changes.OrderBy(c => c.SequenceId))
         {
-            if (!target.TryApplyIntegrityDamage(
+            if (change.NewDroneCount > change.PreviousDroneCount)
+            {
+                var gained = change.NewDroneCount - change.PreviousDroneCount;
+                if (!target.TryApplyIntegrityRegen(
+                        change.UnitId,
+                        gained,
+                        change.SimTick,
+                        change.SimTime,
+                        change.ReasonCode,
+                        out _))
+                {
+                    continue;
+                }
+            }
+            else if (!target.TryApplyIntegrityDamage(
                     change.UnitId,
                     change.DronesLost,
                     change.SimTick,
