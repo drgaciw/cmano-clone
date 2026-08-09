@@ -11,7 +11,12 @@ public static class SwarmContactLabel
     /// </summary>
     public static string Format(SwarmContactClassificationResult result)
     {
-        ArgumentNullException.ThrowIfNull(result);
+        // netstandard2.1: ArgumentNullException.ThrowIfNull is net5+ only.
+        if (result is null)
+        {
+            throw new ArgumentNullException(nameof(result));
+        }
+
         var name = result.Class switch
         {
             SwarmContactClass.Unknown => "Unknown",
