@@ -59,6 +59,7 @@ public static class CatalogSeedBootstrap
             SeedBalticDamage(jsonConnection);
             SeedBalticEngageCatalog(jsonConnection);
             SeedGenericSwarmPlatform(jsonConnection);
+            SeedSensorModalityFixtures(jsonConnection);
             return;
         }
 
@@ -98,6 +99,7 @@ public static class CatalogSeedBootstrap
         SeedBalticDamage(connection);
         SeedBalticEngageCatalog(connection);
         SeedGenericSwarmPlatform(connection);
+        SeedSensorModalityFixtures(connection);
     }
 
     public static void SeedBalticV3(string databasePath, bool overwrite = true)
@@ -133,6 +135,7 @@ public static class CatalogSeedBootstrap
 
         SeedBalticV3Platforms(connection);
         SeedGenericSwarmPlatform(connection);
+        SeedSensorModalityFixtures(connection);
     }
 
     private static void SeedBalticPlatforms(SqliteConnection connection)
@@ -365,6 +368,73 @@ public static class CatalogSeedBootstrap
             heal.ExecuteNonQuery();
         }
 
+    }
+
+    /// <summary>
+    /// S111-02 / DRG-10: extend-only IR/Visual modality fixtures on Baltic <c>u1</c>.
+    /// Requires migration 016 (<c>sensor.modality</c>). Idempotent INSERT OR REPLACE.
+    /// </summary>
+    private static void SeedSensorModalityFixtures(SqliteConnection connection)
+    {
+        if (!TableExists(connection, "sensor") || !ColumnExists(connection, "sensor", "modality"))
+        {
+            return;
+        }
+
+        InsertSensorWithModality(
+            connection,
+            platformId: "u1",
+            sensorId: "fixture-ir-1",
+            basePd: 0.80,
+            sourceFactId: "s111-fixture-ir",
+            modality: CatalogSensorModalities.Infrared);
+        InsertSensorWithModality(
+            connection,
+            platformId: "u1",
+            sensorId: "fixture-visual-1",
+            basePd: 0.70,
+            sourceFactId: "s111-fixture-visual",
+            modality: CatalogSensorModalities.Visual);
+
+        // Tag existing Recon [Internal IR] rows when present (Baltic v3 seed path).
+        using var tagIr = connection.CreateCommand();
+        tagIr.CommandText =
+            """
+            UPDATE sensor
+            SET modality = $modality
+            WHERE sensor_id = $sensor
+            """;
+        tagIr.Parameters.AddWithValue("$modality", CatalogSensorModalities.Infrared);
+        tagIr.Parameters.AddWithValue("$sensor", "internal-ir");
+        tagIr.ExecuteNonQuery();
+    }
+
+    private static void InsertSensorWithModality(
+        SqliteConnection connection,
+        string platformId,
+        string sensorId,
+        double basePd,
+        string sourceFactId,
+        string modality)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO sensor (platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                import_batch_id, source_file, review_state, trl_level, modality)
+            VALUES ($platform, $sensor, $basePd, $source, $confidence, $batch, $file, $review, $trl, $modality)
+            """;
+        cmd.Parameters.AddWithValue("$platform", platformId);
+        cmd.Parameters.AddWithValue("$sensor", sensorId);
+        cmd.Parameters.AddWithValue("$basePd", basePd);
+        cmd.Parameters.AddWithValue("$source", sourceFactId);
+        cmd.Parameters.AddWithValue("$confidence", 1.0);
+        cmd.Parameters.AddWithValue("$batch", "s111-modality");
+        cmd.Parameters.AddWithValue("$file", "CatalogSeedBootstrap.SeedSensorModalityFixtures");
+        cmd.Parameters.AddWithValue("$review", CatalogReviewStates.Approved);
+        cmd.Parameters.AddWithValue("$trl", 9);
+        cmd.Parameters.AddWithValue("$modality", modality);
+        cmd.ExecuteNonQuery();
     }
 
     private static void InsertSwarmPlatformRow(SqliteConnection connection, CatalogSwarmPlatform swarm)

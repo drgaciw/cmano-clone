@@ -129,9 +129,11 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         [
             new CatalogSensorBinding("u1", "radar-1", 1.0, "baltic-fixture-radar1"),
             new CatalogSensorBinding("u1", "radar-2", 0.75, "baltic-fixture-radar2"),
-            new CatalogSensorBinding("ucav-blue", "internal-ir", 0.85, "baltic-v3-ucav-blue-ir"),
+            new CatalogSensorBinding("ucav-blue", "internal-ir", 0.85, "baltic-v3-ucav-blue-ir",
+                Modality: CatalogSensorModalities.Infrared),
             new CatalogSensorBinding("ucav-blue", "recon-radar", 0.70, "baltic-v3-ucav-blue-radar"),
-            new CatalogSensorBinding("ucav-red", "internal-ir", 0.75, "baltic-v3-ucav-red-ir"),
+            new CatalogSensorBinding("ucav-red", "internal-ir", 0.75, "baltic-v3-ucav-red-ir",
+                Modality: CatalogSensorModalities.Infrared),
             new CatalogSensorBinding("ucav-red", "recon-radar", 0.65, "baltic-v3-ucav-red-radar"),
             new CatalogSensorBinding("usub-blue", "hull-sonar", 0.80, "baltic-v3-usub-blue-hull-sonar"),
             new CatalogSensorBinding("usub-blue", "towed-array-sonar", 0.90, "baltic-v3-usub-blue-twa-sonar"),

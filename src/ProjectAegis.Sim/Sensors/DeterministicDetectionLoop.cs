@@ -102,8 +102,10 @@ public static class DeterministicDetectionLoop
                 continue;
             }
 
+            // RF ScenarioJamResolver applies only to radar. IR/visual use trial.JamStrength only
+            // (optical/IR jam separate; default 0).
             var jamStrength = trial.JamStrength;
-            if (jammers is { Count: > 0 })
+            if (trial.Modality == SensorModality.Radar && jammers is { Count: > 0 })
             {
                 jamStrength = Math.Max(
                     jamStrength,
