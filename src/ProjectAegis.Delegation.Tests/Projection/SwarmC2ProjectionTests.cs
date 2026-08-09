@@ -81,4 +81,62 @@ public sealed class SwarmC2ProjectionTests
         Assert.That(panel.IntegrityLine, Does.Contain("DESTROYED"));
         Assert.That(symbol.IsDestroyed, Is.True);
     }
+
+    [Test]
+    public void Phase_B_panel_exposes_mode_host_link_and_cec()
+    {
+        var snap = new SwarmPanelSnapshot(
+            UnitId: "swarm-cec-1",
+            DroneCount: 30,
+            MaxDrones: 40,
+            Mode: "Screen",
+            HostId: "cvn-71",
+            LinkState: "connected",
+            CecMeshState: "inMesh");
+
+        var panel = SwarmUnitPanelProjection.ProjectPhaseB(snap);
+
+        Assert.That(panel.SelectedUnitId, Is.EqualTo("swarm-cec-1"));
+        Assert.That(panel.IntegrityLine, Does.Contain("30/40"));
+        Assert.That(panel.ModeLine, Is.EqualTo("MODE: Screen"));
+        Assert.That(panel.HostLine, Is.EqualTo("HOST: cvn-71"));
+        Assert.That(panel.LinkStateLine, Is.EqualTo("LINK: connected"));
+        Assert.That(panel.CecMeshStateLine, Is.EqualTo("CEC: inMesh"));
+        Assert.That(panel.IsDestroyed, Is.False);
+    }
+
+    [Test]
+    public void Phase_B_missing_telemetry_uses_unknown_with_reason()
+    {
+        var snap = new SwarmPanelSnapshot(
+            UnitId: "swarm-1",
+            DroneCount: 10,
+            MaxDrones: 40,
+            Mode: null,
+            HostId: null,
+            LinkState: null,
+            CecMeshState: null,
+            ModeUnknownReason: "not-reported",
+            HostUnknownReason: "no-host-bound",
+            LinkUnknownReason: "link-lost",
+            CecUnknownReason: "not-cec-capable");
+
+        var panel = SwarmUnitPanelProjection.ProjectPhaseB(snap);
+
+        Assert.That(panel.ModeLine, Is.EqualTo("MODE: unknown (not-reported)"));
+        Assert.That(panel.HostLine, Is.EqualTo("HOST: unknown (no-host-bound)"));
+        Assert.That(panel.LinkStateLine, Is.EqualTo("LINK: unknown (link-lost)"));
+        Assert.That(panel.CecMeshStateLine, Is.EqualTo("CEC: unknown (not-cec-capable)"));
+    }
+
+    [Test]
+    public void Phase_A_Project_leaves_phase_b_fields_null()
+    {
+        var readout = new SwarmIntegrityReadout("swarm-a", 24, 40);
+        var panel = SwarmUnitPanelProjection.Project(readout);
+        Assert.That(panel.ModeLine, Is.Null);
+        Assert.That(panel.HostLine, Is.Null);
+        Assert.That(panel.LinkStateLine, Is.Null);
+        Assert.That(panel.CecMeshStateLine, Is.Null);
+    }
 }
