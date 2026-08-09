@@ -295,7 +295,13 @@ public sealed class CmoMarkdownImporterTests
 
             var platformIds = ReadPlatformIds(connection);
             Assert.Equal(
-                ["hostile-1", "hostile-far", "u1", CatalogSwarmPlatformDefaults.GenericSwarmPlatformId],
+                [
+                    "hostile-1",
+                    "hostile-far",
+                    "u1",
+                    CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
+                    CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+                ],
                 platformIds);
 
             var weaponIds = ReadWeaponIds(connection);
