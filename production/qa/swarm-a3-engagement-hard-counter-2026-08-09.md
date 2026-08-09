@@ -34,3 +34,10 @@ Both profiles declare `EqualNominalDpsUnits = 10`. Hard-counter advantage is **d
 dotnet test src/ProjectAegis.Sim.Tests/ProjectAegis.Sim.Tests.csproj \
   --filter "FullyQualifiedName~SwarmOffensive|FullyQualifiedName~SwarmHardCounter" -v minimal
 ```
+
+## Review follow-up (hotpath)
+
+- `MvpEngagementResolver` scales `PkBase` when `EngageContext.ShooterMaxDrones > 0`.
+- On Hit/Kill with `TargetMaxDrones > 0`, optional `ISwarmIntegrityDamageSink` applies AA profile loss via authorized API.
+- `EngageContext.PointFireDronesLostPerHit` / `AreaAaDronesLostPerHit` override table defaults (0 = default).
+

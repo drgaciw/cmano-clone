@@ -14,17 +14,15 @@ public static class SwarmEngagementIntegrityApplier
     public static string ReasonCode(SwarmAaProfileKind profile) =>
         profile == SwarmAaProfileKind.AreaAa ? ReasonAreaAa : ReasonPointFire;
 
-    /// <summary>
-    /// Applies profiled drones-lost for one hit through the authorized integrity API.
-    /// Returns false when unit missing, destroyed, or dronesLost invalid.
-    /// </summary>
     public static bool TryApplyHit(
         SwarmController controller,
         string unitId,
         SwarmAaProfileKind profile,
         ulong simTick,
         double simTime,
-        out SwarmIntegrityChange change)
+        out SwarmIntegrityChange change,
+        int pointFireOverride = 0,
+        int areaAaOverride = 0)
     {
         change = default!;
         if (controller is null || string.IsNullOrWhiteSpace(unitId))
@@ -32,7 +30,7 @@ public static class SwarmEngagementIntegrityApplier
             return false;
         }
 
-        var lost = SwarmHardCounterAa.DronesLostPerHit(profile);
+        var lost = SwarmHardCounterAa.DronesLostPerHit(profile, pointFireOverride, areaAaOverride);
         return controller.TryApplyIntegrityDamage(
             unitId,
             lost,
@@ -42,9 +40,6 @@ public static class SwarmEngagementIntegrityApplier
             out change);
     }
 
-    /// <summary>
-    /// Applies <paramref name="hitCount"/> successive hits (sorted by tick order caller provides).
-    /// </summary>
     public static int ApplyHits(
         SwarmController controller,
         string unitId,
@@ -52,7 +47,9 @@ public static class SwarmEngagementIntegrityApplier
         int hitCount,
         ulong startTick,
         double startSimTime,
-        double tickDeltaSeconds = 1.0)
+        double tickDeltaSeconds = 1.0,
+        int pointFireOverride = 0,
+        int areaAaOverride = 0)
     {
         if (controller is null || hitCount <= 0)
         {
@@ -64,7 +61,15 @@ public static class SwarmEngagementIntegrityApplier
         {
             var tick = startTick + (ulong)(uint)i;
             var time = startSimTime + (i * tickDeltaSeconds);
-            if (!TryApplyHit(controller, unitId, profile, tick, time, out _))
+            if (!TryApplyHit(
+                    controller,
+                    unitId,
+                    profile,
+                    tick,
+                    time,
+                    out _,
+                    pointFireOverride,
+                    areaAaOverride))
             {
                 break;
             }
@@ -77,5 +82,29 @@ public static class SwarmEngagementIntegrityApplier
         }
 
         return applied;
+    }
+
+    /// <summary>
+    /// Apply one engagement outcome against a swarm target using <see cref="EngageContext"/> profile fields.
+    /// </summary>
+    public static bool TryApplyFromEngageContext(
+        ISwarmIntegrityDamageSink sink,
+        string targetUnitId,
+        in EngageContext ctx,
+        ulong simTick,
+        double simTime)
+    {
+        if (sink is null || string.IsNullOrWhiteSpace(targetUnitId) || ctx.TargetMaxDrones <= 0)
+        {
+            return false;
+        }
+
+        var lost = SwarmHardCounterAa.ResolveFromContext(in ctx);
+        return sink.TryApply(
+            targetUnitId,
+            lost,
+            simTick,
+            simTime,
+            ReasonCode(ctx.TargetAaProfile));
     }
 }
