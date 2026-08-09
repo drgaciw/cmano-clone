@@ -193,6 +193,9 @@ public static class ScenarioStableJsonWriter
             {
                 w.WriteNumber("droneCount", droneCount);
             }
+            WriteStringIfPresent(w, "hostUnitId", unit.HostUnitId);
+            WriteStringIfPresent(w, "missionType", unit.MissionType);
+            WriteStringIfPresent(w, "mode", unit.Mode);
             w.WriteEndObject();
         }
 
