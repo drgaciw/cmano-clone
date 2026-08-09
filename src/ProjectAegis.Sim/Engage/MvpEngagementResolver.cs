@@ -163,8 +163,31 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             return EngageResult.Aborted(EngagementAbortReason.EmconOff);
         }
 
-        if (!ctx.HasFireControlTrack)
+        // SWARM-31 / B6b: remote engage-on-remote-data (CEC composite) may satisfy FC
+        // when organic track is absent. Mesh loss aborts with explicit reason.
+        var remoteAbort = CecRemoteEngageGate.Evaluate(
+            ctx.HasFireControlTrack,
+            ctx.UsesRemoteCecTrack,
+            ctx.ShooterCecCapable,
+            ctx.CecRemoteFireControlEligible);
+        if (remoteAbort != null)
         {
+            return EngageResult.Aborted(remoteAbort.Value);
+        }
+
+        var hasFc = CecRemoteEngageGate.HasUsableFireControl(
+            ctx.HasFireControlTrack,
+            ctx.UsesRemoteCecTrack,
+            ctx.ShooterCecCapable,
+            ctx.CecRemoteFireControlEligible);
+        if (!hasFc)
+        {
+            // Prefer explicit remote abort when the shot was tagged as remote CEC.
+            if (ctx.UsesRemoteCecTrack)
+            {
+                return EngageResult.Aborted(EngagementAbortReason.CecRemoteTrackUnavailable);
+            }
+
             return EngageResult.Aborted(EngagementAbortReason.NoFireControlTrack);
         }
 

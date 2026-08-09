@@ -39,4 +39,10 @@ public readonly record struct EngageContext(
     /// <summary>Scenario-tunable point-fire drones lost per hit (0 = use <see cref="SwarmHardCounterAa"/> defaults).</summary>
     int PointFireDronesLostPerHit = 0,
     /// <summary>Scenario-tunable area-AA drones lost per hit (0 = use defaults).</summary>
-    int AreaAaDronesLostPerHit = 0);
+    int AreaAaDronesLostPerHit = 0,
+    /// <summary>SWARM-31 / B6b: shooter is attempting engage-on-remote-data (CEC composite track).</summary>
+    bool UsesRemoteCecTrack = false,
+    /// <summary>SWARM-31 / B6b: world precomputed that remote CEC FC is currently eligible for this shot.</summary>
+    bool CecRemoteFireControlEligible = false,
+    /// <summary>SWARM-31 / B6b: shooter catalog/platform is CEC-capable.</summary>
+    bool ShooterCecCapable = false);
