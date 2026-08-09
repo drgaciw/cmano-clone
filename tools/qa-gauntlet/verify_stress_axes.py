@@ -71,6 +71,11 @@ def verify_differential_token(
             f"insufficient evidence: {len(stressed)} stressed / {len(control)} control "
             f"samples — a differential proof requires both"
         )
+    if len(stressed) != len(control):
+        return False, (
+            f"mismatched sample counts: {len(stressed)} stressed / {len(control)} control "
+            f"— differential proof requires paired samples"
+        )
 
     s = sum(f.count(token) for f in stressed)
     c = sum(f.count(token) for f in control)
@@ -98,6 +103,11 @@ def verify_differential_aggregate(stressed: list[int], control: list[int]) -> tu
         return False, (
             f"insufficient evidence: {len(stressed)} stressed / {len(control)} control "
             f"samples — a differential proof requires both"
+        )
+    if len(stressed) != len(control):
+        return False, (
+            f"mismatched sample counts: {len(stressed)} stressed / {len(control)} control "
+            f"— differential proof requires paired samples"
         )
 
     s, c = sum(stressed), sum(control)
@@ -219,6 +229,8 @@ def run_gate(
     """Load catalog + evidence, verify axes, optionally write the report."""
     catalog = axes_path or DEFAULT_AXES_PATH
     axes = load_axes(catalog)
+    if not axes:
+        raise ValueError(f"axis catalog is empty: {catalog}")
     evidence = load_evidence(evidence_path)
     report = verify_axes(axes, evidence, axis_ids=axis_ids)
     report["evidence"] = str(evidence_path)

@@ -264,3 +264,31 @@ def test_run_gate_writes_report(tmp_path: Path):
     assert report["pass"] is True
     assert out.is_file()
     assert json.loads(out.read_text(encoding="utf-8"))["pass"] is True
+
+
+def test_differential_token_mismatched_sample_counts_not_proven():
+    proven, detail = verify_differential_token(
+        stressed=["NO_AMMO", "NO_AMMO"],
+        control=["NO_AMMO"],
+        token="NO_AMMO",
+    )
+    assert proven is False
+    assert "mismatched sample counts" in detail
+
+
+def test_differential_aggregate_mismatched_sample_counts_not_proven():
+    proven, detail = verify_differential_aggregate(stressed=[10], control=[6, 6])
+    assert proven is False
+    assert "mismatched sample counts" in detail
+
+
+def test_run_gate_rejects_empty_catalog(tmp_path: Path):
+    evidence = tmp_path / "e.json"
+    evidence.write_text(json.dumps({"weapons": {}}), encoding="utf-8")
+    catalog = tmp_path / "empty.yaml"
+    catalog.write_text("version: 1\naxes: []\n", encoding="utf-8")
+    try:
+        run_gate(evidence, catalog)
+        assert False, "expected ValueError for empty catalog"
+    except ValueError as exc:
+        assert "empty" in str(exc).lower()

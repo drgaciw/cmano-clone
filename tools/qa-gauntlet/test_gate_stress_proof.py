@@ -210,3 +210,17 @@ def test_logistics_only_axis_filter_passes(tmp_path: Path):
         ["--evidence", str(path), "--axes", str(CATALOG), "--axis", "logistics"]
     )
     assert code == 0
+
+
+def test_gate_fails_on_mismatched_differential_counts():
+    axes = _axes()
+    report = verify_axes(
+        axes,
+        {
+            "weapons": {"stressed": ["NO_AMMO", "NO_AMMO"], "control": ["NO_AMMO"]},
+            "ew": {"stressed": [10], "control": [6, 6]},
+        },
+    )
+    assert report["pass"] is False
+    assert "weapons" in report["hard_failures"]
+    assert "ew" in report["hard_failures"]
