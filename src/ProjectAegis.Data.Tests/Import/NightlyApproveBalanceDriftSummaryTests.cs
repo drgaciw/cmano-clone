@@ -30,7 +30,8 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
             var writeService = new PlatformWorkbookWriteService();
             var exported = writeService.ExportFromDatabase(dbPath, SnapshotId, new FixedCatalogClock(31100));
-            var edited = WithSheetCell(exported, "Sensors", 0, "BasePd", "0.55");
+            var edited = WithSheetCell(exported, "Sensors", FindSheetRow(exported, "Sensors", "SensorId", "radar-1"), "BasePd", "0.55");
+
 
             var propose = writeService.Propose(
                 dbPath,
@@ -64,7 +65,8 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
             var settings = EnabledSettings(sink);
             var writeService = new PlatformWorkbookWriteService(settings);
             var exported = writeService.ExportFromDatabase(dbPath, SnapshotId, new FixedCatalogClock(31110));
-            var edited = WithSheetCell(exported, "Sensors", 0, "BasePd", "0.57");
+            var edited = WithSheetCell(exported, "Sensors", FindSheetRow(exported, "Sensors", "SensorId", "radar-1"), "BasePd", "0.57");
+
 
             var propose = writeService.Propose(
                 dbPath,
@@ -111,7 +113,8 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
             var settings = EnabledSettings(sink);
             var writeService = new PlatformWorkbookWriteService(settings);
             var exported = writeService.ExportFromDatabase(dbPath, SnapshotId, new FixedCatalogClock(31120));
-            var edited = WithSheetCell(exported, "Sensors", 0, "BasePd", "0.58");
+            var edited = WithSheetCell(exported, "Sensors", FindSheetRow(exported, "Sensors", "SensorId", "radar-1"), "BasePd", "0.58");
+
 
             var propose = writeService.Propose(
                 dbPath,
@@ -222,6 +225,29 @@ public sealed class NightlyApproveBalanceDriftSummaryTests
         }
 
         return sink;
+    }
+
+    private static int FindSheetRow(
+        PlatformWorkbook workbook,
+        string sheetName,
+        string keyColumn,
+        string keyValue)
+    {
+        var sheet = Assert.Single(workbook.Sheets, s => string.Equals(s.Name, sheetName, StringComparison.Ordinal));
+        var colIndex = Array.IndexOf(sheet.Header.ToArray(), keyColumn);
+        Assert.True(colIndex >= 0, $"Column '{keyColumn}' not found on sheet '{sheetName}'.");
+        for (var i = 0; i < sheet.Rows.Count; i++)
+        {
+            var row = sheet.Rows[i];
+            if (row.Count > colIndex &&
+                string.Equals(row[colIndex], keyValue, StringComparison.Ordinal))
+            {
+                return i;
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"Row with {keyColumn}='{keyValue}' not found on sheet '{sheetName}'.");
     }
 
     private static PlatformWorkbook WithSheetCell(

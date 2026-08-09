@@ -1,6 +1,9 @@
 namespace ProjectAegis.Data.Catalog;
 
-/// <summary>Platform sensor row used to resolve detection basePd (sorted by platform_id, sensor_id).</summary>
+/// <summary>
+/// Platform sensor row used to resolve detection basePd (sorted by platform_id, sensor_id).
+/// <see cref="Modality"/> is S111-02 / DRG-10 extend-only (Radar default; Infrared / Visual fixtures).
+/// </summary>
 public sealed record CatalogSensorBinding(
     string PlatformId,
     string SensorId,
@@ -16,4 +19,5 @@ public sealed record CatalogSensorBinding(
     long RevisedUtcTicks = 0,
     string CitationRef = "",
     double JamStrength = 0.0,
-    double EccmFactor = 1.0);
+    double EccmFactor = 1.0,
+    string Modality = CatalogSensorModalities.Radar);
