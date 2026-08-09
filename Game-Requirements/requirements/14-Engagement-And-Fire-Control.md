@@ -173,6 +173,13 @@ Intent (player | agent | mission auto)
 
 **Honesty note:** Design Status remains **Draft** (Template B). Headless single-resolver + swarm slot + dual abort taxonomy are on `main`; C2 DLZ closing indicator and UA residual remain open.
 
+
+## Amendment — Drone swarm platforms (doc 22 / 2026-08-09)
+
+> **Vocabulary:** Existing `SwarmSalvoDeconfliction` / TR-engage-003 is **salvo slot ordering among shooters**, not the swarm *platform* type.
+>
+> **Doc 22 pointers:** SWARM-04 (DPS scales with `droneCount`), SWARM-08 (area-AA / flak / CIWS hard counter vs integrity pool), SWARM-07 (aggregate SoT — no per-drone physics). Implementation: Linear DRG-88 (A3).
+
 ## Open Questions
 
 1. Auto-engage granularity: per mount vs per unit central fire control?
