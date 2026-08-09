@@ -111,6 +111,8 @@ switch (command)
         return RunPlatformImportXlsx(args.Skip(1).ToArray());
     case "platform_diff_xlsx":
         return RunPlatformDiffXlsx(args.Skip(1).ToArray());
+    case "platform_design_propose":
+        return PlatformDesignProposeCommand.Run(args.Skip(1).ToArray(), Console.Out);
     case "catalog_platform_browse":
         return RunCatalogPlatformBrowse(args.Skip(1).ToArray());
     case "catalog_mount_loadout_quarantine_triage":
