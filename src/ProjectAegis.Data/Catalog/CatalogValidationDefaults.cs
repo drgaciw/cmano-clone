@@ -38,6 +38,7 @@ public static class CatalogValidationDefaults
         new CatalogPlatformEntry("usub-blue", 57.1, 19.9, 500.0),
         new CatalogPlatformEntry("usub-red", 58.4, 21.1, 500.0),
         GenericSwarmPlatformEntry(),
+        UsnCecSwarmPlatformEntry(),
     ];
 
     /// <summary>SWARM-21 Phase A abstract generic swarm preset (doc 22 starter tuning).</summary>
@@ -84,6 +85,7 @@ public static class CatalogValidationDefaults
             AllowedHostClasses: "ship,carrier",
             CecCapable: true);
 
+    /// <summary>SWARM-31 Phase B: USN abstract CEC-capable swarm platform position/entry for seed and fixtures.</summary>
     public static CatalogPlatformEntry UsnCecSwarmPlatformEntry() =>
         new(
             CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,

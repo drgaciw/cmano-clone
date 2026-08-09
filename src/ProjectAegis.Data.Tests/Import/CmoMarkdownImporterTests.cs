@@ -314,6 +314,7 @@ public sealed class CmoMarkdownImporterTests
                     "cmo-weapon-2002",
                     "cmo-weapon-2003",
                     CatalogSwarmPlatformDefaults.DefaultWeaponId,
+                    CatalogSwarmPlatformDefaults.UsnCecWeaponId,
                 ],
                 weaponIds);
 

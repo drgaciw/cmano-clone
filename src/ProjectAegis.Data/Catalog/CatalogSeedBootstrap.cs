@@ -326,9 +326,43 @@ public static class CatalogSeedBootstrap
             cmdUsn.Parameters.AddWithValue("$confidence", 1.0);
             cmdUsn.Parameters.AddWithValue("$batch", "swarm-b2");
             cmdUsn.Parameters.AddWithValue("$file", "CatalogSeedBootstrap.SeedGenericSwarmPlatform");
-            cmdUsn.Parameters.AddWithValue("$review", CatalogReviewStates.Provisional);
+            cmdUsn.Parameters.AddWithValue("$review", CatalogReviewStates.Approved);
             cmdUsn.Parameters.AddWithValue("$trl", 8);
             cmdUsn.ExecuteNonQuery();
+        }
+
+        if (TableExists(connection, "weapon_catalog"))
+        {
+            using var cmdUsnWeapon = connection.CreateCommand();
+            cmdUsnWeapon.CommandText =
+                """
+                INSERT OR IGNORE INTO weapon_catalog
+                    (weapon_id, display_name, min_range_meters, max_range_meters, weapon_type, guidance)
+                VALUES ($id, $name, $min, $max, $type, $guidance)
+                """;
+            cmdUsnWeapon.Parameters.AddWithValue("$id", CatalogSwarmPlatformDefaults.UsnCecWeaponId);
+            cmdUsnWeapon.Parameters.AddWithValue("$name", "USN CEC Swarm Munition");
+            cmdUsnWeapon.Parameters.AddWithValue("$min", 0);
+            cmdUsnWeapon.Parameters.AddWithValue("$max", 10_000);
+            cmdUsnWeapon.Parameters.AddWithValue("$type", "Attritable UAS");
+            cmdUsnWeapon.Parameters.AddWithValue("$guidance", "CEC");
+            cmdUsnWeapon.ExecuteNonQuery();
+        }
+
+        // Heal provisional USN CEC sensor rows from prior seeds (rule gate requires approved).
+        if (TableExists(connection, "sensor"))
+        {
+            using var heal = connection.CreateCommand();
+            heal.CommandText =
+                """
+                UPDATE sensor
+                SET review_state = $review
+                WHERE platform_id = $platform AND sensor_id = $sensor
+                """;
+            heal.Parameters.AddWithValue("$review", CatalogReviewStates.Approved);
+            heal.Parameters.AddWithValue("$platform", CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId);
+            heal.Parameters.AddWithValue("$sensor", CatalogSwarmPlatformDefaults.UsnCecSensorId);
+            heal.ExecuteNonQuery();
         }
 
     }

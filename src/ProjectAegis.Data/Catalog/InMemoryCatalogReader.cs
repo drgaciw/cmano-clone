@@ -101,6 +101,11 @@ public sealed class InMemoryCatalogReader : ICatalogReader
                 CatalogSwarmPlatformDefaults.DefaultSensorId,
                 0.80,
                 "swarm-generic-eo-ir"),
+            new CatalogSensorBinding(
+                CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+                CatalogSwarmPlatformDefaults.UsnCecSensorId,
+                0.85,
+                "swarm-usn-cec-radar"),
         ],
         "p0-baltic-fixture",
         CatalogValidationDefaults.BalticPlatforms().Concat(new[] { new CatalogPlatformEntry("legacy-patrol-ship", 57.0, 20.0, 100.0) }).ToList(),
@@ -137,6 +142,11 @@ public sealed class InMemoryCatalogReader : ICatalogReader
                 CatalogSwarmPlatformDefaults.DefaultSensorId,
                 0.80,
                 "swarm-generic-eo-ir"),
+            new CatalogSensorBinding(
+                CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+                CatalogSwarmPlatformDefaults.UsnCecSensorId,
+                0.85,
+                "swarm-usn-cec-radar"),
         ],
         "p0-baltic-v3-fixture",
         CatalogValidationDefaults.BalticV3Platforms(),
