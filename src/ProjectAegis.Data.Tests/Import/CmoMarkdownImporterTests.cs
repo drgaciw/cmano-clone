@@ -294,12 +294,21 @@ public sealed class CmoMarkdownImporterTests
             connection.Open();
 
             var platformIds = ReadPlatformIds(connection);
-            Assert.Equal(["hostile-1", "hostile-far", "u1"], platformIds);
+            Assert.Equal(
+                ["hostile-1", "hostile-far", "u1", CatalogSwarmPlatformDefaults.GenericSwarmPlatformId],
+                platformIds);
 
             var weaponIds = ReadWeaponIds(connection);
-            // Baltic seed ships baltic-rim-66 / baltic-oto-76; CMO import adds cmo-weapon-*.
+            // Baltic seed ships baltic-rim-66 / baltic-oto-76 + SWARM-A1 generic munition; CMO import adds cmo-weapon-*.
             Assert.Equal(
-                ["baltic-oto-76", "baltic-rim-66", "cmo-weapon-2001", "cmo-weapon-2002", "cmo-weapon-2003"],
+                [
+                    "baltic-oto-76",
+                    "baltic-rim-66",
+                    "cmo-weapon-2001",
+                    "cmo-weapon-2002",
+                    "cmo-weapon-2003",
+                    CatalogSwarmPlatformDefaults.DefaultWeaponId,
+                ],
                 weaponIds);
 
             var mounts = ReadMountKeys(connection);

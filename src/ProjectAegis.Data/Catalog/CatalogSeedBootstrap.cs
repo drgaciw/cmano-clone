@@ -44,6 +44,7 @@ public static class CatalogSeedBootstrap
                 LonDeg: 0.0,
                 CombatRadiusNm: 1.0),
             CatalogValidationDefaults.PublicCorpusSnapshotId);
+        SeedGenericSwarmPlatform(connection);
     }
 
     public static void SeedBalticPatrol(string databasePath, bool overwrite = true)
@@ -57,6 +58,7 @@ public static class CatalogSeedBootstrap
             SeedBalticPlatforms(jsonConnection);
             SeedBalticDamage(jsonConnection);
             SeedBalticEngageCatalog(jsonConnection);
+            SeedGenericSwarmPlatform(jsonConnection);
             return;
         }
 
@@ -95,6 +97,7 @@ public static class CatalogSeedBootstrap
         SeedBalticPlatforms(connection);
         SeedBalticDamage(connection);
         SeedBalticEngageCatalog(connection);
+        SeedGenericSwarmPlatform(connection);
     }
 
     public static void SeedBalticV3(string databasePath, bool overwrite = true)
@@ -129,6 +132,7 @@ public static class CatalogSeedBootstrap
         }
 
         SeedBalticV3Platforms(connection);
+        SeedGenericSwarmPlatform(connection);
     }
 
     private static void SeedBalticPlatforms(SqliteConnection connection)
@@ -213,6 +217,211 @@ public static class CatalogSeedBootstrap
         cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.GameplayAbstraction);
         cmd.Parameters.AddWithValue("$citation", string.Empty);
         cmd.ExecuteNonQuery();
+    }
+
+    /// <summary>
+    /// SWARM-21 Phase A: abstract generic swarm platform row + position + default sensor.
+    /// Insert-if-absent only — never overwrites curated / write-gate-approved rows
+    /// (safe for EnsureGenericSwarmPlatform on every catalog-reader open).
+    /// </summary>
+    private static void SeedGenericSwarmPlatform(SqliteConnection connection)
+    {
+        var entry = CatalogValidationDefaults.GenericSwarmPlatformEntry();
+        var swarm = CatalogValidationDefaults.GenericSwarmPlatform();
+
+        if (TableExists(connection, "platform"))
+        {
+            // BalticPlatforms() already inserts the generic id without display_name —
+            // insert-if-absent alone would skip metadata. Fill blank starter chrome only.
+            InsertPlatformRowIfAbsent(connection, entry);
+            if (IsBlankDisplayName(connection, entry.PlatformId))
+            {
+                TryUpdatePlatformMetadata(
+                    connection,
+                    entry.PlatformId,
+                    CatalogSwarmPlatformDefaults.GenericDisplayName,
+                    domain: "air",
+                    platformClass: "uas-swarm",
+                    nationality: "GENERIC",
+                    gameTechnologyLevel: 0);
+            }
+        }
+
+        if (TableExists(connection, "platform_swarm"))
+        {
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText =
+                """
+                INSERT OR IGNORE INTO platform_swarm
+                    (platform_id, is_swarm, max_drones, armor_class, default_sensor_id, default_weapon_id,
+                     review_state, trl_level, value_tier, citation_ref)
+                VALUES ($id, $isSwarm, $max, $armor, $sensor, $weapon, $review, $trl, $tier, $citation)
+                """;
+            cmd.Parameters.AddWithValue("$id", swarm.PlatformId);
+            cmd.Parameters.AddWithValue("$isSwarm", swarm.IsSwarm ? 1 : 0);
+            cmd.Parameters.AddWithValue("$max", swarm.MaxDrones);
+            cmd.Parameters.AddWithValue("$armor", swarm.ArmorClass);
+            cmd.Parameters.AddWithValue("$sensor", swarm.DefaultSensorId);
+            cmd.Parameters.AddWithValue("$weapon", swarm.DefaultWeaponId);
+            cmd.Parameters.AddWithValue("$review", swarm.ReviewState);
+            cmd.Parameters.AddWithValue("$trl", swarm.TrlLevel);
+            cmd.Parameters.AddWithValue("$tier", swarm.ValueTier);
+            cmd.Parameters.AddWithValue("$citation", swarm.CitationRef);
+            cmd.ExecuteNonQuery();
+        }
+
+        if (TableExists(connection, "sensor"))
+        {
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText =
+                """
+                INSERT OR IGNORE INTO sensor (platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                    import_batch_id, source_file, review_state, trl_level)
+                VALUES ($platform, $sensor, $basePd, $source, $confidence, $batch, $file, $review, $trl)
+                """;
+            cmd.Parameters.AddWithValue("$platform", swarm.PlatformId);
+            cmd.Parameters.AddWithValue("$sensor", swarm.DefaultSensorId);
+            cmd.Parameters.AddWithValue("$basePd", 0.80);
+            cmd.Parameters.AddWithValue("$source", "swarm-phase-a-generic-preset");
+            cmd.Parameters.AddWithValue("$confidence", 1.0);
+            cmd.Parameters.AddWithValue("$batch", "swarm-a1");
+            cmd.Parameters.AddWithValue("$file", "CatalogSeedBootstrap.SeedGenericSwarmPlatform");
+            cmd.Parameters.AddWithValue("$review", CatalogReviewStates.Approved);
+            cmd.Parameters.AddWithValue("$trl", 9);
+            cmd.ExecuteNonQuery();
+        }
+
+        if (TableExists(connection, "weapon_catalog"))
+        {
+            using var cmd = connection.CreateCommand();
+            cmd.CommandText =
+                """
+                INSERT OR IGNORE INTO weapon_catalog
+                    (weapon_id, display_name, min_range_meters, max_range_meters, weapon_type, guidance)
+                VALUES ($id, $name, $min, $max, $type, $guidance)
+                """;
+            cmd.Parameters.AddWithValue("$id", swarm.DefaultWeaponId);
+            cmd.Parameters.AddWithValue("$name", "Swarm Light Munition (generic)");
+            cmd.Parameters.AddWithValue("$min", 0);
+            cmd.Parameters.AddWithValue("$max", 8_000);
+            cmd.Parameters.AddWithValue("$type", "Attritable UAS");
+            cmd.Parameters.AddWithValue("$guidance", "EO");
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    /// <summary>
+    /// Inserts a platform row only when no row exists for <paramref name="platform"/>.PlatformId
+    /// (PK is composite with snapshot_id — existence is checked by platform_id alone).
+    /// Returns true when a new row was written.
+    /// </summary>
+    private static bool InsertPlatformRowIfAbsent(
+        SqliteConnection connection,
+        CatalogPlatformEntry platform,
+        string? snapshotId = null)
+    {
+        using (var exists = connection.CreateCommand())
+        {
+            exists.CommandText = "SELECT COUNT(*) FROM platform WHERE platform_id = $id";
+            exists.Parameters.AddWithValue("$id", platform.PlatformId);
+            if (Convert.ToInt32(exists.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0)
+            {
+                return false;
+            }
+        }
+
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            INSERT INTO platform (platform_id, snapshot_id, lat_deg, lon_deg, combat_radius_nm)
+            VALUES ($id, $snapshot, $lat, $lon, $radius)
+            """;
+        cmd.Parameters.AddWithValue("$id", platform.PlatformId);
+        cmd.Parameters.AddWithValue("$snapshot", snapshotId ?? CatalogValidationDefaults.BalticSnapshotId);
+        cmd.Parameters.AddWithValue("$lat", platform.LatDeg);
+        cmd.Parameters.AddWithValue("$lon", platform.LonDeg);
+        cmd.Parameters.AddWithValue("$radius", platform.CombatRadiusNm);
+        cmd.ExecuteNonQuery();
+        return true;
+    }
+
+    /// <summary>True when platform row is missing or <c>display_name</c> is empty/null.</summary>
+    private static bool IsBlankDisplayName(SqliteConnection connection, string platformId)
+    {
+        if (!ColumnExists(connection, "platform", "display_name"))
+        {
+            return false;
+        }
+
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT display_name FROM platform
+            WHERE platform_id = $id
+            ORDER BY snapshot_id ASC
+            LIMIT 1
+            """;
+        cmd.Parameters.AddWithValue("$id", platformId);
+        var value = cmd.ExecuteScalar() as string;
+        return string.IsNullOrEmpty(value);
+    }
+
+    private static void TryUpdatePlatformMetadata(
+        SqliteConnection connection,
+        string platformId,
+        string displayName,
+        string domain,
+        string platformClass,
+        string nationality,
+        int gameTechnologyLevel)
+    {
+        if (!ColumnExists(connection, "platform", "display_name"))
+        {
+            return;
+        }
+
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            UPDATE platform
+            SET display_name = $name,
+                domain = $domain,
+                platform_class = $class,
+                nationality = $nat,
+                game_technology_level = $tl
+            WHERE platform_id = $id
+            """;
+        cmd.Parameters.AddWithValue("$name", displayName);
+        cmd.Parameters.AddWithValue("$domain", domain);
+        cmd.Parameters.AddWithValue("$class", platformClass);
+        cmd.Parameters.AddWithValue("$nat", nationality);
+        cmd.Parameters.AddWithValue("$tl", gameTechnologyLevel);
+        cmd.Parameters.AddWithValue("$id", platformId);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static bool ColumnExists(SqliteConnection connection, string table, string column)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText = $"SELECT COUNT(*) FROM pragma_table_info('{table}') WHERE name = $col";
+        cmd.Parameters.AddWithValue("$col", column);
+        return Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0;
+    }
+
+    /// <summary>
+    /// Ensures migrations + missing generic swarm preset rows exist without rewriting the catalog.
+    /// Safe to call on every harness open (insert-if-absent only; curated rows are preserved).
+    /// </summary>
+    public static void EnsureGenericSwarmPlatform(string databasePath)
+    {
+        using (var _ = new SqliteCatalogReader(databasePath, "swarm-a1-ensure"))
+        {
+        }
+
+        SqliteConnection.ClearAllPools();
+        using var connection = new SqliteConnection($"Data Source={databasePath};Pooling=false");
+        connection.Open();
+        SeedGenericSwarmPlatform(connection);
     }
 
     /// <summary>

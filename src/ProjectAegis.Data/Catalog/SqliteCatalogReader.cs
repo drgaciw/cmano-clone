@@ -22,6 +22,7 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     private CatalogSignature[]? _signatureCache;
     private CatalogEmcon[]? _emconCache;
     private CatalogPlatformDamage[]? _damageCache;
+    private CatalogSwarmPlatform[]? _swarmCache;
     private CatalogMount[]? _mountsCache;
     private CatalogLoadout[]? _loadoutsCache;
     private CatalogMagazineEntry[]? _magazinesCache;
@@ -264,6 +265,27 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         return false;
     }
 
+    public IReadOnlyList<CatalogSwarmPlatform> GetSortedSwarmPlatforms()
+    {
+        _swarmCache ??= LoadSwarmSorted();
+        return _swarmCache;
+    }
+
+    public bool TryGetSwarmPlatform(string platformId, out CatalogSwarmPlatform swarm)
+    {
+        foreach (var row in GetSortedSwarmPlatforms())
+        {
+            if (string.Equals(row.PlatformId, platformId, StringComparison.Ordinal))
+            {
+                swarm = row;
+                return true;
+            }
+        }
+
+        swarm = new CatalogSwarmPlatform(platformId, MaxDrones: 1, IsSwarm: false);
+        return false;
+    }
+
     public IReadOnlyList<CatalogMount> GetSortedMounts()
     {
         _mountsCache ??= LoadMountsSorted().ToArray();
@@ -440,6 +462,11 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         }
 
         if (file.Contains("011", StringComparison.Ordinal) && TableExists("catalog_staging_link"))
+        {
+            return true;
+        }
+
+        if (file.Contains("012", StringComparison.Ordinal) && TableExists("platform_swarm"))
         {
             return true;
         }
@@ -781,6 +808,41 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                 reader.GetInt32(5),
                 CatalogProvenanceTier.Normalize(reader.GetString(6)),
                 reader.GetString(7)));
+        }
+
+        return list.ToArray();
+    }
+
+    private CatalogSwarmPlatform[] LoadSwarmSorted()
+    {
+        if (!TableExists("platform_swarm"))
+        {
+            return [];
+        }
+
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, is_swarm, max_drones, armor_class, default_sensor_id, default_weapon_id,
+                   review_state, trl_level, value_tier, citation_ref
+            FROM platform_swarm
+            ORDER BY platform_id ASC
+            """;
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogSwarmPlatform>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogSwarmPlatform(
+                reader.GetString(0),
+                reader.GetInt32(2),
+                IsSwarm: reader.GetInt32(1) != 0,
+                ArmorClass: reader.GetString(3),
+                DefaultSensorId: reader.GetString(4),
+                DefaultWeaponId: reader.GetString(5),
+                ReviewState: reader.GetString(6),
+                TrlLevel: reader.GetInt32(7),
+                ValueTier: CatalogProvenanceTier.Normalize(reader.GetString(8)),
+                CitationRef: reader.GetString(9)));
         }
 
         return list.ToArray();
