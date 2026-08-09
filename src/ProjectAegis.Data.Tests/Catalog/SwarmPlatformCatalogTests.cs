@@ -244,6 +244,74 @@ public sealed class SwarmPlatformCatalogTests
         Assert.Equal(1, Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture));
     }
 
+[Fact]
+    public void Phase_B_generic_is_not_cec_capable_and_usn_exemplar_is()
+    {
+        var generic = CatalogValidationDefaults.GenericSwarmPlatform();
+        var usn = CatalogValidationDefaults.UsnCecSwarmPlatform();
+        Assert.False(generic.CecCapable);
+        Assert.Equal(CatalogSwarmPlatformDefaults.ModeHold, generic.DefaultMode);
+        Assert.True(usn.CecCapable);
+        Assert.Equal(CatalogSwarmPlatformDefaults.ModeScreen, usn.DefaultMode);
+        Assert.True(usn.RequiresHost);
+        Assert.Contains("ship", usn.AllowedHostClasses, StringComparison.Ordinal);
+        Assert.True(string.CompareOrdinal(generic.PlatformId, usn.PlatformId) < 0);
+    }
+
+    [Fact]
+    public void Baltic_seed_loads_usn_cec_swarm_with_phase_b_columns()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-swarm-b2-{Guid.NewGuid():N}.db");
+        try
+        {
+            CatalogSeedBootstrap.SeedBalticPatrol(dbPath);
+            using var reader = new SqliteCatalogReader(dbPath, "swarm-b2");
+
+            Assert.True(reader.TryGetSwarmPlatform(
+                CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
+                out var generic));
+            Assert.False(generic.CecCapable);
+
+            Assert.True(reader.TryGetSwarmPlatform(
+                CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+                out var usn));
+            Assert.True(usn.CecCapable);
+            Assert.Equal(CatalogSwarmPlatformDefaults.ModeScreen, usn.DefaultMode);
+            Assert.True(usn.RequiresHost);
+
+            var sorted = reader.GetSortedSwarmPlatforms();
+            Assert.Contains(sorted, s => s.PlatformId == CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId);
+        }
+        finally
+        {
+            ClearDb(dbPath);
+        }
+    }
+
+    [Fact]
+    public void Migration_013_is_idempotent_with_cec_column()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-swarm-013-{Guid.NewGuid():N}.db");
+        try
+        {
+            CatalogSeedBootstrap.SeedBalticPatrol(dbPath);
+            using (var reader = new SqliteCatalogReader(dbPath, "swarm-013-a"))
+            {
+                _ = reader.GetSortedSwarmPlatforms();
+            }
+
+            using var reader2 = new SqliteCatalogReader(dbPath, "swarm-013-b");
+            Assert.True(reader2.TryGetSwarmPlatform(
+                CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+                out var usn));
+            Assert.True(usn.CecCapable);
+        }
+        finally
+        {
+            ClearDb(dbPath);
+        }
+    }
+
     private static void ClearDb(string dbPath)
     {
         SqliteConnection.ClearAllPools();
