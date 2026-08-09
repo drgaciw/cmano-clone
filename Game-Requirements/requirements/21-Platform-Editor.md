@@ -216,7 +216,7 @@ The catalog today persists a thin P0 slice — `CatalogPlatformEntry(PlatformId,
 
 ## Amendment — Drone swarm platforms (doc 22 / 2026-08-09)
 
-> Catalog schema for swarm entries: `isSwarm` / type flag, `maxDrones`, default sensors/weapons, light-air armor class (**SWARM-21**). Phase A: abstract generic presets only. Implementation: Linear DRG-86 (A1).
+> Catalog schema for swarm entries: `isSwarm` / type flag, `maxDrones`, default sensors/weapons, light-air armor class (**SWARM-21**). Phase A: abstract generic presets only (DRG-86). Phase B PE chrome: Swarms sheet + write-gate (DRG-110).
 
 ## Traceability
 

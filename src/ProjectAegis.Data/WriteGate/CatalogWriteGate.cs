@@ -322,6 +322,32 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return batchId;
     }
 
+
+    public string ProposeSwarmBatch(
+        IReadOnlyList<CatalogSwarmPlatform> proposed,
+        string actorType,
+        string actorId,
+        string rationale = "")
+    {
+        if (proposed.Count == 0)
+        {
+            throw new ArgumentException("At least one swarm row required.", nameof(proposed));
+        }
+
+        var batchId = $"batch-swarm-{proposed.Count}-{_clock.UtcTicks}";
+        var sorted = CatalogSortKeyComparer.SortSwarms(proposed);
+
+        using var tx = _connection.BeginTransaction();
+        InsertBatchHeader(tx, batchId, actorType, actorId, sorted.Count, rationale, "proposed");
+        foreach (var row in sorted)
+        {
+            InsertStagingSwarm(tx, batchId, row);
+        }
+
+        tx.Commit();
+        return batchId;
+    }
+
     public WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId)
     {
         var content = LoadStagingContent(batchId);
@@ -393,6 +419,11 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         if (content.Damage.Count > 0)
         {
             return ApprovePlatformDamageStaging(batchId, actorType, actorId, content.Damage);
+        }
+
+        if (content.Swarms.Count > 0)
+        {
+            return ApproveSwarmStaging(batchId, actorType, actorId, content.Swarms);
         }
 
         return new WriteGateDecision(false, batchId, ["staging_batch_not_found"]);
@@ -901,6 +932,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             ("catalog_staging_signature", "platform_id"),
             ("catalog_staging_emcon", "platform_id"),
             ("catalog_staging_damage", "platform_id"),
+            ("catalog_staging_swarm", "platform_id"),
             ("catalog_staging_weapon", "weapon_id"),
             ("catalog_staging_link", "link_id"),
         })
@@ -1397,6 +1429,44 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0;
     }
 
+
+    private WriteGateDecision ApproveSwarmStaging(
+        string batchId,
+        string actorType,
+        string actorId,
+        IReadOnlyList<CatalogSwarmPlatform> staged)
+    {
+        var orphans = staged.Where(row => !PlatformExists(row.PlatformId)).ToArray();
+        if (orphans.Length > 0)
+        {
+            return new WriteGateDecision(
+                false,
+                batchId,
+                orphans.Select(row => $"orphan_platform:{row.PlatformId}").ToArray());
+        }
+
+        using var tx = _connection.BeginTransaction();
+        foreach (var row in staged)
+        {
+            UpsertSwarm(tx, row);
+            AppendEntityChangeLog(
+                tx,
+                batchId,
+                "platform_swarm",
+                row.PlatformId,
+                "max_drones",
+                "",
+                row.MaxDrones.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                actorType,
+                actorId);
+        }
+
+        MarkBatchState(tx, batchId, "approved", actorType, actorId);
+        tx.Commit();
+        NotifyDependencyGraphCommitted();
+        return new WriteGateDecision(true, batchId, []);
+    }
+
     private StagingBatchContent LoadStagingContent(string batchId)
     {
         var content = new StagingBatchContent();
@@ -1412,6 +1482,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         content.Signatures.AddRange(LoadStagingSignatureRows(batchId));
         content.Emcon.AddRange(LoadStagingEmconRows(batchId));
         content.Damage.AddRange(LoadStagingPlatformDamageRows(batchId));
+        content.Swarms.AddRange(LoadStagingSwarmRows(batchId));
         return content;
     }
 
@@ -1736,6 +1807,44 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         return list;
     }
 
+
+    private List<CatalogSwarmPlatform> LoadStagingSwarmRows(string batchId)
+    {
+        using var cmd = _connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT platform_id, is_swarm, max_drones, armor_class, default_sensor_id, default_weapon_id,
+                   default_mode, requires_host, allowed_host_classes, cec_capable,
+                   review_state, trl_level, value_tier, citation_ref
+            FROM catalog_staging_swarm
+            WHERE batch_id = $batch
+            ORDER BY platform_id ASC
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        using var reader = cmd.ExecuteReader();
+        var list = new List<CatalogSwarmPlatform>();
+        while (reader.Read())
+        {
+            list.Add(new CatalogSwarmPlatform(
+                PlatformId: reader.GetString(0),
+                MaxDrones: reader.GetInt32(2),
+                IsSwarm: reader.GetInt32(1) != 0,
+                ArmorClass: reader.GetString(3),
+                DefaultSensorId: reader.GetString(4),
+                DefaultWeaponId: reader.GetString(5),
+                ReviewState: reader.GetString(10),
+                TrlLevel: reader.GetInt32(11),
+                ValueTier: reader.GetString(12),
+                CitationRef: reader.GetString(13),
+                DefaultMode: reader.GetString(6),
+                RequiresHost: reader.GetInt32(7) != 0,
+                AllowedHostClasses: reader.GetString(8),
+                CecCapable: reader.GetInt32(9) != 0));
+        }
+
+        return list;
+    }
+
     private List<CatalogPlatformDamage> LoadStagingPlatformDamageRows(string batchId)
     {
         using var cmd = _connection.CreateCommand();
@@ -1977,6 +2086,69 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         cmd.ExecuteNonQuery();
     }
 
+
+
+    private static void InsertStagingSwarm(SqliteTransaction tx, string batchId, CatalogSwarmPlatform row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO catalog_staging_swarm
+                (batch_id, platform_id, is_swarm, max_drones, armor_class, default_sensor_id, default_weapon_id,
+                 default_mode, requires_host, allowed_host_classes, cec_capable,
+                 review_state, trl_level, value_tier, citation_ref)
+            VALUES ($batch, $platform, $isSwarm, $max, $armor, $sensor, $weapon,
+                    $mode, $requiresHost, $hosts, $cec, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$batch", batchId);
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$isSwarm", row.IsSwarm ? 1 : 0);
+        cmd.Parameters.AddWithValue("$max", row.MaxDrones);
+        cmd.Parameters.AddWithValue("$armor", row.ArmorClass);
+        cmd.Parameters.AddWithValue("$sensor", row.DefaultSensorId);
+        cmd.Parameters.AddWithValue("$weapon", row.DefaultWeaponId);
+        cmd.Parameters.AddWithValue("$mode", row.DefaultMode);
+        cmd.Parameters.AddWithValue("$requiresHost", row.RequiresHost ? 1 : 0);
+        cmd.Parameters.AddWithValue("$hosts", row.AllowedHostClasses);
+        cmd.Parameters.AddWithValue("$cec", row.CecCapable ? 1 : 0);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
+        cmd.Parameters.AddWithValue("$trl", row.TrlLevel);
+        cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.Normalize(row.ValueTier));
+        cmd.Parameters.AddWithValue("$citation", row.CitationRef);
+        cmd.ExecuteNonQuery();
+    }
+
+    private static void UpsertSwarm(SqliteTransaction tx, CatalogSwarmPlatform row)
+    {
+        using var cmd = tx.Connection!.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText =
+            """
+            INSERT OR REPLACE INTO platform_swarm
+                (platform_id, is_swarm, max_drones, armor_class, default_sensor_id, default_weapon_id,
+                 default_mode, requires_host, allowed_host_classes, cec_capable,
+                 review_state, trl_level, value_tier, citation_ref)
+            VALUES ($platform, $isSwarm, $max, $armor, $sensor, $weapon,
+                    $mode, $requiresHost, $hosts, $cec, $review, $trl, $tier, $citation)
+            """;
+        cmd.Parameters.AddWithValue("$platform", row.PlatformId);
+        cmd.Parameters.AddWithValue("$isSwarm", row.IsSwarm ? 1 : 0);
+        cmd.Parameters.AddWithValue("$max", row.MaxDrones);
+        cmd.Parameters.AddWithValue("$armor", row.ArmorClass);
+        cmd.Parameters.AddWithValue("$sensor", row.DefaultSensorId);
+        cmd.Parameters.AddWithValue("$weapon", row.DefaultWeaponId);
+        cmd.Parameters.AddWithValue("$mode", row.DefaultMode);
+        cmd.Parameters.AddWithValue("$requiresHost", row.RequiresHost ? 1 : 0);
+        cmd.Parameters.AddWithValue("$hosts", row.AllowedHostClasses);
+        cmd.Parameters.AddWithValue("$cec", row.CecCapable ? 1 : 0);
+        cmd.Parameters.AddWithValue("$review", row.ReviewState);
+        cmd.Parameters.AddWithValue("$trl", row.TrlLevel);
+        cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.Normalize(row.ValueTier));
+        cmd.Parameters.AddWithValue("$citation", row.CitationRef);
+        cmd.ExecuteNonQuery();
+    }
+
     private static void UpsertPlatformDamage(SqliteTransaction tx, CatalogPlatformDamage row)
     {
         using var cmd = tx.Connection!.CreateCommand();
@@ -2142,6 +2314,7 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         public List<CatalogSignature> Signatures { get; } = [];
         public List<CatalogEmcon> Emcon { get; } = [];
         public List<CatalogPlatformDamage> Damage { get; } = [];
+        public List<CatalogSwarmPlatform> Swarms { get; } = [];
 
         public bool IsEmpty =>
             Sensors.Count == 0 &&
@@ -2155,7 +2328,8 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             Mobility.Count == 0 &&
             Signatures.Count == 0 &&
             Emcon.Count == 0 &&
-            Damage.Count == 0;
+            Damage.Count == 0 &&
+            Swarms.Count == 0;
 
         public int PopulatedTableCount =>
             (Sensors.Count > 0 ? 1 : 0) +
@@ -2169,7 +2343,8 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             (Mobility.Count > 0 ? 1 : 0) +
             (Signatures.Count > 0 ? 1 : 0) +
             (Emcon.Count > 0 ? 1 : 0) +
-            (Damage.Count > 0 ? 1 : 0);
+            (Damage.Count > 0 ? 1 : 0) +
+            (Swarms.Count > 0 ? 1 : 0);
     }
 
     private sealed record PlatformRowSnapshot(

@@ -38,6 +38,7 @@ public sealed class PlatformWorkbookExporter
             BuildMobility(data.Mobility ?? []),
             BuildSignatures(data.Signatures ?? []),
             BuildEmcon(data.Emcon ?? []),
+            BuildSwarms(data.Swarms ?? []),
         };
 
         var withoutMeta = new PlatformWorkbook(sheets);
@@ -251,6 +252,39 @@ public sealed class PlatformWorkbookExporter
             })
             .ToArray();
         return new PlatformWorkbookSheet("Emcon", header, rows);
+    }
+
+
+    private static PlatformWorkbookSheet BuildSwarms(IReadOnlyList<CatalogSwarmPlatform> swarms)
+    {
+        var header = new[]
+        {
+            "PlatformId", "IsSwarm", "MaxDrones", "ArmorClass", "DefaultSensorId", "DefaultWeaponId",
+            "DefaultMode", "RequiresHost", "AllowedHostClasses", "CecCapable",
+            "ReviewState", "TrlLevel", "ValueTier", "CitationRef",
+        };
+        var rows = swarms
+            .Where(s => s.IsSwarm)
+            .OrderBy(s => s.PlatformId, StringComparer.Ordinal)
+            .Select(s => (IReadOnlyList<string>)new[]
+            {
+                s.PlatformId,
+                s.IsSwarm ? "1" : "0",
+                Int(s.MaxDrones),
+                s.ArmorClass,
+                s.DefaultSensorId,
+                s.DefaultWeaponId,
+                s.DefaultMode,
+                s.RequiresHost ? "1" : "0",
+                s.AllowedHostClasses,
+                s.CecCapable ? "1" : "0",
+                s.ReviewState,
+                Int(s.TrlLevel),
+                s.ValueTier,
+                s.CitationRef,
+            })
+            .ToArray();
+        return new PlatformWorkbookSheet("Swarms", header, rows);
     }
 
     private static PlatformWorkbookSheet BuildMeta(
