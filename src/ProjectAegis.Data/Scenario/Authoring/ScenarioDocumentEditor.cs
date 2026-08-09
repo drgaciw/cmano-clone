@@ -508,6 +508,104 @@ public sealed class ScenarioDocumentEditor
     public void PlaceOrbatUnit(ScenarioOrbatUnitDto unit) =>
         UpsertOrbatUnitCore(unit, allowReplace: false);
 
+    /// <summary>
+    /// SWARM-22 / B9: place a swarm unit with optional initial count and host assignment.
+    /// Validates count against <paramref name="maxDrones"/> when provided (catalog max).
+    /// Does not call <see cref="CommitMutation"/>.
+    /// </summary>
+    public ScenarioOrbatUnitDto PlaceSwarmUnit(
+        string unitId,
+        string sideId,
+        string platformId,
+        double lat,
+        double lon,
+        int? droneCount = null,
+        string? hostUnitId = null,
+        string? parentUnitId = null,
+        int? maxDrones = null)
+    {
+        var validation = SwarmScenarioValidation.ValidatePlacement(
+            platformId,
+            droneCount,
+            maxDrones,
+            hostUnitId,
+            hostExists: hostUnitId is null || HostExists(hostUnitId));
+        if (!validation.IsValid)
+        {
+            throw new InvalidOperationException(validation.ErrorCode + ": " + validation.Message);
+        }
+
+        var dto = new ScenarioOrbatUnitDto
+        {
+            Id = unitId,
+            SideId = sideId,
+            PlatformId = platformId,
+            Lat = lat,
+            Lon = lon,
+            ParentUnitId = parentUnitId,
+            DroneCount = droneCount,
+            HostUnitId = hostUnitId,
+        };
+        PlaceOrbatUnit(dto);
+        return dto;
+    }
+
+    /// <summary>SWARM-22: update drone count and/or host on an existing swarm orbat unit.</summary>
+    public void ConfigureSwarmUnit(
+        string unitId,
+        int? droneCount = null,
+        string? hostUnitId = null,
+        int? maxDrones = null,
+        bool clearHost = false)
+    {
+        var units = (_orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>()).ToList();
+        var idx = units.FindIndex(u => string.Equals(u.Id, unitId, StringComparison.OrdinalIgnoreCase));
+        if (idx < 0)
+        {
+            throw new InvalidOperationException($"Unit id '{unitId}' was not found.");
+        }
+
+        var existing = units[idx];
+        var nextHost = clearHost ? null : (hostUnitId ?? existing.HostUnitId);
+        var nextCount = droneCount ?? existing.DroneCount;
+
+        var validation = SwarmScenarioValidation.ValidatePlacement(
+            existing.PlatformId,
+            nextCount,
+            maxDrones,
+            nextHost,
+            hostExists: nextHost is null || HostExists(nextHost));
+        if (!validation.IsValid)
+        {
+            throw new InvalidOperationException(validation.ErrorCode + ": " + validation.Message);
+        }
+
+        units[idx] = new ScenarioOrbatUnitDto
+        {
+            Id = existing.Id,
+            SideId = existing.SideId,
+            PlatformId = existing.PlatformId,
+            Lat = existing.Lat,
+            Lon = existing.Lon,
+            ParentUnitId = existing.ParentUnitId,
+            RoeOverride = existing.RoeOverride,
+            EmconOverride = existing.EmconOverride,
+            DroneCount = nextCount,
+            HostUnitId = nextHost,
+        };
+        _orbat = new ScenarioOrbatDto
+        {
+            Units = units,
+            Bases = _orbat?.Bases ?? Array.Empty<ScenarioOrbatBaseDto>(),
+        };
+    }
+
+    private bool HostExists(string hostUnitId)
+    {
+        var units = _orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>();
+        return units.Any(u => string.Equals(u.Id, hostUnitId, StringComparison.OrdinalIgnoreCase));
+    }
+
     private void UpsertOrbatUnitCore(ScenarioOrbatUnitDto unit, bool allowReplace)
     {
         if (unit is null)
@@ -554,6 +652,7 @@ public sealed class ScenarioDocumentEditor
             RoeOverride = unit.RoeOverride,
             EmconOverride = unit.EmconOverride,
             DroneCount = unit.DroneCount,
+            HostUnitId = string.IsNullOrWhiteSpace(unit.HostUnitId) ? unit.HostUnitId : unit.HostUnitId.Trim(),
         };
         if (idx >= 0)
         {
@@ -618,6 +717,7 @@ public sealed class ScenarioDocumentEditor
             RoeOverride = u.RoeOverride,
             EmconOverride = u.EmconOverride,
             DroneCount = u.DroneCount,
+            HostUnitId = u.HostUnitId,
         };
         _orbat = new ScenarioOrbatDto
         {
@@ -659,6 +759,7 @@ public sealed class ScenarioDocumentEditor
             RoeOverride = src.RoeOverride,
             EmconOverride = src.EmconOverride,
             DroneCount = src.DroneCount,
+            HostUnitId = src.HostUnitId,
         });
         _orbat = new ScenarioOrbatDto
         {
