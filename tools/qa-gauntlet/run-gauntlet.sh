@@ -3,6 +3,10 @@
 # Spec: docs/superpowers/specs/2026-07-28-qa-gauntlet-effectiveness-design.md
 # Usage: run-gauntlet.sh --run-id <id> [--tiers "1 2 3 4 5 extra"] [--seeds 42,7,123]
 #                        [--roving 2] [--out-root production/qa/gauntlet]
+#                        [--stress-proof-evidence PATH]
+# Optional stress-proof gate (DRG-63): after the run verdict, if
+# STRESS_PROOF_EVIDENCE or --stress-proof-evidence is set, run the production
+# verify_axis gate. Default ladder path is unchanged when unset.
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -16,12 +20,14 @@ export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
 RUN_ID=""; TIERS="1 2 3 4 5 extra"; ANCHOR_SEEDS="42,7,123"; ROVING=2
 OUT_ROOT="production/qa/gauntlet"
+STRESS_PROOF_EVIDENCE="${STRESS_PROOF_EVIDENCE:-}"
 while [ $# -gt 0 ]; do case "$1" in
   --run-id) RUN_ID="$2"; shift 2;;
   --tiers) TIERS="$2"; shift 2;;
   --seeds) ANCHOR_SEEDS="$2"; shift 2;;
   --roving) ROVING="$2"; shift 2;;
   --out-root) OUT_ROOT="$2"; shift 2;;
+  --stress-proof-evidence) STRESS_PROOF_EVIDENCE="$2"; shift 2;;
   *) echo "unknown arg: $1" >&2; exit 3;;
 esac; done
 [ -n "$RUN_ID" ] || { echo "FATAL: --run-id required" >&2; exit 3; }
@@ -95,6 +101,15 @@ python3 tools/qa-gauntlet/evaluate_run.py run \
   --run-dir "$RUN_DIR" --tiers "$TIER_NAMES" \
   --expected-tokens "$EXPECTED" --anchor-seeds "$ANCHOR_SEEDS" \
   --out "$RUN_DIR/verdict.json" || OVERALL=1
+
+# Optional stress-axis proof gate (DRG-63). Opt-in only: unset evidence leaves
+# the default ladder path byte-identical in behaviour and exit semantics.
+if [ -n "$STRESS_PROOF_EVIDENCE" ]; then
+  echo "=== stress-proof gate evidence=$STRESS_PROOF_EVIDENCE ==="
+  bash tools/qa-gauntlet/run-stress-proof-gate.sh \
+    --evidence "$STRESS_PROOF_EVIDENCE" \
+    --out "$RUN_DIR/stress-proof-report.json" || OVERALL=1
+fi
 
 echo "RUN_VERDICT exit=$OVERALL run_dir=$RUN_DIR"
 exit "$OVERALL"
