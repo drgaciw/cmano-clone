@@ -1512,6 +1512,83 @@
       "returns": "JSON {ok, verb, staged, notes, nextStep: catalog_write_approve}; uses IWriteGate (no auto-commit)"
     },
     {
+      "name": "platform_design_propose",
+      "description": "DRG-73: draft + stage a peer-relative platform via CatalogWriteGate (no auto-approve). Use --clock for deterministic batch ids in tests.",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "tools/mission-editor/Invoke-MissionEditorMcp.ps1",
+        "-Command",
+        "platform_design_propose",
+        "-ExtraArgs",
+        "--db",
+        "${dbRef}",
+        "--id",
+        "${platformId}",
+        "--name",
+        "${displayName}",
+        "--domain",
+        "${domain}",
+        "--role",
+        "${role}",
+        "--concept",
+        "${concept}",
+        "--actor-type",
+        "${actorType}",
+        "--actor-id",
+        "${actorId}",
+        "--clock",
+        "${clock}"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "dbRef"
+        ],
+        "properties": {
+          "dbRef": {
+            "type": "string",
+            "description": "Path to catalog.db"
+          },
+          "platformId": {
+            "type": "string",
+            "default": "new-platform"
+          },
+          "displayName": {
+            "type": "string",
+            "default": "New Platform"
+          },
+          "domain": {
+            "type": "string",
+            "default": "surface"
+          },
+          "role": {
+            "type": "string",
+            "default": "standard",
+            "description": "Role weight: light | standard | heavy"
+          },
+          "concept": {
+            "type": "string",
+            "default": ""
+          },
+          "actorType": {
+            "type": "string",
+            "default": "agent"
+          },
+          "actorId": {
+            "type": "string",
+            "default": "platform-design-assistant"
+          },
+          "clock": {
+            "type": "string",
+            "default": "",
+            "description": "Optional fixed UtcTicks for deterministic batch ids (tests). Omit for unique DateTime.UtcNow.Ticks."
+          }
+        }
+      },
+      "returns": "JSON {ok, verb, mode, platformId, platformBatchId, damageBatchId, mobilityBatchId, batchIds, notes}; uses IWriteGate (no auto-commit)"
+    },
+    {
       "name": "platform_diff_xlsx",
       "command": "pwsh",
       "args": [

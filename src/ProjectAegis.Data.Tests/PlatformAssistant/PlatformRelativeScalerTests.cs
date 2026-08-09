@@ -60,6 +60,23 @@ public sealed class PlatformRelativeScalerTests
     }
 
     [Fact]
+    public void Scale_sets_ApplyCorePosition_and_binding_core_fields()
+    {
+        var export = BuildVariedExport();
+        var proposal = PlatformRelativeScaler.Scale(export, new PlatformDesignBrief(
+            "new-core",
+            "New Core",
+            PeerPlatformIds: ["peer-mid"]));
+
+        Assert.True(proposal.Binding.ApplyCorePosition);
+        Assert.Equal(proposal.CombatRadiusNm, proposal.Binding.CombatRadiusNm, precision: 4);
+        Assert.Equal(proposal.LatDeg, proposal.Binding.LatDeg, precision: 4);
+        Assert.Equal(proposal.LonDeg, proposal.Binding.LonDeg, precision: 4);
+        Assert.Equal(57.5, proposal.LatDeg, precision: 4);
+        Assert.Equal(20.5, proposal.LonDeg, precision: 4);
+    }
+
+    [Fact]
     public void WeightedToward_light_closer_to_min()
     {
         var values = new[] { 10.0, 50.0, 90.0 };

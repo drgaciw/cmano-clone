@@ -93,7 +93,11 @@ public static class PlatformRelativeScaler
             CitationRef: citation,
             SourceFactId: "platform-design-assistant",
             ImportBatchId: "",
-            SourceFile: "platform-design-assistant");
+            SourceFile: "platform-design-assistant",
+            LatDeg: Math.Round(lat, 4),
+            LonDeg: Math.Round(lon, 4),
+            CombatRadiusNm: combatRadius,
+            ApplyCorePosition: true);
 
         var damage = new CatalogPlatformDamage(
             PlatformId: platformId,

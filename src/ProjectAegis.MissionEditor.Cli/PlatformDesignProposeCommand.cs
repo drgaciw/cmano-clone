@@ -30,6 +30,7 @@ public static class PlatformDesignProposeCommand
         string actorType = "agent";
         string actorId = "platform-design-assistant";
         long clockTicks = 0;
+        var clockProvided = false;
         var draftOnly = false;
 
         for (var i = 0; i < args.Length; i++)
@@ -66,6 +67,7 @@ public static class PlatformDesignProposeCommand
                     break;
                 case "--clock" when i + 1 < args.Length:
                     long.TryParse(args[++i], out clockTicks);
+                    clockProvided = true;
                     break;
                 case "--what-if":
                     whatIf = true;
@@ -141,7 +143,7 @@ public static class PlatformDesignProposeCommand
                 db,
                 catalog,
                 brief,
-                new FixedCatalogClock(clockTicks),
+                new FixedCatalogClock(clockProvided ? clockTicks : DateTime.UtcNow.Ticks),
                 actorType,
                 actorId);
 

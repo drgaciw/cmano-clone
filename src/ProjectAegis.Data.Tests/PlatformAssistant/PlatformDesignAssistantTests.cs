@@ -84,6 +84,52 @@ public sealed class PlatformDesignAssistantTests
     }
 
     [Fact]
+    public void Propose_then_approve_preserves_scaled_combat_radius_and_lat_lon()
+    {
+        var dbPath = CreateTempDbPath("pda-core-pos");
+        try
+        {
+            CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
+            using var catalog = new SqliteCatalogReader(dbPath, "pda-core-pos");
+            var result = _assistant.Propose(
+                dbPath,
+                catalog,
+                new PlatformDesignBrief(
+                    "opv-core-pos",
+                    "OPV Core Pos",
+                    Domain: "surface",
+                    RoleWeight: "standard",
+                    WhatIf: false),
+                new FixedCatalogClock(16_001));
+
+            Assert.True(result.Proposal.Binding.ApplyCorePosition);
+            Assert.True(result.Proposal.CombatRadiusNm > 0);
+            Assert.Equal(result.Proposal.CombatRadiusNm, result.Proposal.Binding.CombatRadiusNm, precision: 4);
+            Assert.Equal(result.Proposal.LatDeg, result.Proposal.Binding.LatDeg, precision: 4);
+            Assert.Equal(result.Proposal.LonDeg, result.Proposal.Binding.LonDeg, precision: 4);
+
+            var write = new PlatformWorkbookWriteService();
+            Assert.True(write.ApproveBatches(
+                dbPath,
+                [result.PlatformBatchId],
+                new FixedCatalogClock(16_002),
+                "human",
+                "qa-reviewer").AllCommitted);
+
+            using var live = new SqliteCatalogReader(dbPath, "pda-core-pos-live");
+            Assert.True(live.TryGetCombatRadiusNm("opv-core-pos", out var radius));
+            Assert.Equal(result.Proposal.CombatRadiusNm, radius, precision: 4);
+            Assert.True(live.TryGetPlatformPosition("opv-core-pos", out var lat, out var lon));
+            Assert.Equal(result.Proposal.LatDeg, lat, precision: 4);
+            Assert.Equal(result.Proposal.LonDeg, lon, precision: 4);
+        }
+        finally
+        {
+            Cleanup(dbPath);
+        }
+    }
+
+    [Fact]
     public void Propose_then_approve_platform_before_damage_commits_extend_only()
     {
         var dbPath = CreateTempDbPath("pda-approve");

@@ -1219,8 +1219,10 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
             """
             INSERT OR REPLACE INTO catalog_staging_platform
                 (batch_id, platform_id, display_name, domain, platform_class, nationality,
-                 game_technology_level, review_state, trl_level, value_tier, citation_ref)
-            VALUES ($batch, $platform, $name, $domain, $class, $nat, $gtl, $review, $trl, $tier, $citation)
+                 game_technology_level, review_state, trl_level, value_tier, citation_ref,
+                 lat_deg, lon_deg, combat_radius_nm, apply_core_position)
+            VALUES ($batch, $platform, $name, $domain, $class, $nat, $gtl, $review, $trl, $tier, $citation,
+                    $lat, $lon, $radius, $applyCore)
             """;
         cmd.Parameters.AddWithValue("$batch", batchId);
         cmd.Parameters.AddWithValue("$platform", row.PlatformId);
@@ -1233,6 +1235,10 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         cmd.Parameters.AddWithValue("$trl", row.TrlLevel);
         cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.Normalize(row.ValueTier));
         cmd.Parameters.AddWithValue("$citation", row.CitationRef);
+        cmd.Parameters.AddWithValue("$lat", row.LatDeg);
+        cmd.Parameters.AddWithValue("$lon", row.LonDeg);
+        cmd.Parameters.AddWithValue("$radius", row.CombatRadiusNm);
+        cmd.Parameters.AddWithValue("$applyCore", row.ApplyCorePosition ? 1 : 0);
         cmd.ExecuteNonQuery();
     }
 
@@ -1527,7 +1533,8 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
         cmd.CommandText =
             """
             SELECT platform_id, display_name, domain, platform_class, nationality, game_technology_level,
-                   review_state, trl_level, value_tier, citation_ref
+                   review_state, trl_level, value_tier, citation_ref,
+                   lat_deg, lon_deg, combat_radius_nm, apply_core_position
             FROM catalog_staging_platform
             WHERE batch_id = $batch
             ORDER BY platform_id ASC
@@ -1547,7 +1554,11 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
                 reader.GetString(6),
                 reader.GetInt32(7),
                 reader.GetString(8),
-                reader.GetString(9)));
+                reader.GetString(9),
+                LatDeg: reader.GetDouble(10),
+                LonDeg: reader.GetDouble(11),
+                CombatRadiusNm: reader.GetDouble(12),
+                ApplyCorePosition: reader.GetInt32(13) != 0));
         }
 
         return list;
@@ -1879,9 +1890,21 @@ public sealed class CatalogWriteGate : IWriteGate, IDisposable
     {
         var existing = TryReadCurrentPlatformRow(tx, row.PlatformId);
         var snapshotId = existing?.SnapshotId ?? CatalogValidationDefaults.BalticSnapshotId;
-        var lat = existing?.LatDeg ?? 0;
-        var lon = existing?.LonDeg ?? 0;
-        var radius = existing?.CombatRadiusNm ?? 1.0;
+        double lat;
+        double lon;
+        double radius;
+        if (row.ApplyCorePosition)
+        {
+            lat = row.LatDeg;
+            lon = row.LonDeg;
+            radius = row.CombatRadiusNm > 0 ? row.CombatRadiusNm : 1.0;
+        }
+        else
+        {
+            lat = existing?.LatDeg ?? 0;
+            lon = existing?.LonDeg ?? 0;
+            radius = existing?.CombatRadiusNm ?? 1.0;
+        }
 
         using var cmd = tx.Connection!.CreateCommand();
         cmd.Transaction = tx;
