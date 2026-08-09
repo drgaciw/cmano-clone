@@ -73,3 +73,10 @@ dotnet build ProjectAegis.sln -v minimal
   (`INSERT OR IGNORE` + platform_id existence check). Opening a catalog reader no longer
   rewrites curated `platform_swarm` / sensor / weapon rows.
 - New pin: `EnsureGenericSwarmPlatform_does_not_overwrite_curated_max_drones`.
+
+### Follow-up `b7b2dfd`+ (display_name)
+
+`BalticPlatforms()` already inserts `uas-swarm-generic` without `display_name`.
+Insert-if-absent must still **fill blank** starter metadata (`IsBlankDisplayName`) so
+import e2e readback (`display_name != ''`) includes the generic swarm. Curated non-empty
+names and max_drones remain preserved.

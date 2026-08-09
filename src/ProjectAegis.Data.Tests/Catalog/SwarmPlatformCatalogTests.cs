@@ -182,15 +182,29 @@ public sealed class SwarmPlatformCatalogTests
             using (var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false"))
             {
                 connection.Open();
-                using var cmd = connection.CreateCommand();
-                cmd.CommandText =
-                    """
-                    UPDATE platform_swarm
-                    SET max_drones = 17
-                    WHERE platform_id = $id
-                    """;
-                cmd.Parameters.AddWithValue("$id", CatalogSwarmPlatformDefaults.GenericSwarmPlatformId);
-                Assert.Equal(1, cmd.ExecuteNonQuery());
+                using (var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText =
+                        """
+                        UPDATE platform_swarm
+                        SET max_drones = 17
+                        WHERE platform_id = $id
+                        """;
+                    cmd.Parameters.AddWithValue("$id", CatalogSwarmPlatformDefaults.GenericSwarmPlatformId);
+                    Assert.Equal(1, cmd.ExecuteNonQuery());
+                }
+
+                using (var cmd = connection.CreateCommand())
+                {
+                    cmd.CommandText =
+                        """
+                        UPDATE platform
+                        SET display_name = 'Curated Swarm Name'
+                        WHERE platform_id = $id
+                        """;
+                    cmd.Parameters.AddWithValue("$id", CatalogSwarmPlatformDefaults.GenericSwarmPlatformId);
+                    Assert.True(cmd.ExecuteNonQuery() >= 1);
+                }
             }
 
             CatalogSeedBootstrap.EnsureGenericSwarmPlatform(dbPath);
@@ -200,6 +214,19 @@ public sealed class SwarmPlatformCatalogTests
                 CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
                 out var swarm));
             Assert.Equal(17, swarm.MaxDrones);
+
+            using var connection2 = new SqliteConnection($"Data Source={dbPath};Pooling=false");
+            connection2.Open();
+            using var nameCmd = connection2.CreateCommand();
+            nameCmd.CommandText =
+                """
+                SELECT display_name FROM platform
+                WHERE platform_id = $id
+                ORDER BY snapshot_id ASC
+                LIMIT 1
+                """;
+            nameCmd.Parameters.AddWithValue("$id", CatalogSwarmPlatformDefaults.GenericSwarmPlatformId);
+            Assert.Equal("Curated Swarm Name", nameCmd.ExecuteScalar() as string);
         }
         finally
         {

@@ -231,9 +231,10 @@ public static class CatalogSeedBootstrap
 
         if (TableExists(connection, "platform"))
         {
-            var inserted = InsertPlatformRowIfAbsent(connection, entry);
-            // Only stamp starter metadata when we just created the row — never clobber edits.
-            if (inserted)
+            // BalticPlatforms() already inserts the generic id without display_name —
+            // insert-if-absent alone would skip metadata. Fill blank starter chrome only.
+            InsertPlatformRowIfAbsent(connection, entry);
+            if (IsBlankDisplayName(connection, entry.PlatformId))
             {
                 TryUpdatePlatformMetadata(
                     connection,
@@ -342,6 +343,27 @@ public static class CatalogSeedBootstrap
         cmd.Parameters.AddWithValue("$radius", platform.CombatRadiusNm);
         cmd.ExecuteNonQuery();
         return true;
+    }
+
+    /// <summary>True when platform row is missing or <c>display_name</c> is empty/null.</summary>
+    private static bool IsBlankDisplayName(SqliteConnection connection, string platformId)
+    {
+        if (!ColumnExists(connection, "platform", "display_name"))
+        {
+            return false;
+        }
+
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT display_name FROM platform
+            WHERE platform_id = $id
+            ORDER BY snapshot_id ASC
+            LIMIT 1
+            """;
+        cmd.Parameters.AddWithValue("$id", platformId);
+        var value = cmd.ExecuteScalar() as string;
+        return string.IsNullOrEmpty(value);
     }
 
     private static void TryUpdatePlatformMetadata(
