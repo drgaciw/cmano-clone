@@ -184,6 +184,11 @@ Evidence policy: check only with named types/tests/fixtures; unbuilt fidelity st
 
 **Honesty note:** Design Status remains **Draft** (Template B). Tracker **Partial+** reflects shipped validator/damage/BDA spine + Baltic theater content — not full multi-domain CMO combat parity.
 
+
+## Amendment — Drone swarm platforms (doc 22 / 2026-08-09)
+
+> UAS-swarm platforms use **integrity-pool** damage (droneCount), not component models. Air-domain aspect applies; damage API authorized path only (**SWARM-02**, **SWARM-07**). Distinct from multi-unit air groups.
+
 ## Open Questions
 
 1. Platform vs component damage for v1? → **Resolved for MVP:** platform-level; component model Phase N.

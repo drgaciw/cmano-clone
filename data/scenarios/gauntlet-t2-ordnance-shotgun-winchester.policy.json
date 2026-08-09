@@ -1,0 +1,72 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 2,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.0,
+    "salvoSize": 1,
+    "shotgunRoundsThreshold": 1
+  },
+  "detection": [
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "radar-1",
+      "targetId": "em-sovremenny-i-pr-956-sarych",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "T2 ordnance variables: Shotgun (min remaining) then Winchester (empty); post-Winchester engages hard-denied with WINCHESTER_ORDNANCE (logistics hard gate; load-bearing for saboteur 09). magazine=2, shotgunThreshold=1, pkKill=0 so empty aborts are not masked [catalog: Visby vs Sovremenny]",
+    "oracle": "Fingerprint contains OrdnanceStateChange SHOTGUN and WINCHESTER; post-empty Engagement aborts include WINCHESTER_ORDNANCE (logistics hard gate; load-bearing for saboteur 09).",
+    "dimensionsClaimed": [
+      "logistics-shotgun",
+      "logistics-winchester"
+    ],
+    "catalogRefs": [
+      "em-sovremenny-i-pr-956-sarych",
+      "k-31-visby-2009"
+    ],
+    "runId": "gauntlet-logistics-variables-2026-07-31",
+    "tier": 2,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "SHOTGUN",
+        "WINCHESTER",
+        "WINCHESTER_ORDNANCE"
+      ],
+      "minKills": 0,
+      "maxMissilesFired": 4,
+      "minDenials": 6,
+      "maxDenials": 20,
+      "minScore": -80.0,
+      "maxScore": -20.0
+    },
+    "units": [
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "em-sovremenny-i-pr-956-sarych",
+        "platformId": "em-sovremenny-i-pr-956-sarych",
+        "domain": "surface",
+        "side": "red"
+      }
+    ]
+  },
+  "id": "gauntlet-t2-ordnance-shotgun-winchester"
+}

@@ -119,6 +119,7 @@ public static class GauntletOracleEvalCommand
                 .Where(r => string.Equals(r.ScenarioId, scenarioId, StringComparison.Ordinal))
                 .ToList();
             var filteredCsv = BuildCsv(filteredRows);
+            // Strict-key fail-closed lives inside EvaluateFromPolicyAndCsv (Data).
             var eval = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policyJson, filteredCsv, profile);
 
             scenarioResults.Add(new
@@ -126,6 +127,7 @@ public static class GauntletOracleEvalCommand
                 scenario = scenarioId,
                 passed = eval.Passed,
                 failures = eval.Failures,
+                warnings = eval.EffectiveWarnings,
                 rows = filteredRows.Count,
             });
 

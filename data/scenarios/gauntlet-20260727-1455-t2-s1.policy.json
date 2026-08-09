@@ -74,7 +74,6 @@
   "gauntlet": {
     "intent": "Strike: Blue (WeaponsTight + passive-EMCON stand-in [low Pd/envMask on blue's own detection]) conducts a tightly-controlled strike to destroy designated target mrk-shkval-pr-22800-karakurt, while Red (WeaponsFree, unrestricted sensors) defends. New air domain this tier: blue jas-39e-gripen-ng-2021, red su-34-fullback-2014. Scripted timed event at tick 4 confirms the strike target track.",
     "oracle": "Blue converts the tick-4 target-confirm event into the designated-target kill despite tight ROE; degraded blue Pd/envMask (passive stand-in) yields an elevated blue denial count; non-empty fingerprint.",
-    "emcon": "passive-blue-standin",
     "catalogRefs": [
       "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
       "f-219-sachsen-type-f124-2006",

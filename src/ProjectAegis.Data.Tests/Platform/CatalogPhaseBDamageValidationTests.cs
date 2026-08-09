@@ -294,6 +294,9 @@ public sealed class CatalogPhaseBDamageValidationTests
             return $"fake-batch-damage-{DamageProposals.Count}";
         }
 
+        public string ProposeSwarmBatch(IReadOnlyList<CatalogSwarmPlatform> proposed, string actorType, string actorId, string rationale = "")
+            => "fake-swarm";
+
         public WriteGateDecision ApproveBatch(string batchId, string actorType, string actorId) => new(true, batchId, []);
         public WriteGateDecision RejectBatch(string batchId, string actorType, string actorId, string rationale = "") => new(true, batchId, []);
         public IReadOnlyList<CatalogStagingBatchSummary> ListPendingBatches() => [];

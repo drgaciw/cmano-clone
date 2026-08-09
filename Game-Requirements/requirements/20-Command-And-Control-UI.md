@@ -93,6 +93,11 @@ The UI is a **command post**, not a game HUD. It must support long sessions, den
 | **CMD-29** | Contact detail panel, distinct from the own-unit panel | **P0** — **Open** (projections shipped; specification absent) |
 | **CMD-30** | Tactical overlay control (range symbology, vectors, datalinks, legends) | **P1** — **Open**; distinct stack from CMD-28.2 basemap layers |
 
+
+## Amendment — Drone swarm platforms (doc 22 / 2026-08-09)
+
+> **Phase A:** reuse unit panel / Air Ops surfaces for selection + integrity readout (**SWARM-05**, **SWARM-09**). No per-drone micro-UI. **Phase B:** dedicated Swarm Ops panel fields (**SWARM-14**); CMD-24 remains shared path for air readiness chrome. Color alone must not be the only integrity channel (**CMD-12**).
+
 ## Map and Symbology
 
 - **Partial / Shipped:** Phase A tactical map placeholder — normalized symbols from `MapPictureProjection` via `MapPlaceholderPanelHost` ([ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md))

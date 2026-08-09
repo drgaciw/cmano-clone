@@ -1,6 +1,6 @@
 # Architecture Traceability Index
 
-**Last Updated:** 2026-07-24 (header + gate floors refreshed; requirement rows unchanged — see note)
+**Last Updated:** 2026-08-09 (swarm TR rows stub) (header + gate floors refreshed; requirement rows unchanged — see note)
 **Engine:** Unity 6.3 LTS (6000.3.14f1) + .NET 8  
 **Authority:** [architecture-re-matrix-post-s93-s96-2026-07-15.md](architecture-re-matrix-post-s93-s96-2026-07-15.md) (layer verdicts) · [architecture-review-2026-06-02.md](architecture-review-2026-06-02.md) (historical)  
 **TR IDs:** [tr-registry.yaml](tr-registry.yaml)
@@ -72,6 +72,22 @@
 | TR-editor-003 | agentic-mission-editor.md | Editor | fire_order + world-state hash | ADR-001, ADR-004 | Partial |
 | TR-editor-004 | agentic-mission-editor.md | Editor | editVersion conflict-reject | ADR-008 | Partial |
 | TR-editor-005 | agentic-mission-editor.md | Editor | MCP export gate / headless sample | ADR-008 | Covered |
+
+
+## Drone swarm platforms (doc 22 / H8 — landed 2026-08-09)
+
+Phase A code landed 2026-08-09 (H8 waves 0–4). Proposed TR IDs (stubs; not all yet in `tr-registry.yaml`):
+
+| Requirement ID | GDD | System | Requirement | ADR Coverage | Status |
+|----------------|-----|--------|-------------|--------------|--------|
+| TR-swarm-001 | — | Swarm platform | First-class platform + integrity fields (SWARM-01/02) | — | Gap |
+| TR-swarm-002 | — | Swarm platform | Headless Move/Attack/Hold + aggregate SoT (SWARM-03/06/07) | ADR-010, ADR-003 | Gap |
+| TR-swarm-003 | — | Swarm platform | DPS/ISR scale + hard-counter AA (SWARM-04/08) | — | Gap |
+| TR-swarm-004 | — | Swarm platform | Map/panel integrity readout (SWARM-09) | ADR-007 | Gap |
+| TR-swarm-005 | — | Swarm platform | Replay integrity deltas + LOD caps (SWARM-24/25) | ADR-003 | Gap |
+| TR-swarm-006 | — | Swarm / CEC | US/NATO CEC composite track + remote engage with swarms (SWARM-31) | ADR-018 (baseline datalink) | Gap |
+
+**Note:** Distinct from `TR-engage-003a/b` (salvo slot deconfliction). See [22-Drone-Swarm-Platforms.md](../../Game-Requirements/requirements/22-Drone-Swarm-Platforms.md).
 
 ## Known Gaps
 

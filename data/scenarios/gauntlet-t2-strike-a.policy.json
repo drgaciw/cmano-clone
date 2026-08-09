@@ -90,10 +90,6 @@
       "p-960-skjold",
       "tu-160-blackjack"
     ],
-    "airPool": [
-      "jas-39c-gripen-2005",
-      "f-16c-blk-52iq-falcon-2015"
-    ],
     "runId": "gauntlet-t12-catalog-db-driven",
     "tier": 2,
     "expect": {

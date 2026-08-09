@@ -1,5 +1,7 @@
 # Logistics fuel runtime — burn ledger & Joker/Bingo bands
 
+> **Gauntlet variables:** see also [gauntlet-logistics-variables.md](gauntlet-logistics-variables.md) (Joker / Bingo / Shotgun / Winchester as fingerprint-proven ladder dimensions).
+
 The **logistics fuel runtime** is the per-tick fuel model behind the scenario `logistics`
 block (logistics GDD § Fuel & endurance). It is the last of the per-tick "hot-tick" runtimes —
 a sibling of the [comms degradation](comms-degradation-runtime.md) and

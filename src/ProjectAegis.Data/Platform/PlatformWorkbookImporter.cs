@@ -19,7 +19,7 @@ public sealed class PlatformWorkbookImporter
     private static readonly string[] SupportedSheets =
     {
         "Sensors", "Mounts", "Loadouts", "Magazines", "Comms", "LinkCatalog",
-        "Mobility", "Signatures", "Emcon",
+        "Mobility", "Signatures", "Emcon", "Swarms",
     };
     private static readonly string[] SupportedPlatformDamageColumns =
     {
@@ -266,6 +266,21 @@ public sealed class PlatformWorkbookImporter
             notes.Add($"Proposed {emconRows.Count} emcon row(s) as batch '{emconBatchId}'.");
         }
 
+        string? swarmBatchId = null;
+        var swarmRows = FilterKnownPlatforms(
+            BuildChangedSwarmRows(edited, plan.SupportedChanges),
+            knownPlatformIds,
+            row => row.PlatformId,
+            notes,
+            quarantine,
+            "swarm",
+            "Swarms");
+        if (swarmRows.Count > 0)
+        {
+            swarmBatchId = gate.ProposeSwarmBatch(swarmRows, actorType, actorId, rationale);
+            notes.Add($"Proposed {swarmRows.Count} swarm row(s) as batch '{swarmBatchId}'.");
+        }
+
         string? damageBatchId = null;
         var damageRows = FilterKnownPlatforms(
             BuildChangedDamageRows(edited, plan.SupportedChanges),
@@ -306,6 +321,7 @@ public sealed class PlatformWorkbookImporter
             || mobilityBatchId is not null
             || signatureBatchId is not null
             || emconBatchId is not null
+            || swarmBatchId is not null
             || damageBatchId is not null;
         return new PlatformImportResult(
             plan,
@@ -320,7 +336,8 @@ public sealed class PlatformWorkbookImporter
             signatureBatchId,
             emconBatchId,
             damageBatchId,
-            notes)
+            notes,
+            SwarmBatchId: swarmBatchId)
         {
             QuarantineEntries = SortQuarantine(quarantine),
         };
@@ -535,6 +552,26 @@ public sealed class PlatformWorkbookImporter
             Condition: Get(row, col, "Condition", "silent"),
             EmitterId: Get(row, col, "EmitterId"),
             Posture: Get(row, col, "Posture", "off")));
+
+
+    private static IReadOnlyList<CatalogSwarmPlatform> BuildChangedSwarmRows(
+        PlatformWorkbook edited,
+        IReadOnlyList<PlatformWorkbookChange> supportedChanges) =>
+        BuildChangedRows(edited, supportedChanges, "Swarms", (row, col) => new CatalogSwarmPlatform(
+            PlatformId: Get(row, col, "PlatformId"),
+            MaxDrones: Math.Max(1, ParseInt(Get(row, col, "MaxDrones"), 1)),
+            IsSwarm: ParseBool(Get(row, col, "IsSwarm", "1")),
+            ArmorClass: Get(row, col, "ArmorClass", CatalogSwarmPlatformDefaults.ArmorClassLightAir),
+            DefaultSensorId: Get(row, col, "DefaultSensorId"),
+            DefaultWeaponId: Get(row, col, "DefaultWeaponId"),
+            ReviewState: Get(row, col, "ReviewState", CatalogReviewStates.Provisional),
+            TrlLevel: ParseInt(Get(row, col, "TrlLevel"), 9),
+            ValueTier: CatalogProvenanceTier.Normalize(Get(row, col, "ValueTier")),
+            CitationRef: Get(row, col, "CitationRef"),
+            DefaultMode: Get(row, col, "DefaultMode", CatalogSwarmPlatformDefaults.ModeHold),
+            RequiresHost: ParseBool(Get(row, col, "RequiresHost")),
+            AllowedHostClasses: Get(row, col, "AllowedHostClasses"),
+            CecCapable: ParseBool(Get(row, col, "CecCapable"))));
 
     private static IReadOnlyList<CatalogPlatformDamage> BuildChangedDamageRows(
         PlatformWorkbook edited,

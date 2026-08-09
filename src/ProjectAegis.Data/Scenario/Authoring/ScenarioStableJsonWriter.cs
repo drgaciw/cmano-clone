@@ -189,6 +189,13 @@ public static class ScenarioStableJsonWriter
             WriteStringIfPresent(w, "parentUnitId", unit.ParentUnitId);
             WriteStringIfPresent(w, "roeOverride", unit.RoeOverride);
             WriteStringIfPresent(w, "emconOverride", unit.EmconOverride);
+            if (unit.DroneCount is int droneCount)
+            {
+                w.WriteNumber("droneCount", droneCount);
+            }
+            WriteStringIfPresent(w, "hostUnitId", unit.HostUnitId);
+            WriteStringIfPresent(w, "missionType", unit.MissionType);
+            WriteStringIfPresent(w, "mode", unit.Mode);
             w.WriteEndObject();
         }
 

@@ -82,6 +82,12 @@ public static class CatalogReaderFactory
             {
                 seed(dbPath, true);
             }
+            else
+            {
+                // SWARM-A1: existing committed DBs may predate platform_swarm —
+                // insert missing preset rows only (never rewrite curated data).
+                CatalogSeedBootstrap.EnsureGenericSwarmPlatform(dbPath);
+            }
 
             return new SqliteCatalogReader(dbPath, "harness-catalog");
         }

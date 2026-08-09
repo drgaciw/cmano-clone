@@ -1,0 +1,4 @@
+# Python deps for tools/qa-gauntlet (saboteur, evaluate_run, ladder, forge scorecard, stress axes).
+# Install: pip install -r tools/qa-gauntlet/requirements.txt
+PyYAML>=6.0.1
+pytest>=7.0.0

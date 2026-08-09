@@ -85,6 +85,11 @@ public static class CatalogTlExportFilter
                     ceiling)),
                 gtlMap);
 
+        var swarms = data.Swarms == null
+            ? null
+            : CatalogSortKeyComparer.SortSwarms(
+                data.Swarms.Where(row => allowedPlatforms.Contains(row.PlatformId)));
+
         return new PlatformCatalogExportData(
             platforms,
             sensors,
@@ -96,7 +101,8 @@ public static class CatalogTlExportFilter
             mobility,
             signatures,
             emcon,
-            damage);
+            damage,
+            swarms);
     }
 
     private static readonly IReadOnlyDictionary<string, int> EmptyGtlMap =

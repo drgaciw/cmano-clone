@@ -94,6 +94,6 @@ public sealed class CatalogMagazineLedgerSeederTests
         Assert.True(resolver.Resolve(request).Launched);
         Assert.Equal(0, ledger.GetRounds(1, 0));
         Assert.False(resolver.Resolve(request).Launched);
-        Assert.Equal(EngagementAbortReason.MagazineEmpty, resolver.Resolve(request).AbortReason);
+        Assert.Equal(EngagementAbortReason.WinchesterOrdnance, resolver.Resolve(request).AbortReason);
     }
 }

@@ -182,6 +182,13 @@ Evidence policy: check only with named types/tests/fixtures.
 
 **Honesty note:** Design Status remains **Draft** (Template B). Tracker **Partial** is correct overall (comms + spoof spine shipped; full cyber library and C2 polish open). Spoof is **not** Phase-2-only.
 
+
+## Amendment — Drone swarm platforms (doc 22 / 2026-08-09)
+
+> Swarm `linkState` ∈ {connected, degraded, lost} aligns with comms degradation themes (**SWARM-12**, Phase B). Lost link → explicit unknown-with-reason on C2 (**CMD-17**).
+>
+> **CEC mesh (SWARM-31, Phase B):** US/NATO Cooperative Engagement Capability is a real-time sensor-netting + integrated fire-control mesh. Comms/jam degradation may remove a node from the **composite air picture** and revoke remote-engage eligibility without necessarily destroying organic sensors. Model as **independent mesh membership health** layered on (not replacing) tactical datalink **and not conflated with** swarm `linkState` (C2/orders channel only).
+
 ## Open Questions
 
 1. Player-visible spoof contacts or hidden until intel event? → **Open** (debug/marked spoof path exists; UX policy undecided).

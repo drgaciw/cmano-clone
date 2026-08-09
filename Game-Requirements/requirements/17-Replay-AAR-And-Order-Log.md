@@ -188,6 +188,11 @@ Corrected headless-first order (Wave 2 re-honesty — **not** scrub-first):
 
 **Blast radius:** Prefer order-log / projection-only diffs. `DelegationBridge` remains **zero-touch hotpath** through Release v1. GitNexus: impact `DecisionLog` / `IOrderLog` upstream before schema changes (historically LOW for pure append extensions).
 
+
+## Amendment — Drone swarm platforms (doc 22 / 2026-08-09)
+
+> Replay/fixtures reconstruct swarm orders and integrity-affecting events (**SWARM-24**). Member cosmetics need not be bit-identical if seeded. Implementation: Linear DRG-91 (A6).
+
 ## Open Questions
 
 1. Checkpoint interval default: time-based vs event-based (every engagement)?

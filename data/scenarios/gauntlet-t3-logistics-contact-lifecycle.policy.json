@@ -1,0 +1,90 @@
+{
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "f-361-iver-huitfeldt-2012",
+      "sensorId": "radar-1",
+      "targetId": "70-rauma-helsinki-ii-1990",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39c-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "70-rauma-helsinki-ii-1990",
+      "contactId": "c2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "contactLifecycle": {
+    "staleThresholdTicks": 12,
+    "classifyAfterTicks": 1,
+    "identifyAfterTicks": 2
+  },
+  "gauntlet": {
+    "intent": "T3 contact-lifecycle: classifyAfterTicks=1, identifyAfterTicks=2 so Classified then Identified appear in fingerprint (closes ladder gap for mutant 05) [catalog: Iver Huitfeldt + Gripen vs Rauma]",
+    "oracle": "Classified and Identified both appear within 16-tick budget; mutant 05 skips Classified \u2192 goldens/substring fail.",
+    "dimensionsClaimed": [
+      "contact-lifecycle-timing"
+    ],
+    "catalogRefs": [
+      "70-rauma-helsinki-ii-1990",
+      "f-361-iver-huitfeldt-2012",
+      "jas-39c-gripen-2005"
+    ],
+    "runId": "gauntlet-blindspot-close-2026-07-31",
+    "tier": 3,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "Classified",
+        "Identified"
+      ],
+      "minKills": 0,
+      "maxMissilesFired": 5,
+      "minDenials": 30,
+      "maxDenials": 36,
+      "minScore": -180.0,
+      "maxScore": -140.0
+    },
+    "units": [
+      {
+        "unitId": "f-361-iver-huitfeldt-2012",
+        "platformId": "f-361-iver-huitfeldt-2012",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39c-gripen-2005",
+        "platformId": "jas-39c-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "70-rauma-helsinki-ii-1990",
+        "platformId": "70-rauma-helsinki-ii-1990",
+        "domain": "surface",
+        "side": "red"
+      }
+    ]
+  },
+  "id": "gauntlet-t3-logistics-contact-lifecycle"
+}

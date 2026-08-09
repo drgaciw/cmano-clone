@@ -13,8 +13,10 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "qa-gauntlet"))
 
 from forge_scorecard import (  # noqa: E402
+    assert_counts_consistent,
     infer_cell,
     read_oracle_passed,
+    rebuild_counts,
     score_candidate,
 )
 
@@ -325,3 +327,82 @@ def test_infer_cell_key_is_unchanged_by_the_axis_extension():
     # The historical 5-part key must stay intact so existing cells remain comparable.
     assert cell["key"].count("|") == 4
     assert "stressAxes" not in cell["key"]
+
+
+def test_coverage_map_counts_consistency() -> None:
+    """DRG-60: counts block must match rebuild from registered cells + policies.
+
+    Single-valued dims (missionClass/eventClass/roePair/emconClass) sum to
+    cellCount. Multi-valued dims (domain/platformId) never exceed scenarioCount
+    per key. platformId drives rare_hits → noveltyScore in score_candidate.
+    """
+    coverage_path = ROOT / "production/qa/gauntlet/corpus/coverage-map.json"
+    coverage = json.loads(coverage_path.read_text(encoding="utf-8"))
+    scenarios_dir = ROOT / "data/scenarios"
+    assert_counts_consistent(coverage, scenarios_dir=scenarios_dir)
+
+
+def test_rebuild_counts_single_valued_dims_sum_to_cell_count() -> None:
+    cells = [
+        {
+            "scenarioId": "a",
+            "missionClass": "patrol",
+            "eventClass": "none",
+            "roePair": "WeaponsFree/WeaponsTight",
+            "emconClass": "unrestricted",
+            "domains": ["surface"],
+        },
+        {
+            "scenarioId": "b",
+            "missionClass": "strike",
+            "eventClass": "inject",
+            "roePair": "WeaponsFree/WeaponsFree",
+            "emconClass": "emcon-phases",
+            "domains": ["air", "surface"],
+        },
+    ]
+    policies = {
+        "a": {"gauntlet": {"catalogRefs": ["plat-a"], "units": [{"platformId": "plat-a"}]}},
+        "b": {
+            "gauntlet": {
+                "catalogRefs": ["plat-b", "plat-a"],
+                "units": [{"platformId": "plat-b"}],
+            }
+        },
+    }
+    out = rebuild_counts(cells, policies_by_sid=policies)
+    counts = out["counts"]
+    assert sum(counts["missionClass"].values()) == 2
+    assert counts["missionClass"] == {"patrol": 1, "strike": 1}
+    assert counts["domain"] == {"surface": 2, "air": 1}
+    assert counts["platformId"] == {"plat-a": 2, "plat-b": 1}
+    assert "plat-b" in out["underusedPlatformHint"]
+
+
+def test_assert_counts_consistent_detects_stale_mission_class() -> None:
+    coverage = {
+        "cellCount": 1,
+        "scenarioCount": 1,
+        "cells": [
+            {
+                "scenarioId": "x",
+                "missionClass": "patrol",
+                "eventClass": "none",
+                "roePair": "WeaponsFree/WeaponsTight",
+                "emconClass": "unrestricted",
+                "domains": ["surface"],
+            }
+        ],
+        "counts": {
+            "missionClass": {"patrol": 99},  # stale
+            "eventClass": {"none": 1},
+            "roePair": {"WeaponsFree/WeaponsTight": 1},
+            "emconClass": {"unrestricted": 1},
+            "domain": {"surface": 1},
+            "platformId": {},
+        },
+        "underusedPlatformHint": [],
+    }
+    with pytest.raises(AssertionError, match="missionClass"):
+        assert_counts_consistent(coverage, policies_by_sid={})
+

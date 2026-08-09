@@ -1,3 +1,5 @@
+using ProjectAegis.Data.Catalog;
+
 namespace ProjectAegis.Data.Platform;
 
 using System.Globalization;
@@ -63,6 +65,18 @@ public static class PlatformWorkbookValidator
     {
         "silent", "restricted", "free",
     };
+
+    public const string SwarmsHeaderMismatch = "PLE-SWARM-HEADER";
+    public const string SwarmInvalidMode = "PLE-SWARM-MODE";
+    public const string SwarmInvalidMaxDrones = "PLE-SWARM-MAX";
+    public const string SwarmOrphanPlatform = "PLE-SWARM-ORPHAN";
+
+    private static readonly string[] ExpectedSwarmsHeader =
+    [
+        "PlatformId", "IsSwarm", "MaxDrones", "ArmorClass", "DefaultSensorId", "DefaultWeaponId",
+        "DefaultMode", "RequiresHost", "AllowedHostClasses", "CecCapable",
+        "ReviewState", "TrlLevel", "ValueTier", "CitationRef",
+    ];
 
     private static readonly HashSet<string> AllowedEmconPostures = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -205,6 +219,7 @@ public static class PlatformWorkbookValidator
         ValidateMobilityRows(workbook, platformIds, findings);
         ValidateSignatureRows(workbook, platformIds, findings);
         ValidateEmconRows(workbook, platformIds, findings);
+        ValidateSwarms(workbook, platformIds, findings);
     }
 
     private static HashSet<string> CollectPlatformIds(PlatformWorkbook workbook)
@@ -469,6 +484,59 @@ public static class PlatformWorkbookValidator
         double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var v) ? v : 0;
 
     /// <summary>Header-indexed read access over a single sheet.</summary>
+
+    private static void ValidateSwarms(
+        PlatformWorkbook workbook,
+        HashSet<string> platformIds,
+        List<ValidationFinding> findings)
+    {
+        ValidateHeader(workbook, "Swarms", ExpectedSwarmsHeader, SwarmsHeaderMismatch, findings);
+        var swarms = SheetView.For(workbook, "Swarms");
+        if (swarms is null)
+        {
+            return;
+        }
+
+        foreach (var row in swarms.Rows)
+        {
+            var platformId = swarms.Cell(row, "PlatformId");
+            if (string.IsNullOrEmpty(platformId))
+            {
+                continue;
+            }
+
+            if (!platformIds.Contains(platformId))
+            {
+                findings.Add(new ValidationFinding(
+                    SwarmOrphanPlatform,
+                    ValidationSeverity.Error,
+                    $"Swarms row references unknown platform '{platformId}'.",
+                    UnitId: platformId));
+            }
+
+            if (!int.TryParse(swarms.Cell(row, "MaxDrones"), NumberStyles.Integer,
+                    CultureInfo.InvariantCulture, out var max) || max <= 0)
+            {
+                findings.Add(new ValidationFinding(
+                    SwarmInvalidMaxDrones,
+                    ValidationSeverity.Error,
+                    $"Swarms row '{platformId}' MaxDrones must be a positive integer.",
+                    UnitId: platformId));
+            }
+
+            var mode = swarms.Cell(row, "DefaultMode");
+            if (!string.IsNullOrWhiteSpace(mode) &&
+                !CatalogSwarmPlatformDefaults.IsValidMode(mode))
+            {
+                findings.Add(new ValidationFinding(
+                    SwarmInvalidMode,
+                    ValidationSeverity.Error,
+                    $"Swarms row '{platformId}' DefaultMode '{mode}' is not a valid swarm mode.",
+                    UnitId: platformId));
+            }
+        }
+    }
+
     private sealed class SheetView
     {
         private readonly Dictionary<string, int> _columns;

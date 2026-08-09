@@ -19,6 +19,12 @@ namespace ProjectAegis.Unity.Editor
     /// Doctrine: -executeMethod ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunDoctrineBatch
     /// Import: -executeMethod ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunImportBatch
     /// Begin execution: -executeMethod ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.RunBeginExecutionBatch
+    ///
+    /// Human Editor residual (Wave 5 UI maturity): after batch check 1 is green, walk
+    /// production/qa/playmode-signoff-checklist-wave5-2026-08-01.md (order toolbar, Air/Boat ops,
+    /// magazine, scenario library, layers HUD, C2Menu toggles, top bar, collapse, optional CesiumSpike).
+    /// Rebuild scene via DelegationSmokeSceneBuilder; Ensure UI Maturity Hosts before Play.
+    /// Stack land: production/agentic/stack-land-ui-maturity-prs-382-385-2026-08-01.md
     /// </summary>
     [InitializeOnLoad]
     public static class C2PlayModeSignoffBatchRunner

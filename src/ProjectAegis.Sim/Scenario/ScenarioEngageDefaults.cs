@@ -21,7 +21,8 @@ public sealed class ScenarioEngageDefaults
         CombatDomain combatDomain = CombatDomain.Air,
         bool mountOnline = true,
         bool contactIdentified = true,
-        bool combatDomainsEnabled = false)
+        bool combatDomainsEnabled = false,
+        int shotgunRoundsThreshold = 1)
     {
         RangeMeters = rangeMeters;
         EnvelopeMinMeters = envelopeMinMeters;
@@ -39,6 +40,7 @@ public sealed class ScenarioEngageDefaults
         MountOnline = mountOnline;
         ContactIdentified = contactIdentified;
         CombatDomainsEnabled = combatDomainsEnabled;
+        ShotgunRoundsThreshold = Math.Max(0, shotgunRoundsThreshold);
     }
 
     public double RangeMeters { get; }
@@ -74,6 +76,11 @@ public sealed class ScenarioEngageDefaults
     /// <summary>ADR-009: when false (default), registry validators are not invoked on engage path.</summary>
     public bool CombatDomainsEnabled { get; }
 
+    /// <summary>
+    /// Shotgun band threshold (rounds remaining). 0 disables SHOTGUN (only WINCHESTER at empty).
+    /// </summary>
+    public int ShotgunRoundsThreshold { get; }
+
     public EngageContext ToEngageContext(int roundsRemaining) =>
         new(
             RangeMeters,
@@ -89,7 +96,8 @@ public sealed class ScenarioEngageDefaults
             DlzPersonality: DlzPersonality,
             CombatDomain: CombatDomain,
             MountOnline: MountOnline,
-            ContactIdentified: ContactIdentified);
+            ContactIdentified: ContactIdentified,
+            ShotgunRoundsThreshold: ShotgunRoundsThreshold);
 
     public static ScenarioEngageDefaults MvpFallback { get; } = new(
         50_000,
