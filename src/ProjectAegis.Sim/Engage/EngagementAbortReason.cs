@@ -41,4 +41,11 @@ public enum EngagementAbortReason
 
     /// <summary>Winchester band: out of weapons — offensive engage denied (logistics hard gate).</summary>
     WinchesterOrdnance = 26,
+
+    /// <summary>
+    /// SWARM-31 / B6b: remote engage-on-remote-data path required a CEC composite FC track
+    /// but mesh was lost/jammed or FC quality was unavailable. Distinct from
+    /// <see cref="NoFireControlTrack"/> so callers can tell organic-only failure from mesh drop.
+    /// </summary>
+    CecRemoteTrackUnavailable = 27,
 }
