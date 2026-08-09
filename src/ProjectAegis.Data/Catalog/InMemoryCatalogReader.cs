@@ -101,6 +101,11 @@ public sealed class InMemoryCatalogReader : ICatalogReader
                 CatalogSwarmPlatformDefaults.DefaultSensorId,
                 0.80,
                 "swarm-generic-eo-ir"),
+            new CatalogSensorBinding(
+                CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+                CatalogSwarmPlatformDefaults.UsnCecSensorId,
+                0.85,
+                "swarm-usn-cec-radar"),
         ],
         "p0-baltic-fixture",
         CatalogValidationDefaults.BalticPlatforms().Concat(new[] { new CatalogPlatformEntry("legacy-patrol-ship", 57.0, 20.0, 100.0) }).ToList(),
@@ -110,7 +115,11 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         ],
         links: CatalogValidationDefaults.BalticLinks(),
         doctrinePlatforms: new[] { "legacy-patrol-ship" },
-        swarmPlatforms: [CatalogValidationDefaults.GenericSwarmPlatform()]);
+        swarmPlatforms:
+        [
+            CatalogValidationDefaults.GenericSwarmPlatform(),
+            CatalogValidationDefaults.UsnCecSwarmPlatform()
+        ]);
 
     /// <summary>Baltic v3: patrol ships + UCAV per side with Recon [Internal IR] loadout,
     /// plus one attack submarine per side (Virginia-class-derived hull sonar + towed array;
@@ -133,6 +142,11 @@ public sealed class InMemoryCatalogReader : ICatalogReader
                 CatalogSwarmPlatformDefaults.DefaultSensorId,
                 0.80,
                 "swarm-generic-eo-ir"),
+            new CatalogSensorBinding(
+                CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+                CatalogSwarmPlatformDefaults.UsnCecSensorId,
+                0.85,
+                "swarm-usn-cec-radar"),
         ],
         "p0-baltic-v3-fixture",
         CatalogValidationDefaults.BalticV3Platforms(),
@@ -145,7 +159,11 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         ],
         links: CatalogValidationDefaults.BalticLinks(),
         doctrinePlatforms: Array.Empty<string>(),
-        swarmPlatforms: [CatalogValidationDefaults.GenericSwarmPlatform()]);
+        swarmPlatforms:
+        [
+            CatalogValidationDefaults.GenericSwarmPlatform(),
+            CatalogValidationDefaults.UsnCecSwarmPlatform()
+        ]);
 
     /// <summary>Baltic patrol + Phase B mobility/signature/EMCON rows for Req-21 sim consumption tests.</summary>
     public static InMemoryCatalogReader BalticPhaseBFixture(
@@ -167,7 +185,11 @@ public sealed class InMemoryCatalogReader : ICatalogReader
             new CatalogEmcon("u1", "free", "radar-1", emconPosture),
             new CatalogEmcon("u1", "silent", "radar-1", "off"),
         ],
-        swarmPlatforms: [CatalogValidationDefaults.GenericSwarmPlatform()]);
+        swarmPlatforms:
+        [
+            CatalogValidationDefaults.GenericSwarmPlatform(),
+            CatalogValidationDefaults.UsnCecSwarmPlatform()
+        ]);
 
     /// <summary>Baltic patrol + default loadout/magazine rows for Req-16 engage readiness tests.</summary>
     public static InMemoryCatalogReader BalticMagazineFixture(int magazineQuantity = 2) =>
@@ -186,7 +208,11 @@ public sealed class InMemoryCatalogReader : ICatalogReader
         [
             new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", CatalogWeaponIds.MvpDefault, magazineQuantity),
         ],
-        swarmPlatforms: [CatalogValidationDefaults.GenericSwarmPlatform()]);
+        swarmPlatforms:
+        [
+            CatalogValidationDefaults.GenericSwarmPlatform(),
+            CatalogValidationDefaults.UsnCecSwarmPlatform()
+        ]);
 
     public IReadOnlyList<CatalogSensorBinding> GetSortedSensorBindings() => _bindings;
 

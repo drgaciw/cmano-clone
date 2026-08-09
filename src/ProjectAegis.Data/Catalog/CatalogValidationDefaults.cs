@@ -22,6 +22,7 @@ public static class CatalogValidationDefaults
         new CatalogPlatformEntry("hostile-1", 58.5, 21.0, 200.0),
         new CatalogPlatformEntry("hostile-far", 65.0, 35.0, 200.0),
         GenericSwarmPlatformEntry(),
+        UsnCecSwarmPlatformEntry(),
     ];
 
     /// <summary>Baltic v3 OOB: patrol ships plus one UCAV per side (Recon [Internal IR]),
@@ -37,6 +38,7 @@ public static class CatalogValidationDefaults
         new CatalogPlatformEntry("usub-blue", 57.1, 19.9, 500.0),
         new CatalogPlatformEntry("usub-red", 58.4, 21.1, 500.0),
         GenericSwarmPlatformEntry(),
+        UsnCecSwarmPlatformEntry(),
     ];
 
     /// <summary>SWARM-21 Phase A abstract generic swarm preset (doc 22 starter tuning).</summary>
@@ -59,7 +61,37 @@ public static class CatalogValidationDefaults
             ReviewState: CatalogReviewStates.Approved,
             TrlLevel: 9,
             ValueTier: CatalogProvenanceTier.GameplayAbstraction,
-            CitationRef: "swarm-phase-a-generic-preset");
+            CitationRef: "swarm-phase-a-generic-preset",
+            DefaultMode: CatalogSwarmPlatformDefaults.ModeHold,
+            RequiresHost: false,
+            AllowedHostClasses: "",
+            CecCapable: false);
+
+    /// <summary>SWARM-31 Phase B: USN abstract CEC-capable swarm exemplar (not generic).</summary>
+    public static CatalogSwarmPlatform UsnCecSwarmPlatform() =>
+        new(
+            CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+            CatalogSwarmPlatformDefaults.GenericMaxDrones,
+            IsSwarm: true,
+            ArmorClass: CatalogSwarmPlatformDefaults.ArmorClassLightAir,
+            DefaultSensorId: CatalogSwarmPlatformDefaults.UsnCecSensorId,
+            DefaultWeaponId: CatalogSwarmPlatformDefaults.UsnCecWeaponId,
+            ReviewState: CatalogReviewStates.Provisional,
+            TrlLevel: 8,
+            ValueTier: CatalogProvenanceTier.GameplayAbstraction,
+            CitationRef: "swarm-phase-b-usn-cec-exemplar",
+            DefaultMode: CatalogSwarmPlatformDefaults.ModeScreen,
+            RequiresHost: true,
+            AllowedHostClasses: "ship,carrier",
+            CecCapable: true);
+
+    /// <summary>SWARM-31 Phase B: USN abstract CEC-capable swarm platform position/entry for seed and fixtures.</summary>
+    public static CatalogPlatformEntry UsnCecSwarmPlatformEntry() =>
+        new(
+            CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+            CatalogSwarmPlatformDefaults.UsnCecLatDeg,
+            CatalogSwarmPlatformDefaults.UsnCecLonDeg,
+            CatalogSwarmPlatformDefaults.UsnCecCombatRadiusNm);
 
     /// <summary>Baltic comms FK targets for link_catalog seeding (S34-02).</summary>
     public static IReadOnlyList<CatalogLinkEntry> BalticLinks() =>

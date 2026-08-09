@@ -249,25 +249,25 @@ public static class CatalogSeedBootstrap
 
         if (TableExists(connection, "platform_swarm"))
         {
-            using var cmd = connection.CreateCommand();
-            cmd.CommandText =
-                """
-                INSERT OR IGNORE INTO platform_swarm
-                    (platform_id, is_swarm, max_drones, armor_class, default_sensor_id, default_weapon_id,
-                     review_state, trl_level, value_tier, citation_ref)
-                VALUES ($id, $isSwarm, $max, $armor, $sensor, $weapon, $review, $trl, $tier, $citation)
-                """;
-            cmd.Parameters.AddWithValue("$id", swarm.PlatformId);
-            cmd.Parameters.AddWithValue("$isSwarm", swarm.IsSwarm ? 1 : 0);
-            cmd.Parameters.AddWithValue("$max", swarm.MaxDrones);
-            cmd.Parameters.AddWithValue("$armor", swarm.ArmorClass);
-            cmd.Parameters.AddWithValue("$sensor", swarm.DefaultSensorId);
-            cmd.Parameters.AddWithValue("$weapon", swarm.DefaultWeaponId);
-            cmd.Parameters.AddWithValue("$review", swarm.ReviewState);
-            cmd.Parameters.AddWithValue("$trl", swarm.TrlLevel);
-            cmd.Parameters.AddWithValue("$tier", swarm.ValueTier);
-            cmd.Parameters.AddWithValue("$citation", swarm.CitationRef);
-            cmd.ExecuteNonQuery();
+            InsertSwarmPlatformRow(connection, swarm);
+            InsertSwarmPlatformRow(connection, CatalogValidationDefaults.UsnCecSwarmPlatform());
+        }
+
+        var usnEntry = CatalogValidationDefaults.UsnCecSwarmPlatformEntry();
+        if (TableExists(connection, "platform"))
+        {
+            InsertPlatformRowIfAbsent(connection, usnEntry);
+            if (IsBlankDisplayName(connection, usnEntry.PlatformId))
+            {
+                TryUpdatePlatformMetadata(
+                    connection,
+                    usnEntry.PlatformId,
+                    CatalogSwarmPlatformDefaults.UsnCecDisplayName,
+                    domain: "air",
+                    platformClass: "uas-swarm",
+                    nationality: "USA",
+                    gameTechnologyLevel: 0);
+            }
         }
 
         if (TableExists(connection, "sensor"))
@@ -308,6 +308,111 @@ public static class CatalogSeedBootstrap
             cmd.Parameters.AddWithValue("$guidance", "EO");
             cmd.ExecuteNonQuery();
         }
+
+        if (TableExists(connection, "sensor"))
+        {
+            using var cmdUsn = connection.CreateCommand();
+            cmdUsn.CommandText =
+                """
+                INSERT OR IGNORE INTO sensor (platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                    import_batch_id, source_file, review_state, trl_level)
+                VALUES ($platform, $sensor, $basePd, $source, $confidence, $batch, $file, $review, $trl)
+                """;
+            var usn = CatalogValidationDefaults.UsnCecSwarmPlatform();
+            cmdUsn.Parameters.AddWithValue("$platform", usn.PlatformId);
+            cmdUsn.Parameters.AddWithValue("$sensor", usn.DefaultSensorId);
+            cmdUsn.Parameters.AddWithValue("$basePd", 0.85);
+            cmdUsn.Parameters.AddWithValue("$source", "swarm-phase-b-usn-cec-exemplar");
+            cmdUsn.Parameters.AddWithValue("$confidence", 1.0);
+            cmdUsn.Parameters.AddWithValue("$batch", "swarm-b2");
+            cmdUsn.Parameters.AddWithValue("$file", "CatalogSeedBootstrap.SeedGenericSwarmPlatform");
+            cmdUsn.Parameters.AddWithValue("$review", CatalogReviewStates.Approved);
+            cmdUsn.Parameters.AddWithValue("$trl", 8);
+            cmdUsn.ExecuteNonQuery();
+        }
+
+        if (TableExists(connection, "weapon_catalog"))
+        {
+            using var cmdUsnWeapon = connection.CreateCommand();
+            cmdUsnWeapon.CommandText =
+                """
+                INSERT OR IGNORE INTO weapon_catalog
+                    (weapon_id, display_name, min_range_meters, max_range_meters, weapon_type, guidance)
+                VALUES ($id, $name, $min, $max, $type, $guidance)
+                """;
+            cmdUsnWeapon.Parameters.AddWithValue("$id", CatalogSwarmPlatformDefaults.UsnCecWeaponId);
+            cmdUsnWeapon.Parameters.AddWithValue("$name", "USN CEC Swarm Munition");
+            cmdUsnWeapon.Parameters.AddWithValue("$min", 0);
+            cmdUsnWeapon.Parameters.AddWithValue("$max", 10_000);
+            cmdUsnWeapon.Parameters.AddWithValue("$type", "Attritable UAS");
+            cmdUsnWeapon.Parameters.AddWithValue("$guidance", "CEC");
+            cmdUsnWeapon.ExecuteNonQuery();
+        }
+
+        // Heal provisional USN CEC sensor rows from prior seeds (rule gate requires approved).
+        if (TableExists(connection, "sensor"))
+        {
+            using var heal = connection.CreateCommand();
+            heal.CommandText =
+                """
+                UPDATE sensor
+                SET review_state = $review
+                WHERE platform_id = $platform AND sensor_id = $sensor
+                """;
+            heal.Parameters.AddWithValue("$review", CatalogReviewStates.Approved);
+            heal.Parameters.AddWithValue("$platform", CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId);
+            heal.Parameters.AddWithValue("$sensor", CatalogSwarmPlatformDefaults.UsnCecSensorId);
+            heal.ExecuteNonQuery();
+        }
+
+    }
+
+    private static void InsertSwarmPlatformRow(SqliteConnection connection, CatalogSwarmPlatform swarm)
+    {
+        using var cmd = connection.CreateCommand();
+        var hasCec = ColumnExists(connection, "platform_swarm", "cec_capable");
+        if (hasCec)
+        {
+            cmd.CommandText =
+                """
+                INSERT OR IGNORE INTO platform_swarm
+                    (platform_id, is_swarm, max_drones, armor_class, default_sensor_id, default_weapon_id,
+                     review_state, trl_level, value_tier, citation_ref,
+                     default_mode, requires_host, allowed_host_classes, cec_capable)
+                VALUES ($id, $isSwarm, $max, $armor, $sensor, $weapon, $review, $trl, $tier, $citation,
+                        $mode, $reqHost, $hostClasses, $cec)
+                """;
+        }
+        else
+        {
+            cmd.CommandText =
+                """
+                INSERT OR IGNORE INTO platform_swarm
+                    (platform_id, is_swarm, max_drones, armor_class, default_sensor_id, default_weapon_id,
+                     review_state, trl_level, value_tier, citation_ref)
+                VALUES ($id, $isSwarm, $max, $armor, $sensor, $weapon, $review, $trl, $tier, $citation)
+                """;
+        }
+
+        cmd.Parameters.AddWithValue("$id", swarm.PlatformId);
+        cmd.Parameters.AddWithValue("$isSwarm", swarm.IsSwarm ? 1 : 0);
+        cmd.Parameters.AddWithValue("$max", swarm.MaxDrones);
+        cmd.Parameters.AddWithValue("$armor", swarm.ArmorClass);
+        cmd.Parameters.AddWithValue("$sensor", swarm.DefaultSensorId);
+        cmd.Parameters.AddWithValue("$weapon", swarm.DefaultWeaponId);
+        cmd.Parameters.AddWithValue("$review", swarm.ReviewState);
+        cmd.Parameters.AddWithValue("$trl", swarm.TrlLevel);
+        cmd.Parameters.AddWithValue("$tier", swarm.ValueTier);
+        cmd.Parameters.AddWithValue("$citation", swarm.CitationRef);
+        if (hasCec)
+        {
+            cmd.Parameters.AddWithValue("$mode", swarm.DefaultMode);
+            cmd.Parameters.AddWithValue("$reqHost", swarm.RequiresHost ? 1 : 0);
+            cmd.Parameters.AddWithValue("$hostClasses", swarm.AllowedHostClasses ?? "");
+            cmd.Parameters.AddWithValue("$cec", swarm.CecCapable ? 1 : 0);
+        }
+
+        cmd.ExecuteNonQuery();
     }
 
     /// <summary>

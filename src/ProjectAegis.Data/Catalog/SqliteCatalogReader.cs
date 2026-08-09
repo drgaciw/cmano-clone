@@ -471,6 +471,13 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return true;
         }
 
+        if (file.Contains("013", StringComparison.Ordinal) &&
+            TableExists("platform_swarm") &&
+            MigrationColumnExists("platform_swarm", "cec_capable"))
+        {
+            return true;
+        }
+
         return false;
     }
 
@@ -821,8 +828,16 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         }
 
         using var cmd = _connection.CreateCommand();
-        cmd.CommandText =
+        var hasCec = MigrationColumnExists("platform_swarm", "cec_capable");
+        cmd.CommandText = hasCec
+            ? """
+            SELECT platform_id, is_swarm, max_drones, armor_class, default_sensor_id, default_weapon_id,
+                   review_state, trl_level, value_tier, citation_ref,
+                   default_mode, requires_host, allowed_host_classes, cec_capable
+            FROM platform_swarm
+            ORDER BY platform_id ASC
             """
+            : """
             SELECT platform_id, is_swarm, max_drones, armor_class, default_sensor_id, default_weapon_id,
                    review_state, trl_level, value_tier, citation_ref
             FROM platform_swarm
@@ -842,7 +857,11 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                 ReviewState: reader.GetString(6),
                 TrlLevel: reader.GetInt32(7),
                 ValueTier: CatalogProvenanceTier.Normalize(reader.GetString(8)),
-                CitationRef: reader.GetString(9)));
+                CitationRef: reader.GetString(9),
+                DefaultMode: hasCec ? reader.GetString(10) : CatalogSwarmPlatformDefaults.ModeHold,
+                RequiresHost: hasCec && reader.GetInt32(11) != 0,
+                AllowedHostClasses: hasCec ? reader.GetString(12) : "",
+                CecCapable: hasCec && reader.GetInt32(13) != 0));
         }
 
         return list.ToArray();
