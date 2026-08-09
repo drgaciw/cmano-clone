@@ -261,6 +261,8 @@ Patrol / support / strike mission types can assign swarms with swarm-appropriate
 
 # Phase N / Won't for MVP
 
+> **DRG-47 owner decision (2026-08-09):** SWARM-27…30 remain **Phase N deferred (post-release)** — not building now. Track as children under [DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) or a Phase N umbrella if created. Do **not** implement runtime code for these IDs on the current Release train. Full GDDs/ADRs for Phase N are **not** authored until product re-opens Phase N. Decision note: [`production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md`](../../production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md).
+
 ## SWARM-27 — Split / merge **[P3]**
 
 Split one swarm platform into two; merge compatible swarms. High UX and identity cost — defer.
@@ -365,6 +367,6 @@ Resolved in owner triage 2026-08-09. Implementation open items live on Linear (P
 
 ---
 
-**Implementation grade:** Phase A–C + SWARM-31 CEC + SWARM-21 PE chrome **landed** (H8; PRs #412–#435, DRG-110 PE). Phase N (SWARM-27…30) deferred.  
+**Implementation grade:** Phase A–C + SWARM-31 CEC + SWARM-21 PE chrome **landed** (H8; PRs #412–#435, DRG-110 PE). Phase N (SWARM-27…30) **post-release deferred** per DRG-47 owner decision 2026-08-09.  
 **Design Status:** Draft — Phase A accepted; CEC addendum 2026-08-09.  
 **References:** Notion research 2026-08-09; real-world CEC (USN/USMC/allied sensor-netting + integrated FC); ADR-010; docs 14/15/18/19/20.
