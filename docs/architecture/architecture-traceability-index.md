@@ -76,7 +76,7 @@
 
 ## Drone swarm platforms (doc 22 / H8 — landed 2026-08-09)
 
-Requirements corpus only until Phase A code ships. Proposed TR IDs (not yet in `tr-registry.yaml`):
+Phase A code landed 2026-08-09 (H8 waves 0–4). Proposed TR IDs (stubs; not all yet in `tr-registry.yaml`):
 
 | Requirement ID | GDD | System | Requirement | ADR Coverage | Status |
 |----------------|-----|--------|-------------|--------------|--------|
@@ -85,6 +85,7 @@ Requirements corpus only until Phase A code ships. Proposed TR IDs (not yet in `
 | TR-swarm-003 | — | Swarm platform | DPS/ISR scale + hard-counter AA (SWARM-04/08) | — | Gap |
 | TR-swarm-004 | — | Swarm platform | Map/panel integrity readout (SWARM-09) | ADR-007 | Gap |
 | TR-swarm-005 | — | Swarm platform | Replay integrity deltas + LOD caps (SWARM-24/25) | ADR-003 | Gap |
+| TR-swarm-006 | — | Swarm / CEC | US/NATO CEC composite track + remote engage with swarms (SWARM-31) | ADR-018 (baseline datalink) | Gap |
 
 **Note:** Distinct from `TR-engage-003a/b` (salvo slot deconfliction). See [22-Drone-Swarm-Platforms.md](../../Game-Requirements/requirements/22-Drone-Swarm-Platforms.md).
 

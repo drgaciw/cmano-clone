@@ -179,6 +179,8 @@ Intent (player | agent | mission auto)
 > **Vocabulary:** Existing `SwarmSalvoDeconfliction` / TR-engage-003 is **salvo slot ordering among shooters**, not the swarm *platform* type.
 >
 > **Doc 22 pointers:** SWARM-04 (DPS scales with `droneCount`), SWARM-08 (area-AA / flak / CIWS hard counter vs integrity pool), SWARM-07 (aggregate SoT — no per-drone physics). Implementation: Linear DRG-88 (A3).
+>
+> **CEC (SWARM-31, Phase B):** US/NATO CEC-capable shooters may **engage using composite / remote sensor data** from other CEC mesh members (including CEC-flagged swarm aggregate ISR). Remote engage still passes ROE/WRA/EMCON/DLZ. Does not create per-drone fire-control bodies.
 
 ## Open Questions
 

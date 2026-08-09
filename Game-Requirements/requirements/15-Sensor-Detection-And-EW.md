@@ -199,6 +199,8 @@ Fixed evaluation order per tick:
 ## Amendment — Drone swarm platforms (doc 22 / 2026-08-09)
 
 > Aggregate ISR effectiveness scales with living drone count (**SWARM-04**). Contact classification may distinguish swarm/UAS cloud from single airframe (**SWARM-26**, Phase B). Implementation: Linear DRG-89 (A4).
+>
+> **CEC (SWARM-31, Phase B):** US/NATO platforms with Cooperative Engagement Capability form a real-time **composite track picture** (sensor-netting) beyond generic tactical datalink share lag (**SEN-05** / ADR-018). CEC-capable swarms may contribute scaled aggregate quality into the mesh; jam/range/`linkState` drops membership deterministically. Distinct from multi-static ISR geometry (**SWARM-29**).
 
 ## Open Questions
 
