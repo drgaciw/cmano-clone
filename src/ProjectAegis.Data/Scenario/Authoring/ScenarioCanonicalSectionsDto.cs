@@ -62,6 +62,11 @@ public sealed class ScenarioOrbatUnitDto
     /// Null means default to catalog <c>maxDrones</c> at spawn (Data factory).
     /// </summary>
     public int? DroneCount { get; init; }
+
+    /// <summary>
+    /// SWARM-22 / B9: optional host/mothership unit id for swarm placement.
+    /// </summary>
+    public string? HostUnitId { get; init; }
 }
 
 public sealed class ScenarioOrbatBaseDto
