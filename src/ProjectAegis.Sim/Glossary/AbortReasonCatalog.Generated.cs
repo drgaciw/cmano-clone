@@ -31,6 +31,7 @@ public static partial class AbortReasonCatalog
         public const string ROE_HOLD_FIRE = "ROE_HOLD_FIRE";
         public const string ROE_WEAPONS_TIGHT = "ROE_WEAPONS_TIGHT";
         public const string TARGET_DESTROYED = "TARGET_DESTROYED";
+        public const string SHOOTER_DESTROYED = "SHOOTER_DESTROYED";
         public const string WRA_SALVO = "WRA_SALVO";
         public const string BLACK_PROJECT_REQUIRED = "BLACK_PROJECT_REQUIRED";
         public const string TECHNOLOGY_LEVEL_EXCEEDED = "TECHNOLOGY_LEVEL_EXCEEDED";
@@ -48,6 +49,7 @@ public static partial class AbortReasonCatalog
         public const string BINGO_FUEL = "BINGO_FUEL";
         public const string SHOTGUN_ORDNANCE = "SHOTGUN_ORDNANCE";
         public const string WINCHESTER_ORDNANCE = "WINCHESTER_ORDNANCE";
+        public const string CEC_REMOTE_TRACK_UNAVAILABLE = "CEC_REMOTE_TRACK_UNAVAILABLE";
     }
 
     public static class Logistics

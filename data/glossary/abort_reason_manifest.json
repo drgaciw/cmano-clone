@@ -166,6 +166,10 @@
         {
           "logCode": "WINCHESTER_ORDNANCE",
           "member": "WinchesterOrdnance"
+        },
+        {
+          "logCode": "CEC_REMOTE_TRACK_UNAVAILABLE",
+          "member": "CecRemoteTrackUnavailable"
         }
       ]
     },
