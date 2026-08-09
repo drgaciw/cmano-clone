@@ -54,7 +54,8 @@ public sealed class PlatformWorkbookPhaseDWriteTests
         {
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
             var exported = _writeService.ExportFromDatabase(dbPath, SnapshotId, new FixedCatalogClock(9710));
-            var edited = WithSheetCell(exported, "Sensors", 0, "BasePd", "0.55");
+            var edited = WithSheetCell(exported, "Sensors", FindSheetRow(exported, "Sensors", "SensorId", "radar-1"), "BasePd", "0.55");
+
 
             var propose = _writeService.Propose(
                 dbPath,
@@ -96,7 +97,8 @@ public sealed class PlatformWorkbookPhaseDWriteTests
             Assert.True(readerBefore.TryGetBasePd("u1", "radar-1", out var originalBasePd));
 
             var exported = _writeService.ExportFromDatabase(dbPath, SnapshotId, new FixedCatalogClock(9720));
-            var edited = WithSheetCell(exported, "Sensors", 0, "BasePd", "0.33");
+            var edited = WithSheetCell(exported, "Sensors", FindSheetRow(exported, "Sensors", "SensorId", "radar-1"), "BasePd", "0.33");
+
 
             var propose = _writeService.Propose(
                 dbPath,
@@ -140,7 +142,8 @@ public sealed class PlatformWorkbookPhaseDWriteTests
         {
             SeedPhaseAAndBDatabase(dbPath);
             var exported = _writeService.ExportFromDatabase(dbPath, SnapshotId, new FixedCatalogClock(9730));
-            var edited = WithSheetCell(exported, "Sensors", 0, "BasePd", "0.61");
+            var edited = WithSheetCell(exported, "Sensors", FindSheetRow(exported, "Sensors", "SensorId", "radar-1"), "BasePd", "0.61");
+
             edited = WithSheetCell(edited, "Mobility", 0, "MaxSpeedKnots", "34");
 
             var propose = _writeService.Propose(
@@ -187,7 +190,8 @@ public sealed class PlatformWorkbookPhaseDWriteTests
         {
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
             var exported = _writeService.ExportFromDatabase(dbPath, SnapshotId, new FixedCatalogClock(9740));
-            var edited = WithSheetCell(exported, "Sensors", 0, "BasePd", "0.57");
+            var edited = WithSheetCell(exported, "Sensors", FindSheetRow(exported, "Sensors", "SensorId", "radar-1"), "BasePd", "0.57");
+
 
             var propose = _writeService.Propose(
                 dbPath,
@@ -239,6 +243,29 @@ public sealed class PlatformWorkbookPhaseDWriteTests
             VALUES ('u1', 32, 18, 4200, 'approved', 9, 'interpreted_value', 'unit-test');
             """;
         cmd.ExecuteNonQuery();
+    }
+
+    private static int FindSheetRow(
+        PlatformWorkbook workbook,
+        string sheetName,
+        string keyColumn,
+        string keyValue)
+    {
+        var sheet = Assert.Single(workbook.Sheets, s => string.Equals(s.Name, sheetName, StringComparison.Ordinal));
+        var colIndex = Array.IndexOf(sheet.Header.ToArray(), keyColumn);
+        Assert.True(colIndex >= 0, $"Column '{keyColumn}' not found on sheet '{sheetName}'.");
+        for (var i = 0; i < sheet.Rows.Count; i++)
+        {
+            var row = sheet.Rows[i];
+            if (row.Count > colIndex &&
+                string.Equals(row[colIndex], keyValue, StringComparison.Ordinal))
+            {
+                return i;
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"Row with {keyColumn}='{keyValue}' not found on sheet '{sheetName}'.");
     }
 
     private static PlatformWorkbook WithSheetCell(

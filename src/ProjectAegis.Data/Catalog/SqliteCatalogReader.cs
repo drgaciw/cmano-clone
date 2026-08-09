@@ -490,6 +490,11 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return true;
         }
 
+        if (file.Contains("016", StringComparison.Ordinal) && TableHasColumn("sensor", "modality"))
+        {
+            return true;
+        }
+
         return false;
     }
 
@@ -521,26 +526,49 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     {
         using var cmd = _connection.CreateCommand();
         var hasProvenance = TableHasColumn("sensor", "value_tier");
-        cmd.CommandText = hasProvenance
-            ? """
-              SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
-                     import_batch_id, source_file, review_state, trl_level,
-                     value_tier, reviewer_id, revised_utc_ticks, citation_ref
-              FROM sensor
-              ORDER BY platform_id ASC, sensor_id ASC
-              """
-            : """
-              SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
-                     import_batch_id, source_file, review_state, trl_level
-              FROM sensor
-              ORDER BY platform_id ASC, sensor_id ASC
-              """;
+        var hasModality = TableHasColumn("sensor", "modality");
+        cmd.CommandText = (hasProvenance, hasModality) switch
+        {
+            (true, true) =>
+                """
+                SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                       import_batch_id, source_file, review_state, trl_level,
+                       value_tier, reviewer_id, revised_utc_ticks, citation_ref, modality
+                FROM sensor
+                ORDER BY platform_id ASC, sensor_id ASC
+                """,
+            (true, false) =>
+                """
+                SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                       import_batch_id, source_file, review_state, trl_level,
+                       value_tier, reviewer_id, revised_utc_ticks, citation_ref
+                FROM sensor
+                ORDER BY platform_id ASC, sensor_id ASC
+                """,
+            (false, true) =>
+                """
+                SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                       import_batch_id, source_file, review_state, trl_level, modality
+                FROM sensor
+                ORDER BY platform_id ASC, sensor_id ASC
+                """,
+            _ =>
+                """
+                SELECT platform_id, sensor_id, base_pd, source_fact_id, confidence,
+                       import_batch_id, source_file, review_state, trl_level
+                FROM sensor
+                ORDER BY platform_id ASC, sensor_id ASC
+                """,
+        };
         using var reader = cmd.ExecuteReader();
         var list = new List<CatalogSensorBinding>();
         while (reader.Read())
         {
             if (hasProvenance)
             {
+                var modality = hasModality
+                    ? NormalizeModality(reader.IsDBNull(13) ? null : reader.GetString(13))
+                    : CatalogSensorModalities.Radar;
                 list.Add(new CatalogSensorBinding(
                     reader.GetString(0),
                     reader.GetString(1),
@@ -554,10 +582,14 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                     CatalogProvenanceTier.Normalize(reader.GetString(9)),
                     reader.GetString(10),
                     reader.GetInt64(11),
-                    reader.GetString(12)));
+                    reader.GetString(12),
+                    Modality: modality));
             }
             else
             {
+                var modality = hasModality
+                    ? NormalizeModality(reader.IsDBNull(9) ? null : reader.GetString(9))
+                    : CatalogSensorModalities.Radar;
                 list.Add(new CatalogSensorBinding(
                     reader.GetString(0),
                     reader.GetString(1),
@@ -567,12 +599,16 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                     reader.GetString(5),
                     reader.GetString(6),
                     reader.GetString(7),
-                    reader.GetInt32(8)));
+                    reader.GetInt32(8),
+                    Modality: modality));
             }
         }
 
         return list.ToArray();
     }
+
+    private static string NormalizeModality(string? modality) =>
+        string.IsNullOrWhiteSpace(modality) ? CatalogSensorModalities.Radar : modality;
 
     private static IReadOnlyList<string> ResolveMigrationPaths()
     {

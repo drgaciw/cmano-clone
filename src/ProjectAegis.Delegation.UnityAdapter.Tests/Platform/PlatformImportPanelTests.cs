@@ -21,7 +21,8 @@ public sealed class PlatformImportPanelTests
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
 
             var exported = PlatformWorkbookWriteBridge.ExportBalticWorkbook(dbPath, clockTicks: 9900);
-            var edited = WithSheetCell(exported, "Sensors", 0, "BasePd", "0.48");
+            var edited = WithSheetCell(exported, "Sensors", FindSheetRow(exported, "Sensors", "SensorId", "radar-1"), "BasePd", "0.48");
+
 
             var propose = PlatformWorkbookWriteBridge.ProposeWorkbook(
                 dbPath,
@@ -101,7 +102,8 @@ public sealed class PlatformImportPanelTests
             Assert.That(readerBefore.TryGetBasePd("u1", "radar-1", out var originalBasePd), Is.True);
 
             var exported = PlatformWorkbookWriteBridge.ExportBalticWorkbook(dbPath, clockTicks: 9920);
-            var edited = WithSheetCell(exported, "Sensors", 0, "BasePd", "0.12");
+            var edited = WithSheetCell(exported, "Sensors", FindSheetRow(exported, "Sensors", "SensorId", "radar-1"), "BasePd", "0.12");
+
             var propose = PlatformWorkbookWriteBridge.ProposeWorkbook(
                 dbPath,
                 edited,
@@ -399,6 +401,29 @@ public sealed class PlatformImportPanelTests
         }).ToArray();
 
         return workbook with { Sheets = sheets };
+    }
+
+    private static int FindSheetRow(
+        PlatformWorkbook workbook,
+        string sheetName,
+        string keyColumn,
+        string keyValue)
+    {
+        var sheet = workbook.Sheets.Single(s => string.Equals(s.Name, sheetName, StringComparison.Ordinal));
+        var colIndex = Array.IndexOf(sheet.Header.ToArray(), keyColumn);
+        Assert.That(colIndex, Is.GreaterThanOrEqualTo(0), $"Column '{keyColumn}' not found on sheet '{sheetName}'.");
+        for (var i = 0; i < sheet.Rows.Count; i++)
+        {
+            var row = sheet.Rows[i];
+            if (row.Count > colIndex &&
+                string.Equals(row[colIndex], keyValue, StringComparison.Ordinal))
+            {
+                return i;
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"Row with {keyColumn}='{keyValue}' not found on sheet '{sheetName}'.");
     }
 
     private static PlatformWorkbook WithSheetCell(
