@@ -510,6 +510,8 @@ public sealed class ScenarioDocumentEditor
 
     /// <summary>
     /// SWARM-22 / B9: place a swarm unit with optional initial count and host assignment.
+    /// SWARM-20 / C5: optional <paramref name="missionType"/> applies default mode when
+    /// <paramref name="mode"/> is not explicit.
     /// Validates count against <paramref name="maxDrones"/> when provided (catalog max).
     /// Does not call <see cref="CommitMutation"/>.
     /// </summary>
@@ -522,17 +524,31 @@ public sealed class ScenarioDocumentEditor
         int? droneCount = null,
         string? hostUnitId = null,
         string? parentUnitId = null,
-        int? maxDrones = null)
+        int? maxDrones = null,
+        string? missionType = null,
+        string? mode = null)
     {
         var validation = SwarmScenarioValidation.ValidatePlacement(
             platformId,
             droneCount,
             maxDrones,
             hostUnitId,
-            hostExists: hostUnitId is null || HostExists(hostUnitId));
+            hostExists: hostUnitId is null || HostExists(hostUnitId),
+            missionType,
+            mode);
         if (!validation.IsValid)
         {
             throw new InvalidOperationException(validation.ErrorCode + ": " + validation.Message);
+        }
+
+        var missionResult = SwarmScenarioValidation.ResolveMissionAssignment(
+            missionType,
+            mode,
+            out var canonicalMission,
+            out var effectiveMode);
+        if (!missionResult.IsValid)
+        {
+            throw new InvalidOperationException(missionResult.ErrorCode + ": " + missionResult.Message);
         }
 
         var dto = new ScenarioOrbatUnitDto
@@ -545,18 +561,27 @@ public sealed class ScenarioDocumentEditor
             ParentUnitId = parentUnitId,
             DroneCount = droneCount,
             HostUnitId = hostUnitId,
+            MissionType = canonicalMission,
+            Mode = effectiveMode,
         };
         PlaceOrbatUnit(dto);
         return dto;
     }
 
-    /// <summary>SWARM-22: update drone count and/or host on an existing swarm orbat unit.</summary>
+    /// <summary>
+    /// SWARM-22: update drone count and/or host on an existing swarm orbat unit.
+    /// SWARM-20: optional mission type / mode reassignment.
+    /// </summary>
     public void ConfigureSwarmUnit(
         string unitId,
         int? droneCount = null,
         string? hostUnitId = null,
         int? maxDrones = null,
-        bool clearHost = false)
+        bool clearHost = false,
+        string? missionType = null,
+        string? mode = null,
+        bool clearMissionType = false,
+        bool clearMode = false)
     {
         var units = (_orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>()).ToList();
         var idx = units.FindIndex(u => string.Equals(u.Id, unitId, StringComparison.OrdinalIgnoreCase));
@@ -568,16 +593,52 @@ public sealed class ScenarioDocumentEditor
         var existing = units[idx];
         var nextHost = clearHost ? null : (hostUnitId ?? existing.HostUnitId);
         var nextCount = droneCount ?? existing.DroneCount;
+        var nextMission = clearMissionType ? null : (missionType ?? existing.MissionType);
+        // Explicit mode wins; clearMode drops prior mode so mission defaults can re-apply.
+        string? requestedMode;
+        if (clearMode)
+        {
+            requestedMode = mode;
+        }
+        else if (mode is not null)
+        {
+            requestedMode = mode;
+        }
+        else
+        {
+            requestedMode = existing.Mode;
+        }
+
+        // When mission type is newly assigned/changed and mode was not explicitly provided this call,
+        // prefer default mode for the new mission over a stale mode from a prior mission.
+        var modeExplicitThisCall = mode is not null || clearMode;
+        if (!modeExplicitThisCall && missionType is not null &&
+            !string.Equals(missionType, existing.MissionType, StringComparison.OrdinalIgnoreCase))
+        {
+            requestedMode = null;
+        }
 
         var validation = SwarmScenarioValidation.ValidatePlacement(
             existing.PlatformId,
             nextCount,
             maxDrones,
             nextHost,
-            hostExists: nextHost is null || HostExists(nextHost));
+            hostExists: nextHost is null || HostExists(nextHost),
+            nextMission,
+            requestedMode);
         if (!validation.IsValid)
         {
             throw new InvalidOperationException(validation.ErrorCode + ": " + validation.Message);
+        }
+
+        var missionResult = SwarmScenarioValidation.ResolveMissionAssignment(
+            nextMission,
+            requestedMode,
+            out var canonicalMission,
+            out var effectiveMode);
+        if (!missionResult.IsValid)
+        {
+            throw new InvalidOperationException(missionResult.ErrorCode + ": " + missionResult.Message);
         }
 
         units[idx] = new ScenarioOrbatUnitDto
@@ -592,6 +653,8 @@ public sealed class ScenarioDocumentEditor
             EmconOverride = existing.EmconOverride,
             DroneCount = nextCount,
             HostUnitId = nextHost,
+            MissionType = canonicalMission,
+            Mode = effectiveMode,
         };
         _orbat = new ScenarioOrbatDto
         {
@@ -653,6 +716,8 @@ public sealed class ScenarioDocumentEditor
             EmconOverride = unit.EmconOverride,
             DroneCount = unit.DroneCount,
             HostUnitId = string.IsNullOrWhiteSpace(unit.HostUnitId) ? unit.HostUnitId : unit.HostUnitId.Trim(),
+            MissionType = string.IsNullOrWhiteSpace(unit.MissionType) ? unit.MissionType : unit.MissionType.Trim(),
+            Mode = string.IsNullOrWhiteSpace(unit.Mode) ? unit.Mode : unit.Mode.Trim(),
         };
         if (idx >= 0)
         {
@@ -718,6 +783,8 @@ public sealed class ScenarioDocumentEditor
             EmconOverride = u.EmconOverride,
             DroneCount = u.DroneCount,
             HostUnitId = u.HostUnitId,
+            MissionType = u.MissionType,
+            Mode = u.Mode,
         };
         _orbat = new ScenarioOrbatDto
         {
@@ -760,6 +827,8 @@ public sealed class ScenarioDocumentEditor
             EmconOverride = src.EmconOverride,
             DroneCount = src.DroneCount,
             HostUnitId = src.HostUnitId,
+            MissionType = src.MissionType,
+            Mode = src.Mode,
         });
         _orbat = new ScenarioOrbatDto
         {
