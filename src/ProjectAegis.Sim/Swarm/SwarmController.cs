@@ -2,6 +2,7 @@ namespace ProjectAegis.Sim.Swarm;
 
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
+using ProjectAegis.Sim.Swarm.Expend;
 using ProjectAegis.Sim.Swarm.Formation;
 
 /// <summary>
@@ -21,6 +22,9 @@ public sealed class SwarmController
     /// <summary>Integrity timeline reason for host-stores regeneration (SWARM-13).</summary>
     public const string RegenReasonCode = "regen-host";
 
+    /// <summary>Integrity timeline reason for expend/kamikaze pulse (SWARM-19).</summary>
+    public const string ExpendReasonCode = "expend-pulse";
+
     private readonly SimSeed _seed;
     private readonly Dictionary<string, SwarmRuntimeUnit> _units = new(StringComparer.Ordinal);
     private readonly SwarmOrderLog _orderLog = new();
@@ -30,6 +34,8 @@ public sealed class SwarmController
     private ulong _modeSequence = 1;
     private readonly List<SwarmFormationOrderLogEntry> _formationOrderLog = new();
     private ulong _formationSequence = 1;
+    private readonly List<SwarmExpendOrderLogEntry> _expendOrderLog = new();
+    private ulong _expendSequence = 1;
     private readonly Dictionary<string, (double Lat, double Lon, bool Alive)> _hosts =
         new(StringComparer.Ordinal);
 
@@ -50,6 +56,8 @@ public sealed class SwarmController
     public IReadOnlyList<SwarmModeOrderLogEntry> ModeOrderLog => _modeOrderLog;
 
     public IReadOnlyList<SwarmFormationOrderLogEntry> FormationOrderLog => _formationOrderLog;
+
+    public IReadOnlyList<SwarmExpendOrderLogEntry> ExpendOrderLog => _expendOrderLog;
 
     /// <summary>
     /// Registers a swarm unit from Data-side <see cref="SwarmUnitIntegrity"/> plus spawn centroid.
@@ -172,6 +180,64 @@ public sealed class SwarmController
             unit.UnitId,
             formation));
         return sequenceId;
+    }
+
+    /// <summary>
+    /// SWARM-19: authorized expend/kamikaze pulse — spends N drones irreversibly.
+    /// Callers must pass <paramref name="expendAuthorized"/> from doctrine/WRA (B7 <c>ExpendAuthorized</c>).
+    /// Does not invoke PolicyEvaluator itself (surface discipline).
+    /// </summary>
+    public SwarmExpendResult IssueExpend(
+        string unitId,
+        int dronesToExpend,
+        bool expendAuthorized,
+        ulong simTick,
+        double simTime,
+        string? targetUnitId = null)
+    {
+        var unit = RequireUnit(unitId);
+        EnsureOrdersAccepted(unit);
+
+        if (!expendAuthorized)
+        {
+            return SwarmExpendResult.Denied("expend-unauthorized", unit.DroneCount);
+        }
+
+        if (dronesToExpend <= 0)
+        {
+            return SwarmExpendResult.Denied("expend-count-invalid", unit.DroneCount);
+        }
+
+        if (unit.DroneCount <= 0)
+        {
+            return SwarmExpendResult.Denied("expend-no-drones", unit.DroneCount);
+        }
+
+        var previous = unit.DroneCount;
+        var spent = Math.Min(dronesToExpend, previous);
+
+        if (!TryApplyIntegrityDamage(
+                unit.UnitId,
+                spent,
+                simTick,
+                simTime,
+                ExpendReasonCode,
+                out var change))
+        {
+            return SwarmExpendResult.Denied("expend-integrity-failed", previous);
+        }
+
+        var sequenceId = _expendSequence++;
+        _expendOrderLog.Add(new SwarmExpendOrderLogEntry(
+            sequenceId,
+            simTick,
+            simTime,
+            unit.UnitId,
+            dronesToExpend,
+            spent,
+            string.IsNullOrWhiteSpace(targetUnitId) ? null : targetUnitId.Trim()));
+
+        return SwarmExpendResult.Succeeded(spent, previous, unit.DroneCount, sequenceId, change);
     }
 
     /// <summary>
