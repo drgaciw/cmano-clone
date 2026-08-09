@@ -1,7 +1,7 @@
 # Game Requirements — Master Index
 
 **Project:** Project Aegis — near-future hardcore military simulation (CMO-style, agentic)  
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-08-09  
 **Canonical index:** [Game-Requirements/Game-Requirements-Index.md](Game-Requirements/Game-Requirements-Index.md) — **source of truth** for the requirements corpus  
 **Implementation status:** [Game-Requirements/implementation-tracker-2026-07-04.md](Game-Requirements/implementation-tracker-2026-07-04.md)
 
@@ -59,6 +59,7 @@
 | [18](Game-Requirements/requirements/18-Combat-Domains.md) | Combat domains |
 | [19](Game-Requirements/requirements/19-Cyber-And-Comms.md) | Cyber & communications |
 | [20](Game-Requirements/requirements/20-Command-And-Control-UI.md) | Command & control UI |
+| [22](Game-Requirements/requirements/22-Drone-Swarm-Platforms.md) | Drone / UAS swarm platforms (FR-20 / H8) |
 
 ## Additional files
 

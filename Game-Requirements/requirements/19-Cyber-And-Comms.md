@@ -182,6 +182,11 @@ Evidence policy: check only with named types/tests/fixtures.
 
 **Honesty note:** Design Status remains **Draft** (Template B). Tracker **Partial** is correct overall (comms + spoof spine shipped; full cyber library and C2 polish open). Spoof is **not** Phase-2-only.
 
+
+## Amendment — Drone swarm platforms (doc 22 / 2026-08-09)
+
+> Swarm `linkState` ∈ {connected, degraded, lost} aligns with comms degradation themes (**SWARM-12**, Phase B). Lost link → explicit unknown-with-reason on C2 (**CMD-17**).
+
 ## Open Questions
 
 1. Player-visible spoof contacts or hidden until intel event? → **Open** (debug/marked spoof path exists; UX policy undecided).

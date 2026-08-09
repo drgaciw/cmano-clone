@@ -195,6 +195,11 @@ Fixed evaluation order per tick:
 
 **Honesty note:** Design Status remains **Draft** (Template B). Tracker **Partial (MVP COVERED)** = headless detect/lifecycle/classify/jam spine + Baltic fixtures. Full CMO multi-sensor P0 fidelity, ECCM, MCP, and 5k-scale perf are **not** claimed Shipped.
 
+
+## Amendment — Drone swarm platforms (doc 22 / 2026-08-09)
+
+> Aggregate ISR effectiveness scales with living drone count (**SWARM-04**). Contact classification may distinguish swarm/UAS cloud from single airframe (**SWARM-26**, Phase B). Implementation: Linear DRG-89 (A4).
+
 ## Open Questions
 
 1. Contact merge when two sensors disagree on position — weighted average vs primary sensor?

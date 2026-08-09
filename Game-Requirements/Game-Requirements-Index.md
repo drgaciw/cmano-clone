@@ -1,6 +1,6 @@
 # Game Requirements - Master Index
 
-**Last Updated:** 2026-07-08
+**Last Updated:** 2026-08-09
 
 **Program note:** **Corpus maturity W0–W4 complete (2026-07-08)** — hub + drafts 13–21 honesty re-baselined; design: `docs/superpowers/specs/2026-07-08-requirements-corpus-maturity-design.md`. Scenario editor (req 11): **S81–S88 headless engineering complete on trunk**; active completion epic **`scenario-editor-completion`** (SE-W1 honesty → SE-W2 AC-8 → SE-W3 gate). Plan: `docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md`. Status: `production/agentic/se-w0-status-truth-2026-07-08.md`. Post-MVP Requirements Program (Sprints 11–15) complete for docs 01–12 Template A. Doc 21 Platform Editor is first-class under Authoring.
 
@@ -78,6 +78,7 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 | [18](requirements/18-Combat-Domains.md) | Combat domains & damage | Draft |
 | [19](requirements/19-Cyber-And-Comms.md) | Cyber & communications | Draft |
 | [20](requirements/20-Command-And-Control-UI.md) | Command & control UI | Draft |
+| [22](requirements/22-Drone-Swarm-Platforms.md) | Drone / UAS swarm platforms | Draft — H8 / FR-20 |
 
 ## Reading order (for design review)
 
@@ -86,10 +87,12 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 3. **20** UI → **17** Replay (ties systems to player evidence)  
 4. **11** Mission editor (authoring) with **06** Database  
 5. **21** Platform editor (catalog) with **06** Database — after or parallel to 11  
-6. **01** Project Overview last as hub re-check (FR map + NFR)
+6. **22** Drone Swarm Platforms (FR-20 / H8) after 14–18–20  
+7. **01** Project Overview last as hub re-check (FR map + NFR)
 
 ## Next workflow steps
 
+- **H8 Drone Swarm Platforms (doc 22):** Phase A implementation Linear DRG-86…91 after this land (DRG-85)
 - **Corpus maturity program closed** (W0–W4 complete 2026-07-08); no further corpus waves
 - **Scenario editor completion** (req 11): SE-W1 doc honesty + residual tools; SE-W2 Unity AC-8 productionize; SE-W3 gate — plan [2026-07-08-scenario-editor-completion-plan.md](../docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md); roadmap [future-sprint-roadpmap-07042026.md](../docs/reports/future-sprint-roadpmap-07042026.md)
 - Run `/design-review` when mechanics change on **01, 04, 06–11, 13–21**

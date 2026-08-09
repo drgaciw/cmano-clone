@@ -80,7 +80,7 @@ Evidence of the shippable product spine (not multi-theater parity):
 
 - Additional regional theaters (Black Sea, South China Sea, etc.) as **data extensibility**, not claimed equal content depth today
 - Air, naval, and aggregate-level ground (brigade+) for air/naval interaction
-- Drone swarms / autonomous systems depth beyond current OOB
+- Drone swarms / autonomous systems depth beyond current OOB — **FR-20 / [22](22-Drone-Swarm-Platforms.md)** (Phase A platforms; H8)
 - Full multi-theater 5,000+ entity interactive performance (north-star — see Success Criteria)
 
 ### Out of scope (later releases — unchanged pillars)
@@ -152,6 +152,7 @@ High-level capabilities delivered across the requirements corpus (details in lin
 | FR-17 | Cyber and comms degradation | [19](19-Cyber-And-Comms.md) |
 | FR-18 | Command-and-control UI | [20](20-Command-And-Control-UI.md) |
 | FR-19 | Platform/catalog editor (Excel write-gate round-trip) | [21](21-Platform-Editor.md) |
+| FR-20 | Drone / UAS swarm as first-class platform type | [22](22-Drone-Swarm-Platforms.md) |
 
 ## Non-Functional Requirements
 

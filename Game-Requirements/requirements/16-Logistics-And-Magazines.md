@@ -253,6 +253,11 @@ Ferry authoring uses Mission Editor CLI (`mission_add_ferry` / `mission_update_f
 
 **Honesty note:** Design Status remains **Draft** (Template B). Tracker **Partial** is correct: magazine + fuel + readiness spine shipped; UNREP, full air-ops FSM, live magazines UI, and MCP logistics remain open.
 
+
+## Amendment — Drone swarm platforms (doc 22 / 2026-08-09)
+
+> Near-host regeneration of drones up to `maxDrones` when stores allow (**SWARM-13**, Phase B). Host magazine / logistics coupling. Implementation after Phase A MVP.
+
 ## Open Questions
 
 1. Unified vs per-munition magazine modeling for VLS?
