@@ -363,7 +363,8 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             Mobility: GetSortedMobility(),
             Signatures: GetSortedSignatures(),
             Emcon: GetSortedEmcon(),
-            Damage: GetSortedPlatformDamage());
+            Damage: GetSortedPlatformDamage(),
+            Swarms: GetSortedSwarmPlatforms());
 
         if (string.IsNullOrWhiteSpace(maxTlTier) || !CatalogTlTier.IsValid(maxTlTier))
         {
@@ -474,6 +475,11 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         if (file.Contains("013", StringComparison.Ordinal) &&
             TableExists("platform_swarm") &&
             MigrationColumnExists("platform_swarm", "cec_capable"))
+        {
+            return true;
+        }
+
+        if (file.Contains("014", StringComparison.Ordinal) && TableExists("catalog_staging_swarm"))
         {
             return true;
         }

@@ -145,6 +145,11 @@ public static class CatalogSortKeyComparer
 
     private static char GetHexNibble(int value) =>
         (char)(value < 10 ? '0' + value : 'a' + (value - 10));
+
+    public static IReadOnlyList<CatalogSwarmPlatform> SortSwarms(IEnumerable<CatalogSwarmPlatform> rows) =>
+        rows.OrderBy(r => r.PlatformId, StringComparer.Ordinal).ToArray();
+
+    public static string FormatSwarmKey(CatalogSwarmPlatform row) => row.PlatformId;
 }
 
 /// <summary>Fixture bundle for cross-entity sort-key golden hashing.</summary>

@@ -28,6 +28,7 @@ public sealed record PlatformWorkbookWriteResult(
         AddIfPresent(ids, import.SignatureBatchId);
         AddIfPresent(ids, import.EmconBatchId);
         AddIfPresent(ids, import.DamageBatchId);
+        AddIfPresent(ids, import.SwarmBatchId);
         return ids;
     }
 

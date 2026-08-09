@@ -365,6 +365,6 @@ Resolved in owner triage 2026-08-09. Implementation open items live on Linear (P
 
 ---
 
-**Implementation grade:** Phase A code **landed** (H8 waves 0–4 / PRs #412–#418). SWARM-31 CEC = Phase B requirements only until DRG-92 children ship.  
+**Implementation grade:** Phase A–C + SWARM-31 CEC + SWARM-21 PE chrome **landed** (H8; PRs #412–#435, DRG-110 PE). Phase N (SWARM-27…30) deferred.  
 **Design Status:** Draft — Phase A accepted; CEC addendum 2026-08-09.  
 **References:** Notion research 2026-08-09; real-world CEC (USN/USMC/allied sensor-netting + integrated FC); ADR-010; docs 14/15/18/19/20.
