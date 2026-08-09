@@ -553,6 +553,7 @@ public sealed class ScenarioDocumentEditor
             ParentUnitId = unit.ParentUnitId,
             RoeOverride = unit.RoeOverride,
             EmconOverride = unit.EmconOverride,
+            DroneCount = unit.DroneCount,
         };
         if (idx >= 0)
         {
@@ -616,6 +617,7 @@ public sealed class ScenarioDocumentEditor
             ParentUnitId = u.ParentUnitId,
             RoeOverride = u.RoeOverride,
             EmconOverride = u.EmconOverride,
+            DroneCount = u.DroneCount,
         };
         _orbat = new ScenarioOrbatDto
         {
@@ -656,6 +658,7 @@ public sealed class ScenarioDocumentEditor
             ParentUnitId = src.ParentUnitId,
             RoeOverride = src.RoeOverride,
             EmconOverride = src.EmconOverride,
+            DroneCount = src.DroneCount,
         });
         _orbat = new ScenarioOrbatDto
         {

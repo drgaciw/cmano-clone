@@ -56,6 +56,12 @@ public sealed class ScenarioOrbatUnitDto
     public string? RoeOverride { get; init; }
 
     public string? EmconOverride { get; init; }
+
+    /// <summary>
+    /// SWARM-02 optional initial integrity when <see cref="PlatformId"/> is a swarm catalog entry.
+    /// Null means default to catalog <c>maxDrones</c> at spawn (Data factory).
+    /// </summary>
+    public int? DroneCount { get; init; }
 }
 
 public sealed class ScenarioOrbatBaseDto

@@ -59,6 +59,13 @@ public interface ICatalogReader
     bool TryGetPlatformDamage(string platformId, out CatalogPlatformDamage damage) =>
         TryGetPlatformDamageCore(platformId, out damage);
 
+    /// <summary>SWARM-01 / SWARM-21 Phase A: sorted swarm platform rows (platform_id).</summary>
+    IReadOnlyList<CatalogSwarmPlatform> GetSortedSwarmPlatforms() => GetSortedSwarmPlatformsCore();
+
+    /// <summary>SWARM-01: resolve swarm catalog row by platform id.</summary>
+    bool TryGetSwarmPlatform(string platformId, out CatalogSwarmPlatform swarm) =>
+        TryGetSwarmPlatformCore(platformId, out swarm);
+
     /// <summary>Req-21 Phase A: sorted mount rows (platform_id, mount_id).</summary>
     IReadOnlyList<CatalogMount> GetSortedMounts() => GetSortedMountsCore();
 
@@ -117,6 +124,8 @@ public interface ICatalogReader
 
     IReadOnlyList<CatalogPlatformDamage> GetSortedPlatformDamageCore() => [];
 
+    IReadOnlyList<CatalogSwarmPlatform> GetSortedSwarmPlatformsCore() => [];
+
     bool TryGetMobilityCore(string platformId, out CatalogMobility mobility)
     {
         mobility = new CatalogMobility(platformId);
@@ -138,6 +147,12 @@ public interface ICatalogReader
     bool TryGetPlatformDamageCore(string platformId, out CatalogPlatformDamage damage)
     {
         damage = new CatalogPlatformDamage(platformId);
+        return false;
+    }
+
+    bool TryGetSwarmPlatformCore(string platformId, out CatalogSwarmPlatform swarm)
+    {
+        swarm = new CatalogSwarmPlatform(platformId, MaxDrones: 1, IsSwarm: false);
         return false;
     }
 

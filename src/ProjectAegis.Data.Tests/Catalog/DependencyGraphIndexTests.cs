@@ -140,9 +140,12 @@ public sealed class DependencyGraphIndexTests
         var reader = InMemoryCatalogReader.BalticPatrolFixture();
         var edges = reader.GetSortedDependencyEdges();
 
-        Assert.Equal(2, edges.Count);
+        Assert.Equal(3, edges.Count);
         Assert.All(edges, e => Assert.Equal(CatalogDependencyEdgeKind.PlatformToSensor, e.Kind));
-        Assert.Equal(["radar-1", "radar-2"], edges.Select(e => e.SensorId).ToArray());
+        Assert.Equal(
+            ["radar-1", "radar-2", CatalogSwarmPlatformDefaults.DefaultSensorId],
+            edges.Select(e => e.SensorId).ToArray());
+        Assert.Contains(edges, e => e.PlatformId == CatalogSwarmPlatformDefaults.GenericSwarmPlatformId);
     }
 
     [Fact]
