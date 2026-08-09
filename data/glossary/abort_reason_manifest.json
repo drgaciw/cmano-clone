@@ -56,6 +56,14 @@
         {
           "logCode": "FACILITY_ASPECT_BLOCK",
           "member": "FacilityAspectBlock"
+        },
+        {
+          "logCode": "AUTO_ENGAGE_DENIED",
+          "member": "AutoEngageDenied"
+        },
+        {
+          "logCode": "EXPEND_UNAUTHORIZED",
+          "member": "ExpendUnauthorized"
         }
       ]
     },
