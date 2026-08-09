@@ -19,7 +19,8 @@ public sealed record PlatformCatalogExportData(
     IReadOnlyList<CatalogMobility>? Mobility = null,
     IReadOnlyList<CatalogSignature>? Signatures = null,
     IReadOnlyList<CatalogEmcon>? Emcon = null,
-    IReadOnlyList<CatalogPlatformDamage>? Damage = null)
+    IReadOnlyList<CatalogPlatformDamage>? Damage = null,
+    IReadOnlyList<CatalogSwarmPlatform>? Swarms = null)
 {
     public static PlatformCatalogExportData Empty { get; } = new(
         [],
@@ -31,5 +32,6 @@ public sealed record PlatformCatalogExportData(
         Mobility: [],
         Signatures: [],
         Emcon: [],
-        Damage: []);
+        Damage: [],
+        Swarms: []);
 }

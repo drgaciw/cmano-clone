@@ -1,7 +1,7 @@
 # Game Requirements — Master Index
 
 **Project:** Project Aegis — near-future hardcore military simulation (CMO-style, agentic)  
-**Last Updated:** 2026-07-08  
+**Last Updated:** 2026-08-09  
 **Canonical index:** [Game-Requirements/Game-Requirements-Index.md](Game-Requirements/Game-Requirements-Index.md) — **source of truth** for the requirements corpus  
 **Implementation status:** [Game-Requirements/implementation-tracker-2026-07-04.md](Game-Requirements/implementation-tracker-2026-07-04.md)
 
@@ -46,6 +46,12 @@
 | [11](Game-Requirements/requirements/11-Agentic-Mission-Editor.md) | Agentic mission editor |
 | [12](Game-Requirements/requirements/12-Terms-Glossary.md) | Terms glossary |
 | [21](Game-Requirements/requirements/21-Platform-Editor.md) | Platform editor (catalog / Excel round-trip) |
+
+## Platforms (22)
+
+| Doc | Title |
+|-----|--------|
+| [22](Game-Requirements/requirements/22-Drone-Swarm-Platforms.md) | Drone / UAS swarm platforms (FR-20 / H8) |
 
 ## Simulation, C2, combat (13–20)
 

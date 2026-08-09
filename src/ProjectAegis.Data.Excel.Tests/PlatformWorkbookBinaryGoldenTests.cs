@@ -17,7 +17,7 @@ public sealed class PlatformWorkbookBinaryGoldenTests
 
     // Pinned logical workbook hash for ExportPhaseB() @ FixedCatalogClock(17_001).
     private const string PhaseBWorkbookHashGolden =
-        "fb61ecb34fa2fbcaa3a1d9a86091206f792c8ed06479f4fab8847586101d2c86";
+        "85686083ed678653094f7d112ef968330ecd69380a7002775671ad0dda3e7754";
 
     [Fact]
     public void Phase_B_binary_round_trip_preserves_workbook_hash_golden()

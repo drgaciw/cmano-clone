@@ -1,7 +1,7 @@
 # 01 - Project Overview
 
 **Last Updated:** 2026-07-08  
-**Related:** [Game-Requirements-Index](../Game-Requirements-Index.md), [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md), corpus docs 02–21 — see [Related Requirements Index](#related-requirements-index)  
+**Related:** [Game-Requirements-Index](../Game-Requirements-Index.md), [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md), corpus docs 02–22 — see [Related Requirements Index](#related-requirements-index)  
 **Status:** Locked vision — charter re-baselined 2026-07-08; commercial name still open; implementation grades live in the tracker  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)  
 **Stage:** Release (`production/stage.txt`); S56 MVP closed; S73–S80 Baltic v3 content-complete; active forward program = scenario editor (req 11 / S81–S88)
@@ -80,7 +80,7 @@ Evidence of the shippable product spine (not multi-theater parity):
 
 - Additional regional theaters (Black Sea, South China Sea, etc.) as **data extensibility**, not claimed equal content depth today
 - Air, naval, and aggregate-level ground (brigade+) for air/naval interaction
-- Drone swarms / autonomous systems depth beyond current OOB
+- Drone swarms / autonomous systems depth beyond current OOB — **FR-20 / [22](22-Drone-Swarm-Platforms.md)** (Phase A platforms; H8)
 - Full multi-theater 5,000+ entity interactive performance (north-star — see Success Criteria)
 
 ### Out of scope (later releases — unchanged pillars)
@@ -122,7 +122,7 @@ Original charter bars retained as product north-stars. **Do not treat as S80 acc
 | OV-AC-1 | Gate-backed table present with G1–G5 | Section above |
 | OV-AC-2 | North-star table present with N1–N3 tagged Deferred/Proxy | Section above |
 | OV-AC-3 | Standing invariants listed under NFR | Standing engineering invariants subsection |
-| OV-AC-4 | Related Index 02–21 complete | Related Requirements Index |
+| OV-AC-4 | Related Index 02–22 complete | Related Requirements Index |
 
 ## Project Name (Working Title)
 **Project Aegis**
@@ -152,6 +152,7 @@ High-level capabilities delivered across the requirements corpus (details in lin
 | FR-17 | Cyber and comms degradation | [19](19-Cyber-And-Comms.md) |
 | FR-18 | Command-and-control UI | [20](20-Command-And-Control-UI.md) |
 | FR-19 | Platform/catalog editor (Excel write-gate round-trip) | [21](21-Platform-Editor.md) |
+| FR-20 | Drone / UAS swarm as first-class platform type | [22](22-Drone-Swarm-Platforms.md) |
 
 ## Non-Functional Requirements
 
@@ -243,5 +244,6 @@ Design status = per-doc header. Implementation grades = [implementation tracker]
 | [19](19-Cyber-And-Comms.md) | Cyber & Comms | Draft | Tracker: Partial |
 | [20](20-Command-And-Control-UI.md) | Command & Control UI | Draft | Tracker: Partial |
 | [21](21-Platform-Editor.md) | Platform Editor | Draft | Tracker: MVP-done / Partial+; FR-19 |
+| [22](22-Drone-Swarm-Platforms.md) | Drone Swarm Platforms | Draft | H8 / FR-20; Phase A land 2026-08-09 |
 
 Status snapshot **2026-07-08** (Wave 0 hub re-baseline). Per-doc headers remain authoritative for design Status; tracker for implementation.

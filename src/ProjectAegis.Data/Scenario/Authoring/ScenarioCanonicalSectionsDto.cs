@@ -56,6 +56,30 @@ public sealed class ScenarioOrbatUnitDto
     public string? RoeOverride { get; init; }
 
     public string? EmconOverride { get; init; }
+
+    /// <summary>
+    /// SWARM-02 optional initial integrity when <see cref="PlatformId"/> is a swarm catalog entry.
+    /// Null means default to catalog <c>maxDrones</c> at spawn (Data factory).
+    /// </summary>
+    public int? DroneCount { get; init; }
+
+    /// <summary>
+    /// SWARM-22 / B9: optional host/mothership unit id for swarm placement.
+    /// </summary>
+    public string? HostUnitId { get; init; }
+
+    /// <summary>
+    /// SWARM-20 / C5: optional mission type for swarm tasking
+    /// (<c>Patrol</c>, <c>Support</c>, <c>Strike</c>). Null when unset.
+    /// </summary>
+    public string? MissionType { get; init; }
+
+    /// <summary>
+    /// SWARM-20 / C5: optional Phase B operational mode
+    /// (Hold, Assault, Screen, Scatter, Rejoin). When null and
+    /// <see cref="MissionType"/> is set, authoring applies the mission default mode.
+    /// </summary>
+    public string? Mode { get; init; }
 }
 
 public sealed class ScenarioOrbatBaseDto
