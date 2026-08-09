@@ -187,7 +187,7 @@ Evidence policy: check only with named types/tests/fixtures.
 
 > Swarm `linkState` ∈ {connected, degraded, lost} aligns with comms degradation themes (**SWARM-12**, Phase B). Lost link → explicit unknown-with-reason on C2 (**CMD-17**).
 >
-> **CEC mesh (SWARM-31, Phase B):** US/NATO Cooperative Engagement Capability is a real-time sensor-netting + integrated fire-control mesh. Comms/jam degradation may remove a node from the **composite air picture** and revoke remote-engage eligibility without necessarily destroying organic sensors. Model as mesh membership health layered on (not replacing) tactical datalink and `linkState`.
+> **CEC mesh (SWARM-31, Phase B):** US/NATO Cooperative Engagement Capability is a real-time sensor-netting + integrated fire-control mesh. Comms/jam degradation may remove a node from the **composite air picture** and revoke remote-engage eligibility without necessarily destroying organic sensors. Model as **independent mesh membership health** layered on (not replacing) tactical datalink **and not conflated with** swarm `linkState` (C2/orders channel only).
 
 ## Open Questions
 

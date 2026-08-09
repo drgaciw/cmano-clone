@@ -150,15 +150,15 @@ Players and agents task a **cloud**, not N micro-aircraft. Integrity is the fun 
 
 ## SWARM-11 — Host / mothership **[P1]**
 
-**Requirement.** A swarm may designate a host unit (ship/vehicle/aircraft/base). Screen mode prefers orbiting the host. Host loss triggers doctrine last-order. When the host is a **CEC-capable US/NATO** platform (SWARM-31), host↔swarm mesh membership may co-drive `linkState` and composite-track quality.
+**Requirement.** A swarm may designate a host unit (ship/vehicle/aircraft/base). Screen mode prefers orbiting the host. Host loss triggers doctrine last-order. When the host is a **CEC-capable US/NATO** platform (SWARM-31), host↔swarm geometry and host health may **influence** CEC mesh join eligibility, but host C2 `linkState` and CEC mesh membership remain **separate channels** (see SWARM-12 / SWARM-31).
 
 **Acceptance.** Scenario can bind `hostId`; Screen keeps swarm near host; host death produces a defined autonomous reaction.
 
 ## SWARM-12 — LinkState **[P1]**
 
-**Requirement.** Swarm shall track `linkState` ∈ {connected, degraded, lost} driven by range, jam, and host/comms rules consistent with project comms degradation themes (doc 19). For CEC-capable meshes, `linkState` also reflects whether the unit remains a live node on the **composite air picture** (SWARM-31), distinct from generic tactical datalink lag alone (doc 15 SEN-05).
+**Requirement.** Swarm shall track `linkState` ∈ {connected, degraded, lost} driven by range, jam, and host/comms rules consistent with project comms degradation themes (doc 19). **`linkState` is the command/order channel only** (player/agent intent delivery). It is **not** CEC mesh membership — that lives on a separate state (SWARM-31 `cecMeshState` / equivalent). Generic tactical datalink lag remains doc 15 SEN-05.
 
-**Acceptance.** Lost link blocks or delays new player orders per doctrine; panel shows cause ([CMD-17](20-Command-And-Control-UI.md) pattern: unknown-with-reason, not blank).
+**Acceptance.** Lost link blocks or delays new player orders per doctrine; panel shows cause ([CMD-17](20-Command-And-Control-UI.md) pattern: unknown-with-reason, not blank). Losing CEC mesh eligibility alone **must not** force `linkState=lost` or sever ordinary C2 orders.
 
 ## SWARM-13 — Regeneration **[P1]**
 
@@ -168,7 +168,7 @@ Players and agents task a **cloud**, not N micro-aircraft. Integrity is the fun 
 
 ## SWARM-14 — C2 panel fields **[P1]**
 
-**Requirement.** Selected swarm unit panel shows: mode, integrity (count/max), energy/endurance if modelled, host, linkState, **CEC mesh membership / composite-track contribution when applicable (SWARM-31)**, and primary sensor/weapon summary.
+**Requirement.** Selected swarm unit panel shows: mode, integrity (count/max), energy/endurance if modelled, host, `linkState` (C2), **`cecMeshState` / composite-track contribution when applicable (SWARM-31)**, and primary sensor/weapon summary.
 
 **Acceptance.** Fields update live; missing telemetry uses explicit unknown reasons when link lost.
 
@@ -211,21 +211,23 @@ Players and agents task a **cloud**, not N micro-aircraft. Integrity is the fun 
 **Requirement.** Project Aegis shall model CEC as a **first-class mesh capability on US and NATO catalog platforms** that interact with drone/UAS swarm units:
 
 1. **Catalog / affiliation gate.** US and NATO national platforms (ships, aircraft, land AA / sensor nodes, and CEC-flagged swarm or UAS nodes when fielded) may declare `cecCapable` (or equivalent). Phase A abstract generic swarm presets are **not** CEC-capable. Non-US/non-NATO platforms do not receive CEC mesh membership by default (may use generic tactical datalink only — doc 15 SEN-05).
-2. **Composite track picture.** When two or more CEC-capable units on the same side have mesh connectivity (range, EMCON, jam, and link health per docs 15/19), the side air picture shall merge organic detections into a **shared composite track** suitable for fire-control quality when doctrine allows — not merely a delayed contact copy.
-3. **Remote engage (engage-on-remote-data).** A CEC-capable shooter may resolve engagement against a track whose primary sensor contribution is from another CEC mesh member (including a CEC-capable swarm's aggregate ISR), subject to ROE/WRA/EMCON/DLZ (docs 13–14). Aggregate swarm SoT (SWARM-07) is unchanged: the swarm remains one unit; CEC does not invent per-drone fire-control bodies.
-4. **Swarm participation.** A swarm unit may:
-   - **Contribute** scaled aggregate sensor quality (SWARM-04) into the CEC composite picture when flagged CEC-capable and `linkState` is connected;
+2. **Separate mesh health from C2 link.** Implementations **shall** expose a distinct CEC mesh membership / health state (e.g. `cecMeshState` ∈ {inMesh, degraded, outOfMesh} or equivalent). It is layered **on top of** `linkState` and generic datalink (docs 15/19) — **not a replacement**. A CEC-only outage revokes remote-engage / composite contribution eligibility; it **must not** by itself block ordinary player/agent orders on the swarm (SWARM-12).
+3. **Composite track picture.** When two or more CEC-capable units on the same side have mesh connectivity (range, EMCON, jam, and CEC mesh health per docs 15/19), the side air picture shall merge organic detections into a **shared composite track** suitable for fire-control quality when doctrine allows — not merely a delayed contact copy.
+4. **Remote engage (engage-on-remote-data).** A CEC-capable shooter may resolve engagement against a track whose primary sensor contribution is from another CEC mesh member (including a CEC-capable swarm's aggregate ISR), subject to ROE/WRA/EMCON/DLZ (docs 13–14). Aggregate swarm SoT (SWARM-07) is unchanged: the swarm remains one unit; CEC does not invent per-drone fire-control bodies.
+5. **Swarm participation.** A swarm unit may:
+   - **Contribute** scaled aggregate sensor quality (SWARM-04) into the CEC composite picture when flagged CEC-capable and `cecMeshState` is live (mesh up), independent of whether `linkState` is connected for orders;
    - **Be engaged** as a composite track by remote CEC shooters (integrity damage still via authorized aggregate path);
-   - **Lose mesh membership** when `linkState` degrades/lost or integrity reaches zero — composite contributions drop deterministically.
-5. **Determinism & replay.** Mesh join/leave, composite-track quality, and remote-engage authorizations shall be pure functions of scenario seed, unit state, and ordered events (order log / integrity timeline). Same scenario + seed → same CEC outcomes.
-6. **Distinct from** generic side datalink share lag (SEN-05), host-only `linkState` without fire-control quality (SWARM-12 alone), and true multi-static ISR geometry (SWARM-29 Phase N).
+   - **Lose mesh membership** when CEC mesh health drops (range/jam/EMCON/doctrine) or integrity reaches zero — composite contributions drop deterministically **without** automatically setting `linkState=lost`.
+6. **Determinism & replay.** Mesh join/leave, composite-track quality, and remote-engage authorizations shall be pure functions of scenario seed, unit state, and ordered events (order log / integrity timeline). Same scenario + seed → same CEC outcomes.
+7. **Distinct from** generic side datalink share lag (SEN-05), host-only `linkState` without fire-control quality (SWARM-12 alone), and true multi-static ISR geometry (SWARM-29 Phase N).
 
 **Why.** CEC is how modern US/NATO forces fight air defense and UAS threats: one node illuminates, another kills. Modelling it for swarm warfare is required for credible US/NATO scenarios without faking “perfect shared awareness” for every side.
 
 **Acceptance.**
 - [ ] Catalog: ≥1 US or NATO surface/air platform row exposes CEC capability; generic `uas-swarm-generic` remains non-CEC.
 - [ ] Headless fixture: two CEC nodes (e.g. ship + CEC swarm or ship + aircraft) form a composite track; a third CEC shooter can engage using remote data under identical geometry where organic-only would fail or degrade.
-- [ ] Jam / range / link loss removes remote-engage eligibility with explicit abort or quality reason (not silent blank).
+- [ ] Jam / range / CEC mesh-health loss removes remote-engage eligibility with explicit abort or quality reason (not silent blank); ordinary `linkState` C2 may remain connected.
+- [ ] Unit model keeps `linkState` and `cecMeshState` (or equivalent) as independent fields in tests/fixtures.
 - [ ] Replay/hash: CEC mesh events participate in golden path or documented swarm/CEC fixture (extends SWARM-24 themes).
 - [ ] Evidence under `production/qa/` when implementation lands (Phase B child of DRG-92).
 
@@ -283,12 +285,12 @@ Pointers only — full rewrites live in those docs when implementation waves tou
 
 | Existing | Amendment |
 |----------|-----------|
-| Entity / unit model (Data / sim unit) | Swarm platform flag, integrity fields, hostId, linkState, mode; Phase B+ `cecCapable` on US/NATO rows |
+| Entity / unit model (Data / sim unit) | Swarm platform flag, integrity fields, hostId, linkState (C2), mode; Phase B+ `cecCapable` + independent `cecMeshState` on US/NATO rows |
 | [18](18-Combat-Domains.md) | Air / UAS-swarm aspect; integrity-pool damage model |
 | [15](15-Sensor-Detection-And-EW.md) | Aggregate ISR scaling; contact class for swarms; **CEC composite track picture (SWARM-31)** |
 | [14](14-Engagement-And-Fire-Control.md) | Area-AA vs swarm integrity; note distinct from salvo swarm-slot deconfliction; **CEC remote engage (SWARM-31)** |
 | [16](16-Logistics-And-Magazines.md) | Regen stores; host magazine coupling |
-| [19](19-Cyber-And-Comms.md) | LinkState for swarm C2; **CEC mesh health / jam vs composite FC** |
+| [19](19-Cyber-And-Comms.md) | LinkState for swarm C2 (orders only); **CEC mesh health as a separate channel** |
 | [20](20-Command-And-Control-UI.md) | Panel fields (SWARM-14); map density; no per-drone micro; CMD-24 reuse Phase A; CEC membership readout |
 | [17](17-Replay-AAR-And-Order-Log.md) | Integrity deltas in golden paths; CEC mesh join/leave events when implemented |
 | [21](21-Platform-Editor.md) | Authoring schema for swarm entries + CEC flags for US/NATO |
@@ -302,7 +304,7 @@ Pointers only — full rewrites live in those docs when implementation waves tou
 | Knob | Starter |
 |------|---------|
 | maxDrones | 40 logical |
-| renderMembers | 24 cap (Phase A shipped cap 12 render / 40 logical — see SWARM-25 / `SwarmPerformanceCaps`) |
+| renderMembers | **12** (normative Phase A cap = `SwarmPerformanceCaps.RenderMaxMembersPerSwarm`; do not use 24 in fixtures) |
 | dpsPerDrone | tune vs soft targets |
 | regen | 1 drone / 1.5s near host if stores |
 | scatter cooldown | 8s |
