@@ -42,6 +42,78 @@ public sealed class CatalogWriteGatePlatformApproveTests
             Assert.Equal("surface", committed.Domain);
             Assert.Equal("NATO", committed.Nationality);
             Assert.Equal(7, committed.GameTechnologyLevel);
+            // ApplyCorePosition false → new rows keep default combat radius 1.0
+            Assert.Equal(1.0, ReadLiveCorePosition(connection, "u-test-platform").CombatRadiusNm, precision: 4);
+            Assert.Equal(0, ReadLiveCorePosition(connection, "u-test-platform").LatDeg, precision: 4);
+            Assert.Equal(0, ReadLiveCorePosition(connection, "u-test-platform").LonDeg, precision: 4);
+        }
+        finally
+        {
+            Cleanup(dbPath);
+        }
+    }
+
+    [Fact]
+    public void ApproveBatch_ApplyCorePosition_true_writes_lat_lon_combat_radius()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-platform-core-pos-{Guid.NewGuid():N}.db");
+        try
+        {
+            var platform = new CatalogPlatformBinding(
+                "u-core-pos",
+                "Core Pos Hull",
+                Domain: "surface",
+                PlatformClass: "OPV",
+                LatDeg: 57.25,
+                LonDeg: 20.75,
+                CombatRadiusNm: 145.5,
+                ApplyCorePosition: true);
+
+            using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9220)))
+            {
+                var batchId = gate.ProposePlatformBatch([platform], "agent", "core-pos-test");
+                Assert.True(gate.ApproveBatch(batchId, "human", "qa-reviewer").Committed);
+            }
+
+            using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
+            connection.Open();
+            var core = ReadLiveCorePosition(connection, "u-core-pos");
+            Assert.Equal(57.25, core.LatDeg, precision: 4);
+            Assert.Equal(20.75, core.LonDeg, precision: 4);
+            Assert.Equal(145.5, core.CombatRadiusNm, precision: 4);
+        }
+        finally
+        {
+            Cleanup(dbPath);
+        }
+    }
+
+    [Fact]
+    public void ApproveBatch_ApplyCorePosition_true_zero_radius_defaults_to_one()
+    {
+        var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-platform-core-zero-r-{Guid.NewGuid():N}.db");
+        try
+        {
+            var platform = new CatalogPlatformBinding(
+                "u-core-zero-r",
+                "Zero Radius",
+                LatDeg: 10,
+                LonDeg: 20,
+                CombatRadiusNm: 0,
+                ApplyCorePosition: true);
+
+            using (var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(9221)))
+            {
+                var batchId = gate.ProposePlatformBatch([platform], "agent", "core-zero-r");
+                Assert.True(gate.ApproveBatch(batchId, "human", "qa").Committed);
+            }
+
+            using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
+            connection.Open();
+            var core = ReadLiveCorePosition(connection, "u-core-zero-r");
+            Assert.Equal(10, core.LatDeg, precision: 4);
+            Assert.Equal(20, core.LonDeg, precision: 4);
+            Assert.Equal(1.0, core.CombatRadiusNm, precision: 4);
         }
         finally
         {
@@ -317,6 +389,24 @@ public sealed class CatalogWriteGatePlatformApproveTests
         }
 
         return list;
+    }
+
+    private static (double LatDeg, double LonDeg, double CombatRadiusNm) ReadLiveCorePosition(
+        SqliteConnection connection,
+        string platformId)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT lat_deg, lon_deg, combat_radius_nm
+            FROM platform
+            WHERE platform_id = $id
+            LIMIT 1
+            """;
+        cmd.Parameters.AddWithValue("$id", platformId);
+        using var reader = cmd.ExecuteReader();
+        Assert.True(reader.Read(), $"expected live platform row for '{platformId}'");
+        return (reader.GetDouble(0), reader.GetDouble(1), reader.GetDouble(2));
     }
 
     private static List<CatalogWeaponRecord> ReadLiveWeapons(SqliteConnection connection)

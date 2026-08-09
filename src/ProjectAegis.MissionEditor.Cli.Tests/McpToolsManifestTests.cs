@@ -56,6 +56,7 @@ public sealed class McpToolsManifestTests
         "platform_export_xlsx",
         "platform_import_xlsx",
         "platform_diff_xlsx",
+        "platform_design_propose",
     ];
 
     [Fact]

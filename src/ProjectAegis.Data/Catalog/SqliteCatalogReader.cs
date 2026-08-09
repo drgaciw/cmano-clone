@@ -484,6 +484,12 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return true;
         }
 
+        if (file.Contains("015", StringComparison.Ordinal) &&
+            MigrationColumnExists("catalog_staging_platform", "apply_core_position"))
+        {
+            return true;
+        }
+
         return false;
     }
 

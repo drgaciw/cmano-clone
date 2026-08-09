@@ -31,8 +31,14 @@ writeService.ApproveBatches(dbPath, [staged.PlatformBatchId], clock, "human", "r
 writeService.ApproveBatches(dbPath, [staged.DamageBatchId], clock, "human", "reviewer");
 ```
 
+Scaled `LatDeg` / `LonDeg` / `CombatRadiusNm` ride on `CatalogPlatformBinding` with
+`ApplyCorePosition: true` so `ApproveBatch` writes them into live `platform` rows
+(migration `015_platform_staging_core_position.sql`). Callers that leave
+`ApplyCorePosition` false keep the historical UpsertPlatform behavior
+(existing lat/lon/radius, else `0/0/1.0` for new rows).
+
 Host bridge: `PlatformDesignAssistantBridge` (UnityAdapter).  
-CLI verb: `platform_design_propose`.
+CLI verb: `platform_design_propose` (also registered in `tools/mission-editor/mcp-tools.json`).
 
 ## CLI
 
@@ -49,9 +55,13 @@ dotnet run --project src/ProjectAegis.MissionEditor.Cli -- platform_design_propo
 
 Flags: `--draft-only`, `--no-what-if`, `--peer <id>` (repeatable), `--actor-type`, `--actor-id`, `--clock`.
 
+`--clock <UtcTicks>` is optional and intended for **deterministic tests**. When omitted,
+the CLI uses `DateTime.UtcNow.Ticks` so consecutive proposes get unique batch ids
+(avoids FixedCatalogClock(0) overwrite collisions).
+
 ## Invariants
 
-- **No** edits to `CatalogWriteGate` write paths from this feature (consume Propose* only).
+- Core position fields are opt-in via `ApplyCorePosition` (minimal gate extension only).
 - **No** `DelegationBridge` touch.
 - Unedited workbook empty-diff golden remains green.
 - Live catalog unchanged until explicit ApproveBatch.
