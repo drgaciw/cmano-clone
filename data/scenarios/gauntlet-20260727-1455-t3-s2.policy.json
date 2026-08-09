@@ -112,6 +112,7 @@
   },
   "gauntlet": {
     "intent": "T3 escort+strike: blue screens HVU f-230-norfolk-type-23-duke while tasked to destroy designated red target pk-368-vasily-bykov-pr-22160. classifyAfterTicks=3 / identifyAfterTicks=6 are tuned to resolve inside the 16-tick budget so the contact lifecycle gate (Detected -> Classified -> Identified) is exercised before the escort-strike ROE window closes, pairing the ID-required ROE theme with lifecycle gating.",
+    "tier": 3,
     "oracle": "ContactChange fingerprint entries must contain the literal ContactLifecycleState tokens Classified and Identified for at least one tracked contact by tick 6.",
     "catalogRefs": [
       "f-230-norfolk-type-23-duke",

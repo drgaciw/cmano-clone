@@ -37,6 +37,73 @@ observable when it suppresses a detection somebody is actually attempting, so a
 scenario with no `detection` entries cannot carry the EW axis and is rejected
 rather than silently derived.
 
+## Production proof gate (DRG-63)
+
+`verify_axis` is the pure per-axis check. The **production caller** is the CLI
+on `verify_stress_axes.py` (alias: `gate_stress_proof.py` /
+`run-stress-proof-gate.sh`). It loads an evidence JSON map, verifies every
+catalog axis, and:
+
+| Result | Exit |
+|---|---|
+| All **non-config-only** axes proven | **0** |
+| Any non-config-only axis unproven (or missing evidence) | **1** |
+| Bad path / malformed JSON | **2** |
+
+**Config-only axes (`logistics` / GAP-13) are always unproven and must not
+hard-fail.** They appear in `config_only_unproven` on the report; the gate
+still passes when weapons/ew (etc.) are proven.
+
+### Evidence JSON
+
+Map `axis_id` → evidence dict consumed by `verify_axis`:
+
+```json
+{
+  "weapons": {
+    "stressed": ["...NO_AMMO...NO_AMMO...", "..."],
+    "control": ["...NO_AMMO...", "..."]
+  },
+  "ew": {
+    "stressed": [6, 8, 8],
+    "control": [10, 10, 8]
+  },
+  "logistics": {}
+}
+```
+
+- `differential-token` / `fingerprint-token`: string fingerprints (or token lists
+  as strings).
+- `differential-aggregate`: integer aggregates per seed.
+- Missing keys for an axis are empty evidence → unproven (hard-fail if not
+  config-only).
+
+### Invoke
+
+```bash
+# Library-style CLI (either entrypoint is equivalent)
+python3 tools/qa-gauntlet/verify_stress_axes.py \
+  --evidence path/to/evidence.json \
+  --out path/to/stress-proof-report.json
+
+python3 tools/qa-gauntlet/gate_stress_proof.py \
+  --evidence path/to/evidence.json
+
+# Shell wrapper (same flags; also accepts STRESS_PROOF_EVIDENCE)
+tools/qa-gauntlet/run-stress-proof-gate.sh --evidence path/to/evidence.json \
+  --out production/qa/gauntlet/<run-id>/stress-proof-report.json
+
+# Opt-in after a ladder run (default ladder unchanged when unset)
+STRESS_PROOF_EVIDENCE=path/to/evidence.json \
+  tools/qa-gauntlet/run-gauntlet.sh --run-id <id>
+# or
+tools/qa-gauntlet/run-gauntlet.sh --run-id <id> \
+  --stress-proof-evidence path/to/evidence.json
+```
+
+Report keys: `pass`, `results[]` (`axis`, `proven`, `mode`, `detail`),
+`proven`, `unproven`, `hard_failures`, `config_only_unproven`.
+
 ## Running
 
 ```bash
@@ -54,6 +121,9 @@ PY
 
 # 2. Derive policies, batch at TIER ticks (T1=6 T2=10 T3=16 T4=24 T5=40),
 #    then evaluate with the shipped CLI. Never calibrate from the 10-tick CI smoke.
+#
+# 3. Collect evidence (stressed vs control fingerprints / aggregates) and run
+#    the production proof gate (see § Production proof gate above).
 ```
 
 On the shipped catalog, this plan produces `configs=15, estimatedRuns=105,
@@ -74,19 +144,19 @@ the same number and were previously conflated:
 | Reference | Scenarios | Runs (3 seeds) |
 |---|---|---|
 | Default ladder run (`--scenarios-per-tier 4` x 5 tiers) | 20 | **60** |
-| Accumulated-corpus regression (tiered scenarios only) | 39 | **117** |
+| Accumulated-corpus regression (tiered scenarios only) | 42 | **126** |
 
-43 gauntlet policies sit on disk, but only the **39** carrying a
-`gauntlet.tier` are executed by the per-tier corpus regression — the other 4
-have no tier and are skipped. Count tiered scenarios, not files.
+43 gauntlet policies sit on disk, but only the **42** carrying a
+`gauntlet.tier` are executed by the per-tier corpus regression — the other 1
+has no tier and is skipped. Count tiered scenarios, not files.
 
 At `configs=15, seeds=3` the matrix costs **105 runs**. Stated honestly, that
-is **~1.75x a default ladder run** and about **0.90x** a full-corpus
+is **~1.75x a default ladder run** and about **0.83x** a full-corpus
 regression: the matrix is *not* cheaper than running the ladder, and must not
 be sold as if it were. It is cheaper than the 135-scenario full cross-product
 it replaces, and only marginally cheaper than a corpus regression.
 
-Treat the corpus-regression cost (117) as the ceiling. If `estimatedRuns`
+Treat the corpus-regression cost (126) as the ceiling. If `estimatedRuns`
 exceeds it, lower `max_configs` rather than letting the run expand. Truncation
 is always reported via `dropped`; a stress run must never silently narrow its
 own coverage.

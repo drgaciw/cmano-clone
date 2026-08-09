@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -13,7 +14,12 @@ sys.path.insert(0, str(ROOT / "tools" / "qa-gauntlet"))
 
 from stress_axes import load_axes  # noqa: E402
 from verify_stress_axes import (  # noqa: E402
+    is_hard_fail_result,
+    load_evidence,
+    main,
+    run_gate,
     verify_axis,
+    verify_axes,
     verify_differential_aggregate,
     verify_differential_token,
     verify_fingerprint_token,
@@ -179,3 +185,110 @@ def test_verify_axis_ew_control_only_evidence_is_not_proven():
     result = verify_axis(axes["ew"], {"control": [10, 10, 10]})
 
     assert result["proven"] is False
+
+
+# --- Production gate helpers (DRG-63) ---
+
+
+def test_verify_axes_report_pass_with_config_only_unproven():
+    axes = load_axes(CATALOG)
+    report = verify_axes(
+        axes,
+        {
+            "weapons": {
+                "stressed": ["NO_AMMO NO_AMMO"],
+                "control": ["NO_AMMO"],
+            },
+            "ew": {"stressed": [2, 2], "control": [9, 9]},
+            "logistics": {},
+        },
+    )
+    assert report["pass"] is True
+    assert "logistics" in report["config_only_unproven"]
+    assert is_hard_fail_result(
+        next(r for r in report["results"] if r["axis"] == "logistics")
+    ) is False
+
+
+def test_verify_axes_report_fail_on_unproven_weapons():
+    axes = load_axes(CATALOG)
+    report = verify_axes(axes, {"weapons": {"stressed": ["a"], "control": ["a a"]}})
+    assert report["pass"] is False
+    assert "weapons" in report["hard_failures"]
+
+
+def test_load_evidence_plain_and_wrapped(tmp_path: Path):
+    plain = tmp_path / "plain.json"
+    plain.write_text(json.dumps({"weapons": {"stressed": [], "control": []}}), encoding="utf-8")
+    assert "weapons" in load_evidence(plain)
+
+    wrapped = tmp_path / "wrapped.json"
+    wrapped.write_text(
+        json.dumps({"evidence": {"ew": {"stressed": [1], "control": [2]}}}),
+        encoding="utf-8",
+    )
+    assert "ew" in load_evidence(wrapped)
+
+
+def test_main_cli_pass_and_fail(tmp_path: Path):
+    ok = tmp_path / "ok.json"
+    ok.write_text(
+        json.dumps(
+            {
+                "weapons": {"stressed": ["NO_AMMO NO_AMMO"], "control": ["NO_AMMO"]},
+                "ew": {"stressed": [1], "control": [3]},
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert main(["--evidence", str(ok), "--axes", str(CATALOG)]) == 0
+
+    bad = tmp_path / "bad.json"
+    bad.write_text(json.dumps({"weapons": {}}), encoding="utf-8")
+    assert main(["--evidence", str(bad), "--axes", str(CATALOG), "--axis", "weapons"]) == 1
+
+
+def test_run_gate_writes_report(tmp_path: Path):
+    evidence = tmp_path / "e.json"
+    evidence.write_text(
+        json.dumps(
+            {
+                "weapons": {"stressed": ["NO_AMMO NO_AMMO"], "control": ["NO_AMMO"]},
+                "ew": {"stressed": [0], "control": [4]},
+            }
+        ),
+        encoding="utf-8",
+    )
+    out = tmp_path / "report.json"
+    report = run_gate(evidence, CATALOG, out_path=out)
+    assert report["pass"] is True
+    assert out.is_file()
+    assert json.loads(out.read_text(encoding="utf-8"))["pass"] is True
+
+
+def test_differential_token_mismatched_sample_counts_not_proven():
+    proven, detail = verify_differential_token(
+        stressed=["NO_AMMO", "NO_AMMO"],
+        control=["NO_AMMO"],
+        token="NO_AMMO",
+    )
+    assert proven is False
+    assert "mismatched sample counts" in detail
+
+
+def test_differential_aggregate_mismatched_sample_counts_not_proven():
+    proven, detail = verify_differential_aggregate(stressed=[10], control=[6, 6])
+    assert proven is False
+    assert "mismatched sample counts" in detail
+
+
+def test_run_gate_rejects_empty_catalog(tmp_path: Path):
+    evidence = tmp_path / "e.json"
+    evidence.write_text(json.dumps({"weapons": {}}), encoding="utf-8")
+    catalog = tmp_path / "empty.yaml"
+    catalog.write_text("version: 1\naxes: []\n", encoding="utf-8")
+    try:
+        run_gate(evidence, catalog)
+        assert False, "expected ValueError for empty catalog"
+    except ValueError as exc:
+        assert "empty" in str(exc).lower()

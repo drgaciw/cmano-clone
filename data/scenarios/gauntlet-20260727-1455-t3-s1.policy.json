@@ -125,6 +125,7 @@
   },
   "gauntlet": {
     "intent": "T3 escort+strike: blue screens HVU f-219-sachsen-type-f124-2006 (escort) while tasked to destroy designated red target skr-admiral-grigorovich-pr-1135-6m (strike). ASW subsurface pairing ssn-774-virginia-blk-i-ii vs pla-885-severodvinsk-yasen (plus ka-27m-helix-a dipping-sonar cross-cue) proves subsurface domain tagging. ssn-774-virginia-blk-i-ii stays radar Passive and is also the ASW shooter on the subsurface contact trigger, forcing an engage-side EMCON gate.",
+    "tier": 3,
     "oracle": "Fingerprint must contain CATALOG_UNIT:pla-885-severodvinsk-yasen:subsurface and CATALOG_UNIT:ssn-774-virginia-blk-i-ii:subsurface (plus :air / :surface tokens for the other units), and must contain EMCON_OFF from ssn-774-virginia-blk-i-ii's engagement attempt while Passive.",
     "catalogRefs": [
       "f-219-sachsen-type-f124-2006",
