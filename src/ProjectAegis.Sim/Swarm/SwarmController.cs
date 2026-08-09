@@ -2,6 +2,7 @@ namespace ProjectAegis.Sim.Swarm;
 
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
+using ProjectAegis.Sim.Swarm.Formation;
 
 /// <summary>
 /// SWARM-A2 / DRG-87: aggregate swarm controller — centroid motion, Hold/Move/Attack
@@ -10,6 +11,7 @@ using ProjectAegis.Sim.Core;
 /// SWARM-A6: integrity timeline replay + logical caps (DRG-91).
 /// SWARM-B1 / DRG-94: operational modes, host bind, linkState (C2 channel only).
 /// SWARM-B4 / DRG-97: regen near host with stores (SWARM-13).
+/// SWARM-C1 / DRG-105: formations (Cloud/Wall/Spear/Orbit) as soft layout constraints (SWARM-16).
 /// </summary>
 public sealed class SwarmController
 {
@@ -26,6 +28,8 @@ public sealed class SwarmController
     private ulong _integritySequence = 1;
     private readonly List<SwarmModeOrderLogEntry> _modeOrderLog = new();
     private ulong _modeSequence = 1;
+    private readonly List<SwarmFormationOrderLogEntry> _formationOrderLog = new();
+    private ulong _formationSequence = 1;
     private readonly Dictionary<string, (double Lat, double Lon, bool Alive)> _hosts =
         new(StringComparer.Ordinal);
 
@@ -45,9 +49,12 @@ public sealed class SwarmController
 
     public IReadOnlyList<SwarmModeOrderLogEntry> ModeOrderLog => _modeOrderLog;
 
+    public IReadOnlyList<SwarmFormationOrderLogEntry> FormationOrderLog => _formationOrderLog;
+
     /// <summary>
     /// Registers a swarm unit from Data-side <see cref="SwarmUnitIntegrity"/> plus spawn centroid.
     /// Logical max/count are clamped to <see cref="SwarmPerformanceCaps.LogicalMaxDronesPerSwarm"/> (SWARM-25).
+    /// Default formation is <see cref="SwarmFormation.Cloud"/> (SWARM-16).
     /// </summary>
     public void Register(SwarmUnitIntegrity integrity, double latDeg, double lonDeg)
     {
@@ -108,6 +115,9 @@ public sealed class SwarmController
     public SwarmOperationalMode GetMode(string unitId) =>
         TryGetUnit(unitId, out var unit) ? unit.Mode : SwarmOperationalMode.Hold;
 
+    public SwarmFormation GetFormation(string unitId) =>
+        TryGetUnit(unitId, out var unit) ? unit.Formation : SwarmFormation.Cloud;
+
     public SwarmLinkState GetLinkState(string unitId) =>
         TryGetUnit(unitId, out var unit) ? unit.LinkState : SwarmLinkState.Connected;
 
@@ -145,6 +155,22 @@ public sealed class SwarmController
             simTime,
             unit.UnitId,
             mode));
+        return sequenceId;
+    }
+
+    /// <summary>SWARM-16: headless formation change (logged soft layout constraint).</summary>
+    public ulong IssueSetFormation(string unitId, SwarmFormation formation, ulong simTick, double simTime)
+    {
+        var unit = RequireUnit(unitId);
+        EnsureOrdersAccepted(unit);
+        unit.Formation = formation;
+        var sequenceId = _formationSequence++;
+        _formationOrderLog.Add(new SwarmFormationOrderLogEntry(
+            sequenceId,
+            simTick,
+            simTime,
+            unit.UnitId,
+            formation));
         return sequenceId;
     }
 
@@ -660,6 +686,7 @@ public sealed class SwarmController
             LonDeg = lonDeg;
             Intent = SwarmIntentKind.Hold;
             Mode = SwarmOperationalMode.Hold;
+            Formation = SwarmFormation.Cloud;
             LinkState = SwarmLinkState.Connected;
         }
 
@@ -671,6 +698,7 @@ public sealed class SwarmController
         public double LonDeg { get; set; }
         public SwarmIntentKind Intent { get; set; }
         public SwarmOperationalMode Mode { get; set; }
+        public SwarmFormation Formation { get; set; }
         public SwarmLinkState LinkState { get; set; }
         public string? HostId { get; set; }
         public double? WaypointLatDeg { get; set; }
