@@ -19,6 +19,8 @@ public static partial class AbortReasonCatalog
         public const string LAND_ASPECT_BLOCK = "LAND_ASPECT_BLOCK";
         public const string MINE_ASPECT_BLOCK = "MINE_ASPECT_BLOCK";
         public const string FACILITY_ASPECT_BLOCK = "FACILITY_ASPECT_BLOCK";
+        public const string AUTO_ENGAGE_DENIED = "AUTO_ENGAGE_DENIED";
+        public const string EXPEND_UNAUTHORIZED = "EXPEND_UNAUTHORIZED";
     }
 
     public static class Engage
