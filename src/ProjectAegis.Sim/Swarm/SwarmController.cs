@@ -8,6 +8,7 @@ using ProjectAegis.Sim.Core;
 /// headless logged intents, authorized integrity damage, deterministic aggregate SoT.
 /// No per-drone physics outcomes (SWARM-07). Surface: Sim only (not Unity, not A3 weapons).
 /// SWARM-A6: integrity timeline replay + logical caps (DRG-91).
+/// SWARM-B1 / DRG-94: operational modes, host bind, linkState (C2 channel only).
 /// </summary>
 public sealed class SwarmController
 {
@@ -19,6 +20,10 @@ public sealed class SwarmController
     private readonly SwarmOrderLog _orderLog = new();
     private readonly List<SwarmIntegrityChange> _integrityTimeline = new();
     private ulong _integritySequence = 1;
+    private readonly List<SwarmModeOrderLogEntry> _modeOrderLog = new();
+    private ulong _modeSequence = 1;
+    private readonly Dictionary<string, (double Lat, double Lon, bool Alive)> _hosts =
+        new(StringComparer.Ordinal);
 
     public SwarmController(SimSeed seed, double speedDegPerSecond = DefaultSpeedDegPerSecond)
     {
@@ -33,6 +38,8 @@ public sealed class SwarmController
     public IReadOnlyList<SwarmOrderLogEntry> OrderLog => _orderLog.Entries;
 
     public IReadOnlyList<SwarmIntegrityChange> IntegrityTimeline => _integrityTimeline;
+
+    public IReadOnlyList<SwarmModeOrderLogEntry> ModeOrderLog => _modeOrderLog;
 
     /// <summary>
     /// Registers a swarm unit from Data-side <see cref="SwarmUnitIntegrity"/> plus spawn centroid.
@@ -94,10 +101,85 @@ public sealed class SwarmController
     public SwarmIntentKind GetIntent(string unitId) =>
         TryGetUnit(unitId, out var unit) ? unit.Intent : SwarmIntentKind.Hold;
 
+    public SwarmOperationalMode GetMode(string unitId) =>
+        TryGetUnit(unitId, out var unit) ? unit.Mode : SwarmOperationalMode.Hold;
+
+    public SwarmLinkState GetLinkState(string unitId) =>
+        TryGetUnit(unitId, out var unit) ? unit.LinkState : SwarmLinkState.Connected;
+
+    public string? GetHostId(string unitId) =>
+        TryGetUnit(unitId, out var unit) ? unit.HostId : null;
+
+    /// <summary>SWARM-11: bind or clear host/mothership for a swarm unit.</summary>
+    public void BindHost(string unitId, string? hostId)
+    {
+        var unit = RequireUnit(unitId);
+        unit.HostId = string.IsNullOrWhiteSpace(hostId) ? null : hostId.Trim();
+    }
+
+    /// <summary>SWARM-11: publish host geometry/liveness for Screen mode + link evaluation.</summary>
+    public void PublishHostState(string hostId, double latDeg, double lonDeg, bool alive = true)
+    {
+        if (string.IsNullOrWhiteSpace(hostId))
+        {
+            throw new ArgumentException("Host id is required.", nameof(hostId));
+        }
+
+        _hosts[hostId.Trim()] = (latDeg, lonDeg, alive);
+    }
+
+    /// <summary>SWARM-10: headless operational mode change (logged).</summary>
+    public ulong IssueMode(string unitId, SwarmOperationalMode mode, ulong simTick, double simTime)
+    {
+        var unit = RequireUnit(unitId);
+        EnsureOrdersAccepted(unit);
+        unit.Mode = mode;
+        var sequenceId = _modeSequence++;
+        _modeOrderLog.Add(new SwarmModeOrderLogEntry(
+            sequenceId,
+            simTick,
+            simTime,
+            unit.UnitId,
+            mode));
+        return sequenceId;
+    }
+
+    /// <summary>
+    /// SWARM-12: recompute and apply linkState from host geometry + jam.
+    /// Does not touch CEC mesh state (B6).
+    /// </summary>
+    public SwarmLinkState RefreshLinkState(string unitId, bool jammed = false)
+    {
+        var unit = RequireUnit(unitId);
+        double? range = null;
+        var hostAlive = true;
+        if (!string.IsNullOrEmpty(unit.HostId) && _hosts.TryGetValue(unit.HostId, out var host))
+        {
+            hostAlive = host.Alive;
+            range = SwarmLinkEvaluator.RangeDeg(unit.LatDeg, unit.LonDeg, host.Lat, host.Lon);
+        }
+        else if (!string.IsNullOrEmpty(unit.HostId))
+        {
+            // Host bound but unknown geometry — treat as degraded until geometry arrives.
+            unit.LinkState = jammed ? SwarmLinkState.Lost : SwarmLinkState.Degraded;
+            return unit.LinkState;
+        }
+
+        unit.LinkState = SwarmLinkEvaluator.Evaluate(range, hostAlive, jammed);
+        return unit.LinkState;
+    }
+
+    /// <summary>SWARM-12: explicit linkState set (tests / external comms timeline).</summary>
+    public void SetLinkState(string unitId, SwarmLinkState linkState)
+    {
+        RequireUnit(unitId).LinkState = linkState;
+    }
+
     /// <summary>Headless Hold — loiter/station at current centroid (SWARM-03).</summary>
     public ulong IssueHold(string unitId, ulong simTick, double simTime)
     {
         var unit = RequireUnit(unitId);
+        EnsureOrdersAccepted(unit);
         unit.Intent = SwarmIntentKind.Hold;
         unit.WaypointLatDeg = null;
         unit.WaypointLonDeg = null;
@@ -114,6 +196,7 @@ public sealed class SwarmController
         double simTime)
     {
         var unit = RequireUnit(unitId);
+        EnsureOrdersAccepted(unit);
         unit.Intent = SwarmIntentKind.Move;
         unit.WaypointLatDeg = targetLatDeg;
         unit.WaypointLonDeg = targetLonDeg;
@@ -142,6 +225,7 @@ public sealed class SwarmController
         }
 
         var unit = RequireUnit(unitId);
+        EnsureOrdersAccepted(unit);
         unit.Intent = SwarmIntentKind.Attack;
         unit.AttackTargetUnitId = attackTargetUnitId.Trim();
         unit.WaypointLatDeg = targetLatDeg;
@@ -212,6 +296,16 @@ public sealed class SwarmController
             var unit = _units[unitId];
             if (unit.DroneCount <= 0)
             {
+                continue;
+            }
+
+            // SWARM-10/11: Screen mode orbits/gravitates toward bound host when host is known.
+            if (unit.Mode == SwarmOperationalMode.Screen &&
+                !string.IsNullOrEmpty(unit.HostId) &&
+                _hosts.TryGetValue(unit.HostId, out var host) &&
+                host.Alive)
+            {
+                AdvanceCentroid(unit, host.Lat, host.Lon, deltaSeconds);
                 continue;
             }
 
@@ -345,6 +439,30 @@ public sealed class SwarmController
         return mix;
     }
 
+    /// <summary>SWARM-11 stub: host death forces Hold mode + last-order Hold intent when link lost.</summary>
+    public void NotifyHostLost(string unitId)
+    {
+        var unit = RequireUnit(unitId);
+        unit.LinkState = SwarmLinkState.Lost;
+        unit.Mode = SwarmOperationalMode.Hold;
+        unit.Intent = SwarmIntentKind.Hold;
+        unit.WaypointLatDeg = null;
+        unit.WaypointLonDeg = null;
+        if (!string.IsNullOrEmpty(unit.HostId) && _hosts.TryGetValue(unit.HostId, out var host))
+        {
+            _hosts[unit.HostId] = (host.Lat, host.Lon, Alive: false);
+        }
+    }
+
+    private static void EnsureOrdersAccepted(SwarmRuntimeUnit unit)
+    {
+        if (unit.LinkState == SwarmLinkState.Lost)
+        {
+            throw new InvalidOperationException(
+                $"Orders blocked: linkState=lost for swarm '{unit.UnitId}' (SWARM-12).");
+        }
+    }
+
     private void AdvanceCentroid(SwarmRuntimeUnit unit, double targetLat, double targetLon, double deltaSeconds)
     {
         var dLat = targetLat - unit.LatDeg;
@@ -420,6 +538,8 @@ public sealed class SwarmController
             LatDeg = latDeg;
             LonDeg = lonDeg;
             Intent = SwarmIntentKind.Hold;
+            Mode = SwarmOperationalMode.Hold;
+            LinkState = SwarmLinkState.Connected;
         }
 
         public string UnitId { get; }
@@ -429,6 +549,9 @@ public sealed class SwarmController
         public double LatDeg { get; set; }
         public double LonDeg { get; set; }
         public SwarmIntentKind Intent { get; set; }
+        public SwarmOperationalMode Mode { get; set; }
+        public SwarmLinkState LinkState { get; set; }
+        public string? HostId { get; set; }
         public double? WaypointLatDeg { get; set; }
         public double? WaypointLonDeg { get; set; }
         public string? AttackTargetUnitId { get; set; }
