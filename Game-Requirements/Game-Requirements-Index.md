@@ -54,8 +54,8 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 
 ## Content & Systems
 
-- [09-Near-Future-Technologies.md](requirements/09-Near-Future-Technologies.md)
-- [10-Speculative-Systems.md](requirements/10-Speculative-Systems.md)
+- [09-Near-Future-Technologies.md](requirements/09-Near-Future-Technologies.md) — **Partial:** shipped spine product-in-scope; design matrix **Phase N post-release** ([DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) 2026-08-09)
+- [10-Speculative-Systems.md](requirements/10-Speculative-Systems.md) — **Partial+:** gate spine product-in-scope; full platform runtime **Phase N / vision** ([DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) 2026-08-09)
 
 ## Authoring & Design Tools
 
@@ -92,7 +92,8 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 
 ## Next workflow steps
 
-- **H8 Drone Swarm Platforms (doc 22):** Phase A implementation Linear DRG-86…91 after this land (DRG-85)
+- **H8 Drone Swarm Platforms (doc 22):** Phase A–C + PE residual **landed** (DRG-83 Done); Phase N SWARM-27…30 **post-release deferred** ([DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) 2026-08-09)
+- **REQ-09/10 Phase N:** Owner decision recorded — no Phase N GDDs/runtime until product re-opens Phase N (`production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md`)
 - **Corpus maturity program closed** (W0–W4 complete 2026-07-08); no further corpus waves
 - **Scenario editor completion** (req 11): SE-W1 doc honesty + residual tools; SE-W2 Unity AC-8 productionize; SE-W3 gate — plan [2026-07-08-scenario-editor-completion-plan.md](../docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md); roadmap [future-sprint-roadpmap-07042026.md](../docs/reports/future-sprint-roadpmap-07042026.md)
 - Run `/design-review` when mechanics change on **01, 04, 06–11, 13–22**
