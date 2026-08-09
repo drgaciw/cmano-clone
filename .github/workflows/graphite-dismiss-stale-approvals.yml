@@ -23,7 +23,6 @@ concurrency:
 
 jobs:
   dismiss_stale_approvals:
-    if: false
     runs-on: ubuntu-latest
     permissions:
       contents: read
