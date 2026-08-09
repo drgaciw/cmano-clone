@@ -16,4 +16,8 @@ public enum FireAbortReason
     LandAspectBlock = 11,
     MineAspectBlock = 12,
     FacilityAspectBlock = 13,
+    /// <summary>SWARM-15: auto-engage posture not authorized by doctrine.</summary>
+    AutoEngageDenied = 14,
+    /// <summary>SWARM-15/19: expend/kamikaze pulse not authorized by doctrine.</summary>
+    ExpendUnauthorized = 15,
 }

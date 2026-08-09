@@ -15,10 +15,10 @@ jobs:
       GAUNTLET_ORACLE_TICKS: "10"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: "8.0.x"
 
@@ -99,7 +99,7 @@ jobs:
 
       - name: gauntlet_oracle_eval (shipped CLI — must pass)
         run: |
-          # --profile ci: prefer gauntlet.expectCi when present (ticks=10 smoke budget).
+          # --profile ci: require gauntlet.expectCi (ticks=10 smoke budget; no ladder fallback).
           # Ladder authority remains gauntlet.expect at tier ticks (default profile).
           dotnet run -c Release --no-build --project src/ProjectAegis.MissionEditor.Cli -- \
             gauntlet_oracle_eval \
@@ -177,7 +177,7 @@ jobs:
 
       - name: Upload oracle artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: gauntlet-oracle
           path: artifacts/gauntlet-oracle/

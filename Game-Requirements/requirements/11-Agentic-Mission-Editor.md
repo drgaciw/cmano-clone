@@ -206,6 +206,51 @@ Capabilities that shipped in the headless stack but were previously unspecified.
 - **AME-10.4** (P1) — **Live / continuous validation during authoring** — see AME-6.9 (`track1-continuous-live-validation` in flight).
 - **AME-10.5** (P1) — **Event static analysis** — see AME-5.7 (**ME-W2 Shipped headless:** `EventStaticAnalyzer` codes for dead / unreachable / contradictory / circular; visual graph UI residual).
 
+### 11. Authoring at scale (not started)
+
+Workflow capabilities the editor lacks once an order of battle grows past what per-object CRUD
+comfortably handles. **None are started.** Section 10 covers scenario-*ops* capabilities that shipped
+ahead of their spec; this section is the reverse — specified ahead of any implementation.
+
+Derived from the same research corpus as §10
+([scenario-editor-research.md](../../docs/research/scenario-editor-research.md)), covering the
+authoring-workflow and testability themes that §10 did not absorb.
+
+- **AME-11.1** (P2) — **Multi-select and bulk edit.** Select many ORBAT units, missions, or reference
+  points and apply an edit once. Today every mutation is per-object (`orbat_upsert_unit`,
+  `mission_update_*`), so retasking a squadron is N calls with N `editVersion` round-trips — and any
+  one of them can fail on a stale version, leaving the batch half-applied.
+- **AME-11.2** (P2) — **Staged edit transactions.** Group several mutations into one previewable,
+  atomically committed batch. **Distinct from the shipped two-phase gesture**
+  (`BeginPlaceUnit` / `CommitPlaceUnit`), which stages exactly one object. The gap is a batch that
+  either lands whole or not at all, which is also what makes AME-11.1 safe against partial failure.
+- **AME-11.3** (P2) — **Command palette.** Searchable access to every editor action. The shipped
+  surface is ~40 CLI/MCP verbs; a GUI that exposes them only through nested menus makes the long tail
+  undiscoverable. Complements rather than replaces menus (cf. doc 20 CMD-16).
+- **AME-11.4** (P2) — **Per-scenario regression baselines.** Record a behavioural baseline for an
+  authored scenario and re-check it after rules or DB changes. **Distinct from `ReplayGolden`**, which
+  proves the *sim* reproduces byte-identically on fixed inputs; this asks whether *this authored
+  scenario still plays as designed* once inputs change underneath it — the failure mode AME-10.2's
+  DB migration creates.
+- **AME-11.5** (P2) — **Experiment-runner handoff.** Submit an authored scenario to batch execution
+  and receive aggregated results. **The runner already exists** — the QA gauntlet is a tiered batch
+  sim harness (`docs/engineering/qa-gauntlet.md`, `gauntlet-oracle-baseline.md`). The gap is a
+  handoff from authoring into it, not a new runner. Scope accordingly.
+- **AME-11.6** (P2) — **Sensitivity presets.** Parameter sweeps over reinforcement timing, loadouts,
+  doctrine packages, and environmental assumptions, feeding AME-11.5. Requires seeded, deterministic
+  variation so a sweep is reproducible (ADR-008 determinism contract).
+
+> **Not an open question — already decided.** The source research also recommends *"text scripting for
+> advanced edge cases"* in event authoring. That is **answered by Q2 / ADR-014**: typed DSL is v1,
+> **no Lua in v1**, optional shim deferred to Phase 3, enforced by `NoDynamicExecutionGateTests`
+> (bans Lua, `Reflection.Emit`, Roslyn, `CSharpScript`, `Process.Start` from the authoring path).
+> Recorded here so the recommendation is not re-opened as a gap — it is an accepted exclusion
+> protecting determinism, and reversing it would require amending ADR-014, not this document.
+>
+> Likewise the research's AI-assisted authoring items (NL brief → scaffold, red-team variants) read as
+> LLM-backed. v1 is **no LLM in any blocking path**; `scenario_ai_scaffold` exists as a deterministic
+> heuristic stub, and LLM authoring is Phase 2/3 per §Scope and AME-9.x.
+
 ## Formulas
 
 ### Strike/Ferry fuel-reachability (Validation Engine, GDD §4.1)

@@ -114,7 +114,8 @@ public static class DeterministicDetectionLoop
                 trial.BasePd,
                 trial.EnvMask,
                 trial.EccmFactor,
-                jamStrength: jamStrength);
+                jamStrength: jamStrength,
+                swarmIntegrityScale: trial.SwarmIntegrityScale);
             var entityId = DetectionEntityId.FromTrial(trial.ObserverId, trial.SensorId, trial.TargetId);
             var draw = SeededRng.UnitFloat(seed, RngDomain.Detection, entityId, simTick, drawIndex++);
             var detected = draw < pd;

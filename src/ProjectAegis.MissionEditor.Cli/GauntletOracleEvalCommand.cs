@@ -119,6 +119,7 @@ public static class GauntletOracleEvalCommand
                 .Where(r => string.Equals(r.ScenarioId, scenarioId, StringComparison.Ordinal))
                 .ToList();
             var filteredCsv = BuildCsv(filteredRows);
+            // Strict-key fail-closed lives inside EvaluateFromPolicyAndCsv (Data).
             var eval = GauntletOracleEvaluator.EvaluateFromPolicyAndCsv(policyJson, filteredCsv, profile);
 
             scenarioResults.Add(new
@@ -126,6 +127,7 @@ public static class GauntletOracleEvalCommand
                 scenario = scenarioId,
                 passed = eval.Passed,
                 failures = eval.Failures,
+                warnings = eval.EffectiveWarnings,
                 rows = filteredRows.Count,
             });
 
@@ -148,7 +150,7 @@ public static class GauntletOracleEvalCommand
         output.WriteLine("Notes:");
         output.WriteLine("  Filters CSV rows to the policy id (scenarioId column) before evaluation.");
         output.WriteLine("  --profile ladder (default): gauntlet.expect (tier-tick authority).");
-        output.WriteLine("  --profile ci: gauntlet.expectCi when present, else expect (CI ticks=10 smoke).");
+        output.WriteLine("  --profile ci: requires gauntlet.expectCi (CI ticks=10 smoke; no ladder fallback).");
         output.WriteLine("  Exit 0 when all scenarios Passed; exit 1 otherwise.");
         output.WriteLine("  Always prints JSON summary to stdout; --out also writes the same JSON.");
     }

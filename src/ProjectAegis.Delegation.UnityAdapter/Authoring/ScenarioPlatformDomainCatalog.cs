@@ -42,6 +42,8 @@ public static class ScenarioPlatformDomainCatalog
     private static readonly ScenarioPlatformPreset[] Ground =
     {
         new(DomainGround, "sam-patriot-pac3", "Patriot PAC-3 battery", "blue"),
+        // Swedish Army LVS-103 battery (CMANO facility/3434); UI label matches user/catalog naming.
+        new(DomainGround, "m901-patriot-pac3-erint-mse", "M901 Patriot [PAC-3 ERINT/MSE]", "blue"),
         new(DomainGround, "sam-s-400", "S-400 battery", "red"),
         new(DomainGround, "coastal-rbs15", "RBS-15 coastal battery", "blue"),
         new(DomainGround, "facility-airbase", "Air base (facility)", "blue"),

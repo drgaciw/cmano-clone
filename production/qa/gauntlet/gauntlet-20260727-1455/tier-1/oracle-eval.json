@@ -1,0 +1,38 @@
+{
+  "ok": false,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-20260727-1455-t1-s1",
+      "passed": false,
+      "failures": [
+        "row[0] scenario=gauntlet-20260727-1455-t1-s1 seed=42: score 400 \u003E max 280"
+      ],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-20260727-1455-t1-s2",
+      "passed": false,
+      "failures": [
+        "row[0] scenario=gauntlet-20260727-1455-t1-s2 seed=42: score 400 \u003E max 320"
+      ],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-20260727-1455-t1-s3",
+      "passed": false,
+      "failures": [
+        "row[0] scenario=gauntlet-20260727-1455-t1-s3 seed=42: score 400 \u003E max 260"
+      ],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-20260727-1455-t1-s4",
+      "passed": false,
+      "failures": [
+        "row[0] scenario=gauntlet-20260727-1455-t1-s4 seed=42: score 400 \u003E max 300"
+      ],
+      "rows": 3
+    }
+  ],
+  "allPassed": false
+}

@@ -34,6 +34,11 @@ public sealed class C2TopBarApplyStateTests
         Assert.That(applied.PhaseLabel, Is.EqualTo("PHASE: Executing"));
         Assert.That(applied.CompressionLabel, Is.EqualTo("TIME: 2x"));
         Assert.That(applied.ModeLabel, Is.EqualTo("MODE: Mixed"));
+        Assert.That(applied.ZuluTimeLabel, Is.EqualTo(projected.ZuluTimeLabel));
+        Assert.That(applied.LocalTimeLabel, Is.EqualTo(projected.LocalTimeLabel));
+        Assert.That(applied.RemainingDurationLabel, Is.EqualTo(projected.RemainingDurationLabel));
+        Assert.That(applied.ZuluTimeLabel, Is.EqualTo("ZULU 01:01:01"));
+        Assert.That(applied.RemainingDurationLabel, Is.EqualTo("REMAIN —"));
     }
 
     [Test]
@@ -66,6 +71,9 @@ public sealed class C2TopBarApplyStateTests
         var applied = C2TopBarApplyState.Apply(null);
         Assert.That(applied.SimTimeLabel, Is.Empty);
         Assert.That(applied.ScoreLabel, Is.Empty);
+        Assert.That(applied.ZuluTimeLabel, Is.Empty);
+        Assert.That(applied.LocalTimeLabel, Is.Empty);
+        Assert.That(applied.RemainingDurationLabel, Is.Empty);
         Assert.That(applied.CommsCssClass, Is.EqualTo("c2-topbar-item--comms-nominal"));
     }
 
@@ -98,5 +106,24 @@ public sealed class C2TopBarApplyStateTests
 
         Assert.That(applied.ScoreLabel, Is.EqualTo("SCORE: 50  KILLS: 0  MSLS: 0"));
         Assert.That(applied.PhaseLabel, Is.EqualTo("PHASE: Planning"));
+    }
+
+    [Test]
+    public void ProjectAndApply_forwards_cmd22_time_params()
+    {
+        var epoch = new DateTimeOffset(2026, 8, 1, 12, 0, 0, TimeSpan.Zero);
+        var applied = C2TopBarApplyState.ProjectAndApply(
+            2 * 3600 + 32 * 60 + 5,
+            SimulationPhase.Executing,
+            "1x",
+            "Mixed",
+            new DecisionLog(),
+            scenarioEpochUtc: epoch,
+            localUtcOffsetHours: -7,
+            scenarioDurationSeconds: 4 * 3600);
+
+        Assert.That(applied.ZuluTimeLabel, Is.EqualTo("ZULU 14:32:05"));
+        Assert.That(applied.LocalTimeLabel, Is.EqualTo("LOCAL 07:32:05"));
+        Assert.That(applied.RemainingDurationLabel, Is.EqualTo("REMAIN 01:27:55"));
     }
 }

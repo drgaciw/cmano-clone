@@ -12,7 +12,7 @@ public static class GauntletOracleEvaluator
     /// <summary>Ladder / default profile key — uses <c>gauntlet.expect</c> (tier-tick authority).</summary>
     public const string ProfileLadder = "ladder";
 
-    /// <summary>CI smoke profile key — uses <c>gauntlet.expectCi</c> when present, else <c>expect</c>.</summary>
+    /// <summary>CI smoke profile key — requires <c>gauntlet.expectCi</c>.</summary>
     public const string ProfileCi = "ci";
 
     public static GauntletOracleEvaluationResult EvaluateFromPolicyAndCsv(
@@ -25,18 +25,26 @@ public static class GauntletOracleEvaluator
             return new GauntletOracleEvaluationResult(false, ["missing policy json"]);
         }
 
+        // Fail closed on unknown gauntlet.* keys before expect-bound evaluation.
+        var strict = GauntletPolicyStrictKeys.Check(policyJson);
+        if (strict.Errors.Count > 0)
+        {
+            return new GauntletOracleEvaluationResult(false, strict.Errors, strict.Warnings);
+        }
+
         if (!TryParseExpect(policyJson, out var expect, out var parseFailures, profile))
         {
-            return new GauntletOracleEvaluationResult(false, parseFailures);
+            return new GauntletOracleEvaluationResult(false, parseFailures, strict.Warnings);
         }
 
         var rows = ParseCsvRows(resultsCsv);
         if (rows.Count == 0)
         {
-            return new GauntletOracleEvaluationResult(false, ["no results rows"]);
+            return new GauntletOracleEvaluationResult(false, ["no results rows"], strict.Warnings);
         }
 
-        return Evaluate(rows, expect!);
+        var eval = Evaluate(rows, expect!);
+        return eval with { Warnings = strict.Warnings };
     }
 
     public static GauntletOracleEvaluationResult Evaluate(
@@ -190,22 +198,22 @@ public static class GauntletOracleEvaluator
                 return false;
             }
 
-            // CI smoke may declare expectCi (ticks=10); ladder authority remains expect (tier ticks).
-            // Profile "ci" prefers expectCi when present, else falls back to expect.
+            // CI smoke uses a different tick budget from the authoritative ladder run.
+            // Fail closed instead of silently applying a full-budget envelope to short-run data.
             var useCi = string.Equals(profile, ProfileCi, StringComparison.OrdinalIgnoreCase);
             JsonElement exp;
-            if (useCi
-                && gauntlet.TryGetProperty("expectCi", out var expCi)
-                && expCi.ValueKind == JsonValueKind.Object)
+            if (useCi)
             {
-                exp = expCi;
+                if (!gauntlet.TryGetProperty("expectCi", out exp)
+                    || exp.ValueKind != JsonValueKind.Object)
+                {
+                    fails.Add("missing gauntlet.expectCi for CI profile");
+                    failures = fails;
+                    return false;
+                }
             }
-            else if (gauntlet.TryGetProperty("expect", out exp)
-                     && exp.ValueKind == JsonValueKind.Object)
-            {
-                // ladder default, or ci fallback when expectCi absent
-            }
-            else
+            else if (!gauntlet.TryGetProperty("expect", out exp)
+                     || exp.ValueKind != JsonValueKind.Object)
             {
                 fails.Add("missing gauntlet.expect");
                 failures = fails;

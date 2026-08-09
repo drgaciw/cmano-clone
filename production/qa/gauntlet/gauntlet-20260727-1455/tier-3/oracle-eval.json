@@ -1,0 +1,48 @@
+{
+  "ok": true,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-20260727-1455-t3-s1",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-20260727-1455-t3-s2",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-20260727-1455-t3-s3",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-20260727-1455-t3-s4",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-20260727-1455-t3-s5-control",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-20260727-1455-t3-s5",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-20260727-1455-t3-s6",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    }
+  ],
+  "allPassed": true
+}

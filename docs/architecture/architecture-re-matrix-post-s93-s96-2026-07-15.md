@@ -1,7 +1,7 @@
 # Architecture Re-Matrix — Post-S93 / S96 (2026-07-15)
 
 > **Stage:** **Release** (Launch not cleared)  
-> **Authority:** [architecture-review-post-s93-2026-07-14.md](architecture-review-post-s93-2026-07-14.md)  
+> **Authority:** ⚠️ `architecture-review-post-s93-2026-07-14.md` is **not resolvable from `main`** — it exists only on unmerged draft PR #324 (`stack/post-editor/s93-asset-production` @ `805070e`), verified 2026-07-24 (DRG-41). Until that PR merges, this re-matrix is the **operative architecture authority on `main`**; its layer verdicts match the stranded review. See [architecture-concerns-gate-2026-07-24.md](../../production/gate-checks/architecture-concerns-gate-2026-07-24.md).  
 > **Master doc:** [architecture.md](architecture.md) (header + Post-S93 / Gauntlet state refreshed S96-01)  
 > **Hub playbook:** [`production/agentic/critical-hub-merge-playbook-2026-07-14.md`](../../production/agentic/critical-hub-merge-playbook-2026-07-14.md)  
 > **Suite floor:** **≥1638/0f**; hash **`17144800277401907079`**  
@@ -59,11 +59,11 @@ Playbook path: `production/agentic/critical-hub-merge-playbook-2026-07-14.md`.
 
 These items block **Launch**, not Release continuity:
 
-1. Human Launch ack + commercial-launch-execution gate  
-2. Store package / i18n production  
-3. Formal asset **Approved** column (currently 0; umbrellas may remain In Production)  
-4. Optional full ADR / GDD re-matrix and systems-index refresh  
-5. Addressables / remote content design (correctly out of Release-hold scope)
+1. ~~Human Launch ack + commercial-launch-execution gate~~ — **SATISFIED 2026-07-24**: ack received; gate opened at [`commercial-launch-execution-gate-2026-07-24.md`](../../production/gate-checks/commercial-launch-execution-gate-2026-07-24.md)  
+2. Store package / i18n production — **open**, Linear DRG-39  
+3. Formal asset **Approved** column (currently 0; umbrellas may remain In Production) — **open**, Linear DRG-40  
+4. ~~Optional full ADR / GDD re-matrix and systems-index refresh~~ — **formally deferred 2026-07-24** with rationale, [`architecture-concerns-gate-2026-07-24.md`](../../production/gate-checks/architecture-concerns-gate-2026-07-24.md); Linear DRG-41  
+5. Addressables / remote content design (correctly out of Release-hold scope) — Linear H5
 
 **Not Launch-blocking for this re-matrix:** editor PNG pack deferred, dual GitNexus index process risk (use absolute paths), gauntlet expect-recalibration discipline as Release continuity work.
 

@@ -27,6 +27,8 @@ public sealed class DelegationBridge
     private readonly CommsTimelineSimulator? _commsTimeline;
     private readonly SpoofTrackTimelineSimulator? _spoofTimeline;
     private readonly FuelTimelineTracker? _fuelTimeline;
+    /// <summary>Prior tick SimTime for ADR-020 / DRG-50 fuel deltaSeconds (never assume 1.0 cadence).</summary>
+    private double? _lastFuelSimTime;
 
     public DelegationBridge(
         int globalSeed,
@@ -52,6 +54,11 @@ public sealed class DelegationBridge
         _commsTimeline = CommsTimelineSimulator.TryCreate(Orchestrator.ScenarioPolicy);
         _spoofTimeline = SpoofTrackTimelineSimulator.TryCreate(Orchestrator.ScenarioPolicy);
         _fuelTimeline = FuelTimelineTracker.TryCreate(Orchestrator.ScenarioPolicy);
+        if (Session != null)
+        {
+            Session.FuelTimeline = _fuelTimeline;
+        }
+
         ApplyScenarioRuntimeBindings();
     }
 
@@ -79,6 +86,7 @@ public sealed class DelegationBridge
             Orchestrator,
             engage,
             defaultMagazineRounds);
+        Session.FuelTimeline = _fuelTimeline;
         ApplyScenarioRuntimeBindings();
         return this;
     }
@@ -188,6 +196,31 @@ public sealed class DelegationBridge
             kind,
             ExecuteSimTick: executeTick));
         return true;
+    }
+
+    /// <summary>
+    /// CMD-31: resolve a player command id and enqueue a human order with structured failure reasons.
+    /// Thin wrapper — does not touch the Tick hot path.
+    /// </summary>
+    public bool TryIssuePlayerCommand(
+        EntityKey entity,
+        string commandId,
+        double simTime,
+        out string? failureReason) =>
+        C2PlayerCommandBridge.TryIssue(this, entity, commandId, simTime, out failureReason);
+
+    /// <summary>CMD-11 live feed: engage preview for a unit (same path as GetAttackMenuOptions).</summary>
+    public EngagePreview? GetEngagePreviewForUnit(string unitId, ISimWorldSnapshot snapshot)
+    {
+        if (!TryResolveEntityKey(unitId, out _))
+        {
+            return null;
+        }
+
+        var engageDefaults = Orchestrator.ScenarioPolicy?.EngageDefaults
+            ?? ScenarioEngageDefaults.MvpFallback;
+        var ctx = BuildLiveEngageContext(snapshot, unitId, engageDefaults);
+        return EngagePreviewProjection.Project(in ctx, engageDefaults.DlzPersonality);
     }
 
     /// <summary>Attack menu entries for UI binding (live engage context).</summary>
@@ -368,6 +401,20 @@ public sealed class DelegationBridge
             return;
         }
 
+        // ADR-020 Decision 1 / DRG-50: derive deltaSeconds from real elapsed sim time.
+        // Hardcoding 1.0 over-drains ~60× under SimplePlayModeSimHost (1/60 s cadence).
+        // Always advance the baseline (including empty-registry and pause/rewind) so a
+        // unit registered at t=N is never retro-charged for [0, N].
+        var deltaSeconds = _lastFuelSimTime is double previous
+            ? snapshot.SimTime - previous
+            : snapshot.SimTime;
+
+        _lastFuelSimTime = snapshot.SimTime;
+        if (deltaSeconds <= 0)
+        {
+            return;
+        }
+
         var simTick = (ulong)Math.Max(0, (long)snapshot.SimTime);
         var unitIds = Registry.CollectMemberIds();
         if (unitIds.Count == 0)
@@ -375,7 +422,7 @@ public sealed class DelegationBridge
             return;
         }
 
-        var drain = _fuelTimeline.Drain(simTick, snapshot.SimTime, 1.0, unitIds);
+        var drain = _fuelTimeline.Drain(simTick, snapshot.SimTime, deltaSeconds, unitIds);
         foreach (var burn in drain.Burns)
         {
             Orchestrator.DecisionLog.AppendFuelBurn(burn);

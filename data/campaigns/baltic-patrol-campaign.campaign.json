@@ -1,0 +1,25 @@
+{
+  "campaignId": "baltic-patrol-campaign",
+  "title": "Baltic Patrol Campaign",
+  "synopsis": "Ordered Baltic theater progression: patrol posture, ferry redeploy, then strike package. Sequence is metadata — not filename-encoded.",
+  "members": [
+    {
+      "scenarioId": "baltic-patrol",
+      "sequence": 1,
+      "completed": false,
+      "displayTitle": "Baltic Patrol"
+    },
+    {
+      "scenarioId": "ferry-redeploy",
+      "sequence": 2,
+      "completed": false,
+      "displayTitle": "Ferry Redeploy"
+    },
+    {
+      "scenarioId": "strike-package",
+      "sequence": 3,
+      "completed": false,
+      "displayTitle": "Strike Package"
+    }
+  ]
+}

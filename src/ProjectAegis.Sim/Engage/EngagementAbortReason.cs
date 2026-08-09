@@ -25,4 +25,27 @@ public enum EngagementAbortReason
     DamageWithdrawRecommended = 20,
     MineAspectBlock = 21,
     FacilityAspectBlock = 22,
+
+    /// <summary>
+    /// The shooter itself was destroyed earlier in the run. Distinct from
+    /// <see cref="TargetDestroyed"/>: that gate stops shots *at* a dead unit, this one stops
+    /// shots *from* one. See BUG-engagement-resolver-shooter-liveness.
+    /// </summary>
+    ShooterDestroyed = 23,
+
+    /// <summary>Shooter fuel band is Bingo — offensive engage denied (logistics gate v1).</summary>
+    BingoFuel = 24,
+
+    /// <summary>Shotgun band: multi-salvo engage denied (soft logistics gate).</summary>
+    ShotgunOrdnance = 25,
+
+    /// <summary>Winchester band: out of weapons — offensive engage denied (logistics hard gate).</summary>
+    WinchesterOrdnance = 26,
+
+    /// <summary>
+    /// SWARM-31 / B6b: remote engage-on-remote-data path required a CEC composite FC track
+    /// but mesh was lost/jammed or FC quality was unavailable. Distinct from
+    /// <see cref="NoFireControlTrack"/> so callers can tell organic-only failure from mesh drop.
+    /// </summary>
+    CecRemoteTrackUnavailable = 27,
 }

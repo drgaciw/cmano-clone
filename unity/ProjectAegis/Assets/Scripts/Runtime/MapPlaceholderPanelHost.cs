@@ -2,7 +2,8 @@
 #if UNITY_5_3_OR_NEWER
 using System;
 using System.Collections.Generic;
-using ProjectAegis.Delegation.Orchestration;
+using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Scenario;
@@ -19,6 +20,10 @@ namespace ProjectAegis.Unity.Runtime
         private const string TheaterName = "theater-label";
         private const string CanvasName = "map-canvas";
         private const string PlanningDimOverlayName = "planning-dim-overlay";
+        private const string EnvelopeRingCountName = "envelope-ring-count";
+        private const string DatalinkEdgeCountName = "datalink-edge-count";
+        private const string DoctrineOverlayCountName = "doctrine-overlay-count";
+        private const string LayerCountName = "layer-count";
         private const string PlanningDimmedClass = "map-placeholder-panel--planning-dimmed";
         private const string PlanningDimOverlayHiddenClass = "map-planning-dim-overlay--hidden";
 
@@ -45,10 +50,16 @@ namespace ProjectAegis.Unity.Runtime
         private UIDocument _document = null!;
         private VisualElement? _rootPanel;
         private Label? _theaterLabel;
+        private Label? _envelopeRingCountLabel;
+        private Label? _datalinkEdgeCountLabel;
+        private Label? _doctrineOverlayCountLabel;
+        private Label? _layerCountLabel;
         private VisualElement? _canvas;
         private VisualElement? _planningDimOverlay;
         private MapPanelState _panelState = new("—", Array.Empty<MapSymbolDisplayRow>());
         private C2PlanningChromeState _planningChrome = new(false, false, SimulationPhase.Planning);
+        private MapLayerStackState _layerStack = MapLayerStackState.WithDefaults();
+        private readonly MapLayerStackStore _layerStore = new();
         private bool _wired;
 
         private MapSymbolPool? _symbolPool;
@@ -58,6 +69,7 @@ namespace ProjectAegis.Unity.Runtime
         private string? _dirtySelectedContact;
         private SimulationPhase _dirtyPhase;
         private bool _dirtyShowPanel;
+        private int _dirtyLayerVisibleCount = -1;
 
         private IC2PresentationFeed? PresentationFeed => bridgeHost;
 
@@ -68,6 +80,27 @@ namespace ProjectAegis.Unity.Runtime
         public IReadOnlyList<MapSymbolEntry> CurrentMapSymbols =>
             PresentationFeed?.LastMapSymbols ?? Array.Empty<MapSymbolEntry>();
 
+        /// <summary>Last projected selected-unit envelope ring count (CMD-21/34).</summary>
+        public int LastEnvelopeRingCount { get; private set; }
+
+        /// <summary>Last projected datalink edge count (CMD-32).</summary>
+        public int LastDatalinkEdgeCount { get; private set; }
+
+        /// <summary>Last projected doctrine map overlay row count (CMD-33).</summary>
+        public int LastDoctrineOverlayCount { get; private set; }
+
+        /// <summary>Last basemap layer visible count (CMD-28.2, UI-local).</summary>
+        public int LastLayerVisibleCount { get; private set; }
+
+        /// <summary>Last basemap layer total count (CMD-28.2, UI-local).</summary>
+        public int LastLayerTotalCount { get; private set; }
+
+        /// <summary>Last layer summary label from <see cref="MapLayerStackApplyState"/>.</summary>
+        public string LastLayerSummaryLabel { get; private set; } = "LAYERS: 0/0";
+
+        /// <summary>Current UI-local basemap layer stack (not sim state).</summary>
+        public MapLayerStackState LayerStack => _layerStack;
+
         private void Awake()
         {
             _document = GetComponent<UIDocument>();
@@ -76,6 +109,9 @@ namespace ProjectAegis.Unity.Runtime
             {
                 _document.visualTreeAsset = panelAsset;
             }
+
+            // Restore UI-local layer visibility bag (in-memory; no DecisionLog).
+            _layerStack = _layerStore.Restore(MapLayerStackState.WithDefaults());
         }
 
         private void OnEnable()
@@ -109,6 +145,12 @@ namespace ProjectAegis.Unity.Runtime
 
             _rootPanel = root.Q<VisualElement>(RootName) ?? root;
             _theaterLabel = _rootPanel.Q<Label>(TheaterName);
+            // Optional overlay count labels (CMD-21/32/33/34) — null-safe; scene rebuild not required.
+            _envelopeRingCountLabel = _rootPanel.Q<Label>(EnvelopeRingCountName);
+            _datalinkEdgeCountLabel = _rootPanel.Q<Label>(DatalinkEdgeCountName);
+            _doctrineOverlayCountLabel = _rootPanel.Q<Label>(DoctrineOverlayCountName);
+            // Optional basemap layer HUD (CMD-28.2) — null-safe Q.
+            _layerCountLabel = _rootPanel.Q<Label>(LayerCountName);
             var canvas = _rootPanel.Q<VisualElement>(CanvasName);
             if (!ReferenceEquals(canvas, _canvas))
             {
@@ -153,9 +195,152 @@ namespace ProjectAegis.Unity.Runtime
                 atlas);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
             _symbolPool!.Sync(_panelState.Symbols, OnSymbolClicked);
+            ApplyOverlayCounts();
+            ApplyLayerStackHud();
             ApplyPlanningChrome();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
             CaptureDirtyState();
+        }
+
+        /// <summary>
+        /// Projects selected-unit envelope rings (catalog ranges), datalink unit-pair edges,
+        /// and doctrine map overlay rows; surfaces overlay counts (CMD-21/32/33/34).
+        /// </summary>
+        private void ApplyOverlayCounts()
+        {
+            var catalog = bridgeHost != null ? bridgeHost.CatalogReader : null;
+            var selectedUnitId = PresentationFeed?.SelectedUnitId;
+            var (sensorNm, weaponNm) = CatalogEnvelopeRangeResolver.ResolveSelectedUnitRanges(
+                catalog,
+                selectedUnitId,
+                CatalogWeaponIds.MvpDefault);
+
+            var rings = TacticalOverlayProjection.ProjectSelectedUnitEnvelopes(
+                selectedUnitId,
+                sensorNm,
+                weaponNm);
+
+            IReadOnlyList<DatalinkEdgeEntry> edges = Array.Empty<DatalinkEdgeEntry>();
+            if (catalog is not null)
+            {
+                var friendlyIds = CollectAliveFriendlyUnitIds(PresentationFeed?.LastOobTree);
+                var links = catalog.GetSortedLinks() ?? Array.Empty<CatalogLinkEntry>();
+                edges = DatalinkUnitPairFeed.ProjectEdges(friendlyIds, links);
+            }
+
+            var doctrineOverlay = ProjectDoctrineOverlay();
+            var presentation = MapPanelApplyState.Apply(_panelState, rings, edges, doctrineOverlay);
+            LastEnvelopeRingCount = presentation.EnvelopeRingCount;
+            LastDatalinkEdgeCount = presentation.DatalinkEdgeCount;
+            LastDoctrineOverlayCount = presentation.DoctrineOverlayCount;
+
+            if (_envelopeRingCountLabel != null)
+            {
+                _envelopeRingCountLabel.text = $"ENVELOPES: {LastEnvelopeRingCount}";
+            }
+
+            if (_datalinkEdgeCountLabel != null)
+            {
+                _datalinkEdgeCountLabel.text = $"DATALINKS: {LastDatalinkEdgeCount}";
+            }
+
+            if (_doctrineOverlayCountLabel != null)
+            {
+                _doctrineOverlayCountLabel.text = $"DOCTRINE: {LastDoctrineOverlayCount}";
+            }
+        }
+
+        /// <summary>
+        /// Refresh basemap layer HUD from UI-local stack (CMD-28.2). Not sim state.
+        /// </summary>
+        private void ApplyLayerStackHud()
+        {
+            var presentation = MapLayerStackApplyState.Apply(_layerStack);
+            LastLayerVisibleCount = presentation.VisibleCount;
+            LastLayerTotalCount = presentation.TotalCount;
+            LastLayerSummaryLabel = presentation.SummaryLabel;
+
+            if (_layerCountLabel != null)
+            {
+                _layerCountLabel.text = presentation.SummaryLabel;
+            }
+        }
+
+        /// <summary>
+        /// Toggle a basemap layer (UI-local). Captures visibility into the in-memory store.
+        /// Does not touch DecisionLog or sim state.
+        /// </summary>
+        public void ToggleLayer(MapLayerId id)
+        {
+            _layerStack = _layerStack.Toggle(id);
+            _layerStore.Capture(_layerStack);
+            _dirtyLayerVisibleCount = -1; // force refresh on next tick
+            if (_wired)
+            {
+                ApplyLayerStackHud();
+            }
+        }
+
+        /// <summary>Replace layer stack from a host-supplied state (tests / prefs restore).</summary>
+        public void SetLayerStack(MapLayerStackState state)
+        {
+            _layerStack = state ?? MapLayerStackState.WithDefaults();
+            _layerStore.Capture(_layerStack);
+            _dirtyLayerVisibleCount = -1;
+            if (_wired)
+            {
+                ApplyLayerStackHud();
+            }
+        }
+
+        private IReadOnlyList<DoctrineMapOverlayEntry> ProjectDoctrineOverlay()
+        {
+            var oob = PresentationFeed?.LastOobTree;
+            if (oob is null || oob.Count == 0)
+            {
+                return Array.Empty<DoctrineMapOverlayEntry>();
+            }
+
+            var unitIds = new List<TargetId>();
+            foreach (var entry in oob)
+            {
+                if (entry is null || !entry.IsAlive || string.IsNullOrWhiteSpace(entry.UnitId))
+                {
+                    continue;
+                }
+
+                unitIds.Add(new TargetId(entry.UnitId));
+            }
+
+            if (unitIds.Count == 0)
+            {
+                return Array.Empty<DoctrineMapOverlayEntry>();
+            }
+
+            var policy = bridgeHost?.Bridge?.Orchestrator?.ScenarioPolicy;
+            var inheritance = DoctrineInheritanceProjection.ProjectAllUnits(unitIds, policy, isFriendly: true);
+            return DoctrineMapOverlayProjection.Project(inheritance, PresentationFeed?.LastMapSymbols);
+        }
+
+        private static IReadOnlyList<string> CollectAliveFriendlyUnitIds(IReadOnlyList<OobTreeEntry>? oob)
+        {
+            if (oob is null || oob.Count == 0)
+            {
+                return Array.Empty<string>();
+            }
+
+            var ids = new List<string>(oob.Count);
+            foreach (var entry in oob)
+            {
+                if (entry is null || !entry.IsAlive || string.IsNullOrWhiteSpace(entry.UnitId))
+                {
+                    continue;
+                }
+
+                ids.Add(entry.UnitId);
+            }
+
+            return ids;
         }
 
         private bool IsDirty()
@@ -171,7 +356,8 @@ namespace ProjectAegis.Unity.Runtime
                 || feed.SelectedUnitId != _dirtySelectedUnit
                 || feed.SelectedContactId != _dirtySelectedContact
                 || bridgeHost.Phase != _dirtyPhase
-                || showPanel != _dirtyShowPanel;
+                || showPanel != _dirtyShowPanel
+                || _layerStack.VisibleCount != _dirtyLayerVisibleCount;
         }
 
         private void CaptureDirtyState()
@@ -182,6 +368,7 @@ namespace ProjectAegis.Unity.Runtime
             _dirtySelectedContact = feed?.SelectedContactId;
             _dirtyPhase = bridgeHost.Phase;
             _dirtyShowPanel = showPanel;
+            _dirtyLayerVisibleCount = _layerStack.VisibleCount;
             _refreshedOnce = true;
         }
 

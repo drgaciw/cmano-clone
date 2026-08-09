@@ -5,11 +5,24 @@ public static class CatalogValidationDefaults
 {
     public const string BalticSnapshotId = "baltic_patrol";
 
+    /// <summary>Enterprise public-corpus catalog (docs/reference/cmano-db → write gate).</summary>
+    public const string PublicCorpusSnapshotId = "aegis_public_corpus";
+
+    public const string PublicCorpusDatabaseFileName = "aegis_public_corpus.db";
+
+    /// <summary>
+    /// Placeholder platform for standalone CMO sensor catalog rows (sensor.md import).
+    /// Keeps kill-chain PlatformToSensor edges resolvable before ship/aircraft fittings load.
+    /// </summary>
+    public const string PublicCorpusSensorCatalogPlatformId = "cmo-sensor-catalog";
+
     public static IReadOnlyList<CatalogPlatformEntry> BalticPlatforms() =>
     [
         new CatalogPlatformEntry("u1", 57.0, 20.0, 400.0),
         new CatalogPlatformEntry("hostile-1", 58.5, 21.0, 200.0),
         new CatalogPlatformEntry("hostile-far", 65.0, 35.0, 200.0),
+        GenericSwarmPlatformEntry(),
+        UsnCecSwarmPlatformEntry(),
     ];
 
     /// <summary>Baltic v3 OOB: patrol ships plus one UCAV per side (Recon [Internal IR]),
@@ -24,7 +37,61 @@ public static class CatalogValidationDefaults
         new CatalogPlatformEntry("ucav-red", 58.3, 21.2, 180.0),
         new CatalogPlatformEntry("usub-blue", 57.1, 19.9, 500.0),
         new CatalogPlatformEntry("usub-red", 58.4, 21.1, 500.0),
+        GenericSwarmPlatformEntry(),
+        UsnCecSwarmPlatformEntry(),
     ];
+
+    /// <summary>SWARM-21 Phase A abstract generic swarm preset (doc 22 starter tuning).</summary>
+    public static CatalogPlatformEntry GenericSwarmPlatformEntry() =>
+        new(
+            CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
+            CatalogSwarmPlatformDefaults.GenericLatDeg,
+            CatalogSwarmPlatformDefaults.GenericLonDeg,
+            CatalogSwarmPlatformDefaults.GenericCombatRadiusNm);
+
+    /// <summary>SWARM-01/02 catalog row for the generic swarm preset.</summary>
+    public static CatalogSwarmPlatform GenericSwarmPlatform() =>
+        new(
+            CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
+            CatalogSwarmPlatformDefaults.GenericMaxDrones,
+            IsSwarm: true,
+            ArmorClass: CatalogSwarmPlatformDefaults.ArmorClassLightAir,
+            DefaultSensorId: CatalogSwarmPlatformDefaults.DefaultSensorId,
+            DefaultWeaponId: CatalogSwarmPlatformDefaults.DefaultWeaponId,
+            ReviewState: CatalogReviewStates.Approved,
+            TrlLevel: 9,
+            ValueTier: CatalogProvenanceTier.GameplayAbstraction,
+            CitationRef: "swarm-phase-a-generic-preset",
+            DefaultMode: CatalogSwarmPlatformDefaults.ModeHold,
+            RequiresHost: false,
+            AllowedHostClasses: "",
+            CecCapable: false);
+
+    /// <summary>SWARM-31 Phase B: USN abstract CEC-capable swarm exemplar (not generic).</summary>
+    public static CatalogSwarmPlatform UsnCecSwarmPlatform() =>
+        new(
+            CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+            CatalogSwarmPlatformDefaults.GenericMaxDrones,
+            IsSwarm: true,
+            ArmorClass: CatalogSwarmPlatformDefaults.ArmorClassLightAir,
+            DefaultSensorId: CatalogSwarmPlatformDefaults.UsnCecSensorId,
+            DefaultWeaponId: CatalogSwarmPlatformDefaults.UsnCecWeaponId,
+            ReviewState: CatalogReviewStates.Provisional,
+            TrlLevel: 8,
+            ValueTier: CatalogProvenanceTier.GameplayAbstraction,
+            CitationRef: "swarm-phase-b-usn-cec-exemplar",
+            DefaultMode: CatalogSwarmPlatformDefaults.ModeScreen,
+            RequiresHost: true,
+            AllowedHostClasses: "ship,carrier",
+            CecCapable: true);
+
+    /// <summary>SWARM-31 Phase B: USN abstract CEC-capable swarm platform position/entry for seed and fixtures.</summary>
+    public static CatalogPlatformEntry UsnCecSwarmPlatformEntry() =>
+        new(
+            CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+            CatalogSwarmPlatformDefaults.UsnCecLatDeg,
+            CatalogSwarmPlatformDefaults.UsnCecLonDeg,
+            CatalogSwarmPlatformDefaults.UsnCecCombatRadiusNm);
 
     /// <summary>Baltic comms FK targets for link_catalog seeding (S34-02).</summary>
     public static IReadOnlyList<CatalogLinkEntry> BalticLinks() =>
@@ -33,11 +100,37 @@ public static class CatalogValidationDefaults
         new CatalogLinkEntry("SATCOM_B", "SATCOM Wideband", CatalogLinkTypes.Satcom, LatencyMsNominal: 250),
     ];
 
+    public static bool TryResolvePublicCorpusDbRef(string dbRef, out string snapshotId)
+    {
+        if (string.IsNullOrWhiteSpace(dbRef))
+        {
+            snapshotId = "";
+            return false;
+        }
+
+        if (string.Equals(dbRef, PublicCorpusSnapshotId, StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(dbRef, "public-corpus", StringComparison.OrdinalIgnoreCase) ||
+            dbRef.Contains("public-corpus", StringComparison.OrdinalIgnoreCase) ||
+            dbRef.Contains("aegis_public_corpus", StringComparison.OrdinalIgnoreCase))
+        {
+            snapshotId = PublicCorpusSnapshotId;
+            return true;
+        }
+
+        snapshotId = "";
+        return false;
+    }
+
     public static bool TryResolveBalticDbRef(string dbRef, out string snapshotId)
     {
         if (string.IsNullOrWhiteSpace(dbRef))
         {
             snapshotId = "";
+            return false;
+        }
+
+        if (TryResolvePublicCorpusDbRef(dbRef, out snapshotId))
+        {
             return false;
         }
 

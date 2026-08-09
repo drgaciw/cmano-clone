@@ -62,11 +62,23 @@ All token pairs below use [art-bible.md §3 Color Palette](art/art-bible.md#3-co
 
 ### 2.4 Non-text UI (focus, selection)
 
-| Element | Requirement |
-|---------|-------------|
-| Focus indicator | **3:1** contrast against adjacent colors (WCAG 2.1 1.4.11) |
-| OOB selected row | `selected-row` — 3px left bar `#4A9EFF` + 25% background (not fill-only) |
-| Disabled Approve button | 45% opacity + `disabled` pseudo-state class; label remains readable |
+| Element | Token / spec | Requirement |
+|---------|--------------|-------------|
+| Focus indicator | `focus-ring` `#00E5FF` at `focus-ring-width` `2px` ([art-bible.md §3 Semantic — selection & focus](art/art-bible.md#semantic--selection--focus)) | **3:1** contrast against adjacent colors (WCAG 2.1 1.4.11) |
+| Focus vs selection | `focus-ring` ≠ `selected-ring` | Independent states — a control can be focused without selection and vice versa |
+| OOB selected row | `selected-row` — 3px left bar `#4A9EFF` + 25% background (not fill-only) | Shape + bar, not fill-only |
+| Disabled Approve button | 45% opacity + `disabled` pseudo-state class | Label remains readable |
+
+**`focus-ring` contrast (measured vs canonical surfaces):**
+
+| Background | Min ratio | WCAG 2.1 1.4.11 (non-text) |
+|------------|-----------|----------------------------|
+| `surface-deep` `#080E16` | **12.6:1** | Pass |
+| `surface-map` `#101824` | **11.6:1** | Pass |
+| `surface-panel` `#0C121C` | **12.2:1** | Pass |
+| `selected-row-bg` composite (focused **and** selected) | **7.5:1** | Pass |
+
+Cyan `focus-ring` is unclaimed by affiliation, comms, log, gate, and diff tokens; it separates from amber `selected-ring` on the blue–yellow axis (red–green colour-blind safe). Verify with a colour-blind simulation pass before the accessibility gate.
 
 ---
 

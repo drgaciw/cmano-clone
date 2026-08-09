@@ -1,5 +1,6 @@
 // Doc-20 left drawer — tabbed OOB / missions / contacts (single UIDocument).
 // S38-04 C2/Platform polish residual (density/filters from S37 carry): part of C2 track. Per sprint-38 + qa-plan + polish-scope-boundary-2026-06-19.md (lean, isolated).
+// CMD-23: collapsible body via C2ChromeCollapseState + prefs bag on bridge host.
 #if UNITY_5_3_OR_NEWER
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
@@ -16,9 +17,13 @@ namespace ProjectAegis.Unity.Runtime
         private const string TabOobName = "tab-oob";
         private const string TabMissionsName = "tab-missions";
         private const string TabContactsName = "tab-contacts";
+        private const string TabsRowName = "c2-drawer-tabs";
         private const string OobListName = "oob-list";
         private const string MissionListName = "mission-list";
         private const string ContactListName = "contact-list";
+        private const string CollapseToggleName = "c2-drawer-collapse-toggle";
+        private const string CollapseToggleClass = "c2-drawer-collapse-toggle";
+        private const string CollapsedClass = "c2-drawer-panel--collapsed";
         private const string HiddenClass = "c2-drawer-list--hidden";
         private const string PlanningReadOnlyClass = "c2-drawer-panel--planning-readonly";
 
@@ -36,12 +41,15 @@ namespace ProjectAegis.Unity.Runtime
         [SerializeField] private bool showPanel = true;
 
         private UIDocument _document = null!;
+        private VisualElement? _panelRoot;
+        private VisualElement? _tabsRow;
         private Toggle? _tabOob;
         private Toggle? _tabMissions;
         private Toggle? _tabContacts;
         private ListView? _oobList;
         private ListView? _missionList;
         private ListView? _contactList;
+        private Button? _collapseToggle;
         private OobTreePanelState _oobState = new(Array.Empty<OobTreeDisplayRow>());
         private MissionListPanelState _missionState = new(Array.Empty<MissionListDisplayRow>());
         private SensorC2PanelState _contactState = new("EMCON: —", "TRACK: —", "CONTACTS: 0", Array.Empty<SensorC2ContactRow>());
@@ -54,6 +62,10 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Last applied OOB presentation via <see cref="LeftDrawerApplyState"/> (S107).</summary>
         public LeftDrawerPresentation LastOobPresentation => _oobPresentation;
+
+        /// <summary>Last applied chrome collapse presentation (CMD-23).</summary>
+        public C2ChromeCollapsePresentation LastChromePresentation { get; private set; } =
+            C2ChromeCollapsePresentation.Empty;
 
         /// <summary>Apply OOB panel state through the shipped apply-state path (S107).</summary>
         public void ApplyOobPanelState(OobTreePanelState? state)
@@ -108,14 +120,23 @@ namespace ProjectAegis.Unity.Runtime
 
         private void LateUpdate()
         {
-            if (!showPanel || bridgeHost == null)
-            {
-                return;
-            }
-
             if (!_wired)
             {
                 TryWireElements();
+            }
+
+            if (!showPanel)
+            {
+                ApplyMasterVisibility();
+                return;
+            }
+
+            if (bridgeHost == null)
+            {
+                // Null-safe chrome: expanded defaults under showPanel master visibility.
+                ApplyMasterVisibility();
+                ApplyChromeCollapse();
+                return;
             }
 
             Refresh();
@@ -130,12 +151,15 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             var panel = root.Q<VisualElement>(RootName) ?? root;
+            _panelRoot = panel;
+            _tabsRow = panel.Q(TabsRowName);
             _tabOob = panel.Q<Toggle>(TabOobName);
             _tabMissions = panel.Q<Toggle>(TabMissionsName);
             _tabContacts = panel.Q<Toggle>(TabContactsName);
             _oobList = panel.Q<ListView>(OobListName);
             _missionList = panel.Q<ListView>(MissionListName);
             _contactList = panel.Q<ListView>(ContactListName);
+            EnsureCollapseToggle(panel);
 
             WireList(_oobList);
             WireList(_missionList);
@@ -162,6 +186,40 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _wired = _tabOob != null && _oobList != null && _missionList != null && _contactList != null;
+            ApplyMasterVisibility();
+            ApplyChromeCollapse();
+        }
+
+        private void EnsureCollapseToggle(VisualElement panel)
+        {
+            _collapseToggle = panel.Q<Button>(CollapseToggleName);
+            if (_collapseToggle == null)
+            {
+                _collapseToggle = new Button
+                {
+                    name = CollapseToggleName,
+                    text = C2ChromeCollapseProjection.CollapseLeftDrawerLabel,
+                };
+                _collapseToggle.AddToClassList(CollapseToggleClass);
+                _collapseToggle.focusable = true;
+                // Title strip at top of drawer (body collapses under it).
+                panel.Insert(0, _collapseToggle);
+            }
+
+            _collapseToggle.clicked -= OnCollapseToggleClicked;
+            _collapseToggle.clicked += OnCollapseToggleClicked;
+        }
+
+        private void OnCollapseToggleClicked()
+        {
+            // Null-safe: no bridge chrome API → no-op (showPanel remains master visibility).
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            bridgeHost.ToggleLeftDrawerCollapsed();
+            ApplyChromeCollapse();
         }
 
         private void WireList(ListView? listView)
@@ -171,7 +229,17 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            listView.makeItem = () => new Label();
+            listView.makeItem = () =>
+            {
+                var label = new Label();
+                label.focusable = listView == _oobList;
+                if (listView == _oobList)
+                {
+                    label.RegisterCallback<KeyDownEvent>(OnOobRowKeyDown);
+                }
+
+                return label;
+            };
             listView.bindItem = (element, index) =>
             {
                 if (element is not Label label)
@@ -206,6 +274,20 @@ namespace ProjectAegis.Unity.Runtime
             if (evt.currentTarget is Label { userData: string unitId } && bridgeHost != null)
             {
                 bridgeHost.SelectUnit(unitId);
+            }
+        }
+
+        private void OnOobRowKeyDown(KeyDownEvent evt)
+        {
+            if (evt.keyCode is not (KeyCode.Return or KeyCode.KeypadEnter or KeyCode.Space))
+            {
+                return;
+            }
+
+            if (evt.currentTarget is Label { userData: string unitId } && bridgeHost != null)
+            {
+                bridgeHost.SelectUnit(unitId);
+                evt.StopPropagation();
             }
         }
 
@@ -265,9 +347,11 @@ namespace ProjectAegis.Unity.Runtime
                 _tabContacts.SetValueWithoutNotify(tab == DrawerTab.Contacts);
             }
 
-            SetListVisible(_oobList, tab == DrawerTab.Oob);
-            SetListVisible(_missionList, tab == DrawerTab.Missions);
-            SetListVisible(_contactList, tab == DrawerTab.Contacts);
+            // Tab visibility is subordinate to chrome collapse (body hidden when collapsed).
+            var bodyVisible = !IsBodyCollapsed();
+            SetListVisible(_oobList, bodyVisible && tab == DrawerTab.Oob);
+            SetListVisible(_missionList, bodyVisible && tab == DrawerTab.Missions);
+            SetListVisible(_contactList, bodyVisible && tab == DrawerTab.Contacts);
         }
 
         private static void SetListVisible(ListView? list, bool visible)
@@ -291,6 +375,8 @@ namespace ProjectAegis.Unity.Runtime
         {
             if (!_wired || bridgeHost == null)
             {
+                ApplyMasterVisibility();
+                ApplyChromeCollapse();
                 return;
             }
 
@@ -299,20 +385,91 @@ namespace ProjectAegis.Unity.Runtime
             _missionState = MissionListPanelBinder.Bind(bridgeHost.LastMissionList);
             _contactState = SensorC2PanelBinder.Bind(bridgeHost.LastSensorC2);
 
-            _oobList!.itemsSource = _oobState.UnitRows.ToList();
-            _missionList!.itemsSource = _missionState.MissionRows.ToList();
-            _contactList!.itemsSource = _contactState.ContactRows.ToList();
-            _oobList.Rebuild();
-            _missionList.Rebuild();
-            _contactList.Rebuild();
+            // Skip list rebuild when collapsed (body hidden).
+            if (!bridgeHost.ChromeCollapse.LeftDrawerCollapsed)
+            {
+                _oobList!.itemsSource = _oobState.UnitRows.ToList();
+                _missionList!.itemsSource = _missionState.MissionRows.ToList();
+                _contactList!.itemsSource = _contactState.ContactRows.ToList();
+                _oobList.Rebuild();
+                _missionList.Rebuild();
+                _contactList.Rebuild();
+            }
 
             ApplyPlanningChrome();
+            ApplyMasterVisibility();
+            ApplyChromeCollapse();
+        }
 
-            var root = _document.rootVisualElement?.Q(RootName);
-            if (root != null)
+        private void ApplyMasterVisibility()
+        {
+            if (_panelRoot != null)
             {
-                root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+                _panelRoot.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
             }
+        }
+
+        /// <summary>
+        /// CMD-23: collapse drawer body (tabs + lists) to title/affordance strip.
+        /// Null-safe when bridge has no chrome API — falls back to expanded body under showPanel.
+        /// </summary>
+        private void ApplyChromeCollapse()
+        {
+            var state = bridgeHost != null
+                ? bridgeHost.ChromeCollapse
+                : C2ChromeCollapseState.Expanded;
+            LastChromePresentation = C2ChromeCollapseApplyState.Apply(state);
+
+            var collapsed = showPanel && LastChromePresentation.LeftDrawerCollapsed;
+
+            if (_tabsRow != null)
+            {
+                _tabsRow.style.display = collapsed ? DisplayStyle.None : DisplayStyle.Flex;
+            }
+
+            if (_collapseToggle != null)
+            {
+                _collapseToggle.text = LastChromePresentation.LeftDrawerAffordanceLabel;
+                _collapseToggle.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+
+            if (_panelRoot != null)
+            {
+                if (collapsed)
+                {
+                    _panelRoot.AddToClassList(CollapsedClass);
+                }
+                else
+                {
+                    _panelRoot.RemoveFromClassList(CollapsedClass);
+                }
+            }
+
+            // Re-apply tab body visibility under collapse (preserves selected tab when expanded).
+            var active = DrawerTab.Oob;
+            if (_tabMissions != null && _tabMissions.value)
+            {
+                active = DrawerTab.Missions;
+            }
+            else if (_tabContacts != null && _tabContacts.value)
+            {
+                active = DrawerTab.Contacts;
+            }
+
+            var bodyVisible = !collapsed;
+            SetListVisible(_oobList, bodyVisible && active == DrawerTab.Oob);
+            SetListVisible(_missionList, bodyVisible && active == DrawerTab.Missions);
+            SetListVisible(_contactList, bodyVisible && active == DrawerTab.Contacts);
+        }
+
+        private bool IsBodyCollapsed()
+        {
+            if (!showPanel)
+            {
+                return true;
+            }
+
+            return bridgeHost != null && bridgeHost.ChromeCollapse.LeftDrawerCollapsed;
         }
 
         private void ApplyPlanningChrome()

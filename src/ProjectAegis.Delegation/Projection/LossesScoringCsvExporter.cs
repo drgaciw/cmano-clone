@@ -16,7 +16,9 @@ public static class LossesScoringCsvExporter
         DecisionLog log,
         int baseScore = 0)
     {
-        var tally = LossesScoringProjection.Project(log, baseScore);
+        // `side` is the side this row is scored for — pass it through so an enemy kill against
+        // one of our own units is not credited to our tally (BUG-losses-scoring-side-unaware).
+        var tally = LossesScoringProjection.Project(log, baseScore, side);
         return string.Join(
             ",",
             Escape(scenarioId),

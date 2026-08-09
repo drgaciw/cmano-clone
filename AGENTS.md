@@ -117,10 +117,30 @@ IOrderSink.ApplyOrder(entityKey, order)  →  movement / weapons / EW systems
 | **PlayModeSmokeHarness** | ≥20/20 (C2 proxy tests) |
 | **DelegationBridge.cs** | Zero-touch through Release v1 — no hotpath changes |
 | **CatalogWriteGate** | Extend-only (add new `Propose*` / `Approve*` overloads; never alter existing write paths) |
+| **No proprietary CMO `.db3`** | Never commit or mount Command: Modern Operations product `*.db3` files; feed catalog via markdown/fixtures/workbook/OSINT only ([dual-track doc](docs/engineering/dual-track-cmo-analysis-and-catalog.md), [ADR-013](docs/architecture/adr-013-cmo-scenario-import-policy.md)) |
 | **DelegationBridge hotpath** | ZERO — grep `DelegationBridge` in `src/` hotpath methods must stay 0 new |
 | **Baltic v3 isolation** | `baltic-v3-*` policies/goldens are independent; never touch v2 goldens |
 
 Before any `gt submit`, run the full verification block above AND grep the hash AND confirm ZERO DelegationBridge hotpath changes.
+
+---
+
+## Catalog migration SDLC (dual-track)
+
+Catalog population follows the **dual-track firewall**: Track A (`cmo_db_inspector`, local licensed `*.db3` analysis only) → public citations → Track B (this repo, fixtures/workbook → write gate). Never commit proprietary CMO `.db3` files. Full policy: [dual-track-cmo-analysis-and-catalog.md](docs/engineering/dual-track-cmo-analysis-and-catalog.md).
+
+**Parent orchestration:** For multi-entity fixture waves, use the global **`dispatching-parallel-agents`** skill to fan out independent **Importer** tasks (one fixture/entity per subagent). After propose, dispatch **Curator** + **Quality** in parallel (review `*-propose.json` vs run `verify-catalog-import.ps1`). **Importer** changes use **two-stage review**: (1) fixture diff, (2) re-propose + quality gate before approve. **Write Gate** approve stays human-gated for production DBs.
+
+| Role | Task prompt template |
+|------|----------------------|
+| Curator | [`.cursor/agents/catalog-curator-agent.md`](.cursor/agents/catalog-curator-agent.md) |
+| Importer | [`.cursor/agents/catalog-importer-agent.md`](.cursor/agents/catalog-importer-agent.md) |
+| Write Gate | [`.cursor/agents/catalog-write-gate-agent.md`](.cursor/agents/catalog-write-gate-agent.md) |
+| Quality | [`.cursor/agents/catalog-quality-agent.md`](.cursor/agents/catalog-quality-agent.md) |
+| Workbook | [`.cursor/agents/catalog-workbook-agent.md`](.cursor/agents/catalog-workbook-agent.md) |
+| Inspector (Track A) | [`.cursor/agents/cmo-inspector-analysis-agent.md`](.cursor/agents/cmo-inspector-analysis-agent.md) → runs in `cmo_db_inspector` |
+
+Local skills: `.cursor/skills/aegis-catalog-curator`, `aegis-markdown-fixture-author`, `aegis-write-gate-approve`, `aegis-catalog-quality-gate`. Orchestration map: [aegis-catalog-sdlc-orchestration.md](docs/engineering/aegis-catalog-sdlc-orchestration.md).
 
 ---
 
@@ -197,7 +217,7 @@ Test assembly breakdown at baseline:
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence
 
-This project is indexed by GitNexus as **cmano-clone** (27414 symbols, 52161 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
+This project is indexed by GitNexus as **cmano-clone** (29391 symbols, 55622 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
 > Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
 
@@ -208,7 +228,6 @@ This project is indexed by GitNexus as **cmano-clone** (27414 symbols, 52161 rel
 - **MUST warn the user** if impact analysis returns HIGH or CRITICAL risk before proceeding with edits.
 - When exploring unfamiliar code, use `query({search_query: "concept"})` to find execution flows instead of grepping. It returns process-grouped results ranked by relevance.
 - When you need full context on a specific symbol — callers, callees, which execution flows it participates in — use `context({name: "symbolName"})`.
-- For security review, `explain({target: "fileOrSymbol"})` lists taint findings (source→sink flows; needs `analyze --pdg`).
 
 ## Never Do
 
@@ -406,15 +425,15 @@ No Docker compose or long-running servers. The "application" is in-process: `dot
 
 - Use project-local skill `.cursor/skills/git-commit/SKILL.md` when asked to commit, push to `main`, merge branches, or clean worktrees on this repo; when the user says **include active worktrees**, commit the main repo and all dirty sprint stack worktrees under `.worktrees/` on their respective branches.
 - Release v1.0 completion means the shippable Baltic vertical slice, not MVP-done on all 21 requirement tracker rows.
-- Prefer detailed sprint planning through Release; post–Release trains use numbered sprints (S49+) with locked roadmap snapshots in `docs/reports/future-sprint-roadpmap-YYYYMMDD.md`.
+- Prefer detailed sprint planning through Release; post–Release trains use numbered sprints (S49+) with locked roadmap snapshots in `docs/reports/future-sprint-roadpmap-YYYYMMDD.md` (newer snapshots may use corrected spelling `future-sprint-roadmap-*.md`).
 - Do not edit attached `.cursor/plans/` files when implementing plans — treat them as read-only reference.
-- Run in-sprint parallel agent tracks via isolated git worktrees and `production/agentic/local-cloud-agent-routing.md` (local: Editor evidence/coordinator; cloud: code/tests/hygiene).
+- Run in-sprint parallel agent tracks via isolated git worktrees and `production/agentic/local-cloud-agent-routing.md` (local: Editor evidence/coordinator; cloud: code/tests/hygiene); when implementing multi-sprint roadmaps, prefer parallel-safe wave plans over purely serial execution.
 - When subagent API limits block full-sprint orchestrators, split into per-task parallel workers instead of retrying one large orchestrator.
 - Maintain stable alias `docs/reports/future-sprint-roadpmap.md` pointing at the latest dated roadmap snapshot (edit dated files, not the alias body).
 - Treat v1.0 / Spirit 1 vertical slice as a closed milestone — no ongoing gap-remediation program.
 - Internal engineering trains (RC1, S49–S56, Baltic v2) exclude E7 commercial launch scope unless explicitly scoped.
-- Post-MVP content-only expansion tracks (S57+) add evidence additively; do not re-litigate the 21/21 MVP implementation tracker closed @ S56.
-- When publishing a new dated implementation tracker at `Game-Requirements/implementation-tracker-YYYY-MM-DD.md`, supersede the prior tracker and refresh active index links in `Game-Requirements-Index.md`, `research-traceability.md`, `Data-Population-CMAODB.md`, `requirements/07-Agentic-Infrastructure.md`, and `production/qa/00-Master-Index.md`.
+- When updating agile/roadmap or forward-program planning, cross-reference and refresh related `docs/reports/*roadmap*` artifacts and dashboard snapshots together.
+- For editor UI/UX productization reviews, generate HTML previews (under `docs/superpowers/reviews/` when applicable) and open them in the Cursor browser.
 - Short program-gate acks ("i acknowledge", "acknowledged") count as formal exit confirmation when the gate package is ready; do not require the long template verbatim.
 
 ## Learned Workspace Facts
@@ -422,12 +441,12 @@ No Docker compose or long-running servers. The "application" is in-process: `dot
 - Production stage is **Release** (`production/stage.txt`; S48 gate PASS 2026-06-20; RC1 cut); Launch / commercial execution remains deferred pending an explicit separate decision.
 - **S39–S80** programs COMPLETE through Baltic v3 content expansion (RC1 S48, MVP exit S56, Baltic v2 S64, release train S68, launch prep S72, Baltic v3 S73–S80).
 - Headless test baseline floor is **≥1638** solution tests post S95 gauntlet land (prior floor ≥1599; ReplayGolden 6/6, C2 proxy ≥20/20; monotonic). UA engage filter (`BalticReplayHarnessPolicyEngageTests`) **3/3 green** @ post-PE gate 2026-07-09 — see [`production/qa/ua-engage-triage-2026-07-09.md`](production/qa/ua-engage-triage-2026-07-09.md).
-- Canonical forward roadmap is dated `docs/reports/future-sprint-roadpmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE (human ack "Baltic v3 content-complete" 2026-06-26); **S81–S88 + ME Phase 2 + PE** COMPLETE (2026-07-09); **S89–S92 post-editor hygiene** COMPLETE (human ack "i acknowledge" 2026-07-09; stage remains Release); next forward cycle TBD per `future-sprint-roadpmap-07092026.md`.
+- Canonical forward roadmap uses dated `docs/reports/future-sprint-roadpmap-*.md` / `future-sprint-roadmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE; **S81–S88 + ME Phase 2 + PE** COMPLETE (2026-07-09); **S89–S92 post-editor hygiene** COMPLETE (human ack 2026-07-09); **S93 + post-S93 remediation** COMPLETE; forward snapshot includes `future-sprint-roadmap-07142026.md` (S94+ Release Continuity); Platform/Mission Editor UI/UX productization (2026-07-23) is active Unity chrome polish with Excel-primary PE authoring (ADR-011).
 - Production Baltic v2 replay hash **`17144800277401907079`** must stay preserved unless an ADR explicitly changes it.
 - Baltic v3 uses isolated **`baltic-v3-*`** scenario policies and replay goldens; v2 hash invariant unchanged.
 - Baltic v3 baseline OOB: **u1, hostile-1, ucav-blue, ucav-red** (surface + UCAV only; no subs/air beyond UCAV).
-- Baltic v2 content on disk includes 10 `baltic-v2-*` scenario policies and 9 v2 replay goldens (post–S64 baseline).
+- Path A asset promotions require the explicit human phrase `asset approved: ASSET-XXX` before flipping manifest entries to Approved.
 - Sprint stack worktrees use `.worktrees/` under the parent repo path (`/home/username01/cmano-clone/.worktrees/`).
 - Exclude from commits: `.cursor/hooks/`, `.pi/settings.json`, `.polly/` (local agent/tooling config).
 - Baltic v3 policies use contact-triggered dual-side ASuW/AAA (`mission.triggers`, `MissionContactTriggerRuntime`) with ROE escalation to Weapons Free on recon contact detection.
-- `DelegationBridge.cs` remains zero-touch through Release v1.
+- `DelegationBridge.cs` remains zero-touch through Release v1; Platform Editor UI/UX waves must not edit CatalogWriteGate write paths.

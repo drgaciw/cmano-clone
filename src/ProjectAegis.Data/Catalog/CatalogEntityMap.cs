@@ -32,6 +32,8 @@ public static class CatalogEntityMap
             "platform_id ASC, sensor_id ASC", nameof(QuarantinedCatalogBinding)),
         new("CatalogPlatformEntry", "platform", "platform_id,snapshot_id",
             "platform_id ASC, snapshot_id ASC", nameof(CatalogPlatformEntry)),
+        new("CatalogSwarmPlatform", "platform_swarm", "platform_id",
+            "platform_id ASC", nameof(CatalogSwarmPlatform)),
         new("CatalogSnapshot", "catalog_snapshot", "snapshot_id",
             "snapshot_id ASC", "snapshot_id"),
         new("CatalogStagingSensor", "catalog_staging_sensor", "batch_id,platform_id,sensor_id",

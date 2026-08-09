@@ -1,0 +1,153 @@
+{
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "detection": [
+    {
+      "observerId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "sensorId": "radar-1",
+      "targetId": "mrk-shkval-pr-22800-karakurt",
+      "contactId": "c-t2s1-1",
+      "basePd": 0.35,
+      "envMask": 0.4,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-t2s1-2",
+      "basePd": 0.35,
+      "envMask": 0.4,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "k-31-visby-2009",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-t2s1-3",
+      "basePd": 0.3,
+      "envMask": 0.35,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "su-34-fullback-2014",
+      "contactId": "c-t2s1-4",
+      "basePd": 0.4,
+      "envMask": 0.45,
+      "jamStrength": 0
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "start-exec",
+      "inject-target-cue"
+    ],
+    "events": [
+      {
+        "id": "start-exec",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "inject-target-cue",
+        "fireAtTick": 4,
+        "kind": "EventFired",
+        "code": "inject_strike_target_confirm"
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "Strike: Blue (WeaponsTight + passive-EMCON stand-in [low Pd/envMask on blue's own detection]) conducts a tightly-controlled strike to destroy designated target mrk-shkval-pr-22800-karakurt, while Red (WeaponsFree, unrestricted sensors) defends. New air domain this tier: blue jas-39e-gripen-ng-2021, red su-34-fullback-2014. Scripted timed event at tick 4 confirms the strike target track.",
+    "oracle": "Blue converts the tick-4 target-confirm event into the designated-target kill despite tight ROE; degraded blue Pd/envMask (passive stand-in) yields an elevated blue denial count; non-empty fingerprint.",
+    "emcon": "passive-blue-standin",
+    "catalogRefs": [
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "f-219-sachsen-type-f124-2006",
+      "k-31-visby-2009",
+      "jas-39e-gripen-ng-2021",
+      "mrk-shkval-pr-22800-karakurt",
+      "pk-368-vasily-bykov-pr-22160",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "su-34-fullback-2014"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 2,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minKills": 0,
+      "maxMissilesFired": 7,
+      "minDenials": 20,
+      "maxDenials": 55,
+      "minScore": -300.0,
+      "maxScore": -100.0
+    },
+    "units": [
+      {
+        "unitId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "platformId": "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "k-31-visby-2009",
+        "platformId": "k-31-visby-2009",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-34-fullback-2014",
+        "platformId": "su-34-fullback-2014",
+        "domain": "air",
+        "side": "red"
+      }
+    ],
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T2 tick budget 10, seeds 42,7,123. Batch taken AFTER the scenario-data fix to s2/s3 detection blocks (BLUE previously had no observer entries and could not engage at all). Margin: +/-100 score (one kill), missiles ceil(1.5x)+2, denials floor kept at ~half observed min so ROE/EMCON gating stays asserted. Per tools/qa-gauntlet/README-expect-regen.md - derived, not invented."
+  },
+  "id": "gauntlet-20260727-1455-t2-s1"
+}

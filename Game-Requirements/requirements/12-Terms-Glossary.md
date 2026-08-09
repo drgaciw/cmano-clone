@@ -1,7 +1,7 @@
 # 12 - Terms Glossary
 
-**Last Updated:** 2026-07-08  
-**Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md)–[11](11-Agentic-Mission-Editor.md), [13](13-Doctrine-ROE-EMCON-WRA.md)–[21](21-Platform-Editor.md), [implementation tracker](../implementation-tracker-2026-07-04.md)  
+**Last Updated:** 2026-08-09  
+**Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md)–[11](11-Agentic-Mission-Editor.md), [13](13-Doctrine-ROE-EMCON-WRA.md)–[22](22-Drone-Swarm-Platforms.md), [implementation tracker](../implementation-tracker-2026-07-04.md)  
 **Status:** Locked (Sprint 15) — vocabulary additive-only; implementation **Partial** (UI tooltips residual)
 
 **Purpose:**
@@ -65,6 +65,7 @@ From [09-Near-Future-Technologies](09-Near-Future-Technologies.md) and [10-Specu
 | Order Log Entry | One immutable record in the deterministic timeline of commands, agent intents, doctrine blocks, and event firings. | [17](17-Replay-AAR-And-Order-Log.md) |
 | Logistics Abort Reason | A machine-readable code explaining why an operation cannot proceed due to fuel, magazine, readiness, or basing constraints. | [16](16-Logistics-And-Magazines.md) |
 | Comms State | The health of a communications or datalink channel—up, degraded, or down—including delay and track staleness effects. | [19](19-Cyber-And-Comms.md) |
+| **CEC (Cooperative Engagement Capability)** | Real-time sensor-netting and integrated fire-control system used primarily by the U.S. Navy, Marine Corps, and allied (NATO) forces. Links dispersed ships, aircraft, and land units into a single composite air track picture so one platform can engage using another’s sensor data. In Project Aegis, modeled for **US/NATO platforms** interacting with drone/UAS swarms (doc 22 **SWARM-31**); distinct from generic tactical datalink share lag (doc 15) and from multi-static ISR mesh (SWARM-29). | [22](22-Drone-Swarm-Platforms.md); [15](15-Sensor-Detection-And-EW.md); [14](14-Engagement-And-Fire-Control.md); [19](19-Cyber-And-Comms.md) |
 | **CYBER_SPOOF_TRACK** | Message-log / order-log code emitted when engage is blocked because the fire-control track is marked **spoofed** (`TrackSpoofed` → `CYBER_SPOOF_TRACK` in `abort_reason_manifest.json`). | [19](19-Cyber-And-Comms.md), [14](14-Engagement-And-Fire-Control.md) |
 | **Spoof Track** | A scenario-driven false or corrupted contact introduced by cyber/EW (`SpoofTracks` policy timeline); when active on a shooter’s track, manual and agent engage abort with **CYBER_SPOOF_TRACK**. | [19](19-Cyber-And-Comms.md) |
 | **AIR_NOT_READY** | Message-log / engage-abort code when `ReadyForLaunch == false` for the shooting unit (live readiness gate before the engagement pipeline commits). | [16](16-Logistics-And-Magazines.md), [14](14-Engagement-And-Fire-Control.md) |

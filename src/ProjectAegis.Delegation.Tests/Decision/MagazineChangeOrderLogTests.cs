@@ -62,7 +62,7 @@ public sealed class MagazineChangeOrderLogTests
         Assert.That(session.Orchestrator.DecisionLog.MagazineChanges, Has.Count.EqualTo(2));
         Assert.That(
             session.Orchestrator.DecisionLog.Engagements.Any(e =>
-                !e.Launched && e.AbortReasonCode == AbortReasonCatalog.Engage.NO_AMMO),
+                !e.Launched && e.AbortReasonCode == AbortReasonCatalog.Engage.WINCHESTER_ORDNANCE),
             Is.True);
     }
 

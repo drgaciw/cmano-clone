@@ -41,6 +41,13 @@ public sealed class PlatformWorkbookPhaseBSheetTests
         "PlatformId", "Condition", "EmitterId", "Posture",
     ];
 
+    private static readonly string[] ExpectedSwarmsHeader =
+    [
+        "PlatformId", "IsSwarm", "MaxDrones", "ArmorClass", "DefaultSensorId", "DefaultWeaponId",
+        "DefaultMode", "RequiresHost", "AllowedHostClasses", "CecCapable",
+        "ReviewState", "TrlLevel", "ValueTier", "CitationRef",
+    ];
+
     private static PlatformCatalogExportData SampleData() => new(
         Platforms: new[] { new CatalogPlatformEntry("u1", 57.0, 20.0, 400.0) },
         Sensors: new[] { new CatalogSensorBinding("u1", "cmo-sensor-1", 0.85) },
@@ -68,17 +75,21 @@ public sealed class PlatformWorkbookPhaseBSheetTests
         var signatures = workbook.FindSheet("Signatures");
         var emcon = workbook.FindSheet("Emcon");
 
+        var swarms = workbook.FindSheet("Swarms");
         Assert.NotNull(mobility);
         Assert.NotNull(signatures);
         Assert.NotNull(emcon);
+        Assert.NotNull(swarms);
 
         Assert.Equal(ExpectedMobilityHeader, mobility!.Header);
         Assert.Equal(ExpectedSignaturesHeader, signatures!.Header);
         Assert.Equal(ExpectedEmconHeader, emcon!.Header);
+        Assert.Equal(ExpectedSwarmsHeader, swarms!.Header);
 
         Assert.Empty(mobility.Rows);
         Assert.Empty(signatures.Rows);
         Assert.Empty(emcon.Rows);
+        Assert.Empty(swarms!.Rows);
     }
 
     [Fact]
@@ -91,7 +102,7 @@ public sealed class PlatformWorkbookPhaseBSheetTests
 
         var phaseAEnd = Array.IndexOf(dataSheetNames, "LinkCatalog");
         Assert.Equal(PhaseADataSheetOrder, dataSheetNames.Take(phaseAEnd + 1).ToArray());
-        Assert.Equal(["Mobility", "Signatures", "Emcon"], dataSheetNames.Skip(phaseAEnd + 1).ToArray());
+        Assert.Equal(["Mobility", "Signatures", "Emcon", "Swarms"], dataSheetNames.Skip(phaseAEnd + 1).ToArray());
     }
 
     [Fact]

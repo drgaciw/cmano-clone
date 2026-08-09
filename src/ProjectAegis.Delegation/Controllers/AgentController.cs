@@ -98,7 +98,8 @@ public sealed class AgentController : IController
         int memberCount,
         ref long orderIdSequence,
         AutonomyGate gate,
-        DecisionLog log)
+        DecisionLog log,
+        PendingApprovalQueue? pendingQueue = null)
     {
         if (state.SimTime < _nextDecisionSimTime)
         {
@@ -155,6 +156,10 @@ public sealed class AgentController : IController
         if (gateResult.ExecuteNow)
         {
             _issued.Add(order);
+        }
+        else if (gateResult.QueueForApproval && pendingQueue != null)
+        {
+            pendingQueue.Enqueue(order);
         }
     }
 }

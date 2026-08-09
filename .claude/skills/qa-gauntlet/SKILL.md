@@ -8,7 +8,8 @@ description: >
   fixes to a QA branch, and delivers a full AAR. Use when the user runs
   /qa-gauntlet, or asks for "QA gauntlet", "escalating complexity QA", "tiered
   scenario stress test", "autonomous sim QA loop", "batch sim defect remediation",
-  or "gauntlet AAR".
+  or "gauntlet AAR". Companion variance/curriculum skill: /qa-gauntlet-forge
+  (invoke at forge phases pre|a0|post-oracle|e|final).
 argument-hint: "[--tiers N=5] [--scenarios-per-tier N=4] [--seeds 42,7,123] [--max-fix-attempts 3] [--resume <run-id>]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion
@@ -23,9 +24,36 @@ QA branch without per-change approval. All other CLAUDE.md / AGENTS.md rules rem
 binding — especially GitNexus impact analysis before every symbol edit,
 `detect_changes()` before every commit, and Graphite (`gt`) for all branch work.
 
+**Variance companion:** invoke `/qa-gauntlet-forge` for self-improving scenario /
+platform / mission variance (Karpathy-style promote loop). Forge owns candidates,
+corpus, recipe weights, and Hindsight bank `qa-gauntlet-forge`; this skill owns
+batch execution, oracle gates, and TDD remediation. See
+[`.claude/skills/qa-gauntlet-forge/SKILL.md`](../qa-gauntlet-forge/SKILL.md).
+
 **Autonomy boundary:** if GitNexus impact returns CRITICAL on a symbol a fix must
 touch, do NOT edit it. Quarantine the defect (see Phase D), continue the tier with
 the remaining scenarios, and surface it prominently in the final report.
+
+## Phase-static model routing
+
+No free model shopping. The orchestrator skill frontmatter stays `model: sonnet`
+(or unset — defaults to `sonnet` per coordination-rules). Task spawns follow the
+table below. Escalate to `opus` only for CRITICAL quarantine synthesis or
+multi-tier AAR conflict. Aliases only: `haiku` / `sonnet` / `opus` — never
+version-pinned IDs in skill files.
+
+| Phase | Model | Notes |
+|-------|-------|-------|
+| Preflight / forge `pre` / scorecard plumbing / expect CSV digest | `haiku` or **no LLM** (script) | Script-first |
+| A0 roster digest | `haiku` | |
+| A1 / forge `a0` draft | `sonnet` | architect |
+| B batch + C oracle CLI | **tools only** | Then `haiku` to summarize exit codes |
+| D TDD Red/Green | `sonnet` | `opus` if CRITICAL / quarantine synthesis |
+| forge `post-oracle` promote judgment | `sonnet` after script scorecard | Never override hard gates |
+| E / forge `e` | `haiku` | |
+| Final AAR distill | `haiku` → `sonnet` prose | `opus` for stuck / multi-tier conflict |
+
+Contract authority: `production/agentic/qa-skills-parallel-task-contract-2026-07-23.md`.
 
 ## Invocation
 
@@ -79,7 +107,7 @@ per this matrix — combine dimensions within a tier, don't cherry-pick one:
 | Dim | Tier 1 | Tier 2 | Tier 3 | Tier 4 | Tier 5 |
 |---|---|---|---|---|---|
 | **Mission type** | Single patrol | Strike OR escort | Escort + strike combined | ASW/AAW multi-mission | Multi-domain theater op (patrol+strike+escort+ASW concurrent) |
-| **Platform mix** | 1–2 surface units/side | + fixed-wing air | + submarines | + UAV/drone elements | Joint mix incl. drone swarms, both sides asymmetric |
+| **Platform mix** | 3 surface units/side (~6) | 3 surface + 1 air / side (~8) | 3 surface + 2 air + 1 sub / side (~12) | 3–4 surface + 2 air + 1–2 sub / side (~14) | 4 surface + 3 air + 2 sub blue vs dense red (~16); asymmetric joint mix |
 | **Victory conditions** | Survive N ticks | Destroy designated target | Protect HVU + destroy target | Weighted multi-objective scoring | Conditional/dynamic objectives that change on trigger |
 | **Events** | None | 1 scripted timed event | Timed event chain | Random injects (seeded) | Cascading adversarial injects (comms loss, sensor degradation, reinforcements) |
 | **ROE** | Weapons free, both sides | Weapons tight one side | ID-required engagement criteria | Asymmetric per-side ROE + escalation rules | Mid-mission ROE changes via event |
@@ -88,9 +116,63 @@ per this matrix — combine dimensions within a tier, don't cherry-pick one:
 Tier N+1 may not start until tier N is green (all scenarios pass all oracles,
 after remediation) or explicitly quarantined.
 
+## Orthogonal stress axes
+
+The 5 tiers escalate mission/platform complexity. Three **independent** axes
+layer pressure onto any tier and are selected by a bounded pairwise matrix, not
+a cross-product: `ew`, `logistics`, `weapons` (see
+[`tools/qa-gauntlet/README-stress-axes.md`](../../../tools/qa-gauntlet/README-stress-axes.md)).
+
+| Axis | Proof mode | Control sibling |
+|---|---|---|
+| `weapons` | `differential-token` (`NO_AMMO`) | **Required** |
+| `ew` | `differential-aggregate` (`Detected`) | **Required** |
+| `logistics` | `config-only` (GAP-13) | — |
+
+- Plan with `plan_stress_matrix.plan_matrix(...)`; report `estimatedRuns` and
+  `dropped` before executing. On the shipped catalog at `tiers=[1..5], seeds=3,
+  max_configs=24` this is `configs=15, estimatedRuns=105, dropped=0`.
+- **Budget anchors — do not conflate them.** A default ladder run is
+  4 scenarios/tier x 5 tiers x 3 seeds = **60 runs**. The accumulated-corpus
+  regression covers the **39** scenarios carrying a `gauntlet.tier` (43 policies
+  exist on disk; 4 have no tier and are skipped), so 39 x 3 = **117 runs**. The
+  "117" figure is correct for the corpus regression — the error to avoid is
+  calling it a ladder run. At 105 runs the matrix is **~1.75x a default ladder**
+  and ~0.90x a corpus regression — it is *not* cheaper than running the ladder;
+  do not present it as such. Treat 117 as the ceiling and lower `max_configs` if
+  `estimatedRuns` exceeds it.
+- Verify with `verify_stress_axes.verify_axis(...)` using each axis's declared
+  proof mode. `logistics` is `config-only` (GAP-13) and is **never** reported as
+  proven — do not add a fuel assertion to make it look green.
+- Both `ew` and `weapons` require a control sibling identical apart from the
+  stressed key and `id`: `ew` compares aggregate `Detected` counts across all
+  seeds; `weapons` compares total `NO_AMMO` occurrences and is proven only on a
+  **strict increase**. `NO_AMMO` occurs 106 times in the unstressed tier-1
+  baseline, so asserting its mere presence proves nothing — never downgrade
+  `weapons` to a presence check.
+- EW jammers are emitted without a `targetId`; `apply_stress_axes` resolves one
+  from the base policy's `jammers` or `detection` block. A scenario with no
+  detection targets cannot carry the EW axis and raises rather than deriving an
+  inert scenario.
+
 ## Per-tier loop
 
 ### Phase A — Scenario generation (parallelizable with tier N execution)
+
+**Forge pre + A0 (required).** Before roster drafting for tier 1 (and again when
+starting each new tier's A0), invoke `/qa-gauntlet-forge`:
+
+```
+/qa-gauntlet-forge --run-id <RUN_ID> --tier <N> --phase pre
+/qa-gauntlet-forge --run-id <RUN_ID> --tier <N> --phase a0
+```
+
+Forge recalls Hindsight bank `qa-gauntlet-forge`, loads
+`production/qa/gauntlet/corpus/` (coverage-map, recipe weights, hard-cases),
+writes `forge/mid-tier-plan.yaml`, and drafts ephemeral candidates under
+`production/qa/gauntlet/<RUN_ID>/forge/candidates/` (gitignored). Prefer
+under-covered catalog platforms from the coverage map. Do **not** commit
+candidates until forge promotion after oracle.
 
 **A0 — Platform roster from the catalog.** Before scenario drafting, spawn
 `sim-data-specialist` to assemble the tier's platform roster from real data:
@@ -128,22 +210,46 @@ HVU survival; Red fires ≤ X missiles under tight ROE").
 Invalid scenario → send back to the architect with the validator output, max 2
 regeneration attempts, then drop it and log why.
 
-**Parallel development note:** while tier N executes (Phase B), spawn A0/A1 for
-tier N+1 concurrently. Scenario generation is data-only and cannot conflict with
-code fixes.
+**Parallel Task note (Phase A — contract: `production/agentic/qa-skills-parallel-task-contract-2026-07-23.md`):**
+Starting A0/A1 for tier N+1 while tier N executes (Phase B) is **required** when
+feasible, not optional. Rules:
+- **Independent domain** = disjoint write paths and no shared mutable counters (BUG-NNN, RUN_ID). Scenario generation is data-only and cannot conflict with code fixes.
+- **Self-contained Task prompt:** each spawned Task must include scope / goal / constraints / return summary.
+- **One-turn dispatch:** issue all independent Task calls in a single orchestrator turn before waiting on any result.
+- Surface **BLOCKED** immediately; always produce a partial report.
 
-### Phase B — Execution
+### Phase B — Execution (canonical driver)
 
-Run the batch harness per scenario × seed:
+Run the shipped driver — do NOT hand-roll batch loops or oracle checks:
 
 ```bash
-dotnet run --project src/ProjectAegis.Delegation.Demo -- --batch \
-  --scenarios <tier scenario ids> --seeds <seeds> --ticks <tier-appropriate> \
-  --csv-out production/qa/gauntlet/<RUN_ID>/tier-N/results.csv
+tools/qa-gauntlet/run-gauntlet.sh --run-id <RUN_ID> [--tiers "1 2 3 4 5 extra"] \
+  [--seeds 42,7,123] [--roving 2]
 ```
 
-Capture stdout/stderr to `tier-N/run.log`. Tick budget scales with tier
-(suggest 6 / 10 / 16 / 24 / 40 unless the scenario intent dictates otherwise).
+The driver resolves dotnet itself (PATH, then `~/.dotnet/dotnet`), loads the ladder
+contract from `tools/qa-gauntlet/ladder.yaml` (tier → scenarios + ticks), runs each
+tier's batch plus an identical repeat batch, filters anchor seeds via
+`evaluate_run.py filter-seeds`, runs `gauntlet_oracle_eval` on those rows (strict
+gate: `GauntletPolicyStrictKeys` in `ProjectAegis.Data` — unknown `gauntlet.*` keys
+fail closed inside `GauntletOracleEvaluator`; legacy `gauntlet.emcon` warns),
+evaluates roving rows separately in observe mode, and invokes
+`tools/qa-gauntlet/evaluate_run.py` for tier and run verdicts. Roving seeds are
+derived from the run id and recorded in `roving-seeds.txt` (reproducible).
+
+For generated (Phase A) scenarios not in the shipped ladder, stage them into
+`data/scenarios/` first or run the Demo batch directly, then call
+`evaluate_run.py tier` on the tier dir — the oracle set is identical either way.
+
+## Script-first mechanical gates
+
+Hard gates **must** be driven by CLI tools — not LLM reinterpretation of raw
+results data:
+
+- **Oracle evaluation:** always run `dotnet run --project src/ProjectAegis.MissionEditor.Cli -- gauntlet_oracle_eval …` (see Phase C). Do not ask an LLM to interpret `results.csv` directly against `gauntlet.expect` fields.
+- **Forge scoring:** always run `python3 tools/qa-gauntlet/forge_scorecard.py` before any promote judgment. LLM (`sonnet`) may apply judgment only *after* the scorecard output is present.
+- **Class `oracle` defects** → expect-regen runbook only. Batch at tier ticks → CSV → update `gauntlet.expect` envelopes programmatically. **No hand-editing envelopes.**
+- After tools run, `haiku` may summarize exit codes / logs. It **must not** override `Passed=false` without a formal triage-class promotion (reclassifying from `sim-code` to `oracle` requires the qa-lead justification flow, not an LLM opinion alone).
 
 ### Phase C — Oracle evaluation (hard gate — no stability-only green)
 
@@ -180,26 +286,42 @@ tools/qa-gauntlet/retest-defect.sh <defect-id> --out-dir <scratch>
 every blue unit; detection observer→target pairs feed preferred victims so concurrent
 domain launches are not collapsed by salvo deconfliction.
 
-Spawn `qa-lead` to evaluate `results.csv` + `run.log` + evaluator output against:
+**Oracles are code:** read `tier-N/verdict.json` and the run-level `verdict.json`
+written by the driver (`evaluate_run.py`). Fields per tier: `stability`, `determinism`,
+`victory_roe`, `roving_observe`, `sanity`, `goldens`; run level: `tiers`,
+`token_coverage`. Any `"status": "fail"` fails the tier — the driver's exit code IS
+the Phase E tier gate. Spawn `qa-lead` only to *triage* failures, not to re-derive them:
 
-1. **Stability** — zero unhandled exceptions, zero crashes, run completed all ticks.
-2. **Determinism** — identical `fingerprint` for identical (scenario, seed) across a
-   repeat run; different seeds may differ. Any mismatch → also run the
-   `determinism-audit` skill and treat as a defect owned by `determinism-engineer`.
-3. **Victory-condition correctness** — winner/score matches `gauntlet.expect` bounds
-   (enforced by `GauntletOracleEvaluator`).
-4. **ROE compliance** — no engagements violating ROE; denials/missiles vs expect
-   (enforced where expect bounds apply).
-5. **EMCON plausibility** — detection/denial patterns consistent with emissions
-   posture *as defined by each platform's catalog `CatalogEmcon` profile*.
-6. **Regression** — tier ≤ N-1 anchor scenarios (re-run 1 per prior tier) still pass;
-   scores within tolerance of their previous CSVs.
-7. **Sanity** — scores finite; fingerprint non-empty when required; CSV schema intact.
+- `determinism` red → also run the `determinism-audit` skill; defect owned by
+  `determinism-engineer`.
+- `goldens` red → `sim-code` unless a deliberate, documented behavior change — then
+  re-bless per `tools/qa-gauntlet/goldens/README.md` (never bless to silence an
+  unexplained diff).
+- `token_coverage` red → a claimed dimension produced zero observable effect
+  run-wide; treat as `scenario-data` against the claiming scenarios (this is the
+  vacuity guard that would have caught the inert EMCON dimension).
+- `victory_roe` red → classify `sim-code` vs `oracle` (envelope) per
+  `tools/qa-gauntlet/README-expect-regen.md`.
+- `roving_observe` is warn-only exploration: envelope bounds are anchor-calibrated,
+  so roving anomalies are triage leads (reproducible via `roving-seeds.txt`), not
+  gate failures.
 
 **Joint ORBAT (tier ≥3 when available):** policies SHOULD set `gauntlet.units` with
 surface + air + subsurface catalog `platformId`s. The harness registers them and
 emits `CATALOG_UNIT:{platformId}:{domain}` events (see `gauntlet-joint-orbat-smoke`).
 Do not claim multi-domain play without those events in the run fingerprint/fire order.
+
+**Forge post-oracle (required).** After oracle-eval.json is written for the tier:
+
+```
+/qa-gauntlet-forge --run-id <RUN_ID> --tier <N> --phase post-oracle
+```
+
+Forge runs `tools/qa-gauntlet/forge_scorecard.py`, promotes winners into
+`data/scenarios/` + corpus (with expect-regen discipline), discards ephemeral
+losers, and feeds useful `sim-code` / `scenario-data` fails into
+`corpus/hard-cases/`. Locked eval (`GauntletOracleEvaluator`, CI workflow) is
+never edited by forge.
 
 Every failed oracle becomes a defect entry via the `bug-triage` skill, classified as:
 `scenario-data` (bad generated JSON or catalog mismatch), `sim-code`, `oracle`
@@ -209,9 +331,9 @@ Every failed oracle becomes a defect entry via the `bug-triage` skill, classifie
 
 For each `sim-code` defect, run this strict cycle:
 
-1. **Red** — spawn `c-sharp-test-engineer` to write a minimal failing test in the
-   owning test assembly (`ProjectAegis.Sim.Tests`, `ProjectAegis.Delegation.Tests`, …)
-   that reproduces the defect deterministically (fixed seed). Confirm it fails.
+1. **Red** — spawn `c-sharp-test-engineer` with **gauntlet autonomy override** (skip per-file approval) to write a minimal **xUnit** failing test in the
+   owning co-located assembly (`src/ProjectAegis.Sim.Tests`, `src/ProjectAegis.Data.Tests`, … — **not** a top-level `tests/` tree) that
+   reproduces the defect deterministically (fixed seed). Confirm RED via `dotnet test … --filter …`.
 2. **Impact** — `impact({target: <symbol>, direction: "upstream"})` on every symbol
    to be edited. CRITICAL → quarantine (skip fix, tag defect `QUARANTINED-CRITICAL`,
    write bug report via `bug-report` skill, continue). HIGH → proceed but flag in AAR.
@@ -230,10 +352,14 @@ For each `sim-code` defect, run this strict cycle:
 scenario's 2 regeneration attempts). `oracle` defects → qa-lead corrects the
 expectation in the manifest with justification logged.
 
-**Parallel fixes:** independent defects (disjoint GitNexus blast radii — verify
-with `impact` before assigning) may be fixed by parallel subagents in separate
-worktrees under `.worktrees/`; merge back through the QA branch sequentially,
-re-running step 4 after each merge.
+**Parallel fixes (contract: `production/agentic/qa-skills-parallel-task-contract-2026-07-23.md`):**
+Independent defects with disjoint GitNexus blast radii (verified with `impact`
+before assigning) may be fixed by parallel Tasks:
+- **Independent domain** = disjoint write paths and no shared mutable counters (BUG-NNN, RUN_ID).
+- Each Task prompt must be **self-contained**: scope / goal / constraints / return summary.
+- **One-turn dispatch:** issue all independent Task calls in a single orchestrator turn before waiting on any result.
+- sim-code fixes → parallel Tasks in separate worktrees under `.worktrees/`; **serial merge** onto the QA branch + re-verify (step 4) after each merge.
+- Surface **BLOCKED** immediately; always produce a partial report.
 
 ### Phase E — Tier gate
 
@@ -244,20 +370,59 @@ Then retain the tier's learnings: use the hindsight skills
 (`hindsight-retain`) via `hindsight-dev-memory-lead`, and
 `balance-tuning-memory-agent` for any score/balance anomalies observed.
 
+**Forge mid-tier (required).** Before starting tier N+1 generation:
+
+```
+/qa-gauntlet-forge --run-id <RUN_ID> --tier <N> --phase e
+```
+
+Forge up-weights recipes that produced pressure, injects 1–2 hard-case replays
+into `forge/mid-tier-plan.yaml` for the next tier, and flags stuck recipe
+families (≥5 consecutive discards).
+
 ## Final phase — AAR & handoff
 
 After tier 5 (or an unrecoverable halt):
 
-1. Spawn `hindsight-aar-analyst` to write `AAR.md`: ladder results table, every
+1. Invoke forge final distillation:
+
+```
+/qa-gauntlet-forge --run-id <RUN_ID> --phase final
+```
+
+   Include `forge/promote-log.md`, coverage/weight deltas, and stuck families in
+   the AAR. Forge retains to Hindsight bank `qa-gauntlet-forge`.
+
+**Forge evidence hard gate:** if forge hooks were invoked during this run,
+handoff is **FAIL** unless `production/qa/gauntlet/<RUN_ID>/forge/promote-log.md`
+exists **and** is attached or linked in the AAR. Do not proceed to `gt submit`
+without it.
+
+2. Spawn `hindsight-aar-analyst` to write `AAR.md`: ladder results table, every
    defect (root cause, fix commit, or quarantine reason), determinism findings,
-   balance/score trends across tiers, flaky-test notes, recommended follow-ups.
-2. Spawn `qa-lead` for the sign-off section: baseline vs final test count,
+   balance/score trends across tiers, flaky-test notes, forge promote summary,
+   recommended follow-ups.
+   Include the line: "Last oracle calibration: <date>, kill rate <N/M>
+   (production/qa/gauntlet/calibration-<date>/report.md)" — run
+   `/qa-gauntlet-calibrate` if none exists or oracles/goldens changed since.
+
+   **Required defect class counts table in AAR:**
+
+   | Class | Count |
+   |-------|-------|
+   | `sim-code` fixed | |
+   | `oracle` recalibrated | |
+   | `scenario-data` | |
+   | `flaky` | |
+   | quarantined | |
+
+3. Spawn `qa-lead` for the sign-off section: baseline vs final test count,
    replay-golden status, regression anchors status.
-3. `detect_changes({scope: "compare", base_ref: "main"})` — attach output to AAR.
-4. `gt submit --stack --no-interactive` if fixes were committed; include AAR link
-   in the PR body. Do NOT merge.
-5. Print a concise terminal summary: tiers passed, scenarios run, defects
-   found/fixed/quarantined, commits, AAR path. Explicitly list every
+4. `detect_changes({scope: "compare", base_ref: "main"})` — attach output to AAR.
+5. `gt submit --stack --no-interactive` if fixes or forge promotions were
+   committed; include AAR link in the PR body. Do NOT merge.
+6. Print a concise terminal summary: tiers passed, scenarios run, defects
+   found/fixed/quarantined, forge promotes, commits, AAR path. Explicitly list every
    `QUARANTINED-CRITICAL` item — these require human decisions.
 
 ## Hard rules recap
@@ -271,3 +436,9 @@ After tier 5 (or an unrecoverable halt):
   roster drawn from the catalog DB.
 - Budget guard: if a single tier exceeds 12 defects or the run exceeds its
   remediation budget, halt gracefully and jump to the Final phase.
+
+## See also
+
+- `/qa-gauntlet-forge` — variance companion: scenario/platform/mission curriculum, promote loop, Hindsight bank `qa-gauntlet-forge`.
+- `/team-qa` — human sprint QA package (not a substitute for the gauntlet ladder).
+- `/smoke-check` — lightweight smoke gates (run at Phase 0 preflight).

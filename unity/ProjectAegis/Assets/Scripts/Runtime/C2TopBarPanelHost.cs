@@ -1,4 +1,4 @@
-// Doc-20 top bar — sim time, phase, compression, score strip.
+// Doc-20 top bar — sim time, phase, compression, score strip; CMD-22 Zulu/local/remain.
 #if UNITY_5_3_OR_NEWER
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
@@ -19,6 +19,9 @@ namespace ProjectAegis.Unity.Runtime
         private const string ModeName = "mode-label";
         private const string CommsName = "comms-label";
         private const string ScoreName = "score-label";
+        private const string ZuluTimeName = "zulu-time-label";
+        private const string LocalTimeName = "local-time-label";
+        private const string RemainingDurationName = "remaining-duration-label";
 
         /// <summary>Repo-relative Approved production USS for ASSET-005 (Path A graduate).</summary>
         public const string ApprovedProductionUssRelativePath =
@@ -37,6 +40,9 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _mode;
         private Label? _comms;
         private Label? _score;
+        private Label? _zuluTime;
+        private Label? _localTime;
+        private Label? _remainingDuration;
         private bool _wired;
         private C2TopBarPresentation _presentation = C2TopBarPresentation.Empty;
 
@@ -99,6 +105,10 @@ namespace ProjectAegis.Unity.Runtime
             _mode = panel.Q<Label>(ModeName);
             _comms = panel.Q<Label>(CommsName);
             _score = panel.Q<Label>(ScoreName);
+            // CMD-22: null-safe Q — labels optional for older UXML trees.
+            _zuluTime = panel.Q<Label>(ZuluTimeName);
+            _localTime = panel.Q<Label>(LocalTimeName);
+            _remainingDuration = panel.Q<Label>(RemainingDurationName);
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
             {
                 panel.styleSheets.Add(panelStyles);
@@ -206,6 +216,21 @@ namespace ProjectAegis.Unity.Runtime
             if (_score != null)
             {
                 _score.text = _presentation.ScoreLabel;
+            }
+
+            if (_zuluTime != null)
+            {
+                _zuluTime.text = _presentation.ZuluTimeLabel;
+            }
+
+            if (_localTime != null)
+            {
+                _localTime.text = _presentation.LocalTimeLabel;
+            }
+
+            if (_remainingDuration != null)
+            {
+                _remainingDuration.text = _presentation.RemainingDurationLabel;
             }
 
             if (_comms != null)

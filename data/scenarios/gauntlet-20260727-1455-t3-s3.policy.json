@@ -1,0 +1,226 @@
+{
+  "id": "gauntlet-20260727-1455-t3-s3",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 6,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "detection": [
+    {
+      "observerId": "su-27sm-sm3-flanker-j-2013",
+      "sensorId": "radar-1",
+      "targetId": "p-960-skjold",
+      "contactId": "c-s3-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "mrk-buyan-pr-21630-buyan-2007",
+      "sensorId": "radar-1",
+      "targetId": "p-840-holland",
+      "contactId": "c-s3-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "ka-27m-helix-a",
+      "sensorId": "radar-1",
+      "targetId": "su-35s-flanker-m-2023",
+      "contactId": "c-s3-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "021-messali-el-hadj-pl-636m-kilo-2011",
+      "sensorId": "passive-sonar-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-s3-4",
+      "basePd": 0.8,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start",
+      "strike-tasking",
+      "escort-screen",
+      "weapons-release"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "strike-tasking",
+        "fireAtTick": 5,
+        "kind": "EventFired",
+        "code": "strike_tasking_order"
+      },
+      {
+        "id": "escort-screen",
+        "fireAtTick": 9,
+        "kind": "EventFired",
+        "code": "escort_screen_established"
+      },
+      {
+        "id": "weapons-release",
+        "fireAtTick": 13,
+        "kind": "EventFired",
+        "code": "weapons_release_window"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "strike-target-id",
+        "observerId": "su-27sm-sm3-flanker-j-2013",
+        "targetClass": "Surface",
+        "side": "friendly",
+        "missionCode": "ASuW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "su-27sm-sm3-flanker-j-2013",
+          "mrk-buyan-pr-21630-buyan-2007"
+        ]
+      },
+      {
+        "id": "escort-hvu-screen",
+        "observerId": "021-messali-el-hadj-pl-636m-kilo-2011",
+        "targetClass": "Subsurface",
+        "side": "friendly",
+        "missionCode": "ASW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "021-messali-el-hadj-pl-636m-kilo-2011"
+        ]
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T3 escort+strike: blue screens HVU mrk-buyan-pr-21630-buyan-2007 (escort) while su-27sm-sm3-flanker-j-2013 is tasked to destroy designated red target p-960-skjold (strike). Four mission.events fire on ascending ticks (0, 5, 9, 13) inside the 16-tick budget, chaining mission-start -> strike tasking -> escort screen -> weapons release; friendlyRoe starts WeaponsTight (ID-required) and mission.triggers escalate specific units to WeaponsFree on first contact.",
+    "oracle": "Fingerprint must contain MissionTransition/EventFired entries for all four event ids/codes in ascending SimTick order, plus PolicyUpdate/EngagementRecord entries showing the ROE escalation from WeaponsTight to WeaponsFree for the triggered unitIds.",
+    "catalogRefs": [
+      "mrk-buyan-pr-21630-buyan-2007",
+      "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+      "mrk-shkval-pr-22800-karakurt",
+      "su-27sm-sm3-flanker-j-2013",
+      "ka-27m-helix-a",
+      "021-messali-el-hadj-pl-636m-kilo-2011",
+      "p-960-skjold",
+      "p-840-holland",
+      "pk-368-vasily-bykov-pr-22160",
+      "f-16c-blk-52iq-falcon-2015",
+      "su-35s-flanker-m-2023",
+      "pl-877-kilo-paltus-1992"
+    ],
+    "dimensionsClaimed": [
+      "escort-strike-combined",
+      "timed-event-chain",
+      "roe-id-required",
+      "combat-domain-subsurface",
+      "combat-domain-air",
+      "combat-domain-surface"
+    ],
+    "units": [
+      {
+        "unitId": "mrk-buyan-pr-21630-buyan-2007",
+        "platformId": "mrk-buyan-pr-21630-buyan-2007",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+        "platformId": "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "mrk-shkval-pr-22800-karakurt",
+        "platformId": "mrk-shkval-pr-22800-karakurt",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "su-27sm-sm3-flanker-j-2013",
+        "platformId": "su-27sm-sm3-flanker-j-2013",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "021-messali-el-hadj-pl-636m-kilo-2011",
+        "platformId": "021-messali-el-hadj-pl-636m-kilo-2011",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "p-840-holland",
+        "platformId": "p-840-holland",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "f-16c-blk-52iq-falcon-2015",
+        "platformId": "f-16c-blk-52iq-falcon-2015",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-35s-flanker-m-2023",
+        "platformId": "su-35s-flanker-m-2023",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "pl-877-kilo-paltus-1992",
+        "platformId": "pl-877-kilo-paltus-1992",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "expect": {
+      "side": "BLUE",
+      "minKills": 0,
+      "maxMissilesFired": 32,
+      "minDenials": 24,
+      "maxDenials": 67,
+      "minScore": -345.0,
+      "maxScore": 60.0,
+      "requireNonEmptyFingerprint": true
+    },
+    "expectProvenance": "regenerated 2026-07-27 from real Demo batch CSV at T3 tick budget 16, seeds 42,7,123, after the s5/control activeFromTick fix. Per tools/qa-gauntlet/README-expect-regen.md \u2014 derived, not invented."
+  }
+}
