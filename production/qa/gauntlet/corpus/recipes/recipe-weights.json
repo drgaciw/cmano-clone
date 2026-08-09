@@ -1,22 +1,22 @@
 {
   "version": 1,
-  "updated": "2026-07-27",
+  "updated": "2026-07-28",
   "learningRate": 1.15,
   "downWeightRate": 0.85,
   "stuckDiscardThreshold": 5,
   "baselineScore": 0,
   "weights": {
-    "platform-swap-underused": 1.2,
+    "platform-swap-underused": 1.587,
     "orbat-asymmetric-ratio": 1.15,
     "mission-combo-escort-strike": 1.15,
-    "mission-concurrent-asw-aaw": 1.0,
-    "victory-weighted-multi": 1.0,
-    "victory-trigger-conditional": 1.0,
+    "mission-concurrent-asw-aaw": 1.15,
+    "victory-weighted-multi": 1.15,
+    "victory-trigger-conditional": 1.15,
     "event-timed-chain": 1.0,
     "event-seeded-random-inject": 1.0,
-    "event-cascading-adversarial": 1.0,
-    "roe-asymmetric-per-side": 1.1,
-    "roe-mid-mission-change": 1.1,
+    "event-cascading-adversarial": 1.15,
+    "roe-asymmetric-per-side": 1.265,
+    "roe-mid-mission-change": 1.265,
     "emcon-timed-phases": 1.1,
     "emcon-contested-deception": 1.0,
     "geometry-detection-lane-shift": 1.0,
@@ -27,6 +27,13 @@
   "consecutiveDiscards": {
     "hard-case-replay": 0,
     "orbat-asymmetric-ratio": 0,
-    "mission-combo-escort-strike": 0
+    "mission-combo-escort-strike": 0,
+    "platform-swap-underused": 0,
+    "mission-concurrent-asw-aaw": 0,
+    "victory-weighted-multi": 0,
+    "roe-asymmetric-per-side": 0,
+    "victory-trigger-conditional": 0,
+    "event-cascading-adversarial": 0,
+    "roe-mid-mission-change": 0
   }
 }

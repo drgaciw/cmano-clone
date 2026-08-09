@@ -1,70 +1,104 @@
 run_id: gauntlet-20260727-1455
-tier: 2
+tier: 5
 phase: pre
-generated: "2026-07-27T16:20Z"
-supersedes: "tier-1 plan (same file, rewritten per forge lifecycle — tier-1 plan summary preserved in promote-log)"
+generated: "2026-07-28T04:20Z"
+supersedes: "tier-4 plan (same file, rewritten per forge lifecycle — tier-1/2/3/4 plan summaries preserved in promote-log)"
 
 context:
   resumed_after: >
-    Tier 1 completed GREEN after both quarantined CRITICAL defects were fixed
-    (BUG-engagement-resolver-shooter-liveness, BUG-losses-scoring-side-unaware).
-    Oracle results are now trustworthy, so tier 2 signal is meaningful — unlike the
-    pre-fix state where every tier would have reproduced the same two engine defects.
+    Tier 4 completed GREEN under a full /qa-gauntlet run (not standalone forge):
+    8/8 policies (4 main + 4 forge) passed gauntlet_oracle_eval after expect
+    regen from the real 24-tick batch CSV. Forge: 4/4 candidates promoted. One
+    real sim-code defect found and quarantined (BUG-scenario-contacts-shadowed-by-detection,
+    not fixed — GitNexus unavailable this session). Regression anchors for
+    tiers 1-3 re-verified clean. This is the final tier (5 of 5).
+
+phase_e_closeout_tier4:
+  weight_deltas: "already applied at tier-4 post-oracle (see promote-log) — platform-swap-underused 1.2->1.38, mission-concurrent-asw-aaw 1.0->1.15, victory-weighted-multi 1.0->1.15, roe-asymmetric-per-side 1.1->1.265"
+  stuck_families: none
+  hard_case_pool: >
+    Still empty on disk. hard-case-replay (weight 1.7192, highest in catalog)
+    remains ineligible again this tier on the "hard-cases-nonempty" precondition
+    — the two tier-1 signatures were never materialised into corpus/hard-cases/.
+    Standing recommendation, now carried across 3 tiers unactioned.
 
 hindsight_recall:
-  status: SKIPPED — server still unreachable (HTTP 000 at tier-1 pre and final)
+  status: "SKIPPED — server unreachable (curl http://localhost:8888 -> exit 000), same outage as every prior phase this run"
   action: on-disk corpus only, per forge contract
 
 corpus_snapshot:
-  coverage_map_cells: 20
-  coverage_map_scenarios: 24
-  corpus_health: "24/24 passing at correct per-tier tick budgets after the tier-1 fixes + expect regen"
+  coverage_map_cells: 36
+  coverage_map_scenarios: 51
   hard_cases_pool_files: 0
-  hard_case_signatures_known: 2   # recorded in promote-log at tier-1 post-oracle, not yet materialised as replay policies
+  underused_platform_hint_count: 15
+  underused_platform_hint_note: >
+    Recomputed post-tier-4. Now dominated by advanced/exotic air (su-57-felon,
+    tu-160-blackjack, su-34-fullback-2014, su-35s-flanker-m-2023, su-33-flanker-d,
+    mig-31-foxhound, nh90-nfh-caiman-marine) and modern subs (pla-885m-severodvinsk-yasen-m,
+    plarb-955-borei-borey, a-19-gotland-2020, a-26-blekinge, s-185-u-35-type-212a,
+    s-120-papanikolis-type-214hn) — a strong thematic match for tier 5's "dense
+    red, asymmetric joint mix" spec (5th-gen fighter, strategic bomber, modern
+    SSGN/SSBN/SSK on the RED side).
 
-ranked_recipes_tier2:
-  # tierMin <= 2, bootstrap-seed excluded (provenance-only)
-  - id: hard-case-replay
-    weight: 1.3
-    rationale: >
-      Highest weight AND newly actionable. The two tier-1 signatures
-      (dead-shooter-fires-next-tick, enemy-kill-credited-to-own-side) are now FIXED,
-      so a candidate that deliberately reproduces those conditions is genuine
-      regression coverage rather than a re-discovery of a known-broken path.
+ranked_recipes_tier5:
+  # tierMin <= 5, bootstrap-seed excluded (provenance-only), hard-case-replay
+  # still ineligible (precondition unmet)
   - id: platform-swap-underused
-    weight: 1.2
+    weight: 1.38
+    tierMin: 1
     rationale: >
-      Still the workhorse; tier 2 adds an air slot per side, which is entirely new
-      coverage surface (no air platform appears in any tier-1 cell from this run).
-  - id: orbat-asymmetric-ratio
+      Highest-weight eligible recipe by a wide margin. The post-tier-4 underused
+      list is now dominated by advanced RED-side air/subsurface platforms that
+      map directly onto tier 5's "dense red, asymmetric joint mix" spec.
+  - id: event-cascading-adversarial
     weight: 1.0
-    rationale: Newly eligible at tier 2. Pairs naturally with this tier's asymmetric ROE (tight one side).
-  - id: mission-combo-escort-strike
-    weight: 1.0
-    rationale: Newly eligible at tier 2 and directly on-theme — tier 2's mission row is "strike OR escort".
-  - id: geometry-detection-lane-shift
-    weight: 1.0
+    tierMin: 5
     rationale: >
-      Interacts well with this tier's passive-only EMCON side — detection geometry
-      matters more when one side is emissions-restricted.
+      Newly eligible at tier 5 and directly on-theme — tier 5's own ladder
+      description is "Cascading adversarial injects (comms loss, sensor
+      degradation, reinforcements)", exactly this recipe's description.
+      Same pattern as mission-concurrent-asw-aaw being tier 4's theme recipe.
+  - id: roe-mid-mission-change
+    weight: 1.1
+    tierMin: 5
+    rationale: >
+      Newly eligible at tier 5 and directly on-theme — tier 5's ROE row is
+      "Mid-mission ROE changes via event", exactly this recipe's description.
+      Second-highest weight among eligible recipes after platform-swap-underused.
+  - id: victory-trigger-conditional
+    weight: 1.0
+    tierMin: 5
+    preconditions: ["mission.triggers-supported"]
+    rationale: >
+      Newly eligible at tier 5 and directly on-theme — tier 5's victory row is
+      "Conditional/dynamic objectives that change on trigger", exactly this
+      recipe's description. Precondition satisfied — mission.triggers is a real,
+      engine-consumed mechanic already used by tiers 3/4 (confirmed working,
+      unlike contacts[] — see BUG-scenario-contacts-shadowed-by-detection.md).
 
-hard_case_replays_injected:
-  - signature: dead-shooter-fires-next-tick
-    intent: >
-      Construct an ORBAT/geometry where a unit is reliably killed early and would
-      historically have fired again. Post-fix the expected observable is a
-      SHOOTER_DESTROYED denial rather than a launch.
-  - signature: enemy-kill-credited-to-own-side
-    intent: >
-      Ensure both sides land kills, so a side-unaware scorer would inflate the scored
-      side's tally. Post-fix, blue's kills must exclude red-fired kills.
+not_selected_this_wave:
+  - "roe-asymmetric-per-side (weight 1.265, tierMin 3) — already exercised at tiers 2 and 4; this wave prioritizes the three tier-5-native theme recipes (event/roe/victory) plus the workhorse over repeating an already-covered dim."
+  - "emcon-contested-deception (weight 1.0, tierMin 5) — newly eligible and directly on-theme (tier 5's EMCON row), but the 4-candidate cap this wave went to the workhorse + 3 tier-5-theme recipes; the main-ladder scenarios (Phase A0/A1) are tasked with covering the EMCON-contested-deception dimension instead, so it is not dropped from this tier's coverage, just not drawn via a forge candidate this wave."
+  - "mission-concurrent-asw-aaw / victory-weighted-multi / orbat-asymmetric-ratio (weight 1.15 each) — already exercised at tier 4/2; deprioritized in favor of untouched tier-5-native dims."
+  - "event-timed-chain / event-seeded-random-inject / geometry-detection-lane-shift / trait-attention-overload (weight 1.0) — eligible, deprioritized this wave."
+
+hard_case_replays_injected: []
+# hard-case-replay still ineligible (hard-cases-nonempty precondition unmet)
 
 new_coverage_this_tier:
-  domains: "air introduced for the first time this run (all tier-1 cells were surface-only)"
-  emcon: "passive-only one side — first EMCON-restricted cell from this run"
-  roe: "asymmetric (tight one side) — tier 1 was WeaponsFree/WeaponsFree throughout"
-  events: "1 scripted timed event — tier 1 had none"
+  domains: "no new domain"
+  mission: "no new mission class expected from forge candidates this wave (theme recipes are event/roe/victory, not mission); main-ladder scenarios cover the tier's 'multi-domain theater op (patrol+strike+escort+ASW concurrent)' mission row"
+  events: "event-cascading-adversarial is a genuinely new event class for this run's forge candidates (prior tiers used single timed events or seeded injects, not cascading multi-inject chains)"
+  roe: "roe-mid-mission-change is genuinely new — prior ROE recipes (orbat-asymmetric-ratio, roe-asymmetric-per-side) set ROE asymmetry at scenario start; this is the first recipe changing ROE mid-run via event"
+  victory: "victory-trigger-conditional is genuinely new — victory-weighted-multi (tier 4) made scoring multi-term but static; this recipe makes the objective itself conditional/dynamic"
+  platforms: "5th-generation fighter (su-57-felon) and strategic bomber (tu-160-blackjack) domain depth is new for this run"
 
 max_candidates_this_wave: 4
-tick_budget: 10
+tick_budget: 40
 seeds: [42, 7, 123]
+
+next_steps:
+  - "Phase a0: tier-5 roster already built (forge/tier-5-roster.json + tier-5/roster.json, 33 platforms, queried directly against assets/data/catalog/baltic_patrol.db)."
+  - "Phase a0: hand roster + these 4 recipes to military-simulation-architect, one candidate per recipe, written to forge/candidates/ (gitignored) with schema-complete gauntlet.intent + gauntlet.expect placeholders marked 'expect provisional pending regen'."
+  - "Phase A0/A1 (main ladder): draft 4 main scenarios covering tier 5's full dimension matrix (multi-domain concurrent mission, conditional/dynamic objectives, cascading adversarial injects, mid-mission ROE change via event, contested-EM EMCON deception) at 40 ticks."
+  - "Validate all 8 (Phase A2) before Phase B batch execution at the tier-5 40-tick budget, seeds 42/7/123 — this is the final tier of the ladder; Final AAR follows after Phase C/E."

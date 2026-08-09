@@ -1,0 +1,375 @@
+{
+  "id": "gauntlet-forge-20260727-1455-t5-c2",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 52000,
+    "envelopeMinMeters": 4000,
+    "envelopeMaxMeters": 135000,
+    "defaultMagazineRounds": 5,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.82,
+    "pkIntercept": 0.0,
+    "pkKill": 0.22,
+    "salvoSize": 2
+  },
+  "emcon": {
+    "units": {
+      "ssn-774-virginia-blk-i-ii": {
+        "radar": "Passive"
+      },
+      "f-219-sachsen-type-f124-2006": {
+        "radar": "Passive"
+      }
+    }
+  },
+  "detection": [
+    {
+      "observerId": "ka-27m-helix-a",
+      "sensorId": "sonar-1",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-t5c2-1",
+      "basePd": 0.65,
+      "envMask": 0.85,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "p-3c-orion-update-iii-2023",
+      "sensorId": "sonar-1",
+      "targetId": "pla-885m-severodvinsk-yasen-m",
+      "contactId": "c-t5c2-2",
+      "basePd": 0.55,
+      "envMask": 0.8,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "ssn-774-virginia-blk-i-ii",
+      "sensorId": "sonar-1",
+      "targetId": "plarb-955-borei-borey",
+      "contactId": "c-t5c2-3",
+      "basePd": 0.5,
+      "envMask": 0.9,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "f-16c-blk-52iq-falcon-2015",
+      "sensorId": "radar-1",
+      "targetId": "su-35s-flanker-m-2023",
+      "contactId": "c-t5c2-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "jas-39e-gripen-ng-2021",
+      "sensorId": "radar-1",
+      "targetId": "mig-31-foxhound",
+      "contactId": "c-t5c2-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-219-sachsen-type-f124-2006",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-t5c2-6",
+      "basePd": 0.9,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-310-fridtjof-nansen",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-t5c2-7",
+      "basePd": 0.85,
+      "envMask": 0.95,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "tu-160-blackjack",
+      "contactId": "c-t5c2-8",
+      "basePd": 0.5,
+      "envMask": 0.7,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-grigorovich-pr-1135-6m",
+      "sensorId": "radar-1",
+      "targetId": "f-219-sachsen-type-f124-2006",
+      "contactId": "c-t5c2-9",
+      "basePd": 0.4,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "su-57-felon",
+      "sensorId": "radar-1",
+      "targetId": "f-16c-blk-52iq-falcon-2015",
+      "contactId": "c-t5c2-10",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "mig-31-foxhound",
+      "sensorId": "radar-1",
+      "targetId": "jas-39e-gripen-ng-2021",
+      "contactId": "c-t5c2-11",
+      "basePd": 0.9,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "jammers": [
+    {
+      "targetId": "su-35s-flanker-m-2023",
+      "jamStrength": 0.5,
+      "activeFromTick": 10,
+      "observerId": "f-16c-blk-52iq-falcon-2015"
+    },
+    {
+      "targetId": "mig-31-foxhound",
+      "jamStrength": 0.65,
+      "activeFromTick": 20,
+      "observerId": "jas-39e-gripen-ng-2021"
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start",
+      "comms-loss-inject",
+      "sensor-degradation-inject",
+      "reinforcement-pressure-inject"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "comms-loss-inject",
+        "fireAtTick": 10,
+        "kind": "EventFired",
+        "code": "comms_loss_inject_designated"
+      },
+      {
+        "id": "sensor-degradation-inject",
+        "fireAtTick": 20,
+        "kind": "EventFired",
+        "code": "sensor_degradation_inject_designated"
+      },
+      {
+        "id": "reinforcement-pressure-inject",
+        "fireAtTick": 30,
+        "kind": "EventFired",
+        "code": "reinforcement_pressure_inject_designated"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "reinforcement-pressure-roe-escalation",
+        "observerId": "ssn-774-virginia-blk-i-ii",
+        "targetClass": "Subsurface",
+        "side": "friendly",
+        "missionCode": "ASW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "f-219-sachsen-type-f124-2006",
+          "f-310-fridtjof-nansen",
+          "p-960-skjold",
+          "f-16c-blk-52iq-falcon-2015",
+          "jas-39e-gripen-ng-2021",
+          "ka-27m-helix-a",
+          "p-3c-orion-update-iii-2023",
+          "ssn-774-virginia-blk-i-ii"
+        ]
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T5 theme-recipe candidate (event-cascading-adversarial, tierMin 5, newly eligible): a multi-domain theater op (BLUE: 3 surface FFG/corvette + 4 air [2 fighters, 1 ASW helo, 1 MPA] + 1 SSN vs RED: 2 surface FFG/corvette + 4 air [2 fifth-gen fighters, 1 interceptor, 1 strategic bomber] + 3 subsurface [1 SSGN, 1 SSK, 1 SSBN-as-HVU]) under three DELIBERATELY STAGGERED adversarial injects across the 40-tick window, modeling 'comms loss, sensor degradation, reinforcements' per the tier-5 events-row theme: (1) tick 10 -- a comms-loss-analog jammer (jammers[].activeFromTick=10) degrades f-16c-blk-52iq-falcon-2015's Pd against su-35s-flanker-m-2023; (2) tick 20 -- a second, stronger sensor-degradation jammer (activeFromTick=20) degrades jas-39e-gripen-ng-2021's Pd against mig-31-foxhound, intensifying the cascade; (3) tick 30 -- a reinforcement-pressure stage expressed as a mission.triggers ROE escalation (WeaponsTight->WeaponsFree, all 8 BLUE units) keyed on ssn-774-virginia-blk-i-ii detecting plarb-955-borei-borey (an already-present detection[] entry from tick 0, framed as the 'reinforcement' HVU pressuring the theater), NOT a contacts[].appearAtTick scripted appearance. This deliberately avoids contacts[] for anything load-bearing: production/qa/bugs/BUG-scenario-contacts-shadowed-by-detection.md confirms BalticReplayHarness.RunCore only constructs ScenarioContactSimulator in an else-if branch that is unreachable whenever detection[] is non-empty (true here, per the 11 detection[] entries above), so a scripted contacts[] reinforcement would silently never fire -- exactly the gap found in gauntlet-20260727-1455-t4-s3. Each stage has a corresponding mission.events EventFired marker (comms_loss_inject_designated@10, sensor_degradation_inject_designated@20, reinforcement_pressure_inject_designated@30) so the fingerprint proves each stage's *timing* fired regardless of downstream engagement outcome, mirroring the confirmed-working pattern from gauntlet-20260727-1455-t4-s3's corrected oracle and gauntlet-forge-20260727-1455-t4-c2. UNVERIFIED CAVEAT: this candidate has NOT yet been executed in a real batch run -- unlike t4-s3's jammer (confirmed via fingerprint) and t4-c2's dual-mission threads (confirmed via CSV), whether the reinforcement-pressure ROE trigger actually fires before tick 40 in this specific scenario depends on ssn-774-virginia-blk-i-ii's basePd=0.5 passive-sonar trial against plarb-955-borei-borey crossing detection threshold across the 40-tick window, which is seed-dependent and not yet confirmed by execution.",
+    "oracle": "EXPECTED, NOT YET CONFIRMED (no batch execution performed for this candidate). All three mission.events EventFired codes (comms_loss_inject_designated@10, sensor_degradation_inject_designated@20, reinforcement_pressure_inject_designated@30) are expected to appear in the fingerprint regardless of seed or engagement outcome, per the confirmed-working mission.events mechanism (BUG-scenario-contacts-shadowed-by-detection.md; gauntlet-20260727-1455-t4-s3; gauntlet-forge-20260727-1455-t4-c2). The two jammers are expected to produce Detected->Lost (or degraded-Pd) ContactChange transitions from tick 10 and tick 20 onward respectively for the f-16c/su-35s and jas-39e/mig-31 pairs, per the confirmed-working PdDetectionContactSimulator jammer mechanism. Whether the reinforcement-pressure-roe-escalation mission.trigger actually fires (i.e. whether BLUE ever leaves WeaponsTight before tick 40) is NOT confirmed and is the single largest source of score/denial variance in this candidate -- if it never fires, expect a t4-s3-style denial-dominated outcome (up to 8 blue units x 40 ticks = 320 theoretical max denials) with RED (WeaponsFree, dense multi-domain) landing some missiles against a largely non-returning BLUE force; if it fires early, BLUE's later-tick denials drop substantially and BLUE may register kills across multiple domains (air-to-air via jas-39e/f-16c, ASW via ka-27m-helix-a/p-3c-orion/ssn-774). This candidate must be executed and its gauntlet.expect regenerated from real batch data before promotion out of forge/candidates/.",
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "p-960-skjold",
+      "f-16c-blk-52iq-falcon-2015",
+      "jas-39e-gripen-ng-2021",
+      "ka-27m-helix-a",
+      "p-3c-orion-update-iii-2023",
+      "ssn-774-virginia-blk-i-ii",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "pk-368-vasily-bykov-pr-22160",
+      "su-57-felon",
+      "su-35s-flanker-m-2023",
+      "mig-31-foxhound",
+      "tu-160-blackjack",
+      "pla-885m-severodvinsk-yasen-m",
+      "pl-877-kilo-paltus-1992",
+      "plarb-955-borei-borey"
+    ],
+    "domains": [
+      "surface",
+      "air",
+      "subsurface"
+    ],
+    "runId": "gauntlet-20260727-1455",
+    "tier": 5,
+    "dimensionsClaimed": [
+      "cascading-adversarial-inject-staggered-3-stage",
+      "jammer-cascade-confirmed-mechanism-stage1-stage2",
+      "reinforcement-pressure-via-roe-trigger-on-existing-detection-not-contacts",
+      "combat-domain-subsurface",
+      "combat-domain-air",
+      "combat-domain-surface",
+      "dense-asymmetric-red-joint-mix"
+    ],
+    "units": [
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-16c-blk-52iq-falcon-2015",
+        "platformId": "f-16c-blk-52iq-falcon-2015",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "jas-39e-gripen-ng-2021",
+        "platformId": "jas-39e-gripen-ng-2021",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "p-3c-orion-update-iii-2023",
+        "platformId": "p-3c-orion-update-iii-2023",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ssn-774-virginia-blk-i-ii",
+        "platformId": "ssn-774-virginia-blk-i-ii",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-57-felon",
+        "platformId": "su-57-felon",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-35s-flanker-m-2023",
+        "platformId": "su-35s-flanker-m-2023",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-31-foxhound",
+        "platformId": "mig-31-foxhound",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "tu-160-blackjack",
+        "platformId": "tu-160-blackjack",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885m-severodvinsk-yasen-m",
+        "platformId": "pla-885m-severodvinsk-yasen-m",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "pl-877-kilo-paltus-1992",
+        "platformId": "pl-877-kilo-paltus-1992",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "plarb-955-borei-borey",
+        "platformId": "plarb-955-borei-borey",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "comms_loss_inject_designated",
+        "sensor_degradation_inject_designated",
+        "reinforcement_pressure_inject_designated"
+      ],
+      "minKills": 2,
+      "maxMissilesFired": 29,
+      "minDenials": 0,
+      "maxDenials": 68,
+      "minScore": -200.0,
+      "maxScore": 620.0
+    },
+    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T5 tick budget 40, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-5/results.csv). Observed: score=[500.0, 120.0, -80.0] kills=[5, 2, 2] missilesFired=[22, 24, 24] denials=[0, 16, 56]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented).",
+    "forge": {
+      "recipes": [
+        "event-cascading-adversarial"
+      ],
+      "candidateId": "gauntlet-forge-20260727-1455-t5-c2",
+      "noveltyTags": [
+        "cascading-adversarial-inject",
+        "staggered-jammer-cascade",
+        "reinforcement-pressure-via-roe-trigger",
+        "comms-loss-analog",
+        "sensor-degradation-analog",
+        "tier5-theater-multidomain",
+        "underused-platform-mix",
+        "contacts-gap-avoided"
+      ],
+      "note": "expect provisional pending regen"
+    }
+  }
+}

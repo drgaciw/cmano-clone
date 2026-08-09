@@ -1,0 +1,272 @@
+{
+  "id": "gauntlet-20260727-1455-t4-s3",
+  "friendlyRoe": "WeaponsTight",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 48000,
+    "envelopeMinMeters": 4000,
+    "envelopeMaxMeters": 125000,
+    "defaultMagazineRounds": 5,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.8,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 1
+  },
+  "emcon": {
+    "units": {
+      "f-219-sachsen-type-f124-2006": {
+        "radar": "Passive"
+      },
+      "ssn-774-virginia-blk-i-ii": {
+        "radar": "Passive"
+      }
+    }
+  },
+  "detection": [
+    {
+      "observerId": "ka-27m-helix-a",
+      "sensorId": "sonar-dipping-1",
+      "targetId": "pla-885-severodvinsk-yasen",
+      "contactId": "c-s3-1",
+      "basePd": 0.7,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    },
+    {
+      "observerId": "f-16c-blk-52iq-falcon-2015",
+      "sensorId": "radar-1",
+      "targetId": "mig-29-fulcrum-c-1999",
+      "contactId": "c-s3-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "nh90-tth-mrh90-taipan-2007",
+      "sensorId": "radar-1",
+      "targetId": "skr-admiral-grigorovich-pr-1135-6m",
+      "contactId": "c-s3-3",
+      "basePd": 0.85,
+      "envMask": 0.9,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-310-fridtjof-nansen",
+      "sensorId": "radar-1",
+      "targetId": "su-24m-fencer-d-1992",
+      "contactId": "c-s3-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "skr-admiral-grigorovich-pr-1135-6m",
+      "sensorId": "radar-1",
+      "targetId": "f-219-sachsen-type-f124-2006",
+      "contactId": "c-s3-5",
+      "basePd": 0.4,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "mig-29-fulcrum-c-1999",
+      "sensorId": "radar-1",
+      "targetId": "f-16c-blk-52iq-falcon-2015",
+      "contactId": "c-s3-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "contacts": [
+    {
+      "observerId": "ssn-774-virginia-blk-i-ii",
+      "targetId": "pl-877-kilo-paltus-1992",
+      "contactId": "c-s3-reinforce-1",
+      "appearAtTick": 10,
+      "hasFireControlTrack": false
+    }
+  ],
+  "jammers": [
+    {
+      "targetId": "mig-29-fulcrum-c-1999",
+      "jamStrength": 0.6,
+      "activeFromTick": 14,
+      "observerId": "f-16c-blk-52iq-falcon-2015"
+    }
+  ],
+  "mission": {
+    "fireOrder": [
+      "mission-start",
+      "reinforcement-inject",
+      "degradation-inject"
+    ],
+    "events": [
+      {
+        "id": "mission-start",
+        "fireAtTick": 0,
+        "kind": "MissionTransition",
+        "code": "Execution"
+      },
+      {
+        "id": "reinforcement-inject",
+        "fireAtTick": 10,
+        "kind": "EventFired",
+        "code": "reinforcement_sub_inject_designated"
+      },
+      {
+        "id": "degradation-inject",
+        "fireAtTick": 14,
+        "kind": "EventFired",
+        "code": "sensor_degradation_inject_designated"
+      }
+    ],
+    "triggers": [
+      {
+        "id": "asw-reinforcement-detect-roe",
+        "observerId": "ssn-774-virginia-blk-i-ii",
+        "targetClass": "Subsurface",
+        "side": "friendly",
+        "missionCode": "ASW",
+        "roe": "WeaponsFree",
+        "unitIds": [
+          "ssn-774-virginia-blk-i-ii",
+          "ka-27m-helix-a",
+          "s-185-u-35-type-212a"
+        ]
+      }
+    ]
+  },
+  "gauntlet": {
+    "intent": "T4 main-ladder baseline #3: SEEDED RANDOM INJECTS (deterministic/scripted, per tier spec) plus DYNAMIC EMCON CHANGE ON DETECTION. CORRECTED 2026-07-28 after real batch execution -- see production/qa/bugs/BUG-scenario-contacts-shadowed-by-detection.md. Two scripted `mission.events` (reinforcement_sub_inject_designated @10, sensor_degradation_inject_designated @14) ARE real, engine-fired, seed-stable fingerprint markers and DID fire on batch execution. However, the `contacts[]` entry these events were meant to model (pl-877-kilo-paltus-1992 appearing at tick 10 via ScenarioContactSimulator) is CONFIRMED, by direct fingerprint inspection of the real batch run, to NEVER actually fire: `BalticReplayHarness.RunCore` only constructs `ScenarioContactSimulator` in an `else if` branch that is unreachable whenever `detection[]` is non-empty (this scenario's is) -- `ScenarioContactSimulator` and `PdDetectionContactSimulator` are mutually exclusive in the harness, not combinable, and nothing here invented that fact away. Consequently the `asw-reinforcement-detect-roe` mission.trigger (meant to fire on the contact's Unknown->Detected transition) never fires either -- confirmed: the pl-877-kilo-paltus-1992 target never appears in any ContactChange fingerprint entry across all 3 seeds (42/7/123), and no PolicyUpdate event occurs after SimTick 0 in any of them. The jammer (`jammers[].activeFromTick=14`, a `PdDetectionContactSimulator`-consumed mechanic, NOT gated by the same branch) DID work as designed -- confirmed via a real Detected->Lost ContactChange transition in the fingerprint -- so this is a scoped `contacts[]`-specific gap, not a blanket failure of scripted timing. SCHEMA CONSTRAINT DISCLOSED for the EMCON dimension (unchanged from original authoring): ScenarioEmconResolver resolves EmconState once at scenario load with no mid-run mutation path; this scenario expresses the EMCON dimension via static pre-detection passive posture on f-219-sachsen-type-f124-2006/ssn-774-virginia-blk-i-ii, not a dynamic change.",
+    "oracle": "CORRECTED 2026-07-28 to match confirmed batch behavior (previously claimed an ASW escalation/kill path that does not occur -- see BUG-scenario-contacts-shadowed-by-detection.md). Both EventFired codes (reinforcement_sub_inject_designated @10, sensor_degradation_inject_designated @14) appear in the fingerprint regardless of engagement outcome -- confirmed present across all 3 seeds. The reinforcement contact never appears and the asw-reinforcement-detect-roe trigger never fires, so ALL 7 BLUE units (not just the 4 outside the ASW group) remain WeaponsTight-denied for the full 24-tick run -- confirmed: denials=168=7 blue units x 24 ticks, identical across all 3 seeds, matching a scenario with no working escalation path at all. RED (WeaponsFree) fires some missiles (confirmed missilesFired=5, identical across all 3 seeds) but lands zero kills against BLUE in any seed (confirmed kills=0 for the scored BLUE side in all 3 seeds) -- score is fully denial-driven (score = 0 - denials*5 = -840). From tick 14 onward, f-16c-blk-52iq-falcon-2015's detection Pd against mig-29-fulcrum-c-1999 (c-s3-2) does degrade per the jammer -- confirmed via a Detected->Lost ContactChange transition in the fingerprint.",
+    "catalogRefs": [
+      "f-219-sachsen-type-f124-2006",
+      "f-310-fridtjof-nansen",
+      "f-16c-blk-52iq-falcon-2015",
+      "nh90-tth-mrh90-taipan-2007",
+      "ka-27m-helix-a",
+      "ssn-774-virginia-blk-i-ii",
+      "s-185-u-35-type-212a",
+      "skr-admiral-grigorovich-pr-1135-6m",
+      "pk-368-vasily-bykov-pr-22160",
+      "su-24m-fencer-d-1992",
+      "mig-29-fulcrum-c-1999",
+      "pl-877-kilo-paltus-1992",
+      "pla-885-severodvinsk-yasen",
+      "pla-971-akula-i-improved-shchuka-b"
+    ],
+    "dimensionsClaimed": [
+      "seeded-random-inject-reinforcement-event-only-confirmed",
+      "seeded-random-inject-sensor-degradation-confirmed-working",
+      "emcon-dynamic-change-on-detection-disclosed-constraint",
+      "combat-domain-subsurface",
+      "combat-domain-air",
+      "combat-domain-surface"
+    ],
+    "units": [
+      {
+        "unitId": "f-219-sachsen-type-f124-2006",
+        "platformId": "f-219-sachsen-type-f124-2006",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-310-fridtjof-nansen",
+        "platformId": "f-310-fridtjof-nansen",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-16c-blk-52iq-falcon-2015",
+        "platformId": "f-16c-blk-52iq-falcon-2015",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "nh90-tth-mrh90-taipan-2007",
+        "platformId": "nh90-tth-mrh90-taipan-2007",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ka-27m-helix-a",
+        "platformId": "ka-27m-helix-a",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "ssn-774-virginia-blk-i-ii",
+        "platformId": "ssn-774-virginia-blk-i-ii",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "s-185-u-35-type-212a",
+        "platformId": "s-185-u-35-type-212a",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "skr-admiral-grigorovich-pr-1135-6m",
+        "platformId": "skr-admiral-grigorovich-pr-1135-6m",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-24m-fencer-d-1992",
+        "platformId": "su-24m-fencer-d-1992",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "mig-29-fulcrum-c-1999",
+        "platformId": "mig-29-fulcrum-c-1999",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "pl-877-kilo-paltus-1992",
+        "platformId": "pl-877-kilo-paltus-1992",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885-severodvinsk-yasen",
+        "platformId": "pla-885-severodvinsk-yasen",
+        "domain": "subsurface",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-971-akula-i-improved-shchuka-b",
+        "platformId": "pla-971-akula-i-improved-shchuka-b",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ],
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "reinforcement_sub_inject_designated",
+        "sensor_degradation_inject_designated"
+      ],
+      "minKills": 0,
+      "maxMissilesFired": 7,
+      "minDenials": 163,
+      "maxDenials": 173,
+      "minScore": -860.0,
+      "maxScore": -820.0
+    },
+    "expectProvenance": "regenerated 2026-07-28 from real Demo batch CSV at T4 tick budget 24, seeds 42,7,123 (production/qa/gauntlet/gauntlet-20260727-1455/tier-4/results.csv). Observed: score=[-840.0, -840.0, -840.0] kills=[0, 0, 0] missilesFired=[5, 5, 5] denials=[168, 168, 168]. Bounds padded ~20% beyond observed range per tools/qa-gauntlet/README-expect-regen.md (derived, not invented). CORRECTION 2026-07-28: gauntlet.intent/oracle text was also corrected this pass to remove a false claim that the contacts[]-driven reinforcement/escalation actually fires -- confirmed via fingerprint inspection that it does not (BalticReplayHarness.RunCore mutual-exclusion gap, see production/qa/bugs/BUG-scenario-contacts-shadowed-by-detection.md). These expect bounds were already derived from the real (non-escalated) observed behavior, so no numeric change was needed -- only the prose describing why was wrong."
+  }
+}

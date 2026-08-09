@@ -5,6 +5,7 @@
 > **Last Updated:** 2026-06-02  
 > **Requirements:** [20-Command-And-Control-UI.md](../../Game-Requirements/requirements/20-Command-And-Control-UI.md)  
 > **UX Spec:** [c2-command-post.md](../ux/c2-command-post.md)  
+> **Interaction Patterns:** [interaction-patterns.md](../ux/interaction-patterns.md) — implemented behavior + data-binding tables per zone  
 > **Depends on:** Simulation core, sensor, engagement, delegation, order log (systems 1–10)
 
 ## Overview
