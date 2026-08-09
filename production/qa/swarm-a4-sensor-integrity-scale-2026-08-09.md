@@ -29,3 +29,9 @@ Default curve: **linear** `Pd_eff = basePd × (droneCount / maxDrones)`.
 ```bash
 dotnet test src/ProjectAegis.Sim.Tests --filter "FullyQualifiedName~SwarmSensorScale" -v minimal
 ```
+
+## Review follow-up (hotpath)
+
+- `ScenarioDetectionTrial.SwarmIntegrityScale` (default 1.0) feeds `DeterministicDetectionLoop.RollTick`.
+- `SwarmSensorScale.ScaleFactor` accepts per-call `integrityPower` / `minLivingScale` overrides for scenario tuning.
+
