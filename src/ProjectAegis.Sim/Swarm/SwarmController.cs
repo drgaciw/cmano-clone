@@ -7,6 +7,7 @@ using ProjectAegis.Sim.Core;
 /// SWARM-A2 / DRG-87: aggregate swarm controller — centroid motion, Hold/Move/Attack
 /// headless logged intents, authorized integrity damage, deterministic aggregate SoT.
 /// No per-drone physics outcomes (SWARM-07). Surface: Sim only (not Unity, not A3 weapons).
+/// SWARM-A6: integrity timeline replay + logical caps (DRG-91).
 /// </summary>
 public sealed class SwarmController
 {
@@ -35,6 +36,7 @@ public sealed class SwarmController
 
     /// <summary>
     /// Registers a swarm unit from Data-side <see cref="SwarmUnitIntegrity"/> plus spawn centroid.
+    /// Logical max/count are clamped to <see cref="SwarmPerformanceCaps.LogicalMaxDronesPerSwarm"/> (SWARM-25).
     /// </summary>
     public void Register(SwarmUnitIntegrity integrity, double latDeg, double lonDeg)
     {
@@ -49,11 +51,13 @@ public sealed class SwarmController
         }
 
         var id = integrity.UnitId.Trim();
+        var max = SwarmPerformanceCaps.ClampLogicalMaxDrones(integrity.MaxDrones);
+        var count = SwarmPerformanceCaps.ClampDroneCount(integrity.DroneCount, max);
         _units[id] = new SwarmRuntimeUnit(
             id,
             integrity.PlatformId,
-            integrity.DroneCount,
-            integrity.MaxDrones,
+            count,
+            max,
             latDeg,
             lonDeg);
     }
@@ -119,14 +123,11 @@ public sealed class SwarmController
             simTime,
             unit.UnitId,
             SwarmIntentKind.Move,
-            targetLatDeg,
-            targetLonDeg);
+            targetLatDeg: targetLatDeg,
+            targetLonDeg: targetLonDeg);
     }
 
-    /// <summary>
-    /// Headless Attack — engage target id; optional geometry for centroid approach (SWARM-03).
-    /// Engagement damage itself is A3; this only logs intent + optional approach.
-    /// </summary>
+    /// <summary>Headless Attack — engage target id; optional centroid waypoint toward target.</summary>
     public ulong IssueAttack(
         string unitId,
         string attackTargetUnitId,
@@ -150,13 +151,13 @@ public sealed class SwarmController
             simTime,
             unit.UnitId,
             SwarmIntentKind.Attack,
-            targetLatDeg,
-            targetLonDeg,
-            unit.AttackTargetUnitId);
+            targetLatDeg: targetLatDeg,
+            targetLonDeg: targetLonDeg,
+            attackTargetUnitId: unit.AttackTargetUnitId);
     }
 
     /// <summary>
-    /// Authorized integrity damage API (SWARM-02 / SWARM-07).
+    /// Authorized integrity damage only (SWARM-02 / SWARM-07).
     /// Integrity is not writable except through this method — no public field mutation.
     /// </summary>
     public bool TryApplyIntegrityDamage(
@@ -281,6 +282,41 @@ public sealed class SwarmController
         }
     }
 
+    /// <summary>
+    /// Replays integrity-affecting events via the authorized damage API (SWARM-24).
+    /// Sequence is by <see cref="SwarmIntegrityChange.SequenceId"/>; sequence ids on the target are reassigned.
+    /// </summary>
+    public static void ReplayIntegrityTimeline(
+        SwarmController target,
+        IReadOnlyList<SwarmIntegrityChange> changes)
+    {
+        if (target is null)
+        {
+            throw new ArgumentNullException(nameof(target));
+        }
+
+        if (changes is null)
+        {
+            throw new ArgumentNullException(nameof(changes));
+        }
+
+        foreach (var change in changes.OrderBy(c => c.SequenceId))
+        {
+            if (!target.TryApplyIntegrityDamage(
+                    change.UnitId,
+                    change.DronesLost,
+                    change.SimTick,
+                    change.SimTime,
+                    change.ReasonCode,
+                    out _))
+            {
+                // Destroyed or missing unit — stop applying further damage for that unit;
+                // continue so later units still reconstruct.
+                continue;
+            }
+        }
+    }
+
     public ulong ComputeOrderLogFingerprint() => _orderLog.ComputeFingerprint();
 
     /// <summary>Deterministic mix of integrity timeline for same-seed equality (SWARM-07).</summary>
@@ -388,8 +424,8 @@ public sealed class SwarmController
 
         public string UnitId { get; }
         public string PlatformId { get; }
-        public int MaxDrones { get; }
         public int DroneCount { get; set; }
+        public int MaxDrones { get; }
         public double LatDeg { get; set; }
         public double LonDeg { get; set; }
         public SwarmIntentKind Intent { get; set; }
