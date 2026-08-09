@@ -1,11 +1,22 @@
 # 10 - Speculative & Black Project Systems
 
-**Last Updated:** 2026-07-08  
-**Status:** Research-integrated  
+**Last Updated:** 2026-08-09  
+**Status:** Research-integrated — **gate spine = product-in-scope**; full speculative platform runtime = **Phase N post-launch / vision** ([DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) owner decision 2026-08-09)  
 **FR reverse-ref:** [FR-08](01-Project-Overview.md) — Near-future and speculative platforms (**speculative half**; near-future half is [09](09-Near-Future-Technologies.md))  
 **Research basis:** [Speculative Systems Research Supplement](../../docs/research/speculative-systems-research.md)  
 **Related:** 09 Near-Future Technologies, 13 Doctrine/ROE, 14 Engagement, 17 Replay/AAR, 19 Cyber/Comms  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 10 — **Partial+**; row 10b Kessler/orbital DEW runtime — **Phase N / not on main**
+**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 10 — **Partial+**; row 10b Kessler/orbital DEW runtime — **Phase N / not on main**  
+**Linear:** [DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) · decision note: [`production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md`](../../production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md)
+
+## Owner decision — Phase N scoping (2026-08-09) · DRG-47
+
+Owner-delegated decision (same pattern as DRG-84 owner triage). Authority: SWARM-00 triage + Release stage + Phase A–C complete. **Does not schedule Phase N runtime on the current Release train.**
+
+| Decision | Outcome |
+|----------|---------|
+| Product-in-scope **now** | **Gate spine only** — `ScenarioSpeculativeSettings`, `SpeculativeEngageGate`, policy JSON `speculative` block, catalog **metadata** rows (`speculative_platforms.json`), wiring into `MvpEngagementResolver` |
+| Full speculative platform runtime | **Post-launch Phase N / vision** — orbital DEW, Kessler cascade meter, LAWS full agency, 5-tier escalation runtime, first-fire `SPACE_WAR_*` events, BCI, lunar weapons, particle beams, etc. |
+| Full GDDs / ADRs for Phase N | **Not authored this turn** — design sections remain research-integrated; not pending implementation commitments until product re-opens Phase N |
 
 ## Purpose
 
@@ -21,11 +32,11 @@ Push believable near-future warfare into the speculative realm while maintaining
 
 | Layer | What exists on `main` | What does **not** |
 |-------|----------------------|-------------------|
-| **Shipped gate spine** | `ScenarioSpeculativeSettings` (TL + `BLACK_PROJECT_MODE`), `SpeculativeEngageGate` (abort reasons before resolve), wiring into `MvpEngagementResolver`, policy JSON `speculative` block, catalog **metadata** rows | Full platform simulation for orbital DEW / NPX / particle beams |
+| **Shipped gate spine** | `ScenarioSpeculativeSettings` (TL + `BLACK_PROJECT_MODE`), `SpeculativeEngageGate` (abort reasons before resolve), wiring into `MvpEngagementResolver`, policy JSON `speculative` block, catalog **metadata** rows | Full platform simulation for orbital DEW / NPX / particle beams — **gate spine = product-in-scope** (DRG-47 2026-08-09) |
 | **Catalog metadata only** | `data/catalog/speculative_platforms.json` entries (`orbital-dew-demo`, `npx-laser-orbital`) — TL flags + black-project require flags for gate tests | Runtime classes, orbital insertion, dwell, power/thermal, strike geometry |
-| **Design-only / Phase N** | Research sections below (quantum radar, LAWS full agency, Kessler cascade meter, 5-tier escalation runtime, first-fire `SPACE_WAR_*` events, BCI, lunar weapons, etc.) | **Not on main** as of Wave 3 2026-07-08 |
+| **Design-only / Phase N** | Research sections below (quantum radar, LAWS full agency, Kessler cascade meter, 5-tier escalation runtime, first-fire `SPACE_WAR_*` events, BCI, lunar weapons, etc.) | **Post-launch Phase N / vision** (DRG-47) — **not on main** as of Wave 3 2026-07-08 |
 
-**Partial+ means:** TL / black-project **engage gate** + scenario fixtures + catalog metadata are shipped and tested. It does **not** mean S54 orbital DEW / Kessler runtime classes landed on trunk.
+**Partial+ means:** TL / black-project **engage gate** + scenario fixtures + catalog metadata are shipped and tested. It does **not** mean S54 orbital DEW / Kessler runtime classes landed on trunk. **Do not treat design-only sections as Release commitments.**
 
 **Hard demotions (types absent from `src/`):**
 
