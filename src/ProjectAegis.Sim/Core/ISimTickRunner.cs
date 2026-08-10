@@ -8,6 +8,10 @@ public interface ISimTickRunner
     SimSeed Seed { get; }
     ulong LastWorldHash { get; }
 
-    /// <summary>Runs one full deterministic pipeline tick (ADR-004).</summary>
+    /// <summary>
+    /// Runs one full deterministic pipeline tick (ADR-004), or multiple steps when
+    /// <paramref name="mode"/> is <see cref="TimeCompressionMode.Accelerated"/>.
+    /// Paused clocks no-op unless mode is HeadlessBatch (CI override).
+    /// </summary>
     void TickOnce(TimeCompressionMode mode);
 }

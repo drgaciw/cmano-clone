@@ -113,6 +113,21 @@ public sealed class SimulationSession
 
     public SimTickPipeline Sim { get; }
 
+    /// <summary>Whether the sim clock is paused (interactive modes skip advance). DRG-14 / S112-02.</summary>
+    public bool IsSimPaused => Sim.Clock.IsPaused;
+
+    /// <summary>Pause sim time advance on the session tick path. Distinct from agent/order pause.</summary>
+    public void PauseSim() => Sim.Clock.Pause();
+
+    /// <summary>Resume sim time advance after <see cref="PauseSim"/>.</summary>
+    public void ResumeSim() => Sim.Clock.Resume();
+
+    /// <summary>Steps per Accelerated session tick (1..256). DRG-14 / S112-02.</summary>
+    public int TimeAccelerationFactor => Sim.Clock.AccelerationFactor;
+
+    /// <summary>Sets acceleration factor (clamped 1..256) used when > 1 on the session tick path.</summary>
+    public void SetTimeAccelerationFactor(int factor) => Sim.Clock.SetAccelerationFactor(factor);
+
     public void BeginExecution() => Orchestrator.BeginExecution();
 
     public bool Tick(ObservedState state)
@@ -129,6 +144,17 @@ public sealed class SimulationSession
     private void RunExecutingTick(ObservedState state)
     {
         Orchestrator.Tick(state);
+        var simTick = (ulong)Math.Max(0, (long)state.SimTime);
+
+        // S112-02 / DRG-14: when paused, freeze the sim engagement pipeline and
+        // consumers that depend on TickOnce. Do not enqueue (would strand pending)
+        // or consume LastEngagementResults (stale/misaligned with this tick's orders).
+        if (Sim.Clock.IsPaused)
+        {
+            SurfaceRoePolicyDeniedEngagements(state, simTick);
+            return;
+        }
+
         // Allocation follow-up P1: explicit loop instead of LINQ Where+ToArray per tick.
         // Uses List<Order> (Count/foreach compatible) to avoid per-tick enumerator + array alloc.
         // Behavior and iteration order identical (ExecutedOrders order preserved for engages).
@@ -143,7 +169,6 @@ public sealed class SimulationSession
             }
         }
 
-        var simTick = (ulong)Math.Max(0, (long)state.SimTime);
         var commsBlocksEngage = CommsStateProjection.BlocksNewEngagement(
             CommsStateProjection.Project(Orchestrator.DecisionLog).State);
         var queued = new List<(Order Order, TargetId Victim)>();
@@ -199,10 +224,21 @@ public sealed class SimulationSession
             queued.Add((order, victim));
         }
 
+        // S112-02 / DRG-14: process the first step as RealTime so queued engagements resolve
+        // into LastEngagementResults for session consumers. Extra steps implement acceleration
+        // (equivalent to TickOnce(Accelerated) after the pending queue is drained — Lane A
+        // TC-CLK-3). A single TickOnce(Accelerated) would clear results on later substeps.
         Sim.TickOnce(TimeCompressionMode.RealTime);
         LogEngagementResults(state, queued);
         SurfaceRoePolicyDeniedEngagements(state, simTick);
         ApplyCatalogDamageHotTick(state, queued);
+
+        var extraSteps = Math.Max(0, Sim.Clock.AccelerationFactor - 1);
+        for (var i = 0; i < extraSteps; i++)
+        {
+            Sim.TickOnce(TimeCompressionMode.RealTime);
+        }
+
         AdvanceLogisticsFsms(state);
     }
 

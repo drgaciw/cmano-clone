@@ -15,9 +15,32 @@ public sealed class SimTickRunner : ISimTickRunner
     public SimSeed Seed { get; }
     public ulong LastWorldHash { get; private set; }
 
+    /// <summary>
+    /// Runs one or more deterministic pipeline ticks depending on <paramref name="mode"/>.
+    /// When <see cref="SimClock.IsPaused"/> is true and mode is not
+    /// <see cref="TimeCompressionMode.HeadlessBatch"/>, this is a no-op
+    /// (SimTick and LastWorldHash unchanged). HeadlessBatch overrides pause so CI/batch
+    /// runners can advance deterministically without an explicit Resume.
+    /// Accelerated mode advances <see cref="SimClock.AccelerationFactor"/> full steps;
+    /// RealTime and HeadlessBatch advance one step per call.
+    /// </summary>
     public void TickOnce(TimeCompressionMode mode)
     {
-        _ = mode;
+        if (Clock.IsPaused && mode != TimeCompressionMode.HeadlessBatch)
+        {
+            return;
+        }
+
+        var steps = mode == TimeCompressionMode.Accelerated ? Clock.AccelerationFactor : 1;
+        for (var i = 0; i < steps; i++)
+        {
+            AdvanceOneStep();
+        }
+    }
+
+    /// <summary>Advances exactly one sim step (no pause/acceleration checks). Used by pipelines that own the outer loop.</summary>
+    internal void AdvanceOneStep()
+    {
         Clock.AdvanceOneTick();
         LastWorldHash = MixWorldHash(Seed.Value, Clock.SimTick, LastWorldHash);
     }
