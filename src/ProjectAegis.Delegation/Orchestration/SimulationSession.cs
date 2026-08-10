@@ -113,6 +113,21 @@ public sealed class SimulationSession
 
     public SimTickPipeline Sim { get; }
 
+    /// <summary>Whether the sim clock is paused (interactive modes skip advance). DRG-14 / S112-02.</summary>
+    public bool IsSimPaused => Sim.Clock.IsPaused;
+
+    /// <summary>Pause sim time advance on the session tick path. Distinct from agent/order pause.</summary>
+    public void PauseSim() => Sim.Clock.Pause();
+
+    /// <summary>Resume sim time advance after <see cref="PauseSim"/>.</summary>
+    public void ResumeSim() => Sim.Clock.Resume();
+
+    /// <summary>Steps per Accelerated session tick (1..256). DRG-14 / S112-02.</summary>
+    public int TimeAccelerationFactor => Sim.Clock.AccelerationFactor;
+
+    /// <summary>Sets acceleration factor (clamped 1..256) used when > 1 on the session tick path.</summary>
+    public void SetTimeAccelerationFactor(int factor) => Sim.Clock.SetAccelerationFactor(factor);
+
     public void BeginExecution() => Orchestrator.BeginExecution();
 
     public bool Tick(ObservedState state)
@@ -199,7 +214,11 @@ public sealed class SimulationSession
             queued.Add((order, victim));
         }
 
-        Sim.TickOnce(TimeCompressionMode.RealTime);
+        // S112-02 / DRG-14: pause no-ops inside TickOnce; Accelerated multi-steps when factor > 1.
+        var compression = Sim.Clock.AccelerationFactor > 1
+            ? TimeCompressionMode.Accelerated
+            : TimeCompressionMode.RealTime;
+        Sim.TickOnce(compression);
         LogEngagementResults(state, queued);
         SurfaceRoePolicyDeniedEngagements(state, simTick);
         ApplyCatalogDamageHotTick(state, queued);
