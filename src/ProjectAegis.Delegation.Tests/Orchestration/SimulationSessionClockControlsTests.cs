@@ -1,7 +1,14 @@
+using ProjectAegis.Delegation.Controllers;
+using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Orchestration;
+using ProjectAegis.Delegation.Policy;
 using ProjectAegis.Delegation.Sim;
+using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Tests.Helpers;
+using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.Tests.Orchestration;
@@ -77,5 +84,57 @@ public sealed class SimulationSessionClockControlsTests
 
         Assert.That(session.Tick(MvpObservedStates.EngageTick(0)), Is.True);
         Assert.That(session.Sim.Clock.SimTick, Is.EqualTo(0UL));
+    }
+
+    [Test]
+    public void PauseSim_does_not_strand_pending_engagements()
+    {
+        var resolver = new RecordingEngagementResolver(simulateLaunch: true);
+        var session = CreateEngageSession(6, resolver);
+        session.PauseSim();
+
+        Assert.That(session.Tick(MvpObservedStates.EngageTick(0)), Is.True);
+        Assert.That(session.Sim.PendingEngagements, Is.Empty);
+        Assert.That(resolver.Requests, Is.Empty);
+        Assert.That(session.Orchestrator.DecisionLog.Engagements, Is.Empty);
+    }
+
+    [Test]
+    public void Tick_with_acceleration_still_logs_engagement_results()
+    {
+        var resolver = new RecordingEngagementResolver(simulateLaunch: true);
+        var session = CreateEngageSession(7, resolver);
+        session.SetTimeAccelerationFactor(4);
+
+        Assert.That(session.Tick(MvpObservedStates.EngageTick(0)), Is.True);
+        Assert.That(session.Sim.Clock.SimTick, Is.EqualTo(4UL));
+        Assert.That(resolver.Requests, Is.Not.Empty);
+        Assert.That(session.Orchestrator.DecisionLog.Engagements, Is.Not.Empty);
+        Assert.That(session.Orchestrator.DecisionLog.Engagements[0].Launched, Is.True);
+    }
+
+    private static SimulationSession CreateEngageSession(int seed, IEngagementResolver resolver)
+    {
+        var session = new SimulationSession(seed, resolver);
+        var unit = new UnitTarget(new TargetId("u1"));
+        var agent = session.Orchestrator.CreateAgent(
+            new AgentId("a1"),
+            PersonalityCatalog.All[0].Traits,
+            AutonomyLevel.FullAutonomous,
+            policy: new EngageOnlyPolicy());
+        session.Orchestrator.AssignAgentToTarget(agent, unit, EffectivePolicy.DefaultFree);
+        session.Orchestrator.Register(unit);
+        session.BeginExecution();
+        return session;
+    }
+
+    private sealed class EngageOnlyPolicy : IPolicy
+    {
+        public IReadOnlyList<ScoredIntent> GenerateCandidates(PerceivedState perceived, TraitVector traits)
+        {
+            _ = perceived;
+            _ = traits;
+            return [new ScoredIntent(OrderKind.Engage, 1.0, RiskLevel.High)];
+        }
     }
 }
