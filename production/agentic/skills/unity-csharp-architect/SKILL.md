@@ -12,19 +12,18 @@ description: >
   "EditorWindow", "MapPicture", "ISimWorldSnapshot", "C# architecture".
 metadata:
   short-description: "Aegis Unity/C# architecture: ADR-010/001/007, asmdefs, finish gates"
-  status: m1-doctrine  # gates landed UCA-M4; final v1 only at UCA-M5 dogfood
-  version: 0.3.0-m4
-  path-to-v1: >
-    Final status `v1` lands only at UCA-M5 after one real Unity PR dogfoods
-    checklists/pr-finish.md, AAR is filed, and ROADMAP exit criteria are met.
-    See ROADMAP.md (UCA-M2…M5) and post-s97-uca-agent-capability-train note.
+  status: v1  # UCA-M5 dogfood + AAR complete (2026-08-11)
+  version: 1.0.0
+  dogfood-evidence: >
+    MapPictureBridge hygiene + headless MapPictureBridgeTests; PR cites
+    checklists/pr-finish.md. AAR: AAR-uca-m5-dogfood-2026-08-11.md
 ---
 
 # Unity C# Architect (Project Aegis)
 
-> **Status:** **UCA-M1 doctrine** (`metadata.status: m1-doctrine`). Not final **v1** until **UCA-M5** dogfood + closeout.
-> Roadmap: [`ROADMAP.md`](ROADMAP.md). Design wiki: Notion *unity-csharp-architect Skill — Design & Sprint Roadmap*.
-> Do not re-host full ADRs here — cite paths only.
+> **Status:** **v1** (`metadata.status: v1`, version `1.0.0`) — UCA-M5 dogfood + AAR complete (2026-08-11).
+> Roadmap: [`ROADMAP.md`](ROADMAP.md). AAR: [`AAR-uca-m5-dogfood-2026-08-11.md`](AAR-uca-m5-dogfood-2026-08-11.md).
+> Design wiki: Notion *unity-csharp-architect Skill — Design & Sprint Roadmap*. Do not re-host full ADRs here — cite paths only.
 
 Teach agents to write **architecturally correct** Unity C# for Aegis — not just compiling MonoBehaviours. Simulation truth lives in headless .NET; Unity is a **presentation shell** over read-only projections and command seams.
 
@@ -251,7 +250,7 @@ See [`ROADMAP.md`](ROADMAP.md). Milestone IDs: **UCA-M0…UCA-M5**.
 | **UCA-M1** | **This file** — doctrine `m1-doctrine` |
 | **UCA-M2…M3** | Structure + Aegis playbooks (done) |
 | **UCA-M4** | **Checklists + soft CI docs** (done) |
-| **UCA-M5** | Dogfood → flip status to **`v1`** |
+| **UCA-M5** | **Dogfood + closeout complete** — status **`v1`** |
 
 ---
 

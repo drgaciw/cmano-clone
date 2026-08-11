@@ -110,11 +110,16 @@ Train is **Done** when all are true:
 
 ---
 
-## 8. Immediate next
+## 8. Immediate next → **CLOSED (UCA-M5)**
 
-1. **Merge PR #471** (`docs(agentic): unity-csharp-architect skill roadmap + skeleton (UCA-M0)`) → mark **DRG-118 / UCA-01 / UCA-M0** Done.  
-2. **Dispatch UCA-M1+** on file-disjoint lanes **A/B/C/D** (priority: Lane A doctrine → B structure; C/D can parallel once M1 skeleton exists). Start with DRG-126…128.  
-3. Product work (if any) remains a **separate** backlog dispatch — not stacked into UCA PRs.
+Train complete 2026-08-11:
+
+1. UCA-M0…M4 merged (#471, #473, #474, #475, #476).  
+2. UCA-M5 dogfood: `MapPictureBridge` + pr-finish **PASS** + AAR under skill tree.  
+3. Skill `metadata.status: v1` / version `1.0.0`.  
+4. Product work remains a **separate** backlog dispatch — not stacked into UCA PRs.
+
+AAR: `production/agentic/skills/unity-csharp-architect/AAR-uca-m5-dogfood-2026-08-11.md`
 
 ---
 
