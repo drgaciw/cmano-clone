@@ -20,7 +20,7 @@
 | **UCA-M2** | Structure reference pack | `asmdefs-and-layers`, `scriptableobjects-data`, `mono-anti-patterns`, `performance-unity`, `testing-unity` | [DRG-120](https://linear.app/drgamtd-workspace/issue/DRG-120) |
 | **UCA-M3** | Aegis-specific playbooks | `aegis-unity-map.md`, `editor-vs-runtime.md`; map real repo paths | [DRG-121](https://linear.app/drgamtd-workspace/issue/DRG-121) |
 | **UCA-M4** | Agent gates | `checklists/pr-finish.md`, `review-gates.md`; optional soft CI/`rg` lint documented | [DRG-122](https://linear.app/drgamtd-workspace/issue/DRG-122) |
-| **UCA-M5** | Dogfood + closeout | One real Unity PR uses checklist; AAR note; skill marked v1; Linear project completed | [DRG-123](https://linear.app/drgamtd-workspace/issue/DRG-123) |
+| **UCA-M5** | Dogfood + closeout | One real Unity PR uses checklist; AAR note; skill marked v1; Linear project completed | [DRG-123](https://linear.app/drgamtd-workspace/issue/DRG-123) ✅ |
 
 ---
 
@@ -100,7 +100,21 @@ UCA-M0 text sometimes called presentation boundary **“ADR-018”**. In git, **
 | UCA-M0 | `scaffold` |
 | **UCA-M1** | **`m1-doctrine`** (doctrine complete; not final v1) |
 | UCA-M2…M4 | still `m1-doctrine` until dogfood |
-| **UCA-M5** | **`v1`** after dogfood + AAR |
+| **UCA-M5** | **`v1`** after dogfood + AAR — **landed 2026-08-11** |
 
-Do not require `v1` as an M1 exit criterion.
+Do not require `v1` as an M1 exit criterion. Dogfood AAR: [`AAR-uca-m5-dogfood-2026-08-11.md`](AAR-uca-m5-dogfood-2026-08-11.md).
 
+
+
+---
+
+## UCA-M5 closeout (2026-08-11)
+
+| Item | Evidence |
+| --- | --- |
+| Dogfood Unity PR | MapPictureBridge + `MapPictureBridgeTests` — cites `checklists/pr-finish.md` |
+| AAR | [`AAR-uca-m5-dogfood-2026-08-11.md`](AAR-uca-m5-dogfood-2026-08-11.md) |
+| Skill status | `metadata.status: v1` · version `1.0.0` |
+| Linear | DRG-123 / DRG-134 / epic DRG-124 close with PR path evidence |
+
+**Program Done** when Linear project *Unity C# Architect Skill* is Completed and Notion design page is marked Complete.
