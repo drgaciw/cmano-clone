@@ -44,6 +44,27 @@ public sealed class SimulationSessionWatchAttentionTests
     }
 
     [Test]
+    public void Distinct_contacts_each_emit_stable_event_and_remain_pause_class()
+    {
+        var session = new SimulationSession(16, new StubEngagementResolver());
+
+        session.ReportWatchAttention(new WatchAttentionEvent(
+            "c-alpha", WatchAttentionKind.HostileOrUnknownContact,
+            WatchAttentionPriority.Critical, 1, "hostile-alpha"));
+        session.ReportWatchAttention(new WatchAttentionEvent(
+            "c-bravo", WatchAttentionKind.HostileOrUnknownContact,
+            WatchAttentionPriority.Critical, 2, "hostile-bravo"));
+        // Re-emission of same EventId is idempotent — no duplicate card.
+        session.ReportWatchAttention(new WatchAttentionEvent(
+            "c-alpha", WatchAttentionKind.HostileOrUnknownContact,
+            WatchAttentionPriority.Critical, 99, "hostile-alpha"));
+
+        Assert.That(session.WatchQueue.Cards, Has.Count.EqualTo(2));
+        Assert.That(session.WatchQueue.UnresolvedPauseClassCount, Is.EqualTo(2));
+        Assert.That(session.IsSimPaused, Is.True);
+    }
+
+    [Test]
     public void TryResumeSim_fails_while_unresolved_pause_class_unless_override()
     {
         var session = new SimulationSession(13, new StubEngagementResolver());
@@ -93,5 +114,28 @@ public sealed class SimulationSessionWatchAttentionTests
         Assert.That(session.IsSimPaused, Is.False);
         // Reason is intentionally not cleared by the ungated path.
         Assert.That(session.LastWatchPauseReason, Is.EqualTo(WatchPauseReason.OwnSideLossOrDamage));
+    }
+
+    [Test]
+    public void TickHeadless_advances_despite_auto_pause()
+    {
+        var session = new SimulationSession(17, new StubEngagementResolver());
+        session.BeginExecution();
+
+        session.ReportWatchAttention(new WatchAttentionEvent(
+            "c-headless",
+            WatchAttentionKind.HostileOrUnknownContact,
+            WatchAttentionPriority.Critical,
+            1,
+            "hostile-x"));
+
+        Assert.That(session.IsSimPaused, Is.True);
+        var tickBefore = session.Sim.Clock.SimTick;
+
+        // Interactive Tick would freeze; Headless path must still advance for CI/replay.
+        Assert.That(session.TickHeadless(new ObservedState(SimTime: 1.0)), Is.True);
+        Assert.That(session.Sim.Clock.SimTick, Is.GreaterThan(tickBefore));
+        Assert.That(session.IsSimPaused, Is.True); // pause flag preserved
+        Assert.That(session.LastWatchPauseReason, Is.EqualTo(WatchPauseReason.HostileOrUnknownContact));
     }
 }
