@@ -22,7 +22,7 @@
 ## 2. Next train (non-product, high-leverage)
 
 **Program:** **unity-csharp-architect** skill (**UCA**)  
-**Why now:** Unity presentation / Editor / Adapter work matured (UI maturity, PE, C2 chrome), but architecture rules still live in ADRs + tribal memory. Agents need one load-on-demand skill for Unity C# + Aegis ADRs (ADR-018 presentation boundary, ADR-010 headless/command UI).
+**Why now:** Unity presentation / Editor / Adapter work matured (UI maturity, PE, C2 chrome), but architecture rules still live in ADRs + tribal memory. Agents need one load-on-demand skill for Unity C# + Aegis ADRs (presentation boundary (ADR-010/007/001), ADR-010 headless/command UI).
 
 | Layer | Location |
 | --- | --- |
@@ -43,7 +43,7 @@ Cadence = **outcome milestones**, not Linear cycles.
 | ID | Outcome | Linear |
 | --- | --- | --- |
 | **UCA-M0** | Spec + skeleton + cross-tool artifacts | DRG-118 |
-| **UCA-M1** | Core doctrine — SKILL.md v1; presentation-boundary + headless-command-ui | DRG-119 |
+| **UCA-M1** | Core doctrine — SKILL.md `m1-doctrine` (final **v1** at M5); presentation-boundary + headless-command-ui | DRG-119 |
 | **UCA-M2** | Structure pack — asmdefs, SO, mono, perf, testing | DRG-120 |
 | **UCA-M3** | Aegis playbooks — aegis-unity-map + editor-vs-runtime | DRG-121 |
 | **UCA-M4** | Agent gates — pr-finish + review-gates; optional soft CI | DRG-122 |
@@ -102,7 +102,7 @@ Dispatch via `linear-parallel-dispatch-playbook.md` from **UCA-M1** onward (M0 i
 Train is **Done** when all are true:
 
 1. **UCA-M0…M5** exit criteria met and merged to `main` (docs under skill tree + dogfood evidence).
-2. `SKILL.md` status **v1** (not scaffold); references + checklists loadable by agents.
+2. `SKILL.md` status **v1** at **train** Done (UCA-M5); M1 lands `m1-doctrine`. References + checklists loadable by agents by M4.
 3. At least **one real Unity PR** on main used `checklists/pr-finish.md` (linked from AAR).
 4. Linear project *Unity C# Architect Skill* **completed**; DRG-118…123 + DRG-124…134 Done with PR evidence.
 5. No product/sim behavior changes claimed under UCA issues; stage still **Release**.
