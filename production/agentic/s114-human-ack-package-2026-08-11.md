@@ -1,6 +1,7 @@
 # S114 Human Ack Package — Release Product Progress (2026-08-11)
 
-**Status:** **TEMPLATE READY** — human phrase **not** provided in this package.  
+**Status:** **ACK PROVIDED** (2026-08-11) — human phrase **"release product progress program complete"** recorded.
+**Recorded by:** orchestrator from user chat (exact program phrase).  
 **Program phrase:** **"release product progress program complete"** (S110–S114).  
 **Stage:** **Release** (unchanged). **Not Launch.**
 
@@ -8,19 +9,6 @@
 [`sprint-114-release-progress-gate.md`](../sprints/sprint-114-release-progress-gate.md) ·  
 [`s114-release-product-progress-gate-2026-08-11.md`](../gate-checks/s114-release-product-progress-gate-2026-08-11.md) ·  
 [`agentic-workflow-sprint-series-2026-08-09.md`](agentic-workflow-sprint-series-2026-08-09.md)
-
----
-
-## Ready-to-use human ack phrase
-
-Canonical long form:
-
-```
-I provide the ack for "release product progress program complete" (S110–S114).
-Stage remains Release. Launch / commercial execution / Phase N remain deferred.
-```
-
-Short form (same pattern as S92/S97): `i acknowledge` — bound to **"release product progress program complete"** (S110–S114). **Not** Launch.
 
 ---
 
@@ -54,17 +42,17 @@ Short form (same pattern as S92/S97): `i acknowledge` — bound to **"release pr
 | S113 | `production/qa/smoke-sprint-113-2026-08-11.md` |
 | Floors | `production/qa/evidence/s114-release-product-progress-floors-2026-08-11.log` |
 | Gate | `production/gate-checks/s114-release-product-progress-gate-2026-08-11.md` |
+| Stage | `production/stage.txt` (ack row appended 2026-08-11) |
 
 ---
 
-## How to ack (chat)
+## Recording (2026-08-11)
 
-Reply with either the long form above or:
-
-```
-i acknowledge
-```
-
-and explicitly name **"release product progress program complete"** if using short form only for the first time.
-
-After ack, orchestrator records in `production/stage.txt` + gate status update — **without** advancing Launch.
+| Field | Value |
+|-------|-------|
+| Phrase | `release product progress program complete` |
+| Program | S110–S114 Release Product Progress |
+| Stage after ack | **Release** (unchanged) |
+| Launch | **Not** advanced |
+| Phase N | **Not** opened |
+| Evidence | User message 2026-08-11; stage.txt + gate exit criteria |
