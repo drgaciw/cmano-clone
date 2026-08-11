@@ -1,27 +1,63 @@
-/* DelegationBadgeOverlay.uss — ASSET-011 Delegation badge (Specced / S107)
+/* DelegationBadgeOverlay.uss — ASSET-011 Delegation badge overlay
  * Authority: design/assets/specs/c2-ui-assets.md ASSET-011
- * Status: Specced (not Approved)
+ * Status: Done (S113 wave 3 — Specced→Done; not Approved)
+ * Tokens: AegisTokens.uss semantic palette
+ * Format: UI Toolkit label — text-only Human / Agent / Mixed (icon atlas deferred)
+ * Note: readable at ~16px on map; no particles / no arcade VFX
  */
 
 @import url("AegisTokens.uss");
 
+/* Base text badge — map-readable density (spec: 16px) */
 .delegation-badge {
-    font-size: 10px;
-    padding: 2px 6px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    min-height: 18px;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 2px;
+    padding-bottom: 2px;
     background-color: var(--surface-panel);
+    border-width: 1px;
+    border-color: var(--border-subtle);
     border-radius: 2px;
     color: var(--text-data);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    white-space: nowrap;
 }
 
 .delegation-badge--idle {
     opacity: 0.7;
+    color: var(--text-muted);
+    -unity-font-style: normal;
 }
 
+/* Text-only mode labels: Human / Agent / Mixed (BEM modifiers) */
 .delegation-badge--human {
     color: var(--comms-nominal);
+    border-color: var(--comms-nominal);
     -unity-font-style: bold;
 }
 
 .delegation-badge--agent {
     color: var(--log-mission);
+    border-color: var(--log-mission);
+    -unity-font-style: bold;
+}
+
+.delegation-badge--mixed {
+    color: var(--comms-degraded);
+    border-color: var(--comms-degraded);
+    -unity-font-style: bold;
+}
+
+/* Optional label child for host wiring (still text-only; no icon atlas) */
+.delegation-badge__label {
+    font-size: 16px;
+    color: inherit;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
 }
