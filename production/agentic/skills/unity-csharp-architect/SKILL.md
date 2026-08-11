@@ -101,6 +101,7 @@ Paths relative to this skill directory. Doctrine + structure + Aegis playbooks a
 | `references/aegis-unity-map.md` | “Where does X live in this repo?” |
 | `checklists/pr-finish.md` | Before claiming Done |
 | `checklists/review-gates.md` | Human / peer review prompts |
+| `checklists/soft-ci-rg.md` | Optional local `rg` smells (not hard CI) |
 
 ---
 
