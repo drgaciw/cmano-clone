@@ -29,7 +29,7 @@
 | ID | Linear | Lane | Milestone | Surface |
 | --- | --- | --- | --- | --- |
 | **UCA-01** | DRG-125 | A | M0 | ROADMAP + scaffold freeze |
-| **UCA-02** | DRG-126 | A | M1 | `SKILL.md` v1 phases / triggers / handoffs |
+| **UCA-02** | DRG-126 | A | M1 | `SKILL.md` status `m1-doctrine` (phases / triggers / handoffs; final **v1** at M5) |
 | **UCA-03** | DRG-127 | A | M1 | `references/presentation-boundary.md` |
 | **UCA-04** | DRG-128 | A | M1 | `references/headless-command-ui.md` |
 | **UCA-05** | DRG-129 | B | M2 | `references/asmdefs-and-layers.md` |
@@ -92,4 +92,15 @@ Dates on Linear are **soft**; exit criteria above are hard.
 ## ADR citation correction (UCA-M1)
 
 UCA-M0 text sometimes called presentation boundary **“ADR-018”**. In git, **ADR-018** is sensor-side-picture-datalink. Presentation boundary doctrine cites **ADR-010 §2–3**, **ADR-007**, **ADR-001** (and **ADR-006** for no-SQLite-from-UI). See `references/presentation-boundary.md`.
+
+## Version contract
+
+| Milestone | `SKILL.md` `metadata.status` |
+| --- | --- |
+| UCA-M0 | `scaffold` |
+| **UCA-M1** | **`m1-doctrine`** (doctrine complete; not final v1) |
+| UCA-M2…M4 | still `m1-doctrine` until dogfood |
+| **UCA-M5** | **`v1`** after dogfood + AAR |
+
+Do not require `v1` as an M1 exit criterion.
 
