@@ -14,6 +14,7 @@ using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Logistics;
 using ProjectAegis.Sim.Scenario;
+using ProjectAegis.Sim.Sensors;
 using ProjectAegis.Sim.Telemetry;
 using ProjectAegis.Sim.Time;
 using ProjectAegis.Delegation.Logistics;
@@ -147,6 +148,46 @@ public sealed class SimulationSession
         if (WatchPauseGate.ShouldAutoPause(evt))
         {
             PauseSim();
+        }
+    }
+
+    /// <summary>
+    /// S116: map contact transitions to watch events (first hostile/unknown + own-side Lost).
+    /// Pure factory; idempotent EventIds. Call from harness/sensor path without Bridge edits.
+    /// </summary>
+    public void ReportContactTransitions(IReadOnlyList<ContactTransition> transitions)
+    {
+        if (transitions is null || transitions.Count == 0)
+        {
+            return;
+        }
+
+        for (var i = 0; i < transitions.Count; i++)
+        {
+            var t = transitions[i];
+            if (WatchAttentionEmitFactory.TryFromFirstHostileOrUnknownContact(in t, out var contactEvt)
+                && contactEvt is not null)
+            {
+                ReportWatchAttention(contactEvt);
+            }
+
+            if (WatchAttentionEmitFactory.TryFromOwnSideLostTransition(in t, out var lossEvt)
+                && lossEvt is not null)
+            {
+                ReportWatchAttention(lossEvt);
+            }
+        }
+    }
+
+    /// <summary>
+    /// S116: report own-side unit loss (BDA / battle-damage). No-op for non-own-side ids.
+    /// </summary>
+    public void ReportOwnSideLoss(string unitId, ulong triggerTick, string? reasonDetail = null)
+    {
+        if (WatchAttentionEmitFactory.TryFromOwnSideLoss(unitId, triggerTick, reasonDetail, out var evt)
+            && evt is not null)
+        {
+            ReportWatchAttention(evt);
         }
     }
 
@@ -418,10 +459,12 @@ public sealed class SimulationSession
         }
 
         BindCatalogWithdrawTrials(tickResult.WithdrawTrials);
-        ApplyBdaContactLifecycleHotTick(tickResult.Changes);
+        ApplyBdaContactLifecycleHotTick(simTick, tickResult.Changes);
     }
 
-    private void ApplyBdaContactLifecycleHotTick(IReadOnlyList<PlatformDamageChangeRecord> changes)
+    private void ApplyBdaContactLifecycleHotTick(
+        ulong simTick,
+        IReadOnlyList<PlatformDamageChangeRecord> changes)
     {
         if (BdaContactLifecycleRegistry == null || changes.Count == 0)
         {
@@ -447,6 +490,8 @@ public sealed class SimulationSession
         foreach (var targetId in BdaContactLifecycleHotTickApplier.ResolveSortedLostTargets(applies))
         {
             BdaContactLifecycleRegistry.MarkLost(targetId);
+            // S116: own-side BDA loss → watch attention (hostile losses stay silent here).
+            ReportOwnSideLoss(targetId, simTick, "bda:lost");
         }
     }
 
