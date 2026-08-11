@@ -12,8 +12,8 @@ description: >
   "EditorWindow", "MapPicture", "ISimWorldSnapshot", "C# architecture".
 metadata:
   short-description: "Aegis Unity/C# architecture: ADR-010/001/007, asmdefs, finish gates"
-  status: m1-doctrine  # UCA-M1 — not final v1 until UCA-M5 dogfood
-  version: 0.2.0-m1
+  status: m1-doctrine  # gates landed UCA-M4; final v1 only at UCA-M5 dogfood
+  version: 0.3.0-m4
   path-to-v1: >
     Final status `v1` lands only at UCA-M5 after one real Unity PR dogfoods
     checklists/pr-finish.md, AAR is filed, and ROADMAP exit criteria are met.
@@ -86,7 +86,7 @@ Engineering companion: `docs/engineering/c2-projection-layer.md`.
 
 ## 2. Open references (load on demand)
 
-Paths relative to this skill directory. **UCA-M1** owns doctrine + first two refs; later milestones fill the rest. Until a file exists, use §3–§7 and the cited ADRs as temporary source of truth.
+Paths relative to this skill directory. Doctrine + structure + Aegis playbooks are load-on-demand. **Finish gates:** when `checklists/pr-finish.md` exists, it is authoritative (§7).
 
 | Reference | When to open |
 | --- | --- |
@@ -199,21 +199,15 @@ Optional Phase 0 (spike) is allowed for unknown seams; still ends in Phase 1 con
 
 ## 7. Finish checklist
 
-**When `checklists/pr-finish.md` exists, that file is authoritative** — run it and do not invent a parallel list.
+**Authoritative:** [`checklists/pr-finish.md`](checklists/pr-finish.md) — run it before claiming Done. Do **not** invent a parallel list.
 
-**Temporary checklist** (until `checklists/pr-finish.md` lands in UCA-M4):
+| File | Role |
+| --- | --- |
+| [`checklists/pr-finish.md`](checklists/pr-finish.md) | Agent self-test → **PASS / FAIL / BLOCKED** |
+| [`checklists/review-gates.md`](checklists/review-gates.md) | Peer / human / `/c-sharp-reviewer` prompts |
+| [`checklists/soft-ci-rg.md`](checklists/soft-ci-rg.md) | Optional local `rg` smells — **not** a hard CI gate |
 
-- [ ] No MB reads live sim chunks or caches session internals
-- [ ] New UI path issues a **command** or cites an approved exception
-- [ ] Reads go through snapshot / projection / `*Bridge` — not sim internals
-- [ ] Map/C2 paths stay read-only re: order log and world truth (ADR-007)
-- [ ] No `DelegationBridge` hotpath edits (zero-touch) unless explicitly waived
-- [ ] Asmdef edges documented if assemblies changed
-- [ ] Pure logic covered by EditMode or headless test where practical
-- [ ] No new scene-only singleton without written waiver
-- [ ] Hot path: no unexplained per-frame allocations
-- [ ] ADR citations correct: presentation = ADR-010/001/007 — **not** ADR-018
-- [ ] PR body links this skill + relevant ADR(s)
+Paste the PR-finish verdict block into the PR body when doing Unity/C# architecture work.
 
 ---
 
@@ -254,7 +248,8 @@ See [`ROADMAP.md`](ROADMAP.md). Milestone IDs: **UCA-M0…UCA-M5**.
 | --- | --- |
 | **UCA-M0** | Scaffold (done) |
 | **UCA-M1** | **This file** — doctrine `m1-doctrine` |
-| **UCA-M2…M4** | Fill references + checklists |
+| **UCA-M2…M3** | Structure + Aegis playbooks (done) |
+| **UCA-M4** | **Checklists + soft CI docs** (done) |
 | **UCA-M5** | Dogfood → flip status to **`v1`** |
 
 ---
