@@ -121,7 +121,7 @@ Distilled laws — full text stays in ADRs + `references/presentation-boundary.m
 | Bind `IC2PresentationFeed` / `*Bridge` outputs | Cache live sim entities on a MB |
 | `C2PresentationController` for selection | Selection as authoritative sim input |
 | Extend `*Projection` + headless test | `FindObjectOfType` into sim session from UI |
-| Command via `C2PlayerCommandBridge` / order sink | Direct order-log write from panel code |
+| Command via `C2PlayerCommandBridge` / enqueue façade | Direct `IOrderSink.ApplyOrder` or order-log write from panel code |
 
 ---
 
