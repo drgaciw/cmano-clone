@@ -16,7 +16,7 @@
 | ID | Outcome | Exit criteria | Linear outcome |
 | --- | --- | --- | --- |
 | **UCA-M0** | Spec + skeleton + cross-tool artifacts | This tree + kickoff note on a branch; Notion design page; Linear project + issues | [DRG-118](https://linear.app/drgamtd-workspace/issue/DRG-118) |
-| **UCA-M1** | Core skill doctrine | `SKILL.md` v1 (no longer scaffold); `references/presentation-boundary.md` + `headless-command-ui.md` complete | [DRG-119](https://linear.app/drgamtd-workspace/issue/DRG-119) |
+| **UCA-M1** | Core skill doctrine | `SKILL.md` status `m1-doctrine` (final **v1** at M5); `references/presentation-boundary.md` + `headless-command-ui.md` complete; presentation cites **ADR-010/007/001** (not Git ADR-018 datalink) | [DRG-119](https://linear.app/drgamtd-workspace/issue/DRG-119) |
 | **UCA-M2** | Structure reference pack | `asmdefs-and-layers`, `scriptableobjects-data`, `mono-anti-patterns`, `performance-unity`, `testing-unity` | [DRG-120](https://linear.app/drgamtd-workspace/issue/DRG-120) |
 | **UCA-M3** | Aegis-specific playbooks | `aegis-unity-map.md`, `editor-vs-runtime.md`; map real repo paths | [DRG-121](https://linear.app/drgamtd-workspace/issue/DRG-121) |
 | **UCA-M4** | Agent gates | `checklists/pr-finish.md`, `review-gates.md`; optional soft CI/`rg` lint documented | [DRG-122](https://linear.app/drgamtd-workspace/issue/DRG-122) |
@@ -86,3 +86,10 @@ Dates on Linear are **soft**; exit criteria above are hard.
 2. CI: checklist-first; hard lint optional in UCA-M4
 3. ADR numbers are cited, not re-hosted (Linear usage contract: issues are pointers)
 4. Git = files · Linear = status · Notion = design
+
+---
+
+## ADR citation correction (UCA-M1)
+
+UCA-M0 text sometimes called presentation boundary **“ADR-018”**. In git, **ADR-018** is sensor-side-picture-datalink. Presentation boundary doctrine cites **ADR-010 §2–3**, **ADR-007**, **ADR-001** (and **ADR-006** for no-SQLite-from-UI). See `references/presentation-boundary.md`.
+
