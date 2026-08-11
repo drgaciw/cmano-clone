@@ -6,6 +6,7 @@ using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.Roe;
 using ProjectAegis.Delegation.Sim;
+using ProjectAegis.Delegation.Watch;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
@@ -113,14 +114,55 @@ public sealed class SimulationSession
 
     public SimTickPipeline Sim { get; }
 
+    /// <summary>S115: session-local watch attention queue (pure; no Bridge).</summary>
+    public WatchAttentionQueue WatchQueue { get; } = new();
+
+    /// <summary>S115: auto-pause / resume gate for pause-class cards.</summary>
+    public WatchAutoPauseGate WatchPauseGate { get; } = new();
+
+    /// <summary>Most recent auto-pause reason from the watch gate.</summary>
+    public WatchPauseReason LastWatchPauseReason => WatchPauseGate.LastPauseReason;
+
     /// <summary>Whether the sim clock is paused (interactive modes skip advance). DRG-14 / S112-02.</summary>
     public bool IsSimPaused => Sim.Clock.IsPaused;
 
     /// <summary>Pause sim time advance on the session tick path. Distinct from agent/order pause.</summary>
     public void PauseSim() => Sim.Clock.Pause();
 
-    /// <summary>Resume sim time advance after <see cref="PauseSim"/>.</summary>
+    /// <summary>Resume sim time advance after <see cref="PauseSim"/>. Does not check watch queue.</summary>
     public void ResumeSim() => Sim.Clock.Resume();
+
+    /// <summary>
+    /// S115-03: resume only when zero unresolved pause-class cards, or when
+    /// <paramref name="explicitOverride"/> is true (player force-resume).
+    /// Clears the stored watch pause reason on success.
+    /// </summary>
+    public bool TryResumeSim(bool explicitOverride = false)
+    {
+        if (!WatchPauseGate.CanResume(WatchQueue, explicitOverride))
+        {
+            return false;
+        }
+
+        ResumeSim();
+        WatchPauseGate.ClearReason();
+        return true;
+    }
+
+    /// <summary>
+    /// S115: enqueue a watch attention event. If it is pause-class, auto-pauses the sim
+    /// via the existing <see cref="PauseSim"/> path and records the reason.
+    /// Idempotent on EventId. Detection / BDA emitters call this with pure facts only.
+    /// </summary>
+    public void ReportWatchAttention(WatchAttentionEvent evt)
+    {
+        ArgumentNullException.ThrowIfNull(evt);
+        WatchQueue.Enqueue(evt);
+        if (WatchPauseGate.ShouldAutoPause(evt))
+        {
+            PauseSim();
+        }
+    }
 
     /// <summary>Steps per Accelerated session tick (1..256). DRG-14 / S112-02.</summary>
     public int TimeAccelerationFactor => Sim.Clock.AccelerationFactor;
