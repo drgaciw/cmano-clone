@@ -26,9 +26,21 @@ public static class MapPictureBridge
         DecisionLog log,
         int layoutSeed)
     {
-        ArgumentNullException.ThrowIfNull(snapshot);
-        ArgumentNullException.ThrowIfNull(registry);
-        ArgumentNullException.ThrowIfNull(log);
+        // netstandard2.1 (Unity plugins): no ArgumentNullException.ThrowIfNull
+        if (snapshot is null)
+        {
+            throw new ArgumentNullException(nameof(snapshot));
+        }
+
+        if (registry is null)
+        {
+            throw new ArgumentNullException(nameof(registry));
+        }
+
+        if (log is null)
+        {
+            throw new ArgumentNullException(nameof(log));
+        }
 
         var oob = OobTreeProjection.Project(registry.CollectMemberIds(), snapshot.IsMemberAlive);
         var contacts = ContactPictureProjection.Project(log);
