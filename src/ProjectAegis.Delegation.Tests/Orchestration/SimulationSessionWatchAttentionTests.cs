@@ -1,6 +1,7 @@
 namespace ProjectAegis.Delegation.Tests.Orchestration;
 
 using ProjectAegis.Delegation.Orchestration;
+using ProjectAegis.Delegation.Tests.Helpers;
 using ProjectAegis.Delegation.Watch;
 using ProjectAegis.Sim.Engage;
 using NUnit.Framework;
@@ -133,9 +134,9 @@ public sealed class SimulationSessionWatchAttentionTests
         var tickBefore = session.Sim.Clock.SimTick;
 
         // Interactive Tick would freeze; Headless path must still advance for CI/replay.
-        Assert.That(session.TickHeadless(new ObservedState(SimTime: 1.0)), Is.True);
+        Assert.That(session.TickHeadless(MvpObservedStates.EngageTick(1.0)), Is.True);
         Assert.That(session.Sim.Clock.SimTick, Is.GreaterThan(tickBefore));
-        Assert.That(session.IsSimPaused, Is.True); // pause flag preserved
+        Assert.That(session.IsSimPaused, Is.True); // pause flag preserved for interactive resume
         Assert.That(session.LastWatchPauseReason, Is.EqualTo(WatchPauseReason.HostileOrUnknownContact));
     }
 }
