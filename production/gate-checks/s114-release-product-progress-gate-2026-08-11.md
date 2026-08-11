@@ -72,7 +72,7 @@ AGENTS.md
 
 | Residual | Disposition |
 |----------|-------------|
-| Auto-pause / attention panel (PRD P0-7) | Post-program (S115 spine planned) |
+| Auto-pause / attention panel (PRD P0-7) | Post-program |
 | Weapons-release forced 1× (P0-8) | Post-program |
 | Scenario maxTimeCompression → clock bind | Optional |
 | Remaining Specced assets (009/010/013/…) | Future waves |

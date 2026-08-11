@@ -12,19 +12,6 @@
 
 ---
 
-## Ready-to-use human ack phrase
-
-Canonical long form:
-
-```
-I provide the ack for "release product progress program complete" (S110–S114).
-Stage remains Release. Launch / commercial execution / Phase N remain deferred.
-```
-
-Short form (same pattern as S92/S97): `i acknowledge` — bound to **"release product progress program complete"** (S110–S114). **Not** Launch.
-
----
-
 ## What this ack **means**
 
 | Means | Detail |
@@ -55,20 +42,7 @@ Short form (same pattern as S92/S97): `i acknowledge` — bound to **"release pr
 | S113 | `production/qa/smoke-sprint-113-2026-08-11.md` |
 | Floors | `production/qa/evidence/s114-release-product-progress-floors-2026-08-11.log` |
 | Gate | `production/gate-checks/s114-release-product-progress-gate-2026-08-11.md` |
-
----
-
-## How to ack (chat)
-
-Reply with either the long form above or:
-
-```
-i acknowledge
-```
-
-and explicitly name **"release product progress program complete"** if using short form only for the first time.
-
-After ack, orchestrator records in `production/stage.txt` + gate status update — **without** advancing Launch.
+| Stage | `production/stage.txt` (ack row appended 2026-08-11) |
 
 ---
 
