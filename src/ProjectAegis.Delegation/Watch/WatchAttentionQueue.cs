@@ -39,7 +39,12 @@ public sealed class WatchAttentionQueue
     /// </summary>
     public void Enqueue(WatchAttentionEvent evt)
     {
-        ArgumentNullException.ThrowIfNull(evt);
+        // netstandard2.1: ArgumentNullException.ThrowIfNull is net5+ only.
+        if (evt is null)
+        {
+            throw new ArgumentNullException(nameof(evt));
+        }
+
         if (string.IsNullOrEmpty(evt.EventId))
         {
             throw new ArgumentException("EventId must be non-empty.", nameof(evt));

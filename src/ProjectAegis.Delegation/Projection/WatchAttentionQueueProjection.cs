@@ -13,14 +13,24 @@ public static class WatchAttentionQueueProjection
     /// </summary>
     public static IReadOnlyList<WatchAttentionCard> ProjectVisible(WatchAttentionQueue queue)
     {
-        ArgumentNullException.ThrowIfNull(queue);
+        // netstandard2.1: ArgumentNullException.ThrowIfNull is net5+ only.
+        if (queue is null)
+        {
+            throw new ArgumentNullException(nameof(queue));
+        }
+
         return queue.SnapshotVisible();
     }
 
     /// <summary>Unresolved pause-class count for badge / auto-pause gating UI.</summary>
     public static int ProjectUnresolvedCount(WatchAttentionQueue queue)
     {
-        ArgumentNullException.ThrowIfNull(queue);
+        // netstandard2.1: ArgumentNullException.ThrowIfNull is net5+ only.
+        if (queue is null)
+        {
+            throw new ArgumentNullException(nameof(queue));
+        }
+
         return queue.UnresolvedPauseClassCount;
     }
 

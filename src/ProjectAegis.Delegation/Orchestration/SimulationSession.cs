@@ -156,7 +156,12 @@ public sealed class SimulationSession
     /// </summary>
     public void ReportWatchAttention(WatchAttentionEvent evt)
     {
-        ArgumentNullException.ThrowIfNull(evt);
+        // netstandard2.1: ArgumentNullException.ThrowIfNull is net5+ only.
+        if (evt is null)
+        {
+            throw new ArgumentNullException(nameof(evt));
+        }
+
         WatchQueue.Enqueue(evt);
         if (WatchPauseGate.ShouldAutoPause(evt))
         {
@@ -645,8 +650,7 @@ public sealed class SimulationSession
             if (CatalogReader != null)
             {
                 var mobilityReady = PhaseBCatalogMobilityReadinessStub.EvaluateLaunchReadiness(
-                    shooterUnitId,
-                    CatalogReader);
+                    shooterUnitId, CatalogReader);
                 airReady = airReady && mobilityReady.ReadyForLaunch;
             }
 
@@ -661,8 +665,7 @@ public sealed class SimulationSession
             }
 
             var damageWithdrawBlocked = CatalogDamageWithdrawEngageGate.BlocksEngage(
-                shooterUnitId,
-                CatalogWithdrawTrials);
+                shooterUnitId, CatalogWithdrawTrials);
             var victimId = state.PrimaryHostileContactId?.Value;
             var simTick = (ulong)Math.Max(0, (long)state.SimTime);
             var spoofed = IsContactSpoofed?.Invoke(victimId ?? "", simTick) ?? false;
@@ -714,7 +717,6 @@ public sealed class SimulationSession
             }
         }
     }
-
 
     private void MaybeEmitOrdnanceStateChange(ObservedState state, ulong simTick, TargetId shooter, ulong mountId)
     {

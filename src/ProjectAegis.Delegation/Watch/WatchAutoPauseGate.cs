@@ -19,7 +19,12 @@ public sealed class WatchAutoPauseGate
     /// </summary>
     public bool ShouldAutoPause(WatchAttentionEvent evt)
     {
-        ArgumentNullException.ThrowIfNull(evt);
+        // netstandard2.1: ArgumentNullException.ThrowIfNull is net5+ only.
+        if (evt is null)
+        {
+            throw new ArgumentNullException(nameof(evt));
+        }
+
         if (!evt.IsPauseClass)
         {
             return false;
@@ -41,7 +46,12 @@ public sealed class WatchAutoPauseGate
     /// </summary>
     public bool CanResume(WatchAttentionQueue queue, bool explicitOverride)
     {
-        ArgumentNullException.ThrowIfNull(queue);
+        // netstandard2.1: ArgumentNullException.ThrowIfNull is net5+ only.
+        if (queue is null)
+        {
+            throw new ArgumentNullException(nameof(queue));
+        }
+
         if (explicitOverride)
         {
             return true;
