@@ -1,0 +1,50 @@
+/* ReplayScrubberHashOverlay.uss — ASSET-013 Replay Scrubber / Hash Overlay
+ * Status: Done (S117 wave 4 — Specced→Done; not Approved)
+ * Authority: design/assets/specs/c2-ui-assets.md ASSET-013
+ * Read-only QA evidence region — order affordances disabled in replay mode by host
+ */
+
+@import url("AegisTokens.uss");
+
+/* Bottom / top-bar adjunct for replay scrub + hash */
+.c2-replay-overlay {
+    flex-direction: row;
+    align-items: center;
+    height: 28px;
+    min-height: 28px;
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+    background-color: var(--surface-topbar);
+    border-top-width: 1px;
+    border-top-color: var(--border-subtle);
+}
+
+.c2-replay-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-right: var(--space-sm);
+    -unity-font-style: bold;
+}
+
+/* Golden hash mono data for evidence captures */
+.c2-replay-hash {
+    font-size: 10px;
+    color: var(--text-data);
+    flex-grow: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.c2-replay-tick {
+    font-size: 10px;
+    color: var(--text-topbar);
+    margin-left: var(--space-sm);
+    min-width: 64px;
+    -unity-text-align: middle-right;
+}
+
+/* Replay mode: mute interactive affordances on host panels that import this */
+.c2-shell--replay .c2-order-affordances {
+    opacity: 0.45;
+}

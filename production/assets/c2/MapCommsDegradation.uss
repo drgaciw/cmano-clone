@@ -1,0 +1,40 @@
+/* MapCommsDegradation.uss — ASSET-010 Map Comms Degradation Modifiers
+ * Status: Done (S117 wave 4 — Specced→Done; not Approved)
+ * Authority: design/assets/specs/c2-ui-assets.md ASSET-010
+ * Tokens: AegisTokens.uss — no particles; opacity + ghost only
+ */
+
+@import url("AegisTokens.uss");
+
+/* Stale contact symbol — 55% opacity */
+.c2-map-symbol--stale {
+    opacity: 0.55;
+}
+
+/* Frozen contact — 35% opacity */
+.c2-map-symbol--frozen {
+    opacity: 0.35;
+}
+
+/* Ghost lag duplicate host */
+.c2-map-symbol--ghost {
+    opacity: 0.40;
+    color: var(--ghost-track);
+}
+
+/* Lag label suffix — italic muted mono */
+.c2-map-lag-label {
+    font-size: 9px;
+    color: var(--text-muted);
+    -unity-font-style: italic;
+    margin-left: var(--space-xs);
+}
+
+/* Comms-denied map wash (subtle, not sole state carrier) */
+.c2-map-canvas--comms-denied {
+    border-color: var(--comms-denied);
+}
+
+.c2-map-canvas--comms-degraded {
+    border-color: var(--comms-degraded);
+}
