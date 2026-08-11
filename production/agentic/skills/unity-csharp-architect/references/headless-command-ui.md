@@ -14,7 +14,7 @@
 | Stage | Owns | Lives in | Must not |
 | --- | --- | --- | --- |
 | **Intent** | Pointer/key/UI Toolkit event, menu click, MCP/CLI verb | `ProjectAegis.Unity` hosts, CLI, MCP | Mutate sim, scenario, catalog, or order log |
-| **Command** | Validated, deterministic payload (`IssueOrder`, `SetReferencePoint`, …) | Pure C# app/service layer or Delegation order path | Depend on `UnityEngine`, scene objects, or inspector state |
+| **Command** | Validated, deterministic payload (`IssueOrder`, `SetReferencePoint`, …) | Enqueue façade / player-command services → `HumanController` / queue (not direct `IOrderSink` from UI) | Depend on `UnityEngine`, scene objects, or inspector state; call `IOrderSink.ApplyOrder` from a view |
 | **Engine** | Apply order / scenario edit / doctrine override; log for replay | `Sim` / `Delegation` / `Data` | Read UI selection as authority |
 
 ```text
@@ -91,7 +91,8 @@ public interface IOrderSink
 }
 ```
 
-- Only approved order application enters the sim through this (or equivalent headless harness) seam.
+- **UI must not call `IOrderSink` directly.** Presentation enqueues via `C2PlayerCommandBridge` / `HumanController.Enqueue` / player-command services.
+- `IOrderSink.ApplyOrder` is the **downstream** apply after queue drain / bridge tick (or headless harness equivalent).
 - `OrderDispatcher` maps drained orders + `TargetRegistry` → sink.
 
 ### 3.3 `PlayerOrderExecutionQueue` + `HumanController`
