@@ -31,7 +31,7 @@ Real UnityAdapter presentation surface — not a docs-only PR:
 | 2.3 Assemblies / zero-touch | **PASS** — existing assembly; no `UnityEngine` in adapter; DelegationBridge untouched |
 | 2.4 MB / DI / alloc | **N/A** — static bridge (no MonoBehaviour in this diff); no new hot-path alloc pattern |
 | 2.5 Editor vs runtime | **N/A** — Runtime/headless adapter only |
-| 2.6 Testing | **PASS** — headless NUnit in `UnityAdapter.Tests`; filter `MapPictureBridgeTests` |
+| 2.6 Testing | **PASS** — dogfood filter 6/6; full UnityAdapter.Tests **419**; PlayModeSmokeHarness **23**; solution build green; Buildkite #1508 pass |
 | 2.7 ADR / PR hygiene | **PASS** — presentation cites **ADR-010 / 007 / 001** (not Git ADR-018); PR links skill + checklist |
 
 **Verdict:** **PASS**
@@ -56,7 +56,7 @@ Real UnityAdapter presentation surface — not a docs-only PR:
 | Worked | Friction |
 | --- | --- |
 | Checklist paste template is copy-ready for PR bodies | Early program docs (Notion/epic) still said “ADR-018 = presentation” — skill/M1 already corrected; AAR re-affirms **ADR-010/007/001** |
-| Soft CI remains advisory (good — did not block dogfood) | Full product suite not re-run here; dogfood scoped to adapter tests |
+| Soft CI remains advisory (good — did not block dogfood) | Local suite: one env fail for missing Unity Plugins DLL (not this PR); product floors green on Buildkite |
 | File-disjoint lanes M1–M4 kept program fast | Epic description still has stale ADR-018 wording — Linear is pointer, git is source of truth |
 
 ---
@@ -84,5 +84,25 @@ Agents on UnityAdapter / MonoBehaviour / C2 / Editor work must:
 Optional: advisory patterns in [`checklists/soft-ci-rg.md`](soft-ci-rg.md) — never a product-suite floor blocker.
 
 ---
+
+
+
+---
+
+## 7. Gate evidence (AGENTS.md floors)
+
+Recorded 2026-08-11 after Codex review:
+
+| Gate | Result |
+| --- | --- |
+| `dotnet build ProjectAegis.sln -c Release` | **succeeded** (0 errors) |
+| `dotnet test` UnityAdapter.Tests | **419 passed** |
+| `dotnet test` filter `MapPictureBridgeTests` | **6 passed** |
+| `dotnet test` filter `PlayModeSmokeHarnessTests` | **23 passed** |
+| `dotnet test` filter `ReplayGolden` | **4 passed** |
+| Sim / Data / CLI / Excel tests | **542 / 765 / 115 / 24** passed |
+| Delegation.Tests | **780** passed; 1 env fail missing `Assets/Plugins/…dll` (clone without plugin copy — not introduced here) |
+| Buildkite `buildkite/cmano-clone` #1508 | **passed** |
+| GHA Build and test / gauntlet pytest / oracle | **passed** (after netstandard2.1 null-guard fix) |
 
 **End of AAR — UCA-M5**
