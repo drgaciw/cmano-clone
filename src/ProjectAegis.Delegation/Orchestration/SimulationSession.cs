@@ -37,7 +37,6 @@ public sealed class SimulationSession
         Sim = sim;
     }
 
-    /// <summary>Attach MVP engage pipeline to an existing orchestrator (Unity bridge, shared session).</summary>
     public static SimulationSession BindMvpEngagement(
         DelegationOrchestrator orchestrator,
         EngageContext defaultEngageContext,
@@ -83,7 +82,6 @@ public sealed class SimulationSession
         };
     }
 
-    /// <summary>Bind MVP engage using scenario policy JSON engage defaults when present.</summary>
     public static SimulationSession BindMvpEngagementForScenario(
         DelegationOrchestrator orchestrator,
         string? scenarioPolicyId,
@@ -114,29 +112,18 @@ public sealed class SimulationSession
 
     public SimTickPipeline Sim { get; }
 
-    /// <summary>S115: session-local watch attention queue (pure; no Bridge).</summary>
     public WatchAttentionQueue WatchQueue { get; } = new();
 
-    /// <summary>S115: auto-pause / resume gate for pause-class cards.</summary>
     public WatchAutoPauseGate WatchPauseGate { get; } = new();
 
-    /// <summary>Most recent auto-pause reason from the watch gate.</summary>
     public WatchPauseReason LastWatchPauseReason => WatchPauseGate.LastPauseReason;
 
-    /// <summary>Whether the sim clock is paused (interactive modes skip advance). DRG-14 / S112-02.</summary>
     public bool IsSimPaused => Sim.Clock.IsPaused;
 
-    /// <summary>Pause sim time advance on the session tick path. Distinct from agent/order pause.</summary>
     public void PauseSim() => Sim.Clock.Pause();
 
-    /// <summary>Resume sim time advance after <see cref="PauseSim"/>. Does not check watch queue.</summary>
     public void ResumeSim() => Sim.Clock.Resume();
 
-    /// <summary>
-    /// S115-03: resume only when zero unresolved pause-class cards, or when
-    /// <paramref name="explicitOverride"/> is true (player force-resume).
-    /// Clears the stored watch pause reason on success.
-    /// </summary>
     public bool TryResumeSim(bool explicitOverride = false)
     {
         if (!WatchPauseGate.CanResume(WatchQueue, explicitOverride))
@@ -149,14 +136,8 @@ public sealed class SimulationSession
         return true;
     }
 
-    /// <summary>
-    /// S115: enqueue a watch attention event. If it is pause-class, auto-pauses the sim
-    /// via the existing <see cref="PauseSim"/> path and records the reason.
-    /// Idempotent on EventId. Detection / BDA emitters call this with pure facts only.
-    /// </summary>
     public void ReportWatchAttention(WatchAttentionEvent evt)
     {
-        // netstandard2.1: ArgumentNullException.ThrowIfNull is net5+ only.
         if (evt is null)
         {
             throw new ArgumentNullException(nameof(evt));
@@ -169,10 +150,8 @@ public sealed class SimulationSession
         }
     }
 
-    /// <summary>Steps per Accelerated session tick (1..256). DRG-14 / S112-02.</summary>
     public int TimeAccelerationFactor => Sim.Clock.AccelerationFactor;
 
-    /// <summary>Sets acceleration factor (clamped 1..256) used when > 1 on the session tick path.</summary>
     public void SetTimeAccelerationFactor(int factor) => Sim.Clock.SetAccelerationFactor(factor);
 
     public void BeginExecution() => Orchestrator.BeginExecution();
@@ -184,27 +163,38 @@ public sealed class SimulationSession
             return false;
         }
 
-        RunExecutingTick(state);
+        RunExecutingTick(state, headlessOverride: false);
         return true;
     }
 
-    private void RunExecutingTick(ObservedState state)
+    /// <summary>
+    /// S115: headless/CI path. Advances the engagement pipeline even when the clock is paused.
+    /// Pause flag and watch reason are preserved so interactive resume still works after batch.
+    /// Mirrors <see cref="TimeCompressionMode.HeadlessBatch"/> semantics at session level.
+    /// Does not touch DelegationBridge.
+    /// </summary>
+    public bool TickHeadless(ObservedState state)
+    {
+        if (Orchestrator.Phase == SimulationPhase.Planning)
+        {
+            return false;
+        }
+
+        RunExecutingTick(state, headlessOverride: true);
+        return true;
+    }
+
+    private void RunExecutingTick(ObservedState state, bool headlessOverride)
     {
         Orchestrator.Tick(state);
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
 
-        // S112-02 / DRG-14: when paused, freeze the sim engagement pipeline and
-        // consumers that depend on TickOnce. Do not enqueue (would strand pending)
-        // or consume LastEngagementResults (stale/misaligned with this tick's orders).
-        if (Sim.Clock.IsPaused)
+        if (Sim.Clock.IsPaused && !headlessOverride)
         {
             SurfaceRoePolicyDeniedEngagements(state, simTick);
             return;
         }
 
-        // Allocation follow-up P1: explicit loop instead of LINQ Where+ToArray per tick.
-        // Uses List<Order> (Count/foreach compatible) to avoid per-tick enumerator + array alloc.
-        // Behavior and iteration order identical (ExecutedOrders order preserved for engages).
         var executed = Orchestrator.ExecutedOrders;
         var engageOrders = new List<Order>(executed.Count);
         for (int i = 0; i < executed.Count; i++)
@@ -229,8 +219,6 @@ public sealed class SimulationSession
         }
 
         var acceptedSlots = SwarmSalvoDeconfliction.Allocate(deconflictSlots);
-        // P2 allocation follow-up (S37-09): explicit loop instead of Select LINQ for HashSet population in hot engage path.
-        // Avoids per-tick iterator allocation while preserving identical membership and determinism.
         var acceptedPairs = new HashSet<(ulong Shooter, ulong Target)>(acceptedSlots.Count);
         foreach (var s in acceptedSlots)
         {
@@ -271,11 +259,8 @@ public sealed class SimulationSession
             queued.Add((order, victim));
         }
 
-        // S112-02 / DRG-14: process the first step as RealTime so queued engagements resolve
-        // into LastEngagementResults for session consumers. Extra steps implement acceleration
-        // (equivalent to TickOnce(Accelerated) after the pending queue is drained — Lane A
-        // TC-CLK-3). A single TickOnce(Accelerated) would clear results on later substeps.
-        Sim.TickOnce(TimeCompressionMode.RealTime);
+        var mode = headlessOverride ? TimeCompressionMode.HeadlessBatch : TimeCompressionMode.RealTime;
+        Sim.TickOnce(mode);
         LogEngagementResults(state, queued);
         SurfaceRoePolicyDeniedEngagements(state, simTick);
         ApplyCatalogDamageHotTick(state, queued);
@@ -283,16 +268,12 @@ public sealed class SimulationSession
         var extraSteps = Math.Max(0, Sim.Clock.AccelerationFactor - 1);
         for (var i = 0; i < extraSteps; i++)
         {
-            Sim.TickOnce(TimeCompressionMode.RealTime);
+            Sim.TickOnce(mode);
         }
 
         AdvanceLogisticsFsms(state);
     }
 
-    /// <summary>
-    /// LOG-08 / LOG-09: apply executed air/boat logistics orders then advance FSM timers once per session tick.
-    /// Maps are optional — only ticked when non-null; auto-created on first logistics order.
-    /// </summary>
     private void AdvanceLogisticsFsms(ObservedState state)
     {
         ProcessLogisticsOrders(Orchestrator.ExecutedOrders, state);
@@ -300,10 +281,6 @@ public sealed class SimulationSession
         BoatOps?.TickAll(1);
     }
 
-    /// <summary>
-    /// Apply Launch/Abort air and Launch/Recover/Abort boat orders from this tick's executed list.
-    /// Missing unit/craft rows are upserted from readiness (air) or stowed defaults (boat).
-    /// </summary>
     private void ProcessLogisticsOrders(IReadOnlyList<Order> executed, ObservedState state)
     {
         _ = state;
@@ -371,15 +348,6 @@ public sealed class SimulationSession
         BoatOps.Upsert(BoatOpsUnitState.Stowed(craftId));
     }
 
-    /// <summary>
-    /// Policy–engage unification (epic policy-engage-unification-slice): an engage intent denied by ROE
-    /// (<see cref="FireAbortReason.WeaponsTight"/>) is rejected at the agent/policy layer before it reaches
-    /// <c>MvpEngagementResolver</c>, so it never produces an engagement-abort row on its own. Surface each such
-    /// denial for this tick as an <c>Engagement|…|ROE_WEAPONS_TIGHT</c> abort row so the harness fingerprint carries
-    /// the canonical abort code, mirroring the resolver-side mapping in <c>MvpEngagementResolver.MapPolicyDenial</c>.
-    /// The original <c>PolicyDenial</c> row is preserved; scoping to WeaponsTight leaves the comms-guard denial
-    /// (<see cref="FireAbortReason.CommsDenied"/>) and all other paths untouched.
-    /// </summary>
     private void SurfaceRoePolicyDeniedEngagements(ObservedState state, ulong simTick)
     {
         var entries = Orchestrator.DecisionLog.ChronologicalEntries();
@@ -466,9 +434,6 @@ public sealed class SimulationSession
             return;
         }
 
-        // Allocation follow-up P1: explicit foreach + List instead of Select+ToArray.
-        // DTOs still allocated (small records) but no LINQ iterator chain per tick.
-        // Same inputs to ResolveSortedLostTargets; determinism preserved.
         var applies = new List<BdaContactLifecycleHotTickApplier.DamageLifecycleApply>(changes.Count);
         foreach (var change in changes)
         {
@@ -589,7 +554,6 @@ public sealed class SimulationSession
 
     public DictionaryEngageWorldQuery? EngageWorld { get; init; }
 
-    /// <summary>Optional fuel burn tracker for Bingo engage gate (logistics v1).</summary>
     public FuelTimelineTracker? FuelTimeline { get; set; }
 
     public MagazineLedger? Magazines { get; init; }
@@ -604,37 +568,28 @@ public sealed class SimulationSession
 
     public int? DefaultMagazineRounds { get; init; }
 
-    /// <summary>ADR-006 read path for live magazine counts (Req-16).</summary>
     public ICatalogReader? CatalogReader { get; init; }
 
     public UnitReadinessMap? UnitReadiness { get; set; }
 
-    /// <summary>LOG-08 air-ops FSM ledger (optional; advanced on session tick).</summary>
     public AirOpsStateMap? AirOps { get; set; }
 
-    /// <summary>LOG-09…11 boat-ops FSM ledger (optional; advanced on session tick).</summary>
     public BoatOpsStateMap? BoatOps { get; set; }
 
-    /// <summary>Catalog-resolved withdraw/readiness trials (refreshed by hot-tick applier when enabled).</summary>
     public IReadOnlyList<ScenarioWithdrawReadinessTrial> CatalogWithdrawTrials { get; private set; } =
         Array.Empty<ScenarioWithdrawReadinessTrial>();
 
-    /// <summary>Bounded catalog hot-tick damage tracker (combatDomainsEnabled + catalogWithdraw only).</summary>
     public CatalogDamageHotTickTracker? CatalogDamageHotTickTracker { get; init; }
 
-    /// <summary>Pending BDA Lost promotions drained by replay harness after each tick (S32-09).</summary>
     public BdaContactLifecycleRegistry? BdaContactLifecycleRegistry { get; init; }
 
-    /// <summary>Advisory-only balance drift telemetry consumer (DBI-5; default disabled).</summary>
     public BalanceDriftAdvisoryConsumer? BalanceDriftConsumer { get; init; }
 
     public void BindCatalogWithdrawTrials(IReadOnlyList<ScenarioWithdrawReadinessTrial> trials) =>
         CatalogWithdrawTrials = trials;
 
-    /// <summary>Salvo size for the next primed engage (interactive attack menu).</summary>
     public int? NextEngageSalvoOverride { get; set; }
 
-    /// <summary>Returns whether the contact id is under active spoof at the given tick.</summary>
     public Func<string, ulong, bool>? IsContactSpoofed { get; set; }
 
     private void PrimeEngageWorld(in EngageRequest request, ObservedState state, string shooterUnitId)
@@ -704,9 +659,6 @@ public sealed class SimulationSession
                 fallbackRounds,
                 out _);
 
-            // Scenario policy DefaultMagazineRounds is an authoritative engagement budget.
-            // Cap catalog-seeded totals so magazine-depletion scenarios (e.g. baltic-patrol-magazine)
-            // still emit NO_AMMO when the policy specifies a tight magazine.
             if (DefaultMagazineRounds is int policyRounds && policyRounds > 0)
             {
                 var have = Magazines.GetRounds(request.ShooterUnitId, request.MountId);
@@ -758,8 +710,6 @@ public sealed class SimulationSession
 
     private static TargetId ResolveEngageVictim(Order order, ObservedState state)
     {
-        // order.Target is the shooter unit id. Red shooters engage blue force;
-        // blue (and unknown) shooters engage preferred or primary hostile contact.
         if (BalticV3SideRegistry.IsRedForceUnit(order.Target.Value))
         {
             var blue = state.PrimaryBlueForceContactId
@@ -769,7 +719,6 @@ public sealed class SimulationSession
             return blue;
         }
 
-        // Multi-domain: each shooter uses its detection-paired red when present.
         if (state.PreferredHostileByShooter != null
             && state.PreferredHostileByShooter.TryGetValue(order.Target.Value, out var preferred)
             && !string.IsNullOrWhiteSpace(preferred))
