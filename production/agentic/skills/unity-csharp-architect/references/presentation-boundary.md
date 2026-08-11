@@ -27,7 +27,7 @@ Cite ADR numbers as pointers only. Law lives in those ADRs + this skill referenc
 3. **Frame interpolation is presentation-only** — never fake sim ticks in `Update`.
 4. New UI field → **extend the projection contract**; never pierce the wall.
 5. Snapshots / view models are **immutable or `IReadOnly*`** — views do not mutate shared buffers.
-6. Intent leaves presentation as **commands / orders** through approved sinks — not direct sim/log mutation.
+6. Intent leaves presentation as **commands** through the **enqueue facade** (`C2PlayerCommandBridge` / `HumanController.Enqueue` / player-command services). `IOrderSink.ApplyOrder` is **downstream** (after queue drain / bridge tick) — not a UI write path.
 
 Parent doctrine: [`SKILL.md` §3](../SKILL.md#3-presentation-boundary-adr-010-23-adr-007-adr-001).
 
@@ -70,7 +70,7 @@ UI Toolkit / Cesium / MonoBehaviour views
 | Rebuild projections each sim tick via bridge | Cache `SimulationSession` / orchestrator internals on a view |
 | Selection in `C2PresentationController` (presentation-only) | Write `DecisionLog` / order log from UI or binder |
 | Lerp symbol poses between last two **received** snapshots | Advance sim, roll RNG, or “step” policies inside `Update` |
-| Issue player intent via `IOrderSink` / approved command path | Mutate member alive, contacts, magazines from a panel |
+| Issue player intent via enqueue facade (`C2PlayerCommandBridge` / `HumanController.Enqueue` / player-command services) | Call `IOrderSink.ApplyOrder` from UI, or mutate member alive / contacts / magazines from a panel |
 | Read catalog edges via `ICatalogReader` for graph surfacing | Open SQLite from presentation (ADR-006) |
 | Headless-test projections under `dotnet test` | Put authoritative scenario/sim state in scene / SO / widget fields |
 
@@ -227,7 +227,7 @@ Prefer a **presentation-only** highlight set on `C2PresentationController` (or b
 | Append decisions / engagements / contact changes | Orchestrator / sim / approved order path |
 | Project message log, contacts, map, OOB | `*Projection` / `*Bridge` (read) |
 | Selection, graph highlight ids | `C2PresentationController` (presentation state) |
-| Player order intent | Command → `IOrderSink` / bridge tick — **not** ad-hoc `DecisionLog` from UI |
+| Player order intent | Command → enqueue facade → queue drain → `IOrderSink` (bridge tick) — **not** ad-hoc `DecisionLog` or direct sink from UI |
 
 Map rule (ADR-007): **Map UI never writes to `DecisionLog` or sim world.** Symbol list is a **per-tick** projection via `MapPictureBridge.Build(...)`.
 
@@ -240,6 +240,7 @@ Map rule (ADR-007): **Map UI never writes to `DecisionLog` or sim world.** Symbo
 - [ ] New display field extended **projection/bridge contract** + headless test where practical
 - [ ] View models `IReadOnly*` / records; no mutating shared projection buffers
 - [ ] No `DecisionLog` write from presentation; no SQLite from UI (ADR-006)
+- [ ] Player intent uses enqueue facade — not direct `IOrderSink.ApplyOrder` from view code
 - [ ] Selection stays in `C2PresentationController` (or equivalent presentation store)
 - [ ] Projection rebuild understood as **non-hash** unless ADR/artifact says otherwise
 - [ ] PR cites **ADR-010 / 007 / 001** (and **006** if data) — **not** ADR-018 for this topic
