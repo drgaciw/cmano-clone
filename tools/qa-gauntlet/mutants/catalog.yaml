@@ -3,6 +3,14 @@
 # impact() result; patches are committed but only ever applied in throwaway worktrees.
 # role: control | expected-miss | defect (required). Kill-rate and exit contracts
 # are driven by role — see saboteur.py summarize / exit_code_for.
+#
+# Calibration subsets (do not run the full catalog under a single oracle):
+#   classic  (ladder + ReplayGolden): mutants 00–09
+#     python3 tools/qa-gauntlet/saboteur.py --mutants 00-noop-comment,01-pd-weakened,02-roe-tight-inverted,03-salvo-off-by-one,04-rng-seed-ignored,05-contact-lifecycle-skip,06-emcon-engage-bypass,07-magazine-not-decremented,08-bingo-gate-bypass,09-winchester-gate-bypass
+#   swarm    (--swarm-filter, oracle swarm_unit): mutants 10/11/12/14/15/17
+#     python3 tools/qa-gauntlet/saboteur.py --swarm-filter --mutants 10-swarm-integrity-no-clamp,11-swarm-regen-ignores-max,12-swarm-tick-dead-still-moves,14-swarm-emp-freeze-zero,15-swarm-caps-no-logical-clamp,17-swarm-assault-split-always-single
+# A default full-catalog run with either mode exits 1: the other family's defects
+# survive the selected oracle (expected).
 mutants:
   - id: "00-noop-comment"
     patch: "00-noop-comment.patch"

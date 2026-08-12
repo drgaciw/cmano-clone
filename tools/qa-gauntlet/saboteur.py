@@ -264,7 +264,12 @@ def main(argv: list[str]) -> int:
         action="store_true",
         help="Pure-Sim Swarm unit kill path: build+test FullyQualifiedName~Swarm "
              "instead of ladder subset + ReplayGolden. Use for SwarmController / "
-             "SoftKill / Assault / Caps mutants (expectedOracles: swarm_unit).",
+             "SoftKill / Assault / Caps mutants (expectedOracles: swarm_unit). "
+             "Pair with --mutants 10-swarm-integrity-no-clamp,11-swarm-regen-ignores-max,"
+             "12-swarm-tick-dead-still-moves,14-swarm-emp-freeze-zero,"
+             "15-swarm-caps-no-logical-clamp,17-swarm-assault-split-always-single. "
+             "Classic 00–09 stay on the default path; a full-catalog run under "
+             "either mode will exit 1 because the other family survives.",
     )
     args = parser.parse_args(argv)
 

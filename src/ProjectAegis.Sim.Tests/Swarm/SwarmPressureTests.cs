@@ -46,7 +46,9 @@ public sealed class SwarmPressureTests
         ctl.Register(Sample(drones: 10, max: 10), latDeg: 10.0, lonDeg: 20.0);
         ctl.IssueMove("swarm-1", 11.0, 21.0, simTick: 1, simTime: 1.0);
 
-        Assert.True(ctl.TryApplyIntegrityDamage("swarm-1", 10, 2, 2.0, "hard-aa", out _));
+        Assert.True(ctl.TryApplyIntegrityDamage("swarm-1", 100, 2, 2.0, "hard-aa", out var wipe));
+        Assert.Equal(0, wipe.NewDroneCount);
+        Assert.Equal(10, wipe.DronesLost);
         Assert.True(ctl.TryGetIntegrity("swarm-1", out var zero));
         Assert.Equal(0, zero.DroneCount);
 
@@ -88,8 +90,19 @@ public sealed class SwarmPressureTests
         var ctl = new SwarmController(SimSeed.FromScenario(5));
         ctl.Register(Sample(drones: 50, max: 50), 0, 0);
         Assert.True(ctl.TryGetIntegrity("swarm-1", out var afterReg));
-        Assert.True(afterReg.MaxDrones <= SwarmPerformanceCaps.LogicalMaxDronesPerSwarm);
-        Assert.True(afterReg.DroneCount <= afterReg.MaxDrones);
+        Assert.Equal(SwarmPerformanceCaps.LogicalMaxDronesPerSwarm, afterReg.MaxDrones);
+        Assert.Equal(afterReg.MaxDrones, afterReg.DroneCount);
+
+        Assert.True(ctl.TryApplyIntegrityDamage("swarm-1", 2, 1, 1.0, "aa", out _));
+        Assert.True(ctl.TryApplyIntegrityRegen(
+            "swarm-1",
+            dronesGained: 10,
+            simTick: 2,
+            simTime: 2.0,
+            reasonCode: SwarmController.RegenReasonCode,
+            out var regen));
+        Assert.Equal(afterReg.MaxDrones - 2, regen.PreviousDroneCount);
+        Assert.Equal(afterReg.MaxDrones, regen.NewDroneCount);
     }
 
     [Fact]
