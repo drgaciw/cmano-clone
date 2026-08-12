@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 /// <summary>
 /// Headless dogfood for OOB presentation bridge (UCA-A4a / DRG-140).
-/// Proves Build is projection-only: snapshot + registry → IReadOnlyList&lt;OobTreeEntry&gt;.
+/// Proves Build is projection-only: snapshot + registry to IReadOnlyList of OobTreeEntry.
 /// </summary>
 [TestFixture]
 public sealed class OobTreeBridgeTests
@@ -32,7 +32,7 @@ public sealed class OobTreeBridgeTests
         bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
         var snapshot = new SimWorldSnapshotStub(contactCount: 0, memberAlive: false);
         var oob = OobTreeBridge.Build(snapshot, bridge.Registry);
-        Assert.That(oob, Has.Count.equalTo(1));
+        Assert.That(oob, Has.Count.EqualTo(1));
         Assert.That(oob[0].IsAlive, Is.False);
     }
 
