@@ -46,11 +46,19 @@ Budget anchors (do not conflate): default ladder **60** runs; corpus regression 
 
 2. **Derive** stressed + control policies via `apply_stress_axes` (see runbook). Batch at **tier ticks** (T1=6 … T5=40), never CI 10-tick smoke as authority.
 
-3. **Proof gate** (hard-fail non-config-only unproven):
+3. **Proof gate** (hard-fail non-config-only unproven). **Scope to claimed axes only**
+   via repeatable `--axis` (default without flags verifies the full catalog and will
+   hard-fail missing EW/weapons evidence even for a weapons-only candidate):
 
 ```bash
+# Full catalog (all non-config-only must be proven)
 python3 tools/qa-gauntlet/gate_stress_proof.py --evidence path/to/evidence.json \
   --out production/qa/gauntlet/<RUN_ID>/stress-proof-report.json
+
+# Claimed-axis only (forge / single-recipe candidates)
+python3 tools/qa-gauntlet/gate_stress_proof.py --evidence path/to/evidence.json \
+  --axis weapons --out production/qa/gauntlet/<RUN_ID>/stress-proof-report.json
+# multi-claim: --axis weapons --axis ew
 # or STRESS_PROOF_EVIDENCE=… tools/qa-gauntlet/run-gauntlet.sh --run-id <id>
 ```
 

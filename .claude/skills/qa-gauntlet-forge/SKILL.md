@@ -45,37 +45,18 @@ direction file (Karpathy `program.md` analog).
 ## Invocation
 
 ```
-/qa-gauntlet-forge [--run-id <id>] [--tier N] [--phase pre|a0|post-oracle|e|final] [--max-candidates N=4]
+/qa-gauntlet-forge --run-id <id> --tier N --phase pre|a0|post-oracle|e|final
 ```
 
-| Flag | Default | Meaning |
-|---|---|---|
-| `--run-id` | current gauntlet `RUN_ID` | Artifact root under `production/qa/gauntlet/<RUN_ID>/forge/` |
-| `--tier` | current tier | Complexity tier for recipe filters (`tierMin`) |
-| `--phase` | `pre` | Lifecycle hook (see below) |
-| `--max-candidates` | `4` | Ephemeral candidates to draft this wave |
+Prefer `/team-qa-gauntlet` when coordinating ladder + forge + stress.
 
-When invoked from `/qa-gauntlet`, inherit that run's `RUN_ID`, seeds, and tier.
+## Model routing
 
-## Karpathy four-box (locked)
-
-| Role | Analog | You may change? |
-|---|---|---|
-| **Editable asset** | Mutation recipes + candidate/promoted policy JSON | **Yes** |
-| **Locked eval** | `GauntletOracleEvaluator`, Demo `--batch`, ReplayGolden, PlayModeSmoke, CI gauntlet-oracle | **No** |
-| **Direction** | This skill + `program.md` | Human-owned; do not silently rewrite constraints |
-| **Metric** | Promotion scorecard (hard gates + novelty score) | Score mechanically; do not green-wash |
-
-Loop: **hypothesize (recipe) → ephemeral candidate → locked eval → promote or discard → update weights / Hindsight → repeat.**
-
-## Phase-static model routing
-
-Phase assignments are fixed at invocation; no dynamic model shopping mid-run.
-Use `opus` only for: ≥5 consecutive stuck discards, CRITICAL corpus conflict, or multi-run synthesis.
+Use `opus` only for: ≥5 consecutive stuck discards, CRITICAL corpus conflict,
+or multi-tier policy contradiction. Default:
 
 | Phase | Model | Notes |
 |---|---|---|
-| `pre` / scorecard plumbing / expect CSV digest | `haiku` or no LLM | Script-first |
 | A0 roster digest | `haiku` | |
 | `a0` / A1 candidate draft | `sonnet` | architect Tasks |
 | B batch + C oracle CLI | tools only | `haiku` to summarize exit codes |
@@ -83,7 +64,7 @@ Use `opus` only for: ≥5 consecutive stuck discards, CRITICAL corpus conflict, 
 | `e` / Phase E | `haiku` | |
 | `final` / AAR distill | `haiku` → `sonnet` prose | `opus` for stuck / multi-tier conflict |
 
-## Artifact layout
+## Layout
 
 ```
 production/qa/gauntlet/
@@ -127,9 +108,10 @@ data/scenarios/gauntlet-*.policy.json
 1. Scorecard first: `python3 tools/qa-gauntlet/forge_scorecard.py --run-dir … --tier N`.
    Never override `hardGatesPass`.
 2. **If any candidate claimed stress axes:** invoke `/qa-gauntlet-stress` proof gate
-   (`gate_stress_proof.py`); attach `stress-proof-report.json` path in promote-log.
-   Missing proof for non-config-only axes → do not promote as axis-proven.
-   Logistics remains config-only/unproven in the log.
+   (`gate_stress_proof.py --axis <id>` for each claimed axis — do not default-verify the
+   full catalog on a single-axis candidate); attach `stress-proof-report.json` path in
+   promote-log. Missing proof for claimed non-config-only axes → do not promote as
+   axis-proven. Logistics remains config-only/unproven in the log.
 3. Promote / discard / hard-case per scorecard; update weights.
 
 ### `e` / `final`
