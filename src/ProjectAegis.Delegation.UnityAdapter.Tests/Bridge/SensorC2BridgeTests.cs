@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
@@ -5,6 +8,10 @@ using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
+/// <summary>
+/// Headless dogfood for sensor C2 presentation bridge (UCA-P1a / DRG-144).
+/// Proves Build/BindPanel are projection-only with null guards.
+/// </summary>
 [TestFixture]
 public sealed class SensorC2BridgeTests
 {
@@ -60,6 +67,29 @@ public sealed class SensorC2BridgeTests
         {
             SensorC2Bridge.PanelBridge = prior;
         }
+    }
+
+    [Test]
+    public void Build_null_snapshot_throws()
+    {
+        var log = new DecisionLog();
+        Assert.Throws<ArgumentNullException>((Action)(() =>
+            SensorC2Bridge.Build(null!, log)));
+    }
+
+    [Test]
+    public void Build_null_log_throws()
+    {
+        var snapshot = new SimWorldSnapshotStub();
+        Assert.Throws<ArgumentNullException>((Action)(() =>
+            SensorC2Bridge.Build(snapshot, null!)));
+    }
+
+    [Test]
+    public void BindPanel_null_snapshot_throws()
+    {
+        Assert.Throws<ArgumentNullException>((Action)(() =>
+            SensorC2Bridge.BindPanel(null!)));
     }
 
     private sealed class StubPanelBridge : ISensorC2PanelBridge
