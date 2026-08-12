@@ -36,7 +36,7 @@ Promote swarm axes off config-only · Phase N · DelegationBridge · CatalogWrit
 
 ## Definition of Done
 
-- [ ] Tracks merged to `main` with green CI
-- [ ] ReplayGolden 6/6 / hash preserved / ZERO bridge
-- [ ] Linear DRG-150/151/152 Done with PR link
-- [ ] Evidence note under `production/qa/`
+- [x] Tracks merged to `main` with green CI — [PR #483](https://github.com/drgaciw/cmano-clone/pull/483) squash @ `952f459`
+- [x] ReplayGolden 6/6 / hash preserved / ZERO bridge
+- [x] Linear DRG-150/151/152 Done with PR link
+- [x] Evidence note under `production/qa/`
