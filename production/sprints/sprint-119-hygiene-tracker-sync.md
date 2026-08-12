@@ -9,7 +9,7 @@
 
 ## Goal
 
-Close stale trackers so the waterline matches Git. After S117 + S118 landed, honest next **product** work is **S120 CMD-31**, not S113/S114.
+Close stale trackers so the waterline matches Git. After S117 + S118 landed, the next **program slot** is **S120** — but CMD-31 core already landed in S108. Do **not** rebuild `C2CommandIssuance`. Residual-scope DRG-155 before dispatch. Not S113/S114.
 
 ## Must Have
 
@@ -18,9 +18,11 @@ Close stale trackers so the waterline matches Git. After S117 + S118 landed, hon
 | S119-01 | Close GitHub [#472](https://github.com/drgaciw/cmano-clone/issues/472) (UCA program complete) | **Done** — closed `completed` 2026-08-12 |
 | S119-02 | Triage close or re-scope [DRG-19](https://linear.app/drgamtd-workspace/issue/DRG-19) / [20](https://linear.app/drgamtd-workspace/issue/DRG-20) / [21](https://linear.app/drgamtd-workspace/issue/DRG-21) | **Canceled / Won't** — obsolete S31/S34 CI floors vs living ≥1638 |
 | S119-03 | PDA Linear project → Completed (all children Done) | **Done** — [Platform Design Assistant](https://linear.app/drgamtd-workspace/project/platform-design-assistant-d3cc3eb960f3); DRG-70…76 already Done |
-| S119-04 | Hub + Linear project summary: not S113/S114 | **Done** — next product **S120 CMD-31** ([DRG-155](https://linear.app/drgamtd-workspace/issue/DRG-155)) |
+| S119-04 | Hub + Linear project summary: not S113/S114 | **Done** — next program slot **S120** ([DRG-155](https://linear.app/drgamtd-workspace/issue/DRG-155)); **residual-scope only** (CMD-31 core = S108) |
 
-Original AC text said “next is S118 after S117”. S117 ([#483](https://github.com/drgaciw/cmano-clone/pull/483)) and S118 ([#484](https://github.com/drgaciw/cmano-clone/pull/484)) are already on `main`, so the honest tracker next is **S120**.
+Original AC text said “next is S118 after S117”. S117 ([#483](https://github.com/drgaciw/cmano-clone/pull/483)) and S118 ([#484](https://github.com/drgaciw/cmano-clone/pull/484)) are already on `main`.
+
+**S120 caveat (Codex P2 on #485):** `production/agentic/sprint-108-closeout-2026-08-04.md` records CMD-31…37 merged. Trunk already has `C2CommandIssuance`, `C2PlayerCommandBridge`, the Unity toolbar, and `C2CommandIssuanceTests`. Same class for S121 / CMD-32 (`DatalinkPictureProjection`). Do not re-implement. Owner must pick a residual or a different product item before dispatch.
 
 ## Disposition
 
@@ -33,8 +35,8 @@ Original AC text said “next is S118 after S117”. S117 ([#483](https://github
 | Platform Design Assistant | In Progress (7/7 children Done) | **Completed** |
 | Unity C# Architect Skill | Completed | no change |
 | UCA Adoption (UCA-A) | Completed | no change |
-| Linear `cmano-clone` summary | “Next: S114 gate optional” | S117+#483 / S118+#484 landed; S119 hygiene; next product S120 CMD-31 |
-| Notion Hub `362f7cb4-e4df-80e0-a587-eb0ae15d5c9c` | Status sync 2026-08-11 / Next = S113 | Status sync 2026-08-12 / Next = S120 CMD-31 |
+| Linear `cmano-clone` summary | “Next: S114 gate optional” | S117+#483 / S118+#484 landed; S119 hygiene; next slot S120 residual-scope (CMD-31 core = S108) |
+| Notion Hub `362f7cb4-e4df-80e0-a587-eb0ae15d5c9c` | Status sync 2026-08-11 / Next = S113 | Status sync 2026-08-12 / Next = S120 residual-scope |
 
 ## Non-goals
 
