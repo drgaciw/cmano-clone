@@ -14,12 +14,15 @@ sys.path.insert(0, str(ROOT / "tools" / "qa-gauntlet"))
 from saboteur import (  # noqa: E402
     REPLAY_GOLDEN_PROJECT,
     SWARM_FILTER,
+    SWARM_ORACLE,
     SWARM_TEST_PROJECT,
     VALID_ROLES,
     blocking_dirty_paths,
     exit_code_for,
     load_catalog,
+    mutant_uses_swarm_path,
     render_report,
+    select_mutants,
     summarize,
 )
 
@@ -222,3 +225,28 @@ def test_swarm_filter_constants_are_pure_sim():
     assert SWARM_TEST_PROJECT.endswith("ProjectAegis.Sim.Tests.csproj")
     assert "UnityAdapter" not in SWARM_TEST_PROJECT
     assert "ReplayGolden" not in SWARM_FILTER
+    assert SWARM_ORACLE == "swarm_unit"
+
+
+def test_mutant_uses_swarm_path_auto_routes_on_oracle():
+    swarm = {"id": "12-x", "expectedOracles": ["swarm_unit"]}
+    classic = {"id": "01-x", "expectedOracles": ["goldens"]}
+    assert mutant_uses_swarm_path(swarm, swarm_filter=False) is True
+    assert mutant_uses_swarm_path(classic, swarm_filter=False) is False
+    assert mutant_uses_swarm_path(classic, swarm_filter=True) is True
+
+
+def test_select_mutants_swarm_filter_keeps_swarm_family_only():
+    catalog = [
+        {"id": "00-noop", "expectedOracles": []},
+        {"id": "01-pd", "expectedOracles": ["goldens"]},
+        {"id": "12-tick", "expectedOracles": ["swarm_unit"]},
+        {"id": "15-caps", "expectedOracles": ["swarm_unit"]},
+    ]
+    picked = select_mutants(catalog, wanted_ids="", swarm_filter=True)
+    assert [m["id"] for m in picked] == ["12-tick", "15-caps"]
+    explicit = select_mutants(catalog, wanted_ids="01-pd,12-tick", swarm_filter=True)
+    assert [m["id"] for m in explicit] == ["01-pd", "12-tick"]
+    full = select_mutants(catalog, wanted_ids="", swarm_filter=False)
+    assert [m["id"] for m in full] == ["00-noop", "01-pd", "12-tick", "15-caps"]
+

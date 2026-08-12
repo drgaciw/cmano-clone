@@ -25,7 +25,7 @@ Land the already-designed swarm pressure suite on `main`: unit pressure tests, s
 
 | ID | AC |
 |----|-----|
-| S117-01 | Swarm filter ≥133 passed (124 prior + 12 pressure methods/theory cases) |
+| S117-01 | Swarm filter ≥136 passed (124 prior + 12 pressure methods/theory cases) |
 | S117-02 | 6 defect mutants catalogued; mutant 12 kills Extreme_attrition |
 | S117-03 | `saboteur.py --swarm-filter` present |
 | S117-04 | 4 `swarm_*` axes validate as config-only |
