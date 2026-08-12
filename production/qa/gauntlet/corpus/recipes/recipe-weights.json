@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-07-28",
+  "updated": "2026-08-12",
   "learningRate": 1.15,
   "downWeightRate": 0.85,
   "stuckDiscardThreshold": 5,
@@ -22,7 +22,12 @@
     "geometry-detection-lane-shift": 1.0,
     "trait-attention-overload": 1.0,
     "hard-case-replay": 1.7192,
-    "bootstrap-seed": 0.5
+    "bootstrap-seed": 0.5,
+    "stress-weapons-magazine-moderate": 1.2,
+    "stress-weapons-magazine-extreme": 1.15,
+    "stress-ew-jam-moderate": 1.2,
+    "stress-ew-jam-extreme": 1.1,
+    "stress-logistics-config-only": 0.9
   },
   "consecutiveDiscards": {
     "hard-case-replay": 0,
@@ -34,6 +39,11 @@
     "roe-asymmetric-per-side": 0,
     "victory-trigger-conditional": 0,
     "event-cascading-adversarial": 0,
-    "roe-mid-mission-change": 0
+    "roe-mid-mission-change": 0,
+    "stress-weapons-magazine-moderate": 0,
+    "stress-weapons-magazine-extreme": 0,
+    "stress-ew-jam-moderate": 0,
+    "stress-ew-jam-extreme": 0,
+    "stress-logistics-config-only": 0
   }
 }
