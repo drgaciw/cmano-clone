@@ -1,0 +1,13 @@
+diff --git a/src/ProjectAegis.Sim/Swarm/SwarmPerformanceCaps.cs b/src/ProjectAegis.Sim/Swarm/SwarmPerformanceCaps.cs
+index a685106..6ab8d51 100644
+--- a/src/ProjectAegis.Sim/Swarm/SwarmPerformanceCaps.cs
++++ b/src/ProjectAegis.Sim/Swarm/SwarmPerformanceCaps.cs
+@@ -43,7 +43,7 @@ public static class SwarmPerformanceCaps
+ 
+     /// <summary>Clamp max drones to the logical ceiling.</summary>
+     public static int ClampLogicalMaxDrones(int maxDrones) =>
+-        maxDrones <= 0 ? 0 : Math.Min(maxDrones, LogicalMaxDronesPerSwarm);
++        maxDrones; // MUTANT: no logical clamp
+ 
+     /// <summary>Clamp living count into [0, logical max].</summary>
+     public static int ClampDroneCount(int droneCount, int maxDrones)

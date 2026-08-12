@@ -84,3 +84,51 @@ mutants:
     role: defect
     expectedOracles: ["goldens", "token_coverage", "victory_roe"]
     impactRecorded: "CRITICAL (2026-08-01; load-bearing logistics Winchester gate; worktree-only mutant)"
+
+  - id: "10-swarm-integrity-no-clamp"
+    patch: "10-swarm-integrity-no-clamp.patch"
+    target: "src/ProjectAegis.Sim/Swarm/SwarmController.cs"
+    description: "Integrity damage skips Math.Min clamp — can drive negative drone counts"
+    role: defect
+    expectedOracles: ["swarm_unit"]
+    impactRecorded: "HIGH (2026-08-12; Swarm integrity SoT; unit-filter kill via --swarm-filter)"
+
+  - id: "11-swarm-regen-ignores-max"
+    patch: "11-swarm-regen-ignores-max.patch"
+    target: "src/ProjectAegis.Sim/Swarm/SwarmController.cs"
+    description: "Regen ignores MaxDrones room — can overshoot logical ceiling"
+    role: defect
+    expectedOracles: ["swarm_unit"]
+    impactRecorded: "HIGH (2026-08-12; SWARM-13 regen gate; unit-filter kill via --swarm-filter)"
+
+  - id: "12-swarm-tick-dead-still-moves"
+    patch: "12-swarm-tick-dead-still-moves.patch"
+    target: "src/ProjectAegis.Sim/Swarm/SwarmController.cs"
+    description: "Dead units (DroneCount<=0) still AdvanceCentroid on Tick"
+    role: defect
+    expectedOracles: ["swarm_unit"]
+    impactRecorded: "HIGH (2026-08-12; Tick gate; killed by Extreme_attrition pressure test)"
+
+  - id: "14-swarm-emp-freeze-zero"
+    patch: "14-swarm-emp-freeze-zero.patch"
+    target: "src/ProjectAegis.Sim/Swarm/SoftKill/SwarmEmpEvaluator.cs"
+    description: "EMP ComputeFreezeUntil always returns simTime — modes never freeze"
+    role: defect
+    expectedOracles: ["swarm_unit"]
+    impactRecorded: "MED (2026-08-12; SWARM-18 EMP; unit-filter kill via --swarm-filter)"
+
+  - id: "15-swarm-caps-no-logical-clamp"
+    patch: "15-swarm-caps-no-logical-clamp.patch"
+    target: "src/ProjectAegis.Sim/Swarm/SwarmPerformanceCaps.cs"
+    description: "ClampLogicalMaxDrones is identity — oversize max accepted"
+    role: defect
+    expectedOracles: ["swarm_unit"]
+    impactRecorded: "MED (2026-08-12; SWARM-25 caps; unit-filter kill via --swarm-filter)"
+
+  - id: "17-swarm-assault-split-always-single"
+    patch: "17-swarm-assault-split-always-single.patch"
+    target: "src/ProjectAegis.Sim/Swarm/Assault/SwarmAssaultAxisSplitter.cs"
+    description: "Assault axis splitter never splits even under Assault+doctrineAllow"
+    role: defect
+    expectedOracles: ["swarm_unit"]
+    impactRecorded: "MED (2026-08-12; SWARM-17 splitter; unit-filter kill via --swarm-filter)"

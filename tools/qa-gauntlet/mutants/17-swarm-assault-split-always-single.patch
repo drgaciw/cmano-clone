@@ -1,0 +1,16 @@
+diff --git a/src/ProjectAegis.Sim/Swarm/Assault/SwarmAssaultAxisSplitter.cs b/src/ProjectAegis.Sim/Swarm/Assault/SwarmAssaultAxisSplitter.cs
+index ba44ff9..e5fb534 100644
+--- a/src/ProjectAegis.Sim/Swarm/Assault/SwarmAssaultAxisSplitter.cs
++++ b/src/ProjectAegis.Sim/Swarm/Assault/SwarmAssaultAxisSplitter.cs
+@@ -47,10 +47,7 @@ public static class SwarmAssaultAxisSplitter
+                 Axes: Array.Empty<SwarmAssaultAxisAllocation>());
+         }
+ 
+-        var allowSplit =
+-            mode == SwarmOperationalMode.Assault &&
+-            doctrineAllowSplit &&
+-            axisCount >= 2;
++        var allowSplit = false; // MUTANT: never split even under Assault+doctrine
+ 
+         if (!allowSplit)
+         {
