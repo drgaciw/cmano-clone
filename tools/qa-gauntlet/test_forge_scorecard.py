@@ -17,6 +17,7 @@ from forge_scorecard import (  # noqa: E402
     infer_cell,
     read_oracle_passed,
     rebuild_counts,
+    rebuild_stress_axes,
     score_candidate,
 )
 
@@ -259,6 +260,10 @@ def test_coverage_map_bootstrap_consistency() -> None:
             mismatches.append((sid, stored["key"], cell["key"]))
         if stored.get("intentHash") and stored["intentHash"] != cell["intentHash"]:
             mismatches.append((sid, "intentHash", stored["intentHash"], cell["intentHash"]))
+        if "stressAxes" not in stored:
+            mismatches.append((sid, "missing stressAxes"))
+        elif stored["stressAxes"] != cell["stressAxes"]:
+            mismatches.append((sid, "stressAxes", stored["stressAxes"], cell["stressAxes"]))
     assert mismatches == [], f"coverage/infer_cell drift: {mismatches}"
 
 
@@ -317,6 +322,41 @@ def test_infer_cell_stress_axes_default_to_off():
     cell = infer_cell(policy, policy["id"])
 
     assert cell["stressAxes"] == "ew:off|logistics:off|weapons:off"
+
+
+def test_stock_tier3_escort_strike_is_weapons_off():
+    """DRG-64: routine salvoSize>=2 is not weapons pressure."""
+    path = ROOT / "data" / "scenarios" / "gauntlet-t3-escort-strike.policy.json"
+    policy = json.loads(path.read_text(encoding="utf-8"))
+    assert policy["engage"]["salvoSize"] >= 2
+    assert policy["engage"]["defaultMagazineRounds"] > 2
+    cell = infer_cell(policy, "gauntlet-t3-escort-strike")
+    assert cell["stressAxes"] == "ew:off|logistics:off|weapons:off"
+
+
+def test_weapons_moderate_requires_magazine_starve_not_salvo():
+    starved = {
+        "id": "gauntlet-t3-escort-strike-weapons-moderate",
+        "engage": {"defaultMagazineRounds": 2, "salvoSize": 1},
+        "gauntlet": {"tier": 3, "intent": "escort + strike"},
+    }
+    fat_salvo = {
+        "id": "gauntlet-t3-escort-strike",
+        "engage": {"defaultMagazineRounds": 6, "salvoSize": 4},
+        "gauntlet": {"tier": 3, "intent": "escort + strike"},
+    }
+    assert infer_cell(starved, starved["id"])["stressAxes"].endswith("weapons:moderate")
+    assert infer_cell(fat_salvo, fat_salvo["id"])["stressAxes"].endswith("weapons:off")
+
+
+def test_rebuild_stress_axes_stamps_missing_and_stale(tmp_path: Path):
+    sid = "gauntlet-t3-escort-strike"
+    src = ROOT / "data" / "scenarios" / f"{sid}.policy.json"
+    (tmp_path / f"{sid}.policy.json").write_text(src.read_text(encoding="utf-8"))
+    cells = [{"scenarioId": sid, "stressAxes": "ew:off|logistics:off|weapons:moderate"}]
+    assert rebuild_stress_axes(cells, tmp_path) == 1
+    assert cells[0]["stressAxes"].endswith("weapons:off")
+    assert rebuild_stress_axes(cells, tmp_path) == 0
 
 
 def test_infer_cell_key_is_unchanged_by_the_axis_extension():

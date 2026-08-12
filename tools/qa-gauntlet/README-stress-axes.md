@@ -104,6 +104,27 @@ tools/qa-gauntlet/run-gauntlet.sh --run-id <id> \
 Report keys: `pass`, `results[]` (`axis`, `proven`, `mode`, `detail`),
 `proven`, `unproven`, `hard_failures`, `config_only_unproven`.
 
+## Unproven non-`off` levels (DRG-65)
+
+An unproven **non-config-only** axis (`weapons` / `ew`) **hard-fails** the
+production gate (`exit 1`) whether the claimed level is `moderate` or
+`extreme`. `off` is not claimed pressure — do not put it in the evidence map.
+
+`config-only` axes (`logistics` / GAP-13, and the S117 `swarm_*` axes) are
+always unproven and **must not** hard-fail. They land in `config_only_unproven`.
+
+### `ew: moderate` is not empirically proven
+
+Only `ew: extreme` (`jamStrength` 0.9) has a measured aggregate delta
+(`Detected` 30 → 25 across seeds 42/7/123, per-seed 2/2/1). `ew: moderate`
+(`jamStrength` 0.5) sits on a single `basePd 1.0` detection trial; the
+expected seed-sum delta is 0, so `verify_differential_aggregate` will report
+unproven.
+
+**Do not claim `ew: moderate` in a gate evidence map** until a 3-seed
+derive+control measurement shows a strict aggregate `Detected` decrease.
+Do not retune `jamStrength` without that measurement (S118 Won't-retune).
+
 ## Running
 
 ```bash
