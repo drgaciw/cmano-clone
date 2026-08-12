@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """QA Gauntlet saboteur — oracle-sensitivity calibration via curated mutants.
 
-Applies each catalog patch in a disposable git worktree, builds, runs the anchor
-ladder subset (tiers 1,3,5 x anchor seeds) + the ReplayGolden test filter, and
-records which oracles fired. Nothing is ever committed from a worktree.
+Applies each catalog patch in a disposable git worktree, builds, then runs
+either the classic anchor ladder subset + ReplayGolden filter, or the
+pure-Sim Swarm unit test filter.
 
-Kill rule: caught = subset driver exit != 0 OR ReplayGolden filter fails.
-Build failure = invalid-mutant (fix or drop the patch; it proves nothing).
+Kill rule (classic): caught = subset driver exit != 0 OR ReplayGolden filter fails.
+Kill rule (swarm path): caught = `dotnet test --filter FullyQualifiedName~Swarm`
+exit != 0 (fires oracle token `swarm_unit`). Build failure = invalid-mutant.
+
+Path selection: a mutant with expectedOracles including `swarm_unit` always
+uses the Swarm path. `--swarm-filter` without `--mutants` restricts the
+catalog to that family. Nothing is ever committed from a worktree.
 
 Catalog `role` (required): control | expected-miss | defect.
 Kill rate = caught_defects / (caught_defects + survived_defects); control and
@@ -39,6 +44,9 @@ SUBSET_TIERS = "1 3 5"
 REPLAY_GOLDEN_PROJECT = (
     "src/ProjectAegis.Delegation.UnityAdapter.Tests"
 )
+SWARM_TEST_PROJECT = "src/ProjectAegis.Sim.Tests/ProjectAegis.Sim.Tests.csproj"
+SWARM_FILTER = "FullyQualifiedName~Swarm"
+SWARM_ORACLE = "swarm_unit"
 VALID_ROLES = frozenset({"control", "expected-miss", "defect"})
 LOCKED = (
     "src/ProjectAegis.Data/Catalog/GauntletOracleEvaluator.cs",
@@ -175,7 +183,40 @@ def _fired_oracles(run_dir: Path) -> list[str]:
     return sorted(fired)
 
 
-def run_mutant(m: dict, catalog_dir: Path, out_dir: Path, dotnet: str, keep: bool) -> dict:
+def mutant_uses_swarm_path(m: dict, swarm_filter: bool) -> bool:
+    """Swarm unit path when --swarm-filter is set or the mutant declares swarm_unit."""
+    return bool(swarm_filter) or SWARM_ORACLE in (m.get("expectedOracles") or [])
+
+
+def select_mutants(
+    mutants: list[dict],
+    wanted_ids: str,
+    swarm_filter: bool,
+) -> list[dict]:
+    """Honor --mutants (explicit); else --swarm-filter keeps swarm_unit family only."""
+    if wanted_ids:
+        wanted = {part for part in wanted_ids.split(",") if part}
+        return [m for m in mutants if m["id"] in wanted]
+    if swarm_filter:
+        return [m for m in mutants if SWARM_ORACLE in (m.get("expectedOracles") or [])]
+    return list(mutants)
+
+
+def run_mutant(
+    m: dict,
+    catalog_dir: Path,
+    out_dir: Path,
+    dotnet: str,
+    keep: bool,
+    swarm_filter: bool = False,
+) -> dict:
+    """Apply one mutant in a disposable worktree and measure oracle sensitivity.
+
+    Classic path: ladder subset + ReplayGolden.
+    Swarm path: pure-Sim `dotnet test --filter FullyQualifiedName~Swarm`
+    (auto when expectedOracles includes swarm_unit, or when --swarm-filter).
+    """
+    use_swarm = mutant_uses_swarm_path(m, swarm_filter)
     wt = ROOT / ".worktrees" / f"saboteur-{m['id']}"
     mdir = out_dir / m["id"]
     mdir.mkdir(parents=True, exist_ok=True)
@@ -185,15 +226,31 @@ def run_mutant(m: dict, catalog_dir: Path, out_dir: Path, dotnet: str, keep: boo
         "expectedOracles": m["expectedOracles"],
         "firedOracles": [],
         "outcome": "invalid-mutant",
+        "mode": "swarm-filter" if use_swarm else "classic",
     }
     try:
         subprocess.run(["git", "worktree", "add", "--detach", str(wt)],
                        cwd=ROOT, check=True, capture_output=True)
         subprocess.run(["git", "apply", str((catalog_dir / m["patch"]).resolve())],
                        cwd=wt, check=True, capture_output=True)
-        if _run([dotnet, "build", "ProjectAegis.sln", "-v", "minimal"],
-                wt, BUILD_TIMEOUT_S, mdir / "build.log") != 0:
+        if use_swarm:
+            build_cmd = [dotnet, "build", SWARM_TEST_PROJECT, "-v", "minimal"]
+        else:
+            build_cmd = [dotnet, "build", "ProjectAegis.sln", "-v", "minimal"]
+        if _run(build_cmd, wt, BUILD_TIMEOUT_S, mdir / "build.log") != 0:
             return result  # invalid-mutant
+
+        if use_swarm:
+            swarm_rc = _run(
+                [dotnet, "test", SWARM_TEST_PROJECT,
+                 "-v", "minimal", "--no-build",
+                 "--filter", SWARM_FILTER],
+                wt, RUN_TIMEOUT_S, mdir / "swarm.log")
+            if swarm_rc != 0:
+                result["firedOracles"] = [SWARM_ORACLE]
+            result["outcome"] = "caught" if swarm_rc != 0 else "survived"
+            return result
+
         subset_rc = _run(["bash", "tools/qa-gauntlet/run-gauntlet.sh",
                           "--run-id", f"saboteur-{m['id']}", "--tiers", SUBSET_TIERS,
                           "--roving", "0",
@@ -225,6 +282,14 @@ def main(argv: list[str]) -> int:
                         default=ROOT / f"production/qa/gauntlet/calibration-{date.today().isoformat()}")
     parser.add_argument("--mutants", default="")
     parser.add_argument("--keep-worktrees", action="store_true")
+    parser.add_argument(
+        "--swarm-filter",
+        action="store_true",
+        help="Restrict to swarm_unit mutants (unless --mutants is set) and force "
+             "the pure-Sim Swarm unit path. Default full-catalog runs already "
+             "auto-route each mutant: swarm_unit → Sim.Tests filter; others → "
+             "ladder + ReplayGolden.",
+    )
     args = parser.parse_args(argv)
 
     porcelain = subprocess.run(["git", "status", "--porcelain", "--untracked-files=no"],
@@ -241,13 +306,20 @@ def main(argv: list[str]) -> int:
         print("saboteur: dotnet not found", file=sys.stderr)
         return 3
 
-    mutants = load_catalog(args.catalog)
-    if args.mutants:
-        wanted = set(args.mutants.split(","))
-        mutants = [m for m in mutants if m["id"] in wanted]
+    mutants = select_mutants(
+        load_catalog(args.catalog), args.mutants, args.swarm_filter)
     args.out_dir.mkdir(parents=True, exist_ok=True)
-    results = [run_mutant(m, args.catalog.parent, args.out_dir, dotnet, args.keep_worktrees)
-               for m in mutants]
+    results = [
+        run_mutant(
+            m,
+            args.catalog.parent,
+            args.out_dir,
+            dotnet,
+            args.keep_worktrees,
+            swarm_filter=args.swarm_filter,
+        )
+        for m in mutants
+    ]
     summary = summarize(results)
     (args.out_dir / "report.json").write_text(
         json.dumps({"summary": summary, "results": results}, indent=2) + "\n", encoding="utf-8")

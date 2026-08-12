@@ -1,0 +1,13 @@
+diff --git a/src/ProjectAegis.Sim/Swarm/SwarmController.cs b/src/ProjectAegis.Sim/Swarm/SwarmController.cs
+index 6cc0b80..9a7004d 100644
+--- a/src/ProjectAegis.Sim/Swarm/SwarmController.cs
++++ b/src/ProjectAegis.Sim/Swarm/SwarmController.cs
+@@ -360,7 +360,7 @@ public sealed class SwarmController
+         }
+ 
+         var previous = unit.DroneCount;
+-        var lost = Math.Min(dronesLost, previous);
++        var lost = dronesLost; // MUTANT: no clamp
+         unit.DroneCount = previous - lost;
+         var sequenceId = _integritySequence++;
+         change = new SwarmIntegrityChange(
