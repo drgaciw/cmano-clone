@@ -133,4 +133,12 @@ AAR: `production/agentic/skills/unity-csharp-architect/AAR-uca-m5-dogfood-2026-0
 
 ---
 
+## 9. Follow-on: UCA-A adoption (2026-08-12)
+
+Land train closed. Adoption train: [`uca-a-adoption-train-2026-08-12.md`](uca-a-adoption-train-2026-08-12.md) · Linear [*UCA Adoption (UCA-A)*](https://linear.app/drgamtd-workspace/project/uca-adoption-uca-a-085666c9d310) · epic [DRG-135](https://linear.app/drgamtd-workspace/issue/DRG-135).
+
+Does **not** reopen this document's Done criteria or epic DRG-124.
+
+---
+
 **End of post-s97-uca-agent-capability-train-2026-08-11.md**
