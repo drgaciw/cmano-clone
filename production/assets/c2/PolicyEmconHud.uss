@@ -1,10 +1,15 @@
-/* PolicyEmconHud.uss — ASSET-012 Policy denial + EMCON HUD (Specced / S107)
+/* PolicyEmconHud.uss — ASSET-012 Policy denial + EMCON HUD
  * Authority: design/assets/specs/c2-ui-assets.md ASSET-012
- * Status: Specced (not Approved)
+ * Status: Done (S113 wave 3 — Specced→Done; not Approved)
+ * Tokens: AegisTokens.uss semantic palette
+ * Source: design/gdd/policy-roe-emcon-wra.md §Visual/Audio (policy GDD P0)
+ * Format: USS + bridge-driven state — inline tooltips + map emitter cue
+ * Note: no particles / no arcade VFX; denied weapons use grey ~45% opacity only
  */
 
 @import url("AegisTokens.uss");
 
+/* ---- Policy denial + EMCON HUD chrome ---- */
 .policy-emcon-hud {
     flex-direction: column;
     min-width: 160px;
@@ -12,10 +17,12 @@
     background-color: var(--surface-panel);
     border-width: 1px;
     border-color: var(--border-subtle);
+    border-radius: 2px;
 }
 
 .policy-emcon-hud--idle {
     opacity: 0.8;
+    border-color: var(--border-subtle);
 }
 
 .policy-emcon-hud--nominal {
@@ -26,4 +33,93 @@
     border-color: var(--log-kill);
     color: var(--log-kill);
     -unity-font-style: bold;
+}
+
+/* ---- Weapon denied: grey at ~45% opacity (spec) ---- */
+.policy-weapon {
+    color: var(--text-data);
+    opacity: 1;
+}
+
+.policy-weapon--denied {
+    color: var(--text-muted);
+    opacity: 0.45;
+    -unity-font-style: normal;
+}
+
+/* ---- Tooltip / policy abort reason text ---- */
+.policy-emcon-hud__tooltip,
+.policy-emcon-hud__reason {
+    font-size: 11px;
+    color: var(--text-body);
+    background-color: var(--surface-panel);
+    border-width: 1px;
+    border-color: var(--border-panel);
+    border-radius: 2px;
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+    padding-top: var(--space-xs);
+    padding-bottom: var(--space-xs);
+    white-space: normal;
+    max-width: 240px;
+}
+
+.policy-emcon-hud__reason--denied {
+    color: var(--log-kill);
+    border-color: var(--log-kill);
+    -unity-font-style: bold;
+}
+
+/* ---- EMCON emitter icon / label cue on unit (text+color only; no particles) ---- */
+.emcon-emitter {
+    flex-direction: row;
+    align-items: center;
+    font-size: 11px;
+    color: var(--comms-degraded);
+    -unity-font-style: bold;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+.emcon-emitter__icon {
+    width: 10px;
+    height: 10px;
+    min-width: 10px;
+    min-height: 10px;
+    background-color: var(--comms-degraded);
+    border-radius: 1px;
+    margin-right: 3px;
+}
+
+.emcon-emitter__label {
+    font-size: 11px;
+    color: var(--comms-degraded);
+    -unity-font-style: bold;
+    white-space: nowrap;
+}
+
+.emcon-emitter--active {
+    color: var(--comms-degraded);
+}
+
+.emcon-emitter--active .emcon-emitter__icon {
+    background-color: var(--comms-degraded);
+}
+
+.emcon-emitter--passive {
+    color: var(--text-muted);
+    opacity: 0.85;
+}
+
+.emcon-emitter--passive .emcon-emitter__icon {
+    background-color: var(--text-muted);
+}
+
+.emcon-emitter--off {
+    color: var(--text-muted);
+    opacity: 0.55;
+}
+
+.emcon-emitter--off .emcon-emitter__icon {
+    background-color: var(--border-subtle);
 }

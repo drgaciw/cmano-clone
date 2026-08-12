@@ -3,7 +3,7 @@
 # ReplayGolden, CatalogWriteGate write paths, inventing gauntlet.expect without regen.
 
 version: 1
-updated: 2026-07-23
+updated: 2026-08-12
 
 recipes:
   - id: bootstrap-seed
@@ -151,3 +151,57 @@ recipes:
     description: >
       Re-sample a policy or signature from corpus/hard-cases/ (UCB-style prefer
       hard + rare) into the next tier or next run.
+
+  # --- Orthogonal stress axes (Wave 3 / DRG-148) — layer onto any tier via
+  # production/qa/gauntlet/corpus/stress-axes.yaml + /qa-gauntlet-stress.
+  # Always keep a control sibling for weapons/ew. Never claim logistics proven.
+
+  - id: stress-weapons-magazine-moderate
+    dims: [stress, weapons]
+    tierMin: 1
+    preconditions: ["control-sibling-required"]
+    noveltyTags: [stress-axis, weapons, magazine, differential-token]
+    forbiddenTouches: [gauntlet.expect-without-regen, presence-only-no-ammo-assert]
+    description: >
+      Apply stress-axes weapons level moderate (low magazine / salvo). Prove only via
+      differential-token NO_AMMO strict increase vs identical control (off). See
+      tools/qa-gauntlet/README-stress-axes.md.
+
+  - id: stress-weapons-magazine-extreme
+    dims: [stress, weapons]
+    tierMin: 1
+    preconditions: ["control-sibling-required"]
+    noveltyTags: [stress-axis, weapons, magazine, extreme, differential-token]
+    forbiddenTouches: [gauntlet.expect-without-regen, presence-only-no-ammo-assert]
+    description: >
+      Apply stress-axes weapons level extreme (1 round, large salvo, low pkKill).
+      Same proof discipline as moderate — never presence-only NO_AMMO.
+
+  - id: stress-ew-jam-moderate
+    dims: [stress, ew]
+    tierMin: 1
+    preconditions: ["control-sibling-required", "detection-targets-present"]
+    noveltyTags: [stress-axis, ew, jam, differential-aggregate]
+    forbiddenTouches: [gauntlet.expect-without-regen, inert-jammer-without-target]
+    description: >
+      Apply stress-axes ew moderate jammers with resolved targetId. Prove via
+      differential-aggregate Detected counts vs control across seeds.
+
+  - id: stress-ew-jam-extreme
+    dims: [stress, ew]
+    tierMin: 2
+    preconditions: ["control-sibling-required", "detection-targets-present"]
+    noveltyTags: [stress-axis, ew, jam, extreme, differential-aggregate]
+    forbiddenTouches: [gauntlet.expect-without-regen, inert-jammer-without-target]
+    description: >
+      Apply stress-axes ew extreme jamStrength. Same aggregate proof as moderate.
+
+  - id: stress-logistics-config-only
+    dims: [stress, logistics]
+    tierMin: 1
+    preconditions: []
+    noveltyTags: [stress-axis, logistics, config-only, gap-13]
+    forbiddenTouches: [gauntlet.expect-without-regen, claim-logistics-proven]
+    description: >
+      Apply stress-axes logistics fuel config (GAP-13). Schema/config varies only;
+      MUST NOT report axis as proven. Promote-log must state config-only/unproven.

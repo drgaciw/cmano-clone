@@ -39,6 +39,22 @@ Run `.\tools\verify-ci-local.ps1` (PowerShell) for full CI parity including repl
 
 ---
 
+## Unity / C# architecture skill (required)
+
+When the task or diff touches **UnityAdapter**, **MonoBehaviour**, **C2 / UI chrome**, **EditorWindow**, **asmdef**, **snapshot / projection bind**, or **presentation bridges**:
+
+1. Load skill: `production/agentic/skills/unity-csharp-architect/` (`SKILL.md`)
+2. Before claiming Done, run [`checklists/pr-finish.md`](production/agentic/skills/unity-csharp-architect/checklists/pr-finish.md)
+3. Paste the **PASS / FAIL / BLOCKED** verdict block into the PR body
+4. Presentation boundary cites **ADR-010 §2–3**, **ADR-007**, **ADR-001** — **never** Git **ADR-018** (sensor side-picture / datalink)
+5. Prefer headless `dotnet test` proof before Play Mode; UI is a **client**, not sim authority
+
+Optional advisory patterns: [`checklists/soft-ci-rg.md`](production/agentic/skills/unity-csharp-architect/checklists/soft-ci-rg.md) — **not** a product-suite floor.
+
+Implementation under contract → `/c-sharp-engineer`. Reviewer prompts → [`checklists/review-gates.md`](production/agentic/skills/unity-csharp-architect/checklists/review-gates.md).
+
+---
+
 ## Architecture: Project Map
 
 ```

@@ -110,7 +110,7 @@ Matte `#0A101A` bar with clock, `1x 4x 8x` compression presets, SIDE/MODE labels
 **Visual Description:**  
 Tabbed OOB / missions / contacts; OOB rows 20px; planning-readonly modifier mutes tabs and borders (`#465260`).
 
-**Status:** Done (S113 wave 3) → `production/assets/c2/C2LeftDrawerPanel.uss`
+**Status:** Done (S113 wave 3; not Approved) → `production/assets/c2/C2LeftDrawerPanel.uss`
 
 ---
 
@@ -125,7 +125,7 @@ Tabbed OOB / missions / contacts; OOB rows 20px; planning-readonly modifier mute
 **Visual Description:**  
 Selection readout with 10px mono for numeric/catalog fields; sans 12px section headers; no avatar portrait.
 
-**Status:** Done (S113 wave 3) → `production/assets/c2/RightUnitDetailPanel.uss`
+**Status:** Done (S113 wave 3; not Approved) → `production/assets/c2/RightUnitDetailPanel.uss`
 
 ---
 
@@ -172,7 +172,7 @@ Stale 55% opacity; frozen 35%; ghost duplicate at lag offset with italic `(lag N
 **Visual Description:**  
 Text-only `Human` / `Agent` / `Mixed` badges; icon atlas deferred post-v1.
 
-**Status:** Specced
+**Status:** Done (S113 wave 3; not Approved)
 
 ---
 
@@ -189,7 +189,7 @@ Weapon greyed at 45% opacity when denied; tooltip shows policy abort reason; EMC
 
 **Source:** `design/gdd/policy-roe-emcon-wra.md` §Visual/Audio
 
-**Status:** Specced
+**Status:** Done (S113 wave 3; not Approved)
 
 ---
 

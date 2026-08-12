@@ -12,7 +12,7 @@
 #   config-only            — configuration varies but the sim cannot demonstrate it;
 #                            MUST NOT be reported as proven
 version: 1
-updated: 2026-07-27
+updated: 2026-08-12
 
 axes:
   - id: weapons
@@ -66,3 +66,52 @@ axes:
         logistics.fuelCapacityKg: 2000
         logistics.burnRateKgPerSecond: 14
         logistics.jokerFuelFraction: 0.6
+
+  # SWARM pressure axes — config-only until ladder scenarios emit Swarm fingerprint tokens
+  # (no gauntlet-tN-swarm-* scenarios yet). Promote to differential-* when ladder lands.
+  - id: swarm_attrition
+    proof: config-only
+    gap: "SWARM-ladder-pending"
+    levels:
+      "off": {}
+      moderate:
+        swarm.integrityHitSchedule: [2, 3]
+        swarm.attritionBias: 0.3
+      extreme:
+        swarm.integrityHitSchedule: [5, 8, 12]
+        swarm.attritionBias: 0.7
+        swarm.hardCounterAa: true
+
+  - id: swarm_link
+    proof: config-only
+    gap: "SWARM-ladder-pending"
+    levels:
+      "off": {}
+      moderate:
+        swarm.linkJamFromTick: 4
+        swarm.linkStateBias: degraded
+      extreme:
+        swarm.linkJamFromTick: 1
+        swarm.linkStateBias: lost
+
+  - id: swarm_mode
+    proof: config-only
+    gap: "SWARM-ladder-pending"
+    levels:
+      "off": {}
+      moderate:
+        swarm.modeSequence: [Hold, Assault, Screen]
+      extreme:
+        swarm.modeSequence: [Assault, Scatter, Rejoin, Assault]
+        swarm.formationStress: Spear
+
+  - id: swarm_softkill
+    proof: config-only
+    gap: "SWARM-ladder-pending"
+    levels:
+      "off": {}
+      moderate:
+        swarm.empFreezeSeconds: 15
+      extreme:
+        swarm.empFreezeSeconds: 45
+        swarm.jamSeverity: high

@@ -1,6 +1,6 @@
 ---
 name: qa-gauntlet-calibrate
-description: Measure QA Gauntlet oracle sensitivity by running the saboteur mutant catalog — deliberately broken sim builds in throwaway worktrees must turn the ladder red. Use after oracle/expect/golden changes, after sim refactors, or monthly; or when the user asks to "calibrate the gauntlet", "run the saboteur", "check oracle kill rate", or "mutation-test the gauntlet".
+description: Measure QA Gauntlet oracle sensitivity by running the saboteur mutant catalog — deliberately broken sim builds in throwaway worktrees must turn the ladder red. Use after oracle/expect/golden changes, after sim refactors, or monthly; or when the user asks to "calibrate the gauntlet", "run the saboteur", "check oracle kill rate", or "mutation-test the gauntlet". Team entry: /team-qa-gauntlet --mode calibrate.
 ---
 
 # QA Gauntlet Calibrate — Oracle Sensitivity (Saboteur)
@@ -8,6 +8,10 @@ description: Measure QA Gauntlet oracle sensitivity by running the saboteur muta
 Measures P(detect | defect): applies each curated mutant patch in a disposable git
 worktree, builds, runs the anchor ladder subset (tiers 1/3/5 × anchor seeds 42,7,123)
 plus the ReplayGolden test filter, and reports which oracles fired.
+
+**Team:** Prefer `/team-qa-gauntlet --mode calibrate` when coordinating with ladder/forge.
+Presentation-only (UnityAdapter bridge) changes do **not** require calibrate — use
+`/qa-gauntlet-remediation` + unity-csharp-architect instead.
 
 ## Run
 
@@ -62,7 +66,12 @@ and no survived defects.
 
 ## Read the report
 
-Latest **live** calibration (blind spots 03/05/06 closed): `production/qa/gauntlet/calibration-2026-07-31-full-after-blindspot-close/` (kill rate **7/7**; exit 0). Prior: live-unity-replay 5/6; role-refresh 4/6; `calibration-2026-07-28*`.
+**Latest live calibration (cite in every `/qa-gauntlet` AAR):**
+`production/qa/gauntlet/calibration-2026-07-31-full-after-blindspot-close/`
+— kill rate **7/7**; exit 0 (blind spots 03/05/06 closed at report time; `06-emcon`
+may remain `expected-miss` in catalog until engine retrofit — follow catalog `role`).
+
+Priors: live-unity-replay 5/6; role-refresh 4/6; `calibration-2026-07-28*`.
 
 `production/qa/gauntlet/calibration-<date>/report.md` (+ `report.json`):
 
@@ -72,9 +81,8 @@ Latest **live** calibration (blind spots 03/05/06 closed): `production/qa/gauntl
   `production/qa/bugs/BUG-oracle-blindspot-<mutant-id>.md` via the `bug-report`
   skill, quoting the report row. Do not delete the mutant.
 - `06-emcon-engage-bypass` (`role: expected-miss`) is a documented expected miss
-  until the 2026-07-27 variability-plan EMCON retrofit lands — survival is
-  tracked (exit OK, excluded from kill-rate), not re-filed. When catchable,
-  flip `role` to `defect`.
+  until the EMCON retrofit lands — survival is tracked (exit OK, excluded from
+  kill-rate), not re-filed. When catchable, flip `role` to `defect`.
 - `INVALID-MUTANT` (build failure) proves nothing: fix or remove the patch.
 
 ## Rules
@@ -87,3 +95,8 @@ Latest **live** calibration (blind spots 03/05/06 closed): `production/qa/gauntl
   and verify the mutant is caught before committing — procedure in
   `docs/superpowers/plans/2026-07-28-qa-gauntlet-effectiveness.md` Task 11.
 - Cite the latest kill rate (formula above) in every `/qa-gauntlet` AAR.
+
+## See also
+
+- `/team-qa-gauntlet` — multi-agent entry
+- `/qa-gauntlet` — ladder owner

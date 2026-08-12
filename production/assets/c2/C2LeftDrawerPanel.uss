@@ -1,118 +1,122 @@
 /* C2LeftDrawerPanel.uss — ASSET-007 Left Drawer Panel
- * Status: Done (S113 wave 3)
+ * Status: Done (S113 wave 3 — Specced→Done; not Approved)
  * Authority: design/assets/specs/c2-ui-assets.md ASSET-007
- * Imports: AegisTokens.uss semantic tokens
- * Sprint: S113 asset Specced→Done wave 3
+ * Tokens: AegisTokens.uss semantic palette (surface/border/text-data)
+ * Unity wire: unity/ProjectAegis/Assets/UI/C2LeftDrawer/C2LeftDrawerPanel.uss
  */
 
 @import url("AegisTokens.uss");
 
-/* Root drawer — 240px tabbed OOB / missions / contacts */
-.c2-left-drawer {
+/* 240px drawer width region — panel surface + right edge against map */
+.c2-drawer-panel {
     flex-direction: column;
     width: 240px;
     min-width: 240px;
     max-width: 240px;
-    flex-grow: 1;
+    flex-grow: 0;
+    flex-shrink: 0;
+    padding: var(--space-sm);
     background-color: var(--surface-panel);
     border-right-width: 1px;
     border-right-color: var(--border-subtle);
-    padding: var(--space-sm);
 }
 
-/* Tab strip */
-.c2-left-drawer__tabs {
+/* Tab row: OOB / missions / contacts */
+.c2-drawer-tabs {
     flex-direction: row;
     align-items: center;
+    height: 24px;
+    min-height: 24px;
     margin-bottom: var(--space-sm);
     border-bottom-width: 1px;
     border-bottom-color: var(--border-subtle);
 }
 
-.c2-left-drawer__tab {
+.c2-drawer-tab {
     flex-grow: 1;
-    height: 28px;
-    min-height: 28px;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    color: var(--text-muted);
-    background-color: transparent;
-    border-bottom-width: 2px;
-    border-bottom-color: transparent;
+    height: 22px;
     padding-left: var(--space-xs);
     padding-right: var(--space-xs);
+    font-size: 11px;
+    color: var(--text-muted);
+    -unity-text-align: middle-center;
+    background-color: rgba(0, 0, 0, 0);
+    border-bottom-width: 2px;
+    border-bottom-color: rgba(0, 0, 0, 0);
 }
 
-.c2-left-drawer__tab--active {
-    color: var(--text-data);
-    -unity-font-style: bold;
+.c2-drawer-tab--active {
+    color: var(--text-heading);
     border-bottom-color: var(--selected-ring);
+    -unity-font-style: bold;
 }
 
 /* Scrollable list region under tabs */
-.c2-left-drawer__list {
+.c2-drawer-list {
     flex-grow: 1;
     flex-direction: column;
     overflow: hidden;
 }
 
-.c2-left-drawer__list--hidden {
+/* Inactive tab lists stay out of layout */
+.c2-drawer-list--hidden {
     display: none;
 }
 
-/* OOB tree rows — 20px fixed height */
-.c2-left-drawer__oob-row {
+/* OOB / missions / contacts rows — ~20px, mono-ish data color */
+.c2-drawer-row {
     flex-direction: row;
     align-items: center;
     height: 20px;
     min-height: 20px;
     max-height: 20px;
-    font-size: 11px;
-    color: var(--text-data);
     padding-left: var(--space-xs);
     padding-right: var(--space-xs);
+    font-size: 10px;
+    color: var(--text-data);
+    /* mono-ish data: default UI font (no Resources glyph errors); color carries data role */
 }
 
-.c2-left-drawer__oob-row:focus {
+.c2-drawer-row--selected {
+    background-color: var(--selected-row-bg);
+    border-left-width: 2px;
+    border-left-color: var(--selected-row-bar);
+}
+
+.c2-drawer-row--dead {
+    color: var(--text-muted);
+    opacity: 0.55;
+}
+
+.c2-drawer-row:focus {
     border-left-width: var(--focus-ring-width);
     border-left-color: var(--focus-ring);
 }
 
-/* Mission / contact list rows share OOB row metrics */
-.c2-left-drawer__mission-row,
-.c2-left-drawer__contact-row {
+/* Alias used by OobTree presentation StyleClass default */
+.oob-row {
     flex-direction: row;
     align-items: center;
     height: 20px;
     min-height: 20px;
     max-height: 20px;
-    font-size: 11px;
-    color: var(--text-data);
     padding-left: var(--space-xs);
     padding-right: var(--space-xs);
+    font-size: 10px;
+    color: var(--text-data);
 }
 
-/* Planning-readonly — mute tabs and borders (#465260 / --border-planning) */
-.c2-left-drawer--planning-readonly {
+/* Planning-readonly: mute tabs/borders with planning border token (#465260) */
+.c2-drawer-panel--planning-readonly {
+    opacity: 0.85;
     border-right-color: var(--border-planning);
 }
 
-.c2-left-drawer--planning-readonly .c2-left-drawer__tabs {
-    border-bottom-color: var(--border-planning);
-}
-
-.c2-left-drawer--planning-readonly .c2-left-drawer__tab {
-    color: var(--border-planning);
-}
-
-.c2-left-drawer--planning-readonly .c2-left-drawer__tab--active {
+.c2-drawer-panel--planning-readonly .c2-drawer-tab {
     color: var(--text-muted);
-    border-bottom-color: var(--border-planning);
+    opacity: 0.75;
 }
 
-.c2-left-drawer--planning-readonly .c2-left-drawer__oob-row,
-.c2-left-drawer--planning-readonly .c2-left-drawer__mission-row,
-.c2-left-drawer--planning-readonly .c2-left-drawer__contact-row {
-    color: var(--text-muted);
+.c2-drawer-panel--planning-readonly .c2-drawer-tabs {
+    border-bottom-color: var(--border-planning);
 }

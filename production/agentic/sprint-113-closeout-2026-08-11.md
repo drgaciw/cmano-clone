@@ -6,12 +6,13 @@
 
 ## Parallel dispatch (dispatching-parallel-agents)
 
-| Lane | Surface | Subagent | Outcome |
-|------|---------|----------|---------|
-| asset-c2-a | `production/assets/c2/C2LeftDrawerPanel.uss` | 019ff0b7-…b5743f73bd4f | ASSET-007 stub Done |
-| asset-c2-b | `production/assets/c2/RightUnitDetailPanel.uss` | 019ff0b7-…b58bc5fc11d9 | ASSET-008 stub Done |
-| s36-ux | Linear DRG-22…28 + disposition md | 019ff0b7-…b59fe5ee443e | Pack cleared Done |
-| closeout | manifest + smoke + waterline | orchestrator (serial) | this file |
+| Lane | Surface | Outcome |
+|------|---------|---------|
+| asset-c2-a | `production/assets/c2/C2LeftDrawerPanel.uss` | ASSET-007 Done USS (`37664c0`) |
+| asset-c2-b | `production/assets/c2/RightUnitDetailPanel.uss` | ASSET-008 Done USS (`37664c0`) |
+| asset-011/012 | `DelegationBadgeOverlay.uss`, `PolicyEmconHud.uss` | #462 MERGED |
+| s36-ux | Linear DRG-22…28 + disposition md | Pack cleared Done |
+| closeout | manifest + smoke + waterline | this file + #464 |
 
 Surfaces were disjoint: asset lanes never co-edited; s36-ux never touched `production/assets/` or C#.
 
@@ -19,10 +20,16 @@ Surfaces were disjoint: asset lanes never co-edited; s36-ux never touched `produ
 
 | Metric | Before | After |
 |--------|--------|-------|
-| Specced | 24 | **22** |
-| Done | 11 | **13** |
-| Approved | 4 | 4 (unchanged) |
+| Specced | 24 | **20** |
+| Done | 11 | **15** |
+| Approved | 4 | 4 (unchanged — no Path A phrase) |
 | In Production | 3 | 3 |
+
+| Must | Status |
+|------|--------|
+| S113-01 007/008 Done USS | on main (`37664c0`) |
+| S113-02 011/012 Done USS | #462 |
+| S113-03 manifest honesty | this closeout + #464 |
 
 ## S36 pack
 
@@ -49,7 +56,9 @@ All DRG-22…28 **Done**. Disposition: `production/qa/s36-ux-pack-disposition-20
 
 ## Artifacts
 
-- Plan: `production/sprints/sprint-113-asset-specced-done-wave3.md`
-- QA: `production/qa/qa-plan-sprint-113-asset-wave3-2026-08-11.md`
+- Plan: `production/sprints/sprint-113-asset-wave-3.md`
+- QA: `production/qa/qa-plan-sprint-113-asset-wave-3-2026-08-11.md`
 - Kickoff: `production/agentic/sprint-113-parallel-kickoff-2026-08-11.md`
 - Smoke: `production/qa/smoke-sprint-113-2026-08-11.md`
+
+**Next:** S114 Release progress gate (aggregate S110–S113 + human ack) — complete as of origin/main.

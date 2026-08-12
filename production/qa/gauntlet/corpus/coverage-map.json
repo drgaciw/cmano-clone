@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "generatedAt": "2026-08-06",
-  "source": "regenerated keys/intentHash from data/scenarios/gauntlet-*.policy.json via forge_scorecard.infer_cell (DRG-59); counts/underusedPlatformHint via forge_scorecard.rebuild_counts (DRG-60)",
+  "generatedAt": "2026-08-12",
+  "source": "regenerated keys/intentHash from data/scenarios/gauntlet-*.policy.json via forge_scorecard.infer_cell (DRG-59); counts/underusedPlatformHint via forge_scorecard.rebuild_counts (DRG-60); stressAxes via infer_cell (DRG-62/64)",
   "cellCount": 66,
   "scenarioCount": 66,
   "cells": [
@@ -19,7 +19,7 @@
       "intentHash": "ee6d2a756edea289",
       "scenarioId": "gauntlet-20260727-1455-t3-s1",
       "tier": null,
-      "stressAxes": "ew:off|logistics:off|weapons:moderate"
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "strike|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|none",
@@ -35,7 +35,7 @@
       "intentHash": "84bedabfa5d81570",
       "scenarioId": "gauntlet-20260727-1455-t3-s2",
       "tier": null,
-      "stressAxes": "ew:off|logistics:off|weapons:moderate"
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "strike|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|event-chain",
@@ -51,7 +51,7 @@
       "intentHash": "fd15ce2d4a04f265",
       "scenarioId": "gauntlet-20260727-1455-t3-s3",
       "tier": null,
-      "stressAxes": "ew:off|logistics:off|weapons:moderate"
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -259,7 +259,7 @@
       "intentHash": "a11b23d55e0d307c",
       "scenarioId": "gauntlet-forge-20260727-1455-t2-c1",
       "tier": 2,
-      "stressAxes": "ew:off|logistics:off|weapons:moderate"
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "emcon|air,surface|WeaponsFree/WeaponsFree|emcon-phases|none",
@@ -483,7 +483,7 @@
       "eventClass": "none",
       "catalogRefCount": 41,
       "intentHash": "5380764280b7313c",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate"
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "event-chain|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|event-chain",
@@ -500,7 +500,7 @@
       "eventClass": "event-chain",
       "catalogRefCount": 38,
       "intentHash": "ccc097fd18a6ff2f",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate"
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "id-roe|air,subsurface,surface|WeaponsTight/WeaponsTight|unrestricted|none",
@@ -551,7 +551,7 @@
       "eventClass": "none",
       "catalogRefCount": 41,
       "intentHash": "8bfb44732c093bc2",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate"
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "inject|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|inject",
@@ -568,7 +568,7 @@
       "eventClass": "inject",
       "catalogRefCount": 40,
       "intentHash": "79bdb0ba287dfda0",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate"
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -585,7 +585,7 @@
       "eventClass": "none",
       "catalogRefCount": 43,
       "intentHash": "0af65022415cf685",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate"
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "theater|surface|WeaponsFree/WeaponsTight|unrestricted|inject",
@@ -617,7 +617,7 @@
       "eventClass": "cascade",
       "catalogRefCount": 41,
       "intentHash": "d473d139baefc177",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate"
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "multi|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|dynamic-obj",
@@ -651,7 +651,7 @@
       "eventClass": "roe-change",
       "catalogRefCount": 42,
       "intentHash": "7d279afb9ccfe6d3",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate"
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "theater|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|none",
@@ -668,7 +668,7 @@
       "eventClass": "none",
       "catalogRefCount": 43,
       "intentHash": "c8a47fe17e70ad0c",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate"
+      "stressAxes": "ew:off|logistics:off|weapons:off"
     },
     {
       "key": "theater|surface|WeaponsFree/WeaponsTight|unrestricted|dynamic-obj",
@@ -687,7 +687,7 @@
     },
     {
       "key": "strike|air,surface|WeaponsFree/WeaponsTight|unrestricted|none",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "stressAxes": "ew:off|logistics:off|weapons:off",
       "missionClass": "strike",
       "domains": [
         "air",
@@ -702,7 +702,7 @@
     },
     {
       "key": "strike|air,surface|WeaponsFree/WeaponsTight|unrestricted|none",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "stressAxes": "ew:off|logistics:off|weapons:off",
       "missionClass": "strike",
       "domains": [
         "air",
@@ -776,7 +776,7 @@
     },
     {
       "key": "multi|surface|WeaponsFree/WeaponsTight|unrestricted|none",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "stressAxes": "ew:off|logistics:off|weapons:off",
       "missionClass": "multi",
       "domains": [
         "surface"
@@ -790,7 +790,7 @@
     },
     {
       "key": "asw|air,subsurface,surface|WeaponsFree/WeaponsFree|passive|none",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "stressAxes": "ew:off|logistics:off|weapons:off",
       "missionClass": "asw",
       "domains": [
         "air",
@@ -805,7 +805,7 @@
     },
     {
       "key": "asw|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|none",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "stressAxes": "ew:off|logistics:off|weapons:off",
       "missionClass": "asw",
       "domains": [
         "air",
@@ -835,7 +835,7 @@
     },
     {
       "key": "asw|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|inject",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "stressAxes": "ew:off|logistics:off|weapons:off",
       "missionClass": "asw",
       "domains": [
         "air",
@@ -850,7 +850,7 @@
     },
     {
       "key": "patrol|air,subsurface,surface|WeaponsFree/WeaponsFree|emcon-phases|none",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "stressAxes": "ew:off|logistics:off|weapons:off",
       "missionClass": "patrol",
       "domains": [
         "air",
@@ -895,7 +895,7 @@
     },
     {
       "key": "patrol|air,subsurface,surface|WeaponsFree/WeaponsFree|unrestricted|cascade",
-      "stressAxes": "ew:moderate|logistics:off|weapons:moderate",
+      "stressAxes": "ew:moderate|logistics:off|weapons:off",
       "missionClass": "patrol",
       "domains": [
         "air",
@@ -925,7 +925,7 @@
     },
     {
       "key": "asw|air,subsurface,surface|WeaponsFree/WeaponsTight|unrestricted|event-chain",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "stressAxes": "ew:off|logistics:off|weapons:off",
       "missionClass": "asw",
       "domains": [
         "air",
@@ -985,7 +985,7 @@
     },
     {
       "key": "asw|air,subsurface,surface|WeaponsTight/WeaponsFree|passive|cascade",
-      "stressAxes": "ew:moderate|logistics:off|weapons:moderate",
+      "stressAxes": "ew:moderate|logistics:off|weapons:off",
       "missionClass": "asw",
       "domains": [
         "air",
@@ -1000,7 +1000,7 @@
     },
     {
       "key": "strike|air,subsurface,surface|WeaponsTight/WeaponsFree|unrestricted|event-chain",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "stressAxes": "ew:off|logistics:off|weapons:off",
       "missionClass": "strike",
       "domains": [
         "air",
@@ -1015,7 +1015,7 @@
     },
     {
       "key": "escort|air,subsurface,surface|WeaponsTight/WeaponsTight|unrestricted|event-chain",
-      "stressAxes": "ew:off|logistics:off|weapons:moderate",
+      "stressAxes": "ew:off|logistics:off|weapons:off",
       "missionClass": "escort",
       "domains": [
         "air",

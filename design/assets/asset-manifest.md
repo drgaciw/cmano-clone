@@ -1,6 +1,6 @@
 # Asset Manifest
 
-> **Last updated:** 2026-08-11 (S113 wave 3 — ASSET-007 + ASSET-008 Specced→**Done**; no Approved flips)
+> **Last updated:** 2026-08-11 (S113 wave 3 — ASSET-007/008/011/012 Specced→**Done**; Approved unchanged — no human phrase)
 > **Authority:** [`s93-asset-production-scope-boundary-2026-07-09.md`](../../production/s93-asset-production-scope-boundary-2026-07-09.md), S91 closeout, S93 closeout  
 > **Inventory:** `design/assets/entity-inventory.md` (Phase 0b; user review pending)  
 > **Art bible:** `design/art/art-bible.md` (lean B2 — C2 + Platform Editor)  
@@ -12,9 +12,9 @@
 
 | Total | Needed | Specced | In Production | Done | Approved |
 |-------|--------|---------|---------------|------|----------|
-| 42 | **0** | **22** | **3** | **13** | **4** |
+| 42 | **0** | **20** | **3** | **15** | **4** |
 
-*S93 @ 2026-07-09: First binary wave — **8 Done**. Post-S93 Track B (2026-07-14): residual **036/037/040/041 → Done** (stubs under `production/assets/ui|audio`). Umbrellas **001–003 In Production**. **Needed: 0**. S94 wave 2 (2026-07-14): **ASSET-006 → Done** (`MessageLogPanel.uss`); **ASSET-021 → Done** (`production/assets/baltic/CombatDomainsHotTick.uss`); **ASSET-026 → Done** (`production/assets/store/PressKit_LogoPack_README.md` placeholder). **S101-05 Path A (2026-07-17):** human `asset approved: ASSET-006` + `asset approved: ASSET-021` → both **Approved** (first Approved promotions; Done 15→13; Approved 0→2). Evidence: `production/qa/s101-05-human-asset-approval-2026-07-17.md`. **S102 Path A (2026-07-17):** human `asset approved: ASSET-004` → **Approved** (Done 13→12; Approved 2→3). Evidence: `production/qa/s102-02-human-asset-approval-004-2026-07-17.md`. **Path A (2026-07-17):** human `asset approved: ASSET-005` → **Approved** (Done→Approved). Evidence: `production/qa/s103-05-human-asset-approval-005-2026-07-17.md`. **S113 wave 3 (2026-08-11):** **ASSET-007 → Done** (`production/assets/c2/C2LeftDrawerPanel.uss`); **ASSET-008 → Done** (`production/assets/c2/RightUnitDetailPanel.uss`); Specced 24→22; Done 11→13. No Approved. Parallel lanes asset-c2-a ‖ asset-c2-b ‖ s36-ux.*
+*S93 @ 2026-07-09: First binary wave — **8 Done**. Post-S93 Track B (2026-07-14): residual **036/037/040/041 → Done** (stubs under `production/assets/ui|audio`). Umbrellas **001–003 In Production**. **Needed: 0**. S94 wave 2 (2026-07-14): **ASSET-006 → Done** (`MessageLogPanel.uss`); **ASSET-021 → Done** (`production/assets/baltic/CombatDomainsHotTick.uss`); **ASSET-026 → Done** (`production/assets/store/PressKit_LogoPack_README.md` placeholder). **S101-05 Path A (2026-07-17):** human `asset approved: ASSET-006` + `asset approved: ASSET-021` → both **Approved** (first Approved promotions; Done 15→13; Approved 0→2). Evidence: `production/qa/s101-05-human-asset-approval-2026-07-17.md`. **S102 Path A (2026-07-17):** human `asset approved: ASSET-004` → **Approved** (Done 13→12; Approved 2→3). Evidence: `production/qa/s102-02-human-asset-approval-004-2026-07-17.md`. **Path A (2026-07-17):** human `asset approved: ASSET-005` → **Approved** (Done→Approved). Evidence: `production/qa/s103-05-human-asset-approval-005-2026-07-17.md`.* **S113 wave 3 (2026-08-11):** ASSET-007/008/011/012 → **Done** (`C2LeftDrawerPanel.uss`, `RightUnitDetailPanel.uss`, `DelegationBadgeOverlay.uss`, `PolicyEmconHud.uss`). Specced 24→20; Done 11→15; Approved **4** unchanged (Path A only). Evidence: PRs #462/#463 content + smoke-sprint-113. Local waterline also recorded S36 UX pack (DRG-22…28) Done.
 
 ---
 
@@ -39,8 +39,8 @@
 | ASSET-008 | Right Unit Detail Panel | UI | **Done** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/RightUnitDetailPanel.uss` |
 | ASSET-009 | Map Placeholder Canvas + symbols | UI / Environment | Specced | design/assets/specs/c2-ui-assets.md |
 | ASSET-010 | Map comms degradation modifiers | UI | Specced | design/assets/specs/c2-ui-assets.md |
-| ASSET-011 | Delegation badge overlay | UI | Specced | design/assets/specs/c2-ui-assets.md |
-| ASSET-012 | Policy denial + EMCON HUD | HUD | Specced | design/assets/specs/c2-ui-assets.md |
+| ASSET-011 | Delegation badge overlay | UI | **Done** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/DelegationBadgeOverlay.uss` |
+| ASSET-012 | Policy denial + EMCON HUD | HUD | **Done** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/PolicyEmconHud.uss` |
 | ASSET-013 | Replay scrubber / hash overlay | UI | Specced | design/assets/specs/c2-ui-assets.md |
 | ASSET-014 | AegisTokens.uss shared theme | UI tokens | **Done** | design/assets/specs/c2-ui-assets.md → `production/assets/c2/AegisTokens.uss` |
 

@@ -11,6 +11,13 @@ silently weaken it. Analogous to Karpathy autoresearch `program.md`.
    `sim-code` / `scenario-data` defects (not oracle green-wash).
 3. **Reproducible curriculum** — promoted policies + recipe weights committed;
    ephemeral candidates never become CI truth without promotion gates.
+4. **Orthogonal stress axes** — when product needs pressure beyond tier mission
+   mix, prefer recipes `stress-weapons-*`, `stress-ew-*`, `stress-logistics-config-only`
+   (see `corpus/recipes/recipe-catalog.yaml` + `corpus/stress-axes.yaml`).
+   Proof modes are locked in `tools/qa-gauntlet/README-stress-axes.md`:
+   - `weapons`: differential-token / strict increase vs control
+   - `ew`: differential-aggregate / control sibling
+   - `logistics`: **config-only (GAP-13) — never claim proven**
 
 ## Single editable surface
 
@@ -45,6 +52,11 @@ Hyphenated wrapper `forge-scorecard.py` is equivalent.
 Commit winners only when novelty improves corpus coverage or hard-cases gain a
 unique failure signature **and** hard gates pass.
 
+**When candidates claim stress axes:** after scorecard, run
+`/qa-gauntlet-stress` proof gate (`gate_stress_proof.py`) and attach
+`stress-proof-report.json` path in `forge/promote-log.md`. Missing proof for
+non-config-only claimed axes → do not promote as "axis proven."
+
 ## Tick budgets (expect calibration)
 
 | Tier | Ticks |
@@ -76,5 +88,6 @@ fingerprint.
 ## Out of scope
 
 - Runtime adaptive mutation inside sim ticks
-- Replacing `/qa-gauntlet` TDD remediator
+- Replacing `/qa-gauntlet` TDD remediator (use `/qa-gauntlet-remediation`)
 - Launch / commercial scope
+- Presentation façade edits (UCA / `/qa-gauntlet-remediation`)
