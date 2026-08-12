@@ -105,7 +105,13 @@ public sealed class BalanceTelemetryAccumulatorTests
         {
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
             using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(42));
-            var bindings = new SqliteCatalogReader(dbPath, "balance-telemetry-test").GetSortedSensorBindings();
+            // Dispose reader before File.Delete — SQLite holds the DB open on Windows otherwise.
+            ProjectAegis.Data.Catalog.CatalogSensorBinding[] bindings;
+            using (var reader = new SqliteCatalogReader(dbPath, "balance-telemetry-test"))
+            {
+                bindings = reader.GetSortedSensorBindings().ToArray();
+            }
+
             var batchId = gate.ProposeSensorBatch(bindings.Take(1).ToArray(), "test", "balance-telemetry");
 
             var sink = new BalanceTelemetryAccumulator(FastOptions);
@@ -124,9 +130,22 @@ public sealed class BalanceTelemetryAccumulatorTests
         }
         finally
         {
-            if (File.Exists(dbPath))
+            // Best-effort cleanup; Windows may briefly hold locks after dispose.
+            for (var attempt = 0; attempt < 5; attempt++)
             {
-                File.Delete(dbPath);
+                try
+                {
+                    if (File.Exists(dbPath))
+                    {
+                        File.Delete(dbPath);
+                    }
+
+                    break;
+                }
+                catch (IOException) when (attempt < 4)
+                {
+                    System.Threading.Thread.Sleep(50);
+                }
             }
         }
     }

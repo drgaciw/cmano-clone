@@ -25,6 +25,14 @@ public sealed class BranchIntegrationPhase0SmokeTests
             return;
         }
 
+        // Windows hosts often resolve `bash` to WSL, which cannot see native Windows paths
+        // (exit 127). Script existence is still asserted above; full bash execute remains
+        // the Linux/CI gate. Skip execute-only on Windows so local waterline is honest.
+        if (OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
         // Pre-build solution so the script can use --skip-build (avoids MSBuild lock with test host).
         var buildExit = RunDotnet(repoRoot, "build", "ProjectAegis.sln", "-v", "minimal");
         Assert.Equal(0, buildExit);
@@ -50,6 +58,8 @@ public sealed class BranchIntegrationPhase0SmokeTests
 
     private static int RunBash(string workingDirectory, string scriptPath, params string[] args)
     {
+        // Git Bash / MSYS need POSIX paths (/c/Users/...) not C:/Users/...
+        var bashScript = ToGitBashPath(scriptPath);
         var psi = new ProcessStartInfo
         {
             FileName = "bash",
@@ -58,7 +68,7 @@ public sealed class BranchIntegrationPhase0SmokeTests
             RedirectStandardError = true,
             UseShellExecute = false,
         };
-        psi.ArgumentList.Add(scriptPath);
+        psi.ArgumentList.Add(bashScript);
         foreach (var arg in args)
         {
             psi.ArgumentList.Add(arg);
@@ -87,6 +97,18 @@ public sealed class BranchIntegrationPhase0SmokeTests
         }
 
         return proc.ExitCode;
+    }
+
+    /// <summary>Convert a Windows path to a Git Bash POSIX path (<c>/c/Users/...</c>).</summary>
+    private static string ToGitBashPath(string path)
+    {
+        var full = Path.GetFullPath(path).Replace('\\', '/');
+        if (full.Length >= 2 && full[1] == ':')
+        {
+            return "/" + char.ToLowerInvariant(full[0]) + full.Substring(2);
+        }
+
+        return full;
     }
 
     private static int RunDotnet(string workingDirectory, params string[] args)

@@ -1,19 +1,82 @@
-/* RightUnitDetailPanel.uss — ASSET-008 Right Unit Detail Panel (Specced path-parity production stub)
+/* RightUnitDetailPanel.uss — ASSET-008 Right Unit Detail Panel
+ * Status: Done (S113 wave 3)
  * Authority: design/assets/specs/c2-ui-assets.md ASSET-008
- * Status: Specced (not Approved — Path A human phrase required for Approved)
+ * Imports: AegisTokens.uss semantic tokens
+ * Spec: 320px width; selection readout; 10px mono numeric/catalog; sans 12px headers; no avatar
  * Unity wire: unity/ProjectAegis/Assets/UI/UnitDetail/UnitDetailPanel.uss
- * Tokens: AegisTokens.uss
  */
 
 @import url("AegisTokens.uss");
 
+/* Root selection readout panel — fixed 320px rail */
+.right-unit-detail {
+    flex-direction: column;
+    width: 320px;
+    min-width: 320px;
+    max-width: 320px;
+    flex-grow: 1;
+    background-color: var(--surface-panel);
+    border-left-width: 1px;
+    border-left-color: var(--border-subtle);
+    padding: var(--space-sm);
+}
+
+/* Section block (Identity / Sensors / Weapons / Status, etc.) */
+.right-unit-detail__section {
+    flex-direction: column;
+    margin-bottom: var(--space-sm);
+    padding-bottom: var(--space-xs);
+    border-bottom-width: 1px;
+    border-bottom-color: var(--border-subtle);
+}
+
+/* Sans 12px section headers — no avatar portrait slot */
+.right-unit-detail__section-title {
+    font-size: 12px;
+    color: var(--text-heading);
+    -unity-font-style: bold;
+    margin-bottom: var(--space-xs);
+}
+
+/* Field row: label + value for selection readout */
+.right-unit-detail__field {
+    flex-direction: row;
+    align-items: center;
+    min-height: 14px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    font-size: 10px;
+    color: var(--text-muted);
+    padding-left: var(--space-xs);
+    padding-right: var(--space-xs);
+}
+
+/* 10px mono for numeric / catalog field values */
+.right-unit-detail__field-value {
+    flex-grow: 1;
+    -unity-text-align: middle-right;
+    font-size: 10px;
+    color: var(--text-data);
+    /* -unity-font: resource("Fonts/RobotoMono-Regular"); removed — use default UI font (no Resources glyph errors) */
+}
+
+/* Legacy unit-detail-* class names — path parity with Unity UnitDetailPanel wire */
 .unit-detail-panel {
     flex-direction: column;
+    width: 320px;
     min-width: 320px;
     padding: var(--space-sm);
     background-color: var(--surface-panel);
     border-left-width: 1px;
     border-left-color: var(--border-subtle);
+}
+
+.unit-detail-header,
+.unit-detail-title {
+    font-size: 12px;
+    color: var(--text-heading);
+    -unity-font-style: bold;
+    margin-bottom: var(--space-xs);
 }
 
 .unit-detail-line {
@@ -22,11 +85,4 @@
     /* -unity-font: resource("Fonts/RobotoMono-Regular"); removed — use default UI font (no Resources glyph errors) */
     margin-top: 2px;
     margin-bottom: 2px;
-}
-
-.unit-detail-header {
-    font-size: 12px;
-    color: var(--text-primary);
-    -unity-font-style: bold;
-    margin-bottom: var(--space-xs);
 }
