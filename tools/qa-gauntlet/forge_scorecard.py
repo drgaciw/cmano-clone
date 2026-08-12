@@ -43,13 +43,16 @@ def _infer_stress_axes(policy: dict[str, Any]) -> str:
 
     Reads the policy itself rather than the scenario id, so a hand-authored
     scenario that applies pressure without the derived naming is still counted.
+
+    Weapons keys on magazine starve (matches stress-axes.yaml), not salvoSize.
+    Stock tier-3 routinely uses salvoSize >= 2; that is not weapons pressure
+    (DRG-64).
     """
     engage = policy.get("engage") or {}
     rounds = engage.get("defaultMagazineRounds")
-    salvo = engage.get("salvoSize")
     if rounds is not None and rounds <= 1:
         weapons = "extreme"
-    elif (rounds is not None and rounds <= 2) or (salvo is not None and salvo >= 2):
+    elif rounds is not None and rounds <= 2:
         weapons = "moderate"
     else:
         weapons = "off"
@@ -140,6 +143,28 @@ def infer_cell(policy: dict[str, Any], scenario_id: str) -> dict[str, Any]:
         "eventClass": event,
         "intentHash": intent_hash(g.get("intent") or "", cell_key),
     }
+
+
+def rebuild_stress_axes(
+    cells: list[dict[str, Any]],
+    scenarios_dir: Path,
+) -> int:
+    """Stamp each coverage cell's stressAxes from current infer_cell (DRG-62)."""
+    updated = 0
+    for cell in cells:
+        sid = cell.get("scenarioId")
+        if not sid:
+            continue
+        path = scenarios_dir / f"{sid}.policy.json"
+        if not path.is_file():
+            continue
+        inferred = infer_cell(load_json(path), sid)["stressAxes"]
+        if cell.get("stressAxes") != inferred:
+            cell["stressAxes"] = inferred
+            updated += 1
+        else:
+            cell.setdefault("stressAxes", inferred)
+    return updated
 
 
 def platform_ids(policy: dict[str, Any]) -> set[str]:
@@ -447,33 +472,50 @@ def main() -> int:
         action="store_true",
         help="Rewrite coverage-map.json counts (+ underusedPlatformHint) from cells/policies and exit",
     )
+    ap.add_argument(
+        "--rebuild-stress-axes",
+        action="store_true",
+        help="Rewrite each coverage-map cell stressAxes from infer_cell (DRG-62) and exit",
+    )
     args = ap.parse_args()
 
-    if args.rebuild_counts:
+    if args.rebuild_counts or args.rebuild_stress_axes:
         coverage_path = args.corpus / "coverage-map.json"
         if not coverage_path.is_file():
             print(f"error: missing coverage map: {coverage_path}", file=sys.stderr)
             return 2
         coverage = load_json(coverage_path)
         scenarios_dir = Path("data/scenarios")
-        rebuilt = rebuild_counts(
-            coverage.get("cells") or [],
-            scenarios_dir=scenarios_dir if scenarios_dir.is_dir() else None,
-        )
-        coverage["counts"] = rebuilt["counts"]
-        coverage["underusedPlatformHint"] = rebuilt["underusedPlatformHint"]
-        coverage["cellCount"] = len(coverage.get("cells") or [])
-        coverage["scenarioCount"] = len(coverage.get("cells") or [])
+        if args.rebuild_stress_axes:
+            n = rebuild_stress_axes(
+                coverage.get("cells") or [],
+                scenarios_dir=scenarios_dir,
+            )
+            marker = "stressAxes via infer_cell (DRG-62/64)"
+            src = coverage.get("source") or ""
+            if marker not in src:
+                coverage["source"] = (src + "; " + marker).strip("; ")
+            coverage["generatedAt"] = "2026-08-12"
+            print(f"forge-scorecard: updated stressAxes on {n} cells -> {coverage_path}")
+        if args.rebuild_counts:
+            rebuilt = rebuild_counts(
+                coverage.get("cells") or [],
+                scenarios_dir=scenarios_dir if scenarios_dir.is_dir() else None,
+            )
+            coverage["counts"] = rebuilt["counts"]
+            coverage["underusedPlatformHint"] = rebuilt["underusedPlatformHint"]
+            coverage["cellCount"] = len(coverage.get("cells") or [])
+            coverage["scenarioCount"] = len(coverage.get("cells") or [])
+            print(
+                f"forge-scorecard: rebuilt counts for {coverage['cellCount']} cells -> {coverage_path}"
+            )
         with coverage_path.open("w", encoding="utf-8") as f:
             json.dump(coverage, f, indent=2, ensure_ascii=False)
             f.write("\n")
-        print(
-            f"forge-scorecard: rebuilt counts for {coverage['cellCount']} cells -> {coverage_path}"
-        )
         return 0
 
     if args.run_dir is None or args.tier is None:
-        print("error: --run-dir and --tier required (unless --rebuild-counts)", file=sys.stderr)
+        print("error: --run-dir and --tier required (unless --rebuild-counts / --rebuild-stress-axes)", file=sys.stderr)
         return 2
     run_dir = args.run_dir
     if not run_dir.is_dir():
