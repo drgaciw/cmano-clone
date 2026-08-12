@@ -1,6 +1,7 @@
 # UCA-A — unity-csharp-architect post-v1 adoption train
 
 **As of:** 2026-08-12  
+**Status:** **CLOSED** (UCA-A0…A5 complete)  
 **Stage:** Release (unchanged)  
 **Prior train:** UCA-M0…M5 **CLOSED** — skill `metadata.status: v1` / `1.0.0` (PR #477, 2026-08-11)  
 **Authority:** `linear-usage-contract.md` · `linear-parallel-dispatch-playbook.md` · skill `production/agentic/skills/unity-csharp-architect/`
@@ -30,11 +31,12 @@ Does **not** reopen closed epic [DRG-124](https://linear.app/drgamtd-workspace/i
 | **Routing** | [DRG-137](https://linear.app/drgamtd-workspace/issue/DRG-137) (UCA-A1 / Lane E) |
 | **Citation** | [DRG-138](https://linear.app/drgamtd-workspace/issue/DRG-138) (UCA-A2 / Lane F) |
 | **Soft CI** | [DRG-139](https://linear.app/drgamtd-workspace/issue/DRG-139) (UCA-A3 / Lane G) |
-| **Product dogfood** | [DRG-140](https://linear.app/drgamtd-workspace/issue/DRG-140) / [DRG-141](https://linear.app/drgamtd-workspace/issue/DRG-141) (UCA-A4 / Lane H — Backlog until Surface named) |
+| **Product dogfood** | [DRG-140](https://linear.app/drgamtd-workspace/issue/DRG-140) / [DRG-141](https://linear.app/drgamtd-workspace/issue/DRG-141) (UCA-A4 / Lane H) |
 | **Closeout** | [DRG-142](https://linear.app/drgamtd-workspace/issue/DRG-142) (UCA-A5) |
 | **Notion (prior design)** | [unity-csharp-architect Skill — Design & Sprint Roadmap](https://app.notion.com/p/3b9f7cb4e4df813a9798cc7d1f86aa20) |
 | **Skill** | `production/agentic/skills/unity-csharp-architect/` |
 | **M5 AAR** | `production/agentic/skills/unity-csharp-architect/AAR-uca-m5-dogfood-2026-08-11.md` |
+| **UCA-A AAR** | `production/agentic/skills/unity-csharp-architect/AAR-uca-a-adoption-2026-08-12.md` |
 
 ---
 
@@ -112,6 +114,25 @@ Skill doctrine already correct at v1; this train fixes **live pointers** (Notion
 2. UCA-A4 Done or parked with product-ack  
 3. DRG-135 Done; Linear project Completed  
 4. Stage still **Release**
+
+---
+
+## 10. Closeout (UCA-A5 — 2026-08-12)
+
+| Gate | Evidence |
+| --- | --- |
+| UCA-A0 scaffold | PR [#478](https://github.com/drgaciw/cmano-clone/pull/478) @ `eef91b57` · [DRG-136](https://linear.app/drgamtd-workspace/issue/DRG-136) Done |
+| UCA-A1 routing | `AGENTS.md` + `local-cloud-agent-routing.md` · [DRG-137](https://linear.app/drgamtd-workspace/issue/DRG-137) Done |
+| UCA-A2 citation | Notion + kickoff §5 ADR law · [DRG-138](https://linear.app/drgamtd-workspace/issue/DRG-138) Done |
+| UCA-A3 soft CI | `checklists/soft-ci-rg.md` advisory-only · [DRG-139](https://linear.app/drgamtd-workspace/issue/DRG-139) Done |
+| UCA-A4 product dogfood | PR [#479](https://github.com/drgaciw/cmano-clone/pull/479) @ `79ddaedf` — OobTreeBridge + MessageLogBridge · [DRG-140](https://linear.app/drgamtd-workspace/issue/DRG-140) / [DRG-141](https://linear.app/drgamtd-workspace/issue/DRG-141) Done |
+| Skill status | **v1** / `1.0.0` unchanged (no doctrine change) |
+| Stage | **Release** (unchanged) |
+| AAR | `production/agentic/skills/unity-csharp-architect/AAR-uca-a-adoption-2026-08-12.md` |
+
+**Train DoD:** met. Linear project *UCA Adoption (UCA-A)* → Completed. Epic [DRG-135](https://linear.app/drgamtd-workspace/issue/DRG-135) Done.
+
+**Default gate going forward:** UnityAdapter / MB / C2 / Editor / asmdef / presentation work loads `unity-csharp-architect`, runs `checklists/pr-finish.md`, pastes **PASS / FAIL / BLOCKED**, cites **ADR-010 / 007 / 001** (never Git ADR-018 for presentation).
 
 ---
 
