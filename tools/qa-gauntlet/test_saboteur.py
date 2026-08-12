@@ -13,6 +13,8 @@ sys.path.insert(0, str(ROOT / "tools" / "qa-gauntlet"))
 
 from saboteur import (  # noqa: E402
     REPLAY_GOLDEN_PROJECT,
+    SWARM_FILTER,
+    SWARM_TEST_PROJECT,
     VALID_ROLES,
     blocking_dirty_paths,
     exit_code_for,
@@ -114,6 +116,16 @@ def test_load_catalog_real_catalog_roles():
     ):
         assert by_id[mid] == "defect", mid
     assert set(by_id.values()) <= VALID_ROLES
+    for mid in (
+        "10-swarm-integrity-no-clamp",
+        "11-swarm-regen-ignores-max",
+        "12-swarm-tick-dead-still-moves",
+        "14-swarm-emp-freeze-zero",
+        "15-swarm-caps-no-logical-clamp",
+        "17-swarm-assault-split-always-single",
+    ):
+        assert by_id[mid] == "defect", mid
+        assert "swarm_unit" in next(m["expectedOracles"] for m in cat if m["id"] == mid)
 
 
 def test_summarize_kill_rate_excludes_control_and_expected_miss():
@@ -202,3 +214,11 @@ def test_replay_golden_project_is_unity_adapter_suite():
     assert "Delegation.Tests" not in REPLAY_GOLDEN_PROJECT or "UnityAdapter" in REPLAY_GOLDEN_PROJECT
     assert Path(REPLAY_GOLDEN_PROJECT).as_posix().endswith(
         "ProjectAegis.Delegation.UnityAdapter.Tests")
+
+
+def test_swarm_filter_constants_are_pure_sim():
+    """S117-c: --swarm-filter must stay on Sim.Tests, not ReplayGolden."""
+    assert SWARM_FILTER == "FullyQualifiedName~Swarm"
+    assert SWARM_TEST_PROJECT.endswith("ProjectAegis.Sim.Tests.csproj")
+    assert "UnityAdapter" not in SWARM_TEST_PROJECT
+    assert "ReplayGolden" not in SWARM_FILTER

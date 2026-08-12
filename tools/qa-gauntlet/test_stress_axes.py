@@ -21,13 +21,20 @@ from stress_axes import (  # noqa: E402
 CATALOG = ROOT / "production" / "qa" / "gauntlet" / "corpus" / "stress-axes.yaml"
 
 
+CORE_AXES = {"ew", "logistics", "weapons"}
+SWARM_AXES = {"swarm_attrition", "swarm_link", "swarm_mode", "swarm_softkill"}
+
+
 def test_catalog_file_exists():
     assert CATALOG.exists(), f"missing catalog: {CATALOG}"
 
 
-def test_catalog_declares_the_three_axes():
+def test_catalog_declares_core_and_swarm_axes():
     axes = load_axes(CATALOG)
-    assert set(axes) == {"ew", "logistics", "weapons"}
+    names = set(axes)
+    assert CORE_AXES <= names
+    assert SWARM_AXES <= names
+    assert names == CORE_AXES | SWARM_AXES
 
 
 def test_every_axis_has_an_off_level():
@@ -49,6 +56,15 @@ def test_proof_modes_are_recognised_and_correctly_assigned():
     assert axes["ew"].proof == "differential-aggregate"
     # GAP-13: FuelStateProjection is UI-only, so logistics cannot be runtime-proven.
     assert axes["logistics"].proof == "config-only"
+
+
+def test_swarm_axes_remain_config_only_until_ladder():
+    """S117: swarm_* stay config-only until ladder emits Swarm fingerprint tokens."""
+    axes = load_axes(CATALOG)
+    for name in SWARM_AXES:
+        assert axes[name].proof == "config-only", name
+        assert axes[name].gap == "SWARM-ladder-pending", name
+        assert axes[name].requires_control_sibling is False, name
 
 
 def test_validate_accepts_the_shipped_catalog():
