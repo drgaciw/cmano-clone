@@ -133,9 +133,15 @@ AAR: `production/agentic/skills/unity-csharp-architect/AAR-uca-m5-dogfood-2026-0
 
 ---
 
-## 9. Follow-on: UCA-A adoption (2026-08-12)
+## 9. Follow-on: UCA-A adoption → **CLOSED (2026-08-12)**
 
-Land train closed. Adoption train: [`uca-a-adoption-train-2026-08-12.md`](uca-a-adoption-train-2026-08-12.md) · Linear [*UCA Adoption (UCA-A)*](https://linear.app/drgamtd-workspace/project/uca-adoption-uca-a-085666c9d310) · epic [DRG-135](https://linear.app/drgamtd-workspace/issue/DRG-135).
+Land train closed. Adoption train closed:
+
+- Kickoff: [`uca-a-adoption-train-2026-08-12.md`](uca-a-adoption-train-2026-08-12.md)
+- Linear: [*UCA Adoption (UCA-A)*](https://linear.app/drgamtd-workspace/project/uca-adoption-uca-a-085666c9d310) · epic [DRG-135](https://linear.app/drgamtd-workspace/issue/DRG-135)
+- Git: PR #478 (routing/citation/soft-CI) + PR #479 (product dogfood OobTreeBridge + MessageLogBridge)
+- AAR: `production/agentic/skills/unity-csharp-architect/AAR-uca-a-adoption-2026-08-12.md`
+- Skill remains **v1** / `1.0.0`; stage **Release**
 
 Does **not** reopen this document's Done criteria or epic DRG-124.
 
