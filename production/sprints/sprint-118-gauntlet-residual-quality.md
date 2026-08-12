@@ -28,3 +28,9 @@ Promote `swarm_*` axes · Phase N · DelegationBridge · CatalogWriteGate · S11
 python3 tools/qa-gauntlet/forge_scorecard.py --rebuild-stress-axes
 pytest tools/qa-gauntlet/test_forge_scorecard.py tools/qa-gauntlet/test_stress_axes.py -q
 ```
+
+## Closeout
+
+- [x] Squash-merged [PR #484](https://github.com/drgaciw/cmano-clone/pull/484) @ `4a7eef9` (2026-08-12)
+- [x] DRG-62 / 64 / 65 / 153 **Done**
+- [x] pytest `tools/qa-gauntlet/` 144 passed on the PR; CI green (GH + Buildkite)
