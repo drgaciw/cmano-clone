@@ -59,3 +59,24 @@ GitNexus: `impact()` before symbol edits; `detect_changes()` before commit.
 ---
 
 *Routing matrix for S39–S48. Pair with `production/agentic/s39-s48-worktree-manifest.md`.*
+
+---
+
+## Unity / C# architecture tracks (UCA-A adoption)
+
+**Skill:** `production/agentic/skills/unity-csharp-architect/` (status **v1**)
+
+| Track type | Environment | Gate |
+|------------|-------------|------|
+| UnityAdapter / Bridge / Presentation / C2 chrome | Local or Cloud | Load skill → `checklists/pr-finish.md` → paste **PASS/FAIL/BLOCKED** in PR |
+| MonoBehaviour / Runtime hosts | Prefer Local if Editor evidence | Same + headless tests first |
+| EditorWindow / authoring | **Local** if Editor PNG required | Same + `references/editor-vs-runtime.md` |
+| asmdef / assembly graph | Either | Same + edge list in PR if assemblies change |
+
+**ADR cite:** presentation = **ADR-010 / 007 / 001** (not Git ADR-018).
+
+**Soft CI:** `checklists/soft-ci-rg.md` advisory only — never required product-floor status.
+
+**Zero-touch:** `DelegationBridge` hotpath / `SimulationSession` unless product waiver.
+
+**Dispatch:** surface-disjoint per `linear-parallel-dispatch-playbook.md`; UCA-A program note: `production/agentic/uca-a-adoption-train-2026-08-12.md`.
