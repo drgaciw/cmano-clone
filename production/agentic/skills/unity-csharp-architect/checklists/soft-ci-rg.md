@@ -179,3 +179,18 @@ echo "Soft pass complete — triage hits with checklists/review-gates.md (not a 
 | `docs/engineering/buildkite-ci.md` | Real product CI floors |
 
 **UCA-M4 note:** Document only — no workflow YAML changes in this program unless a separate product issue enables hard lint.
+
+---
+
+## UCA-A3 posture decision (2026-08-12)
+
+**Decision:** Soft CI remains **advisory only**.
+
+| Rule | Detail |
+| --- | --- |
+| Finish gate | [`pr-finish.md`](pr-finish.md) checklist-first — architecture **PASS / FAIL / BLOCKED** |
+| Soft `rg` | Informational triage for agents/humans |
+| Product floors | Buildkite / required `dotnet test` / gauntlet / oracle **unchanged** by these patterns |
+| Hard lint | **Not enabled** by UCA-A. Requires a **separate product decision issue** + explicit workflow change before any required status check |
+
+Program: [UCA Adoption](https://linear.app/drgamtd-workspace/project/uca-adoption-uca-a-085666c9d310) · [DRG-139](https://linear.app/drgamtd-workspace/issue/DRG-139) · kickoff `production/agentic/uca-a-adoption-train-2026-08-12.md`
