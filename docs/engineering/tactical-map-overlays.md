@@ -119,24 +119,18 @@ happened in the resolver.
 ## 2. Doctrine ROE overlay (CMD-33)
 
 A per-unit label of the **effective ROE** and where it was **inherited** from, optionally pinned to the
-unit's map position so the host can draw it in place. This is the *read-side* companion to the
-doctrine-resolution runtime documented in
-[`doctrine-inheritance-and-override.md`](doctrine-inheritance-and-override.md).
+unit's map position so the host can draw it in place. `DoctrineMapOverlayProjection.Project(inheritance,
+mapSymbols?)` takes rows from
+[`DoctrineInheritanceProjection.ProjectAllUnits`](../../src/ProjectAegis.Delegation/Projection/DoctrineInheritanceProjection.cs)
+and emits `DoctrineMapOverlayEntry(UnitId, RoeLabel, SourceLabel, NormalizedX?, NormalizedY?)` rows in
+ordinal `UnitId` order, filling positions from the first `MapSymbolEntry` whose `SymbolId == UnitId`
+(no matching symbol → position `null`, still counted).
 
-```csharp
-IReadOnlyList<DoctrineMapOverlayEntry> Project(
-    IReadOnlyList<DoctrineInheritanceEntry> inheritanceEntries,
-    IReadOnlyList<MapSymbolEntry>? mapSymbols = null)
-```
-
-- Input rows come from
-  [`DoctrineInheritanceProjection.ProjectAllUnits`](../../src/ProjectAegis.Delegation/Projection/DoctrineInheritanceProjection.cs)
-  (unit → effective ROE + inheritance source: unit override → mission ROE → side default).
-- Output is **deterministic**, ordered by `UnitId` (ordinal); rows with blank `UnitId` are dropped;
-  empty input yields an empty list.
-- When `mapSymbols` is supplied, each entry's `NormalizedX/Y` is filled from the first `MapSymbolEntry`
-  whose `SymbolId == UnitId` (friendly OOB symbols key on the unit id). No matching symbol leaves the
-  position `null` (still counted, just not placed).
+> The doctrine **resolution** chain (how effective ROE + inheritance source are computed) and the
+> projection's own internals are documented in
+> [`doctrine-inheritance-and-override.md`](doctrine-inheritance-and-override.md) §3 — this doc only
+> covers its role as a map **content overlay** and how its count reaches the HUD. The map host builds the
+> inheritance rows from **alive friendly** OOB units against the loaded scenario policy.
 
 ---
 
