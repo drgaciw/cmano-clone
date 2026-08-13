@@ -56,6 +56,55 @@ world-state hash looks stable, which is exactly why the golden files pin **both*
 
 ---
 
+## Replay checkpoints & scrub-to-tick
+
+To let a replay viewer **scrub to an arbitrary tick** without re-running from tick 0, a run
+records periodic snapshot boundaries in the `Replay/` folder
+([`ProjectAegis.Delegation/Replay/`](../../src/ProjectAegis.Delegation/Replay/)). A checkpoint is
+a small, immutable record — it stores the *hashes*, not the full world — so a scrubber can jump to
+the nearest earlier checkpoint and replay forward deterministically from there.
+
+[`ReplayCheckpoint`](../../src/ProjectAegis.Delegation/Replay/ReplayCheckpoint.cs) is a
+`sealed record (ulong SimTick, ulong WorldHash, string LogFingerprint, ulong LastSequenceId)` — a
+world + order-log snapshot boundary at one tick. The two hashes are exactly the artifacts from the
+section above (`WorldHash` from `SimWorldHash.Combine`, `LogFingerprint` from
+`DecisionLog.ComputeFingerprint()`); `LastSequenceId` is the last order-log entry's monotonic id at
+that tick.
+
+[`ReplayCheckpointStore`](../../src/ProjectAegis.Delegation/Replay/ReplayCheckpointStore.cs) is the
+append-only list:
+
+- **`Record(simTick, worldHash, logFingerprint, lastSequenceId)`** appends a checkpoint but is
+  **strictly monotonic** — it is a no-op when the last recorded `SimTick` is `>=` the new one, so
+  the list is always sorted ascending with no duplicate/backward ticks.
+- **`FindAtOrBefore(simTick)`** returns the nearest checkpoint **at or before** the requested tick
+  (or `null` when none exists yet), relying on the ascending order `Record` guarantees. This is the
+  scrub entry point: "give me the last safe boundary ≤ where the user dragged the timeline".
+
+### How the harness records them
+
+The [`BalticReplayHarness`](../../src/ProjectAegis.Delegation.UnityAdapter/Baltic/BalticReplayHarness.cs)
+owns one `ReplayCheckpointStore` per run and records at a fixed interval driven by
+[`ScenarioReplaySettings.CheckpointIntervalTicks`](../../src/ProjectAegis.Sim/Scenario/ScenarioReplaySettings.cs)
+(default `300`; the JSON loader clamps to `Math.Max(1, …)`). When `checkpointInterval > 0` **and**
+`simTick % checkpointInterval == 0`, it records the tick's world hash
+(`SimWorldHash.Combine(simHash, detectionHash, 0)`), the current `ComputeFingerprint()`, and the
+last chronological `SequenceId`. An interval of `0` disables checkpointing entirely. The resulting
+`Checkpoints` list is surfaced on the harness `Result` alongside the final hashes.
+
+### Determinism contract
+
+Checkpoints are **derived read-model artifacts** — recording them never mutates the run. Because
+each checkpoint is built from the same deterministic world hash + order-log fingerprint, two runs of
+the same `(scenario, seed)` produce a **bit-identical checkpoint sequence**
+(`BalticReplayHarnessReplayTests`), and the Baltic checkpoint goldens
+(`ReplayGoldenBalticCheckpointTests`, `ReplayGoldenBalticInterceptCheckpointTests`,
+`ReplayGoldenBalticKillCheckpointTests`) pin every `(SimTick, WorldHash, LastSequenceId)` row. Treat
+the checkpoint stream as load-bearing: changing the interval, the recorded hash composition, or the
+`Record` monotonic rule moves those goldens.
+
+---
+
 ## Seeded RNG
 
 There are two RNG utilities. Use them; never introduce a new randomness source.
