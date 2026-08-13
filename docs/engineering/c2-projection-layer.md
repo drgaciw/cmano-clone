@@ -218,6 +218,47 @@ default UXML.
 
 ---
 
+## Basemap layer stack HUD (CMD-28.2)
+
+The map also carries a **basemap layer stack** — an ordered checklist of raster/vector basemap
+layers the operator can toggle (Satellite, Relief, Borders, …). Unlike the overlays above, this
+is **not derived from the order log or sim at all**: it is pure **UI-local presentation state**,
+the same ADR-010 exception that lets [selection](#selection-state-unity-host) live on the host.
+Toggling a layer must never touch `DecisionLog`, the sim, or replay.
+
+**Types (all in `Projection/`):**
+
+| Type | Role |
+|------|------|
+| [`MapLayerId`](../../src/ProjectAegis.Delegation/Projection/MapLayerId.cs) | Stable enum of the 8 layers in draw order: `Satellite`, `Relief`, `Borders`, `Terrain`, `Roads`, `LandCover`, `Placenames`, `DayNight` |
+| [`MapLayerEntry`](../../src/ProjectAegis.Delegation/Projection/MapLayerEntry.cs) | One row: `(Id, Label, IsVisible, ShortcutHint)`. `ShortcutHint` is a presentation-only discovery string (`"none"` today) — **not** input routing |
+| [`MapLayerStackProjection.DefaultStack()`](../../src/ProjectAegis.Delegation/Projection/MapLayerStackProjection.cs) | Pure factory for the default ordered stack: **all layers visible except `DayNight`** (off by default) |
+| [`MapLayerStackState`](../../src/ProjectAegis.Delegation/Projection/MapLayerStackState.cs) | The ordered stack. Mutations are **immutable-style**: `Toggle` / `SetVisible` / `ApplyVisibilitySnapshot` return a *new* instance (or `this` when nothing changed). Also `WithDefaults()`, `VisibleCount`, `Count`, `TryGet`, `ToVisibilitySnapshot()` |
+| [`MapLayerStackApplyState.Apply(state)`](../../src/ProjectAegis.Delegation/Projection/MapLayerStackApplyState.cs) | Folds the stack into an immutable `MapLayerStackPresentation` (`Lines`, `DisplayLines`, `VisibleCount`, `TotalCount`, `SummaryLabel`). Null/empty ⇒ `Empty` (`"LAYERS: 0/0"`). `ProjectAndApplyDefaults()` is the headless smoke path |
+| [`MapLayerStackStore`](../../src/ProjectAegis.Delegation/Projection/MapLayerStackStore.cs) | In-memory `string→bool` visibility bag keyed by `MapLayerId` name (`Capture` / `Restore` / `Get`/`SetSnapshot`). **UI-local only — not replay, not `DecisionLog`, not file I/O** |
+
+**Presentation format (owned by `Apply`, not the host):** each checklist line renders as
+`"[x] {Label}  ({shortcut})"` (`[ ]` when hidden), and the HUD summary is `"LAYERS: {visible}/{total}"`.
+Keeping the formatting in `MapLayerStackApplyState` means a host binds text directly onto a
+`Label`/`Toggle` row without re-deriving it — the same projection/apply split used everywhere else.
+
+**Unity host wiring:** `MapPlaceholderPanelHost` restores the stack on `Awake` via
+`_layerStore.Restore(MapLayerStackState.WithDefaults())`, then `ApplyLayerStackHud()` runs
+`MapLayerStackApplyState.Apply(_layerStack)` and writes the `SummaryLabel` into the null-safe
+`layer-count` label (exposing `LastLayerVisibleCount` / `LastLayerTotalCount` /
+`LastLayerSummaryLabel`). `ToggleLayer(MapLayerId)` flips one layer, captures the new visibility
+into the in-memory store, and forces a refresh; `SetLayerStack(state)` replaces the whole stack
+(tests / prefs restore). As with `doctrine-overlay-count`, the `layer-count` label is
+**host-supported but not shipped in the default `MapPlaceholderPanel.uxml`** — adding it is a
+UXML-only change, no scene or host rebuild. Coverage lives in
+[`MapLayerStackTests.cs`](../../src/ProjectAegis.Delegation.Tests/Projection/MapLayerStackTests.cs).
+
+> **Boundary reminder:** the layer stack is UI chrome, not the map picture. It changes *what
+> basemap tiles are drawn*, never *what units/contacts exist* — so it stays off the deterministic
+> path entirely (no `DecisionLog`, no seed, no replay fingerprint), exactly like host selection.
+
+---
+
 ## Projection catalog
 
 Grouped by the panel/surface they feed. All live in
@@ -234,6 +275,7 @@ Grouped by the panel/surface they feed. All live in
 | `TacticalOverlayProjection` / `CatalogEnvelopeRangeResolver` | Selected-unit sensor/weapon envelope rings (`EnvelopeRingEntry`), catalog range → nm resolution (CMD-21/34) |
 | `DatalinkUnitPairFeed` → `DatalinkPictureProjection` | Friendly unit-pair datalink mesh edges (`DatalinkEdgeEntry`, CMD-32) |
 | `DoctrineMapOverlayProjection` | Per-unit ROE/source doctrine map rows (`DoctrineMapOverlayEntry`, CMD-33) |
+| `MapLayerStackProjection` / `MapLayerStackState` → `MapLayerStackApplyState` | UI-local basemap layer checklist + `LAYERS: n/n` HUD (`MapLayerStackPresentation`, CMD-28.2); `MapLayerStackStore` holds visibility (not sim/DecisionLog) |
 | `App6Sidc` / `App6GlyphAtlas` / `App6AtlasCatalog` / `App6*` | APP-6/2525C glyph + SIDC + atlas resolution |
 | `ContactSummaryProjection` | Single-contact inspector line |
 | `CesiumBillboardProjection` | Cesium globe billboards (ADR-007 map path) |
