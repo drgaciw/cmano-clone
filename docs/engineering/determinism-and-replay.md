@@ -145,6 +145,41 @@ Copy `WORLD_HASH`, `DETECTION_WORLD_HASH`, and `FINGERPRINT_SHA256` into the mat
 
 ---
 
+## Checkpoints & scrub-to-tick
+
+The replay fingerprint and world hash prove *whether* two runs agree, but not *where* they first
+diverge. That localization is provided by a lightweight, append-only **checkpoint** stream
+([`ProjectAegis.Delegation/Replay/`](../../src/ProjectAegis.Delegation/Replay/)).
+
+| Type | Role |
+|------|------|
+| [`ReplayCheckpoint`](../../src/ProjectAegis.Delegation/Replay/ReplayCheckpoint.cs) | Immutable snapshot boundary `(SimTick, WorldHash, LogFingerprint, LastSequenceId)` — a per-tick fingerprint of the run so far. |
+| [`ReplayCheckpointStore`](../../src/ProjectAegis.Delegation/Replay/ReplayCheckpointStore.cs) | Append-only list. `Record(...)` is **monotonic** — it ignores an out-of-order or duplicate tick (only appends when `simTick` exceeds the last checkpoint), so the sequence stays strictly increasing. `FindAtOrBefore(simTick)` returns the latest checkpoint at or before a tick — the scrub-to-tick lookup. |
+| [`OrderLogReplayFingerprint`](../../src/ProjectAegis.Delegation/Replay/OrderLogReplayFingerprint.cs) | `ComputeSha256Hex(IOrderLog)` — SHA-256 hex over `log.ComputeFingerprint()` (the same canonical order-log text used for the golden `FINGERPRINT_SHA256`). |
+
+**How the harness records them.** `BalticReplayHarness.Run` reads the interval from the scenario
+policy: `checkpointInterval = profile?.ReplaySettings.CheckpointIntervalTicks ?? 0` (**`0` disables
+checkpointing**). When enabled, at every tick where `simTick % checkpointInterval == 0` it records a
+checkpoint whose `WorldHash` is `SimWorldHash.Combine(simHash, detectionHash, 0)`, whose
+`LogFingerprint` is the current `DecisionLog.ComputeFingerprint()`, and whose `LastSequenceId` is the
+last chronological order-log entry's id. The checkpoints ride on the `Result` alongside the final
+hashes.
+
+**How they localize divergence.** `BalticReplayHarness.DiagnoseDivergence(a, b)` (a test-harness /
+diagnostic helper, not part of the `Run` hot path) short-circuits to `"MATCH"` when both runs' world
+hash, detection hash, and fingerprint already agree; otherwise it walks the paired checkpoints in
+tick order and reports the **first** tick whose `WorldHash` or `LogFingerprint` differs, so a
+divergence is pinned to an interval rather than only surfacing at the final hash.
+
+> **Checkpoints are a diagnostic aid, not a golden artifact.** They are not pinned by the
+> `replay-golden-*.txt` files and do not enter the production hash — they exist to *localize* an
+> `A != B` mismatch (see the intra-run stability rule above) to the tick where it started. Because
+> `Record` is monotonic and every field is derived from the already-deterministic hashes/fingerprint,
+> enabling checkpoints never changes a run's outcome. `ComputeSha256Hex` stability itself is pinned by
+> [`OrderLogReplayFingerprintSha256Tests`](../../src/ProjectAegis.Delegation.Tests/Decision/OrderLogReplayFingerprintSha256Tests.cs).
+
+---
+
 ## Hard invariants
 
 These are enforced repo-wide; see [`AGENTS.md` → Hard Invariants](../../AGENTS.md#hard-invariants--never-break-these).
