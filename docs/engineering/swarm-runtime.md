@@ -46,7 +46,7 @@ from the Baltic v2 order-log golden 6/6** — swarm work never touches the produ
 | [`SwarmController.cs`](../../src/ProjectAegis.Sim/Swarm/SwarmController.cs) | The sealed aggregate controller — register/motion/intents/modes/formations, authorized integrity damage & regen, host bind + link, expend, and the two hashes. Integrity is **not** writable except through its authorized methods. |
 | [`SwarmIntentKind.cs`](../../src/ProjectAegis.Sim/Swarm/SwarmIntentKind.cs) | Phase A aggregate intents: `Hold(0)` / `Move(1)` / `Attack(2)`. |
 | [`SwarmOperationalMode.cs`](../../src/ProjectAegis.Sim/Swarm/SwarmOperationalMode.cs) | Phase B operational modes (distinct from intents): `Hold(0)` / `Assault(1)` / `Screen(2)` / `Scatter(3)` / `Rejoin(4)`. |
-| [`SwarmLinkState.cs`](../../src/ProjectAegis.Sim/Swarm/SwarmLinkState.cs) | C2/order channel health: `Connected(0)` / `Degraded(1)` / `Lost(2)`. Independent of the CEC mesh. |
+| [`SwarmLinkState.cs`](../../src/ProjectAegis.Sim/Swarm/SwarmLinkState.cs) | C2/order channel health: `Connected(0)` / `Degraded(1)` / `Lost(2)`. Independent of the CEC mesh (the separate sensor-fusion mesh is documented in [cec-mesh-composite-tracking.md](cec-mesh-composite-tracking.md)). |
 | [`SwarmLinkEvaluator.cs`](../../src/ProjectAegis.Sim/Swarm/SwarmLinkEvaluator.cs) | Pure link rules from host range/liveness/jam (`RangeDeg`, `Evaluate`). |
 | [`SwarmRegenEvaluator.cs`](../../src/ProjectAegis.Sim/Swarm/SwarmRegenEvaluator.cs) | Pure regen gate `CanRegen(range, hostAlive, hostHasStores, count, max, maxRange)`. |
 | [`SwarmPerformanceCaps.cs`](../../src/ProjectAegis.Sim/Swarm/SwarmPerformanceCaps.cs) | Logical-vs-render caps and the aggregate work-unit model (`SWARM-25`). |
