@@ -41,7 +41,9 @@ checks is whether a track exists, and that track comes from here.
 | [`DatalinkSidePictureMerger.cs`](../../src/ProjectAegis.Sim/Sensors/DatalinkSidePictureMerger.cs) | Bounded per-side picture sharing (TR-sensor-004) with optional share lag and comms gating. |
 | [`HostileContactFilter.cs`](../../src/ProjectAegis.Sim/Sensors/HostileContactFilter.cs) | Whether a target id is an engageable hostile (blue never / registry-red / `hostile*`). |
 | [`ScenarioJamResolver.cs`](../../src/ProjectAegis.Sim/Sensors/ScenarioJamResolver.cs) | Effective noise-jam strength for a trial. |
-| [`DetectionTrialResolver.cs`](../../src/ProjectAegis.Sim/Scenario/DetectionTrialResolver.cs) | Builds sorted trials from inline JSON **or** catalog `basePd`. |
+| [`SensorModality.cs`](../../src/ProjectAegis.Sim/Sensors/SensorModality.cs) | The `Radar` / `Infrared` / `Visual` trial modality enum (S111 / DRG-10). |
+| [`IrVisualDetection.cs`](../../src/ProjectAegis.Sim/Sensors/IrVisualDetection.cs) | Pure env-mask helpers for IR (thermal contrast) and visual/EO (day-fraction + night floor) trials. |
+| [`DetectionTrialResolver.cs`](../../src/ProjectAegis.Sim/Scenario/DetectionTrialResolver.cs) | Builds sorted trials from inline JSON **or** catalog `basePd`, mapping catalog sensor `Modality` onto each catalog-sourced trial. |
 
 ---
 
@@ -76,7 +78,8 @@ Both expose the same primary-target surface (`PrimaryTargetId`, `PrimaryBlueForc
    (`ScenarioEmconResolver.ResolveRadar` → `CatalogRadarEmconResolver`), skip the trial.
 4. **Jam:** `jamStrength = max(trial.JamStrength, ScenarioJamResolver.ResolveJam(...))`. A jammer
    applies when `simTick >= ActiveFromTick`, its `TargetId` matches, and its optional `ObserverId`
-   matches (null = all observers).
+   matches (null = all observers). **RF jammers are folded in only for `Modality == Radar`** — IR
+   and visual trials keep their authored `trial.JamStrength` (see *Sensor modality* below).
 5. **Compute `Pd`** (below) and draw
    `SeededRng.UnitFloat(seed, RngDomain.Detection, entityId, simTick, drawIndex++)`, where
    `entityId = DetectionEntityId.FromTrial(observer, sensor, target)` (FNV-1a). `drawIndex`
@@ -98,6 +101,44 @@ Pd = clamp(basePd * envMask * eccmFactor * (1 - clamp(jamStrength, 0, 1)), 0, 1)
 
 `RngDomain.Detection` is domain `0` — kept distinct from `Engage`/`Combat`/etc. so an added
 detection draw never shifts the engagement RNG stream (see [`determinism-and-replay.md`](determinism-and-replay.md)).
+
+---
+
+## Sensor modality — radar vs IR / visual (S111 / DRG-10)
+
+Every trial carries a [`SensorModality`](../../src/ProjectAegis.Sim/Sensors/SensorModality.cs):
+`Radar` (default), `Infrared`, or `Visual`. Modality does **not** add an RNG draw or a new `Pd`
+factor — it only changes **two** things in the existing roll, so radar goldens are unaffected:
+
+| Behaviour | `Radar` | `Infrared` / `Visual` |
+|-----------|---------|-----------------------|
+| Scenario RF jammers (`ScenarioJamResolver`) | Folded into `jamStrength` (step 4). | **Ignored** — only the trial's own `JamStrength` applies (optical/IR jam is a separate, default-`0` input). |
+| `RequiresActiveRadar` (EMCON gate, step 3) | As authored. | Forced to `false` by `DetectionTrialResolver` — passive optical/thermal sensors don't emit. |
+
+Because IR/visual masks flow through the **same** `Pd = basePd * envMask * eccmFactor * (1 - jam)`
+clamp, the difference is entirely in how `envMask` is computed and whether RF jam bites.
+
+### Env-mask helpers (`IrVisualDetection`)
+
+Radar keeps its authored `EnvMask`. For the optical modalities, scenarios/spawners precompute the
+mask with the pure helpers (day/night is not modelled inside the roll):
+
+- `ComputeVisualEnvMask(dayFraction, weatherMask = 1, nightFloor = 0.05)` →
+  `clamp(dayFraction * weatherMask, 0, 1)` raised to at least `nightFloor` (so full night is a dim
+  floor, not a hard zero).
+- `ComputeInfraredEnvMask(thermalContrast, weatherMask = 1)` →
+  `clamp(thermalContrast * weatherMask, 0, 1)`, independent of day/night.
+
+### Where modality comes from
+
+- **Catalog-sourced trials** (`catalogDetection`): `DetectionTrialResolver.Resolve` reads the
+  observer/sensor's [`CatalogSensorBinding.Modality`](../../src/ProjectAegis.Data/Catalog/CatalogSensorBinding.cs)
+  and maps it via `ParseSensorModality` (case-insensitive; unknown/empty → `Radar`). The catalog
+  `sensor.modality` column is extend-only (migration 016, `Radar` default); IR/Visual fixtures are
+  seeded on Baltic `u1` by `CatalogSeedBootstrap.SeedSensorModalityFixtures`
+  (`CatalogSensorModalities.{Radar,Infrared,Visual}`).
+- **Inline `detection` trials**: used **as authored** with no modality rewrite — set
+  `ScenarioDetectionTrial.Modality` directly if you need IR/visual there.
 
 ---
 
@@ -240,6 +281,9 @@ tactical picture (see [`c2-projection-layer.md`](c2-projection-layer.md)).
   the BDA/kill hooks.
 - **New RNG draw?** Reuse `RngDomain.Detection` and the incrementing `drawIndex`; do not add a new
   draw before the existing ones (it shifts the stream).
+- **New sensor modality?** Extend `SensorModality`, map the catalog string in
+  `ParseSensorModality`, and gate its jam/EMCON behaviour in `RollTick` — but keep modality out of
+  the `Pd` formula and the RNG stream so existing radar goldens hold.
 - **Anything that emits a transition or touches the sub-hash** must stay deterministic (sorted
   iteration, fixed-point folds). Re-run the replay goldens + QA Gauntlet after any change here.
 
@@ -257,6 +301,7 @@ tactical picture (see [`c2-projection-layer.md`](c2-projection-layer.md)).
 | `PdContactKillTests` / `PdContactBdaLifecycleTests` | Kill / BDA-lost removal. |
 | `ScenarioContactSimulatorTests` / `ScenarioContactEmconTests` | Scheduled seeds + EMCON gating. |
 | `ScenarioJamResolverTests` / `EccmScenarioFactorTests` | Jam/ECCM Pd inputs. |
+| `IrVisualDetectionTests` | IR/visual env masks; RF jam suppresses radar but not IR/visual; mixed-modality determinism. |
 | `DatalinkSidePictureMergerTests` | Side sharing, share lag, comms-gated sharing. |
 
 ---
