@@ -1,0 +1,2233 @@
+﻿[
+    {
+        "Path":  "data/scenarios/baltic-multidomain-stockholm-sample.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-multidomain-stockholm-sample",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  4,
+        "UnresolvedUnits":  [
+                                "k-11-stockholm-spica-iii-1986",
+                                "mpk-steregushchiy-pr-20380-2018"
+                            ],
+        "UnresolvedSensors":  [
+                                  "cmo-sensor-1037"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-multidomain-visby-sample.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-multidomain-visby-sample",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  4,
+        "UnresolvedUnits":  [
+                                "k-31-visby-2009",
+                                "mpk-steregushchiy-pr-20380-2018"
+                            ],
+        "UnresolvedSensors":  [
+                                  "cmo-sensor-2582"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-balance-drift.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-balance-drift",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  0,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-bda-lifecycle.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-bda-lifecycle",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-black-project.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-black-project",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  0,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-catalog.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-catalog",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-classify.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-classify",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-combat-domains-facility-hot-tick.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-combat-domains-facility-hot-tick",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+                                "runway-1"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-combat-domains-hot-tick-damage.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-combat-domains-hot-tick-damage",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-combat-domains.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-combat-domains",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-comms.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-comms",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-damage-withdraw.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-damage-withdraw",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-datalink-catalog-latency.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-datalink-catalog-latency",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  3,
+        "UnresolvedUnits":  [
+                                "u2"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-datalink-comms.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-datalink-comms",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  3,
+        "UnresolvedUnits":  [
+                                "u2"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-datalink-lag.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-datalink-lag",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  3,
+        "UnresolvedUnits":  [
+                                "u2"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-datalink.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-datalink",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  3,
+        "UnresolvedUnits":  [
+                                "u2"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-destroyed-target-reengage.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-destroyed-target-reengage",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-emcon-off.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-emcon-off",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  3,
+        "UnresolvedUnits":  [
+                                "units"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-intercept.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-intercept",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-jammed.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-jammed",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-magazine.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-magazine",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-mine-transit-hazard.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-mine-transit-hazard",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-mission-roe.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-mission-roe",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-mission.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-mission",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-opp-hold-fire.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-opp-hold-fire",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  0,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-readiness.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-readiness",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-replay.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-replay",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-salvo.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-salvo",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-speculative-gated.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-speculative-gated",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  0,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-spoof.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-spoof",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-stale.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-stale",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol-wra-cap.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol-wra-cap",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-patrol.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v2-comms-challenged.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v2-comms-challenged",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v2-contact-window-arc.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v2-contact-window-arc",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v2-jammed.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v2-jammed",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v2-mission-event.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v2-mission-event",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v2-narrative-arc.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v2-narrative-arc",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v2-patrol-band-b-example.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v2-patrol-band-b-example",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v2-patrol-band-b.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v2-patrol-band-b",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v2-patrol-band-c.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v2-patrol-band-c",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v2-patrol-mission-v2.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v2-patrol-mission-v2",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v2-patrol.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v2-patrol",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v3-classify.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v3-classify",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  5,
+        "UnresolvedUnits":  [
+                                "units"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v3-comms-challenged.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v3-comms-challenged",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  5,
+        "UnresolvedUnits":  [
+                                "units"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v3-mission-band-b.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v3-mission-band-b",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  5,
+        "UnresolvedUnits":  [
+                                "units"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v3-mission-roe-band-c.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v3-mission-roe-band-c",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  5,
+        "UnresolvedUnits":  [
+                                "units"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v3-patrol-comms.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v3-patrol-comms",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  5,
+        "UnresolvedUnits":  [
+                                "units"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/baltic-v3-patrol.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "baltic-v3-patrol",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  5,
+        "UnresolvedUnits":  [
+                                "units"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/combat-domains-smoke.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "combat-domains-smoke",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t1-s1.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t1-s1",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  6,
+        "UnresolvedUnits":  [
+                                "f-361-iver-huitfeldt-2012",
+                                "421-orkan-pr-660-2015",
+                                "f-450-elli-kortenaer-batch-ii-0",
+                                "70-rauma-helsinki-ii-1990",
+                                "f-341-absalon-2020",
+                                "mrk-buyan-mod-pr-21631-buyan-m-2014"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t1-s2.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t1-s2",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  6,
+        "UnresolvedUnits":  [
+                                "d-32-daring-type-45-batch-1",
+                                "241-slazak-meko-100-mod-2019",
+                                "f-207-bremen-type-f122-1982",
+                                "421-orkan-pr-660-2015",
+                                "p-151-hugin",
+                                "mrk-buyan-mod-pr-21631-buyan-m-2014"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t1-s3.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t1-s3",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  6,
+        "UnresolvedUnits":  [
+                                "f-361-iver-huitfeldt-2012",
+                                "f-450-elli-kortenaer-batch-ii-0",
+                                "70-rauma-helsinki-ii-1990",
+                                "d-32-daring-type-45-batch-1",
+                                "p-151-hugin",
+                                "241-slazak-meko-100-mod-2019"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t1-s4.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t1-s4",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  6,
+        "UnresolvedUnits":  [
+                                "f-341-absalon-2020",
+                                "70-rauma-helsinki-ii-1990",
+                                "421-orkan-pr-660-2015",
+                                "mrk-buyan-mod-pr-21631-buyan-m-2014",
+                                "f-207-bremen-type-f122-1982",
+                                "d-32-daring-type-45-batch-1"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t2-s1.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t2-s1",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  8,
+        "UnresolvedUnits":  [
+                                "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+                                "mrk-shkval-pr-22800-karakurt",
+                                "f-219-sachsen-type-f124-2006",
+                                "pk-368-vasily-bykov-pr-22160",
+                                "k-31-visby-2009",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "jas-39e-gripen-ng-2021",
+                                "su-34-fullback-2014"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t2-s2.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t2-s2",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  8,
+        "UnresolvedUnits":  [
+                                "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+                                "f-310-fridtjof-nansen",
+                                "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+                                "p-840-holland",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "p-960-skjold",
+                                "mig-29-fulcrum-c-1999",
+                                "eurofighter-typhoon"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t2-s3.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t2-s3",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  8,
+        "UnresolvedUnits":  [
+                                "mrk-shkval-pr-22800-karakurt",
+                                "f-219-sachsen-type-f124-2006",
+                                "p-840-holland",
+                                "f-310-fridtjof-nansen",
+                                "p-960-skjold",
+                                "k-31-visby-2009",
+                                "jas-39d-gripen-2005",
+                                "su-27sm-sm3-flanker-j-2013"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t2-s4.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t2-s4",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  8,
+        "UnresolvedUnits":  [
+                                "pk-368-vasily-bykov-pr-22160",
+                                "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "f-219-sachsen-type-f124-2006",
+                                "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+                                "f-310-fridtjof-nansen",
+                                "jas-39e-gripen-ng-2021",
+                                "su-27sm-sm3-flanker-j-2013"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t3-s1.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t3-s1",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  10,
+        "UnresolvedUnits":  [
+                                "ssn-774-virginia-blk-i-ii",
+                                "pla-885-severodvinsk-yasen",
+                                "ka-27m-helix-a",
+                                "f-219-sachsen-type-f124-2006",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "k-11-stockholm-spica-iii-1986",
+                                "mrk-buyan-pr-21630-buyan-2007",
+                                "f-16c-blk-52iq-falcon-2015",
+                                "mig-29-fulcrum-c-1999",
+                                "units"
+                            ],
+        "UnresolvedSensors":  [
+                                  "passive-sonar-1",
+                                  "sonar-dipping-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t3-s2.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t3-s2",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  9,
+        "UnresolvedUnits":  [
+                                "p-960-skjold",
+                                "pk-368-vasily-bykov-pr-22160",
+                                "f-230-norfolk-type-23-duke",
+                                "mrk-shkval-pr-22800-karakurt",
+                                "jas-39e-gripen-ng-2021",
+                                "su-35s-flanker-m-2023",
+                                "s-120-papanikolis-type-214hn",
+                                "s-71-chakra-pla-971i-akula-ii",
+                                "p-3c-orion-update-iii-2023"
+                            ],
+        "UnresolvedSensors":  [
+                                  "passive-sonar-1",
+                                  "sonar-buoy-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t3-s3.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t3-s3",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  8,
+        "UnresolvedUnits":  [
+                                "su-27sm-sm3-flanker-j-2013",
+                                "p-960-skjold",
+                                "mrk-buyan-pr-21630-buyan-2007",
+                                "p-840-holland",
+                                "ka-27m-helix-a",
+                                "su-35s-flanker-m-2023",
+                                "021-messali-el-hadj-pl-636m-kilo-2011",
+                                "pl-877-kilo-paltus-1992"
+                            ],
+        "UnresolvedSensors":  [
+                                  "passive-sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t3-s4.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t3-s4",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  12,
+        "UnresolvedUnits":  [
+                                "f-219-sachsen-type-f124-2006",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "mrk-buyan-pr-21630-buyan-2007",
+                                "jas-39e-gripen-ng-2021",
+                                "f-310-fridtjof-nansen",
+                                "pk-368-vasily-bykov-pr-22160",
+                                "k-11-stockholm-spica-iii-1986",
+                                "mig-29-fulcrum-c-1999",
+                                "p-3c-orion-update-iii-2023",
+                                "su-27sm-sm3-flanker-j-2013",
+                                "s-120-papanikolis-type-214hn",
+                                "pla-885-severodvinsk-yasen"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t3-s5-control.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t3-s5-control",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  10,
+        "UnresolvedUnits":  [
+                                "f-230-norfolk-type-23-duke",
+                                "skr-admiral-sergey-gorshkov-pr-2235-0",
+                                "p-840-holland",
+                                "jas-39e-gripen-ng-2021",
+                                "p-960-skjold",
+                                "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+                                "f-16c-blk-52iq-falcon-2015",
+                                "su-35s-flanker-m-2023",
+                                "ssn-774-virginia-blk-i-ii",
+                                "pl-877-kilo-paltus-1992"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t3-s5.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t3-s5",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  10,
+        "UnresolvedUnits":  [
+                                "f-230-norfolk-type-23-duke",
+                                "skr-admiral-sergey-gorshkov-pr-2235-0",
+                                "p-840-holland",
+                                "jas-39e-gripen-ng-2021",
+                                "p-960-skjold",
+                                "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+                                "f-16c-blk-52iq-falcon-2015",
+                                "su-35s-flanker-m-2023",
+                                "ssn-774-virginia-blk-i-ii",
+                                "pl-877-kilo-paltus-1992"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-20260727-1455-t3-s6.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-20260727-1455-t3-s6",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  12,
+        "UnresolvedUnits":  [
+                                "k-11-stockholm-spica-iii-1986",
+                                "pk-368-vasily-bykov-pr-22160",
+                                "p-840-holland",
+                                "mrk-buyan-pr-21630-buyan-2007",
+                                "f-230-norfolk-type-23-duke",
+                                "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+                                "jas-39e-gripen-ng-2021",
+                                "mig-29-fulcrum-c-1999",
+                                "p-3c-orion-update-iii-2023",
+                                "su-35s-flanker-m-2023",
+                                "s-71-chakra-pla-971i-akula-ii",
+                                "021-messali-el-hadj-pl-636m-kilo-2011"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-forge-20260727-1455-t2-c1.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-forge-20260727-1455-t2-c1",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  6,
+        "UnresolvedUnits":  [
+                                "mrk-shkval-pr-22800-karakurt",
+                                "k-31-visby-2009",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+                                "eurofighter-typhoon",
+                                "su-27sm-sm3-flanker-j-2013"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-forge-20260727-1455-t2-c2.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-forge-20260727-1455-t2-c2",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  6,
+        "UnresolvedUnits":  [
+                                "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+                                "mrk-shkval-pr-22800-karakurt",
+                                "p-840-holland",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "su-34-fullback-2014",
+                                "jas-39e-gripen-ng-2021"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-forge-20260727-1455-t2-c3.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-forge-20260727-1455-t2-c3",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  6,
+        "UnresolvedUnits":  [
+                                "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+                                "801-rais-hamidou-pr-1234e-nanuchka-ii-1981",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "k-31-visby-2009",
+                                "jas-39d-gripen-2005",
+                                "su-27sm-sm3-flanker-j-2013"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-forge-20260727-1455-t2-c4.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-forge-20260727-1455-t2-c4",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  8,
+        "UnresolvedUnits":  [
+                                "f-219-sachsen-type-f124-2006",
+                                "mrk-shkval-pr-22800-karakurt",
+                                "f-310-fridtjof-nansen",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "p-960-skjold",
+                                "pk-368-vasily-bykov-pr-22160",
+                                "mig-29-fulcrum-c-1999",
+                                "eurofighter-typhoon"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-joint-orbat-smoke.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-joint-orbat-smoke",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  14,
+        "UnresolvedUnits":  [
+                                "k-31-visby-2009",
+                                "em-sovremenny-i-pr-956-sarych",
+                                "jas-39c-gripen-2005",
+                                "mpk-steregushchiy-pr-20380-2018",
+                                "a-19-gotland-2022",
+                                "mrk-buyan-pr-21630-buyan-2007",
+                                "241-slazak-meko-100-mod-2019",
+                                "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+                                "421-orkan-pr-660-2015",
+                                "mig-31-foxhound",
+                                "jas-39d-gripen-2005",
+                                "su-34-fullback-2014",
+                                "a-19-gotland-2002",
+                                "plarb-955a-borei-ii-borey-a"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-multidomain-shooters.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-multidomain-shooters",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  13,
+        "UnresolvedUnits":  [
+                                "k-31-visby-2009",
+                                "em-sovremenny-i-pr-956-sarych",
+                                "jas-39c-gripen-2005",
+                                "mpk-steregushchiy-pr-20380-2018",
+                                "a-19-gotland-2022",
+                                "mrk-buyan-pr-21630-buyan-2007",
+                                "p-960-skjold",
+                                "su-27sm-sm3-flanker-j-2013",
+                                "f-230-norfolk-type-23-duke",
+                                "su-33-flanker-d",
+                                "f-35a-lightning-ii",
+                                "a-17-vastergotland-1999",
+                                "pla-885m-severodvinsk-yasen-m"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t1-patrol-a.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t1-patrol-a",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  6,
+        "UnresolvedUnits":  [
+                                "k-31-visby-2009",
+                                "em-sovremenny-i-pr-956-sarych",
+                                "k-22-gavle-ex-goteborg-class",
+                                "mpk-steregushchiy-pr-20380-2018",
+                                "k-21-goteborg",
+                                "mrk-buyan-pr-21630-buyan-2007"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t1-patrol-b.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t1-patrol-b",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  6,
+        "UnresolvedUnits":  [
+                                "k-31-visby-2009",
+                                "em-sovremenny-i-pr-956-sarych",
+                                "f-219-sachsen-type-f124-2006",
+                                "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+                                "80-hamina-rauma-2-2006",
+                                "mrk-shkval-pr-22800-karakurt"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t1-patrol-c.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t1-patrol-c",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  6,
+        "UnresolvedUnits":  [
+                                "f-219-sachsen-type-f124-2006",
+                                "624-pr-205p-tarantul-1992",
+                                "f-310-fridtjof-nansen",
+                                "mrk-buyan-mod-pr-21631-buyan-m-2014",
+                                "f-341-absalon-2020",
+                                "pk-368-vasily-bykov-pr-22160"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t1-patrol-d.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t1-patrol-d",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  6,
+        "UnresolvedUnits":  [
+                                "k-31-visby-2009",
+                                "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+                                "k-22-gavle-ex-goteborg-class",
+                                "mrk-shkval-pr-22800-karakurt",
+                                "k-21-goteborg",
+                                "skr-admiral-grigorovich-pr-1135-6m"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t2-escort-a.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t2-escort-a",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  8,
+        "UnresolvedUnits":  [
+                                "f-450-elli-kortenaer-batch-ii-0",
+                                "pk-368-vasily-bykov-pr-22160",
+                                "m-04-carlskrona",
+                                "em-sovremenny-i-pr-956-sarych",
+                                "m-73-koster-upgraded-landsort-class",
+                                "mpk-steregushchiy-pr-20380-2018",
+                                "hkp-14f-nh90-ttt",
+                                "su-57-felon"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t2-escort-passive.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t2-escort-passive",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  9,
+        "UnresolvedUnits":  [
+                                "k-22-gavle-ex-goteborg-class",
+                                "mrk-shkval-pr-22800-karakurt",
+                                "k-21-goteborg",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "k-11-stockholm-spica-iii-1986",
+                                "skr-admiral-sergey-gorshkov-pr-2235-0",
+                                "jas-39e-gripen-ng-2021",
+                                "ka-27m-helix-a",
+                                "units"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t2-ordnance-shotgun-winchester.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t2-ordnance-shotgun-winchester",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+                                "k-31-visby-2009",
+                                "em-sovremenny-i-pr-956-sarych"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t2-shotgun-salvo-deny.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t2-shotgun-salvo-deny",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+                                "k-31-visby-2009",
+                                "em-sovremenny-i-pr-956-sarych"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t2-strike-a.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t2-strike-a",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  8,
+        "UnresolvedUnits":  [
+                                "f-361-iver-huitfeldt-2012",
+                                "em-sovremenny-i-pr-956-sarych",
+                                "80-hamina-rauma-2-2006",
+                                "mpk-steregushchiy-pr-20380-2018",
+                                "70-rauma-helsinki-ii-1990",
+                                "mrk-buyan-pr-21630-buyan-2007",
+                                "nh90-nfh-caiman-marine",
+                                "tu-160-blackjack"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t2-strike-event.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t2-strike-event",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  8,
+        "UnresolvedUnits":  [
+                                "d-32-daring-type-45-batch-1",
+                                "skr-admiral-sergey-gorshkov-pr-2235-0",
+                                "p-960-skjold",
+                                "624-pr-205p-tarantul-1992",
+                                "f-230-norfolk-type-23-duke",
+                                "mrk-buyan-mod-pr-21631-buyan-m-2014",
+                                "jas-39a-gripen-1997",
+                                "mig-29-fulcrum-c-1999"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t2-strike-salvo-boundary.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t2-strike-salvo-boundary",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+                                "jas-39c-gripen-2005",
+                                "mpk-steregushchiy-pr-20380-2018"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t3-emcon-engage-block.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t3-emcon-engage-block",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  5,
+        "UnresolvedUnits":  [
+                                "k-31-visby-2009",
+                                "em-sovremenny-i-pr-956-sarych",
+                                "jas-39c-gripen-2005",
+                                "mpk-steregushchiy-pr-20380-2018",
+                                "units"
+                            ],
+        "UnresolvedSensors":  [
+                                  "esm-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t3-emcon-phases.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t3-emcon-phases",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  15,
+        "UnresolvedUnits":  [
+                                "k-31-visby-2009",
+                                "em-sovremenny-i-pr-956-sarych",
+                                "jas-39c-gripen-2005",
+                                "mpk-steregushchiy-pr-20380-2018",
+                                "a-19-gotland-2022",
+                                "mrk-buyan-pr-21630-buyan-2007",
+                                "f-230-norfolk-type-23-duke",
+                                "mrk-buyan-mod-pr-21631-buyan-m-2014",
+                                "f-450-elli-kortenaer-batch-ii-0",
+                                "su-33-flanker-d",
+                                "f-a-18c-hornet-f-18c",
+                                "su-57-felon",
+                                "a-19-gotland-2020",
+                                "plarb-955-borei-borey",
+                                "units"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t3-escort-strike.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t3-escort-strike",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  12,
+        "UnresolvedUnits":  [
+                                "k-22-gavle-ex-goteborg-class",
+                                "mrk-shkval-pr-22800-karakurt",
+                                "k-21-goteborg",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "k-11-stockholm-spica-iii-1986",
+                                "skr-admiral-sergey-gorshkov-pr-2235-0",
+                                "jas-39e-gripen-ng-2021",
+                                "ka-27m-helix-a",
+                                "jas-39a-gripen-1997",
+                                "mig-29-fulcrum-c-1999",
+                                "a-26-blekinge",
+                                "plarb-955-borei-borey"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t3-event-chain.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t3-event-chain",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  12,
+        "UnresolvedUnits":  [
+                                "p-960-skjold",
+                                "624-pr-205p-tarantul-1992",
+                                "f-230-norfolk-type-23-duke",
+                                "mrk-buyan-mod-pr-21631-buyan-m-2014",
+                                "f-450-elli-kortenaer-batch-ii-0",
+                                "pk-368-vasily-bykov-pr-22160",
+                                "f-35a-lightning-ii",
+                                "su-27sm-sm3-flanker-j-2013",
+                                "f-a-18c-hornet-f-18c",
+                                "su-33-flanker-d",
+                                "a-17-vastergotland-1999",
+                                "pla-885m-severodvinsk-yasen-m"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t3-id-roe.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t3-id-roe",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  12,
+        "UnresolvedUnits":  [
+                                "80-hamina-rauma-2-2006",
+                                "mpk-steregushchiy-pr-20380-2018",
+                                "70-rauma-helsinki-ii-1990",
+                                "mrk-buyan-pr-21630-buyan-2007",
+                                "241-slazak-meko-100-mod-2019",
+                                "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+                                "nh90-tth-mrh90-taipan-2007",
+                                "su-30sm-flanker-g-2019",
+                                "jas-39b-gripen-1997",
+                                "su-35s-flanker-m-2023",
+                                "a-17-södermanland-vastergotland-mod",
+                                "plarb-955-borei-borey"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t3-logistics-contact-lifecycle.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t3-logistics-contact-lifecycle",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  3,
+        "UnresolvedUnits":  [
+                                "f-361-iver-huitfeldt-2012",
+                                "70-rauma-helsinki-ii-1990",
+                                "jas-39c-gripen-2005"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t3-logistics-joker-bingo.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t3-logistics-joker-bingo",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+                                "jas-39c-gripen-2005",
+                                "mpk-steregushchiy-pr-20380-2018"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t3-strike-salvo-boundary.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t3-strike-salvo-boundary",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+                                "jas-39c-gripen-2005",
+                                "mpk-steregushchiy-pr-20380-2018"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t4-asymm-roe.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t4-asymm-roe",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  14,
+        "UnresolvedUnits":  [
+                                "f-341-absalon-2020",
+                                "pk-368-vasily-bykov-pr-22160",
+                                "f-361-iver-huitfeldt-2012",
+                                "em-sovremenny-i-pr-956-sarych",
+                                "80-hamina-rauma-2-2006",
+                                "mpk-steregushchiy-pr-20380-2018",
+                                "eurofighter-typhoon",
+                                "su-24m-fencer-d-1992",
+                                "nh90-nfh-caiman-marine",
+                                "tu-160-blackjack",
+                                "ssn-774-virginia-blk-i-ii",
+                                "pla-885-severodvinsk-yasen",
+                                "s-120-papanikolis-type-214hn",
+                                "mrk-buyan-pr-21630-buyan-2007"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t4-multi-mission.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t4-multi-mission",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  14,
+        "UnresolvedUnits":  [
+                                "k-21-goteborg",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "k-11-stockholm-spica-iii-1986",
+                                "skr-admiral-sergey-gorshkov-pr-2235-0",
+                                "f-219-sachsen-type-f124-2006",
+                                "624-pr-205p-tarantul-1992",
+                                "jas-39a-gripen-1997",
+                                "mig-29-fulcrum-c-1999",
+                                "f-35a-lightning-ii",
+                                "su-27sm-sm3-flanker-j-2013",
+                                "a-17-vastergotland-1999",
+                                "pl-677-lada-b-585-sankt-peterburg-2011",
+                                "a-19-gotland-2020",
+                                "mrk-buyan-mod-pr-21631-buyan-m-2014"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t4-random-inject.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t4-random-inject",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  15,
+        "UnresolvedUnits":  [
+                                "f-219-sachsen-type-f124-2006",
+                                "624-pr-205p-tarantul-1992",
+                                "f-310-fridtjof-nansen",
+                                "mrk-buyan-mod-pr-21631-buyan-m-2014",
+                                "f-341-absalon-2020",
+                                "pk-368-vasily-bykov-pr-22160",
+                                "f-a-18c-hornet-f-18c",
+                                "su-33-flanker-d",
+                                "hkp-14f-nh90-ttt",
+                                "su-57-felon",
+                                "s-181-u-31-type-212a",
+                                "pl-877-kilo-paltus-1992",
+                                "s-185-u-35-type-212a",
+                                "em-sovremenny-i-pr-956-sarych",
+                                "k-31-visby-2009"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t4-weighted.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t4-weighted",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  14,
+        "UnresolvedUnits":  [
+                                "f-341-absalon-2020",
+                                "pk-368-vasily-bykov-pr-22160",
+                                "f-361-iver-huitfeldt-2012",
+                                "em-sovremenny-i-pr-956-sarych",
+                                "80-hamina-rauma-2-2006",
+                                "mpk-steregushchiy-pr-20380-2018",
+                                "eurofighter-typhoon",
+                                "su-24m-fencer-d-1992",
+                                "nh90-nfh-caiman-marine",
+                                "tu-160-blackjack",
+                                "ssn-774-virginia-blk-i-ii",
+                                "pla-885-severodvinsk-yasen",
+                                "s-120-papanikolis-type-214hn",
+                                "mrk-buyan-pr-21630-buyan-2007"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t5-cascade.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t5-cascade",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  17,
+        "UnresolvedUnits":  [
+                                "f-207-bremen-type-f122-1982",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "d-32-daring-type-45-batch-1",
+                                "skr-admiral-sergey-gorshkov-pr-2235-0",
+                                "p-960-skjold",
+                                "624-pr-205p-tarantul-1992",
+                                "f-230-norfolk-type-23-duke",
+                                "mrk-buyan-mod-pr-21631-buyan-m-2014",
+                                "jas-39e-gripen-ng-2021",
+                                "ka-27m-helix-a",
+                                "jas-39a-gripen-1997",
+                                "mig-29-fulcrum-c-1999",
+                                "f-35a-lightning-ii",
+                                "a-19-gotland-2022",
+                                "pla-971-akula-i-improved-shchuka-b",
+                                "a-26-blekinge",
+                                "k-31-visby-2009"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t5-dynamic-obj.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t5-dynamic-obj",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  16,
+        "UnresolvedUnits":  [
+                                "k-31-visby-2009",
+                                "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+                                "k-22-gavle-ex-goteborg-class",
+                                "mrk-shkval-pr-22800-karakurt",
+                                "k-21-goteborg",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "k-11-stockholm-spica-iii-1986",
+                                "skr-admiral-sergey-gorshkov-pr-2235-0",
+                                "jas-39c-gripen-2005",
+                                "su-34-fullback-2014",
+                                "jas-39e-gripen-ng-2021",
+                                "ka-27m-helix-a",
+                                "jas-39a-gripen-1997",
+                                "a-19-gotland-2022",
+                                "pla-885m-severodvinsk-yasen-m",
+                                "a-26-blekinge"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t5-roe-change.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t5-roe-change",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  17,
+        "UnresolvedUnits":  [
+                                "k-21-goteborg",
+                                "skr-admiral-grigorovich-pr-1135-6m",
+                                "k-11-stockholm-spica-iii-1986",
+                                "skr-admiral-sergey-gorshkov-pr-2235-0",
+                                "f-219-sachsen-type-f124-2006",
+                                "624-pr-205p-tarantul-1992",
+                                "f-310-fridtjof-nansen",
+                                "mrk-buyan-mod-pr-21631-buyan-m-2014",
+                                "jas-39a-gripen-1997",
+                                "mig-29-fulcrum-c-1999",
+                                "f-35a-lightning-ii",
+                                "su-27sm-sm3-flanker-j-2013",
+                                "f-a-18c-hornet-f-18c",
+                                "a-17-vastergotland-1999",
+                                "pl-677-lada-b-585-sankt-peterburg-2011",
+                                "a-19-gotland-2020",
+                                "k-31-visby-2009"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-t5-theater.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-t5-theater",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  16,
+        "UnresolvedUnits":  [
+                                "80-hamina-rauma-2-2006",
+                                "mpk-steregushchiy-pr-20380-2018",
+                                "70-rauma-helsinki-ii-1990",
+                                "mrk-buyan-pr-21630-buyan-2007",
+                                "241-slazak-meko-100-mod-2019",
+                                "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+                                "421-orkan-pr-660-2015",
+                                "mrk-shkval-pr-22800-karakurt",
+                                "nh90-tth-mrh90-taipan-2007",
+                                "su-30sm-flanker-g-2019",
+                                "jas-39b-gripen-1997",
+                                "su-35s-flanker-m-2023",
+                                "jas-39d-gripen-2005",
+                                "a-17-södermanland-vastergotland-mod",
+                                "plarb-955-borei-borey",
+                                "a-19-gotland-1996"
+                            ],
+        "UnresolvedSensors":  [
+                                  "sonar-1"
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-theater-dynamic-victory.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-theater-dynamic-victory",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  8,
+        "UnresolvedUnits":  [
+                                "k-31-visby-2009",
+                                "em-sovremenny-i-pr-956-sarych",
+                                "f-230-norfolk-type-23-duke",
+                                "624-pr-205p-tarantul-1992",
+                                "f-450-elli-kortenaer-batch-ii-0",
+                                "mrk-buyan-mod-pr-21631-buyan-m-2014",
+                                "m-04-carlskrona",
+                                "pk-368-vasily-bykov-pr-22160"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/gauntlet-theater-inject.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "gauntlet-theater-inject",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  6,
+        "UnresolvedUnits":  [
+                                "k-31-visby-2009",
+                                "em-sovremenny-i-pr-956-sarych",
+                                "k-22-gavle-ex-goteborg-class",
+                                "mrk-shkval-pr-22800-karakurt",
+                                "k-21-goteborg",
+                                "skr-admiral-grigorovich-pr-1135-6m"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/restricted-engagement.policy.json",
+        "Type":  "policy",
+        "ParseOk":  true,
+        "Id":  "restricted-engagement",
+        "HasSeed":  false,
+        "Seed":  null,
+        "EntityCount":  1,
+        "UnresolvedUnits":  [
+                                "f1"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "policy"
+    },
+    {
+        "Path":  "data/scenarios/examples/baltic-patrol.scenario.json",
+        "Type":  "scenario",
+        "ParseOk":  true,
+        "Id":  "baltic-patrol.scenario",
+        "HasSeed":  true,
+        "Seed":  42,
+        "EntityCount":  1,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "scenario",
+        "PolicyId":  "baltic-patrol-catalog",
+        "DbRef":  "baltic_patrol",
+        "TlBranch":  "TL-2",
+        "MissionCount":  1,
+        "SchemaRequiredOk":  true
+    },
+    {
+        "Path":  "data/scenarios/examples/event-no-fire.scenario.json",
+        "Type":  "scenario",
+        "ParseOk":  true,
+        "Id":  "event-no-fire.scenario",
+        "HasSeed":  true,
+        "Seed":  42,
+        "EntityCount":  0,
+        "UnresolvedUnits":  [
+
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "scenario",
+        "PolicyId":  "baltic-patrol-mission",
+        "DbRef":  "baltic_patrol",
+        "TlBranch":  "TL-2",
+        "MissionCount":  0,
+        "SchemaRequiredOk":  true
+    },
+    {
+        "Path":  "data/scenarios/examples/ferry-redeploy.scenario.json",
+        "Type":  "scenario",
+        "ParseOk":  true,
+        "Id":  "ferry-redeploy.scenario",
+        "HasSeed":  true,
+        "Seed":  2024,
+        "EntityCount":  2,
+        "UnresolvedUnits":  [
+                                "transport-1",
+                                "base-amari"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "scenario",
+        "PolicyId":  "baltic-patrol-readiness",
+        "DbRef":  "baltic_patrol",
+        "TlBranch":  "TL-2",
+        "MissionCount":  1,
+        "SchemaRequiredOk":  true
+    },
+    {
+        "Path":  "data/scenarios/examples/strike-package.scenario.json",
+        "Type":  "scenario",
+        "ParseOk":  true,
+        "Id":  "strike-package.scenario",
+        "HasSeed":  true,
+        "Seed":  1337,
+        "EntityCount":  4,
+        "UnresolvedUnits":  [
+                                "strike-flight-1",
+                                "strike-flight-2",
+                                "target-kaliningrad-sam",
+                                "target-baltiysk-pier"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  null,
+        "Format":  "scenario",
+        "PolicyId":  "baltic-patrol-mission",
+        "DbRef":  "baltic_patrol",
+        "TlBranch":  "TL-0",
+        "MissionCount":  1,
+        "SchemaRequiredOk":  true
+    },
+    {
+        "Path":  "assets/data/scenarios/smoke/enterprise-public-corpus-smoke.scenario.json",
+        "Type":  "scenario",
+        "ParseOk":  true,
+        "Id":  "Enterprise public corpus smoke",
+        "HasSeed":  true,
+        "Seed":  1,
+        "EntityCount":  4,
+        "UnresolvedUnits":  [
+                                "smoke-blue-1",
+                                "type-082ii-wozang-818-kunshan-2012",
+                                "smoke-red-1",
+                                "type-203-huxin-haijing-44072-1988"
+                            ],
+        "UnresolvedSensors":  [
+
+                              ],
+        "Error":  "missing required: unitReadiness,nearFutureUnits,sideRoe",
+        "Format":  "scenario",
+        "PolicyId":  "enterprise-public-corpus-smoke",
+        "DbRef":  "aegis_public_corpus",
+        "TlBranch":  "TL-0",
+        "MissionCount":  1,
+        "SchemaRequiredOk":  false
+    }
+]

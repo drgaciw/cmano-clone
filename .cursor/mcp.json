@@ -19,6 +19,22 @@
     },
     "buildkite": {
       "url": "https://mcp.buildkite.com/mcp"
+    },
+    "cloudflare": { "url": "https://mcp.cloudflare.com/mcp" },
+    "cloudflare-docs": { "url": "https://docs.mcp.cloudflare.com/mcp" },
+    "cloudflare-bindings": { "url": "https://bindings.mcp.cloudflare.com/mcp" },
+    "cloudflare-builds": { "url": "https://builds.mcp.cloudflare.com/mcp" },
+    "cloudflare-observability": { "url": "https://observability.mcp.cloudflare.com/mcp" },
+    "kitesurf": {
+      "command": "C:\\Program Files\\nodejs\\npx.cmd",
+      "args": [
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--wsEndpoint=wss://kitesurf.cloudflare.app/devtools/browser"
+      ],
+      "env": {
+        "PATH": "C:\\Program Files\\nodejs;C:\\Windows\\System32"
+      }
     }
   }
 }
