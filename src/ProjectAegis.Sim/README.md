@@ -47,15 +47,9 @@ Detection is mixed separately (tick step 4) so the harness can pin it independen
 ```csharp
 pipeline.MixDetectionTick(detectionRolls);   // updates DetectionSubhash + LastWorldHash
 pipeline.EnqueueEngagement(request);
-pipeline.TickOnce(TimeCompressionMode.RealTime);
+pipeline.TickOnce(TimeCompressionMode.Normal);
 ulong worldHash = pipeline.LastWorldHash;     // pinned by replay goldens
 ```
-
-`TimeCompressionMode` is `RealTime` (one step) / `Accelerated` (`SimClock.AccelerationFactor`
-steps, clamped `[1,256]`) / `HeadlessBatch` (one step, overrides a paused clock for CI/batch).
-The clock's pause / acceleration semantics, the `SimulationSession` controls, and the
-watch auto-pause integration are documented in the
-[sim clock & time-compression guide](../../docs/engineering/sim-clock-time-compression.md).
 
 ### World-state hash layers
 
@@ -148,7 +142,6 @@ goldens that assert reproducibility of this core live in
 | Abort-reason codes (manifest → codegen → order log) | [`docs/engineering/abort-reason-catalog.md`](../../docs/engineering/abort-reason-catalog.md) |
 | Balance-drift telemetry (`Telemetry/`; advisory win-rate drift) | [`docs/engineering/balance-drift-telemetry.md`](../../docs/engineering/balance-drift-telemetry.md) |
 | Tick pipeline order + world-hash layers | [`adr-004-tick-pipeline-order.md`](../../docs/architecture/adr-004-tick-pipeline-order.md) |
-| Sim clock, pause / time-compression, session controls | [`docs/engineering/sim-clock-time-compression.md`](../../docs/engineering/sim-clock-time-compression.md) |
 | Policy evaluator boundary | [`adr-002-policy-evaluator.md`](../../docs/architecture/adr-002-policy-evaluator.md) |
 | Sim assembly boundary (no Unity) | [`adr-001-sim-assembly-boundary.md`](../../docs/architecture/adr-001-sim-assembly-boundary.md) |
 | Combat domain validators | [`adr-009-combat-domain-validators.md`](../../docs/architecture/adr-009-combat-domain-validators.md) |
