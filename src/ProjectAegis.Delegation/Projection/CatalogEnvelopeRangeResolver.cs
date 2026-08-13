@@ -3,7 +3,7 @@ namespace ProjectAegis.Delegation.Projection;
 using ProjectAegis.Data.Catalog;
 
 /// <summary>
-/// Resolves selected-unit envelope ranges from catalog weapon rows (meters → nm).
+/// Resolves selected-unit envelope ranges from catalog weapon rows and platform sensor fittings (meters → nm).
 /// Pure helpers for map overlay hosts (CMD-21/34 / Wave 2).
 /// </summary>
 public static class CatalogEnvelopeRangeResolver
@@ -51,27 +51,76 @@ public static class CatalogEnvelopeRangeResolver
     }
 
     /// <summary>
+    /// Resolves max sensor envelope nm from platform combat radius and approved sensor bindings
+    /// (combatRadiusNm × clamp(basePd, 0.05, 1.0); kill-chain envelope parity).
+    /// Returns false when catalog is null, platform is unknown, combat radius is non-positive,
+    /// or no approved sensor bindings exist for the platform.
+    /// </summary>
+    public static bool TryResolveSensorRangeNm(
+        ICatalogReader? catalog,
+        string? platformId,
+        out double maxRangeNm)
+    {
+        maxRangeNm = 0;
+        if (catalog is null || string.IsNullOrWhiteSpace(platformId))
+        {
+            return false;
+        }
+
+        if (!catalog.TryGetCombatRadiusNm(platformId, out var combatRadiusNm) || combatRadiusNm <= 0)
+        {
+            return false;
+        }
+
+        var any = false;
+        foreach (var sensor in catalog.GetSortedSensorBindings())
+        {
+            if (!string.Equals(sensor.PlatformId, platformId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (!IsApprovedSensorBinding(sensor))
+            {
+                continue;
+            }
+
+            var scale = Math.Clamp(sensor.BasePd, 0.05, 1.0);
+            maxRangeNm = Math.Max(maxRangeNm, combatRadiusNm * scale);
+            any = true;
+        }
+
+        return any && maxRangeNm > 0;
+    }
+
+    /// <summary>
     /// Resolves (sensorNm, weaponNm) for the selected unit.
-    /// Weapon range comes from catalog when present; both fall back to
+    /// Sensor range comes from catalog platform sensor fittings when present; weapon range from
+    /// catalog weapon envelope when present; both fall back to
     /// <see cref="DefaultSensorRangeNm"/> / <see cref="DefaultWeaponRangeNm"/>.
-    /// <paramref name="unitId"/> is reserved for future per-unit sensor wiring and does not
-    /// affect the current defaults when catalog weapon resolution succeeds or fails.
     /// </summary>
     public static (double SensorNm, double WeaponNm) ResolveSelectedUnitRanges(
         ICatalogReader? catalog,
         string? unitId,
         string weaponId = CatalogWeaponIds.MvpDefault)
     {
-        _ = unitId; // reserved for per-unit sensor/platform reach wiring
-
         var sensorNm = DefaultSensorRangeNm;
         var weaponNm = DefaultWeaponRangeNm;
 
-        if (TryResolveWeaponRangeNm(catalog, weaponId, out var maxRangeNm))
+        if (!string.IsNullOrWhiteSpace(unitId) &&
+            TryResolveSensorRangeNm(catalog, unitId, out var sensorRangeNm))
         {
-            weaponNm = maxRangeNm;
+            sensorNm = sensorRangeNm;
+        }
+
+        if (TryResolveWeaponRangeNm(catalog, weaponId, out var weaponRangeNm))
+        {
+            weaponNm = weaponRangeNm;
         }
 
         return (sensorNm, weaponNm);
     }
+
+    private static bool IsApprovedSensorBinding(CatalogSensorBinding sensor) =>
+        string.Equals(sensor.ReviewState, CatalogReviewStates.Approved, StringComparison.OrdinalIgnoreCase);
 }
