@@ -215,7 +215,8 @@ per slot — deterministically, regardless of order-log iteration order (req 14)
 
 An `Engage` order names its **shooter** in `order.Target` (the unit acting), not the thing being
 shot. `SimulationSession.ResolveEngageVictim(order, state)` maps that shooter to the actual victim
-`TargetId` **before** deconfliction, so the `(shooter, victim)` pairs it feeds
+`TargetId` **before** deconfliction (the full per-tick chain around this call is documented in
+[`session-orchestration.md`](session-orchestration.md)), so the `(shooter, victim)` pairs it feeds
 `SwarmSalvoDeconfliction` are correct. It is called twice per tick with identical inputs (once to
 build the deconflict slots, once when priming the accepted request) and is a pure function of
 `(order, ObservedState)`. The resolution order is:
