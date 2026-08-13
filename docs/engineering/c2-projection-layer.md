@@ -130,10 +130,7 @@ lookups; none touch sim or order-log state.
 
 The remappable input-action IDs the UI binds to (`input.cycle_unit`,
 `input.focus_primary_threat`, `input.cancel`) live in the sibling `Input/` folder
-([`C2InputActions`](../../src/ProjectAegis.Delegation/Input/C2InputActions.cs)), not here. That
-folder is the **write side** of the C2 loop — turning a UI command string into a validated human
-order or a controller mode change — documented in
-[c2-player-command-issuance.md](c2-player-command-issuance.md).
+([`C2InputActions`](../../src/ProjectAegis.Delegation/Input/C2InputActions.cs)), not here.
 
 ---
 
