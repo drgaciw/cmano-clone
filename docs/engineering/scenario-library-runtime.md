@@ -207,6 +207,7 @@ sim — selection is a pure `ApplyPreview` recompute.
 
 | Doc | For |
 |-----|-----|
+| [campaign-library-runtime.md](campaign-library-runtime.md) | The sibling **campaign** artifact class (`CampaignLibraryLister`, CMD-27.12) — ordered scenario progression browsed by the same Unity host. |
 | [scenario-document-authoring.md](scenario-document-authoring.md) | The `*.scenario.json` document / `ScenarioDocumentDto` model these rows read. |
 | [scenario-authoring-host.md](scenario-authoring-host.md) | The interactive edit host that opens a browsed scenario for authoring. |
 | [scenario-policy-authoring.md](scenario-policy-authoring.md) | `*.policy.json` sim policies — deliberately excluded from this browse list. |
