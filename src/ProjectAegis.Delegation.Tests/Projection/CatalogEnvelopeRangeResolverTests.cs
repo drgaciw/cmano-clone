@@ -65,12 +65,57 @@ public sealed class CatalogEnvelopeRangeResolverTests
     }
 
     [Test]
-    public void ResolveSelectedUnitRanges_catalog_hit_resolves_weapon_keeps_default_sensor()
+    public void TryResolveSensorRangeNm_null_catalog_returns_false()
+    {
+        Assert.That(
+            CatalogEnvelopeRangeResolver.TryResolveSensorRangeNm(null, "u1", out var nm),
+            Is.False);
+        Assert.That(nm, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void TryResolveSensorRangeNm_u1_from_baltic_fixture()
+    {
+        var catalog = InMemoryCatalogReader.BalticPatrolFixture();
+        Assert.That(
+            CatalogEnvelopeRangeResolver.TryResolveSensorRangeNm(catalog, "u1", out var maxRangeNm),
+            Is.True);
+
+        // combatRadiusNm 400 × max approved sensor basePd 1.0 (radar-1)
+        Assert.That(maxRangeNm, Is.EqualTo(400.0).Within(1e-9));
+    }
+
+    [Test]
+    public void TryResolveSensorRangeNm_platform_without_sensors_returns_false()
+    {
+        var catalog = InMemoryCatalogReader.BalticPatrolFixture();
+        Assert.That(
+            CatalogEnvelopeRangeResolver.TryResolveSensorRangeNm(catalog, "hostile-1", out var nm),
+            Is.False);
+        Assert.That(nm, Is.EqualTo(0));
+    }
+
+    [Test]
+    public void ResolveSelectedUnitRanges_catalog_hit_resolves_weapon_and_sensor()
     {
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
         var (sensor, weapon) = CatalogEnvelopeRangeResolver.ResolveSelectedUnitRanges(
             catalog,
             "u1",
+            CatalogWeaponIds.MvpDefault);
+
+        Assert.That(sensor, Is.EqualTo(400.0).Within(1e-9));
+        var expectedWeapon = CatalogWeaponDefaults.MvpEnvelope.MaxRangeMeters / 1852.0;
+        Assert.That(weapon, Is.EqualTo(expectedWeapon).Within(1e-9));
+    }
+
+    [Test]
+    public void ResolveSelectedUnitRanges_unknown_unit_keeps_default_sensor()
+    {
+        var catalog = InMemoryCatalogReader.BalticPatrolFixture();
+        var (sensor, weapon) = CatalogEnvelopeRangeResolver.ResolveSelectedUnitRanges(
+            catalog,
+            "no-such-unit",
             CatalogWeaponIds.MvpDefault);
 
         Assert.That(sensor, Is.EqualTo(CatalogEnvelopeRangeResolver.DefaultSensorRangeNm));
