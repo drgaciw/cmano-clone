@@ -1,14 +1,16 @@
 # Sprint 120 — C2 command issuance residual-scope (DRG-155)
 
+**Status:** **In Progress** — residual-scope audit/docs only; **not** a new CMD-31 pipeline  
 **Dates:** 2026-08-13  
-**Predecessor:** S119 hygiene ([DRG-154](https://linear.app/drgamtd-workspace/issue/DRG-154); evidence [`production/qa/s119-hygiene-2026-08-12.md`](../qa/s119-hygiene-2026-08-12.md))  
-**Linear:** [DRG-155](https://linear.app/drgamtd-workspace/issue/DRG-155)  
-**Epic:** [DRG-149](https://linear.app/drgamtd-workspace/issue/DRG-149)  
+**Predecessor:** S119 hygiene **COMPLETE** ([DRG-154](https://linear.app/drgamtd-workspace/issue/DRG-154) Done · [#485](https://github.com/drgaciw/cmano-clone/pull/485); evidence [`production/qa/s119-hygiene-2026-08-12.md`](../qa/s119-hygiene-2026-08-12.md))  
+**Linear:** [DRG-155](https://linear.app/drgamtd-workspace/issue/DRG-155) — **In Progress**  
+**Epic:** [DRG-149](https://linear.app/drgamtd-workspace/issue/DRG-149) — In Progress  
 **Stage:** **Release** · **Not Launch**  
 **Kickoff:** [`production/agentic/sprint-120-parallel-kickoff-2026-08-13.md`](../agentic/sprint-120-parallel-kickoff-2026-08-13.md)  
 **Doctrine:** ADR-010 / 007 / 001 · unity-csharp-architect pr-finish (cite only — no C# this sprint)
 
-> **Do not rebuild CMD-31. Do not touch DelegationBridge hotpath.**
+> **Residual-scope only. Do not rebuild CMD-31. Do not touch DelegationBridge hotpath.**  
+> CMD-31…36 core already landed in **S108** (`C2CommandIssuance`, `C2PlayerCommandBridge`, Unity toolbar, headless tests). Confirm and document gaps — do not re-implement.
 
 ## Goal
 
@@ -25,7 +27,7 @@ Residual-scope **audit/docs only**. Confirm the existing **S108** issuance path 
 
 | ID | AC |
 |----|-----|
-| S120-03 | Tracker/doc honesty: DRG-155 / Hub language says residual-scope, not “rebuild CMD-31”. Do not invent a new issuance API. |
+| S120-03 | Tracker/doc honesty: DRG-155 / Hub language says residual-scope, not “rebuild CMD-31”. Do not invent a new issuance API. | **Done** — S119 DoD checkboxes + S120 residual-scope headers aligned to merged reality |
 
 ## Landed path (confirm — do not rewrite)
 
@@ -77,9 +79,9 @@ Rebuild CMD-31 · rewrite `C2CommandIssuance` / `C2PlayerCommandBridge` · any C
 
 - [x] Kickoff published (S120-01)
 - [x] Residual inventory written (S120-02)
-- [ ] Optional S120-03 tracker wording (only if owner wants tiny hygiene)
-- [ ] DRG-155 closed or explicitly left Backlog with “residual-scope complete / no rebuild” comment
-- [ ] Stage remains **Release**
+- [x] S120-03 tracker/doc honesty (S119 DoD + residual-scope headers; no issuance rebuild language)
+- [ ] DRG-155 closed or explicitly left **In Progress** with “residual-scope complete / no rebuild” comment (owner gate — do not close until AC signed)
+- [x] Stage remains **Release**
 
 ---
 *S120 opened 2026-08-13 as residual-scope only. Do not rebuild CMD-31. Do not touch DelegationBridge hotpath. Stage **Release**. Not Launch.*
