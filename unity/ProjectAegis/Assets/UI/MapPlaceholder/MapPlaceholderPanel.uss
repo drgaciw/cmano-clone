@@ -36,6 +36,19 @@
     font-size: 12px;
 }
 
+.map-overlay-count-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0 8px 4px 8px;
+}
+
+.map-overlay-count-label {
+    font-size: 11px;
+    color: rgb(160, 180, 200);
+    margin-right: 10px;
+    margin-bottom: 2px;
+}
+
 .map-canvas {
     flex-grow: 1;
     margin: 4px 8px 8px 8px;
