@@ -251,7 +251,6 @@ dotnet test  src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj -v minim
 | Data-layer boundary decision | [`adr-006-data-layer-boundary.md`](../architecture/adr-006-data-layer-boundary.md) |
 | Scenario ↔ DB binding / validation engine | [`adr-008-mission-editor-validation-engine.md`](../architecture/adr-008-mission-editor-validation-engine.md) |
 | CLI verbs (propose/approve, workbook import, OSINT) | [`mission-editor-cli.md`](mission-editor-cli.md) |
-| OSINT ingestion feed that proposes staged sensor rows | [`osint-ingestion-pipeline.md`](osint-ingestion-pipeline.md) |
 | Production `.xlsx` (ClosedXML) adapter | [`src/ProjectAegis.Data.Excel/README.md`](../../src/ProjectAegis.Data.Excel/README.md) |
 | Determinism rules (clock, ordering, hashing) | [`determinism-and-replay.md`](determinism-and-replay.md) |
 | Hard invariants (extend-only write gate, snapshots) | [`AGENTS.md`](../../AGENTS.md#hard-invariants--never-break-these) |

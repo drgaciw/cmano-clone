@@ -313,7 +313,6 @@ inputs; their sensor files' headers note they "map platform titles for ImportQaS
 | Topic | Doc |
 |-------|-----|
 | Write-gate propose/approve internals, error-code catalog | [`catalog-write-gate.md`](catalog-write-gate.md) |
-| The other automated Track-B feed (OSINT open-source intel) | [`osint-ingestion-pipeline.md`](osint-ingestion-pipeline.md) |
 | Full Mission Editor CLI verb reference | [`mission-editor-cli.md`](mission-editor-cli.md) |
 | Data-layer map (readers, snapshots, scenario binding) | [`ProjectAegis.Data/README.md`](../../src/ProjectAegis.Data/README.md) |
 | Determinism rules (clock, ordering, hashing) | [`determinism-and-replay.md`](determinism-and-replay.md) |
