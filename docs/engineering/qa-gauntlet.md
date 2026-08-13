@@ -401,7 +401,6 @@ Gauntlet behavior is pinned by xUnit tests; run the relevant slice while iterati
 | Topic | Where |
 |-------|-------|
 | Orchestration loop (phases, TDD remediation, AAR) | [`.claude/skills/qa-gauntlet/SKILL.md`](../../.claude/skills/qa-gauntlet/SKILL.md) |
-| Oracle-sensitivity calibration (mutants / kill rate) | [`qa-gauntlet-saboteur.md`](qa-gauntlet-saboteur.md) |
 | Expect regen operator runbook | [`tools/qa-gauntlet/README-expect-regen.md`](../../tools/qa-gauntlet/README-expect-regen.md) |
 | Expect / tick discipline + CI contract | [`production/qa/gauntlet-expect-ci-discipline-2026-07-14.md`](../../production/qa/gauntlet-expect-ci-discipline-2026-07-14.md) |
 | Batch harness + fingerprint / determinism | [`docs/engineering/determinism-and-replay.md`](determinism-and-replay.md) · [`src/ProjectAegis.Delegation.Demo/README.md`](../../src/ProjectAegis.Delegation.Demo/README.md) |
