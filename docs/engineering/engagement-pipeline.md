@@ -307,7 +307,6 @@ combat-outcome reproducibility goldens live in [`tests/regression/`](../../tests
 |-------|-----|
 | Determinism rules, hashing, seeded RNG | [determinism-and-replay.md](determinism-and-replay.md) |
 | Stable abort codes (`Engagement|…|<CODE>`) | [abort-reason-catalog.md](abort-reason-catalog.md) |
-| CEC mesh + engage-on-remote-data (the `CecRemoteTrackUnavailable` track gate) | [cec-mesh-runtime.md](cec-mesh-runtime.md) |
 | End-to-end headless runner | [baltic-replay-harness.md](baltic-replay-harness.md) |
 | Policy evaluator boundary | [`adr-002-policy-evaluator.md`](../architecture/adr-002-policy-evaluator.md) |
 | Combat domain validators | [`adr-009-combat-domain-validators.md`](../architecture/adr-009-combat-domain-validators.md) |
