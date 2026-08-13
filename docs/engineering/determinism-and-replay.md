@@ -151,8 +151,8 @@ These are enforced repo-wide; see [`AGENTS.md` → Hard Invariants](../../AGENTS
 
 - **Production Baltic v2 replay hash `17144800277401907079`** must be preserved unless an ADR
   explicitly changes it. Verify: `grep -r "17144800277401907079" tests/ data/`.
-- **ReplayGolden 6/6** (core Baltic v2 suite) and **≥1232** solution tests, 0 failures
-  (monotonic — never regress).
+- **ReplayGolden 6/6** (core Baltic v2 suite) and **≥1638** solution tests, 0 failures
+  (post S95 gauntlet land; prior floor ≥1599; monotonic — never regress).
 - **Baltic v3 isolation** — `baltic-v3-*` policies and goldens are independent; never touch v2
   goldens when editing v3, and vice-versa.
 
@@ -185,7 +185,7 @@ grep -rn "DateTime.UtcNow\|DateTime.Now\|Random.Shared\|Guid.NewGuid" src --incl
 ## Before you merge a sim / controller / policy change
 
 1. `dotnet build ProjectAegis.sln` — 0 errors, 0 warnings.
-2. `dotnet test ProjectAegis.sln -v minimal` — ≥1232, 0 failures.
+2. `dotnet test ProjectAegis.sln -v minimal` — ≥1638, 0 failures.
 3. `ReplayGoldenSuiteTests` — 6/6 (command above).
 4. `grep -r "17144800277401907079" tests/ data/` — production hash still present.
 5. If you *intended* a behavior change, re-record only the affected isolated goldens and note

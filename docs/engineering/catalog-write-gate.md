@@ -241,7 +241,7 @@ dotnet build src/ProjectAegis.Data/ProjectAegis.Data.csproj
 dotnet test  src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj -v minimal
 ```
 
-`ProjectAegis.Data.Tests` (~406 tests) is part of the ≥1232-test solution baseline.
+`ProjectAegis.Data.Tests` (~406 tests) is part of the ≥1638-test solution baseline.
 
 ## See also
 
