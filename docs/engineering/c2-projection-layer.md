@@ -159,6 +159,49 @@ The map layer resolves tactical symbols in a data-driven, atlas-optional way:
 
 ---
 
+## Selected-unit envelope overlays (CMD-21/34)
+
+When a unit is selected, the map draws two range rings — a **sensor** reach and a **weapon**
+reach. Two pure helpers produce them; neither touches the sim, so the rings re-derive every
+frame and during replay scrub.
+
+- **[`CatalogEnvelopeRangeResolver`](../../src/ProjectAegis.Delegation/Projection/CatalogEnvelopeRangeResolver.cs)**
+  turns catalog rows into `(SensorNm, WeaponNm)` for the selected unit.
+- **[`TacticalOverlayProjection.ProjectSelectedUnitEnvelopes`](../../src/ProjectAegis.Delegation/Projection/TacticalOverlayProjection.cs)**
+  wraps those ranges into `Sensor` + `Weapon`
+  [`EnvelopeRingEntry`](../../src/ProjectAegis.Delegation/Projection/EnvelopeRingEntry.cs)
+  rows (returns empty when there is no selection). The caller supplies the ranges, so the same
+  projection works from a catalog hit, an engage context, or hard-coded test values.
+
+### How the ranges resolve
+
+`ResolveSelectedUnitRanges(catalog, unitId, weaponId)` resolves each ring independently and
+**fails safe to the defaults** — a null catalog, unknown unit, or unfitted platform never throws
+and never yields an empty overlay:
+
+| Ring | Source | Formula | Fallback |
+|------|--------|---------|----------|
+| **Sensor** | `TryResolveSensorRangeNm(catalog, platformId, …)` | `max` over the platform's **approved** sensor bindings of `combatRadiusNm × clamp(basePd, 0.05, 1.0)` (kill-chain envelope parity) | `DefaultSensorRangeNm` = **40 nm** |
+| **Weapon** | `TryResolveWeaponRangeNm(catalog, weaponId, …)` | weapon-envelope `MaxRangeMeters ÷ 1852` (m → nm) | `DefaultWeaponRangeNm` = **20 nm** |
+
+`TryResolveSensorRangeNm` returns `false` (→ default) when the catalog is null, the `platformId`
+is unknown or blank, `combatRadiusNm` is non-positive, or the platform has **no approved sensor
+bindings**. Only bindings whose `ReviewState` is `approved` (`CatalogReviewStates.Approved`,
+case-insensitive) contribute — a proposed/quarantined sensor never inflates the overlay. The
+`basePd` clamp floor (`0.05`) guarantees a fitted-but-weak sensor still projects a visible ring.
+
+Worked example (`InMemoryCatalogReader.BalticPatrolFixture`): unit `u1` has `combatRadiusNm = 400`
+and two approved radars (`radar-1` basePd `1.0`, `radar-2` basePd `0.75`); the sensor ring is
+`400 × 1.0 = 400 nm` (the higher-basePd radar wins). A platform with no sensor bindings
+(`hostile-1`) or an unknown unit falls back to the 40 nm default while the weapon ring still
+resolves from the catalog weapon envelope.
+
+> **Per-unit sensor wiring is live (DRG-159).** `ResolveSelectedUnitRanges` previously ignored
+> `unitId` and returned the default sensor range; it now resolves the sensor ring per platform via
+> `TryResolveSensorRangeNm`. The weapon ring is unchanged.
+
+---
+
 ## Projection catalog
 
 Grouped by the panel/surface they feed. All live in
@@ -174,6 +217,7 @@ Grouped by the panel/surface they feed. All live in
 | `App6Sidc` / `App6GlyphAtlas` / `App6AtlasCatalog` / `App6*` | APP-6/2525C glyph + SIDC + atlas resolution |
 | `ContactSummaryProjection` | Single-contact inspector line |
 | `CesiumBillboardProjection` | Cesium globe billboards (ADR-007 map path) |
+| `CatalogEnvelopeRangeResolver` → `TacticalOverlayProjection` | Selected-unit sensor/weapon range rings (`EnvelopeRingEntry`, CMD-21/34) — see [Selected-unit envelope overlays](#selected-unit-envelope-overlays-cmd-2134) |
 
 ### Force status & inspectors
 | Type | Produces |
