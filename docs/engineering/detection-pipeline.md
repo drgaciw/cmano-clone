@@ -32,8 +32,6 @@ checks is whether a track exists, and that track comes from here.
 |------|------|
 | [`DeterministicDetectionLoop.cs`](../../src/ProjectAegis.Sim/Sensors/DeterministicDetectionLoop.cs) | `RollTick(...)` — the pure, sorted per-tick roll of every detection trial. |
 | [`DetectionProbability.cs`](../../src/ProjectAegis.Sim/Sensors/DetectionProbability.cs) | The `Pd` formula (`ComputePd`). |
-| [`SensorModality.cs`](../../src/ProjectAegis.Sim/Sensors/SensorModality.cs) | `Radar` / `Infrared` / `Visual` trial modality (S111 / DRG-10). Radar folds RF jam + EMCON; IR/Visual do not. |
-| [`IrVisualDetection.cs`](../../src/ProjectAegis.Sim/Sensors/IrVisualDetection.cs) | Optical/thermal env-mask helpers (`ComputeVisualEnvMask`, `ComputeInfraredEnvMask`) for IR/EO trials. |
 | [`SwarmSensorScale.cs`](../../src/ProjectAegis.Sim/Sensors/SwarmSensorScale.cs) | Scales detection Pd by living swarm integrity (SWARM-04 / DRG-89) — see [swarm-runtime.md](swarm-runtime.md). |
 | [`DetectionEntityId.cs`](../../src/ProjectAegis.Sim/Sensors/DetectionEntityId.cs) | FNV-1a hash of `(observer, sensor, target)` → the stable RNG entity id. |
 | [`DetectionRollResult.cs`](../../src/ProjectAegis.Sim/Sensors/DetectionRollResult.cs) | One roll outcome: `(Trial, Pd, Draw, Detected)`. |
@@ -77,11 +75,9 @@ Both expose the same primary-target surface (`PrimaryTargetId`, `PrimaryBlueForc
    re-rolled.
 3. **EMCON gate:** if `trial.RequiresActiveRadar` and the observer's radar is not `Active`
    (`ScenarioEmconResolver.ResolveRadar` → `CatalogRadarEmconResolver`), skip the trial.
-4. **Jam:** for **radar** trials only, `jamStrength = max(trial.JamStrength, ScenarioJamResolver.ResolveJam(...))`.
-   A jammer applies when `simTick >= ActiveFromTick`, its `TargetId` matches, and its optional
-   `ObserverId` matches (null = all observers). **Infrared/Visual** trials skip the RF jammer fold
-   entirely and use only their authored `trial.JamStrength` (see
-   [Sensor modality](#sensor-modality-radar--infrared--visual)).
+4. **Jam:** `jamStrength = max(trial.JamStrength, ScenarioJamResolver.ResolveJam(...))`. A jammer
+   applies when `simTick >= ActiveFromTick`, its `TargetId` matches, and its optional `ObserverId`
+   matches (null = all observers).
 5. **Compute `Pd`** (below) and draw
    `SeededRng.UnitFloat(seed, RngDomain.Detection, entityId, simTick, drawIndex++)`, where
    `entityId = DetectionEntityId.FromTrial(observer, sensor, target)` (FNV-1a). `drawIndex`
@@ -97,73 +93,42 @@ Pd = clamp(basePd * envMask * eccmFactor * (1 - clamp(jamStrength, 0, 1)) * clam
 | Factor | Meaning | Default |
 |--------|---------|---------|
 | `basePd` | Base detection probability (inline JSON or catalog). | — |
-| `envMask` | Environmental attenuation (weather/terrain/sea-state); for IR/Visual it carries the optical/thermal mask (below). | `1.0` |
+| `envMask` | Environmental attenuation (weather/terrain/sea-state). | `1.0` |
 | `eccmFactor` | Electronic counter-countermeasures multiplier. | `1.0` |
-| `jamStrength` | Effective noise jam (higher = worse), clamped `[0,1]`. **RF jammers only fold into radar trials.** | `0.0` |
-| `swarmIntegrityScale` | Sensor degradation of a depleted drone swarm (`SwarmSensorScale`, SWARM-04). `1.0` = no swarm / full integrity; `0` when no drones remain. | `1.0` |
+| `jamStrength` | Effective noise jam (higher = worse), clamped `[0,1]`. | `0.0` |
+| `swarmIntegrityScale` | Sensor degradation of a depleted drone swarm (`SwarmSensorScale`, SWARM-04 / DRG-89). `1.0` = no swarm / full integrity; `0` when no drones remain. | `1.0` |
 
 `swarmIntegrityScale` is **precomputed per observer** and carried on the trial
-(`ScenarioDetectionTrial.SwarmIntegrityScale`) — scenarios/spawners derive it from living integrity
-via [`SwarmSensorScale.ForTrial(droneCount, maxDrones)`](../../src/ProjectAegis.Sim/Sensors/SwarmSensorScale.cs)
-so `ComputePd` stays a pure function of its arguments. Its provenance and the integrity ledger are
-documented in [swarm-runtime.md](swarm-runtime.md).
+(`ScenarioDetectionTrial.SwarmIntegrityScale`, default `1.0`), so `ComputePd` stays a pure function
+of its arguments and never reads mutable swarm state. A single-platform (non-swarm) observer always
+passes `1.0`, leaving the pre-SWARM-04 behaviour unchanged.
 
 `RngDomain.Detection` is domain `0` — kept distinct from `Engage`/`Combat`/etc. so an added
 detection draw never shifts the engagement RNG stream (see [`determinism-and-replay.md`](determinism-and-replay.md)).
 
----
+### Swarm-integrity sensor scale (`SwarmSensorScale`, SWARM-04)
 
-## Sensor modality (Radar / Infrared / Visual)
+When an observer is a drone swarm, its sensor picture degrades as the swarm is attrited. A
+scenario/spawner derives the trial's scale from *living* integrity with
+[`SwarmSensorScale`](../../src/ProjectAegis.Sim/Sensors/SwarmSensorScale.cs) — a pure, monotonic
+curve — and passes the result as `SwarmIntegrityScale`:
 
-S111 / DRG-10 gave each trial a
-[`SensorModality`](../../src/ProjectAegis.Sim/Sensors/SensorModality.cs)
-(`Radar = 0`, `Infrared = 1`, `Visual = 2`). Modality changes **two** things in `RollTick` and
-`DetectionTrialResolver`; the Pd formula itself is unchanged:
+```csharp
+fraction = clamp(droneCount / maxDrones, 0, 1)          // 0 when no drones remain
+scale    = fraction^integrityPower                       // integrityPower default 1.0 → linear
+double s = SwarmSensorScale.ForTrial(droneCount, maxDrones);   // == scale, clamped [0,1]
+```
 
-| Behaviour | `Radar` (default) | `Infrared` / `Visual` |
-|-----------|-------------------|-----------------------|
-| RF noise jammers (`ScenarioJammer` / `ScenarioJamResolver`) | Folded into `jamStrength` | **Ignored** — only the trial's authored `JamStrength` applies (optical/IR jam is a separate, default-`0` channel) |
-| EMCON / active-radar gate (`RequiresActiveRadar`) | Honoured (a passive radar is skipped) | Forced `false` by the resolver — an EO/IR seeker does not emit, so it is never EMCON-gated |
-| `envMask` source | Authored `EnvMask` as-is (no day/night model) | Optical/thermal mask from `IrVisualDetection` (below) |
+- **Monotonic non-decreasing** in `droneCount` (more living drones never lower detection quality).
+- **Zero drones → `0`** (a dead swarm contributes no Pd), so `ComputePd` yields `Pd = 0` regardless
+  of `basePd`.
+- `integrityPower` tunes the curve (`<1` rewards a depleted swarm slightly, `>1` punishes depletion
+  harder); `minLivingScale` sets a floor while at least one drone survives. Both are compile-time
+  defaults call sites may override per scenario.
 
-`Radar` is the schema and enum default, so every pre-S111 call site and inline trial keeps its exact
-behaviour — modality is purely additive.
-
-### Optical / thermal env masks
-
-[`IrVisualDetection`](../../src/ProjectAegis.Sim/Sensors/IrVisualDetection.cs) produces the `EnvMask`
-value for EO/IR trials (radar continues to use `EnvMask` as authored):
-
-- **Visual/EO** — `ComputeVisualEnvMask(dayFraction, weatherMask = 1.0, nightFloor = 0.05)` =
-  `clamp(dayFraction × weatherMask, 0, 1)`, then raised to at least `nightFloor`. The default
-  `DefaultVisualNightFloor = 0.05` keeps night from forcing a total blackout (`Pd = 0`).
-- **Infrared** — `ComputeInfraredEnvMask(thermalContrast, weatherMask = 1.0)` =
-  `clamp(thermalContrast × weatherMask, 0, 1)`. Day/night independent (thermal contrast, not
-  illumination).
-
-These are pure helpers; a scenario/spawner computes the mask once and passes it as the trial's
-`EnvMask`, so the roll stays deterministic.
-
-### Where modality comes from: the catalog
-
-Modality is an **extend-only** catalog column, not an inline trial field. It flows in only on the
-**`catalogDetection`** path (profile-authored inline `detection` trials are used verbatim, with no
-modality rewrite):
-
-- [`CatalogSensorBinding.Modality`](../../src/ProjectAegis.Data/Catalog/CatalogSensorBinding.cs) — a
-  string, default [`CatalogSensorModalities.Radar`](../../src/ProjectAegis.Data/Catalog/CatalogSensorModalities.cs)
-  (`"Radar"` / `"Infrared"` / `"Visual"`). Added by migration
-  [`016_sensor_modality.sql`](../../assets/data/catalog/migrations/016_sensor_modality.sql)
-  (`ALTER TABLE sensor ADD COLUMN modality TEXT NOT NULL DEFAULT 'Radar'`); the reader's
-  `NormalizeModality` maps a null/blank column back to `Radar`, so legacy rows are safe.
-- [`DetectionTrialResolver.Resolve`](../../src/ProjectAegis.Sim/Scenario/DetectionTrialResolver.cs)
-  joins each `catalogDetection` target to its `(platformId, sensorId)` sensor binding and calls
-  `ParseSensorModality` (case-insensitive; **unknown / empty → `Radar`**). For a resolved IR/Visual
-  binding it also forces `RequiresActiveRadar = false` on the emitted trial.
-
-Baltic fixtures exercise all three: seed platform `u1` carries `radar-1` (Radar), `fixture-ir-1`
-(Infrared, `basePd 0.80`) and `fixture-visual-1` (Visual, `basePd 0.70`); Baltic v3 `ucav-blue` has
-an `internal-ir` (Infrared) seeker.
+The living-integrity **ledger** these counts come from (per-swarm loss/regen deltas and the
+integrity timeline hash) is documented in [swarm-runtime.md](swarm-runtime.md); this page only
+covers how that integrity lands in the detection roll.
 
 ---
 
@@ -300,11 +265,8 @@ tactical picture (see [`c2-projection-layer.md`](c2-projection-layer.md)).
 
 - **New Pd factor?** Add it to `DetectionProbability.ComputePd` *and* thread it through
   `ScenarioDetectionTrial` + `DetectionTrialResolver`. Keep the multiplicative-clamp shape;
-  changing it will move detection goldens.
-- **New sensor modality?** Extend `SensorModality` and `CatalogSensorModalities`, map the token in
-  `DetectionTrialResolver.ParseSensorModality` (keep the unknown → `Radar` default), and decide in
-  `RollTick` whether it folds RF jam / is EMCON-gated. Catalog schema changes stay **extend-only**
-  (a new additive migration, never an in-place column rewrite).
+  changing it will move detection goldens. (The `swarmIntegrityScale` factor is precomputed on the
+  trial — do not read swarm state inside `ComputePd`.)
 - **New lifecycle stage or timing?** Extend `ContactLifecycleState` / `ScenarioContactLifecycle`
   and emit the transition inside `EmitLifecyclePromotions` — never mutate state outside `Tick` /
   the BDA/kill hooks.
@@ -327,13 +289,8 @@ tactical picture (see [`c2-projection-layer.md`](c2-projection-layer.md)).
 | `PdContactKillTests` / `PdContactBdaLifecycleTests` | Kill / BDA-lost removal. |
 | `ScenarioContactSimulatorTests` / `ScenarioContactEmconTests` | Scheduled seeds + EMCON gating. |
 | `ScenarioJamResolverTests` / `EccmScenarioFactorTests` | Jam/ECCM Pd inputs. |
-| `IrVisualDetectionTests` | Optical/thermal env masks + RF-jam gate (radar suppressed, IR/Visual unaffected). |
-| `DetectionTrialResolverTests` | Catalog `modality` → trial modality + `RequiresActiveRadar` for IR/Visual. |
 | `SwarmSensorScaleTests` / `SwarmDetectionLoopIntegrationTests` | Swarm-integrity Pd scaling. |
 | `DatalinkSidePictureMergerTests` | Side sharing, share lag, comms-gated sharing. |
-
-The catalog-side modality column + migration/idempotency is pinned by
-`ProjectAegis.Data.Tests/Catalog/SensorModalityCatalogTests`.
 
 ---
 
