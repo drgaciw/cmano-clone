@@ -1,8 +1,9 @@
 # Sprint 119 — Hygiene + tracker sync
 
+**Status:** **COMPLETE** (merged [#485](https://github.com/drgaciw/cmano-clone/pull/485) @ `c47019a0`, 2026-08-12)  
 **Dates:** 2026-08-12  
 **Predecessor:** S118 merged ([PR #484](https://github.com/drgaciw/cmano-clone/pull/484) @ `4a7eef9`)  
-**Linear:** [DRG-154](https://linear.app/drgamtd-workspace/issue/DRG-154)  
+**Linear:** [DRG-154](https://linear.app/drgamtd-workspace/issue/DRG-154) — **Done**  
 **Epic:** [DRG-149](https://linear.app/drgamtd-workspace/issue/DRG-149)  
 **Stage:** **Release** · **Not Launch**  
 **Evidence:** `production/qa/s119-hygiene-2026-08-12.md`
@@ -57,5 +58,5 @@ S120/S121 product work · promote `swarm_*` axes · Phase N · DelegationBridge 
 - [x] PDA project Completed
 - [x] Hub + Linear summary point at S120, not S113/S114
 - [x] This plan + evidence note on Git
-- [ ] This hygiene PR merged to `main`
-- [ ] DRG-154 Done with PR link
+- [x] This hygiene PR merged to `main` ([#485](https://github.com/drgaciw/cmano-clone/pull/485) @ `c47019a0`)
+- [x] DRG-154 Done with PR link ([#485](https://github.com/drgaciw/cmano-clone/pull/485))
