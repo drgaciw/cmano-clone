@@ -270,4 +270,5 @@ tactical picture (see [`c2-projection-layer.md`](c2-projection-layer.md)).
 | [baltic-replay-harness.md](baltic-replay-harness.md) | The runner that drives the tick-4 detection slice end-to-end. |
 | [determinism-and-replay.md](determinism-and-replay.md) | Seeded RNG domains, world-hash layers, and the golden-fixture workflow. |
 | [c2-projection-layer.md](c2-projection-layer.md) | How contact transitions become the tactical picture. |
+| [watch-attention-autopause-runtime.md](watch-attention-autopause-runtime.md) | How first hostile/unknown and own-side `Lost` transitions become watch-attention cards + auto-pause. |
 | [`ProjectAegis.Sim/README.md`](../../src/ProjectAegis.Sim/README.md) | The `Sensors/` folder in the wider simulation core. |

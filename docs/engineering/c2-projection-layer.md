@@ -360,3 +360,4 @@ dotnet test  src/ProjectAegis.Delegation.Tests/ProjectAegis.Delegation.Tests.csp
 | Batch CSV → oracle QA loop | [qa-gauntlet.md](qa-gauntlet.md) |
 | Order-log schema | [ADR-003](../architecture/adr-003-order-log-schema.md) |
 | C2 map / APP-6 presentation | [ADR-007](../architecture/adr-007-c2-map-presentation.md) |
+| Watch-attention queue read model + auto-pause spine | [watch-attention-autopause-runtime.md](watch-attention-autopause-runtime.md) |
