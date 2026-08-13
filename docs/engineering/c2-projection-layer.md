@@ -259,6 +259,58 @@ UXML-only change, no scene or host rebuild. Coverage lives in
 
 ---
 
+## Map scale, measure & unit-cycle helpers (CMD-20 / 28.4 / 28.5)
+
+The remaining map-HUD helpers live together in
+[`MapScaleProjection.cs`](../../src/ProjectAegis.Delegation/Projection/MapScaleProjection.cs)
+as three small **pure-math static classes**. Like the layer stack, none of them read the order
+log or the sim — their inputs are the **camera** (altitude, meters-per-screen-unit) and UI-local
+ids/coordinates — so they are safe to re-run every frame and never touch the replay fingerprint.
+
+| Helper | Track | `Project`/entry point | Immutable result |
+|--------|-------|-----------------------|------------------|
+| [`MapScaleProjection`](../../src/ProjectAegis.Delegation/Projection/MapScaleProjection.cs) | CMD-20 | `Project(cameraAltitudeMeters, metersPerScreenUnit)` | `MapScaleState(ScaleBarLabel, CameraAltitudeLabel, ScaleNauticalMiles, CameraAltitudeMeters)` |
+| `MapMeasureProjection` | CMD-28.4 | `Measure(fromX, fromY, toX, toY, metersPerUnit)` | `MapMeasureResult(RangeMeters, RangeNauticalMiles, BearingDegrees, Label)` |
+| `UnitCycleProjection` | CMD-28.5 | `Next(unitIds, currentId)` / `Previous(unitIds, currentId)` | `string?` (next/prev id) |
+
+**How each is derived (read-only, deterministic):**
+
+- **Scale bar / altitude** — `metersPerScreenUnit` is converted to nautical miles
+  (`MetersPerNauticalMile = 1852.0`); both inputs are clamped to `>= 0`. `FormatScaleBar`
+  picks precision by magnitude (`SCALE 120 NM` ≥ 100, `SCALE 42.5 NM` ≥ 10, else `SCALE 3.14 NM`)
+  and `FormatAltitude` switches to km at ≥ 1 000 000 m (`CAM ALT 868 km` vs `CAM ALT 12000 m`).
+  A non-positive scale/altitude renders the em-dash placeholder (`SCALE —` / `CAM ALT —`) rather
+  than `0`, so an un-initialized camera reads as "unknown", not "zero range".
+- **Range / bearing** — Euclidean distance in screen units × `metersPerUnit` → meters → nm;
+  bearing is `atan2(dx, dy)` normalized to `[0, 360)` so **due-north is `000.0°`** (compass
+  convention, not the math-`atan2` `x`-axis convention). The formatted `Label` is
+  `"RNG {nm:0.00} NM  BRG {brg:000.0}°"`.
+- **Unit cycle** — walks an already-ordered id list with `StringComparer.Ordinal` and wraps at
+  both ends. Fail-safe: an empty/`null` list ⇒ `null`; a `null`/empty `currentId` ⇒ the first
+  (`Next`) or last (`Previous`) id; an id not in the list ⇒ the first (`Next`) or last
+  (`Previous`) id. It expects an already-ordered id list (e.g. the sorted friendly-unit ids the
+  OOB/datalink feeds build) — it does not sort internally.
+
+**Unity host wiring:** [`MapScaleHudPanelHost`](../../unity/ProjectAegis/Assets/Scripts/Runtime/MapScaleHudPanelHost.cs)
+(a separate `UIDocument` panel from `MapPlaceholderPanelHost`, DRG-67) binds the two labels
+`map-scale-bar` / `map-scale-altitude` under a `map-scale-hud-root` element. The host does **not**
+call `Project` itself — the camera/globe layer pushes a computed `MapScaleState` in via
+`Apply(state)` (also the headless/test path), and `LastState` exposes the last applied value.
+Label lookups are **null-safe `Q`** and the panel wires as long as *either* label resolves, so a
+trimmed UXML that omits one label still works; there is no scale HUD in a default shipping UXML
+today, so the panel is host-ready but must be added to a UXML to appear. `MapMeasureProjection`
+and `UnitCycleProjection` are host-agnostic pure helpers intended for the range/bearing measure
+tool and next/prev-unit cycling respectively; today they are exercised only by unit tests (no
+production host or input-action call site yet), so treat them as ready-to-wire building blocks.
+
+Coverage: [`MapScaleAndCycleTests.cs`](../../src/ProjectAegis.Delegation.Tests/Projection/MapScaleAndCycleTests.cs).
+
+> **Boundary reminder:** these are camera/interaction helpers, not sim reads. They convert
+> screen-space geometry and camera state into labels/ids; nothing here writes to `DecisionLog`,
+> the sim, or the catalog, and none of it participates in the replay fingerprint.
+
+---
+
 ## Projection catalog
 
 Grouped by the panel/surface they feed. All live in
@@ -276,6 +328,9 @@ Grouped by the panel/surface they feed. All live in
 | `DatalinkUnitPairFeed` → `DatalinkPictureProjection` | Friendly unit-pair datalink mesh edges (`DatalinkEdgeEntry`, CMD-32) |
 | `DoctrineMapOverlayProjection` | Per-unit ROE/source doctrine map rows (`DoctrineMapOverlayEntry`, CMD-33) |
 | `MapLayerStackProjection` / `MapLayerStackState` → `MapLayerStackApplyState` | UI-local basemap layer checklist + `LAYERS: n/n` HUD (`MapLayerStackPresentation`, CMD-28.2); `MapLayerStackStore` holds visibility (not sim/DecisionLog) |
+| `MapScaleProjection` | Scale bar (NM) + camera-altitude labels from camera state (`MapScaleState`, CMD-20; camera-driven, not sim) |
+| `MapMeasureProjection` | Range/bearing measure-tool geometry (`MapMeasureResult`, CMD-28.4; north = `000.0°`) |
+| `UnitCycleProjection` | Next/prev unit id over an ordered list, wrapping + fail-safe (CMD-28.5) |
 | `App6Sidc` / `App6GlyphAtlas` / `App6AtlasCatalog` / `App6*` | APP-6/2525C glyph + SIDC + atlas resolution |
 | `ContactSummaryProjection` | Single-contact inspector line |
 | `CesiumBillboardProjection` | Cesium globe billboards (ADR-007 map path) |
