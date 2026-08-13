@@ -18,7 +18,8 @@ replay. It is verified against source and pinned by the tests listed at the end.
   owns one `WatchQueue` + one `WatchPauseGate`, exposes `ReportContactTransitions` /
   `ReportOwnSideLoss`, and owns the pause/resume clock controls.
 - **Clock:** [`SimClock`](../../src/ProjectAegis.Sim/Time/SimClock.cs) — the `IsPaused` flag the gate
-  drives (the gate never touches the clock directly).
+  drives (the gate never touches the clock directly). The clock, pause precedence, and time
+  compression are documented in [sim-clock-time-compression.md](sim-clock-time-compression.md).
 - **Presentation:** [`WatchAttentionQueueProjection`](../../src/ProjectAegis.Delegation/Projection/WatchAttentionQueueProjection.cs)
   — the read-only UI contract over the queue.
 - **Related:** the AI cognitive-load model with the similar name is a **different** subsystem — see
