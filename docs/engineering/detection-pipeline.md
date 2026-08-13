@@ -18,9 +18,6 @@ checks is whether a track exists, and that track comes from here.
   the *end-to-end runner* that drives this slice each tick is
   [`baltic-replay-harness.md`](baltic-replay-harness.md). This page documents what the sensor
   code actually **does** at runtime and how to extend it without breaking replay goldens.
-- **Sensor modality:** the `Radar` / `Infrared` / `Visual` layer on top of this slice — passive
-  IR/EO trials that ignore RF jammers and skip the active-radar EMCON gate — is documented
-  separately in [`sensor-modality-detection.md`](sensor-modality-detection.md).
 
 > **Why a separate detection sub-hash.** Detection is mixed into its own layer
 > (`SimTickPipeline.DetectionSubhash`) before it is folded into the combined world hash. That lets
