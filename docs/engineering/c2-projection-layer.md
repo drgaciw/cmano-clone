@@ -159,6 +159,65 @@ The map layer resolves tactical symbols in a data-driven, atlas-optional way:
 
 ---
 
+## Tactical map overlays & the overlay-count HUD (CMD-21/32/33/34)
+
+On top of the symbol picture, the map surfaces three optional **overlays** for the selected
+unit and friendly force. Each is a pure projection; the Unity host folds them into
+count-only HUD labels. These landed with the S107/S108 UI-maturity train and are extended
+additively (new UXML labels only) — see the `MapPlaceholderPanel.uxml` overlay-count row.
+
+| Overlay | Projection (pure, `src/…/Projection/`) | Row record | Tracked as |
+|---------|----------------------------------------|------------|------------|
+| **Envelope rings** | [`TacticalOverlayProjection.ProjectSelectedUnitEnvelopes`](../../src/ProjectAegis.Delegation/Projection/TacticalOverlayProjection.cs) | `EnvelopeRingEntry(UnitId, RingKind, Domain, RangeNm, IsSelectedUnit)` | CMD-21 (Phase A baseline) / CMD-34 |
+| **Datalink edges** | [`DatalinkUnitPairFeed.ProjectEdges`](../../src/ProjectAegis.Delegation/Projection/DatalinkUnitPairFeed.cs) → [`DatalinkPictureProjection`](../../src/ProjectAegis.Delegation/Projection/DatalinkPictureProjection.cs) | `DatalinkEdgeEntry(FromUnitId, ToUnitId, LinkType, Status)` | CMD-32 |
+| **Doctrine rows** | [`DoctrineMapOverlayProjection.Project`](../../src/ProjectAegis.Delegation/Projection/DoctrineMapOverlayProjection.cs) | `DoctrineMapOverlayEntry(UnitId, RoeLabel, SourceLabel, NormalizedX?, NormalizedY?)` | CMD-33 |
+
+**How each overlay is derived (read-only, deterministic):**
+
+- **Envelope rings** — for the selected unit only, emit exactly two rings: a `Sensor` ring and
+  a `Weapon` ring (`RingKind` = `"Sensor"`/`"Weapon"`). Ranges come from
+  [`CatalogEnvelopeRangeResolver.ResolveSelectedUnitRanges`](../../src/ProjectAegis.Delegation/Projection/CatalogEnvelopeRangeResolver.cs),
+  which reads the weapon envelope from `ICatalogReader.TryGetWeaponEnvelope` and converts
+  meters → nautical miles (`1 nm = 1852 m`). When the catalog is missing/unknown or the max
+  range is non-positive, it falls back to `DefaultSensorRangeNm = 40` / `DefaultWeaponRangeNm = 20`
+  so a ring is always drawable. No selection ⇒ **empty** list.
+- **Datalink edges** — build a simple mesh over the **sorted, distinct, alive friendly unit
+  ids** (`u0→u1, u1→u2, …`) keyed by a catalog link. Link resolution prefers a caller-supplied
+  `preferredLinkId`, then the first `Tactical` catalog link, then the first link of any type.
+  Fewer than two units, or no catalog links, ⇒ **empty** mesh. `ProjectEdges` stamps status
+  `Up` on the produced pairs.
+- **Doctrine rows** — one row per alive friendly unit carrying its effective ROE label and
+  inheritance source, ordered by `UnitId` (`StringComparer.Ordinal`). When map symbols are
+  supplied, each row is annotated with the matching symbol's normalized `(x, y)` (friendly OOB
+  symbols use `UnitId` as `SymbolId`); otherwise positions stay `null`.
+
+**Apply-state (count-only presentation):**
+[`MapPanelApplyState.Apply`](../../src/ProjectAegis.Delegation/Projection/MapPanelApplyState.cs)
+folds the bound `MapPanelState` plus the (nullable) overlay lists into an immutable
+`MapPanelPresentation`. Overlays are **count-only at the presentation seam** — `Apply` reports
+`EnvelopeRingCount` / `DatalinkEdgeCount` / `DoctrineOverlayCount` via a null-safe `CountNonNull`
+(null **or** empty ⇒ `0`; null elements are skipped). `LodOutputCount` defaults to the bound
+symbol count when no LOD reduction is supplied (REQ-20 Phase N). The overloads are additive, so
+existing call sites that pass no overlays keep the old three-arg behavior.
+
+**Unity host wiring:** `MapPlaceholderPanelHost.ApplyOverlayCounts()`
+([`unity/…/Runtime/MapPlaceholderPanelHost.cs`](../../unity/ProjectAegis/Assets/Scripts/Runtime/MapPlaceholderPanelHost.cs))
+runs each projection, calls `MapPanelApplyState.Apply`, stores the counts on
+`LastEnvelopeRingCount` / `LastDatalinkEdgeCount` / `LastDoctrineOverlayCount`, and writes the
+`ENVELOPES: n` / `DATALINKS: n` / `DOCTRINE: n` label text. Label lookups are **null-safe `Q`**
+by name (`envelope-ring-count`, `datalink-edge-count`, `doctrine-overlay-count`), so a panel
+whose UXML omits a label simply skips it — **no scene or panel rebuild is required** to add one.
+The default `MapPlaceholderPanel.uxml` currently ships the `envelope-ring-count` and
+`datalink-edge-count` labels; `doctrine-overlay-count` is host-supported but not yet in the
+default UXML.
+
+> **Boundary reminder:** these overlays are presentation reads only. Ranges/links/doctrine come
+> from the catalog and projections; the host never writes to `DecisionLog`, the sim, or the
+> catalog (ADR-010 / ADR-007). Envelope/datalink/doctrine work is a *subset* of the full CMD-30
+> overlay control, not the whole Phase N EW product.
+
+---
+
 ## Projection catalog
 
 Grouped by the panel/surface they feed. All live in
@@ -171,6 +230,10 @@ Grouped by the panel/surface they feed. All live in
 | `ContactPictureProjection` | Active contact tracks from `ContactChange` rows; `ProjectWithBda` merges order-log BDA "Lost" rows |
 | `SensorC2Projection` | Contact picture + per-tick indicators (radar EMCON, fire-control track, active engagements) via `ISensorC2WorldIndicators` |
 | `MapPictureProjection` → `MapPanelBinder` | Tactical map symbols + ghost/frozen comms overlays |
+| `MapPanelApplyState` → `MapPanelPresentation` | Headless apply seam: theater label, symbol/selection/ghost tallies, overlay counts + LOD count |
+| `TacticalOverlayProjection` / `CatalogEnvelopeRangeResolver` | Selected-unit sensor/weapon envelope rings (`EnvelopeRingEntry`), catalog range → nm resolution (CMD-21/34) |
+| `DatalinkUnitPairFeed` → `DatalinkPictureProjection` | Friendly unit-pair datalink mesh edges (`DatalinkEdgeEntry`, CMD-32) |
+| `DoctrineMapOverlayProjection` | Per-unit ROE/source doctrine map rows (`DoctrineMapOverlayEntry`, CMD-33) |
 | `App6Sidc` / `App6GlyphAtlas` / `App6AtlasCatalog` / `App6*` | APP-6/2525C glyph + SIDC + atlas resolution |
 | `ContactSummaryProjection` | Single-contact inspector line |
 | `CesiumBillboardProjection` | Cesium globe billboards (ADR-007 map path) |
