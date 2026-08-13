@@ -14,8 +14,8 @@
       ]
     },
     "gitnexus": {
-      "command": "C:\\Users\\dgorn\\AppData\\Roaming\\npm\\gitnexus.cmd",
-      "args": ["mcp"]
+      "command": "npx",
+      "args": ["-y", "gitnexus@latest", "mcp"]
     },
     "buildkite": {
       "url": "https://mcp.buildkite.com/mcp"
