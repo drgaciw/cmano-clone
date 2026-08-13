@@ -307,48 +307,6 @@ exact bytes.
 - **Never** reference ClosedXML from the core — keep binary serialization in the
   `ProjectAegis.Data.Excel` edge assembly (ADR-006).
 
-## Host seam — UnityAdapter / CLI bridges
-
-The `Platform/` pipeline above is pure `ProjectAegis.Data`. A Unity `EditorWindow` /
-`MonoBehaviour` (or a headless CLI/test) never calls it directly and never opens SQLite or the
-write gate itself — it goes through three **static delegating façades** in
-[`ProjectAegis.Delegation.UnityAdapter/Bridge/`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/).
-Each façade adds **no domain logic**: it validates arguments, opens the catalog reader when it needs
-one, injects a **deterministic `FixedCatalogClock(clockTicks)`** (never `DateTime.UtcNow`), and
-forwards to the Data-layer service. This keeps the presentation layer a *client*, not sim/catalog
-authority (ADR-010 §2–3, ADR-001), and preserves every governance invariant below.
-
-| Bridge (ADR-011 phase) | Delegates to | Surface |
-|------------------------|--------------|---------|
-| [`PlatformCatalogExportBridge`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/PlatformCatalogExportBridge.cs) (Phase C, **read-only**) | `PlatformCatalogExportResolver` + `PlatformWorkbookExporter` | `ExportFromDatabase(dbPath, snapshotId, clockTicks, exporter?)`, `ExportBalticWorkbook`, `ExportToFile` / `ExportBalticToFile`, `WriteWorkbookToFile`, `DiffUneditedRoundTrip` / `DiffBalticUneditedRoundTrip` |
-| [`PlatformDesignAssistantBridge`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/PlatformDesignAssistantBridge.cs) | `PlatformDesignAssistant` (one static instance) | `Draft(catalog, brief)`, `DraftFromDatabase(dbPath, brief, layerVersion)`, `Propose(dbPath, brief, clockTicks, actorType, actorId, rationale?)` |
-| [`PlatformWorkbookWriteBridge`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/PlatformWorkbookWriteBridge.cs) (Phase D, **write**) | `PlatformWorkbookWriteService` (one static instance) | `ExportBalticWorkbook`, `ProposeWorkbook`, `ProposeWorkbookFromFile`, `ApproveBatches`, `RejectBatches` |
-
-Behaviour worth knowing:
-
-- **Read stays read.** `PlatformCatalogExportBridge` resolves the snapshot via
-  `PlatformCatalogExportResolver.TryResolve` (throws `InvalidOperationException` when the snapshot
-  does not resolve against the DB), resolves a `CatalogExportManifest`, and exports through
-  `PlatformWorkbookExporter` — **no write-gate calls, no propose/approve, no direct SQLite writes**.
-  `DiffUneditedRoundTrip` compares an export against itself, i.e. it exercises the load-bearing
-  [empty-diff-on-unedited](#the-round-trip-end-to-end) invariant from the host side.
-- **Writes only through the service + gate.** `PlatformWorkbookWriteBridge.Propose*` /
-  `Approve*` / `Reject*` forward to `PlatformWorkbookWriteService` — which stages through the
-  extend-only [`CatalogWriteGate`](catalog-write-gate.md). The bridge never bypasses the gate, and
-  approve stays **human-gated for production DBs**. `ProposeWorkbookFromFile` resolves the on-disk
-  format via `PlatformWorkbookIoSelection.Resolve(path, ioFlag)` (canonical text vs `.xlsx`).
-- **Provenance is threaded through.** Every write-side call takes `actorType` / `actorId` (and an
-  optional `rationale`) so the write gate records who proposed/approved a batch;
-  `PlatformDesignAssistantBridge.Propose` defaults these to `agent` /
-  `platform-design-assistant` (see [platform-design-assistant.md](platform-design-assistant.md)).
-- **Determinism.** The `clockTicks` parameter becomes a `FixedCatalogClock`, so the `_Meta` sheet
-  timestamp / content hash and any staged rows are reproducible for a given input — the same rule the
-  [core pipeline](#the-round-trip-end-to-end) follows.
-
-These façades are the intended binding point for the Unity Platform Editor chrome and are exercised
-headlessly by the adapter tests and the Play Mode smoke harness (below); they carry no state beyond
-the two static service instances.
-
 ## Verify against source
 
 | Concern | Source of truth |
@@ -363,7 +321,6 @@ the two static service instances.
 | Adapter selection / fallback | `src/ProjectAegis.Data/Platform/PlatformWorkbookIoSelection.cs`, `CanonicalTextWorkbookIo.cs` |
 | Pinned behaviour | `ProjectAegis.Data.Tests/Platform/PlatformWorkbook{RoundTrip,Validator,Importer,PhaseBImport,PhaseDWrite,GovernanceAdversarial,PeIntegrationHardening}Tests.cs`, `ProjectAegis.Data.Excel.Tests/PlatformWorkbook{BinaryGolden,EnumValidation}Tests.cs` |
 | CLI verbs | `PlatformExportXlsxCommand.cs`, `PlatformImportXlsxCommand.cs`, `PlatformDiffXlsxCommand.cs` |
-| UnityAdapter host bridges | `src/ProjectAegis.Delegation.UnityAdapter/Bridge/Platform{CatalogExport,DesignAssistant,WorkbookWrite}Bridge.cs`, pinned by `ProjectAegis.Delegation.UnityAdapter.Tests/Platform/Platform{CatalogExportBridge,WorkbookWriteBridge}Tests.cs` + `Bridge/PlayModeSmokeHarnessTests.cs` |
 
 ## See also
 
@@ -371,7 +328,6 @@ the two static service instances.
 |-----|-----|
 | [`../../src/ProjectAegis.Data.Excel/README.md`](../../src/ProjectAegis.Data.Excel/README.md) | The production `.xlsx` (ClosedXML) adapter + EMCON dropdown validation. |
 | [catalog-write-gate.md](catalog-write-gate.md) | The propose→approve→commit gate the importer stages into. |
-| [platform-design-assistant.md](platform-design-assistant.md) | The peer-relative draft + propose flow behind `PlatformDesignAssistantBridge`. |
 | [catalog-release-train.md](catalog-release-train.md) | The immutable snapshot/release layer bound after approve (PLE-3.5). |
 | [mission-editor-cli.md](mission-editor-cli.md) | The `platform_export_xlsx` / `platform_import_xlsx` / `platform_diff_xlsx` verbs. |
 | [determinism-and-replay.md](determinism-and-replay.md) | The ordering / hashing / injected-clock rules this pipeline follows. |
