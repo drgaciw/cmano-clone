@@ -36,7 +36,8 @@ autonomous agents; this assembly is where that delegation actually happens. It h
 | `Comms/` | Comms-state timeline + order-delay/staleness model (doc 19) | `CommsTimelineSimulator`, `CommsOrderDelay`, `CommsTrackStaleness`, `SpoofTrackTimelineSimulator` |
 | `Logistics/` | Fuel burn + band-transition ledger | `FuelTimelineTracker` |
 | `Replay/` | Scrub-to-tick checkpoints + order-log replay fingerprint | `ReplayCheckpoint`, `ReplayCheckpointStore`, `OrderLogReplayFingerprint` |
-| `Projection/` | **Read-only** projections of the order log into C2 UI view-models | `MessageLogProjection`, `ContactPictureProjection`, `LossesScoringProjection`, `OobTreeProjection`, `SensorC2Projection`, `App6Sidc` (APP-6/2525C symbology, ADR-007); C2 rev-2 contracts `AlertSeverity`/`AlertSeverityMap`, `OrderLifecycleState`, `C2SelectionResolver` |
+| `Projection/` | **Read-only** projections of the order log into C2 UI view-models | `MessageLogProjection`, `ContactPictureProjection`, `LossesScoringProjection`, `OobTreeProjection`, `SensorC2Projection`, `WatchAttentionQueueProjection`, `App6Sidc` (APP-6/2525C symbology, ADR-007); C2 rev-2 contracts `AlertSeverity`/`AlertSeverityMap`, `OrderLifecycleState`, `C2SelectionResolver` |
+| `Watch/` | Watch-officer attention queue + auto-pause gate driving `SimulationSession` ([below](#interactive-session-control-pause-watch-auto-pause--time-compression)) | `WatchAttentionQueue`, `WatchAutoPauseGate`, `WatchAttentionEvent`/`WatchAttentionCard`, `WatchAttentionEmitFactory`, `WatchAttentionKind`/`WatchAttentionPriority`, `WatchPauseReason` |
 | `Input/` | Remappable C2 keyboard-action IDs (req 20 §Keyboard, a11y §6.3) | `C2InputActions` |
 | `Trust/` | Emit-only post-scenario trust/XP signals for future campaign hooks ([guide](../../docs/engineering/trust-signal-emit-surface.md)) | `TrustSignalEmitter`, `TrustSignal`, `AgentExperienceBlob` |
 | `Hindsight/` | Optional session-memory sidecar (off in CI/replay) | `HindsightIntegration`, `HindsightOptions`, `IHindsightMemoryClient` |
@@ -72,6 +73,37 @@ Baltic replay harness and the CI replay goldens — build one with
 Under Unity, the [`UnityAdapter`](../ProjectAegis.Delegation.UnityAdapter/README.md) implements
 `ISimWorldSnapshot` (sim → `ObservedState`) and `IOrderSink` (`ExecutedOrders` → sim), calling
 this same `Tick`.
+
+### Interactive session control: pause, watch auto-pause & time-compression
+
+`SimulationSession` is also the **interactive control surface** a UI host drives; it wraps the
+`ProjectAegis.Sim` [`SimClock`](../ProjectAegis.Sim/README.md#sim-clock-pause--time-compression)
+and layers a watch-officer auto-pause gate on top. The headless replay path (`DelegationBridge`
++ Baltic goldens) never touches these controls, so the clock stays inert and the Baltic v2 hash
+is untouched.
+
+| Concern | Session API | Behavior (pinned by `SimulationSessionClockControlsTests` / `…WatchAttentionTests`) |
+|---------|-------------|-------------------------------------------------------------------------------------|
+| Advance | `Tick(state)` / `TickHeadless(state)` | `Tick` runs the sim in `RealTime` (respects pause); `TickHeadless` runs `HeadlessBatch` — it advances **even while paused**, preserving the pause flag + reason so a later interactive resume still works (mirrors `TimeCompressionMode.HeadlessBatch`). Both no-op while `Phase == Planning`. |
+| Pause | `PauseSim()` / `IsSimPaused` | A paused interactive `Tick` is a **clean freeze**: no engagements are queued, `SimTick` and the order log are unchanged. Pending engagements are not stranded. |
+| Resume | `ResumeSim()` vs `TryResumeSim(explicitOverride)` | `ResumeSim` is the ungated legacy path — it resumes but **does not clear** `LastWatchPauseReason`. `TryResumeSim` is **watch-gated**: it fails (returns `false`, stays paused) while unresolved pause-class cards remain, unless `explicitOverride: true` (player force-resume). A clean/override resume clears the reason. |
+| Time-compression | `TimeAccelerationFactor` / `SetTimeAccelerationFactor(int)` | Forwarded to `SimClock` (clamped `[1, 256]`). An accelerated `Tick` advances **N** `SimTick`s but resolves engagements and writes the order log **once per authored tick** — the extra steps run in the session's own loop, so it never hands `Accelerated` down to `Sim.TickOnce`. Pause blocks accelerated advance too. |
+
+**Watch auto-pause (`Watch/`, S115/S116).** `ReportWatchAttention(evt)` enqueues a
+[`WatchAttentionEvent`](Watch/WatchAttentionEvent.cs) into `WatchQueue` (idempotent by
+`EventId`; ordered Critical → tick → id) and, when [`WatchAutoPauseGate`](Watch/WatchAutoPauseGate.cs)
+classifies it as **pause-class**, calls `PauseSim()` and records a
+[`WatchPauseReason`](Watch/WatchPauseReason.cs). The two pause-class kinds are
+`HostileOrUnknownContact` (first detection of a non-own-side track) and `OwnSideLossOrDamage`.
+The S116 call-sites `ReportContactTransitions(...)` / `ReportOwnSideLoss(...)` turn raw sim facts
+into events via [`WatchAttentionEmitFactory`](Watch/WatchAttentionEmitFactory.cs) (own-side =
+catalog blue or the legacy `u1`; hostile/unknown = the `HostileContactFilter` classification),
+so sensors/BDA feed the queue **without any `DelegationBridge` edit**. Cards are
+acknowledged / dismissed / restored as **presentation-only** state — acknowledging (or dismissing)
+the last unresolved pause-class card is what lets an ungated `TryResumeSim()` succeed.
+[`WatchAttentionQueueProjection`](Projection/WatchAttentionQueueProjection.cs) exposes the visible
+cards, the unresolved-count badge, and the reason label to the UI; this is the mechanism behind
+the `AlertSeverity.Critical` "toast + optional auto-pause" behavior described below.
 
 ## Decision model
 
@@ -202,6 +234,7 @@ the Release DLLs into `Plugins/` after a green build:
 | Topic | Doc |
 |-------|-----|
 | Simulation core (engagement, sensors, sim-side RNG) | [`../ProjectAegis.Sim/README.md`](../ProjectAegis.Sim/README.md) |
+| Sim clock primitive (fixed Δt, pause, acceleration factor) | [`../ProjectAegis.Sim/README.md#sim-clock-pause--time-compression`](../ProjectAegis.Sim/README.md#sim-clock-pause--time-compression) |
 | Unity bridge (`ISimWorldSnapshot` / `IOrderSink`) | [`../ProjectAegis.Delegation.UnityAdapter/README.md`](../ProjectAegis.Delegation.UnityAdapter/README.md) |
 | Replay harness / golden regeneration | [`../ProjectAegis.Delegation.Demo/README.md`](../ProjectAegis.Delegation.Demo/README.md) |
 | Data / catalog layer | [`../ProjectAegis.Data/README.md`](../ProjectAegis.Data/README.md) |
