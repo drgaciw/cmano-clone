@@ -234,6 +234,31 @@ which re-check `AttachReplayViewer`, resolve the `EntityKey` to a `UnitTarget` v
 `TargetRegistry`, and forward to the orchestrator. There is no other write path — `DelegationBridge`
 stays zero-touch on the hotpath (see `AGENTS.md`).
 
+### Host registration (`TargetRegistry` / `SimEntityBinding`)
+
+The [`TargetRegistry`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/TargetRegistry.cs) is how
+the engine's opaque `EntityKey` gets bound to a domain `UnitTarget` / `GroupTarget` so the ingress
+above can resolve it. It keeps a **dual index** — by `EntityKey` and by `TargetId` — of immutable
+[`SimEntityBinding`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/SimEntityBinding.cs)
+`(EntityKey, TargetId, ICommandableTarget)` records:
+
+- `RegisterUnit(entity, targetKey)` / `RegisterGroup(entity, targetKey)` build the target, index it
+  under **both** keys, and call `orchestrator.Register(target)` so the sim owns its decision loop;
+  registering a `UnitTarget` also appends its id to the flat member list.
+- `LinkGroupMember(groupId, memberId)` adds an already-registered target to a registered group's
+  roster (throws if either is missing).
+- `TryGetBinding(EntityKey…)` / `TryGetBinding(TargetId…)` are the two lookup directions the bridge
+  and the player-command layer
+  ([`C2PlayerCommandBridge`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/C2PlayerCommandBridge.cs))
+  use; `CollectMemberIds()` is the flat member-id list that feeds the OOB-tree / map / unit-detail
+  read-models.
+
+> **Dual-uniqueness invariant (`qa-r2-08`).** `Register` rejects a duplicate `EntityKey` **and** a
+> duplicate `TargetId`. Before the `TargetId` guard existed, two entities registered under the same
+> string target key silently overwrote the `TargetId → binding` map and pushed a duplicate id into
+> `CollectMemberIds()` — rendering the same unit twice in the OOB tree / map picture. Keep **both**
+> guards when touching registration.
+
 ---
 
 ## 4. What the tick does with each controller
@@ -328,7 +353,6 @@ This runtime is **replay-safe** and folds cleanly into the order-log fingerprint
 
 | Doc | What |
 |-----|------|
-| [commandable-target-model.md](commandable-target-model.md) | The `ICommandableTarget` / `UnitTarget` / `GroupTarget` object model + `TargetRegistry` that this runtime mutates. |
 | [agent-decision-pipeline.md](agent-decision-pipeline.md) | The per-agent decision tick that runs for agent-controlled targets (and the attention model `memberCount` feeds). |
 | [comms-degradation-runtime.md](comms-degradation-runtime.md) | How `CurrentCommsState` computes the player-order execute tick that the `HumanController` queue gates on. |
 | [c2-projection-layer.md](c2-projection-layer.md) | The read-model layer over the order log (message log, OOB tree, selection state) that surfaces control state to the C2 UI. |
