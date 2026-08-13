@@ -78,6 +78,7 @@ Deep-dives into engine-agnostic subsystems, verified against source and pinned b
 
 | Doc | Covers |
 |-----|--------|
+| [product-globe-presentation.md](product-globe-presentation.md) | The **pure, engine-agnostic globe presentation projection family** behind the product 3D globe (ADR-007 Phase B; CMD-06/13/28.10/28.11): the `GlobeViewState` WGS84 camera + honest-empty theater-bookmark bag, `GlobeViewProjection` (Baltic/GIUK/Pacific presets, pure quick-jump, 2D/3D pitch toggle, bookmark presentation, theater-label resolution), `CesiumBillboardProjection` (`MapSymbolEntry` → APP-6 `CesiumBillboardMarker` with WGS84-or-Baltic-hash geo + camera-relative haversine LOD labels), `GlobeMapApplyState` (`GLOBE · <theater> · N markers · 2D/3D` status line), and the token-safe **presence-only** `GlobeIonGateProjection` tile-streaming gate — plus the thin `GlobeMapProductHost` / `CesiumGlobeBridge` / `GlobeTileStreamingHost` Unity binders and the load-bearing **presentation-only / off-fingerprint / never-store-the-ion-token** invariants. |
 | [cesium-phase-b-spike-checklist.md](cesium-phase-b-spike-checklist.md) | Gate checklist to de-risk the Cesium globe map before production wiring of the C2 tactical picture. |
 | [cesium-unity-package-pin.md](cesium-unity-package-pin.md) | The pinned Cesium-for-Unity package version and install notes for the ADR-007 Phase B spike. |
 
