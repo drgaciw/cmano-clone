@@ -143,8 +143,14 @@ public sealed class BalanceTelemetryAccumulatorTests
 
                     break;
                 }
-                catch (IOException) when (attempt < 4)
+                catch (IOException)
                 {
+                    if (attempt == 4)
+                    {
+                        // Swallow on final attempt — best-effort cleanup must not mask try-block failures.
+                        break;
+                    }
+
                     System.Threading.Thread.Sleep(50);
                 }
             }
