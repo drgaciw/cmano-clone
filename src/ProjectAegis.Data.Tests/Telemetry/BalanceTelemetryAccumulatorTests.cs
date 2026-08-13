@@ -130,6 +130,7 @@ public sealed class BalanceTelemetryAccumulatorTests
         }
         finally
         {
+            Microsoft.Data.Sqlite.SqliteConnection.ClearAllPools();
             // Best-effort cleanup; Windows may briefly hold locks after dispose.
             for (var attempt = 0; attempt < 5; attempt++)
             {
