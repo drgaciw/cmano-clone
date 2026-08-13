@@ -49,6 +49,7 @@ Completing all ticks without an exception is *necessary but not sufficient*.
 | Roster validator | [`GauntletRosterValidator.cs`](../../src/ProjectAegis.Data/Catalog/GauntletRosterValidator.cs) | Oracle-0: `detection[]` observer/target IDs and `gauntlet.catalogRefs` must resolve against the tier `roster.json`. |
 | CLI verb | [`GauntletOracleEvalCommand.cs`](../../src/ProjectAegis.MissionEditor.Cli/GauntletOracleEvalCommand.cs) | Wraps the evaluator as `gauntlet_oracle_eval`; exit 0 iff every scenario passed. |
 | Defect re-test | [`tools/qa-gauntlet/retest-defect.sh`](../../tools/qa-gauntlet/retest-defect.sh) | Re-runs a closed registry defect (batch + oracle + prior-failure-string check). |
+| Saboteur (oracle calibration) | [`tools/qa-gauntlet/saboteur.py`](../../tools/qa-gauntlet/saboteur.py) · [`mutants/catalog.yaml`](../../tools/qa-gauntlet/mutants/catalog.yaml) | Applies curated mutants in throwaway worktrees to prove the oracle *catches* regressions (kill rate). See [*Oracle calibration*](#oracle-calibration--the-saboteur). |
 | CI gate | [`.github/workflows/gauntlet-oracle.yml`](../../.github/workflows/gauntlet-oracle.yml) | PR job: real Demo batch → oracle (must pass) → fail-closed strip smoke (must fail). |
 
 ---
@@ -337,6 +338,90 @@ CRITICAL blast radius (GitNexus impact first; keep the suite floor and zero
 
 ---
 
+## Oracle calibration — the saboteur
+
+The oracle proves a *run* is green; the **saboteur** proves the *oracle* is not asleep.
+It is mutation testing for the gauntlet: [`saboteur.py`](../../tools/qa-gauntlet/saboteur.py)
+applies each curated mutant from
+[`mutants/catalog.yaml`](../../tools/qa-gauntlet/mutants/catalog.yaml) in a **disposable git
+worktree**, builds, runs a calibration subset, and records whether an oracle went red. A
+green kill run is evidence the gauntlet would actually bite if the sim regressed. Nothing is
+ever committed from a worktree, and the tool refuses to run against a dirty tree (below).
+
+```bash
+pip install -r tools/qa-gauntlet/requirements.txt      # PyYAML
+python tools/qa-gauntlet/saboteur.py                   # full catalog, auto-routed
+python tools/qa-gauntlet/saboteur.py --swarm-filter    # swarm_unit family, Sim.Tests path
+python tools/qa-gauntlet/saboteur.py --mutants 01-pd-weakened,02-roe-tight-inverted
+# writes production/qa/gauntlet/calibration-<date>/report.{json,md}; prints "kill rate C/D"
+```
+
+### Mutant roles and the kill rate
+
+Every catalog entry declares a **`role`** that drives the pass/fail contract. Only `defect`
+rows count toward the kill rate:
+
+`killRate = caught_defects / (caught_defects + survived_defects)` — `control` and
+`expected-miss` are excluded from both numerator and denominator.
+
+| Role | Meaning | Expected outcome | A wrong outcome means |
+|------|---------|------------------|-----------------------|
+| `control` | No-op patch (e.g. comment only, `00-noop-comment`) | **survived** | *Caught* ⇒ false positive: the oracle flags noise. |
+| `expected-miss` | A real change the oracle cannot yet catch (tracked, not a failure) | **survived** | *Caught* ⇒ promote its `role` to `defect`. |
+| `defect` | An injected regression the oracle *must* catch | **caught** | *Survived* ⇒ a named oracle **blind spot** — file a bug per row. |
+
+Exit code is `0` only when the whole role matrix is clean and there are no invalid mutants:
+
+| outcome ↓ / role → | control | expected-miss | defect |
+|--------------------|---------|---------------|--------|
+| survived | OK | OK | **FAIL** |
+| caught | **FAIL** | **FAIL** | OK |
+| invalid-mutant (build failed) | **FAIL** | **FAIL** | **FAIL** |
+
+Other exit codes: `2` = dirty tree guard tripped, `3` = `dotnet` not found.
+
+### Two calibration paths (auto-routed)
+
+Each mutant runs one of two paths, chosen automatically:
+
+- **Classic** (default for non-swarm mutants) — a cheap ladder subset
+  (`run-gauntlet.sh --tiers "1 3 5" --roving 0`) **plus** the Baltic `ReplayGolden` filter on
+  `ProjectAegis.Delegation.UnityAdapter.Tests`. *Caught* = the subset driver exits non-zero
+  **or** ReplayGolden fails. All three anchor seeds run (not just 42) because some required
+  tokens (e.g. `NO_AMMO`) only appear at seeds 7/123.
+- **Swarm** — a pure-Sim unit run: `dotnet test ProjectAegis.Sim.Tests --filter
+  FullyQualifiedName~Swarm` (fires the `swarm_unit` oracle). *Caught* = that filter exits
+  non-zero.
+
+Routing rule: a mutant whose `expectedOracles` includes `swarm_unit` always takes the swarm
+path; `--swarm-filter` forces the swarm path *and* (without `--mutants`) restricts the run to
+the swarm family (`10/11/12/14/15/17`). `--mutants <ids>` selects an explicit subset while
+still auto-routing each entry. The swarm path was added in S117/DRG-149 alongside the swarm
+pressure suite.
+
+### Authoring a mutant
+
+A catalog entry requires `id`, `patch`, `target`, `description`, `role`, `expectedOracles`,
+and `impactRecorded` (a one-time GitNexus `impact()` note). The loader rejects a missing key,
+an unknown role, a patch file that does not exist, or a `target` inside a **locked-eval file**
+— `GauntletOracleEvaluator.cs`, `Demo/Program.cs`, or `DelegationBridge.cs` — so calibration
+can never mutate the judge or the sim hotpath itself. `firedOracles` is read from each run's
+`verdict.json` (`oracles[*].status == "fail"`), with `replay_golden` added when the
+ReplayGolden filter fails.
+
+### Dirty-tree guard
+
+Worktrees build from `HEAD`, so any uncommitted change under `src/`, `data/`,
+`tools/qa-gauntlet/`, `ProjectAegis.sln`, or `global.json` would **not** be calibrated and
+would silently poison the result. The saboteur refuses to run (exit `2`) and lists the
+offending paths. Commit or stash sim/tool changes first; docs and other paths don't block.
+
+Behavior is pinned by [`test_saboteur.py`](../../tools/qa-gauntlet/test_saboteur.py)
+(`pytest tools/qa-gauntlet/test_saboteur.py`). Design rationale:
+[`docs/superpowers/specs/2026-07-28-qa-gauntlet-effectiveness-design.md`](../superpowers/specs/2026-07-28-qa-gauntlet-effectiveness-design.md).
+
+---
+
 ## Expect regeneration discipline
 
 `gauntlet.expect` bounds are derived from a **real** batch CSV at the correct tick budget —
@@ -402,6 +487,8 @@ Gauntlet behavior is pinned by xUnit tests; run the relevant slice while iterati
 |-------|-------|
 | Orchestration loop (phases, TDD remediation, AAR) | [`.claude/skills/qa-gauntlet/SKILL.md`](../../.claude/skills/qa-gauntlet/SKILL.md) |
 | Expect regen operator runbook | [`tools/qa-gauntlet/README-expect-regen.md`](../../tools/qa-gauntlet/README-expect-regen.md) |
+| Oracle calibration (mutants) | [`tools/qa-gauntlet/saboteur.py`](../../tools/qa-gauntlet/saboteur.py) · [`mutants/catalog.yaml`](../../tools/qa-gauntlet/mutants/catalog.yaml) |
+| Stress axes runbook (tier-orthogonal pressure) | [`tools/qa-gauntlet/README-stress-axes.md`](../../tools/qa-gauntlet/README-stress-axes.md) |
 | Expect / tick discipline + CI contract | [`production/qa/gauntlet-expect-ci-discipline-2026-07-14.md`](../../production/qa/gauntlet-expect-ci-discipline-2026-07-14.md) |
 | Batch harness + fingerprint / determinism | [`docs/engineering/determinism-and-replay.md`](determinism-and-replay.md) · [`src/ProjectAegis.Delegation.Demo/README.md`](../../src/ProjectAegis.Delegation.Demo/README.md) |
 | Mission Editor CLI (`gauntlet_oracle_eval` verb) | [`mission-editor-cli.md`](mission-editor-cli.md) |
