@@ -118,7 +118,10 @@ parallel UI tracks and the Unity host share one source of truth (ADR-010). All a
 lookups; none touch sim or order-log state.
 
 - **`AlertSeverity`** — alert tier: `Critical` (toast + optional auto-pause) → `Notable`
-  (log highlight) → `Routine` (log only). Tier is **never colour-only** (accessibility).
+  (log highlight) → `Routine` (log only). Tier is **never colour-only** (accessibility). The
+  auto-pause half of the `Critical` contract lives in the session-local
+  [watch-attention & auto-pause runtime](watch-attention-auto-pause-runtime.md) (`Delegation/Watch/`);
+  its `WatchAttentionQueueProjection` is part of this projection layer.
 - **`AlertSeverityMap.ForCategory(category)`** — the single mapping from a `MessageLogLine`
   category to an `AlertSeverity`. It is **case-insensitive and fails safe**: unknown/null
   categories default to `Routine`, so adding a new message category never silently escalates it
