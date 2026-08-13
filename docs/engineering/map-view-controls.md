@@ -6,8 +6,10 @@
 > the REQ-20 Phase N **APP-6 symbol LOD clusterer** (how a multi-thousand-symbol picture is
 > decluttered by camera altitude), and the CMD-20 / CMD-28.4 / CMD-28.5 **scale-bar / measure /
 > unit-cycle** math. These are camera- and layer-facing controls — distinct from *what* the map draws
-> ([`c2-projection-layer.md`](c2-projection-layer.md) read-model catalog, `MapPictureProjection`) and
-> from the *product globe camera* ([`globe-map-view-projection.md`](globe-map-view-projection.md)).
+> ([`c2-projection-layer.md`](c2-projection-layer.md) read-model catalog, `MapPictureProjection`), from
+> the selected-unit **content overlays** drawn on top (envelope rings, doctrine ROE, datalink mesh —
+> [`tactical-map-overlays.md`](tactical-map-overlays.md)), and from the *product globe camera*
+> ([`globe-map-view-projection.md`](globe-map-view-projection.md)).
 >
 > Every type here is **pure presentation** (ADR-010 §2–3 / ADR-007): UI-local, no sim mutation, no
 > `DecisionLog` entry, and — for the layer stack store — no file I/O. Nothing in this subsystem touches

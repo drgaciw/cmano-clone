@@ -163,7 +163,9 @@ The map layer resolves tactical symbols in a data-driven, atlas-optional way:
 
 The tactical map draws a **friendly datalink mesh** — the network edges between own-force units —
 as a read-model overlay separate from the APP-6 symbols. Three pure types build it, all in this
-folder:
+folder. (This mesh is one of three selected-unit map **content overlays**; the envelope rings and
+doctrine ROE overlay, plus how all three surface as counts on `MapPanelPresentation`, are covered in
+[`tactical-map-overlays.md`](tactical-map-overlays.md).)
 
 | Type | Produces |
 |------|----------|
