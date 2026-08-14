@@ -193,7 +193,9 @@ file is missing):
 
 Batch bulk paths use the same gate: `platform_import_xlsx` stages workbook edits via
 `Propose*Batch` with **no auto-commit** (next step is `catalog_write_approve`), and
-`osint_staging_review` lists / approves staged OSINT proposals. See
+`osint_staging_review` lists / approves staged OSINT proposals — the OSINT digest → propose
+pipeline that feeds those staged batches is documented in
+[`osint-ingestion.md`](osint-ingestion.md). See
 [`mission-editor-cli.md`](mission-editor-cli.md#catalog-read--extend-only-write-gate) for the
 full verb table.
 
