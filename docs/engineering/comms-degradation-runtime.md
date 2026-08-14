@@ -99,6 +99,12 @@ as `{SimTick}|{NodeId}|{PreviousState}|{NewState}|{Reason}`. The C2 top bar rebu
 state purely from the log via `CommsStateProjection.Project` (authoritative for replay), which also
 supplies the `COMMS: NOMINAL/DEGRADED/DENIED` label and the `BlocksNewEngagement` predicate below.
 
+The same `CommsStateSnapshot` also colours the **map datalink overlay** (CMD-32): passing it to
+`DatalinkUnitPairFeed.ProjectEdges` maps `Nominal→Up`, `Degraded→Degraded`, `Denied→Down` onto the
+friendly link mesh (DRG-157), so the network edges and the top-bar banner stay consistent. That is a
+pure read-model consumer — it does not gate the sim; see
+[c2-projection-layer.md](c2-projection-layer.md#datalink-network-overlay-cmd-32--live-comms-status).
+
 ---
 
 ## 2. What `Degraded` / `Denied` actually do

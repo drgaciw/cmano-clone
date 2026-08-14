@@ -328,6 +328,7 @@ This runtime is **replay-safe** and folds cleanly into the order-log fingerprint
 
 | Doc | What |
 |-----|------|
+| [player-command-issuance.md](player-command-issuance.md) | The pure command/directive validation seam (`take_control` / `return_to_agent` directives drive the take/release paths here). |
 | [agent-decision-pipeline.md](agent-decision-pipeline.md) | The per-agent decision tick that runs for agent-controlled targets (and the attention model `memberCount` feeds). |
 | [comms-degradation-runtime.md](comms-degradation-runtime.md) | How `CurrentCommsState` computes the player-order execute tick that the `HumanController` queue gates on. |
 | [c2-projection-layer.md](c2-projection-layer.md) | The read-model layer over the order log (message log, OOB tree, selection state) that surfaces control state to the C2 UI. |
