@@ -129,6 +129,13 @@ for the platform batches **then** the child batches. A batch that the gate refus
 gate's own orphan-platform FK check, DBI-3.2) is skipped and recorded in `AdvisoryNotes` as
 `platform_batch_failed:{batch}:{errors}` or `child_batch_failed:…`; the run does **not** throw.
 
+> **Approve is batch-level, not row-level.** `BuildRepairPlan` adds a child `batchId` as soon as
+> *any* row in that batch has a `RepairRule`. `CatalogWriteGate.ApproveBatch` then commits **every**
+> row in the batch (the gate only rejects missing parents, not `circular_fk` / `duplicate_loadout_key`).
+> A mixed batch (one repairable mount + one `circular_fk` sibling whose parent exists) therefore
+> commits the out-of-envelope row too. Do **not** treat `--apply` as a per-row quarantine filter.
+> This is documented here rather than widening the extend-only write gate.
+
 The engine re-audits afterward. Apply-mode `Result.Ok` is true when
 `remaining.Count == 0` **or** the summed `MountQuarantined + LoadoutQuarantined` **strictly
 decreased** versus `before` — fittings are **not** in that progress comparison. Dry-run
@@ -175,7 +182,10 @@ dotnet run --project src/ProjectAegis.MissionEditor.Cli -- \
 ```
 
 - **Dry-run is the default** — you only mutate the catalog with `--apply`.
-- `--entity` narrows both the audit and the repair plan to a single domain.
+- `--entity` **filters the audit and which batch IDs enter the plan**. It is **not** a mutation
+  isolator: `ApproveBatch` still loads the whole selected batch. A mixed-domain batch selected
+  because it had one `--entity platform` repairable row will also commit its submarine/facility
+  siblings. Prefer domain-homogeneous staging batches.
 - `--propose-json` supplies the fitting-quarantine count for reporting.
 - `MountLoadoutQuarantineTriageCommand.Run` serializes a camelCase JSON payload — `ok`, `dryRun`,
   `databasePath`, `repairEnvelope` (the three rule names), `before` / `after` per-domain counts,
