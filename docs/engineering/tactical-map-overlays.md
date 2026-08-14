@@ -7,6 +7,13 @@
 > CMD-32 **datalink unit-pair mesh** — all folded into count fields on `MapPanelPresentation` and bound
 > by the Unity [`MapPlaceholderPanelHost`](../../unity/ProjectAegis/Assets/Scripts/Runtime/MapPlaceholderPanelHost.cs).
 >
+> **As of DRG-160 the same projected ring/edge geometry is also *drawn*** onto the map canvas: a pure
+> [`MapCanvasOverlayGeometry`](../../src/ProjectAegis.Delegation/Projection/MapCanvasOverlayGeometry.cs)
+> projects the rings/edges into normalized canvas shapes, and the pooled Unity
+> [`MapCanvasOverlayRenderer`](../../unity/ProjectAegis/Assets/Scripts/Runtime/MapCanvasOverlayRenderer.cs)
+> reconciles them onto UI Toolkit elements. The map HUD still shows the counts; the canvas now shows the
+> shapes too (see [§6](#6-canvas-draw-layer-drg-160)).
+>
 > These are the map's **data content**, distinct from the *camera / layer controls*
 > ([`map-view-controls.md`](map-view-controls.md) — basemap layer stack, LOD clustering, scale/measure),
 > the *product-globe camera* ([`globe-map-view-projection.md`](globe-map-view-projection.md)), and the
@@ -38,10 +45,18 @@ var edges = DatalinkUnitPairFeed.ProjectEdges(friendlyUnitIds, catalog.GetSorted
 // 4. Fold the counts onto the map presentation (content is count-only for the HUD).
 var view = MapPanelApplyState.Apply(panelState, rings, edges, doctrine);
 // view.EnvelopeRingCount / DatalinkEdgeCount / DoctrineOverlayCount
+
+// 5. Draw the geometry onto the canvas (DRG-160): index live symbol positions, then project shapes.
+var positions  = MapCanvasOverlayGeometry.BuildUnitPositionIndex(panelState.Symbols);
+var ringShapes = MapCanvasOverlayGeometry.ProjectRings(rings, positions);   // circles at unit centers
+var edgeShapes = MapCanvasOverlayGeometry.ProjectEdges(edges, positions);   // line segments unit→unit
+overlayRenderer.Sync(ringShapes, edgeShapes);                               // pooled UI Toolkit reconcile
 ```
 
-Every helper is `static`, deterministic, and Unity-free. The Unity host binds the resulting records /
-counts onto UI Toolkit widgets and does no math of its own.
+Every headless helper is `static`, deterministic, and Unity-free — including the DRG-160
+`MapCanvasOverlayGeometry`. The Unity host binds the resulting records / counts onto UI Toolkit widgets
+and delegates all math (range→radius, position lookup) to the pure geometry; `MapCanvasOverlayRenderer`
+is the only Unity-side type and does element pooling only, no math.
 
 ---
 
@@ -57,7 +72,12 @@ counts onto UI Toolkit widgets and does no math of its own.
 | [`DatalinkUnitPairFeed`](../../src/ProjectAegis.Delegation/Projection/DatalinkUnitPairFeed.cs) | `static` | Adjacent-pair datalink mesh + comms-aware edge status (CMD-32). Detailed in [`c2-projection-layer.md`](c2-projection-layer.md) / [`comms-degradation-runtime.md`](comms-degradation-runtime.md). |
 | [`MapPanelApplyState`](../../src/ProjectAegis.Delegation/Projection/MapPanelApplyState.cs) | `static` | Folds overlay lists into count fields on `MapPanelPresentation` (CMD-21/32/33/34). |
 | [`MapPanelPresentation`](../../src/ProjectAegis.Delegation/Projection/MapPanelApplyState.cs) | `sealed record` | Map HUD view model: theater/symbol/selection counts **plus** `EnvelopeRingCount`, `DatalinkEdgeCount`, `DoctrineOverlayCount`, `LodOutputCount`. |
-| [`MapPlaceholderPanelHost`](../../unity/ProjectAegis/Assets/Scripts/Runtime/MapPlaceholderPanelHost.cs) | `MonoBehaviour` | The Unity consumer — resolves inputs from the bridge, calls the projections, binds counts to labels. |
+| [`MapEnvelopePlatformResolver`](../../src/ProjectAegis.Delegation/Projection/MapEnvelopePlatformResolver.cs) | `static` | Maps a scenario **unit id** to its catalog **platform id** for envelope range lookup — direct hit, else longest `platform-` prefix match, else the unit id unchanged (DRG-160 / #495). |
+| [`MapCanvasOverlayGeometry`](../../src/ProjectAegis.Delegation/Projection/MapCanvasOverlayGeometry.cs) | `static` | Pure geometry (DRG-160): `nm → normalized radius`, live-symbol position index, and projection of rings/edges into normalized canvas shapes. |
+| [`MapCanvasRingShape`](../../src/ProjectAegis.Delegation/Projection/MapCanvasOverlayGeometry.cs) | `sealed record` | `(Key, CenterX, CenterY, RadiusNormalized, RingKind, StyleClass)` — one normalized ring circle. |
+| [`MapCanvasEdgeShape`](../../src/ProjectAegis.Delegation/Projection/MapCanvasOverlayGeometry.cs) | `sealed record` | `(Key, FromX, FromY, ToX, ToY, Status, StyleClass)` — one normalized edge segment. |
+| [`MapCanvasOverlayRenderer`](../../unity/ProjectAegis/Assets/Scripts/Runtime/MapCanvasOverlayRenderer.cs) | `sealed class` (Unity) | Pooled UI Toolkit renderer (DRG-160): reconciles ring/edge shape lists onto keyed `VisualElement`s behind the unit symbols. |
+| [`MapPlaceholderPanelHost`](../../unity/ProjectAegis/Assets/Scripts/Runtime/MapPlaceholderPanelHost.cs) | `MonoBehaviour` | The Unity consumer — resolves inputs from the bridge, calls the projections, binds counts to labels, and drives the canvas draw layer. |
 
 ---
 
@@ -114,6 +134,26 @@ IReadOnlyList<EnvelopeRingEntry> ProjectSelectedUnitEnvelopes(
 The ring's `RangeNm` is drawn directly — the projection does **no** clamping or unit conversion; that all
 happened in the resolver.
 
+### 1.3 Mapping unit → platform — `MapEnvelopePlatformResolver` (DRG-160)
+
+Catalog envelope rows are keyed by **platform id**, but a scenario can field multiple *instances* of one
+platform under suffixed ids (e.g. `u1-alpha`, `u1-bravo` off platform `u1`). Before resolving ranges the
+host now maps the selected **unit id** to a catalog **platform id** with
+[`MapEnvelopePlatformResolver.Resolve(catalog, unitId)`](../../src/ProjectAegis.Delegation/Projection/MapEnvelopePlatformResolver.cs):
+
+| Input | Result |
+|-------|--------|
+| `unitId` null/blank | `null` |
+| `catalog` null | `unitId` unchanged (host still gets fallback rings) |
+| `unitId` resolves a sensor range **or** combat radius directly | `unitId` unchanged |
+| `unitId` is a suffixed instance (`platform-…`) | the **longest** matching `platformId` prefix over `GetSortedMobility()` then `GetSortedMounts()` |
+| no prefix matches | `unitId` unchanged (falls through to fallbacks) |
+
+It reads only the existing [`ICatalogReader`](../../src/ProjectAegis.Data/Catalog/ICatalogReader.cs)
+surface (sensor/combat-radius probes + sorted mobility/mount rows) — no ORBAT lookup and no catalog API
+widening. The resolved platform id is what the host feeds into `ResolveSelectedUnitRanges`, so an instance
+unit draws its base platform's reach instead of falling back to 40 nm / 20 nm.
+
 ---
 
 ## 2. Doctrine ROE overlay (CMD-33)
@@ -144,18 +184,20 @@ comms-status overload are fully documented in
 [`comms-degradation-runtime.md`](comms-degradation-runtime.md); this doc only covers how its **count** is
 surfaced on the map HUD.
 
-> **Host wiring note.** `MapPlaceholderPanelHost` currently calls `ProjectEdges(friendlyIds, links)`
-> **without** a `CommsStateSnapshot`, so map-overlay edges default to `Up`. The comms-aware overload
-> exists for callers that want live edge status; wiring the map host to it is a follow-up, not a
-> regression.
+> **Host wiring note (updated DRG-160).** `MapPlaceholderPanelHost` now calls
+> `ProjectEdges(friendlyIds, links, commsSnapshot: comms)` with the live `CommsStateSnapshot` it already
+> projects via [`CommsStateProjection`](../../src/ProjectAegis.Delegation/Projection/CommsStateProjection.cs),
+> so map-overlay edges carry real `Up` / `Degraded` / `Down` status (previously they always defaulted to
+> `Up`). Comms state also joins the host's dirty-flag, so a comms transition triggers a map refresh — see
+> [§5](#5-host-wiring--mapplaceholderpanelhostapplyoverlaycounts).
 
 ---
 
 ## 4. Surfacing counts — `MapPanelApplyState`
 
-The map HUD shows **counts**, not the overlay geometry — the geometry is drawn by the (Cesium/UI Toolkit)
-render layer. `MapPanelApplyState.Apply` / `BindAndApply` take the three optional overlay lists plus an
-optional LOD output count and fold them into `MapPanelPresentation`:
+The map HUD shows **counts**; the overlay *geometry* is drawn separately by the UI Toolkit render layer
+([§6](#6-canvas-draw-layer-drg-160), DRG-160). `MapPanelApplyState.Apply` / `BindAndApply` take the three
+optional overlay lists plus an optional LOD output count and fold them into `MapPanelPresentation`:
 
 | Field | Source | Null/empty behaviour |
 |-------|--------|----------------------|
@@ -177,21 +219,94 @@ view-control concern, not a content overlay.
 ## 5. Host wiring — `MapPlaceholderPanelHost.ApplyOverlayCounts`
 
 The Unity host is the only place these projections are composed at runtime. Each map refresh (guarded by
-a dirty-flag so nothing recomputes while selection / symbols / phase are unchanged):
+a dirty-flag so nothing recomputes while selection / symbols / phase / **comms state** are unchanged):
 
-1. Read the `ICatalogReader` and `SelectedUnitId` from the presentation feed / bridge host.
-2. `CatalogEnvelopeRangeResolver.ResolveSelectedUnitRanges(catalog, selectedUnitId, MvpDefault)` →
+1. Read the `ICatalogReader` and `SelectedUnitId` from the presentation feed / bridge host, and map the
+   unit to a platform id with `MapEnvelopePlatformResolver.Resolve(catalog, selectedUnitId)`
+   ([§1.3](#13-mapping-unit--platform--mapenvelopeplatformresolver-drg-160)).
+2. `CatalogEnvelopeRangeResolver.ResolveSelectedUnitRanges(catalog, catalogPlatformId, MvpDefault)` →
    `TacticalOverlayProjection.ProjectSelectedUnitEnvelopes(...)` → **rings**.
 3. Collect **alive** friendly unit ids from the OOB tree → `DatalinkUnitPairFeed.ProjectEdges(ids,
-   catalog.GetSortedLinks())` → **edges**.
+   catalog.GetSortedLinks(), commsSnapshot: comms)` → **edges** (the live `CommsStateSnapshot` is projected
+   once per refresh via `CommsStateProjection` and reused).
 4. `DoctrineInheritanceProjection.ProjectAllUnits(aliveUnitIds, scenarioPolicy, isFriendly: true)` →
    `DoctrineMapOverlayProjection.Project(inheritance, mapSymbols)` → **doctrine overlay**.
 5. `MapPanelApplyState.Apply(panelState, rings, edges, doctrineOverlay)` → bind the three counts onto
    the `ENVELOPES: n` / `DATALINKS: n` / `DOCTRINE: n` labels (all `Q<Label>` lookups are null-safe, so a
    scene without the labels simply skips them).
+6. **`ApplyCanvasOverlays(rings, edges)`** (DRG-160) → index live symbol positions, project ring/edge
+   canvas shapes, and `MapCanvasOverlayRenderer.Sync(...)` them onto the canvas draw layer
+   ([§6](#6-canvas-draw-layer-drg-160)). A null renderer (no canvas resolved) is a safe no-op.
 
 The last projected counts are also exposed as `LastEnvelopeRingCount` / `LastDatalinkEdgeCount` /
 `LastDoctrineOverlayCount` for headless assertions.
+
+> **Comms in the dirty-flag.** DRG-160 adds `ProjectCommsSnapshot().State` to the host's change check, so a
+> comms transition (`Nominal → Degraded → Denied`) now forces a refresh and re-colors the edges even when
+> selection and symbols are otherwise unchanged.
+
+---
+
+## 6. Canvas draw layer (DRG-160)
+
+Before DRG-160 the overlays reached the operator only as HUD *counts*. DRG-160 adds an actual draw layer
+that renders the rings and edges **on the map canvas**, split into a pure geometry projection and a thin
+pooled Unity renderer.
+
+### 6.1 Geometry — `MapCanvasOverlayGeometry`
+
+Pure, deterministic, Unity-free. It turns the headless overlay entries plus the current symbol positions
+into normalized canvas shapes (all coordinates are `0–1` fractions of the canvas box):
+
+| Member | Signature / value | Behaviour |
+|--------|-------------------|-----------|
+| `DefaultTheaterWidthNm` | `800.0` | Placeholder Baltic theater width used to scale nm → normalized radius. |
+| `NmToNormalizedRadius(rangeNm, theaterWidthNm = 800)` | `float` | `rangeNm / theaterWidthNm`, clamped to `[0, 1]`; returns `0` for non-positive inputs. |
+| `BuildUnitPositionIndex(symbols)` | `IReadOnlyDictionary<string,(float X,float Y)>` | Indexes **live** `MapSymbolDisplayRow`s by `SymbolId → (NormalizedX, NormalizedY)`. Skips null/blank rows, `IsGhost` rows, and any `ghost:`-prefixed id; **first live row wins** per id. |
+| `ProjectRings(rings, positions, theaterWidthNm = 800)` | `IReadOnlyList<MapCanvasRingShape>` | One circle per `EnvelopeRingEntry` whose `UnitId` is in the index and whose radius is `> 0`; centered on the unit, styled `--sensor` / `--weapon` by `RingKind`. |
+| `ProjectEdges(edges, positions)` | `IReadOnlyList<MapCanvasEdgeShape>` | One segment per `DatalinkEdgeEntry` **both** of whose endpoints are in the index; styled `--up` / `--degraded` / `--down` by `Status`. Edges to a missing unit are silently skipped. |
+
+Style-class constants live on the type (`RingStyleSensor` / `RingStyleWeapon`,
+`EdgeStyleUp` / `EdgeStyleDegraded` / `EdgeStyleDown`) and match the USS selectors below. Shape `Key`s are
+stable (`"{unitId}:{ringKind}"`, `"{from}->{to}"`) so the renderer can reconcile in place.
+
+> **Normalized radius is a placeholder.** Ring radius scales off the fixed 800 nm `DefaultTheaterWidthNm`,
+> not a real basemap projection — it gives a proportional on-canvas circle for the flat Baltic placeholder,
+> and is the intended seam to swap for a georeferenced scale when the product map lands.
+
+### 6.2 Renderer — `MapCanvasOverlayRenderer` (Unity)
+
+The only Unity-side type. It owns two `pickingMode = Ignore` child layers inserted at the **front** of the
+canvas child list (`ring-layer` at index 0, `edge-layer` at index 1) so both draw **behind** the unit
+symbols the host adds afterwards; rings sit behind edges.
+
+- **`Sync(rings, edges)`** reconciles each layer to the shape list, keyed by `Shape.Key`: it creates a
+  `VisualElement` for a new key, reuses the existing element when the shape record is unchanged (record
+  equality short-circuits restyle), re-applies geometry/style when it changed, and prunes elements whose
+  key is no longer present. Null lists are treated as empty.
+- **Ring layout** sets absolute position + a 50%-radius border on a transparent box: `width/height =
+  radius × 200%` of the canvas and `left/top = (center − radius) × 100%`.
+- **Edge layout** places a 2 px bar at the `from` point, `width = segment length × 100%`, rotated by
+  `atan2(dy, dx)` about its left-center origin; a zero-length segment is hidden (`display: none`).
+- **`Clear()`** detaches both layers; **`RingCount` / `EdgeCount`** expose the live pooled counts for
+  diagnostics / tests.
+
+The renderer is guarded by `#if UNITY_5_3_OR_NEWER`; headless tests exercise the geometry
+(`MapCanvasOverlayGeometryTests`) and the platform resolver (`MapEnvelopePlatformResolverTests`) directly.
+
+### 6.3 USS classes — `MapPlaceholderPanel.uss`
+
+The DRG-160 selectors (added to
+[`MapPlaceholderPanel.uss`](../../unity/ProjectAegis/Assets/UI/MapPlaceholder/MapPlaceholderPanel.uss))
+own only color / border / picking; all positioning is inline from the renderer:
+
+| Class | Role |
+|-------|------|
+| `.map-overlay-layer` | Absolute full-bleed, `picking-mode: ignore` (the ring/edge layers). |
+| `.map-overlay-ring` | Transparent fill, 1 px border. |
+| `.map-overlay-ring--sensor` / `--weapon` | Blue / red border tint. |
+| `.map-overlay-edge` | 2 px bar. |
+| `.map-overlay-edge--up` / `--degraded` / `--down` | Green / amber / grey link status. |
 
 ---
 
@@ -202,11 +317,18 @@ The last projected counts are also exposed as `LastEnvelopeRingCount` / `LastDat
   (Baltic v2 hash `17144800277401907079`) are untouched — these overlays are outside the fingerprinted
   path (ADR-010 §2–3).
 - **Deterministic.** Doctrine rows sort by `UnitId` (ordinal); datalink pairs sort by unit id; envelope
-  rings are `[Sensor, Weapon]`. No RNG, no wall-clock.
+  rings are `[Sensor, Weapon]`. Canvas geometry preserves input order and keys shapes by unit id. No RNG,
+  no wall-clock — including the DRG-160 geometry and platform resolver.
 - **Fallbacks never fail closed to zero.** An absent/misconfigured catalog yields the 40 nm / 20 nm
-  default rings, not empty overlays — the operator always sees *something* for a selected unit.
+  default rings, not empty overlays — the operator always sees *something* for a selected unit. The
+  platform resolver likewise returns the unit id unchanged rather than dropping it.
 - **Approved-only sensor reach.** Sensor range aggregates only `Approved` sensor bindings, so unreviewed
   catalog rows can't inflate a displayed envelope.
+- **Math stays headless.** `MapCanvasOverlayGeometry` (pure) does all range→radius and position math;
+  `MapCanvasOverlayRenderer` only pools/positions `VisualElement`s and is compiled under
+  `#if UNITY_5_3_OR_NEWER`, so the whole subsystem is testable without Unity.
+- **Draw layer is picking-transparent and rear-most.** Overlay layers set `picking-mode: ignore` and
+  insert behind the unit symbols, so rings/edges never intercept clicks or hide selectable symbols.
 - **Additive host surface.** New overlays extend `MapPanelApplyState` / `MapPanelPresentation` with new
   optional params + count fields; existing call sites keep compiling and reporting zero.
 
@@ -221,13 +343,19 @@ The last projected counts are also exposed as `LastEnvelopeRingCount` / `LastDat
 - **A new count on the HUD:** add an optional param to the `MapPanelApplyState.Apply` / `BindAndApply`
   overload chain and a defaulted field on `MapPanelPresentation` (mirror `DoctrineOverlayCount`), then
   bind it in `ApplyOverlayCounts`. Do **not** reorder existing record fields.
-- **Live comms on the map mesh:** pass a `CommsStateSnapshot` into `DatalinkUnitPairFeed.ProjectEdges`
-  from the host's `CommsStateProjection` (already computed for the panel), matching the pattern in
-  [`comms-degradation-runtime.md`](comms-degradation-runtime.md).
+- **Live comms on the map mesh:** already wired (DRG-160) — the host passes its `CommsStateProjection`
+  snapshot into `DatalinkUnitPairFeed.ProjectEdges` and adds comms `State` to the dirty-flag, matching the
+  pattern in [`comms-degradation-runtime.md`](comms-degradation-runtime.md).
+- **A new drawn shape kind:** add a `MapCanvas*Shape` record + a `Project…` helper on
+  `MapCanvasOverlayGeometry` (keep it pure and keyed), a `Style*` const matching a USS selector, and a
+  reconcile block on `MapCanvasOverlayRenderer` (mirror the ring/edge pool). Keep the renderer math-free.
+- **A real basemap scale:** replace `NmToNormalizedRadius`'s fixed `DefaultTheaterWidthNm` with a
+  georeferenced projection; it is deliberately isolated as the single seam for that swap.
 
-Cover any new resolver/projection with `ProjectAegis.Delegation.Tests` cases under `Projection/`
-(the family currently has focused fixtures for the resolver, the ring projection, the doctrine overlay,
-the datalink feed, and the apply-state fold) and confirm the full gate stays green:
+Cover any new resolver/projection/geometry with `ProjectAegis.Delegation.Tests` cases under `Projection/`
+(the family currently has focused fixtures for the range resolver, the ring projection, the doctrine
+overlay, the datalink feed, the apply-state fold, and the DRG-160 canvas geometry + platform resolver) and
+confirm the full gate stays green:
 
 ```bash
 dotnet build ProjectAegis.sln                       # 0 warnings / 0 errors
