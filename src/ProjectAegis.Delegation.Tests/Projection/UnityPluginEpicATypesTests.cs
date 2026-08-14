@@ -24,6 +24,10 @@ public sealed class UnityPluginEpicATypesTests
         "ProjectAegis.Delegation.Projection.ApprovedC2AssetPaths",
         "ProjectAegis.Delegation.Projection.SpeccedC2PanelStylePaths",
         "ProjectAegis.Delegation.Projection.MapPanelApplyState",
+        "ProjectAegis.Delegation.Projection.MapCanvasOverlayGeometry",
+        "ProjectAegis.Delegation.Projection.MapEnvelopePlatformResolver",
+        "ProjectAegis.Delegation.Projection.MapCanvasRingShape",
+        "ProjectAegis.Delegation.Projection.MapCanvasEdgeShape",
     };
 
     [Test]
