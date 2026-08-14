@@ -35,7 +35,7 @@ Load-bearing and enforced by tests / the golden gate. Preserve them when touchin
 | **Enum numbers & layer tags are on-disk contract** | `RngDomain` values (`0..5`) and `SimWorldHash` layer tags (`1..4`) are mixed into the hashes that the replay goldens pin. **Never renumber, reorder, or reuse a value** — doing so silently changes every golden. Append new values at the end. |
 | **`SeededRng.UnitFloat` is stateless / order-independent** | The *value* of a draw depends only on `(SimSeed, RngDomain, entityId, simTick, drawIndex)` — never on call order. Give each independent draw within one `(domain, entity, tick)` a distinct `drawIndex`, or two draws will alias to the same value. |
 | **Delegation `SeededRng` is stateful / order-significant** | The per-agent xorshift stream advances on every `NextUnit()`. Reordering, adding, or removing a draw per tick changes every subsequent value. Keep the number and order of draws per agent-tick stable. |
-| **Quantize floats before mixing into a hash** | Floating-point inputs to the world hash are converted to integers first (e.g. `Pd`/draw `× 10_000`) so `double` round-trip noise and negative zero can't diverge the hash. Floats reaching the *order-log fingerprint* go through `FingerprintFloat` instead (see [determinism-and-replay.md](determinism-and-replay.md#float-formatting-is-where-determinism-bugs-hide)). |
+| **Float mixing is contributor-specific — do not rewrite to a single rule** | `DetectionWorldHash` quantizes `Pd`/draw `× 10_000` before mixing. That is **not** universal: `PlatformHpLedger.ComputeWorldHashMix` feeds raw IEEE-754 bits of `hpPct` via `BitConverter`, and swarm lat/lon use `DoubleBits`. Changing those to a new quantize rule would move the pinned Baltic v2 hash. Order-log floats still go through `FingerprintFloat` (see [determinism-and-replay.md](determinism-and-replay.md#float-formatting-is-where-determinism-bugs-hide)). |
 | **Hash strings with `DeterministicHash`, never `string.GetHashCode()`** | `string.GetHashCode()` is randomized per process in .NET — stable within a run, different next launch. Any string that seeds RNG or feeds a hash must go through `DeterministicHash.OrdinalHash` (FNV-1a). |
 
 ---
@@ -49,12 +49,17 @@ addressing model matches your call site; never introduce a third randomness sour
 
 ```csharp
 double draw = SeededRng.UnitFloat(seed, RngDomain.Detection, entityId, simTick, drawIndex: 0);
-bool detected = draw < pd;   // unit float in [0, 1)
+bool detected = draw < pd;   // unit float in [0, 1] (see range caveat)
 ```
 
 `UnitFloat` avalanche-mixes `(seed, domain, entityId, simTick, drawIndex)` into a `ulong` (a
-SplitMix64-style finalizer with the two well-known constants), then maps its low 32 bits into
-`[0, 1)` via `/ uint.MaxValue`. Because it is **stateless**, there is no stream to advance and draw
+SplitMix64-style finalizer with the two well-known constants), then maps its low 32 bits via
+`/ uint.MaxValue`. That mapping is **`[0, 1]` inclusive**, not a half-open `[0, 1)`: a mixed value
+whose low 32 bits are `0xFFFFFFFF` returns exactly `1.0`. The source XML comment still says
+`[0,1)`; do not treat that as the implementation. `draw < pd` can therefore fail even when
+`pd == 1`. Call sites that need a strict unit interval must account for the closed endpoint.
+
+Because it is **stateless**, there is no stream to advance and draw
 *order does not matter* — but `domain`, `entityId`, and `drawIndex` fully determine the value, so
 **two independent draws that share all five coordinates return the same number**. That is why the
 combat resolver uses `drawIndex 0/1/2` for its Hit / Intercept / Kill draws on the same engagement
@@ -102,15 +107,20 @@ artifact (the order-log fingerprint is the decision-side one; the goldens pin **
 a fixed integer mix (`Fold` is the SplitMix64 finalizer), so the value depends only on the layered
 integer inputs — never on float round-trip noise or enumeration order.
 
-Layers are combined in a **fixed order**, each stamped with a one-byte tag so the same number mixed
-at a different layer produces a different composite:
+`Combine` does **not** stamp every listed layer. The `coreHash` argument is the **untagged
+initial accumulator** (`SimTickRunner.LastWorldHash`). `MixLayer` is then applied only for
+detection (`LayerDetection=2`), engage (`LayerEngage=3`), and optionally combat outcome
+(`LayerCombatOutcome=4`). `LayerCore=1` is **not** applied inside `Combine`; it is used by
+separate `MixLayer` call sites (today: swarm order-log entries). Do not wrap `coreHash` in
+`LayerCore` a second time — that would move the golden world hash.
 
-| Layer | Tag | Contributes |
-|-------|-----|-------------|
-| `LayerCore` | 1 | The MVP clock/seed core hash from `SimTickRunner` (`seed ^ tick ^ previous`). |
-| `LayerDetection` | 2 | The detection sub-hash (`DetectionWorldHash`, quantized `Pd`/draw). |
-| `LayerEngage` | 3 | Launched engagement ids + outcome mix. |
-| `LayerCombatOutcome` | 4 | Kill registry / HP-ledger / swarm-drone-count deltas. |
+| Layer / input | Tag | How it actually enters the composite |
+|---------------|-----|--------------------------------------|
+| `coreHash` | *none in `Combine`* | Untagged first argument (`SimTickRunner` `seed ^ tick ^ previous`). |
+| `LayerCore` | 1 | Separate `MixLayer` call sites only (swarm order log). Not used by `Combine`. |
+| `LayerDetection` | 2 | `Combine` stamps the detection sub-hash (`DetectionWorldHash`; `Pd`/draw quantized `× 10_000`). |
+| `LayerEngage` | 3 | `Combine` stamps launched engagement ids + outcome mix. |
+| `LayerCombatOutcome` | 4 | 4-arg `Combine` stamps kill registry / HP-ledger (raw `hpPct` bits) / swarm integrity deltas. |
 
 ```csharp
 // 3-arg: core → detection → engage (harness world hash without combat outcome)
