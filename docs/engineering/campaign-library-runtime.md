@@ -75,9 +75,12 @@ On disk it is a `*.campaign.json` artifact under `data/campaigns/`:
 ```
 
 `CampaignDocumentJsonLoader` is tolerant (case-insensitive properties, `//` comments, trailing
-commas), trims strings, and sorts members by `(Sequence, ScenarioId)`; `LoadFromFile` throws
-`InvalidDataException` on an unparseable document while `TryLoadFromFile` swallows IO/parse failures
-into a `bool`. `CampaignDocumentJsonWriter.Serialize` is the deterministic inverse — stable property
+commas), trims strings, and sorts members by `(Sequence, ScenarioId)`. `LoadFromJson` lets
+`JsonSerializer.Deserialize` throw **`JsonException`** on malformed syntax (e.g. `{ not-valid-json`).
+`LoadFromFile` only throws **`InvalidDataException`** when deserialize returns `null`. Callers that
+catch only `InvalidDataException` will still fail on ordinary syntax errors. `TryLoadFromFile` and
+the library `ProjectFromPath` path swallow `JsonException`, `InvalidDataException`, and IO failures
+into unavailable/`false`. `CampaignDocumentJsonWriter.Serialize` is the deterministic inverse — stable property
 order, `displayTitle` omitted when blank, `\r\n` normalized to `\n`, UTF-8 without BOM.
 
 ---
@@ -198,5 +201,5 @@ Add a constant to `CampaignLibraryReasons`, emit it from `CampaignLibraryProject
 
 | Test | Guards |
 |------|--------|
-| `CampaignLibraryTests` | Document round-trip, `CampaignProgress` completion/resume, and `CampaignLibraryLister` / `CampaignLibraryProjection` feasibility + deterministic sort. |
+| `CampaignLibraryTests` | Document round-trip and member sort during JSON serialization, `CampaignProgress` completion/resume, and `CampaignLibraryProjection` feasibility. It does **not** currently pin `CampaignLibraryLister` multi-file `(CampaignId, SourcePath)` order — that sort is code-only until a two-file ordering test is added. |
 | `CampaignLibraryApplyStateTests` | Row/preview formatting, availability labelling, and the `"Select a campaign"` zero-state. |
