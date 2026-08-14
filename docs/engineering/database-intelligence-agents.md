@@ -2,19 +2,23 @@
 
 The **Database Intelligence** pipeline is a small set of headless, deterministic **advisory** agents
 that inspect a catalog and emit coded findings — the automated "does this catalog look sane?" gate
-that runs before curator drops and in CI (req-06 / DBI-8.1). It is **read-only / propose-only**: no
-agent ever writes to the catalog. Writes always go through the separate
+that runs before curator drops and in CI (req-06 / DBI-8.1). Agents are **propose-only for catalog
+rows**: none of them call `Propose*` / `Approve*` / commit. Row writes stay on the separate
 [`CatalogWriteGate`](catalog-write-gate.md); these agents only *surface* what's staged or wrong.
+That is **not** a promise that opening a SQLite file is schema-immutable — see the caveats below.
 
 The load-bearing contract is **no LLM in the path**: every agent is a pure C# heuristic over the
 catalog reader, so a run is deterministic and CI-gateable (echoing the same no-dynamic-execution
 discipline as the [AI-authoring stubs](scenario-ai-authoring-and-adjudication.md)).
 
 - **Source:** [`src/ProjectAegis.Data/Agents/`](../../src/ProjectAegis.Data/Agents/).
-- **Operator surface:** the `catalog_intelligence_run` CLI/MCP verb
-  ([`CatalogIntelligenceRunCommand`](../../src/ProjectAegis.MissionEditor.Cli/CatalogIntelligenceRunCommand.cs)),
-  and the thin [`ValidationPipeline`](../../src/ProjectAegis.Data/Validation/ValidationPipeline.cs)
-  wrapper.
+- **Operator surface:** the `catalog_intelligence_run` **CLI** verb
+  ([`CatalogIntelligenceRunCommand`](../../src/ProjectAegis.MissionEditor.Cli/CatalogIntelligenceRunCommand.cs)).
+  It is **not** registered in [`tools/mission-editor/mcp-tools.json`](../../tools/mission-editor/mcp-tools.json)
+  today — MCP clients cannot invoke it until that binding is added. The JSON report's `mcpTools`
+  array lists sibling catalog verbs, not a live MCP registration for this command. The thin
+  [`ValidationPipeline`](../../src/ProjectAegis.Data/Validation/ValidationPipeline.cs) wrapper is
+  the in-process entry.
 - **Related:** the write path the diff agent inspects is [catalog-write-gate.md](catalog-write-gate.md);
   the fixtures a default run reads come from [catalog-seeding.md](catalog-seeding.md); the rules the
   validation agent enforces overlap the [CMO import](cmo-markdown-import.md) quarantine gate.
@@ -97,9 +101,10 @@ validation entry point, req-06).
 
 ## Operator surface: `catalog_intelligence_run`
 
-`CatalogIntelligenceRunCommand.Run(databasePath, output)` is the headless MCP/CI verb. It opens a
+`CatalogIntelligenceRunCommand.Run(databasePath, output)` is the headless **CLI/CI** verb. It opens a
 `SqliteCatalogReader` (actor `mcp-intelligence`) when given an existing DB path, else falls back to
-the Baltic patrol fixture, runs the orchestrator, and writes an indented camelCase JSON report:
+`CatalogReaderFactory.TryCreateBalticPatrolReader()` (which can seed/update the Baltic patrol file)
+or the in-memory fixture, runs the orchestrator, and writes an indented camelCase JSON report:
 
 ```jsonc
 {
@@ -122,8 +127,11 @@ error-severity finding — so CI can fail closed on a bad catalog.
 
 ## Determinism & extension notes
 
-- **Propose-only / read-only.** No agent writes to the catalog. The diff agent *reads* the write
-  gate's pending batches; approvals stay human-gated in `CatalogWriteGate`.
+- **Propose-only for catalog rows, not schema-immutable.** No agent calls write-gate propose/approve.
+  The diff agent constructs `CatalogWriteGate` only to `ListPendingBatches()`. Opening SQLite still
+  has side effects: `SqliteCatalogReader` ctor runs `ApplyMigrations()`, `CatalogWriteGate` ctor
+  runs `EnsureSchema()`, and the no-`--db` factory path can seed/update the Baltic patrol catalog.
+  Do not point this command at a database you assumed was immutable.
 - **No LLM / deterministic.** Every agent is a pure heuristic over the catalog reader; there is no
   model call, no wall-clock, and no RNG, so a run is byte-stable for a given catalog and CI can
   pin it.
