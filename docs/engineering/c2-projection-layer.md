@@ -196,8 +196,13 @@ are sorted `(From, To, LinkType, Status)` ordinal, so output is replay-stable.
 
 Status reflects **live comms** when a `CommsStateSnapshot` is supplied (DRG-157). The snapshot comes
 from [`CommsStateProjection.Project(log)`](../../src/ProjectAegis.Delegation/Projection/CommsStateProjection.cs)
-— the same order-log-authoritative comms state the C2 top bar uses — so the map network overlay and
-the `COMMS: …` banner never disagree:
+— the same order-log-authoritative comms state the C2 top bar uses. Agreement with the `COMMS: …`
+banner is an **API capability**, not a guarantee of the current Unity host: the overlay only
+matches the banner when the caller actually passes that snapshot. `MapPlaceholderPanelHost.ApplyOverlayCounts`
+currently calls `ProjectEdges(friendlyIds, links)` **without** a `CommsStateSnapshot`, so every map
+edge takes the null-snapshot `Up` fallback even while the top-bar banner reflects `Degraded` /
+`Denied`. Hosts that want them to agree must pass `CommsStateProjection.Project(log)` into
+`ProjectEdges`:
 
 | `CommsState` (or absent) | Edge status | Constant |
 |--------------------------|-------------|----------|
@@ -233,7 +238,7 @@ Grouped by the panel/surface they feed. All live in
 | `ContactPictureProjection` | Active contact tracks from `ContactChange` rows; `ProjectWithBda` merges order-log BDA "Lost" rows |
 | `SensorC2Projection` | Contact picture + per-tick indicators (radar EMCON, fire-control track, active engagements) via `ISensorC2WorldIndicators` |
 | `MapPictureProjection` → `MapPanelBinder` | Tactical map symbols + ghost/frozen comms overlays |
-| `DatalinkUnitPairFeed` → `DatalinkPictureProjection` (`DatalinkEdgeEntry`) | Friendly datalink mesh overlay (CMD-32); edge status reflects the live `CommsStateProjection` snapshot (Up/Degraded/Down) |
+| `DatalinkUnitPairFeed` → `DatalinkPictureProjection` (`DatalinkEdgeEntry`) | Friendly datalink mesh overlay (CMD-32); edge status reflects a live `CommsStateProjection` snapshot **when the caller supplies it** (null snapshot → all-`Up`). The Unity `MapPlaceholderPanelHost` does not pass it yet. |
 | `App6Sidc` / `App6GlyphAtlas` / `App6AtlasCatalog` / `App6*` | APP-6/2525C glyph + SIDC + atlas resolution |
 | `ContactSummaryProjection` | Single-contact inspector line |
 | `CesiumBillboardProjection` | Cesium globe billboards (ADR-007 map path) |

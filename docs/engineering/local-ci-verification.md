@@ -31,13 +31,20 @@ bash tools/buildkite/dotnet-ci.sh
 ```
 
 ```powershell
-# Windows / pwsh
+# Windows / pwsh — advisory only until $LASTEXITCODE is checked (see caveat below)
 .\tools\verify-ci-local.ps1
 ```
 
-A successful run ends with `=== PASS ===`. Any non-zero exit means the gate would fail in CI — fix
-before pushing. Neither script mutates anything but the build output and (bash only) the gitignored
-Unity plugin DLLs.
+**Use the bash script as the fail-closed local gate.** `tools/buildkite/dotnet-ci.sh` is what
+Buildkite invokes; a non-zero `dotnet` exit fails the job.
+
+On Windows, `.\tools\verify-ci-local.ps1` is a convenience mirror of the same step list, but it is
+**not fail-closed today**: `$ErrorActionPreference = 'Stop'` does not inspect `$LASTEXITCODE` after
+native `dotnet` invocations (unlike `scripts/verify-catalog-import.ps1`). A failed restore, build,
+full-suite test, or ReplayGolden run can still print `=== PASS ===` if a later command succeeds.
+Treat a PowerShell `=== PASS ===` as advisory — run the bash script (WSL / Git Bash) or inspect
+each `dotnet` step's exit code until the `.ps1` gains explicit exit checks. Neither script mutates
+anything but the build output and (bash only) the gitignored Unity plugin DLLs.
 
 ---
 
@@ -90,9 +97,9 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
   --filter PlayModeSmokeHarnessTests
 ```
 
-Run the **full** `verify-ci-local.ps1` / `dotnet-ci.sh` (Release + ReplayGolden + PlayModeSmoke) as
-the last step before you push — Release config and the golden/smoke filters catch failures the Debug
-inner loop can miss.
+Run the **full** `dotnet-ci.sh` (Release + ReplayGolden + PlayModeSmoke) as the last step before you
+push — Release config and the golden/smoke filters catch failures the Debug inner loop can miss.
+Do not treat `verify-ci-local.ps1` as that fail-closed last step until it checks `$LASTEXITCODE`.
 
 ---
 
