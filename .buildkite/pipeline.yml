@@ -5,7 +5,13 @@
 env:
   DOTNET_CLI_TELEMETRY_OPTOUT: "1"
   DOTNET_NOLOGO: "true"
-  BUILDKITE_GIT_CLONE_FLAGS: "--depth=250"
+  # BUILDKITE_GIT_CLONE_FLAGS was removed (2026-08-14): it is a protected
+  # variable and Buildkite ignores it when set via pipeline `env:` — every
+  # job logged "Warning: Ignored BUILDKITE_GIT_CLONE_FLAGS" and the intended
+  # `--depth=250` shallow clone never took effect. To actually get a shallow
+  # clone, configure `git-clone-flags` in the cluster's agent configuration
+  # (buildkite-agent.cfg / queue settings), or enable the git-mirror volume
+  # (5 GB quota already available on this cluster) instead.
 
 steps:
   # Blocking gate MUST run first — Graphite optimizer (main pipeline) can --replace with
@@ -13,11 +19,16 @@ steps:
   - label: ":hammer: Build and test"
     key: build
     command: bash tools/buildkite/agent-dotnet-ci.sh
+    agents:
+      queue: linux-medium
     retry:
       automatic:
         - exit_status: "*"
           limit: 1
 
+  # No `agents:` here on purpose — this step runs in 9-12s and stays on the
+  # linux-small cluster default. Do not move it to linux-medium; there is
+  # nothing to gain and it would just add cost for no wall-clock benefit.
   - label: ":gitleaks: Secret scan"
     key: gitleaks
     soft_fail: true
@@ -27,15 +38,49 @@ steps:
     key: baltic-replay
     branches: main
     command: bash tools/buildkite/agent-baltic-replay.sh
+    agents:
+      queue: linux-medium
 
   - label: ":gitnexus: PR impact analysis"
     key: gitnexus-pr
     if: build.pull_request.id != null
     soft_fail: true
     command: bash tools/buildkite/agent-gitnexus-pr-analysis.sh
+    agents:
+      queue: linux-medium
 
   - label: ":gitnexus: Reindex knowledge graph (main)"
     key: gitnexus-reindex
     branches: main
     soft_fail: true
     command: bash tools/buildkite/agent-gitnexus-reindex.sh
+    agents:
+      queue: linux-medium
+
+  # --- STAGED, NOT ACTIVE ---
+  # GitNexus steps above are consistently the longest-running step on every
+  # sampled build (PR #1704: 1m24s; main #1703: 1m18s) and are soft-fail /
+  # advisory only, so they do not need to block the blocking gate's wall
+  # clock. `.buildkite/gitnexus.yml` stages the same two steps (targeted at
+  # linux-medium) as a standalone pipeline, ready to be triggered async
+  # instead of run inline.
+  #
+  # HUMAN PREREQUISITE (required before uncommenting the step below):
+  #   A human must create a new Buildkite pipeline in the UI with slug
+  #   `cmano-clone-gitnexus` (org `drgaciw`) whose steps source is
+  #   `.buildkite/gitnexus.yml` in this repo. A `trigger:` step naming a
+  #   pipeline that does not exist yet will fail every build, so do NOT
+  #   uncomment this until that pipeline exists and has been smoke-tested.
+  #
+  # - label: ":gitnexus: Trigger analysis (async)"
+  #   key: gitnexus-trigger
+  #   trigger: "cmano-clone-gitnexus"
+  #   async: true
+  #   build:
+  #     message: "${BUILDKITE_MESSAGE}"
+  #     commit: "${BUILDKITE_COMMIT}"
+  #     branch: "${BUILDKITE_BRANCH}"
+  #     env:
+  #       PARENT_BUILD_PULL_REQUEST: "${BUILDKITE_PULL_REQUEST}"
+  #       PARENT_BUILD_NUMBER: "${BUILDKITE_BUILD_NUMBER}"
+  #       PARENT_BUILD_URL: "${BUILDKITE_BUILD_URL}"

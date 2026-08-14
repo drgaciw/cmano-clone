@@ -1,6 +1,6 @@
 # Buildkite CI
 
-> **Last updated:** 2026-07-13
+> **Last updated:** 2026-08-14
 > **Replaces:** `.NET CI`, `Graphite CI`, `Post-Merge CI`, and Gitleaks in GitHub Actions
 > **Graphite workflow:** [graphite-github-substitute-plan.md](./graphite-github-substitute-plan.md)
 
@@ -14,13 +14,13 @@ Primary blocking CI runs on **Buildkite hosted Linux agents** using repo-committ
 
 The committed [`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml) blocking gate is:
 
-| Step | When | Purpose |
-|------|------|---------|
-| `:hammer: Build and test` | All builds | **`agent-dotnet-ci.sh`** → `dotnet-ci.sh` — Release restore/build/test + Replay/C2 filters |
-| Gitleaks | All builds | Secret scan (`soft_fail: true` — blanket) |
-| Baltic replay golden | `main` only | Post-merge `ReplayGolden*` filter |
-| GitNexus PR analysis | Pull requests | `analyze` + `detect_changes`; annotation; `soft_fail: true` (blanket) |
-| GitNexus reindex | `main` only | Knowledge graph refresh; **`soft_fail: true` (blanket)** — not yet scoped to exit 75 |
+| Step | When | Queue | Purpose |
+|------|------|-------|---------|
+| `:hammer: Build and test` | All builds | `linux-medium` | **`agent-dotnet-ci.sh`** → `dotnet-ci.sh` — Release restore/build/test + Replay/C2 filters |
+| Gitleaks | All builds | `linux-small` (default) | Secret scan (`soft_fail: true` — blanket) |
+| Baltic replay golden | `main` only | `linux-medium` | Post-merge `ReplayGolden*` filter |
+| GitNexus PR analysis | Pull requests | `linux-medium` | `analyze` + `detect_changes`; annotation; `soft_fail: true` (blanket) |
+| GitNexus reindex | `main` only | `linux-medium` | Knowledge graph refresh; **`soft_fail: true` (blanket)** — not yet scoped to exit 75 |
 
 PR #263 ships **groundwork scripts and docs only**. It does **not** change the live gate
 to a build/test split, parallelism, native cache, or exit-75-only soft_fail. Treat
@@ -45,9 +45,117 @@ Native `cache:` volumes are **not** used (see Caching). Graphite CI optimizer re
 `annotate-test-summary.sh`. Keep until a follow-up with Buildkite job logs re-enables
 optimizations in the phased order below.
 
+### Agent sizing (2026-08-14)
+
+The default cluster exposes five hosted queues. Until 2026-08-14 `.buildkite/pipeline.yml`
+named none of them, so **every step ran on the `linux-small` cluster default**:
+
+| Queue | Shape | Rate | Use |
+|-------|-------|------|-----|
+| `linux-small` | 2 vCPU · 4 GB | $0.008/min | Cluster default — Gitleaks only |
+| `linux-medium` | 4 vCPU · 16 GB | $0.016/min | Build/test, Baltic replay, both GitNexus steps |
+| `linux-large` | 8 vCPU · 32 GB | $0.032/min | **Not used** — see below |
+| `macos-medium` / `macos-large` | 6/12 vCPU | $0.12 / $0.24/min | Reserved for future Unity Editor builds |
+
+Linux hosted agents bill at **$0.004 per vCPU-minute, metered to the second**, so cost scales
+strictly linearly with vCPU count. A larger shape only pays for itself if it finishes
+proportionally faster, which it never quite does.
+
+Measured before the change (builds #1640, #1687, #1703, #1704):
+
+| Step | PR #1704 | main #1703 |
+|------|----------|------------|
+| pipeline upload | 7s | 9s |
+| Build and test | 1m 3s | 1m 24s |
+| Gitleaks | 9s | 12s |
+| Baltic replay | — | 49s |
+| GitNexus | **1m 24s** | **1m 18s** |
+| **wall clock** | 1m 36s | 1m 40s |
+
+Two conclusions drove the sizing:
+
+1. **`linux-medium`, not `linux-large`.** Hosted-compute job metrics show CPU sustained at
+   75–95% but peak memory of only **1.7 GB against the 4 GB ceiling**, with I/O wait under 10%.
+   vCPU is the constraint; the 32 GB in `linux-large` would be paid for and unused.
+2. **Gitleaks stays on `linux-small`.** At 9–12s there is nothing to gain. `.buildkite/pipeline.yml`
+   carries a comment saying so — do not "helpfully" promote it.
+
+Steps run fully in parallel after the upload, so build wall time is *upload + the single longest
+step*. On every build sampled that step is a **GitNexus** step — which is `soft_fail: true`, i.e.
+advisory. Resizing build-and-test alone therefore moves PR wall time by zero. See
+"GitNexus split" below.
+
+### Catalog gate ordering (2026-08-14)
+
+`dotnet-ci.sh` used to run the CmoMarkdown Import test *before* `dotnet build -c Release`.
+With no `-c` flag that defaults to **Debug** and compiled `ProjectAegis.Data`, `Data.Excel` and
+`Data.Tests` from scratch (build #1703 log, 03:52:00→03:52:09), after which the Release build
+recompiled the whole graph at 03:52:12. The Debug output was never used — **~12s of an 84s job**.
+
+The gate is now split:
+
+- the `*.db3` tracked-file policy check stays **before** the build (a ~0s `git ls-files` grep, fails fast);
+- the CmoMarkdown test runs **after** the Release build as `-c Release --no-build`, still ahead of the
+  full solution run so it fails fast on catalog regressions.
+
+`scripts/verify-catalog-import.ps1` gained `-Configuration`, `-NoBuild` and `-Db3CheckOnly`
+so it still works standalone (default invocation unchanged) while `tools/verify-ci-local.ps1`
+calls the two halves separately for local parity.
+
+### `.NET` bootstrap: sourced twice by design
+
+`agent-bootstrap-dotnet.sh` is sourced **twice per job**: `agent-dotnet-ci.sh` sources it and
+then `exec`s `dotnet-ci.sh`, which sources it again to re-apply PATH for test hosts that spawn
+`dotnet`/`node` subprocesses (`dotnet-ci.sh:14`). The replay path has the same shape. Because
+`exec` preserves the environment, the second pass used to re-run the whole tail and emit a
+second full `dotnet --info` — visible in build #1703 as a duplicated
+`=== dotnet SDK resolved ... ===` line.
+
+The script now carries an idempotency guard keyed on exported `DOTNET_BOOTSTRAP_DONE` /
+`DOTNET_BOOTSTRAP_DIR`: the second and later sources re-export PATH, log
+`=== dotnet bootstrap already applied (PATH re-exported) ===`, and skip the probe/echo/`--info`.
+
+**The SDK download is still the biggest remaining item.** The hosted image ships no `dotnet`, so
+every job pulls the 212 MB SDK 8.0.400 tarball (~10s/job, roughly 11 hours of billed agent time a
+month). `DOTNET_ROOT` now normalises a relative path to absolute so it *can* point at a cached,
+workspace-relative directory, but nothing opts in yet. Two routes, **both requiring console work**:
+
+1. **Bake SDK 8.0.400 into a Buildkite Agent Image** (preferred — needs no pipeline YAML at all;
+   the existing `>= 8` early-return then short-circuits the download).
+2. Set `DOTNET_ROOT: .dotnet` in step `env:` plus a matching `cache:` block — see Caching below
+   before attempting this.
+
+### GitNexus split (staged, NOT active)
+
+`.buildkite/gitnexus.yml` stages the two GitNexus steps as a standalone pipeline, and
+`.buildkite/pipeline.yml` carries a **commented-out** `trigger` step with `async: true` showing
+how to switch over. This is deliberately inert: a `trigger` naming a pipeline that does not exist
+fails every build.
+
+To activate: create a pipeline in org `drgaciw` with slug **`cmano-clone-gitnexus`**, steps sourced
+from `.buildkite/gitnexus.yml`; smoke-test it with a manual build; then in one change uncomment
+`gitnexus-trigger` and delete the two inline GitNexus steps from `pipeline.yml`.
+
+### `BUILDKITE_GIT_CLONE_FLAGS` was removed
+
+It is a protected variable and Buildkite ignores it when set via pipeline `env:` — every job logged
+`Warning: Ignored BUILDKITE_GIT_CLONE_FLAGS`, so the intended `--depth=250` never took effect. Set
+`git-clone-flags` in the cluster's agent configuration instead, or enable the git-mirror volume
+(5 GB quota already available).
+
 ### Caching
 
-**Native step-level `cache:` is intentionally NOT used** in `.buildkite/pipeline.yml`.
+**Native step-level `cache:` is still NOT used** in `.buildkite/pipeline.yml` — but the historical
+reason below is now out of date.
+
+> **Correction (2026-08-14):** **Cached Storage IS enabled on this cluster.** The org is on
+> **Platform Pro**, and *Agents → Default cluster → Cached Storage* lists live volumes
+> (`cmano-clone/container-cache`, `buildkite-local-builder-drgaciw-cmano-clone`), with quotas of
+> 50 GB container cache and 5 GB git mirror. The "must wait for a human to confirm Cache Storage
+> is active" blocker recorded below **is resolved**. The upload rejections in #535/#541 were
+> caused by the YAML shape (`key` / `{{ checksum }}`), not by the feature being unavailable.
+> A `cache:` block is therefore now worth attempting — on a throwaway branch, with only `paths` /
+> `name` / `size`, and never `key` or `{{ checksum }}`.
 
 Evidence (PR #263):
 
@@ -58,9 +166,11 @@ Evidence (PR #263):
 | Main PRs | No `cache:` at all | SUCCESS |
 
 Hosted [cache volumes](https://buildkite.com/docs/agent/buildkite-hosted/cache-volumes)
-are a **Pro/Enterprise** feature and must be enabled on the cluster. Until a human
+are a **Pro/Enterprise** feature and must be enabled on the cluster. ~~Until a human
 confirms **Agents → cluster → Cache Storage** is active for this org, do not re-add
-native `cache:` blocks — they reject pipeline upload before any job starts.
+native `cache:` blocks.~~ **Superseded 2026-08-14** — the org is on Platform Pro and
+Cached Storage is confirmed active (see the correction above). The remaining risk is
+the YAML shape, not the entitlement.
 
 When re-enabling cache, set `NUGET_PACKAGES: ".nuget/packages"` in pipeline `env` so a
 volume or [cache plugin](https://github.com/buildkite-plugins/cache-buildkite-plugin)
@@ -73,10 +183,12 @@ incremental compilation (timestamp-based) and is a known anti-pattern.
 No `packages.lock.json` exists in this repo today. Preferred re-enable path once
 approved:
 
-1. Confirm hosted cache volumes are enabled **or** configure the cache plugin with an
-   object-store backend (`s3`/`gcs`/etc.)
-2. Cache **only** `.nuget/packages` (never `bin/`/`obj/`)
+1. ~~Confirm hosted cache volumes are enabled~~ — **done, confirmed active 2026-08-14**
+2. Cache **only** `.nuget/packages` (never `bin/`/`obj/`), and optionally a
+   workspace-relative `DOTNET_ROOT` such as `.dotnet` to kill the 212 MB per-job SDK
+   download (see "`.NET` bootstrap" above)
 3. If using volumes: only `paths` / `name` / `size` — **never** `key` or `{{ checksum }}`
+4. Land it on a throwaway branch first — an upload rejection fails in ~3s with no step logs
 
 ### Test Analytics setup (future — not in live pipeline)
 
@@ -162,6 +274,7 @@ available for a red build:
 ### Orphaned / out-of-scope files (not touched by this pass)
 
 - [`.buildkite/preflight-s67.yml`](../../.buildkite/preflight-s67.yml) — never referenced by any `buildkite-agent pipeline upload` command; left as-is pending a separate cleanup decision
+- [`.buildkite/gitnexus.yml`](../../.buildkite/gitnexus.yml) — **staged, intentionally inert.** Not referenced by `pipeline.yml` until the `cmano-clone-gitnexus` pipeline exists in Buildkite; see "GitNexus split" above
 - `packages.lock.json` adoption — no lock files exist in this repo today (see "Caching" above)
 
 ## One-time Buildkite setup (human)

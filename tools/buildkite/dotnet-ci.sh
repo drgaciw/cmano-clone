@@ -24,7 +24,10 @@ fi
 
 dotnet restore ProjectAegis.sln
 
-# Catalog policy gate: no tracked *.db3 + CmoMarkdown import tests (bash parity with scripts/verify-catalog-import.ps1)
+# Catalog policy gate, part 1: no tracked *.db3 (bash parity with scripts/verify-catalog-import.ps1).
+# This half stays here, before the build, so it fails fast (~0s git ls-files grep).
+# The CmoMarkdown Import test half of this gate moved below the Release build — see
+# the "Catalog policy gate, part 2" comment for why.
 echo "=== verify-catalog-import ==="
 tracked_db3="$(git ls-files '*.db3' || true)"
 if [[ -n "$tracked_db3" ]]; then
@@ -33,11 +36,6 @@ if [[ -n "$tracked_db3" ]]; then
   exit 1
 fi
 echo "OK: no *.db3 in git ls-files"
-echo "Running CmoMarkdown Import tests..."
-dotnet test \
-  src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj \
-  -v minimal \
-  --filter 'FullyQualifiedName~CmoMarkdown'
 
 dotnet build ProjectAegis.sln -c Release --no-restore
 # READ build 0e/0w expected
@@ -50,6 +48,22 @@ dotnet build ProjectAegis.sln -c Release --no-restore
 # test passes on any developer machine that has run the copy locally. Wiring the copy
 # into the gate removes that local-vs-CI divergence.
 bash "$repo_root/tools/copy-delegation-assemblies.sh"
+
+# Catalog policy gate, part 2: CmoMarkdown Import tests.
+# Moved here (after the Release build + delegation-assembly copy) and switched to
+# `-c Release --no-build` because running this with no `-c` flag defaulted to Debug
+# and compiled ProjectAegis.Data / Data.Excel / Data.Tests from scratch, then the
+# subsequent `dotnet build -c Release` recompiled the entire graph again — a duplicate
+# Debug compile whose output was never used. Measured ~12s of Buildkite build #1703's
+# 84s job time (03:52:00->03:52:09 Debug compile, then Release build restarts at
+# 03:52:12). Running it here with --no-build reuses the Release output instead.
+# Still kept before the full solution `dotnet test` run so it fails fast on catalog
+# regressions.
+echo "Running CmoMarkdown Import tests..."
+dotnet test \
+  src/ProjectAegis.Data.Tests/ProjectAegis.Data.Tests.csproj \
+  -c Release --no-build -v minimal \
+  --filter 'FullyQualifiedName~CmoMarkdown'
 
 set +e
 dotnet test ProjectAegis.sln -c Release --no-build -v minimal

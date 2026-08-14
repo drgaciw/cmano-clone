@@ -9,8 +9,18 @@ Push-Location $repoRoot
 try {
     Write-Host '=== CI local verify (Release) ==='
     dotnet restore ProjectAegis.sln
-    & (Join-Path $repoRoot 'scripts\verify-catalog-import.ps1')
+
+    # Catalog policy gate, part 1: fast *.db3 check, before the build (fails fast).
+    & (Join-Path $repoRoot 'scripts\verify-catalog-import.ps1') -Db3CheckOnly
+
     dotnet build ProjectAegis.sln -c Release --no-restore
+
+    # Catalog policy gate, part 2: CmoMarkdown Import tests, reusing the Release build
+    # via --no-build instead of letting `dotnet test` default to a throwaway Debug
+    # compile (mirrors tools/buildkite/dotnet-ci.sh; see that file for the measured
+    # ~12s duplicate-compile rationale from Buildkite build #1703).
+    & (Join-Path $repoRoot 'scripts\verify-catalog-import.ps1') -Configuration Release -NoBuild
+
     dotnet test ProjectAegis.sln -c Release --no-build -v minimal
     dotnet test `
         src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj `
