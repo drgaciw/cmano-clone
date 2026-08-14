@@ -108,15 +108,19 @@ shareLagTicks = ceil( latencyMs / (1000 / 60) )
 
 ### Primary link selection
 
-`ResolvePrimaryLinkId` picks *which* link's latency to use, preferring the most specific source:
+`ResolvePrimaryLinkId` picks *which* link's latency to use. It does **not** look at
+`UnitSides` or the scenario's own units — it takes the **globally first** catalog row:
 
-1. the first entry of `catalog.GetSortedComms()` (a platform's actual comms binding), else
-2. the first entry of `catalog.GetSortedLinks()` (the raw `LinkCatalog`), else
+1. `catalog.GetSortedComms()[0].LinkId` — comms bindings sorted `(PlatformId, LinkId)` ordinal
+   (`InMemoryCatalogReader` and SQLite `ORDER BY platform_id, link_id`), else
+2. `catalog.GetSortedLinks()[0].LinkId` — the raw `LinkCatalog`, else
 3. the hard fallback `"NATO_TADIL_J"`.
 
-Because a `Comms` binding wins over the bare `LinkCatalog`, a scenario whose units carry `SATCOM_B`
-resolves to satcom latency even if a lower-latency tactical link exists in the catalog (pinned by
-`Primary_link_prefers_first_sorted_comms_binding_over_link_catalog`).
+So an alphabetically earlier *other* platform's comms binding wins over a later `SATCOM_B` on a
+scenario unit. The test pin `Primary_link_prefers_first_sorted_comms_binding_over_link_catalog`
+constructs a catalog whose **only** comms row is `SATCOM_B` (so that row *is* index 0) and shows
+that a present comms list beats a tactical `LinkCatalog` fallback — not that the resolver selects
+"the scenario unit's SATCOM".
 
 ---
 
@@ -151,9 +155,13 @@ cancels a pending share (see [detection-pipeline.md](detection-pipeline.md)).
 - **Fail-safe to zero.** Missing link, missing latency, or sharing-off all leave `ShareLagTicks`
   at its default `0` (immediate share) rather than throwing — the merger still works, just without
   lag.
-- **Latency is bounded upstream.** The catalog can only carry a sane latency because
-  `LinkCatalogRules` errors (`LINK_LATENCY_INVALID`) any `LatencyMsNominal` outside `[0, 300000]`
-  ms at write-gate approve time, so the resolver never sees a negative or absurd value.
+- **Latency is bounded only on the write-gate path.** `LinkCatalogRules` errors
+  (`LINK_LATENCY_INVALID`) any `LatencyMsNominal` outside `[0, 300000]` ms at **approve** time.
+  `ICatalogReader` / `DatalinkShareLagResolver.Resolve` do **not** re-validate: an
+  `InMemoryCatalogReader` (or harness catalog override) can carry a negative latency, `ceil` then
+  yields a negative `ShareLagTicks`, and `DatalinkSidePictureMerger` casts that to `ulong` when
+  computing the apply tick (wrap / huge delay). Production SQLite catalogs stay in-range because
+  they passed the write gate; test/override catalogs must be validated by the caller.
 - **Round up, never free.** `Math.Ceiling` guarantees a shared contact from a non-zero-latency
   link is delayed by at least one tick.
 
