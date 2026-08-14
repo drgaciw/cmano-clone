@@ -171,6 +171,13 @@ by the CLI: `passed`, `canExport`, `reportHash`, the `findings[]`, and a conveni
 (walking up to the `ProjectAegis.sln` root); a missing file falls back to the record defaults,
 and `exportBlockSeverityFloor` accepts `"warning"` / `"error"` (case-insensitive).
 
+**Who actually loads that file:** only `ScenarioSimulateSampleCommand` calls `LoadFromRepo()`.
+`scenario_validate`, `scenario_export_brief`, `ScenarioExportCommand.Prepare` (publish path),
+and the default `ScenarioValidationExportGate` construct `new ValidationConfig()` — the
+record defaults — and **ignore** a tuned `validation-config.json`. Raising the file's floor to
+`warning` can make sample-simulate reject a document that `scenario_validate` / publish still
+allow. Same-rules holds under the default config; a non-default file is not shared across verbs.
+
 ---
 
 ## The export gate (the enforcement boundary)
@@ -183,9 +190,13 @@ Load-bearing distinction (AME-6.5 / AC-12):
 
 - **Save** (`ScenarioDocumentEditor.Save`) deliberately **bypasses** validation, so WIP states
   with blocking errors can be persisted.
-- **All export paths** call the gate: `scenario_export_brief`, `ScenarioExportCommand.Prepare`
-  (used by publish and `scenario_simulate_sample`), and Play. Any finding meeting/exceeding the
-  floor blocks the operation.
+- **Export / publish / sample-simulate** call the gate: `scenario_export_brief` (via
+  `ScenarioValidateCommand`), `ScenarioExportCommand.Prepare` (publish + `scenario_simulate_sample`).
+  Any finding meeting/exceeding that path's floor blocks the operation.
+- **Play is a separate, overridable gate.** `EditModeController.TryEnterPlay` refreshes
+  `LiveFindingsPresenter` and blocks only on `HasErrorSeverity`, unless the caller passes
+  `forceConfirmInvalid: true`. It does **not** call `ScenarioValidationExportGate` and does **not**
+  honor a Warning export floor. Do not treat Play as part of this sole enforcement boundary.
 
 ---
 
@@ -198,14 +209,16 @@ else the in-memory Baltic patrol fixture), runs the export gate, and prints the 
 
 **Exit codes:** `0` = export allowed · `1` = blocked (findings ≥ floor) · `2` = file not found.
 
+`Program.RunScenarioValidate` only parses `--path` and always calls
+`ScenarioValidateCommand.Run(path, quiet: false, …)` — there is **no** `--quiet` flag on this
+verb. The `quiet` parameter exists on the command type and is used internally by
+`scenario_export_brief` (`quiet: true`) so the brief writer can suppress JSON. Scripts that
+need only the exit code should ignore stdout or call the command API directly.
+
 ```bash
-# Full JSON report + gate decision (from repo root)
+# JSON report + gate decision (from repo root). Always prints JSON; exit is 0/1/2.
 dotnet run --project src/ProjectAegis.MissionEditor.Cli -- \
   scenario_validate --path data/scenarios/<scenario>.scenario.json
-
-# Just the exit code (CI gate), no JSON
-dotnet run --project src/ProjectAegis.MissionEditor.Cli -- \
-  scenario_validate --path <scenario>.scenario.json --quiet; echo "gate=$?"
 ```
 
 Representative JSON shape:

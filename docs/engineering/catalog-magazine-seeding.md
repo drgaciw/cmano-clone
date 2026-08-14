@@ -44,10 +44,12 @@ tracks a per-key **capacity** captured on the first write. Key behaviors, verifi
 | `TryConsumeSalvo(shooter, mount, salvoSize)` | Deducts `max(1, salvoSize)` if enough remain; returns `false` (no mutation) otherwise. This is the engage-time consume the resolver calls. |
 | `Snapshot()` | Read-only rows ordered by shooter then mount, for the magazine-loadout UI projection (no weapon labels — presentation fills those). |
 
-The seed-once + capacity semantics are load-bearing for the engage ordnance gates: the
-Shotgun/Winchester thresholds ([`LogisticsShotgunEngageGate`](../../src/ProjectAegis.Sim/Engage/LogisticsShotgunEngageGate.cs)
-/ [`LogisticsWinchesterEngageGate`](../../src/ProjectAegis.Sim/Engage/LogisticsWinchesterEngageGate.cs))
-are computed against the captured capacity, not a mutable "max".
+`GetCapacity` has **no production callers** today — only `MagazineLedgerSnapshotTests`. The
+Shotgun/Winchester gates do **not** read captured capacity: [`LogisticsShotgunEngageGate`](../../src/ProjectAegis.Sim/Engage/LogisticsShotgunEngageGate.cs)
+compares `liveRounds` to `EngageContext.ShotgunRoundsThreshold`, and
+[`LogisticsWinchesterEngageGate`](../../src/ProjectAegis.Sim/Engage/LogisticsWinchesterEngageGate.cs)
+hard-denies when remaining is `<= 0`. Capacity is recorded for the `Snapshot()` UI projection
+(and for any future % remaining consumers), not for those engage gates.
 
 ---
 
