@@ -72,6 +72,19 @@ Measured before the change (builds #1640, #1687, #1703, #1704):
 | GitNexus | **1m 24s** | **1m 18s** |
 | **wall clock** | 1m 36s | 1m 40s |
 
+Measured **after** the change, on branch `ci/agent-sizing-trial`:
+
+| Build | Config | `:hammer: Build and test` |
+|-------|--------|---------------------------|
+| baseline #1704 / #1703 | `linux-small`, duplicate Debug compile | 63s / **84s** |
+| #1723 | `linux-medium` + gate reorder | **51s** |
+| #1737 | + cache volume, **cold** (SDK downloaded) | **50s** |
+| #1740 | + cache volume, **warm** (SDK cache hit) | **39s** |
+
+**39s vs an 84s baseline — a 54% cut on the blocking gate.** #1740's log confirms
+`=== dotnet SDK reused from …/.dotnet (cache hit) ===` with no `dotnet-install` at all.
+Note the baseline itself varied 63–84s for identical work, so treat single samples with care.
+
 Two conclusions drove the sizing:
 
 1. **`linux-medium`, not `linux-large`.** Hosted-compute job metrics show CPU sustained at
@@ -145,17 +158,26 @@ It is a protected variable and Buildkite ignores it when set via pipeline `env:`
 
 ### Caching
 
-**Native step-level `cache:` is still NOT used** in `.buildkite/pipeline.yml` — but the historical
-reason below is now out of date.
+**A step-level `cache:` IS now used** on the build step — the historical prohibition below is
+obsolete.
 
-> **Correction (2026-08-14):** **Cached Storage IS enabled on this cluster.** The org is on
-> **Platform Pro**, and *Agents → Default cluster → Cached Storage* lists live volumes
-> (`cmano-clone/container-cache`, `buildkite-local-builder-drgaciw-cmano-clone`), with quotas of
-> 50 GB container cache and 5 GB git mirror. The "must wait for a human to confirm Cache Storage
-> is active" blocker recorded below **is resolved**. The upload rejections in #535/#541 were
-> caused by the YAML shape (`key` / `{{ checksum }}`), not by the feature being unavailable.
-> A `cache:` block is therefore now worth attempting — on a throwaway branch, with only `paths` /
-> `name` / `size`, and never `key` or `{{ checksum }}`.
+> **Correction (2026-08-14), proven in CI:** Cached Storage is enabled on this cluster (Platform
+> Pro; 50 GB container-cache and 5 GB git-mirror quotas). The blocker recorded below — "wait for a
+> human to confirm Cache Storage is active" — **is resolved**, and the #535/#541 upload rejections
+> were caused by the YAML shape (`key` / `{{ checksum }}`), *not* by the feature being unavailable.
+>
+> Build **#1725** settled it: the pipeline upload **passed** and the job picked up
+> `nsc-cache-tag=…/dotnet-sdk-and-nuget`, so the `cache:` block was accepted. It failed for an
+> unrelated reason — NuGet rejects a relative `NUGET_PACKAGES`
+> (`NuGet.targets(745,5): 'NUGET_PACKAGES' must contain an absolute path`). Fixed by absolutising
+> it in `agent-bootstrap-dotnet.sh` alongside `DOTNET_ROOT`.
+>
+> Result: build **#1740** hit the warm volume, logged
+> `=== dotnet SDK reused from …/.dotnet (cache hit) ===`, skipped the 212 MB download entirely,
+> and ran the gate in **39s**.
+
+Rules that still hold: only `paths` / `name` / `size` — **never** `key` or `{{ checksum }}`; and
+never cache `bin/` or `obj/` (it breaks .NET's timestamp-based incremental compilation).
 
 Evidence (PR #263):
 
