@@ -1,9 +1,10 @@
 # Scenario validation engine
 
 > **Scope:** `ProjectAegis.Data/Validation/` — the deterministic, engine-agnostic rule
-> engine that decides whether a scenario **document** is allowed to export / play / simulate
-> (ADR-008, GDD §7). It is the single source of truth behind the `scenario_validate` CLI verb
-> and the export gate that every publish / simulate / play path calls.
+> engine that decides whether a scenario **document** is allowed to export / publish /
+> sample-simulate (ADR-008, GDD §7). It is the single source of truth behind the
+> `scenario_validate` CLI verb and `ScenarioValidationExportGate`. Play is a **separate**
+> overridable Error-only check (`EditModeController.TryEnterPlay`).
 >
 > This is the *scenario* validation engine. The same `Validation/` folder also holds the
 > **catalog-side** kill-chain / link-integrity rules that feed the Database Intelligence
@@ -182,9 +183,10 @@ allow. Same-rules holds under the default config; a non-default file is not shar
 
 ## The export gate (the enforcement boundary)
 
-`ScenarioValidationExportGate.EvaluateExport(scenario, catalog, config?)` is the **sole gate**
-for export / play / simulate (ADR-008). It constructs a fresh engine, validates, and returns
-`(Allowed, Report)` where `Allowed = report.CanExport(config)`.
+`ScenarioValidationExportGate.EvaluateExport(scenario, catalog, config?)` is the **export /
+publish / sample-simulate** gate (ADR-008). It constructs a fresh engine, validates, and returns
+`(Allowed, Report)` where `Allowed = report.CanExport(config)`. Play is **not** this gate (see
+below).
 
 Load-bearing distinction (AME-6.5 / AC-12):
 
