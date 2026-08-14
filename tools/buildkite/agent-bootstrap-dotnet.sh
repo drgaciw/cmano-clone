@@ -54,6 +54,22 @@ case "$DOTNET_ROOT" in
 esac
 export DOTNET_ROOT
 
+# NUGET_PACKAGES needs the same treatment, and NuGet is stricter about it than
+# dotnet is: a relative value is a hard restore error, not a subtle path bug --
+#   error : 'NUGET_PACKAGES' must contain an absolute path '.nuget/packages'
+#     (NuGet.targets(745,5), every project in the solution; Buildkite build #1725)
+# A workspace-relative value is nevertheless what a hosted `cache:` volume has to
+# mount, so the pipeline sets the relative form and we absolutise it here.
+# Only touched when already set -- unset means "use NuGet's default", which must
+# not be overridden into a workspace-local folder for local/dev invocations.
+if [[ -n "${NUGET_PACKAGES:-}" ]]; then
+  case "$NUGET_PACKAGES" in
+    /*) : ;; # already absolute
+    *) NUGET_PACKAGES="$(pwd)/${NUGET_PACKAGES}" ;;
+  esac
+  export NUGET_PACKAGES
+fi
+
 dotnet_major_version() {
   if ! command -v dotnet >/dev/null 2>&1; then
     echo 0
