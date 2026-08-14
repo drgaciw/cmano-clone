@@ -137,9 +137,9 @@ digest while humans can still diff the full text.
 
 `AttachReplayViewer` is a single boolean on `DelegationOrchestrator` (req 03 AvA observer attach).
 `SimulationSession` and `DelegationBridge` expose it as a passthrough property, so a UI host can flip
-one flag and put the whole session into read-only scrub mode. Every human-ingress path checks it
-**first** and bails before mutating anything — this is the single choke point that keeps replay and
-observer views safe:
+one flag and put the listed human-order paths into read-only scrub mode. The table below is the
+guarded set — **not** every write seam. Each listed site checks the flag **first** and bails before
+mutating:
 
 | Guard site | Path | On `AttachReplayViewer == true` |
 |------------|------|---------------------------------|
@@ -148,6 +148,7 @@ observer views safe:
 | `DelegationBridge.TryTakeDirectControl` / `TryReleaseDirectControl` | Unity-adapter ingress | returns `false` before touching the orchestrator |
 | `DelegationBridge.TryEnqueueHumanOrder` | queue a human order | returns `false`, nothing appended |
 | `C2PlayerCommandBridge` (toolbar/hotkey) | player command issuance | fails with reason `REPLAY_ATTACHED` |
+| `DoctrineOverrideCommand.TryApply` | ROE override (sibling write) | **not gated** — still applies / logs `PolicyUpdateRecord` |
 
 Because none of these append to the order log, an observer session produces the **same** fingerprint
 as the underlying run — you are watching, not altering. The complementary arbitration mechanics
