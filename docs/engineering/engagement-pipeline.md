@@ -2,8 +2,9 @@
 
 `MvpEngagementResolver` is the **single place an `Engage` order becomes a launch or an abort**.
 It takes an `EngageRequest` plus a per-shot `EngageContext`, runs an ordered chain of
-fire-control gates (policy/ROE → domain → readiness → EMCON → track → magazine → envelope →
-DLZ), consumes ammo, and folds a deterministic hit/intercept/kill outcome. It is the tick-8
+fire-control gates (liveness → speculative-TL → policy/ROE → domain → readiness → damage-withdraw
+→ logistics fuel/ordnance → EMCON/track/CEC → magazine → envelope → DLZ), consumes ammo, and
+folds a deterministic hit/intercept/kill outcome (with swarm-integrity scaling). It is the tick-8
 seam behind the delegation framework, the Baltic replay harness, the QA Gauntlet, and the
 combat-outcome replay goldens.
 
@@ -89,6 +90,11 @@ fields are the resolver's whole input surface (defaults shown are the record def
 | `IsHypersonicTarget`, `HasHypersonicDefenseLayer` | Hypersonic defence-layer gate (req 09). |
 | `WeaponTechnologyLevel`, `WeaponRequiresBlackProject` | Speculative TL / black-project gate (req 10). |
 | `CatalogDamageWithdrawBlocked` | Catalog damage-trial withdraw recommendation (ADR-009). |
+| `LogisticsBingoBlocked` | Shooter fuel band is Bingo ⇒ `BingoFuel` abort (logistics gate v1; primed by the fuel tracker). |
+| `ShotgunRoundsThreshold` | Ordnance Shotgun-band threshold; `> 0` + `SalvoSize > 1` in-band ⇒ `ShotgunOrdnance` abort (`0` disables). |
+| `UsesRemoteCecTrack`, `ShooterCecCapable`, `CecRemoteFireControlEligible` | SWARM-31/B6b engage-on-remote-data: gate whether a CEC composite track can satisfy fire-control when the organic track is absent. |
+| `ShooterMaxDrones`, `ShooterDroneCount` | When `ShooterMaxDrones > 0` the shooter is a swarm and `PkBase` is scaled by living integrity (SWARM-04). |
+| `TargetMaxDrones`, `TargetDroneCount`, `TargetAaProfile` | When `TargetMaxDrones > 0` the target is a swarm; a Hit/Kill applies aggregate integrity loss via the swarm sink (SWARM-08). |
 | `DlzPersonality` (`Normal`/`Early`/`Late`) | Timing bias inside the DLZ band. |
 | `PkBase`, `PkIntercept`, `PkKill` | Combat-outcome probabilities (see [Combat outcome](#combat-outcome-resolution)). |
 
@@ -97,47 +103,62 @@ fields are the resolver's whole input surface (defaults shown are the record def
 ## The gate chain (exact order)
 
 `Resolve` runs the following checks **top to bottom** and returns the *first* abort it hits.
-This order is a hard contract — it is what the goldens encode. The two `combatDomains*`-gated
-and `policyEvaluator`-gated steps only run when their dependency is wired.
+This order is a hard contract — it is what the goldens encode. The `combatDomains*`-gated and
+`policyEvaluator`-gated steps only run when their dependency is wired; the logistics and CEC
+gates are no-ops unless the world primes their `EngageContext` fields.
 
 | # | Gate | Abort reason on failure |
 |---|------|-------------------------|
-| 1 | Target already killed (`KilledTargetRegistry.IsKilled`) | `TargetDestroyed` |
-| 2 | World query resolves an `EngageContext` (`IEngageWorldQuery.TryGetContext`) | `NoFireControlTrack` |
-| 3 | [`SpeculativeEngageGate`](../../src/ProjectAegis.Sim/Scenario/SpeculativeEngageGate.cs) — TL cap / black-project mode (req 10) | `TechnologyLevelExceeded`, `BlackProjectRequired` |
-| 4 | Policy evaluator *(if injected)* — resolves live per-unit `EffectivePolicy`, evaluates `FireGuided` | mapped from `FireAbortReason`: `RoeHoldFire`, `WeaponsTight`, `WraSalvo`, `OutOfEnvelope` (WRA range), `EmconOff`, `NoFireControlTrack` |
-| 5 | Combat-domain aspect validators *(if `combatDomainsEnabled`)* — [`DomainValidatorRegistry.Validate`](../../src/ProjectAegis.Sim/Engage/DomainValidatorRegistry.cs) (ADR-009) | `AirAspectBlock` … `FacilityAspectBlock`, else `DomainNoSolution` |
-| 6 | Air operations ready | `AirNotReady` |
-| 7 | [`CatalogDamageWithdrawEngageGate`](../../src/ProjectAegis.Sim/Engage/CatalogDamageWithdrawEngageGate.cs) (ADR-009, additive-only) | `DamageWithdrawRecommended` |
-| 8 | Track not spoofed | `TrackSpoofed` |
-| 9 | Radar/EMCON active | `EmconOff` |
-| 10 | Has fire-control track | `NoFireControlTrack` |
-| 11 | Ammo pre-check (`RoundsRemaining` **or** ledger rounds > 0) | `MagazineEmpty` |
-| 12 | [`CombatDomainValidator`](../../src/ProjectAegis.Sim/Engage/CombatDomainValidator.cs) — legacy per-domain gate (req 18): mount online, subsurface solution, land half-range | `MountOffline`, `DomainNoSolution`, `OutOfEnvelope` |
-| 13 | [`HypersonicEngageGate`](../../src/ProjectAegis.Sim/Engage/HypersonicEngageGate.cs) (req 09) | `DomainNoSolution` |
-| 14 | Weapon envelope (`Envelope.Contains(RangeMeters)`) | `OutOfEnvelope` |
-| 15 | [`DlzEngageGate.AllowsLaunch`](../../src/ProjectAegis.Sim/Engage/DlzEngageGate.cs) — dynamic launch zone + personality | `DlzOut` |
-| 16 | **Consume salvo** (`MagazineLedger.TryConsumeSalvo`) | `MagazineEmpty` |
-| 17 | **Launch** → [combat outcome](#combat-outcome-resolution) | — |
+| 1 | Shooter already killed (`KilledTargetRegistry.IsKilled(ShooterUnitId)`) — a dead shooter cannot fire (BUG-engagement-resolver-shooter-liveness) | `ShooterDestroyed` |
+| 2 | Target already killed (`KilledTargetRegistry.IsKilled(TargetId)`) | `TargetDestroyed` |
+| 3 | World query resolves an `EngageContext` (`IEngageWorldQuery.TryGetContext`) | `NoFireControlTrack` |
+| 4 | [`SpeculativeEngageGate`](../../src/ProjectAegis.Sim/Scenario/SpeculativeEngageGate.cs) — TL cap / black-project mode (req 10) | `TechnologyLevelExceeded`, `BlackProjectRequired` |
+| 5 | Policy evaluator *(if injected)* — resolves live per-unit `EffectivePolicy`, evaluates `FireGuided` | mapped from `FireAbortReason`: `RoeHoldFire`, `WeaponsTight`, `WraSalvo`, `OutOfEnvelope` (WRA range), `EmconOff`, `NoFireControlTrack` |
+| 6 | Combat-domain aspect validators *(if `combatDomainsEnabled`)* — [`DomainValidatorRegistry.Validate`](../../src/ProjectAegis.Sim/Engage/DomainValidatorRegistry.cs) (ADR-009) | `AirAspectBlock` … `FacilityAspectBlock`, else `DomainNoSolution` |
+| 7 | Air operations ready | `AirNotReady` |
+| 8 | [`CatalogDamageWithdrawEngageGate`](../../src/ProjectAegis.Sim/Engage/CatalogDamageWithdrawEngageGate.cs) (ADR-009, additive-only) | `DamageWithdrawRecommended` |
+| 9 | [`LogisticsBingoEngageGate`](../../src/ProjectAegis.Sim/Engage/LogisticsBingoEngageGate.cs) — shooter fuel band is Bingo (`LogisticsBingoBlocked`) | `BingoFuel` |
+| 10 | [`LogisticsShotgunEngageGate`](../../src/ProjectAegis.Sim/Engage/LogisticsShotgunEngageGate.cs) — *soft*: Shotgun ordnance band **and** `SalvoSize > 1` (single-round residual fire still allowed) | `ShotgunOrdnance` |
+| 11 | Track not spoofed | `TrackSpoofed` |
+| 12 | Radar/EMCON active | `EmconOff` |
+| 13 | [`CecRemoteEngageGate.Evaluate`](../../src/ProjectAegis.Sim/Engage/CecRemoteEngageGate.cs) — SWARM-31/B6b remote engage-on-remote-data. Organic FC short-circuits **only** when `!UsesRemoteCecTrack`; a remote-tagged shot still runs the remote eligibility checks even if organic FC is present | `CecRemoteTrackUnavailable` |
+| 14 | Usable fire control — organic **or** eligible remote CEC (`CecRemoteEngageGate.HasUsableFireControl`) | `CecRemoteTrackUnavailable` (remote-tagged shot) else `NoFireControlTrack` |
+| 15 | [`LogisticsWinchesterEngageGate`](../../src/ProjectAegis.Sim/Engage/LogisticsWinchesterEngageGate.cs) — *hard*: tracked magazine is Winchester (`liveRounds ≤ 0`), applied after doctrine/sensor/FC gates | `WinchesterOrdnance` |
+| 16 | Ammo pre-check (`RoundsRemaining` **or** ledger rounds > 0) | `MagazineEmpty` |
+| 17 | [`CombatDomainValidator`](../../src/ProjectAegis.Sim/Engage/CombatDomainValidator.cs) — legacy per-domain gate (req 18): mount online, subsurface solution, land half-range | `MountOffline`, `DomainNoSolution`, `OutOfEnvelope` |
+| 18 | [`HypersonicEngageGate`](../../src/ProjectAegis.Sim/Engage/HypersonicEngageGate.cs) (req 09) | `DomainNoSolution` |
+| 19 | Weapon envelope (`Envelope.Contains(RangeMeters)`) | `OutOfEnvelope` |
+| 20 | [`DlzEngageGate.AllowsLaunch`](../../src/ProjectAegis.Sim/Engage/DlzEngageGate.cs) — dynamic launch zone + personality | `DlzOut` |
+| 21 | **Consume salvo** (`MagazineLedger.TryConsumeSalvo`) | `MagazineEmpty` |
+| 22 | **Launch** → [combat outcome](#combat-outcome-resolution) | — |
 
-> **State mutation is last.** The only side effect on the ammo ledger is step 16, *after* every
+> **`liveRounds` is the ordnance bands' authority.** Before the Shotgun gate the resolver reads
+> `liveRounds` = tracked ledger rounds when the mount was seeded, else `EngageContext.RoundsRemaining`.
+> This is deliberate: an unseeded mount must fall back to the context hint so Shotgun/Winchester do
+> not treat a never-seeded key as empty. Winchester (step 15) is the *hard* deny placed **after** the
+> doctrine/sensor/FC gates so a tracked-empty magazine surfaces `WinchesterOrdnance` rather than the
+> pre-launch `MagazineEmpty` (load-bearing for the ordnance saboteur mutant — see the
+> [QA Gauntlet guide](qa-gauntlet.md)).
+
+> **State mutation is last.** The only side effect on the ammo ledger is step 21, *after* every
 > gate has passed. An abort never consumes rounds, so re-running a scenario or reordering
-> engagements at the session layer cannot silently drain magazines.
+> engagements at the session layer cannot silently drain magazines. (The one further post-launch
+> mutation is the SWARM-08 integrity sink — see [Combat outcome](#combat-outcome-resolution).)
 
 ### Two-layer ROE / domain gating
 
 There are deliberately **two** domain checks and **two** ROE-ish surfaces:
 
-- **Policy (step 4)** is the ROE/WRA boundary via [`IPolicyEvaluator`](../../src/ProjectAegis.Sim/Policy/IPolicyEvaluator.cs)
+- **Policy (step 5)** is the ROE/WRA boundary via [`IPolicyEvaluator`](../../src/ProjectAegis.Sim/Policy/IPolicyEvaluator.cs)
   (ADR-002). The resolver resolves the shooter's live `EffectivePolicy` through its own
   `_resolvePolicy` callback and passes it in a `PolicyContext` tagged with a non-zero
   `ResolvedPolicySnapshotMarker` so `PolicyEvaluator` **trusts the resolved value instead of
   re-resolving** — this is what lets a unit's own `HoldFire`/`WeaponsTight` ROE win even when it
   differs from the evaluator's default. `MapPolicyDenial` translates the sim `FireAbortReason`
   into the `Engage`-family abort reason.
-- **Domain validators** split by intent: the ADR-009 `DomainValidatorRegistry` (step 5, aspect
+- **Domain validators** split by intent: the ADR-009 `DomainValidatorRegistry` (step 6, aspect
   envelopes, opt-in via `combatDomainsEnabled`) and the always-on legacy `CombatDomainValidator`
-  (step 12, mount/subsurface/land specifics). The registry iterates validators in **stable
+  (step 17, mount/subsurface/land specifics). The registry iterates validators in **stable
   ordinal `CombatDomain` order** (`Air`=0 … `Facility`=5) and only runs the one matching
   `ctx.CombatDomain`.
 
@@ -177,11 +198,29 @@ kill, so an intercepted hit is never also promoted to a kill. `PkDraw` carries d
 explainability. Probabilities are `Math.Clamp`ed to `[0,1]`; `PkIntercept = 0` (the default)
 short-circuits the intercept draw entirely.
 
+### Swarm integrity (SWARM-04 / SWARM-08)
+
+Swarms are aggregate bodies, so two additive effects wrap the outcome fold without changing the
+draw layout:
+
+- **Offensive scaling (SWARM-04).** When the shooter is a swarm (`ShooterMaxDrones > 0`), `PkBase`
+  is scaled by living integrity via
+  [`SwarmOffensiveEffect.Scale(pkBase, ShooterDroneCount, ShooterMaxDrones)`](../../src/ProjectAegis.Sim/Engage/SwarmOffensiveEffect.cs)
+  **before** draw 0 — a depleted swarm shoots less effectively. Non-swarm shots (the default)
+  keep `PkBase` untouched.
+- **Defensive attrition (SWARM-08).** When the target is a swarm (`TargetMaxDrones > 0`) and the
+  outcome is `Hit` or `Kill`, the resolver applies aggregate integrity loss through the injected
+  [`ISwarmIntegrityDamageSink`](../../src/ProjectAegis.Sim/Engage/ISwarmIntegrityDamageSink.cs)
+  (`SwarmEngagementIntegrityApplier.TryApplyFromEngageContext`, keyed by the resolved target unit
+  id). This is the **one** post-launch side effect besides the ammo ledger; it is skipped when no
+  sink is wired, keeping the resolver a pure function in the headless/golden paths that omit it.
+
 ### Kill registry and world hash
 
 [`KilledTargetRegistry`](../../src/ProjectAegis.Sim/Engage/KilledTargetRegistry.cs) tracks
-destroyed target ids. It gates step 1 (`TargetDestroyed`) so a dead target is never re-engaged,
-and its `MixHash()` folds the sorted kill ids into the `killMix` layer of the world hash. **The
+destroyed target ids. It gates steps 1–2 (`ShooterDestroyed` for a dead shooter, `TargetDestroyed`
+for a dead target) so neither a killed unit fires nor a dead target is re-engaged, and its
+`MixHash()` folds the sorted kill ids into the `killMix` layer of the world hash. **The
 resolver does not mark kills itself** — `SimulationSession.LogEngagementResults` inspects each
 `Kill` outcome and calls `MarkKilled`, keeping the resolver a pure function of its inputs.
 
@@ -267,7 +306,8 @@ use the raw catalog-seeded rounds.
   static.
 - **Iteration must be ordered** — the domain-validator registry and swarm deconfliction sort
   their inputs precisely so no `Dictionary`/`HashSet` enumeration order leaks into the hash.
-- **Aborts are side-effect free** — only step 16 mutates the magazine ledger.
+- **Aborts are side-effect free** — only step 21 mutates the magazine ledger; the only other
+  mutation is the post-launch SWARM-08 integrity sink (both after all gates pass).
 
 ---
 
