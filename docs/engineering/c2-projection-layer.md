@@ -251,6 +251,7 @@ Grouped by the panel/surface they feed. All live in
 | `FacilityPictureProjection` | Facility picture + capacity/damage states |
 | `MissionListProjection` → `MissionListPanelBinder` | Mission board rows |
 | `FuelStateProjection` / `CommsStateProjection` | Fuel band / comms state panels |
+| `PendingApprovalProjection` | DRG-66 pending-approval rows / badge (`Project` / `FormatBadge`) from `PendingApprovalEntry` — presentation-only; mutation is `TryApprovePendingOrder` / `TryRejectPendingOrder` ([pending-approval-queue.md](pending-approval-queue.md)) |
 
 ### Combat, BDA & scoring
 | Type | Produces |
