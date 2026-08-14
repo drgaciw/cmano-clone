@@ -94,6 +94,38 @@ public sealed class GlobeMapApplyStateTests
     }
 
     [Test]
+    public void Apply_with_overlays_formats_status_line_with_ring_and_edge_counts()
+    {
+        var view = GlobeViewProjection.DefaultBalticTheater();
+        var markers = CesiumBillboardProjection.ProjectDemoPair();
+        var symbols = new[]
+        {
+            new MapSymbolEntry("demo-friendly", "Friendly", "F", "demo-friendly", 0.2f, 0.3f, false, Latitude: 60.17, Longitude: 24.94),
+            new MapSymbolEntry("demo-hostile", "Hostile", "H", "demo-hostile", 0.7f, 0.6f, false, Latitude: 59.95, Longitude: 24.50),
+        };
+
+        var ringEntries = TacticalOverlayProjection.ProjectSelectedUnitEnvelopes(
+            "demo-friendly",
+            sensorRangeNm: 40,
+            weaponRangeNm: 20);
+        var edgeEntries = new[]
+        {
+            new DatalinkEdgeEntry("demo-friendly", "demo-hostile", "tactical", DatalinkPictureProjection.StatusUp),
+        };
+
+        var ringMarkers = GlobeOverlayProjection.ProjectRings(ringEntries, symbols);
+        var edgeMarkers = GlobeOverlayProjection.ProjectEdges(edgeEntries, symbols);
+
+        var applied = GlobeMapApplyState.Apply(view, markers, ringMarkers, edgeMarkers);
+
+        Assert.That(applied.StatusLine, Is.EqualTo("GLOBE · Baltic · 2 markers · 2 rings · 1 links · 3D"));
+        Assert.That(applied.EnvelopeRingCount, Is.EqualTo(2));
+        Assert.That(applied.DatalinkEdgeCount, Is.EqualTo(1));
+        Assert.That(applied.EnvelopeRings, Has.Count.EqualTo(2));
+        Assert.That(applied.DatalinkEdges, Has.Count.EqualTo(1));
+    }
+
+    [Test]
     public void Quick_jump_does_not_require_sim_and_is_pure()
     {
         // Document product rule: theater quick-jump is view-state only.
