@@ -118,10 +118,7 @@ parallel UI tracks and the Unity host share one source of truth (ADR-010). All a
 lookups; none touch sim or order-log state.
 
 - **`AlertSeverity`** — alert tier: `Critical` (toast + optional auto-pause) → `Notable`
-  (log highlight) → `Routine` (log only). Tier is **never colour-only** (accessibility). The
-  auto-pause half of the `Critical` contract lives in the session-local
-  [watch-attention & auto-pause runtime](watch-attention-auto-pause-runtime.md) (`Delegation/Watch/`);
-  its `WatchAttentionQueueProjection` is part of this projection layer.
+  (log highlight) → `Routine` (log only). Tier is **never colour-only** (accessibility).
 - **`AlertSeverityMap.ForCategory(category)`** — the single mapping from a `MessageLogLine`
   category to an `AlertSeverity`. It is **case-insensitive and fails safe**: unknown/null
   categories default to `Routine`, so adding a new message category never silently escalates it
@@ -162,106 +159,70 @@ The map layer resolves tactical symbols in a data-driven, atlas-optional way:
 
 ---
 
-## Tactical map overlays: envelope rings & datalink edges (CMD-32/33/34)
+## Datalink network overlay (CMD-32) + live comms status
 
-On top of the base map symbology, three optional overlays project **derived geometry metadata**
-for the tactical picture: selected-unit sensor/weapon **envelope rings** (CMD-21/34), the friendly
-**datalink mesh** (CMD-32), and per-unit **doctrine overlays** (CMD-33). This path landed with the
-S108 UI-maturity train; the types are pure and engine-agnostic, so they run under `dotnet test`
-exactly like every other projection.
+The tactical map draws a **friendly datalink mesh** — the network edges between own-force units —
+as a read-model overlay separate from the APP-6 symbols. Three pure types build it, all in this
+folder. (This mesh is one of three selected-unit map **content overlays**; the envelope rings and
+doctrine ROE overlay, plus how all three surface as counts on `MapPanelPresentation`, are covered in
+[`tactical-map-overlays.md`](tactical-map-overlays.md).)
 
-> **Important contract — overlays are count-only today.** The projections build fully-ordered lists
-> of ring/edge entries, but the map apply layer only surfaces **counts** (`EnvelopeRingCount`,
-> `DatalinkEdgeCount`, `DoctrineOverlayCount`). Ring circles and datalink lines are **not drawn** on
-> the map canvas or the Cesium globe on trunk. Treat these types as the *data feed* a future visual
-> renderer would consume — do not assume rings/edges are visible pixels.
+| Type | Produces |
+|------|----------|
+| [`DatalinkUnitPairFeed`](../../src/ProjectAegis.Delegation/Projection/DatalinkUnitPairFeed.cs) | Adjacent-pair mesh from friendly OOB ids + catalog links, then edge projection |
+| [`DatalinkPictureProjection`](../../src/ProjectAegis.Delegation/Projection/DatalinkPictureProjection.cs) | Edge rows with deterministic ordering + status normalization |
+| [`DatalinkEdgeEntry`](../../src/ProjectAegis.Delegation/Projection/DatalinkEdgeEntry.cs) | The `(FromUnitId, ToUnitId, LinkType, Status)` overlay record |
 
-### Types
+### Mesh build (`BuildMesh`)
 
-| Type | Kind | Role |
-|------|------|------|
-| [`TacticalOverlayProjection`](../../src/ProjectAegis.Delegation/Projection/TacticalOverlayProjection.cs) | projection | `ProjectSelectedUnitEnvelopes(id, sensorNm, weaponNm, domain)` → two `EnvelopeRingEntry` (Sensor + Weapon). Empty when `id` is null/whitespace. |
-| [`CatalogEnvelopeRangeResolver`](../../src/ProjectAegis.Delegation/Projection/CatalogEnvelopeRangeResolver.cs) | helper | Resolves `(SensorNm, WeaponNm)` for the selected unit. Weapon range comes from `ICatalogReader.TryGetWeaponEnvelope` (meters → nm at `1852.0` m/nm); falls back to `DefaultSensorRangeNm = 40` / `DefaultWeaponRangeNm = 20`. |
-| [`DatalinkPictureProjection`](../../src/ProjectAegis.Delegation/Projection/DatalinkPictureProjection.cs) | projection | Projects `DatalinkEdgeEntry` rows from link tuples, resolving `LinkType` from `CatalogLinkEntry` rows when a catalog id is supplied. |
-| [`DatalinkUnitPairFeed`](../../src/ProjectAegis.Delegation/Projection/DatalinkUnitPairFeed.cs) | feed | Builds a simple adjacent-pair mesh (`u0→u1, u1→u2, …`) from sorted friendly unit ids + catalog links, then projects edges. |
-| [`DoctrineMapOverlayProjection`](../../src/ProjectAegis.Delegation/Projection/DoctrineMapOverlayProjection.cs) | projection | Per-unit doctrine overlay rows (`DoctrineMapOverlayEntry`) from doctrine inheritance + map symbols. |
-| [`MapPanelApplyState`](../../src/ProjectAegis.Delegation/Projection/MapPanelApplyState.cs) | apply | Folds map `MapPanelState` + optional overlay lists into `MapPanelPresentation` (symbol/selection/ghost counts **and** overlay counts). |
+`DatalinkUnitPairFeed.BuildMesh(friendlyUnitIds, catalogLinks, preferredLinkId?)` produces a simple
+**chain mesh**: unit ids are de-duped and sorted `StringComparer.Ordinal`, then adjacent pairs are
+linked (`u0→u1, u1→u2, …`). Every pair carries one **link id** resolved in priority order:
 
-`EnvelopeRingEntry(UnitId, RingKind, Domain, RangeNm, IsSelectedUnit)` — `RingKind` is `"Sensor"` or
-`"Weapon"`; `Domain` is `Air`/`Surface`/`Underwater`/`Land`/`Unknown`.
-`DatalinkEdgeEntry(FromUnitId, ToUnitId, LinkType, Status)` — `Status` is `"Up"`/`"Degraded"`/`"Down"`.
+1. `preferredLinkId`, when it is present in `catalogLinks`;
+2. else the first catalog link whose `LinkType == CatalogLinkTypes.Tactical`;
+3. else the first catalog link with a non-empty id.
 
-### Determinism & fail-safe behavior
+Empty units/links, or fewer than two distinct valid ids, yield an **empty mesh** — never an
+exception. (`null` `friendlyUnitIds`/`catalogLinks` do throw `ArgumentNullException`; missing rows
+do not.)
 
-Same rules as the rest of the layer — these are worth calling out because they are easy to get
-wrong when adding a real renderer:
+### Edge projection + live comms status (`ProjectEdges`)
 
-- **Total ordinal ordering.** `DatalinkPictureProjection.SortEdges` sorts by
-  `(FromUnitId, ToUnitId, LinkType, Status)` with `StringComparer.Ordinal`; `DatalinkUnitPairFeed`
-  sorts + de-duplicates unit ids before pairing. Never rely on catalog/OOB enumeration order.
-- **Status normalizes, never throws.** Empty/whitespace status → `"Up"`; unknown non-empty values
-  pass through trimmed (they are not coerced to a known enum).
-- **Edges need ≥2 distinct friendly units and ≥1 catalog link.** Fewer → empty mesh, not an error.
-  Link id resolution prefers `preferredLinkId`, then the first `tactical` link, then the first link.
-- **Ranges fall back, they don't fail.** Unknown weapon or non-positive `MaxRangeMeters` → default
-  nm. `ResolveSelectedUnitRanges`'s `unitId` argument is **reserved** for future per-unit sensor
-  wiring and does not affect the current result.
+`ProjectEdges(friendlyUnitIds, catalogLinks, preferredLinkId?, commsSnapshot?)` builds the mesh and
+folds it through `DatalinkPictureProjection.Project`, resolving each edge's `LinkType` from the
+catalog row (falling back to the raw link id) and applying one **edge status** to every edge. Edges
+are sorted `(From, To, LinkType, Status)` ordinal, so output is replay-stable.
 
-### Count-only apply → `MapPanelPresentation`
+Status reflects **live comms** when a `CommsStateSnapshot` is supplied (DRG-157). The snapshot comes
+from [`CommsStateProjection.Project(log)`](../../src/ProjectAegis.Delegation/Projection/CommsStateProjection.cs)
+— the same order-log-authoritative comms state the C2 top bar uses. Agreement with the `COMMS: …`
+banner is an **API capability**, not a guarantee of the current Unity host: the overlay only
+matches the banner when the caller actually passes that snapshot. `MapPlaceholderPanelHost.ApplyOverlayCounts`
+currently calls `ProjectEdges(friendlyIds, links)` **without** a `CommsStateSnapshot`, so every map
+edge takes the null-snapshot `Up` fallback even while the top-bar banner reflects `Degraded` /
+`Denied`. Hosts that want them to agree must pass `CommsStateProjection.Project(log)` into
+`ProjectEdges`:
 
-`MapPanelApplyState.Apply/BindAndApply` overloads accept optional `envelopeRings`, `datalinkEdges`,
-`doctrineOverlay`, and an optional `lodOutputCount`. Null or empty overlay lists yield zero counts
-(null elements are skipped), so callers that don't project overlays are unaffected. The result:
+| `CommsState` (or absent) | Edge status | Constant |
+|--------------------------|-------------|----------|
+| `Nominal` | `Up` | `DatalinkPictureProjection.StatusUp` |
+| `Degraded` | `Degraded` | `StatusDegraded` |
+| `Denied` | `Down` | `StatusDown` |
+| `null` snapshot (caller has no live comms) | `Up` (fallback) | `StatusUp` |
 
-```text
-MapPanelPresentation(
-    TheaterLabel, SymbolCount, SelectedCount, GhostCount, SelectedSymbolId,
-    EnvelopeRingCount, DatalinkEdgeCount, DoctrineOverlayCount, LodOutputCount)
-```
+`ResolveEdgeStatus(commsSnapshot)` is exposed publicly so a host can label an already-built mesh
+without re-projecting. The **`null` fallback preserves the pre-DRG-157 behaviour** — callers that
+don't pass a snapshot still get an all-`Up` mesh, so `commsSnapshot` is an additive, non-breaking
+optional parameter. Nothing here writes to the sim or order log: `ProjectEdges` only *reads* the
+comms snapshot the log already produced, keeping the overlay inside the read-only projection
+contract above.
 
-`LodOutputCount` defaults to the bound symbol count when no APP-6 LOD reduction is supplied.
-
-### Unity host wiring (count HUD, optional labels)
-
-Under Unity, [`MapPlaceholderPanelHost`](../../unity/ProjectAegis/Assets/Scripts/Runtime/MapPlaceholderPanelHost.cs)
-projects the overlays every dirty refresh in `ApplyOverlayCounts()` and stores the tallies on
-`LastEnvelopeRingCount` / `LastDatalinkEdgeCount` / `LastDoctrineOverlayCount`:
-
-```text
-DelegationBridgeHost (presentation feed: symbols, selection, OOB, catalog)
-  → MapPlaceholderPanelHost.ApplyOverlayCounts()
-      → CatalogEnvelopeRangeResolver.ResolveSelectedUnitRanges  (CMD-34 ranges)
-      → TacticalOverlayProjection.ProjectSelectedUnitEnvelopes   (CMD-21/34 rings)
-      → DatalinkUnitPairFeed.ProjectEdges                        (CMD-32 friendly mesh)
-      → DoctrineMapOverlayProjection.Project                     (CMD-33 rows)
-      → MapPanelApplyState.Apply                                 (count-only presentation)
-  → Optional HUD labels: "ENVELOPES: n" / "DATALINKS: n" / "DOCTRINE: n"
-```
-
-The three count labels (`envelope-ring-count`, `datalink-edge-count`, `doctrine-overlay-count`) are
-resolved with a **null-safe `Q<Label>`** — the default `MapPlaceholderPanel.uxml` does not include
-them, so the host runs fine without a scene rebuild and the labels are a purely additive HUD.
-
-### Known gaps (verified against trunk)
-
-These are documented so a future overlay-visual dispatch doesn't mistake them for regressions:
-
-- **No ring/edge geometry** on the map canvas or Cesium globe — count-only by design.
-- **Datalink status is hardwired to `"Up"`** by `DatalinkUnitPairFeed.ProjectEdges`; it is not yet
-  fed from live comms/degradation state (see [comms-degradation-runtime.md](comms-degradation-runtime.md)).
-- **Sensor range uses the fallback nm** unless extended — only weapon range is catalog-driven today.
-- Default map UXML has no overlay count labels (optional follow-up, not a rebuild trigger).
-
-### Tests (already on trunk — no new pipeline needed)
-
-| Assembly | Fixture |
-|----------|---------|
-| `Delegation.Tests` | `Projection/DatalinkPictureProjectionTests` (tuple + catalog projection, status normalize, sort order) |
-| `Delegation.Tests` | `Projection/TacticalOverlayProjectionTests` (selected-unit rings, domain labels, empty selection) |
-| `Delegation.Tests` | `Projection/DatalinkUnitPairFeedTests` (mesh build, `ProjectEdges`, catalog integration) |
-| `Delegation.Tests` | `Projection/CatalogEnvelopeRangeResolverTests` (weapon nm resolve, defaults, unit ranges) |
-| `Delegation.Tests` | `Projection/MapPanelApplyStateTests` (overlay count apply, null/empty overlays) |
-| `UnityAdapter.Tests` | `Bridge/C2PanelPerfBenchTests` (`TacticalOverlayProjection` + `MapPanelApplyState` in the perf bind path) |
+> **Read model, not a sim gate.** This is the *display* side of comms degradation. The gameplay
+> effects of `Degraded`/`Denied` (order delay, contact staleness, datalink *share* gating,
+> new-engagement block) run in the tick loop, not here — see
+> [comms-degradation-runtime.md](comms-degradation-runtime.md). On this overlay, comms state only
+> colours the map edges.
 
 ---
 
@@ -277,13 +238,10 @@ Grouped by the panel/surface they feed. All live in
 | `ContactPictureProjection` | Active contact tracks from `ContactChange` rows; `ProjectWithBda` merges order-log BDA "Lost" rows |
 | `SensorC2Projection` | Contact picture + per-tick indicators (radar EMCON, fire-control track, active engagements) via `ISensorC2WorldIndicators` |
 | `MapPictureProjection` → `MapPanelBinder` | Tactical map symbols + ghost/frozen comms overlays |
+| `DatalinkUnitPairFeed` → `DatalinkPictureProjection` (`DatalinkEdgeEntry`) | Friendly datalink mesh overlay (CMD-32); edge status reflects a live `CommsStateProjection` snapshot **when the caller supplies it** (null snapshot → all-`Up`). The Unity `MapPlaceholderPanelHost` does not pass it yet. |
 | `App6Sidc` / `App6GlyphAtlas` / `App6AtlasCatalog` / `App6*` | APP-6/2525C glyph + SIDC + atlas resolution |
 | `ContactSummaryProjection` | Single-contact inspector line |
 | `CesiumBillboardProjection` | Cesium globe billboards (ADR-007 map path) |
-| `TacticalOverlayProjection` / `CatalogEnvelopeRangeResolver` | Selected-unit sensor/weapon envelope rings (`EnvelopeRingEntry`, CMD-21/34) |
-| `DatalinkPictureProjection` / `DatalinkUnitPairFeed` | Friendly datalink mesh edges (`DatalinkEdgeEntry`, CMD-32) |
-| `DoctrineMapOverlayProjection` | Per-unit doctrine map overlay rows (`DoctrineMapOverlayEntry`, CMD-33) |
-| `MapPanelApplyState` | Count-only apply of map symbols **and** overlay tallies (`MapPanelPresentation`) |
 
 ### Force status & inspectors
 | Type | Produces |

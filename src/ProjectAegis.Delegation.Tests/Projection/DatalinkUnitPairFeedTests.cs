@@ -1,4 +1,6 @@
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.Comms;
+using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using NUnit.Framework;
 
@@ -96,6 +98,63 @@ public sealed class DatalinkUnitPairFeedTests
         Assert.That(edges[0].ToUnitId, Is.EqualTo("u2"));
         Assert.That(edges[1].FromUnitId, Is.EqualTo("u2"));
         Assert.That(edges[1].ToUnitId, Is.EqualTo("u3"));
+    }
+
+    [Test]
+    public void ProjectEdges_without_comms_snapshot_falls_back_to_status_up()
+    {
+        var edges = DatalinkUnitPairFeed.ProjectEdges(["a", "b"], BalticLinks(), commsSnapshot: null);
+
+        Assert.That(edges, Has.Count.EqualTo(1));
+        Assert.That(edges[0].Status, Is.EqualTo(DatalinkPictureProjection.StatusUp));
+        Assert.That(
+            DatalinkUnitPairFeed.ResolveEdgeStatus(null),
+            Is.EqualTo(DatalinkPictureProjection.StatusUp));
+    }
+
+    [Test]
+    public void ProjectEdges_with_comms_snapshot_nominal_status_up()
+    {
+        var snapshot = new CommsStateSnapshot(CommsState.Nominal, "c2-net", "COMMS: NOMINAL");
+        var edges = DatalinkUnitPairFeed.ProjectEdges(["a", "b"], BalticLinks(), commsSnapshot: snapshot);
+
+        Assert.That(edges, Has.Count.EqualTo(1));
+        Assert.That(edges[0].Status, Is.EqualTo(DatalinkPictureProjection.StatusUp));
+    }
+
+    [Test]
+    public void ProjectEdges_with_comms_snapshot_degraded_status_degraded()
+    {
+        var snapshot = new CommsStateSnapshot(CommsState.Degraded, "c2-net", "COMMS: DEGRADED");
+        var edges = DatalinkUnitPairFeed.ProjectEdges(["a", "b"], BalticLinks(), commsSnapshot: snapshot);
+
+        Assert.That(edges, Has.Count.EqualTo(1));
+        Assert.That(edges[0].Status, Is.EqualTo(DatalinkPictureProjection.StatusDegraded));
+    }
+
+    [Test]
+    public void ProjectEdges_with_comms_snapshot_denied_status_down()
+    {
+        var snapshot = new CommsStateSnapshot(CommsState.Denied, "c2-net", "COMMS: DENIED");
+        var edges = DatalinkUnitPairFeed.ProjectEdges(["a", "b"], BalticLinks(), commsSnapshot: snapshot);
+
+        Assert.That(edges, Has.Count.EqualTo(1));
+        Assert.That(edges[0].Status, Is.EqualTo(DatalinkPictureProjection.StatusDown));
+    }
+
+    [Test]
+    public void ProjectEdges_uses_comms_state_projection_snapshot()
+    {
+        var log = new DecisionLog();
+        log.AppendCommsStateChange(new CommsStateChangeRecord(
+            0, 1, 1, "c2-net", CommsState.Nominal, CommsState.Degraded, "jam"));
+
+        var snapshot = CommsStateProjection.Project(log);
+        var edges = DatalinkUnitPairFeed.ProjectEdges(["x", "y"], BalticLinks(), commsSnapshot: snapshot);
+
+        Assert.That(snapshot.State, Is.EqualTo(CommsState.Degraded));
+        Assert.That(edges, Has.Count.EqualTo(1));
+        Assert.That(edges[0].Status, Is.EqualTo(DatalinkPictureProjection.StatusDegraded));
     }
 
     [Test]
