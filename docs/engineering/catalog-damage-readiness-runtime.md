@@ -24,7 +24,7 @@ activates and behaviour is byte-identical to the legacy Baltic fixtures.
   and [`src/ProjectAegis.Sim/Policy/`](../../src/ProjectAegis.Sim/Policy/); the catalog damage columns
   in [`src/ProjectAegis.Data/Catalog/CatalogPlatformDamage.cs`](../../src/ProjectAegis.Data/Catalog/CatalogPlatformDamage.cs).
 - **Related:** how to *author* the `catalogWithdraw` / `mineHazard` JSON is in
-  [`scenario-policy-authoring.md`](scenario-policy-authoring.md); the engage gate that consumes the
+  [`scenario-policy-authoring.md`](scenario-policy-authoring.md#minehazard-sub-fields); the engage gate that consumes the
   withdraw recommendation is in [`engagement-pipeline.md`](engagement-pipeline.md); the `Hit`/`Kill`
   outcomes this runtime reacts to come from the same pipeline; the catalog damage columns are
   seeded by the [catalog write gate](catalog-write-gate.md) / [catalog seeding](catalog-seeding.md);
