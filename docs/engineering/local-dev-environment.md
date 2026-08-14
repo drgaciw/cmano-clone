@@ -170,9 +170,13 @@ dotnet build ProjectAegis.sln -c Release
 
 [`copy-delegation-assemblies.sh`](../../tools/copy-delegation-assemblies.sh) exports
 `PATH="$HOME/.dotnet:$PATH"` first (matching the [`AGENTS.md`](../../AGENTS.md#cursor-cloud-specific-instructions)
-SDK install location) and mirrors the `.ps1` output. There is no bash port of the folder-scaffold or
-the verifier, so create the manifest/version files by hand from the templates above if you need the
-full project on Linux — or just install `pwsh` and run `init-unity-project.ps1`.
+SDK install location) and mirrors the `.ps1` output. On a normal clone
+`Packages/manifest.json` and `ProjectSettings/ProjectVersion.txt` are **already tracked** — do
+**not** recreate them from `manifest.template.json` (that template is the three-package seed used
+only when those files are missing; overwriting the live manifest drops MCP/AI/Linux/OpenUPM
+entries). Linux bring-up is: keep the tracked files, run the bash copy step. There is no bash
+port of the folder-scaffold or `Test-UnityPluginAssemblies.ps1`; install `pwsh` only if you need
+those.
 
 ### Common pitfalls
 
