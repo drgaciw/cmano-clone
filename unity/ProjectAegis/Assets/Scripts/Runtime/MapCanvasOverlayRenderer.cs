@@ -1,4 +1,4 @@
-// Pooled map-canvas overlay renderer for envelope rings + datalink edges (DRG-160).
+// Pooled map-canvas overlay renderer for envelope rings + datalink edges (DRG-160 / DRG-163).
 #if UNITY_5_3_OR_NEWER
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,8 @@ namespace ProjectAegis.Unity.Runtime
     /// <summary>
     /// Draws projected <see cref="MapCanvasRingShape"/> / <see cref="MapCanvasEdgeShape"/> lists
     /// onto the map canvas <see cref="VisualElement"/>. Rings render behind edges; both render
-    /// behind unit symbols (host inserts this layer first).
+    /// behind unit symbols (host inserts this layer first). Pixel layout keeps rings circular
+    /// and edges aspect-correct on a non-square canvas (DRG-163).
     /// </summary>
     public sealed class MapCanvasOverlayRenderer
     {
@@ -19,6 +20,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string EdgeLayerName = "map-overlay-edge-layer";
         private const string RingBaseClass = "map-overlay-ring";
         private const string EdgeBaseClass = "map-overlay-edge";
+        private const float LayoutEpsilon = 0.5f;
 
         private sealed class RingEntry
         {
@@ -32,11 +34,14 @@ namespace ProjectAegis.Unity.Runtime
             public MapCanvasEdgeShape? Applied;
         }
 
+        private readonly VisualElement _canvas;
         private readonly VisualElement _ringLayer;
         private readonly VisualElement _edgeLayer;
         private readonly Dictionary<string, RingEntry> _rings = new(StringComparer.Ordinal);
         private readonly Dictionary<string, EdgeEntry> _edges = new(StringComparer.Ordinal);
         private readonly List<string> _stale = new();
+        private float _layoutWidth;
+        private float _layoutHeight;
 
         public MapCanvasOverlayRenderer(VisualElement canvas)
         {
@@ -45,12 +50,14 @@ namespace ProjectAegis.Unity.Runtime
                 throw new ArgumentNullException(nameof(canvas));
             }
 
+            _canvas = canvas;
             _ringLayer = new VisualElement { name = RingLayerName, pickingMode = PickingMode.Ignore };
             _ringLayer.AddToClassList("map-overlay-layer");
             _edgeLayer = new VisualElement { name = EdgeLayerName, pickingMode = PickingMode.Ignore };
             _edgeLayer.AddToClassList("map-overlay-layer");
             canvas.Insert(0, _ringLayer);
             canvas.Insert(1, _edgeLayer);
+            canvas.RegisterCallback<GeometryChangedEvent>(OnCanvasGeometryChanged);
         }
 
         /// <summary>Live pooled ring count (diagnostics / tests).</summary>
@@ -61,12 +68,13 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>
         /// Reconciles ring/edge layers to the projected shape lists. Reuses elements in-place
-        /// when shape values are unchanged.
+        /// when shape values are unchanged. Pixel positions recompute on canvas resize.
         /// </summary>
         public void Sync(
             IReadOnlyList<MapCanvasRingShape> rings,
             IReadOnlyList<MapCanvasEdgeShape> edges)
         {
+            CaptureLayoutSize();
             SyncRings(rings ?? Array.Empty<MapCanvasRingShape>());
             SyncEdges(edges ?? Array.Empty<MapCanvasEdgeShape>());
         }
@@ -78,6 +86,46 @@ namespace ProjectAegis.Unity.Runtime
             _edgeLayer.Clear();
             _rings.Clear();
             _edges.Clear();
+        }
+
+        private void OnCanvasGeometryChanged(GeometryChangedEvent evt)
+        {
+            var width = evt.newRect.width;
+            var height = evt.newRect.height;
+            if (Math.Abs(width - _layoutWidth) < LayoutEpsilon
+                && Math.Abs(height - _layoutHeight) < LayoutEpsilon)
+            {
+                return;
+            }
+
+            _layoutWidth = width;
+            _layoutHeight = height;
+            RelayoutApplied();
+        }
+
+        private void CaptureLayoutSize()
+        {
+            _layoutWidth = _canvas.resolvedStyle.width;
+            _layoutHeight = _canvas.resolvedStyle.height;
+        }
+
+        private void RelayoutApplied()
+        {
+            foreach (var entry in _rings.Values)
+            {
+                if (entry.Applied != null)
+                {
+                    ApplyRing(entry.Element, previous: null, entry.Applied);
+                }
+            }
+
+            foreach (var entry in _edges.Values)
+            {
+                if (entry.Applied != null)
+                {
+                    ApplyEdge(entry.Element, previous: null, entry.Applied);
+                }
+            }
         }
 
         private void SyncRings(IReadOnlyList<MapCanvasRingShape> rings)
@@ -96,6 +144,10 @@ namespace ProjectAegis.Unity.Runtime
                 {
                     ApplyRing(entry.Element, entry.Applied, shape);
                     entry.Applied = shape;
+                }
+                else
+                {
+                    ApplyRingPixels(entry.Element, shape);
                 }
             }
 
@@ -118,6 +170,10 @@ namespace ProjectAegis.Unity.Runtime
                 {
                     ApplyEdge(entry.Element, entry.Applied, shape);
                     entry.Applied = shape;
+                }
+                else
+                {
+                    ApplyEdgePixels(entry.Element, shape);
                 }
             }
 
@@ -208,18 +264,14 @@ namespace ProjectAegis.Unity.Runtime
             return element;
         }
 
-        private static void ApplyRing(VisualElement element, MapCanvasRingShape? previous, MapCanvasRingShape shape)
+        private void ApplyRing(VisualElement element, MapCanvasRingShape? previous, MapCanvasRingShape shape)
         {
-            var diameterPct = shape.RadiusNormalized * 200f;
             element.style.position = Position.Absolute;
-            element.style.width = Length.Percent(diameterPct);
-            element.style.height = Length.Percent(diameterPct);
-            element.style.left = Length.Percent((shape.CenterX - shape.RadiusNormalized) * 100f);
-            element.style.top = Length.Percent((shape.CenterY - shape.RadiusNormalized) * 100f);
             element.style.borderTopLeftRadius = Length.Percent(50f);
             element.style.borderTopRightRadius = Length.Percent(50f);
             element.style.borderBottomLeftRadius = Length.Percent(50f);
             element.style.borderBottomRightRadius = Length.Percent(50f);
+            ApplyRingPixels(element, shape);
 
             if (previous != null)
             {
@@ -229,26 +281,12 @@ namespace ProjectAegis.Unity.Runtime
             element.AddToClassList(shape.StyleClass);
         }
 
-        private static void ApplyEdge(VisualElement element, MapCanvasEdgeShape? previous, MapCanvasEdgeShape shape)
+        private void ApplyEdge(VisualElement element, MapCanvasEdgeShape? previous, MapCanvasEdgeShape shape)
         {
-            var dx = shape.ToX - shape.FromX;
-            var dy = shape.ToY - shape.FromY;
-            var length = Math.Sqrt(dx * dx + dy * dy);
-            if (length <= 1e-6f)
-            {
-                element.style.display = DisplayStyle.None;
-                return;
-            }
-
-            element.style.display = DisplayStyle.Flex;
             element.style.position = Position.Absolute;
-            element.style.left = Length.Percent(shape.FromX * 100f);
-            element.style.top = Length.Percent(shape.FromY * 100f);
-            element.style.width = Length.Percent(length * 100f);
             element.style.height = 2;
             element.style.transformOrigin = new TransformOrigin(Length.Percent(0f), Length.Percent(50f), 0);
-            var angleDeg = Mathf.Atan2(dy, dx) * Mathf.Rad2Deg;
-            element.style.rotate = new Rotate(angleDeg);
+            ApplyEdgePixels(element, shape);
 
             if (previous != null)
             {
@@ -256,6 +294,67 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             element.AddToClassList(shape.StyleClass);
+        }
+
+        private void ApplyRingPixels(VisualElement element, MapCanvasRingShape shape)
+        {
+            if (!TryGetLayoutSize(out var width, out var height))
+            {
+                var diameterPct = shape.RadiusNormalized * 200f;
+                element.style.width = Length.Percent(diameterPct);
+                element.style.height = Length.Percent(diameterPct);
+                element.style.left = Length.Percent((shape.CenterX - shape.RadiusNormalized) * 100f);
+                element.style.top = Length.Percent((shape.CenterY - shape.RadiusNormalized) * 100f);
+                return;
+            }
+
+            var px = MapCanvasOverlayGeometry.LayoutRingPixels(shape, width, height);
+            element.style.width = px.Diameter;
+            element.style.height = px.Diameter;
+            element.style.left = px.Left;
+            element.style.top = px.Top;
+        }
+
+        private void ApplyEdgePixels(VisualElement element, MapCanvasEdgeShape shape)
+        {
+            if (!TryGetLayoutSize(out var width, out var height))
+            {
+                var dx = shape.ToX - shape.FromX;
+                var dy = shape.ToY - shape.FromY;
+                var length = Math.Sqrt(dx * dx + dy * dy);
+                if (length <= 1e-6f)
+                {
+                    element.style.display = DisplayStyle.None;
+                    return;
+                }
+
+                element.style.display = DisplayStyle.Flex;
+                element.style.left = Length.Percent(shape.FromX * 100f);
+                element.style.top = Length.Percent(shape.FromY * 100f);
+                element.style.width = Length.Percent(length * 100f);
+                element.style.rotate = new Rotate(Mathf.Atan2(dy, dx) * Mathf.Rad2Deg);
+                return;
+            }
+
+            var px = MapCanvasOverlayGeometry.LayoutEdgePixels(shape, width, height);
+            if (px.Hidden)
+            {
+                element.style.display = DisplayStyle.None;
+                return;
+            }
+
+            element.style.display = DisplayStyle.Flex;
+            element.style.left = px.Left;
+            element.style.top = px.Top;
+            element.style.width = px.Length;
+            element.style.rotate = new Rotate(px.AngleDeg);
+        }
+
+        private bool TryGetLayoutSize(out float width, out float height)
+        {
+            width = _layoutWidth > LayoutEpsilon ? _layoutWidth : _canvas.resolvedStyle.width;
+            height = _layoutHeight > LayoutEpsilon ? _layoutHeight : _canvas.resolvedStyle.height;
+            return width > LayoutEpsilon && height > LayoutEpsilon;
         }
     }
 }
