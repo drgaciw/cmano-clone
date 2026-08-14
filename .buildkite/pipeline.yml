@@ -21,6 +21,28 @@ steps:
     command: bash tools/buildkite/agent-dotnet-ci.sh
     agents:
       queue: linux-medium
+    env:
+      # Both must be WORKSPACE-RELATIVE for the `cache:` volume below to mount them.
+      # DOTNET_ROOT is normalised to an absolute path inside
+      # tools/buildkite/agent-bootstrap-dotnet.sh; a relative DOTNET_ROOT would
+      # otherwise break `dotnet` subprocess resolution.
+      DOTNET_ROOT: ".dotnet"
+      NUGET_PACKAGES: ".nuget/packages"
+    # EXPERIMENT (2026-08-14): the hosted image ships no dotnet, so every job
+    # re-downloads the 212 MB SDK 8.0.400 tarball (~10s/job, ~11h/month of billed
+    # agent time). Cached Storage IS active on this cluster (Platform Pro; 50 GB
+    # container-cache quota) — the #535/#541 upload rejections were caused by the
+    # YAML shape (`key` / `{{ checksum }}`), not by the feature being unavailable.
+    # Only `paths` / `name` / `size` are used here. NEVER add `key` or `{{ checksum }}`.
+    # Deliberately does NOT cache bin/ or obj/ — restoring those across commits
+    # breaks .NET's timestamp-based incremental compilation.
+    # If this rejects, the build fails in ~3s with no step logs: revert this block.
+    cache:
+      name: "dotnet-sdk-and-nuget"
+      size: "20g"
+      paths:
+        - ".dotnet"
+        - ".nuget/packages"
     retry:
       automatic:
         - exit_status: "*"
