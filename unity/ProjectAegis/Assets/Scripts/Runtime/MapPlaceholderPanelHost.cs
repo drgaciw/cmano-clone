@@ -185,7 +185,7 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            var comms = CommsStateProjection.Project(bridgeHost.Bridge.Orchestrator.DecisionLog);
+            var comms = bridgeHost.LastCommsState;
             var commsDisplay = bridgeHost.Bridge.Orchestrator.ScenarioPolicy?.CommsDisplay
                 ?? ScenarioCommsDisplaySettings.Default;
             var atlas = ResolveAtlasCatalog();
@@ -194,7 +194,7 @@ namespace ProjectAegis.Unity.Runtime
                 bridgeHost.ScenarioPolicyId,
                 PresentationFeed.SelectedUnitId,
                 PresentationFeed.SelectedContactId,
-                comms.State,
+                comms?.State ?? CommsState.Nominal,
                 commsDisplay,
                 atlas);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
@@ -211,7 +211,7 @@ namespace ProjectAegis.Unity.Runtime
         /// and doctrine map overlay rows; surfaces overlay counts (CMD-21/32/33/34) and
         /// draws rings/edges on the map canvas (DRG-160).
         /// </summary>
-        private void ApplyOverlayCounts(CommsStateSnapshot commsSnapshot)
+        private void ApplyOverlayCounts(CommsStateSnapshot? commsSnapshot)
         {
             var catalog = bridgeHost != null ? bridgeHost.CatalogReader : null;
             var selectedUnitId = PresentationFeed?.SelectedUnitId;
@@ -384,11 +384,8 @@ namespace ProjectAegis.Unity.Runtime
                 || bridgeHost.Phase != _dirtyPhase
                 || showPanel != _dirtyShowPanel
                 || _layerStack.VisibleCount != _dirtyLayerVisibleCount
-                || ProjectCommsSnapshot().State != _dirtyCommsState;
+                || (feed.LastCommsState?.State ?? CommsState.Nominal) != _dirtyCommsState;
         }
-
-        private CommsStateSnapshot ProjectCommsSnapshot() =>
-            CommsStateProjection.Project(bridgeHost.Bridge.Orchestrator.DecisionLog);
 
         private void CaptureDirtyState()
         {
@@ -399,7 +396,7 @@ namespace ProjectAegis.Unity.Runtime
             _dirtyPhase = bridgeHost.Phase;
             _dirtyShowPanel = showPanel;
             _dirtyLayerVisibleCount = _layerStack.VisibleCount;
-            _dirtyCommsState = ProjectCommsSnapshot().State;
+            _dirtyCommsState = feed?.LastCommsState?.State ?? CommsState.Nominal;
             _refreshedOnce = true;
         }
 
