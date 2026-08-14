@@ -112,8 +112,10 @@ richer mapping used when routing by target-doc gate matters:
 - `ResolveTrlLevel(proposedTrl)` clamps the staged `TrlLevel` to `1–9`.
 - `ResolveBranchTag(targetDoc)` → `branch:doc-09` / `branch:doc-10` (stamped on the staged row's
   `ImportBatchId`) so near-future (doc 09) and speculative (doc 10) facts land on distinct branches.
-- `ResolveSourceFactId(targetDoc)` → `osint:09` / `osint:10`; `NormalizeTargetDoc` defaults unknown
-  values to `"10"` (speculative).
+- `ResolveSourceFactId(targetDoc)` → `osint:{normalized}`. `NormalizeTargetDoc` maps blank →
+  `"10"`, `"9"`/`"09"` → `"09"`, `"10"` → `"10"`. Any other non-blank value (for example the
+  fixture `"11"`) is **passed through trimmed** — it does **not** fall back to `"10"`, so the
+  mapper can emit `osint:11` / `branch:doc-11`.
 - `ToSensorBinding` clamps `BasePd` to `[0.1, 0.95]`, sets `ReviewState = Provisional`,
   `ValueTier = InterpretedValue`, `ReviewerId = "osint-digest"`, and the citation ref.
 
@@ -132,9 +134,11 @@ dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_staging_review 
 dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_staging_review --db <catalog.db> --approve <batchId>
 ```
 
-- With no `--approve`, it lists pending batches (`ListPendingBatches`) as JSON.
+- With no `--approve`, it lists **all** pending write-gate batches (`ListPendingBatches`) —
+  not an OSINT-only queue. Workbook imports and other `Propose*Batch` rows appear here too.
 - With `--approve <batchId>`, it calls `gate.ApproveBatch(batchId, "human", "osint-ui-reviewer")`
-  and reports `Committed` + any errors.
+  for **whatever** batch id is supplied (the actor label is OSINT even if the batch is not).
+  Do not treat this verb as a filtered OSINT review queue.
 - `osint_search` runs the connector/partition path against a fixture (default `data/osint_facts.json`)
   at the `0.65` threshold and prints proposals + `logOnlyCount`. The MCP aliases
   `osint_digest`, `osint_list_staging_proposals`, `osint_get_proposal_detail`, and
@@ -151,7 +155,10 @@ dotnet run --project src/ProjectAegis.MissionEditor.Cli -- osint_staging_review 
 2. **Stage-only, human-gated** — the runner only `Propose`s; commit requires a human
    `ApproveBatch`. This is the [write-gate](catalog-write-gate.md) contract, extend-only.
 3. **Provisional provenance** — staged rows are `Provisional` / `InterpretedValue` with a
-   `CitationRef`; TL is clamped to `1–9` and routed to the doc-09/doc-10 branch.
+   `CitationRef`. **TL clamp + doc-09/doc-10 `ImportBatchId` routing live only on
+   `OsintCatalogMapper`** (Unity staging / mapper tests). `RunFromDigestFile` uses
+   `MapProposalsToBindings`, which copies `ProposedTrl` unclamped and leaves
+   `ImportBatchId` unset — digest-staged rows do **not** get mapper branch tags.
 4. **No live stream / no proprietary data** — `EnableRealtimeSocialStream = false`; feeds are
    public-citation fixtures/files, never CMO `*.db3` (dual-track firewall).
 
