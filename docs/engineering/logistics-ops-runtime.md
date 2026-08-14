@@ -117,9 +117,11 @@ tracker's band-crossing emit:
 |--------|---------------------|----------------------------------|
 | [`OrdnanceStateChangeRecord`](../../src/ProjectAegis.Delegation/Decision/OrdnanceStateChangeRecord.cs) | `OrdnanceStateChange = 18` | `{SimTick}\|{UnitId}\|{PreviousState}\|{NewState}\|{RoundsRemaining}` |
 
-It folds into `ChronologicalEntries` via `DecisionLog`, so it **participates in the replay
-fingerprint and world-state hash** — changing a golden scenario's magazine numbers or the
-`shotgunRoundsThreshold` changes its hash; regenerate the affected golden. In the message log
+It folds into `ChronologicalEntries` via `DecisionLog.ComputeFingerprint()`, so it **participates
+in the order-log replay fingerprint only** — not `SimTickPipeline.RecomputeWorldHash()` (that fold
+is core + detection + engagement + kill). Changing a golden scenario's magazine numbers or the
+`shotgunRoundsThreshold` can move the **fingerprint**; it does not move the Baltic v2 world-state
+hash `17144800277401907079`. In the message log
 ([`MessageLogProjection`](../../src/ProjectAegis.Delegation/Projection/MessageLogProjection.cs)) it
 renders under the **`ORDNANCE`** category:
 `Ordnance <unit>: SHOTGUN → WINCHESTER (rem 0)`.
