@@ -116,7 +116,8 @@ session-local ordered list (the pattern mirrors `PendingApprovalQueue`):
   `TriggerTick` ascending → `EventId` ordinal.
 - **`Enqueue`** is idempotent on `EventId` — a second event with the same id is dropped, and
   the **first** event's fields win (the later `TriggerTick` is *not* applied). Throws on a
-  null event or empty `EventId`.
+  null event or empty `EventId`. This prevents a duplicate **card**, not a duplicate pause:
+  `ReportWatchAttention` does not gate `ShouldAutoPause` on a successful insert.
 - **`TryAcknowledge` / `TryDismiss` / `TryRestore`** return `false` only when the id is
   unknown; they are no-op-safe if the card is already in the target state. Dismiss is a soft
   remove (`SnapshotVisible()` hides it) and is reversible via `TryRestore`.
@@ -152,7 +153,7 @@ clock:
 | `WatchQueue`, `WatchPauseGate` | the live queue + gate for this session |
 | `LastWatchPauseReason` | passthrough to `WatchPauseGate.LastPauseReason` |
 | `IsSimPaused` | `Sim.Clock.IsPaused` |
-| `ReportWatchAttention(evt)` | enqueue, then `PauseSim()` if the gate says pause |
+| `ReportWatchAttention(evt)` | void `Enqueue` then `ShouldAutoPause` — **EventId dedupes cards, not re-pause**. After ack/dismiss + `TryResumeSim`, reporting the same id pauses the clock again even though no card was inserted |
 | `ReportContactTransitions(transitions)` | S116 seam: map each transition via the factory, report any events |
 | `ReportOwnSideLoss(unitId, tick, detail?)` | report an own-side loss (no-op for non-own-side ids) |
 | `TryResumeSim(explicitOverride = false)` | gate-checked resume; on success calls `ResumeSim()` + `ClearReason()`, returns `false` if blocked |
