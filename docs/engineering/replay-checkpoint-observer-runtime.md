@@ -147,11 +147,10 @@ mutating:
 | `DelegationOrchestrator.TryReleaseDirectControl` | hand a unit back to its agent | returns `false` |
 | `DelegationBridge.TryTakeDirectControl` / `TryReleaseDirectControl` | Unity-adapter ingress | returns `false` before touching the orchestrator |
 | `DelegationBridge.TryEnqueueHumanOrder` | queue a human order | returns `false`, nothing appended |
-| `C2PlayerCommandBridge` (toolbar/hotkey) | player command issuance | fails with reason `REPLAY_ATTACHED` |
+| `C2PlayerCommandBridge` (toolbar/hotkey) | player command issuance | `REPLAY_ATTACHED` **only after** `C2CommandIssuance.TryResolve` succeeds. An unknown `commandId` still returns `UNKNOWN_COMMAND` first. |
 | `DoctrineOverrideCommand.TryApply` | ROE override (sibling write) | **not gated** — still applies / logs `PolicyUpdateRecord` |
 
-Because none of these append to the order log, an observer session produces the **same** fingerprint
-as the underlying run — you are watching, not altering. The complementary arbitration mechanics
+Gated order/enqueue paths do not append. That does **not** make every observer session fingerprint-identical to the underlying run: invoking `DoctrineOverrideCommand` while `AttachReplayViewer` is set still writes a `PolicyUpdateRecord`, and `ComputeFingerprint()` includes policy-update rows. The complementary arbitration mechanics
 (suspend/resume, detach/rejoin) are in
 [direct-control-override-runtime.md](direct-control-override-runtime.md); the full player-command
 failure-reason catalog is in [c2-command-issuance-runtime.md](c2-command-issuance-runtime.md).
