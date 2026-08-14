@@ -80,16 +80,18 @@ sensor/EMCON/fire-control checks:
     → LogisticsShotgun gate          ← soft: multi-salvo denied in SHOTGUN band
     → TrackSpoofed / EMCON / CEC-FC / fire-control
     → LogisticsWinchester gate       ← hard: empty magazine denied (after FC)
-    → MagazineEmpty (unseeded/consume fallback)
+    → (pre-launch MagazineEmpty check is unreachable when liveRounds ≤ 0 —
+       Winchester already returned)
     → domain / hypersonic / envelope / DLZ
-    → TryConsumeSalvo → launch
+    → TryConsumeSalvo → launch or MagazineEmpty (consume-fail only)
 ```
 
-The Winchester gate sits **after** the doctrine/EMCON/fire-control checks and *replaces* the
-pre-launch `MagazineEmpty` abort when the ledger is tracked-empty (the load-bearing
-`WINCHESTER_ORDNANCE` code the QA saboteur asserts). The older `MagazineEmpty` abort and the final
-`TryConsumeSalvo` guard remain for the unseeded-mount / consume path, so a shot is never launched
-against a truly empty magazine.
+The Winchester gate sits **after** the doctrine/EMCON/fire-control checks. Any state with
+`liveRounds ≤ 0` (seeded tracked-empty **or** unseeded `ctx.RoundsRemaining ≤ 0`) aborts here as
+`WINCHESTER_ORDNANCE`. The later `if (ctx.RoundsRemaining ≤ 0 && GetRounds ≤ 0)` pre-launch
+`MagazineEmpty` check is **not** a live unseeded fallback — those cases already returned. The
+`MagazineEmpty` abort you can still hit is **`TryConsumeSalvo` failing** after the envelope/DLZ
+gates (partial-consume / race against remaining rounds).
 
 ---
 
@@ -133,8 +135,10 @@ var primed = template with { SalvoSize = Math.Max(1, salvo),
 ```
 
 The per-unit magazine ledger is seeded from the catalog via `CatalogMagazineLedgerSeeder`
-(falling back to `DefaultMagazineRounds`), and capped to the scenario's `DefaultMagazineRounds`
-when that is set — so `liveRounds` reflects real remaining ordnance.
+(falling back to `DefaultMagazineRounds`). `PrimeEngageWorld` then caps to
+`DefaultMagazineRounds` **only when that value is `> 0`**. An explicit `0` skips the cap, so
+catalog-provided rounds stay available — do not treat “set defaultMagazineRounds: 0” as empty
+ordnance.
 
 **Emitting the row (`MaybeEmitOrdnanceStateChange`).** Immediately after a successful engage
 appends its magazine `Fire` row (mount `0`), the session:
@@ -160,7 +164,7 @@ The relevant fields live on
 "engage": {
   "defaultMagazineRounds": 2,     // per-mount rounds seeded when catalog is silent (default 2)
   "salvoSize": 1,                 // rounds consumed per engage; > 1 is gated in SHOTGUN (default 1)
-  "maxSalvo": null,               // WRA cap: max rounds per engagement (policy GDD)
+  "maxSalvo": null,               // JSON null → EffectivePolicy.DefaultMaxSalvo = 8 at load
   "shotgunRoundsThreshold": 1     // remaining in (0, threshold] ⇒ SHOTGUN; 0 disables (default 1)
 }
 ```
@@ -169,7 +173,7 @@ The relevant fields live on
 |-------|---------|---------|
 | `defaultMagazineRounds` | `2` | Rounds seeded per mount when the catalog does not specify a magazine. |
 | `salvoSize` | `1` | Rounds consumed per engage; `> 1` is what the Shotgun soft gate denies. |
-| `maxSalvo` | `null` | Weapons-release-authority cap (separate policy layer; see [autonomy-roe-gating.md](autonomy-roe-gating.md)). |
+| `maxSalvo` | JSON `null` → **effective `8`** | `ScenarioPolicyJsonLoader.ResolveMaxSalvo` maps null / non-positive to `EffectivePolicy.DefaultMaxSalvo` (`8`). A `salvoSize: 9` with omitted `maxSalvo` is WRA-denied **before** either ordnance gate. |
 | `shotgunRoundsThreshold` | `1` | Shotgun band width; `0` disables Shotgun (only Winchester at empty). |
 
 ---
