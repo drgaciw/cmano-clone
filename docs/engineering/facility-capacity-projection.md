@@ -1,7 +1,10 @@
 # Facility capacity-state projection — HP% → Operational / Damaged / Destroyed
 
 > **ADR:** [`adr-009-combat-domain-validators.md`](../architecture/adr-009-combat-domain-validators.md)
-> (Combat Domain Validators & Deterministic Damage Order) + combat-domains-damage GDD.
+> owns the **damage/HP applier** (Combat Domain Validators & Deterministic Damage Order) + combat-domains-damage GDD.
+> The **presentation/read-model seam** is ADR-010 §2–3 (projection is a client, not sim authority),
+> ADR-007 (map/globe presentation), and ADR-001 (adapter boundary). Do **not** cite ADR-009 as the
+> snapshot/projection contract, and never cite Git ADR-018 here (that is sensor side-picture / datalink).
 > **Applier counterpart:** [catalog-damage-readiness-runtime.md](catalog-damage-readiness-runtime.md)
 > owns the per-tick HP **applier**; this page owns the read-model **projection** derived from it.
 
@@ -47,7 +50,11 @@ the other silently breaks the latch.
 - **not** (`previousState == Damaged && nextState == Damaged`) — redundant Damaged→Damaged is
   written explicitly in source but is **already implied** by `previousState != nextState`.
 
-The net effect is a **monotonic, de-duplicated** `Operational → Damaged → Destroyed` progression.
+The latch itself is **terminal-once-Destroyed + de-duplicated**, not a one-way HP ratchet.
+If a ledger row raises HP from 75 to 100, `MapHpPctToCapacityState` returns `Operational` and
+`ShouldEmitCapacityTransition("Damaged", "Operational")` is **true** — a Damaged→Operational
+row is emitted. The `Operational → Damaged → Destroyed` story is a **producer assumption**
+(catalog damage appliers only lower HP); it is not enforced by the latch.
 
 ---
 
@@ -91,8 +98,9 @@ binds these into the facility picture.
 - **Deterministic ordering.** The HP-ledger path sorts by `(SimTick, SequenceId)`; the outcome
   fallback uses `DeterministicDamageApplyBatch.Sort` — the same input always yields the same
   transition sequence.
-- **Monotonic & de-duplicated.** The latch guarantees `Operational → Damaged → Destroyed` with no
-  re-emission after `Destroyed` and no redundant same-label rows.
+- **Terminal & de-duplicated (not HP-monotonic).** The latch never re-emits after `Destroyed` and
+  suppresses same-label no-ops. Healing HP (75→100) *will* emit Damaged→Operational. The
+  one-way `Operational → Damaged → Destroyed` story holds only while producers never raise HP.
 - **Pure.** Both helpers read only their arguments — no RNG, no wall-clock.
 - **Dual string catalogs.** `FacilityHpCapacity` and `FacilityCapacityStates` must stay ordinal-equal;
   they are not a shared enum.
