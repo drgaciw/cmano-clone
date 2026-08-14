@@ -218,11 +218,18 @@ self-approve):
    (`SequenceId`, `SimTime`, `SimTick`, `AgentId`, `TargetId`, `PolicySnapshotId`,
    `Reason`, `AttemptedKind`).
 4. If `ExecuteNow` → add the order to the agent's issued set.
+5. If `QueueForApproval` **and** a `PendingApprovalQueue` was passed in →
+   `pendingQueue.Enqueue(order)` (DRG-66). The agent path always evaluates
+   `playerApproved: false`, so `Manual` / `Assisted`-`High` land here.
 
-Note that a `QueueForApproval` result from the *agent* path is not routed to a
-separate pending-approval store here — the order is simply **not issued this tick**.
-Player-issued/approved orders arrive through the human ingress
-(`HumanController` / the player order queue) rather than the agent decide loop.
+The **store** for that verdict is documented in
+[pending-approval-queue.md](pending-approval-queue.md): `DelegationOrchestrator`
+owns a session-local `PendingApprovalQueue`; `TryApprovePendingOrder` /
+`TryRejectPendingOrder` are the player surface; approved orders drain at the
+**start** of the next non-`Planning` `Tick` and **do not** re-enter
+`AutonomyGate.Evaluate`. Player-issued *new* orders (toolbar / hotkey) still
+arrive through the human ingress (`HumanController` / the player order queue)
+rather than this queue.
 
 ---
 

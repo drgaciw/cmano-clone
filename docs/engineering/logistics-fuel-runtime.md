@@ -226,6 +226,7 @@ until a scenario opts in.
 
 | Topic | Where |
 |-------|-------|
+| Ordnance counterpart (magazine Shotgun/Winchester bands + gates) | [logistics-ordnance-runtime.md](logistics-ordnance-runtime.md) |
 | `logistics` JSON field reference | [scenario-policy-authoring.md](scenario-policy-authoring.md#top-level-fields) |
 | Sibling per-tick runtimes (same bridge slot) | [comms-degradation-runtime.md](comms-degradation-runtime.md) · [catalog-damage-readiness-runtime.md](catalog-damage-readiness-runtime.md) |
 | Order-log / fingerprint / golden workflow | [determinism-and-replay.md](determinism-and-replay.md) |
