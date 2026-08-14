@@ -25,7 +25,7 @@ subsystem is exercised headless with `dotnet test`.
 | `Catalog/` | Hot-tick appliers bridging `ProjectAegis.Data` catalog values into sim state | `CatalogDamageHotTickApplier`, `CatalogMagazineResolver`, `CatalogRadarEmconResolver`, `PlatformHpLedger` |
 | `Logistics/` | Fuel accounting | `FuelLedger` |
 | `Telemetry/` | Advisory-only balance-drift consumer fed by engagement outcomes ([guide](../../docs/engineering/balance-drift-telemetry.md)) | `BalanceDriftAdvisoryConsumer` |
-| `Time/` | Fixed-timestep clock + time-compression | `SimClock`, `TimeCompressionMode` |
+| `Time/` | Fixed-timestep clock + pause / time-compression ([below](#sim-clock-pause--time-compression)) | `SimClock`, `TimeCompressionMode` |
 | `Glossary/` | Generated abort-reason catalog/manifest ([guide](../../docs/engineering/abort-reason-catalog.md)) | `AbortReasonManifest`, `AbortReasonCatalog` |
 
 ---
@@ -47,7 +47,7 @@ Detection is mixed separately (tick step 4) so the harness can pin it independen
 ```csharp
 pipeline.MixDetectionTick(detectionRolls);   // updates DetectionSubhash + LastWorldHash
 pipeline.EnqueueEngagement(request);
-pipeline.TickOnce(TimeCompressionMode.Normal);
+pipeline.TickOnce(TimeCompressionMode.RealTime);
 ulong worldHash = pipeline.LastWorldHash;     // pinned by replay goldens
 ```
 
@@ -78,6 +78,51 @@ seed (`SimSeed.FromScenario(...)`); subsystems derive from it via domain + entit
 > Draw-order stability only matters for the *stateful* delegation-side RNG
 > (`ProjectAegis.Delegation.Decision.SeededRng`), not for this coordinate-addressed one — see
 > the [determinism guide](../../docs/engineering/determinism-and-replay.md#seeded-rng).
+
+### Sim clock, pause & time-compression
+
+[`SimClock`](Time/SimClock.cs) (in `Time/`) is the fixed-step counter both `ISimTickRunner`
+implementations advance. It owns **no** world state and computes **no** hash — just the tick
+count (`SimTick`), a derived `SimTime` (`SimTick × FixedDeltaSeconds`), a `IsPaused` flag
+(`Pause()` / `Resume()`), and an integer `AccelerationFactor` (`SetAccelerationFactor`,
+**clamped to `[1, 256]`** — `MinAccelerationFactor` / `MaxAccelerationFactor`). `FixedDeltaSeconds`
+(default `1.0 / 60.0`) is immutable: **acceleration adds whole steps, it never stretches Δt**, so
+an accelerated step is bit-identical to a real-time step at the same tick.
+
+Callers advance through `TickOnce(TimeCompressionMode mode)` (never `SimClock.AdvanceOneTick()`
+or the `internal SimTickRunner.AdvanceOneStep()` directly). The
+[`TimeCompressionMode`](Time/TimeCompressionMode.cs) values are `RealTime` / `Accelerated` /
+`HeadlessBatch` — **there is no `Normal`**:
+
+| `mode` | Running | Paused |
+|--------|---------|--------|
+| `RealTime` | advances **1** step | **no-op** (`SimTick` + `LastWorldHash` unchanged) |
+| `Accelerated` | advances **`AccelerationFactor`** full steps (each runs engagement) | **no-op** — pause blocks accelerated too |
+| `HeadlessBatch` | advances **1** step | **overrides pause** and advances anyway |
+
+`HeadlessBatch` is the CI/batch escape hatch: batch/throughput runners advance
+deterministically without an explicit `Resume()`, so an interactive pause left in state can
+never wedge a headless run — this is why the
+[micro-benchmark](../ProjectAegis.Sim.Benchmark/SimBenchmark.cs) ticks the pipeline in
+`HeadlessBatch`.
+
+Determinism invariants (pinned by `SimClockTests` / `SimClockTickRunnerTests`):
+
+- **`Accelerated` N once ≡ `RealTime` N times** — same `SimTick` *and* `LastWorldHash`.
+- **Pause is a clean freeze** — a paused non-batch `TickOnce` changes nothing; resuming continues
+  bit-identically.
+- **Replay-safe** — the Baltic goldens run through `DelegationBridge.Tick` and never pause or set an
+  acceleration factor, so the clock defaults to inert (`RealTime`, factor `1`) and the Baltic v2
+  hash `17144800277401907079` is untouched.
+
+Interactive hosts and headless harnesses drive the clock through the session façade, not the
+`SimClock` directly:
+[`SimulationSession`](../ProjectAegis.Delegation/Orchestration/SimulationSession.cs) exposes
+`IsSimPaused`, `PauseSim()` / `ResumeSim()` / watch-gated `TryResumeSim(explicitOverride)`,
+`TimeAccelerationFactor` / `SetTimeAccelerationFactor(int)`, and `Tick` (RealTime) vs
+`TickHeadless` (HeadlessBatch). The session realises acceleration through its **own** extra-steps
+loop so engagement resolution and order-log side effects stay **once per authored tick** — it
+never hands `Accelerated` down to `Sim.TickOnce`.
 
 ---
 

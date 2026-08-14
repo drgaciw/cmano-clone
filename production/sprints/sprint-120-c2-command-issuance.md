@@ -10,7 +10,7 @@
 **Doctrine:** ADR-010 / 007 / 001 · unity-csharp-architect pr-finish (cite only — no C# this sprint)
 
 > **Residual-scope only. Do not rebuild CMD-31. Do not touch DelegationBridge hotpath.**  
-> CMD-31…36 core already landed in **S108** (`C2CommandIssuance`, `C2PlayerCommandBridge`, Unity toolbar, headless tests). Confirm and document gaps — do not re-implement.
+> CMD-31…37 core already landed in **S108** (`C2CommandIssuance`, `C2PlayerCommandBridge`, Unity toolbar, headless tests). Confirm and document gaps — do not re-implement.
 
 ## Goal
 
@@ -25,8 +25,8 @@ Residual-scope **audit/docs only**. Confirm the existing **S108** issuance path 
 
 ## Should Have (optional tiny doc hygiene only)
 
-| ID | AC |
-|----|-----|
+| ID | AC | Result |
+|----|-----|--------|
 | S120-03 | Tracker/doc honesty: DRG-155 / Hub language says residual-scope, not “rebuild CMD-31”. Do not invent a new issuance API. | **Done** — S119 DoD checkboxes + S120 residual-scope headers aligned to merged reality |
 
 ## Landed path (confirm — do not rewrite)

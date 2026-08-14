@@ -25,7 +25,7 @@ DRG-123), `OobTreeBridge` + `MessageLogBridge` (UCA-A4 / DRG-140/141), and the
 `SensorC2` + `UnitDetail` + `MissionList` façade-hygiene wave (UCA-P1 / DRG-144/145/146) — plus the
 selection state controller from the earlier C2 rev-2 polish (S37-04 / S39-03). It is the read-side
 counterpart of the input path documented in
-[c2-command-issuance-runtime.md](c2-command-issuance-runtime.md). It is verified against source and
+[player-command-issuance.md](player-command-issuance.md). It is verified against source and
 pinned by the tests listed at the end.
 
 - **Bridge façades:** [`MapPictureBridge`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/MapPictureBridge.cs),
@@ -44,7 +44,7 @@ pinned by the tests listed at the end.
   implements it and refreshes the feed each tick.
 - **Related:** the projections these wrap and their `Projection → Binder → State` layering are
   [c2-projection-layer.md](c2-projection-layer.md); the write/intent side is
-  [c2-command-issuance-runtime.md](c2-command-issuance-runtime.md); the `DelegationBridge` /
+  [player-command-issuance.md](player-command-issuance.md); the `DelegationBridge` /
   `ISimWorldSnapshot` / `IOrderSink` integration contract is the
   [UnityAdapter README](../../src/ProjectAegis.Delegation.UnityAdapter/README.md).
 
