@@ -176,10 +176,10 @@ The pure seams exist and are unit-pinned; production wiring is deliberately mini
 
 ---
 
-## Headless / CI: pause never freezes the batch
+## Headless / CI: `TickHeadless` override (not the Baltic harness)
 
-Auto-pause is an **interactive** affordance. The headless/CI path must keep advancing even
-while paused, or replay/QA runs would deadlock:
+Auto-pause is an **interactive** affordance. `SimulationSession` exposes a separate batch
+entry point that must keep advancing even while paused:
 
 - **`Tick(state)`** (interactive) short-circuits the engagement phase when
   `Sim.Clock.IsPaused` (still surfaces ROE-denied engagements, then returns).
@@ -187,6 +187,14 @@ while paused, or replay/QA runs would deadlock:
   the engagement pipeline regardless of the pause flag — mirroring
   `TimeCompressionMode.HeadlessBatch`. The **pause flag and watch reason are preserved**, so
   an interactive resume still works after a batch.
+
+This override applies **only to direct `TickHeadless` callers**. The Baltic replay / QA
+harness does **not** use it today: `BalticReplayHarness` calls `bridge.Tick`, and
+`DelegationBridge.Tick` routes an attached session through interactive `Session.Tick`. After
+an own-side BDA loss auto-pauses the session, subsequent harness ticks therefore take the
+paused short-circuit rather than the documented override. `TickHeadless` currently has no
+non-test production caller; do not claim that replay/QA runs cannot freeze until the batch
+host is wired to `TickHeadless` (or an equivalent `headlessOverride` path).
 
 The clock ([`SimClock`](../../src/ProjectAegis.Sim/Time/SimClock.cs)) also carries an
 `AccelerationFactor` (clamped `1..256`); `RunExecutingTick` runs `factor − 1` extra
@@ -216,14 +224,18 @@ This keeps the read-model boundary identical to the rest of the C2 layer — see
 
 - **No RNG, no clock ownership, no wall-clock** anywhere under `Watch/`. The factory is a
   pure function of the fact.
-- **Stable `EventId`s** make enqueue idempotent, so re-observing a fact across ticks does not
-  spawn duplicate cards or double-pause.
+- **Stable `EventId`s** make **card enqueue** idempotent: re-observing a fact does not spawn
+  a second card. That is **not** a no-double-pause guarantee. `ReportWatchAttention` always
+  `Enqueue`s then unconditionally evaluates `ShouldAutoPause(evt)`. If a card is acknowledged
+  and the sim resumes, re-observing the same `EventId` pauses the clock again even though the
+  queue drops the duplicate and has no unresolved card. Narrow this to card de-duplication
+  until the session gates auto-pause on a *newly inserted* event.
 - **Ack / dismiss are presentation-only** — they never mutate sim policy, the order log, or
   any hashed state.
 - **Nothing is appended to the fingerprinted `DecisionLog`**, and `DelegationBridge` is
   untouched → the Baltic v2 replay hash `17144800277401907079` is unaffected.
-- **Headless override preserves pause state** so batch runs never freeze and interactive
-  resume still works afterward.
+- **`TickHeadless` preserves pause state** so a *direct* batch caller never freezes and
+  interactive resume still works afterward. The Baltic harness is not that caller today.
 
 ---
 
