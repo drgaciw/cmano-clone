@@ -140,6 +140,51 @@ public static class MapCanvasOverlayGeometry
         return shapes;
     }
 
+    /// <summary>
+    /// Converts a width-relative ring into square pixel layout. Radius is always
+    /// <c>RadiusNormalized * canvasWidth</c> so a non-square canvas stays circular.
+    /// </summary>
+    public static MapCanvasRingPixels LayoutRingPixels(
+        MapCanvasRingShape shape,
+        float canvasWidth,
+        float canvasHeight)
+    {
+        _ = canvasHeight;
+        var width = canvasWidth < 0f ? 0f : canvasWidth;
+        var radiusPx = shape.RadiusNormalized * width;
+        var centerX = shape.CenterX * width;
+        var centerY = shape.CenterY * (canvasHeight < 0f ? 0f : canvasHeight);
+        return new MapCanvasRingPixels(
+            Left: centerX - radiusPx,
+            Top: centerY - radiusPx,
+            Diameter: radiusPx * 2f);
+    }
+
+    /// <summary>
+    /// Converts a normalized edge into pixel length/angle after layout so rotation
+    /// matches the actual canvas aspect (not a unit-square percent space).
+    /// </summary>
+    public static MapCanvasEdgePixels LayoutEdgePixels(
+        MapCanvasEdgeShape shape,
+        float canvasWidth,
+        float canvasHeight)
+    {
+        var width = canvasWidth < 0f ? 0f : canvasWidth;
+        var height = canvasHeight < 0f ? 0f : canvasHeight;
+        var fromX = shape.FromX * width;
+        var fromY = shape.FromY * height;
+        var dx = (shape.ToX * width) - fromX;
+        var dy = (shape.ToY * height) - fromY;
+        var length = MathF.Sqrt((dx * dx) + (dy * dy));
+        if (length <= 1e-6f)
+        {
+            return new MapCanvasEdgePixels(fromX, fromY, 0f, 0f, Hidden: true);
+        }
+
+        var angleDeg = MathF.Atan2(dy, dx) * (180f / MathF.PI);
+        return new MapCanvasEdgePixels(fromX, fromY, length, angleDeg, Hidden: false);
+    }
+
     private static string ResolveRingStyle(string ringKind) =>
         string.Equals(ringKind, TacticalOverlayProjection.RingKindWeapon, StringComparison.Ordinal)
             ? RingStyleWeapon
@@ -175,3 +220,14 @@ public sealed record MapCanvasEdgeShape(
     float ToY,
     string Status,
     string StyleClass);
+
+/// <summary>Pixel-space square for a canvas ring (DRG-163).</summary>
+public readonly record struct MapCanvasRingPixels(float Left, float Top, float Diameter);
+
+/// <summary>Pixel-space segment for a canvas edge (DRG-163).</summary>
+public readonly record struct MapCanvasEdgePixels(
+    float Left,
+    float Top,
+    float Length,
+    float AngleDeg,
+    bool Hidden);
