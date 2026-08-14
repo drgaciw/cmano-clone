@@ -108,6 +108,7 @@ are optional; `flag+` may be repeated.
 |------|----------------|-------|
 | `scenario_create` | `--out` | `[--db-ref] [--policy-id] [--seed]`; defaults `baltic_patrol` / `baltic-patrol-catalog` / `42`. Errors `FILE_EXISTS` if the target already exists. |
 | `scenario_validate` | `--path` | Emits `ValidationReport` (`passed`, `canExport`, `reportHash`, `findings[]`). Exit `1` on blocking findings. |
+| `scenario_diff_summary` | `--before`, `--after` | Read-only id-level semantic diff of two scenario JSON files (`ScenarioSemanticDiff.Summarize`). Errors `INVALID_ARGS` / `NOT_FOUND` / `LOAD_FAILED`. See [scenario-semantic-diff.md](scenario-semantic-diff.md). |
 | `scenario_export` | `--path` | Validate + prepare export package (manifest + report hash). |
 | `scenario_export_brief` | `--path` | `[--out]`; validates first, writes a stub brief only when export is allowed. |
 | `scenario_publish` | `--path` | Validate + export publish gate. |
