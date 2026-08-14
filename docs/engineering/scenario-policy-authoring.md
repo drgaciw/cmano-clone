@@ -88,7 +88,7 @@ these map 1:1 onto `ScenarioPolicyProfile` via the loader's `To*` parsers.
 | `spoofTracks` | array | — | Timed spoof events (`atTick`, `contactId`, `reason`). Runtime: [comms-degradation-runtime.md](comms-degradation-runtime.md). |
 | `telemetry` | object | disabled | Balance-drift detection + per-entity balance trials. |
 | `datalink` | object | defaults | `organicOnly` (default `true`), `unitSides`, `shareLagTicks` (≥0). |
-| `mineHazard` | object | — | Mine zone + transit schedule (see validation below). |
+| `mineHazard` | object | — | Bounded transit-mine hazard zone + schedule (ADR-009). See [`mineHazard` sub-fields](#minehazard-sub-fields). |
 | `gauntlet` | object | — | **QA Gauntlet metadata** — *not* mapped into `ScenarioPolicyProfile`; consumed only by the batch harness + oracle (see [The `gauntlet` block](#the-gauntlet-block-qa-gauntlet-metadata)). |
 
 ### `engage` sub-fields
@@ -111,6 +111,76 @@ Maps to `ScenarioEngageDefaults`. Defaults shown are the loader/DTO defaults:
 | `mountOnline` | `true` | Weapon mount availability. |
 | `contactIdentified` | `true` | Whether target is treated as identified. |
 | `combatDomainsEnabled` | `false` | **ADR-009 registry validators.** Leave `false` on `baltic-patrol-*` variants unless explicitly documented in `scenario-policy-ids.md` (replay-hash sensitive). |
+
+### `mineHazard` sub-fields
+
+Maps to `ScenarioMineHazardSettings`. This is the **bounded transit-mine hazard** slice from
+ADR-009 (S32-08): platforms transiting a range band may take seeded mine damage. There are **no
+mine-laying missions and no danger-area map layer** — it is purely a per-tick damage source. The
+per-tick runtime behaviour (RNG domain, zone/range gating, damage math, order-log rows) is in
+[catalog-damage-readiness-runtime.md §4](catalog-damage-readiness-runtime.md#4-mine-transit-hazard-minetransithazardhottickapplier);
+this section is the **authoring reference** for the JSON block.
+
+| Field | Type | Default | Meaning |
+|-------|------|---------|---------|
+| `zoneMinRangeMeters` | number | `0` | Inclusive lower bound of the hazard zone (metres). A transiting platform is only exposed while its scheduled range is inside `[min, max]`. |
+| `zoneMaxRangeMeters` | number | `0` | Inclusive upper bound. **Must be ≥ `zoneMinRangeMeters`** or the load throws. |
+| `triggerRadiusMeters` | number | `5000` | A mine is a candidate only when `abs(platformRange − mine.rangeMeters) ≤ triggerRadiusMeters`. Must be non-negative. |
+| `hazardSeverity` | number | `1.0` | Global severity multiplier, clamped to `[0, 1]`. Per-mine hit probability = `clamp(mine.lethality × hazardSeverity, 0, 1)`. |
+| `mines` | array | `[]` | Mine placements (see below). Iterated in `mineId` (`Ordinal`) order. |
+| `transit` | array | `[]` | Per-platform range schedules (see below). Iterated in `platformId` (`Ordinal`) order. |
+
+Each `mines[]` entry maps to `ScenarioMinePlacement`:
+
+| Field | Default | Meaning |
+|-------|---------|---------|
+| `mineId` | `""` | Stable id; part of the RNG entity id and the iteration sort key. Keep unique + sortable. |
+| `rangeMeters` | `0` | The mine's position on the transit range axis; matched against the platform range via `triggerRadiusMeters`. |
+| `lethality` | `1.0` | Base hit severity, **clamped to `[0, 1]`**. Feeds both the hit probability and the `CombatDamageLevel` severity on a hit. |
+
+Each `transit[]` entry maps to `ScenarioMineTransitSchedule`:
+
+| Field | Default | Meaning |
+|-------|---------|---------|
+| `platformId` | `"u1"` | The transiting platform. **It must also be seeded in [`catalogWithdraw`](#top-level-fields) and have a catalog damage row** — otherwise it has no HP entry and takes no damage (see activation note). |
+| `rangesMeters` | `[]` | Ordered range samples, one per tick. The value used on `simTick` is `rangesMeters[tickIndex]` where `tickIndex = 0` for ticks `0` and `1`, then `simTick − 1`, **clamped** to the last element. So the array is effectively 1-based from tick 1 and holds its final range once exhausted. |
+
+**Activation.** `MineTransitHazardHotTickApplier.IsEnabled` is
+`combatDomainsEnabled && hazard is { HasTransit: true }`. `HasTransit` itself is only
+`Transit.Count > 0 && Mines.Count > 0` — it does **not** include the combat-domains flag.
+A transiting platform also needs an HP ledger entry (authored via `catalogWithdraw`) and a catalog
+damage row; missing HP is skipped **before** the mine loop. A missing damage row is skipped
+**after** the `RngDomain.MineHazard` draw, so the draw is still consumed. On a hit, HP is reduced
+through the shared `CombatDamageLevel` math and a `MINE_TRANSIT_HAZARD` `PlatformDamageChange` row
+is appended to the order log.
+
+```json
+{
+  "id": "baltic-patrol-mine-transit-hazard",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": { "combatDomain": "Mine", "combatDomainsEnabled": true, "pkKill": 0.0 },
+  "catalogWithdraw": [ { "platformId": "u1", "currentHpPct": 100 } ],
+  "mineHazard": {
+    "zoneMinRangeMeters": 45000,
+    "zoneMaxRangeMeters": 70000,
+    "triggerRadiusMeters": 8000,
+    "hazardSeverity": 1.0,
+    "mines": [
+      { "mineId": "mine-a", "rangeMeters": 52000, "lethality": 1.0 },
+      { "mineId": "mine-b", "rangeMeters": 61000, "lethality": 1.0 }
+    ],
+    "transit": [
+      { "platformId": "u1", "rangesMeters": [40000, 52000, 61000, 75000] }
+    ]
+  }
+}
+```
+
+> **Replay isolation.** `mineHazard` requires `combatDomainsEnabled: true`, so it only belongs on
+> dedicated combat-domain policies (e.g. `baltic-patrol-mine-transit-hazard`), **never** on a
+> `baltic-patrol-*` fixture feeding the ReplayGolden 6/6 suite. The mine-hazard fixture is
+> intentionally *not* in the golden regression catalog.
 
 ---
 
