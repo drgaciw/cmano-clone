@@ -136,7 +136,7 @@ Each `mines[]` entry maps to `ScenarioMinePlacement`:
 |-------|---------|---------|
 | `mineId` | `""` | Stable id; part of the RNG entity id and the iteration sort key. Keep unique + sortable. |
 | `rangeMeters` | `0` | The mine's position on the transit range axis; matched against the platform range via `triggerRadiusMeters`. |
-| `lethality` | `1.0` | Base hit severity, **clamped to `[0, 1]`**. Feeds both the hit probability and the `CombatDamageLevel` severity on a hit. |
+| `lethality` | `1.0` | Base hit severity, **clamped to `[0, 1]`**. Feeds hit probability (`clamp(lethality × hazardSeverity)`) and `CombatDamageLevel.ComputeLevel(lethality, resilience)`. With default resilience `1.0`, `Floor(lethality × 1.0)` is `0` unless `lethality == 1.0` — a successful roll can still be a no-op. |
 
 Each `transit[]` entry maps to `ScenarioMineTransitSchedule`:
 
@@ -150,9 +150,11 @@ Each `transit[]` entry maps to `ScenarioMineTransitSchedule`:
 `Transit.Count > 0 && Mines.Count > 0` — it does **not** include the combat-domains flag.
 A transiting platform also needs an HP ledger entry (authored via `catalogWithdraw`) and a catalog
 damage row; missing HP is skipped **before** the mine loop. A missing damage row is skipped
-**after** the `RngDomain.MineHazard` draw, so the draw is still consumed. On a hit, HP is reduced
-through the shared `CombatDamageLevel` math and a `MINE_TRANSIT_HAZARD` `PlatformDamageChange` row
-is appended to the order log.
+**after** the `RngDomain.MineHazard` draw, so the draw is still consumed. A successful roll
+(`draw < hitProbability`) still emits **no** HP change and **no** `MINE_TRANSIT_HAZARD` row when
+`CombatDamageLevel.ComputeLevel(lethality, resilience)` floors to `0` (default resilience `1.0`
+means `lethality < 1` is a no-op). Only `damageLevel > 0` reduces HP (`25%` per level) and
+appends the order-log row.
 
 ```json
 {
