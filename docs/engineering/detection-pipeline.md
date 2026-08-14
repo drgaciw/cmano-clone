@@ -266,6 +266,7 @@ tactical picture (see [`c2-projection-layer.md`](c2-projection-layer.md)).
 | Doc | For |
 |-----|-----|
 | [scenario-policy-authoring.md](scenario-policy-authoring.md) | Authoring the `detection` / `catalogDetection` / `contacts` / `jammers` / `contactLifecycle` / `emcon` / `datalink` JSON. |
+| [sensor-modality-detection.md](sensor-modality-detection.md) | The additive `SensorModality` (Radar / Infrared / Visual) layer — how IR/Visual trials skip the RF-jam fold and the EMCON gate, the `IrVisualDetection` env-mask helpers, and the catalog `sensor.modality` column + resolver mapping. |
 | [engagement-pipeline.md](engagement-pipeline.md) | How the fire-control track produced here is consumed by `MvpEngagementResolver`. |
 | [baltic-replay-harness.md](baltic-replay-harness.md) | The runner that drives the tick-4 detection slice end-to-end. |
 | [determinism-and-replay.md](determinism-and-replay.md) | Seeded RNG domains, world-hash layers, and the golden-fixture workflow. |

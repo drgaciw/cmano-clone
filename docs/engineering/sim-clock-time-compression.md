@@ -8,8 +8,9 @@ tick loop, and the session-level pause/resume/acceleration controls.
 
 The load-bearing property is that **compression is a scheduling decision, not a physics change**:
 accelerating never stretches the per-step `Δt`, it just runs more full deterministic steps per call.
-So *N* accelerated steps are bit-for-bit identical to *N* real-time steps, and the replay goldens are
-untouched.
+On `ISimTickRunner`, *N* accelerated steps are bit-for-bit identical to *N* real-time steps (same
+`SimTick` + `LastWorldHash`). A `SimulationSession.Tick` at factor *N* is **not** *N* full session
+ticks — only the pipeline `TickOnce` repeats. Replay goldens are untouched either way.
 
 This runtime was built in **S112** (`S112-01` clock + runner, `S112-02` session API, DRG-14). It is
 the mechanism the watch officer's **auto-pause** drives, but it knows nothing about the watch runtime —
@@ -25,7 +26,7 @@ end.
   — `PauseSim` / `ResumeSim` / `TryResumeSim`, `SetTimeAccelerationFactor`, `IsSimPaused`,
   `TimeAccelerationFactor`, and the interactive-vs-headless tick paths.
 - **Related:** the **watch officer** that *drives* pause on detection is a different subsystem —
-  see [watch-attention-runtime.md](watch-attention-runtime.md). The per-step deterministic hashing
+  see [watch-attention-autopause.md](watch-attention-autopause.md). The per-step deterministic hashing
   contract is [determinism-and-replay.md](determinism-and-replay.md). What actually happens inside a
   pipeline step (detection tick 4, engagement tick 8) is
   [detection-pipeline.md](detection-pipeline.md) and [engagement-pipeline.md](engagement-pipeline.md).
@@ -143,36 +144,50 @@ public void ResumeSim() => Sim.Clock.Resume();
 public void SetTimeAccelerationFactor(int factor) => Sim.Clock.SetAccelerationFactor(factor);
 
 // Gated resume — the watch officer can refuse a resume until the queue is cleared,
-// unless the player forces it. See watch-attention-runtime.md.
+// unless the player forces it. See watch-attention-autopause.md.
 public bool TryResumeSim(bool explicitOverride = false);
 ```
 
 ### How the session applies pause & acceleration
 
-The session's tick path (`RunExecutingTick`) does **not** simply forward `Accelerated` to the
-pipeline — it interleaves order execution and engagement logging around the pipeline, so it applies
-acceleration by **replaying real-time steps itself**:
+`RunExecutingTick` is a **clock freeze**, not a full session freeze. It always calls
+`Orchestrator.Tick(state)` *before* reading `Sim.Clock.IsPaused`. That drain updates
+`ExecutedOrders` (approved / human / agent) even while paused. The pause guard then
+surfaces ROE denials and returns — it does **not** consume those orders into engagements,
+and the next tick replaces `ExecutedOrders`, so orders issued on a paused interactive tick
+can be lost. Pipeline pending engagements are not dropped (`PauseSim_does_not_strand_pending_engagements`);
+that pin is the engagement queue, not the orchestrator list.
 
-1. If `Sim.Clock.IsPaused && !headlessOverride`, it surfaces ROE denials and returns early — no clock
-   advance, no engagements queued (this is why pausing can't strand engagements).
-2. Otherwise it maps to a mode: `TickHeadless` → `HeadlessBatch`, ordinary `Tick` → `RealTime`.
-3. It runs one `Sim.TickOnce(mode)` with the tick's queued engagements, logs the results, applies the
-   catalog-damage hot tick, then runs `AccelerationFactor − 1` **extra** `Sim.TickOnce(mode)` calls to
-   consume the remaining compressed steps.
+When the clock is *not* paused (or `TickHeadless` sets `headlessOverride`):
 
-So `Tick` at `AccelerationFactor = 4` advances `SimTick` by 4 and still logs the engagement results
-from the primed step (`Tick_with_acceleration_greater_than_one_advances_multiple_SimTicks`,
+1. Mode is `TickHeadless` → `HeadlessBatch`, ordinary `Tick` → `RealTime`.
+2. One `Sim.TickOnce(mode)` runs with the tick's queued engagements, logs results, applies
+   the catalog-damage hot tick, then `AccelerationFactor − 1` **extra** `Sim.TickOnce(mode)`
+   calls consume the remaining compressed **pipeline** steps.
+
+**Acceleration equivalence is tick-runner scoped.** Factor `k` repeats only `Sim.TickOnce`.
+`Orchestrator.Tick`, engagement enqueue/logging, catalog damage, and logistics run **once**
+per session `Tick`. One factor-4 session tick is **not** four ordinary session ticks for
+those subsystems. The load-bearing `N accelerated ≡ N real-time` pin
+(`TC-CLK-3`, `Pipeline_Accelerated_matches_RealTime_hash`) applies to `ISimTickRunner`,
+not to a full `SimulationSession.Tick`.
+
+`Tick` at `AccelerationFactor = 4` therefore advances `SimTick` by 4 and still logs the
+engagement results from the primed step
+(`Tick_with_acceleration_greater_than_one_advances_multiple_SimTicks`,
 `Tick_with_acceleration_still_logs_engagement_results`).
 
 ### Interactive vs. headless entry points
 
 | Method | Mode | Honors pause? |
 |--------|------|---------------|
-| `Tick(state)` | `RealTime` | Yes — paused sessions freeze `SimTick`. |
+| `Tick(state)` | `RealTime` | Yes — paused sessions skip `Sim.TickOnce` after orchestration. |
 | `TickHeadless(state)` | `HeadlessBatch` | No — advances even when paused, preserving the pause flag and watch reason so interactive resume still works after the batch. |
 
-This split is exactly why the watch auto-pause is **replay-neutral**: the goldens and gauntlet run
-through the headless path, which ignores the interactive pause the watch officer sets.
+`TickHeadless` is the pause override. It is **not** what Baltic replay / QA use today:
+`BalticReplayHarness` calls `bridge.Tick` → interactive `Session.Tick`. After an own-side
+BDA loss auto-pauses the session, subsequent harness ticks take the paused short-circuit
+unless a host is wired to `TickHeadless`. See [watch-attention-autopause.md](watch-attention-autopause.md).
 
 ---
 
@@ -203,9 +218,12 @@ of this touches the fingerprinted decision/world hashing described in
   gate can refuse a resume with an unacknowledged pause-class card (unless the player force-overrides).
 - **`AccelerationFactor` is clamped, not validated.** Passing `0`/negative silently becomes `1`; `>256`
   becomes `256`. Don't rely on out-of-range values round-tripping.
-- **The session applies acceleration itself.** It calls `TickOnce(RealTime)` `AccelerationFactor`
-  times rather than passing `Accelerated`, so it can log engagements per outer tick. If you add work to
-  `RunExecutingTick`, keep it inside the loop only if it must run every compressed step.
+- **The session applies acceleration itself, and only on the tick runner.** It calls
+  `TickOnce(RealTime)` `AccelerationFactor` times rather than passing `Accelerated`, so it can
+  log engagements per outer tick. Do **not** treat one accelerated session tick as `k` full
+  session ticks — orchestrator / damage / logistics stay once-per-`Tick`. If you add work to
+  `RunExecutingTick`, put it inside the extra-`TickOnce` loop only if it must run every
+  compressed *pipeline* step.
 
 ---
 

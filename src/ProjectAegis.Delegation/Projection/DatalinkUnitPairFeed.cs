@@ -1,6 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.Comms;
 
 /// <summary>
 /// Builds unit-pair datalink mesh edges from friendly OOB ids + catalog links (CMD-32 feed).
@@ -62,13 +63,15 @@ public static class DatalinkUnitPairFeed
 
     /// <summary>
     /// Convenience: build mesh then project via <see cref="DatalinkPictureProjection.Project"/>.
-    /// Status is <see cref="DatalinkPictureProjection.StatusUp"/> when catalog links are non-empty
-    /// and at least one pair is produced; otherwise returns empty edges.
+    /// When <paramref name="commsSnapshot"/> is present, edge status reflects live comms projection
+    /// (Nominal→Up, Degraded→Degraded, Denied→Down). Without snapshot data, status defaults to
+    /// <see cref="DatalinkPictureProjection.StatusUp"/>. Empty mesh or catalog links yield empty edges.
     /// </summary>
     public static IReadOnlyList<DatalinkEdgeEntry> ProjectEdges(
         IReadOnlyList<string> friendlyUnitIds,
         IReadOnlyList<CatalogLinkEntry> catalogLinks,
-        string? preferredLinkId = null)
+        string? preferredLinkId = null,
+        CommsStateSnapshot? commsSnapshot = null)
     {
         var mesh = BuildMesh(friendlyUnitIds, catalogLinks, preferredLinkId);
         if (mesh.Count == 0)
@@ -79,8 +82,25 @@ public static class DatalinkUnitPairFeed
         return DatalinkPictureProjection.Project(
             mesh,
             catalogLinks,
-            status: DatalinkPictureProjection.StatusUp);
+            status: ResolveEdgeStatus(commsSnapshot));
     }
+
+    /// <summary>
+    /// Maps comms projection snapshot to datalink edge status for CMD-32 overlays.
+    /// Null snapshot falls back to <see cref="DatalinkPictureProjection.StatusUp"/>.
+    /// </summary>
+    public static string ResolveEdgeStatus(CommsStateSnapshot? commsSnapshot) =>
+        commsSnapshot is null
+            ? DatalinkPictureProjection.StatusUp
+            : MapCommsStateToEdgeStatus(commsSnapshot.State);
+
+    private static string MapCommsStateToEdgeStatus(CommsState state) =>
+        state switch
+        {
+            CommsState.Degraded => DatalinkPictureProjection.StatusDegraded,
+            CommsState.Denied => DatalinkPictureProjection.StatusDown,
+            _ => DatalinkPictureProjection.StatusUp,
+        };
 
     private static string? ResolvePrimaryLinkId(
         IReadOnlyList<CatalogLinkEntry> catalogLinks,

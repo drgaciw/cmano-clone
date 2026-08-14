@@ -159,6 +159,73 @@ The map layer resolves tactical symbols in a data-driven, atlas-optional way:
 
 ---
 
+## Datalink network overlay (CMD-32) + live comms status
+
+The tactical map draws a **friendly datalink mesh** — the network edges between own-force units —
+as a read-model overlay separate from the APP-6 symbols. Three pure types build it, all in this
+folder. (This mesh is one of three selected-unit map **content overlays**; the envelope rings and
+doctrine ROE overlay, plus how all three surface as counts on `MapPanelPresentation`, are covered in
+[`tactical-map-overlays.md`](tactical-map-overlays.md).)
+
+| Type | Produces |
+|------|----------|
+| [`DatalinkUnitPairFeed`](../../src/ProjectAegis.Delegation/Projection/DatalinkUnitPairFeed.cs) | Adjacent-pair mesh from friendly OOB ids + catalog links, then edge projection |
+| [`DatalinkPictureProjection`](../../src/ProjectAegis.Delegation/Projection/DatalinkPictureProjection.cs) | Edge rows with deterministic ordering + status normalization |
+| [`DatalinkEdgeEntry`](../../src/ProjectAegis.Delegation/Projection/DatalinkEdgeEntry.cs) | The `(FromUnitId, ToUnitId, LinkType, Status)` overlay record |
+
+### Mesh build (`BuildMesh`)
+
+`DatalinkUnitPairFeed.BuildMesh(friendlyUnitIds, catalogLinks, preferredLinkId?)` produces a simple
+**chain mesh**: unit ids are de-duped and sorted `StringComparer.Ordinal`, then adjacent pairs are
+linked (`u0→u1, u1→u2, …`). Every pair carries one **link id** resolved in priority order:
+
+1. `preferredLinkId`, when it is present in `catalogLinks`;
+2. else the first catalog link whose `LinkType == CatalogLinkTypes.Tactical`;
+3. else the first catalog link with a non-empty id.
+
+Empty units/links, or fewer than two distinct valid ids, yield an **empty mesh** — never an
+exception. (`null` `friendlyUnitIds`/`catalogLinks` do throw `ArgumentNullException`; missing rows
+do not.)
+
+### Edge projection + live comms status (`ProjectEdges`)
+
+`ProjectEdges(friendlyUnitIds, catalogLinks, preferredLinkId?, commsSnapshot?)` builds the mesh and
+folds it through `DatalinkPictureProjection.Project`, resolving each edge's `LinkType` from the
+catalog row (falling back to the raw link id) and applying one **edge status** to every edge. Edges
+are sorted `(From, To, LinkType, Status)` ordinal, so output is replay-stable.
+
+Status reflects **live comms** when a `CommsStateSnapshot` is supplied (DRG-157). The snapshot comes
+from [`CommsStateProjection.Project(log)`](../../src/ProjectAegis.Delegation/Projection/CommsStateProjection.cs)
+— the same order-log-authoritative comms state the C2 top bar uses. Agreement with the `COMMS: …`
+banner is an **API capability**, not a guarantee of the current Unity host: the overlay only
+matches the banner when the caller actually passes that snapshot. `MapPlaceholderPanelHost.ApplyOverlayCounts`
+currently calls `ProjectEdges(friendlyIds, links)` **without** a `CommsStateSnapshot`, so every map
+edge takes the null-snapshot `Up` fallback even while the top-bar banner reflects `Degraded` /
+`Denied`. Hosts that want them to agree must pass `CommsStateProjection.Project(log)` into
+`ProjectEdges`:
+
+| `CommsState` (or absent) | Edge status | Constant |
+|--------------------------|-------------|----------|
+| `Nominal` | `Up` | `DatalinkPictureProjection.StatusUp` |
+| `Degraded` | `Degraded` | `StatusDegraded` |
+| `Denied` | `Down` | `StatusDown` |
+| `null` snapshot (caller has no live comms) | `Up` (fallback) | `StatusUp` |
+
+`ResolveEdgeStatus(commsSnapshot)` is exposed publicly so a host can label an already-built mesh
+without re-projecting. The **`null` fallback preserves the pre-DRG-157 behaviour** — callers that
+don't pass a snapshot still get an all-`Up` mesh, so `commsSnapshot` is an additive, non-breaking
+optional parameter. Nothing here writes to the sim or order log: `ProjectEdges` only *reads* the
+comms snapshot the log already produced, keeping the overlay inside the read-only projection
+contract above.
+
+> **Read model, not a sim gate.** This is the *display* side of comms degradation. The gameplay
+> effects of `Degraded`/`Denied` (order delay, contact staleness, datalink *share* gating,
+> new-engagement block) run in the tick loop, not here — see
+> [comms-degradation-runtime.md](comms-degradation-runtime.md). On this overlay, comms state only
+> colours the map edges.
+
+---
+
 ## Projection catalog
 
 Grouped by the panel/surface they feed. All live in
@@ -171,6 +238,7 @@ Grouped by the panel/surface they feed. All live in
 | `ContactPictureProjection` | Active contact tracks from `ContactChange` rows; `ProjectWithBda` merges order-log BDA "Lost" rows |
 | `SensorC2Projection` | Contact picture + per-tick indicators (radar EMCON, fire-control track, active engagements) via `ISensorC2WorldIndicators` |
 | `MapPictureProjection` → `MapPanelBinder` | Tactical map symbols + ghost/frozen comms overlays |
+| `DatalinkUnitPairFeed` → `DatalinkPictureProjection` (`DatalinkEdgeEntry`) | Friendly datalink mesh overlay (CMD-32); edge status reflects a live `CommsStateProjection` snapshot **when the caller supplies it** (null snapshot → all-`Up`). The Unity `MapPlaceholderPanelHost` does not pass it yet. |
 | `App6Sidc` / `App6GlyphAtlas` / `App6AtlasCatalog` / `App6*` | APP-6/2525C glyph + SIDC + atlas resolution |
 | `ContactSummaryProjection` | Single-contact inspector line |
 | `CesiumBillboardProjection` | Cesium globe billboards (ADR-007 map path) |
