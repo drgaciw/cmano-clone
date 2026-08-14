@@ -90,7 +90,7 @@ Deep-dives into engine-agnostic subsystems, verified against source and pinned b
 
 | Doc | Covers |
 |-----|--------|
-| [local-dev-environment.md](local-dev-environment.md) | Local editor setup and troubleshooting for this workspace's shape (large .NET 8 solution + Unity), including the VS Code Linux file-watcher `ENOSPC` fix. |
+| [local-dev-environment.md](local-dev-environment.md) | Local editor setup and troubleshooting for this workspace's shape (large .NET 8 solution + Unity), including the VS Code Linux file-watcher `ENOSPC` fix and the **Unity Editor project bootstrap** (`init-unity-project.ps1` → `netstandard2.1` plugin copy + `Test-UnityPluginAssemblies.ps1`; Linux `.sh` copy-only fallback). |
 | [hindsight-agentic-dev.md](hindsight-agentic-dev.md) | Using Hindsight session memory alongside GitNexus code intelligence in the agentic dev loop. |
 | [hindsight-session-memory-sidecar.md](hindsight-session-memory-sidecar.md) | The **runtime** Hindsight sidecar (distinct from the dev loop above): how a simulation optionally streams agent decisions, session AAR, and campaign trust signals into local `agent-*` / `aar-*` / `agent-xp-*` banks — the two `DelegationOrchestrator` seams (order-log append hook + `FinalizeScenario`), `HindsightOptions`, the bank-id / decision-memory / trust-signal model, the HTTP transport, and the null-object + fire-and-forget design that keeps replay hashes untouched. |
 | [superpowers-setup.md](superpowers-setup.md) | Installing/refreshing the global [obra/superpowers](https://github.com/obra/superpowers) agent methodology (TDD, debugging, plan-driven execution). |

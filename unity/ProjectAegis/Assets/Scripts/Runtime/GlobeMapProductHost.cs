@@ -1,9 +1,13 @@
 // Product globe status chrome (ADR-007 Phase B / CMD-06 · CMD-13).
 // Pure UI Toolkit — no Cesium package dependency; safe for CI / default smoke.
 // Active only when DelegationBridgeHost.UseGlobeMap is true.
+// DRG-161: envelope rings + datalink edges bind via GlobeOverlayProjection (globe-only).
 #if UNITY_5_3_OR_NEWER
 using System;
 using System.Collections.Generic;
+using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.Comms;
+using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Projection;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -14,6 +18,7 @@ namespace ProjectAegis.Unity.Runtime
     /// Headless-backed product globe status strip for useGlobeMap scenes.
     /// Binds <see cref="GlobeMapApplyState"/> status line; works without com.cesium.unity.
     /// Theater quick-jump / bookmarks are presentation-only (no sim mutation).
+    /// DRG-161: draws projected envelope rings and datalink edges on the globe overlay layer.
     /// </summary>
     [DisallowMultipleComponent]
     [RequireComponent(typeof(UIDocument))]
@@ -22,6 +27,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string RootName = "globe-map-product-root";
         private const string StatusName = "globe-status-line";
         private const string BookmarksEmptyName = "globe-bookmarks-empty";
+        private const string OverlayLayerName = "globe-overlay-layer";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private bool showPanel = true;
@@ -30,15 +36,35 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _statusLine;
         private Label? _bookmarksEmpty;
         private VisualElement? _root;
+        private GlobeOverlayVisualLayer? _overlayLayer;
         private GlobeMapPresentation _presentation = GlobeMapPresentation.Empty;
         private GlobeViewState _viewState = GlobeViewProjection.DefaultBalticTheater();
         private bool _wired;
 
-        /// <summary>Last applied globe presentation (status + bookmarks).</summary>
+        private ulong _dirtySimTick = ulong.MaxValue;
+        private IReadOnlyList<MapSymbolEntry>? _dirtySymbolsRef;
+        private string? _dirtySelectedUnit;
+        private string? _dirtySelectedContact;
+        private CommsState? _dirtyCommsState;
+        private int _dirtyFriendlyAliveCount = -1;
+        private GlobeCameraState _lastDrawCamera;
+
+        private IReadOnlyList<CesiumBillboardMarker> _cachedMarkers =
+            Array.Empty<CesiumBillboardMarker>();
+
+        /// <summary>Last applied globe presentation (status + bookmarks + overlays).</summary>
         public GlobeMapPresentation LastPresentation => _presentation;
 
         /// <summary>Current product view state (camera / bookmarks / mode). Presentation-only.</summary>
         public GlobeViewState ViewState => _viewState;
+
+        /// <summary>Last projected WGS84 envelope ring markers (CMD-21/34).</summary>
+        public IReadOnlyList<GlobeEnvelopeRingMarker> LastEnvelopeRings { get; private set; } =
+            Array.Empty<GlobeEnvelopeRingMarker>();
+
+        /// <summary>Last projected WGS84 datalink edge markers (CMD-32).</summary>
+        public IReadOnlyList<GlobeDatalinkEdgeMarker> LastDatalinkEdges { get; private set; } =
+            Array.Empty<GlobeDatalinkEdgeMarker>();
 
         private void Awake()
         {
@@ -51,6 +77,7 @@ namespace ProjectAegis.Unity.Runtime
         {
             EnsureProgrammaticTree();
             TryWireElements();
+            ForceDataDirty();
             Refresh();
         }
 
@@ -85,7 +112,7 @@ namespace ProjectAegis.Unity.Runtime
             Refresh();
         }
 
-        /// <summary>Force refresh from current bridge map symbols + view state.</summary>
+        /// <summary>Force refresh from current bridge map symbols + view state + overlays.</summary>
         public void Refresh()
         {
             if (bridgeHost != null && !bridgeHost.UseGlobeMap)
@@ -93,6 +120,11 @@ namespace ProjectAegis.Unity.Runtime
                 if (_root != null)
                 {
                     _root.style.display = DisplayStyle.None;
+                }
+
+                if (_overlayLayer != null)
+                {
+                    _overlayLayer.style.display = DisplayStyle.None;
                 }
 
                 return;
@@ -103,15 +135,102 @@ namespace ProjectAegis.Unity.Runtime
                 _root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
             }
 
+            if (_overlayLayer != null)
+            {
+                _overlayLayer.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+
+            SyncLiveCamera();
+            var cameraChanged = !CameraStateEquals(_viewState.Camera, _lastDrawCamera);
+
+            if (IsDataDirty())
+            {
+                RebuildCachedGeometry();
+                ApplyChromeFromCache();
+                CaptureDirtyState();
+                _overlayLayer?.Bind(_viewState.Camera, LastEnvelopeRings, LastDatalinkEdges);
+                _lastDrawCamera = _viewState.Camera;
+            }
+            else if (cameraChanged)
+            {
+                _overlayLayer?.BindCamera(_viewState.Camera);
+                _lastDrawCamera = _viewState.Camera;
+            }
+        }
+
+        private void SyncLiveCamera()
+        {
+            if (!GlobeLiveCameraSync.TryReadLiveCamera(out var liveCamera))
+            {
+                return;
+            }
+
+            _viewState = _viewState with { Camera = liveCamera };
+        }
+
+        private bool IsDataDirty()
+        {
+            if (bridgeHost == null)
+            {
+                return false;
+            }
+
+            var comms = bridgeHost.LastCommsState?.State;
+            return bridgeHost.CurrentSimTick != _dirtySimTick
+                   || !ReferenceEquals(bridgeHost.LastMapSymbols, _dirtySymbolsRef)
+                   || bridgeHost.SelectedUnitId != _dirtySelectedUnit
+                   || bridgeHost.SelectedContactId != _dirtySelectedContact
+                   || comms != _dirtyCommsState
+                   || CountAliveFriendlyUnitIds(bridgeHost.LastOobTree).Count != _dirtyFriendlyAliveCount;
+        }
+
+        private void CaptureDirtyState()
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            _dirtySimTick = bridgeHost.CurrentSimTick;
+            _dirtySymbolsRef = bridgeHost.LastMapSymbols;
+            _dirtySelectedUnit = bridgeHost.SelectedUnitId;
+            _dirtySelectedContact = bridgeHost.SelectedContactId;
+            _dirtyCommsState = bridgeHost.LastCommsState?.State;
+            _dirtyFriendlyAliveCount = CountAliveFriendlyUnitIds(bridgeHost.LastOobTree).Count;
+        }
+
+        private void ForceDataDirty()
+        {
+            _dirtySimTick = ulong.MaxValue;
+            _dirtySymbolsRef = null;
+            _dirtySelectedUnit = null;
+            _dirtySelectedContact = null;
+            _dirtyCommsState = null;
+            _dirtyFriendlyAliveCount = -1;
+        }
+
+        private void RebuildCachedGeometry()
+        {
             IReadOnlyList<MapSymbolEntry> symbols =
                 bridgeHost?.LastMapSymbols ?? Array.Empty<MapSymbolEntry>();
 
-            IReadOnlyList<CesiumBillboardMarker> markers = symbols.Count > 0
+            _cachedMarkers = symbols.Count > 0
                 ? CesiumBillboardProjection.ProjectWithCamera(symbols, _viewState.Camera)
                 : CesiumBillboardProjection.ProjectDemoPair();
 
-            _presentation = GlobeMapApplyState.Apply(_viewState, markers);
+            var (ringEntries, edgeEntries) = ProjectOverlayEntries(symbols);
+            LastEnvelopeRings = GlobeOverlayProjection.ProjectRings(ringEntries, symbols);
+            LastDatalinkEdges = GlobeOverlayProjection.ProjectEdges(edgeEntries, symbols);
 
+            _presentation = GlobeMapApplyState.Apply(
+                _viewState,
+                _cachedMarkers,
+                LastEnvelopeRings,
+                LastDatalinkEdges);
+        }
+
+        private void ApplyChromeFromCache()
+        {
             if (_statusLine != null)
             {
                 _statusLine.text = _presentation.StatusLine;
@@ -127,6 +246,63 @@ namespace ProjectAegis.Unity.Runtime
             }
         }
 
+        private (IReadOnlyList<EnvelopeRingEntry> Rings, IReadOnlyList<DatalinkEdgeEntry> Edges)
+            ProjectOverlayEntries(IReadOnlyList<MapSymbolEntry> symbols)
+        {
+            var catalog = bridgeHost?.CatalogReader;
+            var selectedUnitId = bridgeHost?.SelectedUnitId;
+            var (sensorNm, weaponNm) = CatalogEnvelopeRangeResolver.ResolveSelectedUnitRanges(
+                catalog,
+                selectedUnitId,
+                CatalogWeaponIds.MvpDefault);
+
+            var rings = TacticalOverlayProjection.ProjectSelectedUnitEnvelopes(
+                selectedUnitId,
+                sensorNm,
+                weaponNm);
+
+            IReadOnlyList<DatalinkEdgeEntry> edges = Array.Empty<DatalinkEdgeEntry>();
+            if (catalog is not null)
+            {
+                var friendlyIds = CountAliveFriendlyUnitIds(bridgeHost?.LastOobTree);
+                var links = catalog.GetSortedLinks() ?? Array.Empty<CatalogLinkEntry>();
+                edges = DatalinkUnitPairFeed.ProjectEdges(
+                    friendlyIds,
+                    links,
+                    commsSnapshot: bridgeHost?.LastCommsState);
+            }
+
+            return (rings, edges);
+        }
+
+        private static List<string> CountAliveFriendlyUnitIds(IReadOnlyList<OobTreeEntry>? oob)
+        {
+            if (oob is null || oob.Count == 0)
+            {
+                return new List<string>();
+            }
+
+            var ids = new List<string>(oob.Count);
+            foreach (var entry in oob)
+            {
+                if (entry is null || !entry.IsAlive || string.IsNullOrWhiteSpace(entry.UnitId))
+                {
+                    continue;
+                }
+
+                ids.Add(entry.UnitId);
+            }
+
+            return ids;
+        }
+
+        private static bool CameraStateEquals(GlobeCameraState a, GlobeCameraState b) =>
+            Math.Abs(a.Latitude - b.Latitude) < 1e-9
+            && Math.Abs(a.Longitude - b.Longitude) < 1e-9
+            && Math.Abs(a.AltitudeMeters - b.AltitudeMeters) < 1e-3
+            && Math.Abs(a.HeadingDeg - b.HeadingDeg) < 1e-6
+            && Math.Abs(a.PitchDeg - b.PitchDeg) < 1e-6;
+
         private void EnsureProgrammaticTree()
         {
             if (_document == null)
@@ -140,6 +316,8 @@ namespace ProjectAegis.Unity.Runtime
             {
                 return;
             }
+
+            EnsureOverlayLayer(root);
 
             var panel = root.Q<VisualElement>(RootName);
             if (panel != null)
@@ -170,6 +348,18 @@ namespace ProjectAegis.Unity.Runtime
             root.Add(panel);
         }
 
+        private void EnsureOverlayLayer(VisualElement root)
+        {
+            _overlayLayer = root.Q<GlobeOverlayVisualLayer>(OverlayLayerName);
+            if (_overlayLayer != null)
+            {
+                return;
+            }
+
+            _overlayLayer = new GlobeOverlayVisualLayer { name = OverlayLayerName };
+            root.Insert(0, _overlayLayer);
+        }
+
         private void TryWireElements()
         {
             var root = _document.rootVisualElement;
@@ -178,10 +368,11 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
+            EnsureOverlayLayer(root);
             _root = root.Q<VisualElement>(RootName);
             _statusLine = root.Q<Label>(StatusName);
             _bookmarksEmpty = root.Q<Label>(BookmarksEmptyName);
-            _wired = _root != null && _statusLine != null;
+            _wired = _root != null && _statusLine != null && _overlayLayer != null;
         }
     }
 }
