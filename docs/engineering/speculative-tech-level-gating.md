@@ -10,8 +10,12 @@
 The subsystem lives in [`ProjectAegis.Sim/Scenario/`](../../src/ProjectAegis.Sim/Scenario/) (+ one enum in
 `Sim/Doctrine/`) and is the **speculative abort** in the engage chain documented by
 [engagement-pipeline.md](engagement-pipeline.md): `MvpEngagementResolver.Resolve` runs shooter/target
-liveness first, then fire-control track lookup, **then** `SpeculativeEngageGate.Evaluate`, then
-policy/ROE. The gate can only ever **abort** — it never mutates state or consumes rounds.
+liveness first, then `_world.TryGetContext` (missing context → `NoFireControlTrack`), **then**
+`SpeculativeEngageGate.Evaluate`, then policy/ROE. A context whose `HasFireControlTrack` is
+**false** still runs the speculative gate — an over-cap weapon returns `TechnologyLevelExceeded`,
+not `NoFireControlTrack`. Usable fire-control (`CecRemoteEngageGate.HasUsableFireControl`) is
+checked **later**. The speculative gate can only ever **abort** — it never mutates state or consumes
+rounds.
 
 | Piece | Role |
 |-------|------|
@@ -48,9 +52,11 @@ if (speculativeAbort != null)
     return EngageResult.Aborted(speculativeAbort.Value);
 ```
 
-placed immediately after the fire-control-track lookup and ahead of the ROE/domain/readiness/magazine/
-envelope/DLZ chain — a dead shooter or a missing track still short-circuits first, and no rounds are
-consumed on a speculative abort.
+placed immediately after `TryGetContext` and ahead of the ROE/domain/readiness/magazine/envelope/DLZ
+chain. A **dead shooter/target** or a **missing context** still short-circuits first. A present
+context with `HasFireControlTrack == false` does **not** skip speculative gating — the later
+`HasUsableFireControl` check is what emits `NoFireControlTrack` / `CecRemoteTrackUnavailable` when
+the TL/black-project checks pass. No rounds are consumed on a speculative abort.
 
 ## Where the context values come from
 

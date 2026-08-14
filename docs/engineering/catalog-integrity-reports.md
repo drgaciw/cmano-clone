@@ -41,7 +41,10 @@ All four verbs share the same design (DBI-4.5):
 - **Deterministic + hashed.** Rows are sorted with **ordinal** comparers and (for the kill-chain and
   link reports) folded into a SHA-256 **content hash** over canonical `|`-delimited lines, so a clean
   Baltic catalog produces a stable hash suitable for CI goldens.
-- **JSON output.** Indented, camelCase, `{ ok: true, verb: …, … }`; exit code `0`.
+- **JSON output.** Indented, camelCase, exit code `0`. The three DB-backed reports emit
+  `{ ok: true, verb: "<name>", … }`. **`catalog_entity_map` is the exception:**
+  `CatalogEntityMapCommand.Run` serializes only `{ ok: true, entities }` — no `verb`, no
+  `databasePath`, no content hash. Do not key a client on a shared `verb` discriminator.
 
 ---
 
@@ -132,7 +135,9 @@ The verb prints the rows sorted by `EntityName`.
 - **New kill-chain rule:** add an `Evaluate*` step in `KillChainRules` with a `KILL_CHAIN_*` code;
   use `error` severity if it should also become a `KillChainCommitGate` blocker, and re-pin the
   golden hashes.
-- **New entity/table:** add a row to `CatalogEntityMap.All` with a deterministic `OrderBy` (the
-  reader and importers rely on it for reproducibility).
+- **New entity/table:** add a row to `CatalogEntityMap.All` with a deterministic `OrderBy`. That
+  registry is **inspection metadata** for `catalog_entity_map` / `TryGetTable` / tests only —
+  SQLite readers and importers keep their own table maps. Adding a registry row does **not**
+  teach a reader to load the table; wire the reader/importer separately.
 - Keep every report **read-only and ordinal-deterministic** — these are curator/CI inspection tools,
   not a write surface.
