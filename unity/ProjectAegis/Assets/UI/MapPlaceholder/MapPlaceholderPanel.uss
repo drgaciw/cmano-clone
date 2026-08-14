@@ -59,6 +59,46 @@
     position: relative;
 }
 
+.map-overlay-layer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    picking-mode: ignore;
+}
+
+.map-overlay-ring {
+    position: absolute;
+    border-width: 1px;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.map-overlay-ring--sensor {
+    border-color: rgba(74, 158, 255, 0.55);
+}
+
+.map-overlay-ring--weapon {
+    border-color: rgba(232, 93, 93, 0.55);
+}
+
+.map-overlay-edge {
+    position: absolute;
+    height: 2px;
+}
+
+.map-overlay-edge--up {
+    background-color: rgba(74, 200, 120, 0.75);
+}
+
+.map-overlay-edge--degraded {
+    background-color: rgba(230, 200, 80, 0.75);
+}
+
+.map-overlay-edge--down {
+    background-color: rgba(140, 155, 170, 0.45);
+}
+
 .map-symbol {
     position: absolute;
     font-size: 14px;

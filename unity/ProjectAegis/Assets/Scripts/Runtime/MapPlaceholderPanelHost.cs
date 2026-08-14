@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
@@ -63,6 +64,7 @@ namespace ProjectAegis.Unity.Runtime
         private bool _wired;
 
         private MapSymbolPool? _symbolPool;
+        private MapCanvasOverlayRenderer? _overlayRenderer;
         private bool _refreshedOnce;
         private IReadOnlyList<MapSymbolEntry>? _dirtySymbolsRef;
         private string? _dirtySelectedUnit;
@@ -70,6 +72,7 @@ namespace ProjectAegis.Unity.Runtime
         private SimulationPhase _dirtyPhase;
         private bool _dirtyShowPanel;
         private int _dirtyLayerVisibleCount = -1;
+        private CommsState _dirtyCommsState = CommsState.Nominal;
 
         private IC2PresentationFeed? PresentationFeed => bridgeHost;
 
@@ -155,6 +158,7 @@ namespace ProjectAegis.Unity.Runtime
             if (!ReferenceEquals(canvas, _canvas))
             {
                 _canvas = canvas;
+                _overlayRenderer = _canvas != null ? new MapCanvasOverlayRenderer(_canvas) : null;
                 _symbolPool = _canvas != null ? new MapSymbolPool(_canvas) : null;
                 _refreshedOnce = false;
             }
@@ -195,7 +199,7 @@ namespace ProjectAegis.Unity.Runtime
                 atlas);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
             _symbolPool!.Sync(_panelState.Symbols, OnSymbolClicked);
-            ApplyOverlayCounts();
+            ApplyOverlayCounts(comms);
             ApplyLayerStackHud();
             ApplyPlanningChrome();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
@@ -204,15 +208,17 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>
         /// Projects selected-unit envelope rings (catalog ranges), datalink unit-pair edges,
-        /// and doctrine map overlay rows; surfaces overlay counts (CMD-21/32/33/34).
+        /// and doctrine map overlay rows; surfaces overlay counts (CMD-21/32/33/34) and
+        /// draws rings/edges on the map canvas (DRG-160).
         /// </summary>
-        private void ApplyOverlayCounts()
+        private void ApplyOverlayCounts(CommsStateSnapshot commsSnapshot)
         {
             var catalog = bridgeHost != null ? bridgeHost.CatalogReader : null;
             var selectedUnitId = PresentationFeed?.SelectedUnitId;
+            var catalogPlatformId = MapEnvelopePlatformResolver.Resolve(catalog, selectedUnitId);
             var (sensorNm, weaponNm) = CatalogEnvelopeRangeResolver.ResolveSelectedUnitRanges(
                 catalog,
-                selectedUnitId,
+                catalogPlatformId,
                 CatalogWeaponIds.MvpDefault);
 
             var rings = TacticalOverlayProjection.ProjectSelectedUnitEnvelopes(
@@ -225,7 +231,7 @@ namespace ProjectAegis.Unity.Runtime
             {
                 var friendlyIds = CollectAliveFriendlyUnitIds(PresentationFeed?.LastOobTree);
                 var links = catalog.GetSortedLinks() ?? Array.Empty<CatalogLinkEntry>();
-                edges = DatalinkUnitPairFeed.ProjectEdges(friendlyIds, links);
+                edges = DatalinkUnitPairFeed.ProjectEdges(friendlyIds, links, commsSnapshot: commsSnapshot);
             }
 
             var doctrineOverlay = ProjectDoctrineOverlay();
@@ -248,6 +254,26 @@ namespace ProjectAegis.Unity.Runtime
             {
                 _doctrineOverlayCountLabel.text = $"DOCTRINE: {LastDoctrineOverlayCount}";
             }
+
+            ApplyCanvasOverlays(rings, edges);
+        }
+
+        /// <summary>
+        /// Binds projected ring/edge geometry onto the map canvas overlay layer (DRG-160).
+        /// </summary>
+        private void ApplyCanvasOverlays(
+            IReadOnlyList<EnvelopeRingEntry> rings,
+            IReadOnlyList<DatalinkEdgeEntry> edges)
+        {
+            if (_overlayRenderer == null)
+            {
+                return;
+            }
+
+            var positions = MapCanvasOverlayGeometry.BuildUnitPositionIndex(_panelState.Symbols);
+            var ringShapes = MapCanvasOverlayGeometry.ProjectRings(rings, positions);
+            var edgeShapes = MapCanvasOverlayGeometry.ProjectEdges(edges, positions);
+            _overlayRenderer.Sync(ringShapes, edgeShapes);
         }
 
         /// <summary>
@@ -357,8 +383,12 @@ namespace ProjectAegis.Unity.Runtime
                 || feed.SelectedContactId != _dirtySelectedContact
                 || bridgeHost.Phase != _dirtyPhase
                 || showPanel != _dirtyShowPanel
-                || _layerStack.VisibleCount != _dirtyLayerVisibleCount;
+                || _layerStack.VisibleCount != _dirtyLayerVisibleCount
+                || ProjectCommsSnapshot().State != _dirtyCommsState;
         }
+
+        private CommsStateSnapshot ProjectCommsSnapshot() =>
+            CommsStateProjection.Project(bridgeHost.Bridge.Orchestrator.DecisionLog);
 
         private void CaptureDirtyState()
         {
@@ -369,6 +399,7 @@ namespace ProjectAegis.Unity.Runtime
             _dirtyPhase = bridgeHost.Phase;
             _dirtyShowPanel = showPanel;
             _dirtyLayerVisibleCount = _layerStack.VisibleCount;
+            _dirtyCommsState = ProjectCommsSnapshot().State;
             _refreshedOnce = true;
         }
 
