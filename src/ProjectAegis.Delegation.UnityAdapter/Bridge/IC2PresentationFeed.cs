@@ -20,6 +20,9 @@ public interface IC2PresentationFeed
 
     C2TopBarState LastTopBar { get; }
 
+    /// <summary>Projected comms snapshot from the last host refresh (CMD-32 / Wave 2).</summary>
+    CommsStateSnapshot? LastCommsState { get; }
+
     UnitDetailEntry? LastUnitDetail { get; }
 
     void SelectUnit(string unitId);

@@ -42,6 +42,13 @@ namespace ProjectAegis.Unity.Runtime
             MarkDirtyRepaint();
         }
 
+        /// <summary>Camera-only update — skips geometry rebind when sim data unchanged.</summary>
+        public void BindCamera(GlobeCameraState camera)
+        {
+            _camera = camera ?? throw new System.ArgumentNullException(nameof(camera));
+            MarkDirtyRepaint();
+        }
+
         private void OnGenerateVisualContent(MeshGenerationContext context)
         {
             var painter = context.painter2D;
@@ -64,8 +71,20 @@ namespace ProjectAegis.Unity.Runtime
                     continue;
                 }
 
-                var from = GlobeOverlayScreenProjection.Project(edge.FromLatitude, edge.FromLongitude, _camera);
-                var to = GlobeOverlayScreenProjection.Project(edge.ToLatitude, edge.ToLongitude, _camera);
+                if (!GlobeOverlayScreenProjection.TryProject(
+                        edge.FromLatitude,
+                        edge.FromLongitude,
+                        _camera,
+                        out var from)
+                    || !GlobeOverlayScreenProjection.TryProject(
+                        edge.ToLatitude,
+                        edge.ToLongitude,
+                        _camera,
+                        out var to))
+                {
+                    continue;
+                }
+
                 painter.strokeColor = ResolveEdgeColor(edge.Status);
                 painter.lineWidth = 2f;
                 painter.BeginPath();
@@ -81,22 +100,47 @@ namespace ProjectAegis.Unity.Runtime
                     continue;
                 }
 
-                var projected = GlobeOverlayScreenProjection.ProjectPolyline(ring.Polyline, _camera);
-                if (projected.Count < 2)
+                DrawPolyline(painter, ring.Polyline, width, height, ring.RingKind, ring.IsSelectedUnit);
+            }
+        }
+
+        private void DrawPolyline(
+            Painter2D painter,
+            IReadOnlyList<(double Latitude, double Longitude)> polyline,
+            float width,
+            float height,
+            string ringKind,
+            bool isSelectedUnit)
+        {
+            var started = false;
+            foreach (var vertex in polyline)
+            {
+                if (!GlobeOverlayScreenProjection.TryProject(
+                        vertex.Latitude,
+                        vertex.Longitude,
+                        _camera,
+                        out var point))
                 {
+                    started = false;
                     continue;
                 }
 
-                painter.strokeColor = ResolveRingColor(ring.RingKind);
-                painter.lineWidth = ring.IsSelectedUnit ? 2.5f : 1.5f;
-                painter.BeginPath();
-                var first = ToLocal(projected[0], width, height);
-                painter.MoveTo(first);
-                for (var i = 1; i < projected.Count; i++)
+                var local = ToLocal(point, width, height);
+                if (!started)
                 {
-                    painter.LineTo(ToLocal(projected[i], width, height));
+                    painter.strokeColor = ResolveRingColor(ringKind);
+                    painter.lineWidth = isSelectedUnit ? 2.5f : 1.5f;
+                    painter.BeginPath();
+                    painter.MoveTo(local);
+                    started = true;
+                    continue;
                 }
 
+                painter.LineTo(local);
+            }
+
+            if (started)
+            {
                 painter.Stroke();
             }
         }
