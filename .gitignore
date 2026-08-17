@@ -39,14 +39,61 @@ production/session-logs/
 #Adobe Acrobat DC
 *.pdf
 
+# PROPOSED CHANGE (not enacted — decide and edit by hand):
+#   `*.pdf` above is repo-wide and silently swallows legitimate PDF deliverables
+#   (design docs, manual renders, vendor datasheets). Nothing warns you; `git add`
+#   just no-ops. Scope it to the directory that actually needed it, e.g.:
+#       # /*.pdf                      # root-only Acrobat scratch
+#       # docs/manual/_export/*.pdf   # generated manual renders
+#   To find what the rule was hiding before you narrow it:
+#       git ls-files -- '*.pdf'                   # already-tracked (unaffected by ignore)
+#       git ls-files -o -i --exclude-standard -- '*.pdf'   # untracked+ignored, ALL depths
+#   Use `ls-files -o -i`, NOT `git status --ignored --porcelain`: status defaults to
+#   --ignored=traditional -unormal, which collapses a wholly-ignored directory to a
+#   single `!! dir/` entry. PDFs under scratch/, docs/, node_modules/ or .worktrees/
+#   would never be listed, so the enumeration under-reports and you would conclude
+#   the broad rule hides nothing. (Verified: 1 of 3 ignored PDFs shown vs 3 of 3.)
+#   Leaving the broad rule in place is a data-loss-by-omission risk, not just noise.
+
 # CMO manual — rendered page images (large, regenerable via docs/manual/generate.py)
 docs/manual/assets/images/
+
+# PostScript / EPS exports (ImageMagick + Ghostscript intermediates; multi-MB,
+# regenerable). Covers correctly-named future exports.
+# Note 1: `*.ps` does NOT match `*.ps1` — tools/*.ps1 stay tracked.
+# Note 2: the current 13.6 MB offender at repo root is named `re` (no extension),
+#         so these patterns do NOT catch it. unity-housekeeping.sh quarantines it.
+#         No extensionless root rule is added — too easy to hide real files.
+*.ps
+*.eps
+
+# Mono runtime crash dumps (~10 MB each; written next to the working dir on
+# Editor/player crashes. Regenerated on demand — never commit.)
+# `mono_crash.*` already matches the 17 real offenders (mono_crash.mem.<pid>.blob).
+# A bare `*.blob` is deliberately NOT added: it is redundant here and would
+# silently mask any legitimately-tracked .blob asset added later — the same
+# masking risk this file rejects for `*_snapshot.cs`, `*.patch` and extensionless
+# root files.
+mono_crash.*
 
 # CMO DB crawler raw data
 tools/cmano-db-crawler/_raw/
 
 # Ephemeral nightly approve/import scratch (regenerable; may exceed GitHub 100MB limit)
 scratch/
+
+# Housekeeping quarantine — unity-housekeeping.sh moves ambiguous files here
+# instead of deleting them. Contents are pending human review, never product.
+# (Script lives at the repo root per UPGRADE-RUNBOOK.md; it self-locates with
+# `git rev-parse --show-toplevel`, so it works from anywhere. CHANGESET.md says
+# tools/ — reconcile the two before landing.)
+_to_delete/
+
+# NOTE: repo-root debug leftovers (panel_base_snapshot.cs, panel_head_snapshot.cs,
+# pre_cesium_bridge.cs, panel_full_diff.patch) are deliberately NOT ignored.
+# unity-housekeeping.sh quarantines them into _to_delete/, which clears git status
+# without a rule. A `*_snapshot.cs` / `*.patch` ignore would mask the next
+# accidental commit of a real source file, so no rule is added here.
 
 # Local editor / tool configs
 .kilo/
@@ -86,6 +133,19 @@ node_modules/
 # Agent worktrees (superpowers dispatching)
 .worktrees/
 worktrees/
+
+# PROPOSED CHANGE (not enacted — decide and edit by hand):
+#   `.worktrees/` is declared three times (under "Superpowers parallel sprint
+#   worktrees", "Unity Hub / smoke setup logs", and "Agent worktrees") plus a
+#   separate `worktrees/`. Harmless to git, but it means three owners think they
+#   own the rule and none of the comments is authoritative. Suggested collapse:
+#   keep ONE block here —
+#       # Git worktrees for parallel sprints (Superpowers + agent dispatch, local only)
+#       .worktrees/
+#       worktrees/
+#   — and delete the copies at the two sections named above. Confirm `worktrees/`
+#   is still in use (`ls -d worktrees .worktrees` on the host) before keeping it;
+#   if it is dead, drop that line too rather than carrying both spellings.
 
 # Transient skill/agent tooling caches (not source)
 .atl/
