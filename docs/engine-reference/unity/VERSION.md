@@ -3,8 +3,8 @@
 | Field | Value |
 |-------|-------|
 | **Engine** | Unity 6 |
-| **Editor Version** | **6000.3.14f1** (Unity 6.3 LTS) |
-| **Project Pinned** | 2026-05-29 |
+| **Editor Version** | **6000.3.22f1** (Unity 6.3 LTS, revision `1c726e1fb402`) |
+| **Project Pinned** | 2026-08-17 |
 | **LTS Support Until** | December 2027 (Unity 6.3 LTS) |
 | **LLM Knowledge Cutoff** | May 2025 |
 | **Risk Level** | **MEDIUM** — Unity 6.3 LTS post-dates cutoff; use this doc + official 6000.3 manuals |
@@ -53,4 +53,4 @@ Pinned in `unity/ProjectAegis/Packages/manifest.json` (cite [`Tech-Stack.md`](..
 - [Unity Integration Review (2026-07-07)](../../reports/unity-integration-review-2026-07-07.md) — DOTS reversal rationale
 - Project invariants: [`unity/ProjectAegis/.claude/README.md`](../../unity/ProjectAegis/.claude/README.md)
 
-**Last verified:** 2026-07-09 (merge `main` into PR #238 — package table matches manifest; ADR-005 managed-sim)
+**Last verified:** 2026-08-17 (Editor 6000.3.22f1 batchmode open clean; package table still matches current manifest — Addressables/Burst bumps are Task 14)
