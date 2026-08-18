@@ -1,0 +1,37 @@
+{
+  "tier": "tier-1",
+  "pass": true,
+  "oracles": {
+    "stability": {
+      "status": "pass",
+      "evidence": []
+    },
+    "determinism": {
+      "status": "pass",
+      "evidence": []
+    },
+    "victory_roe": {
+      "status": "pass",
+      "evidence": []
+    },
+    "roving_observe": {
+      "status": "warn",
+      "evidence": [
+        "roving gauntlet-t1-patrol-a: row[3] scenario=gauntlet-t1-patrol-a seed=43904: kills 0 < min 1",
+        "roving gauntlet-t1-patrol-a: row[3] scenario=gauntlet-t1-patrol-a seed=43904: score -30 < min 50",
+        "roving gauntlet-t1-patrol-b: row[3] scenario=gauntlet-t1-patrol-b seed=43904: kills 0 < min 1",
+        "roving gauntlet-t1-patrol-b: row[3] scenario=gauntlet-t1-patrol-b seed=43904: score 0 < min 80",
+        "roving gauntlet-t1-patrol-c: row[3] scenario=gauntlet-t1-patrol-c seed=43904: kills 0 < min 1",
+        "roving gauntlet-t1-patrol-c: row[3] scenario=gauntlet-t1-patrol-c seed=43904: score -30 < min 50"
+      ]
+    },
+    "sanity": {
+      "status": "pass",
+      "evidence": []
+    },
+    "goldens": {
+      "status": "pass",
+      "evidence": []
+    }
+  }
+}

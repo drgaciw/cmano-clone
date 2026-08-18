@@ -61,3 +61,9 @@ Disjoint impact only; worktrees under `.worktrees/`; **serial merge** + re-verif
 - Edit locked eval or DelegationBridge for convenience.
 - Fix without failing test (`sim-code`).
 - Skip UCA/pr-finish on presentation Surfaces.
+
+## See also
+
+- `/qa-gauntlet-ui` — proactive UI Smoke/Pressure gates; failures dispatch here.
+- `/team-qa-gauntlet --mode ui` — team entry for the UI track.
+- `/team-qa` — manual UAT (not remediation).

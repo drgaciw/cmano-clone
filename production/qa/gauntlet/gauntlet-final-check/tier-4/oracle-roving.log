@@ -1,0 +1,45 @@
+{
+  "ok": false,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t4-asymm-roe",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t4-asymm-roe seed=69363: kills 0 \u003C min 1",
+        "row[3] scenario=gauntlet-t4-asymm-roe seed=69363: score -120 \u003C min -70"
+      ],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t4-multi-mission",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t4-multi-mission seed=69363: kills 0 \u003C min 1",
+        "row[3] scenario=gauntlet-t4-multi-mission seed=69363: score -120 \u003C min -70",
+        "row[4] scenario=gauntlet-t4-multi-mission seed=36849: kills 0 \u003C min 1",
+        "row[4] scenario=gauntlet-t4-multi-mission seed=36849: score -120 \u003C min -70"
+      ],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t4-random-inject",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t4-weighted",
+      "passed": false,
+      "failures": [
+        "row[4] scenario=gauntlet-t4-weighted seed=36849: kills 0 \u003C min 1",
+        "row[4] scenario=gauntlet-t4-weighted seed=36849: score -120 \u003C min -70"
+      ],
+      "warnings": [],
+      "rows": 5
+    }
+  ],
+  "allPassed": false
+}

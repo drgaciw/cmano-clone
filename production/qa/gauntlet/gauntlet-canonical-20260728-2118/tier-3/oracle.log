@@ -1,0 +1,43 @@
+{
+  "ok": false,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t3-emcon-phases",
+      "passed": true,
+      "failures": [],
+      "warnings": [
+        "gauntlet.emcon: legacy stand-in key ignored by the engine \u2014 real EMCON is the top-level \u0022emcon\u0022 block (BUG-gauntlet-emcon-dimension-not-exercised)"
+      ],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t3-escort-strike",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t3-escort-strike seed=99948: kills 0 \u003C min 1",
+        "row[3] scenario=gauntlet-t3-escort-strike seed=99948: score -80 \u003C min -30",
+        "gauntlet.subPool: unknown key (silently ignored by the engine). Allowed: catalogRefs, expect, expectCi, intent, oracle, runId, tier, units",
+        "gauntlet.airPool: unknown key (silently ignored by the engine). Allowed: catalogRefs, expect, expectCi, intent, oracle, runId, tier, units"
+      ],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t3-event-chain",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t3-event-chain seed=99948: missilesFired 12 \u003E max 11"
+      ],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t3-id-roe",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 5
+    }
+  ],
+  "allPassed": false
+}

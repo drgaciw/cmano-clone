@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-joint-orbat-smoke",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-multidomain-shooters",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 3
+    }
+  ],
+  "allPassed": true
+}

@@ -1,0 +1,49 @@
+{
+  "ok": false,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t2-escort-a",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t2-escort-passive",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t2-escort-passive seed=99948: kills 0 \u003C min 1",
+        "row[3] scenario=gauntlet-t2-escort-passive seed=99948: score -50 \u003C min 30",
+        "row[4] scenario=gauntlet-t2-escort-passive seed=78493: kills 0 \u003C min 1",
+        "row[4] scenario=gauntlet-t2-escort-passive seed=78493: score -50 \u003C min 30"
+      ],
+      "warnings": [
+        "gauntlet.emcon: legacy stand-in key ignored by the engine \u2014 real EMCON is the top-level \u0022emcon\u0022 block (BUG-gauntlet-emcon-dimension-not-exercised)"
+      ],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t2-strike-a",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t2-strike-a seed=99948: kills 0 \u003C min 1",
+        "row[3] scenario=gauntlet-t2-strike-a seed=99948: score -50 \u003C min 30",
+        "gauntlet.airPool: unknown key (silently ignored by the engine). Allowed: catalogRefs, expect, expectCi, intent, oracle, runId, tier, units"
+      ],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t2-strike-event",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t2-strike-event seed=99948: kills 0 \u003C min 1",
+        "row[3] scenario=gauntlet-t2-strike-event seed=99948: missilesFired 4 \u003E max 3",
+        "row[3] scenario=gauntlet-t2-strike-event seed=99948: score -50 \u003C min 30"
+      ],
+      "warnings": [],
+      "rows": 5
+    }
+  ],
+  "allPassed": false
+}

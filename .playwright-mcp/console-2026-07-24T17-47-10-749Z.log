@@ -1,0 +1,60 @@
+[    1172ms] [INFO] Resource Sentinel initialized... @ https://app.notion.com/p/362f7cb4e4df80e0a587eb0ae15d5c9c:0
+[    1886ms] [INFO] 2026-07-24T17:47:12.634Z [info] PageLoader: loserAborted {data: Object} @ https://app.notion.com/_assets/app-9695fa4571934cb2.js:6
+[    2005ms] [INFO] 2026-07-24T17:47:12.753Z [info] FeatureFlagTransactionQueue: preferIndexedDB {team: no-team-specified} @ https://app.notion.com/_assets/app-9695fa4571934cb2.js:6
+[    2058ms] [WARNING]   WARN  [Statsig] Creating multiple Statsig clients with the same SDK key can lead to unexpected behavior. Multi-instance support requires different SDK keys. @ https://app.notion.com/_assets/58544-7a149608a7691576.js:0
+[    2098ms] [INFO] 2026-07-24T17:47:12.846Z [info] appHelpers: shouldShowError {data: Object} @ https://app.notion.com/_assets/app-9695fa4571934cb2.js:6
+[    2106ms] [INFO] 2026-07-24T17:47:12.854Z [info] appHelpers: shouldShowError {data: Object} @ https://app.notion.com/_assets/app-9695fa4571934cb2.js:6
+[    2123ms] [LOG] %c
+	nnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+	nnnn                         nnnn
+	nnnnnnn                          nnnn
+	nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+	nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+	nnnnnnnn                           nnn
+	nnnnnnnn    nnnnnnnn     nnnnnnn   nnn
+	nnnnnnnn      nnnnnnn      nnn     nnn
+	nnnnnnnn      nnnnnnnn     nnn     nnn
+	nnnnnnnn      nnnnnnnnnn   nnn     nnn
+	nnnnnnnn      nnn nnnnnnn  nnn     nnn
+	nnnnnnnn      nnn  nnnnnnnnnnn     nnn
+	nnnnnnnn      nnn   nnnnnnnnnn     nnn
+	nnnnnnnn      nnn     nnnnnnnn     nnn
+	nnnnnnnn      nnn      nnnnnnn     nnn
+	nnnnnnnn    nnnnnnnn    nnnnnn     nnn
+	  nnnnnn                           nnn
+		nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn		We're hiring!
+		  nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn		notion.so/careers
+
+	“yeah, I would probably eat a lemon for one hundred dollars” -- Ivan Zhao (2023-07-14)
+				  font-family: monospace @ https://app.notion.com/_assets/mainApp-a1b027b2b876139d.js:37
+[    2317ms] [INFO] 2026-07-24T17:47:13.066Z [error] handleRestrictedStateForResponse: callApi {data: Object} @ https://app.notion.com/_assets/app-9695fa4571934cb2.js:6
+[    2409ms] [WARNING] Amplitude Logger [Warn]: Event not tracked, no destination plugins on the instance @ https://app.notion.com/_assets/transport-support-2f7b2eceb57ecedd.js:0
+[    2410ms] [INFO] 2026-07-24T17:47:13.159Z [error] eventTrailApiHelpers: trackFailure {error: Object} @ https://app.notion.com/_assets/app-9695fa4571934cb2.js:6
+[    2685ms] [INFO] 2026-07-24T17:47:13.434Z [info] appHelpers: shouldShowError {data: Object} @ https://app.notion.com/_assets/app-9695fa4571934cb2.js:6
+[    2692ms] [WARNING] Ignoring inability to install OPFS sqlite3_vfs: Cannot install OPFS: Missing SharedArrayBuffer and/or Atomics. The server must emit the COOP/COEP response headers to enable those. See https://sqlite.org/wasm/doc/trunk/persistence.md#coop-coep @ https://app.notion.com/_assets/wasm-sqlite-worker-ed2d92bdeb50e50a.js:0
+[    2753ms] [INFO] 2026-07-24T17:47:13.502Z [info] pageError: pageError {data: Object} @ https://app.notion.com/_assets/app-9695fa4571934cb2.js:6
+[    3411ms] [INFO] 2026-07-24T17:47:14.160Z [error] handleRestrictedStateForResponse: callApi {data: Object} @ https://app.notion.com/_assets/app-9695fa4571934cb2.js:6
+[    3444ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://app.notion.com/api/v3/recordPageExit:0
+[    3668ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://cdn.metadata.io/pixel/config/1127.json:0
+[    3768ms] [INFO] 2026-07-24T17:47:14.516Z [info] sqliteSchemaHelpers: attemptFastForwardMigration {data: Object} @ https://app.notion.com/_assets/app-9695fa4571934cb2.js:6
+[    3841ms] [INFO] 2026-07-24T17:47:14.590Z [info] sqliteSchemaHelpers: successfulFastForwardMigration {data: Object} @ https://app.notion.com/_assets/app-9695fa4571934cb2.js:6
+[    3891ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://app.notion.com/api/v3/getPasskeyMigrationStatus:0
+[    4009ms] [ERROR] HttpRequestError: Received HTTP 401
+    at d (https://app.notion.com/_assets/ClientFramework-fb575ec6831b4792.js:1:121048)
+    at async m (https://app.notion.com/_assets/ClientFramework-fb575ec6831b4792.js:1:122914)
+    at async r (https://app.notion.com/_assets/app-9695fa4571934cb2.js:1:142)
+    at async l (https://app.notion.com/_assets/UISpacePermissionGroupToken-032d902261f91860.js:1:9949)
+    at async https://app.notion.com/_assets/67051-3a255ca78bdf9477.js:1:6311 @ https://app.notion.com/_assets/handleHttpFailure-8fba9e3192299590.js:0
+[    4010ms] [INFO] 2026-07-24T17:47:14.758Z [error] api: httpTrigger401 {data: Object} @ https://app.notion.com/_assets/app-9695fa4571934cb2.js:6
+[    4010ms] [ERROR] HttpRequestError: Received HTTP 401
+    at d (https://app.notion.com/_assets/ClientFramework-fb575ec6831b4792.js:1:121048)
+    at async m (https://app.notion.com/_assets/ClientFramework-fb575ec6831b4792.js:1:122914)
+    at async r (https://app.notion.com/_assets/app-9695fa4571934cb2.js:1:142)
+    at async l (https://app.notion.com/_assets/UISpacePermissionGroupToken-032d902261f91860.js:1:9949) @ https://app.notion.com/_assets/handleHttpFailure-8fba9e3192299590.js:0
+[    4010ms] [INFO] 2026-07-24T17:47:14.759Z [error] api: httpTrigger401 {data: Object} @ https://app.notion.com/_assets/app-9695fa4571934cb2.js:6
+[    4214ms] [WARNING] [GSI_LOGGER]: Your client application uses one of the Google One Tap prompt UI status methods that may stop functioning when FedCM becomes mandatory. Refer to the migration guide to update your code accordingly and opt-in to FedCM to test your changes. Learn more: https://developers.google.com/identity/gsi/web/guides/fedcm-migration?s=dc#display_moment and https://developers.google.com/identity/gsi/web/guides/fedcm-migration?s=dc#skipped_moment @ https://accounts.google.com/gsi/client:86
+[    4216ms] [ERROR] Not signed in with the identity provider. @ https://app.notion.com/p/362f7cb4e4df80e0a587eb0ae15d5c9c:0
+[    4480ms] [INFO] 2026-07-24T17:47:15.228Z [error] handleRestrictedStateForResponse: callApi {data: Object} @ https://app.notion.com/_assets/4975-e801568a4e1be5ff.js:472
+[    7506ms] [ERROR] [GSI_LOGGER]: FedCM get() rejects with NetworkError: Error retrieving a token. @ https://app.notion.com/_assets/4975-e801568a4e1be5ff.js:472
+[    8333ms] [ERROR] Cross-Origin-Opener-Policy policy would block the window.closed call. @ https://app.notion.com/_assets/UISpacePermissionGroupToken-032d902261f91860.js:179
+[    8333ms] [ERROR] Cross-Origin-Opener-Policy policy would block the window.closed call. @ https://app.notion.com/_assets/UISpacePermissionGroupToken-032d902261f91860.js:179
