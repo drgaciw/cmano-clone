@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "ai-game-developer": { "url": "http://localhost:8080" },
+    "ai-game-developer": { "type": "http", "url": "http://localhost:8080" },
     "windows-mcp": {
       "command": "C:\\Users\\Username01\\AppData\\Roaming\\Python\\Python314\\Scripts\\windows-mcp.exe",
       "args": ["serve"],
