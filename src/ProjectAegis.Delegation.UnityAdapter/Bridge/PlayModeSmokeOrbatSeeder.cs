@@ -44,7 +44,11 @@ public static class PlayModeSmokeOrbatSeeder
         return true;
     }
 
-    /// <summary>Append contact + magazine rows projected into the Message Log strip.</summary>
+    /// <summary>
+    /// Append contact / magazine plus high-value player-facing rows (policy, mission, event,
+    /// agent decision, damage) so Play Mode message log is richer than three seeded lines.
+    /// Idempotent when contact or magazine rows already exist.
+    /// </summary>
     public static void SeedDecisionLog(DecisionLog? log)
     {
         if (log == null)
@@ -85,5 +89,151 @@ public static class PlayModeSmokeOrbatSeeder
             MountId: 0,
             Delta: -1,
             ReasonCode: "fire"));
+
+        log.AppendPolicyUpdate(new PolicyUpdateRecord(
+            SequenceId: 0,
+            SimTime: 2.2,
+            SimTick: 3,
+            PolicySnapshotId: 1,
+            Field: "roe",
+            PreviousValue: "WeaponsTight",
+            NewValue: "WeaponsFree"));
+
+        log.AppendMissionTransition(new MissionTransitionRecord(
+            SequenceId: 0,
+            SimTime: 2.3,
+            SimTick: 4,
+            EventId: "patrol-1",
+            PhaseCode: "START"));
+
+        log.AppendEventFired(new EventFiredRecord(
+            SequenceId: 0,
+            SimTime: 2.4,
+            SimTick: 5,
+            EventId: "recon-detect",
+            EventCode: "DETECTED"));
+
+        log.Append(new DecisionRecord(
+            SimTime: 2.5,
+            AgentId: new AgentId("a1"),
+            TargetId: new TargetId(FriendlyUnitId),
+            AutonomyLevel: AutonomyLevel.Assisted,
+            ChosenKind: OrderKind.Hold,
+            Alternatives: Array.Empty<ScoredIntent>(),
+            Rationale: "patrol station-keeping",
+            AttentionLoad: 1,
+            AttentionBudget: 20,
+            RngDraw: 0.1,
+            SimTick: 6));
+
+        log.AppendPlatformDamageChange(new PlatformDamageChangeRecord(
+            SequenceId: 0,
+            SimTime: 2.6,
+            SimTick: 7,
+            UnitId: new TargetId(HostileUnitId),
+            PreviousHpPct: 100,
+            NewHpPct: 85,
+            ReasonCode: "Hit",
+            DamageLevel: 1));
     }
+
+    /// <summary>
+    /// Time-gated Play Mode feed: append additional player-facing rows as sim time advances.
+    /// Does not call <c>DelegationBridge.Tick</c>. Idempotent per threshold.
+    /// </summary>
+    public static void AdvanceDecisionLog(DecisionLog? log, double simTime)
+    {
+        if (log == null)
+        {
+            return;
+        }
+
+        if (simTime >= 5.0 && !HasPolicyField(log, "emcon"))
+        {
+            log.AppendPolicyUpdate(new PolicyUpdateRecord(
+                SequenceId: 0,
+                SimTime: 5.0,
+                SimTick: 8,
+                PolicySnapshotId: 2,
+                Field: "emcon",
+                PreviousValue: "Active",
+                NewValue: "Passive"));
+        }
+
+        if (simTime >= 8.0 && !HasMissionPhase(log, "ON_STATION"))
+        {
+            log.AppendMissionTransition(new MissionTransitionRecord(
+                SequenceId: 0,
+                SimTime: 8.0,
+                SimTick: 9,
+                EventId: "patrol-1",
+                PhaseCode: "ON_STATION"));
+        }
+
+        if (simTime >= 12.0 && !HasEvent(log, "cue-1"))
+        {
+            log.AppendEventFired(new EventFiredRecord(
+                SequenceId: 0,
+                SimTime: 12.0,
+                SimTick: 10,
+                EventId: "cue-1",
+                EventCode: "CLASSIFIED"));
+        }
+
+        if (simTime >= 15.0 && !HasChosenKind(log, OrderKind.Engage))
+        {
+            log.Append(new DecisionRecord(
+                SimTime: 15.0,
+                AgentId: new AgentId("a1"),
+                TargetId: new TargetId(FriendlyUnitId),
+                AutonomyLevel: AutonomyLevel.Assisted,
+                ChosenKind: OrderKind.Engage,
+                Alternatives: Array.Empty<ScoredIntent>(),
+                Rationale: "classified hostile in envelope",
+                AttentionLoad: 4,
+                AttentionBudget: 20,
+                RngDraw: 0.2,
+                SimTick: 11));
+        }
+
+        if (simTime >= 20.0 && !HasDamageAtOrBelow(log, 70))
+        {
+            log.AppendPlatformDamageChange(new PlatformDamageChangeRecord(
+                SequenceId: 0,
+                SimTime: 20.0,
+                SimTick: 12,
+                UnitId: new TargetId(HostileUnitId),
+                PreviousHpPct: 85,
+                NewHpPct: 70,
+                ReasonCode: "Hit",
+                DamageLevel: 2));
+        }
+
+        if (simTime >= 30.0 && !HasPolicyField(log, "maxSalvo"))
+        {
+            log.AppendPolicyUpdate(new PolicyUpdateRecord(
+                SequenceId: 0,
+                SimTime: 30.0,
+                SimTick: 13,
+                PolicySnapshotId: 3,
+                Field: "maxSalvo",
+                PreviousValue: "4",
+                NewValue: "2"));
+        }
+    }
+
+    private static bool HasPolicyField(DecisionLog log, string field) =>
+        log.PolicyUpdates.Any(u => string.Equals(u.Field, field, StringComparison.Ordinal));
+
+    private static bool HasMissionPhase(DecisionLog log, string phaseCode) =>
+        log.MissionTransitions.Any(m => string.Equals(m.PhaseCode, phaseCode, StringComparison.Ordinal));
+
+    private static bool HasEvent(DecisionLog log, string eventId) =>
+        log.EventFired.Any(e => string.Equals(e.EventId, eventId, StringComparison.Ordinal));
+
+    private static bool HasChosenKind(DecisionLog log, OrderKind kind) =>
+        log.Records.Any(r => r.ChosenKind == kind);
+
+    private static bool HasDamageAtOrBelow(DecisionLog log, double hpPct) =>
+        log.PlatformDamageChanges.Any(d => d.NewHpPct <= hpPct);
 }

@@ -1,6 +1,6 @@
 # Asset Manifest
 
-> **Last updated:** 2026-08-11 (S113 wave 3 — ASSET-007/008/011/012 Specced→**Done**; Approved unchanged — no human phrase)
+> **Last updated:** 2026-08-17 (Track C VFX reopen note on ASSET-021 — status unchanged)
 > **Authority:** [`s93-asset-production-scope-boundary-2026-07-09.md`](../../production/s93-asset-production-scope-boundary-2026-07-09.md), S91 closeout, S93 closeout  
 > **Inventory:** `design/assets/entity-inventory.md` (Phase 0b; user review pending)  
 > **Art bible:** `design/art/art-bible.md` (lean B2 — C2 + Platform Editor)  
@@ -60,6 +60,8 @@
 | ASSET-019 | Band B datalink contact presentation | UI / Map | **Done** | design/assets/specs/baltic-patrol-assets.md → `production/assets/baltic/ASSET-019-band-b-contact-overlay-spec.md` |
 | ASSET-020 | Comms-challenged / jammed capture set | UI / Map | Specced | design/assets/specs/baltic-patrol-assets.md |
 | ASSET-021 | Combat domains hot-tick overlay | HUD | **Approved** | design/assets/specs/baltic-patrol-assets.md → `production/assets/baltic/CombatDomainsHotTick.uss` |
+
+> **Track C (2026-08-17):** ASSET-021 stays **Approved HUD** (domain hot-tick). Map fire lines / impact markers are a **separate** presentation overlay (`CombatVfxProjection` + `MapCanvasTransientEffectsRenderer`) — not an ASSET-021 restyle and not a Path A promotion. See `docs/superpowers/specs/2026-08-17-track-c-combat-vfx-reopen.md` and art-bible §7.
 | ASSET-022 | Band C intercept / spoof stress layout | UI / Map | Specced | design/assets/specs/baltic-patrol-assets.md |
 
 ### Store / E7 prep (S70 asset-checklist)

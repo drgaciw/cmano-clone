@@ -321,7 +321,7 @@ namespace ProjectAegis.Unity.Runtime
             {
                 var dx = shape.ToX - shape.FromX;
                 var dy = shape.ToY - shape.FromY;
-                var length = Math.Sqrt(dx * dx + dy * dy);
+                var length = Mathf.Sqrt((dx * dx) + (dy * dy));
                 if (length <= 1e-6f)
                 {
                     element.style.display = DisplayStyle.None;

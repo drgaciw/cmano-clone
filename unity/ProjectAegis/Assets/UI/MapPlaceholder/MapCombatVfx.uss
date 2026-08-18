@@ -1,0 +1,46 @@
+/* Track C (2026-08-17) — presentation-only combat VFX. Tokens from art-bible §7. */
+.map-combat-vfx-layer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    picking-mode: ignore;
+}
+
+.map-combat-vfx-fireline {
+    position: absolute;
+    height: 2px;
+    background-color: rgba(255, 180, 160, 0.85);
+}
+
+.map-combat-vfx-impact {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+}
+
+.map-combat-vfx-impact--kill {
+    background-color: rgba(232, 93, 93, 0.95);
+    border-radius: 50%;
+}
+
+.map-combat-vfx-impact--hit {
+    background-color: rgba(255, 180, 160, 0.95);
+    border-radius: 50%;
+}
+
+.map-combat-vfx-impact--miss {
+    background-color: rgba(140, 155, 170, 0.90);
+    border-radius: 0;
+}
+
+.map-combat-vfx-impact--intercept {
+    background-color: rgba(100, 200, 140, 0.95);
+    border-radius: 50%;
+}
+
+.map-combat-vfx-impact--unknown {
+    background-color: rgba(200, 210, 220, 0.90);
+    border-radius: 50%;
+}

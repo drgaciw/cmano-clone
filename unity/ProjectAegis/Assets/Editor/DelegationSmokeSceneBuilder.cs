@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 
 namespace ProjectAegis.Unity.Editor
 {
@@ -177,6 +178,13 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/GroundOps/GroundOpsPanel.uxml",
                 "Assets/UI/GroundOps/GroundOpsPanel.uss");
+
+            // CMD-39 Track A — attention toast + clock interrupt host
+            CreatePanelHost<AttentionToastPanelHost>(
+                "AttentionToast",
+                bridge,
+                "Assets/UI/AttentionToast/AttentionToastPanel.uxml",
+                "Assets/UI/AttentionToast/AttentionToastPanel.uss");
 
             var scenesDir = "Assets/Scenes";
             if (!AssetDatabase.IsValidFolder(scenesDir))
@@ -427,6 +435,11 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/GroundOps/GroundOpsPanel.uxml",
                 "Assets/UI/GroundOps/GroundOpsPanel.uss");
+            added += EnsurePanelHostIfMissing<AttentionToastPanelHost>(
+                "AttentionToast",
+                bridge,
+                "Assets/UI/AttentionToast/AttentionToastPanel.uxml",
+                "Assets/UI/AttentionToast/AttentionToastPanel.uss");
 
             // Wire C2Menu → MapPlaceholder when both exist (layer toggle path).
             WireC2MenuToMapHost();
@@ -667,28 +680,28 @@ namespace ProjectAegis.Unity.Editor
             return go.AddComponent(type);
         }
 
-        private static void SetString(Object target, string propertyName, string value)
+        private static void SetString(UnityEngine.Object target, string propertyName, string value)
         {
             var so = new SerializedObject(target);
             so.FindProperty(propertyName).stringValue = value;
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void SetInt(Object target, string propertyName, int value)
+        private static void SetInt(UnityEngine.Object target, string propertyName, int value)
         {
             var so = new SerializedObject(target);
             so.FindProperty(propertyName).intValue = value;
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void SetBool(Object target, string propertyName, bool value)
+        private static void SetBool(UnityEngine.Object target, string propertyName, bool value)
         {
             var so = new SerializedObject(target);
             so.FindProperty(propertyName).boolValue = value;
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        private static void SetObjectReference(Object target, string propertyName, Object? value)
+        private static void SetObjectReference(UnityEngine.Object target, string propertyName, UnityEngine.Object? value)
         {
             var so = new SerializedObject(target);
             so.FindProperty(propertyName).objectReferenceValue = value;
