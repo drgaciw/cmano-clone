@@ -247,10 +247,21 @@ namespace ProjectAegis.Unity.Runtime
             // Prefer bridge-projected state through the shipped apply path so label fields
             // match C2TopBarProjection output; live phase always wins on the host.
             var state = bridgeHost.LastTopBar;
-            _presentation = C2TopBarApplyState.Apply(state) with
+            var applied = C2TopBarApplyState.Apply(state) with
             {
                 PhaseLabel = $"PHASE: {bridgeHost.Phase}",
             };
+            var comms = bridgeHost.LastCommsState;
+            if (comms != null)
+            {
+                applied = applied with
+                {
+                    CommsLabel = comms.TopBarLabel,
+                    CommsCssClass = C2TopBarApplyState.ResolveCommsCssClass(comms.TopBarLabel),
+                };
+            }
+
+            _presentation = applied;
 
             ApplyPresentationToLabels();
             OverlayLiveCompression();
