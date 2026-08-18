@@ -1,0 +1,43 @@
+{
+  "ok": false,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t1-patrol-a",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t1-patrol-a seed=99948: kills 0 \u003C min 1",
+        "row[3] scenario=gauntlet-t1-patrol-a seed=99948: score -30 \u003C min 50"
+      ],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t1-patrol-b",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t1-patrol-b seed=99948: kills 0 \u003C min 1",
+        "row[3] scenario=gauntlet-t1-patrol-b seed=99948: score 0 \u003C min 80"
+      ],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t1-patrol-c",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t1-patrol-c seed=99948: kills 0 \u003C min 1",
+        "row[3] scenario=gauntlet-t1-patrol-c seed=99948: score -30 \u003C min 50"
+      ],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t1-patrol-d",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 5
+    }
+  ],
+  "allPassed": false
+}

@@ -1,0 +1,59 @@
+{
+  "tier": "run",
+  "pass": false,
+  "oracles": {
+    "tiers": {
+      "status": "fail",
+      "evidence": [
+        "tier-1: verdict red",
+        "tier-2: verdict red",
+        "tier-3: verdict red",
+        "tier-4: verdict red",
+        "tier-5: verdict red",
+        "tier-extra: verdict red"
+      ]
+    },
+    "token_coverage": {
+      "status": "warn",
+      "evidence": [
+        "token 'EMCON_OFF' absent (known: BUG-gauntlet-emcon-dimension-not-exercised \u2014 flip to required when the 2026-07-27 variability-plan EMCON retrofit lands)",
+        "manifest Doctrine.ROE_HOLD_FIRE: 0 occurrence(s)",
+        "manifest Doctrine.ROE_WEAPONS_TIGHT: 3850 occurrence(s)",
+        "manifest Doctrine.WRA_RANGE: 0 occurrence(s)",
+        "manifest Doctrine.WRA_SALVO: 0 occurrence(s)",
+        "manifest Doctrine.EMCON_OFF: 0 occurrence(s)",
+        "manifest Doctrine.NO_FIRE_CONTROL_TRACK: 57 occurrence(s)",
+        "manifest Doctrine.COMMS_DENIED: 0 occurrence(s)",
+        "manifest Doctrine.AIR_ASPECT_BLOCK: 0 occurrence(s)",
+        "manifest Doctrine.SURFACE_ASPECT_BLOCK: 0 occurrence(s)",
+        "manifest Doctrine.SUBSURFACE_ASPECT_BLOCK: 0 occurrence(s)",
+        "manifest Doctrine.LAND_ASPECT_BLOCK: 0 occurrence(s)",
+        "manifest Doctrine.MINE_ASPECT_BLOCK: 0 occurrence(s)",
+        "manifest Doctrine.FACILITY_ASPECT_BLOCK: 0 occurrence(s)",
+        "manifest Engage.OUT_OF_ENVELOPE: 0 occurrence(s)",
+        "manifest Engage.DLZ_OUT: 0 occurrence(s)",
+        "manifest Engage.NO_AMMO: 3468 occurrence(s)",
+        "manifest Engage.NO_FIRE_CONTROL_TRACK: 57 occurrence(s)",
+        "manifest Engage.EMCON_OFF: 0 occurrence(s)",
+        "manifest Engage.ROE_HOLD_FIRE: 0 occurrence(s)",
+        "manifest Engage.ROE_WEAPONS_TIGHT: 3850 occurrence(s)",
+        "manifest Engage.TARGET_DESTROYED: 6281 occurrence(s)",
+        "manifest Engage.SHOOTER_DESTROYED: 399 occurrence(s)",
+        "manifest Engage.WRA_SALVO: 0 occurrence(s)",
+        "manifest Engage.BLACK_PROJECT_REQUIRED: 0 occurrence(s)",
+        "manifest Engage.TECHNOLOGY_LEVEL_EXCEEDED: 0 occurrence(s)",
+        "manifest Engage.MOUNT_OFFLINE: 0 occurrence(s)",
+        "manifest Engage.DOMAIN_NO_SOLUTION: 0 occurrence(s)",
+        "manifest Engage.AIR_NOT_READY: 0 occurrence(s)",
+        "manifest Engage.CYBER_SPOOF_TRACK: 0 occurrence(s)",
+        "manifest Engage.AIR_ASPECT_BLOCK: 0 occurrence(s)",
+        "manifest Engage.SURFACE_ASPECT_BLOCK: 0 occurrence(s)",
+        "manifest Engage.SUBSURFACE_ASPECT_BLOCK: 0 occurrence(s)",
+        "manifest Engage.LAND_ASPECT_BLOCK: 0 occurrence(s)",
+        "manifest Engage.MINE_ASPECT_BLOCK: 0 occurrence(s)",
+        "manifest Engage.FACILITY_ASPECT_BLOCK: 0 occurrence(s)",
+        "manifest Engage.DAMAGE_WITHDRAW_RECOMMENDED: 0 occurrence(s)"
+      ]
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "ok": true,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t4-asymm-roe",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t4-multi-mission",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t4-random-inject",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    },
+    {
+      "scenario": "gauntlet-t4-weighted",
+      "passed": true,
+      "failures": [],
+      "rows": 3
+    }
+  ],
+  "allPassed": true
+}

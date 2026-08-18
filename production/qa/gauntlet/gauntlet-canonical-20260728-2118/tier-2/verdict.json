@@ -1,0 +1,38 @@
+{
+  "tier": "tier-2",
+  "pass": false,
+  "oracles": {
+    "stability": {
+      "status": "pass",
+      "evidence": []
+    },
+    "determinism": {
+      "status": "pass",
+      "evidence": []
+    },
+    "victory_roe": {
+      "status": "fail",
+      "evidence": [
+        "gauntlet-t2-escort-passive: row[3] scenario=gauntlet-t2-escort-passive seed=99948: kills 0 < min 1",
+        "gauntlet-t2-escort-passive: row[3] scenario=gauntlet-t2-escort-passive seed=99948: score -50 < min 30",
+        "gauntlet-t2-escort-passive: row[4] scenario=gauntlet-t2-escort-passive seed=78493: kills 0 < min 1",
+        "gauntlet-t2-escort-passive: row[4] scenario=gauntlet-t2-escort-passive seed=78493: score -50 < min 30",
+        "gauntlet-t2-strike-a: row[3] scenario=gauntlet-t2-strike-a seed=99948: kills 0 < min 1",
+        "gauntlet-t2-strike-a: row[3] scenario=gauntlet-t2-strike-a seed=99948: score -50 < min 30",
+        "gauntlet-t2-strike-a: gauntlet.airPool: unknown key (silently ignored by the engine). Allowed: catalogRefs, expect, expectCi, intent, oracle, runId, tier, units",
+        "gauntlet-t2-strike-event: row[3] scenario=gauntlet-t2-strike-event seed=99948: kills 0 < min 1",
+        "gauntlet-t2-strike-event: row[3] scenario=gauntlet-t2-strike-event seed=99948: missilesFired 4 > max 3",
+        "gauntlet-t2-strike-event: row[3] scenario=gauntlet-t2-strike-event seed=99948: score -50 < min 30",
+        "gauntlet-t2-escort-passive: gauntlet.emcon: legacy stand-in key ignored by the engine \u2014 real EMCON is the top-level \"emcon\" block (BUG-gauntlet-emcon-dimension-not-exercised)"
+      ]
+    },
+    "sanity": {
+      "status": "pass",
+      "evidence": []
+    },
+    "goldens": {
+      "status": "pass",
+      "evidence": []
+    }
+  }
+}

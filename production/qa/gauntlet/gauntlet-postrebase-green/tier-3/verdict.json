@@ -1,0 +1,35 @@
+{
+  "tier": "tier-3",
+  "pass": true,
+  "oracles": {
+    "stability": {
+      "status": "pass",
+      "evidence": []
+    },
+    "determinism": {
+      "status": "pass",
+      "evidence": []
+    },
+    "victory_roe": {
+      "status": "warn",
+      "evidence": [
+        "gauntlet-t3-emcon-phases: gauntlet.emcon: legacy stand-in key ignored by the engine \u2014 real EMCON is the top-level \"emcon\" block (BUG-gauntlet-emcon-dimension-not-exercised)"
+      ]
+    },
+    "roving_observe": {
+      "status": "warn",
+      "evidence": [
+        "roving gauntlet-t3-emcon-phases: row[3] scenario=gauntlet-t3-emcon-phases seed=73846: kills 2 < min 5",
+        "roving gauntlet-t3-emcon-phases: row[4] scenario=gauntlet-t3-emcon-phases seed=63591: kills 3 < min 5"
+      ]
+    },
+    "sanity": {
+      "status": "pass",
+      "evidence": []
+    },
+    "goldens": {
+      "status": "pass",
+      "evidence": []
+    }
+  }
+}

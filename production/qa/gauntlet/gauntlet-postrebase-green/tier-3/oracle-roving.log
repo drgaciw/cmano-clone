@@ -1,0 +1,39 @@
+{
+  "ok": false,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t3-emcon-phases",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t3-emcon-phases seed=73846: kills 2 \u003C min 5",
+        "row[4] scenario=gauntlet-t3-emcon-phases seed=63591: kills 3 \u003C min 5"
+      ],
+      "warnings": [
+        "gauntlet.emcon: legacy stand-in key ignored by the engine \u2014 real EMCON is the top-level \u0022emcon\u0022 block (BUG-gauntlet-emcon-dimension-not-exercised)"
+      ],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t3-escort-strike",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t3-event-chain",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t3-id-roe",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 5
+    }
+  ],
+  "allPassed": false
+}

@@ -1,0 +1,203 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsFree",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.2,
+    "salvoSize": 2
+  },
+  "detection": [
+    {
+      "observerId": "p-960-skjold",
+      "sensorId": "radar-1",
+      "targetId": "624-pr-205p-tarantul-1992",
+      "contactId": "c-3330-1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-230-norfolk-type-23-duke",
+      "sensorId": "radar-1",
+      "targetId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "contactId": "c-3330-2",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-450-elli-kortenaer-batch-ii-0",
+      "sensorId": "radar-1",
+      "targetId": "pk-368-vasily-bykov-pr-22160",
+      "contactId": "c-3330-3",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-35a-lightning-ii",
+      "sensorId": "radar-1",
+      "targetId": "su-27sm-sm3-flanker-j-2013",
+      "contactId": "c-3330-4",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "f-a-18c-hornet-f-18c",
+      "sensorId": "radar-1",
+      "targetId": "su-33-flanker-d",
+      "contactId": "c-3330-5",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    },
+    {
+      "observerId": "a-17-vastergotland-1999",
+      "sensorId": "sonar-1",
+      "targetId": "pla-885m-severodvinsk-yasen-m",
+      "contactId": "c-3330-6",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0,
+      "requiresActiveRadar": false
+    }
+  ],
+  "gauntlet": {
+    "intent": "Timed event chain stand-in (escalating jam) [catalog red: Sovremenny] [expanded ORBAT 12 units / 38 catalogRefs]",
+    "oracle": "Multi-jam trials complete",
+    "catalogRefs": [
+      "241-slazak-meko-100-mod-2019",
+      "421-orkan-pr-660-2015",
+      "624-pr-205p-tarantul-1992",
+      "70-rauma-helsinki-ii-1990",
+      "80-hamina-rauma-2-2006",
+      "a-17-s\u00f6dermanland-vastergotland-mod",
+      "a-17-vastergotland-1999",
+      "a-19-gotland-1996",
+      "a-19-gotland-2022",
+      "bpk-marshal-shaposhnikov-udaloy-i-pr-1155-fregat",
+      "d-32-daring-type-45-batch-1",
+      "em-sovremenny-i-pr-956-sarych",
+      "f-207-bremen-type-f122-1982",
+      "f-219-sachsen-type-f124-2006",
+      "f-230-norfolk-type-23-duke",
+      "f-310-fridtjof-nansen",
+      "f-341-absalon-2020",
+      "f-35a-lightning-ii",
+      "f-361-iver-huitfeldt-2012",
+      "f-450-elli-kortenaer-batch-ii-0",
+      "f-a-18c-hornet-f-18c",
+      "hkp-14f-nh90-ttt",
+      "jas-39a-gripen-1997",
+      "jas-39b-gripen-1997",
+      "jas-39c-gripen-2005",
+      "k-11-stockholm-spica-iii-1986",
+      "k-21-goteborg",
+      "k-22-gavle-ex-goteborg-class",
+      "k-31-visby-2009",
+      "mpk-steregushchiy-pr-20380-2018",
+      "mrk-buyan-mod-pr-21631-buyan-m-2014",
+      "p-151-hugin",
+      "p-840-holland",
+      "p-960-skjold",
+      "pk-368-vasily-bykov-pr-22160",
+      "pla-885m-severodvinsk-yasen-m",
+      "su-27sm-sm3-flanker-j-2013",
+      "su-33-flanker-d"
+    ],
+    "runId": "gauntlet-t3t5-catalog-red",
+    "tier": 3,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "minScore": -100,
+      "maxScore": 720,
+      "maxMissilesFired": 40,
+      "maxDenials": 60,
+      "minKills": 1
+    },
+    "units": [
+      {
+        "unitId": "p-960-skjold",
+        "platformId": "p-960-skjold",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-230-norfolk-type-23-duke",
+        "platformId": "f-230-norfolk-type-23-duke",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-450-elli-kortenaer-batch-ii-0",
+        "platformId": "f-450-elli-kortenaer-batch-ii-0",
+        "domain": "surface",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-35a-lightning-ii",
+        "platformId": "f-35a-lightning-ii",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "f-a-18c-hornet-f-18c",
+        "platformId": "f-a-18c-hornet-f-18c",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "a-17-vastergotland-1999",
+        "platformId": "a-17-vastergotland-1999",
+        "domain": "subsurface",
+        "side": "blue"
+      },
+      {
+        "unitId": "624-pr-205p-tarantul-1992",
+        "platformId": "624-pr-205p-tarantul-1992",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+        "platformId": "mrk-buyan-mod-pr-21631-buyan-m-2014",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "pk-368-vasily-bykov-pr-22160",
+        "platformId": "pk-368-vasily-bykov-pr-22160",
+        "domain": "surface",
+        "side": "red"
+      },
+      {
+        "unitId": "su-27sm-sm3-flanker-j-2013",
+        "platformId": "su-27sm-sm3-flanker-j-2013",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "su-33-flanker-d",
+        "platformId": "su-33-flanker-d",
+        "domain": "air",
+        "side": "red"
+      },
+      {
+        "unitId": "pla-885m-severodvinsk-yasen-m",
+        "platformId": "pla-885m-severodvinsk-yasen-m",
+        "domain": "subsurface",
+        "side": "red"
+      }
+    ]
+  },
+  "id": "gauntlet-t3-event-chain"
+}

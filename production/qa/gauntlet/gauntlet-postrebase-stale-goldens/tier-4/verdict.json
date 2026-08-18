@@ -1,0 +1,45 @@
+{
+  "tier": "tier-4",
+  "pass": false,
+  "oracles": {
+    "stability": {
+      "status": "pass",
+      "evidence": []
+    },
+    "determinism": {
+      "status": "pass",
+      "evidence": []
+    },
+    "victory_roe": {
+      "status": "pass",
+      "evidence": []
+    },
+    "roving_observe": {
+      "status": "warn",
+      "evidence": [
+        "roving gauntlet-t4-random-inject: row[3] scenario=gauntlet-t4-random-inject seed=29659: kills 2 < min 4"
+      ]
+    },
+    "sanity": {
+      "status": "pass",
+      "evidence": []
+    },
+    "goldens": {
+      "status": "fail",
+      "evidence": [
+        "golden mismatch gauntlet-t4-multi-mission|42: expected 82467fd48b5d\u2026 got 4b60f31902f3\u2026 (legit change? re-bless per goldens/README.md)",
+        "golden mismatch gauntlet-t4-multi-mission|7: expected e080483cdec3\u2026 got da132b2d7b28\u2026 (legit change? re-bless per goldens/README.md)",
+        "golden mismatch gauntlet-t4-multi-mission|123: expected de703157717c\u2026 got d05cde71334e\u2026 (legit change? re-bless per goldens/README.md)",
+        "golden mismatch gauntlet-t4-weighted|42: expected 82467fd48b5d\u2026 got d735edcc92c0\u2026 (legit change? re-bless per goldens/README.md)",
+        "golden mismatch gauntlet-t4-weighted|7: expected 010ebc2571aa\u2026 got d69b154e36ea\u2026 (legit change? re-bless per goldens/README.md)",
+        "golden mismatch gauntlet-t4-weighted|123: expected de703157717c\u2026 got a3c24cca5a58\u2026 (legit change? re-bless per goldens/README.md)",
+        "golden mismatch gauntlet-t4-asymm-roe|42: expected 3fbd85255ad4\u2026 got dc91481a58df\u2026 (legit change? re-bless per goldens/README.md)",
+        "golden mismatch gauntlet-t4-asymm-roe|7: expected 87dce2ee98a3\u2026 got 13f6cc7c3315\u2026 (legit change? re-bless per goldens/README.md)",
+        "golden mismatch gauntlet-t4-asymm-roe|123: expected 69474045b3ec\u2026 got a65b891f292f\u2026 (legit change? re-bless per goldens/README.md)",
+        "golden mismatch gauntlet-t4-random-inject|42: expected f4098a76399c\u2026 got af32e642583c\u2026 (legit change? re-bless per goldens/README.md)",
+        "golden mismatch gauntlet-t4-random-inject|7: expected 86a8a1cc4371\u2026 got 62e0c944a982\u2026 (legit change? re-bless per goldens/README.md)",
+        "golden mismatch gauntlet-t4-random-inject|123: expected 4c253a3eeed6\u2026 got 816b63e2f602\u2026 (legit change? re-bless per goldens/README.md)"
+      ]
+    }
+  }
+}

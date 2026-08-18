@@ -1,0 +1,42 @@
+{
+  "ok": false,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t5-cascade",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t5-dynamic-obj",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t5-roe-change",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t5-roe-change seed=43904: kills 0 \u003C min 1",
+        "row[3] scenario=gauntlet-t5-roe-change seed=43904: score -400 \u003C min -350"
+      ],
+      "warnings": [
+        "gauntlet.emcon: legacy stand-in key ignored by the engine \u2014 real EMCON is the top-level \u0022emcon\u0022 block (BUG-gauntlet-emcon-dimension-not-exercised)"
+      ],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t5-theater",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t5-theater seed=43904: kills 0 \u003C min 1",
+        "row[3] scenario=gauntlet-t5-theater seed=43904: score -200 \u003C min -150"
+      ],
+      "warnings": [],
+      "rows": 5
+    }
+  ],
+  "allPassed": false
+}

@@ -1,0 +1,95 @@
+# QA Gauntlet manifest
+run_id: gauntlet-20260728-2016
+mode: shipped-policy-ladder
+created_local: 2026-07-28T20:16-05:00
+git_sha: 5605a972b98b47f3becc50cf6d49b27baf57ad3a
+branch_at_start: feat/platform-editor-uiux-productization
+seeds: [42, 7, 123]
+scenarios_per_tier: 4
+max_fix_attempts: 3
+tiers_requested: 5
+
+run_context: >
+  Fresh full run invoked ~15 min after gauntlet-20260728-2000 completed on the same HEAD
+  (no --resume). Since the sim is deterministic and the corpus is unchanged, this run's primary
+  incremental value is cross-session reproducibility: every (scenario, seed) CSV row is expected
+  byte-identical to gauntlet-20260728-2000. Any divergence is a determinism defect owned by
+  determinism-engineer. The open defect BUG-gauntlet-emcon-dimension-not-exercised (filed in the
+  prior run, remediation owned by docs/superpowers/plans/2026-07-27-gauntlet-variability.md,
+  unlanded) is expected to reproduce and remains OPEN — it is re-verified, not re-filed.
+
+preflight:
+  dotnet: 8.0.422 via ~/.dotnet (not on PATH; exported per command)
+  build: PASS (0 warnings, 0 errors)
+  baseline_suite_total: 1912
+  baseline_suite_failures: 0
+  baseline_suite_floor: 1912
+  replay_golden: PASS (4/4)
+  playmode_smoke: PASS (38/38)
+  catalog_gate: PASS (baltic_patrol.db opens; 30 tables; 79 platforms)
+  gitnexus: current (re-indexed this session at this HEAD; 29,316 nodes / 55,528 edges)
+
+roster_decision: >
+  Same as gauntlet-20260728-2000: shipped catalog-grounded ladder under data/scenarios/
+  (4/tier, every policy carries gauntlet.intent + machine-checkable expect + catalogRefs).
+  The 6-dimension generation expansion remains unlanded
+  (docs/superpowers/plans/2026-07-27-gauntlet-variability.md), so generating fresh policies
+  would violate the expect-bounds-from-real-CSV discipline.
+
+tiers:
+  1:
+    ticks: 6
+    scenarios: [gauntlet-t1-patrol-a, gauntlet-t1-patrol-b, gauntlet-t1-patrol-c, gauntlet-t1-patrol-d]
+  2:
+    ticks: 10
+    scenarios: [gauntlet-t2-escort-a, gauntlet-t2-escort-passive, gauntlet-t2-strike-a, gauntlet-t2-strike-event]
+  3:
+    ticks: 16
+    scenarios: [gauntlet-t3-escort-strike, gauntlet-t3-emcon-phases, gauntlet-t3-id-roe, gauntlet-t3-event-chain]
+  4:
+    ticks: 24
+    scenarios: [gauntlet-t4-multi-mission, gauntlet-t4-weighted, gauntlet-t4-asymm-roe, gauntlet-t4-random-inject]
+  5:
+    ticks: 40
+    scenarios: [gauntlet-t5-cascade, gauntlet-t5-theater, gauntlet-t5-dynamic-obj, gauntlet-t5-roe-change]
+extra:
+  ticks: 12
+  scenarios: [gauntlet-joint-orbat-smoke, gauntlet-multidomain-shooters]
+
+results:
+  tier-1: {oracle: PASS, determinism: PASS, cross_run: IDENTICAL, scenarios: 4, seeds: 3}
+  tier-2: {oracle: PASS, determinism: PASS, cross_run: IDENTICAL, scenarios: 4, seeds: 3}
+  tier-3: {oracle: PASS, determinism: PASS, cross_run: IDENTICAL, scenarios: 4, seeds: 3}
+  tier-4: {oracle: PASS, determinism: PASS, cross_run: IDENTICAL, scenarios: 4, seeds: 3}
+  tier-5: {oracle: PASS, determinism: PASS, cross_run: IDENTICAL, scenarios: 4, seeds: 3}
+  tier-extra: {oracle: PASS, determinism: PASS, cross_run: IDENTICAL, scenarios: 2, seeds: 3}
+
+oracle_matrix:
+  1_stability: PASS        # 0 exceptions across 12 run logs (first + repeat)
+  2_determinism: PASS      # within-run repeat byte-identical, all 6 tiers
+  3_victory: PASS          # GauntletOracleEvaluator allPassed=true, all tiers
+  4_roe: PASS              # bounds within gauntlet.expect, all tiers
+  5_emcon: FAIL-VACUOUS    # OPEN defect reproduces exactly: 0 EMCON_OFF tokens ladder-wide
+  6_regression: PASS       # all tiers byte-identical to gauntlet-20260728-2000, which was
+                           # itself 60/60 identical to gauntlet-20260720-2000 (transitive)
+  7_sanity: PASS           # no empty fingerprints, no non-finite scores
+
+cross_run_reproducibility: >
+  Headline check of this run: all 6 tiers' full CSVs (including fingerprints) are byte-identical
+  to gauntlet-20260728-2000, executed ~20 minutes earlier in a different session. Seed
+  sensitivity (22/22 scenarios, 3 distinct fingerprints) and joint-ORBAT multi-domain tokens
+  therefore hold transitively by identity.
+
+defects:
+  found: 0            # no new defects
+  reproduced_open: 1  # BUG-gauntlet-emcon-dimension-not-exercised (filed in gauntlet-20260728-2000)
+  fixed: 0
+  quarantined: 0
+  quarantined_critical: 0
+
+final_suite:
+  total: 1912
+  failures: 0
+  delta_vs_baseline: 0
+code_changes: none    # detect_changes: 0 C# symbols, 0 affected processes, risk low
+commits: none         # no fixes to commit; QA branch intentionally not created
