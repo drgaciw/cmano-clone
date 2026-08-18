@@ -154,4 +154,27 @@ public sealed class MapCanvasOverlayGeometryTests
         Assert.That(px.Hidden, Is.True);
         Assert.That(px.Length, Is.EqualTo(0f));
     }
+
+    [Test]
+    public void ProjectCourseSegments_emits_one_edge_per_vertex_pair()
+    {
+        var courses = new[]
+        {
+            new MapCourseOverlayEntry(
+                "u1",
+                [
+                    new MapCourseVertex(0.1f, 0.2f),
+                    new MapCourseVertex(0.3f, 0.2f),
+                    new MapCourseVertex(0.3f, 0.5f),
+                ]),
+        };
+
+        var shapes = MapCanvasOverlayGeometry.ProjectCourseSegments(courses);
+
+        Assert.That(shapes, Has.Count.EqualTo(2));
+        Assert.That(shapes[0].Key, Is.EqualTo("u1:course:1"));
+        Assert.That(shapes[0].StyleClass, Is.EqualTo(MapCanvasOverlayGeometry.CourseStyle));
+        Assert.That(shapes[1].FromY, Is.EqualTo(0.2f).Within(1e-6f));
+        Assert.That(shapes[1].ToY, Is.EqualTo(0.5f).Within(1e-6f));
+    }
 }

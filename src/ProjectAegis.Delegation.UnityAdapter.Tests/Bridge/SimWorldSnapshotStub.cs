@@ -40,4 +40,14 @@ internal sealed class SimWorldSnapshotStub : ISimWorldSnapshot
     private bool MemberAlive { get; }
 
     public bool IsMemberAlive(TargetId memberId) => MemberAlive;
+
+    public Dictionary<string, UnitKinematicPose> Poses { get; } = new(StringComparer.Ordinal);
+
+    public Dictionary<string, IReadOnlyList<CourseWaypoint>> Courses { get; } = new(StringComparer.Ordinal);
+
+    public bool TryGetKinematicPose(string unitOrContactId, out UnitKinematicPose pose) =>
+        Poses.TryGetValue(unitOrContactId, out pose);
+
+    public IReadOnlyList<CourseWaypoint>? GetPlottedCourse(string unitId) =>
+        Courses.TryGetValue(unitId, out var waypoints) ? waypoints : null;
 }

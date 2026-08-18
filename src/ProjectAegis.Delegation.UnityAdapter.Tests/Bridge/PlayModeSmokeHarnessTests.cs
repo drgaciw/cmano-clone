@@ -89,9 +89,15 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(detail.DoctrineLabel, Does.Not.Contain("—"));
 
         var messages = MessageLogBridge.ProjectFrom(bridge.Orchestrator.DecisionLog);
+        Assert.That(messages.Count, Is.GreaterThan(3));
         Assert.That(messages.Any(m => m.Category == "CONTACT"), Is.True);
         Assert.That(messages.Any(m => m.Category == "MAGAZINE"), Is.True);
         Assert.That(messages.Any(m => m.Category == "MODE"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "POLICY_UPDATE"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "MISSION"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "EVENT"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "AGENT_DECISION"), Is.True);
+        Assert.That(messages.Any(m => m.Category == "DAMAGE"), Is.True);
 
         var panel = UnitDetailPanelBinder.Bind(detail);
         Assert.That(panel.UnitIdLine, Is.EqualTo($"UNIT: {PlayModeSmokeOrbatSeeder.FriendlyUnitId}"));
@@ -103,6 +109,34 @@ public sealed class PlayModeSmokeHarnessTests
         // Idempotent re-seed must not throw or duplicate members.
         Assert.That(PlayModeSmokeOrbatSeeder.TrySeed(bridge), Is.True);
         Assert.That(bridge.Registry.CollectMemberIds().Count, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void Smoke_decision_log_feed_grows_with_sim_time_without_bridge_tick()
+    {
+        var log = new DecisionLog();
+        PlayModeSmokeOrbatSeeder.SeedDecisionLog(log);
+        var afterSeed = MessageLogBridge.ProjectFrom(log);
+        Assert.That(afterSeed.Count, Is.GreaterThan(3));
+        Assert.That(afterSeed.Any(m => m.Category == "POLICY_UPDATE"), Is.True);
+
+        PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 4.0);
+        Assert.That(MessageLogBridge.ProjectFrom(log).Count, Is.EqualTo(afterSeed.Count));
+
+        PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 5.0);
+        var afterFive = MessageLogBridge.ProjectFrom(log);
+        Assert.That(afterFive.Count, Is.GreaterThan(afterSeed.Count));
+        Assert.That(afterFive.Any(m => m.Text.Contains("emcon", StringComparison.Ordinal)), Is.True);
+
+        PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 5.0);
+        Assert.That(MessageLogBridge.ProjectFrom(log).Count, Is.EqualTo(afterFive.Count));
+
+        PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(log, 30.0);
+        var afterThirty = MessageLogBridge.ProjectFrom(log);
+        Assert.That(afterThirty.Count, Is.GreaterThan(afterFive.Count));
+        Assert.That(afterThirty.Any(m => m.Category == "MISSION" && m.Text.Contains("ON_STATION")), Is.True);
+        Assert.That(afterThirty.Any(m => m.Category == "AGENT_DECISION" && m.Text.Contains("Engage")), Is.True);
+        Assert.That(afterThirty.Any(m => m.Text.Contains("maxSalvo", StringComparison.Ordinal)), Is.True);
     }
 
     [Test]

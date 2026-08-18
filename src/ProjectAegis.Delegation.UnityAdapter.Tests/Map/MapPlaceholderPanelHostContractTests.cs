@@ -26,6 +26,9 @@ public sealed class MapPlaceholderPanelHostContractTests
         var text = File.ReadAllText(hostPath);
         Assert.That(text, Does.Contain("LastCommsState"));
         Assert.That(text, Does.Contain("MapCanvasOverlayRenderer"));
+        Assert.That(text, Does.Contain("ENVELOPES:"));
+        Assert.That(text, Does.Contain("DATALINKS:"));
+        Assert.That(text, Does.Contain("CatalogReader"));
         Assert.That(text, Does.Not.Contain("CommsStateProjection.Project"));
         Assert.That(text, Does.Not.Contain("ProjectCommsSnapshot"));
         Assert.That(text, Does.Not.Contain("DelegationBridge.Tick"));

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ProjectAegis.Data.Catalog;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Input;
@@ -10,6 +11,7 @@ using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
+using ProjectAegis.Delegation.Watch;
 using UnityEngine;
 
 namespace ProjectAegis.Unity.Runtime
@@ -69,13 +71,33 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Primary friendly unit detail for doc-20 right panel.</summary>
         public UnitDetailEntry? LastUnitDetail { get; private set; }
 
-        /// <summary>Tactical map symbols (placeholder layout).</summary>
+        /// <summary>Tactical map symbols (placeholder layout, pose-aware when snapshot publishes kinematics).</summary>
         public IReadOnlyList<MapSymbolEntry> LastMapSymbols { get; private set; } = Array.Empty<MapSymbolEntry>();
+
+        /// <summary>CMD-38 plotted-course polylines (presentation-only; not Track C VFX).</summary>
+        public IReadOnlyList<MapCourseOverlayEntry> LastMapCourses { get; private set; } =
+            Array.Empty<MapCourseOverlayEntry>();
+
+        /// <summary>
+        /// Track C presentation-only combat VFX (fire lines / impact markers) from DecisionLog outcomes.
+        /// Projected after <see cref="RunTick"/> — never inside DelegationBridge.
+        /// </summary>
+        public CombatVfxFrame LastCombatVfx { get; private set; } = CombatVfxFrame.Empty;
 
         /// <summary>Top bar labels (time, phase, score, CMD-22 Zulu/local/remain).</summary>
         public C2TopBarState LastTopBar { get; private set; } =
             new("SIM 00:00:00", "PHASE: Planning", "TIME: 1x", "MODE: —", "COMMS: NOMINAL", "SCORE: 0",
                 "ZULU 00:00:00", "LOCAL 00:00:00", "REMAIN —");
+
+        /// <summary>CMD-39 toast bind (watch pause-class + attention-tier Critical/Notable).</summary>
+        public AttentionToastPresentation LastAttentionToast { get; private set; } =
+            AttentionToastPresentation.Empty;
+
+        /// <summary>Live compression chrome from the session clock (ADR-010; not a second authority).</summary>
+        public string LiveCompressionLabel =>
+            C2ClockCommand.FormatCompressionLabel(
+                Session?.IsSimPaused ?? false,
+                Session?.TimeAccelerationFactor ?? 1);
 
         /// <summary>Projected comms snapshot from the last <see cref="RunTick"/> refresh (CMD-32).</summary>
         public CommsStateSnapshot? LastCommsState { get; private set; }
@@ -88,8 +110,8 @@ namespace ProjectAegis.Unity.Runtime
         public IReadOnlyList<string> LastGraphHighlightIds { get; private set; } = Array.Empty<string>();
         public string? LastGraphLinkChainDisplay { get; private set; }
 
-        // S37-04/05: catalog for graph/FK surfacing (injected read-only; no bridge writes)
-        public ProjectAegis.Data.Catalog.ICatalogReader? CatalogReader { get; set; }
+        // S37-04/05: catalog for graph/FK surfacing + overlay ranges/links (injected read-only; no bridge writes)
+        public ICatalogReader? CatalogReader { get; set; }
 
         /// <summary>CMD-37 agent roster rows (presentation projection from registry controllers).</summary>
         public IReadOnlyList<AgentRosterEntry> LastAgentRoster { get; private set; } = Array.Empty<AgentRosterEntry>();
@@ -125,6 +147,7 @@ namespace ProjectAegis.Unity.Runtime
         public C2ChromeCollapseState ChromeCollapse { get; private set; } = C2ChromeCollapseState.Expanded;
 
         private readonly C2ChromePrefsStore _chromePrefs = new();
+        private readonly AttentionToastBinder _attentionToast = new();
         private ISimWorldSnapshot? _lastSnapshot;
 
         /// <summary>Latest live simulation tick for presentation staleness calculations.</summary>
@@ -136,6 +159,11 @@ namespace ProjectAegis.Unity.Runtime
                 globalSeed,
                 mvpEngagement: enableMvpEngagement,
                 scenarioPolicyId: scenarioPolicyId);
+            // Presentation-only bind (DRG-162): overlay hosts need catalog links/ranges.
+            // Prefer the session catalog when MVP engage is on; otherwise the same factory the bridge uses.
+            CatalogReader ??= Bridge.Session?.CatalogReader
+                ?? CatalogReaderFactory.TryCreateBalticPatrolReader()
+                ?? InMemoryCatalogReader.BalticPatrolFixture();
             LastMissionList = MissionListBridge.ProjectFrom(Bridge.Orchestrator.ScenarioPolicy?.MissionTimeline);
             // Restore UI-local chrome collapse bag (in-memory; no DecisionLog / file I/O).
             ChromeCollapse = _chromePrefs.Restore(C2ChromeCollapseState.Expanded);
@@ -172,6 +200,115 @@ namespace ProjectAegis.Unity.Runtime
         public IReadOnlyDictionary<string, bool> GetChromePrefsSnapshot() => _chromePrefs.GetSnapshot();
 
         public void BeginExecution() => Bridge.BeginExecution();
+
+        /// <summary>CMD-04: set session acceleration; label follows the sim clock.</summary>
+        public bool TrySetTimeAcceleration(int factor, out string? reason)
+        {
+            var ok = C2ClockCommand.TrySetAcceleration(Session, factor, out reason);
+            if (ok)
+            {
+                SyncTimeCompressionLabel();
+            }
+
+            return ok;
+        }
+
+        /// <summary>CMD-39: pause via session clock (WatchAutoPauseGate callers use the same API).</summary>
+        public bool TryPauseSim(out string? reason)
+        {
+            var ok = C2ClockCommand.TryPause(Session, out reason);
+            if (ok)
+            {
+                SyncTimeCompressionLabel();
+            }
+
+            return ok;
+        }
+
+        /// <summary>CMD-39: gated resume — unresolved pause-class cards block unless override.</summary>
+        public bool TryResumeSim(bool explicitOverride, out string? reason)
+        {
+            var ok = C2ClockCommand.TryResume(Session, explicitOverride, out reason);
+            if (ok)
+            {
+                SyncTimeCompressionLabel();
+            }
+
+            return ok;
+        }
+
+        /// <summary>Re-project toast from DecisionLog attention + session watch queue (not Tick).</summary>
+        public AttentionToastPresentation RefreshAttentionToast()
+        {
+            if (Bridge == null)
+            {
+                LastAttentionToast = AttentionToastPresentation.Empty;
+                return LastAttentionToast;
+            }
+
+            LastAttentionToast = _attentionToast.Refresh(
+                Bridge.Orchestrator.DecisionLog,
+                Session?.WatchQueue,
+                Session?.WatchPauseGate);
+            return LastAttentionToast;
+        }
+
+        public bool TryAcknowledgeAttentionToast(string cardId)
+        {
+            if (!_attentionToast.TryAcknowledge(cardId, Session?.WatchQueue))
+            {
+                return false;
+            }
+
+            RefreshAttentionToast();
+            return true;
+        }
+
+        public bool TryDismissAttentionToast(string cardId)
+        {
+            if (!_attentionToast.TryDismiss(cardId, Session?.WatchQueue))
+            {
+                return false;
+            }
+
+            RefreshAttentionToast();
+            return true;
+        }
+
+        /// <summary>
+        /// Play Mode demo: one pause-class hostile contact so the toast host has a real event.
+        /// Idempotent — no-ops when the watch queue already has cards.
+        /// </summary>
+        public bool TrySeedDemoWatchAttention()
+        {
+            if (Session == null || Session.WatchQueue.Cards.Count > 0)
+            {
+                return Session != null && Session.WatchQueue.Cards.Count > 0;
+            }
+
+            Session.ReportWatchAttention(new WatchAttentionEvent(
+                "watch:demo:hostile-1",
+                WatchAttentionKind.HostileOrUnknownContact,
+                WatchAttentionPriority.Critical,
+                1,
+                "hostile-1",
+                ReasonDetail: "Play Mode demo contact"));
+            SyncTimeCompressionLabel();
+            RefreshAttentionToast();
+            return true;
+        }
+
+        private void SyncTimeCompressionLabel()
+        {
+            if (Session == null)
+            {
+                return;
+            }
+
+            timeCompressionLabel = Session.IsSimPaused
+                ? "PAUSED"
+                : Session.TimeAccelerationFactor + "x";
+        }
 
         // S37-04: bind graph surfacing after selection (viewer/panel/highlights + bind)
         private void ApplyGraphSurfacingForSelection()
@@ -336,6 +473,15 @@ namespace ProjectAegis.Unity.Runtime
                 Bridge.Registry,
                 Bridge.Orchestrator.DecisionLog,
                 globalSeed);
+            LastMapCourses = MapPictureBridge.BuildCourses(
+                snapshot,
+                Bridge.Registry,
+                Bridge.Orchestrator.DecisionLog,
+                globalSeed);
+            LastCombatVfx = CombatVfxProjection.Project(
+                Bridge.Orchestrator.DecisionLog,
+                LastMapSymbols,
+                snapshot.SimTime);
             LastTopBar = C2TopBarProjection.Project(
                 snapshot.SimTime,
                 Bridge.Phase,
