@@ -53,12 +53,13 @@ Create at start: `ui/`, `ui/signoff/`, `run-id.txt`, `git-sha.txt`, `branch.txt`
 ```bash
 export PATH="${HOME}/.dotnet:${PATH}"
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj \
-  --filter "FullyQualifiedName~PlayModeSmoke|FullyQualifiedName~Presentation|FullyQualifiedName~C2|FullyQualifiedName~MapPlaceholder|FullyQualifiedName~MapCanvas|FullyQualifiedName~UnityCsharpScriptHygiene|FullyQualifiedName~Panel|FullyQualifiedName~MessageLog|FullyQualifiedName~SensorC2" \
+  --filter "FullyQualifiedName~PlayModeSmoke|FullyQualifiedName~Presentation|FullyQualifiedName~C2|FullyQualifiedName~MapPlaceholder|FullyQualifiedName~MapCanvas|FullyQualifiedName~UnityCsharpScriptHygiene|FullyQualifiedName~Panel|FullyQualifiedName~MessageLog|FullyQualifiedName~SensorC2|FullyQualifiedName~UiIa" \
   -v minimal --nologo | tee "${RUN_DIR}/ui/dotnet-ui-suite.log"
 ```
 
 Floor: **0 failures**. Record passed count (reference run: 118). PlayModeSmoke is
-included in the filter; if suite is green, PlayModeSmoke family is green.
+included in the filter; if suite is green, PlayModeSmoke family is green. **IA oracles
+(`UiIa`) are mandatory** in this filter; layout/visuals and manual UAT are not covered.
 
 ### 2) ReplayGolden family
 
@@ -125,6 +126,7 @@ Write `production/qa/gauntlet/<RUN_ID>/AAR.md`:
 | Gate | Result |
 |------|--------|
 | Headless UI/C2/Presentation suite | N/N |
+| IA oracles (`UiIa`) | N/N |
 | ReplayGolden filter | N/N |
 | C2 signoff ×5 | PASS/FAIL each |
 | Hash / DelegationBridge | OK / note |

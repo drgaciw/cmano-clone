@@ -48,10 +48,11 @@ Hard package lives in **`/qa-gauntlet-ui`** — invoke that skill and follow it 
 
 1. `RUN_DIR=production/qa/gauntlet/gauntlet-<timestamp>-ui/`
 2. Headless “118-style” UnityAdapter filter (PlayMode/C2/Presentation/Panel/…)
-3. `ReplayGolden` filter
-4. Unity Editor C2 Play Mode signoffs ×5
-5. AAR + `manifest.yaml`
-6. Any failure → **`/qa-gauntlet-remediation`** (+ UCA for presentation Surfaces)
+3. `UiIa` IA oracles (selection, COMMS, planning, PanelSettings) via `/qa-gauntlet-ui`
+4. `ReplayGolden` filter
+5. Unity Editor C2 Play Mode signoffs ×5
+6. AAR + `manifest.yaml`
+7. Any failure → **`/qa-gauntlet-remediation`** (+ UCA for presentation Surfaces)
 
 **Manual UAT → `/team-qa`** (and `/smoke-check`). UI mode must not invent a second
 human QA loop.
