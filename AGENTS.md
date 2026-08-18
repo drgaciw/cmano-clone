@@ -439,30 +439,30 @@ No Docker compose or long-running servers. The "application" is in-process: `dot
 
 ## Learned User Preferences
 
-- Use project-local skill `.cursor/skills/git-commit/SKILL.md` when asked to commit, push to `main`, merge branches, or clean worktrees on this repo; when the user says **include active worktrees**, commit the main repo and all dirty sprint stack worktrees under `.worktrees/` on their respective branches.
-- Release v1.0 completion means the shippable Baltic vertical slice, not MVP-done on all 21 requirement tracker rows.
+- Use project-local skill `.cursor/skills/git-commit/SKILL.md` when asked to commit, push to `main`, merge branches, or clean worktrees on this repo; when the user says **include active worktrees**, commit the main repo and all dirty sprint stack worktrees under `.worktrees/` on their respective branches. Do not rotate Graphite/GitHub tokens unless the user explicitly asks.
+- Release v1.0 / Spirit 1 means the shippable Baltic vertical slice (not MVP-done on all 21 requirement tracker rows) and is a closed milestone — no ongoing gap-remediation program.
 - Prefer detailed sprint planning through Release; post–Release trains use numbered sprints (S49+) with locked roadmap snapshots in `docs/reports/future-sprint-roadpmap-YYYYMMDD.md` (newer snapshots may use corrected spelling `future-sprint-roadmap-*.md`).
-- Do not edit attached `.cursor/plans/` files when implementing plans — treat them as read-only reference.
+- Do not edit attached `.cursor/plans/` files when implementing plans — treat them as read-only reference; do not append `Game-Requirements` REQ files (including REQ-20) until explicit owner approval.
 - Run in-sprint parallel agent tracks via isolated git worktrees and `production/agentic/local-cloud-agent-routing.md` (local: Editor evidence/coordinator; cloud: code/tests/hygiene); when implementing multi-sprint roadmaps, prefer parallel-safe wave plans over purely serial execution.
 - When subagent API limits block full-sprint orchestrators, split into per-task parallel workers instead of retrying one large orchestrator.
 - Maintain stable alias `docs/reports/future-sprint-roadpmap.md` pointing at the latest dated roadmap snapshot (edit dated files, not the alias body).
-- Treat v1.0 / Spirit 1 vertical slice as a closed milestone — no ongoing gap-remediation program.
 - Internal engineering trains (RC1, S49–S56, Baltic v2) exclude E7 commercial launch scope unless explicitly scoped.
 - When updating agile/roadmap or forward-program planning, cross-reference and refresh related `docs/reports/*roadmap*` artifacts and dashboard snapshots together.
-- For editor UI/UX productization reviews, generate HTML previews (under `docs/superpowers/reviews/` when applicable) and open them in the Cursor browser.
+- For editor UI/UX productization reviews, generate HTML previews (under `docs/superpowers/reviews/` when applicable) and open them in the Cursor browser. Do not invent Unity Editor Game View evidence; Play Mode visual ACs stay owner-signed (do not mark Linear Done without it).
 - Short program-gate acks ("i acknowledge", "acknowledged") count as formal exit confirmation when the gate package is ready; do not require the long template verbatim.
+- For game UI automated Smoke/Pressure, use `/team-qa-gauntlet --mode ui` (or `ui-smoke`) / `/qa-gauntlet-ui`; keep manual UAT on `/team-qa` and `/smoke-check` — do not invent a second human QA loop inside gauntlet.
 
 ## Learned Workspace Facts
 
 - Production stage is **Release** (`production/stage.txt`; S48 gate PASS 2026-06-20; RC1 cut); Launch / commercial execution remains deferred pending an explicit separate decision.
 - **S39–S80** programs COMPLETE through Baltic v3 content expansion (RC1 S48, MVP exit S56, Baltic v2 S64, release train S68, launch prep S72, Baltic v3 S73–S80).
-- Headless test baseline floor is **≥1638** solution tests post S95 gauntlet land (prior floor ≥1599; ReplayGolden 6/6, C2 proxy ≥20/20; monotonic). UA engage filter (`BalticReplayHarnessPolicyEngageTests`) **3/3 green** @ post-PE gate 2026-07-09 — see [`production/qa/ua-engage-triage-2026-07-09.md`](production/qa/ua-engage-triage-2026-07-09.md).
-- Canonical forward roadmap uses dated `docs/reports/future-sprint-roadpmap-*.md` / `future-sprint-roadmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE; **S81–S88 + ME Phase 2 + PE** COMPLETE (2026-07-09); **S89–S92 post-editor hygiene** COMPLETE (human ack 2026-07-09); **S93 + post-S93 remediation** COMPLETE; forward snapshot includes `future-sprint-roadmap-07142026.md` (S94+ Release Continuity); Platform/Mission Editor UI/UX productization (2026-07-23) is active Unity chrome polish with Excel-primary PE authoring (ADR-011).
+- Headless test baseline floor is **≥1638** solution tests post S95 gauntlet land (prior floor ≥1599; ReplayGolden 6/6, PlayModeSmokeHarness / C2 proxy ≥24/24; monotonic). UA engage filter (`BalticReplayHarnessPolicyEngageTests`) **3/3 green** @ post-PE gate 2026-07-09 — see [`production/qa/ua-engage-triage-2026-07-09.md`](production/qa/ua-engage-triage-2026-07-09.md).
+- Canonical forward roadmap uses dated `docs/reports/future-sprint-roadpmap-*.md` / `future-sprint-roadmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE; **S81–S88 + ME Phase 2 + PE** COMPLETE (2026-07-09); **S89–S92 post-editor hygiene** COMPLETE (human ack 2026-07-09); **S93 + post-S93 remediation** COMPLETE; forward snapshot includes `future-sprint-roadmap-07142026.md` (S94+ Release Continuity); Platform/Mission Editor UI/UX productization (2026-07-23) plus Play Mode C2 visual tracks (DRG-162 overlay, CMD-38 kinematics, CMD-39 toast/clock, Track C combat VFX) are active Unity chrome with Excel-primary PE authoring (ADR-011); Game View signoff remains owner-only.
 - Production Baltic v2 replay hash **`17144800277401907079`** must stay preserved unless an ADR explicitly changes it.
-- Baltic v3 uses isolated **`baltic-v3-*`** scenario policies and replay goldens; v2 hash invariant unchanged.
-- Baltic v3 baseline OOB: **u1, hostile-1, ucav-blue, ucav-red** (surface + UCAV only; no subs/air beyond UCAV).
+- Baltic v3 uses isolated **`baltic-v3-*`** scenario policies and replay goldens (v2 hash unchanged); baseline OOB is **u1, hostile-1, ucav-blue, ucav-red** (surface + UCAV only; no subs/air beyond UCAV).
 - Path A asset promotions require the explicit human phrase `asset approved: ASSET-XXX` before flipping manifest entries to Approved.
 - Sprint stack worktrees use `.worktrees/` under the parent repo path (`/home/username01/cmano-clone/.worktrees/`).
+- A second working clone lives at `/home/username01/projects/active/cmano-clone/cmano-clone` (Unity player/UI builds and Editor pin **6000.3.22f1**; Linux64 output under `unity/ProjectAegis/Builds/Linux64/`); keep Unity **6000.5.1f1** installed (do not delete); the supported Editor pass is 6000.3 on `unity/ProjectAegis`. The Cursor workspace and canonical learned-memory `AGENTS.md` are `/home/username01/cmano-clone`.
 - Exclude from commits: `.cursor/hooks/`, `.pi/settings.json`, `.polly/` (local agent/tooling config).
 - Baltic v3 policies use contact-triggered dual-side ASuW/AAA (`mission.triggers`, `MissionContactTriggerRuntime`) with ROE escalation to Weapons Free on recon contact detection.
 - `DelegationBridge.cs` remains zero-touch through Release v1; Platform Editor UI/UX waves must not edit CatalogWriteGate write paths.
