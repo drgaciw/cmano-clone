@@ -1,10 +1,10 @@
 {
   "dependencies": {
     "com.ivanmurzak.unity.mcp": "0.86.0",
-    "com.unity.addressables": "2.3.16",
+    "com.unity.addressables": "2.9.1",
     "com.unity.ai.assistant": "2.13.0-pre.2",
     "com.unity.ai.inference": "2.6.1",
-    "com.unity.burst": "1.8.29",
+    "com.unity.burst": "1.8.30",
     "com.unity.sdk.linux-x86_64": "1.1.0",
     "com.unity.toolchain.linux-x86_64-linux": "1.1.0",
     "com.unity.ui": "2.0.0",
@@ -25,11 +25,11 @@
       ]
     }
   ],
-  "_comment": "REFERENCE MIRROR of Packages/manifest.json — regenerated 2026-08-17. Previously drifted (declared 3 of 10 deps) while claiming alignment; a stale mirror is worse than no mirror. Regenerate whenever manifest.json changes.",
+  "_comment": "REFERENCE MIRROR of Packages/manifest.json \u2014 regenerated 2026-08-17. Previously drifted (declared 3 of 10 deps) while claiming alignment; a stale mirror is worse than no mirror. Regenerate whenever manifest.json changes.",
   "_guardrails": [
-    "Do NOT re-add com.unity.entities without human package approval (dropped 2026-07-07). com.unity.burst stays regardless — it is required by com.unity.ai.inference (Sentis).",
+    "Do NOT re-add com.unity.entities without human package approval (dropped 2026-07-07). com.unity.burst stays regardless \u2014 it is required by com.unity.ai.inference (Sentis).",
     "com.unity.ai.assistant is pinned to a PRERELEASE (2.13.0-pre.2). Prereleases can be unpublished and break semver; move to a stable release before this project goes wide. See UPGRADE-RUNBOOK.md.",
-    "com.ivanmurzak.unity.mcp resolves from the OpenUPM scoped registry, not Unity's. Version currency could not be verified from the registry API — check in-editor Package Manager.",
-    "Package versions here are pinned to the 6000.3.14f1 editor. Package Manager gates availability per editor version, so re-resolve after any editor bump; packages-lock.json is the authoritative pin."
+    "com.ivanmurzak.unity.mcp resolves from the OpenUPM scoped registry, not Unity's. Version currency could not be verified from the registry API \u2014 check in-editor Package Manager.",
+    "Package versions here are pinned to the 6000.3.22f1 editor. Package Manager gates availability per editor version, so re-resolve after any editor bump; packages-lock.json is the authoritative pin."
   ]
 }
