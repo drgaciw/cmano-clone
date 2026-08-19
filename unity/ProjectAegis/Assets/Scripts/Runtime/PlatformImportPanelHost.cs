@@ -472,6 +472,7 @@ namespace ProjectAegis.Unity.Runtime
 
         private void OnSectionFiltersKeyDown(KeyDownEvent evt)
         {
+            // Unity 6000.3's compiler rejects C# 12 collection expressions (`[]`).
             PlatformImportStagingSection?[] order =
             {
                 null,
