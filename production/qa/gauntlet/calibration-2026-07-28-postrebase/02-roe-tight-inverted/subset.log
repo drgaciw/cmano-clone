@@ -1,8 +1,0 @@
-=== tier-1 ticks=6 seeds=42,7,123 ===
-{"tier": "tier-1", "pass": false}
-=== tier-3 ticks=16 seeds=42,7,123 ===
-{"tier": "tier-3", "pass": false}
-=== tier-5 ticks=40 seeds=42,7,123 ===
-{"tier": "tier-5", "pass": false}
-{"run": "production/qa/gauntlet/saboteur-tmp/saboteur-02-roe-tight-inverted", "pass": false}
-RUN_VERDICT exit=1 run_dir=production/qa/gauntlet/saboteur-tmp/saboteur-02-roe-tight-inverted
