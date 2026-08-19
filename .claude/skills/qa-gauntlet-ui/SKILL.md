@@ -6,7 +6,7 @@ description: >
   Failures route to /qa-gauntlet-remediation + UCA. Manual UAT stays on /team-qa /
   /smoke-check. Use when /qa-gauntlet-ui, /team-qa-gauntlet --mode ui|ui-smoke,
   or the user asks for "gauntlet UI", "C2 Play Mode pressure", or "UI smoke gauntlet".
-argument-hint: "[--run-id <id>] [--unity-version 6000.3.22f1] [--skip-signoff]"
+argument-hint: "[--run-id <id>] [--unity-version 6000.3.14f1] [--skip-signoff]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task
 ---
@@ -51,39 +51,71 @@ Create at start: `ui/`, `ui/signoff/`, `run-id.txt`, `git-sha.txt`, `branch.txt`
 ### 1) Headless UI / C2 / Presentation suite (“118-style” filter)
 
 ```bash
+set -euo pipefail
 export PATH="${HOME}/.dotnet:${PATH}"
-dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj \
+UA_TEST="src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj"
+
+require_passed_floor() {
+  local log="$1" min="$2" label="$3"
+  local passed
+  passed="$(grep -Eo 'Passed:[[:space:]]*[0-9]+' "$log" | tail -1 | grep -Eo '[0-9]+' || true)"
+  if [ -z "$passed" ]; then
+    echo "FATAL: could not parse Passed count from ${log} (${label})" >&2
+    exit 1
+  fi
+  if [ "$passed" -lt "$min" ]; then
+    echo "FATAL: ${label} passed=${passed} floor=${min}" >&2
+    exit 1
+  fi
+}
+
+dotnet test "$UA_TEST" \
   --filter "FullyQualifiedName~PlayModeSmoke|FullyQualifiedName~Presentation|FullyQualifiedName~C2|FullyQualifiedName~MapPlaceholder|FullyQualifiedName~MapCanvas|FullyQualifiedName~UnityCsharpScriptHygiene|FullyQualifiedName~Panel|FullyQualifiedName~MessageLog|FullyQualifiedName~SensorC2|FullyQualifiedName~UiIa" \
   -v minimal --nologo | tee "${RUN_DIR}/ui/dotnet-ui-suite.log"
+require_passed_floor "${RUN_DIR}/ui/dotnet-ui-suite.log" 118 "UI/C2/Presentation suite"
+
+dotnet test "$UA_TEST" \
+  --filter "FullyQualifiedName~UiIa" \
+  -v minimal --nologo | tee "${RUN_DIR}/ui/dotnet-uiia.log"
+require_passed_floor "${RUN_DIR}/ui/dotnet-uiia.log" 11 "UiIa oracles"
 ```
 
-Floor: **0 failures**. Record passed count (reference run: 118). PlayModeSmoke is
-included in the filter; if suite is green, PlayModeSmoke family is green. **IA oracles
-(`UiIa`) are mandatory** in this filter; layout/visuals and manual UAT are not covered.
+Floor: **0 failures** and **mandatory discovery floors** (zero-match is FAIL). Combined
+suite ≥118 passed (PlayModeSmoke family included; AGENTS.md PlayModeSmokeHarness ≥20/20).
+Dedicated `FullyQualifiedName~UiIa` ≥11. Layout/visuals and manual UAT are not covered.
 
 ### 2) ReplayGolden family
 
 ```bash
-dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj \
+dotnet test "$UA_TEST" \
   --filter ReplayGolden -v minimal --nologo | tee "${RUN_DIR}/ui/replay-golden.log"
+require_passed_floor "${RUN_DIR}/ui/replay-golden.log" 6 "ReplayGolden"
 ```
 
-Floor: **0 failures** (reference: 17 including ReplayGolden family; AGENTS.md still
-requires ReplayGolden **6/6** subset — both must stay green).
+Floor: **0 failures** and **≥6 passed** (AGENTS.md ReplayGolden **6/6**). Reference total
+for the family may be higher (e.g. 17) — never treat a 0-discovery green as PASS.
 
 ### 3) Unity Editor C2 Play Mode signoffs (×5)
 
-Editor: Hub `6000.3.x` matching `unity/ProjectAegis/ProjectSettings/ProjectVersion.txt`
-(default path Linux: `$HOME/Unity/Hub/Editor/<ver>/Editor/Unity`).
+Editor: Hub version **must** match `unity/ProjectAegis/ProjectSettings/ProjectVersion.txt`
+(pinned `6000.3.14f1`). Default path Linux: `$HOME/Unity/Hub/Editor/<ver>/Editor/Unity`.
 
 ```bash
-UNITY="${UNITY:-$HOME/Unity/Hub/Editor/6000.3.22f1/Editor/Unity}"
+VER="$(awk -F': ' '/^m_EditorVersion:/{print $2; exit}' unity/ProjectAegis/ProjectSettings/ProjectVersion.txt)"
+UNITY="${UNITY:-$HOME/Unity/Hub/Editor/${VER}/Editor/Unity}"
 PROJ="unity/ProjectAegis"
 for METHOD in RunBatch RunClassifyBatch RunDoctrineBatch RunImportBatch RunBeginExecutionBatch; do
+  set +e
   timeout 300s "$UNITY" -batchmode -nographics \
     -projectPath "$PROJ" \
     -executeMethod "ProjectAegis.Unity.Editor.C2PlayModeSignoffBatchRunner.${METHOD}" \
     -logFile "${RUN_DIR}/ui/signoff/${METHOD}.log"
+  status=$?
+  set -e
+  if [ "$status" -ne 0 ]; then
+    echo "FATAL: Unity ${METHOD} exit ${status}" >&2
+    exit "$status"
+  fi
   grep -q 'C2PlayModeSignoffBatchRunner PASS:' "${RUN_DIR}/ui/signoff/${METHOD}.log" || exit 1
 done
 ```
