@@ -473,13 +473,13 @@ namespace ProjectAegis.Unity.Runtime
         private void OnSectionFiltersKeyDown(KeyDownEvent evt)
         {
             PlatformImportStagingSection?[] order =
-            [
+            {
                 null,
                 PlatformImportStagingSection.Damage,
                 PlatformImportStagingSection.Comms,
                 PlatformImportStagingSection.Link,
                 PlatformImportStagingSection.Other,
-            ];
+            };
             var index = 0;
             for (var i = 0; i < order.Length; i++)
             {

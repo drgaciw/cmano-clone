@@ -44,4 +44,20 @@ public interface ISimWorldSnapshot
     /// Default null preserves single-primary-hostile MVP behaviour.
     /// </summary>
     IReadOnlyDictionary<string, string>? PreferredHostileByShooter => null;
+
+    /// <summary>
+    /// Optional kinematic pose for a friendly unit or known contact (CMD-38).
+    /// Default false keeps hash placement in <c>MapPictureProjection</c>.
+    /// </summary>
+    bool TryGetKinematicPose(string unitOrContactId, out UnitKinematicPose pose)
+    {
+        pose = default;
+        return false;
+    }
+
+    /// <summary>
+    /// Optional plotted-course waypoints for a unit (CMD-30.7 / CMD-38).
+    /// Default null draws no course polyline.
+    /// </summary>
+    IReadOnlyList<CourseWaypoint>? GetPlottedCourse(string unitId) => null;
 }

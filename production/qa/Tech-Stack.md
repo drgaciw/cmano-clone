@@ -16,14 +16,15 @@
 
 ## Claude-Specific Integrations
 
-> **Status: Configured** — client MCP + Unity project scaffold; **Editor session and `:8080` pending**.
+> **Status: Configured** — client MCP + package **0.86.0** on disk; **local Custom `:8080` pin + Editor session** still required per machine.
 > See [Claude Agent Setup](Game-Requirements/Claude-Agent-Setup.md) for activation steps.
 
 **[Unity-MCP](https://github.com/IvanMurzak/Unity-MCP)** — *client + manifest configured*
-- CLI: `npx unity-mcp-cli` (v0.77.0); optional global `npm install -g unity-mcp-cli`
-- MCP config: `.cursor/mcp.json`, `.mcp.json` → `http://localhost:8080`
-- Plugin: `com.ivanmurzak.unity.mcp` **0.77.0** in `unity/ProjectAegis/Packages/manifest.json`
-- **Pending**: Open Editor (`6000.3.14f1`), `login`, then verify `:8080` responds
+- CLI: `npx unity-mcp-cli@0.86.0`; optional global `npm install -g unity-mcp-cli`
+- MCP config: `.cursor/mcp.json`, `.mcp.json` → `"type": "http"`, `http://localhost:8080`
+- Plugin: `com.ivanmurzak.unity.mcp` **0.86.0** in `unity/ProjectAegis/Packages/manifest.json`
+- **Pin:** `./tools/pin-unity-mcp-8080.sh` / `.ps1` or Editor menu **Project Aegis → MCP → Pin Local Host :8080**
+- **Pending on interactive machine:** Open Editor (`6000.3.14f1`), confirm Custom/`http://localhost:8080`, then verify curl/`status`
 
 **.NET:** SDK pin **8.0.400** (`global.json`); headless `net8.0` + Unity plugins `netstandard2.1` — [dotnet reference](docs/engine-reference/dotnet/README.md)
 

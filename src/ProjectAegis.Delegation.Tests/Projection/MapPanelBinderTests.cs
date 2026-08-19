@@ -8,6 +8,26 @@ namespace ProjectAegis.Delegation.Tests.Projection;
 public sealed class MapPanelBinderTests
 {
     [Test]
+    public void Bind_hash_symbols_mark_unknown_pose()
+    {
+        var state = MapPanelBinder.Bind(
+            [new MapSymbolEntry("u1", "Friendly", "■", "u1", 0.2f, 0.3f, false)],
+            "baltic-patrol");
+
+        Assert.That(state.Symbols[0].StyleClass, Does.Contain("map-symbol--unknown-pose"));
+    }
+
+    [Test]
+    public void Bind_authoritative_pose_omits_unknown_pose_class()
+    {
+        var state = MapPanelBinder.Bind(
+            [new MapSymbolEntry("u1", "Friendly", "■", "u1", 0.2f, 0.3f, false, HasAuthoritativePose: true)],
+            "baltic-patrol");
+
+        Assert.That(state.Symbols[0].StyleClass, Does.Not.Contain("map-symbol--unknown-pose"));
+    }
+
+    [Test]
     public void Bind_selected_unit_adds_selected_style_class()
     {
         var state = MapPanelBinder.Bind(
