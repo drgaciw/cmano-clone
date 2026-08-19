@@ -51,10 +51,10 @@ to anyone until you have run the A/B in §6.
   If CI runs off-box, a DHCP LAN IP is not acceptable — use DNS or a reserved lease.
 - Free disk on a fast volume (§4). Do not co-locate the cache with the repo. The compose file's
   default named volume does **not** satisfy this — see §4/§5.
-- Editor `6000.3.14f1` on all clients. Artifacts are keyed by importer version, so a mixed
-  `6000.3.14f1` / `6000.5.1f1` fleet will simply produce two disjoint artifact sets in the same
-  cache — correct, but it doubles storage and halves your hit rate. Keep the second editor out of
-  this project.
+- Editor `6000.3.22f1` on all clients. Artifacts are keyed by importer version, so a mixed
+  leftover `6000.3.14f1` / `6000.5.1f1` fleet vs the pinned `6000.3.22f1` will simply produce
+  disjoint artifact sets in the same cache — correct, but it doubles storage and halves your hit
+  rate. Keep leftover 14f1/5.1 editors out of this project after the pin lands.
 - **Sequencing vs the editor upgrade.** The sibling `UPGRADE-RUNBOOK.md` moves this project
   `6000.3.14f1` → `6000.3.22f1`. Artifacts are keyed by importer version, so a cache populated
   before that upgrade is 100% miss after it. Either stand Accelerator up *after* the upgrade
@@ -149,9 +149,12 @@ cd /srv/unity-accelerator
 cp <copied>/accelerator-docker-compose.yml ./docker-compose.yml
 
 # 2. Fill in the values you verified in §3
+#    Cache-size-via-env is unverified (§3). Set BOTH names so a 250 GB cap is not a
+#    no-op if the image only honors one of ACCELERATOR_CACHE_SIZE_GB / ACCELERATOR_CACHE_GB.
 cat > .env <<'EOF'
 ACCELERATOR_IMAGE=<VERIFIED publisher/image:tag>
 ACCELERATOR_DATA_PATH=/agent
+ACCELERATOR_CACHE_SIZE_GB=250
 ACCELERATOR_CACHE_GB=250
 EOF
 

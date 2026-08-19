@@ -78,8 +78,8 @@ Expected: exactly one `MISSING META: ./Scripts/Runtime/ScenarioEditorShellHost.c
   connection failure on every import for every dev.
 - **`.gitattributes`**: each dev must run the three `git config merge.unityyamlmerge.*` commands in
   the file header, with their own editor path. Without that, the merge driver lines are silently
-  inert and git falls back to the default text merge. Use the **6000.3.14f1** install, not the
-  6000.5.1f1 one on this host.
+  inert and git falls back to the default text merge. Use the **6000.3.22f1** install, never
+  6000.3.14f1 and never the 6000.5.1f1 one on this host.
 - **LFS is not retroactive.** Already-committed media stays as plain blobs and will show as modified
   until history is converted. Inventory with `git ls-files -- '*.png' '*.psd' '*.fbx' '*.wav'`
   before landing. `git lfs migrate import` is a separate, coordinated exercise — do not bundle it.

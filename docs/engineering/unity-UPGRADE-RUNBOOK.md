@@ -320,15 +320,14 @@ cd - && git ls-files -- 'unity/ProjectAegis/Assets/**/*.cs' 'unity/ProjectAegis/
 `tools/unity-housekeeping.sh` (bare dry run) reports the same counts across all asset types, not
 just `.cs`. Use both.
 
-From the files actually reviewed, the exposure is on a **different and larger** set than the
-delivered `.meta` addresses, plus a fourth, opposite defect:
+**4a is authority.** The 2026-08-17 live listing (and 4b.3 / 4b.4) expect *exactly one*
+`MISSING META: ./Scripts/Runtime/ScenarioEditorShellHost.cs` and **no orphans**. Do not pin
+GUIDs from any other missing-meta set.
 
-| Path (under `Assets/Scripts/Runtime/`) | State |
-|---|---|
-| `TestFile.cs` | `.cs`, **no** `.meta` — tracked scaffolding; `CHANGESET.md` §3 proposes `git rm` instead |
-| `OsintStagingPanelHost.cs` | `.cs`, **no** `.meta` — 12.6 KB panel host, i.e. exactly the kind of `MonoBehaviour` a scene references |
-| `Cesium/CesiumGlobeBridge.cs` | `.cs`, **no** `.meta` |
-| `C2LeftDrawerPanelHost.cs.meta` (guid `ae40bacbd5ae3d34ea0bdd09b7e52fc2`) | **ORPHAN `.meta`** — no matching `.cs` |
+> **Historical (withdrawn-reviewer inference — do not follow):** a partial source mirror once
+> listed `TestFile.cs`, `OsintStagingPanelHost.cs`, and `Cesium/CesiumGlobeBridge.cs` as unmetaed
+> plus orphan `C2LeftDrawerPanelHost.cs.meta`. That set does not survive the full listing.
+> See `CHANGESET.md` §2a.
 
 ### 4b. What to actually do, per file
 
