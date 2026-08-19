@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="attention-toast-root" class="c2-attention-toast">
+        <ui:VisualElement name="attention-toast-card" class="c2-attention-toast-card">
+            <ui:Label name="attention-toast-severity" text="" class="c2-attention-toast-severity" />
+            <ui:Label name="attention-toast-title" text="" class="c2-attention-toast-title" />
+            <ui:Label name="attention-toast-body" text="" class="c2-attention-toast-body" />
+            <ui:Label name="attention-toast-queue" text="" class="c2-attention-toast-queue" />
+            <ui:VisualElement name="attention-toast-actions" class="c2-attention-toast-actions">
+                <ui:Button name="attention-toast-ack" text="ACK" class="c2-attention-toast-ack" />
+                <ui:Button name="attention-toast-dismiss" text="DISMISS" class="c2-attention-toast-dismiss" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,4 +1,4 @@
-# CMD-28 C2 menu / basemap layer checklist host — thin UI Toolkit over C2MenuProjection.
+// CMD-28 C2 menu / basemap layer checklist host — thin UI Toolkit over C2MenuProjection.
 #if UNITY_5_3_OR_NEWER
 using System;
 using System.Collections.Generic;

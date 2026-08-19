@@ -67,6 +67,11 @@ public static class MapPanelBinder
                 style += " map-symbol--selected";
             }
 
+            if (!symbol.HasAuthoritativePose)
+            {
+                style += " map-symbol--unknown-pose";
+            }
+
             if (commsState == CommsState.Degraded && symbol.Affiliation == "Hostile")
             {
                 style += " map-symbol--stale";

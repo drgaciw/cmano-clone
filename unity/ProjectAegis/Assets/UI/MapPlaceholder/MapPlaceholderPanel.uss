@@ -99,6 +99,12 @@
     background-color: rgba(140, 155, 170, 0.45);
 }
 
+.map-overlay-course {
+    position: absolute;
+    height: 2px;
+    background-color: rgba(220, 230, 140, 0.85);
+}
+
 .map-symbol {
     position: absolute;
     font-size: 14px;
@@ -132,6 +138,10 @@
 
 .map-symbol--unknown {
     color: rgb(140, 155, 170);
+}
+
+.map-symbol--unknown-pose {
+    opacity: 0.82;
 }
 
 .map-symbol--selected {
