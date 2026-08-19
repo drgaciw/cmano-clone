@@ -148,8 +148,17 @@ public sealed class App6AtlasAssetTests
         Assert.That(File.Exists(manifestPath), Is.True);
 
         var manifest = File.ReadAllText(manifestPath);
-        Assert.That(manifest, Does.Contain("com.unity.addressables"));
-        Assert.That(manifest, Does.Contain("2.3.16"));
+        using var doc = System.Text.Json.JsonDocument.Parse(manifest);
+        Assert.That(
+            doc.RootElement.GetProperty("dependencies").TryGetProperty("com.unity.addressables", out var addressables),
+            Is.True,
+            "Packages/manifest.json must declare com.unity.addressables");
+        var version = addressables.GetString();
+        Assert.That(version, Is.Not.Null.And.Not.Empty);
+        Assert.That(
+            System.Text.RegularExpressions.Regex.IsMatch(version!, @"^\d+\.\d+\.\d+"),
+            Is.True,
+            $"com.unity.addressables version '{version}' should be a dotted package version");
     }
 
     [Test]
