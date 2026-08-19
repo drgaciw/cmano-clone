@@ -157,6 +157,7 @@ Required at: pre, a0, post-oracle, e, final.
 
 - `/team-qa-gauntlet` — multi-agent entry
 - `/qa-gauntlet` — ladder owner
+- `/qa-gauntlet-ui` — game UI Smoke/Pressure (not forge)
 - `/qa-gauntlet-stress` — axes + proof gate
 - `/qa-gauntlet-remediation` — Phase D / UCA
-- `/team-qa` — human sprint package
+- `/team-qa` — human sprint package / manual UAT

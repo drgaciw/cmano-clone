@@ -92,6 +92,10 @@ worktrees/
 .pytest_cache/
 tools/qa-gauntlet/__pycache__/
 
+# Local MCP / language-server captures (never commit)
+.playwright-mcp/
+.serena/
+
 # Gauntlet forge ephemeral candidates (promote winners only)
 production/qa/gauntlet/*/forge/candidates/
 

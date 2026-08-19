@@ -9,7 +9,8 @@ description: >
   /qa-gauntlet, or asks for "QA gauntlet", "escalating complexity QA", "tiered
   scenario stress test", "autonomous sim QA loop", "batch sim defect remediation",
   or "gauntlet AAR". Companions: /qa-gauntlet-forge, /qa-gauntlet-stress,
-  /qa-gauntlet-remediation, /qa-gauntlet-calibrate; team entry /team-qa-gauntlet.
+  /qa-gauntlet-remediation, /qa-gauntlet-calibrate, /qa-gauntlet-ui; team entry
+  /team-qa-gauntlet.
 argument-hint: "[--tiers N=5] [--scenarios-per-tier N=4] [--seeds 42,7,123] [--max-fix-attempts 3] [--resume <run-id>]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion
@@ -27,8 +28,9 @@ binding — especially GitNexus impact analysis before every symbol edit,
 **Team (avoid skill bloat):** multi-agent entry is `/team-qa-gauntlet`. Specialists:
 `/qa-gauntlet-forge` (variance), `/qa-gauntlet-stress` (orthogonal axes),
 `/qa-gauntlet-remediation` (Phase D + **UCA** on presentation Surfaces),
-`/qa-gauntlet-calibrate` (saboteur). This file owns the ladder contract; details for
-stress/remediation live in those skills — do not duplicate full runbooks here.
+`/qa-gauntlet-calibrate` (saboteur), `/qa-gauntlet-ui` (game UI Smoke/Pressure —
+does **not** alter this ladder contract). This file owns the ladder contract; details for
+stress/remediation/UI live in those skills — do not duplicate full runbooks here.
 
 **Variance companion:** invoke `/qa-gauntlet-forge` for self-improving scenario /
 platform / mission variance (Karpathy-style promote loop). Forge owns candidates,
@@ -349,9 +351,10 @@ After tier 5 (or an unrecoverable halt):
 ## See also
 
 - `/team-qa-gauntlet` — multi-agent orchestrator (preferred entry for full pressure team).
+- `/qa-gauntlet-ui` — game UI Smoke/Pressure (`--mode ui`); not part of this ladder contract.
 - `/qa-gauntlet-forge` — variance companion; Hindsight bank `qa-gauntlet-forge`.
 - `/qa-gauntlet-stress` — orthogonal axes + proof gate.
 - `/qa-gauntlet-remediation` — Phase D TDD + UCA presentation gate.
 - `/qa-gauntlet-calibrate` — saboteur / kill-rate.
-- `/team-qa` — human sprint QA package (not a substitute for the gauntlet ladder).
+- `/team-qa` — human sprint QA package / **manual UAT** (not a substitute for the gauntlet ladder).
 - `/smoke-check` — Phase 0 preflight.

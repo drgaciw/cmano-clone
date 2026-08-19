@@ -100,3 +100,7 @@
     min-height: 12px;
     white-space: normal;
 }
+
+.c2-menu-panel--planning-readonly {
+    opacity: 0.72;
+}

@@ -129,6 +129,8 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
+            ApplyPlanningChrome();
+
             var stack = ResolveLayerStack();
             var visible = stack.VisibleCount;
             var total = stack.Count;
@@ -279,6 +281,12 @@ namespace ProjectAegis.Unity.Runtime
 
         private void OnLayerRowClicked(string menuItemId)
         {
+            if (IsPlanningReadOnly)
+            {
+                SetStatus("PLANNING_READONLY");
+                return;
+            }
+
             if (!TryParseLayerId(menuItemId, out var layerId))
             {
                 SetStatus($"UNKNOWN_LAYER:{menuItemId}");
@@ -305,6 +313,12 @@ namespace ProjectAegis.Unity.Runtime
         /// </summary>
         private void OnCycleUnitClicked(bool forward)
         {
+            if (IsPlanningReadOnly)
+            {
+                SetStatus("PLANNING_READONLY");
+                return;
+            }
+
             if (bridgeHost == null)
             {
                 SetStatus("NO_BRIDGE");
@@ -380,6 +394,23 @@ namespace ProjectAegis.Unity.Runtime
 
             root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
         }
+
+        private void ApplyPlanningChrome()
+        {
+            var panel = _document.rootVisualElement?.Q(RootName) ?? _document.rootVisualElement;
+            if (panel == null)
+            {
+                return;
+            }
+
+            var readOnly = bridgeHost != null
+                && C2PlanningChromeProjection.Project(bridgeHost.Phase).IsDrawerReadOnly;
+            panel.EnableInClassList("c2-menu-panel--planning-readonly", readOnly);
+        }
+
+        private bool IsPlanningReadOnly =>
+            bridgeHost != null
+            && C2PlanningChromeProjection.Project(bridgeHost.Phase).IsDrawerReadOnly;
     }
 }
 #endif
