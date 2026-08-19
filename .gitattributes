@@ -203,7 +203,8 @@ unity/ProjectAegis/ProjectSettings/ProjectVersion.txt text eol=lf
 # is XML — applying the C# hunk-header regex to them produces misleading
 # @@-context in every diff and review. Not worth the noise.
 *.uxml    text eol=lf
-*.svg             text eol=lf   # SVG is XML: diffable text. Deliberately NOT LFS.
+# SVG is XML: diffable text. Deliberately NOT LFS.
+*.svg             text eol=lf
 *.uss     text eol=lf
 *.shader  text eol=lf
 *.cginc   text eol=lf
