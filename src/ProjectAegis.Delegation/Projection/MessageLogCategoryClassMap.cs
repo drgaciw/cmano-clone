@@ -25,9 +25,10 @@ public static class MessageLogCategoryClassMap
             "MAGAZINE" => "message-log-row--magazine",
             "COMMS" => "message-log-row--comms",
             "CONTACT" or "CONTACT_CHANGE" => "message-log-row--contact",
-            "MISSION" or "MISSION_TRANSITION" => "message-log-row--mission",
-            "POLICY_DENIAL" => "message-log-row--policy",
+            "MISSION" or "MISSION_TRANSITION" or "EVENT" => "message-log-row--mission",
+            "POLICY_DENIAL" or "POLICY_UPDATE" => "message-log-row--policy",
             "WEAPON_LAUNCH" => "message-log-row--weapon",
+            "DAMAGE" => "message-log-row--kill",
             _ => null,
         };
     }

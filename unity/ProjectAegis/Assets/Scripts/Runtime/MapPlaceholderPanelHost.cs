@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Scenario;
@@ -47,6 +48,8 @@ namespace ProjectAegis.Unity.Runtime
         [SerializeField] private bool preferAddressablesAtlas = true;
         [SerializeField] private string app6AtlasManifestRelativePath =
             "Addressables/Map/App6AtlasAddressablesManifest.json";
+        [Tooltip("Presentation-only icon slide between tick poses (CMD-38). 0 disables lerp.")]
+        [SerializeField] private float symbolLerpSeconds = 0.15f;
 
         private UIDocument _document = null!;
         private VisualElement? _rootPanel;
@@ -65,8 +68,15 @@ namespace ProjectAegis.Unity.Runtime
 
         private MapSymbolPool? _symbolPool;
         private MapCanvasOverlayRenderer? _overlayRenderer;
+        private MapCanvasCourseOverlayRenderer? _courseOverlayRenderer;
+        private MapCanvasTransientEffectsRenderer? _transientEffectsRenderer;
         private bool _refreshedOnce;
         private IReadOnlyList<MapSymbolEntry>? _dirtySymbolsRef;
+        private IReadOnlyList<MapCourseOverlayEntry>? _dirtyCoursesRef;
+        private CombatVfxFrame? _dirtyCombatVfxRef;
+        private IReadOnlyList<MapSymbolEntry> _lerpFrom = Array.Empty<MapSymbolEntry>();
+        private IReadOnlyList<MapSymbolEntry> _lerpTo = Array.Empty<MapSymbolEntry>();
+        private float _lerpT = 1f;
         private string? _dirtySelectedUnit;
         private string? _dirtySelectedContact;
         private SimulationPhase _dirtyPhase;
@@ -91,6 +101,15 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Last projected doctrine map overlay row count (CMD-33).</summary>
         public int LastDoctrineOverlayCount { get; private set; }
+
+        /// <summary>Last Track C fire-line count (presentation-only; not DRG-162 rings).</summary>
+        public int LastCombatVfxFireLineCount { get; private set; }
+
+        /// <summary>Last Track C impact-marker count (presentation-only).</summary>
+        public int LastCombatVfxImpactCount { get; private set; }
+
+        /// <summary>Last plotted-course overlay count (CMD-38; not Track C fire lines).</summary>
+        public int LastCourseOverlayCount { get; private set; }
 
         /// <summary>Last basemap layer visible count (CMD-28.2, UI-local).</summary>
         public int LastLayerVisibleCount { get; private set; }
@@ -159,6 +178,12 @@ namespace ProjectAegis.Unity.Runtime
             {
                 _canvas = canvas;
                 _overlayRenderer = _canvas != null ? new MapCanvasOverlayRenderer(_canvas) : null;
+                _courseOverlayRenderer = _canvas != null
+                    ? new MapCanvasCourseOverlayRenderer(_canvas)
+                    : null;
+                _transientEffectsRenderer = _canvas != null
+                    ? new MapCanvasTransientEffectsRenderer(_canvas)
+                    : null;
                 _symbolPool = _canvas != null ? new MapSymbolPool(_canvas) : null;
                 _refreshedOnce = false;
             }
@@ -189,8 +214,9 @@ namespace ProjectAegis.Unity.Runtime
             var commsDisplay = bridgeHost.Bridge.Orchestrator.ScenarioPolicy?.CommsDisplay
                 ?? ScenarioCommsDisplaySettings.Default;
             var atlas = ResolveAtlasCatalog();
+            var symbols = ResolveDisplaySymbols(PresentationFeed.LastMapSymbols);
             _panelState = MapPanelBinder.Bind(
-                PresentationFeed.LastMapSymbols,
+                symbols,
                 bridgeHost.ScenarioPolicyId,
                 PresentationFeed.SelectedUnitId,
                 PresentationFeed.SelectedContactId,
@@ -200,6 +226,8 @@ namespace ProjectAegis.Unity.Runtime
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
             _symbolPool!.Sync(_panelState.Symbols, OnSymbolClicked);
             ApplyOverlayCounts(comms);
+            ApplyCourseOverlays();
+            ApplyTransientCombatVfx();
             ApplyLayerStackHud();
             ApplyPlanningChrome();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
@@ -256,6 +284,52 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             ApplyCanvasOverlays(rings, edges);
+        }
+
+        private IReadOnlyList<MapSymbolEntry> ResolveDisplaySymbols(IReadOnlyList<MapSymbolEntry> authoritative)
+        {
+            if (!ReferenceEquals(authoritative, _lerpTo))
+            {
+                _lerpFrom = _lerpTo.Count > 0 ? _lerpTo : authoritative;
+                _lerpTo = authoritative;
+                _lerpT = symbolLerpSeconds <= 0f ? 1f : 0f;
+            }
+
+            if (symbolLerpSeconds > 0f && _lerpT < 1f)
+            {
+                _lerpT = Math.Min(1f, _lerpT + (Time.deltaTime / symbolLerpSeconds));
+            }
+            else
+            {
+                _lerpT = 1f;
+            }
+
+            return MapSymbolPresentationLerp.Lerp(_lerpFrom, _lerpTo, _lerpT);
+        }
+
+        /// <summary>
+        /// Syncs CMD-38 plotted-course polylines on a layer separate from rings/edges and Track C VFX.
+        /// </summary>
+        private void ApplyCourseOverlays()
+        {
+            var courses = bridgeHost != null
+                ? bridgeHost.LastMapCourses
+                : Array.Empty<MapCourseOverlayEntry>();
+            LastCourseOverlayCount = courses?.Count ?? 0;
+            var segments = MapCanvasOverlayGeometry.ProjectCourseSegments(courses);
+            _courseOverlayRenderer?.Sync(segments);
+        }
+
+        /// <summary>
+        /// Syncs Track C transient fire lines / impact markers on a layer separate from
+        /// static rings and datalink edges. Presentation-only (ADR-010).
+        /// </summary>
+        private void ApplyTransientCombatVfx()
+        {
+            var frame = bridgeHost != null ? bridgeHost.LastCombatVfx : CombatVfxFrame.Empty;
+            LastCombatVfxFireLineCount = frame.FireLines?.Count ?? 0;
+            LastCombatVfxImpactCount = frame.ImpactMarkers?.Count ?? 0;
+            _transientEffectsRenderer?.Sync(frame);
         }
 
         /// <summary>
@@ -378,7 +452,10 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             return !_refreshedOnce
+                || _lerpT < 1f
                 || !ReferenceEquals(feed.LastMapSymbols, _dirtySymbolsRef)
+                || !ReferenceEquals(bridgeHost.LastMapCourses, _dirtyCoursesRef)
+                || !ReferenceEquals(bridgeHost.LastCombatVfx, _dirtyCombatVfxRef)
                 || feed.SelectedUnitId != _dirtySelectedUnit
                 || feed.SelectedContactId != _dirtySelectedContact
                 || bridgeHost.Phase != _dirtyPhase
@@ -391,6 +468,8 @@ namespace ProjectAegis.Unity.Runtime
         {
             var feed = PresentationFeed;
             _dirtySymbolsRef = feed?.LastMapSymbols;
+            _dirtyCoursesRef = bridgeHost?.LastMapCourses;
+            _dirtyCombatVfxRef = bridgeHost?.LastCombatVfx;
             _dirtySelectedUnit = feed?.SelectedUnitId;
             _dirtySelectedContact = feed?.SelectedContactId;
             _dirtyPhase = bridgeHost.Phase;

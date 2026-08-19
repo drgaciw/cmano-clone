@@ -1,18 +1,19 @@
 # Art Bible: Project Aegis (Lean — C2 & Platform Editor; B2 Complete)
 
-> **Status:** B2 Complete (lean v1 for Baltic slice) — S43-05  
-> **Version:** 1.0 (B2)  
-> **Last Updated:** 2026-06-20  
+> **Status:** B2 Complete (lean v1 for Baltic slice) — S43-05; **§7 Track C reopen 2026-08-17**  
+> **Version:** 1.0 (B2) + Track C VFX amendment  
+> **Last Updated:** 2026-08-17  
 > **Owned By:** art-director / team-ui  
-> **Scope:** C2 Command Post + Platform Editor UI only; world/character/VFX deferred post-Baltic slice (per release-enablement-scope-boundary-2026-06-20.md B2)  
-> **Sources:** [game-concept.md](../gdd/game-concept.md), [c2-command-post.md](../ux/c2-command-post.md), [c2-map-placeholder.md](../ux/c2-map-placeholder.md), [interaction-patterns.md](../ux/interaction-patterns.md), [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md), [ADR-011](../../docs/architecture/adr-011-platform-editor-excel-roundtrip.md), Unity USS under `unity/ProjectAegis/Assets/UI/`  
-> **Art Director Sign-Off (AD-ART-BIBLE):** FULL VERDICT — APPROVED lean v1 (S43); §1–9 complete per B2; §5/§7 N/A explicit for v1. Cites S42 closeout + S41 ack. (art-director + team-ui + csharpexpert)
+> **Scope:** C2 Command Post + Platform Editor UI; world/character still deferred; **§7 combat VFX reopened** for presentation-only CMO-style fire lines / impact markers (see Track C spec)  
+> **Sources:** [game-concept.md](../gdd/game-concept.md), [c2-command-post.md](../ux/c2-command-post.md), [c2-map-placeholder.md](../ux/c2-map-placeholder.md), [interaction-patterns.md](../ux/interaction-patterns.md), [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md), [ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md), [ADR-011](../../docs/architecture/adr-011-platform-editor-excel-roundtrip.md), Unity USS under `unity/ProjectAegis/Assets/UI/`  
+> **Art Director Sign-Off (AD-ART-BIBLE):** FULL VERDICT — APPROVED lean v1 (S43); §1–9 complete per B2; §5 N/A explicit for v1; **§7 reopened 2026-08-17 Track C** (lines/markers only). Cites S42 closeout + S41 ack. (art-director + team-ui + csharpexpert)
 >
 > **S36-11 COMPLETE (QA/DevOps/Hygiene — team-ui / ui-experience-lead isolated):** Facilitation note added per story. Lean Polish: bible remains lean/draft for C2+Editor scope only. Verdict: ACCEPTED WITH CONDITIONS (carryover from gate-check #2; full sign-off deferred post-Baltic or when non-lean mode). No new sections authored (existing complete; no placeholders touched). UX/UI alignment cross-ref intact with interaction-patterns + c2-command-post. (ui specialist track)
 > **S38-03 / S38-11 (Art/UX):** Sign-off + residual UX/doc polish complete. No new sections. Cross-refs verified. (lean; isolated track)
 > **S39-07/09 (Evidence/Playtest + Art/UX residual):** Minimal playtest 11 entry (production/playtests/README.md) + lean cross-ref for C2/Platform polish (density/tooltips/surfacing S39-03). PNG/playtest 11 uses proxy + existing s37 PNGs (c2-graph-viewer-s37.png etc). No new sections. (isolated track; cites S39 plan + qa-plan + boundary)
 > **S42-05 (B2 start):** §1–4 expanded + tokens context. COMPLETE per smoke-sprint-42-closeout-2026-06-20.md (cites release-enablement-scope-boundary + scope-expansion-decision-2026-06-20-S41-close.md "i provide the ack")
 > **S43-05 (B2 complete):** §5–9 + asset specs expanded (lean v1). N/A for §5/§7. §8 specs + §9 sign-off + full verdict. Worktree stack/sprint43/art-bible-complete. Budget held. (this pass; parallel independent)
+> **Track C reopen (2026-08-17):** Owner scope change — §7 VFX reopened for **presentation-only** CMO-style engagement geometry (UI Toolkit fire lines + impact markers). Particles / VFX Graph remain optional-deferred. Never affect sim RNG (ADR-010). ASSET-021 remains Approved HUD hot-tick (not restyled). Spec: `docs/superpowers/specs/2026-08-17-track-c-combat-vfx-reopen.md`.
 
 ---
 
@@ -309,16 +310,39 @@ Catalog sections stack vertically with identical section divider treatment; Impo
 
 ## 7. VFX & Particle Style
 
-**Formal N/A for v1 (B2 per release-enablement-scope-boundary-2026-06-20.md).**
+**Reopened 2026-08-17 — Track C (owner scope change).**  
+Prior status: Formal N/A for v1 (B2 per release-enablement-scope-boundary-2026-06-20.md). S43 N/A remains the historical lean-v1 gate; this section now permits a **narrow presentation-only** combat picture.
 
-C2 Polish / Baltic v1 scope excludes combat particles, screen shake, ambient map VFX, and any non-deterministic decorative effects.
+### Permitted (Track C MVP)
 
-- Permitted motion only: UI scroll + time-compression clock advance (deterministic; evidence-capture safe per §1 "every pixel serves the order log").
-- No particles / idle shaders / animated gradients on data panels (violates determinism + replay 6/6 gate).
-- Cross-ref: ux/interaction-patterns.md (reduced-motion default), design/gdd/sensor-detection-ew.md (no VFX in degraded comms), art-bible §2 mode carriers (opacity/text only).
-- Future (post B1): separate environment art bible for globe Phase B.
+- **CMO-style fire lines** — deterministic UI Toolkit segments from shooter pose → target pose, sourced only from `DecisionLog` `EngagementOutcome` rows via `CombatVfxProjection`.
+- **Impact markers** — deterministic shapes at the victim pose (Hit / Kill / Miss / Intercept class). Hold is **sim time**, not wall-clock (pause freezes; replay capture at tick *N* matches tick *N*).
+- Separate transient map layer (`map-combat-vfx-*-layer`). Must not be mixed into static sensor/weapon rings or datalink edges (`MapCanvasOverlayRenderer`).
 
-**AD-ART-BIBLE note (S43):** N/A accepted; lean v1 gate passed. (art-director + team-ui; csharpexpert det cross-check)
+Tokens (copy §3; colorblind: shape + class, not hue alone):
+
+| Element | Hex | USS |
+|---------|-----|-----|
+| Fire line | `#FFB4A0` | `map-combat-vfx-fireline` |
+| Impact kill | `#E85D5D` | `map-combat-vfx-impact--kill` |
+| Impact hit | `#FFB4A0` | `map-combat-vfx-impact--hit` |
+| Impact miss | `#8C9BAA` | `map-combat-vfx-impact--miss` |
+| Impact intercept | `#64C88C` | `map-combat-vfx-impact--intercept` |
+
+### Still forbidden
+
+- Combat **particles**, screen shake, ambient map VFX, idle shaders, animated gradients on data panels.
+- Any VFX that samples `Random`, `PkDraw`, or wall-clock in a way that changes sim or replay hash (ADR-010). Unity never authors engagements.
+- ASSET-021 Combat Domains Hot-Tick HUD restyle — that Approved asset stays a domain HUD, not this overlay.
+
+### Legacy lean-v1 rules (still in force)
+
+- Permitted motion besides Track C overlays: UI scroll + time-compression clock advance (deterministic; evidence-capture safe per §1 "every pixel serves the order log").
+- Cross-ref: ux/interaction-patterns.md (reduced-motion default), design/gdd/sensor-detection-ew.md (no decorative VFX in degraded comms), art-bible §2 mode carriers (opacity/text only).
+- Future: optional low-risk particles only if they stay deterministic and reduced-motion-off; globe environment art bible remains post-B1.
+
+**AD-ART-BIBLE note (S43):** N/A accepted; lean v1 gate passed.  
+**AD-ART-BIBLE note (2026-08-17 Track C):** Reopen limited to lines/markers; particles still deferred. (owner scope change; spec `2026-08-17-track-c-combat-vfx-reopen.md`)
 
 ---
 
@@ -458,7 +482,7 @@ Hard rules for C2 and Platform Editor — violations fail visual QA and gate-che
 - §1–4: S42 complete (S42-05; handed off from smoke-sprint-42-closeout-2026-06-20.md)
 - §5: Formal N/A v1 (character deferred)
 - §6: Retained + cross-ref ux/ (c2-command-post.md layout, interaction-patterns.md density)
-- §7: Formal N/A v1 (VFX deferred; det rules enforced)
+- §7: Formal N/A v1 (VFX deferred; det rules enforced) — **reopened 2026-08-17 Track C** (lines/markers only; particles still deferred)
 - §8: Full lean asset spec sheets (atlas, panels, evidence, tokens, budgets)
 - §9: Complete prohibitions + this verdict
 - Consistency: Verified against ux/c2-command-post.md, interaction-patterns.md, c2-map-placeholder.md + gdd/command-and-control-ui.md. Tokens match USS + §3.

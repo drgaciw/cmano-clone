@@ -28,6 +28,7 @@ public sealed class UnityPluginEpicATypesTests
         "ProjectAegis.Delegation.Projection.MapEnvelopePlatformResolver",
         "ProjectAegis.Delegation.Projection.MapCanvasRingShape",
         "ProjectAegis.Delegation.Projection.MapCanvasEdgeShape",
+        "ProjectAegis.Delegation.Projection.MapCourseOverlayEntry",
     };
 
     [Test]

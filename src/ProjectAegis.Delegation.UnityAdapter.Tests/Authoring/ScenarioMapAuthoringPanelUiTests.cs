@@ -280,6 +280,53 @@ public sealed class ScenarioMapAuthoringPanelUiTests
         Assert.That(isolation, Does.Contain("OnPreprocessBuild"));
     }
 
+    [Test]
+    public void Cursor_and_claude_mcp_json_pin_ai_game_developer_http_8080()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        AssertHttp8080AiGameDeveloper(Path.Combine(repoRoot!, ".cursor", "mcp.json"));
+        AssertHttp8080AiGameDeveloper(Path.Combine(repoRoot!, ".mcp.json"));
+
+        Assert.That(
+            File.Exists(Path.Combine(repoRoot!, "tools", "pin-unity-mcp-8080.sh")),
+            Is.True,
+            "Missing tools/pin-unity-mcp-8080.sh");
+        Assert.That(
+            File.Exists(Path.Combine(repoRoot!, "tools", "pin-unity-mcp-8080.ps1")),
+            Is.True,
+            "Missing tools/pin-unity-mcp-8080.ps1");
+
+        var pinPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "McpLocalHostPin.cs");
+        Assert.That(File.Exists(pinPath), Is.True, "Missing McpLocalHostPin.cs");
+        var pin = File.ReadAllText(pinPath);
+        Assert.That(pin, Does.Contain("http://localhost:8080"));
+        Assert.That(pin, Does.Contain("connectionMode"));
+        Assert.That(pin, Does.Contain("Custom"));
+        Assert.That(pin, Does.Contain("Pin Local Host :8080"));
+        Assert.That(
+            pin,
+            Does.Not.Contain("[InitializeOnLoad]"),
+            "MCP UserSettings pin must stay menu-only (no Editor-load auto-mutation).");
+    }
+
+    private static void AssertHttp8080AiGameDeveloper(string mcpJsonPath)
+    {
+        Assert.That(File.Exists(mcpJsonPath), Is.True, $"Missing {mcpJsonPath}");
+        using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(mcpJsonPath));
+        Assert.That(doc.RootElement.TryGetProperty("mcpServers", out var servers), Is.True);
+        Assert.That(servers.TryGetProperty("ai-game-developer", out var entry), Is.True);
+        Assert.That(entry.GetProperty("type").GetString(), Is.EqualTo("http"));
+        Assert.That(entry.GetProperty("url").GetString(), Is.EqualTo("http://localhost:8080"));
+    }
+
     private static string? FindRepoRoot()
     {
         var dir = AppContext.BaseDirectory;

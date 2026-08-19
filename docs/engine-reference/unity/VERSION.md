@@ -30,7 +30,7 @@ Pinned in `unity/ProjectAegis/Packages/manifest.json` (cite [`Tech-Stack.md`](..
 | `com.unity.burst` | 1.8.29 | Transitive dep of `com.unity.ai.inference` (Sentis); no direct hot-path use |
 | `com.unity.ai.assistant` | 2.13.0-pre.2 | Unity AI Assistant — **present, not agent-owned** |
 | `com.unity.ai.inference` | 2.6.1 | Unity Inference — **present, not agent-owned** |
-| `com.ivanmurzak.unity.mcp` | 0.82.4 | Unity-MCP editor bridge |
+| `com.ivanmurzak.unity.mcp` | 0.86.0 | Unity-MCP editor bridge (pin Custom + `:8080`) |
 
 > **DOTS/ECS removed (2026-07-07):** `com.unity.entities` and `com.unity.entities.graphics` were
 > dropped — never used, and world state is a managed headless-first sim (ADR-005 reversed). The

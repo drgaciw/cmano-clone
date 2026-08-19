@@ -21,6 +21,8 @@ namespace ProjectAegis.Unity.Runtime
         [SerializeField] private bool hasFireControlTrack = true;
         [SerializeField] private string primaryHostileContactId = SmokeHostileUnitId;
         [SerializeField] private float simTimeStep = 1f / 60f;
+        [Tooltip("Layout seed for kinematic seed poses (must match DelegationBridgeHost globalSeed).")]
+        [SerializeField] private int layoutSeed = 42;
         [Tooltip("Smoke harness: auto-start execution. Disable for RTwP planning UX.")]
         [SerializeField] private bool autoBeginOnStart = true;
         [Tooltip("Register smoke ORBAT + seed DecisionLog so Unit Detail / OOB / Message Log are non-empty.")]
@@ -28,6 +30,7 @@ namespace ProjectAegis.Unity.Runtime
 
         private double _simTime;
         private readonly List<(EntityKey Entity, Order Order)> _applied = new();
+        private readonly PlayModeKinematicMover _kinematics = new();
         private bool _orbatSeeded;
 
         // S36-05: frame budget capture support (Unity specialist). Accumulates deltaTime for mean/p95 measurement in PlayMode / Editor host.
@@ -80,8 +83,9 @@ namespace ProjectAegis.Unity.Runtime
         }
 
         /// <summary>
-        /// Registers friendly/hostile smoke units, configures Mixed mode, and appends contact/magazine
-        /// rows so Message Log / OOB / Unit Detail have data without a full Baltic harness load.
+        /// Registers friendly/hostile smoke units, configures Mixed mode, and appends a richer
+        /// DecisionLog seed (contact, magazine, policy, mission, event, decision, damage)
+        /// so Message Log / OOB / Unit Detail have data without a full Baltic harness load.
         /// Delegates to shipped <see cref="PlayModeSmokeOrbatSeeder"/>.
         /// </summary>
         public void SeedSmokeOrbat(DelegationBridge bridge)
@@ -92,6 +96,10 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _orbatSeeded = TrySeedSmokeOrbat(bridge);
+            if (_orbatSeeded)
+            {
+                SeedKinematics();
+            }
         }
 
         /// <summary>
@@ -101,7 +109,7 @@ namespace ProjectAegis.Unity.Runtime
         public static bool TrySeedSmokeOrbat(DelegationBridge? bridge) =>
             PlayModeSmokeOrbatSeeder.TrySeed(bridge);
 
-        /// <summary>Append contact + magazine rows projected into the Message Log strip.</summary>
+        /// <summary>Append seeded DecisionLog rows projected into the Message Log strip.</summary>
         public static void SeedSmokeDecisionLog(DecisionLog log) =>
             PlayModeSmokeOrbatSeeder.SeedDecisionLog(log);
 
@@ -119,9 +127,28 @@ namespace ProjectAegis.Unity.Runtime
                 _frameTimes.Add(Time.deltaTime * 1000.0); // ms
             }
 
-            _applied.Clear();
-            _simTime += simTimeStep;
-            bridgeHost.RunTick(this, this);
+            if (bridgeHost.Session != null && bridgeHost.Session.IsSimPaused)
+            {
+                return;
+            }
+
+            var factor = 1;
+            if (bridgeHost.Session != null)
+            {
+                var accel = bridgeHost.Session.TimeAccelerationFactor;
+                factor = accel < 1 ? 1 : (accel > 8 ? 8 : accel);
+            }
+
+            for (var step = 0; step < factor; step++)
+            {
+                _applied.Clear();
+                _simTime += simTimeStep;
+                _kinematics.Advance(simTimeStep);
+                bridgeHost.RunTick(this, this);
+                PlayModeSmokeOrbatSeeder.AdvanceDecisionLog(
+                    bridgeHost.Bridge.Orchestrator.DecisionLog,
+                    _simTime);
+            }
         }
 
         /// <summary>S36-05: expose captured frame times for measurement doc / test (mean/p95 in ms). Call after N frames.</summary>
@@ -129,8 +156,57 @@ namespace ProjectAegis.Unity.Runtime
 
         public bool IsMemberAlive(TargetId memberId) => true;
 
-        public void ApplyOrder(EntityKey entity, in Order order) =>
+        public bool TryGetKinematicPose(string unitOrContactId, out UnitKinematicPose pose) =>
+            _kinematics.TryGetPose(unitOrContactId, out pose);
+
+        public IReadOnlyList<CourseWaypoint>? GetPlottedCourse(string unitId) =>
+            _kinematics.GetCourse(unitId);
+
+        public void ApplyOrder(EntityKey entity, in Order order)
+        {
             _applied.Add((entity, order));
+            if (!TryResolveUnitId(entity, out var unitId))
+            {
+                return;
+            }
+
+            if (order.Kind == OrderKind.Move)
+            {
+                _kinematics.EnsureSeeded(unitId, layoutSeed, hostile: false);
+                _kinematics.PlotCourseAhead(unitId);
+            }
+            else if (order.Kind == OrderKind.Hold)
+            {
+                _kinematics.Halt(unitId);
+            }
+        }
+
+        private void SeedKinematics()
+        {
+            _kinematics.EnsureSeeded(SmokeFriendlyUnitId, layoutSeed, hostile: false);
+            _kinematics.EnsureSeeded(SmokeHostileUnitId, layoutSeed, hostile: true);
+            _kinematics.EnsureSeeded(SmokeContactId, layoutSeed, hostile: true);
+        }
+
+        private bool TryResolveUnitId(EntityKey entity, out string unitId)
+        {
+            unitId = string.Empty;
+            if (bridgeHost?.Bridge?.Registry == null)
+            {
+                return false;
+            }
+
+            foreach (var binding in bridgeHost.Bridge.Registry.Bindings)
+            {
+                if (binding.Entity.Equals(entity))
+                {
+                    unitId = binding.TargetId.Value;
+                    return !string.IsNullOrWhiteSpace(unitId);
+                }
+            }
+
+            return false;
+        }
     }
 }
 #endif

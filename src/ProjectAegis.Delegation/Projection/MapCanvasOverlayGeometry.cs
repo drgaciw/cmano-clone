@@ -16,6 +16,8 @@ public static class MapCanvasOverlayGeometry
     public const string EdgeStyleDegraded = "map-overlay-edge--degraded";
     public const string EdgeStyleDown = "map-overlay-edge--down";
 
+    public const string CourseStyle = "map-overlay-course";
+
     /// <summary>Converts nautical-mile range to normalized canvas radius (0–1 relative to canvas width).</summary>
     public static float NmToNormalizedRadius(double rangeNm, double theaterWidthNm = DefaultTheaterWidthNm)
     {
@@ -135,6 +137,47 @@ public static class MapCanvasOverlayGeometry
                 ToY: to.Y,
                 Status: edge.Status,
                 StyleClass: ResolveEdgeStyle(edge.Status)));
+        }
+
+        return shapes;
+    }
+
+    /// <summary>
+    /// Projects plotted-course polylines into consecutive canvas segments (CMD-38 / CMD-30.7).
+    /// Reuses <see cref="MapCanvasEdgeShape"/> so Play Mode can share <see cref="LayoutEdgePixels"/>.
+    /// </summary>
+    public static IReadOnlyList<MapCanvasEdgeShape> ProjectCourseSegments(
+        IReadOnlyList<MapCourseOverlayEntry>? courses)
+    {
+        if (courses is null || courses.Count == 0)
+        {
+            return Array.Empty<MapCanvasEdgeShape>();
+        }
+
+        var shapes = new List<MapCanvasEdgeShape>();
+        foreach (var course in courses)
+        {
+            if (course is null
+                || string.IsNullOrWhiteSpace(course.UnitId)
+                || course.Vertices is null
+                || course.Vertices.Count < 2)
+            {
+                continue;
+            }
+
+            for (var i = 1; i < course.Vertices.Count; i++)
+            {
+                var from = course.Vertices[i - 1];
+                var to = course.Vertices[i];
+                shapes.Add(new MapCanvasEdgeShape(
+                    Key: $"{course.UnitId}:course:{i}",
+                    FromX: from.NormalizedX,
+                    FromY: from.NormalizedY,
+                    ToX: to.NormalizedX,
+                    ToY: to.NormalizedY,
+                    Status: "course",
+                    StyleClass: CourseStyle));
+            }
         }
 
         return shapes;

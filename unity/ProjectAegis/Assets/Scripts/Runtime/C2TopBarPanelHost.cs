@@ -2,6 +2,7 @@
 #if UNITY_5_3_OR_NEWER
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -16,6 +17,9 @@ namespace ProjectAegis.Unity.Runtime
         private const string PhaseName = "phase-label";
         private const string BeginExecutionName = "begin-execution-button";
         private const string CompressionName = "compression-label";
+        private const string CompressionSlowerName = "compression-slower-button";
+        private const string CompressionFasterName = "compression-faster-button";
+        private const string PauseResumeName = "pause-resume-button";
         private const string ModeName = "mode-label";
         private const string CommsName = "comms-label";
         private const string ScoreName = "score-label";
@@ -37,6 +41,9 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _phase;
         private Button? _beginExecution;
         private Label? _compression;
+        private Button? _compressionSlower;
+        private Button? _compressionFaster;
+        private Button? _pauseResume;
         private Label? _mode;
         private Label? _comms;
         private Label? _score;
@@ -102,6 +109,9 @@ namespace ProjectAegis.Unity.Runtime
             _phase = panel.Q<Label>(PhaseName);
             _beginExecution = panel.Q<Button>(BeginExecutionName);
             _compression = panel.Q<Label>(CompressionName);
+            _compressionSlower = panel.Q<Button>(CompressionSlowerName);
+            _compressionFaster = panel.Q<Button>(CompressionFasterName);
+            _pauseResume = panel.Q<Button>(PauseResumeName);
             _mode = panel.Q<Label>(ModeName);
             _comms = panel.Q<Label>(CommsName);
             _score = panel.Q<Label>(ScoreName);
@@ -119,6 +129,24 @@ namespace ProjectAegis.Unity.Runtime
             {
                 _beginExecution.clicked -= OnBeginExecutionClicked;
                 _beginExecution.clicked += OnBeginExecutionClicked;
+            }
+
+            if (_compressionSlower != null)
+            {
+                _compressionSlower.clicked -= OnCompressionSlowerClicked;
+                _compressionSlower.clicked += OnCompressionSlowerClicked;
+            }
+
+            if (_compressionFaster != null)
+            {
+                _compressionFaster.clicked -= OnCompressionFasterClicked;
+                _compressionFaster.clicked += OnCompressionFasterClicked;
+            }
+
+            if (_pauseResume != null)
+            {
+                _pauseResume.clicked -= OnPauseResumeClicked;
+                _pauseResume.clicked += OnPauseResumeClicked;
             }
 
             _wired = _simTime != null && _phase != null && _compression != null && _mode != null && _score != null;
@@ -156,6 +184,49 @@ namespace ProjectAegis.Unity.Runtime
             Refresh();
         }
 
+        private void OnCompressionSlowerClicked()
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            var current = bridgeHost.Session?.TimeAccelerationFactor ?? 1;
+            bridgeHost.TrySetTimeAcceleration(C2ClockCommand.NextSlower(current), out _);
+            Refresh();
+        }
+
+        private void OnCompressionFasterClicked()
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            var current = bridgeHost.Session?.TimeAccelerationFactor ?? 1;
+            bridgeHost.TrySetTimeAcceleration(C2ClockCommand.NextFaster(current), out _);
+            Refresh();
+        }
+
+        private void OnPauseResumeClicked()
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            if (bridgeHost.Session?.IsSimPaused == true)
+            {
+                bridgeHost.TryResumeSim(explicitOverride: false, out _);
+            }
+            else
+            {
+                bridgeHost.TryPauseSim(out _);
+            }
+
+            Refresh();
+        }
+
         /// <summary>
         /// Apply projected top-bar state via headless <see cref="C2TopBarApplyState"/> (S106).
         /// Safe when UIDocument labels are not yet wired (presentation still recorded).
@@ -182,7 +253,9 @@ namespace ProjectAegis.Unity.Runtime
             };
 
             ApplyPresentationToLabels();
+            OverlayLiveCompression();
             RefreshBeginExecutionButton();
+            RefreshPauseResumeButton();
 
             var root = _document.rootVisualElement?.Q(RootName);
             if (root != null)
@@ -253,6 +326,33 @@ namespace ProjectAegis.Unity.Runtime
             var isPlanning = bridgeHost!.Phase == SimulationPhase.Planning;
             _beginExecution.style.display = isPlanning ? DisplayStyle.Flex : DisplayStyle.None;
             _beginExecution.SetEnabled(isPlanning);
+        }
+
+        private void OverlayLiveCompression()
+        {
+            if (_compression == null || bridgeHost == null)
+            {
+                return;
+            }
+
+            _compression.text = bridgeHost.LiveCompressionLabel;
+        }
+
+        private void RefreshPauseResumeButton()
+        {
+            if (_pauseResume == null || bridgeHost == null)
+            {
+                return;
+            }
+
+            var paused = bridgeHost.Session != null && bridgeHost.Session.IsSimPaused;
+            var canResume = !bridgeHost.LastAttentionToast.HasUnresolvedPauseClass
+                || bridgeHost.LastAttentionToast.CanResume;
+            _pauseResume.text = paused ? "RESUME" : "PAUSE";
+            _pauseResume.SetEnabled(!paused || canResume);
+            _pauseResume.tooltip = paused && !canResume
+                ? "Acknowledge the attention toast to resume"
+                : string.Empty;
         }
     }
 }
