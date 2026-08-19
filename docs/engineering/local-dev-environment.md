@@ -171,12 +171,14 @@ dotnet build ProjectAegis.sln -c Release
 [`copy-delegation-assemblies.sh`](../../tools/copy-delegation-assemblies.sh) exports
 `PATH="$HOME/.dotnet:$PATH"` first (matching the [`AGENTS.md`](../../AGENTS.md#cursor-cloud-specific-instructions)
 SDK install location) and mirrors the `.ps1` output. On a normal clone
-`Packages/manifest.json` and `ProjectSettings/ProjectVersion.txt` are **already tracked** — do
-**not** recreate them from `manifest.template.json` (that template is the three-package seed used
-only when those files are missing; overwriting the live manifest drops MCP/AI/Linux/OpenUPM
-entries). Linux bring-up is: keep the tracked files, run the bash copy step. There is no bash
-port of the folder-scaffold or `Test-UnityPluginAssemblies.ps1`; install `pwsh` only if you need
-those.
+`Packages/manifest.json` and `ProjectSettings/ProjectVersion.txt` are **already tracked** — keep
+them and run the bash copy step. If `manifest.json` is missing or corrupted, copy
+[`manifest.template.json`](../../unity/ProjectAegis/Packages/manifest.template.json) over it: that
+file is now a **full live-manifest restore** (MCP, AI Assistant, AI Inference/Sentis, Linux
+toolchain, OpenUPM scoped registry, Addressables, Burst, UI, and engine modules), not a
+three-package seed. After restore, let Package Manager resolve; `packages-lock.json` remains the
+authoritative pin. There is no bash port of the folder-scaffold or
+`Test-UnityPluginAssemblies.ps1`; install `pwsh` only if you need those.
 
 ### Common pitfalls
 
@@ -188,10 +190,10 @@ those.
   re-run the copy script and the verifier.
 - **Build first.** Both the scaffold and copy scripts publish from source, so run
   `dotnet build ProjectAegis.sln -c Release` before them.
-- **Don't re-add removed packages.** The manifest template pins only `com.unity.addressables`,
-  `com.unity.burst`, and `com.unity.ui`; `com.unity.entities` was removed (world state is managed, not
-  DOTS) and must not be re-added without human package approval — see the
-  [Unity README §5](../../unity/ProjectAegis/README.md).
+- **Don't re-add removed packages.** The template is a live `manifest.json` mirror, not a
+  three-package seed. `com.unity.entities` was removed (world state is managed, not DOTS) and must
+  not be re-added without human package approval — see the
+  [Unity README §5](../../unity/ProjectAegis/README.md) and the template `_guardrails`.
 - **The Editor is optional.** CI-style gates (`dotnet test`, the headless Play Mode smoke harness) run
   without Unity; in Cloud VMs the Editor is usually not installed at all — prefer the headless path
   ([`AGENTS.md` › Cursor Cloud](../../AGENTS.md#cursor-cloud-specific-instructions)).
