@@ -20,7 +20,7 @@ Agent conventions for skills under `unity/ProjectAegis/.claude/skills/`. These w
 - **Not in this project:** URP, HDRP, new Input System — **Built-in Forward** + **legacy Input Manager**.
 - **Dual toolchain:** headless `net8.0` + Unity plugins `netstandard2.1`. Copy plugin DLLs with `./tools/copy-delegation-assemblies.ps1` (guard: `./tools/Test-UnityPluginAssemblies.ps1`).
 - **Seams:** `ISimWorldSnapshot` → `DelegationBridge.Tick` → `IOrderSink`. **`DelegationBridge` is zero-touch** through Release v1 — no hotpath edits.
-- **Unity-MCP:** client → `localhost:8080`. Scoped registry for `com.ivanmurzak` is in `Packages/manifest.json`; **`com.ivanmurzak.unity.mcp` may not yet appear under `dependencies`** until `install-plugin` / Editor resolve. **`:8080` pending** until Editor open + `login`. Do not invent tools or claim packages are installed without `package-list`.
+- **Unity-MCP:** client → `localhost:8080` with `"type": "http"`. Package **`com.ivanmurzak.unity.mcp` 0.86.0** is a direct dependency. ≥0.86 defaults to Cloud + a path-hashed port (20000–29999) — **pin local Custom + `:8080`** via `./tools/pin-unity-mcp-8080.sh` (or Editor menu **Project Aegis → MCP → Pin Local Host :8080**) before expecting a live server. Do not invent tools or claim `:8080` is up without `ping` / curl.
 
 ## When to use Editor MCP vs headless
 
