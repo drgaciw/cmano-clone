@@ -495,7 +495,46 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return true;
         }
 
+        // Data seed (not schema). platform_emcon already exists from 008; skip only when
+        // BOTH the published Visby silent sentinel AND the staging batch sentinel exist.
+        if (file.Contains("017", StringComparison.Ordinal) && HasGauntletT2EmconSeed())
+        {
+            return true;
+        }
+
         return false;
+    }
+
+    private bool HasGauntletT2EmconSeed()
+    {
+        if (!TableExists("platform_emcon") || !TableExists("catalog_staging_emcon"))
+        {
+            return false;
+        }
+
+        using var published = _connection.CreateCommand();
+        published.CommandText =
+            """
+            SELECT COUNT(*) FROM platform_emcon
+            WHERE platform_id = 'k-31-visby-2009'
+              AND condition = 'silent'
+              AND review_state = 'provisional'
+            """;
+        if (Convert.ToInt32(published.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) <= 0)
+        {
+            return false;
+        }
+
+        using var staging = _connection.CreateCommand();
+        staging.CommandText =
+            """
+            SELECT COUNT(*) FROM catalog_staging_emcon
+            WHERE batch_id = 'batch-emcon-gauntlet-t2-seed-017'
+              AND platform_id = 'k-31-visby-2009'
+              AND condition = 'silent'
+              AND review_state = 'provisional'
+            """;
+        return Convert.ToInt32(staging.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0;
     }
 
     private bool TableExists(string table)

@@ -600,6 +600,18 @@ public static class CatalogSeedBootstrap
     }
 
     /// <summary>
+    /// Ensures migrations are applied, then inserts review_state-gated gauntlet T2 EMCON
+    /// rows (published <c>platform_emcon</c> plus proposed <c>catalog_staging_emcon</c>)
+    /// when those platforms exist (idempotent). Does not invent emitter performance.
+    /// </summary>
+    public static void EnrichBalticEmcon(string databasePath)
+    {
+        using (var _ = new SqliteCatalogReader(databasePath, "p0-seed-emcon"))
+        {
+        }
+    }
+
+    /// <summary>
     /// Ensures migrations are applied, then adds Baltic engage catalog rows (idempotent).
     /// Safe for enriching an existing production seed without wiping sensors/platforms.
     /// </summary>
