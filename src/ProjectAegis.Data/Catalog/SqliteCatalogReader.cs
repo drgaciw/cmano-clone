@@ -496,7 +496,8 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         }
 
         // Data seed (not schema). platform_emcon already exists from 008; skip only when
-        // BOTH the published Visby silent sentinel AND the staging batch sentinel exist.
+        // Visby published+staging sentinels exist AND every non-fixture platform with sensors
+        // already has a platform_emcon row (017 expands beyond the original T2 allowlist).
         if (file.Contains("017", StringComparison.Ordinal) && HasGauntletT2EmconSeed())
         {
             return true;
@@ -534,7 +535,28 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
               AND condition = 'silent'
               AND review_state = 'provisional'
             """;
-        return Convert.ToInt32(staging.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0;
+        if (Convert.ToInt32(staging.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) <= 0)
+        {
+            return false;
+        }
+
+        using var unseeded = _connection.CreateCommand();
+        unseeded.CommandText =
+            """
+            SELECT COUNT(*)
+            FROM (
+                SELECT p.platform_id
+                FROM platform p
+                INNER JOIN sensor s ON s.platform_id = p.platform_id
+                WHERE p.platform_id NOT IN (
+                    'u1','hostile-1','hostile-far','uas-swarm-generic','usn-uas-swarm-cec',
+                    'cmo-sensor-catalog','ucav-blue','ucav-red','usub-blue','usub-red')
+                  AND NOT EXISTS (
+                    SELECT 1 FROM platform_emcon e WHERE e.platform_id = p.platform_id)
+                GROUP BY p.platform_id
+            )
+            """;
+        return Convert.ToInt32(unseeded.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) == 0;
     }
 
     private bool TableExists(string table)

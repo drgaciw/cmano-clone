@@ -31,6 +31,24 @@ public sealed class PlatformEmconSeedTests
         "em-sovremenny-i-pr-956-sarych",
     ];
 
+    /// <summary>
+    /// Baltic/swarm fixtures that keep <c>radar-1</c> / Phase B export counts stable.
+    /// Must match the denylist in migration 017.
+    /// </summary>
+    public static readonly string[] FixturePlatformIds =
+    [
+        "u1",
+        "hostile-1",
+        "hostile-far",
+        CatalogSwarmPlatformDefaults.GenericSwarmPlatformId,
+        CatalogSwarmPlatformDefaults.UsnCecSwarmPlatformId,
+        CatalogValidationDefaults.PublicCorpusSensorCatalogPlatformId,
+        "ucav-blue",
+        "ucav-red",
+        "usub-blue",
+        "usub-red",
+    ];
+
     [Fact]
     public void Production_catalog_seeds_provisional_off_emcon_for_gauntlet_t2_platforms()
     {
@@ -80,15 +98,15 @@ public sealed class PlatformEmconSeedTests
                 FROM platform_emcon e
                 LEFT JOIN sensor s
                   ON s.platform_id = e.platform_id AND s.sensor_id = e.emitter_id
-                WHERE e.platform_id IN (
-                    'k-22-gavle-ex-goteborg-class','k-21-goteborg','k-11-stockholm-spica-iii-1986',
-                    'jas-39e-gripen-ng-2021','mrk-shkval-pr-22800-karakurt',
-                    'skr-admiral-grigorovich-pr-1135-6m','skr-admiral-sergey-gorshkov-pr-2235-0',
-                    'ka-27m-helix-a','k-31-visby-2009','em-sovremenny-i-pr-956-sarych')
-                  AND s.sensor_id IS NULL
+                WHERE s.sensor_id IS NULL
                 """;
             var orphanCount = Convert.ToInt32(orphan.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture);
             Assert.Equal(0, orphanCount);
+
+            Assert.Equal(0, CountUnseededNonFixture(connection));
+            Assert.DoesNotContain(
+                reader.GetSortedEmcon(),
+                row => FixturePlatformIds.Contains(row.PlatformId, StringComparer.Ordinal));
 
             using var staging = connection.CreateCommand();
             staging.CommandText =
@@ -101,7 +119,7 @@ public sealed class PlatformEmconSeedTests
                 staging.ExecuteScalar(),
                 System.Globalization.CultureInfo.InvariantCulture);
             Assert.True(stagingCount > 0, "catalog_staging_emcon must contain review-gated seed rows.");
-            Assert.Equal(emcon.Length, stagingCount);
+            Assert.Equal(reader.GetSortedEmcon().Count, stagingCount);
 
             using var batch = connection.CreateCommand();
             batch.CommandText =
@@ -145,14 +163,12 @@ public sealed class PlatformEmconSeedTests
             int firstCount;
             using (var first = new SqliteCatalogReader(copyPath, "emcon-idemp-1"))
             {
-                firstCount = first.GetSortedEmcon()
-                    .Count(row => GauntletT2PlatformIds.Contains(row.PlatformId, StringComparer.Ordinal));
+                firstCount = first.GetSortedEmcon().Count;
             }
 
             using (var second = new SqliteCatalogReader(copyPath, "emcon-idemp-2"))
             {
-                var secondCount = second.GetSortedEmcon()
-                    .Count(row => GauntletT2PlatformIds.Contains(row.PlatformId, StringComparer.Ordinal));
+                var secondCount = second.GetSortedEmcon().Count;
                 Assert.Equal(firstCount, secondCount);
                 Assert.True(firstCount > 0);
                 Assert.Equal(firstCount, CountStaging(copyPath));
@@ -163,6 +179,27 @@ public sealed class PlatformEmconSeedTests
             Cleanup(emptyPath);
             Cleanup(copyPath);
         }
+    }
+
+    private static int CountUnseededNonFixture(SqliteConnection connection)
+    {
+        using var cmd = connection.CreateCommand();
+        cmd.CommandText =
+            """
+            SELECT COUNT(*)
+            FROM (
+                SELECT p.platform_id
+                FROM platform p
+                INNER JOIN sensor s ON s.platform_id = p.platform_id
+                WHERE p.platform_id NOT IN (
+                    'u1','hostile-1','hostile-far','uas-swarm-generic','usn-uas-swarm-cec',
+                    'cmo-sensor-catalog','ucav-blue','ucav-red','usub-blue','usub-red')
+                  AND NOT EXISTS (
+                    SELECT 1 FROM platform_emcon e WHERE e.platform_id = p.platform_id)
+                GROUP BY p.platform_id
+            )
+            """;
+        return Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture);
     }
 
     private static int CountStaging(string dbPath)

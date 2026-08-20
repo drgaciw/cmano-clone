@@ -1,4 +1,4 @@
--- BUG-catalog-emcon-tables-empty: conservative EMCON posture seed for gauntlet T2 platforms.
+-- BUG-catalog-emcon-tables-empty: conservative EMCON posture seed for Baltic Patrol platforms.
 -- Additive data only (platform_emcon / catalog_staging_emcon already exist from 008).
 -- Idempotent INSERT OR IGNORE. Emitter IDs are existing sensor.sensor_id values —
 -- no invented emitter performance. Posture is off for silent/restricted/free;
@@ -6,8 +6,11 @@
 -- approval_state=proposed, proposed_utc_ticks=0 (deterministic; not a write-gate approve).
 -- Default sim resolver queries (condition='free', emitter_id='radar-1') do not match CMO
 -- sensor IDs, so legacy Active fallback is unchanged unless a caller uses the real emitter.
+-- Fixture denylist (u1/radar-1, swarm, v3 OOB) keeps SeedBalticPatrol Phase B Emcon count=2
+-- and avoids changing Baltic fixture sim defaults. Gauntlet T2 platforms are included.
 -- Do NOT skip this file in ShouldSkipMigration based on table existence (008 already created it).
--- Skip only when BOTH the Visby silent published sentinel AND the staging batch sentinel exist.
+-- Skip only when Visby published+staging sentinels exist AND no non-fixture platform with
+-- sensors remains unseeded.
 --
 -- Rollback:
 --   DELETE FROM catalog_staging_emcon WHERE batch_id = 'batch-emcon-gauntlet-t2-seed-017';
@@ -15,17 +18,9 @@
 --   DELETE FROM platform_emcon
 --   WHERE review_state = 'provisional'
 --     AND posture = 'off'
---     AND platform_id IN (
---       'k-22-gavle-ex-goteborg-class',
---       'k-21-goteborg',
---       'k-11-stockholm-spica-iii-1986',
---       'jas-39e-gripen-ng-2021',
---       'mrk-shkval-pr-22800-karakurt',
---       'skr-admiral-grigorovich-pr-1135-6m',
---       'skr-admiral-sergey-gorshkov-pr-2235-0',
---       'ka-27m-helix-a',
---       'k-31-visby-2009',
---       'em-sovremenny-i-pr-956-sarych'
+--     AND platform_id NOT IN (
+--       'u1','hostile-1','hostile-far','uas-swarm-generic','usn-uas-swarm-cec',
+--       'cmo-sensor-catalog','ucav-blue','ucav-red','usub-blue','usub-red'
 --     );
 
 INSERT OR IGNORE INTO platform_emcon (platform_id, condition, emitter_id, posture, review_state)
@@ -37,17 +32,17 @@ INNER JOIN (
     UNION ALL SELECT 'restricted'
     UNION ALL SELECT 'free'
 ) AS c
-WHERE p.platform_id IN (
-    'k-22-gavle-ex-goteborg-class',
-    'k-21-goteborg',
-    'k-11-stockholm-spica-iii-1986',
-    'jas-39e-gripen-ng-2021',
-    'mrk-shkval-pr-22800-karakurt',
-    'skr-admiral-grigorovich-pr-1135-6m',
-    'skr-admiral-sergey-gorshkov-pr-2235-0',
-    'ka-27m-helix-a',
-    'k-31-visby-2009',
-    'em-sovremenny-i-pr-956-sarych'
+WHERE p.platform_id NOT IN (
+    'u1',
+    'hostile-1',
+    'hostile-far',
+    'uas-swarm-generic',
+    'usn-uas-swarm-cec',
+    'cmo-sensor-catalog',
+    'ucav-blue',
+    'ucav-red',
+    'usub-blue',
+    'usub-red'
 )
 ORDER BY p.platform_id ASC, c.condition ASC, s.sensor_id ASC;
 
@@ -60,7 +55,7 @@ SELECT
     0,
     'proposed',
     COUNT(*),
-    'Conservative unsourced EMCON seed for gauntlet T2; review_state=provisional; posture=off'
+    'Conservative unsourced EMCON seed for Baltic Patrol (gauntlet T2 + remaining non-fixture platforms); review_state=provisional; posture=off'
 FROM platform p
 INNER JOIN sensor s ON s.platform_id = p.platform_id
 INNER JOIN (
@@ -68,17 +63,17 @@ INNER JOIN (
     UNION ALL SELECT 'restricted'
     UNION ALL SELECT 'free'
 ) AS c
-WHERE p.platform_id IN (
-    'k-22-gavle-ex-goteborg-class',
-    'k-21-goteborg',
-    'k-11-stockholm-spica-iii-1986',
-    'jas-39e-gripen-ng-2021',
-    'mrk-shkval-pr-22800-karakurt',
-    'skr-admiral-grigorovich-pr-1135-6m',
-    'skr-admiral-sergey-gorshkov-pr-2235-0',
-    'ka-27m-helix-a',
-    'k-31-visby-2009',
-    'em-sovremenny-i-pr-956-sarych'
+WHERE p.platform_id NOT IN (
+    'u1',
+    'hostile-1',
+    'hostile-far',
+    'uas-swarm-generic',
+    'usn-uas-swarm-cec',
+    'cmo-sensor-catalog',
+    'ucav-blue',
+    'ucav-red',
+    'usub-blue',
+    'usub-red'
 )
 HAVING COUNT(*) > 0;
 
@@ -98,16 +93,22 @@ INNER JOIN (
     UNION ALL SELECT 'restricted'
     UNION ALL SELECT 'free'
 ) AS c
-WHERE p.platform_id IN (
-    'k-22-gavle-ex-goteborg-class',
-    'k-21-goteborg',
-    'k-11-stockholm-spica-iii-1986',
-    'jas-39e-gripen-ng-2021',
-    'mrk-shkval-pr-22800-karakurt',
-    'skr-admiral-grigorovich-pr-1135-6m',
-    'skr-admiral-sergey-gorshkov-pr-2235-0',
-    'ka-27m-helix-a',
-    'k-31-visby-2009',
-    'em-sovremenny-i-pr-956-sarych'
+WHERE p.platform_id NOT IN (
+    'u1',
+    'hostile-1',
+    'hostile-far',
+    'uas-swarm-generic',
+    'usn-uas-swarm-cec',
+    'cmo-sensor-catalog',
+    'ucav-blue',
+    'ucav-red',
+    'usub-blue',
+    'usub-red'
 )
 ORDER BY p.platform_id ASC, c.condition ASC, s.sensor_id ASC;
+
+UPDATE catalog_staging_batch
+SET record_count = (
+    SELECT COUNT(*) FROM catalog_staging_emcon
+    WHERE batch_id = 'batch-emcon-gauntlet-t2-seed-017')
+WHERE batch_id = 'batch-emcon-gauntlet-t2-seed-017';
