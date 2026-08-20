@@ -540,6 +540,20 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return false;
         }
 
+        using var resolverAlias = _connection.CreateCommand();
+        resolverAlias.CommandText =
+            """
+            SELECT COUNT(*) FROM platform_emcon
+            WHERE platform_id = 'k-31-visby-2009'
+              AND condition = 'free'
+              AND emitter_id = 'radar-1'
+              AND review_state = 'provisional'
+            """;
+        if (Convert.ToInt32(resolverAlias.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) <= 0)
+        {
+            return false;
+        }
+
         using var unseeded = _connection.CreateCommand();
         unseeded.CommandText =
             """

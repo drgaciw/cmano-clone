@@ -79,7 +79,11 @@ public sealed class PlatformEmconSeedTests
 
             Assert.All(emcon, row =>
             {
-                Assert.Equal("off", row.Posture);
+                var expectedPosture = string.Equals(row.EmitterId, "radar-1", StringComparison.Ordinal) &&
+                    string.Equals(row.Condition, "free", StringComparison.Ordinal)
+                    ? "active"
+                    : "off";
+                Assert.Equal(expectedPosture, row.Posture);
                 Assert.Equal(CatalogReviewStates.Provisional, row.ReviewState);
                 Assert.Contains(row.Condition, (IReadOnlyList<string>)["silent", "restricted", "free"]);
                 Assert.False(string.IsNullOrWhiteSpace(row.EmitterId));
@@ -88,6 +92,14 @@ public sealed class PlatformEmconSeedTests
             Assert.True(reader.TryGetEmcon("k-31-visby-2009", "silent", "cmo-sensor-1827", out var visby));
             Assert.Equal("off", visby.Posture);
             Assert.Equal(CatalogReviewStates.Provisional, visby.ReviewState);
+
+            Assert.True(
+                reader.TryGetEmcon("k-31-visby-2009", "free", "radar-1", out var visbyDefault),
+                "Default resolver triple (free/radar-1) must have a CatalogEmcon row.");
+            Assert.Equal("active", visbyDefault.Posture);
+            Assert.Equal(CatalogReviewStates.Provisional, visbyDefault.ReviewState);
+            Assert.True(reader.TryGetEmcon("k-31-visby-2009", "silent", "radar-1", out var visbySilentAlias));
+            Assert.Equal("off", visbySilentAlias.Posture);
 
             using var connection = new SqliteConnection($"Data Source={dbPath};Pooling=false");
             connection.Open();
@@ -99,6 +111,7 @@ public sealed class PlatformEmconSeedTests
                 LEFT JOIN sensor s
                   ON s.platform_id = e.platform_id AND s.sensor_id = e.emitter_id
                 WHERE s.sensor_id IS NULL
+                  AND e.emitter_id != 'radar-1'
                 """;
             var orphanCount = Convert.ToInt32(orphan.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture);
             Assert.Equal(0, orphanCount);

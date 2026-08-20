@@ -4,20 +4,20 @@
 -- no invented emitter performance. Posture is off for silent/restricted/free;
 -- review_state is explicit provisional. Staging batch is actor_type=migration,
 -- approval_state=proposed, proposed_utc_ticks=0 (deterministic; not a write-gate approve).
--- Default sim resolver queries (condition='free', emitter_id='radar-1') do not match CMO
--- sensor IDs, so legacy Active fallback is unchanged unless a caller uses the real emitter.
--- Fixture denylist (u1/radar-1, swarm, v3 OOB) keeps SeedBalticPatrol Phase B Emcon count=2
--- and avoids changing Baltic fixture sim defaults. Gauntlet T2 platforms are included.
+-- CMO sensor IDs are bound as emitters with posture=off. A gameplay alias emitter_id='radar-1'
+-- is also inserted so the default sim resolver triple (condition='free', emitter_id='radar-1')
+-- finds a CatalogEmcon row: free/active preserves legacy Active fallback (not classified
+-- performance); silent/restricted stay off. u1 is denylisted so fixture radar-1 is untouched.
+-- Fixture denylist (u1, swarm, v3 OOB) keeps SeedBalticPatrol Phase B Emcon count=2.
 -- Do NOT skip this file in ShouldSkipMigration based on table existence (008 already created it).
--- Skip only when Visby published+staging sentinels exist AND no non-fixture platform with
--- sensors remains unseeded.
+-- Skip only when Visby published+staging sentinels exist, the free/radar-1 alias exists,
+-- AND no non-fixture platform with sensors remains unseeded.
 --
 -- Rollback:
 --   DELETE FROM catalog_staging_emcon WHERE batch_id = 'batch-emcon-gauntlet-t2-seed-017';
 --   DELETE FROM catalog_staging_batch WHERE batch_id = 'batch-emcon-gauntlet-t2-seed-017';
 --   DELETE FROM platform_emcon
 --   WHERE review_state = 'provisional'
---     AND posture = 'off'
 --     AND platform_id NOT IN (
 --       'u1','hostile-1','hostile-far','uas-swarm-generic','usn-uas-swarm-cec',
 --       'cmo-sensor-catalog','ucav-blue','ucav-red','usub-blue','usub-red'
@@ -106,6 +106,69 @@ WHERE p.platform_id NOT IN (
     'usub-red'
 )
 ORDER BY p.platform_id ASC, c.condition ASC, s.sensor_id ASC;
+
+INSERT OR IGNORE INTO platform_emcon (platform_id, condition, emitter_id, posture, review_state)
+SELECT p.platform_id,
+       c.condition,
+       'radar-1',
+       CASE WHEN c.condition = 'free' THEN 'active' ELSE 'off' END,
+       'provisional'
+FROM (
+    SELECT DISTINCT platform_id
+    FROM platform
+    WHERE platform_id NOT IN (
+        'u1',
+        'hostile-1',
+        'hostile-far',
+        'uas-swarm-generic',
+        'usn-uas-swarm-cec',
+        'cmo-sensor-catalog',
+        'ucav-blue',
+        'ucav-red',
+        'usub-blue',
+        'usub-red'
+    )
+      AND EXISTS (SELECT 1 FROM sensor s WHERE s.platform_id = platform.platform_id)
+) AS p
+INNER JOIN (
+    SELECT 'silent' AS condition
+    UNION ALL SELECT 'restricted'
+    UNION ALL SELECT 'free'
+) AS c
+ORDER BY p.platform_id ASC, c.condition ASC;
+
+INSERT OR IGNORE INTO catalog_staging_emcon (
+    batch_id, platform_id, condition, emitter_id, posture, review_state)
+SELECT
+    'batch-emcon-gauntlet-t2-seed-017',
+    p.platform_id,
+    c.condition,
+    'radar-1',
+    CASE WHEN c.condition = 'free' THEN 'active' ELSE 'off' END,
+    'provisional'
+FROM (
+    SELECT DISTINCT platform_id
+    FROM platform
+    WHERE platform_id NOT IN (
+        'u1',
+        'hostile-1',
+        'hostile-far',
+        'uas-swarm-generic',
+        'usn-uas-swarm-cec',
+        'cmo-sensor-catalog',
+        'ucav-blue',
+        'ucav-red',
+        'usub-blue',
+        'usub-red'
+    )
+      AND EXISTS (SELECT 1 FROM sensor s WHERE s.platform_id = platform.platform_id)
+) AS p
+INNER JOIN (
+    SELECT 'silent' AS condition
+    UNION ALL SELECT 'restricted'
+    UNION ALL SELECT 'free'
+) AS c
+ORDER BY p.platform_id ASC, c.condition ASC;
 
 UPDATE catalog_staging_batch
 SET record_count = (
