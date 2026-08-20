@@ -1,5 +1,310 @@
+# =============================================================================
+# cmano-clone monorepo — root .gitattributes
+# Unity 6.3 LTS (6000.3.22f1) / ProjectAegis
+# =============================================================================
+#
+# ONE-TIME PER-DEV SETUP (required, or the merge=unityyamlmerge lines below are
+# silently inert — git falls back to the default text merge):
+#
+# STEP 0 — LOCATE UnityYAMLMerge. The path below is a TEMPLATE, NOT A VERIFIED
+# FACT. This repo's Unity Hub is not under $HOME (it is installed system-wide,
+# probably /opt/unityhub), and Hub's editor-install directory is configurable,
+# so the editor root may be ~/Unity/Hub/Editor, /opt/unity/editors,
+# /opt/unityhub/editors, or anything set in Hub > Preferences > Installs.
+# Find the real one before configuring anything:
+#
+#   find / -type f -name UnityYAMLMerge 2>/dev/null
+#   # or, if you know the editor root:
+#   ls -l <editor-root>/6000.3.22f1/Editor/Data/Tools/UnityYAMLMerge
+#
+#   git config merge.unityyamlmerge.name "Unity SmartMerge"
+#   git config merge.unityyamlmerge.driver "<VERIFIED-ABSOLUTE-PATH>/UnityYAMLMerge merge -p --force %O %B %A %A"
+#   git config merge.unityyamlmerge.recursive binary
+#
+#   Template only (adjust the editor root to what `find` actually reported):
+#   /home/username01/Unity/Hub/Editor/6000.3.22f1/Editor/Data/Tools/UnityYAMLMerge
+#
+#   The 6000.5.1f1 install is a different stream and must NOT be used for this
+#   driver (its SmartMerge/mergespec can diverge from the pinned editor's
+#   serialization).
+#
+# WHY STEP 0 IS NOT OPTIONAL — a wrong path fails SILENTLY AND DESTRUCTIVELY.
+#   `git config` accepts any string; nothing is validated until a merge runs.
+#   If the binary is absent, git prints one easily-missed "not found" line, then
+#   marks the file conflicted (UU) while leaving the working-tree copy as YOUR
+#   side, byte-for-byte, WITH NO CONFLICT MARKERS IN IT. Verified behaviour:
+#       $ git merge side
+#       .../UnityYAMLMerge: not found
+#       CONFLICT (content): Merge conflict in f.asset
+#       $ git status --porcelain   ->   UU f.asset
+#       $ cat f.asset              ->  ours, clean, no <<<<<<< anywhere
+#   A dev who sees no markers and runs `git add f.asset` silently discards the
+#   entire incoming side of a scene, prefab or ProjectSettings asset. Every
+#   .unity/.prefab/.asset merge in this repo is exposed to this.
+#
+# STEP 0b — SMOKE-TEST the driver before trusting it. In a scratch clone:
+#   git checkout -b _drvtest && printf 'a: 1\nb: 2\n' > t.asset
+#   git add t.asset && git commit -m t && git checkout -b _drvtest2
+#   printf 'a: 9\nb: 2\n' > t.asset && git commit -am t2
+#   git checkout _drvtest && printf 'a: 1\nb: 9\n' > t.asset && git commit -am t3
+#   git merge _drvtest2
+#   PASS = merge succeeds cleanly (a: 9 / b: 9) with no "not found" line.
+#   FAIL = any "not found", or a UU file containing no conflict markers.
+#   Delete the scratch branches afterwards. Do this once per machine.
+#
+#   Flags: -p enables per-type fallback tools from
+#   .../Editor/Data/Tools/mergespecfile.txt for files SmartMerge cannot parse;
+#   --force writes a result with conflict markers instead of aborting the merge.
+#   recursive=binary stops the driver from being re-entered during recursive
+#   merge-base construction.
+#
+#   Scope: `git config` (no --global) writes $GIT_DIR/config, which is SHARED by
+#   all `git worktree` checkouts under .worktrees/ — configure once in the main
+#   clone and every sprint worktree inherits it. Use --global only if you want
+#   it across unrelated clones; the editor path is machine-specific either way.
+#
+#   Prerequisite already satisfied: EditorSettings.asset has
+#   m_SerializationMode: 2 (ForceText). SmartMerge cannot operate on binary or
+#   mixed serialization — if that setting ever regresses, these rules are dead.
+#
+# -----------------------------------------------------------------------------
+# HAZARD 1 — LFS rules are NOT retroactive.
+#   Adding filter=lfs below converts files on FUTURE writes only. History is
+#   untouched: already-committed PNG/PSD/FBX blobs stay as plain blobs, and
+#   every one of them will show as MODIFIED in `git status` (the clean filter
+#   emits a pointer that differs from the stored blob) until history is
+#   rewritten. Before landing this, inventory what is affected:
+#       git ls-files -- '*.png' '*.jpg' '*.tga' '*.psd' '*.fbx' '*.wav' '*.ogg'
+#   Converting history is a separate, coordinated exercise (`git lfs migrate
+#   import --include=...`), rewrites every SHA, requires a force-push and a
+#   re-clone by every dev, and MUST NOT be bundled with this changeset.
+#
+# HAZARD 2 — landing this rewrites everyone's working tree.
+#   The text/eol=lf rules trigger renormalization: the first checkout after this
+#   lands can touch thousands of files. Any live Graphite stack rebased across
+#   this commit will see EOL-only diffs on every restack, and .worktrees/
+#   checkouts renormalize independently. Land it on a quiet trunk, with all
+#   stacks either merged or explicitly re-synced (`gt sync` then `gt restack`)
+#   immediately after, and announce it. Do not land it mid-sprint.
+#
+# HAZARD 3 — NEVER run bare `git add --renormalize .` with this file in place.
+#   `--renormalize` re-runs CLEAN FILTERS, not just EOL conversion. Because the
+#   LFS section below matches *.png/*.psd/*.fbx/*.wav/..., a bare
+#   `git add --renormalize .` stages EVERY already-committed media file as an
+#   LFS POINTER in one shot — i.e. it performs exactly the mass LFS conversion
+#   that HAZARD 1 says must not be bundled with this changeset, and it does so
+#   with no prompt and no obvious signal. Verified: a 200 000-byte tracked PNG
+#   became a 131-byte pointer blob in the index, with the real object written to
+#   .git/lfs/objects, from that single command.
+#   If you need to force renormalization, PATHSPEC-LIMIT it to text types, which
+#   leaves media blobs untouched (verified — the PNG stayed a 200 000-byte blob):
+#       git add --renormalize -- '*.cs' '*.unity' '*.prefab' '*.asset' '*.meta' \
+#                                '*.shader' '*.uxml' '*.uss' '*.json' '*.md'
+#   Otherwise just let checkout renormalize naturally and do nothing.
+#
+# PREREQUISITE — git-lfs must be installed and initialised on every machine
+#   (`git lfs version`; `git lfs install` once per user) AND the remote must
+#   have LFS enabled with quota for the newly-matched media. If git-lfs is
+#   absent the filter=lfs attributes are inert no-ops and media commits as
+#   plain blobs while everyone believes LFS is on — unrecoverable without a
+#   history rewrite. LFS scope here widens from ONE tracked file
+#   (aegis_public_corpus.db) to all project media: confirm storage/billing
+#   headroom before landing.
+# =============================================================================
+
+
+# --- PRESERVED: existing rules, verbatim -------------------------------------
 *.sh text eol=lf
 .buildkite/* text eol=lf
 
 # Enterprise public corpus catalog (~65 MB). Do not LFS-track baltic_patrol.db.
 assets/data/catalog/aegis_public_corpus.db filter=lfs diff=lfs merge=lfs -text
+
+
+# --- Unity YAML assets: SmartMerge -------------------------------------------
+# eol=lf is deliberate: SmartMerge is line-oriented, and a CRLF/LF mismatch
+# turns any three-way merge into a whole-file conflict. Unity on Linux writes
+# LF already; Windows editors tolerate LF working-tree files fine.
+*.unity           text eol=lf merge=unityyamlmerge
+*.prefab          text eol=lf merge=unityyamlmerge
+*.asset           text eol=lf merge=unityyamlmerge
+*.mat             text eol=lf merge=unityyamlmerge
+*.anim            text eol=lf merge=unityyamlmerge
+*.controller      text eol=lf merge=unityyamlmerge
+*.overrideController text eol=lf merge=unityyamlmerge
+*.physicMaterial  text eol=lf merge=unityyamlmerge
+*.physicsMaterial2D text eol=lf merge=unityyamlmerge
+*.meta            text eol=lf merge=unityyamlmerge
+*.mask            text eol=lf merge=unityyamlmerge
+*.playable        text eol=lf merge=unityyamlmerge
+*.mixer           text eol=lf merge=unityyamlmerge
+*.terrainlayer    text eol=lf merge=unityyamlmerge
+*.signal          text eol=lf merge=unityyamlmerge
+*.brush           text eol=lf merge=unityyamlmerge
+*.lighting        text eol=lf merge=unityyamlmerge
+*.giparams        text eol=lf merge=unityyamlmerge
+*.spriteatlas     text eol=lf merge=unityyamlmerge
+*.spriteatlasv2   text eol=lf merge=unityyamlmerge
+*.guiskin         text eol=lf merge=unityyamlmerge
+*.flare           text eol=lf merge=unityyamlmerge
+*.fontsettings    text eol=lf merge=unityyamlmerge
+*.prefs           text eol=lf merge=unityyamlmerge
+*.renderTexture   text eol=lf merge=unityyamlmerge
+*.cubemap         text eol=lf merge=unityyamlmerge
+*.shadervariants  text eol=lf merge=unityyamlmerge
+
+# ProjectSettings/*.asset is also Unity YAML and is intentionally covered by
+# the *.asset rule above — SmartMerge is the right driver there and this is
+# desirable, not accidental. CAVEAT: for ProjectSettings the merge is
+# syntactically safe but SEMANTICALLY blind. EditorBuildSettings scene order,
+# TagManager layer indices, GraphicsSettings shader-stripping lists and
+# InputManager axis order are all position-significant; a clean auto-merge can
+# still be wrong. Treat any ProjectSettings/ hunk as requiring human review.
+# ProjectVersion.txt is plain text and is deliberately NOT given a merge
+# driver — an editor-version bump must always conflict loudly.
+#
+# PATH ANCHORING: a gitattributes pattern containing a slash is matched relative
+# to the directory holding the .gitattributes file. This file lives at the
+# MONOREPO ROOT, so a bare `ProjectSettings/ProjectVersion.txt` would only match
+# <root>/ProjectSettings/ProjectVersion.txt — which does not exist — and would be
+# a dead rule. The real path is under unity/ProjectAegis/. Verified with
+# `git check-attr`. Written full-path here; the `**/` form is kept commented for
+# any future second Unity project in the monorepo.
+unity/ProjectAegis/ProjectSettings/ProjectVersion.txt text eol=lf
+# **/ProjectSettings/ProjectVersion.txt text eol=lf
+
+# .meta files: SmartMerge resolves the common case (import-setting drift), but
+# a conflict on m_GUID is never mergeable — two assets have claimed one GUID
+# and that is a manual, deliberate fix. Never blind-accept a .meta merge.
+
+
+# --- Addressables ------------------------------------------------------------
+# Group/settings assets are YAML and inherit *.asset above. Generated
+# catalogs/bins under ServerData|Library are build output, not source.
+*.bin  binary
+*.hash text eol=lf
+
+
+# --- Source / config: normalisation + diff drivers ---------------------------
+# DECIDE BEFORE LANDING: EditorSettings.asset has m_LineEndingsForNewScripts: 2
+# (= Windows/CRLF). The rule below declares eol=lf for the working tree, so every
+# script the Editor creates via Create > C# Script is written CRLF and then
+# flipped to LF on the next checkout. Git hides this (the clean filter normalises
+# CRLF -> LF, so `git status` stays clean), but the two settings disagree and any
+# EOL-sensitive tooling or .editorconfig will churn. Either set
+# m_LineEndingsForNewScripts to 1 (Unix) in Editor > Preferences, or drop eol=lf
+# from *.cs. Not changed here — EditorSettings.asset.NEW in this changeset
+# deliberately touches cache-server keys ONLY.
+*.cs      text eol=lf diff=csharp
+*.rsp     text eol=lf
+*.asmdef  text eol=lf
+*.asmref  text eol=lf
+# diff=csharp is scoped to *.cs on purpose. .asmdef/.asmref are JSON and .uxml
+# is XML — applying the C# hunk-header regex to them produces misleading
+# @@-context in every diff and review. Not worth the noise.
+*.uxml    text eol=lf
+# SVG is XML: diffable text. Deliberately NOT LFS.
+*.svg             text eol=lf
+*.uss     text eol=lf
+*.shader  text eol=lf
+*.cginc   text eol=lf
+*.hlsl    text eol=lf diff=cpp
+*.compute text eol=lf
+*.shadergraph text eol=lf
+*.raytrace text eol=lf
+
+*.csproj      text eol=lf
+*.sln         text eol=lf
+*.props       text eol=lf
+*.targets     text eol=lf
+*.json        text eol=lf
+*.yml         text eol=lf
+*.yaml        text eol=lf
+*.md          text eol=lf
+*.py          text eol=lf
+*.ps1         text eol=lf
+*.toml        text eol=lf
+*.xml         text eol=lf
+*.txt         text eol=lf
+*.editorconfig text eol=lf
+.gitattributes text eol=lf
+.gitignore     text eol=lf
+
+# packages-lock.json is machine-generated; no union/ours merge is configured
+# for it deliberately. A lockfile conflict means two branches moved package
+# versions and must be resolved by re-resolving in the editor, not by git.
+
+
+# --- Git LFS: binary MEDIA only ----------------------------------------------
+# Scope is intentionally narrow. NO *.db pattern anywhere — the only
+# LFS-tracked database is the explicit aegis_public_corpus.db path above, and
+# baltic_patrol.db must stay a normal blob. A blanket *.db would capture it.
+# Native binaries (*.dll/*.so/*.a) are also excluded: the ones in this repo are
+# gitignored build output, and an LFS pattern would only dirty any that are
+# legitimately tracked.
+
+# Images
+*.png  filter=lfs diff=lfs merge=lfs -text
+*.jpg  filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.gif  filter=lfs diff=lfs merge=lfs -text
+*.bmp  filter=lfs diff=lfs merge=lfs -text
+*.tga  filter=lfs diff=lfs merge=lfs -text
+*.tif  filter=lfs diff=lfs merge=lfs -text
+*.tiff filter=lfs diff=lfs merge=lfs -text
+*.psd  filter=lfs diff=lfs merge=lfs -text
+*.psb  filter=lfs diff=lfs merge=lfs -text
+*.ai   filter=lfs diff=lfs merge=lfs -text
+*.exr  filter=lfs diff=lfs merge=lfs -text
+*.hdr  filter=lfs diff=lfs merge=lfs -text
+*.iff  filter=lfs diff=lfs merge=lfs -text
+*.pict filter=lfs diff=lfs merge=lfs -text
+*.webp filter=lfs diff=lfs merge=lfs -text
+
+# 3D
+*.fbx   filter=lfs diff=lfs merge=lfs -text
+*.obj   filter=lfs diff=lfs merge=lfs -text
+*.blend filter=lfs diff=lfs merge=lfs -text
+*.dae   filter=lfs diff=lfs merge=lfs -text
+*.3ds   filter=lfs diff=lfs merge=lfs -text
+*.max   filter=lfs diff=lfs merge=lfs -text
+*.ma    filter=lfs diff=lfs merge=lfs -text
+*.mb    filter=lfs diff=lfs merge=lfs -text
+*.c4d   filter=lfs diff=lfs merge=lfs -text
+*.abc   filter=lfs diff=lfs merge=lfs -text
+*.glb   filter=lfs diff=lfs merge=lfs -text
+
+# Audio
+*.wav  filter=lfs diff=lfs merge=lfs -text
+*.ogg  filter=lfs diff=lfs merge=lfs -text
+*.mp3  filter=lfs diff=lfs merge=lfs -text
+*.aif  filter=lfs diff=lfs merge=lfs -text
+*.aiff filter=lfs diff=lfs merge=lfs -text
+*.flac filter=lfs diff=lfs merge=lfs -text
+*.m4a  filter=lfs diff=lfs merge=lfs -text
+
+# Video
+*.mp4  filter=lfs diff=lfs merge=lfs -text
+*.mov  filter=lfs diff=lfs merge=lfs -text
+*.webm filter=lfs diff=lfs merge=lfs -text
+*.avi  filter=lfs diff=lfs merge=lfs -text
+*.mpg  filter=lfs diff=lfs merge=lfs -text
+
+# Fonts
+*.ttf  filter=lfs diff=lfs merge=lfs -text
+*.otf  filter=lfs diff=lfs merge=lfs -text
+*.woff filter=lfs diff=lfs merge=lfs -text
+*.woff2 filter=lfs diff=lfs merge=lfs -text
+
+# Packaged / archive
+*.unitypackage filter=lfs diff=lfs merge=lfs -text
+*.zip  filter=lfs diff=lfs merge=lfs -text
+*.7z   filter=lfs diff=lfs merge=lfs -text
+*.gz   filter=lfs diff=lfs merge=lfs -text
+*.tar  filter=lfs diff=lfs merge=lfs -text
+
+# NOT ADDED, deliberately: `* text=auto`. With ~183 MB of undeclared,
+# untracked binary cruft in the tree and several binary types not enumerated
+# above, letting git guess text-ness repo-wide risks EOL-mangling a binary on
+# checkout. Every text type this project actually contains is declared
+# explicitly instead.
