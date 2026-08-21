@@ -600,6 +600,20 @@ public static class CatalogSeedBootstrap
     }
 
     /// <summary>
+    /// Ensures migrations are applied, then inserts review_state-gated Baltic Patrol EMCON
+    /// rows (published <c>platform_emcon</c> plus proposed <c>catalog_staging_emcon</c>)
+    /// for non-fixture platforms that have sensors (idempotent). Does not invent emitter
+    /// performance. Fixture ids such as <c>u1</c> are excluded. A <c>radar-1</c> gameplay
+    /// alias uses <c>free/active</c> so the default resolver triple stays legacy Active.
+    /// </summary>
+    public static void EnrichBalticEmcon(string databasePath)
+    {
+        using (var _ = new SqliteCatalogReader(databasePath, "p0-seed-emcon"))
+        {
+        }
+    }
+
+    /// <summary>
     /// Ensures migrations are applied, then adds Baltic engage catalog rows (idempotent).
     /// Safe for enriching an existing production seed without wiping sensors/platforms.
     /// </summary>

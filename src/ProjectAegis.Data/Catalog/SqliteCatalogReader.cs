@@ -495,7 +495,82 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             return true;
         }
 
+        // Data seed (not schema). platform_emcon already exists from 008; skip only when
+        // Visby published+staging sentinels exist AND every non-fixture platform with sensors
+        // already has a platform_emcon row (017 expands beyond the original T2 allowlist).
+        if (file.Contains("017", StringComparison.Ordinal) && HasGauntletT2EmconSeed())
+        {
+            return true;
+        }
+
         return false;
+    }
+
+    private bool HasGauntletT2EmconSeed()
+    {
+        if (!TableExists("platform_emcon") || !TableExists("catalog_staging_emcon"))
+        {
+            return false;
+        }
+
+        using var published = _connection.CreateCommand();
+        published.CommandText =
+            """
+            SELECT COUNT(*) FROM platform_emcon
+            WHERE platform_id = 'k-31-visby-2009'
+              AND condition = 'silent'
+              AND review_state = 'provisional'
+            """;
+        if (Convert.ToInt32(published.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) <= 0)
+        {
+            return false;
+        }
+
+        using var staging = _connection.CreateCommand();
+        staging.CommandText =
+            """
+            SELECT COUNT(*) FROM catalog_staging_emcon
+            WHERE batch_id = 'batch-emcon-gauntlet-t2-seed-017'
+              AND platform_id = 'k-31-visby-2009'
+              AND condition = 'silent'
+              AND review_state = 'provisional'
+            """;
+        if (Convert.ToInt32(staging.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) <= 0)
+        {
+            return false;
+        }
+
+        using var resolverAlias = _connection.CreateCommand();
+        resolverAlias.CommandText =
+            """
+            SELECT COUNT(*) FROM platform_emcon
+            WHERE platform_id = 'k-31-visby-2009'
+              AND condition = 'free'
+              AND emitter_id = 'radar-1'
+              AND review_state = 'provisional'
+            """;
+        if (Convert.ToInt32(resolverAlias.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) <= 0)
+        {
+            return false;
+        }
+
+        using var unseeded = _connection.CreateCommand();
+        unseeded.CommandText =
+            """
+            SELECT COUNT(*)
+            FROM (
+                SELECT p.platform_id
+                FROM platform p
+                INNER JOIN sensor s ON s.platform_id = p.platform_id
+                WHERE p.platform_id NOT IN (
+                    'u1','hostile-1','hostile-far','uas-swarm-generic','usn-uas-swarm-cec',
+                    'cmo-sensor-catalog','ucav-blue','ucav-red','usub-blue','usub-red')
+                  AND NOT EXISTS (
+                    SELECT 1 FROM platform_emcon e WHERE e.platform_id = p.platform_id)
+                GROUP BY p.platform_id
+            )
+            """;
+        return Convert.ToInt32(unseeded.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) == 0;
     }
 
     private bool TableExists(string table)
