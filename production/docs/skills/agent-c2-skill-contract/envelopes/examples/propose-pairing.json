@@ -1,0 +1,88 @@
+{
+  "lane": "propose",
+  "skillId": "c2.pairing.recommend",
+  "invocationId": "inv-propose-001",
+  "proposalId": "prop-001",
+  "simTick": 12,
+  "simTime": 12.0,
+  "scenarioId": "baltic-patrol",
+  "seed": 42,
+  "inputs": {
+    "contactId": "c-12",
+    "shooterUnitIds": ["ffg-1"]
+  },
+  "evidence": [
+    {
+      "kind": "unit",
+      "id": "ffg-1",
+      "sequenceId": null,
+      "projectionType": "UnitDetailProjection",
+      "field": null
+    },
+    {
+      "kind": "contact",
+      "id": "c-12",
+      "sequenceId": 80,
+      "projectionType": "ContactPictureProjection",
+      "field": null
+    },
+    {
+      "kind": "snapshot",
+      "id": "HasFireControlTrackOnPrimaryContact",
+      "sequenceId": null,
+      "projectionType": "SensorC2Projection",
+      "field": "HasFireControlTrackOnPrimaryContact"
+    }
+  ],
+  "assumptions": [
+    "Organic fire-control is required for any later engage submit"
+  ],
+  "rationale": "ffg-1 is the only candidate with organic FC and a clear abort preview.",
+  "output": {
+    "contactId": "c-12",
+    "pairs": [
+      {
+        "shooterUnitId": "ffg-1",
+        "sensorUnitId": "ffg-1",
+        "trackSource": "organic",
+        "fireControlSatisfied": true,
+        "abortPreviewCode": null,
+        "rank": 1
+      }
+    ],
+    "bestResource": "ffg-1",
+    "releaseEligible": false,
+    "explanation": {
+      "statusLine": "ENGAGE: CLEAR",
+      "reasonCode": null,
+      "reasonPlain": "Launch is permitted under current DLZ, track, mount, and EMCON constraints.",
+      "isBlocked": false
+    }
+  },
+  "commandId": "engage",
+  "requiredApproval": "weaponsRelease",
+  "authorityBasis": {
+    "policySnapshotId": "policy-baltic-default",
+    "policyUnavailable": false,
+    "roe": "WEAPONS_TIGHT",
+    "emcon": "radar-active",
+    "trackSource": "organic",
+    "fireControlSatisfied": true,
+    "engagementAuthorizationImplied": false
+  },
+  "playerOverride": {
+    "path": "C2PlayerCommandBridge.TryIssue",
+    "commandId": "hold",
+    "controllerRequirement": "HumanController",
+    "rejectLeavesNoMutation": true
+  },
+  "replayProvenance": {
+    "skillId": "c2.pairing.recommend",
+    "invocationId": "inv-propose-001",
+    "simTick": 12,
+    "simTime": 12.0,
+    "orderLogFingerprintBefore": null,
+    "sequenceIdOnSubmit": null,
+    "submitted": false
+  }
+}
