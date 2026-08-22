@@ -261,6 +261,45 @@ public sealed class KillChainContactStateProjectionTests
     }
 
     [Test]
+    public void Unordered_changes_sort_before_fold_and_fingerprint_is_stable()
+    {
+        var later = new ContactChangeRecord(9, 5.0, 5, "u1", "c1", "hostile-1", "Detected", "Classified");
+        var earlier = new ContactChangeRecord(2, 1.0, 1, "u1", "c1", "hostile-1", "Unknown", "Detected");
+
+        var a = KillChainContactStateProjection.Project(new[] { later, earlier }, currentSimTick: 5);
+        var b = KillChainContactStateProjection.Project(new[] { earlier, later }, currentSimTick: 5);
+
+        Assert.That(KillChainContactStateProjection.ComputeFingerprint(a), Is.EqualTo(KillChainContactStateProjection.ComputeFingerprint(b)));
+        Assert.That(a.Transitions.Select(t => t.Kind), Is.EqualTo(new[]
+        {
+            KillChainTransitionKind.Find,
+            KillChainTransitionKind.Fix,
+            KillChainTransitionKind.Track,
+        }));
+    }
+
+    [Test]
+    public void Bda_level_two_projects_degraded_l2()
+    {
+        var log = new DecisionLog();
+        log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Identified"));
+        log.AppendPlatformDamageChange(new PlatformDamageChangeRecord(
+            0,
+            2,
+            2,
+            new TargetId("hostile-1"),
+            100,
+            50,
+            PlatformDamageChangeReasonCodes.Hit,
+            2));
+
+        var snapshot = KillChainContactStateProjection.Project(log, currentSimTick: 2);
+
+        Assert.That(snapshot.Contacts[0].Loss, Is.EqualTo(KillChainLossKind.DegradedL2));
+        Assert.That(snapshot.Transitions.Select(t => t.Kind), Does.Contain(KillChainTransitionKind.Degraded));
+    }
+
+    [Test]
     public void Fire_control_lookup_is_contact_keyed_not_ui_state()
     {
         var changes = new[]

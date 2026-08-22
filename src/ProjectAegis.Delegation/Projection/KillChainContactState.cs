@@ -85,3 +85,29 @@ public sealed record KillChainContactSnapshot(
     public static KillChainContactSnapshot Empty { get; } =
         new(Array.Empty<KillChainContactState>(), Array.Empty<KillChainContactTransition>());
 }
+
+/// <summary>One C2 row for a kill-chain contact. Display-only; hosts must not re-derive phase.</summary>
+public sealed record KillChainContactRow(
+    string ContactId,
+    string TargetId,
+    string PhaseLabel,
+    string PhaseClass,
+    string DetectionLabel,
+    string LocationLabel,
+    string TrackLabel,
+    string TargetabilityLabel,
+    string LossLabel,
+    string TimeLabel,
+    string CorrelationLabel,
+    string SourceLabel);
+
+/// <summary>Headless C2 panel state for kill-chain contacts and published transitions.</summary>
+public sealed record KillChainContactPanelState(
+    string ContactCountLabel,
+    string TransitionCountLabel,
+    IReadOnlyList<KillChainContactRow> Rows,
+    IReadOnlyList<string> TransitionLines)
+{
+    public static KillChainContactPanelState Empty { get; } =
+        new("KC: 0", "KC-TX: 0", Array.Empty<KillChainContactRow>(), Array.Empty<string>());
+}

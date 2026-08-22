@@ -104,6 +104,106 @@ public static class KillChainContactStateProjection
         return new KillChainContactSnapshot(contacts, published);
     }
 
+    /// <summary>
+    /// Replay-stable canonical form: same log + tick + fire-control facts yield the same string.
+    /// Invariant culture; no wall clock.
+    /// </summary>
+    public static string ComputeFingerprint(KillChainContactSnapshot? snapshot)
+    {
+        if (snapshot is null || snapshot.Contacts.Count == 0 && snapshot.Transitions.Count == 0)
+        {
+            return "kc:empty";
+        }
+
+        var builder = new System.Text.StringBuilder();
+        builder.Append("kc:c=");
+        builder.Append(snapshot.Contacts.Count);
+        for (var i = 0; i < snapshot.Contacts.Count; i++)
+        {
+            var c = snapshot.Contacts[i];
+            builder.Append('|');
+            builder.Append(c.ContactId);
+            builder.Append(',');
+            builder.Append(c.TargetId);
+            builder.Append(',');
+            builder.Append(c.ObserverId);
+            builder.Append(',');
+            builder.Append((int)c.Phase);
+            builder.Append(',');
+            builder.Append((int)c.Loss);
+            builder.Append(',');
+            builder.Append(c.DetectionCaptured ? '1' : '0');
+            builder.Append(c.LocationSufficient ? '1' : '0');
+            builder.Append(c.TrackContinuous ? '1' : '0');
+            builder.Append(c.Targetable ? '1' : '0');
+            builder.Append(',');
+            builder.Append(c.FirstSimTick);
+            builder.Append(',');
+            builder.Append(c.FirstSimTime.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+            builder.Append(',');
+            builder.Append(c.LastSimTick);
+            builder.Append(',');
+            builder.Append(c.LastSimTime.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+            builder.Append(',');
+            builder.Append(c.CorrelationSequenceId);
+            builder.Append(',');
+            AppendJoined(builder, c.SourceSequenceIds);
+            builder.Append(',');
+            AppendJoined(builder, c.SourceRefs);
+        }
+
+        builder.Append("#t=");
+        builder.Append(snapshot.Transitions.Count);
+        for (var i = 0; i < snapshot.Transitions.Count; i++)
+        {
+            var t = snapshot.Transitions[i];
+            builder.Append('|');
+            builder.Append((int)t.Kind);
+            builder.Append(',');
+            builder.Append(t.ContactId);
+            builder.Append(',');
+            builder.Append((int)t.PreviousPhase);
+            builder.Append(',');
+            builder.Append((int)t.NewPhase);
+            builder.Append(',');
+            builder.Append((int)t.Loss);
+            builder.Append(',');
+            builder.Append(t.SimTick);
+            builder.Append(',');
+            builder.Append(t.SimTime.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
+            builder.Append(',');
+            builder.Append(t.CorrelationSequenceId);
+        }
+
+        return builder.ToString();
+    }
+
+    private static void AppendJoined(System.Text.StringBuilder builder, IReadOnlyList<ulong> values)
+    {
+        for (var i = 0; i < values.Count; i++)
+        {
+            if (i > 0)
+            {
+                builder.Append('+');
+            }
+
+            builder.Append(values[i]);
+        }
+    }
+
+    private static void AppendJoined(System.Text.StringBuilder builder, IReadOnlyList<string> values)
+    {
+        for (var i = 0; i < values.Count; i++)
+        {
+            if (i > 0)
+            {
+                builder.Append('+');
+            }
+
+            builder.Append(values[i]);
+        }
+    }
+
     private static void ApplyChange(
         Dictionary<string, TrackAcc> tracks,
         ContactChangeRecord change,
