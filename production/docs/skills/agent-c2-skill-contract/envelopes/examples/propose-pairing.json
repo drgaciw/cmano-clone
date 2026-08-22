@@ -60,6 +60,8 @@
     }
   },
   "commandId": "engage",
+  "ttlTicks": 30,
+  "createdSimTick": 12,
   "requiredApproval": "weaponsRelease",
   "authorityBasis": {
     "policySnapshotId": "policy-baltic-default",

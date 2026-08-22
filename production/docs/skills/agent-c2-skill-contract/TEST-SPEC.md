@@ -8,12 +8,12 @@ Contract plus four discoverable C2 skills for Slice A (DRG-196 / AGC-01..AGC-04)
 
 ## Static assertions (structural)
 
-- [ ] Catalog lists exactly four Slice A skills: `c2.track.assess`, `c2.datalink.reason`, `c2.pairing.recommend`, `c2.explain`
-- [ ] No Slice A skill lists lane `submit`
-- [ ] Submit is documented as host verb `c2.skill.submit`
-- [ ] Envelope schema requires `authorityBasis`, `playerOverride`, `replayProvenance` definitions
-- [ ] Propose if-then forces `engagementAuthorizationImplied: false`
-- [ ] CONTRACT.md names `C2CommandIssuance`, `C2PlayerCommandBridge`, `IPolicyEvaluator`, ADR-018
+- [x] Catalog lists exactly four Slice A skills: `c2.track.assess`, `c2.datalink.reason`, `c2.pairing.recommend`, `c2.explain`
+- [x] No Slice A skill lists lane `submit`
+- [x] Submit is documented as host verb `c2.skill.submit`
+- [x] Envelope schema requires `authorityBasis`, `playerOverride`, `replayProvenance` definitions
+- [x] Propose if-then forces `engagementAuthorizationImplied: false`
+- [x] CONTRACT.md names `C2CommandIssuance`, `C2PlayerCommandBridge`, `IPolicyEvaluator`, ADR-018
 
 ---
 
@@ -33,9 +33,9 @@ Contract plus four discoverable C2 skills for Slice A (DRG-196 / AGC-01..AGC-04)
 
 **Assertions:**
 
-- [ ] SKILL.md Phase 1 lists `ContactPictureProjection` and `SensorC2Projection`
-- [ ] Skill does not list `engage` as a read output command
-- [ ] Skill forbids order-log append on read
+- [x] SKILL.md Phase 1 lists `ContactPictureProjection` and `SensorC2Projection`
+- [x] Skill does not list `engage` as a read output command
+- [x] Skill forbids order-log append on read
 
 ### Case 2: Failure path. Shared track as fire
 
@@ -50,9 +50,9 @@ Contract plus four discoverable C2 skills for Slice A (DRG-196 / AGC-01..AGC-04)
 
 **Assertions:**
 
-- [ ] Pairing SKILL.md says `engage` requires `trackSource: organic` and `fireControlSatisfied: true`
-- [ ] Data-link skill says never `engage`
-- [ ] Schema/contract keep `engagementAuthorizationImplied` false on propose
+- [x] Pairing SKILL.md says `engage` requires `trackSource: organic` and `fireControlSatisfied: true`
+- [x] Data-link skill says never `engage`
+- [x] Schema/contract keep `engagementAuthorizationImplied` false on propose
 
 ### Case 3: Edge case. Submit without approval
 
@@ -67,9 +67,9 @@ Contract plus four discoverable C2 skills for Slice A (DRG-196 / AGC-01..AGC-04)
 
 **Assertions:**
 
-- [ ] CONTRACT.md submit preconditions require state `approved`
-- [ ] CONTRACT.md lists `PROPOSAL_NOT_APPROVED` as a structured reason
-- [ ] No Slice A SKILL.md describes a direct enqueue
+- [x] CONTRACT.md submit preconditions require state `approved`
+- [x] CONTRACT.md lists `PROPOSAL_NOT_APPROVED` as a structured reason
+- [x] No Slice A SKILL.md describes a direct enqueue
 
 ### Case 4: Retrieval. Explanation cites abort code
 
@@ -84,13 +84,15 @@ Contract plus four discoverable C2 skills for Slice A (DRG-196 / AGC-01..AGC-04)
 
 **Assertions:**
 
-- [ ] Explanation skill says do not paraphrase a known abort into a different cause
-- [ ] Lane is `read` only
+- [x] Explanation skill says do not paraphrase a known abort into a different cause
+- [x] Lane is `read` only
 
 ---
 
 ## Protocol compliance
 
-- [ ] Implementer skill (`.claude/skills/agent-c2-skill-contract/SKILL.md`) is read-only (`allowed-tools` without Write)
-- [ ] Implementer skill names BLOCKED files (DelegationBridge, CatalogWriteGate, SimulationSession, gauntlet, t2, harness, MissionContactTargetClass, DRG-179 types)
-- [ ] Next-step handoff present
+- [x] Implementer skill (`.claude/skills/agent-c2-skill-contract/SKILL.md`) is read-only (`allowed-tools` without Write)
+- [x] Implementer skill names BLOCKED files (DelegationBridge, CatalogWriteGate, SimulationSession, gauntlet, t2, harness, MissionContactTargetClass, DRG-179 types)
+- [x] Next-step handoff present
+
+Re-run: `powershell -NoProfile -File production/docs/skills/agent-c2-skill-contract/verify-contract.ps1`

@@ -26,7 +26,7 @@ If the task is a runtime C# story, stop and treat those files as the API. Do not
 | --- | --- |
 | Adds a named skill | New catalog row + SKILL.md under `production/docs/skills/` |
 | Reads tracks / links / pairs / abort text | Lane `read` only. Existing `*Projection` types. |
-| Recommends a command | Lane `propose`. Envelope must include authority, approval, override, provenance. |
+| Recommends a command | Lane `propose`. Envelope must include authority, approval, override, provenance, `ttlTicks`. |
 | Enqueues an order | Host verb `c2.skill.submit` after approval. `C2CommandIssuance` then `C2PlayerCommandBridge.TryIssue`. |
 | Touches `DelegationBridge.cs`, `CatalogWriteGate`, `SimulationSession`, gauntlet skills, t2 policy, `BalticReplayHarness`, `MissionContactTargetClass`, or new DRG-179 projection types | **BLOCKED**. Wrong ticket. |
 

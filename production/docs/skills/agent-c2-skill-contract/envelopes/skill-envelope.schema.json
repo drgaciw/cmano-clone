@@ -68,6 +68,15 @@
     "commandId": {
       "type": ["string", "null"]
     },
+    "ttlTicks": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "maximum": 300
+    },
+    "createdSimTick": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
     "requiredApproval": {
       "type": "string",
       "enum": ["none", "operator", "weaponsRelease"]
@@ -99,10 +108,14 @@
           "authorityBasis",
           "requiredApproval",
           "playerOverride",
-          "proposalId"
+          "proposalId",
+          "ttlTicks",
+          "createdSimTick"
         ],
         "properties": {
           "requiredApproval": { "enum": ["operator", "weaponsRelease"] },
+          "ttlTicks": { "type": "integer", "minimum": 1, "maximum": 300 },
+          "createdSimTick": { "type": "integer", "minimum": 0 },
           "authorityBasis": {
             "type": "object",
             "properties": {
@@ -112,6 +125,23 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "commandId": { "const": "engage" },
+          "authorityBasis": {
+            "properties": {
+              "trackSource": {
+                "enum": ["datalinkShared", "fusedWithoutOrganicFc"]
+              }
+            },
+            "required": ["trackSource"]
+          }
+        },
+        "required": ["commandId", "authorityBasis"]
+      },
+      "then": false
     },
     {
       "if": {

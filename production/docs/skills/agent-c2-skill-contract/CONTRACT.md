@@ -86,7 +86,7 @@ Must not:
 - Append to `DecisionLog` / `IOrderLog`.
 - Call `C2PlayerCommandBridge.TryIssue`, `TryEnqueueHumanOrder`, or any `IOrderSink`.
 - Touch `CatalogWriteGate` or scenario packages.
-- Run during a way that changes `ComputeFingerprint()`.
+- Do anything that changes `ComputeFingerprint()`.
 
 Replay and AAR hosts may call `read` freely. `C2PlayerCommandBridge.ReasonReplayAttached` is irrelevant here because nothing is issued.
 

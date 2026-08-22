@@ -8,6 +8,8 @@ Slice A contract for AGC-01 through AGC-04. Authorized models discover skills fr
 | `catalog.json` | Discoverable skill list |
 | `envelopes/skill-envelope.schema.json` | Mechanical envelope |
 | `TEST-SPEC.md` | Retrieval / compliance cases |
+| `verify-contract.ps1` | Headless assertion gate |
+| `PROOF.md` | Isolation proof vs `origin/main` |
 | `../c2-track-assessment/SKILL.md` | `c2.track.assess` |
 | `../c2-datalink-reasoning/SKILL.md` | `c2.datalink.reason` |
 | `../c2-sensor-to-shooter-pairing/SKILL.md` | `c2.pairing.recommend` |
