@@ -206,12 +206,23 @@ There is no `read` → `submit` shortcut. There is no `propose` that appends.
 - NL that "just issues engage" because the model is confident
 - Silent model substitution (AGC-05, later)
 
-## Follow-on implementation (not this ticket)
+## C# types (this ticket)
 
-When a later story lands C#, keep the lanes as three APIs, not one god method:
+Headless contract in `ProjectAegis.Delegation.Skills` (no enqueue):
+
+| Type | Role |
+| --- | --- |
+| `SkillIds` / `SkillCatalog` / `SkillDescriptor` | AGC-01 discovery |
+| `SkillLane` | `Read` / `Propose` / `Submit` |
+| `SkillEnvelope` | Shared invocation |
+| `AuthorityBasis` / `PlayerOverride` / `ReplayProvenance` / `EvidencePointer` | AGC-03 / AGC-04 fields |
+| `SkillEnvelopeValidator` | Pure gate. Resolves command ids via `C2CommandIssuance`. Does not call `C2PlayerCommandBridge.TryIssue`. |
+
+Filter: `FullyQualifiedName~ProjectAegis.Delegation.Tests.Skills`
+
+Enqueue / host submit remains a later story. Keep three APIs, not one god method:
 
 1. `ISkillRead.Read(envelope) -> envelope` (pure, headless)
 2. `ISkillProposalQueue.Stage / Reject / Approve` (session-local, no log append)
 3. `ISkillSubmit.Submit(proposalId) -> PlayerOrder | reason` wrapping `C2CommandIssuance` + human enqueue
 
-Prove with `dotnet test` against projections and `C2CommandIssuanceTests`. Unity Play Mode is not the first proof.
