@@ -244,10 +244,10 @@ Both runtimes are pure functions of their inputs and therefore replay-safe:
 - **Add a new event kind:** extend `MissionEventKind`, map it to an order-log entry in the harness
   tick loop, and add a matching `OrderLogEntryKind` + payload record + `DecisionLog` fold. This is a
   golden-affecting, engine-agnostic change — cover it with a `BalticReplayHarness*` test.
-- **Change the target classification:** `MissionContactTargetClassifier.Classify` is intentionally
-  id-prefix based (`ucav*` → `Air`). If you introduce a richer classification (e.g. a real domain
-  field on the contact), update `Classify`/`Matches` together and re-verify every `mission.triggers`
-  target-class match plus the goldens.
+- **Change the target classification:** `MissionContactTargetClassifier.Classify` maps catalog
+  platform domain (`air` / `surface` / `subsurface`). Legacy Baltic v3 `ucav-*` ids stay `Air`.
+  Update `Classify`/`Matches` together and re-verify every `mission.triggers` target-class match
+  plus the goldens.
 
 ---
 

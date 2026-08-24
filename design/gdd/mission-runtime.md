@@ -43,7 +43,7 @@ So the system currently serves **scenario validation and CI**, not players. Its 
 7. A trigger fires on exactly one edge: `ContactLifecycleState.Unknown → Detected`. No other transition fires it.
 8. Each `TriggerId` fires **at most once per run**, tracked in a `HashSet<string>`.
 9. A trigger matches when its `ObserverId` equals the transition's observer **and** its `TargetClass` matches.
-10. **Target class is derived from the target id prefix**, not a domain field: `targetId.StartsWith("ucav")` → `Air`, everything else → `Surface`; `Any` matches all. (`MissionContactTargetClassifier`, `src/ProjectAegis.Sim/Scenario/MissionContactTargetClass.cs:12-15`)
+10. **Target class is derived from the catalog platform domain**, not an id-prefix shortcut: catalog domain `air` → `Air`, `subsurface` → `Subsurface`, else `Surface`; `Any` matches all. Catalog air platform ids such as `tu-160-blackjack` classify as `Air`. Legacy Baltic v3 `ucav-*` ids remain `Air` so golden fixtures keep matching. (`MissionContactTargetClassifier`, `src/ProjectAegis.Sim/Scenario/MissionContactTargetClass.cs`)
 11. A fired trigger calls `DelegationOrchestrator.ApplyRoeToUnits`, which iterates units in ordinal order and applies the new ROE **only where it differs**.
 
 ### Ordering within the tick
@@ -76,7 +76,7 @@ This is a **total** order — ties are impossible — which is what makes emissi
 | Trigger's unit id does not resolve | **Silently skipped** — a typo shrinks the ROE escalation with no error or warning |
 | Trigger re-applies a unit's current ROE | No `PolicyUpdate` row, no fingerprint delta (idempotent-per-value) |
 | Contact never reaches `Detected` | Trigger never fires; no rows |
-| Air unit named without the `ucav` prefix | **Misclassified as `Surface`**; trigger silently does not match |
+| Air unit named without the `ucav` prefix | Classified from catalog domain (`tu-160-blackjack` → `Air`); the trigger matches |
 
 > **Same-tick caveat.** `MissionRuntime.Tick` computes local sequence ids `sequenceStart + emissionIndex` which, for the 2nd and later same-tick events, would collide with early-run order-log ids. They are inert today because the value is discarded twice before reaching `DecisionLog`. **Do not "fix" this by wiring the value through** — that activates the collision against two golden-backed fixtures. Tracked as **DRG-49**; the parameter should be deleted, not plumbed.
 
@@ -113,7 +113,7 @@ Sourced from REQ-07 (INF-3.2, INF-2.5) and REQ-11 (AME-6.6/AC-2, AME-5.5/AC-7):
 
 ## Open Questions
 
-1. **Should target class come from a real domain field** rather than an id prefix? The current rule is a documented MVP shortcut that breaks silently on rename.
+1. **Target class comes from the catalog platform domain** (rule 10). The old `ucav*` id-prefix shortcut is retired except as the Baltic v3 golden convention for `ucav-blue` / `ucav-red`.
 2. **Should unresolved unit ids in triggers warn** instead of being silently skipped? Today a scenario typo degrades the escalation invisibly.
 3. **Is headless-only permanent?** Confirmed as current scope 2026-07-24. If it changes, Player Fantasy and the acceptance criteria both need rewriting.
 

@@ -47,6 +47,19 @@ public sealed class MissionContactTargetClassifierTests
     {
         Assert.Equal(MissionContactTargetClass.Air, MissionContactTargetClassifier.Classify("ucav-blue"));
         Assert.Equal(MissionContactTargetClass.Air, MissionContactTargetClassifier.Classify("ucav-red"));
+        Assert.Equal("air", MissionContactTargetClassifier.ResolveCatalogDomain("ucav-blue"));
+    }
+
+    [Theory]
+    [InlineData("air", MissionContactTargetClass.Air)]
+    [InlineData("aircraft", MissionContactTargetClass.Air)]
+    [InlineData("subsurface", MissionContactTargetClass.Subsurface)]
+    [InlineData("submarine", MissionContactTargetClass.Subsurface)]
+    [InlineData("surface", MissionContactTargetClass.Surface)]
+    [InlineData("ship", MissionContactTargetClass.Surface)]
+    public void FromCatalogDomain_maps_catalog_domain_field(string domain, MissionContactTargetClass expected)
+    {
+        Assert.Equal(expected, MissionContactTargetClassifier.FromCatalogDomain(domain));
     }
 
     [Theory]

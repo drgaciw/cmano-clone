@@ -216,7 +216,8 @@ Semantics (verified against the runtime):
 - A trigger fires **once**, on a contact transition from `Unknown → Detected` only.
 - It fires when `observerId` matches the transitioning observer **and** the contact's target
   class matches `targetClass` (`Any` matches everything; classification via
-  `MissionContactTargetClassifier`, which keys off the target id, e.g. `ucav*`).
+  `MissionContactTargetClassifier`, which maps catalog platform domain; `ucav*` stays Air
+  for Baltic v3 goldens).
 - Triggers are evaluated in **`id` order** (`StringComparer.Ordinal`) for determinism; keep ids
   stable and sortable.
 - On firing it emits the trigger's `missionCode` + `roe` for the listed `side` / `unitIds`.

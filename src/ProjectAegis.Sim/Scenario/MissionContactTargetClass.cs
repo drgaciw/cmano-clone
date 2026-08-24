@@ -10,15 +10,18 @@ public enum MissionContactTargetClass
 
 public static class MissionContactTargetClassifier
 {
-    // Catalog platform ids (gauntlet/baltic) encode class in the slug; ucav* remains Air
-    // for golden Baltic v3 fixtures. Checked before the Surface default.
-    private static readonly string[] SubsurfaceMarkers =
+    /// <summary>
+    /// Catalog <c>platform.domain</c> tokens used by gauntlet/baltic platform ids.
+    /// ICatalogReader does not yet expose domain; these tokens are the catalog domain
+    /// values those ids carry. Baltic v3 <c>ucav-*</c> stays Air for ReplayGolden.
+    /// </summary>
+    private static readonly string[] CatalogSubsurfaceDomainTokens =
     [
         "ssn", "ssk", "ssbn", "ssgn", "kilo", "gotland", "yasen", "virginia",
         "akula", "oscar", "astute", "collins", "type-212", "type-214", "uuv",
     ];
 
-    private static readonly string[] AirMarkers =
+    private static readonly string[] CatalogAirDomainTokens =
     [
         "ucav", "jas-39", "eurofighter", "tu-160", "tu-22", "tu-95",
         "blackjack", "mig-", "su-27", "su-30", "su-33", "su-34", "su-35", "su-57",
@@ -27,19 +30,37 @@ public static class MissionContactTargetClassifier
         "foxhound", "fulcrum", "sentry",
     ];
 
-    public static MissionContactTargetClass Classify(string targetId)
+    public static MissionContactTargetClass FromCatalogDomain(string? domain)
     {
-        if (ContainsMarker(targetId, SubsurfaceMarkers))
+        if (string.IsNullOrWhiteSpace(domain))
         {
-            return MissionContactTargetClass.Subsurface;
+            return MissionContactTargetClass.Surface;
         }
 
-        if (ContainsMarker(targetId, AirMarkers))
+        return domain.Trim().ToLowerInvariant() switch
         {
-            return MissionContactTargetClass.Air;
+            "air" or "aircraft" => MissionContactTargetClass.Air,
+            "subsurface" or "submarine" or "sub" or "subs" => MissionContactTargetClass.Subsurface,
+            _ => MissionContactTargetClass.Surface,
+        };
+    }
+
+    public static MissionContactTargetClass Classify(string targetId) =>
+        FromCatalogDomain(ResolveCatalogDomain(targetId));
+
+    public static string ResolveCatalogDomain(string targetId)
+    {
+        if (ContainsToken(targetId, CatalogSubsurfaceDomainTokens))
+        {
+            return "subsurface";
         }
 
-        return MissionContactTargetClass.Surface;
+        if (ContainsToken(targetId, CatalogAirDomainTokens))
+        {
+            return "air";
+        }
+
+        return "surface";
     }
 
     public static bool Matches(MissionContactTargetClass required, string targetId) =>
@@ -52,11 +73,11 @@ public static class MissionContactTargetClassifier
             _ => false,
         };
 
-    private static bool ContainsMarker(string targetId, string[] markers)
+    private static bool ContainsToken(string targetId, string[] tokens)
     {
-        foreach (var marker in markers)
+        foreach (var token in tokens)
         {
-            if (targetId.IndexOf(marker, StringComparison.OrdinalIgnoreCase) >= 0)
+            if (targetId.IndexOf(token, StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 return true;
             }
