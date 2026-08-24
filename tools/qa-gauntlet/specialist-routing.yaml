@@ -1,0 +1,34 @@
+# DRG-199: machine-readable /team-qa-gauntlet specialist routing.
+# Human runbooks stay in .claude/skills/. Do not invent LLM pass/fail here.
+# Does not replace DRG-200 manifest or DRG-201 evidence ledger.
+version: 1
+coordinator: team-qa-gauntlet
+modes:
+  mission-thread:
+    skill: qa-gauntlet-mission-thread
+    full_hook: "A1b when Mission-type row is T3+"
+  agentic-resilience:
+    skill: qa-gauntlet-agentic-resilience
+    full_hook: "Phase D / Final AAR"
+  combat-ui:
+    skill: qa-gauntlet-combat-ui
+    full_hook: null
+script_owned_gates:
+  - evaluate_run.py
+  - gauntlet_oracle_eval
+  - forge_scorecard.py
+  - gate_stress_proof.py
+presentation_defect_route: qa-gauntlet-remediation
+out_of_scope:
+  - DRG-200
+  - DRG-201
+  - DRG-165
+  - DRG-166
+  - DRG-167
+  - DRG-168
+  - DRG-169
+  - DRG-170
+  - CatalogWriteGate
+  - DelegationBridge.cs
+  - SimulationSession
+  - BalticReplayHarness

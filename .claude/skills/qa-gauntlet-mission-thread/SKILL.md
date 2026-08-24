@@ -22,6 +22,39 @@ Slice B (DRG-165–170).
 Never write `src/`, `unity/`, catalog DB, or `DelegationBridge.cs`. Artifact notes stay
 under `production/qa/gauntlet/<RUN_ID>/`. Ask before writing outside that tree.
 
+## Deterministic inputs
+
+| Input | Source |
+|-------|--------|
+| `--run-id`, `--tier` | Coordinator / `/qa-gauntlet` A1b |
+| Policy dir | `production/qa/gauntlet/<RUN_ID>/tier-<N>/` |
+| Roster | `tier-N/roster.json` |
+| Ladder Mission-type row | `/qa-gauntlet` complexity matrix (T3+) |
+
+## Evidence outputs
+
+| Artifact | Meaning |
+|----------|---------|
+| `mission-thread-report.json` | `PASS` \| `FAIL` \| `BLOCKED` \| `skipped: below-T3` |
+| Claimed vs evidenced thread counts | Distinct detection/engage lanes, not intent prose |
+
+## Entry / exit
+
+- **Enter:** `--mode mission-thread`, or `full`/`qa-gauntlet` A1b when Mission-type ≥ T3.
+- **Exit PASS:** each claimed thread has lane/window evidence; IDs in roster.
+- **Exit FAIL:** vocabulary-only intent → `/qa-gauntlet-remediation` `scenario-data`.
+- **Exit BLOCKED:** missing roster/policies. Script oracles stay unused here (pre-batch).
+
+## Slice A/B/C coverage
+
+| Slice | Coverage |
+|-------|----------|
+| Slice A (Find/Fix/Track/Target) | **In scope** — concurrent kill-chain *lanes* in policy JSON |
+| Slice B (DRG-165–170 Combat UX) | **Out** — do not implement chrome |
+| Slice C | **Out** — later; do not invent |
+
+Does not replace DRG-200 manifest or DRG-201 evidence ledger.
+
 ## Phase 1 — When to run
 
 | Trigger | Action |

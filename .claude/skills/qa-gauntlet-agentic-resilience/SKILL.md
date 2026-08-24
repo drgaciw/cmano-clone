@@ -21,6 +21,39 @@ no LLM override of script gates).
 Never write `src/`, `unity/`, catalog DB, or `DelegationBridge.cs`. Notes only under
 `production/qa/gauntlet/<RUN_ID>/`. Ask before writing outside that tree.
 
+## Deterministic inputs
+
+| Input | Source |
+|-------|--------|
+| GitNexus `impact` risk | MCP / `impact()` before any symbol edit |
+| `Passed` / `hardGatesPass` | `evaluate_run.py`, `gauntlet_oracle_eval`, `forge_scorecard.py` |
+| `--max-fix-attempts` | `/qa-gauntlet` flag |
+| Parallel Task status | `qa-skills-parallel-task-contract-2026-07-23.md` |
+
+## Evidence outputs
+
+| Artifact | Meaning |
+|----------|---------|
+| `agentic-resilience.json` | `quarantine` \| `retry` \| `blocked` \| `continue` |
+| AAR `QUARANTINED-CRITICAL` list | Never silent skip |
+
+## Entry / exit
+
+- **Enter:** `--mode agentic-resilience`, or `full` Phase D / Final AAR, or CRITICAL impact.
+- **Exit PASS:** contract followed; script gate values unchanged.
+- **Exit FAIL:** LLM flipped a red script gate, or BLOCKED hidden.
+- **Exit BLOCKED:** CRITICAL quarantine — do not edit; hand humans the list.
+
+## Slice A/B/C coverage
+
+| Slice | Coverage |
+|-------|----------|
+| Slice A | **In scope** — fail-closed agent contract around Slice A gauntlet runs |
+| Slice B | **Out** — no Combat UX implementation |
+| Slice C | **Out** |
+
+Does not replace DRG-200 / DRG-201. Presentation defects still `/qa-gauntlet-remediation` + UCA.
+
 ## Phase 1 — Detect
 
 Before any symbol edit and whenever a Task stalls or a gate is red:

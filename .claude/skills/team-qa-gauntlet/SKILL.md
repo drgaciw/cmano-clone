@@ -81,6 +81,16 @@ thread claims are **FAIL** → remediation class `scenario-data`.
 Invoke **`/qa-gauntlet-agentic-resilience`**. Quarantine CRITICAL GitNexus; never let an
 LLM override `Passed=false` / `hardGatesPass=false`.
 
+### Slice A/B/C (coordinator)
+
+| Role | Slice A | Slice B | Slice C |
+|------|---------|---------|---------|
+| mission-thread | Concurrent kill-chain lanes | Out | Out |
+| agentic-resilience | Fail-closed agent contract | Out | Out |
+| combat-ui | Replay/engage presentation gates | Out (DRG-165–170) | Out |
+
+Each specialist SKILL.md owns inputs, evidence paths, and entry/exit. This file only routes.
+
 ## Parallel contract
 
 Follow `production/agentic/qa-skills-parallel-task-contract-2026-07-23.md`:
@@ -99,6 +109,8 @@ Follow `production/agentic/qa-skills-parallel-task-contract-2026-07-23.md`:
 - Catalog IDs from roster/DB only; no CatalogWriteGate mutations without EXTEND-ONLY path.
 - Graphite for branch/PR; GitNexus `impact` before every symbol edit; `detect_changes()` before commit.
 - Script-first hard gates — LLM never overrides `Passed=false` / `hardGatesPass=false`.
+- Machine-readable route table: `tools/qa-gauntlet/specialist-routing.yaml` (DRG-199).
+  Informs later DRG-200 / DRG-201 — do not implement those tickets here.
 
 ## Presentation defects → UCA
 

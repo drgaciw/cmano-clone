@@ -21,6 +21,41 @@ Do **not** dual-write Slice B. Do not edit `src/`, `unity/`, catalog DB,
 `DelegationBridge.cs`, or `BalticReplayHarness`. Ask before writing outside
 `production/qa/gauntlet/<RUN_ID>/`.
 
+## Deterministic inputs
+
+| Input | Source |
+|-------|--------|
+| `--run-id` | Coordinator |
+| Headless filters | Existing `UnityAdapter.Tests` Engage/Kill/CombatDomains + ReplayGolden engage/kill/magazine/salvo |
+| `CombatDomainValidator` | `ProjectAegis.Sim.Tests` |
+| `dotnet` exit + `Passed:` count | Script floor — LLM must not reinterpret |
+
+## Evidence outputs
+
+| Artifact | Meaning |
+|----------|---------|
+| `combat-ui/dotnet-combat-ui.log` | Filter log; zero-match is FAIL |
+| `combat-ui/dotnet-combat-domain.log` | Domain validator log |
+| `manifest.yaml` `track: combat-ui` | Gate exits |
+| `AAR.md` | PASS \| FAIL \| BLOCKED |
+
+## Entry / exit
+
+- **Enter:** `--mode combat-ui` only (not auto-run from `full`; not `--mode ui`).
+- **Exit PASS:** both `dotnet` invocations 0 failures and Passed ≥1 (discovery floor).
+- **Exit FAIL:** red tests → `/qa-gauntlet-remediation` (+ UCA if presentation).
+- **Exit BLOCKED:** missing Slice B chrome — hand to DRG-165–170 owners, do not implement.
+
+## Slice A/B/C coverage
+
+| Slice | Coverage |
+|-------|----------|
+| Slice A | **In scope** — replay/engage presentation *gates* on shipped tests |
+| Slice B (DRG-165–170) | **Out** — BLOCKED, do not implement |
+| Slice C | **Out** |
+
+Does not replace DRG-200 / DRG-201.
+
 ## Phase 1 — Identity
 
 ```text
