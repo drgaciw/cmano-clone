@@ -9,14 +9,18 @@ using ProjectAegis.Delegation.Decision;
 /// </summary>
 public static class KillChainContactStateProjection
 {
-    /// <summary>Matches <c>ScenarioContactLifecycle.Default.StaleThresholdTicks</c>.</summary>
+    /// <summary>Matches <c>ScenarioContactLifecycle.Default.StaleThresholdTicks</c> / sensor GDD.</summary>
     public const int DefaultStaleThresholdTicks = 30;
+
+    /// <summary>Sensor GDD drop threshold (not on <c>ScenarioContactLifecycle</c> yet).</summary>
+    public const int DefaultDropThresholdTicks = 120;
 
     public static KillChainContactSnapshot Project(
         DecisionLog? log,
         ulong currentSimTick,
         IKillChainFireControlSource? fireControl = null,
-        int staleThresholdTicks = DefaultStaleThresholdTicks)
+        int staleThresholdTicks = DefaultStaleThresholdTicks,
+        int dropThresholdTicks = DefaultDropThresholdTicks)
     {
         if (log is null)
         {
@@ -33,7 +37,7 @@ public static class KillChainContactStateProjection
         var bda = OrderLogBdaProjection.ProjectBdaContactChanges(log, byTarget);
         if (bda.Count == 0)
         {
-            return Project(log.ContactChanges, currentSimTick, fireControl, staleThresholdTicks);
+            return Project(log.ContactChanges, currentSimTick, fireControl, staleThresholdTicks, dropThresholdTicks);
         }
 
         var sensor = log.ContactChanges;
@@ -48,14 +52,15 @@ public static class KillChainContactStateProjection
             merged[sensor.Count + i] = bda[i];
         }
 
-        return Project(merged, currentSimTick, fireControl, staleThresholdTicks);
+        return Project(merged, currentSimTick, fireControl, staleThresholdTicks, dropThresholdTicks);
     }
 
     public static KillChainContactSnapshot Project(
         IReadOnlyList<ContactChangeRecord>? changes,
         ulong currentSimTick,
         IKillChainFireControlSource? fireControl = null,
-        int staleThresholdTicks = DefaultStaleThresholdTicks)
+        int staleThresholdTicks = DefaultStaleThresholdTicks,
+        int dropThresholdTicks = DefaultDropThresholdTicks)
     {
         if (changes is null || changes.Count == 0)
         {
@@ -63,6 +68,7 @@ public static class KillChainContactStateProjection
         }
 
         var staleTicks = Math.Max(1, staleThresholdTicks);
+        var dropTicks = Math.Max(staleTicks, dropThresholdTicks);
         var ordered = changes
             .OrderBy(c => c.SimTick)
             .ThenBy(c => c.SequenceId)
@@ -86,7 +92,7 @@ public static class KillChainContactStateProjection
         var freshnessOrder = tracks.Keys.OrderBy(id => id, StringComparer.Ordinal).ToArray();
         for (var i = 0; i < freshnessOrder.Length; i++)
         {
-            ApplyFreshness(tracks[freshnessOrder[i]], currentSimTick, fireControl, staleTicks, transitions);
+            ApplyFreshness(tracks[freshnessOrder[i]], currentSimTick, fireControl, staleTicks, dropTicks, transitions);
         }
 
         var contacts = tracks.Values
@@ -259,6 +265,7 @@ public static class KillChainContactStateProjection
         ulong currentSimTick,
         IKillChainFireControlSource? fireControl,
         int staleTicks,
+        int dropTicks,
         List<KillChainContactTransition> transitions)
     {
         if (track.Loss != KillChainLossKind.Lost)
@@ -266,7 +273,11 @@ public static class KillChainContactStateProjection
             var age = currentSimTick >= track.LastSimTick
                 ? currentSimTick - track.LastSimTick
                 : 0UL;
-            if (age > (ulong)staleTicks)
+            if (age > (ulong)dropTicks)
+            {
+                track.PromoteLoss(KillChainLossKind.Lost);
+            }
+            else if (age > (ulong)staleTicks)
             {
                 track.PromoteLoss(KillChainLossKind.Stale);
             }

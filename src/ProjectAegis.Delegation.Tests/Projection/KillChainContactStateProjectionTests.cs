@@ -2,6 +2,9 @@ using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Sim.Catalog;
+using ProjectAegis.Sim.Core;
+using ProjectAegis.Sim.Scenario;
+using ProjectAegis.Sim.Sensors;
 using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.Tests.Projection;
@@ -300,6 +303,68 @@ public sealed class KillChainContactStateProjectionTests
     }
 
     [Test]
+    public void Drop_threshold_promotes_stale_track_to_Lost()
+    {
+        var log = new DecisionLog();
+        log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Classified"));
+
+        var staleTick = 1UL + (ulong)KillChainContactStateProjection.DefaultStaleThresholdTicks + 1;
+        var dropTick = 1UL + (ulong)KillChainContactStateProjection.DefaultDropThresholdTicks + 1;
+
+        var stale = KillChainContactStateProjection.Project(log, currentSimTick: staleTick);
+        Assert.That(stale.Contacts[0].Loss, Is.EqualTo(KillChainLossKind.Stale));
+
+        var atDropBoundary = KillChainContactStateProjection.Project(
+            log,
+            currentSimTick: 1UL + (ulong)KillChainContactStateProjection.DefaultDropThresholdTicks);
+        Assert.That(atDropBoundary.Contacts[0].Loss, Is.EqualTo(KillChainLossKind.Stale));
+
+        var dropped = KillChainContactStateProjection.Project(log, currentSimTick: dropTick);
+        Assert.That(dropped.Contacts[0].Loss, Is.EqualTo(KillChainLossKind.Lost));
+        Assert.That(dropped.Contacts[0].TrackContinuous, Is.False);
+        Assert.That(dropped.Contacts[0].Targetable, Is.False);
+        Assert.That(dropped.Transitions.Select(t => t.Kind), Does.Contain(KillChainTransitionKind.Lost));
+    }
+
+    [Test]
+    public void Two_seeded_sim_runs_project_identical_kill_chain_fingerprints()
+    {
+        var a = ProjectSeededDetection(seed: 99);
+        var b = ProjectSeededDetection(seed: 99);
+
+        Assert.That(a.Contacts, Is.Not.Empty);
+        Assert.That(
+            KillChainContactStateProjection.ComputeFingerprint(a),
+            Is.EqualTo(KillChainContactStateProjection.ComputeFingerprint(b)));
+    }
+
+    [Test]
+    public void Kill_chain_dtos_omit_selection_hover_camera_and_panel_visibility()
+    {
+        var types = new[]
+        {
+            typeof(KillChainContactState),
+            typeof(KillChainContactTransition),
+            typeof(KillChainContactSnapshot),
+            typeof(KillChainContactRow),
+            typeof(KillChainContactPanelState),
+        };
+        string[] forbidden = ["selection", "hover", "camera", "visible", "visibility", "selected"];
+
+        foreach (var type in types)
+        {
+            foreach (var property in type.GetProperties())
+            {
+                var name = property.Name.ToLowerInvariant();
+                Assert.That(
+                    forbidden.Any(token => name.Contains(token, StringComparison.Ordinal)),
+                    Is.False,
+                    $"{type.Name}.{property.Name} is UI-derived truth");
+            }
+        }
+    }
+
+    [Test]
     public void Fire_control_lookup_is_contact_keyed_not_ui_state()
     {
         var changes = new[]
@@ -317,6 +382,26 @@ public sealed class KillChainContactStateProjectionTests
         Assert.That(withoutFc.Contacts[0].Phase, Is.EqualTo(KillChainPhase.Track));
         Assert.That(withFc.Contacts[0].Targetable, Is.True);
         Assert.That(withFc.Contacts[0].Phase, Is.EqualTo(KillChainPhase.Target));
+    }
+
+    private static KillChainContactSnapshot ProjectSeededDetection(int seed)
+    {
+        var trials = new[]
+        {
+            new ScenarioDetectionTrial("u1", "radar-1", "hostile-1", "c1", 1.0),
+        };
+        var sim = new PdDetectionContactSimulator(SimSeed.FromScenario((ulong)seed), trials);
+        var log = new DecisionLog();
+        for (ulong tick = 1; tick <= 4; tick++)
+        {
+            var transitions = sim.Tick(tick, tick);
+            for (var i = 0; i < transitions.Count; i++)
+            {
+                log.Append(OrderLogEntryFactories.FromContactTransition(transitions[i]));
+            }
+        }
+
+        return KillChainContactStateProjection.Project(log, currentSimTick: 4);
     }
 
     private static ContactChangeRecord Change(
