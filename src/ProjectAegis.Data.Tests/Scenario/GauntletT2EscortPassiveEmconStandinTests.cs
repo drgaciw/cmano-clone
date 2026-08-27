@@ -38,7 +38,7 @@ public sealed class GauntletT2EscortPassiveEmconStandinTests
     }
 
     [Fact]
-    public void Shipped_gauntlet_t2_escort_passive_is_not_all_perfect_detection()
+    public void Shipped_gauntlet_t2_escort_passive_has_reduced_detection_on_every_blue_trial()
     {
         var dir = ScenarioDataPaths.TryResolveScenariosDirectory();
         Assert.NotNull(dir);
@@ -51,26 +51,49 @@ public sealed class GauntletT2EscortPassiveEmconStandinTests
         Assert.NotNull(dto.Detection);
         Assert.NotEmpty(dto.Detection);
 
+        var blueTrials = GetBlueDetectionTrials(dto);
+        Assert.Equal(4, blueTrials.Length);
+
         Assert.True(
             HasReducedPassiveStandIn(dto),
-            "gauntlet-t2-escort-passive still ships only (basePd=1.0, envMask=1.0) — BUG-t2-escort-passive-emcon-claim-unimplemented");
+            "gauntlet-t2-escort-passive still ships perfect (basePd=1.0, envMask=1.0) on one or more blue trials — BUG-t2-escort-passive-emcon-claim-unimplemented");
 
-        Assert.Contains(
-            dto.Detection!,
-            t => t.BasePd is >= 0.3 and <= 0.45 && t.EnvMask is >= 0.3 and <= 0.45);
+        Assert.All(
+            blueTrials,
+            t => Assert.True(
+                IsReducedPassiveStandInPair(t.BasePd, t.EnvMask),
+                $"blue trial observer={t.ObserverId} must use reduced basePd/envMask (~0.3–0.45), got ({t.BasePd}, {t.EnvMask})"));
+    }
+
+    private const double ReducedStandInMin = 0.3;
+    private const double ReducedStandInMax = 0.45;
+
+    private static bool IsReducedPassiveStandInPair(double basePd, double envMask) =>
+        basePd is >= ReducedStandInMin and <= ReducedStandInMax &&
+        envMask is >= ReducedStandInMin and <= ReducedStandInMax;
+
+    private static ScenarioDetectionJsonDto[] GetBlueDetectionTrials(ScenarioPolicyJsonDto dto)
+    {
+        if (dto.Detection is null || dto.Detection.Count == 0)
+        {
+            return Array.Empty<ScenarioDetectionJsonDto>();
+        }
+
+        var blueObservers = dto.Gauntlet?.Units?
+            .Where(u => string.Equals(u.Side, "blue", StringComparison.OrdinalIgnoreCase))
+            .Select(u => u.UnitId)
+            .Where(id => !string.IsNullOrWhiteSpace(id))
+            .ToHashSet(StringComparer.Ordinal);
+
+        return blueObservers is { Count: > 0 }
+            ? dto.Detection.Where(t => blueObservers.Contains(t.ObserverId)).ToArray()
+            : dto.Detection.ToArray();
     }
 
     private static bool HasReducedPassiveStandIn(ScenarioPolicyJsonDto dto)
     {
-        if (dto.Detection is null || dto.Detection.Count == 0)
-        {
-            return false;
-        }
-
-        var pairs = dto.Detection
-            .Select(t => (t.BasePd, t.EnvMask))
-            .Distinct()
-            .ToArray();
-        return pairs.Length > 0 && !pairs.All(p => p.BasePd == 1.0 && p.EnvMask == 1.0);
+        var blueTrials = GetBlueDetectionTrials(dto);
+        return blueTrials.Length > 0 &&
+               blueTrials.All(t => IsReducedPassiveStandInPair(t.BasePd, t.EnvMask));
     }
 }

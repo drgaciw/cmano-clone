@@ -57,6 +57,13 @@ T2 batch at ticks=10, seeds 42,7,123: numeric `gauntlet.expect` still matched ob
 rows (`allPassed: true`); fingerprint goldens for this scenario were re-blessed from
 that CSV. `gauntlet-t3-emcon-phases` / `gauntlet-t5-roe-change` left to other workers.
 
+**P2 re-bless (2026-08-27):** anchors for `gauntlet-t2-escort-passive|{7,42,123}` were
+re-derived via `tools/qa-gauntlet/evaluate_run.py bless` from green run
+`gauntlet-t2-escort-passive-pd-bless-20260827` (Demo batch ticks=10, seeds 42/7/123,
+`oracle-eval.json` allPassed, tier-2 `verdict.json` pass). Hashes unchanged vs prior
+hand-edit; `blessedFrom` now names this run instead of `gauntlet-winchester-full-20260801b`.
+Other anchor keys in `tools/qa-gauntlet/goldens/anchors.json` untouched.
+
 ## Related Issues
 - `production/qa/bugs/BUG-catalog-emcon-tables-empty.md` — the underlying data gap
 - `production/qa/bugs/BUG-scoring-penalises-roe-correct-refusals.md` — separate design question from the same run
