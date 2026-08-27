@@ -1,0 +1,55 @@
+{
+  "lane": "read",
+  "skillId": "c2.track.assess",
+  "invocationId": "inv-read-001",
+  "proposalId": null,
+  "simTick": 12,
+  "simTime": 12.0,
+  "scenarioId": "baltic-patrol",
+  "seed": 42,
+  "inputs": {
+    "contactId": "c-12",
+    "targetId": "t-4"
+  },
+  "evidence": [
+    {
+      "kind": "contact",
+      "id": "c-12",
+      "sequenceId": 80,
+      "projectionType": "ContactPictureProjection",
+      "field": "LifecycleState"
+    },
+    {
+      "kind": "snapshot",
+      "id": "HasFireControlTrackOnPrimaryContact",
+      "sequenceId": null,
+      "projectionType": "SensorC2Projection",
+      "field": "HasFireControlTrackOnPrimaryContact"
+    }
+  ],
+  "assumptions": [
+    "Observer ffg-1 holds the organic track"
+  ],
+  "rationale": "Contact c-12 is tracking on ffg-1 with fire-control true at tick 12.",
+  "output": {
+    "contactId": "c-12",
+    "targetId": "t-4",
+    "lifecycleState": "TRACKING",
+    "ageTicks": 2,
+    "trackSource": "organic",
+    "fireControlSatisfied": true,
+    "emconActive": true,
+    "spoofOrAbortHint": null
+  },
+  "commandId": null,
+  "requiredApproval": "none",
+  "replayProvenance": {
+    "skillId": "c2.track.assess",
+    "invocationId": "inv-read-001",
+    "simTick": 12,
+    "simTime": 12.0,
+    "orderLogFingerprintBefore": null,
+    "sequenceIdOnSubmit": null,
+    "submitted": false
+  }
+}

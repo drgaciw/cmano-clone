@@ -1,0 +1,109 @@
+{
+  "contractId": "agc-c2-skill-contract",
+  "version": "1.0.0",
+  "linear": "DRG-196",
+  "agc": ["AGC-01", "AGC-02", "AGC-03", "AGC-04"],
+  "slice": "A",
+  "envelopeSchema": "envelopes/skill-envelope.schema.json",
+  "contractPath": "CONTRACT.md",
+  "submitVerb": {
+    "skillId": "c2.skill.submit",
+    "lane": "submit",
+    "notes": "Host verb over an approved proposal. Not a native lane on Slice A skills."
+  },
+  "knownCommandIds": [
+    "hold",
+    "rtb",
+    "move",
+    "plot_course",
+    "engage",
+    "set_emcon",
+    "set_sensors",
+    "launch",
+    "launch_aircraft",
+    "abort_launch",
+    "abort_launch_aircraft",
+    "launch_boat",
+    "recover_boat",
+    "abort_boat_launch"
+  ],
+  "commandResolver": "ProjectAegis.Delegation.Input.C2CommandIssuance.TryResolve",
+  "submitPath": "ProjectAegis.Delegation.UnityAdapter.Bridge.C2PlayerCommandBridge.TryIssue",
+  "policyGate": "ProjectAegis.Sim.Policy.IPolicyEvaluator.Evaluate",
+  "skills": [
+    {
+      "skillId": "c2.track.assess",
+      "name": "Track assessment",
+      "lanes": ["read", "propose"],
+      "path": "../c2-track-assessment/SKILL.md",
+      "projections": [
+        "ContactPictureProjection",
+        "ContactPictureEntry",
+        "ContactDetailProjection",
+        "SensorC2Projection",
+        "SensorC2Snapshot",
+        "EngageExplainProjection",
+        "MessageLogProjection"
+      ],
+      "snapshotFields": [
+        "HasFireControlTrackOnPrimaryContact",
+        "PrimaryHostileTargetId",
+        "ObserverRadarEmconActive",
+        "ActiveEngagementCount"
+      ],
+      "commandIds": ["hold", "set_sensors", "set_emcon"]
+    },
+    {
+      "skillId": "c2.datalink.reason",
+      "name": "Data-link reasoning",
+      "lanes": ["read", "propose"],
+      "path": "../c2-datalink-reasoning/SKILL.md",
+      "projections": [
+        "DatalinkPictureProjection",
+        "DatalinkEdgeEntry",
+        "CommsStateProjection",
+        "CatalogPlatformCommsProjection",
+        "PlatformCommsListProjection",
+        "ContactPictureProjection"
+      ],
+      "snapshotFields": ["ObserverRadarEmconActive"],
+      "commandIds": ["set_emcon", "set_sensors", "hold"]
+    },
+    {
+      "skillId": "c2.pairing.recommend",
+      "name": "Sensor-to-shooter pairing",
+      "lanes": ["read", "propose"],
+      "path": "../c2-sensor-to-shooter-pairing/SKILL.md",
+      "projections": [
+        "ContactPictureProjection",
+        "SensorC2Projection",
+        "EngagePreviewProjection",
+        "EngageExplainProjection",
+        "DatalinkPictureProjection",
+        "UnitDetailProjection",
+        "MagazineLoadoutProjection"
+      ],
+      "snapshotFields": [
+        "HasFireControlTrackOnPrimaryContact",
+        "PrimaryHostileTargetId",
+        "ActiveEngagementCount"
+      ],
+      "commandIds": ["engage", "hold", "set_sensors"]
+    },
+    {
+      "skillId": "c2.explain",
+      "name": "Explanation",
+      "lanes": ["read"],
+      "path": "../c2-explanation/SKILL.md",
+      "projections": [
+        "EngageExplainProjection",
+        "AttentionExplainProjection",
+        "MessageLogProjection",
+        "PendingApprovalProjection",
+        "DoctrineInheritanceProjection"
+      ],
+      "snapshotFields": [],
+      "commandIds": []
+    }
+  ]
+}
