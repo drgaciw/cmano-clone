@@ -40,7 +40,7 @@ are pure and deterministic so they never perturb replay goldens.
 | [`MissionContactTriggerRuntimeFactory.cs`](../../src/ProjectAegis.Delegation/Mission/MissionContactTriggerRuntimeFactory.cs) | `TryCreate(ScenarioMissionTimeline?)` → runtime or `null` when no triggers. |
 | [`ScenarioMissionTimeline.cs`](../../src/ProjectAegis.Sim/Scenario/ScenarioMissionTimeline.cs) | The parsed `mission` block: `FireOrder`, `Events`, `ContactTriggers`. |
 | [`ScenarioMissionContactTrigger.cs`](../../src/ProjectAegis.Sim/Scenario/ScenarioMissionContactTrigger.cs) | One trigger rule + the `MissionContactPolicySide` enum. |
-| [`MissionContactTargetClass.cs`](../../src/ProjectAegis.Sim/Scenario/MissionContactTargetClass.cs) | The `Surface`/`Air`/`Any` target class + `MissionContactTargetClassifier` (keys off the target id). |
+| [`MissionContactTargetClass.cs`](../../src/ProjectAegis.Sim/Scenario/MissionContactTargetClass.cs) | The `Any`/`Surface`/`Air`/`Subsurface` target class + `MissionContactTargetClassifier` (catalog domain via `ICatalogReader`). |
 
 The order-log payloads and the orchestrator entry point the runtimes drive:
 
@@ -144,10 +144,11 @@ For a qualifying transition, every not-yet-fired trigger is checked in **`Trigge
 (sorted at construction, for determinism) against three conditions:
 
 1. **Observer match** — `trigger.ObserverId == transition.ObserverId` (ordinal).
-2. **Target class match** — `MissionContactTargetClassifier.Matches(trigger.TargetClass, transition.TargetId)`.
-   The classifier keys off the **target id string**: ids starting with `ucav` classify as `Air`,
-   everything else as `Surface`; `Any` matches all. (There is no separate domain field on the
-   contact — the id prefix *is* the classification.)
+2. **Target class match** — `MissionContactTargetClassifier.Matches(trigger.TargetClass, transition.TargetId, catalogReader)`.
+   The classifier resolves `platform.domain` from `ICatalogReader.TryGetPlatformDomain`: `air`/`aircraft` →
+   `Air`, `subsurface`/`submarine` → `Subsurface`, else `Surface`; `Any` matches all. On catalog miss
+   (null reader or unknown id), `ucav*` → `Air` and everything else → `Surface` for Baltic v3 golden
+   compatibility.
 3. **Not already fired** — the `TriggerId` is absent from `_fired`.
 
 On a match it records the `TriggerId` in `_fired` and emits a `MissionContactTriggerEmission`
@@ -161,7 +162,7 @@ carrying the trigger + the transition's `simTime`/`simTick`.
 |-------|------|---------|
 | `TriggerId` | `string` | Stable id; also the deterministic evaluation-order key. Keep unique + ordinal-stable. |
 | `ObserverId` | `string` | The unit whose detection arms the trigger. |
-| `TargetClass` | `Any` / `Surface` / `Air` | Which contact class arms it (id-prefix classified). |
+| `TargetClass` | `Any` / `Surface` / `Air` / `Subsurface` | Which contact class arms it (catalog domain classified). |
 | `PolicySide` | `Friendly` / `Opposing` | Which side's policy resolution the new ROE is applied under. |
 | `MissionCode` | `string` | Stamped as the `PhaseCode` of the emitted `MissionTransition`. |
 | `Roe` | `RoeLevel` | The escalated ROE (`HoldFire` / `WeaponsTight` / `WeaponsFree`). |
@@ -244,10 +245,10 @@ Both runtimes are pure functions of their inputs and therefore replay-safe:
 - **Add a new event kind:** extend `MissionEventKind`, map it to an order-log entry in the harness
   tick loop, and add a matching `OrderLogEntryKind` + payload record + `DecisionLog` fold. This is a
   golden-affecting, engine-agnostic change — cover it with a `BalticReplayHarness*` test.
-- **Change the target classification:** `MissionContactTargetClassifier.Classify` is intentionally
-  id-prefix based (`ucav*` → `Air`). If you introduce a richer classification (e.g. a real domain
-  field on the contact), update `Classify`/`Matches` together and re-verify every `mission.triggers`
-  target-class match plus the goldens.
+- **Change the target classification:** `MissionContactTargetClassifier.Classify` resolves
+  `ICatalogReader.TryGetPlatformDomain` (`air` → `Air`, `subsurface` → `Subsurface`, else `Surface`;
+  catalog miss falls back to `ucav*` → `Air`). Update `Classify`/`Matches` together and re-verify
+  every `mission.triggers` target-class match plus the goldens.
 
 ---
 

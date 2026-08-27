@@ -16,6 +16,7 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
     private readonly SqliteConnection _connection;
     private CatalogSensorBinding[]? _cache;
     private Dictionary<string, CatalogPlatformEntry>? _platforms;
+    private Dictionary<string, string>? _platformDomains;
     private HashSet<string>? _snapshots;
     private bool? _hasPlatformTable;
     private CatalogMobility[]? _mobilityCache;
@@ -137,6 +138,18 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
 
         latDeg = 0;
         lonDeg = 0;
+        return false;
+    }
+
+    public bool TryGetPlatformDomain(string platformId, out string domain)
+    {
+        EnsurePlatformsLoaded();
+        if (_platformDomains!.TryGetValue(platformId, out domain!))
+        {
+            return true;
+        }
+
+        domain = "";
         return false;
     }
 
@@ -747,11 +760,18 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
         }
 
         _platforms = new Dictionary<string, CatalogPlatformEntry>(StringComparer.Ordinal);
+        _platformDomains = new Dictionary<string, string>(StringComparer.Ordinal);
         if (PlatformTableExists())
         {
+            var hasDomain = MigrationColumnExists("platform", "domain");
             using var cmd = _connection.CreateCommand();
-            cmd.CommandText =
+            cmd.CommandText = hasDomain
+                ? """
+                SELECT platform_id, lat_deg, lon_deg, combat_radius_nm, domain
+                FROM platform
+                ORDER BY platform_id ASC, snapshot_id ASC
                 """
+                : """
                 SELECT platform_id, lat_deg, lon_deg, combat_radius_nm
                 FROM platform
                 ORDER BY platform_id ASC, snapshot_id ASC
@@ -767,6 +787,10 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
                         reader.GetDouble(1),
                         reader.GetDouble(2),
                         reader.GetDouble(3));
+                    if (hasDomain)
+                    {
+                        _platformDomains[id] = reader.GetString(4);
+                    }
                 }
             }
         }
@@ -776,6 +800,10 @@ public sealed class SqliteCatalogReader : ICatalogReader, IDisposable
             foreach (var platform in CatalogValidationDefaults.BalticPlatforms())
             {
                 _platforms[platform.PlatformId] = platform;
+                if (!string.IsNullOrEmpty(platform.Domain))
+                {
+                    _platformDomains[platform.PlatformId] = platform.Domain;
+                }
             }
         }
     }

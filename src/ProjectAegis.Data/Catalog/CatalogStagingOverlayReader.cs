@@ -56,6 +56,9 @@ public sealed class CatalogStagingOverlayReader : ICatalogReader
     public bool TryGetPlatformPosition(string platformId, out double latDeg, out double lonDeg) =>
         _inner.TryGetPlatformPosition(platformId, out latDeg, out lonDeg);
 
+    public bool TryGetPlatformDomain(string platformId, out string domain) =>
+        _inner.TryGetPlatformDomain(platformId, out domain);
+
     public bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope)
     {
         if (_weaponEnvelopes != null &&

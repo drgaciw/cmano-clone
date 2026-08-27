@@ -166,7 +166,7 @@ public static class BalticReplayHarness
 
         var missionRuntime = profile != null ? MissionRuntimeFactory.TryCreate(profile.MissionTimeline) : null;
         var contactTriggerRuntime = profile != null
-            ? MissionContactTriggerRuntimeFactory.TryCreate(profile.MissionTimeline)
+            ? MissionContactTriggerRuntimeFactory.TryCreate(profile.MissionTimeline, catalogReader)
             : null;
         var sideMaxSalvo = profile?.FriendlyDefault.MaxSalvo ?? EffectivePolicy.DefaultFree.MaxSalvo;
         var checkpointStore = new ReplayCheckpointStore();
