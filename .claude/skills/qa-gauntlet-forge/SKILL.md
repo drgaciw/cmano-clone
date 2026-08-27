@@ -102,6 +102,8 @@ data/scenarios/gauntlet-*.policy.json
    Stress candidates must plan a **control sibling** for weapons/ew.
 3. Architect Tasks in one turn when disjoint; never invent expect envelopes.
 4. Validate; invalid → regenerate once, then discard + `FAILED:` retain.
+5. T3+ concurrent-thread claims: invoke `/qa-gauntlet-mission-thread` (honesty gate;
+   do not duplicate the checklist here).
 
 ### `post-oracle` (after Phase C)
 
@@ -158,6 +160,9 @@ Required at: pre, a0, post-oracle, e, final.
 - `/team-qa-gauntlet` — multi-agent entry
 - `/qa-gauntlet` — ladder owner
 - `/qa-gauntlet-ui` — game UI Smoke/Pressure (not forge)
+- `/qa-gauntlet-combat-ui` — engage/kill presentation (not Slice B)
+- `/qa-gauntlet-mission-thread` — T3+ thread honesty after `a0`
+- `/qa-gauntlet-agentic-resilience` — quarantine / never-LLM-override
 - `/qa-gauntlet-stress` — axes + proof gate
 - `/qa-gauntlet-remediation` — Phase D / UCA
 - `/team-qa` — human sprint package / manual UAT
