@@ -3,6 +3,7 @@ using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
+using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
 using NUnit.Framework;
@@ -362,6 +363,76 @@ public sealed class KillChainContactStateProjectionTests
                     $"{type.Name}.{property.Name} is UI-derived truth");
             }
         }
+    }
+
+    [Test]
+    public void Bda_kill_fans_out_to_all_contacts_on_same_target()
+    {
+        var log = new DecisionLog();
+        log.AppendContactChange(Change(1, "c-ucav-1", "hostile-1", "Unknown", "Classified"));
+        log.AppendContactChange(Change(1, "c-ucav-2", "hostile-1", "Unknown", "Classified"));
+        log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Identified"));
+        log.AppendEngagementOutcome(new EngagementOutcomeRecord(
+            0,
+            2,
+            2,
+            new TargetId("shooter-1"),
+            new TargetId("hostile-1"),
+            10,
+            EngagementOutcomeCodes.Kill,
+            0.42));
+
+        var snapshot = KillChainContactStateProjection.Project(
+            log,
+            currentSimTick: 2,
+            fireControl: new StubFireControl("c1", "c-ucav-1", "c-ucav-2"));
+
+        Assert.That(snapshot.Contacts, Has.Count.EqualTo(3));
+        Assert.That(snapshot.Contacts.Select(c => c.ContactId), Is.EqualTo(new[] { "c-ucav-1", "c-ucav-2", "c1" }));
+        Assert.That(snapshot.Contacts.All(c => c.Loss == KillChainLossKind.Lost), Is.True);
+        Assert.That(snapshot.Contacts.All(c => c.TrackContinuous == false), Is.True);
+        Assert.That(snapshot.Contacts.All(c => c.Targetable == false), Is.True);
+        Assert.That(
+            snapshot.Transitions.Count(t => t.Kind == KillChainTransitionKind.Lost),
+            Is.EqualTo(3));
+    }
+
+    [Test]
+    public void Escalating_bda_degradation_publishes_each_loss_level()
+    {
+        var log = new DecisionLog();
+        log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Identified"));
+        log.AppendPlatformDamageChange(new PlatformDamageChangeRecord(
+            0,
+            2,
+            2,
+            new TargetId("hostile-1"),
+            100,
+            75,
+            PlatformDamageChangeReasonCodes.Hit,
+            1));
+        log.AppendPlatformDamageChange(new PlatformDamageChangeRecord(
+            0,
+            3,
+            3,
+            new TargetId("hostile-1"),
+            75,
+            50,
+            PlatformDamageChangeReasonCodes.Hit,
+            2));
+
+        var snapshot = KillChainContactStateProjection.Project(
+            log,
+            currentSimTick: 3,
+            fireControl: new StubFireControl("c1"));
+
+        Assert.That(snapshot.Contacts[0].Loss, Is.EqualTo(KillChainLossKind.DegradedL2));
+        var degraded = snapshot.Transitions.Where(t => t.Kind == KillChainTransitionKind.Degraded).ToArray();
+        Assert.That(degraded, Has.Length.EqualTo(2));
+        Assert.That(degraded[0].Loss, Is.EqualTo(KillChainLossKind.DegradedL1));
+        Assert.That(degraded[0].SimTick, Is.EqualTo(2UL));
+        Assert.That(degraded[1].Loss, Is.EqualTo(KillChainLossKind.DegradedL2));
+        Assert.That(degraded[1].SimTick, Is.EqualTo(3UL));
     }
 
     [Test]

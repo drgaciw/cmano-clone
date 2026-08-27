@@ -28,13 +28,11 @@ public static class KillChainContactStateProjection
         }
 
         var picture = ContactPictureProjection.Project(log);
-        var byTarget = new Dictionary<string, ContactPictureEntry>(picture.Count, StringComparer.Ordinal);
-        for (var i = 0; i < picture.Count; i++)
-        {
-            byTarget[picture[i].TargetId] = picture[i];
-        }
+        var contactsByTarget = BuildContactsByTarget(picture);
+        var byTarget = BuildRepresentativeContactsByTarget(contactsByTarget);
 
-        var bda = OrderLogBdaProjection.ProjectBdaContactChanges(log, byTarget);
+        var bdaPerTarget = OrderLogBdaProjection.ProjectBdaContactChanges(log, byTarget);
+        var bda = FanOutBdaContactChanges(bdaPerTarget, contactsByTarget);
         if (bda.Count == 0)
         {
             return Project(log.ContactChanges, currentSimTick, fireControl, staleThresholdTicks, dropThresholdTicks);
@@ -182,6 +180,74 @@ public static class KillChainContactStateProjection
         }
 
         return builder.ToString();
+    }
+
+    private static Dictionary<string, List<ContactPictureEntry>> BuildContactsByTarget(
+        IReadOnlyList<ContactPictureEntry> picture)
+    {
+        var contactsByTarget = new Dictionary<string, List<ContactPictureEntry>>(picture.Count, StringComparer.Ordinal);
+        for (var i = 0; i < picture.Count; i++)
+        {
+            var entry = picture[i];
+            if (!contactsByTarget.TryGetValue(entry.TargetId, out var contacts))
+            {
+                contacts = new List<ContactPictureEntry>();
+                contactsByTarget[entry.TargetId] = contacts;
+            }
+
+            contacts.Add(entry);
+        }
+
+        return contactsByTarget;
+    }
+
+    private static Dictionary<string, ContactPictureEntry> BuildRepresentativeContactsByTarget(
+        IReadOnlyDictionary<string, List<ContactPictureEntry>> contactsByTarget)
+    {
+        var byTarget = new Dictionary<string, ContactPictureEntry>(contactsByTarget.Count, StringComparer.Ordinal);
+        foreach (var (targetId, contacts) in contactsByTarget)
+        {
+            byTarget[targetId] = contacts[0];
+        }
+
+        return byTarget;
+    }
+
+    private static List<ContactChangeRecord> FanOutBdaContactChanges(
+        IReadOnlyList<ContactChangeRecord> perTargetChanges,
+        IReadOnlyDictionary<string, List<ContactPictureEntry>> contactsByTarget)
+    {
+        if (perTargetChanges.Count == 0)
+        {
+            return new List<ContactChangeRecord>();
+        }
+
+        var expanded = new List<ContactChangeRecord>(perTargetChanges.Count);
+        for (var i = 0; i < perTargetChanges.Count; i++)
+        {
+            var change = perTargetChanges[i];
+            if (!contactsByTarget.TryGetValue(change.TargetId, out var contacts) || contacts.Count <= 1)
+            {
+                expanded.Add(change);
+                continue;
+            }
+
+            for (var j = 0; j < contacts.Count; j++)
+            {
+                var contact = contacts[j];
+                expanded.Add(new ContactChangeRecord(
+                    change.SequenceId,
+                    change.SimTime,
+                    change.SimTick,
+                    contact.ObserverId,
+                    contact.ContactId,
+                    contact.TargetId,
+                    change.PreviousState,
+                    change.NewState));
+            }
+        }
+
+        return expanded;
     }
 
     private static void AppendJoined(System.Text.StringBuilder builder, IReadOnlyList<ulong> values)
@@ -510,6 +576,11 @@ public static class KillChainContactStateProjection
         {
             if ((int)candidate > (int)Loss)
             {
+                if (Loss != KillChainLossKind.None)
+                {
+                    Emitted.Remove(KillChainTransitionKind.Degraded);
+                }
+
                 Loss = candidate;
             }
         }
