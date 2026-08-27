@@ -19,6 +19,10 @@ public static class SkillEnvelopeValidator
     public const string ReasonMissingOverride = "MISSING_OVERRIDE";
     public const string ReasonMissingProposal = "MISSING_PROPOSAL";
     public const string ReasonMissingTtl = "MISSING_TTL";
+    public const string ReasonNoFireControl = "NO_FIRE_CONTROL";
+    public const string ReasonWeaponsReleaseRequired = "WEAPONS_RELEASE_REQUIRED";
+    public const string ReasonCommandNotAllowed = "COMMAND_NOT_ALLOWED";
+    public const string ReasonApprovalRequired = "APPROVAL_REQUIRED";
 
     /// <summary>
     /// Validate <paramref name="envelope"/>. Pass <paramref name="proposalApproved"/> only for
@@ -49,7 +53,7 @@ public static class SkillEnvelopeValidator
         return envelope.Lane switch
         {
             SkillLane.Read => ValidateRead(envelope),
-            SkillLane.Propose => ValidatePropose(envelope),
+            SkillLane.Propose => ValidatePropose(envelope, descriptor),
             SkillLane.Submit => Fail(ReasonLaneNotAllowed),
             _ => Fail(ReasonLaneNotAllowed),
         };
@@ -65,7 +69,7 @@ public static class SkillEnvelopeValidator
         return Ok();
     }
 
-    private static SkillEnvelopeValidation ValidatePropose(SkillEnvelope envelope)
+    private static SkillEnvelopeValidation ValidatePropose(SkillEnvelope envelope, SkillDescriptor descriptor)
     {
         if (envelope.AuthorityBasis is null)
         {
@@ -99,9 +103,21 @@ public static class SkillEnvelopeValidator
                 return Fail(reason ?? C2CommandIssuance.ReasonUnknownCommand);
             }
 
-            if (IsEngage(envelope.CommandId) && IsSharedSa(envelope.AuthorityBasis.TrackSource))
+            if (!IsCommandAllowed(descriptor, envelope.CommandId))
             {
-                return Fail(ReasonSharedTrackNoRelease);
+                return Fail(ReasonCommandNotAllowed);
+            }
+
+            var engageFailure = ValidateEngageCommand(envelope);
+            if (engageFailure is not null)
+            {
+                return engageFailure;
+            }
+
+            var approvalFailure = ValidateRequiredApproval(envelope);
+            if (approvalFailure is not null)
+            {
+                return approvalFailure;
             }
         }
 
@@ -140,9 +156,16 @@ public static class SkillEnvelopeValidator
             return Fail(reason ?? C2CommandIssuance.ReasonUnknownCommand);
         }
 
-        if (IsEngage(envelope.CommandId) && IsSharedSa(envelope.AuthorityBasis.TrackSource))
+        var engageFailure = ValidateEngageCommand(envelope);
+        if (engageFailure is not null)
         {
-            return Fail(ReasonSharedTrackNoRelease);
+            return engageFailure;
+        }
+
+        var approvalFailure = ValidateRequiredApproval(envelope);
+        if (approvalFailure is not null)
+        {
+            return approvalFailure;
         }
 
         return Ok(envelope.CommandId);
@@ -159,6 +182,72 @@ public static class SkillEnvelopeValidator
         }
 
         return false;
+    }
+
+    private static bool IsCommandAllowed(SkillDescriptor descriptor, string commandId)
+    {
+        foreach (var allowed in descriptor.CommandIds)
+        {
+            if (string.Equals(allowed, commandId.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static SkillEnvelopeValidation? ValidateEngageCommand(SkillEnvelope envelope)
+    {
+        if (!IsEngage(envelope.CommandId))
+        {
+            return null;
+        }
+
+        var authority = envelope.AuthorityBasis!;
+        if (IsSharedSa(authority.TrackSource))
+        {
+            return Fail(ReasonSharedTrackNoRelease);
+        }
+
+        if (authority.TrackSource != TrackSource.Organic || !authority.FireControlSatisfied)
+        {
+            return Fail(ReasonNoFireControl);
+        }
+
+        return null;
+    }
+
+    private static SkillEnvelopeValidation? ValidateRequiredApproval(SkillEnvelope envelope)
+    {
+        if (string.IsNullOrEmpty(envelope.CommandId))
+        {
+            return null;
+        }
+
+        var authority = envelope.AuthorityBasis!;
+        if (IsEngage(envelope.CommandId))
+        {
+            if (envelope.RequiredApproval != RequiredApproval.WeaponsRelease)
+            {
+                return Fail(ReasonWeaponsReleaseRequired);
+            }
+
+            return null;
+        }
+
+        if (envelope.RequiredApproval == RequiredApproval.None)
+        {
+            return Fail(ReasonApprovalRequired);
+        }
+
+        if (IsSharedSa(authority.TrackSource)
+            && envelope.RequiredApproval == RequiredApproval.WeaponsRelease)
+        {
+            return Fail(ReasonSharedTrackNoRelease);
+        }
+
+        return null;
     }
 
     private static bool IsEngage(string? commandId) =>

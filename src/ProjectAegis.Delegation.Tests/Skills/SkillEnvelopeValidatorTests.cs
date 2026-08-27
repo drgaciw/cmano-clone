@@ -84,6 +84,71 @@ public sealed class SkillEnvelopeValidatorTests
     }
 
     [Test]
+    public void Propose_organic_engage_without_fire_control_fails()
+    {
+        var envelope = ProposeOrganicEngage() with
+        {
+            AuthorityBasis = OrganicAuthority() with { FireControlSatisfied = false },
+        };
+        var result = SkillEnvelopeValidator.Validate(envelope);
+
+        Assert.That(result.Ok, Is.False);
+        Assert.That(result.FailureReason, Is.EqualTo(SkillEnvelopeValidator.ReasonNoFireControl));
+    }
+
+    [Test]
+    public void Propose_engage_requires_weapons_release_approval()
+    {
+        var envelope = ProposeOrganicEngage() with { RequiredApproval = RequiredApproval.Operator };
+        var result = SkillEnvelopeValidator.Validate(envelope);
+
+        Assert.That(result.Ok, Is.False);
+        Assert.That(result.FailureReason, Is.EqualTo(SkillEnvelopeValidator.ReasonWeaponsReleaseRequired));
+    }
+
+    [Test]
+    public void Propose_track_assess_rejects_engage_not_in_skill_allowlist()
+    {
+        var envelope = ProposeOrganicEngage() with
+        {
+            SkillId = SkillIds.TrackAssess,
+            RequiredApproval = RequiredApproval.Operator,
+            CommandId = "engage",
+            ReplayProvenance = ProposeOrganicEngage().ReplayProvenance with
+            {
+                SkillId = SkillIds.TrackAssess,
+            },
+        };
+        var result = SkillEnvelopeValidator.Validate(envelope);
+
+        Assert.That(result.Ok, Is.False);
+        Assert.That(result.FailureReason, Is.EqualTo(SkillEnvelopeValidator.ReasonCommandNotAllowed));
+    }
+
+    [Test]
+    public void Submit_organic_engage_without_fire_control_fails()
+    {
+        var envelope = SubmitEngage() with
+        {
+            AuthorityBasis = OrganicAuthority() with { FireControlSatisfied = false },
+        };
+        var result = SkillEnvelopeValidator.Validate(envelope, proposalApproved: true);
+
+        Assert.That(result.Ok, Is.False);
+        Assert.That(result.FailureReason, Is.EqualTo(SkillEnvelopeValidator.ReasonNoFireControl));
+    }
+
+    [Test]
+    public void Submit_engage_requires_weapons_release_approval()
+    {
+        var envelope = SubmitEngage() with { RequiredApproval = RequiredApproval.None };
+        var result = SkillEnvelopeValidator.Validate(envelope, proposalApproved: true);
+
+        Assert.That(result.Ok, Is.False);
+        Assert.That(result.FailureReason, Is.EqualTo(SkillEnvelopeValidator.ReasonWeaponsReleaseRequired));
+    }
+
+    [Test]
     public void Propose_unknown_command_uses_C2CommandIssuance_reason()
     {
         var envelope = ProposeOrganicEngage() with { CommandId = "warp" };
