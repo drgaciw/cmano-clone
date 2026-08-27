@@ -107,14 +107,24 @@ $fail += Assert-True ($schema -match 'datalinkShared') 'schema mentions datalink
 $forbiddenTouched = @(
     git diff --name-only origin/main HEAD
 ) | Where-Object {
+    git diff --quiet origin/main HEAD -- $_
+    $LASTEXITCODE -ne 0
+} | Where-Object {
     $_ -match 'DelegationBridge\.cs|CatalogWriteGate|SimulationSession|BalticReplayHarness|MissionContactTargetClass|qa-gauntlet|t2-escort|KillChainContact'
 }
 $fail += Assert-True ($null -eq $forbiddenTouched -or @($forbiddenTouched).Count -eq 0) 'committed diff avoids forbidden worker files'
 
 $committed = @(git diff --name-only origin/main HEAD)
+$deltaFromMain = @()
+foreach ($f in $committed) {
+    git diff --quiet origin/main HEAD -- $f
+    if ($LASTEXITCODE -ne 0) {
+        $deltaFromMain += $f
+    }
+}
 $allowedPath = '^(production/docs/skills/|\.claude/skills/agent-c2-skill-contract/|src/ProjectAegis\.Delegation/Skills/|src/ProjectAegis\.Delegation\.Tests/Skills/)'
 $onlyAllowed = $true
-foreach ($f in $committed) {
+foreach ($f in $deltaFromMain) {
     if ($f -notmatch $allowedPath) {
         $onlyAllowed = $false
         Write-Host "FAIL  unexpected committed path $f"
