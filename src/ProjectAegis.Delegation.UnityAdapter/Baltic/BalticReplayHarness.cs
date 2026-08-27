@@ -158,7 +158,8 @@ public static class BalticReplayHarness
                 datalinkMerger = new DatalinkSidePictureMerger(datalinkDoctrine, detectionTrials);
             }
         }
-        else if (profile?.ContactSeeds.Count > 0)
+
+        if (profile?.ContactSeeds.Count > 0)
         {
             scheduleSim = new ScenarioContactSimulator(profile.ContactSeeds, profile.UnitRadarEmcon);
         }
@@ -378,9 +379,9 @@ public static class BalticReplayHarness
                     CommsTrackStaleness.StaleThresholdDivisor(bridge.CurrentCommsState, profile.CommsDisplay));
             }
 
-            var transitions = pdSim != null
+            IReadOnlyList<ContactTransition> transitions = pdSim != null
                 ? pdSim.Tick(simTick, harness.SimTime)
-                : scheduleSim?.Tick(simTick, harness.SimTime) ?? Array.Empty<ContactTransition>();
+                : Array.Empty<ContactTransition>();
             if (datalinkMerger != null)
             {
                 var shared = datalinkMerger.Merge(
@@ -396,6 +397,25 @@ public static class BalticReplayHarness
                     merged.AddRange(transitions);
                     merged.AddRange(shared);
                     transitions = merged.ToArray();
+                }
+            }
+
+            if (scheduleSim != null)
+            {
+                var scheduled = scheduleSim.Tick(simTick, harness.SimTime);
+                if (scheduled.Count > 0)
+                {
+                    if (transitions.Count == 0)
+                    {
+                        transitions = scheduled;
+                    }
+                    else
+                    {
+                        var merged = new List<ContactTransition>(transitions.Count + scheduled.Count);
+                        merged.AddRange(transitions);
+                        merged.AddRange(scheduled);
+                        transitions = merged.ToArray();
+                    }
                 }
             }
 
