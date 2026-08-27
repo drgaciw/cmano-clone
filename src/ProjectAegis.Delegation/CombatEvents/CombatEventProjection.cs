@@ -3,7 +3,6 @@ namespace ProjectAegis.Delegation.CombatEvents;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 
 /// <summary>
