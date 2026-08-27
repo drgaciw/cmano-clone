@@ -19,8 +19,8 @@
       "sensorId": "radar-1",
       "targetId": "mrk-shkval-pr-22800-karakurt",
       "contactId": "c-0322-1",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 0.35,
+      "envMask": 0.4,
       "jamStrength": 0
     },
     {
@@ -28,8 +28,8 @@
       "sensorId": "radar-1",
       "targetId": "skr-admiral-grigorovich-pr-1135-6m",
       "contactId": "c-0322-2",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 0.35,
+      "envMask": 0.4,
       "jamStrength": 0
     },
     {
@@ -37,8 +37,8 @@
       "sensorId": "radar-1",
       "targetId": "skr-admiral-sergey-gorshkov-pr-2235-0",
       "contactId": "c-0322-3",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 0.3,
+      "envMask": 0.35,
       "jamStrength": 0
     },
     {
@@ -46,8 +46,8 @@
       "sensorId": "radar-1",
       "targetId": "ka-27m-helix-a",
       "contactId": "c-0322-4",
-      "basePd": 1.0,
-      "envMask": 1.0,
+      "basePd": 0.4,
+      "envMask": 0.45,
       "jamStrength": 0
     }
   ],
