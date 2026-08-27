@@ -1,0 +1,59 @@
+{
+  "_comment": "NON-COMPLIANT fixture. Schema and CONTRACT.md reject commandId engage when trackSource is datalinkShared (ADR-018). Hosts must FAIL this payload, not submit it.",
+  "lane": "propose",
+  "skillId": "c2.pairing.recommend",
+  "invocationId": "inv-fail-shared-001",
+  "proposalId": "prop-fail-001",
+  "simTick": 12,
+  "simTime": 12.0,
+  "scenarioId": "baltic-patrol",
+  "seed": 42,
+  "inputs": {
+    "contactId": "c-99"
+  },
+  "evidence": [
+    {
+      "kind": "contact",
+      "id": "c-99",
+      "sequenceId": 90,
+      "projectionType": "DatalinkPictureProjection",
+      "field": "Status"
+    }
+  ],
+  "assumptions": [
+    "Contact arrived on a datalink edge only"
+  ],
+  "rationale": "Illegal: pairing named engage on a shared SA track.",
+  "output": {
+    "contactId": "c-99",
+    "releaseEligible": false
+  },
+  "commandId": "engage",
+  "ttlTicks": 30,
+  "createdSimTick": 12,
+  "requiredApproval": "weaponsRelease",
+  "authorityBasis": {
+    "policySnapshotId": "policy-baltic-default",
+    "policyUnavailable": false,
+    "roe": "WEAPONS_TIGHT",
+    "emcon": "radar-active",
+    "trackSource": "datalinkShared",
+    "fireControlSatisfied": false,
+    "engagementAuthorizationImplied": false
+  },
+  "playerOverride": {
+    "path": "C2PlayerCommandBridge.TryIssue",
+    "commandId": "hold",
+    "controllerRequirement": "HumanController",
+    "rejectLeavesNoMutation": true
+  },
+  "replayProvenance": {
+    "skillId": "c2.pairing.recommend",
+    "invocationId": "inv-fail-shared-001",
+    "simTick": 12,
+    "simTime": 12.0,
+    "orderLogFingerprintBefore": null,
+    "sequenceIdOnSubmit": null,
+    "submitted": false
+  }
+}

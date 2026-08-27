@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectaegis.local/schemas/c2-skill-envelope.json",
+  "title": "C2 skill envelope",
+  "description": "Shared envelope for AGC-01..AGC-04 skill invocations. Lane discriminates read vs propose vs submit.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "lane",
+    "skillId",
+    "invocationId",
+    "simTick",
+    "simTime",
+    "inputs",
+    "evidence",
+    "assumptions",
+    "rationale",
+    "output",
+    "replayProvenance"
+  ],
+  "properties": {
+    "lane": {
+      "type": "string",
+      "enum": ["read", "propose", "submit"]
+    },
+    "skillId": {
+      "type": "string",
+      "pattern": "^c2\\.[a-z.]+$"
+    },
+    "invocationId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "proposalId": {
+      "type": ["string", "null"]
+    },
+    "simTick": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "simTime": {
+      "type": "number",
+      "minimum": 0
+    },
+    "scenarioId": {
+      "type": ["string", "null"]
+    },
+    "seed": {
+      "type": ["integer", "null"]
+    },
+    "inputs": {
+      "type": "object"
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/evidencePointer" }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "rationale": {
+      "type": "string"
+    },
+    "output": {
+      "type": "object"
+    },
+    "commandId": {
+      "type": ["string", "null"]
+    },
+    "ttlTicks": {
+      "type": ["integer", "null"],
+      "minimum": 1,
+      "maximum": 300
+    },
+    "createdSimTick": {
+      "type": ["integer", "null"],
+      "minimum": 0
+    },
+    "requiredApproval": {
+      "type": "string",
+      "enum": ["none", "operator", "weaponsRelease"]
+    },
+    "authorityBasis": { "$ref": "#/$defs/authorityBasis" },
+    "playerOverride": { "$ref": "#/$defs/playerOverride" },
+    "replayProvenance": { "$ref": "#/$defs/replayProvenance" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "lane": { "const": "read" } },
+        "required": ["lane"]
+      },
+      "then": {
+        "properties": {
+          "commandId": { "type": "null" },
+          "requiredApproval": { "const": "none" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": { "lane": { "const": "propose" } },
+        "required": ["lane"]
+      },
+      "then": {
+        "required": [
+          "authorityBasis",
+          "requiredApproval",
+          "playerOverride",
+          "proposalId",
+          "ttlTicks",
+          "createdSimTick"
+        ],
+        "properties": {
+          "requiredApproval": { "enum": ["operator", "weaponsRelease"] },
+          "ttlTicks": { "type": "integer", "minimum": 1, "maximum": 300 },
+          "createdSimTick": { "type": "integer", "minimum": 0 },
+          "authorityBasis": {
+            "type": "object",
+            "properties": {
+              "engagementAuthorizationImplied": { "const": false }
+            },
+            "required": ["engagementAuthorizationImplied"]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "commandId": { "const": "engage" },
+          "authorityBasis": {
+            "properties": {
+              "trackSource": {
+                "enum": ["datalinkShared", "fusedWithoutOrganicFc"]
+              }
+            },
+            "required": ["trackSource"]
+          }
+        },
+        "required": ["commandId", "authorityBasis"]
+      },
+      "then": false
+    },
+    {
+      "if": {
+        "properties": { "lane": { "const": "submit" } },
+        "required": ["lane"]
+      },
+      "then": {
+        "required": [
+          "proposalId",
+          "commandId",
+          "authorityBasis",
+          "requiredApproval",
+          "playerOverride"
+        ],
+        "properties": {
+          "skillId": { "const": "c2.skill.submit" },
+          "commandId": { "type": "string", "minLength": 1 },
+          "proposalId": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "evidencePointer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "contact",
+            "unit",
+            "policy",
+            "orderLog",
+            "projection",
+            "snapshot"
+          ]
+        },
+        "id": { "type": "string", "minLength": 1 },
+        "sequenceId": { "type": ["integer", "null"], "minimum": 0 },
+        "projectionType": { "type": ["string", "null"] },
+        "field": { "type": ["string", "null"] }
+      }
+    },
+    "authorityBasis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "trackSource",
+        "fireControlSatisfied",
+        "engagementAuthorizationImplied"
+      ],
+      "properties": {
+        "policySnapshotId": { "type": ["string", "null"] },
+        "policyUnavailable": { "type": "boolean" },
+        "roe": { "type": ["string", "null"] },
+        "emcon": { "type": ["string", "null"] },
+        "trackSource": {
+          "type": "string",
+          "enum": [
+            "organic",
+            "datalinkShared",
+            "fusedWithoutOrganicFc",
+            "unknown"
+          ]
+        },
+        "fireControlSatisfied": { "type": "boolean" },
+        "engagementAuthorizationImplied": { "type": "boolean" }
+      }
+    },
+    "playerOverride": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "commandId",
+        "controllerRequirement",
+        "rejectLeavesNoMutation"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "const": "C2PlayerCommandBridge.TryIssue"
+        },
+        "commandId": { "type": "string", "minLength": 1 },
+        "controllerRequirement": {
+          "type": "string",
+          "const": "HumanController"
+        },
+        "rejectLeavesNoMutation": { "type": "boolean" }
+      }
+    },
+    "replayProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "skillId",
+        "invocationId",
+        "simTick",
+        "simTime",
+        "submitted"
+      ],
+      "properties": {
+        "skillId": { "type": "string", "minLength": 1 },
+        "invocationId": { "type": "string", "minLength": 1 },
+        "simTick": { "type": "integer", "minimum": 0 },
+        "simTime": { "type": "number", "minimum": 0 },
+        "orderLogFingerprintBefore": { "type": ["string", "null"] },
+        "sequenceIdOnSubmit": { "type": ["integer", "null"], "minimum": 0 },
+        "submitted": { "type": "boolean" }
+      }
+    }
+  }
+}
