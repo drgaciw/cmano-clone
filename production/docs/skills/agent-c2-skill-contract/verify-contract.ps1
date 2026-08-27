@@ -1,5 +1,5 @@
 # Verify DRG-196 AGC-01..AGC-04 skill contract (TEST-SPEC.md).
-# Docs-only. No sim, no Unity, no forbidden worker files.
+# Contract docs plus headless ProjectAegis.Delegation.Skills types. No sim, no Unity, no forbidden worker files.
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
 $repo = (Resolve-Path (Join-Path $root '..\..\..\..')).Path
@@ -112,17 +112,25 @@ $forbiddenTouched = @(
 $fail += Assert-True ($null -eq $forbiddenTouched -or @($forbiddenTouched).Count -eq 0) 'committed diff avoids forbidden worker files'
 
 $committed = @(git diff --name-only origin/main HEAD)
-$onlyDocs = $true
+$allowedPath = '^(production/docs/skills/|\.claude/skills/agent-c2-skill-contract/|src/ProjectAegis\.Delegation/Skills/|src/ProjectAegis\.Delegation\.Tests/Skills/)'
+$onlyAllowed = $true
 foreach ($f in $committed) {
-    if ($f -notmatch '^(production/docs/skills/|\.claude/skills/agent-c2-skill-contract/)') {
-        $onlyDocs = $false
+    if ($f -notmatch $allowedPath) {
+        $onlyAllowed = $false
         Write-Host "FAIL  unexpected committed path $f"
         $fail++
     }
 }
-if ($onlyDocs) {
-    Write-Host 'PASS  committed paths are contract docs/skills only'
+if ($onlyAllowed) {
+    Write-Host 'PASS  committed paths are contract docs and Skills types only'
 }
+
+$skillsValidator = Join-Path $repo 'src\ProjectAegis.Delegation\Skills\SkillEnvelopeValidator.cs'
+$fail += Assert-True (Test-Path $skillsValidator) 'SkillEnvelopeValidator.cs present'
+$validatorSource = Get-Content -Raw $skillsValidator
+$fail += Assert-True ($validatorSource -match 'ReasonNoFireControl') 'validator enforces NO_FIRE_CONTROL on engage'
+$fail += Assert-True ($validatorSource -match 'ReasonWeaponsReleaseRequired') 'validator enforces weaponsRelease on engage'
+$fail += Assert-True ($validatorSource -match 'ReasonCommandNotAllowed') 'validator enforces skill command allowlist'
 
 Write-Output ''
 Write-Output "HEAD=$(git rev-parse HEAD)"

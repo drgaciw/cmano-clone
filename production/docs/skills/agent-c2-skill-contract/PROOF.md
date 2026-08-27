@@ -7,19 +7,21 @@
 Re-run after checkout:
 
 ```
-powershell -NoProfile -File production/docs/skills/agent-c2-skill-contract/verify-contract.ps1
+pwsh -NoProfile -File production/docs/skills/agent-c2-skill-contract/verify-contract.ps1
 ```
 
-Expected: `VERDICT=PASS`, merge-base `84684958`, behind `0`.
+Expected: `VERDICT=PASS`, merge-base matches `origin/main`, behind `0`.
 
 ## Isolation
 
-| Ref | SHA |
-| --- | --- |
-| `origin/main` | `84684958ea6d0328d4abcfff547f1b48a3c9c22c` |
-| Merge-base | `84684958ea6d0328d4abcfff547f1b48a3c9c22c` |
+Committed paths vs `origin/main` are limited to:
 
-Committed paths vs `origin/main` are under `production/docs/skills/` and `.claude/skills/agent-c2-skill-contract/` only. No `src/`, no Unity host, no `DelegationBridge.cs`, no `CatalogWriteGate`, no `SimulationSession`, no `BalticReplayHarness`, no classifier, no DRG-179 projection types, no gauntlet skills, no t2 policy.
+- `production/docs/skills/` (contract, catalog, four Slice A SKILL.md files, envelopes)
+- `.claude/skills/agent-c2-skill-contract/` (implementer discovery)
+- `src/ProjectAegis.Delegation/Skills/` (headless contract types)
+- `src/ProjectAegis.Delegation.Tests/Skills/` (validator and catalog tests)
+
+No `DelegationBridge.cs`, no `CatalogWriteGate`, no `SimulationSession`, no `BalticReplayHarness`, no KillChain / DRG-179 projection types, no gauntlet skills, no t2 policy.
 
 ## Contract files
 
@@ -37,6 +39,19 @@ Committed paths vs `origin/main` are under `production/docs/skills/` and `.claud
 | `production/docs/skills/c2-sensor-to-shooter-pairing/SKILL.md` | `c2.pairing.recommend` |
 | `production/docs/skills/c2-explanation/SKILL.md` | `c2.explain` |
 | `.claude/skills/agent-c2-skill-contract/SKILL.md` | Implementer discovery |
+
+## Headless C# types (AGC-01..04)
+
+| Path | Role |
+| --- | --- |
+| `src/ProjectAegis.Delegation/Skills/SkillIds.cs` | Stable skill ids and enums |
+| `src/ProjectAegis.Delegation/Skills/SkillCatalog.cs` | Slice A discovery + command allowlists |
+| `src/ProjectAegis.Delegation/Skills/SkillEnvelope.cs` | Envelope DTOs |
+| `src/ProjectAegis.Delegation/Skills/SkillEnvelopeValidator.cs` | Pure gate (no enqueue) |
+| `src/ProjectAegis.Delegation.Tests/Skills/SkillCatalogTests.cs` | Catalog parity |
+| `src/ProjectAegis.Delegation.Tests/Skills/SkillEnvelopeValidatorTests.cs` | Lane and engage guard tests |
+
+Filter: `FullyQualifiedName~ProjectAegis.Delegation.Tests.Skills`
 
 ## Reads vs proposals vs submit
 
