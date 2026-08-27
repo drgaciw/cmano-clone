@@ -101,6 +101,79 @@ public sealed class ThreatAssessmentProjectionTests
     }
 
     [Test]
+    public void Winchester_empty_mag_withholds_even_when_other_gates_pass()
+    {
+        var ctx = FeasibleContext with { RoundsRemaining = 0 };
+        var input = BaseInput(EffectivePolicy.DefaultFree, ctx);
+        var recommendation = ThreatAssessmentProjection.Project(input);
+
+        Assert.That(recommendation.Outcome, Is.EqualTo(WeaponRecommendationOutcome.WithheldByEngage));
+        Assert.That(recommendation.WithheldReasonCode, Is.EqualTo(AbortReasonCatalog.Engage.WINCHESTER_ORDNANCE));
+        Assert.That(recommendation.PolicyConstraints.PolicyAllowsFire, Is.True);
+        Assert.That(recommendation.IsWeaponsReleaseAuthorization, Is.False);
+        Assert.That(recommendation.IsFireOrder, Is.False);
+        Assert.That(recommendation.IsAutomaticEngagement, Is.False);
+    }
+
+    [Test]
+    public void Below_salvo_mag_withholds_with_no_ammo_even_when_other_gates_pass()
+    {
+        var ctx = FeasibleContext with { RoundsRemaining = 1, SalvoSize = 2 };
+        var input = BaseInput(EffectivePolicy.DefaultFree, ctx);
+        var recommendation = ThreatAssessmentProjection.Project(input);
+
+        Assert.That(recommendation.Outcome, Is.EqualTo(WeaponRecommendationOutcome.WithheldByEngage));
+        Assert.That(recommendation.WithheldReasonCode, Is.EqualTo(AbortReasonCatalog.Engage.NO_AMMO));
+        Assert.That(recommendation.PolicyConstraints.PolicyAllowsFire, Is.True);
+        Assert.That(recommendation.IsWeaponsReleaseAuthorization, Is.False);
+    }
+
+    [Test]
+    public void Different_tuning_changes_confidence_for_feasible_recommendation()
+    {
+        var baselineInput = BaseInput(EffectivePolicy.DefaultFree, FeasibleContext);
+        var highConfidenceTuning = ThreatAssessmentTuning.Default with { DlzInZoneConfidence = 0.99 };
+        var highInput = baselineInput with { Tuning = highConfidenceTuning };
+
+        var baseline = ThreatAssessmentProjection.Project(baselineInput);
+        var high = ThreatAssessmentProjection.Project(highInput);
+
+        Assert.That(baseline.Outcome, Is.EqualTo(WeaponRecommendationOutcome.Feasible));
+        Assert.That(high.Outcome, Is.EqualTo(WeaponRecommendationOutcome.Feasible));
+        Assert.That(high.Confidence, Is.GreaterThan(baseline.Confidence));
+    }
+
+    [Test]
+    public void Fingerprint_changes_when_auto_engage_expend_or_dlz_label_differ()
+    {
+        var baseline = ThreatAssessmentProjection.Project(BaseInput(EffectivePolicy.DefaultFree, FeasibleContext));
+        var baselineFingerprint = ThreatAssessmentProjection.ComputeFingerprint(baseline);
+
+        var autoEngageVariant = baseline with
+        {
+            PolicyConstraints = baseline.PolicyConstraints with { AutoEngageAuthorized = false },
+        };
+        var expendVariant = baseline with
+        {
+            PolicyConstraints = baseline.PolicyConstraints with { ExpendAuthorized = true },
+        };
+        var dlzLabelVariant = baseline with
+        {
+            Range = baseline.Range with { DlzLabel = "DLZ: Approaching (Normal)" },
+        };
+
+        Assert.That(
+            ThreatAssessmentProjection.ComputeFingerprint(autoEngageVariant),
+            Is.Not.EqualTo(baselineFingerprint));
+        Assert.That(
+            ThreatAssessmentProjection.ComputeFingerprint(expendVariant),
+            Is.Not.EqualTo(baselineFingerprint));
+        Assert.That(
+            ThreatAssessmentProjection.ComputeFingerprint(dlzLabelVariant),
+            Is.Not.EqualTo(baselineFingerprint));
+    }
+
+    [Test]
     public void Same_inputs_yield_same_fingerprint()
     {
         var input = BaseInput(EffectivePolicy.DefaultFree, FeasibleContext);

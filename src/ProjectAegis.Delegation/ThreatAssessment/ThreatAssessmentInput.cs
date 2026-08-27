@@ -12,7 +12,12 @@ public sealed record ThreatAssessmentInput(
     string WeaponLabel,
     in EngageContext EngageContext,
     EffectivePolicy Policy,
-    ThreatAssessmentPosture Posture = ThreatAssessmentPosture.Offensive);
+    ThreatAssessmentPosture Posture = ThreatAssessmentPosture.Offensive,
+    ThreatAssessmentTuning Tuning = null!)
+{
+    /// <summary>Resolved tuning bag; defaults when caller omits explicit values.</summary>
+    public ThreatAssessmentTuning ResolvedTuning => Tuning ?? ThreatAssessmentTuning.Default;
+}
 
 /// <summary>Offensive strike vs defensive intercept posture for recommendation labeling.</summary>
 public enum ThreatAssessmentPosture

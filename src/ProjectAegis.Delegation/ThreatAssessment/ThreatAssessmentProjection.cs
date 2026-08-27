@@ -29,10 +29,11 @@ public static class ThreatAssessmentProjection
         var preview = EngagePreviewProjection.Project(in ctx, ctx.DlzPersonality);
         var range = BuildRangeAssessment(in ctx, preview);
         var policyConstraints = EvaluatePolicyConstraints(in input, in ctx);
-        var assumptions = BuildAssumptions(in input, in ctx, preview, policyConstraints);
-        var outcome = ResolveOutcome(preview, policyConstraints);
-        var withheldCode = ResolveWithheldReasonCode(outcome, preview, policyConstraints);
-        var confidence = ComputeConfidence(outcome, in ctx, preview, policyConstraints);
+        var tuning = input.ResolvedTuning;
+        var (outcome, engageAbortCode) = ResolveOutcome(in ctx, preview, policyConstraints);
+        var assumptions = BuildAssumptions(in input, in ctx, preview, policyConstraints, outcome, engageAbortCode);
+        var withheldCode = ResolveWithheldReasonCode(outcome, engageAbortCode, policyConstraints);
+        var confidence = ComputeConfidence(outcome, in ctx, engageAbortCode, policyConstraints, tuning);
         var statusLine = BuildStatusLine(outcome, input.WeaponLabel, withheldCode, preview);
 
         return new WeaponRecommendation(
@@ -99,9 +100,15 @@ public static class ThreatAssessmentProjection
         builder.Append('|');
         builder.Append(recommendation.PolicyConstraints.MaxSalvo);
         builder.Append('|');
+        builder.Append(recommendation.PolicyConstraints.AutoEngageAuthorized ? '1' : '0');
+        builder.Append('|');
+        builder.Append(recommendation.PolicyConstraints.ExpendAuthorized ? '1' : '0');
+        builder.Append('|');
         builder.Append(recommendation.PolicyConstraints.PolicyAllowsFire ? '1' : '0');
         builder.Append('|');
         builder.Append(recommendation.PolicyConstraints.PolicyAbortCode ?? string.Empty);
+        builder.Append('|');
+        builder.Append(recommendation.Range.DlzLabel);
         builder.Append('|');
         builder.Append(recommendation.WithheldReasonCode ?? string.Empty);
         builder.Append('|');
@@ -150,71 +157,89 @@ public static class ThreatAssessmentProjection
             abortCode);
     }
 
-    private static WeaponRecommendationOutcome ResolveOutcome(
+    private static (WeaponRecommendationOutcome Outcome, string? EngageAbortCode) ResolveOutcome(
+        in EngageContext ctx,
         EngagePreview preview,
         ThreatPolicyConstraints policyConstraints)
     {
         if (!policyConstraints.PolicyAllowsFire)
         {
-            return WeaponRecommendationOutcome.WithheldByPolicy;
+            return (WeaponRecommendationOutcome.WithheldByPolicy, null);
+        }
+
+        if (ctx.RoundsRemaining <= 0)
+        {
+            return (WeaponRecommendationOutcome.WithheldByEngage, AbortReasonCatalog.Engage.WINCHESTER_ORDNANCE);
+        }
+
+        var salvoSize = Math.Max(1, ctx.SalvoSize);
+        if (ctx.RoundsRemaining < salvoSize)
+        {
+            return (WeaponRecommendationOutcome.WithheldByEngage, AbortReasonCatalog.Engage.NO_AMMO);
         }
 
         if (!preview.CanFire)
         {
-            return WeaponRecommendationOutcome.WithheldByEngage;
+            return (WeaponRecommendationOutcome.WithheldByEngage, preview.AbortPreviewCode);
         }
 
-        return WeaponRecommendationOutcome.Feasible;
+        return (WeaponRecommendationOutcome.Feasible, null);
     }
 
     private static string? ResolveWithheldReasonCode(
         WeaponRecommendationOutcome outcome,
-        EngagePreview preview,
+        string? engageAbortCode,
         ThreatPolicyConstraints policyConstraints) =>
         outcome switch
         {
             WeaponRecommendationOutcome.WithheldByPolicy => policyConstraints.PolicyAbortCode,
-            WeaponRecommendationOutcome.WithheldByEngage => preview.AbortPreviewCode,
+            WeaponRecommendationOutcome.WithheldByEngage => engageAbortCode,
             _ => null,
         };
 
     private static double ComputeConfidence(
         WeaponRecommendationOutcome outcome,
         in EngageContext ctx,
-        EngagePreview preview,
-        ThreatPolicyConstraints policyConstraints)
+        string? engageAbortCode,
+        ThreatPolicyConstraints policyConstraints,
+        ThreatAssessmentTuning tuning)
     {
         if (outcome == WeaponRecommendationOutcome.WithheldByPolicy)
         {
-            return 0;
+            return tuning.WithheldByPolicyConfidence;
         }
 
         if (outcome == WeaponRecommendationOutcome.WithheldByEngage)
         {
-            return preview.AbortPreviewCode switch
+            if (string.Equals(engageAbortCode, AbortReasonCatalog.Engage.DLZ_OUT, StringComparison.Ordinal))
             {
-                var code when string.Equals(code, AbortReasonCatalog.Engage.DLZ_OUT, StringComparison.Ordinal) => 0.35,
-                var code when string.Equals(code, AbortReasonCatalog.Engage.NO_FIRE_CONTROL_TRACK, StringComparison.Ordinal) => 0.2,
-                _ => 0.1,
-            };
+                return tuning.WithheldByEngageDlzOutConfidence;
+            }
+
+            if (string.Equals(engageAbortCode, AbortReasonCatalog.Engage.NO_FIRE_CONTROL_TRACK, StringComparison.Ordinal))
+            {
+                return tuning.WithheldByEngageNoFireControlConfidence;
+            }
+
+            return tuning.WithheldByEngageDefaultConfidence;
         }
 
         var dlzState = DlzEngageGate.EvaluateState(ctx.RangeMeters, ctx.Envelope);
         var baseConfidence = dlzState switch
         {
-            DlzState.InZone => 0.85,
-            DlzState.Approaching => 0.55,
-            _ => 0.25,
+            DlzState.InZone => tuning.DlzInZoneConfidence,
+            DlzState.Approaching => tuning.DlzApproachingConfidence,
+            _ => tuning.DlzOutOfZoneConfidence,
         };
 
         if (ctx.RoundsRemaining <= Math.Max(1, ctx.ShotgunRoundsThreshold))
         {
-            baseConfidence *= 0.75;
+            baseConfidence *= tuning.LowMagazineMultiplier;
         }
 
         if (!policyConstraints.AutoEngageAuthorized)
         {
-            baseConfidence *= 0.9;
+            baseConfidence *= tuning.AutoEngageUnauthorizedMultiplier;
         }
 
         return Math.Clamp(baseConfidence, 0, 1);
@@ -224,7 +249,9 @@ public static class ThreatAssessmentProjection
         in ThreatAssessmentInput input,
         in EngageContext ctx,
         EngagePreview preview,
-        ThreatPolicyConstraints policyConstraints)
+        ThreatPolicyConstraints policyConstraints,
+        WeaponRecommendationOutcome outcome,
+        string? engageAbortCode)
     {
         var assumptions = new List<string>
         {
@@ -253,13 +280,17 @@ public static class ThreatAssessmentProjection
             assumptions.Add("Assumes radar EMCON permits fire-control emissions.");
         }
 
-        if (preview.CanFire && policyConstraints.PolicyAllowsFire)
+        if (preview.CanFire && policyConstraints.PolicyAllowsFire && outcome == WeaponRecommendationOutcome.Feasible)
         {
             assumptions.Add("Engage preview and ROE both permit launch if authorized separately.");
         }
         else if (!policyConstraints.PolicyAllowsFire)
         {
             assumptions.Add($"ROE {policyConstraints.RoeLevel} withholds weapons release.");
+        }
+        else if (outcome == WeaponRecommendationOutcome.WithheldByEngage)
+        {
+            assumptions.Add($"Engage gate blocked ({engageAbortCode ?? preview.AbortPreviewCode ?? "unknown"}).");
         }
         else
         {
