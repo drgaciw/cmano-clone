@@ -42,8 +42,15 @@ public sealed record CombatEvent(
     string ExplanationRef);
 
 /// <summary>Ordered, replay-stable combat-event picture for a single engage-assess leg.</summary>
-public sealed record CombatEventSnapshot(IReadOnlyList<CombatEvent> Events)
+public sealed record CombatEventSnapshot
 {
+    public IReadOnlyList<CombatEvent> Events { get; }
+
+    public CombatEventSnapshot(IReadOnlyList<CombatEvent> events)
+    {
+        Events = events.ToArray();
+    }
+
     public static CombatEventSnapshot Empty { get; } =
         new(Array.Empty<CombatEvent>());
 }

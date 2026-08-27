@@ -51,13 +51,16 @@ public static class CombatEventProjection
             return new CombatEventSnapshot(events);
         }
 
-        events.Add(CreateEvent(
-            input,
-            CombatEventPhase.Authorized,
-            OutcomeAuthorized,
-            input.SimTick,
-            input.SimTime,
-            EngageExplainProjection.CanFireLabel));
+        if (HasAffirmativeAuthorization(input, log))
+        {
+            events.Add(CreateEvent(
+                input,
+                CombatEventPhase.Authorized,
+                OutcomeAuthorized,
+                input.SimTick,
+                input.SimTime,
+                EngageExplainProjection.CanFireLabel));
+        }
 
         var engagement = FindEngagement(log, input);
         if (engagement is null)
@@ -122,18 +125,10 @@ public static class CombatEventProjection
             input.TargetId,
             input.WeaponFamilyId,
             outcome,
-            ResolveCorrelationId(input, phase),
+            input.CorrelationId,
             simTime,
             simTick,
             explanationRef);
-
-    private static ulong ResolveCorrelationId(CombatEngageAssessInput input, CombatEventPhase phase) =>
-        phase switch
-        {
-            CombatEventPhase.IntentAccepted or CombatEventPhase.Authorized or CombatEventPhase.AuthorizationRefused
-                => input.CorrelationId,
-            _ => input.CorrelationId,
-        };
 
     private sealed record AuthorizationRefusal(string Outcome, string ExplanationRef, ulong SimTick, double SimTime);
 
@@ -141,7 +136,7 @@ public static class CombatEventProjection
         CombatEngageAssessInput input,
         DecisionLog? log)
     {
-        var policyDenial = FindPolicyDenial(log, input.TargetId);
+        var policyDenial = FindPolicyDenial(log, input);
         if (policyDenial is not null)
         {
             var reason = policyDenial.Reason.ToString();
@@ -165,7 +160,25 @@ public static class CombatEventProjection
         return null;
     }
 
-    private static PolicyDenialRecord? FindPolicyDenial(DecisionLog? log, string targetId)
+    /// <summary>
+    /// Authorization requires affirmative preview or a matching launched engagement in the log.
+    /// </summary>
+    private static bool HasAffirmativeAuthorization(CombatEngageAssessInput input, DecisionLog? log)
+    {
+        if (input.Preview is { CanFire: true })
+        {
+            return true;
+        }
+
+        var engagement = FindEngagement(log, input);
+        return engagement is { Launched: true };
+    }
+
+    /// <summary>
+    /// Policy denials record the commanded unit on <see cref="PolicyDenialRecord.TargetId"/> (see
+    /// <c>AgentController</c> / <c>SimulationSession</c>), not the hostile victim id.
+    /// </summary>
+    private static PolicyDenialRecord? FindPolicyDenial(DecisionLog? log, CombatEngageAssessInput input)
     {
         if (log is null)
         {
@@ -181,7 +194,12 @@ public static class CombatEventProjection
                 continue;
             }
 
-            if (!string.Equals(denial.TargetId.Value, targetId, StringComparison.Ordinal))
+            if (!string.Equals(denial.TargetId.Value, input.ShooterId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (denial.SimTick < input.SimTick)
             {
                 continue;
             }
@@ -194,7 +212,7 @@ public static class CombatEventProjection
 
     private static EngagementRecord? FindEngagement(DecisionLog? log, CombatEngageAssessInput input)
     {
-        if (log is null)
+        if (log is null || input.CorrelationId == 0)
         {
             return null;
         }
@@ -208,7 +226,7 @@ public static class CombatEventProjection
                 continue;
             }
 
-            if (input.CorrelationId != 0 && engagement.EngagementId != input.CorrelationId)
+            if (engagement.EngagementId != input.CorrelationId)
             {
                 continue;
             }

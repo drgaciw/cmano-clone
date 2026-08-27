@@ -84,7 +84,7 @@ public sealed class CombatEventProjectionTests
     }
 
     [Test]
-    public void Refused_path_emits_explicit_policy_denial_reason()
+    public void Refused_path_emits_explicit_policy_denial_reason_for_shooter_scoped_log_row()
     {
         var input = new CombatEngageAssessInput(
             ShooterId: "u1",
@@ -100,7 +100,7 @@ public sealed class CombatEventProjectionTests
         log.AppendPolicyDenial(new PolicyDenialRecord(
             1, 1.2, 2,
             new AgentId("a1"),
-            new TargetId("hostile-1"),
+            new TargetId("u1"),
             0,
             FireAbortReason.RoeHoldFire,
             OrderKind.Engage));
@@ -116,6 +116,68 @@ public sealed class CombatEventProjectionTests
         var refused = snapshot.Events[^1];
         Assert.That(refused.Outcome, Is.EqualTo(nameof(FireAbortReason.RoeHoldFire)));
         Assert.That(refused.ExplanationRef, Is.EqualTo($"policy:{FireAbortReason.RoeHoldFire}"));
+    }
+
+    [Test]
+    public void Victim_scoped_policy_denial_does_not_suppress_authorization()
+    {
+        var input = new CombatEngageAssessInput(
+            ShooterId: "u1",
+            TargetId: "hostile-2",
+            WeaponFamilyId: CatalogWeaponIds.MvpDefault,
+            IntentAccepted: true,
+            SimTick: 10,
+            SimTime: 10.0,
+            CorrelationId: 20,
+            Preview: new EngagePreview("DLZ: In", CanFire: true, AbortPreviewCode: null));
+
+        var log = new DecisionLog();
+        log.AppendPolicyDenial(new PolicyDenialRecord(
+            1, 9.0, 9,
+            new AgentId("a1"),
+            new TargetId("hostile-1"),
+            0,
+            FireAbortReason.RoeHoldFire,
+            OrderKind.Engage));
+
+        var snapshot = CombatEventProjection.Project(input, log);
+
+        Assert.That(snapshot.Events.Select(e => e.Phase), Is.EqualTo(new[]
+        {
+            CombatEventPhase.IntentAccepted,
+            CombatEventPhase.Authorized,
+        }));
+    }
+
+    [Test]
+    public void Stale_shooter_scoped_policy_denial_does_not_apply_to_later_attempt()
+    {
+        var log = new DecisionLog();
+        log.AppendPolicyDenial(new PolicyDenialRecord(
+            1, 1.0, 1,
+            new AgentId("a1"),
+            new TargetId("u1"),
+            0,
+            FireAbortReason.RoeHoldFire,
+            OrderKind.Engage));
+
+        var input = new CombatEngageAssessInput(
+            ShooterId: "u1",
+            TargetId: "hostile-1",
+            WeaponFamilyId: CatalogWeaponIds.MvpDefault,
+            IntentAccepted: true,
+            SimTick: 5,
+            SimTime: 5.0,
+            CorrelationId: 30,
+            Preview: new EngagePreview("DLZ: In", CanFire: true, AbortPreviewCode: null));
+
+        var snapshot = CombatEventProjection.Project(input, log);
+
+        Assert.That(snapshot.Events.Select(e => e.Phase), Is.EqualTo(new[]
+        {
+            CombatEventPhase.IntentAccepted,
+            CombatEventPhase.Authorized,
+        }));
     }
 
     [Test]
@@ -144,6 +206,89 @@ public sealed class CombatEventProjectionTests
             CombatEventPhase.Firing,
             CombatEventPhase.InFlight,
         }));
+    }
+
+    [Test]
+    public void Zero_correlation_does_not_attach_prior_same_shooter_engagement()
+    {
+        var log = new DecisionLog();
+        log.AppendEngagement(new EngagementRecord(
+            1, 2.0, 3, new TargetId("u1"), 99, Launched: true));
+        log.AppendEngagementOutcome(new EngagementOutcomeRecord(
+            2, 4.0, 5, new TargetId("u1"), new TargetId("hostile-old"), 99,
+            EngagementOutcomeCodes.Kill, 0.1));
+
+        var input = new CombatEngageAssessInput(
+            "u1",
+            "hostile-new",
+            CatalogWeaponIds.MvpDefault,
+            IntentAccepted: true,
+            SimTick: 10,
+            SimTime: 10.0,
+            CorrelationId: 0,
+            Preview: new EngagePreview("DLZ: In", true, null));
+
+        var snapshot = CombatEventProjection.Project(input, log);
+
+        Assert.That(snapshot.Events.Select(e => e.Phase), Is.EqualTo(new[]
+        {
+            CombatEventPhase.IntentAccepted,
+            CombatEventPhase.Authorized,
+        }));
+    }
+
+    [Test]
+    public void Null_preview_without_log_evidence_omits_authorized()
+    {
+        var input = new CombatEngageAssessInput(
+            "u1",
+            "hostile-1",
+            CatalogWeaponIds.MvpDefault,
+            IntentAccepted: true,
+            SimTick: 1,
+            SimTime: 1.0,
+            CorrelationId: 12,
+            Preview: null);
+
+        var snapshot = CombatEventProjection.Project(input, log: null);
+
+        Assert.That(snapshot.Events.Select(e => e.Phase), Is.EqualTo(new[]
+        {
+            CombatEventPhase.IntentAccepted,
+        }));
+    }
+
+    [Test]
+    public void Snapshot_event_list_is_immutable_after_construction()
+    {
+        var events = new List<CombatEvent>
+        {
+            new(
+                CombatEventPhase.IntentAccepted,
+                "u1",
+                "hostile-1",
+                CatalogWeaponIds.MvpDefault,
+                CombatEventProjection.OutcomeIntentAccepted,
+                1,
+                1.0,
+                1,
+                CombatEventProjection.ExplanationIntentAccepted),
+        };
+
+        var snapshot = new CombatEventSnapshot(events);
+        events.Add(new CombatEvent(
+            CombatEventPhase.Authorized,
+            "u1",
+            "hostile-1",
+            CatalogWeaponIds.MvpDefault,
+            CombatEventProjection.OutcomeAuthorized,
+            1,
+            1.0,
+            1,
+            EngageExplainProjection.CanFireLabel));
+
+        Assert.That(snapshot.Events, Has.Count.EqualTo(1));
+        Assert.That(snapshot.Events[0].Phase, Is.EqualTo(CombatEventPhase.IntentAccepted));
     }
 
     [Test]
