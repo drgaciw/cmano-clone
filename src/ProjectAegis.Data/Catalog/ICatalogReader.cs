@@ -31,6 +31,10 @@ public interface ICatalogReader
     bool TryGetPlatformPosition(string platformId, out double latDeg, out double lonDeg) =>
         TryGetPlatformPositionCore(platformId, out latDeg, out lonDeg);
 
+    /// <summary>Catalog <c>platform.domain</c> for mission contact target-class classification.</summary>
+    bool TryGetPlatformDomain(string platformId, out string domain) =>
+        TryGetPlatformDomainCore(platformId, out domain);
+
     /// <summary>DATA-4: weapon min/max range (meters) for engage envelope wiring.</summary>
     bool TryGetWeaponEnvelope(string weaponId, out WeaponEnvelopeDto envelope) =>
         TryGetWeaponEnvelopeCore(weaponId, out envelope);
@@ -191,6 +195,12 @@ public interface ICatalogReader
     {
         latDeg = 0;
         lonDeg = 0;
+        return false;
+    }
+
+    bool TryGetPlatformDomainCore(string platformId, out string domain)
+    {
+        domain = "";
         return false;
     }
 }

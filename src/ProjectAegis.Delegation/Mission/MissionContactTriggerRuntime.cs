@@ -1,5 +1,6 @@
 namespace ProjectAegis.Delegation.Mission;
 
+using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
 
@@ -7,13 +8,17 @@ using ProjectAegis.Sim.Sensors;
 public sealed class MissionContactTriggerRuntime
 {
     private readonly ScenarioMissionContactTrigger[] _triggers;
+    private readonly ICatalogReader? _catalogReader;
     private readonly HashSet<string> _fired = new(StringComparer.Ordinal);
 
-    public MissionContactTriggerRuntime(IReadOnlyList<ScenarioMissionContactTrigger> triggers)
+    public MissionContactTriggerRuntime(
+        IReadOnlyList<ScenarioMissionContactTrigger> triggers,
+        ICatalogReader? catalogReader = null)
     {
         _triggers = triggers
             .OrderBy(t => t.TriggerId, StringComparer.Ordinal)
             .ToArray();
+        _catalogReader = catalogReader;
     }
 
     public IReadOnlyList<MissionContactTriggerEmission> Evaluate(
@@ -40,7 +45,7 @@ public sealed class MissionContactTriggerRuntime
                 continue;
             }
 
-            if (!MissionContactTargetClassifier.Matches(trigger.TargetClass, transition.TargetId))
+            if (!MissionContactTargetClassifier.Matches(trigger.TargetClass, transition.TargetId, _catalogReader))
             {
                 continue;
             }

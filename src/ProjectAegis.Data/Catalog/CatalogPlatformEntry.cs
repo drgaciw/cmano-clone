@@ -4,4 +4,5 @@ public sealed record CatalogPlatformEntry(
     string PlatformId,
     double LatDeg,
     double LonDeg,
-    double CombatRadiusNm);
+    double CombatRadiusNm,
+    string Domain = "");

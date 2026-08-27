@@ -359,10 +359,17 @@ public static class ScenarioPolicyJsonLoader
             .ToArray();
     }
 
-    private static MissionContactTargetClass ParseMissionContactTargetClass(string? label) =>
-        Enum.TryParse<MissionContactTargetClass>(label, ignoreCase: true, out var parsed)
+    private static MissionContactTargetClass ParseMissionContactTargetClass(string? label)
+    {
+        if (string.IsNullOrWhiteSpace(label))
+        {
+            return MissionContactTargetClass.Any;
+        }
+
+        return Enum.TryParse<MissionContactTargetClass>(label, ignoreCase: true, out var parsed)
             ? parsed
-            : MissionContactTargetClass.Any;
+            : throw new InvalidDataException($"Unknown mission contact targetClass value: {label}");
+    }
 
     private static MissionContactPolicySide ParseMissionContactPolicySide(string? label) =>
         label?.Equals("opposing", StringComparison.OrdinalIgnoreCase) == true
