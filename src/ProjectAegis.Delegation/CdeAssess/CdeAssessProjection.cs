@@ -113,8 +113,9 @@ public static class CdeAssessProjection
         new(
             input.ShooterId,
             input.TargetId,
+            input.WeaponFamilyId,
             riskKind,
-            assumptions.ToArray(),
+            assumptions,
             geometryRangeClass,
             policyConstraintText,
             input.CorrelationId,
@@ -165,6 +166,13 @@ public static class CdeAssessProjection
     /// Policy denials record the commanded unit on <see cref="PolicyDenialRecord.TargetId"/> (see
     /// <c>AgentController</c> / <c>SimulationSession</c>), not the hostile victim id.
     /// </summary>
+    /// <remarks>
+    /// Binding contract matches <c>CombatEventProjection.FindPolicyDenial</c>: shooter-scoped engage
+    /// denials with <c>SimTick &gt;= input.SimTick</c>, last-wins. <see cref="PolicyDenialRecord"/>
+    /// does not expose <c>CorrelationId</c>, so attempt-correlated binding is unavailable without a
+    /// DecisionLog schema change. Diverging to exact-tick / earliest-match here would invent a
+    /// second denial contract for the same log shape — keep CombatEvents parity (DRG-211 P1 lesson).
+    /// </remarks>
     private static PolicyDenialRecord? FindPolicyDenial(DecisionLog? log, CdeAssessInput input)
     {
         if (log is null)
@@ -172,6 +180,7 @@ public static class CdeAssessProjection
             return null;
         }
 
+        // Parity with CombatEventProjection.FindPolicyDenial: >= attempt tick, last-wins.
         PolicyDenialRecord? latest = null;
         for (var i = 0; i < log.PolicyDenials.Count; i++)
         {

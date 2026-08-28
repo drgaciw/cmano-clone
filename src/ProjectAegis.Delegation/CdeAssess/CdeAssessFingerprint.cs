@@ -8,6 +8,7 @@ public static class CdeAssessFingerprint
 {
     /// <summary>
     /// Same inputs yield the same string. Invariant culture; ordinal ordering; no wall clock.
+    /// String fields are length-prefixed (<c>len:value</c>) so commas/pipes inside ids cannot collide.
     /// </summary>
     public static string Compute(CdeAssessSnapshot? snapshot)
     {
@@ -32,9 +33,11 @@ public static class CdeAssessFingerprint
         builder.Append('|');
         builder.Append((int)row.RiskKind);
         builder.Append(',');
-        builder.Append(row.ShooterId);
+        AppendLengthPrefixed(builder, row.ShooterId);
         builder.Append(',');
-        builder.Append(row.TargetId);
+        AppendLengthPrefixed(builder, row.TargetId);
+        builder.Append(',');
+        AppendLengthPrefixed(builder, row.WeaponFamilyId);
         builder.Append(',');
         builder.Append(row.CorrelationId);
         builder.Append(',');
@@ -42,17 +45,25 @@ public static class CdeAssessFingerprint
         builder.Append(',');
         builder.Append(row.SimTick);
         builder.Append(',');
-        builder.Append(row.GeometryRangeClass);
+        AppendLengthPrefixed(builder, row.GeometryRangeClass);
         builder.Append(',');
-        builder.Append(row.PolicyConstraintText);
+        AppendLengthPrefixed(builder, row.PolicyConstraintText);
         builder.Append(',');
-        builder.Append(row.WithholdReason ?? string.Empty);
+        AppendLengthPrefixed(builder, row.WithholdReason ?? string.Empty);
         builder.Append(',');
         builder.Append(row.Assumptions.Count);
         for (var i = 0; i < row.Assumptions.Count; i++)
         {
             builder.Append(',');
-            builder.Append(row.Assumptions[i]);
+            AppendLengthPrefixed(builder, row.Assumptions[i]);
         }
+    }
+
+    /// <summary>Length-prefixed field encoding — prevents <c>,</c>/<c>|</c> delimiter collisions.</summary>
+    private static void AppendLengthPrefixed(StringBuilder builder, string value)
+    {
+        builder.Append(value.Length.ToString(CultureInfo.InvariantCulture));
+        builder.Append(':');
+        builder.Append(value);
     }
 }

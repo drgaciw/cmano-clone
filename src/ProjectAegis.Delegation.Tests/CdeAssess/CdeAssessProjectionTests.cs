@@ -31,6 +31,7 @@ public sealed class CdeAssessProjectionTests
         Assert.That(row.RiskKind, Is.EqualTo(CdeAssessRiskKind.Low));
         Assert.That(row.ShooterId, Is.EqualTo("u1"));
         Assert.That(row.TargetId, Is.EqualTo("hostile-1"));
+        Assert.That(row.WeaponFamilyId, Is.EqualTo(CatalogWeaponIds.MvpDefault));
         Assert.That(row.CorrelationId, Is.EqualTo(42UL));
         Assert.That(row.SimTick, Is.EqualTo(1UL));
         Assert.That(row.SimTime, Is.EqualTo(1.0));
@@ -229,15 +230,17 @@ public sealed class CdeAssessProjectionTests
     }
 
     [Test]
-    public void Snapshot_row_list_is_immutable_after_construction()
+    public void Snapshot_row_list_and_assumptions_are_immutable_after_construction()
     {
+        var sharedAssumptions = new List<string> { CdeAssessProjection.AssumptionNoCdeWithhold };
         var rows = new List<CdeAssessRow>
         {
             new(
                 "u1",
                 "hostile-1",
+                CatalogWeaponIds.MvpDefault,
                 CdeAssessRiskKind.Low,
-                new[] { CdeAssessProjection.AssumptionNoCdeWithhold },
+                sharedAssumptions,
                 "DLZ: In",
                 CdeAssessProjection.PolicyConstraintClear,
                 1,
@@ -250,6 +253,7 @@ public sealed class CdeAssessProjectionTests
         rows.Add(new CdeAssessRow(
             "u1",
             "hostile-2",
+            CatalogWeaponIds.MvpDefault,
             CdeAssessRiskKind.Withheld,
             new[] { CdeAssessProjection.AssumptionCdeWithhold },
             "DLZ: Out",
@@ -258,9 +262,41 @@ public sealed class CdeAssessProjectionTests
             2.0,
             2,
             "CDE_TEST"));
+        sharedAssumptions.Add("mutated-after-snapshot");
 
         Assert.That(snapshot.Rows, Has.Count.EqualTo(1));
         Assert.That(snapshot.Rows[0].TargetId, Is.EqualTo("hostile-1"));
+        Assert.That(snapshot.Rows[0].Assumptions, Has.Count.EqualTo(1));
+        Assert.That(snapshot.Rows[0].Assumptions[0], Is.EqualTo(CdeAssessProjection.AssumptionNoCdeWithhold));
+
+        // Cast-back must not allow element replacement on the snapshot row array.
+        Assert.That(snapshot.Rows is not CdeAssessRow[], Is.True);
+    }
+
+    [Test]
+    public void Different_weapon_families_produce_distinct_rows_and_fingerprints()
+    {
+        var baseInput = new CdeAssessInput(
+            "u1",
+            "hostile-1",
+            CatalogWeaponIds.MvpDefault,
+            SimTick: 4,
+            SimTime: 4.5,
+            CorrelationId: 100,
+            Preview: new EngagePreview("DLZ: In", true, null),
+            RangeClassLabel: "short");
+
+        var altWeapon = CatalogWeaponIds.MvpDefault + "-alt";
+        var altInput = baseInput with { WeaponFamilyId = altWeapon };
+
+        var first = CdeAssessProjection.Project(baseInput, log: null);
+        var second = CdeAssessProjection.Project(altInput, log: null);
+
+        Assert.That(first.Rows[0].WeaponFamilyId, Is.EqualTo(CatalogWeaponIds.MvpDefault));
+        Assert.That(second.Rows[0].WeaponFamilyId, Is.EqualTo(altWeapon));
+        Assert.That(
+            CdeAssessFingerprint.Compute(first),
+            Is.Not.EqualTo(CdeAssessFingerprint.Compute(second)));
     }
 
     [Test]
@@ -282,6 +318,37 @@ public sealed class CdeAssessProjectionTests
         Assert.That(
             CdeAssessFingerprint.Compute(first),
             Is.EqualTo(CdeAssessFingerprint.Compute(second)));
+        Assert.That(CdeAssessFingerprint.Compute(first), Does.Contain(CatalogWeaponIds.MvpDefault));
+    }
+
+    [Test]
+    public void Fingerprint_resists_comma_and_pipe_collisions_in_ids()
+    {
+        static CdeAssessSnapshot Row(string shooter, string target) =>
+            new(new[]
+            {
+                new CdeAssessRow(
+                    shooter,
+                    target,
+                    CatalogWeaponIds.MvpDefault,
+                    CdeAssessRiskKind.Low,
+                    new[] { CdeAssessProjection.AssumptionNoCdeWithhold },
+                    "DLZ: In",
+                    CdeAssessProjection.PolicyConstraintClear,
+                    1,
+                    1.0,
+                    1,
+                    null),
+            });
+
+        var a = Row("a,b", "c");
+        var b = Row("a", "b,c");
+        var c = Row("a|b", "c");
+        var d = Row("a", "b|c");
+
+        Assert.That(CdeAssessFingerprint.Compute(a), Is.Not.EqualTo(CdeAssessFingerprint.Compute(b)));
+        Assert.That(CdeAssessFingerprint.Compute(c), Is.Not.EqualTo(CdeAssessFingerprint.Compute(d)));
+        Assert.That(CdeAssessFingerprint.Compute(a), Is.Not.EqualTo(CdeAssessFingerprint.Compute(c)));
     }
 
     [Test]
