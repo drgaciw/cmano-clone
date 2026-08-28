@@ -124,4 +124,21 @@ public sealed class EmconPostureProjectionTests
         Assert.That(posture.RadiatingSensors[0].EmitterId, Is.EqualTo("radar-1"));
         Assert.That(posture.SilentCause, Is.EqualTo(EmconPostureSilentCause.None));
     }
+
+    [Test]
+    public void Active_with_explicit_empty_emitters_stays_empty_without_default_radar_fallback()
+    {
+        var input = new EmconPostureInput(
+            "u1",
+            EmconState.Active,
+            Emitters: Array.Empty<EmconEmitterFact>());
+        var posture = EmconPostureProjection.Project(input);
+
+        Assert.That(posture.EmconLevel, Is.EqualTo(EmconState.Active));
+        Assert.That(posture.RadiatingSensors, Is.Empty);
+        Assert.That(posture.SilentCause, Is.EqualTo(EmconPostureSilentCause.None));
+        Assert.That(posture.SilentCauseCode, Is.Null);
+        Assert.That(posture.Assumptions, Does.Contain("No emitters are actively radiating."));
+        Assert.That(posture.StatusLine, Does.Contain("radiating: none"));
+    }
 }

@@ -111,7 +111,8 @@ public static class EmconPostureProjection
 
     private static IReadOnlyList<EmconEmitterFact> ResolveEmitters(in EmconPostureInput input)
     {
-        if (input.Emitters is { Count: > 0 })
+        // Explicit empty inventory is authoritative; only null falls back to default radar-1.
+        if (input.Emitters is not null)
         {
             return input.Emitters
                 .OrderBy(e => e.EmitterId, StringComparer.Ordinal)
