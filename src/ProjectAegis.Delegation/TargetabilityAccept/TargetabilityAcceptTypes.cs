@@ -18,6 +18,7 @@ public static class TargetabilityAcceptCauseCodes
     public const string Stale = "Stale";
     public const string CatalogMiss = "CatalogMiss";
     public const string SilentComms = "SilentComms";
+    public const string MissingProvenance = "MissingProvenance";
     public const string LostSensor = "LostSensor";
     public const string StaleTrack = "StaleTrack";
     public const string NoFireControl = "NoFireControl";
