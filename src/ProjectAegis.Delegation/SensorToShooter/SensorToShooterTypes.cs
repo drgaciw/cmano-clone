@@ -19,6 +19,7 @@ public enum SensorToShooterBreakCause
     StaleTrack = 2,
     NoFireControl = 3,
     NoEligibleShooter = 4,
+    DegradedTrack = 5,
 }
 
 /// <summary>Sim-authored shooter candidacy for a target. Not UI selection (ADR-010).</summary>
@@ -74,6 +75,7 @@ public static class SensorToShooterBreakCauseLabels
     public const string StaleTrack = "stale track";
     public const string NoFireControl = "no FC";
     public const string NoEligibleShooter = "no eligible shooter";
+    public const string DegradedTrack = "degraded track";
 
     public static string Format(SensorToShooterBreakCause cause) =>
         cause switch
@@ -82,6 +84,7 @@ public static class SensorToShooterBreakCauseLabels
             SensorToShooterBreakCause.StaleTrack => StaleTrack,
             SensorToShooterBreakCause.NoFireControl => NoFireControl,
             SensorToShooterBreakCause.NoEligibleShooter => NoEligibleShooter,
+            SensorToShooterBreakCause.DegradedTrack => DegradedTrack,
             _ => string.Empty,
         };
 }

@@ -1,7 +1,10 @@
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.SensorToShooter;
+using ProjectAegis.Sim.Catalog;
+using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
 
@@ -196,6 +199,114 @@ public sealed class SensorToShooterProjectionTests
             Is.EqualTo(SensorToShooterProjection.ComputeFingerprint(b)));
         Assert.That(a.Chains.Select(c => c.ContactId), Is.EqualTo(new[] { "c1", "c2" }));
     }
+
+    [Test]
+    public void Zero_rounds_remaining_rejects_eligible_shooter()
+    {
+        var log = TargetableContactLog();
+        var snapshot = ProjectTargetableChain(
+            log,
+            new SensorToShooterShooterCandidate(
+                "u1",
+                ScenarioEngageDefaults.MvpFallback,
+                0));
+
+        var chain = snapshot.Chains[0];
+        Assert.That(chain.IsComplete, Is.False);
+        Assert.That(chain.PrimaryBreakCause, Is.EqualTo(SensorToShooterBreakCause.NoEligibleShooter));
+
+        var shooter = chain.Links.Single(l => l.Kind == SensorToShooterLinkKind.EligibleShooter);
+        Assert.That(shooter.IsLinked, Is.False);
+        Assert.That(shooter.BreakCause, Is.EqualTo(SensorToShooterBreakCause.NoEligibleShooter));
+        Assert.That(shooter.Detail, Is.EqualTo("NO_AMMO"));
+    }
+
+    [Test]
+    public void Rounds_below_salvo_size_rejects_eligible_shooter_even_when_preview_can_fire()
+    {
+        var log = TargetableContactLog();
+        var salvoTwo = new ScenarioEngageDefaults(
+            rangeMeters: 50_000,
+            envelopeMinMeters: 1_000,
+            envelopeMaxMeters: 100_000,
+            defaultMagazineRounds: 2,
+            hasFireControlTrack: true,
+            salvoSize: 2);
+
+        var snapshot = ProjectTargetableChain(
+            log,
+            new SensorToShooterShooterCandidate("u1", salvoTwo, 1));
+
+        var chain = snapshot.Chains[0];
+        Assert.That(chain.IsComplete, Is.False);
+        Assert.That(chain.PrimaryBreakCause, Is.EqualTo(SensorToShooterBreakCause.NoEligibleShooter));
+
+        var shooter = chain.Links.Single(l => l.Kind == SensorToShooterLinkKind.EligibleShooter);
+        Assert.That(shooter.IsLinked, Is.False);
+        Assert.That(shooter.BreakCause, Is.EqualTo(SensorToShooterBreakCause.NoEligibleShooter));
+        Assert.That(shooter.Detail, Is.EqualTo("NO_AMMO"));
+    }
+
+    [Test]
+    public void Bda_degradation_keeps_track_linked_and_breaks_targetability_with_degraded_track()
+    {
+        var log = new DecisionLog();
+        log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Identified"));
+        log.AppendPlatformDamageChange(new PlatformDamageChangeRecord(
+            0,
+            2,
+            2,
+            new TargetId("hostile-1"),
+            100,
+            75,
+            PlatformDamageChangeReasonCodes.Hit,
+            1));
+
+        var snapshot = SensorToShooterProjection.Project(
+            log,
+            currentSimTick: 2,
+            fireControl: new StubFireControl("c1"),
+            shooters: new FixedShooterSource(
+                new SensorToShooterShooterCandidate("u1", ScenarioEngageDefaults.MvpFallback, 2)),
+            catalog: InMemoryCatalogReader.BalticPatrolFixture());
+
+        var chain = snapshot.Chains[0];
+        Assert.That(chain.IsComplete, Is.False);
+        Assert.That(chain.PrimaryBreakCause, Is.EqualTo(SensorToShooterBreakCause.DegradedTrack));
+
+        var track = chain.Links.Single(l => l.Kind == SensorToShooterLinkKind.Track);
+        Assert.That(track.IsLinked, Is.True);
+        Assert.That(track.BreakCause, Is.EqualTo(SensorToShooterBreakCause.None));
+
+        var targetability = chain.Links.Single(l => l.Kind == SensorToShooterLinkKind.Targetability);
+        Assert.That(targetability.IsLinked, Is.False);
+        Assert.That(targetability.BreakCause, Is.EqualTo(SensorToShooterBreakCause.DegradedTrack));
+        Assert.That(targetability.CauseLabel, Is.EqualTo(SensorToShooterBreakCauseLabels.DegradedTrack));
+        Assert.That(targetability.CauseLabel, Is.Not.EqualTo(SensorToShooterBreakCauseLabels.StaleTrack));
+
+        var shooter = chain.Links.Single(l => l.Kind == SensorToShooterLinkKind.EligibleShooter);
+        Assert.That(shooter.IsLinked, Is.False);
+        Assert.That(shooter.BreakCause, Is.EqualTo(SensorToShooterBreakCause.DegradedTrack));
+    }
+
+    private static DecisionLog TargetableContactLog()
+    {
+        var log = new DecisionLog();
+        log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Detected"));
+        log.AppendContactChange(Change(5, "c1", "hostile-1", "Detected", "Classified"));
+        log.AppendContactChange(Change(9, "c1", "hostile-1", "Classified", "Identified"));
+        return log;
+    }
+
+    private static SensorToShooterSnapshot ProjectTargetableChain(
+        DecisionLog log,
+        SensorToShooterShooterCandidate shooter) =>
+        SensorToShooterProjection.Project(
+            log,
+            currentSimTick: 9,
+            fireControl: new StubFireControl("c1"),
+            shooters: new FixedShooterSource(shooter),
+            catalog: InMemoryCatalogReader.BalticPatrolFixture());
 
     private static ContactChangeRecord Change(
         ulong tick,

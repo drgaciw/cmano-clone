@@ -236,6 +236,16 @@ public static class SensorToShooterProjection
                 SensorToShooterBreakCauseLabels.StaleTrack);
         }
 
+        if (contact.Loss is KillChainLossKind.DegradedL1 or KillChainLossKind.DegradedL2)
+        {
+            return BrokenLink(
+                SensorToShooterLinkKind.Targetability,
+                SensorToShooterBreakCause.DegradedTrack,
+                contact.ContactId,
+                contact,
+                SensorToShooterBreakCauseLabels.DegradedTrack);
+        }
+
         if (!contact.Targetable)
         {
             var cause = contact.TrackContinuous && contact.Loss == KillChainLossKind.None
@@ -300,6 +310,12 @@ public static class SensorToShooterProjection
                 candidate.EngageDefaults.ToEngageContext(candidate.RoundsRemaining),
                 catalog,
                 weaponId);
+            if (!HasSufficientAmmo(in engageCtx, candidate.RoundsRemaining))
+            {
+                abortDetail = "NO_AMMO";
+                continue;
+            }
+
             var preview = EngagePreviewProjection.Project(
                 in engageCtx,
                 candidate.EngageDefaults.DlzPersonality);
@@ -342,6 +358,17 @@ public static class SensorToShooterProjection
             ContactId: contact.ContactId,
             TargetId: contact.TargetId,
             Detail: detail);
+
+    private static bool HasSufficientAmmo(in EngageContext ctx, int roundsRemaining)
+    {
+        if (roundsRemaining <= 0)
+        {
+            return false;
+        }
+
+        var salvoSize = Math.Max(1, ctx.SalvoSize);
+        return roundsRemaining >= salvoSize;
+    }
 
     private static SensorToShooterChainLink BrokenLink(
         SensorToShooterLinkKind kind,
