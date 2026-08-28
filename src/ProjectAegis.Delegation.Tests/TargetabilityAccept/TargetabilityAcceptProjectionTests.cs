@@ -1,4 +1,5 @@
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.SensorToShooter;
@@ -207,6 +208,79 @@ public sealed class TargetabilityAcceptProjectionTests
 
         Assert.That(snapshot.Contacts[0].Disposition, Is.EqualTo(TargetabilityAcceptDisposition.Permitted));
         Assert.That(snapshot.Contacts[0].WithheldCauseCode, Is.EqualTo(TargetabilityAcceptCauseCodes.None));
+    }
+
+    [Test]
+    public void Withheld_degraded_comms_display_divisor_names_stale_when_default_would_be_fresh()
+    {
+        var log = new DecisionLog();
+        log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Classified"));
+        log.AppendCommsStateChange(new CommsStateChangeRecord(
+            0,
+            1.0,
+            1,
+            "c2-net",
+            CommsState.Nominal,
+            CommsState.Degraded,
+            "datalink-lag"));
+
+        var display = new ScenarioCommsDisplaySettings(
+            2,
+            0.06f,
+            0.04f,
+            degradedOrderDelayTicks: 0,
+            degradedStaleThresholdDivisor: 2);
+        var effectiveStale = ContactProvenanceProjection.DefaultStaleThresholdTicks / 2;
+        var staleUnderDivisorTick = 1UL + (ulong)effectiveStale + 1;
+
+        var snapshot = TargetabilityAcceptProjection.Project(
+            log,
+            currentSimTick: staleUnderDivisorTick,
+            OrganicAuthorityContext(),
+            fireControl: new StubFireControl("c1"),
+            shooters: new FixedShooterSource(
+                new SensorToShooterShooterCandidate("u1", ScenarioEngageDefaults.MvpFallback, 2)),
+            catalog: InMemoryCatalogReader.BalticPatrolFixture(),
+            commsDisplay: display);
+
+        var row = snapshot.Contacts[0];
+        Assert.That(row.Disposition, Is.EqualTo(TargetabilityAcceptDisposition.Withheld));
+        Assert.That(row.WithheldCauseCode, Is.EqualTo(TargetabilityAcceptCauseCodes.Stale));
+        Assert.That(row.Provenance!.Freshness, Is.EqualTo(ContactProvenanceFreshness.Stale));
+        Assert.That(
+            staleUnderDivisorTick,
+            Is.LessThanOrEqualTo(1UL + (ulong)ContactProvenanceProjection.DefaultStaleThresholdTicks),
+            "Age must remain fresh under default divisor so the policy divisor is what tips stale.");
+    }
+
+    [Test]
+    public void Child_snapshot_null_provenance_with_complete_chain_fails_closed_missing_provenance()
+    {
+        var log = TargetableContactLog();
+        var sensorToShooter = SensorToShooterProjection.Project(
+            log,
+            currentSimTick: 9,
+            fireControl: new StubFireControl("c1"),
+            shooters: new FixedShooterSource(
+                new SensorToShooterShooterCandidate("u1", ScenarioEngageDefaults.MvpFallback, 2)),
+            catalog: InMemoryCatalogReader.BalticPatrolFixture());
+        var authority = C2AuthorityProjector.Project(OrganicAuthorityContext());
+
+        Assert.That(sensorToShooter.Chains, Is.Not.Empty);
+        Assert.That(sensorToShooter.Chains[0].IsComplete, Is.True);
+        Assert.That(authority.Targeting.Disposition, Is.EqualTo(C2AuthorityDisposition.Permitted));
+
+        var snapshot = TargetabilityAcceptProjection.Project(
+            provenance: null,
+            sensorToShooter,
+            authority);
+
+        Assert.That(snapshot.Contacts, Has.Count.EqualTo(1));
+        var row = snapshot.Contacts[0];
+        Assert.That(row.Disposition, Is.EqualTo(TargetabilityAcceptDisposition.Withheld));
+        Assert.That(row.WithheldCauseCode, Is.EqualTo(TargetabilityAcceptCauseCodes.MissingProvenance));
+        Assert.That(row.Provenance, Is.Null);
+        Assert.That(row.SensorToShooter!.IsComplete, Is.True);
     }
 
     private static DecisionLog StaleContactLog()
