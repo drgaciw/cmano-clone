@@ -1,4 +1,5 @@
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
@@ -94,6 +95,88 @@ public sealed class ContactProvenanceProjectionTests
 
         Assert.That(snapshot.Contacts[0].QualityState.HasFlag(ContactProvenanceQualityState.CatalogMiss), Is.True);
         Assert.That(snapshot.Contacts[0].LastKnown.TargetId, Is.EqualTo("unknown-ship-9"));
+    }
+
+    [Test]
+    public void Cloned_unit_instance_resolves_platform_id_and_does_not_catalog_miss()
+    {
+        const string instanceId = "hostile-clone-1";
+        const string platformId = "em-sovremenny-i-pr-956-sarych";
+        var log = new DecisionLog();
+        log.AppendContactChange(Change(2, "c1", instanceId, "Unknown", "Detected"));
+
+        var catalog = new InMemoryCatalogReader(
+            Array.Empty<CatalogSensorBinding>(),
+            platforms: [new CatalogPlatformEntry(platformId, 0, 0, 0, Domain: "surface")]);
+
+        var orbat = new[]
+        {
+            new ScenarioOrbatUnitDto
+            {
+                Id = instanceId,
+                PlatformId = platformId,
+                SideId = "red",
+            },
+        };
+
+        var snapshot = ContactProvenanceProjection.Project(
+            log,
+            currentSimTick: 2,
+            catalog: catalog,
+            orbatUnits: orbat);
+
+        Assert.That(snapshot.Contacts[0].QualityState.HasFlag(ContactProvenanceQualityState.CatalogMiss), Is.False);
+        Assert.That(snapshot.Contacts[0].QualityState, Is.EqualTo(ContactProvenanceQualityState.None));
+        Assert.That(snapshot.Contacts[0].LastKnown.TargetId, Is.EqualTo(instanceId));
+    }
+
+    [Test]
+    public void Orbat_mapped_platform_missing_from_catalog_still_catalog_miss()
+    {
+        const string instanceId = "hostile-clone-2";
+        const string missingPlatformId = "missing-platform-42";
+        var log = new DecisionLog();
+        log.AppendContactChange(Change(2, "c1", instanceId, "Unknown", "Detected"));
+
+        var catalog = new InMemoryCatalogReader(
+            Array.Empty<CatalogSensorBinding>(),
+            platforms: [new CatalogPlatformEntry("hostile-1", 0, 0, 0)]);
+
+        var orbat = new[]
+        {
+            new ScenarioOrbatUnitDto
+            {
+                Id = instanceId,
+                PlatformId = missingPlatformId,
+                SideId = "red",
+            },
+        };
+
+        var snapshot = ContactProvenanceProjection.Project(
+            log,
+            currentSimTick: 2,
+            catalog: catalog,
+            orbatUnits: orbat);
+
+        Assert.That(snapshot.Contacts[0].QualityState.HasFlag(ContactProvenanceQualityState.CatalogMiss), Is.True);
+        Assert.That(snapshot.Contacts[0].LastKnown.TargetId, Is.EqualTo(instanceId));
+    }
+
+    [Test]
+    public void Without_orbat_instance_id_still_catalog_misses_when_not_catalog_key()
+    {
+        const string instanceId = "hostile-clone-3";
+        const string platformId = "em-sovremenny-i-pr-956-sarych";
+        var log = new DecisionLog();
+        log.AppendContactChange(Change(2, "c1", instanceId, "Unknown", "Detected"));
+
+        var catalog = new InMemoryCatalogReader(
+            Array.Empty<CatalogSensorBinding>(),
+            platforms: [new CatalogPlatformEntry(platformId, 0, 0, 0)]);
+
+        var snapshot = ContactProvenanceProjection.Project(log, currentSimTick: 2, catalog: catalog);
+
+        Assert.That(snapshot.Contacts[0].QualityState.HasFlag(ContactProvenanceQualityState.CatalogMiss), Is.True);
     }
 
     [Test]

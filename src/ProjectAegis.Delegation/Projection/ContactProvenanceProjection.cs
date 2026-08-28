@@ -1,6 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Sim.Scenario;
@@ -19,7 +20,8 @@ public static class ContactProvenanceProjection
         ulong currentSimTick,
         ICatalogReader? catalog = null,
         ScenarioCommsDisplaySettings? commsDisplay = null,
-        int staleThresholdTicks = DefaultStaleThresholdTicks)
+        int staleThresholdTicks = DefaultStaleThresholdTicks,
+        IReadOnlyList<ScenarioOrbatUnitDto>? orbatUnits = null)
     {
         if (log is null)
         {
@@ -29,6 +31,7 @@ public static class ContactProvenanceProjection
         var comms = CommsStateProjection.Project(log);
         var display = commsDisplay ?? ScenarioCommsDisplaySettings.Default;
         var effectiveStale = ComputeEffectiveStaleThreshold(staleThresholdTicks, comms.State, display);
+        var unitPlatformMap = BuildUnitPlatformMap(orbatUnits);
         var contacts = ContactPictureProjection.Project(log);
         if (contacts.Count == 0)
         {
@@ -43,7 +46,8 @@ public static class ContactProvenanceProjection
                 currentSimTick,
                 comms.State,
                 effectiveStale,
-                catalog);
+                catalog,
+                unitPlatformMap);
         }
 
         Array.Sort(rows, CompareContacts);
@@ -56,7 +60,8 @@ public static class ContactProvenanceProjection
         CommsState commsState = CommsState.Nominal,
         ICatalogReader? catalog = null,
         ScenarioCommsDisplaySettings? commsDisplay = null,
-        int staleThresholdTicks = DefaultStaleThresholdTicks)
+        int staleThresholdTicks = DefaultStaleThresholdTicks,
+        IReadOnlyList<ScenarioOrbatUnitDto>? orbatUnits = null)
     {
         if (contacts is null || contacts.Count == 0)
         {
@@ -65,6 +70,7 @@ public static class ContactProvenanceProjection
 
         var display = commsDisplay ?? ScenarioCommsDisplaySettings.Default;
         var effectiveStale = ComputeEffectiveStaleThreshold(staleThresholdTicks, commsState, display);
+        var unitPlatformMap = BuildUnitPlatformMap(orbatUnits);
         var rows = new ContactProvenanceState[contacts.Count];
         for (var i = 0; i < contacts.Count; i++)
         {
@@ -73,7 +79,8 @@ public static class ContactProvenanceProjection
                 currentSimTick,
                 commsState,
                 effectiveStale,
-                catalog);
+                catalog,
+                unitPlatformMap);
         }
 
         Array.Sort(rows, CompareContacts);
@@ -95,13 +102,14 @@ public static class ContactProvenanceProjection
         ulong currentSimTick,
         CommsState commsState,
         int effectiveStaleThresholdTicks,
-        ICatalogReader? catalog)
+        ICatalogReader? catalog,
+        IReadOnlyDictionary<string, string>? unitPlatformMap = null)
     {
         var age = currentSimTick >= contact.LastSimTick
             ? currentSimTick - contact.LastSimTick
             : 0UL;
         var isStale = age > (ulong)effectiveStaleThresholdTicks;
-        var catalogMiss = IsCatalogMiss(catalog, contact.TargetId);
+        var catalogMiss = IsCatalogMiss(catalog, contact.TargetId, unitPlatformMap);
         var silentComms = commsState is CommsState.Degraded or CommsState.Denied;
         var outOfCommsUnknown = commsState == CommsState.Denied;
 
@@ -139,16 +147,58 @@ public static class ContactProvenanceProjection
             quality);
     }
 
-    private static bool IsCatalogMiss(ICatalogReader? catalog, string targetId)
+    internal static IReadOnlyDictionary<string, string>? BuildUnitPlatformMap(
+        IReadOnlyList<ScenarioOrbatUnitDto>? orbatUnits)
+    {
+        if (orbatUnits is null || orbatUnits.Count == 0)
+        {
+            return null;
+        }
+
+        var map = new Dictionary<string, string>(orbatUnits.Count, StringComparer.Ordinal);
+        for (var i = 0; i < orbatUnits.Count; i++)
+        {
+            var unit = orbatUnits[i];
+            if (string.IsNullOrEmpty(unit.Id) || string.IsNullOrEmpty(unit.PlatformId))
+            {
+                continue;
+            }
+
+            map[unit.Id] = unit.PlatformId;
+        }
+
+        return map.Count == 0 ? null : map;
+    }
+
+    internal static bool IsCatalogMiss(
+        ICatalogReader? catalog,
+        string targetId,
+        IReadOnlyDictionary<string, string>? unitPlatformMap = null)
     {
         if (catalog is null || string.IsNullOrEmpty(targetId))
         {
             return false;
         }
 
-        return !catalog.TryGetPlatformDomain(targetId, out _)
-            && !catalog.TryGetPlatformPosition(targetId, out _, out _);
+        if (IsCatalogHit(catalog, targetId))
+        {
+            return false;
+        }
+
+        if (unitPlatformMap is not null
+            && unitPlatformMap.TryGetValue(targetId, out var platformId)
+            && !string.IsNullOrEmpty(platformId)
+            && IsCatalogHit(catalog, platformId))
+        {
+            return false;
+        }
+
+        return true;
     }
+
+    private static bool IsCatalogHit(ICatalogReader catalog, string platformOrUnitId) =>
+        catalog.TryGetPlatformDomain(platformOrUnitId, out _)
+        || catalog.TryGetPlatformPosition(platformOrUnitId, out _, out _);
 
     private static ContactProvenanceConfidence ResolveConfidence(string lifecycleState)
     {
