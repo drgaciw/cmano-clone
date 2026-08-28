@@ -28,9 +28,16 @@ public sealed record EngageExplainCombatEventInput(
     ulong SimTick,
     string ExplanationRef);
 
-/// <summary>Ordered combat-event facts for one engage-assess leg.</summary>
-public sealed record EngageExplainCombatEventSnapshot(IReadOnlyList<EngageExplainCombatEventInput> Events)
+/// <summary>Ordered combat-event facts for one engage-assess leg. Owns an immutable copy of events.</summary>
+public sealed record EngageExplainCombatEventSnapshot
 {
+    public IReadOnlyList<EngageExplainCombatEventInput> Events { get; }
+
+    public EngageExplainCombatEventSnapshot(IReadOnlyList<EngageExplainCombatEventInput> events)
+    {
+        Events = events.ToArray();
+    }
+
     public static EngageExplainCombatEventSnapshot Empty { get; } =
         new(Array.Empty<EngageExplainCombatEventInput>());
 }

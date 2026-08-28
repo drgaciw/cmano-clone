@@ -125,6 +125,90 @@ public sealed class EngageExplainContractProjectionTests
     }
 
     [Test]
+    public void Fingerprint_value_equal_empty_and_with_copy_fingerprint_as_eec_empty()
+    {
+        var valueEmpty = new EngageExplainContractDto(
+            WhyPermitted: null,
+            WhyWithheld: null,
+            WeaponFamilyId: string.Empty,
+            CorrelationId: 0,
+            SimTime: 0);
+        var withCopy = EngageExplainContractDto.Empty with { };
+
+        Assert.That(EngageExplainContractFingerprint.Compute(EngageExplainContractDto.Empty), Is.EqualTo("eec:empty"));
+        Assert.That(EngageExplainContractFingerprint.Compute(valueEmpty), Is.EqualTo("eec:empty"));
+        Assert.That(EngageExplainContractFingerprint.Compute(withCopy), Is.EqualTo("eec:empty"));
+        Assert.That(ReferenceEquals(valueEmpty, EngageExplainContractDto.Empty), Is.False);
+        Assert.That(ReferenceEquals(withCopy, EngageExplainContractDto.Empty), Is.False);
+    }
+
+    [Test]
+    public void Snapshot_owns_immutable_copy_isolated_from_caller_list_mutation()
+    {
+        var mutable = new List<EngageExplainCombatEventInput>
+        {
+            CreateEvent(
+                EngageExplainCombatEventPhase.Authorized,
+                outcome: "Authorized",
+                explanationRef: CanFireExplanationRef,
+                correlationId: 11,
+                simTime: 2.0),
+        };
+
+        var snapshot = new EngageExplainCombatEventSnapshot(mutable);
+        Assert.That(snapshot.Events.Count, Is.EqualTo(1));
+
+        mutable.Clear();
+        mutable.Add(CreateEvent(
+            EngageExplainCombatEventPhase.AuthorizationRefused,
+            outcome: "RoeHoldFire",
+            explanationRef: "policy:RoeHoldFire",
+            correlationId: 99,
+            simTime: 9.0));
+
+        Assert.That(snapshot.Events.Count, Is.EqualTo(1));
+        Assert.That(snapshot.Events[0].Phase, Is.EqualTo(EngageExplainCombatEventPhase.Authorized));
+        Assert.That(snapshot.Events[0].CorrelationId, Is.EqualTo(11UL));
+
+        var explain = EngageExplainContractProjection.ProjectFromSnapshot(snapshot);
+        Assert.That(explain.WhyPermitted, Is.EqualTo(CanFireExplanationRef));
+        Assert.That(explain.WhyWithheld, Is.Null);
+    }
+
+    [Test]
+    public void Permitted_empty_ref_and_outcome_yields_authorization_granted_not_refused()
+    {
+        var authorized = CreateEvent(
+            EngageExplainCombatEventPhase.Authorized,
+            outcome: string.Empty,
+            explanationRef: string.Empty,
+            correlationId: 3,
+            simTime: 1.0);
+
+        var explain = EngageExplainContractProjection.Project(authorized);
+
+        Assert.That(explain.WhyPermitted, Is.EqualTo("authorization:granted"));
+        Assert.That(explain.WhyPermitted, Is.Not.EqualTo("authorization:refused"));
+        Assert.That(explain.WhyWithheld, Is.Null);
+    }
+
+    [Test]
+    public void Refused_empty_ref_and_outcome_yields_authorization_refused()
+    {
+        var refused = CreateEvent(
+            EngageExplainCombatEventPhase.AuthorizationRefused,
+            outcome: string.Empty,
+            explanationRef: string.Empty,
+            correlationId: 4,
+            simTime: 1.0);
+
+        var explain = EngageExplainContractProjection.Project(refused);
+
+        Assert.That(explain.WhyWithheld, Is.EqualTo("authorization:refused"));
+        Assert.That(explain.WhyPermitted, Is.Null);
+    }
+
+    [Test]
     public void Dto_surface_omits_ui_derived_truth_fields()
     {
         var uiDerivedNames = new[]

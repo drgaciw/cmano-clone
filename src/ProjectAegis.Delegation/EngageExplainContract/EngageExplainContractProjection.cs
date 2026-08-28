@@ -56,7 +56,7 @@ public static class EngageExplainContractProjection
 
     private static EngageExplainContractDto CreatePermitted(EngageExplainCombatEventInput evt)
     {
-        var whyPermitted = ResolveReason(evt.ExplanationRef, evt.Outcome);
+        var whyPermitted = ResolveReason(evt.ExplanationRef, evt.Outcome, isRefusal: false);
         return new EngageExplainContractDto(
             WhyPermitted: whyPermitted,
             WhyWithheld: null,
@@ -67,7 +67,7 @@ public static class EngageExplainContractProjection
 
     private static EngageExplainContractDto CreateWithheld(EngageExplainCombatEventInput evt)
     {
-        var whyWithheld = ResolveReason(evt.ExplanationRef, evt.Outcome);
+        var whyWithheld = ResolveReason(evt.ExplanationRef, evt.Outcome, isRefusal: true);
         return new EngageExplainContractDto(
             WhyPermitted: null,
             WhyWithheld: whyWithheld,
@@ -76,13 +76,18 @@ public static class EngageExplainContractProjection
             SimTime: evt.SimTime);
     }
 
-    private static string ResolveReason(string explanationRef, string outcome)
+    private static string ResolveReason(string explanationRef, string outcome, bool isRefusal)
     {
         if (!string.IsNullOrWhiteSpace(explanationRef))
         {
             return explanationRef;
         }
 
-        return string.IsNullOrWhiteSpace(outcome) ? "authorization:refused" : outcome;
+        if (!string.IsNullOrWhiteSpace(outcome))
+        {
+            return outcome;
+        }
+
+        return isRefusal ? "authorization:refused" : "authorization:granted";
     }
 }

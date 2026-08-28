@@ -8,10 +8,11 @@ public static class EngageExplainContractFingerprint
 {
     /// <summary>
     /// Same inputs yield the same string. Invariant culture; ordinal ordering; no wall clock.
+    /// Empty is detected by value so copied/<c>with</c> empties fingerprint as <c>eec:empty</c>.
     /// </summary>
     public static string Compute(EngageExplainContractDto? contract)
     {
-        if (contract is null || ReferenceEquals(contract, EngageExplainContractDto.Empty))
+        if (contract is null || IsEmptyValue(contract))
         {
             return "eec:empty";
         }
@@ -29,4 +30,11 @@ public static class EngageExplainContractFingerprint
         builder.Append(contract.SimTime.ToString("R", CultureInfo.InvariantCulture));
         return builder.ToString();
     }
+
+    private static bool IsEmptyValue(EngageExplainContractDto contract) =>
+        contract.WhyPermitted is null
+        && contract.WhyWithheld is null
+        && string.IsNullOrEmpty(contract.WeaponFamilyId)
+        && contract.CorrelationId == 0
+        && contract.SimTime == 0;
 }
