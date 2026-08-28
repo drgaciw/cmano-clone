@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Text;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Engage;
 
 /// <summary>
@@ -30,11 +31,15 @@ public static class BdaAssessProjection
       return BdaAssessSnapshot.Empty;
     }
 
-    var picture = ContactPictureProjection.Project(log);
-    if (picture.Count == 0)
+    var contactsById = BuildLastKnownContactsFromLog(log);
+    if (contactsById.Count == 0)
     {
       return BdaAssessSnapshot.Empty;
     }
+
+    var picture = contactsById.Values
+      .OrderBy(c => c.ContactId, StringComparer.Ordinal)
+      .ToArray();
 
     var contactsByTarget = BuildContactsByTarget(picture);
     var byTarget = BuildRepresentativeContactsByTarget(contactsByTarget);
@@ -43,8 +48,8 @@ public static class BdaAssessProjection
     var terminalByContact = BuildTerminalAssessByContact(log, bdaFanned);
     var pendingByTarget = BuildPendingByTarget(pendingTargets);
 
-    var rows = new List<BdaAssessContactState>(picture.Count);
-    for (var i = 0; i < picture.Count; i++)
+    var rows = new List<BdaAssessContactState>(picture.Length);
+    for (var i = 0; i < picture.Length; i++)
     {
       var contact = picture[i];
       if (terminalByContact.TryGetValue(contact.ContactId, out var terminal))
@@ -58,6 +63,20 @@ public static class BdaAssessProjection
           terminal.SimTick,
           terminal.SimTime,
           terminal.CorrelationSequenceId));
+        continue;
+      }
+
+      if (TryResolveKillDestroyed(log, contact, out var killTerminal))
+      {
+        rows.Add(new BdaAssessContactState(
+          contact.ContactId,
+          contact.TargetId,
+          contact.ObserverId,
+          killTerminal.State,
+          killTerminal.Source,
+          killTerminal.SimTick,
+          killTerminal.SimTime,
+          killTerminal.CorrelationSequenceId));
         continue;
       }
 
@@ -142,6 +161,39 @@ public static class BdaAssessProjection
     return builder.ToString();
   }
 
+  /// <summary>
+  /// Retains last-known contact rows from the order log, including <c>Lost</c> transitions that
+  /// <see cref="ContactPictureProjection"/> drops from the active picture.
+  /// </summary>
+  private static Dictionary<string, ContactPictureEntry> BuildLastKnownContactsFromLog(DecisionLog log)
+  {
+    var tracks = new Dictionary<string, ContactPictureEntry>(StringComparer.Ordinal);
+    var ordered = log.ContactChanges
+      .OrderBy(c => c.SimTick)
+      .ThenBy(c => c.SequenceId)
+      .ThenBy(c => c.ContactId, StringComparer.Ordinal)
+      .ToArray();
+
+    for (var i = 0; i < ordered.Length; i++)
+    {
+      var change = ordered[i];
+      if (string.IsNullOrEmpty(change.ContactId))
+      {
+        continue;
+      }
+
+      tracks[change.ContactId] = new ContactPictureEntry(
+        change.ContactId,
+        change.TargetId,
+        change.ObserverId,
+        change.NewState,
+        change.SimTick,
+        change.SimTime);
+    }
+
+    return tracks;
+  }
+
   private static Dictionary<string, TerminalAssess> BuildTerminalAssessByContact(
     DecisionLog log,
     IReadOnlyList<ContactChangeRecord> bdaChanges)
@@ -150,64 +202,171 @@ public static class BdaAssessProjection
     for (var i = 0; i < bdaChanges.Count; i++)
     {
       var change = bdaChanges[i];
-      var state = MapDamageState(change.NewState);
-      if (state is null)
+      if (!TryResolveTerminalFromBdaChange(log, change, out var terminal))
       {
         continue;
       }
 
-      byContact[change.ContactId] = new TerminalAssess(
-        state.Value,
-        ResolveSource(log, change),
-        change.SimTick,
-        change.SimTime,
-        change.SequenceId);
+      byContact[change.ContactId] = terminal;
     }
 
     return byContact;
   }
 
-  private static BdaAssessStateKind? MapDamageState(string lifecycleState)
+  private static bool TryResolveTerminalFromBdaChange(
+    DecisionLog log,
+    ContactChangeRecord change,
+    out TerminalAssess terminal)
   {
-    if (string.Equals(lifecycleState, BdaContactDamageStates.Lost, StringComparison.Ordinal))
+    terminal = default!;
+
+    if (string.Equals(change.NewState, BdaContactDamageStates.DegradedL1, StringComparison.Ordinal)
+      || string.Equals(change.NewState, BdaContactDamageStates.DegradedL2, StringComparison.Ordinal))
     {
-      return BdaAssessStateKind.Destroyed;
+      terminal = new TerminalAssess(
+        BdaAssessStateKind.Damaged,
+        BdaAssessSourceKind.PlatformDamage,
+        change.SimTick,
+        change.SimTime,
+        change.SequenceId);
+      return true;
     }
 
-    if (string.Equals(lifecycleState, BdaContactDamageStates.DegradedL1, StringComparison.Ordinal)
-      || string.Equals(lifecycleState, BdaContactDamageStates.DegradedL2, StringComparison.Ordinal))
+    if (!string.Equals(change.NewState, BdaContactDamageStates.Lost, StringComparison.Ordinal))
     {
-      return BdaAssessStateKind.Damaged;
+      return false;
     }
 
-    return null;
+    if (TryFindKillOutcome(log, change.TargetId, change.SimTick, out var kill))
+    {
+      terminal = new TerminalAssess(
+        BdaAssessStateKind.Destroyed,
+        BdaAssessSourceKind.EngagementOutcome,
+        change.SimTick,
+        change.SimTime,
+        kill.SequenceId);
+      return true;
+    }
+
+    var damage = FindPlatformDamageForChange(log, change);
+    if (damage is not null)
+    {
+      if (damage.NewHpPct <= 0
+        || string.Equals(damage.ReasonCode, PlatformDamageChangeReasonCodes.Kill, StringComparison.Ordinal))
+      {
+        terminal = new TerminalAssess(
+          BdaAssessStateKind.Destroyed,
+          BdaAssessSourceKind.PlatformDamage,
+          change.SimTick,
+          change.SimTime,
+          change.SequenceId);
+        return true;
+      }
+
+      terminal = new TerminalAssess(
+        BdaAssessStateKind.Damaged,
+        BdaAssessSourceKind.PlatformDamage,
+        change.SimTick,
+        change.SimTime,
+        change.SequenceId);
+      return true;
+    }
+
+  // Overloaded BDA Lost lifecycle (DamageLevel >= 3 with remaining HP) — damaged, not destroyed.
+    terminal = new TerminalAssess(
+      BdaAssessStateKind.Damaged,
+      BdaAssessSourceKind.PlatformDamage,
+      change.SimTick,
+      change.SimTime,
+      change.SequenceId);
+    return true;
   }
 
-  private static BdaAssessSourceKind ResolveSource(DecisionLog log, ContactChangeRecord change)
+  private static bool TryResolveKillDestroyed(
+    DecisionLog log,
+    ContactPictureEntry contact,
+    out TerminalAssess terminal)
   {
+    terminal = default!;
+    if (!IsSensorLost(contact.LifecycleState))
+    {
+      return false;
+    }
+
+    if (!TryFindKillOutcome(log, contact.TargetId, contact.LastSimTick, out var kill))
+    {
+      return false;
+    }
+
+    terminal = new TerminalAssess(
+      BdaAssessStateKind.Destroyed,
+      BdaAssessSourceKind.EngagementOutcome,
+      kill.SimTick,
+      kill.SimTime,
+      kill.SequenceId);
+    return true;
+  }
+
+  private static bool TryFindKillOutcome(
+    DecisionLog log,
+    string targetId,
+    ulong simTick,
+    out EngagementOutcomeRecord kill)
+  {
+    kill = null!;
+    EngagementOutcomeRecord? latest = null;
     for (var i = 0; i < log.EngagementOutcomes.Count; i++)
     {
       var outcome = log.EngagementOutcomes[i];
-      if (outcome.SequenceId == change.SequenceId
-        && string.Equals(outcome.VictimTargetId.Value, change.TargetId, StringComparison.Ordinal)
-        && outcome.OutcomeCode == EngagementOutcomeCodes.Kill)
+      if (!string.Equals(outcome.VictimTargetId.Value, targetId, StringComparison.Ordinal)
+        || outcome.OutcomeCode != EngagementOutcomeCodes.Kill
+        || outcome.SimTick != simTick)
       {
-        return BdaAssessSourceKind.EngagementOutcome;
+        continue;
+      }
+
+      if (latest is null
+        || outcome.SequenceId > latest.SequenceId
+        || (outcome.SequenceId == latest.SequenceId && outcome.EngagementId >= latest.EngagementId))
+      {
+        latest = outcome;
       }
     }
 
+    if (latest is null)
+    {
+      return false;
+    }
+
+    kill = latest;
+    return true;
+  }
+
+  private static PlatformDamageChangeRecord? FindPlatformDamageForChange(
+    DecisionLog log,
+    ContactChangeRecord change)
+  {
+    PlatformDamageChangeRecord? latest = null;
     for (var i = 0; i < log.PlatformDamageChanges.Count; i++)
     {
       var damage = log.PlatformDamageChanges[i];
-      if (damage.SequenceId == change.SequenceId
-        && string.Equals(damage.UnitId.Value, change.TargetId, StringComparison.Ordinal))
+      if (!string.Equals(damage.UnitId.Value, change.TargetId, StringComparison.Ordinal)
+        || damage.SimTick != change.SimTick)
       {
-        return BdaAssessSourceKind.PlatformDamage;
+        continue;
+      }
+
+      if (latest is null || damage.SequenceId >= latest.SequenceId)
+      {
+        latest = damage;
       }
     }
 
-    return BdaAssessSourceKind.PlatformDamage;
+    return latest;
   }
+
+  private static bool IsSensorLost(string lifecycleState) =>
+    string.Equals(lifecycleState, "Lost", StringComparison.Ordinal);
 
   private static Dictionary<string, BdaAssessPendingTarget> BuildPendingByTarget(
     IReadOnlyList<BdaAssessPendingTarget>? pendingTargets)

@@ -12,11 +12,12 @@ namespace ProjectAegis.Delegation.Tests.BdaAssess;
 public sealed class BdaAssessProjectionTests
 {
   [Test]
-  public void Terminal_kill_maps_destroyed_from_engagement_outcome()
+  public void Terminal_kill_with_lost_transition_maps_destroyed_after_active_picture_drops_contact()
   {
     var log = new DecisionLog();
     log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Identified"));
     log.AppendEngagementOutcome(Kill(2, 1, "hostile-1", 10));
+    log.AppendContactChange(Change(2, "c1", "hostile-1", "Identified", "Lost"));
 
     var snapshot = BdaAssessProjection.Project(log, currentSimTick: 2);
 
@@ -46,6 +47,22 @@ public sealed class BdaAssessProjectionTests
     Assert.That(row.Source, Is.EqualTo(BdaAssessSourceKind.PlatformDamage));
     Assert.That(row.SimTick, Is.EqualTo(2UL));
     Assert.That(row.CorrelationSequenceId, Is.EqualTo(2UL));
+  }
+
+  [Test]
+  public void Hit_at_max_damage_level_with_remaining_hp_maps_damaged_not_destroyed()
+  {
+    var log = new DecisionLog();
+    log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Identified"));
+    log.AppendPlatformDamageChange(DamageChange(2, 1, "hostile-1", 100, 25, PlatformDamageChangeReasonCodes.Hit, 3));
+
+    var snapshot = BdaAssessProjection.Project(log, currentSimTick: 2);
+
+    Assert.That(snapshot.Contacts, Has.Count.EqualTo(1));
+    var row = snapshot.Contacts[0];
+    Assert.That(row.State, Is.EqualTo(BdaAssessStateKind.Damaged));
+    Assert.That(row.Source, Is.EqualTo(BdaAssessSourceKind.PlatformDamage));
+    Assert.That(row.SimTick, Is.EqualTo(2UL));
   }
 
   [Test]
@@ -124,6 +141,9 @@ public sealed class BdaAssessProjectionTests
     log.AppendContactChange(Change(1, "c-ucav-2", "hostile-1", "Unknown", "Classified"));
     log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Identified"));
     log.AppendEngagementOutcome(Kill(2, 1, "hostile-1", 10));
+    log.AppendContactChange(Change(2, "c-ucav-1", "hostile-1", "Classified", "Lost"));
+    log.AppendContactChange(Change(2, "c-ucav-2", "hostile-1", "Classified", "Lost"));
+    log.AppendContactChange(Change(2, "c1", "hostile-1", "Identified", "Lost"));
 
     var snapshot = BdaAssessProjection.Project(log, currentSimTick: 2);
 
@@ -135,7 +155,7 @@ public sealed class BdaAssessProjectionTests
   }
 
   [Test]
-  public void Escalating_damage_promotes_to_destroyed()
+  public void Escalating_damage_promotes_to_destroyed_only_when_hp_reaches_zero()
   {
     var log = new DecisionLog();
     log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Identified"));
@@ -145,8 +165,26 @@ public sealed class BdaAssessProjectionTests
     var snapshot = BdaAssessProjection.Project(log, currentSimTick: 3);
 
     Assert.That(snapshot.Contacts[0].State, Is.EqualTo(BdaAssessStateKind.Destroyed));
+    Assert.That(snapshot.Contacts[0].Source, Is.EqualTo(BdaAssessSourceKind.PlatformDamage));
     Assert.That(snapshot.Contacts[0].SimTick, Is.EqualTo(3UL));
     Assert.That(snapshot.Contacts[0].CorrelationSequenceId, Is.EqualTo(3UL));
+  }
+
+  [Test]
+  public void Catalog_kill_resolves_engagement_outcome_by_target_and_tick()
+  {
+    var log = new DecisionLog();
+    log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Identified"));
+    log.AppendEngagementOutcome(Kill(2, 1, "hostile-1", 10));
+    log.AppendPlatformDamageChange(DamageChange(2, 2, "hostile-1", 100, 0, PlatformDamageChangeReasonCodes.Kill, 3));
+    log.AppendContactChange(Change(2, "c1", "hostile-1", "Identified", "Lost"));
+
+    var snapshot = BdaAssessProjection.Project(log, currentSimTick: 2);
+
+    Assert.That(snapshot.Contacts, Has.Count.EqualTo(1));
+    Assert.That(snapshot.Contacts[0].State, Is.EqualTo(BdaAssessStateKind.Destroyed));
+    Assert.That(snapshot.Contacts[0].Source, Is.EqualTo(BdaAssessSourceKind.EngagementOutcome));
+    Assert.That(snapshot.Contacts[0].CorrelationSequenceId, Is.EqualTo(2UL));
   }
 
   [Test]
