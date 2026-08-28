@@ -95,6 +95,60 @@ public sealed class C2NetworkHealthProjectorTests
     }
 
     [Test]
+    public void Partitioned_link_staleness_ignores_fresher_near_side_datalink_contact()
+    {
+        var log = new DecisionLog();
+        log.AppendContactChange(new ContactChangeRecord(
+            0, 3.0, 3, "u3", "dl-hostile-far", "hostile-1", "Unknown", "Detected"));
+        log.AppendContactChange(new ContactChangeRecord(
+            0, 5.0, 5, "u2", "dl-hostile-near", "hostile-1", "Unknown", "Classified"));
+
+        const ulong currentSimTick = 10;
+        var snapshot = C2NetworkHealthProjector.Project(
+            log,
+            ["u1", "u2", "u3"],
+            BalticLinks(),
+            currentSimTick: currentSimTick,
+            linkStatusOverrides:
+            [
+                new C2NetworkHealthProjector.LinkStatusOverride("u2", "u3", DatalinkPictureProjection.StatusDown),
+            ]);
+
+        var partitionedLink = snapshot.Links.Single(l => l.FromUnitId == "u2" && l.ToUnitId == "u3");
+        Assert.That(partitionedLink.AffectedContributorUnitIds, Is.EqualTo(new[] { "u3" }));
+        Assert.That(partitionedLink.StalenessTicks, Is.EqualTo(currentSimTick - 3));
+        Assert.That(snapshot.LostPaths, Has.Count.EqualTo(1));
+        Assert.That(snapshot.LostPaths[0].LastKnownSimTick, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void Partitioned_link_does_not_demote_still_connected_near_side_datalink_contact()
+    {
+        var log = new DecisionLog();
+        log.AppendContactChange(new ContactChangeRecord(
+            0, 3.0, 3, "u3", "dl-hostile-far", "hostile-1", "Unknown", "Detected"));
+        log.AppendContactChange(new ContactChangeRecord(
+            0, 5.0, 5, "u2", "dl-hostile-near", "hostile-1", "Unknown", "Classified"));
+
+        var snapshot = C2NetworkHealthProjector.Project(
+            log,
+            ["u1", "u2", "u3"],
+            BalticLinks(),
+            currentSimTick: 10,
+            linkStatusOverrides:
+            [
+                new C2NetworkHealthProjector.LinkStatusOverride("u2", "u3", DatalinkPictureProjection.StatusDown),
+            ]);
+
+        Assert.That(snapshot.LastKnownContributors, Has.Count.EqualTo(1));
+        Assert.That(snapshot.LastKnownContributors[0].UnitId, Is.EqualTo("u3"));
+        Assert.That(snapshot.LastKnownContributors[0].ContactId, Is.EqualTo("dl-hostile-far"));
+        Assert.That(
+            snapshot.LastKnownContributors.Select(c => c.UnitId),
+            Does.Not.Contain("u2"));
+    }
+
+    [Test]
     public void Global_comms_degraded_projects_degraded_mesh_without_last_known_rows()
     {
         var log = new DecisionLog();

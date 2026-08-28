@@ -282,9 +282,15 @@ public static class C2NetworkHealthProjector
                 continue;
             }
 
-            if (!affectedContributorUnitIds.Contains(contact.ObserverId)
-                && contact.ObserverId != edge.FromUnitId
-                && contact.ObserverId != edge.ToUnitId)
+            if (affectedContributorUnitIds.Count > 0)
+            {
+                if (!affectedContributorUnitIds.Contains(contact.ObserverId))
+                {
+                    continue;
+                }
+            }
+            else if (contact.ObserverId != edge.FromUnitId
+                     && contact.ObserverId != edge.ToUnitId)
             {
                 continue;
             }
@@ -329,9 +335,7 @@ public static class C2NetworkHealthProjector
             var isLive = commsState == CommsState.Nominal
                 && !partitionedUnits.Contains(contact.ObserverId)
                 && links.All(l => l.Health == C2LinkHealth.Healthy
-                    || (!l.AffectedContributorUnitIds.Contains(contact.ObserverId)
-                        && l.FromUnitId != contact.ObserverId
-                        && l.ToUnitId != contact.ObserverId));
+                    || !l.AffectedContributorUnitIds.Contains(contact.ObserverId));
 
             if (isLive)
             {
