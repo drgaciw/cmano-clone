@@ -11,6 +11,17 @@ using ProjectAegis.Delegation.Decision;
 /// </summary>
 public static class MissionPackageProjection
 {
+    /// <summary>
+    /// Projects authored mission packages into a replay-stable snapshot. Folds platform alive
+    /// state, order-log damage (one-way death), task-org detach/rejoin, and comms quality.
+    /// Read-only; does not append to <paramref name="log"/>.
+    /// </summary>
+    /// <param name="definitions">Package composition authored outside the tick hotpath.</param>
+    /// <param name="log">Optional order-log evidence for damage, detach/rejoin, and comms.</param>
+    /// <param name="isPlatformAlive">Optional authoritative alive gate per platform unit id.</param>
+    /// <param name="currentSimTick">Sim tick stamped on projected elements.</param>
+    /// <param name="currentSimTime">Sim time stamped on projected elements.</param>
+    /// <param name="activePackageId">Optional active package override; defaults to first definition.</param>
     public static MissionPackageSnapshot Project(
         IReadOnlyList<PackageDefinition>? definitions,
         DecisionLog? log = null,
@@ -39,6 +50,16 @@ public static class MissionPackageProjection
         for (var i = 0; i < orderedDefinitions.Length; i++)
         {
             var definition = orderedDefinitions[i];
+            if (definition.Elements is null || definition.Elements.Count == 0)
+            {
+                packages.Add(new MissionPackageMembership(
+                    definition.PackageId,
+                    definition.Label,
+                    Array.Empty<string>(),
+                    Array.Empty<string>()));
+                continue;
+            }
+
             var elementIds = new List<string>(definition.Elements.Count);
             var unitIds = new HashSet<string>(StringComparer.Ordinal);
 
@@ -181,9 +202,10 @@ public static class MissionPackageProjection
         return builder.ToString();
     }
 
-    private static C2NodeMembershipKind ResolveMembershipKind(string capabilityScope)
+    private static C2NodeMembershipKind ResolveMembershipKind(string? capabilityScope)
     {
-        if (capabilityScope.StartsWith("organic-", StringComparison.Ordinal))
+        if (!string.IsNullOrEmpty(capabilityScope)
+            && capabilityScope.StartsWith("organic-", StringComparison.Ordinal))
         {
             return C2NodeMembershipKind.Organic;
         }
@@ -311,7 +333,10 @@ public static class MissionPackageProjection
                 continue;
             }
 
-            alive[unitId] = change.NewHpPct > 0.0;
+            if (change.NewHpPct <= 0.0)
+            {
+                alive[unitId] = false;
+            }
         }
 
         return alive;

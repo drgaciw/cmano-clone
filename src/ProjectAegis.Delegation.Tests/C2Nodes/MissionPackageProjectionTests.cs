@@ -1,4 +1,5 @@
 using ProjectAegis.Delegation.C2Nodes;
+using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Sim.Catalog;
@@ -90,6 +91,81 @@ public sealed class MissionPackageProjectionTests
 
         Assert.That(snapshot.Packages[0].ElementIds, Does.Contain("elem-shooter-1"));
         Assert.That(snapshot.Packages[0].UnitIds, Does.Contain("u2"));
+    }
+
+    [Test]
+    public void Authoritative_dead_platform_stays_unavailable_when_damage_row_shows_partial_hp()
+    {
+        var definition = BalticAsuwPackage();
+        var log = new DecisionLog();
+        log.AppendPlatformDamageChange(new PlatformDamageChangeRecord(
+            0,
+            5.0,
+            5,
+            new TargetId("u2"),
+            100,
+            50,
+            PlatformDamageChangeReasonCodes.Hit,
+            1));
+
+        var snapshot = MissionPackageProjection.Project(
+            new[] { definition },
+            log,
+            isPlatformAlive: _ => false);
+
+        var shooter = snapshot.Elements.Single(e => e.ElementId == "elem-shooter-1");
+        Assert.That(shooter.Availability, Is.EqualTo(C2NodeAvailability.Unavailable));
+    }
+
+    [Test]
+    public void Explicit_isPlatformAlive_false_marks_all_elements_unavailable()
+    {
+        var snapshot = MissionPackageProjection.Project(
+            new[] { BalticAsuwPackage() },
+            isPlatformAlive: _ => false);
+
+        Assert.That(snapshot.Elements, Is.Not.Empty);
+        Assert.That(snapshot.Elements.All(e => e.Availability == C2NodeAvailability.Unavailable), Is.True);
+    }
+
+    [Test]
+    public void Comms_denied_marks_relay_and_c2_unavailable()
+    {
+        var log = new DecisionLog();
+        log.AppendCommsStateChange(new CommsStateChangeRecord(
+            0, 1, 1, "c2-net", CommsState.Nominal, CommsState.Denied, "jam"));
+
+        var snapshot = MissionPackageProjection.Project(new[] { BalticAsuwPackage() }, log);
+
+        var relay = snapshot.Elements.Single(e => e.ElementId == "elem-relay-1");
+        var c2 = snapshot.Elements.Single(e => e.ElementId == "elem-c2-1");
+        var sensor = snapshot.Elements.Single(e => e.ElementId == "elem-sensor-1");
+        var shooter = snapshot.Elements.Single(e => e.ElementId == "elem-shooter-1");
+
+        Assert.That(relay.Availability, Is.EqualTo(C2NodeAvailability.Unavailable));
+        Assert.That(c2.Availability, Is.EqualTo(C2NodeAvailability.Unavailable));
+        Assert.That(sensor.Availability, Is.EqualTo(C2NodeAvailability.Available));
+        Assert.That(shooter.Availability, Is.EqualTo(C2NodeAvailability.Available));
+    }
+
+    [Test]
+    public void Comms_degraded_marks_relay_and_c2_last_known()
+    {
+        var log = new DecisionLog();
+        log.AppendCommsStateChange(new CommsStateChangeRecord(
+            0, 1, 1, "c2-net", CommsState.Nominal, CommsState.Degraded, "jam"));
+
+        var snapshot = MissionPackageProjection.Project(new[] { BalticAsuwPackage() }, log);
+
+        var relay = snapshot.Elements.Single(e => e.ElementId == "elem-relay-1");
+        var c2 = snapshot.Elements.Single(e => e.ElementId == "elem-c2-1");
+        var sensor = snapshot.Elements.Single(e => e.ElementId == "elem-sensor-1");
+        var shooter = snapshot.Elements.Single(e => e.ElementId == "elem-shooter-1");
+
+        Assert.That(relay.Availability, Is.EqualTo(C2NodeAvailability.LastKnown));
+        Assert.That(c2.Availability, Is.EqualTo(C2NodeAvailability.LastKnown));
+        Assert.That(sensor.Availability, Is.EqualTo(C2NodeAvailability.Available));
+        Assert.That(shooter.Availability, Is.EqualTo(C2NodeAvailability.Available));
     }
 
     [Test]
