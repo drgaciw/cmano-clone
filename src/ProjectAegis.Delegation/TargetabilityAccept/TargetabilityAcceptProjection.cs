@@ -23,7 +23,8 @@ public static class TargetabilityAcceptProjection
         ICatalogReader? catalog = null,
         string weaponId = CatalogWeaponIds.MvpDefault,
         int staleThresholdTicks = ContactProvenanceProjection.DefaultStaleThresholdTicks,
-        IReadOnlyList<ScenarioOrbatUnitDto>? orbatUnits = null)
+        IReadOnlyList<ScenarioOrbatUnitDto>? orbatUnits = null,
+        ScenarioCommsDisplaySettings? commsDisplay = null)
     {
         if (log is null)
         {
@@ -34,8 +35,10 @@ public static class TargetabilityAcceptProjection
             log,
             currentSimTick,
             catalog,
+            commsDisplay: commsDisplay,
             staleThresholdTicks: staleThresholdTicks,
             orbatUnits: orbatUnits);
+        // SensorToShooterProjection has no commsDisplay parameter — provenance owns degraded stale divisor.
         var sensorToShooter = SensorToShooterProjection.Project(
             log,
             currentSimTick,
@@ -92,23 +95,26 @@ public static class TargetabilityAcceptProjection
         SensorToShooterChain? chain,
         C2AuthorityProjection authority)
     {
-        if (provenance is not null)
+        // Fail closed: chain-only rows without provenance must never become Permitted.
+        if (provenance is null)
         {
-            if (provenance.QualityState.HasFlag(ContactProvenanceQualityState.CatalogMiss))
-            {
-                return (TargetabilityAcceptDisposition.Withheld, TargetabilityAcceptCauseCodes.CatalogMiss);
-            }
+            return (TargetabilityAcceptDisposition.Withheld, TargetabilityAcceptCauseCodes.MissingProvenance);
+        }
 
-            if (provenance.Freshness == ContactProvenanceFreshness.Stale)
-            {
-                return (TargetabilityAcceptDisposition.Withheld, TargetabilityAcceptCauseCodes.Stale);
-            }
+        if (provenance.QualityState.HasFlag(ContactProvenanceQualityState.CatalogMiss))
+        {
+            return (TargetabilityAcceptDisposition.Withheld, TargetabilityAcceptCauseCodes.CatalogMiss);
+        }
 
-            if (provenance.QualityState.HasFlag(ContactProvenanceQualityState.SilentComms)
-                && provenance.OutOfCommsUnknown)
-            {
-                return (TargetabilityAcceptDisposition.Withheld, TargetabilityAcceptCauseCodes.SilentComms);
-            }
+        if (provenance.Freshness == ContactProvenanceFreshness.Stale)
+        {
+            return (TargetabilityAcceptDisposition.Withheld, TargetabilityAcceptCauseCodes.Stale);
+        }
+
+        if (provenance.QualityState.HasFlag(ContactProvenanceQualityState.SilentComms)
+            && provenance.OutOfCommsUnknown)
+        {
+            return (TargetabilityAcceptDisposition.Withheld, TargetabilityAcceptCauseCodes.SilentComms);
         }
 
         if (chain is null || !chain.IsComplete)
