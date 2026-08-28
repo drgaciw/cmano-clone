@@ -165,9 +165,103 @@ public sealed class C2NetworkHealthProjectorTests
         Assert.That(snapshot.CommsState, Is.EqualTo(CommsState.Degraded));
         Assert.That(snapshot.Links, Has.Count.EqualTo(1));
         Assert.That(snapshot.Links[0].Health, Is.EqualTo(C2LinkHealth.Degraded));
-        Assert.That(snapshot.Links[0].IsLiveCapability, Is.False);
+        Assert.That(snapshot.Links[0].IsLiveCapability, Is.True);
+        Assert.That(snapshot.Links[0].StalenessTicks, Is.EqualTo(0));
         Assert.That(snapshot.LastKnownContributors, Is.Empty);
         Assert.That(snapshot.LostPaths, Is.Empty);
+    }
+
+    [Test]
+    public void Per_observer_datalink_shares_survive_contact_id_collision_for_partition_last_known()
+    {
+        // Later u2 write would overwrite u3 under ContactPictureProjection (ContactId-only key).
+        var log = new DecisionLog();
+        log.AppendContactChange(new ContactChangeRecord(
+            0, 2.0, 2, "u3", "dl-hostile-1", "hostile-1", "Unknown", "Detected"));
+        log.AppendContactChange(new ContactChangeRecord(
+            0, 3.0, 3, "u3", "dl-hostile-1", "hostile-1", "Detected", "Classified"));
+        log.AppendContactChange(new ContactChangeRecord(
+            0, 4.0, 4, "u2", "dl-hostile-1", "hostile-1", "Unknown", "Detected"));
+
+        var snapshot = C2NetworkHealthProjector.Project(
+            log,
+            ["u1", "u2", "u3"],
+            BalticLinks(),
+            currentSimTick: 5,
+            linkStatusOverrides:
+            [
+                new C2NetworkHealthProjector.LinkStatusOverride("u2", "u3", DatalinkPictureProjection.StatusDown),
+            ]);
+
+        Assert.That(snapshot.LastKnownContributors, Has.Count.EqualTo(1));
+        var contributor = snapshot.LastKnownContributors[0];
+        Assert.That(contributor.UnitId, Is.EqualTo("u3"));
+        Assert.That(contributor.ContactId, Is.EqualTo("dl-hostile-1"));
+        Assert.That(contributor.LifecycleState, Is.EqualTo("Classified"));
+        Assert.That(contributor.LastKnownSimTick, Is.EqualTo(3));
+        Assert.That(contributor.IsLiveCapability, Is.False);
+
+        var partitionedLink = snapshot.Links.Single(l => l.FromUnitId == "u2" && l.ToUnitId == "u3");
+        Assert.That(partitionedLink.AffectedContributorUnitIds, Is.EqualTo(new[] { "u3" }));
+        Assert.That(partitionedLink.StalenessTicks, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void Global_denied_overrides_per_link_up_override()
+    {
+        var log = new DecisionLog();
+        log.AppendCommsStateChange(new CommsStateChangeRecord(
+            0, 1.0, 1, "brigade-net", CommsState.Nominal, CommsState.Denied, "emp"));
+
+        var snapshot = C2NetworkHealthProjector.Project(
+            log,
+            ["u1", "u2"],
+            BalticLinks(),
+            currentSimTick: 2,
+            linkStatusOverrides:
+            [
+                new C2NetworkHealthProjector.LinkStatusOverride("u1", "u2", DatalinkPictureProjection.StatusUp),
+            ]);
+
+        Assert.That(snapshot.NetworkHealth, Is.EqualTo(C2NetworkHealthLevel.Partitioned));
+        Assert.That(snapshot.CommsState, Is.EqualTo(CommsState.Denied));
+        Assert.That(snapshot.Links, Has.Count.EqualTo(1));
+        Assert.That(snapshot.Links[0].Health, Is.EqualTo(C2LinkHealth.Partitioned));
+        Assert.That(snapshot.Links[0].IsLiveCapability, Is.False);
+    }
+
+    [Test]
+    public void Partitioned_link_includes_full_disconnected_component_as_affected()
+    {
+        var log = new DecisionLog();
+        log.AppendContactChange(new ContactChangeRecord(
+            0, 2.0, 2, "u3", "dl-hostile-1", "hostile-1", "Unknown", "Detected"));
+        log.AppendContactChange(new ContactChangeRecord(
+            0, 3.0, 3, "u4", "dl-hostile-1", "hostile-1", "Unknown", "Detected"));
+        log.AppendContactChange(new ContactChangeRecord(
+            0, 4.0, 4, "u4", "dl-hostile-1", "hostile-1", "Detected", "Classified"));
+
+        var snapshot = C2NetworkHealthProjector.Project(
+            log,
+            ["u1", "u2", "u3", "u4"],
+            BalticLinks(),
+            currentSimTick: 6,
+            linkStatusOverrides:
+            [
+                new C2NetworkHealthProjector.LinkStatusOverride("u2", "u3", DatalinkPictureProjection.StatusDown),
+            ]);
+
+        Assert.That(snapshot.NetworkHealth, Is.EqualTo(C2NetworkHealthLevel.Partitioned));
+
+        var cutLink = snapshot.Links.Single(l => l.FromUnitId == "u2" && l.ToUnitId == "u3");
+        Assert.That(cutLink.Health, Is.EqualTo(C2LinkHealth.Partitioned));
+        Assert.That(cutLink.IsLiveCapability, Is.False);
+        Assert.That(cutLink.AffectedContributorUnitIds, Is.EqualTo(new[] { "u3", "u4" }));
+        Assert.That(cutLink.StalenessTicks, Is.EqualTo(2));
+
+        Assert.That(snapshot.LastKnownContributors.Select(c => c.UnitId), Is.EqualTo(new[] { "u3", "u4" }));
+        Assert.That(snapshot.LostPaths, Has.Count.EqualTo(1));
+        Assert.That(snapshot.LostPaths[0].LastKnownSimTick, Is.EqualTo(4));
     }
 
     [Test]

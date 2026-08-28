@@ -45,7 +45,9 @@ public static class C2NetworkHealthProjector
         }
 
         var commsSnapshot = CommsStateProjection.Project(log);
-        var contacts = ContactPictureProjection.Project(log);
+        // Observer+contact keyed fold — ContactPictureProjection collapses by ContactId only and
+        // drops peer shares of the same dl-{targetId} track.
+        var contacts = ProjectContactsByObserver(log);
         var overrideMap = BuildOverrideMap(linkStatusOverrides);
 
         var mesh = DatalinkUnitPairFeed.BuildMesh(friendlyUnitIds, catalogLinks);
@@ -182,15 +184,16 @@ public static class C2NetworkHealthProjector
         IReadOnlyDictionary<(string From, string To), string> overrideMap,
         CommsState commsState)
     {
+        // Global denial wins over per-link overrides so callers cannot resurrect Up/live under Denied.
+        if (commsState == CommsState.Denied)
+        {
+            return DatalinkPictureProjection.StatusDown;
+        }
+
         var key = NormalizePair(edge.FromUnitId, edge.ToUnitId);
         if (overrideMap.TryGetValue(key, out var overrideStatus))
         {
             return overrideStatus;
-        }
-
-        if (commsState == CommsState.Denied)
-        {
-            return DatalinkPictureProjection.StatusDown;
         }
 
         if (commsState == CommsState.Degraded)
@@ -218,8 +221,10 @@ public static class C2NetworkHealthProjector
         {
             var status = ResolveEdgeStatus(edge, overrideMap, commsState);
             var health = MapStatusToLinkHealth(status);
-            var isLive = health == C2LinkHealth.Healthy;
-            var affected = CollectAffectedContributors(edge, health, partitionedUnits);
+            // Degraded remains live (peer shares still update); only Partitioned/Down loses capability.
+            var isLive = health != C2LinkHealth.Partitioned;
+            var affected = CollectAffectedContributors(
+                edge, health, partitionedUnits, edges, overrideMap, commsState);
             var staleness = ComputeLinkStaleness(edge, health, affected, contacts, currentSimTick);
 
             rows.Add(new C2NetworkLinkHealthEntry(
@@ -238,26 +243,58 @@ public static class C2NetworkHealthProjector
     private static IReadOnlyList<string> CollectAffectedContributors(
         DatalinkEdgeEntry edge,
         C2LinkHealth health,
-        HashSet<string> partitionedUnits)
+        HashSet<string> partitionedUnits,
+        IReadOnlyList<DatalinkEdgeEntry> allEdges,
+        IReadOnlyDictionary<(string From, string To), string> overrideMap,
+        CommsState commsState)
     {
-        if (health == C2LinkHealth.Healthy)
+        if (health != C2LinkHealth.Partitioned)
         {
             return Array.Empty<string>();
         }
 
-        var affected = new List<string>();
-        if (partitionedUnits.Contains(edge.ToUnitId))
-        {
-            affected.Add(edge.ToUnitId);
-        }
-
+        var seeds = new List<string>(2);
         if (partitionedUnits.Contains(edge.FromUnitId))
         {
-            affected.Add(edge.FromUnitId);
+            seeds.Add(edge.FromUnitId);
+        }
+
+        if (partitionedUnits.Contains(edge.ToUnitId))
+        {
+            seeds.Add(edge.ToUnitId);
+        }
+
+        if (seeds.Count == 0)
+        {
+            return Array.Empty<string>();
+        }
+
+        // Expand to the full disconnected component cut off by this edge (not only endpoints).
+        var affected = new HashSet<string>(seeds, StringComparer.Ordinal);
+        var changed = true;
+        while (changed)
+        {
+            changed = false;
+            foreach (var candidate in allEdges)
+            {
+                if (!IsTraversable(candidate, overrideMap, commsState))
+                {
+                    continue;
+                }
+
+                if (affected.Contains(candidate.FromUnitId) && affected.Add(candidate.ToUnitId))
+                {
+                    changed = true;
+                }
+
+                if (affected.Contains(candidate.ToUnitId) && affected.Add(candidate.FromUnitId))
+                {
+                    changed = true;
+                }
+            }
         }
 
         return affected
-            .Distinct(StringComparer.Ordinal)
             .OrderBy(id => id, StringComparer.Ordinal)
             .ToArray();
     }
@@ -269,7 +306,7 @@ public static class C2NetworkHealthProjector
         IReadOnlyList<ContactPictureEntry> contacts,
         ulong currentSimTick)
     {
-        if (health == C2LinkHealth.Healthy)
+        if (health != C2LinkHealth.Partitioned)
         {
             return 0;
         }
@@ -282,6 +319,8 @@ public static class C2NetworkHealthProjector
                 continue;
             }
 
+            // Prefer affected-contributor set when present so near-side endpoints do not
+            // mask far-side staleness after a partition.
             if (affectedContributorUnitIds.Count > 0)
             {
                 if (!affectedContributorUnitIds.Contains(contact.ObserverId))
@@ -303,7 +342,7 @@ public static class C2NetworkHealthProjector
 
         if (maxTick == 0 || currentSimTick <= maxTick)
         {
-            return health == C2LinkHealth.Partitioned ? 1UL : 0UL;
+            return 1UL;
         }
 
         return currentSimTick - maxTick;
@@ -315,8 +354,9 @@ public static class C2NetworkHealthProjector
         CommsState commsState,
         IReadOnlyList<C2NetworkLinkHealthEntry> links)
     {
+        // Degraded mesh stays live — do not freeze active dl-* shares as last-known.
         var hasNonLiveLink = commsState == CommsState.Denied
-            || links.Any(l => l.Health != C2LinkHealth.Healthy);
+            || links.Any(l => l.Health == C2LinkHealth.Partitioned);
 
         if (!hasNonLiveLink)
         {
@@ -332,10 +372,10 @@ public static class C2NetworkHealthProjector
                 continue;
             }
 
-            var isLive = commsState == CommsState.Nominal
+            // Reachable endpoints of a down edge stay live; only cut-off observers freeze.
+            var isLive = commsState != CommsState.Denied
                 && !partitionedUnits.Contains(contact.ObserverId)
-                && links.All(l => l.Health == C2LinkHealth.Healthy
-                    || !l.AffectedContributorUnitIds.Contains(contact.ObserverId));
+                && links.All(l => !l.AffectedContributorUnitIds.Contains(contact.ObserverId));
 
             if (isLive)
             {
@@ -452,4 +492,37 @@ public static class C2NetworkHealthProjector
 
     private static bool IsDatalinkSharedContact(ContactPictureEntry contact) =>
         contact.ContactId.StartsWith("dl-", StringComparison.Ordinal);
+
+    /// <summary>
+    /// Folds contact changes keyed by (ObserverId, ContactId) so each receiver keeps its own
+    /// <c>dl-*</c> share. Unlike <see cref="ContactPictureProjection"/>, peer observers are not collapsed.
+    /// </summary>
+    private static IReadOnlyList<ContactPictureEntry> ProjectContactsByObserver(DecisionLog log)
+    {
+        var tracks = new Dictionary<(string ObserverId, string ContactId), ContactPictureEntry>();
+        foreach (var change in log.ContactChanges
+                     .OrderBy(c => c.SimTick)
+                     .ThenBy(c => c.SequenceId))
+        {
+            var key = (change.ObserverId, change.ContactId);
+            if (string.Equals(change.NewState, "Lost", StringComparison.Ordinal))
+            {
+                tracks.Remove(key);
+                continue;
+            }
+
+            tracks[key] = new ContactPictureEntry(
+                change.ContactId,
+                change.TargetId,
+                change.ObserverId,
+                change.NewState,
+                change.SimTick,
+                change.SimTime);
+        }
+
+        return tracks.Values
+            .OrderBy(c => c.ObserverId, StringComparer.Ordinal)
+            .ThenBy(c => c.ContactId, StringComparer.Ordinal)
+            .ToArray();
+    }
 }
