@@ -1,9 +1,9 @@
 # Requirements Traceability Matrix (RTM)
 
-> **Last updated:** 2026-07-08 (corpus W4 complete)
-> **Scope:** Requirements docs **01–21** on disk (hub + Template A 01–12 + MVP slice 13–20 + **21 Platform Editor**); implementation grades in Game-Requirements tracker  
+> **Last updated:** 2026-09-02 (requirements audit remediation)
+> **Scope:** Requirements docs **01–22** on disk (hub + Template A 01–12 + MVP slice 13–20 + **21 Platform Editor** + **22 Drone Swarm**); implementation grades in Game-Requirements tracker  
 > **Coverage:** Headless chain GDD → ADR → code → test (see [architecture-review-2026-06-02.md](architecture-review-2026-06-02.md))  
-> **Gates (current):** solution tests ≥1232; ReplayGolden 6/6; PlayModeSmoke 18/18; hash `17144800277401907079` — supersedes historical 403/7 baselines in older closeout notes below
+> **Gates (current):** solution tests ≥1638; ReplayGolden 6/6; PlayModeSmoke ≥20/20; hash `17144800277401907079` — supersedes historical 403/7 and ≥1232 / 18/18 baselines in older closeout notes below
 
 ## How to read
 
@@ -96,7 +96,7 @@ Hub **[FR-19](../../Game-Requirements/requirements/01-Project-Overview.md)** —
 
 **Maturity** = requirement document completeness (Template A/B). **GDD** = separate game design doc under `design/gdd/` per Agentic-Development-Plan follow-on.
 
-> **Sprint 11–15 program closeout (2026-06-08) — historical only:** Requirements maturity track + Wave 5 implementation closed at that date with baseline `dotnet test ProjectAegis.sln` → **403/403 PASS** and PlayMode smoke **7/7**. Those floors are **not current**. Use the **Gates (current)** line in this file’s header (≥1232 / ReplayGolden 6/6 / PlayModeSmoke 18/18 / hash `17144800277401907079`). Tracker rows 14/16/19/20 were Partial+ with automated AC at closeout. Evidence: [post-mvp-requirements-program.md](../../production/milestones/post-mvp-requirements-program.md), [smoke-2026-06-08.md](../../production/qa/smoke-2026-06-08.md).
+> **Sprint 11–15 program closeout (2026-06-08) — historical only:** Requirements maturity track + Wave 5 implementation closed at that date with baseline `dotnet test ProjectAegis.sln` → **403/403 PASS** and PlayMode smoke **7/7**. Those floors are **not current**. Use the **Gates (current)** line in this file’s header (≥1638 / ReplayGolden 6/6 / PlayModeSmoke ≥20/20 / hash `17144800277401907079`). Tracker rows 14/16/19/20 were Partial+ with automated AC at closeout. Evidence: [post-mvp-requirements-program.md](../../production/milestones/post-mvp-requirements-program.md), [smoke-2026-06-08.md](../../production/qa/smoke-2026-06-08.md).
 
 ## Uncovered (post-MVP)
 

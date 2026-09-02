@@ -142,6 +142,10 @@ Every database field must support optional provenance metadata:
 - [ ] **DBI-6.3** `ReviewState` ∈ {`approved`, `provisional`, `rejected`} (`CatalogReviewStates`); rejected rows do not export to sim.
 - [ ] **DBI-6.4** TRL and TL routing metadata present on bindings used by docs 09/10 gates (`CatalogArchetypeGate`, `NearFutureArchetypeCatalog`).
 - [ ] **DBI-6.5** Agent-proposed values from doc 05 remain `interpreted_value` or `gameplay_abstraction` until human reviewer sets `approved`.
+- [ ] **DBI-GOV-1** Snapshot `content_hash_sha256` is non-empty for every release-bound snapshot (fail-closed on new `RecordRelease`; seed/legacy DBs audited via `CatalogGovernanceIntegrity`).
+- [ ] **DBI-GOV-2** `catalog_change_log` records attributable rows for approve/import commits (not inert empty table on production catalogs).
+- [ ] **DBI-GOV-3** Schema watermark coherent: `PRAGMA user_version`, `db_release.schema_version`, and migration head agree (no silent drift).
+- [ ] **DBI-GOV-4** Rows with `review_state = approved` carry non-empty `reviewer_id` (citation when policy requires).
 
 ### 7. Schema-Aware Editing & Constraint Rules *(new)*
 
@@ -261,9 +265,10 @@ Columns: **Area | Path / type | Status | Evidence**. Status vocabulary: Shipped 
 | Public dual-track community intake | Issue-only public channel + internal curation triage (process) | **Phase N** / process | Dual-Track § above; not a shipped product API |
 | Scenario validation engine extensions | `Validation/ScenarioValidationEngine`, export gate, migration preview (doc 11) | **Partial** (editor program) | Active scenario editor train (req 11 / S81–S88); Baltic fixtures bind `dbRef` |
 | Read API | `ICatalogReader`, `SqliteCatalogReader`, `InMemoryCatalogReader`, `CatalogReaderFactory` | **Shipped** | Sorted bindings; `TryResolveDbRef`, `TryGetCombatRadiusNm`, `TryGetPlatformPosition` |
-| Snapshots / release train rows | `Snapshots/DbSnapshotStore`, `DbReleaseRecord`, `CatalogValidationDefaults` | **Shipped** | `catalog_snapshot`, `db_release`; immutable `snapshotId` |
+| Snapshots / release train rows | `Snapshots/DbSnapshotStore`, `DbReleaseRecord`, `CatalogValidationDefaults` | **Partial+** | Approve paths record hash (`DbSnapshotBindingTests`); **seed `baltic_patrol.db` may still carry empty hash — DBI-GOV-1** |
 | Import / seed | `Import/CatalogJsonImporter`, `CatalogBulkImporter`, `CatalogImportGate`, `CatalogSeedBootstrap` | **Shipped** | JSON drop → SQLite; review states on import |
-| Provenance | `CatalogProvenanceTier`, `CatalogSensorBinding`, `CatalogChangeLogEntry` | **Shipped** (sensor-row P0) | Tiers + citation/confidence/reviewer; per-entity-type provenance still post-P0 |
+| Provenance | `CatalogProvenanceTier`, `CatalogSensorBinding`, `CatalogChangeLogEntry` | **Partial** | Schema + sensor-row P0 shipped; **change-log / reviewer / watermark residuals — DBI-GOV-2…4** |
+| Governance integrity (read-only audit) | `Snapshots/CatalogGovernanceIntegrity` | **Partial / Shipped** | Fail-closed findings for empty hash, inert change-log, schema watermark drift, blank reviewer on approved rows |
 | Platform Editor (write-gate consumer) | `Platform/PlatformWorkbookImporter` (+ exporter path per [21](21-Platform-Editor.md), ADR-011) | **Partial+** (doc 21) | Excel round-trip stages **only** via multi `Propose*Batch` / `ApproveBatch` — never bypasses this layer |
 | Near-future gates | `NearFutureArchetypeCatalog`, `CatalogArchetypeGate`, `SwarmTier`, `CatalogArchetypeBinding` | **Shipped Partial** | TL/archetype routing for docs 09/10 |
 | Quarantine | `CatalogQuarantinePromoter`, `QuarantinedCatalogBinding` | **Shipped** | Failed import/review isolation |

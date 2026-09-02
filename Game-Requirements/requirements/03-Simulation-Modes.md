@@ -92,7 +92,7 @@ A single, unified simulation engine that can operate across the full spectrum of
 | AttachReplayViewer / spectator-as-flag | `AttachReplayViewer` | Shipped | `DelegationBridgeTests` / observer tests |
 | Headless batch AvA | `BalticReplayHarness`, `BalticBatchRunner` | Partial+ | ReplayGolden |
 | Mode UI on C2 top bar | UI Toolkit hosts | Partial | tracker next stack |
-| Full DOTS host scale | Unity DOTS world | Phase N | ADR-005 dual-track |
+| Full DOTS host scale (superseded) | — | **Phase N / closed** | ADR-005 **Superseded** — managed headless-first; no DOTS world-store |
 
 ## Non-Functional Requirements
 
@@ -111,7 +111,7 @@ A single, unified simulation engine that can operate across the full spectrum of
 
 ## Technical Considerations
 
-- **Headless-first:** .NET 8 `ProjectAegis.Sim` + `ProjectAegis.Delegation` core with optional Unity presentation ([ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md)); **DOTS host scale is Partial** ([ADR-005](../../docs/architecture/adr-005-dots-sim-core.md) dual-track)
+- **Headless-first:** .NET 8 `ProjectAegis.Sim` + `ProjectAegis.Delegation` core with optional Unity presentation ([ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md)); **DOTS world-store superseded** ([ADR-005](../../docs/architecture/adr-005-dots-sim-core.md) — managed single track)
 - Time compression handled at the simulation core level
 - Separate rendering and simulation threads for maximum headless performance
 - State serialization optimized for both interactive and batch use cases

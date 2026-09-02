@@ -1,11 +1,11 @@
 # Game Requirements — Master Index
 
 **Project:** Project Aegis — near-future hardcore military simulation (CMO-style, agentic)  
-**Last Updated:** 2026-08-09  
+**Last Updated:** 2026-09-02  
 **Canonical index:** [Game-Requirements/Game-Requirements-Index.md](Game-Requirements/Game-Requirements-Index.md) — **source of truth** for the requirements corpus  
-**Implementation status:** [Game-Requirements/implementation-tracker-2026-07-04.md](Game-Requirements/implementation-tracker-2026-07-04.md)
+**Implementation status:** [Game-Requirements/implementation-tracker-2026-09-02.md](Game-Requirements/implementation-tracker-2026-09-02.md)
 
-**Program note:** **Corpus maturity W0–W4 complete (2026-07-08)**. Scenario editor (req 11) is the **active code train** (S81–S88). Use the canonical GR index above for reading order, status stamps, and workflow; this root file is a redirect + quick table.
+**Program note:** **Requirements audit remediation 2026-09-02** (hub floors, ADR-005, CMD-31…39, DBI-GOV). Prior corpus maturity W0–W4 complete (2026-07-08). Use the canonical GR index above for reading order, status stamps, and workflow; this root file is a redirect + quick table.
 
 > The May 28 index listed only docs 01–10. Requirements **11–21** (simulation, C2, combat, authoring) live under `Game-Requirements/requirements/` and are indexed in the canonical file above.
 

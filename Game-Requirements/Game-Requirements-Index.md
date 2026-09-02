@@ -1,12 +1,12 @@
 # Game Requirements - Master Index
 
-**Last Updated:** 2026-08-09
+**Last Updated:** 2026-09-02
 
-**Program note:** **Corpus maturity W0–W4 complete (2026-07-08)** — hub + drafts 13–21 honesty re-baselined; design: `docs/superpowers/specs/2026-07-08-requirements-corpus-maturity-design.md`. Scenario editor (req 11): **S81–S88 headless engineering complete on trunk**; active completion epic **`scenario-editor-completion`** (SE-W1 honesty → SE-W2 AC-8 → SE-W3 gate). Plan: `docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md`. Status: `production/agentic/se-w0-status-truth-2026-07-08.md`. Post-MVP Requirements Program (Sprints 11–15) complete for docs 01–12 Template A. Doc 21 Platform Editor is first-class under Authoring.
+**Program note:** **Requirements audit remediation (2026-09-02)** — hub floors ≥1638 / PlayModeSmoke ≥20/20; ADR-005 Superseded in architecture hub; req 20 CMD-31…39; doc 06 DBI-GOV residuals. Prior **Corpus maturity W0–W4 complete (2026-07-08)**. Consistency: `docs/reports/requirements-consistency-2026-09-02.md`.
 
 ## Implementation
 
-- [Implementation tracker (MVP status 01–21)](implementation-tracker-2026-07-04.md) — **2026-07-04** (supersedes [2026-07-01](implementation-tracker-2026-07-01.md))
+- [Implementation tracker (MVP status 01–22)](implementation-tracker-2026-09-02.md) — **2026-09-02** (supersedes [2026-07-04](implementation-tracker-2026-07-04.md))
 - [Root master index](../00-Master-Index.md) — redirects here + tracker
 - [Data population (CMAO DB)](Data-Population-CMAODB.md)
 
@@ -94,7 +94,7 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 
 - **H8 Drone Swarm Platforms (doc 22):** Phase A–C + PE residual **landed** (DRG-83 Done); Phase N SWARM-27…30 **post-release deferred** ([DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) 2026-08-09)
 - **REQ-09/10 Phase N:** Owner decision recorded — no Phase N GDDs/runtime until product re-opens Phase N (`production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md`)
-- **Corpus maturity program closed** (W0–W4 complete 2026-07-08); no further corpus waves
+- **Corpus maturity program** W0–W4 complete (2026-07-08); **audit remediation 2026-09-02** landed (floors, ADR-005, CMD-31…39, DBI-GOV)
 - **Scenario editor completion** (req 11): SE-W1 doc honesty + residual tools; SE-W2 Unity AC-8 productionize; SE-W3 gate — plan [2026-07-08-scenario-editor-completion-plan.md](../docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md); roadmap [future-sprint-roadpmap-07042026.md](../docs/reports/future-sprint-roadpmap-07042026.md)
 - Run `/design-review` when mechanics change on **01, 04, 06–11, 13–22**
 - Run `/military-requirements-impact` before DB schema for JADC2, C-UAS, hypersonic defense

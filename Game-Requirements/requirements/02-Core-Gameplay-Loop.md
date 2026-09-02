@@ -135,7 +135,7 @@ Mission editor (req 11) is the preferred authoring surface; exported scenarios m
 | Phase gate / Begin Execution | `DelegationOrchestrator.Phase`, `SimulationSession` | Shipped | `SimulationSessionPhaseTests`, `C2TopBarBeginExecutionTests` |
 | Loop policy (personality edit / player info) | `LoopPolicyGate`, `ScenarioPolicyProfile` | Shipped | `LoopPolicyGateTests`, `PlayerInfoFilterTests` |
 | Order log / deterministic replay | order log + goldens | Shipped (Partial UI) | ReplayGolden 6/6; doc 17 |
-| C2 planning chrome | UI Toolkit hosts | Partial | PlayModeSmoke 18/18; tracker: Begin Execution UX polish |
+| C2 planning chrome | UI Toolkit hosts | Partial | PlayModeSmoke ≥20/20; tracker: Begin Execution UX polish |
 | Phase 1 force composition / Phase 4 AI AAR heatmaps / Phase 5 balance feedback | — | Phase N / Partial narrative | Not full C2 product surfaces |
 
 ## Non-Functional Requirements

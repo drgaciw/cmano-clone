@@ -277,7 +277,7 @@ All charter questions for agentic architecture are **locked** for Sprint 15 desi
 | **Data — scenario** | `ProjectAegis.Data` · `Scenario/`, `Validation/` | `ScenarioDocumentDto`, `ScenarioValidationEngine`, `ValidationReport`, `ReachabilityCalculator` | Shipped (P0); editor program active (ADR-008) |
 | **Automation CLI (runtime product)** | `ProjectAegis.MissionEditor.Cli` · Baltic batch | `ScenarioValidationExportGate`, `CatalogIntelligenceRunCommand`, `BalticBatchRunner` | CLI primary; MCP host optional/partial |
 | **Studio process docs** | `production/agentic/` | Sprint/agent routing docs | **Not** product success criteria (doc 07 studio split) |
-| **Unity presentation** | `unity/ProjectAegis/Assets/Scripts/Runtime/` (**Unity 6.3 LTS**) | `C2PresentationController`, `DelegationBridgeHost`, `RightUnitPanelHost` | Partial (smoke 18/18; map polish open) |
+| **Unity presentation** | `unity/ProjectAegis/Assets/Scripts/Runtime/` (**Unity 6.3 LTS**) | `C2PresentationController`, `DelegationBridgeHost`, `RightUnitPanelHost` | Partial (smoke ≥20/20; map polish open) |
 
 **Default scenario policy path:** `data/scenarios/baltic-patrol.policy.json` (and variants) via `ScenarioPolicyRepository`.
 

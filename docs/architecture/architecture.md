@@ -1,13 +1,13 @@
 # Project Aegis — Master Architecture
 
 > **Status:** Living draft — **Release hold** (post-S93 / post-gauntlet; adequate for Release engineering; Launch **not** cleared)  
-> **Last Updated:** 2026-07-15  
+> **Last Updated:** 2026-09-02  
 > **Stage:** **Release** (`production/stage.txt`) — Launch not advanced  
 > **Closed through:** S81–S88 SE + ME P2 + PE complete; S89–S95 Release continuity through gauntlet productization  
 > **Verification floor:** suite **≥1638/0f**; Baltic hash **`17144800277401907079`** (immutable unless golden ADR)  
 > **Architecture authority:** `architecture-review-post-s93-2026-07-14.md` — ⚠️ **not resolvable from `main`**: it exists only on the unmerged draft branch `stack/post-editor/s93-asset-production` (PR #324, commit `805070e`). Until that PR merges, the operative authority is [architecture-re-matrix-post-s93-s96-2026-07-15.md](architecture-re-matrix-post-s93-s96-2026-07-15.md). See [DRG-41 gate](../../production/gate-checks/architecture-concerns-gate-2026-07-24.md).  
-> **Engine:** Unity 6.3 LTS (6000.3.14f1) + C# / .NET 8 + DOTS/ECS — [Unity VERSION](../engine-reference/unity/VERSION.md), [.NET / Learn](../engine-reference/dotnet/README.md)  
-> **GitNexus repo:** `cmano-clone` (~**25,311** symbols / **48,462** edges @ recent index `257d9e9`; re-analyze @ HEAD if stale)
+> **Engine:** Unity 6.3 LTS + C# / .NET 8 — **managed headless-first** world state (ADR-005 DOTS/ECS **Superseded** 2026-07-07) — [Unity VERSION](../engine-reference/unity/VERSION.md), [.NET / Learn](../engine-reference/dotnet/README.md)  
+> **GitNexus repo:** `cmano-clone` (~**43,975** symbols / **87,091** edges @ HEAD `103a5756`; re-analyze if stale)
 
 ## Purpose
 
@@ -193,7 +193,7 @@ Full matrix: expand as each GDD is approved (`/create-architecture` continuation
 | [ADR-002](adr-002-policy-evaluator.md) | IPolicyEvaluator replaces IRoeFilter | **Accepted** |
 | [ADR-003](adr-003-order-log-schema.md) | Unified order log schema | **Accepted** |
 | [ADR-004](adr-004-tick-pipeline-order.md) | Deterministic tick pipeline ordering | **Accepted** |
-| [ADR-005](adr-005-dots-sim-core.md) | DOTS/ECS for world state | **Accepted** |
+| [ADR-005](adr-005-dots-sim-core.md) | DOTS/ECS for world state | **Superseded** (2026-07-07 — managed headless-first) |
 | [ADR-006](adr-006-data-layer-boundary.md) | ProjectAegis.Data boundary, snapshots, write gate | **Accepted** |
 | [ADR-007](adr-007-c2-map-presentation.md) | C2 map presentation (phased globe) | **Accepted** |
 | [ADR-008](adr-008-mission-editor-validation-engine.md) | Mission editor deterministic validation | **Accepted** |
@@ -202,7 +202,7 @@ Full matrix: expand as each GDD is approved (`/create-architecture` continuation
 
 ## Engine Note
 
-`/setup-engine` should pin Unity version under `docs/engine-reference/unity/` before implementation. Architecture assumes DOTS/Burst for sensor/engage hot paths per doc 08.
+`/setup-engine` should pin Unity version under `docs/engine-reference/unity/` before implementation. Architecture assumes **managed** sensor/engage hot paths in `ProjectAegis.Sim` (ADR-005 DOTS world-store superseded; see doc 08 §4).
 
 ## Traceability
 

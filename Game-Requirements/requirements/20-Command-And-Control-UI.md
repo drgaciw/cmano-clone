@@ -1,9 +1,9 @@
 # 20 - Command and Control User Interface
 
-**Last Updated:** 2026-07-26 (CMD-16…CMD-26 landed from CMO reference-product analysis)  
-**Status:** Draft — Template B (Wave 2 re-honesty)  
+**Last Updated:** 2026-09-02 (requirements audit remediation — CMD-31…39 + gate floors)  
+**Status:** Draft — Template B (Wave 2 re-honesty + August UI Maturity)  
 **CMO basis:** Manual Ch 3–4, §6.2–7, §6.9, §1.3 multitaskers, §10.1 keyboard  
-**Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md), [03](03-Simulation-Modes.md), [04](04-Agent-Delegation.md), [11](11-Agentic-Mission-Editor.md), [12](12-Terms-Glossary.md), [13](13-Doctrine-ROE-EMCON-WRA.md)–[17](17-Replay-AAR-And-Order-Log.md), [19](19-Cyber-And-Comms.md) · [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md)  
+**Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md), [03](03-Simulation-Modes.md), [04](04-Agent-Delegation.md), [11](11-Agentic-Mission-Editor.md), [12](12-Terms-Glossary.md), [13](13-Doctrine-ROE-EMCON-WRA.md)–[17](17-Replay-AAR-And-Order-Log.md), [19](19-Cyber-And-Comms.md) · [implementation tracker 2026-09-02](../implementation-tracker-2026-09-02.md)  
 **Architecture (normative):** [ADR-010 Headless-First / Command-Driven UI](../../docs/architecture/adr-010-headless-first-command-driven-ui.md) · [ADR-007 C2 Map Presentation](../../docs/architecture/adr-007-c2-map-presentation.md)
 
 ## Purpose
@@ -45,7 +45,7 @@ The UI is a **command post**, not a game HUD. It must support long sessions, den
 
 ## Layout Zones (Information Architecture)
 
-**Persistent zones** — layout chrome is **Partial / Shipped** (UI Toolkit hosts + PlayModeSmoke 18/18). Do not demote zone presence; polish and product map fidelity remain open.
+**Persistent zones** — layout chrome is **Partial / Shipped** (UI Toolkit hosts + PlayModeSmoke ≥20/20). Do not demote zone presence; polish and product map fidelity remain open.
 
 | Zone | Content | Status |
 |------|---------|--------|
@@ -54,7 +54,7 @@ The UI is a **command post**, not a game HUD. It must support long sessions, den
 | **Right panel** | Selected unit/group: status, sensors, weapons, fuel, doctrine | **Partial / Shipped** (`RightUnitPanelHost`, `DoctrineInheritancePanelHost`) |
 | **Bottom strip** | Message log (subset of doc 17) | **Partial / Shipped** (`MessageLogPanelHost`) |
 | **Left drawer** | OOB tree, mission list, contact list (tabbed) | **Partial / Shipped** (`C2LeftDrawerPanelHost`, related hosts) |
-| **Order toolbar** | Persistent unit-order verbs for the current selection (CMD-16) | **Open** — no host; order verbs reachable only via context menu |
+| **Order toolbar** | Persistent unit-order verbs for the current selection (CMD-16) | **Partial / Shipped** — `UnitOrderToolbarHost` (S108-A) |
 
 **Phase N / Deferred:** detachable multitasker windows and ultrawide multi-bookmark layouts (§1.3).
 
@@ -77,21 +77,30 @@ The UI is a **command post**, not a game HUD. It must support long sessions, den
 | **CMD-13** | Product WGS84 globe + APP-6 LOD at theater scale | **Phase N / Deferred** (ADR-007 B/C; hub **OV-SC-N1**) |
 | **CMD-14** | Multitasker bookmarks / multi-monitor detachable chrome | **Phase N / Deferred** |
 | **CMD-15** | 5,000 symbols @ 60 FPS interactive map performance | **Phase N / Deferred** (hub **OV-SC-N1** — north-star, not CI gate) |
-| **CMD-16** | Persistent unit-order toolbar (order verbs available without right-click) | **P1** — **Open** |
-| **CMD-17** | Unknown-due-to-comms as a first-class display state, naming the cause | **P0** — **Open** (sim models degradation per doc 19; UI has no representation) |
-| **CMD-18** | Domain-appropriate discrete alt/depth/throttle presets as named commands | **P1** — **Open** |
-| **CMD-19** | Per-axis manual/auto delegation control and mode readout | **P0** — **Open** (implies projection change; see ADR-010 note) |
-| **CMD-20** | Map distance scale (nm) + camera altitude readout | **P0** — **Open** |
-| **CMD-21** | Selected-unit sensor/weapon envelope rings | **P0** — **Open** (**Phase A baseline**, *not* the Phase N EW overlay product) |
-| **CMD-22** | Top bar: scenario date, Zulu, local, remaining duration | **P1** — **Open** |
-| **CMD-23** | Collapsible non-primary zones with persisted state | **P2** — **Open** |
-| **CMD-24** | Air Operations window (readiness, loadout feasibility, tasking) | **P1** — **Partial / Phase N**, gated by doc 16 **LOG-08** |
+| **CMD-16** | Persistent unit-order toolbar (order verbs available without right-click) | **Partial / Shipped** — `UnitOrderToolbarHost` (S108-A) |
+| **CMD-17** | Unknown-due-to-comms as a first-class display state, naming the cause | **Partial / Shipped** — `UnitCommsDisplay` (S108-C); polish open |
+| **CMD-18** | Domain-appropriate discrete alt/depth/throttle presets as named commands | **Partial / Shipped** — `AxisControlProjection` (UI Maturity Waves 3–6) |
+| **CMD-19** | Per-axis manual/auto delegation control and mode readout | **Partial** — projection partial; full product polish open |
+| **CMD-20** | Map distance scale (nm) + camera altitude readout | **Partial / Shipped** — `MapScaleProjection` |
+| **CMD-21** | Selected-unit sensor/weapon envelope rings | **Partial / Shipped** — `TacticalOverlayProjection` / `CatalogEnvelopeRangeResolver` (S108-B); pairs **CMD-34** |
+| **CMD-22** | Top bar: scenario date, Zulu, local, remaining duration | **Partial / Shipped** — top-bar chrome waves |
+| **CMD-23** | Collapsible non-primary zones with persisted state | **Partial / Shipped** — chrome waves |
+| **CMD-24** | Air Operations window (readiness, loadout feasibility, tasking) | **Partial** — hosts landed; still gated by doc 16 **LOG-08** for full FSM |
 | **CMD-25** | Boat Operations window (embarked craft, launch/recovery, tasking) | **P2** — **Phase N**, gated by doc 16 **LOG-09…11** |
-| **CMD-26** | Ground Operations window, **brigade+ formations only** | **P2** — **Open (partial scope)**; battalion depth **out of charter** per doc 01 |
-| **CMD-27** | Scenario library: browse, preview, pre-load feasibility, campaigns | **P0** — **Open** (Phase 1 of the doc 02 loop; specified nowhere) |
-| **CMD-28** | Menu system, basemap layer stack, view tools, shortcut discovery | **P1** — **Open** (no menu bar specified; no layer model exists) |
-| **CMD-29** | Contact detail panel, distinct from the own-unit panel | **P0** — **Open** (projections shipped; specification absent) |
-| **CMD-30** | Tactical overlay control (range symbology, vectors, datalinks, legends) | **P1** — **Open**; distinct stack from CMD-28.2 basemap layers |
+| **CMD-26** | Ground Operations window, **brigade+ formations only** | **Partial** — `GroundOpsProjection`; battalion depth **out of charter** |
+| **CMD-27** | Scenario library: browse, preview, pre-load feasibility, campaigns | **Partial / Shipped** — library hosts / projections |
+| **CMD-28** | Menu system, basemap layer stack, view tools, shortcut discovery | **Partial / Shipped** — menu/basemap waves |
+| **CMD-29** | Contact detail panel, distinct from the own-unit panel | **Partial / Shipped** — `ContactDetailPanelHost` |
+| **CMD-30** | Tactical overlay control (range symbology, vectors, datalinks, legends) | **Partial / Shipped** — overlay stack; deepen with **CMD-32…34** |
+| **CMD-31** | Player command issuance (validated Hold / Plot / EMCON / sensors → order log) | **Partial / Shipped** — `C2CommandIssuance`, `C2PlayerCommandBridge` (S108 / S120) |
+| **CMD-32** | Datalink mesh overlay (unit-pair picture, not basemap layers) | **Partial / Shipped** — `DatalinkPictureProjection` (S108 / S121) |
+| **CMD-33** | Doctrine map overlay (effective ROE/EMCON regions on map) | **Partial / Shipped** — `DoctrineMapOverlayProjection` (UI Maturity Wave 2) |
+| **CMD-34** | Catalog envelope ranges / tactical rings control surface | **Partial / Shipped** — `TacticalOverlayProjection`, `CatalogEnvelopeRangeResolver` (extends CMD-21) |
+| **CMD-35** | Live editing contract (validation report → panel apply state; ADR-010 commands out) | **Partial / Shipped** — `LiveEditApplyState`, `LiveEditPanelHost` (Wave 2) |
+| **CMD-36** | Panel-bind performance budget (&lt;100 ms headless bind bench) | **Partial / Shipped** — `production/perf/c2-panel-bind-bench-wave2-2026-08-01.md` |
+| **CMD-37** | Agent roster + directive issuance surface | **Partial / Shipped** — `AgentRosterProjection`, `AgentDirectiveIssuance`, `AgentRosterPanelHost` (S108-D) |
+| **CMD-38** | Kinematic map picture (pose/course consume; hash placement residual until sim publishes coords) | **Partial / Shipped** — `UnitKinematicPose`, `PlayModeKinematicMover`, `MapCourseOverlayEntry` (2026-08-17 Track B) |
+| **CMD-39** | Attention toast + clock interrupt (tier alert → toast; pause/compression via top bar) | **Partial / Shipped** — `AttentionToastApplyState`, `C2ClockCommand`, `AttentionToastPanelHost` (2026-08-17 Track A) |
 
 
 ## Amendment — Drone swarm platforms (doc 22 / 2026-08-09)
@@ -465,7 +474,12 @@ Per genre conventions (`docs/military-simulation/genre-conventions-reference.md`
 | Left drawer / OOB | `C2LeftDrawerPanelHost`, `OobTreePanelHost`, mission/contact hosts | **Partial / Shipped** | PlayModeSmoke |
 | Right unit detail | `RightUnitPanelHost` | **Partial / Shipped** | PlayModeSmoke |
 | Sensor / COMMS C2 strip | `SensorC2PanelHost`, related bridges | **Partial / Shipped** | SensorC2 / C2Comms tests |
-| C2 proxy gate | `PlayModeSmokeHarnessTests` | **Shipped** | **18/18** |
+| C2 proxy gate | `PlayModeSmokeHarnessTests` | **Shipped** | **≥20/20** |
+| Player command issuance (CMD-31) | `C2CommandIssuance`, `C2PlayerCommandBridge` | **Partial / Shipped** | S108 / S120; bridge tests |
+| Datalink / doctrine / tactical overlays (CMD-32…34) | `DatalinkPictureProjection`, `DoctrineMapOverlayProjection`, `TacticalOverlayProjection` | **Partial / Shipped** | UI Maturity / S121 |
+| Live edit + agent roster (CMD-35, 37) | `LiveEditApplyState`, `AgentRosterProjection` | **Partial / Shipped** | Wave 2 / S108-D |
+| Panel bind perf (CMD-36) | headless bind bench | **Partial / Shipped** | `production/perf/c2-panel-bind-bench-wave2-2026-08-01.md` |
+| Kinematic picture + attention toast (CMD-38, 39) | `UnitKinematicPose`, `C2ClockCommand`, `AttentionToast*` | **Partial / Shipped** | 2026-08-17 Track A/B |
 | Cesium / globe Phase B | Cesium bridge / host (where present) | **Partial** | ADR-007 Phase B; not full product globe |
 | Product multitasker / 5k@60 | — | **Phase N / Deferred** | Hub **OV-SC-N1** |
 
@@ -493,8 +507,8 @@ Per genre conventions (`docs/military-simulation/genre-conventions-reference.md`
 
 | Phase | Scope | Honesty |
 |-------|--------|---------|
-| **MVP / shipped chrome** | Layout zones, OOB, contacts, unit panel, message log, top bar, delegation badges (proxy), UI Toolkit hosts | **Partial / Shipped** — PlayModeSmoke **18/18** |
-| **Phase 2** | Mission drawer polish, keyboard shortcuts, overlays, doctrine/engage explain UX, **CMD-16…23** (order toolbar, comms-unknown state, per-axis autonomy, map scale + envelope rings, time disambiguation, collapsible zones) | **Partial / open** |
+| **MVP / shipped chrome** | Layout zones, OOB, contacts, unit panel, message log, top bar, delegation badges (proxy), UI Toolkit hosts | **Partial / Shipped** — PlayModeSmoke **≥20/20** |
+| **Phase 2 / August UI Maturity** | **CMD-16…39** headless C2 (toolbar, overlays, live edit, roster, kinematics, attention toast) | **Partial / Shipped** — closeouts S108 + Waves 2–6; product polish open |
 | **Phase 3 / N** | Product Cesium globe, APP-6 LOD, custom overlays, multitasker, Tacview hook UI, full accessibility audit, 5k@60 | **Phase N / Deferred** |
 
 ## Open Questions

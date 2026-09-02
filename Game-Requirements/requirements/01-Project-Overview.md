@@ -97,9 +97,9 @@ These are the **operational** success criteria for the vertical slice. Evidence 
 
 | ID | Criterion | Tag | Evidence |
 |----|-----------|-----|----------|
-| OV-SC-G1 | Full solution tests meet monotonic floor **≥1232** with 0 gate failures (known UA exclusions documented in AGENTS.md) | **Measured** | `dotnet test ProjectAegis.sln`; AGENTS.md |
+| OV-SC-G1 | Full solution tests meet monotonic floor **≥1638** with 0 gate failures | **Measured** | `dotnet test ProjectAegis.sln`; AGENTS.md |
 | OV-SC-G2 | Baltic v2 ReplayGolden **6/6**; production hash **`17144800277401907079`** preserved | **Measured** | `tests/regression/`; AGENTS.md hash grep |
-| OV-SC-G3 | PlayModeSmokeHarness **18/18** | **Measured** | UnityAdapter filter `PlayModeSmokeHarnessTests` |
+| OV-SC-G3 | PlayModeSmokeHarness **≥20/20** | **Measured** | UnityAdapter filter `PlayModeSmokeHarnessTests` |
 | OV-SC-G4 | Clean-room: no proprietary CMO DB/scenarios/code committed | **Proxy** | Process + review; Goal 5 |
 | OV-SC-G5 | Capability map FR-01…FR-19 each has a primary requirement doc on disk | **Measured** | Related Index + `ls Game-Requirements/requirements/` |
 
@@ -160,7 +160,7 @@ High-level capabilities delivered across the requirements corpus (details in lin
 - **Headless execution:** .NET 8 test harness and batch AvA without Unity Editor ([03](03-Simulation-Modes.md), [ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md))
 - **Clean-room:** no CMO proprietary DB/code; pattern reuse only (see Core Project Goals §5)
 - **Performance:** 5,000+ entities at 60+ FPS on recommended spec; ≥256× headless AvA floor, 1000×+ target ([03](03-Simulation-Modes.md))
-- **Reference hardware (v1 targets):** the sim is CPU-bound (DOTS/ECS); GPU demands are modest for a map-centric presentation
+- **Reference hardware (v1 targets):** the sim is CPU-bound (managed headless-first `ProjectAegis.Sim`; ADR-005 DOTS world-store superseded); GPU demands are modest for a map-centric presentation
   - *Minimum (PC):* 6-core CPU (Ryzen 5 5600 / Core i5-12400 class), 16 GB RAM, GTX 1660 / RX 5600-class GPU, SSD — reference Baltic scenario at 30+ FPS
   - *Recommended (PC):* 8-core CPU (Ryzen 7 7700 / Core i7-13700 class), 32 GB RAM, RTX 3060-class GPU — 5,000+ entities at 60+ FPS
   - *Headless AvA node:* 8 vCPU / 16 GB Linux container — ≥256× effective speed on the reference Baltic scenario
@@ -176,10 +176,10 @@ These are load-bearing production constraints (see AGENTS.md). Charter-level; do
 
 | Invariant | Rule |
 |-----------|------|
-| Test floor | Solution tests **≥1232**, 0 gate failures (monotonic; known UA exclusions documented) |
+| Test floor | Solution tests **≥1638**, 0 gate failures (monotonic) |
 | Replay hash | Production Baltic v2 hash **`17144800277401907079`** preserved unless golden ADR |
 | ReplayGolden | **6/6** v2 suite green |
-| C2 smoke | PlayModeSmokeHarness **18/18** |
+| C2 smoke | PlayModeSmokeHarness **≥20/20** |
 | DelegationBridge | **Zero-touch** on hotpath through Release v1 |
 | CatalogWriteGate | **Extend-only** write paths |
 | Baltic v3 isolation | `baltic-v3-*` policies/goldens independent of v2 |
