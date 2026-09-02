@@ -8,6 +8,13 @@
 #   review         ↔  In Review
 #   done           ↔  Complete
 #   blocked        ↔  Blocked
+#
+# NOTE (Audit 2026-09-02): This file is STALE / HISTORICAL (last automated cadence ~S104).
+# For live sprint status, roadmaps, and gate verifications, see:
+#   - Canonical Roadmap: docs/reports/future-sprint-roadpmap.md (stable alias)
+#   - QA Plans & Closeouts: production/qa/
+#   - Test Floors & Standing Invariants: AGENTS.md §Hard Invariants
+
 
 sprint: 1
 goal: "Close content + plan + replay gaps while headless sensor/engage spine stays green."

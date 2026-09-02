@@ -1,7 +1,7 @@
 # 03 - Simulation Modes
 
 **Last Updated:** 2026-07-08  
-**Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md), [04](04-Agent-Delegation.md), 13, 17, 19, 20 · [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md)  
+**Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md), [04](04-Agent-Delegation.md), 13, 17, 19, 20 · [implementation tracker 2026-07-04](../implementation-tracker.md)  
 **Status:** Locked  
 **Locked spec:** [2026-05-30-simulation-modes-decisions-design.md](../../docs/superpowers/specs/2026-05-30-simulation-modes-decisions-design.md)
 
@@ -92,7 +92,7 @@ A single, unified simulation engine that can operate across the full spectrum of
 | AttachReplayViewer / spectator-as-flag | `AttachReplayViewer` | Shipped | `DelegationBridgeTests` / observer tests |
 | Headless batch AvA | `BalticReplayHarness`, `BalticBatchRunner` | Partial+ | ReplayGolden |
 | Mode UI on C2 top bar | UI Toolkit hosts | Partial | tracker next stack |
-| Full DOTS host scale | Unity DOTS world | Phase N | ADR-005 dual-track |
+| Full DOTS host scale | Unity DOTS world | Phase N (Superseded) | ADR-005 superseded; managed headless-first sim |
 
 ## Non-Functional Requirements
 
@@ -111,7 +111,7 @@ A single, unified simulation engine that can operate across the full spectrum of
 
 ## Technical Considerations
 
-- **Headless-first:** .NET 8 `ProjectAegis.Sim` + `ProjectAegis.Delegation` core with optional Unity presentation ([ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md)); **DOTS host scale is Partial** ([ADR-005](../../docs/architecture/adr-005-dots-sim-core.md) dual-track)
+- **Headless-first:** .NET 8 `ProjectAegis.Sim` + `ProjectAegis.Delegation` core with optional Unity presentation ([ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md)); **sim core is managed pure C#** ([ADR-005](../../docs/architecture/adr-005-dots-sim-core.md) superseded 2026-07-07)
 - Time compression handled at the simulation core level
 - Separate rendering and simulation threads for maximum headless performance
 - State serialization optimized for both interactive and batch use cases
@@ -149,4 +149,4 @@ Full rationale: `docs/superpowers/specs/2026-05-30-simulation-modes-decisions-de
 
 ---
 
-**Implementation grade:** Partial+ — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 03. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.
+**Implementation grade:** Partial+ — see [implementation-tracker.md](../implementation-tracker.md) row 03. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

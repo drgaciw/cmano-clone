@@ -163,4 +163,4 @@ Decisions locked May 30, 2026. Full rationale: `docs/superpowers/specs/2026-05-3
 **Status:** Locked (Sprint 13). Resolved decisions locked May 30, 2026 — see [locked spec](../../docs/superpowers/specs/2026-05-30-agent-delegation-decisions-design.md).
 
 ---
-**Implementation grade:** Partial+ — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 04. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.
+**Implementation grade:** Partial+ — see [implementation-tracker.md](../implementation-tracker.md) row 04. Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

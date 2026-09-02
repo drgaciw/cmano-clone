@@ -6,7 +6,7 @@
 **FR reverse-ref:** [FR-06](01-Project-Overview.md) — Agentic dev infrastructure (product surfaces + process tooling split below)  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)  
 **GDD:** [agentic-infrastructure.md](../../design/gdd/agentic-infrastructure.md)  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) §07 — **Partial** (Release stage)
+**Tracker:** [implementation-tracker.md](../implementation-tracker.md) §07 — **Partial** (Release stage)
 
 ## Purpose
 
@@ -221,7 +221,7 @@ All writes route through Database Intelligence Layer; no direct merge.
 
 - Product path: standalone headless executables / `dotnet` CLI (`MissionEditor.Cli`, Baltic harness) first
 - Optional Unity Editor tools and Unity-MCP host for interactive authoring when installed
-- Uses Unity’s Job System and Burst for high-speed simulation batches where applicable (doc 08 hot paths; post-P0 DOTS)
+- Uses high-speed managed data-oriented execution for simulation batches where applicable (doc 08 hot paths; ADR-005 DOTS superseded toward pure C# managed sim)
 - Stores results in a structured database (SQLite or similar) for querying and trend analysis
 - Designed to work with the Database Intelligence Layer for consistent data (doc 06)
 
@@ -242,7 +242,7 @@ All writes route through Database Intelligence Layer; no direct merge.
 | 4 — Agentic layer | Copilot, experiment orchestration, DB research assistants |
 | 5 — Pro workflow | Full Monte Carlo management, external connectors, institutional approval flows |
 
-**Current tracker (2026-07-04 / Release stage):** Phase 3 partial — `BalticReplayHarness`, `MissionEditor.Cli` (CLI primary), runtime Hindsight hooks; Phase 4–5 items tracked via INF-6.x / INF-7.x post-P0 rows. Implementation grade: **Partial** ([tracker §07](../implementation-tracker-2026-07-04.md)).
+**Current tracker (2026-07-04 / Release stage):** Phase 3 partial — `BalticReplayHarness`, `MissionEditor.Cli` (CLI primary), runtime Hindsight hooks; Phase 4–5 items tracked via INF-6.x / INF-7.x post-P0 rows. Implementation grade: **Partial** ([tracker §07](../implementation-tracker.md)).
 
 ## Cross-Domain Traceability
 
@@ -426,10 +426,10 @@ Experiment definitions must not introduce nondeterministic fields into order log
 | Doc 11 Mission Editor | Scenario gen + events §1, §4 |
 | Doc 17 Replay/AAR | Order log truth, batch CSV, ReplayGolden hash, experiment artifacts §2, §6 |
 | GDD | [agentic-infrastructure.md](../../design/gdd/agentic-infrastructure.md) |
-| Tracker | [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) §07 — **Partial** (Release) |
+| Tracker | [implementation-tracker.md](../implementation-tracker.md) §07 — **Partial** (Release) |
 
 ---
 
 **Status:** Locked (Sprint 15)  
-**Tracker row 07:** **Partial** — [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md)  
+**Tracker row 07:** **Partial** — [implementation-tracker.md](../implementation-tracker.md)  
 **Implementation grade:** Partial — Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

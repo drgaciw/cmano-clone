@@ -1,14 +1,14 @@
 # 01 - Project Overview
 
 **Last Updated:** 2026-07-08  
-**Related:** [Game-Requirements-Index](../Game-Requirements-Index.md), [implementation tracker 2026-07-04](../implementation-tracker-2026-07-04.md), corpus docs 02–22 — see [Related Requirements Index](#related-requirements-index)  
+**Related:** [Game-Requirements-Index](../Game-Requirements-Index.md), [implementation tracker 2026-07-04](../implementation-tracker.md), corpus docs 02–22 — see [Related Requirements Index](#related-requirements-index)  
 **Status:** Locked vision — charter re-baselined 2026-07-08; commercial name still open; implementation grades live in the tracker  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)  
 **Stage:** Release (`production/stage.txt`); S56 MVP closed; S73–S80 Baltic v3 content-complete; active forward program = scenario editor (req 11 / S81–S88)
 
 ## Purpose
 
-Charter for product vision, scope tiers, NFR spine, and **corpus index** (FR map + Related docs). This file is not the live implementation grade sheet — use the [implementation tracker](../implementation-tracker-2026-07-04.md) for Partial / Partial+ / next-stack status.
+Charter for product vision, scope tiers, NFR spine, and **corpus index** (FR map + Related docs). This file is not the live implementation grade sheet — use the [implementation tracker](../implementation-tracker.md) for Partial / Partial+ / next-stack status.
 
 ## Program / stage snapshot
 
@@ -160,7 +160,7 @@ High-level capabilities delivered across the requirements corpus (details in lin
 - **Headless execution:** .NET 8 test harness and batch AvA without Unity Editor ([03](03-Simulation-Modes.md), [ADR-010](../../docs/architecture/adr-010-headless-first-command-driven-ui.md))
 - **Clean-room:** no CMO proprietary DB/code; pattern reuse only (see Core Project Goals §5)
 - **Performance:** 5,000+ entities at 60+ FPS on recommended spec; ≥256× headless AvA floor, 1000×+ target ([03](03-Simulation-Modes.md))
-- **Reference hardware (v1 targets):** the sim is CPU-bound (DOTS/ECS); GPU demands are modest for a map-centric presentation
+- **Reference hardware (v1 targets):** the sim is CPU-bound (pure C# / .NET 8 managed core); GPU demands are modest for a map-centric presentation
   - *Minimum (PC):* 6-core CPU (Ryzen 5 5600 / Core i5-12400 class), 16 GB RAM, GTX 1660 / RX 5600-class GPU, SSD — reference Baltic scenario at 30+ FPS
   - *Recommended (PC):* 8-core CPU (Ryzen 7 7700 / Core i7-13700 class), 32 GB RAM, RTX 3060-class GPU — 5,000+ entities at 60+ FPS
   - *Headless AvA node:* 8 vCPU / 16 GB Linux container — ≥256× effective speed on the reference Baltic scenario
@@ -220,7 +220,7 @@ These are load-bearing production constraints (see AGENTS.md). Charter-level; do
 
 ## Related Requirements Index
 
-Design status = per-doc header. Implementation grades = [implementation tracker](../implementation-tracker-2026-07-04.md). This table is a navigation map, not the grade sheet.
+Design status = per-doc header. Implementation grades = [implementation tracker](../implementation-tracker.md). This table is a navigation map, not the grade sheet.
 
 | Doc | Title | Design status (header) | Notes |
 |-----|-------|------------------------|-------|

@@ -1,7 +1,7 @@
 # 12 - Terms Glossary
 
 **Last Updated:** 2026-08-09  
-**Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md)–[11](11-Agentic-Mission-Editor.md), [13](13-Doctrine-ROE-EMCON-WRA.md)–[22](22-Drone-Swarm-Platforms.md), [implementation tracker](../implementation-tracker-2026-07-04.md)  
+**Related:** [01](01-Project-Overview.md), [02](02-Core-Gameplay-Loop.md)–[11](11-Agentic-Mission-Editor.md), [13](13-Doctrine-ROE-EMCON-WRA.md)–[22](22-Drone-Swarm-Platforms.md), [implementation tracker](../implementation-tracker.md)  
 **Status:** Locked (Sprint 15) — vocabulary additive-only; implementation **Partial** (UI tooltips residual)
 
 **Purpose:**
@@ -117,4 +117,4 @@ One-line pointers only—full rules, enums, and acceptance criteria live in the 
 - **Additive only:** Wave 1 (2026-07-08) added product terms for loop/modes/delegation/data/authoring without rewriting CMO base definitions.
 
 ---
-**Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 12 (UI tooltips residual). Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.
+**Implementation grade:** Partial — see [implementation-tracker.md](../implementation-tracker.md) row 12 (UI tooltips residual). Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

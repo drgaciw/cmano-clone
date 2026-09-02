@@ -105,8 +105,8 @@ Uses [.github/branch-protection.main.json](../../.github/branch-protection.main.
 **S67-03 Branch-protection track (isolated).** Aligns branch protection + CI docs with release train §7 standing invariants + S67 deliverables.
 
 **§7 gates enforced via `buildkite/cmano-clone` required status (and local parity `tools/verify-ci-local.ps1`):**
-- Test baseline **≥1229** (monotonic; no regression)
-- **ReplayGolden 6/6** + **C2 proxy 18/18+**
+- Test baseline: Governed by `AGENTS.md` §Hard Invariants (baseline floor **≥1638** post S95 gauntlet land; monotonic; no regression)
+- **ReplayGolden 6/6** + **C2 proxy ≥20/20** (historical 18/18)
 - Production Baltic hash **`17144800277401907079`** preserved
 - **ZERO DelegationBridge** edits (CatalogWriteGate extend-only only)
 - **GitNexus preflight discipline** (per AGENTS.md): `impact({target, direction:"upstream", summaryOnly:true})` + `detect_changes({scope:"compare", base_ref:"main"})` before commits/edits to symbols. See GitNexus PR step + buildkite agents.
