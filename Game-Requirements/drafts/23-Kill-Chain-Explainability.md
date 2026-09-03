@@ -6,7 +6,8 @@
 **FR reverse-ref:** [FR-12](01-Project-Overview.md) — Engagement and fire control, [FR-13](01-Project-Overview.md) — Sensors, detection, EW  
 **CMO basis:** Manual §3.3.1–2, §3.3.9–10, §9.1–2, §9.2.8 (Weapon won't fire diagnostics)  
 **Related:** 04 Delegation, 13 Doctrine/ROE/WRA, 14 Engagement, 15 Sensors, 17 Order Log, 19 Comms/Cyber, 20 C2 UI  
-**Audit Findings Closed:** B-02, B-04 (KCX-02/06), B-08 (KCX-07)
+**Audit Findings Closed:** B-02, B-04 (KCX-02/06), B-08 (KCX-07)  
+**Shipped Slices Reconciled:** DRG-179, DRG-206, DRG-207, DRG-212, DRG-219, DRG-222, DRG-225, DRG-226
 
 ---
 
@@ -53,8 +54,9 @@ The system shall project an inspectable 4-link chain for each active contact, co
 
 - The chain shall identify the `PrimaryBreakCause` as the first broken link in sequence.
 - If all links are verified, the chain is marked `IsComplete = true` with `PrimaryBreakCause = None`.
-- **Code Reference:** `ProjectAegis.Delegation.SensorToShooter.SensorToShooterProjection`, `SensorToShooterChain`, `SensorToShooterChainLink`, `SensorToShooterLinkKind`.
-- **Test Evidence:** `src/ProjectAegis.Delegation.Tests/SensorToShooter/SensorToShooterProjectionTests.cs` (`Complete_chain_links_sensor_track_targetability_and_eligible_shooter`).
+- **Targetability Composition Integration:** Targetability acceptability across authority, provenance, and sensor-to-shooter chains is aggregated via `TargetabilityAcceptProjection`, which evaluates whether a target is `Permitted` or `Withheld` (e.g. `TargetabilityAcceptCauseCodes.MissingProvenance`, `CatalogMiss`, `Stale`, `SilentComms`, `ApprovalRequired`).
+- **Code Reference:** `ProjectAegis.Delegation.SensorToShooter.SensorToShooterProjection`, `SensorToShooterChain`, `SensorToShooterChainLink`, `SensorToShooterLinkKind`, `ProjectAegis.Delegation.TargetabilityAccept.TargetabilityAcceptProjection`.
+- **Test Evidence:** `src/ProjectAegis.Delegation.Tests/SensorToShooter/SensorToShooterProjectionTests.cs` (`Complete_chain_links_sensor_track_targetability_and_eligible_shooter`), `src/ProjectAegis.Delegation.Tests/TargetabilityAccept/TargetabilityAcceptProjectionTests.cs`.
 
 ---
 
@@ -91,8 +93,9 @@ Track continuity and custody shall be tracked deterministically via simulation t
 - `DefaultDropThresholdTicks`: Configured threshold (default: 120 ticks) beyond which stale tracks are transitioned to `Lost` (`KillChainLossKind.Lost`) and dropped from active fire-control custody.
 - `CommsTrackStaleness`: Under degraded or denied communications, staleness threshold divisors accelerate local track staleness per scenario comms display settings.
 - Custody transitions shall emit explicit, ordered transition events (`KillChainContactTransition`) with sequence IDs and timestamps.
-- **Code Reference:** `ProjectAegis.Delegation.Projection.KillChainContactStateProjection`, `KillChainLossKind`, `CommsTrackStaleness`.
-- **Test Evidence:** `src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs` (`Stale_threshold_marks_track_stale_and_drops_targetable`, `Drop_threshold_marks_track_lost`), `SensorToShooterProjectionTests.cs` (`Stale_track_names_stale_cause_and_breaks_downstream_links`).
+- **Track Custody Ledger:** Detailed custody state (`TrackCustodyState.Held` vs `Dropped`) and drop causes (`TrackCustodyCause.LostSensor`, `Stale`, `CommsDenied`, `ExplicitDrop`, `Unknown`) shall be projected deterministically via `TrackCustodyProjection` into a replay-stable custody snapshot and transition ledger (`TrackCustodyLedgerEntry`).
+- **Code Reference:** `ProjectAegis.Delegation.Projection.KillChainContactStateProjection`, `KillChainLossKind`, `CommsTrackStaleness`, `ProjectAegis.Delegation.TrackCustody.TrackCustodyProjection`, `TrackCustodyState`, `TrackCustodyCause`.
+- **Test Evidence:** `src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs` (`Stale_threshold_marks_track_stale_and_drops_targetable`, `Drop_threshold_marks_track_lost`), `SensorToShooterProjectionTests.cs` (`Stale_track_names_stale_cause_and_breaks_downstream_links`), `src/ProjectAegis.Delegation.Tests/TrackCustody/TrackCustodyProjectionTests.cs`.
 
 ---
 
@@ -144,8 +147,9 @@ The system shall maintain deterministic contact identity mapping across sensor f
 - **Kill-Chain Phases:** `None (0)` → `Find (1)` → `Fix (2)` → `Track (3)` → `Target (4)`.
 - **Transition Publishing:** Every phase change generates an immutable transition event with `PreviousPhase`, `NewPhase`, `SimTick`, `SimTime`, and sequence correlation.
 - **Standard Symbology Mapping:** Contact classification feeds deterministic MIL-STD-2525 / APP-6 standard identity resolution (Friendly `F`, Neutral `N`, Hostile `H`, Suspect `S`, Pending `P`, Unknown `U`).
-- **Code Reference:** `ProjectAegis.Delegation.Projection.KillChainPhase`, `KillChainContactTransition`, `App6Sidc`.
-- **Test Evidence:** `src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs` (`Classified_publishes_Fix_and_Track_from_location_and_custody`), `src/ProjectAegis.Delegation.Tests/Projection/App6SidcTests.cs`.
+- **Identity Classification Ledger:** Contact identification levels (`IdentityClassification.Unknown`, `Tentative`, `Classified`, `Identified`) and explicit causal reasons (`IdentityClassReasonCodes.LifecycleUnknown`, `LifecycleDetected`, `LifecycleClassified`, `LifecycleIdentified`, `CommsGap`, `CatalogMiss`, `StaleTrack`) shall be projected via `IdentityClassProjection` to ensure unambiguous classification auditability.
+- **Code Reference:** `ProjectAegis.Delegation.Projection.KillChainPhase`, `KillChainContactTransition`, `App6Sidc`, `ProjectAegis.Delegation.IdentityClass.IdentityClassProjection`, `IdentityClassification`, `IdentityClassReasonCodes`.
+- **Test Evidence:** `src/ProjectAegis.Delegation.Tests/Projection/KillChainContactStateProjectionTests.cs` (`Classified_publishes_Fix_and_Track_from_location_and_custody`), `src/ProjectAegis.Delegation.Tests/Projection/App6SidcTests.cs`, `src/ProjectAegis.Delegation.Tests/IdentityClass/IdentityClassProjectionTests.cs`.
 
 ---
 
@@ -161,8 +165,9 @@ When weapons release is withheld, the system shall project structured advisory e
   - *Example Engage Withhold:* `"THREAT: WITHHELD BY ENGAGE — DLZ_OUT (recommend SM-2 Block IIIA when feasible)"`
 - `Assumptions`: Explicit list of tactical prerequisites and constraints governing the recommendation.
 - `RecommendationKind`: Classified as `AdvisoryRecommendation` (never an automatic weapons release authorization; respects ADR-010/HOL-05).
-- **Code Reference:** `ProjectAegis.Delegation.ThreatAssessment.ThreatAssessmentProjection`, `WeaponRecommendation`, `WeaponRecommendationOutcome`.
-- **Test Evidence:** `src/ProjectAegis.Delegation.Tests/ThreatAssessment/ThreatAssessmentProjectionTests.cs` (`Feasible_recommendation_includes_confidence_range_and_policy_constraints`, `Weapons_tight_withholds_recommendation_by_policy`, `Engage_gate_blocks_when_dlz_out_even_under_weapons_free`).
+- **Withheld-Order Next-Action Guidance:** For withheld orders, `EngageNextActionProjection` evaluates tactical inputs to project deterministic next-action recommendations (`EngageNextActionCodes.ReloadRearm` vs `Approval`) without initiating weapons release (`IsFireOrder = false`).
+- **Code Reference:** `ProjectAegis.Delegation.ThreatAssessment.ThreatAssessmentProjection`, `WeaponRecommendation`, `WeaponRecommendationOutcome`, `ProjectAegis.Delegation.EngageNextAction.EngageNextActionProjection`, `EngageNextActionCodes`.
+- **Test Evidence:** `src/ProjectAegis.Delegation.Tests/ThreatAssessment/ThreatAssessmentProjectionTests.cs` (`Feasible_recommendation_includes_confidence_range_and_policy_constraints`, `Weapons_tight_withholds_recommendation_by_policy`, `Engage_gate_blocks_when_dlz_out_even_under_weapons_free`), `src/ProjectAegis.Delegation.Tests/EngageNextAction/EngageNextActionProjectionTests.cs`.
 
 ---
 
@@ -255,10 +260,10 @@ public sealed record WeaponRecommendation(
 
 | Requirement | Shipped Code Symbol | Assembly | Primary Unit Test |
 |---|---|---|---|
-| **KCX-01** | `SensorToShooterProjection` | `ProjectAegis.Delegation` | `SensorToShooterProjectionTests.Complete_chain_links_sensor_track_targetability_and_eligible_shooter` |
+| **KCX-01** | `SensorToShooterProjection`, `TargetabilityAcceptProjection` | `ProjectAegis.Delegation` | `SensorToShooterProjectionTests.Complete_chain_links_sensor_track_targetability_and_eligible_shooter`, `TargetabilityAcceptProjectionTests` |
 | **KCX-02** | `ContactProvenanceProjection` | `ProjectAegis.Delegation` | `ContactProvenanceProjectionTests.Fresh_track_publishes_source_confidence_and_last_known` |
-| **KCX-03** | `KillChainContactStateProjection` | `ProjectAegis.Delegation` | `KillChainContactStateProjectionTests.Stale_threshold_marks_track_stale_and_drops_targetable` |
+| **KCX-03** | `KillChainContactStateProjection`, `TrackCustodyProjection` | `ProjectAegis.Delegation` | `KillChainContactStateProjectionTests.Stale_threshold_marks_track_stale_and_drops_targetable`, `TrackCustodyProjectionTests` |
 | **KCX-04** | `KillChainContactStateProjection` | `ProjectAegis.Delegation` | `KillChainContactStateProjectionTests.Identified_with_fire_control_publishes_Target` |
 | **KCX-05** | `SensorToShooterBreakCause` | `ProjectAegis.Delegation` | `SensorToShooterProjectionTests.No_eligible_shooter_marks_no_shooter_link` |
-| **KCX-06** | `KillChainContactTransition` | `ProjectAegis.Delegation` | `KillChainContactStateProjectionTests.Classified_publishes_Fix_and_Track_from_location_and_custody` |
-| **KCX-07** | `ThreatAssessmentProjection` | `ProjectAegis.Delegation` | `ThreatAssessmentProjectionTests.Weapons_tight_withholds_recommendation_by_policy` |
+| **KCX-06** | `KillChainContactTransition`, `IdentityClassProjection` | `ProjectAegis.Delegation` | `KillChainContactStateProjectionTests.Classified_publishes_Fix_and_Track_from_location_and_custody`, `IdentityClassProjectionTests` |
+| **KCX-07** | `ThreatAssessmentProjection`, `EngageNextActionProjection` | `ProjectAegis.Delegation` | `ThreatAssessmentProjectionTests.Weapons_tight_withholds_recommendation_by_policy`, `EngageNextActionProjectionTests` |
