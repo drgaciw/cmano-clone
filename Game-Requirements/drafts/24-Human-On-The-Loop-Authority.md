@@ -26,11 +26,12 @@ In Project Aegis, agent intelligence, skill invocations, threat projections, and
 3. **Semi-Autonomous (`HUMAN_ON_LOOP`)**: Agent acts independently within bounded doctrine envelopes; the human player supervises via live telemetry and retains immediate override/countermand authority within a reaction window.
 4. **Full Autonomous (`FULL_AUTONOMOUS`)**: Agent operates with minimal tactical oversight. Lethal engagement is governed by the ROE matrix and strict safety gates.
 
-### 2.2 C2 Authority Dispositions
-Every tactical action evaluated by C2 authority projectors (`C2AuthorityProjector`) resolves to one of three explicit dispositions:
+### 2.2 C2 Authority Dispositions & Escalation Gates
+Every tactical action evaluated by C2 authority projectors (`C2AuthorityProjector`) and escalation gate ledgers (`EscalationGateProjection`, DRG-228) resolves to explicit, deterministic dispositions:
 - **`Permitted` (0)**: Action is doctrine-compliant, fire-control is satisfied, and the current autonomy/approval state allows immediate issuance or execution.
 - **`Withheld` (1)**: Action is blocked by doctrine (e.g., `ROE_HOLD_FIRE`, `ROE_WEAPONS_TIGHT`), lack of fire control, datalink shared-only track restrictions, or controller constraints.
-- **`ApprovalRequired` (2)**: Action is tactically feasible but gated by operator approval (`Operator`) or lethal weapons release authorization (`WeaponsRelease`).
+- **`ApprovalRequired` (2)**: Action is tactically feasible but gated by operator approval (`Operator`) or lethal weapons release authorization (`WeaponsRelease`), generating advisory `HigherHq` escalation rows.
+- **Corrective Next Action (`EngageNextActionProjection`, DRG-226)**: Withheld engagements project deterministic corrective action advisories (e.g., `ReloadRearm` for Winchester/NoAmmo or `Approval` for ROE gates).
 
 ### 2.3 Bounded Action Verbs
 Authority projectors evaluate six core action kinds:
@@ -140,7 +141,7 @@ External model skills, AI agents, and C2 advisor extensions interact with the si
 
 ### HOL-10: Player Override & Non-Mutating Countermand
 - **Description**: The human player MUST be able to countermand any proposed or executing action immediately.
-- **AC-HOL-09.1**: Player override commands (`hold`, `abort_launch`, `abort_boat_launch`, `rtb`) issued to `HumanController` MUST take immediate precedence.
+- **AC-HOL-10.1**: Player override commands (`hold`, `abort_launch`, `abort_boat_launch`, `rtb`) issued to `HumanController` MUST take immediate precedence.
 - **AC-HOL-10.2**: Countermanding an unsubmitted proposal via dismiss/reject MUST leave zero mutation in the order log (INF-7.4).
 
 ---
@@ -150,8 +151,8 @@ External model skills, AI agents, and C2 advisor extensions interact with the si
 | Requirement ID | Shipped / Target Type | Source File | Test Suite / Evidence |
 |---|---|---|---|
 | **HOL-01** | `SkillEnvelopeValidator`, `SkillLane` | `src/ProjectAegis.Delegation/Skills/` | `SkillEnvelopeValidatorTests.cs`, `CONTRACT.md` |
-| **HOL-02** | `PendingApprovalQueue`, `PendingApprovalEntry` | `src/ProjectAegis.Delegation/Orchestration/PendingApprovalQueue.cs` | `PendingApprovalQueueTests.cs` |
-| **HOL-03** | `C2AuthorityProjector`, `C2AuthorityProjection` | `src/ProjectAegis.Delegation/Skills/C2AuthorityProjector.cs` | `C2AuthorityProjectorTests.cs` |
+| **HOL-02** | `PendingApprovalQueue`, `PendingApprovalEntry`, `EscalationGateProjection` | `src/ProjectAegis.Delegation/Orchestration/PendingApprovalQueue.cs`, `src/ProjectAegis.Delegation/EscalationGate/` | `PendingApprovalQueueTests.cs`, `EscalationGateProjectionTests.cs` |
+| **HOL-03** | `C2AuthorityProjector`, `C2AuthorityProjection`, `EngageNextActionProjection` | `src/ProjectAegis.Delegation/Skills/C2AuthorityProjector.cs`, `src/ProjectAegis.Delegation/EngageNextAction/` | `C2AuthorityProjectorTests.cs`, `EngageNextActionProjectionTests.cs` |
 | **HOL-04** | `AutonomyGate` (Phase N / GAP) | `src/ProjectAegis.Delegation/Orchestration/AutonomyGate.cs` | ADR-023 (Proposed), `AutonomyGateTests.cs` |
 | **HOL-05** | `SkillCatalog`, `SkillEnvelope`, `SkillIds` | `src/ProjectAegis.Delegation/Skills/` | `SkillCatalogTests.cs`, `TEST-SPEC.md` |
 | **HOL-06** | `ThreatAssessmentProjection`, `WeaponRecommendation` | `src/ProjectAegis.Delegation/ThreatAssessment/` | `ThreatAssessmentProjectionTests.cs` |
