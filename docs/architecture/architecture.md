@@ -7,7 +7,7 @@
 > **Verification floor:** suite **≥1638/0f**; Baltic hash **`17144800277401907079`** (immutable unless golden ADR)  
 > **Architecture authority:** `architecture-review-post-s93-2026-07-14.md` — ⚠️ **not resolvable from `main`**: it exists only on the unmerged draft branch `stack/post-editor/s93-asset-production` (PR #324, commit `805070e`). Until that PR merges, the operative authority is [architecture-re-matrix-post-s93-s96-2026-07-15.md](architecture-re-matrix-post-s93-s96-2026-07-15.md). See [DRG-41 gate](../../production/gate-checks/architecture-concerns-gate-2026-07-24.md).  
 > **Engine:** Unity 6.3 LTS (6000.3.14f1) + C# / .NET 8 (managed headless-first sim; ADR-005 DOTS/ECS superseded 2026-07-07) — [Unity VERSION](../engine-reference/unity/VERSION.md), [.NET / Learn](../engine-reference/dotnet/README.md)  
-> **GitNexus repo:** `cmano-clone` (~**25,311** symbols / **48,462** edges @ recent index `257d9e9`; re-analyze @ HEAD if stale)
+> **GitNexus repo:** `cmano-clone` (refer to `.gitnexus/meta.json` for current symbol, relationship, and execution flow counts; re-analyze @ HEAD if stale)
 
 ## Purpose
 

@@ -14,34 +14,37 @@
 
 The table below documents major engineering landings, ticketed DRG deliveries, and headless capabilities added to `origin/main` after the 2026-07-09 post-editor baseline:
 
-| DRG / Ref | Area / Shipped Capability | Key Symbols & Artifacts | Target Doc(s) |
-|---|---|---|---|
-| DRG-66/67 | Human-on-the-loop approval queue & UI host | `PendingApprovalQueue`, `PendingApprovalPanelHost` | Doc 24 (HOL) |
-| DRG-73 | Platform Design Assistant & relative scaler | `PlatformDesignAssistant`, `PlatformRelativeScaler`, `platform_design_propose` | Doc 21 (PLE) |
-| DRG-196 | Agent-callable C2 skill contract | `SkillCatalog`, `SkillEnvelope`, `SkillIds`, `C2CommandIssuance` | Doc 24 (HOL) / 07 / 08 |
-| DRG-206 | Contact provenance ledger | `ContactProvenance*` | Doc 15 (SEN) / Doc 23 (KCX) |
-| DRG-207 | Sensor-to-shooter chain | `SensorToShooter*` | Doc 23 (KCX) |
-| DRG-209 | C2 authority disposition projector | `C2AuthorityProjector` | Doc 24 (HOL) |
-| DRG-211 | Combat event stream | `CombatEvents` | Doc 17 (RPL) |
-| DRG-212 | Threat assessment & weapon recommendation | `ThreatAssessmentProjection` | Doc 14 / Doc 24 |
-| DRG-213 | Headless C2 nodes and mission packages | `C2Node*`, `MissionPackage*` | Doc 25 (C2N) |
-| DRG-214 | Headless C2 network health projection | `C2NetworkHealth*` | Doc 25 (C2N) |
-| DRG-215 | Engage-explain positive path contract | `EngageExplainContract` | Doc 17 (RPL) / Doc 23 (KCX) |
-| DRG-217 | Scarcity / resource ranking projection | `ResourceRankProjection` | Doc 14 / Doc 24 |
-| DRG-218 | Headless after-action ledger | `AfterAction` | Doc 17 (RPL) |
-| DRG-219 | Targetability acceptance composition | `TargetabilityAccept*` | Doc 23 (KCX) |
-| DRG-220 | Headless collateral & CDE assessment | `CdeAssessProjection` | Doc 13 / 18 / Doc 24 |
-| DRG-221 | Headless EMCON / emissions posture | `EmconState*` | Doc 13 / 19 |
-| DRG-222 | Track custody ledger | `TrackCustody*` | Doc 23 (KCX) |
-| DRG-223 | Task group coordination & gaps | `TaskGroupCoord*` | Doc 25 (C2N) |
-| DRG-224 | Ordnance state bands & employment ledger | `OrdnanceStateBands`, `EmploymentLedger*` | Doc 16 (LOG) |
-| DRG-225 | Identity / classification ledger | `IdentityClass*` | Doc 15 (SEN) / Doc 23 (KCX) |
-| DRG-226 | Engage next-action projection | `EngageNextActionProjection` | Doc 14 / Doc 24 |
-| DRG-227 | Own-unit degradation / damage control | `PlatformDegrade*` | Doc 18 (DOM) |
-| DRG-228 | Escalation gate ledger & disposition codes | `EscalationGateProjection` (`HOLD_FIRE`, `WEAPONS_TIGHT`, `HIGHER_HQ`) | Doc 24 (HOL) |
-| DRG-229 | Mission-command intent structure | `MissionIntent*` | Doc 25 (C2N) |
-| QA Gauntlet | Stress axes, ladder, saboteur mutants, oracle | `tools/qa-gauntlet`, `GauntletOracleEvaluator`, `UiIa*` | Doc 26 (VER) |
-| Campaign Lib | Scenario and campaign library package loader | `CampaignDocument*`, `ScenarioLibraryProjection`, `ScenarioPackageLoader` | Doc 27 (LIB) |
+| DRG / Ref | Commit / PR | Area / Shipped Capability | Key Symbols & Artifacts | Target Doc(s) |
+|---|---|---|---|---|
+| DRG-66/67 | — | Human-on-the-loop approval queue & UI host | `PendingApprovalQueue`, `PendingApprovalPanelHost` | Doc 24 (HOL) |
+| DRG-73 | — | Platform Design Assistant & relative scaler | `PlatformDesignAssistant`, `PlatformRelativeScaler`, `platform_design_propose` | Doc 21 (PLE) |
+| DRG-196 | — | Agent-callable C2 skill contract | `SkillCatalog`, `SkillEnvelope`, `SkillIds`, `C2CommandIssuance` | Doc 24 (HOL) / 07 / 08 |
+| DRG-206 | — | Contact provenance ledger | `ContactProvenance*` | Doc 15 (SEN) / Doc 23 (KCX) |
+| DRG-207 | — | Sensor-to-shooter chain | `SensorToShooter*` | Doc 23 (KCX) |
+| DRG-209 | — | C2 authority disposition projector | `C2AuthorityProjector` | Doc 24 (HOL) |
+| DRG-211 | — | Combat event stream | `CombatEvents` | Doc 17 (RPL) |
+| DRG-212 | — | Threat assessment & weapon recommendation | `ThreatAssessmentProjection` | Doc 14 / Doc 24 |
+| DRG-213 | `61e9f040` (#586) | Headless C2 nodes and mission packages | `C2Node*`, `MissionPackage*` | Doc 25 (C2N) |
+| DRG-214 | `ceb3f1a7` | Headless C2 network health projection | `C2NetworkHealth*` | Doc 25 (C2N) |
+| DRG-215 | `d651d12a` (#585) | Headless engagement explanation DTO | `EngageExplainContract`, `EngageExplanationDto` | Doc 17 (RPL) / Doc 23 (KCX) |
+| DRG-216 | `745ca41b` (#589) | Headless BDA assess state for Combat UX Slice B | `BdaAssess*` | Doc 17 (RPL) / Doc 18 (DOM) |
+| DRG-217 | — | Scarcity / resource ranking projection | `ResourceRankProjection` | Doc 14 / Doc 24 |
+| DRG-218 | `a3534942` (#587) | Headless after-action ledger | `AfterAction` | Doc 17 (RPL) |
+| DRG-219 | `a2ce583d` (#591) | Headless targetability composition harness | `TargetabilityAccept*` | Doc 23 (KCX) |
+| DRG-220 | `32e3c927` (#592) | Headless collateral & CDE assessment | `CdeAssessProjection` | Doc 13 / 18 / Doc 24 |
+| DRG-220-P2 | `25dea077` (#596) | CdeAssess Codex P2 follow-up | `CdeAssess*` | Doc 13 / 18 / Doc 24 |
+| DRG-221 | `80a62aa5` (#590) | Headless EMCON / emissions posture (Slice C) | `EmconState*` | Doc 13 / 19 |
+| DRG-222 | `cfc01fa5` (#594) | Headless track custody and drop-reason ledger | `TrackCustody*` | Doc 23 (KCX) |
+| DRG-223 | `7a3e68fa` (#593) | Headless task-group coordination DTO (Slice C) | `TaskGroupCoord*` | Doc 25 (C2N) |
+| DRG-224 | `8f95b0f0` (#597) | Headless magazine/salvo employment ledger (Slice B) | `OrdnanceStateBands`, `EmploymentLedger*` | Doc 16 (LOG) |
+| DRG-225 | `faf86ac5` | Headless identity classification ledger (Slice A) | `IdentityClass*` | Doc 15 (SEN) / Doc 23 (KCX) |
+| DRG-226 | `86fc7650` | Headless withheld-order next-action projection (Slice B) | `EngageNextActionProjection` | Doc 14 / Doc 24 |
+| DRG-227 | `a1226a6e` | Headless own-unit degrade / damage-control (Slice C) | `PlatformDegrade*` | Doc 18 (DOM) |
+| DRG-228 | `6adbb7a2` | Headless escalation and approval-required gate ledger (Slice A) | `EscalationGateProjection` (`HOLD_FIRE`, `WEAPONS_TIGHT`, `HIGHER_HQ`) | Doc 24 (HOL) |
+| DRG-229 | `81831e76` | Headless mission-command intent and constraint DTO (Slice C) | `MissionIntent*` | Doc 25 (C2N) |
+| DRG-230 | `6aabebaa` | Headless salvo aggregation and declutter facts (Slice B) | `SalvoAggregation*` | Doc 14 / Doc 20 |
+| QA Gauntlet | — | Stress axes, ladder, saboteur mutants, oracle | `tools/qa-gauntlet`, `GauntletOracleEvaluator`, `UiIa*` | Doc 26 (VER) |
+| Campaign Lib | — | Scenario and campaign library package loader | `CampaignDocument*`, `ScenarioLibraryProjection`, `ScenarioPackageLoader` | Doc 27 (LIB) |
 
 ---
 
