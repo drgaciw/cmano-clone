@@ -1,13 +1,13 @@
 # Game Requirements — Master Index
 
 **Project:** Project Aegis — near-future hardcore military simulation (CMO-style, agentic)  
-**Last Updated:** 2026-09-02  
+**Last Updated:** 2026-09-04  
 **Canonical index:** [Game-Requirements/Game-Requirements-Index.md](Game-Requirements/Game-Requirements-Index.md) — **source of truth** for the requirements corpus  
 **Implementation status:** [Game-Requirements/implementation-tracker.md](Game-Requirements/implementation-tracker.md) (historical baseline: [implementation-tracker-2026-07-04.md](Game-Requirements/implementation-tracker-2026-07-04.md))
 
 **Program note:** **Corpus maturity W0–W4 complete (2026-07-08)**. S81–S88 scenario editor, ME Phase 2, and PE complete; active post-editor hygiene and forward continuous engineering. Live status pointers: [`docs/reports/`](docs/reports/) latest sprint roadmap and [`production/qa/`](production/qa/). Use the canonical GR index above for reading order, status stamps, and workflow; this root file is a redirect + quick table.
 
-> The May 28 index listed only docs 01–10. Requirements **11–21** (simulation, C2, combat, authoring) live under `Game-Requirements/requirements/` and are indexed in the canonical file above.
+> The May 28 index listed only docs 01–10. Requirements **11–27** (simulation, C2, combat, authoring, explainability, authority, verification, library) live under `Game-Requirements/requirements/` and are indexed in the canonical file above.
 
 ## Core (01–03)
 
@@ -65,6 +65,16 @@
 | [18](Game-Requirements/requirements/18-Combat-Domains.md) | Combat domains |
 | [19](Game-Requirements/requirements/19-Cyber-And-Comms.md) | Cyber & communications |
 | [20](Game-Requirements/requirements/20-Command-And-Control-UI.md) | Command & control UI |
+ 
+## Advanced C2, Authority, Explainability & Verification (23–27)
+
+| Doc | Title | Core Requirements |
+|-----|-------|-------------------|
+| [23](Game-Requirements/requirements/23-Kill-Chain-Explainability.md) | Kill-Chain Explainability & Targetability | KCX-01..07 (4-link sensor-to-shooter, targetability composition, track custody, contact provenance) |
+| [24](Game-Requirements/requirements/24-Human-On-The-Loop-Authority.md) | Human-On-The-Loop Authority & Approvals | HOL-01..10 (propose ≠ authorize, autonomy tiers, escalation gates, pending approvals) |
+| [25](Game-Requirements/requirements/25-C2-Nodes-Mission-Command.md) | C2 Nodes, Mission Packages & Mission Command | C2N-01..04 (mission packages, C2 network health, task group coordination, mission command intent) |
+| [26](Game-Requirements/requirements/26-Verification-CI-Gauntlet.md) | Verification, CI Gates & QA Gauntlet | VER-01..07 (deterministic CI gates, QA Gauntlet, oracle evaluation, test floor enforcement, mutation saboteurs) |
+| [27](Game-Requirements/requirements/27-Scenario-Library-Campaigns.md) | Scenario Library, Campaigns & Package Loading | LIB-01..04 (scenario discovery, pre-load feasibility, campaign progression, package ingestion) |
 
 ## Additional files
 

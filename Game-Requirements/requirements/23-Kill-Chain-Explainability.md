@@ -1,11 +1,11 @@
 # 23 - Kill-Chain Explainability & Targetability
 
-**Last Updated:** 2026-09-02  
-**Status:** Draft — ready for design review (Audit remediation W3-KCX)  
+**Last Updated:** 2026-09-04  
+**Status:** Canonical — promoted AEGIS-310 / DRG-240 (Audit remediation W3-KCX)  
 **Requirement IDs:** KCX-01 … KCX-07  
 **FR reverse-ref:** [FR-12](01-Project-Overview.md) — Engagement and fire control, [FR-13](01-Project-Overview.md) — Sensors, detection, EW  
 **CMO basis:** Manual §3.3.1–2, §3.3.9–10, §9.1–2, §9.2.8 (Weapon won't fire diagnostics)  
-**Related:** 04 Delegation, 13 Doctrine/ROE/WRA, 14 Engagement, 15 Sensors, 17 Order Log, 19 Comms/Cyber, 20 C2 UI  
+**Related:** [04-Agent-Delegation.md](04-Agent-Delegation.md) · [13-Doctrine-ROE-EMCON-WRA.md](13-Doctrine-ROE-EMCON-WRA.md) · [14-Engagement-And-Fire-Control.md](14-Engagement-And-Fire-Control.md) · [15-Sensor-Detection-And-EW.md](15-Sensor-Detection-And-EW.md) · [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md) · [19-Cyber-And-Comms.md](19-Cyber-And-Comms.md) · [20-Command-And-Control-UI.md](20-Command-And-Control-UI.md) · [24-Human-On-The-Loop-Authority.md](24-Human-On-The-Loop-Authority.md) · [25-C2-Nodes-Mission-Command.md](25-C2-Nodes-Mission-Command.md)  
 **Audit Findings Closed:** B-02, B-04 (KCX-02/06), B-08 (KCX-07)  
 **Shipped Slices Reconciled:** DRG-179, DRG-206, DRG-207, DRG-212, DRG-219, DRG-222, DRG-225, DRG-226
 

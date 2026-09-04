@@ -1,12 +1,13 @@
 # 26 - Verification, CI Gates & QA Gauntlet
 
-**Last Updated:** 2026-09-02  
-**Related:** [01-Project-Overview.md](../requirements/01-Project-Overview.md) · [07-Agentic-Infrastructure.md](../requirements/07-Agentic-Infrastructure.md) · [08-Agentic-Architecture.md](../requirements/08-Agentic-Architecture.md) · [17-Replay-AAR-And-Order-Log.md](../requirements/17-Replay-AAR-And-Order-Log.md)  
-**Status:** Draft — ready for design review  
+**Last Updated:** 2026-09-04  
+**Status:** Canonical — promoted AEGIS-310 / DRG-240 (W3-VER)  
 **Requirement IDs:** `VER-01` … `VER-07`  
+**FR reverse-ref:** Related to [FR-06](01-Project-Overview.md) and [FR-07](01-Project-Overview.md) (Agentic Infrastructure & Architecture; supersedes INF-6.x)  
+**Related:** [01-Project-Overview.md](01-Project-Overview.md) · [07-Agentic-Infrastructure.md](07-Agentic-Infrastructure.md) · [08-Agentic-Architecture.md](08-Agentic-Architecture.md) · [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md)  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)  
 **Engineering Runbooks:** [qa-gauntlet.md](../../docs/engineering/qa-gauntlet.md) · [qa-gauntlet-saboteur.md](../../docs/engineering/qa-gauntlet-saboteur.md) · [gauntlet-oracle-baseline.md](../../docs/engineering/gauntlet-oracle-baseline.md)  
-**Tracker:** [implementation-tracker.md](../implementation-tracker.md) §26 — **Draft / Shipped Apparatus** (Release stage)
+**Tracker:** [implementation-tracker.md](../implementation-tracker.md) §26 — **Shipped Apparatus** (Release stage)
 
 ---
 
