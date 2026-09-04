@@ -63,7 +63,7 @@ Completing the full requirements corpus as *shipped game features* is multi-year
 
 Current solution test-floor and standing invariant specifications are governed exclusively by **[`AGENTS.md`](../AGENTS.md) §Hard Invariants**.
 
-- Test floor: see `AGENTS.md` (baseline floor ≥1638 / 0 failures post S95 gauntlet land).
+- Test floor: see `AGENTS.md` (baseline floor ≥1924 / 0 failures post S95 gauntlet land).
 - Invariants: ReplayGolden 6/6, PlayModeSmokeHarness ≥20/20, Baltic v2 hash `17144800277401907079` preserved, ZERO `DelegationBridge` hotpath edits.
 
 ## GitNexus intelligence

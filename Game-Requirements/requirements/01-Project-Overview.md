@@ -97,7 +97,7 @@ These are the **operational** success criteria for the vertical slice. Evidence 
 
 | ID | Criterion | Tag | Evidence |
 |----|-----------|-----|----------|
-| OV-SC-G1 | Full solution tests meet monotonic floor **≥1232** with 0 gate failures (known UA exclusions documented in AGENTS.md) | **Measured** | `dotnet test ProjectAegis.sln`; AGENTS.md |
+| OV-SC-G1 | Full solution tests meet monotonic floor **≥1924** with 0 gate failures (known UA exclusions documented in AGENTS.md) | **Measured** | `dotnet test ProjectAegis.sln`; AGENTS.md |
 | OV-SC-G2 | Baltic v2 ReplayGolden **6/6**; production hash **`17144800277401907079`** preserved | **Measured** | `tests/regression/`; AGENTS.md hash grep |
 | OV-SC-G3 | PlayModeSmokeHarness **18/18** | **Measured** | UnityAdapter filter `PlayModeSmokeHarnessTests` |
 | OV-SC-G4 | Clean-room: no proprietary CMO DB/scenarios/code committed | **Proxy** | Process + review; Goal 5 |
