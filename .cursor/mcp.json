@@ -14,8 +14,8 @@
       ]
     },
     "gitnexus": {
-      "command": "npx",
-      "args": ["--no-install", "gitnexus", "mcp"]
+      "command": "gitnexus",
+      "args": ["mcp"]
     },
     "buildkite": {
       "url": "https://mcp.buildkite.com/mcp"
