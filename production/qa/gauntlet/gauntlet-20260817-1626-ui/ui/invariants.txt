@@ -1,0 +1,10 @@
+=== hash ===
+26
+=== DelegationBridge hotpath ===
+f1c7a7e2 fix(fuel): DRG-50 Play Mode deltaSeconds from elapsed SimTime
+24:public sealed class DelegationBridge
+33:    public DelegationBridge(
+76:    public DelegationBridge EnableMvpEngagement(
+=== player still running? ===
+2102383 /home/username01/projects/active/cmano-clone/cmano-clone/unity/ProjectAegis/Builds/Linux64/ProjectAegis -logFile /tmp/projectaegis-player-live.log -screen-fullscreen 0 -screen-width 1280 -screen-height 720
+2402453 /bin/bash -O extglob -c snap=$(command cat <&3) && builtin shopt -s extglob && builtin eval -- "$snap" && { builtin set +u 2>/dev/null || true; builtin eval "${__CURSOR_SANDBOX_ENV_RESTORE:-}" 2>/dev/null; builtin export PWD="$(builtin pwd)"; builtin shopt -s expand_aliases 2>/dev/null; builtin eval "$1" < /dev/null; }; COMMAND_EXIT_CODE=$?; dump_bash_state >&4; builtin exit $COMMAND_EXIT_CODE -- ROOT=/home/username01/projects/active/cmano-clone/cmano-clone RUN_DIR="$ROOT/production/qa/gauntlet/gauntlet-20260817-1626-ui" export PATH="$HOME/.dotnet:$PATH" cd "$ROOT" # Invariants for gauntlet team {   echo "=== hash ==="   grep -r "17144800277401907079" tests/ data/ 2>/dev/null | wc -l   echo "=== DelegationBridge hotpath ==="   # ZERO new hotpath edits — presence check only   git log -1 --oneline -- src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs 2>/dev/null || true   rg -n 'DelegationBridge' src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs | head -5   echo "=== player still running? ==="   pgrep -af 'Linux64/ProjectAegis' | head -2 || echo none } | tee "$RUN_DIR/ui/invariants.txt" 

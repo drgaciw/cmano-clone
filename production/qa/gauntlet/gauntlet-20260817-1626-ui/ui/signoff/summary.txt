@@ -1,0 +1,16 @@
+=== RunBatch ===
+EXIT:0
+C2PlayModeSignoffBatchRunner PASS: no console errors during Play Mode (scenario=baltic-patrol-comms)
+=== RunClassifyBatch ===
+EXIT:0
+C2PlayModeSignoffBatchRunner PASS: no console errors during Play Mode (scenario=baltic-patrol-classify)
+=== RunDoctrineBatch ===
+EXIT:0
+C2PlayModeSignoffBatchRunner PASS: no console errors during Play Mode (scenario=baltic-patrol-mission-roe)
+=== RunImportBatch ===
+EXIT:0
+C2PlayModeSignoffBatchRunner PASS: no console errors during Play Mode (scenario=baltic-patrol-classify)
+=== RunBeginExecutionBatch ===
+EXIT:0
+C2PlayModeSignoffBatchRunner PASS: no console errors during Play Mode (scenario=baltic-patrol-classify)
+SIGNOFF_OVERALL:0

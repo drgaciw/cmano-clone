@@ -36,6 +36,30 @@ public sealed class MapPlaceholderPanelHostContractTests
         Assert.That(text, Does.Not.Contain("SimulationSession"));
     }
 
+    /// <summary>
+    /// Locks CS0246: SimulationPhase lives in Delegation.Orchestration (player build 2026-08-17).
+    /// </summary>
+    [Test]
+    public void MapPlaceholderPanelHost_imports_Orchestration_for_SimulationPhase()
+    {
+        var root = FindRepoRoot();
+        Assert.That(root, Is.Not.Null);
+
+        var hostPath = Path.Combine(
+            root!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Scripts",
+            "Runtime",
+            "MapPlaceholderPanelHost.cs");
+        Assert.That(File.Exists(hostPath), Is.True, hostPath);
+
+        var text = File.ReadAllText(hostPath);
+        Assert.That(text, Does.Contain("using ProjectAegis.Delegation.Orchestration;"));
+        Assert.That(text, Does.Contain("SimulationPhase"));
+    }
+
     private static string? FindRepoRoot()
     {
         var dir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);

@@ -34,6 +34,30 @@ public sealed class MapCanvasOverlayRendererContractTests
         Assert.That(text, Does.Not.Contain("SimulationSession"));
     }
 
+    /// <summary>
+    /// Locks CS1503: Length.Percent requires float; Math.Sqrt returns double (player build 2026-08-17).
+    /// </summary>
+    [Test]
+    public void MapCanvasOverlayRenderer_edge_fallback_uses_Mathf_Sqrt_not_Math_Sqrt()
+    {
+        var root = FindRepoRoot();
+        Assert.That(root, Is.Not.Null);
+
+        var rendererPath = Path.Combine(
+            root!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Scripts",
+            "Runtime",
+            "MapCanvasOverlayRenderer.cs");
+        Assert.That(File.Exists(rendererPath), Is.True, rendererPath);
+
+        var text = File.ReadAllText(rendererPath);
+        Assert.That(text, Does.Contain("Mathf.Sqrt"));
+        Assert.That(text, Does.Not.Contain("Math.Sqrt("));
+    }
+
     private static string? FindRepoRoot()
     {
         var dir = new DirectoryInfo(TestContext.CurrentContext.TestDirectory);

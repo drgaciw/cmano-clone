@@ -1,0 +1,31 @@
+run_id: gauntlet-20260817-1626-ui
+track: game-ui
+team: team-qa-gauntlet
+started_at: 2026-08-17T21:26:00Z
+completed_at: 2026-08-17T21:30:46Z
+verdict: PASS
+clone: /home/username01/projects/active/cmano-clone/cmano-clone
+unity_editor: 6000.3.22f1
+gates:
+  dotnet_ui_c2_presentation:
+    passed: 118
+    failed: 0
+    exit: 0
+  replay_golden_filter:
+    passed: 17
+    failed: 0
+    exit: 0
+  c2_playmode_signoff:
+    overall: 0
+    scenarios:
+      - RunBatch: PASS # baltic-patrol-comms
+      - RunClassifyBatch: PASS # baltic-patrol-classify
+      - RunDoctrineBatch: PASS # baltic-patrol-mission-roe
+      - RunImportBatch: PASS # baltic-patrol-classify
+      - RunBeginExecutionBatch: PASS # baltic-patrol-classify
+  invariants:
+    baltic_v2_hash_hits: 26
+    remediation_required: false
+notes: >
+  UI-track only. Headless Demo ladder (tools/qa-gauntlet/run-gauntlet.sh) not run.
+  No presentation defects → qa-gauntlet-remediation / UCA not invoked.
