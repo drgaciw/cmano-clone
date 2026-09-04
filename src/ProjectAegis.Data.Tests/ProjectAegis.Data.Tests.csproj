@@ -18,6 +18,8 @@
   <ItemGroup>
     <ProjectReference Include="..\ProjectAegis.Data\ProjectAegis.Data.csproj" />
     <ProjectReference Include="..\ProjectAegis.Data.Excel\ProjectAegis.Data.Excel.csproj" />
+    <ProjectReference Include="..\ProjectAegis.Delegation\ProjectAegis.Delegation.csproj" />
+    <ProjectReference Include="..\ProjectAegis.Sim\ProjectAegis.Sim.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />

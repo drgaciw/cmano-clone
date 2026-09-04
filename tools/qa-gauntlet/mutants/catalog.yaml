@@ -138,3 +138,36 @@ mutants:
     role: defect
     expectedOracles: ["swarm_unit"]
     impactRecorded: "MED (2026-08-12; SWARM-17 splitter; unit-filter kill via --swarm-filter)"
+
+  - id: "18-autonomy-semi-bypass"
+    patch: "18-autonomy-semi-bypass.patch"
+    target: "src/ProjectAegis.Delegation/Orchestration/AutonomyGate.cs"
+    description: "SemiAutonomous approval gating bypassed — lethal fire orders execute immediately without player approval"
+    role: defect
+    expectedOracles: ["victory_roe", "governance", "goldens"]
+    impactRecorded: "CRITICAL (2026-09-04; AEGIS-309 / DRG-239 autonomy safety gate)"
+
+  - id: "19-approval-autopause-suppressed"
+    patch: "19-approval-autopause-suppressed.patch"
+    target: "src/ProjectAegis.Delegation/Watch/WatchAutoPauseGate.cs"
+    description: "ShouldAutoPausePendingApprovals suppressed — pending approval proposals do not auto-pause sim"
+    role: defect
+    expectedOracles: ["victory_roe", "governance", "goldens"]
+    impactRecorded: "CRITICAL (2026-09-04; AEGIS-309 / DRG-239 watch auto-pause gate)"
+
+  - id: "20-cumulative-salvo-bypassed"
+    patch: "20-cumulative-salvo-bypassed.patch"
+    target: "src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs"
+    description: "Cumulative salvo ledger limit bypassed — multiple salvos exceed MaxSalvo doctrine"
+    role: defect
+    expectedOracles: ["victory_roe", "governance", "goldens"]
+    impactRecorded: "CRITICAL (2026-09-04; AEGIS-309 / DRG-239 salvo ledger policy)"
+
+  - id: "21-wra-range-conflation-restored"
+    patch: "21-wra-range-conflation-restored.patch"
+    target: "src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs"
+    description: "WRA range denial mapped back to OutOfEnvelope conflating doctrine range gate with kinematic envelope"
+    role: defect
+    expectedOracles: ["victory_roe", "governance", "goldens"]
+    impactRecorded: "CRITICAL (2026-09-04; AEGIS-309 / DRG-239 WRA range denial)"
+

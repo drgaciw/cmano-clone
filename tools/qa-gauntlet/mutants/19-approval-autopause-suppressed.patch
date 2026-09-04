@@ -1,0 +1,8 @@
+diff --git a/src/ProjectAegis.Delegation/Watch/WatchAutoPauseGate.cs b/src/ProjectAegis.Delegation/Watch/WatchAutoPauseGate.cs
+--- a/src/ProjectAegis.Delegation/Watch/WatchAutoPauseGate.cs
++++ b/src/ProjectAegis.Delegation/Watch/WatchAutoPauseGate.cs
+@@ -114,3 +114,3 @@ public sealed class WatchAutoPauseGate
+     /// </summary>
+-    public bool ShouldAutoPausePendingApprovals() => ShouldAutoPause(PendingApprovalQueue);
++    public bool ShouldAutoPausePendingApprovals() => false;
+ 

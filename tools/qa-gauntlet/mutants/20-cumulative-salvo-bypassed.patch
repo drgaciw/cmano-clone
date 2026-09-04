@@ -1,0 +1,8 @@
+diff --git a/src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs b/src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs
+--- a/src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs
++++ b/src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs
+@@ -62,3 +62,3 @@ public sealed class PolicyEvaluator : IPolicyEvaluator
+         var cumulativeCount = _salvoLedger.GetActiveSalvoCount(request.TargetId, ctx.SimTick);
+-        if (cumulativeCount + salvo > policy.MaxSalvo)
++        var cumulativeBypass = true; if (!cumulativeBypass && cumulativeCount + salvo > policy.MaxSalvo)
+         {

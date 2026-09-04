@@ -1,0 +1,8 @@
+diff --git a/src/ProjectAegis.Delegation/Orchestration/AutonomyGate.cs b/src/ProjectAegis.Delegation/Orchestration/AutonomyGate.cs
+--- a/src/ProjectAegis.Delegation/Orchestration/AutonomyGate.cs
++++ b/src/ProjectAegis.Delegation/Orchestration/AutonomyGate.cs
+@@ -54,3 +54,3 @@ public sealed class AutonomyGate
+             AutonomyLevel.SemiAutonomous when IsLethalFireOrder(order) =>
+-                new GateResult(playerApproved, !playerApproved, false),
++                new GateResult(true, false, false),
+             AutonomyLevel.SemiAutonomous =>

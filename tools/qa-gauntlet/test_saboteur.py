@@ -129,6 +129,15 @@ def test_load_catalog_real_catalog_roles():
     ):
         assert by_id[mid] == "defect", mid
         assert "swarm_unit" in next(m["expectedOracles"] for m in cat if m["id"] == mid)
+    for mid in (
+        "18-autonomy-semi-bypass",
+        "19-approval-autopause-suppressed",
+        "20-cumulative-salvo-bypassed",
+        "21-wra-range-conflation-restored",
+    ):
+        assert by_id[mid] == "defect", mid
+        assert "governance" in next(m["expectedOracles"] for m in cat if m["id"] == mid)
+
 
 
 def test_summarize_kill_rate_excludes_control_and_expected_miss():
