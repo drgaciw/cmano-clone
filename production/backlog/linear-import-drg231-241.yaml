@@ -1,0 +1,295 @@
+# Linear Batch Import Manifest: DRG-231 through DRG-241
+# Team: DRG (Drgamtd-workspace)
+# Project: cmano-clone (cmano-clone-7f6a00e4c1c9)
+# Milestone: Release Enablement / S123 Backlog Expansion
+# Generated: 2026-09-04
+# Format: Linear CSV/YAML Batch Import Specification
+
+version: 1
+team: "DRG"
+project: "cmano-clone"
+
+issues:
+  - identifier: "AEGIS-301"
+    linear_id: "DRG-231"
+    title: "PendingApprovalQueue: Simulation Clock Auto-Pause & Reactive TTL"
+    priority: 1 # Urgent
+    estimate: 3
+    state: "Todo"
+    labels:
+      - "governance"
+      - "hol"
+      - "time-compression"
+      - "conductor:csharp-sim-specialist"
+    description: |
+      ### Summary
+      Connect `PendingApprovalQueue` order proposal insertions to `WatchAutoPauseGate` so that time-compressed simulation (60x–256x) automatically drops to 1x or pauses when a player decision is required, preventing silent 30-tick proposal expirations.
+
+      ### Git Surface
+      - `src/ProjectAegis.Sim/Time/WatchAutoPauseGate.cs`
+      - `src/ProjectAegis.Delegation/Orchestration/PendingApprovalQueue.cs`
+      - `src/ProjectAegis.Delegation.Tests/Orchestration/PendingApprovalQueueAutoPauseTests.cs`
+
+      ### Acceptance Criteria
+      - [ ] `WatchAutoPauseGate.ShouldAutoPause` evaluates true when `PendingApprovalQueue.HasPendingProposals` is true.
+      - [ ] Unit tests verify that at 256x acceleration factor, enqueuing an order proposal immediately triggers the pause signal before tick elapses.
+      - [ ] Existing ReplayGolden 6/6 continues to pass with 0 hash drift.
+
+  - identifier: "AEGIS-302"
+    linear_id: "DRG-232"
+    title: "Interim SemiAutonomous Safety Gate & Player Reaction Window"
+    priority: 1 # Urgent
+    estimate: 5
+    state: "Backlog"
+    labels:
+      - "governance"
+      - "hol"
+      - "autonomy-gate"
+      - "conductor:csharp-delegation-lead"
+    description: |
+      ### Summary
+      Implement interim safety gate `HOL-04B` in `AutonomyGate.cs` for `SemiAutonomous` controllers to eliminate the 0 ms reaction window bug during instant tick fire resolution.
+
+      ### Git Surface
+      - `src/ProjectAegis.Delegation/Orchestration/AutonomyGate.cs`
+      - `src/ProjectAegis.Delegation/Orchestration/ReactionWindowTracker.cs`
+      - `src/ProjectAegis.Delegation.Tests/Orchestration/AutonomyGateReactionTests.cs`
+
+      ### Invariant Guard
+      - **CRITICAL**: ZERO edits to `DelegationBridge.cs` hotpath.
+
+      ### Acceptance Criteria
+      - [ ] `AutonomyGate.Evaluate` for `SemiAutonomous` checks whether the target has a valid player acknowledgment or mission package authorization before returning `ExecuteNow`.
+      - [ ] If unauthorized, routes to `HoldPendingApproval` with a configurable reaction window buffer (minimum 10 ticks).
+      - [ ] Headless unit tests prove player can abort fire during reaction window.
+
+  - identifier: "AEGIS-303"
+    linear_id: "DRG-233"
+    title: "WRA Cumulative Salvo Budget & Engagement Ledger"
+    priority: 1 # Urgent
+    estimate: 5
+    state: "Backlog"
+    labels:
+      - "policy"
+      - "wra"
+      - "salvo-budget"
+      - "conductor:csharp-sim-specialist"
+    description: |
+      ### Summary
+      Replace stateless per-order `SalvoSize` check in `PolicyEvaluator.cs` with an `EngagementSalvoLedger` to enforce cumulative salvo limits per target engagement window.
+
+      ### Git Surface
+      - `src/ProjectAegis.Sim/Policy/PolicyEvaluator.cs`
+      - `src/ProjectAegis.Sim/Policy/EngagementSalvoLedger.cs`
+      - `src/ProjectAegis.Sim.Tests/Policy/CumulativeSalvoPolicyTests.cs`
+
+      ### Acceptance Criteria
+      - [ ] `PolicyEvaluator.Evaluate` checks both instantaneous burst cap AND cumulative munitions fired against the specific track within `EngagementWindowTicks`.
+      - [ ] Firing 10 single missiles at a target with `MaxSalvo = 2` denies order #3 with `FireAbortReason.WraSalvo`.
+      - [ ] Baltic Golden Replay 6/6 passes.
+
+  - identifier: "AEGIS-304"
+    linear_id: "DRG-234"
+    title: "Disambiguate WraRange Denial from OutOfEnvelope in Engagement Resolver"
+    priority: 2 # High
+    estimate: 3
+    state: "Todo"
+    labels:
+      - "sim"
+      - "kcx"
+      - "abort-reason"
+      - "conductor:csharp-sim-specialist"
+    description: |
+      ### Summary
+      Decouple doctrine range holds (`FireAbortReason.WraRange`) from kinematic aerodynamic limits (`EngagementAbortReason.OutOfEnvelope`) in `MvpEngagementResolver.cs:270`.
+
+      ### Git Surface
+      - `src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs`
+      - `src/ProjectAegis.Sim/Engage/abort_reason_manifest.json`
+      - `src/ProjectAegis.Sim/Engage/EngagementAbortReason.cs`
+      - `src/ProjectAegis.Sim.Tests/Engage/EngagementAbortReasonTests.cs`
+
+      ### Acceptance Criteria
+      - [ ] Add `EngagementAbortReason.WraRangeDenial` to `EngagementAbortReason.cs` and `abort_reason_manifest.json`.
+      - [ ] Map `FireAbortReason.WraRange` strictly to `EngagementAbortReason.WraRangeDenial`.
+      - [ ] Verify `OutOfEnvelope` is preserved exclusively for kinematic reach exceedance.
+      - [ ] `abort_reason_manifest.json` schema validation passes.
+
+  - identifier: "AEGIS-305"
+    linear_id: "DRG-235"
+    title: "Sensor-to-Shooter Track Custody Loss Attribution & Breakdown"
+    priority: 2 # High
+    estimate: 5
+    state: "Backlog"
+    labels:
+      - "kcx"
+      - "projections"
+      - "track-custody"
+      - "conductor:csharp-delegation-lead"
+    description: |
+      ### Summary
+      Integrate `TrackCustodyProjection` into `SensorToShooterProjection` to explicitly report whether an engagement abort or track custody drop was caused by jamming, LOS blockage, or sensor destruction.
+
+      ### Git Surface
+      - `src/ProjectAegis.Delegation/Projections/SensorToShooterProjection.cs`
+      - `src/ProjectAegis.Delegation/Projections/TrackCustodyProjection.cs`
+      - `src/ProjectAegis.Delegation.Tests/Projections/TrackCustodyAttributionTests.cs`
+
+      ### Acceptance Criteria
+      - [ ] `SensorToShooterChain` exposes `TrackCustodyBreakdown` enum (`None`, `JammingSjThreshold`, `HorizonMasking`, `PlatformDestroyed`).
+      - [ ] Headless tests verify that degraded tracks populate correct breakdown reasons.
+
+  - identifier: "AEGIS-306"
+    linear_id: "DRG-236"
+    title: "Wire DatalinkSidePictureMerger into Interactive MissionRuntime Tick"
+    priority: 1 # Urgent
+    estimate: 5
+    state: "Backlog"
+    labels:
+      - "c2n"
+      - "datalink"
+      - "playmode-parity"
+      - "conductor:csharp-sim-specialist"
+    description: |
+      ### Summary
+      Bridge `DatalinkSidePictureMerger` into `MissionRuntime.Tick` so that Play Mode interactive simulation models the same datalink lag and comms state partitioning that BalticReplayHarness tests.
+
+      ### Git Surface
+      - `src/ProjectAegis.Sim/Runtime/MissionRuntime.cs`
+      - `src/ProjectAegis.Sim/Comms/DatalinkSidePictureMerger.cs`
+      - `src/ProjectAegis.Sim.Tests/Runtime/MissionRuntimeDatalinkParityTests.cs`
+
+      ### Acceptance Criteria
+      - [ ] `MissionRuntime` ticks `DatalinkSidePictureMerger` on each simulation step.
+      - [ ] Units with `CommsState.Denied` do not instantly share target tracks in Play Mode.
+      - [ ] 0 regressions in BalticReplayHarness 6/6 passes.
+
+  - identifier: "AEGIS-307"
+    linear_id: "DRG-237"
+    title: "C2 Node Partitioning Autonomous Failback Behaviors"
+    priority: 2 # High
+    estimate: 8
+    state: "Backlog"
+    labels:
+      - "c2n"
+      - "autonomous-failback"
+      - "c2-mesh"
+      - "conductor:csharp-delegation-lead"
+    description: |
+      ### Summary
+      Define and implement autonomous unit failback behavior when a task unit becomes `Partitioned` from its commanding C2 node per Draft 25 (`C2N-02`).
+
+      ### Git Surface
+      - `src/ProjectAegis.Delegation/Projections/C2NetworkHealthProjector.cs`
+      - `src/ProjectAegis.Delegation/Orchestration/AutonomousFailbackPolicy.cs`
+      - `src/ProjectAegis.Delegation.Tests/Orchestration/AutonomousFailbackTests.cs`
+
+      ### Acceptance Criteria
+      - [ ] When `C2NetworkHealth` drops to `Partitioned`, units transition to pre-planned fallback doctrine (`HoldFire`, `RTB`, or `ExecuteLocalPackageROE`).
+      - [ ] Test coverage proves unit preserves local safety without phantom command execution.
+
+  - identifier: "AEGIS-308"
+    linear_id: "DRG-238"
+    title: "Harmonize Test Floor Baseline (≥1924) & CI Honesty Pins"
+    priority: 2 # High
+    estimate: 2
+    state: "Todo"
+    labels:
+      - "devops"
+      - "ci-honesty"
+      - "verification"
+      - "conductor:devops-ci-steward"
+    description: |
+      ### Summary
+      Single-source the CI test floor to the true measured suite baseline (≥1,924 passing tests) across `tools/buildkite/dotnet-ci.sh`, `verify-ci-local.ps1`, `01-Project-Overview.md`, and `AGENTS.md`. Update `Wave4RtmIndexHonestyPinsTests.cs` to eliminate false pinning.
+
+      ### Git Surface
+      - `tools/buildkite/dotnet-ci.sh`
+      - `tools/verify-ci-local.ps1`
+      - `AGENTS.md`
+      - `Game-Requirements/requirements/01-Project-Overview.md`
+      - `src/ProjectAegis.Delegation.Tests/Honesty/Wave4RtmIndexHonestyPinsTests.cs`
+
+      ### Acceptance Criteria
+      - [ ] CI scripts enforce monotonic floor `≥1924` tests with 0 failures.
+      - [ ] `Wave4RtmIndexHonestyPinsTests.cs` asserts current honest count.
+      - [ ] `dotnet test ProjectAegis.sln` passes with 0 failures.
+
+  - identifier: "AEGIS-309"
+    linear_id: "DRG-239"
+    title: "Delegation Gauntlet Saboteur Mutants for Autonomy & Authority"
+    priority: 2 # High
+    estimate: 5
+    state: "Backlog"
+    labels:
+      - "qa-gauntlet"
+      - "saboteur-mutants"
+      - "verification"
+      - "conductor:test-gauntlet-architect"
+    description: |
+      ### Summary
+      Add 4 new saboteur mutants to `tools/qa-gauntlet/` targeting `AutonomyGate`, `PendingApprovalQueue`, and `PolicyEvaluator` to catch governance bypasses during automated QA runs.
+
+      ### Git Surface
+      - `tools/qa-gauntlet/saboteurs/`
+      - `src/ProjectAegis.Tests/Gauntlet/GauntletOracleEvaluator.cs`
+      - `src/ProjectAegis.Tests/Gauntlet/GovernanceSaboteurTests.cs`
+
+      ### Acceptance Criteria
+      - [ ] Saboteur mutants accurately fail CI when `AutonomyGate` or `PolicyEvaluator` is modified to bypass checks.
+      - [ ] `GauntletOracleEvaluator` correctly scores governance mutants.
+
+  - identifier: "AEGIS-310"
+    linear_id: "DRG-240"
+    title: "Formally Promote Draft Documents 23–27 to Requirements Corpus"
+    priority: 2 # High
+    estimate: 3
+    state: "Todo"
+    labels:
+      - "governance"
+      - "requirements-corpus"
+      - "docs23-27"
+      - "conductor:requirements-steward"
+    description: |
+      ### Summary
+      Promote drafts 23 through 27 (`23-Kill-Chain-Explainability.md` .. `27-Scenario-Library-Campaigns.md`) into `Game-Requirements/requirements/`, update `00-Master-Index.md`, and reconcile master traceability.
+
+      ### Git Surface
+      - `Game-Requirements/requirements/23-Kill-Chain-Explainability.md`
+      - `Game-Requirements/requirements/24-Human-On-The-Loop-Authority.md`
+      - `Game-Requirements/requirements/25-C2-Nodes-Mission-Command.md`
+      - `Game-Requirements/requirements/26-Verification-CI-Gauntlet.md`
+      - `Game-Requirements/requirements/27-Scenario-Library-Campaigns.md`
+      - `Game-Requirements/requirements/00-Master-Index.md`
+      - `Game-Requirements/Game-Requirements-Index.md`
+
+      ### Acceptance Criteria
+      - [ ] All 5 draft documents moved to `Game-Requirements/requirements/` with clean frontmatter.
+      - [ ] `00-Master-Index.md` lists docs 23–27 with accurate shipped/partial status.
+      - [ ] Zero broken markdown links in the index.
+
+  - identifier: "AEGIS-311"
+    linear_id: "DRG-241"
+    title: "Formalize ADR-023 through ADR-027 Governance Updates"
+    priority: 3 # Normal
+    estimate: 2
+    state: "Backlog"
+    labels:
+      - "adr"
+      - "governance"
+      - "conductor:requirements-steward"
+    description: |
+      ### Summary
+      Document and ratify ADR-023 (Lethal Autonomy Opt-in De-scoping & Phase N), ADR-024 (Catalog Balance Gating), ADR-025 (Speculative Tech Level Decoupling), ADR-026 (Swarm Nationality Filter), and ADR-027 (Salvo Cumulative Accounting).
+
+      ### Git Surface
+      - `docs/adr/ADR-023-lethal-autonomy-opt-in-phase-n.md`
+      - `docs/adr/ADR-024-catalog-balance-write-gate.md`
+      - `docs/adr/ADR-025-speculative-tech-level-decoupling.md`
+      - `docs/adr/ADR-026-cec-swarm-us-nato-filtering.md`
+      - `docs/adr/ADR-027-cumulative-salvo-budget-accounting.md`
+      - `docs/adr/README.md`
+
+      ### Acceptance Criteria
+      - [ ] All 5 ADRs formatted according to MADR template with status `Accepted` or `Proposed`.
+      - [ ] Cross-referenced from corresponding requirements documents.

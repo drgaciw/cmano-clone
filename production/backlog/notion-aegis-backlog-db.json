@@ -1,0 +1,192 @@
+{
+  "database_name": "Aegis Product Backlog",
+  "parent": {
+    "type": "page_id",
+    "page_id": "aegis-hub-root"
+  },
+  "icon": {
+    "type": "emoji",
+    "emoji": "🛡️"
+  },
+  "description": "Backlog items for Project Aegis governance, explainability, C2 mesh, and verification expansion.",
+  "properties": {
+    "ID": { "title": {} },
+    "Story Title": { "rich_text": {} },
+    "Linear Issue": { "url": {} },
+    "Epic": {
+      "select": {
+        "options": [
+          { "name": "HOL - Authority", "color": "red" },
+          { "name": "KCX - Explainability", "color": "blue" },
+          { "name": "C2N - C2 Mesh", "color": "green" },
+          { "name": "VER - Verification", "color": "purple" },
+          { "name": "GOV - Governance", "color": "orange" }
+        ]
+      }
+    },
+    "Points": { "number": { "format": "number" } },
+    "Estimate (Hours)": { "number": { "format": "number" } },
+    "Status": {
+      "status": {
+        "options": [
+          { "name": "Backlog", "color": "gray" },
+          { "name": "Todo", "color": "yellow" },
+          { "name": "In Progress", "color": "blue" },
+          { "name": "In Review", "color": "purple" },
+          { "name": "Done", "color": "green" }
+        ]
+      }
+    },
+    "File Surface": {
+      "multi_select": {
+        "options": [
+          { "name": "Sim/Time", "color": "default" },
+          { "name": "Sim/Policy", "color": "default" },
+          { "name": "Sim/Engage", "color": "default" },
+          { "name": "Sim/Comms", "color": "default" },
+          { "name": "Sim/Runtime", "color": "default" },
+          { "name": "Delegation/Orchestration", "color": "default" },
+          { "name": "Delegation/Projections", "color": "default" },
+          { "name": "Tests/Gauntlet", "color": "default" },
+          { "name": "Requirements", "color": "default" },
+          { "name": "CI/DevOps", "color": "default" },
+          { "name": "ADR", "color": "default" }
+        ]
+      }
+    },
+    "Conductor Agent": {
+      "select": {
+        "options": [
+          { "name": "csharp-sim-specialist", "color": "blue" },
+          { "name": "csharp-delegation-lead", "color": "green" },
+          { "name": "test-gauntlet-architect", "color": "purple" },
+          { "name": "devops-ci-steward", "color": "orange" },
+          { "name": "requirements-steward", "color": "pink" }
+        ]
+      }
+    }
+  },
+  "rows": [
+    {
+      "ID": "AEGIS-301",
+      "Story Title": "PendingApprovalQueue: Simulation Clock Auto-Pause & Reactive TTL",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-231",
+      "Epic": "HOL - Authority",
+      "Points": 3,
+      "Estimate (Hours)": 4,
+      "Status": "Todo",
+      "File Surface": ["Sim/Time", "Delegation/Orchestration"],
+      "Conductor Agent": "csharp-sim-specialist"
+    },
+    {
+      "ID": "AEGIS-302",
+      "Story Title": "Interim SemiAutonomous Safety Gate & Player Reaction Window",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-232",
+      "Epic": "HOL - Authority",
+      "Points": 5,
+      "Estimate (Hours)": 8,
+      "Status": "Backlog",
+      "File Surface": ["Delegation/Orchestration"],
+      "Conductor Agent": "csharp-delegation-lead"
+    },
+    {
+      "ID": "AEGIS-303",
+      "Story Title": "WRA Cumulative Salvo Budget & Engagement Ledger",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-233",
+      "Epic": "HOL - Authority",
+      "Points": 5,
+      "Estimate (Hours)": 6,
+      "Status": "Backlog",
+      "File Surface": ["Sim/Policy"],
+      "Conductor Agent": "csharp-sim-specialist"
+    },
+    {
+      "ID": "AEGIS-304",
+      "Story Title": "Disambiguate WraRange Denial from OutOfEnvelope in Engagement Resolver",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-234",
+      "Epic": "KCX - Explainability",
+      "Points": 3,
+      "Estimate (Hours)": 4,
+      "Status": "Todo",
+      "File Surface": ["Sim/Engage"],
+      "Conductor Agent": "csharp-sim-specialist"
+    },
+    {
+      "ID": "AEGIS-305",
+      "Story Title": "Sensor-to-Shooter Track Custody Loss Attribution & Breakdown",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-235",
+      "Epic": "KCX - Explainability",
+      "Points": 5,
+      "Estimate (Hours)": 6,
+      "Status": "Backlog",
+      "File Surface": ["Delegation/Projections"],
+      "Conductor Agent": "csharp-delegation-lead"
+    },
+    {
+      "ID": "AEGIS-306",
+      "Story Title": "Wire DatalinkSidePictureMerger into Interactive MissionRuntime Tick",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-236",
+      "Epic": "C2N - C2 Mesh",
+      "Points": 5,
+      "Estimate (Hours)": 6,
+      "Status": "Backlog",
+      "File Surface": ["Sim/Runtime", "Sim/Comms"],
+      "Conductor Agent": "csharp-sim-specialist"
+    },
+    {
+      "ID": "AEGIS-307",
+      "Story Title": "C2 Node Partitioning Autonomous Failback Behaviors",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-237",
+      "Epic": "C2N - C2 Mesh",
+      "Points": 8,
+      "Estimate (Hours)": 12,
+      "Status": "Backlog",
+      "File Surface": ["Delegation/Orchestration", "Delegation/Projections"],
+      "Conductor Agent": "csharp-delegation-lead"
+    },
+    {
+      "ID": "AEGIS-308",
+      "Story Title": "Harmonize Test Floor Baseline (≥1924) & CI Honesty Pins",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-238",
+      "Epic": "VER - Verification",
+      "Points": 2,
+      "Estimate (Hours)": 2,
+      "Status": "Todo",
+      "File Surface": ["CI/DevOps"],
+      "Conductor Agent": "devops-ci-steward"
+    },
+    {
+      "ID": "AEGIS-309",
+      "Story Title": "Delegation Gauntlet Saboteur Mutants for Autonomy & Authority",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-239",
+      "Epic": "VER - Verification",
+      "Points": 5,
+      "Estimate (Hours)": 8,
+      "Status": "Backlog",
+      "File Surface": ["Tests/Gauntlet"],
+      "Conductor Agent": "test-gauntlet-architect"
+    },
+    {
+      "ID": "AEGIS-310",
+      "Story Title": "Formally Promote Draft Documents 23–27 to Requirements Corpus",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-240",
+      "Epic": "GOV - Governance",
+      "Points": 3,
+      "Estimate (Hours)": 4,
+      "Status": "Todo",
+      "File Surface": ["Requirements"],
+      "Conductor Agent": "requirements-steward"
+    },
+    {
+      "ID": "AEGIS-311",
+      "Story Title": "Formalize ADR-023 through ADR-027 Governance Updates",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-241",
+      "Epic": "GOV - Governance",
+      "Points": 2,
+      "Estimate (Hours)": 2,
+      "Status": "Backlog",
+      "File Surface": ["ADR"],
+      "Conductor Agent": "requirements-steward"
+    }
+  ]
+}
