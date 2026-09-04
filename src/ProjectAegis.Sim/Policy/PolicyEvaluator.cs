@@ -4,11 +4,24 @@ namespace ProjectAegis.Sim.Policy;
 public sealed class PolicyEvaluator : IPolicyEvaluator
 {
     private readonly Func<ulong, EffectivePolicy> _resolvePolicy;
+    private readonly EngagementSalvoLedger _salvoLedger;
 
-    public PolicyEvaluator(Func<ulong, EffectivePolicy>? resolvePolicy = null)
+    /// <summary>Engagement salvo ledger tracking munitions fired within active window ticks (AEGIS-303 / DRG-233).</summary>
+    public EngagementSalvoLedger SalvoLedger => _salvoLedger;
+
+    public PolicyEvaluator(
+        Func<ulong, EffectivePolicy>? resolvePolicy = null,
+        EngagementSalvoLedger? salvoLedger = null)
     {
         _resolvePolicy = resolvePolicy ?? (_ => EffectivePolicy.DefaultFree);
+        _salvoLedger = salvoLedger ?? new EngagementSalvoLedger();
     }
+
+    /// <summary>
+    /// Registers fired munitions against a target track in the salvo ledger.
+    /// </summary>
+    public void RegisterFired(ulong targetTrackId, int count = 1, ulong simTick = 0, ulong? windowTicks = null) =>
+        _salvoLedger.RegisterFired(targetTrackId, count, simTick, windowTicks);
 
     public PolicyVerdict Evaluate(in PolicyContext ctx, in ActionRequest request)
     {
@@ -41,6 +54,13 @@ public sealed class PolicyEvaluator : IPolicyEvaluator
 
         var salvo = Math.Max(1, ctx.SalvoSize);
         if (salvo > policy.MaxSalvo)
+        {
+            return PolicyVerdict.Deny(FireAbortReason.WraSalvo);
+        }
+
+        // AEGIS-303 (DRG-233): verify cumulative salvo count against the target track within active window ticks.
+        var cumulativeCount = _salvoLedger.GetActiveSalvoCount(request.TargetId, ctx.SimTick);
+        if (cumulativeCount + salvo > policy.MaxSalvo)
         {
             return PolicyVerdict.Deny(FireAbortReason.WraSalvo);
         }
