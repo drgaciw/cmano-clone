@@ -1,7 +1,6 @@
 track: combat-ui
 run_id: gauntlet-20260904-1450-combat-ui
-verdict: BLOCKED
-blocked_reason: CombatDomains GameObject missing from DelegationSmoke
+verdict: PASS
 gates:
   ua_filter:
     passed: 22
@@ -13,7 +12,9 @@ gates:
     failed: 0
     floor: 1
     exit: 0
-  scene_combat_domains_go: missing
+  scene_combat_domains_go: present
+  scene_component: ProjectAegis.Unity.Runtime.CombatDomainsHotTickHost
 remediation_required: false
 slice_b_implementation: false
 delegation_bridge_diff_bytes: 0
+correction: "2026-09-04 re-audit found CombatDomains GO in DelegationSmoke HEAD; prior MISSING was a grep miss"

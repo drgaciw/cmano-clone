@@ -158,24 +158,24 @@ S123 (2026-09-15): Slice B bind + `CombatDomains` scene-save. See `production/sp
 
 ## Definition of Done for this Sprint
 
-- [ ] All Must Have tasks completed
-- [ ] All tasks pass acceptance criteria
+- [x] All Must Have tasks completed (00–05 + 12–13)
+- [x] Must Have tasks pass acceptance criteria (Should/Nice 14–15 still backlog)
 - [x] QA plan exists (`production/qa/qa-plan-sprint-122-2026-09-04.md`)
-- [ ] Logic/Integration stories have passing unit/integration tests
-- [ ] Smoke check passed (`/smoke-check sprint`)
-- [ ] QA sign-off: APPROVED or APPROVED WITH CONDITIONS (`/team-qa` and/or `/qa-gauntlet-ui`)
-- [ ] No S1 or S2 bugs in delivered features
-- [ ] Design documents updated for any deviations
-- [ ] Code reviewed and merged
-- [ ] MCP evidence: at least one Game View screenshot + console log per Must Have visual story
-- [ ] ZERO `DelegationBridge` hotpath edits
+- [x] Logic/Integration stories have passing unit/integration tests (`src/ProjectAegis.*.Tests`)
+- [x] Smoke check passed (`production/qa/smoke-2026-09-04.md`)
+- [x] QA sign-off: APPROVED WITH CONDITIONS (`/qa-gauntlet-ui` PASS including signoff ×5; `/team-qa` human UAT not a second loop)
+- [x] No S1 or S2 bugs in delivered Must Have features
+- [x] Design documents updated for any deviations (EngageExplain panel body leftover S123-01; S122-14 heap)
+- [x] Code reviewed and merged — lean: `/code-review` skipped at user `/story-done` close; `DelegationBridge.cs` untouched
+- [x] MCP evidence: Game View shots + console log for Must Have visual stories
+- [x] ZERO `DelegationBridge` hotpath edits
 
 ## Next steps
 
-1. S122-12 then S122-13 (honesty) — `/story-readiness` then `/dev-story`
-2. Finish S122-04 / S122-05 (signoff ×5 after quitting the interactive Editor)
-3. **After Must Have 00–05 + 12–13 land:** `/smoke-check sprint` then finish gauntlet-ui signoff ×5
-4. Do not start S123 until S122 Must Have closeout
+1. Should Have remaining: S122-06–08 (in review) and S122-14 (backlog) if pulling more work
+2. Nice: S122-09/11 in review; S122-10/15 backlog
+3. Do not start Slice B implementation from this close unless a later sprint plan is explicitly started
+4. Sprint close-out sequence if stopping at Must Have: `/team-qa sprint` (human UAT) → `/retrospective` → `/sprint-plan new`
 
 ## QA Test Cases
 
@@ -202,5 +202,14 @@ Canonical plan: [`production/qa/qa-plan-sprint-122-2026-09-04.md`](../qa/qa-plan
 
 Red gates → `/qa-gauntlet-remediation` (+ UCA on presentation). GitNexus CRITICAL → `/qa-gauntlet-agentic-resilience`. Ladder/forge/stress **out** of S122 Must Have.
 
+## Completion Notes
+
+**Completed**: 2026-09-04
+**Must Have closed**: S122-00, 01, 02, 03, 04, 05, 12, 13
+**Criteria**: Must Have ACs covered by headless tests + MCP shots + gauntlet-ui (145/11/17 + signoff ×5 PASS) + combat-ui (22/22, CombatDomains GO present)
+**Deviations (advisory)**: EngageExplain panel body still `ENGAGE: —` (S123-01 leftover); Wave4/5 hosts still loaded (S122-14); live C2 node rows only if package feed exists (S122-15)
+**Test Evidence**: `production/qa/evidence/s122-12/unit-roe-auth.png`, `production/qa/evidence/s122-13/contacts-list-c1.png`, `production/qa/smoke-2026-09-04.md`, `production/qa/gauntlet/gauntlet-20260904-1450-ui/`, `production/qa/gauntlet/gauntlet-20260904-1450-combat-ui/`
+**Code Review**: Skipped — lean mode; user approved close without `/code-review`
+
 ---
-*S122 opened 2026-09-04. MCP follow-up `slice-rec-2` added 2026-09-04. QA plan 2026-09-04. Stage **Release**. Not Launch.*
+*S122 opened 2026-09-04. MCP follow-up `slice-rec-2` added 2026-09-04. QA plan 2026-09-04. Must Have closed 2026-09-04. Stage **Release**. Not Launch.*

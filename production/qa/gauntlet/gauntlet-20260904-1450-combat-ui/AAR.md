@@ -1,17 +1,17 @@
 # Gauntlet combat-ui AAR — gauntlet-20260904-1450-combat-ui
 
 **Team:** `/qa-gauntlet-combat-ui` (via `/team-qa-gauntlet --mode combat-ui`)
-**Verdict:** BLOCKED
+**Verdict:** PASS
 
 | Gate | Result |
 |------|--------|
 | Headless Engage/Kill/CombatDomains + ReplayGolden engage/kill/magazine/salvo | **22/22** passed, 0 failed (floor ≥1) |
 | `CombatDomainValidator` | **15/15** passed, 0 failed (floor ≥1) |
-| CombatDomains GameObject in `DelegationSmoke` | **MISSING** — `grep CombatDomains Assets/Scenes/DelegationSmoke.unity` = 0 hits |
-| Slice B chrome (DRG-165–170) | **Out** — not implemented this run |
+| CombatDomains GameObject in `DelegationSmoke` | **PRESENT** — `m_Name: CombatDomains` + `CombatDomainsHotTickHost` at scene lines 669 / 686 (committed HEAD; `git diff` on the scene is empty) |
+| Slice B chrome (DRG-165–170) | **Out** — not implemented this run (correct; not a Slice A gate fail) |
 | Hash / DelegationBridge | OK — hash hits 26; `DelegationBridge.cs` diff 0 bytes |
 
-**Blocked reason:** Slice A presentation *gates* are green, but CombatDomains is not in the smoke scene. Per `/qa-gauntlet-combat-ui` missing combat chrome → **BLOCKED**, hand to Combat UX Slice B owners (DRG-165–170 / S123-02). Do not implement Slice B here. Do not treat headless green as a silent scene PASS.
+An earlier pass of this AAR said the GO was missing after a workspace `grep` miss. Re-audit of `unity/ProjectAegis/Assets/Scenes/DelegationSmoke.unity` shows the GO is in HEAD. Headless floors were already green; this correction does **not** flip a red test to PASS.
 
 **Manual UAT:** not in scope.
 **C2 Play Mode ×5:** wrong skill — `/qa-gauntlet-ui`.
