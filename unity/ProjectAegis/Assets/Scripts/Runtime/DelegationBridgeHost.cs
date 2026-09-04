@@ -332,12 +332,27 @@ namespace ProjectAegis.Unity.Runtime
         /// </summary>
         public EngageExplain ProjectSelectedEngageExplain()
         {
-            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedUnitId))
+            if (_lastSnapshot == null)
             {
                 return EngageExplain.Empty;
             }
 
-            var preview = Bridge.GetEngagePreviewForUnit(SelectedUnitId, _lastSnapshot);
+            var unitId = SelectedUnitId;
+            if (string.IsNullOrEmpty(unitId))
+            {
+                var members = Bridge.Registry.CollectMemberIds();
+                if (members != null && members.Count > 0)
+                {
+                    unitId = members[0].Value;
+                }
+            }
+
+            if (string.IsNullOrEmpty(unitId))
+            {
+                return EngageExplain.Empty;
+            }
+
+            var preview = Bridge.GetEngagePreviewForUnit(unitId, _lastSnapshot);
             return EngageExplainProjection.Project(preview);
         }
 

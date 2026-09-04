@@ -76,6 +76,11 @@ public static class EngageExplainProjection
             var c when c.Contains("ROE", StringComparison.OrdinalIgnoreCase)
                 || c.Contains("WEAPONS_TIGHT", StringComparison.OrdinalIgnoreCase)
                 => "Rules of engagement deny this engagement.",
+            var c when c.Contains("WRA_RANGE", StringComparison.OrdinalIgnoreCase)
+                || c.Contains("OUT_OF_ENVELOPE", StringComparison.OrdinalIgnoreCase)
+                => "Target is outside WRA doctrine launch range or kinematic envelope.",
+            var c when c.Contains("SALVO", StringComparison.OrdinalIgnoreCase)
+                => "Cumulative salvo limit reached for target engagement window.",
             _ => $"Engagement blocked ({abortCode}).",
         };
     }

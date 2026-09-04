@@ -84,6 +84,16 @@ public sealed class LiveFeedProjectionTests
         Assert.That(explain.StatusLine, Is.EqualTo(EngageExplainProjection.NoPreviewLabel));
     }
 
+    [Test]
+    public void EngageExplainProjection_explains_wra_range_denial_and_salvo_limits()
+    {
+        var wraExplain = EngageExplainProjection.ExplainCode("WRA_RANGE_DENIAL");
+        Assert.That(wraExplain, Does.Contain("WRA").IgnoreCase);
+
+        var salvoExplain = EngageExplainProjection.ExplainCode("WRA_SALVO");
+        Assert.That(salvoExplain, Does.Contain("salvo").IgnoreCase);
+    }
+
     // ──────────────────────────────────────────────────────────────
     // CMD-26: thin OOB ground feed logic (headless via projection)
     // ──────────────────────────────────────────────────────────────
