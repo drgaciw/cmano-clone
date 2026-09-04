@@ -6,7 +6,7 @@
 **FR reverse-ref:** [FR-07](01-Project-Overview.md) — In-simulation agent architecture  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)  
 **Architecture:** [Master Architecture](../../docs/architecture/architecture.md) · ADR-001–008 (see [Resolved Design Decisions](#resolved-design-decisions); ADR-007 C2 map, ADR-008 mission-editor validation)  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) §08 — **Partial** (Release stage)
+**Tracker:** [implementation-tracker.md](../implementation-tracker.md) §08 — **Partial** (Release stage)
 
 ## Purpose
 
@@ -380,10 +380,10 @@ World state is **not** in DOTS/ECS. See
 | Doc 17 | Order log / replay — ARCH-5.x; ReplayGolden hash `17144800277401907079` |
 | Master architecture | [architecture.md](../../docs/architecture/architecture.md), [architecture-traceability-index.md](../../docs/architecture/architecture-traceability-index.md) |
 | ADR-001–008 | [Resolved Design Decisions](#resolved-design-decisions) · ADR-001…006 sim/data spine · [ADR-007](../../docs/architecture/adr-007-c2-map-presentation.md) UX · [ADR-008](../../docs/architecture/adr-008-mission-editor-validation-engine.md) scenario validation |
-| Tracker | [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) §08 — **Partial** (Release) |
+| Tracker | [implementation-tracker.md](../implementation-tracker.md) §08 — **Partial** (Release) |
 
 ---
 
 **Status:** Locked (Sprint 15)  
-**Tracker row 08:** **Partial** — [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md)  
+**Tracker row 08:** **Partial** — [implementation-tracker.md](../implementation-tracker.md)  
 **Implementation grade:** Partial — Design Status remains **Locked**. Charter re-honesty: Wave 1 2026-07-08.

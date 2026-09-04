@@ -5,7 +5,7 @@
 **FR reverse-ref:** [FR-13](01-Project-Overview.md) — Sensors, detection, EW  
 **CMO basis:** Manual §3.3.10, §4.5.2, §6.3.8–9, §9.1.1, §9.2.6; appendix §10.7 (comms/EW overlap → doc 19)  
 **Related:** 13 Doctrine/EMCON, 14 Engagement, 18 Combat Domains, 06 Database Intelligence, 17 Order Log  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 15 — **Partial (MVP COVERED)**  
+**Tracker:** [implementation-tracker.md](../implementation-tracker.md) row 15 — **Partial (MVP COVERED)**  
 **GDD:** [sensor-detection-ew.md](../../design/gdd/sensor-detection-ew.md)
 
 ## Purpose
@@ -222,7 +222,7 @@ Fixed evaluation order per tick:
 
 ---
 
-**Implementation grade:** Partial (MVP COVERED) — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 15.  
+**Implementation grade:** Partial (MVP COVERED) — see [implementation-tracker.md](../implementation-tracker.md) row 15.  
 Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.
 
 **References:** CMO Manual §9.1.1, §9.2.6; `docs/manual/index.html`

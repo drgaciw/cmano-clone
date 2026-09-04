@@ -1,14 +1,14 @@
 # Game Requirements - Master Index
 
-**Last Updated:** 2026-08-09
+**Last Updated:** 2026-09-02
 
-**Program note:** **Corpus maturity W0–W4 complete (2026-07-08)** — hub + drafts 13–21 honesty re-baselined; design: `docs/superpowers/specs/2026-07-08-requirements-corpus-maturity-design.md`. Scenario editor (req 11): **S81–S88 headless engineering complete on trunk**; active completion epic **`scenario-editor-completion`** (SE-W1 honesty → SE-W2 AC-8 → SE-W3 gate). Plan: `docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md`. Status: `production/agentic/se-w0-status-truth-2026-07-08.md`. Post-MVP Requirements Program (Sprints 11–15) complete for docs 01–12 Template A. Doc 21 Platform Editor is first-class under Authoring.
+**Program note:** **Corpus maturity W0–W4 complete (2026-07-08)** — hub + drafts 13–21 honesty re-baselined; design: `docs/superpowers/specs/2026-07-08-requirements-corpus-maturity-design.md`. Historical review verdicts (2026-05-29 CONCERNS) were superseded by W0–W4 APPROVED reviews (2026-07-08). Scenario editor (req 11), ME Phase 2, and PE complete on trunk; active post-editor hygiene and forward continuous engineering. Live status pointers: [`docs/reports/`](../docs/reports/) latest sprint roadmap and [`production/qa/`](../production/qa/). Post-MVP Requirements Program (Sprints 11–15) complete for docs 01–12 Template A. Doc 21 Platform Editor is first-class under Authoring.
 
 ## Implementation
 
-- [Implementation tracker (MVP status 01–21)](implementation-tracker-2026-07-04.md) — **2026-07-04** (supersedes [2026-07-01](implementation-tracker-2026-07-01.md))
+- [Implementation tracker (MVP status 01–21)](implementation-tracker.md) — **Stable Alias** (historical: [implementation-tracker-2026-07-04.md](implementation-tracker-2026-07-04.md))
 - [Root master index](../00-Master-Index.md) — redirects here + tracker
-- [Data population (CMAO DB)](Data-Population-CMAODB.md)
+- [Data population (CMAODB)](Data-Population-CMAODB.md)
 
 ## Traceability
 
@@ -16,8 +16,9 @@
 - [CMO Manual Traceability Matrix](cmo-manual-traceability.md) — maps `docs/manual/` sections to requirement docs
 - [CMO Manual (HTML)](../docs/manual/index.html)
 - [Impact Analysis: Sim & C2 bundle (2026-05-29)](../docs/requirements/impact-sim-c2-requirements-2026-05-29.md) — GitNexus blast radius
-- [Design Review: Requirements 13–20 (2026-05-29)](reviews/requirements-13-20-design-review-2026-05-29.md) — **CONCERNS** verdict
-- [GitNexus Validation: Research → Requirements (2026-05-29)](reviews/research-gitnexus-validation-2026-05-29.md) — **CONCERNS**; code alignment for docs 01/04/06–10
+- [Design Review: Requirements 13–20 (2026-05-29)](reviews/requirements-13-20-design-review-2026-05-29.md) — Historical CONCERNS verdict (superseded 2026-07-08 by W0–W4 Approved)
+- [GitNexus Validation: Research → Requirements (2026-05-29)](reviews/research-gitnexus-validation-2026-05-29.md) — Historical CONCERNS; code alignment for docs 01/04/06–10 (superseded 2026-07-08)
+- [Audit Findings Register (2026-09-02)](reviews/audit-findings-2026-09-02.md) — Requirements audit findings & remediation register
 - [Systems Index](../design/gdd/systems-index.md) — decomposition for GDD authoring
 - [Master Architecture](../docs/architecture/architecture.md) — assemblies, tick pipeline, ADR index (2026-05-29)
 - [Policy GDD](../design/gdd/policy-roe-emcon-wra.md) — implements req 13
@@ -95,6 +96,6 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 - **H8 Drone Swarm Platforms (doc 22):** Phase A–C + PE residual **landed** (DRG-83 Done); Phase N SWARM-27…30 **post-release deferred** ([DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) 2026-08-09)
 - **REQ-09/10 Phase N:** Owner decision recorded — no Phase N GDDs/runtime until product re-opens Phase N (`production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md`)
 - **Corpus maturity program closed** (W0–W4 complete 2026-07-08); no further corpus waves
-- **Scenario editor completion** (req 11): SE-W1 doc honesty + residual tools; SE-W2 Unity AC-8 productionize; SE-W3 gate — plan [2026-07-08-scenario-editor-completion-plan.md](../docs/superpowers/plans/2026-07-08-scenario-editor-completion-plan.md); roadmap [future-sprint-roadpmap-07042026.md](../docs/reports/future-sprint-roadpmap-07042026.md)
+- **Scenario editor completion** (req 11): S81–S88 scenario editor, ME Phase 2, and PE complete on trunk; post-editor hygiene and forward roadmap at [`docs/reports/future-sprint-roadpmap.md`](../docs/reports/future-sprint-roadpmap.md) (stable alias)
 - Run `/design-review` when mechanics change on **01, 04, 06–11, 13–22**
 - Run `/military-requirements-impact` before DB schema for JADC2, C-UAS, hypersonic defense

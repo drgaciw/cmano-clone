@@ -5,7 +5,7 @@
 **FR reverse-ref:** [FR-08](01-Project-Overview.md) — Near-future and speculative platforms (near-future half)  
 **Research basis:** [Near-Future Tech Research Supplement](../../docs/research/near-future-tech-research.md)  
 **Related:** 06 Database Intelligence, 10 Speculative Systems, 11 Mission Editor, 14 Engagement, 22 Drone Swarm Platforms  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 09 — **Partial**  
+**Tracker:** [implementation-tracker.md](../implementation-tracker.md) row 09 — **Partial**  
 **Linear:** [DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) · decision note: [`production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md`](../../production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md)
 
 ## Owner decision — Phase N scoping (2026-08-09) · DRG-47
@@ -15,7 +15,7 @@ Owner-delegated decision (same pattern as DRG-84 owner triage). Authority: SWARM
 | Decision | Outcome |
 |----------|---------|
 | Product-in-scope **now** | **Shipped spine only** — archetype catalog (4), TL + swarm-tier gates, spawn **plan**, scenario `maxTechnologyLevel` / `nearFutureUnits`, CLI `scenario_near_future_spawn`, Baltic `NF_SPAWN` log/register, hypersonic engage **boolean** gate, `CatalogPlatformBinding.GameTechnologyLevel` |
-| Phase N design matrix | **Post-release / Phase N** — CCA/swarm advanced runtime beyond SWARM Phase C, full AUV, full DEW thermal, quantum sensing runtime, JADC2 node model, CEW, MASS tier runtime, full DOTS spawn, Baltic near-future content pack — **not scheduled for current Release train** |
+| Phase N design matrix | **Post-release / Phase N** — CCA/swarm advanced runtime beyond SWARM Phase C, full AUV, full DEW thermal, quantum sensing runtime, JADC2 node model, CEW, MASS tier runtime, full ECS entity spawn (ADR-005 superseded), Baltic near-future content pack — **not scheduled for current Release train** |
 | SWARM-27…30 (doc 22) | **Phase N deferred** under DRG-47 — not building now (see [22](22-Drone-Swarm-Platforms.md) Phase N section) |
 | Full GDDs / ADRs for Phase N | **Not authored this turn** — stop reading design-matrix sections as pending implementation commitments until product re-opens Phase N |
 
@@ -34,7 +34,7 @@ A rich, believable technology base grounded in current open-source intelligence 
 | Layer | What it is | Claim level |
 |-------|------------|-------------|
 | **SHIPPED headless spine** | Archetype catalog (4), TL + swarm-tier gates (Medium max 500), spawn **plan** only, scenario `maxTechnologyLevel` / `nearFutureUnits`, CLI `scenario_near_future_spawn`, Baltic harness `NF_SPAWN` log/register, hypersonic engage **boolean** gate, platform field `CatalogPlatformBinding.GameTechnologyLevel` | **Shipped / Partial** — evidence in Implementation Mapping; **product-in-scope** (DRG-47 2026-08-09) |
-| **Phase N design matrix** | CCA/swarm runtime behaviors, AUV full sim, full DEW thermal, quantum sensing runtime, JADC2 node model, CEW, MASS tier runtime, full DOTS spawn, Baltic near-future content pack | **Not shipped** — **post-release / Phase N** (DRG-47); product intent below remains research-integrated design only |
+| **Phase N design matrix** | CCA/swarm runtime behaviors, AUV full sim, full DEW thermal, quantum sensing runtime, JADC2 node model, CEW, MASS tier runtime, full ECS entity spawn (ADR-005 superseded), Baltic near-future content pack | **Not shipped** — **post-release / Phase N** (DRG-47); product intent below remains research-integrated design only |
 
 **Rule of thumb:** Category sections below are the **design matrix** (research-integrated). Do not read “v1.0” wording in those sections as “full runtime on main” unless the Implementation Mapping row says **Shipped**. **Do not treat Phase N design matrix as a Release commitment.**
 
@@ -53,7 +53,7 @@ Scenarios bind entities to a **Technology Level (TL)** that gates availability:
 
 Speculative systems beyond TL-3 belong in [10-Speculative-Systems.md](10-Speculative-Systems.md).
 
-**Honesty note:** Headless TL gating for near-future archetypes uses scenario `MaxTechnologyLevel` + `CatalogArchetypeGate` / `NearFutureArchetypeRuntime.PlanSpawns`. Full entity spawn into DOTS worlds is **Phase N**.
+**Honesty note:** Headless TL gating for near-future archetypes uses scenario `MaxTechnologyLevel` + `CatalogArchetypeGate` / `NearFutureArchetypeRuntime.PlanSpawns`. Full entity spawn into DOTS/ECS worlds is **Phase N / Superseded** (ADR-005 superseded 2026-07-07).
 
 ## Core Technology Categories & Gameplay Implications
 
@@ -284,7 +284,7 @@ Adaptive systems reduce one or two signatures at cost of power draw and heat (pa
 |------|-------------|--------|----------|
 | Near-future archetype catalog (4) | `data/catalog/near_future_archetypes.json` + `NearFutureArchetypeCatalog` | **Shipped** | 4 archetypes: `replicator-attritable`, `cca-wingman`, `swarm-saturation`, `hypersonic-boost-glide` |
 | TL + swarm-tier gates | `CatalogArchetypeGate`, `SwarmTier` / `SwarmTierLimits` (`MediumMaxEntities = 500`) | **Shipped** | `CatalogArchetypeGateTests`; Medium cap enforced; MASS catalog row gated |
-| Spawn **plan** (not full DOTS) | `NearFutureArchetypeRuntime.PlanSpawns` | **Shipped (plan only)** | `NearFutureArchetypeRuntimeTests` — rejects MASS at Medium cap; **no** full DOTS entity spawn |
+| Spawn **plan** (not full DOTS) | `NearFutureArchetypeRuntime.PlanSpawns` | **Shipped (plan only)** | `NearFutureArchetypeRuntimeTests` — rejects MASS at Medium cap; **no** full DOTS/ECS entity spawn |
 | Scenario NF schema | `ScenarioMetadataDto.MaxTechnologyLevel`, `NearFutureUnits` (+ schema `nearFutureUnits`) | **Shipped** | `data/scenarios/scenario-document.schema.json`; authoring DTO |
 | CLI spawn plan | `ScenarioNearFutureSpawnCommand` / `scenario_near_future_spawn` | **Shipped** | `ScenarioNearFutureSpawnCommandTests`; MissionEditor.Cli verb |
 | Baltic harness NF register | `BalticReplayHarness.RegisterNearFutureUnits` → `NF_SPAWN:{archetypeId}` | **Shipped (log/register)** | Harness calls `PlanSpawns` and logs `NF_SPAWN` — not full world content pack |
@@ -292,7 +292,7 @@ Adaptive systems reduce one or two signatures at cost of power draw and heat (pa
 | Platform technology field | `CatalogPlatformBinding.GameTechnologyLevel` | **Shipped** | Catalog write-gate / TL export; **not** a `PlatformTechnologyLevel` type |
 | CCA / swarm runtime behaviors | — | **Phase N** | Autonomy modes, attrition curves, counter-swarm — design matrix only |
 | AUV full sim / DEW thermal / quantum / JADC2 / CEW | — | **Phase N** | Category §§1–4 design intent; no headless full-fidelity spine |
-| MASS tier + full DOTS spawn + Baltic NF content pack | — | **Phase N** | Tracker residual: full DOTS spawn; MASS tier runtime |
+| MASS tier + full DOTS spawn + Baltic NF content pack | — | **Phase N (Superseded)** | Tracker residual: full DOTS spawn; MASS tier runtime |
 
 **Honesty note:** Design Status remains **Research-integrated**. Tracker **Partial** is correct: headless catalog/gates/plan/CLI/harness/boolean hypersonic spine is on `main`; category-level systems (CCA behaviors, AUV, DEW thermal, quantum, JADC2, CEW, MASS, DOTS spawn, Baltic NF pack) remain **Phase N**. Speculative settings → doc 10.
 
@@ -311,5 +311,5 @@ Adaptive systems reduce one or two signatures at cost of power draw and heat (pa
 
 ---
 
-**Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 09.  
+**Implementation grade:** Partial — see [implementation-tracker.md](../implementation-tracker.md) row 09.  
 Design Status remains **Research-integrated**. Charter re-honesty: Wave 3 2026-07-08.

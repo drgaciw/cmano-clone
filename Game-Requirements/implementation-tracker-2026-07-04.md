@@ -1,4 +1,6 @@
-# Game Requirements — Implementation Tracker
+# Game Requirements — Implementation Tracker (Historical 2026-07-04 Baseline)
+
+> **Note:** This is the historical snapshot dated 2026-07-04. For the current tracker and post-2026-07-09 delta section, see the stable alias [`implementation-tracker.md`](implementation-tracker.md).
 
 **Base:** `fix-scenario-publish-cli-wiring` @ `7b0f376` (`7b0f3766e8fe22946438ffe84a8643117cf90976` — scenario editor validation tracks A–D for doc-11)  
 **Last Updated:** 2026-07-04 (GitNexus pre: branch index @ `e0f8a91`, 1 commit stale vs HEAD; `ScenarioDocumentEditor` CRITICAL / `ScenarioValidationEngine` HIGH upstream; verification-before RUN)  

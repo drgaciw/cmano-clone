@@ -5,7 +5,7 @@
 **FR reverse-ref:** [FR-14](01-Project-Overview.md) — Logistics and magazines  
 **CMO basis:** Manual §3.3.4–8, §3.3.6, §4.5.4–5, §6.3.13, §7.2.1–2 (ferry/support)  
 **Related:** 11 Mission Editor, 14 Engagement, 18 Combat Domains, 06 Database Intelligence, 17 Order Log  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 16 — **Partial**  
+**Tracker:** [implementation-tracker.md](../implementation-tracker.md) row 16 — **Partial**  
 **GDD:** [logistics-magazines.md](../../design/gdd/logistics-magazines.md)
 
 ## Purpose
@@ -280,7 +280,7 @@ Ferry authoring uses Mission Editor CLI (`mission_add_ferry` / `mission_update_f
 
 ---
 
-**Implementation grade:** Partial — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 16.  
+**Implementation grade:** Partial — see [implementation-tracker.md](../implementation-tracker.md) row 16.  
 Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.
 
 **References:** CMO Manual §3.3.6–8; `docs/manual/index.html`

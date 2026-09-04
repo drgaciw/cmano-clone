@@ -5,7 +5,7 @@
 **FR reverse-ref:** [FR-08](01-Project-Overview.md) — Near-future and speculative platforms (**speculative half**; near-future half is [09](09-Near-Future-Technologies.md))  
 **Research basis:** [Speculative Systems Research Supplement](../../docs/research/speculative-systems-research.md)  
 **Related:** 09 Near-Future Technologies, 13 Doctrine/ROE, 14 Engagement, 17 Replay/AAR, 19 Cyber/Comms  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 10 — **Partial+**; row 10b Kessler/orbital DEW runtime — **Phase N / not on main**  
+**Tracker:** [implementation-tracker.md](../implementation-tracker.md) row 10 — **Partial+**; row 10b Kessler/orbital DEW runtime — **Phase N / not on main**  
 **Linear:** [DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) · decision note: [`production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md`](../../production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md)
 
 ## Owner decision — Phase N scoping (2026-08-09) · DRG-47
@@ -394,5 +394,5 @@ All speculative systems map to an escalation tier — use triggers political cos
 
 ---
 
-**Implementation grade:** Partial+ — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 10 (gate + metadata); row 10b **Phase N / not on main**.  
+**Implementation grade:** Partial+ — see [implementation-tracker.md](../implementation-tracker.md) row 10 (gate + metadata); row 10b **Phase N / not on main**.  
 Design Status remains **Research-integrated**. Charter re-honesty: Wave 3 2026-07-08.

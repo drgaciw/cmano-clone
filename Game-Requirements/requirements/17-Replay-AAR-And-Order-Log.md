@@ -5,7 +5,7 @@
 **FR reverse-ref:** [FR-15](01-Project-Overview.md) — Replay, order log, AAR  
 **CMO basis:** Manual §6.3.11 Recorder, §6.3.12 Message Log, §6.3.13 Losses, §6.3.14 Scoring; §9.2.10 losses note  
 **Related:** [02](02-Core-Gameplay-Loop.md) Core Gameplay Loop, [03](03-Simulation-Modes.md) Simulation Modes, [08](08-Agentic-Architecture.md) Agentic Architecture, [13](13-Doctrine-ROE-EMCON-WRA.md)–[14](14-Engagement-And-Fire-Control.md) policy/engage, [04](04-Agent-Delegation.md) Delegation  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) §17 — **Partial** (Release stage)  
+**Tracker:** [implementation-tracker.md](../implementation-tracker.md) §17 — **Partial** (Release stage)  
 **ADR:** [ADR-003](../../docs/architecture/adr-003-order-log-schema.md) Unified Order Log Schema
 
 ## Purpose
@@ -211,11 +211,11 @@ Corrected headless-first order (Wave 2 re-honesty — **not** scrub-first):
 | [04](04-Agent-Delegation.md) | `AgentDecision` entries; controller / detach-rejoin |
 | [ADR-003](../../docs/architecture/adr-003-order-log-schema.md) | Unified order log schema |
 | `cmo-manual-traceability.md` | §6.3.11–14 |
-| Tracker | [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) §17 — **Partial** |
+| Tracker | [implementation-tracker.md](../implementation-tracker.md) §17 — **Partial** |
 
 ---
 
 **References:** CMO Manual §6.3.11–14, §9.2.10; `docs/manual/index.html`; `.claude/skills/replay-verify/SKILL.md`; hash invariant `17144800277401907079`
 
-**Tracker row 17:** **Partial** — [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md)  
+**Tracker row 17:** **Partial** — [implementation-tracker.md](../implementation-tracker.md)  
 **Implementation grade:** Partial — headless MVP (log + golden + hash) shipped; scrub UI / product AAR NL residual. Design Status remains **Draft**. Charter re-honesty: Wave 2 2026-07-08.

@@ -5,7 +5,7 @@
 **FR reverse-ref:** [FR-12](01-Project-Overview.md) — Engagement and fire control  
 **CMO basis:** Manual §3.3.1–2, §3.3.9, §4.1.1, §9.1–2, §9.2.8–9 (DLZ)  
 **Related:** 13 Doctrine/ROE/WRA, 15 Sensors, 18 Combat Domains, 04 Delegation, 17 Order Log  
-**Tracker:** [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 14 — **Partial+**
+**Tracker:** [implementation-tracker.md](../implementation-tracker.md) row 14 — **Partial+**
 
 ## Purpose
 
@@ -200,5 +200,5 @@ Intent (player | agent | mission auto)
 
 ---
 
-**Implementation grade:** Partial+ — see [implementation-tracker-2026-07-04.md](../implementation-tracker-2026-07-04.md) row 14.
+**Implementation grade:** Partial+ — see [implementation-tracker.md](../implementation-tracker.md) row 14.
 Design Status remains **Draft** (Template B). Charter re-honesty: Wave 2 2026-07-08.

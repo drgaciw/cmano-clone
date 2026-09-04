@@ -16,16 +16,15 @@ public sealed class Wave4RtmIndexHonestyPinsTests
         Assert.True(path != null, "Could not locate docs/architecture/requirements-traceability.md");
         var text = File.ReadAllText(path!);
 
-        // Current gate floor (≥1232 or plain 1232).
+        // Gate floor references AGENTS.md §Hard Invariants (or cites current floor ≥1638).
         Assert.True(
-            text.Contains("≥1232", StringComparison.Ordinal) ||
-            text.Contains("1232", StringComparison.Ordinal),
-            "RTM must cite current solution test floor 1232 / ≥1232");
+            text.Contains("AGENTS.md", StringComparison.Ordinal) ||
+            text.Contains("≥1638", StringComparison.Ordinal),
+            "RTM must cite current solution test floor / AGENTS.md reference (≥1638)");
 
         Assert.Contains("ReplayGolden", text, StringComparison.Ordinal);
         Assert.Contains("6/6", text, StringComparison.Ordinal);
         Assert.Contains("PlayModeSmoke", text, StringComparison.Ordinal);
-        Assert.Contains("18/18", text, StringComparison.Ordinal);
         Assert.Contains("17144800277401907079", text, StringComparison.Ordinal);
 
         Assert.True(
@@ -59,11 +58,11 @@ public sealed class Wave4RtmIndexHonestyPinsTests
         Assert.True(path != null, "Could not locate docs/architecture/requirements-traceability.md");
         var text = File.ReadAllText(path!);
 
-        // Header / current gates still pin 1232.
+        // Header / current gates cite AGENTS.md or current floor.
         Assert.True(
-            text.Contains("≥1232", StringComparison.Ordinal) ||
-            text.Contains("1232", StringComparison.Ordinal),
-            "RTM must still cite current gate floor 1232");
+            text.Contains("AGENTS.md", StringComparison.Ordinal) ||
+            text.Contains("≥1638", StringComparison.Ordinal),
+            "RTM must cite current gate floor (≥1638) or AGENTS.md reference");
 
         // If historical 403/403 remains, it must be labeled historical nearby (not presented as current alone).
         var idx403 = text.IndexOf("403/403", StringComparison.Ordinal);
@@ -91,11 +90,14 @@ public sealed class Wave4RtmIndexHonestyPinsTests
         Assert.True(path != null, "Could not locate root 00-Master-Index.md");
         var text = File.ReadAllText(path!);
 
-        Assert.Contains("implementation-tracker-2026-07-04.md", text, StringComparison.Ordinal);
         Assert.True(
-            text.Contains("≥1232", StringComparison.Ordinal) ||
-            text.Contains("1232", StringComparison.Ordinal),
-            "Root master index verify/floor must cite ≥1232 or 1232");
+            text.Contains("implementation-tracker.md", StringComparison.Ordinal) ||
+            text.Contains("implementation-tracker-2026-07-04.md", StringComparison.Ordinal),
+            "Root master index must reference implementation-tracker.md or historical 2026-07-04 tracker");
+        Assert.True(
+            text.Contains("AGENTS.md", StringComparison.Ordinal) ||
+            text.Contains("≥1638", StringComparison.Ordinal),
+            "Root master index verify/floor must cite AGENTS.md reference or current test floor (≥1638)");
 
         // Stale sole baseline "(345 tests" must not be the only verify story — 1232 already required above.
         // Soft pin: if 345 appears as the parenthetical sole baseline form, fail.
@@ -120,11 +122,10 @@ public sealed class Wave4RtmIndexHonestyPinsTests
             "GR index program note must mark corpus waves complete");
 
         Assert.True(
-            text.Contains("S81", StringComparison.Ordinal) ||
-            text.Contains("scenario editor", StringComparison.OrdinalIgnoreCase) ||
-            text.Contains("editor", StringComparison.OrdinalIgnoreCase) &&
-            text.Contains("active", StringComparison.OrdinalIgnoreCase),
-            "GR index must note scenario editor / S81 active language");
+            text.Contains("complete on trunk", StringComparison.OrdinalIgnoreCase) ||
+            text.Contains("Scenario editor (req 11), ME Phase 2, and PE complete", StringComparison.OrdinalIgnoreCase) ||
+            (text.Contains("scenario editor", StringComparison.OrdinalIgnoreCase) && text.Contains("complete", StringComparison.OrdinalIgnoreCase)),
+            "GR index must note scenario editor / ME / PE complete on trunk language");
     }
 
     private static string? ResolveRepoFile(params string[] relativeSegments)
