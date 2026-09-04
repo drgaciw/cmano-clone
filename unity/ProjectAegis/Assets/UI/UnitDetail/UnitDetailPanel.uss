@@ -25,6 +25,14 @@
     margin-bottom: 2px;
 }
 
+.unit-detail-line--roe {
+    -unity-font-style: bold;
+}
+
+.unit-detail-line--authority {
+    margin-bottom: 4px;
+}
+
 .unit-detail-attack-menu {
     flex-direction: row;
     flex-wrap: wrap;

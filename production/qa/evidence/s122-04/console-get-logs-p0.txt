@@ -1,0 +1,51 @@
+
+Run Tool
+  Tool: console-get-logs
+  URL: http://localhost:8080/api/tools/console-get-logs
+  Auth: from config
+──────────────────────────────────────────────────
+Calling console-get-logs...
+SUCCESS: console-get-logs completed
+SUCCESS: Response:
+{
+  "status": "success",
+  "structured": {
+    "result": [
+      {
+        "LogType": "Warning",
+        "Message": "Assets/Scripts/Runtime/CombatDomainsHotTickHost.cs(147,50): warning CS8604: Possible null reference argument for parameter 'lines' in 'void CombatDomainsHotTickTracker.ObserveMessageLog(int simTick, IReadOnlyList<MessageLogLine> lines)'.",
+        "Timestamp": "2026-09-04T12:42:26.9113190-05:00"
+      },
+      {
+        "LogType": "Warning",
+        "Message": "Assets/Scripts/Runtime/GlobeMapProductHost.cs(50,34): warning CS8618: Non-nullable field '_lastDrawCamera' must contain a non-null value when exiting constructor. Consider declaring the field as nullable.",
+        "Timestamp": "2026-09-04T12:42:26.9115520-05:00"
+      },
+      {
+        "LogType": "Warning",
+        "Message": "Assets/Scripts/Runtime/MapPlaceholderPanelHost.cs(475,27): warning CS8602: Dereference of a possibly null reference.",
+        "Timestamp": "2026-09-04T12:42:26.9115810-05:00"
+      },
+      {
+        "LogType": "Warning",
+        "Message": "Assets/Editor/ScenarioMapAuthoringWindow.cs(393,33): warning CS8601: Possible null reference assignment.",
+        "Timestamp": "2026-09-04T12:42:26.9116100-05:00"
+      },
+      {
+        "LogType": "Warning",
+        "Message": "Assets/Editor/ScenarioMapAuthoringWindow.cs(437,49): warning CS8602: Dereference of a possibly null reference.",
+        "Timestamp": "2026-09-04T12:42:26.9116340-05:00"
+      },
+      {
+        "LogType": "Warning",
+        "Message": "Assets/Editor/ScenarioMapAuthoringWindow.cs(466,29): warning CS8601: Possible null reference assignment.",
+        "Timestamp": "2026-09-04T12:42:26.9116500-05:00"
+      },
+      {
+        "LogType": "Warning",
+        "Message": "Assets/Scripts/Runtime/MapPlaceholderPanelHost.cs(475,27): warning CS8602: Dereference of a possibly null reference.",
+        "Timestamp": "2026-09-04T12:42:26.9116650-05:00"
+      }
+    ]
+  }
+}

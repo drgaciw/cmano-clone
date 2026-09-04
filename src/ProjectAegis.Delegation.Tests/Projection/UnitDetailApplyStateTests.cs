@@ -38,6 +38,8 @@ public sealed class UnitDetailApplyStateTests
         var applied = UnitDetailApplyState.Apply(null);
         Assert.That(applied.UnitIdLine, Is.EqualTo("UNIT: —"));
         Assert.That(applied.CommsLine, Is.EqualTo("COMMS: —"));
+        Assert.That(applied.DoctrineLine, Is.EqualTo("ROE: —"));
+        Assert.That(applied.AuthorityLine, Is.EqualTo("AUTH: —"));
         Assert.That(applied.AttackOptionCount, Is.EqualTo(0));
     }
 

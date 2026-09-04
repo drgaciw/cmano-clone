@@ -1,3 +1,4 @@
+using ProjectAegis.Delegation.C2Nodes;
 using ProjectAegis.Delegation.Projection;
 using NUnit.Framework;
 
@@ -96,7 +97,55 @@ public sealed class C2MenuProjectionTests
             C2MenuCategory.Layers,
             C2MenuCategory.Tools,
             C2MenuCategory.Window,
+            C2MenuCategory.C2,
         }));
+    }
+
+    [Test]
+    public void ProjectDefault_null_packages_adds_enabled_c2_nodes_empty_state()
+    {
+        var menu = C2MenuProjection.ProjectDefault();
+        AssertEmptyC2NodesItem(menu);
+    }
+
+    [Test]
+    public void ProjectDefault_empty_snapshot_adds_enabled_c2_nodes_empty_state()
+    {
+        var menu = C2MenuProjection.ProjectDefault(packages: MissionPackageSnapshot.Empty);
+        AssertEmptyC2NodesItem(menu);
+        Assert.That(menu.Any(i => i.Id.StartsWith("c2-node-", StringComparison.Ordinal)), Is.False);
+    }
+
+    [Test]
+    public void ProjectDefault_with_baltic_package_adds_read_only_row_per_element()
+    {
+        var snapshot = MissionPackageProjection.Project(new[] { BalticAsuwPackage() });
+        Assert.That(snapshot.Elements, Has.Count.EqualTo(4));
+
+        var menu = C2MenuProjection.ProjectDefault(packages: snapshot);
+        var nodeRows = menu
+            .Where(i => i.Id.StartsWith("c2-node-", StringComparison.Ordinal))
+            .ToList();
+
+        Assert.That(menu.Any(i => i.Id == "c2-nodes"), Is.False);
+        Assert.That(nodeRows, Has.Count.EqualTo(snapshot.Elements.Count));
+
+        foreach (var element in snapshot.Elements)
+        {
+            var item = menu.Single(i => i.Id == $"c2-node-{element.ElementId}");
+            Assert.That(item.Label, Does.Contain(element.Role.ToString()));
+            Assert.That(item.Label, Does.Contain(element.PlatformUnitId));
+            Assert.That(item.Label, Does.Contain(element.Availability.ToString()));
+            Assert.That(item.Label, Is.EqualTo($"{element.Role} {element.PlatformUnitId} ({element.Availability})"));
+            Assert.That(item.Category, Is.EqualTo(C2MenuCategory.C2));
+            Assert.That(item.ShortcutLabel, Is.Not.Null.And.Not.Empty);
+            Assert.That(item.IsEnabled, Is.False);
+            Assert.That(item.DisabledReason, Is.EqualTo("Read-only"));
+            Assert.That(item.StatusNote, Is.Null);
+        }
+
+        var c2 = menu.Single(i => i.Id == "c2-node-elem-c2-1");
+        Assert.That(c2.Label, Is.EqualTo("C2 u1 (Available)"));
     }
 
     [Test]
@@ -117,4 +166,29 @@ public sealed class C2MenuProjectionTests
         Assert.That(item.ShortcutLabel, Is.EqualTo(expectedShortcut));
         Assert.That(item.IsEnabled, Is.True);
     }
+
+    private static void AssertEmptyC2NodesItem(IReadOnlyList<C2MenuItemEntry> menu)
+    {
+        var item = menu.Single(i => i.Id == "c2-nodes");
+        Assert.That(item.IsEnabled, Is.True);
+        Assert.That(item.DisabledReason, Is.Null);
+        Assert.That(item.StatusNote, Is.EqualTo(C2MenuProjection.EmptyC2NodesStatusNote));
+        Assert.That(item.StatusNote, Does.Contain("No C2 nodes"));
+        Assert.That(item.Category, Is.EqualTo(C2MenuCategory.C2));
+        Assert.That(item.ShortcutLabel, Is.Not.Null.And.Not.Empty);
+        Assert.That(item.Label, Is.Not.Null.And.Not.Empty);
+    }
+
+    /// <summary>Same Baltic ASuW composition as <c>MissionPackageProjectionTests</c>.</summary>
+    private static PackageDefinition BalticAsuwPackage() =>
+        new(
+            "pkg-asuw-1",
+            "Baltic ASuW Package",
+            new[]
+            {
+                new PackageElementDefinition("elem-sensor-1", "u1", C2NodeRole.Sensor, "package-track-feed"),
+                new PackageElementDefinition("elem-shooter-1", "u2", C2NodeRole.Shooter, "package-engage"),
+                new PackageElementDefinition("elem-relay-1", "u3", C2NodeRole.Relay, "package-relay"),
+                new PackageElementDefinition("elem-c2-1", "u1", C2NodeRole.C2, "organic-c2"),
+            });
 }

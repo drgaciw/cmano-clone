@@ -1,0 +1,31 @@
+track: game-ui
+run_id: gauntlet-20260904-1450-ui
+verdict: PASS
+gates:
+  ui_c2_presentation:
+    passed: 145
+    failed: 0
+    floor: 118
+    exit: 0
+  uiia:
+    passed: 11
+    failed: 0
+    floor: 11
+    exit: 0
+  replay_golden:
+    passed: 17
+    failed: 0
+    floor: 6
+    exit: 0
+  signoff:
+    RunBatch: PASS
+    RunClassifyBatch: PASS
+    RunDoctrineBatch: PASS
+    RunImportBatch: PASS
+    RunBeginExecutionBatch: PASS
+  invariants:
+    hash_hits: 26
+    delegation_bridge_diff_bytes: 0
+remediation_required: false
+remediation_note: "UNITY_MCP_READY stripped from player scriptingDefineSymbols; authoring isolation test green on retry"
+uca_verdict: PASS

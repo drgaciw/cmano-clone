@@ -15,6 +15,7 @@
             </ui:VisualElement>
             <ui:Label name="mode-label" text="MODE: —" class="c2-topbar-item" />
             <ui:Label name="comms-label" text="COMMS: NOMINAL" class="c2-topbar-item c2-topbar-item--comms" />
+            <ui:Label name="network-health-label" text="NET: —" class="c2-topbar-item" />
             <ui:Label name="score-label" text="SCORE: 0" class="c2-topbar-item c2-topbar-item--score" />
         </ui:VisualElement>
         <ui:VisualElement name="c2-topbar-comms-legend" class="c2-topbar-comms-legend">

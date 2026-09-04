@@ -1,0 +1,21 @@
+
+Run Tool
+  Tool: console-get-logs
+  URL: http://localhost:8080/api/tools/console-get-logs
+──────────────────────────────────────────────────
+Calling console-get-logs...
+SUCCESS: console-get-logs completed
+SUCCESS: Response:
+{
+  "status": "success",
+  "structured": {
+    "result": [
+      {
+        "LogType": "Warning",
+        "Message": "Account API did not become accessible within 30 seconds. This may be due to network issues or editor focus.",
+        "Timestamp": "2026-09-04T14:48:40.4802390-05:00",
+        "StackTrace": "UnityEngine.Debug:LogWarning (object)\nUnity.AI.Toolkit.Accounts.Services.States.ApiAccessibleState/<WaitForCloudProjectSettings>d__4:MoveNext () (at ./Library/PackageCache/com.unity.ai.assistant@6fee27370e6a/Modules/Unity.AI.Toolkit.Accounts/Services/States/ApiAccessibleState.cs:46)\nSystem.Threading.Tasks.TaskCompletionSource`1<bool>:TrySetResult (bool)\nUnity.AI.Toolkit.EditorTask/<>c__DisplayClass22_0:<WaitForCondition>b__0 () (at ./Library/PackageCache/com.unity.ai.assistant@6fee27370e6a/Modules/Unity.AI.Toolkit.Async/EditorTask.cs:420)\nUnityEditor.EditorApplication:Internal_CallUpdateFunctions () (at /home/bokken/build/output/unity/unity/Editor/Mono/EditorApplication.cs:392)\n"
+      }
+    ]
+  }
+}

@@ -1,5 +1,8 @@
 namespace ProjectAegis.Delegation.Projection;
 
+using ProjectAegis.Delegation.C2Network;
+using ProjectAegis.Delegation.Comms;
+
 /// <summary>
 /// Headless apply path for projected <see cref="C2TopBarState"/> into a presentation field bag
 /// (S106). Unity hosts map these strings onto UI Toolkit labels without re-formatting.
@@ -9,12 +12,21 @@ public static class C2TopBarApplyState
     /// <summary>
     /// Apply projected top-bar state into presentation fields. Null state → empty labels.
     /// Also derives comms CSS modifier from the projected comms label (presentation-only).
+    /// Optional <paramref name="networkHealth"/> fills <see cref="C2TopBarPresentation.NetworkHealthLine"/>
+    /// (S122-06 / DRG-190); omitted/null → <c>NET: —</c>.
     /// </summary>
-    public static C2TopBarPresentation Apply(C2TopBarState? state)
+    public static C2TopBarPresentation Apply(
+        C2TopBarState? state,
+        C2NetworkHealthLevel? networkHealth = null)
     {
         if (state is null)
         {
-            return C2TopBarPresentation.Empty;
+            return networkHealth is null
+                ? C2TopBarPresentation.Empty
+                : C2TopBarPresentation.Empty with
+                {
+                    NetworkHealthLine = C2NetworkHealthHudFormat.Format(networkHealth),
+                };
         }
 
         return new C2TopBarPresentation(
@@ -27,8 +39,18 @@ public static class C2TopBarApplyState
             CommsCssClass: ResolveCommsCssClass(state.CommsLabel),
             ZuluTimeLabel: state.ZuluTimeLabel ?? string.Empty,
             LocalTimeLabel: state.LocalTimeLabel ?? string.Empty,
-            RemainingDurationLabel: state.RemainingDurationLabel ?? string.Empty);
+            RemainingDurationLabel: state.RemainingDurationLabel ?? string.Empty,
+            NetworkHealthLine: C2NetworkHealthHudFormat.Format(networkHealth));
     }
+
+    /// <summary>
+    /// Apply top-bar state and fill network-health text from last comms quality
+    /// (Denied→PARTITIONED, Degraded→DEGRADED, Nominal→HEALTHY; null→<c>NET: —</c>).
+    /// </summary>
+    public static C2TopBarPresentation ApplyFromComms(
+        C2TopBarState? state,
+        CommsState? commsState) =>
+        Apply(state, C2NetworkHealthHudFormat.MapFromComms(commsState));
 
     /// <summary>
     /// Project then apply in one call — the real product path for headless top-bar refresh tests.
@@ -94,7 +116,8 @@ public sealed record C2TopBarPresentation(
     string CommsCssClass,
     string ZuluTimeLabel = "",
     string LocalTimeLabel = "",
-    string RemainingDurationLabel = "")
+    string RemainingDurationLabel = "",
+    string NetworkHealthLine = "NET: —")
 {
     public static C2TopBarPresentation Empty { get; } = new(
         string.Empty,
@@ -106,5 +129,6 @@ public sealed record C2TopBarPresentation(
         "c2-topbar-item--comms-nominal",
         string.Empty,
         string.Empty,
-        string.Empty);
+        string.Empty,
+        C2NetworkHealthHudFormat.Unavailable);
 }

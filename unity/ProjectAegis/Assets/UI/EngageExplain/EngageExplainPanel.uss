@@ -1,0 +1,30 @@
+/* Engage explain chrome — StatusLine / ReasonPlain text (DRG-168 / S122-08). */
+
+.engage-explain-panel {
+    position: absolute;
+    left: 12px;
+    bottom: 16px;
+    width: 320px;
+    min-width: 260px;
+    flex-direction: column;
+    padding: 8px;
+    background-color: rgba(14, 18, 24, 0.94);
+    border-width: 1px;
+    border-color: rgb(70, 90, 110);
+}
+
+.engage-explain-title {
+    -unity-font-style: bold;
+    color: rgb(180, 200, 220);
+    margin-bottom: 6px;
+}
+
+.engage-explain-status {
+    color: rgb(200, 210, 220);
+    margin-bottom: 4px;
+}
+
+.engage-explain-reason {
+    color: rgb(175, 185, 195);
+    white-space: normal;
+}

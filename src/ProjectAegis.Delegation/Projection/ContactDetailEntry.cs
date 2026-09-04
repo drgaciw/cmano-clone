@@ -12,4 +12,8 @@ public sealed record ContactDetailEntry(
     string WraLine,
     string BdaLine,
     string StalenessLine,
-    string LifecycleState);
+    string LifecycleState,
+    string SourceLine,
+    string CommsLine,
+    string LastKnownLine,
+    string ExplainLinkLine);

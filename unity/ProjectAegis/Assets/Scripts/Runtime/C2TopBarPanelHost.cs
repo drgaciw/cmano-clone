@@ -1,5 +1,6 @@
 // Doc-20 top bar — sim time, phase, compression, score strip; CMD-22 Zulu/local/remain.
 #if UNITY_5_3_OR_NEWER
+using ProjectAegis.Delegation.C2Network;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
@@ -22,6 +23,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string PauseResumeName = "pause-resume-button";
         private const string ModeName = "mode-label";
         private const string CommsName = "comms-label";
+        private const string NetworkHealthName = "network-health-label";
         private const string ScoreName = "score-label";
         private const string ZuluTimeName = "zulu-time-label";
         private const string LocalTimeName = "local-time-label";
@@ -46,6 +48,7 @@ namespace ProjectAegis.Unity.Runtime
         private Button? _pauseResume;
         private Label? _mode;
         private Label? _comms;
+        private Label? _networkHealth;
         private Label? _score;
         private Label? _zuluTime;
         private Label? _localTime;
@@ -114,6 +117,7 @@ namespace ProjectAegis.Unity.Runtime
             _pauseResume = panel.Q<Button>(PauseResumeName);
             _mode = panel.Q<Label>(ModeName);
             _comms = panel.Q<Label>(CommsName);
+            _networkHealth = panel.Q<Label>(NetworkHealthName);
             _score = panel.Q<Label>(ScoreName);
             // CMD-22: null-safe Q — labels optional for older UXML trees.
             _zuluTime = panel.Q<Label>(ZuluTimeName);
@@ -261,6 +265,15 @@ namespace ProjectAegis.Unity.Runtime
                 };
             }
 
+            // Mesh projector needs friendly IDs + catalog links not published on the bridge
+            // host; map last comms quality (Denied→PARTITIONED) without touching DelegationBridge.
+            applied = applied with
+            {
+                NetworkHealthLine = comms != null
+                    ? C2NetworkHealthHudFormat.FromCommsState(comms.State)
+                    : C2NetworkHealthHudFormat.FromCommsLabel(applied.CommsLabel),
+            };
+
             _presentation = applied;
 
             ApplyPresentationToLabels();
@@ -324,6 +337,11 @@ namespace ProjectAegis.Unity.Runtime
                 _comms.AddToClassList("c2-topbar-item");
                 _comms.AddToClassList("c2-topbar-item--comms");
                 _comms.AddToClassList(_presentation.CommsCssClass);
+            }
+
+            if (_networkHealth != null)
+            {
+                _networkHealth.text = _presentation.NetworkHealthLine;
             }
         }
 

@@ -1,5 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
+using ProjectAegis.Delegation.C2Nodes;
+
 /// <summary>
 /// Projects default C2 menu items with shortcut labels (CMD-28.1 / .4 / .5 / .8 / .10 / .11).
 /// Pure presentation — no DecisionLog, no order issuance.
@@ -9,31 +11,40 @@ public static class C2MenuProjection
     public const string EmptyBookmarksStatusNote =
         "No bookmarks — press Ctrl+1 to save one";
 
+    public const string EmptyC2NodesStatusNote =
+        "No C2 nodes — no mission package bound";
+
+    public const string ReadOnlyDisabledReason = "Read-only";
+
     /// <summary>
     /// Default menu catalogue. Bookmark list is empty by default and remains enabled
     /// with a status note (CMD-28.11) rather than disabled-with-no-reason.
+    /// Null/empty <paramref name="packages"/> is an honest empty C2-node list (DRG-189),
+    /// not a fake live Baltic package.
     /// </summary>
     /// <param name="bookmarkCount">Number of saved camera bookmarks (0 → empty-state note).</param>
     /// <param name="layerStack">Optional layer stack for Layers submenu rows; null uses defaults.</param>
+    /// <param name="packages">Optional DRG-213 snapshot; null/empty → enabled <c>c2-nodes</c> status.</param>
     public static IReadOnlyList<C2MenuItemEntry> ProjectDefault(
         int bookmarkCount = 0,
-        MapLayerStackState? layerStack = null)
+        MapLayerStackState? layerStack = null,
+        MissionPackageSnapshot? packages = null)
     {
-        var items = new List<C2MenuItemEntry>
-        {
-            // View — camera / mode (CMD-28.8, CMD-28.10)
-            Item("view-zoom-in", "Zoom In", "+ / =", C2MenuCategory.View),
-            Item("view-zoom-out", "Zoom Out", "-", C2MenuCategory.View),
-            Item("view-2d-3d-toggle", "2D / 3D Toggle", "F9", C2MenuCategory.View),
-            Item("view-next-unit", "Next Unit", "]", C2MenuCategory.View),
-            Item("view-prev-unit", "Previous Unit", "[", C2MenuCategory.View),
+        var items = new List<C2MenuItemEntry>();
+        AppendC2NodeItems(items, packages);
 
-            // Tools (CMD-28.4)
-            Item("tools-measure", "Measure", "M", C2MenuCategory.Tools),
+        // View — camera / mode (CMD-28.8, CMD-28.10)
+        items.Add(Item("view-zoom-in", "Zoom In", "+ / =", C2MenuCategory.View));
+        items.Add(Item("view-zoom-out", "Zoom Out", "-", C2MenuCategory.View));
+        items.Add(Item("view-2d-3d-toggle", "2D / 3D Toggle", "F9", C2MenuCategory.View));
+        items.Add(Item("view-next-unit", "Next Unit", "]", C2MenuCategory.View));
+        items.Add(Item("view-prev-unit", "Previous Unit", "[", C2MenuCategory.View));
 
-            // Layers — entry point + per-layer toggles (CMD-28.2)
-            Item("layers-panel", "Layers…", "none", C2MenuCategory.Layers),
-        };
+        // Tools (CMD-28.4)
+        items.Add(Item("tools-measure", "Measure", "M", C2MenuCategory.Tools));
+
+        // Layers — entry point + per-layer toggles (CMD-28.2)
+        items.Add(Item("layers-panel", "Layers…", "none", C2MenuCategory.Layers));
 
         var stack = layerStack ?? MapLayerStackProjection.DefaultStack();
         foreach (var layer in stack.Layers)
@@ -55,6 +66,48 @@ public static class C2MenuProjection
         items.Add(ProjectBookmarksItem(bookmarkCount));
 
         return items;
+    }
+
+    private static void AppendC2NodeItems(
+        List<C2MenuItemEntry> items,
+        MissionPackageSnapshot? packages)
+    {
+        var elements = packages?.Elements;
+        if (elements is { Count: > 0 })
+        {
+            var added = 0;
+            foreach (var element in elements)
+            {
+                if (element is null || string.IsNullOrEmpty(element.ElementId))
+                {
+                    continue;
+                }
+
+                items.Add(new C2MenuItemEntry(
+                    Id: C2NodeMenuFormat.ItemId(element.ElementId),
+                    Label: C2NodeMenuFormat.FormatLabel(element),
+                    ShortcutLabel: "none",
+                    Category: C2MenuCategory.C2,
+                    IsEnabled: false,
+                    DisabledReason: ReadOnlyDisabledReason,
+                    StatusNote: null));
+                added++;
+            }
+
+            if (added > 0)
+            {
+                return;
+            }
+        }
+
+        items.Add(new C2MenuItemEntry(
+            Id: "c2-nodes",
+            Label: "C2 Nodes",
+            ShortcutLabel: "none",
+            Category: C2MenuCategory.C2,
+            IsEnabled: true,
+            DisabledReason: null,
+            StatusNote: EmptyC2NodesStatusNote));
     }
 
     /// <summary>

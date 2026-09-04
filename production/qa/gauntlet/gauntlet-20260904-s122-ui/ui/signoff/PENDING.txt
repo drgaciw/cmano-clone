@@ -1,0 +1,16 @@
+C2 Play Mode signoff ×5 — PENDING
+
+This run is the HEADLESS lane of S122-05 /qa-gauntlet-ui (skill steps 1, 2, 4).
+Step 3 Unity Editor C2PlayModeSignoffBatchRunner methods were NOT executed.
+
+Reason: another lane owns the single Unity Editor lock. Headless lane must not
+start Unity Editor or touch :8080.
+
+Pending methods:
+  RunBatch                  baltic-patrol-comms
+  RunClassifyBatch          baltic-patrol-classify
+  RunDoctrineBatch          baltic-patrol-mission-roe
+  RunImportBatch            baltic-patrol-classify
+  RunBeginExecutionBatch    baltic-patrol-classify
+
+Do not claim full UI-track PASS until these five PASS: lines exist.

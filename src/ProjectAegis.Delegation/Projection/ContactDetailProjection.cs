@@ -9,7 +9,10 @@ public static class ContactDetailProjection
     public static ContactDetailEntry? Project(
         ContactPictureEntry? contact,
         ulong currentSimTick,
-        string? bdaLifecycleOverride = null)
+        string? bdaLifecycleOverride = null,
+        string? sourceKind = null,
+        bool outOfComms = false,
+        string? lastKnownState = null)
     {
         if (contact is null)
         {
@@ -24,6 +27,9 @@ public static class ContactDetailProjection
             ? currentSimTick - contact.LastSimTick
             : 0UL;
 
+        var known = string.IsNullOrEmpty(lastKnownState) ? lifecycle : lastKnownState!;
+        var source = string.IsNullOrWhiteSpace(sourceKind) ? "observer" : sourceKind.Trim();
+
         return new ContactDetailEntry(
             contact.ContactId,
             contact.TargetId,
@@ -33,14 +39,21 @@ public static class ContactDetailProjection
             FormatWra(lifecycle),
             FormatBda(lifecycle),
             $"{ageTicks} ticks stale",
-            lifecycle);
+            lifecycle,
+            $"SOURCE: {source}",
+            outOfComms ? "COMMS: UNKNOWN (out-of-comms)" : "COMMS: up",
+            $"LAST KNOWN: {known}",
+            $"EXPLAIN: engage/{contact.ContactId}");
     }
 
     public static ContactDetailEntry? Project(
         string contactId,
         IReadOnlyList<ContactPictureEntry> contacts,
         ulong currentSimTick,
-        string? bdaLifecycleOverride = null)
+        string? bdaLifecycleOverride = null,
+        string? sourceKind = null,
+        bool outOfComms = false,
+        string? lastKnownState = null)
     {
         if (string.IsNullOrEmpty(contactId) || contacts is null)
         {
@@ -49,7 +62,7 @@ public static class ContactDetailProjection
 
         var match = contacts.FirstOrDefault(c =>
             string.Equals(c.ContactId, contactId, StringComparison.Ordinal));
-        return Project(match, currentSimTick, bdaLifecycleOverride);
+        return Project(match, currentSimTick, bdaLifecycleOverride, sourceKind, outOfComms, lastKnownState);
     }
 
     private static string FormatClassification(string targetId, string lifecycle) =>

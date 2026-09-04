@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="engage-explain-root" class="engage-explain-panel">
+        <ui:Label text="ENGAGE EXPLAIN" class="engage-explain-title" />
+        <ui:Label name="engage-explain-status" text="ENGAGE: —" class="engage-explain-status" />
+        <ui:Label name="engage-explain-reason" text="No engage preview for current selection." class="engage-explain-reason" />
+    </ui:VisualElement>
+</ui:UXML>

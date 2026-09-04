@@ -18,6 +18,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string MagazineName = "magazine-line";
         private const string EmconName = "emcon-line";
         private const string DoctrineName = "doctrine-line";
+        private const string AuthorityName = "authority-line";
         private const string FuelName = "fuel-line";
         private const string EngageName = "engage-line";
         private const string AttackOptionsName = "attack-options-line";
@@ -43,6 +44,7 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _magazineLine;
         private Label? _emconLine;
         private Label? _doctrineLine;
+        private Label? _authorityLine;
         private Label? _fuelLine;
         private Label? _engageLine;
         private Label? _attackOptionsLine;
@@ -116,6 +118,7 @@ namespace ProjectAegis.Unity.Runtime
             _magazineLine = panel.Q<Label>(MagazineName);
             _emconLine = panel.Q<Label>(EmconName);
             _doctrineLine = panel.Q<Label>(DoctrineName);
+            _authorityLine = panel.Q<Label>(AuthorityName);
             _fuelLine = panel.Q<Label>(FuelName);
             _engageLine = panel.Q<Label>(EngageName);
             _attackOptionsLine = panel.Q<Label>(AttackOptionsName);
@@ -165,6 +168,7 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
+            // S122-07: binder formats LastUnitDetail.DoctrineLabel via RoeProjection.FormatRoeLabel.
             var state = UnitDetailPanelBinder.Bind(
                 bridgeHost.LastUnitDetail,
                 bridgeHost.Presentation.ResolveContactLine());
@@ -175,7 +179,10 @@ namespace ProjectAegis.Unity.Runtime
             var root = _document.rootVisualElement?.Q(RootName);
             if (root != null)
             {
-                root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+                var contactSelected = !string.IsNullOrEmpty(bridgeHost.SelectedContactId);
+                root.style.display = showPanel && !contactSelected
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
             }
         }
 
@@ -210,6 +217,12 @@ namespace ProjectAegis.Unity.Runtime
             if (_doctrineLine != null)
             {
                 _doctrineLine.text = _presentation.DoctrineLine;
+            }
+
+            // S122-07 / DRG-182: null-safe — older UXML without authority-line still wires.
+            if (_authorityLine != null)
+            {
+                _authorityLine.text = _presentation.AuthorityLine;
             }
 
             if (_fuelLine != null)

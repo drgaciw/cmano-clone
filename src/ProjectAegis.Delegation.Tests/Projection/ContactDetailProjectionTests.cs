@@ -1,3 +1,4 @@
+using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Projection;
 using NUnit.Framework;
 
@@ -113,5 +114,67 @@ public sealed class ContactDetailProjectionTests
         Assert.That(applied.DetectionProvenanceLine, Is.EqualTo("Detected by: sensor-a"));
         Assert.That(applied.StalenessLine, Is.EqualTo("5 ticks stale"));
         Assert.That(applied.LifecycleLine, Is.EqualTo("STATE: Classified"));
+    }
+
+    [Test]
+    public void Project_distinguishes_source_last_known_and_out_of_comms_unknown()
+    {
+        var contact = new ContactPictureEntry(
+            "c-qos", "track-qos", "u-obs", "Identified", LastSimTick: 10, LastSimTime: 10.0);
+
+        var detail = ContactDetailProjection.Project(
+            contact,
+            currentSimTick: 14,
+            sourceKind: "ESM",
+            outOfComms: true,
+            lastKnownState: "Identified");
+
+        Assert.That(detail, Is.Not.Null);
+        Assert.That(detail!.SourceLine, Is.EqualTo("SOURCE: ESM"));
+        Assert.That(detail.DetectionProvenanceLine, Is.EqualTo("Detected by: u-obs"));
+        Assert.That(detail.LastKnownLine, Is.EqualTo("LAST KNOWN: Identified"));
+        Assert.That(detail.CommsLine, Is.EqualTo("COMMS: UNKNOWN (out-of-comms)"));
+        Assert.That(detail.StalenessLine, Is.EqualTo("4 ticks stale"));
+        Assert.That(detail.ExplainLinkLine, Is.EqualTo("EXPLAIN: engage/c-qos"));
+    }
+
+    [Test]
+    public void ProjectAndApply_maps_quality_lines_as_text_not_color_only()
+    {
+        var contacts = new[]
+        {
+            new ContactPictureEntry("c-qos", "track-qos", "u-obs", "Detected", 1, 1.0),
+        };
+
+        var applied = ContactDetailApplyState.ProjectAndApply(
+            "c-qos",
+            contacts,
+            currentSimTick: 3,
+            sourceKind: "radar",
+            outOfComms: true,
+            lastKnownState: "Detected");
+
+        Assert.That(applied.SourceLine, Is.EqualTo("SOURCE: radar"));
+        Assert.That(applied.CommsLine, Does.Contain("UNKNOWN"));
+        Assert.That(applied.CommsLine, Does.Contain("out-of-comms"));
+        Assert.That(applied.LastKnownLine, Is.EqualTo("LAST KNOWN: Detected"));
+        Assert.That(applied.ExplainLinkLine, Is.EqualTo("EXPLAIN: engage/c-qos"));
+        Assert.That(applied.CommsLine, Does.Not.Match("#[0-9A-Fa-f]{3,8}"));
+    }
+
+    [Test]
+    public void OutOfCommsFromNetwork_denied_is_true_nominal_is_false()
+    {
+        Assert.That(
+            ContactDetailApplyState.OutOfCommsFromNetwork(null),
+            Is.False);
+        Assert.That(
+            ContactDetailApplyState.OutOfCommsFromNetwork(
+                new CommsStateSnapshot(CommsState.Nominal, "c2-net", "COMMS: NOMINAL")),
+            Is.False);
+        Assert.That(
+            ContactDetailApplyState.OutOfCommsFromNetwork(
+                new CommsStateSnapshot(CommsState.Denied, "c2-net", "COMMS: DENIED")),
+            Is.True);
     }
 }

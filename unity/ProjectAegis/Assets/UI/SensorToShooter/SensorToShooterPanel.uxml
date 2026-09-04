@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="sensor-to-shooter-root" class="sensor-to-shooter-panel">
+        <ui:Label text="SENSOR TO SHOOTER" class="sensor-to-shooter-title" />
+        <ui:Label name="contact-id-line" text="CONTACT: —" class="sensor-to-shooter-line" />
+        <ui:Label name="complete-line" text="CHAIN: —" class="sensor-to-shooter-line" />
+        <ui:Label name="primary-cause-line" text="CAUSE: —" class="sensor-to-shooter-line" />
+        <ui:Label name="sensor-link-line" text="SENSOR: —" class="sensor-to-shooter-line" />
+        <ui:Label name="track-link-line" text="TRACK: —" class="sensor-to-shooter-line" />
+        <ui:Label name="targetability-link-line" text="TARGETABILITY: —" class="sensor-to-shooter-line" />
+        <ui:Label name="shooter-link-line" text="SHOOTER: —" class="sensor-to-shooter-line" />
+        <ui:Label name="explain-link-line" text="EXPLAIN: —" class="sensor-to-shooter-line sensor-to-shooter-line--link" />
+    </ui:VisualElement>
+</ui:UXML>

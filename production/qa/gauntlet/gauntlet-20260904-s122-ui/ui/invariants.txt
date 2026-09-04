@@ -1,0 +1,76 @@
+# Invariants — gauntlet-20260904-s122-ui
+captured_at: 2026-09-04T12:21:48-05:00
+git_sha: 30f6c97966534640e2ca22b14b4cd5c0a13f33e1
+branch: feat/unity-mcp-grok-workflow
+
+## Baltic v2 replay hash 17144800277401907079
+### grep -r 17144800277401907079 tests/ data/
+hit_count: 26
+--- hits ---
+tests/regression/replay-golden-baltic-v2-theater-2026-06-22.txt:# Isolated from production Baltic hash 17144800277401907079
+tests/regression/replay-golden-baltic-v2-patrol-band-b-2026-06-22.txt:WORLD_HASH=17144800277401907079
+tests/regression/replay-golden-baltic-kill-checkpoints-2026-06-02.txt:REPLAY_CHECKPOINT=4:17144800277401907079:14
+tests/regression/replay-golden-baltic-engage-2026-06-02.txt:WORLD_HASH=17144800277401907079
+tests/regression/replay-golden-baltic-replay-checkpoints-2026-06-02.txt:REPLAY_CHECKPOINT=4:17144800277401907079:14
+tests/regression/replay-golden-baltic-destroyed-reengage-2026-06-22.txt:# Hash: isolated (not prod 17144800277401907079)
+tests/regression/README.md:S39-05 (Perf P1 follow-up + replay maintenance): ReplayGoldenSuiteTests 6/6 verified conceptually + run (see perf-profile-polish-baseline-2026-06-19.md delta append). Maintenance only via isolated fixtures (`replay-golden-*.txt`); **production Baltic hash unchanged** (`17144800277401907079`); no `DelegationBridge.cs` edits. Per `production/polish-scope-boundary-2026-06-19.md` + sprint-39 S39-05 ACs + qa-plan-sprint-39-2026-06-20.md. Determinism spot clean (no prod hash touch).
+tests/regression/README.md:**Locked per** production/release-train-scope-boundary-2026-06-24.md (S67: Regression baseline lock; standing invariants: test baseline monotonic, ReplayGolden 6/6, C2 18/18+, hash `17144800277401907079` immutable w/o golden ADR; GitNexus detect_changes + context pre; all artifacts cite boundary + roadmap §0/5/7/10 + execute-plan). S66 results audited/verified: 1232/0f, 6/6 replay incl Baltic v2, hash 17144800277401907079.
+tests/regression/README.md:- Hash: 17144800277401907079 preserved in goldens
+tests/regression/README.md:grep -r 17144800277401907079 tests/regression/ --include="*.txt" | head -5
+tests/regression/replay-golden-baltic-replay-2026-06-02.txt:WORLD_HASH=17144800277401907079
+tests/regression/replay-golden-baltic-v2-patrol-band-c-2026-06-22.txt:WORLD_HASH=17144800277401907079
+tests/regression/replay-golden-baltic-combat-domains-2026-06-18.txt:WORLD_HASH=17144800277401907079
+tests/regression/replay-golden-baltic-catalog-2026-06-02.txt:WORLD_HASH=17144800277401907079
+tests/regression/replay-golden-baltic-v2-patrol-mission-v2-2026-06-22.txt:WORLD_HASH=17144800277401907079
+tests/regression/replay-golden-baltic-v2-mission-event-2026-06-22.txt:WORLD_HASH=17144800277401907079
+tests/regression/replay-golden-baltic-v2-mission-event-2026-06-22.txt:REPLAY_CHECKPOINT=4:17144800277401907079:17
+tests/regression/replay-golden-baltic-destroyed-reengage-merged.txt:# Hash: isolated (not prod 17144800277401907079)
+tests/regression/replay-golden-baltic-mission-2026-06-02.txt:WORLD_HASH=17144800277401907079
+tests/regression/replay-golden-baltic-v2-patrol-2026-06-22.txt:WORLD_HASH=17144800277401907079
+tests/regression/replay-golden-baltic-v2-patrol-2026-06-22.txt:REPLAY_CHECKPOINT=4:17144800277401907079:14
+data/scenarios/baltic-patrol-opp-hold-fire.policy.json:    "note": "B1 policy JSON maintenance only. Cites: release-enablement-scope-boundary-2026-06-20.md (scenario/data maint); scope-expansion-decision-2026-06-20-S41-close.md (S41 PASS + \"i provide the ack\" UNBLOCK). No impact on ReplayGolden 6/6 or hash 17144800277401907079. Worktree: stack/sprint42/content-scenario. team-simulation + csharpexpert deterministic policy handling.",
+data/scenarios/scenario-policy-ids.md:| `baltic-patrol` (production default) | `true` (S30-09 flip) | ReplayGolden 6/6 — `WORLD_HASH=17144800277401907079` | **Active** — ADR-009 migration step 4; hash unchanged vs pre-flip engage golden (allow-path; no abort delta on seed=42 ticks=4) |
+data/scenarios/scenario-policy-ids.md:| `combat-domains-smoke` | `true` | `CombatDomainsSmokePolicyTests` — `WORLD_HASH=17144800277401907079` (unchanged) | **Unchanged** — separate minimal smoke; do not conflate with Baltic catalog pins |
+data/scenarios/scenario-policy-ids.md:**Scope:** Policy JSON maintenance only for committed B1 rows (e.g. mission-roe for Req13 doctrine, magazine for Req16/21 logistics/platform, replay/comms/classify etc for Req02/17). Scenario packages referenced via B1 (no new packages; maint on existing). Worktree: stack/sprint42/content-scenario . **impact() performed on BalticReplayHarness (CRITICAL 52), ScenarioPolicyProfile (CRITICAL 249).** No changes to production golden fixtures affecting `17144800277401907079`. Replay-gated verification required.
+data/scenarios/scenario-policy-ids.md:- No changes to production golden baltic-patrol.policy.json or hash 17144800277401907079
+
+## DelegationBridge.cs working-tree diff
+### git diff -- src/**/DelegationBridge.cs
+--- git status DelegationBridge ---
+--- git diff DelegationBridge ---
+--- git diff --name-only matching DelegationBridge ---
+(no DelegationBridge paths in git diff --name-only)
+
+## Working tree (context; not a fail by itself)
+ M production/sprint-status.yaml
+ M src/ProjectAegis.Delegation.Tests/Projection/ContactDetailProjectionTests.cs
+ M src/ProjectAegis.Delegation/Projection/ContactDetailApplyState.cs
+ M src/ProjectAegis.Delegation/Projection/ContactDetailEntry.cs
+ M src/ProjectAegis.Delegation/Projection/ContactDetailProjection.cs
+ M unity/ProjectAegis/Assets/Scripts/Runtime/ContactDetailPanelHost.cs
+ M unity/ProjectAegis/Assets/UI/BoatOps/BoatOpsPanel.uss.meta
+ M unity/ProjectAegis/Assets/UI/BoatOps/BoatOpsPanel.uxml.meta
+ M unity/ProjectAegis/Assets/UI/ContactDetail/ContactDetailPanel.uss
+ M unity/ProjectAegis/Assets/UI/ContactDetail/ContactDetailPanel.uxml
+?? production/qa/evidence/s122-04-playmode-signoff.md
+?? production/qa/gauntlet/gauntlet-20260904-s122-ui/
+?? production/sprints/sprint-122-slice-a-unity-mcp.md
+?? src/ProjectAegis.Delegation.Tests/SensorToShooter/SensorToShooterApplyStateTests.cs
+?? src/ProjectAegis.Delegation.UnityAdapter.Tests/Bridge/MapOverlayCountUxmlContractTests.cs
+?? src/ProjectAegis.Delegation/SensorToShooter/SensorToShooterApplyState.cs
+?? unity/ProjectAegis/Assets/Scripts/Runtime/AxisControlPanelHost.cs.meta
+?? unity/ProjectAegis/Assets/Scripts/Runtime/EngageExplainPanelHost.cs.meta
+?? unity/ProjectAegis/Assets/Scripts/Runtime/GlobeLiveCameraSync.cs.meta
+?? unity/ProjectAegis/Assets/Scripts/Runtime/GlobeOverlayVisualLayer.cs.meta
+?? unity/ProjectAegis/Assets/Scripts/Runtime/GroundOpsPanelHost.cs.meta
+?? unity/ProjectAegis/Assets/Scripts/Runtime/MapScaleHudPanelHost.cs.meta
+?? unity/ProjectAegis/Assets/Scripts/Runtime/PendingApprovalPanelHost.cs.meta
+?? unity/ProjectAegis/Assets/Scripts/Runtime/SensorToShooterPanelHost.cs
+?? unity/ProjectAegis/Assets/Scripts/Runtime/SensorToShooterPanelHost.cs.meta
+?? unity/ProjectAegis/Assets/UI/SensorToShooter.meta
+?? unity/ProjectAegis/Assets/UI/SensorToShooter/
+
+## Verdict
+hash: OK (26 hits in tests/ + data/)
+DelegationBridge.cs: OK (no working-tree logic diff)
+result: OK

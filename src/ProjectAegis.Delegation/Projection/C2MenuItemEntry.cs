@@ -7,6 +7,7 @@ public enum C2MenuCategory
     Layers = 1,
     Tools = 2,
     Window = 3,
+    C2 = 4,
 }
 
 /// <summary>
@@ -20,7 +21,8 @@ public enum C2MenuCategory
 /// <param name="IsEnabled">Whether the item is actionable.</param>
 /// <param name="DisabledReason">Why disabled, when not enabled; null when enabled.</param>
 /// <param name="StatusNote">
-/// Optional status for empty-but-enabled states (CMD-28.11 bookmarks). Not a disabled reason.
+/// Optional status for empty-but-enabled states (CMD-28.11 bookmarks; DRG-189 C2 nodes).
+/// Not a disabled reason.
 /// </param>
 public sealed record C2MenuItemEntry(
     string Id,

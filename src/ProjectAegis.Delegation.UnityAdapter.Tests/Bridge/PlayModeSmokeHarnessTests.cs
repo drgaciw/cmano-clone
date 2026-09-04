@@ -105,10 +105,42 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(panel.StatusLine, Does.Not.Contain("STATUS: —"));
         Assert.That(panel.MagazineLine, Does.Contain("Δ-1"));
         Assert.That(panel.DoctrineLine, Does.Not.Contain("DOCTRINE: —"));
+        Assert.That(panel.DoctrineLine, Does.StartWith("ROE:"));
+        Assert.That(panel.DoctrineLine, Does.Not.EqualTo("ROE: —"));
+        Assert.That(panel.AuthorityLine, Is.EqualTo("AUTH: Permitted"));
 
         // Idempotent re-seed must not throw or duplicate members.
         Assert.That(PlayModeSmokeOrbatSeeder.TrySeed(bridge), Is.True);
         Assert.That(bridge.Registry.CollectMemberIds().Count, Is.EqualTo(2));
+    }
+
+    /// <summary>
+    /// S122-12: after <see cref="PlayModeSmokeOrbatSeeder.TrySeed"/>, Unit Detail for u1
+    /// binds ROE (not placeholder) and AUTH Permitted or Withheld (not —).
+    /// </summary>
+    [Test]
+    public void Smoke_seed_u1_auth_and_roe_without_placeholder()
+    {
+        var bridge = new DelegationBridge(42, mvpEngagement: true, scenarioPolicyId: "baltic-patrol");
+
+        Assert.That(PlayModeSmokeOrbatSeeder.TrySeed(bridge), Is.True);
+        bridge.BeginExecution();
+
+        var harness = new PlayModeHarness(contactCount: 2, hasFireControlTrack: true);
+        harness.AdvanceTime(1.0 / 60.0);
+        bridge.Tick(harness, harness);
+
+        var detail = UnitDetailBridge.BuildSelected(
+            new TargetId(PlayModeSmokeOrbatSeeder.FriendlyUnitId),
+            harness,
+            bridge);
+        Assert.That(detail, Is.Not.Null);
+
+        var panel = UnitDetailPanelBinder.Bind(detail);
+        Assert.That(panel.DoctrineLine, Does.StartWith("ROE:"));
+        Assert.That(panel.DoctrineLine, Is.Not.EqualTo("ROE: —"));
+        Assert.That(panel.AuthorityLine, Is.AnyOf("AUTH: Permitted", "AUTH: Withheld"));
+        Assert.That(panel.AuthorityLine, Is.Not.EqualTo("AUTH: —"));
     }
 
     [Test]

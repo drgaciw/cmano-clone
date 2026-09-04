@@ -4,7 +4,7 @@
     position: absolute;
     right: 0;
     top: 56px;
-    bottom: 0;
+    bottom: 48%;
     width: 300px;
     min-width: 280px;
     flex-direction: column;
@@ -27,4 +27,12 @@
 
 .contact-detail-line--stale {
     color: rgb(200, 160, 120);
+}
+
+.contact-detail-line--comms {
+    -unity-font-style: bold;
+}
+
+.contact-detail-line--link {
+    -unity-font-style: italic;
 }

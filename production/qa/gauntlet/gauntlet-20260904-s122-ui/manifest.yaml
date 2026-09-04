@@ -1,0 +1,69 @@
+run_id: gauntlet-20260904-s122-ui
+story: S122-05
+track: game-ui
+lane: headless
+started_at: "2026-09-04T12:21:36-05:00"
+finished_at: "2026-09-04T12:22:07-05:00"
+git_sha: 30f6c97966534640e2ca22b14b4cd5c0a13f33e1
+branch: feat/unity-mcp-grok-workflow
+dotnet_sdk: "8.0.422"
+unity_editor: skipped
+verdict: PASS
+headline: "headless UI gates PASS; signoff PENDING"
+full_ui_package_claimed: false
+remediation_required: false
+gates:
+  ui_c2_presentation_suite:
+    filter: "FullyQualifiedName~PlayModeSmoke|FullyQualifiedName~Presentation|FullyQualifiedName~C2|FullyQualifiedName~MapPlaceholder|FullyQualifiedName~MapCanvas|FullyQualifiedName~UnityCsharpScriptHygiene|FullyQualifiedName~Panel|FullyQualifiedName~MessageLog|FullyQualifiedName~SensorC2|FullyQualifiedName~UiIa"
+    floor_passed: 118
+    passed: 138
+    failed: 0
+    skipped: 0
+    total: 138
+    exit: 0
+    result: PASS
+    log: ui/dotnet-ui-suite.log
+  uiia_oracles:
+    filter: "FullyQualifiedName~UiIa"
+    floor_passed: 11
+    passed: 11
+    failed: 0
+    skipped: 0
+    total: 11
+    exit: 0
+    result: PASS
+    log: ui/dotnet-uiia.log
+  replay_golden:
+    filter: ReplayGolden
+    floor_passed: 6
+    passed: 17
+    failed: 0
+    skipped: 0
+    total: 17
+    exit: 0
+    result: PASS
+    log: ui/replay-golden.log
+  c2_signoff_x5:
+    status: PENDING
+    reason: "Editor lock / serial visual lane — headless lane skipped step 3"
+    methods:
+      RunBatch: PENDING
+      RunClassifyBatch: PENDING
+      RunDoctrineBatch: PENDING
+      RunImportBatch: PENDING
+      RunBeginExecutionBatch: PENDING
+    marker: ui/signoff/PENDING.txt
+  invariants:
+    baltic_v2_hash: OK
+    hash_value: "17144800277401907079"
+    hash_hits_tests_data: 26
+    delegation_bridge_diff: empty
+    result: OK
+    log: ui/invariants.txt
+notes:
+  - Headless-only package steps 1, 2, 4. Step 3 Unity Editor C2 Play Mode signoff x5 not run.
+  - Do not claim full UI PASS while signoff is pending.
+  - Manual UAT not in scope.
+  - No git commit from this lane.
+  - No overlay projection rewrite; Slice C not started.
+  - Working tree had S122 presentation/host dirty files; none were DelegationBridge.cs.

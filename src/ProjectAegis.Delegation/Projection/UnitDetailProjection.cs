@@ -2,6 +2,7 @@ namespace ProjectAegis.Delegation.Projection;
 
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
+using ProjectAegis.Delegation.Skills;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
@@ -20,6 +21,7 @@ public static class UnitDetailProjection
         var magazineLabel = ResolveMagazineLabel(unitId, log);
         var emconLabel = ResolveEmconLabel(unitId.Value, policy, observerUnitId);
         var doctrineLabel = ResolveDoctrineLabel(unitId.Value, policy);
+        var authorityLabel = ResolveAuthorityLabel(unitId.Value, policy);
         var engageDefaults = policy?.EngageDefaults ?? ScenarioEngageDefaults.MvpFallback;
         var engageCtx = engageDefaults.ToEngageContext(engageDefaults.DefaultMagazineRounds);
         var engagePreview = EngagePreviewProjection.Project(engageCtx, engageDefaults.DlzPersonality);
@@ -44,7 +46,8 @@ public static class UnitDetailProjection
             engageLabel,
             attackLabel,
             attackMenu,
-            commsLabel);
+            commsLabel,
+            authorityLabel);
     }
 
     public static UnitDetailEntry? ProjectPrimary(
@@ -100,6 +103,24 @@ public static class UnitDetailProjection
         var resolved = policy.ResolveUnitPolicy(unitId, isFriendly: true);
         var suffix = resolved.HasInheritedDoctrineFromMission ? " (mission)" : "";
         return $"DOCTRINE: {resolved.Effective.Roe}{suffix}";
+    }
+
+    private static string ResolveAuthorityLabel(string unitId, ScenarioPolicyProfile? policy)
+    {
+        if (policy == null)
+        {
+            return UnitDetailApplyState.EmptyAuthorityLine;
+        }
+
+        var roe = policy.ResolveUnitPolicy(unitId, isFriendly: true).Effective.Roe;
+        var projection = C2AuthorityProjector.Project(
+            new C2AuthorityProjectionContext(
+                roe,
+                SkillLane.Read,
+                RequiredApproval.None,
+                TrackSource.Organic,
+                FireControlSatisfied: true));
+        return UnitDetailApplyState.FormatAuthorityLine(projection.Targeting.Disposition);
     }
 
     private static string FormatEngagePreview(EngagePreview preview)

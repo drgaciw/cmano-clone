@@ -6,7 +6,8 @@
         <ui:Label name="comms-line" text="COMMS: —" class="unit-detail-line unit-detail-line--comms" />
         <ui:Label name="magazine-line" text="MAGAZINE: —" class="unit-detail-line" />
         <ui:Label name="emcon-line" text="EMCON: —" class="unit-detail-line" />
-        <ui:Label name="doctrine-line" text="DOCTRINE: —" class="unit-detail-line" />
+        <ui:Label name="doctrine-line" text="ROE: —" class="unit-detail-line unit-detail-line--roe" />
+        <ui:Label name="authority-line" text="AUTH: —" class="unit-detail-line unit-detail-line--authority" />
         <ui:Label name="fuel-line" text="FUEL: —" class="unit-detail-line" />
         <ui:Label name="engage-line" text="ENGAGE: —" class="unit-detail-line" />
         <ui:Label name="attack-options-line" text="ATTACK: —" class="unit-detail-line unit-detail-line--attack" />

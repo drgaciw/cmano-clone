@@ -11,13 +11,14 @@ public static class UnitDetailPanelBinder
                 "STATUS: —",
                 "MAGAZINE: —",
                 "EMCON: —",
-                "DOCTRINE: —",
+                UnitDetailApplyState.EmptyRoeLine,
                 "FUEL: —",
                 "ENGAGE: —",
                 "ATTACK: —",
                 contactLine ?? "CONTACT: —",
                 Array.Empty<EngageAttackOptions.AttackOption>(),
-                "COMMS: —");
+                "COMMS: —",
+                UnitDetailApplyState.EmptyAuthorityLine);
         }
 
         return new UnitDetailPanelState(
@@ -25,12 +26,13 @@ public static class UnitDetailPanelBinder
             $"STATUS: {entry.StatusLabel}",
             entry.MagazineLabel,
             entry.EmconLabel,
-            entry.DoctrineLabel,
+            UnitDetailApplyState.FormatRoeLine(entry.DoctrineLabel),
             entry.FuelLabel,
             entry.EngagePreviewLabel,
             entry.AttackOptionsLabel,
             contactLine ?? "CONTACT: —",
             entry.AttackMenu,
-            entry.CommsLabel);
+            entry.CommsLabel,
+            UnitDetailApplyState.FormatAuthorityLine(entry.AuthorityLabel));
     }
 }

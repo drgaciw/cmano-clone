@@ -1,5 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
+using ProjectAegis.Delegation.Comms;
+
 /// <summary>
 /// Headless apply path for <see cref="ContactDetailEntry"/> (CMD-29).
 /// Unity hosts map presentation fields onto labels without re-formatting.
@@ -22,14 +24,21 @@ public static class ContactDetailApplyState
             WraLine: entry.WraLine ?? string.Empty,
             BdaLine: entry.BdaLine ?? string.Empty,
             StalenessLine: entry.StalenessLine ?? string.Empty,
-            LifecycleLine: $"STATE: {entry.LifecycleState}");
+            LifecycleLine: $"STATE: {entry.LifecycleState}",
+            SourceLine: entry.SourceLine ?? string.Empty,
+            CommsLine: entry.CommsLine ?? string.Empty,
+            LastKnownLine: entry.LastKnownLine ?? string.Empty,
+            ExplainLinkLine: entry.ExplainLinkLine ?? string.Empty);
     }
 
     public static ContactDetailPresentation ProjectAndApply(
         string? contactId,
         IReadOnlyList<ContactPictureEntry> contacts,
         ulong currentSimTick,
-        string? bdaLifecycleOverride = null)
+        string? bdaLifecycleOverride = null,
+        string? sourceKind = null,
+        bool outOfComms = false,
+        string? lastKnownState = null)
     {
         if (string.IsNullOrEmpty(contactId))
         {
@@ -40,9 +49,19 @@ public static class ContactDetailApplyState
             contactId!,
             contacts,
             currentSimTick,
-            bdaLifecycleOverride);
+            bdaLifecycleOverride,
+            sourceKind,
+            outOfComms,
+            lastKnownState);
         return Apply(entry);
     }
+
+    /// <summary>
+    /// Contact-quality out-of-comms cue: C2 network Denied means the contact picture
+    /// cannot be trusted as live (DRG-180). Degraded stays "COMMS: up".
+    /// </summary>
+    public static bool OutOfCommsFromNetwork(CommsStateSnapshot? comms) =>
+        comms is { State: CommsState.Denied };
 }
 
 /// <summary>Applied contact-detail presentation fields (label text bags).</summary>
@@ -55,7 +74,11 @@ public sealed record ContactDetailPresentation(
     string WraLine,
     string BdaLine,
     string StalenessLine,
-    string LifecycleLine)
+    string LifecycleLine,
+    string SourceLine,
+    string CommsLine,
+    string LastKnownLine,
+    string ExplainLinkLine)
 {
     public static ContactDetailPresentation Empty { get; } = new(
         "CONTACT: —",
@@ -66,5 +89,9 @@ public sealed record ContactDetailPresentation(
         "WRA: —",
         "BDA: —",
         "— ticks stale",
-        "STATE: —");
+        "STATE: —",
+        "SOURCE: —",
+        "COMMS: —",
+        "LAST KNOWN: —",
+        "EXPLAIN: —");
 }

@@ -113,7 +113,11 @@ namespace ProjectAegis.Unity.Runtime
             var rootEl = _document.rootVisualElement?.Q(RootName);
             if (rootEl != null)
             {
-                rootEl.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+                var hasSelectedUnit = bridgeHost != null && !string.IsNullOrEmpty(bridgeHost.SelectedUnitId);
+                var hasSelectedContact = bridgeHost != null && !string.IsNullOrEmpty(bridgeHost.SelectedContactId);
+                var hasExplain = _last != EngageExplain.Empty;
+                var visible = showPanel && (hasSelectedUnit || hasSelectedContact || hasExplain);
+                rootEl.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
             }
         }
 

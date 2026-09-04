@@ -1,0 +1,19 @@
+track: combat-ui
+run_id: gauntlet-20260904-1450-combat-ui
+verdict: BLOCKED
+blocked_reason: CombatDomains GameObject missing from DelegationSmoke
+gates:
+  ua_filter:
+    passed: 22
+    failed: 0
+    floor: 1
+    exit: 0
+  combat_domain_validator:
+    passed: 15
+    failed: 0
+    floor: 1
+    exit: 0
+  scene_combat_domains_go: missing
+remediation_required: false
+slice_b_implementation: false
+delegation_bridge_diff_bytes: 0

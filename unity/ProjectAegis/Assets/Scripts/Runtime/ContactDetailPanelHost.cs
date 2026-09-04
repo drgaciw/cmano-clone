@@ -21,6 +21,10 @@ namespace ProjectAegis.Unity.Runtime
         private const string WraName = "wra-line";
         private const string BdaName = "bda-line";
         private const string StalenessName = "staleness-line";
+        private const string SourceName = "source-line";
+        private const string CommsName = "comms-line";
+        private const string LastKnownName = "last-known-line";
+        private const string ExplainLinkName = "explain-link-line";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -37,6 +41,10 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _wraLine;
         private Label? _bdaLine;
         private Label? _stalenessLine;
+        private Label? _sourceLine;
+        private Label? _commsLine;
+        private Label? _lastKnownLine;
+        private Label? _explainLinkLine;
         private bool _wired;
         private ContactDetailPresentation _presentation = ContactDetailPresentation.Empty;
 
@@ -107,6 +115,10 @@ namespace ProjectAegis.Unity.Runtime
             _wraLine = panel.Q<Label>(WraName);
             _bdaLine = panel.Q<Label>(BdaName);
             _stalenessLine = panel.Q<Label>(StalenessName);
+            _sourceLine = panel.Q<Label>(SourceName);
+            _commsLine = panel.Q<Label>(CommsName);
+            _lastKnownLine = panel.Q<Label>(LastKnownName);
+            _explainLinkLine = panel.Q<Label>(ExplainLinkName);
             _wired = _contactIdLine != null && _targetIdLine != null && _classificationLine != null;
 
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
@@ -139,10 +151,13 @@ namespace ProjectAegis.Unity.Runtime
                 var contacts = ContactPictureProjection.ProjectWithBda(
                     bridgeHost.Bridge.Orchestrator.DecisionLog);
                 var currentSimTick = bridgeHost.CurrentSimTick;
+                var outOfComms = ContactDetailApplyState.OutOfCommsFromNetwork(
+                    bridgeHost.LastCommsState);
                 _presentation = ContactDetailApplyState.ProjectAndApply(
                     contactId,
                     contacts,
-                    currentSimTick);
+                    currentSimTick,
+                    outOfComms: outOfComms);
             }
 
             ApplyPresentationToLabels();
@@ -201,6 +216,26 @@ namespace ProjectAegis.Unity.Runtime
             if (_stalenessLine != null)
             {
                 _stalenessLine.text = _presentation.StalenessLine;
+            }
+
+            if (_sourceLine != null)
+            {
+                _sourceLine.text = _presentation.SourceLine;
+            }
+
+            if (_commsLine != null)
+            {
+                _commsLine.text = _presentation.CommsLine;
+            }
+
+            if (_lastKnownLine != null)
+            {
+                _lastKnownLine.text = _presentation.LastKnownLine;
+            }
+
+            if (_explainLinkLine != null)
+            {
+                _explainLinkLine.text = _presentation.ExplainLinkLine;
             }
         }
     }

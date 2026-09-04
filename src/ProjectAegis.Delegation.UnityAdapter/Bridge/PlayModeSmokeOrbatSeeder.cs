@@ -3,6 +3,7 @@ namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Traits;
+using ProjectAegis.Sim.Scenario;
 
 /// <summary>
 /// Shared smoke-ORBAT seed for play-mode C2 panels (OOB, Unit Detail, Message Log).
@@ -17,6 +18,8 @@ public static class PlayModeSmokeOrbatSeeder
     /// <summary>
     /// Registers friendly/hostile units, configures Mixed mode, and seeds contact/magazine log rows.
     /// Idempotent when the registry already has members.
+    /// When the orchestrator scenario policy is unset, loads <c>baltic-patrol</c>
+    /// so Unit Detail ROE/AUTH are projector labels, not placeholders.
     /// Returns true when the registry is ready (seeded now or already populated); false if bridge is null.
     /// </summary>
     public static bool TrySeed(DelegationBridge? bridge)
@@ -24,6 +27,12 @@ public static class PlayModeSmokeOrbatSeeder
         if (bridge == null)
         {
             return false;
+        }
+
+        if (bridge.Orchestrator.ScenarioPolicy is null)
+        {
+            ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
+            bridge.Orchestrator.ScenarioPolicy = ScenarioPolicyRepository.TryGet("baltic-patrol");
         }
 
         if (bridge.Registry.CollectMemberIds().Count > 0)

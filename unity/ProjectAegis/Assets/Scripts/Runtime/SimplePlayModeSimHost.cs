@@ -74,12 +74,17 @@ namespace ProjectAegis.Unity.Runtime
                 SeedSmokeOrbat(bridgeHost.Bridge);
                 // Prefer friendly primary: OOB sort is alphabetical and would otherwise pick hostile-1 first.
                 bridgeHost.SelectUnit(SmokeFriendlyUnitId);
+                // Slice A P0: seed contact c1 so ContactDetail / sensor-to-shooter chrome is visible in Play Mode.
+                bridgeHost.SelectContact(SmokeContactId);
             }
 
             if (autoBeginOnStart)
             {
                 bridgeHost.BeginExecution();
             }
+
+            // Paused Play skips Update RunTick; seed LastSensorC2 so CONTACTS lists c1 immediately.
+            bridgeHost.RunTick(this, this);
         }
 
         /// <summary>
