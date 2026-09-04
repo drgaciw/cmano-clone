@@ -3,7 +3,7 @@
 .unit-order-toolbar {
     position: absolute;
     left: 50%;
-    bottom: 48px;
+    bottom: 56px;
     translate: -50% 0;
     min-width: 420px;
     max-width: 720px;

@@ -7,8 +7,8 @@
         <ui:Label name="classification-line" text="CLASS: —" class="contact-detail-line" />
         <ui:Label name="confidence-line" text="CONF: —" class="contact-detail-line" />
         <ui:Label name="provenance-line" text="Detected by: —" class="contact-detail-line" />
-        <ui:Label name="wra-line" text="WRA: —" class="contact-detail-line" />
-        <ui:Label name="bda-line" text="BDA: —" class="contact-detail-line" />
+        <ui:Label name="wra-line" text="WRA: —" class="contact-detail-line contact-detail-line--wra" />
+        <ui:Label name="bda-line" text="BDA: —" class="contact-detail-line contact-detail-line--bda" />
         <ui:Label name="staleness-line" text="— ticks stale" class="contact-detail-line contact-detail-line--stale" />
         <ui:Label name="source-line" text="SOURCE: —" class="contact-detail-line" />
         <ui:Label name="comms-line" text="COMMS: —" class="contact-detail-line contact-detail-line--comms" />

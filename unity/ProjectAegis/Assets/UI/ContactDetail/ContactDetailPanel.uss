@@ -35,4 +35,15 @@
 
 .contact-detail-line--link {
     -unity-font-style: italic;
+    color: rgb(130, 200, 255);
+}
+
+.contact-detail-line--bda {
+    color: rgb(255, 150, 150);
+    -unity-font-style: bold;
+}
+
+.contact-detail-line--wra {
+    color: rgb(140, 230, 190);
+    -unity-font-style: bold;
 }
