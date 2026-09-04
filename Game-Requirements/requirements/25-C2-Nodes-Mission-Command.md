@@ -1,9 +1,10 @@
 # 25 - C2 Nodes, Mission Packages & Mission Command
 
-**Last Updated:** 2026-09-02  
-**Status:** Draft — remediation for Audit Finding B-05 (2026-09-02)  
-**FR reverse-ref:** Related to **FR-03** ([04-Agent-Delegation.md](04-Agent-Delegation.md)) and **FR-18** ([19-Cyber-And-Comms.md](19-Cyber-And-Comms.md), [20-Command-And-Control-UI.md](20-Command-And-Control-UI.md))  
-**Related:** [04-Agent-Delegation.md](04-Agent-Delegation.md), [08-Agentic-Architecture.md](08-Agentic-Architecture.md), [12-Terms-Glossary.md](12-Terms-Glossary.md), [13-Doctrine-ROE-EMCON-WRA.md](13-Doctrine-ROE-EMCON-WRA.md), [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md), [19-Cyber-And-Comms.md](19-Cyber-And-Comms.md), [20-Command-And-Control-UI.md](20-Command-And-Control-UI.md), [23-Kill-Chain-Explainability.md](23-Kill-Chain-Explainability.md), [24-Human-On-The-Loop-Authority.md](24-Human-On-The-Loop-Authority.md)  
+**Last Updated:** 2026-09-04  
+**Status:** Canonical — promoted AEGIS-310 / DRG-240 (Audit remediation B-05)  
+**Requirement IDs:** `C2N-01` … `C2N-04`  
+**FR reverse-ref:** Related to [FR-03](01-Project-Overview.md) (Agent Delegation) and [FR-18](01-Project-Overview.md) (Command & Control UI)  
+**Related:** [04-Agent-Delegation.md](04-Agent-Delegation.md) · [08-Agentic-Architecture.md](08-Agentic-Architecture.md) · [12-Terms-Glossary.md](12-Terms-Glossary.md) · [13-Doctrine-ROE-EMCON-WRA.md](13-Doctrine-ROE-EMCON-WRA.md) · [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md) · [19-Cyber-And-Comms.md](19-Cyber-And-Comms.md) · [20-Command-And-Control-UI.md](20-Command-And-Control-UI.md) · [23-Kill-Chain-Explainability.md](23-Kill-Chain-Explainability.md) · [24-Human-On-The-Loop-Authority.md](24-Human-On-The-Loop-Authority.md)  
 **Linear:** Milestone **H9 / C2 Architecture** · [DRG-213](https://linear.app/drgamtd-workspace/issue/DRG-213) (Headless C2 Nodes & Mission Packages), [DRG-214](https://linear.app/drgamtd-workspace/issue/DRG-214) (Headless C2 Network Health Projection), [DRG-223](https://linear.app/drgamtd-workspace/issue/DRG-223) (Task Group Coordination & Gaps), [DRG-229](https://linear.app/drgamtd-workspace/issue/DRG-229) (Mission Command Intent & Commander Guidance)
 
 ---

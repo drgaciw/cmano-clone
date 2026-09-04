@@ -22,7 +22,7 @@ Run from repo root (`cmano-clone/`):
 |------|---------|
 | Restore | `dotnet restore ProjectAegis.sln` |
 | Build | `dotnet build ProjectAegis.sln` |
-| Full test suite (≥1638) | `dotnet test ProjectAegis.sln -v minimal` |
+| Full test suite (≥1924) | `dotnet test ProjectAegis.sln -v minimal` |
 | Play Mode smoke (C2 proxy) | `dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests` |
 | Console demo | `dotnet run --project src/ProjectAegis.Delegation.Demo` |
 | Format check | `dotnet format --verify-no-changes` |
@@ -31,7 +31,7 @@ Run from repo root (`cmano-clone/`):
 
 ```bash
 dotnet build ProjectAegis.sln                   # 0 errors, 0 warnings
-dotnet test ProjectAegis.sln -v minimal          # ≥1638 / 0 failures (post S95 gauntlet land; prior floor ≥1599)
+dotnet test ProjectAegis.sln -v minimal          # ≥1924 / 0 failures (post S95 gauntlet land; prior floor ≥1638)
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests   # ≥20/20
 ```
 
@@ -128,7 +128,7 @@ IOrderSink.ApplyOrder(entityKey, order)  →  movement / weapons / EW systems
 | Invariant | Rule |
 |-----------|------|
 | **Replay golden hash** | `17144800277401907079` must be preserved in Baltic v2 replay golden files. Grep to verify: `grep -r "17144800277401907079" tests/ data/` |
-| **Test baseline** | ≥1638 solution tests, 0 failures (post S95 gauntlet land; prior ≥1599; monotonic — never regress) |
+| **Test baseline** | ≥1924 solution tests, 0 failures (post S95 gauntlet land; prior ≥1638; monotonic — never regress) |
 | **ReplayGolden** | 6/6 (Baltic v2 replay suite) |
 | **PlayModeSmokeHarness** | ≥20/20 (C2 proxy tests) |
 | **DelegationBridge.cs** | Zero-touch through Release v1 — no hotpath changes |
@@ -365,7 +365,7 @@ This repo is Graphite-initialized (trunk `main`, [`.graphite_repo_config`](.grap
 
 Full guide: [`docs/engineering/graphite-github-substitute-plan.md`](docs/engineering/graphite-github-substitute-plan.md). Read-only `gh pr checks` / `gh pr diff` is fine for CI triage.
 
-**verification-before note for trunk resolution (e.g. "trunk out of date" block):** Before gt sync / restack / submit when blocked: (1) GitNexus pre (search_tool then list_repos + detect_changes(scope=staged) + impact(CatalogWriteGate upstream summaryOnly)); (2) full gates RUN+READ: dotnet build, dotnet test full (0f ≥1638 post S95 gauntlet land; prior ≥1599), ReplayGolden 6/6, PlayModeSmoke ≥20/20, hash grep `17144800277401907079`, ZERO DelegationBridge grep, gt status; (3) stage ONLY sprint-scoped payload files per active closeout; (4) re-verif post each gt step. Cite active scope boundary + this AGENTS + graphite plan. All RUN outputs READ before proceed.
+**verification-before note for trunk resolution (e.g. "trunk out of date" block):** Before gt sync / restack / submit when blocked: (1) GitNexus pre (search_tool then list_repos + detect_changes(scope=staged) + impact(CatalogWriteGate upstream summaryOnly)); (2) full gates RUN+READ: dotnet build, dotnet test full (0f ≥1924 post S95 gauntlet land; prior ≥1638), ReplayGolden 6/6, PlayModeSmoke ≥20/20, hash grep `17144800277401907079`, ZERO DelegationBridge grep, gt status; (3) stage ONLY sprint-scoped payload files per active closeout; (4) re-verif post each gt step. Cite active scope boundary + this AGENTS + graphite plan. All RUN outputs READ before proceed.
 
 ### Hermes Agent skills
 
@@ -405,7 +405,7 @@ Cloud VMs run `.cursor/cloud-install.sh` on startup via `.cursor/environment.jso
 |------|---------|
 | Restore | `dotnet restore ProjectAegis.sln` |
 | Build | `dotnet build ProjectAegis.sln` |
-| Test (full suite, ≥1638 tests post S95 gauntlet land; hybrid layout retained) | `dotnet test ProjectAegis.sln -v minimal` |
+| Test (full suite, ≥1924 tests post S95 gauntlet land; hybrid layout retained) | `dotnet test ProjectAegis.sln -v minimal` |
 | Play Mode smoke (headless) | `dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --filter PlayModeSmokeHarnessTests` |
 | Run delegation demo | `dotnet run --project src/ProjectAegis.Delegation.Demo` |
 | Format check | `dotnet format --verify-no-changes` (may report pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`) |
@@ -456,7 +456,7 @@ No Docker compose or long-running servers. The "application" is in-process: `dot
 
 - Production stage is **Release** (`production/stage.txt`; S48 gate PASS 2026-06-20; RC1 cut); Launch / commercial execution remains deferred pending an explicit separate decision.
 - **S39–S80** programs COMPLETE through Baltic v3 content expansion (RC1 S48, MVP exit S56, Baltic v2 S64, release train S68, launch prep S72, Baltic v3 S73–S80).
-- Headless test baseline floor is **≥1638** solution tests post S95 gauntlet land (prior floor ≥1599; ReplayGolden 6/6, C2 proxy ≥20/20; monotonic). UA engage filter (`BalticReplayHarnessPolicyEngageTests`) **3/3 green** @ post-PE gate 2026-07-09 — see [`production/qa/ua-engage-triage-2026-07-09.md`](production/qa/ua-engage-triage-2026-07-09.md).
+- Headless test baseline floor is **≥1924** solution tests post S95 gauntlet land (prior floor ≥1638; ReplayGolden 6/6, C2 proxy ≥20/20; monotonic). UA engage filter (`BalticReplayHarnessPolicyEngageTests`) **3/3 green** @ post-PE gate 2026-07-09 — see [`production/qa/ua-engage-triage-2026-07-09.md`](production/qa/ua-engage-triage-2026-07-09.md).
 - Canonical forward roadmap uses dated `docs/reports/future-sprint-roadpmap-*.md` / `future-sprint-roadmap-*.md` with stable alias `docs/reports/future-sprint-roadpmap.md`; **S73–S80 Baltic v3** COMPLETE; **S81–S88 + ME Phase 2 + PE** COMPLETE (2026-07-09); **S89–S92 post-editor hygiene** COMPLETE (human ack 2026-07-09); **S93 + post-S93 remediation** COMPLETE; forward snapshot includes `future-sprint-roadmap-07142026.md` (S94+ Release Continuity); Platform/Mission Editor UI/UX productization (2026-07-23) is active Unity chrome polish with Excel-primary PE authoring (ADR-011).
 - Production Baltic v2 replay hash **`17144800277401907079`** must stay preserved unless an ADR explicitly changes it.
 - Baltic v3 uses isolated **`baltic-v3-*`** scenario policies and replay goldens; v2 hash invariant unchanged.

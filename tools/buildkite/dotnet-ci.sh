@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Mirrors .github/workflows/dotnet-reusable.yml and tools/verify-ci-local.ps1
-# Current solution test floor and standing invariants are governed by AGENTS.md §Hard Invariants (baseline floor >=1638 / 0 failures).
+# Current solution test floor and standing invariants are governed by AGENTS.md §Hard Invariants (baseline floor >=1924 / 0 failures).
 # ReplayGolden 6/6; PlayModeSmoke >=20/20; hash 17144800277401907079 preserved
 # PowerShell parity: pwsh -File tools/verify-ci-local.ps1
 # verification-before: RUN+READ pattern logged; cite boundary on every gate run

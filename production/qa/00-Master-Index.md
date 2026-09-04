@@ -57,6 +57,16 @@
 | [19](Game-Requirements/requirements/19-Cyber-And-Comms.md) | Cyber & communications |
 | [20](Game-Requirements/requirements/20-Command-And-Control-UI.md) | Command & control UI |
 
+## Advanced C2, Authority, Explainability & Verification (23–27)
+
+| Doc | Title | Core Requirements |
+|-----|-------|-------------------|
+| [23](Game-Requirements/requirements/23-Kill-Chain-Explainability.md) | Kill-Chain Explainability & Targetability | KCX-01..07 (4-link sensor-to-shooter, targetability composition, track custody, contact provenance) |
+| [24](Game-Requirements/requirements/24-Human-On-The-Loop-Authority.md) | Human-On-The-Loop Authority & Approvals | HOL-01..10 (propose ≠ authorize, autonomy tiers, escalation gates, pending approvals) |
+| [25](Game-Requirements/requirements/25-C2-Nodes-Mission-Command.md) | C2 Nodes, Mission Packages & Mission Command | C2N-01..04 (mission packages, C2 network health, task group coordination, mission command intent) |
+| [26](Game-Requirements/requirements/26-Verification-CI-Gauntlet.md) | Verification, CI Gates & QA Gauntlet | VER-01..07 (deterministic CI gates, QA Gauntlet, oracle evaluation, test floor enforcement, mutation saboteurs) |
+| [27](Game-Requirements/requirements/27-Scenario-Library-Campaigns.md) | Scenario Library, Campaigns & Package Loading | LIB-01..04 (scenario discovery, pre-load feasibility, campaign progression, package ingestion) |
+
 ## Additional files
 
 | File | Purpose |

@@ -97,7 +97,7 @@ These are the **operational** success criteria for the vertical slice. Evidence 
 
 | ID | Criterion | Tag | Evidence |
 |----|-----------|-----|----------|
-| OV-SC-G1 | Full solution tests meet monotonic floor **≥1232** with 0 gate failures (known UA exclusions documented in AGENTS.md) | **Measured** | `dotnet test ProjectAegis.sln`; AGENTS.md |
+| OV-SC-G1 | Full solution tests meet monotonic floor **≥1924** with 0 gate failures (known UA exclusions documented in AGENTS.md) | **Measured** | `dotnet test ProjectAegis.sln`; AGENTS.md |
 | OV-SC-G2 | Baltic v2 ReplayGolden **6/6**; production hash **`17144800277401907079`** preserved | **Measured** | `tests/regression/`; AGENTS.md hash grep |
 | OV-SC-G3 | PlayModeSmokeHarness **18/18** | **Measured** | UnityAdapter filter `PlayModeSmokeHarnessTests` |
 | OV-SC-G4 | Clean-room: no proprietary CMO DB/scenarios/code committed | **Proxy** | Process + review; Goal 5 |
@@ -122,7 +122,7 @@ Original charter bars retained as product north-stars. **Do not treat as S80 acc
 | OV-AC-1 | Gate-backed table present with G1–G5 | Section above |
 | OV-AC-2 | North-star table present with N1–N3 tagged Deferred/Proxy | Section above |
 | OV-AC-3 | Standing invariants listed under NFR | Standing engineering invariants subsection |
-| OV-AC-4 | Related Index 02–22 complete | Related Requirements Index |
+| OV-AC-4 | Related Index 02–27 complete | Related Requirements Index |
 
 ## Project Name (Working Title)
 **Project Aegis**
@@ -245,5 +245,10 @@ Design status = per-doc header. Implementation grades = [implementation tracker]
 | [20](20-Command-And-Control-UI.md) | Command & Control UI | Draft | Tracker: Partial |
 | [21](21-Platform-Editor.md) | Platform Editor | Draft | Tracker: MVP-done / Partial+; FR-19 |
 | [22](22-Drone-Swarm-Platforms.md) | Drone Swarm Platforms | Draft | H8 / FR-20; Phase A land 2026-08-09 |
+| [23](23-Kill-Chain-Explainability.md) | Kill-Chain Explainability & Targetability | Canonical | AEGIS-310 / DRG-240; KCX-01..07 |
+| [24](24-Human-On-The-Loop-Authority.md) | Human-On-The-Loop Authority & Approvals | Canonical | AEGIS-310 / DRG-240; HOL-01..10 |
+| [25](25-C2-Nodes-Mission-Command.md) | C2 Nodes, Mission Packages & Mission Command | Canonical | AEGIS-310 / DRG-240; C2N-01..04 |
+| [26](26-Verification-CI-Gauntlet.md) | Verification, CI Gates & QA Gauntlet | Canonical | AEGIS-310 / DRG-240; VER-01..07 |
+| [27](27-Scenario-Library-Campaigns.md) | Scenario Library, Campaigns & Package Loading | Canonical | AEGIS-310 / DRG-240; LIB-01..04 |
 
-Status snapshot **2026-07-08** (Wave 0 hub re-baseline). Per-doc headers remain authoritative for design Status; tracker for implementation.
+Status snapshot **2026-09-04** (Wave 0 hub re-baseline; AEGIS-310 / DRG-240 promotion). Per-doc headers remain authoritative for design Status; tracker for implementation.

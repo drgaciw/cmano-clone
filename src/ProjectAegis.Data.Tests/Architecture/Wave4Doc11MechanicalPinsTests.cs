@@ -67,14 +67,14 @@ public sealed class Wave4Doc11MechanicalPinsTests
     }
 
     [Fact]
-    public void requirements_corpus_has_exactly_22_md_files()
+    public void requirements_corpus_has_exactly_27_md_files()
     {
         var anyReq = ResolveRepoFile("Game-Requirements", "requirements", Doc11FileName);
         Assert.True(anyReq != null, "Could not resolve Game-Requirements/requirements/");
         var reqDir = Path.GetDirectoryName(anyReq)!;
 
         var mdFiles = Directory.GetFiles(reqDir, "*.md");
-        Assert.Equal(22, mdFiles.Length);
+        Assert.Equal(27, mdFiles.Length);
     }
 
     private static string? ResolveRepoFile(params string[] relativeSegments)

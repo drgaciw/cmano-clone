@@ -30,12 +30,14 @@ public sealed class SimulationSession
         var seed = SimSeed.FromScenario((ulong)globalSeed);
         Orchestrator = new DelegationOrchestrator(globalSeed, policyEvaluator);
         Sim = new SimTickPipeline(seed, engagement ?? new StubEngagementResolver());
+        WireApprovalQueueAutoPause();
     }
 
     private SimulationSession(DelegationOrchestrator orchestrator, SimTickPipeline sim)
     {
         Orchestrator = orchestrator;
         Sim = sim;
+        WireApprovalQueueAutoPause();
     }
 
     public static SimulationSession BindMvpEngagement(
@@ -113,6 +115,14 @@ public sealed class SimulationSession
 
     public SimTickPipeline Sim { get; }
 
+    public PendingApprovalQueue PendingApprovalQueue => Orchestrator.PendingApprovalQueue;
+
+    public IReadOnlyList<PendingApprovalEntry> PendingApprovals => Orchestrator.PendingApprovals;
+
+    public bool TryApprovePendingOrder(OrderId orderId) => Orchestrator.TryApprovePendingOrder(orderId);
+
+    public bool TryRejectPendingOrder(OrderId orderId) => Orchestrator.TryRejectPendingOrder(orderId);
+
     public WatchAttentionQueue WatchQueue { get; } = new();
 
     public WatchAutoPauseGate WatchPauseGate { get; } = new();
@@ -127,7 +137,7 @@ public sealed class SimulationSession
 
     public bool TryResumeSim(bool explicitOverride = false)
     {
-        if (!WatchPauseGate.CanResume(WatchQueue, explicitOverride))
+        if (!WatchPauseGate.CanResume(WatchQueue, Orchestrator.PendingApprovalQueue, explicitOverride))
         {
             return false;
         }
@@ -135,6 +145,19 @@ public sealed class SimulationSession
         ResumeSim();
         WatchPauseGate.ClearReason();
         return true;
+    }
+
+    private void WireApprovalQueueAutoPause()
+    {
+        WatchPauseGate.PendingApprovalQueue = Orchestrator.PendingApprovalQueue;
+        Orchestrator.PendingApprovalQueue.AutoPauseGate = WatchPauseGate;
+        Orchestrator.PendingApprovalQueue.OnOrderEnqueued = entry =>
+        {
+            if (WatchPauseGate.ShouldAutoPause(entry))
+            {
+                PauseSim();
+            }
+        };
     }
 
     public void ReportWatchAttention(WatchAttentionEvent evt)

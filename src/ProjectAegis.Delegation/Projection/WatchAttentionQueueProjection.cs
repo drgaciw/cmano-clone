@@ -41,6 +41,7 @@ public static class WatchAttentionQueueProjection
             WatchPauseReason.HostileOrUnknownContact => "Hostile / unknown contact",
             WatchPauseReason.OwnSideLossOrDamage => "Own-side loss / damage",
             WatchPauseReason.ExplicitPlayer => "Player pause",
+            WatchPauseReason.OrderProposal => "Pending order approval",
             _ => string.Empty,
         };
 }

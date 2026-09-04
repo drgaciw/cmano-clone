@@ -1,6 +1,6 @@
 # Game Requirements - Master Index
 
-**Last Updated:** 2026-09-02
+**Last Updated:** 2026-09-04
 
 **Program note:** **Corpus maturity W0–W4 complete (2026-07-08)** — hub + drafts 13–21 honesty re-baselined; design: `docs/superpowers/specs/2026-07-08-requirements-corpus-maturity-design.md`. Historical review verdicts (2026-05-29 CONCERNS) were superseded by W0–W4 APPROVED reviews (2026-07-08). Scenario editor (req 11), ME Phase 2, and PE complete on trunk; active post-editor hygiene and forward continuous engineering. Live status pointers: [`docs/reports/`](../docs/reports/) latest sprint roadmap and [`production/qa/`](../production/qa/). Post-MVP Requirements Program (Sprints 11–15) complete for docs 01–12 Template A. Doc 21 Platform Editor is first-class under Authoring.
 
@@ -80,6 +80,31 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 | [19](requirements/19-Cyber-And-Comms.md) | Cyber & communications | Draft |
 | [20](requirements/20-Command-And-Control-UI.md) | Command & control UI | Draft |
 | [22](requirements/22-Drone-Swarm-Platforms.md) | Drone / UAS swarm platforms | Draft — H8 / FR-20 |
+| [23](requirements/23-Kill-Chain-Explainability.md) | Kill-Chain Explainability & Targetability | Canonical — KCX-01..07 |
+| [24](requirements/24-Human-On-The-Loop-Authority.md) | Human-On-The-Loop Authority & Approvals | Canonical — HOL-01..10 |
+| [25](requirements/25-C2-Nodes-Mission-Command.md) | C2 Nodes, Mission Packages & Mission Command | Canonical — C2N-01..04 |
+| [26](requirements/26-Verification-CI-Gauntlet.md) | Verification, CI Gates & QA Gauntlet | Canonical — VER-01..07 |
+| [27](requirements/27-Scenario-Library-Campaigns.md) | Scenario Library, Campaigns & Package Loading | Canonical — LIB-01..04 |
+
+## Advanced C2, Authority, Explainability & Verification (23–27)
+
+Formal specifications promoted to canonical corpus (AEGIS-310 / DRG-240):
+
+- [23-Kill-Chain-Explainability.md](requirements/23-Kill-Chain-Explainability.md) — **Kill-Chain Explainability & Targetability**
+  - Core Requirements: **`KCX-01` … `KCX-07`**
+  - Scope: 4-link sensor-to-shooter decomposition (`KCX-01`), targetability composition (`KCX-02`), track custody state machine (`KCX-03`), contact provenance and identity (`KCX-04`), weapon firing failure diagnostic taxonomy (`KCX-05`), shooter allocation feasibility (`KCX-06`), and mission-editor / AAR test harness explainability integration (`KCX-07`).
+- [24-Human-On-The-Loop-Authority.md](requirements/24-Human-On-The-Loop-Authority.md) — **Human-On-The-Loop Authority, Approvals & Agent Recommendations**
+  - Core Requirements: **`HOL-01` … `HOL-10`**
+  - Scope: Core tenet "Propose ≠ Authorize" (`HOL-01`), autonomy tiers and bounded action verbs (`HOL-02`), C2 authority disposition resolution (`HOL-03`), escalation gates and pending approvals ledger (`HOL-04`), advisory threat and resource assessment projection (`HOL-05`), supervised execution and countermand windows (`HOL-06`), mission command override hierarchy (`HOL-07`), deterministic replay-stability of approval states (`HOL-08`), fail-closed doctrine enforcement (`HOL-09`), and operator corrective next-action advisories (`HOL-10`).
+- [25-C2-Nodes-Mission-Command.md](requirements/25-C2-Nodes-Mission-Command.md) — **C2 Nodes, Mission Packages & Mission Command**
+  - Core Requirements: **`C2N-01` … `C2N-04`**
+  - Scope: C2 nodes and mission package composition (`C2N-01`), C2 network health, datalink connectivity and mesh partition assessment (`C2N-02`), task group coordination and capability gap detection (`C2N-03`), mission command intent and commander guidance during degraded comms operations (`C2N-04`).
+- [26-Verification-CI-Gauntlet.md](requirements/26-Verification-CI-Gauntlet.md) — **Verification, CI Gates & QA Gauntlet**
+  - Core Requirements: **`VER-01` … `VER-07`**
+  - Scope: Fail-closed deterministic CI verification gates (`VER-01`), automated QA Gauntlet batch execution (`VER-02`), GauntletOracleEvaluator pass/fail evaluation (`VER-03`), monotonic solution test floor governance via AGENTS.md (`VER-04`), Golden Replay and play-mode regression enforcement (`VER-05`), automated saboteur and mutation calibration (`VER-06`), and headless test harness performance/isolation guarantees (`VER-07`). Supersedes legacy INF-6.x.
+- [27-Scenario-Library-Campaigns.md](requirements/27-Scenario-Library-Campaigns.md) — **Scenario Library, Campaigns & Package Loading**
+  - Core Requirements: **`LIB-01` … `LIB-04`**
+  - Scope: Deterministic scenario library enumeration and pre-load feasibility evaluation (`LIB-01`), multi-scenario campaign document definition and sequential progress tracking (`LIB-02`), resilient package loading, catalog snapshot resolution and zip manifest ingestion (`LIB-03`), zero-allocation headless presentation apply states and UI contract binding (`LIB-04`).
 
 ## Reading order (for design review)
 
@@ -89,13 +114,17 @@ Docs **01, 04, 06, 07, 08, 09, 10** updated from `docs/research/*.md`. Full mapp
 4. **11** Mission editor (authoring) with **06** Database  
 5. **21** Platform editor (catalog) with **06** Database — after or parallel to 11  
 6. **22** Drone Swarm Platforms (FR-20 / H8) after 14–18–20  
-7. **01** Project Overview last as hub re-check (FR map + NFR)
+7. **23** Kill-Chain Explainability → **24** Human-On-The-Loop Authority → **25** C2 Nodes & Mission Command  
+8. **27** Scenario Library & Campaigns after 11 & 21  
+9. **26** Verification & QA Gauntlet (validation gates across entire corpus)  
+10. **01** Project Overview last as hub re-check (FR map + NFR)
 
 ## Next workflow steps
 
 - **H8 Drone Swarm Platforms (doc 22):** Phase A–C + PE residual **landed** (DRG-83 Done); Phase N SWARM-27…30 **post-release deferred** ([DRG-47](https://linear.app/drgamtd-workspace/issue/DRG-47) 2026-08-09)
 - **REQ-09/10 Phase N:** Owner decision recorded — no Phase N GDDs/runtime until product re-opens Phase N (`production/agentic/drg-47-phase-n-scoping-decision-2026-08-09.md`)
 - **Corpus maturity program closed** (W0–W4 complete 2026-07-08); no further corpus waves
+- **Specifications 23–27 promoted** to canonical corpus under AEGIS-310 / DRG-240
 - **Scenario editor completion** (req 11): S81–S88 scenario editor, ME Phase 2, and PE complete on trunk; post-editor hygiene and forward roadmap at [`docs/reports/future-sprint-roadpmap.md`](../docs/reports/future-sprint-roadpmap.md) (stable alias)
-- Run `/design-review` when mechanics change on **01, 04, 06–11, 13–22**
+- Run `/design-review` when mechanics change on **01, 04, 06–11, 13–27**
 - Run `/military-requirements-impact` before DB schema for JADC2, C-UAS, hypersonic defense
