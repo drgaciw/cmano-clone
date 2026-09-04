@@ -1,6 +1,6 @@
 # Tech Stack - Agentic Game Development
 
-**Core Game Engine:** Unity **6.3 LTS** (editor `6000.3.14f1`) — project at `unity/ProjectAegis/`
+**Core Game Engine:** Unity **6.3 LTS** (editor `6000.3.22f1`) — project at `unity/ProjectAegis/`
 
 **Programming Language:** C# (Microsoft C#)
 
@@ -13,6 +13,7 @@
 - Cursor (primary AI-first editor)
 - GitHub Copilot
 - Claude Code / Claude Desktop
+- Grok Build (project MCP: `.grok/config.toml` → `ai-game-developer`)
 
 ## Unity Project (working reference)
 
@@ -31,7 +32,7 @@ Pinned packages in `unity/ProjectAegis/Packages/manifest.json` (do not invent ve
 
 Engine pin and managed-sim notes: [docs/engine-reference/unity/VERSION.md](docs/engine-reference/unity/VERSION.md). Headless sim stays under `src/` (`net8.0`); Unity plugins target `netstandard2.1`.
 
-**Project Aegis Unity invariants** (Input Manager, Built-in RP, MCP Editor session pending, headless-vs-Editor): [`unity/ProjectAegis/.claude/README.md`](unity/ProjectAegis/.claude/README.md).
+**Project Aegis Unity invariants** (Input Manager, Built-in RP, Unity-MCP Custom `:8080`, headless-vs-Editor): [`unity/ProjectAegis/.claude/README.md`](unity/ProjectAegis/.claude/README.md).
 
 ### Unity / C2 agent routing
 
@@ -62,12 +63,12 @@ Start Editor MCP setup with `unity-initial-setup` / `unity-tool-list` under the 
 > **Status: Configured** — client MCP + package **0.86.0** on disk; **local Custom `:8080` pin + Editor session** still required per machine.
 > See [Claude Agent Setup](Game-Requirements/Claude-Agent-Setup.md) for activation steps.
 
-**[Unity-MCP](https://github.com/IvanMurzak/Unity-MCP)** — *manifest + client configured; live `:8080` still local-only*
+**[Unity-MCP](https://github.com/IvanMurzak/Unity-MCP)** — *manifest + clients configured; live `:8080` requires Editor + per-clone pin*
 - CLI: `npx unity-mcp-cli@0.86.0` (optional global `npm install -g unity-mcp-cli`)
-- MCP config: `.cursor/mcp.json`, `.mcp.json` → `"type": "http"`, `http://localhost:8080` (`ai-game-developer`)
+- MCP config: `.cursor/mcp.json`, `.mcp.json`, `.grok/config.toml` → `http://localhost:8080` (`ai-game-developer`)
 - Package: `com.ivanmurzak.unity.mcp` **0.86.0** is a direct dependency in `unity/ProjectAegis/Packages/manifest.json` (OpenUPM scopes present)
 - **Pin (required per clone):** `./tools/pin-unity-mcp-8080.sh` (or `.ps1`) / Editor menu **Project Aegis → MCP → Pin Local Host :8080** — package default is Cloud + hashed 20000–29999 port
-- **Pending on interactive machine:** open Editor (`6000.3.14f1`), confirm Custom/`http://localhost:8080`, verify curl/`status`
+- **Interactive machine:** open Editor (`6000.3.22f1`), confirm Custom/`http://localhost:8080`, then `curl` / `status`. If `:8080` is down, stay headless (`/team-unity`).
 - Generated Editor skills land under `unity/ProjectAegis/.claude/skills/` after `setup-skills` / `unity-skill-generate`
 
 **.NET:** SDK pin **8.0.400** (`global.json`); headless `net8.0` + Unity plugins `netstandard2.1` — [dotnet reference](docs/engine-reference/dotnet/README.md)

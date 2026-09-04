@@ -108,7 +108,8 @@ _to_delete/
 .worktrees/
 
 # Agent session artifacts (Cursor / Grok harness — not part of the product)
-.grok/
+.grok/*
+!.grok/config.toml
 agent-tools/
 mcps/
 terminals/
