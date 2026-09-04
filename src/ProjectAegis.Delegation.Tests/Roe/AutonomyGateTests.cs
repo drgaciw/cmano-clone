@@ -48,4 +48,27 @@ public sealed class AutonomyGateTests
             "ROE reject is terminal; must not enter approval queue as if legal.");
         Assert.That(result.PolicyDenialReason, Is.EqualTo(FireAbortReason.RoeHoldFire));
     }
+
+    /// <summary>
+    /// HOL-04B (AEGIS-302 / DRG-232): SemiAutonomous lethal fire orders without prior authorization
+    /// route to hold or pending review rather than instantaneous ExecuteNow. Non-lethal orders execute now.
+    /// </summary>
+    [Test]
+    public void SemiAutonomous_holds_unauthorized_lethal_orders_for_approval()
+    {
+        var gate = new AutonomyGate(new PassthroughRoeFilter());
+        var engage = new Order(new OrderId(1), new TargetId("u1"), 0, OrderKind.Engage, RiskLevel.High);
+        var move = new Order(new OrderId(2), new TargetId("u1"), 0, OrderKind.Move, RiskLevel.Low);
+
+        var engageResult = gate.Evaluate(AutonomyLevel.SemiAutonomous, engage, playerApproved: false);
+        var moveResult = gate.Evaluate(AutonomyLevel.SemiAutonomous, move, playerApproved: false);
+        var approvedEngageResult = gate.Evaluate(AutonomyLevel.SemiAutonomous, engage, playerApproved: true);
+
+        Assert.That(engageResult.ExecuteNow, Is.False);
+        Assert.That(engageResult.QueueForApproval, Is.True);
+        Assert.That(moveResult.ExecuteNow, Is.True);
+        Assert.That(moveResult.QueueForApproval, Is.False);
+        Assert.That(approvedEngageResult.ExecuteNow, Is.True);
+        Assert.That(approvedEngageResult.QueueForApproval, Is.False);
+    }
 }
