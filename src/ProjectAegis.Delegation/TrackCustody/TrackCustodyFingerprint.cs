@@ -47,6 +47,8 @@ public static class TrackCustodyFingerprint
         builder.Append(',');
         builder.Append((int)row.Cause);
         builder.Append(',');
+        builder.Append((int)row.Breakdown);
+        builder.Append(',');
         builder.Append(row.LastKnownTick);
         builder.Append(',');
         builder.Append(row.LastKnownSimTime.ToString("R", CultureInfo.InvariantCulture));
@@ -66,6 +68,8 @@ public static class TrackCustodyFingerprint
         builder.Append((int)entry.Custody);
         builder.Append(',');
         builder.Append((int)entry.Cause);
+        builder.Append(',');
+        builder.Append((int)entry.Breakdown);
         builder.Append(',');
         builder.Append(entry.SimTick);
         builder.Append(',');

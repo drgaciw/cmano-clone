@@ -42,6 +42,59 @@ public static class TrackCustodyCauseLabels
         };
 }
 
+/// <summary>
+/// AEGIS-305 (DRG-235): Explicit attribution breakdown for why track custody was lost or degraded.
+/// </summary>
+public enum TrackCustodyBreakdown
+{
+    None = 0,
+    JammingDegraded = 1,
+    LineOfSightLoss = 2,
+    PlatformDestroyed = 3,
+
+    // Aliases for domain specifications
+    JammingSjThreshold = 1,
+    HorizonMasking = 2,
+}
+
+/// <summary>
+/// Alias enum for <see cref="TrackCustodyBreakdown"/> (AEGIS-305 / DRG-235).
+/// </summary>
+public enum TrackCustodyLossReason
+{
+    None = 0,
+    JammingDegraded = 1,
+    LineOfSightLoss = 2,
+    PlatformDestroyed = 3,
+
+    // Aliases for domain specifications
+    JammingSjThreshold = 1,
+    HorizonMasking = 2,
+}
+
+/// <summary>Stable plain-language labels for track custody breakdown attribution (DRG-235).</summary>
+public static class TrackCustodyBreakdownLabels
+{
+    public const string None = "";
+    public const string JammingDegraded = "jamming";
+    public const string LineOfSightLoss = "line of sight loss";
+    public const string PlatformDestroyed = "platform destroyed";
+    public const string JammingSjThreshold = "jamming (S/J threshold)";
+    public const string HorizonMasking = "horizon masking";
+
+    public static string Format(TrackCustodyBreakdown breakdown) =>
+        breakdown switch
+        {
+            TrackCustodyBreakdown.JammingDegraded => JammingDegraded,
+            TrackCustodyBreakdown.LineOfSightLoss => LineOfSightLoss,
+            TrackCustodyBreakdown.PlatformDestroyed => PlatformDestroyed,
+            _ => string.Empty,
+        };
+
+    public static string Format(TrackCustodyLossReason reason) =>
+        Format((TrackCustodyBreakdown)reason);
+}
+
 /// <summary>Current custody picture row for one contact track.</summary>
 public sealed record TrackCustodyRow(
     string ContactId,
@@ -51,10 +104,16 @@ public sealed record TrackCustodyRow(
     TrackCustodyCause Cause,
     ulong LastKnownTick,
     double LastKnownSimTime,
-    ulong CorrelationSequenceId)
+    ulong CorrelationSequenceId,
+    TrackCustodyBreakdown Breakdown = TrackCustodyBreakdown.None)
 {
     /// <summary>Plain-language cause; empty only when custody is held with no break.</summary>
     public string CauseLabel => TrackCustodyCauseLabels.Format(Cause);
+
+    public TrackCustodyBreakdown TrackCustodyBreakdown => Breakdown;
+    public TrackCustodyLossReason LossReason => (TrackCustodyLossReason)Breakdown;
+    public TrackCustodyLossReason TrackCustodyLossReason => (TrackCustodyLossReason)Breakdown;
+    public string BreakdownLabel => TrackCustodyBreakdownLabels.Format(Breakdown);
 }
 
 /// <summary>One published custody break or drop correlated to order-log sequence.</summary>
@@ -66,9 +125,14 @@ public sealed record TrackCustodyLedgerEntry(
     TrackCustodyCause Cause,
     ulong SimTick,
     double SimTime,
-    ulong CorrelationSequenceId)
+    ulong CorrelationSequenceId,
+    TrackCustodyBreakdown Breakdown = TrackCustodyBreakdown.None)
 {
     public string CauseLabel => TrackCustodyCauseLabels.Format(Cause);
+    public TrackCustodyBreakdown TrackCustodyBreakdown => Breakdown;
+    public TrackCustodyLossReason LossReason => (TrackCustodyLossReason)Breakdown;
+    public TrackCustodyLossReason TrackCustodyLossReason => (TrackCustodyLossReason)Breakdown;
+    public string BreakdownLabel => TrackCustodyBreakdownLabels.Format(Breakdown);
 }
 
 /// <summary>Replay-stable custody + drop-reason ledger snapshot (DRG-222).</summary>
