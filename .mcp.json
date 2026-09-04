@@ -3,8 +3,8 @@
     "ai-game-developer": { "type": "http", "url": "http://localhost:8080" },
     "playwright-local": { "type": "http", "url": "http://localhost:8931/mcp" },
     "gitnexus": {
-      "command": "npx",
-      "args": ["-y", "gitnexus@1.6.9", "mcp"]
+      "command": "gitnexus",
+      "args": ["mcp"]
     }
   }
 }
