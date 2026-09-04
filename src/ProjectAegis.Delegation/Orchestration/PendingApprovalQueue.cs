@@ -1,9 +1,10 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
 using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Watch;
 
 /// <summary>
-/// DRG-66: session-local queue for orders that have been gated to <see cref="GateResult.QueueForApproval"/>.
+/// DRG-66 / AEGIS-301: session-local queue for orders that have been gated to <see cref="GateResult.QueueForApproval"/>.
 /// Orders do not execute until the player calls <see cref="TryApprove"/> or <see cref="TryReject"/>.
 /// Approved orders are promoted to <see cref="DrainApproved"/> for the next <c>Tick</c>.
 /// Thread-safety: single-threaded sim only (no locking).
@@ -16,12 +17,32 @@ public sealed class PendingApprovalQueue
     /// <summary>Orders waiting for player approval (ordered by enqueue time).</summary>
     public IReadOnlyList<PendingApprovalEntry> Pending => _pending;
 
+    /// <summary>Pending orders waiting for player approval.</summary>
+    public IReadOnlyList<PendingApprovalEntry> PendingOrders => _pending;
+
+    /// <summary>Count of orders currently waiting for player approval.</summary>
+    public int Count => _pending.Count;
+
+    /// <summary>True when one or more orders are waiting for player approval.</summary>
+    public bool HasPendingProposals => _pending.Count > 0;
+
+    /// <summary>Optional auto-pause gate wired to trigger sim auto-pause on enqueued proposals.</summary>
+    public WatchAutoPauseGate? AutoPauseGate { get; set; }
+
+    /// <summary>Optional callback invoked whenever a new proposal is successfully enqueued.</summary>
+    public Action<PendingApprovalEntry>? OnOrderEnqueued { get; set; }
+
     /// <summary>
     /// Enqueues <paramref name="order"/> for player approval.
     /// Idempotent: duplicate <see cref="OrderId"/> values are silently ignored.
     /// </summary>
     public void Enqueue(Order order)
     {
+        if (order is null)
+        {
+            throw new ArgumentNullException(nameof(order));
+        }
+
         foreach (var existing in _pending)
         {
             if (existing.Order.Id == order.Id)
@@ -30,7 +51,10 @@ public sealed class PendingApprovalQueue
             }
         }
 
-        _pending.Add(new PendingApprovalEntry(order));
+        var entry = new PendingApprovalEntry(order);
+        _pending.Add(entry);
+        AutoPauseGate?.ShouldAutoPause(this);
+        OnOrderEnqueued?.Invoke(entry);
     }
 
     /// <summary>
@@ -85,6 +109,13 @@ public sealed class PendingApprovalQueue
         var copy = _approved.ToArray();
         _approved.Clear();
         return copy;
+    }
+
+    /// <summary>Clears both pending and approved buffers (e.g. on scenario change).</summary>
+    public void Clear()
+    {
+        _pending.Clear();
+        _approved.Clear();
     }
 }
 
