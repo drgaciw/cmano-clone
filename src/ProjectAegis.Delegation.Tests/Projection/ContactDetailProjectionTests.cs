@@ -58,6 +58,22 @@ public sealed class ContactDetailProjectionTests
     }
 
     [Test]
+    public void Project_bda_and_wra_slice_b_card_formatting()
+    {
+        var contact = new ContactPictureEntry(
+            "c1", "hostile-1", "u1", "Identified", LastSimTick: 5, LastSimTime: 5.0);
+
+        var detail = ContactDetailProjection.Project(
+            contact,
+            currentSimTick: 5,
+            bdaLifecycleOverride: BdaContactDamageStates.DegradedL2);
+
+        Assert.That(detail!.BdaLine, Does.Contain("Degraded-L2"));
+        Assert.That(detail.BdaLine, Does.Contain("heavy damage"));
+        Assert.That(detail.WraLine, Does.Contain("Salvo budget OK"));
+    }
+
+    [Test]
     public void Project_by_contact_id_from_picture_list()
     {
         var contacts = new[]

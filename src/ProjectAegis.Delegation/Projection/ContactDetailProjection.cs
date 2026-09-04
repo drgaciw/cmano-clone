@@ -82,10 +82,13 @@ public static class ContactDetailProjection
         };
 
     private static string FormatWra(string lifecycle) =>
-        // WRA is evaluated on the engage path; panel only surfaces interim honesty.
+        // WRA is evaluated on the engage path; panel surfaces doctrine rules and salvo budget.
         lifecycle switch
         {
-            "Identified" => "WRA: evaluate before fire",
+            "Identified"
+                or BdaContactDamageStates.DegradedL1
+                or BdaContactDamageStates.DegradedL2
+                => "WRA: evaluate before fire · Salvo budget OK",
             "Classified" => "WRA: class pending evaluation",
             "Detected" => "WRA: insufficient ID",
             BdaContactDamageStates.Lost => "WRA: track lost",
@@ -97,7 +100,14 @@ public static class ContactDetailProjection
         // BDA as belief: only when lifecycle is a BDA damage state (or Lost via BDA).
         if (BdaContactDamageStates.Rank(lifecycle) > 0)
         {
-            return $"BDA: {lifecycle} (assessment)";
+            var desc = lifecycle switch
+            {
+                BdaContactDamageStates.DegradedL1 => "L1 moderate damage",
+                BdaContactDamageStates.DegradedL2 => "L2 heavy damage",
+                BdaContactDamageStates.Lost => "target lost / destroyed",
+                _ => "assessed",
+            };
+            return $"BDA: {lifecycle} (assessment · {desc})";
         }
 
         return "BDA: —";
