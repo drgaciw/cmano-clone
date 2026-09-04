@@ -1,5 +1,6 @@
 namespace ProjectAegis.Delegation.SensorToShooter;
 
+using ProjectAegis.Delegation.TrackCustody;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>Inspectable link kinds in the sensor → shooter chain (DRG-207).</summary>
@@ -43,10 +44,15 @@ public sealed record SensorToShooterChainLink(
     string? UnitId,
     string ContactId,
     string TargetId,
-    string? Detail)
+    string? Detail,
+    TrackCustodyBreakdown TrackCustodyBreakdown = TrackCustodyBreakdown.None)
 {
     /// <summary>Plain-language break cause for broken links; empty when linked.</summary>
     public string CauseLabel => SensorToShooterBreakCauseLabels.Format(BreakCause);
+
+    public TrackCustodyBreakdown CustodyBreakdown => TrackCustodyBreakdown;
+    public TrackCustodyLossReason TrackCustodyLossReason => (TrackCustodyLossReason)TrackCustodyBreakdown;
+    public TrackCustodyLossReason CustodyLossReason => (TrackCustodyLossReason)TrackCustodyBreakdown;
 }
 
 /// <summary>Replay-stable sensor → track → targetability → shooter chain for one contact.</summary>
@@ -56,9 +62,16 @@ public sealed record SensorToShooterChain(
     string ObserverId,
     bool IsComplete,
     SensorToShooterBreakCause PrimaryBreakCause,
-    IReadOnlyList<SensorToShooterChainLink> Links)
+    IReadOnlyList<SensorToShooterChainLink> Links,
+    TrackCustodyBreakdown TrackCustodyBreakdown = TrackCustodyBreakdown.None)
 {
     public string PrimaryCauseLabel => SensorToShooterBreakCauseLabels.Format(PrimaryBreakCause);
+
+    public TrackCustodyBreakdown CustodyBreakdown => TrackCustodyBreakdown;
+    public TrackCustodyLossReason TrackCustodyLossReason => (TrackCustodyLossReason)TrackCustodyBreakdown;
+    public TrackCustodyLossReason CustodyLossReason => (TrackCustodyLossReason)TrackCustodyBreakdown;
+    public string TrackCustodyBreakdownLabel => TrackCustodyBreakdownLabels.Format(TrackCustodyBreakdown);
+    public string CustodyBreakdownLabel => TrackCustodyBreakdownLabels.Format(TrackCustodyBreakdown);
 }
 
 /// <summary>Headless projection snapshot for Combat UX Slice A (DRG-207).</summary>

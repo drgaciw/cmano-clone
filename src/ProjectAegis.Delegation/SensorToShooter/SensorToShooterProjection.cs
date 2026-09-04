@@ -1,9 +1,11 @@
 namespace ProjectAegis.Delegation.SensorToShooter;
 
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.TrackCustody;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
 
@@ -34,24 +36,37 @@ public static class SensorToShooterProjection
             fireControl,
             staleThresholdTicks,
             dropThresholdTicks);
-        return Project(killChain, shooters, catalog, weaponId);
+
+        var custody = TrackCustodyProjection.Project(
+            log,
+            currentSimTick,
+            fireControl,
+            catalog,
+            staleThresholdTicks: staleThresholdTicks,
+            dropThresholdTicks: dropThresholdTicks);
+
+        return Project(killChain, shooters, catalog, weaponId, custody, log);
     }
 
     public static SensorToShooterSnapshot Project(
         KillChainContactSnapshot? killChain,
         ISensorToShooterShooterSource? shooters = null,
         ICatalogReader? catalog = null,
-        string weaponId = CatalogWeaponIds.MvpDefault)
+        string weaponId = CatalogWeaponIds.MvpDefault,
+        TrackCustodySnapshot? custody = null,
+        DecisionLog? log = null)
     {
         if (killChain is null || killChain.Contacts.Count == 0)
         {
             return SensorToShooterSnapshot.Empty;
         }
 
+        var custodyByContact = custody?.Rows.ToDictionary(r => r.ContactId, StringComparer.Ordinal);
         var chains = new List<SensorToShooterChain>(killChain.Contacts.Count);
         foreach (var contact in killChain.Contacts.OrderBy(c => c.ContactId, StringComparer.Ordinal))
         {
-            chains.Add(BuildChain(contact, shooters, catalog, weaponId));
+            var custodyRow = custodyByContact?.GetValueOrDefault(contact.ContactId);
+            chains.Add(BuildChain(contact, shooters, catalog, weaponId, custodyRow, log));
         }
 
         return new SensorToShooterSnapshot(chains);
@@ -82,6 +97,8 @@ public static class SensorToShooterProjection
             builder.Append(',');
             builder.Append((int)chain.PrimaryBreakCause);
             builder.Append(',');
+            builder.Append((int)chain.TrackCustodyBreakdown);
+            builder.Append(',');
             builder.Append(chain.Links.Count);
             for (var j = 0; j < chain.Links.Count; j++)
             {
@@ -92,6 +109,8 @@ public static class SensorToShooterProjection
                 builder.Append(link.IsLinked ? '1' : '0');
                 builder.Append(',');
                 builder.Append((int)link.BreakCause);
+                builder.Append(',');
+                builder.Append((int)link.TrackCustodyBreakdown);
                 builder.Append(',');
                 builder.Append(link.UnitId ?? string.Empty);
                 builder.Append(',');
@@ -106,17 +125,22 @@ public static class SensorToShooterProjection
         KillChainContactState contact,
         ISensorToShooterShooterSource? shooters,
         ICatalogReader? catalog,
-        string weaponId)
+        string weaponId,
+        TrackCustodyRow? custodyRow = null,
+        DecisionLog? log = null)
     {
-        var sensorLink = BuildSensorLink(contact);
-        var trackLink = BuildTrackLink(contact);
-        var targetabilityLink = BuildTargetabilityLink(contact);
+        var breakdown = ResolveChainBreakdown(contact, custodyRow, log);
+
+        var sensorLink = BuildSensorLink(contact, breakdown);
+        var trackLink = BuildTrackLink(contact, breakdown);
+        var targetabilityLink = BuildTargetabilityLink(contact, breakdown);
         var shooterLink = BuildEligibleShooterLink(
             contact,
             targetabilityLink,
             shooters,
             catalog,
-            weaponId);
+            weaponId,
+            breakdown);
 
         var links = new[]
         {
@@ -143,10 +167,39 @@ public static class SensorToShooterProjection
             contact.ObserverId,
             isComplete,
             primaryBreak,
-            links);
+            links,
+            breakdown);
     }
 
-    private static SensorToShooterChainLink BuildSensorLink(KillChainContactState contact)
+    private static TrackCustodyBreakdown ResolveChainBreakdown(
+        KillChainContactState contact,
+        TrackCustodyRow? custodyRow,
+        DecisionLog? log)
+    {
+        if (custodyRow is not null && custodyRow.Breakdown != TrackCustodyBreakdown.None)
+        {
+            return custodyRow.Breakdown;
+        }
+
+        var custody = contact.Loss == KillChainLossKind.Lost ? TrackCustodyState.Dropped : TrackCustodyState.Held;
+        var cause = contact.Loss switch
+        {
+            KillChainLossKind.Lost => TrackCustodyCause.LostSensor,
+            KillChainLossKind.Stale => TrackCustodyCause.Stale,
+            _ => TrackCustodyCause.None,
+        };
+
+        var commsState = CommsState.Nominal;
+        if (log is not null)
+        {
+            var commsSnapshot = CommsStateProjection.Project(log);
+            commsState = commsSnapshot.State;
+        }
+
+        return TrackCustodyProjection.ResolveBreakdown(contact, null, commsState, custody, cause, log);
+    }
+
+    private static SensorToShooterChainLink BuildSensorLink(KillChainContactState contact, TrackCustodyBreakdown breakdown)
     {
         if (contact.Loss == KillChainLossKind.Lost)
         {
@@ -155,7 +208,8 @@ public static class SensorToShooterProjection
                 SensorToShooterBreakCause.LostSensor,
                 contact.ObserverId,
                 contact,
-                SensorToShooterBreakCauseLabels.LostSensor);
+                SensorToShooterBreakCauseLabels.LostSensor,
+                breakdown);
         }
 
         if (!contact.DetectionCaptured)
@@ -165,7 +219,8 @@ public static class SensorToShooterProjection
                 SensorToShooterBreakCause.LostSensor,
                 contact.ObserverId,
                 contact,
-                "sensor not detecting");
+                "sensor not detecting",
+                breakdown);
         }
 
         return Linked(
@@ -175,7 +230,7 @@ public static class SensorToShooterProjection
             $"sensor:{contact.ObserverId}");
     }
 
-    private static SensorToShooterChainLink BuildTrackLink(KillChainContactState contact)
+    private static SensorToShooterChainLink BuildTrackLink(KillChainContactState contact, TrackCustodyBreakdown breakdown)
     {
         if (contact.Loss == KillChainLossKind.Lost)
         {
@@ -184,7 +239,8 @@ public static class SensorToShooterProjection
                 SensorToShooterBreakCause.LostSensor,
                 contact.ContactId,
                 contact,
-                SensorToShooterBreakCauseLabels.LostSensor);
+                SensorToShooterBreakCauseLabels.LostSensor,
+                breakdown);
         }
 
         if (contact.Loss == KillChainLossKind.Stale)
@@ -194,7 +250,8 @@ public static class SensorToShooterProjection
                 SensorToShooterBreakCause.StaleTrack,
                 contact.ContactId,
                 contact,
-                SensorToShooterBreakCauseLabels.StaleTrack);
+                SensorToShooterBreakCauseLabels.StaleTrack,
+                breakdown);
         }
 
         if (!contact.TrackContinuous)
@@ -204,7 +261,8 @@ public static class SensorToShooterProjection
                 SensorToShooterBreakCause.StaleTrack,
                 contact.ContactId,
                 contact,
-                SensorToShooterBreakCauseLabels.StaleTrack);
+                SensorToShooterBreakCauseLabels.StaleTrack,
+                breakdown);
         }
 
         return Linked(
@@ -214,7 +272,7 @@ public static class SensorToShooterProjection
             $"track:{contact.ContactId}");
     }
 
-    private static SensorToShooterChainLink BuildTargetabilityLink(KillChainContactState contact)
+    private static SensorToShooterChainLink BuildTargetabilityLink(KillChainContactState contact, TrackCustodyBreakdown breakdown)
     {
         if (contact.Loss == KillChainLossKind.Lost)
         {
@@ -223,7 +281,8 @@ public static class SensorToShooterProjection
                 SensorToShooterBreakCause.LostSensor,
                 contact.ContactId,
                 contact,
-                SensorToShooterBreakCauseLabels.LostSensor);
+                SensorToShooterBreakCauseLabels.LostSensor,
+                breakdown);
         }
 
         if (contact.Loss == KillChainLossKind.Stale)
@@ -233,7 +292,8 @@ public static class SensorToShooterProjection
                 SensorToShooterBreakCause.StaleTrack,
                 contact.ContactId,
                 contact,
-                SensorToShooterBreakCauseLabels.StaleTrack);
+                SensorToShooterBreakCauseLabels.StaleTrack,
+                breakdown);
         }
 
         if (contact.Loss is KillChainLossKind.DegradedL1 or KillChainLossKind.DegradedL2)
@@ -243,7 +303,8 @@ public static class SensorToShooterProjection
                 SensorToShooterBreakCause.DegradedTrack,
                 contact.ContactId,
                 contact,
-                SensorToShooterBreakCauseLabels.DegradedTrack);
+                SensorToShooterBreakCauseLabels.DegradedTrack,
+                breakdown);
         }
 
         if (!contact.Targetable)
@@ -259,7 +320,8 @@ public static class SensorToShooterProjection
                 cause,
                 contact.ContactId,
                 contact,
-                label);
+                label,
+                cause == SensorToShooterBreakCause.NoFireControl ? TrackCustodyBreakdown.None : breakdown);
         }
 
         return Linked(
@@ -274,7 +336,8 @@ public static class SensorToShooterProjection
         SensorToShooterChainLink targetabilityLink,
         ISensorToShooterShooterSource? shooters,
         ICatalogReader? catalog,
-        string weaponId)
+        string weaponId,
+        TrackCustodyBreakdown breakdown)
     {
         if (!targetabilityLink.IsLinked)
         {
@@ -283,7 +346,8 @@ public static class SensorToShooterProjection
                 targetabilityLink.BreakCause,
                 null,
                 contact,
-                targetabilityLink.Detail ?? targetabilityLink.CauseLabel);
+                targetabilityLink.Detail ?? targetabilityLink.CauseLabel,
+                targetabilityLink.TrackCustodyBreakdown);
         }
 
         var candidates = shooters?.GetCandidatesForTarget(contact.TargetId) ?? Array.Empty<SensorToShooterShooterCandidate>();
@@ -294,7 +358,8 @@ public static class SensorToShooterProjection
                 SensorToShooterBreakCause.NoEligibleShooter,
                 null,
                 contact,
-                SensorToShooterBreakCauseLabels.NoEligibleShooter);
+                SensorToShooterBreakCauseLabels.NoEligibleShooter,
+                TrackCustodyBreakdown.None);
         }
 
         var ordered = candidates
@@ -335,7 +400,8 @@ public static class SensorToShooterProjection
                 SensorToShooterBreakCause.NoEligibleShooter,
                 null,
                 contact,
-                abortDetail ?? SensorToShooterBreakCauseLabels.NoEligibleShooter);
+                abortDetail ?? SensorToShooterBreakCauseLabels.NoEligibleShooter,
+                TrackCustodyBreakdown.None);
         }
 
         return Linked(
@@ -357,7 +423,8 @@ public static class SensorToShooterProjection
             UnitId: unitId,
             ContactId: contact.ContactId,
             TargetId: contact.TargetId,
-            Detail: detail);
+            Detail: detail,
+            TrackCustodyBreakdown: TrackCustodyBreakdown.None);
 
     private static bool HasSufficientAmmo(in EngageContext ctx, int roundsRemaining)
     {
@@ -375,7 +442,8 @@ public static class SensorToShooterProjection
         SensorToShooterBreakCause cause,
         string? unitId,
         KillChainContactState contact,
-        string detail) =>
+        string detail,
+        TrackCustodyBreakdown breakdown = TrackCustodyBreakdown.None) =>
         new(
             kind,
             IsLinked: false,
@@ -383,5 +451,6 @@ public static class SensorToShooterProjection
             UnitId: unitId,
             ContactId: contact.ContactId,
             TargetId: contact.TargetId,
-            Detail: detail);
+            Detail: detail,
+            TrackCustodyBreakdown: breakdown);
 }
