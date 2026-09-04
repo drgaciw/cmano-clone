@@ -21,7 +21,7 @@ The capability was originally envisioned as human-on-the-loop governance (HOL-04
 1. **De-scope** the per-mission-phase lethal autonomy opt-in requirement for the current release stream.
 2. Maintain the current behavior where `AutonomyGate` respects `AutonomyLevel` and ROE thresholds directly without requiring a separate per-phase opt-in.
 3. Retain the concept of mission-phase opt-in for future consideration in post-v1 authority architecture (HOL-04 in Phase N / follow-up governance tracks).
-4. Update requirement documentation (doc 04 mapping rows) to reflect status as **Partial / GAP** (to be updated after W1-HUB merge) rather than claiming it as shipped.
+4. Update requirement documentation (doc 04 mapping rows per W1-HUB tracker pins) to reflect status as **Partial / GAP** rather than claiming it as shipped.
 
 ## Consequences
 
