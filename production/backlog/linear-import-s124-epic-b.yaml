@@ -1,0 +1,114 @@
+# Linear Batch Import Manifest: Sprint 124 (Epic B Execution / DRG-184)
+# Team: DRG (Drgamtd-workspace)
+# Project: cmano-clone (cmano-clone-7f6a00e4c1c9)
+# Milestone: Epic B — Target, Engage, Assess (Sprint 124)
+# Generated: 2026-09-04
+# Format: Linear CSV/YAML Batch Import Specification
+
+version: 1
+team: "DRG"
+project: "cmano-clone"
+
+issues:
+  - identifier: "S124-00"
+    linear_id: "DRG-180-BASE"
+    title: "Land S122-12 and S122-13 Baseline: Policy ROE/AUTH & Contact List Honesty"
+    priority: 1
+    estimate: 2
+    state: "Done"
+    labels:
+      - "epic-b"
+      - "presentation"
+      - "unity"
+      - "conductor:orchestrator"
+    description: |
+      ### Summary
+      Establish clean baseline on sprint-124-integration: populates left rail contact 'c1' and unit detail honest ROE/AUTH states.
+
+  - identifier: "S124-01"
+    linear_id: "DRG-168"
+    title: "EngageExplain: Live Engagement Explanation Text & Contact Preview Bind"
+    priority: 1
+    estimate: 3
+    state: "In Progress"
+    labels:
+      - "epic-b"
+      - "kcx"
+      - "presentation"
+      - "conductor:team-csharp"
+    description: |
+      ### Summary
+      Allow EngageExplainPanelHost to project engagement explanation when contact is selected without explicit shooter assignment. Deep-link from ContactDetail EXPLAIN button.
+
+  - identifier: "S124-02"
+    linear_id: "ASSET-021"
+    title: "CombatDomains: Persist CombatDomainsHotTickHost in DelegationSmoke Scene"
+    priority: 2
+    estimate: 2
+    state: "Todo"
+    labels:
+      - "epic-b"
+      - "unity-scene"
+      - "conductor:team-unity"
+    description: |
+      ### Summary
+      Save DelegationSmoke.unity with CombatDomains GameObject present, binding CombatDomainsHotTickHost and existing UXML/USS.
+
+  - identifier: "S124-03"
+    linear_id: "DRG-169"
+    title: "ContactDetail: Bind BDA Status and WRA Salvo Budget Allocation"
+    priority: 1
+    estimate: 5
+    state: "Todo"
+    labels:
+      - "epic-b"
+      - "bda"
+      - "wra"
+      - "conductor:team-csharp"
+    description: |
+      ### Summary
+      Bind BDA damage levels and cumulative WRA salvo budget on ContactDetailPanelHost without exceeding 29 UIDocuments.
+
+  - identifier: "S124-04"
+    linear_id: "DRG-167"
+    title: "Weapon Fire VFX: MapPlaceholder Play Mode Visual Evidence"
+    priority: 2
+    estimate: 2
+    state: "Todo"
+    labels:
+      - "epic-b"
+      - "vfx"
+      - "conductor:team-unity"
+    description: |
+      ### Summary
+      Verify weapon/missile/gun salvo in-flight VFX rendering on MapPlaceholderPanelHost during combat ticks.
+
+  - identifier: "S124-05"
+    linear_id: "DRG-170"
+    title: "Combat UI Declutter: High-Contrast Targetability & Layout Spacing"
+    priority: 2
+    estimate: 3
+    state: "Todo"
+    labels:
+      - "epic-b"
+      - "a11y"
+      - "ux"
+      - "conductor:qa-gauntlet-combat-ui"
+    description: |
+      ### Summary
+      Remediate overlap between UnitOrderToolbar and MessageLog; ensure high contrast for targetability and refusal states.
+
+  - identifier: "S124-06"
+    linear_id: "DRG-166"
+    title: "Vertical-Slice Combat Harness: Full Scenario Proof & Zero-Error Console"
+    priority: 1
+    estimate: 3
+    state: "Todo"
+    labels:
+      - "epic-b"
+      - "qa"
+      - "gauntlet"
+      - "conductor:qa-gauntlet-combat-ui"
+    description: |
+      ### Summary
+      Complete Play Mode verification on DelegationSmoke: fire permit, fire refuse (WraRangeDenial), BDA update, and explain.

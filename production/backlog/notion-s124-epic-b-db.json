@@ -1,0 +1,77 @@
+{
+  "database_name": "Aegis Sprint 124 (Epic B Execution)",
+  "parent": {
+    "type": "page_id",
+    "page_id": "aegis-hub-root"
+  },
+  "icon": {
+    "type": "emoji",
+    "emoji": "🎯"
+  },
+  "description": "Sprint 124 Slice B C2 presentation bind and Unity-MCP evidence under Epic DRG-184.",
+  "items": [
+    {
+      "ID": "S124-00",
+      "Story Title": "Land S122-12/13 Baseline: ROE/AUTH and Contact List Honesty",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-180",
+      "Epic": "Slice B - Target, Engage, Assess",
+      "Points": 2,
+      "Status": "Done",
+      "Conductor Agent": "orchestrator"
+    },
+    {
+      "ID": "S124-01",
+      "Story Title": "EngageExplain: Live Engagement Explanation Text Bind",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-168",
+      "Epic": "Slice B - Target, Engage, Assess",
+      "Points": 3,
+      "Status": "In Progress",
+      "Conductor Agent": "csharp-delegation-lead"
+    },
+    {
+      "ID": "S124-02",
+      "Story Title": "CombatDomains: Persist CombatDomainsHotTickHost in Scene",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-184",
+      "Epic": "Slice B - Target, Engage, Assess",
+      "Points": 2,
+      "Status": "Todo",
+      "Conductor Agent": "unity-tools-engineer"
+    },
+    {
+      "ID": "S124-03",
+      "Story Title": "ContactDetail: Bind BDA Status and WRA Salvo Budget",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-169",
+      "Epic": "Slice B - Target, Engage, Assess",
+      "Points": 5,
+      "Status": "Todo",
+      "Conductor Agent": "csharp-delegation-lead"
+    },
+    {
+      "ID": "S124-04",
+      "Story Title": "Weapon Fire VFX: MapPlaceholder Play Mode Visual Evidence",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-167",
+      "Epic": "Slice B - Target, Engage, Assess",
+      "Points": 2,
+      "Status": "Todo",
+      "Conductor Agent": "unity-tools-engineer"
+    },
+    {
+      "ID": "S124-05",
+      "Story Title": "Combat UI Declutter: High-Contrast Targetability & Layout Spacing",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-170",
+      "Epic": "Slice B - Target, Engage, Assess",
+      "Points": 3,
+      "Status": "Todo",
+      "Conductor Agent": "qa-gauntlet-specialist"
+    },
+    {
+      "ID": "S124-06",
+      "Story Title": "Vertical-Slice Combat Harness: Full Scenario Proof & Zero Errors",
+      "Linear Issue": "https://linear.app/drgamtd-workspace/issue/DRG-166",
+      "Epic": "Slice B - Target, Engage, Assess",
+      "Points": 3,
+      "Status": "Todo",
+      "Conductor Agent": "qa-gauntlet-specialist"
+    }
+  ]
+}
