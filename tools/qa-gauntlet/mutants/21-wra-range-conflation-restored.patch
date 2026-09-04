@@ -1,0 +1,8 @@
+diff --git a/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs b/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
+--- a/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
++++ b/src/ProjectAegis.Sim/Engage/MvpEngagementResolver.cs
+@@ -270,3 +270,3 @@ public sealed class MvpEngagementResolver : IEngagementResolver
+             FireAbortReason.WraSalvo => EngagementAbortReason.WraSalvo,
+-            FireAbortReason.WraRange => EngagementAbortReason.WraRangeDenial,
++            FireAbortReason.WraRange => EngagementAbortReason.OutOfEnvelope,
+             FireAbortReason.EmconOff => EngagementAbortReason.EmconOff,
