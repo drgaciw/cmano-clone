@@ -48,4 +48,11 @@ public enum EngagementAbortReason
     /// <see cref="NoFireControlTrack"/> so callers can tell organic-only failure from mesh drop.
     /// </summary>
     CecRemoteTrackUnavailable = 27,
+
+    /// <summary>
+    /// Target is outside Weapon Release Authority (WRA) doctrine range gate.
+    /// Distinct from kinematic <see cref="OutOfEnvelope"/> (AEGIS-304 / DRG-234).
+    /// </summary>
+    WraRangeDenial = 28,
 }
+

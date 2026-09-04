@@ -103,6 +103,27 @@ public sealed class MvpEngagementResolverTests
         Assert.Equal(2, magazines.GetRounds(1, 0));
     }
 
+    /// <summary>AEGIS-304 / DRG-234: WraRange policy denial disambiguates to WraRangeDenial, not OutOfEnvelope.</summary>
+    [Fact]
+    public void WraRange_denies_with_WraRangeDenial_not_OutOfEnvelope()
+    {
+        var world = new DictionaryEngageWorldQuery();
+        var magazines = new MagazineLedger();
+        magazines.SetRounds(1, 0, 2);
+        var resolver = new MvpEngagementResolver(
+            world,
+            magazines,
+            new DenyReasonPolicyEvaluator(FireAbortReason.WraRange));
+        var request = new EngageRequest(1, 2, 0, 0);
+        world.Set(request, new EngageContext(50_000, new WeaponEnvelope(1_000, 100_000), 2, true));
+
+        var result = resolver.Resolve(request);
+        Assert.False(result.Launched);
+        Assert.Equal(EngagementAbortReason.WraRangeDenial, result.AbortReason);
+        Assert.NotEqual(EngagementAbortReason.OutOfEnvelope, result.AbortReason);
+        Assert.Equal(2, magazines.GetRounds(1, 0));
+    }
+
     /// <summary>Wave 2 adversarial: WRA exact max allows launch on resolver path.</summary>
     [Fact]
     public void Wra_salvo_exact_max_allows_launch()
@@ -252,5 +273,11 @@ public sealed class MvpEngagementResolverTests
         Assert.False(result.Launched, "a shooter already marked killed must not be allowed to launch a new engagement");
         Assert.Equal(EngagementAbortReason.ShooterDestroyed, result.AbortReason);
         Assert.Equal(2, magazines.GetRounds(1, 0)); // dead shooter must not burn rounds
+    }
+
+    private sealed class DenyReasonPolicyEvaluator(FireAbortReason reason) : IPolicyEvaluator
+    {
+        public PolicyVerdict Evaluate(in PolicyContext ctx, in ActionRequest request) =>
+            PolicyVerdict.Deny(reason);
     }
 }

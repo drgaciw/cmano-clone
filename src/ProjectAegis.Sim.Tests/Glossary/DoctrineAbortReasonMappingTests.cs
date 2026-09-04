@@ -15,7 +15,7 @@ namespace ProjectAegis.Sim.Tests.Glossary;
 public sealed class DoctrineAbortReasonMappingTests
 {
     [Fact]
-    public void WraRange_policy_denial_maps_to_out_of_envelope_not_hold_fire()
+    public void WraRange_policy_denial_maps_to_wra_range_denial()
     {
         var world = new DictionaryEngageWorldQuery();
         var resolver = new MvpEngagementResolver(
@@ -28,9 +28,9 @@ public sealed class DoctrineAbortReasonMappingTests
         var result = resolver.Resolve(request);
 
         Assert.False(result.Launched);
-        Assert.Equal(EngagementAbortReason.OutOfEnvelope, result.AbortReason);
+        Assert.Equal(EngagementAbortReason.WraRangeDenial, result.AbortReason);
         Assert.Equal(
-            AbortReasonCatalog.Engage.OUT_OF_ENVELOPE,
+            AbortReasonCatalog.Engage.WRA_RANGE_DENIAL,
             EngagementAbortReasonCodes.ToLogCode(result.AbortReason));
     }
 

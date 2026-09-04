@@ -267,7 +267,7 @@ public sealed class MvpEngagementResolver : IEngagementResolver
             FireAbortReason.RoeHoldFire => EngagementAbortReason.RoeHoldFire,
             FireAbortReason.WeaponsTight => EngagementAbortReason.WeaponsTight,
             FireAbortReason.WraSalvo => EngagementAbortReason.WraSalvo,
-            FireAbortReason.WraRange => EngagementAbortReason.OutOfEnvelope,
+            FireAbortReason.WraRange => EngagementAbortReason.WraRangeDenial,
             FireAbortReason.EmconOff => EngagementAbortReason.EmconOff,
             FireAbortReason.NoFireControlTrack => EngagementAbortReason.NoFireControlTrack,
             _ => EngagementAbortReason.RoeHoldFire,

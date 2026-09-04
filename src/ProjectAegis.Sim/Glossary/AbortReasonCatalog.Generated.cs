@@ -52,6 +52,7 @@ public static partial class AbortReasonCatalog
         public const string SHOTGUN_ORDNANCE = "SHOTGUN_ORDNANCE";
         public const string WINCHESTER_ORDNANCE = "WINCHESTER_ORDNANCE";
         public const string CEC_REMOTE_TRACK_UNAVAILABLE = "CEC_REMOTE_TRACK_UNAVAILABLE";
+        public const string WRA_RANGE_DENIAL = "WRA_RANGE_DENIAL";
     }
 
     public static class Logistics
