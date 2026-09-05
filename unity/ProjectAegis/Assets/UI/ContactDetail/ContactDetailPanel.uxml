@@ -1,14 +1,24 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="contact-detail-root" class="contact-detail-panel">
         <ui:Label text="CONTACT DETAIL" class="contact-detail-title" />
+        <ui:ScrollView name="contact-detail-scroll" mode="Vertical" class="contact-detail-scroll">
         <ui:Label name="contact-id-line" text="CONTACT: —" class="contact-detail-line" />
         <ui:Label name="target-id-line" text="TARGET: —" class="contact-detail-line" />
         <ui:Label name="lifecycle-line" text="STATE: —" class="contact-detail-line" />
         <ui:Label name="classification-line" text="CLASS: —" class="contact-detail-line" />
         <ui:Label name="confidence-line" text="CONF: —" class="contact-detail-line" />
+        <ui:Label name="kill-chain-line" text="PHASE: Unknown" class="contact-detail-line contact-detail-heading" />
         <ui:Label name="provenance-line" text="Detected by: —" class="contact-detail-line" />
         <ui:Label name="wra-line" text="WRA: —" class="contact-detail-line" />
         <ui:Label name="bda-line" text="BDA: —" class="contact-detail-line" />
         <ui:Label name="staleness-line" text="— ticks stale" class="contact-detail-line contact-detail-line--stale" />
+        <ui:Label name="next-action-line" text="NEXT: Select a contact." class="contact-detail-line contact-detail-next" />
+        <ui:Foldout name="targeting-explanation" text="Technical targeting chain" value="true" class="contact-detail-section">
+            <ui:Label name="sensor-shooter-line" text="CHAIN: Unknown" class="contact-detail-line" />
+        </ui:Foldout>
+        <ui:Foldout name="authority-explanation" text="Authority / ROE (separate from feasibility)" value="true" class="contact-detail-section">
+            <ui:Label name="authority-line" text="AUTHORITY: Unknown — release withheld" class="contact-detail-line" />
+        </ui:Foldout>
+        </ui:ScrollView>
     </ui:VisualElement>
 </ui:UXML>
