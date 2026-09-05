@@ -25,9 +25,9 @@ Pinned in `unity/ProjectAegis/Packages/manifest.json` (cite [`Tech-Stack.md`](..
 
 | Package | Version (6000.3) | Role |
 |---------|------------------|------|
-| `com.unity.addressables` | 2.3.16 | Content / asset loading (APP-6 atlas, map) |
+| `com.unity.addressables` | 2.9.1 | Content / asset loading (APP-6 atlas, map) |
 | `com.unity.ui` | 2.0.0 | UI Toolkit (C2 panels) |
-| `com.unity.burst` | 1.8.29 | Transitive dep of `com.unity.ai.inference` (Sentis); no direct hot-path use |
+| `com.unity.burst` | 1.8.30 | Direct manifest dependency; no direct hot-path use |
 | `com.unity.ai.assistant` | 2.13.0-pre.2 | Unity AI Assistant — **present, not agent-owned** |
 | `com.unity.ai.inference` | 2.6.1 | Unity Inference — **present, not agent-owned** |
 | `com.ivanmurzak.unity.mcp` | 0.86.0 | Unity-MCP editor bridge (pin Custom + `:8080`) |
@@ -53,4 +53,4 @@ Pinned in `unity/ProjectAegis/Packages/manifest.json` (cite [`Tech-Stack.md`](..
 - [Unity Integration Review (2026-07-07)](../../reports/unity-integration-review-2026-07-07.md) — DOTS reversal rationale
 - Project invariants: [`unity/ProjectAegis/.claude/README.md`](../../unity/ProjectAegis/.claude/README.md)
 
-**Last verified:** 2026-08-17 (Editor 6000.3.22f1 batchmode open clean; package table still matches current manifest — Addressables/Burst bumps are Task 14)
+**Last verified:** 2026-08-17 (Editor 6000.3.22f1 batchmode open clean; package table matches the current manifest)

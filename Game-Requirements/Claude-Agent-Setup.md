@@ -6,7 +6,7 @@ This guide covers the Claude-specific integrations configured for Project Aegis:
 
 | Integration | Repo config | Runtime ready |
 |-------------|-------------|---------------|
-| Unity project | `unity/ProjectAegis/` (6000.3.14f1) | Yes |
+| Unity project | `unity/ProjectAegis/` (6000.3.22f1) | Yes |
 | Unity-MCP CLI | `npx unity-mcp-cli` (pin **0.86.x** to match package; optional global) | Partial — not on PATH unless installed |
 | MCP server config | `.cursor/mcp.json`, `.mcp.json` → `type: http` + `http://localhost:8080` | Yes (needs Editor + **local pin** + plugin active) |
 | Game-Studios agents/skills | `.claude/` vendored | Yes (Claude Code) |
@@ -28,9 +28,10 @@ Unity-MCP connects Claude and Cursor to a running Unity Editor via MCP.
 - **Unity project path**: `unity/ProjectAegis` (no spaces — required by CLI)
 - **Package**: `com.ivanmurzak.unity.mcp` **0.86.0** in `unity/ProjectAegis/Packages/manifest.json` (OpenUPM scopes present)
 - **CLI**: `npx --yes unity-mcp-cli@0.86.0` (optional global: `npm install -g unity-mcp-cli`)
-- **MCP config** (both editors point at the same local HTTP server):
+- **MCP config** (clients point at the same local HTTP server):
   - `.cursor/mcp.json` — Cursor project-scoped (`"type": "http"`, `"url": "http://localhost:8080"`)
   - `.mcp.json` — Claude Code project-scoped (same shape)
+  - `.grok/config.toml` — Grok project-scoped (`[mcp_servers.ai-game-developer]`)
 - **Pin helpers** (UserSettings is gitignored — run once per clone):
   - `./tools/pin-unity-mcp-8080.sh` or `./tools/pin-unity-mcp-8080.ps1`
   - Editor menu: **Project Aegis → MCP → Pin Local Host :8080**
@@ -54,11 +55,11 @@ Unity-MCP connects Claude and Cursor to a running Unity Editor via MCP.
    `connectionMode=Custom`, `host=http://localhost:8080`, `keepServerRunning=true`,
    `keepConnected=true`, `authOption=none`.
 
-2. **Open Unity 6.3 LTS** (`6000.3.14f1`) and let Package Manager resolve the MCP package:
+2. **Open Unity 6.3 LTS** (`6000.3.22f1`) and let Package Manager resolve the MCP package:
    ```bash
    npx --yes unity-mcp-cli@0.86.0 open ./unity/ProjectAegis
    ```
-   Or Unity Hub → editor `6000.3.14f1`. Confirm **Window → AI Game Developer** shows Custom / `:8080`.
+   Or Unity Hub → editor `6000.3.22f1`. Confirm **Window → AI Game Developer** shows Custom / `:8080`.
 
 3. **Authenticate only if using Cloud / ai-game.dev relay** (optional for local `:8080` pin):
    ```bash
@@ -87,7 +88,7 @@ Unity-MCP connects Claude and Cursor to a running Unity Editor via MCP.
 
 ### Unity-MCP limitations
 
-- Requires Unity Editor **6000.3.14f1** running with the plugin compiled
+- Requires Unity Editor **6000.3.22f1** running with the plugin compiled
 - Fresh clones need the **pin script / menu** — UserSettings is not committed
 - Without the pin, the plugin uses Cloud + a machine-specific hashed port (not `:8080`)
 - Headless CI / Cloud Agents do not need `:8080`; use `dotnet test` per [AGENTS.md](../AGENTS.md)
@@ -167,12 +168,12 @@ Before committing code changes, run `gitnexus_detect_changes()` via the GitNexus
 
 ## D. Verification checklist
 
-- [x] `.cursor/mcp.json` and `.mcp.json` valid JSON with `ai-game-developer` (`type: http`, `:8080`)
+- [x] `.cursor/mcp.json`, `.mcp.json`, and `.grok/config.toml` with `ai-game-developer` (`http://localhost:8080`)
 - [x] `.claude/` Game-Studios template vendored
 - [x] GitNexus skills preserved (6 SKILL.md files)
 - [x] Godot/Unreal agents removed
 - [x] No nested `.git` directories
-- [x] Unity project at `unity/ProjectAegis/` (Editor pin `6000.3.14f1`)
+- [x] Unity project at `unity/ProjectAegis/` (Editor pin `6000.3.22f1`)
 - [x] OpenUPM scopes for `com.ivanmurzak` in `Packages/manifest.json`
 - [x] `com.ivanmurzak.unity.mcp` **0.86.0** as a direct `Packages/manifest.json` dependency
 - [x] Pin helpers: `tools/pin-unity-mcp-8080.sh` / `.ps1` + Editor menu `Project Aegis/MCP/Pin Local Host :8080`
@@ -187,7 +188,7 @@ Before committing code changes, run `gitnexus_detect_changes()` via the GitNexus
 
 | Check | Result |
 |-------|--------|
-| Unity `6000.3.14f1` on disk | Local machine only (Cloud VM typically absent) |
+| Unity `6000.3.22f1` on disk | Local machine only (Cloud VM typically absent) |
 | Package `com.ivanmurzak.unity.mcp` | **0.86.0** in manifest |
 | Client mcp.json | `type: http` + `:8080` |
 | Pin script dry-run | Writes gitignored UserSettings Custom/`http://localhost:8080` |
