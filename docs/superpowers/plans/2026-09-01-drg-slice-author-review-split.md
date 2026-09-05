@@ -18,6 +18,7 @@
 - Reviewer language: **APPROVED / CHANGES REQUIRED**; architect finish language **PASS / FAIL / BLOCKED**; severities **BLOCKER / SHOULD-FIX / NIT** (`production/agentic/skills/unity-csharp-architect/checklists/review-gates.md` §4–6). Do not invent a fourth dialect.
 - Test floor monotonic: 3,062 / 0 failed on `main` @ `81831e76` (after `bash tools/copy-delegation-assemblies.sh`).
 - Conventional Commits; one logical change per commit; Linear ID in body.
+- **Before every planned commit:** run GitNexus `detect_changes()` for the intended write surface, read the affected-symbol/process output, and stop to reconcile unexpected scope. Record that evidence with the task.
 - Model tier names follow `.claude/docs/coordination-rules.md` §Model Tier Assignment; this plan adds one tier (Task 3 Step 4).
 
 ---
@@ -131,6 +132,7 @@ The full-suite line is **not optional**. "Not run in this PR slice" is a preflig
 - [ ] **Step 2: Commit**
 
 ```bash
+# REQUIRED immediately before staging: run GitNexus MCP detect_changes() for this task's write surface and read its output.
 git add production/agentic/skills/drg-slice-review/authoring-contract.md
 git commit -m "docs(agentic): DRG headless slice authoring contract
 
@@ -181,12 +183,21 @@ if [[ -n "$pr" ]]; then
   gh pr view "$pr" --json body --template '{{.body}}' > "$tmp/body.md"
   base="$(gh pr view "$pr" --json baseRefOid --template '{{.baseRefOid}}')"
   head="$(gh pr view "$pr" --json headRefOid --template '{{.headRefOid}}')"
+  git fetch --quiet origin "$head" || { echo "cannot fetch PR head: $head" >&2; exit 1; }
+  git worktree add --quiet --detach "$tmp/pr-head" "$head" || { echo "cannot create isolated PR-head worktree" >&2; exit 1; }
+  cd "$tmp/pr-head"
   range="$base..$head"
   body_file="$tmp/body.md"
 fi
 [[ -n "$range" && -n "$body_file" ]] || { echo "need --pr or --range+--body" >&2; exit 2; }
 
-mapfile -t changed < <(git diff --name-only "$range")
+diff_file="$tmp/changed.txt"
+if ! git diff --name-only "$range" > "$diff_file"; then
+  echo "cannot materialize diff for range: $range" >&2
+  exit 1
+fi
+mapfile -t changed < "$diff_file"
+(( ${#changed[@]} > 0 )) || { echo "empty PR diff for range: $range" >&2; exit 1; }
 hard_fail=0
 row() { printf '%-9s | %-28s | %s\n' "$1" "$2" "$3"; }
 hard()  { row "FAIL" "$1" "$2"; hard_fail=1; }
@@ -213,7 +224,7 @@ else
 fi
 
 # S2 — zero-touch + goldens
-frozen='src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs|src/ProjectAegis.Sim/.*SimulationSession.cs|src/ProjectAegis.Data/WriteGate/CatalogWriteGate.cs|src/ProjectAegis.Delegation/Replay/OrderLogReplayFingerprint.cs|tests/regression/replay-golden-.*\.txt|\.csproj$|\.asmdef$'
+frozen='src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs|src/ProjectAegis.Delegation/Orchestration/SimulationSession.cs|src/ProjectAegis.Data/WriteGate/CatalogWriteGate.cs|src/ProjectAegis.Delegation/Replay/OrderLogReplayFingerprint.cs|tests/regression/replay-golden-.*\.txt|\.csproj$|\.asmdef$'
 hits="$(printf '%s\n' "${changed[@]}" | rg -n "$frozen" || true)"
 if [[ -n "$hits" ]]; then hard "S2 zero-touch" "frozen file touched: $(echo "$hits" | tr '\n' ' ')"
 else pass "S2 zero-touch" "DelegationBridge / SimulationSession / CatalogWriteGate / OrderLogReplayFingerprint / goldens / csproj / asmdef untouched"; fi
@@ -303,6 +314,7 @@ Expected: `S1 write-surface FAIL` (no `## Write surface` section), `S8 full-suit
 - [ ] **Step 3: Commit**
 
 ```bash
+# REQUIRED immediately before staging: run GitNexus MCP detect_changes() for this task's write surface and read its output.
 git add tools/qa/slice-preflight.sh
 git commit -m "chore(qa): slice-preflight.sh — mechanical pre-review gate for DRG headless slices
 
@@ -374,7 +386,7 @@ Budget: APPROVED ≤ 600 output tokens; CHANGES REQUIRED ≤ 1,500. No prose bey
 name: drg-slice-review
 description: "Fable-tier review of DRG headless slice PRs against the slice gates S1–S8 and UCA G4/G5/G10/G13 (ADR-010 §2–3 / ADR-007 / ADR-001; DelegationBridge zero-touch). Run after tools/qa/slice-preflight.sh passes. Batch 3–6 PRs per session."
 model: fable
-allowed-tools: Read, Grep, Glob, Bash(gh pr view *), Bash(gh pr diff *), Bash(bash tools/qa/slice-preflight.sh *), Bash(git diff *)
+allowed-tools: Read, Grep, Glob, Write, Bash(gh pr view *), Bash(gh pr diff *), Bash(git fetch *), Bash(git worktree *), Bash(bash tools/qa/slice-preflight.sh *), Bash(git diff *), MCP(Linear get_issue/update_issue), MCP(GitHub add_review_to_pr)
 ---
 
 # drg-slice-review
@@ -419,7 +431,7 @@ Expected: three front-matter lines; `8` gate rows.
 In `.claude/docs/coordination-rules.md`, add a row to the Model Tier Assignment table after the Opus row:
 
 ```markdown
-| **Fable** | `claude-fable-5-1` (Cursor Task slug `claude-fable-5-1-thinking-high`) | Review-only gates where the input is large and the output is a short verdict: DRG slice review (`drg-slice-review`), retro audits, plan review. Never for authoring slices or docs. Batch 3–6 items per session to amortise the prefix. |
+| **Fable** | configured `fable` review tier | Review-only gates where the input is large and the output is a short verdict: DRG slice review (`drg-slice-review`), retro audits, plan review. Never for authoring slices or docs. Batch 3–6 items per session to amortise the prefix. |
 ```
 
 In `AGENTS.md`, under "Unity / C# architecture skill (required)", after item 5 add:
@@ -431,6 +443,7 @@ In `AGENTS.md`, under "Unity / C# architecture skill (required)", after item 5 a
 - [ ] **Step 5: Commit**
 
 ```bash
+# REQUIRED immediately before staging: run GitNexus MCP detect_changes() for this task's write surface and read its output.
 git add production/agentic/skills/drg-slice-review/ .claude/docs/coordination-rules.md AGENTS.md
 git commit -m "docs(agentic): drg-slice-review skill — Fable-tier S1-S8 review gates for headless slices
 
@@ -465,7 +478,7 @@ Expected (from the family scan): S5 advisory on ~13 of the fingerprint-bearing P
 
 - [ ] **Step 2: Fable session — review the set with `drg-slice-review`**
 
-Dispatch one cloud agent with `model: claude-fable-5-1-thinking-high` and this prompt (verbatim):
+Dispatch one cloud agent with the configured `fable` review tier and this prompt (verbatim):
 
 ```text
 Load production/agentic/skills/drg-slice-review/SKILL.md and follow it in retro mode: do not post PR
@@ -486,6 +499,7 @@ Expected clusters (hypotheses to confirm, not to assume): (a) raw-delimiter fing
 Create the issues from the "Proposed Linear issues" section (Linear MCP `save_issue`, project *Combat Interaction UX*, label `type:tech-debt`), paste their IDs back into the retro file, then:
 
 ```bash
+# REQUIRED immediately before staging: run GitNexus MCP detect_changes() for this task's write surface and read its output.
 git add production/qa/slice-review-retro-2026-09.md
 git commit -m "docs(qa): retro drg-slice-review of 24 landed headless slice PRs (DRG-179, 206-230)
 
@@ -550,6 +564,7 @@ In `production/agentic/linear-parallel-dispatch-playbook.md`, in the dispatch pr
 - [ ] **Step 5: Commit**
 
 ```bash
+# REQUIRED immediately before staging: run GitNexus MCP detect_changes() for this task's write surface and read its output.
 git add production/agentic/drg-slice-split-pilot-2026-09.md production/agentic/linear-parallel-dispatch-playbook.md
 git commit -m "docs(agentic): DRG slice author/review split pilot results and dispatch wiring"
 ```
@@ -561,6 +576,10 @@ git commit -m "docs(agentic): DRG slice author/review split pilot results and di
 Tasks 1–3 and 5 are docs + one bash script; the only code-touching path is Task 4's follow-up issues (executed later under their own PRs). Before marking any task done:
 
 ```bash
+bash tools/copy-delegation-assemblies.sh
+dotnet build ProjectAegis.sln --nologo
+dotnet test ProjectAegis.sln -v minimal --no-build --nologo
+dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj --no-build --nologo -v minimal --filter "FullyQualifiedName~PlayModeSmokeHarnessTests"
 bash -n tools/qa/slice-preflight.sh                                       # syntax
 bash tools/qa/slice-preflight.sh --range 8f95b0f0^..8f95b0f0 --body /tmp/body597.md; echo "exit=$?"   # expect FAIL (S8 full-suite), exit=1
 rg -n "ADR-018" production/agentic/skills/drg-slice-review/ | rg -v "never|not|datalink|side-picture"   # expect no output
