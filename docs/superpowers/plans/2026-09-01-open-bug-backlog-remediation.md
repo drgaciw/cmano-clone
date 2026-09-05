@@ -16,6 +16,7 @@
 - Test floor is monotonic: the suite is **3,062 tests / 0 failures** on `main` today (AGENTS.md still says ≥1638; never regress below the current count).
 - Test naming: `[SystemUnderTest]Tests.cs`, methods `Scenario_expected` in snake_case; test project frameworks differ (see Tech Stack) — do not mix `[Fact]` and `[Test]`.
 - Conventional Commits, one commit per logical change, story/bug ID in the body.
+- **Before every planned commit:** run GitNexus `detect_changes()` for the files about to be staged, record affected symbols/processes in the PR evidence, and stop to reconcile any unexpected scope before `git add`. This applies to every commit block below, including docs-only tasks.
 - `production/qa/bugs/*.md` status transitions follow `.claude/skills/bug-report/SKILL.md` Phase 2C (Verify) and 2D (Close). Setting `Status: Closed` requires human approval; `Verified Fixed` does not.
 - Cloud VM verification prerequisite: `export PATH="$HOME/.dotnet:$PATH"` and `bash tools/copy-delegation-assemblies.sh` before `dotnet test ProjectAegis.sln`, otherwise `UnityPluginEpicATypesTests` fails on a fresh checkout (plugin DLLs are gitignored). The PowerShell gate `tools/verify-ci-local.ps1` is not runnable on cloud (no `pwsh`); use `bash tools/buildkite/dotnet-ci.sh`.
 
@@ -115,7 +116,7 @@ Run Task 1 and Task 2 in one session (shared context); Tasks 4a–4c are indepen
 
 ```bash
 export PATH="$HOME/.dotnet:$PATH"
-cd /workspace
+cd "$(git rev-parse --show-toplevel)"
 bash tools/copy-delegation-assemblies.sh
 dotnet build ProjectAegis.sln --nologo 2>&1 | tail -n 3
 dotnet test ProjectAegis.sln -v minimal --no-build --nologo 2>&1 | rg "^(Passed!|Failed!)"
@@ -228,6 +229,8 @@ Create `production/qa/bug-triage-2026-09-01.md` with:
 - [ ] **Step 7: Commit the verification pass**
 
 ```bash
+GitNexus `detect_changes()` (expected write surface: `production/qa/bugs/**`, `production/qa/bug-triage-2026-09-01.md`); record the result in the PR evidence, then:
+
 git add production/qa/bugs/ production/qa/bug-triage-2026-09-01.md
 git commit -m "docs(qa): verify 16 stale bug reports against main and file 2026-09-01 triage
 
@@ -318,7 +321,13 @@ for f in "$bugs_dir"/*.md; do
     stale=$((stale + 1))
     continue
   fi
-  age_days=$(( (today_epoch - $(date -u -d "$reported" +%s)) / 86400 ))
+  reported_epoch="$(python3 - "$reported" <<'PY'
+import datetime
+import sys
+print(int(datetime.datetime.strptime(sys.argv[1], "%Y-%m-%d").replace(tzinfo=datetime.timezone.utc).timestamp()))
+PY
+)"
+  age_days=$(( (today_epoch - reported_epoch) / 86400 ))
   if echo "$status" | rg -qi '^open|pending review|pending merge|fix in this commit|awaiting'; then
     if (( age_days > max_age_days )); then
       printf '%-62s | %-10s | %-4s | STALE: %s\n' "$id" "$reported" "$age_days" "$status"
@@ -406,7 +415,9 @@ Ask the game designer to choose, quoting the report's four options and this defa
 
 Do not write code until the answer is in.
 
-- [ ] **Step 2 (Option 1 chosen): Impact analysis, then write the failing test**
+- [ ] **Step 2 (Options 1/2 chosen): GitNexus upstream impact analysis, then write the failing test**
+
+Run GitNexus MCP `impact` on `LossesScoringProjection.Project` **before editing** and attach its upstream callers, affected processes, and risk level to the PR. If the result is **HIGH** or **CRITICAL**, stop for an explicit human go/no-go before changing score semantics. Then cross-check the result with:
 
 ```bash
 rg -n "LossesScoringProjection\.Project\(" src --glob '!**/obj/**'
@@ -500,6 +511,14 @@ grep -r "17144800277401907079" tests/ data/ | wc -l
 
 Expected: `Failed: 0` everywhere; total ≥ 3063; ReplayGolden `Passed: 6`; hash grep count > 0 and unchanged from `main`. Then regenerate the gauntlet corpus envelopes exactly as `tools/qa-gauntlet/README-expect-regen.md` describes and commit the regenerated `expect` files in the same PR, citing this bug ID.
 
+- [ ] **Step 5b (Option 2 chosen): Weighted-denial implementation and evidence**
+
+Keep `PolicyDenials` as the total denial count. Add a single private `PenaltyFor(FireAbortReason reason)` mapping in `LossesScoringProjection`: `RoeHoldFire`, `WeaponsTight`, and `EmconOff` map to `0`; `WraRange`, `WraSalvo`, `NoFireControlTrack`, and `CommsDenied` map to the explicitly chosen weights; all other reasons fall back to `DefaultPenaltyDenial` until the design decision lists a different weight. Compute `penalty = log.PolicyDenials.Sum(d => PenaltyFor(d.Reason))` and subtract that from `baseScore + kills * DefaultPointsPerKill`. Add table-driven NUnit coverage for every mapped reason, a fallback-reason case, total-denial count preservation, and deterministic repeated projection. Run RED/GREEN plus the full gate in Step 5, regenerate gauntlet envelopes, then commit the projection, test, bug report, and regenerated expectation files with `feat(scoring): weight policy-denial penalties by reason`.
+
+- [ ] **Step 5c (Option 3 chosen): Restraint-objective delivery slice**
+
+Do not silently change `LossesScoringProjection` for this option. First create a design-approved `ScoringObjective` contract that names the scenario, positive objective, required evidence, points, and whether the objective is mutually exclusive with a kill objective. Implement it in a separate bounded slice with: schema/data fixture, deterministic projection of the objective result from `DecisionLog`/snapshot facts, unit tests for success/failure and repeated-run stability, and regenerated gauntlet envelopes. Use `minDenials` (or a new explicit restraint assertion) to prove the policy gate actually fired. Run GitNexus `impact` on every new score/projection surface, apply the HIGH/CRITICAL stop rule, run the full gate, and only then close this bug with the linked implementation PR. The implementation plan must be reviewed before code work; it is not bundled into the ledger task.
+
 - [ ] **Step 6 (all options): Close the report**
 
 Append to `BUG-scoring-penalises-roe-correct-refusals.md`:
@@ -569,7 +588,9 @@ Write a two-contact test that inserts in non-ordinal order (as in `PdContactStal
 - [ ] **Step 5: Commit**
 
 ```bash
-git add production/qa/determinism-ordering-audit-2026-09.md
+GitNexus `detect_changes()` and then stage the audit **plus every discovered defect's emitter, regression test, and `production/qa/bugs/BUG-<system>-order-nondeterminism.md`** in the same logical commit:
+
+git add production/qa/determinism-ordering-audit-2026-09.md src/ProjectAegis.Sim/ src/ProjectAegis.Delegation/ production/qa/bugs/
 git commit -m "docs(qa): ordinal-ordering audit of OrderLog-visible transition emitters
 
 Follow-up requested by BUG-kill-transition-order-nondeterminism and
