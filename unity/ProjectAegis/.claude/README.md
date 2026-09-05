@@ -16,7 +16,7 @@ Agent conventions for skills under `unity/ProjectAegis/.claude/skills/`. These w
 ## Project constraints (do not invent)
 
 - **Editor:** Unity **6.3 LTS** `6000.3.22f1` at `unity/ProjectAegis/`.
-- **Packages (pinned):** UI Toolkit (`com.unity.ui`) `2.0.0`, Addressables `2.3.16`, Burst `1.8.29` (transitive), `com.ivanmurzak.unity.mcp` `0.86.0`. No Entities.
+- **Packages (pinned):** UI Toolkit (`com.unity.ui`) `2.0.0`, Addressables `2.9.1`, Burst `1.8.30` (direct), `com.ivanmurzak.unity.mcp` `0.86.0`. No Entities.
 - **Not in this project:** URP, HDRP, new Input System — **Built-in Forward** + **legacy Input Manager**.
 - **Dual toolchain:** headless `net8.0` + Unity plugins `netstandard2.1`. Copy plugin DLLs with `./tools/copy-delegation-assemblies.ps1` (guard: `./tools/Test-UnityPluginAssemblies.ps1`).
 - **Seams:** `ISimWorldSnapshot` → `DelegationBridge.Tick` → `IOrderSink`. **`DelegationBridge` is zero-touch** through Release v1 — no hotpath edits.
