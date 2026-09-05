@@ -17,7 +17,7 @@ Bootstrap **Unity-MCP** for this repo’s Unity project. Full agent conventions:
 - **Project path:** `unity/ProjectAegis/` (no spaces). **Editor:** Unity **6.3 LTS** `6000.3.22f1`.
 - **Stack:** [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md) · activate: [`Claude-Agent-Setup.md`](../../../../../Game-Requirements/Claude-Agent-Setup.md).
 - **MCP:** `.cursor/mcp.json` / `.mcp.json` / `.grok/config.toml` → `http://localhost:8080` (`ai-game-developer`). Package **0.86.0** is installed; still must **pin Custom + `:8080`** (`./tools/pin-unity-mcp-8080.sh` or **Project Aegis → MCP → Pin Local Host :8080**) then open Editor. If `:8080` is down, stay headless (`/team-unity`).
-- **Packages (do not invent):** Burst 1.8.29, UI Toolkit 2.0.0, Addressables 2.3.16, Unity-MCP 0.86.0. **No URP/HDRP/Input System** — Built-in Forward + legacy Input Manager. (Entities packages removed — managed/headless-first world state.)
+- **Packages (do not invent):** Burst 1.8.30 (direct), UI Toolkit 2.0.0, Addressables 2.9.1, Unity-MCP 0.86.0. **No URP/HDRP/Input System** — Built-in Forward + legacy Input Manager. (Entities packages removed — managed/headless-first world state.)
 - **Dual toolchain:** headless `net8.0` + Unity plugins `netstandard2.1` via `./tools/copy-delegation-assemblies.ps1`.
 - **Zero-touch:** `DelegationBridge` hotpath. Prefer headless `dotnet test` / PlayModeSmokeHarness for gates.
 - **When to use this skill:** First-time or broken MCP/Editor agent setup.
