@@ -22,8 +22,8 @@ Pinned packages in `unity/ProjectAegis/Packages/manifest.json` (do not invent ve
 | Package | Version | Role |
 |---------|---------|------|
 | `com.unity.ui` | 2.0.0 | UI Toolkit (C2) |
-| `com.unity.addressables` | 2.3.16 | Addressables |
-| `com.unity.burst` | 1.8.29 | Transitive (Sentis / Inference); not sim hot-path |
+| `com.unity.addressables` | 2.9.1 | Addressables |
+| `com.unity.burst` | 1.8.30 | Direct manifest dependency; not sim hot-path |
 | `com.unity.ai.assistant` | 2.13.0-pre.2 | Unity AI Assistant — present, not agent-owned |
 | `com.unity.ai.inference` | 2.6.1 | Unity Inference — present, not agent-owned |
 | `com.ivanmurzak.unity.mcp` | 0.86.0 | Unity-MCP editor bridge (pin local Custom + `:8080`) |
