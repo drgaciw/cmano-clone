@@ -53,6 +53,19 @@ Optional advisory patterns: [`checklists/soft-ci-rg.md`](production/agentic/skil
 
 Implementation under contract → `/c-sharp-engineer`. Reviewer prompts → [`checklists/review-gates.md`](production/agentic/skills/unity-csharp-architect/checklists/review-gates.md).
 
+### Unity-MCP session start (Editor work only)
+
+When the task needs scenes, prefabs, UXML layout, Play Mode visuals, Console, or screenshots — load `/team-unity` and:
+
+1. Pin if this clone has not: `./tools/pin-unity-mcp-8080.sh`
+2. Probe: `curl -sS -o /dev/null -w "%{http_code}\n" --max-time 3 http://localhost:8080`
+3. **HTTP 2xx** → Editor MCP is live. Use `ping` / `unity-tool-list`. Do not hand-edit `.unity` / `.prefab` / `.meta` YAML.
+4. **Connection failed** → stay headless (`dotnet test`, PlayModeSmokeHarness). Say `:8080` is down. Do not invent Editor tools.
+5. Close the loop: MCP mutate → `scene-save` / prefab save → Play Mode (if visual) → `console-get-logs` + Game View screenshot.
+6. Never mutate `DelegationBridge` via Unity-MCP `script-execute` or reflection.
+
+Headless sim/delegation work skips this block. Grok MCP: `.grok/config.toml` + `.mcp.json` → `ai-game-developer` at `http://localhost:8080` (refresh `/mcps` after clone; project servers need a trusted folder). Editor pin: **6000.3.22f1**, package **0.86.0**.
+
 ---
 
 ## Architecture: Project Map
@@ -383,7 +396,7 @@ Load with: `/skill graphite-pr-review` or `hermes -s graphite-pr-review`
 
 Headless **.NET 8** development is the supported Cloud Agent path. Unity Editor 6.3 LTS (`unity/ProjectAegis`) is optional and usually not installed in the VM; use the headless Play Mode harness instead of opening the Editor.
 
-**Unity Editor invariants** (legacy Input Manager, Built-in RP, MCP pending, headless-vs-Editor routing): [`unity/ProjectAegis/.claude/README.md`](unity/ProjectAegis/.claude/README.md).
+**Unity Editor invariants** (legacy Input Manager, Built-in RP, Unity-MCP Custom `:8080`, headless-vs-Editor routing): [`unity/ProjectAegis/.claude/README.md`](unity/ProjectAegis/.claude/README.md). Editor pin **6000.3.22f1**.
 
 Cloud VMs run `.cursor/cloud-install.sh` on startup via `.cursor/environment.json` (installs .NET SDK 8.0.400 when missing, then `dotnet restore`). See [Cloud agent setup](https://cursor.com/docs/cloud-agent/setup).
 

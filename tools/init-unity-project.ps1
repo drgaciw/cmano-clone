@@ -23,7 +23,7 @@ if (-not (Test-Path $manifest)) {
 
 $versionFile = Join-Path $unityRoot "ProjectSettings/ProjectVersion.txt"
 if (-not (Test-Path $versionFile)) {
-    Set-Content -Path $versionFile -Value "m_EditorVersion: 6000.3.14f1`nm_EditorVersionWithRevision: 6000.3.14f1 (placeholder)"
+    Set-Content -Path $versionFile -Value "m_EditorVersion: 6000.3.22f1`nm_EditorVersionWithRevision: 6000.3.22f1 (placeholder)"
     Write-Host "Created ProjectSettings/ProjectVersion.txt (open in Unity Hub 6.3 LTS)"
 }
 

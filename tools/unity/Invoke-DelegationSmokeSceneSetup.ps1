@@ -1,7 +1,7 @@
 # Builds DelegationSmoke.unity via Unity batchmode (PLAYMODE-SMOKE.md stack).
 param(
     [string]$ScenarioPolicyId = "baltic-patrol-comms",
-    [string]$UnityVersion = "6000.3.14f1"
+    [string]$UnityVersion = "6000.3.22f1"
 )
 
 $ErrorActionPreference = "Stop"
@@ -11,7 +11,7 @@ $unityExe = "C:\Program Files\Unity\Hub\Editor\$UnityVersion\Editor\Unity.exe"
 $logFile = Join-Path $repoRoot "unity-delegation-smoke-setup.log"
 
 if (-not (Test-Path $unityExe)) {
-    throw "Unity Editor not found at $unityExe. Install 6000.3.14f1 via Unity Hub first."
+    throw "Unity Editor not found at $unityExe. Install $UnityVersion via Unity Hub first."
 }
 
 Set-Location $repoRoot

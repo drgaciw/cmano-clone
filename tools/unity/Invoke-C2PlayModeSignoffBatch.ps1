@@ -2,7 +2,7 @@
 param(
     [ValidateSet("comms", "classify", "doctrine", "import", "begin-execution")]
     [string]$Scenario = "comms",
-    [string]$UnityVersion = "6000.3.14f1",
+    [string]$UnityVersion = "6000.3.22f1",
     [switch]$SkipBuild
 )
 

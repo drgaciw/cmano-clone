@@ -1,7 +1,7 @@
 ---
 name: unity-initial-setup
 description: |-
-  Project Aegis bootstrap for Unity-MCP: Node/`unity-mcp-cli`, Editor 6000.3.14f1 at
+  Project Aegis bootstrap for Unity-MCP: Node/`unity-mcp-cli`, Editor 6000.3.22f1 at
   unity/ProjectAegis, MCP on localhost:8080, skill regen caveats, and headless-vs-Editor
   verification. Use at session start when Editor MCP is needed — not for inventing packages.
 ---
@@ -14,10 +14,10 @@ Bootstrap **Unity-MCP** for this repo’s Unity project. Full agent conventions:
 <!-- PROJECT-AEGIS:BEGIN -->
 ### Project Aegis notes
 
-- **Project path:** `unity/ProjectAegis/` (no spaces). **Editor:** Unity **6.3 LTS** `6000.3.14f1`.
+- **Project path:** `unity/ProjectAegis/` (no spaces). **Editor:** Unity **6.3 LTS** `6000.3.22f1`.
 - **Stack:** [`Tech-Stack.md`](../../../../../Tech-Stack.md) · smoke: [`PLAYMODE-SMOKE.md`](../../../PLAYMODE-SMOKE.md) · activate: [`Claude-Agent-Setup.md`](../../../../../Game-Requirements/Claude-Agent-Setup.md).
-- **MCP:** `.cursor/mcp.json` / `.mcp.json` → `"type": "http"`, `http://localhost:8080` (`ai-game-developer`). Package **0.86.0** is installed; still must **pin Custom + `:8080`** (`./tools/pin-unity-mcp-8080.sh` or **Project Aegis → MCP → Pin Local Host :8080**) then open Editor.
-- **Packages (do not invent):** Burst 1.8.29, UI Toolkit 2.0.0, Addressables 2.3.16, Unity-MCP 0.86.0. **No URP/HDRP/Input System** — Built-in Forward + legacy Input Manager. (Entities packages removed — managed/headless-first world state.)
+- **MCP:** `.cursor/mcp.json` / `.mcp.json` / `.grok/config.toml` → `http://localhost:8080` (`ai-game-developer`). Package **0.86.0** is installed; still must **pin Custom + `:8080`** (`./tools/pin-unity-mcp-8080.sh` or **Project Aegis → MCP → Pin Local Host :8080**) then open Editor. If `:8080` is down, stay headless (`/team-unity`).
+- **Packages (do not invent):** Burst 1.8.30 (direct), UI Toolkit 2.0.0, Addressables 2.9.1, Unity-MCP 0.86.0. **No URP/HDRP/Input System** — Built-in Forward + legacy Input Manager. (Entities packages removed — managed/headless-first world state.)
 - **Dual toolchain:** headless `net8.0` + Unity plugins `netstandard2.1` via `./tools/copy-delegation-assemblies.ps1`.
 - **Zero-touch:** `DelegationBridge` hotpath. Prefer headless `dotnet test` / PlayModeSmokeHarness for gates.
 - **When to use this skill:** First-time or broken MCP/Editor agent setup.
@@ -42,7 +42,7 @@ Or download from https://nodejs.org/.
 
 ### Unity Editor
 
-Install **6000.3.14f1** via Unity Hub. Open `unity/ProjectAegis` only with that editor version.
+Install **6000.3.22f1** via Unity Hub. Open `unity/ProjectAegis` only with that editor version.
 
 ### .NET (headless — always available)
 
@@ -97,7 +97,7 @@ Writes gitignored `UserSettings/AI-Game-Developer-Config.json` (`connectionMode=
 npx --yes unity-mcp-cli@0.86.0 open ./unity/ProjectAegis
 ```
 
-Or open via Unity Hub → editor `6000.3.14f1`. Confirm **Window → AI Game Developer** shows Custom / `:8080`.
+Or open via Unity Hub → editor `6000.3.22f1`. Confirm **Window → AI Game Developer** shows Custom / `:8080`.
 
 Package `com.ivanmurzak.unity.mcp` **0.86.0** is already a direct dependency — do **not** re-run `install-plugin` unless refreshing deliberately.
 
@@ -119,7 +119,7 @@ npx --yes unity-mcp-cli@0.86.0 setup-mcp cursor ./unity/ProjectAegis \
 npx --yes unity-mcp-cli@0.86.0 setup-mcp --list
 ```
 
-Expected: `ai-game-developer` → `{ "type": "http", "url": "http://localhost:8080" }` in `.cursor/mcp.json` / `.mcp.json`.
+Expected: `ai-game-developer` → `{ "type": "http", "url": "http://localhost:8080" }` in `.cursor/mcp.json` / `.mcp.json`, and `[mcp_servers.ai-game-developer]` in `.grok/config.toml`.
 
 ### 5. Generate / refresh AI skills (optional, destructive)
 

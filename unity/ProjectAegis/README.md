@@ -26,7 +26,7 @@ dotnet build ProjectAegis.sln -c Release
 ./tools/unity/Invoke-ManualQaHeadlessGate.ps1
 ```
 
-Automated Unity compile + smoke scene (requires Unity 6000.3.14f1):
+Automated Unity compile + smoke scene (requires Unity 6000.3.22f1):
 
 ```powershell
 ./tools/unity/Invoke-DelegationSmokeSceneSetup.ps1

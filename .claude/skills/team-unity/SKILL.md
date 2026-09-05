@@ -1,6 +1,6 @@
 ---
 name: team-unity
-description: "Orchestrate Unity engine and Unity-MCP work: scene/prefab changes, UI Toolkit, DOTS/ECS, Addressables, shaders/VFX, package settings, play-mode validation, and editor-side safety gates."
+description: "Use when the task touches Unity Editor assets, scenes, prefabs, UI Toolkit, Unity-MCP, Play Mode visuals, Console, screenshots, package/project settings, or when an agent is about to hand-edit .unity/.prefab/.meta YAML. Use when localhost:8080 / ai-game-developer is down or unproven."
 argument-hint: "[scene|prefab|ui-toolkit|dots|addressables|shaders|mcp|build-profile|performance|full-feature] [scope] [--review full|lean|solo]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion
@@ -14,6 +14,46 @@ Use this skill when work crosses Unity Editor assets, runtime presentation,
 Unity-MCP operations, package configuration, or engine-specific implementation.
 It coordinates Unity specialists while enforcing the architecture rule that Unity
 Presentation and Adapter code do not leak into pure Data or Simulation assemblies.
+
+## MCP connectivity gate (before any Editor work)
+
+Run this **before** scene/prefab/UXML/Play Mode/screenshot work. Skip only for
+pure headless sim/delegation (`dotnet test`, no Unity assets).
+
+```bash
+curl -sS -o /dev/null -w "%{http_code}\n" --max-time 3 http://localhost:8080
+```
+
+If this clone has not pinned yet: `./tools/pin-unity-mcp-8080.sh` then open
+Editor **6000.3.22f1** on `unity/ProjectAegis`. Clients: `.mcp.json`,
+`.cursor/mcp.json`, `.grok/config.toml` → `ai-game-developer` at
+`http://localhost:8080`.
+
+**HTTP 2xx — Editor MCP live**
+
+1. Discover tools (`ping`, `unity-tool-list`, or `search_tool` query `unity`).
+2. Propose scene/prefab/asset mutations; wait for approval on writes.
+3. Mutate **only** through Unity-MCP (`scene-*`, `gameobject-*`, `assets-*`).
+4. `scene-save` / `assets-prefab-save`.
+5. Visual check: `editor-application-set-state` (Play Mode) → `console-get-logs` → `screenshot-game-view`.
+6. Stop Play Mode. Report Console errors and the screenshot.
+
+**Connection failed — stay headless**
+
+- Say `:8080` is down. Do not invent Editor tools.
+- Use `dotnet test` / PlayModeSmokeHarness / file edits under `src/`.
+- Do **not** hand-edit `.unity`, `.prefab`, or `.meta` YAML to change
+  hierarchy, GUIDs, or component refs.
+- Do **not** call Unity-MCP tools that require a live Editor.
+
+Never mutate `DelegationBridge` via `script-execute`, `script-update-or-create`,
+or reflection.
+
+| Excuse | Reality |
+|--------|---------|
+| "Editor is closed, I'll patch the YAML" | Stay headless or ask to open Editor. Wrong GUIDs break the asset. |
+| "It's just one component field" | Use `gameobject-component-modify` when `:8080` is up. |
+| "MCP isn't in this session so tools don't exist" | Probe `:8080`. If down, headless. If up, `search_tool` / `unity-tool-list`. |
 
 ## Phase 0: Resolve Mode and Review Level
 
@@ -52,7 +92,7 @@ Review mode:
 
 Read only relevant context:
 
-- `Tech-Stack.md`, `.mcp.json`, `.cursor/mcp.json`, Unity package manifests.
+- `Tech-Stack.md`, `.mcp.json`, `.cursor/mcp.json`, `.grok/config.toml`, Unity package manifests.
 - `docs/engine-reference/unity/VERSION.md` and package-specific notes.
 - `docs/architecture/architecture.md` layer rules.
 - Unity project paths under `unity/ProjectAegis/**` and adapter code in scope.
@@ -64,10 +104,13 @@ Report the affected Unity subsystem, owning specialists, and required validation
 
 ### MCP / Editor Pipeline
 
-1. Confirm Unity Editor activation and MCP connectivity are available.
-2. Present planned scene/prefab/asset operations before execution.
-3. Require explicit user approval before editor-side mutations.
-4. Validate saved assets, references, and play-mode smoke where possible.
+Follow the **MCP connectivity gate** above. Then:
+
+1. Present planned scene/prefab/asset operations before execution.
+2. Require explicit user approval before editor-side mutations.
+3. Mutate through Unity-MCP, then save.
+4. Close the loop with Console + Game View screenshot when the change is visual.
+5. Headless `PlayModeSmokeHarnessTests` still gates C2/delegation — Editor Play Mode is not a substitute.
 
 ### UI Toolkit Pipeline
 
@@ -119,3 +162,12 @@ Produce a concise report:
 - Files/assets likely affected.
 - Architecture, performance, and asset risks.
 - Validation plan and next approved action.
+- MCP probe result (`:8080` live vs down) and whether the visual loop ran.
+
+## Red flags — stop
+
+- About to `Write`/`Edit` a `.unity`, `.prefab`, or `.meta` to "fix" hierarchy or GUIDs
+- Calling Unity-MCP tools without a successful `:8080` probe this session
+- Claiming Play Mode / screenshot evidence from headless-only work
+- Editing `DelegationBridge` through Unity-MCP script/reflection tools
+- Adding URP, HDRP, or the new Input System without explicit human approval
