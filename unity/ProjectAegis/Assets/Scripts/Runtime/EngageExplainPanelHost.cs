@@ -1,6 +1,8 @@
 // DRG-67: Engage Explain panel — plain-language fire-refusal explanation (CMD-11).
 #if UNITY_5_3_OR_NEWER
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -24,6 +26,13 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _reasonLabel;
         private EngageExplain _last = EngageExplain.Empty;
         private bool _wired;
+        private CombatPresentationFrame? _lastFrame;
+        private string? _lastSelection;
+        private string? _lastUnit;
+        private string? _lastContact;
+
+        /// <summary>Correlated event explanation from the shared Slice B frame.</summary>
+        public CombatDetailPresentation LastCombatDetail { get; private set; } = CombatDetailPresentation.Empty;
 
         /// <summary>Last projected explain state (DRG-67).</summary>
         public EngageExplain LastExplain => _last;
@@ -87,6 +96,7 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _wired = _statusLabel != null || _reasonLabel != null;
+            _lastFrame = null; // A rebuilt UIDocument needs binding even while simulation is paused.
         }
 
         private void Refresh()
@@ -96,9 +106,21 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            _last = bridgeHost != null
-                ? bridgeHost.ProjectSelectedEngageExplain()
-                : EngageExplain.Empty;
+            if (bridgeHost == null || bridgeHost.Bridge == null) return;
+            var frame = bridgeHost.LastCombatFrame;
+            var selected = bridgeHost.Presentation.CombatInspection.SelectedKey;
+            if (ReferenceEquals(frame, _lastFrame) && selected == _lastSelection
+                && bridgeHost.SelectedUnitId == _lastUnit && bridgeHost.SelectedContactId == _lastContact) return;
+            _lastFrame = frame;
+            _lastSelection = selected;
+            _lastUnit = bridgeHost.SelectedUnitId;
+            _lastContact = bridgeHost.SelectedContactId;
+            LastCombatDetail = bridgeHost.ProjectCombatDetail();
+            _last = new EngageExplain(LastCombatDetail.StatusLine, null,
+                string.Join("\n", LastCombatDetail.WeaponLine, LastCombatDetail.HardConstraintsLine,
+                    LastCombatDetail.PolicyLine, LastCombatDetail.ConfidenceLine, LastCombatDetail.FiringSolutionLine,
+                    LastCombatDetail.NextActionLine, LastCombatDetail.CorrelationLine),
+                LastCombatDetail.StatusLine.Contains("AuthorizationRefused"));
 
             if (_statusLabel != null)
             {
@@ -123,7 +145,8 @@ namespace ProjectAegis.Unity.Runtime
             _last = explain ?? EngageExplain.Empty;
             if (_wired)
             {
-                Refresh();
+                if (_statusLabel != null) _statusLabel.text = _last.StatusLine;
+                if (_reasonLabel != null) _reasonLabel.text = _last.ReasonPlain;
             }
         }
     }

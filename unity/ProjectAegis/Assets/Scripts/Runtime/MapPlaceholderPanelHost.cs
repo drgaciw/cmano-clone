@@ -69,7 +69,8 @@ namespace ProjectAegis.Unity.Runtime
         private MapSymbolPool? _symbolPool;
         private MapCanvasOverlayRenderer? _overlayRenderer;
         private MapCanvasCourseOverlayRenderer? _courseOverlayRenderer;
-        private MapCanvasTransientEffectsRenderer? _transientEffectsRenderer;
+        private CombatMapView? _combatView;
+        private string? _dirtyCombatKey;
         private bool _refreshedOnce;
         private IReadOnlyList<MapSymbolEntry>? _dirtySymbolsRef;
         private IReadOnlyList<MapCourseOverlayEntry>? _dirtyCoursesRef;
@@ -181,8 +182,9 @@ namespace ProjectAegis.Unity.Runtime
                 _courseOverlayRenderer = _canvas != null
                     ? new MapCanvasCourseOverlayRenderer(_canvas)
                     : null;
-                _transientEffectsRenderer = _canvas != null
-                    ? new MapCanvasTransientEffectsRenderer(_canvas)
+                _combatView?.Dispose();
+                _combatView = _canvas != null
+                    ? new CombatMapView(_canvas, _rootPanel, key => bridgeHost.InspectCombatEvent(key))
                     : null;
                 _symbolPool = _canvas != null ? new MapSymbolPool(_canvas) : null;
                 _refreshedOnce = false;
@@ -326,10 +328,11 @@ namespace ProjectAegis.Unity.Runtime
         /// </summary>
         private void ApplyTransientCombatVfx()
         {
-            var frame = bridgeHost != null ? bridgeHost.LastCombatVfx : CombatVfxFrame.Empty;
-            LastCombatVfxFireLineCount = frame.FireLines?.Count ?? 0;
-            LastCombatVfxImpactCount = frame.ImpactMarkers?.Count ?? 0;
-            _transientEffectsRenderer?.Sync(frame);
+            if (bridgeHost == null) return;
+            _combatView?.Bind(bridgeHost.LastCombatFrame, bridgeHost.LastMapSymbols,
+                bridgeHost.Presentation.CombatInspection.SelectedKey);
+            LastCombatVfxFireLineCount = _combatView?.EffectCount ?? 0;
+            LastCombatVfxImpactCount = 0; // Outcomes are labeled on the same correlated effect.
         }
 
         /// <summary>
@@ -456,6 +459,7 @@ namespace ProjectAegis.Unity.Runtime
                 || !ReferenceEquals(feed.LastMapSymbols, _dirtySymbolsRef)
                 || !ReferenceEquals(bridgeHost.LastMapCourses, _dirtyCoursesRef)
                 || !ReferenceEquals(bridgeHost.LastCombatVfx, _dirtyCombatVfxRef)
+                || bridgeHost.Presentation.CombatInspection.SelectedKey != _dirtyCombatKey
                 || feed.SelectedUnitId != _dirtySelectedUnit
                 || feed.SelectedContactId != _dirtySelectedContact
                 || bridgeHost.Phase != _dirtyPhase
@@ -470,9 +474,10 @@ namespace ProjectAegis.Unity.Runtime
             _dirtySymbolsRef = feed?.LastMapSymbols;
             _dirtyCoursesRef = bridgeHost?.LastMapCourses;
             _dirtyCombatVfxRef = bridgeHost?.LastCombatVfx;
+            _dirtyCombatKey = bridgeHost == null ? null : bridgeHost.Presentation.CombatInspection.SelectedKey;
             _dirtySelectedUnit = feed?.SelectedUnitId;
             _dirtySelectedContact = feed?.SelectedContactId;
-            _dirtyPhase = bridgeHost.Phase;
+            _dirtyPhase = bridgeHost == null ? default : bridgeHost.Phase;
             _dirtyShowPanel = showPanel;
             _dirtyLayerVisibleCount = _layerStack.VisibleCount;
             _dirtyCommsState = feed?.LastCommsState?.State ?? CommsState.Nominal;

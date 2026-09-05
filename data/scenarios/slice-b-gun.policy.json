@@ -1,0 +1,17 @@
+{
+  "id": "slice-b-gun",
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "weaponFamilyId": "Gun",
+    "rangeMeters": 8000,
+    "envelopeMinMeters": 500,
+    "envelopeMaxMeters": 15000,
+    "defaultMagazineRounds": 120,
+    "hasFireControlTrack": true,
+    "pkBase": 0.65,
+    "pkIntercept": 0.0,
+    "pkKill": 0.4,
+    "salvoSize": 6
+  }
+}

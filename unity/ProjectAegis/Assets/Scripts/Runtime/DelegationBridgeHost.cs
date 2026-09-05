@@ -105,6 +105,16 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Read-only Slice A contact frame, rebuilt once after each simulation tick.</summary>
         public SliceAContactFrame LastSliceAContacts { get; private set; } = SliceAContactFrame.Empty;
 
+        /// <summary>Shared combat-event, explanation and assessment frame for Slice B views.</summary>
+        public CombatPresentationFrame LastCombatFrame { get; private set; } = CombatPresentationFrame.Empty;
+
+        /// <summary>Inspect history without changing units selected for player commands.</summary>
+        public void InspectCombatEvent(string? key) => Presentation.CombatInspection.Select(key);
+
+        /// <summary>Read-only explanation for explicit history inspection or current unit/contact selection.</summary>
+        public CombatDetailPresentation ProjectCombatDetail() => CombatSelectionPresenter.Build(
+            LastCombatFrame, Presentation.CombatInspection.SelectedKey, SelectedUnitId, SelectedContactId);
+
         /// <summary>Sensor C2 contact list + EMCON / track indicators for HUD binding.</summary>
         public SensorC2Snapshot LastSensorC2 { get; private set; } =
             new(Array.Empty<ContactPictureEntry>(), 0, true, false, null, 0);
@@ -493,6 +503,8 @@ namespace ProjectAegis.Unity.Runtime
                 Bridge.Orchestrator.DecisionLog);
             LastCommsState = CommsStateProjection.Project(Bridge.Orchestrator.DecisionLog);
             LastSliceAContacts = SliceAContactFrameBridge.Build(snapshot, Bridge, CatalogReader);
+            LastCombatFrame = CombatPresentationFrameBridge.Build(
+                Bridge.Orchestrator.DecisionLog, LastSliceAContacts, snapshot.SimTime);
             // CMD-37: additive roster projection (no Tick body rewrite)
             LastAgentRoster = BuildAgentRosterFromRegistry();
             // CMD-24 Phase A: additive air-ops readiness projection

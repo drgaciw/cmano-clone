@@ -15,6 +15,9 @@ public sealed class C2PresentationController
 {
     private readonly SelectionSet _selection = new SelectionSet();
 
+    /// <summary>Combat history inspection is separate from units targeted by player commands.</summary>
+    public CombatInspectionState CombatInspection { get; } = new();
+
     /// <summary>Ordered multi-select set of friendly unit ids (req 20 §Selection, TR-c2-005).
     /// Single-select is a set of one; <see cref="SelectedUnitId"/> is the anchor unit.
     /// Read-only: mutate only via <see cref="SelectFriendlyUnit"/> / <see cref="SelectHostileContact"/>

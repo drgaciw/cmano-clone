@@ -16,7 +16,8 @@ public sealed record SliceAContactFrame(
     IReadOnlyList<ContactPictureEntry> Contacts,
     IReadOnlyDictionary<string, C2AuthorityProjection> Authorities,
     bool EligibilityAvailable = false,
-    ulong SimTick = 0)
+    ulong SimTick = 0,
+    double? SimTime = null)
 {
     /// <summary>No received simulation frame.</summary>
     public static SliceAContactFrame Empty { get; } = new(
@@ -93,7 +94,7 @@ public static class SliceAContactFrameBridge
         }
 
         return new SliceAContactFrame(killChain, provenance, chains, contacts,
-            new ReadOnlyDictionary<string, C2AuthorityProjection>(authorities), source != null, tick);
+            new ReadOnlyDictionary<string, C2AuthorityProjection>(authorities), source != null, tick, snapshot.SimTime);
     }
 
     private sealed class LiveCandidateGuard(

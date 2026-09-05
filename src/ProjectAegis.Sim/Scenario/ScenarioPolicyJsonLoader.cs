@@ -508,7 +508,8 @@ public static class ScenarioPolicyJsonLoader
                 engage.MountOnline ?? true,
                 engage.ContactIdentified ?? true,
                 engage.CombatDomainsEnabled ?? false,
-                engage.ShotgunRoundsThreshold);
+                engage.ShotgunRoundsThreshold,
+                engage.WeaponFamilyId);
 
     private static RoeLevel ParseRoe(string value) =>
         Enum.TryParse<RoeLevel>(value, ignoreCase: true, out var roe)

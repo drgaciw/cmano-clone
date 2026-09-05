@@ -47,6 +47,10 @@ namespace ProjectAegis.Unity.Runtime
         private SliceAContactFrame? _lastFrame;
         private string? _lastContactId;
         private SliceAContactPresentation _sliceA = SliceAContactPresentation.Empty;
+        private CombatPresentationFrame? _lastCombatFrame;
+        private Label? _engagementLine;
+        private Label? _postureLine;
+        private CombatDetailPresentation _combat = CombatDetailPresentation.Empty;
         private bool _wired;
         private ContactDetailPresentation _presentation = ContactDetailPresentation.Empty;
 
@@ -123,6 +127,19 @@ namespace ProjectAegis.Unity.Runtime
             _sensorShooterLine = panel.Q<Label>("sensor-shooter-line");
             _authorityLine = panel.Q<Label>("authority-line");
             _nextActionLine = panel.Q<Label>("next-action-line");
+            _engagementLine = panel.Q<Label>("contact-engagement-line");
+            if (_engagementLine == null)
+            {
+                _engagementLine = new Label { name = "contact-engagement-line" };
+                _engagementLine.style.whiteSpace = WhiteSpace.Normal;
+                panel.Add(_engagementLine);
+            }
+            _postureLine = panel.Q<Label>("contact-posture-line");
+            if (_postureLine == null)
+            {
+                _postureLine = new Label { name = "contact-posture-line" };
+                panel.Add(_postureLine);
+            }
             _wired = _contactIdLine != null && _targetIdLine != null && _classificationLine != null;
 
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
@@ -153,11 +170,15 @@ namespace ProjectAegis.Unity.Runtime
                     ? DisplayStyle.Flex : DisplayStyle.None;
 
             var frame = bridgeHost == null ? SliceAContactFrame.Empty : bridgeHost.LastSliceAContacts;
-            if (ReferenceEquals(frame, _lastFrame) && string.Equals(contactId, _lastContactId, StringComparison.Ordinal))
+            var combatFrame = bridgeHost == null ? CombatPresentationFrame.Empty : bridgeHost.LastCombatFrame;
+            if (ReferenceEquals(frame, _lastFrame) && ReferenceEquals(combatFrame, _lastCombatFrame)
+                && string.Equals(contactId, _lastContactId, StringComparison.Ordinal))
                 return;
 
             _lastFrame = frame;
             _lastContactId = contactId;
+            _lastCombatFrame = combatFrame;
+            _combat = CombatSelectionPresenter.Build(combatFrame, null, null, contactId);
             if (string.IsNullOrEmpty(contactId))
             {
                 _presentation = ContactDetailPresentation.Empty;
@@ -216,7 +237,8 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_bdaLine != null)
             {
-                _bdaLine.text = _presentation.BdaLine;
+                _bdaLine.text = ReferenceEquals(_combat, CombatDetailPresentation.Empty)
+                    ? _presentation.BdaLine : _combat.BdaLine;
             }
 
             if (_stalenessLine != null)
@@ -228,6 +250,8 @@ namespace ProjectAegis.Unity.Runtime
             if (_sensorShooterLine != null) _sensorShooterLine.text = _sliceA.ChainLine;
             if (_authorityLine != null) _authorityLine.text = _sliceA.AuthorityLine;
             if (_nextActionLine != null) _nextActionLine.text = _sliceA.NextActionLine;
+            if (_engagementLine != null) _engagementLine.text = _combat.StatusLine;
+            if (_postureLine != null) _postureLine.text = _combat.PostureLine;
         }
     }
 }
