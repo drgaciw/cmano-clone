@@ -1,7 +1,9 @@
 // CMD-29 contact detail panel — belief/inference view distinct from own-unit RightUnitPanelHost.
 #if UNITY_5_3_OR_NEWER
-using System.Linq;
+using System;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -37,11 +39,22 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _wraLine;
         private Label? _bdaLine;
         private Label? _stalenessLine;
+        private Label? _killChainLine;
+        private Label? _sensorShooterLine;
+        private Label? _authorityLine;
+        private Label? _nextActionLine;
+        private VisualElement? _panel;
+        private SliceAContactFrame? _lastFrame;
+        private string? _lastContactId;
+        private SliceAContactPresentation _sliceA = SliceAContactPresentation.Empty;
         private bool _wired;
         private ContactDetailPresentation _presentation = ContactDetailPresentation.Empty;
 
         /// <summary>Last applied contact-detail presentation (CMD-29).</summary>
         public ContactDetailPresentation LastPresentation => _presentation;
+
+        /// <summary>Last applied read-only sense-and-target explanation.</summary>
+        public SliceAContactPresentation LastSliceAPresentation => _sliceA;
 
         private void Reset()
         {
@@ -70,17 +83,14 @@ namespace ProjectAegis.Unity.Runtime
 
         private void OnEnable()
         {
+            _wired = false;
+            _lastFrame = null;
             TryWireElements();
             Refresh();
         }
 
         private void LateUpdate()
         {
-            if (!showPanel || bridgeHost == null)
-            {
-                return;
-            }
-
             if (!_wired)
             {
                 TryWireElements();
@@ -91,6 +101,7 @@ namespace ProjectAegis.Unity.Runtime
 
         private void TryWireElements()
         {
+            if (_document == null) return;
             var root = _document.rootVisualElement;
             if (root == null)
             {
@@ -98,6 +109,7 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             var panel = root.Q<VisualElement>(RootName) ?? root;
+            _panel = panel;
             _contactIdLine = panel.Q<Label>(ContactIdName);
             _targetIdLine = panel.Q<Label>(TargetIdName);
             _lifecycleLine = panel.Q<Label>(LifecycleName);
@@ -107,6 +119,10 @@ namespace ProjectAegis.Unity.Runtime
             _wraLine = panel.Q<Label>(WraName);
             _bdaLine = panel.Q<Label>(BdaName);
             _stalenessLine = panel.Q<Label>(StalenessName);
+            _killChainLine = panel.Q<Label>("kill-chain-line");
+            _sensorShooterLine = panel.Q<Label>("sensor-shooter-line");
+            _authorityLine = panel.Q<Label>("authority-line");
+            _nextActionLine = panel.Q<Label>("next-action-line");
             _wired = _contactIdLine != null && _targetIdLine != null && _classificationLine != null;
 
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
@@ -119,41 +135,45 @@ namespace ProjectAegis.Unity.Runtime
         public void ApplyPresentation(ContactDetailPresentation presentation)
         {
             _presentation = presentation ?? ContactDetailPresentation.Empty;
+            _sliceA = SliceAContactPresentation.Empty;
+            _lastFrame = null;
             ApplyPresentationToLabels();
         }
 
         private void Refresh()
         {
-            if (!_wired || bridgeHost == null)
+            if (!_wired)
             {
                 return;
             }
 
-            var contactId = bridgeHost.SelectedContactId;
+            var contactId = bridgeHost == null ? null : bridgeHost.SelectedContactId;
+            if (_panel != null)
+                _panel.style.display = showPanel && !string.IsNullOrEmpty(contactId)
+                    ? DisplayStyle.Flex : DisplayStyle.None;
+
+            var frame = bridgeHost == null ? SliceAContactFrame.Empty : bridgeHost.LastSliceAContacts;
+            if (ReferenceEquals(frame, _lastFrame) && string.Equals(contactId, _lastContactId, StringComparison.Ordinal))
+                return;
+
+            _lastFrame = frame;
+            _lastContactId = contactId;
             if (string.IsNullOrEmpty(contactId))
             {
                 _presentation = ContactDetailPresentation.Empty;
             }
             else
             {
-                var contacts = ContactPictureProjection.ProjectWithBda(
-                    bridgeHost.Bridge.Orchestrator.DecisionLog);
-                var currentSimTick = bridgeHost.CurrentSimTick;
                 _presentation = ContactDetailApplyState.ProjectAndApply(
                     contactId,
-                    contacts,
-                    currentSimTick);
+                    frame.Contacts,
+                    frame.SimTick);
             }
 
+            frame.Authorities.TryGetValue(contactId ?? string.Empty, out var authority);
+            _sliceA = SliceAContactPresenter.Build(contactId, frame.KillChain, frame.Provenance,
+                frame.EligibilityAvailable ? frame.Chains : null, authority);
             ApplyPresentationToLabels();
-
-            var root = _document.rootVisualElement?.Q(RootName);
-            if (root != null)
-            {
-                // Show when a contact is selected (or always if showPanel); hide when unit-only selection preferred.
-                var hasContact = !string.IsNullOrEmpty(bridgeHost.SelectedContactId);
-                root.style.display = showPanel && hasContact ? DisplayStyle.Flex : DisplayStyle.None;
-            }
         }
 
         private void ApplyPresentationToLabels()
@@ -185,7 +205,8 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_provenanceLine != null)
             {
-                _provenanceLine.text = _presentation.DetectionProvenanceLine;
+                _provenanceLine.text = ReferenceEquals(_sliceA, SliceAContactPresentation.Empty)
+                    ? _presentation.DetectionProvenanceLine : _sliceA.ProvenanceLine;
             }
 
             if (_wraLine != null)
@@ -200,8 +221,13 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_stalenessLine != null)
             {
-                _stalenessLine.text = _presentation.StalenessLine;
+                _stalenessLine.text = ReferenceEquals(_sliceA, SliceAContactPresentation.Empty)
+                    ? _presentation.StalenessLine : _sliceA.FreshnessLine;
             }
+            if (_killChainLine != null) _killChainLine.text = _sliceA.PhaseLine;
+            if (_sensorShooterLine != null) _sensorShooterLine.text = _sliceA.ChainLine;
+            if (_authorityLine != null) _authorityLine.text = _sliceA.AuthorityLine;
+            if (_nextActionLine != null) _nextActionLine.text = _sliceA.NextActionLine;
         }
     }
 }

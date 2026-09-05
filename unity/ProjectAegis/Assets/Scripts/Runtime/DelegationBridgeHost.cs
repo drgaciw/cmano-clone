@@ -102,6 +102,9 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Projected comms snapshot from the last <see cref="RunTick"/> refresh (CMD-32).</summary>
         public CommsStateSnapshot? LastCommsState { get; private set; }
 
+        /// <summary>Read-only Slice A contact frame, rebuilt once after each simulation tick.</summary>
+        public SliceAContactFrame LastSliceAContacts { get; private set; } = SliceAContactFrame.Empty;
+
         /// <summary>Sensor C2 contact list + EMCON / track indicators for HUD binding.</summary>
         public SensorC2Snapshot LastSensorC2 { get; private set; } =
             new(Array.Empty<ContactPictureEntry>(), 0, true, false, null, 0);
@@ -489,6 +492,7 @@ namespace ProjectAegis.Unity.Runtime
                 simulationModeLabel,
                 Bridge.Orchestrator.DecisionLog);
             LastCommsState = CommsStateProjection.Project(Bridge.Orchestrator.DecisionLog);
+            LastSliceAContacts = SliceAContactFrameBridge.Build(snapshot, Bridge, CatalogReader);
             // CMD-37: additive roster projection (no Tick body rewrite)
             LastAgentRoster = BuildAgentRosterFromRegistry();
             // CMD-24 Phase A: additive air-ops readiness projection

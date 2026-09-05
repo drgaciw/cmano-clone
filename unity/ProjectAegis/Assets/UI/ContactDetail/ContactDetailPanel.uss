@@ -5,7 +5,8 @@
     right: 0;
     top: 56px;
     bottom: 0;
-    width: 300px;
+    width: 340px;
+    max-width: 45%;
     min-width: 280px;
     flex-direction: column;
     padding: 8px;
@@ -23,6 +24,18 @@
 .contact-detail-line {
     color: rgb(190, 175, 185);
     margin-bottom: 2px;
+    white-space: normal;
+    flex-shrink: 0;
+}
+
+.contact-detail-scroll { flex-grow: 1; min-height: 0; }
+.contact-detail-heading { -unity-font-style: bold; margin-top: 6px; }
+.contact-detail-section { margin-top: 8px; color: rgb(220, 210, 215); }
+.contact-detail-next {
+    margin-top: 8px;
+    padding: 6px;
+    background-color: rgba(50, 45, 60, 0.9);
+    color: rgb(240, 230, 215);
 }
 
 .contact-detail-line--stale {
