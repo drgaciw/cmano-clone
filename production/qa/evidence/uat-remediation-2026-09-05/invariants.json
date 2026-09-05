@@ -1,0 +1,41 @@
+{
+  "baseCommit": "46485600b180577f7739b40b6ef21c5e129fc239",
+  "zeroTouchPaths": [
+    "src/ProjectAegis.Delegation.UnityAdapter/Bridge/DelegationBridge.cs",
+    "src/ProjectAegis.Data/WriteGate/CatalogWriteGate.cs"
+  ],
+  "changedZeroTouchPaths": [],
+  "changedGoldenOrPolicyPaths": [],
+  "goldenHash": "17144800277401907079",
+  "hashFoundPaths": [
+    "data/scenarios\\baltic-patrol-opp-hold-fire.policy.json",
+    "tests/regression\\replay-golden-baltic-combat-domains-2026-06-18.txt",
+    "tests/regression\\replay-golden-baltic-catalog-2026-06-02.txt",
+    "tests/regression\\replay-golden-baltic-kill-checkpoints-2026-06-02.txt",
+    "tests/regression\\replay-golden-baltic-replay-2026-06-02.txt",
+    "tests/regression\\replay-golden-baltic-mission-2026-06-02.txt",
+    "tests/regression\\README.md",
+    "tests/regression\\replay-golden-baltic-replay-checkpoints-2026-06-02.txt",
+    "tests/regression\\replay-golden-baltic-engage-2026-06-02.txt",
+    "tests/regression\\replay-golden-baltic-destroyed-reengage-2026-06-22.txt",
+    "tests/regression\\replay-golden-baltic-v2-theater-2026-06-22.txt",
+    "tests/regression\\replay-golden-baltic-v2-patrol-2026-06-22.txt",
+    "tests/regression\\replay-golden-baltic-v2-mission-event-2026-06-22.txt",
+    "tests/regression\\replay-golden-baltic-v2-patrol-band-c-2026-06-22.txt",
+    "tests/regression\\replay-golden-baltic-v2-patrol-band-b-2026-06-22.txt",
+    "tests/regression\\replay-golden-baltic-v2-patrol-mission-v2-2026-06-22.txt",
+    "tests/regression\\replay-golden-baltic-destroyed-reengage-merged.txt",
+    "data/scenarios\\scenario-policy-ids.md"
+  ],
+  "remainingEditorReadyDefines": [],
+  "payloadPaths": [
+    "unity/ProjectAegis/Assets/Scripts/Runtime/C2TopBarPanelHost.cs",
+    "unity/ProjectAegis/Assets/Scripts/Runtime/C2LeftDrawerPanelHost.cs",
+    "unity/ProjectAegis/Assets/Scripts/Runtime/RightUnitPanelHost.cs",
+    "unity/ProjectAegis/Assets/Tests/C2DelegationSmokeTests.cs",
+    "unity/ProjectAegis/Assets/Tests/MapSymbolPoolTests.cs",
+    "unity/ProjectAegis/Assets/Tests/SliceAContactPanelSmokeTests.cs",
+    "src/ProjectAegis.Delegation.UnityAdapter.Tests/Bridge/C2TopBarBeginExecutionTests.cs",
+    "src/ProjectAegis.Delegation.UnityAdapter.Tests/Presentation/UiIaSelectionSyncOracleTests.cs"
+  ]
+}

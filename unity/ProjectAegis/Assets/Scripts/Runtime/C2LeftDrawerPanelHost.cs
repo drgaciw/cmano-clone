@@ -2,6 +2,7 @@
 // S38-04 C2/Platform polish residual (density/filters from S37 carry): part of C2 track. Per sprint-38 + qa-plan + polish-scope-boundary-2026-06-19.md (lean, isolated).
 // CMD-23: collapsible body via C2ChromeCollapseState + prefs bag on bridge host.
 #if UNITY_5_3_OR_NEWER
+using System.Collections.Generic;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using UnityEngine;
@@ -55,6 +56,7 @@ namespace ProjectAegis.Unity.Runtime
         private SensorC2PanelState _contactState = new("EMCON: —", "TRACK: —", "CONTACTS: 0", Array.Empty<SensorC2ContactRow>());
         private C2PlanningChromeState _planningChrome = new(false, false, SimulationPhase.Planning);
         private LeftDrawerPresentation _oobPresentation = LeftDrawerPresentation.Empty;
+        private readonly int[] _oobSelectionIndex = new int[1];
         private bool _wired;
 
         /// <summary>True while drawer tabs are view-only during <see cref="SimulationPhase.Planning"/> (S30-07).</summary>
@@ -259,22 +261,34 @@ namespace ProjectAegis.Unity.Runtime
                     }
 
                     label.userData = row.UnitId;
-                    label.UnregisterCallback<ClickEvent>(OnOobRowClicked);
-                    label.RegisterCallback<ClickEvent>(OnOobRowClicked);
                 }
                 else if (listView == _missionList && index >= 0 && index < _missionState.MissionRows.Count)
                 {
                     label.text = _missionState.MissionRows[index].DisplayLine;
                 }
             };
+            if (listView == _oobList)
+            {
+                listView.selectionType = SelectionType.Single;
+                listView.selectionChanged -= OnOobSelectionChanged;
+                listView.selectionChanged += OnOobSelectionChanged;
+            }
         }
 
-        private void OnOobRowClicked(ClickEvent evt)
+        private void OnOobSelectionChanged(IEnumerable<object> _)
         {
-            if (evt.currentTarget is Label { userData: string unitId } && bridgeHost != null)
+            if (_oobList == null || bridgeHost == null)
             {
-                bridgeHost.SelectUnit(unitId);
+                return;
             }
+
+            var index = _oobList.selectedIndex;
+            if (index < 0 || index >= _oobState.UnitRows.Count)
+            {
+                return;
+            }
+
+            bridgeHost.SelectUnit(_oobState.UnitRows[index].UnitId);
         }
 
         private void OnOobRowKeyDown(KeyDownEvent evt)
@@ -394,11 +408,48 @@ namespace ProjectAegis.Unity.Runtime
                 _oobList.Rebuild();
                 _missionList.Rebuild();
                 _contactList.Rebuild();
+                SyncOobListSelection();
             }
 
             ApplyPlanningChrome();
             ApplyMasterVisibility();
             ApplyChromeCollapse();
+        }
+
+        private void SyncOobListSelection()
+        {
+            if (_oobList == null)
+            {
+                return;
+            }
+
+            var selectedIndex = -1;
+            var selectedUnitId = bridgeHost.SelectedUnitId;
+            if (selectedUnitId != null)
+            {
+                for (var index = 0; index < _oobState.UnitRows.Count; index++)
+                {
+                    if (_oobState.UnitRows[index].UnitId == selectedUnitId)
+                    {
+                        selectedIndex = index;
+                        break;
+                    }
+                }
+            }
+
+            if (_oobList.selectedIndex == selectedIndex)
+            {
+                return;
+            }
+
+            if (selectedIndex < 0)
+            {
+                _oobList.SetSelectionWithoutNotify(Array.Empty<int>());
+                return;
+            }
+
+            _oobSelectionIndex[0] = selectedIndex;
+            _oobList.SetSelectionWithoutNotify(_oobSelectionIndex);
         }
 
         private void ApplyMasterVisibility()
