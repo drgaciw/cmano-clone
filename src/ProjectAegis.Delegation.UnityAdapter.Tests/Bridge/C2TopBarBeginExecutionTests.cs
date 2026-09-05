@@ -125,6 +125,29 @@ public sealed class C2TopBarBeginExecutionTests
         Assert.That(host, Does.Not.Contain("Bridge.BeginExecution()"));
     }
 
+    [Test]
+    public void C2_top_bar_refresh_waits_for_bridge_host_initialization()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var hostPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Scripts",
+            "Runtime",
+            "C2TopBarPanelHost.cs");
+        var host = File.ReadAllText(hostPath);
+        var refreshStart = host.IndexOf("private void Refresh()", StringComparison.Ordinal);
+        var projectionRead = host.IndexOf("var state = bridgeHost.LastTopBar;", refreshStart, StringComparison.Ordinal);
+        var refreshBody = host[refreshStart..projectionRead];
+
+        Assert.That(refreshBody, Does.Contain("bridgeHost.Bridge == null"),
+            "OnEnable can run before DelegationBridgeHost.Awake; Refresh must wait for Bridge initialization.");
+    }
+
     private static string? FindRepoRoot()
     {
         var dir = AppContext.BaseDirectory;

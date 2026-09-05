@@ -16,6 +16,58 @@ namespace ProjectAegis.Unity.Tests
     public sealed class SliceAContactPanelSmokeTests
     {
         [UnityTest]
+        public IEnumerator Top_bar_enable_before_bridge_awake_waits_then_binds_live_clock()
+        {
+            var composition = new GameObject("top-bar-composition-test");
+            var view = new GameObject("top-bar-lifecycle-test");
+            var settings = ScriptableObject.CreateInstance<PanelSettings>();
+            var theme = ScriptableObject.CreateInstance<ThemeStyleSheet>();
+            settings.themeStyleSheet = theme;
+            composition.SetActive(false);
+            try
+            {
+                var host = composition.AddComponent<DelegationBridgeHost>();
+                var document = view.AddComponent<UIDocument>();
+                document.panelSettings = settings;
+                var panel = view.AddComponent<C2TopBarPanelHost>();
+                panel.enabled = false;
+                var root = new VisualElement { name = "c2-topbar-root" };
+                foreach (var name in new[]
+                {
+                    "sim-time-label", "phase-label", "compression-label", "mode-label", "score-label",
+                    "compression-slower-button", "compression-faster-button", "pause-resume-button",
+                })
+                {
+                    root.Add(name.EndsWith("button")
+                        ? new Button { name = name }
+                        : new Label { name = name });
+                }
+
+                document.rootVisualElement.Add(root);
+                typeof(C2TopBarPanelHost).GetField("bridgeHost", BindingFlags.Instance | BindingFlags.NonPublic)!
+                    .SetValue(panel, host);
+
+                panel.enabled = true;
+                yield return null;
+
+                composition.SetActive(true);
+                yield return null;
+                Assert.That(host.TrySetTimeAcceleration(4, out var reason), Is.True, reason);
+                yield return null;
+
+                Assert.That(root.Q<Label>("compression-label").text, Is.EqualTo("TIME: 4x"));
+                LogAssert.NoUnexpectedReceived();
+            }
+            finally
+            {
+                Object.Destroy(view);
+                Object.Destroy(composition);
+                Object.Destroy(settings);
+                Object.Destroy(theme);
+            }
+        }
+
+        [UnityTest]
         public IEnumerator Contact_panel_binds_once_per_frame_and_clears_on_unit_selection()
         {
             var composition = new GameObject("slice-a-composition-test");

@@ -239,7 +239,7 @@ namespace ProjectAegis.Unity.Runtime
 
         private void Refresh()
         {
-            if (!_wired || bridgeHost == null)
+            if (!_wired || bridgeHost == null || bridgeHost.Bridge == null)
             {
                 return;
             }

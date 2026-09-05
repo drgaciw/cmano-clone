@@ -1,0 +1,1 @@
+{"status":"success","structured":{"result":{"Summary":{"Status":"Passed","TotalTests":9,"PassedTests":1,"FailedTests":0,"SkippedTests":0,"Duration":"00:00:00.1958809"},"Results":[{"Name":"ProjectAegis.Unity.Tests.C2DelegationSmokeTests.Left_drawer_oob_selection_returns_from_contact_to_friendly_unit","Status":"Passed","Duration":"00:00:00.1600000"}]}}}

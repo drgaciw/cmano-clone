@@ -1,6 +1,6 @@
 # Game Requirements - Master Index
 
-**Last Updated:** 2026-09-02
+**Last Updated:** 2026-09-05
 
 **Program note:** **Corpus maturity W0–W4 complete (2026-07-08)** — hub + drafts 13–21 honesty re-baselined; design: `docs/superpowers/specs/2026-07-08-requirements-corpus-maturity-design.md`. Historical review verdicts (2026-05-29 CONCERNS) were superseded by W0–W4 APPROVED reviews (2026-07-08). Scenario editor (req 11), ME Phase 2, and PE complete on trunk; active post-editor hygiene and forward continuous engineering. Live status pointers: [`docs/reports/`](../docs/reports/) latest sprint roadmap and [`production/qa/`](../production/qa/). Post-MVP Requirements Program (Sprints 11–15) complete for docs 01–12 Template A. Doc 21 Platform Editor is first-class under Authoring.
 
@@ -11,6 +11,9 @@
 - [Data population (CMAODB)](Data-Population-CMAODB.md)
 
 ## Traceability
+
+- [SYM-MIL-01 — Military Tactical symbology](drafts/2026-09-05-military-tactical-symbology.md) — Draft addition to REQ-20; NTDS / APP-6 / MIL-STD-2525 mapping and acceptance criteria.
+- [SYM-CIV-01 — Custom Civilian-Friendly gameplay symbology](drafts/2026-09-05-civilian-gameplay-symbology.md) — Draft addition to REQ-20; accessible alternate profile, with civilian-scope assumption recorded.
 
 - [Research → Requirements Traceability](research-traceability.md) — maps `docs/research/*.md` to requirement docs (May 29, 2026)
 - [CMO Manual Traceability Matrix](cmo-manual-traceability.md) — maps `docs/manual/` sections to requirement docs
