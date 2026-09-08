@@ -107,15 +107,15 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             if (bridgeHost == null || bridgeHost.Bridge == null) return;
-            var frame = bridgeHost.LastCombatFrame;
-            var selected = bridgeHost.Presentation.CombatInspection.SelectedKey;
+            var frame = bridgeHost.DisplayCombatFrame;
+            var selected = bridgeHost.DisplayCombatKey;
             if (ReferenceEquals(frame, _lastFrame) && selected == _lastSelection
                 && bridgeHost.SelectedUnitId == _lastUnit && bridgeHost.SelectedContactId == _lastContact) return;
             _lastFrame = frame;
             _lastSelection = selected;
             _lastUnit = bridgeHost.SelectedUnitId;
             _lastContact = bridgeHost.SelectedContactId;
-            LastCombatDetail = bridgeHost.ProjectCombatDetail();
+            LastCombatDetail = bridgeHost.ProjectReviewCombatDetail();
             _last = new EngageExplain(LastCombatDetail.StatusLine, null,
                 string.Join("\n", LastCombatDetail.WeaponLine, LastCombatDetail.HardConstraintsLine,
                     LastCombatDetail.PolicyLine, LastCombatDetail.ConfidenceLine, LastCombatDetail.FiringSolutionLine,

@@ -85,7 +85,7 @@ public sealed class MapCanvasTransientEffectsRendererContractTests
         Assert.That(host, Does.Contain("LastCombatVfx = CombatVfxProjection.Project"));
         Assert.That(host, Does.Contain("LastMapSymbols"));
         Assert.That(map, Does.Contain("CombatMapView"));
-        Assert.That(map, Does.Contain("LastCombatFrame"));
+        Assert.That(map, Does.Contain("DisplayCombatFrame"));
         Assert.That(host, Does.Contain("LastCombatFrame = CombatPresentationFrameBridge.Build"));
         Assert.That(projection, Does.Contain("PkDraw"));
         Assert.That(projection, Does.Contain("ignored"));
