@@ -1,6 +1,8 @@
 # Project Aegis — Project Dashboard
 
-Living dashboard. Latest archive: [dashboard-snapshots/2026-07-13-pm.md](dashboard-snapshots/2026-07-13-pm.md) · [HTML](dashboard-snapshots/2026-07-13-pm.html).
+Living dashboard. Latest scoped update: [Unity UX/UI Slice G, 2026-09-08](dashboard-snapshots/2026-09-08-slice-g.md). Latest full-project archive: [2026-07-13-pm.md](dashboard-snapshots/2026-07-13-pm.md) · [HTML](dashboard-snapshots/2026-07-13-pm.html).
+
+**2026-09-08:** Slice G planning is tracked by [DRG-233](https://linear.app/drgamtd-workspace/issue/DRG-233), with G1-G3 in DRG-234 through DRG-236. See the [dated roadmap](future-sprint-roadmap-09082026.md) for dependencies and evidence limits. Fresh checks passed: 3,216 solution tests, 24 proxy smoke and six canonical replay tests; build 0 warnings/errors. Slice C owner acceptance and GitNexus recovery remain open. The July dashboard content below is preserved as historical context and was not re-audited by this scoped update.
 
 **Note:** Requested `2026-07-10-pm.md` was not present on disk (latest prior archive: [2026-07-09-am.md](2026-07-09-am.md)). This file is the **latest PM dashboard snapshot** after post-editor hygiene (S89–S92), S93 asset wave, and max-variance **QA gauntlet** smoke.
 

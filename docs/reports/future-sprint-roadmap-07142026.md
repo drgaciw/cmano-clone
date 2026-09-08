@@ -1,4 +1,7 @@
 # Future Sprint Roadmap — Project Aegis (cmano-clone)
+
+> **2026-09-08 bounded update:** [Unity UX/UI Slice G](future-sprint-roadmap-09082026.md) adds the new slice and its audit dependencies. This July snapshot retains its historical numbered-sprint scope; consult Linear for current delivery status.
+
 > **Parallel-Agentic Edition — Post–S93 + Gauntlet Land (S94+ Release Continuity)**
 
 > **Status:** Living document. Authored **2026-07-14**; supersedes planning intent in [`future-sprint-roadpmap-07092026.md`](future-sprint-roadpmap-07092026.md) (2026-07-09 S89–S92 hygiene + S93 forward note, now archived as completed program).
