@@ -54,29 +54,29 @@ public sealed class SelectionSet : IReadOnlySelectionSet
     public string? PrimaryUnitId => _ordered.Count > 0 ? _ordered[0] : null;
 
     /// <summary>True if <paramref name="unitId"/> is currently selected.</summary>
-    public bool Contains(string? unitId) => !string.IsNullOrEmpty(unitId) && _lookup.Contains(unitId!);
+    public bool Contains(string? unitId) => !string.IsNullOrEmpty(unitId) && _lookup.Contains(unitId);
 
     /// <summary>Add a unit to the set. No-op if already present or null/empty. Returns true if added.</summary>
     public bool Add(string? unitId)
     {
-        if (string.IsNullOrEmpty(unitId) || !_lookup.Add(unitId!))
+        if (string.IsNullOrEmpty(unitId) || !_lookup.Add(unitId))
         {
             return false;
         }
 
-        _ordered.Add(unitId!);
+        _ordered.Add(unitId);
         return true;
     }
 
     /// <summary>Remove a unit from the set. Returns true if it was present.</summary>
     public bool Remove(string? unitId)
     {
-        if (string.IsNullOrEmpty(unitId) || !_lookup.Remove(unitId!))
+        if (string.IsNullOrEmpty(unitId) || !_lookup.Remove(unitId))
         {
             return false;
         }
 
-        _ordered.Remove(unitId!);
+        _ordered.Remove(unitId);
         return true;
     }
 

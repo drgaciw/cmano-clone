@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Delegation.Projection;
@@ -151,22 +152,32 @@ public sealed class PlatformCatalogViewerTests
         Assert.That(uxml, Does.Contain("selection-type=\"Single\""));
     }
 
-    [Test]
-    public void Selected_row_detail_projection_matches_browse_row_values()
+    [TestCase("en-US")]
+    [TestCase("fr-FR")]
+    public void Selected_row_detail_projection_matches_browse_row_values(string cultureName)
     {
-        var rows = BalticBrowseRows();
-        var selected = rows.Single(r => r.PlatformId == "hostile-1");
+        var previousCulture = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(cultureName);
+            var rows = BalticBrowseRows();
+            var selected = rows.Single(r => r.PlatformId == "hostile-1");
 
-        var detail = PlatformCatalogDetailProjection.Format(selected);
+            var detail = PlatformCatalogDetailProjection.Format(selected);
 
-        Assert.That(detail.LatLabel, Does.Contain(selected.LatDeg!.Value.ToString()));
-        Assert.That(detail.LonLabel, Does.Contain(selected.LonDeg!.Value.ToString()));
-        Assert.That(detail.CombatRadiusLabel, Does.Contain(selected.CombatRadiusNm!.Value.ToString()));
-        Assert.That(detail.MaxHpLabel, Is.EqualTo("HP: —"));
-        Assert.That(detail.ResilienceLabel, Is.EqualTo("RESILIENCE: —"));
-        Assert.That(detail.WithdrawThresholdLabel, Is.EqualTo("WITHDRAW: —"));
-        Assert.That(detail.CriticalFlagsLabel, Is.EqualTo("FLAGS: —"));
-        Assert.That(detail.MaxSpeedLabel, Is.EqualTo("SPEED: —"));
+            Assert.That(detail.LatLabel, Does.Contain(selected.LatDeg!.Value.ToString("G", CultureInfo.InvariantCulture)));
+            Assert.That(detail.LonLabel, Does.Contain(selected.LonDeg!.Value.ToString("G", CultureInfo.InvariantCulture)));
+            Assert.That(detail.CombatRadiusLabel, Does.Contain(selected.CombatRadiusNm!.Value.ToString("G", CultureInfo.InvariantCulture)));
+            Assert.That(detail.MaxHpLabel, Is.EqualTo("HP: —"));
+            Assert.That(detail.ResilienceLabel, Is.EqualTo("RESILIENCE: —"));
+            Assert.That(detail.WithdrawThresholdLabel, Is.EqualTo("WITHDRAW: —"));
+            Assert.That(detail.CriticalFlagsLabel, Is.EqualTo("FLAGS: —"));
+            Assert.That(detail.MaxSpeedLabel, Is.EqualTo("SPEED: —"));
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previousCulture;
+        }
     }
 
     [Test]

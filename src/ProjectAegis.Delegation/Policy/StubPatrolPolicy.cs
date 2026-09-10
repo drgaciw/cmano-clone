@@ -1,9 +1,9 @@
 namespace ProjectAegis.Delegation.Policy;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Traits;
+using Core;
+using Decision;
+using Sim;
+using Traits;
 
 public sealed class StubPatrolPolicy : IPolicy
 {

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Decision;
+using Decision;
 
 /// <summary>Rebuilds facility capacity picture from seed entries plus order-log damage projection.</summary>
 public static class FacilityPictureProjection

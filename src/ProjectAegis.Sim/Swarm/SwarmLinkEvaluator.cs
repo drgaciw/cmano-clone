@@ -28,7 +28,7 @@ public static class SwarmLinkEvaluator
             return SwarmLinkState.Lost;
         }
 
-        if (rangeToHostDeg is not double range)
+        if (rangeToHostDeg is not { } range)
         {
             // No host geometry — treat as connected for free-flying swarms without host bind.
             return SwarmLinkState.Connected;

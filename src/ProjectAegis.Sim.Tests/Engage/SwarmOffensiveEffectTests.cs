@@ -22,6 +22,16 @@ public sealed class SwarmOffensiveEffectTests
     }
 
     [Fact]
+    public void Scale_preserves_public_linear_tuning_contract_and_exact_outputs()
+    {
+        Assert.Equal(1.0, SwarmOffensiveEffect.ScaleFactorPower);
+        Assert.Equal(0.0, SwarmOffensiveEffect.MinLivingScale);
+        Assert.Equal(1.25, SwarmOffensiveEffect.Scale(10.0, droneCount: 1, maxDrones: 8));
+        Assert.Equal(5.0, SwarmOffensiveEffect.Scale(10.0, droneCount: 4, maxDrones: 8));
+        Assert.Equal(10.0, SwarmOffensiveEffect.Scale(10.0, droneCount: 8, maxDrones: 8));
+    }
+
+    [Fact]
     public void Scale_is_monotonic_non_decreasing_in_drone_count()
     {
         const double baseEffect = 10.0;

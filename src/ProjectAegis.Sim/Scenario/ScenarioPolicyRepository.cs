@@ -1,7 +1,6 @@
 namespace ProjectAegis.Sim.Scenario;
 
 using ProjectAegis.Data.Scenario;
-using ProjectAegis.Data.Scenario.Policy;
 
 /// <summary>Resolves <see cref="ScenarioPolicyProfile"/> from Data-layer JSON index + built-ins.</summary>
 public static class ScenarioPolicyRepository

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 /// <summary>
 /// Resolves selected-unit envelope ranges from catalog weapon rows and platform sensor fittings (meters → nm).

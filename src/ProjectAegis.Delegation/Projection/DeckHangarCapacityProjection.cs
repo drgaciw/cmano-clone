@@ -205,9 +205,9 @@ public static class DeckHangarCapacityProjection
         int? sortieRatePerHour)
     {
         var dTotal = Math.Max(0, deckTotal);
-        var dOcc = Math.Clamp(deckOccupied, 0, dTotal > 0 ? dTotal : Math.Max(0, deckOccupied));
+        int dOcc;
         var hTotal = Math.Max(0, hangarTotal);
-        var hOcc = Math.Clamp(hangarOccupied, 0, hTotal > 0 ? hTotal : Math.Max(0, hangarOccupied));
+        int hOcc;
         // Allow occupied to report raw when total is 0 (no capacity declared) — band stays Open.
         if (dTotal > 0)
         {
@@ -237,7 +237,7 @@ public static class DeckHangarCapacityProjection
             HangarSpotsTotal: hTotal,
             HangarSpotsOccupied: hOcc,
             ReadyOnDeck: ready,
-            SortieRatePerHour: sortieRatePerHour is int s && s >= 0 ? s : null,
+            SortieRatePerHour: sortieRatePerHour is { } s && s >= 0 ? s : null,
             CapacityBand: band,
             DeckOccupancyPct: ComputeOccupancyPct(dOcc, dTotal),
             HangarOccupancyPct: ComputeOccupancyPct(hOcc, hTotal));

@@ -1,6 +1,5 @@
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Sim.Engage;
-using ProjectAegis.Sim.Glossary;
 using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.Tests.Projection;

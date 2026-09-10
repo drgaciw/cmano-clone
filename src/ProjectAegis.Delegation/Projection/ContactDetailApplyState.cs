@@ -37,7 +37,7 @@ public static class ContactDetailApplyState
         }
 
         var entry = ContactDetailProjection.Project(
-            contactId!,
+            contactId,
             contacts,
             currentSimTick,
             bdaLifecycleOverride);

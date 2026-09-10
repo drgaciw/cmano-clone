@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
 using System.Globalization;
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 /// <summary>ADR-011 Phase G/H: read-only comms fitting list lines for platform catalog viewer.</summary>
 public static class PlatformCommsListProjection

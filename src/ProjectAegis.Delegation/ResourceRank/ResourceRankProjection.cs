@@ -2,7 +2,7 @@ namespace ProjectAegis.Delegation.ResourceRank;
 
 using System.Globalization;
 using System.Text;
-using ProjectAegis.Delegation.Projection;
+using Projection;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
@@ -200,12 +200,11 @@ public static class ResourceRankProjection
                 ResourceRankScores.Zero);
         }
 
-        var scores = ComputeScores(in input, in ctx, availability, roundsAvailable, salvo);
+        var scores = ComputeScores(in ctx, availability, roundsAvailable, salvo);
         return new EvaluatedCandidate(input, ResourceRankDisposition.Preferred, scores, null, string.Empty);
     }
 
     private static ResourceRankScores ComputeScores(
-        in ResourceRankCandidateInput input,
         in EngageContext ctx,
         ResourceRankAvailabilityFacts availability,
         int roundsAvailable,

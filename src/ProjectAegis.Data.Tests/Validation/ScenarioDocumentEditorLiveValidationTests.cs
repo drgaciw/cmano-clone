@@ -3,6 +3,8 @@ using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Data.Validation;
 using Xunit;
 
+namespace ProjectAegis.Data.Tests.Validation;
+
 public sealed class ScenarioDocumentEditorLiveValidationTests
 {
     [Fact]

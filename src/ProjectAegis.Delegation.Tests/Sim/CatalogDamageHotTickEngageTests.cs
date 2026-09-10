@@ -1,4 +1,3 @@
-using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Orchestration;
@@ -9,7 +8,6 @@ using ProjectAegis.Delegation.Tests.Helpers;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Catalog;
-using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;

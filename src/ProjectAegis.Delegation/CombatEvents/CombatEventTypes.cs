@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.CombatEvents;
 
-using ProjectAegis.Delegation.Projection;
+using Projection;
 
 /// <summary>Replay-stable combat lifecycle phase for Combat UX Slice B (DRG-211).</summary>
 public enum CombatEventPhase

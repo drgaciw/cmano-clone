@@ -11,4 +11,6 @@ public sealed record CecNodeRegistration(
     double LatDeg,
     double LonDeg,
     bool IsAlive = true,
+    // Public positional contract: retained for construction, deconstruction, and record equality.
+    // ReSharper disable once NotAccessedPositionalProperty.Global
     bool IsSwarm = false);

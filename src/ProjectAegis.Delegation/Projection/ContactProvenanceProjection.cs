@@ -1,9 +1,9 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Decision;
+using Data.Catalog;
+using Data.Scenario.Authoring;
+using Comms;
+using Decision;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>

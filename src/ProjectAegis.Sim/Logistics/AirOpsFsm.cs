@@ -83,7 +83,6 @@ public static class AirOpsFsm
             if (timer > remaining)
             {
                 timer -= remaining;
-                remaining = 0;
                 break;
             }
 

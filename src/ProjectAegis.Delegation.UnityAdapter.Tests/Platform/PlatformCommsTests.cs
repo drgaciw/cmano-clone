@@ -346,50 +346,11 @@ public sealed class PlatformCommsTests
                 })
                 .ToArray();
 
-            var rows = sheet.Rows.Append((IReadOnlyList<string>)row).ToArray();
+            var rows = sheet.Rows.Append(row).ToArray();
             return sheet with { Rows = rows };
         }).ToArray();
 
-        return workbook with { Sheets = sheets };
-    }
-
-    private static PlatformWorkbook WithCommsSheetCell(
-        PlatformWorkbook workbook,
-        int rowIndex,
-        string columnName,
-        string value)
-    {
-        var sheets = workbook.Sheets.Select(sheet =>
-        {
-            if (!string.Equals(sheet.Name, "Comms", StringComparison.Ordinal))
-            {
-                return sheet;
-            }
-
-            var colIndex = Array.IndexOf(sheet.Header.ToArray(), columnName);
-            Assert.That(colIndex, Is.GreaterThanOrEqualTo(0), $"Column '{columnName}' missing on Comms.");
-
-            var rows = sheet.Rows.Select((row, i) =>
-            {
-                if (i != rowIndex)
-                {
-                    return row;
-                }
-
-                var cells = row.ToList();
-                while (cells.Count <= colIndex)
-                {
-                    cells.Add(string.Empty);
-                }
-
-                cells[colIndex] = value;
-                return (IReadOnlyList<string>)cells;
-            }).ToArray();
-
-            return sheet with { Rows = rows };
-        }).ToArray();
-
-        return workbook with { Sheets = sheets };
+        return new PlatformWorkbook(sheets);
     }
 
     private static void AssertNoWriteGateTypes(Type projectionType)

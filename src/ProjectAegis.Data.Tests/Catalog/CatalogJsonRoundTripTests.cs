@@ -1,4 +1,3 @@
-using System.Text.Json;
 using ProjectAegis.Data.Catalog;
 using Xunit;
 

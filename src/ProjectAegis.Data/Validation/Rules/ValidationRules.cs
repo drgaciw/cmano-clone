@@ -1,8 +1,8 @@
 namespace ProjectAegis.Data.Validation.Rules;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario;
-using ProjectAegis.Data.Scenario.Authoring;
+using Catalog;
+using Scenario;
+using Scenario.Authoring;
 
 internal static class ValidationRules
 {

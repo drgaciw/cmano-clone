@@ -1,7 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Sim.Scenario;
+using Sim.Scenario;
 
 /// <summary>Headless comms policy snapshot for MCP (req 19).</summary>
 public static class ScenarioCommsStatusCommand

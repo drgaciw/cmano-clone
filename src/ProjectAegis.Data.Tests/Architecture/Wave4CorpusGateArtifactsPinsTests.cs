@@ -14,7 +14,7 @@ public sealed class Wave4CorpusGateArtifactsPinsTests
     {
         var path = ResolveRepoFile("docs", "reports", "requirements-consistency-2026-07-08.md");
         Assert.True(path != null, "Could not locate docs/reports/requirements-consistency-2026-07-08.md");
-        var text = File.ReadAllText(path!);
+        var text = File.ReadAllText(path);
 
         // Accept plain or bold markdown form of the gate verdict.
         Assert.True(
@@ -33,7 +33,7 @@ public sealed class Wave4CorpusGateArtifactsPinsTests
         Assert.True(
             path != null,
             "Could not locate production/qa/requirements-corpus-w4-design-review-2026-07-08.md");
-        var text = File.ReadAllText(path!);
+        var text = File.ReadAllText(path);
 
         // Sample docs 01, 04, 14, 21 (by number or title) and APPROVED verdict.
         Assert.True(
@@ -67,7 +67,7 @@ public sealed class Wave4CorpusGateArtifactsPinsTests
         Assert.True(
             epicPath != null,
             "Could not locate production/epics/requirements-corpus-maturity/EPIC.md");
-        var epic = File.ReadAllText(epicPath!);
+        var epic = File.ReadAllText(epicPath);
 
         Assert.Contains("Complete", epic, StringComparison.Ordinal);
         // Story 005 row must be Complete (wave 4 corpus gate).
@@ -77,7 +77,7 @@ public sealed class Wave4CorpusGateArtifactsPinsTests
                 l.Contains("005", StringComparison.Ordinal) &&
                 l.Contains("story-005", StringComparison.Ordinal));
         Assert.True(story005Line != null, "EPIC.md must list story 005 / story-005");
-        Assert.Contains("Complete", story005Line!, StringComparison.Ordinal);
+        Assert.Contains("Complete", story005Line, StringComparison.Ordinal);
 
         var storyPath = ResolveRepoFile(
             "production",
@@ -87,7 +87,7 @@ public sealed class Wave4CorpusGateArtifactsPinsTests
         Assert.True(
             storyPath != null,
             "Could not locate production/epics/requirements-corpus-maturity/story-005-corpus-gate.md");
-        var story = File.ReadAllText(storyPath!);
+        var story = File.ReadAllText(storyPath);
         Assert.Contains("Status", story, StringComparison.Ordinal);
         Assert.Contains("Complete", story, StringComparison.Ordinal);
     }
@@ -97,7 +97,7 @@ public sealed class Wave4CorpusGateArtifactsPinsTests
     {
         var path = ResolveRepoFile("Game-Requirements", "implementation-tracker-2026-07-04.md");
         Assert.True(path != null, "Could not locate implementation-tracker-2026-07-04.md");
-        var text = File.ReadAllText(path!);
+        var text = File.ReadAllText(path);
 
         // Program note: W0–W4 (en-dash or hyphen) complete language.
         Assert.True(
@@ -113,8 +113,8 @@ public sealed class Wave4CorpusGateArtifactsPinsTests
             .Split('\n')
             .FirstOrDefault(l => l.Contains("| 10b |", StringComparison.Ordinal));
         Assert.True(tenBLine != null, "Tracker row for | 10b | not found");
-        Assert.Contains("Phase N", tenBLine!, StringComparison.Ordinal);
-        Assert.DoesNotContain("Implemented (S54)", tenBLine!, StringComparison.Ordinal);
+        Assert.Contains("Phase N", tenBLine, StringComparison.Ordinal);
+        Assert.DoesNotContain("Implemented (S54)", tenBLine, StringComparison.Ordinal);
     }
 
     private static string? ResolveRepoFile(params string[] relativeSegments)

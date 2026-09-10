@@ -45,7 +45,7 @@ public sealed class TrackCustodyProjectionTests
         var log = new DecisionLog();
         log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Classified"));
 
-        var staleTick = 1UL + (ulong)KillChainContactStateProjection.DefaultStaleThresholdTicks + 1;
+        var staleTick = 1UL + KillChainContactStateProjection.DefaultStaleThresholdTicks + 1;
         var snapshot = TrackCustodyProjection.Project(log, currentSimTick: staleTick);
 
         var row = snapshot.Rows[0];
@@ -66,7 +66,7 @@ public sealed class TrackCustodyProjectionTests
         var log = new DecisionLog();
         log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Classified"));
 
-        var dropTick = 1UL + (ulong)KillChainContactStateProjection.DefaultDropThresholdTicks + 1;
+        var dropTick = 1UL + KillChainContactStateProjection.DefaultDropThresholdTicks + 1;
         var snapshot = TrackCustodyProjection.Project(log, currentSimTick: dropTick);
 
         var row = snapshot.Rows[0];

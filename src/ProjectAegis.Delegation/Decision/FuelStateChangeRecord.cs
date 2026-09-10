@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>Order-log fuel band transition (logistics GDD / MagazineChange parity).</summary>
 public sealed record FuelStateChangeRecord(

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Engage;
 
-using ProjectAegis.Sim.Core;
+using Core;
 
 /// <summary>Deterministic hit/miss after launch using Combat RNG domain (combat-outcomes MVP).</summary>
 public static class CombatOutcomeResolver

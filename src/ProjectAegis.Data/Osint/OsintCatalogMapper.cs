@@ -1,7 +1,4 @@
 using ProjectAegis.Data.Catalog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ProjectAegis.Data.Osint;
 

@@ -3,7 +3,7 @@ namespace ProjectAegis.MissionEditor.Cli;
 using System;
 using System.IO;
 using System.Text.Json;
-using ProjectAegis.Data.Scenario.Authoring;
+using Data.Scenario.Authoring;
 
 /// <summary>
 /// CLI surface for AC-7 event debugger JSON (S84-01).

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.CdeAssess;
 
-using ProjectAegis.Delegation.Projection;
+using Projection;
 
 /// <summary>Advisory collateral-risk classification for CDE assess (DRG-220). Not an authorization verdict.</summary>
 public enum CdeAssessRiskKind

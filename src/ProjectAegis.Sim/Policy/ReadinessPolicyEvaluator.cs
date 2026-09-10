@@ -1,8 +1,8 @@
 namespace ProjectAegis.Sim.Policy;
 
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Catalog;
-using ProjectAegis.Sim.Scenario;
+using Catalog;
+using Scenario;
 
 /// <summary>
 /// Req-16/21 bounded readiness evaluation: merges scenario launch readiness with catalog withdraw trials.

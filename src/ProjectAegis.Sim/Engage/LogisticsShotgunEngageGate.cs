@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Engage;
 
-using ProjectAegis.Sim.Logistics;
+using Logistics;
 
 /// <summary>
 /// Soft logistics gate: when remaining ordnance is in the Shotgun band, multi-salvo

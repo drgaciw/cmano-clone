@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Controllers;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
+using Core;
+using Decision;
 
 public sealed class HumanController : IController
 {

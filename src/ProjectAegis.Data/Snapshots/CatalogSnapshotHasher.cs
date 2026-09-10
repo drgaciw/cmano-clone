@@ -3,7 +3,7 @@ namespace ProjectAegis.Data.Snapshots;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 /// <summary>Deterministic SHA-256 fingerprint over sorted catalog sensor rows (P2-3).</summary>
 public static class CatalogSnapshotHasher

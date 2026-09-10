@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.CommandReview;
 
 using NUnit.Framework;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Projection;
+using Core;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 

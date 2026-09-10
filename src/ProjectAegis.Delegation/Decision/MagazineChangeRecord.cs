@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>Order-log row for magazine consumption (logistics GDD / doc 17).</summary>
 public sealed record MagazineChangeRecord(

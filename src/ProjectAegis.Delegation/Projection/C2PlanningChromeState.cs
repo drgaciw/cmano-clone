@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Orchestration;
+using Orchestration;
 
 /// <summary>
 /// Read-only planning-phase chrome flags for C2 map and left drawer (S30-07).

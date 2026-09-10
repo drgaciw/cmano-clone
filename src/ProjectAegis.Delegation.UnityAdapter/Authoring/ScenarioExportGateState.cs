@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Authoring;
 
-using ProjectAegis.Data.Validation;
+using Data.Validation;
 
 /// <summary>
 /// Export-gate state derived from a live validation report, shaped for a UI to render without

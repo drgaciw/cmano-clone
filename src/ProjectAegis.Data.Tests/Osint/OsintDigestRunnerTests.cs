@@ -32,6 +32,7 @@ public sealed class OsintDigestRunnerTests
         Assert.All(proposals, p => Assert.True(p.RelevanceScore >= 0.65));
         var (p2, l2) = runner.Run(discoveries);
         Assert.Equal(proposals.Select(p => p.CanonicalId), p2.Select(p => p.CanonicalId));
+        Assert.Equal(logOnly.Select(r => r.CanonicalId), l2.Select(r => r.CanonicalId));
     }
 
     [Fact]

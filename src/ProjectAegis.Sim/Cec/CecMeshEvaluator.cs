@@ -30,7 +30,7 @@ public static class CecMeshEvaluator
             return CecMeshState.OutOfMesh;
         }
 
-        if (!hasPeerInRange || bestPeerRangeDeg is not double range)
+        if (!hasPeerInRange || bestPeerRangeDeg is not { } range)
         {
             return CecMeshState.OutOfMesh;
         }

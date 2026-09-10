@@ -1,8 +1,8 @@
 namespace ProjectAegis.Sim.Catalog;
 
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Engage;
-using ProjectAegis.Sim.Scenario;
+using Engage;
+using Scenario;
 
 /// <summary>
 /// ADR-009 bounded hot-tick catalog damage apply — ledger mutation + withdraw trial refresh.

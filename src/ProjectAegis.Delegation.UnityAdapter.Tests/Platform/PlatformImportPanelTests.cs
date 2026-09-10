@@ -394,13 +394,13 @@ public sealed class PlatformImportPanelTests
                 }
 
                 cells[colIndex] = value;
-                return (IReadOnlyList<string>)cells;
+                return cells;
             }).ToArray();
 
             return sheet with { Rows = rows };
         }).ToArray();
 
-        return workbook with { Sheets = sheets };
+        return new PlatformWorkbook(sheets);
     }
 
     private static int FindSheetRow(
@@ -457,13 +457,13 @@ public sealed class PlatformImportPanelTests
                 }
 
                 cells[colIndex] = value;
-                return (IReadOnlyList<string>)cells;
+                return cells;
             }).ToArray();
 
             return sheet with { Rows = rows };
         }).ToArray();
 
-        return workbook with { Sheets = sheets };
+        return new PlatformWorkbook(sheets);
     }
 
     private static string? FindBridgeSourcePath()

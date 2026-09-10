@@ -24,7 +24,7 @@ public sealed class ScenarioPolicyBalanceTelemetryJsonTests
     {
         var repoRoot = FindRepoRoot();
         Assert.NotNull(repoRoot);
-        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-balance-drift.policy.json");
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-balance-drift.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
 
         Assert.Equal("baltic-patrol-balance-drift", profile.Id);

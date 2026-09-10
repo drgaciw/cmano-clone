@@ -67,8 +67,10 @@ public sealed class AdjudicationWorkspace
     /// <summary>Pure deterministic before/after diff computation from snapshots + reason.</summary>
     public AdjudicationDiff ComputeDiff(AdjudicationSnapshot before, AdjudicationSnapshot after, string reason)
     {
-        if (before == null || after == null)
-            throw new ArgumentNullException("Snapshots required for diff");
+        if (before is null)
+            throw new ArgumentNullException(nameof(before));
+        if (after is null)
+            throw new ArgumentNullException(nameof(after));
         if (string.IsNullOrWhiteSpace(reason))
             reason = "unspecified umpire intervention";
 

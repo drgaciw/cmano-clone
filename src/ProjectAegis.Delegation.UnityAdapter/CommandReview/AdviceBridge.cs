@@ -1,10 +1,10 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.ResourceRank;
-using ProjectAegis.Delegation.SensorToShooter;
-using ProjectAegis.Delegation.Skills;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using Projection;
+using ResourceRank;
+using SensorToShooter;
+using Skills;
+using Bridge;
 
 /// <summary>Builds tick-bound advisory facts without advancing or mutating simulation state.</summary>
 public static class AdviceBridge

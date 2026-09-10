@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Excel;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Platform;
+using Catalog;
+using Platform;
 
 /// <summary>
 /// Req-21 PLE-1.2: canonical allowed string lists for known platform-workbook enum columns.

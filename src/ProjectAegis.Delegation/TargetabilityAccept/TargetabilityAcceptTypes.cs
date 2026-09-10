@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.TargetabilityAccept;
 
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.SensorToShooter;
-using ProjectAegis.Delegation.Skills;
+using Projection;
+using SensorToShooter;
+using Skills;
 
 /// <summary>Slice A acceptance disposition for a contact track.</summary>
 public enum TargetabilityAcceptDisposition

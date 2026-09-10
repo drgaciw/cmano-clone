@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Validation;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario.Authoring;
+using Catalog;
+using Scenario.Authoring;
 
 /// <summary>
 /// Headless export gate (sole gate for export/play/simulate per ADR-008 / GDD).

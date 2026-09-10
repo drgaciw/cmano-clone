@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Import;
 
-using ProjectAegis.Data.Telemetry;
-using ProjectAegis.Data.WriteGate;
+using Telemetry;
+using WriteGate;
 
 /// <summary>
 /// S31-09: advisory-only balance drift evaluation for nightly approve summary JSON.

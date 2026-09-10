@@ -2,8 +2,8 @@ namespace ProjectAegis.Delegation.C2Nodes;
 
 using System.Globalization;
 using System.Text;
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Decision;
+using Comms;
+using Decision;
 
 /// <summary>
 /// DRG-213: folds authored mission-package definitions plus order-log membership and
@@ -89,8 +89,7 @@ public static class MissionPackageProjection
                     elementDef,
                     platformAlive,
                     commsState,
-                    damageByUnit,
-                    currentSimTick);
+                    damageByUnit);
 
                 var correlationSequenceId = ResolveCorrelationSequenceId(
                     elementDef.PlatformUnitId,
@@ -217,8 +216,7 @@ public static class MissionPackageProjection
         PackageElementDefinition elementDef,
         IReadOnlyDictionary<string, bool> platformAlive,
         CommsState commsState,
-        IReadOnlyDictionary<string, PlatformDamageChangeRecord> damageByUnit,
-        ulong currentSimTick)
+        IReadOnlyDictionary<string, PlatformDamageChangeRecord> damageByUnit)
     {
         if (!platformAlive.TryGetValue(elementDef.PlatformUnitId, out var alive) || !alive)
         {

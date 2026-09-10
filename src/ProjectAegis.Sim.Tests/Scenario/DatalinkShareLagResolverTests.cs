@@ -19,7 +19,7 @@ public sealed class DatalinkShareLagResolverTests
     {
         var repoRoot = FindRepoRoot();
         Assert.NotNull(repoRoot);
-        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-datalink-lag.policy.json");
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-datalink-lag.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
 
@@ -35,7 +35,7 @@ public sealed class DatalinkShareLagResolverTests
     {
         var repoRoot = FindRepoRoot();
         Assert.NotNull(repoRoot);
-        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-datalink.policy.json");
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-datalink.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
 
@@ -65,7 +65,7 @@ public sealed class DatalinkShareLagResolverTests
     {
         var repoRoot = FindRepoRoot();
         Assert.NotNull(repoRoot);
-        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol.policy.json");
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
 

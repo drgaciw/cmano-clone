@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>Human-issued order row (C1 / order-log-replay).</summary>
 public sealed record PlayerOrderRecord(

@@ -1,7 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli.Tests;
 
 using System.Text.Json;
-using ProjectAegis.MissionEditor.Cli;
+using Cli;
 using Xunit;
 
 /// <summary>

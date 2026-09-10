@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Snapshots;
 
 using Microsoft.Data.Sqlite;
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 /// <summary>Reads catalog snapshot and release-train metadata (req-06 P0).</summary>
 public sealed class DbSnapshotStore : IDisposable

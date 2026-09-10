@@ -3,7 +3,7 @@ using ProjectAegis.Data.Catalog;
 namespace ProjectAegis.Data.Platform;
 
 using System.Globalization;
-using ProjectAegis.Data.Validation;
+using Validation;
 
 /// <summary>
 /// Req-21 / ADR-011 PLE-4.*: deterministic fitting validation over an edited workbook. Cross-sheet

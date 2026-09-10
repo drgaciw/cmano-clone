@@ -33,7 +33,7 @@ public sealed class GauntletT2EscortPassiveEmconStandinTests
         var dto = JsonSerializer.Deserialize<ScenarioPolicyJsonDto>(AllOnesPolicy, Options);
         Assert.NotNull(dto);
         Assert.False(
-            HasReducedPassiveStandIn(dto!),
+            HasReducedPassiveStandIn(dto),
             "origin/main defect shape: every (basePd, envMask) pair is (1.0, 1.0)");
     }
 
@@ -42,12 +42,12 @@ public sealed class GauntletT2EscortPassiveEmconStandinTests
     {
         var dir = ScenarioDataPaths.TryResolveScenariosDirectory();
         Assert.NotNull(dir);
-        var path = Path.Combine(dir!, "gauntlet-t2-escort-passive.policy.json");
+        var path = Path.Combine(dir, "gauntlet-t2-escort-passive.policy.json");
         Assert.True(File.Exists(path), path);
 
         var dto = JsonSerializer.Deserialize<ScenarioPolicyJsonDto>(File.ReadAllText(path), Options);
         Assert.NotNull(dto);
-        Assert.Equal("gauntlet-t2-escort-passive", dto!.Id);
+        Assert.Equal("gauntlet-t2-escort-passive", dto.Id);
         Assert.NotNull(dto.Detection);
         Assert.NotEmpty(dto.Detection);
 

@@ -1,7 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Snapshots;
+using Data.Snapshots;
 
 /// <summary>S32-07 / DBI-4.5 / S65-03 (Baltic v2): read-only deterministic diff between two release versions.
 /// Hardened/extended for Baltic v2 corpus (10 v2 policies, 9 v2 goldens from S64); v2 domain hashes/scenarios in output.

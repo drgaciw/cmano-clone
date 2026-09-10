@@ -2,7 +2,6 @@ namespace ProjectAegis.Delegation.UnityAdapter.Tests.Baltic;
 
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using NUnit.Framework;
-using ProjectAegis.Delegation.Projection;
 
 [TestFixture]
 public sealed class ReplayGoldenBalticInterceptTests

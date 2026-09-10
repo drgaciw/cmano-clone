@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Catalog;
 
-using ProjectAegis.Data.Osint;
+using Osint;
 
 /// <summary>
 /// S30-02: infer per-record TL tier for export-only filtering (read-only path).

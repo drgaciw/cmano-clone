@@ -1,9 +1,9 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Excel;
-using ProjectAegis.Data.Platform;
-using ProjectAegis.Data.WriteGate;
+using Data.Excel;
+using Data.Platform;
+using Data.WriteGate;
 
 /// <summary>
 /// S22-02 / S23-01: platform_diff_xlsx verb (pattern from CatalogImportMarkdownCommand).

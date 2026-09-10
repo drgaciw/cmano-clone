@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Engage;
 
-using ProjectAegis.Sim.Scenario;
+using Scenario;
 
 /// <summary>
 /// ADR-009 bounded gate: blocks engage when catalog-resolved damage trials recommend withdraw.

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Attention;
 
-using ProjectAegis.Delegation.Sim;
+using Sim;
 
 public static class AttentionCalculator
 {

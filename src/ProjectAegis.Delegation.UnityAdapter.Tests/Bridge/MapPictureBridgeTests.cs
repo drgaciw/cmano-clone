@@ -1,12 +1,11 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
-using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using NUnit.Framework;
 
 /// <summary>
 /// Headless dogfood for map presentation bridge (UCA-M5 / DRG-123).
-/// Proves Build is projection-only: snapshot + registry + log → IReadOnlyList<MapSymbolEntry>.
+/// Proves Build is projection-only: snapshot + registry + log → <c>IReadOnlyList&lt;MapSymbolEntry&gt;</c>.
 /// </summary>
 [TestFixture]
 public sealed class MapPictureBridgeTests
@@ -56,7 +55,7 @@ public sealed class MapPictureBridgeTests
         var a = MapPictureBridge.Build(snapshot, bridge.Registry, bridge.Orchestrator.DecisionLog, 3);
         var b = MapPictureBridge.Build(snapshot, bridge.Registry, bridge.Orchestrator.DecisionLog, 3);
 
-        Assert.That(a, Is.InstanceOf<IReadOnlyList<ProjectAegis.Delegation.Projection.MapSymbolEntry>>());
+        Assert.That(a, Is.InstanceOf<IReadOnlyList<Projection.MapSymbolEntry>>());
         Assert.That(a.Select(s => s.SymbolId).ToArray(), Is.EqualTo(b.Select(s => s.SymbolId).ToArray()));
         Assert.That(a, Has.Count.EqualTo(2));
     }
@@ -92,9 +91,9 @@ public sealed class MapPictureBridgeTests
     {
         var bridge = new DelegationBridge(42, mvpEngagement: false);
         bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
-        var hash = ProjectAegis.Delegation.Projection.MapPictureProjection.Place("u1", 7);
+        var hash = Projection.MapPictureProjection.Place("u1", 7);
         var snapshot = new SimWorldSnapshotStub(contactCount: 0);
-        snapshot.Poses["u1"] = new ProjectAegis.Delegation.Core.UnitKinematicPose(
+        snapshot.Poses["u1"] = new Core.UnitKinematicPose(
             null, null, 0.22f, 0.33f, 90f, 18f);
 
         var symbols = MapPictureBridge.Build(
@@ -115,11 +114,11 @@ public sealed class MapPictureBridgeTests
         var bridge = new DelegationBridge(42, mvpEngagement: false);
         bridge.Registry.RegisterUnit(new EntityKey(1), "u1");
         var snapshot = new SimWorldSnapshotStub(contactCount: 0);
-        snapshot.Poses["u1"] = new ProjectAegis.Delegation.Core.UnitKinematicPose(
+        snapshot.Poses["u1"] = new Core.UnitKinematicPose(
             null, null, 0.2f, 0.2f, 45f, 22f);
         snapshot.Courses["u1"] =
         [
-            new ProjectAegis.Delegation.Core.CourseWaypoint(0.4f, 0.35f),
+            new Core.CourseWaypoint(0.4f, 0.35f),
         ];
 
         var courses = MapPictureBridge.BuildCourses(

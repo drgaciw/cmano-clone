@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.CombatEvents;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
+using Core;
+using Decision;
+using Projection;
 using ProjectAegis.Sim.Policy;
 
 /// <summary>

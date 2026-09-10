@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.CommandReview;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.MissionIntent;
+using Core;
+using MissionIntent;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using NUnit.Framework;
 

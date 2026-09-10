@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Baltic;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Delegation.Projection;
+using Data.Catalog;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Scenario;

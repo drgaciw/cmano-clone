@@ -65,7 +65,7 @@ public static class DeckHangarCapacityApplyState
     {
         var deck = $"{entry.DeckSpotsOccupied}/{entry.DeckSpotsTotal}";
         var hangar = $"{entry.HangarSpotsOccupied}/{entry.HangarSpotsTotal}";
-        var sortie = entry.SortieRatePerHour is int rate
+        var sortie = entry.SortieRatePerHour is { } rate
             ? rate.ToString()
             : DeckHangarCapacityProjection.MissingLabel;
         return

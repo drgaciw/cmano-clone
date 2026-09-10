@@ -150,7 +150,7 @@ public static class CesiumBillboardProjection
     /// </summary>
     public static (double Lat, double Lon) ResolveGeo(MapSymbolEntry symbol, int layoutSeed)
     {
-        if (symbol.Latitude is double lat && symbol.Longitude is double lon)
+        if (symbol.Latitude is { } lat && symbol.Longitude is { } lon)
         {
             return (lat, lon);
         }

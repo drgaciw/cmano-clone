@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Scenario.Authoring;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Validation;
+using Catalog;
+using Validation;
 
 /// <summary>
 /// Pre-export pipeline: apply logged transforms, then run the validation export gate.

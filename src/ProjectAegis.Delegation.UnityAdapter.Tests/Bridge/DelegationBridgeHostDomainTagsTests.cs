@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 using NUnit.Framework;
-using ProjectAegis.Delegation.Projection;
+using Projection;
 
 /// <summary>
 /// Headless tests for domain-tag derivation used by CombatDomainsHotTickHost

@@ -1,8 +1,8 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Agents;
-using ProjectAegis.Data.Catalog;
+using Data.Agents;
+using Data.Catalog;
 
 /// <summary>Headless req-06 database intelligence pipeline report (MCP/CI).</summary>
 public static class CatalogIntelligenceRunCommand
@@ -16,7 +16,7 @@ public static class CatalogIntelligenceRunCommand
     public static int Run(string? databasePath, TextWriter output)
     {
         ICatalogReader catalog;
-        IDisposable? disposable = null;
+        IDisposable? disposable;
         if (!string.IsNullOrWhiteSpace(databasePath) && File.Exists(databasePath))
         {
             var sqlite = new SqliteCatalogReader(Path.GetFullPath(databasePath), "mcp-intelligence");

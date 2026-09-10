@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Decision;
+using Decision;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
 
@@ -10,6 +10,8 @@ public static class LossesScoringProjection
     public const int DefaultPointsPerKill = 100;
     public const int DefaultPenaltyDenial = 5;
 
+    /// <param name="log">Shared decision log containing engagement, magazine, and policy-denial entries.</param>
+    /// <param name="baseScore">Score before kill points and denial penalties are applied.</param>
     /// <param name="scoredSide">
     /// Side the tally is being computed for ("blue"/"red", case-insensitive). The
     /// <see cref="DecisionLog"/> is shared by both sides, so without this a kill the *enemy*

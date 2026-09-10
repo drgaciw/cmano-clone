@@ -28,8 +28,8 @@ public static class EngageAttackOptions
             new AttackOption(
                 "hold-fire",
                 "Hold fire",
-                true,
-                null),
+                true
+            ),
         ];
     }
 }

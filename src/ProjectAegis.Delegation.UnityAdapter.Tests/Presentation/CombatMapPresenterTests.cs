@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Presentation;
 
 using NUnit.Framework;
-using ProjectAegis.Delegation.CombatEvents;
-using ProjectAegis.Delegation.Projection;
+using CombatEvents;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 
 [TestFixture]

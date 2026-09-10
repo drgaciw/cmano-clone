@@ -1,9 +1,9 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Platform;
-using ProjectAegis.Data.Snapshots;
-using ProjectAegis.Data.WriteGate;
+using Data.Catalog;
+using Data.Platform;
+using Data.Snapshots;
+using Data.WriteGate;
 
 /// <summary>
 /// ADR-011 Phase C: headless Unity/CLI bridge for read-only platform workbook export and diff.

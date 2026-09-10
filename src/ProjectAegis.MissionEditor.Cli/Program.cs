@@ -193,10 +193,9 @@ static int RunExportBrief(string[] args)
     return 0;
 }
 
-/// <summary>
-/// scenario_export --path : S83-01 polished export surface. Loads, Prepare via ScenarioExportCommand (manifest + gate), emits JSON summary.
-/// Completes track D command surface. Cites: sprint-83-export-undo-ferry.md S83-01, roadmap-execute-plan-07042026.md, scenario-editor-scope-boundary-2026-07-04.md, qa-plan #5/#13/#14 transitively via editor, AGENTS.md GitNexus pre.
-/// </summary>
+// scenario_export --path: S83-01 polished export surface. Loads and prepares via ScenarioExportCommand,
+// then emits a JSON summary. Completes the track D command surface; see sprint-83-export-undo-ferry.md,
+// roadmap-execute-plan-07042026.md, scenario-editor-scope-boundary-2026-07-04.md, and QA plans 5/13/14.
 static int RunScenarioExport(string[] args)
 {
     string? path = null;
@@ -233,10 +232,10 @@ static int RunScenarioExport(string[] args)
             ok = pkg.Allowed,
             path,
             summary,
-            transformCount = pkg.TransformManifest?.Count ?? 0,
-            validationReportHash = pkg.ValidationReport?.ReportHash,
+            transformCount = pkg.TransformManifest.Count,
+            validationReportHash = pkg.ValidationReport.ReportHash,
             allowed = pkg.Allowed,
-            editVersion = pkg.ExportDocument?.Metadata?.EditVersion,
+            editVersion = pkg.ExportDocument.Metadata?.EditVersion,
         };
         // Always emit machine-readable JSON; non-zero exit when validation blocks export
         // (parity with scenario_export_brief / scenario_simulate_sample).
@@ -1061,7 +1060,7 @@ static int RunOsintSearch(string[] args)
     {
         conn = new FileOsintConnector(fixturePath); // real fixture (or empty if absent)
     }
-    var runner = new OsintDigestRunner(0.65);
+    var runner = new OsintDigestRunner();
     var (proposals, logOnly) = runner.Run(conn.Fetch());
     return McpToolResult.WriteOk(Console.Out, new
     {
@@ -1274,7 +1273,7 @@ static int RunScenarioMigratePreview(string[] args)
         // headless: use representative with legacy unit (no __verif literal)
         var editor = ScenarioDocumentEditor.CreateNew();
         var pre = editor.ComputeFileHash();
-        var (snapId, preHashSnap) = editor.CreateSnapshotForRollback("pre");
+        var (snapId, _) = editor.CreateSnapshotForRollback("pre");
         editor.AddPatrolMission("patrol-legacy-rep", new[] { "legacy-patrol-ship" }, new[] { new ScenarioWaypointDto { Lat = 57.0, Lon = 20.0 } });
         var mid = editor.ComputeFileHash();
         Console.WriteLine(editor.ComparePrePost(pre, mid)); // delta=1 after mutation
@@ -1288,7 +1287,7 @@ static int RunScenarioMigratePreview(string[] args)
     }
     var ed = ScenarioDocumentEditor.Load(path);
     var preHash = ed.ComputeFileHash();
-    var (snapId2, preHashSnap2) = ed.CreateSnapshotForRollback("pre-migration");
+    var (snapId2, _) = ed.CreateSnapshotForRollback("pre-migration");
     Console.WriteLine(ed.PreviewDbMigration(target));
     // rollback demo with real id
     ed.RollbackToSnapshot(snapId2);

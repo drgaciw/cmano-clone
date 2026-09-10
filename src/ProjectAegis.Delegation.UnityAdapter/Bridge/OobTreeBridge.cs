@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Projection;
+using Projection;
 
 /// <summary>
 /// Headless/Unity facade: OOB tree from registry members + snapshot alive state.

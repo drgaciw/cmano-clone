@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Orchestration;
+using Orchestration;
 
 /// <summary>
 /// Projects Planning-phase presentation chrome from session phase (ADR-010 read-only contract).

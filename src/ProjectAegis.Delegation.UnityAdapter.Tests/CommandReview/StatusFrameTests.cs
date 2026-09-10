@@ -1,7 +1,6 @@
 using NUnit.Framework;
 using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
@@ -25,9 +24,9 @@ public sealed class StatusFrameTests
                     new("Identified", "h1", 4, 4.5), true,
                     ContactProvenanceQualityState.Stale | ContactProvenanceQualityState.SilentComms),
             }),
-            ProjectAegis.Delegation.SensorToShooter.SensorToShooterSnapshot.Empty,
+            SensorToShooter.SensorToShooterSnapshot.Empty,
             Array.Empty<ContactPictureEntry>(),
-            new Dictionary<string, ProjectAegis.Delegation.Skills.C2AuthorityProjection>());
+            new Dictionary<string, Skills.C2AuthorityProjection>());
 
         var frame = StatusFrameBridge.Build(bridge, new KnownSnapshot(), contacts);
 
@@ -40,7 +39,7 @@ public sealed class StatusFrameTests
         Assert.That(frame.Emissions.Single(e => e.UnitId == "u1").KnownEmitters, Is.EqualTo(new[] { "radar-a" }));
         Assert.That(frame.ElectronicWarfare.Single(e => e.UnitId == "u1").State, Is.EqualTo(StatusKnowledge.Nominal));
         Assert.That(frame.PlatformDegradation!.Units.Single(u => u.UnitId == "u1").ActiveDegradeCodes,
-            Does.Contain(ProjectAegis.Delegation.PlatformDegrade.PlatformDegradeCode.Sensor));
+            Does.Contain(PlatformDegrade.PlatformDegradeCode.Sensor));
     }
 
     [Test]

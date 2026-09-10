@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>
 /// Per-tick world snapshot supplied by the sim/ECS layer (Unity systems implement this).

@@ -1,8 +1,8 @@
 namespace ProjectAegis.Data.Validation;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Data.Validation.Rules;
+using Catalog;
+using Scenario.Authoring;
+using Rules;
 
 /// <summary>Deterministic v1 validation pipeline (ADR-008). S84 additive: includes EventGraphComplexityRule (ADR-016) for AC-7/11/16 tracks. Cites: scenario-editor-scope-boundary-2026-07-04.md, sprint-84-event-debugger.md, qa-plan-scenario-editor-2026-07-01.md.</summary>
 public sealed class ScenarioValidationEngine : IScenarioValidationEngine

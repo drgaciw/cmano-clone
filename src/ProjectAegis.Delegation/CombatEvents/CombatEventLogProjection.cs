@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.CombatEvents;
 
-using ProjectAegis.Delegation.Decision;
+using Decision;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
 
@@ -71,7 +71,7 @@ public static class CombatEventLogProjection
             Add(events, engagement, victim, correlationId,
                 CombatEventPhase.Authorized,
                 CombatEventProjection.OutcomeAuthorized,
-                ProjectAegis.Delegation.Projection.EngageExplainProjection.CanFireLabel);
+                Projection.EngageExplainProjection.CanFireLabel);
             Add(events, engagement, victim, correlationId,
                 CombatEventPhase.Firing,
                 CombatEventProjection.OutcomeLaunch,
@@ -120,7 +120,7 @@ public static class CombatEventLogProjection
         }
 
         foreach (var denial in log.PolicyDenials
-                     .Where(d => d.SimTime <= simTime && d.AttemptedKind == ProjectAegis.Delegation.Core.OrderKind.Engage)
+                     .Where(d => d.SimTime <= simTime && d.AttemptedKind == Core.OrderKind.Engage)
                      .OrderBy(d => d.SimTick)
                      .ThenBy(d => d.SequenceId))
         {

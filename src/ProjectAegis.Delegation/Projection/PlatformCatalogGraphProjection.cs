@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 /// <summary>PE-UX-W5: format dependency graph lines with focus / search beyond display cap.</summary>
 public static class PlatformCatalogGraphProjection

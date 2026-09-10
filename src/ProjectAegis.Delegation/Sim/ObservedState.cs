@@ -1,7 +1,19 @@
 namespace ProjectAegis.Delegation.Sim;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
+/// <summary>Authoritative state observed at one simulation time.</summary>
+/// <param name="SimTime">Current simulation time.</param>
+/// <param name="ContactCount">Number of observed contacts.</param>
+/// <param name="ActiveEngagementCount">Number of active engagements.</param>
+/// <param name="MemberAlive">Alive state keyed by member target id.</param>
+/// <param name="HasFireControlTrack">Whether a usable fire-control track exists.</param>
+/// <param name="PrimaryHostileContactId">Optional primary hostile contact.</param>
+/// <param name="RadarEmconActive">Whether radar emission control is active.</param>
+/// <param name="PrimaryHostileDestroyed">Whether the primary hostile is destroyed.</param>
+/// <param name="PrimaryBlueForceContactId">Optional primary blue-force contact.</param>
+/// <param name="PrimaryBlueForceContactDestroyed">Whether the primary blue-force contact is destroyed.</param>
+/// <param name="PreferredHostileByShooter">Optional multi-domain map from shooter platform id to preferred hostile platform id. Detection trials populate it so concurrent air, surface, and subsurface engagements do not collapse onto one target.</param>
 public sealed record ObservedState(
     double SimTime,
     int ContactCount,
@@ -13,11 +25,6 @@ public sealed record ObservedState(
     bool PrimaryHostileDestroyed = false,
     TargetId? PrimaryBlueForceContactId = null,
     bool PrimaryBlueForceContactDestroyed = false,
-    /// <summary>
-    /// Optional multi-domain map: shooter platformId → preferred hostile platformId
-    /// (from detection trials). Enables concurrent air/surface/sub engage without
-    /// SwarmSalvoDeconfliction collapsing all blues onto one victim.
-    /// </summary>
     IReadOnlyDictionary<string, string>? PreferredHostileByShooter = null);
 
 public sealed record PerceivedState(

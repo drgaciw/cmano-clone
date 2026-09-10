@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Orchestration;
+using Orchestration;
 
 /// <summary>
 /// CMD-04 / CMD-39 Track A: UI command façade for pause and time compression.
