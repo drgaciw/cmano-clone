@@ -1,5 +1,7 @@
 # Slice C implementation and verification
 
+**Play Mode follow-up:** [Acceptance evidence, 2026-09-08](2026-09-08-slice-c-playmode-acceptance.md) now records actual Unity execution, six passing Play Mode tests, screenshots and a layout correction. The original Editor-unavailable verdict below is historical. Technical smoke passed; owner acceptance remains pending, with the live group-scenario limitation documented in the follow-up. The implementation was committed as `37e6ba6d` after this original report.
+
 Scope: DRG-171–175, DRG-191, DRG-192 and DRG-194 under [DRG-185](https://linear.app/drgamtd-workspace/issue/DRG-185). Implementation follows the [Notion requirements](https://app.notion.com/p/3c1f7cb4e4df810c96b0ea6e32cc6933) and its Agentic, ASBS and IBCS requirements. Existing completed headless foundations DRG-212/217/218/221/223/227/229 remain the domain contracts. Base: `b92b0b3d`; baseline 3,149 passing solution tests.
 
 ## Delivered behavior

@@ -1,0 +1,1 @@
+{"status":"success","structured":{"result":{"Summary":{"Status":"Passed","TotalTests":15,"PassedTests":1,"FailedTests":0,"SkippedTests":0,"Duration":"00:00:00.1934665"},"Results":[{"Name":"ProjectAegis.Unity.Tests.CommandReviewViewTests.Timeline_rows_reuse_buttons_and_document_recreation_binds_while_paused","Status":"Passed","Duration":"00:00:00.0780000"}]}}}

@@ -43,8 +43,15 @@ namespace ProjectAegis.Unity.Runtime
             _root = new Foldout { name = "command-review", text = "Command, learn and adapt", value = false };
             _root.style.backgroundColor = new Color(.035f, .055f, .075f, .96f);
             _root.style.color = Color.white;
+            _root.style.flexShrink = 1;
+            _root.style.minHeight = 24;
+            _root.style.maxHeight = Length.Percent(45);
+            _root.contentContainer.style.flexShrink = 1;
+            _root.contentContainer.style.minHeight = 0;
             _body = new ScrollView();
             _body.style.maxHeight = 320;
+            _body.style.flexShrink = 1;
+            _body.style.minHeight = 0;
             _root.Add(_body);
             _status = new Label { name = "command-review-status" };
             _status.style.whiteSpace = WhiteSpace.Normal;

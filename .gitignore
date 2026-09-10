@@ -153,6 +153,9 @@ worktrees/
 .pytest_cache/
 tools/qa-gauntlet/__pycache__/
 
+# ReSharper command-line reports and caches
+artifacts/resharper/
+
 # Local MCP / language-server captures (never commit)
 .playwright-mcp/
 .serena/

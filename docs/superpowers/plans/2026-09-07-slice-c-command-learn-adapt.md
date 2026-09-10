@@ -29,4 +29,4 @@ Baseline b92b0b3d: prior 3,149 passing tests, 24 smoke, 6 replay goldens. Fresh 
 
 ## Completion evidence
 
-See [Slice C implementation and verification](../reviews/2026-09-08-slice-c-implementation.md). All eight implementation stories and headless acceptance paths are integrated. Unity Play Mode visual acceptance remains pending because Editor MCP is unavailable; this is not a completed visual signoff.
+See [Slice C implementation and verification](../reviews/2026-09-08-slice-c-implementation.md). All eight implementation stories and headless acceptance paths are integrated in `37e6ba6d`. The [Play Mode acceptance package](../reviews/2026-09-08-slice-c-playmode-acceptance.md) now includes actual Editor smoke, six passing Unity tests and screenshots. Technical smoke passed; owner visual signoff remains pending. Positive group/BDA retasking is headless-tested; the Unity smoke scene has no configured group, as documented in that package.
