@@ -1,6 +1,5 @@
 namespace ProjectAegis.Data.Agents;
 
-using ProjectAegis.Data.Catalog;
 
 /// <summary>Req-06 diff agent — surfaces staged write-gate batches (propose-only output).</summary>
 public sealed class CatalogDiffProposalAgent : IDatabaseIntelligenceAgent

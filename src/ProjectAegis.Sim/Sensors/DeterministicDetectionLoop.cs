@@ -1,9 +1,9 @@
 namespace ProjectAegis.Sim.Sensors;
 
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Core;
-using ProjectAegis.Sim.Policy;
-using ProjectAegis.Sim.Scenario;
+using Core;
+using Policy;
+using Scenario;
 
 /// <summary>Tick-4 MVP: sorted detection trials with SeededRng Detection domain.</summary>
 public static class DeterministicDetectionLoop

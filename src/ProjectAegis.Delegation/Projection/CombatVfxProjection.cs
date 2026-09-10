@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Decision;
+using Decision;
 using ProjectAegis.Sim.Engage;
 
 /// <summary>

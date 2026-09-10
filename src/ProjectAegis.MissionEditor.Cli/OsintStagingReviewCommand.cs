@@ -1,7 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.WriteGate;
+using Data.WriteGate;
 
 /// <summary>
 /// Sprint 19: Headless staging review proxy for OSINT proposals (lists pending, supports approve by batch).

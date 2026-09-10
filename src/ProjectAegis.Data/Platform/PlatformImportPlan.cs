@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Platform;
 
-using ProjectAegis.Data.Validation;
+using Validation;
 
 /// <summary>
 /// Req-21 / ADR-011: the pure, side-effect-free result of analysing an edited workbook against its

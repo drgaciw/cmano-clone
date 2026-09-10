@@ -1,9 +1,9 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.CommandReview;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.C2Nodes;
-using ProjectAegis.Delegation.MissionIntent;
+using Controllers;
+using Core;
+using C2Nodes;
+using MissionIntent;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using NUnit.Framework;
@@ -109,7 +109,7 @@ public sealed class CoordinationCommandBridgeTests
     {
         var (bridge, snapshot) = CreateHumanGroup();
         Assert.That(bridge.Registry.TryGetBinding(new EntityKey(2), out var member), Is.True);
-        ((ProjectAegis.Delegation.Targets.UnitTarget)member.Target).SetDetached(true, new TargetId("g1"));
+        ((Targets.UnitTarget)member.Target).SetDetached(true, new TargetId("g1"));
 
         var result = CoordinationCommandBridge.Submit(bridge, snapshot, "g1", CoordinationDecision.Hold);
 

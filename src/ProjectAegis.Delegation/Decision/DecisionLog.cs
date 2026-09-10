@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Decision;
 
 using System.Text;
-using ProjectAegis.Delegation.Hindsight;
+using Hindsight;
 
 public sealed class DecisionLog : IOrderLog
 {
@@ -10,7 +10,6 @@ public sealed class DecisionLog : IOrderLog
     /// <summary>Optional sidecar hook; does not affect append semantics or fingerprints.</summary>
     public IHindsightOrderLogHook? HindsightHook { get; set; }
     private readonly List<AgentDecisionPayload> _agentDecisions = new();
-    private readonly List<ulong> _decisionSequences = new();
     private readonly List<PolicyDenialRecord> _policyDenials = new();
     private readonly List<EngagementRecord> _engagements = new();
     private readonly List<ControllerChangeRecord> _controllerChanges = new();
@@ -77,13 +76,11 @@ public sealed class DecisionLog : IOrderLog
         {
             case OrderLogEntryKind.AgentDecision when entry.Payload is AgentDecisionPayload payload:
                 _agentDecisions.Add(payload);
-                _decisionSequences.Add(sequenceId);
                 AppendChronologicalEntry(sequenceId, OrderLogEntryKind.AgentDecision, payload.SimTime, payload);
                 break;
             case OrderLogEntryKind.AgentDecision when entry.Payload is DecisionRecord legacy:
                 var migrated = AgentDecisionPayload.FromDecisionRecord(legacy, legacy.SimTick);
                 _agentDecisions.Add(migrated);
-                _decisionSequences.Add(sequenceId);
                 AppendChronologicalEntry(sequenceId, OrderLogEntryKind.AgentDecision, legacy.SimTime, migrated);
                 break;
             case OrderLogEntryKind.PolicyDenial when entry.Payload is PolicyDenialRecord denial:

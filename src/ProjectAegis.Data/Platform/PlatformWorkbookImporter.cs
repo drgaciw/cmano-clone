@@ -1,8 +1,8 @@
 namespace ProjectAegis.Data.Platform;
 
 using System.Globalization;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.WriteGate;
+using Catalog;
+using WriteGate;
 
 /// <summary>
 /// Req-21 / ADR-011 PLE-2.* / PLE-3.*: turns an edited workbook into staged write-gate batches.
@@ -398,7 +398,7 @@ public sealed class PlatformWorkbookImporter
     };
 
     private static IReadOnlyList<PlatformImportQuarantineEntry> BuildQuarantineFromFindings(
-        IReadOnlyList<ProjectAegis.Data.Validation.ValidationFinding> findings)
+        IReadOnlyList<Validation.ValidationFinding> findings)
     {
         if (findings.Count == 0)
         {

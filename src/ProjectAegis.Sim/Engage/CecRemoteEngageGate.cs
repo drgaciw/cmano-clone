@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Engage;
 
-using ProjectAegis.Sim.Cec;
+using Cec;
 
 /// <summary>
 /// SWARM-31 / B6b (DRG-103): pure gate for engage-on-remote-data.

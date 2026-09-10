@@ -232,7 +232,7 @@ public sealed class EventGraphPresenter
                 var mid = FirstMissionUnitId(evt);
                 if (!string.IsNullOrWhiteSpace(mid))
                 {
-                    AddListener(listenersByMission, mid!, evt.Id);
+                    AddListener(listenersByMission, mid, evt.Id);
                 }
             }
 

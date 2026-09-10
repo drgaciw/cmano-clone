@@ -1,11 +1,11 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.EmconPosture;
-using ProjectAegis.Delegation.PlatformDegrade;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using Comms;
+using Decision;
+using EmconPosture;
+using PlatformDegrade;
+using Projection;
+using Bridge;
 using ProjectAegis.Sim.Policy;
 
 /// <summary>Explicit knowledge state for a status fact. Unknown is never treated as healthy.</summary>

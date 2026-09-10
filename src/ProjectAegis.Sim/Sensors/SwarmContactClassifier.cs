@@ -29,7 +29,7 @@ public static class SwarmContactClassifier
     /// <summary>Inclusive high end of high-quality ambiguous count band (PossibleSwarm).</summary>
     public const int HighQualityAmbiguousCountMax = 7;
 
-    /// <summary>Additive confidence boost when <paramref name="highResolutionMode"/> is true.</summary>
+    /// <summary>Additive confidence boost when <c>highResolutionMode</c> is true.</summary>
     public const double HighResolutionConfidenceBoost = 0.08;
 
     /// <summary>
@@ -64,7 +64,7 @@ public static class SwarmContactClassifier
             var midCountBar = hiRes
                 ? Math.Max(3, MidCountHintForPossibleSwarm - 1)
                 : MidCountHintForPossibleSwarm;
-            var swarmHint = targetIsSwarmPlatform || (count is int c && c >= midCountBar);
+            var swarmHint = targetIsSwarmPlatform || (count is { } c && c >= midCountBar);
             if (swarmHint)
             {
                 // Mid quality + swarm signal → PossibleSwarm only (not full UasSwarmCloud).
@@ -87,7 +87,7 @@ public static class SwarmContactClassifier
         // High quality (q >= 0.5)
         var isCloud =
             targetIsSwarmPlatform
-            || (count is int n && n >= cloudThreshold);
+            || (count is { } n && n >= cloudThreshold);
 
         if (isCloud)
         {
@@ -101,7 +101,7 @@ public static class SwarmContactClassifier
                     : "high_quality_count_hint_swarm_cloud");
         }
 
-        if (count is int amb
+        if (count is { } amb
             && amb >= HighQualityAmbiguousCountMin
             && amb <= HighQualityAmbiguousCountMax)
         {

@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Targets;
+using Core;
+using Orchestration;
+using Targets;
 
 public sealed class TargetRegistry
 {

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Agents;
 
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 /// <summary>Req-06 agent pipeline step (headless, deterministic — no LLM in tick path).</summary>
 public interface IDatabaseIntelligenceAgent

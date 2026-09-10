@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.Hindsight;
 
 using System.Collections.Concurrent;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
+using Core;
+using Decision;
 
 public sealed class HindsightOrderLogHook : IHindsightOrderLogHook
 {

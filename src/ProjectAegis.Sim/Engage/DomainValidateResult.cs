@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Engage;
 
-using ProjectAegis.Sim.Policy;
+using Policy;
 
 /// <summary>ADR-009 validator outcome mapped to order-log abort codes when denied.</summary>
 public readonly struct DomainValidateResult

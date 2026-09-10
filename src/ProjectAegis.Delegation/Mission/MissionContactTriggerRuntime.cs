@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Mission;
 
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
 

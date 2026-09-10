@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
+using Decision;
+using Orchestration;
 
 public static class C2TopBarProjection
 {

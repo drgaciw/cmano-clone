@@ -1,6 +1,5 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Core;
 
 /// <summary>Deterministic scored-intent serialization for order-log replay (GDD order-log-replay).</summary>
 public static class ScoredIntentFingerprint

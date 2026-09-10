@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
-using ProjectAegis.Delegation.C2Nodes;
-using ProjectAegis.Delegation.MissionIntent;
-using ProjectAegis.Delegation.TaskGroupCoord;
+using C2Nodes;
+using MissionIntent;
+using TaskGroupCoord;
 
 /// <summary>Optional authored facts consumed by the runtime coordination projection.</summary>
 public interface ICoordinationFacts

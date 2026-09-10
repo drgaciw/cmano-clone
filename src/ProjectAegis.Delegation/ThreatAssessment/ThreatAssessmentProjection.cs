@@ -2,7 +2,7 @@ namespace ProjectAegis.Delegation.ThreatAssessment;
 
 using System.Globalization;
 using System.Text;
-using ProjectAegis.Delegation.Projection;
+using Projection;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;

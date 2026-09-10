@@ -1,5 +1,3 @@
-using System;
-using System.Linq;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;

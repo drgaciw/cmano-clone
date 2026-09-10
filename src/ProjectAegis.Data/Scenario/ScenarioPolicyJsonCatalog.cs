@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Scenario;
 
-using ProjectAegis.Data.Scenario.Policy;
+using Policy;
 
 /// <summary>Scenario policy JSON catalog in the Data layer (profiles resolved in Sim via <c>ScenarioPolicyJsonLoader</c>).</summary>
 public static class ScenarioPolicyJsonCatalog

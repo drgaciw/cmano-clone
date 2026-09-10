@@ -3,10 +3,10 @@ namespace ProjectAegis.MissionEditor.Cli.Tests;
 using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Data.Sqlite;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Import;
-using ProjectAegis.Data.Snapshots;
-using ProjectAegis.Data.WriteGate;
+using Data.Catalog;
+using Data.Import;
+using Data.Snapshots;
+using Data.WriteGate;
 using Xunit;
 
 /// <summary>
@@ -28,10 +28,10 @@ public sealed class CatalogReleaseDiffCliArgsTests
 
         try
         {
-            SeedDomainRelease(dbPath, "nightly-sensor-s32-07-cli-positional-from", batchSuffix: "sensor-cli-positional-from");
-            SeedDomainRelease(dbPath, "nightly-platform-s32-07-cli-positional-from", batchSuffix: "platform-cli-positional-from");
-            SeedDomainRelease(dbPath, "nightly-sensor-s32-07-cli-positional-to", batchSuffix: "sensor-cli-positional-to", maxRecords: 12);
-            SeedDomainRelease(dbPath, "nightly-weapon-s32-07-cli-positional-to", batchSuffix: "weapon-cli-positional-to");
+            SeedDomainRelease(dbPath, "nightly-sensor-s32-07-cli-positional-from");
+            SeedDomainRelease(dbPath, "nightly-platform-s32-07-cli-positional-from");
+            SeedDomainRelease(dbPath, "nightly-sensor-s32-07-cli-positional-to", maxRecords: 12);
+            SeedDomainRelease(dbPath, "nightly-weapon-s32-07-cli-positional-to");
 
             using (var store = new DbSnapshotStore(dbPath))
             {
@@ -103,7 +103,6 @@ public sealed class CatalogReleaseDiffCliArgsTests
     private static void SeedDomainRelease(
         string dbPath,
         string releaseVersion,
-        string batchSuffix,
         int maxRecords = 6)
     {
         var markdown = CmoMarkdownImporter.ResolveMiniFixturePath();

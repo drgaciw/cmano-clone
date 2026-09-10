@@ -1,13 +1,12 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.Roe;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Watch;
-using ProjectAegis.Data.Catalog;
+using Core;
+using Decision;
+using Projection;
+using Roe;
+using Sim;
+using Watch;
+using Data.Catalog;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
@@ -17,7 +16,7 @@ using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
 using ProjectAegis.Sim.Telemetry;
 using ProjectAegis.Sim.Time;
-using ProjectAegis.Delegation.Logistics;
+using Logistics;
 
 /// <summary>Headless/interactive session: delegation tick then sim engagement phase.</summary>
 public sealed class SimulationSession
@@ -459,7 +458,7 @@ public sealed class SimulationSession
                 continue;
             }
 
-            var (order, victim) = queued[i];
+            var (_, victim) = queued[i];
             outcomes.Add(new CatalogDamageHotTickApplier.OutcomeApply(
                 victim.Value,
                 results[i].EngagementId,
@@ -732,7 +731,7 @@ public sealed class SimulationSession
                 fallbackRounds,
                 out _);
 
-            if (DefaultMagazineRounds is int policyRounds && policyRounds > 0)
+            if (DefaultMagazineRounds is { } policyRounds && policyRounds > 0)
             {
                 var have = Magazines.GetRounds(request.ShooterUnitId, request.MountId);
                 if (have > policyRounds)

@@ -1,15 +1,14 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Sim.Engage;
+using Core;
+using Decision;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>Builds right-panel unit detail from snapshot, registry, and order log (presentation only).</summary>
 public static class UnitDetailProjection
 {
-    public static UnitDetailEntry? ProjectSelected(
+    public static UnitDetailEntry ProjectSelected(
         TargetId unitId,
         Func<TargetId, bool> isAlive,
         DecisionLog log,

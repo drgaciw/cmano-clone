@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Scenario.Authoring;
 
-using ProjectAegis.Data.Validation;
+using Validation;
 
 /// <summary>
 /// Pure static analysis of scenario events (ME-W2 / AME event graph).
@@ -178,10 +178,10 @@ public static class EventStaticAnalyzer
             if (string.Equals(evt.TriggerType, "MissionComplete", StringComparison.OrdinalIgnoreCase))
             {
                 // Trigger-level MissionComplete: UnitId on first condition is conventional target.
-                var mid = FirstMissionCompleteUnitId(evt) ?? ExtractMissionIdFromTriggerContext(evt);
+                var mid = FirstMissionCompleteUnitId(evt) ?? ExtractMissionIdFromTriggerContext();
                 if (!string.IsNullOrWhiteSpace(mid))
                 {
-                    AddListener(listenersByMission, mid!, evt.Id);
+                    AddListener(listenersByMission, mid, evt.Id);
                 }
             }
 
@@ -273,7 +273,7 @@ public static class EventStaticAnalyzer
     /// When TriggerType is MissionComplete with no usable condition UnitId,
     /// no mission edge is formed (cannot resolve target).
     /// </summary>
-    private static string? ExtractMissionIdFromTriggerContext(ScenarioEventDto evt) => null;
+    private static string? ExtractMissionIdFromTriggerContext() => null;
 
     private static void AddListener(
         Dictionary<string, List<string>> map,

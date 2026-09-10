@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Comms;
 
-using ProjectAegis.Delegation.Decision;
+using Decision;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>Emits deterministic comms transitions from scenario policy (doc 19).</summary>

@@ -1,9 +1,9 @@
 namespace ProjectAegis.Data.Import;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Platform;
-using ProjectAegis.Data.Telemetry;
-using ProjectAegis.Data.WriteGate;
+using Catalog;
+using Platform;
+using Telemetry;
+using WriteGate;
 
 /// <summary>Phase 2 — parse CMO markdown and stage rows through the write gate (no direct SQLite writes).</summary>
 public static class CmoMarkdownImportProposer

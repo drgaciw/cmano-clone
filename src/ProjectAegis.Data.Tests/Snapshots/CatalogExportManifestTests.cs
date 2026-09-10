@@ -29,11 +29,11 @@ public sealed class CatalogExportManifestTests
 
         var meta = workbook.FindSheet(PlatformWorkbookHash.MetaSheetName);
         Assert.NotNull(meta);
-        Assert.Equal("db-20261001-tl0-001", MetaValue(meta!, "DbVersion"));
-        Assert.Equal(CatalogTlTier.Tl2, MetaValue(meta!, "TlTier"));
-        Assert.Equal(CatalogTlTier.CatalogSchemaVersion, MetaValue(meta!, "CatalogSchemaVersion"));
-        Assert.Equal("abc123", MetaValue(meta!, "ContentHash"));
-        Assert.Equal(CatalogTlTier.ExportManifestSchemaVersion, MetaValue(meta!, "ExportSchemaVersion"));
+        Assert.Equal("db-20261001-tl0-001", MetaValue(meta, "DbVersion"));
+        Assert.Equal(CatalogTlTier.Tl2, MetaValue(meta, "TlTier"));
+        Assert.Equal(CatalogTlTier.CatalogSchemaVersion, MetaValue(meta, "CatalogSchemaVersion"));
+        Assert.Equal("abc123", MetaValue(meta, "ContentHash"));
+        Assert.Equal(CatalogTlTier.ExportManifestSchemaVersion, MetaValue(meta, "ExportSchemaVersion"));
     }
 
     [Fact]

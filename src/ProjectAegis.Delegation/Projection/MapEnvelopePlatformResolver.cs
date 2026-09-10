@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 /// <summary>
 /// Maps scenario unit ids to catalog platform ids for envelope range lookup (DRG-160 / #495).

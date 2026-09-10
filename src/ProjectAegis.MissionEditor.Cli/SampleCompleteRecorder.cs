@@ -2,7 +2,7 @@ namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using ProjectAegis.Data.Scenario.Authoring;
+using Data.Scenario.Authoring;
 
 /// <summary>AC-5 integration record emitted after a successful headless sample run.</summary>
 public static class SampleCompleteRecorder

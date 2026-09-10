@@ -1,8 +1,8 @@
 namespace ProjectAegis.Data.Catalog;
 
 using Microsoft.Data.Sqlite;
-using ProjectAegis.Data.Platform;
-using ProjectAegis.Data.Snapshots;
+using Platform;
+using Snapshots;
 
 /// <summary>SQLite-backed catalog reader; applies migrations on open.</summary>
 public sealed class SqliteCatalogReader : ICatalogReader, IDisposable

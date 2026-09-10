@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Trust;
 
-using ProjectAegis.Delegation.Decision;
+using Decision;
 
 public static class TrustSignalEmitter
 {

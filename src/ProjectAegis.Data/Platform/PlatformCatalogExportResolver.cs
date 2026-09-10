@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Platform;
 
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 /// <summary>
 /// Req-21 / PLE-1.3: resolve <see cref="PlatformCatalogExportData"/> from a bound catalog snapshot.

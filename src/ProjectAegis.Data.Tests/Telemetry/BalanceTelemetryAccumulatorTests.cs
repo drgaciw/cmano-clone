@@ -106,7 +106,7 @@ public sealed class BalanceTelemetryAccumulatorTests
             CatalogSeedBootstrap.SeedBalticPatrol(dbPath, overwrite: true);
             using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(42));
             // Dispose reader before File.Delete — SQLite holds the DB open on Windows otherwise.
-            ProjectAegis.Data.Catalog.CatalogSensorBinding[] bindings;
+            CatalogSensorBinding[] bindings;
             using (var reader = new SqliteCatalogReader(dbPath, "balance-telemetry-test"))
             {
                 bindings = reader.GetSortedSensorBindings().ToArray();
@@ -151,7 +151,7 @@ public sealed class BalanceTelemetryAccumulatorTests
                         break;
                     }
 
-                    System.Threading.Thread.Sleep(50);
+                    Thread.Sleep(50);
                 }
             }
         }

@@ -1,21 +1,18 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Baltic;
 
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario;
+using Comms;
+using Decision;
+using Core;
+using Orchestration;
+using Policy;
+using Sim;
+using Traits;
+using Bridge;
+using Data.Catalog;
 
-using ProjectAegis.Delegation.Mission;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.Replay;
+using Mission;
+using Projection;
+using Replay;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
@@ -692,7 +689,7 @@ public static class BalticReplayHarness
         int startEntityKey,
         SimulationSession? session)
     {
-        var dto = ProjectAegis.Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(scenarioPolicyId);
+        var dto = Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(scenarioPolicyId);
         var units = dto?.Gauntlet?.Units;
         if (units == null || units.Count == 0)
         {

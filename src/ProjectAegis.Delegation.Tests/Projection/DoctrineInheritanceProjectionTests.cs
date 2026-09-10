@@ -18,7 +18,7 @@ public sealed class DoctrineInheritanceProjectionTests
             missionUnitIds: ["u1"]);
         var entry = DoctrineInheritanceProjection.ProjectUnit(new TargetId("u1"), policy, isFriendly: true);
         Assert.That(entry, Is.Not.Null);
-        Assert.That(entry!.EffectiveRoeLabel, Is.EqualTo("ROE: WeaponsTight"));
+        Assert.That(entry.EffectiveRoeLabel, Is.EqualTo("ROE: WeaponsTight"));
         Assert.That(entry.EffectiveMaxSalvoLabel, Is.EqualTo("SALVO: 2"));
         Assert.That(entry.EffectiveEmconLabel, Is.EqualTo("EMCON: ACTIVE"));
         Assert.That(entry.InheritanceSource, Is.EqualTo("SOURCE: Mission"));
@@ -37,7 +37,7 @@ public sealed class DoctrineInheritanceProjectionTests
             missionUnitIds: ["u1"]);
         var entry = DoctrineInheritanceProjection.ProjectUnit(new TargetId("u1"), policy, isFriendly: true);
         Assert.That(entry, Is.Not.Null);
-        Assert.That(entry!.EffectiveRoeLabel, Is.EqualTo("ROE: HoldFire"));
+        Assert.That(entry.EffectiveRoeLabel, Is.EqualTo("ROE: HoldFire"));
         Assert.That(entry.EffectiveMaxSalvoLabel, Is.EqualTo("SALVO: 1"));
         Assert.That(entry.EffectiveEmconLabel, Is.EqualTo("EMCON: ACTIVE"));
         Assert.That(entry.InheritanceSource, Is.EqualTo("SOURCE: Unit Override"));
@@ -51,7 +51,7 @@ public sealed class DoctrineInheritanceProjectionTests
     {
         var entry = DoctrineInheritanceProjection.ProjectUnit(new TargetId("u1"), policy: null, isFriendly: true);
         Assert.That(entry, Is.Not.Null);
-        Assert.That(entry!.EffectiveRoeLabel, Is.EqualTo("ROE: —"));
+        Assert.That(entry.EffectiveRoeLabel, Is.EqualTo("ROE: —"));
         Assert.That(entry.EffectiveEmconLabel, Is.EqualTo("EMCON: —"));
         Assert.That(entry.InheritanceSource, Is.EqualTo("SOURCE: —"));
         Assert.That(entry.OverrideButtonLabel, Is.EqualTo("OVERRIDE: UNAVAILABLE"));
@@ -66,7 +66,7 @@ public sealed class DoctrineInheritanceProjectionTests
             missionUnitIds: ["u1"]);
         var entry = DoctrineInheritanceProjection.ProjectUnit(new TargetId("u2"), policy, isFriendly: true);
         Assert.That(entry, Is.Not.Null);
-        Assert.That(entry!.EffectiveRoeLabel, Is.EqualTo("ROE: WeaponsFree"));
+        Assert.That(entry.EffectiveRoeLabel, Is.EqualTo("ROE: WeaponsFree"));
         Assert.That(entry.InheritanceSource, Is.EqualTo("SOURCE: Scenario Default"));
         Assert.That(entry.IsInheritedFromMission, Is.False);
     }
@@ -79,6 +79,6 @@ public sealed class DoctrineInheritanceProjectionTests
             unitRadarEmcon: new Dictionary<string, EmconState> { ["u1"] = EmconState.Off });
         var entry = DoctrineInheritanceProjection.ProjectUnit(new TargetId("u1"), policy, isFriendly: true);
         Assert.That(entry, Is.Not.Null);
-        Assert.That(entry!.EffectiveEmconLabel, Is.EqualTo("EMCON: OFF"));
+        Assert.That(entry.EffectiveEmconLabel, Is.EqualTo("EMCON: OFF"));
     }
 }

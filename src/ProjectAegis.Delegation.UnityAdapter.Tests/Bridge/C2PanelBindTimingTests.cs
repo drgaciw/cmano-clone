@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 /// <summary>
-/// Headless wall-clock proxy for Unity C2 panel selection bind latency (Req 20: < 100 ms).
+/// Headless wall-clock proxy for Unity C2 panel selection bind latency (Req 20: &lt; 100 ms).
 /// Unity Profiler frame capture is deferred to Editor host — see
 /// <c>production/perf/unity-c2-frame-baseline-s35-2026-06-19.md</c> and
 /// <c>production/perf/c2-panel-bind-bench-wave2-2026-08-01.md</c> (CMD-36 rich path).

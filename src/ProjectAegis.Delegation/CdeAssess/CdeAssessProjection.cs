@@ -1,9 +1,8 @@
 namespace ProjectAegis.Delegation.CdeAssess;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Sim.Policy;
+using Core;
+using Decision;
+using Projection;
 
 /// <summary>
 /// DRG-220: folds explicit engage-assess preview facts, optional range class, CDE withhold facts,

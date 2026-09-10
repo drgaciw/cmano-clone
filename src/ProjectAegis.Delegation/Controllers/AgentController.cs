@@ -1,15 +1,15 @@
 namespace ProjectAegis.Delegation.Controllers;
 
-using ProjectAegis.Delegation.Attention;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Roe;
-using ProjectAegis.Delegation.Sim;
+using Attention;
+using Core;
+using Decision;
+using Orchestration;
+using Policy;
+using Roe;
+using Sim;
 using ProjectAegis.Sim.Policy;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.Trust;
+using Traits;
+using Trust;
 
 public sealed class AgentController : IController
 {

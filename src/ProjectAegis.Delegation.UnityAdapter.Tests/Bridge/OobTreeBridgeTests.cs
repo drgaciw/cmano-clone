@@ -1,8 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 using System;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Projection;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using NUnit.Framework;
 

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Comms;
+using Comms;
 using ProjectAegis.Sim.Scenario;
 
 public static class MapPanelBinder

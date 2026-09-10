@@ -1,11 +1,11 @@
 namespace ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
-using ProjectAegis.Delegation.C2Nodes;
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.MissionIntent;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using C2Nodes;
+using Controllers;
+using Core;
+using Decision;
+using MissionIntent;
+using Bridge;
 
 /// <summary>One deterministic scenario unit and its adapter entity key.</summary>
 public sealed record CoordinationScenarioUnit(EntityKey Entity, string UnitId);

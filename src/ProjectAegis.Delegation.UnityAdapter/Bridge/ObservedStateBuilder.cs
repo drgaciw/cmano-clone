@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Sim;
+using Core;
+using Sim;
 
 public static class ObservedStateBuilder
 {

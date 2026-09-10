@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Data.Validation;
+using Data.Scenario.Authoring;
+using Data.Validation;
 
 /// <summary>
 /// Thin live-editing contract façade (CMD-35).

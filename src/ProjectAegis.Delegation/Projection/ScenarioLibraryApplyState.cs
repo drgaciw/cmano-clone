@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Scenario;
+using Data.Scenario;
 
 /// <summary>
 /// Headless apply path for scenario library presentation (CMD-27).

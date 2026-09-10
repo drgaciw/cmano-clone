@@ -1,25 +1,24 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Groups;
-using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Roe;
-using ProjectAegis.Delegation.Sim;
+using Controllers;
+using Core;
+using Decision;
+using Groups;
+using Policy;
+using Roe;
+using Sim;
 using ProjectAegis.Sim.Policy;
-using SimPolicy = ProjectAegis.Sim.Policy;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.Hindsight;
-using ProjectAegis.Delegation.Trust;
+using Targets;
+using Traits;
+using Hindsight;
+using Trust;
 using ProjectAegis.Sim.Scenario;
 
 public sealed class DelegationOrchestrator
 {
     private readonly List<ICommandableTarget> _targets = new();
     private readonly AutonomyGate _autonomyGate;
-    private readonly SimPolicy.IPolicyEvaluator _policyEvaluator;
+    private readonly IPolicyEvaluator _policyEvaluator;
     private readonly PolicySnapshotRegistry _policySnapshots = new();
     private readonly OverrideService _overrideService = new();
     private readonly DetachRejoinService _detachRejoinService;
@@ -27,14 +26,14 @@ public sealed class DelegationOrchestrator
     private readonly PendingApprovalQueue _pendingApprovalQueue = new();
     private long _orderIdSequence = 1;
 
-    public DelegationOrchestrator(int globalSeed, SimPolicy.IPolicyEvaluator? policyEvaluator = null)
+    public DelegationOrchestrator(int globalSeed, IPolicyEvaluator? policyEvaluator = null)
         : this(globalSeed, policyEvaluator, hindsight: null)
     {
     }
 
     public DelegationOrchestrator(
         int globalSeed,
-        SimPolicy.IPolicyEvaluator? policyEvaluator,
+        IPolicyEvaluator? policyEvaluator,
         HindsightOptions? hindsight)
     {
         GlobalSeed = globalSeed;
@@ -54,7 +53,7 @@ public sealed class DelegationOrchestrator
     /// <summary>Optional Hindsight sidecar; null in CI/replay unless explicitly enabled.</summary>
     public HindsightIntegration? Hindsight { get; }
 
-    public SimPolicy.IPolicyEvaluator PolicyEvaluator => _policyEvaluator;
+    public IPolicyEvaluator PolicyEvaluator => _policyEvaluator;
 
     public EffectivePolicy ResolveEffectivePolicyForUnit(ulong unitId) => ResolvePolicyForUnit(unitId);
 

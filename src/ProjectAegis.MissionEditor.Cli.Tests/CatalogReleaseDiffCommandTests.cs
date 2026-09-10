@@ -4,7 +4,6 @@ using ProjectAegis.Data.Catalog;
 using ProjectAegis.Data.Import;
 using ProjectAegis.Data.Snapshots;
 using ProjectAegis.Data.WriteGate;
-using ProjectAegis.MissionEditor.Cli;
 using Xunit;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;
@@ -19,7 +18,7 @@ public sealed class CatalogReleaseDiffCommandTests
 
         try
         {
-            SeedDomainRelease(dbPath, "nightly-sensor-s32-07-cli-same", batchSuffix: "sensor-cli-same");
+            SeedDomainRelease(dbPath, "nightly-sensor-s32-07-cli-same");
             using (var store = new DbSnapshotStore(dbPath))
             {
                 store.RecordUnifiedRelease(
@@ -59,10 +58,10 @@ public sealed class CatalogReleaseDiffCommandTests
 
         try
         {
-            SeedDomainRelease(dbPath, "nightly-sensor-s32-07-cli-from", batchSuffix: "sensor-cli-from");
-            SeedDomainRelease(dbPath, "nightly-platform-s32-07-cli-from", batchSuffix: "platform-cli-from");
-            SeedDomainRelease(dbPath, "nightly-sensor-s32-07-cli-to", batchSuffix: "sensor-cli-to", maxRecords: 12);
-            SeedDomainRelease(dbPath, "nightly-weapon-s32-07-cli-to", batchSuffix: "weapon-cli-to");
+            SeedDomainRelease(dbPath, "nightly-sensor-s32-07-cli-from");
+            SeedDomainRelease(dbPath, "nightly-platform-s32-07-cli-from");
+            SeedDomainRelease(dbPath, "nightly-sensor-s32-07-cli-to", maxRecords: 12);
+            SeedDomainRelease(dbPath, "nightly-weapon-s32-07-cli-to");
 
             using (var store = new DbSnapshotStore(dbPath))
             {
@@ -114,7 +113,6 @@ public sealed class CatalogReleaseDiffCommandTests
     private static void SeedDomainRelease(
         string dbPath,
         string releaseVersion,
-        string batchSuffix,
         int maxRecords = 6)
     {
         var markdown = CmoMarkdownImporter.ResolveMiniFixturePath();
@@ -124,7 +122,6 @@ public sealed class CatalogReleaseDiffCommandTests
             maxRecords: maxRecords,
             chunkSize: 500,
             clock: new FixedCatalogClock(8000));
-        var batchId = $"{propose.Batches[0].BatchId}-{batchSuffix}";
 
         using var gate = new CatalogWriteGate(dbPath, new FixedCatalogClock(8001));
         Assert.True(gate.ApproveBatch(propose.Batches[0].BatchId, "human", "release-diff-cli-test").Committed);

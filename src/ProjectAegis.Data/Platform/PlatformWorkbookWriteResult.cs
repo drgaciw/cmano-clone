@@ -1,8 +1,8 @@
 namespace ProjectAegis.Data.Platform;
 
-using ProjectAegis.Data.Telemetry;
+using Telemetry;
 
-/// <summary>ADR-011 Phase D: outcome of staging an edited workbook through <see cref="CatalogWriteGate"/>.</summary>
+/// <summary>ADR-011 Phase D: outcome of staging an edited workbook through <see cref="ProjectAegis.Data.WriteGate.CatalogWriteGate"/>.</summary>
 public sealed record PlatformWorkbookWriteResult(
     PlatformImportResult Import,
     bool Proposed,

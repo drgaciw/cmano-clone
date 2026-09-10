@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 
@@ -18,7 +18,7 @@ public sealed record DoctrineInheritanceEntry(
 /// <summary>Builds doctrine inheritance panel state from scenario policy (presentation only).</summary>
 public static class DoctrineInheritanceProjection
 {
-    public static DoctrineInheritanceEntry? ProjectUnit(
+    public static DoctrineInheritanceEntry ProjectUnit(
         TargetId unitId,
         ScenarioPolicyProfile? policy,
         bool isFriendly)
@@ -61,10 +61,7 @@ public static class DoctrineInheritanceProjection
         foreach (var unitId in unitIds.OrderBy(id => id.Value, StringComparer.Ordinal))
         {
             var entry = ProjectUnit(unitId, policy, isFriendly);
-            if (entry != null)
-            {
-                results.Add(entry);
-            }
+            results.Add(entry);
         }
         return results;
     }

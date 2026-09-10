@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 using ProjectAegis.Sim.Engage;
 
 /// <summary>Maps interactive attack menu selection to player orders (req 14 / doc 20).</summary>

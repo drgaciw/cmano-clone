@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Core;
-using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Swarm;
 using Xunit;
 

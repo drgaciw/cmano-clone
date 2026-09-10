@@ -189,7 +189,7 @@ public static class ScenarioStableJsonWriter
             WriteStringIfPresent(w, "parentUnitId", unit.ParentUnitId);
             WriteStringIfPresent(w, "roeOverride", unit.RoeOverride);
             WriteStringIfPresent(w, "emconOverride", unit.EmconOverride);
-            if (unit.DroneCount is int droneCount)
+            if (unit.DroneCount is { } droneCount)
             {
                 w.WriteNumber("droneCount", droneCount);
             }

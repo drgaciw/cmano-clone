@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Sensors;
 
-using ProjectAegis.Sim.Scenario;
+using Scenario;
 
 /// <summary>Resolves effective noise jam strength for a detection trial.</summary>
 public static class ScenarioJamResolver

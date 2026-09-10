@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.PlatformAssistant;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Platform;
+using Catalog;
+using Platform;
 
 /// <summary>relative-scaling + archetype-schema + provenance skills.</summary>
 public static class PlatformRelativeScaler

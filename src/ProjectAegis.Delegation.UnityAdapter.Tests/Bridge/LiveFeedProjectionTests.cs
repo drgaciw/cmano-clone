@@ -1,8 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Projection;
+using Core;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using NUnit.Framework;
 
@@ -140,7 +139,7 @@ public sealed class LiveFeedProjectionTests
     private static IReadOnlyList<GroundFormationInput> BuildGroundInputsFromOob(
         IReadOnlyList<OobTreeEntry> oob)
     {
-        var inputs = new System.Collections.Generic.List<GroundFormationInput>(oob.Count);
+        var inputs = new List<GroundFormationInput>(oob.Count);
         foreach (var entry in oob)
         {
             inputs.Add(new GroundFormationInput(

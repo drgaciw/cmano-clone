@@ -1,5 +1,4 @@
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Import;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;

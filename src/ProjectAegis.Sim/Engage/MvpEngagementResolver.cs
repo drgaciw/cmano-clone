@@ -1,8 +1,8 @@
 namespace ProjectAegis.Sim.Engage;
 
-using ProjectAegis.Sim.Core;
-using ProjectAegis.Sim.Policy;
-using ProjectAegis.Sim.Scenario;
+using Core;
+using Policy;
+using Scenario;
 
 /// <summary>MVP resolver: policy, fire-control track, envelope/DLZ, magazine consumption, combat outcome.</summary>
 public sealed class MvpEngagementResolver : IEngagementResolver

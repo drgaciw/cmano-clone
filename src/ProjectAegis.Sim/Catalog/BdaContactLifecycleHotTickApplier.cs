@@ -1,7 +1,7 @@
 namespace ProjectAegis.Sim.Catalog;
 
-using ProjectAegis.Sim.Engage;
-using ProjectAegis.Sim.Sensors;
+using Engage;
+using Sensors;
 
 /// <summary>
 /// ADR-009 bounded BDA contact lifecycle hook — maps platform damage rows to sim-kernel Lost transitions.

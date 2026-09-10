@@ -1,9 +1,9 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Roe;
+using Core;
+using Decision;
+using Orchestration;
+using Roe;
 using ProjectAegis.Sim.Policy;
 
 /// <summary>Headless doctrine override command handler (req 13 P0, ADR-010).</summary>

@@ -1,5 +1,4 @@
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Excel;
 using ProjectAegis.Data.Osint;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.Snapshots;
@@ -299,7 +298,7 @@ public sealed class CatalogTlExportFilterTests
 
         var meta = workbook.FindSheet(PlatformWorkbookHash.MetaSheetName);
         Assert.NotNull(meta);
-        Assert.Equal(CatalogTlTier.Tl2, MetaValue(meta!, "TlTier"));
+        Assert.Equal(CatalogTlTier.Tl2, MetaValue(meta, "TlTier"));
         Assert.Equal(2, workbook.FindSheet("Sensors")!.Rows.Count);
     }
 

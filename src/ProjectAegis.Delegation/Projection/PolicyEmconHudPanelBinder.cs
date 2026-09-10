@@ -15,14 +15,14 @@ public static class PolicyEmconHudPanelBinder
         var trimmedPolicy = policyLabel?.Trim();
         var policy = string.IsNullOrWhiteSpace(trimmedPolicy)
             ? "POLICY: —"
-            : trimmedPolicy!.StartsWith("POLICY:", StringComparison.Ordinal)
+            : trimmedPolicy.StartsWith("POLICY:", StringComparison.Ordinal)
                 ? trimmedPolicy
                 : $"POLICY: {trimmedPolicy}";
 
         var trimmedEmcon = emconLabel?.Trim();
         var emcon = string.IsNullOrWhiteSpace(trimmedEmcon)
             ? "EMCON: —"
-            : trimmedEmcon!.StartsWith("EMCON:", StringComparison.Ordinal)
+            : trimmedEmcon.StartsWith("EMCON:", StringComparison.Ordinal)
                 ? trimmedEmcon
                 : $"EMCON: {trimmedEmcon}";
         var css = isDenied ? "policy-emcon-hud--denied" : "policy-emcon-hud--nominal";

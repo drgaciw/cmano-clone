@@ -3,8 +3,8 @@ namespace ProjectAegis.Sim.Scenario;
 using System.Text.Json;
 using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Data.Telemetry;
-using ProjectAegis.Sim.Engage;
-using ProjectAegis.Sim.Policy;
+using Engage;
+using Policy;
 
 public static class ScenarioPolicyJsonLoader
 {

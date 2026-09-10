@@ -1,7 +1,7 @@
 namespace ProjectAegis.Sim.Scenario;
 
-using ProjectAegis.Sim.Engage;
-using ProjectAegis.Sim.Policy;
+using Engage;
+using Policy;
 
 /// <summary>Mission/scenario-level ROE defaults (doc 11 / policy GDD inheritance root).</summary>
 public sealed class ScenarioPolicyProfile

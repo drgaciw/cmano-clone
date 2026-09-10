@@ -1,6 +1,6 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
-using ProjectAegis.Data.Scenario.Authoring;
+using Data.Scenario.Authoring;
 
 /// <summary>
 /// Headless MCP/CLI verb <c>orbat_upsert_unit</c> — place or replace an ORBAT unit.

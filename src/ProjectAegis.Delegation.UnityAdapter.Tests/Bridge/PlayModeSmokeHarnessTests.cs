@@ -1,23 +1,21 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Delegation.Projection;
+using Core;
+using Decision;
+using Policy;
+using Sim;
+using Targets;
+using Traits;
+using Data.Catalog;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
-using ProjectAegis.Data.Scenario;
+using Data.Scenario;
+using Data.Platform;
 using ProjectAegis.Data.Scenario.Authoring;
 using System.Text.Json;
 using NUnit.Framework;
@@ -39,7 +37,7 @@ public sealed class PlayModeSmokeHarnessTests
             new SimulationModeProfile(SimulationModeKind.Mixed, PlayerControlsFriendlySide: true),
             friendly: [friendly.Target],
             opposing: [opposing.Target],
-            defaultTraits: ProjectAegis.Delegation.Traits.PersonalityCatalog.All[0].Traits);
+            defaultTraits: PersonalityCatalog.All[0].Traits);
 
         bridge.BeginExecution();
 
@@ -257,14 +255,14 @@ public sealed class PlayModeSmokeHarnessTests
     [Test]
     public void Baltic_graph_surfacing_highlights_and_chain_bind_via_projection()
     {
-        var result = BalticReplayHarness.Run(7, "baltic-patrol", ticks: 3, mvpEngagement: false);
-        // simulate graph data visible via projection (headless); selection highlights would mark chain units
-        var oob = new[] { new OobTreeEntry("u1", true) };
-        var highlights = new[] { "u1", "sen-test", "link-test" }; // from catalog edges in surfacing
-        var oobGraph = OobTreePanelBinder.Bind(oob, "u1", highlights);
-        Assert.That(oobGraph.UnitRows.Any(r => r.DisplayLine.Contains("u1")), Is.True);
-        // chain display would come from C2PresentationController + catalog projection in host
-        Assert.Pass("graph surfacing bind exercised for proxy (C2 18/18+ extension)");
+        var result = BalticReplayHarness.Run(7, "baltic-patrol-classify", ticks: 10, mvpEngagement: false);
+        Assert.That(result.SensorC2.Contacts, Is.Not.Empty);
+        var contactIds = result.SensorC2.Contacts.Select(c => c.ContactId).ToArray();
+        var entries = contactIds.Select(id => new OobTreeEntry(id, true)).ToArray();
+        var oobGraph = OobTreePanelBinder.Bind(entries, null, contactIds);
+        Assert.That(oobGraph.UnitRows, Has.Count.EqualTo(contactIds.Length));
+        Assert.That(oobGraph.UnitRows.All(r => r.StyleClass == "oob-row--graph"), Is.True);
+        Assert.That(oobGraph.UnitRows.All(r => r.DisplayLine.Contains("\u26A1")), Is.True);
     }
 
     [Test]
@@ -282,7 +280,7 @@ public sealed class PlayModeSmokeHarnessTests
         var unitId = new TargetId("u1");
         var entry = DoctrineInheritanceProjection.ProjectUnit(unitId, policy, isFriendly: true);
         Assert.That(entry, Is.Not.Null);
-        var panel = DoctrineInheritancePanelBinder.Bind(entry!);
+        var panel = DoctrineInheritancePanelBinder.Bind(entry);
         Assert.That(panel.RoeLine, Does.Contain("WeaponsTight"));
         Assert.That(panel.SourceLine, Does.Contain("Mission"));
 
@@ -324,7 +322,7 @@ public sealed class PlayModeSmokeHarnessTests
             DoctrineOverrideCommand.TryApply(bridge.Orchestrator, unitId, "HoldFire", simTime: 1.0),
             Is.True);
 
-        var unitKey = ProjectAegis.Delegation.Roe.OrderActionMapper.TargetIdToUlong(unitId);
+        var unitKey = Roe.OrderActionMapper.TargetIdToUlong(unitId);
         Assert.That(
             bridge.Orchestrator.ResolveEffectivePolicyForUnit(unitKey).Roe,
             Is.EqualTo(RoeLevel.HoldFire));
@@ -455,11 +453,11 @@ public sealed class PlayModeSmokeHarnessTests
 
                     var cells = row.ToList();
                     cells[colIndex] = "0.47";
-                    return (IReadOnlyList<string>)cells;
+                    return cells;
                 }).ToArray();
                 return sheet with { Rows = rows };
             }).ToArray();
-            var edited = exported with { Sheets = sheets };
+            var edited = new PlatformWorkbook(sheets);
 
             var propose = PlatformWorkbookWriteBridge.ProposeWorkbook(
                 dbPath,

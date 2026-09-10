@@ -1,7 +1,7 @@
 namespace ProjectAegis.Sim.Catalog;
 
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Policy;
+using Policy;
 
 /// <summary>
 /// Req-21 Phase B: resolves radar EMCON from scenario overrides with catalog posture fallback.
@@ -41,7 +41,6 @@ public static class CatalogRadarEmconResolver
         {
             "off" => EmconState.Off,
             "standby" => EmconState.Passive,
-            "active" => EmconState.Active,
             _ => EmconState.Active,
         };
 }

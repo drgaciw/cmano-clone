@@ -1,11 +1,11 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Excel;
-using ProjectAegis.Data.Platform;
-using ProjectAegis.Data.Snapshots;
-using ProjectAegis.Data.WriteGate;
+using Data.Catalog;
+using Data.Excel;
+using Data.Platform;
+using Data.Snapshots;
+using Data.WriteGate;
 
 /// <summary>
 /// S22-02 / S23-01: platform_export_xlsx verb (pattern from CatalogImportMarkdownCommand).

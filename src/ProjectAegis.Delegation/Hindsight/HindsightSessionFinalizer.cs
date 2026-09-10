@@ -2,8 +2,8 @@ namespace ProjectAegis.Delegation.Hindsight;
 
 using System.Globalization;
 using System.Text;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Trust;
+using Decision;
+using Trust;
 
 public sealed class HindsightSessionFinalizer
 {

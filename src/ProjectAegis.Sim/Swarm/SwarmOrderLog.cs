@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Swarm;
 
-using ProjectAegis.Sim.Core;
+using Core;
 
 /// <summary>Append-only headless swarm order log (SWARM-06). Replay consumes the same rows.</summary>
 public sealed class SwarmOrderLog
@@ -45,14 +45,14 @@ public sealed class SwarmOrderLog
         {
             mix = SimWorldHash.MixLayer(mix, e.SequenceId, SimWorldHash.LayerCore);
             mix = SimWorldHash.MixLayer(mix, e.SimTick, SimWorldHash.LayerCore);
-            mix = SimWorldHash.MixLayer(mix, (ulong)(uint)e.Intent, SimWorldHash.LayerCore);
+            mix = SimWorldHash.MixLayer(mix, (uint)e.Intent, SimWorldHash.LayerCore);
             mix = SimWorldHash.MixLayer(mix, HashString(e.UnitId), SimWorldHash.LayerCore);
-            if (e.TargetLatDeg is double lat)
+            if (e.TargetLatDeg is { } lat)
             {
                 mix = SimWorldHash.MixLayer(mix, DoubleBits(lat), SimWorldHash.LayerCore);
             }
 
-            if (e.TargetLonDeg is double lon)
+            if (e.TargetLonDeg is { } lon)
             {
                 mix = SimWorldHash.MixLayer(mix, DoubleBits(lon), SimWorldHash.LayerCore);
             }

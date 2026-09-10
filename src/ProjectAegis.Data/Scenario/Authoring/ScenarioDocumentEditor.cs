@@ -2,8 +2,8 @@ namespace ProjectAegis.Data.Scenario.Authoring;
 
 using System.Security.Cryptography;
 using System.Text;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Validation;
+using Catalog;
+using Validation;
 
 /// <summary>Mutable scenario document with optimistic concurrency (req 11 / ADR-008).</summary>
 public sealed class ScenarioDocumentEditor
@@ -1108,21 +1108,17 @@ public sealed class ScenarioDocumentEditor
     public (string snapshotId, string state) CreateSnapshotForRollback(string reason)
     {
         var snapId = $"snap-{ComputeFileHash().Substring(0,12)}";
-        _snapshots[snapId] = ToDto(); // real capture for rollback
+        _snapshots[snapId] = CaptureUndoSnapshot();
         return (snapId, $"state hash={ComputeFileHash()} reason={reason}");
     }
     public string RollbackToSnapshot(string snapshotId)
     {
-        if (_snapshots.TryGetValue(snapshotId, out var snap) && snap != null)
+        if (_snapshots.TryGetValue(snapshotId, out var snap))
         {
-            // real restore of full state incl metadata
-            Metadata = snap.Metadata;
-            RestoreCanonicalSections(snap);
-            Missions.Clear();
-            if (snap.Missions != null) Missions.AddRange(snap.Missions);
+            RestoreFromDto(snap);
             return $"reversible migration with snapshot/rollback: restored {snapshotId}";
         }
-        return $"reversible migration with snapshot/rollback: restored {snapshotId}";
+        return $"reversible migration with snapshot/rollback: snapshot {snapshotId} not found; no rollback performed";
     }
     public string ComparePrePost(string preHash, string postHash)
     {

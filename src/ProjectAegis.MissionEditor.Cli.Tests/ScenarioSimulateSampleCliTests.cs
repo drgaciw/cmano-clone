@@ -4,8 +4,8 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
-using ProjectAegis.MissionEditor.Cli;
-using ProjectAegis.Data.Scenario.Authoring;  // S86 gate hygiene: was missing causing CS0103 on clean build (baseline incremental may have masked)
+using Cli;
+using Data.Scenario.Authoring;  // S86 gate hygiene: was missing causing CS0103 on clean build (baseline incremental may have masked)
 using Xunit;
 
 public sealed class ScenarioSimulateSampleCliTests

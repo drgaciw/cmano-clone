@@ -57,6 +57,6 @@ public sealed class ScenarioPolicyJsonRoundTripTests
 
         var dto = JsonSerializer.Deserialize<ScenarioPolicyJsonDto>(json, Options);
         Assert.NotNull(dto);
-        Assert.Equal("ext", dto!.Id);
+        Assert.Equal("ext", dto.Id);
     }
 }

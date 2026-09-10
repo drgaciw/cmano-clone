@@ -1,12 +1,10 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Roe;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
+using Core;
+using Orchestration;
+using Roe;
+using Targets;
+using Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Policy;
 using NUnit.Framework;

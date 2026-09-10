@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Skills;
 
-using ProjectAegis.Delegation.Input;
+using Input;
 
 /// <summary>
 /// DRG-196 contract gate. Pure validation — does not call
@@ -54,7 +54,6 @@ public static class SkillEnvelopeValidator
         {
             SkillLane.Read => ValidateRead(envelope),
             SkillLane.Propose => ValidatePropose(envelope, descriptor),
-            SkillLane.Submit => Fail(ReasonLaneNotAllowed),
             _ => Fail(ReasonLaneNotAllowed),
         };
     }

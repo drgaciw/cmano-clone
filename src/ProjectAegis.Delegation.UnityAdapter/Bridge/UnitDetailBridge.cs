@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
+using Core;
+using Decision;
+using Projection;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>
@@ -83,7 +83,7 @@ public static class UnitDetailBridge
     /// Projects a selected unit detail entry for presentation bind.
     /// </summary>
     /// <exception cref="ArgumentNullException">When snapshot or log is null.</exception>
-    public static UnitDetailEntry? BuildSelected(
+    public static UnitDetailEntry BuildSelected(
         TargetId unitId,
         ISimWorldSnapshot snapshot,
         DecisionLog log,

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Engage;
 
-using ProjectAegis.Sim.Policy;
+using Policy;
 
 /// <summary>ADR-009 mine domain validator: envelope + aspect gate before launch.</summary>
 public sealed class MineAspectDomainValidator : IDomainValidator

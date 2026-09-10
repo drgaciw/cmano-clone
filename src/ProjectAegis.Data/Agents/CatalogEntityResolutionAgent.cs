@@ -1,6 +1,5 @@
 namespace ProjectAegis.Data.Agents;
 
-using ProjectAegis.Data.Catalog;
 
 /// <summary>Req-06 entity resolution — canonical platform_id check (P0 alias table deferred).</summary>
 public sealed class CatalogEntityResolutionAgent : IDatabaseIntelligenceAgent

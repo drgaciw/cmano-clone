@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Baltic;
 
-using ProjectAegis.Delegation.CombatEvents;
+using CombatEvents;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using NUnit.Framework;
 

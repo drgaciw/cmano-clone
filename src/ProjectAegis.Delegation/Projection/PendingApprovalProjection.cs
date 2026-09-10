@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Orchestration;
+using Core;
+using Orchestration;
 
 /// <summary>
 /// DRG-66: presentation projection for the pending-approval queue.

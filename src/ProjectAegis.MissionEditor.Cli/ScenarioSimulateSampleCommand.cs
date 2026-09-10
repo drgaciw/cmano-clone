@@ -5,11 +5,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario;
-using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Data.Validation;
-using ProjectAegis.Delegation.UnityAdapter.Baltic;
+using Data.Catalog;
+using Data.Scenario;
+using Data.Scenario.Authoring;
+using Data.Validation;
+using Delegation.UnityAdapter.Baltic;
 
 /// <summary>
 /// CLI command for AC-2 determinism integration (S85-01).

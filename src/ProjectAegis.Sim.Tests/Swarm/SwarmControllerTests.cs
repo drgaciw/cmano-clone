@@ -91,6 +91,7 @@ public sealed class SwarmControllerTests
 
         // Unauthorized: reassignment of the returned record must not mutate controller state.
         before = before with { DroneCount = 1 };
+        Assert.Equal(1, before.DroneCount);
         Assert.True(controller.TryGetIntegrity("swarm-1", out var stillFull));
         Assert.Equal(40, stillFull.DroneCount);
 

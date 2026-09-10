@@ -1,12 +1,11 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.CommandReview;
 
-using ProjectAegis.Delegation.CombatEvents;
-using ProjectAegis.Delegation.BdaAssess;
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.MissionIntent;
-using ProjectAegis.Delegation.Projection;
+using BdaAssess;
+using Controllers;
+using Core;
+using Decision;
+using MissionIntent;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;

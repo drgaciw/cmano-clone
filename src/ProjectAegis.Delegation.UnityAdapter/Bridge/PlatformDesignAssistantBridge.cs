@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.PlatformAssistant;
-using ProjectAegis.Data.WriteGate;
+using Data.Catalog;
+using Data.PlatformAssistant;
+using Data.WriteGate;
 
 /// <summary>
 /// Thin Unity/CLI host bridge for the Platform Design Assistant.

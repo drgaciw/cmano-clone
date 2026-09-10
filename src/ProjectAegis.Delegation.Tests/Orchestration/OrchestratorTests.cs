@@ -1,6 +1,5 @@
 namespace ProjectAegis.Delegation.Tests.Orchestration;
 
-using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Sim;

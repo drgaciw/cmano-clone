@@ -1,7 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
 using ProjectAegis.Sim.Engage;
-using ProjectAegis.Sim.Glossary;
 
 /// <summary>
 /// CMD-11: plain-language engage refusal / FireAbort explain for unit and contact panels.

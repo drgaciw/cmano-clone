@@ -56,8 +56,7 @@ public sealed class CecMeshController
             registration.CecCapable,
             registration.LatDeg,
             registration.LonDeg,
-            registration.IsAlive,
-            registration.IsSwarm);
+            registration.IsAlive);
 
         if (!_meshStates.ContainsKey(id))
         {
@@ -407,8 +406,7 @@ public sealed class CecMeshController
             bool cecCapable,
             double latDeg,
             double lonDeg,
-            bool isAlive,
-            bool isSwarm)
+            bool isAlive)
         {
             UnitId = unitId;
             SideId = sideId;
@@ -416,7 +414,6 @@ public sealed class CecMeshController
             LatDeg = latDeg;
             LonDeg = lonDeg;
             IsAlive = isAlive;
-            IsSwarm = isSwarm;
         }
 
         public string UnitId { get; }
@@ -425,7 +422,6 @@ public sealed class CecMeshController
         public double LatDeg { get; set; }
         public double LonDeg { get; set; }
         public bool IsAlive { get; set; }
-        public bool IsSwarm { get; }
     }
 
     private sealed record OrganicContribution(

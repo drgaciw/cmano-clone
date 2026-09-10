@@ -478,7 +478,7 @@ public static class CatalogSeedBootstrap
         {
             cmd.Parameters.AddWithValue("$mode", swarm.DefaultMode);
             cmd.Parameters.AddWithValue("$reqHost", swarm.RequiresHost ? 1 : 0);
-            cmd.Parameters.AddWithValue("$hostClasses", swarm.AllowedHostClasses ?? "");
+            cmd.Parameters.AddWithValue("$hostClasses", swarm.AllowedHostClasses);
             cmd.Parameters.AddWithValue("$cec", swarm.CecCapable ? 1 : 0);
         }
 
@@ -488,9 +488,9 @@ public static class CatalogSeedBootstrap
     /// <summary>
     /// Inserts a platform row only when no row exists for <paramref name="platform"/>.PlatformId
     /// (PK is composite with snapshot_id — existence is checked by platform_id alone).
-    /// Returns true when a new row was written.
+    /// Existing rows are left unchanged.
     /// </summary>
-    private static bool InsertPlatformRowIfAbsent(
+    private static void InsertPlatformRowIfAbsent(
         SqliteConnection connection,
         CatalogPlatformEntry platform,
         string? snapshotId = null)
@@ -501,7 +501,7 @@ public static class CatalogSeedBootstrap
             exists.Parameters.AddWithValue("$id", platform.PlatformId);
             if (Convert.ToInt32(exists.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture) > 0)
             {
-                return false;
+                return;
             }
         }
 
@@ -517,7 +517,6 @@ public static class CatalogSeedBootstrap
         cmd.Parameters.AddWithValue("$lon", platform.LonDeg);
         cmd.Parameters.AddWithValue("$radius", platform.CombatRadiusNm);
         cmd.ExecuteNonQuery();
-        return true;
     }
 
     /// <summary>True when platform row is missing or <c>display_name</c> is empty/null.</summary>
@@ -759,31 +758,6 @@ public static class CatalogSeedBootstrap
         cmd.Parameters.AddWithValue("$mount", mountId);
         cmd.Parameters.AddWithValue("$weapon", weaponId);
         cmd.Parameters.AddWithValue("$qty", quantity);
-        cmd.ExecuteNonQuery();
-    }
-
-    private static void InsertMobility(
-        SqliteConnection connection,
-        string platformId,
-        double maxSpeedKnots,
-        double cruiseSpeedKnots,
-        double rangeNm)
-    {
-        using var cmd = connection.CreateCommand();
-        cmd.CommandText =
-            """
-            INSERT OR REPLACE INTO platform_mobility
-                (platform_id, max_speed_knots, cruise_speed_knots, range_nm, review_state, trl_level, value_tier, citation_ref)
-            VALUES ($platform, $max, $cruise, $range, $review, $trl, $tier, $citation)
-            """;
-        cmd.Parameters.AddWithValue("$platform", platformId);
-        cmd.Parameters.AddWithValue("$max", maxSpeedKnots);
-        cmd.Parameters.AddWithValue("$cruise", cruiseSpeedKnots);
-        cmd.Parameters.AddWithValue("$range", rangeNm);
-        cmd.Parameters.AddWithValue("$review", CatalogReviewStates.Approved);
-        cmd.Parameters.AddWithValue("$trl", 9);
-        cmd.Parameters.AddWithValue("$tier", CatalogProvenanceTier.GameplayAbstraction);
-        cmd.Parameters.AddWithValue("$citation", "baltic-seed-mobility");
         cmd.ExecuteNonQuery();
     }
 

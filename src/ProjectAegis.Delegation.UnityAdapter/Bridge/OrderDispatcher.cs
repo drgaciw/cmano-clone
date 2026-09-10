@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 public static class OrderDispatcher
 {

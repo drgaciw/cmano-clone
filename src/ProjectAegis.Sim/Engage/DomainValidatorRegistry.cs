@@ -1,6 +1,5 @@
 namespace ProjectAegis.Sim.Engage;
 
-using ProjectAegis.Sim.Policy;
 
 /// <summary>ADR-009 registry with stable domain ordering (ordinal by CombatDomain).</summary>
 public sealed class DomainValidatorRegistry

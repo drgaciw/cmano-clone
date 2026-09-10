@@ -108,6 +108,6 @@ public sealed class GauntletLadderOracleExpectCalibrationTests
         }
 
         Assert.NotNull(dir);
-        return dir!.FullName;
+        return dir.FullName;
     }
 }
