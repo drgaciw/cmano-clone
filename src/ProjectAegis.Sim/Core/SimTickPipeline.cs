@@ -1,8 +1,8 @@
 namespace ProjectAegis.Sim.Core;
 
-using ProjectAegis.Sim.Engage;
-using ProjectAegis.Sim.Sensors;
-using ProjectAegis.Sim.Time;
+using Engage;
+using Sensors;
+using Time;
 
 /// <summary>ADR-004 tick runner with engagement phase (step 8) wired.</summary>
 public sealed class SimTickPipeline : ISimTickRunner
@@ -100,7 +100,7 @@ public sealed class SimTickPipeline : ISimTickRunner
             {
                 outcomeMix = SimWorldHash.MixLayer(
                     outcomeMix,
-                    SimWorldHash.Fold(r.EngagementId ^ (ulong)r.OutcomeCode[0]),
+                    SimWorldHash.Fold(r.EngagementId ^ r.OutcomeCode[0]),
                     SimWorldHash.LayerCombatOutcome);
             }
         }

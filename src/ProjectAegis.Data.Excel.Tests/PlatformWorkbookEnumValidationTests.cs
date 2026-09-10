@@ -1,5 +1,4 @@
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Excel;
 using Xunit;
 
 namespace ProjectAegis.Data.Excel.Tests;

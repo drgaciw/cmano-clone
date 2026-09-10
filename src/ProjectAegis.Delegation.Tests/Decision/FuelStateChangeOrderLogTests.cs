@@ -1,7 +1,5 @@
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Logistics;
-using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.Tests.Decision;

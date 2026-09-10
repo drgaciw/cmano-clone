@@ -1,6 +1,6 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
-using ProjectAegis.Data.Scenario.Authoring;
+using Data.Scenario.Authoring;
 
 /// <summary>
 /// Headless MCP/CLI verb <c>mission_clone</c> — deep-copy a mission under a new id.

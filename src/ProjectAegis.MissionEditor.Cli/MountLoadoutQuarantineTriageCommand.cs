@@ -1,7 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 /// <summary>S32-03 off-CI curator triage for mount/loadout quarantine child rows.</summary>
 public static class MountLoadoutQuarantineTriageCommand

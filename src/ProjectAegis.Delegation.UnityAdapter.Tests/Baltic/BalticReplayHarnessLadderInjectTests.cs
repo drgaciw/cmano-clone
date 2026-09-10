@@ -67,7 +67,7 @@ public sealed class BalticReplayHarnessLadderInjectTests
         ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
         foreach (var sid in LadderInjectIds)
         {
-            var dto = ProjectAegis.Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(sid);
+            var dto = Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(sid);
             Assert.That(dto, Is.Not.Null, sid);
             var hasComms = dto!.Comms is { Count: > 0 };
             var hasTriggers = dto.Mission?.Triggers is { Count: > 0 };

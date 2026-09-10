@@ -1,7 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 /// <summary>S33-08 / DBI-1.5 / S37-03: read-only deterministic full kill-chain dependency graph export (platform→link + weapon→mount→sensor chains + API).</summary>
 public static class CatalogDependencyGraphCommand

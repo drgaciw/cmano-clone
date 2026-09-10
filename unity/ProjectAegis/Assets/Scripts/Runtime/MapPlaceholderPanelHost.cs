@@ -69,7 +69,13 @@ namespace ProjectAegis.Unity.Runtime
         private MapSymbolPool? _symbolPool;
         private MapCanvasOverlayRenderer? _overlayRenderer;
         private MapCanvasCourseOverlayRenderer? _courseOverlayRenderer;
-        private MapCanvasTransientEffectsRenderer? _transientEffectsRenderer;
+        private CombatMapView? _combatView;
+        private CommandReviewView? _commandReviewView;
+        private CoverageMapView? _coverageView;
+        private bool _dirtyCoverage;
+        private CombatPresentationFrame? _dirtyReviewFrame;
+        private object? _dirtyReviewSections;
+        private string? _dirtyCombatKey;
         private bool _refreshedOnce;
         private IReadOnlyList<MapSymbolEntry>? _dirtySymbolsRef;
         private IReadOnlyList<MapCourseOverlayEntry>? _dirtyCoursesRef;
@@ -142,6 +148,13 @@ namespace ProjectAegis.Unity.Runtime
             Refresh();
         }
 
+        private void OnDestroy()
+        {
+            _commandReviewView?.Dispose();
+            _coverageView?.Dispose();
+            _combatView?.Dispose();
+        }
+
         private void LateUpdate()
         {
             if (!showPanel || bridgeHost == null)
@@ -181,9 +194,14 @@ namespace ProjectAegis.Unity.Runtime
                 _courseOverlayRenderer = _canvas != null
                     ? new MapCanvasCourseOverlayRenderer(_canvas)
                     : null;
-                _transientEffectsRenderer = _canvas != null
-                    ? new MapCanvasTransientEffectsRenderer(_canvas)
+                _combatView?.Dispose();
+                _combatView = _canvas != null
+                    ? new CombatMapView(_canvas, _rootPanel, key => bridgeHost.InspectLiveCombatEvent(key))
                     : null;
+                _commandReviewView?.Dispose();
+                _commandReviewView = new CommandReviewView(_rootPanel, bridgeHost);
+                _coverageView?.Dispose();
+                _coverageView = _canvas != null ? new CoverageMapView(_canvas) : null;
                 _symbolPool = _canvas != null ? new MapSymbolPool(_canvas) : null;
                 _refreshedOnce = false;
             }
@@ -214,7 +232,8 @@ namespace ProjectAegis.Unity.Runtime
             var commsDisplay = bridgeHost.Bridge.Orchestrator.ScenarioPolicy?.CommsDisplay
                 ?? ScenarioCommsDisplaySettings.Default;
             var atlas = ResolveAtlasCatalog();
-            var symbols = ResolveDisplaySymbols(PresentationFeed.LastMapSymbols);
+            var symbols = bridgeHost.CommandTimeline.IsInspecting ? bridgeHost.DisplayCombatSymbols
+                : ResolveDisplaySymbols(PresentationFeed.LastMapSymbols);
             _panelState = MapPanelBinder.Bind(
                 symbols,
                 bridgeHost.ScenarioPolicyId,
@@ -228,6 +247,8 @@ namespace ProjectAegis.Unity.Runtime
             ApplyOverlayCounts(comms);
             ApplyCourseOverlays();
             ApplyTransientCombatVfx();
+            _commandReviewView?.Bind();
+            _coverageView?.Bind(bridgeHost.LastCoordination, bridgeHost.ShowCommandCoverage && !bridgeHost.CommandTimeline.IsInspecting);
             ApplyLayerStackHud();
             ApplyPlanningChrome();
             _rootPanel!.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
@@ -241,6 +262,15 @@ namespace ProjectAegis.Unity.Runtime
         /// </summary>
         private void ApplyOverlayCounts(CommsStateSnapshot? commsSnapshot)
         {
+            if (bridgeHost != null && bridgeHost.CommandTimeline.IsInspecting)
+            {
+                LastEnvelopeRingCount = LastDatalinkEdgeCount = LastDoctrineOverlayCount = 0;
+                if (_envelopeRingCountLabel != null) _envelopeRingCountLabel.text = "ENVELOPES: historical evidence unavailable";
+                if (_datalinkEdgeCountLabel != null) _datalinkEdgeCountLabel.text = "DATALINKS: historical evidence unavailable";
+                if (_doctrineOverlayCountLabel != null) _doctrineOverlayCountLabel.text = "DOCTRINE: historical evidence unavailable";
+                ApplyCanvasOverlays(Array.Empty<EnvelopeRingEntry>(), Array.Empty<DatalinkEdgeEntry>());
+                return;
+            }
             var catalog = bridgeHost != null ? bridgeHost.CatalogReader : null;
             var selectedUnitId = PresentationFeed?.SelectedUnitId;
             var catalogPlatformId = MapEnvelopePlatformResolver.Resolve(catalog, selectedUnitId);
@@ -312,7 +342,7 @@ namespace ProjectAegis.Unity.Runtime
         /// </summary>
         private void ApplyCourseOverlays()
         {
-            var courses = bridgeHost != null
+            var courses = bridgeHost != null && !bridgeHost.CommandTimeline.IsInspecting
                 ? bridgeHost.LastMapCourses
                 : Array.Empty<MapCourseOverlayEntry>();
             LastCourseOverlayCount = courses?.Count ?? 0;
@@ -326,10 +356,11 @@ namespace ProjectAegis.Unity.Runtime
         /// </summary>
         private void ApplyTransientCombatVfx()
         {
-            var frame = bridgeHost != null ? bridgeHost.LastCombatVfx : CombatVfxFrame.Empty;
-            LastCombatVfxFireLineCount = frame.FireLines?.Count ?? 0;
-            LastCombatVfxImpactCount = frame.ImpactMarkers?.Count ?? 0;
-            _transientEffectsRenderer?.Sync(frame);
+            if (bridgeHost == null) return;
+            _combatView?.Bind(bridgeHost.DisplayCombatFrame, bridgeHost.DisplayCombatSymbols,
+                bridgeHost.DisplayCombatKey);
+            LastCombatVfxFireLineCount = _combatView?.EffectCount ?? 0;
+            LastCombatVfxImpactCount = 0; // Outcomes are labeled on the same correlated effect.
         }
 
         /// <summary>
@@ -456,6 +487,10 @@ namespace ProjectAegis.Unity.Runtime
                 || !ReferenceEquals(feed.LastMapSymbols, _dirtySymbolsRef)
                 || !ReferenceEquals(bridgeHost.LastMapCourses, _dirtyCoursesRef)
                 || !ReferenceEquals(bridgeHost.LastCombatVfx, _dirtyCombatVfxRef)
+                || !ReferenceEquals(bridgeHost.DisplayCombatFrame, _dirtyReviewFrame)
+                || !ReferenceEquals(bridgeHost.LastCommandReviewSections, _dirtyReviewSections)
+                || bridgeHost.ShowCommandCoverage != _dirtyCoverage
+                || bridgeHost.Presentation.CombatInspection.SelectedKey != _dirtyCombatKey
                 || feed.SelectedUnitId != _dirtySelectedUnit
                 || feed.SelectedContactId != _dirtySelectedContact
                 || bridgeHost.Phase != _dirtyPhase
@@ -470,9 +505,13 @@ namespace ProjectAegis.Unity.Runtime
             _dirtySymbolsRef = feed?.LastMapSymbols;
             _dirtyCoursesRef = bridgeHost?.LastMapCourses;
             _dirtyCombatVfxRef = bridgeHost?.LastCombatVfx;
+            _dirtyReviewFrame = bridgeHost == null ? null : bridgeHost.DisplayCombatFrame;
+            _dirtyReviewSections = bridgeHost == null ? null : bridgeHost.LastCommandReviewSections;
+            _dirtyCoverage = bridgeHost != null && bridgeHost.ShowCommandCoverage;
+            _dirtyCombatKey = bridgeHost == null ? null : bridgeHost.Presentation.CombatInspection.SelectedKey;
             _dirtySelectedUnit = feed?.SelectedUnitId;
             _dirtySelectedContact = feed?.SelectedContactId;
-            _dirtyPhase = bridgeHost.Phase;
+            _dirtyPhase = bridgeHost == null ? default : bridgeHost.Phase;
             _dirtyShowPanel = showPanel;
             _dirtyLayerVisibleCount = _layerStack.VisibleCount;
             _dirtyCommsState = feed?.LastCommsState?.State ?? CommsState.Nominal;

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.EscalationGate;
 
-using ProjectAegis.Delegation.Skills;
+using Skills;
 using ProjectAegis.Sim.Policy;
 
 /// <summary>

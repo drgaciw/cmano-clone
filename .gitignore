@@ -153,6 +153,9 @@ worktrees/
 .pytest_cache/
 tools/qa-gauntlet/__pycache__/
 
+# ReSharper command-line reports and caches
+artifacts/resharper/
+
 # Local MCP / language-server captures (never commit)
 .playwright-mcp/
 .serena/
@@ -169,3 +172,7 @@ production/qa/gauntlet/*/forge/candidates/
 # Proprietary Command: Modern Operations product databases (never commit).
 # Aegis-owned catalogs use *.db under assets/data/catalog/ — do not confuse with *.db3.
 *.db3
+
+# ReSharper reports, caches, and local execution evidence.
+artifacts/resharper/
+tools/resharper/__pycache__/

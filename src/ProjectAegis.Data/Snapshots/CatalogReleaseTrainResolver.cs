@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Snapshots;
 
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 /// <summary>
 /// S31-03: deterministic snapshotId+dbRef resolution from tlBranch using
@@ -15,6 +15,8 @@ public static class CatalogReleaseTrainResolver
     /// </summary>
     /// <param name="matchingSnapshotIds">Snapshot ids with matching branch, ordered by snapshot_id ASC.</param>
     /// <param name="releases">Release rows ordered by release_version ASC.</param>
+    /// <param name="snapshotId">Resolved snapshot id when the method returns true.</param>
+    /// <param name="dbRef">Resolved scenario database reference when the method returns true.</param>
     public static bool TryResolveFromCandidates(
         IReadOnlyList<string> matchingSnapshotIds,
         IReadOnlyList<DbReleaseRecord> releases,

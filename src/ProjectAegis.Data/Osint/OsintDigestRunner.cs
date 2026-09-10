@@ -2,8 +2,8 @@ namespace ProjectAegis.Data.Osint;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.WriteGate;
+using Catalog;
+using WriteGate;
 
 /// <summary>Headless OSINT digest → proposal gate → catalog write gate (staging only, DSA-1.x / S19-05).</summary>
 public sealed class OsintDigestRunner

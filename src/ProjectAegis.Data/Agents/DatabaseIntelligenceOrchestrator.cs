@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Agents;
 
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 /// <summary>
 /// Req-06 / DBI-8.1 pipeline: retrieval skipped (P0) → entity resolution → rules (incl. kill-chain) → consistency → diff.
@@ -49,7 +49,7 @@ public sealed class DatabaseIntelligenceOrchestrator
     {
         var catalog = CatalogReaderFactory.TryCreateBalticPatrolReader()
             ?? InMemoryCatalogReader.BalticPatrolFixture();
-        var dbPath = catalog is SqliteCatalogReader sqlite
+        var dbPath = catalog is SqliteCatalogReader
             ? CatalogReaderFactory.ResolveBalticPatrolDatabasePath()
             : null;
         if (catalog is IDisposable disposable)

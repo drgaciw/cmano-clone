@@ -1,4 +1,3 @@
-using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 
 static void PrintUsage()

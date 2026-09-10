@@ -13,7 +13,7 @@ public sealed class SqliteCatalogReaderTests
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-catalog-{Guid.NewGuid():N}.db");
         try
         {
-            using (var bootstrap = new SqliteCatalogReader(dbPath))
+            using (new SqliteCatalogReader(dbPath))
             {
                 using var insert = new SqliteConnection($"Data Source={dbPath};Pooling=false");
                 insert.Open();

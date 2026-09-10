@@ -1,8 +1,8 @@
 namespace ProjectAegis.Sim.Scenario;
 
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Catalog;
-using ProjectAegis.Sim.Sensors;
+using Catalog;
+using Sensors;
 
 /// <summary>Builds sorted detection trials from scenario JSON and/or catalog basePd.</summary>
 public static class DetectionTrialResolver

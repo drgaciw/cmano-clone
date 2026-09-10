@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Targets;
+using Core;
+using Targets;
 
 public sealed record SimEntityBinding(
     EntityKey Entity,

@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Hindsight;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
+using Core;
+using Decision;
 
 public sealed class NullHindsightOrderLogHook : IHindsightOrderLogHook
 {

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Snapshots;
 
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 /// <summary>
 /// Export drop manifest per S28-11 spike:

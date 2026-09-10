@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 /// <summary>S40-03: read-only mount/loadout quarantine triage surfacing for Platform Editor (projection-side).</summary>
 public sealed record MountLoadoutQuarantinePanelState(

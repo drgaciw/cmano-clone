@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
-/// <summary>Holds player orders until <see cref="ExecuteSimTick"/> (req 19 comms delay).</summary>
+/// <summary>Holds player orders until <c>ExecuteSimTick</c> (req 19 comms delay).</summary>
 public sealed class PlayerOrderExecutionQueue
 {
     private readonly List<(Order Order, ulong ExecuteSimTick)> _pending = new();

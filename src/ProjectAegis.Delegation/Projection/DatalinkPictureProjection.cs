@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Catalog;
+using Data.Catalog;
 
 /// <summary>
 /// Pure datalink/comms network edge projection for the map picture (CMD-32).

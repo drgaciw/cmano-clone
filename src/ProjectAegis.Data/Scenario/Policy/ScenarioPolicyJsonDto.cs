@@ -410,6 +410,9 @@ public sealed class ScenarioContactJsonDto
 
 public sealed class ScenarioEngageJsonDto
 {
+    /// <summary>Explicit presentation-facing weapon family; omitted or blank means Unknown.</summary>
+    public string? WeaponFamilyId { get; set; }
+
     public double RangeMeters { get; set; } = 50_000;
 
     public double EnvelopeMinMeters { get; set; } = 1_000;

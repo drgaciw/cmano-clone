@@ -1,6 +1,5 @@
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Excel;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
 using Xunit;
@@ -240,7 +239,7 @@ public sealed class CatalogSortKeyDeterminismTests
     {
         var sheet = workbook.FindSheet(sheetName);
         Assert.NotNull(sheet);
-        return sheet!.Rows
+        return sheet.Rows
             .Select(row => string.Join('\t', keyColumns.Select(i => row[i])))
             .ToArray();
     }

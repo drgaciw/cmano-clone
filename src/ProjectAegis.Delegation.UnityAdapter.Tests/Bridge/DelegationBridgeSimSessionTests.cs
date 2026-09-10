@@ -1,12 +1,10 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Policy;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Traits;
+using Core;
+using Decision;
+using Policy;
+using Sim;
+using Traits;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Policy;
 using NUnit.Framework;
@@ -23,7 +21,7 @@ public sealed class DelegationBridgeSimSessionTests
         var unit = bridge.Registry.RegisterUnit(new EntityKey(1), "opp-1");
         var agent = bridge.Orchestrator.CreateAgent(
             new AgentId("a1"),
-            ProjectAegis.Delegation.Traits.PersonalityCatalog.All[0].Traits,
+            PersonalityCatalog.All[0].Traits,
             AutonomyLevel.FullAutonomous,
             policy: new EngageOnlyPolicy());
         bridge.Orchestrator.AssignAgentToTarget(agent, unit.Target, EffectivePolicy.DefaultFree);
@@ -46,7 +44,7 @@ public sealed class DelegationBridgeSimSessionTests
         var unit = bridge.Registry.RegisterUnit(new EntityKey(2), "u2");
         var agent = bridge.Orchestrator.CreateAgent(
             new AgentId("a2"),
-            ProjectAegis.Delegation.Traits.PersonalityCatalog.All[0].Traits,
+            PersonalityCatalog.All[0].Traits,
             AutonomyLevel.FullAutonomous,
             policy: new EngageOnlyPolicy());
         bridge.Orchestrator.AssignAgentToTarget(agent, unit.Target, EffectivePolicy.DefaultFree);

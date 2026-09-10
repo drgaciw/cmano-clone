@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Data.Validation;
+using Data.Scenario.Authoring;
+using Data.Validation;
 
 /// <summary>
 /// Headless apply path for live-edit findings presentation (CMD-35).
@@ -146,7 +146,7 @@ public static class LiveEditApplyState
     {
         if (!lastMutationOk)
         {
-            var code = string.IsNullOrWhiteSpace(lastReason) ? "MUTATION_FAILED" : lastReason!.Trim();
+            var code = string.IsNullOrWhiteSpace(lastReason) ? "MUTATION_FAILED" : lastReason.Trim();
             if (code.Length > 48)
             {
                 code = code[..48];

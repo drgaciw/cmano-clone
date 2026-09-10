@@ -1,6 +1,6 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
-using ProjectAegis.Data.Scenario.Authoring;
+using Data.Scenario.Authoring;
 
 public static class MissionUpdateStrikeCommand
 {

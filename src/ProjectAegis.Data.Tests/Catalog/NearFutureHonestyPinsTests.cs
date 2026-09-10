@@ -77,7 +77,7 @@ public sealed class NearFutureHonestyPinsTests
             BindingFlags.Public | BindingFlags.Instance);
 
         Assert.NotNull(prop);
-        Assert.Equal(typeof(int), prop!.PropertyType);
+        Assert.Equal(typeof(int), prop.PropertyType);
 
         var sample = new CatalogPlatformBinding("u-honesty", "Honesty Pin", GameTechnologyLevel: 2);
         Assert.Equal(2, sample.GameTechnologyLevel);

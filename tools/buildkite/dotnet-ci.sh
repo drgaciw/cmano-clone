@@ -50,7 +50,9 @@ dotnet build ProjectAegis.sln -c Release --no-restore
 bash "$repo_root/tools/copy-delegation-assemblies.sh"
 
 set +e
-dotnet test ProjectAegis.sln -c Release --no-build -v minimal
+# Keep wall-clock UI budgets from competing with other test assemblies for CPU.
+# All projects and assertions still run; only project scheduling is serialized.
+dotnet test ProjectAegis.sln -c Release --no-build -v minimal -m:1
 test_exit=$?
 set -e
 if [[ $test_exit -ne 0 ]]; then

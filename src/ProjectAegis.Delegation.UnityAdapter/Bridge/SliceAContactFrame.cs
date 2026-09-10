@@ -1,12 +1,12 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
 using System.Collections.ObjectModel;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.Roe;
-using ProjectAegis.Delegation.SensorToShooter;
-using ProjectAegis.Delegation.Skills;
+using Data.Catalog;
+using Core;
+using Projection;
+using Roe;
+using SensorToShooter;
+using Skills;
 
 /// <summary>Tick-level read model for Slice A; no live simulation handles (ADR-010 §2–3, ADR-007, ADR-001).</summary>
 public sealed record SliceAContactFrame(
@@ -16,7 +16,8 @@ public sealed record SliceAContactFrame(
     IReadOnlyList<ContactPictureEntry> Contacts,
     IReadOnlyDictionary<string, C2AuthorityProjection> Authorities,
     bool EligibilityAvailable = false,
-    ulong SimTick = 0)
+    ulong SimTick = 0,
+    double? SimTime = null)
 {
     /// <summary>No received simulation frame.</summary>
     public static SliceAContactFrame Empty { get; } = new(
@@ -72,7 +73,7 @@ public static class SliceAContactFrameBridge
         {
             var shooter = chain.Links.FirstOrDefault(l => l.Kind == SensorToShooterLinkKind.EligibleShooter && l.IsLinked)?.UnitId;
             var registered = !string.IsNullOrEmpty(shooter)
-                && bridge.Registry.TryGetBinding(new TargetId(shooter!), out _);
+                && bridge.Registry.TryGetBinding(new TargetId(shooter), out _);
             if (!registered || snapshot is not ISliceAContactAuthoritySource authoritySource
                 || !authoritySource.TryGetAuthorityContext(chain.ContactId, shooter!, out var supplied)
                 || supplied.TrackSource == TrackSource.Unknown)
@@ -93,7 +94,7 @@ public static class SliceAContactFrameBridge
         }
 
         return new SliceAContactFrame(killChain, provenance, chains, contacts,
-            new ReadOnlyDictionary<string, C2AuthorityProjection>(authorities), source != null, tick);
+            new ReadOnlyDictionary<string, C2AuthorityProjection>(authorities), source != null, tick, snapshot.SimTime);
     }
 
     private sealed class LiveCandidateGuard(

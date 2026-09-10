@@ -1,8 +1,8 @@
 namespace ProjectAegis.Data.Platform;
 
-using ProjectAegis.Data.Snapshots;
-using ProjectAegis.Data.Telemetry;
-using ProjectAegis.Data.WriteGate;
+using Snapshots;
+using Telemetry;
+using WriteGate;
 
 /// <summary>
 /// ADR-011 Phase D: headless export→edit→propose→approve orchestration for platform workbooks.

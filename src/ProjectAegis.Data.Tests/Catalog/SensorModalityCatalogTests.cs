@@ -14,7 +14,7 @@ public sealed class SensorModalityCatalogTests
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-modality-mig-{Guid.NewGuid():N}.db");
         try
         {
-            using (var bootstrap = new SqliteCatalogReader(dbPath, "s111-modality-mig"))
+            using (new SqliteCatalogReader(dbPath, "s111-modality-mig"))
             {
                 Assert.True(ColumnExists(dbPath, "sensor", "modality"));
             }
@@ -81,7 +81,7 @@ public sealed class SensorModalityCatalogTests
         var dbPath = Path.Combine(Path.GetTempPath(), $"aegis-modality-null-{Guid.NewGuid():N}.db");
         try
         {
-            using (var bootstrap = new SqliteCatalogReader(dbPath, "s111-null-mod"))
+            using (new SqliteCatalogReader(dbPath, "s111-null-mod"))
             {
                 using var insert = new SqliteConnection($"Data Source={dbPath};Pooling=false");
                 insert.Open();

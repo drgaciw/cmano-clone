@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 
 /// <summary>Test double for <see cref="ISimWorldSnapshot"/> contact/sensor fields.</summary>

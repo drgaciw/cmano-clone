@@ -1,6 +1,6 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
-using ProjectAegis.Data.Scenario.Authoring;
+using Data.Scenario.Authoring;
 
 /// <summary>
 /// Headless MCP/CLI verb <c>orbat_clone_unit</c> — clone an ORBAT unit under a new id.

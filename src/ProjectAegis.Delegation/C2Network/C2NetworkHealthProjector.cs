@@ -1,9 +1,9 @@
 namespace ProjectAegis.Delegation.C2Network;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
+using Data.Catalog;
+using Comms;
+using Decision;
+using Projection;
 
 /// <summary>
 /// Folds <see cref="CommsStateProjection"/>, <see cref="DatalinkPictureProjection"/>, and

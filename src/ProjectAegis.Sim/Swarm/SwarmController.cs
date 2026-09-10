@@ -1,9 +1,9 @@
 namespace ProjectAegis.Sim.Swarm;
 
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Core;
-using ProjectAegis.Sim.Swarm.Expend;
-using ProjectAegis.Sim.Swarm.Formation;
+using Core;
+using Expend;
+using Formation;
 
 /// <summary>
 /// SWARM-A2 / DRG-87: aggregate swarm controller — centroid motion, Hold/Move/Attack
@@ -512,7 +512,7 @@ public sealed class SwarmController
                 continue;
             }
 
-            if (unit.WaypointLatDeg is not double targetLat || unit.WaypointLonDeg is not double targetLon)
+            if (unit.WaypointLatDeg is not { } targetLat || unit.WaypointLonDeg is not { } targetLon)
             {
                 continue;
             }
@@ -545,7 +545,7 @@ public sealed class SwarmController
                     target.IssueHold(order.UnitId, order.SimTick, order.SimTime);
                     break;
                 case SwarmIntentKind.Move:
-                    if (order.TargetLatDeg is not double lat || order.TargetLonDeg is not double lon)
+                    if (order.TargetLatDeg is not { } lat || order.TargetLonDeg is not { } lon)
                     {
                         throw new InvalidOperationException(
                             $"Move order {order.SequenceId} missing target lat/lon.");
@@ -598,28 +598,23 @@ public sealed class SwarmController
             if (change.NewDroneCount > change.PreviousDroneCount)
             {
                 var gained = change.NewDroneCount - change.PreviousDroneCount;
-                if (!target.TryApplyIntegrityRegen(
-                        change.UnitId,
-                        gained,
-                        change.SimTick,
-                        change.SimTime,
-                        change.ReasonCode,
-                        out _))
-                {
-                    continue;
-                }
+                target.TryApplyIntegrityRegen(
+                    change.UnitId,
+                    gained,
+                    change.SimTick,
+                    change.SimTime,
+                    change.ReasonCode,
+                    out _);
             }
-            else if (!target.TryApplyIntegrityDamage(
+            else
+            {
+                target.TryApplyIntegrityDamage(
                     change.UnitId,
                     change.DronesLost,
                     change.SimTick,
                     change.SimTime,
                     change.ReasonCode,
-                    out _))
-            {
-                // Destroyed or missing unit — stop applying further damage for that unit;
-                // continue so later units still reconstruct.
-                continue;
+                    out _);
             }
         }
     }
@@ -634,8 +629,8 @@ public sealed class SwarmController
         {
             mix = SimWorldHash.MixLayer(mix, change.SequenceId, SimWorldHash.LayerCombatOutcome);
             mix = SimWorldHash.MixLayer(mix, change.SimTick, SimWorldHash.LayerCombatOutcome);
-            mix = SimWorldHash.MixLayer(mix, (ulong)(uint)change.PreviousDroneCount, SimWorldHash.LayerCombatOutcome);
-            mix = SimWorldHash.MixLayer(mix, (ulong)(uint)change.NewDroneCount, SimWorldHash.LayerCombatOutcome);
+            mix = SimWorldHash.MixLayer(mix, (uint)change.PreviousDroneCount, SimWorldHash.LayerCombatOutcome);
+            mix = SimWorldHash.MixLayer(mix, (uint)change.NewDroneCount, SimWorldHash.LayerCombatOutcome);
             mix = SimWorldHash.MixLayer(mix, HashString(change.UnitId), SimWorldHash.LayerCombatOutcome);
             mix = SimWorldHash.MixLayer(mix, HashString(change.ReasonCode), SimWorldHash.LayerCombatOutcome);
         }
@@ -645,8 +640,8 @@ public sealed class SwarmController
         {
             var unit = _units[unitId];
             mix = SimWorldHash.MixLayer(mix, HashString(unitId), SimWorldHash.LayerCombatOutcome);
-            mix = SimWorldHash.MixLayer(mix, (ulong)(uint)unit.DroneCount, SimWorldHash.LayerCombatOutcome);
-            mix = SimWorldHash.MixLayer(mix, (ulong)(uint)unit.MaxDrones, SimWorldHash.LayerCombatOutcome);
+            mix = SimWorldHash.MixLayer(mix, (uint)unit.DroneCount, SimWorldHash.LayerCombatOutcome);
+            mix = SimWorldHash.MixLayer(mix, (uint)unit.MaxDrones, SimWorldHash.LayerCombatOutcome);
         }
 
         return mix;

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 public sealed record DecisionRecord(
     double SimTime,

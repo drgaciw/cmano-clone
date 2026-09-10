@@ -9,7 +9,7 @@ public sealed class ContactDetailProjectionTests
     [Test]
     public void Project_null_contact_returns_null()
     {
-        Assert.That(ContactDetailProjection.Project((ContactPictureEntry?)null, 10), Is.Null);
+        Assert.That(ContactDetailProjection.Project(null, 10), Is.Null);
     }
 
     [Test]

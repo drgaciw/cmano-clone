@@ -1,8 +1,8 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Sim.Glossary;
-using ProjectAegis.Sim.Scenario;
+using Sim.Glossary;
+using Sim.Scenario;
 
 /// <summary>Headless cyber/comms abort catalog + policy hooks (req 19).</summary>
 public static class ScenarioCyberStatusCommand

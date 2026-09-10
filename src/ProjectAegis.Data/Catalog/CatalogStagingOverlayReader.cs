@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Catalog;
 
-using ProjectAegis.Data.Platform;
+using Platform;
 
 /// <summary>Preview post-approve catalog state for kill-chain commit gates (read-only overlay).</summary>
 public sealed class CatalogStagingOverlayReader : ICatalogReader

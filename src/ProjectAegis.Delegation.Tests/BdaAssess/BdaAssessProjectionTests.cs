@@ -1,7 +1,6 @@
 using ProjectAegis.Delegation.BdaAssess;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Engage;
 using NUnit.Framework;

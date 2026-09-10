@@ -1,7 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
-using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Data.Validation;
+using Data.Scenario.Authoring;
+using Data.Validation;
 using System.IO;
 
 /// <summary>

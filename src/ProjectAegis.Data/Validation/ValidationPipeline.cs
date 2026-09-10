@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Validation;
 
-using ProjectAegis.Data.Agents;
-using ProjectAegis.Data.Catalog;
+using Agents;
+using Catalog;
 
 /// <summary>P0 catalog validation pipeline (req-06); delegates to <see cref="DatabaseIntelligenceOrchestrator"/>.</summary>
 public sealed class ValidationPipeline

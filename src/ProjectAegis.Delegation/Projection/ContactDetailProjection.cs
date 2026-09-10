@@ -18,7 +18,7 @@ public static class ContactDetailProjection
 
         var lifecycle = string.IsNullOrEmpty(bdaLifecycleOverride)
             ? contact.LifecycleState
-            : bdaLifecycleOverride!;
+            : bdaLifecycleOverride;
 
         var ageTicks = currentSimTick >= contact.LastSimTick
             ? currentSimTick - contact.LastSimTick

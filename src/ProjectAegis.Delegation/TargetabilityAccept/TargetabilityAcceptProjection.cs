@@ -1,11 +1,11 @@
 namespace ProjectAegis.Delegation.TargetabilityAccept;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.SensorToShooter;
-using ProjectAegis.Delegation.Skills;
+using Data.Catalog;
+using Data.Scenario.Authoring;
+using Decision;
+using Projection;
+using SensorToShooter;
+using Skills;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>

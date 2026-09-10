@@ -1,6 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using ProjectAegis.Data.Scenario;
 using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Sim.Scenario;
@@ -173,7 +172,7 @@ public sealed class BalticReplayHarnessLadderNegativeGateTests
         public static MutatedCatalogScope Create(Action<string> mutateCopiedDir)
         {
             ScenarioPolicyRepository.EnsureDefaultJsonLoaded();
-            var defaultDir = ProjectAegis.Data.Scenario.Policy.ScenarioPolicyJsonIndex.LoadedFromDirectory
+            var defaultDir = Data.Scenario.Policy.ScenarioPolicyJsonIndex.LoadedFromDirectory
                              ?? throw new InvalidOperationException("default scenarios dir not loaded");
             var tempDir = Path.Combine(Path.GetTempPath(), "gauntlet-neg-" + Guid.NewGuid().ToString("N"));
             CopyDirectory(defaultDir, tempDir);

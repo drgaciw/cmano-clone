@@ -3,8 +3,8 @@ namespace ProjectAegis.Sim.Scenario;
 using System.Text.Json;
 using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Data.Telemetry;
-using ProjectAegis.Sim.Engage;
-using ProjectAegis.Sim.Policy;
+using Engage;
+using Policy;
 
 public static class ScenarioPolicyJsonLoader
 {
@@ -508,7 +508,8 @@ public static class ScenarioPolicyJsonLoader
                 engage.MountOnline ?? true,
                 engage.ContactIdentified ?? true,
                 engage.CombatDomainsEnabled ?? false,
-                engage.ShotgunRoundsThreshold);
+                engage.ShotgunRoundsThreshold,
+                engage.WeaponFamilyId);
 
     private static RoeLevel ParseRoe(string value) =>
         Enum.TryParse<RoeLevel>(value, ignoreCase: true, out var roe)

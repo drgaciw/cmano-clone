@@ -1,6 +1,5 @@
 using ClosedXML.Excel;
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Excel;
 using ProjectAegis.Data.Platform;
 using ProjectAegis.Data.WriteGate;
 using Xunit;
@@ -383,7 +382,7 @@ public sealed class ClosedXmlAdversarialHardeningTests
             var conditionCol = ColumnIndex(emcon, PlatformEmconEnums.ConditionColumn);
             var validation = emcon.Cell(2, conditionCol).GetDataValidation();
             Assert.NotNull(validation);
-            Assert.Equal(XLAllowedValues.List, validation!.AllowedValues);
+            Assert.Equal(XLAllowedValues.List, validation.AllowedValues);
             Assert.True(validation.IgnoreBlanks, "blank enum cells must not be blocked (IgnoreBlanks=true)");
             Assert.True(validation.InCellDropdown);
             Assert.True(

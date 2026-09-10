@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 using ProjectAegis.Sim.Scenario;
 
 public readonly record struct LoopPolicyVerdict(bool Allowed, string? DenialReason)

@@ -33,7 +33,7 @@ public sealed class ScenarioDocumentSchemaConformanceTests
         }
 
         return Directory.GetFiles(examplesDir, "*.scenario.json")
-            .Select(f => Path.GetFileName(f)!)
+            .Select(f => Path.GetFileName(f))
             .OrderBy(n => n, StringComparer.Ordinal)
             .ToArray();
     }

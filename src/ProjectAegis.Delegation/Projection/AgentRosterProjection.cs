@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>
 /// Pure projection of controller bindings into agent roster rows (CMD-37).
@@ -145,11 +145,11 @@ public static class AgentRosterProjection
         string? attention)
     {
         var kind = string.IsNullOrWhiteSpace(controllerKind) ? "None" : controllerKind.Trim();
-        var resolvedAgent = string.IsNullOrWhiteSpace(agentId) ? MissingAgentId : agentId!.Trim();
+        var resolvedAgent = string.IsNullOrWhiteSpace(agentId) ? MissingAgentId : agentId.Trim();
         var autonomyLabel = string.IsNullOrWhiteSpace(autonomy) ? "—" : autonomy.Trim();
         var attentionLabel = string.IsNullOrWhiteSpace(attention)
             ? DefaultAttentionLabel
-            : attention!.Trim().StartsWith("ATTENTION:", StringComparison.OrdinalIgnoreCase)
+            : attention.Trim().StartsWith("ATTENTION:", StringComparison.OrdinalIgnoreCase)
                 ? attention.Trim()
                 : $"ATTENTION: {attention.Trim()}";
 

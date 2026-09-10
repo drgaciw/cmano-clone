@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Sensors;
 
-using ProjectAegis.Sim.Scenario;
+using Scenario;
 
 /// <summary>One sorted detection trial outcome for a tick.</summary>
 public readonly record struct DetectionRollResult(

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
-using ProjectAegis.Delegation.Projection;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using NUnit.Framework;
 

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Scenario.Authoring;
 
-using ProjectAegis.Data.Validation;
+using Validation;
 
 /// <summary>
 /// Serializes scenario mutations through optimistic concurrency, undo capture, commit, and optional save.

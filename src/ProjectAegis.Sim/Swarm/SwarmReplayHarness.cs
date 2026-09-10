@@ -3,8 +3,8 @@ namespace ProjectAegis.Sim.Swarm;
 using System.Globalization;
 using System.Text;
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Core;
-using ProjectAegis.Sim.Engage;
+using Core;
+using Engage;
 
 /// <summary>
 /// SWARM-24 / DRG-91: headless golden replay for swarm orders + integrity deltas.

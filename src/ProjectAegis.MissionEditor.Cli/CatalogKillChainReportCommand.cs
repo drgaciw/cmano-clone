@@ -1,8 +1,8 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Validation;
+using Data.Catalog;
+using Data.Validation;
 
 /// <summary>S33-08 / DBI-4.5: read-only deterministic kill-chain rule report.</summary>
 public static class CatalogKillChainReportCommand

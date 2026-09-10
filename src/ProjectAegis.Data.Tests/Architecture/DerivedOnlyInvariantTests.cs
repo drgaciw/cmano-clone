@@ -22,7 +22,7 @@ public sealed class DerivedOnlyInvariantTests
         var path = ResolveRepoFile(relativePath);
         Assert.True(path != null, $"Could not locate source file at repo-relative path '{relativePath}'.");
 
-        var source = File.ReadAllText(path!);
+        var source = File.ReadAllText(path);
         Assert.False(
             source.Contains("editorState", StringComparison.Ordinal),
             $"EditorStateLint violation: '{path}' references 'editorState'. " +

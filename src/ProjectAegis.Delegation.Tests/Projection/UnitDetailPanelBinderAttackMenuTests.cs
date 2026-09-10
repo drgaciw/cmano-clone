@@ -1,5 +1,4 @@
 using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
 

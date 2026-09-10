@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Attention;
-using ProjectAegis.Delegation.Traits;
+using Attention;
+using Traits;
 
 public sealed record PipelineChoice(ScoredIntent Chosen, double RngDraw, string Rationale);
 

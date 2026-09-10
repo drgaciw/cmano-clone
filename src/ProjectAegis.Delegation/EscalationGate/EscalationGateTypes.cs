@@ -1,10 +1,10 @@
 namespace ProjectAegis.Delegation.EscalationGate;
 
-using ProjectAegis.Delegation.Skills;
+using Skills;
 
 /// <summary>
 /// DRG-228: one contact or order subject to an escalation / approval gate.
-/// Advisory only — <see cref="IsOrder"/> is always false.
+/// Advisory only — <c>IsOrder</c> is always false.
 /// </summary>
 public sealed record EscalationGateInput(
     string ContactOrOrderId,

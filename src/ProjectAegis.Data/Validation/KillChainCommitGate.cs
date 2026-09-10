@@ -1,7 +1,7 @@
 namespace ProjectAegis.Data.Validation;
 
-using ProjectAegis.Data.Agents;
-using ProjectAegis.Data.Catalog;
+using Agents;
+using Catalog;
 
 /// <summary>DBI-3.4 / DBI-7.2: block write-gate commits when post-staging catalog has kill-chain errors.</summary>
 public static class KillChainCommitGate

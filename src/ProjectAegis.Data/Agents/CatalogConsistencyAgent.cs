@@ -1,6 +1,5 @@
 namespace ProjectAegis.Data.Agents;
 
-using ProjectAegis.Data.Catalog;
 
 /// <summary>Req-06 consistency agent — flags base_pd outliers vs catalog median (P0 heuristic).</summary>
 public sealed class CatalogConsistencyAgent : IDatabaseIntelligenceAgent

@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 using System.Linq;
-using ProjectAegis.Delegation.Projection;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using NUnit.Framework;
@@ -29,7 +29,7 @@ public sealed class MissionListBridgeTests
     public void ProjectFrom_null_timeline_returns_empty_readonly_list()
     {
         var missions = MissionListBridge.ProjectFrom(null);
-        Assert.That(missions, Is.InstanceOf<System.Collections.Generic.IReadOnlyList<MissionListEntry>>());
+        Assert.That(missions, Is.InstanceOf<IReadOnlyList<MissionListEntry>>());
         Assert.That(missions, Is.Empty);
     }
 }

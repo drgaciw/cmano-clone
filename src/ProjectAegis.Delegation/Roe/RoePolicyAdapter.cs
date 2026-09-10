@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Roe;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 using ProjectAegis.Sim.Policy;
 
 /// <summary>ADR-002: bridges legacy IRoeFilter to ProjectAegis.Sim.IPolicyEvaluator.</summary>

@@ -1,8 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Input;
+using Controllers;
+using Input;
 
 /// <summary>
 /// Player command issuance facade over <see cref="DelegationBridge.TryEnqueueHumanOrder"/> (CMD-31).

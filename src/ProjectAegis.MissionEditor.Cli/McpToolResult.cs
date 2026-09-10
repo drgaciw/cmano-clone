@@ -1,7 +1,7 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
 using System.Text.Json;
-using ProjectAegis.Data.Scenario.Authoring;
+using Data.Scenario.Authoring;
 
 internal static class McpToolResult
 {

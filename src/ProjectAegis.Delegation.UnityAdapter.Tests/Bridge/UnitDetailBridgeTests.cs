@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 using System;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
+using Core;
+using Decision;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using NUnit.Framework;

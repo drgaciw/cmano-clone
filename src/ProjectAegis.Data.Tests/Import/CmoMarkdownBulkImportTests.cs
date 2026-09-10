@@ -77,7 +77,7 @@ public sealed class CmoMarkdownBulkImportTests
             connection.Open();
             using var cmd = connection.CreateCommand();
             cmd.CommandText = "SELECT COUNT(*) FROM sensor_quarantine";
-            var count = Convert.ToInt32(cmd.ExecuteScalar(), System.Globalization.CultureInfo.InvariantCulture);
+            var count = Convert.ToInt32(cmd.ExecuteScalar(), CultureInfo.InvariantCulture);
             Assert.Equal(1, count);
         }
         finally

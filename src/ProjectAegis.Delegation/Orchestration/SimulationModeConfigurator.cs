@@ -1,11 +1,10 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Data.Scenario;
-using ProjectAegis.Sim.Policy;
+using Controllers;
+using Core;
+using Targets;
+using Traits;
+using Data.Scenario;
 using ProjectAegis.Sim.Scenario;
 
 public static class SimulationModeConfigurator
@@ -105,5 +104,5 @@ public static class SimulationModeConfigurator
     private static ScenarioPolicyProfile? ResolveScenarioPolicy(string? scenarioPolicyId) =>
         string.IsNullOrWhiteSpace(scenarioPolicyId)
             ? null
-            : global::ProjectAegis.Sim.Scenario.ScenarioPolicyRepository.TryGet(scenarioPolicyId);
+            : ScenarioPolicyRepository.TryGet(scenarioPolicyId);
 }

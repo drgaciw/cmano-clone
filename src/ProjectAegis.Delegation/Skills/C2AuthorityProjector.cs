@@ -25,7 +25,7 @@ public static class C2AuthorityProjector
         var targeting = ProjectTargeting(in ctx, roe);
         var actions = new[]
         {
-            ProjectObserve(in ctx),
+            ProjectObserve(),
             ProjectRecommend(in ctx),
             ProjectApprove(in ctx, targeting),
             ProjectEngage(in ctx, roe, targeting),
@@ -58,11 +58,6 @@ public static class C2AuthorityProjector
         if (normalized.Contains("TIGHT", StringComparison.OrdinalIgnoreCase))
         {
             return RoeLevel.WeaponsTight;
-        }
-
-        if (normalized.Contains("FREE", StringComparison.OrdinalIgnoreCase))
-        {
-            return RoeLevel.WeaponsFree;
         }
 
         return RoeLevel.WeaponsFree;
@@ -135,7 +130,7 @@ public static class C2AuthorityProjector
             PendingApproval: null);
     }
 
-    private static C2AuthorityActionState ProjectObserve(in C2AuthorityProjectionContext ctx) =>
+    private static C2AuthorityActionState ProjectObserve() =>
         new(C2AuthorityActionKind.Observe, C2AuthorityDisposition.Permitted, ReasonCode: null);
 
     private static C2AuthorityActionState ProjectRecommend(in C2AuthorityProjectionContext ctx) =>

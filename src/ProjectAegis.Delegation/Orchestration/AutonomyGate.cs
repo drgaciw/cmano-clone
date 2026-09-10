@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Roe;
+using Core;
+using Roe;
 using ProjectAegis.Sim.Policy;
 
 public sealed record GateResult(

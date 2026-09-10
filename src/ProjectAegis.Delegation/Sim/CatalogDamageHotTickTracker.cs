@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.Sim;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
+using Data.Catalog;
+using Core;
+using Decision;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Scenario;

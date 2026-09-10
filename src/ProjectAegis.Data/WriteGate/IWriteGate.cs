@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.WriteGate;
 
-using ProjectAegis.Data.Catalog;
+using Catalog;
 
 /// <summary>ADR-006 / req-06: staged catalog writes (propose → approve → commit).</summary>
 public interface IWriteGate

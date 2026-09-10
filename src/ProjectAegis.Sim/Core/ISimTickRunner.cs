@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Core;
 
-using ProjectAegis.Sim.Time;
+using Time;
 
 public interface ISimTickRunner
 {

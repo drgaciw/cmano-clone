@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
-using ProjectAegis.Delegation.Watch;
+using Watch;
 using NUnit.Framework;
 
 /// <summary>Headless clock commands — session clock stays authoritative (ADR-010).</summary>

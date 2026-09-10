@@ -100,7 +100,7 @@ public sealed class EccmScenarioFactorTests
     {
         var repoRoot = FindRepoRoot();
         Assert.NotNull(repoRoot);
-        var path = Path.Combine(repoRoot!, "data", "scenarios", "baltic-patrol-jammed.policy.json");
+        var path = Path.Combine(repoRoot, "data", "scenarios", "baltic-patrol-jammed.policy.json");
         var profile = ScenarioPolicyJsonLoader.LoadFromFile(path);
 
         Assert.Equal("baltic-patrol-jammed", profile.Id);

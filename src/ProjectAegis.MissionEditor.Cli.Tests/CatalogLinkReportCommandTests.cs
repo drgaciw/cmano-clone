@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Microsoft.Data.Sqlite;
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.MissionEditor.Cli;
 using Xunit;
 
 namespace ProjectAegis.MissionEditor.Cli.Tests;

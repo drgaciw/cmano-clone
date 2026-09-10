@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>
 /// Order-log ordnance band transition (Shotgun / Winchester) — magazine counterpart to

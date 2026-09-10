@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Comms;
+using Comms;
 
 /// <summary>
 /// CMD-17: formats own-unit status labels that treat out-of-comms as a first-class display state

@@ -1,6 +1,6 @@
 namespace ProjectAegis.MissionEditor.Cli;
 
-using ProjectAegis.Data.Scenario.Authoring;
+using Data.Scenario.Authoring;
 
 /// <summary>CLI: mission_update_support — patch Support mission fields (mirrors ferry update).</summary>
 public static class MissionUpdateSupportCommand

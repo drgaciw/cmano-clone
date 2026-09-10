@@ -54,7 +54,7 @@ public sealed class TargetabilityAcceptProjectionTests
         var log = new DecisionLog();
         log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Classified"));
 
-        var staleTick = 1UL + (ulong)ContactProvenanceProjection.DefaultStaleThresholdTicks + 1;
+        var staleTick = 1UL + ContactProvenanceProjection.DefaultStaleThresholdTicks + 1;
         var snapshot = TargetabilityAcceptProjection.Project(
             log,
             staleTick,
@@ -142,7 +142,7 @@ public sealed class TargetabilityAcceptProjectionTests
             ProjectWithAuthority(OrganicAuthorityContext(roe: RoeLevel.WeaponsTight)),
             TargetabilityAcceptProjection.Project(
                 StaleContactLog(),
-                1UL + (ulong)ContactProvenanceProjection.DefaultStaleThresholdTicks + 1,
+                1UL + ContactProvenanceProjection.DefaultStaleThresholdTicks + 1,
                 OrganicAuthorityContext(),
                 fireControl: new StubFireControl("c1"),
                 shooters: new FixedShooterSource(
@@ -249,7 +249,7 @@ public sealed class TargetabilityAcceptProjectionTests
         Assert.That(row.Provenance!.Freshness, Is.EqualTo(ContactProvenanceFreshness.Stale));
         Assert.That(
             staleUnderDivisorTick,
-            Is.LessThanOrEqualTo(1UL + (ulong)ContactProvenanceProjection.DefaultStaleThresholdTicks),
+            Is.LessThanOrEqualTo(1UL + ContactProvenanceProjection.DefaultStaleThresholdTicks),
             "Age must remain fresh under default divisor so the policy divisor is what tips stale.");
     }
 

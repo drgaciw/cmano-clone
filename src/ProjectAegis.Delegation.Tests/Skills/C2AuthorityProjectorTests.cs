@@ -151,6 +151,16 @@ public sealed class C2AuthorityProjectorTests
         Assert.That(C2AuthorityProjector.ParseRoeLabel("hold fire"), Is.EqualTo(RoeLevel.HoldFire));
     }
 
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("   ")]
+    [TestCase("unknown-doctrine-label")]
+    [TestCase("FREE-form-legacy-label")]
+    public void ParseRoeLabel_preserves_weapons_free_compatibility_fallback(string? label)
+    {
+        Assert.That(C2AuthorityProjector.ParseRoeLabel(label), Is.EqualTo(RoeLevel.WeaponsFree));
+    }
+
     private static void AssertAction(
         C2AuthorityProjection projection,
         C2AuthorityActionKind action,

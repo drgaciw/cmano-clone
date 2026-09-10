@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>
 /// DRG-66: session-local queue for orders that have been gated to <see cref="GateResult.QueueForApproval"/>.

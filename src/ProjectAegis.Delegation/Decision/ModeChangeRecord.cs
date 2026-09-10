@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Decision;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>Simulation or control mode transition (C1).</summary>
 public sealed record ModeChangeRecord(

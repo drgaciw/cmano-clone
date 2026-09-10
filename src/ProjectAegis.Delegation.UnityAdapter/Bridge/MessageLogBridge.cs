@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
+using Decision;
+using Projection;
 
 /// <summary>
 /// Headless/Unity facade: project order log to HUD message lines.

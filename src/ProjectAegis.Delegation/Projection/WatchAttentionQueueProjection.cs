@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Watch;
+using Watch;
 
 /// <summary>
 /// S115-02: projects the live <see cref="WatchAttentionQueue"/> into a stable UI contract.

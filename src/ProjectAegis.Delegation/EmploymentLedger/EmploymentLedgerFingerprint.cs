@@ -1,6 +1,5 @@
 namespace ProjectAegis.Delegation.EmploymentLedger;
 
-using System.Globalization;
 using System.Text;
 
 /// <summary>Replay-stable canonical fingerprint for employment ledger snapshots (DRG-224).</summary>

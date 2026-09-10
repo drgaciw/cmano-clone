@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
 using NUnit.Framework;
 

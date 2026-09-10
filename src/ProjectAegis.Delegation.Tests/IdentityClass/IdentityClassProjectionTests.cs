@@ -117,7 +117,7 @@ public sealed class IdentityClassProjectionTests
         var log = new DecisionLog();
         log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Detected"));
 
-        var staleTick = 1UL + (ulong)ContactProvenanceProjection.DefaultStaleThresholdTicks + 1;
+        var staleTick = 1UL + ContactProvenanceProjection.DefaultStaleThresholdTicks + 1;
         var snapshot = IdentityClassProjection.Project(log, currentSimTick: staleTick);
 
         var row = snapshot.Rows[0];

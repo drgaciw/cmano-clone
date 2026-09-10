@@ -1,9 +1,9 @@
 namespace ProjectAegis.Sim.Sensors;
 
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Core;
-using ProjectAegis.Sim.Policy;
-using ProjectAegis.Sim.Scenario;
+using Core;
+using Policy;
+using Scenario;
 
 /// <summary>Pd-driven contact appearances (replaces schedule seeds when detection trials present).</summary>
 public sealed class PdDetectionContactSimulator
@@ -104,7 +104,6 @@ public sealed class PdDetectionContactSimulator
                 if (_tracks.TryGetValue(roll.Trial.ContactId, out var existing))
                 {
                     existing.MissedTicks = 0;
-                    existing.LastSeenTick = simTick;
                 }
 
                 continue;
@@ -255,8 +254,6 @@ public sealed class PdDetectionContactSimulator
     private sealed class ContactTrack(ulong firstSeenTick)
     {
         public ulong FirstSeenTick { get; } = firstSeenTick;
-
-        public ulong LastSeenTick { get; set; } = firstSeenTick;
 
         public int MissedTicks { get; set; }
 

@@ -1,13 +1,12 @@
 namespace ProjectAegis.Delegation.Orchestration;
 
-using ProjectAegis.Delegation.Comms;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Decision;
-using ProjectAegis.Delegation.Projection;
-using ProjectAegis.Delegation.Roe;
-using ProjectAegis.Delegation.Sim;
-using ProjectAegis.Delegation.Watch;
-using ProjectAegis.Data.Catalog;
+using Core;
+using Decision;
+using Projection;
+using Roe;
+using Sim;
+using Watch;
+using Data.Catalog;
 using ProjectAegis.Sim.Catalog;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
@@ -17,7 +16,7 @@ using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Sim.Sensors;
 using ProjectAegis.Sim.Telemetry;
 using ProjectAegis.Sim.Time;
-using ProjectAegis.Delegation.Logistics;
+using Logistics;
 
 /// <summary>Headless/interactive session: delegation tick then sim engagement phase.</summary>
 public sealed class SimulationSession
@@ -42,7 +41,8 @@ public sealed class SimulationSession
         DelegationOrchestrator orchestrator,
         EngageContext defaultEngageContext,
         int defaultMagazineRounds = 2,
-        ICatalogReader? catalogReader = null)
+        ICatalogReader? catalogReader = null,
+        string weaponFamilyId = "Unknown")
     {
         var seed = SimSeed.FromScenario((ulong)orchestrator.GlobalSeed);
         var world = new DictionaryEngageWorldQuery();
@@ -71,6 +71,8 @@ public sealed class SimulationSession
             DefaultEngageContext = defaultEngageContext,
             DefaultMagazineRounds = defaultMagazineRounds,
             CatalogReader = catalogReader,
+            CombatWeaponFamilyId = string.IsNullOrWhiteSpace(weaponFamilyId) || weaponFamilyId == "Unknown"
+                ? engageDefaults.WeaponFamilyId : weaponFamilyId,
             BalanceDriftConsumer = new BalanceDriftAdvisoryConsumer(orchestrator.ScenarioPolicy?.BalanceTelemetry),
             CatalogDamageHotTickTracker = CatalogDamageHotTickTracker.TryCreate(
                 orchestrator.ScenarioPolicy,
@@ -87,7 +89,8 @@ public sealed class SimulationSession
         DelegationOrchestrator orchestrator,
         string? scenarioPolicyId,
         ICatalogReader? catalog = null,
-        string weaponId = CatalogWeaponIds.MvpDefault)
+        string weaponId = CatalogWeaponIds.MvpDefault,
+        string weaponFamilyId = "Unknown")
     {
         var profile = string.IsNullOrWhiteSpace(scenarioPolicyId)
             ? null
@@ -98,7 +101,18 @@ public sealed class SimulationSession
         engage = CatalogEngageEnvelope.Apply(engage, catalog, weaponId);
         var rounds = profile?.EngageDefaults?.DefaultMagazineRounds
             ?? ScenarioEngageDefaults.MvpFallback.DefaultMagazineRounds;
-        return BindMvpEngagement(orchestrator, engage, rounds, catalog);
+        var session = BindMvpEngagement(
+            orchestrator,
+            engage,
+            rounds,
+            catalog,
+            weaponFamilyId);
+        // This overload explicitly selected a profile; unrelated orchestrator metadata is not
+        // evidence of the weapon family used by that profile's engagement envelope.
+        session.CombatWeaponFamilyId = string.IsNullOrWhiteSpace(weaponFamilyId) || weaponFamilyId == "Unknown"
+            ? profile?.EngageDefaults?.WeaponFamilyId ?? ScenarioEngageDefaults.UnknownWeaponFamilyId
+            : weaponFamilyId;
+        return session;
     }
 
     public SimulationPhase Phase => Orchestrator.Phase;
@@ -411,6 +425,7 @@ public sealed class SimulationSession
 
         foreach (var shooter in deniedShooters)
         {
+            var victim = ResolveEngageVictim(shooter, state);
             Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromEngagement(new EngagementRecord(
                 SequenceId: 0,
                 state.SimTime,
@@ -418,7 +433,9 @@ public sealed class SimulationSession
                 shooter,
                 EngagementId: 0,
                 Launched: false,
-                EngagementAbortReasonCodes.ToLogCode(EngagementAbortReason.WeaponsTight))));
+                EngagementAbortReasonCodes.ToLogCode(EngagementAbortReason.WeaponsTight),
+                VictimTargetId: victim,
+                WeaponFamilyId: CombatWeaponFamilyId)));
         }
     }
 
@@ -441,7 +458,7 @@ public sealed class SimulationSession
                 continue;
             }
 
-            var (order, victim) = queued[i];
+            var (_, victim) = queued[i];
             outcomes.Add(new CatalogDamageHotTickApplier.OutcomeApply(
                 victim.Value,
                 results[i].EngagementId,
@@ -506,6 +523,14 @@ public sealed class SimulationSession
             if (i < results.Count)
             {
                 var result = results[i];
+                var salvoSize = 1;
+                bool? hasFireControlTrack = null;
+                if (EngageWorld != null && i < processed.Count &&
+                    EngageWorld.TryGetContext(processed[i], out var engagementContext))
+                {
+                    salvoSize = Math.Max(1, engagementContext.SalvoSize);
+                    hasFireControlTrack = engagementContext.HasFireControlTrack;
+                }
                 var code = result.Launched
                     ? EngagementAbortReasonCodes.Launched
                     : EngagementAbortReasonCodes.ToLogCode(result.AbortReason);
@@ -516,17 +541,14 @@ public sealed class SimulationSession
                     order.Target,
                     result.EngagementId,
                     result.Launched,
-                    code)));
+                    code,
+                    VictimTargetId: victim,
+                    WeaponFamilyId: CombatWeaponFamilyId,
+                    SalvoSize: salvoSize,
+                    HasFireControlTrack: hasFireControlTrack)));
 
                 if (result.Launched)
                 {
-                    var salvoSize = 1;
-                    if (EngageWorld != null && i < processed.Count &&
-                        EngageWorld.TryGetContext(processed[i], out var ctx))
-                    {
-                        salvoSize = Math.Max(1, ctx.SalvoSize);
-                    }
-
                     Orchestrator.OrderLog.Append(OrderLogEntryFactories.FromMagazineChange(new MagazineChangeRecord(
                         SequenceId: 0,
                         state.SimTime,
@@ -570,7 +592,9 @@ public sealed class SimulationSession
                     order.Target,
                     EngagementId: 0,
                     Launched: false,
-                    EngagementAbortReasonCodes.NoResult)));
+                    EngagementAbortReasonCodes.NoResult,
+                    VictimTargetId: victim,
+                    WeaponFamilyId: CombatWeaponFamilyId)));
             }
         }
     }
@@ -614,6 +638,9 @@ public sealed class SimulationSession
     public int? DefaultMagazineRounds { get; init; }
 
     public ICatalogReader? CatalogReader { get; init; }
+
+    /// <summary>Catalog-derived weapon family stamped onto authoritative engagement log rows.</summary>
+    public string CombatWeaponFamilyId { get; set; } = "Unknown";
 
     public UnitReadinessMap? UnitReadiness { get; set; }
 
@@ -704,7 +731,7 @@ public sealed class SimulationSession
                 fallbackRounds,
                 out _);
 
-            if (DefaultMagazineRounds is int policyRounds && policyRounds > 0)
+            if (DefaultMagazineRounds is { } policyRounds && policyRounds > 0)
             {
                 var have = Magazines.GetRounds(request.ShooterUnitId, request.MountId);
                 if (have > policyRounds)
@@ -754,8 +781,11 @@ public sealed class SimulationSession
     }
 
     private static TargetId ResolveEngageVictim(Order order, ObservedState state)
+        => ResolveEngageVictim(order.Target, state);
+
+    private static TargetId ResolveEngageVictim(TargetId shooter, ObservedState state)
     {
-        if (BalticV3SideRegistry.IsRedForceUnit(order.Target.Value))
+        if (BalticV3SideRegistry.IsRedForceUnit(shooter.Value))
         {
             var blue = state.PrimaryBlueForceContactId
                 ?? (BalticV3SideRegistry.GetDefaultBlueUnitId() is { } bid
@@ -765,7 +795,7 @@ public sealed class SimulationSession
         }
 
         if (state.PreferredHostileByShooter != null
-            && state.PreferredHostileByShooter.TryGetValue(order.Target.Value, out var preferred)
+            && state.PreferredHostileByShooter.TryGetValue(shooter.Value, out var preferred)
             && !string.IsNullOrWhiteSpace(preferred))
         {
             return new TargetId(preferred);
@@ -776,4 +806,5 @@ public sealed class SimulationSession
                 ? new TargetId(rid)
                 : new TargetId("hostile-1"));
     }
+
 }

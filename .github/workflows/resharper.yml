@@ -1,0 +1,57 @@
+name: ReSharper regression gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: resharper-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  inspect:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The legacy roadmap alias cannot be materialized as a Windows symlink.
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /*
+            !/docs/reports/future-sprint-roadpmap.md
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: Install isolated SDK and pinned ReSharper CLI
+        shell: pwsh
+        run: |
+          Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile "$env:RUNNER_TEMP/dotnet-install.ps1"
+          & "$env:RUNNER_TEMP/dotnet-install.ps1" -Version 8.0.400 -InstallDir "$env:RUNNER_TEMP/aegis-dotnet" -NoPath
+          $env:DOTNET_ROOT = "$env:RUNNER_TEMP/aegis-dotnet"
+          $env:PATH = "$env:DOTNET_ROOT;$env:PATH"
+          dotnet tool install JetBrains.ReSharper.GlobalTools --version 2026.2.1 --tool-path "$env:RUNNER_TEMP/resharper-cli"
+          if ($LASTEXITCODE -ne 0) { throw 'ReSharper installation failed.' }
+      - name: Verify comparison tests and inspect all frameworks
+        shell: pwsh
+        run: |
+          $env:DOTNET_ROOT = "$env:RUNNER_TEMP/aegis-dotnet"
+          $env:PATH = "$env:DOTNET_ROOT;$env:PATH"
+          python -m unittest discover -s tools/resharper -p 'test_*.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'SARIF comparison tests failed.' }
+          ./tools/resharper/inspect.ps1 -DotnetPath "$env:DOTNET_ROOT/dotnet.exe" -ToolPath "$env:RUNNER_TEMP/resharper-cli/jb.exe" -Check
+      - name: Preserve inspection evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: resharper-inspection
+          path: |
+            artifacts/resharper/*.sarif
+            artifacts/resharper/*.run.json
+            artifacts/resharper/*.comparison.json
+          if-no-files-found: warn

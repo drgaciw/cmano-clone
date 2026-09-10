@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 /// <summary>Deterministic tactical map symbols; hash-places until a snapshot pose is published.</summary>
 public static class MapPictureProjection
@@ -152,15 +152,15 @@ public static class MapPictureProjection
     {
         if (poses is not null && poses.TryGetValue(id, out var pose))
         {
-            if (pose.NormalizedX is float nx && pose.NormalizedY is float ny)
+            if (pose.NormalizedX is { } nx && pose.NormalizedY is { } ny)
             {
-                var (lat, lon) = pose.Latitude is double plat && pose.Longitude is double plon
+                var (lat, lon) = pose.Latitude is { } plat && pose.Longitude is { } plon
                     ? (plat, plon)
                     : CanvasToBalticGeo(nx, ny);
                 return (nx, ny, lat, lon, true, pose.CourseDeg, pose.SpeedNmPerHour);
             }
 
-            if (pose.Latitude is double latOnly && pose.Longitude is double lonOnly)
+            if (pose.Latitude is { } latOnly && pose.Longitude is { } lonOnly)
             {
                 var (x, y) = ProjectLatLon(latOnly, lonOnly);
                 return (x, y, latOnly, lonOnly, true, pose.CourseDeg, pose.SpeedNmPerHour);

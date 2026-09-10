@@ -1,8 +1,8 @@
 namespace ProjectAegis.Sim.Telemetry;
 
 using ProjectAegis.Data.Telemetry;
-using ProjectAegis.Sim.Engage;
-using ProjectAegis.Sim.Scenario;
+using Engage;
+using Scenario;
 
 /// <summary>
 /// Advisory-only sim consumer for S22-06 balance drift telemetry. Records engagement outcomes into

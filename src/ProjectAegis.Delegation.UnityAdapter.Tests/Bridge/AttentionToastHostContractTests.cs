@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
-using ProjectAegis.Delegation.Watch;
+using Watch;
 using NUnit.Framework;
 
 /// <summary>CMD-39 Track A — UXML / host / scene-builder contracts (headless file asserts).</summary>
@@ -133,7 +133,7 @@ public sealed class AttentionToastHostContractTests
             "hostile-1",
             ReasonDetail: "Play Mode demo contact"));
 
-        var binder = new ProjectAegis.Delegation.Projection.AttentionToastBinder();
+        var binder = new Projection.AttentionToastBinder();
         var toast = binder.Refresh(
             bridge.Orchestrator.DecisionLog,
             bridge.Session.WatchQueue,

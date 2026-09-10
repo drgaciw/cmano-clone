@@ -1,6 +1,6 @@
 namespace ProjectAegis.Data.Scenario.Authoring;
 
-using ProjectAegis.Data.Validation;
+using Validation;
 
 /// <summary>
 /// AI-assisted authoring services (track 5/5): NlScaffold, ConstraintPlacementAssistant, SmokeTestAgent, Explain.

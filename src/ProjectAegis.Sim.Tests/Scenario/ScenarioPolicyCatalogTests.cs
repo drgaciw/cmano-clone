@@ -11,7 +11,7 @@ public sealed class ScenarioPolicyCatalogTests
     {
         var profile = ScenarioPolicyCatalog.TryGet("baltic-patrol-opp-hold-fire");
         Assert.NotNull(profile);
-        Assert.Equal(RoeLevel.WeaponsFree, profile!.ResolveForUnit("f1", isFriendly: true).Roe);
+        Assert.Equal(RoeLevel.WeaponsFree, profile.ResolveForUnit("f1", isFriendly: true).Roe);
         Assert.Equal(RoeLevel.HoldFire, profile.ResolveForUnit("o1", isFriendly: false).Roe);
     }
 }

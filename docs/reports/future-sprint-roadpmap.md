@@ -1,12 +1,14 @@
 # Future Sprint Roadmap — Stable Alias
 
-> **Canonical document:** [`future-sprint-roadpmap-07092026.md`](future-sprint-roadpmap-07092026.md) (2026-07-09 — S89–S92 Post-Editor Hygiene; post–S88/ME P2/PE closed)
+> **Canonical document:** [`future-sprint-roadmap-09082026.md`](future-sprint-roadmap-09082026.md) (2026-09-08 — bounded Unity UX/UI Slice G update; prior numbered-sprint scope linked within)
 
 This file is a **stable link target**. Do not edit program content here — update the dated snapshot instead.
 
 | Snapshot | Date | Program |
 |----------|------|---------|
-| [`future-sprint-roadpmap-07092026.md`](future-sprint-roadpmap-07092026.md) | 2026-07-09 | **Current** — S89–S92 Post-Editor Engineering Hygiene + Asset Spec Production |
+| [`future-sprint-roadmap-09082026.md`](future-sprint-roadmap-09082026.md) | 2026-09-08 | **Current** — Unity UX/UI Slice G and audit dependencies |
+| [`future-sprint-roadmap-07142026.md`](future-sprint-roadmap-07142026.md) | 2026-07-14 | Prior numbered-sprint scope — S94+ Release Continuity |
+| [`future-sprint-roadpmap-07092026.md`](future-sprint-roadpmap-07092026.md) | 2026-07-09 | Historical — S89–S92 Post-Editor Engineering Hygiene + Asset Spec Production |
 | [`future-sprint-roadpmap-07042026.md`](future-sprint-roadpmap-07042026.md) | 2026-07-04 | Archived — S81–S88 Scenario Editor (req 11 / E11) COMPLETE |
 | [`future-sprint-roadpmap-062526.01.md`](future-sprint-roadpmap-062526.01.md) | 2026-06-25 | Archived — S73–S80 Baltic v3 content expansion (COMPLETE) |
 | [`future-sprint-roadpmap-062526.md`](future-sprint-roadpmap-062526.md) | 2026-06-25 | Archived — S69–S72 E7 commercial launch prep (COMPLETE) |

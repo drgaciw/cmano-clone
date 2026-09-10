@@ -114,6 +114,6 @@ public static class ScenarioUndoStackStore
             Variables = source.Variables == null ? null : new Dictionary<string, string>(source.Variables),
             EditorState = source.EditorState == null
                 ? null
-                : new Dictionary<string, System.Text.Json.JsonElement>(source.EditorState),
+                : new Dictionary<string, JsonElement>(source.EditorState),
         };
 }

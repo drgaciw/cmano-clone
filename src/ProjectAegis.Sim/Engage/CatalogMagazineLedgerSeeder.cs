@@ -1,7 +1,7 @@
 namespace ProjectAegis.Sim.Engage;
 
 using ProjectAegis.Data.Catalog;
-using ProjectAegis.Sim.Catalog;
+using Catalog;
 
 /// <summary>Seeds <see cref="MagazineLedger"/> from catalog loadout/magazine rows (read-only ADR-006).</summary>
 public static class CatalogMagazineLedgerSeeder

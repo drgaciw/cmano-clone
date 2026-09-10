@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using ProjectAegis.Delegation.Attention;
-using ProjectAegis.Delegation.Controllers;
+using Attention;
+using Controllers;
 
 /// <summary>
 /// S109-01 / DRG-67: projects decision-time <see cref="AttentionEvaluation"/> into
