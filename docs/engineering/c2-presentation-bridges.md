@@ -42,7 +42,12 @@ pinned by the tests listed at the end.
   is the read-only surface a Unity host exposes; `DelegationBridgeHost` (in
   [`unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs`](../../unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs))
   implements it and refreshes the feed each tick.
-- **Related:** the projections these wrap and their `Projection → Binder → State` layering are
+- **Related:** the read-only **sensor-to-shooter kill-chain inspector** panel
+  (`SensorToShooterPanelHost` / `SensorToShooterPresenter`, DRG-181) follows the same presentation
+  boundary but consumes the cached `SliceAContactFrame` (`DelegationBridgeHost.LastSliceAContacts`)
+  **directly** rather than through a `*Bridge` façade — see
+  [sensor-to-shooter-chain-inspection.md](sensor-to-shooter-chain-inspection.md). The projections
+  these wrap and their `Projection → Binder → State` layering are
   [c2-projection-layer.md](c2-projection-layer.md); the write/intent side is
   [player-command-issuance.md](player-command-issuance.md); the `DelegationBridge` /
   `ISimWorldSnapshot` / `IOrderSink` integration contract is the

@@ -362,6 +362,7 @@ dotnet test  src/ProjectAegis.Delegation.Tests/ProjectAegis.Delegation.Tests.csp
 | Topic | Doc |
 |-------|-----|
 | Delegation core & the order log | [`src/ProjectAegis.Delegation/README.md`](../../src/ProjectAegis.Delegation/README.md) |
+| Sensor→shooter kill-chain inspector (same read-only contract; lives in `SensorToShooter/`, not `Projection/`) | [sensor-to-shooter-chain-inspection.md](sensor-to-shooter-chain-inspection.md) |
 | Unity adapter, `C2PresentationController`, `SelectionSet` | [`src/ProjectAegis.Delegation.UnityAdapter/README.md`](../../src/ProjectAegis.Delegation.UnityAdapter/README.md) |
 | Determinism rules, hashing, golden workflow | [determinism-and-replay.md](determinism-and-replay.md) |
 | Abort-reason codes surfaced in the message log | [abort-reason-catalog.md](abort-reason-catalog.md) |
