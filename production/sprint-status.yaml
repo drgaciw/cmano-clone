@@ -14,6 +14,16 @@
 #   - Canonical Roadmap: docs/reports/future-sprint-roadpmap.md (stable alias)
 #   - QA Plans & Closeouts: production/qa/
 #   - Test Floors & Standing Invariants: AGENTS.md §Hard Invariants
+#
+# CURRENT PROGRAM (2026-09-13): S122.0–S127  (5-day / 4.0d Must)
+#   Index: production/sprints/sprint-122-127-index.md
+#   Machine status: production/sprint-status-s122-s127.yaml
+#   Source: artifacts/backlog-stories-2026-09-13/wave3/07-sprint-plan.md
+current_program: S122.0-S127
+current_sprint: "122.0"
+current_sprint_file: production/sprints/sprint-122-0-cap-hygiene.md
+current_sprint_status_file: production/sprint-status-s122-s127.yaml
+
 
 
 sprint: 1

@@ -35,6 +35,9 @@
       "env": {
         "PATH": "C:\\Program Files\\nodejs;C:\\Windows\\System32"
       }
+    },
+    "linear": {
+      "url": "https://mcp.linear.app/mcp"
     }
   }
 }
