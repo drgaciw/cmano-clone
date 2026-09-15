@@ -48,7 +48,9 @@ pinned by the tests listed at the end.
   `ISimWorldSnapshot` / `IOrderSink` integration contract is the
   [UnityAdapter README](../../src/ProjectAegis.Delegation.UnityAdapter/README.md); the advisory
   authority/ROE/escalation read-model that the `C2AuthorityPresenter` (also in `Presentation/`)
-  formats for the Slice A command chrome is [c2-authority-escalation-chrome.md](c2-authority-escalation-chrome.md).
+  formats for the Slice A command chrome is [c2-authority-escalation-chrome.md](c2-authority-escalation-chrome.md);
+  the tick-level `SliceAContactFrame` aggregate that `DelegationBridgeHost` caches and every Slice A
+  host reads is [c2-slice-a-contact-frame.md](c2-slice-a-contact-frame.md).
 
 ---
 

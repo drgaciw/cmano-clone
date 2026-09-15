@@ -208,7 +208,9 @@ authority truth inline.
 
 ## Per-contact authorities (`SliceAContactFrame`)
 
-The host does not build projections itself. Once per tick,
+The host does not build projections itself. The tick-level frame that carries this map — and folds
+the kill-chain picture, provenance, and sensor-to-shooter chains alongside it — is documented in full
+in [c2-slice-a-contact-frame.md](c2-slice-a-contact-frame.md). Once per tick,
 [`SliceAContactFrameBridge.Build`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/SliceAContactFrame.cs)
 composes the Slice A read model and, for each sensor-to-shooter chain, resolves an authority
 projection into `SliceAContactFrame.Authorities` — an `IReadOnlyDictionary<string,
@@ -314,6 +316,7 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 |-------|-----|
 | Decision-time ROE / autonomy gate (the write path) | [autonomy-roe-gating.md](autonomy-roe-gating.md) |
 | Human-in-the-loop approval queue | [pending-approval-queue.md](pending-approval-queue.md) |
+| Tick-level Slice A read-model aggregate that builds the `Authorities` map | [c2-slice-a-contact-frame.md](c2-slice-a-contact-frame.md) |
 | C2 read-model layer & `Projection → Binder → State` | [c2-projection-layer.md](c2-projection-layer.md) |
 | Adapter seam (bridges, `IC2PresentationFeed`, host refresh) | [c2-presentation-bridges.md](c2-presentation-bridges.md) |
 | Engage gate chain that actually authorizes fire | [engagement-pipeline.md](engagement-pipeline.md) |
