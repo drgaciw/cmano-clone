@@ -94,6 +94,10 @@ public sealed class SliceAContactLiveSurfaceBinderTests
         {
             "source-line", "confidence-line", "age-line", "last-known-line", "comms-line",
         }));
+        Assert.That(rows.Select(row => row.Text).ToArray(), Is.EqualTo(new[]
+        {
+            state.SourceLine, state.ConfidenceLine, state.AgeLine, state.LastKnownLine, state.CommsLine,
+        }));
         Assert.That(rows[0].CueClass, Is.EqualTo(ContactProvenanceCueClasses.Nominal));
         Assert.That(rows[1].CueClass, Is.EqualTo(ContactProvenanceCueClasses.Nominal));
         Assert.That(rows[3].CueClass, Is.EqualTo(ContactProvenanceCueClasses.Nominal));
