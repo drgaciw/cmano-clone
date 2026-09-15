@@ -15,6 +15,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string RootName = "engage-explain-root";
         private const string StatusName = "engage-explain-status";
         private const string ReasonName = "engage-explain-reason";
+        private const string AuthorityName = "engage-explain-authority";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -24,6 +25,7 @@ namespace ProjectAegis.Unity.Runtime
         private UIDocument _document = null!;
         private Label? _statusLabel;
         private Label? _reasonLabel;
+        private Label? _authorityLabel;
         private EngageExplain _last = EngageExplain.Empty;
         private bool _wired;
         private CombatPresentationFrame? _lastFrame;
@@ -89,13 +91,14 @@ namespace ProjectAegis.Unity.Runtime
             var panel = root.Q<VisualElement>(RootName) ?? root;
             _statusLabel = panel.Q<Label>(StatusName);
             _reasonLabel = panel.Q<Label>(ReasonName);
+            _authorityLabel = panel.Q<Label>(AuthorityName);
 
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
             {
                 panel.styleSheets.Add(panelStyles);
             }
 
-            _wired = _statusLabel != null || _reasonLabel != null;
+            _wired = _statusLabel != null || _reasonLabel != null || _authorityLabel != null;
             _lastFrame = null; // A rebuilt UIDocument needs binding even while simulation is paused.
         }
 
@@ -132,6 +135,14 @@ namespace ProjectAegis.Unity.Runtime
                 _reasonLabel.text = _last.ReasonPlain;
             }
 
+            if (_authorityLabel != null)
+            {
+                bridgeHost.LastSliceAContacts.Authorities.TryGetValue(
+                    bridgeHost.SelectedContactId ?? string.Empty,
+                    out var authority);
+                _authorityLabel.text = C2AuthorityPresenter.FormatSummaryLine(authority);
+            }
+
             var rootEl = _document.rootVisualElement?.Q(RootName);
             if (rootEl != null)
             {
@@ -147,6 +158,7 @@ namespace ProjectAegis.Unity.Runtime
             {
                 if (_statusLabel != null) _statusLabel.text = _last.StatusLine;
                 if (_reasonLabel != null) _reasonLabel.text = _last.ReasonPlain;
+                if (_authorityLabel != null) _authorityLabel.text = string.Empty;
             }
         }
     }
