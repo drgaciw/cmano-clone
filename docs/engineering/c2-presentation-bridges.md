@@ -46,7 +46,9 @@ pinned by the tests listed at the end.
   [c2-projection-layer.md](c2-projection-layer.md); the write/intent side is
   [player-command-issuance.md](player-command-issuance.md); the `DelegationBridge` /
   `ISimWorldSnapshot` / `IOrderSink` integration contract is the
-  [UnityAdapter README](../../src/ProjectAegis.Delegation.UnityAdapter/README.md).
+  [UnityAdapter README](../../src/ProjectAegis.Delegation.UnityAdapter/README.md); the advisory
+  authority/ROE/escalation read-model that the `C2AuthorityPresenter` (also in `Presentation/`)
+  formats for the Slice A command chrome is [c2-authority-escalation-chrome.md](c2-authority-escalation-chrome.md).
 
 ---
 
