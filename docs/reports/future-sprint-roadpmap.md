@@ -18,9 +18,9 @@ This file is a **stable link target**. Do not edit program content here — upda
 | [`future-sprint-roadpmap-062126.md`](future-sprint-roadpmap-062126.md) | 2026-06-21 | Archived — S49–S56 internal engineering |
 | [`future-sprint-roadpmap-062026.md`](future-sprint-roadpmap-062026.md) | 2026-06-20 | Archived — S39–S48 Release enablement |
 
-**Current program index:** [`production/sprints/sprint-122-127-index.md`](../../production/sprints/sprint-122-127-index.md)  
-**Execute plan (hygiene):** [`roadmap-execute-plan-07092026.md`](roadmap-execute-plan-07092026.md)  
-**Scope boundary:** [`production/post-editor-hygiene-scope-boundary-2026-07-09.md`](../../production/post-editor-hygiene-scope-boundary-2026-07-09.md)  
+**Current program index:** [`production/sprints/sprint-122-127-index.md`](../../production/sprints/sprint-122-127-index.md)
+**Execute plan (hygiene):** [`roadmap-execute-plan-07092026.md`](roadmap-execute-plan-07092026.md)
+**Scope boundary:** [`production/post-editor-hygiene-scope-boundary-2026-07-09.md`](../../production/post-editor-hygiene-scope-boundary-2026-07-09.md)
 **Status truth:** [`production/agentic/post-editor-status-truth-2026-07-09.md`](../../production/agentic/post-editor-status-truth-2026-07-09.md)
 
 **Prior editor programs (closed):** S88 gate [`production/gate-checks/s88-scenario-editor-gate-2026-07-04.md`](../../production/gate-checks/s88-scenario-editor-gate-2026-07-04.md); ME Phase 2 [`production/qa/mission-editor-phase2-gate-2026-07-09.md`](../../production/qa/mission-editor-phase2-gate-2026-07-09.md); PE [`production/qa/platform-editor-completion-gate-2026-07-09.md`](../../production/qa/platform-editor-completion-gate-2026-07-09.md).
