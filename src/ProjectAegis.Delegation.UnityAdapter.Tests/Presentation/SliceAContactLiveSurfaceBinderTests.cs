@@ -86,6 +86,21 @@ public sealed class SliceAContactLiveSurfaceBinderTests
     }
 
     [Test]
+    public void Panel_binder_maps_source_confidence_and_last_known_cue_classes()
+    {
+        var state = SliceAContactLiveSurfaceBinder.Bind("c1", Frame(denied: true), CombatFrame());
+        var rows = SliceAContactLiveSurfacePanelBinder.BindRows(state);
+        Assert.That(rows.Select(row => row.ElementName).ToArray(), Is.EqualTo(new[]
+        {
+            "source-line", "confidence-line", "age-line", "last-known-line", "comms-line",
+        }));
+        Assert.That(rows[0].CueClass, Is.EqualTo(ContactProvenanceCueClasses.Nominal));
+        Assert.That(rows[1].CueClass, Is.EqualTo(ContactProvenanceCueClasses.Nominal));
+        Assert.That(rows[3].CueClass, Is.EqualTo(ContactProvenanceCueClasses.Nominal));
+        Assert.That(rows[4].CueClass, Is.EqualTo(ContactProvenanceCueClasses.Denied));
+    }
+
+    [Test]
     public void Repeated_bind_is_replay_stable()
     {
         var frame = Frame();

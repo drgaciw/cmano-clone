@@ -55,6 +55,8 @@ public sealed class SliceAContactHostContractTests
     {
         var source = UiIaSourceReader.ReadRuntime("ContactDetailPanelHost.cs");
         Assert.That(source, Does.Contain("SliceAContactLiveSurfaceBinder.Bind"));
+        Assert.That(source, Does.Contain("SliceAContactLiveSurfacePanelBinder.BindRows"));
+        Assert.That(source, Does.Contain("AddToClassList(cueClass)"));
         Assert.That(source, Does.Contain("LastLiveSurface"));
         Assert.That(source, Does.Contain("contact-explanation-link"));
         Assert.That(source, Does.Contain("engagement-explanation-link"));

@@ -263,11 +263,10 @@ namespace ProjectAegis.Unity.Runtime
                 _classificationLine.text = _presentation.ClassificationLine;
             }
 
-            ApplyLiveSurfaceRow(_sourceLine, _liveSurface.SourceLine, _liveSurface.SourceCueClass);
-            ApplyLiveSurfaceRow(_confidenceLine, _liveSurface.ConfidenceLine, _liveSurface.ConfidenceCueClass);
-            ApplyLiveSurfaceRow(_ageLine, _liveSurface.AgeLine, _liveSurface.AgeCueClass);
-            ApplyLiveSurfaceRow(_lastKnownLine, _liveSurface.LastKnownLine, _liveSurface.LastKnownCueClass);
-            ApplyLiveSurfaceRow(_commsLine, _liveSurface.CommsLine, _liveSurface.CommsCueClass);
+            foreach (var row in SliceAContactLiveSurfacePanelBinder.BindRows(_liveSurface))
+            {
+                ApplyLiveSurfaceRow(ResolveLiveSurfaceLabel(row.ElementName), row.Text, row.CueClass);
+            }
 
             if (_declutterTokenLine != null)
             {
@@ -316,6 +315,17 @@ namespace ProjectAegis.Unity.Runtime
             }
         }
 
+        private Label? ResolveLiveSurfaceLabel(string elementName) =>
+            elementName switch
+            {
+                "source-line" => _sourceLine,
+                "confidence-line" => _confidenceLine,
+                "age-line" => _ageLine,
+                "last-known-line" => _lastKnownLine,
+                "comms-line" => _commsLine,
+                _ => null,
+            };
+
         private static void ApplyLiveSurfaceRow(Label? label, string text, string cueClass)
         {
             if (label == null)
@@ -324,10 +334,11 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             label.text = text;
-            label.RemoveFromClassList(ContactProvenanceCueClasses.Unknown);
-            label.RemoveFromClassList(ContactProvenanceCueClasses.Nominal);
-            label.RemoveFromClassList(ContactProvenanceCueClasses.Degraded);
-            label.RemoveFromClassList(ContactProvenanceCueClasses.Denied);
+            foreach (var knownCue in ContactProvenanceCueClasses.All)
+            {
+                label.RemoveFromClassList(knownCue);
+            }
+
             if (!string.IsNullOrEmpty(cueClass))
             {
                 label.AddToClassList(cueClass);

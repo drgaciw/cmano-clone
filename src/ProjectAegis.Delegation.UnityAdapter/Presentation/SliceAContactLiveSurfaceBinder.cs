@@ -50,6 +50,27 @@ public static class ContactProvenanceCueClasses
     public const string Nominal = "contact-provenance-cue--nominal";
     public const string Degraded = "contact-provenance-cue--degraded";
     public const string Denied = "contact-provenance-cue--denied";
+
+    /// <summary>All cue classes hosts must clear before applying the active row cue.</summary>
+    public static IReadOnlyList<string> All { get; } =
+        new[] { Unknown, Nominal, Degraded, Denied };
+}
+
+/// <summary>One live-surface label row with its USS cue class token.</summary>
+public sealed record SliceAContactLiveSurfaceRow(string ElementName, string Text, string CueClass);
+
+/// <summary>Headless row binder for ContactDetail live-surface labels and cue classes.</summary>
+public static class SliceAContactLiveSurfacePanelBinder
+{
+    /// <summary>Maps bound state into element names, text, and cue classes for UI Toolkit classList swaps.</summary>
+    public static IReadOnlyList<SliceAContactLiveSurfaceRow> BindRows(SliceAContactLiveSurfaceState state) =>
+    [
+        new("source-line", state.SourceLine, state.SourceCueClass),
+        new("confidence-line", state.ConfidenceLine, state.ConfidenceCueClass),
+        new("age-line", state.AgeLine, state.AgeCueClass),
+        new("last-known-line", state.LastKnownLine, state.LastKnownCueClass),
+        new("comms-line", state.CommsLine, state.CommsCueClass),
+    ];
 }
 
 /// <summary>Headless text declutter tokens paired with cue classes — never color-only state.</summary>
