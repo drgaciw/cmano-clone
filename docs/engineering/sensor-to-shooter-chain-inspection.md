@@ -81,8 +81,10 @@ per-shooter side, geometry, or commitment facts**, so without an authoritative
 `ISensorToShooterShooterSource` the frame **fails closed**: `EligibilityAvailable` is `false` and the
 presenter withholds shooter verdicts instead of inventing them from scenario defaults or historical
 engage contexts. When a live source is present it is wrapped in a `LiveCandidateGuard` that drops
-candidates that are dead, unregistered, not launch-ready, or whose live magazine ledger reports zero
-rounds — a missing ledger entry is **not** permission to seed rounds from configuration.
+candidates that are self-targeted, dead, unregistered, or not launch-ready, and rebinds every
+surviving candidate's round count to the live magazine ledger — a missing ledger entry yields **zero
+rounds**, not permission to seed from configuration, and the projection's ammo check
+(`RoundsRemaining >= max(1, SalvoSize)`) then rejects the empty/under-salvo candidate.
 
 ---
 
@@ -179,7 +181,7 @@ All green as of writing (DRG-207 projection landed in #580; DRG-181 chrome in #6
 |-----------|-------|--------|
 | [`SensorToShooterProjectionTests.cs`](../../src/ProjectAegis.Delegation.Tests/SensorToShooter/SensorToShooterProjectionTests.cs) | 9 | Complete chain; stale-track / no-FC / lost-sensor / no-eligible-shooter / BDA-degraded break causes; zero-rounds and below-salvo shooter rejection; replay-stable fingerprint. |
 | [`SensorToShooterPresentationTests.cs`](../../src/ProjectAegis.Delegation.UnityAdapter.Tests/Presentation/SensorToShooterPresentationTests.cs) | 12 | Empty selection clears; unknown contact; complete chain lists four links without release authority; each break cause → next action; fail-closed on missing eligibility; fingerprint matches projection + repeated-projection stability. |
-| [`SensorToShooterHostContractTests.cs`](../../src/ProjectAegis.Delegation.UnityAdapter.Tests/Presentation/SensorToShooterHostContractTests.cs) | 3 | Host consumes the cached frame + fingerprint (not a live log) and skips rebuild on unchanged frames; `.uxml` exposes the four link rows + next action; scene builder wires the host. |
+| [`SensorToShooterHostContractTests.cs`](../../src/ProjectAegis.Delegation.UnityAdapter.Tests/Presentation/SensorToShooterHostContractTests.cs) | 4 | Host consumes the cached frame + fingerprint (not a live log) and skips rebuild on unchanged frames; `SensorToShooterPanelBinder.Bind` exposes every presenter line for the host; `.uxml` exposes the four link rows + next action; scene builder wires the host. |
 | [`PlayModeSmokeHarnessTests.cs`](../../src/ProjectAegis.Delegation.UnityAdapter.Tests/Bridge/PlayModeSmokeHarnessTests.cs) (`…includes_sensor_to_shooter_host`) | 1 | The smoke scene builder registers the host in both `Build(...)` and `EnsureUiMaturityHosts`. |
 
 Run just this subsystem:
