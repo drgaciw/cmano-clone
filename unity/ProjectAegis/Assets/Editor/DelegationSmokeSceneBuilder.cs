@@ -100,6 +100,11 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/ContactDetail/ContactDetailPanel.uxml",
                 "Assets/UI/ContactDetail/ContactDetailPanel.uss");
+            CreatePanelHost<SensorToShooterPanelHost>(
+                "SensorToShooter",
+                bridge,
+                "Assets/UI/SensorToShooter/SensorToShooterPanel.uxml",
+                "Assets/UI/SensorToShooter/SensorToShooterPanel.uss");
             CreatePanelHost<AgentRosterPanelHost>(
                 "AgentRoster",
                 bridge,
@@ -358,6 +363,11 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/ContactDetail/ContactDetailPanel.uxml",
                 "Assets/UI/ContactDetail/ContactDetailPanel.uss");
+            added += EnsurePanelHostIfMissing<SensorToShooterPanelHost>(
+                "SensorToShooter",
+                bridge,
+                "Assets/UI/SensorToShooter/SensorToShooterPanel.uxml",
+                "Assets/UI/SensorToShooter/SensorToShooterPanel.uss");
             added += EnsurePanelHostIfMissing<AgentRosterPanelHost>(
                 "AgentRoster",
                 bridge,

@@ -839,6 +839,46 @@ public sealed class PlayModeSmokeHarnessTests
             "EnsureUiMaturityHosts must include GroundOpsPanelHost");
     }
 
+    /// <summary>
+    /// DRG-181: Sensor-to-shooter chain chrome must be registered in Build() and EnsureUiMaturityHosts.
+    /// </summary>
+    [Test]
+    public void Delegation_smoke_scene_builder_includes_sensor_to_shooter_host()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+        var builder = File.ReadAllText(builderPath);
+
+        var smokeBuildStart = builder.IndexOf(
+            "public static void Build(string scenarioPolicyId",
+            StringComparison.Ordinal);
+        var cesiumBuildStart = builder.IndexOf(
+            "public static void BuildCesiumSpikeScene(",
+            StringComparison.Ordinal);
+        Assert.That(smokeBuildStart, Is.GreaterThanOrEqualTo(0));
+        Assert.That(cesiumBuildStart, Is.GreaterThan(smokeBuildStart));
+
+        var smokeSection = builder.Substring(smokeBuildStart, cesiumBuildStart - smokeBuildStart);
+        Assert.That(smokeSection, Does.Contain("SensorToShooterPanelHost"));
+        Assert.That(smokeSection, Does.Contain("\"SensorToShooter\""));
+        Assert.That(smokeSection, Does.Contain("Assets/UI/SensorToShooter/SensorToShooterPanel.uxml"));
+
+        var ensureStart = builder.IndexOf(
+            "public static void EnsureUiMaturityHostsOnOpenScene()",
+            StringComparison.Ordinal);
+        Assert.That(ensureStart, Is.GreaterThanOrEqualTo(0));
+        var ensureSection = builder.Substring(ensureStart);
+        Assert.That(ensureSection, Does.Contain("SensorToShooterPanelHost"));
+    }
+
     private sealed class PlayModeHarness : ISimWorldSnapshot, IOrderSink
     {
         private readonly int _contactCount;
