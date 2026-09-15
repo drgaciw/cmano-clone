@@ -93,6 +93,7 @@ namespace ProjectAegis.Unity.Tests
                 view.SetActive(true);
                 var root = new VisualElement { name = "contact-detail-root" };
                 foreach (var name in new[] { "contact-id-line", "target-id-line", "classification-line",
+                    "source-line", "confidence-line", "age-line", "last-known-line", "comms-line",
                     "kill-chain-line", "sensor-shooter-line", "authority-line", "next-action-line" })
                     root.Add(new Label { name = name });
                 document.rootVisualElement.Add(root);
@@ -100,6 +101,8 @@ namespace ProjectAegis.Unity.Tests
 
                 Assert.That(root.Q<Label>("contact-id-line").text, Does.Contain("c1"));
                 Assert.That(root.Q<Label>("authority-line").text, Does.Contain("UNKNOWN"));
+                Assert.That(panel.LastLiveSurface.SourceLine, Does.Contain("UNKNOWN"));
+                Assert.That(panel.LastLiveSurface.CommsLine, Does.Contain("UNKNOWN"));
                 var presentation = panel.LastSliceAPresentation;
                 yield return null;
                 Assert.That(panel.LastSliceAPresentation, Is.SameAs(presentation), "No tick or selection change: reuse presentation.");
