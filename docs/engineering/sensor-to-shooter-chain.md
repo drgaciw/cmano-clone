@@ -218,7 +218,10 @@ Upstream kill-chain/custody detail: [track-custody-and-cde-assess.md](track-cust
 The engage-time source of the abort/withhold reasons the chain surfaces:
 [engagement-pipeline.md](engagement-pipeline.md). General read-model rules and the
 `Projection → Binder → State` contract: [c2-projection-layer.md](c2-projection-layer.md);
-adapter-seam bridges: [c2-presentation-bridges.md](c2-presentation-bridges.md).
+adapter-seam bridges: [c2-presentation-bridges.md](c2-presentation-bridges.md). The downstream
+watch-officer surface that composes this `SliceAContactFrame` into a review dashboard (status +
+advice + coordination) and the one explicit-human group command path:
+[command-review-dashboard.md](command-review-dashboard.md).
 
 ---
 
