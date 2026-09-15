@@ -38,10 +38,29 @@ public sealed class SliceAContactHostContractTests
     {
         var xml = XDocument.Parse(UiIaSourceReader.ReadUnder("unity", "ProjectAegis", "Assets", "UI", "ContactDetail", "ContactDetailPanel.uxml"));
         Assert.That(xml.Descendants().Any(e => e.Name.LocalName == "ScrollView"), Is.True);
-        foreach (var name in new[] { "kill-chain-line", "sensor-shooter-line", "authority-line", "next-action-line" })
+        foreach (var name in new[]
+        {
+            "kill-chain-line", "sensor-shooter-line", "authority-line", "next-action-line",
+            "source-line", "confidence-line", "age-line", "last-known-line", "comms-line",
+            "declutter-token-line", "contact-explanation-link", "engagement-explanation-link",
+        })
         {
             Assert.That(xml.Descendants().Count(e => (string?)e.Attribute("name") == name), Is.EqualTo(1), name);
         }
         Assert.That(xml.Descendants().Any(e => e.Name.LocalName == "Foldout"), Is.True);
+    }
+
+    [Test]
+    public void Contact_host_binds_live_surface_and_deep_links_fail_closed()
+    {
+        var source = UiIaSourceReader.ReadRuntime("ContactDetailPanelHost.cs");
+        Assert.That(source, Does.Contain("SliceAContactLiveSurfaceBinder.Bind"));
+        Assert.That(source, Does.Contain("LastLiveSurface"));
+        Assert.That(source, Does.Contain("contact-explanation-link"));
+        Assert.That(source, Does.Contain("engagement-explanation-link"));
+        Assert.That(source, Does.Contain("InspectCombatEvent"));
+        Assert.That(source, Does.Contain("ContactProvenanceCueClasses"));
+        Assert.That(source, Does.Contain("SetEnabled(_liveSurface.ContactExplanationAvailable)"));
+        Assert.That(source, Does.Contain("SetEnabled(_liveSurface.EngagementExplanationAvailable)"));
     }
 }
