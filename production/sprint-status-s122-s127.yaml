@@ -1,6 +1,6 @@
 # Machine-readable S122.0–S127 status. Updated by /story-done and /dev-story.
 # Plans: production/sprints/sprint-122-127-index.md
-# Source: artifacts/backlog-stories-2026-09-13/wave3/07-sprint-plan.md
+# Source: artifacts/backlog-stories-2026-09-13/wave3/07-sprint-plan.md (working artifact, not committed to this repo)
 #
 # Status: backlog | ready-for-dev | in-progress | review | done | blocked
 # Priority: must-have | should-have | nice-to-have
@@ -12,8 +12,8 @@ start: "2026-09-15"
 end: "2026-09-16"
 generated: "2026-09-13"
 updated: "2026-09-13"
-capacity_days: 5
-must_available_days: 4.0
+capacity_days: 2
+must_available_days: 0.75
 qa_plan: missing
 
 stories:
