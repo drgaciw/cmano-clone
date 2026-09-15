@@ -172,49 +172,50 @@ namespace ProjectAegis.Unity.Runtime
 
         private void ApplyPresentationToLabels()
         {
+            var labels = SensorToShooterPanelBinder.Bind(_presentation);
             if (_contactIdLine != null)
             {
-                _contactIdLine.text = _presentation.ContactIdLine;
+                _contactIdLine.text = labels.ContactIdLine;
             }
 
             if (_targetIdLine != null)
             {
-                _targetIdLine.text = _presentation.TargetIdLine;
+                _targetIdLine.text = labels.TargetIdLine;
             }
 
             if (_observerIdLine != null)
             {
-                _observerIdLine.text = _presentation.ObserverIdLine;
+                _observerIdLine.text = labels.ObserverIdLine;
             }
 
             if (_statusLine != null)
             {
-                _statusLine.text = _presentation.StatusLine;
+                _statusLine.text = labels.StatusLine;
             }
 
             if (_sensorLine != null)
             {
-                _sensorLine.text = _presentation.SensorLine;
+                _sensorLine.text = labels.SensorLine;
             }
 
             if (_trackLine != null)
             {
-                _trackLine.text = _presentation.TrackLine;
+                _trackLine.text = labels.TrackLine;
             }
 
             if (_targetabilityLine != null)
             {
-                _targetabilityLine.text = _presentation.TargetabilityLine;
+                _targetabilityLine.text = labels.TargetabilityLine;
             }
 
             if (_shooterLine != null)
             {
-                _shooterLine.text = _presentation.ShooterLine;
+                _shooterLine.text = labels.ShooterLine;
             }
 
             if (_nextActionLine != null)
             {
-                _nextActionLine.text = _presentation.NextActionLine;
+                _nextActionLine.text = labels.NextActionLine;
             }
         }
     }

@@ -42,6 +42,35 @@ public sealed record SensorToShooterPresentation(
         Array.Empty<SensorToShooterLinkPresentation>());
 }
 
+/// <summary>Label bundle for SensorToShooter panel hosts (DRG-181 bind path).</summary>
+public sealed record SensorToShooterPanelLabels(
+    string ContactIdLine,
+    string TargetIdLine,
+    string ObserverIdLine,
+    string StatusLine,
+    string SensorLine,
+    string TrackLine,
+    string TargetabilityLine,
+    string ShooterLine,
+    string NextActionLine);
+
+/// <summary>Maps presentation rows to panel label text without re-deriving chain facts.</summary>
+public static class SensorToShooterPanelBinder
+{
+    /// <summary>Binds immutable presentation lines for UI Toolkit labels.</summary>
+    public static SensorToShooterPanelLabels Bind(SensorToShooterPresentation presentation) =>
+        new(
+            presentation.ContactIdLine,
+            presentation.TargetIdLine,
+            presentation.ObserverIdLine,
+            presentation.StatusLine,
+            presentation.SensorLine,
+            presentation.TrackLine,
+            presentation.TargetabilityLine,
+            presentation.ShooterLine,
+            presentation.NextActionLine);
+}
+
 /// <summary>Formats read-only <see cref="SensorToShooterSnapshot"/> chains for UI chrome.</summary>
 public static class SensorToShooterPresenter
 {

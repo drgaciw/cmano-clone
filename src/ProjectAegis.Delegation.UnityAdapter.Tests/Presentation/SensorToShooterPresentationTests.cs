@@ -31,6 +31,8 @@ public sealed class SensorToShooterPresentationTests
         var result = SensorToShooterPresenter.Build("c1", Chain(), eligibilityAvailable: true);
         Assert.That(result.StatusLine, Does.Contain("COMPLETE"));
         Assert.That(result.StatusLine, Does.Contain("not release authority"));
+        Assert.That(result.TargetIdLine, Does.Contain("target-1"));
+        Assert.That(result.ObserverIdLine, Does.Contain("sensor-1"));
         Assert.That(result.SensorLine, Does.Contain("LINKED").And.Contain("sensor-1"));
         Assert.That(result.TrackLine, Does.Contain("LINKED").And.Contain("c1"));
         Assert.That(result.TargetabilityLine, Does.Contain("LINKED"));
