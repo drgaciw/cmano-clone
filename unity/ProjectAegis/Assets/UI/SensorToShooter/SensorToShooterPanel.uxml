@@ -1,0 +1,16 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="sensor-to-shooter-root" class="sensor-to-shooter-panel">
+        <ui:Label text="SENSOR → SHOOTER" class="sensor-to-shooter-title" />
+        <ui:ScrollView name="sensor-to-shooter-scroll" mode="Vertical" class="sensor-to-shooter-scroll">
+            <ui:Label name="sts-contact-line" text="Contact: —" class="sensor-to-shooter-line" />
+            <ui:Label name="sts-target-line" text="Target: —" class="sensor-to-shooter-line" />
+            <ui:Label name="sts-observer-line" text="Observer: —" class="sensor-to-shooter-line" />
+            <ui:Label name="sts-status-line" text="Chain: UNKNOWN" class="sensor-to-shooter-line sensor-to-shooter-heading" />
+            <ui:Label name="sts-sensor-line" text="Sensor: UNKNOWN" class="sensor-to-shooter-line" />
+            <ui:Label name="sts-track-line" text="Track: UNKNOWN" class="sensor-to-shooter-line" />
+            <ui:Label name="sts-targetability-line" text="Targetability: UNKNOWN" class="sensor-to-shooter-line" />
+            <ui:Label name="sts-shooter-line" text="Shooter: UNKNOWN" class="sensor-to-shooter-line" />
+            <ui:Label name="sts-next-action-line" text="Select a contact to inspect the sensor-to-shooter chain." class="sensor-to-shooter-line sensor-to-shooter-next" />
+        </ui:ScrollView>
+    </ui:VisualElement>
+</ui:UXML>
