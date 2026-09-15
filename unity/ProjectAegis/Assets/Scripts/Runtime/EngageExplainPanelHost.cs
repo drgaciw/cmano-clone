@@ -137,10 +137,12 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_authorityLabel != null)
             {
+                var contactId = bridgeHost.SelectedContactId;
                 bridgeHost.LastSliceAContacts.Authorities.TryGetValue(
-                    bridgeHost.SelectedContactId ?? string.Empty,
+                    contactId ?? string.Empty,
                     out var authority);
-                _authorityLabel.text = C2AuthorityPresenter.FormatSummaryLine(authority);
+                _authorityLabel.text = C2AuthorityPresenter.FormatSummaryLine(
+                    C2AuthorityPresenter.Build(contactId, authority));
             }
 
             var rootEl = _document.rootVisualElement?.Q(RootName);

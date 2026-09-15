@@ -107,7 +107,7 @@ namespace ProjectAegis.Unity.Runtime
                     if (element is Label label && index >= 0 && index < _presentation.VerbRows.Count)
                     {
                         var row = _presentation.VerbRows[index];
-                        label.text = FormatVerbLine(row);
+                        label.text = C2AuthorityPresenter.FormatVerbLine(row);
                     }
                 };
                 _verbList.selectionType = SelectionType.None;
@@ -208,10 +208,6 @@ namespace ProjectAegis.Unity.Runtime
             }
         }
 
-        private static string FormatVerbLine(C2AuthorityVerbRow row) =>
-            string.IsNullOrEmpty(row.ReasonCode)
-                ? $"{row.VerbLabel}: {row.DispositionLabel}"
-                : $"{row.VerbLabel}: {row.DispositionLabel} ({row.ReasonCode})";
     }
 }
 #endif

@@ -72,18 +72,32 @@ public static class C2AuthorityPresenter
             NextAction(authority));
     }
 
+    /// <summary>Single verb row label for AuthorityRoe list binders.</summary>
+    public static string FormatVerbLine(C2AuthorityVerbRow row) =>
+        string.IsNullOrEmpty(row.ReasonCode)
+            ? $"{row.VerbLabel}: {row.DispositionLabel}"
+            : $"{row.VerbLabel}: {row.DispositionLabel} ({row.ReasonCode})";
+
     /// <summary>Compact single-line summary for PendingApproval / EngageExplain hosts.</summary>
-    public static string FormatSummaryLine(C2AuthorityProjection? authority)
+    public static string FormatSummaryLine(C2AuthorityPresentation presentation)
     {
-        if (authority is null)
+        if (ReferenceEquals(presentation, C2AuthorityPresentation.Empty))
         {
             return "Authority: UNKNOWN — no projection bound";
         }
 
-        var targeting = FormatDispositionLabel(authority.Targeting.Disposition);
-        var approval = authority.Targeting.PendingApproval?.ToString() ?? "none";
-        return $"ROE {authority.Roe.RoeLabel} · Targeting {targeting} · Approval {approval}";
+        var engage = presentation.VerbRows.FirstOrDefault(row => row.VerbLabel == "ENGAGE");
+        var engageReasonSuffix = engage is null || string.IsNullOrEmpty(engage.ReasonCode)
+            ? string.Empty
+            : $" · Engage: {engage.ReasonCode}";
+        return $"{presentation.RoeLine} · {presentation.TargetingLine}{engageReasonSuffix}";
     }
+
+    /// <summary>Projects then formats a summary line from authority facts.</summary>
+    public static string FormatSummaryLine(C2AuthorityProjection? authority) =>
+        authority is null
+            ? FormatSummaryLine(C2AuthorityPresentation.Empty)
+            : FormatSummaryLine(Build("_summary", authority));
 
     private static string FormatRoeLine(RoeProjection roe) =>
         $"ROE: {roe.RoeLabel} · {FormatDispositionLabel(roe.TargetingDisposition)}"

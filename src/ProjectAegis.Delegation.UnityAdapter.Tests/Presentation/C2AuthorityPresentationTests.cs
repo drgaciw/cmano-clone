@@ -83,9 +83,13 @@ public sealed class C2AuthorityPresentationTests
     [Test]
     public void Summary_line_preserves_policy_truth_without_order_semantics()
     {
-        var summary = C2AuthorityPresenter.FormatSummaryLine(WeaponsTightProjection());
+        var presentation = C2AuthorityPresenter.Build("c-tight", WeaponsTightProjection());
+        var summary = C2AuthorityPresenter.FormatSummaryLine(presentation);
         Assert.That(summary, Does.Contain("WEAPONS_TIGHT").And.Contain("WITHHELD"));
-        Assert.That(C2AuthorityPresenter.FormatSummaryLine(null), Does.Contain("UNKNOWN"));
+        Assert.That(summary, Does.Contain("Engage: WeaponsTight"));
+        Assert.That(C2AuthorityPresenter.FormatVerbLine(presentation.VerbRows[0]), Does.Contain("OBSERVE"));
+        Assert.That(C2AuthorityPresenter.FormatSummaryLine(C2AuthorityPresentation.Empty), Does.Contain("UNKNOWN"));
+        Assert.That(C2AuthorityPresenter.FormatSummaryLine((C2AuthorityProjection?)null), Does.Contain("UNKNOWN"));
     }
 
     [Test]

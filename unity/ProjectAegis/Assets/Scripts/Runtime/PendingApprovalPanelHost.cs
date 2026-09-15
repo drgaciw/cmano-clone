@@ -269,7 +269,8 @@ namespace ProjectAegis.Unity.Runtime
 
             var contactId = bridgeHost.SelectedContactId;
             bridgeHost.LastSliceAContacts.Authorities.TryGetValue(contactId ?? string.Empty, out var authority);
-            _authorityLine.text = C2AuthorityPresenter.FormatSummaryLine(authority);
+            _authorityLine.text = C2AuthorityPresenter.FormatSummaryLine(
+                C2AuthorityPresenter.Build(contactId, authority));
         }
 
         private void UpdateActionButtons()
