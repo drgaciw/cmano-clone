@@ -242,6 +242,7 @@ Constraints are de-blanked and ordinal-sorted. The `IntentCode` is a `MissionInt
 
 ## See also
 
+- [track-custody-and-cde-assess.md](track-custody-and-cde-assess.md) — the two remaining Combat-UX advisory read-models (`CdeAssess` DRG-220 / `TrackCustody` DRG-222) that complete this wave; same read-only contract.
 - [combat-vfx-projection.md](combat-vfx-projection.md) — map combat VFX read-model (same contract).
 - [combat-domains-hot-tick-hud.md](combat-domains-hot-tick-hud.md) — the six-domain hot-tick HUD read-model.
 - [c2-projection-layer.md](c2-projection-layer.md) — the read-only projection contract these follow; source of `ContactPictureProjection`.
