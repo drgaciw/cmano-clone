@@ -193,6 +193,8 @@ Part of the ≥1638-test baseline.
 
 ## See also
 
+- [combat-event-log-projection.md](combat-event-log-projection.md) — the DRG-211 upstream producer
+  of the combat-event facts (`CombatEventSnapshot`) this row mirrors and consumes.
 - [autonomy-roe-gating.md](autonomy-roe-gating.md) — the decision-time authorization gate that
   produces the `AuthorizationRefused` / `policy:` reasons this row explains.
 - [engagement-pipeline.md](engagement-pipeline.md) — the engage/kill-chain resolver whose abort codes
