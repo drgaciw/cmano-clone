@@ -1,7 +1,7 @@
 # S122–S127 program (Release · not Launch)
 
 **Status:** Planned — artifacts promoted 2026-09-13  
-**Source:** [`artifacts/backlog-stories-2026-09-13/wave3/07-sprint-plan.md`](../../../artifacts/backlog-stories-2026-09-13/wave3/07-sprint-plan.md)  
+**Source:** `artifacts/backlog-stories-2026-09-13/wave3/07-sprint-plan.md` (working artifact, not committed to this repo)
 **Capacity:** 5 calendar days / sprint · 20% buffer → **4.0d Must** · ≤2.0d Should · S=0.25d M=0.5d L=1.0d  
 **Stage:** **Release** · **Not Launch** · no S122/Launch confusion — this **is** S122+ product work, not a Launch gate  
 **HEAD at plan:** `c7810de` (#623)
