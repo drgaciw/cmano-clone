@@ -2,17 +2,26 @@
     <ui:VisualElement name="contact-detail-root" class="contact-detail-panel">
         <ui:Label text="CONTACT DETAIL" class="contact-detail-title" />
         <ui:ScrollView name="contact-detail-scroll" mode="Vertical" class="contact-detail-scroll">
+        <ui:Label name="declutter-token-line" text="" class="contact-detail-line contact-detail-declutter" />
         <ui:Label name="contact-id-line" text="CONTACT: —" class="contact-detail-line" />
         <ui:Label name="target-id-line" text="TARGET: —" class="contact-detail-line" />
         <ui:Label name="lifecycle-line" text="STATE: —" class="contact-detail-line" />
         <ui:Label name="classification-line" text="CLASS: —" class="contact-detail-line" />
-        <ui:Label name="confidence-line" text="CONF: —" class="contact-detail-line" />
+        <ui:Label name="source-line" text="SRC: —" class="contact-detail-line contact-provenance-cue--unknown" />
+        <ui:Label name="confidence-line" text="CONF: —" class="contact-detail-line contact-provenance-cue--unknown" />
+        <ui:Label name="age-line" text="AGE: —" class="contact-detail-line contact-provenance-cue--unknown" />
+        <ui:Label name="last-known-line" text="LAST-KNOWN: —" class="contact-detail-line contact-provenance-cue--unknown" />
+        <ui:Label name="comms-line" text="COMMS: —" class="contact-detail-line contact-provenance-cue--unknown" />
         <ui:Label name="kill-chain-line" text="PHASE: Unknown" class="contact-detail-line contact-detail-heading" />
         <ui:Label name="provenance-line" text="Detected by: —" class="contact-detail-line" />
         <ui:Label name="wra-line" text="WRA: —" class="contact-detail-line" />
         <ui:Label name="bda-line" text="BDA: —" class="contact-detail-line" />
         <ui:Label name="staleness-line" text="— ticks stale" class="contact-detail-line contact-detail-line--stale" />
         <ui:Label name="next-action-line" text="NEXT: Select a contact." class="contact-detail-line contact-detail-next" />
+        <ui:VisualElement name="contact-detail-deep-links" class="contact-detail-deep-links">
+            <ui:Button name="contact-explanation-link" text="Open contact explanation" class="contact-detail-deep-link" />
+            <ui:Button name="engagement-explanation-link" text="Open engagement explanation" class="contact-detail-deep-link" />
+        </ui:VisualElement>
         <ui:Foldout name="targeting-explanation" text="Technical targeting chain" value="true" class="contact-detail-section">
             <ui:Label name="sensor-shooter-line" text="CHAIN: Unknown" class="contact-detail-line" />
         </ui:Foldout>
