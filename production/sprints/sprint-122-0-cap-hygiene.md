@@ -17,7 +17,7 @@ Bulk-archive Done issues (or waive), freeze the wave-1 remainder queue, put the 
 ## Capacity
 
 - Calendar: 2 days (hygiene gate, not a full 5-day Must week)
-- Available: **1.75d Must** · 0.75d Should (rev 2: hygiene rows added from the review; still a gate, not a feature day)
+- Available: **2.0d Must** · 0.75d Should (rev 2: hygiene rows added from the review; still a gate, not a feature day)
 
 ## Must Have
 
@@ -70,5 +70,5 @@ None — this is the program gate.
 
 ## Change log
 
-- **2026-09-15 rev 2** (backlog review): cycles made a Must with an AC (was "labels/cycles — human" Should); docs-surface row added to the collision card; bug-ledger verify pass + guard and `/qa-plan` added as Must; docs-PR serial-merge and Notion stale-page sweep added. Capacity restated 0.75d → 1.75d Must.
+- **2026-09-15 rev 2** (backlog review): cycles made a Must with an AC (was "labels/cycles — human" Should); docs-surface row added to the collision card; bug-ledger verify pass + guard and `/qa-plan` added as Must; docs-PR serial-merge and Notion stale-page sweep added. Capacity restated 0.75d → 2.0d Must.
 - **2026-09-13 rev 1**: wave3 architect plan §S122.0.
