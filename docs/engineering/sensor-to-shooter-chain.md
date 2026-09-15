@@ -28,13 +28,15 @@ and pinned by the tests at the end.
   the two `Project(…)` overloads (from a `DecisionLog` or a pre-built `KillChainContactSnapshot`), the
   per-link build/break rules, and `ComputeFingerprint(SensorToShooterSnapshot?)` → replay-stable
   canonical string.
-- **Inputs it consumes:** the kill-chain contact state from `KillChainContactStateProjection` (DRG-179,
-  read off the [order log](order-log-runtime.md)); the catalog engage envelope via
+- **Inputs it consumes:** the kill-chain contact state from `KillChainContactStateProjection`
+  ([kill-chain-contact-state.md](kill-chain-contact-state.md), DRG-179, read off the
+  [order log](order-log-runtime.md)); the catalog engage envelope via
   `CatalogEngageEnvelope.Apply` + `EngagePreviewProjection` (the same engage-preview the C2 attack menu
   uses); and the sim-authored `ISensorToShooterShooterSource` shooter candidates
   (`ScenarioEngageDefaults` + rounds remaining) — **never** UI selection or chrome (ADR-010).
-- **Related:** the contact lifecycle that produces `Stale` / `Lost` / `Degraded` overlays is
-  [detection-pipeline.md](detection-pipeline.md) and
+- **Related:** the shared foundation it folds (the F2T2 phase + loss overlay) is
+  [kill-chain-contact-state.md](kill-chain-contact-state.md); the contact lifecycle that produces
+  `Stale` / `Lost` / `Degraded` overlays is [detection-pipeline.md](detection-pipeline.md) and
   [bda-contact-lifecycle-runtime.md](bda-contact-lifecycle-runtime.md); the sibling drop-reason
   read-model over the same kill-chain is [track-custody-drop-reason-ledger.md](track-custody-drop-reason-ledger.md);
   the general read-model rules are [c2-projection-layer.md](c2-projection-layer.md); the engage gate the

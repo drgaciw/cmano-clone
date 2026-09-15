@@ -27,10 +27,13 @@ projections). Verified against source and pinned by the tests at the end.
   [`TrackCustodyFingerprint.cs`](../../src/ProjectAegis.Delegation/TrackCustody/TrackCustodyFingerprint.cs) —
   `Compute(TrackCustodySnapshot?)` → replay-stable canonical string.
 - **Inputs it consumes (all pure order-log projections):** the kill-chain contact state +
-  transitions from `KillChainContactStateProjection`, the `CommsStateProjection` comms state, the
+  transitions from `KillChainContactStateProjection`
+  ([kill-chain-contact-state.md](kill-chain-contact-state.md)), the `CommsStateProjection` comms state, the
   `ContactProvenanceProjection` per-contact provenance, and the active-picture id set from
   `ContactPictureProjection` — all read off the [order log](order-log-runtime.md) (`DecisionLog`).
-- **Related:** the general read-model rules are [c2-projection-layer.md](c2-projection-layer.md); the
+- **Related:** the shared foundation it folds (the F2T2 phase + loss overlay) is
+  [kill-chain-contact-state.md](kill-chain-contact-state.md); the general read-model rules are
+  [c2-projection-layer.md](c2-projection-layer.md); the
   contact lifecycle that produces `Lost` / `Stale` transitions is
   [detection-pipeline.md](detection-pipeline.md) and
   [bda-contact-lifecycle-runtime.md](bda-contact-lifecycle-runtime.md); the comms `Denied` state is
