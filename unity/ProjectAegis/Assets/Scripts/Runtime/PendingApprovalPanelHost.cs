@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -21,6 +22,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string ApproveButtonName = "pending-approval-approve";
         private const string RejectButtonName = "pending-approval-reject";
         private const string StatusName = "pending-approval-status";
+        private const string AuthorityName = "pending-approval-authority";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -32,6 +34,7 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _badgeLine;
         private Label? _emptyLine;
         private Label? _statusLine;
+        private Label? _authorityLine;
         private ListView? _approvalList;
         private Button? _approveButton;
         private Button? _rejectButton;
@@ -105,6 +108,7 @@ namespace ProjectAegis.Unity.Runtime
             _badgeLine = panel.Q<Label>(BadgeName);
             _emptyLine = panel.Q<Label>(EmptyName);
             _statusLine = panel.Q<Label>(StatusName);
+            _authorityLine = panel.Q<Label>(AuthorityName);
             _approvalList = panel.Q<ListView>(ListName);
             _approveButton = panel.Q<Button>(ApproveButtonName);
             _rejectButton = panel.Q<Button>(RejectButtonName);
@@ -247,12 +251,26 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             UpdateActionButtons();
+            UpdateAuthorityContext();
 
             var rootEl = _document.rootVisualElement?.Q(RootName);
             if (rootEl != null)
             {
                 rootEl.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
             }
+        }
+
+        private void UpdateAuthorityContext()
+        {
+            if (_authorityLine == null || bridgeHost == null)
+            {
+                return;
+            }
+
+            var contactId = bridgeHost.SelectedContactId;
+            bridgeHost.LastSliceAContacts.Authorities.TryGetValue(contactId ?? string.Empty, out var authority);
+            _authorityLine.text = C2AuthorityPresenter.FormatSummaryLine(
+                C2AuthorityPresenter.Build(contactId, authority));
         }
 
         private void UpdateActionButtons()

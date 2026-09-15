@@ -1,0 +1,32 @@
+/* DRG-67 / DRG-182 — engage explain with authority / escalation context. */
+
+.c2-engage-explain {
+    flex-grow: 1;
+    min-width: 280px;
+    max-width: 440px;
+    padding: 8px;
+    background-color: rgba(14, 20, 30, 0.94);
+    border-width: 1px;
+    border-color: rgb(90, 70, 70);
+    flex-direction: column;
+}
+
+.c2-engage-explain-status {
+    font-size: 12px;
+    -unity-font-style: bold;
+    color: rgb(230, 200, 180);
+    margin-bottom: 4px;
+}
+
+.c2-engage-explain-authority {
+    font-size: 10px;
+    color: rgb(190, 205, 170);
+    white-space: normal;
+    margin-bottom: 6px;
+}
+
+.c2-engage-explain-reason {
+    font-size: 11px;
+    color: rgb(200, 210, 220);
+    white-space: normal;
+}

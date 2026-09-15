@@ -33,6 +33,25 @@ public static class EscalationGateProjection
   }
 
   /// <summary>
+  /// Projects a gate row from an already-resolved authority projection (DRG-182 presentation bind).
+  /// Does not re-run <see cref="C2AuthorityProjector"/> — preserves ledger truth from upstream facts.
+  /// </summary>
+  public static EscalationGateSnapshot ProjectFromAuthority(
+      string contactOrOrderId,
+      C2AuthorityProjection authority)
+  {
+    if (string.IsNullOrWhiteSpace(contactOrOrderId))
+    {
+      return EscalationGateSnapshot.Empty;
+    }
+
+    var row = ResolveGateRow(contactOrOrderId, authority);
+    return row is null
+        ? EscalationGateSnapshot.Empty
+        : new EscalationGateSnapshot(new[] { row }, IsOrder: false);
+  }
+
+  /// <summary>
   /// Projects gate rows for each supplied input. Rows are sorted by contact or order id
   /// (ordinal). Every row and the snapshot carry <c>IsOrder=false</c>.
   /// </summary>

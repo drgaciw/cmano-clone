@@ -781,6 +781,14 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(smokeSection, Does.Contain("\"EngageExplain\""),
             "Wave6: EngageExplain GameObject name must be registered");
 
+        // DRG-182 AuthorityRoe host
+        Assert.That(smokeSection, Does.Contain("AuthorityRoePanelHost"),
+            "DRG-182: AuthorityRoePanelHost must be wired in Build()");
+        Assert.That(smokeSection, Does.Contain("\"AuthorityRoe\""),
+            "DRG-182: AuthorityRoe GameObject name must be registered");
+        Assert.That(smokeSection, Does.Contain("Assets/UI/AuthorityRoe/AuthorityRoePanel.uxml"),
+            "DRG-182: AuthorityRoe UXML asset path must be set");
+
         // AxisControl host
         Assert.That(smokeSection, Does.Contain("AxisControlPanelHost"),
             "Wave6: AxisControlPanelHost must be wired in Build()");
@@ -831,12 +839,54 @@ public sealed class PlayModeSmokeHarnessTests
             "EnsureUiMaturityHosts must include PendingApprovalPanelHost");
         Assert.That(ensureSection, Does.Contain("EngageExplainPanelHost"),
             "EnsureUiMaturityHosts must include EngageExplainPanelHost");
+        Assert.That(ensureSection, Does.Contain("AuthorityRoePanelHost"),
+            "EnsureUiMaturityHosts must include AuthorityRoePanelHost");
         Assert.That(ensureSection, Does.Contain("AxisControlPanelHost"),
             "EnsureUiMaturityHosts must include AxisControlPanelHost");
         Assert.That(ensureSection, Does.Contain("MapScaleHudPanelHost"),
             "EnsureUiMaturityHosts must include MapScaleHudPanelHost");
         Assert.That(ensureSection, Does.Contain("GroundOpsPanelHost"),
             "EnsureUiMaturityHosts must include GroundOpsPanelHost");
+    }
+
+    /// <summary>
+    /// DRG-181: Sensor-to-shooter chain chrome must be registered in Build() and EnsureUiMaturityHosts.
+    /// </summary>
+    [Test]
+    public void Delegation_smoke_scene_builder_includes_sensor_to_shooter_host()
+    {
+        var repoRoot = FindRepoRoot();
+        Assert.That(repoRoot, Is.Not.Null);
+
+        var builderPath = Path.Combine(
+            repoRoot!,
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "Editor",
+            "DelegationSmokeSceneBuilder.cs");
+        var builder = File.ReadAllText(builderPath);
+
+        var smokeBuildStart = builder.IndexOf(
+            "public static void Build(string scenarioPolicyId",
+            StringComparison.Ordinal);
+        var cesiumBuildStart = builder.IndexOf(
+            "public static void BuildCesiumSpikeScene(",
+            StringComparison.Ordinal);
+        Assert.That(smokeBuildStart, Is.GreaterThanOrEqualTo(0));
+        Assert.That(cesiumBuildStart, Is.GreaterThan(smokeBuildStart));
+
+        var smokeSection = builder.Substring(smokeBuildStart, cesiumBuildStart - smokeBuildStart);
+        Assert.That(smokeSection, Does.Contain("SensorToShooterPanelHost"));
+        Assert.That(smokeSection, Does.Contain("\"SensorToShooter\""));
+        Assert.That(smokeSection, Does.Contain("Assets/UI/SensorToShooter/SensorToShooterPanel.uxml"));
+
+        var ensureStart = builder.IndexOf(
+            "public static void EnsureUiMaturityHostsOnOpenScene()",
+            StringComparison.Ordinal);
+        Assert.That(ensureStart, Is.GreaterThanOrEqualTo(0));
+        var ensureSection = builder.Substring(ensureStart);
+        Assert.That(ensureSection, Does.Contain("SensorToShooterPanelHost"));
     }
 
     private sealed class PlayModeHarness : ISimWorldSnapshot, IOrderSink
