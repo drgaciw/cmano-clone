@@ -43,7 +43,9 @@ pinned by the tests listed at the end.
   [`unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs`](../../unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs))
   implements it and refreshes the feed each tick.
 - **Related:** the projections these wrap and their `Projection → Binder → State` layering are
-  [c2-projection-layer.md](c2-projection-layer.md); the write/intent side is
+  [c2-projection-layer.md](c2-projection-layer.md); the multi-projection **Slice A contact-detail**
+  path (frame → two presenters → host with fail-closed provenance rows + deep-links) is
+  [slice-a-contact-detail-surface.md](slice-a-contact-detail-surface.md); the write/intent side is
   [player-command-issuance.md](player-command-issuance.md); the `DelegationBridge` /
   `ISimWorldSnapshot` / `IOrderSink` integration contract is the
   [UnityAdapter README](../../src/ProjectAegis.Delegation.UnityAdapter/README.md).
