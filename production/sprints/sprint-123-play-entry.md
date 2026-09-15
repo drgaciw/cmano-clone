@@ -9,7 +9,7 @@
 **Doctrine:** ADR-010 — UI never owns world truth · Baltic hash unchanged  
 **Blocker:** [DRG-197](https://linear.app/drgamtd-workspace/issue/DRG-197) GitNexus reindex must be usable (or the CLI `--repo` fallback recorded in the S122 closeout) before any Unity symbol edit in this sprint. Linear carries this as a `blocks` relation on DRG-243 and DRG-246.
 
-Architect cut (rev 1): raw Must ~4.5d **UNREALISTIC**. Rev 2 Must **3.5d** agent + **0.5d owner** (interim walk).
+Architect cut (rev 1): raw Must ~4.5d **UNREALISTIC**. Rev 2 Must **3.75d** agent + **0.5d owner** (interim walk).
 
 ## Sprint Goal
 
@@ -17,7 +17,7 @@ Load Baltic → real briefing → mode + side → Begin Execution → one tick. 
 
 ## Capacity
 
-- 5 days · **4.0d Must** · Must load **3.5d** agent + 0.5d owner (day 5)
+- 5 days · **4.25d Must** · Must load **3.75d** agent + 0.5d owner (day 5)
 
 ## Must Have
 
@@ -78,5 +78,5 @@ Load Baltic → real briefing → mode + side → Begin Execution → one tick. 
 
 ## Change log
 
-- **2026-09-15 rev 2** (backlog review, [artifact](https://claude.ai/artifact/QnFNFwjdKPQSiiFYqHteAb)): removed DRG-181/182 (in flight, S122 review), DRG-251 and W2-DEL-01 (moved out); promoted DRG-244 to Must; added DRG-208 interim owner walk as S123-10; named DRG-197 as the sprint blocker with the CLI fallback; QA plan made a hard DoD item. Must 3.75d → 3.5d agent.
+- **2026-09-15 rev 2** (backlog review, [artifact](https://claude.ai/artifact/QnFNFwjdKPQSiiFYqHteAb)): removed DRG-181/182 (in flight, S122 review), DRG-251 and W2-DEL-01 (moved out); promoted DRG-244 to Must; added DRG-208 interim owner walk as S123-10; named DRG-197 as the sprint blocker with the CLI fallback; QA plan made a hard DoD item. Capacity corrected: Must load 3.5d → 3.75d agent; sprint Must 4.0d → 4.25d.
 - **2026-09-13 rev 1**: wave3 architect plan §S123.
