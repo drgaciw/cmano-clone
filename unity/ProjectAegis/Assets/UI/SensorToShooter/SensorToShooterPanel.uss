@@ -1,0 +1,47 @@
+/* DRG-181 — dedicated sensor-to-shooter chain chrome (presentation-only). */
+
+.sensor-to-shooter-panel {
+    position: absolute;
+    left: 0;
+    top: 56px;
+    bottom: 0;
+    width: 320px;
+    max-width: 40%;
+    min-width: 260px;
+    flex-direction: column;
+    padding: 8px;
+    background-color: rgba(14, 20, 28, 0.94);
+    border-right-width: 1px;
+    border-right-color: rgb(55, 75, 95);
+}
+
+.sensor-to-shooter-title {
+    -unity-font-style: bold;
+    color: rgb(180, 210, 230);
+    margin-bottom: 6px;
+}
+
+.sensor-to-shooter-scroll {
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.sensor-to-shooter-line {
+    color: rgb(185, 195, 205);
+    margin-bottom: 2px;
+    white-space: normal;
+    flex-shrink: 0;
+}
+
+.sensor-to-shooter-heading {
+    -unity-font-style: bold;
+    margin-top: 6px;
+    color: rgb(210, 220, 230);
+}
+
+.sensor-to-shooter-next {
+    margin-top: 8px;
+    padding: 6px;
+    background-color: rgba(35, 45, 58, 0.9);
+    color: rgb(230, 235, 240);
+}

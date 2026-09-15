@@ -41,3 +41,57 @@
 .contact-detail-line--stale {
     color: rgb(200, 160, 120);
 }
+
+.contact-detail-declutter {
+    -unity-font-style: bold;
+    letter-spacing: 0.5px;
+    color: rgb(215, 205, 190);
+    margin-bottom: 4px;
+}
+
+.contact-detail-deep-links {
+    flex-direction: column;
+    margin-top: 8px;
+    margin-bottom: 4px;
+}
+
+.contact-detail-deep-link {
+    margin-bottom: 4px;
+    padding: 4px 6px;
+    background-color: rgba(45, 55, 70, 0.95);
+    color: rgb(230, 235, 245);
+    -unity-text-align: middle-left;
+}
+
+.contact-detail-deep-link:disabled {
+    color: rgb(130, 125, 135);
+    background-color: rgba(35, 32, 40, 0.9);
+}
+
+/* Non-color provenance cues — border weight + italic for unknown/denied (DRG-180). */
+.contact-provenance-cue--unknown {
+    border-left-width: 3px;
+    border-left-color: rgb(130, 130, 140);
+    padding-left: 6px;
+    -unity-font-style: italic;
+}
+
+.contact-provenance-cue--nominal {
+    border-left-width: 3px;
+    border-left-color: rgb(110, 150, 120);
+    padding-left: 6px;
+}
+
+.contact-provenance-cue--degraded {
+    border-left-width: 3px;
+    border-left-color: rgb(170, 140, 90);
+    padding-left: 6px;
+    -unity-font-style: bold;
+}
+
+.contact-provenance-cue--denied {
+    border-left-width: 3px;
+    border-left-color: rgb(170, 100, 100);
+    padding-left: 6px;
+    -unity-font-style: bold;
+}
