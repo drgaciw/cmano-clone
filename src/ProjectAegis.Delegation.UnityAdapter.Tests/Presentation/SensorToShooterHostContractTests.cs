@@ -22,12 +22,23 @@ public sealed class SensorToShooterHostContractTests
     }
 
     [Test]
-    public void Panel_binder_exposes_target_and_observer_lines_for_host_bind()
+    public void Panel_binder_exposes_all_lines_for_host_bind()
     {
-        var presentation = SensorToShooterPresenter.Build("c1", Chain(), eligibilityAvailable: true);
+        var presentation = SensorToShooterPresenter.Build(
+            "c1",
+            Chain(),
+            eligibilityAvailable: true);
         var labels = SensorToShooterPanelBinder.Bind(presentation);
+
+        Assert.That(labels.ContactIdLine, Does.Contain("c1"));
         Assert.That(labels.TargetIdLine, Does.Contain("target-1"));
         Assert.That(labels.ObserverIdLine, Does.Contain("sensor-1"));
+        Assert.That(labels.StatusLine, Does.Contain("COMPLETE"));
+        Assert.That(labels.SensorLine, Does.Contain("LINKED").And.Contain("sensor-1"));
+        Assert.That(labels.TrackLine, Does.Contain("LINKED").And.Contain("c1"));
+        Assert.That(labels.TargetabilityLine, Does.Contain("LINKED"));
+        Assert.That(labels.ShooterLine, Does.Contain("LINKED").And.Contain("shooter-1"));
+        Assert.That(labels.NextActionLine, Does.Contain("does not issue fire orders"));
     }
 
     private static SensorToShooterSnapshot Chain() =>
