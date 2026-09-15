@@ -781,6 +781,14 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(smokeSection, Does.Contain("\"EngageExplain\""),
             "Wave6: EngageExplain GameObject name must be registered");
 
+        // DRG-182 AuthorityRoe host
+        Assert.That(smokeSection, Does.Contain("AuthorityRoePanelHost"),
+            "DRG-182: AuthorityRoePanelHost must be wired in Build()");
+        Assert.That(smokeSection, Does.Contain("\"AuthorityRoe\""),
+            "DRG-182: AuthorityRoe GameObject name must be registered");
+        Assert.That(smokeSection, Does.Contain("Assets/UI/AuthorityRoe/AuthorityRoePanel.uxml"),
+            "DRG-182: AuthorityRoe UXML asset path must be set");
+
         // AxisControl host
         Assert.That(smokeSection, Does.Contain("AxisControlPanelHost"),
             "Wave6: AxisControlPanelHost must be wired in Build()");
@@ -831,6 +839,8 @@ public sealed class PlayModeSmokeHarnessTests
             "EnsureUiMaturityHosts must include PendingApprovalPanelHost");
         Assert.That(ensureSection, Does.Contain("EngageExplainPanelHost"),
             "EnsureUiMaturityHosts must include EngageExplainPanelHost");
+        Assert.That(ensureSection, Does.Contain("AuthorityRoePanelHost"),
+            "EnsureUiMaturityHosts must include AuthorityRoePanelHost");
         Assert.That(ensureSection, Does.Contain("AxisControlPanelHost"),
             "EnsureUiMaturityHosts must include AxisControlPanelHost");
         Assert.That(ensureSection, Does.Contain("MapScaleHudPanelHost"),

@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="pending-approval-root" class="c2-pending-approval">
+        <ui:Label name="pending-approval-header" text="PENDING APPROVAL" class="c2-pending-approval-header" />
+        <ui:Label name="pending-approval-badge" text="" class="c2-pending-approval-badge" />
+        <ui:Label name="pending-approval-empty" text="" class="c2-pending-approval-empty" />
+        <ui:ListView name="pending-approval-list" class="c2-pending-approval-list" selection-type="Single" />
+        <ui:Label name="pending-approval-authority" text="" class="c2-pending-approval-authority" />
+        <ui:VisualElement name="pending-approval-actions" class="c2-pending-approval-actions">
+            <ui:Button name="pending-approval-approve" text="APPROVE" class="c2-pending-approval-approve" />
+            <ui:Button name="pending-approval-reject" text="REJECT" class="c2-pending-approval-reject" />
+        </ui:VisualElement>
+        <ui:Label name="pending-approval-status" text="" class="c2-pending-approval-status" />
+    </ui:VisualElement>
+</ui:UXML>
