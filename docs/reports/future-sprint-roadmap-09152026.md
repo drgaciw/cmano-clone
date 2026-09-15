@@ -10,7 +10,7 @@ Canonical sprint records: [`production/sprints/sprint-122-127-index.md`](../../p
 
 | Sprint | Dates | Theme | Anchor issues | Must |
 | --- | --- | --- | --- | --- |
-| S122.0 | 09-15 → 09-16 | Linear cap hygiene, remainder filing, cycles | DRG-206 archive smoke | 2.75d |
+| S122.0 | 09-15 → 09-16 | Linear cap hygiene, remainder filing, cycles | DRG-206 archive smoke | 2.0d|
 | S122 | 09-15 → 09-19 | Tracker honesty + Slice G1 baseline | DRG-234 · 242 · 275 · 188 · 197 | 4.0d |
 | S123 | 09-22 → 09-26 | Play-entry / loop honesty + interim owner walk | DRG-243 · 246 · 183 · 244 · 208 (interim) | 3.5d + 0.5d owner |
 | S124 | 09-29 → 10-03 | Combat-commit honesty | DRG-268 · (258) | 2.75d |
