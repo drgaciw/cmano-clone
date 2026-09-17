@@ -1,0 +1,81 @@
+# Machine-readable S122.0–S127 status. Updated by /story-done and /dev-story.
+# Plans: production/sprints/sprint-122-127-index.md
+# Source: artifacts/backlog-stories-2026-09-13/wave3/07-sprint-plan.md (working artifact, not committed to this repo)
+#
+# Status: backlog | ready-for-dev | in-progress | review | done | blocked
+# Priority: must-have | should-have | nice-to-have
+
+sprint: "122.0"
+program: "S122.0-S127"
+goal: "Linear archive / remainder filing (cap hygiene)"
+start: "2026-09-15"
+end: "2026-09-16"
+generated: "2026-09-13"
+updated: "2026-09-13"
+capacity_days: 2
+must_available_days: 0.75
+qa_plan: missing
+
+stories:
+  - id: S122.0-01
+    name: W2-HYG-01 bulk-archive Done
+    file: production/sprints/sprint-122-0-cap-hygiene.md
+    priority: must-have
+    status: ready-for-dev
+    estimate_days: 0.25
+  - id: S122.0-02
+    name: W2-HYG-02 remainder filing checklist
+    file: production/sprints/sprint-122-0-cap-hygiene.md
+    priority: must-have
+    status: ready-for-dev
+    estimate_days: 0.25
+  - id: S122.0-03
+    name: W3-HYG-03 archive smoke or waiver
+    file: production/sprints/sprint-122-0-cap-hygiene.md
+    priority: must-have
+    status: ready-for-dev
+    estimate_days: 0.25
+  - id: S122.0-04
+    name: W3-HYG-01 tag Highs into S122-S127
+    file: production/sprints/sprint-122-0-cap-hygiene.md
+    priority: should-have
+    status: backlog
+    estimate_days: 0.25
+  - id: S122.0-05
+    name: W3-HYG-02 Surface collision card
+    file: production/sprints/sprint-122-0-cap-hygiene.md
+    priority: should-have
+    status: backlog
+    estimate_days: 0.25
+  - id: S122.0-06
+    name: W2-HYG-04 headroom log
+    file: production/sprints/sprint-122-0-cap-hygiene.md
+    priority: nice-to-have
+    status: backlog
+    estimate_days: 0.25
+
+upcoming:
+  - sprint: "122"
+    file: production/sprints/sprint-122-tracker-g1.md
+    dates: "2026-09-15 – 2026-09-19"
+    goal: Tracker honesty + Slice G1
+  - sprint: "123"
+    file: production/sprints/sprint-123-play-entry.md
+    dates: "2026-09-22 – 2026-09-26"
+    goal: Play-entry / loop honesty
+  - sprint: "124"
+    file: production/sprints/sprint-124-combat-commit.md
+    dates: "2026-09-29 – 2026-10-03"
+    goal: Combat-commit honesty
+  - sprint: "125"
+    file: production/sprints/sprint-125-editor-honesty.md
+    dates: "2026-10-06 – 2026-10-10"
+    goal: Editor honesty
+  - sprint: "126"
+    file: production/sprints/sprint-126-symbology-subset.md
+    dates: "2026-10-13 – 2026-10-17"
+    goal: Symbology subset
+  - sprint: "127"
+    file: production/sprints/sprint-127-play-mode-signoff.md
+    dates: "2026-10-20 – 2026-10-24"
+    goal: Play Mode signoff + gates
