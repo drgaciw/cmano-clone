@@ -368,3 +368,5 @@ dotnet test  src/ProjectAegis.Delegation.Tests/ProjectAegis.Delegation.Tests.csp
 | Batch CSV → oracle QA loop | [qa-gauntlet.md](qa-gauntlet.md) |
 | Order-log schema | [ADR-003](../architecture/adr-003-order-log-schema.md) |
 | C2 map / APP-6 presentation | [ADR-007](../architecture/adr-007-c2-map-presentation.md) |
+| Advisory authority / ROE / escalation chrome (Slice A) | [c2-authority-escalation-chrome.md](c2-authority-escalation-chrome.md) |
+| Tick-level Slice A read-model aggregate (folds these projections) | [c2-slice-a-contact-frame.md](c2-slice-a-contact-frame.md) |
