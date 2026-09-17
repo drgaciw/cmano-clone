@@ -283,6 +283,7 @@ it does not touch the zero-touch bridge hotpath.
 |-----|-----|
 | [agent-decision-pipeline.md](agent-decision-pipeline.md) | Upstream: how the order the gate evaluates is chosen (traits, attention, softmax). |
 | [engagement-pipeline.md](engagement-pipeline.md) | Downstream: the tick-8 kill-chain gate chain that fires the weapon after this gate authorizes it. |
+| [c2-authority-escalation-chrome.md](c2-authority-escalation-chrome.md) | The read/explain counterpart: the advisory authority/ROE/escalation projection (`IsOrder=false`) that surfaces *why* an action is permitted/withheld/approval-gated in the Slice A chrome — it never enqueues, resolves, or clears a gate. |
 | [abort-reason-catalog.md](abort-reason-catalog.md) | The `POLICY_DENIAL` / `ENGAGE_ABORT` machine-readable code catalog. |
 | [scenario-policy-authoring.md](scenario-policy-authoring.md) | How `*.policy.json` sets the `RoeLevel` / `MaxSalvo` this gate enforces. |
 | [mission-timeline-runtime.md](mission-timeline-runtime.md) | Contact-triggered ROE escalation that re-captures a unit's policy snapshot. |
