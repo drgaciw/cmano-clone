@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
+from functools import lru_cache
 from pathlib import Path
 
 import pytest
@@ -26,6 +27,32 @@ CATALOG = ROOT / "production" / "qa" / "gauntlet" / "corpus" / "stress-axes.yaml
 GATE_PY = ROOT / "tools" / "qa-gauntlet" / "gate_stress_proof.py"
 VERIFY_PY = ROOT / "tools" / "qa-gauntlet" / "verify_stress_axes.py"
 SHELL_GATE = ROOT / "tools" / "qa-gauntlet" / "run-stress-proof-gate.sh"
+
+
+@lru_cache(maxsize=1)
+def _default_bash_is_wsl() -> bool:
+    """True when PATH `bash` is WSL (uname reports Linux under a Windows host)."""
+    if sys.platform != "win32":
+        return False
+    try:
+        proc = subprocess.run(
+            ["bash", "-c", "uname -s"],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return proc.returncode == 0 and "Linux" in (proc.stdout or "")
+
+
+def _path_for_bash(path: Path) -> str:
+    """Path argv safe for the `bash` on PATH (WSL needs /mnt/<drive>/...)."""
+    posix = path.resolve().as_posix()
+    if _default_bash_is_wsl() and len(posix) >= 2 and posix[1] == ":":
+        return f"/mnt/{posix[0].lower()}{posix[2:]}"
+    return posix if sys.platform == "win32" else str(path.resolve())
 
 
 def _axes():
@@ -184,20 +211,20 @@ def test_shell_wrapper_gate(tmp_path: Path):
     proc = subprocess.run(
         [
             "bash",
-            str(SHELL_GATE),
+            _path_for_bash(SHELL_GATE),
             "--evidence",
-            str(path),
+            _path_for_bash(path),
             "--axes",
-            str(CATALOG),
+            _path_for_bash(CATALOG),
             "--out",
-            str(out),
+            _path_for_bash(out),
         ],
         cwd=str(ROOT),
         capture_output=True,
         text=True,
         check=False,
     )
-    assert proc.returncode == 0
+    assert proc.returncode == 0, f"stderr={proc.stderr!r} stdout={proc.stdout!r}"
     assert out.is_file()
     assert json.loads(out.read_text(encoding="utf-8"))["pass"] is True
 
