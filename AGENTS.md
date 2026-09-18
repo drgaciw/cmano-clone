@@ -141,7 +141,7 @@ IOrderSink.ApplyOrder(entityKey, order)  →  movement / weapons / EW systems
 | Invariant | Rule |
 |-----------|------|
 | **Replay golden hash** | `17144800277401907079` must be preserved in Baltic v2 replay golden files. Grep to verify: `grep -r "17144800277401907079" tests/ data/` |
-| **Test baseline** | ≥1638 solution tests, 0 failures (post S95 gauntlet land; prior ≥1599; monotonic — never regress) |
+| **Test baseline** | ≥1638 solution tests, 0 failures (post S95 gauntlet land; prior ≥1599; monotonic — never regress). Single source: [`production/test-floor.json`](production/test-floor.json) |
 | **ReplayGolden** | 6/6 (Baltic v2 replay suite) |
 | **PlayModeSmokeHarness** | ≥20/20 (C2 proxy tests) |
 | **DelegationBridge.cs** | Zero-touch through Release v1 — no hotpath changes |
