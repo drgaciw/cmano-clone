@@ -26,7 +26,9 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _statusLabel;
         private Label? _reasonLabel;
         private Label? _authorityLabel;
+        private Label? _dlzLine;
         private EngageExplain _last = EngageExplain.Empty;
+        private DlzLiveSurfaceState _dlzSurface = DlzLiveSurfaceState.Empty;
         private bool _wired;
         private CombatPresentationFrame? _lastFrame;
         private string? _lastSelection;
@@ -38,6 +40,9 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Last projected explain state (DRG-67).</summary>
         public EngageExplain LastExplain => _last;
+
+        /// <summary>Last applied weapon-panel DLZ row (DRG-266).</summary>
+        public DlzLiveSurfaceState LastDlzSurface => _dlzSurface;
 
         private void Reset()
         {
@@ -92,6 +97,14 @@ namespace ProjectAegis.Unity.Runtime
             _statusLabel = panel.Q<Label>(StatusName);
             _reasonLabel = panel.Q<Label>(ReasonName);
             _authorityLabel = panel.Q<Label>(AuthorityName);
+            _dlzLine = panel.Q<Label>("dlz-line");
+            if (_dlzLine == null)
+            {
+                _dlzLine = new Label { name = "dlz-line" };
+                _dlzLine.AddToClassList("engage-explain-dlz");
+                _dlzLine.AddToClassList(DlzCueClasses.Unknown);
+                panel.Insert(1, _dlzLine);
+            }
 
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
             {
@@ -124,6 +137,8 @@ namespace ProjectAegis.Unity.Runtime
                     LastCombatDetail.PolicyLine, LastCombatDetail.ConfidenceLine, LastCombatDetail.FiringSolutionLine,
                     LastCombatDetail.NextActionLine, LastCombatDetail.CorrelationLine),
                 LastCombatDetail.StatusLine.Contains("AuthorizationRefused"));
+            _dlzSurface = DlzLiveSurfaceBinder.BindFromEngagePreview(
+                bridgeHost.ProjectSelectedEngagePreview());
 
             if (_statusLabel != null)
             {
@@ -145,6 +160,11 @@ namespace ProjectAegis.Unity.Runtime
                     C2AuthorityPresenter.Build(contactId, authority));
             }
 
+            foreach (var row in DlzLiveSurfacePanelBinder.BindRows(_dlzSurface))
+            {
+                ApplyDlzSurfaceRow(_dlzLine, row.Text, row.CueClass);
+            }
+
             var rootEl = _document.rootVisualElement?.Q(RootName);
             if (rootEl != null)
             {
@@ -161,6 +181,25 @@ namespace ProjectAegis.Unity.Runtime
                 if (_statusLabel != null) _statusLabel.text = _last.StatusLine;
                 if (_reasonLabel != null) _reasonLabel.text = _last.ReasonPlain;
                 if (_authorityLabel != null) _authorityLabel.text = string.Empty;
+            }
+        }
+
+        private static void ApplyDlzSurfaceRow(Label? label, string text, string cueClass)
+        {
+            if (label == null)
+            {
+                return;
+            }
+
+            label.text = text;
+            foreach (var knownCue in DlzCueClasses.All)
+            {
+                label.RemoveFromClassList(knownCue);
+            }
+
+            if (!string.IsNullOrEmpty(cueClass))
+            {
+                label.AddToClassList(cueClass);
             }
         }
     }
