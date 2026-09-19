@@ -27,6 +27,9 @@ public interface IC2PresentationFeed
     /// <summary>Projected C2 network-health snapshot from the last host refresh (DRG-190).</summary>
     C2NetworkHealthSnapshot? LastNetworkHealth { get; }
 
+    /// <summary>Replay-stable fingerprint for <see cref="LastNetworkHealth"/> (computed at tick boundary).</summary>
+    string? LastNetworkHealthFingerprint { get; }
+
     UnitDetailEntry? LastUnitDetail { get; }
 
     void SelectUnit(string unitId);

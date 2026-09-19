@@ -15,12 +15,21 @@ public sealed class C2NetworkHealthHostContractTests
         Assert.That(host, Does.Contain("bridgeHost.LastNetworkHealth"));
         Assert.That(host, Does.Contain("C2NetworkHealthPanelBinder.Bind"));
         Assert.That(host, Does.Contain("C2NetworkHealthPresenter.Build"));
-        Assert.That(host, Does.Contain("C2NetworkHealthFingerprint.Compute"));
+        Assert.That(host, Does.Contain("LastNetworkHealthFingerprint"));
+        Assert.That(host, Does.Not.Contain("C2NetworkHealthFingerprint.Compute"));
         Assert.That(host, Does.Contain("AddToClassList(_networkLabels.CssClass)"));
         Assert.That(host, Does.Not.Contain("C2NetworkHealthProjector.Project"));
         Assert.That(host, Does.Not.Contain("Bridge.Orchestrator"));
         Assert.That(host, Does.Not.Contain("DelegationBridge.Tick"));
         Assert.That(host, Does.Not.Contain("CatalogWriteGate"));
+    }
+
+    [Test]
+    public void Bridge_host_caches_network_health_fingerprint_at_tick_boundary()
+    {
+        var host = UiIaSourceReader.ReadRuntime("DelegationBridgeHost.cs");
+        Assert.That(host, Does.Contain("LastNetworkHealthFingerprint"));
+        Assert.That(host, Does.Contain("C2NetworkHealthFingerprint.Compute(LastNetworkHealth)"));
     }
 
     [Test]
@@ -30,8 +39,11 @@ public sealed class C2NetworkHealthHostContractTests
             "src", "ProjectAegis.Delegation.UnityAdapter", "Bridge", "IC2PresentationFeed.cs");
         var host = UiIaSourceReader.ReadRuntime("DelegationBridgeHost.cs");
         Assert.That(feed, Does.Contain("LastNetworkHealth"));
+        Assert.That(feed, Does.Contain("LastNetworkHealthFingerprint"));
         Assert.That(host, Does.Contain("LastNetworkHealth"));
+        Assert.That(host, Does.Contain("LastNetworkHealthFingerprint"));
         Assert.That(host, Does.Contain("C2NetworkHealthBridge.Build"));
+        Assert.That(host, Does.Contain("Bridge.Registry"));
         Assert.That(host, Does.Not.Contain("CatalogWriteGate"));
     }
 
