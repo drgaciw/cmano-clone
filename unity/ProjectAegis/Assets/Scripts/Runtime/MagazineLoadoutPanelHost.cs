@@ -136,8 +136,9 @@ namespace ProjectAegis.Unity.Runtime
         public void ApplyPresentation(MagazineLoadoutPresentation presentation)
         {
             _presentation = presentation ?? MagazineLoadoutPresentation.Empty;
-            _lastFingerprint = null;
-            ApplyBoundLabels(MagazineLoadoutPanelBinder.Bind(_presentation, roundsPerAirframe));
+            var labels = MagazineLoadoutPanelBinder.Bind(_presentation, roundsPerAirframe);
+            _lastFingerprint = labels.Fingerprint;
+            ApplyBoundLabels(labels);
         }
 
         private void Refresh(bool force)
@@ -147,20 +148,18 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            var fingerprint = MagazineLoadoutPresenter.ComputeFingerprint(
+            _presentation = MagazineLoadoutPresenter.Build(
                 bridgeHost.LastMagazineLoadout,
                 bridgeHost.HasMagazineLoadoutData);
+            var labels = MagazineLoadoutPanelBinder.Bind(_presentation, roundsPerAirframe);
             if (!force
-                && string.Equals(fingerprint, _lastFingerprint, StringComparison.Ordinal))
+                && string.Equals(labels.Fingerprint, _lastFingerprint, StringComparison.Ordinal))
             {
                 return;
             }
 
-            _lastFingerprint = fingerprint;
-            _presentation = MagazineLoadoutPresenter.Build(
-                bridgeHost.LastMagazineLoadout,
-                bridgeHost.HasMagazineLoadoutData);
-            ApplyBoundLabels(MagazineLoadoutPanelBinder.Bind(_presentation, roundsPerAirframe));
+            _lastFingerprint = labels.Fingerprint;
+            ApplyBoundLabels(labels);
 
             var root = _document.rootVisualElement?.Q(RootName);
             if (root != null)
@@ -181,13 +180,17 @@ namespace ProjectAegis.Unity.Runtime
             if (_emptyLine != null)
             {
                 _emptyLine.text = labels.EmptyStateLine;
-                _emptyLine.style.display = string.IsNullOrEmpty(labels.EmptyStateLine)
-                    ? DisplayStyle.None
-                    : DisplayStyle.Flex;
+                _emptyLine.style.display = !labels.HasMagazineData
+                    || !string.IsNullOrEmpty(labels.EmptyStateLine)
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
             }
 
             if (_list != null)
             {
+                _list.style.display = labels.HasMagazineData && labels.Rows.Count > 0
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
                 _list.itemsSource = labels.Rows as System.Collections.IList
                     ?? new List<MagazineLoadoutRowLabels>(labels.Rows);
                 _list.Rebuild();

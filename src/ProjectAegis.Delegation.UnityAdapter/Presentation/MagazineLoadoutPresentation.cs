@@ -32,8 +32,6 @@ public static class MagazineLoadoutPanelBinder
         MagazineLoadoutPresentation presentation,
         int roundsPerAirframe)
     {
-        presentation ??= MagazineLoadoutPresentation.Empty;
-
         var rows = new MagazineLoadoutRowLabels[presentation.Rows.Count];
         for (var i = 0; i < presentation.Rows.Count; i++)
         {
@@ -54,7 +52,7 @@ public static class MagazineLoadoutPanelBinder
 
         return new MagazineLoadoutPanelLabels(
             presentation.HeaderLine,
-            presentation.EmptyStateLine ?? string.Empty,
+            presentation.EmptyStateLine,
             feasibility,
             rows,
             MagazineLoadoutPresenter.ComputeFingerprint(presentation),
@@ -114,7 +112,6 @@ public static class MagazineLoadoutPresenter
     /// <summary>Fingerprint from an applied presentation bundle.</summary>
     public static string ComputeFingerprint(MagazineLoadoutPresentation presentation)
     {
-        presentation ??= MagazineLoadoutPresentation.Empty;
         if (!presentation.HasMagazineData)
         {
             return "ml:no-data";

@@ -15,9 +15,12 @@ public sealed class MagazineLoadoutHostContractTests
         Assert.That(source, Does.Contain("bridgeHost.LastMagazineLoadout"));
         Assert.That(source, Does.Contain("bridgeHost.HasMagazineLoadoutData"));
         Assert.That(source, Does.Not.Contain("Bridge.Orchestrator"));
-        Assert.That(source, Does.Contain("ComputeFingerprint"));
+        Assert.That(source, Does.Contain("labels.Fingerprint"));
         Assert.That(source, Does.Contain("_lastFingerprint"));
         Assert.That(source, Does.Contain("MagazineLoadoutPanelBinder.Bind"));
+        Assert.That(source, Does.Contain("labels.Fingerprint"));
+        Assert.That(source, Does.Contain("labels.HasMagazineData"));
+        Assert.That(source, Does.Contain("labels.EmptyStateLine"));
         Assert.That(source, Does.Contain("row.Remaining"));
         Assert.That(source, Does.Contain("row.Capacity"));
         Assert.That(source, Does.Contain("row.FillPct"));
@@ -34,6 +37,8 @@ public sealed class MagazineLoadoutHostContractTests
             roundsPerAirframe: 6);
 
         Assert.That(labels.HeaderLine, Does.Contain("MAGAZINE"));
+        Assert.That(labels.HasMagazineData, Is.True);
+        Assert.That(labels.Fingerprint, Does.StartWith("ml:r=1|"));
         Assert.That(labels.Rows[0].DisplayLine, Does.Contain("cvn-1"));
         Assert.That(labels.Rows[0].Remaining, Is.EqualTo(6));
         Assert.That(labels.Rows[0].Capacity, Is.EqualTo(8));

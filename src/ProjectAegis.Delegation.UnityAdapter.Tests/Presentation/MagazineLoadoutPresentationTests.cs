@@ -34,6 +34,9 @@ public sealed class MagazineLoadoutPresentationTests
         Assert.That(labels.Rows[0].DisplayLine, Does.Contain("6/8"));
         Assert.That(labels.Rows[0].DisplayLine, Does.Contain("(75%)"));
         Assert.That(labels.HeaderLine, Does.StartWith("MAGAZINE  ·  "));
+        Assert.That(labels.EmptyStateLine, Is.Empty);
+        Assert.That(labels.HasMagazineData, Is.True);
+        Assert.That(labels.Fingerprint, Does.StartWith("ml:r=1|"));
         Assert.That(labels.FeasibilityLine, Does.Contain("ARMABLE AIRFRAMES  1"));
     }
 
@@ -102,5 +105,18 @@ public sealed class MagazineLoadoutPresentationTests
         Assert.That(
             MagazineLoadoutPresenter.ComputeFingerprint(presentation),
             Is.EqualTo(MagazineLoadoutPresenter.ComputeFingerprint(entries, hasMagazineData: true)));
+    }
+
+    [Test]
+    public void Binder_reports_no_magazine_data_labels()
+    {
+        var labels = MagazineLoadoutPanelBinder.Bind(
+            MagazineLoadoutPresentation.NoMagazineData,
+            roundsPerAirframe: 6);
+
+        Assert.That(labels.HasMagazineData, Is.False);
+        Assert.That(labels.EmptyStateLine, Is.EqualTo("NO MAGAZINE DATA"));
+        Assert.That(labels.Fingerprint, Is.EqualTo("ml:no-data"));
+        Assert.That(labels.FeasibilityLine, Is.Empty);
     }
 }
