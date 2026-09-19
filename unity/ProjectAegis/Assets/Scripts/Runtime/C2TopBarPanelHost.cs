@@ -3,6 +3,8 @@
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
+using ProjectAegis.Sim.Scenario;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -21,6 +23,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string CompressionFasterName = "compression-faster-button";
         private const string PauseResumeName = "pause-resume-button";
         private const string ModeName = "mode-label";
+        private const string FogModeName = "fog-mode-label";
         private const string CommsName = "comms-label";
         private const string ScoreName = "score-label";
         private const string ZuluTimeName = "zulu-time-label";
@@ -45,6 +48,7 @@ namespace ProjectAegis.Unity.Runtime
         private Button? _compressionFaster;
         private Button? _pauseResume;
         private Label? _mode;
+        private Label? _fogMode;
         private Label? _comms;
         private Label? _score;
         private Label? _zuluTime;
@@ -52,12 +56,16 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _remainingDuration;
         private bool _wired;
         private C2TopBarPresentation _presentation = C2TopBarPresentation.Empty;
+        private FogModePresentation _fogModePresentation = new("FOG: —", "c2-topbar-item--fog-unknown");
 
         /// <summary>True after panel stylesheet has been applied to the top-bar root.</summary>
         public bool StylesApplied { get; private set; }
 
         /// <summary>Last applied presentation fields (headless-readable after ApplyPanelState).</summary>
         public C2TopBarPresentation LastPresentation => _presentation;
+
+        /// <summary>Last applied fog-mode label from scenario playerInfoModel (DRG-264).</summary>
+        public FogModePresentation LastFogModePresentation => _fogModePresentation;
 
         private void Awake()
         {
@@ -113,6 +121,7 @@ namespace ProjectAegis.Unity.Runtime
             _compressionFaster = panel.Q<Button>(CompressionFasterName);
             _pauseResume = panel.Q<Button>(PauseResumeName);
             _mode = panel.Q<Label>(ModeName);
+            _fogMode = panel.Q<Label>(FogModeName);
             _comms = panel.Q<Label>(CommsName);
             _score = panel.Q<Label>(ScoreName);
             // CMD-22: null-safe Q — labels optional for older UXML trees.
@@ -262,6 +271,7 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _presentation = applied;
+            _fogModePresentation = FogModeLabelBinder.Bind(ResolvePlayerInfoModel());
 
             ApplyPresentationToLabels();
             OverlayLiveCompression();
@@ -295,6 +305,15 @@ namespace ProjectAegis.Unity.Runtime
             if (_mode != null)
             {
                 _mode.text = _presentation.ModeLabel;
+            }
+
+            if (_fogMode != null)
+            {
+                _fogMode.text = _fogModePresentation.Label;
+                _fogMode.ClearClassList();
+                _fogMode.AddToClassList("c2-topbar-item");
+                _fogMode.AddToClassList("c2-topbar-item--fog");
+                _fogMode.AddToClassList(_fogModePresentation.CssClass);
             }
 
             if (_score != null)
@@ -364,6 +383,12 @@ namespace ProjectAegis.Unity.Runtime
             _pauseResume.tooltip = paused && !canResume
                 ? "Acknowledge the attention toast to resume"
                 : string.Empty;
+        }
+
+        private PlayerInfoModel ResolvePlayerInfoModel()
+        {
+            var policy = bridgeHost?.Bridge?.Orchestrator.ScenarioPolicy;
+            return policy?.PlayerInfoModel ?? PlayerInfoModel.FullTransparency;
         }
     }
 }

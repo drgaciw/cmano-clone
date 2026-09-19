@@ -70,6 +70,27 @@
     letter-spacing: 0.5px;
 }
 
+.c2-topbar-item--fog {
+    -unity-font-style: bold;
+    font-size: 11px;
+}
+
+.c2-topbar-item--fog-full {
+    color: rgb(120, 200, 255);
+}
+
+.c2-topbar-item--fog-delegation {
+    color: rgb(240, 180, 80);
+}
+
+.c2-topbar-item--fog-tiered {
+    color: rgb(180, 150, 240);
+}
+
+.c2-topbar-item--fog-unknown {
+    color: rgb(160, 175, 190);
+}
+
 .c2-topbar-item--comms {
     -unity-font-style: bold;
 }

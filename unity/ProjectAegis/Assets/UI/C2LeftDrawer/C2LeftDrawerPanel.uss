@@ -86,6 +86,23 @@
     display: none;
 }
 
+.c2-drawer-contact-chrome {
+    flex-direction: column;
+    flex-shrink: 0;
+    margin-bottom: 4px;
+    padding: 4px;
+    background-color: rgba(20, 28, 40, 0.9);
+    border-width: 1px;
+    border-color: rgb(50, 65, 80);
+    border-radius: 2px;
+}
+
+.c2-drawer-contact-chrome-field {
+    margin-bottom: 2px;
+    font-size: 10px;
+    color: rgb(170, 180, 190);
+}
+
 .oob-row {
     padding: 2px 4px;
     color: rgb(180, 190, 200);
