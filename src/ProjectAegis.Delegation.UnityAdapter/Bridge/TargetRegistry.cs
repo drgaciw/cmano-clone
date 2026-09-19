@@ -10,6 +10,7 @@ public sealed class TargetRegistry
     private readonly Dictionary<EntityKey, SimEntityBinding> _byEntity = new();
     private readonly Dictionary<TargetId, SimEntityBinding> _byTarget = new();
     private readonly List<TargetId> _memberIds = new();
+    private readonly HashSet<TargetId> _friendlyMeshMemberIds = new();
 
     public TargetRegistry(DelegationOrchestrator orchestrator) =>
         _orchestrator = orchestrator;
@@ -88,4 +89,30 @@ public sealed class TargetRegistry
     }
 
     public IReadOnlyList<TargetId> CollectMemberIds() => _memberIds;
+
+    /// <summary>Marks a unit as part of the friendly datalink mesh (side-aware; DRG-190).</summary>
+    public void MarkFriendlyMeshMember(TargetId targetId) => _friendlyMeshMemberIds.Add(targetId);
+
+    /// <summary>Clears friendly-mesh marks before <see cref="DelegationBridge.ConfigureSimulationMode"/> rebinds sides.</summary>
+    public void ClearFriendlyMeshMembers() => _friendlyMeshMemberIds.Clear();
+
+    /// <summary>Friendly-side mesh members explicitly marked or inferred for network-health projection.</summary>
+    public IReadOnlyList<TargetId> CollectFriendlyMeshMemberIds()
+    {
+        if (_friendlyMeshMemberIds.Count == 0)
+        {
+            return Array.Empty<TargetId>();
+        }
+
+        var ids = new List<TargetId>(_friendlyMeshMemberIds.Count);
+        foreach (var memberId in _memberIds)
+        {
+            if (_friendlyMeshMemberIds.Contains(memberId))
+            {
+                ids.Add(memberId);
+            }
+        }
+
+        return ids;
+    }
 }

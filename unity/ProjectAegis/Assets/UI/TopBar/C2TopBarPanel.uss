@@ -55,6 +55,47 @@
     color: rgb(230, 90, 90);
 }
 
+.c2-topbar-legend-item--network {
+    margin-left: 8px;
+    -unity-font-style: bold;
+}
+
+.c2-topbar-legend-item--network-advisory {
+    margin-right: 8px;
+    font-size: 9px;
+    color: rgb(200, 170, 90);
+    -unity-font-style: italic;
+}
+
+.c2-topbar-legend-item--network-node,
+.c2-topbar-legend-item--network-detail,
+.c2-topbar-legend-item--network-contributors,
+.c2-topbar-legend-item--network-lost-paths,
+.c2-topbar-legend-item--network-next {
+    font-size: 10px;
+    color: rgb(150, 165, 180);
+}
+
+.c2-comms--healthy {
+    border-left-width: 3px;
+    border-left-color: rgb(100, 200, 140);
+}
+
+.c2-comms--degraded {
+    border-left-width: 3px;
+    border-left-color: rgb(240, 180, 80);
+}
+
+.c2-comms--partitioned {
+    border-left-width: 3px;
+    border-left-color: rgb(230, 90, 90);
+}
+
+.c2-comms--unknown {
+    border-left-width: 3px;
+    border-left-color: rgb(120, 130, 140);
+}
+
 .c2-topbar-item {
     margin-right: 16px;
     color: rgb(190, 200, 210);

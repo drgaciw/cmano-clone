@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.C2Network;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Input;
@@ -103,6 +104,12 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Projected comms snapshot from the last <see cref="RunTick"/> refresh (CMD-32).</summary>
         public CommsStateSnapshot? LastCommsState { get; private set; }
+
+        /// <summary>Projected C2 network-health snapshot from the last <see cref="RunTick"/> refresh (DRG-190).</summary>
+        public C2NetworkHealthSnapshot? LastNetworkHealth { get; private set; }
+
+        /// <summary>Replay-stable fingerprint for <see cref="LastNetworkHealth"/> (tick-boundary cache).</summary>
+        public string? LastNetworkHealthFingerprint { get; private set; }
 
         /// <summary>Read-only Slice A contact frame, rebuilt once after each simulation tick.</summary>
         public SliceAContactFrame LastSliceAContacts { get; private set; } = SliceAContactFrame.Empty;
@@ -586,6 +593,15 @@ namespace ProjectAegis.Unity.Runtime
                 simulationModeLabel,
                 Bridge.Orchestrator.DecisionLog);
             LastCommsState = CommsStateProjection.Project(Bridge.Orchestrator.DecisionLog);
+            LastNetworkHealth = C2NetworkHealthBridge.Build(
+                Bridge.Orchestrator.DecisionLog,
+                Bridge.Registry,
+                snapshot,
+                CatalogReader,
+                CurrentSimTick);
+            LastNetworkHealthFingerprint = LastNetworkHealth == null
+                ? "c2net:empty"
+                : C2NetworkHealthFingerprint.Compute(LastNetworkHealth);
             LastSliceAContacts = SliceAContactFrameBridge.Build(snapshot, Bridge, CatalogReader);
             LastCombatFrame = CombatPresentationFrameBridge.Build(
                 Bridge.Orchestrator.DecisionLog, LastSliceAContacts, snapshot.SimTime);
