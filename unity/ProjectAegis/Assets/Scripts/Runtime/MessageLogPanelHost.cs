@@ -4,6 +4,7 @@
 #if UNITY_5_3_OR_NEWER
 using System.Linq;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -147,6 +148,17 @@ namespace ProjectAegis.Unity.Runtime
                     if (!string.IsNullOrEmpty(row.CategoryCssClass))
                     {
                         label.AddToClassList(row.CategoryCssClass);
+                    }
+
+                    var fuelBand = MessageLogFuelBandBinder.Bind(row);
+                    foreach (var knownCue in FuelBandCueClasses.All)
+                    {
+                        label.RemoveFromClassList(knownCue);
+                    }
+
+                    if (!string.IsNullOrEmpty(fuelBand.CueClass))
+                    {
+                        label.AddToClassList(fuelBand.CueClass);
                     }
                 };
                 _messageList.selectionType = SelectionType.Single;
