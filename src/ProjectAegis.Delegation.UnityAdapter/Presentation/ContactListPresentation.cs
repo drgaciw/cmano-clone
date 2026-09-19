@@ -17,7 +17,10 @@ public static class ContactListPresentation
             throw new ArgumentNullException(nameof(snapshot));
         }
 
-        chrome ??= ContactListChromeState.Default;
+        if (chrome is null)
+        {
+            throw new ArgumentNullException(nameof(chrome));
+        }
 
         var filtered = Filter(snapshot.Contacts, chrome);
         var sorted = Sort(filtered, chrome.SortKey);
