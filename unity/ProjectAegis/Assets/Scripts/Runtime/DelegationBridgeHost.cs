@@ -12,6 +12,7 @@ using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
+using ProjectAegis.Delegation.C2Nodes;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using ProjectAegis.Delegation.Watch;
 using UnityEngine;
@@ -127,6 +128,8 @@ namespace ProjectAegis.Unity.Runtime
         public AdviceFrame? LastAdvice { get; private set; }
         /// <summary>Current group responsibilities and authored coverage.</summary>
         public CoordinationSnapshot LastCoordination { get; private set; } = CoordinationSnapshot.Empty;
+        /// <summary>Replay-stable mission-package / C2-node snapshot (DRG-189 presentation bind).</summary>
+        public MissionPackageSnapshot LastMissionPackage { get; private set; } = MissionPackageSnapshot.Empty;
         /// <summary>Presentation clutter preference for authored coverage polygons.</summary>
         public bool ShowCommandCoverage { get; set; } = true;
         /// <summary>Most recent explicit read-only skill invocation.</summary>
@@ -598,6 +601,12 @@ namespace ProjectAegis.Unity.Runtime
             CommandTimeline.Capture(LastCombatFrame, LastMapSymbols);
             _commandStatus = ProjectAegis.Delegation.UnityAdapter.CommandReview.StatusFrameBridge.Build(Bridge, snapshot, LastSliceAContacts);
             LastCoordination = CoordinationBridge.Build(Bridge, snapshot);
+            LastMissionPackage = MissionPackagePresentationSource.Project(
+                Bridge,
+                snapshot,
+                snapshot is ICoordinationFacts coordinationFacts
+                    ? coordinationFacts.Packages
+                    : Array.Empty<PackageDefinition>());
             RefreshAdvice();
             // CMD-37: additive roster projection (no Tick body rewrite)
             LastAgentRoster = BuildAgentRosterFromRegistry();
