@@ -2,6 +2,7 @@
 #if UNITY_5_3_OR_NEWER
 using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -55,6 +56,7 @@ namespace ProjectAegis.Unity.Runtime
         private string? _feedbackBaseAttackOptionsLine;
         private string? _attackOptionsDisplay;
         private UnitDetailPresentation _presentation = UnitDetailPresentation.Empty;
+        private UnitDetailFuelBandPresentation _fuelBandPresentation = new("FUEL: —", null, FuelBandCueClasses.Unknown, null);
 
         /// <summary>Last applied unit-detail presentation (S107 apply-state).</summary>
         public UnitDetailPresentation LastPresentation => _presentation;
@@ -232,7 +234,11 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_fuelLine != null)
             {
-                _fuelLine.text = _presentation.FuelLine;
+                _fuelBandPresentation = UnitDetailFuelBandBinder.Bind(_presentation);
+                _fuelLine.text = string.IsNullOrEmpty(_fuelBandPresentation.DeclutterToken)
+                    ? _fuelBandPresentation.FuelLineText
+                    : $"{_fuelBandPresentation.FuelLineText} {_fuelBandPresentation.DeclutterToken}";
+                ApplyFuelBandCueClass(_fuelLine, _fuelBandPresentation.CueClass);
             }
 
             if (_engageLine != null)
@@ -354,6 +360,19 @@ namespace ProjectAegis.Unity.Runtime
 
             var words = reason.Replace('_', ' ').ToLowerInvariant();
             return words.Length == 0 ? "Command blocked" : char.ToUpperInvariant(words[0]) + words.Substring(1);
+        }
+
+        private static void ApplyFuelBandCueClass(Label label, string cueClass)
+        {
+            foreach (var knownCue in FuelBandCueClasses.All)
+            {
+                label.RemoveFromClassList(knownCue);
+            }
+
+            if (!string.IsNullOrEmpty(cueClass))
+            {
+                label.AddToClassList(cueClass);
+            }
         }
     }
 }
