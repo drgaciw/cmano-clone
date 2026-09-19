@@ -110,9 +110,13 @@ public sealed class C2NetworkHealthPresentationTests
         var labels = C2NetworkHealthPanelBinder.Bind(presentation);
 
         Assert.That(labels.HeaderLine, Is.EqualTo(presentation.HeaderLine));
+        Assert.That(labels.AdvisoryBadge, Is.EqualTo(presentation.AdvisoryBadge));
         Assert.That(labels.NetworkHealthLine, Is.EqualTo(presentation.NetworkHealthLine));
         Assert.That(labels.CommsStateLine, Is.EqualTo(presentation.CommsStateLine));
+        Assert.That(labels.CommsNodeLine, Is.EqualTo(presentation.CommsNodeLine));
         Assert.That(labels.SummaryLine, Is.EqualTo(presentation.SummaryLine));
+        Assert.That(labels.ContributorCountLine, Is.EqualTo(presentation.ContributorCountLine));
+        Assert.That(labels.LostPathCountLine, Is.EqualTo(presentation.LostPathCountLine));
         Assert.That(labels.CssClass, Is.EqualTo(presentation.CssClass));
         Assert.That(labels.LinkLines, Has.Count.EqualTo(presentation.LinkRows.Count));
         Assert.That(labels.LinkLines[0], Does.Contain("↔"));
