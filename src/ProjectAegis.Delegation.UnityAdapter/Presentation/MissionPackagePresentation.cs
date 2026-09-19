@@ -3,7 +3,6 @@ using System.Text;
 using ProjectAegis.Delegation.C2Nodes;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
-using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 
 namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 
@@ -93,15 +92,14 @@ public static class MissionPackagePresentationSource
     public static MissionPackageSnapshot Project(
         DelegationBridge? bridge,
         ISimWorldSnapshot? snapshot,
-        ICoordinationFacts? facts = null)
+        IReadOnlyList<PackageDefinition>? packages = null)
     {
         if (bridge is null || snapshot is null)
         {
             return MissionPackageSnapshot.Empty;
         }
 
-        facts ??= snapshot as ICoordinationFacts;
-        var packages = facts?.Packages ?? Array.Empty<PackageDefinition>();
+        packages ??= Array.Empty<PackageDefinition>();
         var boundedLog = BoundLogAt(bridge.Orchestrator.DecisionLog, snapshot.SimTime);
         return MissionPackageProjection.Project(
             packages,

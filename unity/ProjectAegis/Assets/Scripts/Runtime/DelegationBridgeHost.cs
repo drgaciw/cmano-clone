@@ -592,7 +592,12 @@ namespace ProjectAegis.Unity.Runtime
             CommandTimeline.Capture(LastCombatFrame, LastMapSymbols);
             _commandStatus = ProjectAegis.Delegation.UnityAdapter.CommandReview.StatusFrameBridge.Build(Bridge, snapshot, LastSliceAContacts);
             LastCoordination = CoordinationBridge.Build(Bridge, snapshot);
-            LastMissionPackage = MissionPackagePresentationSource.Project(Bridge, snapshot);
+            LastMissionPackage = MissionPackagePresentationSource.Project(
+                Bridge,
+                snapshot,
+                snapshot is ICoordinationFacts coordinationFacts
+                    ? coordinationFacts.Packages
+                    : Array.Empty<PackageDefinition>());
             RefreshAdvice();
             // CMD-37: additive roster projection (no Tick body rewrite)
             LastAgentRoster = BuildAgentRosterFromRegistry();
