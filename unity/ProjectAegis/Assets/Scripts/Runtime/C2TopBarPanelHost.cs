@@ -368,9 +368,7 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             var snapshot = bridgeHost.LastNetworkHealth;
-            var fingerprint = snapshot == null
-                ? "c2net:empty"
-                : C2NetworkHealthFingerprint.Compute(snapshot);
+            var fingerprint = bridgeHost.LastNetworkHealthFingerprint ?? "c2net:empty";
             if (string.Equals(fingerprint, _lastNetworkFingerprint, StringComparison.Ordinal))
             {
                 return;
