@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="mission-package-root" class="mission-package-panel">
+        <ui:Label text="MISSION PACKAGE / C2 NODES" class="mission-package-title" />
+        <ui:Label name="mp-advisory-line" text="INSPECT ONLY · IsOrder=false" class="mission-package-advisory" />
+        <ui:Label name="mp-active-package-line" text="Active package: —" class="mission-package-line" />
+        <ui:Label name="mp-summary-line" text="Packages: 0 · Elements: 0" class="mission-package-line" />
+        <ui:Label text="PACKAGES" class="mission-package-subtitle" />
+        <ui:ListView name="mp-package-list" class="mission-package-list" selection-type="None" />
+        <ui:Label text="C2 ELEMENTS" class="mission-package-subtitle" />
+        <ui:ListView name="mp-element-list" class="mission-package-list" selection-type="None" />
+        <ui:Label name="mp-next-action-line" text="Select a unit to inspect composable C2 nodes." class="mission-package-next" />
+    </ui:VisualElement>
+</ui:UXML>
