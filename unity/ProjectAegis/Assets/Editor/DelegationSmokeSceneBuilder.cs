@@ -105,6 +105,11 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/SensorToShooter/SensorToShooterPanel.uxml",
                 "Assets/UI/SensorToShooter/SensorToShooterPanel.uss");
+            CreatePanelHost<MissionPackagePanelHost>(
+                "MissionPackage",
+                bridge,
+                "Assets/UI/MissionPackage/MissionPackagePanel.uxml",
+                "Assets/UI/MissionPackage/MissionPackagePanel.uss");
             CreatePanelHost<AgentRosterPanelHost>(
                 "AgentRoster",
                 bridge,
@@ -373,6 +378,11 @@ namespace ProjectAegis.Unity.Editor
                 bridge,
                 "Assets/UI/SensorToShooter/SensorToShooterPanel.uxml",
                 "Assets/UI/SensorToShooter/SensorToShooterPanel.uss");
+            added += EnsurePanelHostIfMissing<MissionPackagePanelHost>(
+                "MissionPackage",
+                bridge,
+                "Assets/UI/MissionPackage/MissionPackagePanel.uxml",
+                "Assets/UI/MissionPackage/MissionPackagePanel.uss");
             added += EnsurePanelHostIfMissing<AgentRosterPanelHost>(
                 "AgentRoster",
                 bridge,
