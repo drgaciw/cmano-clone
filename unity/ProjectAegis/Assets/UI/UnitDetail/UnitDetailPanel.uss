@@ -67,3 +67,24 @@
     padding-left: 6px;
     -unity-font-style: bold;
 }
+
+.wra-salvo-cue--unknown {
+    border-left-width: 3px;
+    border-left-color: rgb(130, 130, 140);
+    padding-left: 6px;
+    -unity-font-style: italic;
+}
+
+.wra-salvo-cue--nominal {
+    border-left-width: 3px;
+    border-left-color: rgb(110, 140, 170);
+    padding-left: 6px;
+}
+
+.wra-salvo-cue--exhausted {
+    border-left-width: 3px;
+    border-left-color: rgb(120, 120, 125);
+    padding-left: 6px;
+    opacity: 0.45;
+    -unity-font-style: italic;
+}
