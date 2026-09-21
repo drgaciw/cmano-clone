@@ -1,3 +1,5 @@
+@import url("../AegisTokens.uss");
+
 .oob-tree-panel {
     flex-grow: 1;
     min-width: 220px;
@@ -13,4 +15,26 @@
 
 .oob-tree-list {
     flex-grow: 1;
+}
+
+.oob-row {
+    padding: 2px 4px;
+    color: rgb(180, 190, 200);
+}
+
+.oob-row--selected {
+    background-color: rgba(74, 158, 255, 0.25);
+    border-left-width: 3px;
+    border-left-color: rgb(74, 158, 255);
+}
+
+.oob-row--dead {
+    color: var(--text-muted);
+    opacity: 0.55;
+}
+
+/* Keyboard discovery baseline (DRG-270) — Tab reaches OOB list rows. */
+.oob-row:focus {
+    border-left-width: var(--focus-ring-width);
+    border-left-color: var(--focus-ring);
 }
