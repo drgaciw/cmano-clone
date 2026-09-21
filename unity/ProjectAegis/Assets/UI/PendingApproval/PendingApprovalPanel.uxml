@@ -9,6 +9,14 @@
             <ui:Button name="pending-approval-approve" text="APPROVE" class="c2-pending-approval-approve" />
             <ui:Button name="pending-approval-reject" text="REJECT" class="c2-pending-approval-reject" />
         </ui:VisualElement>
+        <ui:VisualElement name="pending-coordination-confirm" class="c2-pending-coordination-confirm">
+            <ui:Label name="pending-coordination-confirm-title" text="" class="c2-pending-coordination-confirm-title" />
+            <ui:Label name="pending-coordination-confirm-body" text="" class="c2-pending-coordination-confirm-body" />
+            <ui:VisualElement name="pending-coordination-confirm-actions" class="c2-pending-coordination-confirm-actions">
+                <ui:Button name="pending-coordination-confirm-accept" text="CONFIRM" class="c2-pending-coordination-confirm-accept" />
+                <ui:Button name="pending-coordination-confirm-cancel" text="CANCEL" class="c2-pending-coordination-confirm-cancel" />
+            </ui:VisualElement>
+        </ui:VisualElement>
         <ui:Label name="pending-approval-status" text="" class="c2-pending-approval-status" />
     </ui:VisualElement>
 </ui:UXML>
