@@ -880,6 +880,9 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(smokeSection, Does.Contain("SensorToShooterPanelHost"));
         Assert.That(smokeSection, Does.Contain("\"SensorToShooter\""));
         Assert.That(smokeSection, Does.Contain("Assets/UI/SensorToShooter/SensorToShooterPanel.uxml"));
+        Assert.That(smokeSection, Does.Contain("MissionPackagePanelHost"));
+        Assert.That(smokeSection, Does.Contain("\"MissionPackage\""));
+        Assert.That(smokeSection, Does.Contain("Assets/UI/MissionPackage/MissionPackagePanel.uxml"));
 
         var ensureStart = builder.IndexOf(
             "public static void EnsureUiMaturityHostsOnOpenScene()",
@@ -887,6 +890,7 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(ensureStart, Is.GreaterThanOrEqualTo(0));
         var ensureSection = builder.Substring(ensureStart);
         Assert.That(ensureSection, Does.Contain("SensorToShooterPanelHost"));
+        Assert.That(ensureSection, Does.Contain("MissionPackagePanelHost"));
     }
 
     private sealed class PlayModeHarness : ISimWorldSnapshot, IOrderSink

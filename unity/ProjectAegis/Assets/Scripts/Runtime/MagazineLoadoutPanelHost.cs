@@ -1,7 +1,9 @@
-// CMD-24 magazine loadout depth — weapon remaining/capacity + armable airframe feasibility.
+// CMD-24 / DRG-261 magazine loadout depth — weapon remaining/capacity + armable airframe feasibility.
 #if UNITY_5_3_OR_NEWER
+using System;
 using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -29,9 +31,17 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _feasibilityLine;
         private ListView? _list;
         private MagazineLoadoutPresentation _presentation = MagazineLoadoutPresentation.Empty;
+        private MagazineLoadoutPanelLabels _labels = new(
+            string.Empty,
+            string.Empty,
+            string.Empty,
+            Array.Empty<MagazineLoadoutRowLabels>(),
+            "ml:empty",
+            true);
+        private string? _lastFingerprint;
         private bool _wired;
 
-        /// <summary>Last applied magazine presentation (CMD-24).</summary>
+        /// <summary>Last applied magazine presentation (CMD-24 / DRG-261).</summary>
         public MagazineLoadoutPresentation LastPresentation => _presentation;
 
         private void Reset()
@@ -61,8 +71,10 @@ namespace ProjectAegis.Unity.Runtime
 
         private void OnEnable()
         {
+            _wired = false;
+            _lastFingerprint = null;
             TryWireElements();
-            Refresh();
+            Refresh(force: true);
         }
 
         private void LateUpdate()
@@ -78,7 +90,7 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             bridgeHost.RefreshMagazineLoadout();
-            Refresh();
+            Refresh(force: false);
         }
 
         private void TryWireElements()
@@ -100,10 +112,14 @@ namespace ProjectAegis.Unity.Runtime
                 _list.makeItem = () => new Label();
                 _list.bindItem = (element, index) =>
                 {
-                    if (element is Label label && index >= 0 && index < _presentation.Lines.Count)
+                    if (element is not Label label || index < 0 || index >= _labels.Rows.Count)
                     {
-                        label.text = _presentation.Lines[index];
+                        return;
                     }
+
+                    var row = _labels.Rows[index];
+                    label.text = row.DisplayLine;
+                    label.tooltip = $"{row.Remaining}/{row.Capacity} ({row.FillPct:0}%) [{row.StatusLine}]";
                 };
                 _list.selectionType = SelectionType.None;
             }
@@ -120,21 +136,30 @@ namespace ProjectAegis.Unity.Runtime
         public void ApplyPresentation(MagazineLoadoutPresentation presentation)
         {
             _presentation = presentation ?? MagazineLoadoutPresentation.Empty;
-            ApplyPresentationToUi();
+            var labels = MagazineLoadoutPanelBinder.Bind(_presentation, roundsPerAirframe);
+            _lastFingerprint = labels.Fingerprint;
+            ApplyBoundLabels(labels);
         }
 
-        private void Refresh()
+        private void Refresh(bool force)
         {
             if (!_wired || bridgeHost == null)
             {
                 return;
             }
 
-            _presentation = MagazineLoadoutApplyState.Apply(
+            _presentation = MagazineLoadoutPresenter.Build(
                 bridgeHost.LastMagazineLoadout,
                 bridgeHost.HasMagazineLoadoutData);
+            var labels = MagazineLoadoutPanelBinder.Bind(_presentation, roundsPerAirframe);
+            if (!force
+                && string.Equals(labels.Fingerprint, _lastFingerprint, StringComparison.Ordinal))
+            {
+                return;
+            }
 
-            ApplyPresentationToUi();
+            _lastFingerprint = labels.Fingerprint;
+            ApplyBoundLabels(labels);
 
             var root = _document.rootVisualElement?.Q(RootName);
             if (root != null)
@@ -143,41 +168,37 @@ namespace ProjectAegis.Unity.Runtime
             }
         }
 
-        private void ApplyPresentationToUi()
+        private void ApplyBoundLabels(MagazineLoadoutPanelLabels labels)
         {
+            _labels = labels;
+
             if (_headerLine != null)
             {
-                _headerLine.text = _presentation.HeaderLine;
+                _headerLine.text = labels.HeaderLine;
             }
 
             if (_emptyLine != null)
             {
-                _emptyLine.text = _presentation.EmptyStateLine ?? string.Empty;
-                _emptyLine.style.display = string.IsNullOrEmpty(_presentation.EmptyStateLine)
-                    ? DisplayStyle.None
-                    : DisplayStyle.Flex;
+                _emptyLine.text = labels.EmptyStateLine;
+                _emptyLine.style.display = !labels.HasMagazineData
+                    || !string.IsNullOrEmpty(labels.EmptyStateLine)
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
             }
 
             if (_list != null)
             {
-                _list.itemsSource = _presentation.Lines as System.Collections.IList
-                    ?? new List<string>(_presentation.Lines);
+                _list.style.display = labels.HasMagazineData && labels.Rows.Count > 0
+                    ? DisplayStyle.Flex
+                    : DisplayStyle.None;
+                _list.itemsSource = labels.Rows as System.Collections.IList
+                    ?? new List<MagazineLoadoutRowLabels>(labels.Rows);
                 _list.Rebuild();
             }
 
             if (_feasibilityLine != null)
             {
-                if (!_presentation.HasMagazineData || _presentation.Rows.Count == 0)
-                {
-                    _feasibilityLine.text = string.Empty;
-                }
-                else
-                {
-                    var stock = _presentation.Aggregate.TotalRemaining;
-                    _feasibilityLine.text = MagazineLoadoutApplyState.FormatFeasibilityLine(
-                        stock,
-                        roundsPerAirframe);
-                }
+                _feasibilityLine.text = labels.FeasibilityLine;
             }
         }
     }
