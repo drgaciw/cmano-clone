@@ -17,6 +17,40 @@
     font-size: 12px;
 }
 
+.air-ops-ready-line {
+    font-size: 11px;
+    color: rgb(160, 190, 210);
+    margin-bottom: 4px;
+    min-height: 14px;
+}
+
+.air-ops-ready-cue--unknown {
+    border-left-width: 3px;
+    border-left-color: rgb(130, 130, 140);
+    padding-left: 6px;
+    -unity-font-style: italic;
+}
+
+.air-ops-ready-cue--all {
+    border-left-width: 3px;
+    border-left-color: rgb(110, 150, 120);
+    padding-left: 6px;
+}
+
+.air-ops-ready-cue--partial {
+    border-left-width: 3px;
+    border-left-color: rgb(170, 140, 90);
+    padding-left: 6px;
+    -unity-font-style: bold;
+}
+
+.air-ops-ready-cue--none {
+    border-left-width: 3px;
+    border-left-color: rgb(170, 100, 100);
+    padding-left: 6px;
+    -unity-font-style: bold;
+}
+
 .air-ops-empty {
     color: rgb(240, 180, 80);
     font-size: 11px;
