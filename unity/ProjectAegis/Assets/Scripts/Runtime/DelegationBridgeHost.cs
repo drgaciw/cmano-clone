@@ -11,6 +11,7 @@ using ProjectAegis.Delegation.Input;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.ThreatAssessment;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using ProjectAegis.Delegation.C2Nodes;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
@@ -436,8 +437,36 @@ namespace ProjectAegis.Unity.Runtime
                 return EngageExplain.Empty;
             }
 
-            var preview = Bridge.GetEngagePreviewForUnit(SelectedUnitId, _lastSnapshot);
+            var preview = ProjectSelectedEngagePreview();
             return EngageExplainProjection.Project(preview);
+        }
+
+        /// <summary>CMD-11 / DRG-266: live engage preview for weapon-panel DLZ binders.</summary>
+        public EngagePreview? ProjectSelectedEngagePreview()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedUnitId))
+            {
+                return null;
+            }
+
+            return Bridge.GetEngagePreviewForUnit(SelectedUnitId, _lastSnapshot);
+        }
+
+        /// <summary>DRG-266: structured threat-range facts for contact-hover DLZ when supplied by runtime evidence.</summary>
+        public ThreatRangeAssessment? ProjectSelectedContactThreatRange()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedContactId))
+            {
+                return null;
+            }
+
+            if (_lastSnapshot is IAdviceEvidenceSource source
+                && source.TryGetAdviceEvidence(SelectedContactId, out var evidence))
+            {
+                return evidence.ThreatAssessment?.Range;
+            }
+
+            return null;
         }
 
         /// <summary>Interactive attack menu selection (req 14).</summary>
