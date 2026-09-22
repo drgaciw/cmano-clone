@@ -4,13 +4,12 @@ using Controllers;
 using Core;
 using Decision;
 using MissionIntent;
-using ProjectAegis.Delegation.Policy;
+using Policy;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using Traits;
 using NUnit.Framework;
-using Targets;
 
 [TestFixture]
 public sealed class CoordinationAssistedWithdrawRedeployConfirmBinderTests

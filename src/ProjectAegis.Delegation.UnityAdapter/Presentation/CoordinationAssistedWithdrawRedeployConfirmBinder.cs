@@ -3,8 +3,8 @@ namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 using Controllers;
 using Core;
 using MissionIntent;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
-using ProjectAegis.Delegation.UnityAdapter.CommandReview;
+using Bridge;
+using CommandReview;
 using Targets;
 
 /// <summary>Inputs for assisted withdraw / redeploy confirm chrome (presentation-only; ADR-010 §2–3).</summary>
@@ -137,12 +137,6 @@ public static class CoordinationAssistedWithdrawRedeployConfirmBinder
         CoordinationAssistedWithdrawRedeployConfirmInput input,
         out CoordinationAssistedWithdrawRedeployChrome chrome)
     {
-        if (input is null)
-        {
-            chrome = EmptyChrome();
-            return false;
-        }
-
         if (!RequiresExplicitConfirm(input.DelegationAutonomy, input.Decision))
         {
             chrome = EmptyChrome();
@@ -197,11 +191,6 @@ public static class CoordinationAssistedWithdrawRedeployConfirmBinder
         if (_pending is null)
         {
             return new CoordinationAssistedWithdrawRedeployConfirmResult(false, "NO_PENDING_CONFIRM");
-        }
-
-        if (submitGroupDecision is null)
-        {
-            return new CoordinationAssistedWithdrawRedeployConfirmResult(false, "NO_SUBMIT_DELEGATE");
         }
 
         var pending = _pending;
