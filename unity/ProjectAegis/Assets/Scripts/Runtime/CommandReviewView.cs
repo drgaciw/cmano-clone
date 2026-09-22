@@ -131,8 +131,9 @@ namespace ProjectAegis.Unity.Runtime
             {
                 var confirm = CoordinationAssistedWithdrawRedeployConfirmBinder.Confirm(
                     (groupId, decision) => _host.SubmitGroupDecision(groupId, decision));
-                _assistedConfirmStatus.text = confirm.StatusLine;
-                result.text = confirm.StatusLine;
+                var labels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(confirm);
+                _assistedConfirmStatus.text = labels.StatusLine;
+                result.text = labels.StatusLine;
                 RefreshAssistedConfirmChrome();
                 Bind();
             })
@@ -244,14 +245,14 @@ namespace ProjectAegis.Unity.Runtime
             var autonomy = CoordinationAssistedWithdrawRedeployConfirmBinder.ResolveDelegationAutonomy(
                 _host.Bridge,
                 groupId);
+            var confirmInput = new CoordinationAssistedWithdrawRedeployConfirmInput(
+                autonomy,
+                groupId,
+                decision,
+                review?.Intent);
+            _ = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(confirmInput);
             if (CoordinationAssistedWithdrawRedeployConfirmBinder.RequiresExplicitConfirm(autonomy, decision)
-                && CoordinationAssistedWithdrawRedeployConfirmBinder.TryBegin(
-                    new CoordinationAssistedWithdrawRedeployConfirmInput(
-                        autonomy,
-                        groupId,
-                        decision,
-                        review?.Intent),
-                    out _))
+                && CoordinationAssistedWithdrawRedeployConfirmBinder.TryBegin(confirmInput, out _))
             {
                 RefreshAssistedConfirmChrome();
                 return "Awaiting assisted confirm — use CONFIRM or CANCEL.";
@@ -270,10 +271,16 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            _assistedConfirmTitle.text = chrome.Title;
-            _assistedConfirmBody.text = chrome.Body;
-            _assistedConfirmAccept.text = chrome.ConfirmLabel;
-            _assistedConfirmCancel.text = chrome.CancelLabel;
+            var labels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(chrome);
+            _assistedConfirmTitle.text = labels.Title;
+            _assistedConfirmBody.text = labels.Body;
+            _assistedConfirmAccept.text = labels.ConfirmLabel;
+            _assistedConfirmCancel.text = labels.CancelLabel;
+            var pending = CoordinationAssistedWithdrawRedeployConfirmBinder.Pending;
+            if (pending != null)
+            {
+                _ = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(pending);
+            }
         }
 
         private void RefreshTimeline()

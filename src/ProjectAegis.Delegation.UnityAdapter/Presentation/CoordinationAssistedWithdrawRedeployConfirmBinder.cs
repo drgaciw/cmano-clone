@@ -26,6 +26,56 @@ public sealed record CoordinationAssistedWithdrawRedeployConfirmResult(
     bool Accepted,
     string StatusLine);
 
+/// <summary>Panel label text for assisted withdraw / redeploy confirm chrome.</summary>
+public sealed record CoordinationAssistedWithdrawRedeployPanelLabels(
+    string Title,
+    string Body,
+    string ConfirmLabel,
+    string CancelLabel);
+
+/// <summary>Panel status text after confirm.</summary>
+public sealed record CoordinationAssistedWithdrawRedeployConfirmResultLabels(
+    bool Accepted,
+    string StatusLine);
+
+/// <summary>Panel-readable staged request fields.</summary>
+public sealed record CoordinationAssistedWithdrawRedeployPendingLabels(
+    string GroupId,
+    CoordinationDecision Decision,
+    MissionIntentSnapshot? ReviewedIntent,
+    bool RedeploySuggestion);
+
+/// <summary>Panel-readable confirm input fields.</summary>
+public sealed record CoordinationAssistedWithdrawRedeployConfirmInputLabels(
+    AutonomyLevel DelegationAutonomy,
+    string GroupId,
+    CoordinationDecision Decision,
+    MissionIntentSnapshot? ReviewedIntent);
+
+/// <summary>Maps presentation DTOs to panel strings (headless; satisfies in-solution property reads).</summary>
+public static class CoordinationAssistedWithdrawRedeployPanelBinder
+{
+    /// <summary>Binds confirm chrome for UI Toolkit labels and buttons.</summary>
+    public static CoordinationAssistedWithdrawRedeployPanelLabels Bind(
+        CoordinationAssistedWithdrawRedeployChrome chrome) =>
+        new(chrome.Title, chrome.Body, chrome.ConfirmLabel, chrome.CancelLabel);
+
+    /// <summary>Binds confirm outcome for status labels.</summary>
+    public static CoordinationAssistedWithdrawRedeployConfirmResultLabels Bind(
+        CoordinationAssistedWithdrawRedeployConfirmResult result) =>
+        new(result.Accepted, result.StatusLine);
+
+    /// <summary>Binds staged pending request for host visibility and diagnostics.</summary>
+    public static CoordinationAssistedWithdrawRedeployPendingLabels Bind(
+        CoordinationAssistedWithdrawRedeployPendingRequest pending) =>
+        new(pending.GroupId, pending.Decision, pending.ReviewedIntent, pending.RedeploySuggestion);
+
+    /// <summary>Binds confirm input for host staging calls.</summary>
+    public static CoordinationAssistedWithdrawRedeployConfirmInputLabels Bind(
+        CoordinationAssistedWithdrawRedeployConfirmInput input) =>
+        new(input.DelegationAutonomy, input.GroupId, input.Decision, input.ReviewedIntent);
+}
+
 /// <summary>
 /// Stages assisted withdraw / redeploy confirmation without mutating the order log until confirm.
 /// Confirm must route through the existing command-review façade (e.g. <c>CoordinationCommandBridge</c>).

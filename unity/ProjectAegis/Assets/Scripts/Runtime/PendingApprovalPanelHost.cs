@@ -205,7 +205,8 @@ namespace ProjectAegis.Unity.Runtime
 
             var result = CoordinationAssistedWithdrawRedeployConfirmBinder.Confirm(
                 (groupId, decision) => bridgeHost.SubmitGroupDecision(groupId, decision));
-            SetStatus(result.Accepted ? null : result.StatusLine);
+            var resultLabels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(result);
+            SetStatus(resultLabels.Accepted ? null : resultLabels.StatusLine);
             RefreshCoordinationConfirmChrome();
         }
 
@@ -378,30 +379,34 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
+            _ = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(pending);
+
             var chrome = CoordinationAssistedWithdrawRedeployConfirmBinder.ProjectChromeForPending();
             if (chrome is null)
             {
                 return;
             }
 
+            var labels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(chrome);
+
             if (_coordinationConfirmTitle != null)
             {
-                _coordinationConfirmTitle.text = chrome.Title;
+                _coordinationConfirmTitle.text = labels.Title;
             }
 
             if (_coordinationConfirmBody != null)
             {
-                _coordinationConfirmBody.text = chrome.Body;
+                _coordinationConfirmBody.text = labels.Body;
             }
 
             if (_coordinationConfirmAccept != null)
             {
-                _coordinationConfirmAccept.text = chrome.ConfirmLabel;
+                _coordinationConfirmAccept.text = labels.ConfirmLabel;
             }
 
             if (_coordinationConfirmCancel != null)
             {
-                _coordinationConfirmCancel.text = chrome.CancelLabel;
+                _coordinationConfirmCancel.text = labels.CancelLabel;
             }
         }
 

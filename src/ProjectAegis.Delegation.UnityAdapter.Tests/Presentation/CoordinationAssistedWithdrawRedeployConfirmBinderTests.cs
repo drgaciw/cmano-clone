@@ -52,7 +52,26 @@ public sealed class CoordinationAssistedWithdrawRedeployConfirmBinderTests
                     intent),
                 out var chrome),
             Is.True);
-        Assert.That(chrome.Title, Does.Contain("redeploy").IgnoreCase);
+        var panelLabels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(chrome);
+        Assert.That(panelLabels.Title, Does.Contain("redeploy").IgnoreCase);
+        Assert.That(panelLabels.Body, Is.Not.Empty);
+        Assert.That(panelLabels.ConfirmLabel, Is.Not.Empty);
+        Assert.That(panelLabels.CancelLabel, Is.Not.Empty);
+        var pendingLabels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(
+            CoordinationAssistedWithdrawRedeployConfirmBinder.Pending!);
+        Assert.That(pendingLabels.GroupId, Is.EqualTo(groupId));
+        Assert.That(pendingLabels.Decision, Is.EqualTo(CoordinationDecision.Withdraw));
+        Assert.That(pendingLabels.RedeploySuggestion, Is.True);
+        var inputLabels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(
+            new CoordinationAssistedWithdrawRedeployConfirmInput(
+                AutonomyLevel.Assisted,
+                groupId,
+                CoordinationDecision.Withdraw,
+                intent));
+        Assert.That(inputLabels.DelegationAutonomy, Is.EqualTo(AutonomyLevel.Assisted));
+        Assert.That(inputLabels.GroupId, Is.EqualTo(groupId));
+        Assert.That(inputLabels.Decision, Is.EqualTo(CoordinationDecision.Withdraw));
+        Assert.That(inputLabels.ReviewedIntent, Is.SameAs(intent));
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Is.Empty);
         Assert.That(CoordinationAssistedWithdrawRedeployConfirmBinder.Pending, Is.Not.Null);
     }
@@ -96,7 +115,9 @@ public sealed class CoordinationAssistedWithdrawRedeployConfirmBinderTests
             });
 
         Assert.That(submitCalls, Is.EqualTo(1));
-        Assert.That(result.Accepted, Is.True);
+        var resultLabels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(result);
+        Assert.That(resultLabels.Accepted, Is.True);
+        Assert.That(resultLabels.StatusLine, Is.EqualTo("ok"));
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Has.Count.EqualTo(1));
         Assert.That(CoordinationAssistedWithdrawRedeployConfirmBinder.Pending, Is.Null);
     }
@@ -109,6 +130,48 @@ public sealed class CoordinationAssistedWithdrawRedeployConfirmBinderTests
                 AutonomyLevel.Manual,
                 CoordinationDecision.Withdraw),
             Is.False);
+    }
+
+    [Test]
+    public void Panel_binder_reads_every_record_property_for_inspect()
+    {
+        var chrome = new CoordinationAssistedWithdrawRedeployChrome(
+            "Confirm withdraw / redeploy",
+            "body",
+            "CONFIRM",
+            "CANCEL");
+        var chromeLabels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(chrome);
+        Assert.That(chromeLabels.Title, Is.EqualTo(chrome.Title));
+        Assert.That(chromeLabels.Body, Is.EqualTo(chrome.Body));
+        Assert.That(chromeLabels.ConfirmLabel, Is.EqualTo(chrome.ConfirmLabel));
+        Assert.That(chromeLabels.CancelLabel, Is.EqualTo(chrome.CancelLabel));
+
+        var result = new CoordinationAssistedWithdrawRedeployConfirmResult(true, "Queued");
+        var resultLabels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(result);
+        Assert.That(resultLabels.Accepted, Is.True);
+        Assert.That(resultLabels.StatusLine, Is.EqualTo("Queued"));
+
+        var pending = new CoordinationAssistedWithdrawRedeployPendingRequest(
+            "g1",
+            CoordinationDecision.Withdraw,
+            null,
+            true);
+        var pendingLabels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(pending);
+        Assert.That(pendingLabels.GroupId, Is.EqualTo("g1"));
+        Assert.That(pendingLabels.Decision, Is.EqualTo(CoordinationDecision.Withdraw));
+        Assert.That(pendingLabels.ReviewedIntent, Is.Null);
+        Assert.That(pendingLabels.RedeploySuggestion, Is.True);
+
+        var input = new CoordinationAssistedWithdrawRedeployConfirmInput(
+            AutonomyLevel.Assisted,
+            "g1",
+            CoordinationDecision.Withdraw,
+            null);
+        var inputLabels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(input);
+        Assert.That(inputLabels.DelegationAutonomy, Is.EqualTo(AutonomyLevel.Assisted));
+        Assert.That(inputLabels.GroupId, Is.EqualTo("g1"));
+        Assert.That(inputLabels.Decision, Is.EqualTo(CoordinationDecision.Withdraw));
+        Assert.That(inputLabels.ReviewedIntent, Is.Null);
     }
 
     [Test]
