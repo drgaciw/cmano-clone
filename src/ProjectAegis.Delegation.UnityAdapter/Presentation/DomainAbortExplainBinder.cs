@@ -218,5 +218,7 @@ public static class DomainAbortExplainBinder
         return -1;
     }
 
-    private static bool IsCodeChar(char c) => char.IsAsciiLetterOrDigit(c) || c == '_';
+    // netstandard2.1: char.IsAsciiLetterOrDigit is .NET 5+ only.
+    private static bool IsCodeChar(char c) =>
+        (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || c == '_';
 }
