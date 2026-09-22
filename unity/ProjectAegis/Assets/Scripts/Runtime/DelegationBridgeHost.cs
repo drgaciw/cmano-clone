@@ -16,6 +16,9 @@ using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using ProjectAegis.Delegation.C2Nodes;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using ProjectAegis.Delegation.Watch;
+using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
 using UnityEngine;
 
 namespace ProjectAegis.Unity.Runtime
@@ -467,6 +470,45 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             return null;
+        }
+
+        /// <summary>DRG-259: WRA salvo remaining vs max for weapon-panel chrome (advisory only).</summary>
+        public WraSalvoRemainingState ProjectSelectedWraSalvoRemaining()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedUnitId))
+            {
+                return WraSalvoRemainingState.Empty;
+            }
+
+            var policyProfile = Bridge.Orchestrator.ScenarioPolicy;
+            var policy = policyProfile?.ResolveUnitPolicy(SelectedUnitId, isFriendly: true).Effective
+                ?? EffectivePolicy.DefaultFree;
+            var ctx = BuildSelectedLiveEngageContext(SelectedUnitId);
+            return WraSalvoRemainingBinder.Bind(
+                SelectedUnitId,
+                in ctx,
+                policy,
+                ProjectSelectedEngagePreview());
+        }
+
+        /// <summary>Read-only live engage context mirror of <see cref="DelegationBridge.GetEngagePreviewForUnit"/> inputs.</summary>
+        private EngageContext BuildSelectedLiveEngageContext(string shooterUnitId)
+        {
+            var engageDefaults = Bridge.Orchestrator.ScenarioPolicy?.EngageDefaults
+                ?? ScenarioEngageDefaults.MvpFallback;
+            var ctx = engageDefaults.ToEngageContext(engageDefaults.DefaultMagazineRounds);
+            if (_lastSnapshot == null)
+            {
+                return ctx;
+            }
+
+            var airReady = Session?.UnitReadiness?.IsReadyForLaunch(shooterUnitId) ?? true;
+            return ctx with
+            {
+                HasFireControlTrack = _lastSnapshot.HasFireControlTrackOnPrimaryContact,
+                RadarEmconActive = _lastSnapshot.ObserverRadarEmconActive,
+                AirOperationsReady = airReady,
+            };
         }
 
         /// <summary>Interactive attack menu selection (req 14).</summary>
