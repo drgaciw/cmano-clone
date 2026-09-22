@@ -265,7 +265,10 @@ namespace ProjectAegis.Unity.Runtime
 
             foreach (var row in WraSalvoRemainingPanelBinder.BindRows(_wraSalvoSurface))
             {
-                ApplyWraSalvoSurfaceRow(_wraSalvoLine, row.Text, row.CueClass);
+                var wraSalvoText = string.IsNullOrEmpty(_wraSalvoSurface.DeclutterToken)
+                    ? row.Text
+                    : $"{row.Text} {_wraSalvoSurface.DeclutterToken}";
+                ApplyWraSalvoSurfaceRow(_wraSalvoLine, wraSalvoText, row.CueClass);
             }
 
             if (_engageLine != null)

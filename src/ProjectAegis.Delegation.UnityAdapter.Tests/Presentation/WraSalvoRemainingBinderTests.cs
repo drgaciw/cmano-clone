@@ -1,8 +1,5 @@
 using NUnit.Framework;
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
-using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
@@ -27,6 +24,7 @@ public sealed class WraSalvoRemainingBinderTests
         Assert.That(bound.IsExhausted, Is.False);
         Assert.That(bound.AbortReasonCode, Is.Null);
         Assert.That(bound.CueClass, Is.EqualTo(WraSalvoCueClasses.Nominal));
+        Assert.That(bound.DeclutterToken, Is.EqualTo(WraSalvoDeclutterTokens.Ready));
         Assert.That(bound.IsFireOrder, Is.False);
     }
 
