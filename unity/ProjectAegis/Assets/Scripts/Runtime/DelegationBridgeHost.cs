@@ -491,6 +491,16 @@ namespace ProjectAegis.Unity.Runtime
                 ProjectSelectedEngagePreview());
         }
 
+        /// <summary>
+        /// DRG-167: battle graphic for the displayed combat frame.
+        /// Projection read only — does not tick, enqueue, or write the order log.
+        /// </summary>
+        public BattleGraphicState ProjectBattleGraphic(
+            IReadOnlyList<MapSymbolEntry> symbols,
+            CombatZoomBand zoom = CombatZoomBand.Tactical,
+            string? selectedKey = null) =>
+            BattleGraphicBinder.Bind(DisplayCombatFrame, symbols, zoom, selectedKey);
+
         /// <summary>Read-only live engage context mirror of <see cref="DelegationBridge.GetEngagePreviewForUnit"/> inputs.</summary>
         private EngageContext BuildSelectedLiveEngageContext(string shooterUnitId)
         {
