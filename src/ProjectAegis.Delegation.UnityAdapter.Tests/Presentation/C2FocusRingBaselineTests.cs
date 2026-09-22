@@ -1,5 +1,5 @@
-using System.IO;
 using NUnit.Framework;
+using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Presentation;
@@ -58,10 +58,23 @@ public sealed class C2FocusRingBaselineTests
             "OobTreePanel.uss"));
 
         Assert.That(drawerUss, Does.Contain(FocusRingTokens.RingColorReference));
+        Assert.That(drawerUss, Does.Contain(FocusRingTokens.RingWidthReference));
         Assert.That(drawerUss, Does.Contain(FocusRingUssSelectors.OobRowFocused));
 
+        var speccedDrawerUss = File.ReadAllText(Path.Combine(
+            repoRoot,
+            "production",
+            "assets",
+            "c2",
+            "C2LeftDrawerPanel.uss"));
+        Assert.That(speccedDrawerUss, Does.Contain(FocusRingUssSelectors.C2DrawerRowFocused));
+
         Assert.That(messageUss, Does.Contain(FocusRingTokens.RingColorReference));
+        Assert.That(messageUss, Does.Contain(FocusRingTokens.RingWidthReference));
         Assert.That(messageUss, Does.Contain(FocusRingUssSelectors.MessageLogSelectableFocused));
+        Assert.That(
+            KeyboardDiscoverySurfaces.MessageLogSelectableClass,
+            Is.EqualTo(MessageLogCategoryClassMap.SelectableRowClass));
 
         Assert.That(oobUss, Does.Contain("@import url(\"../AegisTokens.uss\")"));
         Assert.That(oobUss, Does.Contain(FocusRingUssSelectors.OobRowFocused));
