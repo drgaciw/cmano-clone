@@ -41,6 +41,26 @@
     opacity: 0.45;
 }
 
+.attack-option-cue--empty {
+    border-left-width: 3px;
+    border-left-color: rgb(130, 130, 140);
+    padding-left: 6px;
+    -unity-font-style: italic;
+}
+
+.attack-option-cue--ready {
+    border-left-width: 3px;
+    border-left-color: rgb(110, 150, 120);
+    padding-left: 6px;
+}
+
+.attack-option-cue--blocked {
+    border-left-width: 3px;
+    border-left-color: rgb(170, 100, 100);
+    padding-left: 6px;
+    -unity-font-style: bold;
+}
+
 .dlz-cue--unknown {
     border-left-width: 3px;
     border-left-color: rgb(130, 130, 140);
