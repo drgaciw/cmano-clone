@@ -117,7 +117,7 @@ public sealed class DomainAbortExplainBinderTests
     [Test]
     public void Missing_projection_fails_closed_to_unknown()
     {
-        var bound = DomainAbortExplainBinder.Bind(null, null, null);
+        var bound = DomainAbortExplainBinder.Bind(null);
 
         Assert.That(bound, Is.EqualTo(DomainAbortExplainState.Empty));
         Assert.That(bound.CueClass, Is.EqualTo(DomainAbortCueClasses.Unknown));
