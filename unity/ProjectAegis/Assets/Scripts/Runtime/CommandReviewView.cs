@@ -29,6 +29,12 @@ namespace ProjectAegis.Unity.Runtime
         private readonly List<Button> _statusButtons = new();
         private readonly Foldout _statusHistory;
         private readonly Foldout _timeline;
+        private readonly VisualElement _assistedConfirmRoot;
+        private readonly Label _assistedConfirmTitle;
+        private readonly Label _assistedConfirmBody;
+        private readonly Button _assistedConfirmAccept;
+        private readonly Button _assistedConfirmCancel;
+        private readonly Label _assistedConfirmStatus;
         private readonly Dictionary<string, (Foldout Root, List<Label> Rows)> _sections = new();
         private int _page;
         private object? _boundFrame;
@@ -100,10 +106,52 @@ namespace ProjectAegis.Unity.Runtime
             foreach (var decision in new[] { CoordinationDecision.Hold, CoordinationDecision.Withdraw, CoordinationDecision.Reattack })
             {
                 var choice = decision;
-                _decisions.Add(new Button(() => result.text = _host.SubmitGroupDecision(_group.value, choice))
-                { text = choice == CoordinationDecision.Reattack ? "Review reattack constraints" : "Issue group " + choice });
+                _decisions.Add(new Button(() => result.text = IssueGroupDecision(choice))
+                {
+                    text = choice == CoordinationDecision.Reattack
+                        ? "Review reattack constraints"
+                        : choice == CoordinationDecision.Withdraw
+                            ? "Issue group withdraw / redeploy"
+                            : "Issue group " + choice
+                });
             }
             _decisions.Add(result);
+            _assistedConfirmRoot = new VisualElement { name = "command-review-assisted-confirm" };
+            _assistedConfirmRoot.style.flexDirection = FlexDirection.Column;
+            _assistedConfirmRoot.style.display = DisplayStyle.None;
+            _assistedConfirmTitle = new Label();
+            _assistedConfirmTitle.style.whiteSpace = WhiteSpace.Normal;
+            _assistedConfirmBody = new Label();
+            _assistedConfirmBody.style.whiteSpace = WhiteSpace.Normal;
+            _assistedConfirmStatus = new Label();
+            _assistedConfirmStatus.style.whiteSpace = WhiteSpace.Normal;
+            var confirmRow = new VisualElement();
+            confirmRow.style.flexDirection = FlexDirection.Row;
+            _assistedConfirmAccept = new Button(() =>
+            {
+                var confirm = CoordinationAssistedWithdrawRedeployConfirmBinder.Confirm(
+                    (groupId, decision) => _host.SubmitGroupDecision(groupId, decision));
+                var labels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(confirm);
+                _assistedConfirmStatus.text = labels.StatusLine;
+                result.text = labels.StatusLine;
+                RefreshAssistedConfirmChrome();
+                Bind();
+            })
+            { text = "CONFIRM" };
+            _assistedConfirmCancel = new Button(() =>
+            {
+                CoordinationAssistedWithdrawRedeployConfirmBinder.TryCancel();
+                _assistedConfirmStatus.text = string.Empty;
+                RefreshAssistedConfirmChrome();
+            })
+            { text = "CANCEL" };
+            confirmRow.Add(_assistedConfirmAccept);
+            confirmRow.Add(_assistedConfirmCancel);
+            _assistedConfirmRoot.Add(_assistedConfirmTitle);
+            _assistedConfirmRoot.Add(_assistedConfirmBody);
+            _assistedConfirmRoot.Add(confirmRow);
+            _assistedConfirmRoot.Add(_assistedConfirmStatus);
+            _decisions.Add(_assistedConfirmRoot);
             _body.Add(_decisions);
             _statusHistory = new Foldout { text = "Recent damage/comms — open related combat timeline", value = false };
             _body.Add(_statusHistory);
@@ -160,6 +208,7 @@ namespace ProjectAegis.Unity.Runtime
             for (var i = statusCount; i < _statusButtons.Count; i++) _statusButtons[i].style.display = DisplayStyle.None;
             _statusHistory.text = $"Damage/comms — latest {statusCount} of {statusRows.Count}; open related combat timeline";
             RefreshTimeline();
+            RefreshAssistedConfirmChrome();
             foreach (var section in _host.LastCommandReviewSections)
             {
                 if (!_sections.TryGetValue(section.Id, out var pool))
@@ -188,6 +237,51 @@ namespace ProjectAegis.Unity.Runtime
         }
 
         private static string? Optional(string value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+        private string IssueGroupDecision(CoordinationDecision decision)
+        {
+            var groupId = _group.value;
+            var review = _host.LastCoordination.Groups.FirstOrDefault(x => x.Coordination.GroupId == groupId);
+            var autonomy = CoordinationAssistedWithdrawRedeployConfirmBinder.ResolveDelegationAutonomy(
+                _host.Bridge,
+                groupId);
+            var confirmInput = new CoordinationAssistedWithdrawRedeployConfirmInput(
+                autonomy,
+                groupId,
+                decision,
+                review?.Intent);
+            _ = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(confirmInput);
+            if (CoordinationAssistedWithdrawRedeployConfirmBinder.RequiresExplicitConfirm(autonomy, decision)
+                && CoordinationAssistedWithdrawRedeployConfirmBinder.TryBegin(confirmInput, out _))
+            {
+                RefreshAssistedConfirmChrome();
+                return "Awaiting assisted confirm — use CONFIRM or CANCEL.";
+            }
+
+            return _host.SubmitGroupDecision(groupId, decision);
+        }
+
+        private void RefreshAssistedConfirmChrome()
+        {
+            var chrome = CoordinationAssistedWithdrawRedeployConfirmBinder.ProjectChromeForPending();
+            var visible = chrome != null;
+            _assistedConfirmRoot.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            if (chrome == null)
+            {
+                return;
+            }
+
+            var labels = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(chrome);
+            _assistedConfirmTitle.text = labels.Title;
+            _assistedConfirmBody.text = labels.Body;
+            _assistedConfirmAccept.text = labels.ConfirmLabel;
+            _assistedConfirmCancel.text = labels.CancelLabel;
+            var pending = CoordinationAssistedWithdrawRedeployConfirmBinder.Pending;
+            if (pending != null)
+            {
+                _ = CoordinationAssistedWithdrawRedeployPanelBinder.Bind(pending);
+            }
+        }
 
         private void RefreshTimeline()
         {

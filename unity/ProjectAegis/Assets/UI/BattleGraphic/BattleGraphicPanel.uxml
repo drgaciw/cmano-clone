@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:VisualElement name="battle-graphic-root" class="battle-graphic-root">
+        <ui:VisualElement name="battle-graphic-zoom" class="battle-graphic-zoom">
+            <ui:Button name="battle-graphic-zoom-tactical" text="Tactical" tooltip="Tactical density: one leg per engagement" />
+            <ui:Button name="battle-graphic-zoom-operational" text="Operational" tooltip="Operational density: aggregate matching salvos" />
+            <ui:Button name="battle-graphic-zoom-theater" text="Theater" tooltip="Theater density: family summary" />
+        </ui:VisualElement>
+        <ui:Label name="battle-graphic-summary" text="BATTLE: —" class="battle-graphic-summary battle-cue--unknown" focusable="true" />
+        <ui:Label name="battle-graphic-line" text="—" class="battle-graphic-line battle-cue--unknown" focusable="true" />
+        <ui:Label name="battle-graphic-track" text="TRACK: —" class="battle-graphic-track battle-cue--unknown" focusable="true" />
+        <ui:Label name="battle-graphic-trail" text="TRAIL: —" class="battle-graphic-trail battle-cue--unknown" focusable="true" />
+        <ui:Label name="battle-graphic-detail" text="" class="battle-graphic-detail battle-cue--unknown" focusable="true" />
+    </ui:VisualElement>
+</ui:UXML>

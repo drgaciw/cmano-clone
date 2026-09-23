@@ -1,6 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 
 using System.Collections.ObjectModel;
+using Bridge;
 using CombatEvents;
 using Projection;
 
@@ -32,7 +33,29 @@ public sealed record CombatMapEffect(
     float ToX,
     float ToY,
     int Count,
-    IReadOnlyList<string> CorrelationKeys);
+    IReadOnlyList<string> CorrelationKeys)
+{
+    /// <summary>Non-color USS cue for the weapon family. Hosts swap this class; text carries the declutter token.</summary>
+    public string CueClass { get; init; } = BattleGraphicCueClasses.Unknown;
+
+    /// <summary>Text token paired with <see cref="CueClass"/>.</summary>
+    public string DeclutterToken { get; init; } = BattleGraphicDeclutterTokens.Unknown;
+
+    /// <summary>True or false when a track fact exists; null when the log did not record one.</summary>
+    public bool? HasAllocationTrack { get; init; }
+
+    /// <summary>Salvo size when the track fact says a fire-control allocation exists.</summary>
+    public int? SalvoSize { get; init; }
+
+    /// <summary>Presentation samples along the shooter→target segment for an in-flight leg.</summary>
+    public IReadOnlyList<CombatMapTrailSample> Trail { get; init; } = Array.Empty<CombatMapTrailSample>();
+
+    /// <summary>Sim time of the leg's latest event. Aggregates keep the first member's time.</summary>
+    public double SourceSimTime { get; init; }
+}
+
+/// <summary>One normalized sample on a presentation trail. Not a second simulation position.</summary>
+public readonly record struct CombatMapTrailSample(float X, float Y, float Progress);
 
 /// <summary>One readable combat history row.</summary>
 public sealed record CombatMapEventLine(
@@ -96,7 +119,10 @@ public static class CombatMapPresenter
         CombatZoomBand zoom,
         string? selectedKey = null,
         int maxEffects = 64,
-        double holdSeconds = 6)
+        double holdSeconds = 6,
+        IReadOnlyList<CombatEngagementExplanation>? tracks = null,
+        double? fireHoldSeconds = null,
+        double? terminalHoldSeconds = null)
     {
         if (snapshot is null)
         {
@@ -120,6 +146,16 @@ public static class CombatMapPresenter
         if (holdSeconds < 0 || double.IsNaN(holdSeconds) || double.IsInfinity(holdSeconds))
         {
             throw new ArgumentOutOfRangeException(nameof(holdSeconds));
+        }
+
+        if (fireHoldSeconds is < 0 or double.NaN or double.PositiveInfinity)
+        {
+            throw new ArgumentOutOfRangeException(nameof(fireHoldSeconds));
+        }
+
+        if (terminalHoldSeconds is < 0 or double.NaN or double.PositiveInfinity)
+        {
+            throw new ArgumentOutOfRangeException(nameof(terminalHoldSeconds));
         }
 
         var positions = BuildPositionIndex(symbols);
@@ -165,16 +201,19 @@ public static class CombatMapPresenter
         foreach (var pair in lastByLeg.OrderBy(static x => x.Key, StringComparer.Ordinal))
         {
             var evt = pair.Value.Event;
-            if ((!IsFirePhase(evt.Phase) && !string.Equals(pair.Key, selectedKey, StringComparison.Ordinal))
-                || (!string.Equals(pair.Key, selectedKey, StringComparison.Ordinal)
-                    && nowSimTime - evt.SimTime > holdSeconds)
+            var selected = string.Equals(pair.Key, selectedKey, StringComparison.Ordinal);
+            var expired = !selected && nowSimTime - evt.SimTime > HoldLimit(
+                evt.Phase, holdSeconds, fireHoldSeconds, terminalHoldSeconds);
+            if ((!IsFirePhase(evt.Phase) && !selected)
+                || expired
                 || !positions.TryGetValue(evt.ShooterId, out var from)
                 || !positions.TryGetValue(evt.TargetId, out var to))
             {
                 continue;
             }
 
-            candidates.Add(ToEffect(pair.Key, evt, from, to, positions[evt.ShooterId].Affiliation));
+            var track = CombatPresentationFrame.FindTrackAllocation(tracks, evt.CorrelationId, evt.ShooterId);
+            candidates.Add(ToEffect(pair.Key, evt, from, to, positions[evt.ShooterId].Affiliation, track));
         }
 
         IReadOnlyList<CombatMapEffect> projected = zoom == CombatZoomBand.Tactical
@@ -208,21 +247,31 @@ public static class CombatMapPresenter
         CombatEvent evt,
         (float X, float Y, string Affiliation) from,
         (float X, float Y, string Affiliation) to,
-        string affiliation)
+        string affiliation,
+        CombatEngagementExplanation? track)
     {
         var clearance = ClearanceFor(evt.Phase);
         var family = IsFirePhase(evt.Phase)
             ? ResolveFamily(evt.WeaponFamilyId)
             : evt.Phase == CombatEventPhase.AuthorizationRefused
-                ? (Glyph: "⊘", Pattern: "none", Motion: "Static")
-                : (Glyph: "○", Pattern: "none", Motion: "Static");
+                ? (Glyph: "⊘", Pattern: "none", Motion: "Static", Cue: BattleGraphicCueClasses.Unknown, Token: BattleGraphicDeclutterTokens.Unknown)
+                : (Glyph: "○", Pattern: "none", Motion: "Static", Cue: BattleGraphicCueClasses.Unknown, Token: BattleGraphicDeclutterTokens.Unknown);
         var label = FormattableString.Invariant(
             $"{family.Glyph} {evt.ShooterId} → {evt.TargetId} | {affiliation} | {evt.WeaponFamilyId} | {family.Motion} | {clearance} | {evt.Outcome} | {PhaseText(evt.Phase)}");
+        var hasTrack = track?.HasFireControlTrack;
         return new CombatMapEffect(
             key, evt.CorrelationId, evt.ShooterId, evt.TargetId, evt.WeaponFamilyId,
             family.Glyph, family.Pattern, family.Motion, affiliation, clearance, evt.Outcome,
             evt.Phase, label, from.X, from.Y, to.X, to.Y, 1,
-            Array.AsReadOnly(new[] { key }));
+            Array.AsReadOnly(new[] { key }))
+        {
+            CueClass = family.Cue,
+            DeclutterToken = family.Token,
+            HasAllocationTrack = hasTrack,
+            SalvoSize = hasTrack == true ? track!.SalvoSize : null,
+            Trail = BuildTrail(evt.Phase, from.X, from.Y, to.X, to.Y),
+            SourceSimTime = evt.SimTime,
+        };
     }
 
     private static IReadOnlyList<CombatMapEffect> Aggregate(
@@ -280,6 +329,9 @@ public static class CombatMapPresenter
                 Label = FormattableString.Invariant($"{prefix} summary: {first.FamilyGlyph} {first.WeaponFamilyId} ×{group.Count} | {first.Affiliation} | {first.Clearance} | {first.Outcome} | {(zoom == CombatZoomBand.Theater ? "Static" : first.MotionLabel)}"),
                 Count = group.Count,
                 CorrelationKeys = Array.AsReadOnly(keys),
+                Trail = Array.Empty<CombatMapTrailSample>(),
+                HasAllocationTrack = UnanimousTrack(group),
+                SalvoSize = null,
             });
         }
 
@@ -345,24 +397,84 @@ public static class CombatMapPresenter
             _ => "Unknown phase",
         };
 
-    private static (string Glyph, string Pattern, string Motion) ResolveFamily(string familyId)
+    private static (string Glyph, string Pattern, string Motion, string Cue, string Token) ResolveFamily(string familyId)
     {
+        var mark = BattleGraphicCueClasses.ForFamily(familyId);
         if (string.Equals(familyId, "missile", StringComparison.OrdinalIgnoreCase))
         {
-            return ("➤", "dash", "Track");
+            return ("➤", "dash", "Track", mark.CueClass, mark.DeclutterToken);
         }
 
         if (string.Equals(familyId, "gun", StringComparison.OrdinalIgnoreCase))
         {
-            return ("✦", "dot", "Pulse");
+            return ("✦", "dot", "Pulse", mark.CueClass, mark.DeclutterToken);
         }
 
-        if (string.Equals(familyId, "laser", StringComparison.OrdinalIgnoreCase))
+        if (mark.CueClass == BattleGraphicCueClasses.Energy)
         {
-            return ("═", "double-solid", "Beam");
+            return ("═", "double-solid", "Beam", mark.CueClass, mark.DeclutterToken);
         }
 
-        return ("?", "solid", "Static");
+        return ("?", "solid", "Static", mark.CueClass, mark.DeclutterToken);
+    }
+
+    private static double HoldLimit(
+        CombatEventPhase phase,
+        double holdSeconds,
+        double? fireHoldSeconds,
+        double? terminalHoldSeconds)
+    {
+        if (phase == CombatEventPhase.Firing && fireHoldSeconds is not null)
+        {
+            return fireHoldSeconds.Value;
+        }
+
+        if (phase == CombatEventPhase.TerminalOutcome && terminalHoldSeconds is not null)
+        {
+            return terminalHoldSeconds.Value;
+        }
+
+        return holdSeconds;
+    }
+
+    private static IReadOnlyList<CombatMapTrailSample> BuildTrail(
+        CombatEventPhase phase,
+        float fromX,
+        float fromY,
+        float toX,
+        float toY)
+    {
+        if (phase != CombatEventPhase.InFlight)
+        {
+            return Array.Empty<CombatMapTrailSample>();
+        }
+
+        const int sampleCount = 4;
+        var samples = new CombatMapTrailSample[sampleCount];
+        for (var i = 1; i <= sampleCount; i++)
+        {
+            var progress = i / (float)sampleCount;
+            samples[i - 1] = new CombatMapTrailSample(
+                fromX + ((toX - fromX) * progress),
+                fromY + ((toY - fromY) * progress),
+                progress);
+        }
+
+        return Array.AsReadOnly(samples);
+    }
+
+    private static bool? UnanimousTrack(List<CombatMapEffect> group)
+    {
+        var mark = group[0].HasAllocationTrack;
+        for (var i = 1; i < group.Count; i++)
+        {
+            if (group[i].HasAllocationTrack != mark)
+            {
+                return null;
+            }
+        }
+
+        return mark;
     }
 
     private static string JoinKey(params string[] values) =>

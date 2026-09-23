@@ -15,7 +15,7 @@ namespace ProjectAegis.Unity.Runtime
     public sealed class MessageLogPanelHost : MonoBehaviour
     {
         private const string RootName = "message-log-root";
-        private const string ListName = "message-list";
+        private static readonly string ListName = KeyboardDiscoverySurfaces.MessageLogListElementName;
         private const string OnboardingHintName = "message-log-onboarding-hint";
         private const string CollapseToggleName = "message-log-collapse-toggle";
         private const string TitleClass = "message-log-title";
@@ -124,6 +124,8 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_messageList != null)
             {
+                // DRG-270: Tab order reaches message-log rows; USS uses var(--focus-ring).
+                _messageList.focusable = true;
                 _messageList.makeItem = () =>
                 {
                     var label = new Label();

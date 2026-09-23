@@ -14,6 +14,7 @@
                 <ui:Button name="pause-resume-button" text="PAUSE" class="c2-topbar-pause" />
             </ui:VisualElement>
             <ui:Label name="mode-label" text="MODE: —" class="c2-topbar-item" />
+            <ui:Label name="fog-mode-label" text="FOG: —" class="c2-topbar-item c2-topbar-item--fog" />
             <ui:Label name="comms-label" text="COMMS: NOMINAL" class="c2-topbar-item c2-topbar-item--comms" />
             <ui:Label name="score-label" text="SCORE: 0" class="c2-topbar-item c2-topbar-item--score" />
         </ui:VisualElement>
@@ -22,6 +23,13 @@
             <ui:Label text="NOMINAL = full picture" class="c2-topbar-legend-item c2-topbar-legend-item--nominal" />
             <ui:Label text="DEGRADED = stale contacts, reduced symbol opacity" class="c2-topbar-legend-item c2-topbar-legend-item--degraded" />
             <ui:Label text="DENIED = no new engagements, map dimmed" class="c2-topbar-legend-item c2-topbar-legend-item--denied" />
+            <ui:Label name="comms-network-advisory-badge" text="" class="c2-topbar-legend-item c2-topbar-legend-item--network-advisory" />
+            <ui:Label name="comms-network-health-label" text="Network: —" class="c2-topbar-legend-item c2-topbar-legend-item--network" />
+            <ui:Label name="comms-network-node-label" text="" class="c2-topbar-legend-item c2-topbar-legend-item--network-node" />
+            <ui:Label name="comms-network-detail-label" text="" class="c2-topbar-legend-item c2-topbar-legend-item--network-detail" />
+            <ui:Label name="comms-network-contributors-label" text="" class="c2-topbar-legend-item c2-topbar-legend-item--network-contributors" />
+            <ui:Label name="comms-network-lost-paths-label" text="" class="c2-topbar-legend-item c2-topbar-legend-item--network-lost-paths" />
+            <ui:Label name="comms-network-next-label" text="" class="c2-topbar-legend-item c2-topbar-legend-item--network-next" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

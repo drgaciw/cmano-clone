@@ -1,0 +1,92 @@
+/* DRG-167 battle graphic. Family identity is border geometry plus a text token, not color alone. */
+
+.battle-graphic-root {
+    position: absolute;
+    left: 12px;
+    bottom: 12px;
+    width: 420px;
+    padding: 8px 10px;
+    flex-direction: column;
+    background-color: rgba(8, 14, 22, 0.94);
+    border-width: 1px;
+    border-color: rgb(90, 110, 130);
+}
+
+.battle-graphic-zoom {
+    flex-direction: row;
+    margin-bottom: 6px;
+}
+
+.battle-graphic-summary,
+.battle-graphic-line,
+.battle-graphic-track,
+.battle-graphic-trail,
+.battle-graphic-detail {
+    white-space: normal;
+    color: rgb(230, 235, 240);
+    font-size: 12px;
+    margin-top: 2px;
+    padding-left: 6px;
+    padding-right: 6px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.battle-graphic-summary {
+    -unity-font-style: bold;
+    font-size: 11px;
+}
+
+.battle-graphic-detail {
+    font-size: 11px;
+    max-height: 96px;
+}
+
+.battle-cue--unknown {
+    border-left-width: 1px;
+    border-bottom-width: 1px;
+    border-right-width: 1px;
+    border-color: rgb(140, 150, 160);
+}
+
+.battle-cue--missile {
+    border-left-width: 8px;
+    border-bottom-width: 0;
+    border-right-width: 0;
+    border-color: rgb(120, 190, 220);
+}
+
+.battle-cue--gun {
+    border-left-width: 0;
+    border-bottom-width: 6px;
+    border-right-width: 0;
+    border-color: rgb(210, 180, 90);
+}
+
+.battle-cue--energy {
+    border-left-width: 3px;
+    border-bottom-width: 0;
+    border-right-width: 3px;
+    border-color: rgb(180, 140, 220);
+}
+
+.battle-cue--track {
+    border-left-width: 0;
+    border-bottom-width: 2px;
+    border-right-width: 8px;
+    border-color: rgb(120, 200, 150);
+}
+
+.battle-cue--no-track {
+    border-left-width: 2px;
+    border-bottom-width: 2px;
+    border-right-width: 2px;
+    border-color: rgb(160, 90, 90);
+}
+
+.battle-cue--trail {
+    border-left-width: 2px;
+    border-bottom-width: 2px;
+    border-right-width: 2px;
+    border-color: rgb(200, 210, 220);
+}

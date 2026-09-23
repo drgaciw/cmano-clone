@@ -8,6 +8,8 @@
         <ui:Label name="emcon-line" text="EMCON: —" class="unit-detail-line" />
         <ui:Label name="doctrine-line" text="DOCTRINE: —" class="unit-detail-line" />
         <ui:Label name="fuel-line" text="FUEL: —" class="unit-detail-line" />
+        <ui:Label name="dlz-line" text="DLZ: —" class="unit-detail-line dlz-cue--unknown" />
+        <ui:Label name="wra-salvo-line" text="WRA SALVO: —" class="unit-detail-line wra-salvo-cue--unknown" />
         <ui:Label name="engage-line" text="ENGAGE: —" class="unit-detail-line" />
         <ui:Label name="attack-options-line" text="ATTACK: —" class="unit-detail-line unit-detail-line--attack" />
         <ui:VisualElement name="attack-menu" class="unit-detail-attack-menu">
