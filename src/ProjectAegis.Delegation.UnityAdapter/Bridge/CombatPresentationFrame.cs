@@ -44,11 +44,6 @@ public sealed record CombatPresentationFrame(
         for (var i = 0; i < explanations.Count; i++)
         {
             var row = explanations[i];
-            if (row is null)
-            {
-                continue;
-            }
-
             if (row.CorrelationId == correlationId
                 && string.Equals(row.ShooterId, shooterId, StringComparison.Ordinal))
             {

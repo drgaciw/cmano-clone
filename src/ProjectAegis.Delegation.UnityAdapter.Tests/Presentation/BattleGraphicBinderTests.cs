@@ -1,8 +1,8 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Presentation;
 
 using NUnit.Framework;
-using ProjectAegis.Delegation.CombatEvents;
-using ProjectAegis.Delegation.Projection;
+using CombatEvents;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 
@@ -18,8 +18,13 @@ public sealed class BattleGraphicBinderTests
             Event(CombatEventPhase.Firing, "s2", "t2", "gun", 2, 5),
             Event(CombatEventPhase.Firing, "s3", "t3", "energy", 3, 5));
 
-        var bound = BattleGraphicBinder.Bind(frame, Symbols(), CombatZoomBand.Tactical);
+        var bound = BattleGraphicBinder.Bind(frame, Symbols());
 
+        Assert.That(bound.Zoom, Is.EqualTo(CombatZoomBand.Tactical));
+        var missile = bound.Legs.Single(x => x.WeaponFamilyId == "missile");
+        Assert.That(missile.ShooterId, Is.EqualTo("s1"));
+        Assert.That(missile.TargetId, Is.EqualTo("t1"));
+        Assert.That(missile.Phase, Is.EqualTo(CombatEventPhase.Firing));
         var marks = bound.Legs.Select(leg => (leg.CueClass, leg.DeclutterToken, leg.WeaponFamilyId)).ToArray();
         Assert.That(marks.Select(x => x.CueClass).Distinct().Count(), Is.EqualTo(3));
         Assert.That(marks.Select(x => x.DeclutterToken).Distinct().Count(), Is.EqualTo(3));
@@ -37,7 +42,7 @@ public sealed class BattleGraphicBinderTests
     {
         var frame = Frame(5, Event(CombatEventPhase.Firing, "s1", "t1", "laser", 4, 5));
 
-        var bound = BattleGraphicBinder.Bind(frame, Symbols(), CombatZoomBand.Tactical);
+        var bound = BattleGraphicBinder.Bind(frame, Symbols());
 
         Assert.That(bound.CueClass, Is.EqualTo(BattleGraphicCueClasses.Energy));
         Assert.That(bound.DeclutterToken, Is.EqualTo(BattleGraphicDeclutterTokens.Energy));
@@ -49,7 +54,7 @@ public sealed class BattleGraphicBinderTests
     {
         var frame = Frame(5, Event(CombatEventPhase.InFlight, "s1", "t1", "missile", 7, 5));
 
-        var bound = BattleGraphicBinder.Bind(frame, Symbols(), CombatZoomBand.Tactical);
+        var bound = BattleGraphicBinder.Bind(frame, Symbols());
 
         Assert.That(bound.PrimaryLine, Does.Contain("s1"));
         Assert.That(bound.PrimaryLine, Does.Contain("t1"));
@@ -81,9 +86,9 @@ public sealed class BattleGraphicBinderTests
             Event(CombatEventPhase.Firing, "s1", "t1", "missile", 9, 5));
         var silent = Frame(5, Event(CombatEventPhase.Firing, "s1", "t1", "missile", 9, 5));
 
-        var withTrack = BattleGraphicBinder.Bind(tracked, Symbols(), CombatZoomBand.Tactical);
-        var withoutTrack = BattleGraphicBinder.Bind(denied, Symbols(), CombatZoomBand.Tactical);
-        var unknown = BattleGraphicBinder.Bind(silent, Symbols(), CombatZoomBand.Tactical);
+        var withTrack = BattleGraphicBinder.Bind(tracked, Symbols());
+        var withoutTrack = BattleGraphicBinder.Bind(denied, Symbols());
+        var unknown = BattleGraphicBinder.Bind(silent, Symbols());
 
         Assert.That(withTrack.TrackLine, Is.EqualTo("TRACK s1 → t1 | salvo 2"));
         Assert.That(withTrack.TrackCueClass, Is.EqualTo(BattleGraphicCueClasses.Track));
@@ -122,8 +127,8 @@ public sealed class BattleGraphicBinderTests
     {
         var frame = Frame(5, Event(CombatEventPhase.InFlight, "s1", "t1", "missile", 7, 5));
 
-        var first = BattleGraphicBinder.Bind(frame, Symbols(), CombatZoomBand.Tactical);
-        var second = BattleGraphicBinder.Bind(frame, Symbols(), CombatZoomBand.Tactical);
+        var first = BattleGraphicBinder.Bind(frame, Symbols());
+        var second = BattleGraphicBinder.Bind(frame, Symbols());
 
         Assert.That(first.Legs[0].Trail, Has.Count.EqualTo(4));
         Assert.That(first.Legs[0].Trail[0].Progress, Is.EqualTo(0.25f).Within(0.0001f));
@@ -144,8 +149,8 @@ public sealed class BattleGraphicBinderTests
         var live = Frame(5, Event(CombatEventPhase.Firing, "s1", "t1", "gun", 2, 4));
         var expired = Frame(5, Event(CombatEventPhase.Firing, "s1", "t1", "gun", 2, 1));
 
-        var shown = BattleGraphicBinder.Bind(live, Symbols(), CombatZoomBand.Tactical);
-        var hidden = BattleGraphicBinder.Bind(expired, Symbols(), CombatZoomBand.Tactical);
+        var shown = BattleGraphicBinder.Bind(live, Symbols());
+        var hidden = BattleGraphicBinder.Bind(expired, Symbols());
 
         Assert.That(shown.TrailLine, Is.EqualTo("EFFECT FIRE"));
         Assert.That(shown.Legs[0].Trail, Is.Empty);
@@ -160,8 +165,8 @@ public sealed class BattleGraphicBinderTests
         var terminal = Frame(5, Event(CombatEventPhase.TerminalOutcome, "s1", "t1", "missile", 1, 1, "Hit"));
         var inflight = Frame(5, Event(CombatEventPhase.InFlight, "s1", "t1", "missile", 1, 1));
 
-        Assert.That(BattleGraphicBinder.Bind(terminal, Symbols(), CombatZoomBand.Tactical).VisibleCount, Is.EqualTo(0));
-        var trail = BattleGraphicBinder.Bind(inflight, Symbols(), CombatZoomBand.Tactical);
+        Assert.That(BattleGraphicBinder.Bind(terminal, Symbols()).VisibleCount, Is.EqualTo(0));
+        var trail = BattleGraphicBinder.Bind(inflight, Symbols());
         Assert.That(trail.VisibleCount, Is.EqualTo(1));
         Assert.That(trail.TrailLine, Does.StartWith("TRAIL "));
     }
@@ -173,7 +178,7 @@ public sealed class BattleGraphicBinderTests
         var frame = Frame(5, evt);
         var key = CombatMapPresenter.KeyFor(evt);
 
-        var bound = BattleGraphicBinder.Bind(frame, Symbols(), CombatZoomBand.Tactical, key);
+        var bound = BattleGraphicBinder.Bind(frame, Symbols(), selectedKey: key);
 
         Assert.That(bound.VisibleCount, Is.EqualTo(1));
         Assert.That(bound.TrailLine, Is.EqualTo("EFFECT FIRE"));
@@ -195,6 +200,7 @@ public sealed class BattleGraphicBinderTests
 
         var bound = BattleGraphicBinder.Bind(frame, Symbols(), CombatZoomBand.Operational);
 
+        Assert.That(bound.Zoom, Is.EqualTo(CombatZoomBand.Operational));
         Assert.That(bound.VisibleCount, Is.EqualTo(1));
         Assert.That(bound.Legs[0].Count, Is.EqualTo(2));
         Assert.That(bound.Legs[0].Trail, Is.Empty);
@@ -211,7 +217,7 @@ public sealed class BattleGraphicBinderTests
     {
         var frame = Frame(5, Event(CombatEventPhase.Firing, "missing", "t1", "gun", 2, 5));
 
-        var bound = BattleGraphicBinder.Bind(frame, Symbols(), CombatZoomBand.Tactical);
+        var bound = BattleGraphicBinder.Bind(frame, Symbols());
 
         Assert.That(bound.VisibleCount, Is.EqualTo(0));
         Assert.That(bound.TrackLine, Is.EqualTo("TRACK: —"));
@@ -221,7 +227,7 @@ public sealed class BattleGraphicBinderTests
     [Test]
     public void EmptyFrame_ClearsChrome()
     {
-        var bound = BattleGraphicBinder.Bind(null, Symbols(), CombatZoomBand.Tactical);
+        var bound = BattleGraphicBinder.Bind(null, Symbols());
 
         Assert.That(bound.StateLine, Is.EqualTo(BattleGraphicState.Empty.StateLine));
         Assert.That(bound.VisibleCount, Is.EqualTo(0));
@@ -232,7 +238,7 @@ public sealed class BattleGraphicBinderTests
     public void PanelRows_ExposeCueClassesForTheHost()
     {
         var frame = Frame(5, Event(CombatEventPhase.Firing, "s1", "t1", "missile", 1, 5));
-        var state = BattleGraphicBinder.Bind(frame, Symbols(), CombatZoomBand.Tactical);
+        var state = BattleGraphicBinder.Bind(frame, Symbols());
 
         var rows = BattleGraphicPanelBinder.BindRows(state);
 
@@ -244,8 +250,10 @@ public sealed class BattleGraphicBinderTests
             "battle-graphic-trail",
             "battle-graphic-detail",
         }));
-        Assert.That(rows.Single(row => row.ElementName == "battle-graphic-line").CueClass, Is.EqualTo(BattleGraphicCueClasses.Missile));
-        Assert.That(rows.Single(row => row.ElementName == "battle-graphic-line").Tooltip, Does.Contain("[BATTLE:MISSILE]"));
+        var line = rows.Single(row => row.ElementName == "battle-graphic-line");
+        Assert.That(line.CueClass, Is.EqualTo(BattleGraphicCueClasses.Missile));
+        Assert.That(line.Text, Does.Contain("[BATTLE:MISSILE]"));
+        Assert.That(line.Tooltip, Does.Contain("[BATTLE:MISSILE]"));
         Action mutate = () => ((IList<BattleGraphicLeg>)state.Legs).Add(state.Legs[0]);
         Assert.Throws<NotSupportedException>(mutate);
     }

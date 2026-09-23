@@ -302,8 +302,8 @@ public static class BattleGraphicBinder
 
         if (effect.HasAllocationTrack == true)
         {
-            var salvo = effect.SalvoSize is int size
-                ? FormattableString.Invariant($" | salvo {size}")
+            var salvo = effect.SalvoSize is not null
+                ? FormattableString.Invariant($" | salvo {effect.SalvoSize.Value}")
                 : string.Empty;
             return $"TRACK {effect.ShooterId} → {effect.TargetId}{salvo}";
         }
