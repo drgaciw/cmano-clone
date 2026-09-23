@@ -16,6 +16,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string StatusName = "engage-explain-status";
         private const string ReasonName = "engage-explain-reason";
         private const string AuthorityName = "engage-explain-authority";
+        private const string DomainAbortName = "engage-explain-domain-abort";
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -27,8 +28,11 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _reasonLabel;
         private Label? _authorityLabel;
         private Label? _dlzLine;
+        private Label? _domainAbortLabel;
         private EngageExplain _last = EngageExplain.Empty;
         private DlzLiveSurfaceState _dlzSurface = DlzLiveSurfaceState.Empty;
+        private DomainAbortExplainState _domainAbort = DomainAbortExplainState.Empty;
+        private string? _lastDomainAbortFingerprint;
         private bool _wired;
         private CombatPresentationFrame? _lastFrame;
         private string? _lastSelection;
@@ -43,6 +47,9 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Last applied weapon-panel DLZ row (DRG-266).</summary>
         public DlzLiveSurfaceState LastDlzSurface => _dlzSurface;
+
+        /// <summary>Last bound domain-abort line (DRG-265). Read-only presentation chrome.</summary>
+        public DomainAbortExplainState LastDomainAbort => _domainAbort;
 
         private void Reset()
         {
@@ -106,13 +113,24 @@ namespace ProjectAegis.Unity.Runtime
                 panel.Insert(1, _dlzLine);
             }
 
+            _domainAbortLabel = panel.Q<Label>(DomainAbortName);
+            if (_domainAbortLabel == null)
+            {
+                _domainAbortLabel = new Label { name = DomainAbortName };
+                _domainAbortLabel.AddToClassList("engage-explain-domain-abort");
+                _domainAbortLabel.AddToClassList(DomainAbortCueClasses.Unknown);
+                panel.Add(_domainAbortLabel);
+            }
+
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
             {
                 panel.styleSheets.Add(panelStyles);
             }
 
-            _wired = _statusLabel != null || _reasonLabel != null || _authorityLabel != null;
+            _wired = _statusLabel != null || _reasonLabel != null || _authorityLabel != null
+                || _domainAbortLabel != null;
             _lastFrame = null; // A rebuilt UIDocument needs binding even while simulation is paused.
+            _lastDomainAbortFingerprint = null;
         }
 
         private void Refresh()
@@ -137,8 +155,12 @@ namespace ProjectAegis.Unity.Runtime
                     LastCombatDetail.PolicyLine, LastCombatDetail.ConfidenceLine, LastCombatDetail.FiringSolutionLine,
                     LastCombatDetail.NextActionLine, LastCombatDetail.CorrelationLine),
                 LastCombatDetail.StatusLine.Contains("AuthorizationRefused"));
-            _dlzSurface = DlzLiveSurfaceBinder.BindFromEngagePreview(
-                bridgeHost.ProjectSelectedEngagePreview());
+            var preview = bridgeHost.ProjectSelectedEngagePreview();
+            _dlzSurface = DlzLiveSurfaceBinder.BindFromEngagePreview(preview);
+            ApplyDomainAbort(DomainAbortExplainBinder.Bind(
+                EngageExplainProjection.Project(preview),
+                preview,
+                LastCombatDetail));
 
             if (_statusLabel != null)
             {
@@ -176,11 +198,51 @@ namespace ProjectAegis.Unity.Runtime
         public void Apply(EngageExplain explain)
         {
             _last = explain ?? EngageExplain.Empty;
+            ApplyDomainAbort(DomainAbortExplainBinder.Bind(_last));
             if (_wired)
             {
                 if (_statusLabel != null) _statusLabel.text = _last.StatusLine;
                 if (_reasonLabel != null) _reasonLabel.text = _last.ReasonPlain;
                 if (_authorityLabel != null) _authorityLabel.text = string.Empty;
+            }
+        }
+
+        private void ApplyDomainAbort(DomainAbortExplainState next)
+        {
+            var unchanged = string.Equals(
+                next.Fingerprint,
+                _lastDomainAbortFingerprint,
+                StringComparison.Ordinal);
+            _domainAbort = next;
+            if (unchanged)
+            {
+                return;
+            }
+
+            _lastDomainAbortFingerprint = next.Fingerprint;
+            foreach (var row in DomainAbortExplainBinder.BindRows(next))
+            {
+                ApplyDomainAbortRow(_domainAbortLabel, row.Text, row.CueClass, next.DeclutterToken);
+            }
+        }
+
+        private static void ApplyDomainAbortRow(Label? label, string text, string cueClass, string declutterToken)
+        {
+            if (label == null)
+            {
+                return;
+            }
+
+            label.text = text;
+            label.tooltip = declutterToken;
+            foreach (var knownCue in DomainAbortCueClasses.All)
+            {
+                label.RemoveFromClassList(knownCue);
+            }
+
+            if (!string.IsNullOrEmpty(cueClass))
+            {
+                label.AddToClassList(cueClass);
             }
         }
 
