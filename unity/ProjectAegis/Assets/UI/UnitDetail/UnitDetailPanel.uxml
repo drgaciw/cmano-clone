@@ -11,11 +11,11 @@
         <ui:Label name="dlz-line" text="DLZ: —" class="unit-detail-line dlz-cue--unknown" />
         <ui:Label name="wra-salvo-line" text="WRA SALVO: —" class="unit-detail-line wra-salvo-cue--unknown" />
         <ui:Label name="engage-line" text="ENGAGE: —" class="unit-detail-line" />
-        <ui:Label name="attack-options-line" text="ATTACK: —" class="unit-detail-line unit-detail-line--attack" />
+        <ui:Label name="attack-options-line" text="ATTACK: —" class="unit-detail-line unit-detail-line--attack attack-option-cue--empty" />
         <ui:VisualElement name="attack-menu" class="unit-detail-attack-menu">
-            <ui:Button name="attack-fire-single" text="Fire 1" class="unit-detail-attack-btn" />
-            <ui:Button name="attack-fire-salvo" text="Salvo" class="unit-detail-attack-btn" />
-            <ui:Button name="attack-hold-fire" text="Hold" class="unit-detail-attack-btn" />
+            <ui:Button name="attack-fire-single" text="Fire 1 round" class="unit-detail-attack-btn" />
+            <ui:Button name="attack-fire-salvo" text="Fire salvo" class="unit-detail-attack-btn" />
+            <ui:Button name="attack-hold-fire" text="Hold fire" class="unit-detail-attack-btn" />
         </ui:VisualElement>
         <ui:Label name="contact-line" text="CONTACT: —" class="unit-detail-line unit-detail-line--contact" />
     </ui:VisualElement>
