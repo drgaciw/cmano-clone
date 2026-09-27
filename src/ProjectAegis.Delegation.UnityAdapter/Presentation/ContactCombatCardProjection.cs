@@ -31,8 +31,8 @@ public sealed class ContactCombatCardPostureFact
     /// <summary>Creates a posture fact for an exact contact id.</summary>
     public ContactCombatCardPostureFact(string contactId, string label)
     {
-        ContactId = contactId ?? string.Empty;
-        Label = label ?? string.Empty;
+        ContactId = contactId;
+        Label = label;
     }
 
     /// <summary>Contact the label belongs to. A mismatch is not applied to another contact.</summary>
@@ -63,7 +63,7 @@ public sealed class ContactCombatCard
         bda: ContactCombatCardTokens.Unknown,
         fingerprint: ContactCombatCardTokens.EmptyFingerprint);
 
-    /// <summary>Creates a card. Null fact strings become <see cref="ContactCombatCardTokens.Unknown"/>.</summary>
+    /// <summary>Creates a card from already-resolved fact strings.</summary>
     public ContactCombatCard(
         bool hasContact,
         string contactId,
@@ -77,14 +77,14 @@ public sealed class ContactCombatCard
         string fingerprint)
     {
         HasContact = hasContact;
-        ContactId = contactId ?? ContactCombatCardTokens.Unknown;
-        Provenance = provenance ?? ContactCombatCardTokens.Unknown;
-        Freshness = freshness ?? ContactCombatCardTokens.Unknown;
-        Confidence = confidence ?? ContactCombatCardTokens.Unknown;
-        Posture = posture ?? ContactCombatCardTokens.Unknown;
-        Targetability = targetability ?? ContactCombatCardTokens.Unknown;
-        EngagementStatus = engagementStatus ?? ContactCombatCardTokens.Unknown;
-        Bda = bda ?? ContactCombatCardTokens.Unknown;
+        ContactId = contactId;
+        Provenance = provenance;
+        Freshness = freshness;
+        Confidence = confidence;
+        Posture = posture;
+        Targetability = targetability;
+        EngagementStatus = engagementStatus;
+        Bda = bda;
         Fingerprint = string.IsNullOrEmpty(fingerprint)
             ? ContactCombatCardTokens.EmptyFingerprint
             : fingerprint;
@@ -286,7 +286,7 @@ public static class ContactCombatCardProjection
         {
             var card = cards[i];
             builder.Append('|');
-            builder.Append(card is null ? ContactCombatCardTokens.EmptyFingerprint : card.Fingerprint);
+            builder.Append(card.Fingerprint);
         }
 
         return builder.ToString();
@@ -371,8 +371,7 @@ public static class ContactCombatCardProjection
         for (var i = 0; i < postures.Count; i++)
         {
             var fact = postures[i];
-            if (fact is null
-                || !string.Equals(fact.ContactId, contactId, StringComparison.Ordinal)
+            if (!string.Equals(fact.ContactId, contactId, StringComparison.Ordinal)
                 || string.IsNullOrWhiteSpace(fact.Label))
             {
                 continue;
@@ -429,7 +428,7 @@ public static class ContactCombatCardProjection
         for (var i = 0; i < rows.Count; i++)
         {
             var candidate = rows[i];
-            if (candidate is null || !string.Equals(contactIdOf(candidate), contactId, StringComparison.Ordinal))
+            if (!string.Equals(contactIdOf(candidate), contactId, StringComparison.Ordinal))
             {
                 continue;
             }
@@ -514,7 +513,7 @@ public static class ContactCombatCardProjection
         for (var i = 0; i < afterAction.Entries.Count; i++)
         {
             var entry = afterAction.Entries[i];
-            if (entry is null || !string.Equals(entry.TargetId, targetId, StringComparison.Ordinal))
+            if (!string.Equals(entry.TargetId, targetId, StringComparison.Ordinal))
             {
                 continue;
             }
