@@ -58,3 +58,13 @@ To enable Jev, set `TYPESAFE_API_KEY` in either:
 
 Never put the key in `.mcp.json` / `.cursor/mcp.json` — both are committed.
 Check status with the `browser_jev_status` tool (`"enabled": true`).
+
+## Standalone Jev decision server (`jev`)
+
+`.cursor/mcp.json` also registers [codaaiteam/jev-mcp](https://github.com/codaaiteam/jev-mcp)
+as `jev` (`npx -y github:codaaiteam/jev-mcp`), exposing `jev_classify`,
+`jev_score`, `jev_check`, `jev_gate`, `jev_decide`. Its key is read from the
+environment via `${env:TYPESAFE_API_KEY}` — export it in the shell/OS
+environment Cursor is launched from (or a Cloud Agents secret). A `jv_live_…`
+key routes to the third-party jevtypesafeai.com gateway; an official TypeSafe
+key routes to `api.typesafe.ai`.

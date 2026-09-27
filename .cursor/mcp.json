@@ -25,6 +25,11 @@
         "--headless"
       ]
     },
+    "jev": {
+      "command": "npx",
+      "args": ["-y", "github:codaaiteam/jev-mcp"],
+      "env": { "TYPESAFE_API_KEY": "${env:TYPESAFE_API_KEY}" }
+    },
     "buildkite": {
       "url": "https://mcp.buildkite.com/mcp"
     },
