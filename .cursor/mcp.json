@@ -17,6 +17,14 @@
       "command": "gitnexus",
       "args": ["mcp"]
     },
+    "jev-playwright": {
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/tools/mcp/jev-playwright-mcp/cli.js",
+        "--jev-mode=all",
+        "--headless"
+      ]
+    },
     "buildkite": {
       "url": "https://mcp.buildkite.com/mcp"
     },
