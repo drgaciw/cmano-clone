@@ -12,7 +12,7 @@ public sealed class WeaponAbortTooltipBinderTests
     [Test]
     public void Null_explain_and_detail_yield_empty_tooltip()
     {
-        var bound = WeaponAbortTooltipBinder.Bind(null, null);
+        var bound = WeaponAbortTooltipBinder.Bind(null);
 
         Assert.That(bound, Is.EqualTo(WeaponAbortTooltipState.Empty));
         Assert.That(bound.IsDenied, Is.False);
