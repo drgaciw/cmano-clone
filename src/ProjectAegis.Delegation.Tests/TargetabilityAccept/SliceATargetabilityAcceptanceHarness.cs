@@ -591,6 +591,17 @@ public static class SliceATargetabilityAcceptanceHarness
 
     private sealed class SliceAScenarioPathFile
     {
+        [JsonConstructor]
+        public SliceAScenarioPathFile(
+            IReadOnlyList<string>? fireControlContactIds,
+            SliceAAuthorityFile? authority,
+            IReadOnlyList<SliceAStepFile>? steps)
+        {
+            FireControlContactIds = fireControlContactIds;
+            Authority = authority;
+            Steps = steps;
+        }
+
         public string PathId { get; init; } = string.Empty;
 
         public string Kind { get; init; } = string.Empty;
@@ -599,15 +610,23 @@ public static class SliceATargetabilityAcceptanceHarness
 
         public string TargetId { get; init; } = string.Empty;
 
-        public List<string> FireControlContactIds { get; init; } = [];
+        public IReadOnlyList<string>? FireControlContactIds { get; }
 
-        public SliceAAuthorityFile? Authority { get; init; }
+        public SliceAAuthorityFile? Authority { get; }
 
-        public List<SliceAStepFile> Steps { get; init; } = [];
+        public IReadOnlyList<SliceAStepFile>? Steps { get; }
     }
 
     private sealed class SliceAAuthorityFile
     {
+        [JsonConstructor]
+        public SliceAAuthorityFile(bool fireControlSatisfied, string? commandId, bool humanControlled)
+        {
+            FireControlSatisfied = fireControlSatisfied;
+            CommandId = commandId;
+            HumanControlled = humanControlled;
+        }
+
         public string Roe { get; init; } = string.Empty;
 
         public string Lane { get; init; } = string.Empty;
@@ -616,20 +635,28 @@ public static class SliceATargetabilityAcceptanceHarness
 
         public string TrackSource { get; init; } = string.Empty;
 
-        public bool FireControlSatisfied { get; init; }
+        public bool FireControlSatisfied { get; }
 
-        public string? CommandId { get; init; }
+        public string? CommandId { get; }
 
-        public bool HumanControlled { get; init; }
+        public bool HumanControlled { get; }
     }
 
     private sealed class SliceAStepFile
     {
-        public ulong SequenceId { get; init; }
+        [JsonConstructor]
+        public SliceAStepFile(ulong sequenceId, double simTime, ulong simTick)
+        {
+            SequenceId = sequenceId;
+            SimTime = simTime;
+            SimTick = simTick;
+        }
 
-        public double SimTime { get; init; }
+        public ulong SequenceId { get; }
 
-        public ulong SimTick { get; init; }
+        public double SimTime { get; }
+
+        public ulong SimTick { get; }
 
         public string PreviousState { get; init; } = string.Empty;
 
