@@ -1,6 +1,6 @@
 # 11 - Agentic Mission & Scenario Editor
 
-**Last Updated:** 2026-07-09
+**Last Updated:** 2026-09-30 (additive AME-6.11 proposal; shipped mapping retained)
 **Status:** Revised — implementation-aligned (was Draft; realigned to approved GDD + shipped headless stack)
 **FR reverse-ref:** [FR-09](01-Project-Overview.md) — Scenario/mission editor
 **Author basis:** Approved GDD [`design/gdd/agentic-mission-editor.md`](../../design/gdd/agentic-mission-editor.md) (terminology, determinism contract, AC-1…AC-12); codebase review of `ProjectAegis.Data/Scenario/Authoring` + `ProjectAegis.Data/Validation` + `ProjectAegis.MissionEditor.Cli`; [scenario-editor research](../../docs/research/scenario-editor-research.md); [CMO Official Manual](https://www.matrixgames.com/amazon/PDF/CMO/CMO_manual_EBOOK.pdf) (Mission Editor §3.3.17/§7.1, Scenario Editor §4.1.5, ScenEdit §5, clean-room observable behavior only); requirements 01–10, 13, 14, 17.
@@ -165,6 +165,8 @@ Every requirement carries an **AME-N.M** ID and a **priority** marker. P0 = v1 b
 - **AME-6.8** (P0) — **TeleportUnit transform (AC-11):** at export, an **explicit, logged** transform removes all TeleportUnit actions and records each removal in the export manifest (**not a silent strip**); the headless sample and exported scenario share an identical post-transform event set. UI badges TeleportUnit actions "edit-test only" persistently.
 - **AME-6.9** (P0) — **Live / continuous validation** during authoring (re-validate on mutation, surface findings in place). *Maturity: in flight — `track1-continuous-live-validation`; headless per-mutation validation shipped via `ScenarioDocumentEditor` + live-validation tests; UX not built.*
 - **AME-6.10** — **Maturity flags:** `IncompatibleHostRule` (`INCOMPATIBLE_HOST`) and `BrokenRefRule` (`BROKEN_REF`) are **simplistic/demo** rules (heuristic host/ref checks), not production model-integrity validation. Treat as demonstrative.
+
+- **AME-6.11** (Proposed — H4 implementation backlog, 2026-09-30) — **Runtime capability disclosure:** Every mission role offered by authoring shall display whether the selected build/scenario supports its execution. An unsupported role shall emit a stable, explicit error finding on Export/Play; Save shall remain allowed under AME-6.5. CLI and GUI shall agree on code, severity, and runtime support because they consume the same domain assessment. Authoring acceptance of a role such as Tanker/AEW shall not imply that refueling or AEW execution exists. **Acceptance:** supported/unsupported-role matrix; Save/load round-trip of unsupported content; Export/Play rejection; CLI/GUI parity; disclosure shown before Play. **Status:** proposed contract, no implementation or owner acceptance claimed; [delivery contract DRG-345](https://linear.app/drgamtd-workspace/issue/DRG-345) and [H4 first-map slice DRG-346](https://linear.app/drgamtd-workspace/issue/DRG-346); see [2026-09-30 reconciliation](../../docs/superpowers/specs/2026-09-30-requirements-planning-reconciliation.md) and [DRG-333](https://linear.app/drgamtd-workspace/issue/DRG-333).
 
 ### 7. Concurrency, import, export & versioning
 

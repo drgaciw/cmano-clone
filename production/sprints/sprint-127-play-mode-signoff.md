@@ -1,6 +1,8 @@
 # Sprint 127 — Play Mode signoff + gates
 
-**Status:** Planned  
+> **2026-09-30 rebaseline:** Original dates below are forecasts, not delivery evidence. Current program: [dated roadmap](../../docs/reports/future-sprint-roadmap-09302026.md). Mandatory [shared QA plan](../qa/qa-plan-sprint-122-127-rebaseline-2026-09-30.md) is authored; execution, sprint exit proof and owner acceptance remain pending. Document maturity, delivery and acceptance are tracked separately. Independent work may proceed; unresolved predecessor evidence gates dependent implementation.
+
+**Status:** Planning rebaselined 2026-09-30; delivery and acceptance evidence pending
 **Dates:** 2026-10-20 – 2026-10-24  
 **Predecessor:** [S126 symbology](sprint-126-symbology-subset.md)  
 **Linear:** [DRG-208](https://linear.app/drgamtd-workspace/issue/DRG-208) · [DRG-205](https://linear.app/drgamtd-workspace/issue/DRG-205) · [DRG-235](https://linear.app/drgamtd-workspace/issue/DRG-235) · [DRG-236](https://linear.app/drgamtd-workspace/issue/DRG-236)  
@@ -42,9 +44,10 @@ Launch gate. Phase N. Full screen-reader product. Closing 208 without owner.
 
 ## Definition of Done
 
-- [ ] DRG-208 owner-accepted **or** explicitly blocked with missing evidence listed
+- [ ] DRG-208 owner-accepted at the reconciled acceptance revision with local delta identified. If blocked, list missing evidence and keep sprint delivery incomplete.
 - [ ] DRG-205 gate evidence attached
 - [ ] Open G2/G3 defects closed or deferred with id
 - [ ] QA sign-off: APPROVED or APPROVED WITH CONDITIONS
 - [ ] `/smoke-check sprint` run
 - [ ] No S1/S2 in delivered features
+- [ ] Mandatory shared QA plan exists; execution and QA decision recorded separately from plan authorship

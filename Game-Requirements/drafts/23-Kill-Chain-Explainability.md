@@ -1,9 +1,11 @@
 # 23 - Kill-Chain Explainability & Targetability
 
-**Last Updated:** 2026-09-02  
+**Review / acceptance state (2026-09-30):** Draft maturity retained; formal document promotion and criterion-level owner acceptance are pending. Implementation/test mappings below identify subsets, not complete product signoff. Live evidence: [tracker](../implementation-tracker.md#post-mvp-requirement-evidence-22-27) and [RTM](../../docs/architecture/requirements-traceability.md).
+
+**Last Updated:** 2026-09-30 (additive evidence reconciliation)
 **Status:** Draft — ready for design review (Audit remediation W3-KCX)  
 **Requirement IDs:** KCX-01 … KCX-07  
-**FR reverse-ref:** [FR-12](01-Project-Overview.md) — Engagement and fire control, [FR-13](01-Project-Overview.md) — Sensors, detection, EW  
+**FR reverse-ref:** [FR-12](../requirements/01-Project-Overview.md) — Engagement and fire control, [FR-13](../requirements/01-Project-Overview.md) — Sensors, detection, EW
 **CMO basis:** Manual §3.3.1–2, §3.3.9–10, §9.1–2, §9.2.8 (Weapon won't fire diagnostics)  
 **Related:** 04 Delegation, 13 Doctrine/ROE/WRA, 14 Engagement, 15 Sensors, 17 Order Log, 19 Comms/Cyber, 20 C2 UI  
 **Audit Findings Closed:** B-02, B-04 (KCX-02/06), B-08 (KCX-07)  

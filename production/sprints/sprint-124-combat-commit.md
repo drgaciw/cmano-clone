@@ -1,6 +1,8 @@
 # Sprint 124 — Combat-commit honesty
 
-**Status:** Planned  
+> **2026-09-30 rebaseline:** Original dates below are forecasts, not delivery evidence. Current program: [dated roadmap](../../docs/reports/future-sprint-roadmap-09302026.md). Mandatory [shared QA plan](../qa/qa-plan-sprint-122-127-rebaseline-2026-09-30.md) is authored; execution, sprint exit proof and owner acceptance remain pending. Document maturity, delivery and acceptance are tracked separately. Independent work may proceed; unresolved predecessor evidence gates dependent implementation.
+
+**Status:** Planning rebaselined 2026-09-30; delivery and acceptance evidence pending
 **Dates:** 2026-09-29 – 2026-10-03  
 **Predecessor:** [S123 play-entry](sprint-123-play-entry.md)  
 **Next:** [S125 editor honesty](sprint-125-editor-honesty.md)  
@@ -55,4 +57,4 @@ W2-C2-03 until ID/abort projection confirmed. DRG-170/205. Scrub/AAR. Cesium/APP
 - [ ] Filter lanes shipped **or** deferred with reason
 - [ ] Baltic hash unchanged
 - [ ] DRG-208 not closed by inference
-- [ ] QA plan exists or warning accepted
+- [ ] Shared QA plan exists; executed sprint criteria and QA decision recorded (no missing-plan waiver)

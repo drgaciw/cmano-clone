@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-30",
+  "issue": "DRG-342",
+  "owner": "drg amtd",
+  "scopeNotice": "Finite declared local planning checks only. Static inspection, proposed requirement clauses, and pending acceptance. Not complete VER-07 conformance, runtime feature proof, external-state verification, or owner signoff.",
+  "currentRoadmap": "docs/reports/future-sprint-roadmap-09302026.md",
+  "acceptanceTarget": "1902dc1299678ea17f75014406fd9c616e5576bd",
+  "inspectedRevision": "4190fb1b49cd15775b6b995b7c245d73828cd7a2",
+  "localDelta": "existing_uncommitted_changes; no exact patch hash asserted by this planning manifest",
+  "references": [
+    {
+      "path": "Game-Requirements/requirements/11-Agentic-Mission-Editor.md",
+      "anchor": "functional-requirements"
+    },
+    {
+      "path": "Game-Requirements/requirements/17-Replay-AAR-And-Order-Log.md",
+      "anchor": "proposed-saveresume-contract-h6--2026-09-30"
+    },
+    {
+      "path": "Game-Requirements/drafts/26-Verification-CI-Gauntlet.md",
+      "anchor": "7-provenance--artifact-traceability-ver-07"
+    },
+    {
+      "path": "Game-Requirements/drafts/27-Scenario-Library-Campaigns.md",
+      "anchor": "proposed-lib-05-presentation-content-failure-isolation-h5--2026-09-30"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-30-requirements-planning-reconciliation.md",
+      "anchor": "proposed-requirement-amendments"
+    },
+    {
+      "path": "production/qa/qa-plan-sprint-122-127-rebaseline-2026-09-30.md",
+      "anchor": "sprint-criterion-mapping"
+    },
+    {
+      "path": "Game-Requirements/Game-Requirements-Index.md",
+      "anchor": "traceability"
+    },
+    {
+      "path": "Game-Requirements/implementation-tracker.md",
+      "anchor": "post-mvp-requirement-evidence-22-27"
+    },
+    {
+      "path": "production/sprints/sprint-122-127-index.md",
+      "anchor": "s122s127-program-release--not-launch"
+    },
+    {
+      "path": "docs/reports/future-sprint-roadmap-09302026.md",
+      "anchor": "follow-on-milestones--scoped-unscheduled"
+    },
+    {
+      "path": "docs/architecture/requirements-traceability.md",
+      "anchor": "proposed-criteria-requiring-new-delivery-evidence"
+    },
+    {
+      "path": "docs/reports/future-sprint-roadpmap.md"
+    },
+    {
+      "path": "docs/reports/project-dashboard.md"
+    },
+    {
+      "path": "production/sprint-status-s122-s127.yaml"
+    },
+    {
+      "path": "production/dashboard-state.yaml"
+    }
+  ],
+  "pointers": [
+    {
+      "path": "docs/reports/future-sprint-roadpmap.md",
+      "relativeTo": "docs/reports",
+      "selector": "^> \\*\\*Canonical document:\\*\\*.*\\]\\((?<target>[^)]+)\\)"
+    },
+    {
+      "path": "docs/reports/project-dashboard.md",
+      "relativeTo": "docs/reports",
+      "selector": "^\\*\\*Current program[^\\r\\n]*?\\]\\((?<target>[^)]+)\\)"
+    },
+    {
+      "path": "production/sprint-status-s122-s127.yaml",
+      "selector": "^roadmap:\\s*(?<target>[^\\r\\n]+)$"
+    },
+    {
+      "path": "production/dashboard-state.yaml",
+      "selector": "^  roadmap:\\s*(?<target>[^\\r\\n]+)$"
+    }
+  ],
+  "requirements": [
+    {
+      "path": "Game-Requirements/requirements/11-Agentic-Mission-Editor.md",
+      "ids": [
+        "AME-6.11"
+      ]
+    },
+    {
+      "path": "Game-Requirements/requirements/17-Replay-AAR-And-Order-Log.md",
+      "ids": [
+        "RPL-29",
+        "RPL-30",
+        "RPL-31"
+      ]
+    },
+    {
+      "path": "Game-Requirements/drafts/27-Scenario-Library-Campaigns.md",
+      "ids": [
+        "LIB-05.1",
+        "LIB-05.2",
+        "LIB-05.3"
+      ]
+    },
+    {
+      "path": "Game-Requirements/drafts/26-Verification-CI-Gauntlet.md",
+      "ids": [
+        "VER-07.3",
+        "VER-07.4",
+        "VER-07.5",
+        "VER-07.6"
+      ]
+    }
+  ],
+  "acceptanceRows": [
+    {
+      "id": "authoring-disclosure",
+      "requirement": "AME-6.11",
+      "owner": "drg amtd",
+      "issue": "DRG-345",
+      "status": "pending"
+    },
+    {
+      "id": "save-resume",
+      "requirement": "RPL-29/RPL-30/RPL-31",
+      "owner": "drg amtd",
+      "issue": "DRG-348/DRG-349",
+      "status": "pending"
+    },
+    {
+      "id": "presentation-isolation",
+      "requirement": "LIB-05.1/LIB-05.2/LIB-05.3",
+      "owner": "drg amtd",
+      "issue": "DRG-347",
+      "status": "pending"
+    },
+    {
+      "id": "revision-evidence",
+      "requirement": "VER-07.3/VER-07.4/VER-07.5/VER-07.6",
+      "owner": "drg amtd",
+      "issue": "DRG-201/DRG-244",
+      "status": "pending"
+    },
+    {
+      "id": "planning-coherence",
+      "requirement": "Planning maintenance acceptance",
+      "owner": "drg amtd",
+      "issue": "DRG-342",
+      "status": "pending"
+    }
+  ],
+  "evidence": [
+    {
+      "criterion": "authoring-disclosure",
+      "revision": "4190fb1b49cd15775b6b995b7c245d73828cd7a2",
+      "kind": "static_inspection",
+      "result": "proposed_clause_present; runtime_delivery_not_asserted",
+      "localDelta": "existing_uncommitted_changes",
+      "artifact": "Game-Requirements/requirements/11-Agentic-Mission-Editor.md",
+      "ownerAcceptance": {
+        "status": "pending"
+      }
+    },
+    {
+      "criterion": "save-resume",
+      "revision": "4190fb1b49cd15775b6b995b7c245d73828cd7a2",
+      "kind": "static_inspection",
+      "result": "proposed_contract_present; restoration_not_asserted",
+      "localDelta": "existing_uncommitted_changes",
+      "artifact": "Game-Requirements/requirements/17-Replay-AAR-And-Order-Log.md",
+      "ownerAcceptance": {
+        "status": "pending"
+      }
+    },
+    {
+      "criterion": "presentation-isolation",
+      "revision": "4190fb1b49cd15775b6b995b7c245d73828cd7a2",
+      "kind": "static_inspection",
+      "result": "proposed_contract_present; loader_or_fallback_not_asserted",
+      "localDelta": "existing_uncommitted_changes",
+      "artifact": "Game-Requirements/drafts/27-Scenario-Library-Campaigns.md",
+      "ownerAcceptance": {
+        "status": "pending"
+      }
+    },
+    {
+      "criterion": "revision-evidence",
+      "revision": "4190fb1b49cd15775b6b995b7c245d73828cd7a2",
+      "kind": "static_inspection",
+      "result": "proposed_schema_clauses_present; complete_VER07_validation_not_asserted",
+      "localDelta": "existing_uncommitted_changes",
+      "artifact": "Game-Requirements/drafts/26-Verification-CI-Gauntlet.md",
+      "ownerAcceptance": {
+        "status": "pending"
+      }
+    },
+    {
+      "criterion": "planning-coherence",
+      "revision": "4190fb1b49cd15775b6b995b7c245d73828cd7a2",
+      "kind": "static_inspection",
+      "result": "declared_reference_and_pointer_checks_only",
+      "localDelta": "existing_uncommitted_changes",
+      "artifact": "docs/superpowers/specs/2026-09-30-requirements-planning-reconciliation.md",
+      "ownerAcceptance": {
+        "status": "pending"
+      }
+    }
+  ],
+  "externalLinks": [
+    {
+      "label": "DRG-342",
+      "url": "https://linear.app/drgamtd-workspace/issue/DRG-342",
+      "role": "artifact consistency backlog; metadata only"
+    },
+    {
+      "label": "DRG-208",
+      "url": "https://linear.app/drgamtd-workspace/issue/DRG-208",
+      "role": "owner acceptance gate; status not fetched"
+    },
+    {
+      "label": "Notion reconciliation",
+      "url": "https://app.notion.com/p/3ebf7cb4e4df81cd80b7ff559888a0bd",
+      "role": "planning cross-reference; content not fetched"
+    }
+  ]
+}
