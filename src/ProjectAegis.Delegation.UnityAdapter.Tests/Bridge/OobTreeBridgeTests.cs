@@ -49,15 +49,15 @@ public sealed class OobTreeBridgeTests
     public void Build_null_snapshot_throws()
     {
         var bridge = new DelegationBridge(42, mvpEngagement: false);
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            OobTreeBridge.Build(null!, bridge.Registry)));
+        Assert.Throws<ArgumentNullException>(() =>
+            OobTreeBridge.Build(null!, bridge.Registry));
     }
 
     [Test]
     public void Build_null_registry_throws()
     {
         var snapshot = new SimWorldSnapshotStub();
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            OobTreeBridge.Build(snapshot, null!)));
+        Assert.Throws<ArgumentNullException>(() =>
+            OobTreeBridge.Build(snapshot, null!));
     }
 }

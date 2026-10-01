@@ -55,12 +55,12 @@ public sealed class UnitDetailBridgeTests
     public void BuildPrimary_null_snapshot_throws()
     {
         var bridge = new DelegationBridge(42, mvpEngagement: false);
-        Assert.Throws<ArgumentNullException>((Action)(() =>
+        Assert.Throws<ArgumentNullException>(() =>
             UnitDetailBridge.BuildPrimary(
                 null!,
                 bridge.Registry,
                 bridge.Orchestrator.DecisionLog,
-                null)));
+                null));
     }
 
     [Test]
@@ -68,8 +68,8 @@ public sealed class UnitDetailBridgeTests
     {
         var snapshot = new SimWorldSnapshotStub();
         var log = new DecisionLog();
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            UnitDetailBridge.BuildPrimary(snapshot, null!, log, null)));
+        Assert.Throws<ArgumentNullException>(() =>
+            UnitDetailBridge.BuildPrimary(snapshot, null!, log, null));
     }
 
     [Test]
@@ -77,23 +77,23 @@ public sealed class UnitDetailBridgeTests
     {
         var bridge = new DelegationBridge(42, mvpEngagement: false);
         var snapshot = new SimWorldSnapshotStub();
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            UnitDetailBridge.BuildPrimary(snapshot, bridge.Registry, null!, null)));
+        Assert.Throws<ArgumentNullException>(() =>
+            UnitDetailBridge.BuildPrimary(snapshot, bridge.Registry, null!, null));
     }
 
     [Test]
     public void BuildPrimary_bridge_overload_null_bridge_throws()
     {
         var snapshot = new SimWorldSnapshotStub();
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            UnitDetailBridge.BuildPrimary(snapshot, null!)));
+        Assert.Throws<ArgumentNullException>(() =>
+            UnitDetailBridge.BuildPrimary(snapshot, null!));
     }
 
     [Test]
     public void BuildSelected_null_snapshot_throws()
     {
         var log = new DecisionLog();
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            UnitDetailBridge.BuildSelected(new TargetId("u1"), null!, log, null)));
+        Assert.Throws<ArgumentNullException>(() =>
+            UnitDetailBridge.BuildSelected(new TargetId("u1"), null!, log, null));
     }
 }

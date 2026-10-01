@@ -71,23 +71,23 @@ public sealed class SensorC2BridgeTests
     public void Build_null_snapshot_throws()
     {
         var log = new DecisionLog();
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            SensorC2Bridge.Build(null!, log)));
+        Assert.Throws<ArgumentNullException>(() =>
+            SensorC2Bridge.Build(null!, log));
     }
 
     [Test]
     public void Build_null_log_throws()
     {
         var snapshot = new SimWorldSnapshotStub();
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            SensorC2Bridge.Build(snapshot, null!)));
+        Assert.Throws<ArgumentNullException>(() =>
+            SensorC2Bridge.Build(snapshot, null!));
     }
 
     [Test]
     public void BindPanel_null_snapshot_throws()
     {
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            SensorC2Bridge.BindPanel(null!)));
+        Assert.Throws<ArgumentNullException>(() =>
+            SensorC2Bridge.BindPanel(null!));
     }
 
     private sealed class StubPanelBridge : ISensorC2PanelBridge
