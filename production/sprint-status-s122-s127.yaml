@@ -6,6 +6,23 @@ sprint: "122-127-rebaseline"
 goal: "Complete outstanding evidence-gated criteria before owner Play Mode acceptance"
 generated: "2026-09-13"
 updated: "2026-09-30"
+latest_followup:
+  date: "2026-10-01"
+  archive: docs/reports/dashboard-snapshots/2026-10-01-planning-next-steps.md
+  source_base: "1902dc1299678ea17f75014406fd9c616e5576bd"
+  foundation_review: "https://app.graphite.com/github/pr/drgaciw/cmano-clone/690"
+  adr_017: accepted_direction_repository_review_pending
+  DRG_334: In_Review
+  DRG_333: In_Review
+  DRG_335: In_Review
+  DRG_332: In_Review
+  DRG_330: In_Progress_changes_required
+  DRG_183: exact_head_harness_and_regression_verified_review_integration_pending
+  DRG_234: In_Progress_changes_required_before_acceptance
+  DRG_243: backlog_retains_DRG_197_blocker
+  DRG_239: backlog_live_fixture_wiring_missing
+  qa_execution: pending_criterion_specific_evidence
+  acceptance: pending_owner_DRG_208
 roadmap: docs/reports/future-sprint-roadmap-09302026.md
 index: production/sprints/sprint-122-127-index.md
 qa_plan: production/qa/qa-plan-sprint-122-127-rebaseline-2026-09-30.md

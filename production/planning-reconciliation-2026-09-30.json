@@ -1,6 +1,9 @@
 {
   "schemaVersion": 1,
   "date": "2026-09-30",
+  "lastReverified": "2026-10-01",
+  "activeInspectedRevision": "1902dc1299678ea17f75014406fd9c616e5576bd",
+  "activeLocalDelta": "scoped_planning_and_topology_review_only",
   "issue": "DRG-342",
   "owner": "drg amtd",
   "scopeNotice": "Finite declared local planning checks only. Static inspection, proposed requirement clauses, and pending acceptance. Not complete VER-07 conformance, runtime feature proof, external-state verification, or owner signoff.",
@@ -11,6 +14,15 @@
   "inspectedRevisionNote": "4190fb1b was a local, unpublished HEAD (plus uncommitted delta) and is not fetchable from the remote. The reachable published revision for verification is acceptanceTarget 1902dc12; re-run evidence against a pushed commit before acceptance.",
   "localDelta": "existing_uncommitted_changes; no exact patch hash asserted by this planning manifest",
   "references": [
+    { "path": "docs/architecture/adr-017-editor-topology-client-vs-scenario-lab.md", "anchor": "decision-provenance--2026-10-01" },
+    { "path": "production/agentic/h4-phase2-gui-ux-review-2026-10-01.md" },
+    { "path": "production/agentic/h5-content-inventory-review-2026-10-01.md" },
+    { "path": "production/agentic/h6-save-model-review-2026-10-01.md" },
+    { "path": "production/scenario-editor-phase2-gui-scope-boundary-2026-10-01.md" },
+    { "path": "docs/superpowers/reviews/2026-10-01-g1-harness-review.md", "anchor": "fresh-pr-specific-verification--2026-10-01" },
+    { "path": "docs/superpowers/reviews/2026-10-01-play-entry-fixture-preflight.md" },
+    { "path": "docs/reports/dashboard-snapshots/2026-10-01-planning-next-steps.md" },
+    { "path": "docs/superpowers/reviews/2026-10-01-notion-followup-pending.md" },
     {
       "path": "Game-Requirements/requirements/11-Agentic-Mission-Editor.md",
       "anchor": "functional-requirements"

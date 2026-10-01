@@ -1,11 +1,11 @@
 # 11 - Agentic Mission & Scenario Editor
 
-**Last Updated:** 2026-09-30 (additive AME-6.11 proposal; shipped mapping retained)
+**Last Updated:** 2026-10-01 (ADR-017 topology accepted; September 30 AME-6.11 proposal and shipped mapping retained)
 **Status:** Revised — implementation-aligned (was Draft; realigned to approved GDD + shipped headless stack)
 **FR reverse-ref:** [FR-09](01-Project-Overview.md) — Scenario/mission editor
 **Author basis:** Approved GDD [`design/gdd/agentic-mission-editor.md`](../../design/gdd/agentic-mission-editor.md) (terminology, determinism contract, AC-1…AC-12); codebase review of `ProjectAegis.Data/Scenario/Authoring` + `ProjectAegis.Data/Validation` + `ProjectAegis.MissionEditor.Cli`; [scenario-editor research](../../docs/research/scenario-editor-research.md); [CMO Official Manual](https://www.matrixgames.com/amazon/PDF/CMO/CMO_manual_EBOOK.pdf) (Mission Editor §3.3.17/§7.1, Scenario Editor §4.1.5, ScenEdit §5, clean-room observable behavior only); requirements 01–10, 13, 14, 17.
 **Related:** [06-Database-Intelligence.md](06-Database-Intelligence.md) · [21-Platform-Editor.md](21-Platform-Editor.md) · [04-Agent-Delegation.md](04-Agent-Delegation.md) · [07-Agentic-Infrastructure.md](07-Agentic-Infrastructure.md) · [08-Agentic-Architecture.md](08-Agentic-Architecture.md) · [13-Doctrine-ROE-EMCON-WRA.md](13-Doctrine-ROE-EMCON-WRA.md) · [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md)
-**Decision record:** [ADR-008 Mission-Editor Validation Engine (Accepted)](../../docs/architecture/adr-008-mission-editor-validation-engine.md) · [ADR-013 CMO Scenario Import Policy (Proposed)](../../docs/architecture/adr-013-cmo-scenario-import-policy.md) · [ADR-014 Lua Compatibility Scope (Accepted)](../../docs/architecture/adr-014-lua-compatibility-scope.md) · [ADR-015 Agent-Authored Scenario Transparency (Proposed)](../../docs/architecture/adr-015-agent-authored-scenario-transparency.md) · [ADR-016 Event-Graph Complexity Caps (Accepted)](../../docs/architecture/adr-016-event-graph-complexity-caps.md) · [ADR-017 Editor Topology: Client vs Scenario Lab (Proposed)](../../docs/architecture/adr-017-editor-topology-client-vs-scenario-lab.md)
+**Decision record:** [ADR-008 Mission-Editor Validation Engine (Accepted)](../../docs/architecture/adr-008-mission-editor-validation-engine.md) · [ADR-013 CMO Scenario Import Policy (Proposed)](../../docs/architecture/adr-013-cmo-scenario-import-policy.md) · [ADR-014 Lua Compatibility Scope (Accepted)](../../docs/architecture/adr-014-lua-compatibility-scope.md) · [ADR-015 Agent-Authored Scenario Transparency (Proposed)](../../docs/architecture/adr-015-agent-authored-scenario-transparency.md) · [ADR-016 Event-Graph Complexity Caps (Accepted)](../../docs/architecture/adr-016-event-graph-complexity-caps.md) · [ADR-017 Editor Topology: Client vs Scenario Lab (Accepted 2026-10-01)](../../docs/architecture/adr-017-editor-topology-client-vs-scenario-lab.md)
 
 ## Purpose
 
@@ -33,7 +33,7 @@ Scenario design should feel like **theater planning with an expert staff**, not 
 | **Lua scope** | **Typed event DSL** is the v1 authoring surface; **no Lua in v1**; optional compatibility shim deferred | ADR-014 |
 | **Agent-authored labeling** | Proposed — label agent-authored scenarios in multiplayer/briefing for transparency; store in `metadata`/provenance | ADR-015 |
 | **Event-graph caps** | Soft/hard caps accepted: soft complexity + tick-density **warnings**; hard cap 32 conditions/event | ADR-016 |
-| **Editor topology** | Proposed — in-client editor vs standalone "Scenario Lab" sharing the core library | ADR-017 |
+| **Editor topology** | Accepted 2026-10-01 — shared core; in-client v1; optional later Scenario Lab front-end | ADR-017 |
 
 **Out of scope (v1):** Unity Edit Mode map GUI; sides/factions placement UI; operations-timeline UI; mining/mine-clear/cargo missions; NL Mission Planner; CMO import execution; Lua; Steam-Workshop sharing. *(Headless map ORBAT/RP mutations shipped under Phase 2 Partial+ — AME-4.2/4.3; not a v1 claim.)* Remaining Phase 2/3 product UI and agents stay phased.
 
@@ -393,7 +393,7 @@ Each former open question now points to its ADR.
 | Q2 | **Lua compatibility**: full `ScenEdit_*` shim vs curated subset | ADR-014 | **Accepted** — typed DSL is v1; **no Lua v1**; optional shim deferred to Phase 3 |
 | Q3 | Should **agent-authored scenarios** be labeled for transparency? | ADR-015 | **Proposed — recommend yes**; store in `metadata`/provenance (affects Phase 2/3 agents only) |
 | Q4 | Maximum **event-graph complexity** before warnings (soft cap) | ADR-016 | **Accepted** — soft complexity + tick-density warnings; hard cap 32 conditions/event; never blocks export; finalize thresholds at perf budgeting |
-| Q5 | Editor **inside game client** only, or standalone **Scenario Lab** sharing the core library | ADR-017 | **Proposed** — v1 is headless/file-based; topology decision pending |
+| Q5 | Editor **inside game client** only, or standalone **Scenario Lab** sharing the core library | ADR-017 | **Resolved 2026-10-01** — shared core with in-client v1 and headless CLI/MCP; Scenario Lab is an optional later front-end, not a fork |
 
 ## Traceability
 
