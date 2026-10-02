@@ -1,0 +1,95 @@
+{
+  "scenarioId": "slice-a-targetability-exit",
+  "storyId": "DRG-183",
+  "replayScope": "slice-a-exit-gate-off-baltic-v2-hash",
+  "evaluationSimTick": 9,
+  "observerId": "u1",
+  "shooterUnitId": "u1",
+  "weaponRounds": 2,
+  "catalog": "baltic-patrol",
+  "acceptanceFingerprint": "sla:id=slice-a-targetability-exit|story=DRG-183|scope=slice-a-exit-gate-off-baltic-v2-hash|tick=9|engage=0|outcomes=0|orders=0|mag=0|ordnance=0|contacts=6|n=2|path=valid-target;kind=Valid;contact=c-valid;target=hostile-1;phase=Target;loss=None;visited=Find>Fix>Track>Target;tech=1;prov=1;fresh=Fresh;age=0;quality=None;confidence=High;source=observer:u1|target:hostile-1;roe=WeaponsFree;roeLabel=WEAPONS_FREE;roeEngage=1;authority=Permitted;authorityReason=;pending=;engageVerb=Permitted;engageVerbReason=;disposition=Permitted;cause=None;chain=1;chainCause=;log=3/0/0/0/0/0;explain=phase=Target;loss=None;phases=Find>Fix>Track>Target;targetable=1;provenance=observer:u1|target:hostile-1;observer=u1;confidence=High;freshness=Fresh;ageTicks=0;quality=None;lifecycle=Identified;roe=WeaponsFree;roeLabel=WEAPONS_FREE;engageAllowed=1;authority=Permitted;authorityReason=;pending=;engageVerb=Permitted;engageVerbReason=;disposition=Permitted;cause=None;chain=complete;chainCause=;tac=tac:c=1|c-valid,hostile-1,0,None,cp:c=1|c-valid,u1,hostile-1,observer:u1|target:hostile-1,3,0,0,Identified,hostile-1,9,9,0,0,sts:c=1|c-valid,hostile-1,u1,1,0,4;1,1,0,u1,sensor:u1;2,1,0,c-valid,track:c-valid;3,1,0,c-valid,targetable;4,1,0,u1,shooter:u1,auth:2,0,,1,0,,;0,0,;1,0,;2,0,;3,0,;4,0,;5,0,;kc=kc:c=1|c-valid,hostile-1,u1,4,0,1111,1,1,9,9,3,1+2+3,contact:c-valid+observer:u1+seq:3+target:hostile-1#t=4|1,c-valid,0,1,0,1,1,1|2,c-valid,1,2,0,1,1,1|3,c-valid,2,3,0,5,5,2|4,c-valid,3,4,0,5,5,2|path=approval-required;kind=ApprovalRequired;contact=c-approval;target=hostile-1;phase=Target;loss=None;visited=Find>Fix>Track>Target;tech=1;prov=1;fresh=Fresh;age=0;quality=None;confidence=High;source=observer:u1|target:hostile-1;roe=WeaponsFree;roeLabel=WEAPONS_FREE;roeEngage=1;authority=ApprovalRequired;authorityReason=WEAPONS_RELEASE_REQUIRED;pending=WeaponsRelease;engageVerb=ApprovalRequired;engageVerbReason=WEAPONS_RELEASE_REQUIRED;disposition=Withheld;cause=WEAPONS_RELEASE_REQUIRED;chain=1;chainCause=;log=3/0/0/0/0/0;explain=phase=Target;loss=None;phases=Find>Fix>Track>Target;targetable=1;provenance=observer:u1|target:hostile-1;observer=u1;confidence=High;freshness=Fresh;ageTicks=0;quality=None;lifecycle=Identified;roe=WeaponsFree;roeLabel=WEAPONS_FREE;engageAllowed=1;authority=ApprovalRequired;authorityReason=WEAPONS_RELEASE_REQUIRED;pending=WeaponsRelease;engageVerb=ApprovalRequired;engageVerbReason=WEAPONS_RELEASE_REQUIRED;disposition=Withheld;cause=WEAPONS_RELEASE_REQUIRED;chain=complete;chainCause=;tac=tac:c=1|c-approval,hostile-1,1,WEAPONS_RELEASE_REQUIRED,cp:c=1|c-approval,u1,hostile-1,observer:u1|target:hostile-1,3,0,0,Identified,hostile-1,9,9,0,0,sts:c=1|c-approval,hostile-1,u1,1,0,4;1,1,0,u1,sensor:u1;2,1,0,c-approval,track:c-approval;3,1,0,c-approval,targetable;4,1,0,u1,shooter:u1,auth:2,0,,1,2,WEAPONS_RELEASE_REQUIRED,WeaponsRelease;0,0,;1,0,;2,2,WEAPONS_RELEASE_REQUIRED;3,2,WEAPONS_RELEASE_REQUIRED;4,0,;5,0,;kc=kc:c=1|c-approval,hostile-1,u1,4,0,1111,1,1,9,9,3,1+2+3,contact:c-approval+observer:u1+seq:3+target:hostile-1#t=4|1,c-approval,0,1,0,1,1,1|2,c-approval,1,2,0,1,1,1|3,c-approval,2,3,0,5,5,2|4,c-approval,3,4,0,5,5,2",
+  "paths": [
+    {
+      "pathId": "valid-target",
+      "kind": "Valid",
+      "contactId": "c-valid",
+      "targetId": "hostile-1",
+      "fireControlContactIds": [
+        "c-valid"
+      ],
+      "authority": {
+        "roe": "WeaponsFree",
+        "lane": "Read",
+        "requiredApproval": "None",
+        "trackSource": "Organic",
+        "fireControlSatisfied": true,
+        "commandId": "observe",
+        "humanControlled": true
+      },
+      "steps": [
+        {
+          "sequenceId": 1,
+          "simTime": 1.0,
+          "simTick": 1,
+          "previousState": "Unknown",
+          "newState": "Detected"
+        },
+        {
+          "sequenceId": 2,
+          "simTime": 5.0,
+          "simTick": 5,
+          "previousState": "Detected",
+          "newState": "Classified"
+        },
+        {
+          "sequenceId": 3,
+          "simTime": 9.0,
+          "simTick": 9,
+          "previousState": "Classified",
+          "newState": "Identified"
+        }
+      ]
+    },
+    {
+      "pathId": "approval-required",
+      "kind": "ApprovalRequired",
+      "contactId": "c-approval",
+      "targetId": "hostile-1",
+      "fireControlContactIds": [
+        "c-approval"
+      ],
+      "authority": {
+        "roe": "WeaponsFree",
+        "lane": "Propose",
+        "requiredApproval": "WeaponsRelease",
+        "trackSource": "Organic",
+        "fireControlSatisfied": true,
+        "commandId": "engage",
+        "humanControlled": true
+      },
+      "steps": [
+        {
+          "sequenceId": 1,
+          "simTime": 1.0,
+          "simTick": 1,
+          "previousState": "Unknown",
+          "newState": "Detected"
+        },
+        {
+          "sequenceId": 2,
+          "simTime": 5.0,
+          "simTick": 5,
+          "previousState": "Detected",
+          "newState": "Classified"
+        },
+        {
+          "sequenceId": 3,
+          "simTime": 9.0,
+          "simTick": 9,
+          "previousState": "Classified",
+          "newState": "Identified"
+        }
+      ]
+    }
+  ]
+}

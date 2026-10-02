@@ -52,6 +52,7 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _engageLine;
         private Label? _attackOptionsLine;
         private readonly Dictionary<string, Button> _attackButtons = new();
+        private readonly Dictionary<string, VisualElement> _weaponRows = new();
         private Label? _contactLine;
         private bool _wired;
         private bool _attackHandlersRegistered;
@@ -64,6 +65,7 @@ namespace ProjectAegis.Unity.Runtime
         private DlzLiveSurfaceState _dlzSurface = DlzLiveSurfaceState.Empty;
         private WraSalvoRemainingState _wraSalvoSurface = WraSalvoRemainingState.Empty;
         private AttackOptionsPreviewState _attackPreview = AttackOptionsPreviewState.Empty;
+        private WeaponAbortTooltipState _weaponAbort = WeaponAbortTooltipState.Empty;
 
         /// <summary>Last applied unit-detail presentation (S107 apply-state).</summary>
         public UnitDetailPresentation LastPresentation => _presentation;
@@ -76,6 +78,9 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Last applied attack-options preview (DRG-262). Presentation only.</summary>
         public AttackOptionsPreviewState LastAttackOptionsPreview => _attackPreview;
+
+        /// <summary>Last applied weapon-abort tooltip (DRG-258). Presentation only.</summary>
+        public WeaponAbortTooltipState LastWeaponAbortTooltip => _weaponAbort;
 
         private void Reset()
         {
@@ -149,9 +154,12 @@ namespace ProjectAegis.Unity.Runtime
             }
             _contactLine = panel.Q<Label>(ContactName);
             _attackButtons.Clear();
+            _weaponRows.Clear();
             RegisterAttackButton(panel.Q<Button>("attack-fire-single"), "fire-single");
             RegisterAttackButton(panel.Q<Button>("attack-fire-salvo"), "fire-salvo");
             RegisterAttackButton(panel.Q<Button>("attack-hold-fire"), "hold-fire");
+            RegisterWeaponRow(panel.Q<VisualElement>(WeaponAbortTooltipBinder.FireSingleRowName), WeaponAbortTooltipBinder.FireSingleOptionId);
+            RegisterWeaponRow(panel.Q<VisualElement>(WeaponAbortTooltipBinder.FireSalvoRowName), WeaponAbortTooltipBinder.FireSalvoOptionId);
             _wired = _unitIdLine != null && _statusLine != null && _magazineLine != null &&
                      _emconLine != null && _doctrineLine != null;
 
@@ -173,11 +181,23 @@ namespace ProjectAegis.Unity.Runtime
             _attackButtons[optionId] = button;
         }
 
+        private void RegisterWeaponRow(VisualElement? row, string optionId)
+        {
+            if (row == null)
+            {
+                return;
+            }
+
+            row.focusable = true;
+            _weaponRows[optionId] = row;
+        }
+
         /// <summary>Apply panel state via shipped binder + apply-state path (S107).</summary>
         public void ApplyPanelState(UnitDetailPanelState? state)
         {
             _presentation = UnitDetailApplyState.Apply(state);
             _attackPreview = AttackOptionsPreviewBinder.Bind(state?.AttackMenu);
+            _weaponAbort = WeaponAbortTooltipState.Empty;
             ApplyPresentationToLabels();
 
             // Mirror Refresh(): without this, direct-apply callers keep whatever
@@ -208,8 +228,11 @@ namespace ProjectAegis.Unity.Runtime
                 bridgeHost.Presentation.ResolveContactLine());
             _presentation = UnitDetailApplyState.Apply(state);
             _attackPreview = AttackOptionsPreviewBinder.Bind(state.AttackMenu);
-            _dlzSurface = DlzLiveSurfaceBinder.BindFromEngagePreview(
-                bridgeHost.ProjectSelectedEngagePreview());
+            var engagePreview = bridgeHost.ProjectSelectedEngagePreview();
+            _dlzSurface = DlzLiveSurfaceBinder.BindFromEngagePreview(engagePreview);
+            _weaponAbort = WeaponAbortTooltipBinder.Bind(
+                EngageExplainProjection.Project(engagePreview),
+                bridgeHost.ProjectCombatDetail());
             _wraSalvoSurface = bridgeHost.ProjectSelectedWraSalvoRemaining();
             ApplyPresentationToLabels();
             RefreshAttackMenuButtons();
@@ -318,6 +341,7 @@ namespace ProjectAegis.Unity.Runtime
                 if (row == null)
                 {
                     button.style.display = DisplayStyle.None;
+                    ApplyWeaponRowChrome(optionId, visible: false, tooltip: null, denied: false);
                     continue;
                 }
 
@@ -343,9 +367,18 @@ namespace ProjectAegis.Unity.Runtime
                     tooltip = row.Label;
                 }
 
+                if (!enabled
+                    && WeaponAbortTooltipBinder.AppliesTo(optionId)
+                    && _weaponAbort.IsDenied
+                    && !string.IsNullOrEmpty(_weaponAbort.TooltipText))
+                {
+                    tooltip = _weaponAbort.TooltipText;
+                }
+
                 button.text = text;
                 button.tooltip = tooltip;
                 button.SetEnabled(enabled);
+                ApplyWeaponRowChrome(optionId, visible: true, tooltip, denied: !enabled && _weaponAbort.IsDenied);
                 ApplyAttackOptionsCue(
                     button,
                     enabled ? AttackOptionsCueClasses.Ready : AttackOptionsCueClasses.Blocked);
@@ -416,6 +449,27 @@ namespace ProjectAegis.Unity.Runtime
                 "hold-fire" => "Hold fire",
                 _ => optionId,
             };
+        }
+
+        private void ApplyWeaponRowChrome(string optionId, bool visible, string? tooltip, bool denied)
+        {
+            if (!_weaponRows.TryGetValue(optionId, out var weaponRow) || weaponRow == null)
+            {
+                return;
+            }
+
+            weaponRow.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            // Disabled buttons are not pickable. The row keeps hover and focus for the abort tooltip.
+            weaponRow.tooltip = tooltip;
+            weaponRow.focusable = true;
+            if (denied)
+            {
+                weaponRow.AddToClassList(WeaponAbortTooltipBinder.DeniedRowClass);
+            }
+            else
+            {
+                weaponRow.RemoveFromClassList(WeaponAbortTooltipBinder.DeniedRowClass);
+            }
         }
 
         private static void ApplyAttackOptionsCue(VisualElement element, string cueClass)
