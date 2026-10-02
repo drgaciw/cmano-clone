@@ -18,8 +18,8 @@ public sealed class SliceAContactFrameTests
     [Test]
     public void Null_inputs_throw()
     {
-        Assert.Throws<ArgumentNullException>((Action)(() => SliceAContactFrameBridge.Build(null!, new DelegationBridge(1))));
-        Assert.Throws<ArgumentNullException>((Action)(() => SliceAContactFrameBridge.Build(new SimWorldSnapshotStub(), null!)));
+        Assert.Throws<ArgumentNullException>(() => SliceAContactFrameBridge.Build(null!, new DelegationBridge(1)));
+        Assert.Throws<ArgumentNullException>(() => SliceAContactFrameBridge.Build(new SimWorldSnapshotStub(), null!));
     }
 
     [Test]
