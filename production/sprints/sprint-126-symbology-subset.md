@@ -1,6 +1,8 @@
 # Sprint 126 — Symbology subset (presentation-only)
 
-**Status:** Planned  
+> **2026-09-30 rebaseline:** Original dates below are forecasts, not delivery evidence. Current program: [dated roadmap](../../docs/reports/future-sprint-roadmap-09302026.md). Mandatory [shared QA plan](../qa/qa-plan-sprint-122-127-rebaseline-2026-09-30.md) is authored; execution, sprint exit proof and owner acceptance remain pending. Document maturity, delivery and acceptance are tracked separately. Independent work may proceed; unresolved predecessor evidence gates dependent implementation.
+
+**Status:** Planning rebaselined 2026-09-30; delivery and acceptance evidence pending
 **Dates:** 2026-10-13 – 2026-10-17  
 **Predecessor:** [S125 editor honesty](sprint-125-editor-honesty.md)  
 **Next:** [S127 Play Mode signoff](sprint-127-play-mode-signoff.md)  
@@ -12,7 +14,7 @@
 
 ## Sprint Goal
 
-Dual-profile naval **thin** slice + canonical keys + non-certification legend. Not a full atlas.
+Scoped naval **thin** slice + canonical keys + non-certification legend. Dual profile requires the CIV scope decision; otherwise deliver MIL-only and record CIV pending. Not a full atlas.
 
 ## Capacity
 
@@ -26,7 +28,7 @@ Dual-profile naval **thin** slice + canonical keys + non-certification legend. N
 | S126-02 | N-GATE-SYM-01 wiki gate (MIL-only if CIV HOLD) | 0.25 | — | Wiki gate pack |
 | S126-03 | W2-SYM-01 canonical key registry | 0.5 | — | Hash-safe keys |
 | S126-04 | SYM-03 headless profile switch | 0.5 | SYM-02 or waiver | Profile switch without world mutation |
-| S126-05 | W3-SYM-01 ≥3 dual-profile naval types | 1.0 | S126-03/04 | Thin naval slice |
+| S126-05 | W3-SYM-01 ≥3 scoped naval types | 1.0 | S126-03/04; CIV decision | Dual-profile thin slice if CIV accepted; otherwise ≥3 MIL types, explicit CIV pending and no dual-profile completion claim |
 | S126-06 | W2-SYM-03 subset / not-certified disclaimer | 0.25 | — | Visible disclaimer |
 | S126-07 | W3-SYM-02 day-5 evidence pack | 0.25 | above | Evidence filed; DRG-208 unchanged |
 
@@ -47,9 +49,9 @@ W2-SYM-05 HOLD; SYM-01/06 HOLD; CMD-13 LOD; SWARM-27…30; full SYM-04 atlas.
 
 ## Definition of Done
 
-- [ ] ≥3 dual types
+- [ ] ≥3 scoped naval types; dual-profile only with explicit CIV scope decision, otherwise MIL-only and CIV pending
 - [ ] Toggle without hash change
 - [ ] Disclaimer visible
 - [ ] Evidence filed
 - [ ] DRG-208 unchanged
-- [ ] QA plan exists or warning accepted
+- [ ] Shared QA plan exists; executed sprint criteria and QA decision recorded (no missing-plan waiver)

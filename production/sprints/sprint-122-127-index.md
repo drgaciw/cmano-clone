@@ -1,10 +1,12 @@
 # S122–S127 program (Release · not Launch)
 
-**Status:** Planned — artifacts promoted 2026-09-13  
+**Status:** Rebaselined planning — 2026-09-30; delivery and owner acceptance pending
 **Source:** `artifacts/backlog-stories-2026-09-13/wave3/07-sprint-plan.md` (working artifact, not committed to this repo)
 **Capacity:** 5 calendar days / sprint · 20% buffer → **4.0d Must** · ≤2.0d Should · S=0.25d M=0.5d L=1.0d  
 **Stage:** **Release** · **Not Launch** · no S122/Launch confusion — this **is** S122+ product work, not a Launch gate  
 **HEAD at plan:** `c7810de` (#623)
+
+**Current snapshot:** [September 30 roadmap](../../docs/reports/future-sprint-roadmap-09302026.md). Original date windows below are historical forecasts. Outstanding G1/graph/entry evidence gates dependent work; no sprint is complete because its date passed. Local reviewed HEAD `4190fb1` with existing delta differs from the reported remote acceptance reference `1902dc12`. Evidence must identify both revision and local delta.
 
 | Sprint | Dates | Plan | Theme |
 |--------|-------|------|-------|
@@ -20,4 +22,12 @@ S122.0 is day-0 of the S122 week (hygiene before tracker Must). Do not pack two 
 
 **Out of this program:** Phase N, SWARM-27…30, CMD-13 full APP-6 LOD, Cesium 5k@60, `.scen` parser, DOTS world-store (ADR-005), HOLD set (C2-18/19/21, AUTH-11/14, SYM-01/06, W2-SYM-05).
 
-> ⚠️ **No QA plans yet** for S122–S127. Run `/qa-plan sprint` before implementation. Production → Polish gate needs a QA sign-off, which needs a QA plan.
+**Mandatory QA plan:** [S122–S127 rebaseline plan](../qa/qa-plan-sprint-122-127-rebaseline-2026-09-30.md) supplies measurable per-sprint criteria. Authored does not mean executed or signed off. Missing-plan warning waiver is removed across all sprint files. S123 Must is corrected to **4.0d** including the retained 0.5d interim owner walk; optional 0.25d fixture enrichment moves to Should.
+
+| Dimension | Current state |
+| --- | --- |
+| Document maturity | Rebaselined plan authored; feature design/ADR reviews pending |
+| Delivery | Outstanding criteria tracked in Linear; no new product completion claimed |
+| Acceptance | DRG-208 Todo; interim and final owner decisions require revision-bound evidence |
+
+**Follow-on milestone intake:** H4 bounded existing-map edit/validate/save/export/play and capability disclosure (intake DRG-335/333/334; delivery DRG-345/346 under DRG-327); H5 local presentation-content pilot with failure isolation (intake DRG-332/331; delivery DRG-347 under DRG-326); H6 complete save contract then deterministic resume vertical slice (intake DRG-330/328/329; delivery DRG-348/349 under DRG-325). Multiplayer has a separate deferred scope decision. These milestones have no assigned sprint numbers or delivery dates. WYSIWYG Platform Editor remains undecided; ADR-011 Excel-primary unchanged.

@@ -1,9 +1,11 @@
 # 25 - C2 Nodes, Mission Packages & Mission Command
 
-**Last Updated:** 2026-09-02  
+**Review / acceptance state (2026-09-30):** Draft maturity retained; formal document promotion and criterion-level owner acceptance are pending. Implementation/test mappings below identify subsets, not complete product signoff. Live evidence: [tracker](../implementation-tracker.md#post-mvp-requirement-evidence-22-27) and [RTM](../../docs/architecture/requirements-traceability.md).
+
+**Last Updated:** 2026-09-30 (additive evidence reconciliation)
 **Status:** Draft — remediation for Audit Finding B-05 (2026-09-02)  
-**FR reverse-ref:** Related to **FR-03** ([04-Agent-Delegation.md](04-Agent-Delegation.md)) and **FR-18** ([19-Cyber-And-Comms.md](19-Cyber-And-Comms.md), [20-Command-And-Control-UI.md](20-Command-And-Control-UI.md))  
-**Related:** [04-Agent-Delegation.md](04-Agent-Delegation.md), [08-Agentic-Architecture.md](08-Agentic-Architecture.md), [12-Terms-Glossary.md](12-Terms-Glossary.md), [13-Doctrine-ROE-EMCON-WRA.md](13-Doctrine-ROE-EMCON-WRA.md), [17-Replay-AAR-And-Order-Log.md](17-Replay-AAR-And-Order-Log.md), [19-Cyber-And-Comms.md](19-Cyber-And-Comms.md), [20-Command-And-Control-UI.md](20-Command-And-Control-UI.md), [23-Kill-Chain-Explainability.md](23-Kill-Chain-Explainability.md), [24-Human-On-The-Loop-Authority.md](24-Human-On-The-Loop-Authority.md)  
+**FR reverse-ref:** Related to **FR-03** ([04-Agent-Delegation.md](../requirements/04-Agent-Delegation.md)) and **FR-18** ([19-Cyber-And-Comms.md](../requirements/19-Cyber-And-Comms.md), [20-Command-And-Control-UI.md](../requirements/20-Command-And-Control-UI.md))
+**Related:** [04-Agent-Delegation.md](../requirements/04-Agent-Delegation.md), [08-Agentic-Architecture.md](../requirements/08-Agentic-Architecture.md), [12-Terms-Glossary.md](../requirements/12-Terms-Glossary.md), [13-Doctrine-ROE-EMCON-WRA.md](../requirements/13-Doctrine-ROE-EMCON-WRA.md), [17-Replay-AAR-And-Order-Log.md](../requirements/17-Replay-AAR-And-Order-Log.md), [19-Cyber-And-Comms.md](../requirements/19-Cyber-And-Comms.md), [20-Command-And-Control-UI.md](../requirements/20-Command-And-Control-UI.md), [23-Kill-Chain-Explainability.md](23-Kill-Chain-Explainability.md), [24-Human-On-The-Loop-Authority.md](24-Human-On-The-Loop-Authority.md)
 **Linear:** Milestone **H9 / C2 Architecture** · [DRG-213](https://linear.app/drgamtd-workspace/issue/DRG-213) (Headless C2 Nodes & Mission Packages), [DRG-214](https://linear.app/drgamtd-workspace/issue/DRG-214) (Headless C2 Network Health Projection), [DRG-223](https://linear.app/drgamtd-workspace/issue/DRG-223) (Task Group Coordination & Gaps), [DRG-229](https://linear.app/drgamtd-workspace/issue/DRG-229) (Mission Command Intent & Commander Guidance)
 
 ---
