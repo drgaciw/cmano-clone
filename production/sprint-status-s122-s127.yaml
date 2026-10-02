@@ -1,81 +1,116 @@
-# Machine-readable S122.0–S127 status. Updated by /story-done and /dev-story.
-# Plans: production/sprints/sprint-122-127-index.md
-# Source: artifacts/backlog-stories-2026-09-13/wave3/07-sprint-plan.md (working artifact, not committed to this repo)
-#
-# Status: backlog | ready-for-dev | in-progress | review | done | blocked
-# Priority: must-have | should-have | nice-to-have
-
-sprint: "122.0"
+# Planning truth, reconciled with live Linear reads and roadmap on 2026-09-30.
+# Dates are original forecasts; no delivery inferred from calendar or plan authorship.
 program: "S122.0-S127"
-goal: "Linear archive / remainder filing (cap hygiene)"
-start: "2026-09-15"
-end: "2026-09-16"
+stage: Release
+sprint: "122-127-rebaseline"
+goal: "Complete outstanding evidence-gated criteria before owner Play Mode acceptance"
 generated: "2026-09-13"
-updated: "2026-09-13"
-capacity_days: 2
-must_available_days: 0.75
-qa_plan: missing
-
-stories:
-  - id: S122.0-01
-    name: W2-HYG-01 bulk-archive Done
+updated: "2026-09-30"
+roadmap: docs/reports/future-sprint-roadmap-09302026.md
+index: production/sprints/sprint-122-127-index.md
+qa_plan: production/qa/qa-plan-sprint-122-127-rebaseline-2026-09-30.md
+qa_plan_maturity: authored
+qa_execution: pending
+qa_signoff: pending
+delivery: incomplete
+acceptance: pending_owner
+acceptance_issue: DRG-208
+acceptance_reference: "1902dc12"
+acceptance_reference_source: "Core/combat project descriptions, reported remote main September 27"
+local_review_head: "4190fb1b49cd15775b6b995b7c245d73828cd7a2"
+local_delta: existing_uncommitted_changes
+capacity_days: 5
+must_available_days: 4.0
+execution_policy: "Outstanding predecessor evidence gates dependent execution; independent planning may proceed"
+issue_states:
+  backlog: [DRG-234, DRG-242, DRG-243, DRG-246, DRG-244, DRG-239, DRG-235, DRG-236, DRG-274, DRG-345, DRG-346, DRG-347, DRG-348, DRG-349]
+  in_review: [DRG-342, DRG-343, DRG-344, DRG-275]
+  in_progress: [DRG-183, DRG-197, DRG-169, DRG-258]
+  todo: [DRG-165, DRG-166, DRG-168, DRG-170, DRG-208]
+  done: [DRG-181, DRG-182]
+# Original detailed story rows remain authoritative in linked plans; administrative
+# completion/cycle/archive state requires fresh proof rather than stale ready-for-dev.
+sprints:
+  - sprint: "122.0"
     file: production/sprints/sprint-122-0-cap-hygiene.md
-    priority: must-have
-    status: ready-for-dev
-    estimate_days: 0.25
-  - id: S122.0-02
-    name: W2-HYG-02 remainder filing checklist
-    file: production/sprints/sprint-122-0-cap-hygiene.md
-    priority: must-have
-    status: ready-for-dev
-    estimate_days: 0.25
-  - id: S122.0-03
-    name: W3-HYG-03 archive smoke or waiver
-    file: production/sprints/sprint-122-0-cap-hygiene.md
-    priority: must-have
-    status: ready-for-dev
-    estimate_days: 0.25
-  - id: S122.0-04
-    name: W3-HYG-01 tag Highs into S122-S127
-    file: production/sprints/sprint-122-0-cap-hygiene.md
-    priority: should-have
-    status: backlog
-    estimate_days: 0.25
-  - id: S122.0-05
-    name: W3-HYG-02 Surface collision card
-    file: production/sprints/sprint-122-0-cap-hygiene.md
-    priority: should-have
-    status: backlog
-    estimate_days: 0.25
-  - id: S122.0-06
-    name: W2-HYG-04 headroom log
-    file: production/sprints/sprint-122-0-cap-hygiene.md
-    priority: nice-to-have
-    status: backlog
-    estimate_days: 0.25
-
-upcoming:
+    original_forecast: "2026-09-15 to 2026-09-16"
+    goal: "Hygiene evidence and row ownership"
+    must_load_days: 2.0
+    delivery: unverified
+    acceptance: pending
   - sprint: "122"
     file: production/sprints/sprint-122-tracker-g1.md
-    dates: "2026-09-15 – 2026-09-19"
-    goal: Tracker honesty + Slice G1
+    original_forecast: "2026-09-15 to 2026-09-19"
+    goal: "Tracker honesty and G1 baseline"
+    must_load_days: 4.0
+    delivery: incomplete
+    acceptance: pending
   - sprint: "123"
     file: production/sprints/sprint-123-play-entry.md
-    dates: "2026-09-22 – 2026-09-26"
-    goal: Play-entry / loop honesty
+    original_forecast: "2026-09-22 to 2026-09-26"
+    goal: "Play entry, Slice A harness and interim owner walk"
+    must_load_days: 4.0
+    must_agent_days: 3.5
+    must_owner_days: 0.5
+    optional_briefing_enrichment: S123-02
+    delivery: incomplete
+    acceptance: pending_owner
   - sprint: "124"
     file: production/sprints/sprint-124-combat-commit.md
-    dates: "2026-09-29 – 2026-10-03"
-    goal: Combat-commit honesty
+    original_forecast: "2026-09-29 to 2026-10-03"
+    goal: "Combat commit and delegation success"
+    must_load_days: 2.75
+    delivery: unverified
+    acceptance: pending
   - sprint: "125"
     file: production/sprints/sprint-125-editor-honesty.md
-    dates: "2026-10-06 – 2026-10-10"
-    goal: Editor honesty
+    original_forecast: "2026-10-06 to 2026-10-10"
+    goal: "Editor honesty and G3 evidence"
+    must_load_days: 3.5
+    delivery: incomplete
+    acceptance: pending
   - sprint: "126"
     file: production/sprints/sprint-126-symbology-subset.md
-    dates: "2026-10-13 – 2026-10-17"
-    goal: Symbology subset
+    original_forecast: "2026-10-13 to 2026-10-17"
+    goal: "Thin naval symbology with explicit CIV decision"
+    must_load_days: 3.0
+    delivery: unverified
+    acceptance: pending
   - sprint: "127"
     file: production/sprints/sprint-127-play-mode-signoff.md
-    dates: "2026-10-20 – 2026-10-24"
-    goal: Play Mode signoff + gates
+    original_forecast: "2026-10-20 to 2026-10-24"
+    goal: "Residual gates and final owner Play Mode acceptance"
+    must_load_days_min: 3.0
+    must_load_days_max: 4.0
+    delivery: incomplete
+    acceptance: pending_owner
+follow_on:
+  h4:
+    intake_issue: DRG-335
+    delivery_parent: DRG-327
+    issues: [DRG-333, DRG-334, DRG-345, DRG-346]
+    milestone: "Bounded edit-validate-save-export-play with runtime capability disclosure"
+    planning: in_progress
+    implementation: gated
+    scheduled: false
+    platform_wysiwyg: undecided
+  h5:
+    intake_issue: DRG-332
+    delivery_parent: DRG-326
+    issues: [DRG-331, DRG-347]
+    milestone: "Local presentation-content pilot with failure isolation"
+    planning: in_progress
+    implementation: gated
+    scheduled: false
+  h6_save_resume:
+    intake_issue: DRG-330
+    delivery_parent: DRG-325
+    issues: [DRG-328, DRG-329, DRG-348, DRG-349]
+    milestone: "Deterministic save-resume first"
+    planning: in_progress
+    implementation: gated
+    scheduled: false
+  multiplayer:
+    planning: separate_deferred_scope_decision
+    implementation: not_scheduled
+    scheduled: false

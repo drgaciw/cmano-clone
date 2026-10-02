@@ -1,12 +1,14 @@
 # 26 - Verification, CI Gates & QA Gauntlet
 
-**Last Updated:** 2026-09-02  
+**Review / acceptance state (2026-09-30):** Draft maturity retained; formal document promotion and criterion-level owner acceptance are pending. Implementation/test mappings below identify subsets, not complete product signoff. Live evidence: [tracker](../implementation-tracker.md#post-mvp-requirement-evidence-22-27) and [RTM](../../docs/architecture/requirements-traceability.md).
+
+**Last Updated:** 2026-09-30 (additive evidence reconciliation)
 **Related:** [01-Project-Overview.md](../requirements/01-Project-Overview.md) · [07-Agentic-Infrastructure.md](../requirements/07-Agentic-Infrastructure.md) · [08-Agentic-Architecture.md](../requirements/08-Agentic-Architecture.md) · [17-Replay-AAR-And-Order-Log.md](../requirements/17-Replay-AAR-And-Order-Log.md)  
 **Status:** Draft — ready for design review  
 **Requirement IDs:** `VER-01` … `VER-07`  
 **Research basis:** [Agentic CMO Research](../../docs/research/agentic-cmano-research.md)  
 **Engineering Runbooks:** [qa-gauntlet.md](../../docs/engineering/qa-gauntlet.md) · [qa-gauntlet-saboteur.md](../../docs/engineering/qa-gauntlet-saboteur.md) · [gauntlet-oracle-baseline.md](../../docs/engineering/gauntlet-oracle-baseline.md)  
-**Tracker:** [implementation-tracker.md](../implementation-tracker.md) §26 — **Draft / Shipped Apparatus** (Release stage)
+**Tracker:** [current draft 26 evidence](../implementation-tracker.md#post-mvp-requirement-evidence-22-27) — **Draft / shipped apparatus subset; proposed acceptance extension** (Release stage)
 
 ---
 
@@ -18,13 +20,13 @@ This document promotes the autonomous QA and verification system from an interna
 
 ---
 
-## Re-grading of INF-6.x *(Supersession / Gap Clarification)*
+## Additive INF-6.x gap clarification (historical grades retained)
 
 In requirement document `07-Agentic-Infrastructure.md`, section 6 (*Experiment & Monte Carlo Agent*) historically described batch execution, parameter sweeps, and headless workers as "P1 for v1.0 / infrastructure stub acceptable", leaving formal verification gates and oracle evaluation out of the core functional criteria.
 
-This document formally re-grades and establishes the following relationship:
+This draft specifies forward verification scope independently from the frozen S56 INF-6.x grades:
 
-- **INF-6.1 … INF-6.5 status:** Re-graded as a **GAP** in the original product infrastructure specification (doc 07), now superseded and fully detailed under the **VER-01 … VER-07** specification below.
+- **INF-6.1 … INF-6.5:** Historical product/infrastructure grades remain unchanged. The wider verification contract and its remaining acceptance gaps are detailed under **VER-01 … VER-07** below; landed verification subsets require their own evidence.
 - **Headless-First Verification:** Automated testing, Monte Carlo stress runs, and fail-closed oracle evaluation are hard requirements for all simulation pipelines, not optional post-release tools.
 - **Contract Reference:** All future verification contracts and CI gate criteria trace directly to `VER-01 … VER-07`.
 
@@ -198,6 +200,15 @@ All CI and headless verification runs must record complete execution provenance 
 
 - [ ] **VER-07.1** Every CI gauntlet oracle run must upload `baseline-context.json` alongside `results.csv` and `oracle-eval.json`.
 - [ ] **VER-07.2** Relaxing an oracle envelope is prohibited without documenting the root cause and verifying that qualitative fingerprint tokens remain intact.
+
+**Proposed revision-bound acceptance extension (2026-09-30):** engineering authorization to update planning does not grant product acceptance. Reuse [DRG-201](https://linear.app/drgamtd-workspace/issue/DRG-201), [DRG-234](https://linear.app/drgamtd-workspace/issue/DRG-234), and [DRG-244](https://linear.app/drgamtd-workspace/issue/DRG-244) for evidence integration; [DRG-208](https://linear.app/drgamtd-workspace/issue/DRG-208) remains an explicit owner acceptance gate.
+
+- [ ] **VER-07.3** Each criterion-level evidence record shall include requirement and acceptance-criterion IDs; repository commit SHA; build/package identity; local-delta identity (clean or a hashed patch plus relevant untracked input manifest); scenario ID/hash and seed; catalog ID/hash; policy IDs/hashes; test layer; command/filter or interaction steps; result; artifact location/hash; collection time; and owner acceptance status/reference. Missing required provenance makes the record incomplete.
+- [ ] **VER-07.4** Accepted evidence shall identify the owner's explicit decision, owner, date, and exact accepted revision/build/local delta and input identities. Automated green checks shall not imply owner acceptance. An unaccepted record shall state `pending` with owner/reference fields unset rather than inventing an approver.
+- [ ] **VER-07.5** A different commit, build, local delta, scenario, catalog, or policy identity shall require criterion reassessment. Historical evidence remains attached to its original revision; carrying it forward requires explicit assessment and owner confirmation, never automatic acceptance of a newer build.
+- [ ] **VER-07.6** Acceptance evidence validation shall exercise missing fields, mismatched revisions/inputs, stale historical evidence, and engineering-pass records without owner acceptance. A complete headless record shall identify its layer and shall not stand in for Editor/Play Mode acceptance where the criterion requires that layer.
+
+**Implementation boundary:** existing `baseline-context.json` oracle provenance provides a subset. The complete criterion-level schema and acceptance validator are backlog work, not an implemented claim. See [2026-09-30 reconciliation](../../docs/superpowers/specs/2026-09-30-requirements-planning-reconciliation.md).
 
 ---
 

@@ -1,6 +1,8 @@
 # Sprint 125 — Editor honesty
 
-**Status:** Planned  
+> **2026-09-30 rebaseline:** Original dates below are forecasts, not delivery evidence. Current program: [dated roadmap](../../docs/reports/future-sprint-roadmap-09302026.md). Mandatory [shared QA plan](../qa/qa-plan-sprint-122-127-rebaseline-2026-09-30.md) is authored; execution, sprint exit proof and owner acceptance remain pending. Document maturity, delivery and acceptance are tracked separately. Independent work may proceed; unresolved predecessor evidence gates dependent implementation.
+
+**Status:** Planning rebaselined 2026-09-30; delivery and acceptance evidence pending
 **Dates:** 2026-10-06 – 2026-10-10  
 **Predecessor:** [S124 combat-commit](sprint-124-combat-commit.md)  
 **Next:** [S126 symbology](sprint-126-symbology-subset.md)  
@@ -54,4 +56,4 @@ AUTH-11, AUTH-14, `.scen` parser, WYSIWYG, Scenario Lab, Lua.
 - [ ] Save≠export demo
 - [ ] Excel write-gate only
 - [ ] W3-AUTH-01 freeze honored
-- [ ] QA plan exists or warning accepted
+- [ ] Shared QA plan exists; executed sprint criteria and QA decision recorded (no missing-plan waiver)
