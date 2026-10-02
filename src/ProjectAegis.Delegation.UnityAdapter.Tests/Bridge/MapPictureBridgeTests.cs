@@ -64,8 +64,8 @@ public sealed class MapPictureBridgeTests
     public void Build_null_snapshot_throws()
     {
         var bridge = new DelegationBridge(42, mvpEngagement: false);
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            MapPictureBridge.Build(null!, bridge.Registry, bridge.Orchestrator.DecisionLog, 0)));
+        Assert.Throws<ArgumentNullException>(() =>
+            MapPictureBridge.Build(null!, bridge.Registry, bridge.Orchestrator.DecisionLog, 0));
     }
 
     [Test]
@@ -73,8 +73,8 @@ public sealed class MapPictureBridgeTests
     {
         var snapshot = new SimWorldSnapshotStub();
         var bridge = new DelegationBridge(42, mvpEngagement: false);
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            MapPictureBridge.Build(snapshot, null!, bridge.Orchestrator.DecisionLog, 0)));
+        Assert.Throws<ArgumentNullException>(() =>
+            MapPictureBridge.Build(snapshot, null!, bridge.Orchestrator.DecisionLog, 0));
     }
 
     [Test]
@@ -82,8 +82,8 @@ public sealed class MapPictureBridgeTests
     {
         var snapshot = new SimWorldSnapshotStub();
         var bridge = new DelegationBridge(42, mvpEngagement: false);
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            MapPictureBridge.Build(snapshot, bridge.Registry, null!, 0)));
+        Assert.Throws<ArgumentNullException>(() =>
+            MapPictureBridge.Build(snapshot, bridge.Registry, null!, 0));
     }
 
     [Test]

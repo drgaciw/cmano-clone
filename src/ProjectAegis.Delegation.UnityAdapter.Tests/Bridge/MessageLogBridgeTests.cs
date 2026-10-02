@@ -63,14 +63,14 @@ public sealed class MessageLogBridgeTests
     [Test]
     public void ProjectFrom_null_log_throws()
     {
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            MessageLogBridge.ProjectFrom(null!)));
+        Assert.Throws<ArgumentNullException>(() =>
+            MessageLogBridge.ProjectFrom(null!));
     }
 
     [Test]
     public void ProjectCombatMessages_null_log_throws()
     {
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            MessageLogBridge.ProjectCombatMessages(null!)));
+        Assert.Throws<ArgumentNullException>(() =>
+            MessageLogBridge.ProjectCombatMessages(null!));
     }
 }

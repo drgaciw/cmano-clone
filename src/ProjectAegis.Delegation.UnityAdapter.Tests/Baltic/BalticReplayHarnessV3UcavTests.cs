@@ -61,9 +61,9 @@ public sealed class BalticReplayHarnessV3UcavTests
     {
         var catalog = InMemoryCatalogReader.BalticV3Fixture();
         Assert.That(catalog.GetSortedLoadouts(), Has.Some.Matches<CatalogLoadout>(l =>
-            l.PlatformId == "ucav-blue" && l.LoadoutName == "Recon [Internal IR]"));
+            l is not null && l.PlatformId == "ucav-blue" && l.LoadoutName == "Recon [Internal IR]"));
         Assert.That(catalog.GetSortedLoadouts(), Has.Some.Matches<CatalogLoadout>(l =>
-            l.PlatformId == "ucav-red" && l.LoadoutName == "Recon [Internal IR]"));
+            l is not null && l.PlatformId == "ucav-red" && l.LoadoutName == "Recon [Internal IR]"));
         Assert.That(catalog.TryGetPlatformPosition("ucav-red", out _, out _), Is.True);
         Assert.That(catalog.TryGetBasePd("ucav-blue", "recon-radar", out _), Is.True);
         Assert.That(catalog.TryGetBasePd("ucav-red", "recon-radar", out _), Is.True);
