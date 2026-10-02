@@ -64,7 +64,7 @@ When the task needs scenes, prefabs, UXML layout, Play Mode visuals, Console, or
 5. Close the loop: MCP mutate → `scene-save` / prefab save → Play Mode (if visual) → `console-get-logs` + Game View screenshot.
 6. Never mutate `DelegationBridge` via Unity-MCP `script-execute` or reflection.
 
-Headless sim/delegation work skips this block. Grok MCP: `.grok/config.toml` + `.mcp.json` → `ai-game-developer` at `http://localhost:8080` (refresh `/mcps` after clone; project servers need a trusted folder). Editor pin: **6000.3.22f1**, package **0.86.0**.
+Headless sim/delegation work skips this block. Grok MCP: `.grok/config.toml` + `.mcp.json` → `ai-game-developer` at `http://localhost:8080` (refresh `/mcps` after clone; project servers need a trusted folder). Editor pin: **6000.3.22f1**, package **0.90.0**. Stack choice (Ivan Murzak Unity-MCP, not CoplayDev MCP for Unity): [ADR-027](docs/architecture/adr-027-unity-editor-mcp-stack.md).
 
 ---
 
