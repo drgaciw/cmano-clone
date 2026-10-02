@@ -59,7 +59,7 @@ Severity in the July pack: Blocking unless marked Backlog or advisory. Surface i
 | still-open | UX-07, UX-10, UX-16, UX-18, UX-19, UX-20, UX-21, UX-22, UX-23 (9) |
 | superseded | none |
 
-21 parked rows (UX-03…UX-23) remain not fully fixed. UX-01 and UX-02 match the DRG-56 / DRG-55 claim.
+20 parked rows remain not fully fixed (11 partially-fixed + 9 still-open; UX-03…UX-23 excluding UX-12, which is fixed-on-main). UX-01 and UX-02 match the DRG-56 / DRG-55 claim.
 
 ## Verified vs unverified
 
@@ -121,7 +121,7 @@ July W3 plus UX-06, minus UX-12.
 | UX-17 | Unity inspector has no ROE inherit vs override. |
 | UX-19 | Panel rgba at the July lines. |
 
-**Surfaces:** `ScenarioMapAuthoringPanel.uss`, `ScenarioEditorShell.uss`, `AegisTokens.uss`, `ScenarioMapAuthoringWindow.WireButton`, `ScenarioEditorShellHost.OnTabsKeyDown`, `scenario-editor-uiux-preview.html`, `SelectionInspectorModel`, shell inspector labels. Density strip should **read** `EVENT_GRAPH_PEAK_TICK_DENSITY_HIGH` (`ValidationRules.cs:503-507`), not retune the formula in this wave.
+**Surfaces:** `ScenarioMapAuthoringPanel.uss`, `ScenarioEditorShell.uss`, `AegisTokens.uss`, `ScenarioMapAuthoringWindow.WireButton`, `ScenarioEditorShellHost.OnTabsKeyDown`, `scenario-editor-uiux-preview.html`, `SelectionInspectorModel`, shell inspector labels. Density strip needs a per-tick density series: `EVENT_GRAPH_PEAK_TICK_DENSITY_HIGH` (`ValidationRules.cs:501-507`) only fires above the threshold and carries `peakDensity`/`threshold`, not per-tick buckets. W3 should expose the per-tick counts already computed by the validation pass as a read-only projection (or a new headless DTO), use the finding only to highlight the over-threshold tick, and not retune the ADR-016 formula in this wave.
 
 **Hard-no:** flag only on UX-08. A map picture in the shell slot must not be built by editing `MapPlaceholderPanelHost` or `GlobeMapProductHost`, and must not write `DecisionLog` (ADR-007). CMD-31 / CMD-32 / CMD-34, S122, and Launch stay out.
 
