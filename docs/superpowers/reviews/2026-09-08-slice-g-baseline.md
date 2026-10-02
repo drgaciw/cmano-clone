@@ -133,7 +133,7 @@ Canonical amendments land only through audit D owner after G evidence — not by
 
 ## 2026-10-02 reconciliation addendum (DRG-234 per-criterion contract)
 
-The tables above are kept unchanged as the **2026-09-17 historical baseline**. This addendum responds to the [2026-10-01 G1 review](2026-10-01-g1-harness-review.md). It replaces grouped placeholders with one row per criterion, each with a concrete test, a delivery owner and an acceptance owner. Missing evidence stays marked as missing.
+The tables above are kept unchanged as the **2026-09-17 historical baseline**. This addendum responds to the [2026-10-01 G1 review](https://github.com/drgaciw/cmano-clone/blob/cd6c036ffecb6a3e6338f40856082233ffd10246/docs/superpowers/reviews/2026-10-01-g1-harness-review.md) (from #691). It replaces grouped placeholders with one row per criterion, each with a concrete test, a delivery owner and an acceptance owner. Missing evidence stays marked as missing.
 
 **Revision:** `origin/main` at `366e3f90` (2026-10-02). No suite was re-run for this addendum. Test names were confirmed to exist in the tree at that revision; results come from the cited closeouts or the latest green CI run on main.
 **Acceptance owner (all rows):** drg amtd, the repository owner and only human acceptance authority. This matches `owner` in `production/planning-reconciliation-2026-09-30.json`. Owner acceptance stays **pending** on every row until the owner records it. DRG-208 is the human-only Play Mode gate.
