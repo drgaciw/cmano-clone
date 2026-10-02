@@ -69,21 +69,21 @@ public sealed class KillChainContactStateBridgeTests
     [Test]
     public void Build_null_snapshot_throws()
     {
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            KillChainContactStateBridge.Build(null!, new DecisionLog())));
+        Assert.Throws<ArgumentNullException>(() =>
+            KillChainContactStateBridge.Build(null!, new DecisionLog()));
     }
 
     [Test]
     public void Build_null_log_throws()
     {
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            KillChainContactStateBridge.Build(new SimWorldSnapshotStub(), null!)));
+        Assert.Throws<ArgumentNullException>(() =>
+            KillChainContactStateBridge.Build(new SimWorldSnapshotStub(), null!));
     }
 
     [Test]
     public void BindPanel_null_snapshot_throws()
     {
-        Assert.Throws<ArgumentNullException>((Action)(() =>
-            KillChainContactStateBridge.BindPanel(null!)));
+        Assert.Throws<ArgumentNullException>(() =>
+            KillChainContactStateBridge.BindPanel(null!));
     }
 }
