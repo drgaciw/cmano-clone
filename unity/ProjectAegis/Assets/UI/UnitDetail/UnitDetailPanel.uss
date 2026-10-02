@@ -32,6 +32,20 @@
     margin-bottom: 4px;
 }
 
+.unit-detail-weapon-row {
+    flex-direction: row;
+}
+
+.unit-detail-weapon-row--denied {
+    border-left-width: 2px;
+    border-left-color: rgb(170, 100, 100);
+    padding-left: 2px;
+}
+
+.unit-detail-weapon-row:focus {
+    background-color: rgba(170, 140, 90, 0.18);
+}
+
 .unit-detail-attack-btn {
     margin-right: 4px;
     margin-bottom: 4px;
