@@ -128,3 +128,57 @@ Canonical amendments land only through audit D owner after G evidence — not by
 - Headless-only rows are never labeled owner-accepted.
 - Fixture coverage ≠ live scenario coverage.
 - Missing-group proof ≠ positive group/BDA live flow.
+
+---
+
+## 2026-10-02 reconciliation addendum (DRG-234 per-criterion contract)
+
+The tables above are kept unchanged as the **2026-09-17 historical baseline**. This addendum responds to the [2026-10-01 G1 review](2026-10-01-g1-harness-review.md). It replaces grouped placeholders with one row per criterion, each with a concrete test, a delivery owner and an acceptance owner. Missing evidence stays marked as missing.
+
+**Revision:** `origin/main` at `366e3f90` (2026-10-02). No suite was re-run for this addendum. Test names were confirmed to exist in the tree at that revision; results come from the cited closeouts or the latest green CI run on main.
+**Acceptance owner (all rows):** drg amtd, the repository owner and only human acceptance authority. This matches `owner` in `production/planning-reconciliation-2026-09-30.json`. Owner acceptance stays **pending** on every row until the owner records it. DRG-208 is the human-only Play Mode gate.
+**Delivery owner:** the Linear issue accountable for delivering the row. Agent lanes deliver; they never accept.
+
+### Doc 20 rows (CMD-01–30 defined in doc)
+
+| Req ID | Test (concrete) | Test layer / result | Scenario | Artifact | Delivery owner | Acceptance owner | Definition maturity | Missing evidence |
+|--------|-----------------|---------------------|----------|----------|----------------|------------------|---------------------|------------------|
+| CMD-01…03 | `PlayModeSmokeHarnessTests` | headless proxy; 25/25 (2026-10-01 G1 review) | DelegationSmoke proxy | Slice C package (2026-09-08) | DRG-233 | drg amtd | defined (Doc 20) | fresh Editor capture |
+| CMD-07 | `CombatMapViewTests` (Unity), `UiIaSelectionSyncOracleTests` | Editor-tested (prior) + headless | Baltic smoke | historical-review / live-advice PNGs | DRG-235 (G2) | drg amtd | defined | hardware-mouse selection |
+| CMD-11 | `CommandReviewViewTests` (Unity), `CoordinationEndToEndAcceptanceTests` | Editor-tested (prior) + headless | pause + historical t=52.417 | historical-review.png | DRG-185 | drg amtd | defined | layout shrink fix to be committed |
+| CMD-12 | `C2AccessibilitySettingsTests` | headless; Editor unverified | — | none fresh | DRG-170 | drg amtd | defined (Partial) | Editor scale/contrast/keyboard capture |
+| CMD-17 | `UnitCommsDisplayTests` (`UNKNOWN (Out of comms)`) | headless (CMD-31–37 closeout, 2026-08-01) | — | none | DRG-235 (G2) | drg amtd | defined (Open in doc) | Editor capture; Doc 20 status refresh |
+| CMD-29 | `ContactDetailProjectionTests` | headless + Editor partial (Slice C) | stale c1 | live-advice.png | DRG-235 (G2) | drg amtd | defined | full CMD-29 AC in Editor |
+| Alerting / auto-pause | `WatchAttentionQueueTests`, `AttentionToastApplyStateTests`, `AttentionToastHostContractTests` | headless; Editor unverified | — | none | DRG-205 | drg amtd | **undefined in Doc 20** (CMD-39 draft) | definition approval + Editor capture |
+| Positive group/BDA live | `CoordinationEndToEndAcceptanceTests` | headless only | smoke scene has no task group | n/a | DRG-185 / DRG-175 | drg amtd | defined | live Unity flow |
+| Live coverage geometry | `CoverageMapViewTests` (Unity) | Editor-tested **fixture** only | fixture JSON | coverage-fixture-*.png | DRG-192 | drg amtd | defined | authored live coverage |
+
+### CMD-31–43: delivery evidence and definitions tracked separately
+
+Doc 20 at `366e3f90` defines CMD-01–30 only. Delivered code and a missing canonical definition are recorded as separate facts. Delivered code does not count as an approved requirement.
+
+| ID | Delivery evidence | Test | Delivery owner | Canonical definition | Acceptance owner |
+|----|-------------------|------|----------------|----------------------|------------------|
+| CMD-31 | `C2CommandIssuance` + `C2PlayerCommandBridge` ([CMD-31–37 closeout](../../../production/agentic/sprint-ui-maturity-cmd31-37-closeout-2026-08-01.md), lane A `c26bcad`) | `C2CommandIssuanceTests` | lane A (closeout) | **missing in Doc 20** | drg amtd, pending |
+| CMD-32 | `DatalinkPictureProjection` (lane B `2206fc9`) | `DatalinkPictureProjectionTests` | lane B | **missing** | drg amtd, pending |
+| CMD-33 | doctrine map overlay ([Wave 2 closeout](../../../production/agentic/sprint-ui-maturity-wave2-closeout-2026-08-01.md), `w2-map`) | `DoctrineMapOverlayProjectionTests` | Wave 2 lane M | **missing** | drg amtd, pending |
+| CMD-34 | `TacticalOverlayProjection` envelope rings (lane B) | `TacticalOverlayProjectionTests` | lane B | **missing** | drg amtd, pending |
+| CMD-35 | live-edit findings contract + Commit gate (Wave 2 `w2-liveedit`) | `LiveEditApplyStateTests` | Wave 2 lane L | **missing** | drg amtd, pending |
+| CMD-36 | rich-bind perf bench p95 ≪ 100 ms (Wave 2 `w2-perf`) | `CombatPanelPerfBenchTests` (mapping to the closeout bench not re-verified) | Wave 2 lane P | **missing** | drg amtd, pending |
+| CMD-37 | `AgentRosterProjection` + `AgentRosterPanelHost` (lane D `071acb0`) | `AgentRosterProjectionTests` | lane D | **missing** | drg amtd, pending |
+| CMD-38 | partial implementation; [draft](../specs/2026-08-17-cmd-38-kinematic-map-picture-draft.md) | — | DRG-235 (G2) | **draft, pending owner authorization to append** | drg amtd, pending |
+| CMD-39 | partial implementation; [draft](../specs/2026-08-17-cmd-39-attention-toast-clock-interrupt-draft.md) | attention-toast tests above | DRG-205 | **draft, pending owner authorization to append** | drg amtd, pending |
+| CMD-40…43 | none | — | audit D | **audit proposals only** | drg amtd, pending |
+
+### Doc 11 / Doc 21 test anchors (replacing "tests exist, not re-run")
+
+| Row | Concrete tests | Delivery owner | Acceptance owner | Missing evidence |
+|-----|----------------|----------------|------------------|------------------|
+| AME shell / library / live-edit | `ScenarioEditorShellProjectionTests`, `ScenarioLibraryProjectionTests`, `ScenarioLibraryApplyStateTests`, `LiveEditApplyStateTests`, `ScenarioMapAuthoringHostFlowSmokeTests` | DRG-236 (G3) | drg amtd | Editor screenshots |
+| AME-2.4 / 6.5 save ≠ export | `SaveVsExportGateTests` | DRG-236 (G3) | drg amtd | named package/schema/event/migration criteria refresh |
+| AME-5.5 debugger | `EventDebuggerTests` | DRG-236 (G3) | drg amtd | Unity debugger chrome |
+| PLE Excel round-trip (ADR-011) | `PlatformWorkbookWriteBridgeTests`, `PlatformWorkbookBinaryGoldenTests`, `PlatformWorkbookGovernanceAdversarialTests` | DRG-236 (G3) | drg amtd (human ApproveBatch) | Editor browse/import UX |
+| PLE-3.1 no bypass | `PlatformImportPanelTests` | DRG-236 (G3) | drg amtd | — |
+| Phase N screenshots | — | DRG-236 (G3) | drg amtd | **missing** |
+
+This addendum does not close DRG-234, approve any requirement text or record owner acceptance.
