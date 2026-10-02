@@ -1,6 +1,8 @@
 # Sprint 122 — Tracker honesty + Slice G1 baseline
 
-**Status:** Planned (rev 2, 2026-09-15 — amended per backlog review; see Change log)  
+> **2026-09-30 rebaseline:** Original dates below are forecasts, not delivery evidence. Current program: [dated roadmap](../../docs/reports/future-sprint-roadmap-09302026.md). Mandatory [shared QA plan](../qa/qa-plan-sprint-122-127-rebaseline-2026-09-30.md) is authored; execution, sprint exit proof and owner acceptance remain pending. Document maturity, delivery and acceptance are tracked separately. Independent work may proceed; unresolved predecessor evidence gates dependent implementation.
+
+**Status:** Planning rebaselined 2026-09-30; delivery and acceptance evidence pending
 **Dates:** 2026-09-15 – 2026-09-19  
 **Predecessor:** [S122.0 cap hygiene](sprint-122-0-cap-hygiene.md)  
 **Next:** [S123 play-entry](sprint-123-play-entry.md)  
@@ -76,7 +78,7 @@ MODE/DEL implementation (file defects to DRG-246/252). Treating DRG-165–175 as
 - [ ] Test-floor file exists and CI scripts read it
 - [ ] No owner-accepted without human
 - [ ] No DelegationBridge / CatalogWriteGate / golden edits
-- [ ] QA plan exists (from S122.0-07)
+- [x] Shared QA plan authored (S122.0-07); implementation execution and QA sign-off remain pending
 
 ## Change log
 

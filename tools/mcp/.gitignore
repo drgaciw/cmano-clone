@@ -1,1 +1,3 @@
 node_modules/
+# Local jev-playwright-mcp checkout (install-jev-playwright-mcp.*); its .env holds TYPESAFE_API_KEY
+jev-playwright-mcp/

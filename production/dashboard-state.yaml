@@ -1,53 +1,97 @@
-# GitNexus + filesystem snapshot for dashboard delta comparison.
-# Updated by /project-dashboard 2026-07-13 pm (max-variance gauntlet + S93 assets).
-
+# Current scoped planning snapshot. Historical full-project metrics remain in archive.
 last_run:
-  timestamp: "2026-07-13T22:45:00Z"
-  label: pm
-  compared_to_baseline: docs/reports/dashboard-snapshots/2026-07-09-am.md
-  archive: docs/reports/dashboard-snapshots/2026-07-13-pm.md
-  archive_html: docs/reports/dashboard-snapshots/2026-07-13-pm.html
-
+  date: "2026-09-30"
+  label: planning_reconciliation
+  scope: requirements_backlog_roadmap
+  compared_to_baseline: docs/reports/dashboard-snapshots/2026-09-08-slice-g.md
+  archive: docs/reports/dashboard-snapshots/2026-09-30-planning-reconciliation.md
+  full_project_archive: docs/reports/dashboard-snapshots/2026-07-13-pm.md
+  inventory_reaudited: false
 gitnexus:
-  indexed_commit: "from AGENTS baseline — re-analyze recommended"
-  head_commit: "d927684"
-  nodes: 25390
-  edges: 48720
-  flows: 300
-  index_status: stale_relative_to_head
+  head_commit: "4190fb1b49cd15775b6b995b7c245d73828cd7a2"
+  head_commit_published: false  # local unpublished HEAD; not fetchable. Reachable verification base: 1902dc12
+  local_delta: existing_uncommitted_changes
+  index_status: path_and_overload_qualification_required
+  recovery_issues: [DRG-197, DRG-323, DRG-324]
   changed_symbols_count: null
   affected_processes_count: null
-
-gates:
-  gauntlet_max_variance: production/qa/gauntlet/gauntlet-20260713-1739
-  gauntlet_oracle_all_tiers: allPassed
-  tests_assembly_sum_approx: 1697
-  tests_cli_phase0_residual_fail: 1
-  replay_filter: green
+historical_review_verification:
+  fresh_run_this_snapshot: false
+  solution_passed: 3352
+  solution_failed: 0
+  smoke_passed: 26
+  canonical_replay_passed: 6
+  build_warnings: 0
+  build_errors: 0
+  build_mode: single_worker
+  sdk: "8.0.425"
+  exact_sdk_policy_verified: false
+  owner_acceptance_proven: false
+current_local_verification:
+  release_ci_script: passed_single_worker
+  release_solution_passed: 3352
+  release_solution_failed: 0
+  release_replay_passed: 6
+  release_smoke_passed: 26
+  catalog_import_passed: 67
+  secret_scan: not_executed_local_gitleaks_unavailable
+  date: "2026-09-30"
+  head_commit: "4190fb1b49cd15775b6b995b7c245d73828cd7a2"
+  local_delta: existing_uncommitted_changes_plus_planning_updates
+  sdk: "8.0.425"
+  build_command: "dotnet build ProjectAegis.sln -m:1 --no-restore"
+  build_status: passed
+  build_warnings: 0
+  build_errors: 0
+  solution_status: passed
+  solution_passed: 3352
+  solution_failed: 0
+  solution_skipped: 0
+  smoke_status: passed
+  smoke_passed: 26
+  smoke_failed: 0
+  canonical_replay_status: passed
+  canonical_replay_filter: ReplayGoldenSuiteTests
+  canonical_replay_passed: 6
+  canonical_replay_failed: 0
+  replay_hash: "17144800277401907079"
   hash_paths: 18
-
-filesystem:
-  sprint_plans: 135
-  epics_md: 336
-  gdd_files: 18
-  source_files: 643
-  test_files: 438
-  gauntlet_policies: 24
-  regression_goldens: 34
-  asset_manifest_total: 42
-  asset_manifest_needed: 4
-  asset_manifest_specced: 27
-  asset_manifest_in_production: 3
-  asset_manifest_done: 8
-
+  invariant_scope_diffs: empty
+  planning_consistency_status: passed
+  planning_consistency_declared_checks: 40
+  source_input_snapshot_files: 1825
+  source_input_snapshot_sha256: "f63dc0f6d6b6503eb00413c57e57522117c70472fc24222e984e68a3ff35e257"
+  source_input_snapshot_captured_utc: "2026-09-30T23:31:21.5567961Z"
+  source_input_snapshot_scope: "Tracked and untracked src/data/tests/solution/global/props/Game-Requirements/RTM inputs; excludes unrelated local tooling"
+  closeout: docs/superpowers/reviews/2026-09-30-planning-reconciliation-closeout.md
+  exact_sdk_policy_verified: false
+  target_acceptance_revision_verified: false
+  editor_coverage_proven: false
+  owner_acceptance_proven: false
 forward_program:
-  name: S93_asset_production_plus_gauntlet_hard_gate
-  status: active
+  name: S122_S127_evidence_rebaseline
+  status: active_evidence_gated
   stage: Release
-  sprints:
-    s89_s92_hygiene: complete
-    s93_assets: in_progress
-    qa_gauntlet_max_variance: complete
-
+  roadmap: docs/reports/future-sprint-roadmap-09302026.md
+  status_file: production/sprint-status-s122-s127.yaml
+  document_maturity: rebaselined_plan_authored
+  delivery: incomplete
+  acceptance: pending_owner
+  acceptance_issue: DRG-208
+  acceptance_reference: "1902dc12"
+  reported_remote_main: "1902dc1299678ea17f75014406fd9c616e5576bd"
+  qa_plan: production/qa/qa-plan-sprint-122-127-rebaseline-2026-09-30.md
+  qa_plan_maturity: authored
+  qa_execution: pending
+  qa_signoff: pending
+  follow_on_milestones: [H4_bounded_editor, H5_local_presentation_content, H6_save_resume_first]
+  follow_on_scheduled: false
+  multiplayer: separate_deferred_scope_decision
+  platform_wysiwyg: undecided
+  platform_authoring: Excel_primary_ADR_011
 sprint:
-  current: s93_asset_production
+  current: S122_S127_rebaseline
+  calendar_status: original_forecasts_not_delivery_proof
+  s123_must_days: 4.0
+  s123_owner_days: 0.5
+  s123_briefing_enrichment: should_have
