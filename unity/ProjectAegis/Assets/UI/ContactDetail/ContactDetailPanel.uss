@@ -95,3 +95,31 @@
     padding-left: 6px;
     -unity-font-style: bold;
 }
+
+/* DLZ cue tokens — border weight + italic/bold for unknown/marginal/out (DRG-266). */
+.dlz-cue--unknown {
+    border-left-width: 3px;
+    border-left-color: rgb(130, 130, 140);
+    padding-left: 6px;
+    -unity-font-style: italic;
+}
+
+.dlz-cue--in-zone {
+    border-left-width: 3px;
+    border-left-color: rgb(110, 150, 120);
+    padding-left: 6px;
+}
+
+.dlz-cue--approaching {
+    border-left-width: 3px;
+    border-left-color: rgb(170, 140, 90);
+    padding-left: 6px;
+    -unity-font-style: bold;
+}
+
+.dlz-cue--out-of-zone {
+    border-left-width: 3px;
+    border-left-color: rgb(170, 100, 100);
+    padding-left: 6px;
+    -unity-font-style: bold;
+}

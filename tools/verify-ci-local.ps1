@@ -6,6 +6,11 @@ $ErrorActionPreference = 'Stop'
 $repoRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $repoRoot
 try {
+    $floorPath = Join-Path $repoRoot 'production/test-floor.json'
+    if (Test-Path -LiteralPath $floorPath) {
+        $floor = Get-Content -LiteralPath $floorPath -Raw | ConvertFrom-Json
+        Write-Host "=== test floor solutionMinPass=$($floor.solutionMinPass) source=$floorPath ==="
+    }
     Write-Host '=== CI local verify (Release) ==='
     dotnet restore ProjectAegis.sln
     & (Join-Path $repoRoot 'scripts\verify-catalog-import.ps1')
