@@ -25,7 +25,7 @@ Linear **delivery status** is separate from evidence class.
 | Tool | State | Effect on rows |
 |------|-------|----------------|
 | Unity MCP `:8080` | DOWN (connection timeout 2026-09-17) | No new Editor captures; reuse 2026-09-08 Slice C package only |
-| GitNexus MCP | Ladybug file v42 vs MCP storage v40 | No MCP `impact`/`detect_changes`; CLI impact usable (see DRG-197 note) |
+| GitNexus MCP | Ladybug file v42 vs MCP storage v40 | No MCP `impact`/`detect_changes`; CLI impact reported usable, but the DRG-197 note was never committed (`production/agentic/scratch/` is gitignored), so this cannot be verified from the tree |
 | Fresh suite this tick | **Not re-run** | Headless numbers below are **prior recorded** (Slice C package / Sep 8 dashboard), not 2026-09-17 measurements |
 
 ---
@@ -117,7 +117,7 @@ Canonical amendments land only through audit D owner after G evidence — not by
 |-------|-------------------------------|---------|
 | **G2 (DRG-235)** | **YES** for planning + headless/read of hosts | Editor acceptance needs Unity MCP or local Editor; route defects to DRG-170/177/205/185/175/192 |
 | **G3 (DRG-236)** | **YES** for planning + headless/read of editor hosts | HTML review requires actual screenshots; Unity MCP down → mark visual rows unverified |
-| Symbol edits | **NO** until GitNexus MCP Ladybug mismatch resolved **or** CLI impact + human-recorded results accepted | See `production/agentic/scratch/drg-197-gitnexus-recovery-2026-09-17.md` |
+| Symbol edits | **NO** until the GitNexus MCP Ladybug mismatch is resolved (DRG-197). The CLI-impact exception is withdrawn: its evidence file was in the gitignored `production/agentic/scratch/` and was never tracked | The 2026-10-01 G1 review records successful path-qualified graph queries at `1902dc12`, which supersedes the blanket blocker. Record fresh `impact`/`detect_changes` output in the tracked tree before relying on it |
 
 ---
 
@@ -169,6 +169,19 @@ Doc 20 at `366e3f90` defines CMD-01–30 only. Delivered code and a missing cano
 | CMD-38 | partial implementation; [draft](../specs/2026-08-17-cmd-38-kinematic-map-picture-draft.md) | — | DRG-235 (G2) | **draft, pending owner authorization to append** | drg amtd, pending |
 | CMD-39 | partial implementation; [draft](../specs/2026-08-17-cmd-39-attention-toast-clock-interrupt-draft.md) | attention-toast tests above | DRG-205 | **draft, pending owner authorization to append** | drg amtd, pending |
 | CMD-40…43 | none | — | audit D | **audit proposals only** | drg amtd, pending |
+
+### Surfaces shipped after the 2026-09-17 checkout (`c7810de`)
+
+The original matrix was built at `c7810de`, 11 commits before this branch's first base `af004a9`. Those intervening commits shipped G2-scope Slice A surfaces that the historical tables leave out:
+
+| Delivery | Commit | Concrete tests | Delivery owner | Acceptance owner | Missing evidence |
+|----------|--------|----------------|----------------|------------------|------------------|
+| Contact provenance live surfaces | `2ddae0e4` (#626) | `ContactProvenanceProjectionTests`, `SliceAContactLiveSurfaceBinderTests`, `SliceAContactHostContractTests`, `SliceAContactFrameTests` | DRG-180 | drg amtd | Editor capture; owner walk |
+| Sensor-to-shooter chain inspection | `932305d2` (#625) | `SensorToShooterProjectionTests`, `SensorToShooterPresentationTests`, `SensorToShooterHostContractTests` | DRG-181 | drg amtd | Editor capture; owner walk |
+| Authority / ROE / escalation chrome | `cf0fef4b` (#627) | `C2AuthorityProjectorTests`, `C2AuthorityPresentationTests` | DRG-182 | drg amtd | Editor capture; owner walk |
+| Slice A targetability acceptance harness | #682 (merged 2026-10-02) | `SliceATargetabilityAcceptanceHarnessTests` (3/3) | DRG-183 | drg amtd (DRG-208) | owner Play Mode acceptance |
+
+The G2/G3 unlock above remains **planning-only**. G2 acceptance has to be checked against this current-tree list, not the 2026-09-17 matrix alone.
 
 ### Doc 11 / Doc 21 test anchors (replacing "tests exist, not re-run")
 

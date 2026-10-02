@@ -28,7 +28,7 @@
 | Track | Linear | Status | Surface | Blocked-by | Dispatch |
 |-------|--------|--------|---------|------------|----------|
 | T-G1 | [DRG-234](https://linear.app/drgamtd-workspace/issue/DRG-234) | Backlog | `docs/superpowers/reviews/*`, `Game-Requirements/requirements/{11,20,21}*` (propose only) | none | **DONE artifact** `docs/superpowers/reviews/2026-09-08-slice-g-baseline.md` (Linear still Backlog) |
-| T-GN | [DRG-197](https://linear.app/drgamtd-workspace/issue/DRG-197) | Backlog | `.gitnexus/`, tooling only — no `src/` / `unity/` | MCP Ladybug v42≠v40 | **PARTIAL** — CLI OK; MCP blocked; evidence `scratch/drg-197-gitnexus-recovery-2026-09-17.md` |
+| T-GN | [DRG-197](https://linear.app/drgamtd-workspace/issue/DRG-197) | Backlog | `.gitnexus/`, tooling only — no `src/` / `unity/` | MCP Ladybug v42≠v40 | **PARTIAL** — MCP blocked; CLI-impact claim unverifiable (its scratch note is gitignored and untracked), so it does not satisfy the symbol-edit gate |
 | T-AE | [DRG-187](https://linear.app/drgamtd-workspace/issue/DRG-187), [DRG-188](https://linear.app/drgamtd-workspace/issue/DRG-188) | Backlog / Backlog | docs/tracker/workflow — no Unity assets | none for read sync | **DONE sync** `scratch/t-ae-traceability-sync-2026-09-17.md` |
 | T-G2 | [DRG-235](https://linear.app/drgamtd-workspace/issue/DRG-235) | Backlog | C2 Unity hosts + headless projection consumers | Unity MCP down for Editor rows | **WAVE-1 UNLOCKED** (kickoff) |
 | T-G3 | [DRG-236](https://linear.app/drgamtd-workspace/issue/DRG-236) | Backlog | Mission/Platform Editor hosts + HTML review | Unity MCP down for screenshots | **WAVE-1 UNLOCKED** (kickoff) |
@@ -62,7 +62,7 @@
 | Track | Agent | Mode |
 |-------|-------|------|
 | T-G1 | requirements-analyst → **coordinator fallback** | baseline written (agent usage-limit fail) |
-| T-GN | devops-engineer → **coordinator fallback** | recovery note written; CLI impact OK |
+| T-GN | devops-engineer → **coordinator fallback** | recovery note written to gitignored scratch (not tracked); CLI impact claim unverified |
 | T-AE | explore | scratchpad complete |
 | T-G2 | explore + coordinator | kickoff `scratch/t-g2-c2-workflow-kickoff-2026-09-17.md` |
 | T-G3 | explore + coordinator | kickoff `scratch/t-g3-editor-workflow-kickoff-2026-09-17.md` |
