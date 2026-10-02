@@ -1,6 +1,7 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="engage-explain-root" class="c2-engage-explain">
         <ui:Label name="engage-explain-status" text="" class="c2-engage-explain-status" />
+        <ui:Label name="engage-explain-domain-abort" text="DOMAIN: — [DOM:UNKNOWN]" class="engage-explain-domain-abort domain-abort-cue--unknown" />
         <ui:Label name="engage-explain-authority" text="" class="c2-engage-explain-authority" />
         <ui:Label name="engage-explain-reason" text="" class="c2-engage-explain-reason" />
     </ui:VisualElement>

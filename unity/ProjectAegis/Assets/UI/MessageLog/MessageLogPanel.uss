@@ -28,6 +28,11 @@
     margin-bottom: var(--space-xs);
 }
 
+.message-log-collapse-toggle:focus {
+    border-width: var(--focus-ring-width);
+    border-color: var(--focus-ring);
+}
+
 .message-log-collapse-toggle {
     height: 18px;
     min-height: 18px;

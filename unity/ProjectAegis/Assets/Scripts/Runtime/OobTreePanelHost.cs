@@ -1,6 +1,8 @@
 // OOB left-drawer slice — UI Toolkit panel bound to DelegationBridgeHost.
 #if UNITY_5_3_OR_NEWER
+using System.Collections.Generic;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -11,7 +13,7 @@ namespace ProjectAegis.Unity.Runtime
     public sealed class OobTreePanelHost : MonoBehaviour
     {
         private const string RootName = "oob-tree-root";
-        private const string OobListName = "oob-list";
+        private static readonly string OobListName = KeyboardDiscoverySurfaces.OobListElementName;
 
         [SerializeField] private DelegationBridgeHost bridgeHost = null!;
         [SerializeField] private VisualTreeAsset? panelAsset;
@@ -80,15 +82,78 @@ namespace ProjectAegis.Unity.Runtime
             _oobList = root.Q<ListView>(OobListName);
             if (_oobList != null)
             {
-                _oobList.makeItem = () => new Label();
+                _oobList.focusable = true;
+                _oobList.makeItem = () =>
+                {
+                    var label = new Label();
+                    label.focusable = true;
+                    label.RegisterCallback<KeyDownEvent>(OnOobRowKeyDown);
+                    return label;
+                };
                 _oobList.bindItem = (element, index) =>
                 {
-                    if (element is Label label && index >= 0 && index < _panelState.UnitRows.Count)
+                    if (element is not Label label || index < 0 || index >= _panelState.UnitRows.Count)
                     {
-                        label.text = _panelState.UnitRows[index].DisplayLine;
+                        return;
                     }
+
+                    var row = _panelState.UnitRows[index];
+                    label.text = row.DisplayLine;
+                    label.ClearClassList();
+                    label.AddToClassList(row.StyleClass ?? KeyboardDiscoverySurfaces.OobRowBaseClass);
+                    if (!row.IsAlive)
+                    {
+                        label.AddToClassList("oob-row--dead");
+                    }
+
+                    label.userData = row.UnitId;
                 };
+                _oobList.selectionType = SelectionType.Single;
+                _oobList.selectionChanged -= OnOobSelectionChanged;
+                _oobList.selectionChanged += OnOobSelectionChanged;
                 _wired = true;
+            }
+        }
+
+        private void OnOobSelectionChanged(IEnumerable<object> _)
+        {
+            if (_oobList == null || bridgeHost == null)
+            {
+                return;
+            }
+
+            var index = _oobList.selectedIndex;
+            if (index < 0 || index >= _panelState.UnitRows.Count)
+            {
+                return;
+            }
+
+            bridgeHost.SelectUnit(_panelState.UnitRows[index].UnitId);
+        }
+
+        private void OnOobRowKeyDown(KeyDownEvent evt)
+        {
+            if (evt.keyCode is not (KeyCode.Return or KeyCode.KeypadEnter or KeyCode.Space))
+            {
+                return;
+            }
+
+            if (evt.currentTarget is Label { userData: string unitId } && bridgeHost != null)
+            {
+                if (_oobList != null)
+                {
+                    for (var i = 0; i < _panelState.UnitRows.Count; i++)
+                    {
+                        if (_panelState.UnitRows[i].UnitId == unitId)
+                        {
+                            _oobList.SetSelection(i);
+                            break;
+                        }
+                    }
+                }
+
+                bridgeHost.SelectUnit(unitId);
+                evt.StopPropagation();
             }
         }
 

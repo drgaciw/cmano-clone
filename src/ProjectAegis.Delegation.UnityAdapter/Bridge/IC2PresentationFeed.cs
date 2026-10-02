@@ -1,3 +1,4 @@
+using ProjectAegis.Delegation.C2Network;
 using ProjectAegis.Delegation.Projection;
 
 namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
@@ -22,6 +23,12 @@ public interface IC2PresentationFeed
 
     /// <summary>Projected comms snapshot from the last host refresh (CMD-32 / Wave 2).</summary>
     CommsStateSnapshot? LastCommsState { get; }
+
+    /// <summary>Projected C2 network-health snapshot from the last host refresh (DRG-190).</summary>
+    C2NetworkHealthSnapshot? LastNetworkHealth { get; }
+
+    /// <summary>Replay-stable fingerprint for <see cref="LastNetworkHealth"/> (computed at tick boundary).</summary>
+    string? LastNetworkHealthFingerprint { get; }
 
     UnitDetailEntry? LastUnitDetail { get; }
 

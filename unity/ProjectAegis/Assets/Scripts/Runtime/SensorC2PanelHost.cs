@@ -4,6 +4,7 @@
 #if UNITY_5_3_OR_NEWER
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -134,7 +135,15 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            _panelState = SensorC2Bridge.BindPanel(PresentationFeed.LastSensorC2);
+            var baseState = SensorC2Bridge.BindPanel(PresentationFeed.LastSensorC2);
+            var view = ContactListPresentation.Apply(
+                PresentationFeed.LastSensorC2,
+                ContactListChromeState.Default);
+            _panelState = baseState with
+            {
+                ContactCountLabel = view.ContactCountLabel,
+                ContactRows = view.ContactRows,
+            };
             _emconLabel!.text = _panelState.EmconLabel;
             _trackLabel!.text = _panelState.TrackLabel;
             _contactCountLabel!.text = _panelState.ContactCountLabel;

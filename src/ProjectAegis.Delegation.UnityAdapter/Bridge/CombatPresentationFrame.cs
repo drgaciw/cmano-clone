@@ -14,6 +14,45 @@ public sealed record CombatPresentationFrame(
     /// <summary>No combat facts received.</summary>
     public static CombatPresentationFrame Empty { get; } = new(
         CombatEventSnapshot.Empty, SliceAContactFrame.Empty, BdaAssessSnapshot.Empty, 0);
+
+    /// <summary>
+    /// Latest track/allocation fact for a shooter and correlation.
+    /// Presentation read only — does not mutate the frame or the order log.
+    /// </summary>
+    public CombatEngagementExplanation? FindTrackAllocation(ulong correlationId, string shooterId) =>
+        FindTrackAllocation(Explanations, correlationId, shooterId);
+
+    /// <summary>
+    /// Latest matching explanation. A later row with the same shooter and correlation replaces an earlier one.
+    /// </summary>
+    public static CombatEngagementExplanation? FindTrackAllocation(
+        IReadOnlyList<CombatEngagementExplanation>? explanations,
+        ulong correlationId,
+        string shooterId)
+    {
+        if (shooterId is null)
+        {
+            throw new ArgumentNullException(nameof(shooterId));
+        }
+
+        if (explanations is null)
+        {
+            return null;
+        }
+
+        CombatEngagementExplanation? found = null;
+        for (var i = 0; i < explanations.Count; i++)
+        {
+            var row = explanations[i];
+            if (row.CorrelationId == correlationId
+                && string.Equals(row.ShooterId, shooterId, StringComparison.Ordinal))
+            {
+                found = row;
+            }
+        }
+
+        return found;
+    }
 }
 
 /// <summary>Known firing solution and salvo at execution; absent values stay unknown.</summary>

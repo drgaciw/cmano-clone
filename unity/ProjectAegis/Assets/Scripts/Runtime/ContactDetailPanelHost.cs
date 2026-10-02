@@ -18,6 +18,7 @@ namespace ProjectAegis.Unity.Runtime
         private const string TargetIdName = "target-id-line";
         private const string LifecycleName = "lifecycle-line";
         private const string ClassificationName = "classification-line";
+        private const string DlzName = "dlz-line";
         private const string SourceName = "source-line";
         private const string ConfidenceName = "confidence-line";
         private const string AgeName = "age-line";
@@ -39,6 +40,7 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _targetIdLine;
         private Label? _lifecycleLine;
         private Label? _classificationLine;
+        private Label? _dlzLine;
         private Label? _sourceLine;
         private Label? _confidenceLine;
         private Label? _ageLine;
@@ -63,6 +65,7 @@ namespace ProjectAegis.Unity.Runtime
         private string? _lastContactId;
         private SliceAContactPresentation _sliceA = SliceAContactPresentation.Empty;
         private SliceAContactLiveSurfaceState _liveSurface = SliceAContactLiveSurfaceState.Empty;
+        private DlzLiveSurfaceState _dlzSurface = DlzLiveSurfaceState.Empty;
         private CombatDetailPresentation _combat = CombatDetailPresentation.Empty;
         private bool _wired;
         private ContactDetailPresentation _presentation = ContactDetailPresentation.Empty;
@@ -75,6 +78,9 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Last applied structured provenance rows for live surfaces (DRG-180).</summary>
         public SliceAContactLiveSurfaceState LastLiveSurface => _liveSurface;
+
+        /// <summary>Last applied DLZ live-surface row for contact hover (DRG-266).</summary>
+        public DlzLiveSurfaceState LastDlzSurface => _dlzSurface;
 
         private void Reset()
         {
@@ -135,6 +141,7 @@ namespace ProjectAegis.Unity.Runtime
             _targetIdLine = panel.Q<Label>(TargetIdName);
             _lifecycleLine = panel.Q<Label>(LifecycleName);
             _classificationLine = panel.Q<Label>(ClassificationName);
+            _dlzLine = panel.Q<Label>(DlzName);
             _sourceLine = panel.Q<Label>(SourceName);
             _confidenceLine = panel.Q<Label>(ConfidenceName);
             _ageLine = panel.Q<Label>(AgeName);
@@ -194,6 +201,7 @@ namespace ProjectAegis.Unity.Runtime
             _presentation = presentation ?? ContactDetailPresentation.Empty;
             _sliceA = SliceAContactPresentation.Empty;
             _liveSurface = SliceAContactLiveSurfaceState.Empty;
+            _dlzSurface = DlzLiveSurfaceState.Empty;
             _lastFrame = null;
             ApplyPresentationToLabels();
         }
@@ -225,6 +233,7 @@ namespace ProjectAegis.Unity.Runtime
                 _presentation = ContactDetailPresentation.Empty;
                 _sliceA = SliceAContactPresentation.Empty;
                 _liveSurface = SliceAContactLiveSurfaceState.Empty;
+                _dlzSurface = DlzLiveSurfaceState.Empty;
             }
             else
             {
@@ -236,6 +245,7 @@ namespace ProjectAegis.Unity.Runtime
                 _sliceA = SliceAContactPresenter.Build(contactId, frame.KillChain, frame.Provenance,
                     frame.EligibilityAvailable ? frame.Chains : null, authority);
                 _liveSurface = SliceAContactLiveSurfaceBinder.Bind(contactId, frame, combatFrame);
+                _dlzSurface = BindContactDlzSurface(contactId);
             }
 
             ApplyPresentationToLabels();
@@ -261,6 +271,11 @@ namespace ProjectAegis.Unity.Runtime
             if (_classificationLine != null)
             {
                 _classificationLine.text = _presentation.ClassificationLine;
+            }
+
+            foreach (var row in DlzLiveSurfacePanelBinder.BindRows(_dlzSurface))
+            {
+                ApplyDlzSurfaceRow(ResolveDlzSurfaceLabel(row.ElementName), row.Text, row.CueClass);
             }
 
             foreach (var row in SliceAContactLiveSurfacePanelBinder.BindRows(_liveSurface))
@@ -313,6 +328,45 @@ namespace ProjectAegis.Unity.Runtime
             {
                 _engagementExplanationLink.SetEnabled(_liveSurface.EngagementExplanationAvailable);
             }
+        }
+
+        private Label? ResolveDlzSurfaceLabel(string elementName) =>
+            elementName switch
+            {
+                "dlz-line" => _dlzLine,
+                _ => null,
+            };
+
+        private static void ApplyDlzSurfaceRow(Label? label, string text, string cueClass)
+        {
+            if (label == null)
+            {
+                return;
+            }
+
+            label.text = text;
+            foreach (var knownCue in DlzCueClasses.All)
+            {
+                label.RemoveFromClassList(knownCue);
+            }
+
+            if (!string.IsNullOrEmpty(cueClass))
+            {
+                label.AddToClassList(cueClass);
+            }
+        }
+
+        private DlzLiveSurfaceState BindContactDlzSurface(string contactId)
+        {
+            if (bridgeHost == null)
+            {
+                return DlzLiveSurfaceBinder.BindContact(contactId, null, null);
+            }
+
+            return DlzLiveSurfaceBinder.BindContact(
+                contactId,
+                bridgeHost.ProjectSelectedContactThreatRange(),
+                bridgeHost.ProjectSelectedEngagePreview());
         }
 
         private Label? ResolveLiveSurfaceLabel(string elementName) =>

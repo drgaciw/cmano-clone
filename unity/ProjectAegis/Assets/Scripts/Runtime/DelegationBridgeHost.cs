@@ -4,16 +4,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.C2Network;
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Input;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.ThreatAssessment;
 using ProjectAegis.Delegation.UnityAdapter.CommandReview;
 using ProjectAegis.Delegation.C2Nodes;
 using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using ProjectAegis.Delegation.Watch;
+using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
 using UnityEngine;
 
 namespace ProjectAegis.Unity.Runtime
@@ -103,6 +108,12 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Projected comms snapshot from the last <see cref="RunTick"/> refresh (CMD-32).</summary>
         public CommsStateSnapshot? LastCommsState { get; private set; }
+
+        /// <summary>Projected C2 network-health snapshot from the last <see cref="RunTick"/> refresh (DRG-190).</summary>
+        public C2NetworkHealthSnapshot? LastNetworkHealth { get; private set; }
+
+        /// <summary>Replay-stable fingerprint for <see cref="LastNetworkHealth"/> (tick-boundary cache).</summary>
+        public string? LastNetworkHealthFingerprint { get; private set; }
 
         /// <summary>Read-only Slice A contact frame, rebuilt once after each simulation tick.</summary>
         public SliceAContactFrame LastSliceAContacts { get; private set; } = SliceAContactFrame.Empty;
@@ -429,8 +440,85 @@ namespace ProjectAegis.Unity.Runtime
                 return EngageExplain.Empty;
             }
 
-            var preview = Bridge.GetEngagePreviewForUnit(SelectedUnitId, _lastSnapshot);
+            var preview = ProjectSelectedEngagePreview();
             return EngageExplainProjection.Project(preview);
+        }
+
+        /// <summary>CMD-11 / DRG-266: live engage preview for weapon-panel DLZ binders.</summary>
+        public EngagePreview? ProjectSelectedEngagePreview()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedUnitId))
+            {
+                return null;
+            }
+
+            return Bridge.GetEngagePreviewForUnit(SelectedUnitId, _lastSnapshot);
+        }
+
+        /// <summary>DRG-266: structured threat-range facts for contact-hover DLZ when supplied by runtime evidence.</summary>
+        public ThreatRangeAssessment? ProjectSelectedContactThreatRange()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedContactId))
+            {
+                return null;
+            }
+
+            if (_lastSnapshot is IAdviceEvidenceSource source
+                && source.TryGetAdviceEvidence(SelectedContactId, out var evidence))
+            {
+                return evidence.ThreatAssessment?.Range;
+            }
+
+            return null;
+        }
+
+        /// <summary>DRG-259: WRA salvo remaining vs max for weapon-panel chrome (advisory only).</summary>
+        public WraSalvoRemainingState ProjectSelectedWraSalvoRemaining()
+        {
+            if (_lastSnapshot == null || string.IsNullOrEmpty(SelectedUnitId))
+            {
+                return WraSalvoRemainingState.Empty;
+            }
+
+            var policyProfile = Bridge.Orchestrator.ScenarioPolicy;
+            var policy = policyProfile?.ResolveUnitPolicy(SelectedUnitId, isFriendly: true).Effective
+                ?? EffectivePolicy.DefaultFree;
+            var ctx = BuildSelectedLiveEngageContext(SelectedUnitId);
+            return WraSalvoRemainingBinder.Bind(
+                SelectedUnitId,
+                in ctx,
+                policy,
+                ProjectSelectedEngagePreview());
+        }
+
+        /// <summary>
+        /// DRG-167: battle graphic for the displayed combat frame.
+        /// Projection read only — does not tick, enqueue, or write the order log.
+        /// </summary>
+        public BattleGraphicState ProjectBattleGraphic(
+            IReadOnlyList<MapSymbolEntry> symbols,
+            CombatZoomBand zoom = CombatZoomBand.Tactical,
+            string? selectedKey = null) =>
+            BattleGraphicBinder.Bind(DisplayCombatFrame, symbols, zoom, selectedKey);
+
+        /// <summary>Read-only live engage context mirror of <see cref="DelegationBridge.GetEngagePreviewForUnit"/> inputs.</summary>
+        private EngageContext BuildSelectedLiveEngageContext(string shooterUnitId)
+        {
+            var engageDefaults = Bridge.Orchestrator.ScenarioPolicy?.EngageDefaults
+                ?? ScenarioEngageDefaults.MvpFallback;
+            var ctx = engageDefaults.ToEngageContext(engageDefaults.DefaultMagazineRounds);
+            if (_lastSnapshot == null)
+            {
+                return ctx;
+            }
+
+            var airReady = Session?.UnitReadiness?.IsReadyForLaunch(shooterUnitId) ?? true;
+            return ctx with
+            {
+                HasFireControlTrack = _lastSnapshot.HasFireControlTrackOnPrimaryContact,
+                RadarEmconActive = _lastSnapshot.ObserverRadarEmconActive,
+                AirOperationsReady = airReady,
+            };
         }
 
         /// <summary>Interactive attack menu selection (req 14).</summary>
@@ -586,6 +674,15 @@ namespace ProjectAegis.Unity.Runtime
                 simulationModeLabel,
                 Bridge.Orchestrator.DecisionLog);
             LastCommsState = CommsStateProjection.Project(Bridge.Orchestrator.DecisionLog);
+            LastNetworkHealth = C2NetworkHealthBridge.Build(
+                Bridge.Orchestrator.DecisionLog,
+                Bridge.Registry,
+                snapshot,
+                CatalogReader,
+                CurrentSimTick);
+            LastNetworkHealthFingerprint = LastNetworkHealth == null
+                ? "c2net:empty"
+                : C2NetworkHealthFingerprint.Compute(LastNetworkHealth);
             LastSliceAContacts = SliceAContactFrameBridge.Build(snapshot, Bridge, CatalogReader);
             LastCombatFrame = CombatPresentationFrameBridge.Build(
                 Bridge.Orchestrator.DecisionLog, LastSliceAContacts, snapshot.SimTime);

@@ -19,8 +19,11 @@ public sealed class UiIaCommsTriadOracleTests
     {
         var text = UiIaSourceReader.ReadRuntime("C2TopBarPanelHost.cs");
         Assert.That(text, Does.Contain("LastCommsState"));
+        Assert.That(text, Does.Contain("LastNetworkHealth"));
         Assert.That(text, Does.Contain("TopBarLabel"));
+        Assert.That(text, Does.Contain("C2NetworkHealthPanelBinder.Bind"));
         Assert.That(text, Does.Not.Contain("CommsStateProjection.Project"));
+        Assert.That(text, Does.Not.Contain("C2NetworkHealthProjector.Project"));
         Assert.That(text, Does.Not.Contain("DelegationBridge.Tick"));
         Assert.That(text, Does.Not.Contain("CatalogWriteGate"));
     }
@@ -30,7 +33,9 @@ public sealed class UiIaCommsTriadOracleTests
     {
         var text = UiIaSourceReader.ReadRuntime("DelegationBridgeHost.cs");
         Assert.That(text, Does.Contain("LastCommsState"));
+        Assert.That(text, Does.Contain("LastNetworkHealth"));
         Assert.That(text, Does.Contain("CommsStateProjection.Project"));
+        Assert.That(text, Does.Contain("C2NetworkHealthBridge.Build"));
         Assert.That(text, Does.Not.Contain("CatalogWriteGate"));
     }
 }

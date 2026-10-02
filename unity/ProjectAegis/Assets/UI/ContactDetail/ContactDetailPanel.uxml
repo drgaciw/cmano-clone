@@ -7,6 +7,7 @@
         <ui:Label name="target-id-line" text="TARGET: —" class="contact-detail-line" />
         <ui:Label name="lifecycle-line" text="STATE: —" class="contact-detail-line" />
         <ui:Label name="classification-line" text="CLASS: —" class="contact-detail-line" />
+        <ui:Label name="dlz-line" text="DLZ: —" class="contact-detail-line dlz-cue--unknown" />
         <ui:Label name="source-line" text="SRC: —" class="contact-detail-line contact-provenance-cue--unknown" />
         <ui:Label name="confidence-line" text="CONF: —" class="contact-detail-line contact-provenance-cue--unknown" />
         <ui:Label name="age-line" text="AGE: —" class="contact-detail-line contact-provenance-cue--unknown" />

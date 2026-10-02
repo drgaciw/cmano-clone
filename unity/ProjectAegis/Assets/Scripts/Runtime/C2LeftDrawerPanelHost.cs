@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -22,6 +23,10 @@ namespace ProjectAegis.Unity.Runtime
         private const string OobListName = "oob-list";
         private const string MissionListName = "mission-list";
         private const string ContactListName = "contact-list";
+        private const string ContactChromeRowName = "contact-chrome-row";
+        private const string ContactSortDropdownName = "contact-sort-dropdown";
+        private const string ContactFilterDropdownName = "contact-filter-dropdown";
+        private const string ContactTextFilterName = "contact-text-filter";
         private const string CollapseToggleName = "c2-drawer-collapse-toggle";
         private const string CollapseToggleClass = "c2-drawer-collapse-toggle";
         private const string CollapsedClass = "c2-drawer-panel--collapsed";
@@ -50,10 +55,16 @@ namespace ProjectAegis.Unity.Runtime
         private ListView? _oobList;
         private ListView? _missionList;
         private ListView? _contactList;
+        private VisualElement? _contactChromeRow;
+        private DropdownField? _contactSortDropdown;
+        private DropdownField? _contactFilterDropdown;
+        private TextField? _contactTextFilter;
         private Button? _collapseToggle;
         private OobTreePanelState _oobState = new(Array.Empty<OobTreeDisplayRow>());
         private MissionListPanelState _missionState = new(Array.Empty<MissionListDisplayRow>());
         private SensorC2PanelState _contactState = new("EMCON: —", "TRACK: —", "CONTACTS: 0", Array.Empty<SensorC2ContactRow>());
+        private ContactListChromeState _contactChrome = ContactListChromeState.Default;
+        private IReadOnlyList<SensorC2ContactRow> _filteredContactRows = Array.Empty<SensorC2ContactRow>();
         private C2PlanningChromeState _planningChrome = new(false, false, SimulationPhase.Planning);
         private LeftDrawerPresentation _oobPresentation = LeftDrawerPresentation.Empty;
         private readonly int[] _oobSelectionIndex = new int[1];
@@ -68,6 +79,12 @@ namespace ProjectAegis.Unity.Runtime
         /// <summary>Last applied chrome collapse presentation (CMD-23).</summary>
         public C2ChromeCollapsePresentation LastChromePresentation { get; private set; } =
             C2ChromeCollapsePresentation.Empty;
+
+        /// <summary>Presentation-only contact list chrome (DRG-264 sort/filter).</summary>
+        public ContactListChromeState ContactListChrome => _contactChrome;
+
+        /// <summary>Last filtered contact rows bound to the Contacts tab list.</summary>
+        public IReadOnlyList<SensorC2ContactRow> LastFilteredContactRows => _filteredContactRows;
 
         /// <summary>Apply OOB panel state through the shipped apply-state path (S107).</summary>
         public void ApplyOobPanelState(OobTreePanelState? state)
@@ -161,11 +178,16 @@ namespace ProjectAegis.Unity.Runtime
             _oobList = panel.Q<ListView>(OobListName);
             _missionList = panel.Q<ListView>(MissionListName);
             _contactList = panel.Q<ListView>(ContactListName);
+            _contactChromeRow = panel.Q<VisualElement>(ContactChromeRowName);
+            _contactSortDropdown = panel.Q<DropdownField>(ContactSortDropdownName);
+            _contactFilterDropdown = panel.Q<DropdownField>(ContactFilterDropdownName);
+            _contactTextFilter = panel.Q<TextField>(ContactTextFilterName);
             EnsureCollapseToggle(panel);
 
             WireList(_oobList);
             WireList(_missionList);
             WireContactList(_contactList);
+            WireContactChrome();
 
             if (_tabOob != null)
             {
@@ -315,9 +337,9 @@ namespace ProjectAegis.Unity.Runtime
             listView.makeItem = () => new Label();
             listView.bindItem = (element, index) =>
             {
-                if (element is Label label && index >= 0 && index < _contactState.ContactRows.Count)
+                if (element is Label label && index >= 0 && index < _filteredContactRows.Count)
                 {
-                    var row = _contactState.ContactRows[index];
+                    var row = _filteredContactRows[index];
                     label.text = row.DisplayLine;
                     label.userData = row.ContactId;
                     label.UnregisterCallback<ClickEvent>(OnContactRowClicked);
@@ -325,6 +347,104 @@ namespace ProjectAegis.Unity.Runtime
                 }
             };
         }
+
+        private void WireContactChrome()
+        {
+            if (_contactSortDropdown != null)
+            {
+                _contactSortDropdown.choices = new List<string>
+                {
+                    "Contact ID",
+                    "Lifecycle",
+                    "Age",
+                    "Threat",
+                };
+                _contactSortDropdown.SetValueWithoutNotify(ResolveSortLabel(_contactChrome.SortKey));
+                _contactSortDropdown.RegisterValueChangedCallback(OnContactSortChanged);
+            }
+
+            if (_contactFilterDropdown != null)
+            {
+                _contactFilterDropdown.choices = new List<string>
+                {
+                    "All",
+                    "Classified",
+                    "Identified",
+                    "Hostile",
+                };
+                _contactFilterDropdown.SetValueWithoutNotify(ResolveFilterLabel(_contactChrome.LifecycleFilter));
+                _contactFilterDropdown.RegisterValueChangedCallback(OnContactFilterChanged);
+            }
+
+            if (_contactTextFilter != null)
+            {
+                _contactTextFilter.SetValueWithoutNotify(_contactChrome.TextFilter);
+                _contactTextFilter.RegisterValueChangedCallback(OnContactTextFilterChanged);
+            }
+        }
+
+        private void OnContactSortChanged(ChangeEvent<string> evt)
+        {
+            _contactChrome = _contactChrome with
+            {
+                SortKey = ParseSortLabel(evt.newValue),
+            };
+            RefreshContactListBinding();
+        }
+
+        private void OnContactFilterChanged(ChangeEvent<string> evt)
+        {
+            _contactChrome = _contactChrome with
+            {
+                LifecycleFilter = ParseFilterLabel(evt.newValue),
+            };
+            RefreshContactListBinding();
+        }
+
+        private void OnContactTextFilterChanged(ChangeEvent<string> evt)
+        {
+            _contactChrome = _contactChrome with
+            {
+                TextFilter = evt.newValue ?? string.Empty,
+            };
+            RefreshContactListBinding();
+        }
+
+        private static string ResolveSortLabel(ContactListSortKey sortKey) =>
+            sortKey switch
+            {
+                ContactListSortKey.Lifecycle => "Lifecycle",
+                ContactListSortKey.Age => "Age",
+                ContactListSortKey.Threat => "Threat",
+                _ => "Contact ID",
+            };
+
+        private static ContactListSortKey ParseSortLabel(string? label) =>
+            label switch
+            {
+                "Lifecycle" => ContactListSortKey.Lifecycle,
+                "Age" => ContactListSortKey.Age,
+                "Threat" => ContactListSortKey.Threat,
+                _ => ContactListSortKey.ContactId,
+            };
+
+        private static string ResolveFilterLabel(ContactListLifecycleFilter filter) =>
+            filter switch
+            {
+                ContactListLifecycleFilter.Classified => "Classified",
+                ContactListLifecycleFilter.Identified => "Identified",
+                ContactListLifecycleFilter.Hostile => "Hostile",
+                _ => "All",
+            };
+
+        private static ContactListLifecycleFilter ParseFilterLabel(string? label) =>
+            label switch
+            {
+                "Classified" => ContactListLifecycleFilter.Classified,
+                "Identified" => ContactListLifecycleFilter.Identified,
+                "Hostile" => ContactListLifecycleFilter.Hostile,
+                _ => ContactListLifecycleFilter.All,
+            };
 
         private void OnContactRowClicked(ClickEvent evt)
         {
@@ -366,22 +486,28 @@ namespace ProjectAegis.Unity.Runtime
             SetListVisible(_oobList, bodyVisible && tab == DrawerTab.Oob);
             SetListVisible(_missionList, bodyVisible && tab == DrawerTab.Missions);
             SetListVisible(_contactList, bodyVisible && tab == DrawerTab.Contacts);
+            SetChromeVisible(_contactChromeRow, bodyVisible && tab == DrawerTab.Contacts);
         }
 
         private static void SetListVisible(ListView? list, bool visible)
         {
-            if (list == null)
+            SetChromeVisible(list, visible);
+        }
+
+        private static void SetChromeVisible(VisualElement? element, bool visible)
+        {
+            if (element == null)
             {
                 return;
             }
 
             if (visible)
             {
-                list.RemoveFromClassList(HiddenClass);
+                element.RemoveFromClassList(HiddenClass);
             }
             else
             {
-                list.AddToClassList(HiddenClass);
+                element.AddToClassList(HiddenClass);
             }
         }
 
@@ -398,16 +524,15 @@ namespace ProjectAegis.Unity.Runtime
             _oobPresentation = LeftDrawerApplyState.Apply(_oobState);
             _missionState = MissionListPanelBinder.Bind(bridgeHost.LastMissionList);
             _contactState = SensorC2PanelBinder.Bind(bridgeHost.LastSensorC2);
+            RefreshContactListBinding();
 
             // Skip list rebuild when collapsed (body hidden).
             if (!bridgeHost.ChromeCollapse.LeftDrawerCollapsed)
             {
                 _oobList!.itemsSource = _oobState.UnitRows.ToList();
                 _missionList!.itemsSource = _missionState.MissionRows.ToList();
-                _contactList!.itemsSource = _contactState.ContactRows.ToList();
                 _oobList.Rebuild();
                 _missionList.Rebuild();
-                _contactList.Rebuild();
                 SyncOobListSelection();
             }
 
@@ -511,6 +636,30 @@ namespace ProjectAegis.Unity.Runtime
             SetListVisible(_oobList, bodyVisible && active == DrawerTab.Oob);
             SetListVisible(_missionList, bodyVisible && active == DrawerTab.Missions);
             SetListVisible(_contactList, bodyVisible && active == DrawerTab.Contacts);
+            SetChromeVisible(_contactChromeRow, bodyVisible && active == DrawerTab.Contacts);
+        }
+
+        private void RefreshContactListBinding()
+        {
+            if (bridgeHost == null)
+            {
+                _filteredContactRows = Array.Empty<SensorC2ContactRow>();
+                return;
+            }
+
+            var view = ContactListPresentation.Apply(bridgeHost.LastSensorC2, _contactChrome);
+            _filteredContactRows = view.ContactRows;
+            _contactState = _contactState with
+            {
+                ContactCountLabel = view.ContactCountLabel,
+                ContactRows = _filteredContactRows,
+            };
+
+            if (_contactList != null)
+            {
+                _contactList.itemsSource = _filteredContactRows.ToList();
+                _contactList.Rebuild();
+            }
         }
 
         private bool IsBodyCollapsed()

@@ -1,4 +1,4 @@
-/* DRG-67 / DRG-182 — engage explain with authority / escalation context. */
+/* DRG-67 / DRG-182 / DRG-265 — engage explain with authority and domain abort codes. */
 
 .c2-engage-explain {
     flex-grow: 1;
@@ -29,4 +29,32 @@
     font-size: 11px;
     color: rgb(200, 210, 220);
     white-space: normal;
+}
+
+.engage-explain-domain-abort {
+    font-size: 11px;
+    color: rgb(220, 210, 190);
+    white-space: normal;
+    margin-bottom: 4px;
+    -unity-font-style: bold;
+}
+
+.domain-abort-cue--unknown {
+    border-left-width: 3px;
+    border-left-color: rgb(130, 130, 140);
+    padding-left: 6px;
+    -unity-font-style: italic;
+}
+
+.domain-abort-cue--clear {
+    border-left-width: 3px;
+    border-left-color: rgb(110, 150, 120);
+    padding-left: 6px;
+}
+
+.domain-abort-cue--blocked {
+    border-left-width: 3px;
+    border-left-color: rgb(170, 100, 100);
+    padding-left: 6px;
+    -unity-font-style: bold;
 }

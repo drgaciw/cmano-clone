@@ -1,8 +1,12 @@
 // Doc-20 top bar — sim time, phase, compression, score strip; CMD-22 Zulu/local/remain.
 #if UNITY_5_3_OR_NEWER
+using System;
+using ProjectAegis.Delegation.C2Network;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
+using ProjectAegis.Sim.Scenario;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -21,11 +25,20 @@ namespace ProjectAegis.Unity.Runtime
         private const string CompressionFasterName = "compression-faster-button";
         private const string PauseResumeName = "pause-resume-button";
         private const string ModeName = "mode-label";
+        private const string FogModeName = "fog-mode-label";
         private const string CommsName = "comms-label";
         private const string ScoreName = "score-label";
         private const string ZuluTimeName = "zulu-time-label";
         private const string LocalTimeName = "local-time-label";
         private const string RemainingDurationName = "remaining-duration-label";
+        private const string CommsLegendName = "c2-topbar-comms-legend";
+        private const string NetworkAdvisoryName = "comms-network-advisory-badge";
+        private const string NetworkHealthName = "comms-network-health-label";
+        private const string NetworkNodeName = "comms-network-node-label";
+        private const string NetworkDetailName = "comms-network-detail-label";
+        private const string NetworkContributorsName = "comms-network-contributors-label";
+        private const string NetworkLostPathsName = "comms-network-lost-paths-label";
+        private const string NetworkNextName = "comms-network-next-label";
 
         /// <summary>Repo-relative Approved production USS for ASSET-005 (Path A graduate).</summary>
         public const string ApprovedProductionUssRelativePath =
@@ -45,19 +58,37 @@ namespace ProjectAegis.Unity.Runtime
         private Button? _compressionFaster;
         private Button? _pauseResume;
         private Label? _mode;
+        private Label? _fogMode;
         private Label? _comms;
         private Label? _score;
         private Label? _zuluTime;
         private Label? _localTime;
         private Label? _remainingDuration;
+        private VisualElement? _commsLegend;
+        private Label? _networkAdvisory;
+        private Label? _networkHealth;
+        private Label? _networkNode;
+        private Label? _networkDetail;
+        private Label? _networkContributors;
+        private Label? _networkLostPaths;
+        private Label? _networkNext;
         private bool _wired;
         private C2TopBarPresentation _presentation = C2TopBarPresentation.Empty;
+        private C2NetworkHealthPanelLabels _networkLabels = C2NetworkHealthPanelBinder.Bind(C2NetworkHealthPresentation.Empty);
+        private string? _lastNetworkFingerprint;
+        private FogModePresentation _fogModePresentation = new("FOG: —", "c2-topbar-item--fog-unknown");
 
         /// <summary>True after panel stylesheet has been applied to the top-bar root.</summary>
         public bool StylesApplied { get; private set; }
 
         /// <summary>Last applied presentation fields (headless-readable after ApplyPanelState).</summary>
         public C2TopBarPresentation LastPresentation => _presentation;
+
+        /// <summary>Last applied network-health panel labels (DRG-190).</summary>
+        public C2NetworkHealthPanelLabels LastNetworkHealthLabels => _networkLabels;
+
+        /// <summary>Last applied fog-mode label from scenario playerInfoModel (DRG-264).</summary>
+        public FogModePresentation LastFogModePresentation => _fogModePresentation;
 
         private void Awake()
         {
@@ -113,12 +144,21 @@ namespace ProjectAegis.Unity.Runtime
             _compressionFaster = panel.Q<Button>(CompressionFasterName);
             _pauseResume = panel.Q<Button>(PauseResumeName);
             _mode = panel.Q<Label>(ModeName);
+            _fogMode = panel.Q<Label>(FogModeName);
             _comms = panel.Q<Label>(CommsName);
             _score = panel.Q<Label>(ScoreName);
             // CMD-22: null-safe Q — labels optional for older UXML trees.
             _zuluTime = panel.Q<Label>(ZuluTimeName);
             _localTime = panel.Q<Label>(LocalTimeName);
             _remainingDuration = panel.Q<Label>(RemainingDurationName);
+            _commsLegend = panel.Q<VisualElement>(CommsLegendName);
+            _networkAdvisory = panel.Q<Label>(NetworkAdvisoryName);
+            _networkHealth = panel.Q<Label>(NetworkHealthName);
+            _networkNode = panel.Q<Label>(NetworkNodeName);
+            _networkDetail = panel.Q<Label>(NetworkDetailName);
+            _networkContributors = panel.Q<Label>(NetworkContributorsName);
+            _networkLostPaths = panel.Q<Label>(NetworkLostPathsName);
+            _networkNext = panel.Q<Label>(NetworkNextName);
             if (panelStyles != null && !panel.styleSheets.Contains(panelStyles))
             {
                 panel.styleSheets.Add(panelStyles);
@@ -262,8 +302,10 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             _presentation = applied;
+            _fogModePresentation = FogModeLabelBinder.Bind(ResolvePlayerInfoModel());
 
             ApplyPresentationToLabels();
+            RefreshNetworkHealthChrome();
             OverlayLiveCompression();
             RefreshBeginExecutionButton();
             RefreshPauseResumeButton();
@@ -297,6 +339,15 @@ namespace ProjectAegis.Unity.Runtime
                 _mode.text = _presentation.ModeLabel;
             }
 
+            if (_fogMode != null)
+            {
+                _fogMode.text = _fogModePresentation.Label;
+                _fogMode.ClearClassList();
+                _fogMode.AddToClassList("c2-topbar-item");
+                _fogMode.AddToClassList("c2-topbar-item--fog");
+                _fogMode.AddToClassList(_fogModePresentation.CssClass);
+            }
+
             if (_score != null)
             {
                 _score.text = _presentation.ScoreLabel;
@@ -324,6 +375,74 @@ namespace ProjectAegis.Unity.Runtime
                 _comms.AddToClassList("c2-topbar-item");
                 _comms.AddToClassList("c2-topbar-item--comms");
                 _comms.AddToClassList(_presentation.CommsCssClass);
+            }
+        }
+
+        private void RefreshNetworkHealthChrome()
+        {
+            if (bridgeHost == null)
+            {
+                return;
+            }
+
+            var snapshot = bridgeHost.LastNetworkHealth;
+            var fingerprint = bridgeHost.LastNetworkHealthFingerprint ?? "c2net:empty";
+            if (string.Equals(fingerprint, _lastNetworkFingerprint, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            _lastNetworkFingerprint = fingerprint;
+            _networkLabels = C2NetworkHealthPanelBinder.Bind(C2NetworkHealthPresenter.Build(snapshot));
+            ApplyNetworkHealthLabels();
+        }
+
+        private void ApplyNetworkHealthLabels()
+        {
+            if (_networkAdvisory != null)
+            {
+                var badge = _networkLabels.AdvisoryBadge;
+                _networkAdvisory.text = badge;
+                _networkAdvisory.style.display = string.IsNullOrEmpty(badge)
+                    ? DisplayStyle.None
+                    : DisplayStyle.Flex;
+            }
+
+            if (_networkHealth != null)
+            {
+                _networkHealth.text = _networkLabels.SummaryLine;
+            }
+
+            if (_networkNode != null)
+            {
+                _networkNode.text = _networkLabels.CommsNodeLine;
+            }
+
+            if (_networkDetail != null)
+            {
+                _networkDetail.text = _networkLabels.LinkCountLine;
+            }
+
+            if (_networkContributors != null)
+            {
+                _networkContributors.text = _networkLabels.ContributorCountLine;
+            }
+
+            if (_networkLostPaths != null)
+            {
+                _networkLostPaths.text = _networkLabels.LostPathCountLine;
+            }
+
+            if (_networkNext != null)
+            {
+                _networkNext.text = _networkLabels.NextActionLine;
+            }
+
+            if (_commsLegend != null)
+            {
+                _commsLegend.ClearClassList();
+                _commsLegend.AddToClassList("c2-topbar-comms-legend");
+                _commsLegend.AddToClassList(_networkLabels.CssClass);
             }
         }
 
@@ -364,6 +483,12 @@ namespace ProjectAegis.Unity.Runtime
             _pauseResume.tooltip = paused && !canResume
                 ? "Acknowledge the attention toast to resume"
                 : string.Empty;
+        }
+
+        private PlayerInfoModel ResolvePlayerInfoModel()
+        {
+            var policy = bridgeHost?.Bridge?.Orchestrator.ScenarioPolicy;
+            return policy?.PlayerInfoModel ?? PlayerInfoModel.FullTransparency;
         }
     }
 }
