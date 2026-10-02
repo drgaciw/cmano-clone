@@ -114,24 +114,24 @@ public sealed class StatusFrameTests
     [TestCase(-1)]
     public void Invalid_snapshot_time_is_rejected(double time)
     {
-        Assert.Throws<ArgumentOutOfRangeException>((Action)(() =>
-            StatusFrameBridge.Build(BridgeWith("u1"), new BareSnapshot(time), SliceAContactFrame.Empty)));
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            StatusFrameBridge.Build(BridgeWith("u1"), new BareSnapshot(time), SliceAContactFrame.Empty));
     }
 
     [Test]
     public void Future_contact_frame_is_rejected_even_when_integer_tick_matches()
     {
         var contacts = SliceAContactFrame.Empty with { SimTick = 5, SimTime = 5.9 };
-        Assert.Throws<ArgumentException>((Action)(() =>
-            StatusFrameBridge.Build(BridgeWith("u1"), new BareSnapshot(5.1), contacts)));
+        Assert.Throws<ArgumentException>(() =>
+            StatusFrameBridge.Build(BridgeWith("u1"), new BareSnapshot(5.1), contacts));
     }
 
     [Test]
     public void Invalid_contact_frame_time_is_rejected()
     {
         var contacts = SliceAContactFrame.Empty with { SimTime = double.NaN };
-        Assert.Throws<ArgumentException>((Action)(() =>
-            StatusFrameBridge.Build(BridgeWith("u1"), new BareSnapshot(5), contacts)));
+        Assert.Throws<ArgumentException>(() =>
+            StatusFrameBridge.Build(BridgeWith("u1"), new BareSnapshot(5), contacts));
     }
 
     [Test]
@@ -151,19 +151,19 @@ public sealed class StatusFrameTests
     [Test]
     public void Mismatched_unit_and_sensor_identity_are_rejected()
     {
-        Assert.Throws<InvalidOperationException>((Action)(() => StatusFrameBridge.Build(
-            BridgeWith("u1"), new InvalidIdentitySnapshot(unitMismatch: true), SliceAContactFrame.Empty)));
-        Assert.Throws<InvalidOperationException>((Action)(() => StatusFrameBridge.Build(
-            BridgeWith("u1"), new InvalidIdentitySnapshot(sensorMismatch: true), SliceAContactFrame.Empty)));
+        Assert.Throws<InvalidOperationException>(() => StatusFrameBridge.Build(
+            BridgeWith("u1"), new InvalidIdentitySnapshot(unitMismatch: true), SliceAContactFrame.Empty));
+        Assert.Throws<InvalidOperationException>(() => StatusFrameBridge.Build(
+            BridgeWith("u1"), new InvalidIdentitySnapshot(sensorMismatch: true), SliceAContactFrame.Empty));
     }
 
     [Test]
     public void Future_source_fact_is_rejected()
     {
-        Assert.Throws<InvalidOperationException>((Action)(() => StatusFrameBridge.Build(
-            BridgeWith("u1"), new InvalidIdentitySnapshot(futureFact: true), SliceAContactFrame.Empty)));
-        Assert.Throws<InvalidOperationException>((Action)(() => StatusFrameBridge.Build(
-            BridgeWith("u1"), new InvalidIdentitySnapshot(futureSensor: true), SliceAContactFrame.Empty)));
+        Assert.Throws<InvalidOperationException>(() => StatusFrameBridge.Build(
+            BridgeWith("u1"), new InvalidIdentitySnapshot(futureFact: true), SliceAContactFrame.Empty));
+        Assert.Throws<InvalidOperationException>(() => StatusFrameBridge.Build(
+            BridgeWith("u1"), new InvalidIdentitySnapshot(futureSensor: true), SliceAContactFrame.Empty));
     }
 
     private static DelegationBridge BridgeWith(params string[] ids)
