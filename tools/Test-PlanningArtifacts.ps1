@@ -149,7 +149,8 @@ try {
         $base = Get-Field $pointer 'relativeTo'
         $resolved = if ([string]::IsNullOrWhiteSpace($base)) { Resolve-DeclaredPath $target }
             else { Resolve-DeclaredPath (Join-Path $base $target) }
-        if ($resolved -ne (Resolve-DeclaredPath $roadmap)) {
+        # -cne: git paths are case-sensitive; -ne would pass a wrongly-cased pointer on Linux/macOS.
+        if ($resolved -cne (Resolve-DeclaredPath $roadmap)) {
             $failures.Add("Contradictory current roadmap pointer in $($pointer.path): '$target' (expected '$roadmap').")
         }
     }

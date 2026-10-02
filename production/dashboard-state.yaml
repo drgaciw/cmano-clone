@@ -9,6 +9,7 @@ last_run:
   inventory_reaudited: false
 gitnexus:
   head_commit: "4190fb1b49cd15775b6b995b7c245d73828cd7a2"
+  head_commit_published: false  # local unpublished HEAD; not fetchable. Reachable verification base: 1902dc12
   local_delta: existing_uncommitted_changes
   index_status: path_and_overload_qualification_required
   recovery_issues: [DRG-197, DRG-323, DRG-324]

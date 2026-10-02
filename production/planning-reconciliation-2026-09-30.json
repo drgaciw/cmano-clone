@@ -7,6 +7,8 @@
   "currentRoadmap": "docs/reports/future-sprint-roadmap-09302026.md",
   "acceptanceTarget": "1902dc1299678ea17f75014406fd9c616e5576bd",
   "inspectedRevision": "4190fb1b49cd15775b6b995b7c245d73828cd7a2",
+  "inspectedRevisionPublished": false,
+  "inspectedRevisionNote": "4190fb1b was a local, unpublished HEAD (plus uncommitted delta) and is not fetchable from the remote. The reachable published revision for verification is acceptanceTarget 1902dc12; re-run evidence against a pushed commit before acceptance.",
   "localDelta": "existing_uncommitted_changes; no exact patch hash asserted by this planning manifest",
   "references": [
     {
