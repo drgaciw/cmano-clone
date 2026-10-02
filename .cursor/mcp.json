@@ -27,7 +27,7 @@
     },
     "jev": {
       "command": "npx",
-      "args": ["-y", "github:codaaiteam/jev-mcp"],
+      "args": ["-y", "github:codaaiteam/jev-mcp#6cfb78daa00d405b76f8fee221b559cbb73563a8"],
       "env": { "TYPESAFE_API_KEY": "${env:TYPESAFE_API_KEY}" }
     },
     "buildkite": {
