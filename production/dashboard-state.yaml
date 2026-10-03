@@ -1,4 +1,33 @@
 # Current scoped planning snapshot. Historical full-project metrics remain in archive.
+latest_followup:
+  date: "2026-10-01"
+  archive: docs/reports/dashboard-snapshots/2026-10-01-planning-next-steps.md
+  source_base: "1902dc1299678ea17f75014406fd9c616e5576bd"
+  local_delta: scoped_planning_only
+  foundation_review: "https://app.graphite.com/github/pr/drgaciw/cmano-clone/690"
+  adr_017: accepted_direction_repository_review_pending
+  h4_scope: draft_in_review
+  h4_unresolved_findings: 20
+  h5_inventory: reviewed_runtime_loading_unproven
+  h6_feasibility: changes_required
+  sdk: "8.0.400"
+  exact_sdk_policy_verified: true
+  debug_solution_passed: 3425
+  release_solution_passed: 3425
+  solution_failed: 0
+  smoke_passed: 25
+  canonical_replay_passed: 6
+  build_errors: 0
+  build_warnings: 0
+  planning_declared_checks: 49
+  drg_183_review_head: "43b67ee0074f6bb4c152894a9534adcae256ace5"
+  drg_183_release_solution_passed: 3428
+  drg_183_harness_passed: 3
+  unity_editor: unavailable_8080_connection_failed
+  notion_followup: public_review_links_published_and_refetched
+  notion_detailed_mirror: not_published_auto_review_rejection
+  acceptance: pending_owner
+  delivery: incomplete
 last_run:
   date: "2026-09-30"
   label: planning_reconciliation

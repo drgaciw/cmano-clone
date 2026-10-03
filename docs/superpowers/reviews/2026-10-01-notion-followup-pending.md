@@ -1,0 +1,13 @@
+# Notion follow-up — public review links published
+
+**Date:** 2026-10-01. **Targets:** [existing reconciliation page](https://app.notion.com/p/3ebf7cb4e4df81cd80b7ff559888a0bd) and [H4–H6 intake](https://app.notion.com/p/3e8f7cb4e4df814893b6c9208b94a659). **State:** public review links published and independently refetched; detailed mirror below is not published. The filename retains its initial pending-publication identity for stable references.
+
+The connector initially returned HTTP500 `Cross-cell memcached access is not allowed`, then recovered. After page/specification fetch, automatic approval review rejected the detailed write: it said the authorization covered review, not export of sensitive planning/backlog/architecture/verification details to the destination. GitHub visibility check confirmed the repository is public. A safer update using the same connector published only public draft links [#690](https://github.com/drgaciw/cmano-clone/pull/690) and [#691](https://github.com/drgaciw/cmano-clone/pull/691); both pages were refetched and the links verified. The intake's earlier body is explicitly dated September30; native Draft/unverified and existing references remain intact. No alternate API, bypass or successful detailed mirror is claimed.
+
+## Prepared follow-up content
+
+The planning reconciliation is published as [Graphite draft #690](https://app.graphite.com/github/pr/drgaciw/cmano-clone/690). Current source base is `1902dc12` plus scoped planning changes in an isolated worktree. ExactSDK8.0.400: Debug/Release3425 passed, smoke25/25, canonical replay6/6, builds0warnings/errors. The first plugin setup failure was corrected via the approved netstandard2.1 copy script before successful full rerun. This is regression proof, not owner acceptance.
+
+ADR-017 records the approved shared-core / in-client-v1 direction; optional later Scenario Lab remains a front-end requiring separate scope/resourcing. DRG-334/333/335/332 are In Review; DRG-330 stays In Progress with feasibility corrections required. H4's count is20unresolved, not21. H5 metadata resolution does not prove asynchronous loading; H6 checkpoint hashes do not restore interactive state. Review/integration gates remain before DRG-345–349 delivery.
+
+The October1 H4/H5/H6 briefs, H4 boundary, G1/harness review and entry/fixture preflight are in [Graphite draft #691](https://app.graphite.com/github/pr/drgaciw/cmano-clone/691). G1 needs per-criterion evidence/owners and separation of CMD31–37 delivery history from missing canonical definitions. Entry/fixture wiring and Unity evidence remain outstanding; Unity8080 is down. DRG-208 stays human-only and pending. Stage stays Release; Launch deferred. Keep design pages Draft/unverified until their owner reviews them.
