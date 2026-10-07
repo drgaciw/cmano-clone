@@ -1,7 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 using Core;
-using Orchestration;
 using Projection;
 using Traits;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;

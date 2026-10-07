@@ -229,7 +229,18 @@ public sealed class SymbologyProfileTests
         Assert.That(legend.CertificationClaimed, Is.False);
         Assert.That(legend.AffiliationExpansionStatus, Does.Contain("HOLD").And.Contain("W2-SYM-05"));
         Assert.That(legend.CivilianProfileStatus, Does.Contain("pending").IgnoreCase.And.Contain("DRG-232"));
+        Assert.That(legend.Profile, Is.EqualTo(profile));
         Assert.That(legend.Rows, Is.Not.Empty);
+        foreach (var row in legend.Rows)
+        {
+            Assert.That(row.SymbolKey, Is.Not.Null.And.Not.Empty);
+            Assert.That(row.Glyph, Is.Not.Null.And.Not.Empty);
+            Assert.That(row.Sidc, Is.Not.Null.And.Not.Empty);
+            if (profile == SymbologyProfile.MilitaryTactical)
+            {
+                Assert.That(App6Sidc.IsValidSidc(row.Sidc), Is.True, row.Sidc);
+            }
+        }
     }
 
     [Test]
