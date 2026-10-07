@@ -29,20 +29,30 @@ public static class CatalogJsonImporter
         return dto.Sensors
             .OrderBy(s => s.PlatformId, StringComparer.Ordinal)
             .ThenBy(s => s.SensorId, StringComparer.Ordinal)
-            .Select(s => new CatalogSensorBinding(
-                s.PlatformId,
-                s.SensorId,
-                s.BasePd,
-                s.SourceFactId,
-                s.Confidence,
-                batchId,
-                sourceFile,
-                NormalizeReviewState(s.ReviewState),
-                Math.Clamp(s.TrlLevel <= 0 ? 9 : s.TrlLevel, 1, 9))
+            .Select(s =>
             {
-                RadarScanType = s.RadarScanType ?? CatalogRadarScanTypes.Unspecified,
-                FrequencyAgile = s.FrequencyAgile,
-                RadarTechGeneration = s.RadarTechGeneration,
+                var binding = new CatalogSensorBinding(
+                    s.PlatformId,
+                    s.SensorId,
+                    s.BasePd,
+                    s.SourceFactId,
+                    s.Confidence,
+                    batchId,
+                    sourceFile,
+                    NormalizeReviewState(s.ReviewState),
+                    Math.Clamp(s.TrlLevel <= 0 ? 9 : s.TrlLevel, 1, 9))
+                {
+                    RadarScanType = s.RadarScanType ?? CatalogRadarScanTypes.Unspecified,
+                    FrequencyAgile = s.FrequencyAgile,
+                    RadarTechGeneration = s.RadarTechGeneration,
+                };
+                var eccmErrors = CatalogRadarScanTypes.Validate(binding);
+                if (eccmErrors.Count > 0)
+                {
+                    throw new InvalidDataException(string.Join("; ", eccmErrors));
+                }
+
+                return binding;
             })
             .ToArray();
     }
