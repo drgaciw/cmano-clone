@@ -187,8 +187,15 @@ public static class ContactCombatCardProjection
         var provenanceKnown = TryFindUniqueProvenance(provenance, contactId, out var provenanceRow);
         var targetabilityKnown = TryFindUniqueTargetability(targetability, contactId, out var targetabilityRow);
         var bdaKnown = TryFindUniqueBda(assessments, contactId, out var bdaRow);
+        var identityProvenance = provenanceKnown ? provenanceRow : null;
+        var targetabilityAgrees = !targetabilityKnown
+            || targetabilityRow is null
+            || TargetAgrees(targetabilityRow.TargetId, identityProvenance, bdaKnown ? bdaRow?.TargetId : null);
+        var bdaAgrees = !bdaKnown
+            || bdaRow is null
+            || TargetAgrees(bdaRow.TargetId, identityProvenance, targetabilityKnown ? targetabilityRow?.TargetId : null);
         var engagementTargetId = ResolveEngagementTargetId(
-            provenanceKnown ? provenanceRow : null,
+            identityProvenance,
             targetabilityKnown ? targetabilityRow : null,
             bdaKnown ? bdaRow : null);
         var engagement = SelectLatestEngagement(afterAction, engagementTargetId);
@@ -199,9 +206,9 @@ public static class ContactCombatCardProjection
             provenanceKnown ? FormatFreshness(provenanceRow) : ContactCombatCardTokens.Unknown,
             provenanceKnown ? FormatConfidence(provenanceRow) : ContactCombatCardTokens.Unknown,
             FormatPosture(postureLabel),
-            targetabilityKnown ? FormatTargetability(targetabilityRow) : ContactCombatCardTokens.Unknown,
+            targetabilityKnown && targetabilityAgrees ? FormatTargetability(targetabilityRow) : ContactCombatCardTokens.Unknown,
             FormatEngagement(engagement),
-            bdaKnown ? FormatBda(bdaRow) : ContactCombatCardTokens.Unknown);
+            bdaKnown && bdaAgrees ? FormatBda(bdaRow) : ContactCombatCardTokens.Unknown);
     }
 
     /// <summary>
@@ -453,6 +460,33 @@ public static class ContactCombatCardProjection
 
         return true;
     }
+
+    /// <remarks>
+    /// An assessment row keyed by the selected contact id may still describe another target.
+    /// It renders only when its target matches every other non-empty target fact for the contact.
+    /// </remarks>
+    private static bool TargetAgrees(
+        string? target,
+        ContactProvenanceState? provenance,
+        string? otherAssessmentTarget)
+    {
+        if (string.IsNullOrEmpty(target))
+        {
+            return true;
+        }
+
+        if (provenance is not null
+            && (!SameOrEmpty(target, provenance.Source.TargetId)
+                || !SameOrEmpty(target, provenance.LastKnown.TargetId)))
+        {
+            return false;
+        }
+
+        return SameOrEmpty(target, otherAssessmentTarget);
+    }
+
+    private static bool SameOrEmpty(string target, string? other) =>
+        string.IsNullOrEmpty(other) || string.Equals(target, other, StringComparison.Ordinal);
 
     private static string? ResolveEngagementTargetId(
         ContactProvenanceState? provenance,

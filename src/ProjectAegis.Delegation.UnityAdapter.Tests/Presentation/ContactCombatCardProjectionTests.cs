@@ -179,6 +179,70 @@ public sealed class ContactCombatCardProjectionTests
     }
 
     [Test]
+    public void Targetability_for_a_different_target_than_provenance_is_unknown()
+    {
+        var card = ContactCombatCardProjection.Project(
+            "c1", Provenance(), Targetability(targetId: "target-2"), null, Ledger());
+
+        Assert.That(card.Provenance, Does.Contain("tgt=target-1"));
+        Assert.That(card.Targetability, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(card.EngagementStatus, Is.EqualTo(ContactCombatCardTokens.Unknown));
+    }
+
+    [Test]
+    public void Targetability_mismatch_also_withholds_bda_that_disagrees_with_it()
+    {
+        var card = ContactCombatCardProjection.Project(
+            "c1", Provenance(), Targetability(targetId: "target-2"), Bda(), Ledger());
+
+        Assert.That(card.Targetability, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(card.Bda, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(card.EngagementStatus, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(ContactCombatCardProjection.FingerprintMatches(card), Is.True);
+    }
+
+    [Test]
+    public void Bda_for_a_different_target_than_provenance_is_unknown()
+    {
+        var card = ContactCombatCardProjection.Project(
+            "c1", Provenance(), Targetability(), Bda(targetId: "target-2"), Ledger());
+
+        Assert.That(card.Bda, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(card.Bda, Does.Not.Contain("target-2"));
+        Assert.That(card.Targetability, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(card.EngagementStatus, Is.EqualTo(ContactCombatCardTokens.Unknown));
+    }
+
+    [Test]
+    public void Bda_for_a_different_target_than_provenance_last_known_is_unknown()
+    {
+        var card = ContactCombatCardProjection.Project(
+            "c1", Provenance(targetId: "target-2", knownTargetId: "target-1"), null, Bda(targetId: "target-2"), null);
+
+        Assert.That(card.Bda, Is.EqualTo(ContactCombatCardTokens.Unknown));
+    }
+
+    [Test]
+    public void Targetability_and_bda_disagreeing_without_provenance_are_unknown()
+    {
+        var card = ContactCombatCardProjection.Project(
+            "c1", null, Targetability(targetId: "target-1"), Bda(targetId: "target-2"), null);
+
+        Assert.That(card.Targetability, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(card.Bda, Is.EqualTo(ContactCombatCardTokens.Unknown));
+    }
+
+    [Test]
+    public void Assessments_without_conflicting_identity_facts_are_read()
+    {
+        var card = ContactCombatCardProjection.Project(
+            "c1", null, Targetability(targetId: "target-2"), Bda(targetId: "target-2"), null);
+
+        Assert.That(card.Targetability, Is.EqualTo("Withheld;cause=Stale"));
+        Assert.That(card.Bda, Does.Contain("tgt=target-2"));
+    }
+
+    [Test]
     public void Ambiguous_duplicate_provenance_is_unknown()
     {
         var snapshot = new ContactProvenanceSnapshot(new[]
@@ -472,12 +536,12 @@ public sealed class ContactCombatCardProjectionTests
             outOfComms,
             quality);
 
-    private static TargetabilityAcceptSnapshot Targetability() =>
+    private static TargetabilityAcceptSnapshot Targetability(string targetId = "target-1") =>
         new(new[]
         {
             new TargetabilityAcceptContactRow(
                 "c1",
-                "target-1",
+                targetId,
                 TargetabilityAcceptDisposition.Withheld,
                 TargetabilityAcceptCauseCodes.Stale,
                 null,
@@ -487,8 +551,9 @@ public sealed class ContactCombatCardProjectionTests
 
     private static BdaAssessSnapshot Bda(
         BdaAssessStateKind state = BdaAssessStateKind.Damaged,
-        BdaAssessSourceKind source = BdaAssessSourceKind.PlatformDamage) =>
-        new(new[] { BdaRow(state: state, source: source) });
+        BdaAssessSourceKind source = BdaAssessSourceKind.PlatformDamage,
+        string targetId = "target-1") =>
+        new(new[] { BdaRow(targetId: targetId, state: state, source: source) });
 
     private static BdaAssessContactState BdaRow(
         string contactId = "c1",
