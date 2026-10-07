@@ -45,7 +45,15 @@ All from the worktree root with `export PATH="$HOME/.dotnet:$PATH"`. Targeted on
 
 Additive only. No existing type, method or file under `src/` was edited. Eleven new types in ten files under `src/ProjectAegis.Delegation/Projection/` and two new test files. Nothing in sim, orders, replay, `DelegationBridge`, `CatalogWriteGate`, Unity assets or Baltic goldens calls or is called by the new types. GitNexus was unavailable; caller analysis was done with grep (no existing callers, since all symbols are new).
 
-## Not delivered / pending
+## PR #694 review remediation — 2026-10-07
+
+- Military map glyphs now include the observed category icon (`CBT`, `SUB`, or `?`). Cesium preserves military-profile glyphs, frame ids and SIDCs while retaining legacy SIDC precedence and invalid-SIDC fallback. `SymbolKeyRegistry.All` now exposes a read-only collection.
+- Prepared on PR head `116f7a38`, which includes `main` `bd69461b`; upstream trunk integration was preserved in an isolated worktree. No `DelegationBridge`, `CatalogWriteGate`, Unity assets or replay golden changes relative to that trunk.
+- Focused NUnit verification: **66 passed, 0 failed, 0 skipped** across `SymbologyRenderingRegressionTests`, `CesiumApp6BillboardContractTests`, `MapSymbolLodClustererTests` and `MapPanelBinderTests`. The real production sources and test fixtures were compiled directly with SDK 8.0.400 Roslyn and run in-process with NUnit 5.0.0; no production behavior was stubbed. The production subset also compiled against **netstandard2.1**, with warnings treated as errors.
+- Full solution build/test and PlayModeSmoke gates remain **BLOCKED locally**: restore and test commands fail reading process information; build without restored assets reports `NETSDK1004`. These focused results do not replace the required full gates. CI verification on the published remediation head is pending.
+- Unity/C# architecture review: presentation/command boundaries (ADR-010/007/001) preserved; no new public API, assemblies, host lifecycle or per-frame bind path. Editor/visual verification remains pending. Finish verdict **BLOCKED** until full gates pass.
+
+## Not delivered / pending (unchanged scope)
 
 - CIV profile and dual-profile parity — pending DRG-232 scope decision.
 - Profile screenshots, Unity legend panel binding, visual atlas review (MIL-AC-05/07 visual half) — Editor work, not done.

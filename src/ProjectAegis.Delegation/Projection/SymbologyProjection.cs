@@ -58,7 +58,7 @@ public static class SymbologyProjection
         var glyph = MilitarySymbology.Resolve(symbol.Affiliation, observedKey, symbol.IsDestroyed);
         return symbol with
         {
-            ShapeGlyph = glyph.UnicodeGlyph,
+            ShapeGlyph = $"{glyph.UnicodeGlyph} {glyph.IconText}",
             App6Sidc = glyph.Sidc,
             App6UssFrameId = glyph.UssFrameId,
         };

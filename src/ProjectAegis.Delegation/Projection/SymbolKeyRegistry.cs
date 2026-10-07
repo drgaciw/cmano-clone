@@ -36,7 +36,7 @@ public static class SymbolKeyRegistry
 
     /// <summary>All entries, ordinal-sorted by key.</summary>
     public static IReadOnlyList<SymbolKeyDefinition> All { get; } =
-        ByKey.Values.OrderBy(d => d.Key, StringComparer.Ordinal).ToArray();
+        Array.AsReadOnly(ByKey.Values.OrderBy(d => d.Key, StringComparer.Ordinal).ToArray());
 
     /// <summary>S126-05 scoped naval types (MIL profile thin slice).</summary>
     public static IReadOnlyList<string> ScopedNavalKeys { get; } =
