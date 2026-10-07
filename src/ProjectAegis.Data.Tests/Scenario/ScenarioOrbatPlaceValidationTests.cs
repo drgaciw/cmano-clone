@@ -35,7 +35,7 @@ public sealed class ScenarioOrbatPlaceValidationTests
     public void UpsertOrbatUnit_rejects_out_of_range_or_non_finite_coords()
     {
         var editor = ScenarioDocumentEditor.CreateNew();
-        Assert.Throws<InvalidOperationException>(() =>
+        var ex0 = Assert.Throws<ScenarioLatLonException>(() =>
             editor.UpsertOrbatUnit(new ScenarioOrbatUnitDto
             {
                 Id = "u1",
@@ -44,7 +44,8 @@ public sealed class ScenarioOrbatPlaceValidationTests
                 Lat = 91,
                 Lon = 20,
             }));
-        Assert.Throws<InvalidOperationException>(() =>
+        Assert.Equal(ScenarioLatLonDiagnostics.LatOutOfRange, ex0.Code);
+        var ex1 = Assert.Throws<ScenarioLatLonException>(() =>
             editor.UpsertOrbatUnit(new ScenarioOrbatUnitDto
             {
                 Id = "u1",
@@ -53,7 +54,8 @@ public sealed class ScenarioOrbatPlaceValidationTests
                 Lat = 57,
                 Lon = -181,
             }));
-        Assert.Throws<InvalidOperationException>(() =>
+        Assert.Equal(ScenarioLatLonDiagnostics.LonOutOfRange, ex1.Code);
+        var ex2 = Assert.Throws<ScenarioLatLonException>(() =>
             editor.UpsertOrbatUnit(new ScenarioOrbatUnitDto
             {
                 Id = "u1",
@@ -62,6 +64,7 @@ public sealed class ScenarioOrbatPlaceValidationTests
                 Lat = double.NaN,
                 Lon = 20,
             }));
+        Assert.Equal(ScenarioLatLonDiagnostics.NotFinite, ex2.Code);
         Assert.Empty(editor.ToDto().Orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>());
     }
 
