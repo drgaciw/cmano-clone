@@ -2,7 +2,7 @@ namespace ProjectAegis.Delegation.UnityAdapter.Tests.PlayEntry;
 
 using Core;
 using Orchestration;
-using ProjectAegis.Data.Scenario;
+using Data.Scenario;
 using ProjectAegis.Data.Scenario.Authoring;
 using ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 using NUnit.Framework;

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 public sealed record PlaySideOption(PlaySide Side, string Label, bool IsSelected);
 

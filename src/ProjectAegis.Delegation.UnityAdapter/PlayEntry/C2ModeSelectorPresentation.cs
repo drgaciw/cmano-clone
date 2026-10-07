@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 
-using ProjectAegis.Delegation.Core;
+using Core;
 
 public sealed record C2ModeOption(SimulationModeKind Kind, string Label, bool IsSelected);
 

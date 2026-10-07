@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Orchestration;
+using Core;
+using Orchestration;
 
 /// <summary>
 /// Side the player commands (or observes in AgentVsAgent). Maps onto

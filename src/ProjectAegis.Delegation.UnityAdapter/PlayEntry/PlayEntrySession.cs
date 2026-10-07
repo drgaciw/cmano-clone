@@ -1,13 +1,13 @@
 namespace ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario;
+using Data.Catalog;
+using Data.Scenario;
 using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using Core;
+using Orchestration;
+using Targets;
+using Traits;
+using Bridge;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>

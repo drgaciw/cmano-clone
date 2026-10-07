@@ -4,7 +4,7 @@ using Controllers;
 using Core;
 using Orchestration;
 using Targets;
-using ProjectAegis.Data.Scenario;
+using Data.Scenario;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 using NUnit.Framework;
@@ -65,12 +65,14 @@ public sealed class PlayEntrySessionTests
     public void TryLoad_baltic_entry_enters_planning_with_package_bound_bridge()
     {
         var session = new PlayEntrySession();
+        var entry = BalticEntry();
 
-        var result = session.TryLoad(BalticEntry());
+        var result = session.TryLoad(entry);
 
         Assert.That(result.Succeeded, Is.True, result.Message);
         Assert.That(result.ErrorCode, Is.Null);
         Assert.That(session.State.HasPackage, Is.True);
+        Assert.That(session.State.SourcePath, Is.EqualTo(entry.SourcePath));
         Assert.That(session.State.PolicyId, Is.EqualTo("baltic-patrol-catalog"));
         Assert.That(session.State.Phase, Is.EqualTo(SimulationPhase.Planning));
         Assert.That(session.State.Mode, Is.Null);
@@ -108,6 +110,7 @@ public sealed class PlayEntrySessionTests
         var result = session.TryLoadFromPath(Path.Combine(_tempDir, "missing.scenario.json"));
 
         AssertNonMutatingFailure(session, result, PlayEntryErrorCodes.FileUnreadable, priorState, priorBridge, priorPackage);
+        Assert.That(session.State.SourcePath, Is.EqualTo(BalticEntry().SourcePath));
     }
 
     [Test]
