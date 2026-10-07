@@ -27,7 +27,7 @@ public static class CombatEventProjection
     /// <param name="log">Authoritative order log; null when no engagement evidence exists yet.</param>
     /// <param name="targetability">
     /// Authoritative Slice A acceptance snapshot (DRG-183/219). When supplied, a withheld row — or no row for
-    /// the target — refuses authorization with the named Slice A cause. Null keeps the pre-Slice-A behaviour.
+    /// the shooter/target leg — refuses authorization with the named Slice A cause. Null keeps the pre-Slice-A behaviour.
     /// </param>
     public static CombatEventSnapshot Project(
         CombatEngageAssessInput input,
@@ -39,7 +39,7 @@ public static class CombatEventProjection
             return CombatEventSnapshot.Empty;
         }
 
-        var targetabilityRow = FindTargetabilityRow(targetability, input.TargetId);
+        var targetabilityRow = FindTargetabilityRow(targetability, input.ShooterId, input.TargetId);
         var facts = targetabilityRow is null
             ? Array.Empty<CombatTargetabilityFact>()
             : new[] { CombatTargetabilityFact.FromRow(targetabilityRow) };
@@ -220,10 +220,12 @@ public static class CombatEventProjection
         input.Preview is { CanFire: true } || engagement is { Launched: true };
 
     /// <summary>
-    /// First permitted Slice A row for the target in snapshot (ordinal contact id) order; otherwise the first row.
+    /// First permitted Slice A row for the exact shooter/target leg; otherwise its first row.
+    /// An unscoped contact-wide track refusal is the final fallback, never permission or actor authority.
     /// </summary>
     private static TargetabilityAcceptContactRow? FindTargetabilityRow(
         TargetabilityAcceptSnapshot? targetability,
+        string shooterId,
         string targetId)
     {
         if (targetability is null)
@@ -232,11 +234,18 @@ public static class CombatEventProjection
         }
 
         TargetabilityAcceptContactRow? first = null;
+        TargetabilityAcceptContactRow? contactRefusal = null;
         for (var i = 0; i < targetability.Contacts.Count; i++)
         {
             var row = targetability.Contacts[i];
             if (!string.Equals(row.TargetId, targetId, StringComparison.Ordinal))
             {
+                continue;
+            }
+
+            if (!string.Equals(CombatTargetabilityFact.ShooterIdFromRow(row), shooterId, StringComparison.Ordinal))
+            {
+                if (CombatTargetabilityFact.IsContactWideRefusalRow(row)) contactRefusal ??= row;
                 continue;
             }
 
@@ -248,7 +257,7 @@ public static class CombatEventProjection
             first ??= row;
         }
 
-        return first;
+        return first ?? contactRefusal;
     }
 
     private static CombatExecutionFact CreateExecutionFact(

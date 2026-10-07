@@ -87,7 +87,8 @@ public static class EngagementExplanationProjection
                 e.SimTime,
                 e.SimTick,
                 e.ExplanationRef)).ToArray()));
-        var targetability = FindTargetability(events.Targetability, targetId);
+        var targetability = FindTargetability(events.Targetability, shooterId, targetId);
+        var actorAuthority = targetability?.ShooterId == shooterId ? targetability : null;
         var execution = FindExecution(events.Execution, shooterId, targetId, correlationId);
         var refusalCode = refused?.Outcome;
         var refusalIsTargetability = refused?.ExplanationRef.StartsWith(TargetabilityPrefix, StringComparison.Ordinal)
@@ -102,8 +103,8 @@ public static class EngagementExplanationProjection
         };
         var doctrine = new[]
         {
-            RoeConstraint(targetability),
-            TargetingAuthorityConstraint(targetability),
+            RoeConstraint(actorAuthority),
+            TargetingAuthorityConstraint(actorAuthority),
             PolicyConstraint(refusalCode, refusalIsDoctrine, refusalIsTargetability),
         };
 
@@ -127,14 +128,22 @@ public static class EngagementExplanationProjection
 
     private static CombatTargetabilityFact? FindTargetability(
         IReadOnlyList<CombatTargetabilityFact> facts,
+        string shooterId,
         string targetId)
     {
         CombatTargetabilityFact? first = null;
+        CombatTargetabilityFact? contactRefusal = null;
         for (var i = 0; i < facts.Count; i++)
         {
             var fact = facts[i];
             if (!string.Equals(fact.TargetId, targetId, StringComparison.Ordinal))
             {
+                continue;
+            }
+
+            if (!string.Equals(fact.ShooterId, shooterId, StringComparison.Ordinal))
+            {
+                if (fact.IsContactWideRefusal) contactRefusal ??= fact;
                 continue;
             }
 
@@ -146,7 +155,7 @@ public static class EngagementExplanationProjection
             first ??= fact;
         }
 
-        return first;
+        return first ?? contactRefusal;
     }
 
     private static CombatExecutionFact? FindExecution(

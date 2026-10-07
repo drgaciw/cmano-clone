@@ -90,6 +90,32 @@ public static class TargetabilityAcceptProjection
         return new TargetabilityAcceptSnapshot(rows);
     }
 
+    /// <summary>
+    /// Composes cached Slice A facts with the authority already resolved for each contact's nominated shooter.
+    /// Missing authority stays unknown by omitting the row; no global authority is transferred between contacts.
+    /// </summary>
+    public static TargetabilityAcceptSnapshot ProjectPerContact(
+        ContactProvenanceSnapshot? provenance,
+        SensorToShooterSnapshot? sensorToShooter,
+        IReadOnlyDictionary<string, C2AuthorityProjection> authorities)
+    {
+        if (authorities is null) throw new ArgumentNullException(nameof(authorities));
+        var provenanceByContact = IndexProvenance(provenance);
+        var chainsByContact = IndexChains(sensorToShooter);
+        var rows = new List<TargetabilityAcceptContactRow>();
+        foreach (var contactId in CollectContactIds(provenanceByContact, chainsByContact))
+        {
+            if (!authorities.TryGetValue(contactId, out var authority)) continue;
+            provenanceByContact.TryGetValue(contactId, out var provenanceRow);
+            chainsByContact.TryGetValue(contactId, out var chain);
+            var (disposition, causeCode) = ResolveDisposition(provenanceRow, chain, authority);
+            rows.Add(new TargetabilityAcceptContactRow(contactId, ResolveTargetId(provenanceRow, chain),
+                disposition, causeCode, provenanceRow, chain, authority));
+        }
+
+        return new TargetabilityAcceptSnapshot(rows.AsReadOnly());
+    }
+
     internal static (TargetabilityAcceptDisposition Disposition, string CauseCode) ResolveDisposition(
         ContactProvenanceState? provenance,
         SensorToShooterChain? chain,

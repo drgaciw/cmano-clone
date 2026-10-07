@@ -20,6 +20,59 @@ namespace ProjectAegis.Delegation.Tests.EngagementExplanation;
 [TestFixture]
 public sealed class EngagementExplanationProjectionTests
 {
+    [TestCase("u2")]
+    [TestCase(null)]
+    public void Other_or_unknown_shooters_facts_leave_requested_shooters_constraints_unknown(string? factShooter)
+    {
+        var row = Targetability(true).Contacts.Single();
+        row = row with
+        {
+            SensorToShooter = row.SensorToShooter! with
+            {
+                Links = row.SensorToShooter.Links.Select(l => l.Kind == SensorToShooterLinkKind.EligibleShooter
+                    ? l with { UnitId = factShooter } : l).ToArray(),
+            },
+        };
+        var events = CombatEventProjection.Project(Input(true)) with
+        {
+            Targetability = new[] { CombatTargetabilityFact.FromRow(row) },
+        };
+
+        var surface = EngagementExplanationProjection.Build(events, "u1", "hostile-1", 42);
+
+        Assert.That(surface.HardConstraints.Single(c => c.Name == EngagementConstraintNames.Track).State,
+            Is.EqualTo(EngagementConstraintState.Unknown));
+        Assert.That(surface.DoctrineConstraints.Single(c => c.Name == EngagementConstraintNames.Roe).State,
+            Is.EqualTo(EngagementConstraintState.Unknown));
+        Assert.That(surface.DoctrineConstraints.Single(c => c.Name == EngagementConstraintNames.TargetingAuthority).State,
+            Is.EqualTo(EngagementConstraintState.Unknown));
+    }
+
+    [Test]
+    public void Matching_shooters_withheld_authority_is_not_replaced_by_another_shooters_permission()
+    {
+        var row = Targetability(true).Contacts.Single();
+        var requested = CombatTargetabilityFact.FromRow(row) with
+        {
+            Disposition = TargetabilityAcceptDisposition.Withheld,
+            WithheldCauseCode = TargetabilityAcceptCauseCodes.RoeHoldFire,
+            RoeAllowsEngage = false,
+            TargetingDisposition = C2AuthorityDisposition.Withheld,
+        };
+        var other = CombatTargetabilityFact.FromRow(row) with { ShooterId = "u2" };
+        var events = CombatEventProjection.Project(Input(true)) with
+        {
+            Targetability = new[] { other, requested },
+        };
+
+        var surface = EngagementExplanationProjection.Build(events, "u1", "hostile-1", 42);
+
+        Assert.That(surface.DoctrineConstraints.Single(c => c.Name == EngagementConstraintNames.Roe).State,
+            Is.EqualTo(EngagementConstraintState.Violated));
+        Assert.That(surface.DoctrineConstraints.Single(c => c.Name == EngagementConstraintNames.TargetingAuthority).State,
+            Is.EqualTo(EngagementConstraintState.Violated));
+    }
+
     [Test]
     public void Available_leg_explains_why_permitted_with_satisfied_constraints()
     {
