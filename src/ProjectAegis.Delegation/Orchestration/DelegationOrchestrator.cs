@@ -405,6 +405,89 @@ public sealed class DelegationOrchestrator
         return LoopPolicyVerdict.Allow();
     }
 
+    /// <summary><see cref="PolicyUpdateRecord.Field"/> written by a successful <see cref="TryRebriefAgent"/>.</summary>
+    public const string RebriefPolicyField = "personality.rebrief";
+
+    /// <summary>
+    /// W2-DEL-04 player Assign Agent: install <paramref name="agent"/> on a registered human-controlled (or
+    /// uncontrolled) target, capture its policy snapshot and log a <see cref="ControllerChangeRecord"/>.
+    /// Denied without mutation when a replay viewer is attached, the target is unregistered, an agent is
+    /// already active, or a suspended agent awaits release of direct control.
+    /// </summary>
+    public LoopPolicyVerdict TryAssignAgentController(
+        ICommandableTarget target,
+        AgentController agent,
+        bool isFriendly,
+        double simTime = 0)
+    {
+        if (AttachReplayViewer)
+        {
+            return LoopPolicyVerdict.Deny("Replay viewer attached; controller assignment is disabled.");
+        }
+
+        if (!ReferenceEquals(FindTarget(target.Id), target))
+        {
+            return LoopPolicyVerdict.Deny($"Target {target.Id.Value} is not registered.");
+        }
+
+        if (target.Slot.Active is AgentController)
+        {
+            return LoopPolicyVerdict.Deny($"Target {target.Id.Value} already has an agent controller.");
+        }
+
+        if (target.Slot.SuspendedAgent is not null)
+        {
+            return LoopPolicyVerdict.Deny(
+                $"Target {target.Id.Value} has a suspended agent; release direct control instead.");
+        }
+
+        var previous = DescribeActiveController(target.Slot);
+        var simTick = (ulong)Math.Max(0, (long)simTime);
+        AssignAgentToTarget(agent, target, effectivePolicy: null, isFriendly, simTick);
+        DecisionLog.AppendControllerChange(new ControllerChangeRecord(
+            0, simTime, target.Id, previous, DescribeActiveController(target.Slot), agent.Id));
+        return LoopPolicyVerdict.Allow();
+    }
+
+    /// <summary>
+    /// W2-DEL-02 Rebrief Agent: swap the agent's personality preset when <see cref="LoopPolicyGate.CanRebriefAgent"/>
+    /// allows it, logging a <see cref="RebriefPolicyField"/> policy update. Denials leave the agent and log untouched.
+    /// </summary>
+    public LoopPolicyVerdict TryRebriefAgent(
+        AgentController agent,
+        PersonalityPreset preset,
+        double simTime = 0)
+    {
+        if (AttachReplayViewer)
+        {
+            return LoopPolicyVerdict.Deny("Replay viewer attached; rebrief is disabled.");
+        }
+
+        if (agent.Traits == preset.Traits && string.Equals(agent.PersonalitySlug, preset.Name, StringComparison.Ordinal))
+        {
+            return LoopPolicyVerdict.Deny($"Agent {agent.Id.Value} is already briefed as {preset.Name}.");
+        }
+
+        var verdict = LoopPolicyGate.CanRebriefAgent(ScenarioPolicy, Phase);
+        if (!verdict.Allowed)
+        {
+            return verdict;
+        }
+
+        var previous = agent.PersonalitySlug ?? "custom";
+        agent.RebindTraits(preset.Traits);
+        agent.SetPersonalitySlug(preset.Name);
+        DecisionLog.AppendPolicyUpdate(new PolicyUpdateRecord(
+            0,
+            simTime,
+            (ulong)Math.Max(0, (long)simTime),
+            agent.PolicySnapshotId,
+            RebriefPolicyField,
+            previous,
+            preset.Name));
+        return LoopPolicyVerdict.Allow();
+    }
+
     public IReadOnlyList<OrderLogEntry> GetLiveOrderLogView() =>
         PlayerInfoFilter.FilterLiveEntries(
             DecisionLog.ChronologicalEntries(),
