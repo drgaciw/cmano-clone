@@ -18,6 +18,38 @@ namespace ProjectAegis.Delegation.Tests.TargetabilityAccept;
 public sealed class TargetabilityAcceptProjectionTests
 {
     [Test]
+    public void Per_contact_composition_preserves_each_contacts_authority_and_omits_missing_evidence()
+    {
+        var row = ProjectWithAuthority(OrganicAuthorityContext()).Contacts.Single();
+        var provenance = new ContactProvenanceSnapshot(new[]
+        {
+            row.Provenance!,
+            row.Provenance! with { ContactId = "c2" },
+            row.Provenance! with { ContactId = "c3" },
+        });
+        var chains = new SensorToShooterSnapshot(new[]
+        {
+            row.SensorToShooter!,
+            row.SensorToShooter! with { ContactId = "c2" },
+            row.SensorToShooter! with { ContactId = "c3" },
+        });
+        var withheld = C2AuthorityProjector.Project(OrganicAuthorityContext(RoeLevel.HoldFire));
+        var snapshot = TargetabilityAcceptProjection.ProjectPerContact(provenance, chains,
+            new Dictionary<string, C2AuthorityProjection>(StringComparer.Ordinal)
+            {
+                ["c1"] = row.Authority,
+                ["c2"] = withheld,
+            });
+
+        Assert.That(snapshot.Contacts.Select(c => c.ContactId), Is.EqualTo(new[] { "c1", "c2" }));
+        Assert.That(snapshot.Contacts[0].Disposition, Is.EqualTo(TargetabilityAcceptDisposition.Permitted));
+        Assert.That(snapshot.Contacts[1].Disposition, Is.EqualTo(TargetabilityAcceptDisposition.Withheld));
+        Assert.That(snapshot.Contacts[1].WithheldCauseCode, Is.EqualTo(TargetabilityAcceptCauseCodes.RoeHoldFire));
+        Assert.That(snapshot.Contacts[0].Provenance, Is.SameAs(row.Provenance));
+        Assert.That(snapshot.Contacts[1].Authority, Is.SameAs(withheld));
+    }
+
+    [Test]
     public void Permitted_path_fresh_chain_complete_and_authority_allows_targeting()
     {
         var log = TargetableContactLog();

@@ -69,6 +69,8 @@ public static class CombatEventFingerprint
         builder.Append((int)fact.TargetingDisposition);
         builder.Append(',');
         builder.Append(fact.TargetingReasonCode ?? string.Empty);
+        builder.Append(',');
+        builder.Append(fact.ShooterId ?? string.Empty);
     }
 
     private static void AppendExecution(StringBuilder builder, CombatExecutionFact fact)

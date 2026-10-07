@@ -21,6 +21,95 @@ namespace ProjectAegis.Delegation.Tests.CombatEvents;
 public sealed class CombatEventContractTests
 {
     [Test]
+    public void Assess_other_shooters_permitted_row_does_not_authorize_requested_shooter()
+    {
+        var row = ForShooter(PermittedTargetability().Contacts.Single(), "u2");
+        var snapshot = CombatEventProjection.Project(Input("hostile-1", true), null,
+            new TargetabilityAcceptSnapshot(new[] { row }));
+
+        Assert.That(snapshot.Events[^1].Phase, Is.EqualTo(CombatEventPhase.AuthorizationRefused));
+        Assert.That(snapshot.Targetability, Is.Empty);
+    }
+
+    [Test]
+    public void Assess_matching_withheld_row_is_not_overridden_by_another_shooters_permission()
+    {
+        var permitted = ForShooter(PermittedTargetability().Contacts.Single(), "u2");
+        var withheld = PermittedTargetability().Contacts.Single() with
+        {
+            Disposition = TargetabilityAcceptDisposition.Withheld,
+            WithheldCauseCode = TargetabilityAcceptCauseCodes.RoeHoldFire,
+            Authority = C2AuthorityProjector.Project(new C2AuthorityProjectionContext(
+                RoeLevel.HoldFire, SkillLane.Read, RequiredApproval.None, TrackSource.Organic, true)),
+        };
+        var snapshot = CombatEventProjection.Project(Input("hostile-1", true), null,
+            new TargetabilityAcceptSnapshot(new[] { permitted, withheld }));
+
+        Assert.That(snapshot.Events[^1].Phase, Is.EqualTo(CombatEventPhase.AuthorizationRefused));
+        Assert.That(snapshot.Events[^1].Outcome, Is.EqualTo(withheld.WithheldCauseCode));
+        Assert.That(snapshot.Targetability.Single().Disposition, Is.EqualTo(TargetabilityAcceptDisposition.Withheld));
+        Assert.That(snapshot.Targetability.Single().ShooterId, Is.EqualTo("u1"));
+    }
+
+    [Test]
+    public void Assess_unlinked_shooter_identity_fails_closed()
+    {
+        var row = PermittedTargetability().Contacts.Single();
+        row = row with
+        {
+            SensorToShooter = row.SensorToShooter! with
+            {
+                Links = row.SensorToShooter.Links.Select(l => l.Kind == SensorToShooterLinkKind.EligibleShooter
+                    ? l with { IsLinked = false } : l).ToArray(),
+            },
+        };
+        var snapshot = CombatEventProjection.Project(Input("hostile-1", true), null,
+            new TargetabilityAcceptSnapshot(new[] { row }));
+
+        Assert.That(snapshot.Events[^1].Phase, Is.EqualTo(CombatEventPhase.AuthorizationRefused));
+        Assert.That(snapshot.Targetability, Is.Empty);
+    }
+
+    [Test]
+    public void Log_build_does_not_attach_other_shooters_facts_to_the_same_target()
+    {
+        var log = new DecisionLog();
+        log.AppendEngagement(new EngagementRecord(0, 2, 2, new TargetId("u1"), 41, true,
+            VictimTargetId: new TargetId("hostile-1"), WeaponFamilyId: "Missile"));
+        var other = ForShooter(PermittedTargetability().Contacts.Single(), "u2");
+        var snapshot = CombatEventLogProjection.Build(log, 2, new TargetabilityAcceptSnapshot(new[] { other }));
+
+        Assert.That(snapshot.Targetability, Is.Empty);
+        Assert.That(snapshot.Events.Any(e => e.Phase == CombatEventPhase.Firing), Is.True);
+    }
+
+    [Test]
+    public void Fingerprint_distinguishes_targetability_for_different_shooters()
+    {
+        var row = PermittedTargetability().Contacts.Single();
+        var first = new CombatEventSnapshot(Array.Empty<CombatEvent>())
+        {
+            Targetability = new[] { CombatTargetabilityFact.FromRow(row) },
+        };
+        var second = first with
+        {
+            Targetability = new[] { CombatTargetabilityFact.FromRow(ForShooter(row, "u2")) },
+        };
+
+        Assert.That(CombatEventFingerprint.Compute(second), Is.Not.EqualTo(CombatEventFingerprint.Compute(first)));
+    }
+
+    private static TargetabilityAcceptContactRow ForShooter(TargetabilityAcceptContactRow row, string shooterId) =>
+        row with
+        {
+            SensorToShooter = row.SensorToShooter! with
+            {
+                Links = row.SensorToShooter.Links.Select(l => l.Kind == SensorToShooterLinkKind.EligibleShooter
+                    ? l with { UnitId = shooterId } : l).ToArray(),
+            },
+        };
+
+    [Test]
     public void Assess_permitted_slice_a_row_authorizes_and_attaches_targetability_fact()
     {
         var targetability = PermittedTargetability();
