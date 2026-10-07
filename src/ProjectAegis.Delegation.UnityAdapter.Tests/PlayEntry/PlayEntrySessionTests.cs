@@ -128,6 +128,37 @@ public sealed class PlayEntrySessionTests
         AssertNonMutatingFailure(session, result, PlayEntryErrorCodes.SchemaError, priorState, priorBridge, priorPackage);
     }
 
+    [TestCase("{ \"metadata\": null }")]
+    [TestCase("{}")]
+    public void Failed_resolve_null_or_missing_metadata_preserves_prior_session(string json)
+    {
+        var session = LoadedBalticWithMixedFriendly();
+        var priorState = session.State;
+        var priorBridge = session.Bridge;
+        var priorPackage = session.Package;
+        var path = Path.Combine(_tempDir, "no-metadata.scenario.json");
+        File.WriteAllText(path, json);
+
+        var result = session.TryLoadFromPath(path);
+
+        AssertNonMutatingFailure(session, result, PlayEntryErrorCodes.SchemaError, priorState, priorBridge, priorPackage);
+        Assert.That(result.Message, Does.Contain("metadata").IgnoreCase);
+    }
+
+    [Test]
+    public void Empty_metadata_object_still_resolves_default_policy()
+    {
+        var path = Path.Combine(_tempDir, "empty-metadata.scenario.json");
+        File.WriteAllText(path, "{ \"metadata\": {} }");
+        var session = new PlayEntrySession();
+
+        var result = session.TryLoadFromPath(path);
+
+        Assert.That(result.Succeeded, Is.True, result.Message);
+        Assert.That(session.Package!.PolicyId, Is.EqualTo("baltic-patrol"));
+        Assert.That(session.State.Phase, Is.EqualTo(SimulationPhase.Planning));
+    }
+
     [Test]
     public void Failed_resolve_unknown_policy_preserves_prior_session()
     {

@@ -24,7 +24,7 @@ All new, under `src/ProjectAegis.Delegation.UnityAdapter/PlayEntry/` (no `UnityE
 
 | File | Role |
 |------|------|
-| `PlayEntrySession.cs` | Package list + load → Planning; non-mutating failed resolve; staged mode/side; gated Begin; Reset → Planning |
+| `PlayEntrySession.cs` | Package list + load → Planning; non-mutating failed resolve; staged mode/side; gated Begin; Reset → Planning. Null or missing `metadata` returns `SCHEMA_ERROR` before `ScenarioPackage.FromDocument` (that method reads `Metadata.PolicyId`). |
 | `PlayEntryContracts.cs` | `PlaySide`, `PlayEntryErrorCodes`, `PlayEntryResult`, `PlayEntryState`, `BeginExecutionGate` |
 | `BriefingContentPresentation.cs` | Briefing panel model: package title/description + mission rows, or explicit missing-content state |
 | `C2ModeSelectorPresentation.cs` | Top-bar mode selector: Human / Mixed / AvA → `SimulationModeKind.Human` / `Mixed` / `AgentVsAgent` |
@@ -35,12 +35,12 @@ Mode application uses the existing façade `DelegationBridge.ConfigureSimulation
 
 ## Entry-path tests
 
-Project: `src/ProjectAegis.Delegation.UnityAdapter.Tests` · folder `PlayEntry/` · 51 tests (one `[TestCase]` ×3).
+Project: `src/ProjectAegis.Delegation.UnityAdapter.Tests` · folder `PlayEntry/` · 54 tests (mode `[TestCase]` ×3, plus null/missing metadata `[TestCase]` ×2).
 
 | Sprint row | Acceptance | Tests (`PlayEntrySessionTests` unless noted) |
 |------------|------------|-------|
 | S123-01 DRG-243 | Package list + load → Planning | `ListPackages_includes_available_baltic_patrol_package_in_deterministic_order`, `ListPackages_returns_empty_for_missing_directory`, `New_session_has_no_package_and_no_bridge`, `TryLoad_baltic_entry_enters_planning_with_package_bound_bridge`, `Successful_reload_replaces_bridge_and_clears_mode_and_side` |
-| S123-01 DRG-243 | Failed resolve is non-mutating, explicit error | `Failed_resolve_from_empty_session_leaves_session_empty`, `Failed_resolve_missing_file_preserves_prior_planning_session` (`FILE_UNREADABLE`), `Failed_resolve_malformed_json_preserves_prior_session` (`SCHEMA_ERROR`), `Failed_resolve_unknown_policy_preserves_prior_session` (`POLICY_UNRESOLVED`), `Failed_resolve_seed_outside_bridge_range_preserves_prior_session` (`SEED_UNSUPPORTED`), `Failed_resolve_unavailable_library_entry_preserves_prior_session` (`PACKAGE_UNAVAILABLE`), `Failed_resolve_during_execution_keeps_executing_session` |
+| S123-01 DRG-243 | Failed resolve is non-mutating, explicit error | `Failed_resolve_from_empty_session_leaves_session_empty`, `Failed_resolve_missing_file_preserves_prior_planning_session` (`FILE_UNREADABLE`), `Failed_resolve_malformed_json_preserves_prior_session` (`SCHEMA_ERROR`), `Failed_resolve_null_or_missing_metadata_preserves_prior_session` (`SCHEMA_ERROR` for `"metadata": null` and for a missing metadata key; empty `metadata: {}` still loads via `Empty_metadata_object_still_resolves_default_policy`), `Failed_resolve_unknown_policy_preserves_prior_session` (`POLICY_UNRESOLVED`), `Failed_resolve_seed_outside_bridge_range_preserves_prior_session` (`SEED_UNSUPPORTED`), `Failed_resolve_unavailable_library_entry_preserves_prior_session` (`PACKAGE_UNAVAILABLE`), `Failed_resolve_during_execution_keeps_executing_session` |
 | S123-03 W2-CORE-01 | Briefing content or explicit missing-content state | `PlayEntryPresentationTests`: `Briefing_without_package_reports_no_package_state`, `Briefing_for_baltic_package_shows_explicit_missing_content_and_existing_mission_rows`, `Briefing_binds_authored_title_and_description_when_present`, `Briefing_whitespace_description_is_missing_content_not_blank_text` |
 | S123-04 DRG-246 MODE-01 | Human / Mixed / AvA via façade | `PlayEntryPresentationTests`: `Mode_selector_offers_human_mixed_ava_mapped_to_simulation_mode_enum`, `Mode_selector_enabled_in_planning_and_marks_selection`, `Mode_selector_locks_after_begin`; session: `Selecting_each_mode_stages_it_without_touching_the_bridge` (×3), `Mode_and_side_selection_require_a_loaded_package`, `Begin_human_mode_applies_human_friendly_agent_opposing_via_facade`, `Begin_mixed_friendly_applies_human_on_friendly_side_via_facade`, `Begin_mixed_opposing_applies_human_on_opposing_side_via_facade`, `Begin_agent_vs_agent_applies_agents_on_both_sides_via_facade` |
 | S123-05 W2-MODE-01 | Side pick after mode | `OfferedSides_maps_each_simulation_mode`, `Side_pick_is_rejected_before_mode_selection`, `Side_not_offered_by_mode_is_rejected`, `Changing_mode_clears_side_the_new_mode_does_not_offer`, `Changing_mode_keeps_side_the_new_mode_still_offers`; `PlayEntryPresentationTests`: `Side_picker_hidden_until_mode_selected`, `Side_picker_after_human_mode_offers_friendly_only`, `Side_picker_after_mixed_mode_offers_both_sides_and_marks_pick`, `Side_picker_after_ava_mode_uses_observe_prompt` |
@@ -54,7 +54,7 @@ Project: `src/ProjectAegis.Delegation.UnityAdapter.Tests` · folder `PlayEntry/`
 export PATH="$HOME/.dotnet:$PATH"
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj -m:1 \
   --filter "FullyQualifiedName~ProjectAegis.Delegation.UnityAdapter.Tests.PlayEntry"
-# Passed! Failed: 0, Passed: 51, Total: 51
+# Passed! Failed: 0, Passed: 54, Total: 54
 
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj -m:1 \
   --filter PlayModeSmokeHarnessTests
