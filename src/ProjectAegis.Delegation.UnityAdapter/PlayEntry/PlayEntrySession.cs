@@ -4,6 +4,7 @@ using System.Text.Json;
 using Data.Catalog;
 using Data.Scenario;
 using ProjectAegis.Data.Scenario.Authoring;
+using Controllers;
 using Core;
 using Orchestration;
 using Targets;
@@ -29,6 +30,7 @@ public sealed class PlayEntrySession
     private SimulationModeKind? _mode;
     private PlaySide? _side;
     private int _generation;
+    private IReadOnlyList<PlayCommandedTarget> _commanded = Array.Empty<PlayCommandedTarget>();
 
     /// <param name="mvpEngagement">Bind the MVP engage session on each bridge (Unity host default).</param>
     /// <param name="catalog">Optional catalog reader forwarded to each bridge.</param>
@@ -56,6 +58,12 @@ public sealed class PlayEntrySession
             _mode,
             _side,
             _generation);
+
+    /// <summary>
+    /// Targets the player commands, captured at a successful Begin (those left human-controlled by the mode
+    /// configuration). Empty before Begin, in AgentVsAgent, and after load / reset.
+    /// </summary>
+    public IReadOnlyList<PlayCommandedTarget> CommandedTargets => _commanded;
 
     /// <summary>Scenario package browse list (CMD-27 library rows with pre-load feasibility).</summary>
     public static IReadOnlyList<ScenarioLibraryEntry> ListPackages(string? scenariosDir = null)
@@ -154,6 +162,7 @@ public sealed class PlayEntrySession
         _sourcePath = scenarioPath;
         _mode = null;
         _side = null;
+        _commanded = Array.Empty<PlayCommandedTarget>();
         _generation++;
         return PlayEntryResult.Ok($"Loaded '{scenarioId}' (policy {package.PolicyId}) into Planning.");
     }
@@ -264,7 +273,32 @@ public sealed class PlayEntrySession
             defaultTraits ?? PersonalityCatalog.All[0].Traits,
             agentAutonomy);
         Bridge.BeginExecution();
+        _commanded = CollectHumanControlled(friendly, opposing);
         return PlayEntryResult.Ok($"Executing in {mode} mode as {side}.");
+    }
+
+    private static IReadOnlyList<PlayCommandedTarget> CollectHumanControlled(
+        IReadOnlyList<ICommandableTarget> friendly,
+        IReadOnlyList<ICommandableTarget> opposing)
+    {
+        var commanded = new List<PlayCommandedTarget>(friendly.Count + opposing.Count);
+        foreach (var target in friendly)
+        {
+            if (target.Slot.Active is HumanController)
+            {
+                commanded.Add(new PlayCommandedTarget(target, PlaySide.Friendly));
+            }
+        }
+
+        foreach (var target in opposing)
+        {
+            if (target.Slot.Active is HumanController)
+            {
+                commanded.Add(new PlayCommandedTarget(target, PlaySide.Opposing));
+            }
+        }
+
+        return commanded;
     }
 
     /// <summary>
@@ -286,6 +320,7 @@ public sealed class PlayEntrySession
         Bridge = bridge;
         _mode = null;
         _side = null;
+        _commanded = Array.Empty<PlayCommandedTarget>();
         _generation++;
         return PlayEntryResult.Ok($"Reset '{Package.ScenarioId}' to Planning.");
     }

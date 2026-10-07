@@ -2,6 +2,7 @@ namespace ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 
 using Core;
 using Orchestration;
+using Targets;
 
 /// <summary>
 /// Side the player commands (or observes in AgentVsAgent). Maps onto
@@ -57,6 +58,12 @@ public sealed record PlayEntryState(
 
     public bool IsPlanning => HasPackage && Phase == SimulationPhase.Planning;
 }
+
+/// <summary>
+/// A target the player commands after Begin Execution (human-controlled when the mode was applied).
+/// Stays commanded after an Assign Agent hands it to an agent controller.
+/// </summary>
+public sealed record PlayCommandedTarget(ICommandableTarget Target, PlaySide Side);
 
 /// <summary>Begin Execution gate verdict (S123-06 W3-MODE-01): blocked reasons in display order.</summary>
 public sealed record BeginExecutionGate(IReadOnlyList<string> BlockedReasons)

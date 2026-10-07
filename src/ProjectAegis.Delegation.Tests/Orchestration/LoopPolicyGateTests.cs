@@ -37,6 +37,32 @@ public sealed class LoopPolicyGateTests
         Assert.That(verdict.Allowed, Is.EqualTo(expectedAllowed));
     }
 
+    [TestCase(PersonalityEditPolicy.Anytime, SimulationPhase.Executing, true)]
+    [TestCase(PersonalityEditPolicy.PlanningOnly, SimulationPhase.Planning, true)]
+    [TestCase(PersonalityEditPolicy.PlanningOnly, SimulationPhase.Executing, false)]
+    [TestCase(PersonalityEditPolicy.TieredRebrief, SimulationPhase.Planning, true)]
+    [TestCase(PersonalityEditPolicy.TieredRebrief, SimulationPhase.Executing, true)]
+    public void CanRebriefAgent_matrix(
+        PersonalityEditPolicy editPolicy,
+        SimulationPhase phase,
+        bool expectedAllowed)
+    {
+        var profile = new ScenarioPolicyProfile(
+            EffectivePolicy.DefaultFree,
+            personalityEditPolicy: editPolicy);
+
+        var verdict = LoopPolicyGate.CanRebriefAgent(profile, phase);
+
+        Assert.That(verdict.Allowed, Is.EqualTo(expectedAllowed));
+        Assert.That(verdict.DenialReason, expectedAllowed ? Is.Null : Is.Not.Empty);
+    }
+
+    [Test]
+    public void CanRebriefAgent_defaults_to_allow_without_scenario_policy()
+    {
+        Assert.That(LoopPolicyGate.CanRebriefAgent(null, SimulationPhase.Executing).Allowed, Is.True);
+    }
+
     [Test]
     public void CanEditAutonomy_always_allowed()
     {
