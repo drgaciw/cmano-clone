@@ -132,7 +132,7 @@ public sealed class ContactCombatCardSnapshot
         Array.Empty<ContactCombatCard>(),
         ContactCombatCardTokens.EmptyFingerprint);
 
-    /// <summary>Creates a snapshot. The card list is copied.</summary>
+    /// <summary>Creates a snapshot. The card list is copied into a read-only wrapper.</summary>
     public ContactCombatCardSnapshot(IReadOnlyList<ContactCombatCard>? cards, string? fingerprint)
     {
         if (cards is null || cards.Count == 0)
@@ -147,7 +147,7 @@ public sealed class ContactCombatCardSnapshot
                 copy[i] = cards[i];
             }
 
-            Cards = copy;
+            Cards = Array.AsReadOnly(copy);
         }
 
         Fingerprint = string.IsNullOrEmpty(fingerprint)
@@ -187,8 +187,15 @@ public static class ContactCombatCardProjection
         var provenanceKnown = TryFindUniqueProvenance(provenance, contactId, out var provenanceRow);
         var targetabilityKnown = TryFindUniqueTargetability(targetability, contactId, out var targetabilityRow);
         var bdaKnown = TryFindUniqueBda(assessments, contactId, out var bdaRow);
+        var identityProvenance = provenanceKnown ? provenanceRow : null;
+        var targetabilityAgrees = !targetabilityKnown
+            || targetabilityRow is null
+            || TargetAgrees(targetabilityRow.TargetId, identityProvenance, bdaKnown ? bdaRow?.TargetId : null);
+        var bdaAgrees = !bdaKnown
+            || bdaRow is null
+            || TargetAgrees(bdaRow.TargetId, identityProvenance, targetabilityKnown ? targetabilityRow?.TargetId : null);
         var engagementTargetId = ResolveEngagementTargetId(
-            provenanceKnown ? provenanceRow : null,
+            identityProvenance,
             targetabilityKnown ? targetabilityRow : null,
             bdaKnown ? bdaRow : null);
         var engagement = SelectLatestEngagement(afterAction, engagementTargetId);
@@ -199,9 +206,9 @@ public static class ContactCombatCardProjection
             provenanceKnown ? FormatFreshness(provenanceRow) : ContactCombatCardTokens.Unknown,
             provenanceKnown ? FormatConfidence(provenanceRow) : ContactCombatCardTokens.Unknown,
             FormatPosture(postureLabel),
-            targetabilityKnown ? FormatTargetability(targetabilityRow) : ContactCombatCardTokens.Unknown,
+            targetabilityKnown && targetabilityAgrees ? FormatTargetability(targetabilityRow) : ContactCombatCardTokens.Unknown,
             FormatEngagement(engagement),
-            bdaKnown ? FormatBda(bdaRow) : ContactCombatCardTokens.Unknown);
+            bdaKnown && bdaAgrees ? FormatBda(bdaRow) : ContactCombatCardTokens.Unknown);
     }
 
     /// <summary>
@@ -454,6 +461,33 @@ public static class ContactCombatCardProjection
         return true;
     }
 
+    /// <remarks>
+    /// An assessment row keyed by the selected contact id may still describe another target.
+    /// It renders only when its target matches every other non-empty target fact for the contact.
+    /// </remarks>
+    private static bool TargetAgrees(
+        string? target,
+        ContactProvenanceState? provenance,
+        string? otherAssessmentTarget)
+    {
+        if (string.IsNullOrEmpty(target))
+        {
+            return true;
+        }
+
+        if (provenance is not null
+            && (!SameOrEmpty(target, provenance.Source.TargetId)
+                || !SameOrEmpty(target, provenance.LastKnown.TargetId)))
+        {
+            return false;
+        }
+
+        return SameOrEmpty(target, otherAssessmentTarget);
+    }
+
+    private static bool SameOrEmpty(string target, string? other) =>
+        string.IsNullOrEmpty(other) || string.Equals(target, other, StringComparison.Ordinal);
+
     private static string? ResolveEngagementTargetId(
         ContactProvenanceState? provenance,
         TargetabilityAcceptContactRow? targetability,
@@ -500,6 +534,10 @@ public static class ContactCombatCardProjection
         }
     }
 
+    /// <remarks>
+    /// The ledger is emitted in combat-event order. Same-tick attempts are not re-sorted by
+    /// correlation id, phase, or other fields; the last matching row is the latest engagement.
+    /// </remarks>
     private static AfterActionLedgerEntry? SelectLatestEngagement(
         AfterActionLedgerSnapshot? afterAction,
         string? targetId)
@@ -509,69 +547,16 @@ public static class ContactCombatCardProjection
             return null;
         }
 
-        AfterActionLedgerEntry? best = null;
-        for (var i = 0; i < afterAction.Entries.Count; i++)
+        for (var i = afterAction.Entries.Count - 1; i >= 0; i--)
         {
             var entry = afterAction.Entries[i];
-            if (!string.Equals(entry.TargetId, targetId, StringComparison.Ordinal))
+            if (string.Equals(entry.TargetId, targetId, StringComparison.Ordinal))
             {
-                continue;
-            }
-
-            if (best is null || CompareEngagement(entry, best) > 0)
-            {
-                best = entry;
+                return entry;
             }
         }
 
-        return best;
-    }
-
-    private static int CompareEngagement(AfterActionLedgerEntry left, AfterActionLedgerEntry right)
-    {
-        var tick = left.SimTick.CompareTo(right.SimTick);
-        if (tick != 0)
-        {
-            return tick;
-        }
-
-        var time = left.SimTime.CompareTo(right.SimTime);
-        if (time != 0)
-        {
-            return time;
-        }
-
-        var correlation = left.CorrelationId.CompareTo(right.CorrelationId);
-        if (correlation != 0)
-        {
-            return correlation;
-        }
-
-        var phase = ((int)left.Phase).CompareTo((int)right.Phase);
-        if (phase != 0)
-        {
-            return phase;
-        }
-
-        var shooter = string.Compare(left.ShooterId, right.ShooterId, StringComparison.Ordinal);
-        if (shooter != 0)
-        {
-            return shooter;
-        }
-
-        var weapon = string.Compare(left.WeaponFamilyId, right.WeaponFamilyId, StringComparison.Ordinal);
-        if (weapon != 0)
-        {
-            return weapon;
-        }
-
-        var outcome = string.Compare(left.Outcome, right.Outcome, StringComparison.Ordinal);
-        if (outcome != 0)
-        {
-            return outcome;
-        }
-
-        return string.Compare(left.ExplanationRef, right.ExplanationRef, StringComparison.Ordinal);
+        return null;
     }
 
     private static string FormatProvenance(ContactProvenanceState? row)

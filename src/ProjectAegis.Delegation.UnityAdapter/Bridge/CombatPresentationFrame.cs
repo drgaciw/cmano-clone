@@ -76,11 +76,10 @@ public static class CombatPresentationFrameBridge
             foreach (var entry in log.ChronologicalEntries())
                 if (entry.SimTime <= simTime) bounded.Append(entry);
         }
-        var explanations = bounded.Engagements.Select(e => new CombatEngagementExplanation(
-            e.SequenceId, e.ShooterTargetId.Value,
-            e.VictimTargetId?.Value ?? CombatEventLogProjection.UnknownTargetId,
-            e.HasFireControlTrack, e.SalvoSize)).ToArray();
-        return new CombatPresentationFrame(CombatEventLogProjection.Build(bounded, simTime),
+        var events = CombatEventLogProjection.Build(bounded, simTime);
+        var explanations = events.Execution.Select(f => new CombatEngagementExplanation(
+            f.CorrelationId, f.ShooterId, f.TargetId, f.HasFireControlTrack, f.SalvoSize)).ToArray();
+        return new CombatPresentationFrame(events,
             contacts.SimTime > simTime || contacts.SimTick > simTime || contacts.Contacts.Any(c => c.LastSimTime > simTime)
                 || contacts.KillChain.Contacts.Any(c => c.LastSimTime > simTime)
                 || contacts.KillChain.Transitions.Any(c => c.SimTime > simTime)
