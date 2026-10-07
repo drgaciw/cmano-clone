@@ -47,6 +47,15 @@ W2-SYM-02 mono a11y → prefer S127+.
 
 W2-SYM-05 HOLD; SYM-01/06 HOLD; CMD-13 LOD; SWARM-27…30; full SYM-04 atlas.
 
+## Execution record — headless (2026-10-06)
+
+MIL-only headless delivery of S126-01…07 on `cursor/s126-symbology-subset-7fee`; see [evidence pack](../qa/evidence/s126-symbology-subset-evidence-2026-10-06.md) and [N-GATE-SYM-01 MIL gate pack](../../docs/superpowers/reviews/2026-10-06-n-gate-sym-01-mil-gate-pack.md).
+
+- **SYM-02 prerequisite:** waived; minimal headless profile scaffold added (no prior scaffold existed).
+- **S126-01 freeze:** W2-SYM-05 affiliation expansion stays HOLD; no APP-6 / MIL-STD-2525 certification claim.
+- **CIV:** pending DRG-232 scope decision; no dual-profile completion claim.
+- **Pending:** profile screenshots and Unity legend binding (Editor), QA execution sign-off, DRG-208 (unchanged).
+
 ## Definition of Done
 
 - [ ] ≥3 scoped naval types; dual-profile only with explicit CIV scope decision, otherwise MIL-only and CIV pending
