@@ -5,7 +5,7 @@ using Core;
 using Orchestration;
 using Targets;
 using Traits;
-using Tests.PlayEntry;
+using PlayEntry;
 using ProjectAegis.Delegation.UnityAdapter.PlayDelegation;
 using ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 using ProjectAegis.Sim.Policy;
