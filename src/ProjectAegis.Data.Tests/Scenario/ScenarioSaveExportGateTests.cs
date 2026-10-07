@@ -1,0 +1,124 @@
+using ProjectAegis.Data.Catalog;
+using ProjectAegis.Data.Scenario.Authoring;
+using ProjectAegis.Data.Validation;
+using Xunit;
+
+namespace ProjectAegis.Data.Tests.Scenario;
+
+/// <summary>
+/// S125-04 / AUTH-04 (AME-6.5 / AC-12): Save persists a draft (allowed while invalid) and never
+/// produces an export artifact; Export is the validated artifact and writes nothing while the gate
+/// reports blocking findings.
+/// </summary>
+public sealed class ScenarioSaveExportGateTests : IDisposable
+{
+    private readonly string _dir = Path.Combine(Path.GetTempPath(), $"aegis-s125-save-export-{Guid.NewGuid():N}");
+
+    public ScenarioSaveExportGateTests() => Directory.CreateDirectory(_dir);
+
+    public void Dispose()
+    {
+        if (Directory.Exists(_dir))
+        {
+            Directory.Delete(_dir, recursive: true);
+        }
+    }
+
+    private string WriteInvalidDraft()
+    {
+        var path = Path.Combine(_dir, "draft.json");
+        var editor = ScenarioDocumentEditor.CreateNew(dbRef: "baltic_patrol");
+        editor.AddStrikeMission("strike-1", new[] { "u1" }, Array.Empty<string>());
+        editor.Save(path);
+        return path;
+    }
+
+    [Fact]
+    public void Export_artifact_path_is_distinct_from_draft_path()
+    {
+        var draft = Path.Combine(_dir, "baltic.json");
+
+        var artifact = ScenarioSaveExportGate.ExportArtifactPathFor(draft);
+
+        Assert.NotEqual(draft, artifact);
+        Assert.EndsWith(ScenarioSaveExportGate.ExportArtifactSuffix, artifact, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SaveDraft_on_invalid_document_saves_and_writes_no_export_artifact()
+    {
+        var draftPath = WriteInvalidDraft();
+        using var session = ScenarioAuthoringSession.Open(draftPath);
+        var mutation = session.Bus.UpsertUnit(
+            session.EditVersion,
+            new ScenarioOrbatUnitDto { Id = "u1", SideId = "blue", PlatformId = "u1", Lat = 57, Lon = 20 },
+            save: false);
+        Assert.True(mutation.Ok, mutation.ErrorMessage);
+        Assert.True(session.IsDirty);
+
+        var outcome = ScenarioSaveExportGate.SaveDraft(session);
+
+        Assert.True(outcome.Saved);
+        Assert.Equal(draftPath, outcome.DraftPath);
+        Assert.False(outcome.ExportArtifactWritten);
+        Assert.True(outcome.BlockingFindingCount > 0);
+        Assert.False(session.IsDirty);
+        Assert.Contains("draft", outcome.StatusText, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("not exported", outcome.StatusText, StringComparison.OrdinalIgnoreCase);
+        Assert.False(File.Exists(ScenarioSaveExportGate.ExportArtifactPathFor(draftPath)));
+    }
+
+    [Fact]
+    public void Export_of_saved_invalid_draft_is_blocked_with_findings_and_writes_nothing()
+    {
+        var draftPath = WriteInvalidDraft();
+        var artifactPath = ScenarioSaveExportGate.ExportArtifactPathFor(draftPath);
+        var document = ScenarioDocumentJsonLoader.LoadFromFile(draftPath);
+
+        var outcome = ScenarioSaveExportGate.Export(
+            document,
+            InMemoryCatalogReader.BalticPatrolFixture(),
+            artifactPath,
+            draftPath);
+
+        Assert.False(outcome.Allowed);
+        Assert.Null(outcome.ArtifactPath);
+        Assert.Contains(outcome.BlockingFindings, f => f.Code == "STRIKE_NO_TARGETS" && f.Severity == ValidationSeverity.Error);
+        Assert.Contains("blocked", outcome.StatusText, StringComparison.OrdinalIgnoreCase);
+        Assert.False(File.Exists(artifactPath));
+    }
+
+    [Fact]
+    public void Export_allowed_writes_artifact_and_leaves_draft_untouched()
+    {
+        var draftPath = Path.Combine(_dir, "ok.json");
+        var editor = ScenarioDocumentEditor.CreateNew(dbRef: "baltic_patrol");
+        editor.Save(draftPath);
+        var draftBytes = File.ReadAllBytes(draftPath);
+        var artifactPath = ScenarioSaveExportGate.ExportArtifactPathFor(draftPath);
+
+        var outcome = ScenarioSaveExportGate.Export(
+            ScenarioDocumentJsonLoader.LoadFromFile(draftPath),
+            InMemoryCatalogReader.BalticPatrolFixture(),
+            artifactPath,
+            draftPath);
+
+        Assert.True(outcome.Allowed, string.Join("; ", outcome.BlockingFindings.Select(f => f.Code)));
+        Assert.Equal(artifactPath, outcome.ArtifactPath);
+        Assert.True(File.Exists(artifactPath));
+        Assert.Empty(outcome.BlockingFindings);
+        Assert.Equal(draftBytes, File.ReadAllBytes(draftPath));
+    }
+
+    [Fact]
+    public void Export_refuses_to_overwrite_the_draft()
+    {
+        var draftPath = WriteInvalidDraft();
+
+        Assert.Throws<ArgumentException>(() => ScenarioSaveExportGate.Export(
+            ScenarioDocumentJsonLoader.LoadFromFile(draftPath),
+            InMemoryCatalogReader.BalticPatrolFixture(),
+            draftPath,
+            draftPath));
+    }
+}
