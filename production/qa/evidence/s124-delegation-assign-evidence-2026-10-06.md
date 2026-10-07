@@ -73,11 +73,11 @@ dotnet test src/ProjectAegis.Delegation.Tests/ProjectAegis.Delegation.Tests.cspr
 
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj -m:1 \
   --filter "FullyQualifiedName~ProjectAegis.Delegation.UnityAdapter.Tests.PlayDelegation"
-# Passed! Failed: 0, Passed: 21, Total: 21
+# Passed! Failed: 0, Passed: 22, Total: 22
 
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj -m:1 \
   --filter "FullyQualifiedName~ProjectAegis.Delegation.UnityAdapter.Tests.PlayEntry"
-# Passed! Failed: 0, Passed: 51, Total: 51   (S123 entry path unchanged)
+# Passed! Failed: 0, Passed: 54, Total: 54   (includes S123 null/missing metadata SCHEMA_ERROR)
 
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj -m:1 \
   --filter PlayModeSmokeHarnessTests
