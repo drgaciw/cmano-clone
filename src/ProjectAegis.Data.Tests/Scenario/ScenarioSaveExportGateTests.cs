@@ -84,6 +84,8 @@ public sealed class ScenarioSaveExportGateTests : IDisposable
         Assert.False(outcome.Allowed);
         Assert.Null(outcome.ArtifactPath);
         Assert.Contains(outcome.BlockingFindings, f => f.Code == "STRIKE_NO_TARGETS" && f.Severity == ValidationSeverity.Error);
+        Assert.Contains(outcome.Report.Findings, f => f.Code == "STRIKE_NO_TARGETS");
+        Assert.True(outcome.BlockingFindings.All(outcome.Report.Findings.Contains), "blocking findings must come from the report");
         Assert.Contains("blocked", outcome.StatusText, StringComparison.OrdinalIgnoreCase);
         Assert.False(File.Exists(artifactPath));
     }
@@ -107,6 +109,9 @@ public sealed class ScenarioSaveExportGateTests : IDisposable
         Assert.Equal(artifactPath, outcome.ArtifactPath);
         Assert.True(File.Exists(artifactPath));
         Assert.Empty(outcome.BlockingFindings);
+        Assert.DoesNotContain(outcome.Report.Findings, f => f.Severity == ValidationSeverity.Error);
+        Assert.Equal(0, outcome.TransformCount);
+        Assert.Contains("0 logged transforms", outcome.StatusText, StringComparison.Ordinal);
         Assert.Equal(draftBytes, File.ReadAllBytes(draftPath));
     }
 

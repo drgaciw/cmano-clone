@@ -52,7 +52,6 @@ public static class PlatformImportQuarantineProjection
         PlatformImportDropCounts? dropCounts = null,
         IReadOnlyList<ValidationFinding>? latLonFindings = null)
     {
-        entries ??= Array.Empty<PlatformImportQuarantineEntry>();
         var rows = entries
             .OrderBy(e => e.EntityKind, StringComparer.Ordinal)
             .ThenBy(e => e.PlatformId, StringComparer.Ordinal)

@@ -22,7 +22,7 @@ public sealed class ScenarioLatLonDiagnosticsTests
         var d = ScenarioLatLonDiagnostics.Check(95, 20);
 
         Assert.NotNull(d);
-        Assert.Equal(ScenarioLatLonDiagnostics.LatOutOfRange, d!.Code);
+        Assert.Equal(ScenarioLatLonDiagnostics.LatOutOfRange, d.Code);
         Assert.Equal("lat", d.Field);
         Assert.Contains("95", d.Message, StringComparison.Ordinal);
         Assert.Contains("between -90 and 90", d.Message, StringComparison.Ordinal);
@@ -36,7 +36,7 @@ public sealed class ScenarioLatLonDiagnosticsTests
         var d = ScenarioLatLonDiagnostics.Check(57, -181.5);
 
         Assert.NotNull(d);
-        Assert.Equal(ScenarioLatLonDiagnostics.LonOutOfRange, d!.Code);
+        Assert.Equal(ScenarioLatLonDiagnostics.LonOutOfRange, d.Code);
         Assert.Equal("lon", d.Field);
         Assert.Contains("-181.5", d.Message, StringComparison.Ordinal);
         Assert.Contains("between -180 and 180", d.Message, StringComparison.Ordinal);
@@ -49,7 +49,7 @@ public sealed class ScenarioLatLonDiagnosticsTests
         var d = ScenarioLatLonDiagnostics.Check(double.NaN, 20);
 
         Assert.NotNull(d);
-        Assert.Equal(ScenarioLatLonDiagnostics.NotFinite, d!.Code);
+        Assert.Equal(ScenarioLatLonDiagnostics.NotFinite, d.Code);
         Assert.Contains("finite", d.Message, StringComparison.Ordinal);
     }
 
@@ -62,7 +62,7 @@ public sealed class ScenarioLatLonDiagnosticsTests
         var d = ScenarioLatLonDiagnostics.CheckText(latText, "20.5", out _, out _);
 
         Assert.NotNull(d);
-        Assert.Equal(ScenarioLatLonDiagnostics.NotNumeric, d!.Code);
+        Assert.Equal(ScenarioLatLonDiagnostics.NotNumeric, d.Code);
         Assert.Equal("lat", d.Field);
         Assert.Equal(latText, d.RawValue);
         Assert.Contains("decimal", d.Message, StringComparison.Ordinal);

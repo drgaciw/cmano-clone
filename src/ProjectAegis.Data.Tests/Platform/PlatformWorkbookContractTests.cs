@@ -24,11 +24,11 @@ public sealed class PlatformWorkbookContractTests
         Loadouts: new[] { new CatalogLoadout("u1", "asuw-default", "ASuW", "asuw", IsDefault: true) },
         Magazines: new[] { new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "mvp-weapon", 16, 0, 32) },
         Comms: new[] { new CatalogCommsBinding("u1", "NATO_TADIL_J") },
-        Links: new[] { new CatalogLinkEntry("NATO_TADIL_J", "NATO Link 16", CatalogLinkTypes.Tactical, LatencyMsNominal: 50) },
+        Links: new[] { new CatalogLinkEntry("NATO_TADIL_J", "NATO Link 16", LatencyMsNominal: 50) },
         Mobility: new[] { new CatalogMobility("u1", MaxSpeedKnots: 30, CruiseSpeedKnots: 18) },
         Signatures: new[] { new CatalogSignature("u1", RcsBandDbsm: 10) },
-        Emcon: new[] { new CatalogEmcon("u1", "silent", "radar-1", "off") },
-        Damage: new[] { new CatalogPlatformDamage("u1", 120, 25, 0) },
+        Emcon: new[] { new CatalogEmcon("u1", "silent", "radar-1") },
+        Damage: new[] { new CatalogPlatformDamage("u1", 120, 25) },
         Swarms: new[] { new CatalogSwarmPlatform("u1", MaxDrones: 4) });
 
     private static PlatformWorkbook Export(PlatformCatalogExportData data) =>
@@ -111,6 +111,9 @@ public sealed class PlatformWorkbookContractTests
         Assert.Contains(drift, d => d.Kind == PlatformWorkbookContractDriftKind.MissingColumn && d.Sheet == "Mounts" && d.Column == "ArcDeg");
         Assert.Contains(drift, d => d.Kind == PlatformWorkbookContractDriftKind.UnknownSheet && d.Sheet == "Scratch");
         Assert.Contains(drift, d => d.Kind == PlatformWorkbookContractDriftKind.MissingSheet && d.Sheet == "Emcon");
+        Assert.DoesNotContain(drift, d => string.IsNullOrWhiteSpace(d.Detail));
+        Assert.Contains(drift, d => d.Column == "Notes" && d.Detail.Contains("values are not imported", StringComparison.Ordinal));
+        Assert.Contains(drift, d => d.Sheet == "Scratch" && d.Detail.Contains("rows are not imported", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -126,7 +129,8 @@ public sealed class PlatformWorkbookContractTests
 
         var drift = PlatformWorkbookContract.CheckDrift(workbook);
 
-        Assert.Contains(drift, d => d.Kind == PlatformWorkbookContractDriftKind.ColumnOrder && d.Sheet == "Signatures");
+        var order = Assert.Single(drift, d => d.Kind == PlatformWorkbookContractDriftKind.ColumnOrder && d.Sheet == "Signatures");
+        Assert.StartsWith("expected [PlatformId,RcsBandDbsm,", order.Detail, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -217,13 +221,13 @@ public sealed class PlatformWorkbookContractTests
         var plan = ImporterFor(source).Plan(edited);
 
         Assert.Equal(2, plan.LatLonFindings.Count);
-        Assert.All(plan.LatLonFindings, f =>
+        foreach (var finding in plan.LatLonFindings)
         {
-            Assert.Equal(PlatformWorkbookLatLonDiagnostics.FindingCode, f.Code);
-            Assert.Equal(ValidationSeverity.Warning, f.Severity);
-            Assert.Equal("u1", f.UnitId);
-            Assert.Contains("Mission Editor", f.Message, StringComparison.Ordinal);
-        });
+            Assert.Equal(PlatformWorkbookLatLonDiagnostics.FindingCode, finding.Code);
+            Assert.Equal(ValidationSeverity.Warning, finding.Severity);
+            Assert.Equal("u1", finding.UnitId);
+            Assert.Contains("Mission Editor", finding.Message, StringComparison.Ordinal);
+        }
         Assert.Contains(plan.LatLonFindings, f => f.Message.Contains("between -90 and 90", StringComparison.Ordinal));
         Assert.Contains(plan.LatLonFindings, f => f.Message.Contains("decimal", StringComparison.Ordinal));
         Assert.False(plan.Blocked);
@@ -294,7 +298,7 @@ public sealed class PlatformWorkbookContractTests
             if (i != row) return r;
             var copy = r.ToArray();
             copy[col] = copy[col] == value ? value + "1" : value;
-            return (IReadOnlyList<string>)copy;
+            return copy;
         }).ToArray();
         return Replace(workbook, sheet with { Rows = rows });
     }

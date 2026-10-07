@@ -42,10 +42,18 @@ public sealed class PlatformImportQuarantineProjectionTests
         Assert.That(orphan.ActionHint, Does.Contain("Add PlatformId 'ghost'"));
         Assert.That(orphan.DisplayLine, Does.StartWith("QUARANTINE [mobility] ghost — Unknown platform"));
         Assert.That(orphan.UssClass, Does.Contain("platform-import-quarantine-row--mobility"));
-        Assert.That(state.Rows.Single(r => r.EntityId == "s-low").ActionHint, Does.Contain("TrlLevel"));
+        Assert.That(orphan.SourceSheet, Is.EqualTo("Mobility"));
+        var lowTrl = state.Rows.Single(r => r.EntityId == "s-low");
+        Assert.That(lowTrl.ActionHint, Does.Contain("TrlLevel"));
+        Assert.That(lowTrl.SourceSheet, Is.EqualTo("Sensors"));
+        Assert.That(lowTrl.Detail, Is.EqualTo("TrlLevel=2"));
         Assert.That(state.Rows.Single(r => r.EntityId == "s-prov").ActionHint, Does.Contain("approved"));
         var orphanCount = state.ReasonCounts.Single(c => c.ReasonCode == PlatformWorkbookValidator.PhaseBOrphanPlatform);
         Assert.That(orphanCount.Count, Is.EqualTo(2));
+        Assert.That(orphanCount.ReasonLabel, Is.EqualTo("Unknown platform"));
+        Assert.That(
+            state.ReasonCounts.Single(c => c.ReasonCode == "trl_below_minimum").ReasonLabel,
+            Is.EqualTo("TRL below import minimum"));
     }
 
     [Test]

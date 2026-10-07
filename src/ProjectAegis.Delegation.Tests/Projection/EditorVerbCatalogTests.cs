@@ -39,6 +39,26 @@ public sealed class EditorVerbCatalogTests
     }
 
     [Test]
+    public void Every_verb_has_a_description_and_the_surface_its_id_names()
+    {
+        foreach (var entry in Entries)
+        {
+            Assert.That(entry.Description, Is.Not.Empty, entry.VerbId);
+            var expectedSurface = entry.VerbId.Split('.')[0] switch
+            {
+                "pe" => EditorSurface.PlatformEditor,
+                "me" => EditorSurface.MissionEditor,
+                "catalog" => EditorSurface.CatalogTools,
+                var prefix => throw new AssertionException($"{entry.VerbId}: unknown verb prefix '{prefix}'"),
+            };
+            Assert.That(entry.Surface, Is.EqualTo(expectedSurface), entry.VerbId);
+        }
+
+        Assert.That(EditorVerbCatalog.Get("pe.propose").Description, Does.Contain("until Approve"));
+        Assert.That(EditorVerbCatalog.Get("me.save").Description, Does.Contain("no write gate"));
+    }
+
+    [Test]
     public void Every_declared_gate_method_exists_on_IWriteGate_and_matches_operation()
     {
         var gateMethods = typeof(IWriteGate).GetMethods().Select(m => m.Name).ToHashSet(StringComparer.Ordinal);
@@ -221,11 +241,11 @@ public sealed class EditorVerbCatalogTests
         Loadouts: new[] { new CatalogLoadout("u1", "asuw-default", "ASuW", "asuw", IsDefault: true) },
         Magazines: new[] { new CatalogMagazineEntry("u1", "asuw-default", "vls-fwd", "mvp-weapon", 16, 0, 32) },
         Comms: new[] { new CatalogCommsBinding("u1", "NATO_TADIL_J") },
-        Links: new[] { new CatalogLinkEntry("NATO_TADIL_J", "NATO Link 16", CatalogLinkTypes.Tactical, LatencyMsNominal: 50) },
+        Links: new[] { new CatalogLinkEntry("NATO_TADIL_J", "NATO Link 16", LatencyMsNominal: 50) },
         Mobility: new[] { new CatalogMobility("u1", MaxSpeedKnots: 30) },
         Signatures: new[] { new CatalogSignature("u1", RcsBandDbsm: 10) },
-        Emcon: new[] { new CatalogEmcon("u1", "silent", "radar-1", "off") },
-        Damage: new[] { new CatalogPlatformDamage("u1", 120, 25, 0) },
+        Emcon: new[] { new CatalogEmcon("u1", "silent", "radar-1") },
+        Damage: new[] { new CatalogPlatformDamage("u1", 120, 25) },
         Swarms: new[] { new CatalogSwarmPlatform("u1", MaxDrones: 4) });
 
     private static PlatformWorkbook Edit(PlatformWorkbook workbook)

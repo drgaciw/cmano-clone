@@ -112,5 +112,5 @@ public static class EditorVerbCatalog
 
     /// <summary>First word of a label — the verb a user reads.</summary>
     public static string VerbWord(string label) =>
-        (label ?? string.Empty).Trim().Split(' ', 2)[0];
+        label.Trim().Split(' ', 2)[0];
 }
