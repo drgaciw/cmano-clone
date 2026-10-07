@@ -29,6 +29,8 @@ public sealed class ScenarioValidationEngine : IScenarioValidationEngine
         ValidationRules.EventGraphComplexityRule(scenario, config, findings); // ADR-016 S84: soft warnings + hard 32-cond cap (never blocks on soft)
         // ME-W2: pure event static analysis as warnings (export honesty; does not block at Error floor)
         findings.AddRange(EventStaticAnalyzer.Analyze(scenario));
+        // DRG-345 / AME-6.11: roles the Play backend does not execute block Export/Play (Save is ungated).
+        findings.AddRange(MissionRoleCapabilityManifest.EvaluateFindings(scenario));
         return ValidationReport.FromFindings(findings);
     }
 }
