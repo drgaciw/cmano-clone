@@ -44,7 +44,7 @@ public sealed class AgentController : IController
 
     public IPolicy Policy { get; }
 
-    public double AttentionBudget { get; }
+    public double AttentionBudget { get; private set; }
 
     public AgentExperienceBlob Experience { get; }
 
@@ -78,6 +78,9 @@ public sealed class AgentController : IController
     }
 
     public void RebindTraits(TraitVector traits) => _traits = traits;
+
+    /// <summary>Apply a new attention budget without rebuilding the controller (rebrief).</summary>
+    public void RebindAttentionBudget(double attentionBudget) => AttentionBudget = attentionBudget;
 
     public IReadOnlyList<Order> DrainIssuedOrders(ulong currentSimTick)
     {

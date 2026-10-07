@@ -28,6 +28,16 @@ public sealed record PlatformImportPlan(
     /// </summary>
     public IReadOnlyList<PlatformImportQuarantineEntry> QuarantineEntries { get; init; } =
         Array.Empty<PlatformImportQuarantineEntry>();
+
+    /// <summary>S125-06 / AUTH-08: sheet/column deviations from <see cref="PlatformWorkbookContract"/>.</summary>
+    public IReadOnlyList<PlatformWorkbookContractDrift> ContractDrift { get; init; } =
+        Array.Empty<PlatformWorkbookContractDrift>();
+
+    /// <summary>S125-06 / AUTH-08: rows/fields that will not be staged (plan-time quarantine only).</summary>
+    public PlatformImportDropCounts DropCounts { get; init; } = PlatformImportDropCounts.Empty;
+
+    /// <summary>S125-08 / AUTH-09: non-blocking, actionable warnings for invalid Platforms lat/lon cells.</summary>
+    public IReadOnlyList<ValidationFinding> LatLonFindings { get; init; } = Array.Empty<ValidationFinding>();
 }
 
 /// <summary>Outcome of staging an unblocked plan through <see cref="ProjectAegis.Data.WriteGate.IWriteGate"/>.</summary>
@@ -52,4 +62,7 @@ public sealed record PlatformImportResult(
     /// </summary>
     public IReadOnlyList<PlatformImportQuarantineEntry> QuarantineEntries { get; init; } =
         Array.Empty<PlatformImportQuarantineEntry>();
+
+    /// <summary>S125-06 / AUTH-08: plan drop counts with <c>QuarantinedRows</c> including stage-time quarantine.</summary>
+    public PlatformImportDropCounts DropCounts { get; init; } = PlatformImportDropCounts.Empty;
 }

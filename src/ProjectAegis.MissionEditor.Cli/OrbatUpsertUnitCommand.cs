@@ -77,6 +77,10 @@ public static class OrbatUpsertUnitCommand
                 ex.Message,
                 new { currentEditVersion = ex.CurrentEditVersion, fileHash = ex.FileHash });
         }
+        catch (ScenarioLatLonException ex)
+        {
+            return McpToolResult.WriteError(output, ex.Code, ex.Message);
+        }
         catch (InvalidOperationException ex)
         {
             return McpToolResult.WriteError(output, "INVALID_UNIT", ex.Message);
