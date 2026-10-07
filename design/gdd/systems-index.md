@@ -2,7 +2,7 @@
 
 > **Status:** Draft  
 > **Created:** 2026-05-29  
-> **Last Updated:** 2026-10-07 (DRG-256: ADR-005 supersession — managed world-state registries)  
+> **Last Updated:** 2026-10-07 (DRG-256: caller-owned snapshots and service registries; ADR-005 DOTS store superseded)  
 > **Source Concept:** `design/gdd/game-concept.md`  
 > **Requirements traceability:** `Game-Requirements/cmo-manual-traceability.md`
 
@@ -10,7 +10,7 @@
 
 ## Overview
 
-Project Aegis is a **theater-level military simulation** with a **deterministic, headless-first managed C# sim core** (world state in managed C# registries; the [ADR-005](../../docs/architecture/adr-005-dots-sim-core.md) DOTS/ECS world store was **superseded** 2026-07-07), a **delegation layer** (already prototyped in `ProjectAegis.Delegation`), **data-driven platforms** (CMANO-scale DB), and **agentic authoring** (mission editor, MCP). Systems below map CMO manual coverage to implementable modules and link to requirement docs **13–20**.
+Project Aegis is a **theater-level military simulation** with a **deterministic, headless-first managed C# sim core**. Per-tick position, contacts, engagement counts, and liveness come from caller-owned `ISimWorldSnapshot` implementations; entity binding is `TargetRegistry` in `ProjectAegis.Delegation.UnityAdapter/Bridge`; kill, BDA, and policy registries sit beside immutable service registries such as `DomainValidatorRegistry` (validators, not world state). The [ADR-005](../../docs/architecture/adr-005-dots-sim-core.md) DOTS/ECS world store was **superseded** 2026-07-07. A **delegation layer** (already prototyped in `ProjectAegis.Delegation`), **data-driven platforms** (CMANO-scale DB), and **agentic authoring** (mission editor, MCP) sit on that core. Systems below map CMO manual coverage to implementable modules and link to requirement docs **13–20**.
 
 ---
 
@@ -18,7 +18,7 @@ Project Aegis is a **theater-level military simulation** with a **deterministic,
 
 | # | System Name | Category | Priority | Status | Req Doc | GDD | Depends On |
 |---|-------------|----------|----------|--------|---------|-----|------------|
-| 1 | Simulation Core & Time | Sim Core | MVP | In Review (S19-06 refresh; DRG-256 managed-registry honesty) | 03, 08 | [simulation-core-time.md](simulation-core-time.md) — managed C# registries; DOTS world store superseded | — |
+| 1 | Simulation Core & Time | Sim Core | MVP | In Review (S19-06 refresh; DRG-256 snapshot/registry honesty) | 03, 08 | [simulation-core-time.md](simulation-core-time.md) — caller-owned snapshots, `TargetRegistry`, service registries; DOTS world store superseded | — |
 | 2 | Order Log & Replay | Sim Core | MVP | In Progress (WORLD_HASH; checkpoints pending) | 17 | [order-log-replay.md](order-log-replay.md) | 1 |
 | 3 | Policy, ROE, EMCON, WRA | Sim Core | MVP | Partial (EMCON scenario; engage unification pending) | 13 | [policy-roe-emcon-wra.md](policy-roe-emcon-wra.md) | 1, 2 |
 | 4 | Platform Database | Content | MVP | Partial (DATA-1 scaffold; basePd epic ready) | 06 | — | — |
@@ -68,7 +68,7 @@ Project Aegis is a **theater-level military simulation** with a **deterministic,
 
 ### Foundation Layer
 
-1. **Simulation Core & Time** — fixed tick, seed, world state in managed C# registries (headless-first; ADR-005 DOTS/ECS world store superseded)  
+1. **Simulation Core & Time** — fixed tick, seed, caller-owned `ISimWorldSnapshot` picture plus `TargetRegistry` (headless-first; ADR-005 DOTS/ECS world store superseded; `DomainValidatorRegistry` is a validator service, not that picture)  
 2. **Platform Database** — units, sensors, weapons, magazines  
 3. **Order Log & Replay** — extend `DecisionLog`; contract for all subsystems  
 
@@ -133,7 +133,7 @@ Project Aegis is a **theater-level military simulation** with a **deterministic,
 | 3 | ~~Order log GDD~~ | Done → `order-log-replay.md` |
 | 4 | ~~Sim core GDD~~ | Done → `simulation-core-time.md` |
 | 5 | ~~Setup engine~~ | Unity 6.3 LTS → `docs/engine-reference/unity/` |
-| 6 | ~~ADRs 001–005~~ | **Accepted** (ADR-005 DOTS/ECS world state later **superseded** 2026-07-07 — managed headless-first) |
+| 6 | ~~ADRs 001–005~~ | **Accepted** (ADR-005 DOTS/ECS world state later **superseded** 2026-07-07 — managed headless-first snapshots and registries, not a DOTS store) |
 | 7 | ~~`ProjectAegis.Sim` scaffold~~ | `src/ProjectAegis.Sim` + tests |
 | 8 | ~~Engagement resolver stub~~ | `IEngagementResolver` in `ProjectAegis.Sim.Engage` |
 | 9 | ~~Engagement pipeline wired~~ | `SimTickPipeline` + `SimulationSession` |
@@ -146,7 +146,7 @@ Project Aegis is a **theater-level military simulation** with a **deterministic,
 
 **Recommended next GDD:** **Order Log & Replay** (system 2) — resolves design-review blocker C1 (`DecisionLog` vs doc 17).
 
-**Architecture:** [architecture.md](../../docs/architecture/architecture.md) · ADRs in `docs/architecture/` · World-state hosting: managed C# registries per [ADR-005 § Superseded](../../docs/architecture/adr-005-dots-sim-core.md#superseded-2026-07-07) and [doc 08 §5](../../Game-Requirements/requirements/08-Agentic-Architecture.md#5-world-state-hosting)
+**Architecture:** [architecture.md](../../docs/architecture/architecture.md) · ADRs in `docs/architecture/` · World-state hosting: caller-owned `ISimWorldSnapshot` plus `TargetRegistry` in the Unity adapter bridge; `DomainValidatorRegistry` holds immutable validator services, not the world picture. See [ADR-005 § Superseded](../../docs/architecture/adr-005-dots-sim-core.md#superseded-2026-07-07) and [doc 08 §5](../../Game-Requirements/requirements/08-Agentic-Architecture.md#5-world-state-hosting)
 
 ---
 
@@ -154,6 +154,7 @@ Project Aegis is a **theater-level military simulation** with a **deterministic,
 
 | Date | Change |
 |------|--------|
+| 2026-10-07 | DRG-256 review: overview, system 1, foundation layer, ADR row, and architecture footer now separate caller-owned `ISimWorldSnapshot` state and `TargetRegistry` from immutable `DomainValidatorRegistry` services. ADR-005 DOTS/ECS world store stays superseded. Docs only. |
 | 2026-10-07 | DRG-256: overview, system 1 row, foundation layer, and ADR row now state managed C# registries (headless-first); ADR-005 DOTS/ECS world store marked superseded (2026-07-07). Docs only. |
 | 2026-05-30 | Mission editor GDD (system 11) reviewed (5 specialists, MAJOR REVISION) → revised same day: Validation Engine, fantasy rescope, round-trip fuel formula, determinism contract, AC-1..12. Awaiting re-review. Log: reviews/agentic-mission-editor-review-log.md |
 | 2026-05-30 | Mission editor GDD (system 11) authored: 8 sections, 4 mission types, typed event DSL, fuel + event-order formulas, 8 ACs |

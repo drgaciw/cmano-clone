@@ -11,11 +11,11 @@
 
 > **Quick reference** — Layer: **Foundation** · Priority: **MVP** · Key deps: None · Depended on by: All sim systems
 
-> **World-state hosting (ADR-005 superseded 2026-07-07):** world state lives in **managed C# registries** inside the headless-first sim (`ProjectAegis.Sim`, `ProjectAegis.Delegation`), not in a Unity DOTS/ECS world store. Unity hosts presentation only. See [ADR-005 § Superseded](../../docs/architecture/adr-005-dots-sim-core.md#superseded-2026-07-07), [unity integration review](../../docs/reports/unity-integration-review-2026-07-07.md) §3, and [doc 08 §5](../../Game-Requirements/requirements/08-Agentic-Architecture.md#5-world-state-hosting).
+> **World-state hosting (ADR-005 superseded 2026-07-07):** there is no Unity DOTS/ECS world store and no single shared registry that holds the battlespace. Per-tick position, contacts, engagement counts, and liveness come from caller-owned [`ISimWorldSnapshot`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/ISimWorldSnapshot.cs) implementations. Entity-to-target binding lives in [`TargetRegistry`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/TargetRegistry.cs) under `ProjectAegis.Delegation.UnityAdapter/Bridge`. Headless sim and delegation also keep narrower mutable registries (`KilledTargetRegistry`, `BdaContactLifecycleRegistry`, `PolicySnapshotRegistry`) and immutable service registries such as `DomainValidatorRegistry` (validator services, not world state). Unity hosts presentation only. See [ADR-005 § Superseded](../../docs/architecture/adr-005-dots-sim-core.md#superseded-2026-07-07), [unity integration review](../../docs/reports/unity-integration-review-2026-07-07.md) §3, and [doc 08 §5](../../Game-Requirements/requirements/08-Agentic-Architecture.md#5-world-state-hosting).
 
 ## Summary
 
-The simulation core owns **world time**, **fixed timestep advancement**, **global seed**, and **world-state identity**. World state is held in managed C# registries and advanced by the managed tick pipeline; there is no ECS world store. It does not decide tactics—that is delegation—but every subsystem shares one clock and one deterministic ordering contract (ADR-004).
+The simulation core owns **world time**, **fixed timestep advancement**, **global seed**, and **world-state identity**. Each tick’s position, contacts, engagement counts, and liveness are supplied by a caller-owned snapshot; they are not read back from a shared registry. The managed tick pipeline advances sim time, and there is no ECS world store. It does not decide tactics—that is delegation—but every subsystem shares one clock and one deterministic ordering contract (ADR-004).
 
 ## Overview
 
@@ -27,7 +27,10 @@ The simulation core owns **world time**, **fixed timestep advancement**, **globa
 | Seed / RNG | `SimSeed`, `SeededRng`, `DeterministicDetectionLoop` | Domain-scoped draws; no wall-clock in sim path |
 | World identity | `SimWorldHash`, `DetectionWorldHash` | Unified `WORLD_HASH` + `DETECTION_WORLD_HASH` in replay goldens |
 | Checkpoints | `ReplayCheckpointStore`, `ScenarioReplaySettings` | `(simTick, worldHash, fingerprint, lastSequenceId)` |
-| World-state registries | Managed C#: `DelegationOrchestrator` target registry, `KilledTargetRegistry`, `BdaContactLifecycleRegistry`, `PolicySnapshotRegistry`, `DomainValidatorRegistry` | Headless-first; same registries in Unity play, headless tests, and batch |
+| Runtime picture | Caller-owned `ISimWorldSnapshot` | Position (`TryGetKinematicPose`), contacts, `ActiveEngagementCount`, and `IsMemberAlive`. The caller owns the snapshot; the sim does not keep a shared copy. |
+| Entity binding | `TargetRegistry` | `ProjectAegis.Delegation.UnityAdapter/Bridge`. Binds entity keys to commandable targets (doc 08 §5). |
+| Mutable registries | `KilledTargetRegistry`, `BdaContactLifecycleRegistry`, `PolicySnapshotRegistry` | Kill ids, BDA Lost promotions, and captured ROE snapshots. Not position, contacts, or liveness. |
+| Service registries | `DomainValidatorRegistry` | Immutable `IDomainValidator` services, fixed at construction. Not world state. |
 | ~~ECS host~~ | ~~Unity DOTS (ADR-005)~~ | **Superseded** 2026-07-07 — DOTS/ECS world store will not be built; `com.unity.entities` removed from the Unity manifest |
 
 Interactive play, paused planning, and agent-vs-agent batch runs share the **same** pipeline. `ProjectAegis.Sim` has **no** `UnityEngine` references; headless tests run without the editor.
@@ -171,7 +174,10 @@ Seed `42`, `Δt = 1/60`, after 4 headless ticks on `baltic-patrol`:
 | Batch runner | `src/ProjectAegis.Delegation.UnityAdapter/Baltic/BalticBatchRunner.cs` | `src/ProjectAegis.Delegation.UnityAdapter.Tests/Baltic/BalticBatchRunnerTests.cs` |
 | Replay golden gate | `src/ProjectAegis.Delegation.UnityAdapter.Tests/Baltic/ReplayGoldenSuiteTests.cs` | `tests/regression/replay-golden-baltic-*.txt` |
 | Global seed | `src/ProjectAegis.Sim/Core/SimSeed.cs` | `SimTickRunnerTests`, `DeterministicDetectionLoopTests` |
-| World-state registries | `src/ProjectAegis.Delegation/Orchestration/DelegationOrchestrator.cs` (`Register`), `src/ProjectAegis.Sim/Engage/KilledTargetRegistry.cs`, `src/ProjectAegis.Sim/Engage/BdaContactLifecycleRegistry.cs`, `src/ProjectAegis.Delegation/Orchestration/PolicySnapshotRegistry.cs`, `src/ProjectAegis.Sim/Engage/DomainValidatorRegistry.cs` | `OrchestratorTests`, `MvpEngagementResolverTests`, `BdaContactLifecycleHotTickApplierTests`, `PolicySnapshotRegistryTests`, `DomainValidatorRegistryTests` |
+| Caller-owned world picture | `src/ProjectAegis.Delegation.UnityAdapter/Bridge/ISimWorldSnapshot.cs` | `src/ProjectAegis.Delegation.UnityAdapter.Tests/Bridge/SimWorldSnapshotStub.cs`, `SliceAContactFrameTests.cs` |
+| Entity binding | `src/ProjectAegis.Delegation.UnityAdapter/Bridge/TargetRegistry.cs` | `src/ProjectAegis.Delegation.UnityAdapter.Tests/Bridge/TargetRegistryTests.cs` |
+| Kill / BDA / policy registries | `src/ProjectAegis.Sim/Engage/KilledTargetRegistry.cs`, `src/ProjectAegis.Sim/Engage/BdaContactLifecycleRegistry.cs`, `src/ProjectAegis.Delegation/Orchestration/PolicySnapshotRegistry.cs` | `MvpEngagementResolverTests`, `BdaContactLifecycleHotTickApplierTests`, `PolicySnapshotRegistryTests` |
+| Validator services | `src/ProjectAegis.Sim/Engage/DomainValidatorRegistry.cs` | `DomainValidatorRegistryTests` |
 | Domain RNG | `src/ProjectAegis.Sim/Core/SeededRng.cs` | `src/ProjectAegis.Sim.Tests/Sensors/DeterministicDetectionLoopTests.cs` |
 | Detection loop | `src/ProjectAegis.Sim/Sensors/DeterministicDetectionLoop.cs` | `DeterministicDetectionLoopTests` |
 | Sim clock | `src/ProjectAegis.Sim/Time/SimClock.cs` | `SimTickRunnerTests` |
@@ -204,5 +210,5 @@ Seed `42`, `Δt = 1/60`, after 4 headless ticks on `baltic-patrol`:
 1. **Default `Δt`:** 1/60 vs 1/10 for theater-scale — **deferred P1** (performance study; current default 1/60 in `SimClock`).
 2. **Checkpoint cadence:** Tied to order-log GDD default (300 ticks) — **implemented** via `ScenarioReplaySettings`; engagement-triggered checkpoints **deferred P1**.
 3. **1000×+ headless throughput:** Doc 03 profile gate on Baltic reference — **deferred P1** (no CI throughput gate on `main` @ `afd2e1a`).
-4. ~~**Full Unity DOTS ECS bridge:** ADR-005 entity storage migration~~ — **Closed: superseded** 2026-07-07. World state stays in managed C# registries; no `ProjectAegis.Sim.DOTS` assembly will be built. Entity-scale throughput is a managed-performance question (doc 08 ARCH-2.5 / INF-5.1), not an ECS migration.
+4. ~~**Full Unity DOTS ECS bridge:** ADR-005 entity storage migration~~ — **Closed: superseded** 2026-07-07. The per-tick picture stays on caller-owned `ISimWorldSnapshot` implementations, entity binding stays on `TargetRegistry`, and `DomainValidatorRegistry` remains an immutable validator service rather than a world store. No `ProjectAegis.Sim.DOTS` assembly will be built. Entity-scale throughput is a managed-performance question (doc 08 ARCH-2.5 / INF-5.1), not an ECS migration.
 5. **Long-horizon hash regression (tick 3600+):** Extend pinned goldens beyond 3–6 tick slices — **deferred P1** (determinism proven at pinned counts; scale test not CI-blocked).
