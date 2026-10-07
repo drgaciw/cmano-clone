@@ -8,6 +8,7 @@ using Sim;
 using Watch;
 using Data.Catalog;
 using ProjectAegis.Sim.Catalog;
+using ProjectAegis.Sim.Comms;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -82,6 +83,7 @@ public sealed class SimulationSession
             BdaContactLifecycleRegistry = BdaContactLifecycleHotTickApplier.IsEnabled(engageDefaults.CombatDomainsEnabled)
                 ? new BdaContactLifecycleRegistry()
                 : null,
+            CommsGrid = CommsGridRegistry.TryCreate(orchestrator.ScenarioPolicy),
         };
     }
 
@@ -280,6 +282,9 @@ public sealed class SimulationSession
             acceptedPairs.Add((s.ShooterUnitId, s.TargetId));
         }
 
+        // C3-01 / DRG-390: off-grid units keep executing orders already issued and agent/doctrine
+        // intents; only *new direct* orders are refused, at the command façade (DelegationBridge).
+        AdvanceCommsGrid(simTick);
         foreach (var order in engageOrders)
         {
             if (commsBlocksEngage)
@@ -624,6 +629,44 @@ public sealed class SimulationSession
     public DictionaryEngageWorldQuery? EngageWorld { get; init; }
 
     public FuelTimelineTracker? FuelTimeline { get; set; }
+
+    /// <summary>
+    /// C3-01 / DRG-390: Sim-authoritative per-unit comms-grid membership. Null when the scenario
+    /// authors no <c>commsGrid</c> transitions (every unit on grid — legacy behaviour).
+    /// </summary>
+    public CommsGridRegistry? CommsGrid { get; set; }
+
+    /// <summary>Grid changes applied on the most recent engagement phase (order-log / UI evidence).</summary>
+    public IReadOnlyList<CommsGridChange> LastCommsGridChanges { get; private set; } = Array.Empty<CommsGridChange>();
+
+    /// <summary>
+    /// C3-01 / DRG-390 command-façade check: advances the grid to <paramref name="simTick"/> and
+    /// returns <see cref="FireAbortReason.OffGrid"/> when the unit cannot accept new direct orders.
+    /// </summary>
+    public FireAbortReason? EvaluateOffGrid(string unitId, ulong simTick)
+    {
+        if (CommsGrid == null)
+        {
+            return null;
+        }
+
+        AdvanceCommsGrid(simTick);
+        return OffGridOrderGate.Evaluate(CommsGrid, unitId);
+    }
+
+    private void AdvanceCommsGrid(ulong simTick)
+    {
+        if (CommsGrid == null)
+        {
+            return;
+        }
+
+        var changes = CommsGrid.Advance(simTick);
+        if (changes.Count > 0)
+        {
+            LastCommsGridChanges = changes;
+        }
+    }
 
     public MagazineLedger? Magazines { get; init; }
 

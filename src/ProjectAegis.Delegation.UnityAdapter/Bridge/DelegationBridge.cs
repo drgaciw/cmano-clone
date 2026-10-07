@@ -15,6 +15,7 @@ using ProjectAegis.Delegation.Trust;
 using ProjectAegis.Data.Catalog;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>
@@ -181,6 +182,11 @@ public sealed class DelegationBridge
             return false;
         }
 
+        if (IsOffGrid(binding.TargetId.Value, simTime))
+        {
+            return false;
+        }
+
         var resolvedRisk = risk ?? DefaultRiskClassifier.Classify(kind);
         var simTick = (ulong)Math.Max(0, (long)simTime);
         var commsDisplay = Orchestrator.ScenarioPolicy?.CommsDisplay ?? ScenarioCommsDisplaySettings.Default;
@@ -262,6 +268,12 @@ public sealed class DelegationBridge
             return false;
         }
 
+        if (IsOffGrid(shooterId, snapshot.SimTime))
+        {
+            failureReason = AbortReasonCatalog.Doctrine.COMMS_OFF_GRID;
+            return false;
+        }
+
         var engageDefaults = Orchestrator.ScenarioPolicy?.EngageDefaults
             ?? ScenarioEngageDefaults.MvpFallback;
         var ctx = BuildLiveEngageContext(snapshot, shooterId, engageDefaults);
@@ -279,9 +291,22 @@ public sealed class DelegationBridge
         return TryEnqueueHumanOrder(entity, resolved.Kind, snapshot.SimTime);
     }
 
+    /// <summary>
+    /// C3-01 / DRG-390: true when the Sim comms grid marks the unit off grid at <paramref name="simTime"/>.
+    /// Off-grid units refuse new direct orders and direct-control takeover.
+    /// </summary>
+    public bool IsOffGrid(string unitId, double simTime) =>
+        Session?.EvaluateOffGrid(unitId, (ulong)Math.Max(0, (long)simTime)) != null;
+
     public bool TryTakeDirectControl(EntityKey entity, double simTime)
     {
         if (Orchestrator.AttachReplayViewer)
+        {
+            return false;
+        }
+
+        if (Registry.TryGetBinding(entity, out var offGridProbe) &&
+            IsOffGrid(offGridProbe.TargetId.Value, simTime))
         {
             return false;
         }

@@ -21,6 +21,7 @@ public static partial class AbortReasonCatalog
         public const string FACILITY_ASPECT_BLOCK = "FACILITY_ASPECT_BLOCK";
         public const string AUTO_ENGAGE_DENIED = "AUTO_ENGAGE_DENIED";
         public const string EXPEND_UNAUTHORIZED = "EXPEND_UNAUTHORIZED";
+        public const string COMMS_OFF_GRID = "COMMS_OFF_GRID";
     }
 
     public static class Engage
@@ -69,6 +70,8 @@ public static partial class AbortReasonCatalog
         public const string SENSOR_EMCON_BLOCKED = "SENSOR_EMCON_BLOCKED";
         public const string DATALINK_STALE = "DATALINK_STALE";
         public const string TRACK_STALE = "TRACK_STALE";
+        public const string LOS_RADAR_HORIZON = "LOS_RADAR_HORIZON";
+        public const string LOS_TERRAIN_MASK = "LOS_TERRAIN_MASK";
     }
 
     public static class Cyber

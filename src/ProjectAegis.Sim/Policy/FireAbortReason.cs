@@ -20,4 +20,6 @@ public enum FireAbortReason
     AutoEngageDenied = 14,
     /// <summary>SWARM-15/19: expend/kamikaze pulse not authorized by doctrine.</summary>
     ExpendUnauthorized = 15,
+    /// <summary>C3-01 / DRG-390: unit is off its side's comms grid and cannot accept new direct orders.</summary>
+    OffGrid = 16,
 }
