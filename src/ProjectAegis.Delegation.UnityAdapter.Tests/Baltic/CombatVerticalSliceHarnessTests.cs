@@ -23,7 +23,7 @@ public sealed class CombatVerticalSliceHarnessTests
     [TestCase("Laser")]
     public void Permitted_engagement_runs_from_player_command_through_terminal_outcome(string family)
     {
-        var slice = CombatVerticalSliceHarness.Run(7);
+        var slice = CombatVerticalSliceHarness.Run();
         var leg = slice.Legs.Single(l => l.WeaponFamilyId == family && l.ExpectedPermitted);
         var command = slice.Scenario.Commands.Single(c => c.ShooterId == leg.ShooterId);
 
@@ -48,7 +48,7 @@ public sealed class CombatVerticalSliceHarnessTests
     [TestCase("Laser")]
     public void Refused_engagement_is_commanded_and_explicitly_refused_without_firing(string family)
     {
-        var slice = CombatVerticalSliceHarness.Run(7);
+        var slice = CombatVerticalSliceHarness.Run();
         var leg = slice.Legs.Single(l => l.WeaponFamilyId == family && !l.ExpectedPermitted);
 
         Assert.That(slice.Scenario.Commands.Any(c => c.OrderId == leg.CommandOrderId), Is.True);
@@ -69,8 +69,8 @@ public sealed class CombatVerticalSliceHarnessTests
     [Test]
     public void Map_event_log_explanation_and_replay_share_one_correlation_id_per_engagement()
     {
-        var slice = CombatVerticalSliceHarness.Run(7);
-        var replay = CombatVerticalSliceHarness.Run(7);
+        var slice = CombatVerticalSliceHarness.Run();
+        var replay = CombatVerticalSliceHarness.Run();
 
         Assert.That(slice.Legs, Has.Count.EqualTo(6));
         foreach (var leg in slice.Legs)
@@ -100,7 +100,7 @@ public sealed class CombatVerticalSliceHarnessTests
     [Test]
     public void Presentation_frame_and_harness_read_the_same_combat_event_facts()
     {
-        var slice = CombatVerticalSliceHarness.Run(7);
+        var slice = CombatVerticalSliceHarness.Run();
 
         Assert.That(slice.Frame.Events.Events, Is.EqualTo(slice.Events.Events));
         Assert.That(slice.Frame.Events.Execution, Is.EqualTo(slice.Events.Execution));
@@ -110,7 +110,7 @@ public sealed class CombatVerticalSliceHarnessTests
     [Test]
     public void Tactical_zoom_draws_each_fired_engagement_with_its_own_motion_cue()
     {
-        var slice = CombatVerticalSliceHarness.Run(7);
+        var slice = CombatVerticalSliceHarness.Run();
         var tactical = slice.Maps.Single(m => m.Zoom == CombatZoomBand.Tactical).Map;
 
         var fired = slice.Legs.Where(l => l.ExpectedPermitted).ToArray();
@@ -123,7 +123,7 @@ public sealed class CombatVerticalSliceHarnessTests
     [Test]
     public void Operational_zoom_keeps_per_engagement_identity_and_theater_zoom_flattens_motion()
     {
-        var slice = CombatVerticalSliceHarness.Run(7);
+        var slice = CombatVerticalSliceHarness.Run();
         var operational = slice.Maps.Single(m => m.Zoom == CombatZoomBand.Operational).Map;
         var theater = slice.Maps.Single(m => m.Zoom == CombatZoomBand.Theater).Map;
         var tactical = slice.Maps.Single(m => m.Zoom == CombatZoomBand.Tactical).Map;
@@ -141,7 +141,7 @@ public sealed class CombatVerticalSliceHarnessTests
     [Test]
     public void Symbol_lod_is_identity_at_close_band_and_accounts_for_every_symbol_at_coarse_bands()
     {
-        var slice = CombatVerticalSliceHarness.Run(7);
+        var slice = CombatVerticalSliceHarness.Run();
 
         var close = slice.SymbolLod.Single(l => l.Band == MapLodBand.Close);
         Assert.That(close.OutputCount, Is.EqualTo(slice.Symbols.Count));
@@ -155,7 +155,7 @@ public sealed class CombatVerticalSliceHarnessTests
     [Test]
     public void Every_engagement_state_has_a_non_color_discriminator()
     {
-        var slice = CombatVerticalSliceHarness.Run(7);
+        var slice = CombatVerticalSliceHarness.Run();
 
         var tactical = slice.Legs.Select(l => l.Views.Single(v => v.Zoom == CombatZoomBand.Tactical).Effect).ToArray();
         var signatures = tactical
@@ -180,12 +180,16 @@ public sealed class CombatVerticalSliceHarnessTests
     [Test]
     public void Explanation_cites_slice_a_targetability_and_execution_time_firing_solution()
     {
-        var slice = CombatVerticalSliceHarness.Run(7);
+        var slice = CombatVerticalSliceHarness.Run();
 
         foreach (var leg in slice.Legs)
         {
             Assert.That(leg.Targetability, Is.Not.Null, leg.ShooterId);
             Assert.That(leg.Targetability!.ContactId, Is.EqualTo(CombatVerticalSliceHarness.ContactIdFor(leg.TargetId)));
+            Assert.That(
+                slice.TargetabilityAccept.Contacts.Single(c => c.ContactId == leg.Targetability.ContactId).Disposition,
+                Is.EqualTo(leg.Targetability.Disposition),
+                leg.ShooterId);
             var expected = leg.HasFireControlTrack
                 ? "Fire-control track present at execution"
                 : "No fire-control track at execution";
@@ -218,8 +222,8 @@ public sealed class CombatVerticalSliceHarnessTests
     [Test]
     public void Run_is_replay_stable_for_the_same_seed()
     {
-        var first = CombatVerticalSliceHarness.Run(7);
-        var second = CombatVerticalSliceHarness.Run(7);
+        var first = CombatVerticalSliceHarness.Run();
+        var second = CombatVerticalSliceHarness.Run();
 
         Assert.That(second.Fingerprint, Is.EqualTo(first.Fingerprint));
         Assert.That(second.Events.Events, Is.EqualTo(first.Events.Events));

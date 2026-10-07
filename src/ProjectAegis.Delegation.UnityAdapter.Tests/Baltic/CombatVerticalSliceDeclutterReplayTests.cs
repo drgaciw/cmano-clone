@@ -232,7 +232,7 @@ public sealed class CombatVerticalSliceDeclutterReplayTests
     [Test]
     public void Default_vertical_slice_fingerprint_is_stable_across_runs()
     {
-        var fingerprints = Enumerable.Range(0, 3).Select(_ => CombatVerticalSliceHarness.Run(7).Fingerprint).ToArray();
+        var fingerprints = Enumerable.Range(0, 3).Select(_ => CombatVerticalSliceHarness.Run().Fingerprint).ToArray();
 
         Assert.That(fingerprints.Distinct().Count(), Is.EqualTo(1));
     }
@@ -297,7 +297,7 @@ public sealed class CombatVerticalSliceDeclutterReplayTests
             }
         }
 
-        return CombatVerticalSliceHarness.Run(seed, baseline with { Legs = legs }, MaxEffects);
+        return CombatVerticalSliceHarness.Run(seed, baseline with { Legs = legs });
     }
 
     private static SliceBCombatScenario.Definition LoadDefinition()

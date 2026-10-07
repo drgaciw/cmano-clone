@@ -128,7 +128,7 @@ public static class CombatVerticalSliceHarness
         IReadOnlyList<SliceBCombatScenario.Leg> legs)
     {
         var authority = new C2AuthorityProjectionContext(
-            RoeLevel.WeaponsFree, SkillLane.Read, RequiredApproval.None, TrackSource.Organic, true, null, true);
+            RoeLevel.WeaponsFree, SkillLane.Read, RequiredApproval.None, TrackSource.Organic, true);
         var fireControl = new LegFireControl(legs);
         var shooters = new LegShooters(legs);
         var targets = new HashSet<string>(StringComparer.Ordinal);
