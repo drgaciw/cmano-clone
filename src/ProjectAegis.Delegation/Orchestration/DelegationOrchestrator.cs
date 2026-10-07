@@ -60,7 +60,27 @@ public sealed class DelegationOrchestrator
 
     public PolicySnapshotRegistry PolicySnapshots => _policySnapshots;
 
-    public ScenarioPolicyProfile? ScenarioPolicy { get; set; }
+    private ScenarioPolicyProfile? _scenarioPolicy;
+
+    /// <summary>
+    /// Scenario policy for this run. Assigning a different instance drops the cached
+    /// <see cref="CommsGrid"/> so a read that happened before the policy was set cannot stick null.
+    /// </summary>
+    public ScenarioPolicyProfile? ScenarioPolicy
+    {
+        get => _scenarioPolicy;
+        set
+        {
+            if (ReferenceEquals(_scenarioPolicy, value))
+            {
+                return;
+            }
+
+            _scenarioPolicy = value;
+            _commsGrid = null;
+            _commsGridResolved = false;
+        }
+    }
 
     private CommsGridRegistry? _commsGrid;
     private bool _commsGridResolved;

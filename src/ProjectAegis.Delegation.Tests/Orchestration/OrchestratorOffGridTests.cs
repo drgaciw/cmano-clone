@@ -105,4 +105,54 @@ public sealed class OrchestratorOffGridTests
         Assert.That(orchestrator.CommsGrid, Is.Not.Null);
         Assert.That(new DelegationOrchestrator(1).CommsGrid, Is.Null);
     }
+
+    [Test]
+    public void Comms_grid_read_before_scenario_policy_does_not_stick_null()
+    {
+        var orchestrator = new DelegationOrchestrator(1);
+        Assert.That(orchestrator.CommsGrid, Is.Null);
+
+        orchestrator.ScenarioPolicy = new ScenarioPolicyProfile(EffectivePolicy.DefaultFree)
+        {
+            CommsGridTransitions = new[] { new ScenarioCommsGridTransition(1, "u1", "OffGrid") },
+        };
+
+        Assert.That(orchestrator.CommsGrid, Is.Not.Null);
+        Assert.That(orchestrator.EvaluateOffGrid("u1", 1), Is.EqualTo(FireAbortReason.OffGrid));
+    }
+
+    [Test]
+    public void Replacing_scenario_policy_resets_the_cached_comms_grid()
+    {
+        var orchestrator = new DelegationOrchestrator(1)
+        {
+            ScenarioPolicy = new ScenarioPolicyProfile(EffectivePolicy.DefaultFree)
+            {
+                CommsGridTransitions = new[] { new ScenarioCommsGridTransition(1, "u1", "OffGrid") },
+            },
+        };
+        Assert.That(orchestrator.EvaluateOffGrid("u1", 1), Is.EqualTo(FireAbortReason.OffGrid));
+
+        orchestrator.ScenarioPolicy = new ScenarioPolicyProfile(EffectivePolicy.DefaultFree);
+
+        Assert.That(orchestrator.CommsGrid, Is.Null);
+        Assert.That(orchestrator.EvaluateOffGrid("u1", 5), Is.Null);
+    }
+
+    [Test]
+    public void Assigning_the_same_scenario_policy_instance_keeps_the_advanced_comms_grid()
+    {
+        var policy = new ScenarioPolicyProfile(EffectivePolicy.DefaultFree)
+        {
+            CommsGridTransitions = new[] { new ScenarioCommsGridTransition(1, "u1", "OffGrid") },
+        };
+        var orchestrator = new DelegationOrchestrator(1) { ScenarioPolicy = policy };
+        Assert.That(orchestrator.EvaluateOffGrid("u1", 1), Is.EqualTo(FireAbortReason.OffGrid));
+        var grid = orchestrator.CommsGrid;
+
+        orchestrator.ScenarioPolicy = policy;
+
+        Assert.That(orchestrator.CommsGrid, Is.SameAs(grid));
+        Assert.That(orchestrator.CommsGrid!.IsOffGrid("u1"), Is.True);
+    }
 }
