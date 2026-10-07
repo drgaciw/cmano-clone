@@ -1,7 +1,7 @@
 # S124 Delegation Evidence — Assign Agent + Rebrief success (S124-05 / S124-06)
 
 **Sprint:** [S124 combat-commit honesty](../../sprints/sprint-124-combat-commit.md) · **QA plan:** [qa-plan-sprint-122-127-rebaseline-2026-09-30.md](../qa-plan-sprint-122-127-rebaseline-2026-09-30.md) (S124 "commit + delegation" row)
-**Branch:** `cursor/s124-delegation-assign-7fee` · **Stacked on:** `cursor/s123-play-entry-7fee` @ `19b7627af8078b3aabfe462731f3469d705f96bf` (merge `910f8f48`)
+**Branch:** `cursor/s124-delegation-assign-7fee` · **Base:** `main` @ `7a4cdbae` (S123 squash of #695)
 **Rows:** S124-05 W2-DEL-04 initial Assign Agent · S124-06 W2-DEL-02 rebrief success path
 
 > **Scope.** Headless evidence only. QA-plan acceptance for this half of the S124 row: "Initial Assign Agent and

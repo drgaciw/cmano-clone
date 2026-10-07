@@ -4,6 +4,7 @@ using Core;
 using Decision;
 using Projection;
 using ProjectAegis.Sim.Policy;
+using TargetabilityAccept;
 
 /// <summary>
 /// DRG-211: folds explicit engage-assess intent/authority/preview input with order-log engagement rows
@@ -22,13 +23,44 @@ public static class CombatEventProjection
     /// <summary>
     /// Projects the combat-event lifecycle for one shooter/target leg. Never emits a silent authorization deny.
     /// </summary>
-    public static CombatEventSnapshot Project(CombatEngageAssessInput input, DecisionLog? log = null)
+    /// <param name="input">Explicit intent / authority / preview facts.</param>
+    /// <param name="log">Authoritative order log; null when no engagement evidence exists yet.</param>
+    /// <param name="targetability">
+    /// Authoritative Slice A acceptance snapshot (DRG-183/219). When supplied, a withheld row — or no row for
+    /// the target — refuses authorization with the named Slice A cause. Null keeps the pre-Slice-A behaviour.
+    /// </param>
+    public static CombatEventSnapshot Project(
+        CombatEngageAssessInput input,
+        DecisionLog? log = null,
+        TargetabilityAcceptSnapshot? targetability = null)
     {
         if (!input.IntentAccepted)
         {
             return CombatEventSnapshot.Empty;
         }
 
+        var targetabilityRow = FindTargetabilityRow(targetability, input.TargetId);
+        var facts = targetabilityRow is null
+            ? Array.Empty<CombatTargetabilityFact>()
+            : new[] { CombatTargetabilityFact.FromRow(targetabilityRow) };
+        var engagement = FindEngagement(log, input);
+        var execution = engagement is null
+            ? Array.Empty<CombatExecutionFact>()
+            : new[] { CreateExecutionFact(input, engagement) };
+        return ProjectEvents(input, log, targetability, targetabilityRow, engagement) with
+        {
+            Targetability = facts,
+            Execution = execution,
+        };
+    }
+
+    private static CombatEventSnapshot ProjectEvents(
+        CombatEngageAssessInput input,
+        DecisionLog? log,
+        TargetabilityAcceptSnapshot? targetability,
+        TargetabilityAcceptContactRow? targetabilityRow,
+        EngagementRecord? engagement)
+    {
         var events = new List<CombatEvent>(6);
         events.Add(CreateEvent(
             input,
@@ -38,7 +70,7 @@ public static class CombatEventProjection
             input.SimTime,
             ExplanationIntentAccepted));
 
-        var refusal = ResolveAuthorizationRefusal(input, log);
+        var refusal = ResolveAuthorizationRefusal(input, log, targetability, targetabilityRow);
         if (refusal is not null)
         {
             events.Add(CreateEvent(
@@ -51,7 +83,7 @@ public static class CombatEventProjection
             return new CombatEventSnapshot(events);
         }
 
-        if (HasAffirmativeAuthorization(input, log))
+        if (HasAffirmativeAuthorization(input, engagement))
         {
             events.Add(CreateEvent(
                 input,
@@ -62,7 +94,6 @@ public static class CombatEventProjection
                 EngageExplainProjection.CanFireLabel));
         }
 
-        var engagement = FindEngagement(log, input);
         if (engagement is null)
         {
             return new CombatEventSnapshot(events);
@@ -132,9 +163,14 @@ public static class CombatEventProjection
 
     private sealed record AuthorizationRefusal(string Outcome, string ExplanationRef, ulong SimTick, double SimTime);
 
+    /// <summary>
+    /// Refusal precedence: shooter-scoped sim policy denial, then Slice A targetability, then preview abort.
+    /// </summary>
     private static AuthorizationRefusal? ResolveAuthorizationRefusal(
         CombatEngageAssessInput input,
-        DecisionLog? log)
+        DecisionLog? log,
+        TargetabilityAcceptSnapshot? targetability,
+        TargetabilityAcceptContactRow? targetabilityRow)
     {
         var policyDenial = FindPolicyDenial(log, input);
         if (policyDenial is not null)
@@ -145,6 +181,23 @@ public static class CombatEventProjection
                 BuildPolicyExplanationRef(policyDenial.Reason),
                 policyDenial.SimTick,
                 policyDenial.SimTime);
+        }
+
+        if (targetability is not null)
+        {
+            var cause = targetabilityRow is null
+                ? TargetabilityAcceptCauseCodes.MissingProvenance
+                : targetabilityRow.Disposition == TargetabilityAcceptDisposition.Withheld
+                    ? targetabilityRow.WithheldCauseCode
+                    : null;
+            if (cause is not null)
+            {
+                return new AuthorizationRefusal(
+                    cause,
+                    BuildTargetabilityExplanationRef(cause),
+                    input.SimTick,
+                    input.SimTime);
+            }
         }
 
         if (input.Preview is { CanFire: false })
@@ -163,16 +216,53 @@ public static class CombatEventProjection
     /// <summary>
     /// Authorization requires affirmative preview or a matching launched engagement in the log.
     /// </summary>
-    private static bool HasAffirmativeAuthorization(CombatEngageAssessInput input, DecisionLog? log)
+    private static bool HasAffirmativeAuthorization(CombatEngageAssessInput input, EngagementRecord? engagement) =>
+        input.Preview is { CanFire: true } || engagement is { Launched: true };
+
+    /// <summary>
+    /// First permitted Slice A row for the target in snapshot (ordinal contact id) order; otherwise the first row.
+    /// </summary>
+    private static TargetabilityAcceptContactRow? FindTargetabilityRow(
+        TargetabilityAcceptSnapshot? targetability,
+        string targetId)
     {
-        if (input.Preview is { CanFire: true })
+        if (targetability is null)
         {
-            return true;
+            return null;
         }
 
-        var engagement = FindEngagement(log, input);
-        return engagement is { Launched: true };
+        TargetabilityAcceptContactRow? first = null;
+        for (var i = 0; i < targetability.Contacts.Count; i++)
+        {
+            var row = targetability.Contacts[i];
+            if (!string.Equals(row.TargetId, targetId, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (row.Disposition == TargetabilityAcceptDisposition.Permitted)
+            {
+                return row;
+            }
+
+            first ??= row;
+        }
+
+        return first;
     }
+
+    private static CombatExecutionFact CreateExecutionFact(
+        CombatEngageAssessInput input,
+        EngagementRecord engagement) =>
+        new(
+            input.CorrelationId,
+            input.ShooterId,
+            input.TargetId,
+            input.WeaponFamilyId,
+            engagement.HasFireControlTrack,
+            engagement.SalvoSize,
+            engagement.SimTime,
+            engagement.SimTick);
 
     /// <summary>
     /// Policy denials record the commanded unit on <see cref="PolicyDenialRecord.TargetId"/> (see
@@ -270,6 +360,8 @@ public static class CombatEventProjection
     private static string BuildAbortExplanationRef(string code) => $"abort:{code}";
 
     private static string BuildPolicyExplanationRef(FireAbortReason reason) => $"policy:{reason}";
+
+    internal static string BuildTargetabilityExplanationRef(string cause) => $"targetability:{cause}";
 
     private static string BuildOutcomeExplanationRef(string outcomeCode) => $"outcome:{outcomeCode}";
 }
