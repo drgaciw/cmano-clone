@@ -285,7 +285,7 @@ public sealed class CombatEventContractTests
             log,
             currentSimTick: 9,
             new C2AuthorityProjectionContext(
-                RoeLevel.WeaponsFree, SkillLane.Read, RequiredApproval.None, TrackSource.Organic, true, null, true),
+                RoeLevel.WeaponsFree, SkillLane.Read, RequiredApproval.None, TrackSource.Organic, true),
             fireControl: fireControl,
             shooters: new FixedShooterSource(
                 new SensorToShooterShooterCandidate("u1", ScenarioEngageDefaults.MvpFallback, 2)),
