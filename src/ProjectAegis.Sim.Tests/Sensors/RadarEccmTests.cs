@@ -83,8 +83,8 @@ public sealed class RadarEccmTests
     {
         var catalog = new InMemoryCatalogReader(new[]
         {
-            new CatalogSensorBinding("p1", "r1", 1.0, RadarScanType: "Pesa", RadarTechGeneration: 3),
-            new CatalogSensorBinding("p1", "r2", 1.0, RadarScanType: "Mechanical"),
+            new CatalogSensorBinding("p1", "r1", 1.0) { RadarScanType = "Pesa", RadarTechGeneration = 3 },
+            new CatalogSensorBinding("p1", "r2", 1.0) { RadarScanType = "Mechanical" },
             new CatalogSensorBinding("p1", "ir1", 1.0, Modality: CatalogSensorModalities.Infrared),
         });
         var profile = new ScenarioPolicyProfile(ProjectAegis.Sim.Policy.EffectivePolicy.DefaultFree)

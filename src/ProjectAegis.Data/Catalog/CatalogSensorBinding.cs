@@ -22,7 +22,14 @@ public sealed record CatalogSensorBinding(
     string CitationRef = "",
     double JamStrength = 0.0,
     double EccmFactor = 1.0,
-    string Modality = CatalogSensorModalities.Radar,
-    string RadarScanType = CatalogRadarScanTypes.Unspecified,
-    bool FrequencyAgile = false,
-    int RadarTechGeneration = 0);
+    string Modality = CatalogSensorModalities.Radar)
+{
+    /// <summary>EW-01 / DRG-386: Mechanical | Pesa | Aesa; empty = unspecified.</summary>
+    public string RadarScanType { get; init; } = CatalogRadarScanTypes.Unspecified;
+
+    /// <summary>EW-01 / DRG-386: explicit frequency agility (PESA/AESA are always agile).</summary>
+    public bool FrequencyAgile { get; init; }
+
+    /// <summary>EW-01 / DRG-386: radar technology generation; 0 = unspecified.</summary>
+    public int RadarTechGeneration { get; init; }
+}

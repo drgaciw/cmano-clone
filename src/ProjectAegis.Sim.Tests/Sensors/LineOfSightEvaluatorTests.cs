@@ -102,7 +102,11 @@ public sealed class LineOfSightEvaluatorTests
         Assert.Equal("h2", only.Trial.TargetId);
         Assert.Equal(baseline[0].Draw, only.Draw);
         var block = Assert.Single(blocks);
-        Assert.Equal(new DetectionLosBlock(3, "u1", "radar-1", "h1", AbortReasonCatalog.Sensor.LOS_RADAR_HORIZON), block);
+        Assert.Equal(3UL, block.SimTick);
+        Assert.Equal("u1", block.ObserverId);
+        Assert.Equal("radar-1", block.SensorId);
+        Assert.Equal("h1", block.TargetId);
+        Assert.Equal(AbortReasonCatalog.Sensor.LOS_RADAR_HORIZON, block.BlockCode);
     }
 
     [Fact]

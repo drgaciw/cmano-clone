@@ -60,7 +60,8 @@ public static class C2PlayerCommandBridge
             return false;
         }
 
-        if (bridge.IsOffGrid(binding.TargetId.Value, simTime))
+        // C3-01 / DRG-390: immediate feedback; the orchestrator also drops off-grid human orders at drain.
+        if (bridge.Orchestrator.EvaluateOffGrid(binding.TargetId.Value, (ulong)Math.Max(0, (long)simTime)) != null)
         {
             failureReason = ReasonOffGrid;
             return false;

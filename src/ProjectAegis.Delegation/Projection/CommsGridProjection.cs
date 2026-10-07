@@ -43,7 +43,7 @@ public static class CommsGridProjection
                 ? $"{OffGridLabelPrefix} — last report T-{simTick - Math.Min(simTick, report.ReportedAtTick)}"
                 : $"{OffGridLabelPrefix} — no position report";
             rows[i] = new OffGridUnitRow(
-                id,
+                hasReport ? report.UnitId : id,
                 since,
                 hasReport,
                 hasReport ? report.ReportedAtTick : 0,
@@ -54,4 +54,10 @@ public static class CommsGridProjection
 
         return rows;
     }
+
+    /// <summary>Stable one-line message-log text for a grid change.</summary>
+    public static string FormatChange(CommsGridChange change) =>
+        string.IsNullOrEmpty(change.Reason)
+            ? $"T{change.SimTick} {change.UnitId} {change.From}→{change.To}"
+            : $"T{change.SimTick} {change.UnitId} {change.From}→{change.To} ({change.Reason})";
 }

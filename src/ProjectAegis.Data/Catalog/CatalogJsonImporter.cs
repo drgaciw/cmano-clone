@@ -38,10 +38,12 @@ public static class CatalogJsonImporter
                 batchId,
                 sourceFile,
                 NormalizeReviewState(s.ReviewState),
-                Math.Clamp(s.TrlLevel <= 0 ? 9 : s.TrlLevel, 1, 9),
-                RadarScanType: s.RadarScanType ?? CatalogRadarScanTypes.Unspecified,
-                FrequencyAgile: s.FrequencyAgile,
-                RadarTechGeneration: s.RadarTechGeneration))
+                Math.Clamp(s.TrlLevel <= 0 ? 9 : s.TrlLevel, 1, 9))
+            {
+                RadarScanType = s.RadarScanType ?? CatalogRadarScanTypes.Unspecified,
+                FrequencyAgile = s.FrequencyAgile,
+                RadarTechGeneration = s.RadarTechGeneration,
+            })
             .ToArray();
     }
 
@@ -160,6 +162,15 @@ public static class CatalogJsonImporter
 
     internal sealed class CatalogSensorRowDto
     {
+        /// <summary>EW-01 / DRG-386 optional ECCM fields bind through the constructor (get-only).</summary>
+        [JsonConstructor]
+        public CatalogSensorRowDto(string? radarScanType = null, bool frequencyAgile = false, int radarTechGeneration = 0)
+        {
+            RadarScanType = radarScanType;
+            FrequencyAgile = frequencyAgile;
+            RadarTechGeneration = radarTechGeneration;
+        }
+
         public string PlatformId { get; init; } = "";
 
         public string SensorId { get; init; } = "";
@@ -175,10 +186,10 @@ public static class CatalogJsonImporter
         public int TrlLevel { get; init; } = 9;
 
         /// <summary>EW-01 / DRG-386: Mechanical | Pesa | Aesa (optional).</summary>
-        public string? RadarScanType { get; init; }
+        public string? RadarScanType { get; }
 
-        public bool FrequencyAgile { get; init; }
+        public bool FrequencyAgile { get; }
 
-        public int RadarTechGeneration { get; init; }
+        public int RadarTechGeneration { get; }
     }
 }

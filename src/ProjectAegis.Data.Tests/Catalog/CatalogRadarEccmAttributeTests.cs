@@ -22,16 +22,16 @@ public sealed class CatalogRadarEccmAttributeTests
     [InlineData("AESA")]
     public void Known_scan_types_validate(string scan)
     {
-        Assert.Empty(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9, RadarScanType: scan, RadarTechGeneration: 4)));
+        Assert.Empty(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9) { RadarScanType = scan, RadarTechGeneration = 4 }));
     }
 
     [Fact]
     public void Invalid_attributes_report_errors()
     {
-        Assert.Single(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9, RadarScanType: "Phased")));
-        Assert.Single(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9, RadarTechGeneration: 9)));
+        Assert.Single(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9) { RadarScanType = "Phased" }));
+        Assert.Single(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9) { RadarTechGeneration = 9 }));
         Assert.Single(CatalogRadarScanTypes.Validate(new CatalogSensorBinding(
-            "p1", "ir1", 0.9, Modality: CatalogSensorModalities.Infrared, FrequencyAgile: true)));
+            "p1", "ir1", 0.9, Modality: CatalogSensorModalities.Infrared) { FrequencyAgile = true }));
     }
 
     [Fact]

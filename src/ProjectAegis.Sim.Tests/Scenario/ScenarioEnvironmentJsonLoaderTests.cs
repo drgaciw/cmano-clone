@@ -54,6 +54,37 @@ public sealed class ScenarioEnvironmentJsonLoaderTests
     }
 
     [Fact]
+    public void ToProfile_maps_dto_built_in_code()
+    {
+        var dto = new ScenarioPolicyJsonDto
+        {
+            Id = "code-built",
+            Jammers = [new ScenarioJammerJsonDto { TargetId = "h1", JamStrength = 0.5, TechGeneration = 2 }],
+            LineOfSight =
+            [
+                new ScenarioLineOfSightJsonDto
+                {
+                    ObserverId = "u1",
+                    TargetId = "h1",
+                    ObserverHeightMslMeters = 40,
+                    TargetHeightMslMeters = 10,
+                    RangeMeters = 20_000,
+                    Terrain = [new ScenarioTerrainSampleJsonDto { DistanceMeters = 5_000, ElevationMslMeters = 3 }],
+                },
+            ],
+            RadarEccm = [new ScenarioRadarEccmJsonDto { SensorId = "r1", ScanType = "Pesa", FrequencyAgile = true, TechGeneration = 4 }],
+            CommsGrid = [new ScenarioCommsGridJsonDto { AtTick = 2, UnitId = "u1", Membership = "OnGrid", Reason = "init" }],
+        };
+
+        var p = ScenarioPolicyJsonLoader.ToProfile(dto);
+
+        Assert.Equal(2, p.Jammers[0].TechGeneration);
+        Assert.Equal(new TerrainProfileSample(5_000, 3), p.LineOfSight[0].Terrain![0]);
+        Assert.Equal(new RadarEccmProfile(RadarScanType.Pesa, true, 4), p.RadarEccm["r1"]);
+        Assert.Equal("init", p.CommsGridTransitions[0].Reason);
+    }
+
+    [Fact]
     public void Absent_sections_default_to_empty()
     {
         var p = Load("""{ "id": "plain" }""");

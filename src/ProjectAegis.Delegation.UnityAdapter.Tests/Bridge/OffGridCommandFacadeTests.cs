@@ -2,8 +2,7 @@ namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 using Controllers;
 using Core;
-using Input;
-using ProjectAegis.Delegation.Projection;
+using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Comms;
 using ProjectAegis.Sim.Glossary;
@@ -11,7 +10,7 @@ using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
 
-/// <summary>C3-01 / DRG-390: off-grid units refuse new direct orders at the command façade.</summary>
+/// <summary>C3-01 / DRG-390: off-grid units refuse new direct orders at the player-command façade.</summary>
 [TestFixture]
 public sealed class OffGridCommandFacadeTests
 {
@@ -39,7 +38,6 @@ public sealed class OffGridCommandFacadeTests
         Assert.That(C2PlayerCommandBridge.TryIssue(bridge, new EntityKey(1), "hold", simTime: 12, out var reason), Is.False);
         Assert.That(reason, Is.EqualTo(AbortReasonCatalog.Doctrine.COMMS_OFF_GRID));
         Assert.That(bridge.Orchestrator.DecisionLog.PlayerOrders, Is.Empty);
-        Assert.That(bridge.TryEnqueueHumanOrder(new EntityKey(1), OrderKind.Hold, 12), Is.False);
     }
 
     [Test]
@@ -48,7 +46,7 @@ public sealed class OffGridCommandFacadeTests
         var bridge = BuildBridge(
             new ScenarioCommsGridTransition(10, "u1", "OffGrid"),
             new ScenarioCommsGridTransition(20, "u1", "OnGrid"));
-        Assert.That(bridge.IsOffGrid("u1", 15), Is.True);
+        Assert.That(bridge.Orchestrator.EvaluateOffGrid("u1", 15), Is.EqualTo(FireAbortReason.OffGrid));
         Assert.That(C2PlayerCommandBridge.TryIssue(bridge, new EntityKey(1), "hold", simTime: 21, out _), Is.True);
     }
 
@@ -58,6 +56,7 @@ public sealed class OffGridCommandFacadeTests
         var bridge = BuildBridge(new ScenarioCommsGridTransition(1, "u1", "OffGrid"));
         Assert.That(bridge.Session!.EvaluateOffGrid("u1", 1), Is.EqualTo(FireAbortReason.OffGrid));
         Assert.That(bridge.Session.EvaluateOffGrid("u2", 1), Is.Null);
+        Assert.That(bridge.Orchestrator.LastCommsGridChanges.Single().UnitId, Is.EqualTo("u1"));
     }
 
     [Test]
@@ -84,6 +83,12 @@ public sealed class OffGridCommandFacadeTests
         Assert.That(row.HasLastReport, Is.True);
         Assert.That(row.LastLatitudeDeg, Is.EqualTo(58.5));
         Assert.That(row.LastReportTick, Is.EqualTo(8UL));
+        Assert.That(row.LastLongitudeDeg, Is.EqualTo(19.25));
+        Assert.That(row.OffGridSinceTick, Is.EqualTo(10UL));
+        var change = grid.Advance(10);
+        Assert.That(change, Is.Empty);
+        Assert.That(CommsGridProjection.FormatChange(new CommsGridChange(10, "sub-1", CommsGridMembership.OnGrid, CommsGridMembership.OffGrid, "deep")),
+            Is.EqualTo("T10 sub-1 OnGrid→OffGrid (deep)"));
         Assert.That(row.Label, Does.StartWith(CommsGridProjection.OffGridLabelPrefix));
         Assert.That(CommsGridProjection.Project(null, 15), Is.Empty);
     }

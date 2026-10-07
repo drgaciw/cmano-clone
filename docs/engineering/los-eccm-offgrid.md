@@ -37,13 +37,15 @@ ECCM attributes behaves byte-for-byte as before: no extra RNG draws and unchange
 
 ## C3-01 — Off-grid units in Sim (DRG-390)
 
-- `CommsGridRegistry` (`Sim/Comms`) holds per-unit `OnGrid/OffGrid` state from scenario
+- `CommsGridRegistry` (`Sim/Comms`, owned by `DelegationOrchestrator.CommsGrid` and resolved lazily from the scenario policy) holds per-unit `OnGrid/OffGrid` state from scenario
   `commsGrid` transitions. Transitions apply in (tick, unit id ordinal) order. The registry never
   rewinds, folds its state into an FNV hash, and freezes position reports while a unit is off grid.
-- The command façade (`DelegationBridge.TryEnqueueHumanOrder`, `TryEnqueueAttackOption`,
-  `TryTakeDirectControl`, `C2PlayerCommandBridge.TryIssue`) refuses new direct orders to off-grid
-  units with Doctrine code `COMMS_OFF_GRID` (`FireAbortReason.OffGrid`). Orders already issued
-  and agent/doctrine intents keep executing.
+- Enforcement lives in `DelegationOrchestrator`, because `DelegationBridge.cs` is zero-touch through Release v1:
+  - Human orders issued at or after a unit's off-grid tick are dropped at drain and logged as a
+    `PolicyDenial` with `FireAbortReason.OffGrid` (Doctrine code `COMMS_OFF_GRID`, agent `comms-grid`).
+  - Orders issued *before* the unit left the grid, and agent/doctrine intents, still execute.
+  - `TryTakeDirectControl` refuses off-grid units.
+  - `C2PlayerCommandBridge.TryIssue` returns `COMMS_OFF_GRID` up front for immediate UI feedback.
 - `CommsGridProjection` gives the UI off-grid rows with the last-reported position. Presentation
   never computes membership.
 
