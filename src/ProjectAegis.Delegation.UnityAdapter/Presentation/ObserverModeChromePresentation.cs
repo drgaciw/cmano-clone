@@ -39,7 +39,7 @@ public sealed record ObserverModeChromePresentation(
     /// <summary>Visible reason for <see cref="C2PlayerCommandBridge.ReasonReplayAttached"/>.</summary>
     public const string ReplayAttachedReasonText = "Observer mode: replay viewer attached — orders and delegation are disabled.";
 
-    private static readonly ObserverModeChromePresentation _observer = new(
+    private static readonly ObserverModeChromePresentation Observer = new(
         true,
         ObserverLabel,
         ObserverCssClass,
@@ -48,7 +48,7 @@ public sealed record ObserverModeChromePresentation(
         C2PlayerCommandBridge.ReasonReplayAttached,
         ReplayAttachedReasonText);
 
-    private static readonly ObserverModeChromePresentation _command = new(
+    private static readonly ObserverModeChromePresentation Command = new(
         false,
         CommandLabel,
         CommandCssClass,
@@ -71,7 +71,7 @@ public sealed record ObserverModeChromePresentation(
 
     /// <summary>Project chrome from a viewer flag.</summary>
     public static ObserverModeChromePresentation Project(bool attachReplayViewer) =>
-        attachReplayViewer ? _observer : _command;
+        attachReplayViewer ? Observer : Command;
 
     /// <summary>
     /// Attempt a player order via <see cref="C2PlayerCommandBridge.TryIssue"/> and return a visible outcome.
