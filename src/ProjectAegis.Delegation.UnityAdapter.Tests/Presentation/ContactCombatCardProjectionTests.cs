@@ -179,6 +179,70 @@ public sealed class ContactCombatCardProjectionTests
     }
 
     [Test]
+    public void Targetability_for_a_different_target_than_provenance_is_unknown()
+    {
+        var card = ContactCombatCardProjection.Project(
+            "c1", Provenance(), Targetability(targetId: "target-2"), null, Ledger());
+
+        Assert.That(card.Provenance, Does.Contain("tgt=target-1"));
+        Assert.That(card.Targetability, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(card.EngagementStatus, Is.EqualTo(ContactCombatCardTokens.Unknown));
+    }
+
+    [Test]
+    public void Targetability_mismatch_also_withholds_bda_that_disagrees_with_it()
+    {
+        var card = ContactCombatCardProjection.Project(
+            "c1", Provenance(), Targetability(targetId: "target-2"), Bda(), Ledger());
+
+        Assert.That(card.Targetability, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(card.Bda, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(card.EngagementStatus, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(ContactCombatCardProjection.FingerprintMatches(card), Is.True);
+    }
+
+    [Test]
+    public void Bda_for_a_different_target_than_provenance_is_unknown()
+    {
+        var card = ContactCombatCardProjection.Project(
+            "c1", Provenance(), Targetability(), Bda(targetId: "target-2"), Ledger());
+
+        Assert.That(card.Bda, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(card.Bda, Does.Not.Contain("target-2"));
+        Assert.That(card.Targetability, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(card.EngagementStatus, Is.EqualTo(ContactCombatCardTokens.Unknown));
+    }
+
+    [Test]
+    public void Bda_for_a_different_target_than_provenance_last_known_is_unknown()
+    {
+        var card = ContactCombatCardProjection.Project(
+            "c1", Provenance(targetId: "target-2", knownTargetId: "target-1"), null, Bda(targetId: "target-2"), null);
+
+        Assert.That(card.Bda, Is.EqualTo(ContactCombatCardTokens.Unknown));
+    }
+
+    [Test]
+    public void Targetability_and_bda_disagreeing_without_provenance_are_unknown()
+    {
+        var card = ContactCombatCardProjection.Project(
+            "c1", null, Targetability(targetId: "target-1"), Bda(targetId: "target-2"), null);
+
+        Assert.That(card.Targetability, Is.EqualTo(ContactCombatCardTokens.Unknown));
+        Assert.That(card.Bda, Is.EqualTo(ContactCombatCardTokens.Unknown));
+    }
+
+    [Test]
+    public void Assessments_without_conflicting_identity_facts_are_read()
+    {
+        var card = ContactCombatCardProjection.Project(
+            "c1", null, Targetability(targetId: "target-2"), Bda(targetId: "target-2"), null);
+
+        Assert.That(card.Targetability, Is.EqualTo("Withheld;cause=Stale"));
+        Assert.That(card.Bda, Does.Contain("tgt=target-2"));
+    }
+
+    [Test]
     public void Ambiguous_duplicate_provenance_is_unknown()
     {
         var snapshot = new ContactProvenanceSnapshot(new[]
@@ -207,18 +271,50 @@ public sealed class ContactCombatCardProjectionTests
     }
 
     [Test]
-    public void Ledger_order_does_not_change_latest_engagement()
+    public void Latest_engagement_is_the_last_matching_ledger_entry()
     {
         var older = Entry(tick: 10, outcome: "Launched", phase: CombatEventPhaseConsume.Firing);
         var newer = Entry(tick: 20, outcome: "Hit", phase: CombatEventPhaseConsume.TerminalOutcome);
-        var forward = ContactCombatCardProjection.Project(
-            "c1", Provenance(), null, null, new AfterActionLedgerSnapshot(new[] { older, newer }));
-        var reversed = ContactCombatCardProjection.Project(
-            "c1", Provenance(), null, null, new AfterActionLedgerSnapshot(new[] { newer, older }));
+        var other = Entry(targetId: "target-other", tick: 30, outcome: "Miss");
 
-        Assert.That(forward.EngagementStatus, Is.EqualTo(reversed.EngagementStatus));
-        Assert.That(forward.EngagementStatus, Does.Contain("outcome=Hit").And.Contain("tick=20"));
-        Assert.That(forward.Fingerprint, Is.EqualTo(reversed.Fingerprint));
+        var card = ContactCombatCardProjection.Project(
+            "c1", Provenance(), null, null, new AfterActionLedgerSnapshot(new[] { older, newer, other }));
+
+        Assert.That(card.EngagementStatus, Does.Contain("outcome=Hit").And.Contain("tick=20"));
+        Assert.That(ContactCombatCardProjection.FingerprintMatches(card), Is.True);
+    }
+
+    [Test]
+    public void Same_tick_attempts_use_ledger_order_not_correlation_id()
+    {
+        var secondAttemptFiring = AttemptEntry("u2", 10, CombatEventPhaseConsume.Firing, "Launched", "ref-10");
+        var firstAttemptTerminal = AttemptEntry("u1", 4, CombatEventPhaseConsume.TerminalOutcome, "Kill", "ref-4");
+
+        var card = ContactCombatCardProjection.Project(
+            "c1",
+            Provenance(),
+            null,
+            null,
+            new AfterActionLedgerSnapshot(new[] { secondAttemptFiring, firstAttemptTerminal }));
+
+        Assert.That(card.EngagementStatus, Is.EqualTo(
+            "shooter=u1;phase=TerminalOutcome;outcome=Kill;weapon=asm;tick=20;time=2.5;corr=4;expl=ref-4"));
+    }
+
+    [Test]
+    public void Same_tick_terminal_outcomes_use_ledger_order_not_field_tie_break()
+    {
+        var earlierTerminal = AttemptEntry("u2", 9, CombatEventPhaseConsume.TerminalOutcome, "Miss", "ref-a");
+        var laterTerminal = AttemptEntry("u1", 9, CombatEventPhaseConsume.TerminalOutcome, "Hit", "ref-b");
+        var laterFiring = AttemptEntry("u1", 9, CombatEventPhaseConsume.Firing, "Launched", "ref-c");
+
+        var terminalLast = ContactCombatCardProjection.Project(
+            "c1", Provenance(), null, null, new AfterActionLedgerSnapshot(new[] { earlierTerminal, laterTerminal }));
+        var firingLast = ContactCombatCardProjection.Project(
+            "c1", Provenance(), null, null, new AfterActionLedgerSnapshot(new[] { earlierTerminal, laterFiring }));
+
+        Assert.That(terminalLast.EngagementStatus, Does.Contain("shooter=u1").And.Contain("outcome=Hit").And.Contain("expl=ref-b"));
+        Assert.That(firingLast.EngagementStatus, Does.Contain("phase=Firing").And.Contain("expl=ref-c"));
     }
 
     [Test]
@@ -260,6 +356,35 @@ public sealed class ContactCombatCardProjectionTests
         Assert.That(first.Fingerprint, Is.EqualTo(second.Fingerprint));
         Assert.That(ContactCombatCardProjection.FingerprintMatches(first), Is.True);
         Assert.That(first.Cards[0].Fingerprint, Is.Not.EqualTo(ContactCombatCardTokens.EmptyFingerprint));
+    }
+
+    [Test]
+    public void Snapshot_cards_cannot_be_cast_back_to_a_mutable_array()
+    {
+        var snapshot = ContactCombatCardProjection.ProjectSelection(
+            new[] { "c1", "c2" }, Provenance(), null, null, null);
+        var original = snapshot.Cards[0];
+
+        Assert.That(snapshot.Cards, Is.Not.InstanceOf<ContactCombatCard[]>());
+        Assert.That(snapshot.Cards, Is.InstanceOf<System.Collections.ObjectModel.ReadOnlyCollection<ContactCombatCard>>());
+        var asList = (IList<ContactCombatCard>)snapshot.Cards;
+        Assert.That(asList.IsReadOnly, Is.True);
+        Assert.Throws<NotSupportedException>(() => asList[0] = ContactCombatCard.Empty);
+        Assert.That(snapshot.Cards[0], Is.SameAs(original));
+        Assert.That(ContactCombatCardProjection.FingerprintMatches(snapshot), Is.True);
+    }
+
+    [Test]
+    public void Snapshot_copies_caller_array_so_later_writes_do_not_desync_fingerprint()
+    {
+        var card = ContactCombatCardProjection.Project("c1", Provenance(), null, null, null);
+        var source = new[] { card };
+        var snapshot = new ContactCombatCardSnapshot(source, ContactCombatCardProjection.ComputeFingerprint(source));
+
+        source[0] = ContactCombatCard.Empty;
+
+        Assert.That(snapshot.Cards[0], Is.SameAs(card));
+        Assert.That(ContactCombatCardProjection.FingerprintMatches(snapshot), Is.True);
     }
 
     [Test]
@@ -411,12 +536,12 @@ public sealed class ContactCombatCardProjectionTests
             outOfComms,
             quality);
 
-    private static TargetabilityAcceptSnapshot Targetability() =>
+    private static TargetabilityAcceptSnapshot Targetability(string targetId = "target-1") =>
         new(new[]
         {
             new TargetabilityAcceptContactRow(
                 "c1",
-                "target-1",
+                targetId,
                 TargetabilityAcceptDisposition.Withheld,
                 TargetabilityAcceptCauseCodes.Stale,
                 null,
@@ -426,8 +551,9 @@ public sealed class ContactCombatCardProjectionTests
 
     private static BdaAssessSnapshot Bda(
         BdaAssessStateKind state = BdaAssessStateKind.Damaged,
-        BdaAssessSourceKind source = BdaAssessSourceKind.PlatformDamage) =>
-        new(new[] { BdaRow(state: state, source: source) });
+        BdaAssessSourceKind source = BdaAssessSourceKind.PlatformDamage,
+        string targetId = "target-1") =>
+        new(new[] { BdaRow(targetId: targetId, state: state, source: source) });
 
     private static BdaAssessContactState BdaRow(
         string contactId = "c1",
@@ -445,6 +571,14 @@ public sealed class ContactCombatCardProjectionTests
         string outcome = "Hit",
         CombatEventPhaseConsume phase = CombatEventPhaseConsume.TerminalOutcome) =>
         new("u1", targetId, "asm", outcome, 9, 2.5, tick, phase, "ref-9");
+
+    private static AfterActionLedgerEntry AttemptEntry(
+        string shooterId,
+        ulong correlationId,
+        CombatEventPhaseConsume phase,
+        string outcome,
+        string explanationRef) =>
+        new(shooterId, "target-1", "asm", outcome, correlationId, 2.5, 20, phase, explanationRef);
 
     private static ContactCombatCardPostureFact[] Postures() =>
         new[]

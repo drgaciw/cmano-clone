@@ -63,6 +63,10 @@ public static class OrbatCloneUnitCommand
                 ex.Message,
                 new { currentEditVersion = ex.CurrentEditVersion, fileHash = ex.FileHash });
         }
+        catch (ScenarioLatLonException ex)
+        {
+            return McpToolResult.WriteError(output, ex.Code, ex.Message);
+        }
         catch (InvalidOperationException ex)
         {
             return McpToolResult.WriteError(output, "CLONE_FAILED", ex.Message);

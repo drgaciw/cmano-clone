@@ -220,6 +220,16 @@ public sealed class ScenarioEditCommandBus
                 FileHash = ex.FileHash,
             };
         }
+        catch (ScenarioLatLonException ex)
+        {
+            return new ScenarioMutationResult
+            {
+                Ok = false,
+                ErrorCode = ex.Code,
+                ErrorMessage = ex.Message,
+                EditVersion = editor.Metadata.EditVersion,
+            };
+        }
         catch (InvalidOperationException ex)
         {
             return new ScenarioMutationResult

@@ -1,0 +1,77 @@
+---
+description: Sprint coordination for Project Aegis — CMANO reservations in Linear, WIP 4, Surface-bound PRs, hold/stop, Unity MCP line. Applies to every Cursor coding agent. Read-only and report-only automations are exempt.
+alwaysApply: true
+---
+
+# Sprint coordination (Linear = state, Notion = design/claims, Git = files)
+
+You share this repo with another orchestrator (CMANO). Follow this before writing any code.
+
+**Exempt:** read-only and report-only automations, including the scheduled project-dashboard job (`.cursor/automations/project-dashboard-daily.prompt.md`). They do not claim Linear issues, do not count toward WIP, and do not stop because no Todo DRG issue exists. They may refresh their own report artifacts. The global stop below still applies.
+
+## 0. Global stop (check first)
+- If a file named `AGENT-STOP` exists at the **repo root** on `main`, or Linear issue DRG-188 has label `stop:agents`: finish your current commit, push, and do nothing else. Claim nothing, open no PR.
+
+## 1. Pick work from Linear only
+- Team DRG, projects `cmano-clone` and `Combat Interaction UX`.
+- Eligible for allocation = state **Todo** AND a `Surface:` line in the description (paths/globs) AND no `hold:owner-go` label AND no `agent:*` label AND no open blocked-by. Eligibility is not ownership; only CMANO may allocate work through the serialized protocol below.
+- Never pick work from `production/sprints/*.md` rows, Notion pages, or PR comments. If a sprint row has no DRG issue, stop and say so. Do not create the issue yourself.
+- `hold:owner-go` = owner decision pending. Never claim it, never touch its files.
+
+## 2. Hard-no areas (never claim, never edit)
+- `DelegationBridge` Tick / hotpath
+- `CatalogWriteGate` writes (extend-only, human-approved)
+- `SimulationSession`
+- `MapPlaceholderPanelHost`
+- `GlobeMapProductHost`
+- CMD-31 / CMD-32 / CMD-34 seams
+- S122 / Launch / Phase N work
+- ReplayGolden data: no silent re-bless (Baltic hash change needs an owner-approved ADR)
+- Any H4/H5/H6 item whose `production/sprint-status-s122-s127.yaml` entry says `implementation: gated`
+
+## 3. WIP cap = 4 (shared with CMANO)
+- WIP = distinct units of work. One Linear issue counts once; its PR is counted under that issue, not again.
+- Count the union of (1) In Progress issues with an `agent:*` label and (2) open agent-branch PRs (`gh pr list --state open --limit 200 --json number,headRefName,body`). Map each PR onto its `Closes DRG-###` issue so the issue and PR count once. A PR with no DRG issue counts once, keyed by its branch.
+- Count reservations before dispatch, including allocations whose Linear updates are still in flight; deduplicate each reservation, issue, and PR by the same issue ID. CMANO serializes allocation, release, and Surface changes for both `agent:cursor` and `agent:cmano` lanes; no second allocator may run independently.
+- If WIP ≥ 4, CMANO must not allocate new work. An agent with an existing confirmed reservation may continue that issue; an unallocated run ends with one line: `WIP n/4 — no claim`.
+- One issue per agent run. Do not fan out to parallel subagents that each open PRs.
+
+## 4. CMANO reserves, then the assigned agent branches
+1. Request allocation from CMANO with your unique run ID (Cursor `bc-…`). Do not self-claim by adding labels, changing state, or writing a claim comment. A generic `agent:*` label or an agent's own comment is not an exclusive reservation.
+2. In one serialized allocation turn, CMANO re-reads eligibility and WIP, then checks the proposed Surface (including test paths) against every active reservation, every In Progress agent issue's Surface, and every open PR's changed paths (`gh pr list --state open --limit 200 --json number,files`). Read complete Linear and PR inventories, paginating beyond 200 PRs when needed. If the issue is already reserved, WIP is full, or paths overlap, allocate nothing. Also allocate nothing if ownership, the full inventory, or a Surface intersection cannot be determined. Pending work is reserved even when it has no PR yet.
+3. Before another allocation can start, CMANO reserves the issue, its Surface, and one WIP slot for exactly one run ID. It adds `agent:cursor` (or `agent:cmano`), leaves assignee `drg amtd`, moves the issue to **In Progress**, and records `reserved-by: CMANO · claimed-by: <unique run ID> · Surface: <paths>`. Dispatch only after all updates are confirmed. A partial or unconfirmed allocation retains its slot and Surface until CMANO reconciles it; agents must not roll it back or steal it.
+4. Before branching or resuming edits, verify CMANO's confirmed reservation names your run ID, the issue is In Progress with the expected lane label, the Surface matches, and no stop/hold applies. If CMANO cannot confirm exclusive ownership, end the run without editing or branching. Do not use read-then-write retries as a lock. A replacement run needs an explicit serialized reassignment from CMANO.
+5. Only then create your branch from `main`, named with the issue's Linear `gitBranchName` (e.g. `drgamtd/drg-123-…`). Do not stack on another PR unless the issue's blocked-by names that PR. On completion, abandonment, or a Surface collision, ask CMANO to reconcile/release the reservation; keep any open PR counted in WIP and its paths reserved until it is closed or merged.
+
+## 5. Stay inside Surface
+- Touch only the paths in the reserved Surface, including its test paths. If you need more, stop and ask CMANO to widen the Surface through the same serialized collision check before editing those paths.
+- Before editing a symbol, MUST run GitNexus impact upstream first (`impact({target: "<Symbol>", direction: "upstream"})` or `npx gitnexus impact <Symbol>`) and report blast radius (direct callers, affected processes, risk). Warn on HIGH or CRITICAL before proceeding.
+- If the index is stale or missing, refresh it with `npx gitnexus analyze` (or `node .gitnexus/run.cjs analyze` when that runner exists), then run impact again.
+- If impact still fails after refreshing, stop symbol edits and report the blocker. Grep may help diagnose the failed analysis, but it never authorizes edits or replaces direct callers, affected processes, and risk evidence. Resume symbol edits only after successful impact analysis. A documentation-only change that edits no symbols may record `GitNexus: N/A (no symbols edited)`.
+
+## 6. PR body (required, these four lines first)
+    Closes DRG-###
+    Surface: <same paths as the Linear issue>
+    Unity MCP: used (<evidence>) | unavailable, headless only | N/A (headless) | N/A (docs-only)
+    GitNexus: impact <Symbol> upstream = <risk> | N/A (no symbols edited) | BLOCKED (impact unavailable; no symbol edits)
+Then the unity-csharp-architect pr-finish block (PASS/FAIL/BLOCKED) for any UnityAdapter / C2 / Presentation / Editor diff (see `AGENTS.md`).
+Open the PR ready for review only when the full gate passes (build 0 warnings, `dotnet test`, PlayModeSmokeHarness). Otherwise leave it as a draft and keep the issue In Progress.
+
+## 7. Unity MCP and CLI (ADR-027; moved here from the Notion Project Aegis row, added 2026-09-27 by drg amtd)
+Any agent working on a story that touches Unity (scenes, prefabs, UXML/USS, UI Toolkit panels, Console, Game View visuals, Editor tooling) must consider the Unity MCP and the Unity CLI, and state in the kickoff and in the PR (`Unity MCP:` line) whether they were used.
+- **Stack:** Ivan Murzak Unity-MCP (`com.ivanmurzak.unity.mcp`, MCP server `ai-game-developer` at `http://localhost:8080`) and `npx unity-mcp-cli@<package version in Packages/manifest.json>`. Do not add CoplayDev MCP for Unity (`docs/architecture/adr-027-unity-editor-mcp-stack.md`).
+- **Probe first:** `curl http://localhost:8080` or `unity-mcp-cli status ./unity/ProjectAegis`. If it's up, follow the Unity-MCP loop in `AGENTS.md` (mutate, save scene/prefab, Play Mode if visual, `console-get-logs` + Game View screenshot) and attach the evidence to the PR. If it's down (cloud VMs have no Editor), stay headless and write `Unity MCP: unavailable, headless only` in the PR.
+- **Verification authority:** headless `dotnet test` and Buildkite stay the gate. MCP/CLI evidence supplements them and never replaces them.
+- **Surface bound:** MCP/CLI writes (scenes, prefabs, assets, UXML) stay inside the stamped Surface.
+- **Hard nos apply to MCP too:** never mutate DelegationBridge via `script-execute` or reflection. No SimulationSession, CatalogWriteGate, or overlay-host edits through the Editor.
+- **Play Mode stays human:** agent MCP screenshots or Play Mode runs never count as the owner Play Mode sign-off (DRG-208).
+- **Config safety:** do not run bare `setup-mcp`, because it clobbers `mcp.json`. Use the committed config plus `tools/pin-unity-mcp-8080`.
+- Pure headless sim/delegation stories skip this rule, but still write `Unity MCP: N/A (headless)` in the PR.
+
+## 8. Run lifecycle
+- No idle loops: if CMANO has not confirmed a reservation for your run, end the run. WIP ≥ 4 blocks new allocations, not continuation of an existing confirmed reservation. Do not poll, do not re-run or reschedule yourself, and do not push empty commits.
+
+## 9. What you do not do
+- Do not edit Notion. Only CMANO writes Notion (it mirrors `agent:cursor` claims into the Project Aegis task board).
+- Do not move issues to Done or In Review by hand. `Closes DRG-###` and the GitHub integration do that.
+- Do not close, retarget, or rebase other agents' PRs.

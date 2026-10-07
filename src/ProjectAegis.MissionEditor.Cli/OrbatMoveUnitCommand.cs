@@ -56,6 +56,10 @@ public static class OrbatMoveUnitCommand
                 ex.Message,
                 new { currentEditVersion = ex.CurrentEditVersion, fileHash = ex.FileHash });
         }
+        catch (ScenarioLatLonException ex)
+        {
+            return McpToolResult.WriteError(output, ex.Code, ex.Message);
+        }
         catch (InvalidOperationException ex)
         {
             return McpToolResult.WriteError(output, "UNIT_NOT_FOUND", ex.Message);

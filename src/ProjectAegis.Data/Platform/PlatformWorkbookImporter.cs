@@ -16,15 +16,6 @@ public sealed class PlatformWorkbookImporter
 
     private const string SupportedSheet = "Sensors";
     private const string PlatformsSheet = "Platforms";
-    private static readonly string[] SupportedSheets =
-    {
-        "Sensors", "Mounts", "Loadouts", "Magazines", "Comms", "LinkCatalog",
-        "Mobility", "Signatures", "Emcon", "Swarms",
-    };
-    private static readonly string[] SupportedPlatformDamageColumns =
-    {
-        "MaxHp", "WithdrawThresholdPct", "CriticalFlags",
-    };
 
     private readonly Func<string, PlatformCatalogExportData?> _snapshotProvider;
     private readonly ICatalogClock _clock;
@@ -62,9 +53,16 @@ public sealed class PlatformWorkbookImporter
 
         var snapshotId = ReadMeta(edited, "SourceSnapshotId");
         var source = string.IsNullOrEmpty(snapshotId) ? null : _snapshotProvider(snapshotId);
+        var contractDrift = PlatformWorkbookContract.CheckDrift(edited);
+        var latLonFindings = PlatformWorkbookLatLonDiagnostics.Check(edited);
         if (source is null)
         {
-            return new PlatformImportPlan(snapshotId, false, [], [], [], [], RequiresHumanApproval: false);
+            return new PlatformImportPlan(snapshotId, false, [], [], [], [], RequiresHumanApproval: false)
+            {
+                ContractDrift = contractDrift,
+                DropCounts = PlatformImportDropCounter.Count(edited, [], [], 0),
+                LatLonFindings = latLonFindings,
+            };
         }
 
         var sourceWorkbook = _exporter.Export(source, snapshotId, _clock);
@@ -75,27 +73,14 @@ public sealed class PlatformWorkbookImporter
         var unsupported = new List<PlatformWorkbookChange>();
         foreach (var change in changes)
         {
-            if (SupportedSheets.Contains(change.Sheet, StringComparer.Ordinal))
+            if (IsStageableChange(change))
             {
                 supported.Add(change);
-                continue;
             }
-
-            if (string.Equals(change.Sheet, PlatformsSheet, StringComparison.Ordinal))
+            else
             {
-                if (IsSupportedPlatformDamageChange(change))
-                {
-                    supported.Add(change);
-                }
-                else
-                {
-                    unsupported.Add(change);
-                }
-
-                continue;
+                unsupported.Add(change);
             }
-
-            unsupported.Add(change);
         }
 
         var requiresApproval = changes.Count > HumanApprovalRecordThreshold;
@@ -104,14 +89,27 @@ public sealed class PlatformWorkbookImporter
         return new PlatformImportPlan(snapshotId, true, changes, findings, supported, unsupported, requiresApproval)
         {
             QuarantineEntries = quarantine,
+            ContractDrift = contractDrift,
+            DropCounts = PlatformImportDropCounter.Count(edited, unsupported, changes, quarantine.Count),
+            LatLonFindings = latLonFindings,
         };
     }
 
-    private static bool IsSupportedPlatformDamageChange(PlatformWorkbookChange change)
+    /// <summary>
+    /// S125-06: stageability comes from <see cref="PlatformWorkbookContract"/>. Fully stageable sheets accept
+    /// every change kind; partially stageable sheets (Platforms damage columns) accept cell edits only.
+    /// </summary>
+    private static bool IsStageableChange(PlatformWorkbookChange change)
     {
-        if (!string.Equals(change.Sheet, PlatformsSheet, StringComparison.Ordinal))
+        var contract = PlatformWorkbookContract.Find(change.Sheet);
+        if (contract is null || contract.StageableColumns.Count == 0)
         {
             return false;
+        }
+
+        if (contract.AllColumnsStageable)
+        {
+            return true;
         }
 
         if (change.Kind != PlatformWorkbookChangeKind.CellChanged)
@@ -120,7 +118,7 @@ public sealed class PlatformWorkbookImporter
         }
 
         var column = change.Detail.Split(':', 2)[0];
-        return SupportedPlatformDamageColumns.Contains(column, StringComparer.Ordinal);
+        return contract.IsColumnStageable(column);
     }
 
     public PlatformImportResult Stage(
@@ -145,6 +143,11 @@ public sealed class PlatformWorkbookImporter
         if (plan.Blocked)
         {
             notes.Add($"{plan.Findings.Count} validation finding(s); resolve errors before staging.");
+            if (plan.DropCounts.HasDrops)
+            {
+                notes.Add(plan.DropCounts.Summary);
+            }
+
             return EmptyImportResult(plan, notes, quarantine);
         }
 
@@ -312,6 +315,17 @@ public sealed class PlatformWorkbookImporter
             }
         }
 
+        foreach (var latLon in plan.LatLonFindings)
+        {
+            notes.Add(latLon.Message);
+        }
+
+        var dropCounts = plan.DropCounts with { QuarantinedRows = quarantine.Count };
+        if (dropCounts.HasDrops)
+        {
+            notes.Add(dropCounts.Summary);
+        }
+
         var staged = sensorBatchId is not null
             || mountBatchId is not null
             || loadoutBatchId is not null
@@ -340,6 +354,7 @@ public sealed class PlatformWorkbookImporter
             SwarmBatchId: swarmBatchId)
         {
             QuarantineEntries = SortQuarantine(quarantine),
+            DropCounts = dropCounts,
         };
     }
 
@@ -350,6 +365,7 @@ public sealed class PlatformWorkbookImporter
         new(plan, Staged: false, null, null, null, null, null, null, null, null, null, null, notes)
         {
             QuarantineEntries = SortQuarantine(quarantine ?? plan.QuarantineEntries),
+            DropCounts = plan.DropCounts with { QuarantinedRows = (quarantine ?? plan.QuarantineEntries).Count },
         };
 
     private static IReadOnlyList<T> FilterKnownPlatforms<T>(

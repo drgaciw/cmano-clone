@@ -691,10 +691,7 @@ public sealed class ScenarioDocumentEditor
             throw new InvalidOperationException("Platform id is required.");
         }
 
-        if (!IsValidLatLon(unit.Lat, unit.Lon, out var coordError))
-        {
-            throw new InvalidOperationException(coordError);
-        }
+        RequireValidLatLon(unit.Lat, unit.Lon);
 
         var units = (_orbat?.Units ?? Array.Empty<ScenarioOrbatUnitDto>()).ToList();
         var idx = units.FindIndex(u => string.Equals(u.Id, unit.Id, StringComparison.OrdinalIgnoreCase));
@@ -735,28 +732,13 @@ public sealed class ScenarioDocumentEditor
         };
     }
 
-    private static bool IsValidLatLon(double lat, double lon, out string error)
+    private static void RequireValidLatLon(double lat, double lon)
     {
-        if (double.IsNaN(lat) || double.IsInfinity(lat) || double.IsNaN(lon) || double.IsInfinity(lon))
+        var diagnostic = ScenarioLatLonDiagnostics.Check(lat, lon);
+        if (diagnostic is not null)
         {
-            error = "Latitude and longitude must be finite numbers.";
-            return false;
+            throw new ScenarioLatLonException(diagnostic);
         }
-
-        if (lat < -90.0 || lat > 90.0)
-        {
-            error = "Latitude must be between -90 and 90.";
-            return false;
-        }
-
-        if (lon < -180.0 || lon > 180.0)
-        {
-            error = "Longitude must be between -180 and 180.";
-            return false;
-        }
-
-        error = string.Empty;
-        return true;
     }
 
     /// <summary>Moves an existing ORBAT unit; preserves non-position fields.</summary>
@@ -770,6 +752,7 @@ public sealed class ScenarioDocumentEditor
             throw new InvalidOperationException($"Unit id '{unitId}' was not found.");
         }
 
+        RequireValidLatLon(lat, lon);
         var u = units[idx];
         units[idx] = new ScenarioOrbatUnitDto
         {
@@ -815,6 +798,7 @@ public sealed class ScenarioDocumentEditor
             throw new InvalidOperationException($"Unit id '{sourceUnitId}' was not found.");
         }
 
+        RequireValidLatLon(lat, lon);
         units.Add(new ScenarioOrbatUnitDto
         {
             Id = newUnitId,
