@@ -1,7 +1,7 @@
 # S124 Delegation Evidence — Assign Agent + Rebrief success (S124-05 / S124-06)
 
 **Sprint:** [S124 combat-commit honesty](../../sprints/sprint-124-combat-commit.md) · **QA plan:** [qa-plan-sprint-122-127-rebaseline-2026-09-30.md](../qa-plan-sprint-122-127-rebaseline-2026-09-30.md) (S124 "commit + delegation" row)
-**Branch:** `cursor/s124-delegation-assign-7fee` · **Stacked on:** `cursor/s123-play-entry-7fee` @ `71f57b98f013a1fdea432774049856de2dc7a088`
+**Branch:** `cursor/s124-delegation-assign-7fee` · **Stacked on:** `cursor/s123-play-entry-7fee` @ `19b7627af8078b3aabfe462731f3469d705f96bf` (merge `910f8f48`)
 **Rows:** S124-05 W2-DEL-04 initial Assign Agent · S124-06 W2-DEL-02 rebrief success path
 
 > **Scope.** Headless evidence only. QA-plan acceptance for this half of the S124 row: "Initial Assign Agent and
@@ -37,7 +37,7 @@
 | File | Role |
 |------|------|
 | `src/ProjectAegis.Delegation/Orchestration/LoopPolicyGate.cs` | `CanRebriefAgent` (new, additive) |
-| `src/ProjectAegis.Delegation/Orchestration/DelegationOrchestrator.cs` | `TryAssignAgentController` → `AssignAgentToTarget` + `ControllerChangeRecord`; `TryRebriefAgent` → traits + slug + `PolicyUpdateRecord` field `personality.rebrief` (new, additive) |
+| `src/ProjectAegis.Delegation/Orchestration/DelegationOrchestrator.cs` | `TryAssignAgentController` → `AssignAgentToTarget` + `ControllerChangeRecord`; refuses `pending-human-orders` while a human queue is nonempty. `TryRebriefAgent` → traits + slug + `PersonalityCatalog.ResolveAttentionBudget` + `PolicyUpdateRecord` field `personality.rebrief` |
 | `src/ProjectAegis.Delegation.UnityAdapter/PlayEntry/PlayEntrySession.cs` | `CommandedTargets` set at Begin, cleared on load / reset |
 | `src/ProjectAegis.Delegation.UnityAdapter/PlayEntry/PlayEntryContracts.cs` | `PlayCommandedTarget` record |
 | `src/ProjectAegis.Delegation.UnityAdapter/PlayDelegation/PlayDelegationCommands.cs` | `TryAssignAgent` / `TryRebriefAgent` command façade returning `PlayEntryResult` |
@@ -69,7 +69,7 @@ shipped scenario policy uses those modes (Baltic `baltic-patrol-catalog` default
 export PATH="$HOME/.dotnet:$PATH"
 dotnet test src/ProjectAegis.Delegation.Tests/ProjectAegis.Delegation.Tests.csproj -m:1 \
   --filter "FullyQualifiedName~AgentAssignRebriefTests|FullyQualifiedName~LoopPolicyGateTests|FullyQualifiedName~SimulationSessionPhaseTests"
-# Passed! Failed: 0, Passed: 27, Total: 27
+# Passed! Failed: 0, Passed: 30, Total: 30
 
 dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegation.UnityAdapter.Tests.csproj -m:1 \
   --filter "FullyQualifiedName~ProjectAegis.Delegation.UnityAdapter.Tests.PlayDelegation"
@@ -111,3 +111,4 @@ Full-solution gates are run serially by the orchestrator and are not claimed her
 - **Rebrief sim-time cost.** Not implemented (spec marks it a future scenario-policy field).
 - **Unassign / hand back to human.** Out of scope; existing `TryTakeDirectControl` / `TryReleaseDirectControl` cover takeover of an agent-controlled unit.
 - **Autonomy change on rebrief.** Rebrief swaps the personality preset only; autonomy stays as assigned (`CanEditAutonomy` is always-allow and unchanged).
+- **Hindsight personality re-registration.** Follow-up (Codex P2). `AssignAgentToTarget` registers the slug on `HindsightOrderLogHook`; `TryRebriefAgent` changes `PersonalitySlug` without calling `RegisterAgent` again, so later decisions stay on the previous personality bank when Hindsight is enabled. The hook's map is private, so this was left as a follow-up rather than an untested sidecar change.

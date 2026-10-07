@@ -10,7 +10,10 @@ using ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 /// Headless play-delegation command façade (S124-05 W2-DEL-04 Assign Agent, S124-06 W2-DEL-02 Rebrief Agent).
 /// Validates against the <see cref="PlayEntrySession"/> commanded targets, then routes authority through
 /// <see cref="DelegationOrchestrator.TryAssignAgentController"/> / <see cref="DelegationOrchestrator.TryRebriefAgent"/>,
-/// which own the order-log writes (ADR-010). Failed commands never mutate controllers or the log.
+/// which own the order-log writes (ADR-010 §2–3, ADR-001). <c>DelegationBridge.Orchestrator</c> is the
+/// existing headless command seam (same shape as the replay harness); these calls do not enter
+/// <c>DelegationBridge.Tick</c>. Map presentation stays read-only (ADR-007). Failed commands never mutate
+/// controllers or the log.
 /// </summary>
 public sealed class PlayDelegationCommands
 {

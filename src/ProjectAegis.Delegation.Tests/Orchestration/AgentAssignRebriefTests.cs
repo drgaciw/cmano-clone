@@ -56,6 +56,29 @@ public sealed class AgentAssignRebriefTests
     }
 
     [Test]
+    public void TryAssignAgentController_denies_while_human_orders_are_pending_and_keeps_the_queue()
+    {
+        var orchestrator = new DelegationOrchestrator(42);
+        var unit = RegisterHumanUnit(orchestrator, "u1");
+        var human = (HumanController)unit.Slot.Active!;
+        human.Enqueue(new Order(new OrderId(1), unit.Id, 0, OrderKind.Hold, RiskLevel.Low), executeSimTick: 99);
+        var agent = orchestrator.CreateAgentFromPreset(new AgentId("a1"), Aggressive, AutonomyLevel.SemiAutonomous);
+
+        var verdict = orchestrator.TryAssignAgentController(unit, agent, isFriendly: true, simTime: 3.0);
+
+        Assert.That(verdict.Allowed, Is.False);
+        Assert.That(verdict.DenialReason, Does.Contain(DelegationOrchestrator.PendingHumanOrdersCause));
+        Assert.That(unit.Slot.Active, Is.SameAs(human));
+        Assert.That(human.PendingOrderCount, Is.EqualTo(1));
+        Assert.That(orchestrator.DecisionLog.ControllerChanges, Is.Empty);
+
+        Assert.That(human.DrainIssuedOrders(99), Has.Count.EqualTo(1));
+        var after = orchestrator.TryAssignAgentController(unit, agent, isFriendly: true, simTime: 4.0);
+        Assert.That(after.Allowed, Is.True, after.DenialReason);
+        Assert.That(unit.Slot.Active, Is.SameAs(agent));
+    }
+
+    [Test]
     public void TryAssignAgentController_denies_when_agent_already_active_without_mutation()
     {
         var orchestrator = new DelegationOrchestrator(42);
@@ -150,6 +173,44 @@ public sealed class AgentAssignRebriefTests
         Assert.That(agent.Traits, Is.EqualTo(Aggressive.Traits));
         Assert.That(agent.PersonalitySlug, Is.EqualTo(Aggressive.Name));
         Assert.That(orchestrator.DecisionLog.PolicyUpdates, Has.Count.EqualTo(updatesBefore));
+    }
+
+    [Test]
+    public void TryRebriefAgent_applies_the_new_preset_attention_budget()
+    {
+        var orchestrator = ExecutingWithPolicy(PersonalityEditPolicy.Anytime);
+        var swarm = PersonalityCatalog.All.Single(p => p.Name == "SwarmCoordinator");
+        var ew = PersonalityCatalog.All.Single(p => p.Name == "EwSpecialist");
+        var agent = orchestrator.CreateAgentFromPreset(new AgentId("a1"), Aggressive, AutonomyLevel.FullAutonomous);
+        Assert.That(agent.AttentionBudget, Is.EqualTo(PersonalityCatalog.ResolveAttentionBudget(Aggressive)));
+
+        var toSwarm = orchestrator.TryRebriefAgent(agent, swarm, simTime: 1.0);
+
+        Assert.That(toSwarm.Allowed, Is.True, toSwarm.DenialReason);
+        Assert.That(agent.AttentionBudget, Is.EqualTo(PersonalityCatalog.ResolveAttentionBudget(swarm)));
+        Assert.That(agent.AttentionBudget, Is.EqualTo(PersonalityCatalog.DefaultAttentionBudget * 1.25));
+
+        var toEw = orchestrator.TryRebriefAgent(agent, ew, simTime: 2.0);
+
+        Assert.That(toEw.Allowed, Is.True, toEw.DenialReason);
+        Assert.That(agent.AttentionBudget, Is.EqualTo(PersonalityCatalog.ResolveAttentionBudget(ew)));
+        Assert.That(agent.AttentionBudget, Is.EqualTo(PersonalityCatalog.DefaultAttentionBudget * 0.9));
+    }
+
+    [Test]
+    public void TryRebriefAgent_denied_leaves_attention_budget_unchanged()
+    {
+        var orchestrator = ExecutingWithPolicy(PersonalityEditPolicy.PlanningOnly);
+        var swarm = PersonalityCatalog.All.Single(p => p.Name == "SwarmCoordinator");
+        var ew = PersonalityCatalog.All.Single(p => p.Name == "EwSpecialist");
+        var agent = orchestrator.CreateAgentFromPreset(new AgentId("a1"), swarm, AutonomyLevel.FullAutonomous);
+        var budget = agent.AttentionBudget;
+
+        var verdict = orchestrator.TryRebriefAgent(agent, ew, simTime: 2.0);
+
+        Assert.That(verdict.Allowed, Is.False);
+        Assert.That(agent.AttentionBudget, Is.EqualTo(budget));
+        Assert.That(agent.PersonalitySlug, Is.EqualTo(swarm.Name));
     }
 
     [Test]

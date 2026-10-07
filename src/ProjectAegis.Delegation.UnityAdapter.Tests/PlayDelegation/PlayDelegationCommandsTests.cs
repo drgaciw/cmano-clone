@@ -197,6 +197,23 @@ public sealed class PlayDelegationCommandsTests
     }
 
     [Test]
+    public void Assign_refuses_while_human_orders_are_pending()
+    {
+        var (session, friendly, _) = BeginBaltic(SimulationModeKind.Mixed, PlaySide.Friendly);
+        var human = (HumanController)friendly.Slot.Active!;
+        human.Enqueue(new Order(new OrderId(1), friendly.Id, 0, OrderKind.Hold, RiskLevel.Low), executeSimTick: 99);
+        var commands = new PlayDelegationCommands(session);
+
+        var result = commands.TryAssignAgent(friendly.Id, Aggressive, AutonomyLevel.SemiAutonomous, simTime: 2.0);
+
+        AssertFailure(result, PlayDelegationErrorCodes.AssignDenied);
+        Assert.That(result.Message, Does.Contain(DelegationOrchestrator.PendingHumanOrdersCause));
+        Assert.That(friendly.Slot.Active, Is.SameAs(human));
+        Assert.That(human.PendingOrderCount, Is.EqualTo(1));
+        Assert.That(session.Bridge!.Orchestrator.DecisionLog.ControllerChanges, Is.Empty);
+    }
+
+    [Test]
     public void Rebrief_of_human_controlled_target_is_refused()
     {
         var (session, friendly, _) = BeginBaltic(SimulationModeKind.Mixed, PlaySide.Friendly);

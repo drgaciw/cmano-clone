@@ -409,10 +409,16 @@ public sealed class DelegationOrchestrator
     public const string RebriefPolicyField = "personality.rebrief";
 
     /// <summary>
+    /// Denial cause when Assign Agent would replace a <see cref="HumanController"/> that still has queued orders.
+    /// </summary>
+    public const string PendingHumanOrdersCause = "pending-human-orders";
+
+    /// <summary>
     /// W2-DEL-04 player Assign Agent: install <paramref name="agent"/> on a registered human-controlled (or
     /// uncontrolled) target, capture its policy snapshot and log a <see cref="ControllerChangeRecord"/>.
     /// Denied without mutation when a replay viewer is attached, the target is unregistered, an agent is
-    /// already active, or a suspended agent awaits release of direct control.
+    /// already active, a suspended agent awaits release of direct control, or the active human controller
+    /// still has pending orders (<see cref="PendingHumanOrdersCause"/>).
     /// </summary>
     public LoopPolicyVerdict TryAssignAgentController(
         ICommandableTarget target,
@@ -441,6 +447,12 @@ public sealed class DelegationOrchestrator
                 $"Target {target.Id.Value} has a suspended agent; release direct control instead.");
         }
 
+        if (target.Slot.Active is HumanController human && human.PendingOrderCount > 0)
+        {
+            return LoopPolicyVerdict.Deny(
+                $"Target {target.Id.Value} has pending human orders ({PendingHumanOrdersCause}); assign refused until the queue is clear.");
+        }
+
         var previous = DescribeActiveController(target.Slot);
         var simTick = (ulong)Math.Max(0, (long)simTime);
         AssignAgentToTarget(agent, target, effectivePolicy: null, isFriendly, simTick);
@@ -451,7 +463,8 @@ public sealed class DelegationOrchestrator
 
     /// <summary>
     /// W2-DEL-02 Rebrief Agent: swap the agent's personality preset when <see cref="LoopPolicyGate.CanRebriefAgent"/>
-    /// allows it, logging a <see cref="RebriefPolicyField"/> policy update. Denials leave the agent and log untouched.
+    /// allows it, logging a <see cref="RebriefPolicyField"/> policy update and applying
+    /// <see cref="PersonalityCatalog.ResolveAttentionBudget"/>. Denials leave the agent and log untouched.
     /// </summary>
     public LoopPolicyVerdict TryRebriefAgent(
         AgentController agent,
@@ -477,6 +490,7 @@ public sealed class DelegationOrchestrator
         var previous = agent.PersonalitySlug ?? "custom";
         agent.RebindTraits(preset.Traits);
         agent.SetPersonalitySlug(preset.Name);
+        agent.RebindAttentionBudget(PersonalityCatalog.ResolveAttentionBudget(preset));
         DecisionLog.AppendPolicyUpdate(new PolicyUpdateRecord(
             0,
             simTime,
