@@ -62,7 +62,7 @@ public static class AttackOptionsPreviewBinder
     /// Per-thread so concurrent callers never observe another thread's menu; Unity hosts bind on the main thread.
     /// </remarks>
     [ThreadStatic]
-    private static BoundMenu? s_lastBound;
+    private static BoundMenu? _lastBound;
 
     /// <summary>
     /// Binds preview text, button rows, and a replay-stable fingerprint from the engage-options menu.
@@ -76,14 +76,14 @@ public static class AttackOptionsPreviewBinder
             return AttackOptionsPreviewState.Empty;
         }
 
-        var cached = s_lastBound;
+        var cached = _lastBound;
         if (cached is not null && cached.Matches(menu))
         {
             return cached.State;
         }
 
         var state = Build(menu);
-        s_lastBound = new BoundMenu(Snapshot(menu), state);
+        _lastBound = new BoundMenu(Snapshot(menu), state);
         return state;
     }
 
