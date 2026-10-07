@@ -58,8 +58,16 @@ public static class AttackOptionsPreviewBinder
     /// </summary>
     public const string MissingAbortToken = "BLOCKED";
 
+    /// <remarks>
+    /// Per-thread so concurrent callers never observe another thread's menu; Unity hosts bind on the main thread.
+    /// </remarks>
+    [ThreadStatic]
+    private static BoundMenu? s_lastBound;
+
     /// <summary>
     /// Binds preview text, button rows, and a replay-stable fingerprint from the engage-options menu.
+    /// Returns the previously bound instance without allocating when the menu contents are unchanged,
+    /// so per-frame host refreshes do not rebuild the preview.
     /// </summary>
     public static AttackOptionsPreviewState Bind(IReadOnlyList<EngageAttackOptions.AttackOption>? menu)
     {
@@ -68,6 +76,19 @@ public static class AttackOptionsPreviewBinder
             return AttackOptionsPreviewState.Empty;
         }
 
+        var cached = s_lastBound;
+        if (cached is not null && cached.Matches(menu))
+        {
+            return cached.State;
+        }
+
+        var state = Build(menu);
+        s_lastBound = new BoundMenu(Snapshot(menu), state);
+        return state;
+    }
+
+    private static AttackOptionsPreviewState Build(IReadOnlyList<EngageAttackOptions.AttackOption> menu)
+    {
         var rows = new AttackOptionMenuRow[menu.Count];
         var segments = new string[menu.Count];
         var fingerprintParts = new string[menu.Count];
@@ -103,7 +124,7 @@ public static class AttackOptionsPreviewBinder
 
         return new AttackOptionsPreviewState(
             "ATTACK: " + string.Join(" | ", segments),
-            rows,
+            Array.AsReadOnly(rows),
             anyBlocked ? AttackOptionsCueClasses.Blocked : AttackOptionsCueClasses.Ready,
             string.Concat("atk:", string.Join(";", fingerprintParts)));
     }
@@ -126,5 +147,48 @@ public static class AttackOptionsPreviewBinder
         }
 
         return null;
+    }
+
+    private static EngageAttackOptions.AttackOption[] Snapshot(IReadOnlyList<EngageAttackOptions.AttackOption> menu)
+    {
+        var copy = new EngageAttackOptions.AttackOption[menu.Count];
+        for (var i = 0; i < copy.Length; i++)
+        {
+            copy[i] = menu[i];
+        }
+
+        return copy;
+    }
+
+    private sealed class BoundMenu
+    {
+        private readonly EngageAttackOptions.AttackOption[] _options;
+
+        public BoundMenu(EngageAttackOptions.AttackOption[] options, AttackOptionsPreviewState state)
+        {
+            _options = options;
+            State = state;
+        }
+
+        public AttackOptionsPreviewState State { get; }
+
+        public bool Matches(IReadOnlyList<EngageAttackOptions.AttackOption> menu)
+        {
+            if (menu.Count != _options.Length)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < _options.Length; i++)
+            {
+                var option = menu[i];
+                if (!ReferenceEquals(option, _options[i]) && !_options[i].Equals(option))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }
