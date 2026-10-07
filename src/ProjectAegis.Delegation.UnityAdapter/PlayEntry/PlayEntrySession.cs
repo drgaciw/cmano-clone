@@ -1,14 +1,15 @@
 namespace ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 
-using ProjectAegis.Data.Catalog;
-using ProjectAegis.Data.Scenario;
+using System.Text.Json;
+using Data.Catalog;
+using Data.Scenario;
 using ProjectAegis.Data.Scenario.Authoring;
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Targets;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using Controllers;
+using Core;
+using Orchestration;
+using Targets;
+using Traits;
+using Bridge;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>
@@ -129,6 +130,16 @@ public sealed class PlayEntrySession
             return PlayEntryResult.Fail(
                 PlayEntryErrorCodes.SchemaError,
                 $"Scenario document invalid: {scenarioPath} ({ex.Message})");
+        }
+
+        // Explicit null deserializes without a loader exception, then FromDocument
+        // dereferences Metadata.PolicyId. A missing key keeps the DTO initializer and
+        // would otherwise load with package defaults. Both are schema refusals.
+        if (document.Metadata is null || !DeclaresMetadataObject(scenarioPath))
+        {
+            return PlayEntryResult.Fail(
+                PlayEntryErrorCodes.SchemaError,
+                $"Scenario document invalid: {scenarioPath} (metadata is required).");
         }
 
         var scenarioId = ScenarioLibraryProjection.ScenarioIdFromPath(scenarioPath);
@@ -312,6 +323,44 @@ public sealed class PlayEntrySession
         _commanded = Array.Empty<PlayCommandedTarget>();
         _generation++;
         return PlayEntryResult.Ok($"Reset '{Package.ScenarioId}' to Planning.");
+    }
+
+    /// <summary>
+    /// True when the file's root object has a <c>metadata</c> property whose value is an object.
+    /// Null and a missing key are both refusals; an empty object is present and may use package defaults.
+    /// </summary>
+    private static bool DeclaresMetadataObject(string scenarioPath)
+    {
+        try
+        {
+            using var stream = File.OpenRead(scenarioPath);
+            using var json = JsonDocument.Parse(
+                stream,
+                new JsonDocumentOptions
+                {
+                    CommentHandling = JsonCommentHandling.Skip,
+                    AllowTrailingCommas = true,
+                });
+            if (json.RootElement.ValueKind != JsonValueKind.Object)
+            {
+                return false;
+            }
+
+            JsonElement? metadata = null;
+            foreach (var property in json.RootElement.EnumerateObject())
+            {
+                if (property.Name.Equals("metadata", StringComparison.OrdinalIgnoreCase))
+                {
+                    metadata = property.Value;
+                }
+            }
+
+            return metadata is { ValueKind: JsonValueKind.Object };
+        }
+        catch (Exception ex) when (ex is JsonException or IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
     }
 
     private PlayEntryResult? RequirePlanning()

@@ -1,6 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.PlayEntry;
 
-using ProjectAegis.Data.Scenario;
+using Data.Scenario;
 using ProjectAegis.Data.Scenario.Authoring;
 
 public enum BriefingContentState
@@ -52,9 +52,9 @@ public sealed record BriefingContentPresentation(
             return None;
         }
 
-        var meta = document.Metadata ?? new ScenarioMetadataDto();
+        var meta = document.Metadata;
         var narrative = string.IsNullOrWhiteSpace(meta.Description) ? null : meta.Description!.Trim();
-        var missions = document.Missions ?? Array.Empty<ScenarioMissionDto>();
+        var missions = document.Missions;
         var lines = new string[missions.Count];
         for (var i = 0; i < missions.Count; i++)
         {
