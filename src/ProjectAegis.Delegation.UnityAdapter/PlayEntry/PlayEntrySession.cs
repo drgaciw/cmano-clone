@@ -132,10 +132,10 @@ public sealed class PlayEntrySession
                 $"Scenario document invalid: {scenarioPath} ({ex.Message})");
         }
 
-        // Explicit null deserializes without a loader exception, then FromDocument
-        // dereferences Metadata.PolicyId. A missing key keeps the DTO initializer and
-        // would otherwise load with package defaults. Both are schema refusals.
-        if (document.Metadata is null || !DeclaresMetadataObject(scenarioPath))
+        // The DTO marks Metadata non-nullable, but System.Text.Json still assigns null for
+        // `"metadata": null`, and a missing key keeps the initializer. FromDocument then
+        // reads Metadata.PolicyId. Require a real metadata object before that call.
+        if (!DeclaresMetadataObject(scenarioPath))
         {
             return PlayEntryResult.Fail(
                 PlayEntryErrorCodes.SchemaError,
