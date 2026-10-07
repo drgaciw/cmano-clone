@@ -263,6 +263,35 @@ public sealed class ContactCombatCardProjectionTests
     }
 
     [Test]
+    public void Snapshot_cards_cannot_be_cast_back_to_a_mutable_array()
+    {
+        var snapshot = ContactCombatCardProjection.ProjectSelection(
+            new[] { "c1", "c2" }, Provenance(), null, null, null);
+        var original = snapshot.Cards[0];
+
+        Assert.That(snapshot.Cards, Is.Not.InstanceOf<ContactCombatCard[]>());
+        Assert.That(snapshot.Cards, Is.InstanceOf<System.Collections.ObjectModel.ReadOnlyCollection<ContactCombatCard>>());
+        var asList = (IList<ContactCombatCard>)snapshot.Cards;
+        Assert.That(asList.IsReadOnly, Is.True);
+        Assert.Throws<NotSupportedException>(() => asList[0] = ContactCombatCard.Empty);
+        Assert.That(snapshot.Cards[0], Is.SameAs(original));
+        Assert.That(ContactCombatCardProjection.FingerprintMatches(snapshot), Is.True);
+    }
+
+    [Test]
+    public void Snapshot_copies_caller_array_so_later_writes_do_not_desync_fingerprint()
+    {
+        var card = ContactCombatCardProjection.Project("c1", Provenance(), null, null, null);
+        var source = new[] { card };
+        var snapshot = new ContactCombatCardSnapshot(source, ContactCombatCardProjection.ComputeFingerprint(source));
+
+        source[0] = ContactCombatCard.Empty;
+
+        Assert.That(snapshot.Cards[0], Is.SameAs(card));
+        Assert.That(ContactCombatCardProjection.FingerprintMatches(snapshot), Is.True);
+    }
+
+    [Test]
     public void Conflicting_posture_facts_are_unknown()
     {
         var postures = new[]

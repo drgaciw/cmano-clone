@@ -132,7 +132,7 @@ public sealed class ContactCombatCardSnapshot
         Array.Empty<ContactCombatCard>(),
         ContactCombatCardTokens.EmptyFingerprint);
 
-    /// <summary>Creates a snapshot. The card list is copied.</summary>
+    /// <summary>Creates a snapshot. The card list is copied into a read-only wrapper.</summary>
     public ContactCombatCardSnapshot(IReadOnlyList<ContactCombatCard>? cards, string? fingerprint)
     {
         if (cards is null || cards.Count == 0)
@@ -147,7 +147,7 @@ public sealed class ContactCombatCardSnapshot
                 copy[i] = cards[i];
             }
 
-            Cards = copy;
+            Cards = Array.AsReadOnly(copy);
         }
 
         Fingerprint = string.IsNullOrEmpty(fingerprint)
