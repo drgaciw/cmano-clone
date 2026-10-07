@@ -122,7 +122,7 @@ public static class ScenarioSaveExportGate
 
     /// <summary>
     /// True when <paramref name="left"/> and <paramref name="right"/> name the same file after
-    /// <see cref="Path.GetFullPath"/> normalization, using <see cref="ExportPathComparison"/>.
+    /// <see cref="Path.GetFullPath(string)"/> normalization, using <see cref="ExportPathComparison"/>.
     /// </summary>
     public static bool IsSameFilePath(string left, string right) =>
         IsSameFilePath(left, right, ExportPathComparison);
