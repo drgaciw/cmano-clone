@@ -89,6 +89,9 @@ public static class PlatformImportXlsxCommand
                 swarmBatchId = result.SwarmBatchId,
                 requiresHumanApproval = result.Plan.RequiresHumanApproval,
                 notes = result.Notes,
+                quarantineCount = result.QuarantineEntries.Count,
+                contractDriftCount = result.Plan.ContractDrift.Count,
+                dropCounts = result.DropCounts,
                 nextStep = "catalog_write_approve --db <path> --batch <batchId>",
             };
 
