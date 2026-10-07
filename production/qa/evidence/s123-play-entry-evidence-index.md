@@ -13,8 +13,9 @@
 
 | SHA | Content |
 |-----|---------|
-| `591b0244770efd09061e38e73f87f50a8d484f3f` | `PlayEntrySession` façade, presentation models, 51 headless tests (S123-01, -03, -04, -05, -06, -07, -11) |
-| _commit carrying this file_ | DRG-244 evidence index (this document; see `git log -- production/qa/evidence/s123-play-entry-evidence-index.md`) |
+| `591b0244770efd09061e38e73f87f50a8d484f3f` | `PlayEntrySession` façade, presentation models, headless tests (S123-01, -03, -04, -05, -06, -07, -11). Ancestor of this branch. |
+| `71f57b98` | DRG-244 evidence index (this document) |
+| `114b66f98a1676c70dbeb93846def8ac47f1388f` | Null or missing `metadata` returns non-mutating `SCHEMA_ERROR` before `ScenarioPackage.FromDocument` (Codex P1 on PR #695) |
 
 Re-pin this table to the sprint-tip SHA when the branch merges (DoD: "DRG-244 index links entry evidence at the sprint tip SHA").
 
