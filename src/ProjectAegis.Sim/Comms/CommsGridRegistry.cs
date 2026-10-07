@@ -1,5 +1,6 @@
 namespace ProjectAegis.Sim.Comms;
 
+using ProjectAegis.Sim;
 using Policy;
 using Scenario;
 
@@ -58,7 +59,7 @@ public sealed class CommsGridRegistry
             : null;
 
     public static CommsGridMembership ParseMembership(string? value) =>
-        Enum.TryParse<CommsGridMembership>(value, ignoreCase: true, out var parsed)
+        NamedEnumParser.TryParse<CommsGridMembership>(value, out var parsed)
             ? parsed
             : throw new InvalidDataException($"Unknown comms-grid membership '{value}' (expected OnGrid|OffGrid).");
 

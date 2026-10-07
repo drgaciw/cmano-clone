@@ -37,6 +37,42 @@ public sealed class ScenarioEnvironmentJsonLoaderTests
         Assert.Equal(new ScenarioCommsGridTransition(4, "sub-1", "OffGrid", "deep"), Assert.Single(p.CommsGridTransitions));
     }
 
+    [Theory]
+    [InlineData("Phased")]
+    [InlineData("AESA ")]
+    [InlineData("2")]
+    [InlineData("Mechanical,Aesa")]
+    public void Rejects_invalid_radar_eccm_scan_type(string scanType)
+    {
+        var ex = Assert.Throws<InvalidDataException>(() => Load($$"""
+        { "id": "bad", "radarEccm": [ { "sensorId": "radar-1", "scanType": "{{scanType}}" } ] }
+        """));
+        Assert.Contains(scanType, ex.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(7)]
+    [InlineData(9)]
+    public void Rejects_radar_eccm_tech_generation_outside_documented_range(int generation)
+    {
+        var ex = Assert.Throws<InvalidDataException>(() => Load($$"""
+        { "id": "bad", "radarEccm": [ { "sensorId": "radar-1", "scanType": "Aesa", "techGeneration": {{generation}} } ] }
+        """));
+        Assert.Contains("techGeneration", ex.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("2")]
+    [InlineData("OnGrid,OffGrid")]
+    public void Rejects_numeric_and_combined_comms_membership_at_load(string membership)
+    {
+        var ex = Assert.Throws<InvalidDataException>(() => Load($$"""
+        { "id": "bad", "commsGrid": [ { "atTick": 1, "unitId": "u1", "membership": "{{membership}}" } ] }
+        """));
+        Assert.Contains(membership, ex.Message, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Rejects_invalid_comms_grid_membership_at_load()
     {

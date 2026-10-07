@@ -1,5 +1,7 @@
 namespace ProjectAegis.Sim.Sensors;
 
+using ProjectAegis.Sim;
+
 /// <summary>Radar antenna / scan architecture (EW-01 / DRG-386).</summary>
 public enum RadarScanType
 {
@@ -19,13 +21,32 @@ public readonly record struct RadarEccmProfile(
     bool FrequencyAgile = false,
     int TechGeneration = 0)
 {
+    /// <summary>Highest authored radar technology generation. 0 means unspecified. Matches catalog validation.</summary>
+    public const int MaxTechGeneration = 6;
+
     public static RadarEccmProfile Unspecified => default;
 
     public bool IsEffectivelyFrequencyAgile =>
         FrequencyAgile || ScanType is RadarScanType.Pesa or RadarScanType.Aesa;
 
-    public static RadarScanType ParseScanType(string? value) =>
-        Enum.TryParse<RadarScanType>(value, ignoreCase: true, out var parsed) ? parsed : RadarScanType.Unspecified;
+    /// <summary>
+    /// Parses a scan-type name. Null or whitespace is <see cref="RadarScanType.Unspecified"/>.
+    /// Unknown names, numeric tokens, and comma-separated combinations throw.
+    /// </summary>
+    public static RadarScanType ParseScanType(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return RadarScanType.Unspecified;
+        }
+
+        if (NamedEnumParser.TryParse<RadarScanType>(value, out var parsed))
+        {
+            return parsed;
+        }
+
+        throw new InvalidDataException($"Unknown radar scan type '{value}' (expected Mechanical|Pesa|Aesa).");
+    }
 }
 
 /// <summary>

@@ -83,6 +83,17 @@ public sealed class CommsGridRegistryTests
         Assert.Throws<InvalidDataException>(() => CommsGridRegistry.ParseMembership("Sideways"));
     }
 
+    [Theory]
+    [InlineData("2")]
+    [InlineData("0")]
+    [InlineData("1")]
+    [InlineData("OnGrid,OffGrid")]
+    [InlineData("OnGrid, OffGrid")]
+    public void Numeric_and_combined_membership_is_rejected(string value)
+    {
+        Assert.Throws<InvalidDataException>(() => CommsGridRegistry.ParseMembership(value));
+    }
+
     [Fact]
     public void TryCreate_returns_null_without_transitions()
     {

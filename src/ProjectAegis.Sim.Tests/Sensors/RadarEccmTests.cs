@@ -33,6 +33,36 @@ public sealed class RadarEccmTests
         Assert.Equal(expected, EccmJamMatrix.Effectiveness(in p, jammerGen), precision: 6);
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Omitted_scan_type_is_unspecified(string? value)
+    {
+        Assert.Equal(RadarScanType.Unspecified, RadarEccmProfile.ParseScanType(value));
+    }
+
+    [Theory]
+    [InlineData("aesa", RadarScanType.Aesa)]
+    [InlineData("Pesa", RadarScanType.Pesa)]
+    [InlineData("mechanical", RadarScanType.Mechanical)]
+    public void Named_scan_type_parses(string value, RadarScanType expected)
+    {
+        Assert.Equal(expected, RadarEccmProfile.ParseScanType(value));
+    }
+
+    [Theory]
+    [InlineData("2")]
+    [InlineData("0")]
+    [InlineData("Phased")]
+    [InlineData("AESA ")]
+    [InlineData("Mechanical,Aesa")]
+    public void Numeric_unknown_and_combined_scan_types_are_rejected(string value)
+    {
+        var ex = Assert.Throws<InvalidDataException>(() => RadarEccmProfile.ParseScanType(value));
+        Assert.Contains(value, ex.Message, StringComparison.Ordinal);
+    }
+
     [Fact]
     public void Pesa_and_aesa_are_always_frequency_agile()
     {

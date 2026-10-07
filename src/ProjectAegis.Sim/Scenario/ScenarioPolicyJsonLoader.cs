@@ -458,10 +458,16 @@ public static class ScenarioPolicyJsonLoader
                 throw new InvalidDataException("radarEccm entries require sensorId.");
             }
 
+            if (e.TechGeneration < 0 || e.TechGeneration > RadarEccmProfile.MaxTechGeneration)
+            {
+                throw new InvalidDataException(
+                    $"radarEccm '{e.SensorId}': techGeneration must be 0..{RadarEccmProfile.MaxTechGeneration}.");
+            }
+
             map[e.SensorId] = new RadarEccmProfile(
                 RadarEccmProfile.ParseScanType(e.ScanType),
                 e.FrequencyAgile,
-                Math.Max(0, e.TechGeneration));
+                e.TechGeneration);
         }
 
         return map;
