@@ -72,7 +72,7 @@ public static class CommitRefusalBarkBinder
             throw new ArgumentNullException(nameof(optionId));
         }
 
-        var code = string.IsNullOrWhiteSpace(failureReason) ? EnqueueRejectedCode : failureReason!.Trim();
+        var code = string.IsNullOrWhiteSpace(failureReason) ? EnqueueRejectedCode : failureReason.Trim();
         var hasUnit = !string.IsNullOrWhiteSpace(unitId);
         var bark = hasUnit
             ? $"{unitId} REFUSED {optionId}: {code}"

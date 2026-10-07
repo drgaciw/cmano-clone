@@ -55,7 +55,7 @@ public sealed class CommitStripProjectionFenceTests
     private static readonly Type[] AllowedForeignParameterTypes =
     {
         typeof(ProjectAegis.Sim.Engage.EngageContext),
-        typeof(ProjectAegis.Delegation.Decision.OrderLogEntry),
+        typeof(Decision.OrderLogEntry),
     };
 
     [TestCaseSource(nameof(FencedSources))]

@@ -232,7 +232,7 @@ public static class CommitConstraintStripBinder
             }
         }
 
-        top.Add(new CommitConstraintEntry(top.Count + 1, code!, source));
+        top.Add(new CommitConstraintEntry(top.Count + 1, code, source));
     }
 
     private static int CostOf(string optionId, int salvoSize)
