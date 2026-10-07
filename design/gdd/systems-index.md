@@ -2,7 +2,7 @@
 
 > **Status:** Draft  
 > **Created:** 2026-05-29  
-> **Last Updated:** 2026-06-08 (Sprint 19: sim-core, logistics, engage GDD refresh — S19-06)  
+> **Last Updated:** 2026-10-07 (DRG-256: ADR-005 supersession — managed world-state registries)  
 > **Source Concept:** `design/gdd/game-concept.md`  
 > **Requirements traceability:** `Game-Requirements/cmo-manual-traceability.md`
 
@@ -10,7 +10,7 @@
 
 ## Overview
 
-Project Aegis is a **theater-level military simulation** with a **deterministic ECS sim core**, a **delegation layer** (already prototyped in `ProjectAegis.Delegation`), **data-driven platforms** (CMANO-scale DB), and **agentic authoring** (mission editor, MCP). Systems below map CMO manual coverage to implementable modules and link to requirement docs **13–20**.
+Project Aegis is a **theater-level military simulation** with a **deterministic, headless-first managed C# sim core** (world state in managed C# registries; the [ADR-005](../../docs/architecture/adr-005-dots-sim-core.md) DOTS/ECS world store was **superseded** 2026-07-07), a **delegation layer** (already prototyped in `ProjectAegis.Delegation`), **data-driven platforms** (CMANO-scale DB), and **agentic authoring** (mission editor, MCP). Systems below map CMO manual coverage to implementable modules and link to requirement docs **13–20**.
 
 ---
 
@@ -18,7 +18,7 @@ Project Aegis is a **theater-level military simulation** with a **deterministic 
 
 | # | System Name | Category | Priority | Status | Req Doc | GDD | Depends On |
 |---|-------------|----------|----------|--------|---------|-----|------------|
-| 1 | Simulation Core & Time | Sim Core | MVP | In Review (S19-06 refresh) | 03, 08 | [simulation-core-time.md](simulation-core-time.md) | — |
+| 1 | Simulation Core & Time | Sim Core | MVP | In Review (S19-06 refresh; DRG-256 managed-registry honesty) | 03, 08 | [simulation-core-time.md](simulation-core-time.md) — managed C# registries; DOTS world store superseded | — |
 | 2 | Order Log & Replay | Sim Core | MVP | In Progress (WORLD_HASH; checkpoints pending) | 17 | [order-log-replay.md](order-log-replay.md) | 1 |
 | 3 | Policy, ROE, EMCON, WRA | Sim Core | MVP | Partial (EMCON scenario; engage unification pending) | 13 | [policy-roe-emcon-wra.md](policy-roe-emcon-wra.md) | 1, 2 |
 | 4 | Platform Database | Content | MVP | Partial (DATA-1 scaffold; basePd epic ready) | 06 | — | — |
@@ -68,7 +68,7 @@ Project Aegis is a **theater-level military simulation** with a **deterministic 
 
 ### Foundation Layer
 
-1. **Simulation Core & Time** — fixed tick, seed, world state  
+1. **Simulation Core & Time** — fixed tick, seed, world state in managed C# registries (headless-first; ADR-005 DOTS/ECS world store superseded)  
 2. **Platform Database** — units, sensors, weapons, magazines  
 3. **Order Log & Replay** — extend `DecisionLog`; contract for all subsystems  
 
@@ -133,7 +133,7 @@ Project Aegis is a **theater-level military simulation** with a **deterministic 
 | 3 | ~~Order log GDD~~ | Done → `order-log-replay.md` |
 | 4 | ~~Sim core GDD~~ | Done → `simulation-core-time.md` |
 | 5 | ~~Setup engine~~ | Unity 6.3 LTS → `docs/engine-reference/unity/` |
-| 6 | ~~ADRs 001–005~~ | **Accepted** |
+| 6 | ~~ADRs 001–005~~ | **Accepted** (ADR-005 DOTS/ECS world state later **superseded** 2026-07-07 — managed headless-first) |
 | 7 | ~~`ProjectAegis.Sim` scaffold~~ | `src/ProjectAegis.Sim` + tests |
 | 8 | ~~Engagement resolver stub~~ | `IEngagementResolver` in `ProjectAegis.Sim.Engage` |
 | 9 | ~~Engagement pipeline wired~~ | `SimTickPipeline` + `SimulationSession` |
@@ -146,7 +146,7 @@ Project Aegis is a **theater-level military simulation** with a **deterministic 
 
 **Recommended next GDD:** **Order Log & Replay** (system 2) — resolves design-review blocker C1 (`DecisionLog` vs doc 17).
 
-**Architecture:** [architecture.md](../../docs/architecture/architecture.md) · ADRs in `docs/architecture/`
+**Architecture:** [architecture.md](../../docs/architecture/architecture.md) · ADRs in `docs/architecture/` · World-state hosting: managed C# registries per [ADR-005 § Superseded](../../docs/architecture/adr-005-dots-sim-core.md#superseded-2026-07-07) and [doc 08 §5](../../Game-Requirements/requirements/08-Agentic-Architecture.md#5-world-state-hosting)
 
 ---
 
@@ -154,6 +154,7 @@ Project Aegis is a **theater-level military simulation** with a **deterministic 
 
 | Date | Change |
 |------|--------|
+| 2026-10-07 | DRG-256: overview, system 1 row, foundation layer, and ADR row now state managed C# registries (headless-first); ADR-005 DOTS/ECS world store marked superseded (2026-07-07). Docs only. |
 | 2026-05-30 | Mission editor GDD (system 11) reviewed (5 specialists, MAJOR REVISION) → revised same day: Validation Engine, fantasy rescope, round-trip fuel formula, determinism contract, AC-1..12. Awaiting re-review. Log: reviews/agentic-mission-editor-review-log.md |
 | 2026-05-30 | Mission editor GDD (system 11) authored: 8 sections, 4 mission types, typed event DSL, fuel + event-order formulas, 8 ACs |
 | 2026-05-30 | Mission editor concept (system 11): intent-compiler spine, DSL-only logic, engine-agnostic core; open Qs 1/2/5 resolved |

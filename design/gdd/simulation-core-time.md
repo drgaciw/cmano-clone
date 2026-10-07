@@ -2,18 +2,20 @@
 
 > **Status:** In Review (Sprint 19 refresh — S19-06)  
 > **Author:** design-system  
-> **Last Updated:** 2026-06-08  
+> **Last Updated:** 2026-10-07 (DRG-256 — ADR-005 supersession honesty)  
 > **Implements Pillar:** Simulation fidelity, Determinism  
 > **Requirements:** [03-Simulation-Modes.md](../../Game-Requirements/requirements/03-Simulation-Modes.md), [08-Agentic-Architecture.md](../../Game-Requirements/requirements/08-Agentic-Architecture.md)  
-> **Architecture:** [architecture.md](../../docs/architecture/architecture.md), [ADR-004](../../docs/architecture/adr-004-tick-pipeline-order.md), [ADR-005](../../docs/architecture/adr-005-dots-sim-core.md)  
+> **Architecture:** [architecture.md](../../docs/architecture/architecture.md), [ADR-004](../../docs/architecture/adr-004-tick-pipeline-order.md), [ADR-005](../../docs/architecture/adr-005-dots-sim-core.md) (**superseded** 2026-07-07 — no DOTS world store)  
 > **Engine:** [VERSION.md](../../docs/engine-reference/unity/VERSION.md)  
 > **Implementation baseline:** `main` @ `afd2e1a`
 
 > **Quick reference** — Layer: **Foundation** · Priority: **MVP** · Key deps: None · Depended on by: All sim systems
 
+> **World-state hosting (ADR-005 superseded 2026-07-07):** world state lives in **managed C# registries** inside the headless-first sim (`ProjectAegis.Sim`, `ProjectAegis.Delegation`), not in a Unity DOTS/ECS world store. Unity hosts presentation only. See [ADR-005 § Superseded](../../docs/architecture/adr-005-dots-sim-core.md#superseded-2026-07-07), [unity integration review](../../docs/reports/unity-integration-review-2026-07-07.md) §3, and [doc 08 §5](../../Game-Requirements/requirements/08-Agentic-Architecture.md#5-world-state-hosting).
+
 ## Summary
 
-The simulation core owns **world time**, **fixed timestep advancement**, **global seed**, and **world-state identity**. It does not decide tactics—that is delegation—but every subsystem shares one clock and one deterministic ordering contract (ADR-004).
+The simulation core owns **world time**, **fixed timestep advancement**, **global seed**, and **world-state identity**. World state is held in managed C# registries and advanced by the managed tick pipeline; there is no ECS world store. It does not decide tactics—that is delegation—but every subsystem shares one clock and one deterministic ordering contract (ADR-004).
 
 ## Overview
 
@@ -25,7 +27,8 @@ The simulation core owns **world time**, **fixed timestep advancement**, **globa
 | Seed / RNG | `SimSeed`, `SeededRng`, `DeterministicDetectionLoop` | Domain-scoped draws; no wall-clock in sim path |
 | World identity | `SimWorldHash`, `DetectionWorldHash` | Unified `WORLD_HASH` + `DETECTION_WORLD_HASH` in replay goldens |
 | Checkpoints | `ReplayCheckpointStore`, `ScenarioReplaySettings` | `(simTick, worldHash, fingerprint, lastSequenceId)` |
-| ECS host | Unity DOTS (ADR-005) | **P1 deferred** — clock/seed contracts live in plain C# today |
+| World-state registries | Managed C#: `DelegationOrchestrator` target registry, `KilledTargetRegistry`, `BdaContactLifecycleRegistry`, `PolicySnapshotRegistry`, `DomainValidatorRegistry` | Headless-first; same registries in Unity play, headless tests, and batch |
+| ~~ECS host~~ | ~~Unity DOTS (ADR-005)~~ | **Superseded** 2026-07-07 — DOTS/ECS world store will not be built; `com.unity.entities` removed from the Unity manifest |
 
 Interactive play, paused planning, and agent-vs-agent batch runs share the **same** pipeline. `ProjectAegis.Sim` has **no** `UnityEngine` references; headless tests run without the editor.
 
@@ -46,7 +49,7 @@ Pause the war for planning, then compress time until the salvo lands—without t
 7. **Mode switch** (Human / Mixed / Agent-vs-Agent per doc 03) does not reset seed or tick; emits `ModeChange` log entry via `DecisionLog.AppendModeChange`.
 8. **World state hash** computed at end of tick (and on checkpoint) for replay verify — excludes render-only data. Layers: core → detection → engage → combat outcome (`SimWorldHash.Combine`).
 9. **Command queue** drains at delegation step; duplicate commands same tick rejected with log warning (orchestrator contract).
-10. **No wall-clock** in sim path: ban `DateTime.Now`, `Time.realtimeSinceStartup` in `ProjectAegis.Sim` and ECS sim systems.
+10. **No wall-clock** in sim path: ban `DateTime.Now`, `Time.realtimeSinceStartup` in `ProjectAegis.Sim` and the managed delegation tick path.
 
 ### Time Compression
 
@@ -75,7 +78,7 @@ Pause the war for planning, then compress time until the salvo lands—without t
 | Order Log | `simTick`, `simTime`, `scenarioSeed` on every entry |
 | Delegation | `SimulationSession.Tick` → `SimTickPipeline.TickOnce` after engage enqueue |
 | Policy / Engage / Sensors | Invoked inside tick pipeline steps 4–8 |
-| Unity | `DelegationBridge` mirrors session; `FixedStepSimulationSystemGroup` targets ADR-005 Δt |
+| Unity | `DelegationBridge` mirrors session for presentation; Unity does not own world state or a sim system group (ADR-005 superseded) |
 
 ## Formulas
 
@@ -168,6 +171,7 @@ Seed `42`, `Δt = 1/60`, after 4 headless ticks on `baltic-patrol`:
 | Batch runner | `src/ProjectAegis.Delegation.UnityAdapter/Baltic/BalticBatchRunner.cs` | `src/ProjectAegis.Delegation.UnityAdapter.Tests/Baltic/BalticBatchRunnerTests.cs` |
 | Replay golden gate | `src/ProjectAegis.Delegation.UnityAdapter.Tests/Baltic/ReplayGoldenSuiteTests.cs` | `tests/regression/replay-golden-baltic-*.txt` |
 | Global seed | `src/ProjectAegis.Sim/Core/SimSeed.cs` | `SimTickRunnerTests`, `DeterministicDetectionLoopTests` |
+| World-state registries | `src/ProjectAegis.Delegation/Orchestration/DelegationOrchestrator.cs` (`Register`), `src/ProjectAegis.Sim/Engage/KilledTargetRegistry.cs`, `src/ProjectAegis.Sim/Engage/BdaContactLifecycleRegistry.cs`, `src/ProjectAegis.Delegation/Orchestration/PolicySnapshotRegistry.cs`, `src/ProjectAegis.Sim/Engage/DomainValidatorRegistry.cs` | `OrchestratorTests`, `MvpEngagementResolverTests`, `BdaContactLifecycleHotTickApplierTests`, `PolicySnapshotRegistryTests`, `DomainValidatorRegistryTests` |
 | Domain RNG | `src/ProjectAegis.Sim/Core/SeededRng.cs` | `src/ProjectAegis.Sim.Tests/Sensors/DeterministicDetectionLoopTests.cs` |
 | Detection loop | `src/ProjectAegis.Sim/Sensors/DeterministicDetectionLoop.cs` | `DeterministicDetectionLoopTests` |
 | Sim clock | `src/ProjectAegis.Sim/Time/SimClock.cs` | `SimTickRunnerTests` |
@@ -200,5 +204,5 @@ Seed `42`, `Δt = 1/60`, after 4 headless ticks on `baltic-patrol`:
 1. **Default `Δt`:** 1/60 vs 1/10 for theater-scale — **deferred P1** (performance study; current default 1/60 in `SimClock`).
 2. **Checkpoint cadence:** Tied to order-log GDD default (300 ticks) — **implemented** via `ScenarioReplaySettings`; engagement-triggered checkpoints **deferred P1**.
 3. **1000×+ headless throughput:** Doc 03 profile gate on Baltic reference — **deferred P1** (no CI throughput gate on `main` @ `afd2e1a`).
-4. **Full Unity DOTS ECS bridge:** ADR-005 entity storage migration — **deferred P1** (`ProjectAegis.Sim.DOTS` not started; plain C# kernel is canonical today).
+4. ~~**Full Unity DOTS ECS bridge:** ADR-005 entity storage migration~~ — **Closed: superseded** 2026-07-07. World state stays in managed C# registries; no `ProjectAegis.Sim.DOTS` assembly will be built. Entity-scale throughput is a managed-performance question (doc 08 ARCH-2.5 / INF-5.1), not an ECS migration.
 5. **Long-horizon hash regression (tick 3600+):** Extend pinned goldens beyond 3–6 tick slices — **deferred P1** (determinism proven at pinned counts; scale test not CI-blocked).
