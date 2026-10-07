@@ -42,6 +42,9 @@ public sealed class EngagementExplanationProjectionTests
         Assert.That(surface.FiringSolution, Does.Contain("complete"));
         Assert.That(surface.ActionableReason, Is.Null);
         Assert.That(surface.ExplanationRef, Is.EqualTo(EngageExplainProjection.CanFireLabel));
+        Assert.That(
+            surface.HardConstraints.Concat(surface.DoctrineConstraints).Select(c => c.Text),
+            Has.All.Not.Null.And.Not.Empty);
     }
 
     [Test]
@@ -271,7 +274,7 @@ public sealed class EngagementExplanationProjectionTests
             log,
             currentSimTick: 9,
             new C2AuthorityProjectionContext(
-                RoeLevel.WeaponsFree, SkillLane.Read, RequiredApproval.None, TrackSource.Organic, true, null, true),
+                RoeLevel.WeaponsFree, SkillLane.Read, RequiredApproval.None, TrackSource.Organic, true),
             fireControl: new StubFireControl(fireControl),
             shooters: new FixedShooterSource(
                 new SensorToShooterShooterCandidate("u1", ScenarioEngageDefaults.MvpFallback, 2)),

@@ -18,7 +18,6 @@ public static class EngagementExplanationProjection
 {
     public const string Unknown = "UNKNOWN";
 
-    private const string PolicyPrefix = "policy:";
     private const string TargetabilityPrefix = "targetability:";
 
     private static readonly HashSet<string> DoctrineCodes = new(StringComparer.Ordinal)
