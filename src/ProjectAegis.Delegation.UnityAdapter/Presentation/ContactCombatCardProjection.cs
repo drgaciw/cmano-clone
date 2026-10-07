@@ -500,6 +500,10 @@ public static class ContactCombatCardProjection
         }
     }
 
+    /// <remarks>
+    /// The ledger is emitted in combat-event order. Same-tick attempts are not re-sorted by
+    /// correlation id, phase, or other fields; the last matching row is the latest engagement.
+    /// </remarks>
     private static AfterActionLedgerEntry? SelectLatestEngagement(
         AfterActionLedgerSnapshot? afterAction,
         string? targetId)
@@ -509,69 +513,16 @@ public static class ContactCombatCardProjection
             return null;
         }
 
-        AfterActionLedgerEntry? best = null;
-        for (var i = 0; i < afterAction.Entries.Count; i++)
+        for (var i = afterAction.Entries.Count - 1; i >= 0; i--)
         {
             var entry = afterAction.Entries[i];
-            if (!string.Equals(entry.TargetId, targetId, StringComparison.Ordinal))
+            if (string.Equals(entry.TargetId, targetId, StringComparison.Ordinal))
             {
-                continue;
-            }
-
-            if (best is null || CompareEngagement(entry, best) > 0)
-            {
-                best = entry;
+                return entry;
             }
         }
 
-        return best;
-    }
-
-    private static int CompareEngagement(AfterActionLedgerEntry left, AfterActionLedgerEntry right)
-    {
-        var tick = left.SimTick.CompareTo(right.SimTick);
-        if (tick != 0)
-        {
-            return tick;
-        }
-
-        var time = left.SimTime.CompareTo(right.SimTime);
-        if (time != 0)
-        {
-            return time;
-        }
-
-        var correlation = left.CorrelationId.CompareTo(right.CorrelationId);
-        if (correlation != 0)
-        {
-            return correlation;
-        }
-
-        var phase = ((int)left.Phase).CompareTo((int)right.Phase);
-        if (phase != 0)
-        {
-            return phase;
-        }
-
-        var shooter = string.Compare(left.ShooterId, right.ShooterId, StringComparison.Ordinal);
-        if (shooter != 0)
-        {
-            return shooter;
-        }
-
-        var weapon = string.Compare(left.WeaponFamilyId, right.WeaponFamilyId, StringComparison.Ordinal);
-        if (weapon != 0)
-        {
-            return weapon;
-        }
-
-        var outcome = string.Compare(left.Outcome, right.Outcome, StringComparison.Ordinal);
-        if (outcome != 0)
-        {
-            return outcome;
-        }
-
-        return string.Compare(left.ExplanationRef, right.ExplanationRef, StringComparison.Ordinal);
+        return null;
     }
 
     private static string FormatProvenance(ContactProvenanceState? row)

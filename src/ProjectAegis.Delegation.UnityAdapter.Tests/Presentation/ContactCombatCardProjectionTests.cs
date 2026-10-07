@@ -207,18 +207,50 @@ public sealed class ContactCombatCardProjectionTests
     }
 
     [Test]
-    public void Ledger_order_does_not_change_latest_engagement()
+    public void Latest_engagement_is_the_last_matching_ledger_entry()
     {
         var older = Entry(tick: 10, outcome: "Launched", phase: CombatEventPhaseConsume.Firing);
         var newer = Entry(tick: 20, outcome: "Hit", phase: CombatEventPhaseConsume.TerminalOutcome);
-        var forward = ContactCombatCardProjection.Project(
-            "c1", Provenance(), null, null, new AfterActionLedgerSnapshot(new[] { older, newer }));
-        var reversed = ContactCombatCardProjection.Project(
-            "c1", Provenance(), null, null, new AfterActionLedgerSnapshot(new[] { newer, older }));
+        var other = Entry(targetId: "target-other", tick: 30, outcome: "Miss");
 
-        Assert.That(forward.EngagementStatus, Is.EqualTo(reversed.EngagementStatus));
-        Assert.That(forward.EngagementStatus, Does.Contain("outcome=Hit").And.Contain("tick=20"));
-        Assert.That(forward.Fingerprint, Is.EqualTo(reversed.Fingerprint));
+        var card = ContactCombatCardProjection.Project(
+            "c1", Provenance(), null, null, new AfterActionLedgerSnapshot(new[] { older, newer, other }));
+
+        Assert.That(card.EngagementStatus, Does.Contain("outcome=Hit").And.Contain("tick=20"));
+        Assert.That(ContactCombatCardProjection.FingerprintMatches(card), Is.True);
+    }
+
+    [Test]
+    public void Same_tick_attempts_use_ledger_order_not_correlation_id()
+    {
+        var secondAttemptFiring = AttemptEntry("u2", 10, CombatEventPhaseConsume.Firing, "Launched", "ref-10");
+        var firstAttemptTerminal = AttemptEntry("u1", 4, CombatEventPhaseConsume.TerminalOutcome, "Kill", "ref-4");
+
+        var card = ContactCombatCardProjection.Project(
+            "c1",
+            Provenance(),
+            null,
+            null,
+            new AfterActionLedgerSnapshot(new[] { secondAttemptFiring, firstAttemptTerminal }));
+
+        Assert.That(card.EngagementStatus, Is.EqualTo(
+            "shooter=u1;phase=TerminalOutcome;outcome=Kill;weapon=asm;tick=20;time=2.5;corr=4;expl=ref-4"));
+    }
+
+    [Test]
+    public void Same_tick_terminal_outcomes_use_ledger_order_not_field_tie_break()
+    {
+        var earlierTerminal = AttemptEntry("u2", 9, CombatEventPhaseConsume.TerminalOutcome, "Miss", "ref-a");
+        var laterTerminal = AttemptEntry("u1", 9, CombatEventPhaseConsume.TerminalOutcome, "Hit", "ref-b");
+        var laterFiring = AttemptEntry("u1", 9, CombatEventPhaseConsume.Firing, "Launched", "ref-c");
+
+        var terminalLast = ContactCombatCardProjection.Project(
+            "c1", Provenance(), null, null, new AfterActionLedgerSnapshot(new[] { earlierTerminal, laterTerminal }));
+        var firingLast = ContactCombatCardProjection.Project(
+            "c1", Provenance(), null, null, new AfterActionLedgerSnapshot(new[] { earlierTerminal, laterFiring }));
+
+        Assert.That(terminalLast.EngagementStatus, Does.Contain("shooter=u1").And.Contain("outcome=Hit").And.Contain("expl=ref-b"));
+        Assert.That(firingLast.EngagementStatus, Does.Contain("phase=Firing").And.Contain("expl=ref-c"));
     }
 
     [Test]
@@ -474,6 +506,14 @@ public sealed class ContactCombatCardProjectionTests
         string outcome = "Hit",
         CombatEventPhaseConsume phase = CombatEventPhaseConsume.TerminalOutcome) =>
         new("u1", targetId, "asm", outcome, 9, 2.5, tick, phase, "ref-9");
+
+    private static AfterActionLedgerEntry AttemptEntry(
+        string shooterId,
+        ulong correlationId,
+        CombatEventPhaseConsume phase,
+        string outcome,
+        string explanationRef) =>
+        new(shooterId, "target-1", "asm", outcome, correlationId, 2.5, 20, phase, explanationRef);
 
     private static ContactCombatCardPostureFact[] Postures() =>
         new[]
