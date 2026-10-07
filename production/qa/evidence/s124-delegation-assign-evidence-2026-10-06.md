@@ -111,4 +111,4 @@ Full-solution gates are run serially by the orchestrator and are not claimed her
 - **Rebrief sim-time cost.** Not implemented (spec marks it a future scenario-policy field).
 - **Unassign / hand back to human.** Out of scope; existing `TryTakeDirectControl` / `TryReleaseDirectControl` cover takeover of an agent-controlled unit.
 - **Autonomy change on rebrief.** Rebrief swaps the personality preset only; autonomy stays as assigned (`CanEditAutonomy` is always-allow and unchanged).
-- **Hindsight personality re-registration.** Follow-up (Codex P2). `AssignAgentToTarget` registers the slug on `HindsightOrderLogHook`; `TryRebriefAgent` changes `PersonalitySlug` without calling `RegisterAgent` again, so later decisions stay on the previous personality bank when Hindsight is enabled. The hook's map is private, so this was left as a follow-up rather than an untested sidecar change.
+- **Hindsight personality re-registration.** Done (DRG-373). A successful `TryRebriefAgent` calls `Hindsight.OrderLogHook.RegisterAgent` with the new slug. `RegisterAgent` overwrites the cached personality. Null Hindsight stays a no-op.

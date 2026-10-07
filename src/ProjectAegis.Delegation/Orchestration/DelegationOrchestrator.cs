@@ -464,7 +464,8 @@ public sealed class DelegationOrchestrator
     /// <summary>
     /// W2-DEL-02 Rebrief Agent: swap the agent's personality preset when <see cref="LoopPolicyGate.CanRebriefAgent"/>
     /// allows it, logging a <see cref="RebriefPolicyField"/> policy update and applying
-    /// <see cref="PersonalityCatalog.ResolveAttentionBudget"/>. Denials leave the agent and log untouched.
+    /// <see cref="PersonalityCatalog.ResolveAttentionBudget"/>. A successful rebrief re-registers the new
+    /// personality with Hindsight when the sidecar is enabled. Denials leave the agent and log untouched.
     /// </summary>
     public LoopPolicyVerdict TryRebriefAgent(
         AgentController agent,
@@ -491,6 +492,7 @@ public sealed class DelegationOrchestrator
         agent.RebindTraits(preset.Traits);
         agent.SetPersonalitySlug(preset.Name);
         agent.RebindAttentionBudget(PersonalityCatalog.ResolveAttentionBudget(preset));
+        Hindsight?.OrderLogHook.RegisterAgent(agent.Id, agent.PersonalitySlug);
         DecisionLog.AppendPolicyUpdate(new PolicyUpdateRecord(
             0,
             simTime,

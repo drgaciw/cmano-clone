@@ -1,5 +1,6 @@
 using ProjectAegis.Delegation.Controllers;
 using ProjectAegis.Delegation.Core;
+using ProjectAegis.Delegation.Hindsight;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
@@ -214,6 +215,54 @@ public sealed class AgentAssignRebriefTests
     }
 
     [Test]
+    public void TryRebriefAgent_reregisters_hindsight_personality_after_success()
+    {
+        var orchestrator = ExecutingWithHindsight(PersonalityEditPolicy.Anytime);
+        var unit = RegisterHumanUnit(orchestrator, "u1");
+        var agent = orchestrator.CreateAgentFromPreset(new AgentId("a1"), Aggressive, AutonomyLevel.SemiAutonomous);
+        Assume.That(orchestrator.TryAssignAgentController(unit, agent, isFriendly: true).Allowed, Is.True);
+        var hook = (HindsightOrderLogHook)orchestrator.Hindsight!.OrderLogHook;
+        Assert.That(hook.TryGetRegisteredPersonality(agent.Id, out var assigned), Is.True);
+        Assert.That(assigned, Is.EqualTo(Aggressive.Name));
+
+        var verdict = orchestrator.TryRebriefAgent(agent, Cautious, simTime: 5.0);
+
+        Assert.That(verdict.Allowed, Is.True, verdict.DenialReason);
+        Assert.That(hook.TryGetRegisteredPersonality(agent.Id, out var rebriefed), Is.True);
+        Assert.That(rebriefed, Is.EqualTo(Cautious.Name));
+    }
+
+    [Test]
+    public void TryRebriefAgent_denied_does_not_reregister_hindsight_personality()
+    {
+        var orchestrator = ExecutingWithHindsight(PersonalityEditPolicy.PlanningOnly);
+        var agent = orchestrator.CreateAgentFromPreset(new AgentId("a1"), Aggressive, AutonomyLevel.FullAutonomous);
+        var hook = (HindsightOrderLogHook)orchestrator.Hindsight!.OrderLogHook;
+        hook.RegisterAgent(agent.Id, Aggressive.Name);
+
+        var verdict = orchestrator.TryRebriefAgent(agent, Cautious, simTime: 2.0);
+
+        Assert.That(verdict.Allowed, Is.False);
+        Assert.That(hook.TryGetRegisteredPersonality(agent.Id, out var slug), Is.True);
+        Assert.That(slug, Is.EqualTo(Aggressive.Name));
+        Assert.That(agent.PersonalitySlug, Is.EqualTo(Aggressive.Name));
+    }
+
+    [Test]
+    public void TryRebriefAgent_succeeds_when_hindsight_is_null()
+    {
+        var orchestrator = ExecutingWithPolicy(PersonalityEditPolicy.Anytime);
+        var agent = orchestrator.CreateAgentFromPreset(new AgentId("a1"), Aggressive, AutonomyLevel.FullAutonomous);
+        Assert.That(orchestrator.Hindsight, Is.Null);
+
+        var verdict = orchestrator.TryRebriefAgent(agent, Cautious, simTime: 1.0);
+
+        Assert.That(verdict.Allowed, Is.True, verdict.DenialReason);
+        Assert.That(agent.PersonalitySlug, Is.EqualTo(Cautious.Name));
+        Assert.That(orchestrator.Hindsight, Is.Null);
+    }
+
+    [Test]
     public void TryRebriefAgent_denies_same_preset_as_no_change()
     {
         var orchestrator = ExecutingWithPolicy(PersonalityEditPolicy.Anytime);
@@ -236,6 +285,28 @@ public sealed class AgentAssignRebriefTests
 
         Assert.That(verdict.Allowed, Is.False);
         Assert.That(agent.Traits, Is.EqualTo(Aggressive.Traits));
+    }
+
+    private static DelegationOrchestrator ExecutingWithHindsight(PersonalityEditPolicy editPolicy)
+    {
+        var orchestrator = new DelegationOrchestrator(
+            42,
+            policyEvaluator: null,
+            hindsight: new HindsightOptions
+            {
+                Enabled = true,
+                BaseUrl = "http://127.0.0.1:9",
+                RetainAgentDecisions = true,
+                FinalizeAarBank = false,
+                FinalizeCampaignExperience = false,
+            })
+        {
+            ScenarioPolicy = new ScenarioPolicyProfile(
+                EffectivePolicy.DefaultFree,
+                personalityEditPolicy: editPolicy),
+        };
+        orchestrator.BeginExecution();
+        return orchestrator;
     }
 
     private static DelegationOrchestrator ExecutingWithPolicy(PersonalityEditPolicy editPolicy)
