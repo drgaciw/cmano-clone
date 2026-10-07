@@ -16,7 +16,7 @@
 
 ## Decision Makers
 
-Owner / Technical Director (DRGAMTD), the only developer. **The resolution owner must decide to Accept.** Accepting this ADR closes the H5 entry gate "Content pipeline ADR accepted" (`docs/reports/future-sprint-roadmap-07142026.md:180`; DRG-326 acceptance criteria).
+Owner / Technical Director (DRGAMTD), the only developer. **This ADR lands as Proposed** (Owner Decision 7). Merging this PR is the pilot unblock and closes the H5 entry gate for DRG-347. Moving the ADR to Accepted is a later owner step and does not gate the pilot (`docs/reports/future-sprint-roadmap-07142026.md:180`; DRG-326).
 
 ## Summary
 
@@ -41,7 +41,7 @@ Project Aegis adopts Unity Addressables only for **presentation-only content**, 
 | **Depends On** | [ADR-001 Sim Assembly Boundary](adr-001-sim-assembly-boundary.md); [ADR-007 C2 Map Presentation](adr-007-c2-map-presentation.md); [ADR-010 Headless-First Command-Driven UI](adr-010-headless-first-command-driven-ui.md) |
 | **Enables** | DRG-347 H5 local presentation pilot; proposed LIB-05.1…3 (`docs/superpowers/specs/2026-09-30-requirements-planning-reconciliation.md:24`) |
 | **Blocks** | Any second Addressables group, bulk import or remote catalog until this ADR is Accepted |
-| **Ordering Note** | DRG-332 inventory (Done) → this ADR Accepted → DRG-347 pilot → per-class expansion by amendment. Remote delivery would be a separate ADR after H3/Launch scope opens |
+| **Ordering Note** | DRG-332 inventory (Done) → this ADR lands Proposed and merges (pilot unblock) → DRG-347 pilot → per-class expansion by amendment. Acceptance is a later step and does not gate the pilot. Remote delivery would be a separate ADR after H3/Launch scope opens |
 
 ## Context
 
@@ -99,18 +99,25 @@ H5 cannot open without an accepted content-pipeline ADR (`future-sprint-roadmap-
    - It reports each outcome (`Loaded` / `Missing` / `Corrupt` / `Delayed` / `Canceled` / `Mismatched`) to the caller, which chooses the documented fallback and emits a bounded diagnostic.
    - It never blocks the main thread, and no sim tick waits on it.
 
-   This lifetime model is the one proposed in `h5-content-inventory-review-2026-10-01.md:31`. Hosts consume an interface such as the existing `IApp6AtlasAvailability`. Bulk loading never goes into `MapPlaceholderPanelHost` or `GlobeMapProductHost`.
+   This lifetime model is the one proposed in `h5-content-inventory-review-2026-10-01.md:31`. Bulk loading never goes into `MapPlaceholderPanelHost` or `GlobeMapProductHost`. `MapPlaceholderPanelHost` is hard-no and is not edited (Owner Decision 3; the Open Question 3 waiver was denied).
+
+   `IApp6AtlasAvailability` stays a headless metadata contract (`IsLoaded`, `HasFrame`, `TryGetSpriteSlice`). It does not carry a texture, so it is not what gets rendered. DRG-347 adds two injectable contracts in the new content assembly. Neither is implemented on the host, and neither uses reflection into it:
+
+   - **`IPresentationContentLoader`**, injected into the adapter. `Load(key)` returns a `ContentLoadResult`: the outcome (`Loaded` / `Missing` / `Corrupt` / `Delayed` / `Canceled` / `Mismatched`) and, only on `Loaded`, the `Texture2D` (or sprites) for `Map/App6FrameAtlas`. Tests inject a fake loader.
+   - **`IApp6FrameElementSource`**, the injectable host seam a zero-edit adapter needs. It yields the frame `VisualElement`s to paint. The production source queries the map canvas for elements that already carry the USS classes `map-app6-frame--*` (`MapSymbolPool` adds those classes today and is not edited). Tests pass an element list. The adapter never reads `MapPlaceholderPanelHost` private state (`useApp6AtlasFrames`, `preferAddressablesAtlas`, `ResolveAtlasCatalog`, `TryResolveAddressablesAtlas`).
+
+   `App6AtlasAddressablesAdapter` (new component under `Assets/Scripts/Runtime/Content/`) is the only consumer. When the source reports frame elements, the adapter sets each frame's `style.backgroundImage` from the loaded texture and the existing slice offsets. That assignment is what UI Toolkit renders. On `Missing`, `Corrupt`, `Mismatched`, or `Canceled` it does not assign a texture, and the frame falls back to `App6AtlasCatalog.Default` / the Unicode glyph.
 5. **Determinism.** Sim-relevant bytes keep their current loaders (table below). Addressables outcomes never flow into a sim, order-log, RNG or replay input. The Baltic hash stays preserved by construction, and verification is described under Validation Criteria. No ReplayGolden file under `tests/regression/` is edited or re-blessed by any H5 change.
 6. **`CatalogWriteGate`.** No catalog DB, JSON import source, migration or snapshot is ever an Addressables entry. Addressables is never a write path into the catalog.
-7. **First slice.** Load the existing key `Map/App6FrameAtlas` through the seam, delivered by DRG-347. Surface: new `unity/ProjectAegis/Assets/Scripts/Runtime/Content/` (+ asmdef), the committed `AddressableAssetSettings` under `unity/ProjectAegis/Assets/AddressableAssetsData/`, and headless guard tests under `src/` test projects. The one-line host binding needs the waiver in Open Question 3.
-8. **Package.** Keep `com.unity.addressables` pinned at 2.9.1. The ADR PR corrects the 2.3.16 drift in `.claude/agents/unity-addressables-specialist.md`.
+7. **First slice.** Load the existing key `Map/App6FrameAtlas` through the seam, delivered by DRG-347. Surface: new `unity/ProjectAegis/Assets/Scripts/Runtime/Content/` (+ asmdef, including `App6AtlasAddressablesAdapter`, `IPresentationContentLoader`, and `IApp6FrameElementSource`), `unity/ProjectAegis/Assets/UI/MapPlaceholder/MapPlaceholderPanel.uss` (remove the direct `App6FrameAtlas.png` `background-image` urls), the committed `AddressableAssetSettings` under `unity/ProjectAegis/Assets/AddressableAssetsData/`, and headless guard tests under `src/` test projects. Host integration is via that separate adapter; `MapPlaceholderPanelHost` is not edited (the Open Question 3 waiver was denied, see Owner Decisions).
+8. **Package.** Keep `com.unity.addressables` pinned at 2.9.1. `.claude/agents/unity-addressables-specialist.md` still references Addressables 2.3.16, and `.github/workflows/unity-ci.yml` still pins Editor `6000.3.14f1` (see Doc drift above). This docs-only ADR does not correct either pin. Both remain and are tracked separately from this PR.
 
 ### Content-class table
 
 | Content class | Repo path(s) | Classification | Addressables? | Owner (layer) | Loader (current → decided) | Hard-no impact |
 |---|---|---|---|---|---|---|
-| APP-6 frame atlas | `unity/ProjectAegis/Assets/UI/MapPlaceholder/App6FrameAtlas.png` + `Assets/Addressables/Map/App6AtlasAddressablesManifest.json` | presentation-only | **Yes, first slice** | Presentation (`ProjectAegis.Unity.Runtime.Content`) | JSON metadata via `App6AddressablesCatalog` → seam `LoadAssetAsync` with fallback to `App6AtlasCatalog.Default` / Unicode | `MapPlaceholderPanelHost`: binding only, waiver OQ3 |
-| C2 UXML / USS | `unity/ProjectAegis/Assets/UI/**` (32 UXML, 34 USS, 135,531 B) | presentation-only | Not now (candidate by amendment) | Presentation panel hosts | `[SerializeField]` direct refs (unchanged) | None |
+| APP-6 frame atlas | `unity/ProjectAegis/Assets/UI/MapPlaceholder/App6FrameAtlas.png` + `Assets/Addressables/Map/App6AtlasAddressablesManifest.json` + frame rules in `MapPlaceholderPanel.uss` | presentation-only | **Yes, first slice** | Presentation (`ProjectAegis.Unity.Runtime.Content`) | Headless JSON metadata stays on `App6AddressablesCatalog`. Runtime: injected `IPresentationContentLoader` returns the `Texture2D` on `Loaded`; `App6AtlasAddressablesAdapter` sets `style.backgroundImage`. USS frame rules do not `url()` the PNG. Fallback: `App6AtlasCatalog.Default` / Unicode | `MapPlaceholderPanelHost` not edited (waiver denied). Adapter uses `IApp6FrameElementSource` |
+| C2 UXML / USS | `unity/ProjectAegis/Assets/UI/**` (32 UXML, 34 USS, 135,531 B) | presentation-only | Not now (candidate by amendment) | Presentation panel hosts | `[SerializeField]` direct refs (unchanged), except `MapPlaceholderPanel.uss` frame rules, which drop the direct `App6FrameAtlas.png` url in the first slice. Those USS files are not Addressables entries | None |
 | UI Toolkit theme / PanelSettings | `Assets/UI Toolkit/UnityThemes/…tss`, `Assets/UI/C2RuntimePanelSettings.asset` | presentation-only | No | Presentation | Engine theme / `UiDocumentPanelSettingsBootstrap` (unchanged) | None |
 | Fonts | `Assets/Resources/Fonts/RobotoMono-*.ttf` (361,968 B) | presentation-only | Not now (stay in `Resources`; OQ6) | Presentation | `Resources` convention, no bound consumer | None |
 | Audio | `production/assets/audio/*.wav` (2 stubs) | presentation-only | Candidate once a host exists | Presentation | None today | None |
@@ -128,10 +135,10 @@ H5 cannot open without an accepted content-pipeline ADR (`future-sprint-roadmap-
 
 | Host / gate / golden | Impact under Option A |
 |---|---|
-| `MapPlaceholderPanelHost` | Replace the body of `TryResolveAddressablesAtlas` with a seam call, net non-growing. **Needs owner waiver (OQ3)**, or the alternative of a separate adapter component with zero host edits |
+| `MapPlaceholderPanelHost` | None. Waiver denied (Owner Decision 3). The host stays unedited, including `ResolveAtlasCatalog` and `TryResolveAddressablesAtlas`. The adapter does not replace that body; it binds through `IApp6FrameElementSource` |
 | `GlobeMapProductHost` | None. Globe tiles are excluded |
 | `DelegationBridge` hotpath | None |
-| `CatalogWriteGate` | None. No catalog content in any group. Enforced by a headless descriptor guard (see Validation Criteria) |
+| `CatalogWriteGate` | None. No catalog content in any group. Enforced by a headless guard over the JSON descriptors and the committed `AddressableAssetSettings` and groups (see Build and CI) |
 | ReplayGolden / `17144800277401907079` | None. No sim-relevant byte changes loader. Goldens are not edited |
 | Test floor (`production/test-floor.json`) | Additive tests only |
 
@@ -181,7 +188,7 @@ H5 cannot open without an accepted content-pipeline ADR (`future-sprint-roadmap-
 
 - Adds an Addressables content build to local Player builds and a committed `AddressableAssetSettings` asset that must stay in sync with `App6AddressablesGroupSetup.cs`.
 - Some proof (async load, handle leaks, budgets) needs a local Editor/Player. Headless CI can't produce it.
-- The headless JSON descriptor and Unity's group asset are two sources of truth until one is generated from the other.
+- The JSON descriptors and the committed `AddressableAssetSettings` / group assets must agree. The guard parses both, or the settings are generated only from the guarded descriptor and the test fails on drift.
 
 ### Neutral
 
@@ -192,39 +199,39 @@ H5 cannot open without an accepted content-pipeline ADR (`future-sprint-roadmap-
 
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|-----------|
-| A sim-relevant file is later added to a group | Low | High | Headless descriptor guard test against the exclusion list (inventory Q6); ADR amendment required per class |
+| A sim-relevant file is later added to a group or to `AddressableAssetSettings` | Low | High | Headless guard over JSON descriptors and the committed settings/group assets (inventory Q6); ADR amendment required per class |
 | Load callback or timing leaks into sim/order inputs | Low | High | Seam lives in a presentation asmdef with no Sim/Data write access; DRG-347 fault-injection fixture compares world hash and order/replay fingerprints |
 | Handle leaks on scene teardown | Medium | Medium | Lease and release model, late-callback rejection, Editor profiling "zero leaked handles" check |
-| Host growth (`MapPlaceholderPanelHost`) | Medium | Medium | Binding-only, net non-growing edit under explicit waiver, or zero-edit adapter |
-| Editor/CI version drift (`unity-ci.yml` 6000.3.14f1 vs 6000.3.22f1) | Medium | Low | Fix the pin in the ADR PR or as a follow-up (OQ5) |
+| USS still paints `App6FrameAtlas.png`, so the loaded handle is not what renders | Medium | Medium | Frame rules drop every `background-image: url(...App6FrameAtlas.png)`. The adapter sets `style.backgroundImage` from the loaded texture. `MapPlaceholderPanelHost` is not edited |
+| Specialist and Editor pin drift (Addressables 2.3.16 in `unity-addressables-specialist.md`; `unity-ci.yml` Editor `6000.3.14f1` vs `6000.3.22f1`) | Medium | Low | Drift remains. This docs-only ADR does not correct it. Tracked separately from this PR |
 | Package upgrade changes catalog/build format | Low | Medium | Pin 2.9.1; upgrade only through `docs/engineering/unity-UPGRADE-RUNBOOK.md` (its 2.3.16→2.8.1 text is stale) |
 
 ## Performance Implications
 
-There are no accepted budgets yet. These are candidate pilot thresholds for the owner to decide (review `:33`): no synchronous main-thread wait, p99 loader frame overhead ≤ 2 ms, cold readiness ≤ 250 ms, incremental memory ≤ 16 MiB, zero leaked handles after repeated teardown, on nominated hardware/build/compression. Sim tick cost is unaffected because no tick waits on content.
+Accepted pilot budgets (owner, 2026-10-07, Owner Decision 4): no synchronous main-thread wait, p99 loader frame overhead ≤ 2 ms, cold readiness ≤ 250 ms, incremental memory ≤ 16 MiB, zero leaked handles after repeated teardown, measured on the laptop dev build. Sim tick cost is unaffected because no tick waits on content.
 
 ## Migration Plan / Rollout (tied to DRG-347)
 
-0. **ADR acceptance.** The owner answers the Open Questions and marks this ADR Accepted. That closes the H5 gate. DRG-347 stays in Backlog until H5 GO.
+0. **Land ADR as Proposed.** The owner's answers to the Open Questions are already recorded in this ADR. Per Owner Decision 7, the ADR lands as Proposed, and the pilot is held only until this PR merges. Merging this PR is the pilot unblock condition and closes the H5 gate. Moving the ADR to Accepted is a separate, later step and does not gate the pilot. DRG-347 stays in Backlog until H5 GO.
 1. **DRG-347 pilot (local, single class).**
    - Commit `AddressableAssetSettings` and the `MapPresentation` group.
-   - Add the `ProjectAegis.Unity.Runtime.Content` asmdef and loader seam.
-   - Load `Map/App6FrameAtlas` through it, with fallback to `App6AtlasCatalog.Default` / Unicode.
-   - Add headless guard tests and a fault-injection fixture.
-   - Do local Editor/Player profiling against the agreed budgets.
+   - Add the `ProjectAegis.Unity.Runtime.Content` asmdef, `IPresentationContentLoader`, `IApp6FrameElementSource`, and `App6AtlasAddressablesAdapter`. Do not edit `MapPlaceholderPanelHost`.
+   - Remove the direct `App6FrameAtlas.png` `background-image` urls from `MapPlaceholderPanel.uss` and bind `style.backgroundImage` from the loaded texture, with fallback to `App6AtlasCatalog.Default` / Unicode.
+   - Add headless guard tests (JSON descriptors plus committed settings and groups) and a fault-injection fixture that includes `Mismatched`.
+   - Do local Editor/Player profiling against the accepted laptop-dev-build budgets.
 2. **Evidence and closeout.** Record revision-bound evidence (proposed VER-07.3…6): Player build id, fault-case results, unchanged ReplayGolden 6/6 and hash.
 3. **Expansion.** Each further class (audio, fonts, UXML/USS) is added by amendment to the content-class table, reusing the seam.
 4. **Remote.** New ADR only.
 
-**Rollback plan:** set `preferAddressablesAtlas` false, or remove the seam binding. The host falls back to `App6AtlasCatalog.Default` (current behaviour). No sim, catalog or golden state needs reverting.
+**Rollback plan:** remove `App6AtlasAddressablesAdapter` (or stop injecting the loader) and restore the USS `background-image` urls if that edit shipped with the adapter. `MapPlaceholderPanelHost` is unchanged, so there is no host seam binding to remove; its current metadata path and `App6AtlasCatalog.Default` / Unicode fallback stay. No sim, catalog or golden state needs reverting.
 
 ## Build and CI
 
 | Verified headless (`dotnet-ci.yml`, `dotnet test`) | Needs local Unity Editor / Player |
 |---|---|
 | `App6AddressablesCatalog` metadata resolution (existing) | Addressables content build and Player catalog generation |
-| Descriptor guard: every entry under `Assets/Addressables/**/*.json` is in the presentation allow-list and matches none of the sim-relevant exclusions | `LoadAssetAsync` success, release and late-callback rejection in Play Mode |
-| Assembly guard: no `UnityEngine.AddressableAssets` / `ResourceManagement` in `src/ProjectAegis.{Sim,Data,Delegation}*` | Player-build fallback (missing or corrupt bundle) |
+| Settings guard: every entry under `Assets/Addressables/**/*.json`, and every entry and group in the committed `AddressableAssetSettings` and group assets under `Assets/AddressableAssetsData/`, is on the presentation allow-list and matches none of the sim-relevant exclusions. Extra entries or groups fail. `App6AddressablesGroupSetup.EnsureMapPresentationGroup` is not a sufficient check by itself. The committed YAML is parsed headless, or generated only from the guarded descriptor and compared | `LoadAssetAsync` success, release and late-callback rejection in Play Mode; frame `backgroundImage` is the loaded texture, not a USS `url()` |
+| Assembly guard: no `UnityEngine.AddressableAssets` / `ResourceManagement` in `src/ProjectAegis.{Sim,Data,Delegation}*` | Player-build fallback (missing, corrupt, or mismatched bundle) |
 | ReplayGolden 6/6 and `balticV2Hash` unchanged, with zero edits under `tests/regression/` | Budget profiling (latency, frame cost, memory, handle leaks) |
 | Fallback-selection and diagnostic policy as pure C# (outcome → fallback), unit-tested | Editor MCP (ADR-027) may assist authoring but is not verification authority |
 
@@ -232,20 +239,21 @@ There are no accepted budgets yet. These are candidate pilot thresholds for the 
 
 ## Validation Criteria
 
-- [ ] Owner Accepts the ADR (closes the H5 gate).
+- [ ] This PR lands the ADR as Proposed. Merging it unblocks the pilot and closes the H5 gate. Acceptance is a separate later step and does not gate DRG-347.
 - [ ] Content-class table with owner and loader for each class (above).
-- [ ] Hard-no impact stated per host, gate and golden (above).
-- [ ] First slice named with a non-`TBD` Surface (Decision §7).
-- [ ] DRG-347: same seed and scenario give identical world hash, order-log fingerprint and replay fingerprint across asset success, missing, corrupt, delayed and canceled.
-- [ ] Headless assembly and descriptor guards pass. ReplayGolden 6/6. Hash `17144800277401907079` unchanged with no re-bless.
+- [ ] Hard-no impact stated per host, gate and golden (above). `MapPlaceholderPanelHost` has zero edits.
+- [ ] First slice named with a non-`TBD` Surface (Decision §7), including the injectable `IApp6FrameElementSource` and the USS url removal.
+- [ ] DRG-347: same seed and scenario give identical world hash, order-log fingerprint and replay fingerprint across asset success, missing, corrupt, delayed, canceled, and mismatched (wrong asset type or version). Player fallback proof includes the mismatched case.
+- [ ] Headless assembly guard passes, and the settings guard fails when `AddressableAssetSettings` or a group contains an entry outside the allow-list. ReplayGolden 6/6. Hash `17144800277401907079` unchanged with no re-bless.
+- [ ] USS frame rules do not `url()` `App6FrameAtlas.png`. The loaded Addressable texture is what each frame renders.
 
 ## GDD / Requirements Addressed
 
 | Doc | Requirement | How this ADR satisfies it |
 |---|---|---|
 | Draft 27 Scenario Library & Campaigns (`Game-Requirements/drafts/27-Scenario-Library-Campaigns.md`) | Proposed LIB-05.1…3 content failure isolation | Seam outcomes → documented fallback; authoritative fingerprints are unaffected by construction and tested in DRG-347 |
-| Roadmap §14 (`future-sprint-roadmap-07142026.md:180`) | "Addressables bulk: content pipeline ADR accepted" | This ADR, on owner acceptance |
-| ADR-007 Phase C | APP-6 data-driven USS + icon atlas | Atlas is the first loaded class; USS frame registry remains the fallback |
+| Roadmap §14 (`future-sprint-roadmap-07142026.md:180`) | "Addressables bulk: content pipeline ADR accepted" | This ADR lands as Proposed. Merging it unblocks the pilot (Owner Decision 7). Acceptance is later and does not gate DRG-347 |
+| ADR-007 Phase C | APP-6 data-driven USS + icon atlas | Atlas is the first loaded class. USS frame rules no longer hardcode the PNG; the loaded texture is bound at runtime. The USS frame registry remains the metadata fallback |
 
 ## Owner Decisions (2026-10-07 00:10 CT, drg amtd)
 
@@ -255,7 +263,7 @@ The owner accepted all of CMANO's proposed answers:
 2. **Canonical APP-6 art:** Compare the two atlas PNGs (Unity 167 B vs `production/assets/c2/` 381 B) as a DRG-347 task, and record the chosen source of truth there.
 3. **Host waiver:** Denied. No `MapPlaceholderPanelHost` edit; use a separate adapter component with zero host edits.
 4. **Pilot budgets:** Accept the candidate thresholds as listed, measured on the laptop dev build.
-5. **Package:** Pin Addressables 2.9.1 and commit `AddressableAssetSettings` in DRG-347.
+5. **Package:** Pin Addressables 2.9.1 and commit `AddressableAssetSettings` in DRG-347. The specialist-doc 2.3.16 drift and the `unity-ci.yml` `6000.3.14f1` Editor pin are not part of that decision and are not corrected here; both remain and are tracked separately (see Decision §8).
 6. **Deferred classes:** Fonts, UXML/USS, audio and scenes are deferred; each needs an amendment.
 7. **Landing:** Land this ADR as Proposed in a docs-only PR now; hold the pilot (DRG-326/DRG-347) until it merges.
 
