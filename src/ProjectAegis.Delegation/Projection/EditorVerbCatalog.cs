@@ -44,8 +44,10 @@ public sealed record EditorVerbEntry(
 /// <summary>
 /// S125-05 / AUTH-03 (Doc 11 / Doc 21 verb honesty): the verb table for Platform/Mission Editor chrome and
 /// CLI. Labels name what happens: <b>Propose</b> only stages batches, <b>Approve</b> is the sole commit,
-/// <b>Reject</b> discards staging, <b>Save</b> never touches the write gate, and <b>Export</b> is either a
-/// read-only workbook export (PE) or the validated scenario artifact (ME).
+/// <b>Reject</b> discards staging, <b>Save</b> never touches the write gate, and <b>Export</b> is
+/// read-only. PE export writes a workbook snapshot. ME <c>scenario_export</c> prints a JSON package
+/// summary and does not write an artifact. The validated <c>.export.json</c> writer is
+/// <c>ScenarioSaveExportGate.Export</c> (host API; no CLI flag and no UXML button call it).
 /// Mirrored in <c>docs/engineering/editor-verb-honesty.md</c>.
 /// </summary>
 public static class EditorVerbCatalog
@@ -95,9 +97,9 @@ public static class EditorVerbCatalog
         new("me.save", EditorSurface.MissionEditor, EditorSaveExportProjection.SaveLabel, "scenario-editor-shell-btn-save", null,
             EditorWriteGateOperation.None, [], EditorVerbEffect.DraftFile,
             "Persists the scenario draft; allowed with blocking findings; no export, no write gate."),
-        new("me.export", EditorSurface.MissionEditor, EditorSaveExportProjection.ExportLabel, null, "scenario_export",
-            EditorWriteGateOperation.None, [], EditorVerbEffect.ValidatedArtifact,
-            "Runs the validation export gate; blocked on error findings."),
+        new("me.export", EditorSurface.MissionEditor, "Export summary", null, "scenario_export",
+            EditorWriteGateOperation.None, [], EditorVerbEffect.ReadOnly,
+            "Prints a JSON export-package summary (ScenarioExportCommand.Prepare). Writes no artifact file."),
         new("me.publish", EditorSurface.MissionEditor, "Publish", null, "scenario_publish",
             EditorWriteGateOperation.None, [], EditorVerbEffect.ValidatedArtifact,
             "Emits a scenario manifest only when the export gate passes."),

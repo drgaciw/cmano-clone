@@ -49,8 +49,10 @@ widened or narrowed after this freeze without a dated amendment below. Enforced 
   mutating `IWriteGate` method has a verb; labels start with the verb the gate performs (Propose /
   Approve / Reject; Save never touches the gate); shipped UXML button text uses the same verb word; CLI
   verbs exist in `Program.cs`; source call sites (`PlatformWorkbookImporter`, CLI commands, markdown
-  proposer, session save, export gate) call exactly the declared gate methods; a recording gate proves
-  Propose never approves at runtime; and the documented table matches the code.
+  proposer, session save) call exactly the declared gate methods; `me.export` / `scenario_export` is
+  ReadOnly (JSON summary from `ScenarioExportCommand.Prepare`, no `ScenarioSaveExportGate.Export`, no
+  artifact file); a recording gate proves Propose never approves at runtime; and the documented table
+  matches the code, including effect.
 - **S125-06 Workbook contract CI.** `PlatformWorkbookContract` is the code contract (schema `010`),
   now also driving the importer's stageable classification. CI fails if the exporter's sheets/columns,
   the importer's per-column stageability, or the documented table drift. `CheckDrift` reports
@@ -88,3 +90,7 @@ PlayModeSmoke ≥20/20, hash `17144800277401907079`) are run serially by the orc
 - No Export button exists in ME UXML chrome yet; hosts bind `EditorSaveExportProjection` labels. UXML/scene
   edits were not made headless.
 - Shipped CLI verb names (`platform_import_xlsx`) are documented, not renamed.
+- **Follow-up:** `ScenarioSaveExportGate.SaveDraft` with no bound catalog uses
+  `ScenarioDocumentEditor.LiveValidate()`, which always validates against
+  `InMemoryCatalogReader.BalticPatrolFixture()`. Non-Baltic drafts can show a false blocking count.
+  Not changed in this pass (see `docs/engineering/editor-verb-honesty.md`).

@@ -11,8 +11,10 @@ Rules the test enforces:
 - **Propose** only stages pending batches (`Propose*Batch`); it never approves.
 - **Approve** is the only verb that commits (`ApproveBatch`); **Reject** discards staging (`RejectBatch`).
 - **Save** writes the scenario draft only — no write gate, no export, allowed with blocking findings (AME-6.5).
-- **Export** is either a read-only workbook export (PE) or the validated scenario artifact (ME); neither
-  touches the write gate. ME export writes `<draft>.export.json` only when the validation gate passes.
+- **Export** does not touch the write gate. PE export is a read-only workbook write. ME `scenario_export`
+  prints a JSON package summary from `ScenarioExportCommand.Prepare` and writes no artifact file.
+  `ScenarioSaveExportGate.Export` (host API, S125-04) is what writes `<draft>.export.json` when the
+  validation gate passes; no CLI flag and no ME UXML button call it.
 - Every mutating `IWriteGate` operation is reachable through at least one verb listed here.
 
 <!-- verbs:start -->
@@ -28,7 +30,7 @@ Rules the test enforces:
 | `catalog.osint_pending` | List pending | `osint_staging_review` | ListPending | ReadOnly |
 | `catalog.osint_approve` | Approve | `osint_staging_review` | Approve | CommittedBatch |
 | `me.save` | Save draft | — | None | DraftFile |
-| `me.export` | Export validated | `scenario_export` | None | ValidatedArtifact |
+| `me.export` | Export summary | `scenario_export` | None | ReadOnly |
 | `me.publish` | Publish | `scenario_publish` | None | ValidatedArtifact |
 | `me.sample` | Sample | `scenario_simulate_sample` | None | ReadOnly |
 <!-- verbs:end -->
@@ -39,4 +41,15 @@ Known naming gaps (recorded, not renamed — renaming shipped CLI verbs is out o
   `nextStep = catalog_write_approve`. The PE button is labelled **Propose**.
 - `pe.reject` has no CLI verb; rejection is reachable from the PE Import pane only.
 - The ME shell UXML button text is `Save`; hosts bind `EditorSaveExportProjection.SaveLabel`
-  ("Save draft") at runtime. No Export button exists in ME chrome yet — `scenario_export` is CLI-only.
+  ("Save draft") at runtime. No Export button exists in ME chrome yet — `scenario_export` is CLI-only
+  and prints JSON. The projection label "Export validated" is the unwired host chrome for
+  `ScenarioSaveExportGate.Export`, not the shipped CLI effect.
+
+## Follow-up
+
+`ScenarioSaveExportGate.SaveDraft` without an `ICatalogReader` calls
+`ScenarioDocumentEditor.LiveValidate()`, which always validates against
+`InMemoryCatalogReader.BalticPatrolFixture()`. A non-Baltic scenario can therefore receive
+catalog-dependent findings and a false blocking count / "Export stays blocked" status even when
+export against its bound catalog would pass. Resolve the scenario's bound catalog before treating
+that count as export authority. Left as a follow-up; behavior is unchanged in this change.

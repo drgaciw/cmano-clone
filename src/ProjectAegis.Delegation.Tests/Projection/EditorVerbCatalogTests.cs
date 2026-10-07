@@ -27,7 +27,6 @@ public sealed class EditorVerbCatalogTests
         ["catalog.osint_approve"] = ["src/ProjectAegis.MissionEditor.Cli/OsintStagingReviewCommand.cs"],
         ["catalog.osint_pending"] = ["src/ProjectAegis.MissionEditor.Cli/OsintStagingReviewCommand.cs"],
         ["me.save"] = ["src/ProjectAegis.Data/Scenario/Authoring/ScenarioAuthoringSession.cs"],
-        ["me.export"] = ["src/ProjectAegis.Data/Scenario/Authoring/ScenarioSaveExportGate.cs"],
     };
 
     private static IEnumerable<EditorVerbEntry> Entries => EditorVerbCatalog.Entries;
@@ -185,6 +184,32 @@ public sealed class EditorVerbCatalogTests
     }
 
     [Test]
+    public void Scenario_export_cli_is_a_read_only_json_summary()
+    {
+        var entry = EditorVerbCatalog.Get("me.export");
+
+        Assert.That(entry.CliVerb, Is.EqualTo("scenario_export"));
+        Assert.That(entry.UxmlButtonName, Is.Null, "no ME Export button is shipped");
+        Assert.That(entry.GateOperation, Is.EqualTo(EditorWriteGateOperation.None));
+        Assert.That(entry.Effect, Is.EqualTo(EditorVerbEffect.ReadOnly));
+        Assert.That(entry.UiLabel, Is.EqualTo("Export summary"));
+        Assert.That(entry.Description, Does.Contain("ScenarioExportCommand.Prepare"));
+        Assert.That(entry.Description, Does.Contain("no artifact").IgnoreCase);
+        Assert.That(entry.Description, Does.Not.Contain("ScenarioSaveExportGate"));
+
+        var program = File.ReadAllText(Path.Combine(RepoRoot(), "src", "ProjectAegis.MissionEditor.Cli", "Program.cs"));
+        var start = program.IndexOf("static int RunScenarioExport(", StringComparison.Ordinal);
+        var end = program.IndexOf("static int RunScenarioDiffSummary(", StringComparison.Ordinal);
+        Assert.That(start, Is.GreaterThanOrEqualTo(0));
+        Assert.That(end, Is.GreaterThan(start));
+        var body = program[start..end];
+        Assert.That(body, Does.Contain("ScenarioExportCommand.Prepare"));
+        Assert.That(body, Does.Not.Contain("ScenarioSaveExportGate"));
+        Assert.That(body, Does.Not.Contain("WriteToFile"));
+        Assert.That(body, Does.Not.Contain("File.Write"));
+    }
+
+    [Test]
     public void Platform_import_cli_proposes_only()
     {
         var source = File.ReadAllText(Path.Combine(RepoRoot(), "src", "ProjectAegis.MissionEditor.Cli", "PlatformImportXlsxCommand.cs"));
@@ -221,7 +246,7 @@ public sealed class EditorVerbCatalogTests
         var documented = text[start..end].Split('\n')
             .Select(l => l.Trim().Trim('|').Split('|').Select(c => c.Trim()).ToArray())
             .Where(c => c.Length >= 5 && c[0].StartsWith('`'))
-            .Select(c => (Id: c[0].Trim('`'), Label: c[1], Cli: c[2].Trim('`'), Op: c[3]))
+            .Select(c => (Id: c[0].Trim('`'), Label: c[1], Cli: c[2].Trim('`'), Op: c[3], Effect: c[4]))
             .ToArray();
 
         Assert.That(documented.Select(d => d.Id), Is.EqualTo(Entries.Select(e => e.VerbId)));
@@ -231,6 +256,7 @@ public sealed class EditorVerbCatalogTests
             Assert.That(d.Label, Is.EqualTo(entry.UiLabel), d.Id);
             Assert.That(d.Cli, Is.EqualTo(entry.CliVerb ?? "—"), d.Id);
             Assert.That(d.Op, Is.EqualTo(entry.GateOperation.ToString()), d.Id);
+            Assert.That(d.Effect, Is.EqualTo(entry.Effect.ToString()), d.Id);
         }
     }
 

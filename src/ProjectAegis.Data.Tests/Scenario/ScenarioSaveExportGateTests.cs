@@ -126,4 +126,57 @@ public sealed class ScenarioSaveExportGateTests : IDisposable
             draftPath,
             draftPath));
     }
+
+    [Fact]
+    public void IsSameFilePath_treats_case_variants_as_the_same_file_under_ordinal_ignore_case()
+    {
+        var draft = Path.Combine(_dir, "Draft.json");
+        var variant = Path.Combine(_dir, "draft.JSON");
+        var viaParent = Path.Combine(_dir, "nested", "..", "Draft.json");
+
+        Assert.NotEqual(draft, variant, StringComparer.Ordinal);
+        Assert.True(ScenarioSaveExportGate.IsSameFilePath(draft, variant, StringComparison.OrdinalIgnoreCase));
+        Assert.False(ScenarioSaveExportGate.IsSameFilePath(draft, variant, StringComparison.Ordinal));
+        Assert.True(ScenarioSaveExportGate.IsSameFilePath(draft, viaParent));
+        Assert.True(ScenarioSaveExportGate.IsSameFilePath(draft, Path.GetRelativePath(Directory.GetCurrentDirectory(), draft)));
+    }
+
+    [Fact]
+    public void Export_path_comparison_is_case_insensitive_on_windows_and_macos()
+    {
+        var expected = OperatingSystem.IsWindows() || OperatingSystem.IsMacOS()
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+
+        Assert.Equal(expected, ScenarioSaveExportGate.ExportPathComparison);
+    }
+
+    [Fact]
+    public void Export_refuses_case_variant_of_the_draft_when_the_filesystem_ignores_case()
+    {
+        var draftPath = Path.Combine(_dir, "Draft.json");
+        var editor = ScenarioDocumentEditor.CreateNew(dbRef: "baltic_patrol");
+        editor.Save(draftPath);
+        var before = File.ReadAllBytes(draftPath);
+        var variant = Path.Combine(_dir, "draft.json");
+        Assert.False(ScenarioSaveExportGate.IsSameFilePath(draftPath, variant, StringComparison.Ordinal));
+        Assert.True(ScenarioSaveExportGate.IsSameFilePath(draftPath, variant, StringComparison.OrdinalIgnoreCase));
+
+        var document = ScenarioDocumentJsonLoader.LoadFromFile(draftPath);
+        var catalog = InMemoryCatalogReader.BalticPatrolFixture();
+        if (ScenarioSaveExportGate.ExportPathComparison == StringComparison.OrdinalIgnoreCase)
+        {
+            var ex = Assert.Throws<ArgumentException>(() => ScenarioSaveExportGate.Export(document, catalog, variant, draftPath));
+            Assert.Contains("differ", ex.Message, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal(before, File.ReadAllBytes(draftPath));
+            Assert.False(File.Exists(variant) && !ScenarioSaveExportGate.IsSameFilePath(draftPath, variant));
+            return;
+        }
+
+        var outcome = ScenarioSaveExportGate.Export(document, catalog, variant, draftPath);
+        Assert.True(outcome.Allowed, string.Join("; ", outcome.BlockingFindings.Select(f => f.Code)));
+        Assert.Equal(variant, outcome.ArtifactPath);
+        Assert.True(File.Exists(variant));
+        Assert.Equal(before, File.ReadAllBytes(draftPath));
+    }
 }
