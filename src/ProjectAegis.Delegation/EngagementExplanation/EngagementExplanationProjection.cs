@@ -410,7 +410,8 @@ public static class EngagementExplanationProjection
                 or AbortReasonCatalog.Engage.NO_FIRE_CONTROL_TRACK =>
                 "Acquire or designate a fire-control track on the target.",
             AbortReasonCatalog.Engage.DLZ_OUT
-                or AbortReasonCatalog.Engage.OUT_OF_ENVELOPE =>
+                or AbortReasonCatalog.Engage.OUT_OF_ENVELOPE
+                or nameof(FireAbortReason.WraRange) =>
                 "Close to within the weapon launch zone before engaging.",
             TargetabilityAcceptCauseCodes.Stale
                 or TargetabilityAcceptCauseCodes.StaleTrack
@@ -449,7 +450,6 @@ public static class EngagementExplanationProjection
                 "Select a weapon that can engage this target domain.",
             nameof(FireAbortReason.WeaponsTight)
                 or nameof(FireAbortReason.WraSalvo)
-                or nameof(FireAbortReason.WraRange)
                 or nameof(FireAbortReason.AutoEngageDenied)
                 or nameof(FireAbortReason.ExpendUnauthorized)
                 or TargetabilityAcceptCauseCodes.SharedTrackNoRelease
