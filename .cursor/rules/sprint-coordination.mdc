@@ -52,7 +52,7 @@ You share this repo with another orchestrator (CMANO). Follow this before writin
 ## 6. PR body (required, these four lines first)
     Closes DRG-###
     Surface: <same paths as the Linear issue>
-    Unity MCP: used (<evidence>) | unavailable, headless only
+    Unity MCP: used (<evidence>) | unavailable, headless only | N/A (headless) | N/A (docs-only)
     GitNexus: impact <Symbol> upstream = <risk> | N/A (no symbols edited) | BLOCKED (impact unavailable; no symbol edits)
 Then the unity-csharp-architect pr-finish block (PASS/FAIL/BLOCKED) for any UnityAdapter / C2 / Presentation / Editor diff (see `AGENTS.md`).
 Open the PR ready for review only when the full gate passes (build 0 warnings, `dotnet test`, PlayModeSmokeHarness). Otherwise leave it as a draft and keep the issue In Progress.
