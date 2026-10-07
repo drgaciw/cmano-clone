@@ -30,6 +30,7 @@ public sealed class CatalogRadarEccmAttributeTests
     {
         Assert.Single(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9) { RadarScanType = "Phased" }));
         Assert.Single(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9) { RadarTechGeneration = 9 }));
+        Assert.Single(CatalogRadarScanTypes.Validate(new CatalogSensorBinding("p1", "r1", 0.9, EccmFactor: 1.5)));
         Assert.Single(CatalogRadarScanTypes.Validate(new CatalogSensorBinding(
             "p1", "ir1", 0.9, Modality: CatalogSensorModalities.Infrared) { FrequencyAgile = true }));
     }

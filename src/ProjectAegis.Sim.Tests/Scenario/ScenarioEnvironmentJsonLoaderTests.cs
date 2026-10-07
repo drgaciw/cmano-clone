@@ -59,7 +59,7 @@ public sealed class ScenarioEnvironmentJsonLoaderTests
         var dto = new ScenarioPolicyJsonDto
         {
             Id = "code-built",
-            Jammers = [new ScenarioJammerJsonDto { TargetId = "h1", JamStrength = 0.5, TechGeneration = 2 }],
+            Jammers = [new ScenarioJammerJsonDto { TargetId = "h1", ObserverId = "u1", TechGeneration = 2 }],
             LineOfSight =
             [
                 new ScenarioLineOfSightJsonDto
@@ -79,6 +79,7 @@ public sealed class ScenarioEnvironmentJsonLoaderTests
         var p = ScenarioPolicyJsonLoader.ToProfile(dto);
 
         Assert.Equal(2, p.Jammers[0].TechGeneration);
+        Assert.Equal("u1", p.Jammers[0].ObserverId);
         Assert.Equal(new TerrainProfileSample(5_000, 3), p.LineOfSight[0].Terrain![0]);
         Assert.Equal(new RadarEccmProfile(RadarScanType.Pesa, true, 4), p.RadarEccm["r1"]);
         Assert.Equal("init", p.CommsGridTransitions[0].Reason);

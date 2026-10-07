@@ -34,6 +34,11 @@ public static class CatalogRadarScanTypes
             errors.Add($"{binding.PlatformId}/{binding.SensorId}: radarTechGeneration must be 0..{MaxTechGeneration}.");
         }
 
+        if (binding.EccmFactor is <= 0 or > 1 || double.IsNaN(binding.EccmFactor))
+        {
+            errors.Add($"{binding.PlatformId}/{binding.SensorId}: eccmFactor must be in (0, 1].");
+        }
+
         var hasEccm = !string.IsNullOrEmpty(binding.RadarScanType) || binding.FrequencyAgile || binding.RadarTechGeneration > 0;
         if (hasEccm && !string.Equals(binding.Modality, CatalogSensorModalities.Radar, StringComparison.Ordinal))
         {

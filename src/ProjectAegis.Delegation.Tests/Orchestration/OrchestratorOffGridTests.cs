@@ -17,7 +17,7 @@ public sealed class OrchestratorOffGridTests
     private static ObservedState State(double t) =>
         new(t, 0, 0, new Dictionary<TargetId, bool>());
 
-    private static (DelegationOrchestrator Orchestrator, UnitTarget Unit, HumanController Human) Build()
+    private static (DelegationOrchestrator Orchestrator, HumanController Human) Build()
     {
         var orchestrator = new DelegationOrchestrator(1)
         {
@@ -32,13 +32,13 @@ public sealed class OrchestratorOffGridTests
         unit.Slot.SetActive(human);
         orchestrator.Register(unit);
         orchestrator.BeginExecution();
-        return (orchestrator, unit, human);
+        return (orchestrator, human);
     }
 
     [Test]
     public void Order_issued_while_off_grid_is_dropped_with_OffGrid_denial()
     {
-        var (orchestrator, _, human) = Build();
+        var (orchestrator, human) = Build();
         orchestrator.Tick(State(10));
         human.Enqueue(new Order(new OrderId(1), new TargetId("u1"), 12, OrderKind.Hold, RiskLevel.Low), 12);
 
@@ -55,7 +55,7 @@ public sealed class OrchestratorOffGridTests
     [Test]
     public void Order_issued_before_leaving_grid_still_executes()
     {
-        var (orchestrator, _, human) = Build();
+        var (orchestrator, human) = Build();
         // Issued at T8 with a comms delay; executes at T11 after the unit went off grid at T10.
         human.Enqueue(new Order(new OrderId(1), new TargetId("u1"), 8, OrderKind.Hold, RiskLevel.Low), 11);
 
@@ -68,7 +68,7 @@ public sealed class OrchestratorOffGridTests
     [Test]
     public void Rejoined_unit_executes_new_orders()
     {
-        var (orchestrator, _, human) = Build();
+        var (orchestrator, human) = Build();
         orchestrator.Tick(State(20));
         human.Enqueue(new Order(new OrderId(1), new TargetId("u1"), 21, OrderKind.Hold, RiskLevel.Low), 21);
 

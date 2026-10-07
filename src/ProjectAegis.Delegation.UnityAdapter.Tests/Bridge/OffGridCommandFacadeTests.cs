@@ -1,7 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 using Controllers;
-using Core;
 using Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Comms;
