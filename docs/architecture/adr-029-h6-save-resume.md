@@ -32,7 +32,7 @@ Owner (drg amtd) accepted CMANO's picks at 00:10 CT:
 
 ## Summary
 
-H6 needs game-state save/resume, and none exists on `main`. `ReplayCheckpointStore` holds only `(SimTick, WorldHash, LogFingerprint, LastSequenceId)`. The hard constraint is ZERO-touch on the `DelegationBridge` hotpath (`AGENTS.md`) and on the frozen `SimulationSession` hub, unless the owner grants a product waiver. This ADR proposes **replay-to-tick restore driven by a versioned save envelope plus an external input journal**. A new driver outside the bridge and session rebuilds a fresh candidate session through existing public APIs, then verifies it against recorded fingerprints before swapping it in. **No product waiver is required** for the first slice. Multiplayer is out of scope here and needs its own ADR.
+H6 needs game-state save/resume, and none exists on `main`. `ReplayCheckpointStore` holds only `(SimTick, WorldHash, LogFingerprint, LastSequenceId)`. The hard constraint is ZERO-touch on the `DelegationBridge` hotpath (`AGENTS.md`) and on the frozen `SimulationSession` hub, unless the owner grants a product waiver. This ADR proposes **replay-to-tick restore driven by a versioned save envelope plus an external input journal**. A new driver outside the bridge and session builds an isolated candidate: a replayable sim world, its `ISimWorldSnapshot`, and its `IOrderSink`, together with a fresh `DelegationBridge`. It replays the journal from tick 0, checks the journal digest plus the recorded fingerprints, and swaps that set in as one unit. **No product waiver is required** for the first slice (W0). Multiplayer is out of scope here and needs its own ADR.
 
 ## Engine Compatibility
 
@@ -92,16 +92,16 @@ The game cannot be saved and resumed. The GDD says save/load "restores simTick, 
    - **Identity:** schema version; exact build id; scenario id and content hash; full catalog snapshot identity (`DbSnapshotStore` snapshot id plus a whole-catalog hash, not the sensor-only `CatalogSnapshotHasher` output alone); policy ids and hashes; global seed.
    - **Position:** observed tick (`state.SimTime`), pipeline tick (`SimClock.SimTick`), last sequence id.
    - **Input journal:** an ordered list of every external public-API call that changed the run, with tick and arguments: `TryTakeDirectControl` and `TryReleaseDirectControl`; `TryEnqueueHumanOrder`; `TryIssuePlayerCommand` (CMD-31, keeping `commandId`); `TryEnqueueAttackOption` (preserves the salvo override); `TryApprovePendingOrder` and `TryRejectPendingOrder`; `TryRebindAgentTraits`; `PauseSim`, `TryResumeSim(explicitOverride)` and `SetTimeAccelerationFactor`; and any in-scope watch actions.
-   - **Verification:** `DecisionLog.ComputeFingerprint()` SHA-256 via `OrderLogReplayFingerprint`, `Sim.LastWorldHash`, and the checkpoint rows up to the save tick.
-2. **Journal capture sits at the command façade, not in the bridge.** A new `SessionInputJournal` type wraps the call site that UI, CLI and MCP commands already route through (ADR-010). It records the call and then forwards it unchanged to the existing public method. `DelegationBridge` and `SimulationSession` get no new members and no new lines. CMD-31/32/34 seams are wrapped, not modified.
-3. **Restore runs in an isolated candidate session.** A new `SaveResumeDriver`:
-   - validates the envelope before anything is constructed (RPL-30);
-   - builds a **fresh** `DelegationBridge` with the pinned catalog bytes and `AttachReplayViewer = false`;
-   - replays scenario setup and journal calls tick by tick through the same stepper the harness uses, up to the save tick;
-   - compares fingerprints, world hash and checkpoints;
-   - only then hands the candidate session to the host.
+   - **Verification:** `DecisionLog.ComputeFingerprint()` SHA-256 via `OrderLogReplayFingerprint`, `Sim.LastWorldHash`, the checkpoint rows up to the save tick, and a **journal digest** over every recorded call in order. The digest is part of the envelope hash. `DecisionLog` and `Sim.LastWorldHash` do not move for state-only mutations, so they are not a sufficient accept check.
+2. **Journal capture sits at the command façade, not in the bridge.** A new `SessionInputJournal` type wraps the call site that UI, CLI and MCP commands already route through (ADR-010). It records the call and then forwards it unchanged to the existing public method. `DelegationBridge` and `SimulationSession` get no new members and no new lines. CMD-31/32/34 seams are wrapped, not modified. State-only mutations are journaled at that boundary before the call runs, and they are included in the journal digest. That set is `TryRebindAgentTraits`, `TryApprovePendingOrder`, `TryRejectPendingOrder`, `TryEnqueueAttackOption` (salvo override), `PauseSim`, `TryResumeSim`, `SetTimeAccelerationFactor`, and any later call that changes authority-bearing state without appending to `DecisionLog`. A mutation that lands without a journal row is a failed save: the envelope is not written. A restore that omits the row cannot pass, even when the log fingerprint and world hash match.
+3. **Restore swaps a replayable world in with the bridge.** A new `SaveResumeDriver` does not rebuild the bridge alone. `DelegationBridge.Tick` reads an `ISimWorldSnapshot` owned by the sim world and dispatches orders through an external `IOrderSink`. The driver:
+   - validates the envelope before anything is constructed (RPL-30), including the same build, catalog and scenario, and the journal digest;
+   - builds one isolated candidate set: a replayable sim world, the `ISimWorldSnapshot` that world exposes, the `IOrderSink` that applies that world's order side effects, and a **fresh** `DelegationBridge` bound to that snapshot and sink (`AttachReplayViewer = false`);
+   - replays scenario setup and the journal from tick 0 through the shared stepper, advancing that candidate world (positions, alive/contact, and sink side effects), not only bridge or session hashes;
+   - compares the journal digest, `DecisionLog` fingerprint, world hash and checkpoints;
+   - only then swaps the candidate world, snapshot, order sink, and bridge into the host as one unit.
 
-   Any failure discards the candidate, so the active session, RNG, queues and log are unchanged (RPL-31).
+   The live host world stays in place until that swap. Any failure discards the whole candidate, so the active world, snapshot, sink, bridge, RNG, queues and log are unchanged (RPL-31). A bridge-only rebuild that leaves the host world, snapshot, or order sink behind is not a successful restore.
 4. **Use one shared stepper and do not fork `RunCore`.** The first slice extracts the scenario-mesh and per-tick append sequence from `BalticReplayHarness.RunCore` into a reusable stepper that both the harness and the driver call. The extraction is a harness refactor, not a session or bridge edit. Its gate is **byte-identical** v2 and v3 golden output (see the replay-hash plan).
 5. **No skip-to-checkpoint in H6.** Restore re-sims from tick 0, so cost is O(T). Checkpoints are used only for verification. Options (b) full snapshot and (c) hybrid are deferred because a faithful version needs restore setters on the frozen hub or private state export, and that needs a waiver.
 6. **Watch ack/dismiss is presentation.** It is dropped on load and the cards are rebuilt from the replayed sim (`WatchAttentionQueue.cs` L6–7), unless DRG-328 says otherwise.
@@ -119,15 +119,17 @@ The game cannot be saved and resumed. The GDD says save/load "restores simTick, 
           |
    SimulationSession (frozen)  ---  DelegationBridge.Tick (called, never edited)
 
- Load:  envelope --validate--> SaveResumeDriver --fresh bridge + shared stepper + journal replay--> candidate
-        candidate --fingerprint/world-hash/checkpoint match--> swap into host  | mismatch --> discard (active untouched)
+ Load:  envelope --validate (identity + journal digest)--> SaveResumeDriver
+        --replayable world + ISimWorldSnapshot + IOrderSink + fresh bridge, journal from tick 0--> candidate set
+        candidate --journal digest + log fingerprint + world hash + checkpoints--> swap world, snapshot, sink, and bridge together
+        | mismatch --> discard the whole candidate (active world and bridge untouched)
 ```
 
 ### Touched symbols per option (DRG-329 AC)
 
 | Option | Edits `DelegationBridge` hotpath? | Edits `SimulationSession`? | Other touched symbols | Waiver |
 |---|---|---|---|---|
-| (a) Replay-to-tick + journal (**chosen**) | No: calls `Tick`, `TryEnqueueHumanOrder`, `TryIssuePlayerCommand`, `TryEnqueueAttackOption`, `TryTake/ReleaseDirectControl` | No: calls `PauseSim`, `TryResumeSim`, `SetTimeAccelerationFactor`, `Tick`/`TickHeadless` | New: `SessionInputJournal`, `SaveResumeDriver`, save envelope DTO, shared stepper extracted from `BalticReplayHarness.RunCore`; command-façade call sites rerouted through the journal | Not required |
+| (a) Replay-to-tick + journal (**chosen**) | No: calls `Tick`, `TryEnqueueHumanOrder`, `TryIssuePlayerCommand`, `TryEnqueueAttackOption`, `TryTake/ReleaseDirectControl` | No: calls `PauseSim`, `TryResumeSim`, `SetTimeAccelerationFactor`, `Tick`/`TickHeadless` | New: `SessionInputJournal`, `SaveResumeDriver`, save envelope DTO (includes journal digest), replayable candidate world with `ISimWorldSnapshot` and `IOrderSink`, shared stepper extracted from `BalticReplayHarness.RunCore`; command-façade call sites rerouted through the journal | Not required (W0) |
 | (b) Full state snapshot | No hotpath line, but bridge-private `_commsTimeline`/`_spoofTimeline`/`_fuelTimeline` need export | **Yes**: restore setters for clock, magazines, FSMs, BDA, salvo override, human queue | `Decision/SeededRng` state export; `AgentController._nextDecisionSimTime` | Required (broad) |
 | (c) Hybrid checkpoint + log tail | Same as (b) at checkpoint boundaries | **Yes** (world hydrate) | `ReplayCheckpoint` schema extended with a world blob, which is an ADR-003 checkpoint-schema change | Required (broad) |
 
@@ -165,7 +167,7 @@ The game cannot be saved and resumed. The GDD says save/load "restores simTick, 
 ### Negative
 
 - Restore time grows linearly with session length, and acceleration multiplies pipeline steps (up to 256 per observed tick).
-- Every new player-facing command must be routed through the journal, or saves silently lose it. Mitigation: a CI test that enumerates the public command façade.
+- Every new player-facing command, including state-only mutations (`TryRebindAgentTraits`, approve/reject, and similar), must be journaled and covered by the journal digest. Omitting one fails the save or the restore. A façade enumeration test fails CI when a public command bypasses the journal.
 - Saves are tied to the exact build and catalog. A patch invalidates existing saves.
 
 ### Neutral
@@ -177,7 +179,7 @@ The game cannot be saved and resumed. The GDD says save/load "restores simTick, 
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|-----------|
 | Shared-stepper extraction changes v2/v3 append order, so the golden moves | Medium | High | Refactor-only PR; ReplayGolden 6/6, hash grep, and v3 corpus byte-identical; on any diff, revert. No re-bless. |
-| Unjournaled UI action causes a silent desync on load | Medium | High | Fingerprint check rejects the load (RPL-31). A façade enumeration test fails CI when a public command bypasses the journal. |
+| Unjournaled state-only mutation (`TryRebindAgentTraits`, approve/reject, salvo override) passes on `DecisionLog` / `LastWorldHash` alone | Medium | High | Those calls are journaled at the façade and included in the journal digest. A restore that omits them fails the digest even when the log fingerprint and world hash match (RPL-31). A façade enumeration test fails CI when a public command bypasses the journal. |
 | Restore latency unacceptable for long sessions | Medium | Medium | Measure in DRG-349. If above the owner's ceiling, open the (c) amendment plus waiver W2. |
 | Catalog identity false match (sensor-only hash) | Medium | High | Envelope pins the whole-catalog snapshot id and hash. Mismatch is a hard fail. |
 | Observed vs pipeline tick split under acceleration | Medium | Medium | Envelope stores both ticks. Differential tests run at factors 1 and >1. |
@@ -226,8 +228,9 @@ Additive. First slice (DRG-349), Surface: `src/ProjectAegis.Delegation.UnityAdap
 - [ ] DRG-328 decided; Option B (or a contingency) recorded.
 - [ ] Owner states the waiver level (W0/W1/W2) explicitly.
 - [ ] Stepper extraction: ReplayGolden 6/6, v2 hash grep, and v3 goldens byte-identical.
-- [ ] Differential proof: continuous N+M ticks equals save at N, restore, then M ticks, at ≥3 interruption points, including queued approvals, delayed orders, in-flight engagements and acceleration >1.
-- [ ] Corrupt, truncated, wrong-build and wrong-catalog loads are rejected with before/after equality of the active session.
+- [ ] Differential proof: continuous N+M ticks equals save at N, restore, then M ticks, at ≥3 interruption points, including queued approvals, delayed orders, in-flight engagements and acceleration >1. The swapped candidate is the replayable world, its snapshot, its order sink, and the bridge together.
+- [ ] State-only proof: `TryRebindAgentTraits` and an approve or reject immediately before save are in the journal and in the journal digest. Dropping either row fails the restore even when `DecisionLog` fingerprint and `Sim.LastWorldHash` still match.
+- [ ] Corrupt, truncated, wrong-build and wrong-catalog loads are rejected with before/after equality of the active world, snapshot, sink, and bridge.
 - [ ] Restore latency measured and within the owner's ceiling.
 - [ ] `git diff` shows zero lines in `DelegationBridge` hotpath methods and in `SimulationSession`.
 
@@ -237,7 +240,7 @@ Additive. First slice (DRG-349), Surface: `src/ProjectAegis.Delegation.UnityAdap
 |---|---|---|---|
 | `Game-Requirements/requirements/17-Replay-AAR-And-Order-Log.md` | Replay/Save | RPL-29 deterministic resume | Replay-to-tick plus journal, with differential proof |
 | same | Replay/Save | RPL-30 compatibility | Versioned identity envelope validated before construction |
-| same | Replay/Save | RPL-31 non-mutating failure | Isolated candidate session, swapped only after verification |
+| same | Replay/Save | RPL-31 non-mutating failure | Isolated candidate world, snapshot, order sink, and bridge, swapped together only after the journal digest and fingerprints match |
 | `design/gdd/simulation-core-time.md` L126 | Sim core | Save/load restores tick, seed, RNG | Satisfied by re-simulation. Text amendment proposed (Neutral consequence). |
 | `Game-Requirements/requirements/08-Agentic-Architecture.md` §1 | Architecture | Lockstep first when multiplayer is in scope | Journal is lockstep-compatible. Multiplayer is deferred to its own ADR. |
 
