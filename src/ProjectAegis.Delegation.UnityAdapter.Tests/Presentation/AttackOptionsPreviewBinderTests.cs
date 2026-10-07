@@ -122,6 +122,80 @@ public sealed class AttackOptionsPreviewBinderTests
     }
 
     [Test]
+    public void Unchanged_menu_contents_return_the_cached_preview_instance()
+    {
+        var first = AttackOptionsPreviewBinder.Bind(CacheMenu());
+        var second = AttackOptionsPreviewBinder.Bind(CacheMenu());
+        var asList = AttackOptionsPreviewBinder.Bind(new List<EngageAttackOptions.AttackOption>(CacheMenu()));
+
+        Assert.That(second, Is.SameAs(first));
+        Assert.That(asList, Is.SameAs(first));
+    }
+
+    [Test]
+    public void Unchanged_menu_rebind_allocates_nothing()
+    {
+        var menu = CacheMenu();
+        var sameContents = CacheMenu();
+        AttackOptionsPreviewBinder.Bind(menu);
+        AttackOptionsPreviewBinder.Bind(sameContents);
+
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        AttackOptionsPreviewState? last = null;
+        for (var frame = 0; frame < 100; frame++)
+        {
+            last = AttackOptionsPreviewBinder.Bind(frame % 2 == 0 ? menu : sameContents);
+        }
+
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+
+        Assert.That(allocated, Is.EqualTo(0));
+        Assert.That(last!.Fingerprint, Is.EqualTo("atk:fire-single:0:DLZ_OUT;hold-fire:1:-"));
+    }
+
+    [Test]
+    public void Changed_menu_contents_rebuild_the_preview()
+    {
+        var first = AttackOptionsPreviewBinder.Bind(CacheMenu());
+        var changed = AttackOptionsPreviewBinder.Bind(new[]
+        {
+            new EngageAttackOptions.AttackOption("fire-single", "Fire 1 round", true),
+            new EngageAttackOptions.AttackOption("hold-fire", "Hold fire", true),
+        });
+        var restored = AttackOptionsPreviewBinder.Bind(CacheMenu());
+
+        Assert.That(changed, Is.Not.SameAs(first));
+        Assert.That(changed.Fingerprint, Is.EqualTo("atk:fire-single:1:-;hold-fire:1:-"));
+        Assert.That(changed.CueClass, Is.EqualTo(AttackOptionsCueClasses.Ready));
+        Assert.That(restored.Fingerprint, Is.EqualTo(first.Fingerprint));
+        Assert.That(restored.PreviewLine, Is.EqualTo(first.PreviewLine));
+    }
+
+    [Test]
+    public void Mutating_the_caller_menu_after_bind_does_not_return_a_stale_preview()
+    {
+        var menu = CacheMenu();
+        var first = AttackOptionsPreviewBinder.Bind(menu);
+
+        menu[0] = new EngageAttackOptions.AttackOption("fire-single", "Fire 1 round", false, "NO_AMMO");
+        var second = AttackOptionsPreviewBinder.Bind(menu);
+
+        Assert.That(second, Is.Not.SameAs(first));
+        Assert.That(second.Rows[0].AbortReason, Is.EqualTo("NO_AMMO"));
+        Assert.That(first.Rows[0].AbortReason, Is.EqualTo("DLZ_OUT"));
+    }
+
+    [Test]
+    public void Cached_preview_rows_cannot_be_mutated_through_a_cast()
+    {
+        var bound = AttackOptionsPreviewBinder.Bind(CacheMenu());
+
+        Assert.That(bound.Rows, Is.Not.InstanceOf<AttackOptionMenuRow[]>());
+        var asList = (IList<AttackOptionMenuRow>)bound.Rows;
+        Assert.Throws<NotSupportedException>(() => asList[0] = asList[1]);
+    }
+
+    [Test]
     public void All_enabled_menu_uses_ready_cue()
     {
         var menu = new[]
@@ -135,4 +209,11 @@ public sealed class AttackOptionsPreviewBinderTests
         Assert.That(bound.Rows[0].AbortReason, Is.Null);
         Assert.That(bound.PreviewLine, Is.EqualTo("ATTACK: Hold fire"));
     }
+
+    private static EngageAttackOptions.AttackOption[] CacheMenu() =>
+        new[]
+        {
+            new EngageAttackOptions.AttackOption("fire-single", "Fire 1 round", false, "DLZ_OUT"),
+            new EngageAttackOptions.AttackOption("hold-fire", "Hold fire", true),
+        };
 }
