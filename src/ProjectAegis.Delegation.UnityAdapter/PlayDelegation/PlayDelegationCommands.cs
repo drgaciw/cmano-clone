@@ -1,10 +1,10 @@
 namespace ProjectAegis.Delegation.UnityAdapter.PlayDelegation;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.UnityAdapter.PlayEntry;
+using Controllers;
+using Core;
+using Orchestration;
+using Traits;
+using PlayEntry;
 
 /// <summary>
 /// Headless play-delegation command façade (S124-05 W2-DEL-04 Assign Agent, S124-06 W2-DEL-02 Rebrief Agent).

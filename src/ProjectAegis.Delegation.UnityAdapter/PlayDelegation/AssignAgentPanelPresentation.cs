@@ -1,10 +1,10 @@
 namespace ProjectAegis.Delegation.UnityAdapter.PlayDelegation;
 
-using ProjectAegis.Delegation.Controllers;
-using ProjectAegis.Delegation.Core;
-using ProjectAegis.Delegation.Orchestration;
-using ProjectAegis.Delegation.Traits;
-using ProjectAegis.Delegation.UnityAdapter.PlayEntry;
+using Controllers;
+using Core;
+using Orchestration;
+using Traits;
+using PlayEntry;
 
 /// <summary>One commanded target row in the Assign Agent / Rebrief panel.</summary>
 public sealed record AssignAgentRowPresentation(
