@@ -9,8 +9,9 @@ ECCM attributes behaves byte-for-byte as before: no extra RNG draws and unchange
 - `LineOfSightEvaluator` (`Sim/Sensors/LineOfSight.cs`) applies the smooth-earth horizon
   `d = √(2kRe·h₁) + √(2kRe·h₂)` with k = 4/3 for radar and 7/6 for IR/visual, then masks against
   optional terrain samples (ray height vs. sample elevation + earth bulge).
-- `DeterministicDetectionLoop.RollTick(..., environment, losBlocks)` skips a blocked trial **before**
-  drawing RNG (same as the EMCON skip), so unaffected trials keep identical draws.
+- `DeterministicDetectionLoop.RollTick(..., environment, losBlocks)` omits a blocked trial's roll and
+  still reserves that trial's sorted draw index, so adding a mask does not shift later contacts' RNG
+  inputs. EMCON and already-detected skips still consume no draw.
 - Block reasons are Sensor-family manifest codes: `LOS_RADAR_HORIZON` and `LOS_TERRAIN_MASK`.
   `PdDetectionContactSimulator.LastLosBlocks` exposes the blocks from the latest tick.
 - Performance budget: at most `MaxTerrainSamplesPerPair` (256) samples are evaluated for each pair.

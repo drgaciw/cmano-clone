@@ -105,7 +105,9 @@ public static class DeterministicDetectionLoop
             }
 
             // ENV-02 / DRG-379: authored LOS geometry (radar horizon + terrain mask). A blocked pair
-            // consumes no RNG draw, mirroring the EMCON skip, so unaffected trials keep their draws.
+            // emits no roll, but it still reserves this sorted-trial draw index. Later contacts then
+            // keep the RNG inputs they have when the pair is clear. EMCON and already-detected skips
+            // still consume no draw (pre-existing).
             if (environment != null &&
                 environment.LineOfSight.TryGet(trial.ObserverId, trial.TargetId, out var geometry))
             {
@@ -114,6 +116,7 @@ public static class DeterministicDetectionLoop
                 {
                     losBlocks?.Add(new DetectionLosBlock(
                         simTick, trial.ObserverId, trial.SensorId, trial.TargetId, los.BlockCode!));
+                    drawIndex++;
                     continue;
                 }
             }

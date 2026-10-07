@@ -82,7 +82,7 @@ public sealed class LineOfSightEvaluatorTests
     }
 
     [Fact]
-    public void Detection_loop_skips_blocked_pair_without_consuming_rng_draw()
+    public void Detection_loop_reserves_draw_index_when_los_blocks()
     {
         var seed = SimSeed.FromScenario(42);
         var trials = new[]
@@ -96,17 +96,54 @@ public sealed class LineOfSightEvaluatorTests
         var blocks = new List<DetectionLosBlock>();
 
         var gated = DeterministicDetectionLoop.RollTick(seed, 3, trials, null, environment: env, losBlocks: blocks);
-        var baseline = DeterministicDetectionLoop.RollTick(seed, 3, new[] { trials[1] }, null);
+        var unblocked = DeterministicDetectionLoop.RollTick(seed, 3, trials, null);
 
         var only = Assert.Single(gated);
         Assert.Equal("h2", only.Trial.TargetId);
-        Assert.Equal(baseline[0].Draw, only.Draw);
+        Assert.Equal(unblocked.Single(r => r.Trial.TargetId == "h2"), only);
         var block = Assert.Single(blocks);
         Assert.Equal(3UL, block.SimTick);
         Assert.Equal("u1", block.ObserverId);
         Assert.Equal("radar-1", block.SensorId);
         Assert.Equal("h1", block.TargetId);
         Assert.Equal(AbortReasonCatalog.Sensor.LOS_RADAR_HORIZON, block.BlockCode);
+    }
+
+    [Fact]
+    public void Terrain_mask_leaves_unrelated_contact_results_unchanged()
+    {
+        var seed = SimSeed.FromScenario(42);
+        var trials = new[]
+        {
+            new ScenarioDetectionTrial("u1", "radar-1", "h1", "c1", 0.5),
+            new ScenarioDetectionTrial("u1", "radar-1", "h2", "c2", 0.5),
+            new ScenarioDetectionTrial("u1", "radar-1", "h3", "c3", 0.4),
+        };
+        var clear = new DetectionEnvironment(
+            new LosGeometryTable(new[] { new ScenarioLosGeometry("u1", "h1", 50, 100, 10_000) }),
+            new Dictionary<string, RadarEccmProfile>());
+        var masked = new DetectionEnvironment(
+            new LosGeometryTable(new[]
+            {
+                new ScenarioLosGeometry(
+                    "u1",
+                    "h1",
+                    50,
+                    100,
+                    10_000,
+                    new[] { new TerrainProfileSample(5_000, 400) }),
+            }),
+            new Dictionary<string, RadarEccmProfile>());
+        var blocks = new List<DetectionLosBlock>();
+
+        var withoutMask = DeterministicDetectionLoop.RollTick(seed, 3, trials, null, environment: clear);
+        var withMask = DeterministicDetectionLoop.RollTick(seed, 3, trials, null, environment: masked, losBlocks: blocks);
+
+        Assert.Equal(3, withoutMask.Count);
+        Assert.Equal(new[] { "h2", "h3" }, withMask.Select(r => r.Trial.TargetId));
+        Assert.Equal(AbortReasonCatalog.Sensor.LOS_TERRAIN_MASK, Assert.Single(blocks).BlockCode);
+        Assert.Equal(withoutMask.Single(r => r.Trial.TargetId == "h2"), withMask.Single(r => r.Trial.TargetId == "h2"));
+        Assert.Equal(withoutMask.Single(r => r.Trial.TargetId == "h3"), withMask.Single(r => r.Trial.TargetId == "h3"));
     }
 
     [Fact]
