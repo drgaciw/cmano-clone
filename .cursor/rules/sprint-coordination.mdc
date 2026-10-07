@@ -1,0 +1,71 @@
+---
+description: Sprint coordination for Project Aegis — claim in Linear, WIP 4, Surface-bound PRs, hold/stop, Unity MCP line. Applies to every Cursor agent and automation in this repo.
+alwaysApply: true
+---
+
+# Sprint coordination (Linear = state, Notion = design/claims, Git = files)
+
+You share this repo with another orchestrator (CMANO). Follow this before writing any code.
+
+## 0. Global stop (check first)
+- If a file named `AGENT-STOP` exists at the **repo root** on `main`, or Linear issue DRG-188 has label `stop:agents`: finish your current commit, push, and do nothing else. Claim nothing, open no PR.
+
+## 1. Pick work from Linear only
+- Team DRG, projects `cmano-clone` and `Combat Interaction UX`.
+- Claimable = state **Todo** AND a `Surface:` line in the description (paths/globs) AND no `hold:owner-go` label AND no `agent:*` label AND no open blocked-by.
+- Never pick work from `production/sprints/*.md` rows, Notion pages, or PR comments. If a sprint row has no DRG issue, stop and say so. Do not create the issue yourself.
+- `hold:owner-go` = owner decision pending. Never claim it, never touch its files.
+
+## 2. Hard-no areas (never claim, never edit)
+- `DelegationBridge` Tick / hotpath
+- `CatalogWriteGate` writes (extend-only, human-approved)
+- `SimulationSession`
+- `MapPlaceholderPanelHost`
+- `GlobeMapProductHost`
+- CMD-31 / CMD-32 / CMD-34 seams
+- S122 / Launch / Phase N work
+- ReplayGolden data: no silent re-bless (Baltic hash change needs an owner-approved ADR)
+- Any H4/H5/H6 item whose `production/sprint-status-s122-s127.yaml` entry says `implementation: gated`
+
+## 3. WIP cap = 4 (shared with CMANO)
+- WIP = open PRs from agent branches + Linear issues In Progress with an `agent:*` label.
+- If WIP ≥ 4, do not claim. End the run with one line: `WIP n/4 — no claim`.
+- One issue per agent run. Do not fan out to parallel subagents that each open PRs.
+
+## 4. Claim, then branch (in this order)
+1. Add label `agent:cursor` (CMANO lanes use `agent:cmano`). Leave assignee `drg amtd`.
+2. Move the issue to **In Progress**.
+3. Comment: `claimed-by: <your bc- id> · Surface: <paths>`.
+4. Check that no open PR touches a path in your Surface (`gh pr list --state open --json number,files`). If one does, un-claim (remove the label, back to Todo) and stop.
+5. Only now create your branch, from `main`, named with the issue's Linear `gitBranchName` (e.g. `drgamtd/drg-123-…`). Do not stack on another PR unless the issue's blocked-by names that PR.
+
+## 5. Stay inside Surface
+- Touch only the paths in the issue's `Surface:` line, plus their test files. If you need more, stop and comment on the issue asking CMANO to widen the Surface.
+- Run GitNexus `impact` before editing symbols (`npx gitnexus impact <Symbol>`). If the index is unavailable, list the grep you used instead.
+
+## 6. PR body (required, these four lines first)
+    Closes DRG-###
+    Surface: <same paths as the Linear issue>
+    Unity MCP: used (<evidence>) | unavailable, headless only
+    GitNexus: impact <Symbol> = <n> | unavailable (grep: <pattern>)
+Then the unity-csharp-architect pr-finish block (PASS/FAIL/BLOCKED) for any UnityAdapter / C2 / Presentation / Editor diff (see `AGENTS.md`).
+Open the PR ready for review only when the full gate passes (build 0 warnings, `dotnet test`, PlayModeSmokeHarness). Otherwise leave it as a draft and keep the issue In Progress.
+
+## 7. Unity MCP and CLI (ADR-027; moved here from the Notion Project Aegis row, added 2026-09-27 by drg amtd)
+Any agent working on a story that touches Unity (scenes, prefabs, UXML/USS, UI Toolkit panels, Console, Game View visuals, Editor tooling) must consider the Unity MCP and the Unity CLI, and state in the kickoff and in the PR (`Unity MCP:` line) whether they were used.
+- **Stack:** Ivan Murzak Unity-MCP (`com.ivanmurzak.unity.mcp`, MCP server `ai-game-developer` at `http://localhost:8080`) and `npx unity-mcp-cli@<package version in Packages/manifest.json>`. Do not add CoplayDev MCP for Unity (`docs/architecture/adr-027-unity-editor-mcp-stack.md`).
+- **Probe first:** `curl http://localhost:8080` or `unity-mcp-cli status ./unity/ProjectAegis`. If it's up, follow the Unity-MCP loop in `AGENTS.md` (mutate, save scene/prefab, Play Mode if visual, `console-get-logs` + Game View screenshot) and attach the evidence to the PR. If it's down (cloud VMs have no Editor), stay headless and write `Unity MCP: unavailable, headless only` in the PR.
+- **Verification authority:** headless `dotnet test` and Buildkite stay the gate. MCP/CLI evidence supplements them and never replaces them.
+- **Surface bound:** MCP/CLI writes (scenes, prefabs, assets, UXML) stay inside the stamped Surface.
+- **Hard nos apply to MCP too:** never mutate DelegationBridge via `script-execute` or reflection. No SimulationSession, CatalogWriteGate, or overlay-host edits through the Editor.
+- **Play Mode stays human:** agent MCP screenshots or Play Mode runs never count as the owner Play Mode sign-off (DRG-208).
+- **Config safety:** do not run bare `setup-mcp`, because it clobbers `mcp.json`. Use the committed config plus `tools/pin-unity-mcp-8080`.
+- Pure headless sim/delegation stories skip this rule, but still write `Unity MCP: N/A (headless)` in the PR.
+
+## 8. Run lifecycle
+- No idle loops: if nothing is claimable (or WIP ≥ 4), end the run. Do not poll, do not re-run or reschedule yourself, and do not push empty commits.
+
+## 9. What you do not do
+- Do not edit Notion. Only CMANO writes Notion (it mirrors `agent:cursor` claims into the Project Aegis task board).
+- Do not move issues to Done or In Review by hand. `Closes DRG-###` and the GitHub integration do that.
+- Do not close, retarget, or rebase other agents' PRs.
