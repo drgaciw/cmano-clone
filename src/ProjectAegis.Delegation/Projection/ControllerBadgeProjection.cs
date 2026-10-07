@@ -56,7 +56,10 @@ public static class ControllerBadgeProjection
     /// <summary>Bind a single roster row to its controller badge.</summary>
     public static ControllerBadge FromRosterEntry(AgentRosterEntry entry)
     {
-        ArgumentNullException.ThrowIfNull(entry);
+        if (entry is null)
+        {
+            throw new ArgumentNullException(nameof(entry));
+        }
 
         var kind = ParseKind(entry.ModeLabel);
         var agentId = string.IsNullOrWhiteSpace(entry.AgentId) || entry.AgentId == AgentRosterProjection.MissingAgentId
