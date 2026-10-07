@@ -8,6 +8,7 @@ using Sim;
 using Watch;
 using Data.Catalog;
 using ProjectAegis.Sim.Catalog;
+using ProjectAegis.Sim.Comms;
 using ProjectAegis.Sim.Core;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
@@ -624,6 +625,17 @@ public sealed class SimulationSession
     public DictionaryEngageWorldQuery? EngageWorld { get; init; }
 
     public FuelTimelineTracker? FuelTimeline { get; set; }
+
+    /// <summary>C3-01 / DRG-390: shortcut to <see cref="DelegationOrchestrator.CommsGrid"/>.</summary>
+    public CommsGridRegistry? CommsGrid
+    {
+        get => Orchestrator.CommsGrid;
+        set => Orchestrator.CommsGrid = value;
+    }
+
+    /// <inheritdoc cref="DelegationOrchestrator.EvaluateOffGrid"/>
+    public FireAbortReason? EvaluateOffGrid(string unitId, ulong simTick) =>
+        Orchestrator.EvaluateOffGrid(unitId, simTick);
 
     public MagazineLedger? Magazines { get; init; }
 

@@ -12,6 +12,7 @@ using Targets;
 using Traits;
 using Hindsight;
 using Trust;
+using ProjectAegis.Sim.Comms;
 using ProjectAegis.Sim.Scenario;
 
 public sealed class DelegationOrchestrator
@@ -59,7 +60,118 @@ public sealed class DelegationOrchestrator
 
     public PolicySnapshotRegistry PolicySnapshots => _policySnapshots;
 
-    public ScenarioPolicyProfile? ScenarioPolicy { get; set; }
+    private ScenarioPolicyProfile? _scenarioPolicy;
+
+    /// <summary>
+    /// Scenario policy for this run. Assigning a different instance drops the cached
+    /// <see cref="CommsGrid"/> so a read that happened before the policy was set cannot stick null.
+    /// </summary>
+    public ScenarioPolicyProfile? ScenarioPolicy
+    {
+        get => _scenarioPolicy;
+        set
+        {
+            if (ReferenceEquals(_scenarioPolicy, value))
+            {
+                return;
+            }
+
+            _scenarioPolicy = value;
+            _commsGrid = null;
+            _commsGridResolved = false;
+        }
+    }
+
+    private CommsGridRegistry? _commsGrid;
+    private bool _commsGridResolved;
+
+    /// <summary>
+    /// C3-01 / DRG-390: Sim-authoritative per-unit comms-grid membership. Resolved lazily from
+    /// <see cref="ScenarioPolicy"/> <c>commsGrid</c> transitions; null = every unit on grid (legacy).
+    /// </summary>
+    public CommsGridRegistry? CommsGrid
+    {
+        get
+        {
+            if (!_commsGridResolved)
+            {
+                _commsGrid = CommsGridRegistry.TryCreate(ScenarioPolicy);
+                _commsGridResolved = true;
+            }
+
+            return _commsGrid;
+        }
+        set
+        {
+            _commsGrid = value;
+            _commsGridResolved = true;
+        }
+    }
+
+    /// <summary>Grid changes applied on the most recent advance (order-log / UI evidence).</summary>
+    public IReadOnlyList<CommsGridChange> LastCommsGridChanges { get; private set; } = Array.Empty<CommsGridChange>();
+
+    /// <summary>
+    /// C3-01 / DRG-390 command-façade check: advances the grid to <paramref name="simTick"/> and
+    /// returns <see cref="FireAbortReason.OffGrid"/> when the unit cannot accept new direct orders.
+    /// </summary>
+    public FireAbortReason? EvaluateOffGrid(string unitId, ulong simTick)
+    {
+        var grid = CommsGrid;
+        if (grid == null)
+        {
+            return null;
+        }
+
+        AdvanceCommsGrid(grid, simTick);
+        return OffGridOrderGate.Evaluate(grid, unitId);
+    }
+
+    private void AdvanceCommsGrid(CommsGridRegistry grid, ulong simTick)
+    {
+        var changes = grid.Advance(simTick);
+        if (changes.Count > 0)
+        {
+            LastCommsGridChanges = changes;
+        }
+    }
+
+    /// <summary>
+    /// Drops human orders whose issue tick falls in any off-grid interval, including one that
+    /// already ended, and logs a <see cref="FireAbortReason.OffGrid"/> policy denial for each.
+    /// Orders issued while the unit was on grid still execute.
+    /// </summary>
+    private IReadOnlyList<Order> FilterOffGridHumanOrders(TargetId unitId, IReadOnlyList<Order> drained, double simTime, ulong simTick)
+    {
+        var grid = CommsGrid;
+        if (grid == null || drained.Count == 0)
+        {
+            return drained;
+        }
+
+        var kept = new List<Order>(drained.Count);
+        foreach (var order in drained)
+        {
+            var issuedTick = (ulong)Math.Max(0, (long)order.SimTime);
+            if (!grid.WasIssuedWhileOffGrid(unitId.Value, issuedTick))
+            {
+                kept.Add(order);
+                continue;
+            }
+
+            DecisionLog.AppendPolicyDenial(new PolicyDenialRecord(
+                0,
+                simTime,
+                simTick,
+                new AgentId("comms-grid"),
+                unitId,
+                0,
+                FireAbortReason.OffGrid,
+                order.Kind));
+        }
+
+        return kept;
+    }
 
     /// <summary>
     /// When true, all human ingress paths are blocked (req 03 AvA observer attach).
@@ -202,6 +314,12 @@ public sealed class DelegationOrchestrator
     public bool TryTakeDirectControl(UnitTarget unit, double simTime)
     {
         if (AttachReplayViewer)
+        {
+            return false;
+        }
+
+        // C3-01 / DRG-390: an off-grid unit cannot be taken under direct control.
+        if (EvaluateOffGrid(unit.Id.Value, (ulong)Math.Max(0, (long)simTime)) != null)
         {
             return false;
         }
@@ -356,6 +474,10 @@ public sealed class DelegationOrchestrator
 
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
         var executed = new List<Order>();
+        if (CommsGrid is { } commsGrid)
+        {
+            AdvanceCommsGrid(commsGrid, simTick);
+        }
 
         // Drain any orders previously approved by the player (DRG-66).
         executed.AddRange(_pendingApprovalQueue.DrainApproved());
@@ -383,7 +505,7 @@ public sealed class DelegationOrchestrator
                     executed.AddRange(agent.DrainIssuedOrders(simTick));
                     break;
                 case HumanController human:
-                    executed.AddRange(human.DrainIssuedOrders(simTick));
+                    executed.AddRange(FilterOffGridHumanOrders(target.Id, human.DrainIssuedOrders(simTick), state.SimTime, simTick));
                     break;
             }
         }

@@ -77,7 +77,9 @@ public static class DeterministicDetectionLoop
         IReadOnlyCollection<string>? alreadyDetectedContactIds = null,
         IReadOnlyList<ScenarioJammer>? jammers = null,
         ICatalogReader? catalog = null,
-        bool trialsPreSorted = false)
+        bool trialsPreSorted = false,
+        DetectionEnvironment? environment = null,
+        ICollection<DetectionLosBlock>? losBlocks = null)
     {
         if (trials.Count == 0)
         {
@@ -102,6 +104,23 @@ public static class DeterministicDetectionLoop
                 continue;
             }
 
+            // ENV-02 / DRG-379: authored LOS geometry (radar horizon + terrain mask). A blocked pair
+            // emits no roll, but it still reserves this sorted-trial draw index. Later contacts then
+            // keep the RNG inputs they have when the pair is clear. EMCON and already-detected skips
+            // still consume no draw (pre-existing).
+            if (environment != null &&
+                environment.LineOfSight.TryGet(trial.ObserverId, trial.TargetId, out var geometry))
+            {
+                var los = LineOfSightEvaluator.Evaluate(geometry, trial.Modality);
+                if (!los.Clear)
+                {
+                    losBlocks?.Add(new DetectionLosBlock(
+                        simTick, trial.ObserverId, trial.SensorId, trial.TargetId, los.BlockCode!));
+                    drawIndex++;
+                    continue;
+                }
+            }
+
             // RF ScenarioJamResolver applies only to radar. IR/visual use trial.JamStrength only
             // (optical/IR jam separate; default 0).
             var jamStrength = trial.JamStrength;
@@ -109,7 +128,12 @@ public static class DeterministicDetectionLoop
             {
                 jamStrength = Math.Max(
                     jamStrength,
-                    ScenarioJamResolver.ResolveJam(trial.ObserverId, trial.TargetId, simTick, jammers));
+                    ScenarioJamResolver.ResolveJam(
+                        trial.ObserverId,
+                        trial.TargetId,
+                        simTick,
+                        jammers,
+                        environment?.ResolveEccm(trial.SensorId) ?? RadarEccmProfile.Unspecified));
             }
 
             var pd = DetectionProbability.ComputePd(

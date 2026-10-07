@@ -14,6 +14,9 @@ public static class C2PlayerCommandBridge
     public const string ReasonUnknownUnit = "UNKNOWN_UNIT";
     public const string ReasonEnqueueFailed = "ENQUEUE_FAILED";
 
+    /// <summary>C3-01 / DRG-390: unit is off its side's comms grid (manifest Doctrine code).</summary>
+    public const string ReasonOffGrid = ProjectAegis.Sim.Glossary.AbortReasonCatalog.Doctrine.COMMS_OFF_GRID;
+
     /// <summary>
     /// Resolve <paramref name="commandId"/> and enqueue a human order for <paramref name="entity"/>.
     /// Does not mutate control slots — unit must already be under <see cref="HumanController"/>.
@@ -54,6 +57,13 @@ public static class C2PlayerCommandBridge
         if (binding.Target.Slot.Active is not HumanController)
         {
             failureReason = ReasonNotHumanControl;
+            return false;
+        }
+
+        // C3-01 / DRG-390: immediate feedback; the orchestrator also drops off-grid human orders at drain.
+        if (bridge.Orchestrator.EvaluateOffGrid(binding.TargetId.Value, (ulong)Math.Max(0, (long)simTime)) != null)
+        {
+            failureReason = ReasonOffGrid;
             return false;
         }
 

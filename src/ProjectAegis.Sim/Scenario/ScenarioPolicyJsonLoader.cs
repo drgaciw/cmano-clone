@@ -5,6 +5,7 @@ using ProjectAegis.Data.Scenario.Policy;
 using ProjectAegis.Data.Telemetry;
 using Engage;
 using Policy;
+using Sensors;
 
 public static class ScenarioPolicyJsonLoader
 {
@@ -98,6 +99,9 @@ public static class ScenarioPolicyJsonLoader
             mineHazard: ParseMineHazard(dto.MineHazard))
         {
             Id = dto.Id,
+            LineOfSight = ParseLineOfSight(dto.LineOfSight),
+            RadarEccm = ParseRadarEccm(dto.RadarEccm),
+            CommsGridTransitions = ParseCommsGrid(dto.CommsGrid),
         };
     }
 
@@ -392,7 +396,102 @@ public static class ScenarioPolicyJsonLoader
         }
 
         return jammers
-            .Select(j => new ScenarioJammer(j.TargetId, j.JamStrength, j.ActiveFromTick, j.ObserverId))
+            .Select(j => new ScenarioJammer(j.TargetId, j.JamStrength, j.ActiveFromTick, j.ObserverId, Math.Max(0, j.TechGeneration)))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ScenarioLosGeometry> ParseLineOfSight(List<ScenarioLineOfSightJsonDto>? entries)
+    {
+        if (entries == null || entries.Count == 0)
+        {
+            return Array.Empty<ScenarioLosGeometry>();
+        }
+
+        return entries
+            .Select(e =>
+            {
+                if (string.IsNullOrWhiteSpace(e.ObserverId) || string.IsNullOrWhiteSpace(e.TargetId))
+                {
+                    throw new InvalidDataException("lineOfSight entries require observerId and targetId.");
+                }
+
+                if (e.RangeMeters < 0)
+                {
+                    throw new InvalidDataException("lineOfSight.rangeMeters must be non-negative.");
+                }
+
+                var terrain = e.Terrain == null || e.Terrain.Count == 0
+                    ? null
+                    : (IReadOnlyList<TerrainProfileSample>)e.Terrain
+                        .OrderBy(t => t.DistanceMeters)
+                        .Select(t => new TerrainProfileSample(t.DistanceMeters, t.ElevationMslMeters))
+                        .ToArray();
+                if (terrain is { Count: > LineOfSightEvaluator.MaxTerrainSamplesPerPair })
+                {
+                    throw new InvalidDataException(
+                        $"lineOfSight {e.ObserverId}->{e.TargetId}: at most {LineOfSightEvaluator.MaxTerrainSamplesPerPair} terrain samples.");
+                }
+
+                return new ScenarioLosGeometry(
+                    e.ObserverId,
+                    e.TargetId,
+                    e.ObserverHeightMslMeters,
+                    e.TargetHeightMslMeters,
+                    e.RangeMeters,
+                    terrain);
+            })
+            .ToArray();
+    }
+
+    private static IReadOnlyDictionary<string, RadarEccmProfile> ParseRadarEccm(List<ScenarioRadarEccmJsonDto>? entries)
+    {
+        var map = new SortedDictionary<string, RadarEccmProfile>(StringComparer.Ordinal);
+        if (entries == null)
+        {
+            return map;
+        }
+
+        foreach (var e in entries)
+        {
+            if (string.IsNullOrWhiteSpace(e.SensorId))
+            {
+                throw new InvalidDataException("radarEccm entries require sensorId.");
+            }
+
+            if (e.TechGeneration < 0 || e.TechGeneration > RadarEccmProfile.MaxTechGeneration)
+            {
+                throw new InvalidDataException(
+                    $"radarEccm '{e.SensorId}': techGeneration must be 0..{RadarEccmProfile.MaxTechGeneration}.");
+            }
+
+            map[e.SensorId] = new RadarEccmProfile(
+                RadarEccmProfile.ParseScanType(e.ScanType),
+                e.FrequencyAgile,
+                e.TechGeneration);
+        }
+
+        return map;
+    }
+
+    private static IReadOnlyList<ScenarioCommsGridTransition> ParseCommsGrid(List<ScenarioCommsGridJsonDto>? entries)
+    {
+        if (entries == null || entries.Count == 0)
+        {
+            return Array.Empty<ScenarioCommsGridTransition>();
+        }
+
+        return entries
+            .Select(e =>
+            {
+                if (string.IsNullOrWhiteSpace(e.UnitId))
+                {
+                    throw new InvalidDataException("commsGrid entries require unitId.");
+                }
+
+                // Validate eagerly so authoring errors surface at load, not mid-run.
+                _ = Comms.CommsGridRegistry.ParseMembership(e.Membership);
+                return new ScenarioCommsGridTransition(e.AtTick, e.UnitId, e.Membership, e.Reason ?? "");
+            })
             .ToArray();
     }
 
