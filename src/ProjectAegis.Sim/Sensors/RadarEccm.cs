@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Sensors;
 
-using ProjectAegis.Sim;
+using Core;
 
 /// <summary>Radar antenna / scan architecture (EW-01 / DRG-386).</summary>
 public enum RadarScanType

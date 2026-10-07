@@ -1,6 +1,6 @@
 namespace ProjectAegis.Sim.Comms;
 
-using ProjectAegis.Sim;
+using Core;
 using Policy;
 using Scenario;
 

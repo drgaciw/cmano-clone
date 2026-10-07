@@ -1,4 +1,4 @@
-namespace ProjectAegis.Sim;
+namespace ProjectAegis.Sim.Core;
 
 using System.Globalization;
 
