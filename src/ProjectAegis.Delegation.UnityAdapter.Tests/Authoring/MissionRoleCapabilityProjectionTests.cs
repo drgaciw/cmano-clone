@@ -66,6 +66,7 @@ public sealed class MissionRoleCapabilityProjectionTests
         var rows = MissionRoleCapabilityProjection.ProjectTemplates();
 
         Assert.That(rows.Select(r => r.TemplateId), Is.EqualTo(MissionTemplateCatalog.All.Select(t => t.TemplateId)));
+        Assert.That(rows.Select(r => r.DisplayName), Has.All.Not.Null.And.Not.Empty);
         var tanker = rows.Single(r => r.TemplateId == "tpl-support-tanker");
         Assert.That(tanker.Execution, Is.EqualTo(MissionRoleExecution.NotExecuted));
         Assert.That(tanker.StatusLabel, Does.Contain("Not executed"));

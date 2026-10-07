@@ -142,12 +142,12 @@ public static class MissionRoleCapabilityManifest
         var type = Normalize(mission.Type) ?? "";
         var role = Normalize(mission.SupportRole);
         var roleText = role == null ? $"{type} mission '{mission.Id}'" : $"{type} mission '{mission.Id}' role '{role}'";
-        const string Blocked = "Export and Play are blocked; Save remains available.";
+        const string blocked = "Export and Play are blocked; Save remains available.";
 
         if (!Entries.Any(e => string.Equals(e.BackendId, backendId, StringComparison.Ordinal)))
         {
             return Build(mission.Id, type, role, backendId, MissionRoleExecution.Unknown, CodeBackendUnknown,
-                $"{roleText} cannot be assessed: execution backend '{backendId}' is unknown. {Blocked} Select backend '{DefaultBackendId}'.");
+                $"{roleText} cannot be assessed: execution backend '{backendId}' is unknown. {blocked} Select backend '{DefaultBackendId}'.");
         }
 
         // Support missions are keyed by role; a role on a non-Support type is ignored by the runtime.
@@ -155,7 +155,7 @@ public static class MissionRoleCapabilityManifest
         if (lookupRole == null && string.Equals(type, "Support", StringComparison.OrdinalIgnoreCase))
         {
             return Build(mission.Id, type, role, backendId, MissionRoleExecution.Unknown, CodeRoleUnknown,
-                $"{roleText} has no support role. {Blocked} Set a support role or change the mission to a supported role ({SupportedRolesList}).");
+                $"{roleText} has no support role. {blocked} Set a support role or change the mission to a supported role ({SupportedRolesList}).");
         }
 
         var entry = Find(type, lookupRole, backendId);
@@ -163,7 +163,7 @@ public static class MissionRoleCapabilityManifest
         {
             var label = type.Length == 0 ? $"Mission '{mission.Id}' has no type and" : $"{roleText} is unknown to backend '{backendId}' and";
             return Build(mission.Id, type, role, backendId, MissionRoleExecution.Unknown, CodeRoleUnknown,
-                $"{label} cannot run. {Blocked} Change it to a supported role ({SupportedRolesList}).");
+                $"{label} cannot run. {blocked} Change it to a supported role ({SupportedRolesList}).");
         }
 
         if (entry.Execution == MissionRoleExecution.Executed)
@@ -173,7 +173,7 @@ public static class MissionRoleCapabilityManifest
         }
 
         return Build(mission.Id, type, role, backendId, MissionRoleExecution.NotExecuted, CodeRoleNotExecuted,
-            $"{roleText} is not executed by backend '{backendId}'. {Blocked} Remove the mission or change it to a supported role ({SupportedRolesList}).");
+            $"{roleText} is not executed by backend '{backendId}'. {blocked} Remove the mission or change it to a supported role ({SupportedRolesList}).");
     }
 
     /// <summary>Assesses every mission in <paramref name="document"/>, ordered by mission id (ordinal).</summary>
@@ -186,7 +186,7 @@ public static class MissionRoleCapabilityManifest
             throw new ArgumentNullException(nameof(document));
         }
 
-        return (document.Missions ?? Array.Empty<ScenarioMissionDto>())
+        return document.Missions
             .Select(m => Assess(m, backendId))
             .OrderBy(a => a.MissionId, StringComparer.Ordinal)
             .ThenBy(a => a.MissionType, StringComparer.Ordinal)
@@ -263,5 +263,5 @@ public static class MissionRoleCapabilityManifest
         };
 
     private static string? Normalize(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? null : value!.Trim();
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }

@@ -2,7 +2,7 @@ namespace ProjectAegis.MissionEditor.Cli.Tests;
 
 using System.Text.Json;
 using Cli;
-using ProjectAegis.Data.Scenario.Authoring;
+using Data.Scenario.Authoring;
 using Xunit;
 
 /// <summary>
