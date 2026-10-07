@@ -1,11 +1,13 @@
 ---
-description: Sprint coordination for Project Aegis — claim in Linear, WIP 4, Surface-bound PRs, hold/stop, Unity MCP line. Applies to every Cursor agent and automation in this repo.
+description: Sprint coordination for Project Aegis — claim in Linear, WIP 4, Surface-bound PRs, hold/stop, Unity MCP line. Applies to every Cursor coding agent. Read-only and report-only automations are exempt.
 alwaysApply: true
 ---
 
 # Sprint coordination (Linear = state, Notion = design/claims, Git = files)
 
 You share this repo with another orchestrator (CMANO). Follow this before writing any code.
+
+**Exempt:** read-only and report-only automations, including the scheduled project-dashboard job (`.cursor/automations/project-dashboard-daily.prompt.md`). They do not claim Linear issues, do not count toward WIP, and do not stop because no Todo DRG issue exists. They may refresh their own report artifacts. The global stop below still applies.
 
 ## 0. Global stop (check first)
 - If a file named `AGENT-STOP` exists at the **repo root** on `main`, or Linear issue DRG-188 has label `stop:agents`: finish your current commit, push, and do nothing else. Claim nothing, open no PR.
@@ -28,7 +30,8 @@ You share this repo with another orchestrator (CMANO). Follow this before writin
 - Any H4/H5/H6 item whose `production/sprint-status-s122-s127.yaml` entry says `implementation: gated`
 
 ## 3. WIP cap = 4 (shared with CMANO)
-- WIP = open PRs from agent branches + Linear issues In Progress with an `agent:*` label.
+- WIP = distinct units of work. One Linear issue counts once; its PR is counted under that issue, not again.
+- Count the union of (1) In Progress issues with an `agent:*` label and (2) open agent-branch PRs (`gh pr list --state open --limit 200 --json number,headRefName,body`). Map each PR onto its `Closes DRG-###` issue so the issue and PR count once. A PR with no DRG issue counts once, keyed by its branch.
 - If WIP ≥ 4, do not claim. End the run with one line: `WIP n/4 — no claim`.
 - One issue per agent run. Do not fan out to parallel subagents that each open PRs.
 
@@ -36,18 +39,20 @@ You share this repo with another orchestrator (CMANO). Follow this before writin
 1. Add label `agent:cursor` (CMANO lanes use `agent:cmano`). Leave assignee `drg amtd`.
 2. Move the issue to **In Progress**.
 3. Comment: `claimed-by: <your bc- id> · Surface: <paths>`.
-4. Check that no open PR touches a path in your Surface (`gh pr list --state open --json number,files`). If one does, un-claim (remove the label, back to Todo) and stop.
+4. Check that no open PR touches a path in your Surface (`gh pr list --state open --limit 200 --json number,files`). If one does, un-claim (remove the label, back to Todo) and stop.
 5. Only now create your branch, from `main`, named with the issue's Linear `gitBranchName` (e.g. `drgamtd/drg-123-…`). Do not stack on another PR unless the issue's blocked-by names that PR.
 
 ## 5. Stay inside Surface
 - Touch only the paths in the issue's `Surface:` line, plus their test files. If you need more, stop and comment on the issue asking CMANO to widen the Surface.
-- Run GitNexus `impact` before editing symbols (`npx gitnexus impact <Symbol>`). If the index is unavailable, list the grep you used instead.
+- Before editing a symbol, MUST run GitNexus impact upstream first (`impact({target: "<Symbol>", direction: "upstream"})` or `npx gitnexus impact <Symbol>`) and report blast radius (direct callers, affected processes, risk). Warn on HIGH or CRITICAL before proceeding.
+- If the index is stale or missing, refresh it with `npx gitnexus analyze` (or `node .gitnexus/run.cjs analyze` when that runner exists), then run impact again.
+- Grep is not impact. Fall back to grep only if that refresh and a second impact both fail, and flag it in the PR. Do not treat the grep as the impact result.
 
 ## 6. PR body (required, these four lines first)
     Closes DRG-###
     Surface: <same paths as the Linear issue>
     Unity MCP: used (<evidence>) | unavailable, headless only
-    GitNexus: impact <Symbol> = <n> | unavailable (grep: <pattern>)
+    GitNexus: impact <Symbol> upstream = <risk> | FALLBACK grep <pattern> (analyze failed)
 Then the unity-csharp-architect pr-finish block (PASS/FAIL/BLOCKED) for any UnityAdapter / C2 / Presentation / Editor diff (see `AGENTS.md`).
 Open the PR ready for review only when the full gate passes (build 0 warnings, `dotnet test`, PlayModeSmokeHarness). Otherwise leave it as a draft and keep the issue In Progress.
 
