@@ -110,6 +110,24 @@ public sealed class EngagementExplanationProjectionTests
     }
 
     [Test]
+    public void Refused_wra_range_policy_denial_recommends_closing_range()
+    {
+        var log = new DecisionLog();
+        log.AppendPolicyDenial(new PolicyDenialRecord(
+            1, 1.2, 2, new AgentId("a1"), new TargetId("u1"), 0,
+            FireAbortReason.WraRange, OrderKind.Engage));
+        var events = CombatEventProjection.Project(Input(canFire: true), log, Targetability(fireControl: true));
+
+        var surface = EngagementExplanationProjection.Build(events, "u1", "hostile-1", 42);
+
+        Assert.That(surface.Status, Is.EqualTo(EngagementExplanationStatus.Refused));
+        var doctrine = surface.DoctrineConstraints.Single(c => c.State == EngagementConstraintState.Violated);
+        Assert.That(doctrine.Code, Is.EqualTo(nameof(FireAbortReason.WraRange)));
+        Assert.That(surface.ActionableReason, Is.EqualTo("Close to within the weapon launch zone before engaging."));
+        Assert.That(surface.ActionableReason, Does.Not.Contain("approval"));
+    }
+
+    [Test]
     public void Refused_domain_abort_is_hard_constraint_with_weapon_selection_action()
     {
         var input = Input(canFire: false) with
