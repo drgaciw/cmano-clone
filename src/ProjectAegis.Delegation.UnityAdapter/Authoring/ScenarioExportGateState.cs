@@ -1,5 +1,6 @@
 namespace ProjectAegis.Delegation.UnityAdapter.Authoring;
 
+using Data.Scenario.Authoring;
 using Data.Validation;
 
 /// <summary>
@@ -36,7 +37,29 @@ public sealed class ScenarioExportGateState
         InfoCount = infoCount;
         CanExport = canExport;
         BlockingReason = blockingReason;
+        UnsupportedExecutionFindings = findings
+            .Where(f => MissionRoleCapabilityManifest.IsCapabilityCode(f.Code))
+            .ToArray();
+        PlayBlockingReason = UnsupportedExecutionFindings.Count == 0
+            ? null
+            : "Play unavailable — the execution backend does not run: "
+              + string.Join("; ", UnsupportedExecutionFindings.Select(f => $"{f.Code} {f.MissionId}"))
+              + ". Force-confirm cannot override unsupported execution. Save is still available.";
     }
+
+    /// <summary>
+    /// Capability findings from <see cref="MissionRoleCapabilityManifest"/> (DRG-345), in
+    /// <see cref="Findings"/> order. A view must not derive runtime support any other way.
+    /// </summary>
+    public IReadOnlyList<ValidationFinding> UnsupportedExecutionFindings { get; }
+
+    /// <summary>True when any authored mission role is not executed by the selected backend.</summary>
+    public bool HasUnsupportedExecution => UnsupportedExecutionFindings.Count > 0;
+
+    /// <summary>
+    /// Non-bypassable Play rejection text when <see cref="HasUnsupportedExecution"/>; otherwise <c>null</c>.
+    /// </summary>
+    public string? PlayBlockingReason { get; }
 
     /// <summary>Findings in ADR-008 order.</summary>
     public IReadOnlyList<ValidationFinding> Findings { get; }

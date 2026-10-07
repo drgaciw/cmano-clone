@@ -172,8 +172,10 @@ public sealed class ScenarioSimulateSampleCliTests
     }
 
     [Fact]
-    public void scenario_simulate_sample_ac5_ferry_sample_fixture_completes_strike_patrol_support_ferry()
+    public void scenario_simulate_sample_ac5_ferry_sample_fixture_rejects_unexecuted_support_and_ferry()
     {
+        // DRG-345 / AME-6.11: Support (Tanker) and Ferry are saved but not executed by the replay
+        // backend, so validate and simulate reject them with MISSION_ROLE_NOT_EXECUTED.
         // S83-03: Ferry sample + AC-5 fixture. Extends coverage for qa-plan-scenario-editor-2026-07-01.md unit #5 (AC-5)
         // and #13 (AME-8.4 ferry verbs unblock). Uses ferry-inclusive authoring (dynamic + example ferry fixture load).
         // Full sample: Strike+Patrol+Support+Ferry headless; asserts sample-complete + all mission types present.
@@ -199,18 +201,17 @@ public sealed class ScenarioSimulateSampleCliTests
 
             using (var writer = new StringWriter())
             {
-                Assert.Equal(0, ScenarioValidateCommand.Run(path, quiet: false, writer));
+                Assert.Equal(1, ScenarioValidateCommand.Run(path, quiet: false, writer));
+                Assert.Contains("MISSION_ROLE_NOT_EXECUTED", writer.ToString());
             }
 
             using (var writer = new StringWriter())
             {
-                Assert.Equal(0, ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writer));
+                Assert.Equal(1, ScenarioSimulateSampleCommand.Run(path, ticks: 16, quiet: false, writer));
                 var output = writer.ToString();
-                Assert.Contains("\"recordType\": \"sample-complete\"", output);
-                Assert.Contains("Ferry", output);
-                Assert.Contains("Strike", output);
-                Assert.Contains("Patrol", output);
-                Assert.Contains("Support", output);
+                Assert.DoesNotContain("sample-complete", output);
+                Assert.Contains("ferry-ac5", output);
+                Assert.Contains("support-ac5", output);
             }
 
             var dto = ScenarioDocumentJsonLoader.LoadFromFile(path);
