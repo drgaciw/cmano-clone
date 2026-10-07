@@ -3,6 +3,7 @@ namespace ProjectAegis.Delegation.CombatEvents;
 using Decision;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
+using TargetabilityAccept;
 
 /// <summary>
 /// Builds presentation combat events strictly from authoritative, enriched order-log rows.
@@ -14,8 +15,15 @@ public static class CombatEventLogProjection
     public const string UnknownWeaponFamilyId = "Unknown";
 
     /// <summary>Builds a replay-stable combat-event snapshot through the supplied simulation time.</summary>
-    /// <remarks>Correlation ids are order-log sequence ids, not resolver engagement ids.</remarks>
-    public static CombatEventSnapshot Build(DecisionLog? log, double simTime)
+    /// <remarks>
+    /// Correlation ids are order-log sequence ids, not resolver engagement ids. A supplied Slice A
+    /// <paramref name="targetability"/> snapshot is attached for event targets only; it never alters the
+    /// historical lifecycle recorded in the log.
+    /// </remarks>
+    public static CombatEventSnapshot Build(
+        DecisionLog? log,
+        double simTime,
+        TargetabilityAcceptSnapshot? targetability = null)
     {
         if (log is null)
         {
@@ -166,9 +174,45 @@ public static class CombatEventLogProjection
             return sequence != 0 ? sequence : a.Event.Phase.CompareTo(b.Event.Phase);
         });
 
-        return events.Count == 0
-            ? CombatEventSnapshot.Empty
-            : new CombatEventSnapshot(events.Select(e => e.Event).ToArray());
+        if (events.Count == 0)
+        {
+            return CombatEventSnapshot.Empty;
+        }
+
+        var projected = events.Select(e => e.Event).ToArray();
+        return new CombatEventSnapshot(projected)
+        {
+            Targetability = ProjectTargetability(targetability, projected),
+            Execution = engagements
+                .OrderBy(e => e.SequenceId)
+                .Select(e => new CombatExecutionFact(
+                    e.SequenceId,
+                    e.ShooterTargetId.Value,
+                    e.VictimTargetId?.Value ?? UnknownTargetId,
+                    ResolveWeaponFamily(e),
+                    e.HasFireControlTrack,
+                    e.SalvoSize,
+                    e.SimTime,
+                    e.SimTick))
+                .ToArray(),
+        };
+    }
+
+    private static CombatTargetabilityFact[] ProjectTargetability(
+        TargetabilityAcceptSnapshot? targetability,
+        IReadOnlyList<CombatEvent> events)
+    {
+        if (targetability is null || targetability.Contacts.Count == 0)
+        {
+            return Array.Empty<CombatTargetabilityFact>();
+        }
+
+        var targets = new HashSet<string>(events.Select(e => e.TargetId), StringComparer.Ordinal);
+        return targetability.Contacts
+            .Where(row => targets.Contains(row.TargetId))
+            .OrderBy(row => row.ContactId, StringComparer.Ordinal)
+            .Select(CombatTargetabilityFact.FromRow)
+            .ToArray();
     }
 
     private static void Add(
