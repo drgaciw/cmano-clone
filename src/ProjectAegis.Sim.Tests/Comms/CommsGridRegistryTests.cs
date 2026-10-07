@@ -95,6 +95,50 @@ public sealed class CommsGridRegistryTests
     }
 
     [Fact]
+    public void Off_grid_intervals_are_half_open_and_the_current_one_stays_open()
+    {
+        var r = new CommsGridRegistry(new[]
+        {
+            new ScenarioCommsGridTransition(10, "sub-1", "OffGrid"),
+            new ScenarioCommsGridTransition(15, "sub-1", "OnGrid"),
+            new ScenarioCommsGridTransition(30, "sub-1", "OffGrid"),
+        });
+
+        r.Advance(12);
+        Assert.True(r.WasIssuedWhileOffGrid("sub-1", 10));
+        Assert.True(r.WasIssuedWhileOffGrid("sub-1", 12));
+        Assert.False(r.WasIssuedWhileOffGrid("sub-1", 9));
+
+        r.Advance(20);
+        Assert.True(r.WasIssuedWhileOffGrid("sub-1", 14));
+        Assert.False(r.WasIssuedWhileOffGrid("sub-1", 15));
+        Assert.False(r.WasIssuedWhileOffGrid("sub-1", 20));
+
+        r.Advance(40);
+        Assert.True(r.WasIssuedWhileOffGrid("sub-1", 30));
+        Assert.True(r.WasIssuedWhileOffGrid("sub-1", 40));
+        Assert.False(r.WasIssuedWhileOffGrid("sub-1", 29));
+    }
+
+    [Fact]
+    public void Closed_intervals_older_than_the_max_order_delay_are_pruned()
+    {
+        var r = new CommsGridRegistry(new[]
+        {
+            new ScenarioCommsGridTransition(10, "sub-1", "OffGrid"),
+            new ScenarioCommsGridTransition(15, "sub-1", "OnGrid"),
+        });
+        r.Advance(15);
+        var stillNeeded = 15UL + CommsGridRegistry.MaxRetainedOrderDelayTicks;
+        r.Advance(stillNeeded);
+        Assert.True(r.WasIssuedWhileOffGrid("sub-1", 14));
+
+        r.Advance(stillNeeded + 1);
+        Assert.False(r.WasIssuedWhileOffGrid("sub-1", 14));
+        Assert.False(r.IsOffGrid("sub-1"));
+    }
+
+    [Fact]
     public void TryCreate_returns_null_without_transitions()
     {
         Assert.Null(CommsGridRegistry.TryCreate(null));

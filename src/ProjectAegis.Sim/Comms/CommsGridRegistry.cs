@@ -34,9 +34,16 @@ public readonly record struct CommsGridChange(
 /// </summary>
 public sealed class CommsGridRegistry
 {
+    /// <summary>
+    /// Closed intervals are kept this many ticks after they end. That matches the maximum player-order
+    /// delay, so a still-pending order cannot have been issued in a pruned window.
+    /// </summary>
+    public const ulong MaxRetainedOrderDelayTicks = ScenarioCommsDisplaySettings.MaxDegradedOrderDelayTicks;
+
     private readonly ScenarioCommsGridTransition[] _transitions;
     private readonly SortedDictionary<string, CommsGridMembership> _membership = new(StringComparer.Ordinal);
     private readonly SortedDictionary<string, ulong> _offGridSince = new(StringComparer.Ordinal);
+    private readonly SortedDictionary<string, List<OffGridInterval>> _offGridIntervals = new(StringComparer.Ordinal);
     private readonly Dictionary<string, UnitLastReport> _lastReports = new(StringComparer.Ordinal);
     private int _nextIndex;
     private ulong _lastAdvancedTick;
@@ -88,18 +95,105 @@ public sealed class CommsGridRegistry
             _membership[t.UnitId] = next;
             if (next == CommsGridMembership.OffGrid)
             {
-                _offGridSince[t.UnitId] = t.AtTick;
+                OpenInterval(t.UnitId, t.AtTick);
             }
             else
             {
-                _offGridSince.Remove(t.UnitId);
+                CloseInterval(t.UnitId, t.AtTick);
             }
 
             (changes ??= new List<CommsGridChange>()).Add(
                 new CommsGridChange(t.AtTick, t.UnitId, current, next, t.Reason));
         }
 
+        PruneIntervals(simTick);
         return changes ?? (IReadOnlyList<CommsGridChange>)Array.Empty<CommsGridChange>();
+    }
+
+    /// <summary>
+    /// True when <paramref name="issuedTick"/> falls in any off-grid interval for the unit.
+    /// Intervals are <c>[since, until)</c>. The current episode has no end.
+    /// </summary>
+    public bool WasIssuedWhileOffGrid(string unitId, ulong issuedTick)
+    {
+        if (!_offGridIntervals.TryGetValue(unitId, out var intervals))
+        {
+            return false;
+        }
+
+        foreach (var interval in intervals)
+        {
+            if (interval.Contains(issuedTick))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void OpenInterval(string unitId, ulong sinceTick)
+    {
+        if (!_offGridIntervals.TryGetValue(unitId, out var intervals))
+        {
+            intervals = new List<OffGridInterval>();
+            _offGridIntervals[unitId] = intervals;
+        }
+
+        intervals.Add(new OffGridInterval(sinceTick, null));
+        _offGridSince[unitId] = sinceTick;
+    }
+
+    private void CloseInterval(string unitId, ulong untilTick)
+    {
+        _offGridSince.Remove(unitId);
+        if (!_offGridIntervals.TryGetValue(unitId, out var intervals) || intervals.Count == 0)
+        {
+            return;
+        }
+
+        var open = intervals[^1];
+        if (open.UntilTick is null)
+        {
+            intervals[^1] = new OffGridInterval(open.SinceTick, untilTick);
+        }
+    }
+
+    private void PruneIntervals(ulong simTick)
+    {
+        List<string>? empty = null;
+        foreach (var pair in _offGridIntervals)
+        {
+            var intervals = pair.Value;
+            for (var i = intervals.Count - 1; i >= 0; i--)
+            {
+                var until = intervals[i].UntilTick;
+                if (until is null || simTick <= until.Value)
+                {
+                    continue;
+                }
+
+                if (simTick - until.Value > MaxRetainedOrderDelayTicks)
+                {
+                    intervals.RemoveAt(i);
+                }
+            }
+
+            if (intervals.Count == 0)
+            {
+                (empty ??= new List<string>()).Add(pair.Key);
+            }
+        }
+
+        if (empty == null)
+        {
+            return;
+        }
+
+        foreach (var unitId in empty)
+        {
+            _offGridIntervals.Remove(unitId);
+        }
     }
 
     public CommsGridMembership GetMembership(string unitId) =>
@@ -151,6 +245,13 @@ public sealed class CommsGridRegistry
 
         return h;
     }
+}
+
+/// <summary>One off-grid episode. <see cref="UntilTick"/> null means the unit is still off grid. Contains <c>[SinceTick, UntilTick)</c>.</summary>
+internal readonly record struct OffGridInterval(ulong SinceTick, ulong? UntilTick)
+{
+    public bool Contains(ulong issuedTick) =>
+        issuedTick >= SinceTick && (UntilTick is null || issuedTick < UntilTick.Value);
 }
 
 /// <summary>Command-façade gate: off-grid units reject new direct orders (C3-01 / DRG-390).</summary>

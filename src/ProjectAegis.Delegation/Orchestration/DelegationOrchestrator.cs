@@ -137,14 +137,14 @@ public sealed class DelegationOrchestrator
     }
 
     /// <summary>
-    /// Drops human orders issued while the unit was off grid (issued at/after its off-grid tick)
-    /// and logs a <see cref="FireAbortReason.OffGrid"/> policy denial for each. Orders issued
-    /// before the unit left the grid still execute.
+    /// Drops human orders whose issue tick falls in any off-grid interval, including one that
+    /// already ended, and logs a <see cref="FireAbortReason.OffGrid"/> policy denial for each.
+    /// Orders issued while the unit was on grid still execute.
     /// </summary>
     private IReadOnlyList<Order> FilterOffGridHumanOrders(TargetId unitId, IReadOnlyList<Order> drained, double simTime, ulong simTick)
     {
         var grid = CommsGrid;
-        if (grid == null || drained.Count == 0 || !grid.TryGetOffGridSince(unitId.Value, out var since))
+        if (grid == null || drained.Count == 0)
         {
             return drained;
         }
@@ -153,7 +153,7 @@ public sealed class DelegationOrchestrator
         foreach (var order in drained)
         {
             var issuedTick = (ulong)Math.Max(0, (long)order.SimTime);
-            if (issuedTick < since)
+            if (!grid.WasIssuedWhileOffGrid(unitId.Value, issuedTick))
             {
                 kept.Add(order);
                 continue;

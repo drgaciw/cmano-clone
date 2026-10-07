@@ -35,6 +35,25 @@ public sealed class OrchestratorOffGridTests
         return (orchestrator, human);
     }
 
+    private static (DelegationOrchestrator Orchestrator, HumanController Human) BuildRejoin()
+    {
+        var orchestrator = new DelegationOrchestrator(1)
+        {
+            CommsGrid = new CommsGridRegistry(new[]
+            {
+                new ScenarioCommsGridTransition(10, "u1", "OffGrid", "below comms depth"),
+                new ScenarioCommsGridTransition(15, "u1", "OnGrid", "periscope depth"),
+                new ScenarioCommsGridTransition(20, "u1", "OffGrid", "below comms depth"),
+            }),
+        };
+        var unit = new UnitTarget(new TargetId("u1"));
+        var human = new HumanController();
+        unit.Slot.SetActive(human);
+        orchestrator.Register(unit);
+        orchestrator.BeginExecution();
+        return (orchestrator, human);
+    }
+
     [Test]
     public void Order_issued_while_off_grid_is_dropped_with_OffGrid_denial()
     {
@@ -60,6 +79,44 @@ public sealed class OrchestratorOffGridTests
         human.Enqueue(new Order(new OrderId(1), new TargetId("u1"), 8, OrderKind.Hold, RiskLevel.Low), 11);
 
         orchestrator.Tick(State(11));
+
+        Assert.That(orchestrator.ExecutedOrders, Has.Count.EqualTo(1));
+        Assert.That(orchestrator.DecisionLog.PolicyDenials, Is.Empty);
+    }
+
+    [Test]
+    public void Delayed_order_issued_off_grid_is_refused_after_rejoin()
+    {
+        var (orchestrator, human) = BuildRejoin();
+        human.Enqueue(new Order(new OrderId(1), new TargetId("u1"), 12, OrderKind.Hold, RiskLevel.Low), 16);
+
+        orchestrator.Tick(State(16));
+
+        Assert.That(orchestrator.ExecutedOrders, Is.Empty);
+        Assert.That(orchestrator.DecisionLog.PolicyDenials.Single().Reason, Is.EqualTo(FireAbortReason.OffGrid));
+        Assert.That(orchestrator.CommsGrid!.IsOffGrid("u1"), Is.False);
+    }
+
+    [Test]
+    public void Order_from_the_first_off_grid_episode_is_refused_during_the_second()
+    {
+        var (orchestrator, human) = BuildRejoin();
+        human.Enqueue(new Order(new OrderId(1), new TargetId("u1"), 12, OrderKind.Hold, RiskLevel.Low), 22);
+
+        orchestrator.Tick(State(22));
+
+        Assert.That(orchestrator.ExecutedOrders, Is.Empty);
+        Assert.That(orchestrator.DecisionLog.PolicyDenials.Single().Reason, Is.EqualTo(FireAbortReason.OffGrid));
+        Assert.That(orchestrator.CommsGrid!.IsOffGrid("u1"), Is.True);
+    }
+
+    [Test]
+    public void Order_issued_while_back_on_grid_still_executes_during_a_later_off_grid_episode()
+    {
+        var (orchestrator, human) = BuildRejoin();
+        human.Enqueue(new Order(new OrderId(1), new TargetId("u1"), 16, OrderKind.Hold, RiskLevel.Low), 22);
+
+        orchestrator.Tick(State(22));
 
         Assert.That(orchestrator.ExecutedOrders, Has.Count.EqualTo(1));
         Assert.That(orchestrator.DecisionLog.PolicyDenials, Is.Empty);

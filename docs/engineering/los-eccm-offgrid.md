@@ -42,9 +42,11 @@ ECCM attributes behaves byte-for-byte as before: no extra RNG draws and unchange
   `commsGrid` transitions. Transitions apply in (tick, unit id ordinal) order. The registry never
   rewinds, folds its state into an FNV hash, and freezes position reports while a unit is off grid.
 - Enforcement lives in `DelegationOrchestrator`, because `DelegationBridge.cs` is zero-touch through Release v1:
-  - Human orders issued at or after a unit's off-grid tick are dropped at drain and logged as a
-    `PolicyDenial` with `FireAbortReason.OffGrid` (Doctrine code `COMMS_OFF_GRID`, agent `comms-grid`).
-  - Orders issued *before* the unit left the grid, and agent/doctrine intents, still execute.
+  - Human orders whose issue tick falls in any off-grid interval (`[since, until)`, current episode
+    left open) are dropped at drain and logged as a `PolicyDenial` with `FireAbortReason.OffGrid`
+    (Doctrine code `COMMS_OFF_GRID`, agent `comms-grid`). Closed intervals older than the maximum
+    order delay (10 ticks) are pruned.
+  - Orders issued while the unit was on grid, and agent/doctrine intents, still execute.
   - `TryTakeDirectControl` refuses off-grid units.
   - `C2PlayerCommandBridge.TryIssue` returns `COMMS_OFF_GRID` up front for immediate UI feedback.
 - `CommsGridProjection` gives the UI off-grid rows with the last-reported position. Presentation
