@@ -24,11 +24,25 @@ public static class CesiumBillboardProjection
     private const double BalticLonSpan = 1.5;
     private const double EarthRadiusMeters = 6_371_000.0;
 
-    /// <summary>Resolve APP-6 glyph/frame from symbol entry; uses SIDC when present, affiliation when missing.</summary>
+    /// <summary>
+    /// Preserve military-profile display rows; legacy rows resolve from SIDC when present,
+    /// or affiliation when missing.
+    /// </summary>
     public static App6MapGlyphResolution ResolveGlyph(MapSymbolEntry symbol)
     {
         if (!string.IsNullOrWhiteSpace(symbol.App6Sidc))
         {
+            // MilitarySymbology supplies a complete presentation resolution. The legacy
+            // SIDC resolver only knows affiliation and would erase its dimension and icon.
+            if (App6Sidc.IsValidSidc(symbol.App6Sidc)
+                && symbol.App6Sidc[0] == 'S'
+                && !string.IsNullOrEmpty(symbol.ShapeGlyph)
+                && symbol.App6UssFrameId is { } frame
+                && frame.StartsWith("map-sym-mil--", StringComparison.Ordinal))
+            {
+                return new App6MapGlyphResolution(symbol.ShapeGlyph, frame, symbol.App6Sidc);
+            }
+
             return App6Sidc.ResolveMapGlyphFromSidc(symbol.App6Sidc);
         }
 
