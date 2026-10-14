@@ -25,7 +25,9 @@ namespace ProjectAegis.Unity.Runtime
         private OobTreePanelState _panelState = new(Array.Empty<OobTreeDisplayRow>());
         private IReadOnlyDictionary<string, ControllerBadgeBinding> _badges =
             new Dictionary<string, ControllerBadgeBinding>(StringComparer.Ordinal);
-        private int _badgeStamp = int.MinValue;
+        private long _badgeStamp;
+        private bool _badgesApplied;
+        private IReadOnlyList<AgentRosterEntry>? _appliedRoster;
         private bool _wired;
 
         private void Reset()
@@ -176,11 +178,13 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            var stamp = ControllerBadgeBinder.RosterStamp(bridgeHost.LastAgentRoster);
-            if (stamp != _badgeStamp)
+            var roster = bridgeHost.LastAgentRoster;
+            if (ControllerBadgeBinder.NeedsRebind(_badgesApplied, _badgeStamp, _appliedRoster, roster))
             {
-                _badges = ControllerBadgeBinder.BindRoster(bridgeHost.LastAgentRoster);
-                _badgeStamp = stamp;
+                _badges = ControllerBadgeBinder.BindRoster(roster);
+                _badgeStamp = ControllerBadgeBinder.RosterStamp(roster);
+                _appliedRoster = roster;
+                _badgesApplied = true;
             }
 
             _panelState = OobTreePanelBinder.Bind(bridgeHost.LastOobTree, bridgeHost.SelectedUnitId);

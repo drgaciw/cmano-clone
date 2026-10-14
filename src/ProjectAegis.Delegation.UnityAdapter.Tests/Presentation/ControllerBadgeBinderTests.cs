@@ -134,6 +134,48 @@ public sealed class ControllerBadgeBinderTests
 
         Assert.That(ControllerBadgeBinder.RosterStamp(left), Is.EqualTo(ControllerBadgeBinder.RosterStamp(right)));
         Assert.That(ControllerBadgeBinder.RosterStamp(left), Is.Not.EqualTo(ControllerBadgeBinder.RosterStamp(changed)));
+        Assert.That(ControllerBadgeBinder.NeedsRebind(true, ControllerBadgeBinder.RosterStamp(left), left, right), Is.False);
+        Assert.That(ControllerBadgeBinder.NeedsRebind(true, ControllerBadgeBinder.RosterStamp(left), left, changed), Is.True);
+    }
+
+    [Test]
+    public void Colliding_32_bit_mix_still_rebinds_when_agent_ids_differ()
+    {
+        var left = new[] { Entry("u1", "Agent", "friendly-Aa") };
+        var right = new[] { Entry("u1", "Agent", "friendly-BB") };
+
+        Assert.That(ControllerBadgeBinder.RosterStamp(left), Is.EqualTo(ControllerBadgeBinder.RosterStamp(right)));
+        Assert.That(ControllerBadgeBinder.SameRoster(left, right), Is.False);
+        Assert.That(
+            ControllerBadgeBinder.NeedsRebind(true, ControllerBadgeBinder.RosterStamp(left), left, right),
+            Is.True);
+
+        var rebound = ControllerBadgeBinder.BindRoster(right);
+        Assert.That(ControllerBadgeBinder.TryGet(rebound, "u1", out var badge), Is.True);
+        Assert.That(badge!.Tooltip, Does.Contain("friendly-BB"));
+        Assert.That(badge.Tooltip, Does.Not.Contain("friendly-Aa"));
+    }
+
+    [Test]
+    public void Historical_review_uses_as_of_roster_or_hides_when_unknown()
+    {
+        var live = new[] { Entry("u1", "Human", null) };
+        var asOf = new[] { Entry("u1", "Agent", "a-then") };
+
+        var unknown = ControllerBadgeBinder.RosterForBadges(inspecting: true, live, asOfRoster: null);
+        Assert.That(ControllerBadgeBinder.BindRoster(unknown), Is.Empty);
+        Assert.That(
+            ControllerBadgeBinder.TryBindMapSymbol("u1", "map-symbol--friendly", ControllerBadgeBinder.BindRoster(unknown), out _),
+            Is.False);
+
+        var historical = ControllerBadgeBinder.RosterForBadges(inspecting: true, live, asOf);
+        Assert.That(ControllerBadgeBinder.TryGet(ControllerBadgeBinder.BindRoster(historical), "u1", out var past), Is.True);
+        Assert.That(past!.ShortText, Is.EqualTo("AGT"));
+        Assert.That(past.Tooltip, Does.Contain("a-then"));
+
+        var commanding = ControllerBadgeBinder.RosterForBadges(inspecting: false, live, asOf);
+        Assert.That(ControllerBadgeBinder.TryGet(ControllerBadgeBinder.BindRoster(commanding), "u1", out var now), Is.True);
+        Assert.That(now!.ShortText, Is.EqualTo("HUM"));
     }
 
     [Test]
@@ -154,6 +196,26 @@ public sealed class ControllerBadgeBinderTests
         Assert.That(map, Does.Not.Contain("CatalogWriteGate"));
         Assert.That(map, Does.Not.Contain("SimulationSession"));
         Assert.That(Slice(map, "private bool IsDirty()", "private void CaptureDirtyState"), Does.Not.Contain("LastAgentRoster"));
+        var selector = Slice(map, "BadgeRoster()", "private void ApplyControllerBadges()");
+        Assert.That(selector, Does.Contain("RosterForBadges"));
+        Assert.That(selector, Does.Contain("CommandTimeline.IsInspecting"));
+        Assert.That(selector, Does.Contain("asOfRoster: null"));
+
+        var mapUss = UiIaSourceReader.ReadUnder(
+            "unity", "ProjectAegis", "Assets", "UI", "MapPlaceholder", "MapPlaceholderPanel.uss");
+        var oobUss = UiIaSourceReader.ReadUnder(
+            "unity", "ProjectAegis", "Assets", "UI", "OobTree", "OobTreePanel.uss");
+        Assert.That(mapUss, Does.Contain(".map-controller-badge"));
+        Assert.That(mapUss, Does.Contain(".badge-human"));
+        Assert.That(mapUss, Does.Contain(".badge-agent"));
+        Assert.That(mapUss, Does.Contain(".badge-agent-suspended"));
+        Assert.That(mapUss, Does.Contain(".badge-shape-square"));
+        Assert.That(mapUss, Does.Contain(".badge-shape-diamond"));
+        Assert.That(mapUss, Does.Contain(".badge-shape-diamond-dashed"));
+        Assert.That(oobUss, Does.Contain(".oob-controller-badge"));
+        Assert.That(oobUss, Does.Contain(".badge-human"));
+        Assert.That(oobUss, Does.Contain(".badge-shape-diamond"));
+        Assert.That(oobUss, Does.Contain(".badge-shape-diamond-dashed"));
 
         Assert.That(oob, Does.Contain("ControllerBadgeBinder"));
         Assert.That(oob, Does.Contain("label.focusable = true"));

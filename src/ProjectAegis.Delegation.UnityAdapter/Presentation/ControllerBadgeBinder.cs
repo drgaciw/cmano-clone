@@ -142,10 +142,21 @@ public static class ControllerBadgeBinder
     }
 
     /// <summary>
-    /// Content stamp of roster identity (count, unit id, mode, agent id). A new list instance with
-    /// the same rows keeps the same stamp so hosts can skip a map rebuild.
+    /// Roster to paint. Live command uses <paramref name="liveRoster"/>. A historical review uses
+    /// <paramref name="asOfRoster"/> captured at that event's tick. A null as-of roster is unknown
+    /// and must not fall back to the live roster (no future facts).
     /// </summary>
-    public static int RosterStamp(IReadOnlyList<AgentRosterEntry>? roster)
+    public static IReadOnlyList<AgentRosterEntry>? RosterForBadges(
+        bool inspecting,
+        IReadOnlyList<AgentRosterEntry>? liveRoster,
+        IReadOnlyList<AgentRosterEntry>? asOfRoster) =>
+        inspecting ? asOfRoster : liveRoster;
+
+    /// <summary>
+    /// 64-bit content stamp (count, unit id, mode, agent id). Equal stamps are not proof of equal
+    /// rosters — confirm with <see cref="SameRoster"/> via <see cref="NeedsRebind"/>.
+    /// </summary>
+    public static long RosterStamp(IReadOnlyList<AgentRosterEntry>? roster)
     {
         if (roster is null || roster.Count == 0)
         {
@@ -154,7 +165,7 @@ public static class ControllerBadgeBinder
 
         unchecked
         {
-            var hash = roster.Count;
+            long hash = roster.Count;
             for (var i = 0; i < roster.Count; i++)
             {
                 var entry = roster[i];
@@ -165,6 +176,54 @@ public static class ControllerBadgeBinder
 
             return hash;
         }
+    }
+
+    /// <summary>Structural equality of the fields that change a controller badge, in roster order.</summary>
+    public static bool SameRoster(IReadOnlyList<AgentRosterEntry>? left, IReadOnlyList<AgentRosterEntry>? right)
+    {
+        var leftCount = left?.Count ?? 0;
+        var rightCount = right?.Count ?? 0;
+        if (leftCount != rightCount)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < leftCount; i++)
+        {
+            var a = left![i];
+            var b = right![i];
+            if (!string.Equals(a.UnitId, b.UnitId, StringComparison.Ordinal)
+                || !string.Equals(a.ModeLabel, b.ModeLabel, StringComparison.Ordinal)
+                || !string.Equals(a.AgentId, b.AgentId, StringComparison.Ordinal))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// True when bindings must be rebuilt. A matching stamp still rebinds when roster content differs,
+    /// so a 64-bit polynomial collision cannot keep a stale tooltip.
+    /// </summary>
+    public static bool NeedsRebind(
+        bool hasApplied,
+        long appliedStamp,
+        IReadOnlyList<AgentRosterEntry>? applied,
+        IReadOnlyList<AgentRosterEntry>? next)
+    {
+        if (!hasApplied)
+        {
+            return true;
+        }
+
+        if (RosterStamp(next) != appliedStamp)
+        {
+            return true;
+        }
+
+        return !SameRoster(applied, next);
     }
 
     private static ControllerBadgeBinding FromBadge(ControllerBadge badge)

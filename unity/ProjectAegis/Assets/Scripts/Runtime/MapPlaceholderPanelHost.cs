@@ -90,7 +90,9 @@ namespace ProjectAegis.Unity.Runtime
         private bool _dirtyShowPanel;
         private int _dirtyLayerVisibleCount = -1;
         private CommsState _dirtyCommsState = CommsState.Nominal;
-        private int _appliedRosterStamp = int.MinValue;
+        private long _appliedRosterStamp;
+        private bool _badgesApplied;
+        private IReadOnlyList<AgentRosterEntry>? _appliedRoster;
         private IReadOnlyDictionary<string, ControllerBadgeBinding> _badgeBindings =
             new Dictionary<string, ControllerBadgeBinding>(StringComparer.Ordinal);
 
@@ -486,6 +488,16 @@ namespace ProjectAegis.Unity.Runtime
         }
 
         /// <summary>
+        /// Live roster while commanding. Timeline frames do not retain controller slots, so an
+        /// inspected event with no as-of roster hides badges instead of painting the current one.
+        /// </summary>
+        private IReadOnlyList<AgentRosterEntry>? BadgeRoster() =>
+            ControllerBadgeBinder.RosterForBadges(
+                bridgeHost.CommandTimeline.IsInspecting,
+                bridgeHost.LastAgentRoster,
+                asOfRoster: null);
+
+        /// <summary>
         /// Presentation-only controller badges (DRG-374). Reapplied after symbol sync because the
         /// symbol pool clears children when a row changes. The roster stamp is not an IsDirty input.
         /// </summary>
@@ -496,11 +508,13 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            var stamp = ControllerBadgeBinder.RosterStamp(bridgeHost.LastAgentRoster);
-            if (stamp != _appliedRosterStamp)
+            var roster = BadgeRoster();
+            if (ControllerBadgeBinder.NeedsRebind(_badgesApplied, _appliedRosterStamp, _appliedRoster, roster))
             {
-                _badgeBindings = ControllerBadgeBinder.BindRoster(bridgeHost.LastAgentRoster);
-                _appliedRosterStamp = stamp;
+                _badgeBindings = ControllerBadgeBinder.BindRoster(roster);
+                _appliedRosterStamp = ControllerBadgeBinder.RosterStamp(roster);
+                _appliedRoster = roster;
+                _badgesApplied = true;
             }
 
             for (var i = 0; i < _canvas.childCount; i++)
@@ -541,7 +555,7 @@ namespace ProjectAegis.Unity.Runtime
 
         private bool ControllerRosterChanged() =>
             bridgeHost != null
-            && ControllerBadgeBinder.RosterStamp(bridgeHost.LastAgentRoster) != _appliedRosterStamp;
+            && ControllerBadgeBinder.NeedsRebind(_badgesApplied, _appliedRosterStamp, _appliedRoster, BadgeRoster());
 
         private string? StyleClassForSymbol(string symbolId)
         {
