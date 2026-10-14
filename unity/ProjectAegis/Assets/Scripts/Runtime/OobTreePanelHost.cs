@@ -23,6 +23,9 @@ namespace ProjectAegis.Unity.Runtime
         private UIDocument _document = null!;
         private ListView? _oobList;
         private OobTreePanelState _panelState = new(Array.Empty<OobTreeDisplayRow>());
+        private IReadOnlyDictionary<string, ControllerBadgeBinding> _badges =
+            new Dictionary<string, ControllerBadgeBinding>(StringComparer.Ordinal);
+        private int _badgeStamp = int.MinValue;
         private bool _wired;
 
         private void Reset()
@@ -98,12 +101,21 @@ namespace ProjectAegis.Unity.Runtime
                     }
 
                     var row = _panelState.UnitRows[index];
-                    label.text = row.DisplayLine;
+                    ControllerBadgeBinder.TryGet(_badges, row.UnitId, out var badge);
+                    label.text = ControllerBadgeBinder.DecorateOobLine(row.DisplayLine, badge);
+                    label.tooltip = badge is { Visible: true } ? badge.Tooltip : string.Empty;
                     label.ClearClassList();
                     label.AddToClassList(row.StyleClass ?? KeyboardDiscoverySurfaces.OobRowBaseClass);
                     if (!row.IsAlive)
                     {
                         label.AddToClassList("oob-row--dead");
+                    }
+
+                    if (badge is { Visible: true })
+                    {
+                        label.AddToClassList(ControllerBadgeBinder.OobBadgeClass);
+                        label.AddToClassList(badge.ColorClass);
+                        label.AddToClassList(badge.ShapeClass);
                     }
 
                     label.userData = row.UnitId;
@@ -162,6 +174,13 @@ namespace ProjectAegis.Unity.Runtime
             if (bridgeHost == null)
             {
                 return;
+            }
+
+            var stamp = ControllerBadgeBinder.RosterStamp(bridgeHost.LastAgentRoster);
+            if (stamp != _badgeStamp)
+            {
+                _badges = ControllerBadgeBinder.BindRoster(bridgeHost.LastAgentRoster);
+                _badgeStamp = stamp;
             }
 
             _panelState = OobTreePanelBinder.Bind(bridgeHost.LastOobTree, bridgeHost.SelectedUnitId);

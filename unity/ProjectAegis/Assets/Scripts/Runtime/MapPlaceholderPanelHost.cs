@@ -8,6 +8,7 @@ using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using ProjectAegis.Sim.Scenario;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -89,6 +90,9 @@ namespace ProjectAegis.Unity.Runtime
         private bool _dirtyShowPanel;
         private int _dirtyLayerVisibleCount = -1;
         private CommsState _dirtyCommsState = CommsState.Nominal;
+        private int _appliedRosterStamp = int.MinValue;
+        private IReadOnlyDictionary<string, ControllerBadgeBinding> _badgeBindings =
+            new Dictionary<string, ControllerBadgeBinding>(StringComparer.Ordinal);
 
         private IC2PresentationFeed? PresentationFeed => bridgeHost;
 
@@ -223,8 +227,14 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             // Dirty-flag: skip the whole rebind/rebuild while nothing that affects the map changed.
+            // Controller badges use a roster stamp so a fresh LastAgentRoster list does not rebuild the map.
             if (!IsDirty())
             {
+                if (ControllerRosterChanged())
+                {
+                    ApplyControllerBadges();
+                }
+
                 return;
             }
 
@@ -244,6 +254,7 @@ namespace ProjectAegis.Unity.Runtime
                 atlas);
             _theaterLabel!.text = $"THEATER: {_panelState.TheaterLabel}";
             _symbolPool!.Sync(_panelState.Symbols, OnSymbolClicked);
+            ApplyControllerBadges();
             ApplyOverlayCounts(comms);
             ApplyCourseOverlays();
             ApplyTransientCombatVfx();
@@ -472,6 +483,78 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             return ids;
+        }
+
+        /// <summary>
+        /// Presentation-only controller badges (DRG-374). Reapplied after symbol sync because the
+        /// symbol pool clears children when a row changes. The roster stamp is not an IsDirty input.
+        /// </summary>
+        private void ApplyControllerBadges()
+        {
+            if (_canvas == null || bridgeHost == null)
+            {
+                return;
+            }
+
+            var stamp = ControllerBadgeBinder.RosterStamp(bridgeHost.LastAgentRoster);
+            if (stamp != _appliedRosterStamp)
+            {
+                _badgeBindings = ControllerBadgeBinder.BindRoster(bridgeHost.LastAgentRoster);
+                _appliedRosterStamp = stamp;
+            }
+
+            for (var i = 0; i < _canvas.childCount; i++)
+            {
+                var child = _canvas[i];
+                if (!child.ClassListContains("map-symbol") || child.userData is not string symbolId)
+                {
+                    continue;
+                }
+
+                var elementName = ControllerBadgeBinder.ElementName(symbolId);
+                var existing = child.Q<Label>(elementName);
+                if (!ControllerBadgeBinder.TryBindMapSymbol(
+                        symbolId,
+                        StyleClassForSymbol(symbolId),
+                        _badgeBindings,
+                        out var binding)
+                    || binding is not { Visible: true })
+                {
+                    existing?.RemoveFromHierarchy();
+                    continue;
+                }
+
+                if (existing == null)
+                {
+                    existing = new Label { name = elementName, pickingMode = PickingMode.Ignore };
+                    child.Add(existing);
+                }
+
+                existing.text = binding.ShortText;
+                existing.tooltip = binding.Tooltip;
+                existing.ClearClassList();
+                existing.AddToClassList(ControllerBadgeBinder.MapBadgeClass);
+                existing.AddToClassList(binding.ColorClass);
+                existing.AddToClassList(binding.ShapeClass);
+            }
+        }
+
+        private bool ControllerRosterChanged() =>
+            bridgeHost != null
+            && ControllerBadgeBinder.RosterStamp(bridgeHost.LastAgentRoster) != _appliedRosterStamp;
+
+        private string? StyleClassForSymbol(string symbolId)
+        {
+            var symbols = _panelState.Symbols;
+            for (var i = 0; i < symbols.Count; i++)
+            {
+                if (string.Equals(symbols[i].SymbolId, symbolId, StringComparison.Ordinal))
+                {
+                    return symbols[i].StyleClass;
+                }
+            }
+
+            return null;
         }
 
         private bool IsDirty()
