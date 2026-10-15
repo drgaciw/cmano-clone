@@ -1,0 +1,26 @@
+{
+  "schema": "aegis.jev.questions.vs1.v0",
+  "pinModel": "jev-1.13.x",
+  "openRouterModel": "typesafe/jev-1.13",
+  "questions": {
+    "attention_priority": {
+      "type": "score",
+      "instructions": "Score how urgently this unit/contact needs player eyes right now. Use only projection fields (range, closing, class/IFF, ROE flags, whether player is already looking). Never imply engage or enqueue.",
+      "criteria": [
+        "ignore — no player attention needed",
+        "low — optionally glance later",
+        "watch — keep on secondary panel / soft highlight",
+        "focus — primary panel / strong highlight",
+        "immediate — interrupt / top of attention sort"
+      ]
+    },
+    "skill_unavailable_disclosure": {
+      "type": "noul",
+      "instructions": "Return P(yes) that the UI MUST show assist-unavailable / offline disclosure chrome for this skill path. True when skillAvailability.jevDecide is false or the decide path is known down. Fail-closed for engage suggestions; disclosure only for VS1.",
+      "criteria": {
+        "yes": "Show persistent assist-unavailable disclosure",
+        "no": "Healthy path — no disclosure chrome"
+      }
+    }
+  }
+}

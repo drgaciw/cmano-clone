@@ -6,6 +6,7 @@ using Decision;
 using Projection;
 using SensorToShooter;
 using Skills;
+using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>
@@ -88,6 +89,136 @@ public static class TargetabilityAcceptProjection
         }
 
         return new TargetabilityAcceptSnapshot(rows);
+    }
+
+    /// <summary>
+    /// Composes cached Slice A facts with the authority already resolved for each contact's nominated shooter.
+    /// A known contact-wide track refusal is kept when no eligible shooter is linked and the authority
+    /// dictionary has no entry. Permission and doctrine still require that contact's actor authority;
+    /// another contact's authority is never copied.
+    /// </summary>
+    public static TargetabilityAcceptSnapshot ProjectPerContact(
+        ContactProvenanceSnapshot? provenance,
+        SensorToShooterSnapshot? sensorToShooter,
+        IReadOnlyDictionary<string, C2AuthorityProjection> authorities)
+    {
+        if (authorities is null) throw new ArgumentNullException(nameof(authorities));
+        var provenanceByContact = IndexProvenance(provenance);
+        var chainsByContact = IndexChains(sensorToShooter);
+        var rows = new List<TargetabilityAcceptContactRow>();
+        foreach (var contactId in CollectContactIds(provenanceByContact, chainsByContact))
+        {
+            provenanceByContact.TryGetValue(contactId, out var provenanceRow);
+            chainsByContact.TryGetValue(contactId, out var chain);
+            if (!authorities.TryGetValue(contactId, out var authority))
+            {
+                if (!TryResolveUnscopedTrackRefusal(provenanceRow, chain, out var refusalCause))
+                {
+                    continue;
+                }
+
+                rows.Add(new TargetabilityAcceptContactRow(
+                    contactId,
+                    ResolveTargetId(provenanceRow, chain),
+                    TargetabilityAcceptDisposition.Withheld,
+                    refusalCause,
+                    provenanceRow,
+                    chain,
+                    NoActorAuthority));
+                continue;
+            }
+
+            var (disposition, causeCode) = ResolveDisposition(provenanceRow, chain, authority);
+            rows.Add(new TargetabilityAcceptContactRow(contactId, ResolveTargetId(provenanceRow, chain),
+                disposition, causeCode, provenanceRow, chain, authority));
+        }
+
+        return new TargetabilityAcceptSnapshot(rows.AsReadOnly());
+    }
+
+    /// <summary>
+    /// Fail-closed stand-in used only when no actor was resolved. It does not permit engage and is not a
+    /// nominated shooter's doctrine; contact-wide consumers key off disposition, cause, and a null shooter id.
+    /// </summary>
+    private static readonly C2AuthorityProjection NoActorAuthority = new(
+        new RoeProjection(
+            RoeLevel.WeaponsFree,
+            RoeProjection.FormatRoeLabel(RoeLevel.WeaponsFree),
+            C2AuthorityDisposition.Withheld,
+            null,
+            false),
+        new C2TargetingAuthority(C2AuthorityDisposition.Withheld, null, null),
+        Array.Empty<C2AuthorityActionState>());
+
+    /// <summary>
+    /// Track refusals that do not need an actor: missing or stale provenance, or a broken chain with no
+    /// affirmatively linked eligible shooter. A linked shooter still requires that actor's authority.
+    /// </summary>
+    private static bool TryResolveUnscopedTrackRefusal(
+        ContactProvenanceState? provenance,
+        SensorToShooterChain? chain,
+        out string causeCode)
+    {
+        causeCode = TargetabilityAcceptCauseCodes.None;
+        if (HasLinkedEligibleShooter(chain))
+        {
+            return false;
+        }
+
+        if (provenance is null)
+        {
+            causeCode = TargetabilityAcceptCauseCodes.MissingProvenance;
+            return true;
+        }
+
+        if (provenance.QualityState.HasFlag(ContactProvenanceQualityState.CatalogMiss))
+        {
+            causeCode = TargetabilityAcceptCauseCodes.CatalogMiss;
+            return true;
+        }
+
+        if (provenance.Freshness == ContactProvenanceFreshness.Stale)
+        {
+            causeCode = TargetabilityAcceptCauseCodes.Stale;
+            return true;
+        }
+
+        if (provenance.QualityState.HasFlag(ContactProvenanceQualityState.SilentComms)
+            && provenance.OutOfCommsUnknown)
+        {
+            causeCode = TargetabilityAcceptCauseCodes.SilentComms;
+            return true;
+        }
+
+        if (chain is null || !chain.IsComplete)
+        {
+            causeCode = FormatSensorToShooterCause(chain?.PrimaryBreakCause ?? SensorToShooterBreakCause.StaleTrack);
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool HasLinkedEligibleShooter(SensorToShooterChain? chain)
+    {
+        var links = chain?.Links;
+        if (links is null)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < links.Count; i++)
+        {
+            var link = links[i];
+            if (link.Kind == SensorToShooterLinkKind.EligibleShooter
+                && link.IsLinked
+                && !string.IsNullOrWhiteSpace(link.UnitId))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     internal static (TargetabilityAcceptDisposition Disposition, string CauseCode) ResolveDisposition(
