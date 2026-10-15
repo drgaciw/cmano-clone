@@ -23,7 +23,7 @@ description: "Use when the user wants to know what will break if they change som
 4. Assess risk and report to user
 ```
 
-> If "Index is stale" → run `node .gitnexus/run.cjs analyze` in terminal.
+> If "Index is stale" → reindex in terminal: prefer `tools/gitnexus-safe-reindex.sh` (clean `main` checkout) over a bare `node .gitnexus/run.cjs analyze` — an incremental analyze can silently corrupt the index (empty method names / garbage node IDs, DRG-323). If you must use the CLI directly, pass `analyze --force`. Details: `docs/engineering/gitnexus-index-health.md`.
 
 ## Checklist
 
