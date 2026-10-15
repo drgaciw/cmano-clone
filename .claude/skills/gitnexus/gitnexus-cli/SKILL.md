@@ -28,6 +28,17 @@ Run from the project root. This parses all source files, builds the knowledge gr
 
 **When to run:** First time in a project, after major code changes, or when `gitnexus://repo/{name}/context` reports the index is stale. In Claude Code, a PostToolUse hook detects staleness after `git commit` and `git merge` and notifies the agent to run `analyze` — the hook does not run analyze itself, to avoid blocking the agent for up to 120s and risking KuzuDB corruption on timeout.
 
+> **Index corruption guard (DRG-323).** On `cmano-clone`, an *incremental* `analyze` has been
+> observed to silently corrupt the graph (empty `Method` names, garbage `File`/`Property` IDs),
+> which then poisons `impact` / `context` / `cypher`. Prefer the wrapper
+> `tools/gitnexus-safe-reindex.sh` over a bare `analyze`: it refuses a dirty tree or
+> non-`main` branch, stops any `gitnexus mcp` process (a live MCP server holding the index DB
+> open is the suspected trigger), runs `analyze --force --skip-agents-md --skip-skills` (a full
+> rebuild), reverts any tracked files the rebuild regenerated, and post-checks the index so a
+> bad one fails loudly (non-zero exit) instead of silently. If you must call the CLI directly,
+> pass `--force` rather than trusting incremental analyze. Full options, exit codes, and
+> troubleshooting: `docs/engineering/gitnexus-index-health.md`.
+
 ### status — Check index freshness
 
 ```bash
