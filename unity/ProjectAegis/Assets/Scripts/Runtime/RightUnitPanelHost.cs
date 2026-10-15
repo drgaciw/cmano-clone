@@ -66,6 +66,7 @@ namespace ProjectAegis.Unity.Runtime
         private WraSalvoRemainingState _wraSalvoSurface = WraSalvoRemainingState.Empty;
         private AttackOptionsPreviewState _attackPreview = AttackOptionsPreviewState.Empty;
         private WeaponAbortTooltipState _weaponAbort = WeaponAbortTooltipState.Empty;
+        private readonly RightUnitCombatDetailCache _combatDetailCache = new();
 
         /// <summary>Last applied unit-detail presentation (S107 apply-state).</summary>
         public UnitDetailPresentation LastPresentation => _presentation;
@@ -231,11 +232,31 @@ namespace ProjectAegis.Unity.Runtime
             var engagePreview = bridgeHost.ProjectSelectedEngagePreview();
             _dlzSurface = DlzLiveSurfaceBinder.BindFromEngagePreview(engagePreview);
             // Selected-unit scope, not the combat-history inspection key (DRG-352).
-            _weaponAbort = WeaponAbortTooltipBinder.BindForSelection(
-                EngageExplainProjection.Project(engagePreview),
-                bridgeHost.LastCombatFrame,
-                selectedUnitId,
-                bridgeHost.SelectedContactId);
+            // DRG-407: reuse combat detail and the engage explanation while the
+            // preview, combat content, unit, and contact are unchanged.
+            var combatFrame = bridgeHost.LastCombatFrame;
+            var selectedContactId = bridgeHost.SelectedContactId;
+            if (!_combatDetailCache.TryGet(
+                    engagePreview,
+                    combatFrame,
+                    selectedUnitId,
+                    selectedContactId,
+                    out var cachedCombat))
+            {
+                var explain = EngageExplainProjection.Project(engagePreview);
+                var detail = WeaponAbortTooltipBinder.ScopeCombatDetail(
+                    combatFrame, selectedUnitId, selectedContactId);
+                cachedCombat = _combatDetailCache.Remember(
+                    engagePreview,
+                    combatFrame,
+                    selectedUnitId,
+                    selectedContactId,
+                    explain,
+                    detail,
+                    WeaponAbortTooltipBinder.Bind(explain, detail));
+            }
+
+            _weaponAbort = cachedCombat.Tooltip;
             _wraSalvoSurface = bridgeHost.ProjectSelectedWraSalvoRemaining();
             ApplyPresentationToLabels();
             RefreshAttackMenuButtons();
