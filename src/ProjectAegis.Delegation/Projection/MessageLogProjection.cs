@@ -1,11 +1,17 @@
 namespace ProjectAegis.Delegation.Projection;
 
+using System.Collections.Generic;
+using CombatEvents;
 using Decision;
 using Orchestration;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
 
-/// <summary>Filters order log into CMANO-style message log lines (GDD order-log-replay §3).</summary>
+/// <summary>
+/// Filters order log into CMANO-style message log lines (GDD order-log-replay §3).
+/// Combat categories are taken from <see cref="CombatEventLogProjection"/> so a line exists
+/// only when that snapshot recorded the launch, abort, or terminal outcome.
+/// </summary>
 public static class MessageLogProjection
 {
     /// <summary>Project the full log (replay / AAR). Includes fogged agent decisions.</summary>
@@ -28,38 +34,210 @@ public static class MessageLogProjection
 
     public static IReadOnlyList<MessageLogLine> Project(IReadOnlyList<OrderLogEntry> entries)
     {
+        var combatLog = new DecisionLog();
+        foreach (var entry in entries)
+        {
+            if (entry.Kind is OrderLogEntryKind.Engagement or OrderLogEntryKind.EngagementOutcome)
+            {
+                combatLog.Append(entry);
+            }
+        }
+
+        var snapshot = CombatEventLogProjection.Build(combatLog, double.MaxValue);
+        var launches = new HashSet<ulong>();
+        var aborts = new HashSet<ulong>();
+        var terminals = new HashSet<ulong>();
+        foreach (var combat in snapshot.Events)
+        {
+            switch (combat.Phase)
+            {
+                case CombatEventPhase.Firing when combat.Outcome == CombatEventProjection.OutcomeLaunch:
+                    launches.Add(combat.CorrelationId);
+                    break;
+                case CombatEventPhase.AuthorizationRefused:
+                    aborts.Add(combat.CorrelationId);
+                    break;
+                case CombatEventPhase.TerminalOutcome:
+                    terminals.Add(combat.CorrelationId);
+                    break;
+            }
+        }
+
+        var outcomeCorrelation = IndexOutcomeCorrelations(entries);
+
         var lines = new List<MessageLogLine>();
         foreach (var entry in entries)
         {
-            var line = TryProject(entry);
-            if (line != null)
+            switch (entry.Kind)
             {
-                lines.Add(line);
+                case OrderLogEntryKind.Engagement when entry.Payload is EngagementRecord engagement:
+                    if (engagement.Launched && launches.Contains(entry.SequenceId))
+                    {
+                        lines.Add(new MessageLogLine(
+                            entry.SequenceId,
+                            entry.SimTime,
+                            "WEAPON_LAUNCH",
+                            $"Unit {engagement.ShooterTargetId.Value} launched engagement {engagement.EngagementId}",
+                            engagement.ShooterTargetId.Value));
+                    }
+                    else if (!engagement.Launched && aborts.Contains(entry.SequenceId))
+                    {
+                        lines.Add(new MessageLogLine(
+                            entry.SequenceId,
+                            entry.SimTime,
+                            "ENGAGE_ABORT",
+                            $"Engagement aborted: {engagement.AbortReasonCode}",
+                            engagement.ShooterTargetId.Value));
+                    }
+
+                    break;
+                case OrderLogEntryKind.EngagementOutcome
+                    when entry.Payload is EngagementOutcomeRecord outcome
+                        && TryTakeTerminal(terminals, outcomeCorrelation, entry.SequenceId):
+                    lines.Add(ProjectCombatOutcome(outcome, entry.SequenceId, entry.SimTime));
+                    break;
+                default:
+                    var line = TryProject(entry);
+                    if (line != null)
+                    {
+                        lines.Add(line);
+                    }
+
+                    break;
             }
         }
 
         return lines;
     }
 
+    /// <summary>
+    /// Maps each outcome sequence to the launch sequence (<see cref="CombatEvent.CorrelationId"/>)
+    /// of its own engagement. Display fields are not identity: an unmatched outcome with the
+    /// same shooter, target, code, and sim time must not consume another engagement's terminal.
+    /// </summary>
+    private static Dictionary<ulong, ulong> IndexOutcomeCorrelations(IReadOnlyList<OrderLogEntry> entries)
+    {
+        var launches = new List<LaunchKey>();
+        foreach (var entry in entries)
+        {
+            if (entry.Kind != OrderLogEntryKind.Engagement
+                || entry.Payload is not EngagementRecord engagement
+                || !engagement.Launched
+                || entry.SequenceId == 0)
+            {
+                continue;
+            }
+
+            launches.Add(new LaunchKey(
+                entry.SequenceId,
+                engagement.ShooterTargetId.Value,
+                engagement.EngagementId,
+                engagement.VictimTargetId?.Value));
+        }
+
+        var byEngagement = new Dictionary<(string ShooterId, ulong EngagementId), List<int>>();
+        for (var i = 0; i < launches.Count; i++)
+        {
+            var key = (launches[i].ShooterId, launches[i].EngagementId);
+            if (!byEngagement.TryGetValue(key, out var indexes))
+            {
+                indexes = new List<int>();
+                byEngagement[key] = indexes;
+            }
+
+            indexes.Add(i);
+        }
+
+        var nextSequence = new Dictionary<ulong, ulong>();
+        foreach (var indexes in byEngagement.Values)
+        {
+            indexes.Sort((left, right) => launches[left].SequenceId.CompareTo(launches[right].SequenceId));
+            for (var i = 0; i + 1 < indexes.Count; i++)
+            {
+                nextSequence[launches[indexes[i]].SequenceId] = launches[indexes[i + 1]].SequenceId;
+            }
+        }
+
+        var correlationByOutcome = new Dictionary<ulong, ulong>();
+        foreach (var entry in entries)
+        {
+            if (entry.Kind != OrderLogEntryKind.EngagementOutcome
+                || entry.Payload is not EngagementOutcomeRecord outcome
+                || entry.SequenceId == 0
+                || !byEngagement.TryGetValue((outcome.ShooterTargetId.Value, outcome.EngagementId), out var indexes))
+            {
+                continue;
+            }
+
+            var owner = 0UL;
+            var found = false;
+            for (var i = 0; i < indexes.Count; i++)
+            {
+                var launch = launches[indexes[i]];
+                if (entry.SequenceId <= launch.SequenceId)
+                {
+                    continue;
+                }
+
+                var next = nextSequence.TryGetValue(launch.SequenceId, out var following)
+                    ? following
+                    : ulong.MaxValue;
+                if (entry.SequenceId >= next)
+                {
+                    continue;
+                }
+
+                if (launch.VictimId is not null
+                    && !string.Equals(launch.VictimId, outcome.VictimTargetId.Value, StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                if (!found || launch.SequenceId > owner)
+                {
+                    owner = launch.SequenceId;
+                    found = true;
+                }
+            }
+
+            if (found)
+            {
+                correlationByOutcome.TryAdd(entry.SequenceId, owner);
+            }
+        }
+
+        return correlationByOutcome;
+    }
+
+    private static bool TryTakeTerminal(
+        HashSet<ulong> terminals,
+        Dictionary<ulong, ulong> correlationByOutcome,
+        ulong outcomeSequence) =>
+        correlationByOutcome.TryGetValue(outcomeSequence, out var correlation)
+        && terminals.Remove(correlation);
+
+    private readonly struct LaunchKey
+    {
+        public LaunchKey(ulong sequenceId, string shooterId, ulong engagementId, string? victimId)
+        {
+            SequenceId = sequenceId;
+            ShooterId = shooterId;
+            EngagementId = engagementId;
+            VictimId = victimId;
+        }
+
+        public ulong SequenceId { get; }
+
+        public string ShooterId { get; }
+
+        public ulong EngagementId { get; }
+
+        public string? VictimId { get; }
+    }
+
     private static MessageLogLine? TryProject(OrderLogEntry entry) =>
         entry.Kind switch
         {
-            OrderLogEntryKind.EngagementOutcome when entry.Payload is EngagementOutcomeRecord o =>
-                ProjectCombatOutcome(o, entry.SequenceId, entry.SimTime),
-            OrderLogEntryKind.Engagement when entry.Payload is EngagementRecord e =>
-                e.Launched
-                    ? new MessageLogLine(
-                        entry.SequenceId,
-                        entry.SimTime,
-                        "WEAPON_LAUNCH",
-                        $"Unit {e.ShooterTargetId.Value} launched engagement {e.EngagementId}",
-                        e.ShooterTargetId.Value)
-                    : new MessageLogLine(
-                        entry.SequenceId,
-                        entry.SimTime,
-                        "ENGAGE_ABORT",
-                        $"Engagement aborted: {e.AbortReasonCode}",
-                        e.ShooterTargetId.Value),
             OrderLogEntryKind.PolicyDenial when entry.Payload is PolicyDenialRecord d =>
                 new MessageLogLine(
                     entry.SequenceId,
