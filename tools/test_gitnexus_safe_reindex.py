@@ -12,6 +12,7 @@ import unittest
 GUARD = Path(__file__).with_name("gitnexus-safe-reindex.sh")
 FAKE_CLI = r'''
 import json, os, pathlib, subprocess, sys
+assert os.environ.get("GITNEXUS_SHARED_STORE") == "off", "shared stores must be disabled"
 tool = pathlib.Path(sys.argv[0]).name
 args = sys.argv[1:]
 with open(os.environ["CALL_LOG"], "a") as log:
@@ -58,7 +59,8 @@ class SafeReindexTests(unittest.TestCase):
             (self.bin / command).symlink_to(shutil.which(command))
         self.executable("pgrep", "#!/bin/sh\nexit 1\n")
         self.executable("pkill", "#!/bin/sh\nexit 99\n")
-        self.env = {**os.environ, "PATH": str(self.bin), "CALL_LOG": str(self.log)}
+        self.env = {**os.environ, "PATH": str(self.bin), "CALL_LOG": str(self.log),
+                    "GITNEXUS_SHARED_STORE": "on"}
         self.git("init", "-b", "main")
         (self.repo / "tools").mkdir()
         shutil.copy2(GUARD, self.repo / "tools" / GUARD.name)
@@ -154,6 +156,15 @@ class SafeReindexTests(unittest.TestCase):
         result, calls = self.run_guard()
         self.assertEqual(1, result.returncode)
         self.assertEqual([], calls)
+
+    def test_shared_store_pointer_is_refused_without_touching_the_store(self):
+        pointer = self.index / "store.json"
+        pointer.write_text('{"store": "another-checkout"}\n')
+        self.cli("gitnexus")
+        result, calls = self.run_guard("--skip-analyze")
+        self.assertEqual(1, result.returncode, result.stderr)
+        self.assertEqual([], calls)
+        self.assertEqual('{"store": "another-checkout"}\n', pointer.read_text())
 
     def test_successful_analyze_reports_and_preserves_concurrent_edit(self):
         self.cli("gitnexus")
