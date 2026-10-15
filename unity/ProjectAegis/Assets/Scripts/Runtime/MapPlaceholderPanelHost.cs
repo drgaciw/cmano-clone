@@ -70,10 +70,12 @@ namespace ProjectAegis.Unity.Runtime
         private MapSymbolPool? _symbolPool;
         private MapCanvasOverlayRenderer? _overlayRenderer;
         private MapCanvasCourseOverlayRenderer? _courseOverlayRenderer;
+        private MapCanvasTransientEffectsRenderer? _transientEffects;
         private CombatMapView? _combatView;
         private CommandReviewView? _commandReviewView;
         private CoverageMapView? _coverageView;
         private bool _dirtyCoverage;
+        private bool _dirtyInspecting;
         private CombatPresentationFrame? _dirtyReviewFrame;
         private object? _dirtyReviewSections;
         private string? _dirtyCombatKey;
@@ -199,6 +201,9 @@ namespace ProjectAegis.Unity.Runtime
                 _overlayRenderer = _canvas != null ? new MapCanvasOverlayRenderer(_canvas) : null;
                 _courseOverlayRenderer = _canvas != null
                     ? new MapCanvasCourseOverlayRenderer(_canvas)
+                    : null;
+                _transientEffects = _canvas != null
+                    ? new MapCanvasTransientEffectsRenderer(_canvas)
                     : null;
                 _combatView?.Dispose();
                 _combatView = _canvas != null
@@ -372,8 +377,13 @@ namespace ProjectAegis.Unity.Runtime
             if (bridgeHost == null) return;
             _combatView?.Bind(bridgeHost.DisplayCombatFrame, bridgeHost.DisplayCombatSymbols,
                 bridgeHost.DisplayCombatKey);
-            LastCombatVfxFireLineCount = _combatView?.EffectCount ?? 0;
-            LastCombatVfxImpactCount = 0; // Outcomes are labeled on the same correlated effect.
+            // DRG-403 / Codex: do not overlay live VFX on historical inspection view.
+            var vfx = bridgeHost.CommandTimeline.IsInspecting
+                ? CombatVfxFrame.Empty
+                : bridgeHost.LastCombatVfx;
+            _transientEffects?.Sync(vfx);
+            LastCombatVfxFireLineCount = _transientEffects?.FireLineCount ?? 0;
+            LastCombatVfxImpactCount = _transientEffects?.ImpactMarkerCount ?? 0;
         }
 
         /// <summary>
@@ -587,6 +597,7 @@ namespace ProjectAegis.Unity.Runtime
                 || !ReferenceEquals(bridgeHost.DisplayCombatFrame, _dirtyReviewFrame)
                 || !ReferenceEquals(bridgeHost.LastCommandReviewSections, _dirtyReviewSections)
                 || bridgeHost.ShowCommandCoverage != _dirtyCoverage
+                || bridgeHost.CommandTimeline.IsInspecting != _dirtyInspecting
                 || bridgeHost.Presentation.CombatInspection.SelectedKey != _dirtyCombatKey
                 || feed.SelectedUnitId != _dirtySelectedUnit
                 || feed.SelectedContactId != _dirtySelectedContact
@@ -605,6 +616,7 @@ namespace ProjectAegis.Unity.Runtime
             _dirtyReviewFrame = bridgeHost == null ? null : bridgeHost.DisplayCombatFrame;
             _dirtyReviewSections = bridgeHost == null ? null : bridgeHost.LastCommandReviewSections;
             _dirtyCoverage = bridgeHost != null && bridgeHost.ShowCommandCoverage;
+            _dirtyInspecting = bridgeHost != null && bridgeHost.CommandTimeline.IsInspecting;
             _dirtyCombatKey = bridgeHost == null ? null : bridgeHost.Presentation.CombatInspection.SelectedKey;
             _dirtySelectedUnit = feed?.SelectedUnitId;
             _dirtySelectedContact = feed?.SelectedContactId;

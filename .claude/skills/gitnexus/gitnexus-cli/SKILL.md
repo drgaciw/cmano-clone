@@ -34,7 +34,7 @@ Run from the project root. This parses all source files, builds the knowledge gr
 > `tools/gitnexus-safe-reindex.sh` over a bare `analyze`: it refuses a dirty tree or
 > non-`main` branch, stops any `gitnexus mcp` process (a live MCP server holding the index DB
 > open is the suspected trigger), runs `analyze --force --skip-agents-md --skip-skills` (a full
-> rebuild), reverts any tracked files the rebuild regenerated, and post-checks the index so a
+> rebuild), reports working tree changes without discarding them, and post-checks the index so a
 > bad one fails loudly (non-zero exit) instead of silently. If you must call the CLI directly,
 > pass `--force` rather than trusting incremental analyze. Full options, exit codes, and
 > troubleshooting: `docs/engineering/gitnexus-index-health.md`.
