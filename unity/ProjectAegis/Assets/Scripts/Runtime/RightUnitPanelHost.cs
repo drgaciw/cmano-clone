@@ -230,9 +230,12 @@ namespace ProjectAegis.Unity.Runtime
             _attackPreview = AttackOptionsPreviewBinder.Bind(state.AttackMenu);
             var engagePreview = bridgeHost.ProjectSelectedEngagePreview();
             _dlzSurface = DlzLiveSurfaceBinder.BindFromEngagePreview(engagePreview);
-            _weaponAbort = WeaponAbortTooltipBinder.Bind(
+            // Selected-unit scope, not the combat-history inspection key (DRG-352).
+            _weaponAbort = WeaponAbortTooltipBinder.BindForSelection(
                 EngageExplainProjection.Project(engagePreview),
-                bridgeHost.ProjectCombatDetail());
+                bridgeHost.LastCombatFrame,
+                selectedUnitId,
+                bridgeHost.SelectedContactId);
             _wraSalvoSurface = bridgeHost.ProjectSelectedWraSalvoRemaining();
             ApplyPresentationToLabels();
             RefreshAttackMenuButtons();

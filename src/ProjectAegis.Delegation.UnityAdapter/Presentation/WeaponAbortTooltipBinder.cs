@@ -1,4 +1,5 @@
 using ProjectAegis.Delegation.Projection;
+using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
 
@@ -102,6 +103,71 @@ public static class WeaponAbortTooltipBinder
             string.Join("\n", reasons),
             reasons,
             true);
+    }
+
+    /// <summary>
+    /// DRG-352: binds from combat detail scoped to the selected unit via
+    /// <see cref="ScopeCombatDetail"/>. Hosts use this for the live unit panel so an inspected
+    /// combat-history key for another unit cannot displace the selected unit's denial.
+    /// </summary>
+    public static WeaponAbortTooltipState BindForSelection(
+        EngageExplain? explain,
+        CombatPresentationFrame? frame,
+        string? selectedUnitId,
+        string? selectedContactId) =>
+        Bind(explain, ScopeCombatDetail(frame, selectedUnitId, selectedContactId));
+
+    /// <summary>
+    /// Combat detail for the selected unit's own most recent engagement leg, narrowed to the
+    /// selected contact's target when one is selected. Ignores combat-history inspection keys.
+    /// Reads the already-captured frame only; does not query the sim.
+    /// </summary>
+    public static CombatDetailPresentation ScopeCombatDetail(
+        CombatPresentationFrame? frame,
+        string? selectedUnitId,
+        string? selectedContactId)
+    {
+        if (frame is null || string.IsNullOrEmpty(selectedUnitId))
+        {
+            return CombatDetailPresentation.Empty;
+        }
+
+        string? target = null;
+        if (!string.IsNullOrEmpty(selectedContactId))
+        {
+            var contacts = frame.Contacts.Contacts;
+            for (var i = 0; i < contacts.Count; i++)
+            {
+                if (string.Equals(contacts[i].ContactId, selectedContactId, StringComparison.Ordinal))
+                {
+                    target = contacts[i].TargetId;
+                    break;
+                }
+            }
+        }
+
+        var events = frame.Events.Events;
+        for (var i = events.Count - 1; i >= 0; i--)
+        {
+            var candidate = events[i];
+            if (!string.Equals(candidate.ShooterId, selectedUnitId, StringComparison.Ordinal)
+                || (target != null && !string.Equals(candidate.TargetId, target, StringComparison.Ordinal)))
+            {
+                continue;
+            }
+
+            return CombatDetailPresenter.Build(
+                frame.Events,
+                frame.Contacts,
+                frame.Assessments,
+                candidate.ShooterId,
+                candidate.TargetId,
+                candidate.CorrelationId,
+                target == null ? null : selectedContactId,
+                frame.Explanations);
+        }
+
+        return CombatDetailPresentation.Empty;
     }
 
     /// <summary>Maps bound tooltip text onto the two weapon rows the unit panel already wires.</summary>

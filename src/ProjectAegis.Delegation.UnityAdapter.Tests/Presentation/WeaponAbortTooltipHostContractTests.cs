@@ -9,9 +9,12 @@ public sealed class WeaponAbortTooltipHostContractTests
     public void Right_unit_panel_binds_weapon_abort_tooltip_from_explain_and_combat_detail()
     {
         var source = UiIaSourceReader.ReadRuntime("RightUnitPanelHost.cs");
-        Assert.That(source, Does.Contain("WeaponAbortTooltipBinder.Bind"));
+        Assert.That(source, Does.Contain("WeaponAbortTooltipBinder.BindForSelection"));
         Assert.That(source, Does.Contain("EngageExplainProjection.Project"));
-        Assert.That(source, Does.Contain("ProjectCombatDetail"));
+        Assert.That(source, Does.Contain("bridgeHost.LastCombatFrame"));
+        Assert.That(source, Does.Contain("bridgeHost.SelectedContactId"));
+        Assert.That(source, Does.Not.Contain("ProjectCombatDetail"));
+        Assert.That(source, Does.Not.Contain("CombatInspection"));
         Assert.That(source, Does.Contain("WeaponAbortTooltipBinder.AppliesTo"));
         Assert.That(source, Does.Contain("WeaponAbortTooltipBinder.DeniedRowClass"));
         Assert.That(source, Does.Contain("AttackOptionsPreviewBinder.Bind"));
