@@ -1,11 +1,17 @@
 namespace ProjectAegis.Delegation.Projection;
 
+using System.Collections.Generic;
+using CombatEvents;
 using Decision;
 using Orchestration;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
 
-/// <summary>Filters order log into CMANO-style message log lines (GDD order-log-replay §3).</summary>
+/// <summary>
+/// Filters order log into CMANO-style message log lines (GDD order-log-replay §3).
+/// Combat categories are taken from <see cref="CombatEventLogProjection"/> so a line exists
+/// only when that snapshot recorded the launch, abort, or terminal outcome.
+/// </summary>
 public static class MessageLogProjection
 {
     /// <summary>Project the full log (replay / AAR). Includes fogged agent decisions.</summary>
@@ -28,38 +34,107 @@ public static class MessageLogProjection
 
     public static IReadOnlyList<MessageLogLine> Project(IReadOnlyList<OrderLogEntry> entries)
     {
+        var combatLog = new DecisionLog();
+        foreach (var entry in entries)
+        {
+            if (entry.Kind is OrderLogEntryKind.Engagement or OrderLogEntryKind.EngagementOutcome)
+            {
+                combatLog.Append(entry);
+            }
+        }
+
+        var snapshot = CombatEventLogProjection.Build(combatLog, double.MaxValue);
+        var launches = new HashSet<ulong>();
+        var aborts = new HashSet<ulong>();
+        var terminals = new List<CombatEvent>();
+        foreach (var combat in snapshot.Events)
+        {
+            switch (combat.Phase)
+            {
+                case CombatEventPhase.Firing when combat.Outcome == CombatEventProjection.OutcomeLaunch:
+                    launches.Add(combat.CorrelationId);
+                    break;
+                case CombatEventPhase.AuthorizationRefused:
+                    aborts.Add(combat.CorrelationId);
+                    break;
+                case CombatEventPhase.TerminalOutcome:
+                    terminals.Add(combat);
+                    break;
+            }
+        }
+
         var lines = new List<MessageLogLine>();
         foreach (var entry in entries)
         {
-            var line = TryProject(entry);
-            if (line != null)
+            switch (entry.Kind)
             {
-                lines.Add(line);
+                case OrderLogEntryKind.Engagement when entry.Payload is EngagementRecord engagement:
+                    if (engagement.Launched && launches.Contains(entry.SequenceId))
+                    {
+                        lines.Add(new MessageLogLine(
+                            entry.SequenceId,
+                            entry.SimTime,
+                            "WEAPON_LAUNCH",
+                            $"Unit {engagement.ShooterTargetId.Value} launched engagement {engagement.EngagementId}",
+                            engagement.ShooterTargetId.Value));
+                    }
+                    else if (!engagement.Launched && aborts.Contains(entry.SequenceId))
+                    {
+                        lines.Add(new MessageLogLine(
+                            entry.SequenceId,
+                            entry.SimTime,
+                            "ENGAGE_ABORT",
+                            $"Engagement aborted: {engagement.AbortReasonCode}",
+                            engagement.ShooterTargetId.Value));
+                    }
+
+                    break;
+                case OrderLogEntryKind.EngagementOutcome
+                    when entry.Payload is EngagementOutcomeRecord outcome && TryTakeTerminal(terminals, outcome):
+                    lines.Add(ProjectCombatOutcome(outcome, entry.SequenceId, entry.SimTime));
+                    break;
+                default:
+                    var line = TryProject(entry);
+                    if (line != null)
+                    {
+                        lines.Add(line);
+                    }
+
+                    break;
             }
         }
 
         return lines;
     }
 
+    private static bool TryTakeTerminal(List<CombatEvent> terminals, EngagementOutcomeRecord outcome)
+    {
+        for (var i = 0; i < terminals.Count; i++)
+        {
+            var combat = terminals[i];
+            if (combat.Outcome != outcome.OutcomeCode
+                || combat.ShooterId != outcome.ShooterTargetId.Value
+                || combat.SimTime != outcome.SimTime)
+            {
+                continue;
+            }
+
+            if (combat.TargetId != outcome.VictimTargetId.Value
+                && combat.TargetId != CombatEventLogProjection.UnknownTargetId)
+            {
+                continue;
+            }
+
+            terminals.RemoveAt(i);
+            return true;
+        }
+
+        return false;
+    }
+
     private static MessageLogLine? TryProject(OrderLogEntry entry) =>
         entry.Kind switch
         {
-            OrderLogEntryKind.EngagementOutcome when entry.Payload is EngagementOutcomeRecord o =>
-                ProjectCombatOutcome(o, entry.SequenceId, entry.SimTime),
-            OrderLogEntryKind.Engagement when entry.Payload is EngagementRecord e =>
-                e.Launched
-                    ? new MessageLogLine(
-                        entry.SequenceId,
-                        entry.SimTime,
-                        "WEAPON_LAUNCH",
-                        $"Unit {e.ShooterTargetId.Value} launched engagement {e.EngagementId}",
-                        e.ShooterTargetId.Value)
-                    : new MessageLogLine(
-                        entry.SequenceId,
-                        entry.SimTime,
-                        "ENGAGE_ABORT",
-                        $"Engagement aborted: {e.AbortReasonCode}",
-                        e.ShooterTargetId.Value),
             OrderLogEntryKind.PolicyDenial when entry.Payload is PolicyDenialRecord d =>
                 new MessageLogLine(
                     entry.SequenceId,
