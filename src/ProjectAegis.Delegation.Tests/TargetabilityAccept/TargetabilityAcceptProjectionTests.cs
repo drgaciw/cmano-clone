@@ -1,4 +1,5 @@
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.CombatEvents;
 using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.Projection;
@@ -17,6 +18,87 @@ namespace ProjectAegis.Delegation.Tests.TargetabilityAccept;
 [TestFixture]
 public sealed class TargetabilityAcceptProjectionTests
 {
+    [Test]
+    public void Per_contact_composition_preserves_each_contacts_authority_and_omits_missing_evidence()
+    {
+        var row = ProjectWithAuthority(OrganicAuthorityContext()).Contacts.Single();
+        var provenance = new ContactProvenanceSnapshot(new[]
+        {
+            row.Provenance!,
+            row.Provenance! with { ContactId = "c2" },
+            row.Provenance! with { ContactId = "c3" },
+        });
+        var chains = new SensorToShooterSnapshot(new[]
+        {
+            row.SensorToShooter!,
+            row.SensorToShooter! with { ContactId = "c2" },
+            row.SensorToShooter! with { ContactId = "c3" },
+        });
+        var withheld = C2AuthorityProjector.Project(OrganicAuthorityContext(RoeLevel.HoldFire));
+        var snapshot = TargetabilityAcceptProjection.ProjectPerContact(provenance, chains,
+            new Dictionary<string, C2AuthorityProjection>(StringComparer.Ordinal)
+            {
+                ["c1"] = row.Authority,
+                ["c2"] = withheld,
+            });
+
+        Assert.That(snapshot.Contacts.Select(c => c.ContactId), Is.EqualTo(new[] { "c1", "c2" }));
+        Assert.That(snapshot.Contacts[0].Disposition, Is.EqualTo(TargetabilityAcceptDisposition.Permitted));
+        Assert.That(snapshot.Contacts[1].Disposition, Is.EqualTo(TargetabilityAcceptDisposition.Withheld));
+        Assert.That(snapshot.Contacts[1].WithheldCauseCode, Is.EqualTo(TargetabilityAcceptCauseCodes.RoeHoldFire));
+        Assert.That(snapshot.Contacts[0].Provenance, Is.SameAs(row.Provenance));
+        Assert.That(snapshot.Contacts[1].Authority, Is.SameAs(withheld));
+    }
+
+    [Test]
+    public void Missing_authority_keeps_contact_wide_track_refusal_without_fabricating_shooter_authority()
+    {
+        var permitted = ProjectWithAuthority(OrganicAuthorityContext()).Contacts.Single();
+        var provenance = new ContactProvenanceSnapshot(new[]
+        {
+            permitted.Provenance!,
+            permitted.Provenance! with { ContactId = "c-broken" },
+            permitted.Provenance! with
+            {
+                ContactId = "c-stale",
+                Freshness = ContactProvenanceFreshness.Stale,
+            },
+            permitted.Provenance! with { ContactId = "c-armed" },
+            permitted.Provenance! with { ContactId = "c-open" },
+        });
+        var chains = new SensorToShooterSnapshot(new[]
+        {
+            permitted.SensorToShooter!,
+            BrokenChain(permitted.SensorToShooter!, "c-broken", SensorToShooterBreakCause.NoEligibleShooter, unlinkShooter: true),
+            BrokenChain(permitted.SensorToShooter!, "c-armed", SensorToShooterBreakCause.NoFireControl, unlinkShooter: false),
+            permitted.SensorToShooter! with { ContactId = "c-open" },
+        });
+        var snapshot = TargetabilityAcceptProjection.ProjectPerContact(
+            provenance,
+            chains,
+            new Dictionary<string, C2AuthorityProjection>(StringComparer.Ordinal)
+            {
+                ["c1"] = permitted.Authority,
+            });
+
+        Assert.That(snapshot.Contacts.Select(c => c.ContactId), Is.EqualTo(new[] { "c-broken", "c-stale", "c1" }));
+        var refusal = snapshot.Contacts[0];
+        Assert.That(refusal.Disposition, Is.EqualTo(TargetabilityAcceptDisposition.Withheld));
+        Assert.That(refusal.WithheldCauseCode, Is.EqualTo(TargetabilityAcceptCauseCodes.NoEligibleShooter));
+        Assert.That(CombatTargetabilityFact.ShooterIdFromRow(refusal), Is.Null);
+        Assert.That(CombatTargetabilityFact.IsContactWideRefusalRow(refusal), Is.True);
+        Assert.That(refusal.Authority, Is.Not.SameAs(permitted.Authority));
+        Assert.That(refusal.Authority.Targeting.Disposition, Is.Not.EqualTo(C2AuthorityDisposition.Permitted));
+        Assert.That(refusal.Authority.Roe.EngageAllowedByRoe, Is.False);
+        var stale = snapshot.Contacts[1];
+        Assert.That(stale.Disposition, Is.EqualTo(TargetabilityAcceptDisposition.Withheld));
+        Assert.That(stale.WithheldCauseCode, Is.EqualTo(TargetabilityAcceptCauseCodes.Stale));
+        Assert.That(CombatTargetabilityFact.IsContactWideRefusalRow(stale), Is.True);
+        Assert.That(stale.Authority, Is.SameAs(refusal.Authority));
+        Assert.That(snapshot.Contacts[2].Disposition, Is.EqualTo(TargetabilityAcceptDisposition.Permitted));
+        Assert.That(snapshot.Contacts[2].Authority, Is.SameAs(permitted.Authority));
+    }
+
     [Test]
     public void Permitted_path_fresh_chain_complete_and_authority_allows_targeting()
     {
@@ -289,6 +371,31 @@ public sealed class TargetabilityAcceptProjectionTests
         log.AppendContactChange(Change(1, "c1", "hostile-1", "Unknown", "Classified"));
         return log;
     }
+
+    private static SensorToShooterChain BrokenChain(
+        SensorToShooterChain source,
+        string contactId,
+        SensorToShooterBreakCause cause,
+        bool unlinkShooter) =>
+        source with
+        {
+            ContactId = contactId,
+            IsComplete = false,
+            PrimaryBreakCause = cause,
+            Links = source.Links.Select(link => link with
+            {
+                ContactId = contactId,
+                IsLinked = unlinkShooter && link.Kind == SensorToShooterLinkKind.EligibleShooter
+                    ? false
+                    : link.IsLinked,
+                UnitId = unlinkShooter && link.Kind == SensorToShooterLinkKind.EligibleShooter
+                    ? null
+                    : link.UnitId,
+                BreakCause = unlinkShooter && link.Kind == SensorToShooterLinkKind.EligibleShooter
+                    ? cause
+                    : link.BreakCause,
+            }).ToArray(),
+        };
 
     private static TargetabilityAcceptSnapshot ProjectWithAuthority(C2AuthorityProjectionContext authority) =>
         TargetabilityAcceptProjection.Project(
