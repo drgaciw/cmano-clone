@@ -77,6 +77,7 @@ namespace ProjectAegis.Unity.Runtime
         private C2NetworkHealthPanelLabels _networkLabels = C2NetworkHealthPanelBinder.Bind(C2NetworkHealthPresentation.Empty);
         private string? _lastNetworkFingerprint;
         private FogModePresentation _fogModePresentation = new("FOG: —", "c2-topbar-item--fog-unknown");
+        private ObserverModeChromePresentation _observerChrome = ObserverModeChromePresentation.Project(false);
 
         /// <summary>True after panel stylesheet has been applied to the top-bar root.</summary>
         public bool StylesApplied { get; private set; }
@@ -89,6 +90,9 @@ namespace ProjectAegis.Unity.Runtime
 
         /// <summary>Last applied fog-mode label from scenario playerInfoModel (DRG-264).</summary>
         public FogModePresentation LastFogModePresentation => _fogModePresentation;
+
+        /// <summary>Last applied observer / command chrome (DRG-413). Presentation only.</summary>
+        public ObserverModeChromePresentation LastObserverChrome => _observerChrome;
 
         private void Awake()
         {
@@ -215,7 +219,13 @@ namespace ProjectAegis.Unity.Runtime
 
         private void OnBeginExecutionClicked()
         {
-            if (bridgeHost == null || bridgeHost.Phase != SimulationPhase.Planning)
+            if (bridgeHost == null || bridgeHost.Bridge == null || bridgeHost.Phase != SimulationPhase.Planning)
+            {
+                return;
+            }
+
+            var chrome = ObserverModeChromePresentation.Project(bridgeHost.Bridge);
+            if (!chrome.CanIssueOrders)
             {
                 return;
             }
@@ -274,6 +284,7 @@ namespace ProjectAegis.Unity.Runtime
         public void ApplyPanelState(C2TopBarState? state)
         {
             _presentation = C2TopBarApplyState.Apply(state);
+            RefreshObserverChrome();
             ApplyPresentationToLabels();
         }
 
@@ -303,6 +314,7 @@ namespace ProjectAegis.Unity.Runtime
 
             _presentation = applied;
             _fogModePresentation = FogModeLabelBinder.Bind(ResolvePlayerInfoModel());
+            _observerChrome = ObserverModeChromePresentation.Project(bridgeHost.Bridge);
 
             ApplyPresentationToLabels();
             RefreshNetworkHealthChrome();
@@ -336,7 +348,11 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_mode != null)
             {
-                _mode.text = _presentation.ModeLabel;
+                _mode.text = _observerChrome.TopBarModeText(_presentation.ModeLabel);
+                _mode.tooltip = _observerChrome.DisabledReasonText ?? string.Empty;
+                _mode.ClearClassList();
+                _mode.AddToClassList("c2-topbar-item");
+                _mode.AddToClassList(_observerChrome.CssClass);
             }
 
             if (_fogMode != null)
@@ -455,7 +471,10 @@ namespace ProjectAegis.Unity.Runtime
 
             var isPlanning = bridgeHost!.Phase == SimulationPhase.Planning;
             _beginExecution.style.display = isPlanning ? DisplayStyle.Flex : DisplayStyle.None;
-            _beginExecution.SetEnabled(isPlanning);
+            _beginExecution.SetEnabled(isPlanning && _observerChrome.CanIssueOrders);
+            _beginExecution.tooltip = _observerChrome.CanIssueOrders
+                ? string.Empty
+                : _observerChrome.DisabledReasonText ?? string.Empty;
         }
 
         private void OverlayLiveCompression()
@@ -483,6 +502,14 @@ namespace ProjectAegis.Unity.Runtime
             _pauseResume.tooltip = paused && !canResume
                 ? "Acknowledge the attention toast to resume"
                 : string.Empty;
+        }
+
+        private void RefreshObserverChrome()
+        {
+            var bridge = bridgeHost != null ? bridgeHost.Bridge : null;
+            _observerChrome = bridge == null
+                ? ObserverModeChromePresentation.Project(false)
+                : ObserverModeChromePresentation.Project(bridge);
         }
 
         private PlayerInfoModel ResolvePlayerInfoModel()
