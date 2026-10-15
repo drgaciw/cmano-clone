@@ -376,7 +376,11 @@ namespace ProjectAegis.Unity.Runtime
             if (bridgeHost == null) return;
             _combatView?.Bind(bridgeHost.DisplayCombatFrame, bridgeHost.DisplayCombatSymbols,
                 bridgeHost.DisplayCombatKey);
-            _transientEffects?.Sync(bridgeHost.LastCombatVfx);
+            // DRG-403 / Codex: do not overlay live VFX on historical inspection view.
+            var vfx = bridgeHost.CommandTimeline.IsInspecting
+                ? CombatVfxFrame.Empty
+                : bridgeHost.LastCombatVfx;
+            _transientEffects?.Sync(vfx);
             LastCombatVfxFireLineCount = _transientEffects?.FireLineCount ?? 0;
             LastCombatVfxImpactCount = _transientEffects?.ImpactMarkerCount ?? 0;
         }
