@@ -82,13 +82,22 @@ public sealed class MapCanvasTransientEffectsRendererContractTests
         var map = File.ReadAllText(mapPath);
         var projection = File.ReadAllText(projectionPath);
 
+        var buildAt = host.IndexOf("LastCombatFrame = CombatPresentationFrameBridge.Build", StringComparison.Ordinal);
+        var projectAt = host.IndexOf("LastCombatVfx = CombatVfxProjection.Project", StringComparison.Ordinal);
+        Assert.That(buildAt, Is.GreaterThanOrEqualTo(0));
+        Assert.That(projectAt, Is.GreaterThan(buildAt));
         Assert.That(host, Does.Contain("LastCombatVfx = CombatVfxProjection.Project"));
+        Assert.That(host, Does.Contain("LastCombatFrame.Events"));
         Assert.That(host, Does.Contain("LastMapSymbols"));
         Assert.That(map, Does.Contain("CombatMapView"));
         Assert.That(map, Does.Contain("DisplayCombatFrame"));
+        Assert.That(map, Does.Contain("new MapCanvasTransientEffectsRenderer"));
+        Assert.That(map, Does.Contain("_transientEffects?.Sync(bridgeHost.LastCombatVfx)"));
         Assert.That(host, Does.Contain("LastCombatFrame = CombatPresentationFrameBridge.Build"));
-        Assert.That(projection, Does.Contain("PkDraw"));
-        Assert.That(projection, Does.Contain("ignored"));
+        Assert.That(projection, Does.Contain("CombatEventSnapshot"));
+        Assert.That(projection, Does.Contain("TerminalOutcome"));
+        Assert.That(projection, Does.Not.Contain("DecisionLog"));
+        Assert.That(projection, Does.Not.Contain("PkDraw"));
         Assert.That(projection, Does.Not.Contain("Random"));
     }
 

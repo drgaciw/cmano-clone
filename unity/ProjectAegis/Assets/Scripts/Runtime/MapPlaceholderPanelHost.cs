@@ -70,6 +70,7 @@ namespace ProjectAegis.Unity.Runtime
         private MapSymbolPool? _symbolPool;
         private MapCanvasOverlayRenderer? _overlayRenderer;
         private MapCanvasCourseOverlayRenderer? _courseOverlayRenderer;
+        private MapCanvasTransientEffectsRenderer? _transientEffects;
         private CombatMapView? _combatView;
         private CommandReviewView? _commandReviewView;
         private CoverageMapView? _coverageView;
@@ -199,6 +200,9 @@ namespace ProjectAegis.Unity.Runtime
                 _overlayRenderer = _canvas != null ? new MapCanvasOverlayRenderer(_canvas) : null;
                 _courseOverlayRenderer = _canvas != null
                     ? new MapCanvasCourseOverlayRenderer(_canvas)
+                    : null;
+                _transientEffects = _canvas != null
+                    ? new MapCanvasTransientEffectsRenderer(_canvas)
                     : null;
                 _combatView?.Dispose();
                 _combatView = _canvas != null
@@ -372,8 +376,9 @@ namespace ProjectAegis.Unity.Runtime
             if (bridgeHost == null) return;
             _combatView?.Bind(bridgeHost.DisplayCombatFrame, bridgeHost.DisplayCombatSymbols,
                 bridgeHost.DisplayCombatKey);
-            LastCombatVfxFireLineCount = _combatView?.EffectCount ?? 0;
-            LastCombatVfxImpactCount = 0; // Outcomes are labeled on the same correlated effect.
+            _transientEffects?.Sync(bridgeHost.LastCombatVfx);
+            LastCombatVfxFireLineCount = _transientEffects?.FireLineCount ?? 0;
+            LastCombatVfxImpactCount = _transientEffects?.ImpactMarkerCount ?? 0;
         }
 
         /// <summary>
