@@ -28,7 +28,7 @@ server: `--force` does not make it safe to rewrite a database held open by MCP.
 
 ```bash
 pgrep -af '[g]itnexus.*mcp'   # must return no matches before continuing
-npx gitnexus analyze --force --skip-agents-md --skip-skills
+GITNEXUS_SHARED_STORE=off npx gitnexus analyze --force --skip-agents-md --skip-skills
 node .gitnexus/run.cjs status   # expect ✅ up-to-date
 ```
 
@@ -187,5 +187,11 @@ unverified: locally re-run [`tools/gitnexus-safe-reindex.sh`](../../tools/gitnex
 
 The guard cannot stop the MCP host from respawning `gitnexus mcp` on demand, so prefer a
 dedicated indexing clone (not a shared working checkout) and a distinct registry alias
-(`--name`). Use the CLI (`npx gitnexus impact|context|cypher`) rather than MCP tools until
+(`--name`). A registry alias alone does not prevent newer GitNexus versions from sharing
+a sibling clone's store. The guard exports `GITNEXUS_SHARED_STORE=off` for analyze and
+queries (compatible with legacy releases) and refuses an existing `.gitnexus/store.json`
+pointer without modifying it. Create a standalone indexing checkout instead of deleting
+or rewriting another checkout's store. See the upstream
+[storage architecture](https://github.com/abhigyanpatwari/GitNexus/blob/main/ARCHITECTURE.md#storage).
+Use the CLI (`npx gitnexus impact|context|cypher`) rather than MCP tools until
 DRG-323 is closed.
