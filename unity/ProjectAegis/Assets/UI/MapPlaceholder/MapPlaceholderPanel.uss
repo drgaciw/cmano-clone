@@ -242,6 +242,56 @@
     background-position-y: 0px;
 }
 
+/* Controller badge chip (DRG-374). Shape and colour are separate channels. */
+.map-controller-badge {
+    margin-left: 4px;
+    padding: 0 3px;
+    font-size: 9px;
+    -unity-font-style: bold;
+    white-space: nowrap;
+    picking-mode: ignore;
+}
+
+.badge-human {
+    color: rgb(16, 24, 36);
+    background-color: rgb(186, 214, 255);
+    border-color: rgb(74, 158, 255);
+}
+
+.badge-agent {
+    color: rgb(28, 22, 8);
+    background-color: rgb(255, 214, 120);
+    border-color: rgb(230, 170, 40);
+}
+
+.badge-agent-suspended {
+    color: rgb(230, 200, 80);
+    background-color: rgba(40, 32, 12, 0.92);
+    border-color: rgb(230, 200, 80);
+}
+
+.badge-shape-square {
+    border-width: 1px;
+    border-radius: 0;
+}
+
+.badge-shape-diamond {
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 5px;
+    border-right-width: 5px;
+    border-radius: 0;
+}
+
+.badge-shape-diamond-dashed {
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 4px;
+    border-right-width: 4px;
+    border-radius: 0;
+    -unity-font-style: bold-and-italic;
+}
+
 .map-app6-frame--pending {
     width: 16px;
     height: 16px;
