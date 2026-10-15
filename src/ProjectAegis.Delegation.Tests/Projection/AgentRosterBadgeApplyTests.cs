@@ -122,7 +122,7 @@ public sealed class AgentRosterBadgeApplyTests
             "AgentRosterApplyState.cs"));
 
         Assert.That(apply, Does.Contain("ControllerBadgeProjection.FromRosterEntry"));
-        Assert.That(host, Does.Contain("AgentRosterApplyState.Apply(bridgeHost.LastAgentRoster)"));
+        Assert.That(host, Does.Contain("_rosterCache.Apply(bridgeHost.LastAgentRoster)"));
         Assert.That(host, Does.Contain(".Badge"));
         Assert.That(host, Does.Contain("ShortText"));
         Assert.That(host, Does.Contain("ColorToken"));
@@ -150,6 +150,12 @@ public sealed class AgentRosterBadgeApplyTests
             "AgentRosterPanel.uss"));
 
         Assert.That(uss, Does.Contain(".agent-roster-badge"));
+        var badgeRule = System.Text.RegularExpressions.Regex.Match(
+            uss, @"\.agent-roster-badge\s*\{([^}]*)\}").Groups[1].Value;
+        var fontSize = System.Text.RegularExpressions.Regex.Match(
+            badgeRule, @"font-size:\s*(\d+)px").Groups[1].Value;
+        Assert.That(int.Parse(fontSize), Is.GreaterThanOrEqualTo(12),
+            "Controller state text must meet the roster legibility baseline at 100% scale.");
         Assert.That(uss, Does.Contain(".badge-shape-square"));
         Assert.That(uss, Does.Contain(".badge-shape-diamond"));
         Assert.That(uss, Does.Contain(".badge-shape-diamond-dashed"));

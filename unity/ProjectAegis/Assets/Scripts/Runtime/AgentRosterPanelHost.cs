@@ -25,11 +25,11 @@ namespace ProjectAegis.Unity.Runtime
         private ListView? _rosterList;
         private Label? _statusLine;
         private readonly Dictionary<string, Button> _directiveButtons = new();
+        private readonly AgentRosterPresentationCache _rosterCache = new();
         private AgentRosterPresentation _presentation = AgentRosterPresentation.Empty;
         private bool _wired;
         private bool _handlersRegistered;
         private string? _lastStatus;
-        private int _lastRosterVersion;
 
         /// <summary>Last status / failure reason shown on the panel.</summary>
         public string? LastStatus => _lastStatus;
@@ -278,19 +278,10 @@ namespace ProjectAegis.Unity.Runtime
                 return;
             }
 
-            // Rebuild presentation only when roster content changes (avoid per-frame allocation).
-            var roster = bridgeHost.LastAgentRoster;
-            var version = ComputeRosterVersion(roster);
-            if (!force && version == _lastRosterVersion)
-            {
-                // Still update button enablement / status which can change without roster mutation.
-                UpdateDirectiveButtons();
-                return;
-            }
-
-            _lastRosterVersion = version;
-            _presentation = AgentRosterApplyState.Apply(roster);
-            if (_rosterList != null)
+            var presentation = _rosterCache.Apply(bridgeHost.LastAgentRoster);
+            var rosterChanged = !ReferenceEquals(_presentation, presentation);
+            _presentation = presentation;
+            if (_rosterList != null && (force || rosterChanged || _rosterList.itemsSource == null))
             {
                 _rosterList.itemsSource = _presentation.Lines as System.Collections.IList
                     ?? new List<string>(_presentation.Lines);
@@ -337,25 +328,6 @@ namespace ProjectAegis.Unity.Runtime
             else if (hasSelection && _lastStatus == AgentDirectiveIssuance.ReasonNoSelection)
             {
                 SetStatus(null);
-            }
-        }
-
-        private static int ComputeRosterVersion(IReadOnlyList<AgentRosterEntry> roster)
-        {
-            unchecked
-            {
-                var hash = 17;
-                hash = hash * 31 + roster.Count;
-                for (var i = 0; i < roster.Count; i++)
-                {
-                    var e = roster[i];
-                    hash = hash * 31 + (e.UnitId?.GetHashCode() ?? 0);
-                    hash = hash * 31 + (e.AgentId?.GetHashCode() ?? 0);
-                    hash = hash * 31 + (e.ModeLabel?.GetHashCode() ?? 0);
-                    hash = hash * 31 + (e.StatusLabel?.GetHashCode() ?? 0);
-                    hash = hash * 31 + (e.AttentionLabel?.GetHashCode() ?? 0);
-                }
-                return hash;
             }
         }
 
