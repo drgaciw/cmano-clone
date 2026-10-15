@@ -173,6 +173,7 @@ during the sim tick. `CombatEvents` only *reads* it (see [order-log-runtime.md](
 | [`SliceBCombatScenario`](../../src/ProjectAegis.Delegation.UnityAdapter/Baltic/SliceBCombatScenario.cs) | `Build(aggregate, double.MaxValue)` + `CombatEventFingerprint.Compute` for the Slice B combat scenario harness result. |
 | [`EngageExplainContractProjection`](../../src/ProjectAegis.Delegation/EngageExplainContract/EngageExplainContractProjection.cs) (DRG-215) | Downstream *why permitted / why withheld* row — mirrors `CombatEventSnapshot` into its own `EngageExplainCombatEventSnapshot` (casting `CombatEventPhase` at the seam). |
 | [`AfterActionLedgerProjection`](../../src/ProjectAegis.Delegation/AfterAction/AfterActionLedgerProjection.cs) | Consumes via a **consume-only** mirror (`CombatEventSnapshotConsume`). |
+| [`MessageLogProjection`](../../src/ProjectAegis.Delegation/Projection/MessageLogProjection.cs) (DRG-402) | Builds a snapshot over the engagement/outcome subset of the same entries and **fences** its combat message lines (`WEAPON_LAUNCH` / `ENGAGE_ABORT` / terminal `KILL_CONFIRMED` / `INTERCEPT_SUCCESS` / `HIT` / `MISS`) on it — a line is emitted only when the snapshot recorded the matching `Firing` launch, `AuthorizationRefused` abort, or `TerminalOutcome`. See [c2-projection-layer.md](c2-projection-layer.md#example-message-log-end-to-end). |
 | `CombatDetailPresentation` / `CombatMapPresentation` / `CommandReviewTimeline` (UnityAdapter) | Render the snapshot into detail-card, map, and review-timeline surfaces. |
 
 ---
