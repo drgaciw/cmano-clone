@@ -10,15 +10,22 @@
 
 ## Rebuild (local)
 
-From repo root:
+**Preferred path:** use the DRG-323 guard, which forces a full rebuild and verifies the
+result (see [Safe reindex guard (DRG-323)](#safe-reindex-guard-drg-323) below):
 
 ```bash
-node .gitnexus/run.cjs analyze
-# or: npx gitnexus analyze --force
-node .gitnexus/run.cjs status   # expect ✅ up-to-date
+tools/gitnexus-safe-reindex.sh           # on main, clean tree
+tools/gitnexus-safe-reindex.sh --skip-analyze   # post-check an existing index only
 ```
 
-Incremental analyze preserves existing embeddings when possible. Full wipe is rarely needed.
+**Manual fallback** (only if the guard cannot run — e.g. GitNexus on a non-`main` clone
+without the guard available). Prefer `--force`; a bare/incremental analyze has been observed
+to corrupt the index (empty method names, garbage node IDs — see the DRG-323 finding below):
+
+```bash
+npx gitnexus analyze --force
+node .gitnexus/run.cjs status   # expect ✅ up-to-date
+```
 
 ## Cadence
 
@@ -64,18 +71,77 @@ Incremental analyze preserves existing embeddings when possible. Full wipe is ra
 
 ## Safe reindex guard (DRG-323)
 
-Run `tools/gitnexus-safe-reindex.sh` instead of a bare `npx gitnexus analyze`.
-It refuses a dirty checkout or a non-`main` branch (override: `--allow-dirty`, `--allow-branch`),
-stops any `gitnexus mcp` process (a live MCP server holding `.gitnexus/lbug` open while `analyze` rewrites it
-is the suspected cause of the corrupted node IDs / empty method names), runs
-`analyze --force --skip-agents-md --skip-skills`, reverts generated tracked changes, then post-checks:
-indexed commit == HEAD, metadata vs graph node/edge counts, and 0 garbage IDs / empty names for
-Class, Method, File, Property. Exit codes: 0 ok, 1 refused, 2 analyze failed, 3 bad index.
+Run [`tools/gitnexus-safe-reindex.sh`](../../tools/gitnexus-safe-reindex.sh) instead of a
+bare `npx gitnexus analyze`. The guard wraps a GitNexus reindex with refusal gates, a
+forced full rebuild, cleanup of generated tracked changes, and an index integrity
+post-check, so a corrupt index fails loudly instead of silently poisoning later
+`impact` / `context` / `cypher` queries.
 
-Finding (2026-10-15, dedicated clone, no MCP process running): a first full analyze was clean, but a following
-*incremental* analyze ("Incremental: changed=1, added=1 ... unchanged file rows preserved") produced 8,625 empty Method names
-and thousands of garbage File/Property IDs; `analyze --force` restored a clean index. The guard therefore always forces a full rebuild.
+### What it does
 
-Limits: the guard cannot stop the MCP host from respawning `gitnexus mcp` on demand, so prefer a dedicated
-indexing clone (not a shared working checkout) and a distinct registry alias (`--name`). Use the CLI
-(`npx gitnexus impact|context|cypher`) rather than MCP tools until DRG-323 is closed.
+1. **Refusal gates.** Aborts (exit 1) if HEAD is not `main` or the working tree is dirty,
+   unless explicitly overridden. This keeps reindexing on a known-clean tree.
+2. **Stops MCP servers.** `pkill -f 'gitnexus.*mcp'` — a live MCP server holding
+   `.gitnexus/lbug` open while `analyze` rewrites it is the suspected cause of the corrupted
+   node IDs / empty method names. If one survives the kill, it exits 2.
+3. **Full rebuild.** Runs `gitnexus analyze --force --skip-agents-md --skip-skills`
+   (`--name <alias> --allow-duplicate-name` when `--name` is given).
+4. **Reverts generated tracked changes** — only when the tree started clean — via
+   `git checkout --` on whatever `analyze` modified. Any new untracked files are left in
+   place and reported as a failure (exit 3) for manual removal.
+5. **Post-check** (see below). Exits 3 on any mismatch.
+
+### Options
+
+| Flag | Effect |
+|------|--------|
+| `--allow-dirty` | Run even with local changes (they are **never** reverted) |
+| `--allow-branch` | Run on a branch other than `main` |
+| `--name <alias>` | Pass `--name <alias> --allow-duplicate-name` to `analyze` (registry alias) |
+| `--skip-analyze` | Skip the MCP-kill + analyze; only run the post-check on the existing index |
+| `--no-kill-mcp` | Do not stop `gitnexus mcp` processes — **refused unless `--skip-analyze`** |
+| `-h`, `--help` | Print usage and exit 0 |
+
+### Post-check (index integrity)
+
+Fails if any of these do not hold:
+
+- Indexed commit (`.gitnexus/meta.json` `lastCommit`) `==` git `HEAD`.
+- `meta.json` node/edge stats `==` live graph `count(n)` / `count(r)` (via `gitnexus cypher`).
+- Zero garbage IDs (id not prefixed with its label) **and** zero empty/null `name` values
+  for `Class`, `Method`, `File`, and `Property` nodes.
+
+### Exit codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | Good index (`gitnexus-safe-reindex: OK`) |
+| 1 | Refused (dirty tree, wrong branch, bad usage) |
+| 2 | `analyze` failed, or an MCP server could not be stopped |
+| 3 | Bad index (post-check failed, or `analyze` left untracked files) |
+
+### Troubleshooting
+
+- **Exit 1, "working tree is not clean" / "not main":** commit or stash first, or pass
+  `--allow-dirty` / `--allow-branch` if you understand the risk (dirty trees are not reverted).
+- **Exit 2, "gitnexus mcp still running after kill":** an MCP host is respawning the server.
+  Stop the host (or run on a dedicated clone) and retry; the guard cannot prevent respawns.
+- **Exit 3, "BAD INDEX":** the index is corrupt. Re-run the guard (full `--force` rebuild);
+  if it persists, confirm no MCP process is attached to `.gitnexus/` during analyze.
+- **"analyze left untracked files":** remove them manually, then re-run; the guard will not
+  auto-delete untracked output.
+
+### Why always `--force`
+
+Finding (2026-10-15, dedicated clone, no MCP process running): a first full analyze was
+clean, but a following *incremental* analyze (`Incremental: changed=1, added=1 ... unchanged
+file rows preserved`) produced 8,625 empty `Method` names and thousands of garbage
+`File`/`Property` IDs; `analyze --force` restored a clean index. The guard therefore always
+forces a full rebuild rather than trusting incremental analyze.
+
+### Limits
+
+The guard cannot stop the MCP host from respawning `gitnexus mcp` on demand, so prefer a
+dedicated indexing clone (not a shared working checkout) and a distinct registry alias
+(`--name`). Use the CLI (`npx gitnexus impact|context|cypher`) rather than MCP tools until
+DRG-323 is closed.
