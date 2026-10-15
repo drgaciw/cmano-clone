@@ -127,6 +127,23 @@ This keeps the message log honest with the combat-event picture: the same fact c
 combat line without the authoritative snapshot having recorded it. Non-combat categories (`POLICY_DENIAL`,
 `CONTACT`, `MAGAZINE`, …) are unaffected — they project directly from the order-log entry.
 
+#### Two entry points: full log vs live player view
+
+The category + fence logic above is shared by two folds over the same entries; both read-only, neither
+mutates the log:
+
+- **`Project(log)`** — the full projection used by replay and the AAR. It surfaces **every** entry,
+  including fogged agent decisions.
+- **`ProjectLive(log, model)`** — the live player HUD. It first runs
+  [`PlayerInfoFilter.FilterLiveEntries`](../../src/ProjectAegis.Delegation/Orchestration/PlayerInfoFilter.cs)
+  so the lines match [`DelegationOrchestrator.GetLiveOrderLogView()`](../../src/ProjectAegis.Delegation/Orchestration/DelegationOrchestrator.cs).
+  Under the scenario's [`PlayerInfoModel`](../../src/ProjectAegis.Sim/Scenario/PlayerInfoModel.cs)
+  `DelegationFog` / `TieredByAutonomy`, `AgentDecision` rows at `FullAutonomous` are dropped (the player
+  doesn't re-read decisions they fully delegated); `FullTransparency` (the default) shows everything.
+  Only the *entry set* is filtered and the log is never edited. The fog touches `AgentDecision` rows
+  only, so engagement/outcome entries — and therefore the combat fence above — are identical in both
+  views.
+
 `MessageLogPanelBinder.Bind` then formats each line as `"[{Category}] {Text}"` into a
 `MessageLogPanelState`. The **`MessageLogLine` carries no duplicate storage** — it references
 the log's `SequenceId`/`SimTime`, so the message log is a projection, not a second event store.
