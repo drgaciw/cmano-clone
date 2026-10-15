@@ -1,8 +1,9 @@
 namespace ProjectAegis.Delegation.Projection;
 
 /// <summary>
-/// Headless apply path for agent roster presentation (CMD-37 + S109-02).
-/// Unity hosts bind <see cref="AgentRosterPresentation.Lines"/> onto Labels without re-formatting.
+/// Headless apply path for agent roster presentation (CMD-37 + S109-02 + DRG-375).
+/// Unity hosts bind <see cref="AgentRosterPresentation.Lines"/> and each row's
+/// <see cref="AgentRosterDisplayRow.Badge"/> without re-formatting.
 /// </summary>
 public static class AgentRosterApplyState
 {
@@ -26,7 +27,8 @@ public static class AgentRosterApplyState
                 entry.StatusLabel,
                 entry.ModeLabel,
                 entry.AttentionLabel,
-                AccessibleAttentionLabel: entry.AttentionLabel));
+                AccessibleAttentionLabel: entry.AttentionLabel,
+                Badge: ControllerBadgeProjection.FromRosterEntry(entry)));
         }
 
         return new AgentRosterPresentation(rows, lines, entries.Count);
@@ -69,7 +71,8 @@ public static class AgentRosterApplyState
                 entry.StatusLabel,
                 entry.ModeLabel,
                 attentionLabel,
-                accessible));
+                accessible,
+                Badge: ControllerBadgeProjection.FromRosterEntry(entry)));
         }
 
         return new AgentRosterPresentation(rows, lines, entries.Count);
@@ -90,7 +93,8 @@ public sealed record AgentRosterDisplayRow(
     string StatusLabel,
     string ModeLabel,
     string AttentionLabel = "ATTENTION: —",
-    string AccessibleAttentionLabel = "Attention sample unavailable");
+    string AccessibleAttentionLabel = "Attention sample unavailable",
+    ControllerBadge? Badge = null);
 
 /// <summary>Presentation bundle for hosts / tests.</summary>
 public sealed record AgentRosterPresentation(
