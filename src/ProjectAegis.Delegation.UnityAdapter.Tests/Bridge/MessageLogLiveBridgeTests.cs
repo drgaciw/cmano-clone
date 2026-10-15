@@ -4,6 +4,7 @@ using System;
 using Core;
 using Decision;
 using Projection;
+using Presentation;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
@@ -69,6 +70,16 @@ public sealed class MessageLogLiveBridgeTests
         Assert.That(livePanel.Source, Is.EqualTo(MessageLogBindingSource.LiveOrderLogView));
         Assert.That(replayPanel.Source, Is.EqualTo(MessageLogBindingSource.FullDecisionLog));
         Assert.That(livePanel.Rows.Count, Is.LessThan(replayPanel.Rows.Count));
+    }
+
+    [Test]
+    public void Host_run_tick_binds_LastMessageLog_from_ProjectLive()
+    {
+        var source = UiIaSourceReader.ReadRuntime("DelegationBridgeHost.cs");
+
+        Assert.That(source, Does.Contain("LastMessageLog = MessageLogBridge.ProjectLive(Bridge)"));
+        Assert.That(source, Does.Not.Contain("MessageLogBridge.ProjectFrom(Bridge.Orchestrator.DecisionLog)"));
+        Assert.That(source, Does.Contain("Bridge.Tick(snapshot, groupSink)"));
     }
 
     [Test]
