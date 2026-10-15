@@ -74,6 +74,20 @@ public sealed record ObserverModeChromePresentation(
         attachReplayViewer ? Observer : Command;
 
     /// <summary>
+    /// Text for the top-bar mode label. Observer chrome replaces the projected simulation-mode
+    /// line. Command chrome keeps that line so <c>MODE: Mixed</c> stays visible.
+    /// </summary>
+    public string TopBarModeText(string? projectedModeLabel)
+    {
+        if (IsObserver || string.IsNullOrWhiteSpace(projectedModeLabel))
+        {
+            return ModeLabel;
+        }
+
+        return projectedModeLabel;
+    }
+
+    /// <summary>
     /// Attempt a player order via <see cref="C2PlayerCommandBridge.TryIssue"/> and return a visible outcome.
     /// While observing, the attempt is refused with <see cref="C2PlayerCommandBridge.ReasonReplayAttached"/>.
     /// </summary>
