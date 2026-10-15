@@ -121,6 +121,62 @@ public sealed class ObserverModeChromePresentationTests
     }
 
     [Test]
+    public void Observer_chrome_replaces_projected_mode_line()
+    {
+        var chrome = ObserverModeChromePresentation.Project(attachReplayViewer: true);
+
+        Assert.That(chrome.TopBarModeText("MODE: Mixed"), Is.EqualTo(ObserverModeChromePresentation.ObserverLabel));
+        Assert.That(chrome.TopBarModeText(null), Is.EqualTo(ObserverModeChromePresentation.ObserverLabel));
+    }
+
+    [Test]
+    public void Command_chrome_keeps_projected_simulation_mode_line()
+    {
+        var chrome = ObserverModeChromePresentation.Project(attachReplayViewer: false);
+
+        Assert.That(chrome.TopBarModeText("MODE: Mixed"), Is.EqualTo("MODE: Mixed"));
+        Assert.That(chrome.TopBarModeText("MODE: HumanOnly"), Is.EqualTo("MODE: HumanOnly"));
+        Assert.That(chrome.TopBarModeText(null), Is.EqualTo(ObserverModeChromePresentation.CommandLabel));
+        Assert.That(chrome.TopBarModeText("  "), Is.EqualTo(ObserverModeChromePresentation.CommandLabel));
+    }
+
+    [Test]
+    public void Top_bar_host_projects_observer_chrome_before_applying_labels()
+    {
+        var source = UiIaSourceReader.ReadRuntime("C2TopBarPanelHost.cs");
+        var refresh = source.IndexOf("private void Refresh()", StringComparison.Ordinal);
+        Assert.That(refresh, Is.GreaterThanOrEqualTo(0));
+        var apply = source.IndexOf("ApplyPresentationToLabels();", refresh, StringComparison.Ordinal);
+        var refreshBody = source[refresh..apply];
+
+        Assert.That(refreshBody, Does.Contain("ObserverModeChromePresentation.Project"));
+        Assert.That(refreshBody, Does.Contain("bridgeHost.Bridge"));
+        Assert.That(source, Does.Contain("TopBarModeText"));
+        Assert.That(source, Does.Contain("_observerChrome.CssClass"));
+        Assert.That(source, Does.Contain("_observerChrome.CanIssueOrders"));
+        Assert.That(source, Does.Contain("bridgeHost.BeginExecution()"));
+        Assert.That(source, Does.Not.Contain("Bridge.BeginExecution()"));
+        Assert.That(source, Does.Not.Contain("Bridge.Orchestrator"));
+        Assert.That(source, Does.Not.Contain("AttachReplayViewer ="));
+        Assert.That(source, Does.Not.Contain("DelegationBridge.Tick"));
+    }
+
+    [Test]
+    public void Top_bar_stylesheet_defines_observer_and_command_mode_classes()
+    {
+        var uss = UiIaSourceReader.ReadUnder(
+            "unity",
+            "ProjectAegis",
+            "Assets",
+            "UI",
+            "TopBar",
+            "C2TopBarPanel.uss");
+
+        Assert.That(uss, Does.Contain("." + ObserverModeChromePresentation.ObserverCssClass));
+        Assert.That(uss, Does.Contain("." + ObserverModeChromePresentation.CommandCssClass));
+    }
+
+    [Test]
     public void Null_bridge_throws()
     {
         Assert.Throws<ArgumentNullException>(() => ObserverModeChromePresentation.Project(null!));

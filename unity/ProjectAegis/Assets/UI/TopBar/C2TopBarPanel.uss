@@ -197,3 +197,13 @@
     -unity-font-style: bold;
     color: rgb(240, 192, 64);
 }
+
+/* DRG-413: observer chrome on the mode label. Command keeps the default item color. */
+.c2-topbar-item--mode-command {
+    color: rgb(190, 200, 210);
+}
+
+.c2-topbar-item--mode-observer {
+    color: rgb(240, 180, 80);
+    -unity-font-style: bold;
+}
