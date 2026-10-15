@@ -6,6 +6,20 @@
 **Model pin:** `jev-1.13.x` / OpenRouter `typesafe/jev-1.13`  
 **Schema:** `aegis.jev.state.v0` (projection-only; synthetic IDs)
 
+## Current binder behavior
+
+`JevAttentionBinder` does not receive a model decision. Available-skill fixtures
+produce **local heuristic** priorities with `ModelScoreAvailable = false`, a visible
+`LOCAL HEURISTIC` banner, and `SOURCE: LOCAL HEURISTIC` provenance. The configured
+Jev pin is metadata, not evidence of a model response. Missing or unavailable
+skills retain the offline banner and no scores. The historical `expectedDisclosure`
+fields below describe the planned model-backed path, not the current fallback.
+
+Missing, null, nonnumeric, negative, or nonfinite ranges remain unknown; proximity
+rules do not match them. Explicit urgency still applies. Equal-priority unattended
+rows precede selected or camera-focused rows, then unit id breaks remaining ties.
+Forbidden private fields are rejected recursively in objects and arrays.
+
 ## Privacy
 
 These files are **synthetic projection fixtures** only. They must never include scenario XML/JSON dumps, DecisionLog/sim internals, absolute repo paths, secrets, doctrine corpora, or private Notion/git evidence. Hosted API calls still require privacy ACK for any non-synthetic payload.

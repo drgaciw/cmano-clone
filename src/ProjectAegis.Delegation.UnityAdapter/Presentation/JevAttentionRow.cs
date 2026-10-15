@@ -8,4 +8,8 @@ public sealed record JevAttentionRow(
     int Rank,
     bool Highlight,
     string CssClass,
-    string Line);
+    string Line)
+{
+    /// <summary>Selected or camera-focused rows follow unattended rows of equal priority.</summary>
+    public bool PlayerAlreadyLooking { get; init; }
+}

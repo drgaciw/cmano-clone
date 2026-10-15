@@ -1,6 +1,6 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
     <ui:VisualElement name="jev-attention-root" class="jev-attention-panel">
-        <ui:Label name="jev-model-pin" text="MODEL: jev-1.13.x" class="jev-model-pin" />
+        <ui:Label name="jev-model-pin" text="SOURCE: UNAVAILABLE" class="jev-model-pin" />
         <ui:Label name="jev-disclosure-banner" text="" class="jev-disclosure--hidden" />
         <ui:VisualElement name="jev-attention-list" class="jev-attention-list" />
     </ui:VisualElement>

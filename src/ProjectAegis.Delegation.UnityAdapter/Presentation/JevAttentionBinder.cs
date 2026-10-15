@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 
 /// <summary>
-/// DRG-319 local attention Score for synthetic <c>aegis.jev.state.v0</c> projections.
+/// DRG-319 local attention heuristic for synthetic <c>aegis.jev.state.v0</c> projections.
 /// Ignores <c>expected*</c> oracle fields. Does not enqueue orders or recommend weapons.
 /// </summary>
 public static class JevAttentionBinder
@@ -70,7 +70,7 @@ public static class JevAttentionBinder
         return JevAttentionLevel.Low;
     }
 
-    /// <summary>Sort high score first. Equal ranks keep unit-id order.</summary>
+    /// <summary>Sort high score first, then unattended rows, then unit id.</summary>
     public static IReadOnlyList<JevAttentionRow> Sort(IReadOnlyList<JevAttentionRow> rows)
     {
         if (rows is null)
@@ -111,34 +111,39 @@ public static class JevAttentionBinder
         }
 
         RejectPrivatePayload(root);
-        var disclosure = JevDisclosureBinder.Project(ReadJevDecide(root));
-        var modelScore = !disclosure.Visible;
+        // Availability is not a completed decision. This binder has no model-result input.
+        var scoreLocally = ReadJevDecide(root) == true;
+        var disclosure = scoreLocally
+            ? JevDisclosurePresentation.LocalHeuristic
+            : JevDisclosureBinder.Project(ReadJevDecide(root));
         var selected = ReadSelectedUnit(root);
+        var cameraFocus = OptionalString(ObjectOrEmpty(root, "playerInfoModel"), "cameraFocusId");
         var rows = new List<JevAttentionRow>();
         if (root.TryGetProperty("roster", out var roster) && roster.ValueKind == JsonValueKind.Array)
         {
             foreach (var entry in roster.EnumerateArray())
             {
-                rows.Add(ProjectEntry(entry, selected, modelScore));
+                rows.Add(ProjectEntry(entry, selected, cameraFocus, scoreLocally));
             }
         }
         else
         {
-            rows.Add(ProjectEntry(root, selected, modelScore));
+            rows.Add(ProjectEntry(root, selected, cameraFocus, scoreLocally));
         }
 
         return new JevAttentionPanel(
             OptionalString(root, "fixtureId"),
-            modelScore,
+            false,
             Sort(rows),
             disclosure);
     }
 
-    private static JevAttentionRow ProjectEntry(JsonElement entry, string? selectedUnitId, bool modelScore)
+    private static JevAttentionRow ProjectEntry(
+        JsonElement entry, string? selectedUnitId, string? cameraFocusId, bool scoreLocally)
     {
         var unitId = RequiredString(entry, "unitId");
         var contactId = OptionalString(entry, "contactId");
-        if (!modelScore)
+        if (!scoreLocally)
         {
             return BuildRow(unitId, contactId, null);
         }
@@ -154,8 +159,12 @@ public static class JevAttentionBinder
             OptionalString(flags, "urgencyHint"),
             OptionalBool(roe, "holdFire"),
             OptionalBool(flags, "roeConflict"),
-            string.Equals(selectedUnitId, unitId, StringComparison.Ordinal));
-        return BuildRow(unitId, contactId, Score(cue));
+            string.Equals(selectedUnitId, unitId, StringComparison.Ordinal)
+                || string.Equals(cameraFocusId, unitId, StringComparison.Ordinal));
+        return BuildRow(unitId, contactId, Score(cue)) with
+        {
+            PlayerAlreadyLooking = cue.PlayerAlreadyLooking,
+        };
     }
 
     private static JevAttentionRow BuildRow(string unitId, string? contactId, string? level)
@@ -180,6 +189,12 @@ public static class JevAttentionBinder
         if (byRank != 0)
         {
             return byRank;
+        }
+
+        var byAttention = left.PlayerAlreadyLooking.CompareTo(right.PlayerAlreadyLooking);
+        if (byAttention != 0)
+        {
+            return byAttention;
         }
 
         return string.Compare(left.UnitId, right.UnitId, StringComparison.Ordinal);
@@ -217,6 +232,21 @@ public static class JevAttentionBinder
 
     private static void RejectPrivatePayload(JsonElement root)
     {
+        if (root.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in root.EnumerateArray())
+            {
+                RejectPrivatePayload(item);
+            }
+
+            return;
+        }
+
+        if (root.ValueKind != JsonValueKind.Object)
+        {
+            return;
+        }
+
         foreach (var property in root.EnumerateObject())
         {
             if (property.Name.Equals("decisionLog", StringComparison.OrdinalIgnoreCase)
@@ -226,6 +256,8 @@ public static class JevAttentionBinder
                 throw new InvalidOperationException(
                     "Jev VS1 accepts projection fixtures only. Private scenario or log payloads are refused.");
             }
+
+            RejectPrivatePayload(property.Value);
         }
     }
 
@@ -264,10 +296,14 @@ public static class JevAttentionBinder
     {
         if (element.ValueKind != JsonValueKind.Object || !element.TryGetProperty(name, out var value))
         {
-            return 0d;
+            return double.NaN;
         }
 
-        return value.ValueKind == JsonValueKind.Number ? value.GetDouble() : 0d;
+        return value.ValueKind == JsonValueKind.Number
+            && value.TryGetDouble(out var number)
+            && !double.IsNaN(number) && !double.IsInfinity(number) && number >= 0d
+                ? number
+                : double.NaN;
     }
 
     private static bool OptionalBool(JsonElement element, string name)

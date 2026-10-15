@@ -8,4 +8,12 @@ public sealed record JevAttentionPanel(
     string? FixtureId,
     bool ModelScoreAvailable,
     IReadOnlyList<JevAttentionRow> Rows,
-    JevDisclosurePresentation Disclosure);
+    JevDisclosurePresentation Disclosure)
+{
+    /// <summary>Player-visible score provenance, separate from the configured model pin.</summary>
+    public string ScoreSourceLabel => ModelScoreAvailable
+        ? $"MODEL: {Disclosure.ModelPin}"
+        : Rows.Count > 0 && Rows[0].Level != null
+            ? "SOURCE: LOCAL HEURISTIC"
+            : "SOURCE: UNAVAILABLE";
+}

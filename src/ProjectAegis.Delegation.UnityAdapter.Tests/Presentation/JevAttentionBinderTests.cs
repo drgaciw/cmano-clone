@@ -13,10 +13,14 @@ public sealed class JevAttentionBinderTests
     {
         var panel = JevAttentionBinder.Project(Read("attention_immediate.json"));
 
-        Assert.That(panel.ModelScoreAvailable, Is.True);
-        Assert.That(panel.Disclosure.Visible, Is.False);
+        Assert.That(panel.ModelScoreAvailable, Is.False);
+        Assert.That(panel.Disclosure.Visible, Is.True);
+        Assert.That(panel.Disclosure.BannerText, Does.Contain("LOCAL HEURISTIC"));
+        Assert.That(panel.ScoreSourceLabel, Is.EqualTo("SOURCE: LOCAL HEURISTIC"));
+        Assert.That(panel.FixtureId, Is.EqualTo("vs1-attention-immediate"));
         Assert.That(panel.Rows, Has.Count.EqualTo(1));
         Assert.That(panel.Rows[0].UnitId, Is.EqualTo("u-fixture-01"));
+        Assert.That(panel.Rows[0].ContactId, Is.EqualTo("c-fixture-hostile-closing"));
         Assert.That(panel.Rows[0].Level, Is.EqualTo(JevAttentionLevel.Immediate));
         Assert.That(panel.Rows[0].Highlight, Is.True);
         Assert.That(panel.Rows[0].CssClass, Is.EqualTo(JevAttentionLevel.CssClass(JevAttentionLevel.Immediate)));
@@ -31,7 +35,7 @@ public sealed class JevAttentionBinderTests
         Assert.That(panel.Rows[0].UnitId, Is.EqualTo("u-fixture-02"));
         Assert.That(panel.Rows[0].Level, Is.EqualTo(JevAttentionLevel.Ignore));
         Assert.That(panel.Rows[0].Highlight, Is.False);
-        Assert.That(panel.Disclosure.Visible, Is.False);
+        Assert.That(panel.Disclosure.Visible, Is.True);
     }
 
     [Test]
@@ -54,7 +58,7 @@ public sealed class JevAttentionBinderTests
             Assert.That(row.Level, Is.EqualTo(expectedLevels[row.UnitId]));
         }
 
-        Assert.That(panel.Disclosure.Visible, Is.False);
+        Assert.That(panel.Disclosure.Visible, Is.True);
         Assert.That(panel.Rows[0].Highlight, Is.True);
         Assert.That(panel.Rows[^1].Highlight, Is.False);
     }
@@ -98,6 +102,86 @@ public sealed class JevAttentionBinderTests
     public void Questions_document_is_not_a_state_projection()
     {
         Assert.Throws<InvalidOperationException>(() => JevAttentionBinder.Project(Read("questions_vs1.json")));
+    }
+
+    [TestCase("hostile", "")]
+    [TestCase("hostile", ", \"rangeNm\": null")]
+    [TestCase("hostile", ", \"rangeNm\": \"near\"")]
+    [TestCase("hostile", ", \"rangeNm\": -1")]
+    [TestCase("hostile", ", \"rangeNm\": 1e400")]
+    [TestCase("unknown", "")]
+    [TestCase("unknown", ", \"rangeNm\": null")]
+    [TestCase("unknown", ", \"rangeNm\": \"near\"")]
+    [TestCase("unknown", ", \"rangeNm\": -1")]
+    [TestCase("unknown", ", \"rangeNm\": 1e400")]
+    public void Unknown_or_invalid_range_does_not_create_proximity_alert(string iff, string range)
+    {
+        var json = $$$"""
+            {"schema":"aegis.jev.state.v0","unitId":"u-range",
+             "skillAvailability":{"jevDecide":true},
+             "contact":{"iff":"{{{iff}}}","closing":true{{{range}}}}}
+            """;
+
+        Assert.That(JevAttentionBinder.Project(json).Rows[0].Level, Is.EqualTo(JevAttentionLevel.Low));
+    }
+
+    [TestCase("hostile", "critical", "immediate")]
+    [TestCase("unknown", "urgent", "focus")]
+    [TestCase("unknown", "elevated", "watch")]
+    public void Missing_range_preserves_explicit_urgency(string iff, string urgency, string level)
+    {
+        var json = $$$"""
+            {"schema":"aegis.jev.state.v0","unitId":"u-urgency",
+             "skillAvailability":{"jevDecide":true},"flags":{"urgencyHint":"{{{urgency}}}"},
+             "contact":{"iff":"{{{iff}}}","closing":true}}
+            """;
+
+        Assert.That(JevAttentionBinder.Project(json).Rows[0].Level, Is.EqualTo(level));
+    }
+
+    [TestCase("selectedUnitId")]
+    [TestCase("cameraFocusId")]
+    public void Unattended_rows_win_equal_priority_ties(string attentionKey)
+    {
+        var json = $$$"""
+            {"schema":"aegis.jev.state.v0","skillAvailability":{"jevDecide":true},
+             "playerInfoModel":{"{{{attentionKey}}}":"u-a"},"roster":[
+              {"unitId":"u-a","contact":{"iff":"hostile","closing":true,"rangeNm":4}},
+              {"unitId":"u-b","contact":{"iff":"hostile","closing":true,"rangeNm":4}},
+              {"unitId":"u-c","contact":{"iff":"unknown","closing":true,"rangeNm":14}}]}
+            """;
+
+        var panel = JevAttentionBinder.Project(json);
+        Assert.That(panel.Rows.Select(row => row.UnitId), Is.EqualTo(new[] { "u-b", "u-a", "u-c" }));
+        Assert.That(panel.Rows[0].Level, Is.EqualTo(JevAttentionLevel.Immediate));
+        Assert.That(panel.Rows[1].Level, Is.EqualTo(JevAttentionLevel.Immediate));
+    }
+
+    [TestCase("decisionLog")]
+    [TestCase("SCENARIOXML")]
+    [TestCase("SeCrEt")]
+    public void Private_fields_are_refused_at_every_object_and_array_depth(string forbidden)
+    {
+        var nestedPayloads = new[]
+        {
+            $$$"""{"schema":"aegis.jev.state.v0","roster":[{"unitId":"u-nested","{{{forbidden}}}":[] }]}""",
+            $$$"""{"schema":"aegis.jev.state.v0","unitId":"u-nested","contact":{"{{{forbidden}}}":"x"}}""",
+            $$$"""{"schema":"aegis.jev.state.v0","unitId":"u-nested","extra":[[{"{{{forbidden}}}":null}]]}""",
+        };
+        foreach (var json in nestedPayloads)
+        {
+            var error = Assert.Throws<InvalidOperationException>(() => JevAttentionBinder.Project(json));
+            Assert.That(error!.Message, Does.Contain("projection fixtures"));
+        }
+    }
+
+    [Test]
+    public void Available_skill_does_not_attest_to_a_model_result()
+    {
+        var panel = JevAttentionBinder.Project(Read("skill_available.json"));
+        Assert.That(panel.ModelScoreAvailable, Is.False);
+        Assert.That(panel.Disclosure.Visible, Is.True);
+        Assert.That(panel.Disclosure.BannerText, Does.Contain("LOCAL HEURISTIC"));
     }
 
     private static JevAttentionRow Row(string unitId, string level) =>

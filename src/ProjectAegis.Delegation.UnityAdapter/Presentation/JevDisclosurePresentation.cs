@@ -2,7 +2,7 @@ namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 
 /// <summary>
 /// Skill-unavailable disclosure for <c>skill_unavailable_disclosure</c>.
-/// Visible only when Jev decide is down. Never an engage or order card.
+/// Discloses unavailable assistance or local heuristic scores. Never an engage or order card.
 /// </summary>
 public sealed record JevDisclosurePresentation(
     bool Visible,
@@ -39,6 +39,14 @@ public sealed record JevDisclosurePresentation(
     public static JevDisclosurePresentation Shown { get; } = new(
         true,
         UnavailableBanner,
+        VisibleCssClass,
+        PinnedModel,
+        PinnedOpenRouterModel);
+
+    /// <summary>Available skill without a received decision: priorities are local heuristics.</summary>
+    public static JevDisclosurePresentation LocalHeuristic { get; } = new(
+        true,
+        "LOCAL HEURISTIC — No Jev decision received. Priorities use local advisory rules.",
         VisibleCssClass,
         PinnedModel,
         PinnedOpenRouterModel);
