@@ -61,9 +61,10 @@ namespace ProjectAegis.Unity.Runtime
         public void Apply(JevAttentionPanel panel)
         {
             LastPanel = panel ?? throw new System.ArgumentNullException(nameof(panel));
+            TryWire();
             if (!_wired)
             {
-                TryWire();
+                return;
             }
 
             ApplyWired(panel);
@@ -77,7 +78,13 @@ namespace ProjectAegis.Unity.Runtime
 
         private void TryWire()
         {
-            var root = _document != null ? _document.rootVisualElement : null;
+            _wired = false;
+            _disclosure = null;
+            _modelPin = null;
+            _list = null;
+            var root = _document != null && _document.isActiveAndEnabled
+                ? _document.rootVisualElement
+                : null;
             if (root == null)
             {
                 return;
@@ -108,7 +115,7 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_modelPin != null)
             {
-                _modelPin.text = panel.AttributionLine;
+                _modelPin.text = panel.ScoreSourceLabel;
             }
 
             if (_list != null)

@@ -18,22 +18,24 @@ public sealed class JevDisclosureBinderTests
         Assert.That(panel.Disclosure.BannerText, Does.Contain("ASSIST UNAVAILABLE"));
         Assert.That(panel.Disclosure.BannerText, Does.Not.Contain("WEAPON").And.Not.Contain("ENGAGE"));
         Assert.That(panel.ModelScoreAvailable, Is.False);
+        Assert.That(panel.ScoreSourceLabel, Is.EqualTo("SOURCE: UNAVAILABLE"));
         Assert.That(panel.Rows[0].Level, Is.Null);
         Assert.That(panel.Rows[0].Highlight, Is.False);
         Assert.That(panel.Disclosure.ModelPin, Is.EqualTo(JevDisclosurePresentation.PinnedModel));
         Assert.That(panel.Disclosure.OpenRouterModel, Is.EqualTo(JevDisclosurePresentation.PinnedOpenRouterModel));
-        Assert.That(panel.AttributionLine, Does.Contain("OFFLINE").And.Contain("vs1-skill-unavailable"));
-        Assert.That(panel.AttributionLine, Does.Not.Contain(JevDisclosurePresentation.PinnedOpenRouterModel));
+        Assert.That(panel.FixtureId, Is.EqualTo("vs1-skill-unavailable"));
     }
 
     [Test]
-    public void Skill_available_hides_disclosure_and_stays_advisory()
+    public void Skill_available_labels_local_heuristics_and_stays_advisory()
     {
         var panel = JevAttentionBinder.Project(Read("skill_available.json"));
 
-        Assert.That(panel.Disclosure.Visible, Is.False);
-        Assert.That(panel.Disclosure.CssClass, Is.EqualTo(JevDisclosurePresentation.HiddenCssClass));
+        Assert.That(panel.Disclosure.Visible, Is.True);
+        Assert.That(panel.Disclosure.CssClass, Is.EqualTo(JevDisclosurePresentation.VisibleCssClass));
+        Assert.That(panel.Disclosure.BannerText, Does.Contain("LOCAL HEURISTIC"));
         Assert.That(panel.Disclosure.OpenRouterModel, Is.EqualTo(JevDisclosurePresentation.PinnedOpenRouterModel));
+        Assert.That(panel.ScoreSourceLabel, Is.EqualTo("SOURCE: LOCAL HEURISTIC"));
         Assert.That(panel.ModelScoreAvailable, Is.False);
         Assert.That(panel.Rows[0].Level, Is.EqualTo(JevAttentionLevel.Low));
         Assert.That(panel.Rows[0].Line, Does.Not.Contain("order").IgnoreCase);

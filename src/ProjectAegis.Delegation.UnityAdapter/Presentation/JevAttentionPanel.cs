@@ -10,22 +10,19 @@ public sealed record JevAttentionPanel(
     IReadOnlyList<JevAttentionRow> Rows,
     JevDisclosurePresentation Disclosure)
 {
-    /// <summary>
-    /// Who produced the levels. A local rule score is labeled heuristic so it is not shown as a Jev result.
-    /// </summary>
-    public string AttributionLine
+    /// <summary>Player-visible score provenance, separate from a model pin used only as metadata.</summary>
+    public string ScoreSourceLabel
     {
         get
         {
-            var fixture = string.IsNullOrEmpty(FixtureId) ? "unscoped" : FixtureId;
             if (ModelScoreAvailable)
             {
-                return $"MODEL: {Disclosure.ModelPin} · {Disclosure.OpenRouterModel}  {fixture}";
+                return $"MODEL: {Disclosure.ModelPin} · {Disclosure.OpenRouterModel}";
             }
 
-            return Disclosure.Visible
-                ? $"OFFLINE  {fixture}"
-                : $"HEURISTIC  {fixture}";
+            return Rows.Count > 0 && Rows[0].Level != null
+                ? "SOURCE: LOCAL HEURISTIC"
+                : "SOURCE: UNAVAILABLE";
         }
     }
 }

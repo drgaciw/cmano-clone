@@ -6,6 +6,22 @@
 **Model pin:** `jev-1.13.x` / OpenRouter `typesafe/jev-1.13`  
 **Schema:** `aegis.jev.state.v0` (projection-only; synthetic IDs)
 
+## Current binder behavior
+
+`ModelScoreAvailable` is true only when every scored row carries a pinned
+`jevDecision` (`model` is `typesafe/jev-1.13` or `jev-1.13.x`, plus a known
+`attention_priority`). `skillAvailability.jevDecide: true` alone is not a result.
+Those rows use the local heuristic, show the `LOCAL HEURISTIC` banner, and label
+provenance `SOURCE: LOCAL HEURISTIC`. A pinned result hides that banner and labels
+`MODEL: jev-1.13.x · typesafe/jev-1.13`. Skill down keeps the offline banner and
+does not score, even if a stale `jevDecision` is present.
+
+Missing, null, nonnumeric, negative, or nonfinite `rangeNm` values stay unknown.
+Proximity rules do not match them. Explicit urgency still applies. Explicit `0` is
+a real range. `Score` steps an already-watched unit down one band. Selection and
+camera focus both count. Equal bands then place unattended rows first, then unit id.
+Forbidden private fields are rejected recursively in objects and arrays.
+
 ## Privacy
 
 These files are **synthetic projection fixtures** only. They must never include scenario XML/JSON dumps, DecisionLog/sim internals, absolute repo paths, secrets, doctrine corpora, or private Notion/git evidence. Hosted API calls still require privacy ACK for any non-synthetic payload.
@@ -24,11 +40,11 @@ These files are **synthetic projection fixtures** only. They must never include 
 
 | File | Purpose | Expected Score | Expected disclosure |
 |------|---------|----------------|---------------------|
-| `attention_immediate.json` | Single hostile closing contact; player looking elsewhere | `immediate` (heuristic; no `jevDecision`) | off (`jevDecide: true`) |
-| `attention_ignore.json` | Distant friendly; player already focused | `ignore` | off |
-| `attention_mixed_roster.json` | 5 units varied urgency/closing/ROE for sort order | see `expectedSortOrderHint` / per-row `expectedAttentionLevel` | off |
-| `skill_unavailable.json` | `skillAvailability.jevDecide: false` disclosure path | n/a (no score) | **on** |
-| `skill_available.json` | Healthy decide path; player already on that unit | `low` (unattended threat band is `watch`) | **off** |
+| `attention_immediate.json` | Single hostile closing contact; player looking elsewhere | `immediate` (heuristic; no `jevDecision`) | local-heuristic banner |
+| `attention_ignore.json` | Distant friendly; player already focused | `ignore` | local-heuristic banner |
+| `attention_mixed_roster.json` | 5 units varied urgency/closing/ROE for sort order | see `expectedSortOrderHint` / per-row `expectedAttentionLevel` | local-heuristic banner |
+| `skill_unavailable.json` | `skillAvailability.jevDecide: false` disclosure path | n/a (no score) | **offline** |
+| `skill_available.json` | Healthy decide path; player already on that unit | `low` (unattended threat band is `watch`) | local-heuristic banner |
 | `questions_vs1.json` | Question payloads matching research inventory | — | — |
 
 ### Mixed roster expected sort (high → low)

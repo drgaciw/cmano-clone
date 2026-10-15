@@ -15,7 +15,7 @@ public static class JevAttentionBinder
 
     /// <summary>
     /// Score one projection row from local rules. Pure; no I/O.
-    /// A missing or non-numeric range does not match a proximity band.
+    /// A missing, non-numeric, negative, or non-finite range does not match a proximity band.
     /// A unit the player is already watching steps down one band.
     /// </summary>
     public static string Score(JevAttentionCue cue)
@@ -24,7 +24,7 @@ public static class JevAttentionBinder
         return cue.PlayerAlreadyLooking ? DemoteAttended(level) : level;
     }
 
-    /// <summary>Sort high score first. Equal ranks keep unit-id order.</summary>
+    /// <summary>Sort high score first, then unattended rows, then unit id.</summary>
     public static IReadOnlyList<JevAttentionRow> Sort(IReadOnlyList<JevAttentionRow> rows)
     {
         if (rows is null)
@@ -65,8 +65,7 @@ public static class JevAttentionBinder
         }
 
         RejectPrivatePayload(root);
-        var disclosure = JevDisclosureBinder.Project(ReadJevDecide(root));
-        var skillUp = !disclosure.Visible;
+        var skillUp = ReadJevDecide(root) == true;
         var selected = ReadPlayerId(root, "selectedUnitId");
         var camera = ReadPlayerId(root, "cameraFocusId");
         var scored = new List<(JevAttentionRow Row, bool FromModel)>();
@@ -92,6 +91,12 @@ public static class JevAttentionBinder
                 modelScore = false;
             }
         }
+
+        var disclosure = !skillUp
+            ? JevDisclosureBinder.Project(ReadJevDecide(root))
+            : modelScore
+                ? JevDisclosurePresentation.Hidden
+                : JevDisclosurePresentation.LocalHeuristic;
 
         return new JevAttentionPanel(
             OptionalString(root, "fixtureId"),
@@ -176,23 +181,23 @@ public static class JevAttentionBinder
     {
         var unitId = RequiredString(entry, "unitId");
         var contactId = OptionalString(entry, "contactId");
+        var looking = string.Equals(selectedUnitId, unitId, StringComparison.Ordinal)
+            || string.Equals(cameraFocusId, unitId, StringComparison.Ordinal);
         if (!skillUp)
         {
-            return (BuildRow(unitId, contactId, null), false);
+            return (BuildRow(unitId, contactId, null, false), false);
         }
 
         var modelLevel = ReadModelLevel(entry);
         if (modelLevel is not null)
         {
-            return (BuildRow(unitId, contactId, modelLevel), true);
+            return (BuildRow(unitId, contactId, modelLevel, looking), true);
         }
 
         var contact = ObjectOrEmpty(entry, "contact");
         var flags = ObjectOrEmpty(entry, "flags");
         var roe = ObjectOrEmpty(entry, "roe");
         var iff = OptionalString(contact, "iff") ?? OptionalString(contact, "classHint");
-        var looking = string.Equals(selectedUnitId, unitId, StringComparison.Ordinal)
-            || string.Equals(cameraFocusId, unitId, StringComparison.Ordinal);
         var cue = new JevAttentionCue(
             iff,
             OptionalDouble(contact, "rangeNm"),
@@ -201,7 +206,7 @@ public static class JevAttentionBinder
             OptionalBool(roe, "holdFire"),
             OptionalBool(flags, "roeConflict"),
             looking);
-        return (BuildRow(unitId, contactId, Score(cue)), false);
+        return (BuildRow(unitId, contactId, Score(cue), looking), false);
     }
 
     /// <summary>
@@ -260,14 +265,17 @@ public static class JevAttentionBinder
         return null;
     }
 
-    private static JevAttentionRow BuildRow(string unitId, string? contactId, string? level) =>
+    private static JevAttentionRow BuildRow(string unitId, string? contactId, string? level, bool alreadyLooking) =>
         new(
             unitId,
             contactId,
             level,
             JevAttentionLevel.Rank(level),
             JevAttentionLevel.Highlights(level),
-            JevAttentionLevel.CssClass(level));
+            JevAttentionLevel.CssClass(level))
+        {
+            PlayerAlreadyLooking = alreadyLooking,
+        };
 
     private static int CompareRows(JevAttentionRow left, JevAttentionRow right)
     {
@@ -275,6 +283,12 @@ public static class JevAttentionBinder
         if (byRank != 0)
         {
             return byRank;
+        }
+
+        var byAttention = left.PlayerAlreadyLooking.CompareTo(right.PlayerAlreadyLooking);
+        if (byAttention != 0)
+        {
+            return byAttention;
         }
 
         return string.Compare(left.UnitId, right.UnitId, StringComparison.Ordinal);
@@ -312,6 +326,21 @@ public static class JevAttentionBinder
 
     private static void RejectPrivatePayload(JsonElement root)
     {
+        if (root.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in root.EnumerateArray())
+            {
+                RejectPrivatePayload(item);
+            }
+
+            return;
+        }
+
+        if (root.ValueKind != JsonValueKind.Object)
+        {
+            return;
+        }
+
         foreach (var property in root.EnumerateObject())
         {
             if (property.Name.Equals("decisionLog", StringComparison.OrdinalIgnoreCase)
@@ -321,6 +350,8 @@ public static class JevAttentionBinder
                 throw new InvalidOperationException(
                     "Jev VS1 accepts projection fixtures only. Private scenario or log payloads are refused.");
             }
+
+            RejectPrivatePayload(property.Value);
         }
     }
 
@@ -355,7 +386,7 @@ public static class JevAttentionBinder
         return value.ValueKind == JsonValueKind.String ? value.GetString() : null;
     }
 
-    /// <summary>Null when the field is missing or not a number. Zero stays zero.</summary>
+    /// <summary>Null when the field is missing, not a number, negative, or non-finite. Zero stays zero.</summary>
     private static double? OptionalDouble(JsonElement element, string name)
     {
         if (element.ValueKind != JsonValueKind.Object || !element.TryGetProperty(name, out var value))
@@ -363,7 +394,16 @@ public static class JevAttentionBinder
             return null;
         }
 
-        return value.ValueKind == JsonValueKind.Number ? value.GetDouble() : null;
+        if (value.ValueKind != JsonValueKind.Number
+            || !value.TryGetDouble(out var number)
+            || double.IsNaN(number)
+            || double.IsInfinity(number)
+            || number < 0d)
+        {
+            return null;
+        }
+
+        return number;
     }
 
     private static bool OptionalBool(JsonElement element, string name)

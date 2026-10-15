@@ -9,6 +9,9 @@ public sealed record JevAttentionRow(
     bool Highlight,
     string CssClass)
 {
+    /// <summary>Selected or camera-focused rows follow unattended rows of equal priority.</summary>
+    public bool PlayerAlreadyLooking { get; init; }
+
     /// <summary>Advisory line. The contact id stays on the row so the text cannot drift from it.</summary>
     public string Line
     {
