@@ -33,6 +33,50 @@
     opacity: 0.55;
 }
 
+/* Controller badge on the row (DRG-374). Colour is the right edge; shape is the border. */
+.oob-controller-badge {
+    padding-right: 6px;
+}
+
+.oob-row.badge-human {
+    border-right-width: 3px;
+    border-right-color: rgb(74, 158, 255);
+}
+
+.oob-row.badge-agent {
+    border-right-width: 3px;
+    border-right-color: rgb(230, 170, 40);
+}
+
+.oob-row.badge-agent-suspended {
+    border-right-width: 3px;
+    border-right-color: rgb(230, 200, 80);
+}
+
+.oob-row.badge-shape-square {
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-top-color: rgb(140, 155, 170);
+    border-bottom-color: rgb(140, 155, 170);
+    border-radius: 0;
+}
+
+.oob-row.badge-shape-diamond {
+    border-top-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 4px;
+    border-right-width: 4px;
+    border-radius: 0;
+}
+
+.oob-row.badge-shape-diamond-dashed {
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 3px;
+    border-right-width: 3px;
+    -unity-font-style: italic;
+}
+
 /* Keyboard discovery baseline (DRG-270) — Tab reaches OOB list rows. */
 .oob-row:focus {
     border-left-width: var(--focus-ring-width);
