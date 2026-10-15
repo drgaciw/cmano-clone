@@ -40,6 +40,9 @@ while [[ $# -gt 0 ]]; do
 done
 
 die() { echo "gitnexus-safe-reindex: $1" >&2; exit "${2:-1}"; }
+# A registry alias alone does not isolate sibling clones on newer GitNexus releases.
+# This documented opt-out is also harmless on legacy versions without shared stores.
+export GITNEXUS_SHARED_STORE=off
 gn() {
   if [[ -f "${REPO_ROOT}/.gitnexus/run.cjs" ]] && command -v node >/dev/null 2>&1; then
     node "${REPO_ROOT}/.gitnexus/run.cjs" "$@"
@@ -64,6 +67,9 @@ if [[ -n "${PRE_STATUS}" && ${ALLOW_DIRTY} -eq 0 ]]; then
 fi
 if [[ ${SKIP_ANALYZE} -eq 0 && ${KILL_MCP} -eq 0 ]]; then
   die "--no-kill-mcp requires --skip-analyze (an MCP server holding the DB corrupts analyze)"
+fi
+if [[ -e "${REPO_ROOT}/.gitnexus/store.json" ]]; then
+  die "shared-store checkout detected; use a standalone indexing clone (store left untouched)"
 fi
 
 # --- stop MCP, analyze -----------------------------------------------------
