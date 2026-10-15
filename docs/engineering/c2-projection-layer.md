@@ -90,10 +90,10 @@ against [`MessageLogProjection.cs`](../../src/ProjectAegis.Delegation/Projection
 
 | Order-log entry kind | Category | Notes |
 |----------------------|----------|-------|
-| `EngagementOutcome` = `Kill` | `KILL_CONFIRMED` | Inbound-threat criticality lives here, not on launch |
-| `EngagementOutcome` = `Intercept` / `Hit` / `Miss` | `INTERCEPT_SUCCESS` / `HIT` / `MISS` | |
-| `Engagement` (launched) | `WEAPON_LAUNCH` | Fires on friendly launches too → `Routine` alert tier |
-| `Engagement` (aborted) | `ENGAGE_ABORT` | Carries the [abort reason code](abort-reason-catalog.md) |
+| `EngagementOutcome` = `Kill` | `KILL_CONFIRMED` | Inbound-threat criticality lives here, not on launch. Combat-event fenced (see below) |
+| `EngagementOutcome` = `Intercept` / `Hit` / `Miss` | `INTERCEPT_SUCCESS` / `HIT` / `MISS` | Combat-event fenced |
+| `Engagement` (launched) | `WEAPON_LAUNCH` | Fires on friendly launches too → `Routine` alert tier. Combat-event fenced |
+| `Engagement` (aborted) | `ENGAGE_ABORT` | Carries the [abort reason code](abort-reason-catalog.md). Combat-event fenced |
 | `PolicyDenial` | `POLICY_DENIAL` | "Why can't I fire?" — links the explain |
 | `ContactChange` | `CONTACT` | |
 | `MagazineChange` | `MAGAZINE` | Signed delta + reason code |
@@ -104,6 +104,29 @@ against [`MessageLogProjection.cs`](../../src/ProjectAegis.Delegation/Projection
 
 Unrecognized entry kinds project to `null` (dropped) rather than throwing, so a new order-log
 kind never crashes the log panel — it just isn't surfaced until a case is added.
+
+#### Combat lines are fenced on the combat-event projection (DRG-402)
+
+Combat categories (`WEAPON_LAUNCH`, `ENGAGE_ABORT`, and the terminal outcomes) are **not**
+emitted purely on the presence of an `Engagement` / `EngagementOutcome` entry. `Project` first folds
+the engagement/outcome subset of the same entries through
+[`CombatEventLogProjection.Build`](../../src/ProjectAegis.Delegation/CombatEvents/CombatEventLogProjection.cs)
+(see [combat-event-log-projection.md](combat-event-log-projection.md)) and keeps the correlation IDs that
+reached each lifecycle phase — `Firing` launches, `AuthorizationRefused` aborts, `TerminalOutcome`
+resolutions. A combat line is then emitted **only when the matching entry is in that set**:
+
+- `WEAPON_LAUNCH` requires `EngagementRecord.Launched` **and** the entry's `SequenceId` to appear in the
+  combat snapshot's launch set; `ENGAGE_ABORT` requires `!Launched` **and** a recorded abort.
+- A terminal outcome row (`KILL_CONFIRMED` / `INTERCEPT_SUCCESS` / `HIT` / `MISS` / fallback `COMBAT`) is
+  emitted only if the outcome entry correlates back to a launch whose terminal the snapshot recorded.
+  Terminals are matched to their **own** launch by shooter + engagement id + victim within the launch's
+  sequence window and consumed once, so an unmatched outcome with the same shooter/target/code/sim-time
+  cannot steal another engagement's terminal.
+
+This keeps the message log honest with the combat-event picture: the same fact can never appear as a
+combat line without the derived combat-event snapshot having recorded it. Non-combat categories (`POLICY_DENIAL`,
+`CONTACT`, `MAGAZINE`, …) are unaffected — they project directly from the order-log entry.
+The order-log rows remain authoritative; the combat-event snapshot is a derived presentation model.
 
 `MessageLogPanelBinder.Bind` then formats each line as `"[{Category}] {Text}"` into a
 `MessageLogPanelState`. The **`MessageLogLine` carries no duplicate storage** — it references
