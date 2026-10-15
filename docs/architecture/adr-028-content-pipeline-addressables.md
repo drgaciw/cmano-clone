@@ -4,7 +4,7 @@
 
 ## Status
 
-**Proposed**
+**Accepted** (2026-10-15, by owner). Previously Proposed; landed via PR #706.
 
 ## Date
 

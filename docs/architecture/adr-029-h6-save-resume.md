@@ -2,7 +2,7 @@
 
 ## Status
 
-**Proposed — 2026-10-06; DRG-328 decided 2026-10-07 00:10 CT.** The owner picked **Option B** from the H6 product decision brief: single-player, same-build/same-catalog save/resume in H6, and multiplayer in a separate later horizon under its own ADR. See [Owner Decisions](#owner-decisions-drg-328-2026-10-07).
+**Accepted — 2026-10-15, by owner.** Previously Proposed (2026-10-06); DRG-328 decided 2026-10-07 00:10 CT. The owner picked **Option B** from the H6 product decision brief: single-player, same-build/same-catalog save/resume in H6, and multiplayer in a separate later horizon under its own ADR. See [Owner Decisions](#owner-decisions-drg-328-2026-10-07).
 
 **Numbering:** ADR-027 is on `main` (Unity MCP stack). ADR-028 is claimed by the parallel H5 draft (`ADR-028-h5-addressables.md`). ADR-028 lands as `adr-028-content-pipeline-addressables.md`.
 
