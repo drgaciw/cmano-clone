@@ -145,7 +145,11 @@ The Buildkite `main`-only reindex step runs a **bare `gitnexus analyze`** (no `-
 integrity post-check) via [`tools/buildkite/gitnexus-reindex.sh`](../../tools/buildkite/gitnexus-reindex.sh);
 it is best-effort and blanket `soft_fail`, so a bad reindex never gates a merge. The guard's
 `--force` rebuild and post-check are **not** wired into CI yet (follow-up tracked under
-DRG-323). Exposure depends on index warmth:
+DRG-323). The step only runs on `main`, and the script skips the reindex outright for
+doc/metadata-only pushes (`*.md`, `docs/**`, `.gitignore`, `production/dashboard-state.yaml`;
+override with `GITNEXUS_FORCE_REINDEX=1`) — see
+[`buildkite-ci.md`](buildkite-ci.md#gitnexus-reindex-soft-fail-prep-script-ready-pipeline-not-scoped-yet)
+for the full gating. When it does run, exposure depends on index warmth:
 
 - **Cold checkout** (no prior `.gitnexus/`): `analyze` is effectively a full build, so the
   DRG-323 incremental-corruption mode does not apply.

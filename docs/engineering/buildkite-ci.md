@@ -108,7 +108,17 @@ plugins:
 (`gitnexus analyze` / `gitnexus status`) to exit **`75`** (`EX_TEMPFAIL`). Bootstrap
 failures (missing CLI) still exit **1**.
 
-> **DRG-323 index-integrity gap.** This step runs a **bare `gitnexus analyze`** — no
+**When the step runs (branch + path gating).** The step is pinned to `branches: main`
+([`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml)). On a `main` push, the script's
+`should_skip_doc_only_push` guard **skips the reindex entirely** (exit **0** with an
+annotation, no `analyze`) when the push diff touches *only* documentation/metadata — paths
+matching `*.md`, `docs/**`, `.gitignore`, or `production/dashboard-state.yaml` (parity with
+the `paths-ignore` list in `.github/workflows/gitnexus-reindex.yml`). Set
+**`GITNEXUS_FORCE_REINDEX=1`** to override and reindex anyway. Any non-doc path in the diff
+— or a diff that cannot be determined (no parent commit) — makes the step run normally.
+
+> **DRG-323 index-integrity gap.** When it does run, this step executes a **bare
+> `gitnexus analyze`** — no
 > `--force` and no integrity post-check — so a warm-workspace reindex is exposed to the
 > silent index corruption documented in
 > [`gitnexus-index-health.md` → CI reindex (`main`)](gitnexus-index-health.md#ci-reindex-main--not-yet-guarded).
