@@ -163,6 +163,30 @@ file rows preserved`) produced 8,625 empty `Method` names and thousands of garba
 `File`/`Property` IDs; `analyze --force` restored a clean index. The guard therefore always
 forces a full rebuild rather than trusting incremental analyze.
 
+### CI reindex (`main`) — not yet guarded
+
+The Buildkite `main`-only reindex step runs a **bare `gitnexus analyze`** (no `--force`, no
+integrity post-check) via [`tools/buildkite/gitnexus-reindex.sh`](../../tools/buildkite/gitnexus-reindex.sh);
+it is best-effort and blanket `soft_fail`, so a bad reindex never gates a merge. The guard's
+`--force` rebuild and post-check are **not** wired into CI yet (follow-up tracked under
+DRG-323). The step only runs on `main`, and the script skips the reindex outright for
+tip commits whose first-parent diff contains only doc/metadata paths (`*.md`, `docs/**`, `.gitignore`, `production/dashboard-state.yaml`;
+override with `GITNEXUS_FORCE_REINDEX=1`) — see
+[`buildkite-ci.md`](buildkite-ci.md#gitnexus-reindex-soft-fail-prep-script-ready-pipeline-not-scoped-yet)
+for the exact gating and its multi-commit-push limitation. This comparison does not cover the full push range. When it does run, exposure depends on index warmth:
+
+- **Cold index** (no reusable local or shared index): `analyze` performs a full build.
+  This alone is not integrity proof and does not rule out shared-store concerns.
+- **Warm workspace** (a Buildkite agent reusing `.gitnexus/` from an earlier build — the
+  pipeline declares no explicit cache, so this is agent-dependent): `analyze` runs
+  incrementally and is exposed to the same silent corruption documented above.
+
+Until the CI step adopts `--force` + the post-check, treat the `main` index produced by CI as
+unverified: locally re-run [`tools/gitnexus-safe-reindex.sh`](../../tools/gitnexus-safe-reindex.sh)
+(or `tools/gitnexus-safe-reindex.sh --skip-analyze` to post-check only) before trusting
+`impact` / `context` / `cypher` on a freshly merged commit. See the reindex step in
+[`buildkite-ci.md`](buildkite-ci.md) for pipeline context.
+
 ### Limits
 
 The guard cannot stop the MCP host from respawning `gitnexus mcp` on demand, so prefer a

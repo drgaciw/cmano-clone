@@ -108,6 +108,30 @@ plugins:
 (`gitnexus analyze` / `gitnexus status`) to exit **`75`** (`EX_TEMPFAIL`). Bootstrap
 failures (missing CLI) still exit **1**.
 
+**When the step runs (branch + path gating).** The step is pinned to `branches: main`
+([`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml)). On a `main` build, the
+[`should_skip_doc_only_push` guard](../../tools/buildkite/gitnexus-reindex.sh) compares
+**the tip commit with its first parent** (`BUILDKITE_COMMIT^` to `BUILDKITE_COMMIT`,
+falling back to `HEAD~1` to `HEAD`). It skips reindexing (exit **0**, no `analyze`)
+when that comparison changes only `*.md`, `docs/**`, `.gitignore`, or
+`production/dashboard-state.yaml`. The script is the source of this exclusion list;
+the disabled `.github/workflows/gitnexus-reindex.yml` has only `workflow_dispatch`
+and no `paths-ignore` list.
+
+This is **tip-commit gating**, not a full push-range check: an earlier code change
+in a multi-commit push can be missed when the tip is documentation-only. Set
+**`GITNEXUS_FORCE_REINDEX=1`** to override. A non-doc path, empty diff, or unavailable
+comparison makes the step run normally.
+
+> **DRG-323 index-integrity gap.** When it does run, this step executes a **bare
+> `gitnexus analyze`** — no
+> `--force` and no integrity post-check — so a warm-workspace reindex is exposed to the
+> silent index corruption documented in
+> [`gitnexus-index-health.md` → CI reindex (`main`)](gitnexus-index-health.md#ci-reindex-main--not-yet-guarded).
+> Being blanket `soft_fail`, a bad reindex never gates a merge. The local
+> [`tools/gitnexus-safe-reindex.sh`](../../tools/gitnexus-safe-reindex.sh) guard
+> (forced full rebuild + post-check) is not wired into CI yet.
+
 **Live pipeline still uses blanket soft_fail:**
 
 ```yaml
