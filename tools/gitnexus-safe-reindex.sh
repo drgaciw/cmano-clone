@@ -39,8 +39,18 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-die() { echo "gitnexus-safe-reindex: $*" >&2; exit "${2:-1}"; }
-gn() { npx --yes gitnexus "$@"; }
+die() { echo "gitnexus-safe-reindex: $1" >&2; exit "${2:-1}"; }
+gn() {
+  if [[ -f "${REPO_ROOT}/.gitnexus/run.cjs" ]] && command -v node >/dev/null 2>&1; then
+    node "${REPO_ROOT}/.gitnexus/run.cjs" "$@"
+  elif command -v gitnexus >/dev/null 2>&1; then
+    gitnexus "$@"
+  elif command -v pnpm >/dev/null 2>&1; then
+    pnpm --allow-build=@ladybugdb/core --allow-build=gitnexus --allow-build=tree-sitter dlx gitnexus@latest "$@"
+  else
+    npx --yes gitnexus "$@"
+  fi
+}
 
 # --- refusal gates ---------------------------------------------------------
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
@@ -91,13 +101,13 @@ fi
 
 # --- post-check ------------------------------------------------------------
 FAIL=0
-cy() { gn cypher "$1" 2>&1 | python3 -c 'import sys,json,re
+cy() { gn cypher "$1" --repo "${REPO_ROOT}" | python3 -c 'import sys,json
 t=sys.stdin.read();d=json.loads(t[t.find("{"):]);m=d["markdown"].split("\n")
-print(m[-1].strip("| ").split(" | ")[0] if len(m)>2 else "")'; }
+print(int(m[-1].strip("| ").split(" | ")[0]))' || die "index query failed" 3; }
 
-META_COMMIT="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["lastCommit"])')"
-META_NODES="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["stats"]["nodes"])')"
-META_EDGES="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["stats"]["edges"])')"
+META_COMMIT="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["lastCommit"])')" || die "invalid index metadata" 3
+META_NODES="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["stats"]["nodes"])')" || die "invalid index metadata" 3
+META_EDGES="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["stats"]["edges"])')" || die "invalid index metadata" 3
 HEAD_SHA="$(git rev-parse HEAD)"
 G_NODES="$(cy 'MATCH (n) RETURN count(n) AS c')"
 G_EDGES="$(cy 'MATCH ()-[r]->() RETURN count(r) AS c')"

@@ -77,6 +77,11 @@ forced full rebuild, cleanup of generated tracked changes, and an index integrit
 post-check, so a corrupt index fails loudly instead of silently poisoning later
 `impact` / `context` / `cypher` queries.
 
+The guard uses `node .gitnexus/run.cjs` when available. On a fresh checkout without
+that generated runner, it prefers a global `gitnexus`, then `pnpm dlx` with native
+build permissions, then `npx --yes gitnexus`. An available runner's failure is
+propagated; it does not trigger an installation attempt through a different runner.
+
 ### What it does
 
 1. **Refusal gates.** Aborts (exit 1) if HEAD is not `main` or the working tree is dirty,
@@ -107,7 +112,7 @@ post-check, so a corrupt index fails loudly instead of silently poisoning later
 Fails if any of these do not hold:
 
 - Indexed commit (`.gitnexus/meta.json` `lastCommit`) `==` git `HEAD`.
-- `meta.json` node/edge stats `==` live graph `count(n)` / `count(r)` (via `gitnexus cypher`).
+- `meta.json` node/edge stats `==` live graph `count(n)` / `count(r)` (via `gitnexus cypher --repo <checkout-path>`; every query targets this checkout even when multiple indexes are registered).
 - Zero garbage IDs (id not prefixed with its label) **and** zero empty/null `name` values
   for `Class`, `Method`, `File`, and `Property` nodes.
 
@@ -119,6 +124,17 @@ Fails if any of these do not hold:
 | 1 | Refused (dirty tree, wrong branch, bad usage) |
 | 2 | `analyze` failed, or an MCP server could not be stopped |
 | 3 | Bad index (post-check failed, or `analyze` left untracked files) |
+
+Metadata read errors and failed/unparseable integrity queries also exit 3.
+
+Regression checks (temporary Git repositories and fake CLI executables; no npm
+installs or MCP process kills):
+
+```bash
+python3 -m unittest discover -s tools -p test_gitnexus_safe_reindex.py -v
+```
+
+The `gauntlet-pytest` workflow runs these alongside its existing Python checks.
 
 ### Troubleshooting
 
