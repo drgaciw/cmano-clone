@@ -9,12 +9,78 @@ using ProjectAegis.Delegation.Comms;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 using ProjectAegis.Delegation.Roe;
+using ProjectAegis.Delegation.CombatEvents;
+using ProjectAegis.Delegation.EngagementExplanation;
+using ProjectAegis.Delegation.TargetabilityAccept;
 
 namespace ProjectAegis.Delegation.UnityAdapter.Tests.Bridge;
 
 [TestFixture]
 public sealed class SliceAContactFrameTests
 {
+    [Test]
+    public void Runtime_frame_carries_cached_actor_specific_slice_a_facts_into_combat_explanations()
+    {
+        var bridge = CreateBridge();
+        var log = bridge.Orchestrator.DecisionLog;
+        log.AppendEngagement(new EngagementRecord(0, 2, 2, new TargetId("u1"), 41, true,
+            VictimTargetId: new TargetId("hostile-1"), WeaponFamilyId: "Missile", HasFireControlTrack: true));
+        var before = log.ChronologicalEntries().Count;
+        var contacts = SliceAContactFrameBridge.Build(new EvidenceSnapshot(), bridge);
+        var frame = CombatPresentationFrameBridge.Build(log, contacts, 2);
+        var surface = EngagementExplanationProjection.Build(frame.Events, "u1", "hostile-1",
+            log.Engagements.Single().SequenceId);
+
+        Assert.That(frame.Events.Targetability.Single().Disposition, Is.EqualTo(TargetabilityAcceptDisposition.Withheld));
+        Assert.That(surface.HardConstraints.Single(c => c.Name == EngagementConstraintNames.Track).State,
+            Is.EqualTo(EngagementConstraintState.Satisfied));
+        Assert.That(surface.DoctrineConstraints.Single(c => c.Name == EngagementConstraintNames.TargetingAuthority).State,
+            Is.EqualTo(EngagementConstraintState.Violated));
+        Assert.That(frame.Events.Events.Any(e => e.Phase == CombatEventPhase.Firing), Is.True,
+            "current release requirements must not erase a recorded launch");
+        Assert.That(log.ChronologicalEntries().Count, Is.EqualTo(before));
+    }
+
+    [Test]
+    public void Replay_seek_before_cached_frame_drops_targetability_without_erasing_historical_events()
+    {
+        var bridge = CreateBridge();
+        var log = bridge.Orchestrator.DecisionLog;
+        log.AppendEngagement(new EngagementRecord(0, 1, 1, new TargetId("u1"), 41, true,
+            VictimTargetId: new TargetId("hostile-1"), WeaponFamilyId: "Missile"));
+        var contacts = SliceAContactFrameBridge.Build(new EvidenceSnapshot(), bridge);
+        var early = CombatPresentationFrameBridge.Build(log, contacts, 1);
+        var current = CombatPresentationFrameBridge.Build(log, contacts, 2);
+
+        Assert.That(early.Contacts, Is.SameAs(SliceAContactFrame.Empty));
+        Assert.That(early.Events.Targetability, Is.Empty);
+        Assert.That(early.Events.Events.Any(e => e.Phase == CombatEventPhase.Firing), Is.True);
+        Assert.That(current.Events.Targetability, Has.Count.EqualTo(1));
+        Assert.That(CombatPresentationFrameBridge.Build(log, contacts, 2).Events.Targetability,
+            Is.EqualTo(current.Events.Targetability));
+    }
+
+    [Test]
+    public void Missing_actor_authority_does_not_fabricate_runtime_targetability()
+    {
+        var frame = SliceAContactFrameBridge.Build(new EvidenceSnapshot { HasAuthority = false }, CreateBridge());
+
+        Assert.That(frame.Targetability.Contacts, Is.Empty);
+    }
+
+    [Test]
+    public void Cached_targetability_rows_are_read_only()
+    {
+        var frame = SliceAContactFrameBridge.Build(new EvidenceSnapshot(), CreateBridge());
+        var copy = frame.Targetability.Contacts.ToArray();
+        var assigned = frame with { Targetability = new TargetabilityAcceptSnapshot(copy) };
+        copy[0] = copy[0] with { Disposition = TargetabilityAcceptDisposition.Permitted };
+
+        Assert.That(assigned.Targetability.Contacts.Single().Disposition,
+            Is.EqualTo(TargetabilityAcceptDisposition.Withheld));
+        Assert.That(((IList<TargetabilityAcceptContactRow>)assigned.Targetability.Contacts).IsReadOnly, Is.True);
+    }
+
     [Test]
     public void Null_inputs_throw()
     {

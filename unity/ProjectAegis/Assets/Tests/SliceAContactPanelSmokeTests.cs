@@ -5,6 +5,7 @@ using NUnit.Framework;
 using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
 using ProjectAegis.Delegation.UnityAdapter.Bridge;
+using ProjectAegis.Delegation.UnityAdapter.Presentation;
 using ProjectAegis.Unity.Runtime;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -15,6 +16,72 @@ namespace ProjectAegis.Unity.Tests
     /// <summary>Last-mile bind/cache/selection checks; does not certify a combat scenario.</summary>
     public sealed class SliceAContactPanelSmokeTests
     {
+        [UnityTest]
+        public IEnumerator Jev_attention_rebinds_after_override_document_rebuild()
+        {
+            var view = new GameObject("jev-attention-host-test");
+            var externalView = new GameObject("jev-attention-document-test");
+            var settings = ScriptableObject.CreateInstance<PanelSettings>();
+            var theme = ScriptableObject.CreateInstance<ThemeStyleSheet>();
+            settings.themeStyleSheet = theme;
+            view.SetActive(false);
+            try
+            {
+                var document = externalView.AddComponent<UIDocument>();
+                document.panelSettings = settings;
+                var host = view.AddComponent<JevAttentionPanelHost>();
+                typeof(JevAttentionPanelHost).GetField("documentOverride", BindingFlags.Instance | BindingFlags.NonPublic)!
+                    .SetValue(host, document);
+                view.SetActive(true);
+                yield return null;
+
+                VisualElement AddPanel()
+                {
+                    var root = new VisualElement { name = "jev-attention-root" };
+                    root.Add(new Label { name = "jev-model-pin" });
+                    root.Add(new Label { name = "jev-disclosure-banner" });
+                    root.Add(new VisualElement { name = "jev-attention-list" });
+                    document.rootVisualElement.Add(root);
+                    return root;
+                }
+
+                const string available = "{\"schema\":\"aegis.jev.state.v0\",\"unitId\":\"u-rebind\",\"skillAvailability\":{\"jevDecide\":true}}";
+                const string offline = "{\"schema\":\"aegis.jev.state.v0\",\"unitId\":\"u-rebind\",\"skillAvailability\":{\"jevDecide\":false}}";
+                var original = AddPanel();
+                host.ApplyStateJson(available);
+                Assert.That(original.Q<Label>("jev-disclosure-banner").text, Does.Contain("LOCAL HEURISTIC"));
+
+                document.enabled = false;
+                host.ApplyStateJson(offline);
+                Assert.That(host.LastPanel!.Disclosure.Visible, Is.True);
+                Assert.That(original.Q<Label>("jev-disclosure-banner").text, Does.Contain("LOCAL HEURISTIC"),
+                    "An unavailable document must not paint detached elements.");
+                document.enabled = true;
+                yield return null;
+
+                var rebuilt = AddPanel();
+                host.Apply(host.LastPanel!);
+                Assert.That(rebuilt.Q<Label>("jev-disclosure-banner").text, Does.Contain("ASSIST UNAVAILABLE"));
+                Assert.That(rebuilt.Q<Label>("jev-model-pin").text, Is.EqualTo("SOURCE: UNAVAILABLE"));
+                Assert.That(rebuilt.Q("jev-attention-list").childCount, Is.EqualTo(1));
+
+                document.rootVisualElement.Clear();
+                var replaced = AddPanel();
+                host.ApplyStateJson(available);
+                Assert.That(replaced.Q<Label>("jev-disclosure-banner").text, Does.Contain("LOCAL HEURISTIC"));
+                Assert.That(replaced.Q<Label>("jev-model-pin").text, Is.EqualTo("SOURCE: LOCAL HEURISTIC"));
+                Assert.That(rebuilt.Q<Label>("jev-disclosure-banner").text, Does.Contain("ASSIST UNAVAILABLE"));
+                LogAssert.NoUnexpectedReceived();
+            }
+            finally
+            {
+                Object.Destroy(view);
+                Object.Destroy(externalView);
+                Object.Destroy(settings);
+                Object.Destroy(theme);
+            }
+        }
+
         [UnityTest]
         public IEnumerator Top_bar_enable_before_bridge_awake_waits_then_binds_live_clock()
         {

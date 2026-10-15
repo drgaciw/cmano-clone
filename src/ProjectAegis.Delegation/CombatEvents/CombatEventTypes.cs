@@ -1,6 +1,7 @@
 namespace ProjectAegis.Delegation.CombatEvents;
 
 using Projection;
+using SensorToShooter;
 using Skills;
 using TargetabilityAccept;
 
@@ -47,6 +48,7 @@ public sealed record CombatEvent(
 /// DRG-165: Slice A targetability facts copied from an authoritative
 /// <see cref="TargetabilityAcceptContactRow"/>. Never recomputed from sensor, envelope, or datalink overlays.
 /// </summary>
+/// <remarks><see cref="ShooterId"/> is null when the chain identifies no eligible shooter.</remarks>
 public sealed record CombatTargetabilityFact(
     string ContactId,
     string TargetId,
@@ -56,7 +58,8 @@ public sealed record CombatTargetabilityFact(
     bool? SensorToShooterComplete,
     bool RoeAllowsEngage,
     C2AuthorityDisposition TargetingDisposition,
-    string? TargetingReasonCode)
+    string? TargetingReasonCode,
+    string? ShooterId = null)
 {
     /// <summary>Copies the presentation-relevant Slice A facts from one acceptance row.</summary>
     public static CombatTargetabilityFact FromRow(TargetabilityAcceptContactRow row) =>
@@ -69,7 +72,41 @@ public sealed record CombatTargetabilityFact(
             row.SensorToShooter?.IsComplete,
             row.Authority.Roe.EngageAllowedByRoe,
             row.Authority.Targeting.Disposition,
-            row.Authority.Targeting.ReasonCode);
+            row.Authority.Targeting.ReasonCode,
+            ShooterIdFromRow(row));
+
+    /// <summary>Only an affirmatively linked eligible shooter identifies the row's authority actor.</summary>
+    internal static string? ShooterIdFromRow(TargetabilityAcceptContactRow row)
+    {
+        var links = row.SensorToShooter?.Links;
+        if (links is null) return null;
+        for (var i = 0; i < links.Count; i++)
+        {
+            var link = links[i];
+            if (link.Kind == SensorToShooterLinkKind.EligibleShooter && link.IsLinked
+                && !string.IsNullOrWhiteSpace(link.UnitId))
+            {
+                return link.UnitId;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>A broken contact track can refuse engagement before any shooter is nominated.</summary>
+    internal bool IsContactWideRefusal => ShooterId is null
+        && Disposition == TargetabilityAcceptDisposition.Withheld && IsTrackCause(WithheldCauseCode);
+
+    internal static bool IsContactWideRefusalRow(TargetabilityAcceptContactRow row) =>
+        ShooterIdFromRow(row) is null && row.Disposition == TargetabilityAcceptDisposition.Withheld
+        && IsTrackCause(row.WithheldCauseCode);
+
+    private static bool IsTrackCause(string cause) => cause is
+        TargetabilityAcceptCauseCodes.MissingProvenance or TargetabilityAcceptCauseCodes.CatalogMiss
+        or TargetabilityAcceptCauseCodes.Stale or TargetabilityAcceptCauseCodes.SilentComms
+        or TargetabilityAcceptCauseCodes.LostSensor or TargetabilityAcceptCauseCodes.StaleTrack
+        or TargetabilityAcceptCauseCodes.NoFireControl or TargetabilityAcceptCauseCodes.NoEligibleShooter
+        or TargetabilityAcceptCauseCodes.DegradedTrack;
 }
 
 /// <summary>
