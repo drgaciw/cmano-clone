@@ -68,9 +68,13 @@ Run `tools/gitnexus-safe-reindex.sh` instead of a bare `npx gitnexus analyze`.
 It refuses a dirty checkout or a non-`main` branch (override: `--allow-dirty`, `--allow-branch`),
 stops any `gitnexus mcp` process (a live MCP server holding `.gitnexus/lbug` open while `analyze` rewrites it
 is the suspected cause of the corrupted node IDs / empty method names), runs
-`analyze --skip-agents-md --skip-skills`, reverts generated tracked changes, then post-checks:
+`analyze --force --skip-agents-md --skip-skills`, reverts generated tracked changes, then post-checks:
 indexed commit == HEAD, metadata vs graph node/edge counts, and 0 garbage IDs / empty names for
 Class, Method, File, Property. Exit codes: 0 ok, 1 refused, 2 analyze failed, 3 bad index.
+
+Finding (2026-10-15, dedicated clone, no MCP process running): a first full analyze was clean, but a following
+*incremental* analyze ("Incremental: changed=1, added=1 ... unchanged file rows preserved") produced 8,625 empty Method names
+and thousands of garbage File/Property IDs; `analyze --force` restored a clean index. The guard therefore always forces a full rebuild.
 
 Limits: the guard cannot stop the MCP host from respawning `gitnexus mcp` on demand, so prefer a dedicated
 indexing clone (not a shared working checkout) and a distinct registry alias (`--name`). Use the CLI

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # DRG-323 guard — safe GitNexus reindex.
 # Stops gitnexus MCP servers (which can hold .gitnexus/lbug open), runs
-# `analyze --skip-agents-md --skip-skills`, reverts generated tracked changes,
+# `analyze --force --skip-agents-md --skip-skills`, reverts generated tracked changes,
 # and post-checks the index. Exits non-zero on a bad index.
 set -euo pipefail
 
@@ -66,7 +66,8 @@ if [[ ${SKIP_ANALYZE} -eq 0 ]]; then
   if pgrep -f 'gitnexus.*mcp' >/dev/null 2>&1; then
     die "gitnexus mcp still running after kill" 2
   fi
-  ARGS=(analyze --skip-agents-md --skip-skills)
+  # --force: incremental analyze was observed to corrupt Method/File/Property IDs (DRG-323) even with no MCP running.
+  ARGS=(analyze --force --skip-agents-md --skip-skills)
   [[ -n "${NAME}" ]] && ARGS+=(--name "${NAME}" --allow-duplicate-name)
   gn "${ARGS[@]}" || die "analyze failed" 2
   if pgrep -f 'gitnexus.*mcp' >/dev/null 2>&1; then
