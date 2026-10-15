@@ -107,7 +107,7 @@ kind never crashes the log panel — it just isn't surfaced until a case is adde
 
 #### Combat lines are fenced on the combat-event projection (DRG-402)
 
-The four combat categories (`WEAPON_LAUNCH`, `ENGAGE_ABORT`, and the terminal outcomes) are **not**
+Combat categories (`WEAPON_LAUNCH`, `ENGAGE_ABORT`, and the terminal outcomes) are **not**
 emitted purely on the presence of an `Engagement` / `EngagementOutcome` entry. `Project` first folds
 the engagement/outcome subset of the same entries through
 [`CombatEventLogProjection.Build`](../../src/ProjectAegis.Delegation/CombatEvents/CombatEventLogProjection.cs)
@@ -124,25 +124,30 @@ resolutions. A combat line is then emitted **only when the matching entry is in 
   cannot steal another engagement's terminal.
 
 This keeps the message log honest with the combat-event picture: the same fact can never appear as a
-combat line without the authoritative snapshot having recorded it. Non-combat categories (`POLICY_DENIAL`,
+combat line without the derived combat-event snapshot having recorded it. Non-combat categories (`POLICY_DENIAL`,
 `CONTACT`, `MAGAZINE`, …) are unaffected — they project directly from the order-log entry.
+The order-log rows remain authoritative; the combat-event snapshot is a derived presentation model.
 
-#### Two entry points: full log vs live player view
+#### Full log and live player view
 
-The category + fence logic above is shared by two folds over the same entries; both read-only, neither
-mutates the log:
+The production live HUD path is
+[`DelegationBridgeHost.RunTick`](../../unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs)
+→ [`MessageLogBridge.ProjectLive(Bridge)`](../../src/ProjectAegis.Delegation.UnityAdapter/Bridge/MessageLogBridge.cs)
+→ `Bridge.GetLiveOrderLogView()` → `MessageLogProjection.Project(IReadOnlyList<OrderLogEntry>)`.
+The bridge's live order-log view applies the scenario's
+[`PlayerInfoModel`](../../src/ProjectAegis.Sim/Scenario/PlayerInfoModel.cs) through the
+orchestrator and `PlayerInfoFilter.FilterLiveEntries` before the shared category/fence fold.
 
-- **`Project(log)`** — the full projection used by replay and the AAR. It surfaces **every** entry,
-  including fogged agent decisions.
-- **`ProjectLive(log, model)`** — the live player HUD. It first runs
-  [`PlayerInfoFilter.FilterLiveEntries`](../../src/ProjectAegis.Delegation/Orchestration/PlayerInfoFilter.cs)
-  so the lines match [`DelegationOrchestrator.GetLiveOrderLogView()`](../../src/ProjectAegis.Delegation/Orchestration/DelegationOrchestrator.cs).
-  Under the scenario's [`PlayerInfoModel`](../../src/ProjectAegis.Sim/Scenario/PlayerInfoModel.cs)
-  `DelegationFog` / `TieredByAutonomy`, `AgentDecision` rows at `FullAutonomous` are dropped (the player
-  doesn't re-read decisions they fully delegated); `FullTransparency` (the default) shows everything.
-  Only the *entry set* is filtered and the log is never edited. The fog touches `AgentDecision` rows
-  only, so engagement/outcome entries — and therefore the combat fence above — are identical in both
-  views.
+`MessageLogProjection.ProjectLive(log, model)` is an equivalent core helper covered by
+headless tests; the production HUD does not call that overload. Replay/AAR uses
+`MessageLogBridge.ProjectReplay` / `ProjectFrom` and `MessageLogProjection.Project(log)`
+over the complete log, including agent decisions hidden from the live player view.
+These are read-only projections; order-log rows remain authoritative.
+
+Under `DelegationFog` / `TieredByAutonomy`, `AgentDecision` rows at `FullAutonomous` are
+omitted; `FullTransparency` (the default) retains them. Filtering changes only the
+entry set, never the log. Engagement/outcome entries are unaffected, so both views
+use the same derived combat-event fence.
 
 `MessageLogPanelBinder.Bind` then formats each line as `"[{Category}] {Text}"` into a
 `MessageLogPanelState`. The **`MessageLogLine` carries no duplicate storage** — it references
