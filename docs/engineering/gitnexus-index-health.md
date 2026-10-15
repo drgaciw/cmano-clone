@@ -139,6 +139,26 @@ file rows preserved`) produced 8,625 empty `Method` names and thousands of garba
 `File`/`Property` IDs; `analyze --force` restored a clean index. The guard therefore always
 forces a full rebuild rather than trusting incremental analyze.
 
+### CI reindex (`main`) — not yet guarded
+
+The Buildkite `main`-only reindex step runs a **bare `gitnexus analyze`** (no `--force`, no
+integrity post-check) via [`tools/buildkite/gitnexus-reindex.sh`](../../tools/buildkite/gitnexus-reindex.sh);
+it is best-effort and blanket `soft_fail`, so a bad reindex never gates a merge. The guard's
+`--force` rebuild and post-check are **not** wired into CI yet (follow-up tracked under
+DRG-323). Exposure depends on index warmth:
+
+- **Cold checkout** (no prior `.gitnexus/`): `analyze` is effectively a full build, so the
+  DRG-323 incremental-corruption mode does not apply.
+- **Warm workspace** (a Buildkite agent reusing `.gitnexus/` from an earlier build — the
+  pipeline declares no explicit cache, so this is agent-dependent): `analyze` runs
+  incrementally and is exposed to the same silent corruption documented above.
+
+Until the CI step adopts `--force` + the post-check, treat the `main` index produced by CI as
+unverified: locally re-run [`tools/gitnexus-safe-reindex.sh`](../../tools/gitnexus-safe-reindex.sh)
+(or `tools/gitnexus-safe-reindex.sh --skip-analyze` to post-check only) before trusting
+`impact` / `context` / `cypher` on a freshly merged commit. See the reindex step in
+[`buildkite-ci.md`](buildkite-ci.md) for pipeline context.
+
 ### Limits
 
 The guard cannot stop the MCP host from respawning `gitnexus mcp` on demand, so prefer a

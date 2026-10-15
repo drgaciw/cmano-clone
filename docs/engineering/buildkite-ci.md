@@ -108,6 +108,14 @@ plugins:
 (`gitnexus analyze` / `gitnexus status`) to exit **`75`** (`EX_TEMPFAIL`). Bootstrap
 failures (missing CLI) still exit **1**.
 
+> **DRG-323 index-integrity gap.** This step runs a **bare `gitnexus analyze`** — no
+> `--force` and no integrity post-check — so a warm-workspace reindex is exposed to the
+> silent index corruption documented in
+> [`gitnexus-index-health.md` → CI reindex (`main`)](gitnexus-index-health.md#ci-reindex-main--not-yet-guarded).
+> Being blanket `soft_fail`, a bad reindex never gates a merge. The local
+> [`tools/gitnexus-safe-reindex.sh`](../../tools/gitnexus-safe-reindex.sh) guard
+> (forced full rebuild + post-check) is not wired into CI yet.
+
 **Live pipeline still uses blanket soft_fail:**
 
 ```yaml
