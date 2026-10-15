@@ -646,7 +646,7 @@ namespace ProjectAegis.Unity.Runtime
             _pendingGroupScopes.RemoveAll(x => groupSink.ConsumedScopeIds.Contains(x.ScopeId));
             var expiredScopes = CoordinationScopeReconciler.FindInvalidOrExpired(Bridge, _pendingGroupScopes, CurrentSimTick);
             _pendingGroupScopes.RemoveAll(x => expiredScopes.Contains(x.ScopeId));
-            LastMessageLog = MessageLogBridge.ProjectFrom(Bridge.Orchestrator.DecisionLog);
+            LastMessageLog = MessageLogBridge.ProjectLive(Bridge);
             LastCombatDomainActivityTags = CombatDomainActivityTags.FromMessageLog(LastMessageLog);
             LastOobTree = OobTreeBridge.Build(snapshot, Bridge.Registry);
             Presentation.ApplyDefaultSelection(LastOobTree);
