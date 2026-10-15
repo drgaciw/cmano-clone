@@ -132,20 +132,60 @@ public sealed class RightUnitCombatDetailCacheTests
     }
 
     [Test]
-    public void Right_unit_panel_checks_the_cache_before_bind_for_selection()
+    public void Rebuilt_frame_with_the_same_combat_content_hits_and_a_content_change_misses()
+    {
+        var refused = Refused(Selected, "hostile-1", nameof(FireAbortReason.NoFireControlTrack), correlation: 1, tick: 2);
+        var preview = BlockedPreview(nameof(FireAbortReason.NoFireControlTrack));
+        var cache = new RightUnitCombatDetailCache();
+        var firstFrame = ContentFrame(refused, simTime: 6, simTick: 6, ageTicks: 1);
+        var rebuilt = ContentFrame(refused, simTime: 11, simTick: 11, ageTicks: 9);
+
+        Assert.That(rebuilt, Is.Not.SameAs(firstFrame));
+        Assert.That(rebuilt.Equals(firstFrame), Is.False);
+
+        var first = Bind(cache, preview, firstFrame, Selected, "c-1");
+        var second = Bind(cache, Copy(preview), rebuilt, Selected, "c-1");
+
+        Assert.That(cache.MissCount, Is.EqualTo(1));
+        Assert.That(second, Is.SameAs(first));
+        Assert.That(second.Detail, Is.EqualTo(
+            WeaponAbortTooltipBinder.ScopeCombatDetail(rebuilt, Selected, "c-1")));
+
+        var changed = ContentFrame(
+            Refused(Selected, "hostile-1", nameof(FireAbortReason.WeaponsTight), correlation: 4, tick: 6),
+            simTime: 11,
+            simTick: 11,
+            ageTicks: 9);
+        var third = Bind(cache, preview, changed, Selected, "c-1");
+
+        Assert.That(cache.MissCount, Is.EqualTo(2));
+        Assert.That(third, Is.Not.SameAs(first));
+        Assert.That(third.Tooltip.Reasons, Does.Contain(nameof(FireAbortReason.WeaponsTight)));
+        Assert.That(first.Tooltip.Reasons, Does.Not.Contain(nameof(FireAbortReason.WeaponsTight)));
+    }
+
+    [Test]
+    public void Right_unit_panel_scopes_combat_detail_once_after_the_cache_miss()
     {
         var source = UiIaSourceReader.ReadRuntime("RightUnitPanelHost.cs");
         var refresh = source.IndexOf("private void Refresh()", StringComparison.Ordinal);
         Assert.That(refresh, Is.GreaterThanOrEqualTo(0));
         var body = source.Substring(refresh);
         var cacheCheck = body.IndexOf("_combatDetailCache.TryGet", StringComparison.Ordinal);
-        var bind = body.IndexOf("WeaponAbortTooltipBinder.BindForSelection", StringComparison.Ordinal);
+        const string scopeCall = "WeaponAbortTooltipBinder.ScopeCombatDetail";
+        var scope = body.IndexOf(scopeCall, StringComparison.Ordinal);
+        var bind = body.IndexOf("WeaponAbortTooltipBinder.Bind(", StringComparison.Ordinal);
+        var scopeAgain = scope < 0
+            ? -1
+            : body.IndexOf(scopeCall, scope + scopeCall.Length, StringComparison.Ordinal);
 
         Assert.That(source, Does.Contain("RightUnitCombatDetailCache"));
         Assert.That(cacheCheck, Is.GreaterThanOrEqualTo(0));
-        Assert.That(bind, Is.GreaterThan(cacheCheck));
+        Assert.That(scope, Is.GreaterThan(cacheCheck));
+        Assert.That(bind, Is.GreaterThan(scope));
+        Assert.That(scopeAgain, Is.LessThan(0));
+        Assert.That(body, Does.Not.Contain("WeaponAbortTooltipBinder.BindForSelection"));
         Assert.That(body, Does.Contain("EngageExplainProjection.Project"));
-        Assert.That(body, Does.Contain("WeaponAbortTooltipBinder.ScopeCombatDetail"));
         Assert.That(body, Does.Contain("bridgeHost.LastCombatFrame"));
         Assert.That(body, Does.Contain("bridgeHost.SelectedContactId"));
         Assert.That(body, Does.Not.Contain("ProjectCombatDetail"));
@@ -165,14 +205,15 @@ public sealed class RightUnitCombatDetailCacheTests
         }
 
         var explain = EngageExplainProjection.Project(preview);
+        var detail = WeaponAbortTooltipBinder.ScopeCombatDetail(frame, selectedUnitId, selectedContactId);
         return cache.Remember(
             preview,
             frame,
             selectedUnitId,
             selectedContactId,
             explain,
-            WeaponAbortTooltipBinder.ScopeCombatDetail(frame, selectedUnitId, selectedContactId),
-            WeaponAbortTooltipBinder.BindForSelection(explain, frame, selectedUnitId, selectedContactId));
+            detail,
+            WeaponAbortTooltipBinder.Bind(explain, detail));
     }
 
     private static EngagePreview BlockedPreview(string code) =>
@@ -180,6 +221,81 @@ public sealed class RightUnitCombatDetailCacheTests
 
     private static EngagePreview Copy(EngagePreview preview) =>
         new(preview.DlzLabel, preview.CanFire, preview.AbortPreviewCode);
+
+    private static CombatPresentationFrame ContentFrame(
+        CombatEvent combatEvent,
+        double simTime,
+        ulong simTick,
+        ulong ageTicks) =>
+        new(
+            new CombatEventSnapshot(new[] { combatEvent }),
+            SliceAContactFrame.Empty with
+            {
+                SimTick = simTick,
+                SimTime = simTime,
+                Contacts = new[]
+                {
+                    new ContactPictureEntry("c-1", "hostile-1", Selected, "Identified", 2, 2),
+                },
+                KillChain = new KillChainContactSnapshot(
+                    new[]
+                    {
+                        new KillChainContactState(
+                            "c-1",
+                            "hostile-1",
+                            Selected,
+                            KillChainPhase.Target,
+                            KillChainLossKind.None,
+                            true,
+                            true,
+                            true,
+                            true,
+                            1,
+                            1,
+                            2,
+                            2,
+                            2,
+                            new ulong[] { 1 },
+                            new[] { "source-ref" }),
+                    },
+                    Array.Empty<KillChainContactTransition>()),
+                Provenance = new ContactProvenanceSnapshot(new[]
+                {
+                    new ContactProvenanceState(
+                        "c-1",
+                        new ContactProvenanceSource(Selected, "hostile-1", "source-ref"),
+                        ContactProvenanceConfidence.High,
+                        ContactProvenanceFreshness.Fresh,
+                        ageTicks,
+                        new ContactProvenanceLastKnown("Identified", "hostile-1", 2, 2),
+                        false,
+                        ContactProvenanceQualityState.None),
+                }),
+            },
+            new BdaAssessSnapshot(new[]
+            {
+                new BdaAssessContactState(
+                    "c-1",
+                    "hostile-1",
+                    Selected,
+                    BdaAssessStateKind.Damaged,
+                    BdaAssessSourceKind.EngagementOutcome,
+                    simTick,
+                    simTime,
+                    3),
+            }),
+            simTime)
+        {
+            Explanations = new[]
+            {
+                new CombatEngagementExplanation(
+                    combatEvent.CorrelationId,
+                    combatEvent.ShooterId,
+                    combatEvent.TargetId,
+                    false,
+                    1),
+            },
+        };
 
     private static CombatPresentationFrame Frame(params CombatEvent[] events) =>
         new(new CombatEventSnapshot(events), SliceAContactFrame.Empty, BdaAssessSnapshot.Empty, 6);

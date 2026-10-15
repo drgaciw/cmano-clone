@@ -233,7 +233,7 @@ namespace ProjectAegis.Unity.Runtime
             _dlzSurface = DlzLiveSurfaceBinder.BindFromEngagePreview(engagePreview);
             // Selected-unit scope, not the combat-history inspection key (DRG-352).
             // DRG-407: reuse combat detail and the engage explanation while the
-            // BindForSelection inputs (preview, frame, unit, contact) are unchanged.
+            // preview, combat content, unit, and contact are unchanged.
             var combatFrame = bridgeHost.LastCombatFrame;
             var selectedContactId = bridgeHost.SelectedContactId;
             if (!_combatDetailCache.TryGet(
@@ -244,18 +244,16 @@ namespace ProjectAegis.Unity.Runtime
                     out var cachedCombat))
             {
                 var explain = EngageExplainProjection.Project(engagePreview);
+                var detail = WeaponAbortTooltipBinder.ScopeCombatDetail(
+                    combatFrame, selectedUnitId, selectedContactId);
                 cachedCombat = _combatDetailCache.Remember(
                     engagePreview,
                     combatFrame,
                     selectedUnitId,
                     selectedContactId,
                     explain,
-                    WeaponAbortTooltipBinder.ScopeCombatDetail(combatFrame, selectedUnitId, selectedContactId),
-                    WeaponAbortTooltipBinder.BindForSelection(
-                        explain,
-                        combatFrame,
-                        selectedUnitId,
-                        selectedContactId));
+                    detail,
+                    WeaponAbortTooltipBinder.Bind(explain, detail));
             }
 
             _weaponAbort = cachedCombat.Tooltip;
