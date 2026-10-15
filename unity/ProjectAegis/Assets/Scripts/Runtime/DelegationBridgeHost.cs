@@ -86,8 +86,8 @@ namespace ProjectAegis.Unity.Runtime
             Array.Empty<MapCourseOverlayEntry>();
 
         /// <summary>
-        /// Track C presentation-only combat VFX (fire lines / impact markers) from DecisionLog outcomes.
-        /// Projected after <see cref="RunTick"/> — never inside DelegationBridge.
+        /// Track C presentation-only combat VFX from the same-tick combat-event snapshot.
+        /// Assigned in <see cref="RunTick"/> after <see cref="LastCombatFrame"/> is built, never inside DelegationBridge.
         /// </summary>
         public CombatVfxFrame LastCombatVfx { get; private set; } = CombatVfxFrame.Empty;
 
@@ -663,10 +663,6 @@ namespace ProjectAegis.Unity.Runtime
                 Bridge.Registry,
                 Bridge.Orchestrator.DecisionLog,
                 globalSeed);
-            LastCombatVfx = CombatVfxProjection.Project(
-                Bridge.Orchestrator.DecisionLog,
-                LastMapSymbols,
-                snapshot.SimTime);
             LastTopBar = C2TopBarProjection.Project(
                 snapshot.SimTime,
                 Bridge.Phase,
@@ -686,6 +682,7 @@ namespace ProjectAegis.Unity.Runtime
             LastSliceAContacts = SliceAContactFrameBridge.Build(snapshot, Bridge, CatalogReader);
             LastCombatFrame = CombatPresentationFrameBridge.Build(
                 Bridge.Orchestrator.DecisionLog, LastSliceAContacts, snapshot.SimTime);
+            LastCombatVfx = CombatVfxFrameBridge.Build(LastCombatFrame, LastMapSymbols);
             CommandTimeline.Capture(LastCombatFrame, LastMapSymbols);
             _commandStatus = ProjectAegis.Delegation.UnityAdapter.CommandReview.StatusFrameBridge.Build(Bridge, snapshot, LastSliceAContacts);
             LastCoordination = CoordinationBridge.Build(Bridge, snapshot);

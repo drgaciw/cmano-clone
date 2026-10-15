@@ -5,10 +5,10 @@
 > map draws when an engagement resolves. It lives in
 > [`ProjectAegis.Delegation/Projection/CombatVfxProjection.cs`](../../src/ProjectAegis.Delegation/Projection/CombatVfxProjection.cs)
 > and follows the read-only projection contract of ADR-010 §2–3 / ADR-007: it is derived from the
-> `DecisionLog` order-log stream, has **no `UnityEngine` dependency**, does **no mutation**, and
-> never touches the sim hot path or the replay fingerprint. It explicitly **ignores**
-> `EngagementOutcomeRecord.PkDraw` so it can never read or advance sim RNG. The Unity layer that
-> draws it is
+> same-tick `CombatEventSnapshot` (`CombatEventPhase.TerminalOutcome` rows only), has **no
+> `UnityEngine` dependency**, does **no mutation**, and never touches the sim hot path or the
+> replay fingerprint. The snapshot has no Pk draw, so this path cannot read or advance sim RNG.
+> The Unity layer that draws it is
 > [`MapCanvasTransientEffectsRenderer`](../../unity/ProjectAegis/Assets/Scripts/Runtime/MapCanvasTransientEffectsRenderer.cs).
 >
 > Sibling of the [combat-domains-hot-tick-hud.md](combat-domains-hot-tick-hud.md) overlay: both are
@@ -23,41 +23,52 @@
 The VFX frame is a one-way, per-refresh presentation fold; no state flows back into the sim:
 
 ```
-DecisionLog (order log)                        LastMapSymbols (MapPictureBridge)
-   │  EngagementOutcome entries                    │  unit-id → normalized (X,Y)
+CombatEventSnapshot (LastCombatFrame.Events)   LastMapSymbols (MapPictureBridge)
+   │  TerminalOutcome rows only                    │  unit-id → normalized (X,Y)
    └───────────────────────┬───────────────────────┘
                            ▼
-     CombatVfxProjection.Project(log, symbols, nowSimTime)
+     CombatVfxProjection.Project(events, symbols, nowSimTime)
                            ▼
         CombatVfxFrame  (FireLines[], ImpactMarkers[])
                            ▼
-     DelegationBridgeHost.LastCombatVfx   (off the DelegationBridge.Tick hot path)
+     DelegationBridgeHost.LastCombatVfx   (after LastCombatFrame, off DelegationBridge.Tick)
                            ▼
-     MapCanvasTransientEffectsRenderer.Sync(frame)  →  UI Toolkit layer (USS state class per shape)
+     MapPlaceholderPanelHost → Sync(live VFX; Empty during timeline review)
 ```
 
 The producer is wired in
-[`DelegationBridgeHost`](../../unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs),
-in the post-`Tick` C2 refresh (right after `LastMapSymbols` is built), never inside
-`DelegationBridge.Tick`:
+[`DelegationBridgeHost.RunTick`](../../unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs)
+**after** `LastCombatFrame` is built, so the frame and the VFX share the same-tick snapshot.
+It never runs inside `DelegationBridge.Tick`:
 
 ```csharp
-LastCombatVfx = CombatVfxProjection.Project(
-    Bridge.Orchestrator.DecisionLog,
-    LastMapSymbols,
-    snapshot.SimTime);
+LastCombatFrame = CombatPresentationFrameBridge.Build(
+    Bridge.Orchestrator.DecisionLog, LastSliceAContacts, snapshot.SimTime);
+LastCombatVfx = CombatVfxFrameBridge.Build(LastCombatFrame, LastMapSymbols);
 ```
+
+[`MapPlaceholderPanelHost`](../../unity/ProjectAegis/Assets/Scripts/Runtime/MapPlaceholderPanelHost.cs)
+constructs `MapCanvasTransientEffectsRenderer` with the other canvas renderers and
+`ApplyTransientCombatVfx` syncs the live frame in live mode and `CombatVfxFrame.Empty`
+while inspecting the command timeline. Entering or leaving review dirties the map even
+when frame references are unchanged. The historical `CombatMapView` stays bound to its
+displayed frame and symbols. The dirty check also keys off the live frame by reference. Owner widened this host on 2026-10-15 to those sites.
+
+`CombatVfxFrameBridge` resolves displayed contact ids to combat target ids with
+`CombatMapSymbolBridge.Build`, using `LastCombatFrame.Contacts.Contacts`. Terminal
+rows therefore keep their target geometry when `contact-7` represents `target-2`.
+The bridge uses the same frame's events and sim time, and leaves map symbols unchanged.
 
 ## Inputs
 
 | Input | Source | Notes |
 |-------|--------|-------|
-| `DecisionLog? log` | `Bridge.Orchestrator.DecisionLog` | Only `OrderLogEntryKind.EngagementOutcome` (=10) entries carrying an `EngagementOutcomeRecord` payload are read (via `log.ChronologicalEntries()`). Launches and aborted engagements (`EngagementRecord`) are ignored. |
+| `CombatEventSnapshot? events` | `LastCombatFrame.Events` through `CombatVfxFrameBridge` | Only `CombatEventPhase.TerminalOutcome` rows draw. Intent, firing, in-flight, and authorization-refused rows emit nothing. |
 | positions | `IReadOnlyList<MapSymbolEntry>?` **or** `IReadOnlyDictionary<string,(float X,float Y)>?` | Two `Project` overloads. The symbol overload calls `BuildPositionIndex` to fold `MapSymbolEntry.SymbolId → (NormalizedX, NormalizedY)`. |
 | `double nowSimTime` | `snapshot.SimTime` | Drives the age-based expiry of each shape. Sim-time, not wall-clock. |
 
 `Project` returns [`CombatVfxFrame.Empty`](../../src/ProjectAegis.Delegation/Projection/CombatVfxProjection.cs) when
-`log` is null, positions is null/empty, or the log has no chronological entries.
+the snapshot is null, it has no events, or positions is null/empty.
 
 ### `BuildPositionIndex`
 
@@ -71,13 +82,12 @@ Folds map symbols into an **ordinal** unit-id → xy index:
 
 ## What one outcome produces
 
-For each `EngagementOutcomeRecord` (fields: `SequenceId`, `SimTime`, `SimTick`,
-`ShooterTargetId`, `VictimTargetId`, `EngagementId`, `OutcomeCode`, `PkDraw`) the projection:
+For each terminal `CombatEvent` (`ShooterId`, `TargetId`, `Outcome`, `CorrelationId`, `SimTime`) the projection:
 
-1. Resolves `shooter = ShooterTargetId.Value`, `victim = VictimTargetId.Value`. **Skips** the
-   outcome if either id is blank or **either endpoint is missing** from the position index (both
-   ends must be known to draw a line or a marker).
-2. Computes `age = nowSimTime - outcome.SimTime`; **skips negative age** (a future-stamped outcome).
+1. Resolves `shooter = ShooterId`, `victim = TargetId`. **Skips** the event if either id is blank
+   or **either endpoint is missing** from the position index (both ends must be known to draw a
+   line or a marker).
+2. Computes `age = nowSimTime - event.SimTime`; **skips negative age** (a future-stamped event).
 3. Emits a **fire line** while `age <= FireLineHoldSeconds` (`4.0`).
 4. Emits an **impact marker** while `age <= ImpactHoldSeconds` (`6.0`).
 
@@ -86,8 +96,8 @@ For each `EngagementOutcomeRecord` (fields: `SequenceId`, `SimTime`, `SimTick`,
 > line, then both clear. (The source XML comment calling the impact "slightly shorter than the
 > line" is stale; the constants and `CombatVfxProjectionTests` are the source of truth.)
 
-Both shapes carry a stable de-dupe key derived from the engagement id, so the renderer can update
-in place across refreshes rather than flickering:
+Both shapes carry a stable de-dupe key derived from the combat-event correlation id (stored on
+`EngagementId`), so the renderer can update in place across refreshes rather than flickering:
 
 | Shape | Key | Anchor | Style class |
 |-------|-----|--------|-------------|
@@ -136,9 +146,9 @@ layer when the projected frame actually changes.
 | Invariant | Why |
 |-----------|-----|
 | **No `UnityEngine` in the projection** | `CombatVfxProjection` + its DTOs are pure `Delegation/Projection/`; only the renderer/host reference Unity. Keeps the read-model headless-testable. |
-| **Off the Tick hot path** | The producer runs in `DelegationBridgeHost` after `Bridge.Tick`, never inside `DelegationBridge.Tick`. |
-| **`PkDraw` ignored / RNG-free** | The projection reads outcome geometry only and never touches `PkDraw`, so it cannot read or advance sim RNG (ADR-010). |
-| **Not fingerprinted** | It is a derived view of already-logged `EngagementOutcomeRecord`s (which *are* fingerprinted); it writes nothing back, so the Baltic v2 replay hash `17144800277401907079` is untouched. |
+| **Off the Tick hot path** | The producer runs in `DelegationBridgeHost.RunTick` after `LastCombatFrame`, never inside `DelegationBridge.Tick`. |
+| **RNG-free** | The input is a `CombatEventSnapshot`. That type has no Pk draw, and the projection does not read `DecisionLog`. |
+| **Not fingerprinted** | It is a derived view of combat events already built for `LastCombatFrame`. It writes nothing back, so the Baltic v2 replay hash `17144800277401907079` is untouched. |
 | **Both endpoints required** | A fire line/marker is emitted only when shooter *and* victim poses are both in the index. |
 | **Destroyed poses retained** | `BuildPositionIndex` keeps destroyed symbols so `Kill` markers land on the victim. |
 | **Sim-time expiry, not wall-clock** | Shape lifetime is `nowSimTime - outcome.SimTime` against the two hold constants — deterministic and replay-safe. |
@@ -157,8 +167,16 @@ layer when the projected frame actually changes.
 
 | Suite | Assembly | Covers |
 |-------|----------|--------|
-| `CombatVfxProjectionTests` (8) | `ProjectAegis.Delegation.Tests` (NUnit) | Null/empty → `Empty`; line+marker at unit poses; skip when either endpoint unknown; sim-time expiry (line clears at `+4s`, marker at `+6s`); launch/aborted engagements emit nothing; Hit/Miss/Intercept/Kill style map; symbol-overload uses normalized xy; purity + `PkDraw`-independence. |
-| `MapCanvasTransientEffectsRendererContractTests` (2) | `ProjectAegis.Delegation.UnityAdapter.Tests` (NUnit) | Transient VFX renders on a separate layer from the static rings; the host wires the projection *after* Tick, not inside the bridge. |
+| `CombatVfxProjectionTests` | `ProjectAegis.Delegation.Tests` (NUnit) | Null/empty → `Empty`; line+marker at unit poses keyed by correlation id; skip when either endpoint unknown; sim-time expiry (line clears at `+4s`, marker at `+6s`); non-terminal events emit nothing; Hit/Miss/Intercept/Kill style map; symbol overload uses normalized xy; source fence rejects `DecisionLog` and `PkDraw`. |
+| `MapCanvasTransientEffectsRendererContractTests` | `ProjectAegis.Delegation.UnityAdapter.Tests` (NUnit) | Transient VFX renders on a separate layer from the static rings; `Project` follows `LastCombatFrame`; the map host constructs the renderer, syncs live VFX, and clears it during timeline review. |
+
+Additional regression coverage:
+
+- `CombatMapIntegrationTests.Transient_vfx_resolves_contact_aliases_at_the_frame_time`
+  covers terminal Hit/Kill geometry, unchanged input symbols, missing aliases, and expiry.
+- `CombatMapViewTests.Timeline_review_clears_live_transients_and_return_to_live_restores_them`
+  exercises the Unity host against real UI Toolkit effect pools. Requires the Unity Editor;
+  headless source contracts do not constitute execution evidence for this test.
 
 ## See also
 
