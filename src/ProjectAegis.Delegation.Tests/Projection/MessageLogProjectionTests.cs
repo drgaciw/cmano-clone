@@ -60,6 +60,29 @@ public sealed class MessageLogProjectionTests
     }
 
     [Test]
+    public void Unmatched_outcome_does_not_consume_another_engagements_terminal()
+    {
+        var log = new DecisionLog();
+        log.AppendEngagement(new EngagementRecord(
+            0, 1, 1, new TargetId("u1"), 2, true, "Launched", new TargetId("hostile-1"), "Missile"));
+        log.AppendEngagementOutcome(new EngagementOutcomeRecord(
+            0, 2, 2, new TargetId("u1"), new TargetId("hostile-1"), 99,
+            EngagementOutcomeCodes.Kill, 0.1));
+        log.AppendEngagementOutcome(new EngagementOutcomeRecord(
+            0, 2, 2, new TargetId("u1"), new TargetId("hostile-1"), 2,
+            EngagementOutcomeCodes.Kill, 0.1));
+
+        var real = log.ChronologicalEntries().Single(entry =>
+            entry.Payload is EngagementOutcomeRecord outcome && outcome.EngagementId == 2);
+        var messages = MessageLogProjection.Project(log);
+        var kill = messages.Single(message => message.Category == "KILL_CONFIRMED");
+
+        Assert.That(kill.SequenceId, Is.EqualTo(real.SequenceId));
+        Assert.That(kill.Text, Does.Contain("engagement 2"));
+        Assert.That(kill.Text, Does.Not.Contain("engagement 99"));
+    }
+
+    [Test]
     public void PolicyUpdate_projects_field_transition()
     {
         var log = new DecisionLog();

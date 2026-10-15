@@ -20,6 +20,8 @@ public sealed class MessageLogCombatEventSourceFenceTests
         var source = File.ReadAllText(ProjectionPath());
 
         Assert.That(source, Does.Contain("CombatEventLogProjection.Build"));
+        Assert.That(source, Does.Contain("CorrelationId"));
+        Assert.That(source, Does.Not.Contain("RemoveAt"));
         Assert.That(source, Does.Not.Contain(".Engagements"));
         Assert.That(source, Does.Not.Contain(".EngagementOutcomes"));
     }
