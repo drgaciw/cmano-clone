@@ -38,7 +38,7 @@
 .agent-roster-badge {
     margin-right: 6px;
     padding: 0 4px;
-    font-size: 9px;
+    font-size: 11px;
     -unity-font-style: bold;
     white-space: nowrap;
 }
