@@ -25,6 +25,7 @@ namespace ProjectAegis.Unity.Runtime
         private ListView? _rosterList;
         private Label? _statusLine;
         private readonly Dictionary<string, Button> _directiveButtons = new();
+        private readonly AgentRosterPresentationCache _rosterCache = new();
         private AgentRosterPresentation _presentation = AgentRosterPresentation.Empty;
         private bool _wired;
         private bool _handlersRegistered;
@@ -72,7 +73,7 @@ namespace ProjectAegis.Unity.Runtime
         private void OnEnable()
         {
             TryWireElements();
-            Refresh();
+            Refresh(force: true);
         }
 
         private void LateUpdate()
@@ -119,19 +120,8 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_rosterList != null)
             {
-                _rosterList.makeItem = () => new Label();
-                _rosterList.bindItem = (element, index) =>
-                {
-                    if (element is Label label && index >= 0 && index < _presentation.Lines.Count)
-                    {
-                        label.text = _presentation.Lines[index];
-                        // S109-02: accessible attention label (not color-only).
-                        if (index < _presentation.Rows.Count)
-                        {
-                            label.tooltip = _presentation.Rows[index].AccessibleAttentionLabel;
-                        }
-                    }
-                };
+                _rosterList.makeItem = MakeRosterRow;
+                _rosterList.bindItem = BindRosterRow;
                 _rosterList.selectionType = SelectionType.Single;
                 _rosterList.selectionChanged -= OnRosterSelectionChanged;
                 _rosterList.selectionChanged += OnRosterSelectionChanged;
@@ -145,6 +135,85 @@ namespace ProjectAegis.Unity.Runtime
             WireClickHandlers();
             _wired = _rosterList != null || _directiveButtons.Count > 0;
         }
+
+        private static VisualElement MakeRosterRow()
+        {
+            var row = new VisualElement();
+            row.AddToClassList("agent-roster-row");
+            var badge = new Label { name = "agent-roster-badge" };
+            badge.AddToClassList("agent-roster-badge");
+            var line = new Label { name = "agent-roster-line" };
+            line.AddToClassList("agent-roster-line");
+            row.Add(badge);
+            row.Add(line);
+            return row;
+        }
+
+        private void BindRosterRow(VisualElement element, int index)
+        {
+            var badgeLabel = element.Q<Label>("agent-roster-badge");
+            var lineLabel = element.Q<Label>("agent-roster-line");
+            if (index < 0 || index >= _presentation.Rows.Count)
+            {
+                if (lineLabel != null)
+                {
+                    lineLabel.text = string.Empty;
+                    lineLabel.tooltip = string.Empty;
+                }
+
+                ClearBadge(badgeLabel);
+                return;
+            }
+
+            var row = _presentation.Rows[index];
+            if (lineLabel != null)
+            {
+                lineLabel.text = row.DisplayLine;
+                // S109-02: accessible attention label (not color-only).
+                lineLabel.tooltip = row.AccessibleAttentionLabel;
+            }
+
+            if (badgeLabel == null)
+            {
+                return;
+            }
+
+            var badge = row.Badge;
+            if (badge is null)
+            {
+                ClearBadge(badgeLabel);
+                return;
+            }
+
+            // DRG-375: shape, short text, colour token, and accessible name are independent channels.
+            badgeLabel.text = badge.ShortText;
+            badgeLabel.tooltip = badge.AccessibleLabel;
+            badgeLabel.ClearClassList();
+            badgeLabel.AddToClassList("agent-roster-badge");
+            badgeLabel.AddToClassList(badge.ColorToken);
+            badgeLabel.AddToClassList(ShapeClass(badge.Shape));
+        }
+
+        private static void ClearBadge(Label? badgeLabel)
+        {
+            if (badgeLabel == null)
+            {
+                return;
+            }
+
+            badgeLabel.text = string.Empty;
+            badgeLabel.tooltip = string.Empty;
+            badgeLabel.ClearClassList();
+            badgeLabel.AddToClassList("agent-roster-badge");
+        }
+
+        private static string ShapeClass(string shape) => shape switch
+        {
+            "square" => "badge-shape-square",
+            "diamond" => "badge-shape-diamond",
+            "diamond-dashed" => "badge-shape-diamond-dashed",
+            _ => "badge-shape-none",
+        };
 
         private void WireClickHandlers()
         {
@@ -195,26 +264,44 @@ namespace ProjectAegis.Unity.Runtime
             if (bridgeHost.TryIssueAgentDirective(directiveId, out var reason))
             {
                 SetStatus(null);
-                Refresh();
+                Refresh(force: true);
                 return;
             }
 
             SetStatus(reason ?? "ISSUE_FAILED");
         }
 
-        private void Refresh()
+        private void Refresh(bool force = false)
         {
             if (!_wired || bridgeHost == null)
             {
                 return;
             }
 
-            _presentation = AgentRosterApplyState.Apply(bridgeHost.LastAgentRoster);
-            if (_rosterList != null)
+            var presentation = _rosterCache.Apply(bridgeHost.LastAgentRoster);
+            var rosterChanged = !ReferenceEquals(_presentation, presentation);
+            _presentation = presentation;
+            if (_rosterList != null && (force || rosterChanged || _rosterList.itemsSource == null))
             {
                 _rosterList.itemsSource = _presentation.Lines as System.Collections.IList
                     ?? new List<string>(_presentation.Lines);
                 _rosterList.Rebuild();
+            }
+
+            UpdateDirectiveButtons();
+
+            var root = _document.rootVisualElement?.Q(RootName);
+            if (root != null)
+            {
+                root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
+        private void UpdateDirectiveButtons()
+        {
+            if (bridgeHost == null)
+            {
+                return;
             }
 
             var hasSelection = !string.IsNullOrEmpty(bridgeHost.SelectedUnitId);
@@ -241,12 +328,6 @@ namespace ProjectAegis.Unity.Runtime
             else if (hasSelection && _lastStatus == AgentDirectiveIssuance.ReasonNoSelection)
             {
                 SetStatus(null);
-            }
-
-            var root = _document.rootVisualElement?.Q(RootName);
-            if (root != null)
-            {
-                root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
             }
         }
 
