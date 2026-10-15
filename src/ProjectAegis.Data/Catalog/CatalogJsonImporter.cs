@@ -29,16 +29,31 @@ public static class CatalogJsonImporter
         return dto.Sensors
             .OrderBy(s => s.PlatformId, StringComparer.Ordinal)
             .ThenBy(s => s.SensorId, StringComparer.Ordinal)
-            .Select(s => new CatalogSensorBinding(
-                s.PlatformId,
-                s.SensorId,
-                s.BasePd,
-                s.SourceFactId,
-                s.Confidence,
-                batchId,
-                sourceFile,
-                NormalizeReviewState(s.ReviewState),
-                Math.Clamp(s.TrlLevel <= 0 ? 9 : s.TrlLevel, 1, 9)))
+            .Select(s =>
+            {
+                var binding = new CatalogSensorBinding(
+                    s.PlatformId,
+                    s.SensorId,
+                    s.BasePd,
+                    s.SourceFactId,
+                    s.Confidence,
+                    batchId,
+                    sourceFile,
+                    NormalizeReviewState(s.ReviewState),
+                    Math.Clamp(s.TrlLevel <= 0 ? 9 : s.TrlLevel, 1, 9))
+                {
+                    RadarScanType = s.RadarScanType ?? CatalogRadarScanTypes.Unspecified,
+                    FrequencyAgile = s.FrequencyAgile,
+                    RadarTechGeneration = s.RadarTechGeneration,
+                };
+                var eccmErrors = CatalogRadarScanTypes.Validate(binding);
+                if (eccmErrors.Count > 0)
+                {
+                    throw new InvalidDataException(string.Join("; ", eccmErrors));
+                }
+
+                return binding;
+            })
             .ToArray();
     }
 
@@ -157,6 +172,15 @@ public static class CatalogJsonImporter
 
     internal sealed class CatalogSensorRowDto
     {
+        /// <summary>EW-01 / DRG-386 optional ECCM fields bind through the constructor (get-only).</summary>
+        [JsonConstructor]
+        public CatalogSensorRowDto(string? radarScanType = null, bool frequencyAgile = false, int radarTechGeneration = 0)
+        {
+            RadarScanType = radarScanType;
+            FrequencyAgile = frequencyAgile;
+            RadarTechGeneration = radarTechGeneration;
+        }
+
         public string PlatformId { get; init; } = "";
 
         public string SensorId { get; init; } = "";
@@ -170,5 +194,12 @@ public static class CatalogJsonImporter
         public string? ReviewState { get; init; }
 
         public int TrlLevel { get; init; } = 9;
+
+        /// <summary>EW-01 / DRG-386: Mechanical | Pesa | Aesa (optional).</summary>
+        public string? RadarScanType { get; }
+
+        public bool FrequencyAgile { get; }
+
+        public int RadarTechGeneration { get; }
     }
 }

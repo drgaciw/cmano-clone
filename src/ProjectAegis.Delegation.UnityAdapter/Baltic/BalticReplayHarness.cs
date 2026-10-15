@@ -148,7 +148,8 @@ public static class BalticReplayHarness
                 profile.UnitRadarEmcon,
                 profile.Jammers,
                 profile.ContactLifecycle,
-                catalogReader);
+                catalogReader,
+                DetectionEnvironmentFactory.Build(profile, catalogReader));
             if (profile.DatalinkDoctrine.IsSharingEnabled)
             {
                 var datalinkDoctrine = DatalinkShareLagResolver.Resolve(profile.DatalinkDoctrine, catalogReader);

@@ -18,11 +18,12 @@ subsystem is exercised headless with `dotnet test`.
 | Folder | Purpose | Key types |
 |--------|---------|-----------|
 | `Core/` | Tick pipeline, seeded RNG, world-state hashing, clock seed | `SimTickPipeline`, `SimTickRunner`, `ISimTickRunner`, `SimSeed`, `SeededRng`, `RngDomain`, `SimWorldHash` |
-| `Sensors/` | Tick-4 deterministic detection loop + detection sub-hash + hostile classification | `DeterministicDetectionLoop`, `DetectionWorldHash`, `PdDetectionContactSimulator`, `ContactLifecycleState`, `DatalinkSidePictureMerger`, `HostileContactFilter` |
+| `Sensors/` | Tick-4 deterministic detection loop + detection sub-hash + hostile classification | `DeterministicDetectionLoop`, `DetectionWorldHash`, `PdDetectionContactSimulator`, `ContactLifecycleState`, `DatalinkSidePictureMerger`, `HostileContactFilter`, `LineOfSightEvaluator`, `EccmJamMatrix`, `DetectionEnvironment` |
 | `Engage/` | Tick-8 engagement pipeline: policy → track → envelope/DLZ → magazine → combat outcome | `IEngagementResolver`, `MvpEngagementResolver`, `EngageRequest`/`EngageResult`, `DlzEvaluator`, `MagazineLedger`, `CombatOutcomeResolver`, `DomainValidatorRegistry` |
 | `Policy/` | Per-unit policy evaluation at the orchestrator boundary (ADR-002) | `IPolicyEvaluator`, `PolicyEvaluator`, `EffectivePolicy`, `PolicyContext`, `RoeLevel`, `EmconState` |
 | `Scenario/` | Scenario/policy profiles + JSON repository, comms/EMCON/mission triggers, blue/red side registry | `ScenarioPolicyProfile`, `ScenarioPolicyRepository`, `ScenarioMissionContactTrigger`, `DetectionTrialResolver`, `BalticV3SideRegistry` |
 | `Catalog/` | Hot-tick appliers bridging `ProjectAegis.Data` catalog values into sim state | `CatalogDamageHotTickApplier`, `CatalogMagazineResolver`, `CatalogRadarEmconResolver`, `PlatformHpLedger` |
+| `Comms/` | Per-unit comms-grid membership and the off-grid order gate ([guide](../../docs/engineering/los-eccm-offgrid.md)) | `CommsGridRegistry`, `OffGridOrderGate` |
 | `Logistics/` | Fuel accounting | `FuelLedger` |
 | `Telemetry/` | Advisory-only balance-drift consumer fed by engagement outcomes ([guide](../../docs/engineering/balance-drift-telemetry.md)) | `BalanceDriftAdvisoryConsumer` |
 | `Time/` | Fixed-timestep clock + pause / time-compression ([below](#sim-clock-pause--time-compression)) | `SimClock`, `TimeCompressionMode` |

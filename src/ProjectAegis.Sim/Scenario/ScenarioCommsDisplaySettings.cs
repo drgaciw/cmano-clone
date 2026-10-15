@@ -3,6 +3,9 @@ namespace ProjectAegis.Sim.Scenario;
 /// <summary>C2 map comms presentation (cyber-comms GDD — degraded lag / ghost symbology).</summary>
 public sealed class ScenarioCommsDisplaySettings
 {
+    /// <summary>Largest <see cref="DegradedOrderDelayTicks"/> the loader accepts.</summary>
+    public const int MaxDegradedOrderDelayTicks = 10;
+
     public static ScenarioCommsDisplaySettings Default { get; } = new(2, 0.06f, 0.04f);
 
     public ScenarioCommsDisplaySettings(int degradedLagTicks, float ghostOffsetX, float ghostOffsetY)
@@ -22,9 +25,11 @@ public sealed class ScenarioCommsDisplaySettings
             throw new ArgumentOutOfRangeException(nameof(degradedLagTicks), "degradedLagTicks must be in [1, 10].");
         }
 
-        if (degradedOrderDelayTicks < 0 || degradedOrderDelayTicks > 10)
+        if (degradedOrderDelayTicks < 0 || degradedOrderDelayTicks > MaxDegradedOrderDelayTicks)
         {
-            throw new ArgumentOutOfRangeException(nameof(degradedOrderDelayTicks), "degradedOrderDelayTicks must be in [0, 10].");
+            throw new ArgumentOutOfRangeException(
+                nameof(degradedOrderDelayTicks),
+                $"degradedOrderDelayTicks must be in [0, {MaxDegradedOrderDelayTicks}].");
         }
 
         if (degradedStaleThresholdDivisor < 1 || degradedStaleThresholdDivisor > 8)

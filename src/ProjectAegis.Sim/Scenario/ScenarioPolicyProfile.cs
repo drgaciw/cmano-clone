@@ -2,6 +2,7 @@ namespace ProjectAegis.Sim.Scenario;
 
 using Engage;
 using Policy;
+using Sensors;
 
 /// <summary>Mission/scenario-level ROE defaults (doc 11 / policy GDD inheritance root).</summary>
 public sealed class ScenarioPolicyProfile
@@ -74,6 +75,17 @@ public sealed class ScenarioPolicyProfile
     }
 
     public string Id { get; init; } = "";
+
+    /// <summary>ENV-02 / DRG-379: authored LOS geometry; empty = no LOS gating (legacy).</summary>
+    public IReadOnlyList<ScenarioLosGeometry> LineOfSight { get; init; } = Array.Empty<ScenarioLosGeometry>();
+
+    /// <summary>EW-01 / DRG-386: scenario radar ECCM profiles by sensor id (override catalog attributes).</summary>
+    public IReadOnlyDictionary<string, RadarEccmProfile> RadarEccm { get; init; } =
+        new Dictionary<string, RadarEccmProfile>();
+
+    /// <summary>C3-01 / DRG-390: per-unit comms-grid transitions; empty = every unit always on grid.</summary>
+    public IReadOnlyList<ScenarioCommsGridTransition> CommsGridTransitions { get; init; } =
+        Array.Empty<ScenarioCommsGridTransition>();
 
     public EffectivePolicy FriendlyDefault { get; }
 

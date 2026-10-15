@@ -1,13 +1,30 @@
 namespace ProjectAegis.Delegation.Projection;
 
 using Decision;
+using Orchestration;
 using ProjectAegis.Sim.Engage;
+using ProjectAegis.Sim.Scenario;
 
 /// <summary>Filters order log into CMANO-style message log lines (GDD order-log-replay §3).</summary>
 public static class MessageLogProjection
 {
+    /// <summary>Project the full log (replay / AAR). Includes fogged agent decisions.</summary>
     public static IReadOnlyList<MessageLogLine> Project(DecisionLog log) =>
         Project(log.ChronologicalEntries());
+
+    /// <summary>
+    /// Project the live player view: agent decisions hidden by <paramref name="model"/> are omitted,
+    /// matching <c>DelegationOrchestrator.GetLiveOrderLogView()</c>. The log itself is not modified.
+    /// </summary>
+    public static IReadOnlyList<MessageLogLine> ProjectLive(DecisionLog log, PlayerInfoModel model)
+    {
+        if (log is null)
+        {
+            throw new ArgumentNullException(nameof(log));
+        }
+
+        return Project(PlayerInfoFilter.FilterLiveEntries(log.ChronologicalEntries(), model));
+    }
 
     public static IReadOnlyList<MessageLogLine> Project(IReadOnlyList<OrderLogEntry> entries)
     {

@@ -3,15 +3,34 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ProjectAegis.Data.Catalog;
+using ProjectAegis.Delegation.Controllers;
+using ProjectAegis.Delegation.Core;
 using ProjectAegis.Delegation.Decision;
+using ProjectAegis.Delegation.Orchestration;
 using ProjectAegis.Delegation.Projection;
 using ProjectAegis.Delegation.SensorToShooter;
 using ProjectAegis.Delegation.Skills;
 using ProjectAegis.Delegation.TargetabilityAccept;
+using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
+using ObservedState = ProjectAegis.Delegation.Sim.ObservedState;
 
 namespace ProjectAegis.Delegation.Tests.TargetabilityAccept;
+
+/// <summary>Where the Slice A harness sources the order log it projects (DRG-183 / DRG-350).</summary>
+public enum SliceATargetabilityComposition
+{
+    /// <summary>Fresh <see cref="DecisionLog"/> holding only fixture-authored contact rows (DRG-183 pin).</summary>
+    FixtureLog = 0,
+
+    /// <summary>
+    /// Production headless composition (DRG-350): <see cref="SimulationSession.BindMvpEngagementForScenario"/>
+    /// over a <see cref="DelegationOrchestrator"/> with the fixture scenario policy, ticked through the
+    /// evaluation tick. Projections read the orchestrator's authoritative <see cref="DecisionLog"/>.
+    /// </summary>
+    ProductionSession = 1,
+}
 
 /// <summary>
 /// DRG-183: one Find → Fix → Track → Target path and its acceptance verdict.
@@ -97,16 +116,22 @@ public static class SliceATargetabilityAcceptanceHarness
         NumberHandling = JsonNumberHandling.Strict,
     };
 
+    /// <summary>Global seed for the production session composition.</summary>
+    public const int ProductionSessionSeed = 183;
+
     /// <summary>Run the checked-in Slice A scenario from the repository root.</summary>
-    public static SliceATargetabilityAcceptanceRun Run()
-    {
-        var root = FindRepoRoot()
-            ?? throw new InvalidOperationException("ProjectAegis.sln was not found above the test base directory.");
-        return Run(Path.Combine(root, FixtureRelativePath));
-    }
+    public static SliceATargetabilityAcceptanceRun Run() => Run(SliceATargetabilityComposition.FixtureLog);
+
+    /// <summary>Run the checked-in Slice A scenario through <paramref name="composition"/>.</summary>
+    public static SliceATargetabilityAcceptanceRun Run(SliceATargetabilityComposition composition) =>
+        Run(DefaultFixturePath(), composition);
 
     /// <summary>Run the scenario fixture at <paramref name="fixturePath"/>.</summary>
-    public static SliceATargetabilityAcceptanceRun Run(string fixturePath)
+    public static SliceATargetabilityAcceptanceRun Run(string fixturePath) =>
+        Run(fixturePath, SliceATargetabilityComposition.FixtureLog);
+
+    /// <summary>Run the scenario fixture at <paramref name="fixturePath"/> through <paramref name="composition"/>.</summary>
+    public static SliceATargetabilityAcceptanceRun Run(string fixturePath, SliceATargetabilityComposition composition)
     {
         if (string.IsNullOrWhiteSpace(fixturePath))
         {
@@ -114,8 +139,35 @@ public static class SliceATargetabilityAcceptanceHarness
         }
 
         var document = Load(fixturePath);
-        var evidence = Execute(document);
+        var evidence = Execute(document, composition);
         return new SliceATargetabilityAcceptanceRun(evidence, document.AcceptanceFingerprint);
+    }
+
+    /// <summary>
+    /// Drive one fixture path through the production session composition with a caller-wired shooter
+    /// and return the orchestrator's authoritative log. Lets tests prove the same path does record fire
+    /// when the shooter is an engaging agent.
+    /// </summary>
+    public static DecisionLog DriveProductionSession(
+        string pathId,
+        Action<SimulationSession, UnitTarget> wireShooter)
+    {
+        if (wireShooter is null)
+        {
+            throw new ArgumentNullException(nameof(wireShooter));
+        }
+
+        var document = Load(DefaultFixturePath());
+        var path = document.Paths.Find(p => string.Equals(p.PathId, pathId, StringComparison.Ordinal))
+            ?? throw new ArgumentException($"Fixture has no path '{pathId}'.", nameof(pathId));
+        return BuildProductionSessionLog(document, path, InMemoryCatalogReader.BalticPatrolFixture(), wireShooter);
+    }
+
+    private static string DefaultFixturePath()
+    {
+        var root = FindRepoRoot()
+            ?? throw new InvalidOperationException("ProjectAegis.sln was not found above the test base directory.");
+        return Path.Combine(root, FixtureRelativePath);
     }
 
     private static SliceAScenarioFile Load(string fixturePath)
@@ -169,7 +221,9 @@ public static class SliceATargetabilityAcceptanceHarness
         }
     }
 
-    private static SliceATargetabilityAcceptanceEvidence Execute(SliceAScenarioFile document)
+    private static SliceATargetabilityAcceptanceEvidence Execute(
+        SliceAScenarioFile document,
+        SliceATargetabilityComposition composition)
     {
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
         var paths = new SliceATargetabilityPathEvidence[document.Paths.Count];
@@ -181,7 +235,7 @@ public static class SliceATargetabilityAcceptanceHarness
         var contacts = 0;
         for (var i = 0; i < document.Paths.Count; i++)
         {
-            paths[i] = ProjectPath(document, document.Paths[i], catalog);
+            paths[i] = ProjectPath(document, document.Paths[i], catalog, composition);
             engagements += paths[i].EngagementCount;
             outcomes += paths[i].EngagementOutcomeCount;
             playerOrders += paths[i].PlayerOrderCount;
@@ -217,7 +271,16 @@ public static class SliceATargetabilityAcceptanceHarness
     private static SliceATargetabilityPathEvidence ProjectPath(
         SliceAScenarioFile document,
         SliceAScenarioPathFile path,
-        ICatalogReader catalog)
+        ICatalogReader catalog,
+        SliceATargetabilityComposition composition)
+    {
+        var log = composition == SliceATargetabilityComposition.ProductionSession
+            ? BuildProductionSessionLog(document, path, catalog, WireHumanShooter)
+            : BuildFixtureLog(document, path);
+        return ProjectLog(document, path, catalog, log);
+    }
+
+    private static void ValidatePath(SliceAScenarioPathFile path)
     {
         Require(path.PathId, nameof(path.PathId), path.PathId);
         if (path.Kind is not ("Valid" or "ApprovalRequired"))
@@ -238,7 +301,6 @@ public static class SliceATargetabilityAcceptanceHarness
             throw new InvalidOperationException($"Path '{path.PathId}' has no authority block.");
         }
 
-        var log = new DecisionLog();
         for (var i = 0; i < path.Steps.Count; i++)
         {
             var step = path.Steps[i];
@@ -250,18 +312,105 @@ public static class SliceATargetabilityAcceptanceHarness
 
             Require(step.PreviousState, nameof(step.PreviousState), path.PathId);
             Require(step.NewState, nameof(step.NewState), path.PathId);
-            var change = new ContactChangeRecord(
-                step.SequenceId,
-                step.SimTime,
-                step.SimTick,
-                document.ObserverId,
-                path.ContactId,
-                path.TargetId,
-                step.PreviousState,
-                step.NewState);
-            log.Append(OrderLogEntryFactories.FromContactChange(change, step.SequenceId));
+        }
+    }
+
+    private static DecisionLog BuildFixtureLog(SliceAScenarioFile document, SliceAScenarioPathFile path)
+    {
+        ValidatePath(path);
+        var log = new DecisionLog();
+        for (var i = 0; i < path.Steps!.Count; i++)
+        {
+            var step = path.Steps[i];
+            log.Append(OrderLogEntryFactories.FromContactChange(ToContactChange(document, path, step, step.SequenceId), step.SequenceId));
         }
 
+        return log;
+    }
+
+    /// <summary>
+    /// Production headless composition: scenario-bound orchestrator + MVP engagement session, ticked
+    /// from 0 through the evaluation tick. Each fixture contact step lands in the authoritative log at
+    /// its sim tick (sequence assigned by the log), and the observed state reports the contact and
+    /// fire-control track the same way the sim would. Returns the orchestrator's own log.
+    /// </summary>
+    private static DecisionLog BuildProductionSessionLog(
+        SliceAScenarioFile document,
+        SliceAScenarioPathFile path,
+        ICatalogReader catalog,
+        Action<SimulationSession, UnitTarget> wireShooter)
+    {
+        ValidatePath(path);
+        var profile = ScenarioPolicyRepository.TryGet(document.Catalog)
+            ?? throw new InvalidOperationException($"Scenario policy '{document.Catalog}' is not registered.");
+        var orchestrator = new DelegationOrchestrator(ProductionSessionSeed) { ScenarioPolicy = profile };
+        var session = SimulationSession.BindMvpEngagementForScenario(orchestrator, document.Catalog, catalog);
+        var shooterId = new TargetId(document.ShooterUnitId);
+        var shooter = new UnitTarget(shooterId);
+        wireShooter(session, shooter);
+        session.BeginExecution();
+
+        var hostile = new TargetId(path.TargetId);
+        var fireControlIds = new HashSet<string>(path.FireControlContactIds ?? [], StringComparer.Ordinal);
+        var memberAlive = new Dictionary<TargetId, bool> { [shooterId] = true };
+        var detected = false;
+        for (ulong tick = 0; tick <= document.EvaluationSimTick; tick++)
+        {
+            for (var i = 0; i < path.Steps!.Count; i++)
+            {
+                var step = path.Steps[i];
+                if (step.SimTick != tick)
+                {
+                    continue;
+                }
+
+                orchestrator.DecisionLog.AppendContactChange(ToContactChange(document, path, step, 0));
+                detected = !string.Equals(step.NewState, "Unknown", StringComparison.Ordinal);
+            }
+
+            var state = new ObservedState(
+                tick,
+                detected ? 1 : 0,
+                0,
+                memberAlive,
+                HasFireControlTrack: detected && fireControlIds.Contains(path.ContactId),
+                PrimaryHostileContactId: detected ? hostile : null);
+            if (!session.Tick(state))
+            {
+                throw new InvalidOperationException("Production session did not leave Planning.");
+            }
+        }
+
+        return orchestrator.DecisionLog;
+    }
+
+    private static void WireHumanShooter(SimulationSession session, UnitTarget shooter)
+    {
+        shooter.Slot.SetActive(new HumanController());
+        session.Orchestrator.Register(shooter);
+    }
+
+    private static ContactChangeRecord ToContactChange(
+        SliceAScenarioFile document,
+        SliceAScenarioPathFile path,
+        SliceAStepFile step,
+        ulong sequenceId) =>
+        new(
+            sequenceId,
+            step.SimTime,
+            step.SimTick,
+            document.ObserverId,
+            path.ContactId,
+            path.TargetId,
+            step.PreviousState,
+            step.NewState);
+
+    private static SliceATargetabilityPathEvidence ProjectLog(
+        SliceAScenarioFile document,
+        SliceAScenarioPathFile path,
+        ICatalogReader catalog,
+        DecisionLog log)
+    {
         var fireControl = new FixtureFireControl(path.TargetId, path.FireControlContactIds);
         var shooters = new FixtureShooterSource(
             path.TargetId,
