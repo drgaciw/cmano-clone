@@ -33,7 +33,7 @@ CombatEventSnapshot (LastCombatFrame.Events)   LastMapSymbols (MapPictureBridge)
                            ▼
      DelegationBridgeHost.LastCombatVfx   (after LastCombatFrame, off DelegationBridge.Tick)
                            ▼
-     MapPlaceholderPanelHost → MapCanvasTransientEffectsRenderer.Sync(LastCombatVfx)
+     MapPlaceholderPanelHost → Sync(live VFX; Empty during timeline review)
 ```
 
 The producer is wired in
@@ -44,22 +44,26 @@ It never runs inside `DelegationBridge.Tick`:
 ```csharp
 LastCombatFrame = CombatPresentationFrameBridge.Build(
     Bridge.Orchestrator.DecisionLog, LastSliceAContacts, snapshot.SimTime);
-LastCombatVfx = CombatVfxProjection.Project(
-    LastCombatFrame.Events,
-    LastMapSymbols,
-    snapshot.SimTime);
+LastCombatVfx = CombatVfxFrameBridge.Build(LastCombatFrame, LastMapSymbols);
 ```
 
 [`MapPlaceholderPanelHost`](../../unity/ProjectAegis/Assets/Scripts/Runtime/MapPlaceholderPanelHost.cs)
 constructs `MapCanvasTransientEffectsRenderer` with the other canvas renderers and
-`ApplyTransientCombatVfx` calls `Sync(bridgeHost.LastCombatVfx)`. The dirty check still
-keys off that frame by reference. Owner widened this host on 2026-10-15 to those sites.
+`ApplyTransientCombatVfx` syncs the live frame in live mode and `CombatVfxFrame.Empty`
+while inspecting the command timeline. Entering or leaving review dirties the map even
+when frame references are unchanged. The historical `CombatMapView` stays bound to its
+displayed frame and symbols. The dirty check also keys off the live frame by reference. Owner widened this host on 2026-10-15 to those sites.
+
+`CombatVfxFrameBridge` resolves displayed contact ids to combat target ids with
+`CombatMapSymbolBridge.Build`, using `LastCombatFrame.Contacts.Contacts`. Terminal
+rows therefore keep their target geometry when `contact-7` represents `target-2`.
+The bridge uses the same frame's events and sim time, and leaves map symbols unchanged.
 
 ## Inputs
 
 | Input | Source | Notes |
 |-------|--------|-------|
-| `CombatEventSnapshot? events` | `LastCombatFrame.Events` | Only `CombatEventPhase.TerminalOutcome` rows draw. Intent, firing, in-flight, and authorization-refused rows emit nothing. |
+| `CombatEventSnapshot? events` | `LastCombatFrame.Events` through `CombatVfxFrameBridge` | Only `CombatEventPhase.TerminalOutcome` rows draw. Intent, firing, in-flight, and authorization-refused rows emit nothing. |
 | positions | `IReadOnlyList<MapSymbolEntry>?` **or** `IReadOnlyDictionary<string,(float X,float Y)>?` | Two `Project` overloads. The symbol overload calls `BuildPositionIndex` to fold `MapSymbolEntry.SymbolId → (NormalizedX, NormalizedY)`. |
 | `double nowSimTime` | `snapshot.SimTime` | Drives the age-based expiry of each shape. Sim-time, not wall-clock. |
 
@@ -164,7 +168,15 @@ layer when the projected frame actually changes.
 | Suite | Assembly | Covers |
 |-------|----------|--------|
 | `CombatVfxProjectionTests` | `ProjectAegis.Delegation.Tests` (NUnit) | Null/empty → `Empty`; line+marker at unit poses keyed by correlation id; skip when either endpoint unknown; sim-time expiry (line clears at `+4s`, marker at `+6s`); non-terminal events emit nothing; Hit/Miss/Intercept/Kill style map; symbol overload uses normalized xy; source fence rejects `DecisionLog` and `PkDraw`. |
-| `MapCanvasTransientEffectsRendererContractTests` | `ProjectAegis.Delegation.UnityAdapter.Tests` (NUnit) | Transient VFX renders on a separate layer from the static rings; `Project` follows `LastCombatFrame`; the map host constructs the renderer and calls `Sync(LastCombatVfx)`. |
+| `MapCanvasTransientEffectsRendererContractTests` | `ProjectAegis.Delegation.UnityAdapter.Tests` (NUnit) | Transient VFX renders on a separate layer from the static rings; `Project` follows `LastCombatFrame`; the map host constructs the renderer, syncs live VFX, and clears it during timeline review. |
+
+Additional regression coverage:
+
+- `CombatMapIntegrationTests.Transient_vfx_resolves_contact_aliases_at_the_frame_time`
+  covers terminal Hit/Kill geometry, unchanged input symbols, missing aliases, and expiry.
+- `CombatMapViewTests.Timeline_review_clears_live_transients_and_return_to_live_restores_them`
+  exercises the Unity host against real UI Toolkit effect pools. Requires the Unity Editor;
+  headless source contracts do not constitute execution evidence for this test.
 
 ## See also
 

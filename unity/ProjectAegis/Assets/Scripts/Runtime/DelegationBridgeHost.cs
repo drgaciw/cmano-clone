@@ -682,14 +682,7 @@ namespace ProjectAegis.Unity.Runtime
             LastSliceAContacts = SliceAContactFrameBridge.Build(snapshot, Bridge, CatalogReader);
             LastCombatFrame = CombatPresentationFrameBridge.Build(
                 Bridge.Orchestrator.DecisionLog, LastSliceAContacts, snapshot.SimTime);
-            // DRG-403: terminal events carry TargetId; displayed poses are keyed by ContactId.
-            var vfxSymbols = CombatMapSymbolBridge.Build(
-                LastMapSymbols, LastCombatFrame.Contacts.Contacts);
-            var vfxPositions = CombatVfxProjection.BuildPositionIndex(vfxSymbols);
-            LastCombatVfx = CombatVfxProjection.Project(
-                LastCombatFrame.Events,
-                vfxPositions,
-                snapshot.SimTime);
+            LastCombatVfx = CombatVfxFrameBridge.Build(LastCombatFrame, LastMapSymbols);
             CommandTimeline.Capture(LastCombatFrame, LastMapSymbols);
             _commandStatus = ProjectAegis.Delegation.UnityAdapter.CommandReview.StatusFrameBridge.Build(Bridge, snapshot, LastSliceAContacts);
             LastCoordination = CoordinationBridge.Build(Bridge, snapshot);

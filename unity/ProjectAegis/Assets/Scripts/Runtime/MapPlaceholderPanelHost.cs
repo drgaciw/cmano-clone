@@ -75,6 +75,7 @@ namespace ProjectAegis.Unity.Runtime
         private CommandReviewView? _commandReviewView;
         private CoverageMapView? _coverageView;
         private bool _dirtyCoverage;
+        private bool _dirtyInspecting;
         private CombatPresentationFrame? _dirtyReviewFrame;
         private object? _dirtyReviewSections;
         private string? _dirtyCombatKey;
@@ -596,6 +597,7 @@ namespace ProjectAegis.Unity.Runtime
                 || !ReferenceEquals(bridgeHost.DisplayCombatFrame, _dirtyReviewFrame)
                 || !ReferenceEquals(bridgeHost.LastCommandReviewSections, _dirtyReviewSections)
                 || bridgeHost.ShowCommandCoverage != _dirtyCoverage
+                || bridgeHost.CommandTimeline.IsInspecting != _dirtyInspecting
                 || bridgeHost.Presentation.CombatInspection.SelectedKey != _dirtyCombatKey
                 || feed.SelectedUnitId != _dirtySelectedUnit
                 || feed.SelectedContactId != _dirtySelectedContact
@@ -614,6 +616,7 @@ namespace ProjectAegis.Unity.Runtime
             _dirtyReviewFrame = bridgeHost == null ? null : bridgeHost.DisplayCombatFrame;
             _dirtyReviewSections = bridgeHost == null ? null : bridgeHost.LastCommandReviewSections;
             _dirtyCoverage = bridgeHost != null && bridgeHost.ShowCommandCoverage;
+            _dirtyInspecting = bridgeHost != null && bridgeHost.CommandTimeline.IsInspecting;
             _dirtyCombatKey = bridgeHost == null ? null : bridgeHost.Presentation.CombatInspection.SelectedKey;
             _dirtySelectedUnit = feed?.SelectedUnitId;
             _dirtySelectedContact = feed?.SelectedContactId;

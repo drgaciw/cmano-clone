@@ -86,17 +86,16 @@ public sealed class MapCanvasTransientEffectsRendererContractTests
         var projection = File.ReadAllText(projectionPath);
 
         var buildAt = host.IndexOf("LastCombatFrame = CombatPresentationFrameBridge.Build", StringComparison.Ordinal);
-        var projectAt = host.IndexOf("LastCombatVfx = CombatVfxProjection.Project", StringComparison.Ordinal);
+        var projectAt = host.IndexOf("LastCombatVfx = CombatVfxFrameBridge.Build", StringComparison.Ordinal);
         Assert.That(buildAt, Is.GreaterThanOrEqualTo(0));
         Assert.That(projectAt, Is.GreaterThan(buildAt));
-        Assert.That(host, Does.Contain("LastCombatVfx = CombatVfxProjection.Project"));
-        Assert.That(host, Does.Contain("LastCombatFrame.Events"));
-        Assert.That(host, Does.Contain("LastMapSymbols"));
+        Assert.That(host, Does.Contain("CombatVfxFrameBridge.Build(LastCombatFrame, LastMapSymbols)"));
         Assert.That(map, Does.Contain("CombatMapView"));
         Assert.That(map, Does.Contain("DisplayCombatFrame"));
         Assert.That(map, Does.Contain("new MapCanvasTransientEffectsRenderer"));
         Assert.That(map, Does.Contain("CombatVfxFrame.Empty"));
         Assert.That(map, Does.Contain("_transientEffects?.Sync(vfx)"));
+        Assert.That(map, Does.Contain("bridgeHost.CommandTimeline.IsInspecting != _dirtyInspecting"));
         Assert.That(host, Does.Contain("LastCombatFrame = CombatPresentationFrameBridge.Build"));
         Assert.That(projection, Does.Contain("CombatEventSnapshot"));
         Assert.That(projection, Does.Contain("TerminalOutcome"));
@@ -157,14 +156,11 @@ public sealed class MapCanvasTransientEffectsRendererContractTests
             "Runtime",
             "DelegationBridgeHost.cs"));
         var compact = string.Concat(host.Where(ch => !char.IsWhiteSpace(ch)));
-        var aliasAt = compact.IndexOf(
-            "CombatMapSymbolBridge.Build(LastMapSymbols,LastCombatFrame.Contacts.Contacts)",
-            StringComparison.Ordinal);
-        var indexAt = compact.IndexOf("CombatVfxProjection.BuildPositionIndex", StringComparison.Ordinal);
-        var projectAt = compact.IndexOf("LastCombatVfx=CombatVfxProjection.Project", StringComparison.Ordinal);
-        Assert.That(aliasAt, Is.GreaterThanOrEqualTo(0));
-        Assert.That(indexAt, Is.GreaterThan(aliasAt));
-        Assert.That(projectAt, Is.GreaterThan(indexAt));
+        Assert.That(compact, Does.Contain("CombatVfxFrameBridge.Build(LastCombatFrame,LastMapSymbols)"));
+        var bridge = File.ReadAllText(Path.Combine(root!, "src",
+            "ProjectAegis.Delegation.UnityAdapter", "Bridge", "CombatVfxFrameBridge.cs"));
+        Assert.That(bridge, Does.Contain("CombatMapSymbolBridge.Build(symbols, frame.Contacts.Contacts)"));
+        Assert.That(bridge, Does.Contain("CombatVfxProjection.Project(frame.Events, combatSymbols, frame.SimTime)"));
     }
 
     private static string? FindRepoRoot()
