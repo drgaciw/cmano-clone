@@ -22,8 +22,13 @@ tools/gitnexus-safe-reindex.sh --skip-analyze   # post-check an existing index o
 without the guard available). Prefer `--force`; a bare/incremental analyze has been observed
 to corrupt the index (empty method names, garbage node IDs — see the DRG-323 finding below):
 
+Stop the MCP host and all GitNexus MCP servers first, and ensure the host cannot
+respawn them during the rebuild. Do not proceed while the check below finds a
+server: `--force` does not make it safe to rewrite a database held open by MCP.
+
 ```bash
-npx gitnexus analyze --force
+pgrep -af '[g]itnexus.*mcp'   # must return no matches before continuing
+GITNEXUS_SHARED_STORE=off npx gitnexus analyze --force --skip-agents-md --skip-skills
 node .gitnexus/run.cjs status   # expect ✅ up-to-date
 ```
 
@@ -73,9 +78,14 @@ node .gitnexus/run.cjs status   # expect ✅ up-to-date
 
 Run [`tools/gitnexus-safe-reindex.sh`](../../tools/gitnexus-safe-reindex.sh) instead of a
 bare `npx gitnexus analyze`. The guard wraps a GitNexus reindex with refusal gates, a
-forced full rebuild, cleanup of generated tracked changes, and an index integrity
+forced full rebuild, non-destructive working tree reporting, and an index integrity
 post-check, so a corrupt index fails loudly instead of silently poisoning later
 `impact` / `context` / `cypher` queries.
+
+The guard uses `node .gitnexus/run.cjs` when available. On a fresh checkout without
+that generated runner, it prefers a global `gitnexus`, then `pnpm dlx` with native
+build permissions, then `npx --yes gitnexus`. An available runner's failure is
+propagated; it does not trigger an installation attempt through a different runner.
 
 ### What it does
 
@@ -86,9 +96,11 @@ post-check, so a corrupt index fails loudly instead of silently poisoning later
    node IDs / empty method names. If one survives the kill, it exits 2.
 3. **Full rebuild.** Runs `gitnexus analyze --force --skip-agents-md --skip-skills`
    (`--name <alias> --allow-duplicate-name` when `--name` is given).
-4. **Reverts generated tracked changes** — only when the tree started clean — via
-   `git checkout --` on whatever `analyze` modified. Any new untracked files are left in
-   place and reported as a failure (exit 3) for manual removal.
+4. **Reports working tree changes without reverting or deleting files**, on both
+   success and failure. A clean start cannot prove which edits belong to the generator
+   versus a concurrent editor or agent. If a successful analyze leaves changes after a
+   clean start, exit 3 for manual review. A failed analyze still reports those changes
+   and exits 2. Post-check-only mode performs no cleanup or restoration.
 5. **Post-check** (see below). Exits 3 on any mismatch.
 
 ### Options
@@ -107,7 +119,7 @@ post-check, so a corrupt index fails loudly instead of silently poisoning later
 Fails if any of these do not hold:
 
 - Indexed commit (`.gitnexus/meta.json` `lastCommit`) `==` git `HEAD`.
-- `meta.json` node/edge stats `==` live graph `count(n)` / `count(r)` (via `gitnexus cypher`).
+- `meta.json` node/edge stats `==` live graph `count(n)` / `count(r)` (via `gitnexus cypher --repo <checkout-path>`; every query targets this checkout even when multiple indexes are registered).
 - Zero garbage IDs (id not prefixed with its label) **and** zero empty/null `name` values
   for `Class`, `Method`, `File`, and `Property` nodes.
 
@@ -118,7 +130,18 @@ Fails if any of these do not hold:
 | 0 | Good index (`gitnexus-safe-reindex: OK`) |
 | 1 | Refused (dirty tree, wrong branch, bad usage) |
 | 2 | `analyze` failed, or an MCP server could not be stopped |
-| 3 | Bad index (post-check failed, or `analyze` left untracked files) |
+| 3 | Bad index, or a successful `analyze` left working tree changes after a clean start |
+
+Metadata read errors and failed/unparseable integrity queries also exit 3.
+
+Regression checks (temporary Git repositories and fake CLI executables; no npm
+installs or MCP process kills):
+
+```bash
+python3 -B -m unittest discover -s tools -p test_gitnexus_safe_reindex.py -v
+```
+
+The `gauntlet-pytest` workflow runs these alongside its existing Python checks.
 
 ### Troubleshooting
 
@@ -128,8 +151,9 @@ Fails if any of these do not hold:
   Stop the host (or run on a dedicated clone) and retry; the guard cannot prevent respawns.
 - **Exit 3, "BAD INDEX":** the index is corrupt. Re-run the guard (full `--force` rebuild);
   if it persists, confirm no MCP process is attached to `.gitnexus/` during analyze.
-- **"analyze left untracked files":** remove them manually, then re-run; the guard will not
-  auto-delete untracked output.
+- **"analyze left working tree changes":** review `git diff` and `git status` before
+  committing or discarding individual changes. They may belong to another editor or
+  agent; the guard never auto-restores tracked files or deletes untracked output.
 
 ### Why always `--force`
 
@@ -143,5 +167,11 @@ forces a full rebuild rather than trusting incremental analyze.
 
 The guard cannot stop the MCP host from respawning `gitnexus mcp` on demand, so prefer a
 dedicated indexing clone (not a shared working checkout) and a distinct registry alias
-(`--name`). Use the CLI (`npx gitnexus impact|context|cypher`) rather than MCP tools until
+(`--name`). A registry alias alone does not prevent newer GitNexus versions from sharing
+a sibling clone's store. The guard exports `GITNEXUS_SHARED_STORE=off` for analyze and
+queries (compatible with legacy releases) and refuses an existing `.gitnexus/store.json`
+pointer without modifying it. Create a standalone indexing checkout instead of deleting
+or rewriting another checkout's store. See the upstream
+[storage architecture](https://github.com/abhigyanpatwari/GitNexus/blob/main/ARCHITECTURE.md#storage).
+Use the CLI (`npx gitnexus impact|context|cypher`) rather than MCP tools until
 DRG-323 is closed.

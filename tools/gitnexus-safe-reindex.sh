@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # DRG-323 guard — safe GitNexus reindex.
 # Stops gitnexus MCP servers (which can hold .gitnexus/lbug open), runs
-# `analyze --force --skip-agents-md --skip-skills`, reverts generated tracked changes,
+# `analyze --force --skip-agents-md --skip-skills`, reports unexpected file changes,
 # and post-checks the index. Exits non-zero on a bad index.
 set -euo pipefail
 
@@ -39,8 +39,21 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-die() { echo "gitnexus-safe-reindex: $*" >&2; exit "${2:-1}"; }
-gn() { npx --yes gitnexus "$@"; }
+die() { echo "gitnexus-safe-reindex: $1" >&2; exit "${2:-1}"; }
+# A registry alias alone does not isolate sibling clones on newer GitNexus releases.
+# This documented opt-out is also harmless on legacy versions without shared stores.
+export GITNEXUS_SHARED_STORE=off
+gn() {
+  if [[ -f "${REPO_ROOT}/.gitnexus/run.cjs" ]] && command -v node >/dev/null 2>&1; then
+    node "${REPO_ROOT}/.gitnexus/run.cjs" "$@"
+  elif command -v gitnexus >/dev/null 2>&1; then
+    gitnexus "$@"
+  elif command -v pnpm >/dev/null 2>&1; then
+    pnpm --allow-build=@ladybugdb/core --allow-build=gitnexus --allow-build=tree-sitter dlx gitnexus@latest "$@"
+  else
+    npx --yes gitnexus "$@"
+  fi
+}
 
 # --- refusal gates ---------------------------------------------------------
 BRANCH="$(git rev-parse --abbrev-ref HEAD)"
@@ -55,8 +68,12 @@ fi
 if [[ ${SKIP_ANALYZE} -eq 0 && ${KILL_MCP} -eq 0 ]]; then
   die "--no-kill-mcp requires --skip-analyze (an MCP server holding the DB corrupts analyze)"
 fi
+if [[ -e "${REPO_ROOT}/.gitnexus/store.json" ]]; then
+  die "shared-store checkout detected; use a standalone indexing clone (store left untouched)"
+fi
 
 # --- stop MCP, analyze -----------------------------------------------------
+ANALYZE_FAILED=0
 if [[ ${SKIP_ANALYZE} -eq 0 ]]; then
   if pgrep -f 'gitnexus.*mcp' >/dev/null 2>&1; then
     echo "stopping gitnexus mcp processes"
@@ -69,35 +86,35 @@ if [[ ${SKIP_ANALYZE} -eq 0 ]]; then
   # --force: incremental analyze was observed to corrupt Method/File/Property IDs (DRG-323) even with no MCP running.
   ARGS=(analyze --force --skip-agents-md --skip-skills)
   [[ -n "${NAME}" ]] && ARGS+=(--name "${NAME}" --allow-duplicate-name)
-  gn "${ARGS[@]}" || die "analyze failed" 2
+  gn "${ARGS[@]}" || ANALYZE_FAILED=1
   if pgrep -f 'gitnexus.*mcp' >/dev/null 2>&1; then
     echo "WARNING: a gitnexus mcp process respawned during analyze; re-run if the check fails" >&2
   fi
 fi
 
-# --- generated tracked changes: revert (only when we started clean) --------
-if [[ -z "${PRE_STATUS}" ]]; then
-  CHANGED="$(git diff --name-only)"
-  if [[ -n "${CHANGED}" ]]; then
-    echo "reverting generated tracked changes:"; echo "${CHANGED}"
-    git checkout -- ${CHANGED}
+# --- report changes on success and failure; never discard work -------------
+if [[ ${SKIP_ANALYZE} -eq 0 ]]; then
+  POST_STATUS="$(git status --porcelain)"
+  if [[ -n "${POST_STATUS}" ]]; then
+    echo "gitnexus-safe-reindex: working tree changes retained; review manually:" >&2
+    echo "${POST_STATUS}" >&2
+    # A clean start does not establish ownership of edits saved during analyze.
+    if [[ -z "${PRE_STATUS}" && ${ANALYZE_FAILED} -eq 0 ]]; then
+      die "analyze left working tree changes" 3
+    fi
   fi
-  UNTRACKED="$(git ls-files --others --exclude-standard)"
-  if [[ -n "${UNTRACKED}" ]]; then
-    die "analyze left untracked files (remove manually; not deleting automatically):
-${UNTRACKED}" 3
-  fi
+  [[ ${ANALYZE_FAILED} -eq 0 ]] || die "analyze failed" 2
 fi
 
 # --- post-check ------------------------------------------------------------
 FAIL=0
-cy() { gn cypher "$1" 2>&1 | python3 -c 'import sys,json,re
+cy() { gn cypher "$1" --repo "${REPO_ROOT}" | python3 -c 'import sys,json
 t=sys.stdin.read();d=json.loads(t[t.find("{"):]);m=d["markdown"].split("\n")
-print(m[-1].strip("| ").split(" | ")[0] if len(m)>2 else "")'; }
+print(int(m[-1].strip("| ").split(" | ")[0]))' || die "index query failed" 3; }
 
-META_COMMIT="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["lastCommit"])')"
-META_NODES="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["stats"]["nodes"])')"
-META_EDGES="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["stats"]["edges"])')"
+META_COMMIT="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["lastCommit"])')" || die "invalid index metadata" 3
+META_NODES="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["stats"]["nodes"])')" || die "invalid index metadata" 3
+META_EDGES="$(python3 -c 'import json;print(json.load(open(".gitnexus/meta.json"))["stats"]["edges"])')" || die "invalid index metadata" 3
 HEAD_SHA="$(git rev-parse HEAD)"
 G_NODES="$(cy 'MATCH (n) RETURN count(n) AS c')"
 G_EDGES="$(cy 'MATCH ()-[r]->() RETURN count(r) AS c')"

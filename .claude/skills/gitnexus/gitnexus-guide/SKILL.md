@@ -15,7 +15,7 @@ For any task involving code understanding, debugging, impact analysis, or refact
 2. **Match your task to a skill below** and **read that skill file**
 3. **Follow the skill's workflow and checklist**
 
-> If step 1 warns the index is stale, run `node .gitnexus/run.cjs analyze` in the terminal first.
+> If step 1 warns the index is stale, reindex in the terminal first: prefer `tools/gitnexus-safe-reindex.sh` (clean `main` checkout) over a bare `node .gitnexus/run.cjs analyze` — an incremental analyze can silently corrupt the index (empty method names / garbage node IDs, DRG-323). If you must use the CLI directly, pass `analyze --force`. Details: `docs/engineering/gitnexus-index-health.md`.
 
 ## Skills
 
