@@ -109,13 +109,19 @@ plugins:
 failures (missing CLI) still exit **1**.
 
 **When the step runs (branch + path gating).** The step is pinned to `branches: main`
-([`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml)). On a `main` push, the script's
-`should_skip_doc_only_push` guard **skips the reindex entirely** (exit **0** with an
-annotation, no `analyze`) when the push diff touches *only* documentation/metadata — paths
-matching `*.md`, `docs/**`, `.gitignore`, or `production/dashboard-state.yaml` (parity with
-the `paths-ignore` list in `.github/workflows/gitnexus-reindex.yml`). Set
-**`GITNEXUS_FORCE_REINDEX=1`** to override and reindex anyway. Any non-doc path in the diff
-— or a diff that cannot be determined (no parent commit) — makes the step run normally.
+([`.buildkite/pipeline.yml`](../../.buildkite/pipeline.yml)). On a `main` build, the
+[`should_skip_doc_only_push` guard](../../tools/buildkite/gitnexus-reindex.sh) compares
+**the tip commit with its first parent** (`BUILDKITE_COMMIT^` to `BUILDKITE_COMMIT`,
+falling back to `HEAD~1` to `HEAD`). It skips reindexing (exit **0**, no `analyze`)
+when that comparison changes only `*.md`, `docs/**`, `.gitignore`, or
+`production/dashboard-state.yaml`. The script is the source of this exclusion list;
+the disabled `.github/workflows/gitnexus-reindex.yml` has only `workflow_dispatch`
+and no `paths-ignore` list.
+
+This is **tip-commit gating**, not a full push-range check: an earlier code change
+in a multi-commit push can be missed when the tip is documentation-only. Set
+**`GITNEXUS_FORCE_REINDEX=1`** to override. A non-doc path, empty diff, or unavailable
+comparison makes the step run normally.
 
 > **DRG-323 index-integrity gap.** When it does run, this step executes a **bare
 > `gitnexus analyze`** — no

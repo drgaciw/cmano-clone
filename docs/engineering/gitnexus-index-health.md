@@ -28,7 +28,7 @@ server: `--force` does not make it safe to rewrite a database held open by MCP.
 
 ```bash
 pgrep -af '[g]itnexus.*mcp'   # must return no matches before continuing
-npx gitnexus analyze --force --skip-agents-md --skip-skills
+GITNEXUS_SHARED_STORE=off npx gitnexus analyze --force --skip-agents-md --skip-skills
 node .gitnexus/run.cjs status   # expect ✅ up-to-date
 ```
 
@@ -170,13 +170,13 @@ integrity post-check) via [`tools/buildkite/gitnexus-reindex.sh`](../../tools/bu
 it is best-effort and blanket `soft_fail`, so a bad reindex never gates a merge. The guard's
 `--force` rebuild and post-check are **not** wired into CI yet (follow-up tracked under
 DRG-323). The step only runs on `main`, and the script skips the reindex outright for
-doc/metadata-only pushes (`*.md`, `docs/**`, `.gitignore`, `production/dashboard-state.yaml`;
+tip commits whose first-parent diff contains only doc/metadata paths (`*.md`, `docs/**`, `.gitignore`, `production/dashboard-state.yaml`;
 override with `GITNEXUS_FORCE_REINDEX=1`) — see
 [`buildkite-ci.md`](buildkite-ci.md#gitnexus-reindex-soft-fail-prep-script-ready-pipeline-not-scoped-yet)
-for the full gating. When it does run, exposure depends on index warmth:
+for the exact gating and its multi-commit-push limitation. This comparison does not cover the full push range. When it does run, exposure depends on index warmth:
 
-- **Cold checkout** (no prior `.gitnexus/`): `analyze` is effectively a full build, so the
-  DRG-323 incremental-corruption mode does not apply.
+- **Cold index** (no reusable local or shared index): `analyze` performs a full build.
+  This alone is not integrity proof and does not rule out shared-store concerns.
 - **Warm workspace** (a Buildkite agent reusing `.gitnexus/` from an earlier build — the
   pipeline declares no explicit cache, so this is agent-dependent): `analyze` runs
   incrementally and is exposed to the same silent corruption documented above.
@@ -191,5 +191,11 @@ unverified: locally re-run [`tools/gitnexus-safe-reindex.sh`](../../tools/gitnex
 
 The guard cannot stop the MCP host from respawning `gitnexus mcp` on demand, so prefer a
 dedicated indexing clone (not a shared working checkout) and a distinct registry alias
-(`--name`). Use the CLI (`npx gitnexus impact|context|cypher`) rather than MCP tools until
+(`--name`). A registry alias alone does not prevent newer GitNexus versions from sharing
+a sibling clone's store. The guard exports `GITNEXUS_SHARED_STORE=off` for analyze and
+queries (compatible with legacy releases) and refuses an existing `.gitnexus/store.json`
+pointer without modifying it. Create a standalone indexing checkout instead of deleting
+or rewriting another checkout's store. See the upstream
+[storage architecture](https://github.com/abhigyanpatwari/GitNexus/blob/main/ARCHITECTURE.md#storage).
+Use the CLI (`npx gitnexus impact|context|cypher`) rather than MCP tools until
 DRG-323 is closed.
