@@ -248,7 +248,7 @@ Test assembly breakdown at baseline:
 
 This project is indexed by GitNexus as **cmano-clone** (38940 symbols, 79190 relationships, 300 execution flows). Use the GitNexus MCP tools to understand code, assess impact, and navigate safely.
 
-> Index stale? Run `node .gitnexus/run.cjs analyze` from the project root — it auto-selects an available runner. No `.gitnexus/run.cjs` yet? `npx gitnexus analyze` (npm 11 crash → `npm i -g gitnexus`; #1939).
+> Index stale? Prefer `tools/gitnexus-safe-reindex.sh` (clean `main` checkout): it forces a full rebuild and checks integrity because incremental analyze can silently corrupt the index (DRG-323). If the guard is unavailable, stop the MCP host and verify no GitNexus MCP servers remain before following the manual forced-rebuild procedure in `docs/engineering/gitnexus-index-health.md`; `--force` alone does not protect a database held open by MCP.
 
 ## Always Do
 
