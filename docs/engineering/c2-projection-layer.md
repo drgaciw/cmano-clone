@@ -107,7 +107,7 @@ kind never crashes the log panel — it just isn't surfaced until a case is adde
 
 #### Combat lines are fenced on the combat-event projection (DRG-402)
 
-The four combat categories (`WEAPON_LAUNCH`, `ENGAGE_ABORT`, and the terminal outcomes) are **not**
+Combat categories (`WEAPON_LAUNCH`, `ENGAGE_ABORT`, and the terminal outcomes) are **not**
 emitted purely on the presence of an `Engagement` / `EngagementOutcome` entry. `Project` first folds
 the engagement/outcome subset of the same entries through
 [`CombatEventLogProjection.Build`](../../src/ProjectAegis.Delegation/CombatEvents/CombatEventLogProjection.cs)
@@ -124,8 +124,9 @@ resolutions. A combat line is then emitted **only when the matching entry is in 
   cannot steal another engagement's terminal.
 
 This keeps the message log honest with the combat-event picture: the same fact can never appear as a
-combat line without the authoritative snapshot having recorded it. Non-combat categories (`POLICY_DENIAL`,
+combat line without the derived combat-event snapshot having recorded it. Non-combat categories (`POLICY_DENIAL`,
 `CONTACT`, `MAGAZINE`, …) are unaffected — they project directly from the order-log entry.
+The order-log rows remain authoritative; the combat-event snapshot is a derived presentation model.
 
 `MessageLogPanelBinder.Bind` then formats each line as `"[{Category}] {Text}"` into a
 `MessageLogPanelState`. The **`MessageLogLine` carries no duplicate storage** — it references
