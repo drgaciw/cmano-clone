@@ -29,6 +29,7 @@ namespace ProjectAegis.Unity.Runtime
         private bool _wired;
         private bool _handlersRegistered;
         private string? _lastStatus;
+        private int _lastRosterVersion;
 
         /// <summary>Last status / failure reason shown on the panel.</summary>
         public string? LastStatus => _lastStatus;
@@ -72,7 +73,7 @@ namespace ProjectAegis.Unity.Runtime
         private void OnEnable()
         {
             TryWireElements();
-            Refresh();
+            Refresh(force: true);
         }
 
         private void LateUpdate()
@@ -263,26 +264,53 @@ namespace ProjectAegis.Unity.Runtime
             if (bridgeHost.TryIssueAgentDirective(directiveId, out var reason))
             {
                 SetStatus(null);
-                Refresh();
+                Refresh(force: true);
                 return;
             }
 
             SetStatus(reason ?? "ISSUE_FAILED");
         }
 
-        private void Refresh()
+        private void Refresh(bool force = false)
         {
             if (!_wired || bridgeHost == null)
             {
                 return;
             }
 
-            _presentation = AgentRosterApplyState.Apply(bridgeHost.LastAgentRoster);
+            // Rebuild presentation only when roster content changes (avoid per-frame allocation).
+            var roster = bridgeHost.LastAgentRoster;
+            var version = ComputeRosterVersion(roster);
+            if (!force && version == _lastRosterVersion)
+            {
+                // Still update button enablement / status which can change without roster mutation.
+                UpdateDirectiveButtons();
+                return;
+            }
+
+            _lastRosterVersion = version;
+            _presentation = AgentRosterApplyState.Apply(roster);
             if (_rosterList != null)
             {
                 _rosterList.itemsSource = _presentation.Lines as System.Collections.IList
                     ?? new List<string>(_presentation.Lines);
                 _rosterList.Rebuild();
+            }
+
+            UpdateDirectiveButtons();
+
+            var root = _document.rootVisualElement?.Q(RootName);
+            if (root != null)
+            {
+                root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
+
+        private void UpdateDirectiveButtons()
+        {
+            if (bridgeHost == null)
+            {
+                return;
             }
 
             var hasSelection = !string.IsNullOrEmpty(bridgeHost.SelectedUnitId);
@@ -310,11 +338,24 @@ namespace ProjectAegis.Unity.Runtime
             {
                 SetStatus(null);
             }
+        }
 
-            var root = _document.rootVisualElement?.Q(RootName);
-            if (root != null)
+        private static int ComputeRosterVersion(IReadOnlyList<AgentRosterEntry> roster)
+        {
+            unchecked
             {
-                root.style.display = showPanel ? DisplayStyle.Flex : DisplayStyle.None;
+                var hash = 17;
+                hash = hash * 31 + roster.Count;
+                for (var i = 0; i < roster.Count; i++)
+                {
+                    var e = roster[i];
+                    hash = hash * 31 + (e.UnitId?.GetHashCode() ?? 0);
+                    hash = hash * 31 + (e.AgentId?.GetHashCode() ?? 0);
+                    hash = hash * 31 + (e.ModeLabel?.GetHashCode() ?? 0);
+                    hash = hash * 31 + (e.StatusLabel?.GetHashCode() ?? 0);
+                    hash = hash * 31 + (e.AttentionLabel?.GetHashCode() ?? 0);
+                }
+                return hash;
             }
         }
 
