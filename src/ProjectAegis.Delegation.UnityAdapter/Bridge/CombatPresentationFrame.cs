@@ -76,14 +76,17 @@ public static class CombatPresentationFrameBridge
             foreach (var entry in log.ChronologicalEntries())
                 if (entry.SimTime <= simTime) bounded.Append(entry);
         }
-        var events = CombatEventLogProjection.Build(bounded, simTime);
+        // Reject the entire cached frame before attaching its facts when seeking behind its evidence.
+        var currentContacts = contacts.SimTime > simTime || contacts.SimTick > simTime
+            || contacts.Contacts.Any(c => c.LastSimTime > simTime)
+            || contacts.KillChain.Contacts.Any(c => c.LastSimTime > simTime)
+            || contacts.KillChain.Transitions.Any(c => c.SimTime > simTime)
+                ? SliceAContactFrame.Empty : contacts;
+        var events = CombatEventLogProjection.Build(bounded, simTime, currentContacts.Targetability);
         var explanations = events.Execution.Select(f => new CombatEngagementExplanation(
             f.CorrelationId, f.ShooterId, f.TargetId, f.HasFireControlTrack, f.SalvoSize)).ToArray();
         return new CombatPresentationFrame(events,
-            contacts.SimTime > simTime || contacts.SimTick > simTime || contacts.Contacts.Any(c => c.LastSimTime > simTime)
-                || contacts.KillChain.Contacts.Any(c => c.LastSimTime > simTime)
-                || contacts.KillChain.Transitions.Any(c => c.SimTime > simTime)
-                ? SliceAContactFrame.Empty : contacts,
+            currentContacts,
             BdaAssessProjection.Project(bounded, (ulong)simTime), simTime)
         { Explanations = Array.AsReadOnly(explanations) };
     }

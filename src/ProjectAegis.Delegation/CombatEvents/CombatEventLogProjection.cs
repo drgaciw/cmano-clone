@@ -17,8 +17,8 @@ public static class CombatEventLogProjection
     /// <summary>Builds a replay-stable combat-event snapshot through the supplied simulation time.</summary>
     /// <remarks>
     /// Correlation ids are order-log sequence ids, not resolver engagement ids. A supplied Slice A
-    /// <paramref name="targetability"/> snapshot is attached for event targets only; it never alters the
-    /// historical lifecycle recorded in the log.
+    /// <paramref name="targetability"/> snapshot is attached for exact event shooter/target legs, plus
+    /// contact-wide track refusals for event targets. It never alters the historical lifecycle recorded in the log.
     /// </remarks>
     public static CombatEventSnapshot Build(
         DecisionLog? log,
@@ -207,11 +207,13 @@ public static class CombatEventLogProjection
             return Array.Empty<CombatTargetabilityFact>();
         }
 
+        var legs = new HashSet<(string ShooterId, string TargetId)>(events.Select(e => (e.ShooterId, e.TargetId)));
         var targets = new HashSet<string>(events.Select(e => e.TargetId), StringComparer.Ordinal);
         return targetability.Contacts
-            .Where(row => targets.Contains(row.TargetId))
             .OrderBy(row => row.ContactId, StringComparer.Ordinal)
             .Select(CombatTargetabilityFact.FromRow)
+            .Where(fact => (fact.ShooterId is not null && legs.Contains((fact.ShooterId, fact.TargetId)))
+                || (fact.IsContactWideRefusal && targets.Contains(fact.TargetId)))
             .ToArray();
     }
 
