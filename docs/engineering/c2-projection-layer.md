@@ -144,6 +144,10 @@ mutates the log:
   only, so engagement/outcome entries — and therefore the combat fence above — are identical in both
   views.
 
+The fog itself (the `PlayerInfoModel` enum, the `PlayerInfoFilter` fold, and how a scenario selects a
+model) is documented as a subsystem in [player-info-fog.md](player-info-fog.md) — this section is just
+its message-log entry point.
+
 `MessageLogPanelBinder.Bind` then formats each line as `"[{Category}] {Text}"` into a
 `MessageLogPanelState`. The **`MessageLogLine` carries no duplicate storage** — it references
 the log's `SequenceId`/`SimTime`, so the message log is a projection, not a second event store.
@@ -407,5 +411,6 @@ dotnet test  src/ProjectAegis.Delegation.Tests/ProjectAegis.Delegation.Tests.csp
 | Batch CSV → oracle QA loop | [qa-gauntlet.md](qa-gauntlet.md) |
 | Order-log schema | [ADR-003](../architecture/adr-003-order-log-schema.md) |
 | C2 map / APP-6 presentation | [ADR-007](../architecture/adr-007-c2-map-presentation.md) |
+| Live-view fog (`PlayerInfoModel` / `PlayerInfoFilter`) feeding `ProjectLive` | [player-info-fog.md](player-info-fog.md) |
 | Advisory authority / ROE / escalation chrome (Slice A) | [c2-authority-escalation-chrome.md](c2-authority-escalation-chrome.md) |
 | Tick-level Slice A read-model aggregate (folds these projections) | [c2-slice-a-contact-frame.md](c2-slice-a-contact-frame.md) |

@@ -64,7 +64,7 @@ these map 1:1 onto `ScenarioPolicyProfile` via the loader's `To*` parsers.
 | `id` | string | `""` | Catalog key. Keep unique; convention = filename stem. |
 | `friendlyRoe` | ROE enum | `WeaponsFree` | Side ROE for friendly units. |
 | `opposingRoe` | ROE enum | `WeaponsFree` | Side ROE for opposing units. |
-| `playerInfoModel` | enum | `FullTransparency` | Fog/transparency model (req 02/03). |
+| `playerInfoModel` | enum | `FullTransparency` | Live-view fog/transparency model (req 02/03) — see [player-info-fog.md](player-info-fog.md). |
 | `personalityEditPolicy` | enum | `Anytime` | When agent personalities may be edited. |
 | `allowDualSideControl` | bool | `false` | Permit controlling both sides (sandbox/tests). |
 | `unitOverrides` | map `unitId → ROE` | — | Per-unit ROE override; inherits side `maxSalvo`. |
