@@ -26,7 +26,9 @@ elif tool == "npx":
     args = args[2:]  # --yes gitnexus
 if args[0] == "analyze":
     assert "--force" in args and "--skip-agents-md" in args and "--skip-skills" in args
-    sys.exit(0)
+    if os.environ.get("EDIT_DURING_ANALYZE"):
+        pathlib.Path("owner-notes.md").write_text("concurrent edit\n")
+    sys.exit(7 if os.environ.get("FAIL_ANALYZE") else 0)
 assert args[0] == "cypher"
 if "--repo" not in args or args[args.index("--repo") + 1] != os.getcwd():
     print("Multiple repositories indexed; specify --repo", file=sys.stderr)
@@ -61,6 +63,7 @@ class SafeReindexTests(unittest.TestCase):
         (self.repo / "tools").mkdir()
         shutil.copy2(GUARD, self.repo / "tools" / GUARD.name)
         (self.repo / ".gitignore").write_text(".gitnexus/\n")
+        (self.repo / "owner-notes.md").write_text("original\n")
         self.git("add", ".")
         self.git("-c", "user.name=Guard Test", "-c", "user.email=test@example.invalid",
                  "-c", "commit.gpgsign=false", "commit", "-m", "fixture")
@@ -151,6 +154,36 @@ class SafeReindexTests(unittest.TestCase):
         result, calls = self.run_guard()
         self.assertEqual(1, result.returncode)
         self.assertEqual([], calls)
+
+    def test_successful_analyze_reports_and_preserves_concurrent_edit(self):
+        self.cli("gitnexus")
+        result, _ = self.run_guard(EDIT_DURING_ANALYZE="1")
+        self.assertEqual(3, result.returncode, result.stderr)
+        self.assertEqual("concurrent edit\n", (self.repo / "owner-notes.md").read_text())
+        self.assertIn("owner-notes.md", result.stderr)
+
+    def test_failed_analyze_reports_and_preserves_concurrent_edit(self):
+        self.cli("gitnexus")
+        result, _ = self.run_guard(EDIT_DURING_ANALYZE="1", FAIL_ANALYZE="1")
+        self.assertEqual(2, result.returncode, result.stderr)
+        self.assertEqual("concurrent edit\n", (self.repo / "owner-notes.md").read_text())
+        self.assertIn("owner-notes.md", result.stderr)
+
+    def test_postcheck_does_not_restore_edits_saved_after_initial_status(self):
+        self.cli("gitnexus")
+        # Return a clean initial status, then emulate an editor saving a tracked file.
+        (self.bin / "git").unlink()
+        self.executable("git", f"#!{sys.executable}\n" +
+            "import pathlib, subprocess, sys\n" +
+            f"result = subprocess.run([{shutil.which('git')!r}, *sys.argv[1:]], capture_output=True)\n" +
+            "if sys.argv[1:] == ['status', '--porcelain']:\n" +
+            "    pathlib.Path('owner-notes.md').write_text('concurrent edit\\n')\n" +
+            "sys.stdout.buffer.write(result.stdout)\n" +
+            "sys.stderr.buffer.write(result.stderr)\n" +
+            "sys.exit(result.returncode)\n")
+        result, _ = self.run_guard("--skip-analyze")
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual("concurrent edit\n", (self.repo / "owner-notes.md").read_text())
 
 
 if __name__ == "__main__":

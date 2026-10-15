@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # DRG-323 guard — safe GitNexus reindex.
 # Stops gitnexus MCP servers (which can hold .gitnexus/lbug open), runs
-# `analyze --force --skip-agents-md --skip-skills`, reverts generated tracked changes,
+# `analyze --force --skip-agents-md --skip-skills`, reports unexpected file changes,
 # and post-checks the index. Exits non-zero on a bad index.
 set -euo pipefail
 
@@ -67,6 +67,7 @@ if [[ ${SKIP_ANALYZE} -eq 0 && ${KILL_MCP} -eq 0 ]]; then
 fi
 
 # --- stop MCP, analyze -----------------------------------------------------
+ANALYZE_FAILED=0
 if [[ ${SKIP_ANALYZE} -eq 0 ]]; then
   if pgrep -f 'gitnexus.*mcp' >/dev/null 2>&1; then
     echo "stopping gitnexus mcp processes"
@@ -79,24 +80,24 @@ if [[ ${SKIP_ANALYZE} -eq 0 ]]; then
   # --force: incremental analyze was observed to corrupt Method/File/Property IDs (DRG-323) even with no MCP running.
   ARGS=(analyze --force --skip-agents-md --skip-skills)
   [[ -n "${NAME}" ]] && ARGS+=(--name "${NAME}" --allow-duplicate-name)
-  gn "${ARGS[@]}" || die "analyze failed" 2
+  gn "${ARGS[@]}" || ANALYZE_FAILED=1
   if pgrep -f 'gitnexus.*mcp' >/dev/null 2>&1; then
     echo "WARNING: a gitnexus mcp process respawned during analyze; re-run if the check fails" >&2
   fi
 fi
 
-# --- generated tracked changes: revert (only when we started clean) --------
-if [[ -z "${PRE_STATUS}" ]]; then
-  CHANGED="$(git diff --name-only)"
-  if [[ -n "${CHANGED}" ]]; then
-    echo "reverting generated tracked changes:"; echo "${CHANGED}"
-    git checkout -- ${CHANGED}
+# --- report changes on success and failure; never discard work -------------
+if [[ ${SKIP_ANALYZE} -eq 0 ]]; then
+  POST_STATUS="$(git status --porcelain)"
+  if [[ -n "${POST_STATUS}" ]]; then
+    echo "gitnexus-safe-reindex: working tree changes retained; review manually:" >&2
+    echo "${POST_STATUS}" >&2
+    # A clean start does not establish ownership of edits saved during analyze.
+    if [[ -z "${PRE_STATUS}" && ${ANALYZE_FAILED} -eq 0 ]]; then
+      die "analyze left working tree changes" 3
+    fi
   fi
-  UNTRACKED="$(git ls-files --others --exclude-standard)"
-  if [[ -n "${UNTRACKED}" ]]; then
-    die "analyze left untracked files (remove manually; not deleting automatically):
-${UNTRACKED}" 3
-  fi
+  [[ ${ANALYZE_FAILED} -eq 0 ]] || die "analyze failed" 2
 fi
 
 # --- post-check ------------------------------------------------------------
