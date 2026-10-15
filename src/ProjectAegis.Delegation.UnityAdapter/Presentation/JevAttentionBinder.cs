@@ -3,71 +3,25 @@ using System.Text.Json;
 namespace ProjectAegis.Delegation.UnityAdapter.Presentation;
 
 /// <summary>
-/// DRG-319 local attention Score for synthetic <c>aegis.jev.state.v0</c> projections.
+/// DRG-319 attention Score for synthetic <c>aegis.jev.state.v0</c> projections.
 /// Ignores <c>expected*</c> oracle fields. Does not enqueue orders or recommend weapons.
+/// <see cref="JevAttentionPanel.ModelScoreAvailable"/> is true only when every row carries a
+/// pinned <c>jevDecision</c>. Otherwise the level is the local heuristic.
 /// </summary>
 public static class JevAttentionBinder
 {
     /// <summary>Fixture schema this binder accepts.</summary>
     public const string StateSchema = "aegis.jev.state.v0";
 
-    /// <summary>Score one projection row. Pure; no I/O.</summary>
+    /// <summary>
+    /// Score one projection row from local rules. Pure; no I/O.
+    /// A missing or non-numeric range does not match a proximity band.
+    /// A unit the player is already watching steps down one band.
+    /// </summary>
     public static string Score(JevAttentionCue cue)
     {
-        var iff = cue.Iff ?? string.Empty;
-        var hostile = iff.Equals("hostile", StringComparison.OrdinalIgnoreCase);
-        var friendly = iff.Equals("friendly", StringComparison.OrdinalIgnoreCase);
-        var unknown = iff.Equals("unknown", StringComparison.OrdinalIgnoreCase);
-        var neutral = iff.Equals("neutral", StringComparison.OrdinalIgnoreCase);
-        var urgency = cue.UrgencyHint ?? string.Empty;
-
-        if (hostile && cue.Closing && cue.RangeNm <= 12d)
-        {
-            return JevAttentionLevel.Immediate;
-        }
-
-        if (hostile && (urgency.Equals("critical", StringComparison.OrdinalIgnoreCase)
-            || urgency.Equals("imminent", StringComparison.OrdinalIgnoreCase)))
-        {
-            return JevAttentionLevel.Immediate;
-        }
-
-        if (unknown && cue.Closing && cue.RangeNm < 18d)
-        {
-            return JevAttentionLevel.Focus;
-        }
-
-        if (urgency.Equals("urgent", StringComparison.OrdinalIgnoreCase) && cue.Closing)
-        {
-            return JevAttentionLevel.Focus;
-        }
-
-        if (unknown && !cue.Closing && cue.RangeNm >= 15d && cue.RangeNm <= 28d)
-        {
-            return JevAttentionLevel.Watch;
-        }
-
-        if (urgency.Equals("elevated", StringComparison.OrdinalIgnoreCase))
-        {
-            return JevAttentionLevel.Watch;
-        }
-
-        if (friendly && !cue.Closing && cue.RangeNm >= 35d)
-        {
-            return JevAttentionLevel.Ignore;
-        }
-
-        if (neutral || cue.HoldFire || cue.RoeConflict)
-        {
-            return JevAttentionLevel.Low;
-        }
-
-        if (friendly)
-        {
-            return JevAttentionLevel.Ignore;
-        }
-
-        return JevAttentionLevel.Low;
+        var level = ScoreThreat(cue);
+        return cue.PlayerAlreadyLooking ? DemoteAttended(level) : level;
     }
 
     /// <summary>Sort high score first. Equal ranks keep unit-id order.</summary>
@@ -112,19 +66,31 @@ public static class JevAttentionBinder
 
         RejectPrivatePayload(root);
         var disclosure = JevDisclosureBinder.Project(ReadJevDecide(root));
-        var modelScore = !disclosure.Visible;
-        var selected = ReadSelectedUnit(root);
-        var rows = new List<JevAttentionRow>();
+        var skillUp = !disclosure.Visible;
+        var selected = ReadPlayerId(root, "selectedUnitId");
+        var camera = ReadPlayerId(root, "cameraFocusId");
+        var scored = new List<(JevAttentionRow Row, bool FromModel)>();
         if (root.TryGetProperty("roster", out var roster) && roster.ValueKind == JsonValueKind.Array)
         {
             foreach (var entry in roster.EnumerateArray())
             {
-                rows.Add(ProjectEntry(entry, selected, modelScore));
+                scored.Add(ProjectEntry(entry, selected, camera, skillUp));
             }
         }
         else
         {
-            rows.Add(ProjectEntry(root, selected, modelScore));
+            scored.Add(ProjectEntry(root, selected, camera, skillUp));
+        }
+
+        var modelScore = skillUp && scored.Count > 0;
+        var rows = new List<JevAttentionRow>(scored.Count);
+        for (var i = 0; i < scored.Count; i++)
+        {
+            rows.Add(scored[i].Row);
+            if (!scored[i].FromModel)
+            {
+                modelScore = false;
+            }
         }
 
         return new JevAttentionPanel(
@@ -134,19 +100,99 @@ public static class JevAttentionBinder
             disclosure);
     }
 
-    private static JevAttentionRow ProjectEntry(JsonElement entry, string? selectedUnitId, bool modelScore)
+    private static string ScoreThreat(JevAttentionCue cue)
+    {
+        var iff = cue.Iff ?? string.Empty;
+        var hostile = iff.Equals("hostile", StringComparison.OrdinalIgnoreCase);
+        var friendly = iff.Equals("friendly", StringComparison.OrdinalIgnoreCase);
+        var unknown = iff.Equals("unknown", StringComparison.OrdinalIgnoreCase);
+        var neutral = iff.Equals("neutral", StringComparison.OrdinalIgnoreCase);
+        var urgency = cue.UrgencyHint ?? string.Empty;
+
+        if (hostile && cue.Closing && cue.RangeNm is <= 12d)
+        {
+            return JevAttentionLevel.Immediate;
+        }
+
+        if (hostile && (urgency.Equals("critical", StringComparison.OrdinalIgnoreCase)
+            || urgency.Equals("imminent", StringComparison.OrdinalIgnoreCase)))
+        {
+            return JevAttentionLevel.Immediate;
+        }
+
+        if (unknown && cue.Closing && cue.RangeNm is < 18d)
+        {
+            return JevAttentionLevel.Focus;
+        }
+
+        if (urgency.Equals("urgent", StringComparison.OrdinalIgnoreCase) && cue.Closing)
+        {
+            return JevAttentionLevel.Focus;
+        }
+
+        if (unknown && !cue.Closing && cue.RangeNm is >= 15d and <= 28d)
+        {
+            return JevAttentionLevel.Watch;
+        }
+
+        if (urgency.Equals("elevated", StringComparison.OrdinalIgnoreCase))
+        {
+            return JevAttentionLevel.Watch;
+        }
+
+        if (friendly && !cue.Closing && cue.RangeNm is >= 35d)
+        {
+            return JevAttentionLevel.Ignore;
+        }
+
+        if (neutral || cue.HoldFire || cue.RoeConflict)
+        {
+            return JevAttentionLevel.Low;
+        }
+
+        if (friendly)
+        {
+            return JevAttentionLevel.Ignore;
+        }
+
+        return JevAttentionLevel.Low;
+    }
+
+    /// <summary>One band down. The player already has eyes on this unit.</summary>
+    private static string DemoteAttended(string level) => level switch
+    {
+        JevAttentionLevel.Immediate => JevAttentionLevel.Focus,
+        JevAttentionLevel.Focus => JevAttentionLevel.Watch,
+        JevAttentionLevel.Watch => JevAttentionLevel.Low,
+        JevAttentionLevel.Low => JevAttentionLevel.Ignore,
+        _ => level,
+    };
+
+    private static (JevAttentionRow Row, bool FromModel) ProjectEntry(
+        JsonElement entry,
+        string? selectedUnitId,
+        string? cameraFocusId,
+        bool skillUp)
     {
         var unitId = RequiredString(entry, "unitId");
         var contactId = OptionalString(entry, "contactId");
-        if (!modelScore)
+        if (!skillUp)
         {
-            return BuildRow(unitId, contactId, null);
+            return (BuildRow(unitId, contactId, null), false);
+        }
+
+        var modelLevel = ReadModelLevel(entry);
+        if (modelLevel is not null)
+        {
+            return (BuildRow(unitId, contactId, modelLevel), true);
         }
 
         var contact = ObjectOrEmpty(entry, "contact");
         var flags = ObjectOrEmpty(entry, "flags");
         var roe = ObjectOrEmpty(entry, "roe");
         var iff = OptionalString(contact, "iff") ?? OptionalString(contact, "classHint");
+        var looking = string.Equals(selectedUnitId, unitId, StringComparison.Ordinal)
+            || string.Equals(cameraFocusId, unitId, StringComparison.Ordinal);
         var cue = new JevAttentionCue(
             iff,
             OptionalDouble(contact, "rangeNm"),
@@ -154,25 +200,74 @@ public static class JevAttentionBinder
             OptionalString(flags, "urgencyHint"),
             OptionalBool(roe, "holdFire"),
             OptionalBool(flags, "roeConflict"),
-            string.Equals(selectedUnitId, unitId, StringComparison.Ordinal));
-        return BuildRow(unitId, contactId, Score(cue));
+            looking);
+        return (BuildRow(unitId, contactId, Score(cue)), false);
     }
 
-    private static JevAttentionRow BuildRow(string unitId, string? contactId, string? level)
+    /// <summary>
+    /// A real Jev result names the pinned model and a known <c>attention_priority</c> band.
+    /// Skill availability alone is not a result.
+    /// </summary>
+    private static string? ReadModelLevel(JsonElement entry)
     {
-        var shown = level ?? JevAttentionLevel.Unavailable;
-        var highlight = JevAttentionLevel.Highlights(level);
-        var css = JevAttentionLevel.CssClass(level);
-        var contact = string.IsNullOrEmpty(contactId) ? string.Empty : $"  {contactId}";
-        return new JevAttentionRow(
+        if (!entry.TryGetProperty("jevDecision", out var decision) || decision.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        var model = OptionalString(decision, "model");
+        if (!string.Equals(model, JevDisclosurePresentation.PinnedOpenRouterModel, StringComparison.Ordinal)
+            && !string.Equals(model, JevDisclosurePresentation.PinnedModel, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return CanonicalLevel(OptionalString(decision, "attention_priority"));
+    }
+
+    private static string? CanonicalLevel(string? level)
+    {
+        if (level is null)
+        {
+            return null;
+        }
+
+        if (level.Equals(JevAttentionLevel.Immediate, StringComparison.OrdinalIgnoreCase))
+        {
+            return JevAttentionLevel.Immediate;
+        }
+
+        if (level.Equals(JevAttentionLevel.Focus, StringComparison.OrdinalIgnoreCase))
+        {
+            return JevAttentionLevel.Focus;
+        }
+
+        if (level.Equals(JevAttentionLevel.Watch, StringComparison.OrdinalIgnoreCase))
+        {
+            return JevAttentionLevel.Watch;
+        }
+
+        if (level.Equals(JevAttentionLevel.Low, StringComparison.OrdinalIgnoreCase))
+        {
+            return JevAttentionLevel.Low;
+        }
+
+        if (level.Equals(JevAttentionLevel.Ignore, StringComparison.OrdinalIgnoreCase))
+        {
+            return JevAttentionLevel.Ignore;
+        }
+
+        return null;
+    }
+
+    private static JevAttentionRow BuildRow(string unitId, string? contactId, string? level) =>
+        new(
             unitId,
             contactId,
             level,
             JevAttentionLevel.Rank(level),
-            highlight,
-            css,
-            $"ATTN {shown}  {unitId}{contact}");
-    }
+            JevAttentionLevel.Highlights(level),
+            JevAttentionLevel.CssClass(level));
 
     private static int CompareRows(JevAttentionRow left, JevAttentionRow right)
     {
@@ -205,14 +300,14 @@ public static class JevAttentionBinder
         };
     }
 
-    private static string? ReadSelectedUnit(JsonElement root)
+    private static string? ReadPlayerId(JsonElement root, string name)
     {
         if (!root.TryGetProperty("playerInfoModel", out var player) || player.ValueKind != JsonValueKind.Object)
         {
             return null;
         }
 
-        return OptionalString(player, "selectedUnitId");
+        return OptionalString(player, name);
     }
 
     private static void RejectPrivatePayload(JsonElement root)
@@ -260,14 +355,15 @@ public static class JevAttentionBinder
         return value.ValueKind == JsonValueKind.String ? value.GetString() : null;
     }
 
-    private static double OptionalDouble(JsonElement element, string name)
+    /// <summary>Null when the field is missing or not a number. Zero stays zero.</summary>
+    private static double? OptionalDouble(JsonElement element, string name)
     {
         if (element.ValueKind != JsonValueKind.Object || !element.TryGetProperty(name, out var value))
         {
-            return 0d;
+            return null;
         }
 
-        return value.ValueKind == JsonValueKind.Number ? value.GetDouble() : 0d;
+        return value.ValueKind == JsonValueKind.Number ? value.GetDouble() : null;
     }
 
     private static bool OptionalBool(JsonElement element, string name)
@@ -284,7 +380,7 @@ public static class JevAttentionBinder
 /// <summary>Projection cues used to score attention. Oracle <c>expected*</c> fields are not inputs.</summary>
 public sealed record JevAttentionCue(
     string? Iff,
-    double RangeNm,
+    double? RangeNm,
     bool Closing,
     string? UrgencyHint,
     bool HoldFire,

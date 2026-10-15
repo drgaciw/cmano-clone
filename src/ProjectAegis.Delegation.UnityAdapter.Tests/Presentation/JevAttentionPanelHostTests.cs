@@ -16,6 +16,7 @@ public sealed class JevAttentionPanelHostTests
         Assert.That(source, Does.Contain("jev-disclosure-banner"));
         Assert.That(source, Does.Contain("jev-attention-list"));
         Assert.That(source, Does.Contain("jev-model-pin"));
+        Assert.That(source, Does.Contain("AttributionLine"));
         Assert.That(source, Does.Not.Contain("IOrderSink"));
         Assert.That(source, Does.Not.Contain("ApplyOrder"));
         Assert.That(source, Does.Not.Contain("TryIssue"));

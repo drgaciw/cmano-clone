@@ -2,7 +2,7 @@
   "schema": "aegis.jev.state.v0",
   "fixtureId": "vs1-skill-available",
   "expectedDisclosure": false,
-  "expectedAttentionLevel": "watch",
+  "expectedAttentionLevel": "low",
   "unitId": "u-fixture-04",
   "contactId": "c-fixture-healthy",
   "taskGroupId": "tg-fixture-alpha",

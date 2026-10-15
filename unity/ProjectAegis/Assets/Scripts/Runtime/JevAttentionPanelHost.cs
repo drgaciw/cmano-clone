@@ -108,7 +108,7 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_modelPin != null)
             {
-                _modelPin.text = $"MODEL: {panel.Disclosure.ModelPin}";
+                _modelPin.text = panel.AttributionLine;
             }
 
             if (_list != null)

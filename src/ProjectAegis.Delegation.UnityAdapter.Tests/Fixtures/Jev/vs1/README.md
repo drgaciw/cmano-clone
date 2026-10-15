@@ -24,11 +24,11 @@ These files are **synthetic projection fixtures** only. They must never include 
 
 | File | Purpose | Expected Score | Expected disclosure |
 |------|---------|----------------|---------------------|
-| `attention_immediate.json` | Single hostile closing contact; player looking elsewhere | `immediate` | off (`jevDecide: true`) |
+| `attention_immediate.json` | Single hostile closing contact; player looking elsewhere | `immediate` (heuristic; no `jevDecision`) | off (`jevDecide: true`) |
 | `attention_ignore.json` | Distant friendly; player already focused | `ignore` | off |
 | `attention_mixed_roster.json` | 5 units varied urgency/closing/ROE for sort order | see `expectedSortOrderHint` / per-row `expectedAttentionLevel` | off |
-| `skill_unavailable.json` | `skillAvailability.jevDecide: false` disclosure path | n/a (fail-soft heuristic OK) | **on** |
-| `skill_available.json` | Healthy decide path | ~`watch` | **off** |
+| `skill_unavailable.json` | `skillAvailability.jevDecide: false` disclosure path | n/a (no score) | **on** |
+| `skill_available.json` | Healthy decide path; player already on that unit | `low` (unattended threat band is `watch`) | **off** |
 | `questions_vs1.json` | Question payloads matching research inventory | — | — |
 
 ### Mixed roster expected sort (high → low)
@@ -36,8 +36,10 @@ These files are **synthetic projection fixtures** only. They must never include 
 1. `u-fixture-imm` → `immediate`  
 2. `u-fixture-focus` → `focus`  
 3. `u-fixture-watch` → `watch`  
-4. `u-fixture-low` → `low`  
-5. `u-fixture-ignore` → `ignore`
+4. `u-fixture-ignore` → `ignore`  
+5. `u-fixture-low` → `ignore` (player already looking; threat band `low` steps down one)
+
+A missing or non-numeric `rangeNm` is unknown, not zero, so a closing contact is not scored as if it were on top of the player. `playerInfoModel.selectedUnitId` and `cameraFocusId` both count as already looking. `ModelScoreAvailable` requires a pinned `jevDecision` (`typesafe/jev-1.13` or `jev-1.13.x` plus `attention_priority`) on every row. `jevDecide: true` alone keeps the local heuristic and does not claim a model score.
 
 ## Out of scope (VS1)
 

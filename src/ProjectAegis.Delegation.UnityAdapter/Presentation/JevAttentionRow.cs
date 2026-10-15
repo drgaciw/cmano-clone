@@ -7,5 +7,16 @@ public sealed record JevAttentionRow(
     string? Level,
     int Rank,
     bool Highlight,
-    string CssClass,
-    string Line);
+    string CssClass)
+{
+    /// <summary>Advisory line. The contact id stays on the row so the text cannot drift from it.</summary>
+    public string Line
+    {
+        get
+        {
+            var shown = Level ?? JevAttentionLevel.Unavailable;
+            var contact = string.IsNullOrEmpty(ContactId) ? string.Empty : $"  {ContactId}";
+            return $"ATTN {shown}  {UnitId}{contact}";
+        }
+    }
+}

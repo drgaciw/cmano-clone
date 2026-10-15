@@ -5,8 +5,8 @@
     "u-fixture-imm",
     "u-fixture-focus",
     "u-fixture-watch",
-    "u-fixture-low",
-    "u-fixture-ignore"
+    "u-fixture-ignore",
+    "u-fixture-low"
   ],
   "skillAvailability": {
     "jevDecide": true,
@@ -106,7 +106,7 @@
       "unitId": "u-fixture-low",
       "contactId": "c-fixture-low",
       "taskGroupId": "tg-fixture-bravo",
-      "expectedAttentionLevel": "low",
+      "expectedAttentionLevel": "ignore",
       "roe": {
         "weaponsFree": false,
         "weaponsTight": true,

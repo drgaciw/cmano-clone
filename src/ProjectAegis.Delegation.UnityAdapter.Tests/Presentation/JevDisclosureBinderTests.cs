@@ -21,6 +21,9 @@ public sealed class JevDisclosureBinderTests
         Assert.That(panel.Rows[0].Level, Is.Null);
         Assert.That(panel.Rows[0].Highlight, Is.False);
         Assert.That(panel.Disclosure.ModelPin, Is.EqualTo(JevDisclosurePresentation.PinnedModel));
+        Assert.That(panel.Disclosure.OpenRouterModel, Is.EqualTo(JevDisclosurePresentation.PinnedOpenRouterModel));
+        Assert.That(panel.AttributionLine, Does.Contain("OFFLINE").And.Contain("vs1-skill-unavailable"));
+        Assert.That(panel.AttributionLine, Does.Not.Contain(JevDisclosurePresentation.PinnedOpenRouterModel));
     }
 
     [Test]
@@ -30,8 +33,9 @@ public sealed class JevDisclosureBinderTests
 
         Assert.That(panel.Disclosure.Visible, Is.False);
         Assert.That(panel.Disclosure.CssClass, Is.EqualTo(JevDisclosurePresentation.HiddenCssClass));
-        Assert.That(panel.ModelScoreAvailable, Is.True);
-        Assert.That(panel.Rows[0].Level, Is.EqualTo(JevAttentionLevel.Watch));
+        Assert.That(panel.Disclosure.OpenRouterModel, Is.EqualTo(JevDisclosurePresentation.PinnedOpenRouterModel));
+        Assert.That(panel.ModelScoreAvailable, Is.False);
+        Assert.That(panel.Rows[0].Level, Is.EqualTo(JevAttentionLevel.Low));
         Assert.That(panel.Rows[0].Line, Does.Not.Contain("order").IgnoreCase);
     }
 

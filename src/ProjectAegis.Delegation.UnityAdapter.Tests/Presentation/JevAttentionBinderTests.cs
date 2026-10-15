@@ -13,10 +13,16 @@ public sealed class JevAttentionBinderTests
     {
         var panel = JevAttentionBinder.Project(Read("attention_immediate.json"));
 
-        Assert.That(panel.ModelScoreAvailable, Is.True);
+        Assert.That(panel.FixtureId, Is.EqualTo("vs1-attention-immediate"));
+        Assert.That(panel.ModelScoreAvailable, Is.False);
         Assert.That(panel.Disclosure.Visible, Is.False);
+        Assert.That(panel.Disclosure.OpenRouterModel, Is.EqualTo(JevDisclosurePresentation.PinnedOpenRouterModel));
         Assert.That(panel.Rows, Has.Count.EqualTo(1));
         Assert.That(panel.Rows[0].UnitId, Is.EqualTo("u-fixture-01"));
+        Assert.That(panel.Rows[0].ContactId, Is.EqualTo("c-fixture-hostile-closing"));
+        Assert.That(panel.Rows[0].Line, Does.Contain("c-fixture-hostile-closing"));
+        Assert.That(panel.AttributionLine, Does.Contain("HEURISTIC").And.Contain(panel.FixtureId));
+        Assert.That(panel.AttributionLine, Does.Not.Contain(JevDisclosurePresentation.PinnedOpenRouterModel));
         Assert.That(panel.Rows[0].Level, Is.EqualTo(JevAttentionLevel.Immediate));
         Assert.That(panel.Rows[0].Highlight, Is.True);
         Assert.That(panel.Rows[0].CssClass, Is.EqualTo(JevAttentionLevel.CssClass(JevAttentionLevel.Immediate)));
@@ -100,9 +106,226 @@ public sealed class JevAttentionBinderTests
         Assert.Throws<InvalidOperationException>(() => JevAttentionBinder.Project(Read("questions_vs1.json")));
     }
 
+    [Test]
+    public void Missing_range_does_not_flag_a_closing_hostile_as_immediate()
+    {
+        var panel = JevAttentionBinder.Project("""
+            {
+              "schema": "aegis.jev.state.v0",
+              "fixtureId": "vs1-missing-range",
+              "unitId": "u-close",
+              "contactId": "c-close",
+              "skillAvailability": { "jevDecide": true },
+              "playerInfoModel": { "selectedUnitId": "u-other", "cameraFocusId": null },
+              "contact": { "iff": "hostile", "closing": true }
+            }
+            """);
+
+        Assert.That(panel.ModelScoreAvailable, Is.False);
+        Assert.That(panel.Rows[0].Level, Is.EqualTo(JevAttentionLevel.Low));
+        Assert.That(panel.Rows[0].ContactId, Is.EqualTo("c-close"));
+    }
+
+    [Test]
+    public void Missing_range_does_not_flag_a_closing_unknown_as_focus()
+    {
+        var panel = JevAttentionBinder.Project("""
+            {
+              "schema": "aegis.jev.state.v0",
+              "unitId": "u-unknown",
+              "skillAvailability": { "jevDecide": true },
+              "playerInfoModel": { "selectedUnitId": "u-other" },
+              "contact": { "iff": "unknown", "closing": true }
+            }
+            """);
+
+        Assert.That(panel.Rows[0].Level, Is.EqualTo(JevAttentionLevel.Low));
+    }
+
+    [Test]
+    public void Non_numeric_range_is_unknown_not_zero()
+    {
+        var panel = JevAttentionBinder.Project("""
+            {
+              "schema": "aegis.jev.state.v0",
+              "unitId": "u-text-range",
+              "skillAvailability": { "jevDecide": true },
+              "playerInfoModel": { "selectedUnitId": "u-other" },
+              "contact": { "iff": "hostile", "closing": true, "rangeNm": "unknown" }
+            }
+            """);
+
+        Assert.That(panel.Rows[0].Level, Is.EqualTo(JevAttentionLevel.Low));
+    }
+
+    [Test]
+    public void Explicit_zero_range_closing_hostile_is_immediate()
+    {
+        var panel = JevAttentionBinder.Project("""
+            {
+              "schema": "aegis.jev.state.v0",
+              "unitId": "u-zero",
+              "skillAvailability": { "jevDecide": true },
+              "playerInfoModel": { "selectedUnitId": "u-other" },
+              "contact": { "iff": "hostile", "closing": true, "rangeNm": 0 }
+            }
+            """);
+
+        Assert.That(panel.ModelScoreAvailable, Is.False);
+        Assert.That(panel.Rows[0].Level, Is.EqualTo(JevAttentionLevel.Immediate));
+    }
+
+    [Test]
+    public void Already_looking_scores_below_an_identical_unattended_contact()
+    {
+        var panel = JevAttentionBinder.Project("""
+            {
+              "schema": "aegis.jev.state.v0",
+              "fixtureId": "vs1-already-looking",
+              "skillAvailability": { "jevDecide": true },
+              "playerInfoModel": { "selectedUnitId": "u-attended", "cameraFocusId": null },
+              "roster": [
+                {
+                  "unitId": "u-attended",
+                  "contactId": "c-attended",
+                  "contact": { "iff": "hostile", "rangeNm": 6, "closing": true },
+                  "flags": { "urgencyHint": "critical" }
+                },
+                {
+                  "unitId": "u-unattended",
+                  "contactId": "c-open",
+                  "contact": { "iff": "hostile", "rangeNm": 6, "closing": true },
+                  "flags": { "urgencyHint": "critical" }
+                }
+              ]
+            }
+            """);
+
+        var attended = panel.Rows.Single(row => row.UnitId == "u-attended");
+        var unattended = panel.Rows.Single(row => row.UnitId == "u-unattended");
+        Assert.That(unattended.Level, Is.EqualTo(JevAttentionLevel.Immediate));
+        Assert.That(attended.Level, Is.EqualTo(JevAttentionLevel.Focus));
+        Assert.That(attended.ContactId, Is.EqualTo("c-attended"));
+        Assert.That(panel.Rows[0].UnitId, Is.EqualTo("u-unattended"));
+        Assert.That(panel.ModelScoreAvailable, Is.False);
+    }
+
+    [Test]
+    public void Camera_focus_counts_as_already_looking()
+    {
+        var panel = JevAttentionBinder.Project("""
+            {
+              "schema": "aegis.jev.state.v0",
+              "skillAvailability": { "jevDecide": true },
+              "playerInfoModel": { "selectedUnitId": "u-other", "cameraFocusId": "u-framed" },
+              "roster": [
+                {
+                  "unitId": "u-framed",
+                  "contact": { "iff": "unknown", "rangeNm": 14, "closing": true },
+                  "flags": { "urgencyHint": "urgent" }
+                },
+                {
+                  "unitId": "u-open",
+                  "contact": { "iff": "unknown", "rangeNm": 14, "closing": true },
+                  "flags": { "urgencyHint": "urgent" }
+                }
+              ]
+            }
+            """);
+
+        Assert.That(panel.Rows.Single(row => row.UnitId == "u-open").Level, Is.EqualTo(JevAttentionLevel.Focus));
+        Assert.That(panel.Rows.Single(row => row.UnitId == "u-framed").Level, Is.EqualTo(JevAttentionLevel.Watch));
+    }
+
+    [Test]
+    public void Pinned_jev_decision_marks_model_score_and_uses_that_level()
+    {
+        var panel = JevAttentionBinder.Project("""
+            {
+              "schema": "aegis.jev.state.v0",
+              "fixtureId": "vs1-model-result",
+              "unitId": "u-model",
+              "contactId": "c-model",
+              "skillAvailability": { "jevDecide": true },
+              "playerInfoModel": { "selectedUnitId": "u-other" },
+              "contact": { "iff": "hostile", "rangeNm": 4, "closing": true },
+              "jevDecision": { "model": "typesafe/jev-1.13", "attention_priority": "watch" }
+            }
+            """);
+
+        Assert.That(panel.ModelScoreAvailable, Is.True);
+        Assert.That(panel.Rows[0].Level, Is.EqualTo(JevAttentionLevel.Watch));
+        Assert.That(panel.Disclosure.OpenRouterModel, Is.EqualTo("typesafe/jev-1.13"));
+        Assert.That(panel.FixtureId, Is.EqualTo("vs1-model-result"));
+        Assert.That(panel.AttributionLine, Does.Contain("MODEL:").And.Contain(panel.Disclosure.OpenRouterModel).And.Contain(panel.FixtureId));
+    }
+
+    [Test]
+    public void Decision_without_the_pinned_model_stays_a_heuristic()
+    {
+        var panel = JevAttentionBinder.Project("""
+            {
+              "schema": "aegis.jev.state.v0",
+              "unitId": "u-other-model",
+              "skillAvailability": { "jevDecide": true },
+              "playerInfoModel": { "selectedUnitId": "u-other" },
+              "contact": { "iff": "hostile", "rangeNm": 4, "closing": true },
+              "jevDecision": { "model": "other/model", "attention_priority": "watch" }
+            }
+            """);
+
+        Assert.That(panel.ModelScoreAvailable, Is.False);
+        Assert.That(panel.Rows[0].Level, Is.EqualTo(JevAttentionLevel.Immediate));
+    }
+
+    [Test]
+    public void Partial_roster_result_does_not_mark_the_panel_as_a_model_score()
+    {
+        var panel = JevAttentionBinder.Project("""
+            {
+              "schema": "aegis.jev.state.v0",
+              "skillAvailability": { "jevDecide": true },
+              "playerInfoModel": { "selectedUnitId": "u-other" },
+              "roster": [
+                {
+                  "unitId": "u-model",
+                  "contact": { "iff": "hostile", "rangeNm": 4, "closing": true },
+                  "jevDecision": { "model": "typesafe/jev-1.13", "attention_priority": "watch" }
+                },
+                {
+                  "unitId": "u-local",
+                  "contact": { "iff": "hostile", "rangeNm": 4, "closing": true }
+                }
+              ]
+            }
+            """);
+
+        Assert.That(panel.ModelScoreAvailable, Is.False);
+        Assert.That(panel.Rows.Single(row => row.UnitId == "u-model").Level, Is.EqualTo(JevAttentionLevel.Watch));
+        Assert.That(panel.Rows.Single(row => row.UnitId == "u-local").Level, Is.EqualTo(JevAttentionLevel.Immediate));
+    }
+
+    [Test]
+    public void Skill_down_ignores_a_stale_jev_decision()
+    {
+        var panel = JevAttentionBinder.Project("""
+            {
+              "schema": "aegis.jev.state.v0",
+              "unitId": "u-stale",
+              "skillAvailability": { "jevDecide": false },
+              "contact": { "iff": "hostile", "rangeNm": 4, "closing": true },
+              "jevDecision": { "model": "typesafe/jev-1.13", "attention_priority": "immediate" }
+            }
+            """);
+
+        Assert.That(panel.Disclosure.Visible, Is.True);
+        Assert.That(panel.ModelScoreAvailable, Is.False);
+        Assert.That(panel.Rows[0].Level, Is.Null);
+    }
+
     private static JevAttentionRow Row(string unitId, string level) =>
         new(unitId, null, level, JevAttentionLevel.Rank(level), JevAttentionLevel.Highlights(level),
-            JevAttentionLevel.CssClass(level), unitId);
+            JevAttentionLevel.CssClass(level));
 
     private static string StripExpected(string json)
     {
