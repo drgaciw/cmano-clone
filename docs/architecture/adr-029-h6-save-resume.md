@@ -32,7 +32,7 @@ Owner (drg amtd) accepted CMANO's picks at 00:10 CT:
 
 ## Summary
 
-H6 needs game-state save/resume, and none exists on `main`. `ReplayCheckpointStore` holds only `(SimTick, WorldHash, LogFingerprint, LastSequenceId)`. The hard constraint is ZERO-touch on the `DelegationBridge` hotpath (`AGENTS.md`) and on the frozen `SimulationSession` hub, unless the owner grants a product waiver. This ADR decides **replay-to-tick restore driven by a versioned save envelope plus an external input journal**. A new driver outside the bridge and session builds an isolated candidate: a replayable sim world, its `ISimWorldSnapshot`, and its `IOrderSink`, together with a fresh `DelegationBridge`. It replays the journal from tick 0, checks the journal digest plus the recorded fingerprints, and swaps that set in as one unit. **No product waiver is required** for the first slice (W0). Multiplayer is out of scope here and needs its own ADR.
+H6 needs game-state save/resume, and none exists on `main`. `ReplayCheckpointStore` holds only `(SimTick, WorldHash, LogFingerprint, LastSequenceId)`. The hard constraint is ZERO-touch on the `DelegationBridge` hotpath (`AGENTS.md`) and on the frozen `SimulationSession` hub, unless the owner grants a product waiver. This ADR proposes **replay-to-tick restore driven by a versioned save envelope plus an external input journal**. A new driver outside the bridge and session builds an isolated candidate: a replayable sim world, its `ISimWorldSnapshot`, and its `IOrderSink`, together with a fresh `DelegationBridge`. It replays the journal from tick 0, checks the journal digest plus the recorded fingerprints, and swaps that set in as one unit. **No product waiver is required** for the first slice (W0). Multiplayer is out of scope here and needs its own ADR.
 
 ## Engine Compatibility
 
@@ -86,7 +86,7 @@ The game cannot be saved and resumed. The GDD says save/load "restores simTick, 
 
 ## Decision
 
-**Accepted (DRG-328 Option B).**
+**Proposed (contingent on DRG-328 Option B).**
 
 1. **Save model: (a) replay-to-tick, with an external input journal.** A save file is a versioned side-file envelope. It is never part of `DecisionLog` or `SimWorldHash`, and contains:
    - **Identity:** schema version; exact build id; scenario id and content hash; full catalog snapshot identity (`DbSnapshotStore` snapshot id plus a whole-catalog hash, not the sensor-only `CatalogSnapshotHasher` output alone); policy ids and hashes; global seed.
@@ -185,13 +185,37 @@ The game cannot be saved and resumed. The GDD says save/load "restores simTick, 
 | Observed vs pipeline tick split under acceleration | Medium | Medium | Envelope stores both ticks. Differential tests run at factors 1 and >1. |
 | Hidden non-public state found during DRG-349 | Low–Med | High | Stop. Return to the owner with W1 (named accessors only). No reflection. |
 
-## Waiver ladder
+## Performance Implications
 
-| Level | What it allows | When |
-|-------|----------------|------|
-| **W0 — No waiver (chosen)** | Nothing. Zero-touch holds through Release v1. | Default for H6 slice 1 |
+Load = O(T) full ticks plus O(journal rows). No Baltic ms/tick figure exists yet: the swarm 2000 ms soft gate is a different workload and is not a proxy. Saving is O(journal) plus hashing and is cheap. Journaling adds one append per player command and nothing to the tick hotpath. DRG-349 must record restore wall-clock at several values of T, at acceleration factors 1 and >1.
+
+## Replay-hash plan (DRG-329 AC)
+
+- **Preserve.** v2 `17144800277401907079` and ReplayGolden 6/6 are unchanged by design: side-file envelope, new test scenario ids for save tests, no `DecisionLog`, `SimWorldHash`, ADR-004 order, or v2 JSON edits.
+- The stepper extraction PR must show identical `WORLD_HASH` and log fingerprints for all `tests/regression/replay-golden-baltic-v2-*` and `baltic-v3-*` goldens. The hash must remain in the 18 `tests/` and `data/` paths (grep count on `434b3cf6`).
+- **No re-bless under this ADR.** Any golden diff means the change is wrong. A deliberate re-bless needs a separate ADR amendment and owner sign-off.
+
+## Catalog
+
+Saves pin the catalog snapshot identity and are read-only against `DbSnapshotStore` and `CatalogSnapshotBinder`. They never call `CatalogWriteGate`. Load aborts if the identity does not match (ADR-006).
+
+## Presentation
+
+After a successful candidate swap, the host re-publishes snapshots and projections. `MapPlaceholderPanelHost` and `GlobeMapProductHost` rebind through their existing projection inputs (ADR-007 Phase A, ADR-010 §2–3, ADR-001), with no edits to either host. The save and load UI issues commands through the façade only.
+
+## Waiver ladder (answer in DRG-328)
+
+| Level | Grants | When |
+|---|---|---|
+| **W0 — No waiver (proposed)** | Nothing. Zero-touch holds through Release v1. | Default for H6 slice 1 |
 | **W1 — Narrow, conditional** | Named read-only accessors on `SimulationSession` or `Decision/SeededRng` (for example, an RNG draw counter or clock state). No `Tick`/hotpath change. GitNexus impact and separate owner ack per method. | Only if DRG-349 proves a state is not reproducible |
-| **W2 — Broad** | Restore setters or private-state export. | Only if measured latency breaks the ceiling and owner accepts the risk |
+| **W2 — Broad** | Load/hydrate API on `SimulationSession` for (b)/(c) | Only if the latency ceiling is broken. Separate ADR amendment. |
+
+## Contingencies if DRG-328 picks another option
+
+- **Option A (save only, multiplayer never in v1):** this ADR is unchanged. Delete decision item 8's forward reference.
+- **Option C (save + hot-seat in H6):** add a second human side. `TryEnqueueHumanOrder` requires `HumanController` per slot, and fog-of-war and handoff need per-side projections. Expect W1 or higher and a presentation scope change. This needs a separate section and re-review.
+- **Option D (networked multiplayer in H6):** out of this ADR. Lockstep over the journal is plausible (Req 08 §1: "custom deterministic lockstep first"), but the comms-delay recomputation inside `TryEnqueueHumanOrder` (L186–195) and authority per side touch CMD-31/32/34 seams and the deploy model. That needs a new ADR and a waiver.
 
 ## Migration Plan
 
@@ -201,8 +225,8 @@ Additive. First slice (DRG-349), Surface: `src/ProjectAegis.Delegation.UnityAdap
 
 ## Validation Criteria
 
-- [x] DRG-328 decided; Option B recorded (2026-10-07).
-- [x] Owner states the waiver level: W0 (no waiver).
+- [ ] DRG-328 decided; Option B (or a contingency) recorded.
+- [ ] Owner states the waiver level (W0/W1/W2) explicitly.
 - [ ] Stepper extraction: ReplayGolden 6/6, v2 hash grep, and v3 goldens byte-identical.
 - [ ] Differential proof: continuous N+M ticks equals save at N, restore, then M ticks, at ≥3 interruption points, including queued approvals, delayed orders, in-flight engagements and acceleration >1. The swapped candidate is the replayable world, its snapshot, its order sink, and the bridge together.
 - [ ] State-only proof: `TryRebindAgentTraits` and an approve or reject immediately before save are in the journal and in the journal digest. Dropping either row fails the restore even when `DecisionLog` fingerprint and `Sim.LastWorldHash` still match.
@@ -214,6 +238,15 @@ Additive. First slice (DRG-349), Surface: `src/ProjectAegis.Delegation.UnityAdap
 
 | GDD Document | System | Requirement | How This ADR Satisfies It |
 |---|---|---|---|
-| `simulation-core-time.md` | Time / RNG | Restore simTick, scenarioSeed, RNG stream counters | Replay from tick 0 + input journal; checkpoints verify |
-| `order-log-replay.md` | Replay | Deterministic resume | Journal digest + log fingerprint + world hash |
-| Req 17 | RPL-29…31 | Deterministic, compatible, non-mutating failure | Isolated candidate restore; hard fail on mismatch |
+| `Game-Requirements/requirements/17-Replay-AAR-And-Order-Log.md` | Replay/Save | RPL-29 deterministic resume | Replay-to-tick plus journal, with differential proof |
+| same | Replay/Save | RPL-30 compatibility | Versioned identity envelope validated before construction |
+| same | Replay/Save | RPL-31 non-mutating failure | Isolated candidate world, snapshot, order sink, and bridge, swapped together only after the journal digest and fingerprints match |
+| `design/gdd/simulation-core-time.md` L126 | Sim core | Save/load restores tick, seed, RNG | Satisfied by re-simulation. Text amendment proposed (Neutral consequence). |
+| `Game-Requirements/requirements/08-Agentic-Architecture.md` §1 | Architecture | Lockstep first when multiplayer is in scope | Journal is lockstep-compatible. Multiplayer is deferred to its own ADR. |
+
+## Related
+
+- [DRG-328](https://linear.app/drgamtd-workspace/issue/DRG-328), [DRG-329](https://linear.app/drgamtd-workspace/issue/DRG-329), [DRG-325](https://linear.app/drgamtd-workspace/issue/DRG-325), [DRG-330](https://linear.app/drgamtd-workspace/issue/DRG-330), [DRG-348](https://linear.app/drgamtd-workspace/issue/DRG-348), [DRG-349](https://linear.app/drgamtd-workspace/issue/DRG-349)
+- `production/agentic/h6-save-model-spike-2026-09-27.md`, `production/agentic/h6-save-model-review-2026-10-01.md`
+- `docs/architecture/adr-simulation-session-frozen-hub-spirit1-2026-06-20.md`, ADR-001, ADR-003, ADR-004, ADR-006, ADR-007, ADR-010
+- `docs/engineering/determinism-and-replay.md`

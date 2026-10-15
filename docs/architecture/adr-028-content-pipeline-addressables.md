@@ -1,6 +1,6 @@
 # ADR-028: H5 Content Pipeline: Addressables for Local, Presentation-Only Content
 
-> Prepared for [DRG-331](https://linear.app/drgamtd-workspace/issue/DRG-331/h5-draft-content-pipeline-addressables-adr). Owner answered all Open Questions on 2026-10-07 00:10 CT (see Owner Decisions). Lands as **Accepted** (2026-10-15). The DRG-347 pilot is unblocked by this ADR.
+> Prepared for [DRG-331](https://linear.app/drgamtd-workspace/issue/DRG-331/h5-draft-content-pipeline-addressables-adr). Owner answered all Open Questions on 2026-10-07 00:10 CT (see Owner Decisions). Lands as **Proposed**; the DRG-347 pilot stays held until this ADR merges.
 
 ## Status
 
@@ -16,7 +16,7 @@
 
 ## Decision Makers
 
-Owner / Technical Director (DRGAMTD), the only developer. **This ADR is Accepted** (2026-10-15, by owner; previously Proposed per Owner Decision 7). Merging this PR unblocks the pilot and closes the H5 entry gate for DRG-347.
+Owner / Technical Director (DRGAMTD), the only developer. **This ADR lands as Proposed** (Owner Decision 7). Merging this PR is the pilot unblock and closes the H5 entry gate for DRG-347. Moving the ADR to Accepted is a later owner step and does not gate the pilot (`docs/reports/future-sprint-roadmap-07142026.md:180`; DRG-326).
 
 ## Summary
 
@@ -40,8 +40,8 @@ Project Aegis adopts Unity Addressables only for **presentation-only content**, 
 |-------|-------|
 | **Depends On** | [ADR-001 Sim Assembly Boundary](adr-001-sim-assembly-boundary.md); [ADR-007 C2 Map Presentation](adr-007-c2-map-presentation.md); [ADR-010 Headless-First Command-Driven UI](adr-010-headless-first-command-driven-ui.md) |
 | **Enables** | DRG-347 H5 local presentation pilot; proposed LIB-05.1…3 (`docs/superpowers/specs/2026-09-30-requirements-planning-reconciliation.md:24`) |
-| **Blocks** | Any second Addressables group, bulk import or remote catalog (now unblocked by Acceptance) |
-| **Ordering Note** | DRG-332 inventory (Done) → this ADR Accepted and merges (pilot unblock) → DRG-347 pilot → per-class expansion by amendment. Remote delivery would be a separate ADR after H3/Launch scope opens |
+| **Blocks** | Any second Addressables group, bulk import or remote catalog until this ADR is Accepted |
+| **Ordering Note** | DRG-332 inventory (Done) → this ADR lands Proposed and merges (pilot unblock) → DRG-347 pilot → per-class expansion by amendment. Acceptance is a later step and does not gate the pilot. Remote delivery would be a separate ADR after H3/Launch scope opens |
 
 ## Context
 
@@ -85,7 +85,7 @@ H5 cannot open without an accepted content-pipeline ADR (`future-sprint-roadmap-
 
 ## Decision
 
-**Accepted: Option A, Addressables for local, presentation-only content behind a presentation-owned loader seam.**
+**Proposed: Option A, Addressables for local, presentation-only content behind a presentation-owned loader seam.**
 
 1. **Scope.** Only rows classified *presentation-only* in the DRG-332 inventory may become Addressables entries. They are admitted one class at a time, by amendment to this ADR. Everything classified *sim-relevant* or *ADR-decides (authoring)* is excluded (table below).
 2. **Local only for Release.** A local Addressables catalog is built into the Player. No remote load paths, no remote catalog, no content-update workflow and no CDN. Remote/DLC needs a new ADR, which is Launch-adjacent and blocked while H3 is closed.
@@ -139,79 +139,107 @@ H5 cannot open without an accepted content-pipeline ADR (`future-sprint-roadmap-
 | `GlobeMapProductHost` | None. Globe tiles are excluded |
 | `DelegationBridge` hotpath | None |
 | `CatalogWriteGate` | None. No catalog content in any group. Enforced by a headless guard over the JSON descriptors and the committed `AddressableAssetSettings` and groups (see Build and CI) |
-| ReplayGolden / `17144800277401907079` | None. No golden re-bless. Addressables outcomes never enter a hash input |
+| ReplayGolden / `17144800277401907079` | None. No sim-relevant byte changes loader. Goldens are not edited |
+| Test floor (`production/test-floor.json`) | Additive tests only |
 
 ## Alternatives Considered
 
-### Alternative 1: No Addressables; keep the current JSON + USS fallback only
+### Option A: Addressables for presentation-only assets, local catalog (Recommended)
 
-- **Description**: Do not add a runtime loader. The host continues to resolve metadata from the JSON descriptor and falls back to `App6AtlasCatalog.Default` / Unicode.
-- **Pros**: Zero new code, zero risk to determinism, no package surface.
-- **Cons**: Does not exercise Addressables. Does not prove the presentation wall, handle lifetime, or fallback diagnostics. Leaves the H5 content-pipeline gate closed.
-- **Rejection Reason**: It does not meet DRG-347 / LIB-05 acceptance. It stays the **fallback** that Option A degrades to.
+- **Pros:** Uses the installed package and the existing key. Gives DRG-347 a real async load, lifetime and fallback to prove LIB-05. Keeps every sim input on its hashed loader. Small blast radius, with one class admitted at a time.
+- **Cons:** Brings in Addressables build steps, a committed settings asset and Editor/Player-only verification. Content is small today, so the near-term size/memory benefit is modest. The main value is establishing the pattern and the failure isolation.
 
-### Alternative 2: Addressables for everything, including sim-relevant data
+### Option B: Addressables for all content, including scenarios and catalog
 
-- **Description**: Move scenario policies, catalog JSON, or sensor data into Addressables groups.
-- **Pros**: One content pipeline.
-- **Cons**: Pulls sim-relevant bytes into a Unity-owned pipeline. Risks moving `SimWorldHash` and ReplayGolden. Violates the inventory classification rule and ADR-001/010.
-- **Rejection Reason**: Determinism is untouchable. Sim-relevant content stays on its current loaders.
+- **Description:** Pack scenario policies, catalog DBs/snapshots and glossary into groups and load them through Addressables.
+- **Pros:** One delivery mechanism, and it would ease a future DLC story.
+- **Cons:**
+  - It puts Unity APIs on the path to sim inputs. `ProjectAegis.Data` / `.Sim` would need Unity-provided bytes, which breaks ADR-010 §1/§4 and headless `dotnet test` / CLI / MCP parity.
+  - Load timing and packing would sit upstream of `SimWorldHash`, `CatalogSnapshotHasher` and the order-log fingerprint.
+  - It creates a catalog write/refresh path outside `CatalogWriteGate`.
+  - The Baltic hash could drift and force a golden re-bless.
+- **Rejection Reason:** It breaks decision drivers 1–4. DRG-326 lists exactly this as hard-no exposure.
 
-### Alternative 3: Remote catalog / CDN from day one
+### Option C: Status quo (Resources / `[SerializeField]` / StreamingAssets, JSON-only metadata)
 
-- **Description**: Ship a remote Addressables catalog and content-update workflow in H5.
-- **Pros**: Matches long-term DLC ambition.
-- **Cons**: Current presentation content is under 1 MB. Remote adds catalog versioning, CDN auth, and update-flow risk for no present need. Blocked while H3 is closed.
-- **Rejection Reason**: Disproportionate. Remote/DLC is a later ADR.
+- **Description:** Keep direct serialized references and `Resources`, keep the JSON metadata resolver, and add StreamingAssets for any loose files.
+- **Pros:** Zero new build machinery and no Editor-only verification burden. Today's fallback chain already exists.
+- **Cons:**
+  - It never exercises an async load, so LIB-05 delayed/canceled/corrupt cases and handle-release can't be proven.
+  - The current "Addressables" path is metadata-only and probably never resolves in a Player (inferred).
+  - `Resources` cannot be unloaded selectively, and StreamingAssets would be a second, unversioned loose-file channel.
+  - It leaves the H5 gate unclosable.
+- **Rejection Reason:** It does not meet DRG-347 / LIB-05 acceptance. It stays the **fallback** that Option A degrades to.
+
+### Option D: Addressables with remote catalog / CDN for presentation (deferred, not rejected)
+
+- **Description:** Option A plus remote load paths (e.g. future basemap/art packs).
+- **Rejection Reason (for now):** It is Launch-adjacent, H3 is not open, and DRG-331 says remote delivery/DLC/catalog behaviour is excluded. Cesium ion already streams globe tiles outside Addressables. Revisit in a separate ADR.
 
 ## Consequences
 
 ### Positive
 
-- Presentation-only content can be loaded asynchronously with a documented fallback, without touching sim truth.
-- The presentation wall is explicit: Addressables APIs live only in a new presentation assembly.
-- The first slice is small and reversible. A failed load degrades to the existing Unicode / default-atlas path.
-- Headless CI can still prove the assembly boundary and the settings allow-list.
+- The H5 gate can close without touching the determinism core. Sim, order-log, RNG and replay paths keep their current loaders.
+- Gives one reusable, testable presentation loading seam with explicit fallbacks, instead of ad-hoc loads in hosts.
+- Makes the dormant Addressables declaration real (settings asset, group, Player catalog) and turns "metadata only" into verified loading.
 
 ### Negative
 
-- A new assembly and two injectable contracts add surface.
-- Addressables 2.9.1 async lifetime and Player catalog behaviour are not yet proven in this repo.
-- Doc drift (specialist agent version, unity-ci Editor pin) remains and is tracked separately.
+- Adds an Addressables content build to local Player builds and a committed `AddressableAssetSettings` asset that must stay in sync with `App6AddressablesGroupSetup.cs`.
+- Some proof (async load, handle leaks, budgets) needs a local Editor/Player. Headless CI can't produce it.
+- The JSON descriptors and the committed `AddressableAssetSettings` / group assets must agree. The guard parses both, or the settings are generated only from the guarded descriptor and the test fails on drift.
 
 ### Neutral
 
-- Remote/DLC stays out of scope until a later ADR.
-- `MapPlaceholderPanelHost` and `GlobeMapProductHost` are untouched.
+- Fonts, UXML/USS, audio and scenes stay on their current loaders until amended in.
+- Remote content stays a separate future decision.
 
 ## Risks
 
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|-----------|
-| Addressables handle leak or late callback after teardown | Medium | Medium | Loader owns lease counting and cancels on dispose. DRG-347 measures leaked handles. |
-| Player build does not ship the local catalog | Medium | Medium | DRG-347 includes an Editor + Player verification step. Fallback path is the current default. |
-| Accidental sim-relevant entry in a group | Low | High | Headless guard over `AddressableAssetSettings` and groups fails CI on any entry outside the allow-list. |
-| USS still hardcodes the PNG url | Low | Low | First slice removes the direct `background-image` urls from frame rules. |
+| A sim-relevant file is later added to a group or to `AddressableAssetSettings` | Low | High | Headless guard over JSON descriptors and the committed settings/group assets (inventory Q6); ADR amendment required per class |
+| Load callback or timing leaks into sim/order inputs | Low | High | Seam lives in a presentation asmdef with no Sim/Data write access; DRG-347 fault-injection fixture compares world hash and order/replay fingerprints |
+| Handle leaks on scene teardown | Medium | Medium | Lease and release model, late-callback rejection, Editor profiling "zero leaked handles" check |
+| USS still paints `App6FrameAtlas.png`, so the loaded handle is not what renders | Medium | Medium | Frame rules drop every `background-image: url(...App6FrameAtlas.png)`. The adapter sets `style.backgroundImage` from the loaded texture. `MapPlaceholderPanelHost` is not edited |
+| Specialist and Editor pin drift (Addressables 2.3.16 in `unity-addressables-specialist.md`; `unity-ci.yml` Editor `6000.3.14f1` vs `6000.3.22f1`) | Medium | Low | Drift remains. This docs-only ADR does not correct it. Tracked separately from this PR |
+| Package upgrade changes catalog/build format | Low | Medium | Pin 2.9.1; upgrade only through `docs/engineering/unity-UPGRADE-RUNBOOK.md` (its 2.3.16→2.8.1 text is stale) |
 
-## Migration Plan
+## Performance Implications
 
-Additive. First slice (DRG-347) adds the content assembly, the adapter, the two contracts, the committed `AddressableAssetSettings`, and the USS url removal. No edits to `MapPlaceholderPanelHost`. Rollback is deletion of the new assembly and reversion of the USS change.
+Accepted pilot budgets (owner, 2026-10-07, Owner Decision 4): no synchronous main-thread wait, p99 loader frame overhead ≤ 2 ms, cold readiness ≤ 250 ms, incremental memory ≤ 16 MiB, zero leaked handles after repeated teardown, measured on the laptop dev build. Sim tick cost is unaffected because no tick waits on content.
+
+## Migration Plan / Rollout (tied to DRG-347)
+
+0. **Land ADR as Proposed.** The owner's answers to the Open Questions are already recorded in this ADR. Per Owner Decision 7, the ADR lands as Proposed, and the pilot is held only until this PR merges. Merging this PR is the pilot unblock condition and closes the H5 gate. Moving the ADR to Accepted is a separate, later step and does not gate the pilot. DRG-347 stays in Backlog until H5 GO.
+1. **DRG-347 pilot (local, single class).**
+   - Commit `AddressableAssetSettings` and the `MapPresentation` group.
+   - Add the `ProjectAegis.Unity.Runtime.Content` asmdef, `IPresentationContentLoader`, `IApp6FrameElementSource`, and `App6AtlasAddressablesAdapter`. Do not edit `MapPlaceholderPanelHost`.
+   - Remove the direct `App6FrameAtlas.png` `background-image` urls from `MapPlaceholderPanel.uss` and bind `style.backgroundImage` from the loaded texture, with fallback to `App6AtlasCatalog.Default` / Unicode.
+   - Add headless guard tests (JSON descriptors plus committed settings and groups) and a fault-injection fixture that includes `Mismatched`.
+   - Do local Editor/Player profiling against the accepted laptop-dev-build budgets.
+2. **Evidence and closeout.** Record revision-bound evidence (proposed VER-07.3…6): Player build id, fault-case results, unchanged ReplayGolden 6/6 and hash.
+3. **Expansion.** Each further class (audio, fonts, UXML/USS) is added by amendment to the content-class table, reusing the seam.
+4. **Remote.** New ADR only.
+
+**Rollback plan:** remove `App6AtlasAddressablesAdapter` (or stop injecting the loader) and restore the USS `background-image` urls if that edit shipped with the adapter. `MapPlaceholderPanelHost` is unchanged, so there is no host seam binding to remove; its current metadata path and `App6AtlasCatalog.Default` / Unicode fallback stay. No sim, catalog or golden state needs reverting.
 
 ## Build and CI
 
-| Gate | Owner | Notes |
-|------|-------|-------|
-| Headless assembly guard (no Addressables refs outside presentation) | CI | New test under `src/` |
-| Settings / group allow-list guard | CI | Fails if any entry is outside the presentation-only allow-list |
-| ReplayGolden 6/6 and `balticV2Hash` unchanged, with zero edits under `tests/regression/` | CI | No re-bless |
-| Budget profiling (latency, frame cost, memory, handle leaks) | DRG-347 | Local Editor + Player |
-| Fallback-selection and diagnostic policy as pure C# (outcome → fallback), unit-tested | CI | |
+| Verified headless (`dotnet-ci.yml`, `dotnet test`) | Needs local Unity Editor / Player |
+|---|---|
+| `App6AddressablesCatalog` metadata resolution (existing) | Addressables content build and Player catalog generation |
+| Settings guard: every entry under `Assets/Addressables/**/*.json`, and every entry and group in the committed `AddressableAssetSettings` and group assets under `Assets/AddressableAssetsData/`, is on the presentation allow-list and matches none of the sim-relevant exclusions. Extra entries or groups fail. `App6AddressablesGroupSetup.EnsureMapPresentationGroup` is not a sufficient check by itself. The committed YAML is parsed headless, or generated only from the guarded descriptor and compared | `LoadAssetAsync` success, release and late-callback rejection in Play Mode; frame `backgroundImage` is the loaded texture, not a USS `url()` |
+| Assembly guard: no `UnityEngine.AddressableAssets` / `ResourceManagement` in `src/ProjectAegis.{Sim,Data,Delegation}*` | Player-build fallback (missing, corrupt, or mismatched bundle) |
+| ReplayGolden 6/6 and `balticV2Hash` unchanged, with zero edits under `tests/regression/` | Budget profiling (latency, frame cost, memory, handle leaks) |
+| Fallback-selection and diagnostic policy as pure C# (outcome → fallback), unit-tested | Editor MCP (ADR-027) may assist authoring but is not verification authority |
 
 `unity-ci.yml` is manual and needs the `UNITY_LICENSE` secret (`.github/workflows/unity-ci.yml:1–39`). It is not a merge gate for this work.
 
 ## Validation Criteria
 
-- [x] This ADR is Accepted (2026-10-15). Merging it unblocks the pilot and closes the H5 gate.
+- [ ] This PR lands the ADR as Proposed. Merging it unblocks the pilot and closes the H5 gate. Acceptance is a separate later step and does not gate DRG-347.
 - [ ] Content-class table with owner and loader for each class (above).
 - [ ] Hard-no impact stated per host, gate and golden (above). `MapPlaceholderPanelHost` has zero edits.
 - [ ] First slice named with a non-`TBD` Surface (Decision §7), including the injectable `IApp6FrameElementSource` and the USS url removal.
@@ -224,27 +252,35 @@ Additive. First slice (DRG-347) adds the content assembly, the adapter, the two 
 | Doc | Requirement | How this ADR satisfies it |
 |---|---|---|
 | Draft 27 Scenario Library & Campaigns (`Game-Requirements/drafts/27-Scenario-Library-Campaigns.md`) | Proposed LIB-05.1…3 content failure isolation | Seam outcomes → documented fallback; authoritative fingerprints are unaffected by construction and tested in DRG-347 |
-| Roadmap §14 (`future-sprint-roadmap-07142026.md:180`) | "Addressables bulk: content pipeline ADR accepted" | This ADR is Accepted (2026-10-15). Merging it unblocks the pilot. |
+| Roadmap §14 (`future-sprint-roadmap-07142026.md:180`) | "Addressables bulk: content pipeline ADR accepted" | This ADR lands as Proposed. Merging it unblocks the pilot (Owner Decision 7). Acceptance is later and does not gate DRG-347 |
 | ADR-007 Phase C | APP-6 data-driven USS + icon atlas | Atlas is the first loaded class. USS frame rules no longer hardcode the PNG; the loaded texture is bound at runtime. The USS frame registry remains the metadata fallback |
 
 ## Owner Decisions (2026-10-07 00:10 CT, drg amtd)
 
 The owner accepted all of CMANO's proposed answers:
 
-1. **Scope:** presentation-only only. Sim-relevant and authoring content stay on current loaders.
-2. **Local only:** no remote catalog, no CDN, no content-update workflow in H5.
-3. **Host waiver:** denied. `MapPlaceholderPanelHost` is not edited. The adapter binds through `IApp6FrameElementSource`.
-4. **Budgets:** no synchronous main-thread wait, p99 loader frame overhead ≤ 2 ms, cold readiness ≤ 250 ms, incremental memory ≤ 16 MiB, zero leaked handles after repeated teardown, measured on the laptop dev build.
+1. **Scope:** Accept Option A, local-only presentation-only Addressables. Remote/CDN/DLC catalogs deferred to a separate future ADR. Pilot is `Map/App6FrameAtlas` via DRG-347.
+2. **Canonical APP-6 art:** Compare the two atlas PNGs (Unity 167 B vs `production/assets/c2/` 381 B) as a DRG-347 task, and record the chosen source of truth there.
+3. **Host waiver:** Denied. No `MapPlaceholderPanelHost` edit; use a separate adapter component with zero host edits.
+4. **Pilot budgets:** Accept the candidate thresholds as listed, measured on the laptop dev build.
 5. **Package:** Pin Addressables 2.9.1 and commit `AddressableAssetSettings` in DRG-347. The specialist-doc 2.3.16 drift and the `unity-ci.yml` `6000.3.14f1` Editor pin are not part of that decision and are not corrected here; both remain and are tracked separately (see Decision §8).
-6. **First slice:** the existing `Map/App6FrameAtlas` key only.
-7. **Landing:** Land this ADR as Proposed in a docs-only PR now; hold the pilot (DRG-326/DRG-347) until it merges. (Subsequently Accepted 2026-10-15.)
+6. **Deferred classes:** Fonts, UXML/USS, audio and scenes are deferred; each needs an amendment.
+7. **Landing:** Land this ADR as Proposed in a docs-only PR now; hold the pilot (DRG-326/DRG-347) until it merges.
 
-## Open Questions (answered 2026-10-07)
+## Open Questions (answered above)
 
-1. **Which classes are in scope?** Presentation-only only.
-2. **Remote in H5?** No.
-3. **May we edit `MapPlaceholderPanelHost`?** No (waiver denied).
-4. **What are the pilot budgets?** See Owner Decision 4.
-5. **Which package version?** 2.9.1.
-6. **Fonts?** Stay in `Resources` for now.
-7. **H5 GO:** May this draft land as Proposed at `docs/architecture/adr-028-content-pipeline-addressables.md` now, or does it wait for the H5 GO? Landed as Proposed; later Accepted.
+1. **Scope and delivery:** Accept Option A (local-only, presentation-only Addressables) and defer any remote/CDN/DLC catalog to a separate future ADR?
+2. **Canonical APP-6 art:** Which PNG is the source of truth for the pilot? The Unity `Assets/UI/MapPlaceholder/App6FrameAtlas.png` (167 B) or `production/assets/c2/App6FrameAtlas.png` (381 B)?
+3. **Host waiver:** Allow a minimal, net non-growing edit to `MapPlaceholderPanelHost` (replace the `TryResolveAddressablesAtlas` body with a seam call) for DRG-347? Or require a separate adapter component with zero host edits?
+4. **Pilot budgets:** Accept, change or reject the candidate thresholds (no sync main-thread wait, p99 ≤ 2 ms, cold ≤ 250 ms, ≤ 16 MiB, zero leaked handles)? Which reference hardware and build config?
+5. **Package and settings:** Confirm the Addressables 2.9.1 pin and committing `AddressableAssetSettings` (`Assets/AddressableAssetsData/`) in DRG-347? Fix the specialist-doc 2.3.16 drift and the `unity-ci.yml` 6000.3.14f1 Editor pin in the ADR PR?
+6. **Deferred classes:** Confirm that fonts (stay in `Resources`), UXML/USS, audio and scenes stay out of the first slice and need an amendment each?
+7. **H5 GO:** May this draft land as Proposed at `docs/architecture/adr-028-content-pipeline-addressables.md` now, or does it wait for the H5 GO?
+
+## Related
+
+- Linear: DRG-331 (this ADR), DRG-326 (H5 epic), DRG-332 (inventory, Done), DRG-347 (pilot)
+- `production/agentic/h5-content-inventory-2026-09-27.md`; `production/agentic/h5-content-inventory-review-2026-10-01.md`
+- `docs/superpowers/specs/2026-09-30-requirements-planning-reconciliation.md` (LIB-05, VER-07)
+- `docs/reports/future-sprint-roadmap-07142026.md`; `docs/reports/future-sprint-roadmap-09302026.md:46`
+- [ADR-001](adr-001-sim-assembly-boundary.md), [ADR-007](adr-007-c2-map-presentation.md), [ADR-010](adr-010-headless-first-command-driven-ui.md), [ADR-017](adr-017-editor-topology-client-vs-scenario-lab.md), [ADR-027](adr-027-unity-editor-mcp-stack.md)
