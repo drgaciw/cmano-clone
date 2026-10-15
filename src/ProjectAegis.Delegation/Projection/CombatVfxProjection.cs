@@ -1,19 +1,19 @@
 namespace ProjectAegis.Delegation.Projection;
 
-using Decision;
+using CombatEvents;
 using ProjectAegis.Sim.Engage;
 
 /// <summary>
-/// Presentation-only CMO-style combat VFX (Track C, 2026-08-17).
-/// Projects DecisionLog engagement outcomes into transient fire lines and impact markers.
-/// Never reads or writes sim RNG; <see cref="EngagementOutcomeRecord.PkDraw"/> is ignored (ADR-010).
+/// Presentation-only CMO-style combat VFX (Track C, DRG-403).
+/// Projects terminal rows from a <see cref="CombatEventSnapshot"/> into transient fire lines
+/// and impact markers. The snapshot has no sim RNG, so this path cannot read a Pk draw (ADR-010).
 /// </summary>
 public static class CombatVfxProjection
 {
     /// <summary>Sim-time hold for shooter→target fire lines.</summary>
     public const double FireLineHoldSeconds = 4.0;
 
-    /// <summary>Sim-time hold for impact markers (slightly shorter than the line).</summary>
+    /// <summary>Sim-time hold for impact markers. Longer than the fire line, so the marker outlives it.</summary>
     public const double ImpactHoldSeconds = 6.0;
 
     public const string StyleFireLine = "map-combat-vfx-fireline";
@@ -25,24 +25,23 @@ public static class CombatVfxProjection
 
     /// <summary>Projects live VFX from map-symbol positions (destroyed units keep last pose).</summary>
     public static CombatVfxFrame Project(
-        DecisionLog? log,
+        CombatEventSnapshot? events,
         IReadOnlyList<MapSymbolEntry>? symbols,
         double nowSimTime) =>
-        Project(log, BuildPositionIndex(symbols), nowSimTime);
+        Project(events, BuildPositionIndex(symbols), nowSimTime);
 
-    /// <summary>Projects live VFX from an explicit unit-id → normalized xy index.</summary>
+    /// <summary>
+    /// Projects live VFX from an explicit unit-id → normalized xy index.
+    /// Only <see cref="CombatEventPhase.TerminalOutcome"/> rows draw. The line's
+    /// <see cref="CombatVfxFireLine.EngagementId"/> is the combat-event correlation id.
+    /// </summary>
     public static CombatVfxFrame Project(
-        DecisionLog? log,
+        CombatEventSnapshot? events,
         IReadOnlyDictionary<string, (float X, float Y)>? positions,
         double nowSimTime)
     {
-        if (log is null || positions is null || positions.Count == 0)
-        {
-            return CombatVfxFrame.Empty;
-        }
-
-        var entries = log.ChronologicalEntries();
-        if (entries.Count == 0)
+        var rows = events?.Events;
+        if (rows is null || rows.Count == 0 || positions is null || positions.Count == 0)
         {
             return CombatVfxFrame.Empty;
         }
@@ -50,17 +49,16 @@ public static class CombatVfxProjection
         List<CombatVfxFireLine>? lines = null;
         List<CombatVfxImpactMarker>? markers = null;
 
-        for (var i = 0; i < entries.Count; i++)
+        for (var i = 0; i < rows.Count; i++)
         {
-            var entry = entries[i];
-            if (entry.Kind != OrderLogEntryKind.EngagementOutcome
-                || entry.Payload is not EngagementOutcomeRecord outcome)
+            var entry = rows[i];
+            if (entry.Phase != CombatEventPhase.TerminalOutcome)
             {
                 continue;
             }
 
-            var shooter = outcome.ShooterTargetId.Value;
-            var victim = outcome.VictimTargetId.Value;
+            var shooter = entry.ShooterId;
+            var victim = entry.TargetId;
             if (string.IsNullOrWhiteSpace(shooter)
                 || string.IsNullOrWhiteSpace(victim)
                 || !positions.TryGetValue(shooter, out var from)
@@ -69,7 +67,7 @@ public static class CombatVfxProjection
                 continue;
             }
 
-            var age = nowSimTime - outcome.SimTime;
+            var age = nowSimTime - entry.SimTime;
             if (age < 0)
             {
                 continue;
@@ -79,15 +77,15 @@ public static class CombatVfxProjection
             {
                 lines ??= new List<CombatVfxFireLine>();
                 lines.Add(new CombatVfxFireLine(
-                    Key: $"vfx-line:{outcome.EngagementId}",
-                    EngagementId: outcome.EngagementId,
+                    Key: $"vfx-line:{entry.CorrelationId}",
+                    EngagementId: entry.CorrelationId,
                     ShooterUnitId: shooter,
                     TargetUnitId: victim,
                     FromX: from.X,
                     FromY: from.Y,
                     ToX: to.X,
                     ToY: to.Y,
-                    SimTime: outcome.SimTime,
+                    SimTime: entry.SimTime,
                     StyleClass: StyleFireLine));
             }
 
@@ -95,14 +93,14 @@ public static class CombatVfxProjection
             {
                 markers ??= new List<CombatVfxImpactMarker>();
                 markers.Add(new CombatVfxImpactMarker(
-                    Key: $"vfx-impact:{outcome.EngagementId}",
-                    EngagementId: outcome.EngagementId,
+                    Key: $"vfx-impact:{entry.CorrelationId}",
+                    EngagementId: entry.CorrelationId,
                     TargetUnitId: victim,
-                    OutcomeCode: outcome.OutcomeCode,
+                    OutcomeCode: entry.Outcome,
                     X: to.X,
                     Y: to.Y,
-                    SimTime: outcome.SimTime,
-                    StyleClass: ResolveImpactStyle(outcome.OutcomeCode)));
+                    SimTime: entry.SimTime,
+                    StyleClass: ResolveImpactStyle(entry.Outcome)));
             }
         }
 
