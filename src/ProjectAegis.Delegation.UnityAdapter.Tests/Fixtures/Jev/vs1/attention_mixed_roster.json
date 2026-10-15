@@ -1,0 +1,162 @@
+{
+  "schema": "aegis.jev.state.v0",
+  "fixtureId": "vs1-attention-mixed-roster",
+  "expectedSortOrderHint": [
+    "u-fixture-imm",
+    "u-fixture-focus",
+    "u-fixture-watch",
+    "u-fixture-low",
+    "u-fixture-ignore"
+  ],
+  "skillAvailability": {
+    "jevDecide": true,
+    "lastOkAt": "2026-09-22T10:00:00-05:00"
+  },
+  "personalityEditPolicy": "read_only_assist",
+  "playerInfoModel": {
+    "selectedUnitId": "u-fixture-low",
+    "cameraFocusId": "u-fixture-low"
+  },
+  "roster": [
+    {
+      "unitId": "u-fixture-imm",
+      "contactId": "c-fixture-imm",
+      "taskGroupId": "tg-fixture-alpha",
+      "expectedAttentionLevel": "immediate",
+      "roe": {
+        "weaponsFree": false,
+        "weaponsTight": true,
+        "holdFire": false,
+        "excludeCivilian": true
+      },
+      "contact": {
+        "classHint": "hostile",
+        "rangeNm": 4.8,
+        "bearingDeg": 12,
+        "closing": true,
+        "iff": "hostile"
+      },
+      "ownship": {
+        "posture": "engage",
+        "damageState": "light",
+        "sensorsUp": true
+      },
+      "flags": {
+        "urgencyHint": "imminent",
+        "roeConflict": false
+      }
+    },
+    {
+      "unitId": "u-fixture-focus",
+      "contactId": "c-fixture-focus",
+      "taskGroupId": "tg-fixture-alpha",
+      "expectedAttentionLevel": "focus",
+      "roe": {
+        "weaponsFree": false,
+        "weaponsTight": true,
+        "holdFire": false,
+        "excludeCivilian": true
+      },
+      "contact": {
+        "classHint": "unknown",
+        "rangeNm": 14.0,
+        "bearingDeg": 88,
+        "closing": true,
+        "iff": "unknown"
+      },
+      "ownship": {
+        "posture": "intercept",
+        "damageState": "nominal",
+        "sensorsUp": true
+      },
+      "flags": {
+        "urgencyHint": "urgent",
+        "roeConflict": false
+      }
+    },
+    {
+      "unitId": "u-fixture-watch",
+      "contactId": "c-fixture-watch",
+      "taskGroupId": "tg-fixture-bravo",
+      "expectedAttentionLevel": "watch",
+      "roe": {
+        "weaponsFree": false,
+        "weaponsTight": true,
+        "holdFire": false,
+        "excludeCivilian": true
+      },
+      "contact": {
+        "classHint": "unknown",
+        "rangeNm": 22.5,
+        "bearingDeg": 150,
+        "closing": false,
+        "iff": "unknown"
+      },
+      "ownship": {
+        "posture": "patrol",
+        "damageState": "nominal",
+        "sensorsUp": true
+      },
+      "flags": {
+        "urgencyHint": "elevated",
+        "roeConflict": false
+      }
+    },
+    {
+      "unitId": "u-fixture-low",
+      "contactId": "c-fixture-low",
+      "taskGroupId": "tg-fixture-bravo",
+      "expectedAttentionLevel": "low",
+      "roe": {
+        "weaponsFree": false,
+        "weaponsTight": true,
+        "holdFire": true,
+        "excludeCivilian": true
+      },
+      "contact": {
+        "classHint": "neutral",
+        "rangeNm": 30.0,
+        "bearingDeg": 270,
+        "closing": false,
+        "iff": "neutral"
+      },
+      "ownship": {
+        "posture": "patrol",
+        "damageState": "nominal",
+        "sensorsUp": true
+      },
+      "flags": {
+        "urgencyHint": "calm",
+        "roeConflict": true
+      }
+    },
+    {
+      "unitId": "u-fixture-ignore",
+      "contactId": "c-fixture-ignore",
+      "taskGroupId": "tg-fixture-charlie",
+      "expectedAttentionLevel": "ignore",
+      "roe": {
+        "weaponsFree": false,
+        "weaponsTight": true,
+        "holdFire": false,
+        "excludeCivilian": true
+      },
+      "contact": {
+        "classHint": "friendly",
+        "rangeNm": 48.0,
+        "bearingDeg": 320,
+        "closing": false,
+        "iff": "friendly"
+      },
+      "ownship": {
+        "posture": "patrol",
+        "damageState": "nominal",
+        "sensorsUp": true
+      },
+      "flags": {
+        "urgencyHint": "calm",
+        "roeConflict": false
+      }
+    }
+  ]
+}

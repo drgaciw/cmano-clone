@@ -1,0 +1,41 @@
+{
+  "schema": "aegis.jev.state.v0",
+  "fixtureId": "vs1-skill-available",
+  "expectedDisclosure": false,
+  "expectedAttentionLevel": "watch",
+  "unitId": "u-fixture-04",
+  "contactId": "c-fixture-healthy",
+  "taskGroupId": "tg-fixture-alpha",
+  "roe": {
+    "weaponsFree": false,
+    "weaponsTight": true,
+    "holdFire": false,
+    "excludeCivilian": true
+  },
+  "wraRemaining": {
+    "missile": 5,
+    "gun": 190,
+    "laser": 2
+  },
+  "contact": {
+    "classHint": "unknown",
+    "rangeNm": 20.0,
+    "bearingDeg": 95,
+    "closing": false,
+    "iff": "unknown"
+  },
+  "ownship": {
+    "posture": "patrol",
+    "damageState": "nominal",
+    "sensorsUp": true
+  },
+  "playerInfoModel": {
+    "selectedUnitId": "u-fixture-04",
+    "cameraFocusId": "u-fixture-04"
+  },
+  "personalityEditPolicy": "read_only_assist",
+  "skillAvailability": {
+    "jevDecide": true,
+    "lastOkAt": "2026-09-22T10:20:00-05:00"
+  }
+}
