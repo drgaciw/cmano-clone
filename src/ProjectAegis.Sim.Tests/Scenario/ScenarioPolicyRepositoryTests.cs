@@ -1,5 +1,3 @@
-using System;
-using System.IO;
 using ProjectAegis.Sim.Policy;
 using ProjectAegis.Sim.Scenario;
 using Xunit;
@@ -24,7 +22,7 @@ public sealed class ScenarioPolicyRepositoryTests
         Assert.True(ScenarioPolicyPlayModeLoad.EnsureLoadedFrom(assets));
         var profile = ScenarioPolicyRepository.TryGet("baltic-patrol-classify");
         Assert.NotNull(profile);
-        Assert.Equal(RoeLevel.WeaponsFree, profile!.FriendlyDefault.Roe);
+        Assert.Equal(RoeLevel.WeaponsFree, profile.FriendlyDefault.Roe);
         Assert.Equal(RoeLevel.WeaponsTight, profile.OpposingDefault.Roe);
     }
 

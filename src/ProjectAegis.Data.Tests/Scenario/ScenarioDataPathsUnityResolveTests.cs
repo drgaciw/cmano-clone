@@ -25,7 +25,7 @@ public sealed class ScenarioDataPathsUnityResolveTests
         Assert.NotNull(resolved);
         Assert.True(Directory.Exists(resolved));
         Assert.Contains(
-            Directory.EnumerateFiles(resolved!, "*.policy.json"),
+            Directory.EnumerateFiles(resolved, "*.policy.json"),
             f => Path.GetFileName(f).Equals("baltic-patrol-classify.policy.json", StringComparison.OrdinalIgnoreCase));
     }
 
@@ -50,7 +50,7 @@ public sealed class ScenarioDataPathsUnityResolveTests
             Directory.SetCurrentDirectory(unityProject);
             var resolved = ScenarioDataPaths.TryResolveScenariosDirectory();
             Assert.NotNull(resolved);
-            Assert.True(File.Exists(Path.Combine(resolved!, "baltic-patrol-classify.policy.json")));
+            Assert.True(File.Exists(Path.Combine(resolved, "baltic-patrol-classify.policy.json")));
         }
         finally
         {
