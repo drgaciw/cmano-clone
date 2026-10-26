@@ -10,7 +10,7 @@ description: >
   qa-gauntlet-stress (orthogonal axes), qa-gauntlet-remediation (Phase D TDD + UCA).
   Use when the user runs /team-qa-gauntlet, or asks for "gauntlet team",
   "pressure-test team", "gauntlet UI", or multi-agent gauntlet dispatch.
-argument-hint: "[--run-id <id>] [--mode full|ladder|ui|ui-smoke|combat-ui|mission-thread|agentic-resilience|forge|calibrate|stress] [--tiers N]"
+argument-hint: "[--run-id <id>] [--mode full|ladder|ui|ui-smoke|combat-ui|mission-thread|agentic-resilience|forge|calibrate|stress|perf|fuzz] [--tiers N]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task, AskUserQuestion
 ---
@@ -36,6 +36,8 @@ in the specialist `SKILL.md` files under `.claude/skills/`.
 | **`/qa-gauntlet-calibrate`** | Saboteur mutants, kill-rate matrix |
 | **`/qa-gauntlet-stress`** | Orthogonal axes `weapons` / `ew` / `logistics`, proof gate |
 | **`/qa-gauntlet-remediation`** | Phase D TDD; **UCA gate** on presentation Surfaces |
+| **`/qa-gauntlet-perf`** | Non-functional axis: tick-time budget + managed-heap growth ceiling (differential) |
+| **`/qa-gauntlet-fuzz`** | Malformed-input robustness for scenario / catalog / replay ingestion |
 
 ## Mode routing
 
@@ -50,6 +52,8 @@ in the specialist `SKILL.md` files under `.claude/skills/`.
 | `forge` | `qa-gauntlet-forge` phases only |
 | `calibrate` | `qa-gauntlet-calibrate` |
 | `stress` | `qa-gauntlet-stress` plan → derive → proof gate |
+| `perf` | **`qa-gauntlet-perf` only** — differential tick-time / heap-growth gate vs baseline |
+| `fuzz` | **`qa-gauntlet-fuzz` only** — malformed scenario/catalog/replay ingestion robustness |
 
 ### `--mode ui` / `ui-smoke` (summary)
 

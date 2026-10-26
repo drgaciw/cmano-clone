@@ -3,10 +3,35 @@ namespace ProjectAegis.Data.Scenario;
 /// <summary>Resolves repo-relative scenario, campaign, and catalog paths (DATA-3 path seam; profiles remain in Sim until full move).</summary>
 public static class ScenarioDataPaths
 {
-    public static string? TryResolveScenariosDirectory()
+    private const int MaxParentWalk = 16;
+
+    /// <summary>
+    /// Walk ancestors of <paramref name="startPath"/> looking for <c>data/scenarios</c>.
+    /// Used by Unity Editor hosts where <see cref="AppContext.BaseDirectory"/> may be the
+    /// Editor install or <c>Library/ScriptAssemblies</c> rather than the repo root.
+    /// </summary>
+    public static string? TryResolveFrom(string? startPath)
     {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        for (var i = 0; i < 10; i++)
+        if (string.IsNullOrWhiteSpace(startPath))
+        {
+            return null;
+        }
+
+        DirectoryInfo? dir;
+        try
+        {
+            dir = new DirectoryInfo(Path.GetFullPath(startPath));
+            if (dir.Exists == false && dir.Parent != null)
+            {
+                dir = dir.Parent;
+            }
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+
+        for (var i = 0; i < MaxParentWalk; i++)
         {
             if (dir == null)
             {
@@ -23,6 +48,13 @@ public static class ScenarioDataPaths
         }
 
         return null;
+    }
+
+    public static string? TryResolveScenariosDirectory()
+    {
+        return TryResolveFrom(AppContext.BaseDirectory)
+            ?? TryResolveFrom(Directory.GetCurrentDirectory())
+            ?? TryResolveFrom(Environment.GetEnvironmentVariable("AEGIS_REPO_ROOT"));
     }
 
     /// <summary>

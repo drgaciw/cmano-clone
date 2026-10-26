@@ -1,0 +1,3 @@
+event: message
+data: {"result":{"content":[{"type":"text","text":"{\u0022result\u0022:[{\u0022Name\u0022:\u0022DelegationSmoke\u0022,\u0022IsLoaded\u0022:true,\u0022IsDirty\u0022:false,\u0022IsSubScene\u0022:false,\u0022IsValidScene\u0022:true,\u0022RootCount\u0022:13,\u0022path\u0022:\u0022Assets/Scenes/DelegationSmoke.unity\u0022,\u0022buildIndex\u0022:-1,\u0022instanceID\u0022:0}]}"}],"structuredContent":{"result":[{"Name":"DelegationSmoke","IsLoaded":true,"IsDirty":false,"IsSubScene":false,"IsValidScene":true,"RootCount":13,"path":"Assets/Scenes/DelegationSmoke.unity","buildIndex":-1,"instanceID":0}]},"isError":false},"id":3,"jsonrpc":"2.0"}
+

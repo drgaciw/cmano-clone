@@ -1,0 +1,3 @@
+event: message
+data: {"result":{"content":[{"type":"text","text":"Tool with Name \u0027tools/list\u0027 not found."}],"isError":true},"id":3,"jsonrpc":"2.0"}
+

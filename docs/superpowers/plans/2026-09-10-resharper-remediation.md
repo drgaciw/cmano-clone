@@ -1,5 +1,35 @@
 # Project Aegis — ReSharper remediation plan
 
+## Current status — refreshed 2026-09-22
+
+**Original remediation: COMPLETE. Current working-tree regression gate: FAIL (five new warnings).**
+
+Phases 0–6 below were completed on 2026-09-10 and landed through [PR #623](https://github.com/drgaciw/cmano-clone/pull/623), squash commit `c7810de42df72c8df13bffa02fca1680d3bb0bc4`. Their instructions, estimates, and baseline descriptions are retained as historical implementation context, not pending work. The original closeout recorded 1,363 fixed, 956 accepted exceptions, seven deferred integrations, and zero new/reintroduced/ambiguous findings.
+
+The [September 22 current-state assessment](../reviews/2026-09-22-resharper-current-state.md) supersedes that checkpoint only for current-state claims. Pinned ReSharper CLI 2026.2.1 with SDK 8.0.400 successfully analyzed all supported frameworks after a clean build (zero warnings/errors). Its comparison reports:
+
+| Current comparison measure | Count |
+|---|---:|
+| Original entries absent from this scan (`fixed` in gate output) | 1,373 |
+| Matching accepted exceptions | 946 |
+| Matching deferred integrations | 7 |
+| Original open entries | 0 |
+| New findings, outside the original inventory | 5 |
+| Reintroduced / ambiguous | 0 / 0 |
+
+This evidence describes HEAD `4190fb1b49cd15775b6b995b7c245d73828cd7a2` **plus uncommitted changes**, not an isolated clean commit. The stored ledger still records the original 1,363/956/7 dispositions. Ten accepted entries no longer match the scan; they are provenance-review candidates, not ten newly verified fixes.
+
+### Active follow-up queue
+
+1. **Narrow test cleanup:** three redundant null-forgiving operators and two unused imports across `ScenarioDataPathsUnityResolveTests` and `ScenarioPolicyRepositoryTests`. GitNexus upstream analysis reports LOW risk, zero direct dependents, and zero affected execution flows for both classes. Preserve assertions and existing working-tree edits; rerun impact on the exact methods before a later implementation.
+2. **Exception provenance review:** nine positional properties in `MagazineLoadoutApplyState.cs` and one in `UnitDetailApplyState.cs`. Confirm current consumers and identity continuity before changing any ledger disposition. Keep original identities and audit history.
+3. **Runtime capability integrations:** retain RSH-001–007 in the [owned follow-up register](../reviews/2026-09-10-resharper-followups.md). Current source/graph review does not establish completed production provider wiring. Advice's working fallback is distinct from its optional evidence provider. Close an integration only with concrete production composition and acceptance evidence.
+4. **Verification-discovered checkout issue:** the full suite reports 3,351 passed and one failure because existing modified player settings enable `UNITY_MCP_READY`. Restore Editor-only MCP isolation in a separate Unity configuration task; do not weaken the assertion. Current smoke (26/26), locked replay (6/6), tooling (19/19), and build gates pass. See the assessment for exact commands and logs.
+
+The refresh changes documentation only. It does not fix these warnings, implement capabilities, change public APIs, regenerate the baseline, demote rule families, or authorize protected bridge/catalog edits. The September 10 closeout and HTML report remain historical artifacts. Current verification and analysis limitations are recorded in the dated assessment.
+
+## Historical implementation plan — completed 2026-09-10
+
 ## Recommendation and scope
 
 Remediate in small, rule-specific changes, starting with potential behavior problems and establishing a reproducible baseline before bulk edits. Success means every finding has a reviewed disposition and new warnings are prevented; it does not require deleting intentional contracts or suppressing entire rule families to reach zero.
@@ -145,8 +175,8 @@ Before editing functions or classes, follow the repository's GitNexus impact-ana
 - Run InspectCode after a successful fresh build and compare identities against the baseline. Separate analysis configuration changes from source-remediation batches.
 - Do not replace replay goldens simply to make a remediation change pass. Investigate any changed result.
 
-## Delivery estimate
+## Delivery status
 
-Budget approximately **8–14 engineering days** for one engineer, including review and validation. This assumes most findings are local cleanup or contract clarifications. Missing runtime integrations, API migrations, Unity-specific defects, and any requested change to protected code are separate work and may extend the estimate.
+**Delivered:** original phases 0–6 completed and merged through PR #623 on 2026-09-10. The original **8–14 engineering day** budget is historical, not an estimate of remaining work.
 
-Deliver phase 0 and the phase 1 investigation first. Re-estimate after the cleanup pilot and the first DTO/nullability sample; those will reveal the actual exception rate and review cost. Each batch should include its finding identities, disposition changes, focused diff, verification results, and rescan comparison.
+The active queue above separates five new test-code warnings, ten exception-provenance reviews, and seven already-owned runtime integrations. No new implementation estimate or delivery date is assigned by this documentation refresh. Future batches must preserve finding identities, reviewed dispositions, focused diffs, and verification/rescan evidence.

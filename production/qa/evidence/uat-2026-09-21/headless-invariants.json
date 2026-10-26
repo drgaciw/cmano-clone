@@ -1,0 +1,81 @@
+{
+  "timestamp_utc": "2026-09-21T22:02:26.7833566Z",
+  "scope": "headless-only",
+  "play_mode_uat": "not_run_by_this_agent",
+  "gates": {
+    "build": {
+      "result": "PASS",
+      "errors": 0,
+      "warnings": 0,
+      "log": "production/qa/evidence/uat-2026-09-21/headless-build.txt"
+    },
+    "solution_tests": {
+      "result": "PASS",
+      "passed": 3347,
+      "failed": 0,
+      "floor": 1638,
+      "log": "production/qa/evidence/uat-2026-09-21/headless-tests.txt",
+      "per_assembly": [
+        {
+          "passed": 584,
+          "assembly": "ProjectAegis.Sim.Tests"
+        },
+        {
+          "passed": 1108,
+          "assembly": "ProjectAegis.Delegation.Tests"
+        },
+        {
+          "passed": 116,
+          "assembly": "ProjectAegis.MissionEditor.Cli.Tests"
+        },
+        {
+          "passed": 24,
+          "assembly": "ProjectAegis.Data.Excel.Tests"
+        },
+        {
+          "passed": 742,
+          "assembly": "ProjectAegis.Delegation.UnityAdapter.Tests"
+        },
+        {
+          "passed": 773,
+          "assembly": "ProjectAegis.Data.Tests"
+        }
+      ]
+    },
+    "playmode_smoke": {
+      "result": "PASS",
+      "passed": 25,
+      "failed": 0,
+      "floor": 20,
+      "filter": "PlayModeSmokeHarnessTests",
+      "log": "production/qa/evidence/uat-2026-09-21/headless-smoke.txt"
+    },
+    "replay_hash": {
+      "result": "PASS",
+      "hash": "17144800277401907079",
+      "file_count": 18,
+      "under": [
+        "tests/",
+        "data/"
+      ],
+      "log": "production/qa/evidence/uat-2026-09-21/headless-hash-grep.json"
+    },
+    "delegation_bridge_untouched": {
+      "result": "PASS",
+      "note": "git status clean for DelegationBridge.cs"
+    },
+    "catalog_write_gate_untouched": {
+      "result": "PASS",
+      "note": "git status clean for CatalogWriteGate*"
+    },
+    "jev_fixture_pytest": {
+      "result": "PASS",
+      "passed": 13,
+      "failed": 0,
+      "python": "C:\\Users\\dgorn\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+      "note": "default 'python' pointed at hermes venv without pytest; used Python 3.13 explicitly",
+      "log": "production/qa/evidence/uat-2026-09-21/headless-jev-pytest.txt"
+    }
+  },
+  "overall": "PASS"
+}

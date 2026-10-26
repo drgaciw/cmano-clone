@@ -1,0 +1,2 @@
+[2026-09-17T18:18:02.715Z] startPerfSampler entered (team=direct-explorer observability=undefined importMetaUrl=file:///C:/Users/dgorn/.pi/agent/npm/node_modules/pi-crew/src/runtime/team-runner.ts)
+[2026-09-17T18:18:02.716Z] SKIP: observability=undefined !== true

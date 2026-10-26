@@ -6,7 +6,7 @@ description: >
   Failures route to /qa-gauntlet-remediation + UCA. Manual UAT stays on /team-qa /
   /smoke-check. Use when /qa-gauntlet-ui, /team-qa-gauntlet --mode ui|ui-smoke,
   or the user asks for "gauntlet UI", "C2 Play Mode pressure", or "UI smoke gauntlet".
-argument-hint: "[--run-id <id>] [--unity-version 6000.3.14f1] [--skip-signoff]"
+argument-hint: "[--run-id <id>] [--unity-version <from-ProjectVersion.txt>] [--skip-signoff]"
 user-invocable: true
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash, Task
 ---
@@ -97,8 +97,9 @@ for the family may be higher (e.g. 17) — never treat a 0-discovery green as PA
 
 ### 3) Unity Editor C2 Play Mode signoffs (×5)
 
-Editor: Hub version **must** match `unity/ProjectAegis/ProjectSettings/ProjectVersion.txt`
-(pinned `6000.3.14f1`). Default path Linux: `$HOME/Unity/Hub/Editor/<ver>/Editor/Unity`.
+Editor: Hub version **must** match the version in
+`unity/ProjectAegis/ProjectSettings/ProjectVersion.txt` (read `m_EditorVersion` at
+run time — never hard-code a version here; the script below already does this). Default path Linux: `$HOME/Unity/Hub/Editor/<ver>/Editor/Unity`.
 
 ```bash
 VER="$(awk -F': ' '/^m_EditorVersion:/{print $2; exit}' unity/ProjectAegis/ProjectSettings/ProjectVersion.txt)"

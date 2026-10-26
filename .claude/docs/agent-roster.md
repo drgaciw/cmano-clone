@@ -54,6 +54,7 @@ domain lead) should delegate to specialists.
 | `prototyper` | Rapid prototyping | Sonnet | Throwaway prototypes, mechanic testing, feasibility validation |
 | `security-engineer` | Security | Sonnet | Anti-cheat, exploit prevention, save encryption, network security |
 | `determinism-engineer` | Determinism/reproducibility | Sonnet | Seeded RNG, replay regression, non-deterministic pattern audits for the deterministic sim |
+| `replay-qa-specialist` | Replay regression / reproducibility QA | Sonnet | Golden-replay fixtures, replay-verify gate, cross-run/cross-machine drift, divergence bisection |
 | `accessibility-specialist` | Accessibility | Haiku | WCAG compliance, colorblind modes, remapping, text scaling |
 | `live-ops-designer` | Live operations | Sonnet | Seasons, events, battle passes, retention, live economy |
 | `community-manager` | Community | Haiku | Patch notes, player feedback, crisis comms, community health |

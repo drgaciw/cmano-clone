@@ -1,0 +1,36 @@
+{
+  "policy_id": "baltic-patrol-classify",
+  "note": "Live scenarioPolicyId unread (Unity MCP :8080 occupied by unrelated Java gateway-service; Editor not running). Using baltic-patrol-classify as planned UAT target; source default on DelegationBridgeHost is baltic-patrol when unread.",
+  "rows": [
+    {
+      "id": "UAT-START",
+      "result": "blocked",
+      "observation": "Cannot enter Play Mode via Unity MCP. No Game view screenshot. No Console slice. :8080 is Java gateway-service, not Unity MCP."
+    },
+    {
+      "id": "UAT-SELECT",
+      "result": "blocked",
+      "observation": "Depends on Play Mode + OOB/map interaction via MCP. Not attempted."
+    },
+    {
+      "id": "UAT-COMMAND",
+      "result": "blocked",
+      "observation": "Depends on Play Mode + Fire/Hold via MCP. Not attempted."
+    },
+    {
+      "id": "UAT-TYPE",
+      "result": "blocked",
+      "observation": "Requires Game view capture for type readability. Not attempted."
+    },
+    {
+      "id": "UAT-CLIP",
+      "result": "blocked",
+      "observation": "Requires Game view capture for panel clipping. Not attempted."
+    },
+    {
+      "id": "UAT-MISSION",
+      "result": "blocked",
+      "observation": "Requires Play Mode mission-list projection. Live policy id unread; empty list vs timeline cannot be judged."
+    }
+  ]
+}

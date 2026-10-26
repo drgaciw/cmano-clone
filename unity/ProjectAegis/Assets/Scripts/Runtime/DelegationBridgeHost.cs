@@ -258,6 +258,8 @@ namespace ProjectAegis.Unity.Runtime
 
         private void Awake()
         {
+            // Editor BaseDirectory is the Unity install, so the default policy walk misses data/scenarios.
+            ScenarioPolicyPlayModeLoad.EnsureLoadedFrom(Application.dataPath);
             Bridge = new DelegationBridge(
                 globalSeed,
                 mvpEngagement: enableMvpEngagement,

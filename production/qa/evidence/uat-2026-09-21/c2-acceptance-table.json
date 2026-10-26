@@ -1,0 +1,65 @@
+{
+  "capturedAt": "2026-09-21T22:40:00Z",
+  "scene": "DelegationSmoke",
+  "scenarioPolicyId": "baltic-patrol-classify",
+  "playModeEntered": true,
+  "rows": [
+    {
+      "id": "UAT-START",
+      "verdict": "PASS",
+      "observation": "Play Mode entered twice; map and top bar visible; pause/1x/2x exercised. Console has Unity-MCP HubException noise only (no product NullReference).",
+      "evidence": [
+        "production/qa/evidence/uat-2026-09-21/uat-start-1x.png",
+        "production/qa/evidence/uat-2026-09-21/uat-start-2x.png",
+        "production/qa/evidence/uat-2026-09-21/uat-start-repeat.png"
+      ]
+    },
+    {
+      "id": "UAT-SELECT",
+      "verdict": "PASS",
+      "observation": "hostile-1/u1 and contact c1 selection sync OOB/map/detail; contact panel shows STALE and technical targetability NO.",
+      "evidence": [
+        "production/qa/evidence/uat-2026-09-21/uat-select-contact.png",
+        "production/qa/evidence/uat-2026-09-21/uat-select-friendly-return.png"
+      ]
+    },
+    {
+      "id": "UAT-COMMAND",
+      "verdict": "PASS",
+      "observation": "Fire → QUEUED: Fire 1 round; Hold → QUEUED: Hold fire; changing selection clears QUEUED feedback.",
+      "evidence": [
+        "production/qa/evidence/uat-2026-09-21/uat-command-fire.png",
+        "production/qa/evidence/uat-2026-09-21/uat-command-hold.png",
+        "production/qa/evidence/uat-2026-09-21/uat-command-cleared.png",
+        "production/qa/evidence/uat-2026-09-21/baltic-clock-run.txt"
+      ]
+    },
+    {
+      "id": "UAT-TYPE",
+      "verdict": "PASS",
+      "observation": "Top bar (~12pt), OOB, and attack feedback (~14pt) readable in Game view captures.",
+      "evidence": [
+        "production/qa/evidence/uat-2026-09-21/uat-start-1x.png",
+        "production/qa/evidence/uat-2026-09-21/uat-command-fire.png"
+      ]
+    },
+    {
+      "id": "UAT-CLIP",
+      "verdict": "PASS",
+      "observation": "Top bar and unit attack feedback remain inside their panels.",
+      "evidence": [
+        "production/qa/evidence/uat-2026-09-21/uat-command-fire.png",
+        "production/qa/evidence/uat-2026-09-21/uat-start-1x.png"
+      ]
+    },
+    {
+      "id": "UAT-MISSION",
+      "verdict": "PASS",
+      "observation": "mission-list-count=0 is expected content: baltic-patrol-classify has no mission timeline.",
+      "evidence": [
+        "production/qa/evidence/uat-2026-09-21/baltic-clock-run.txt",
+        "data/scenarios/baltic-patrol-classify.policy.json"
+      ]
+    }
+  ]
+}

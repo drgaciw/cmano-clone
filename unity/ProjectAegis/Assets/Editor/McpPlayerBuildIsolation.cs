@@ -34,8 +34,7 @@ namespace ProjectAegis.Unity.Editor
                 .Where(d => d.Length > 0)
                 .ToList();
 
-            var had = defines.RemoveAll(d =>
-                string.Equals(d, ReadyDefine, StringComparison.Ordinal)) > 0;
+            var had = RemoveReadyDefine(defines);
             HadDefineByTarget[key] = had;
 
             if (had)
@@ -106,8 +105,7 @@ namespace ProjectAegis.Unity.Editor
                     .Where(d => d.Length > 0)
                     .ToList();
 
-                if (defines.RemoveAll(d =>
-                        string.Equals(d, ReadyDefine, StringComparison.Ordinal)) <= 0)
+                if (!RemoveReadyDefine(defines))
                 {
                     continue;
                 }
@@ -118,6 +116,9 @@ namespace ProjectAegis.Unity.Editor
 
             return stripped;
         }
+
+        internal static bool RemoveReadyDefine(List<string> defines) =>
+            defines.RemoveAll(d => string.Equals(d, ReadyDefine, StringComparison.Ordinal)) > 0;
     }
 }
 #endif

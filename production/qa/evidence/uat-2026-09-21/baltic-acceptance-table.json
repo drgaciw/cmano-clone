@@ -1,0 +1,53 @@
+{
+  "capturedAt": "2026-09-21T22:40:00Z",
+  "scene": "DelegationSmoke",
+  "scenarioPolicyId": "baltic-patrol-classify",
+  "rows": [
+    {
+      "id": "UAT-CLOCK",
+      "verdict": "PASS",
+      "observation": "TIME: PAUSED / simPaused=True freezes; RESUME restores compression; sim ran past classify ticks (SIM ≥ 00:00:42 after reload).",
+      "evidence": [
+        "production/qa/evidence/uat-2026-09-21/baltic-clock-paused.txt",
+        "production/qa/evidence/uat-2026-09-21/baltic-roe-u1.png"
+      ]
+    },
+    {
+      "id": "UAT-CONTACT",
+      "verdict": "PASS",
+      "observation": "c1 Classified appears with contact detail (Degraded-L2, STALE, technical targetability NO, reacquisition guidance).",
+      "evidence": [
+        "production/qa/evidence/uat-2026-09-21/uat-select-contact.png",
+        "production/qa/evidence/uat-2026-09-21/baltic-contact.png"
+      ]
+    },
+    {
+      "id": "UAT-ROE",
+      "verdict": "PASS",
+      "observation": "After ScenarioDataPaths Unity resolve fix + plugin copy: unit detail DOCTRINE/ROE shows WeaponsFree for u1 (friendly). Opposing WeaponsTight confirmed via ProjectUnit(isFriendly:false) and engage aborts ROE_WEAPONS_TIGHT in log.",
+      "evidence": [
+        "production/qa/evidence/uat-2026-09-21/baltic-roe-u1.png",
+        "production/qa/evidence/uat-2026-09-21/baltic-roe-probe3.txt",
+        "production/qa/evidence/uat-2026-09-21/baltic-roe-u1.txt"
+      ]
+    },
+    {
+      "id": "UAT-ENGAGE",
+      "verdict": "PASS",
+      "observation": "With u1 selected, Fire 1 round shows QUEUED: Fire 1 round (facade queue, not hit claim).",
+      "evidence": [
+        "production/qa/evidence/uat-2026-09-21/baltic-engage-settled.txt",
+        "production/qa/evidence/uat-2026-09-21/uat-command-fire.png"
+      ]
+    },
+    {
+      "id": "UAT-CONSOLE",
+      "verdict": "PASS",
+      "observation": "No product NullReference during Baltic session. Remaining Exceptions are Unity-MCP HubException deserialize noise.",
+      "evidence": [
+        "production/qa/evidence/uat-2026-09-21/baltic-console-exceptions.txt",
+        "production/qa/evidence/uat-2026-09-21/uat-console-exception.txt"
+      ]
+    }
+  ]
+}

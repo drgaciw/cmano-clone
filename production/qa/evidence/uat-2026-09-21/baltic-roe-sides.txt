@@ -1,0 +1,3 @@
+event: message
+data: {"result":{"content":[{"type":"text","text":"Tool execution failed for \u0027Script / Execute\u0027: One or more errors occurred. (Compilation failed:\n(11,59): error CS0246: The type or namespace name \u0027TargetId\u0027 could not be found (are you missing a using directive or an assembly reference?)\n(12,59): error CS0246: The type or namespace name \u0027TargetId\u0027 could not be found (are you missing a using directive or an assembly reference?))"}],"isError":true},"id":3,"jsonrpc":"2.0"}
+

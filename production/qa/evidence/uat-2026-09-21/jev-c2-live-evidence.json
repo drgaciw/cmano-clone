@@ -1,0 +1,35 @@
+{
+  "policy_id": "baltic-patrol-classify",
+  "rows": [
+    {
+      "observation": "Play Mode entered twice; map and top bar visible; pause/1x/2x exercised; MCP HubExceptions only (tooling).",
+      "id": "UAT-START",
+      "result": "pass"
+    },
+    {
+      "observation": "hostile-1/u1 OOB and c1 contact selection sync map ring and detail panels; contact shows STALE/reacquisition.",
+      "id": "UAT-SELECT",
+      "result": "pass"
+    },
+    {
+      "observation": "Fire shows QUEUED: Fire 1 round; Hold shows QUEUED: Hold fire; selection clear removes QUEUED.",
+      "id": "UAT-COMMAND",
+      "result": "pass"
+    },
+    {
+      "observation": "Top bar, OOB, and command feedback readable in Game view captures (font ~12-14).",
+      "id": "UAT-TYPE",
+      "result": "pass"
+    },
+    {
+      "observation": "Top bar and attack feedback remain inside panel bounds in screenshots.",
+      "id": "UAT-CLIP",
+      "result": "pass"
+    },
+    {
+      "observation": "mission-list-count=0 expected: baltic-patrol-classify has no mission timeline.",
+      "id": "UAT-MISSION",
+      "result": "pass"
+    }
+  ]
+}

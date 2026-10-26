@@ -138,6 +138,7 @@ Deep-dives into engine-agnostic subsystems, verified against source and pinned b
 | [hindsight-session-memory-sidecar.md](hindsight-session-memory-sidecar.md) | The **runtime** Hindsight sidecar (distinct from the dev loop above): how a simulation optionally streams agent decisions, session AAR, and campaign trust signals into local `agent-*` / `aar-*` / `agent-xp-*` banks — the two `DelegationOrchestrator` seams (order-log append hook + `FinalizeScenario`), `HindsightOptions`, the bank-id / decision-memory / trust-signal model, the HTTP transport, and the null-object + fire-and-forget design that keeps replay hashes untouched. |
 | [superpowers-setup.md](superpowers-setup.md) | Installing/refreshing the global [obra/superpowers](https://github.com/obra/superpowers) agent methodology (TDD, debugging, plan-driven execution). |
 | [pi-skills-recommendations-review.md](pi-skills-recommendations-review.md) | Dated review (2026-06-03) of the `pi-skills-recommendations` doc through a milsim lens. |
+| [jev-1.13-game-decision-making.md](jev-1.13-game-decision-making.md) | Recommendation (2026-09-18): use TypeSafe Jev 1.13 as an off-tick judgment sidecar (AAR, approval ranking, gauntlet triage, authoring classify) — never inside `DecisionPipeline` / ROE / replay. |
 
 ## CI, branch protection & Graphite workflow
 

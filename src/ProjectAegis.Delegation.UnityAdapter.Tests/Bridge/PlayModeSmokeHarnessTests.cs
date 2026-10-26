@@ -52,6 +52,21 @@ public sealed class PlayModeSmokeHarnessTests
         Assert.That(harness.SimTime, Is.EqualTo(30.0 / 60.0).Within(1e-6));
     }
 
+    [Test]
+    public void Classify_detail_shows_friendly_free_and_opposing_tight()
+    {
+        var bridge = new DelegationBridge(42, scenarioPolicyId: "baltic-patrol-classify");
+        Assert.That(bridge.Orchestrator.ScenarioPolicy, Is.Not.Null);
+        Assert.That(PlayModeSmokeOrbatSeeder.TrySeed(bridge), Is.True);
+
+        var harness = new PlayModeHarness(contactCount: 1, hasFireControlTrack: true);
+        var friendly = UnitDetailBridge.BuildSelected(new TargetId("u1"), harness, bridge);
+        var opposing = UnitDetailBridge.BuildSelected(new TargetId("hostile-1"), harness, bridge);
+
+        Assert.That(friendly!.DoctrineLabel, Does.Contain("WeaponsFree"));
+        Assert.That(opposing!.DoctrineLabel, Does.Contain("WeaponsTight"));
+    }
+
     /// <summary>
     /// Headless contract for shipped <see cref="PlayModeSmokeOrbatSeeder"/>
     /// (same entry Unity <c>SimplePlayModeSimHost</c> calls on Start):

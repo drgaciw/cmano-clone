@@ -369,5 +369,7 @@ After tier 5 (or an unrecoverable halt):
 - `/qa-gauntlet-stress` — orthogonal axes + proof gate.
 - `/qa-gauntlet-remediation` — Phase D TDD + UCA presentation gate.
 - `/qa-gauntlet-calibrate` — saboteur / kill-rate.
+- `/qa-gauntlet-perf` — differential tick-time / heap-growth axis (non-functional).
+- `/qa-gauntlet-fuzz` — malformed scenario/catalog/replay ingestion robustness.
 - `/team-qa` — human sprint QA package / **manual UAT** (not a substitute for the gauntlet ladder).
 - `/smoke-check` — Phase 0 preflight.

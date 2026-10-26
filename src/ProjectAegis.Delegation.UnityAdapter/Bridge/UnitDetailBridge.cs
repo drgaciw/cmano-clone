@@ -3,6 +3,7 @@ namespace ProjectAegis.Delegation.UnityAdapter.Bridge;
 using Core;
 using Decision;
 using Projection;
+using Roe;
 using ProjectAegis.Sim.Scenario;
 
 /// <summary>
@@ -154,6 +155,14 @@ public static class UnitDetailBridge
 
         var unitId = unitIdOverride ?? entry.UnitId;
         var liveMenu = bridge.GetAttackMenuOptions(unitId, snapshot);
-        return entry with { AttackMenu = liveMenu };
+        entry = entry with { AttackMenu = liveMenu };
+        if (bridge.Orchestrator.ScenarioPolicy != null)
+        {
+            var bound = bridge.Orchestrator.ResolveEffectivePolicyForUnit(
+                OrderActionMapper.TargetIdToUlong(new TargetId(unitId)));
+            entry = entry with { DoctrineLabel = $"DOCTRINE: {bound.Roe}" };
+        }
+
+        return entry;
     }
 }

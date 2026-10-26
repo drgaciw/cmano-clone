@@ -1,0 +1,47 @@
+{
+  "status": "ok",
+  "model": "typesafe/jev-1.13-20260917",
+  "question_ids": [
+    "failure_class",
+    "severity",
+    "needs_code_change"
+  ],
+  "answers": {
+    "failure_class": {
+      "type": "choice",
+      "choice": "none",
+      "probabilities": {
+        "other": 0,
+        "none": 0.98,
+        "sim-code": 0,
+        "presentation": 0,
+        "harness": 0.02,
+        "scenario-content": 0
+      },
+      "confidence": 0.97
+    },
+    "severity": {
+      "type": "score",
+      "score": 0.04,
+      "legend": {
+        "0": "cosmetic \u2014 readable but ugly or minor polish; slice still usable",
+        "1": "blocks this row \u2014 one acceptance row cannot pass; other rows may still proceed",
+        "2": "blocks the slice \u2014 C2 or Baltic play-through cannot be signed off until fixed"
+      },
+      "probabilities": {
+        "0": 0.97,
+        "1": 0.02,
+        "2": 0.01
+      },
+      "confidence": 0.93
+    },
+    "needs_code_change": {
+      "type": "noul",
+      "noul": 0.06
+    }
+  },
+  "usage": {
+    "input_tokens": 1125,
+    "output_tokens": 96
+  }
+}

@@ -1,0 +1,3 @@
+event: message
+data: {"result":{"content":[{"type":"text","text":"{\u0022result\u0022:{\u0022name\u0022:\u0022result\u0022,\u0022typeName\u0022:\u0022System.String\u0022,\u0022value\u0022:\u0022runInBackground=True compiling=True playing=True updating=False frame=6129\u0022}}"}],"structuredContent":{"result":{"name":"result","typeName":"System.String","value":"runInBackground=True compiling=True playing=True updating=False frame=6129"}},"isError":false},"id":3,"jsonrpc":"2.0"}
+

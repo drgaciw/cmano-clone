@@ -1,0 +1,38 @@
+{
+  "ok": false,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-t5-cascade",
+      "passed": false,
+      "failures": [
+        "row[3] scenario=gauntlet-t5-cascade seed=99902: kills 1 \u003C min 4",
+        "row[3] scenario=gauntlet-t5-cascade seed=99902: score -100 \u003C min -50",
+        "row[4] scenario=gauntlet-t5-cascade seed=24598: kills 2 \u003C min 4"
+      ],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t5-dynamic-obj",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t5-roe-change",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-t5-theater",
+      "passed": true,
+      "failures": [],
+      "warnings": [],
+      "rows": 5
+    }
+  ],
+  "allPassed": false
+}

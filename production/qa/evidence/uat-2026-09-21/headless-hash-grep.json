@@ -1,0 +1,25 @@
+{
+  "file_count": 18,
+  "files": [
+    "tests/regression\\replay-golden-baltic-combat-domains-2026-06-18.txt",
+    "tests/regression\\README.md",
+    "tests/regression\\replay-golden-baltic-catalog-2026-06-02.txt",
+    "tests/regression\\replay-golden-baltic-destroyed-reengage-2026-06-22.txt",
+    "tests/regression\\replay-golden-baltic-destroyed-reengage-merged.txt",
+    "tests/regression\\replay-golden-baltic-engage-2026-06-02.txt",
+    "tests/regression\\replay-golden-baltic-replay-2026-06-02.txt",
+    "tests/regression\\replay-golden-baltic-mission-2026-06-02.txt",
+    "tests/regression\\replay-golden-baltic-kill-checkpoints-2026-06-02.txt",
+    "tests/regression\\replay-golden-baltic-v2-patrol-band-b-2026-06-22.txt",
+    "tests/regression\\replay-golden-baltic-v2-patrol-2026-06-22.txt",
+    "tests/regression\\replay-golden-baltic-replay-checkpoints-2026-06-02.txt",
+    "tests/regression\\replay-golden-baltic-v2-patrol-mission-v2-2026-06-22.txt",
+    "data/scenarios\\baltic-patrol-opp-hold-fire.policy.json",
+    "tests/regression\\replay-golden-baltic-v2-mission-event-2026-06-22.txt",
+    "tests/regression\\replay-golden-baltic-v2-patrol-band-c-2026-06-22.txt",
+    "tests/regression\\replay-golden-baltic-v2-theater-2026-06-22.txt",
+    "data/scenarios\\scenario-policy-ids.md"
+  ],
+  "hash": "17144800277401907079",
+  "found": true
+}

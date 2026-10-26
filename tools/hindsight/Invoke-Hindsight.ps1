@@ -38,7 +38,7 @@ function Invoke-HindsightRequest {
 switch ($Operation) {
     'retain' {
         if (-not $Content) { throw 'retain requires -Content' }
-        $path = "/v1/default/banks/$bankEscaped/memories/retain"
+        $path = "/v1/default/banks/$bankEscaped/memories"
         $body = @{
             items = @(@{ content = $Content; context = 'agentic-dev' })
             async = $true
@@ -48,7 +48,7 @@ switch ($Operation) {
     'recall' {
         if (-not $Query) { throw 'recall requires -Query' }
         $path = "/v1/default/banks/$bankEscaped/memories/recall"
-        $body = @{ query = $Query; budget = 'mid'; maxTokens = 4096 }
+        $body = @{ query = $Query; budget = 'mid'; max_tokens = 4096 }
         $resp = Invoke-HindsightRequest -Path $path -Body $body
         if ($resp.results) {
             $resp.results | ForEach-Object { $_.text }
@@ -60,7 +60,7 @@ switch ($Operation) {
     'reflect' {
         if (-not $Query) { throw 'reflect requires -Query' }
         $path = "/v1/default/banks/$bankEscaped/reflect"
-        $body = @{ query = $Query; budget = 'mid'; includeFacts = $true }
+        $body = @{ query = $Query; budget = 'mid'; max_tokens = 4096 }
         $resp = Invoke-HindsightRequest -Path $path -Body $body
         if ($resp.text) { $resp.text } else { $resp | ConvertTo-Json -Depth 6 }
     }

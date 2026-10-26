@@ -1,0 +1,22 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.12, pytest-9.0.3, pluggy-1.6.0 -- C:\Users\dgorn\AppData\Local\Programs\Python\Python313\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\dgorn\cmano-clone\cmano-clone
+plugins: anyio-4.13.0
+collecting ... collected 13 items
+
+tools/jev/test_classify_uat.py::test_load_questions_includes_other_and_three_ids PASSED [  7%]
+tools/jev/test_classify_uat.py::test_build_systemone_request_shape PASSED [ 15%]
+tools/jev/test_classify_uat.py::test_load_evidence_packet_from_fixture PASSED [ 23%]
+tools/jev/test_classify_uat.py::test_parse_advisory_from_recorded_http_body PASSED [ 30%]
+tools/jev/test_classify_uat.py::test_classify_degrades_on_http_error PASSED [ 38%]
+tools/jev/test_classify_uat.py::test_classify_degrades_on_non_2xx PASSED [ 46%]
+tools/jev/test_classify_uat.py::test_classify_ok_with_recorded_body_via_transport PASSED [ 53%]
+tools/jev/test_classify_uat.py::test_budget_constant_is_800ms PASSED     [ 61%]
+tools/jev/test_classify_uat.py::test_resolve_route_openrouter_only PASSED [ 69%]
+tools/jev/test_classify_uat.py::test_resolve_route_typesafe_only PASSED  [ 76%]
+tools/jev/test_classify_uat.py::test_resolve_route_prefers_typesafe_when_both PASSED [ 84%]
+tools/jev/test_classify_uat.py::test_classify_openrouter_posts_to_openrouter_systemone PASSED [ 92%]
+tools/jev/test_classify_uat.py::test_classify_typesafe_posts_to_typesafe_systemone PASSED [100%]
+
+============================= 13 passed in 0.12s ==============================

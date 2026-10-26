@@ -1,0 +1,14 @@
+{
+  "capturedAt": "2026-09-21T21:28:00Z",
+  "liveScenarioPolicyId": null,
+  "liveReadMethod": "Unity MCP component read (DelegationBridgeHost.scenarioPolicyId)",
+  "liveReadStatus": "BLOCKED",
+  "liveReadReason": "Unity MCP :8080 not available; cannot read open-scene serialized field.",
+  "sourceDefault": {
+    "file": "unity/ProjectAegis/Assets/Scripts/Runtime/DelegationBridgeHost.cs",
+    "serializedFieldDefault": "baltic-patrol",
+    "note": "Source default only — not confirmed live. Plan prefers baltic-patrol-classify for this UAT once Editor MCP is up."
+  },
+  "policyUsedForPhase1": null,
+  "switchAttempted": false
+}

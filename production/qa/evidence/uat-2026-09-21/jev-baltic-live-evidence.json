@@ -1,0 +1,30 @@
+{
+  "policy_id": "baltic-patrol-classify",
+  "rows": [
+    {
+      "observation": "TIME: PAUSED with simPaused=True; RESUME restores compression; ran past classify ticks.",
+      "id": "UAT-CLOCK",
+      "result": "pass"
+    },
+    {
+      "observation": "c1 Classified contact detail present (Degraded-L2, STALE, technical targetability NO).",
+      "id": "UAT-CONTACT",
+      "result": "pass"
+    },
+    {
+      "observation": "After ScenarioDataPaths Unity fix + plugin copy: doctrine inheritance ROE: WeaponsFree for u1; opposing WeaponsTight via ProjectUnit(isFriendly:false).",
+      "id": "UAT-ROE",
+      "result": "pass"
+    },
+    {
+      "observation": "Fire 1 round queues QUEUED: Fire 1 round with truthful facade feedback.",
+      "id": "UAT-ENGAGE",
+      "result": "pass"
+    },
+    {
+      "observation": "No NullReference in session; remaining Exceptions are Unity-MCP HubException deserialize noise.",
+      "id": "UAT-CONSOLE",
+      "result": "pass"
+    }
+  ]
+}

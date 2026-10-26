@@ -75,6 +75,31 @@ namespace ProjectAegis.Unity.Tests
         }
     }
 
+    public sealed class GlobeMapProductHostTests
+    {
+        [Test]
+        public void Refresh_before_first_draw_without_bridge_preserves_default_view()
+        {
+            var go = new GameObject("globe-first-refresh");
+            go.SetActive(false);
+            try
+            {
+                var host = go.AddComponent<GlobeMapProductHost>();
+                var view = host.ViewState;
+
+                Assert.DoesNotThrow(host.Refresh);
+                Assert.AreSame(view, host.ViewState);
+                Assert.IsEmpty(host.LastEnvelopeRings);
+                Assert.IsEmpty(host.LastDatalinkEdges);
+                Assert.DoesNotThrow(host.Refresh, "An unchanged camera must remain safe on subsequent refreshes.");
+            }
+            finally
+            {
+                Object.DestroyImmediate(go);
+            }
+        }
+    }
+
     public sealed class RightUnitPanelCommandFeedbackTests
     {
         private sealed class StubWorld : ISimWorldSnapshot, IOrderSink
@@ -93,8 +118,8 @@ namespace ProjectAegis.Unity.Tests
         public IEnumerator Click_reports_queued_and_refresh_preserves_feedback_until_selection_changes()
         {
             var go = new GameObject("right-unit-feedback");
-            PanelSettings settings = null;
-            ThemeStyleSheet theme = null;
+            PanelSettings? settings = null;
+            ThemeStyleSheet? theme = null;
             try
             {
                 var bridge = go.AddComponent<DelegationBridgeHost>();
@@ -154,8 +179,8 @@ namespace ProjectAegis.Unity.Tests
         public IEnumerator Click_reports_facade_denial_reason()
         {
             var go = new GameObject("right-unit-denial");
-            PanelSettings settings = null;
-            ThemeStyleSheet theme = null;
+            PanelSettings? settings = null;
+            ThemeStyleSheet? theme = null;
             try
             {
                 var bridge = go.AddComponent<DelegationBridgeHost>();

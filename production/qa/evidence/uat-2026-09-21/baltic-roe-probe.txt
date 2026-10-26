@@ -1,0 +1,3 @@
+event: message
+data: {"result":{"content":[{"type":"text","text":"{\u0022result\u0022:{\u0022name\u0022:\u0022result\u0022,\u0022typeName\u0022:\u0022System.String\u0022,\u0022value\u0022:\u0022unit=u1 policyId=baltic-patrol-classify bridgeNull=False scenarioPolicyNull=True inheritance=ROE: \\u2014|SOURCE: \\u2014\u0022}}"}],"structuredContent":{"result":{"name":"result","typeName":"System.String","value":"unit=u1 policyId=baltic-patrol-classify bridgeNull=False scenarioPolicyNull=True inheritance=ROE: \u2014|SOURCE: \u2014"}},"isError":false},"id":3,"jsonrpc":"2.0"}
+

@@ -1,0 +1,30 @@
+{
+  "policy_id": "baltic-patrol-classify",
+  "rows": [
+    {
+      "id": "UAT-CLOCK",
+      "result": "pass",
+      "observation": "The first entry ran to SIM 00:09:46 (tick 586), long enough for c1 to classify. Pause set TIME: PAUSED and held the clock. A later entry advanced from SIM 00:00:00 at 1x."
+    },
+    {
+      "id": "UAT-CONTACT",
+      "result": "pass",
+      "observation": "c1 appeared on the map as Classified. Selecting it showed a non-empty contact detail, including stale age and a reacquisition reason after a long run."
+    },
+    {
+      "id": "UAT-ROE",
+      "result": "pass",
+      "observation": "After loading the scenario policy in Play Mode, u1 detail shows DOCTRINE: WeaponsFree and hostile-1 detail shows DOCTRINE: WeaponsTight, matching the policy."
+    },
+    {
+      "id": "UAT-ENGAGE",
+      "result": "pass",
+      "observation": "With u1 selected and c1 on the map, Fire 1 round showed QUEUED: Fire 1 round. When c1 was stale, the contact panel said so and gave a reacquisition reason."
+    },
+    {
+      "id": "UAT-CONSOLE",
+      "result": "pass",
+      "observation": "No new product exceptions during the Baltic entry. The only console exceptions were MCP HubException transport-deserialize messages from the editor plugin."
+    }
+  ]
+}

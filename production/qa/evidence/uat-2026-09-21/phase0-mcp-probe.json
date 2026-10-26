@@ -1,0 +1,26 @@
+{
+  "capturedAt": "2026-09-21T21:28:00Z",
+  "probeUrl": "http://localhost:8080",
+  "maxTimeSeconds": 3,
+  "httpResults": [
+    { "method": "GET", "path": "/", "httpCode": 404, "bodySnippet": "{\"timestamp\":\"2026-09-21T21:27:59.934Z\",\"path\":\"/\",\"status\":404,\"error\":\"Not Found\",\"requestId\":\"aa87777d-6\"}" },
+    { "method": "GET", "path": "/mcp", "httpCode": 404, "bodySnippet": "{\"status\":404,\"error\":\"Not Found\"}" },
+    { "method": "GET", "path": "/health", "httpCode": 404, "bodySnippet": "{\"status\":404,\"error\":\"Not Found\"}" },
+    { "method": "OPTIONS", "path": "/", "httpCode": 404 },
+    { "method": "POST", "path": "/mcp", "httpCode": 403, "bodySnippet": "Access Denied" }
+  ],
+  "verdict": "BLOCKED",
+  "reason": "Port 8080 responds but is not Unity MCP (no HTTP 2xx MCP handshake; ai-game-developer tools absent from session catalog).",
+  "listener": {
+    "pid": 27360,
+    "processName": "java",
+    "path": "C:\\Program Files\\Eclipse Adoptium\\jdk-25.0.4.101-hotspot\\bin\\java.exe",
+    "commandLineSummary": "gateway-service-1.0.0-SNAPSHOT.jar --spring.profiles.active=dev (unrelated Spring gateway; not com.ivanmurzak.unity.mcp)"
+  },
+  "unityEditorRunning": false,
+  "mcpNamespaceInSession": {
+    "ai-game-developer": false,
+    "toolsFound": []
+  },
+  "teamUnityGate": "Connection failed — stay headless. Do not invent Editor tools. Do not hand-edit .unity/.prefab/.meta."
+}

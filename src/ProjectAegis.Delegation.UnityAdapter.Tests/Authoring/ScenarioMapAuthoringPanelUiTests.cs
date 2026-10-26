@@ -259,10 +259,6 @@ public sealed class ScenarioMapAuthoringPanelUiTests
         Assert.That(File.Exists(settingsPath), Is.True);
 
         var settings = File.ReadAllText(settingsPath);
-        Assert.That(
-            settings,
-            Does.Not.Contain("UNITY_MCP_READY"),
-            "Player scripting defines must not enable UNITY_MCP_READY (Editor-only MCP isolation).");
         Assert.That(settings, Does.Contain("APP_UI_EDITOR_ONLY"));
         Assert.That(settings, Does.Contain("SENTIS_ANALYTICS_ENABLED"));
 
@@ -278,6 +274,13 @@ public sealed class ScenarioMapAuthoringPanelUiTests
         Assert.That(isolation, Does.Contain("IPreprocessBuildWithReport"));
         Assert.That(isolation, Does.Contain("UNITY_MCP_READY"));
         Assert.That(isolation, Does.Contain("OnPreprocessBuild"));
+        Assert.That(isolation, Does.Contain("var had = RemoveReadyDefine(defines);"),
+            "The build hook must strip MCP readiness before compiling the player, not disable Editor MCP.");
+        Assert.That(isolation, Does.Contain("PlayerSettings.SetScriptingDefineSymbols(named, string.Join(\";\", defines));"));
+        Assert.That(isolation, Does.Contain("IPostprocessBuildWithReport"));
+        Assert.That(isolation, Does.Contain("HadDefineByTarget[key] = had;"));
+        Assert.That(isolation, Does.Contain("defines.Add(ReadyDefine);"),
+            "Build completion must restore Editor readiness only when it was previously present.");
     }
 
     [Test]

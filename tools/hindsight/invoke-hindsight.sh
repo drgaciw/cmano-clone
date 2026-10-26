@@ -107,14 +107,14 @@ case "$operation" in
       exit 2
     fi
     body="$(jq -cn --arg content "$content" '{items:[{content:$content,context:"agentic-dev"}],async:true}')"
-    post_json "/v1/default/banks/$bank_escaped/memories/retain" "$body" | jq .
+    post_json "/v1/default/banks/$bank_escaped/memories" "$body" | jq .
     ;;
   recall)
     if [[ -z "$query" ]]; then
       echo "recall requires --query" >&2
       exit 2
     fi
-    body="$(jq -cn --arg query "$query" '{query:$query,budget:"mid",maxTokens:4096}')"
+    body="$(jq -cn --arg query "$query" '{query:$query,budget:"mid",max_tokens:4096}')"
     post_json "/v1/default/banks/$bank_escaped/memories/recall" "$body" \
       | jq -r 'if (.results // []) | length > 0 then .results[].text else . end'
     ;;
@@ -123,7 +123,7 @@ case "$operation" in
       echo "reflect requires --query" >&2
       exit 2
     fi
-    body="$(jq -cn --arg query "$query" '{query:$query,budget:"mid",includeFacts:true}')"
+    body="$(jq -cn --arg query "$query" '{query:$query,budget:"mid"}')"
     post_json "/v1/default/banks/$bank_escaped/reflect" "$body" \
       | jq -r 'if .text then .text else . end'
     ;;

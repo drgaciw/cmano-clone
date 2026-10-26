@@ -228,7 +228,7 @@ namespace ProjectAegis.Unity.Runtime
             _lastContactId = contactId;
             _lastCombatFrame = combatFrame;
             _combat = CombatSelectionPresenter.Build(combatFrame, null, null, contactId);
-            if (string.IsNullOrEmpty(contactId))
+            if (contactId == null || contactId.Length == 0)
             {
                 _presentation = ContactDetailPresentation.Empty;
                 _sliceA = SliceAContactPresentation.Empty;
@@ -241,7 +241,7 @@ namespace ProjectAegis.Unity.Runtime
                     contactId,
                     frame.Contacts,
                     frame.SimTick);
-                frame.Authorities.TryGetValue(contactId ?? string.Empty, out var authority);
+                frame.Authorities.TryGetValue(contactId, out var authority);
                 _sliceA = SliceAContactPresenter.Build(contactId, frame.KillChain, frame.Provenance,
                     frame.EligibilityAvailable ? frame.Chains : null, authority);
                 _liveSurface = SliceAContactLiveSurfaceBinder.Bind(contactId, frame, combatFrame);

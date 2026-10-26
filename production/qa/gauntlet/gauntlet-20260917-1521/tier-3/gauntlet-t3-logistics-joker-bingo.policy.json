@@ -1,0 +1,81 @@
+{
+  "friendlyRoe": "WeaponsFree",
+  "opposingRoe": "WeaponsTight",
+  "engage": {
+    "rangeMeters": 45000,
+    "envelopeMinMeters": 5000,
+    "envelopeMaxMeters": 120000,
+    "defaultMagazineRounds": 4,
+    "hasFireControlTrack": true,
+    "combatDomainsEnabled": true,
+    "pkBase": 0.85,
+    "pkIntercept": 0.0,
+    "pkKill": 0.0,
+    "salvoSize": 1
+  },
+  "logistics": {
+    "jokerSimSeconds": 90,
+    "bingoSimSeconds": 180,
+    "fuelCapacityKg": 1000,
+    "burnRateKgPerSecond": 100,
+    "jokerFuelFraction": 0.25,
+    "bingoFuelFraction": 0.1
+  },
+  "detection": [
+    {
+      "observerId": "jas-39c-gripen-2005",
+      "sensorId": "radar-1",
+      "targetId": "mpk-steregushchiy-pr-20380-2018",
+      "contactId": "c1",
+      "basePd": 1.0,
+      "envMask": 1.0,
+      "jamStrength": 0
+    }
+  ],
+  "gauntlet": {
+    "intent": "T3 logistics fuel: burn model crosses JOKER then BINGO; post-Bingo engages hard-denied (BINGO_FUEL). pkKill=0 so TARGET_DESTROYED does not mask the Bingo gate [catalog: Gripen vs Steregushchiy]",
+    "oracle": "Fingerprint: FuelStateChange NOMINAL\u2192JOKER and JOKER\u2192BINGO; post-Bingo Engagement aborts include BINGO_FUEL (load-bearing for saboteur 08).",
+    "dimensionsClaimed": [
+      "logistics-joker",
+      "logistics-bingo",
+      "logistics-fuel-pressure"
+    ],
+    "catalogRefs": [
+      "jas-39c-gripen-2005",
+      "mpk-steregushchiy-pr-20380-2018"
+    ],
+    "runId": "gauntlet-logistics-variables-2026-07-31",
+    "tier": 3,
+    "expect": {
+      "side": "BLUE",
+      "requireNonEmptyFingerprint": true,
+      "requireFingerprintSubstrings": [
+        "JOKER",
+        "BINGO",
+        "FuelStateChange",
+        "BINGO_FUEL"
+      ],
+      "minKills": 0,
+      "maxMissilesFired": 8,
+      "minDenials": 14,
+      "maxDenials": 30,
+      "minScore": -100.0,
+      "maxScore": 20.0
+    },
+    "units": [
+      {
+        "unitId": "jas-39c-gripen-2005",
+        "platformId": "jas-39c-gripen-2005",
+        "domain": "air",
+        "side": "blue"
+      },
+      {
+        "unitId": "mpk-steregushchiy-pr-20380-2018",
+        "platformId": "mpk-steregushchiy-pr-20380-2018",
+        "domain": "surface",
+        "side": "red"
+      }
+    ]
+  },
+  "id": "gauntlet-t3-logistics-joker-bingo"
+}

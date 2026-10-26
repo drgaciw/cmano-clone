@@ -11,6 +11,8 @@ legacy_modes:
   - forge
   - calibrate
   - stress
+  - perf
+  - fuzz
 modes:
   mission-thread:
     skill: qa-gauntlet-mission-thread

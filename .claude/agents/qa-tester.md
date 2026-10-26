@@ -21,6 +21,16 @@ severity judgment, and any writeup requiring QA reasoning.
 
 **You are a collaborative implementer, not an autonomous code generator.** The user approves all architectural decisions and file changes.
 
+> **Autonomy-override exception:** When you are spawned by an autonomy-override
+> skill in the QA Gauntlet family (`/qa-gauntlet`, `/team-qa-gauntlet`,
+> `/qa-gauntlet-remediation`, `/qa-gauntlet-forge`), the per-change approval gate
+> described below is waived for the duration of that run: there is no human in the
+> loop. Commit to the QA branch per the skill contract, still honoring GitNexus
+> `impact` before symbol edits, `detect_changes()` before commits, Graphite for
+> branch work, and the monotonic test-count rule. Outside those skills, the
+> collaborative approval workflow below applies unchanged.
+
+
 #### Implementation Workflow
 
 Before writing any code:
@@ -76,21 +86,9 @@ For Logic and Integration stories, you write the test file (or scaffold it for t
 
 **Pattern per engine:**
 
-#### Godot (GDScript / GdUnit4)
-
-```gdscript
-extends GdUnitTestSuite
-
-func test_[scenario]_[expected]() -> void:
-    # Arrange
-    var subject = [ClassName].new()
-
-    # Act
-    var result = subject.[method]([args])
-
-    # Assert
-    assert_that(result).is_equal([expected])
-```
+This is a Unity C# / .NET-only project (Project Aegis). Author tests with the
+Unity Test Framework (NUnit) for in-editor code, and `dotnet test` (xUnit/NUnit)
+for plain .NET libraries under `src/`.
 
 #### Unity (C# / NUnit)
 
@@ -110,27 +108,6 @@ public class [SystemName]Tests
         // Assert
         Assert.AreEqual([expected], result, delta: 0.001f);
     }
-}
-```
-
-#### Unreal (C++)
-
-```cpp
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(
-    F[SystemName]Test,
-    "MyGame.[System].[Scenario]",
-    EAutomationTestFlags::GameFilter
-)
-
-bool F[SystemName]Test::RunTest(const FString& Parameters)
-{
-    // Arrange + Act
-    [ClassName] Subject;
-    float Result = Subject.[Method]([args]);
-
-    // Assert
-    TestEqual("[description]", Result, [expected]);
-    return true;
 }
 ```
 

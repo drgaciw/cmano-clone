@@ -1,0 +1,12 @@
+{
+  "lastLifecycleState": "failed",
+  "command": "pi",
+  "promptSentAt": "2026-09-17T18:18:03.631Z",
+  "promptAccepted": false,
+  "trustPromptDetected": false,
+  "transportHealthy": true,
+  "childProcessAlive": false,
+  "elapsedMs": 24157,
+  "stderrPreview": "Error: Failed to load extension \"C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\gentle-pi\\extensions\": Failed to load extension: Cannot find module 'C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\gentle-pi\\extensions'\nRequire stack:\n- C:\\Users\\dgorn\\AppData\\Roaming\\npm\\node_modules\\@earendil-works\\pi-coding-agent\\dist\\bundle\\chunks\\chunk-JVUZSMYM.js\nHint: Start without extensions using \"pi -ne\".\n",
+  "classification": "worker_crashed"
+}

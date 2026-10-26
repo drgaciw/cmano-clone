@@ -1,0 +1,35 @@
+{
+  "policy_id": "baltic-patrol-classify",
+  "rows": [
+    {
+      "id": "UAT-START",
+      "result": "pass",
+      "observation": "Play Mode entered twice on DelegationSmoke. Pause, 1x, and 2x changed the top-bar time label. Map and top bar stayed visible. Console exceptions were MCP HubException deserialize noise, not a product null reference."
+    },
+    {
+      "id": "UAT-SELECT",
+      "result": "pass",
+      "observation": "OOB selection of hostile-1 and u1 matched the unit detail. Selecting contact c1 cleared the OOB highlight. Returning to u1 restored the unit panel."
+    },
+    {
+      "id": "UAT-COMMAND",
+      "result": "pass",
+      "observation": "With u1 selected, Fire 1 round showed QUEUED: Fire 1 round and Hold fire replaced it with QUEUED: Hold fire. Changing selection cleared the queued line."
+    },
+    {
+      "id": "UAT-TYPE",
+      "result": "pass",
+      "observation": "Top bar, OOB, and command feedback rendered at 11 to 14 px and were readable in the Game view capture."
+    },
+    {
+      "id": "UAT-CLIP",
+      "result": "pass",
+      "observation": "Command feedback stayed inside the right unit panel and the top bar stayed inside the top-bar bounds."
+    },
+    {
+      "id": "UAT-MISSION",
+      "result": "pass",
+      "observation": "Mission list count was 0. baltic-patrol-classify has no mission timeline, so the empty list is expected content."
+    }
+  ]
+}

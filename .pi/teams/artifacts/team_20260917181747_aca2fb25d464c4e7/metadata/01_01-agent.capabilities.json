@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "taskId": "01_01-agent",
+  "role": "agent",
+  "agent": "explorer",
+  "runtime": "child-process",
+  "permissionMode": "workspace_write",
+  "tools": [
+    "ask",
+    "bash",
+    "find",
+    "glob",
+    "grep",
+    "ls",
+    "read"
+  ],
+  "extensions": [
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\@aliou\\pi-processes\\extensions\\processes\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\@ff-labs\\pi-fff\\src\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\@gotgenes\\pi-permission-system\\src\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\@juicesharp\\rpiv-advisor\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\@plannotator\\pi-extension",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\@quintinshaw\\pi-dynamic-workflows\\dist\\pi-extension.js",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\gentle-engram\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\gentle-pi\\extensions",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\pi-ask-user\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\pi-freerouter\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\pi-hermes-memory\\src\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\pi-intercom\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\pi-lens\\dist\\index.js",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\pi-markdown-preview\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\pi-mcp-adapter\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\pi-setup-custom-providers\\src\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\pi-simplify\\dist\\index.js",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\pi-studio\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\pi-web-access\\index.ts",
+    "C:\\Users\\dgorn\\.pi\\agent\\npm\\node_modules\\taskplane\\extensions\\task-orchestrator.ts"
+  ],
+  "skills": {
+    "names": [],
+    "paths": [],
+    "disabled": true
+  },
+  "model": {
+    "fallbacks": []
+  },
+  "inheritance": {
+    "projectContext": true,
+    "skills": false,
+    "systemPromptMode": "replace"
+  }
+}

@@ -1,5 +1,6 @@
 #if UNITY_5_3_OR_NEWER
 using System.Collections;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using ProjectAegis.Delegation.Core;
@@ -149,6 +150,13 @@ namespace ProjectAegis.Unity.Tests
                 host.BeginExecution();
                 var world = new World();
                 host.RunTick(world, world);
+                var provenance = host.LastSliceAContacts.Provenance.Contacts.Single(row => row.ContactId == "c1");
+                Assert.That(provenance.Source.ObserverId, Is.EqualTo("u1"));
+                Assert.That(provenance.Source.SourceRef, Is.EqualTo("observer:u1|target:hostile-1"));
+                Assert.That(provenance.LastKnown.TargetId, Is.EqualTo("hostile-1"));
+                Assert.That(provenance.OutOfCommsUnknown, Is.False);
+                Assert.That(host.LastSliceAContacts.Authorities, Is.Empty,
+                    "The snapshot supplies no shooter-specific authority evidence.");
                 host.SelectContact("c1");
 
                 view.SetActive(false);
@@ -168,16 +176,26 @@ namespace ProjectAegis.Unity.Tests
 
                 Assert.That(root.Q<Label>("contact-id-line").text, Does.Contain("c1"));
                 Assert.That(root.Q<Label>("authority-line").text, Does.Contain("UNKNOWN"));
-                Assert.That(panel.LastLiveSurface.SourceLine, Does.Contain("UNKNOWN"));
-                Assert.That(panel.LastLiveSurface.CommsLine, Does.Contain("UNKNOWN"));
+                Assert.That(panel.LastLiveSurface.SourceLine, Is.EqualTo("SRC: u1 | ref observer:u1|target:hostile-1"));
+                Assert.That(panel.LastLiveSurface.CommsLine, Is.EqualTo("COMMS: no degradation reported"));
+                Assert.That(root.Q<Label>("source-line").text, Is.EqualTo(panel.LastLiveSurface.SourceLine));
+                Assert.That(root.Q<Label>("comms-line").text, Is.EqualTo(panel.LastLiveSurface.CommsLine));
+                Assert.That(root.Q<Label>("source-line").ClassListContains(ContactProvenanceCueClasses.Nominal), Is.True);
+                Assert.That(root.Q<Label>("comms-line").ClassListContains(ContactProvenanceCueClasses.Nominal), Is.True);
                 var presentation = panel.LastSliceAPresentation;
+                var liveSurface = panel.LastLiveSurface;
                 yield return null;
                 Assert.That(panel.LastSliceAPresentation, Is.SameAs(presentation), "No tick or selection change: reuse presentation.");
+                Assert.That(panel.LastLiveSurface, Is.SameAs(liveSurface), "No tick or selection change: reuse provenance.");
 
                 host.SelectUnit("u1");
                 yield return null;
                 Assert.That(root.style.display.value, Is.EqualTo(DisplayStyle.None));
                 Assert.That(root.Q<Label>("contact-id-line").text, Does.Not.Contain("c1"));
+                Assert.That(panel.LastSliceAPresentation, Is.SameAs(SliceAContactPresentation.Empty));
+                Assert.That(panel.LastLiveSurface, Is.SameAs(SliceAContactLiveSurfaceState.Empty));
+                Assert.That(root.Q<Label>("source-line").text, Is.EqualTo(SliceAContactLiveSurfaceState.Empty.SourceLine));
+                Assert.That(root.Q<Label>("comms-line").text, Is.EqualTo(SliceAContactLiveSurfaceState.Empty.CommsLine));
             }
             finally
             {

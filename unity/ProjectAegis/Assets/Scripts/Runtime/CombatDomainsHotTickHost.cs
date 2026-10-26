@@ -143,8 +143,9 @@ namespace ProjectAegis.Unity.Runtime
             if (bridgeHost != null)
             {
                 // Stamp with message-log depth (stable, headless-safe; not wall-clock).
-                var tick = bridgeHost.LastMessageLog?.Count ?? 0;
-                _tracker.ObserveMessageLog(tick, bridgeHost.LastMessageLog);
+                var lines = bridgeHost.LastMessageLog;
+                var tick = lines.Count;
+                _tracker.ObserveMessageLog(tick, lines);
                 _tracker.ObserveActiveDomainTags(tick, bridgeHost.LastCombatDomainActivityTags);
             }
 

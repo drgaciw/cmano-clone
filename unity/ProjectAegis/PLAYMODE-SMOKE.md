@@ -12,6 +12,21 @@ From repo root:
 
 Open `unity/ProjectAegis` in **Unity Hub 6.3 LTS** (6000.3.x).
 
+After installing or restoring Unity MCP NuGet dependencies, rerun the plugin copy
+script and refresh Unity before entering Play Mode. The script synchronizes DLLs
+shared by `Assets/Plugins/ProjectAegis` and `Assets/Plugins/NuGet`, without
+downgrading an installed assembly. Importer exclusion alone does not prevent Mono
+from loading a second serializer by its assembly-qualified name. Mixed
+`System.Text.Json` versions cause the MCP `ServerTransport` converter handshake
+to fail. The plugin guard and `UnityPluginDependencyTests` detect conflicting
+copies; `McpSerializerBindingTests` checks the loaded types in Unity PlayMode.
+
+Keep `UNITY_MCP_READY` enabled for Editor MCP. Its resolver restores this define
+after a reload, so removing it from saved settings is not a player-isolation
+check. `McpPlayerBuildIsolation` removes readiness before a player build and
+restores its previous presence afterward. The PlayMode regression covers its
+define filter, including duplicate readiness entries and unrelated defines.
+
 ## Scene setup (recommended stack)
 
 1. Create empty GameObject `DelegationSmoke`.

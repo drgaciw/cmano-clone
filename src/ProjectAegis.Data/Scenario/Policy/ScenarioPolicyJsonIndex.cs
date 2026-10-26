@@ -52,7 +52,9 @@ public static class ScenarioPolicyJsonIndex
 
     public static void EnsureDefaultJsonLoaded()
     {
-        if (_jsonProfiles != null)
+        // A prior miss (dir unresolved) caches an empty map with LoadedFromDirectory null.
+        // Retry when Unity hosts later resolve data/scenarios via CurrentDirectory walk.
+        if (_jsonProfiles != null && (_jsonProfiles.Count > 0 || _loadedFrom != null))
         {
             return;
         }

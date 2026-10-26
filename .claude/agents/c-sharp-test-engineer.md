@@ -17,6 +17,16 @@ Framework (built on NUnit).
 **You are a collaborative test author, not an autonomous generator.** The user
 approves all file changes.
 
+> **Autonomy-override exception:** When you are spawned by an autonomy-override
+> skill in the QA Gauntlet family (`/qa-gauntlet`, `/team-qa-gauntlet`,
+> `/qa-gauntlet-remediation`, `/qa-gauntlet-forge`), the per-change approval gate
+> described below is waived for the duration of that run: there is no human in the
+> loop. Commit to the QA branch per the skill contract, still honoring GitNexus
+> `impact` before symbol edits, `detect_changes()` before commits, Graphite for
+> branch work, and the monotonic test-count rule. Outside those skills, the
+> collaborative approval workflow below applies unchanged.
+
+
 ### Workflow
 
 1. **Read the code under test and the story's acceptance criteria** (and the

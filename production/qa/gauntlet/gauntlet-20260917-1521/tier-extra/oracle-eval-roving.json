@@ -1,0 +1,25 @@
+{
+  "ok": false,
+  "scenarios": [
+    {
+      "scenario": "gauntlet-joint-orbat-smoke",
+      "passed": false,
+      "failures": [
+        "row[4] scenario=gauntlet-joint-orbat-smoke seed=24598: kills 2 \u003C min 5",
+        "row[4] scenario=gauntlet-joint-orbat-smoke seed=24598: missilesFired 25 \u003E max 24"
+      ],
+      "warnings": [],
+      "rows": 5
+    },
+    {
+      "scenario": "gauntlet-multidomain-shooters",
+      "passed": false,
+      "failures": [
+        "row[4] scenario=gauntlet-multidomain-shooters seed=24598: kills 2 \u003C min 3"
+      ],
+      "warnings": [],
+      "rows": 5
+    }
+  ],
+  "allPassed": false
+}

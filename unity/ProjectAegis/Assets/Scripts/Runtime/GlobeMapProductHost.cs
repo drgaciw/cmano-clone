@@ -47,7 +47,7 @@ namespace ProjectAegis.Unity.Runtime
         private string? _dirtySelectedContact;
         private CommsState? _dirtyCommsState;
         private int _dirtyFriendlyAliveCount = -1;
-        private GlobeCameraState _lastDrawCamera;
+        private GlobeCameraState? _lastDrawCamera;
 
         private IReadOnlyList<CesiumBillboardMarker> _cachedMarkers =
             Array.Empty<CesiumBillboardMarker>();
@@ -141,7 +141,8 @@ namespace ProjectAegis.Unity.Runtime
             }
 
             SyncLiveCamera();
-            var cameraChanged = !CameraStateEquals(_viewState.Camera, _lastDrawCamera);
+            var cameraChanged = _lastDrawCamera == null
+                || !CameraStateEquals(_viewState.Camera, _lastDrawCamera);
 
             if (IsDataDirty())
             {
@@ -160,7 +161,17 @@ namespace ProjectAegis.Unity.Runtime
 
         private void SyncLiveCamera()
         {
+            if (bridgeHost == null || !bridgeHost.UseGlobeMap)
+            {
+                return;
+            }
+
             if (!GlobeLiveCameraSync.TryReadLiveCamera(out var liveCamera))
+            {
+                return;
+            }
+
+            if (CameraStateEquals(_viewState.Camera, liveCamera))
             {
                 return;
             }

@@ -556,6 +556,7 @@ namespace ProjectAegis.Unity.Editor
             var go = new GameObject(objectName);
             var document = go.AddComponent<UIDocument>();
             document.panelSettings = EnsurePanelSettingsAsset();
+            document.visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
             var host = go.AddComponent<T>();
             var hostSo = new SerializedObject(host);
             var bridgeProp = hostSo.FindProperty("bridgeHost");

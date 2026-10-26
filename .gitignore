@@ -176,3 +176,11 @@ production/qa/gauntlet/*/forge/candidates/
 # ReSharper reports, caches, and local execution evidence.
 artifacts/resharper/
 tools/resharper/__pycache__/
+
+/.pi/teams/state/
+/.pi/teams/cache/
+/.pi/teams/worktrees/
+/.pi/teams/imports/
+/.pi/teams/audit/
+!/.pi/teams/artifacts/
+!/.pi/teams/graphs/

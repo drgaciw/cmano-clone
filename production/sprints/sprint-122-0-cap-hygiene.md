@@ -1,6 +1,8 @@
 # Sprint 122.0 — Cap hygiene (pre-flight)
 
-**Status:** Planned (rev 2, 2026-09-15 — amended per backlog review; see Change log)  
+> **2026-09-30 rebaseline:** Original dates below are forecasts, not delivery evidence. Current program: [dated roadmap](../../docs/reports/future-sprint-roadmap-09302026.md). Mandatory [shared QA plan](../qa/qa-plan-sprint-122-127-rebaseline-2026-09-30.md) is authored; execution, sprint exit proof and owner acceptance remain pending. Document maturity, delivery and acceptance are tracked separately. Independent work may proceed; unresolved predecessor evidence gates dependent implementation.
+
+**Status:** Planning rebaselined 2026-09-30; delivery and acceptance evidence pending
 **Dates:** 2026-09-15 – 2026-09-16 (day-0 of S122 week)  
 **Predecessor:** S121 overlays residual-scope  
 **Next:** [S122 tracker + G1](sprint-122-tracker-g1.md)  
@@ -29,7 +31,7 @@ Bulk-archive Done issues (or waive), freeze the wave-1 remainder queue, put the 
 | S122.0-04 | **W3-HYG-01′** create six weekly cycles (09-15→09-19 … 10-20→10-24) and assign each sprint file's Must rows | human (Linear UI; MCP has no cycle tool) | 0.25 | Every S122–S127 Must row's DRG sits in its cycle; nothing Must-tagged is left cycle-less. Labels are not a substitute |
 | S122.0-05 | **W3-HYG-02** Surface collision card for S122–S124, **including a docs-surface row** | agent | 0.25 | Card names one owner per Unity host *and* per `docs/engineering/*.md` path; `docs/engineering/README.md` listed as a shared hotspot with one index owner per wave |
 | S122.0-06 | **HYG-BUG** bug-ledger verify pass + guard | agent | 0.5 | Per `docs/superpowers/plans/2026-09-01-open-bug-backlog-remediation.md` §1–2: the 14 `Open` reports whose fix is on `main` flipped to `Verified Fixed` (Closed needs human), `bug-ledger-check.sh` wired into the bash CI parity script. `BUG-scoring-penalises-roe-correct-refusals` stays open and is explicitly exempted from `bug-ledger-check.sh --strict` for S122.0's closeout (by design -- deferred to the S123 owner walk, not an oversight) |
-| S122.0-07 | **QA-PLAN** run `/qa-plan sprint` for S122 and S123 | agent | 0.25 | `production/qa/qa-plan-sprint-122-*.md` and `-123-*.md` exist; S122/S123 DoD no longer say "warning accepted" |
+| S122.0-07 | **QA-PLAN** measurable criteria for S122–S127 | agent | 0.25 | Shared `production/qa/qa-plan-sprint-122-127-rebaseline-2026-09-30.md` covers each sprint; no missing-plan waiver. Authorship complete; execution/sign-off tracked separately. |
 
 ## Should Have
 
@@ -64,7 +66,7 @@ None — this is the program gate.
 - [ ] Six cycles exist and S122–S127 Must rows are assigned
 - [ ] Collision card has host **and** docs rows
 - [ ] Bug-ledger statuses flipped; guard script runs in CI parity
-- [ ] QA plans for S122 and S123 exist
+- [x] Shared QA plan for S122–S127 authored (2026-09-30); execution and sign-off remain pending
 - [ ] S122 tracker work may start
 - [ ] No Phase N issues created
 

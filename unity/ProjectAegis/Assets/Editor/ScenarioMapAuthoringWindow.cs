@@ -388,7 +388,7 @@ namespace ProjectAegis.Unity.Editor
 
             var repoRoot = ResolveRepoRootFromDataPath();
             var candidate = ResolveDefaultScenarioPath(repoRoot);
-            if (!string.IsNullOrEmpty(candidate))
+            if (candidate != null && candidate.Length > 0)
             {
                 _scenarioPath = candidate;
             }
@@ -434,7 +434,8 @@ namespace ProjectAegis.Unity.Editor
         {
             var repoRoot = ResolveRepoRootFromDataPath();
             var uiDev = ResolveDefaultScenarioPath(repoRoot);
-            if (string.IsNullOrEmpty(uiDev) || !uiDev.Contains("russia-vs-nato-baltic-ui-dev", StringComparison.OrdinalIgnoreCase))
+            if (uiDev == null || uiDev.Length == 0
+                || !uiDev.Contains("russia-vs-nato-baltic-ui-dev", StringComparison.OrdinalIgnoreCase))
             {
                 // Prefer explicit UI-dev even if golden was first-hit after delete; re-resolve candidates.
                 if (!string.IsNullOrEmpty(repoRoot))
@@ -450,7 +451,7 @@ namespace ProjectAegis.Unity.Editor
                 }
             }
 
-            if (string.IsNullOrEmpty(uiDev) || !File.Exists(uiDev))
+            if (uiDev == null || uiDev.Length == 0 || !File.Exists(uiDev))
             {
                 SetStatus("UI-dev scenario not found: assets/data/scenarios/authoring/russia-vs-nato-baltic-ui-dev.json");
                 return;

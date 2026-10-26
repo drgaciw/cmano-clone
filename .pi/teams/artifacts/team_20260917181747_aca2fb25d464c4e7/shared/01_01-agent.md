@@ -1,0 +1,4 @@
+Error: Failed to load extension "C:\Users\dgorn\.pi\agent\npm\node_modules\gentle-pi\extensions": Failed to load extension: Cannot find module 'C:\Users\dgorn\.pi\agent\npm\node_modules\gentle-pi\extensions'
+Require stack:
+- C:\Users\dgorn\AppData\Roaming\npm\node_modules\@earendil-works\pi-coding-agent\dist\bundle\chunks\chunk-JVUZSMYM.js
+Hint: Start without extensions using "pi -ne".

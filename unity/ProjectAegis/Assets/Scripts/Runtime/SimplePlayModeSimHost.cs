@@ -79,6 +79,14 @@ namespace ProjectAegis.Unity.Runtime
             if (autoBeginOnStart)
             {
                 bridgeHost.BeginExecution();
+                // BeginExecution engages the WatchAutoPauseGate for the initial pause-class
+                // attention card, leaving the session clock paused. The smoke harness is
+                // documented to auto-start execution, so override-resume once here to let the
+                // sim clock advance (the attention toast remains for manual acknowledgement).
+                if (bridgeHost.Session != null && bridgeHost.Session.IsSimPaused)
+                {
+                    bridgeHost.TryResumeSim(explicitOverride: true, out _);
+                }
             }
         }
 

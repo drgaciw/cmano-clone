@@ -1,0 +1,3 @@
+event: message
+data: {"result":{"content":[{"type":"text","text":"Tool execution failed for \u0027Console / Clear Logs\u0027: One or more errors occurred. (The process cannot access the file \u0027C:\\Users\\dgorn\\cmano-clone\\cmano-clone\\unity\\ProjectAegis\\Temp\\mcp-server\\ai-editor-logs.txt\u0027 because it is being used by another process.)"}],"isError":true},"id":3,"jsonrpc":"2.0"}
+

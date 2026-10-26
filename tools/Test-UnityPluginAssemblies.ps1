@@ -6,6 +6,7 @@ param(
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $plugins = Join-Path $root "unity/ProjectAegis/Assets/Plugins/ProjectAegis"
+$nuget = Join-Path $root "unity/ProjectAegis/Assets/Plugins/NuGet"
 
 $coreDlls = @(
     "ProjectAegis.Data.dll",
@@ -35,6 +36,20 @@ if ($missing.Count -gt 0) {
         Write-Host ""
         Write-Host "Run from repo root: ./tools/copy-delegation-assemblies.ps1" -ForegroundColor Yellow
     }
+    exit 1
+}
+
+$mismatched = @(
+    Get-ChildItem $plugins -Filter *.dll | Where-Object {
+        $other = Join-Path $nuget $_.Name
+        (Test-Path $other) -and
+            (Get-FileHash $_.FullName).Hash -ne (Get-FileHash $other).Hash
+    }
+)
+if ($mismatched.Count -gt 0) {
+    Write-Error ("Conflicting game/MCP plugin dependencies: " +
+        (($mismatched | ForEach-Object Name) -join ", ") +
+        ". Run tools/copy-delegation-assemblies.ps1, then reload the Unity Editor domain.")
     exit 1
 }
 
