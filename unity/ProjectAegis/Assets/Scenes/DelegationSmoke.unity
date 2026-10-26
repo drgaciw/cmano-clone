@@ -152,7 +152,7 @@ MonoBehaviour:
   bridgeHost: {fileID: 1601885693}
   panelAsset: {fileID: 9197481963319205126, guid: f6b7c8d9e0f1a2b3c4d5e6f708192a30, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: 07c8d9e0f1a2b3c4d5e6f708192a3b40, type: 3}
-  showPanel: 1
+  showPanel: 0
 --- !u!114 &158091320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -368,7 +368,7 @@ MonoBehaviour:
   bridgeHost: {fileID: 1601885693}
   panelAsset: {fileID: 9197481963319205126, guid: d49b646e11fd4b8b91231829dc8522cd, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: 7de7b85280ee40ee9fbf6689ba0981ed, type: 3}
-  showPanel: 1
+  showPanel: 0
 --- !u!114 &268917380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -596,7 +596,7 @@ MonoBehaviour:
   bridgeHost: {fileID: 1601885693}
   panelAsset: {fileID: 9197481963319205126, guid: d4f5a6b7c8d9e0f1a2b3c4d5e6f70810, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: e5a6b7c8d9e0f1a2b3c4d5e6f7081920, type: 3}
-  showPanel: 1
+  showPanel: 0
 --- !u!114 &397838801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -668,7 +668,7 @@ MonoBehaviour:
   bridgeHost: {fileID: 1601885693}
   panelAsset: {fileID: 9197481963319205126, guid: 4c8e1f6a2d9b4e7f8a3c5d6e7f901234, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: 5d9f2a7b3e0c4f8a9b1d2e3f40516273, type: 3}
-  showPanel: 1
+  showPanel: 0
 --- !u!114 &512511434
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -812,7 +812,7 @@ MonoBehaviour:
   bridgeHost: {fileID: 1601885693}
   panelAsset: {fileID: 9197481963319205126, guid: 3ece334037064402b11699fc83bb522c, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: 989e3b235fae4c96b37ae8b8b17beaa8, type: 3}
-  showPanel: 1
+  showPanel: 0
 --- !u!114 &569722313
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1104,7 +1104,7 @@ MonoBehaviour:
   bridgeHost: {fileID: 1601885693}
   panelAsset: {fileID: 9197481963319205126, guid: a7f2c91e4b3d4e6f8a0b1c2d3e4f5a61, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: b8e3d02f5c4e5f7a9b1c2d3e4f5a6b72, type: 3}
-  showPanel: 1
+  showPanel: 0
 --- !u!114 &959545933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1176,7 +1176,7 @@ MonoBehaviour:
   bridgeHost: {fileID: 1601885693}
   panelAsset: {fileID: 9197481963319205126, guid: 784a48ab7333460abaeabbc9c4e462f9, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: 962b0825b78049aead4431965427ac09, type: 3}
-  showPanel: 1
+  showPanel: 0
 --- !u!114 &1029729183
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1248,7 +1248,7 @@ MonoBehaviour:
   bridgeHost: {fileID: 1601885693}
   panelAsset: {fileID: 9197481963319205126, guid: 7d7ac8c311664e3ba467ce0904b5e2f1, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: d0a4169c9e2545bc934afe2512a999b5, type: 3}
-  showPanel: 1
+  showPanel: 0
   roundsPerAirframe: 6
 --- !u!114 &1244894265
 MonoBehaviour:
@@ -1472,7 +1472,7 @@ MonoBehaviour:
   bridgeHost: {fileID: 1601885693}
   panelAsset: {fileID: 9197481963319205126, guid: 6d38936f1e82a37449924ea6af084c49, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: aa09475c36386334ab2b0148ef987e88, type: 3}
-  showPanel: 1
+  showPanel: 0
 --- !u!114 &1403157512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1787,7 +1787,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: ProjectAegis.Unity.Runtime::ProjectAegis.Unity.Runtime.LiveEditPanelHost
   panelAsset: {fileID: 9197481963319205126, guid: 5a1b2c3d4e5f60718293a4b5c6d7e8f9, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: 6b2c3d4e5f708192a3b4c5d6e7f8091a, type: 3}
-  showPanel: 1
+  showPanel: 0
 --- !u!114 &1626628696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1931,7 +1931,7 @@ MonoBehaviour:
   bridgeHost: {fileID: 1601885693}
   panelAsset: {fileID: 0}
   panelStyles: {fileID: 0}
-  showPanel: 1
+  showPanel: 0
 --- !u!114 &1730865389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2002,7 +2002,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: ProjectAegis.Unity.Runtime::ProjectAegis.Unity.Runtime.BoatOpsPanelHost
   panelAsset: {fileID: 9197481963319205126, guid: fffdba1bef5adab43801e42bb2ab6c73, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: 70c1c76e991809d4e9513c02194b914c, type: 3}
-  showPanel: 1
+  showPanel: 0
 --- !u!114 &1776845905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2145,7 +2145,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: ProjectAegis.Unity.Runtime::ProjectAegis.Unity.Runtime.ScenarioLibraryPanelHost
   panelAsset: {fileID: 9197481963319205126, guid: 53e7a6269161410981243b31b8373c04, type: 3}
   panelStyles: {fileID: 7433441132597879392, guid: 450aed448df9451282a11bfdfc7fe7fd, type: 3}
-  showPanel: 1
+  showPanel: 0
   reloadOnEnable: 1
 --- !u!114 &1805965556
 MonoBehaviour:
@@ -2290,7 +2290,7 @@ MonoBehaviour:
   bridgeHost: {fileID: 1601885693}
   panelAsset: {fileID: 0}
   panelStyles: {fileID: 0}
-  showPanel: 1
+  showPanel: 0
 --- !u!114 &1951331074
 MonoBehaviour:
   m_ObjectHideFlags: 0
