@@ -176,3 +176,7 @@ production/qa/gauntlet/*/forge/candidates/
 # ReSharper reports, caches, and local execution evidence.
 artifacts/resharper/
 tools/resharper/__pycache__/
+
+# Python bytecode (DRG-650)
+__pycache__/
+*.pyc
