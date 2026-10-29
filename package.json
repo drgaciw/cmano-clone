@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/drgaciw/cmano-clone#readme",
   "devDependencies": {
-    "gitnexus": "1.6.9",
+    "gitnexus": "1.6.12",
     "tree-sitter-kotlin": "^0.3.8"
   },
   "allowScripts": {
