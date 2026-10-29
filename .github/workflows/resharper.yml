@@ -27,7 +27,7 @@ jobs:
             !/docs/reports/future-sprint-roadpmap.md
       - uses: actions/setup-python@v7
         with:
-          python-version: '3.11'
+          python-version: '3.15'
       - name: Install isolated SDK and pinned ReSharper CLI
         shell: pwsh
         run: |
