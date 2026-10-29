@@ -32,7 +32,7 @@ jobs:
         shell: pwsh
         run: |
           Invoke-WebRequest https://dot.net/v1/dotnet-install.ps1 -OutFile "$env:RUNNER_TEMP/dotnet-install.ps1"
-          & "$env:RUNNER_TEMP/dotnet-install.ps1" -Version 8.0.400 -InstallDir "$env:RUNNER_TEMP/aegis-dotnet" -NoPath
+          & "$env:RUNNER_TEMP/dotnet-install.ps1" -Version 10.0.403 -InstallDir "$env:RUNNER_TEMP/aegis-dotnet" -NoPath
           $env:DOTNET_ROOT = "$env:RUNNER_TEMP/aegis-dotnet"
           $env:PATH = "$env:DOTNET_ROOT;$env:PATH"
           dotnet tool install JetBrains.ReSharper.GlobalTools --version 2026.2.1 --tool-path "$env:RUNNER_TEMP/resharper-cli"

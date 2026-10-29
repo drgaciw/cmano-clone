@@ -56,7 +56,7 @@ flowchart LR
 1. **Graphite CLI** — `gt --version` (install from [Graphite docs](https://graphite.com/docs/cli-quick-start))
 2. **Graphite account** linked to this GitHub repo at [app.graphite.com](https://app.graphite.com)
 3. **Git** configured with access to `origin` (GitHub)
-4. **.NET SDK 8.0.400** for local gates before submit
+4. **.NET SDK 10.0.403** for local gates before submit
 
 ---
 

@@ -2,7 +2,7 @@
 
 ## What This Is
 
-**Project Aegis** is a near-future hardcore military simulation inspired by Command: Modern Air/Naval Operations. The player commands theater-level forces and delegates tactical decisions to autonomous AI agents. The codebase is a **.NET 8 C# solution** (`ProjectAegis.sln`) — engine-agnostic at the core, with Unity 6.3 LTS as the optional rendering layer.
+**Project Aegis** is a near-future hardcore military simulation inspired by Command: Modern Air/Naval Operations. The player commands theater-level forces and delegates tactical decisions to autonomous AI agents. The codebase is a **.NET 10 C# solution** (`ProjectAegis.sln`) — engine-agnostic at the core, with Unity 6.3 LTS as the optional rendering layer.
 
 Production stage: **Release** (S48 gate PASS; S73–S80 Baltic v3 content COMPLETE as of 2026-06-26).
 
@@ -10,9 +10,9 @@ Production stage: **Release** (S48 gate PASS; S73–S80 Baltic v3 content COMPLE
 
 ## Build & Test Commands
 
-> **Prerequisite**: .NET SDK **8.0.400** exactly (enforced by `global.json`). If `dotnet` is missing:
+> **Prerequisite**: .NET SDK **10.0.403** (enforced by `global.json`, `rollForward: latestMajor`). If `dotnet` is missing or too old:
 > ```bash
-> curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 8.0.400
+> curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 10.0.403
 > export PATH="$HOME/.dotnet:$PATH"
 > ```
 
@@ -396,18 +396,18 @@ Load with: `/skill graphite-pr-review` or `hermes -s graphite-pr-review`
 
 ## Cursor Cloud specific instructions
 
-Headless **.NET 8** development is the supported Cloud Agent path. Unity Editor 6.3 LTS (`unity/ProjectAegis`) is optional and usually not installed in the VM; use the headless Play Mode harness instead of opening the Editor.
+Headless **.NET 10** development is the supported Cloud Agent path. Unity Editor 6.3 LTS (`unity/ProjectAegis`) is optional and usually not installed in the VM; use the headless Play Mode harness instead of opening the Editor. Unity projects stay on the Editor runtime.
 
 **Unity Editor invariants** (legacy Input Manager, Built-in RP, Unity-MCP Custom `:8080`, headless-vs-Editor routing): [`unity/ProjectAegis/.claude/README.md`](unity/ProjectAegis/.claude/README.md). Editor pin **6000.3.22f1**.
 
-Cloud VMs run `.cursor/cloud-install.sh` on startup via `.cursor/environment.json` (installs .NET SDK 8.0.400 when missing, then `dotnet restore`). See [Cloud agent setup](https://cursor.com/docs/cloud-agent/setup).
+Cloud VMs run `.cursor/cloud-install.sh` on startup via `.cursor/environment.json` (installs .NET SDK 10.0.403 when `global.json` is not satisfied, then `dotnet restore`). See [Cloud agent setup](https://cursor.com/docs/cloud-agent/setup).
 
 ### Prerequisites
 
-- **.NET SDK 8.0.400** (see `global.json`). If `dotnet` is missing, install to `~/.dotnet` and add it to `PATH` in your shell profile (no root symlink required):
+- **.NET SDK 10.0.403** (see `global.json`). If `dotnet` is missing or older than the pin, install to `~/.dotnet` and add it to `PATH` in your shell profile (no root symlink required):
 
   ```bash
-  curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 8.0.400
+  curl -sSL https://dot.net/v1/dotnet-install.sh | bash /dev/stdin --version 10.0.403
   export PATH="$HOME/.dotnet:$PATH"
   # Persist: append the export line to ~/.bashrc (or ~/.zshrc)
   ```
@@ -441,8 +441,8 @@ dotnet test src/ProjectAegis.Delegation.UnityAdapter.Tests/ProjectAegis.Delegati
 
 | Symptom | Fix |
 |---------|-----|
-| `dotnet: command not found` | Run the install block under Prerequisites; confirm `dotnet --version` prints `8.0.400`. |
-| Missing `Microsoft.NETCore.App` runtime | Install SDK 8.0.400 (not runtime-only); `dotnet --list-sdks` should include `8.0.400`. |
+| `dotnet: command not found` | Run the install block under Prerequisites; confirm `dotnet --version` prints `10.0.403` (or a newer SDK selected by `rollForward: latestMajor`). |
+| Missing `Microsoft.NETCore.App` runtime | Install SDK 10.0.403 (not runtime-only); `dotnet --list-sdks` should include `10.0.403`. |
 | Play Mode smoke not found | Use the full project path in the table above; filter name is `PlayModeSmokeHarnessTests`. |
 | Branch protection API 403 | Private repo on free plan — enable required checks manually; see `docs/engineering/ci-and-branch-protection.md` |
 | `dotnet format` fails on `Program.cs` | Known pre-existing whitespace in `ProjectAegis.Delegation.Demo/Program.cs`; unrelated to most PRs. |
