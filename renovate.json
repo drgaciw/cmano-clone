@@ -1,6 +1,25 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
-  ]
+  "extends": ["config:recommended"],
+  "timezone": "Europe/Dublin",
+  "schedule": ["before 9am on monday"],
+  "packageRules": [
+    {
+      "description": "One weekly PR for all minor and patch bumps",
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "weekly minor and patch updates",
+      "groupSlug": "weekly-minor-patch"
+    },
+    {
+      "description": "Major bumps off for now; security fixes still come through vulnerabilityAlerts",
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "schedule": ["at any time"],
+    "labels": ["security"]
+  },
+  "osvVulnerabilityAlerts": true
 }
