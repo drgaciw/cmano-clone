@@ -11,7 +11,7 @@ From the repository root:
 ./tools/Test-UnityPluginAssemblies.ps1   # verify all core + transitive DLLs present
 ```
 
-This publishes `ProjectAegis.Delegation.UnityAdapter` for **netstandard2.1** and copies **all** publish-output DLLs (Delegation, Sim, Data, SQLite, System.Text.Json, etc.). Do **not** copy `net8.0` build outputs into Unity — Unity 6.3 loads netstandard2.1 plugins only.
+This publishes `ProjectAegis.Delegation.UnityAdapter` for **netstandard2.1** and copies **all** publish-output DLLs (Delegation, Sim, Data, SQLite, System.Text.Json, etc.). Do **not** copy `net10.0` build outputs into Unity — Unity 6.3 loads netstandard2.1 plugins only.
 
 Or scaffold everything (folders, manifest, DLLs, runtime scripts):
 

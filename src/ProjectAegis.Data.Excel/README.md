@@ -9,21 +9,21 @@ it exists purely so the ClosedXML dependency never enters the deterministic, eng
 > **Architecture rule (ADR-006 boundary).** The workbook export/diff logic lives in
 > `ProjectAegis.Data` and is spreadsheet-library-free and unit-testable. Only the final
 > serialize-to-bytes step is isolated here. `ProjectAegis.Data` never references ClosedXML;
-> the adapter is injected at the CLI/test edge via a factory. Targets **`net8.0` only** — it is
+> the adapter is injected at the CLI/test edge via a factory. Targets **`net10.0` only** — it is
 > not consumed by the `netstandard2.1` sim path.
 
 ---
 
 ## Why a separate assembly
 
-`ProjectAegis.Data` targets `net8.0;netstandard2.1` and must stay free of heavy, non-deterministic
-dependencies (ADR-006). ClosedXML pulls in the OpenXML SDK and is `net8.0`-only, so it is quarantined
+`ProjectAegis.Data` targets `net10.0;netstandard2.1` and must stay free of heavy, non-deterministic
+dependencies (ADR-006). ClosedXML pulls in the OpenXML SDK and is `net10.0`-only, so it is quarantined
 here. The core defines the port and a dependency-free reference implementation
 (`CanonicalTextWorkbookIo`); this project provides the binary `.xlsx` counterpart that must satisfy
 the **same round-trip contract**.
 
 ```
-ProjectAegis.Data (engine-free core)          ProjectAegis.Data.Excel (this project, net8.0)
+ProjectAegis.Data (engine-free core)          ProjectAegis.Data.Excel (this project, net10.0)
 ├── Platform/IPlatformWorkbookIo   ◄───────────  implements
 ├── Platform/CanonicalTextWorkbookIo (fallback)  ClosedXmlPlatformWorkbookIo
 ├── Platform/PlatformWorkbook{,Sheet} (model)    PlatformWorkbookIoFactories.ClosedXml()
@@ -127,7 +127,7 @@ See [`docs/engineering/mission-editor-cli.md`](../../docs/engineering/mission-ed
   against a future extended schema producing an invalid workbook.
 - **Sheet / primary-key column protection** (PLE-1.2, doc 21 OQ5) is **deferred** — the workbook does
   not lock structural cells yet.
-- **`net8.0` only** — do not reference this project from the sim/`netstandard2.1` path. Add it at the
+- **`net10.0` only** — do not reference this project from the sim/`netstandard2.1` path. Add it at the
   CLI/test edge only.
 
 ---

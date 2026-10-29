@@ -30,7 +30,7 @@ Pinned packages in `unity/ProjectAegis/Packages/manifest.json` (do not invent ve
 
 **Not in manifest (removed 2026-07-07):** `com.unity.entities`, `com.unity.entities.graphics` — world state is managed/headless-first (ADR-005 reversed). See [VERSION.md](docs/engine-reference/unity/VERSION.md) and [unity integration review](docs/reports/unity-integration-review-2026-07-07.md) §3.
 
-Engine pin and managed-sim notes: [docs/engine-reference/unity/VERSION.md](docs/engine-reference/unity/VERSION.md). Headless sim stays under `src/` (`net8.0`); Unity plugins target `netstandard2.1`.
+Engine pin and managed-sim notes: [docs/engine-reference/unity/VERSION.md](docs/engine-reference/unity/VERSION.md). Headless sim stays under `src/` (`net10.0`); Unity plugins target `netstandard2.1`.
 
 **Project Aegis Unity invariants** (Input Manager, Built-in RP, Unity-MCP Custom `:8080`, headless-vs-Editor): [`unity/ProjectAegis/.claude/README.md`](unity/ProjectAegis/.claude/README.md).
 
@@ -71,7 +71,7 @@ Start Editor MCP setup with `unity-initial-setup` / `unity-tool-list` under the 
 - **Interactive machine:** open Editor (`6000.3.22f1`), confirm Custom/`http://localhost:8080`, then `curl` / `status`. If `:8080` is down, stay headless (`/team-unity`).
 - Generated Editor skills land under `unity/ProjectAegis/.claude/skills/` after `setup-skills` / `unity-skill-generate`
 
-**.NET:** SDK pin **8.0.400** (`global.json`); headless `net8.0` + Unity plugins `netstandard2.1` — [dotnet reference](docs/engine-reference/dotnet/README.md)
+**.NET:** SDK pin **10.0.403** (`global.json`); headless `net10.0` + Unity plugins `netstandard2.1` — [dotnet reference](docs/engine-reference/dotnet/README.md)
 
 **[Claude-Code-Game-Studios](https://github.com/Donchitos/Claude-Code-Game-Studios)** — *configured*
 - Studio agents in `.claude/agents/` (Unity engine set + Project Aegis specialists; see routing table above)

@@ -15,7 +15,7 @@ if [[ -f "$floor_file" ]]; then
   echo "=== test floor solutionMinPass=${floor_min:-missing} source=$floor_file ==="
 fi
 
-# Re-apply bootstrap PATH so test hosts that spawn `dotnet`/`node` subprocesses inherit SDK 8.
+# Re-apply bootstrap PATH so test hosts that spawn `dotnet`/`node` subprocesses inherit the SDK.
 # shellcheck source=agent-bootstrap-dotnet.sh
 source "$repo_root/tools/buildkite/agent-bootstrap-dotnet.sh"
 

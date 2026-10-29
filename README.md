@@ -24,7 +24,7 @@ The repository contains requirements documentation and an initial **agent delega
 
 **CI:** Buildkite primary pipeline — [buildkite-ci.md](docs/engineering/buildkite-ci.md)
 
-Build and test (requires [.NET 8 SDK](https://dotnet.microsoft.com/download) **8.0.400**, see `global.json`):
+Build and test (requires [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0) **10.0.403**, see `global.json`):
 
 ```bash
 dotnet test ProjectAegis.sln -v minimal
