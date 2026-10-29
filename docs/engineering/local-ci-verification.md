@@ -52,7 +52,7 @@ anything but the build output and (bash only) the gitignored Unity plugin DLLs.
 
 | Requirement | Notes |
 |-------------|-------|
-| **.NET SDK 8.0.400** | Pinned by [`global.json`](../../global.json). If missing: `curl -sSL https://dot.net/v1/dotnet-install.sh \| bash /dev/stdin --version 8.0.400` then `export PATH="$HOME/.dotnet:$PATH"`. The bash script re-applies this PATH via [`tools/buildkite/agent-bootstrap-dotnet.sh`](../../tools/buildkite/agent-bootstrap-dotnet.sh) so spawned test hosts inherit the SDK. |
+| **.NET SDK 10.0.403** | Pinned by [`global.json`](../../global.json) (`rollForward: latestMajor`). If missing: `curl -sSL https://dot.net/v1/dotnet-install.sh \| bash /dev/stdin --version 10.0.403` then `export PATH="$HOME/.dotnet:$PATH"`. The bash script re-applies this PATH via [`tools/buildkite/agent-bootstrap-dotnet.sh`](../../tools/buildkite/agent-bootstrap-dotnet.sh) so spawned test hosts inherit the SDK. |
 | **Shell** | `pwsh` for the `.ps1`; any POSIX `bash` for the `.sh`. Use the bash script when PowerShell is unavailable (e.g. Cloud agents). |
 | **Node** *(optional)* | Only needed for the GitNexus reindex/annotation steps (see [buildkite-ci.md](buildkite-ci.md)); the `.NET` gate itself does not require it. The bash script logs whether `node` is present but does not fail on its absence. |
 | **Run from repo root** | Both scripts resolve the repo root themselves (`$PSScriptRoot` / `BASH_SOURCE`) and `Push-Location`/`cd` there, so they are safe to invoke by path. |
@@ -107,7 +107,7 @@ Do not treat `verify-ci-local.ps1` as that fail-closed last step until it checks
 
 | Symptom | Fix |
 |---------|-----|
-| `dotnet: command not found` / wrong SDK | Install SDK **8.0.400** to `~/.dotnet` and add it to `PATH` (see Prerequisites); confirm `dotnet --version` prints `8.0.400`. |
+| `dotnet: command not found` / wrong SDK | Install SDK **10.0.403** to `~/.dotnet` and add it to `PATH` (see Prerequisites); confirm `dotnet --version` prints `10.0.403` or a newer roll-forward SDK. |
 | `pwsh` unavailable | Run the bash mirror: `bash tools/buildkite/dotnet-ci.sh`. |
 | `UnityPluginEpicATypesTests` fails with *"Missing plugin DLL — run tools/copy-delegation-assemblies.ps1"* | The gitignored plugin DLLs are not staged. The bash gate stages them automatically (step 4); locally run `tools/copy-delegation-assemblies.ps1` (or `.sh`) before the test. |
 | `FAIL: tracked *.db3 files` | A proprietary CMO DB was committed. Remove it — catalog is fed via markdown/fixtures only ([dual-track](dual-track-cmo-analysis-and-catalog.md)). |

@@ -41,7 +41,7 @@ McpToolResult.WriteOk / WriteError          ← single-line camelCase JSON on st
 
 The project references `ProjectAegis.Data`, `ProjectAegis.Data.Excel` (the ClosedXML edge adapter,
 wired for the `platform_*_xlsx` verbs), and `ProjectAegis.Delegation.UnityAdapter` (the Baltic harness
-used by `scenario_simulate_sample`). Targets `net8.0`.
+used by `scenario_simulate_sample`). Targets `net10.0`.
 
 ---
 

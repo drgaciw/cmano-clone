@@ -5,7 +5,7 @@ sensor, weapon, and scenario data that `ProjectAegis.Sim` and `ProjectAegis.Dele
 read-only. It owns catalog storage (SQLite), the staged **write gate**, immutable **snapshots**,
 **scenario ↔ database version binding**, headless validation agents, and the workbook
 import/export pipeline. Pure C# with **no `UnityEngine` reference** (targets
-`net8.0;netstandard2.1`, package deps: `Microsoft.Data.Sqlite`, plus `System.Text.Json` on
+`net10.0;netstandard2.1`, package deps: `Microsoft.Data.Sqlite`, plus `System.Text.Json` on
 `netstandard2.1`), so the whole layer runs headless under `dotnet test`.
 
 > **Architecture rule (ADR-006).** Catalog mutations *only* flow through `IWriteGate`
