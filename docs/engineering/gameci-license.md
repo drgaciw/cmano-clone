@@ -37,6 +37,16 @@ no longer supports manual `.alf` → `.ulf` activation for Personal licenses, so
 reliable route. Personal `.ulf` files can expire or be invalidated when the machine's license is
 returned; repeat these steps if activation starts failing again.
 
+## Do not use `UnityEntitlementLicense.xml`
+
+Unity 6 Hub and the `unity` CLI (`unity license activate --personal`) record Personal activation as an
+entitlement file (`~/.config/unity3d/Unity/licenses/UnityEntitlementLicense.xml` on Linux). It contains an
+xmldsig `<Signature>`, but GameCI loads `UNITY_LICENSE` as a legacy `.ulf` and rejects this format with
+the same "Signature element not found" error, so the workflow guard cannot tell the two apart. You need a
+real `Unity_lic.ulf`, which the Hub GUI writes when you use **Licenses → Add → Get a free personal license**.
+GameCI v4 (test-runner/builder) cannot activate Personal from `UNITY_EMAIL`/`UNITY_PASSWORD` alone;
+for Personal it requires `UNITY_LICENSE`.
+
 ## Known failure (2026-10-29, run 40907516771)
 
 `Cannot load ULF license: Signature element not found in XML document` — the `UNITY_LICENSE` secret
