@@ -45,6 +45,7 @@ When the task or diff touches **UnityAdapter**, **MonoBehaviour**, **C2 / UI chr
 
 1. Load skill: `production/agentic/skills/unity-csharp-architect/` (`SKILL.md`)
 2. Before claiming Done, run [`checklists/pr-finish.md`](production/agentic/skills/unity-csharp-architect/checklists/pr-finish.md)
+   Project Definition of Done (PR, Sprint, Release): [`docs/engineering/definition-of-done.md`](docs/engineering/definition-of-done.md).
 3. Paste the **PASS / FAIL / BLOCKED** verdict block into the PR body
 4. Presentation boundary cites **ADR-010 §2–3**, **ADR-007**, **ADR-001** — **never** Git **ADR-018** (sensor side-picture / datalink)
 5. Prefer headless `dotnet test` proof before Play Mode; UI is a **client**, not sim authority
