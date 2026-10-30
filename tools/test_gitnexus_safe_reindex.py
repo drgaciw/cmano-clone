@@ -26,7 +26,9 @@ elif tool == "pnpm":
 elif tool == "npx":
     args = args[2:]  # --yes gitnexus
 if args[0] == "analyze":
-    assert "--force" in args and "--skip-agents-md" in args and "--skip-skills" in args
+    assert "--force" in args and "--embeddings" in args
+    assert "--skip-agents-md" in args and "--skip-skills" in args
+    assert "--drop-embeddings" not in args and "--watch" not in args
     if os.environ.get("EDIT_DURING_ANALYZE"):
         pathlib.Path("owner-notes.md").write_text("concurrent edit\n")
     sys.exit(7 if os.environ.get("FAIL_ANALYZE") else 0)
@@ -38,7 +40,14 @@ if os.environ.get("FAIL_QUERY"):
     print("database unavailable", file=sys.stderr)
     sys.exit(9)
 query = args[1]
-count = 2 if query == "MATCH (n) RETURN count(n) AS c" else 1 if query == "MATCH ()-[r]->() RETURN count(r) AS c" else 0
+if query == "MATCH (e:CodeEmbedding) RETURN count(e) AS cnt":
+    count = int(os.environ.get("EMBEDDING_COUNT", "4"))
+elif query == "MATCH (n) RETURN count(n) AS c":
+    count = 2
+elif query == "MATCH ()-[r]->() RETURN count(r) AS c":
+    count = 1
+else:
+    count = 0
 if os.environ.get("CORRUPT_INDEX") and "n:Method" in query:
     count = 1
 print(json.dumps({"markdown": "| c |\n| --- |\n| " + str(count) + " |", "row_count": 1}))
@@ -73,7 +82,8 @@ class SafeReindexTests(unittest.TestCase):
         self.index.mkdir()
         (self.index / "meta.json").write_text(json.dumps({
             "lastCommit": self.git("rev-parse", "HEAD").stdout.strip(),
-            "stats": {"nodes": 2, "edges": 1},
+            "stats": {"nodes": 2, "edges": 1, "embeddings": 4},
+            "capabilities": {"vectorSearch": {"status": "vector-index"}},
         }))
 
     def git(self, *args):
@@ -104,7 +114,11 @@ class SafeReindexTests(unittest.TestCase):
         self.assertEqual({"node"}, {call[0] for call in calls})
         self.assertIn("review alias", calls[0])
         self.assertIn("--allow-duplicate-name", calls[0])
-        self.assertEqual(11, len(calls))  # analyze + ten integrity queries
+        self.assertIn("--embeddings", calls[0])
+        self.assertIn("--force", calls[0])
+        self.assertNotIn("--watch", calls[0])
+        self.assertNotIn("--drop-embeddings", calls[0])
+        self.assertEqual(12, len(calls))  # analyze + eleven integrity queries
 
     def test_fresh_checkout_fallbacks(self):
         for available, expected in ((["gitnexus", "pnpm", "npx"], "gitnexus"),
@@ -117,7 +131,7 @@ class SafeReindexTests(unittest.TestCase):
                 result, calls = self.run_guard("--skip-analyze", "--no-kill-mcp")
                 self.assertEqual(0, result.returncode, result.stderr)
                 self.assertEqual({expected}, {call[0] for call in calls})
-                self.assertEqual(10, len(calls))
+                self.assertEqual(11, len(calls))
 
     def test_selected_runner_failure_is_not_retried_through_npm(self):
         (self.index / "run.cjs").write_text("// runner fixture\n")
@@ -195,6 +209,33 @@ class SafeReindexTests(unittest.TestCase):
         result, _ = self.run_guard("--skip-analyze")
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual("concurrent edit\n", (self.repo / "owner-notes.md").read_text())
+
+    def patch_meta(self, **updates):
+        meta = json.loads((self.index / "meta.json").read_text())
+        meta.update(updates)
+        (self.index / "meta.json").write_text(json.dumps(meta))
+
+    def test_zero_embeddings_fail_closed(self):
+        self.patch_meta(stats={"nodes": 2, "edges": 1, "embeddings": 0},
+                        capabilities={"vectorSearch": {"status": "unavailable"}})
+        self.cli("gitnexus")
+        result, _ = self.run_guard("--skip-analyze", EMBEDDING_COUNT="0")
+        self.assertEqual(3, result.returncode, result.stderr)
+        self.assertIn("embeddings count is 0", result.stderr)
+        self.assertIn("vector search unavailable", result.stderr)
+
+    def test_embedding_count_mismatch_fails(self):
+        self.cli("gitnexus")
+        result, _ = self.run_guard("--skip-analyze", EMBEDDING_COUNT="3")
+        self.assertEqual(3, result.returncode, result.stderr)
+        self.assertIn("embedding count metadata != graph", result.stderr)
+
+    def test_exact_scan_vector_leg_is_accepted(self):
+        self.patch_meta(capabilities={"vectorSearch": {"status": "exact-scan"}})
+        self.cli("gitnexus")
+        result, _ = self.run_guard("--skip-analyze")
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("vectorSearch=exact-scan", result.stdout)
 
 
 if __name__ == "__main__":
