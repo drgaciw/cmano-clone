@@ -103,3 +103,36 @@ The results below come from **fresh CLI processes** (isolated rebuild, cross-che
 
 ---
 *DRG-197, 2026-09-27 CT. Evidence at tip `7a097f93`; post-wave re-run pending (DRG-183, DRG-169, DRG-258).*
+
+## 7. DRG-404 embeddings guard (tooling; index not re-blessed here)
+
+**Authored against `main` `fb2b438d` (full `git rev-parse` recorded in the commit that adds this section).** This section does not replace the 2026-09-27 table above. `.gitnexus/` stays local and untracked. No ReplayGolden hash changes.
+
+The safe reindex path now generates embeddings and fails closed when the vector leg is missing. Command (full rebuild, never `--watch`, never `--drop-embeddings`):
+
+```bash
+tools/gitnexus-safe-reindex.sh
+# analyze --force --embeddings --skip-agents-md --skip-skills
+```
+
+| Check | Required after the guarded reindex |
+|---|---|
+| `stats.embeddings` | integer > 0, equal to `MATCH (e:CodeEmbedding) RETURN count(e)` |
+| `capabilities.vectorSearch.status` | `vector-index` or `exact-scan` (`unavailable` fails) |
+| `gitnexus.json` vs `meta.json` | embedding count and vector status agree when both files exist |
+| Garbage `Class` / `Method` / `File` / `Property` ids and empty names | 0 |
+| Node and edge metadata vs graph counts | match |
+| Indexed commit | equals `HEAD` |
+| Hybrid query (FTS + vector) | active only when the rows above pass |
+
+**Cost.** Graph-only rebuild at `7a097f93` was 34.5s with embeddings 0 (section 1). Embedding generation adds a `CodeEmbedding` table and, when the VECTOR extension loads, an HNSW index. The CLI safety cap is 50,000 nodes. Local vectors need `npx gitnexus embeddings install` (on-demand `@huggingface/transformers` + `onnxruntime-node`) or an OpenAI-compatible embeddings endpoint. The June 2026 index reported `embeddings=8288`; that number is historical, not the count for `fb2b438d`. The next guarded run prints `embeddings meta/graph=…` and is the count to record. This change does not invent one.
+
+**Concept queries to re-run after that guarded reindex, then cross-check with `rg`.** Hybrid ranking is not claimed for `7a097f93` (embeddings were 0). Expected symbols from section 3:
+
+| Query | Expected symbol | `rg` cross-check |
+|---|---|---|
+| kill chain contact state projection | `KillChainContactStateProjection` | `rg -n "class KillChainContactStateProjection" src` |
+| C2 authority skill contract envelope validator | `C2AuthorityProjector` / `SkillEnvelopeValidator` | `rg -n "class C2AuthorityProjector" src` and `rg -n "class SkillEnvelopeValidator" src` |
+| contact provenance confidence projection contact detail | `ContactProvenanceProjection` | `rg -n "class ContactProvenanceProjection" src` |
+
+A hit that `rg` cannot find in the tree is not evidence. Process coverage gaps in section 6 (G2, G5) still apply. Runbook: `docs/engineering/gitnexus-index-health.md` (Embeddings, DRG-404).
