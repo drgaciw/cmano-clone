@@ -1,0 +1,14 @@
+{
+  "model": "jev-1.13.x",
+  "openRouterModel": "typesafe/jev-1.13",
+  "status": "advisory",
+  "fires": false,
+  "enqueuesAccept": false,
+  "answers": {
+    "threat_urgency": "immediate",
+    "weapon_family_recommend": "missile",
+    "wra_exhaustion_warn": "no"
+  },
+  "confidence": 0.85,
+  "alternatives": []
+}

@@ -8,11 +8,22 @@ using ProjectAegis.Sim.Glossary;
 using ProjectAegis.Sim.Policy;
 
 /// <summary>
-/// DRG-212: headless threat assessment + weapon recommendation projector.
+/// DRG-212 / DRG-320: headless threat assessment + weapon recommendation projector.
 /// Consumes engage preview and policy facts only — never issues fire or enqueues orders.
+/// DRG-320 adds a draft threat-urgency score and a closed weapon-family choice. Both are advisory.
 /// </summary>
 public static class ThreatAssessmentProjection
 {
+    /// <summary>Jev VS2 model pin. Projection-only; the projector does not call the model.</summary>
+    public const string JevModelPin = "jev-1.13.x";
+
+    /// <summary>
+    /// Draft floor until calibrated. Below this, the recommendation lists alternative families.
+    /// </summary>
+    public const double LowConfidenceFloor = 0.5;
+
+    private static readonly string[] WeaponFamilies = ["missile", "gun", "energy", "withhold"];
+
     private static readonly PolicyEvaluator PolicyEvaluator = new();
 
     /// <summary>Projects an advisory weapon recommendation from engage and policy facts.</summary>
@@ -34,7 +45,14 @@ public static class ThreatAssessmentProjection
         var assumptions = BuildAssumptions(in input, in ctx, preview, policyConstraints, outcome, engageAbortCode);
         var withheldCode = ResolveWithheldReasonCode(outcome, engageAbortCode, policyConstraints);
         var confidence = ComputeConfidence(outcome, in ctx, engageAbortCode, policyConstraints, tuning);
-        var statusLine = BuildStatusLine(outcome, input.WeaponLabel, withheldCode, preview);
+        var urgency = ScoreThreatUrgency(in ctx, input.Posture, outcome);
+        var family = ChooseWeaponFamily(input.WeaponId, input.WeaponLabel, outcome);
+        var alternatives = confidence < LowConfidenceFloor
+            ? AlternativeFamilies(family)
+            : Array.Empty<string>();
+        var wraExhaustionWarn = IsWraExhaustion(in ctx, policyConstraints);
+        var statusLine = BuildStatusLine(outcome, input.WeaponLabel, withheldCode, preview)
+            + FormatAdvisorySuffix(urgency, family, alternatives, wraExhaustionWarn);
 
         return new WeaponRecommendation(
             input.ContactId,
@@ -53,7 +71,13 @@ public static class ThreatAssessmentProjection
             range,
             policyConstraints,
             withheldCode,
-            statusLine);
+            statusLine,
+            urgency.Score,
+            urgency.Band,
+            family,
+            alternatives,
+            wraExhaustionWarn,
+            JevModelPin);
     }
 
     /// <summary>Replay-stable canonical form: same input yields the same string. Invariant culture; no wall clock.</summary>
@@ -111,6 +135,18 @@ public static class ThreatAssessmentProjection
         builder.Append(recommendation.Range.DlzLabel);
         builder.Append('|');
         builder.Append(recommendation.WithheldReasonCode ?? string.Empty);
+        builder.Append('|');
+        builder.Append(FormatDouble(recommendation.ThreatUrgencyScore));
+        builder.Append('|');
+        builder.Append(recommendation.ThreatUrgencyBand);
+        builder.Append('|');
+        builder.Append(recommendation.WeaponFamilyChoice);
+        builder.Append('|');
+        builder.Append(recommendation.WraExhaustionWarn ? '1' : '0');
+        builder.Append('|');
+        builder.Append(recommendation.JevModelPin);
+        builder.Append('|');
+        AppendJoined(builder, recommendation.AlternativeFamilies);
         builder.Append('|');
         builder.Append(recommendation.StatusLine);
         builder.Append('|');
@@ -316,6 +352,136 @@ public static class ThreatAssessmentProjection
                 $"THREAT: WITHHELD BY ENGAGE — {withheldCode ?? preview.AbortPreviewCode ?? "BLOCKED"} (recommend {weaponLabel} when feasible)",
             _ => "THREAT: —",
         };
+    }
+
+    /// <summary>
+    /// Draft urgency until calibrated. DLZ sets the base; defensive posture and a hypersonic
+    /// contact raise it; a missing fire-control track lowers it. Bands: immediate, focus, watch, low, ignore.
+    /// </summary>
+    private static (double Score, string Band) ScoreThreatUrgency(
+        in EngageContext ctx,
+        ThreatAssessmentPosture posture,
+        WeaponRecommendationOutcome outcome)
+    {
+        if (outcome == WeaponRecommendationOutcome.NoRecommendation)
+        {
+            return (0, "ignore");
+        }
+
+        var dlzState = DlzEngageGate.EvaluateState(ctx.RangeMeters, ctx.Envelope);
+        var score = dlzState switch
+        {
+            DlzState.InZone => 0.80,
+            DlzState.Approaching => 0.55,
+            _ => 0.25,
+        };
+
+        if (posture == ThreatAssessmentPosture.Defensive)
+        {
+            score += 0.15;
+        }
+
+        if (ctx.IsHypersonicTarget)
+        {
+            score += 0.10;
+        }
+
+        if (!ctx.HasFireControlTrack)
+        {
+            score -= 0.10;
+        }
+
+        score = Math.Clamp(score, 0, 1);
+        var band = score switch
+        {
+            >= 0.85 => "immediate",
+            >= 0.70 => "focus",
+            >= 0.45 => "watch",
+            >= 0.20 => "low",
+            _ => "ignore",
+        };
+        return (score, band);
+    }
+
+    private static string ChooseWeaponFamily(
+        string weaponId,
+        string weaponLabel,
+        WeaponRecommendationOutcome outcome)
+    {
+        if (outcome == WeaponRecommendationOutcome.NoRecommendation)
+        {
+            return "withhold";
+        }
+
+        var text = string.Concat(weaponId, " ", weaponLabel).ToLowerInvariant();
+        if (text.Contains("laser", StringComparison.Ordinal)
+            || text.Contains("energy", StringComparison.Ordinal)
+            || text.Contains("directed-energy", StringComparison.Ordinal))
+        {
+            return "energy";
+        }
+
+        if (text.Contains("gun", StringComparison.Ordinal)
+            || text.Contains("ciws", StringComparison.Ordinal)
+            || text.Contains("cannon", StringComparison.Ordinal)
+            || text.Contains("76mm", StringComparison.Ordinal)
+            || text.Contains("127mm", StringComparison.Ordinal))
+        {
+            return "gun";
+        }
+
+        return string.IsNullOrWhiteSpace(weaponId) ? "withhold" : "missile";
+    }
+
+    private static IReadOnlyList<string> AlternativeFamilies(string chosen)
+    {
+        var alternatives = new List<string>(WeaponFamilies.Length);
+        foreach (var family in WeaponFamilies)
+        {
+            if (!string.Equals(family, chosen, StringComparison.Ordinal))
+            {
+                alternatives.Add(family);
+            }
+        }
+
+        return alternatives;
+    }
+
+    private static bool IsWraExhaustion(in EngageContext ctx, ThreatPolicyConstraints policyConstraints)
+    {
+        if (ctx.RoundsRemaining <= 0 || ctx.RoundsRemaining < Math.Max(1, ctx.SalvoSize))
+        {
+            return true;
+        }
+
+        if (ctx.ShotgunRoundsThreshold > 0 && ctx.RoundsRemaining <= ctx.ShotgunRoundsThreshold)
+        {
+            return true;
+        }
+
+        var code = policyConstraints.PolicyAbortCode;
+        return string.Equals(code, AbortReasonCatalog.Doctrine.WRA_RANGE, StringComparison.Ordinal)
+            || string.Equals(code, AbortReasonCatalog.Doctrine.WRA_SALVO, StringComparison.Ordinal);
+    }
+
+    private static string FormatAdvisorySuffix(
+        (double Score, string Band) urgency,
+        string family,
+        IReadOnlyList<string> alternatives,
+        bool wraExhaustionWarn)
+    {
+        var suffix = $" | urgency={urgency.Band} score={FormatDouble(urgency.Score)} family={family} pin={JevModelPin}";
+        if (wraExhaustionWarn)
+        {
+            suffix += " | wra-exhaustion-warn";
+        }
+
+        if (alternatives.Count > 0)
+        {
+            suffix += " | alternatives=" + string.Join(',', alternatives);
+        }
+
+        return suffix;
     }
 
     private static string? MapPolicyAbortCode(FireAbortReason reason) =>

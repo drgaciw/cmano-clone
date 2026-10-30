@@ -24,7 +24,13 @@ public sealed record WeaponRecommendation(
     ThreatRangeAssessment Range,
     ThreatPolicyConstraints PolicyConstraints,
     string? WithheldReasonCode,
-    string StatusLine)
+    string StatusLine,
+    double ThreatUrgencyScore,
+    string ThreatUrgencyBand,
+    string WeaponFamilyChoice,
+    IReadOnlyList<string> AlternativeFamilies,
+    bool WraExhaustionWarn,
+    string JevModelPin)
 {
     /// <summary>Empty sentinel when no contact/weapon facts are supplied.</summary>
     public static WeaponRecommendation Empty { get; } = new(
@@ -50,5 +56,11 @@ public sealed record WeaponRecommendation(
             PolicyAllowsFire: false,
             PolicyAbortCode: null),
         WithheldReasonCode: null,
-        StatusLine: "THREAT: —");
+        StatusLine: "THREAT: —",
+        ThreatUrgencyScore: 0,
+        ThreatUrgencyBand: "ignore",
+        WeaponFamilyChoice: "withhold",
+        AlternativeFamilies: Array.Empty<string>(),
+        WraExhaustionWarn: false,
+        JevModelPin: ThreatAssessmentProjection.JevModelPin);
 }
