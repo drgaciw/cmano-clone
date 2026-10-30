@@ -31,16 +31,28 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Require Unity license
+      - name: Require valid Unity license
         id: license
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         run: |
-          if [ -z "${{ secrets.UNITY_LICENSE }}" ]; then
+          fail() {
             echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::UNITY_LICENSE secret is not set. Add it under Settings → Secrets → Actions, then re-run."
-            echo "See docs/engineering/ci-and-branch-protection.md"
-          else
-            echo "configured=true" >> "$GITHUB_OUTPUT"
+            echo "::error::$1 See docs/engineering/gameci-license.md"
+            exit 1
+          }
+          [ -n "$UNITY_LICENSE" ] || fail "UNITY_LICENSE secret is not set. Export a Personal .ulf and paste its full XML into the secret."
+          [ -n "$UNITY_EMAIL" ] || fail "UNITY_EMAIL secret is not set."
+          [ -n "$UNITY_PASSWORD" ] || fail "UNITY_PASSWORD secret is not set."
+          if ! printf '%s' "$UNITY_LICENSE" | grep -q '<Signature'; then
+            fail "UNITY_LICENSE has no <Signature> element (Unity: 'Signature element not found in XML document'). It is truncated or is an .alf request, not a signed .ulf. Re-export the .ulf and paste the whole file."
           fi
+          if ! printf '%s' "$UNITY_LICENSE" | grep -q '</root>'; then
+            fail "UNITY_LICENSE does not end with </root>; the secret looks truncated. Re-paste the whole .ulf."
+          fi
+          echo "configured=true" >> "$GITHUB_OUTPUT"
 
       - name: Copy Unity plugin assemblies
         if: steps.license.outputs.configured == 'true'
@@ -49,17 +61,15 @@ jobs:
           ./tools/copy-delegation-assemblies.ps1
           ./tools/Test-UnityPluginAssemblies.ps1
 
-      - name: Skip (no license)
-        if: steps.license.outputs.configured != 'true'
-        run: exit 0
-
       - name: Unity test runner
         if: steps.license.outputs.configured == 'true'
         uses: game-ci/unity-test-runner@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           projectPath: unity/ProjectAegis
-          unityVersion: 6000.3.14f1
+          unityVersion: 6000.3.22f1  # keep in sync with unity/ProjectAegis/ProjectSettings/ProjectVersion.txt
           testMode: ${{ inputs.test_platform }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
