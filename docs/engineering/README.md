@@ -193,6 +193,8 @@ Docs that were not yet linked from this index (DRG-702).
 | [sprites-setup-gaps.md](sprites-setup-gaps.md) | Base-image prerequisites and remedies found during the Sprite trial. |
 | [sprites-parallel-worktrees.md](sprites-parallel-worktrees.md) | Isolated worktree jobs, verification, submission, and resource contention. |
 | [sprites-trial-results.md](sprites-trial-results.md) | Reported Sprite trial measurements and their evidence limitations. |
+| [gameci-license.md](gameci-license.md) | Unity GameCI license validation, activation, and CI credential setup. |
+| [product-pr-cap-recommendation.md](product-pr-cap-recommendation.md) | Jev's proposed product PR limit; recommendation only, with the adopted cap still four. |
 
 ## Related references
 
