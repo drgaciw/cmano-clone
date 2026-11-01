@@ -167,6 +167,28 @@ Deep-dives into engine-agnostic subsystems, verified against source and pinned b
 
 ---
 
+## Other engineering references
+
+Docs that were not yet linked from this index (DRG-702).
+
+| Doc | Covers |
+|-----|--------|
+| [definition-of-done.md](definition-of-done.md) | The three Done gates (pull request, sprint, release) and how items are met or waived. |
+| [controller-badge-projection.md](controller-badge-projection.md) | Controller badges: who is holding a unit right now (DEL-01 / DRG-252 / DRG-374 / DRG-375). |
+| [observer-mode-chrome-projection.md](observer-mode-chrome-projection.md) | Observer chrome: read-only vs command top-bar mode (DRG-249 / DRG-413 / MODE-03). |
+| [weapon-abort-tooltip-projection.md](weapon-abort-tooltip-projection.md) | Weapon-abort tooltip on denied weapon rows (DRG-258 / DRG-352). |
+| [los-eccm-offgrid.md](los-eccm-offgrid.md) | Line of sight, radar ECCM, and off-grid units; opt-in, scenario-authored, Sim-authoritative (DRG-379 / DRG-386 / DRG-390). |
+| [editor-verb-honesty.md](editor-verb-honesty.md) | Editor verb honesty rules enforced by tests (Doc 11 / Doc 21). |
+| [platform-workbook-contract.md](platform-workbook-contract.md) | Platform workbook contract, exporter schema `010` and header order. |
+| [gauntlet-oracle-baseline.md](gauntlet-oracle-baseline.md) | The `gauntlet-oracle` CI job: deterministic cross-tier smoke baseline. |
+| [gauntlet-logistics-variables.md](gauntlet-logistics-variables.md) | Joker, Bingo, Shotgun, Winchester as fingerprint-proven gauntlet test variables. |
+| [sim-capability-gap-backlog.md](sim-capability-gap-backlog.md) | Simulation capability gap backlog (created 2026-07-27). |
+| [jev-playwright-mcp-setup.md](jev-playwright-mcp-setup.md) | jev-playwright-mcp: local stdio proxy around `@playwright/mcp`. |
+| [notion-mcp-sync.md](notion-mcp-sync.md) | Notion MCP sync playbook for keeping the Aegis Notion databases aligned with Git. |
+| [unity-UPGRADE-RUNBOOK.md](unity-UPGRADE-RUNBOOK.md) | Ordered runbook for Unity Hub, editor, and package upgrades. |
+| [unity-ACCELERATOR-SETUP.md](unity-ACCELERATOR-SETUP.md) | Unity Accelerator (cache server) setup for ProjectAegis. |
+| [unity-remediation-CHANGESET.md](unity-remediation-CHANGESET.md) | Repo hygiene and build-throughput changeset for the monorepo. |
+
 ## Related references
 
 | Where | What |
