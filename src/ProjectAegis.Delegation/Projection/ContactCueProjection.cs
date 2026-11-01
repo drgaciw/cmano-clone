@@ -157,7 +157,7 @@ public static class ContactCueProjection
 
     private static double? AgeSimTime(double? currentSimTime, double lastSimTime)
     {
-        if (currentSimTime is not double now || !double.IsFinite(now) || !double.IsFinite(lastSimTime))
+        if (currentSimTime is not { } now || !double.IsFinite(now) || !double.IsFinite(lastSimTime))
         {
             return null;
         }
@@ -220,7 +220,7 @@ public static class ContactCueProjection
         for (var i = 0; i < origins.Count; i++)
         {
             var fact = origins[i];
-            if (fact is null || string.IsNullOrEmpty(fact.ContactId))
+            if (string.IsNullOrEmpty(fact.ContactId))
             {
                 continue;
             }
@@ -270,14 +270,13 @@ public static class ContactCueProjection
         for (var i = 0; i < samples.Count; i++)
         {
             var sample = samples[i];
-            if (sample is null
-                || !string.Equals(sample.ContactId, contactId, StringComparison.Ordinal)
+            if (!string.Equals(sample.ContactId, contactId, StringComparison.Ordinal)
                 || sample.ReportedSimTick > currentSimTick)
             {
                 continue;
             }
 
-            if (commsLossTick is ulong loss && sample.ReportedSimTick > loss)
+            if (commsLossTick is { } loss && sample.ReportedSimTick > loss)
             {
                 continue;
             }
@@ -300,17 +299,15 @@ public static class ContactCueProjection
             return ContactPositionClaim.Unknown;
         }
 
-        var fresh = false;
         if (chosen.IsProductionFeed && productionPositionFeedWired)
         {
-            fresh = comms == CommsState.Nominal && chosen.ReportedSimTick == currentSimTick;
             return new ContactPositionClaim(
                 ContactPositionClaimKind.LastReportedHeld,
                 east,
                 north,
                 chosen.ReportedSimTick,
                 null,
-                fresh);
+                comms == CommsState.Nominal && chosen.ReportedSimTick == currentSimTick);
         }
 
         var label = chosen.IsProductionFeed
@@ -335,8 +332,8 @@ public static class ContactCueProjection
     {
         east = 0;
         north = 0;
-        if (sample.EastMeters is not double eastValue
-            || sample.NorthMeters is not double northValue
+        if (sample.EastMeters is not { } eastValue
+            || sample.NorthMeters is not { } northValue
             || !double.IsFinite(eastValue)
             || !double.IsFinite(northValue))
         {
@@ -387,7 +384,7 @@ public static class ContactCueProjection
             for (var i = 0; i < terminalOrders.Count; i++)
             {
                 var fact = terminalOrders[i];
-                if (fact is null || fact.SimTick > currentSimTick || !IsTerminal(fact.Disposition))
+                if (fact.SimTick > currentSimTick || !IsTerminal(fact.Disposition))
                 {
                     continue;
                 }
@@ -499,12 +496,11 @@ public static class ContactCueProjection
             for (var i = 0; i < terminalOrders.Count; i++)
             {
                 var fact = terminalOrders[i];
-                if (fact is null
-                    || !IsTerminal(fact.Disposition)
+                if (!IsTerminal(fact.Disposition)
                     || fact.SimTick < order.SimTick
                     || fact.SimTick > currentSimTick
                     || !string.Equals(fact.UnitId, unitId, StringComparison.Ordinal)
-                    || (fact.Kind is OrderKind kind && kind != order.Kind))
+                    || (fact.Kind is { } kind && kind != order.Kind))
                 {
                     continue;
                 }
@@ -513,7 +509,7 @@ public static class ContactCueProjection
             }
         }
 
-        var disposition = terminal is TerminalMark mark
+        var disposition = terminal is { } mark
             ? mark.Disposition
             : order.ResolvedExecuteSimTick > currentSimTick
                 ? UnitOrderDisposition.Delayed
@@ -581,8 +577,7 @@ public static class ContactCueProjection
             for (var i = 0; i < terminalOrders.Count; i++)
             {
                 var fact = terminalOrders[i];
-                if (fact is null
-                    || !IsTerminal(fact.Disposition)
+                if (!IsTerminal(fact.Disposition)
                     || fact.SimTick > currentSimTick
                     || !string.Equals(fact.UnitId, unitId, StringComparison.Ordinal))
                 {
@@ -685,7 +680,7 @@ public static class ContactCueProjection
         ulong tie,
         UnitOrderDisposition disposition)
     {
-        if (current is not TerminalMark mark || tick > mark.Tick || (tick == mark.Tick && tie > mark.Tie))
+        if (current is not { } mark || tick > mark.Tick || (tick == mark.Tick && tie > mark.Tie))
         {
             return new TerminalMark(tick, tie, disposition);
         }
@@ -694,7 +689,7 @@ public static class ContactCueProjection
     }
 
     private static bool SameMark(TerminalMark? current, TerminalMark next) =>
-        current is TerminalMark mark
+        current is { } mark
         && mark.Tick == next.Tick
         && mark.Tie == next.Tie
         && mark.Disposition == next.Disposition;

@@ -78,7 +78,7 @@ public static class ContactCueFingerprint
         builder.Append(',');
         builder.Append((int)unit.Disposition);
         builder.Append(',');
-        if (unit.Kind is OrderKind kind)
+        if (unit.Kind is { } kind)
         {
             builder.Append((int)kind);
         }
@@ -97,7 +97,7 @@ public static class ContactCueFingerprint
 
     private static void AppendUlong(StringBuilder builder, ulong? value)
     {
-        if (value is ulong number)
+        if (value is { } number)
         {
             builder.Append(number);
             return;
@@ -108,7 +108,7 @@ public static class ContactCueFingerprint
 
     private static void AppendDouble(StringBuilder builder, double? value)
     {
-        if (value is double number)
+        if (value is { } number)
         {
             builder.Append(number.ToString("R", CultureInfo.InvariantCulture));
             return;

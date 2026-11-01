@@ -200,7 +200,7 @@ public sealed class ContactCueProjectionTests
             0, 1, 1, "c2-net", CommsState.Nominal, CommsState.Degraded, "datalink-lag"));
         var display = new ScenarioCommsDisplaySettings(
             2, 0.06f, 0.04f, degradedOrderDelayTicks: 0, degradedStaleThresholdDivisor: 2);
-        var staleTick = 1UL + (ulong)(ContactProvenanceProjection.DefaultStaleThresholdTicks / 2) + 1;
+        var staleTick = 1UL + (ContactProvenanceProjection.DefaultStaleThresholdTicks / 2) + 1;
 
         var snapshot = ContactCueProjection.Project(
             log,
@@ -709,7 +709,7 @@ public sealed class ContactCueProjectionTests
     }
 
     private static ulong StaleTick(ulong lastTick) =>
-        lastTick + (ulong)ContactProvenanceProjection.DefaultStaleThresholdTicks + 1;
+        lastTick + ContactProvenanceProjection.DefaultStaleThresholdTicks + 1;
 
     private static DecisionLog LogWithContact(ulong tick, string lifecycle, double? simTime = null)
     {
