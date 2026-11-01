@@ -31,7 +31,7 @@ jobs:
         with:
           global-json-file: global.json
 
-      - name: Require valid Unity license
+      - name: Check Unity license prerequisites
         id: license
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -46,11 +46,25 @@ jobs:
           [ -n "$UNITY_LICENSE" ] || fail "UNITY_LICENSE secret is not set. Export a Personal .ulf and paste its full XML into the secret."
           [ -n "$UNITY_EMAIL" ] || fail "UNITY_EMAIL secret is not set."
           [ -n "$UNITY_PASSWORD" ] || fail "UNITY_PASSWORD secret is not set."
-          if ! printf '%s' "$UNITY_LICENSE" | grep -q '<Signature'; then
-            fail "UNITY_LICENSE has no <Signature> element (Unity: 'Signature element not found in XML document'). It is truncated or is an .alf request, not a signed .ulf. Re-export the .ulf and paste the whole file."
-          fi
-          if ! printf '%s' "$UNITY_LICENSE" | grep -q '</root>'; then
-            fail "UNITY_LICENSE does not end with </root>; the secret looks truncated. Re-paste the whole .ulf."
+          if ! python3 - <<'PY'
+          import os
+          import sys
+          import xml.etree.ElementTree as ET
+
+          try:
+              root = ET.fromstring(os.environ["UNITY_LICENSE"])
+          except ET.ParseError:
+              print("::error::UNITY_LICENSE is not well-formed XML. Re-paste the complete .ulf file; do not paste an .alf request or base64 text.")
+              sys.exit(1)
+          if root.tag != "root" or root.find("License") is None:
+              print("::error::UNITY_LICENSE is not a legacy Unity .ulf (expected root/License). UnityEntitlementLicense.xml cannot be used for this workflow.")
+              sys.exit(1)
+          if not any(element.tag.rsplit("}", 1)[-1] == "Signature" for element in root):
+              print("::error::UNITY_LICENSE has no Signature element. Supply the complete signed .ulf, not an .alf request.")
+              sys.exit(1)
+          PY
+          then
+            fail "Unity license prerequisite check failed."
           fi
           echo "configured=true" >> "$GITHUB_OUTPUT"
 

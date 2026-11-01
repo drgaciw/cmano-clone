@@ -11,9 +11,10 @@ against `unity/ProjectAegis` on Unity **6000.3.22f1** (must match `ProjectSettin
 | `UNITY_EMAIL` | Unity ID email of the licensed account |
 | `UNITY_PASSWORD` | Unity ID password for that account |
 
-The workflow's "Require valid Unity license" step fails fast with an actionable error if any secret is
-missing, or if `UNITY_LICENSE` lacks a `<Signature>` element / closing `</root>` (truncated paste or an
-`.alf` request file instead of a `.ulf`).
+The workflow's "Check Unity license prerequisites" step fails fast if any secret is missing,
+the XML is malformed, or it lacks the legacy `root/License` structure and a `Signature` element.
+This rejects `.alf` requests and entitlement XML before starting the Editor. It does not verify the
+cryptographic signature, expiry, or activation: only a successful Unity run establishes those.
 
 ## Re-export a Personal license (.ulf)
 
@@ -30,25 +31,29 @@ missing, or if `UNITY_LICENSE` lacks a `<Signature>` element / closing `</root>`
    gh secret set UNITY_EMAIL -R drgaciw/cmano-clone
    gh secret set UNITY_PASSWORD -R drgaciw/cmano-clone
    ```
-4. Re-run **Actions → Unity CI (manual) → Run workflow**.
+4. Re-run **Actions → Unity CI (manual) → Run workflow**, selecting the PR branch while testing this
+   change. Capture the run URL and test results before treating Editor CI as restored.
 
-Alternative: follow GameCI's activation guide (https://game.ci/docs/github/activation). Note that Unity
-no longer supports manual `.alf` → `.ulf` activation for Personal licenses, so the Hub export above is the
-reliable route. Personal `.ulf` files can expire or be invalidated when the machine's license is
-returned; repeat these steps if activation starts failing again.
+These steps follow [GameCI's Personal activation guide](https://game.ci/docs/github/activation/).
+That guide notes that some Hub installations do not offer `.ulf` generation. Do not assume that a
+license displayed in Hub guarantees a `.ulf` exists. If the account has only a named-user entitlement,
+this legacy-file workflow remains blocked until a compatible activation method is available.
+Do not change or return a working local license merely to retry CI.
 
 ## Do not use `UnityEntitlementLicense.xml`
 
-Unity 6 Hub and the `unity` CLI (`unity license activate --personal`) record Personal activation as an
-entitlement file (`~/.config/unity3d/Unity/licenses/UnityEntitlementLicense.xml` on Linux). It contains an
-xmldsig `<Signature>`, but GameCI loads `UNITY_LICENSE` as a legacy `.ulf` and rejects this format with
-the same "Signature element not found" error, so the workflow guard cannot tell the two apart. You need a
-real `Unity_lic.ulf`, which the Hub GUI writes when you use **Licenses → Add → Get a free personal license**.
+Unity 6 distinguishes [serial-based `.ulf` files from named-user entitlement files](https://docs.unity3d.com/6000.0/Documentation/Manual/ActivationFAQ.html).
+The named-user file on Linux is `~/.config/unity3d/Unity/licenses/UnityEntitlementLicense.xml`.
+An XML signature alone does not make that file a legacy `.ulf`; do not rename it or upload it as
+`UNITY_LICENSE`. The workflow now checks the legacy structure as well as the signature element.
 GameCI v4 (test-runner/builder) cannot activate Personal from `UNITY_EMAIL`/`UNITY_PASSWORD` alone;
 for Personal it requires `UNITY_LICENSE`.
 
 ## Known failure (2026-10-29, run 40907516771)
 
-`Cannot load ULF license: Signature element not found in XML document` — the `UNITY_LICENSE` secret
-did not contain a signed `.ulf`. The run also pinned `6000.3.14f1` while the project is on `6000.3.22f1`
-(fixed in the workflow).
+[`40907516771`](https://github.com/drgaciw/cmano-clone/actions/runs/40907516771) reports
+`Cannot load ULF license: Signature element not found in XML document`. This establishes that Unity
+could not load the supplied file as a signed `.ulf`; it does not establish whether the secret was
+truncated, an activation request, or a different license format. The run also pinned `6000.3.14f1`
+while the project is on `6000.3.22f1` (fixed in the workflow). A passing headless build does not prove
+that the license issue is resolved.
