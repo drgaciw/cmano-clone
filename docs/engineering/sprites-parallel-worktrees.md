@@ -24,10 +24,17 @@ the session ending or the Sprite sleeping.
 
 ## Per code job
 
-1. Run the DLL copy step in that worktree (see `delegation-plugin-dll-copy.md`).
-2. `dotnet test ProjectAegis.sln` once.
-3. `jb inspectcode` scoped to changed projects.
-4. Commit, push, `gh pr create --draft`.
+1. Run `bash tools/copy-delegation-assemblies.sh` in that worktree; see
+   [delegation-plugin-dll-copy.md](delegation-plugin-dll-copy.md).
+2. Run the build, full solution tests, replay golden, and headless Play Mode
+   smoke gates in [local-ci-verification.md](local-ci-verification.md), plus
+   the required GitNexus impact and change analysis in [`AGENTS.md`](../../AGENTS.md).
+3. Run `jb inspectcode` scoped to changed projects.
+4. Commit and submit a draft through the canonical
+   [Graphite workflow](graphite-github-substitute-plan.md): track the story
+   branch with `gt track --parent main` if needed, then
+   `gt submit --draft --no-interactive`. Use `gh pr create --draft` only when Graphite is
+   unavailable and the user explicitly approves that fallback.
 
 ## Contention
 
