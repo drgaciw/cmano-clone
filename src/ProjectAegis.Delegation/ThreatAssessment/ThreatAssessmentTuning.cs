@@ -1,7 +1,7 @@
 namespace ProjectAegis.Delegation.ThreatAssessment;
 
 /// <summary>
-/// Scenario-supplied confidence tuning for threat assessment (not compiled gameplay constants).
+/// Scenario-supplied confidence and advisory tuning for threat assessment.
 /// Callers inject explicit values; <see cref="Default"/> mirrors legacy DRG-212 baseline numerics.
 /// </summary>
 public sealed record ThreatAssessmentTuning(
@@ -15,6 +15,9 @@ public sealed record ThreatAssessmentTuning(
     double WithheldByEngageDefaultConfidence,
     double WithheldByPolicyConfidence)
 {
+    /// <summary>Immutable advisory urgency settings; explicit policy loading can override the legacy fallback.</summary>
+    public ThreatUrgencyTuning Urgency { get; init; } = ThreatUrgencyTuning.Default;
+
     /// <summary>Baseline tuning numerically equal to DRG-212 initial projector defaults.</summary>
     public static ThreatAssessmentTuning Default { get; } = new(
         DlzInZoneConfidence: 0.85,

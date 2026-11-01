@@ -28,7 +28,7 @@ server: `--force` does not make it safe to rewrite a database held open by MCP.
 
 ```bash
 pgrep -af '[g]itnexus.*mcp'   # must return no matches before continuing
-GITNEXUS_SHARED_STORE=off npx gitnexus analyze --force --skip-agents-md --skip-skills
+GITNEXUS_SHARED_STORE=off npx gitnexus analyze --force --embeddings --skip-agents-md --skip-skills
 node .gitnexus/run.cjs status   # expect ✅ up-to-date
 ```
 
@@ -94,8 +94,12 @@ propagated; it does not trigger an installation attempt through a different runn
 2. **Stops MCP servers.** `pkill -f 'gitnexus.*mcp'` — a live MCP server holding
    `.gitnexus/lbug` open while `analyze` rewrites it is the suspected cause of the corrupted
    node IDs / empty method names. If one survives the kill, it exits 2.
-3. **Full rebuild.** Runs `gitnexus analyze --force --skip-agents-md --skip-skills`
+3. **Full rebuild with embeddings.** Runs
+   `gitnexus analyze --force --embeddings --skip-agents-md --skip-skills`
    (`--name <alias> --allow-duplicate-name` when `--name` is given).
+   This is never an incremental refresh: the guard does not pass `--watch`, and it
+   does not pass `--drop-embeddings`. `--force` alone does not create embeddings
+   when `stats.embeddings` is 0; `--embeddings` is what generates the vector leg.
 4. **Reports working tree changes without reverting or deleting files**, on both
    success and failure. A clean start cannot prove which edits belong to the generator
    versus a concurrent editor or agent. If a successful analyze leaves changes after a
@@ -122,6 +126,47 @@ Fails if any of these do not hold:
 - `meta.json` node/edge stats `==` live graph `count(n)` / `count(r)` (via `gitnexus cypher --repo <checkout-path>`; every query targets this checkout even when multiple indexes are registered).
 - Zero garbage IDs (id not prefixed with its label) **and** zero empty/null `name` values
   for `Class`, `Method`, `File`, and `Property` nodes.
+- Embedding count in `.gitnexus/meta.json` `stats.embeddings` is an integer **greater than 0**
+  and equals the live `CodeEmbedding` row count
+  (`MATCH (e:CodeEmbedding) RETURN count(e) AS cnt`). A missing count is treated as 0.
+- `capabilities.vectorSearch.status` is `vector-index` (HNSW) or `exact-scan` (bounded
+  brute-force vector leg). `unavailable` fails the check, so hybrid ranking has no
+  silent FTS-only mode.
+- When `.gitnexus/gitnexus.json` is present, its embedding count and vector-search
+  status match `meta.json`.
+
+### Embeddings (DRG-404)
+
+Enable the semantic leg on every guarded reindex. Hybrid query (FTS plus vector, RRF)
+is active only after this check passes.
+
+```bash
+# Preferred. Stops MCP, full rebuild, embeddings, integrity check.
+tools/gitnexus-safe-reindex.sh
+
+# Manual fallback, same flags, only if the guard cannot run:
+pgrep -af '[g]itnexus.*mcp'   # must return no matches before continuing
+GITNEXUS_SHARED_STORE=off npx gitnexus analyze --force --embeddings --skip-agents-md --skip-skills
+```
+
+**Runtime and storage.** Embedding generation is off in a bare `analyze`. The first
+guarded run with `--embeddings` is slower and uses more disk and RAM than a graph-only
+rebuild: GitNexus writes a `CodeEmbedding` table (one row per embedded chunk) and, when
+the VECTOR extension loads, an HNSW index. The CLI caps generation at 50,000 nodes
+unless `--embeddings 0` is passed; this guard does not lift that cap. Local vectors
+need the on-demand runtime (`npx gitnexus embeddings install`, which fetches
+`@huggingface/transformers` and `onnxruntime-node`). An OpenAI-compatible endpoint
+can be used instead (`--embedding-base-url` / the GitNexus embeddings environment).
+A September 2026 full rebuild of this repo without embeddings took about 35s
+(40,695 nodes, embeddings 0). An earlier index that did have vectors reported
+`embeddings=8288` (2026-06-23 `list_repos`). Cost after this change is whatever the
+next guarded run prints (`embeddings meta/graph=…` plus analyze elapsed time); do
+not treat the June figure as the current index.
+
+**What the check is not.** `vector-index` means hybrid search can use HNSW.
+`exact-scan` still counts as a live vector leg, bounded by `exactScanLimit`, and
+the guard accepts it. Neither status is a claim that a particular concept query
+returned the right symbol — confirm those with `rg` after the reindex.
 
 ### Exit codes
 
