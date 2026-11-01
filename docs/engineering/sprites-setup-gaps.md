@@ -1,7 +1,7 @@
 # Sprite base-image setup gaps
 
 Status: DRG-696. Found during Fly.io Sprite trials 1-3 on `my-first-sprite`.
-Companion to `sprites-agent-host.md`.
+Companion to [sprites-agent-host.md](sprites-agent-host.md).
 
 The default Sprite image (Ubuntu, x86_64, 8 vCPU / 15 GiB in the trial) has
 `git`, `gh`, `curl`, and Node, but is missing several things cmano-clone needs.
@@ -9,12 +9,12 @@ The default Sprite image (Ubuntu, x86_64, 8 vCPU / 15 GiB in the trial) has
 | Gap | Symptom | Fix |
 | --- | --- | --- |
 | `libicu` | `dotnet` aborts: "Couldn't find a valid ICU package" | `sudo apt-get install -y libicu-dev` |
-| .NET 10 SDK | not installed | `dotnet-install.sh --channel 10.0 --install-dir ~/.dotnet`, add `~/.dotnet` and `~/.dotnet/tools` to `PATH` |
+| .NET 10 SDK | not installed | install the SDK selected by [`global.json`](../../global.json) with `dotnet-install.sh --version 10.0.403 --install-dir ~/.dotnet`, then add `~/.dotnet` and `~/.dotnet/tools` to `PATH` |
 | ReSharper CLI | `jb` not found | `dotnet tool install -g JetBrains.ReSharper.GlobalTools` |
 | `ripgrep` | `rg: command not found` | `sudo apt-get install -y ripgrep` |
-| `pwsh` | `tools/*.ps1` cannot run | not installed; use the bash equivalent in `delegation-plugin-dll-copy.md` |
-| Delegation plugin DLLs | `Unity_plugin_Delegation_dll_exports_Epic_A_types_used_by_Runtime_hosts` fails: "Missing plugin DLL" | run the DLL copy step once per clone or worktree |
-| GitNexus | not installed | inspect callers with `rg` instead |
+| `pwsh` | `tools/*.ps1` cannot run | run `bash tools/copy-delegation-assemblies.sh`; see [delegation-plugin-dll-copy.md](delegation-plugin-dll-copy.md) |
+| Delegation plugin DLLs | `Unity_plugin_Delegation_dll_exports_Epic_A_types_used_by_Runtime_hosts` fails: "Missing plugin DLL" | run `bash tools/copy-delegation-assemblies.sh` once per clone or worktree |
+| GitNexus | not installed | configure GitNexus and build a healthy index using [gitnexus-index-health.md](gitnexus-index-health.md); symbol edits remain blocked until the required impact and change analysis in [`AGENTS.md`](../../AGENTS.md) can run |
 
 ## Notes
 
