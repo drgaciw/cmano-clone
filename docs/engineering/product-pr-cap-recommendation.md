@@ -19,10 +19,10 @@ Each criterion is weighted (out of 100) and scored for how hard it pushes toward
 | Merge throughput | 15 | 3 | The cap should match what Danny merges in 2–3 days. |
 | CI load | 10 | 2 | GitHub Actions plus Buildkite can handle 4+. |
 | GameCI licence broken | 10 | 4 | Every PR needs a manual Editor compile. |
-| Agent concurrency | 10 | 1 | Agents could flood review, which argues for a lower cap, not a higher one. |
+| Agent concurrency | 10 | 1 | Agent concurrency contributes little independent pressure (score 1); dispatch queuing below controls the risk of agents flooding review. |
 | Blast-radius mix | 5 | 3 | PRs near hard-no files cost more to review. |
 
-**Overall weighted pressure: ~3.9 / 5**, leaning toward a tighter cap.
+**Overall weighted pressure: 3.8 / 5**, leaning toward a tighter cap.
 
 ## 3. Suggested rules
 
