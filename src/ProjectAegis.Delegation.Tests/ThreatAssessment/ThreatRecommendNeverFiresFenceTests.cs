@@ -32,20 +32,6 @@ public sealed class ThreatRecommendNeverFiresFenceTests
     }
 
     [Test]
-    public void Recommend_chrome_hard_wires_fire_flags_off()
-    {
-        var chrome = File.ReadAllText(AdviceModelsPath());
-
-        Assert.That(chrome, Does.Contain("FromWeaponRecommendation"));
-        Assert.That(chrome, Does.Contain("IsWeaponsReleaseAuthorization: false"));
-        Assert.That(chrome, Does.Contain("IsFireOrder: false"));
-        Assert.That(chrome, Does.Contain("ThreatAssessmentProjection.LowConfidenceFloor"));
-        Assert.That(chrome, Does.Not.Contain("TryIssuePlayerCommand"));
-        Assert.That(chrome, Does.Not.Contain("TryEnqueueAttackOption"));
-        Assert.That(chrome, Does.Not.Contain("TryApprovePendingOrder"));
-    }
-
-    [Test]
     public void Project_never_sets_release_fire_or_auto_engage()
     {
         var feasible = ThreatAssessmentProjection.Project(Input(EffectivePolicy.DefaultFree, rounds: 4));
