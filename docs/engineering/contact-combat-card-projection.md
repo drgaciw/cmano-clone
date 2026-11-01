@@ -159,6 +159,14 @@ contact-detail / engage path behind [c2-presentation-bridges.md](c2-presentation
 `Project` (or `ProjectSelection` for a multi-select) in the post-Tick C2 refresh, never on the
 `DelegationBridge.Tick` hot path, and bind the fact strings into the contact-detail panel.
 
+### DRG-271 icons and badges are follow-up UI
+
+Stale-contact icons, datalink-source icons, and the queued-order badge are **not** rendered by this card.
+Those facts live in the headless [`ContactCueProjection`](../../src/ProjectAegis.Delegation/Projection/ContactCueProjection.cs)
+(see [contact-provenance.md](contact-provenance.md)). A later UI host may bind them. This card must not
+derive a numeric position ellipse from High/Medium/Low identity confidence, must not invent a fresh
+position during comms loss, and must not keep another contact or unit's cue after the selection changes.
+
 ---
 
 ## Determinism & invariants
