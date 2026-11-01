@@ -274,7 +274,7 @@ If stack metadata is corrupt, capture `gt log short` / `gt log long` and escalat
 | Invalid / expired Graphite token | https://app.graphite.com/activate → `gt auth` |
 | `gt submit` validation fails | `gt log short`; fix stack shape; see Recovery |
 | Buildkite Graphite optimizer fails | Check `GRAPHITE_CI_OPTIMIZER_TOKEN` in Buildkite env; optimizer fails open (full CI still runs) |
-| Graphite org billing / 403 on dismiss workflow | See [pr-69-ci-triage](../production/qa/pr-69-ci-triage-2026-06-04.md) |
+| Graphite org billing / 403 on dismiss workflow | See [pr-69-ci-triage](../../production/qa/pr-69-ci-triage-2026-06-04.md) |
 | Branch protection | Live on `main` (`buildkite/cmano-clone`); re-apply via `tools/apply-branch-protection.ps1` if drifted ([#37](https://github.com/drgaciw/cmano-clone/issues/37) closed) |
 | Stale local stack re-submitted | See backlog “Do not gt submit”; delete stale branches |
 
