@@ -1,7 +1,9 @@
 namespace ProjectAegis.Data.Scenario.Authoring;
 
+#if NET10_0_OR_GREATER
 using System.IO.Compression;
 using System.Text.Json;
+#endif
 
 // DRG-695: .NET 10 async ZIP APIs. net10.0 only; the netstandard2.1 Unity build keeps the sync API.
 public static partial class AegisScenarioPackage
