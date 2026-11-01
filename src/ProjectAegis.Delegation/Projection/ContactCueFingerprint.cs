@@ -2,7 +2,6 @@ namespace ProjectAegis.Delegation.Projection;
 
 using System.Globalization;
 using System.Text;
-using Core;
 
 /// <summary>Replay-stable fingerprint for <see cref="ContactCueSnapshot"/> (DRG-271). Not a SimWorldHash.</summary>
 public static class ContactCueFingerprint
