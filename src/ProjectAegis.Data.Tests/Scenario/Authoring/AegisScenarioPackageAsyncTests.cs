@@ -71,4 +71,39 @@ public sealed class AegisScenarioPackageAsyncTests : IDisposable
         await cts.CancelAsync();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => AegisScenarioPackage.ReadAsync(path, cts.Token));
     }
+
+    [Fact]
+    public async Task WriteAsync_cancelled_before_start_preserves_existing_package()
+    {
+        var path = Path.Combine(_dir, "cancelled.aegis-scenario");
+        await AegisScenarioPackage.WriteAsync(path, Doc(), title: "original");
+        var original = await File.ReadAllBytesAsync(path);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            AegisScenarioPackage.WriteAsync(path, Doc(), cancellationToken: new CancellationToken(canceled: true)));
+
+        Assert.Equal(original, await File.ReadAllBytesAsync(path));
+        Assert.Single(Directory.GetFiles(_dir));
+    }
+
+    [Fact]
+    public async Task WriteAsync_serialization_failure_preserves_existing_package_and_removes_temporary_file()
+    {
+        var path = Path.Combine(_dir, "invalid.aegis-scenario");
+        await AegisScenarioPackage.WriteAsync(path, Doc(), title: "original");
+        var original = await File.ReadAllBytesAsync(path);
+        var invalidDocument = new ScenarioDocumentDto
+        {
+            Metadata = new ScenarioMetadataDto { Title = "replacement" },
+            ReferencePoints = new List<ScenarioReferencePointDto>
+            {
+                new() { Id = "invalid", RadiusNm = double.NaN },
+            },
+        };
+
+        await Assert.ThrowsAnyAsync<System.Text.Json.JsonException>(() => AegisScenarioPackage.WriteAsync(path, invalidDocument));
+
+        Assert.Equal(original, await File.ReadAllBytesAsync(path));
+        Assert.Single(Directory.GetFiles(_dir));
+    }
 }
