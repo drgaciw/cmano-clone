@@ -200,6 +200,81 @@ public sealed class ThreatAssessmentProjectionTests
         var recommendation = ThreatAssessmentProjection.Project(input);
 
         Assert.That(recommendation.Outcome, Is.EqualTo(WeaponRecommendationOutcome.NoRecommendation));
+        Assert.That(recommendation.ThreatUrgencyBand, Is.EqualTo("ignore"));
+        Assert.That(recommendation.WeaponFamilyChoice, Is.EqualTo("withhold"));
+        Assert.That(recommendation.IsFireOrder, Is.False);
         Assert.That(ThreatAssessmentProjection.ComputeFingerprint(recommendation), Is.EqualTo("ta:empty"));
+    }
+
+    [Test]
+    public void Feasible_defensive_contact_scores_immediate_missile_without_alternatives()
+    {
+        var recommendation = ThreatAssessmentProjection.Project(BaseInput(EffectivePolicy.DefaultFree, FeasibleContext));
+
+        Assert.That(recommendation.JevModelPin, Is.EqualTo("jev-1.13.x"));
+        Assert.That(recommendation.ThreatUrgencyScore, Is.EqualTo(0.95).Within(1e-9));
+        Assert.That(recommendation.ThreatUrgencyBand, Is.EqualTo("immediate"));
+        Assert.That(recommendation.WeaponFamilyChoice, Is.EqualTo("missile"));
+        Assert.That(recommendation.AlternativeFamilies, Is.Empty);
+        Assert.That(recommendation.WraExhaustionWarn, Is.False);
+        Assert.That(recommendation.Confidence, Is.GreaterThanOrEqualTo(ThreatAssessmentProjection.LowConfidenceFloor));
+        Assert.That(recommendation.StatusLine, Does.Contain("urgency=immediate"));
+        Assert.That(recommendation.StatusLine, Does.Not.Contain("alternatives="));
+        Assert.That(recommendation.IsWeaponsReleaseAuthorization, Is.False);
+        Assert.That(recommendation.IsFireOrder, Is.False);
+        Assert.That(recommendation.IsAutomaticEngagement, Is.False);
+    }
+
+    [Test]
+    public void Low_confidence_lists_other_families_and_wra_salvo_warns()
+    {
+        var policy = new EffectivePolicy(RoeLevel.WeaponsFree, MaxSalvo: 1);
+        var recommendation = ThreatAssessmentProjection.Project(BaseInput(policy, FeasibleContext));
+
+        Assert.That(recommendation.Outcome, Is.EqualTo(WeaponRecommendationOutcome.WithheldByPolicy));
+        Assert.That(recommendation.WithheldReasonCode, Is.EqualTo(AbortReasonCatalog.Doctrine.WRA_SALVO));
+        Assert.That(recommendation.Confidence, Is.LessThan(ThreatAssessmentProjection.LowConfidenceFloor));
+        Assert.That(recommendation.WeaponFamilyChoice, Is.EqualTo("missile"));
+        Assert.That(recommendation.AlternativeFamilies, Is.EqualTo(new[] { "gun", "energy", "withhold" }));
+        Assert.That(recommendation.WraExhaustionWarn, Is.True);
+        Assert.That(recommendation.StatusLine, Does.Contain("alternatives=gun,energy,withhold"));
+        Assert.That(recommendation.StatusLine, Does.Contain("wra-exhaustion-warn"));
+        Assert.That(recommendation.IsFireOrder, Is.False);
+    }
+
+    [Test]
+    public void Weapon_label_selects_gun_or_energy_family()
+    {
+        var gun = BaseInput(EffectivePolicy.DefaultFree, FeasibleContext) with
+        {
+            WeaponId = "ciws",
+            WeaponLabel = "Phalanx CIWS",
+        };
+        var energy = BaseInput(EffectivePolicy.DefaultFree, FeasibleContext) with
+        {
+            WeaponId = "laser",
+            WeaponLabel = "HEL",
+        };
+
+        Assert.That(ThreatAssessmentProjection.Project(gun).WeaponFamilyChoice, Is.EqualTo("gun"));
+        Assert.That(ThreatAssessmentProjection.Project(energy).WeaponFamilyChoice, Is.EqualTo("energy"));
+    }
+
+    [Test]
+    public void Offensive_in_zone_is_focus_and_hypersonic_raises_urgency()
+    {
+        var offensive = BaseInput(EffectivePolicy.DefaultFree, FeasibleContext) with
+        {
+            Posture = ThreatAssessmentPosture.Offensive,
+        };
+        var hypersonic = offensive with
+        {
+            EngageContext = FeasibleContext with { IsHypersonicTarget = true },
+        };
+
+        Assert.That(ThreatAssessmentProjection.Project(offensive).ThreatUrgencyBand, Is.EqualTo("focus"));
+        Assert.That(ThreatAssessmentProjection.Project(offensive).ThreatUrgencyScore, Is.EqualTo(0.80).Within(1e-9));
+        Assert.That(ThreatAssessmentProjection.Project(hypersonic).ThreatUrgencyScore, Is.EqualTo(0.90).Within(1e-9));
+        Assert.That(ThreatAssessmentProjection.Project(hypersonic).ThreatUrgencyBand, Is.EqualTo("immediate"));
     }
 }
