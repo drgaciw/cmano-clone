@@ -95,3 +95,35 @@ python -m pytest tools/jev/test_classify_uat.py -v
 ```
 
 Uses recorded HTTP body in `fixtures/systemone-success.json`; no live network required.
+
+## Scenario-authored threat advisory tuning
+
+`threatAssessmentUrgency` is an optional object in a normal scenario policy JSON file.
+The complete example is [threat-advisory-calibration.policy.json](../../data/scenarios/threat-advisory-calibration.policy.json).
+Its values affect advisory scoring and disclosure only; they never authorize release, enqueue orders, or change simulation policy.
+
+The composition caller explicitly loads the settings once during scenario setup and injects them through the existing input contract:
+
+```csharp
+var tuning = ThreatAssessmentPolicyLoader.LoadFromScenarioPolicy(policyPath);
+var input = existingInput with { Tuning = tuning };
+var recommendation = ThreatAssessmentProjection.Project(input);
+```
+
+The projector performs no file access or policy lookup. The shared scenario profile and its loader are unchanged.
+Callers that omit explicit tuning retain the original confidence and urgency outputs. Omitting the entire JSON section, or individual settings, retains compatibility defaults.
+Existing confidence parameters in `ThreatAssessmentTuning` are unchanged; callers can still override them with a record `with` expression.
+
+| Setting | Meaning |
+| --- | --- |
+| `inZoneBase`, `approachingBase`, `outOfZoneBase` | Base urgency by DLZ state |
+| `defensiveBonus`, `hypersonicBonus` | Additive urgency modifiers |
+| `missingFireControlPenalty` | Subtracted when a fire-control track is missing |
+| `immediateFloor`, `focusFloor`, `watchFloor`, `lowFloor` | Inclusive band boundaries, evaluated from highest to lowest |
+| `lowConfidenceFloor` | Below this confidence, list the other weapon families |
+
+Every supplied setting must be a finite JSON number in `[0,1]`. Band floors must satisfy `low <= watch <= focus <= immediate` after defaults are applied.
+The authoring loader rejects duplicate or unknown setting names, malformed JSON, repeated sections, and non-object sections with `InvalidDataException`.
+The section and setting names use the exact camelCase spelling shown in the example. Validation occurs during explicit loading, outside the simulation tick.
+
+The default thresholds remain draft calibration values. Owner Play Mode acceptance remains separate from headless projection and loader tests (ADR-010, ADR-007, ADR-001).

@@ -242,6 +242,33 @@ public sealed class ThreatAssessmentProjectionTests
         Assert.That(recommendation.IsFireOrder, Is.False);
     }
 
+    [TestCase(RoeLevel.HoldFire)]
+    [TestCase(RoeLevel.WeaponsTight)]
+    public void Wra_salvo_warning_remains_visible_when_roe_is_the_first_denial(RoeLevel roe)
+    {
+        var context = FeasibleContext with { RoundsRemaining = 100, ShotgunRoundsThreshold = 1, SalvoSize = 2 };
+        var overLimit = ThreatAssessmentProjection.Project(BaseInput(new EffectivePolicy(roe, MaxSalvo: 1), context));
+        var atLimit = ThreatAssessmentProjection.Project(BaseInput(new EffectivePolicy(roe, MaxSalvo: 2), context));
+
+        Assert.That(overLimit.Outcome, Is.EqualTo(WeaponRecommendationOutcome.WithheldByPolicy));
+        Assert.That(overLimit.WithheldReasonCode, Is.EqualTo(roe == RoeLevel.HoldFire
+            ? AbortReasonCatalog.Doctrine.ROE_HOLD_FIRE : AbortReasonCatalog.Doctrine.ROE_WEAPONS_TIGHT));
+        Assert.That(overLimit.WraExhaustionWarn, Is.True);
+        Assert.That(overLimit.StatusLine, Does.Contain("wra-exhaustion-warn"));
+        Assert.That(atLimit.WraExhaustionWarn, Is.False);
+        Assert.That(overLimit.IsFireOrder, Is.False);
+    }
+
+    [Test]
+    public void Wra_warning_uses_the_same_minimum_salvo_as_policy_evaluation()
+    {
+        var context = FeasibleContext with { RoundsRemaining = 100, ShotgunRoundsThreshold = 1, SalvoSize = 0 };
+        var recommendation = ThreatAssessmentProjection.Project(BaseInput(new EffectivePolicy(RoeLevel.HoldFire, MaxSalvo: 0), context));
+
+        Assert.That(recommendation.WraExhaustionWarn, Is.True);
+        Assert.That(recommendation.IsFireOrder, Is.False);
+    }
+
     [Test]
     public void Weapon_label_selects_gun_or_energy_family()
     {

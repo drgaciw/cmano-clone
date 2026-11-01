@@ -18,9 +18,9 @@ public static class ThreatAssessmentProjection
     public const string JevModelPin = "jev-1.13.x";
 
     /// <summary>
-    /// Draft floor until calibrated. Below this, the recommendation lists alternative families.
+    /// Default draft floor; injected urgency tuning may override it for a scenario.
     /// </summary>
-    public const double LowConfidenceFloor = 0.5;
+    public static double LowConfidenceFloor => ThreatUrgencyTuning.Default.LowConfidenceFloor;
 
     private static readonly string[] WeaponFamilies = ["missile", "gun", "energy", "withhold"];
 
@@ -45,9 +45,9 @@ public static class ThreatAssessmentProjection
         var assumptions = BuildAssumptions(in input, in ctx, preview, policyConstraints, outcome, engageAbortCode);
         var withheldCode = ResolveWithheldReasonCode(outcome, engageAbortCode, policyConstraints);
         var confidence = ComputeConfidence(outcome, in ctx, engageAbortCode, policyConstraints, tuning);
-        var urgency = ScoreThreatUrgency(in ctx, input.Posture, outcome);
+        var urgency = ScoreThreatUrgency(in ctx, input.Posture, outcome, tuning.Urgency);
         var family = ChooseWeaponFamily(input.WeaponId, input.WeaponLabel, outcome);
-        var alternatives = confidence < LowConfidenceFloor
+        var alternatives = confidence < tuning.Urgency.LowConfidenceFloor
             ? AlternativeFamilies(family)
             : Array.Empty<string>();
         var wraExhaustionWarn = IsWraExhaustion(in ctx, policyConstraints);
@@ -361,7 +361,8 @@ public static class ThreatAssessmentProjection
     private static (double Score, string Band) ScoreThreatUrgency(
         in EngageContext ctx,
         ThreatAssessmentPosture posture,
-        WeaponRecommendationOutcome outcome)
+        WeaponRecommendationOutcome outcome,
+        ThreatUrgencyTuning tuning)
     {
         if (outcome == WeaponRecommendationOutcome.NoRecommendation)
         {
@@ -371,36 +372,40 @@ public static class ThreatAssessmentProjection
         var dlzState = DlzEngageGate.EvaluateState(ctx.RangeMeters, ctx.Envelope);
         var score = dlzState switch
         {
-            DlzState.InZone => 0.80,
-            DlzState.Approaching => 0.55,
-            _ => 0.25,
+            DlzState.InZone => tuning.InZoneBase,
+            DlzState.Approaching => tuning.ApproachingBase,
+            _ => tuning.OutOfZoneBase,
         };
 
         if (posture == ThreatAssessmentPosture.Defensive)
         {
-            score += 0.15;
+            score += tuning.DefensiveBonus;
         }
 
         if (ctx.IsHypersonicTarget)
         {
-            score += 0.10;
+            score += tuning.HypersonicBonus;
         }
 
         if (!ctx.HasFireControlTrack)
         {
-            score -= 0.10;
+            score -= tuning.MissingFireControlPenalty;
         }
 
         score = Math.Clamp(score, 0, 1);
-        var band = score switch
-        {
-            >= 0.85 => "immediate",
-            >= 0.70 => "focus",
-            >= 0.45 => "watch",
-            >= 0.20 => "low",
-            _ => "ignore",
-        };
+        var band = MeetsUrgencyFloor(score, tuning.ImmediateFloor) ? "immediate"
+            : MeetsUrgencyFloor(score, tuning.FocusFloor) ? "focus"
+            : MeetsUrgencyFloor(score, tuning.WatchFloor) ? "watch"
+            : MeetsUrgencyFloor(score, tuning.LowFloor) ? "low" : "ignore";
         return (score, band);
+    }
+
+    private static bool MeetsUrgencyFloor(double score, double floor)
+    {
+        // IEEE-754 addition can land just below an inclusive authored boundary.
+        // This compensates arithmetic roundoff only; the stored score is never rounded.
+        const double roundoffTolerance = 1e-12;
+        return score >= floor || floor - score <= roundoffTolerance;
     }
 
     private static string ChooseWeaponFamily(
@@ -449,6 +454,12 @@ public static class ThreatAssessmentProjection
 
     private static bool IsWraExhaustion(in EngageContext ctx, ThreatPolicyConstraints policyConstraints)
     {
+        // Policy evaluation returns the first denial (ROE precedes WRA), so check salvo independently.
+        if (Math.Max(1, ctx.SalvoSize) > policyConstraints.MaxSalvo)
+        {
+            return true;
+        }
+
         if (ctx.RoundsRemaining <= 0 || ctx.RoundsRemaining < Math.Max(1, ctx.SalvoSize))
         {
             return true;
