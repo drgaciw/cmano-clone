@@ -462,7 +462,7 @@ public static class ContactCueProjection
         for (var i = 0; i < denials.Count; i++)
         {
             var denial = denials[i];
-            if (!DenialMatches(denial, unitId, order.Kind, order.SimTick, currentSimTick))
+            if (!DenialMatches(denial, unitId, order.Kind, order.SimTick, order.SequenceId, currentSimTick))
             {
                 continue;
             }
@@ -476,6 +476,7 @@ public static class ContactCueProjection
             {
                 var engagement = engagements[i];
                 if (!engagement.Launched
+                    || engagement.SequenceId < order.SequenceId
                     || engagement.SimTick < order.SimTick
                     || engagement.SimTick > currentSimTick
                     || !string.Equals(engagement.ShooterTargetId.Value, unitId, StringComparison.Ordinal))
@@ -635,9 +636,11 @@ public static class ContactCueProjection
         string unitId,
         OrderKind kind,
         ulong orderTick,
+        ulong orderSequenceId,
         ulong currentSimTick)
     {
         if (denial.AttemptedKind != kind
+            || denial.SequenceId < orderSequenceId
             || denial.SimTick < orderTick
             || denial.SimTick > currentSimTick)
         {

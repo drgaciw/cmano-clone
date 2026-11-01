@@ -577,6 +577,36 @@ public sealed class ContactCueProjectionTests
     }
 
     [Test]
+    public void Same_tick_reissue_stays_pending_after_earlier_denial()
+    {
+        var log = new DecisionLog();
+        log.AppendPlayerOrder(PlayerOrder(3, "u1", OrderKind.Hold));
+        log.AppendPolicyDenial(Denial(3, "u1", OrderKind.Hold));
+        log.AppendPlayerOrder(PlayerOrder(3, "u1", OrderKind.Hold));
+
+        var row = ContactCueProjection.Project(log, 3).UnitOrders.Single();
+
+        Assert.That(row.Disposition, Is.EqualTo(UnitOrderDisposition.Queued));
+        Assert.That(row.IsGenuinelyPending, Is.True);
+        Assert.That(row.IssuedSimTick, Is.EqualTo(3UL));
+    }
+
+    [Test]
+    public void Same_tick_reissue_stays_pending_after_earlier_launch()
+    {
+        var log = new DecisionLog();
+        log.AppendPlayerOrder(PlayerOrder(3, "u1", OrderKind.Engage));
+        log.AppendEngagement(Engagement(3, "u1", launched: true));
+        log.AppendPlayerOrder(PlayerOrder(3, "u1", OrderKind.Engage));
+
+        var row = ContactCueProjection.Project(log, 3).UnitOrders.Single();
+
+        Assert.That(row.Disposition, Is.EqualTo(UnitOrderDisposition.Queued));
+        Assert.That(row.IsGenuinelyPending, Is.True);
+        Assert.That(row.IssuedSimTick, Is.EqualTo(3UL));
+    }
+
+    [Test]
     public void Selection_change_does_not_keep_another_contact_or_unit()
     {
         var log = new DecisionLog();
