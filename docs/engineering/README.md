@@ -188,6 +188,11 @@ Docs that were not yet linked from this index (DRG-702).
 | [unity-UPGRADE-RUNBOOK.md](unity-UPGRADE-RUNBOOK.md) | Ordered runbook for Unity Hub, editor, and package upgrades. |
 | [unity-ACCELERATOR-SETUP.md](unity-ACCELERATOR-SETUP.md) | Unity Accelerator (cache server) setup for ProjectAegis. |
 | [unity-remediation-CHANGESET.md](unity-remediation-CHANGESET.md) | Repo hygiene and build-throughput changeset for the monorepo. |
+| [sprites-agent-host.md](sprites-agent-host.md) | Headless agent host setup, allowed work, and access boundaries for Fly.io Sprites. |
+| [delegation-plugin-dll-copy.md](delegation-plugin-dll-copy.md) | Staging the Unity-compatible plugin DLLs before headless tests on Linux. |
+| [sprites-setup-gaps.md](sprites-setup-gaps.md) | Base-image prerequisites and remedies found during the Sprite trial. |
+| [sprites-parallel-worktrees.md](sprites-parallel-worktrees.md) | Isolated worktree jobs, verification, submission, and resource contention. |
+| [sprites-trial-results.md](sprites-trial-results.md) | Reported Sprite trial measurements and their evidence limitations. |
 
 ## Related references
 
