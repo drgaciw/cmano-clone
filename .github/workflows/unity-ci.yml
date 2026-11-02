@@ -84,6 +84,6 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           projectPath: unity/ProjectAegis
-          unityVersion: 6000.3.22f1  # keep in sync with unity/ProjectAegis/ProjectSettings/ProjectVersion.txt
+          unityVersion: 6000.3.27f2  # keep in sync with unity/ProjectAegis/ProjectSettings/ProjectVersion.txt
           testMode: ${{ inputs.test_platform }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
