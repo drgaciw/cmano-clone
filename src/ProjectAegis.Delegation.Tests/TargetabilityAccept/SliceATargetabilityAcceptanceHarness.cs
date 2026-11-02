@@ -25,9 +25,10 @@ public enum SliceATargetabilityComposition
     FixtureLog = 0,
 
     /// <summary>
-    /// Production headless composition (DRG-350): <see cref="SimulationSession.BindMvpEngagementForScenario"/>
+    /// Production headless composition (DRG-350 / DRG-414): <see cref="SimulationSession.BindMvpEngagementForScenario"/>
     /// over a <see cref="DelegationOrchestrator"/> with the fixture scenario policy, ticked through the
-    /// evaluation tick. Projections read the orchestrator's authoritative <see cref="DecisionLog"/>.
+    /// evaluation tick. The order log is the orchestrator's. Fire-control, shooter/magazine rounds, and
+    /// authority come from the session's read-only seams, not from fixture-rebuilt sources.
     /// </summary>
     ProductionSession = 1,
 }
@@ -139,7 +140,25 @@ public static class SliceATargetabilityAcceptanceHarness
         }
 
         var document = Load(fixturePath);
-        var evidence = Execute(document, composition);
+        var evidence = Execute(document, composition, configure: null);
+        return new SliceATargetabilityAcceptanceRun(evidence, document.AcceptanceFingerprint);
+    }
+
+    /// <summary>
+    /// DRG-414: run the production composition and let <paramref name="configure"/> register the shooter
+    /// and any production ledger or policy state before the tick loop. The verdict is projected from
+    /// the session seams.
+    /// </summary>
+    public static SliceATargetabilityAcceptanceRun RunProduction(
+        Action<SimulationSession, UnitTarget> configure)
+    {
+        if (configure is null)
+        {
+            throw new ArgumentNullException(nameof(configure));
+        }
+
+        var document = Load(DefaultFixturePath());
+        var evidence = Execute(document, SliceATargetabilityComposition.ProductionSession, configure);
         return new SliceATargetabilityAcceptanceRun(evidence, document.AcceptanceFingerprint);
     }
 
@@ -160,7 +179,7 @@ public static class SliceATargetabilityAcceptanceHarness
         var document = Load(DefaultFixturePath());
         var path = document.Paths.Find(p => string.Equals(p.PathId, pathId, StringComparison.Ordinal))
             ?? throw new ArgumentException($"Fixture has no path '{pathId}'.", nameof(pathId));
-        return BuildProductionSessionLog(document, path, InMemoryCatalogReader.BalticPatrolFixture(), wireShooter);
+        return BuildProductionSessionLog(document, path, InMemoryCatalogReader.BalticPatrolFixture(), wireShooter).Log;
     }
 
     private static string DefaultFixturePath()
@@ -223,7 +242,8 @@ public static class SliceATargetabilityAcceptanceHarness
 
     private static SliceATargetabilityAcceptanceEvidence Execute(
         SliceAScenarioFile document,
-        SliceATargetabilityComposition composition)
+        SliceATargetabilityComposition composition,
+        Action<SimulationSession, UnitTarget>? configure)
     {
         var catalog = InMemoryCatalogReader.BalticPatrolFixture();
         var paths = new SliceATargetabilityPathEvidence[document.Paths.Count];
@@ -235,7 +255,7 @@ public static class SliceATargetabilityAcceptanceHarness
         var contacts = 0;
         for (var i = 0; i < document.Paths.Count; i++)
         {
-            paths[i] = ProjectPath(document, document.Paths[i], catalog, composition);
+            paths[i] = ProjectPath(document, document.Paths[i], catalog, composition, configure);
             engagements += paths[i].EngagementCount;
             outcomes += paths[i].EngagementOutcomeCount;
             playerOrders += paths[i].PlayerOrderCount;
@@ -272,12 +292,20 @@ public static class SliceATargetabilityAcceptanceHarness
         SliceAScenarioFile document,
         SliceAScenarioPathFile path,
         ICatalogReader catalog,
-        SliceATargetabilityComposition composition)
+        SliceATargetabilityComposition composition,
+        Action<SimulationSession, UnitTarget>? configure)
     {
-        var log = composition == SliceATargetabilityComposition.ProductionSession
-            ? BuildProductionSessionLog(document, path, catalog, WireHumanShooter)
-            : BuildFixtureLog(document, path);
-        return ProjectLog(document, path, catalog, log);
+        if (composition == SliceATargetabilityComposition.ProductionSession)
+        {
+            var produced = BuildProductionSessionLog(
+                document,
+                path,
+                catalog,
+                configure ?? WireHumanShooter);
+            return ProjectProductionLog(document, path, catalog, produced.Log, produced.Session);
+        }
+
+        return ProjectLog(document, path, catalog, BuildFixtureLog(document, path));
     }
 
     private static void ValidatePath(SliceAScenarioPathFile path)
@@ -328,13 +356,16 @@ public static class SliceATargetabilityAcceptanceHarness
         return log;
     }
 
+    /// <summary>Log plus the session whose read-only seams feed the production verdict (DRG-414).</summary>
+    private readonly record struct ProductionComposition(DecisionLog Log, SimulationSession Session);
+
     /// <summary>
     /// Production headless composition: scenario-bound orchestrator + MVP engagement session, ticked
     /// from 0 through the evaluation tick. Each fixture contact step lands in the authoritative log at
     /// its sim tick (sequence assigned by the log), and the observed state reports the contact and
-    /// fire-control track the same way the sim would. Returns the orchestrator's own log.
+    /// fire-control track the same way the sim would. Returns the orchestrator's own log and the session.
     /// </summary>
-    private static DecisionLog BuildProductionSessionLog(
+    private static ProductionComposition BuildProductionSessionLog(
         SliceAScenarioFile document,
         SliceAScenarioPathFile path,
         ICatalogReader catalog,
@@ -381,7 +412,7 @@ public static class SliceATargetabilityAcceptanceHarness
             }
         }
 
-        return orchestrator.DecisionLog;
+        return new ProductionComposition(orchestrator.DecisionLog, session);
     }
 
     private static void WireHumanShooter(SimulationSession session, UnitTarget shooter)
@@ -418,7 +449,35 @@ public static class SliceATargetabilityAcceptanceHarness
                 document.ShooterUnitId,
                 ScenarioEngageDefaults.MvpFallback,
                 document.WeaponRounds));
-        var authorityContext = BuildAuthority(path);
+        return ProjectPrepared(document, path, catalog, log, fireControl, shooters, BuildAuthority(path));
+    }
+
+    /// <summary>
+    /// DRG-414: production verdict. Fire-control, magazine rounds, and authority are read from the
+    /// session after the tick. Fixture fire-control ids, weapon rounds, and the authority block are not used.
+    /// </summary>
+    private static SliceATargetabilityPathEvidence ProjectProductionLog(
+        SliceAScenarioFile document,
+        SliceAScenarioPathFile path,
+        ICatalogReader catalog,
+        DecisionLog log,
+        SimulationSession session)
+    {
+        var fireControl = new SessionFireControl(session, document.ShooterUnitId);
+        var shooters = new SessionShooterSource(session, document.ShooterUnitId, path.TargetId);
+        var authority = session.ReadAuthoritySnapshot(path.ContactId, path.TargetId, document.ShooterUnitId);
+        return ProjectPrepared(document, path, catalog, log, fireControl, shooters, authority);
+    }
+
+    private static SliceATargetabilityPathEvidence ProjectPrepared(
+        SliceAScenarioFile document,
+        SliceAScenarioPathFile path,
+        ICatalogReader catalog,
+        DecisionLog log,
+        IKillChainFireControlSource fireControl,
+        ISensorToShooterShooterSource shooters,
+        C2AuthorityProjectionContext authorityContext)
+    {
         var accept = TargetabilityAcceptProjection.Project(
             log,
             document.EvaluationSimTick,
@@ -680,6 +739,57 @@ public static class SliceATargetabilityAcceptanceHarness
         }
 
         return null;
+    }
+
+    /// <summary>Adapts <see cref="SimulationSession.HasFireControlTrack"/> to the kill-chain source.</summary>
+    private sealed class SessionFireControl : IKillChainFireControlSource
+    {
+        private readonly SimulationSession _session;
+        private readonly string _shooterUnitId;
+
+        public SessionFireControl(SimulationSession session, string shooterUnitId)
+        {
+            _session = session;
+            _shooterUnitId = shooterUnitId;
+        }
+
+        public bool HasFireControlTrack(string contactId, string targetId) =>
+            _session.HasFireControlTrack(contactId, targetId, _shooterUnitId);
+    }
+
+    /// <summary>
+    /// Adapts registered magazine rounds. A missing ledger entry stays zero and is not the fixture weapon count.
+    /// </summary>
+    private sealed class SessionShooterSource : ISensorToShooterShooterSource
+    {
+        private readonly SimulationSession _session;
+        private readonly string _shooterUnitId;
+        private readonly string _targetId;
+
+        public SessionShooterSource(SimulationSession session, string shooterUnitId, string targetId)
+        {
+            _session = session;
+            _shooterUnitId = shooterUnitId;
+            _targetId = targetId;
+        }
+
+        public IReadOnlyList<SensorToShooterShooterCandidate> GetCandidatesForTarget(string targetId)
+        {
+            if (!string.Equals(targetId, _targetId, StringComparison.Ordinal))
+            {
+                return [];
+            }
+
+            var rounds = _session.TryGetRegisteredMagazineRounds(_shooterUnitId, mountId: 0, out var tracked)
+                ? tracked
+                : 0;
+            var defaults = _session.Orchestrator.ScenarioPolicy?.EngageDefaults
+                ?? ScenarioEngageDefaults.MvpFallback;
+            return
+            [
+                new SensorToShooterShooterCandidate(_shooterUnitId, defaults, rounds),
+            ];
+        }
     }
 
     private sealed class FixtureFireControl : IKillChainFireControlSource
