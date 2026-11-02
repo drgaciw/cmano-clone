@@ -18,6 +18,7 @@ using ProjectAegis.Sim.Sensors;
 using ProjectAegis.Sim.Telemetry;
 using ProjectAegis.Sim.Time;
 using Logistics;
+using Skills;
 
 /// <summary>Headless/interactive session: delegation tick then sim engagement phase.</summary>
 public sealed class SimulationSession
@@ -675,6 +676,116 @@ public sealed class SimulationSession
     public int? NextEngageSalvoOverride { get; set; }
 
     public Func<string, ulong, bool>? IsContactSpoofed { get; set; }
+
+    /// <summary>
+    /// DRG-414: read-only fire-control fact for a contact already on the authoritative log.
+    /// A primed engage-world context for this shooter and target supplies the flag copied
+    /// when an engagement was primed. Otherwise the bound <see cref="DefaultEngageContext"/>
+    /// flag applies. This method does not mutate session state and does not read fixture lists.
+    /// </summary>
+    public bool HasFireControlTrack(string contactId, string targetId, string shooterUnitId)
+    {
+        if (string.IsNullOrEmpty(contactId) || string.IsNullOrEmpty(targetId))
+        {
+            return false;
+        }
+
+        if (!DecisionLogContainsContact(contactId, targetId))
+        {
+            return false;
+        }
+
+        if (EngageWorld != null
+            && !string.IsNullOrEmpty(shooterUnitId)
+            && EngageWorld.TryGetContext(FireControlRequest(shooterUnitId, targetId), out var primed))
+        {
+            return primed.HasFireControlTrack;
+        }
+
+        return DefaultEngageContext?.HasFireControlTrack ?? false;
+    }
+
+    /// <summary>
+    /// DRG-414: tracked magazine rounds for a shooter mount.
+    /// Returns false when the ledger has no entry. A missing entry is not
+    /// <see cref="DefaultMagazineRounds"/> and <paramref name="rounds"/> is zero.
+    /// </summary>
+    public bool TryGetRegisteredMagazineRounds(string shooterUnitId, ulong mountId, out int rounds)
+    {
+        rounds = 0;
+        if (Magazines == null || string.IsNullOrEmpty(shooterUnitId))
+        {
+            return false;
+        }
+
+        return Magazines.TryGetRounds(
+            OrderActionMapper.TargetIdToUlong(new TargetId(shooterUnitId)),
+            mountId,
+            out rounds);
+    }
+
+    /// <summary>
+    /// DRG-414: policy/authority snapshot for one shooter and contact.
+    /// ROE comes from a captured <see cref="PolicySnapshot"/> when one exists, otherwise
+    /// from scenario policy for the unit. <see cref="EffectivePolicy"/> does not store skill
+    /// lane, required approval, track source, or command id, so those stay at the production
+    /// read-lane defaults (Read, None, Organic, no command). Fire-control satisfaction is
+    /// <see cref="HasFireControlTrack"/>.
+    /// </summary>
+    public C2AuthorityProjectionContext ReadAuthoritySnapshot(
+        string contactId,
+        string targetId,
+        string shooterUnitId)
+    {
+        return new C2AuthorityProjectionContext(
+            ResolveShooterRoe(shooterUnitId),
+            SkillLane.Read,
+            RequiredApproval.None,
+            TrackSource.Organic,
+            HasFireControlTrack(contactId, targetId, shooterUnitId),
+            CommandId: null,
+            HumanControlled: true);
+    }
+
+    private RoeLevel ResolveShooterRoe(string shooterUnitId)
+    {
+        if (string.IsNullOrEmpty(shooterUnitId))
+        {
+            return EffectivePolicy.DefaultFree.Roe;
+        }
+
+        var shooter = new TargetId(shooterUnitId);
+        if (Orchestrator.PolicySnapshots.TryGet(shooter, out var snapshot))
+        {
+            return snapshot.Effective.Roe;
+        }
+
+        var friendly = !BalticV3SideRegistry.IsRedForceUnit(shooterUnitId);
+        return Orchestrator.ResolveScenarioPolicyForTarget(shooter, friendly).Roe;
+    }
+
+    private bool DecisionLogContainsContact(string contactId, string targetId)
+    {
+        var changes = Orchestrator.DecisionLog.ContactChanges;
+        for (var i = 0; i < changes.Count; i++)
+        {
+            var change = changes[i];
+            if (string.Equals(change.ContactId, contactId, StringComparison.Ordinal)
+                && string.Equals(change.TargetId, targetId, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static EngageRequest FireControlRequest(string shooterUnitId, string targetId) =>
+        new(
+            OrderActionMapper.TargetIdToUlong(new TargetId(shooterUnitId)),
+            OrderActionMapper.TargetIdToUlong(new TargetId(targetId)),
+            MountId: 0,
+            SimTick: 0);
 
     private void PrimeEngageWorld(in EngageRequest request, ObservedState state, string shooterUnitId)
     {
