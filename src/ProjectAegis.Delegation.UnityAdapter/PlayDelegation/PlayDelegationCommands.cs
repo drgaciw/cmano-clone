@@ -230,15 +230,6 @@ public sealed class PlayDelegationCommands
         }
 
         var previous = agent.PersonalitySlug ?? "custom";
-        if (LoopPolicyGate.CanEditPersonality(orchestrator.ScenarioPolicy, orchestrator.Phase, agent.Autonomy).Allowed)
-        {
-            var rebound = orchestrator.TryRebindAgentTraits(agent, preset.Traits);
-            if (!rebound.Allowed)
-            {
-                return PlayEntryResult.Fail(PersonalityDenied, rebound.DenialReason ?? "Personality edit denied.");
-            }
-        }
-
         var applied = orchestrator.TryRebriefAgent(agent, preset, simTime);
         if (!applied.Allowed)
         {

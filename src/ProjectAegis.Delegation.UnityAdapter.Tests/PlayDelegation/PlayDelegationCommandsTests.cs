@@ -450,6 +450,20 @@ public sealed class PlayDelegationCommandsTests
     }
 
     [Test]
+    public void Set_personality_same_preset_after_custom_trait_rebind_restores_preset_and_logs()
+    {
+        var (session, friendly, agent, commands) = AssignPreset();
+        var customTraits = PresetNamed(Cautious).Traits;
+        Assume.That(session.Bridge!.Orchestrator.TryRebindAgentTraits(agent, customTraits).Allowed, Is.True);
+        Assume.That(agent.PersonalitySlug, Is.EqualTo(Aggressive));
+        Assume.That(agent.Traits, Is.EqualTo(customTraits));
+
+        var result = commands.TrySetPersonality(friendly.Id, Aggressive, simTime: 3.0);
+
+        AssertRebound(session, agent, result, Aggressive);
+    }
+
+    [Test]
     public void Set_personality_while_replay_viewer_attached_does_not_mutate()
     {
         var (session, friendly, agent, commands) = AssignPreset();
