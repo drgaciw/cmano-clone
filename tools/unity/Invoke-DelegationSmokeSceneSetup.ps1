@@ -1,7 +1,7 @@
 # Builds DelegationSmoke.unity via Unity batchmode (PLAYMODE-SMOKE.md stack).
 param(
     [string]$ScenarioPolicyId = "baltic-patrol-comms",
-    [string]$UnityVersion = "6000.3.22f1"
+    [string]$UnityVersion = "6000.3.27f2"
 )
 
 $ErrorActionPreference = "Stop"
