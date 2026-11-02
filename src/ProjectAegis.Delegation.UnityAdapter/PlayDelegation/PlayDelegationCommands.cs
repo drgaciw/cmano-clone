@@ -2,21 +2,40 @@ namespace ProjectAegis.Delegation.UnityAdapter.PlayDelegation;
 
 using Controllers;
 using Core;
+using Decision;
 using Orchestration;
 using Traits;
 using PlayEntry;
+using ProjectAegis.Sim.Scenario;
 
 /// <summary>
-/// Headless play-delegation command façade (S124-05 W2-DEL-04 Assign Agent, S124-06 W2-DEL-02 Rebrief Agent).
-/// Validates against the <see cref="PlayEntrySession"/> commanded targets, then routes authority through
-/// <see cref="DelegationOrchestrator.TryAssignAgentController"/> / <see cref="DelegationOrchestrator.TryRebriefAgent"/>,
-/// which own the order-log writes (ADR-010 §2–3, ADR-001). <c>DelegationBridge.Orchestrator</c> is the
-/// existing headless command seam (same shape as the replay harness); these calls do not enter
+/// Headless play-delegation command façade (S124-05 W2-DEL-04 Assign Agent, S124-06 W2-DEL-02 Rebrief Agent,
+/// DRG-250 personality and autonomy edit). Validates against the <see cref="PlayEntrySession"/> commanded
+/// targets, then routes authority through <see cref="DelegationOrchestrator"/> (ADR-010 §2–3, ADR-001).
+/// <c>DelegationBridge.Orchestrator</c> is the existing headless command seam; these calls do not enter
 /// <c>DelegationBridge.Tick</c>. Map presentation stays read-only (ADR-007). Failed commands never mutate
 /// controllers or the log.
 /// </summary>
 public sealed class PlayDelegationCommands
 {
+    /// <summary>Result code when <see cref="LoopPolicyGate"/> denies a personality edit.</summary>
+    public const string PersonalityDenied = "PERSONALITY_DENIED";
+
+    /// <summary>Result code when <see cref="LoopPolicyGate"/> denies an autonomy edit.</summary>
+    public const string AutonomyDenied = "AUTONOMY_DENIED";
+
+    /// <summary><see cref="PolicyUpdateRecord.Field"/> written when a personality preset rebind succeeds.</summary>
+    public const string PersonalityRebindField = "personality.rebind";
+
+    /// <summary><see cref="PolicyUpdateRecord.Field"/> written when an autonomy tier rebind succeeds.</summary>
+    public const string AutonomyRebindField = "autonomy";
+
+    /// <summary>Same denial <see cref="DelegationOrchestrator.TryRebriefAgent"/> returns while a replay viewer is attached.</summary>
+    public const string ReplayViewerPersonalityReason = "Replay viewer attached; rebrief is disabled.";
+
+    /// <summary>Autonomy edits are refused while a replay viewer is attached.</summary>
+    public const string ReplayViewerAutonomyReason = "Replay viewer attached; autonomy edit is disabled.";
+
     private readonly PlayEntrySession _session;
 
     public PlayDelegationCommands(PlayEntrySession session) =>
@@ -38,6 +57,65 @@ public sealed class PlayDelegationCommands
 
         return null;
     }
+
+    /// <summary>Whether a personality, autonomy, or rebrief edit is enabled, plus the gate message when it is not.</summary>
+    public readonly record struct EditAvailability(bool Enabled, string? DeniedReason)
+    {
+        public static EditAvailability Allow() => new(true, null);
+
+        public static EditAvailability Deny(string reason) => new(false, reason);
+    }
+
+    /// <summary>
+    /// Hot personality edit. <see cref="LoopPolicyGate.CanEditPersonality"/> is authoritative.
+    /// Under <see cref="PersonalityEditPolicy.TieredRebrief"/> at Semi-Autonomous or higher the gate denies;
+    /// a paused sim clock unlocks that denial when <see cref="LoopPolicyGate.CanRebriefAgent"/> also allows.
+    /// <see cref="PersonalityEditPolicy.PlanningOnly"/> stays locked after Begin Execution, including while paused.
+    /// The separate Rebrief Agent command is the other sanctioned path and is not implied here.
+    /// </summary>
+    public static EditAvailability PersonalityEditAvailability(
+        ScenarioPolicyProfile? policy,
+        SimulationPhase phase,
+        AutonomyLevel autonomy,
+        bool simPaused)
+    {
+        var personality = LoopPolicyGate.CanEditPersonality(policy, phase, autonomy);
+        var rebrief = LoopPolicyGate.CanRebriefAgent(policy, phase);
+        if (personality.Allowed)
+        {
+            return EditAvailability.Allow();
+        }
+
+        var pauseUnlocksTier = simPaused
+            && policy?.PersonalityEditPolicy == PersonalityEditPolicy.TieredRebrief
+            && autonomy >= AutonomyLevel.SemiAutonomous
+            && rebrief.Allowed;
+        return pauseUnlocksTier
+            ? EditAvailability.Allow()
+            : EditAvailability.Deny(personality.DenialReason ?? rebrief.DenialReason ?? "Personality edit denied.");
+    }
+
+    /// <summary>Autonomy tier edit. <see cref="LoopPolicyGate.CanEditAutonomy"/> is authoritative.</summary>
+    public static EditAvailability AutonomyEditAvailability(ScenarioPolicyProfile? policy, SimulationPhase phase)
+    {
+        var verdict = LoopPolicyGate.CanEditAutonomy(policy, phase);
+        return verdict.Allowed
+            ? EditAvailability.Allow()
+            : EditAvailability.Deny(verdict.DenialReason ?? "Autonomy edit denied.");
+    }
+
+    /// <summary>Rebrief Agent action. <see cref="LoopPolicyGate.CanRebriefAgent"/> is authoritative.</summary>
+    public static EditAvailability RebriefAvailability(ScenarioPolicyProfile? policy, SimulationPhase phase)
+    {
+        var verdict = LoopPolicyGate.CanRebriefAgent(policy, phase);
+        return verdict.Allowed
+            ? EditAvailability.Allow()
+            : EditAvailability.Deny(verdict.DenialReason ?? "Rebrief denied.");
+    }
+
+    /// <summary>Denial text when the commanded target has no active agent controller.</summary>
+    public static string NoAgentReason(string targetId) =>
+        $"{targetId} has no active agent controller to rebrief.";
 
     /// <summary>
     /// Assign a new agent controller with <paramref name="presetName"/> at <paramref name="autonomy"/> to a
@@ -110,6 +188,141 @@ public sealed class PlayDelegationCommands
             : PlayEntryResult.Fail(
                 PlayDelegationErrorCodes.RebriefDenied,
                 $"Rebrief denied for {agent.Id.Value}: {verdict.DenialReason}");
+    }
+
+    /// <summary>
+    /// Set the selected unit's agent to <paramref name="presetName"/>. Checks
+    /// <see cref="LoopPolicyGate.CanEditPersonality"/> and <see cref="LoopPolicyGate.CanRebriefAgent"/>
+    /// and returns the gate denial message. planningOnly after Begin Execution denies. tieredRebrief at
+    /// Semi-Autonomous or higher denies unless the sim clock is paused (Rebrief Agent stays a separate command).
+    /// A successful edit rebinds the preset through the orchestrator and appends <see cref="PersonalityRebindField"/>.
+    /// </summary>
+    public PlayEntryResult TrySetPersonality(TargetId targetId, string presetName, double simTime)
+    {
+        var resolved = ResolveAgent(targetId);
+        if (resolved.Agent == null)
+        {
+            return resolved.Failure ?? PlayEntryResult.Fail(PersonalityDenied, "Personality edit denied.");
+        }
+
+        var agent = resolved.Agent;
+
+        var preset = FindPreset(presetName);
+        if (preset == null)
+        {
+            return UnknownPreset(presetName);
+        }
+
+        var orchestrator = _session.Bridge!.Orchestrator;
+        var availability = PersonalityEditAvailability(
+            orchestrator.ScenarioPolicy,
+            orchestrator.Phase,
+            agent.Autonomy,
+            IsSimPaused());
+        if (!availability.Enabled)
+        {
+            return PlayEntryResult.Fail(PersonalityDenied, availability.DeniedReason ?? "Personality edit denied.");
+        }
+
+        if (orchestrator.AttachReplayViewer)
+        {
+            return PlayEntryResult.Fail(PersonalityDenied, ReplayViewerPersonalityReason);
+        }
+
+        var previous = agent.PersonalitySlug ?? "custom";
+        var applied = orchestrator.TryRebriefAgent(agent, preset, simTime);
+        if (!applied.Allowed)
+        {
+            return PlayEntryResult.Fail(PersonalityDenied, applied.DenialReason ?? "Personality edit denied.");
+        }
+
+        LogRebind(orchestrator, agent, simTime, PersonalityRebindField, previous, preset.Name);
+        return PlayEntryResult.Ok($"Agent {agent.Id.Value} personality rebound {previous} → {preset.Name}.");
+    }
+
+    /// <summary>
+    /// Set the selected unit's autonomy tier. Checks <see cref="LoopPolicyGate.CanEditAutonomy"/> and returns
+    /// the gate denial message. There is no orchestrator autonomy writer; the façade sets
+    /// <see cref="AgentController.Autonomy"/> and appends <see cref="AutonomyRebindField"/> on change.
+    /// </summary>
+    public PlayEntryResult TrySetAutonomy(TargetId targetId, AutonomyLevel autonomy, double simTime)
+    {
+        var resolved = ResolveAgent(targetId);
+        if (resolved.Agent == null)
+        {
+            return resolved.Failure ?? PlayEntryResult.Fail(AutonomyDenied, "Autonomy edit denied.");
+        }
+
+        var agent = resolved.Agent;
+
+        var orchestrator = _session.Bridge!.Orchestrator;
+        var availability = AutonomyEditAvailability(orchestrator.ScenarioPolicy, orchestrator.Phase);
+        if (!availability.Enabled)
+        {
+            return PlayEntryResult.Fail(AutonomyDenied, availability.DeniedReason ?? "Autonomy edit denied.");
+        }
+
+        if (orchestrator.AttachReplayViewer)
+        {
+            return PlayEntryResult.Fail(AutonomyDenied, ReplayViewerAutonomyReason);
+        }
+
+        if (agent.Autonomy == autonomy)
+        {
+            return PlayEntryResult.Ok($"Agent {agent.Id.Value} autonomy already {autonomy}.");
+        }
+
+        var previous = agent.Autonomy;
+        agent.Autonomy = autonomy;
+        LogRebind(orchestrator, agent, simTime, AutonomyRebindField, previous.ToString(), autonomy.ToString());
+        return PlayEntryResult.Ok($"Agent {agent.Id.Value} autonomy rebound {previous} → {autonomy}.");
+    }
+
+    private readonly record struct AgentResolution(AgentController? Agent, PlayEntryResult? Failure);
+
+    private AgentResolution ResolveAgent(TargetId targetId)
+    {
+        var blocked = RequireExecuting();
+        if (blocked != null)
+        {
+            return new AgentResolution(null, blocked);
+        }
+
+        var commanded = FindCommanded(targetId);
+        if (commanded == null)
+        {
+            return new AgentResolution(null, NotCommanded(targetId));
+        }
+
+        if (commanded.Target.Slot.Active is not AgentController active)
+        {
+            return new AgentResolution(
+                null,
+                PlayEntryResult.Fail(PlayDelegationErrorCodes.NoAgent, NoAgentReason(targetId.Value)));
+        }
+
+        return new AgentResolution(active, null);
+    }
+
+    private bool IsSimPaused() => _session.Bridge?.Session?.IsSimPaused == true;
+
+    private static void LogRebind(
+        DelegationOrchestrator orchestrator,
+        AgentController agent,
+        double simTime,
+        string field,
+        string previous,
+        string next)
+    {
+        var simTick = (ulong)Math.Max(0, (long)simTime);
+        orchestrator.DecisionLog.AppendPolicyUpdate(new PolicyUpdateRecord(
+            0,
+            simTime,
+            simTick,
+            agent.PolicySnapshotId,
+            field,
+            previous,
+            next));
     }
 
     private PlayEntryResult? RequireExecuting()
