@@ -243,6 +243,7 @@ public sealed class SimulationSession
 
     private void RunExecutingTick(ObservedState state, bool headlessOverride)
     {
+        RecordObservedFireControl(in state);
         Orchestrator.Tick(state);
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
 
@@ -677,11 +678,29 @@ public sealed class SimulationSession
 
     public Func<string, ulong, bool>? IsContactSpoofed { get; set; }
 
+    private readonly Dictionary<string, bool> _observedFireControlByTarget = new(StringComparer.Ordinal);
+    private bool _hasObservedFireControl;
+    private bool _lastObservedFireControlTrack = true;
+
+    private void RecordObservedFireControl(in ObservedState state)
+    {
+        _hasObservedFireControl = true;
+        _lastObservedFireControlTrack = state.HasFireControlTrack;
+        if (state.PrimaryHostileContactId is { } primary && !string.IsNullOrEmpty(primary.Value))
+        {
+            _observedFireControlByTarget[primary.Value] = state.HasFireControlTrack;
+        }
+        else if (!state.HasFireControlTrack)
+        {
+            _observedFireControlByTarget.Clear();
+        }
+    }
+
     /// <summary>
     /// DRG-414: read-only fire-control fact for a contact already on the authoritative log.
-    /// A primed engage-world context for this shooter and target supplies the flag copied
-    /// when an engagement was primed. Otherwise the bound <see cref="DefaultEngageContext"/>
-    /// flag applies. This method does not mutate session state and does not read fixture lists.
+    /// Reflects the latest observed fire-control state from session ticks as well as any primed
+    /// engage-world context or bound <see cref="DefaultEngageContext"/> flag. This method does
+    /// not mutate session state and does not read fixture lists.
     /// </summary>
     public bool HasFireControlTrack(string contactId, string targetId, string shooterUnitId)
     {
@@ -691,6 +710,14 @@ public sealed class SimulationSession
         }
 
         if (!DecisionLogContainsContact(contactId, targetId))
+        {
+            return false;
+        }
+
+        var observedTrack = _observedFireControlByTarget.TryGetValue(targetId, out var targetObserved)
+            ? targetObserved
+            : (!_hasObservedFireControl || _lastObservedFireControlTrack);
+        if (!observedTrack)
         {
             return false;
         }

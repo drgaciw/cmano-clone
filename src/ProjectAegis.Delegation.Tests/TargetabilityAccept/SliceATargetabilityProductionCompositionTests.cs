@@ -12,6 +12,7 @@ using ProjectAegis.Delegation.Targets;
 using ProjectAegis.Delegation.Traits;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Policy;
+using ProjectAegis.Sim.Scenario;
 using NUnit.Framework;
 
 namespace ProjectAegis.Delegation.Tests.TargetabilityAccept;
@@ -140,6 +141,53 @@ public sealed class SliceATargetabilityProductionCompositionTests
 
         Assert.That(log.ContactChanges, Has.Count.EqualTo(3));
         Assert.That(log.Engagements, Is.Not.Empty);
+    }
+
+    [Test]
+    public void HasFireControlTrack_respects_observed_tick_loss_for_human_and_primed_contexts()
+    {
+        var profile = ScenarioPolicyRepository.TryGet("baltic-patrol")!;
+        var orchestrator = new DelegationOrchestrator(42) { ScenarioPolicy = profile };
+        var session = SimulationSession.BindMvpEngagementForScenario(
+            orchestrator,
+            "baltic-patrol",
+            Data.Catalog.InMemoryCatalogReader.BalticPatrolFixture());
+        var shooterId = new TargetId("friendly-1");
+        var hostileId = new TargetId("hostile-1");
+        var shooter = new UnitTarget(shooterId);
+        SeedOneRound(session, shooter);
+        session.BeginExecution();
+        orchestrator.DecisionLog.AppendContactChange(
+            new ContactChangeRecord(0, 1.0, 1, "obs-1", "contact-1", hostileId.Value, "Detected", "Hostile"));
+        var alive = new Dictionary<TargetId, bool> { [shooterId] = true };
+
+        Assert.That(
+            session.Tick(new ObservedState(1, 1, 0, alive, HasFireControlTrack: false, PrimaryHostileContactId: hostileId)),
+            Is.True);
+        Assert.That(
+            session.HasFireControlTrack("contact-1", hostileId.Value, shooterId.Value),
+            Is.False,
+            "Human non-engaging tick with HasFireControlTrack=false must not fall back to scenario template true.");
+
+        session.EngageWorld!.Set(
+            new EngageRequest(
+                OrderActionMapper.TargetIdToUlong(shooterId),
+                OrderActionMapper.TargetIdToUlong(hostileId),
+                MountId: 0,
+                SimTick: 1),
+            session.DefaultEngageContext!.Value with { HasFireControlTrack = true });
+        Assert.That(
+            session.Tick(new ObservedState(2, 1, 0, alive, HasFireControlTrack: true, PrimaryHostileContactId: hostileId)),
+            Is.True);
+        Assert.That(session.HasFireControlTrack("contact-1", hostileId.Value, shooterId.Value), Is.True);
+
+        Assert.That(
+            session.Tick(new ObservedState(3, 1, 0, alive, HasFireControlTrack: false, PrimaryHostileContactId: hostileId)),
+            Is.True);
+        Assert.That(
+            session.HasFireControlTrack("contact-1", hostileId.Value, shooterId.Value),
+            Is.False,
+            "Subsequent non-engaging tick losing fire-control track must override earlier primed context.");
     }
 
     private static void SeedOneRound(SimulationSession session, UnitTarget shooter)
