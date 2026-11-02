@@ -77,8 +77,10 @@ public static class CatalogJsonImporter
             cmd.CommandText =
                 """
                 INSERT OR REPLACE INTO sensor (platform_id, sensor_id, base_pd, source_fact_id, confidence,
-                    import_batch_id, source_file, review_state, trl_level)
-                VALUES ($platform, $sensor, $basePd, $source, $confidence, $batch, $file, $review, $trl)
+                    import_batch_id, source_file, review_state, trl_level,
+                    radar_scan_type, frequency_agile, radar_tech_generation)
+                VALUES ($platform, $sensor, $basePd, $source, $confidence, $batch, $file, $review, $trl,
+                    $scanType, $agile, $techGen)
                 """;
             cmd.Parameters.AddWithValue("$platform", sensor.PlatformId);
             cmd.Parameters.AddWithValue("$sensor", sensor.SensorId);
@@ -89,6 +91,9 @@ public static class CatalogJsonImporter
             cmd.Parameters.AddWithValue("$file", sensor.SourceFile);
             cmd.Parameters.AddWithValue("$review", sensor.ReviewState);
             cmd.Parameters.AddWithValue("$trl", sensor.TrlLevel);
+            cmd.Parameters.AddWithValue("$scanType", sensor.RadarScanType);
+            cmd.Parameters.AddWithValue("$agile", sensor.FrequencyAgile ? 1 : 0);
+            cmd.Parameters.AddWithValue("$techGen", sensor.RadarTechGeneration);
             cmd.ExecuteNonQuery();
         }
 
