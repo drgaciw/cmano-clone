@@ -34,11 +34,11 @@ Once approved, the quote is presented to the buyer under a strict validity clock
 * **Automated Expiration & TTL Enforcement:** Automatically transitioning presented quotes to `QUOTE_EXPIRED` when `evaluationTimeUtc > QuoteExpirationUtc`, blocking buyer e-signature acceptance or ERP order conversion on expired quotes.
 * **Expired Quote Extension Revalidation Gate:** Allowing Deal Desk to grant a bounded TTL extension (e.g., $+15\text{ days}$) on an expired quote **only** if a deterministic revalidation check confirms that: (a) no included SKU has transitioned to `END_OF_SALE` in the current production catalog, and (b) the quote's pinned `CatalogSnapshotSha256` has not been revoked for compliance/floor-price updates. Otherwise, the rep must clone a new revision (`vN+1`) evaluated against the current active price book.
 
-### 5. Atomic Acceptance, Sibling Option Supersession, CLM Handover & Velocity Telemetry
-The quote lifecycle concludes when the customer accepts a valid presented quote and the deal transitions into contract execution and fulfillment.
-* **Buyer Acceptance & PO Verification:** Recording customer acceptance (via e-signature or verified Purchase Order `PO` attachment matching the exact `QuoteCanonicalFingerprintSha256` and `TotalContractValue`).
-* **Atomic Primary Promotion & Sibling Option Supersession:** Transitioning the accepted quote revision to `QUOTE_ACCEPTED` $\rightarrow$ `ORDER_CONVERTED`, promoting it to `IsPrimary = true` if it was a secondary option quote, and atomically transitioning all sibling option quotes and prior revisions on the same CRM Opportunity to `SUPERSEDED_ARCHIVED`.
-* **Idempotent Handover to CLM & Quote Velocity Analytics:** Emitting an idempotent `QuoteConvertedToOrderEvent` to [Contract Lifecycle Management (CLM)](contract-lifecycle-management-cpq.md) and ERP/EMS, while recording structured telemetry (`TimeToFirstQuoteSeconds`, `TotalRevisionsToClose`, `ApprovalTurnaroundSeconds`, `DiscountDriftV1ToFinalPct`, and `OptionQuoteWinRate`).
+### 5. Atomic Acceptance, Sibling Option Supersession, CLM Handover & Order Conversion
+The quote lifecycle concludes when the customer accepts a valid presented quote, triggering CLM contract assembly/execution, and converts to an order once the contract is executed.
+* **Buyer Proposal Acceptance & Sibling Option Supersession:** When the customer accepts a presented quote option within its validity TTL, QLM transitions that quote revision to `QUOTE_ACCEPTED`, promotes it to `IsPrimary = true` if it was a secondary option quote (updating CRM Opportunity forecasted TCV), and atomically transitions all competing sibling option quotes and prior revisions on the Opportunity to `SUPERSEDED_ARCHIVED`.
+* **Idempotent Handover to CLM Contract Intake:** Upon `QUOTE_ACCEPTED`, QLM emits an idempotent `QuoteAcceptedForClmIntakeEvent` to [Contract Lifecycle Management (CLM)](contract-lifecycle-management-cpq.md) (`CONTRACT_INTAKE`). If subsequent CLM negotiation alters commercial terms (`QUOTE_REPRICE_REQUIRED`), QLM clones a new revision (`vN+1`) for re-approval.
+* **Post-Signature Order Conversion & Velocity Analytics:** Once CLM cryptographic contract execution completes (`EXECUTED_ACTIVE` via `ContractExecutedEvent`) and Trade Compliance is cleared, QLM transitions the quote from `QUOTE_ACCEPTED` to `ORDER_CONVERTED` (allowing [SPM](sales-pipeline-management-cpq.md) to close-win the Opportunity), while recording structured telemetry (`TimeToFirstQuoteSeconds`, `TotalRevisionsToClose`, `ApprovalTurnaroundSeconds`, `DiscountDriftV1ToFinalPct`, and `OptionQuoteWinRate`).
 
 ---
 
@@ -66,8 +66,9 @@ stateDiagram-v2
     QUOTE_PRESENTED --> QUOTE_EXPIRED : EvaluationTimeUtc > QuoteExpirationUtc
     QUOTE_EXPIRED --> QUOTE_PRESENTED : Deal Desk TTL extension approved (SKUs Active & Snapshot valid)
     QUOTE_EXPIRED --> SUPERSEDED_BY_REVISION : Extension blocked (SKU EndOfSale or PriceBook expired) -> Clone vN+1
-    QUOTE_PRESENTED --> QUOTE_ACCEPTED : Buyer accepts proposal / attaches matching PO within TTL
-    QUOTE_ACCEPTED --> ORDER_CONVERTED : Atomic handover to CLM/ERP (Sibling options -> SUPERSEDED_ARCHIVED)
+    QUOTE_PRESENTED --> QUOTE_ACCEPTED : Buyer accepts proposal within TTL (Siblings -> SUPERSEDED_ARCHIVED; CLM Intake starts)
+    QUOTE_ACCEPTED --> SUPERSEDED_BY_REVISION : CLM redline triggers QUOTE_REPRICE_REQUIRED -> Clone vN+1
+    QUOTE_ACCEPTED --> ORDER_CONVERTED : CLM ContractExecutedEvent + Trade Compliance CLEARED -> Handover to ERP/EMS
     SUPERSEDED_BY_REVISION --> [*]
     ORDER_CONVERTED --> [*]
 ```
@@ -81,7 +82,7 @@ Every QLM service and domain evaluator must satisfy these seven deterministic in
 3. **Multi-Year Ramp Schedule & TCV/Exit-ARR Conservation Invariant (`INV-QLM-RAMP-01`):** For any multi-year ramped quote with ordered segments $S_1, S_2, \dots, S_k$, the segments must form a contiguous, non-overlapping time partition from `StartDateUtc` to `EndDateUtc` ($\text{End}(S_i) == \text{Start}(S_{i+1})$), use 128-bit `decimal` arithmetic with `MidpointRounding.ToEven`, satisfy $\text{TCV} == \sum_{i=1}^{k} S_i.\text{SegmentNetTotal}$, and satisfy $\text{ExitArr} == S_k.\text{AnnualizedRecurringRunRate}$.
 4. **Quote Validity TTL Expiration & Extension Revalidation Invariant (`INV-QLM-TTL-01`):** A presented quote cannot transition to `QUOTE_ACCEPTED` if `evaluationUnixSecondsUtc > quote.QuoteExpirationUnixSecondsUtc` (returning `ERR_QLM_QUOTE_EXPIRED`). Furthermore, `QlmTtlExtensionGate.TryExtend(...)` must reject an extension request with `ERR_QLM_EXTENSION_REPRICE_REQUIRED` if any line item's SKU is currently `EndOfSale` in the active production catalog or if the requested extension exceeds the maximum policy cap (`MaxExtensionDays = 30`).
 5. **Channel Partner Deal-Registration Margin Stack & Floor Invariant (`INV-QLM-CHAN-01`):** On indirect channel quotes (`VAR_DEAL_REGISTRATION` or `DISTRIBUTOR_TWO_TIER`), the partner discount must be applied after customer tier/promotional/discretionary discounts using 128-bit `decimal` math: $\text{VendorNetWholesaleUnitPrice} = \text{RoundEven}(\text{CustomerNetUnitPrice} \times (1 - \text{PartnerMarginPct}), 2)$, and must satisfy $\text{VendorNetWholesaleUnitPrice} \ge \text{Sku.WholesaleFloorPrice}$ unless an explicit `CFO_CHANNEL_FLOOR_OVERRIDE` token is present.
-6. **Atomic Acceptance, Sibling Supersession & Idempotent CLM Handover Invariant (`INV-QLM-CONV-01`):** Transitioning a quote revision `Q_win` to `ORDER_CONVERTED` must atomically: (a) set `Q_win.IsPrimary = true`, (b) transition every other open/presented quote option and prior revision under the same `CrmOpportunityId` to `SUPERSEDED_ARCHIVED`, and (c) emit an idempotent `QuoteConvertedToOrderEvent` keyed by `(CrmOpportunityId, Q_win.QuoteCanonicalFingerprintSha256)` so duplicate webhook dispatches never create duplicate CLM contracts or ERP orders.
+6. **Atomic Acceptance, Sibling Supersession & CLM Execution Gate Invariant (`INV-QLM-CONV-01`):** Transitioning a quote revision `Q_win` to `QUOTE_ACCEPTED` must atomically: (a) set `Q_win.IsPrimary = true`, (b) transition every other open/presented option quote and prior revision under the same `CrmOpportunityId` to `SUPERSEDED_ARCHIVED`, and (c) emit an idempotent `QuoteAcceptedForClmIntakeEvent` keyed by `(CrmOpportunityId, Q_win.QuoteCanonicalFingerprintSha256)`. Subsequent transition from `QUOTE_ACCEPTED` to `ORDER_CONVERTED` is gated on receiving a verified `ContractExecutedEvent` (`CLM.State == EXECUTED_ACTIVE`) matching `Q_win.QuoteCanonicalFingerprintSha256`.
 7. **Optimistic Concurrency & Deterministic Revision Fingerprint Invariant (`INV-QLM-LOCK-01`):** Every draft update must supply the expected `RowVersion` (`uint64`); a stale `RowVersion` must fail immediately with `ERR_QLM_CONCURRENCY_CONFLICT`. Given identical `(CatalogSnapshotSha256, OpportunityId, RevisionNumber,ParentFingerprintSha256, RampSegments, ChannelConfig)`, the engine must compute a bit-for-bit identical `QuoteCanonicalFingerprintSha256`.
 
 ### 3. Project Aegis C# Domain Contracts & Test Naming Conventions
@@ -261,23 +262,25 @@ Feature: Quote Proposal Expiration TTL Enforcement and Catalog Revalidation on E
     And require cloning Revision "Q-2026-920-v2" with replacement SKU "AEGIS-BALTIC-V3-PACK"
 ```
 
-### UAT-QLM-06: Atomic Primary Quote Acceptance, Sibling Option Supersession & CLM Handover (Phase 5)
+### UAT-QLM-06: Atomic Primary Quote Acceptance, Sibling Option Supersession, CLM Handover & Order Conversion (Phase 5)
 ```gherkin
-Feature: Atomic Quote Acceptance, Sibling Option Supersession, and Handover to CLM
+Feature: Atomic Quote Acceptance, Sibling Option Supersession, CLM Handover, and Post-Signature Order Conversion
   As a Deal Desk Manager and Legal Operations Lead
-  I want buyer acceptance of an option quote to automatically supersede all competing options and trigger CLM intake
-  So that only the winning quote revision converts to a contract and order
+  I want buyer acceptance of an option quote to automatically supersede all competing options, initiate CLM contract intake, and convert to an order upon CLM execution
+  So that only the winning quote revision enters contract negotiation and converts to a booked order after legal signature
 
-  Scenario: Buyer accepts secondary Option Quote B, automatically superseding Option Quote A and triggering CLM assembly
+  Scenario: Buyer accepts secondary Option Quote B, superseding Option Quote A, initiating CLM intake, and converting to an order upon CLM execution
     Given CRM Opportunity "OPP-2026-930" has two presented option quotes within their validity TTL:
       | Quote_ID        | Is_Primary | State           | TCV         | Fingerprint      |
       | Q-2026-930A-v2  | true       | QUOTE_PRESENTED | $210,000.00 | 1111aaaa2222bbbb |
       | Q-2026-930B-v1  | false      | QUOTE_PRESENTED | $145,000.00 | 3333cccc4444dddd |
-    When the buyer signs and accepts "Q-2026-930B-v1" with Purchase Order "PO-2026-930" for "$145,000.00"
-    Then "Q-2026-930B-v1" MUST atomically transition to `Is_Primary = true` and state "ORDER_CONVERTED"
+    When the buyer accepts proposal "Q-2026-930B-v1" for "$145,000.00"
+    Then "Q-2026-930B-v1" MUST atomically transition to `Is_Primary = true` and state "QUOTE_ACCEPTED"
     And competing option quote "Q-2026-930A-v2" (along with prior revision "Q-2026-930A-v1") MUST atomically transition to `Is_Primary = false` and state "SUPERSEDED_ARCHIVED"
-    And CRM Opportunity "OPP-2026-930" MUST update its closed-won TCV to exactly "$145,000.00"
-    And QLM MUST emit exactly one idempotent `QuoteConvertedToOrderEvent` (`Fingerprint: 3333cccc4444dddd`) to initialize CLM Contract Intake
+    And CRM Opportunity "OPP-2026-930" MUST update its forecasted TCV to exactly "$145,000.00" while remaining in open negotiation until contract execution
+    And QLM MUST emit an idempotent `QuoteAcceptedForClmIntakeEvent` (`Fingerprint: 3333cccc4444dddd`) to initialize CLM Contract Intake
+    When CLM subsequently completes cryptographic contract execution (`EXECUTED_ACTIVE`) and emits `ContractExecutedEvent` with Trade Compliance "CLEARED"
+    Then "Q-2026-930B-v1" MUST transition from "QUOTE_ACCEPTED" to "ORDER_CONVERTED" and allow Opportunity "OPP-2026-930" to transition to "CLOSED_WON"
 ```
 
 ---
