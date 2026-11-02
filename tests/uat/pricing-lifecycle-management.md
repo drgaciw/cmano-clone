@@ -31,7 +31,7 @@ Before a new pricing strategy or packaging tier goes live, commercial systems an
 Once active in production, pricing is governed as a closed-loop feedback system rather than a static artifact.
 * **Margin & Revenue Integrity Audits:** Continuously monitoring portfolio KPIs including **Gross Margin Retention**, **Price Realization Rate (Pocket Price vs. List Price)**, **Average Discount Depth**, **Net Revenue Retention (NRR)**, and **LTV-to-CAC** ratios.
 * **Price Waterfall Leakage Detection:** Auditing Deal Desk override logs, unapproved payment-term extensions, and promotional stacking to pinpoint where list price leaks into lower pocket margin.
-* **Win/Loss & Realized Elasticity Analysis:** Correlating win/loss reasons and deal cycle velocity against realized discount bands to compute empirical price elasticity of demand ($\epsilon_d = \frac{\%\Delta Q}{\%\Delta P}$) and detect packaging friction.
+* **Win/Loss & Realized Elasticity Analysis:** Correlating win/loss reasons and deal cycle velocity (fed automatically from **[Sales Pipeline Management (SPM)](sales-pipeline-management-cpq.md)** `PipelineLossElasticityEvent` telemetry) against realized discount bands to compute empirical price elasticity of demand ($\epsilon_d = \frac{\%\Delta Q}{\%\Delta P}$) and detect packaging friction.
 
 ### 5. Price Adjustments, Cohort Migration & Legacy Deprecation
 As product value expands or macro costs shift, legacy pricing structures are systematically uplifted, migrated, or retired without triggering unplanned customer churn.
