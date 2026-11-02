@@ -52,17 +52,12 @@ stateDiagram-v2
     QUOTE_DRAFT --> CONFIG_INVALID : Hard-stop SKU exclusion or missing dependency
     CONFIG_INVALID --> QUOTE_DRAFT : Auto-remediation or SKU adjustment applied
     QUOTE_DRAFT --> CONFIG_VALID : DAG constraints, OS/Arch matrix & sizing passed
-    CONFIG_VALID --> PRICED_AUTO_APPROVED : Waterfall calculated & discount <= 15% (Floor OK)
-    CONFIG_VALID --> APPROVAL_PENDING_VP : Discount > 15% and <= 30%
-    CONFIG_VALID --> APPROVAL_PENDING_CFO : Discount > 30%, margin floor breach, or custom terms
-    CONFIG_VALID --> APPROVAL_PENDING_COMPLIANCE : ECCN 5D002 / ITAR SKU or restricted region
-    APPROVAL_PENDING_VP --> QUOTE_REJECTED : VP rejects discount
-    APPROVAL_PENDING_CFO --> QUOTE_REJECTED : CFO / Deal Desk rejects terms
-    APPROVAL_PENDING_COMPLIANCE --> QUOTE_REJECTED : Trade Compliance blocks entity
-    QUOTE_REJECTED --> QUOTE_DRAFT : Rep revises configuration or discount
-    APPROVAL_PENDING_VP --> QUOTE_APPROVED : VP sign-off recorded
-    APPROVAL_PENDING_CFO --> QUOTE_APPROVED : CFO + Deal Desk sign-off recorded
-    APPROVAL_PENDING_COMPLIANCE --> QUOTE_APPROVED : Export Officer clearance recorded
+    CONFIG_VALID --> PRICED_AUTO_APPROVED : Waterfall calculated, discount <= 15% (Floor OK) & COMMERCIAL export
+    CONFIG_VALID --> APPROVAL_PENDING : Requires >= 1 gate (VP / Deal Desk + CFO / Trade Compliance)
+    APPROVAL_PENDING --> APPROVAL_PENDING : Partial sign-off recorded (PendingApprovals remaining > 0)
+    APPROVAL_PENDING --> QUOTE_REJECTED : Any required approver (VP, CFO, or Trade Compliance) rejects
+    QUOTE_REJECTED --> QUOTE_DRAFT : Rep revises configuration, terms, or discount
+    APPROVAL_PENDING --> QUOTE_APPROVED : All required approvals in RequiredApprovals signed off (PendingApprovals == 0)
     PRICED_AUTO_APPROVED --> QUOTE_APPROVED : Instant policy approval
     QUOTE_APPROVED --> QUOTE_PRESENTED : Immutable PDF + cryptographic Quote Hash issued
     QUOTE_PRESENTED --> ORDER_CONVERTED : Customer e-signs MLA/PO -> Handover to ERP/EMS
@@ -76,7 +71,7 @@ Every CPQ domain component must enforce these deterministic invariants in unit a
 1. **DAG Acyclicity & Closure Invariant (`INV-CPQ-DAG-01`):** A catalog snapshot cannot be approved through the write-gate if its `REQUIRES` / `EXCLUDES` graph contains a directed cycle ($A \rightarrow B \rightarrow A$) or a contradictory constraint ($A \text{ REQUIRES } B$ and $A \text{ EXCLUDES } B$).
 2. **Hard-Stop Constraint Completeness Invariant (`INV-CPQ-CFG-01`):** A quote cannot transition from `QUOTE_DRAFT` to `CONFIG_VALID` if any active SKU violates an OS/architecture compatibility rule, misses a required parent/companion SKU, or violates deployment isolation constraints (e.g., `AIR_GAPPED` quote must include `SKU-OFFLINE-ACT-BUNDLE` and exclude cloud-only SKUs).
 3. **Deterministic Pricing Waterfall & Currency Invariant (`INV-CPQ-PRC-01`):** All monetary calculations must use 128-bit `decimal` arithmetic (never `float` or `double`), apply discounts in strict canonical sequence (`List` $\rightarrow$ `Tier` $\rightarrow$ `Promo` $\rightarrow$ `Discretionary`), round only at defined ledger boundaries using `MidpointRounding.ToEven`, and enforce `net_unit_price >= sku.floor_price` unless an explicit `CFO_FLOOR_OVERRIDE` token is attached.
-4. **Monotonic Approval Routing Invariant (`INV-CPQ-APR-01`):** The required approval level is a pure, deterministic function of `(max_line_discount_pct, total_blended_discount_pct, margin_pct, export_classification, payment_terms_days)`. Lowering a price or extending net payment terms (e.g., `Net 30` $\rightarrow$ `Net 90`) must never reduce the required approval authority tier.
+4. **Monotonic & Cumulative Approval Routing Invariant (`INV-CPQ-APR-01`):** The required approval set `RequiredApprovals` is a pure, deterministic, cumulative function of `(max_line_discount_pct, total_blended_discount_pct, margin_pct, export_classification, payment_terms_days)`. Lowering a price, extending net payment terms (e.g., `Net 30` $\rightarrow$ `Net 90`), or adding an export-controlled SKU must only add to (never remove from) `RequiredApprovals`, and transitioning from `APPROVAL_PENDING` to `QUOTE_APPROVED` requires **every** gate in `RequiredApprovals` to be satisfied (`PendingApprovals.Count == 0`).
 5. **Catalog Snapshot Immutability & Pinning Invariant (`INV-CPQ-SNAP-01`):** Every quote binds to an immutable `catalog_snapshot_sha256` and `pricebook_version` at creation. Publishing a new catalog version (`v2026.11`) via the write-gate must never mutate prices or invalidate configurations of quotes already in `QUOTE_APPROVED` or `QUOTE_PRESENTED` states.
 6. **ASC 606 SSP Penny-Exact Allocation Invariant (`INV-CPQ-REV-01`):** When a bundled quote is discounted, the discount must be allocated across performance obligations (`PERPETUAL_LICENSE`, `MAINTENANCE_SUPPORT`, `PRO_SERVICES`) proportional to their Standalone Selling Prices (SSP), with any $0.01 rounding remainder deterministically assigned to the highest-SSP line item so $\sum \text{allocated\_net\_amounts} == \text{quote\_total\_net\_amount}$.
 7. **Golden Quote Fingerprint Invariant (`INV-CPQ-HASH-01`):** Given the same `(CatalogSnapshotHash, QuoteInputRequest)`, the engine must emit a bit-for-bit identical `QuoteCanonicalFingerprint` (SHA-256 hex over culture-invariant formatted line items, discounts, approvals, and SSP allocations).
@@ -174,15 +169,24 @@ Feature: Guided Selling Questionnaire, Hard-Stop Validation, and Approval Matrix
     Given a technically valid Quote "Q-2026-502" with list price "$200,000"
     When the rep applies a discretionary discount of <discount_pct>% with payment terms "<payment_terms>" and export tier "<export_tier>"
     Then the quote state MUST transition to "<expected_state>"
-    And the required approval queue MUST be "<approval_queue>"
+    And the cumulative required approval set MUST be "<approval_queue>"
 
     Examples:
-      | discount_pct | payment_terms | export_tier   | expected_state              | approval_queue                         |
-      | 10.0         | Net 30        | COMMERCIAL    | PRICED_AUTO_APPROVED        | AUTO_APPROVE                           |
-      | 22.5         | Net 30        | COMMERCIAL    | APPROVAL_PENDING_VP         | REGIONAL_VP_SALES                      |
-      | 35.0         | Net 30        | COMMERCIAL    | APPROVAL_PENDING_CFO        | DEAL_DESK + CFO                        |
-      | 10.0         | Net 90        | COMMERCIAL    | APPROVAL_PENDING_CFO        | DEAL_DESK + CFO                        |
-      | 5.0          | Net 30        | ITAR_DEFENSE  | APPROVAL_PENDING_COMPLIANCE | TRADE_COMPLIANCE_OFFICER               |
+      | discount_pct | payment_terms | export_tier   | expected_state       | approval_queue                                        |
+      | 10.0         | Net 30        | COMMERCIAL    | PRICED_AUTO_APPROVED | AUTO_APPROVE                                          |
+      | 22.5         | Net 30        | COMMERCIAL    | APPROVAL_PENDING     | REGIONAL_VP_SALES                                     |
+      | 35.0         | Net 30        | COMMERCIAL    | APPROVAL_PENDING     | DEAL_DESK + CFO                                       |
+      | 10.0         | Net 90        | COMMERCIAL    | APPROVAL_PENDING     | DEAL_DESK + CFO                                       |
+      | 5.0          | Net 30        | ITAR_DEFENSE  | APPROVAL_PENDING     | TRADE_COMPLIANCE_OFFICER                              |
+      | 22.5         | Net 30        | ITAR_DEFENSE  | APPROVAL_PENDING     | REGIONAL_VP_SALES + TRADE_COMPLIANCE_OFFICER          |
+      | 35.0         | Net 30        | ITAR_DEFENSE  | APPROVAL_PENDING     | DEAL_DESK + CFO + TRADE_COMPLIANCE_OFFICER            |
+
+  Scenario: Cumulative approval gate prevents QUOTE_APPROVED until both commercial and export compliance sign-offs complete
+    Given Quote "Q-2026-503" is in state "APPROVAL_PENDING" with cumulative required approvals "DEAL_DESK + CFO + TRADE_COMPLIANCE_OFFICER"
+    When "DEAL_DESK" and "CFO" record their commercial sign-offs
+    Then the quote state MUST remain "APPROVAL_PENDING" with remaining pending approval "TRADE_COMPLIANCE_OFFICER"
+    When "TRADE_COMPLIANCE_OFFICER" subsequently records export control clearance
+    Then "PendingApprovals" MUST be empty and the quote state MUST transition to "QUOTE_APPROVED"
 ```
 
 ### UAT-CPQ-03: Multi-Dimensional Price Book Waterfall, Floor Locks & ASC 606 Allocation (Phase 3)
