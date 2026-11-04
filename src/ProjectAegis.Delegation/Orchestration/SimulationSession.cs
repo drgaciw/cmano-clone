@@ -20,6 +20,19 @@ using ProjectAegis.Sim.Time;
 using Logistics;
 using Skills;
 
+/// <summary>
+/// DRG-417: read-only source of unit positions for the comms-grid position feed. Implementations
+/// must not mutate sim state; <see cref="SimulationSession"/> only reads from it.
+/// </summary>
+public interface IUnitPositionSource
+{
+    /// <summary>Returns true and the unit's current position when known.</summary>
+    bool TryGetPosition(string unitId, out double latitudeDeg, out double longitudeDeg);
+
+    /// <summary>Unit ids this source can report.</summary>
+    IReadOnlyCollection<string> UnitIds { get; }
+}
+
 /// <summary>Headless/interactive session: delegation tick then sim engagement phase.</summary>
 public sealed class SimulationSession
 {
@@ -246,6 +259,7 @@ public sealed class SimulationSession
         RecordObservedFireControl(in state);
         Orchestrator.Tick(state);
         var simTick = (ulong)Math.Max(0, (long)state.SimTime);
+        ReportCommsGridPositions(simTick);
 
         if (Sim.Clock.IsPaused && !headlessOverride)
         {
@@ -633,6 +647,30 @@ public sealed class SimulationSession
     {
         get => Orchestrator.CommsGrid;
         set => Orchestrator.CommsGrid = value;
+    }
+
+    /// <summary>
+    /// DRG-417: optional read-only position source. When set together with <see cref="CommsGrid"/>,
+    /// each executing tick reports positions to the registry in unit-id ordinal order. Null = no-op.
+    /// </summary>
+    public IUnitPositionSource? PositionSource { get; set; }
+
+    private void ReportCommsGridPositions(ulong simTick)
+    {
+        if (PositionSource is not { } source || CommsGrid is not { } grid)
+        {
+            return;
+        }
+
+        var ids = source.UnitIds.ToArray();
+        Array.Sort(ids, StringComparer.Ordinal);
+        foreach (var id in ids)
+        {
+            if (source.TryGetPosition(id, out var lat, out var lon))
+            {
+                grid.ReportPosition(id, simTick, lat, lon);
+            }
+        }
     }
 
     /// <inheritdoc cref="DelegationOrchestrator.EvaluateOffGrid"/>
