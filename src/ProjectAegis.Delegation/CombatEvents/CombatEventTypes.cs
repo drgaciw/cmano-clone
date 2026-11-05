@@ -48,7 +48,7 @@ public sealed record CombatEventSnapshot
 
     public CombatEventSnapshot(IReadOnlyList<CombatEvent> events)
     {
-        Events = events.ToArray();
+        Events = Array.AsReadOnly(events.ToArray());
     }
 
     public static CombatEventSnapshot Empty { get; } =
