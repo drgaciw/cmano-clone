@@ -66,6 +66,9 @@ public sealed class UiIaSelectionSyncOracleTests
         var drawer = UiIaSourceReader.ReadRuntime("C2LeftDrawerPanelHost.cs");
         Assert.That(drawer, Does.Contain("SelectContact"));
         Assert.That(drawer, Does.Contain("SelectedUnitId"));
+        Assert.That(drawer, Does.Contain("selectionType = SelectionType.Single"));
+        Assert.That(drawer, Does.Contain("selectionChanged += OnOobSelectionChanged"));
+        Assert.That(drawer, Does.Not.Contain("RegisterCallback<ClickEvent>(OnOobRowClicked)"));
         Assert.That(drawer, Does.Not.Contain("CatalogWriteGate"));
     }
 }
