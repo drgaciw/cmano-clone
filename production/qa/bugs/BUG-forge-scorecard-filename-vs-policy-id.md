@@ -5,7 +5,7 @@
 **ID**: BUG-forge-scorecard-filename-vs-policy-id
 **Severity**: S2-Major (silently blocks the entire forge promote loop; no error, just `promote=0` forever)
 **Priority**: P2
-**Status**: Open
+**Status**: Fixed — `8422a34b` (`score_candidate` keys oracle lookup on policy JSON `id`, with filename-stem fallback; `oracleLookupMissed` stderr + result field). Reverified 2026-08-20: `py -3 -m pytest tools/qa-gauntlet/test_forge_scorecard.py` → 23 passed, including `test_oracle_lookup_uses_policy_id_when_filename_differs`.
 **Reported**: 2026-07-27
 **Reporter**: QA Gauntlet run `gauntlet-20260727-1455`, Tier 2 forge `post-oracle` phase
 
@@ -13,7 +13,7 @@
 - **Category**: Tooling (QA/forge)
 - **System**: `tools/qa-gauntlet/forge_scorecard.py`
 - **Frequency**: Always, for any candidate whose filename stem differs from its policy `id`
-- **Regression**: Unknown — likely present since the scorecard was written.
+- **Regression**: Guarded — `test_oracle_lookup_uses_policy_id_when_filename_differs` in `tools/qa-gauntlet/test_forge_scorecard.py`.
 
 ## The defect
 
