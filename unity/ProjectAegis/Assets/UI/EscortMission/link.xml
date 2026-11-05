@@ -1,0 +1,6 @@
+<linker>
+  <assembly fullname="ProjectAegis.Delegation">
+    <!-- The embedded mission definition is populated through System.Text.Json reflection. -->
+    <type fullname="ProjectAegis.Delegation.Gameplay.EscortMissionDefinition" preserve="all" />
+  </assembly>
+</linker>
