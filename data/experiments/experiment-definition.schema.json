@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://projectaegis.dev/schemas/experiment-definition.schema.json",
+  "title": "Project Aegis Experiment Definition",
+  "description": "INF-6.1 / DRG-257 headless experiment definition consumed by ProjectAegis.Delegation.Demo --batch --experiment. scenarioId, seeds, and ticks drive BalticReplayHarness.Run. doctrineId, roeId, and forceRatioId are opaque strings recorded on CSV rows; the seed-grid stub does not apply them to the simulation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["scenarioId", "seeds", "ticks"],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Document version. Omit to mean version 1. Any other integer is invalid."
+    },
+    "scenarioId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Scenario policy id passed to the headless harness (for example baltic-patrol)."
+    },
+    "ticks": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Headless tick count for every grid point."
+    },
+    "seeds": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "Seed grid. Every seed is executed. Order is preserved.",
+      "items": { "type": "integer" }
+    },
+    "side": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Side the CSV score columns are tallied for. Defaults to BLUE when omitted."
+    },
+    "mvpEngagement": {
+      "type": "boolean",
+      "description": "Passed through to BalticReplayHarness.Run as mvpEngagement. Defaults to true."
+    },
+    "doctrineId": {
+      "type": "string",
+      "description": "Opaque doctrine id. Recorded on each row when doctrine is not swept."
+    },
+    "roeId": {
+      "type": "string",
+      "description": "Opaque ROE id. Recorded on each row when ROE is not swept."
+    },
+    "forceRatioId": {
+      "type": "string",
+      "description": "Opaque force-ratio id. Recorded on each row when force ratio is not swept."
+    },
+    "grid": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method"],
+      "description": "How swept axes combine. cartesian is the full product. latin-hypercube is a deterministic discrete sample whose size is the longest active axis.",
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["cartesian", "latin-hypercube"]
+        },
+        "parameters": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Axes allowed to vary. seed is always executed in full. Omit to vary every axis that has sweep values.",
+          "items": {
+            "type": "string",
+            "enum": ["seed", "doctrineId", "roeId", "forceRatioId"]
+          }
+        }
+      }
+    },
+    "sweeps": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Discrete levels for opaque swept parameters. Empty or omitted axes use the matching scalar id.",
+      "properties": {
+        "doctrineIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "roeIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "forceRatioIds": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
