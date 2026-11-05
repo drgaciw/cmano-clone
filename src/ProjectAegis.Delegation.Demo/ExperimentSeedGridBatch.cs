@@ -44,7 +44,13 @@ public static class ExperimentSeedGridBatch
                 definition.ScenarioId,
                 definition.Ticks,
                 mvpEngagement: definition.MvpEngagement);
-            var score = LossesScoringProjection.Project(result.DecisionLog, scoredSide: definition.Side);
+            // BalticReplayHarness clears BalticV3SideRegistry in finally; capture the
+            // catalog side map from the scenario JSON so side-aware scoring still works.
+            var scenarioSides = LossesScoringProjection.LoadScenarioSideMap(definition.ScenarioId);
+            var score = LossesScoringProjection.Project(
+                result.DecisionLog,
+                scoredSide: definition.Side,
+                scenarioSides: scenarioSides);
             rows.Add(new ExperimentBatchRow(point, result, score));
         }
 
