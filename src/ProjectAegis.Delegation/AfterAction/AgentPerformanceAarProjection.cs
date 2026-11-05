@@ -2,7 +2,7 @@ namespace ProjectAegis.Delegation.AfterAction;
 
 using System.Globalization;
 using System.Text;
-using ProjectAegis.Delegation.Decision;
+using Decision;
 
 /// <summary>One per-agent row of the structured agent-performance AAR section (DRG-254 / INF-01).</summary>
 public sealed record AgentPerformanceRow(
