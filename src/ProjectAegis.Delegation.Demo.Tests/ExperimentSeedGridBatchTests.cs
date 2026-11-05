@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using ProjectAegis.Delegation.Demo;
 using ProjectAegis.Delegation.UnityAdapter.Baltic;
 
 namespace ProjectAegis.Delegation.Demo.Tests;

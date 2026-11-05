@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Json.Schema;
 using NUnit.Framework;
-using ProjectAegis.Delegation.Demo;
 
 namespace ProjectAegis.Delegation.Demo.Tests;
 
@@ -50,6 +49,7 @@ public sealed class ExperimentDefinitionSchemaTests
         Assert.That(definition.ScenarioId, Is.EqualTo("baltic-patrol"));
         Assert.That(definition.Ticks, Is.EqualTo(4));
         Assert.That(definition.Seeds, Is.EqualTo(new[] { 42, 7 }));
+        Assert.That(definition.SchemaVersion, Is.EqualTo(1));
         Assert.That(definition.GridMethod, Is.EqualTo(ExperimentGridMethod.Cartesian));
         Assert.That(definition.DoctrineIds, Is.EqualTo(new[] { "doctrine-hold", "doctrine-press" }));
     }

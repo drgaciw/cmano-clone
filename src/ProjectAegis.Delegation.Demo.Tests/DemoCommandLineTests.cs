@@ -1,5 +1,4 @@
 using NUnit.Framework;
-using ProjectAegis.Delegation.Demo;
 
 namespace ProjectAegis.Delegation.Demo.Tests;
 
