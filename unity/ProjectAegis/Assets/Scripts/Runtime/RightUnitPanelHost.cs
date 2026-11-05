@@ -50,6 +50,10 @@ namespace ProjectAegis.Unity.Runtime
         private Label? _contactLine;
         private bool _wired;
         private bool _attackHandlersRegistered;
+        private string? _commandFeedback;
+        private string? _feedbackUnitId;
+        private string? _feedbackBaseAttackOptionsLine;
+        private string? _attackOptionsDisplay;
         private UnitDetailPresentation _presentation = UnitDetailPresentation.Empty;
 
         /// <summary>Last applied unit-detail presentation (S107 apply-state).</summary>
@@ -119,6 +123,10 @@ namespace ProjectAegis.Unity.Runtime
             _fuelLine = panel.Q<Label>(FuelName);
             _engageLine = panel.Q<Label>(EngageName);
             _attackOptionsLine = panel.Q<Label>(AttackOptionsName);
+            if (_attackOptionsLine != null)
+            {
+                _attackOptionsLine.style.whiteSpace = WhiteSpace.Normal;
+            }
             _contactLine = panel.Q<Label>(ContactName);
             _attackButtons.Clear();
             RegisterAttackButton(panel.Q<Button>("attack-fire-single"), "fire-single");
@@ -160,6 +168,16 @@ namespace ProjectAegis.Unity.Runtime
 
         private void Refresh()
         {
+            var selectedUnitId = bridgeHost == null ? null : bridgeHost.SelectedUnitId;
+            if (_commandFeedback != null &&
+                !string.Equals(_feedbackUnitId, selectedUnitId, System.StringComparison.Ordinal))
+            {
+                _commandFeedback = null;
+                _feedbackUnitId = null;
+                _feedbackBaseAttackOptionsLine = null;
+                _attackOptionsDisplay = null;
+            }
+
             if (!_wired || bridgeHost == null)
             {
                 return;
@@ -224,7 +242,23 @@ namespace ProjectAegis.Unity.Runtime
 
             if (_attackOptionsLine != null)
             {
-                _attackOptionsLine.text = _presentation.AttackOptionsLine;
+                if (string.IsNullOrEmpty(_commandFeedback))
+                {
+                    _attackOptionsDisplay = _presentation.AttackOptionsLine;
+                }
+                else if (!string.Equals(
+                             _feedbackBaseAttackOptionsLine,
+                             _presentation.AttackOptionsLine,
+                             System.StringComparison.Ordinal))
+                {
+                    _feedbackBaseAttackOptionsLine = _presentation.AttackOptionsLine;
+                    _attackOptionsDisplay = $"{_presentation.AttackOptionsLine}\n{_commandFeedback}";
+                }
+
+                if (!string.Equals(_attackOptionsLine.text, _attackOptionsDisplay, System.StringComparison.Ordinal))
+                {
+                    _attackOptionsLine.text = _attackOptionsDisplay;
+                }
             }
 
             if (_contactLine != null)
@@ -266,20 +300,60 @@ namespace ProjectAegis.Unity.Runtime
                 button.clicked += () => OnAttackOptionClicked(capturedId);
             }
 
-            _attackHandlersRegistered = true;
+            if (_attackButtons.Count > 0)
+            {
+                _attackHandlersRegistered = true;
+            }
         }
 
         private void OnAttackOptionClicked(string optionId)
         {
             if (bridgeHost == null)
             {
+                SetCommandFeedback(optionId, false, "NO_BRIDGE");
                 return;
             }
 
-            if (bridgeHost.TrySelectAttackOption(optionId, out _))
+            var queued = bridgeHost.TrySelectAttackOption(optionId, out var failureReason);
+            SetCommandFeedback(optionId, queued, failureReason);
+            Refresh();
+        }
+
+        private void SetCommandFeedback(string optionId, bool queued, string? failureReason)
+        {
+            _feedbackUnitId = bridgeHost == null ? null : bridgeHost.SelectedUnitId;
+            if (queued)
             {
-                Refresh();
+                _commandFeedback = $"QUEUED: {AttackOptionLabel(optionId)}";
             }
+            else
+            {
+                var reason = string.IsNullOrEmpty(failureReason) ? "ISSUE_FAILED" : failureReason;
+                _commandFeedback = $"DENIED: {DescribeFailure(reason)} ({reason})";
+            }
+
+            _feedbackBaseAttackOptionsLine = null;
+            ApplyPresentationToLabels();
+        }
+
+        private static string AttackOptionLabel(string optionId) => optionId switch
+        {
+            "fire-single" => "Fire 1 round",
+            "fire-salvo" => "Fire salvo",
+            "hold-fire" => "Hold fire",
+            _ => optionId,
+        };
+
+        private static string DescribeFailure(string reason)
+        {
+            if (reason == "UNKNOWN_OPTION") return "Unknown command";
+            if (reason == "NO_SELECTION") return "No unit selected";
+            if (reason == "UNKNOWN_UNIT") return "Unknown unit";
+            if (reason == "NO_BRIDGE") return "Command service unavailable";
+            if (reason == "ISSUE_FAILED") return "Command was not queued";
+
+            var words = reason.Replace('_', ' ').ToLowerInvariant();
+            return words.Length == 0 ? "Command blocked" : char.ToUpperInvariant(words[0]) + words.Substring(1);
         }
     }
 }
