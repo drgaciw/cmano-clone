@@ -1,7 +1,6 @@
 namespace ProjectAegis.Delegation.Projection;
 
 using Decision;
-using ProjectAegis.Data.Scenario;
 using ProjectAegis.Sim.Engage;
 using ProjectAegis.Sim.Scenario;
 
@@ -47,7 +46,7 @@ public static class LossesScoringProjection
     /// </summary>
     public static IReadOnlyDictionary<string, string> LoadScenarioSideMap(string scenarioPolicyId)
     {
-        var dto = ScenarioPolicyJsonCatalog.TryGetJson(scenarioPolicyId);
+        var dto = ProjectAegis.Data.Scenario.ScenarioPolicyJsonCatalog.TryGetJson(scenarioPolicyId);
         var units = dto?.Gauntlet?.Units;
         if (units == null || units.Count == 0)
         {
@@ -85,16 +84,10 @@ public static class LossesScoringProjection
             return true;
         }
 
-        string? shooterSide = null;
-        if (scenarioSides != null
-            && scenarioSides.TryGetValue(shooterUnitId, out var mapped))
-        {
-            shooterSide = mapped;
-        }
-        else
-        {
-            shooterSide = BalticV3SideRegistry.GetSideForUnit(shooterUnitId);
-        }
+        string? shooterSide = scenarioSides != null
+            && scenarioSides.TryGetValue(shooterUnitId, out var mapped)
+            ? mapped
+            : BalticV3SideRegistry.GetSideForUnit(shooterUnitId);
 
         return shooterSide == null
             || string.Equals(shooterSide, scoredSide, StringComparison.OrdinalIgnoreCase);
