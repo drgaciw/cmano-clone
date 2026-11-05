@@ -1,0 +1,7 @@
+{
+  "scenarioId": "baltic-patrol",
+  "seeds": [7, 8, 7],
+  "ticks": 4,
+  "doctrineId": "baseline-label",
+  "roeId": "scenario-default-label"
+}
