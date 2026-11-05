@@ -146,8 +146,8 @@ public static class AgentPerformanceAarProjection
         {
             if (change.SimTime > denial.SimTime
                 || !string.Equals(change.TargetId.Value, denial.TargetId.Value, StringComparison.Ordinal)
-                || change.AgentId is null
-                || IsInfrastructureAgent(change.AgentId.Value))
+                || change.AgentId is not { } controllerAgent
+                || IsInfrastructureAgent(controllerAgent.Value))
             {
                 continue;
             }
@@ -158,7 +158,7 @@ public static class AgentPerformanceAarProjection
                 continue;
             }
 
-            fromController = change.AgentId.Value;
+            fromController = controllerAgent.Value;
         }
 
         return fromController;
